@@ -11,14 +11,17 @@ public sealed class SteamAdditionalContentProvider : IAdditionalContentProvider
     {
         if (!SteamAPI.IsSteamRunning()) return false;
         if (string.IsNullOrEmpty(product)) return false;
-        if (!PlatformHasContent(product)) return false;
+
+        string productLower = product.ToLowerInvariant();
+
+        if (!PlatformHasContent(productLower)) return false;
 
         AppId_t appId = new AppId_t(0);
-        if (dlcMap.TryGetValue(product, out var value))
+        if (dlcMap.TryGetValue(productLower, out var value))
         {
             appId = value;
         }
-        else if (!uint.TryParse(product, out uint id))
+        else if (!uint.TryParse(productLower, out uint id))
         {
             OnError?.Invoke("INVALID_PRODUCT_ID", product);
             return false;
@@ -34,15 +37,19 @@ public sealed class SteamAdditionalContentProvider : IAdditionalContentProvider
 
     public async Task<string?> InstallContent(string productId)
     {
+        if (string.IsNullOrEmpty(productId)) return null;
+
+        string productLower = productId.ToLowerInvariant();
+
         if (!SteamAPI.IsSteamRunning()) return null;
-        if (!PlatformHasContent(productId)) return null;
+        if (!PlatformHasContent(productLower)) return null;
 
         AppId_t appId = new AppId_t(0);
-        if (dlcMap.TryGetValue(productId, out var value))
+        if (dlcMap.TryGetValue(productLower, out var value))
         {
             appId = value;
         }
-        else if (!uint.TryParse(productId, out uint id))
+        else if (!uint.TryParse(productLower, out uint id))
         {
             OnError?.Invoke("INVALID_PRODUCT_ID", productId);
             return null;
@@ -121,12 +128,16 @@ public sealed class SteamAdditionalContentProvider : IAdditionalContentProvider
 
     public bool IsInstalled(string productId)
     {
+        if (string.IsNullOrEmpty(productId)) return false;
+
+        string productIdLower = productId.ToLowerInvariant();
+
         AppId_t appId = new AppId_t(0);
-        if (dlcMap.TryGetValue(productId, out var value))
+        if (dlcMap.TryGetValue(productIdLower, out var value))
         {
             appId = value;
         }
-        else if (!uint.TryParse(productId, out uint id))
+        else if (!uint.TryParse(productIdLower, out uint id))
         {
             return false;
         }

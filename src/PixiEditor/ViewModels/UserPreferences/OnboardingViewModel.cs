@@ -4,9 +4,11 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Drawie.Numerics;
+using PixiEditor.IdentityProvider;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Commands.Templates;
 using PixiEditor.Models.Handlers;
+using PixiEditor.Platform;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.SubViewModels;
 using PixiEditor.ViewModels.UserPreferences.Settings;
@@ -71,6 +73,7 @@ internal class OnboardingViewModel : PixiObservableObject
     public RelayCommand<IToolSetHandler> SelectToolsetCommand { get; }
 
     public string FoundersBundleLink => UserViewModel.FoundersBundleLink;
+    public bool ShowLoginButton => !(IPlatform.Current?.IdentityProvider?.IsLoggedIn) ?? true;
 
     Dictionary<string, VecI> DefaultNewFileSizes = new()
     {
@@ -83,6 +86,14 @@ internal class OnboardingViewModel : PixiObservableObject
     {
         NextFormStepCommand = new RelayCommand(NextFormStep, CanNextFormStep);
         PreviousFormStepCommand = new RelayCommand(PreviousFormStep, CanPreviousFormStep);
+
+        bool showFoundersBundle = ViewModelMain.Current.UserViewModel.OwnedProducts
+            .All(x => x.ProductData.Id != "2435860" && x.ProductData.Id != "PixiEditor.FoundersPack");
+
+        if (!showFoundersBundle)
+        {
+            AllFormSteps.RemoveAt(AllFormSteps.Count - 1);
+        }
 
         SelectToolsetCommand = new RelayCommand<IToolSetHandler>(x =>
         {

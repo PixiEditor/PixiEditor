@@ -283,6 +283,7 @@
                     <StackPanel Spacing="12" HorizontalAlignment="Center" DockPanel.Dock="Bottom"
                                 Orientation="Horizontal">
                         <Button ui:Translator.Key="LOGIN"
+                                IsVisible="{Binding ShowLoginButton}"
                                 Command="{xaml:Command Name=PixiEditor.Window.OpenAccountWindow}"
                                 Background="Transparent" Padding="8, 4" />
                         <Button ui:Translator.Key="BECOME_A_FOUNDER" Background="Transparent"

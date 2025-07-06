@@ -13,14 +13,17 @@ public class SteamPlatform : IPlatform
     {
         try
         {
+            Console.WriteLine("Initializing Steam API...");
             bool initialized = SteamAPI.Init();
+            Console.WriteLine($"Steam API initialized: {initialized}");
             if (!initialized) return false;
 
             IdentityProvider?.Initialize();
             return true;
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine($"Error initializing Steam API: {ex.Message}");
             return false;
         }
     }
