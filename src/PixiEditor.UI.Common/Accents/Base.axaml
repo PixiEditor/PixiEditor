@@ -97,6 +97,8 @@
             <Color x:Key="VerticalSnapAxisColor">#5fad65</Color>
             <Color x:Key="SnapPointPreviewColor">#68abdf</Color>
 
+            <Color x:Key="FoundersPurpleColor">#cba3ff</Color>
+
             <Color x:Key="AutosaveDotColor">white</Color>
             <Color x:Key="UnsavedDotColor">white</Color>
 
@@ -166,6 +168,8 @@
             <SolidColorBrush x:Key="StringSocketBrush" Color="{StaticResource StringSocketColor}" />
             <SolidColorBrush x:Key="Matrix3X3SocketBrush" Color="{StaticResource Matrix3X3SocketColor}" />
             <SolidColorBrush x:Key="Float3x3SocketBrush" Color="{StaticResource Matrix3X3SocketColor}" />
+
+            <SolidColorBrush x:Key="FoundersPurpleBrush" Color="{StaticResource FoundersPurpleColor}" />
 
             <ConicGradientBrush x:Key="ShapeVectorDataSocketBrush"
                                 GradientStops="{StaticResource ShapeDataSocketGradient}" />

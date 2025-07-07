@@ -25,10 +25,10 @@
             <dialogs:DialogTitleBar.AdditionalElement>
                 <StackPanel Margin="5 0" Spacing="5" Orientation="Horizontal"
                             DataContext="{Binding Path=DataContext, RelativeSource={RelativeSource FindAncestor, AncestorType=main:MainTitleBar}}">
-                    <Border BorderThickness="1" BorderBrush="{DynamicResource AccentColor}"
+                    <Border BorderThickness="1" BorderBrush="{DynamicResource FoundersPurpleBrush}"
                             Padding="5 0" CornerRadius="5" Height="25"
                             IsVisible="{Binding Path=AdditionalContentSubViewModel.IsFoundersPackAvailable, FallbackValue=False}">
-                        <TextBlock VerticalAlignment="Center"
+                        <TextBlock VerticalAlignment="Center" Foreground="{DynamicResource FoundersPurpleBrush}"
                                    ui:Translator.Key="PixiEditor.FoundersPack:AWESOME_SUPPORTER" />
                     </Border>
                     <auth:UserAvatarToggle Width="26" Height="26" DataContext="{Binding Path=UserViewModel}" />
