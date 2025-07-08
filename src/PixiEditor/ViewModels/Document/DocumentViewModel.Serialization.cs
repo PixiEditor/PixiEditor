@@ -554,6 +554,7 @@ internal partial class DocumentViewModel
         animData.FrameRate = animationData.FrameRate;
         animData.OnionFrames = animationData.OnionFrames;
         animData.OnionOpacity = animationData.OnionOpacity;
+        animData.DefaultEndFrame = animationData.DefaultEndFrame;
         BuildKeyFrames(animationData.KeyFrames, animData, graph, nodeIdMap, keyFrameIds);
 
         return animData;

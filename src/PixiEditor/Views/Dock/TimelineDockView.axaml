@@ -17,7 +17,7 @@
         ActiveFrame="{Binding DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.ActiveFrameBindable, Mode=TwoWay}"
         NewKeyFrameCommand="{xaml:Command PixiEditor.Animation.CreateCel}"
         Fps="{Binding DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.FrameRateBindable, Mode=TwoWay}"
-        DefaultEndFrame="{Binding DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.DefaultEndFrame}"
+        DefaultEndFrame="{Binding DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.DefaultEndFrameBindable, Mode=TwoWay}"
         OnionSkinningEnabled="{Binding DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.OnionSkinningEnabledBindable, Mode=TwoWay}"
         OnionFrames="{Binding DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.OnionFramesBindable, Mode=TwoWay}"
         OnionOpacity="{Binding DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.OnionOpacityBindable, Mode=TwoWay}"

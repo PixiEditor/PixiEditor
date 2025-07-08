@@ -10,7 +10,8 @@
                     xmlns:input="clr-namespace:PixiEditor.Views.Input"
                     xmlns:system="clr-namespace:System;assembly=System.Runtime"
                     xmlns:ui1="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
-                    xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common">
+                    xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
+                    xmlns:behaviors="clr-namespace:PixiEditor.UI.Common.Behaviors;assembly=PixiEditor.UI.Common">
     <ControlTheme TargetType="animations:Timeline" x:Key="{x:Type animations:Timeline}">
         <Setter Property="Template">
             <ControlTemplate>
@@ -27,10 +28,10 @@
 
                     <Border DockPanel.Dock="Left" BorderThickness="0 0 1 0"
                             BorderBrush="{DynamicResource ThemeBorderMidBrush}">
-                        <DockPanel Grid.Row="0" Grid.Column="0" LastChildFill="False" Margin="5 0">
+                        <DockPanel LastChildFill="False" Margin="5 0">
                             <controls:SizeInput Unit="FPS"
-                                             Width="90" Height="25" HorizontalAlignment="Left"
-                                             Size="{Binding Fps, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" />
+                                                Width="90" Height="25" HorizontalAlignment="Left"
+                                                Size="{Binding Fps, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" />
 
                             <Button Classes="pixi-icon" DockPanel.Dock="Right"
                                     Content="{DynamicResource icon-settings}"
@@ -48,28 +49,33 @@
                                 </Button.Transitions>
                                 <Button.Flyout>
                                     <Flyout Placement="Top">
-                                        <StackPanel>
-                                            <TextBlock Classes="h4" Margin="5" ui1:Translator.Key="SETTINGS" />
-                                            <StackPanel Orientation="Horizontal" Spacing="5">
-                                                <TextBlock VerticalAlignment="Center"
-                                                           ui1:Translator.Key="ONION_FRAMES_COUNT" />
-                                                <controls:NumberInput
-                                                    HorizontalAlignment="Left" Width="50"
-                                                    Min="1" Decimals="0"
-                                                    Max="128"
-                                                    Value="{Binding OnionFrames, RelativeSource={RelativeSource TemplatedParent}, 
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Row="0" Classes="h4" Margin="5" ui1:Translator.Key="SETTINGS" />
+                                            <TextBlock Grid.Column="0" Grid.Row="1" VerticalAlignment="Center"
+                                                       ui1:Translator.Key="ONION_FRAMES_COUNT" />
+                                            <controls:NumberInput Grid.Column="1" Grid.Row="1" Margin="0, 5"
+                                                HorizontalAlignment="Left" Width="50"
+                                                Min="1" Decimals="0"
+                                                Max="128"
+                                                Value="{Binding OnionFrames, RelativeSource={RelativeSource TemplatedParent},
                                                     Mode=TwoWay}" />
-                                            </StackPanel>
-                                            <StackPanel Orientation="Horizontal" Spacing="5">
-                                                <TextBlock VerticalAlignment="Center"
-                                                           ui1:Translator.Key="ONION_OPACITY" />
-                                                <controls:SizeInput
-                                                    HorizontalAlignment="Left" Width="80"
-                                                    MaxSize="100" Unit="%"
-                                                    Size="{Binding OnionOpacity, RelativeSource={RelativeSource TemplatedParent}, 
+                                            <TextBlock Grid.Column="0" Grid.Row="2" VerticalAlignment="Center"
+                                                       ui1:Translator.Key="ONION_OPACITY" />
+                                            <controls:SizeInput Grid.Column="1" Grid.Row="2"
+                                                HorizontalAlignment="Left" Width="80"
+                                                MaxSize="100" Unit="%"
+                                                Size="{Binding OnionOpacity, RelativeSource={RelativeSource TemplatedParent},
                                                     Mode=TwoWay}" />
-                                            </StackPanel>
-                                        </StackPanel>
+                                        </Grid>
                                     </Flyout>
                                 </Button.Flyout>
                             </Button>
@@ -79,7 +85,7 @@
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5">
                             <Button Classes="pixi-icon" Content="{DynamicResource icon-step-start}"
                                     ui1:Translator.TooltipKey="STEP_START"
-                                    Command="{Binding StepStartCommand, RelativeSource={RelativeSource TemplatedParent}}"/>
+                                    Command="{Binding StepStartCommand, RelativeSource={RelativeSource TemplatedParent}}" />
                             <Button Classes="pixi-icon"
                                     ui1:Translator.TooltipKey="STEP_BACK"
                                     Command="{Binding StepBackCommand, RelativeSource={RelativeSource TemplatedParent}}"
@@ -95,7 +101,18 @@
                                     ui1:Translator.TooltipKey="STEP_END"
                                     Command="{Binding StepEndCommand, RelativeSource={RelativeSource TemplatedParent}}"
                                     Content="{DynamicResource icon-step-end}" />
-                            <TextBlock VerticalAlignment="Center" FontSize="14">
+                            <TextBlock Name="lengthTb" VerticalAlignment="Center" FontSize="14"
+                                       IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=
+                            !!KeyFrames.Count}">
+                                <TextBlock.ContextFlyout>
+                                    <Flyout Placement="Top">
+                                        <StackPanel>
+                                            <TextBlock Classes="h4" Margin="5"
+                                                       ui1:Translator.Key="CHANGE_KEYFRAMES_LENGTH" />
+
+                                        </StackPanel>
+                                    </Flyout>
+                                </TextBlock.ContextFlyout>
                                 <Run>
                                     <Run.Text>
                                         <MultiBinding>
@@ -121,6 +138,42 @@
                                     </Run.Text>
                                 </Run>
                             </TextBlock>
+                            <StackPanel Orientation="Horizontal"
+                                        IsVisible="{Binding ElementName=lengthTb, Path=!IsVisible}"
+                                        Margin="5, 0, 0, 0">
+                                <StackPanel.Resources>
+                                    <converters:TwoWayFrameToTimeConverter
+                                        Fps="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Fps}"
+                                        x:Key="FrameToTimeConverter" />
+                                </StackPanel.Resources>
+                                <TextBlock VerticalAlignment="Center" FontSize="14">
+                                    <Run>
+                                        <Run.Text>
+                                            <MultiBinding>
+                                                <MultiBinding.Converter>
+                                                    <converters:FrameToTimeConverter />
+                                                </MultiBinding.Converter>
+                                                <Binding Path="ActiveFrame"
+                                                         RelativeSource="{RelativeSource TemplatedParent}" />
+                                                <Binding Path="Fps" RelativeSource="{RelativeSource TemplatedParent}" />
+                                            </MultiBinding>
+                                        </Run.Text>
+                                    </Run>
+                                    <Run Text="/" />
+                                </TextBlock>
+                                <TextBox Margin="5, 0, 0, 0" MinWidth="50" VerticalAlignment="Center"
+                                         HorizontalAlignment="Left"
+                                         Text="{Binding DefaultEndFrame, UpdateSourceTrigger=LostFocus, RelativeSource={RelativeSource TemplatedParent},
+                                         Mode=TwoWay, Converter={StaticResource FrameToTimeConverter}}">
+                                    <Interaction.Behaviors>
+                                        <BehaviorCollection>
+                                            <behaviors:TextBoxFocusBehavior ConfirmOnEnter="True"
+                                                                            DeselectOnFocusLoss="True" />
+                                            <behaviours:GlobalShortcutFocusBehavior />
+                                        </BehaviorCollection>
+                                    </Interaction.Behaviors>
+                                </TextBox>
+                            </StackPanel>
                         </StackPanel>
                     </Border>
 

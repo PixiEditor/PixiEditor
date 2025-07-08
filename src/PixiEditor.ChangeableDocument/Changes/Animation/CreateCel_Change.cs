@@ -40,6 +40,11 @@ internal class CreateCel_Change : Change
             {
                 return false;
             }
+
+            if (targetLayer.KeyFrames.First()?.KeyFrameGuid == createdKeyFrameId)
+            {
+                return false;
+            }
         }
         
         return _frame != 0 && target.TryFindMember(_targetLayerGuid, out _layer);
