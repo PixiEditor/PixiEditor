@@ -114,23 +114,43 @@ internal partial class DocumentViewModel
         VecD resizeFactor = new VecD(resizeFactorX, resizeFactorY);
 
         AddElements(NodeGraph.StructureTree.Members.Where(x => x.IsVisibleBindable).Reverse().ToList(), svgDocument,
-            atTime, resizeFactor, vectorExportConfig);
+            atTime, resizeFactor, vectorExportConfig, svgDocument.Defs);
 
         return svgDocument;
     }
 
     private void AddElements(IEnumerable<IStructureMemberHandler> root, IElementContainer elementContainer,
         KeyFrameTime atTime,
-        VecD resizeFactor, VectorExportConfig? vectorExportConfig)
+        VecD resizeFactor, VectorExportConfig? vectorExportConfig, SvgDefs defs)
     {
         foreach (var member in root)
         {
             if (member is FolderNodeViewModel folderNodeViewModel)
             {
-                var group = new SvgGroup();
+                var group = new SvgGroup
+                {
+                    Opacity = { Unit = new SvgNumericUnit(folderNodeViewModel.OpacityBindable, "") },
+                    Id = { Unit = new SvgStringUnit(folderNodeViewModel.NodeNameBindable) },
+                };
+
+                if (folderNodeViewModel.ClipToMemberBelowEnabledBindable &&
+                    elementContainer.Children.Count > 0)
+                {
+                    IStructureMemberHandler? previousMember =
+                        folderNodeViewModel.Inputs.FirstOrDefault(x => x.PropertyName == "Background").ConnectedOutput
+                            ?.Node as IStructureMemberHandler;
+                    var previousElement = elementContainer.Children.LastOrDefault();
+
+                    AddToClipDefs(defs, previousElement, previousMember);
+
+                    if (previousMember != null)
+                    {
+                        group.ClipPath.Unit = new SvgStringUnit($"url(#{previousMember.Id}_clip)");
+                    }
+                }
 
                 AddElements(folderNodeViewModel.Children.Where(x => x.IsVisibleBindable).Reverse().ToList(), group,
-                    atTime, resizeFactor, vectorExportConfig);
+                    atTime, resizeFactor, vectorExportConfig, defs);
                 elementContainer.Children.Add(group);
             }
 
@@ -141,13 +161,28 @@ internal partial class DocumentViewModel
             }
             else if (member is IVectorLayerHandler vectorLayerHandler)
             {
-                AddSvgShape(elementContainer, vectorLayerHandler, resizeFactor);
+                AddSvgShape(elementContainer, vectorLayerHandler, resizeFactor, defs);
             }
         }
     }
 
+    private static void AddToClipDefs(SvgDefs defs, SvgElement? previousElement, IStructureMemberHandler? previousMember)
+    {
+        if (previousElement != null)
+        {
+            var clone = previousElement.Clone();
+            (clone as SvgPrimitive).ClipPath.Unit = null;
+            clone.Id.Unit = null;
+            defs.Children.Add(new SvgClipPath()
+            {
+                Id = { Unit = new SvgStringUnit($"{previousMember.Id}_clip") },
+                Children = { previousElement }
+            });
+        }
+    }
+
     private void AddSvgShape(IElementContainer elementContainer, IVectorLayerHandler vectorLayerHandler,
-        VecD resizeFactor)
+        VecD resizeFactor, SvgDefs defs)
     {
         IReadOnlyVectorNode vectorNode =
             (IReadOnlyVectorNode)Internals.Tracker.Document.FindNode(vectorLayerHandler.Id);
@@ -183,6 +218,10 @@ internal partial class DocumentViewModel
             transform = transform.PostConcat(Matrix3X3.CreateScale((float)resizeFactor.X, (float)resizeFactor.Y));
             primitive.Transform.Unit = new SvgTransformUnit?(new SvgTransformUnit(transform));
 
+            primitive.Id.Unit = new SvgStringUnit(vectorLayerHandler.NodeNameBindable);
+
+            primitive.Opacity.Unit = new SvgNumericUnit(vectorLayerHandler.OpacityBindable, "");
+
             Paintable finalFill = data.Fill ? data.FillPaintable : new ColorPaintable(Colors.Transparent);
             primitive.Fill.Unit = new SvgPaintServerUnit(finalFill);
 
@@ -194,6 +233,23 @@ internal partial class DocumentViewModel
             primitive.Stroke.Unit = new SvgPaintServerUnit(data.Stroke);
 
             primitive.StrokeWidth.Unit = SvgNumericUnit.FromUserUnits(data.StrokeWidth);
+
+            bool clipToMemberBelowEnabled = vectorLayerHandler.ClipToMemberBelowEnabledBindable;
+            if (clipToMemberBelowEnabled && elementContainer.Children.Count > 0)
+            {
+                IStructureMemberHandler? previousMember =
+                    vectorLayerHandler.Inputs.FirstOrDefault(x => x.PropertyName == "Background").ConnectedOutput?.Node
+                        as IStructureMemberHandler;
+
+                var previousElement = elementContainer.Children[^1];
+
+                AddToClipDefs(defs, previousElement, previousMember);
+
+                if (previousMember != null)
+                {
+                    primitive.ClipPath.Unit = new SvgStringUnit($"url(#{previousMember.Id}_clip)");
+                }
+            }
         }
         else if (elementToAdd is SvgGroup group)
         {
