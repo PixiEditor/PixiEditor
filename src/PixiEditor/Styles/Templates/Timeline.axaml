@@ -11,7 +11,8 @@
                     xmlns:system="clr-namespace:System;assembly=System.Runtime"
                     xmlns:ui1="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
                     xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
-                    xmlns:behaviors="clr-namespace:PixiEditor.UI.Common.Behaviors;assembly=PixiEditor.UI.Common">
+                    xmlns:behaviors="clr-namespace:PixiEditor.UI.Common.Behaviors;assembly=PixiEditor.UI.Common"
+                    xmlns:viewModels="clr-namespace:PixiEditor.ViewModels">
     <ControlTheme TargetType="animations:Timeline" x:Key="{x:Type animations:Timeline}">
         <Setter Property="Template">
             <ControlTemplate>
@@ -277,7 +278,8 @@
                                     <ItemsControl.DataTemplates>
                                         <DataTemplate DataType="document:CelGroupViewModel">
                                             <animations:TimelineGroupHeader Height="70"
-                                                                            Item="{Binding}" />
+                                                                            SelectCommand="{xaml:Command PixiEditor.Layer.SelectActiveMember, UseProvided=True}"
+                                                                            Item="{Binding}"/>
                                         </DataTemplate>
                                     </ItemsControl.DataTemplates>
                                     <ItemsControl.Styles>
@@ -331,6 +333,7 @@
                                                 Scale="{Binding Scale, RelativeSource={RelativeSource FindAncestor, AncestorType=animations:Timeline}}"
                                                 IsEnabled="{Binding IsVisible}"
                                                 IsSelected="{Binding IsSelected, Mode=TwoWay}"
+                                                SelectLayerCommand="{xaml:Command PixiEditor.Layer.SelectActiveMember, UseProvided=True}"
                                                 IsCollapsed="{Binding IsCollapsed}"
                                                 Min="{Binding ElementName=PART_TimelineSlider, Path=Minimum}"
                                                 Item="{Binding}">

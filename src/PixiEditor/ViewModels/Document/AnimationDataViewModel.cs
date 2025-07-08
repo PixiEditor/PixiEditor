@@ -499,9 +499,11 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
             return true;
         }
 
+        var reversedLayers = allLayers.Reverse().ToList();
+
         for (int i = 0; i < groups.Count; i++)
         {
-            if (groups[i].LayerGuid != allLayers.ElementAt(i).Id)
+            if (groups[0].LayerGuid != reversedLayers.ElementAt(i).Id)
             {
                 return true;
             }
