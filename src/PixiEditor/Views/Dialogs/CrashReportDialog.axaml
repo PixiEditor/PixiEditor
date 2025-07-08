@@ -36,7 +36,7 @@
                         Command="{Binding RecoverDocumentsCommand}">
                     Recover files
                 </Button>
-                <Button Margin="5,0,5,0" Width="120"
+                <Button Width="120"
                         Command="{Binding RunInSafeModeCommand}">
                     Safe mode
                 </Button>

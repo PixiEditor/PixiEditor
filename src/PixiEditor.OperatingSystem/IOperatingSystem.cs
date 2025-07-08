@@ -5,7 +5,7 @@ namespace PixiEditor.OperatingSystem;
 
 public interface IOperatingSystem
 {
-    public static IOperatingSystem Current { get; protected set; }
+    public static IOperatingSystem? Current { get; protected set; }
     public string Name { get; }
 
     public virtual string AnalyticsName => Environment.OSVersion.ToString();

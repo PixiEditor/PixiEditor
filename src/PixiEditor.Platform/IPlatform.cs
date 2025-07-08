@@ -4,7 +4,7 @@ namespace PixiEditor.Platform;
 
 public interface IPlatform
 {
-    public static IPlatform Current { get; private set; }
+    public static IPlatform? Current { get; private set; }
     public abstract string Id { get; }
     public abstract string Name { get; }
     public bool PerformHandshake();

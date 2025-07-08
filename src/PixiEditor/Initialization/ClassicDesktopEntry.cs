@@ -173,6 +173,9 @@ internal class ClassicDesktopEntry
 
     private void InitPlatform()
     {
+        if (IPlatform.Current != null)
+            return;
+
         var platform = GetActivePlatform();
         IPlatform.RegisterPlatform(platform);
         platform.PerformHandshake();
@@ -222,7 +225,8 @@ internal class ClassicDesktopEntry
 
     private void InitOperatingSystem()
     {
-        IOperatingSystem.RegisterOS(GetActiveOperatingSystem());
+        if (IOperatingSystem.Current == null)
+            IOperatingSystem.RegisterOS(GetActiveOperatingSystem());
     }
 
     private IOperatingSystem GetActiveOperatingSystem()
