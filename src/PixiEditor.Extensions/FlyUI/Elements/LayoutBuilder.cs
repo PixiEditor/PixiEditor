@@ -14,10 +14,10 @@ public class LayoutBuilder
     private static int int32Size = sizeof(int);
 
     public Dictionary<int, ILayoutElement<Control>> ManagedElements = new();
-    private ElementMap elementMap;
+    public ElementMap ElementMap { get; }
     public LayoutBuilder(ElementMap elementMap)
     {
-        this.elementMap = elementMap;
+        this.ElementMap = elementMap;
     }
 
     public ILayoutElement<Control> Deserialize(Span<byte> layoutSpan, DuplicateResolutionTactic duplicatedIdTactic)
@@ -40,7 +40,7 @@ public class LayoutBuilder
         int propertiesCount = BitConverter.ToInt32(layoutSpan[offset..(offset + int32Size)]);
         offset += int32Size;
 
-        List<object> properties = DeserializeProperties(layoutSpan, propertiesCount, ref offset, elementMap);
+        List<object> properties = DeserializeProperties(layoutSpan, propertiesCount, ref offset, ElementMap);
 
         int childrenCount = BitConverter.ToInt32(layoutSpan[offset..(offset + int32Size)]);
         offset += int32Size;
@@ -121,7 +121,7 @@ public class LayoutBuilder
     private ILayoutElement<Control> BuildLayoutElement(int uniqueId, string controlId, List<object> properties,
         List<ILayoutElement<Control>> children, DuplicateResolutionTactic duplicatedIdTactic)
     {
-        Type typeToSpawn = elementMap.ControlMap[controlId];
+        Type typeToSpawn = ElementMap.ControlMap[controlId];
         var element = CreateInstance(typeToSpawn);
         
         if(element is not { } layoutElement)

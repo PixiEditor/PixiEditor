@@ -103,6 +103,8 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
     
     public event Action<MainWindow> AttachedToWindow;
 
+    public MainWindow? AttachedWindow { get; private set; }
+
     public ViewModelMain()
     {
         Current = this;
@@ -407,6 +409,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
 
     public void AttachToWindow(MainWindow mainWindow)
     {
+        AttachedWindow = mainWindow;
         AttachedToWindow?.Invoke(mainWindow);
     }
 

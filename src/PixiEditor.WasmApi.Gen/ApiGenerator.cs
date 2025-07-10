@@ -142,7 +142,7 @@ public class ApiGenerator : IIncrementalGenerator
                 }
                 else
                 {
-                    var returnType = method.methodSymbol.ReturnType.Name;
+                    var returnType = method.methodSymbol.ReturnType.TypeKind == TypeKind.Array ? "BytesWithEncodedLength" : method.methodSymbol.ReturnType.Name;
                     string statementString =
                         $"return WasmMemoryUtility.Write{returnType}({returnStatementSyntax.Expression.ToFullString()});";
 

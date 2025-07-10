@@ -57,6 +57,12 @@ internal static partial class Native
         ExtensionContext.Active.OnUserReady();
     }
 
+    [ApiExport("main_window_loaded")]
+    internal static void OnMainWindowLoaded()
+    {
+        ExtensionContext.Active.OnMainWindowLoaded();
+    }
+
     [ApiExport("raise_element_event")]
     internal static void EventRaised(int internalControlId, string eventName, IntPtr eventData, int dataLength)
     {

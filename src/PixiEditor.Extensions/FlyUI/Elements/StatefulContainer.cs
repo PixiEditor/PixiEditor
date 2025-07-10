@@ -26,6 +26,16 @@ public class StatefulContainer : StatefulElement<ContainerState>, IChildHost
         State.SetState(() => State.Content = null);
     }
 
+    public void AppendChild(int atIndex, ILayoutElement<Control> deserializedChild)
+    {
+        if (atIndex != 0)
+        {
+            throw new NotSupportedException("Appending children at an index other than 0 is not supported for StatefulContainer.");
+        }
+
+        State.SetState(() => State.Content = (LayoutElement)deserializedChild);
+    }
+
     public IEnumerator<ILayoutElement<Control>> GetEnumerator()
     {
         yield return State.Content;

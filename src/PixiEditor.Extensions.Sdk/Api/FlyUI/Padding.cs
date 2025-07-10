@@ -1,8 +1,10 @@
 ﻿using PixiEditor.Extensions.CommonApi.FlyUI;
 using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
+using PixiEditor.Extensions.Sdk.Attributes;
 
 namespace PixiEditor.Extensions.Sdk.Api.FlyUI;
 
+[ControlTypeId("Padding")]
 public class Padding : SingleChildLayoutElement
 {
     public Edges Edges { get; set; } = Edges.All(0);
@@ -15,7 +17,7 @@ public class Padding : SingleChildLayoutElement
 
     protected override ControlDefinition CreateControl()
     {
-        ControlDefinition controlDefinition = new ControlDefinition(UniqueId, "Padding");
+        ControlDefinition controlDefinition = new ControlDefinition(UniqueId, GetType());
         controlDefinition.Children.Add(Child.BuildNative());
         
         controlDefinition.AddProperty(Edges);

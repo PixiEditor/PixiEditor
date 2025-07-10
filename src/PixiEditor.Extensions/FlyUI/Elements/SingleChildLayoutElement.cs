@@ -43,6 +43,17 @@ public abstract class SingleChildLayoutElement : LayoutElement, ISingleChildLayo
         RemoveChild();
     }
 
+    public void AppendChild(int atIndex, ILayoutElement<Control> deserializedChild)
+    {
+        if (atIndex != 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(atIndex), "SingleChildLayoutElement can only have one child at index 0.");
+        }
+
+        Child = (LayoutElement)deserializedChild;
+        AddChild(deserializedChild.BuildNative());
+    }
+
     public IEnumerator<ILayoutElement<Control>> GetEnumerator()
     {
         if (Child != null)

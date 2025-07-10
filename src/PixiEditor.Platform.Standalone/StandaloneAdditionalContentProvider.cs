@@ -80,7 +80,13 @@ public sealed class StandaloneAdditionalContentProvider : IAdditionalContentProv
         if (string.IsNullOrEmpty(productId)) return false;
 
         string filePath = Path.Combine(ExtensionsPath, $"{productId}.pixiext");
-        return File.Exists(filePath);
+        bool exists = File.Exists(filePath);
+        if (exists) return true;
+
+        filePath = Path.Combine(Path.GetDirectoryName(Environment.ProcessPath), "Extensions", $"{productId}.pixiext");
+        exists = File.Exists(filePath);
+
+        return exists;
     }
 
     public bool IsContentOwned(string product)

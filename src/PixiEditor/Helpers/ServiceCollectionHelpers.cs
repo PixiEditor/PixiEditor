@@ -10,6 +10,7 @@ using PixiEditor.Extensions.CommonApi.IO;
 using PixiEditor.Extensions.CommonApi.Logging;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Extensions.CommonApi.Palettes.Parsers;
+using PixiEditor.Extensions.CommonApi.Ui;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Extensions.CommonApi.Windowing;
 using PixiEditor.Extensions.FlyUI;
@@ -214,5 +215,6 @@ internal static class ServiceCollectionHelpers
             })
             .AddSingleton<ICommandSupervisor, CommandSupervisor>()
             .AddSingleton<ILogger, ConsoleLogger>()
+            .AddSingleton<IVisualTreeProvider, VisualTreeProvider>()
             .AddSingleton<IFileSystemProvider, FileSystemProvider>();
 }

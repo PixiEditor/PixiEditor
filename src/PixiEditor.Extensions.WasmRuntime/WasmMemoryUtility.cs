@@ -64,6 +64,25 @@ public class WasmMemoryUtility
         return ptr;
     }
 
+    /// <summary>
+    ///     Writes a byte array to memory with 4 bytes prefixed length.
+    /// </summary>
+    /// <param name="bytes">The byte array to write.</param>
+    /// <returns>Integer pointer to the allocated memory containing the length and the byte array.</returns>
+    public int WriteBytesWithEncodedLength(byte[] bytes)
+    {
+        int lenBytesLength = BitConverter.GetBytes(bytes.Length).Length;
+        var length = bytes.Length + lenBytesLength;
+        var ptr = malloc.Invoke(length);
+
+        var span = memory.GetSpan<byte>(ptr, length);
+
+        BitConverter.GetBytes(bytes.Length).CopyTo(span);
+        bytes.CopyTo(span.Slice(lenBytesLength));
+
+        return ptr;
+    }
+
     public int WriteInt32(int value)
     {
         const int length = 4;

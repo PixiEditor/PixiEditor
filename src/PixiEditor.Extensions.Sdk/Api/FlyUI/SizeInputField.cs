@@ -1,8 +1,10 @@
 using PixiEditor.Extensions.CommonApi.FlyUI;
 using PixiEditor.Extensions.CommonApi.FlyUI.Events;
+using PixiEditor.Extensions.Sdk.Attributes;
 
 namespace PixiEditor.Extensions.Sdk.Api.FlyUI;
 
+[ControlTypeId("SizeInputField")]
 public class SizeInputField : LayoutElement
 {
     public event ElementEventHandler<NumberEventArgs> SizeChanged
@@ -28,7 +30,7 @@ public class SizeInputField : LayoutElement
 
     protected override ControlDefinition CreateControl()
     {
-        ControlDefinition field = new ControlDefinition(UniqueId, "SizeInputField");
+        ControlDefinition field = new ControlDefinition(UniqueId, GetType());
         field.AddProperty(Value);
         field.AddProperty(Min);
         field.AddProperty(Max);

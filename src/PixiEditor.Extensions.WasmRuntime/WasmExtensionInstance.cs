@@ -22,7 +22,7 @@ public partial class WasmExtensionInstance : Extension
     private Store Store { get; }
     private Module Module { get; }
 
-    private LayoutBuilder LayoutBuilder { get; set; }
+    internal LayoutBuilder LayoutBuilder { get; set; }
     internal ObjectManager NativeObjectManager { get; set; }
     internal AsyncCallsManager AsyncHandleManager { get; set; }
 
@@ -65,6 +65,8 @@ public partial class WasmExtensionInstance : Extension
 
     protected override void OnInitialized()
     {
+        modules.Add(new WindowingModule(this));
+        modules.Add(new UiModule(this));
         modules.Add(new PreferencesModule(this, Api.Preferences));
         modules.Add(new CommandModule(this, Api.Commands,
             (ICommandSupervisor)Api.Services.GetService(typeof(ICommandSupervisor))));
@@ -79,6 +81,12 @@ public partial class WasmExtensionInstance : Extension
     {
         Instance.GetAction("user_ready").Invoke();
         base.OnUserReady();
+    }
+
+    protected override void OnMainWindowLoaded()
+    {
+        Instance.GetAction("main_window_loaded").Invoke();
+        base.OnMainWindowLoaded();
     }
 
     private void OnAsyncCallCompleted(int handle, int result)

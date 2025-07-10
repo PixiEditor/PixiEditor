@@ -1,8 +1,10 @@
 using PixiEditor.Extensions.CommonApi.FlyUI;
 using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
+using PixiEditor.Extensions.Sdk.Attributes;
 
 namespace PixiEditor.Extensions.Sdk.Api.FlyUI;
 
+[ControlTypeId("Icon")]
 public class Icon : LayoutElement
 {
     public string IconName { get; set; }
@@ -19,7 +21,7 @@ public class Icon : LayoutElement
 
     protected override ControlDefinition CreateControl()
     {
-        ControlDefinition icon = new ControlDefinition(UniqueId, "Icon");
+        ControlDefinition icon = new ControlDefinition(UniqueId, GetType());
         icon.AddProperty(IconName);
         icon.AddProperty(Size);
         icon.AddProperty(Color);

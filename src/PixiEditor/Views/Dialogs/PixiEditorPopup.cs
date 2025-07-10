@@ -14,6 +14,7 @@ using PixiEditor.Extensions.CommonApi;
 using PixiEditor.Extensions.CommonApi.Async;
 using PixiEditor.Extensions.CommonApi.Windowing;
 using PixiEditor.Extensions.UI;
+using PixiEditor.ViewModels;
 
 namespace PixiEditor.Views.Dialogs;
 
@@ -21,8 +22,8 @@ namespace PixiEditor.Views.Dialogs;
 [TemplatePart("Part_TitleBar", typeof(DialogTitleBar))]
 public partial class PixiEditorPopup : Window, IPopupWindow
 {
-    public string UniqueId => "PixiEditor.Popup";
-
+    public static event Action<PixiEditorPopup> PopupLoaded;
+    public static event Action<PixiEditorPopup> PopupClosed;
     public static readonly StyledProperty<bool> CanMinimizeProperty = AvaloniaProperty.Register<PixiEditorPopup, bool>(
         nameof(CanMinimize), defaultValue: true);
 
@@ -134,6 +135,18 @@ public partial class PixiEditorPopup : Window, IPopupWindow
     public AsyncCall<bool?> ShowDialog()
     {
         return AsyncCall<bool?>.FromTask(ShowDialog<bool?>(MainWindow.Current));
+    }
+
+    protected override void OnLoaded(RoutedEventArgs e)
+    {
+        base.OnLoaded(e);
+        PopupLoaded?.Invoke(this);
+    }
+
+    protected override void OnClosed(EventArgs e)
+    {
+        base.OnClosed(e);
+        PopupClosed?.Invoke(this);
     }
 
     [RelayCommand]

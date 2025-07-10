@@ -15,6 +15,7 @@ namespace PixiEditor.Extensions.FlyUI.Elements;
 public abstract class LayoutElement : ILayoutElement<Control>, INotifyPropertyChanged, IPropertyDeserializable
 {
     public int UniqueId { get; set; }
+    public string ControlTypeId { get; set; } = string.Empty;
 
     public event ElementEventHandler PointerEnter
     {

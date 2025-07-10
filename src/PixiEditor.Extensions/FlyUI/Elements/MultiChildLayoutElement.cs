@@ -45,13 +45,26 @@ public abstract class MultiChildLayoutElement : LayoutElement, IMultiChildLayout
     public void AddChild(ILayoutElement<Control> child)
     {
         Children.Add((LayoutElement)child);
-        //AddChild(child.BuildNative());
     }
 
     public void RemoveChild(ILayoutElement<Control> child)
     {
         int index = Children.IndexOf((LayoutElement)child);
         Children.Remove((LayoutElement)child);
-        //RemoveChild(index);   
+    }
+
+    public void AppendChild(int atIndex, ILayoutElement<Control> deserializedChild)
+    {
+        if (atIndex < 0 || atIndex > Children.Count)
+        {
+            throw new ArgumentOutOfRangeException(nameof(atIndex), "Index is out of range.");
+        }
+
+        if (deserializedChild is not LayoutElement layoutChild)
+        {
+            throw new InvalidOperationException("Deserialized child must be of type LayoutElement.");
+        }
+
+        Children.Insert(atIndex, layoutChild);
     }
 }

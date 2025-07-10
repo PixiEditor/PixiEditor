@@ -1,8 +1,10 @@
 ﻿using PixiEditor.Extensions.CommonApi.FlyUI;
 using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
+using PixiEditor.Extensions.Sdk.Attributes;
 
 namespace PixiEditor.Extensions.Sdk.Api.FlyUI;
 
+[ControlTypeId("Hyperlink")]
 public class Hyperlink : Text
 {
     public string Url { get; set; }
@@ -14,7 +16,7 @@ public class Hyperlink : Text
 
     protected override ControlDefinition CreateControl()
     {
-        ControlDefinition hyperlink = new ControlDefinition(UniqueId, "Hyperlink");
+        ControlDefinition hyperlink = new ControlDefinition(UniqueId, GetType());
         hyperlink.AddProperty(Value);
         hyperlink.AddProperty(TextWrap);
         hyperlink.AddProperty(TextStyle);

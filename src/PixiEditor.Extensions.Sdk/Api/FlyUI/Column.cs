@@ -1,7 +1,9 @@
 ﻿using PixiEditor.Extensions.CommonApi.FlyUI;
+using PixiEditor.Extensions.Sdk.Attributes;
 
 namespace PixiEditor.Extensions.Sdk.Api.FlyUI;
 
+[ControlTypeId("Column")]
 public class Column : MultiChildLayoutElement
 {
     public MainAxisAlignment MainAxisAlignment { get; set; }
@@ -26,7 +28,7 @@ public class Column : MultiChildLayoutElement
 
     protected override ControlDefinition CreateControl()
     {
-        ControlDefinition controlDefinition = new ControlDefinition(UniqueId, "Column");
+        ControlDefinition controlDefinition = new ControlDefinition(UniqueId, GetType());
         controlDefinition.AddProperty(MainAxisAlignment);
         controlDefinition.AddProperty(CrossAxisAlignment);
         controlDefinition.Children.AddRange(Children.Where(x => x != null).Select(x => x.BuildNative()));

@@ -1,8 +1,10 @@
 using PixiEditor.Extensions.CommonApi.FlyUI;
 using PixiEditor.Extensions.CommonApi.FlyUI.Events;
+using PixiEditor.Extensions.Sdk.Attributes;
 
 namespace PixiEditor.Extensions.Sdk.Api.FlyUI;
 
+[ControlTypeId("TextField")]
 public class TextField : LayoutElement
 {
     public event ElementEventHandler<TextEventArgs> TextChanged
@@ -20,7 +22,7 @@ public class TextField : LayoutElement
 
     protected override ControlDefinition CreateControl()
     {
-        ControlDefinition textField = new ControlDefinition(UniqueId, "TextField");
+        ControlDefinition textField = new ControlDefinition(UniqueId, GetType());
         textField.AddProperty(Text);
         return textField;
     }

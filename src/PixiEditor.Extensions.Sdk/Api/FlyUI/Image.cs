@@ -1,9 +1,11 @@
 ﻿using PixiEditor.Extensions.CommonApi.FlyUI;
 using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
+using PixiEditor.Extensions.Sdk.Attributes;
 using PixiEditor.Extensions.Sdk.Bridge;
 
 namespace PixiEditor.Extensions.Sdk.Api.FlyUI;
 
+[ControlTypeId("Image")]
 public class Image : LayoutElement
 {
     private string source = null!;
@@ -40,7 +42,7 @@ public class Image : LayoutElement
 
     protected override ControlDefinition CreateControl()
     {
-        ControlDefinition image = new ControlDefinition(UniqueId, "Image");
+        ControlDefinition image = new ControlDefinition(UniqueId, GetType());
         
         image.AddProperty(Source);
         image.AddProperty(Width);
