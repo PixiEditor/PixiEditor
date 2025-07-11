@@ -4,7 +4,7 @@ using PixiEditor.Extensions.Sdk.Attributes;
 
 namespace PixiEditor.Extensions.Sdk.Api.FlyUI;
 
-[ControlTypeId("StatefulElement")]
+[ControlTypeId("StatefulContainer")]
 public abstract class StatefulElement<TState> : LayoutElement, IStatefulElement<ControlDefinition, TState> where TState : IState<ControlDefinition>
 {
     private TState state;
@@ -36,7 +36,7 @@ public abstract class StatefulElement<TState> : LayoutElement, IStatefulElement<
     protected override ControlDefinition CreateControl()
     {
         ControlDefinition controlDefinition = State.Build().BuildNative();
-        ControlDefinition statefulContainer = new ControlDefinition(UniqueId, GetType());
+        ControlDefinition statefulContainer = new ControlDefinition(UniqueId, typeof(StatefulElement<>));
         statefulContainer.Children.Add(controlDefinition);
 
         return statefulContainer;

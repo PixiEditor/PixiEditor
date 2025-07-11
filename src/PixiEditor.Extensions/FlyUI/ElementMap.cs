@@ -24,7 +24,7 @@ public class ElementMap
 
     public void AddElementsFromAssembly(Assembly assembly)
     {
-        var layoutElementTypes = assembly.GetTypes().Where(x => x.GetInterfaces().Contains(typeof(ILayoutElement<Control>)));
+        var layoutElementTypes = assembly.GetTypes().Where(x => x is { IsAbstract: false, IsInterface: false } && x.GetInterfaces().Contains(typeof(ILayoutElement<Control>)));
         foreach (var type in layoutElementTypes)
         {
             controlMap.Add(type.Name, type); // TODO: Extension unique name prefix?
