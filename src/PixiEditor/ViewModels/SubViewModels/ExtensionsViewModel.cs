@@ -8,6 +8,7 @@ using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.ExtensionServices;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.Views;
+using PixiEditor.Views.Auth;
 using PixiEditor.Views.Windows;
 
 namespace PixiEditor.ViewModels.SubViewModels;
@@ -69,6 +70,7 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
     {
         windowProvider?.RegisterWindow<PalettesBrowser>();
         windowProvider?.RegisterWindow<HelloTherePopup>();
+        windowProvider?.RegisterWindow<LoginPopup>();
     }
 
     private void Owner_OnEarlyStartupEvent()

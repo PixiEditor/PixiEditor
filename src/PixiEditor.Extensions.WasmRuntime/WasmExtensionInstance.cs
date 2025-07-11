@@ -59,7 +59,7 @@ public partial class WasmExtensionInstance : Extension
 
     protected override void OnLoaded()
     {
-        Instance.GetAction("load").Invoke();
+        Instance.GetAction("load")?.Invoke();
         base.OnLoaded();
     }
 
@@ -73,32 +73,32 @@ public partial class WasmExtensionInstance : Extension
         LayoutBuilder = new LayoutBuilder((ElementMap)Api.Services.GetService(typeof(ElementMap)));
 
         //SetElementMap();
-        Instance.GetAction("initialize").Invoke();
+        Instance.GetAction("initialize")?.Invoke();
         base.OnInitialized();
     }
 
     protected override void OnUserReady()
     {
-        Instance.GetAction("user_ready").Invoke();
+        Instance.GetAction("user_ready")?.Invoke();
         base.OnUserReady();
     }
 
     protected override void OnMainWindowLoaded()
     {
-        Instance.GetAction("main_window_loaded").Invoke();
+        Instance.GetAction("main_window_loaded")?.Invoke();
         base.OnMainWindowLoaded();
     }
 
     private void OnAsyncCallCompleted(int handle, int result)
     {
         Dispatcher.UIThread.Invoke(() =>
-            Instance.GetAction<int, int>("async_call_completed").Invoke(handle, result));
+            Instance.GetAction<int, int>("async_call_completed")?.Invoke(handle, result));
     }
 
     private void OnAsyncCallFaulted(int handle, string exceptionMessage)
     {
         Dispatcher.UIThread.Invoke(() =>
-            Instance.GetAction<int, string>("async_call_faulted").Invoke(handle, exceptionMessage));
+            Instance.GetAction<int, string>("async_call_faulted")?.Invoke(handle, exceptionMessage));
     }
 
     private void SetElementMap()
@@ -106,7 +106,7 @@ public partial class WasmExtensionInstance : Extension
         var elementMap = (ElementMap)Api.Services.GetService(typeof(ElementMap));
         byte[] map = elementMap.Serialize();
         var ptr = WasmMemoryUtility.WriteBytes(map);
-        Instance.GetAction<int, int>("set_element_map").Invoke(ptr, map.Length);
+        Instance.GetAction<int, int>("set_element_map")?.Invoke(ptr, map.Length);
 
         WasmMemoryUtility.Free(ptr);
     }

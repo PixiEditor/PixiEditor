@@ -121,54 +121,8 @@ internal class ClassicDesktopEntry
         ViewModels_ViewModelMain viewModel = Services.GetRequiredService<ViewModels_ViewModelMain>();
         viewModel.Setup(Services);
 
-#if FOUNDERS_PACK_REQUIRED
-        if (!IsFoundersPackOwner())
-        {
-            IPlatform.Current.IdentityProvider.OwnedProductsUpdated += IdentityProviderOnOwnedProductsUpdated;
-            loginPopup = new LoginPopup();
-            loginPopup.SystemDecorations = SystemDecorations.BorderOnly;
-            loginPopup.CanMinimize = false;
-            loginPopup.DataContext = viewModel.UserViewModel;
-            loginPopup.ShowStandalone();
-            loginPopup.Closed += (_, _) =>
-            {
-                if (IsFoundersPackOwner())
-                {
-                    desktop.MainWindow = new MainWindow(extensionLoader);
-                    desktop.MainWindow.Show();
-                }
-                else
-                {
-                    desktop.Shutdown();
-                }
-            };
-        }
-        else
-        {
-            
-            desktop.MainWindow = new MainWindow(extensionLoader);
-            desktop.MainWindow.Show();
-        }
-#else
         desktop.MainWindow = new MainWindow(extensionLoader);
         desktop.MainWindow.Show();
-#endif
-    }
-
-    private void IdentityProviderOnOwnedProductsUpdated(List<ProductData> obj)
-    {
-        if (IsFoundersPackOwner())
-        {
-            IPlatform.Current.IdentityProvider.OwnedProductsUpdated -= IdentityProviderOnOwnedProductsUpdated;
-            loginPopup?.Close();
-            loginPopup = null!;
-        }
-    }
-
-    private static bool IsFoundersPackOwner()
-    {
-        return IPlatform.Current.IdentityProvider.IsLoggedIn &&
-               IPlatform.Current.AdditionalContentProvider.IsContentOwned("PixiEditor.FoundersPack");
     }
 
     private void InitPlatform()

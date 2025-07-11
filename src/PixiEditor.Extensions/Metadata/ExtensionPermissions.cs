@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
-namespace PixiEditor.Extensions.Metadata;
+﻿namespace PixiEditor.Extensions.Metadata;
 
 [Flags]
 [Newtonsoft.Json.JsonConverter(typeof(JsonEnumFlagConverter))]
@@ -19,5 +17,6 @@ public enum ExtensionPermissions
     ///     the editor.
     /// </summary>
     OpenDocuments = 2,
+    ReadUserData = 4,
     FullAccess = ~0,
 }

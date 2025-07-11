@@ -149,7 +149,7 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
             }
             else
             {
-                bool productDownloadedAtLeastOnce = IPreferences.Current.GetPreference<bool>(
+                bool productDownloadedAtLeastOnce = IPreferences.Current.GetLocalPreference<bool>(
                     $"product_{product.Id}_downloaded_at_least_once", false);
                 if (!productDownloadedAtLeastOnce)
                 {

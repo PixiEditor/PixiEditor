@@ -5,6 +5,7 @@ using PixiEditor.Extensions.CommonApi.IO;
 using PixiEditor.Extensions.CommonApi.Logging;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Extensions.CommonApi.Ui;
+using PixiEditor.Extensions.CommonApi.User;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Extensions.CommonApi.Windowing;
 using PixiEditor.Extensions.IO;
@@ -22,6 +23,7 @@ public class ExtensionServices
     public IDocumentProvider Documents => Services.GetService<IDocumentProvider>();
     public ICommandSupervisor CommandSupervisor => Services.GetService<ICommandSupervisor>();
     public IVisualTreeProvider VisualTree => Services.GetService<IVisualTreeProvider>();
+    public IUserDataProvider UserDataProvider => Services.GetService<IUserDataProvider>();
     public ILogger Logger => Services.GetService<ILogger>();
 
     public ExtensionServices(IServiceProvider services)

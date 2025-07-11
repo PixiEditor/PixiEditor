@@ -15,5 +15,7 @@ public enum BuiltInWindowType
     [Description("PalettesBrowser")]
     PalettesBrowser,
     [Description("HelloTherePopup")]
-    StartupWindow
+    StartupWindow,
+    [Description("LoginPopup")]
+    AccountManagement,
 }

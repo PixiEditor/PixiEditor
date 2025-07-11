@@ -14,9 +14,12 @@ public class TextField : LayoutElement
     }
     public string Text { get; set; }
 
-    public TextField(string? text = null, Cursor? cursor = null) : base(cursor)
+    public string? Placeholder { get; set; } = string.Empty;
+
+    public TextField(string? text = null, string? placeholder = null, Cursor? cursor = null) : base(cursor)
     {
         Text = text ?? string.Empty;
+        Placeholder = placeholder;
         TextChanged += e => Text = e.Text;
     }
 
@@ -24,6 +27,7 @@ public class TextField : LayoutElement
     {
         ControlDefinition textField = new ControlDefinition(UniqueId, GetType());
         textField.AddProperty(Text);
+        textField.AddProperty(Placeholder);
         return textField;
     }
 }

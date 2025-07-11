@@ -55,7 +55,7 @@
                 <Setter Property="Foreground" Value="{StaticResource FoundersGradientBrushShifted}" />
             </Style>
         </Panel.Styles>
-        <StackPanel IsVisible="{Binding !IsLoggedIn}" VerticalAlignment="Top" Spacing="12">
+        <StackPanel IsVisible="{Binding !IsLoggedIn}" Name="RootPanel" VerticalAlignment="Top" Spacing="12">
             <TextBox Text="{Binding CurrentEmail, Mode=TwoWay}" Watermark="{ui:Translate Key=ENTER_EMAIL}" Name="Email"
                      IsVisible="{Binding !IsLoggedIn}" />
             <Button Name="LoginButton"
@@ -123,7 +123,9 @@
                     Classes="foundersButton"
                     Padding="8, 4" />
         </StackPanel>
-        <DockPanel LastChildFill="True" IsVisible="{Binding IsLoggedIn}" Margin="5">
+        <DockPanel LastChildFill="True"
+                   Name="LoggedInPanel"
+                   IsVisible="{Binding IsLoggedIn}" Margin="5">
             <Button IsVisible="{Binding IdentityProvider.AllowsLogout}"
                     Content="{ui:Translate Key=LOGOUT}"
                     DockPanel.Dock="Bottom"

@@ -32,5 +32,8 @@
   "license": "MIT",
   "categories": [
     "Extension"
+  ],
+  "Permissions": [
+    "ReadUserData"
   ]
 }

@@ -291,9 +291,16 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>, IWindowHandler
 
     [Commands_Command.Basic("PixiEditor.Window.OpenAccountWindow", "OPEN_ACCOUNT_WINDOW", "OPEN_ACCOUNT_WINDOW",
         MenuItemOrder = 6, AnalyticsTrack = true)]
-    public void OpenAccountWindow()
+    public LoginPopup OpenAccountWindow(bool dialog = false)
     {
-        LoginPopup popup = new LoginPopup() { DataContext = Owner.UserViewModel };
+        LoginPopup popup = new LoginPopup();
+        if (dialog)
+        {
+            popup.ShowDialog(MainWindow.Current);
+            return popup;
+        }
+
         popup.Show();
+        return popup;
     }
 }

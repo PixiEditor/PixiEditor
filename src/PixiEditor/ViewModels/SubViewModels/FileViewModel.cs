@@ -153,9 +153,12 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             if (preferences.GetLocalPreference("OnboardingV2Shown", false) == false)
             {
                 preferences.UpdateLocalPreference("OnboardingV2Shown", true);
-                Owner.WindowSubViewModel.OpenOnboardingWindow().Closed += (sender, eventArgs) =>
+                Owner.WindowSubViewModel.OpenAccountWindow(true).Closed += (sender, eventArgs) =>
                 {
-                    Owner.InvokeUserReadyEvent();
+                    Owner.WindowSubViewModel.OpenOnboardingWindow().Closed += (_, _) =>
+                    {
+                        Owner.InvokeUserReadyEvent();
+                    };
                 };
             }
             else if (preferences!.GetPreference("ShowStartupWindow", true))
@@ -620,7 +623,8 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                     {
                         Dispatcher.UIThread.Post(() =>
                         {
-                            if (IPreferences.Current.GetPreference<bool>(PreferencesConstants.OpenDirectoryOnExport, true))
+                            if (IPreferences.Current.GetPreference<bool>(PreferencesConstants.OpenDirectoryOnExport,
+                                    true))
                             {
                                 IOperatingSystem.Current.OpenFolder(result.finalPath);
                             }
@@ -700,7 +704,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             PreferencesConstants.AutosaveEnabled,
             PreferencesConstants.AutosaveEnabledDefault);
 
-        if(!autosaveEnabled)
+        if (!autosaveEnabled)
         {
             return;
         }
