@@ -8,6 +8,7 @@ using Avalonia.Input;
 using PixiEditor.Extensions.CommonApi.FlyUI;
 using PixiEditor.Extensions.CommonApi.FlyUI.Events;
 using PixiEditor.Extensions.FlyUI.Converters;
+using PixiEditor.Extensions.IO;
 using Cursor = PixiEditor.Extensions.CommonApi.FlyUI.Cursor;
 
 namespace PixiEditor.Extensions.FlyUI.Elements;
@@ -42,6 +43,7 @@ public abstract class LayoutElement : ILayoutElement<Control>, INotifyPropertyCh
     }
 
     public Cursor? Cursor { get; set; }
+    internal IResourceStorage ResourceStorage { get; set; }
 
     private Dictionary<string, List<ElementEventHandler>>? _events;
 

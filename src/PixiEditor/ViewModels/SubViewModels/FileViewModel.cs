@@ -19,6 +19,7 @@ using PixiEditor.Models.IO;
 using PixiEditor.Models.UserData;
 using Drawie.Numerics;
 using Microsoft.Extensions.DependencyInjection;
+using PixiEditor.Extensions.CommonApi.Documents;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Models.DocumentModels.Autosave;
 using PixiEditor.Models.ExceptionHandling;
@@ -363,10 +364,12 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         AddDocumentViewModelToTheSystem(document);
     }
 
-    public void OpenFromPixiBytes(byte[] bytes)
+    public IDocument OpenFromPixiBytes(byte[] bytes)
     {
         DocumentViewModel document = Importer.ImportDocument(bytes, null);
         AddDocumentViewModelToTheSystem(document);
+
+        return document;
     }
 
     /// <summary>

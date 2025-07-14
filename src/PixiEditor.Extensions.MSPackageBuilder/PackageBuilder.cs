@@ -17,7 +17,7 @@ public static class PackageBuilder
 
     private static readonly string[] FilesToExclude = new[] { "dotnet.wasm", };
 
-    public static void Build(string buildResultDirectory, string targetDirectory)
+    public static void Build(string buildResultDirectory, string targetDirectory, bool encryptedResources)
     {
         if (!Directory.Exists(buildResultDirectory))
         {
@@ -46,15 +46,34 @@ public static class PackageBuilder
             JsonConvert.DeserializeObject<SimplifiedExtensionMetadata>(
                 File.ReadAllText(Path.Combine(buildResultDirectory, "extension.json")));
 
-        foreach (ElementToInclude element in ElementsToInclude)
+        var elementsToInclude = new List<ElementToInclude>(ElementsToInclude);
+        if(encryptedResources)
         {
+            elementsToInclude.Add(new ElementToInclude("resources.data", true) { TargetDirectory = "Resources" });
+            elementsToInclude.RemoveAll(x => x.Path == "Resources/");
+        }
+
+        foreach (ElementToInclude element in elementsToInclude)
+        {
+            if (!string.IsNullOrEmpty(element.TargetDirectory))
+            {
+                if (!Directory.Exists(Path.Combine(targetTmpDirectory, element.TargetDirectory)))
+                {
+                    Directory.CreateDirectory(Path.Combine(targetTmpDirectory, element.TargetDirectory));
+                }
+            }
+
+            string finalDir = string.IsNullOrEmpty(element.TargetDirectory)
+                ? targetTmpDirectory
+                : Path.Combine(targetTmpDirectory, element.TargetDirectory);
+
             if (element.Type == ElementToIncludeType.File)
             {
-                CopyFile(element.Path, buildResultDirectory, targetTmpDirectory, element.IsRequired);
+                CopyFile(element.Path, buildResultDirectory, finalDir, element.IsRequired);
             }
             else
             {
-                CopyDirectory(element.Path, buildResultDirectory, targetTmpDirectory, element.IsRequired, metadata);
+                CopyDirectory(element.Path, buildResultDirectory, finalDir, element.IsRequired, metadata);
             }
         }
 
@@ -158,6 +177,7 @@ public static class PackageBuilder
 record ElementToInclude
 {
     public string Path { get; set; }
+    public string? TargetDirectory { get; set; }
     public bool IsRequired { get; set; }
 
     public ElementToIncludeType Type => Path.EndsWith("/") ? ElementToIncludeType.Directory : ElementToIncludeType.File;

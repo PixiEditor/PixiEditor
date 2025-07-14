@@ -8,6 +8,9 @@ internal partial class Native
     internal static extern string import_file(string path, bool associatePath);
 
     [MethodImpl(MethodImplOptions.InternalCall)]
+    internal static extern string import_document(IntPtr data, int length);
+
+    [MethodImpl(MethodImplOptions.InternalCall)]
     internal static extern string get_active_document();
 
     [MethodImpl(MethodImplOptions.InternalCall)]

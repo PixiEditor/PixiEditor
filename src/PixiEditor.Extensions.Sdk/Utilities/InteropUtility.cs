@@ -32,4 +32,22 @@ public static class InteropUtility
         Marshal.Copy(ptr + sizeof(int), array, 0, length);
         return array;
     }
+
+    public static string[] IntPtrToStringArray(IntPtr ptr)
+    {
+        List<string> list = new List<string>();
+        byte[] arr = InteropUtility.PrefixedIntPtrToByteArray(ptr);
+        int length = BitConverter.ToInt32(arr, 0);
+        int offset = 4;
+        for (int i = 0; i < length; i++)
+        {
+            int strLength = BitConverter.ToInt32(arr, offset);
+            offset += 4;
+            string content = System.Text.Encoding.UTF8.GetString(arr, offset, strLength);
+            list.Add(content);
+            offset += strLength;
+        }
+
+        return list.ToArray();
+    }
 }

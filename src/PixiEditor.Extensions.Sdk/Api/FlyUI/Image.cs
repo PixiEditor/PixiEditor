@@ -15,14 +15,7 @@ public class Image : LayoutElement
         get => source;
         set
         {
-            if (value.StartsWith("/") || value.StartsWith("/Resources/") || value.StartsWith("Resources/"))
-            {
-                source = Native.to_resources_full_path(value);    
-            }
-            else
-            {
-                source = value;
-            }
+            source = value;
         }
     }
 

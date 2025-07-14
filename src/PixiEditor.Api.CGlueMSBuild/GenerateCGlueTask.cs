@@ -1,4 +1,5 @@
-﻿using Microsoft.Build.Framework;
+﻿using System.Runtime.InteropServices;
+using Microsoft.Build.Framework;
 using Mono.Cecil;
 
 namespace PixiEditor.Api.CGlueMSBuild
@@ -22,6 +23,14 @@ namespace PixiEditor.Api.CGlueMSBuild
         /// </summary>
         [Required]
         public string InteropCFilePath { get; set; } = default!;
+
+        public string EncryptionKey { get; set; } = string.Empty;
+
+        public string EncryptionIv { get; set; } = string.Empty;
+
+        /// <summary>
+        ///     /// Encryption key for resources.
+        /// </summary>
 
         public override bool Execute()
         {
@@ -47,7 +56,7 @@ namespace PixiEditor.Api.CGlueMSBuild
                     }
                 }
 
-                var generator = new CApiGenerator(File.ReadAllText(InteropCFilePath), (message) => Log.LogMessage(MessageImportance.High, message));
+                var generator = new CApiGenerator(File.ReadAllText(InteropCFilePath), EncryptionKey, EncryptionIv, (message) => Log.LogMessage(MessageImportance.High, message));
 
                 string directory = Path.GetDirectoryName(AssemblyPath)!;
 

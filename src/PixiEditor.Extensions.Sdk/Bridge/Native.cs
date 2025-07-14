@@ -87,4 +87,18 @@ internal static partial class Native
     [MethodImpl(MethodImplOptions.InternalCall)]
     public static extern string to_resources_full_path(string value);
 
+    [MethodImpl(MethodImplOptions.InternalCall)]
+    public static extern IntPtr get_encryption_key();
+
+    [MethodImpl(MethodImplOptions.InternalCall)]
+    public static extern IntPtr get_encryption_iv();
+
+    [MethodImpl(MethodImplOptions.InternalCall)]
+    public static extern IntPtr load_encrypted_resource(string path);
+
+    [MethodImpl(MethodImplOptions.InternalCall)]
+    public static extern void write_encrypted_resource(string path, IntPtr data, int length);
+
+    [MethodImpl(MethodImplOptions.InternalCall)]
+    public static extern IntPtr get_encrypted_files_at_path(string path, string searchPattern);
 }

@@ -14,6 +14,11 @@ public class DocumentProvider : IDocumentProvider
         return Interop.ImportFile(path, associatePath);
     }
 
+    public IDocument? ImportDocument(byte[] data)
+    {
+        return Interop.ImportDocument(data);
+    }
+
     public IDocument? GetDocument(Guid id)
     {
         if (id == Guid.Empty)

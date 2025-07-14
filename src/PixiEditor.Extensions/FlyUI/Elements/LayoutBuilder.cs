@@ -6,6 +6,7 @@ using PixiEditor.Extensions.CommonApi.FlyUI;
 using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
 using PixiEditor.Extensions.FlyUI.Exceptions;
 using PixiEditor.Extensions.Helpers;
+using PixiEditor.Extensions.IO;
 
 namespace PixiEditor.Extensions.FlyUI.Elements;
 
@@ -15,9 +16,12 @@ public class LayoutBuilder
 
     public Dictionary<int, ILayoutElement<Control>> ManagedElements = new();
     public ElementMap ElementMap { get; }
-    public LayoutBuilder(ElementMap elementMap)
+    public IResourceStorage ResourceStorage { get; }
+
+    public LayoutBuilder(IResourceStorage resourceStorage, ElementMap elementMap)
     {
         this.ElementMap = elementMap;
+        this.ResourceStorage = resourceStorage;
     }
 
     public ILayoutElement<Control> Deserialize(Span<byte> layoutSpan, DuplicateResolutionTactic duplicatedIdTactic)
@@ -123,9 +127,14 @@ public class LayoutBuilder
     {
         Type typeToSpawn = ElementMap.ControlMap[controlId];
         var element = CreateInstance(typeToSpawn);
-        
+
         if(element is not { } layoutElement)
             throw new Exception("Element is not ILayoutElement<Control>");
+
+        if (element is LayoutElement le)
+        {
+            le.ResourceStorage = ResourceStorage;
+        }
 
         element.UniqueId = uniqueId;
 

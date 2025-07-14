@@ -48,7 +48,7 @@ public class Image : LayoutElement
         {
             Source = this,
             Path = nameof(Source),
-            Converter = new PathToImgSourceConverter(),
+            Converter = new PathToImgSourceConverter(ResourceStorage),
         };
 
         Binding widthBinding = new()
