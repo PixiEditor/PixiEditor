@@ -1,4 +1,5 @@
-﻿using PixiEditor.OperatingSystem;
+﻿using Avalonia.Threading;
+using PixiEditor.OperatingSystem;
 using PixiEditor.PixiAuth;
 using PixiEditor.PixiAuth.Exceptions;
 using PixiEditor.PixiAuth.Utils;
@@ -21,6 +22,7 @@ public class PixiAuthIdentityProvider : IIdentityProvider
     public event Action<string>? UsernameUpdated;
     public event Action<PixiUser>? LoginRequestSuccessful;
     public event Action<double>? LoginTimeout;
+    public event Action<IUser>? OnLoggedIn;
     public event Action? LoggedOut;
 
     IUser IIdentityProvider.User => User;
@@ -48,6 +50,7 @@ public class PixiAuthIdentityProvider : IIdentityProvider
             await LogoutIfTokenExpired();
         });
     }
+
 
 
     public async Task RequestLogin(string email)
@@ -269,7 +272,9 @@ public class PixiAuthIdentityProvider : IIdentityProvider
                     OwnedProductsUpdated?.Invoke(new List<ProductData>(User.OwnedProducts));
                 }
 
-                Task.Run(async () =>
+                OnLoggedIn?.Invoke(User);
+
+                Dispatcher.UIThread.InvokeAsync(async () =>
                 {
                     string username = User.Username;
                     User.Username = await TryFetchUserName(User.EmailHash);
@@ -278,6 +283,7 @@ public class PixiAuthIdentityProvider : IIdentityProvider
                         UsernameUpdated?.Invoke(User.Username);
                         SaveUserInfo();
                     }
+
                 });
 
                 SaveUserInfo();

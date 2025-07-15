@@ -15,4 +15,16 @@ internal static partial class Native
 
     [MethodImpl(MethodImplOptions.InternalCall)]
     public static extern IntPtr get_owned_content();
+
+    [ApiExport("on_user_logged_in")]
+    internal static void OnUserLoggedIn()
+    {
+        PixiEditorExtension.Api.UserDataProvider.OnUserLoggedIn();
+    }
+
+    [ApiExport("on_user_logged_out")]
+    internal static void OnUserLoggedOut()
+    {
+        PixiEditorExtension.Api.UserDataProvider.OnUserLoggedOut();
+    }
 }

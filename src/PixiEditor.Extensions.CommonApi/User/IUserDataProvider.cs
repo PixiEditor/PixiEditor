@@ -6,4 +6,6 @@ public interface IUserDataProvider
     public string Username { get; }
     public string AccountProviderName { get; }
     public string[] GetOwnedContent();
+    public event Action UserLoggedIn;
+    public event Action UserLoggedOut;
 }

@@ -72,6 +72,7 @@ public partial class WasmExtensionInstance : Extension
         modules.Add(new PreferencesModule(this, Api.Preferences));
         modules.Add(new CommandModule(this, Api.Commands,
             (ICommandSupervisor)Api.Services.GetService(typeof(ICommandSupervisor))));
+        modules.Add(new EventsModule(this));
         LayoutBuilder = new LayoutBuilder(new ExtensionResourceStorage(this), (ElementMap)Api.Services.GetService(typeof(ElementMap)));
         //SetElementMap();
         Instance.GetAction("initialize")?.Invoke();

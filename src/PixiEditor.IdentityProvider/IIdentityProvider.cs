@@ -13,4 +13,6 @@ public interface IIdentityProvider
     public event Action<string> UsernameUpdated;
 
     public void Initialize();
+    public event Action<IUser> OnLoggedIn;
+    public event Action LoggedOut;
 }

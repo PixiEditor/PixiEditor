@@ -88,6 +88,7 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
     public bool NonDefaultIdentityProvider => IdentityProvider is not PixiAuthIdentityProvider;
     public bool AnyUpdateAvailable => OwnedProducts.Any(x => x.UpdateAvailable);
 
+    private IDisposable? timerCancelable;
 
     public static string FoundersBundleLink =>
 #if STEAM
@@ -243,7 +244,9 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
             },
             TimeSpan.FromSeconds(timeLeft));
 
-        DispatcherTimer.Run(() =>
+        timerCancelable?.Dispose();
+        timerCancelable = DispatcherTimer.Run(
+            () =>
         {
             NotifyProperties();
             return TimeToEndTimeout != null;
