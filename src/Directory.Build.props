@@ -56,14 +56,6 @@
     <Optimize>true</Optimize>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)'=='ReleaseFoundersEdition'">
-    <DefineConstants>TRACE;UPDATE;RELEASE;FOUNDERS_PACK_REQUIRED</DefineConstants>
-    <DebugSymbols>False</DebugSymbols>
-    <DebugType>None</DebugType>
-    <Optimize>true</Optimize>
-  </PropertyGroup>
-
-
   <PropertyGroup Condition="'$(Configuration)'=='ReleaseNoUpdate'">
     <DefineConstants>TRACE;RELEASE</DefineConstants>
     <DebugSymbols>False</DebugSymbols>

@@ -73,10 +73,6 @@
     <ProjectReference Include="..\PixiEditor.Platform.Standalone\PixiEditor.Platform.Standalone.csproj"/>
   </ItemGroup>
   
-  <ItemGroup Condition=" '$(Configuration)' == 'ReleaseFoundersEdition' ">
-    <ProjectReference Include="..\PixiEditor.Platform.Standalone\PixiEditor.Platform.Standalone.csproj"/>
-  </ItemGroup>
-
   <ItemGroup Condition=" '$(Configuration)' == 'MSIX' ">
     <ProjectReference Include="..\PixiEditor.Platform.MSStore\PixiEditor.Platform.MSStore.csproj"/>
   </ItemGroup>
