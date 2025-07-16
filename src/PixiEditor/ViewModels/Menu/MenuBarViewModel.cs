@@ -209,20 +209,7 @@ internal class MenuBarViewModel : PixiObservableObject
         {
             MenuItem menuItem = new();
 
-            string targetKey = item.Key;
-            bool keyHasEntry = new LocalizedString(item.Key).Value != item.Key;
-            if (!keyHasEntry)
-            {
-                var prefix = item.Value.Command.InternalName.Split(":").FirstOrDefault();
-                string prefixedKey = (prefix != null ? $"{prefix}:" : "") + item.Key;
-
-                keyHasEntry = new LocalizedString(prefixedKey).Value != prefixedKey;
-
-                if (keyHasEntry)
-                {
-                    targetKey = prefixedKey;
-                }
-            }
+            var targetKey = GetTargetKey(item);
 
             var headerBinding = new Binding(".") { Source = targetKey, Mode = BindingMode.OneWay, };
 
@@ -277,6 +264,26 @@ internal class MenuBarViewModel : PixiObservableObject
         }
     }
 
+    private static string GetTargetKey(KeyValuePair<string, MenuTreeItem> item)
+    {
+        string targetKey = item.Key;
+        bool keyHasEntry = new LocalizedString(item.Key).Value != item.Key;
+        if (!keyHasEntry)
+        {
+            var prefix = item.Value.Command.InternalName.Split(":").FirstOrDefault();
+            string prefixedKey = (prefix != null ? $"{prefix}:" : "") + item.Key;
+
+            keyHasEntry = new LocalizedString(prefixedKey).Value != prefixedKey;
+
+            if (keyHasEntry)
+            {
+                targetKey = prefixedKey;
+            }
+        }
+
+        return targetKey;
+    }
+
     private void BuildBasicNativeMenuItems(CommandController controller, Dictionary<string, MenuTreeItem> root,
         NativeMenu? parent = null)
     {
@@ -287,10 +294,13 @@ internal class MenuBarViewModel : PixiObservableObject
             NativeMenuItem menuItem = new();
 
             nativeMenuItems ??= new List<NativeMenuItem>();
-            var headerBinding = new Binding(".") { Source = item.Key, Mode = BindingMode.OneWay, };
-
+            
+            string targetKey = GetTargetKey(item);
+            
+            var headerBinding = new Binding(".") { Source = targetKey, Mode = BindingMode.OneWay, };
+            
             menuItem.Bind(Translator.KeyProperty, headerBinding);
-            menuItem.Bind(PixiEditor.Models.Commands.XAML.NativeMenu.LocalizationKeyHeaderProperty, headerBinding);
+            menuItem.Bind(Models.Commands.XAML.NativeMenu.LocalizationKeyHeaderProperty, headerBinding);
 
             CommandGroup? group = controller.CommandGroups.FirstOrDefault(x =>
                 x.IsVisibleProperty != null && x.Commands.Contains(item.Value.Command));
