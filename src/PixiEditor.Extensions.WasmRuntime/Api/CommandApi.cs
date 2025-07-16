@@ -1,6 +1,7 @@
 using PixiEditor.Extensions.CommonApi.Commands;
 using PixiEditor.Extensions.CommonApi.Utilities;
 using PixiEditor.Extensions.WasmRuntime.Api.Modules;
+using PixiEditor.UI.Common.Localization;
 using ProtoBuf;
 
 namespace PixiEditor.Extensions.WasmRuntime.Api;
@@ -29,6 +30,11 @@ internal class CommandApi : ApiGroupHandler
             string prefixed =
                 PrefixedNameUtility.ToCommandUniqueName(Extension.Metadata.UniqueName, metadata.UniqueName, false);
             metadata.UniqueName = prefixed;
+
+            string localizedDisplayKey = LocalizedString.FirstValidKey($"{Extension.Metadata.UniqueName}:{metadata.DisplayName}", metadata.DisplayName);
+            metadata.DisplayName = localizedDisplayKey;
+            string localizedDescriptionKey = LocalizedString.FirstValidKey($"{Extension.Metadata.UniqueName}:{metadata.Description}", metadata.Description);
+            metadata.Description = localizedDescriptionKey;
             Api.Commands.RegisterCommand(metadata, InvokeCommandInvoked);
         }
         catch (ArgumentException ex)
