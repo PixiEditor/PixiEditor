@@ -26,6 +26,7 @@ using PixiEditor.Models.ExceptionHandling;
 using PixiEditor.Models.IO.CustomDocumentFormats;
 using PixiEditor.OperatingSystem;
 using PixiEditor.Parser;
+using PixiEditor.Platform;
 using PixiEditor.UI.Common.Fonts;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document;
@@ -154,13 +155,25 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             if (preferences.GetLocalPreference("OnboardingV2Shown", false) == false)
             {
                 preferences.UpdateLocalPreference("OnboardingV2Shown", true);
-                Owner.WindowSubViewModel.OpenAccountWindow(true).Closed += (sender, eventArgs) =>
+
+                if (IPlatform.Current?.IdentityProvider != null &&
+                    IPlatform.Current.IdentityProvider.ProviderName == "PixiAuth")
+                {
+                    Owner.WindowSubViewModel.OpenAccountWindow(true).Closed += (sender, eventArgs) =>
+                    {
+                        Owner.WindowSubViewModel.OpenOnboardingWindow().Closed += (_, _) =>
+                        {
+                            Owner.InvokeUserReadyEvent();
+                        };
+                    };
+                }
+                else
                 {
                     Owner.WindowSubViewModel.OpenOnboardingWindow().Closed += (_, _) =>
                     {
                         Owner.InvokeUserReadyEvent();
                     };
-                };
+                }
             }
             else if (preferences!.GetPreference("ShowStartupWindow", true))
             {

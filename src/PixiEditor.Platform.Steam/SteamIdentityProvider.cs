@@ -32,6 +32,9 @@ public class SteamIdentityProvider : IIdentityProvider
         IsLoggedIn = true;
     }
 
+    public event Action<IUser>? OnLoggedIn;
+    public event Action? LoggedOut;
+
     private static string GetAvatar(CSteamID id)
     {
         int avatar = SteamFriends.GetLargeFriendAvatar(id);

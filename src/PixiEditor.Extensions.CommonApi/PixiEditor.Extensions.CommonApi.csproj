@@ -1,23 +1,25 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>disable</Nullable>
-    </PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <PackageId>PixiEditor.Extensions.CommonApi</PackageId>
+    <PackageVersion>0.0.1-dev</PackageVersion>
+  </PropertyGroup>
 
-    <ItemGroup>
-      <Folder Include="Preferences\" />
-    </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Preferences\"/>
+  </ItemGroup>
 
-    <ItemGroup>
-      <PackageReference Include="protobuf-net" Version="3.2.52" />
-    </ItemGroup>
-  
+  <ItemGroup>
+    <PackageReference Include="protobuf-net" Version="3.2.52"/>
+  </ItemGroup>
+
   <PropertyGroup>
     <ProtogenVersion>3.2.52</ProtogenVersion>
   </PropertyGroup>
-  
+
   <Target Name="ProtogenCheck" BeforeTargets="GenerateProtoContracts">
     <PropertyGroup>
       <ProtogenExists>false</ProtogenExists>
@@ -29,7 +31,7 @@
       <ProtogenExists Condition="'$(ProtogenExitCode)' == '0'">true</ProtogenExists>
     </PropertyGroup>
   </Target>
-  
+
   <Target Name="InstallProtogen" BeforeTargets="GenerateProtoContracts"
           Condition="'$(ProtogenExists)' != 'true'">
     <Message Text="Downloading protogen v$(ProtogenVersion)..." Importance="high"/>
@@ -37,11 +39,11 @@
     <PropertyGroup>
       <ProtogenExists>true</ProtogenExists>
     </PropertyGroup>
-    
+
     <Message Text="protogen installed successfully." Importance="high"/>
   </Target>
-    
-  
+
+
   <Target Name="GenerateProtoContracts" BeforeTargets="BeforeCompile"
           Inputs="$(MSBuildProjectDirectory)\DataContracts\*.proto"
           Outputs="$(MSBuildProjectDirectory)\ProtoAutogen\*.cs">
@@ -53,7 +55,7 @@
 
   </Target>
 
-    <ItemGroup>
-      <ProjectReference Include="..\PixiEditor.Extensions.CommonApi.Diagnostics\PixiEditor.Extensions.CommonApi.Diagnostics.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PixiEditor.Extensions.CommonApi.Diagnostics\PixiEditor.Extensions.CommonApi.Diagnostics.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+  </ItemGroup>
 </Project>
