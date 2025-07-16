@@ -1,4 +1,5 @@
-﻿using System.Security.Principal;
+﻿using System.Reflection;
+using System.Security.Principal;
 using PixiEditor.IdentityProvider;
 using PixiEditor.IdentityProvider.PixiAuth;
 using PixiEditor.PixiAuth;
@@ -82,8 +83,8 @@ public sealed class StandaloneAdditionalContentProvider : IAdditionalContentProv
         string filePath = Path.Combine(ExtensionsPath, $"{productId}.pixiext");
         bool exists = File.Exists(filePath);
         if (exists) return true;
-
-        filePath = Path.Combine(Path.GetDirectoryName(Environment.ProcessPath), "Extensions", $"{productId}.pixiext");
+        
+        filePath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Extensions", $"{productId}.pixiext");
         exists = File.Exists(filePath);
 
         return exists;

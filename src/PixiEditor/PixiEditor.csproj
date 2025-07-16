@@ -141,11 +141,14 @@
     <None Include="../../Third Party Licenses/**" LinkBase="Third Party Licenses/">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+
+    <None Include="Extensions\*.pixiext">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Extensions\"/>
-    <Folder Include="Models\User\"/>
   </ItemGroup>
-
+  
 </Project>
