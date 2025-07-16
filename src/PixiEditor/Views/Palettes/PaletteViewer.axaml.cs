@@ -351,12 +351,10 @@ internal partial class PaletteViewer : UserControl
                 int currIndex = Colors.IndexOf(paletteColor);
                 if (paletteColorControl != null)
                 {
-                    int newIndex = Colors.IndexOf(paletteColorControl.Color);
-                    Colors.RemoveAt(currIndex);
-                    Colors.Insert(newIndex, paletteColor);
-                    int indexOfSource = Colors.IndexOf(paletteColorControl.Color);
-                    if(indexOfSource < 0) return;
-                    Colors.Move(indexOfSource, currIndex);
+                    int indexOfControl = Colors.IndexOf(paletteColorControl.Color);
+                    indexOfControl = Math.Clamp(indexOfControl, 0, Colors.Count - 1);
+                    Colors.Move(currIndex, indexOfControl);
+                    RefreshAllItems();
                 }
             }
         }
