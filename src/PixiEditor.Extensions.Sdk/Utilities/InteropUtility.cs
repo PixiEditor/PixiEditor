@@ -36,7 +36,12 @@ public static class InteropUtility
     public static string[] IntPtrToStringArray(IntPtr ptr)
     {
         List<string> list = new List<string>();
-        byte[] arr = InteropUtility.PrefixedIntPtrToByteArray(ptr);
+        byte[] arr = PrefixedIntPtrToByteArray(ptr);
+        if (arr.Length == 0)
+        {
+            return [];
+        }
+
         int length = BitConverter.ToInt32(arr, 0);
         int offset = 4;
         for (int i = 0; i < length; i++)
