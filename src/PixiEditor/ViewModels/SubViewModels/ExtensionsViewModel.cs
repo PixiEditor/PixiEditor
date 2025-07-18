@@ -63,6 +63,15 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
             ILocalizationProvider.Current.LoadExtensionData(loadedExtension.Metadata.Localization?.Languages,
                 loadedExtension.Location);
             loadedExtension.Initialize(new ExtensionServices(Owner.Services));
+            if (Owner.AttachedWindow != null && Owner.AttachedWindow.IsLoaded)
+            {
+                loadedExtension.MainWindowLoaded();
+            }
+
+            if (Owner.IsUserReady)
+            {
+                loadedExtension.UserReady();
+            }
         }
     }
 
