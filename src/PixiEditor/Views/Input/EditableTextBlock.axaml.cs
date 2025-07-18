@@ -74,10 +74,13 @@ internal partial class EditableTextBlock : UserControl
         set => SetValue(TextProperty, value);
     }
 
+    private string oldText;
+
     public void EnableEditing()
     {
         ShortcutController.BlockShortcutExecution("EditableTextBlock");
         TextBlockVisibility = false;
+        oldText = textBox.Text;
         IsEditing = true;
 
         Dispatcher.UIThread.Post(
@@ -93,7 +96,8 @@ internal partial class EditableTextBlock : UserControl
         TextBlockVisibility = true;
         ShortcutController.UnblockShortcutExecution("EditableTextBlock");
         IsEditing = false;
-        OnSubmit?.Invoke(this, new TextChangedEventArgs(textBox.Text, Text));
+        OnSubmit?.Invoke(this, new TextChangedEventArgs(Text, oldText));
+        oldText = Text;
     }
 
     private static void OnIsEditingChanged(AvaloniaPropertyChangedEventArgs<bool> e)

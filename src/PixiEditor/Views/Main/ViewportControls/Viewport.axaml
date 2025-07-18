@@ -166,7 +166,7 @@
         </overlays:TogglableFlyout>
         <Grid
             IsVisible="{Binding HudVisible, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}}"
-            ZIndex="100" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="10">
+            ZIndex="100" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="10, 10, 10, -95">
             <Grid.RowDefinitions>
                 <RowDefinition MinHeight="40" MaxHeight="120" />
                 <RowDefinition Height="30" />
@@ -231,7 +231,6 @@
                                Padding="0, 5, 0, 0"
                                Background="Transparent"
                                HorizontalAlignment="Left"
-                               Margin="0, 0, 0, -95"
                                ToolSet="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet, Mode=TwoWay}"
                                ToolSets="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.AllToolSets, Mode=OneWay}"
                                SwitchToolSetCommand="{xaml:Command Name=PixiEditor.Tools.SwitchToolSet, UseProvided=True}" />

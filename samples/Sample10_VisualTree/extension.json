@@ -1,0 +1,39 @@
+{
+  "displayName": "Sample Extension - Visual Tree",
+  "uniqueName": "yourCompany.Samples.VisualTree",
+  "description": "Sample Visual Tree extension for PixiEditor",
+  "version": "1.0.0",
+  "localization": {
+    "languages": [
+      {
+        "name": "English",
+        "code": "en",
+        "localeFileName": "Localization/en.json"
+      }
+    ]
+  },
+  "author": {
+    "name": "PixiEditor",
+    "email": "info@pixieditor.net",
+    "website": "https://pixieditor.net"
+  },
+  "publisher": {
+    "name": "PixiEditor",
+    "email": "info@pixieditor.net",
+    "website": "https://pixieditor.net"
+  },
+  "contributors": [
+    {
+      "name": "flabbet",
+      "email": "some@mail.com",
+      "website": "https://github.com/flabbet"
+    }
+  ],
+  "license": "MIT",
+  "categories": [
+    "Extension"
+  ],
+  "Permissions": [
+    "ReadUserData"
+  ]
+}

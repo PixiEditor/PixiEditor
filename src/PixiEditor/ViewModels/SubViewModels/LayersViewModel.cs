@@ -186,6 +186,20 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         layerVm.LockTransparencyBindable = !layerVm.LockTransparencyBindable;
     }
 
+    [Command.Internal("PixiEditor.Layer.SelectActiveMember", AnalyticsTrack = true)]
+    public void SelectActiveMember(Guid memberGuid)
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return;
+
+        var member = doc.StructureHelper.Find(memberGuid);
+        if (member is null)
+            return;
+
+        doc.Operations.SetSelectedMember(member.Id);
+    }
+
     [Command.Internal("PixiEditor.Layer.OpacitySliderDragStarted")]
     public void OpacitySliderDragStarted()
     {

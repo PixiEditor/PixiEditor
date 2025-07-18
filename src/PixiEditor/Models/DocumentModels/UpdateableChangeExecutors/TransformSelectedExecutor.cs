@@ -46,8 +46,13 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
     public override ExecutionState Start()
     {
         tool = GetHandler<IMoveToolHandler>();
-        if (tool is null || document!.SelectedStructureMember is null)
+        if (tool is null)
             return ExecutionState.Error;
+
+        if (document!.SelectedStructureMember is null)
+        {
+            return ExecutionState.Success; // Listen for click events only
+        }
 
         tool.TransformingSelectedArea = true;
         List<IStructureMemberHandler> members = new();
@@ -190,6 +195,11 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
             {
                 Deselect(topMostList);
             }
+        }
+        else if(!topMostWithinClick.Any())
+        {
+            document?.Operations.ClearSoftSelectedMembers();
+            document?.Operations.SetSelectedMember(Guid.Empty);
         }
     }
 
@@ -471,10 +481,12 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         }
 
         internals!.ActionAccumulator.AddActions(new EndPreviewShiftLayers_Action());
-        if (!movedOnce)
+        bool showedTransformButton = Type == ExecutorType.Regular || tool.KeepOriginalImage;
+        if (!movedOnce && showedTransformButton)
         {
             DoTransform(lastCorners);
         }
+
         internals!.ActionAccumulator.AddActions(new EndTransformSelected_Action());
         internals!.ActionAccumulator.AddFinishedActions();
         document!.TransformHandler.HideTransform();

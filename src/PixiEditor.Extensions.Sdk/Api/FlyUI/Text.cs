@@ -1,8 +1,10 @@
 ﻿using PixiEditor.Extensions.CommonApi.FlyUI;
 using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
+using PixiEditor.Extensions.Sdk.Attributes;
 
 namespace PixiEditor.Extensions.Sdk.Api.FlyUI;
 
+[ControlTypeId("Text")]
 public class Text : LayoutElement
 {
     public string Value { get; set; }
@@ -20,7 +22,7 @@ public class Text : LayoutElement
 
     protected override ControlDefinition CreateControl()
     {
-        ControlDefinition text = new ControlDefinition(UniqueId, "Text");
+        ControlDefinition text = new ControlDefinition(UniqueId, GetType());
         text.AddProperty(Value);
         text.AddProperty(TextWrap);
         text.AddProperty(TextStyle);

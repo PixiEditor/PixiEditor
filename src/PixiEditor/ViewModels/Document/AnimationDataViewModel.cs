@@ -17,6 +17,8 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
     private int frameRateBindable = 60;
     private int onionFrames = 1;
     private double onionOpacity = 50;
+    private int defaultEndFrameBindable = 60;
+    private bool defaultEndFrameSet = false;
 
     public DocumentViewModel Document { get; }
     protected DocumentInternalParts Internals { get; }
@@ -110,17 +112,27 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         }
     }
 
+    public int DefaultEndFrameBindable
+    {
+        get => defaultEndFrameBindable;
+        set
+        {
+            if (Document.BlockingUpdateableChangeActive)
+                return;
+
+            Internals.ActionAccumulator.AddFinishedActions(new SetDefaultEndFrame_Action(value));
+        }
+    }
+
     public int FirstVisibleFrame => cachedFirstFrame ??= keyFrames.Count > 0 ? keyFrames.Min(x => x.StartFrameBindable) : 1;
 
     public int LastFrame => cachedLastFrame ??= keyFrames.Count > 0
         ? keyFrames.Max(x => x.StartFrameBindable + x.DurationBindable)
-        : DefaultEndFrame;
+        : DefaultEndFrameBindable;
 
     public int FramesCount => LastFrame - 1;
 
     private double ActiveNormalizedTime => (double)(ActiveFrameBindable - 1) / (FramesCount - 1);
-
-    private int DefaultEndFrame => FrameRateBindable; // 1 second
 
     public AnimationDataViewModel(DocumentViewModel document, DocumentInternalParts internals)
     {
@@ -192,8 +204,27 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
     public void SetFrameRate(int newFrameRate)
     {
         frameRateBindable = newFrameRate;
+        if (!defaultEndFrameSet)
+        {
+            defaultEndFrameBindable = frameRateBindable;
+            defaultEndFrameSet = true;
+        }
+
         OnPropertyChanged(nameof(FrameRateBindable));
-        OnPropertyChanged(nameof(DefaultEndFrame));
+        OnPropertyChanged(nameof(DefaultEndFrameBindable));
+        OnPropertyChanged(nameof(LastFrame));
+        OnPropertyChanged(nameof(FramesCount));
+    }
+
+    public void SetDefaultEndFrame(int newDefaultEndFrame)
+    {
+        if (newDefaultEndFrame < 0)
+            return;
+
+        defaultEndFrameBindable = newDefaultEndFrame;
+        defaultEndFrameSet = true;
+        cachedLastFrame = null;
+        OnPropertyChanged(nameof(DefaultEndFrameBindable));
         OnPropertyChanged(nameof(LastFrame));
         OnPropertyChanged(nameof(FramesCount));
     }
@@ -442,7 +473,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
     {
         return keyFrames.Count > 0
             ? keyFrames.Where(x => x.IsVisible).Max(x => x.StartFrameBindable + x.DurationBindable)
-            : DefaultEndFrame;
+            : DefaultEndFrameBindable;
     }
 
     public int GetVisibleFramesCount()
@@ -468,9 +499,11 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
             return true;
         }
 
+        var reversedLayers = allLayers.Reverse().ToList();
+
         for (int i = 0; i < groups.Count; i++)
         {
-            if (groups[i].LayerGuid != allLayers.ElementAt(i).Id)
+            if (groups[0].LayerGuid != reversedLayers.ElementAt(i).Id)
             {
                 return true;
             }

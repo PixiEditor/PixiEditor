@@ -1,8 +1,10 @@
 ﻿using PixiEditor.Extensions.CommonApi.FlyUI;
 using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
+using PixiEditor.Extensions.Sdk.Attributes;
 
 namespace PixiEditor.Extensions.Sdk.Api.FlyUI;
 
+[ControlTypeId("Container")]
 public class Container : SingleChildLayoutElement
 {
     public Edges Margin { get; set; }
@@ -22,7 +24,7 @@ public class Container : SingleChildLayoutElement
     
     protected override ControlDefinition CreateControl()
     {
-        ControlDefinition container = new ControlDefinition(UniqueId, "Container");
+        ControlDefinition container = new ControlDefinition(UniqueId, GetType());
         container.AddProperty(Margin);
 
         container.AddProperty(BackgroundColor);

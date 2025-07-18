@@ -199,15 +199,17 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
         if (ActiveDocument is null)
             return;
 
-        if (ActiveDocument.SelectionPathBindable is { IsEmpty: false })
+        if (ActiveDocument.SelectionPathBindable != null && ActiveDocument.SelectionPathBindable is { IsEmpty: false })
         {
-            Owner.DocumentManagerSubViewModel.ActiveDocument?.Operations.DeleteSelectedPixels(activeDocument
-                .AnimationDataViewModel.ActiveFrameBindable);
+            ActiveDocument.Operations.DeleteSelectedPixels(ActiveDocument.AnimationDataViewModel.ActiveFrameBindable);
         }
         else
         {
             var selectedMembers = ActiveDocument?.GetSelectedMembers();
-            Owner.DocumentManagerSubViewModel.ActiveDocument?.Operations.DeleteStructureMembers(selectedMembers);
+            if (selectedMembers == null || selectedMembers.Count == 0)
+                return;
+
+            ActiveDocument?.Operations.DeleteStructureMembers(selectedMembers);
         }
     }
 

@@ -101,6 +101,11 @@ internal class DocumentViewModelBuilder
             BuildKeyFrames(animationData.KeyFrameGroups.ToList(), AnimationData.KeyFrameGroups, documentGraph);
         }
 
+        if (animationData?.DefaultEndFrame >= 0)
+        {
+            AnimationData.WithDefaultEndFrame(animationData.DefaultEndFrame);
+        }
+
         return this;
     }
 
@@ -279,6 +284,7 @@ internal class AnimationDataBuilder
     public List<KeyFrameBuilder> KeyFrameGroups { get; set; } = new List<KeyFrameBuilder>();
     public int OnionFrames { get; set; }
     public double OnionOpacity { get; set; } = 50;
+    public int DefaultEndFrame { get; set; } = -1;
 
     public AnimationDataBuilder WithFrameRate(int frameRate)
     {
@@ -301,6 +307,12 @@ internal class AnimationDataBuilder
     public AnimationDataBuilder WithKeyFrameGroups(Action<List<KeyFrameBuilder>> builder)
     {
         builder(KeyFrameGroups);
+        return this;
+    }
+
+    public AnimationDataBuilder WithDefaultEndFrame(int endFrame)
+    {
+        DefaultEndFrame = endFrame;
         return this;
     }
 }

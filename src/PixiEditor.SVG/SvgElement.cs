@@ -116,4 +116,22 @@ public class SvgElement(string tagName)
         property.Unit ??= property.CreateDefaultUnit();
         property.Unit.ValuesFromXml(reader.Value, defs);
     }
+
+    public SvgElement Clone()
+    {
+        StringBuilder sb = new();
+        using (XmlWriter writer = XmlWriter.Create(sb, new XmlWriterSettings { OmitXmlDeclaration = true }))
+        {
+            XElement element = ToXml(XNamespace.None, new DefStorage(null));
+            element.WriteTo(writer);
+        }
+
+        using (XmlReader reader = XmlReader.Create(new StringReader(sb.ToString())))
+        {
+            reader.MoveToContent();
+            SvgElement clone = (SvgElement)Activator.CreateInstance(GetType())!;
+            clone.ParseData(reader, new SvgDefs());
+            return clone;
+        }
+    }
 }

@@ -7,6 +7,7 @@
              xmlns:palettes="clr-namespace:PixiEditor.Views.Palettes"
              xmlns:ui1="clr-namespace:PixiEditor.Helpers.UI"
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker.AvaloniaUI"
              d:DesignHeight="450" d:DesignWidth="300" Name="paletteControl">
     <Grid>
         <DockPanel IsVisible="{Binding !IsCompact, ElementName=paletteControl}">
@@ -23,6 +24,16 @@
                 </Grid.RowDefinitions>
                 <StackPanel Orientation="Vertical" Grid.Row="0" Background="{DynamicResource ThemeBackgroundBrush1}">
                     <DockPanel VerticalAlignment="Center" Margin="0 5 0 0">
+                        <colorPicker:ColorDisplay
+                            DockPanel.Dock="Left" Width="30"
+                            SelectedColor="{Binding ElementName=paletteControl, Path=HintColor}"
+                            SecondaryColor="{Binding ElementName=paletteControl, Path=SecondaryColor}">
+                            <colorPicker:ColorDisplay.Styles>
+                                <Style Selector="Button">
+                                    <Setter Property="IsVisible" Value="False" />
+                                </Style>
+                            </colorPicker:ColorDisplay.Styles>
+                        </colorPicker:ColorDisplay>
                         <palettes:PaletteColorAdder DockPanel.Dock="Left" Margin="5 0 0 0"
                                                     Swatches="{Binding ElementName=paletteControl, Path=Swatches}"
                                                     HintColor="{Binding ElementName=paletteControl, Path=HintColor}"
@@ -68,10 +79,23 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <palettes:PaletteColorControl Cursor="Hand"
+                                                              ClipToBounds="False"
                                                               ui:Translator.TooltipKey="PALETTE_COLOR_TOOLTIP"
                                                               DragDrop.AllowDrop="True" Color="{Binding}"
                                                               Margin="2.5"
                                                               DropCommand="{Binding ElementName=paletteControl, Path=DropColorCommand}">
+                                    <palettes:PaletteColorControl.IsSelected>
+                                        <MultiBinding Converter="{converters:PaletteColorEqualsConverter}">
+                                            <Binding Path="." />
+                                            <Binding Path="HintColor" ElementName="paletteControl" />
+                                        </MultiBinding>
+                                    </palettes:PaletteColorControl.IsSelected>
+                                    <palettes:PaletteColorControl.IsSelectedSecondary>
+                                        <MultiBinding Converter="{converters:PaletteColorEqualsConverter}">
+                                            <Binding Path="." />
+                                            <Binding Path="SecondaryColor" ElementName="paletteControl" />
+                                        </MultiBinding>
+                                    </palettes:PaletteColorControl.IsSelectedSecondary>
                                     <palettes:PaletteColorControl.AssociatedKey>
                                         <MultiBinding Converter="{converters:IndexToAssociatedKeyConverter}">
                                             <Binding Path="." />
@@ -123,6 +147,18 @@
                                                           DragDrop.AllowDrop="True" Color="{Binding}"
                                                           Height="24" Width="24" CornerRadius="0"
                                                           DropCommand="{Binding ElementName=paletteControl, Path=DropColorCommand}">
+                                <palettes:PaletteColorControl.IsSelected>
+                                    <MultiBinding Converter="{converters:PaletteColorEqualsConverter}">
+                                        <Binding Path="." />
+                                        <Binding Path="HintColor" ElementName="paletteControl" />
+                                    </MultiBinding>
+                                </palettes:PaletteColorControl.IsSelected>
+                                <palettes:PaletteColorControl.IsSelectedSecondary>
+                                    <MultiBinding Converter="{converters:PaletteColorEqualsConverter}">
+                                        <Binding Path="." />
+                                        <Binding Path="SecondaryColor" ElementName="paletteControl" />
+                                    </MultiBinding>
+                                </palettes:PaletteColorControl.IsSelectedSecondary>
                                 <Interaction.Behaviors>
                                     <EventTriggerBehavior EventName="PointerReleased">
                                         <InvokeCommandAction

@@ -51,6 +51,18 @@ internal static partial class Native
         ExtensionContext.Active.OnInitialized();
     }
 
+    [ApiExport("user_ready")]
+    internal static void OnUserReady()
+    {
+        ExtensionContext.Active.OnUserReady();
+    }
+
+    [ApiExport("main_window_loaded")]
+    internal static void OnMainWindowLoaded()
+    {
+        ExtensionContext.Active.OnMainWindowLoaded();
+    }
+
     [ApiExport("raise_element_event")]
     internal static void EventRaised(int internalControlId, string eventName, IntPtr eventData, int dataLength)
     {
@@ -75,4 +87,18 @@ internal static partial class Native
     [MethodImpl(MethodImplOptions.InternalCall)]
     public static extern string to_resources_full_path(string value);
 
+    [MethodImpl(MethodImplOptions.InternalCall)]
+    public static extern IntPtr get_encryption_key();
+
+    [MethodImpl(MethodImplOptions.InternalCall)]
+    public static extern IntPtr get_encryption_iv();
+
+    [MethodImpl(MethodImplOptions.InternalCall)]
+    public static extern IntPtr load_encrypted_resource(string path);
+
+    [MethodImpl(MethodImplOptions.InternalCall)]
+    public static extern void write_encrypted_resource(string path, IntPtr data, int length);
+
+    [MethodImpl(MethodImplOptions.InternalCall)]
+    public static extern IntPtr get_encrypted_files_at_path(string path, string searchPattern);
 }

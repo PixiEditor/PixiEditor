@@ -1,8 +1,10 @@
 ﻿using PixiEditor.Extensions.CommonApi.FlyUI;
 using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
+using PixiEditor.Extensions.Sdk.Attributes;
 
 namespace PixiEditor.Extensions.Sdk.Api.FlyUI;
 
+[ControlTypeId("Align")]
 public class Align : SingleChildLayoutElement
 {
     public Alignment Alignment { get; set; }
@@ -15,7 +17,7 @@ public class Align : SingleChildLayoutElement
 
     protected override ControlDefinition CreateControl()
     {
-        ControlDefinition controlDefinition = new ControlDefinition(UniqueId, "Align");
+        ControlDefinition controlDefinition = new ControlDefinition(UniqueId, GetType());
         controlDefinition.AddProperty((int)Alignment);
         
         if (Child != null)

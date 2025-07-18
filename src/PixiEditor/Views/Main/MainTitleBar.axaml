@@ -11,6 +11,8 @@
              xmlns:menu="clr-namespace:PixiEditor.ViewModels.Menu"
              xmlns:main="clr-namespace:PixiEditor.Views.Main"
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:auth="clr-namespace:PixiEditor.Views.Auth"
+             xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="menu:MenuBarViewModel"
              x:Class="PixiEditor.Views.Main.MainTitleBar">
@@ -21,12 +23,11 @@
         <dialogs:DialogTitleBar
             DockPanel.Dock="Top">
             <dialogs:DialogTitleBar.AdditionalElement>
-                <Border BorderThickness="1" BorderBrush="{DynamicResource AccentColor}"
-                        Padding="5 0" CornerRadius="5" Height="25"
-                        IsVisible="{Binding Path=AdditionalContentSubViewModel.IsSupporterPackAvailable, FallbackValue=False}">
-                    <TextBlock VerticalAlignment="Center"
-                               ui:Translator.Key="PixiEditor.SupporterPack:AWESOME_SUPPORTER" />
-                </Border>
+                <StackPanel Margin="5 0" Spacing="5" Orientation="Horizontal"
+                            Name="MainBarAdditionalElementPanel"
+                            DataContext="{Binding Path=DataContext, RelativeSource={RelativeSource FindAncestor, AncestorType=main:MainTitleBar}}">
+                    <auth:UserAvatarToggle Width="26" Height="26" DataContext="{Binding Path=UserViewModel}" />
+                </StackPanel>
             </dialogs:DialogTitleBar.AdditionalElement>
         </dialogs:DialogTitleBar>
         <Panel DockPanel.Dock="Left"
@@ -42,6 +43,9 @@
                 </OnPlatform>
             </Panel.Margin>
             <ToggleButton Name="LogoButton" Padding="0" BorderThickness="0">
+                <Interaction.Behaviors>
+                    <behaviours:ShowFlyoutOnTrigger Trigger="{Binding OpenPixiEditorMenuTrigger}" />
+                </Interaction.Behaviors>
                 <ToggleButton.Background>
                     <VisualBrush>
                         <VisualBrush.Visual>
@@ -81,13 +85,42 @@
             <Panel ClipToBounds="False" Margin="10, 10, 0, 0"
                    IsVisible="{Binding UpdateViewModel.SelfUpdatingAvailable}"
                    IsHitTestVisible="False" VerticalAlignment="Bottom" HorizontalAlignment="Right">
+                <Panel.Styles>
+                    <Style Selector="TextBlock.pulse">
+                        <Style.Animations>
+                            <Animation Duration="0:0:1" DelayBetweenIterations="0:0:2.5" IterationCount="60">
+                                <Animation.Easing>
+                                    <CubicEaseInOut />
+                                </Animation.Easing>
+                                <KeyFrame Cue="0%">
+                                    <Setter Property="ScaleTransform.ScaleX" Value="1" />
+                                    <Setter Property="ScaleTransform.ScaleY" Value="1" />
+                                    <Setter Property="RotateTransform.Angle" Value="0" />
+                                </KeyFrame>
+                                <KeyFrame Cue="50%">
+                                    <Setter Property="ScaleTransform.ScaleX" Value="1.5" />
+                                    <Setter Property="ScaleTransform.ScaleY" Value="1.5" />
+                                    <Setter Property="RotateTransform.Angle" Value="45" />
+                                </KeyFrame>
+                                <KeyFrame Cue="75%">
+                                    <Setter Property="RotateTransform.Angle" Value="-45" />
+                                </KeyFrame>
+                                <KeyFrame Cue="100%">
+                                    <Setter Property="ScaleTransform.ScaleX" Value="1" />
+                                    <Setter Property="ScaleTransform.ScaleY" Value="1" />
+                                    <Setter Property="RotateTransform.Angle" Value="0" />
+                                </KeyFrame>
+                            </Animation>
+                        </Style.Animations>
+                    </Style>
+                </Panel.Styles>
                 <TextBlock Text="!" IsVisible="{Binding UpdateViewModel.IsUpdateAvailable}"
                            ClipToBounds="False"
-                           FontWeight="SemiBold"
+                           FontWeight="SemiBold" Classes="pulse"
                            Foreground="Yellow" FontSize="18" />
                 <TextBlock Text="{DynamicResource icon-settings}"
                            ClipToBounds="False"
-                            Width="16" Height="16"
+                           Width="16" Height="16"
                            IsVisible="{Binding UpdateViewModel.IsDownloading}"
                            Classes="pixi-icon" Foreground="DarkGray" FontSize="16">
                     <TextBlock.Styles>
@@ -107,7 +140,8 @@
                 </TextBlock>
                 <Ellipse
                     ClipToBounds="False"
-                    Fill="{DynamicResource ThemeAccent3Brush}" IsVisible="{Binding UpdateViewModel.UpdateReadyToInstall}"
+                    Fill="{DynamicResource ThemeAccent3Brush}"
+                    IsVisible="{Binding UpdateViewModel.UpdateReadyToInstall}"
                     Width="8" Height="8" />
             </Panel>
         </Panel>

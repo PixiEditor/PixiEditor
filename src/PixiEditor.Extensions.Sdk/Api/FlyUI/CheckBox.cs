@@ -1,8 +1,10 @@
 ﻿using PixiEditor.Extensions.CommonApi.FlyUI;
 using PixiEditor.Extensions.CommonApi.FlyUI.Events;
+using PixiEditor.Extensions.Sdk.Attributes;
 
 namespace PixiEditor.Extensions.Sdk.Api.FlyUI;
 
+[ControlTypeId("CheckBox")]
 public class CheckBox : SingleChildLayoutElement
 {
     public event ElementEventHandler CheckedChanged
@@ -35,7 +37,7 @@ public class CheckBox : SingleChildLayoutElement
 
     protected override ControlDefinition CreateControl()
     {
-        ControlDefinition checkbox = new ControlDefinition(UniqueId, "CheckBox");
+        ControlDefinition checkbox = new ControlDefinition(UniqueId, GetType());
         if (Child != null)
             checkbox.AddChild(Child.BuildNative());
 

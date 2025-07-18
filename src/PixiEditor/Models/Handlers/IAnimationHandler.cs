@@ -27,4 +27,5 @@ internal interface IAnimationHandler : IDisposable
     public int LastFrame { get; }
     public void SetOnionFrames(int frames, double opacity);
     public void SetPlayingState(bool play);
+    public void SetDefaultEndFrame(int newEndFrame);
 }

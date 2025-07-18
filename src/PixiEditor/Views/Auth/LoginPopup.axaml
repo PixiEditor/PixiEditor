@@ -1,0 +1,29 @@
+<dialogs:PixiEditorPopup xmlns="https://github.com/avaloniaui"
+                         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                         xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
+                         xmlns:auth="clr-namespace:PixiEditor.Views.Auth"
+                         xmlns:viewModels="clr-namespace:PixiEditor.ViewModels"
+                         xmlns:subViewModels="clr-namespace:PixiEditor.ViewModels.SubViewModels"
+                         xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+                         xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+                         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+                         x:Class="PixiEditor.Views.Auth.LoginPopup"
+                         CanMinimize="True"
+                         CanResize="False"
+                         Width="320" Height="280"
+                         localization:Translator.Key="ACCOUNT_WINDOW_TITLE">
+    <Design.DataContext>
+        <subViewModels:UserViewModel />
+    </Design.DataContext>
+
+    <Panel>
+        <auth:LoginForm
+            IsVisible="{Binding DataContext.IdentityProvider.IsValid, RelativeSource={RelativeSource AncestorType=auth:LoginPopup, Mode=FindAncestor}}"
+            Margin="15" DataContext="{Binding}" />
+        <TextBlock IsVisible="{Binding !DataContext.IdentityProvider.IsValid, RelativeSource={RelativeSource AncestorType=auth:LoginPopup, Mode=FindAncestor}}"
+                   Text="{localization:Translate Key=ACCOUNT_PROVIDER_NOT_AVAILABLE}"
+                   Margin="15" TextWrapping="Wrap" />
+    </Panel>
+</dialogs:PixiEditorPopup>

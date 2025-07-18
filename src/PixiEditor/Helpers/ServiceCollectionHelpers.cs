@@ -10,6 +10,8 @@ using PixiEditor.Extensions.CommonApi.IO;
 using PixiEditor.Extensions.CommonApi.Logging;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Extensions.CommonApi.Palettes.Parsers;
+using PixiEditor.Extensions.CommonApi.Ui;
+using PixiEditor.Extensions.CommonApi.User;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Extensions.CommonApi.Windowing;
 using PixiEditor.Extensions.FlyUI;
@@ -72,6 +74,7 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<AnimationsViewModel>()
             .AddSingleton<NodeGraphManagerViewModel>()
             .AddSingleton<AutosaveViewModel>()
+            .AddSingleton<UserViewModel>()
             .AddSingleton<IColorsHandler, ColorsViewModel>(x => x.GetRequiredService<ColorsViewModel>())
             .AddSingleton<IWindowHandler, WindowViewModel>(x => x.GetRequiredService<WindowViewModel>())
             .AddSingleton<RegistryViewModel>()
@@ -213,5 +216,7 @@ internal static class ServiceCollectionHelpers
             })
             .AddSingleton<ICommandSupervisor, CommandSupervisor>()
             .AddSingleton<ILogger, ConsoleLogger>()
+            .AddSingleton<IVisualTreeProvider, VisualTreeProvider>()
+            .AddSingleton<IUserDataProvider, UserDataProvider>()
             .AddSingleton<IFileSystemProvider, FileSystemProvider>();
 }

@@ -1,4 +1,5 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.Animation;
 
 namespace PixiEditor.ChangeableDocument.Changes.Animation;
@@ -31,6 +32,17 @@ internal class KeyFrameLength_UpdateableChange : UpdateableChange
     {
         if (target.AnimationData.TryFindKeyFrame<KeyFrame>(KeyFrameGuid, out KeyFrame frame))
         {
+            var node = target.FindNode<Node>(frame.NodeId);
+            if (node is null)
+            {
+                return false;
+            }
+
+            if (node.KeyFrames.FirstOrDefault()?.KeyFrameGuid == frame.Id)
+            {
+                return false;
+            }
+
             originalStartFrame = frame.StartFrame;
             originalDuration = frame.Duration;
             return true;

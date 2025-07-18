@@ -1,8 +1,10 @@
 ﻿using PixiEditor.Extensions.CommonApi.FlyUI;
 using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
+using PixiEditor.Extensions.Sdk.Attributes;
 
 namespace PixiEditor.Extensions.Sdk.Api.FlyUI;
 
+[ControlTypeId("Border")]
 public class Border : SingleChildLayoutElement
 {
     public Color Color { get; set; }
@@ -38,7 +40,7 @@ public class Border : SingleChildLayoutElement
 
     protected override ControlDefinition CreateControl()
     {
-        ControlDefinition controlDefinition = new(UniqueId, "Border");
+        ControlDefinition controlDefinition = new(UniqueId, GetType());
         if (Child != null)
         {
             controlDefinition.Children.Add(Child.BuildNative());

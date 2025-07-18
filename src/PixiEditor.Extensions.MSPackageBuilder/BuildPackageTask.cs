@@ -10,12 +10,14 @@ public class BuildPackageTask : Microsoft.Build.Utilities.Task
     
     [Required]
     public string TargetDirectory { get; set; } = default!;
-    
+
+    public string EncryptionKey { get; set; }
+
     public override bool Execute()
     {
         try
         {
-            PackageBuilder.Build(BuildResultDirectory, TargetDirectory);
+            PackageBuilder.Build(BuildResultDirectory, TargetDirectory, !string.IsNullOrEmpty(EncryptionKey));
         }
         catch (Exception e)
         {

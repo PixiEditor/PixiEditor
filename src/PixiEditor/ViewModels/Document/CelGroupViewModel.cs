@@ -2,6 +2,7 @@
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Reactive.Linq;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
 
@@ -21,6 +22,8 @@ internal class CelGroupViewModel : CelViewModel, ICelGroupHandler
         : 0);
 
     public string LayerName => Document.StructureHelper.Find(LayerGuid).NodeNameBindable;
+
+    public bool IsGroupSelected => Document.SelectedStructureMember.Id == LayerGuid;
 
     public bool IsCollapsed
     {
@@ -65,6 +68,16 @@ internal class CelGroupViewModel : CelViewModel, ICelGroupHandler
                 OnPropertyChanged(nameof(LayerName));
             }
         };
+
+        Document.PropertyChanged += DocumentOnPropertyChanged;
+    }
+
+    private void DocumentOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if(e.PropertyName == nameof(IDocument.SelectedStructureMember))
+        {
+            OnPropertyChanged(nameof(IsGroupSelected));
+        }
     }
 
     private void ChildrenOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)

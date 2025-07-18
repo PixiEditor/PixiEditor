@@ -35,7 +35,7 @@ internal class ReplaceColorOperation : IDrawOperation
             targetColorBits = newColor.TransformColor(transform).ToULong();
 
             var transformOld = targetChunk.Surface.ImageInfo.ColorSpace.GetTransformFunction();
-            colorBounds = new ColorBounds(oldColor.TransformColor(transform));
+            colorBounds = new ColorBounds((Color)oldColor.TransformColor(transform));
         }
 
         ReplaceColor(colorBounds, targetColorBits, targetChunk);

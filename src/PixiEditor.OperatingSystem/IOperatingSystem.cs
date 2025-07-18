@@ -5,7 +5,7 @@ namespace PixiEditor.OperatingSystem;
 
 public interface IOperatingSystem
 {
-    public static IOperatingSystem Current { get; protected set; }
+    public static IOperatingSystem? Current { get; protected set; }
     public string Name { get; }
 
     public virtual string AnalyticsName => Environment.OSVersion.ToString();
@@ -13,6 +13,7 @@ public interface IOperatingSystem
 
     public IInputKeys InputKeys { get; }
     public IProcessUtility ProcessUtility { get; }
+    public IEncryptor Encryptor { get; }
     public bool IsMacOs => Name == "MacOS";
     public bool IsWindows => Name == "Windows";
     public bool IsLinux => Name == "Linux";
@@ -32,5 +33,8 @@ public interface IOperatingSystem
 
     public void OpenUri(string uri);
     public void OpenFolder(string path);
-    public bool HandleNewInstance(Dispatcher? dispatcher, Action<string, bool> openInExistingAction, IApplicationLifetime lifetime);
+
+    public bool HandleNewInstance(Dispatcher? dispatcher, Action<string, bool> openInExistingAction,
+        IApplicationLifetime lifetime);
 }
+

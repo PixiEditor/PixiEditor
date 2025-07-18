@@ -661,8 +661,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// <param name="toolLinked">Is this transform started by a tool</param>
     public void TransformSelectedArea(bool toolLinked)
     {
-        if (Document.SelectedStructureMember is null ||
-            Internals.ChangeController.IsBlockingChangeActive && !toolLinked)
+        if (Internals.ChangeController.IsBlockingChangeActive && !toolLinked)
             return;
 
         Internals.ChangeController.TryStopActiveExecutor();

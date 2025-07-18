@@ -228,6 +228,9 @@ internal class DocumentUpdater
             case ComputedPropertyValue_ChangeInfo info:
                 ProcessComputedPropertyValue(info);
                 break;
+            case DefaultEndFrame_ChangeInfo info:
+                ProcessNewDefaultEndFrame(info);
+                break;
         }
     }
 
@@ -304,7 +307,7 @@ internal class DocumentUpdater
     private void ProcessSetSelectedMember(SetSelectedMember_PassthroughAction info)
     {
         IStructureMemberHandler? member = doc.StructureHelper.Find(info.Id);
-        if (member is null || member.Selection == StructureMemberSelectionType.Hard)
+        if (member is not null && member.Selection == StructureMemberSelectionType.Hard)
             return;
 
         if (doc.SelectedStructureMember is { } oldMember)
@@ -312,7 +315,11 @@ internal class DocumentUpdater
             oldMember.Selection = StructureMemberSelectionType.None;
         }
 
-        member.Selection = StructureMemberSelectionType.Hard;
+        if (member != null)
+        {
+            member.Selection = StructureMemberSelectionType.Hard;
+        }
+
         doc.SetSelectedMember(member);
     }
 
@@ -560,6 +567,11 @@ internal class DocumentUpdater
     private void ProcessActiveFrame(SetActiveFrame_PassthroughAction info)
     {
         doc.AnimationHandler.SetActiveFrame(info.Frame);
+    }
+
+    private void ProcessNewDefaultEndFrame(DefaultEndFrame_ChangeInfo info)
+    {
+        doc.AnimationHandler.SetDefaultEndFrame(info.NewDefaultEndFrame);
     }
 
     private void ProcessKeyFrameLength(KeyFrameLength_ChangeInfo info)

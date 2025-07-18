@@ -7,12 +7,18 @@ namespace PixiEditor.Api.CGlueMSBuild;
 
 public class CApiGenerator
 {
+    private static readonly string[] excluded = new[] { "get_encryption_key", "get_encryption_iv" };
     private string InteropCContent { get; }
     private Action<string> Log { get; }
-    public CApiGenerator(string interopCContent, Action<string> log)
+    public string? ResourcesEncryptionKey { get; set; }
+    public string? ResourcesEncryptionIv { get; set; }
+
+    public CApiGenerator(string interopCContent, string? resourcesEncryptionKey, string? resourcesEncryptionIv, Action<string> log)
     {
         InteropCContent = interopCContent;
         Log = log;
+        ResourcesEncryptionKey = resourcesEncryptionKey;
+        ResourcesEncryptionIv = resourcesEncryptionIv;
     }
 
     public string Generate(AssemblyDefinition assembly, string directory)
@@ -37,7 +43,20 @@ public class CApiGenerator
 
         sb.AppendLine(GenerateAttachImportedFunctions(importedMethods));
 
-        return InteropCContent.Replace("void attach_imported_functions(){}", sb.ToString());
+        string final = InteropCContent;
+        if (!string.IsNullOrEmpty(ResourcesEncryptionKey) && !string.IsNullOrEmpty(ResourcesEncryptionIv))
+        {
+            byte[] keyBytes = Convert.FromBase64String(ResourcesEncryptionKey);
+            byte[] ivBytes = Convert.FromBase64String(ResourcesEncryptionIv);
+
+            final = InteropCContent.Replace("static const uint8_t key[16] = { };",
+                $"static const uint8_t key[16] = {{ {string.Join(", ", keyBytes.Select(b => b.ToString()))} }};");
+
+            final = final.Replace("static const uint8_t iv[16] = { };",
+                $"static const uint8_t iv[16] = {{ {string.Join(", ", ivBytes.Select(b => b.ToString()))} }};");
+        }
+
+        return final.Replace("void attach_imported_functions(){}", sb.ToString());
     }
 
     public static MethodDefinition[] GetExportedMethods(TypeDefinition[] types)
@@ -53,9 +72,15 @@ public class CApiGenerator
     {
         var importedMethods = types
             .SelectMany(t => t.Methods)
-            .Where(m => m.IsStatic && m.ImplAttributes == MethodImplAttributes.InternalCall)
+            .Where(m => m.IsStatic && m.ImplAttributes == MethodImplAttributes.InternalCall && !IsExcluded(m))
             .ToArray();
         return importedMethods;
+    }
+
+    private static bool IsExcluded(MethodDefinition method)
+    {
+        return excluded.Any(ex => method.Name.StartsWith(ex, StringComparison.OrdinalIgnoreCase) ||
+                           method.DeclaringType.FullName.StartsWith(ex, StringComparison.OrdinalIgnoreCase));
     }
 
     public List<AssemblyDefinition> LoadAssemblies(AssemblyDefinition assembly, string directory)

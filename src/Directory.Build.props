@@ -50,12 +50,11 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <DefineConstants>TRACE;UPDATE</DefineConstants>
+    <DefineConstants>TRACE;UPDATE;RELEASE</DefineConstants>
     <DebugSymbols>False</DebugSymbols>
     <DebugType>None</DebugType>
     <Optimize>true</Optimize>
   </PropertyGroup>
-
 
   <PropertyGroup Condition="'$(Configuration)'=='ReleaseNoUpdate'">
     <DefineConstants>TRACE;RELEASE</DefineConstants>
@@ -69,6 +68,12 @@
     <DebugSymbols>true</DebugSymbols>
     <WarningLevel>0</WarningLevel>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='DebugSteam'">
+    <DefineConstants>TRACE;DEBUG;STEAM</DefineConstants>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Steam'">
@@ -115,5 +120,5 @@
   <PropertyGroup Condition="'$(RuntimeIdentifier)'=='osx-arm64'">
     <DefineConstants>$(DefineConstants);MACOS</DefineConstants>
   </PropertyGroup>
-  
+
 </Project>

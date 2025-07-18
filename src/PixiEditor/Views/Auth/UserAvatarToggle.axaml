@@ -1,0 +1,182 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:subViewModels="clr-namespace:PixiEditor.ViewModels.SubViewModels"
+             xmlns:pixiAuth="clr-namespace:PixiEditor.PixiAuth;assembly=PixiEditor.PixiAuth"
+             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+             xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+             xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
+             xmlns:auth="clr-namespace:PixiEditor.Views.Auth"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:ClassModifier="internal"
+             x:Class="PixiEditor.Views.Auth.UserAvatarToggle">
+    <Design.DataContext>
+        <subViewModels:UserViewModel />
+    </Design.DataContext>
+
+    <Grid>
+        <Grid.Styles>
+            <Style Selector="Ellipse.pulse">
+                <Style.Animations>
+                    <Animation Duration="0:0:1" DelayBetweenIterations="0:0:5" IterationCount="60">
+                        <Animation.Easing>
+                            <CubicEaseInOut />
+                        </Animation.Easing>
+                        <KeyFrame Cue="0%">
+                            <Setter Property="ScaleTransform.ScaleX" Value="1" />
+                            <Setter Property="ScaleTransform.ScaleY" Value="1" />
+                        </KeyFrame>
+                        <KeyFrame Cue="25%">
+                            <Setter Property="ScaleTransform.ScaleX" Value="1.5" />
+                            <Setter Property="ScaleTransform.ScaleY" Value="1.5" />
+                        </KeyFrame>
+                        <KeyFrame Cue="50%">
+                            <Setter Property="ScaleTransform.ScaleX" Value="1" />
+                            <Setter Property="ScaleTransform.ScaleY" Value="1" />
+                        </KeyFrame>
+                        <KeyFrame Cue="75%">
+                            <Setter Property="ScaleTransform.ScaleX" Value="1.5" />
+                            <Setter Property="ScaleTransform.ScaleY" Value="1.5" />
+                        </KeyFrame>
+                        <KeyFrame Cue="100%">
+                            <Setter Property="ScaleTransform.ScaleX" Value="1" />
+                            <Setter Property="ScaleTransform.ScaleY" Value="1" />
+                        </KeyFrame>
+                    </Animation>
+                </Style.Animations>
+            </Style>
+        </Grid.Styles>
+        <Border ClipToBounds="True" IsVisible="{Binding IsLoggedIn}" CornerRadius="25">
+            <Button Name="UserAvatarButton" Padding="0"
+                    BorderThickness="0" Classes="pixi-icon">
+                <Button.Content>
+                    <Image asyncImageLoader:ImageLoader.Source="{Binding AvatarUrl}" />
+                </Button.Content>
+                <Button.Styles>
+                    <Style Selector="FlyoutPresenter">
+                        <Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush}" />
+                    </Style>
+                    <Style Selector="FlyoutPresenter.arrow">
+                        <Setter Property="Cursor" Value="Arrow" />
+                    </Style>
+                </Button.Styles>
+                <Button.Flyout>
+                    <Flyout>
+                        <StackPanel Width="250" IsVisible="{Binding IsLoggedIn}" Margin="15" Orientation="Vertical">
+                            <Border ClipToBounds="True" Width="50" Height="50" CornerRadius="50">
+                                <HyperlinkButton NavigateUri="{Binding IdentityProvider.EditProfileUrl}" Cursor="Hand"
+                                                 ToolTip.Tip="{Binding IdentityProvider.EditProfileUrl}">
+                                    <Image asyncImageLoader:ImageLoader.Source="{Binding AvatarUrl}" />
+                                </HyperlinkButton>
+                            </Border>
+                            <TextBlock Margin="0, 12, 0, 24" HorizontalAlignment="Center"
+                                       FontSize="{DynamicResource FontSizeLarge}">
+                                <Run ui:Translator.Key="LOGGED_IN_AS" />
+                                <Run Text="{Binding Username}" />
+                            </TextBlock>
+
+                            <TextBlock Text="{ui:Translate Key=OWNED_PRODUCTS}" FontWeight="Bold" />
+                            <ItemsControl IsVisible="{Binding !!User}" ItemsSource="{Binding OwnedProducts}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Spacing="12" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <DockPanel>
+                                            <TextBlock DockPanel.Dock="Left" HorizontalAlignment="Left"
+                                                       Text="{Binding ProductData.DisplayName}" />
+                                            <Button DockPanel.Dock="Right" HorizontalAlignment="Right"
+                                                    IsVisible="{Binding !RestartRequired}"
+                                                    FontSize="{DynamicResource FontSizeNormal}"
+                                                    Command="{Binding InstallCommand}">
+                                                <Panel Margin="4 0">
+                                                    <TextBlock>
+                                                        <TextBlock.IsVisible>
+                                                            <MultiBinding Converter="{converters:AllTrueConverter}">
+                                                                <Binding Path="IsInstalled" />
+                                                                <Binding Path="!UpdateAvailable" />
+                                                            </MultiBinding>
+                                                        </TextBlock.IsVisible>
+                                                        <Run Classes="pixi-icon"
+                                                             Text="{DynamicResource icon-checkTick}" />
+                                                        <Run ui:Translator.Key="INSTALLED" />
+                                                    </TextBlock>
+
+                                                    <TextBlock Foreground="{DynamicResource ThemeAccent3Brush}">
+                                                        <TextBlock.IsVisible>
+                                                            <MultiBinding Converter="{converters:AllTrueConverter}">
+                                                                <Binding Path="UpdateAvailable" />
+                                                                <Binding Path="!IsInstalling" />
+                                                            </MultiBinding>
+                                                        </TextBlock.IsVisible>
+                                                        <Run Classes="pixi-icon"
+                                                             Text="{DynamicResource icon-download}" />
+                                                        <Run ui:Translator.Key="UPDATE" />
+                                                    </TextBlock>
+
+                                                    <TextBlock>
+                                                        <TextBlock.IsVisible>
+                                                            <MultiBinding Converter="{converters:AllTrueConverter}">
+                                                                <Binding Path="!IsInstalled" />
+                                                                <Binding Path="!IsInstalling" />
+                                                                <Binding Path="!UpdateAvailable" />
+                                                            </MultiBinding>
+                                                        </TextBlock.IsVisible>
+
+                                                        <Run Classes="pixi-icon" Text="{DynamicResource icon-download}" />
+                                                        <Run ui:Translator.Key="INSTALL" />
+                                                    </TextBlock>
+
+                                                    <TextBlock IsVisible="{Binding IsInstalling}"
+                                                               ui:Translator.Key="INSTALLING" />
+                                                </Panel>
+                                            </Button>
+                                            <Button DockPanel.Dock="Right" HorizontalAlignment="Right"
+                                                    FontSize="{DynamicResource FontSizeNormal}"
+                                                    IsVisible="{Binding RestartRequired}"
+                                                    ui:Translator.Key="RESTART"
+                                                    Background="{DynamicResource ThemeAccentBrush}"
+                                                    Command="{xaml:Command Name=PixiEditor.Restart}" />
+                                        </DockPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <Button Margin="0, 24, 0, 0"
+                                    Content="{ui:Translate Key=LOGOUT}"
+                                    IsVisible="{Binding IdentityProvider.AllowsLogout}"
+                                    Command="{Binding LogoutCommand}" />
+
+                            <TextBlock Classes="subtext" HorizontalAlignment="Center"
+                                       Margin="0, 12, 0, 0"
+                                       IsVisible="{Binding NonDefaultIdentityProvider}">
+                                <Run Text="{ui:Translate Key=ACCOUNT_PROVIDER_INFO}" />
+                                <Run Text="{Binding IdentityProvider.ProviderName}" />
+                            </TextBlock>
+                        </StackPanel>
+                    </Flyout>
+                </Button.Flyout>
+            </Button>
+        </Border>
+
+        <Ellipse IsVisible="{Binding AnyUpdateAvailable}"
+                 IsHitTestVisible="False"
+                 ClipToBounds="False"
+                 Classes="pulse"
+                 Width="12" Height="12"
+                 HorizontalAlignment="Right"
+                 VerticalAlignment="Bottom"
+                 StrokeThickness="2"
+                 Stroke="{DynamicResource ThemeBackgroundBrush}"
+                 Fill="{DynamicResource ThemeAccent3Brush}">
+        </Ellipse>
+        <Button IsVisible="{Binding !IsLoggedIn}"
+                Classes="pixi-icon"
+                Content="{DynamicResource icon-user}"
+                Command="{xaml:Command Name=PixiEditor.Window.OpenAccountWindow}" />
+        </Grid>
+</UserControl>

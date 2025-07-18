@@ -55,15 +55,6 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         // TODO: Implement mouse capturing
         //GlobalMouseHook.Instance.OnMouseUp += mouseFilter.MouseUpInlet;
 
-        if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-        {
-            desktop.MainWindow.KeyDown += MainWindowKeyDown;
-            desktop.MainWindow.KeyUp += MainWindowKeyUp;
-
-            desktop.MainWindow.Deactivated += keyboardFilter.DeactivatedInlet;
-            desktop.MainWindow.Deactivated += mouseFilter.DeactivatedInlet;
-        }
-
         mouseFilter.OnMouseDown += OnMouseDown;
         mouseFilter.OnMouseMove += OnMouseMove;
         mouseFilter.OnMouseUp += OnMouseUp;
@@ -74,6 +65,17 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
 
         keyboardFilter.OnConvertedKeyDown += OnConvertedKeyDown;
         keyboardFilter.OnConvertedKeyUp += OnConvertedKeyDown;
+        
+        Owner.AttachedToWindow += AttachWindowEvents;
+    }
+
+    public void AttachWindowEvents(MainWindow mainWindow)
+    {
+        mainWindow.KeyDown += MainWindowKeyDown;
+        mainWindow.KeyUp += MainWindowKeyUp;
+
+        mainWindow.Deactivated += keyboardFilter.DeactivatedInlet;
+        mainWindow.Deactivated += mouseFilter.DeactivatedInlet;
     }
 
     private void OnLayoutManagerOnWindowFloated(HostWindow window)

@@ -1,4 +1,6 @@
-﻿using PixiEditor.Extensions.CommonApi.Palettes;
+﻿using System.Reflection;
+using PixiEditor.Extensions.CommonApi.Palettes;
+using PixiEditor.Extensions.Sdk.Attributes;
 
 namespace PixiEditor.Extensions.Sdk.Bridge;
 
@@ -6,9 +8,21 @@ internal static partial class Interop
 {
     static Interop()
     {
+        typeMap = new Dictionary<string, Type>();
+
+        foreach (Type type in Assembly.GetExecutingAssembly().GetTypes())
+        {
+            ControlTypeIdAttribute? attr = type.GetCustomAttribute<ControlTypeIdAttribute>();
+            if (attr != null)
+            {
+                typeMap[attr.TypeId] = type;
+            }
+        }
+
         uniqueName = Native.get_extension_unique_name();
         Native.PreferenceUpdated += NativeOnPreferenceUpdated;
         Native.CommandInvoked += OnCommandInvoked;
+        Native.WindowOpened += OnBuiltInWindowOpened;
     }
 
     public static void UpdateUserPreference<T>(string name, T value)

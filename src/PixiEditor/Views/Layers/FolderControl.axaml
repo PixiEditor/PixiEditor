@@ -41,10 +41,10 @@
                 <RowDefinition Height="10" />
             </Grid.RowDefinitions>
             <Grid DragDrop.AllowDrop="True" IsVisible="False" Name="TopDropGrid" Grid.Row="0" Grid.ColumnSpan="3"
-                  Background="Transparent" Panel.ZIndex="3" />
+                  Background="Transparent" Panel.ZIndex="5" />
             <Grid IsVisible="False" Margin="20, 0, 0,0" x:Name="middleDropGrid" Grid.Row="1" DragDrop.AllowDrop="True"
-                  Panel.ZIndex="2" Background="Transparent" />
-            <Grid x:Name="centerGrid" Grid.Row="0" Grid.RowSpan="3" Background="Transparent">
+                  Panel.ZIndex="5" Background="Transparent" />
+            <Grid x:Name="centerGrid" ZIndex="3" Grid.Row="0" DragDrop.AllowDrop="True" Grid.RowSpan="3" Background="Transparent">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="24" />
                     <ColumnDefinition Width="*" />
@@ -141,8 +141,11 @@
                 Grid.Row="2"
                 Name="BottomDropGrid"
                 IsVisible="False"
+                Panel.ZIndex="5"
                 DragDrop.AllowDrop="True"
                 Grid.ColumnSpan="2" Background="Transparent" />
+            <Panel Grid.Row="0" Grid.Column="0" Grid.RowSpan="3" Name="BackgroundGrid" 
+                   Background="Transparent" DragDrop.AllowDrop="True"/>
         </Grid>
         <Border.ContextMenu>
             <ContextMenu>

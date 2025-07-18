@@ -71,7 +71,7 @@
                                    Text="{Binding VersionText}" />
                     </StackPanel>
 
-                    <StackPanel Grid.Row="1" Orientation="Vertical" HorizontalAlignment="Center">
+                    <StackPanel Name="FilesRow" Grid.Row="1" Orientation="Vertical" HorizontalAlignment="Center">
                         <StackPanel Orientation="Horizontal">
                             <Button Command="{Binding OpenFileCommand}" MinWidth="150" Margin="10"
                                     ui:Translator.Key="OPEN_FILE" />
@@ -82,25 +82,18 @@
                                     ui:Translator.TooltipKey="NEW_FROM_CLIPBOARD" />
                         </StackPanel>
 
-                        <StackPanel Orientation="Horizontal">
-                            <StackPanel.Styles>
-                                <Style Selector="Button.fullWidth">
-                                    <Setter Property="Width" Value="320" />
-                                </Style>
-                            </StackPanel.Styles>
-                            <Button Command="{xaml:Command Name=PixiEditor.FoundersPack:Workspaces.Browse}"
-                                    IsVisible="{xaml:CommandExists Name=PixiEditor.FoundersPack:Workspaces.Browse}"
-                                    Name="workspacesButton"
-                                    MinWidth="150" Margin="10, 0"
-                                    ui:Translator.Key="PixiEditor.FoundersPack:BROWSE_TEMPLATES" />
+                        <UniformGrid Width="320"
+                                     Margin="10,0,0,0"
+                                     HorizontalAlignment="Left"
+                                     ColumnSpacing="20"
+                                     Columns="{Binding ElementName=ExampleFilesGrid, Path=Children.Count}"
+                                     Name="ExampleFilesGrid">
                             <Button
                                     Background="{DynamicResource ThemeAccentBrush2}"
                                     ui:Translator.Key="EXAMPLE_FILES"
-                                    Margin="10, 0" MinWidth="150"
-                                    Classes.fullWidth="{Binding ElementName=workspacesButton, Path=!IsEffectivelyVisible}"
                                     Command="{Binding SetShowAllBetaExamplesCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}"
                                     CommandParameter="{x:True}" />
-                        </StackPanel>
+                        </UniformGrid>
                     </StackPanel>
 
                     <StackPanel Grid.Row="2" HorizontalAlignment="Center">

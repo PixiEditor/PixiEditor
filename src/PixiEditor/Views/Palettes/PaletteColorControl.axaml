@@ -6,9 +6,9 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              xmlns:palettes1="clr-namespace:PixiEditor.Views.Palettes"
-             mc:Ignorable="d" 
-             d:DesignHeight="45" d:DesignWidth="45" 
-             x:Name="uc" 
+             mc:Ignorable="d"
+             d:DesignHeight="45" d:DesignWidth="45"
+             x:Name="uc"
              PointerPressed="PaletteColor_OnMouseDown"
              PointerMoved="PaletteColor_OnMouseMove"
              PointerReleased="PaletteColor_OnMouseUp">
@@ -17,9 +17,30 @@
             <Setter Property="Width" Value="36"/>
             <Setter Property="Height" Value="36"/>
         </Style>
+        <Style Selector="Grid#mainGrid">
+            <Setter Property="Margin" Value="0"/>
+        </Style>
+        <Style Selector="Grid#mainGrid.isSelected">
+            <Setter Property="Margin" Value="3"/>
+        </Style>
+        <Style Selector="Grid#mainGrid.isSelectedSecondary">
+            <Setter Property="Margin" Value="3"/>
+        </Style>
+        <Style Selector="Border.highlight.isSelectedSecondary">
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccent3Brush}"/>
+        </Style>
+        <Style Selector="Border.highlight.isSelected">
+            <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccent2Brush}"/>
+            <Setter Property="BorderThickness" Value="2"/>
+        </Style>
     </UserControl.Styles>
-    <Grid Width="{Binding ElementName=uc, Path=Width}" Height="{Binding ElementName=uc, Path=Height}">
-        <Border CornerRadius="{Binding ElementName=uc, Path=CornerRadius}" Width="{Binding ElementName=uc, Path=Width}" Height="{Binding ElementName=uc, Path=Height}"
+    <Panel Width="{Binding ElementName=uc, Path=Width}" Height="{Binding ElementName=uc, Path=Height}">
+    <Grid
+        Classes.isSelected="{Binding IsSelected, ElementName=uc}"
+        Classes.isSelectedSecondary="{Binding IsSelectedSecondary, ElementName=uc}"
+        Name="mainGrid">
+        <Border CornerRadius="{Binding ElementName=uc, Path=CornerRadius}"
                 RenderOptions.BitmapInterpolationMode="None">
             <Border.Background>
                 <VisualBrush>
@@ -29,7 +50,7 @@
                 </VisualBrush>
             </Border.Background>
         </Border>
-        <Border CornerRadius="{Binding ElementName=uc, Path=CornerRadius}" BorderThickness="0 0 0 0.1" BorderBrush="White">
+        <Border BorderBrush="White" BorderThickness="0, 0, 0, 0.1" CornerRadius="{Binding ElementName=uc, Path=CornerRadius}">
             <Border.Background>
                 <SolidColorBrush Color="{Binding Color, Converter={converters:GenericColorToMediaColorConverter}, ElementName=uc}" />
             </Border.Background>
@@ -41,4 +62,9 @@
                                         Text="{Binding AssociatedKey, ElementName=uc}"/>
         </Border>
     </Grid>
+    <Border Classes="highlight"
+            CornerRadius="{Binding ElementName=uc, Path=CornerRadius}"
+            Classes.isSelected="{Binding IsSelected, ElementName=uc}"
+            Classes.isSelectedSecondary="{Binding IsSelectedSecondary, ElementName=uc}"/>
+    </Panel>
 </UserControl>

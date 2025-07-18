@@ -26,6 +26,7 @@ using PixiEditor.ViewModels.Menu;
 using PixiEditor.ViewModels.SubViewModels;
 using PixiEditor.ViewModels.SubViewModels.AdditionalContent;
 using PixiEditor.ViewModels.Tools;
+using PixiEditor.Views;
 using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.ViewModels;
@@ -65,6 +66,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
     public AnimationsViewModel AnimationsSubViewModel { get; set; }
     public NodeGraphManagerViewModel NodeGraphManager { get; set; }
     public AutosaveViewModel AutosaveViewModel { get; set; }
+    public UserViewModel UserViewModel { get; set; }
 
     public IPreferences Preferences { get; set; }
     public ILocalizationProvider LocalizationProvider { get; set; }
@@ -95,8 +97,15 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
     public Guid CurrentSessionId { get; } = Guid.NewGuid();
     public DateTime LaunchDateTime { get; } = DateTime.Now;
 
+    public bool IsUserReady { get; set; } = false;
+    public event Action OnUserReady;
+
     public event Action<DocumentViewModel> BeforeDocumentClosed;
     public event Action<LazyDocumentViewModel> LazyDocumentClosed;
+    
+    public event Action<MainWindow> AttachedToWindow;
+
+    public MainWindow? AttachedWindow { get; private set; }
 
     public ViewModelMain()
     {
@@ -149,8 +158,11 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         StylusSubViewModel = services.GetService<StylusViewModel>();
         RegistrySubViewModel = services.GetService<RegistryViewModel>();
 
+        ExtensionsSubViewModel = services.GetService<ExtensionsViewModel>();
+
+        UserViewModel = services.GetRequiredService<UserViewModel>();
         AdditionalContentSubViewModel = services.GetService<AdditionalContentViewModel>();
-        MenuBarViewModel = new MenuBarViewModel(AdditionalContentSubViewModel, UpdateSubViewModel);
+        MenuBarViewModel = new MenuBarViewModel(AdditionalContentSubViewModel, UpdateSubViewModel, UserViewModel);
 
         CommandController.Init(services);
         LayoutSubViewModel.LayoutManager.InitLayout(this);
@@ -169,7 +181,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
 
         AutosaveViewModel = services.GetService<AutosaveViewModel>();
 
-        ExtensionsSubViewModel = services.GetService<ExtensionsViewModel>(); // Must be last
+        ExtensionsSubViewModel.Init();  // Must be last
 
         DocumentManagerSubViewModel.ActiveDocumentChanged += OnActiveDocumentChanged;
         BeforeDocumentClosed += OnBeforeDocumentClosed;
@@ -395,5 +407,17 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         {
             viewport.CenterViewportTrigger.Execute(this, viewport.GetRenderOutputSize());
         }
+    }
+
+    public void AttachToWindow(MainWindow mainWindow)
+    {
+        AttachedWindow = mainWindow;
+        AttachedToWindow?.Invoke(mainWindow);
+    }
+
+    internal void InvokeUserReadyEvent()
+    {
+        IsUserReady = true;
+        OnUserReady?.Invoke();
     }
 }
