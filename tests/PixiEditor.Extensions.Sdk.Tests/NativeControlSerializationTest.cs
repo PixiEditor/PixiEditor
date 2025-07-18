@@ -10,7 +10,7 @@ public class NativeControlSerializationTest
     [Fact]
     public void TestThatNoChildLayoutSerializesCorrectBytes()
     {
-        ControlDefinition layout = new ControlDefinition(0, "Layout");
+        ControlDefinition layout = new ControlDefinition(0, typeof(Layout));
         layout.AddProperty("Title");
 
         int uniqueId = 0;
@@ -46,8 +46,8 @@ public class NativeControlSerializationTest
     [Fact]
     public void TestThatChildLayoutSerializesCorrectBytes()
     {
-        ControlDefinition layout = new ControlDefinition(0, "Layout");
-        layout.AddChild(new ControlDefinition(1, "Center"));
+        ControlDefinition layout = new ControlDefinition(0, typeof(Layout));
+        layout.AddChild(new ControlDefinition(1, typeof(Center)));
 
         int uniqueId = 0;
         byte[] uniqueIdBytes = BitConverter.GetBytes(uniqueId);
@@ -115,9 +115,9 @@ public class NativeControlSerializationTest
     [Fact]
     public void TestThatChildNestedLayoutSerializesCorrectBytes()
     {
-        ControlDefinition layout = new ControlDefinition(0, "Layout");
-        ControlDefinition center = new ControlDefinition(1, "Center");
-        ControlDefinition text = new ControlDefinition(2, "Text");
+        ControlDefinition layout = new ControlDefinition(0, typeof(Layout));
+        ControlDefinition center = new ControlDefinition(1, typeof(Center));
+        ControlDefinition text = new ControlDefinition(2, typeof(Text));
         text.AddProperty("Hello world");
         center.AddChild(text);
         layout.AddChild(center);

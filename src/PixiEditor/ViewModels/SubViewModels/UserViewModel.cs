@@ -83,7 +83,7 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
 
     public string Username => IdentityProvider?.User?.Username;
 
-    public string? AvatarUrl => IdentityProvider.User?.AvatarUrl;
+    public string? AvatarUrl => IdentityProvider?.User?.AvatarUrl;
 
     public bool NonDefaultIdentityProvider => IdentityProvider is not PixiAuthIdentityProvider;
     public bool AnyUpdateAvailable => OwnedProducts.Any(x => x.UpdateAvailable);
@@ -99,13 +99,15 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
 
     public UserViewModel(ViewModelMain owner) : base(owner)
     {
-        IdentityProvider = IPlatform.Current.IdentityProvider;
-        AdditionalContentProvider = IPlatform.Current.AdditionalContentProvider;
+        IdentityProvider = IPlatform.Current?.IdentityProvider;
+        AdditionalContentProvider = IPlatform.Current?.AdditionalContentProvider;
         RequestLoginCommand = new AsyncRelayCommand<string>(RequestLogin, CanRequestLogin);
         TryValidateSessionCommand = new AsyncRelayCommand(TryValidateSession);
         ResendActivationCommand = new AsyncRelayCommand<string>(ResendActivation, CanResendActivation);
         InstallContentCommand = new AsyncRelayCommand<string>(InstallContent, CanInstallContent);
         LogoutCommand = new AsyncRelayCommand(Logout);
+
+        if (IdentityProvider == null) return;
 
         IdentityProvider.OnError += OnError;
         IdentityProvider.OwnedProductsUpdated += IdentityProviderOnOwnedProductsUpdated;
