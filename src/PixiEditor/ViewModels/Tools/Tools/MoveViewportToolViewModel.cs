@@ -1,4 +1,8 @@
-﻿using Avalonia.Input;
+﻿using Avalonia;
+using Avalonia.Input;
+using Avalonia.Media.Imaging;
+using PixiEditor.Helpers;
+using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.UI.Common.Fonts;
 using PixiEditor.UI.Common.Localization;
@@ -16,7 +20,7 @@ internal class MoveViewportToolViewModel : ToolViewModel
     public override bool HideHighlight => true;
     public override LocalizedString Tooltip => new LocalizedString("MOVE_VIEWPORT_TOOLTIP", Shortcut);
 
-    public override string DefaultIcon => PixiPerfectIcons.MoveView;
+    public override string DefaultIcon => PixiPerfectIcons.Hand;
 
     public override bool StopsLinkedToolOnUse => false;
 
