@@ -316,7 +316,7 @@ public class ExtensionLoader
                 throw new ForbiddenUniqueNameExtension();
             }*/
 
-            if (!IsAdditionalContentInstalled(fixedUniqueName))
+            if (!IsAdditionalContentInstalled(metadata.UniqueName))
             {
                 return false;
             }

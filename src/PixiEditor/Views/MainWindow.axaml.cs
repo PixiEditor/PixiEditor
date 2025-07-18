@@ -22,6 +22,7 @@ using PixiEditor.Initialization;
 using PixiEditor.Models.AnalyticsAPI;
 using PixiEditor.Models.ExceptionHandling;
 using PixiEditor.Models.IO;
+using PixiEditor.OperatingSystem;
 using PixiEditor.Platform;
 using PixiEditor.ViewModels.SubViewModels;
 using PixiEditor.Views.Main;
@@ -67,7 +68,7 @@ internal partial class MainWindow : Window
         
         extLoader = extensionLoader;
         
-        AsyncImageLoader.ImageLoader.AsyncImageLoader =
+        AsyncImageLoader.ImageLoader.AsyncImageLoader = IOperatingSystem.Current.IsLinux ? new BaseWebImageLoader() :
             new DiskCachedWebImageLoader(Path.Combine(Paths.TempFilesPath, "ImageCache"));
 
         services = ClassicDesktopEntry.Active.Services;
