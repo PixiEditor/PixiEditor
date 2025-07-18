@@ -1,4 +1,5 @@
-﻿using Avalonia.Threading;
+﻿using System.Security.Cryptography.X509Certificates;
+using Avalonia.Threading;
 using PixiEditor.OperatingSystem;
 using PixiEditor.PixiAuth;
 using PixiEditor.PixiAuth.Exceptions;
@@ -10,8 +11,8 @@ public class PixiAuthIdentityProvider : IIdentityProvider
 {
     public string ProviderName { get; } = "PixiAuth";
     public bool AllowsLogout { get; } = true;
-    public bool ApiValid => apiValid;
-    private bool apiValid = true;
+    public bool IsValid => isValid;
+    private bool isValid = true;
     public PixiAuthClient PixiAuthClient { get; }
     public PixiUser User { get; private set; }
     public bool IsLoggedIn => User?.IsLoggedIn ?? false;
@@ -27,16 +28,16 @@ public class PixiAuthIdentityProvider : IIdentityProvider
 
     IUser IIdentityProvider.User => User;
 
-    public PixiAuthIdentityProvider(string pixiEditorApiUrl)
+    public PixiAuthIdentityProvider(string pixiEditorApiUrl, string? apiKey)
     {
         try
         {
-            PixiAuthClient = new PixiAuthClient(pixiEditorApiUrl);
+            PixiAuthClient = new PixiAuthClient(pixiEditorApiUrl, apiKey);
         }
         catch (UriFormatException e)
         {
             Console.WriteLine($"Invalid api URL format: {e.Message}");
-            apiValid = false;
+            isValid = false;
         }
     }
 
@@ -55,7 +56,7 @@ public class PixiAuthIdentityProvider : IIdentityProvider
 
     public async Task RequestLogin(string email)
     {
-        if (!apiValid) return;
+        if (!isValid) return;
 
         try
         {
@@ -91,11 +92,19 @@ public class PixiAuthIdentityProvider : IIdentityProvider
             Error(tooManyRequestsException.Message, tooManyRequestsException.TimeLeft);
             LoginTimeout?.Invoke(tooManyRequestsException.TimeLeft);
         }
+        catch(UnauthorizedAccessException unauthorizedAccessException)
+        {
+            Error("UNAUTHORIZED_ACCESS", unauthorizedAccessException.Message);
+        }
+        catch (Exception e)
+        {
+            Error("INTERNAL_SERVER_ERROR", e);
+        }
     }
 
     public async Task ResendActivation(string email)
     {
-        if (!apiValid) return;
+        if (!isValid) return;
 
         string emailHash = EmailUtility.GetEmailHash(email);
         if (User?.EmailHash != emailHash)
@@ -135,7 +144,7 @@ public class PixiAuthIdentityProvider : IIdentityProvider
 
     public async Task<bool> TryRefreshToken()
     {
-        if (!apiValid) return false;
+        if (!isValid) return false;
 
         if (!IsLoggedIn)
         {
@@ -196,7 +205,7 @@ public class PixiAuthIdentityProvider : IIdentityProvider
         LoggedOut?.Invoke();
         SaveUserInfo();
 
-        if (!apiValid) return;
+        if (!isValid) return;
 
         try
         {
@@ -249,7 +258,7 @@ public class PixiAuthIdentityProvider : IIdentityProvider
 
     public async Task<bool> TryValidateSession()
     {
-        if (!apiValid) return false;
+        if (!isValid) return false;
 
         if (User?.SessionId == null)
         {

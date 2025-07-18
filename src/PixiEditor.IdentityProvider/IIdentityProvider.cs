@@ -7,6 +7,7 @@ public interface IIdentityProvider
     public IUser User { get; }
     public bool IsLoggedIn { get; }
     public Uri? EditProfileUrl { get; }
+    public bool IsValid { get; }
 
     public event Action<string, object> OnError;
     public event Action<List<ProductData>> OwnedProductsUpdated;

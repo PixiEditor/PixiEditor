@@ -11,13 +11,16 @@ public class PixiAuthClient
 {
     private HttpClient httpClient;
 
-    public string BaseUrl { get; }
 
-    public PixiAuthClient(string baseUrl)
+    public PixiAuthClient(string baseUrl, string? apiKey)
     {
         httpClient = new HttpClient();
         httpClient.BaseAddress = new Uri(baseUrl);
         httpClient.Timeout = TimeSpan.FromSeconds(30);
+        if (apiKey != null)
+        {
+            httpClient.DefaultRequestHeaders.Add("X-API-KEY", apiKey);
+        }
     }
 
     public async Task<Guid?> GenerateSession(string email)
@@ -57,6 +60,14 @@ public class PixiAuthClient
                 }
             }
         }
+        else if (response.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            throw new UnauthorizedAccessException("UNAUTHORIZED");
+        }
+        else if (response.StatusCode == HttpStatusCode.Forbidden)
+        {
+            throw new ForbiddenException("FORBIDDEN");
+        }
 
         return null;
     }
@@ -93,6 +104,14 @@ public class PixiAuthClient
         else if (response.StatusCode == HttpStatusCode.InternalServerError)
         {
             throw new InternalServerErrorException("INTERNAL_SERVER_ERROR");
+        }
+        else if (response.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            throw new UnauthorizedAccessException("UNAUTHORIZED");
+        }
+        else if (response.StatusCode == HttpStatusCode.Forbidden)
+        {
+            throw new ForbiddenException("FORBIDDEN");
         }
 
         return (null, null);
@@ -149,6 +168,14 @@ public class PixiAuthClient
         else if ((int)response.StatusCode >= 500)
         {
             throw new InternalServerErrorException("INTERNAL_SERVER_ERROR");
+        }
+        else if (response.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            throw new UnauthorizedAccessException("UNAUTHORIZED");
+        }
+        else if (response.StatusCode == HttpStatusCode.Forbidden)
+        {
+            throw new ForbiddenException("FORBIDDEN");
         }
 
         return (null, null);

@@ -1121,5 +1121,6 @@
   "COMPOSE_MATRIX": "Compose Matrix",
   "DECOMPOSE_MATRIX": "Decompose Matrix",
   "NORMALIZE_COORDINATES": "Normalize Coordinates",
-  "TRANSFORMED_POSITION": "Transformed Position"
+  "TRANSFORMED_POSITION": "Transformed Position",
+  "ACCOUNT_PROVIDER_NOT_AVAILABLE": "This build of PixiEditor does not support accounts. Use the official build from pixieditor.net to manage your account."
 }

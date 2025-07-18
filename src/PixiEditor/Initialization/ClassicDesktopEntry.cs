@@ -173,7 +173,8 @@ internal class ClassicDesktopEntry
 #elif MSIX || MSIX_DEBUG
         return new PixiEditor.Platform.MSStore.MicrosoftStorePlatform();
 #else
-        return new PixiEditor.Platform.Standalone.StandalonePlatform(Paths.LocalExtensionPackagesPath, GetApiUrl());
+        return new PixiEditor.Platform.Standalone.StandalonePlatform(Paths.LocalExtensionPackagesPath, GetApiUrl(),
+            GetApiKey());
 #endif
     }
 
@@ -289,5 +290,22 @@ internal class ClassicDesktopEntry
 #endif
 
         return baseUrl;
+    }
+
+    private string GetApiKey()
+    {
+        string? apiKey = BuildConstants.PixiEditorApiKey;
+#if DEBUG
+        if (apiKey != null && apiKey.Contains('{') && apiKey.Contains('}'))
+        {
+            string? envApiKey = Environment.GetEnvironmentVariable("PIXIEDITOR_API_KEY");
+            if (envApiKey != null)
+            {
+                apiKey = envApiKey;
+            }
+        }
+#endif
+
+        return apiKey;
     }
 }

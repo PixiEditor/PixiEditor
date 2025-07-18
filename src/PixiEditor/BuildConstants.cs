@@ -7,4 +7,6 @@ public static class BuildConstants
     public const string AnalyticsUrl = "${analytics-url}";
 
     public const string PixiEditorApiUrl = "${api-url}";
+
+    public const string? PixiEditorApiKey = "${api-key}";
 }

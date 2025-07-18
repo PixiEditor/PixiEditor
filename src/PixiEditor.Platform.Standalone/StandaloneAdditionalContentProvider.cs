@@ -22,7 +22,7 @@ public sealed class StandaloneAdditionalContentProvider : IAdditionalContentProv
 
     public async Task<string?> InstallContent(string productId)
     {
-        if (!IdentityProvider.ApiValid) return null;
+        if (!IdentityProvider.IsValid) return null;
 
         if (IdentityProvider.User is not { IsLoggedIn: true })
         {

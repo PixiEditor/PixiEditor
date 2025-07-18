@@ -12,6 +12,7 @@ public class SteamIdentityProvider : IIdentityProvider
     public IUser User { get; private set; }
     public bool IsLoggedIn { get; private set; }
     public Uri? EditProfileUrl { get; } = new Uri("https://store.steampowered.com/login/");
+    public bool IsValid => true;
     public event Action<string, object>? OnError;
     public event Action<List<ProductData>>? OwnedProductsUpdated;
     public event Action<string>? UsernameUpdated;
