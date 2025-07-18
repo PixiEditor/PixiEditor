@@ -171,7 +171,8 @@ internal class ClassicDesktopEntry
 #if STEAM || DEV_STEAM
         return new PixiEditor.Platform.Steam.SteamPlatform();
 #elif MSIX || MSIX_DEBUG
-        return new PixiEditor.Platform.MSStore.MicrosoftStorePlatform();
+        return new PixiEditor.Platform.MSStore.MicrosoftStorePlatform(Paths.LocalExtensionPackagesPath, GetApiUrl(),
+            GetApiKey());
 #else
         return new PixiEditor.Platform.Standalone.StandalonePlatform(Paths.LocalExtensionPackagesPath, GetApiUrl(),
             GetApiKey());
