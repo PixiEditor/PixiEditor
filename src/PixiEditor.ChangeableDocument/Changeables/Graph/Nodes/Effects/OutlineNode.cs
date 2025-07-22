@@ -86,11 +86,19 @@ public class OutlineNode : RenderNode, IRenderInput
             using Texture temp = Texture.ForProcessing(surface, context.ProcessingColorSpace);
             int saved = temp.DrawingSurface.Canvas.SaveLayer(paint);
 
-            Background.Value.Paint(context, temp.DrawingSurface);
+            var ctx = context.Clone();
+            ctx.ChunkResolution = ChunkResolution.Full;
+            ctx.RenderOutputSize = (VecI)(context.RenderOutputSize * context.ChunkResolution.InvertedMultiplier());
+
+            Background.Value.Paint(ctx, temp.DrawingSurface);
 
             temp.DrawingSurface.Canvas.RestoreToCount(saved);
 
-            for (int i = 1; i < (int)Thickness.Value; i++)
+            temp.DrawingSurface.Canvas.SetMatrix(Matrix3X3.Identity);
+
+            int thickness = (int)(Thickness.Value * context.ChunkResolution.Multiplier());
+
+            for (int i = 1; i < (int)thickness; i++)
             {
                 saved = temp.DrawingSurface.Canvas.SaveLayer(paint);
 
