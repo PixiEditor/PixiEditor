@@ -63,9 +63,9 @@ internal abstract class UpdateableChangeExecutor
     public virtual void OnColorChanged(Color color, bool primary) { }
     public virtual void OnMembersSelected(List<Guid> memberGuids) { }
 
-    protected T[] QueryLayers<T>(VecD pos) where T : ILayerHandler
+    protected T[] QueryLayers<T>(VecD pos) where T : IStructureMemberHandler
     {
-        var allLayers = document.StructureHelper.GetAllLayers();
+        var allLayers = document.StructureHelper.GetAllMembers();
         FilterOutInvisible(allLayers);
         var topMostWithinClick = allLayers.Where(x =>
                 x is T { TightBounds: not null } &&
@@ -74,11 +74,11 @@ internal abstract class UpdateableChangeExecutor
         return topMostWithinClick.Cast<T>().ToArray();
     }
 
-    private void FilterOutInvisible(List<ILayerHandler> allLayers)
+    private void FilterOutInvisible(List<IStructureMemberHandler> allLayers)
     {
-        allLayers.RemoveAll(x => x is ILayerHandler { IsVisibleBindable: false });
+        allLayers.RemoveAll(x => x is IStructureMemberHandler { IsVisibleBindable: false });
 
-        List<ILayerHandler> toRemove = new List<ILayerHandler>();
+        List<IStructureMemberHandler> toRemove = new List<IStructureMemberHandler>();
         foreach (var layer in allLayers)
         {
             var parents = document.StructureHelper.GetParents(layer.Id);

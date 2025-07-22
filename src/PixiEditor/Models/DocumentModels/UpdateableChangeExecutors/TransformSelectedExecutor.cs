@@ -166,17 +166,30 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
             }
         }
 
-        var topMostWithinClick = QueryLayers<ILayerHandler>(args.PositionOnCanvas);
+        var topMostWithinClick = QueryLayers<IStructureMemberHandler>(args.PositionOnCanvas);
 
-        var nonSelected = topMostWithinClick.Where(x => x != document.SelectedStructureMember
-                                                        && !document.SoftSelectedStructureMembers.Contains(x))
-            .ToArray();
+        var orderedBySize = topMostWithinClick
+            .Where(x => x.TightBounds is not null)
+            .OrderByDescending(x => x.TightBounds?.Size.Length + (x is IFolderHandler ? 1 : 0) ?? double.MaxValue)
+            .ToList();
+
+        var nonSelected = orderedBySize.Where(x => x != document.SelectedStructureMember
+                                              && !document.SoftSelectedStructureMembers.Contains(x));
+
+        var smallestSizeDifferenceList = nonSelected
+            .Where(x => x.TightBounds is not null && (x.TightBounds.Value.Size.Length + (x is IFolderHandler ? 1 : 0)) <= (document.SelectedStructureMember?.TightBounds?.Size.Length ?? double.MaxValue))
+            .ToList();
+
+        if (!smallestSizeDifferenceList.Any() && orderedBySize.Count != 0)
+        {
+            smallestSizeDifferenceList.Add(orderedBySize.First());
+        }
 
         bool isHoldingShift = args.KeyModifiers.HasFlag(KeyModifiers.Shift);
 
-        if (nonSelected.Any())
+        if (smallestSizeDifferenceList.Any())
         {
-            var topMost = nonSelected.First();
+            var topMost = smallestSizeDifferenceList.First();
 
             if (!isHoldingShift)
             {
@@ -220,7 +233,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         DuplicateIfRequired();
     }
 
-    private void Deselect(List<ILayerHandler> topMostWithinClick)
+    private void Deselect(List<IStructureMemberHandler> topMostWithinClick)
     {
         var topMost = topMostWithinClick.FirstOrDefault();
         if (topMost is not null)
