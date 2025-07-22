@@ -148,8 +148,9 @@ public class VectorPathOverlay : Overlay
                 }
 
                 var handle = anchorHandles[anchorIndex];
-                bool nextIsSelected = anchorIndex + 1 < anchorHandles.Count &&
-                                      anchorHandles[anchorIndex + 1].IsSelected;
+                var nextIndex = subPath.GetNextPoint(anchorIndex).Index;
+                bool nextIsSelected = nextIndex < anchorHandles.Count &&
+                                      anchorHandles[nextIndex].IsSelected;
                 bool previousIsSelected = anchorIndex - 1 >= 0 &&
                                           anchorHandles[anchorIndex - 1].IsSelected;
                 bool drawControl1 = handle.IsSelected;
