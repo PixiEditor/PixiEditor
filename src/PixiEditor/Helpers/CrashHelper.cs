@@ -156,32 +156,7 @@ internal partial class CrashHelper
 
         var report = CrashReport.Generate(e, new NonCrashInfo(filePath, memberName));
         
-        await SendReportTextToWebhookAsync(report, $"{filePath}; Method {memberName}");
         await SendReportToAnalyticsApiAsync(report);
-    }
-
-    public static async Task SendReportTextToWebhookAsync(CrashReport report, string catchLocation = null)
-    {
-        string reportText = report.ReportText;
-        if (catchLocation is not null)
-        {
-            reportText = $"The report was generated from an exception caught in {Path.GetFileName(catchLocation)}.\r\n{reportText}";
-        }
-
-        byte[] bytes = Encoding.UTF8.GetBytes(reportText);
-        string filename = Path.GetFileNameWithoutExtension(report.FilePath) + ".txt";
-
-        MultipartFormDataContent formData = new MultipartFormDataContent
-        {
-            { new ByteArrayContent(bytes, 0, bytes.Length), "crash-report", filename }
-        };
-        try
-        {
-            using HttpClient httpClient = new HttpClient();
-            string url = BuildConstants.CrashReportWebhookUrl;
-            await httpClient.PostAsync(url, formData);
-        }
-        catch { }
     }
 
     public static async Task SendReportToAnalyticsApiAsync(CrashReport report)

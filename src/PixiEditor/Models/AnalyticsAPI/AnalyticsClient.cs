@@ -98,7 +98,7 @@ public class AnalyticsClient : IDisposable
 
     public static string? GetAnalyticsUrl()
     {
-        string url = BuildConstants.AnalyticsUrl;
+        string url = RuntimeConstants.AnalyticsUrl;
 
         if (url == "${analytics-url}")
         {

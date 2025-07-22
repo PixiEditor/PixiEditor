@@ -38,8 +38,6 @@ internal partial class CrashReportViewModel : Window
         DocumentCount = report.GetDocumentCount();
         OpenSendCrashReportCommand = new RelayCommand(() => new SendCrashReportDialog(CrashReport).Show());
 
-        if (!IsDebugBuild)
-            _ = CrashHelper.SendReportTextToWebhookAsync(report);
         _ = CrashHelper.SendReportToAnalyticsApiAsync(report);
     }
 
