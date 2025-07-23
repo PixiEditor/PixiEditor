@@ -61,6 +61,7 @@ def main():
         print("Unreferenced keys have been found")
         for key in missing_keys:
             print(f"::error file={REFERENCE_LANGUAGE},title=Unreferenced key::No reference to '{key}' found")
+        return 1
     else:
         print("All keys have been referenced")
         return 0
