@@ -369,7 +369,18 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         if (!typeof(ToolViewModel).IsAssignableFrom(toolType))
             throw new ArgumentException($"'{toolType}' does not inherit from {typeof(ToolViewModel)}");
         IToolHandler foundTool = ActiveToolSet!.Tools.FirstOrDefault(x => x.GetType().IsAssignableFrom(toolType));
-        if (foundTool == null) return;
+        if (foundTool == null)
+        {
+            foundTool = allTools.FirstOrDefault(x => x.GetType().IsAssignableFrom(toolType));
+            if(foundTool == null)
+                return;
+
+            var toolset = AllToolSets.FirstOrDefault(x => x.Tools.Contains(foundTool));
+            if (toolset is not null)
+            {
+                SetActiveToolSet(toolset);
+            }
+        }
 
         SetActiveTool(foundTool, transient, sourceInfo);
     }
