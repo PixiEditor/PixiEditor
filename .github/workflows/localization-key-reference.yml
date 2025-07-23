@@ -18,6 +18,6 @@ jobs:
           cache: 'pip'
           cache-dependency-path: .github/workflows/localization/check-key-references.pip.txt
       - name: Install dependencies
-        run: pip install .github/workflows/localization/check-key-references.pip.txt
+        run: pip install -r .github/workflows/localization/check-key-references.pip.txt
       - name: Check Localization Key References
         run: python .github/workflows/localization/check-key-references.py
