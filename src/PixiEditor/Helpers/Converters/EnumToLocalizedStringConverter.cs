@@ -1,4 +1,6 @@
-﻿using System.Globalization;
+﻿using System.Diagnostics;
+using System.Globalization;
+using System.Reflection;
 using PixiEditor.Extensions.Helpers;
 using PixiEditor.UI.Common.Localization;
 
@@ -6,30 +8,38 @@ namespace PixiEditor.Helpers.Converters;
 
 internal class EnumToLocalizedStringConverter : SingleInstanceConverter<EnumToLocalizedStringConverter>
 {
+    private Dictionary<object, string> enumTranslations = new(
+        typeof(EnumToLocalizedStringConverter).Assembly
+            .GetCustomAttributes()
+            .OfType<ILocalizeEnumInfo>()
+            .Select(x => new KeyValuePair<object, string>(x.GetEnumValue(), x.LocalizationKey)));
+    
     public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        if (value is Enum enumValue)
+        if (value is not Enum enumValue)
         {
-            if (EnumHelpers.HasDescription(enumValue))
-            {
-                return EnumHelpers.GetDescription(enumValue);
-            }
-
-            return ToLocalizedStringFormat(enumValue);
+            return value;
         }
 
-        return value;
+        if (enumTranslations.TryGetValue(enumValue, out var assemblyDefinedKey))
+        {
+            return assemblyDefinedKey;
+        }
+
+        if (EnumHelpers.HasDescription(enumValue))
+        {
+            return EnumHelpers.GetDescription(enumValue);
+        }
+
+        ThrowUntranslatedEnumValue(enumValue);
+        return enumValue;
     }
 
-    private string ToLocalizedStringFormat(Enum enumValue)
+    [Conditional("DEBUG")]
+    private static void ThrowUntranslatedEnumValue(object value)
     {
-        // VALUE_ENUMTYPE
-        // for example BlendMode.Normal becomes NORMAL_BLEND_MODE
-
-        string enumType = enumValue.GetType().Name;
-
-        string value = enumValue.ToString();
-
-        return $"{value.ToSnakeCase()}_{enumType.ToSnakeCase()}".ToUpper();
+        throw new ArgumentException(
+            $"Enum value '{value.GetType()}.{value}' has no value defined. Either add a Description attribute to the enum values or a LocalizeEnum attribute in EnumTranslations.cs for third party enums",
+            nameof(value));
     }
 }
