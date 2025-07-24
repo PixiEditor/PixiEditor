@@ -5,14 +5,14 @@ using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 
 namespace PixiEditor.ChangeableDocument.Changes.NodeGraph;
 
-internal class UpdatePropertyValue_Change : Change
+internal class UpdatePropertyValue_Change : InterruptableUpdateableChange
 {
     private readonly Guid _nodeId;
     private readonly string _propertyName;
     private object? _value;
     private object? previousValue;
 
-    [GenerateMakeChangeAction]
+    [GenerateUpdateableChangeActions]
     public UpdatePropertyValue_Change(Guid nodeId, string property, object? value)
     {
         _nodeId = nodeId;
@@ -24,10 +24,67 @@ internal class UpdatePropertyValue_Change : Change
     {
         if (target.TryFindNode<Node>(_nodeId, out var node))
         {
-            return node.HasInputProperty(_propertyName);
+            var property = node.GetInputProperty(_propertyName);
+            if (property == null) return false;
+
+            previousValue = GetValue(property);
+            if (previousValue is ShaderExpressionVariable expr)
+            {
+                previousValue = expr.GetConstant();
+            }
+
+            return true;
         }
 
         return false;
+    }
+
+    [UpdateChangeMethod]
+    public void UpdateValue(object? value)
+    {
+        _value = value;
+    }
+
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> ApplyTemporarily(Document target)
+    {
+        var node = target.NodeGraph.Nodes.First(x => x.Id == _nodeId);
+        var property = node.GetInputProperty(_propertyName);
+
+        int inputsHash = CalculateInputsHash(node);
+        int outputsHash = CalculateOutputsHash(node);
+
+        string errors = string.Empty;
+        if (!property.Validator.Validate(_value, out errors))
+        {
+            if (string.IsNullOrEmpty(errors))
+            {
+                _value = property.Validator.GetClosestValidValue(_value);
+            }
+
+            _value = SetValue(property, _value);
+        }
+        else
+        {
+            _value = SetValue(property, _value);
+        }
+
+        List<IChangeInfo> changes = new();
+        changes.Add(new PropertyValueUpdated_ChangeInfo(_nodeId, _propertyName, _value) { Errors = errors });
+
+        int newInputsHash = CalculateInputsHash(node);
+        int newOutputsHash = CalculateOutputsHash(node);
+
+        if (inputsHash != newInputsHash)
+        {
+            changes.Add(NodeInputsChanged_ChangeInfo.FromNode(node));
+        }
+
+        if (outputsHash != newOutputsHash)
+        {
+            changes.Add(NodeOutputsChanged_ChangeInfo.FromNode(node));
+        }
+
+        return changes;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
@@ -38,12 +95,6 @@ internal class UpdatePropertyValue_Change : Change
 
         int inputsHash = CalculateInputsHash(node);
         int outputsHash = CalculateOutputsHash(node);
-
-        previousValue = GetValue(property);
-        if (previousValue is ShaderExpressionVariable expr)
-        {
-            previousValue = expr.GetConstant();
-        }
 
         string errors = string.Empty;
         if (!property.Validator.Validate(_value, out errors))
@@ -172,6 +223,6 @@ internal class UpdatePropertyValue_Change : Change
     public override bool IsMergeableWith(Change other)
     {
         return other is UpdatePropertyValue_Change change && change._nodeId == _nodeId &&
-               change._propertyName == _propertyName;
+               change._propertyName == _propertyName && _value == change._value;
     }
 }

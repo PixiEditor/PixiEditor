@@ -42,6 +42,15 @@ public partial class NumberInput : TextBox
     public static readonly StyledProperty<bool> EnableGrabberProperty = AvaloniaProperty.Register<NumberInput, bool>(
         nameof(EnableGrabber), true);
 
+    public static readonly StyledProperty<bool> DraggingGrabberProperty = AvaloniaProperty.Register<NumberInput, bool>(
+        nameof(DraggingGrabber));
+
+    public bool DraggingGrabber
+    {
+        get => GetValue(DraggingGrabberProperty);
+        private set => SetValue(DraggingGrabberProperty, value);
+    }
+
     public bool EnableGrabber
     {
         get => GetValue(EnableGrabberProperty);
@@ -211,6 +220,7 @@ public partial class NumberInput : TextBox
 
         grabber.PointerPressed += GrabberPressed;
         grabber.PointerMoved += GrabberMoved;
+        grabber.PointerReleased += GrabberReleased;
 
         return grabber;
     }
@@ -220,6 +230,7 @@ public partial class NumberInput : TextBox
         e.Pointer.Capture(leftGrabber);
         _pressedValue = Value;
         _pressedRelativeX = e.GetPosition(this).X;
+        DraggingGrabber = true;
         e.Handled = true;
     }
 
@@ -238,6 +249,11 @@ public partial class NumberInput : TextBox
             Value = newValue;
             e.Handled = true;
         }
+    }
+
+    private void GrabberReleased(object sender, PointerReleasedEventArgs e)
+    {
+        DraggingGrabber = false;
     }
 
     private void BindTextBoxBehavior(TextBoxFocusBehavior behavior)

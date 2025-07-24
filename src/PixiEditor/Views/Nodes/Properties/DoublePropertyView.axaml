@@ -23,6 +23,7 @@
             <TextBlock VerticalAlignment="Center" DockPanel.Dock="Left" ui:Translator.Key="{Binding DisplayName}" />
             <Panel HorizontalAlignment="Right" IsVisible="{Binding ShowInputField}">
                 <controls:NumberInput EnableScrollChange="False" Name="input"
+                                      DraggingGrabber="{Binding MergeChanges, Mode=OneWayToSource}"
                                    MinWidth="100" Decimals="6"
                                    IsVisible="{Binding NumberPickerMode,
                                 Converter={converters:EnumBooleanConverter}, ConverterParameter=NumberInput}"
