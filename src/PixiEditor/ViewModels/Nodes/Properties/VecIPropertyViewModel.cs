@@ -5,6 +5,8 @@ namespace PixiEditor.ViewModels.Nodes.Properties;
 
 internal class VecIPropertyViewModel : NodePropertyViewModel<VecI>
 {
+    private bool updateBlocker = false;
+
     public VecIPropertyViewModel(NodeViewModel node, Type valueType) : base(node, valueType)
     {
         PropertyChanged += OnPropertyChanged;
@@ -16,20 +18,36 @@ internal class VecIPropertyViewModel : NodePropertyViewModel<VecI>
         {
             return;
         }
-        
+
+        updateBlocker = true;
+
         OnPropertyChanged(nameof(XValue));
         OnPropertyChanged(nameof(YValue));
+
+        updateBlocker = false;
     }
 
     public int XValue
     {
         get => Value.X;
-        set => Value = new VecI(value, Value.Y);
+        set
+        {
+            if (updateBlocker)
+                return;
+
+            Value = new VecI(value, Value.Y);
+        }
     }
-    
+
     public int YValue
     {
         get => Value.Y;
-        set => Value = new VecI(Value.X, value);
+        set
+        {
+            if (updateBlocker)
+                return;
+
+            Value = new VecI(Value.X, value);
+        }
     }
 }

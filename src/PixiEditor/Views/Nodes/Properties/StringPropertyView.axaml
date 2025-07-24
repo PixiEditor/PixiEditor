@@ -14,7 +14,7 @@
     <Grid>
         <DockPanel LastChildFill="True"
                    HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
-            <TextBlock VerticalAlignment="Center" ui:Translator.Key="{Binding DisplayName}" />
+            <TextBlock ui:Translator.TooltipKey="{Binding DisplayName}" VerticalAlignment="Center" ui:Translator.Key="{Binding DisplayName}" />
             <TextBox MaxWidth="110"
                      MaxLines="1"
                      Name="smallTextBox"

@@ -445,7 +445,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 {
                     object value =
                         SerializationUtil.Deserialize(propertyValue.Value, config, allFactories, serializerData);
-                    acc.AddActions(new UpdatePropertyValue_Action(guid, propertyValue.Key, value));
+                    acc.AddActions(new UpdatePropertyValue_Action(guid, propertyValue.Key, value), new EndUpdatePropertyValue_Action());
                 }
             }
 

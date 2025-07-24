@@ -19,6 +19,7 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
     private bool isFunc;
     private IBrush socketBrush;
     private string errors = string.Empty;
+    private bool mergeChanges = false;
 
     private object computedValue;
 
@@ -39,10 +40,33 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
         set
         {
             var oldValue = _value;
-            ViewModelMain.Current.NodeGraphManager.UpdatePropertyValue((node, PropertyName, value));
+            if (MergeChanges)
+            {
+                ViewModelMain.Current.NodeGraphManager.BeginUpdatePropertyValue((node, PropertyName, value));
+            }
+            else
+            {
+                ViewModelMain.Current.NodeGraphManager.UpdatePropertyValue((node, PropertyName, value));
+            }
+
             if (SetProperty(ref _value, value))
             {
                 ValueChanged?.Invoke(this, new NodePropertyValueChangedArgs(oldValue, value));
+            }
+        }
+    }
+
+    public bool MergeChanges
+    {
+        get => mergeChanges;
+        set
+        {
+            if (SetProperty(ref mergeChanges, value))
+            {
+                if (!value)
+                {
+                    ViewModelMain.Current.NodeGraphManager.EndUpdatePropertyValue();
+                }
             }
         }
     }
