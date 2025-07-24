@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Graph;
+﻿using Drawie.Backend.Core.Shaders.Generation;
+using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 
@@ -39,6 +40,11 @@ internal class UpdatePropertyValue_Change : Change
         int outputsHash = CalculateOutputsHash(node);
 
         previousValue = GetValue(property);
+        if (previousValue is ShaderExpressionVariable expr)
+        {
+            previousValue = expr.GetConstant();
+        }
+
         string errors = string.Empty;
         if (!property.Validator.Validate(_value, out errors))
         {
@@ -165,6 +171,7 @@ internal class UpdatePropertyValue_Change : Change
 
     public override bool IsMergeableWith(Change other)
     {
-        return other is UpdatePropertyValue_Change change && change._nodeId == _nodeId && change._propertyName == _propertyName;
+        return other is UpdatePropertyValue_Change change && change._nodeId == _nodeId &&
+               change._propertyName == _propertyName;
     }
 }

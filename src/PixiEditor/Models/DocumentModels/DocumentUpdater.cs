@@ -835,8 +835,10 @@ internal class DocumentUpdater
         property.Errors = info.Errors;
 
         ProcessStructureMemberProperty(info, property);
-
-        property.InternalSetValue(info.Value);
+        var toSet = property.IsFunc
+            ? (info.Value as ShaderExpressionVariable)?.GetConstant() ?? info.Value
+            : info.Value;
+        property.InternalSetValue(toSet);
 
         if (info.Property == CustomOutputNode.OutputNamePropertyName)
         {
