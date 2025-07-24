@@ -260,10 +260,7 @@ internal class ClassicDesktopEntry
             if (restartQueued)
             {
                 var process = Process.GetCurrentProcess().MainModule.FileName;
-                desktop.Exit += (_, _) =>
-                {
-                    Process.Start(process);
-                };
+                Process.Start(process);
             }
         });
     }
