@@ -13,7 +13,7 @@
                              x:Class="PixiEditor.Views.Nodes.Properties.FontFamilyNamePropertyView">
     <DockPanel LastChildFill="True"
         HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
-        <TextBlock VerticalAlignment="Center" ui:Translator.Key="{Binding DisplayName}" />
+        <TextBlock ui:Translator.TooltipKey="{Binding DisplayName}" VerticalAlignment="Center" ui:Translator.Key="{Binding DisplayName}" />
         <input:FontFamilyPicker Margin="5 0"
            FontIndex="{Binding FontFamilyIndex, Mode=TwoWay}"
                           IsVisible="{Binding ShowInputField}">

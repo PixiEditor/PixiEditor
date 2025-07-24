@@ -14,7 +14,7 @@
         <properties1:VecDPropertyViewModel />
     </Design.DataContext>
     <StackPanel HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
-        <TextBlock VerticalAlignment="Center" ui:Translator.Key="{Binding DisplayName}"/>
+        <TextBlock ui:Translator.TooltipKey="{Binding DisplayName}" VerticalAlignment="Center" ui:Translator.Key="{Binding DisplayName}"/>
         <StackPanel IsVisible="{Binding ShowInputField}">
             <controls:NumberInput DraggingGrabber="{Binding MergeChanges, Mode=OneWayToSource}" EnableScrollChange="False" MinWidth="100" Value="{Binding XValue, Mode=TwoWay}" Margin="0,2" />
             <controls:NumberInput DraggingGrabber="{Binding MergeChanges, Mode=OneWayToSource}" EnableScrollChange="False" MinWidth="100" Value="{Binding YValue, Mode=TwoWay}" />

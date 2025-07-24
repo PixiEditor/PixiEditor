@@ -13,7 +13,7 @@
         <properties1:Int32PropertyViewModel />
     </Design.DataContext>
     <Grid HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
-        <TextBlock VerticalAlignment="Center" localization:Translator.Key="{Binding DisplayName}"/>
+        <TextBlock localization:Translator.TooltipKey="{Binding DisplayName}" VerticalAlignment="Center" localization:Translator.Key="{Binding DisplayName}"/>
         <controls:NumberInput EnableScrollChange="False" Decimals="0"
                               DraggingGrabber="{Binding MergeChanges, Mode=OneWayToSource}"
             HorizontalAlignment="Right" MinWidth="100" IsVisible="{Binding ShowInputField}" Value="{Binding Value, Mode=TwoWay}" />

@@ -15,7 +15,7 @@
     </Design.DataContext>
     <StackPanel
         HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
-        <TextBlock VerticalAlignment="Center" ui:Translator.Key="{Binding DisplayName}" />
+        <TextBlock ui:Translator.TooltipKey="{Binding DisplayName}" VerticalAlignment="Center" ui:Translator.Key="{Binding DisplayName}" />
         <StackPanel IsVisible="{Binding ShowInputField}">
             <controls:NumberInput DraggingGrabber="{Binding MergeChanges, Mode=OneWayToSource}" EnableScrollChange="False" MinWidth="100" Decimals="0"
                                   Value="{Binding XValue, Mode=TwoWay}" Margin="0,2" />

@@ -13,7 +13,7 @@
         <properties1:ColorMatrixPropertyViewModel />
     </Design.DataContext>
     <StackPanel HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
-        <TextBlock ui:Translator.Key="{Binding DisplayName}" />
+        <TextBlock ui:Translator.TooltipKey="{Binding DisplayName}" ui:Translator.Key="{Binding DisplayName}" />
         <Grid IsVisible="{Binding ShowInputField}" ColumnDefinitions="Auto,*,*,*,*,*" RowDefinitions="Auto, Auto, Auto, Auto, Auto">
             <TextBlock Grid.Row="0" Grid.Column="0" Text="T\F" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"  />
             
