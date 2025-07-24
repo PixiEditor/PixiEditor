@@ -128,6 +128,7 @@ public class PixiAuthIdentityProvider : IIdentityProvider
             Error(e.Message, e.TimeLeft);
             LoginTimeout?.Invoke(e.TimeLeft);
         }
+        // Can produce SESSION_NOT_FOUND or USER_NOT_FOUND as a message, this comment ensure it's catched by the localization key checker
         catch (PixiAuthException authException)
         {
             Error(authException.Message);
