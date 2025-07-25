@@ -69,41 +69,23 @@
                             </ControlTheme>
                         </ItemsControl.ItemContainerTheme>
                     </ItemsControl>
-                    <ItemsControl Name="PART_Connections"
-                                  ItemsSource="{Binding NodeGraph.Connections, RelativeSource={RelativeSource TemplatedParent}}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <Canvas RenderTransformOrigin="0, 0">
-                                    <Canvas.RenderTransform>
-                                        <TransformGroup>
-                                            <ScaleTransform
-                                                ScaleX="{Binding Scale, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
-                                                ScaleY="{Binding Scale, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}" />
-                                            <TranslateTransform
-                                                X="{Binding CanvasX, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
-                                                Y="{Binding CanvasY, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}" />
-                                        </TransformGroup>
-                                    </Canvas.RenderTransform>
-                                </Canvas>
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <nodes:ConnectionView
-                                    InputNodePosition="{Binding InputNode.PositionBindable}"
-                                    OutputNodePosition="{Binding OutputNode.PositionBindable}"
-                                    InputProperty="{Binding InputProperty}"
-                                    OutputProperty="{Binding OutputProperty}">
-                                    <nodes:ConnectionView.IsVisible>
-                                        <MultiBinding Converter="{x:Static BoolConverters.And}">
-                                            <Binding Path="InputProperty.IsVisible" />
-                                            <Binding Path="OutputProperty.IsVisible" />
-                                        </MultiBinding>
-                                    </nodes:ConnectionView.IsVisible>
-                                </nodes:ConnectionView>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
+                    <nodes:ConnectionRenderer
+                        ClipToBounds="False"
+                        Name="PART_ConnectionRenderer"
+                        RenderTransformOrigin="0, 0"
+                        SocketsInfo="{Binding SocketsInfo, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
+                        Connections="{Binding NodeGraph.Connections, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}">
+                        <nodes:ConnectionRenderer.RenderTransform>
+                            <TransformGroup>
+                                <ScaleTransform
+                                    ScaleX="{Binding Scale, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
+                                    ScaleY="{Binding Scale, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}" />
+                                <TranslateTransform
+                                    X="{Binding CanvasX, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
+                                    Y="{Binding CanvasY, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}" />
+                            </TransformGroup>
+                        </nodes:ConnectionRenderer.RenderTransform>
+                    </nodes:ConnectionRenderer>
                     <ItemsControl
                         ZIndex="-1"
                         Name="PART_Frames"

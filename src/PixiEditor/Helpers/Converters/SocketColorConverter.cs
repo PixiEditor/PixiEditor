@@ -6,8 +6,13 @@ namespace PixiEditor.Helpers.Converters;
 
 internal class SocketColorConverter : SingleInstanceConverter<SocketColorConverter>
 {
-    Color unknownColor = Color.FromRgb(255, 0, 255);
+    static Color unknownColor = Color.FromRgb(255, 0, 255);
     public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        return SocketToColor(value);
+    }
+
+    public static Color SocketToColor(object value)
     {
         if (value is IBrush brush)
         {
@@ -16,7 +21,7 @@ internal class SocketColorConverter : SingleInstanceConverter<SocketColorConvert
             if (brush is GradientBrush linearGradientBrush)
                 return linearGradientBrush.GradientStops.FirstOrDefault()?.Color ?? unknownColor;
         }
-        
+
         return unknownColor;
     }
 }
