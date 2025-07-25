@@ -99,6 +99,7 @@
                                                             <MultiBinding Converter="{converters:AllTrueConverter}">
                                                                 <Binding Path="IsInstalled" />
                                                                 <Binding Path="!UpdateAvailable" />
+                                                                <Binding Path="!IsInstalling" />
                                                             </MultiBinding>
                                                         </TextBlock.IsVisible>
                                                         <Run Classes="pixi-icon"

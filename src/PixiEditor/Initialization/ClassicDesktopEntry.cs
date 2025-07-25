@@ -277,7 +277,7 @@ internal class ClassicDesktopEntry
     {
         string? baseUrl = RuntimeConstants.PixiEditorApiUrl;
 #if DEBUG
-        if (baseUrl != null && baseUrl.Contains('{') && baseUrl.Contains('}'))
+        if (baseUrl == null)
         {
             string? envUrl = Environment.GetEnvironmentVariable("PIXIEDITOR_API_URL");
             if (envUrl != null)
@@ -294,7 +294,7 @@ internal class ClassicDesktopEntry
     {
         string? apiKey = RuntimeConstants.PixiEditorApiKey;
 #if DEBUG
-        if (apiKey != null && apiKey.Contains('{') && apiKey.Contains('}'))
+        if (apiKey == null)
         {
             string? envApiKey = Environment.GetEnvironmentVariable("PIXIEDITOR_API_KEY");
             if (envApiKey != null)
