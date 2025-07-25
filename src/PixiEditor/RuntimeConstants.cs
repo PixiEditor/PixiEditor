@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace PixiEditor;
 
 public static class RuntimeConstants
@@ -8,7 +10,9 @@ public static class RuntimeConstants
 
     private static string ReadAppSettings()
     {
-        using StreamReader reader = new StreamReader("appsettings.json");
+        string installDirPath = Process.GetCurrentProcess().MainModule?.FileName;
+        string appsettingsPath = Path.Combine(Path.GetDirectoryName(installDirPath) ?? string.Empty, "appsettings.json");
+        using StreamReader reader = new StreamReader(appsettingsPath);
         return reader.ReadToEnd();
     }
 
