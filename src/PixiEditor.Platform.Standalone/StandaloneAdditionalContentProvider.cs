@@ -9,20 +9,20 @@ namespace PixiEditor.Platform.Standalone;
 
 public sealed class StandaloneAdditionalContentProvider : IAdditionalContentProvider
 {
-    public string ExtensionsPath { get; }
+    public string[] ExtensionsPaths { get; }
     public PixiAuthIdentityProvider IdentityProvider { get; }
 
     public event Action<string, object>? OnError;
 
-    public StandaloneAdditionalContentProvider(string extensionsPath, PixiAuthIdentityProvider identityProvider)
+    public StandaloneAdditionalContentProvider(string[] extensionsPaths, PixiAuthIdentityProvider identityProvider)
     {
         IdentityProvider = identityProvider;
-        ExtensionsPath = extensionsPath;
+        ExtensionsPaths = extensionsPaths;
     }
 
     public async Task<string?> InstallContent(string productId)
     {
-        if (!IdentityProvider.IsValid) return null;
+        if (!IdentityProvider.IsValid || ExtensionsPaths == null || ExtensionsPaths.Length == 0) return null;
 
         if (IdentityProvider.User is not { IsLoggedIn: true })
         {
@@ -35,7 +35,21 @@ public sealed class StandaloneAdditionalContentProvider : IAdditionalContentProv
                 await IdentityProvider.PixiAuthClient.DownloadProduct(IdentityProvider.User.SessionToken, productId);
             if (stream != null)
             {
-                var filePath = Path.Combine(ExtensionsPath, $"{productId}.pixiext");
+                var firstExistingPath =
+                    ExtensionsPaths.FirstOrDefault(path => File.Exists(Path.Combine(path, $"{productId}.pixiext")));
+                if (firstExistingPath != null)
+                {
+                    var updatePath = Path.Combine(firstExistingPath, $"{productId}.update");
+                    await using (var fileStream = File.Create(updatePath))
+                    {
+                        await stream.CopyToAsync(fileStream);
+                    }
+
+                    await stream.DisposeAsync();
+                    return updatePath;
+                }
+
+                var filePath = Path.Combine(ExtensionsPaths[0], $"{productId}.pixiext");
                 try
                 {
                     await using (var fileStream = File.Create(filePath))
@@ -47,7 +61,7 @@ public sealed class StandaloneAdditionalContentProvider : IAdditionalContentProv
                 }
                 catch (IOException e)
                 {
-                    filePath = Path.Combine(ExtensionsPath, $"{productId}.update");
+                    filePath = Path.Combine(ExtensionsPaths[0], $"{productId}.update");
                     await using (var fileStream = File.Create(filePath))
                     {
                         await stream.CopyToAsync(fileStream);
@@ -80,14 +94,9 @@ public sealed class StandaloneAdditionalContentProvider : IAdditionalContentProv
     {
         if (string.IsNullOrEmpty(productId)) return false;
 
-        string filePath = Path.Combine(ExtensionsPath, $"{productId}.pixiext");
-        bool exists = File.Exists(filePath);
-        if (exists) return true;
-        
-        filePath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Extensions", $"{productId}.pixiext");
-        exists = File.Exists(filePath);
-
-        return exists;
+        var firstExistingPath =
+            ExtensionsPaths.FirstOrDefault(path => File.Exists(Path.Combine(path, $"{productId}.pixiext")));
+        return firstExistingPath != null;
     }
 
     public bool IsContentOwned(string product)

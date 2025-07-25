@@ -34,23 +34,32 @@ public class ExtensionLoader
     {
         foreach (var packagesPath in PackagesPath)
         {
-            LoadExtensionsFromPath(packagesPath);
-        }
-    }
+            foreach (var updateFile in Directory.GetFiles(packagesPath, "*.update"))
+            {
+                try
+                {
+                    string newExtension = Path.ChangeExtension(updateFile, ".pixiext");
+                    if (File.Exists(newExtension))
+                    {
+                        File.Delete(newExtension);
+                    }
 
-    private void LoadExtensionsFromPath(string path)
-    {
-        if (!Directory.Exists(path))
-        {
-            return;
-        }
-
-        foreach (var file in Directory.GetFiles(path))
-        {
-            if (file.EndsWith(".pixiext"))
+                    File.Move(updateFile, newExtension);
+                }
+                catch (IOException)
+                {
+                    // File is in use, ignore
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    // File is in use, ignore
+                } 
+            }
+            
+            foreach (var file in Directory.GetFiles(packagesPath, "*.pixiext"))
             {
                 LoadExtension(file);
-            }
+            } 
         }
     }
 
