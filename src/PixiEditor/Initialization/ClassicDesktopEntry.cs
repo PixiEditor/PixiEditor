@@ -173,7 +173,7 @@ internal class ClassicDesktopEntry
             GetApiKey());
 #else
         return new PixiEditor.Platform.Standalone.StandalonePlatform([Paths.LocalExtensionPackagesPath, Paths.InstallDirExtensionPackagesPath], GetApiUrl(),
-            GetApiKey());
+            GetApiKey()); // The first in the extensionsPath array should be local, because it's the default where extensions are installed. Otherwise, OS access rights may cause issues.
 #endif
     }
 
