@@ -10,14 +10,12 @@ using PixiEditor.Extensions;
 using PixiEditor.Extensions.Runtime;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Behaviours;
-using PixiEditor.IdentityProvider;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.ExceptionHandling;
 using PixiEditor.Models.IO;
 using PixiEditor.OperatingSystem;
 using PixiEditor.Platform;
 using PixiEditor.UI.Common.Controls;
-using PixiEditor.ViewModels.SubViewModels;
 using PixiEditor.Views;
 using PixiEditor.Views.Auth;
 using PixiEditor.Views.Dialogs;
@@ -149,7 +147,7 @@ internal class ClassicDesktopEntry
         }
 
         ExtensionLoader extensionLoader = new ExtensionLoader(
-            [Paths.InstallDirExtensionPackagesPath, Paths.LocalExtensionPackagesPath], Paths.UserExtensionsPath);
+            [Paths.InstallDirExtensionPackagesPath, Paths.LocalExtensionPackagesPath], Paths.UnpackedExtensionsPath);
         if (!safeMode)
         {
             extensionLoader.LoadExtensions();
@@ -174,8 +172,8 @@ internal class ClassicDesktopEntry
         return new PixiEditor.Platform.MSStore.MicrosoftStorePlatform(Paths.LocalExtensionPackagesPath, GetApiUrl(),
             GetApiKey());
 #else
-        return new PixiEditor.Platform.Standalone.StandalonePlatform(Paths.LocalExtensionPackagesPath, GetApiUrl(),
-            GetApiKey());
+        return new PixiEditor.Platform.Standalone.StandalonePlatform([Paths.LocalExtensionPackagesPath, Paths.InstallDirExtensionPackagesPath], GetApiUrl(),
+            GetApiKey()); // The first in the extensionsPath array should be local, because it's the default where extensions are installed. Otherwise, OS access rights may cause issues.
 #endif
     }
 

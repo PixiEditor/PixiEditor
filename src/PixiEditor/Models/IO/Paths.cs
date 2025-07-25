@@ -21,7 +21,7 @@ public static class Paths
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "PixiEditor", "Configs");
 
-    public static string UserExtensionsPath { get; } = Path.Combine(
+    public static string UnpackedExtensionsPath { get; } = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "PixiEditor", "Extensions", "Unpacked");
 

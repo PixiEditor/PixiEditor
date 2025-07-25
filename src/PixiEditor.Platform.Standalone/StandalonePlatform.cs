@@ -12,11 +12,11 @@ public sealed class StandalonePlatform : IPlatform
     public IIdentityProvider? IdentityProvider { get; }
     public IAdditionalContentProvider? AdditionalContentProvider { get; }
 
-    public StandalonePlatform(string extensionsPath, string apiUrl, string? apiKey)
+    public StandalonePlatform(string[] extensionsPaths, string apiUrl, string? apiKey)
     {
         PixiAuthIdentityProvider authProvider = new PixiAuthIdentityProvider(apiUrl, apiKey);
         IdentityProvider = authProvider;
-        AdditionalContentProvider = new StandaloneAdditionalContentProvider(extensionsPath, authProvider);
+        AdditionalContentProvider = new StandaloneAdditionalContentProvider(extensionsPaths, authProvider);
     }
 
     public bool PerformHandshake()
