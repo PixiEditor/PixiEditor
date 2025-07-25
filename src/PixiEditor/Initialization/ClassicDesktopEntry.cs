@@ -192,7 +192,7 @@ internal class ClassicDesktopEntry
 #elif MACOS
         return new PixiEditor.MacOs.MacOperatingSystem();
 #else
-        throw new PlatformNotSupportedException("This platform is not supported");
+        throw new PlatformNotSupportedException("This OS is not supported");
 #endif
     }
 
