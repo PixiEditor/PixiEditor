@@ -666,6 +666,8 @@ internal class NodeGraphView : Zoombox.Zoombox
 
     private void UpdateConnectionView(NodePropertyViewModel? propertyView)
     {
+        if (connectionItemsControl == null) return;
+
         foreach (var connection in connectionItemsControl.ItemsPanelRoot.Children)
         {
             if (connection is ContentPresenter contentPresenter)
