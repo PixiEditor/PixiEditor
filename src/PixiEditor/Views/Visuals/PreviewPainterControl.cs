@@ -57,6 +57,18 @@ public class PreviewPainterControl : DrawieControl
         FrameToRender = frameToRender;
     }
 
+    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnDetachedFromVisualTree(e);
+        if (PreviewPainter != null && painterInstance != null)
+        {
+            PreviewPainter.RemovePainterInstance(painterInstance.RequestId);
+            painterInstance.RequestMatrix = null;
+            painterInstance.RequestRepaint = null;
+            painterInstance = null;
+        }
+    }
+
     private static void PainterChanged(AvaloniaPropertyChangedEventArgs<PreviewPainter> args)
     {
         var sender = args.Sender as PreviewPainterControl;
