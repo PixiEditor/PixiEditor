@@ -44,6 +44,9 @@ public static class Paths
         Path.GetTempPath(),
         "PixiEditor", "Autosave");
 
+    public static string InstallDirectoryPath { get; } =
+        Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) ?? string.Empty;
+
     public static string ParseSpecialPathOrDefault(string path)
     {
         path = path.Replace("%appdata%", Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData));

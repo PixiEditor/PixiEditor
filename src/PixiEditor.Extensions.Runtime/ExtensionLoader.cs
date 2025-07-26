@@ -22,7 +22,6 @@ public class ExtensionLoader
     private HashSet<string> loadedExtensions = new HashSet<string>();
 
 
-
     public ExtensionLoader(string[] packagesPaths, string unpackedExtensionsPath)
     {
         PackagesPath = packagesPaths;
@@ -34,6 +33,11 @@ public class ExtensionLoader
     {
         foreach (var packagesPath in PackagesPath)
         {
+            if (!Directory.Exists(packagesPath))
+            {
+                continue; // Skip if the directory does not exist
+            }
+
             foreach (var updateFile in Directory.GetFiles(packagesPath, "*.update"))
             {
                 try
@@ -53,13 +57,13 @@ public class ExtensionLoader
                 catch (UnauthorizedAccessException)
                 {
                     // File is in use, ignore
-                } 
+                }
             }
-            
+
             foreach (var file in Directory.GetFiles(packagesPath, "*.pixiext"))
             {
                 LoadExtension(file);
-            } 
+            }
         }
     }
 
@@ -435,5 +439,4 @@ public class ExtensionLoader
 
         return null;
     }
-
 }
