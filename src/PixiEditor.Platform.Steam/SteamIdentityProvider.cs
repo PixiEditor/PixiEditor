@@ -57,6 +57,11 @@ public class SteamIdentityProvider : IIdentityProvider
 
         string cache = Path.Combine(Path.GetTempPath(), "PixiEditor", $"SteamAvatar_{id.m_SteamID}.png");
 
+        if (!Directory.Exists(Path.GetDirectoryName(cache)))
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(cache)!);
+        }
+
         bool cacheExists = File.Exists(cache);
 
         if (cacheExists)
