@@ -1122,5 +1122,6 @@
   "DECOMPOSE_MATRIX": "Decompose Matrix",
   "NORMALIZE_COORDINATES": "Normalize Coordinates",
   "TRANSFORMED_POSITION": "Transformed Position",
-  "ACCOUNT_PROVIDER_NOT_AVAILABLE": "This build of PixiEditor does not support accounts. Use the official build from pixieditor.net to manage your account."
+  "ACCOUNT_PROVIDER_NOT_AVAILABLE": "This build of PixiEditor does not support accounts. Use the official build from pixieditor.net to manage your account.",
+  "STEAM_OFFLINE": "Cannot validate the account. Steam is offline. Make sure Steam client is running and you are logged in."
 }
