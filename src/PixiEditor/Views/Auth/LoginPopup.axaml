@@ -23,7 +23,7 @@
             IsVisible="{Binding DataContext.IdentityProvider.IsValid, RelativeSource={RelativeSource AncestorType=auth:LoginPopup, Mode=FindAncestor}}"
             Margin="15" DataContext="{Binding}" />
         <TextBlock IsVisible="{Binding !DataContext.IdentityProvider.IsValid, RelativeSource={RelativeSource AncestorType=auth:LoginPopup, Mode=FindAncestor}}"
-                   Text="{localization:Translate Key=ACCOUNT_PROVIDER_NOT_AVAILABLE}"
+                   localization:Translator.Key="{Binding DataContext.IdentityProvider.InvalidInfo, RelativeSource={RelativeSource AncestorType=auth:LoginPopup, Mode=FindAncestor}, FallbackValue=ACCOUNT_PROVIDER_NOT_AVAILABLE}"
                    Margin="15" TextWrapping="Wrap" />
     </Panel>
 </dialogs:PixiEditorPopup>
