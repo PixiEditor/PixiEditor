@@ -4,6 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <RuntimeIdentifiers>win-x64;win-arm64;linux-x64;linux-arm64;osx-x64;osx-arm64</RuntimeIdentifiers>
   </PropertyGroup>
 
   <ItemGroup>
@@ -34,7 +35,7 @@
     <None Include="Windows-x64\Steamworks.NET.dll">
       <Link>Steamworks.NET.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None> 
+    </None>
   </ItemGroup>
 
   <ItemGroup Condition="'$(RuntimeIdentifier)'=='linux-x64'">
@@ -42,7 +43,7 @@
       <Link>libsteam_api.so</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    
+
     <None Include="OSX-Linux-x64/Steamworks.NET.dll">
       <Link>Steamworks.NET.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -54,11 +55,11 @@
       <Link>libsteam_api.so</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    
+
     <None Include="OSX-Linux-x64/Steamworks.NET.dll">
       <Link>Steamworks.NET.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None> 
+    </None>
   </ItemGroup>
 
   <ItemGroup Condition="'$(RuntimeIdentifier)'=='osx-x64'">
@@ -66,7 +67,7 @@
       <Link>steam_api.bundle</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    
+
     <None Include="OSX-Linux-x64/Steamworks.NET.dll">
       <Link>Steamworks.NET.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -78,11 +79,11 @@
       <Link>steam_api.bundle</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    
+
     <None Include="OSX-Linux-x64/Steamworks.NET.dll">
       <Link>Steamworks.NET.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None> 
+    </None>
   </ItemGroup>
 
 </Project>
