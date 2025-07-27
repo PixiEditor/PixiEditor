@@ -12,7 +12,7 @@ public class RenderContext
     public double Opacity { get; set; }
 
     public KeyFrameTime FrameTime { get; }
-    public ChunkResolution ChunkResolution { get; }
+    public ChunkResolution ChunkResolution { get; set; }
     public VecI RenderOutputSize { get; set; }
 
     public VecI DocumentSize { get; set; }
@@ -58,6 +58,15 @@ public class RenderContext
             BlendMode.Luminosity => DrawingApiBlendMode.Luminosity,
             BlendMode.Color => DrawingApiBlendMode.Color,
             _ => DrawingApiBlendMode.SrcOver,
+        };
+    }
+
+    public RenderContext Clone()
+    {
+        return new RenderContext(RenderSurface, FrameTime, ChunkResolution, RenderOutputSize, DocumentSize, ProcessingColorSpace, Opacity)
+        {
+            FullRerender = FullRerender,
+            TargetOutput = TargetOutput
         };
     }
 }

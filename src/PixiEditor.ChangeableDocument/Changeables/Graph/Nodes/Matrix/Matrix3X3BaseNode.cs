@@ -40,13 +40,30 @@ public abstract class Matrix3X3BaseNode : RenderNode, IRenderInput
 
         Float3x3 mtx = Matrix.Value.Invoke(FuncContext.NoContext);
 
-        surface.Canvas.SetMatrix(surface.Canvas.TotalMatrix.Concat(mtx.GetConstant() as Matrix3X3? ?? Matrix3X3.Identity));
+        surface.Canvas.SetMatrix(
+            surface.Canvas.TotalMatrix.Concat(mtx.GetConstant() as Matrix3X3? ?? Matrix3X3.Identity));
         if (!surface.LocalClipBounds.IsZeroOrNegativeArea)
         {
             Background.Value?.Paint(context, surface);
         }
 
         surface.Canvas.RestoreToCount(layer);
+    }
+
+    public override RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
+    {
+        if (Background.Value == null)
+            return null;
+
+        return base.GetPreviewBounds(frame, elementToRenderName);
+    }
+
+    public override bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
+    {
+        if (Background.Value == null)
+            return false;
+
+        return base.RenderPreview(renderOn, context, elementToRenderName);
     }
 
     protected abstract Float3x3 CalculateMatrix(FuncContext ctx, Float3x3 input);

@@ -7,7 +7,7 @@ public class CApiGeneratorTests
     [Fact]
     public void TestThatLoadAssemblies()
     {
-        CApiGenerator apiGenerator = new CApiGenerator("", (message) => { });
+        CApiGenerator apiGenerator = new CApiGenerator("", "", "", (message) => { });
         AssemblyDefinition assembly = AssemblyDefinition.ReadAssembly("TestAssets/CGlueTestLib.dll");
         var assemblies = apiGenerator.LoadAssemblies(assembly, "TestAssets");
 
@@ -17,7 +17,7 @@ public class CApiGeneratorTests
     [Fact]
     public void TestThatImportedMethodsAreExtractedCorrectly()
     {
-        CApiGenerator apiGenerator = new CApiGenerator("", (message) => { });
+        CApiGenerator apiGenerator = new CApiGenerator("", "", "", (message) => { });
         AssemblyDefinition assembly = AssemblyDefinition.ReadAssembly("TestAssets/CGlueTestLib.dll");
         var assemblies = apiGenerator.LoadAssemblies(assembly, "TestAssets");
 
@@ -29,7 +29,7 @@ public class CApiGeneratorTests
     [Fact]
     public void TestThatGenerateImportsGeneratesCorrectImports()
     {
-        CApiGenerator apiGenerator = new CApiGenerator("", (message) => { });
+        CApiGenerator apiGenerator = new CApiGenerator("", "", "", (message) => { });
         AssemblyDefinition assembly = AssemblyDefinition.ReadAssembly("TestAssets/CGlueTestLib.dll");
         var assemblies = apiGenerator.LoadAssemblies(assembly, "TestAssets");
 
@@ -45,7 +45,7 @@ public class CApiGeneratorTests
     [Fact]
     public void TestThatGenerateImportsForStringReturnTypeGeneratesConversionCorrectly()
     {
-        CApiGenerator apiGenerator = new CApiGenerator("", (message) => { });
+        CApiGenerator apiGenerator = new CApiGenerator("", "", "", (message) => { });
         AssemblyDefinition assembly = AssemblyDefinition.ReadAssembly("TestAssets/CGlueTestLib.dll");
         var assemblies = apiGenerator.LoadAssemblies(assembly, "TestAssets");
 
@@ -65,7 +65,7 @@ public class CApiGeneratorTests
     [Fact]
     public void TestThatGenerateExportsGeneratesCorrectExports()
     {
-        CApiGenerator apiGenerator = new CApiGenerator("", (message) => { });
+        CApiGenerator apiGenerator = new CApiGenerator("", "", "", (message) => { });
         AssemblyDefinition assembly = AssemblyDefinition.ReadAssembly("TestAssets/CGlueTestLib.dll");
         var assemblies = apiGenerator.LoadAssemblies(assembly, "TestAssets");
 
@@ -86,7 +86,7 @@ public class CApiGeneratorTests
     [Fact]
     public void TestThatAttachImportFunctionsGenerateProperly()
     {
-        CApiGenerator apiGenerator = new CApiGenerator("", (message) => { });
+        CApiGenerator apiGenerator = new CApiGenerator("", "", "", (message) => { });
         AssemblyDefinition assembly = AssemblyDefinition.ReadAssembly("TestAssets/CGlueTestLib.dll");
         var assemblies = apiGenerator.LoadAssemblies(assembly, "TestAssets");
 

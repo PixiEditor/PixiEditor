@@ -82,6 +82,7 @@
             <system:String x:Key="icon-globe">&#xE94E;</system:String>
             <system:String x:Key="icon-grid">&#xE94F;</system:String>
             <system:String x:Key="icon-gridlines">&#xE961;</system:String>
+            <system:String x:Key="icon-hand">&#xE9C9;</system:String>
             <system:String x:Key="icon-hard-drive">&#xE98C;</system:String>
             <system:String x:Key="icon-heart-handshake">&#xE902;</system:String>
             <system:String x:Key="icon-help">&#xE99B;</system:String>

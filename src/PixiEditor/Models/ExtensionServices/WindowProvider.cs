@@ -13,6 +13,7 @@ namespace PixiEditor.Models.ExtensionServices;
 public class WindowProvider : IWindowProvider
 {
     private readonly Dictionary<string, Type> registeredWindows = new();
+    private readonly Dictionary<string, List<Action<IPopupWindow>>> windowOpenedCallbacks = new();
     private ExtensionLoader extensionLoader;
     private IServiceProvider services;
 
@@ -20,6 +21,26 @@ public class WindowProvider : IWindowProvider
     {
         this.extensionLoader = loader;
         this.services = services;
+        PixiEditorPopup.PopupLoaded += PixiEditorPopupOnPopupLoaded;
+        PixiEditorPopup.PopupClosed += PixiEditorPopupOnPopupClosed;
+    }
+
+    private void PixiEditorPopupOnPopupLoaded(PixiEditorPopup obj)
+    {
+        string id = extensionLoader.GetTypeId(obj.GetType());
+        PopupWindow popupWindow = new PopupWindow(obj);
+        if(windowOpenedCallbacks.TryGetValue(id, out List<Action<IPopupWindow>> actions))
+        {
+            foreach (var action in actions)
+            {
+                action?.Invoke(popupWindow);
+            }
+        }
+    }
+
+    private void PixiEditorPopupOnPopupClosed(PixiEditorPopup obj)
+    {
+
     }
 
     public WindowProvider RegisterWindow<T>() where T : IPopupWindow
@@ -59,6 +80,26 @@ public class WindowProvider : IWindowProvider
         }
 
         throw new ArgumentException($"Window with id {windowId} does not exist");
+    }
+
+    public void SubscribeWindowOpened(BuiltInWindowType type, Action<IPopupWindow> action)
+    {
+        string id = type.GetDescription();
+        string fullId = $"PixiEditor.{id}";
+        if (registeredWindows.ContainsKey(fullId))
+        {
+            if (!windowOpenedCallbacks.TryGetValue(fullId, out List<Action<IPopupWindow>> actions))
+            {
+                actions = new List<Action<IPopupWindow>>();
+                windowOpenedCallbacks[fullId] = actions;
+            }
+
+            actions.Add(action);
+        }
+        else
+        {
+            throw new ArgumentException($"Window with id {id} does not exist");
+        }
     }
 
     private object?[] TryGetConstructorArgs(Type handler)

@@ -17,6 +17,7 @@
         Swatches="{Binding DocumentManagerSubViewModel.ActiveDocument.Swatches}"
         SelectColorCommand="{cmds:Command PixiEditor.Colors.SelectColor, UseProvided=True}"
         HintColor="{Binding Path=ColorsSubViewModel.PrimaryColor,Converter={converters:GenericColorToMediaColorConverter}}"
+        SecondaryColor="{Binding Path=ColorsSubViewModel.SecondaryColor,Converter={converters:GenericColorToMediaColorConverter}}"
         PaletteProvider="{Binding ColorsSubViewModel.PaletteProvider}"
         ImportPaletteCommand="{cmds:Command PixiEditor.Colors.ImportPalette, UseProvided=True}"
         ReplaceColorsCommand="{cmds:Command PixiEditor.Colors.ReplaceColors, UseProvided=True}" />

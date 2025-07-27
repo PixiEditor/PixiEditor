@@ -28,6 +28,7 @@ using PixiEditor.Models.Commands;
 using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.Dock;
 using PixiEditor.ViewModels.Document;
+using PixiEditor.Views;
 
 namespace PixiEditor.ViewModels.SubViewModels;
 #nullable enable
@@ -44,18 +45,20 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
     public ClipboardViewModel(ViewModelMain owner)
         : base(owner)
     {
-        Application.Current.ForDesktopMainWindow((mainWindow) =>
+        owner.AttachedToWindow += AttachClipboard;
+    }
+
+    private void AttachClipboard(MainWindow window)
+    {
+        ClipboardController.Initialize(window.Clipboard);
+        window.GotFocus += (sender, args) =>
         {
-            ClipboardController.Initialize(mainWindow.Clipboard);
-            mainWindow.GotFocus += (sender, args) =>
-            {
-                QueueHasImageInClipboard();
-                QueueCheckCanPasteImage();
-                QueueFetchTextFromClipboard();
-                QueueCheckNodesInClipboard();
-                QueueCheckCelsInClipboard();
-            };
-        });
+            QueueHasImageInClipboard();
+            QueueCheckCanPasteImage();
+            QueueFetchTextFromClipboard();
+            QueueCheckNodesInClipboard();
+            QueueCheckCelsInClipboard();
+        };
     }
 
     [Command.Basic("PixiEditor.Clipboard.Cut", "CUT", "CUT_DESCRIPTIVE", CanExecute = "PixiEditor.Selection.IsNotEmpty",

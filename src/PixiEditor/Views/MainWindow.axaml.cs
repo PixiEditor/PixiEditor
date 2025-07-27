@@ -14,6 +14,7 @@ using Avalonia.VisualTree;
 using Microsoft.Extensions.DependencyInjection;
 using Drawie.Backend.Core.Bridge;
 using PixiDocks.Avalonia.Helpers;
+using PixiEditor.Extensions;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Extensions.Runtime;
 using PixiEditor.Helpers;
@@ -21,6 +22,7 @@ using PixiEditor.Initialization;
 using PixiEditor.Models.AnalyticsAPI;
 using PixiEditor.Models.ExceptionHandling;
 using PixiEditor.Models.IO;
+using PixiEditor.OperatingSystem;
 using PixiEditor.Platform;
 using PixiEditor.ViewModels.SubViewModels;
 using PixiEditor.Views.Main;
@@ -31,9 +33,9 @@ namespace PixiEditor.Views;
 
 internal partial class MainWindow : Window
 {
-    private readonly IPreferences preferences;
-    private readonly IPlatform platform;
-    private readonly IServiceProvider services;
+    private IPreferences preferences;
+    private IPlatform platform;
+    private IServiceProvider services;
     private static ExtensionLoader extLoader;
 
     private MainTitleBar titleBar;
@@ -63,21 +65,20 @@ internal partial class MainWindow : Window
         StartupPerformance.ReportToMainWindow();
 
         (Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime).MainWindow = this;
+        
         extLoader = extensionLoader;
-
-        services = new ServiceCollection()
-            .AddPlatform()
-            .AddPixiEditor(extensionLoader)
-            .AddExtensionServices(extensionLoader)
-            .BuildServiceProvider();
-
-        AsyncImageLoader.ImageLoader.AsyncImageLoader =
+        
+        AsyncImageLoader.ImageLoader.AsyncImageLoader = IOperatingSystem.Current.IsLinux ? new BaseWebImageLoader() :
             new DiskCachedWebImageLoader(Path.Combine(Paths.TempFilesPath, "ImageCache"));
 
+        services = ClassicDesktopEntry.Active.Services;
+        
         preferences = services.GetRequiredService<IPreferences>();
         platform = services.GetRequiredService<IPlatform>();
         DataContext = services.GetRequiredService<ViewModels_ViewModelMain>();
-        DataContext.Setup(services);
+
+        DataContext.AttachToWindow(this);
+        
         StartupPerformance.ReportToMainViewModel();
 
         var analytics = services.GetService<AnalyticsPeriodicReporter>();

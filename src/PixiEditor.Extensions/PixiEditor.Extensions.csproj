@@ -15,6 +15,7 @@
     <ItemGroup>
       <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
       <PackageReference Include="Avalonia.Remote.Protocol" Version="$(AvaloniaVersion)" />
+      <PackageReference Include="Svg.Controls.Skia.Avalonia" Version="11.3.0.1" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.0" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />

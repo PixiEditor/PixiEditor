@@ -518,11 +518,13 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
 
         int towardsFrame = MousePosToFrame(e);
 
-        if (e.Delta.Y > 0)
+        double delta = e.Delta.Y == 0 ? e.Delta.X : e.Delta.Y;
+        
+        if (delta > 0)
         {
             newScale += ticks;
         }
-        else if (e.Delta.Y < 0)
+        else if (delta < 0)
         {
             newScale -= ticks;
         }

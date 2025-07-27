@@ -13,6 +13,24 @@ internal partial class PaletteColorControl : UserControl
     public static readonly StyledProperty<PaletteColor> ColorProperty =
         AvaloniaProperty.Register<PaletteColorControl, PaletteColor>(nameof(Color));
 
+    public static readonly StyledProperty<bool> IsSelectedProperty = AvaloniaProperty.Register<PaletteColorControl, bool>(
+        nameof(IsSelected));
+
+    public static readonly StyledProperty<bool> IsSelectedSecondaryProperty = AvaloniaProperty.Register<PaletteColorControl, bool>(
+        nameof(IsSelectedSecondary));
+
+    public bool IsSelectedSecondary
+    {
+        get => GetValue(IsSelectedSecondaryProperty);
+        set => SetValue(IsSelectedSecondaryProperty, value);
+    }
+
+    public bool IsSelected
+    {
+        get => GetValue(IsSelectedProperty);
+        set => SetValue(IsSelectedProperty, value);
+    }
+
     public PaletteColor Color
     {
         get { return (PaletteColor)GetValue(ColorProperty); }

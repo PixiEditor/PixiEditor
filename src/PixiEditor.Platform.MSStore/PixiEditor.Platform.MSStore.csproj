@@ -7,6 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\PixiEditor.IdentityProvider.PixiAuth\PixiEditor.IdentityProvider.PixiAuth.csproj" />
       <ProjectReference Include="..\PixiEditor.Platform\PixiEditor.Platform.csproj" />
     </ItemGroup>
 

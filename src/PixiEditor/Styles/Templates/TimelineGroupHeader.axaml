@@ -7,7 +7,8 @@
     <ControlTheme TargetType="animations:TimelineGroupHeader" x:Key="{x:Type animations:TimelineGroupHeader}">
         <Setter Property="Template">
             <ControlTemplate>
-                <Border BorderBrush="{DynamicResource ThemeBorderMidBrush}" BorderThickness="0 0 1 1">
+                <Border Background="{TemplateBinding Background}" BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                        BorderThickness="0 0 1 1">
                     <DockPanel LastChildFill="False" VerticalAlignment="Center">
                         <CheckBox VerticalAlignment="Center" Classes="ImageCheckBox" DockPanel.Dock="Left"
                                   IsChecked="{Binding Item.IsVisible, RelativeSource={RelativeSource TemplatedParent}}" />
@@ -29,11 +30,18 @@
                                 Width="60" Height="60" RenderOptions.BitmapInterpolationMode="None"/>
                         </Border>
                         <TextBlock Margin="5 0 0 0" VerticalAlignment="Center" Text="{Binding Item.LayerName, RelativeSource={RelativeSource TemplatedParent}}" />
-                        <ToggleButton Name="PART_CollapseButton" Margin="0 0 5 0" DockPanel.Dock="Right" Classes="ExpandCollapseToggleStyle" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                        <ToggleButton Background="Transparent" Name="PART_CollapseButton" Margin="0 0 5 0" DockPanel.Dock="Right" Classes="ExpandCollapseToggleStyle" HorizontalAlignment="Right" VerticalAlignment="Center" />
                     </DockPanel>
                 </Border>
             </ControlTemplate>
         </Setter>
+
+        <Style Selector="^">
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+        <Style Selector="^:selected">
+            <Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush2}" />
+        </Style>
     </ControlTheme>
 
 </ResourceDictionary>

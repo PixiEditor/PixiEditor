@@ -21,6 +21,16 @@ internal class DocumentsApi : ApiGroupHandler
         return id;
     }
 
+    [ApiFunction("import_document")]
+    public string ImportFile(Span<byte> data)
+    {
+        PermissionUtility.ThrowIfLacksPermissions(Extension.Metadata, ExtensionPermissions.OpenDocuments, "ImportFile");
+
+        string id = Api.Documents.ImportDocument(data.ToArray())?.Id.ToString() ?? string.Empty;
+
+        return id;
+    }
+
     [ApiFunction("get_active_document")]
     public string GetActiveDocument()
     {

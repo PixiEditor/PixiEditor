@@ -1,5 +1,7 @@
 ﻿using System.IO;
 using PixiEditor.Extensions.Sdk;
+using PixiEditor.Extensions.Sdk.Api.Resources;
+using PixiEditor.Extensions.Sdk.Bridge;
 
 namespace ResourcesSample;
 
@@ -21,12 +23,15 @@ public class ResourcesSampleExtension : PixiEditorExtension
     {
         // By default, you can't access any files from the file system, however you can access files from the Resources folder.
         // This folder contains files that you put in the Resources folder in the extension project.
-        Api.Logger.Log(File.ReadAllText("Resources/ExampleFile.txt"));
+        // You can use System.File calls to access files in the Resources folder.
+        // However, if you want to access files that are encrypted, you should use the Resources methods.
+        // Adding <EncryptResources>true</EncryptResources> to the .csproj file will encrypt the resources in the Resources folder.
+        Api.Logger.Log(Resources.ReadAllText("Resources/ExampleFile.txt"));
 
         Api.Logger.Log("Writing to file...");
 
-        File.WriteAllText("Resources/ExampleFile.txt", "Hello from extension!");
+        Resources.WriteAllText("Resources/ExampleFile.txt", "Hello from extension!");
 
-        Api.Logger.Log(File.ReadAllText("Resources/ExampleFile.txt"));
+        Api.Logger.Log(Resources.ReadAllText("Resources/ExampleFile.txt"));
     }
 }

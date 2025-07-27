@@ -147,6 +147,12 @@ internal static class ClipboardController
             copyArea = document.TransformViewModel.Corners.AABBBounds;
         }
 
+        if(copyArea.IsZeroOrNegativeArea || copyArea.HasNaNOrInfinity)
+        {
+            NoticeDialog.Show("SELECTED_AREA_EMPTY", "NOTHING_TO_COPY");
+            return;
+        }
+
         using Surface documentSurface = new Surface(document.SizeBindable);
 
         document.Renderer.RenderDocument(documentSurface.DrawingSurface,
@@ -181,9 +187,31 @@ internal static class ClipboardController
             data.Set(ClipboardDataFormats.ImageSlashPng, pngArray);
 
             pngStream.Position = 0;
-            Directory.CreateDirectory(Path.GetDirectoryName(TempCopyFilePath)!);
-            await using FileStream fileStream = new FileStream(TempCopyFilePath, FileMode.Create, FileAccess.Write);
-            await pngStream.CopyToAsync(fileStream);
+            try
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(TempCopyFilePath)!);
+                await using FileStream fileStream = new FileStream(TempCopyFilePath, FileMode.Create, FileAccess.Write);
+                await pngStream.CopyToAsync(fileStream);
+            }
+            catch (IOException ioException)
+            {
+                string secondaryPath = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "PixiEditor",
+                    $"Copied_{DateTime.Now:HH-mm-ss}.png");
+                try
+                {
+                    Directory.CreateDirectory(Path.GetDirectoryName(secondaryPath)!);
+                    await using FileStream fileStream =
+                        new FileStream(secondaryPath, FileMode.Create, FileAccess.Write);
+                    await pngStream.CopyToAsync(fileStream);
+                }
+                catch
+                {
+                    return;
+                }
+            }
+
             data.SetFileDropList(new[] { TempCopyFilePath });
         }
     }

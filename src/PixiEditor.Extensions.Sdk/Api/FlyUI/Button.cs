@@ -1,8 +1,10 @@
 ﻿using PixiEditor.Extensions.CommonApi.FlyUI;
 using PixiEditor.Extensions.CommonApi.FlyUI.Events;
+using PixiEditor.Extensions.Sdk.Attributes;
 
 namespace PixiEditor.Extensions.Sdk.Api.FlyUI;
 
+[ControlTypeId("Button")]
 public class Button : SingleChildLayoutElement
 {
     public event ElementEventHandler Click
@@ -20,7 +22,7 @@ public class Button : SingleChildLayoutElement
 
     protected override ControlDefinition CreateControl()
     {
-        ControlDefinition button = new ControlDefinition(UniqueId, "Button");
+        ControlDefinition button = new ControlDefinition(UniqueId, GetType());
         if (Child != null)
             button.AddChild(Child.BuildNative());
 

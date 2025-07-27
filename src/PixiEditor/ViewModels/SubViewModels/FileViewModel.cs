@@ -19,12 +19,14 @@ using PixiEditor.Models.IO;
 using PixiEditor.Models.UserData;
 using Drawie.Numerics;
 using Microsoft.Extensions.DependencyInjection;
+using PixiEditor.Extensions.CommonApi.Documents;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Models.DocumentModels.Autosave;
 using PixiEditor.Models.ExceptionHandling;
 using PixiEditor.Models.IO.CustomDocumentFormats;
 using PixiEditor.OperatingSystem;
 using PixiEditor.Parser;
+using PixiEditor.Platform;
 using PixiEditor.UI.Common.Fonts;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document;
@@ -150,14 +152,37 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         }
         else if (!args.Contains("--crash") && !args.Contains("--openedInExisting"))
         {
-            if (preferences.GetLocalPreference("OnboardingShown", false) == false)
+            if (preferences.GetLocalPreference("OnboardingV2Shown", false) == false)
             {
-                preferences.UpdateLocalPreference("OnboardingShown", true);
-                Owner.WindowSubViewModel.OpenOnboardingWindow();
+                preferences.UpdateLocalPreference("OnboardingV2Shown", true);
+
+                if (IPlatform.Current?.IdentityProvider != null &&
+                    IPlatform.Current.IdentityProvider.ProviderName == "PixiAuth")
+                {
+                    Owner.WindowSubViewModel.OpenAccountWindow(true).Closed += (sender, eventArgs) =>
+                    {
+                        Owner.WindowSubViewModel.OpenOnboardingWindow().Closed += (_, _) =>
+                        {
+                            Owner.InvokeUserReadyEvent();
+                        };
+                    };
+                }
+                else
+                {
+                    Owner.WindowSubViewModel.OpenOnboardingWindow().Closed += (_, _) =>
+                    {
+                        Owner.InvokeUserReadyEvent();
+                    };
+                }
             }
             else if (preferences!.GetPreference("ShowStartupWindow", true))
             {
+                Owner.InvokeUserReadyEvent();
                 OpenHelloTherePopup();
+            }
+            else
+            {
+                Owner.InvokeUserReadyEvent();
             }
         }
     }
@@ -352,10 +377,12 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         AddDocumentViewModelToTheSystem(document);
     }
 
-    public void OpenFromPixiBytes(byte[] bytes)
+    public IDocument OpenFromPixiBytes(byte[] bytes)
     {
         DocumentViewModel document = Importer.ImportDocument(bytes, null);
         AddDocumentViewModelToTheSystem(document);
+
+        return document;
     }
 
     /// <summary>
@@ -612,7 +639,8 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                     {
                         Dispatcher.UIThread.Post(() =>
                         {
-                            if (IPreferences.Current.GetPreference<bool>(PreferencesConstants.OpenDirectoryOnExport, true))
+                            if (IPreferences.Current.GetPreference<bool>(PreferencesConstants.OpenDirectoryOnExport,
+                                    true))
                             {
                                 IOperatingSystem.Current.OpenFolder(result.finalPath);
                             }
@@ -692,7 +720,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             PreferencesConstants.AutosaveEnabled,
             PreferencesConstants.AutosaveEnabledDefault);
 
-        if(!autosaveEnabled)
+        if (!autosaveEnabled)
         {
             return;
         }

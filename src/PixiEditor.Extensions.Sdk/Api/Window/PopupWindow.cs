@@ -6,6 +6,7 @@ namespace PixiEditor.Extensions.Sdk.Api.Window;
 
 public class PopupWindow : IPopupWindow
 {
+    internal int Handle => windowHandle;
     private int windowHandle;
 
     internal PopupWindow(int handle)

@@ -5,6 +5,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Primitives;
+using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Threading;
@@ -65,6 +66,15 @@ public class NodeView : TemplatedControl
 
     public static readonly StyledProperty<string> IconProperty = AvaloniaProperty.Register<NodeView, string>(
         nameof(Icon));
+
+    public static readonly StyledProperty<bool> CanRenderPreviewProperty = AvaloniaProperty.Register<NodeView, bool>(
+        nameof(CanRenderPreview));
+
+    public bool CanRenderPreview
+    {
+        get => GetValue(CanRenderPreviewProperty);
+        private set => SetValue(CanRenderPreviewProperty, value);
+    }
 
     public string Icon
     {
@@ -167,6 +177,7 @@ public class NodeView : TemplatedControl
     static NodeView()
     {
         IsSelectedProperty.Changed.Subscribe(NodeSelectionChanged);
+        ResultPreviewProperty.Changed.Subscribe(PainterChanged);
     }
 
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
@@ -298,6 +309,31 @@ public class NodeView : TemplatedControl
         if (e.Sender is NodeView nodeView)
         {
             nodeView.PseudoClasses.Set(":selected", e.NewValue.Value);
+        }
+    }
+
+    private static void PainterChanged(AvaloniaPropertyChangedEventArgs<PreviewPainter> e)
+    {
+        if (e.Sender is NodeView nodeView)
+        {
+            if (e.OldValue.Value is not null)
+            {
+                e.OldValue.Value.CanRenderChanged -= nodeView.ResultPreview_CanRenderChanged;
+            }
+
+            if (e.NewValue.Value is not null)
+            {
+                e.NewValue.Value.CanRenderChanged += nodeView.ResultPreview_CanRenderChanged;
+                nodeView.ResultPreview_CanRenderChanged(e.NewValue.Value.CanRender);
+            }
+        }
+    }
+
+    private void ResultPreview_CanRenderChanged(bool canRender)
+    {
+        if (CanRenderPreview != canRender)
+        {
+            CanRenderPreview = canRender;
         }
     }
 }

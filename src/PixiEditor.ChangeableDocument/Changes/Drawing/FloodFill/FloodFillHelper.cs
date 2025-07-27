@@ -71,7 +71,7 @@ public static class FloodFillHelper
 
             var fixedColor = drawingColor.TransformColor(srgbTransform);
             uLongColor = fixedColor.ToULong();
-            colorSpaceCorrectedColor = fixedColor;
+            colorSpaceCorrectedColor = (Color)fixedColor;
         }
 
         if ((colorSpaceCorrectedColor.A == 0) || colorToReplace == colorSpaceCorrectedColor)

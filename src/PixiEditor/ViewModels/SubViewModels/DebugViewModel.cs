@@ -102,14 +102,14 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
         "OPEN_LOCAL_APPDATA_DIR",
         MenuItemPath = "DEBUG/OPEN_LOCAL_APPDATA_DIR", MenuItemOrder = 5, Icon = PixiPerfectIcons.Folder,
         AnalyticsTrack = true)]
-    [Command.Debug("PixiEditor.Debug.IO.OpenCrashReportsDirectory", @"PixiEditor\crash_logs", "OPEN_CRASH_REPORTS_DIR",
+    [Command.Debug("PixiEditor.Debug.IO.OpenCrashReportsDirectory", @"PixiEditor/crash_logs", "OPEN_CRASH_REPORTS_DIR",
         "OPEN_CRASH_REPORTS_DIR",
         MenuItemPath = "DEBUG/OPEN_CRASH_REPORTS_DIR", MenuItemOrder = 6, Icon = PixiPerfectIcons.Folder,
         AnalyticsTrack = true)]
     public static void OpenLocalAppDataFolder(string subDirectory)
     {
         var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            subDirectory);
+            subDirectory.Replace('/', Path.DirectorySeparatorChar));
         OpenFolder(path);
     }
 

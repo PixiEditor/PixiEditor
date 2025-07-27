@@ -13,6 +13,7 @@ using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.UserPreferences;
 using PixiEditor.Views;
+using PixiEditor.Views.Auth;
 using PixiEditor.Views.Dialogs;
 using PixiEditor.Views.Windows;
 using Command = PixiEditor.Models.Commands.Attributes.Commands.Command;
@@ -255,9 +256,11 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>, IWindowHandler
     [Command.Basic("PixiEditor.Window.OpenOnboardingWindow", "OPEN_ONBOARDING_WINDOW", "OPEN_ONBOARDING_WINDOW",
         Icon = PixiPerfectIcons.Compass, MenuItemPath = "VIEW/OPEN_ONBOARDING_WINDOW", MenuItemOrder = 2,
         AnalyticsTrack = true)]
-    public void OpenOnboardingWindow()
+    public OnboardingDialog OpenOnboardingWindow()
     {
-        new OnboardingDialog { DataContext = new OnboardingViewModel() }.ShowDialog(MainWindow.Current);
+        var dialog = new OnboardingDialog { DataContext = new OnboardingViewModel() };
+        dialog.ShowDialog(MainWindow.Current);
+        return dialog;
     }
 
     [Commands_Command.Basic("PixiEditor.Window.OpenShortcutWindow", "OPEN_SHORTCUT_WINDOW", "OPEN_SHORTCUT_WINDOW",
@@ -284,5 +287,20 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>, IWindowHandler
     public void ShowDockWindow(string id)
     {
         Owner.LayoutSubViewModel.LayoutManager.ShowDockable(id);
+    }
+
+    [Commands_Command.Basic("PixiEditor.Window.OpenAccountWindow", "OPEN_ACCOUNT_WINDOW", "OPEN_ACCOUNT_WINDOW",
+        MenuItemOrder = 6, AnalyticsTrack = true)]
+    public LoginPopup OpenAccountWindow(bool dialog = false)
+    {
+        LoginPopup popup = new LoginPopup();
+        if (dialog)
+        {
+            popup.ShowDialog(MainWindow.Current);
+            return popup;
+        }
+
+        popup.Show();
+        return popup;
     }
 }

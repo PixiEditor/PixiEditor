@@ -18,6 +18,7 @@ using PixiEditor.Helpers;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.ExtensionServices;
 using PixiEditor.Models.IO.PaletteParsers;
+using PixiEditor.Models.Palettes;
 using PixiEditor.Models.Structures;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels;
@@ -67,6 +68,15 @@ internal partial class PaletteViewer : UserControl
             nameof(ReplaceColorsCommand),
             default(ICommand));
 
+    public static readonly StyledProperty<Color> SecondaryColorProperty = AvaloniaProperty.Register<PaletteViewer, Color>(
+        nameof(SecondaryColor));
+
+    public Color SecondaryColor
+    {
+        get => GetValue(SecondaryColorProperty);
+        set => SetValue(SecondaryColorProperty, value);
+    }
+
     public ICommand ReplaceColorsCommand
     {
         get => GetValue(ReplaceColorsCommandProperty);
@@ -115,6 +125,7 @@ internal partial class PaletteViewer : UserControl
     }
     
     public ICommand DropColorCommand { get; set; }
+
 
     public PaletteViewer()
     {
@@ -340,12 +351,10 @@ internal partial class PaletteViewer : UserControl
                 int currIndex = Colors.IndexOf(paletteColor);
                 if (paletteColorControl != null)
                 {
-                    int newIndex = Colors.IndexOf(paletteColorControl.Color);
-                    Colors.RemoveAt(currIndex);
-                    Colors.Insert(newIndex, paletteColor);
-                    int indexOfSource = Colors.IndexOf(paletteColorControl.Color);
-                    if(indexOfSource < 0) return;
-                    Colors.Move(indexOfSource, currIndex);
+                    int indexOfControl = Colors.IndexOf(paletteColorControl.Color);
+                    indexOfControl = Math.Clamp(indexOfControl, 0, Colors.Count - 1);
+                    Colors.Move(currIndex, indexOfControl);
+                    RefreshAllItems();
                 }
             }
         }

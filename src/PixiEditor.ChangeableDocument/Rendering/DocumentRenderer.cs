@@ -125,18 +125,18 @@ public class DocumentRenderer : IPreviewRenderable, IDisposable
         IsBusy = false;
     }
 
-    public async Task RenderNodePreview(IPreviewRenderable previewRenderable, DrawingSurface renderOn,
+    public async Task<bool> RenderNodePreview(IPreviewRenderable previewRenderable, DrawingSurface renderOn,
         RenderContext context,
         string elementToRenderName)
     {
-        if (previewRenderable is Node { IsDisposed: true }) return;
+        if (previewRenderable is Node { IsDisposed: true }) return false;
         TaskCompletionSource<bool> tcs = new();
         RenderRequest request = new(tcs, context, renderOn, previewRenderable, elementToRenderName);
 
         renderRequests.Enqueue(request);
         ExecuteRenderRequests();
 
-        await tcs.Task;
+        return await tcs.Task;
     }
 
     public static IReadOnlyNodeGraph ConstructMembersOnlyGraph(IReadOnlyNodeGraph fullGraph)
@@ -279,9 +279,10 @@ public class DocumentRenderer : IPreviewRenderable, IDisposable
 
             try
             {
+                bool result = true;
                 if (request.PreviewRenderable != null)
                 {
-                    request.PreviewRenderable.RenderPreview(request.RenderOn, request.Context,
+                    result = request.PreviewRenderable.RenderPreview(request.RenderOn, request.Context,
                         request.ElementToRenderName);
                 }
                 else if (request.NodeGraph != null)
@@ -289,7 +290,7 @@ public class DocumentRenderer : IPreviewRenderable, IDisposable
                     request.NodeGraph.Execute(request.Context);
                 }
 
-                request.TaskCompletionSource.SetResult(true);
+                request.TaskCompletionSource.SetResult(result);
             }
             catch (Exception e)
             {

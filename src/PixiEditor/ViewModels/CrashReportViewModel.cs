@@ -8,6 +8,7 @@ using PixiEditor.Initialization;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.ExceptionHandling;
+using PixiEditor.Platform;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.Views;
 using PixiEditor.Views.Dialogs;
@@ -37,8 +38,6 @@ internal partial class CrashReportViewModel : Window
         DocumentCount = report.GetDocumentCount();
         OpenSendCrashReportCommand = new RelayCommand(() => new SendCrashReportDialog(CrashReport).Show());
 
-        if (!IsDebugBuild)
-            _ = CrashHelper.SendReportTextToWebhookAsync(report);
         _ = CrashHelper.SendReportToAnalyticsApiAsync(report);
     }
 
@@ -82,11 +81,14 @@ internal partial class CrashReportViewModel : Window
     [RelayCommand]
     public void RunInSafeMode()
     {
-        var app = (App)Application.Current;
-        ClassicDesktopEntry entry = new(app.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime);
-        StartupArgs.Args = new List<string> { "--safeMode" };
-        var window = new MainWindow(entry.InitApp(true), null);
-        Application.Current.Run(window);
+        (Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.Shutdown();
+        Process.Start(
+            new ProcessStartInfo
+            {
+                FileName = Process.GetCurrentProcess().MainModule?.FileName ?? string.Empty,
+                Arguments = "--safeMode",
+                UseShellExecute = true
+            });
     }
 
     public bool CanRecoverDocuments()

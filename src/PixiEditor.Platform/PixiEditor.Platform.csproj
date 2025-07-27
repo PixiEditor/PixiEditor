@@ -10,4 +10,8 @@
       <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\PixiEditor.IdentityProvider\PixiEditor.IdentityProvider.csproj" />
+    </ItemGroup>
+
 </Project>

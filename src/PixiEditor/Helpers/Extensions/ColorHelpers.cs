@@ -92,8 +92,8 @@ internal static class ColorHelpers
         RadialGradientPaintable radialGradientPaintable => new RadialGradientBrush
         {
             Center = new RelativePoint(radialGradientPaintable.Center.X, radialGradientPaintable.Center.Y, paintable.AbsoluteValues ? RelativeUnit.Absolute : RelativeUnit.Relative),
-            RadiusX = new RelativeScalar(radialGradientPaintable.Radius, RelativeUnit.Absolute),
-            RadiusY = new RelativeScalar(radialGradientPaintable.Radius, RelativeUnit.Absolute),
+            RadiusX = new RelativeScalar(radialGradientPaintable.Radius, paintable.AbsoluteValues ? RelativeUnit.Absolute : RelativeUnit.Relative),
+            RadiusY = new RelativeScalar(radialGradientPaintable.Radius, paintable.AbsoluteValues ? RelativeUnit.Absolute : RelativeUnit.Relative),
             GradientStops = ToAvaloniaGradientStops(radialGradientPaintable.GradientStops),
             Transform = radialGradientPaintable.Transform.HasValue ? new MatrixTransform(ToAvaloniaMatrix(radialGradientPaintable.Transform.Value)) : null
         },

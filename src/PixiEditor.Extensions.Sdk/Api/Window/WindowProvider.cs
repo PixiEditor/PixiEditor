@@ -16,7 +16,7 @@ public class WindowProvider : IWindowProvider
         int handle = Native.create_popup_window(title, ptr, bytes.Length);
         Marshal.FreeHGlobal(ptr);
         
-        SubscribeToEvents(controlDefinition);
+        Interop.SubscribeToEvents(controlDefinition);
         return new PopupWindow(handle);
     }
 
@@ -28,20 +28,7 @@ public class WindowProvider : IWindowProvider
         Native.state_changed(uniqueId, ptr, bytes.Length);
         Marshal.FreeHGlobal(ptr);
 
-        SubscribeToEvents(newLayout);
-    }
-
-    private void SubscribeToEvents(ControlDefinition body)
-    {
-        foreach (ControlDefinition child in body.Children)
-        {
-            SubscribeToEvents(child);
-        }
-
-        foreach (var queuedEvent in body.QueuedEvents)
-        {
-            Native.subscribe_to_event(body.UniqueId, queuedEvent);
-        }
+        Interop.SubscribeToEvents(newLayout);
     }
 
     public IPopupWindow CreatePopupWindow(string title, object body)
@@ -62,5 +49,15 @@ public class WindowProvider : IWindowProvider
     {
         int handle = Native.get_window(windowId);
         return new PopupWindow(handle);
+    }
+
+    void IWindowProvider.SubscribeWindowOpened(BuiltInWindowType type, Action<IPopupWindow> action)
+    {
+        SubscribeWindowOpened(type, action);
+    }
+
+    public void SubscribeWindowOpened(BuiltInWindowType type, Action<PopupWindow> action)
+    {
+        Interop.RegisterWindowOpenedCallback((int)type, action);
     }
 }

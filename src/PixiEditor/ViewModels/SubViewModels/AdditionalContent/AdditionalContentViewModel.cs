@@ -1,16 +1,13 @@
-﻿using PixiEditor.Platform;
+﻿using PixiEditor.IdentityProvider;
+using PixiEditor.Platform;
 
 namespace PixiEditor.ViewModels.SubViewModels.AdditionalContent;
 
-internal class AdditionalContentViewModel : ViewModelBase
+internal class AdditionalContentViewModel : SubViewModel<ViewModelMain>
 {
     public IAdditionalContentProvider AdditionalContentProvider { get; }
-    public AdditionalContentViewModel(IAdditionalContentProvider additionalContentProvider)
+    public AdditionalContentViewModel(ViewModelMain owner, IAdditionalContentProvider additionalContentProvider) : base(owner)
     {
         AdditionalContentProvider = additionalContentProvider;
     }
-
-    public bool IsSupporterPackAvailable => AdditionalContentProvider != null 
-                                            && AdditionalContentProvider.IsContentInstalled(AdditionalContentProduct.SupporterPack)
-                                            && ViewModelMain.Current.ExtensionsSubViewModel.ExtensionLoader.LoadedExtensions.Any(x => x.Metadata.UniqueName == "PixiEditor.SupporterPack");
 }

@@ -23,6 +23,10 @@ public class PreviewPainter : IDisposable
     public VecI DocumentSize { get; set; }
     public DocumentRenderer Renderer { get; set; }
 
+    public bool CanRender => canRender;
+
+    public event Action<bool>? CanRenderChanged;
+
     private Dictionary<int, Texture> renderTextures = new();
     private Dictionary<int, PainterInstance> painterInstances = new();
 
@@ -31,6 +35,8 @@ public class PreviewPainter : IDisposable
 
     private Dictionary<int, VecI> pendingResizes = new();
     private HashSet<int> pendingRemovals = new();
+
+    private bool canRender;
 
     private int lastRequestId = 0;
 
@@ -126,11 +132,21 @@ public class PreviewPainter : IDisposable
         RepaintDirty();
     }
 
-
-
     private void RepaintDirty()
     {
         var dirtyArray = dirtyTextures.ToArray();
+        bool couldRender = canRender;
+        canRender = PreviewRenderable?.GetPreviewBounds(FrameTime.Frame, ElementToRenderName) != null;
+        if (couldRender != canRender)
+        {
+            CanRenderChanged?.Invoke(canRender);
+        }
+
+        if (!CanRender)
+        {
+            return;
+        }
+
         foreach (var texture in dirtyArray)
         {
             if (!renderTextures.TryGetValue(texture, out var renderTexture))

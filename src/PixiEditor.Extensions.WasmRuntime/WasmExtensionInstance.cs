@@ -8,6 +8,7 @@ using PixiEditor.Extensions.FlyUI;
 using PixiEditor.Extensions.FlyUI.Elements;
 using PixiEditor.Extensions.WasmRuntime.Api.Modules;
 using PixiEditor.Extensions.WasmRuntime.Management;
+using PixiEditor.Extensions.WasmRuntime.Utilities;
 using PixiEditor.Extensions.Windowing;
 using Wasmtime;
 
@@ -22,7 +23,7 @@ public partial class WasmExtensionInstance : Extension
     private Store Store { get; }
     private Module Module { get; }
 
-    private LayoutBuilder LayoutBuilder { get; set; }
+    internal LayoutBuilder LayoutBuilder { get; set; }
     internal ObjectManager NativeObjectManager { get; set; }
     internal AsyncCallsManager AsyncHandleManager { get; set; }
 
@@ -32,6 +33,7 @@ public partial class WasmExtensionInstance : Extension
     private List<ApiModule> modules = new();
 
     public override string Location => modulePath;
+    public bool HasEncryptedResources => GetEncryptionKey().Length > 0 && GetEncryptionIV().Length > 0;
 
     partial void LinkApiFunctions();
 
@@ -59,32 +61,68 @@ public partial class WasmExtensionInstance : Extension
 
     protected override void OnLoaded()
     {
-        Instance.GetAction("load").Invoke();
+        Instance.GetAction("load")?.Invoke();
         base.OnLoaded();
     }
 
     protected override void OnInitialized()
     {
+        modules.Add(new WindowingModule(this));
+        modules.Add(new UiModule(this));
         modules.Add(new PreferencesModule(this, Api.Preferences));
         modules.Add(new CommandModule(this, Api.Commands,
             (ICommandSupervisor)Api.Services.GetService(typeof(ICommandSupervisor))));
-        LayoutBuilder = new LayoutBuilder((ElementMap)Api.Services.GetService(typeof(ElementMap)));
-
+        modules.Add(new EventsModule(this));
+        LayoutBuilder = new LayoutBuilder(new ExtensionResourceStorage(this), (ElementMap)Api.Services.GetService(typeof(ElementMap)));
         //SetElementMap();
-        Instance.GetAction("initialize").Invoke();
+        Instance.GetAction("initialize")?.Invoke();
         base.OnInitialized();
+    }
+
+    protected override void OnUserReady()
+    {
+        Instance.GetAction("user_ready")?.Invoke();
+        base.OnUserReady();
+    }
+
+    protected override void OnMainWindowLoaded()
+    {
+        Instance.GetAction("main_window_loaded")?.Invoke();
+        base.OnMainWindowLoaded();
+    }
+
+    public byte[] GetEncryptionKey()
+    {
+        int ptr = Instance.GetFunction("get_encryption_key")?.Invoke() as int? ?? 0;
+        if (ptr == 0)
+        {
+            throw new InvalidOperationException("Failed to get encryption key.");
+        }
+
+        return WasmMemoryUtility.GetBytes(ptr, 16);
+    }
+
+    public byte[] GetEncryptionIV()
+    {
+        int ptr = Instance.GetFunction("get_encryption_iv")?.Invoke() as int? ?? 0;
+        if (ptr == 0)
+        {
+            throw new InvalidOperationException("Failed to get encryption IV.");
+        }
+
+        return WasmMemoryUtility.GetBytes(ptr, 16);
     }
 
     private void OnAsyncCallCompleted(int handle, int result)
     {
         Dispatcher.UIThread.Invoke(() =>
-            Instance.GetAction<int, int>("async_call_completed").Invoke(handle, result));
+            Instance.GetAction<int, int>("async_call_completed")?.Invoke(handle, result));
     }
 
     private void OnAsyncCallFaulted(int handle, string exceptionMessage)
     {
         Dispatcher.UIThread.Invoke(() =>
-            Instance.GetAction<int, string>("async_call_faulted").Invoke(handle, exceptionMessage));
+            Instance.GetAction<int, string>("async_call_faulted")?.Invoke(handle, exceptionMessage));
     }
 
     private void SetElementMap()
@@ -92,7 +130,7 @@ public partial class WasmExtensionInstance : Extension
         var elementMap = (ElementMap)Api.Services.GetService(typeof(ElementMap));
         byte[] map = elementMap.Serialize();
         var ptr = WasmMemoryUtility.WriteBytes(map);
-        Instance.GetAction<int, int>("set_element_map").Invoke(ptr, map.Length);
+        Instance.GetAction<int, int>("set_element_map")?.Invoke(ptr, map.Length);
 
         WasmMemoryUtility.Free(ptr);
     }

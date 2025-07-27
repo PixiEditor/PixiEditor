@@ -445,7 +445,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 {
                     object value =
                         SerializationUtil.Deserialize(propertyValue.Value, config, allFactories, serializerData);
-                    acc.AddActions(new UpdatePropertyValue_Action(guid, propertyValue.Key, value));
+                    acc.AddActions(new UpdatePropertyValue_Action(guid, propertyValue.Key, value), new EndUpdatePropertyValue_Action());
                 }
             }
 
@@ -480,6 +480,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
             acc.AddActions(new SetFrameRate_Action(data.FrameRate));
             acc.AddActions(new SetOnionSettings_Action(data.OnionFrames, data.OnionOpacity));
+            acc.AddActions(new SetDefaultEndFrame_Action(data.DefaultEndFrame));
             foreach (var keyFrame in data.KeyFrameGroups)
             {
                 if (keyFrame is GroupKeyFrameBuilder group)

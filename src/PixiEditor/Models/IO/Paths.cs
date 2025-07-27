@@ -21,7 +21,7 @@ public static class Paths
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "PixiEditor", "Configs");
 
-    public static string UserExtensionsPath { get; } = Path.Combine(
+    public static string UnpackedExtensionsPath { get; } = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "PixiEditor", "Extensions", "Unpacked");
 
@@ -43,6 +43,9 @@ public static class Paths
     public static string PathToUnsavedFilesFolder { get; } = Path.Join(
         Path.GetTempPath(),
         "PixiEditor", "Autosave");
+
+    public static string InstallDirectoryPath { get; } =
+        Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) ?? string.Empty;
 
     public static string ParseSpecialPathOrDefault(string path)
     {

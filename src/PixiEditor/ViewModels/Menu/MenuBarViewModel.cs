@@ -3,8 +3,10 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data;
+using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Extensions.UI;
+using PixiEditor.Helpers.UI;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Commands.Evaluators;
 using PixiEditor.Models.ExtensionServices;
@@ -22,6 +24,8 @@ internal class MenuBarViewModel : PixiObservableObject
 {
     private AdditionalContentViewModel additionalContentViewModel;
     private UpdateViewModel updateViewModel;
+    private UserViewModel userViewModel;
+    private ExecutionTrigger _openPixiEditorMenuTrigger;
 
     public AdditionalContentViewModel AdditionalContentSubViewModel
     {
@@ -35,8 +39,20 @@ internal class MenuBarViewModel : PixiObservableObject
         set => SetProperty(ref updateViewModel, value);
     }
 
+    public UserViewModel UserViewModel
+    {
+        get => userViewModel;
+        set => SetProperty(ref userViewModel, value);
+    }
+
     public ObservableCollection<MenuItem>? MenuEntries { get; set; }
     public NativeMenu? NativeMenu { get; private set; }
+
+    public ExecutionTrigger OpenPixiEditorMenuTrigger
+    {
+        get => _openPixiEditorMenuTrigger;
+        set => SetProperty(ref _openPixiEditorMenuTrigger, value);
+    }
 
     private Dictionary<string, MenuTreeItem> menuItems = new();
     private List<NativeMenuItem> nativeMenuItems;
@@ -57,10 +73,13 @@ internal class MenuBarViewModel : PixiObservableObject
         { "DEBUG", 1000 },
     };
 
-    public MenuBarViewModel(AdditionalContentViewModel? additionalContentSubViewModel, UpdateViewModel? updateViewModel)
+    public MenuBarViewModel(AdditionalContentViewModel? additionalContentSubViewModel, UpdateViewModel? updateViewModel,
+        UserViewModel? userViewModel)
     {
         AdditionalContentSubViewModel = additionalContentSubViewModel;
         UpdateViewModel = updateViewModel;
+        UserViewModel = userViewModel;
+        OpenPixiEditorMenuTrigger = new ExecutionTrigger();
     }
 
     public void Init(IServiceProvider serviceProvider, CommandController controller)
@@ -88,6 +107,33 @@ internal class MenuBarViewModel : PixiObservableObject
 
         OnPropertyChanged(nameof(MenuEntries));
         OnPropertyChanged(nameof(NativeMenu));
+
+        if (!UpdateViewModel.IsUpdateAvailable)
+        {
+            UpdateViewModel.PropertyChanged += UpdateViewModelChanged;
+        }
+        else
+        {
+            Dispatcher.UIThread.Post(() =>
+            {
+                OpenPixiEditorMenuTrigger.Execute(this);
+            });
+        }
+    }
+
+    private void UpdateViewModelChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(UpdateViewModel.IsUpdateAvailable))
+        {
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (UpdateViewModel.IsUpdateAvailable)
+                {
+                    UpdateViewModel.PropertyChanged -= UpdateViewModelChanged;
+                    OpenPixiEditorMenuTrigger.Execute(this);
+                }
+            });
+        }
     }
 
     private void CommandsOnCommandAdded(object? sender, Command e)
@@ -163,20 +209,7 @@ internal class MenuBarViewModel : PixiObservableObject
         {
             MenuItem menuItem = new();
 
-            string targetKey = item.Key;
-            bool keyHasEntry = new LocalizedString(item.Key).Value != item.Key;
-            if (!keyHasEntry)
-            {
-                var prefix = item.Value.Command.InternalName.Split(":").FirstOrDefault();
-                string prefixedKey = (prefix != null ? $"{prefix}:" : "") + item.Key;
-
-                keyHasEntry = new LocalizedString(prefixedKey).Value != prefixedKey;
-
-                if (keyHasEntry)
-                {
-                    targetKey = prefixedKey;
-                }
-            }
+            var targetKey = GetTargetKey(item);
 
             var headerBinding = new Binding(".") { Source = targetKey, Mode = BindingMode.OneWay, };
 
@@ -231,6 +264,26 @@ internal class MenuBarViewModel : PixiObservableObject
         }
     }
 
+    private static string GetTargetKey(KeyValuePair<string, MenuTreeItem> item)
+    {
+        string targetKey = item.Key;
+        bool keyHasEntry = new LocalizedString(item.Key).Value != item.Key;
+        if (!keyHasEntry)
+        {
+            var prefix = item.Value.Command.InternalName.Split(":").FirstOrDefault();
+            string prefixedKey = (prefix != null ? $"{prefix}:" : "") + item.Key;
+
+            keyHasEntry = new LocalizedString(prefixedKey).Value != prefixedKey;
+
+            if (keyHasEntry)
+            {
+                targetKey = prefixedKey;
+            }
+        }
+
+        return targetKey;
+    }
+
     private void BuildBasicNativeMenuItems(CommandController controller, Dictionary<string, MenuTreeItem> root,
         NativeMenu? parent = null)
     {
@@ -241,10 +294,13 @@ internal class MenuBarViewModel : PixiObservableObject
             NativeMenuItem menuItem = new();
 
             nativeMenuItems ??= new List<NativeMenuItem>();
-            var headerBinding = new Binding(".") { Source = item.Key, Mode = BindingMode.OneWay, };
-
+            
+            string targetKey = GetTargetKey(item);
+            
+            var headerBinding = new Binding(".") { Source = targetKey, Mode = BindingMode.OneWay, };
+            
             menuItem.Bind(Translator.KeyProperty, headerBinding);
-            menuItem.Bind(PixiEditor.Models.Commands.XAML.NativeMenu.LocalizationKeyHeaderProperty, headerBinding);
+            menuItem.Bind(Models.Commands.XAML.NativeMenu.LocalizationKeyHeaderProperty, headerBinding);
 
             CommandGroup? group = controller.CommandGroups.FirstOrDefault(x =>
                 x.IsVisibleProperty != null && x.Commands.Contains(item.Value.Command));

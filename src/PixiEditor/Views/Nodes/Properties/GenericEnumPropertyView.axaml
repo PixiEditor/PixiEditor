@@ -15,7 +15,7 @@
 
     <Grid
         HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
-        <TextBlock VerticalAlignment="Center" ui:Translator.Key="{Binding DisplayName}" />
+        <TextBlock ui:Translator.TooltipKey="{Binding DisplayName}" VerticalAlignment="Center" ui:Translator.Key="{Binding DisplayName}" />
         <ComboBox PointerPressed="InputElement_OnPointerPressed" HorizontalAlignment="Right" MinWidth="100" IsVisible="{Binding ShowInputField}"
                   SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}" ItemsSource="{Binding Values}">
             <ComboBox.ItemTemplate>

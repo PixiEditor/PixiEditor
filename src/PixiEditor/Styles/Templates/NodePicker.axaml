@@ -50,6 +50,7 @@
                                                 <DataTemplate DataType="nodes1:NodeTypeInfo">
                                                     <Button
                                                         Background="Transparent"
+                                                        BorderThickness="0"
                                                         Command="{Binding SelectNodeCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodePicker}}"
                                                         CommandParameter="{Binding}"
                                                         HorizontalContentAlignment="Left"

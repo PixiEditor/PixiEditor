@@ -78,6 +78,7 @@ public static partial class PixiPerfectIcons
     public const string Globe = "\uE94E";
     public const string Grid = "\uE94F";
     public const string Gridlines = "\uE961";
+    public const string Hand = "\uE9C9";
     public const string HardDrive = "\uE98C";
     public const string HeartHandshake = "\uE902";
     public const string Help = "\uE99B";

@@ -28,9 +28,10 @@ public static class NodeAbbreviation
     {
         var span = value.AsSpan();
 
+        string lookFor = value;
         if (!span.ContainsAny(SearchFor))
         {
-            return null;
+            return [allNodes.FirstOrDefault(SearchComparer)];
         }
         
         var list = new List<NodeTypeInfo>();
@@ -39,16 +40,14 @@ public static class NodeAbbreviation
 
         foreach (var name in enumerator)
         {
-            var lookFor = name.Name.ToString();
+            lookFor = name.Name.ToString();
             var node = allNodes.First(SearchComparer);
 
             list.Add(node);
-
-            continue;
-
-            bool SearchComparer(NodeTypeInfo x) =>
-                x.FinalPickerName.Value.Replace(" ", "").Contains(lookFor.Replace(" ", ""), StringComparison.OrdinalIgnoreCase);
         }
+
+        bool SearchComparer(NodeTypeInfo x) =>
+            x.FinalPickerName.Value.Replace(" ", "").Contains(lookFor.Replace(" ", ""), StringComparison.OrdinalIgnoreCase);
 
         return list;
     }

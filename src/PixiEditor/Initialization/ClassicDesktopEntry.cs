@@ -1,37 +1,37 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.Diagnostics;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using Avalonia.Xaml.Interactivity;
+using Microsoft.Extensions.DependencyInjection;
+using PixiEditor.Extensions;
 using PixiEditor.Extensions.Runtime;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Behaviours;
 using PixiEditor.Models.Controllers;
-using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.ExceptionHandling;
 using PixiEditor.Models.IO;
 using PixiEditor.OperatingSystem;
 using PixiEditor.Platform;
 using PixiEditor.UI.Common.Controls;
-using PixiEditor.UI.Common.Localization;
 using PixiEditor.Views;
+using PixiEditor.Views.Auth;
 using PixiEditor.Views.Dialogs;
-using PixiEditor.Views.Input;
-using ViewModelMain = PixiEditor.ViewModels.ViewModelMain;
 using ViewModels_ViewModelMain = PixiEditor.ViewModels.ViewModelMain;
 
 namespace PixiEditor.Initialization;
 
 internal class ClassicDesktopEntry
 {
+    public ServiceProvider? Services { get; private set; }
     private IClassicDesktopStyleApplicationLifetime desktop;
+    private bool restartQueued = false;
+
+    private LoginPopup? loginPopup = null!;
+
+    public static ClassicDesktopEntry? Active { get; private set; }
 
     public ClassicDesktopEntry(IClassicDesktopStyleApplicationLifetime desktop)
     {
@@ -42,6 +42,8 @@ internal class ClassicDesktopEntry
         {
             activable.Activated += ActivableOnActivated;
         }
+
+        Active = this;
 
         desktop.Startup += Start;
         desktop.ShutdownRequested += ShutdownRequested;
@@ -67,7 +69,8 @@ internal class ClassicDesktopEntry
             var uri = openUriEventArgs.Uri;
             if (uri.Scheme == "lospec-palette")
             {
-                Dispatcher.UIThread.InvokeAsync(async () => await mainWindow.DataContext.ColorsSubViewModel.ImportLospecPalette(uri.AbsoluteUri));
+                Dispatcher.UIThread.InvokeAsync(async () =>
+                    await mainWindow.DataContext.ColorsSubViewModel.ImportLospecPalette(uri.AbsoluteUri));
             }
         }
     }
@@ -113,6 +116,8 @@ internal class ClassicDesktopEntry
 #endif
 
         var extensionLoader = InitApp(safeMode);
+        ViewModels_ViewModelMain viewModel = Services.GetRequiredService<ViewModels_ViewModelMain>();
+        viewModel.Setup(Services);
 
         desktop.MainWindow = new MainWindow(extensionLoader);
         desktop.MainWindow.Show();
@@ -120,6 +125,9 @@ internal class ClassicDesktopEntry
 
     private void InitPlatform()
     {
+        if (IPlatform.Current != null)
+            return;
+
         var platform = GetActivePlatform();
         IPlatform.RegisterPlatform(platform);
         platform.PerformHandshake();
@@ -133,16 +141,25 @@ internal class ClassicDesktopEntry
 
         NumberInput.AttachGlobalBehaviors += AttachGlobalShortcutBehavior;
 
+        if (!Directory.Exists(Paths.LocalExtensionPackagesPath))
+        {
+            Directory.CreateDirectory(Paths.LocalExtensionPackagesPath);
+        }
+
         ExtensionLoader extensionLoader = new ExtensionLoader(
-            [Paths.InstallDirExtensionPackagesPath, Paths.LocalExtensionPackagesPath], Paths.UserExtensionsPath);
-        //TODO: fetch from extension store
-        extensionLoader.AddOfficialExtension("pixieditor.founderspack",
-            new OfficialExtensionData("supporter-pack.snk", AdditionalContentProduct.SupporterPack));
-        extensionLoader.AddOfficialExtension("pixieditor.beta", new OfficialExtensionData());
+            [Paths.InstallDirExtensionPackagesPath, Paths.LocalExtensionPackagesPath], Paths.UnpackedExtensionsPath);
         if (!safeMode)
         {
             extensionLoader.LoadExtensions();
         }
+
+        Services = new ServiceCollection()
+            .AddPlatform()
+            .AddPixiEditor(extensionLoader)
+            .AddExtensionServices(extensionLoader)
+            .BuildServiceProvider();
+
+        extensionLoader.Services = new ExtensionServices(Services);
 
         return extensionLoader;
     }
@@ -152,15 +169,18 @@ internal class ClassicDesktopEntry
 #if STEAM || DEV_STEAM
         return new PixiEditor.Platform.Steam.SteamPlatform();
 #elif MSIX || MSIX_DEBUG
-        return new PixiEditor.Platform.MSStore.MicrosoftStorePlatform();
+        return new PixiEditor.Platform.MSStore.MicrosoftStorePlatform(Paths.LocalExtensionPackagesPath, GetApiUrl(),
+            GetApiKey());
 #else
-        return new PixiEditor.Platform.Standalone.StandalonePlatform();
+        return new PixiEditor.Platform.Standalone.StandalonePlatform([Paths.LocalExtensionPackagesPath, Paths.InstallDirExtensionPackagesPath], GetApiUrl(),
+            GetApiKey()); // The first in the extensionsPath array should be local, because it's the default where extensions are installed. Otherwise, OS access rights may cause issues.
 #endif
     }
 
     private void InitOperatingSystem()
     {
-        IOperatingSystem.RegisterOS(GetActiveOperatingSystem());
+        if (IOperatingSystem.Current == null)
+            IOperatingSystem.RegisterOS(GetActiveOperatingSystem());
     }
 
     private IOperatingSystem GetActiveOperatingSystem()
@@ -172,7 +192,7 @@ internal class ClassicDesktopEntry
 #elif MACOS
         return new PixiEditor.MacOs.MacOperatingSystem();
 #else
-        throw new PlatformNotSupportedException("This platform is not supported");
+        throw new PlatformNotSupportedException("This OS is not supported");
 #endif
     }
 
@@ -219,6 +239,12 @@ internal class ClassicDesktopEntry
         return match.Success;
     }
 
+    public void Restart()
+    {
+        restartQueued = true;
+        desktop.TryShutdown();
+    }
+
     private void ShutdownRequested(object? sender, ShutdownRequestedEventArgs e)
     {
         // TODO: Make sure this works
@@ -226,7 +252,15 @@ internal class ClassicDesktopEntry
         if (vm is null)
             return;
 
-        vm.OnShutdown(e, () => desktop.Shutdown(0));
+        vm.OnShutdown(e, () =>
+        {
+            desktop.Shutdown(0);
+            if (restartQueued)
+            {
+                var process = Process.GetCurrentProcess().MainModule.FileName;
+                Process.Start(process);
+            }
+        });
     }
 
     private void AttachGlobalShortcutBehavior(BehaviorCollection collection)
@@ -235,5 +269,39 @@ internal class ClassicDesktopEntry
             return;
 
         collection.Add(new GlobalShortcutFocusBehavior());
+    }
+
+    private string GetApiUrl()
+    {
+        string? baseUrl = RuntimeConstants.PixiEditorApiUrl;
+#if DEBUG
+        if (baseUrl == null)
+        {
+            string? envUrl = Environment.GetEnvironmentVariable("PIXIEDITOR_API_URL");
+            if (envUrl != null)
+            {
+                baseUrl = envUrl;
+            }
+        }
+#endif
+
+        return baseUrl ?? "";
+    }
+
+    private string GetApiKey()
+    {
+        string? apiKey = RuntimeConstants.PixiEditorApiKey;
+#if DEBUG
+        if (apiKey == null)
+        {
+            string? envApiKey = Environment.GetEnvironmentVariable("PIXIEDITOR_API_KEY");
+            if (envApiKey != null)
+            {
+                apiKey = envApiKey;
+            }
+        }
+#endif
+
+        return apiKey;
     }
 }

@@ -9,10 +9,12 @@ namespace PixiEditor.Extensions.FlyUI;
 public class ElementMap
 {
     public IReadOnlyDictionary<string, Type> ControlMap => controlMap;
+    public IReadOnlyDictionary<Type, string> ControlMapReversed => controlMapReversed;
     public IReadOnlyDictionary<string, Type> WellKnownStructs => wellKnownStructs;
 
     // TODO: Code generation
     private Dictionary<string, Type> controlMap = new Dictionary<string, Type>();
+    private Dictionary<Type, string> controlMapReversed = new Dictionary<Type, string>();
     private Dictionary<string, Type> wellKnownStructs = new Dictionary<string, Type>();
 
     public ElementMap()
@@ -22,10 +24,14 @@ public class ElementMap
 
     public void AddElementsFromAssembly(Assembly assembly)
     {
-        var layoutElementTypes = assembly.GetTypes().Where(x => x.GetInterfaces().Contains(typeof(ILayoutElement<Control>)));
+        var layoutElementTypes = assembly.GetTypes().Where(x => x is { IsAbstract: false, IsInterface: false } && x.GetInterfaces().Contains(typeof(ILayoutElement<Control>)));
         foreach (var type in layoutElementTypes)
         {
             controlMap.Add(type.Name, type); // TODO: Extension unique name prefix?
+            if (!controlMapReversed.ContainsKey(type))
+            {
+                controlMapReversed.Add(type, type.Name);
+            }
         }
         
         var structTypes = assembly.GetTypes().Where(x => x.GetInterfaces().Contains(typeof(IStructProperty)));

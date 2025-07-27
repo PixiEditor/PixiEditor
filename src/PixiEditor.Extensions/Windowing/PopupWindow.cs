@@ -5,6 +5,7 @@ namespace PixiEditor.Extensions.Windowing;
 
 public class PopupWindow : IPopupWindow
 {
+    public IPopupWindow UnderlyingWindow => _underlyingWindow;
     private IPopupWindow _underlyingWindow;
 
     public PopupWindow(IPopupWindow basicPopup)

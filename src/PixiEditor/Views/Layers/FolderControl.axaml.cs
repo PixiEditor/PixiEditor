@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
+using Avalonia.Threading;
 using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.Layers;
 using PixiEditor.ViewModels.Document;
@@ -61,6 +62,9 @@ internal partial class FolderControl : UserControl
         middleDropGrid.AddHandler(DragDrop.DragLeaveEvent, Grid_CenterLeave);
         middleDropGrid.AddHandler(DragDrop.DropEvent, Grid_Drop_Center);
 
+        BackgroundGrid.AddHandler(DragDrop.DropEvent, BackgroundGrid_Drop);
+        centerGrid.AddHandler(DragDrop.DropEvent, BackgroundGrid_Drop);
+
         DisableDropPanels();
     }
 
@@ -69,6 +73,16 @@ internal partial class FolderControl : UserControl
         TopDropGrid.IsVisible = false;
         middleDropGrid.IsVisible = false;
         BottomDropGrid.IsVisible = false;
+    }
+
+
+    private void BackgroundGrid_Drop(object sender, DragEventArgs e)
+    {
+        Guid[]? droppedGuids = LayerControl.ExtractMemberGuids(e.Data);
+        if (droppedGuids != null && droppedGuids.Contains(Folder.Id))
+        {
+            e.Handled = true;
+        }
     }
 
     private void OnUnloaded(object? sender, RoutedEventArgs e)
@@ -111,7 +125,8 @@ internal partial class FolderControl : UserControl
             return false;
 
         var document = Folder.Document;
-        if (placement is StructureMemberPlacement.Below or StructureMemberPlacement.BelowOutsideFolder or StructureMemberPlacement.Inside)
+        if (placement is StructureMemberPlacement.Below or StructureMemberPlacement.BelowOutsideFolder
+            or StructureMemberPlacement.Inside)
         {
             droppedGuids = droppedGuids.Reverse().ToArray();
         }

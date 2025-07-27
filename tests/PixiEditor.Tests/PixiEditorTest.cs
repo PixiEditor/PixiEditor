@@ -7,6 +7,7 @@ using DrawiEngine.Desktop;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Extensions.Runtime;
 using PixiEditor.Helpers;
+using PixiEditor.IdentityProvider;
 using PixiEditor.Linux;
 using PixiEditor.MacOs;
 using PixiEditor.OperatingSystem;
@@ -111,6 +112,7 @@ public class FullPixiEditorTest : PixiEditorTest
         }
 
         public IAdditionalContentProvider? AdditionalContentProvider { get; } = new NullAdditionalContentProvider();
+        public IIdentityProvider? IdentityProvider { get; } 
     }
 }
 

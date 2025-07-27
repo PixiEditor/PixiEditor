@@ -1,4 +1,5 @@
-﻿using Avalonia;
+﻿using System.Windows.Input;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Presenters;
@@ -60,14 +61,32 @@ internal class KeyFrame : TemplatedControl
         get { return (double)GetValue(ScaleProperty); }
         set { SetValue(ScaleProperty, value); }
     }
-    
+
+    public ICommand SelectLayerCommand
+    {
+        get { return (ICommand)GetValue(SelectLayerCommandProperty); }
+        set { SetValue(SelectLayerCommandProperty, value); }
+    }
+
     private InputElement _resizePanelRight;
     private InputElement _resizePanelLeft;
-    
+    public static readonly StyledProperty<ICommand> SelectLayerCommandProperty = AvaloniaProperty.Register<KeyFrame, ICommand>("SelectLayerCommand");
+
     static KeyFrame()
     {
         IsSelectedProperty.Changed.Subscribe(IsSelectedChanged);
         IsCollapsedProperty.Changed.Subscribe(IsCollapsedChanged);
+    }
+
+    public KeyFrame()
+    {
+        PointerPressed += (sender, args) =>
+        {
+            if (args.Source is Control { DataContext: CelViewModel celViewModel })
+            {
+                SelectLayerCommand?.Execute(celViewModel.LayerGuid);
+            }
+        };
     }
 
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)

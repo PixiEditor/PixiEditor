@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using PixiEditor.Extensions.CommonApi.FlyUI;
 using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
+using PixiEditor.Extensions.Sdk.Attributes;
 
 namespace PixiEditor.Extensions.Sdk.Api.FlyUI;
 
@@ -16,9 +17,10 @@ public class ControlDefinition
 
     private List<string> _buildQueuedEvents = new List<string>();
 
-    public ControlDefinition(int uniqueId, string controlTypeId)
+    public ControlDefinition(int uniqueId, Type type)
     {
-        ControlTypeId = controlTypeId;
+        ControlTypeId = type.GetCustomAttribute<ControlTypeIdAttribute>()?.TypeId
+            ?? throw new ArgumentException($"Type {type.FullName} does not have ControlTypeIdAttribute");
         UniqueId = uniqueId;
     }
 

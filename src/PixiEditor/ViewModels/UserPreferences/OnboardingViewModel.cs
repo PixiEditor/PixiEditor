@@ -1,11 +1,14 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Drawie.Numerics;
+using PixiEditor.IdentityProvider;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Commands.Templates;
 using PixiEditor.Models.Handlers;
+using PixiEditor.Platform;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.SubViewModels;
 using PixiEditor.ViewModels.UserPreferences.Settings;
@@ -49,7 +52,10 @@ internal class OnboardingViewModel : PixiObservableObject
         new FormStep { Title = new LocalizedString("ONB_SELECT_PRIMARY_TOOLSET"), Step = 0 },
         new FormStep { Title = new LocalizedString("LANGUAGE"), Step = 1 },
         new FormStep { Title = new LocalizedString("ONB_SHORTCUTS"), Step = 2 },
-        new FormStep { Title = new LocalizedString("ONB_ANALYTICS"), Step = 3 }
+        new FormStep { Title = new LocalizedString("ONB_ANALYTICS"), Step = 3 },
+#if !FOUNDERS_PACK_REQUIRED
+        new FormStep { Title = new LocalizedString("FOUNDERS_BUNDLE"), Step = 4 }
+#endif
     };
 
     public RelayCommand NextFormStepCommand { get; }
@@ -66,6 +72,9 @@ internal class OnboardingViewModel : PixiObservableObject
 
     public RelayCommand<IToolSetHandler> SelectToolsetCommand { get; }
 
+    public string FoundersBundleLink => UserViewModel.FoundersBundleLink;
+    public bool ShowLoginButton => !(IPlatform.Current?.IdentityProvider?.IsLoggedIn) ?? true;
+
     Dictionary<string, VecI> DefaultNewFileSizes = new()
     {
         { "PIXEL_ART_TOOLSET", new VecI(64, 64) },
@@ -77,6 +86,14 @@ internal class OnboardingViewModel : PixiObservableObject
     {
         NextFormStepCommand = new RelayCommand(NextFormStep, CanNextFormStep);
         PreviousFormStepCommand = new RelayCommand(PreviousFormStep, CanPreviousFormStep);
+
+        bool showFoundersBundle = ViewModelMain.Current.UserViewModel.OwnedProducts
+            .All(x => x.ProductData.Id != "2435860" && x.ProductData.Id != "PixiEditor.FoundersPack");
+
+        if (!showFoundersBundle)
+        {
+            AllFormSteps.RemoveAt(AllFormSteps.Count - 1);
+        }
 
         SelectToolsetCommand = new RelayCommand<IToolSetHandler>(x =>
         {
@@ -93,23 +110,22 @@ internal class OnboardingViewModel : PixiObservableObject
             }
         });
 
-        SelectShortcutCommand = new AsyncRelayCommand<ShortcutProvider>(
-            async x =>
+        SelectShortcutCommand = new AsyncRelayCommand<ShortcutProvider>(async x =>
+        {
+            foreach (var template in Templates)
             {
-                foreach (var template in Templates)
-                {
-                    template.IsSelected = template.Item == x;
-                }
+                template.IsSelected = template.Item == x;
+            }
 
-                if (x == Templates[0].Item)
-                {
-                    CommandController.Current.ResetShortcuts();
-                }
-                else
-                {
-                    await ImportShortcutTemplatePopup.ImportFromProvider(x, true);
-                }
-            });
+            if (x == Templates[0].Item)
+            {
+                CommandController.Current.ResetShortcuts();
+            }
+            else
+            {
+                await ImportShortcutTemplatePopup.ImportFromProvider(x, true);
+            }
+        });
 
         FormStep = AllFormSteps[0];
         GeneralSettings = new GeneralSettings();
@@ -135,7 +151,7 @@ internal class OnboardingViewModel : PixiObservableObject
 
     public void NextFormStep()
     {
-        if (FormStep.Step == 3)
+        if (FormStep.Step == AllFormSteps.Count - 1)
         {
             NextPage();
             return;
@@ -177,6 +193,18 @@ internal class OnboardingViewModel : PixiObservableObject
 
     public void OnFinish()
     {
+        var userViewModel = ViewModelMain.Current.UserViewModel;
+        if (userViewModel.User is { IsLoggedIn: true })
+        {
+            foreach (var product in userViewModel.OwnedProducts)
+            {
+                if (!product.IsInstalled)
+                {
+                    Dispatcher.UIThread.InvokeAsync(async () => await product.InstallCommand.ExecuteAsync(null));
+                }
+            }
+
+        }
         ViewModelMain.Current.WindowSubViewModel.OpenHelloThereWindow();
     }
 }

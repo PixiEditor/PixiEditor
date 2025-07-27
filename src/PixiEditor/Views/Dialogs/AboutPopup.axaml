@@ -12,10 +12,11 @@
                          x:Class="PixiEditor.Views.Dialogs.AboutPopup"
                          Name="aboutPopup"
                          CanResize="True"
-                         Width="440" Height="540"
-                         MaxWidth="440" MaxHeight="540"
+                         Width="440" Height="500"
+                         MaxWidth="440" MaxHeight="500"
                          ui:Translator.Key="ABOUT">
-    <StackPanel DataContext="{Binding ElementName=aboutPopup}" Orientation="Vertical" DockPanel.Dock="Bottom"
+    <StackPanel Spacing="5" DataContext="{Binding ElementName=aboutPopup}" Orientation="Vertical"
+                DockPanel.Dock="Bottom"
                 Margin="10">
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top">
             <Svg Path="../../Images/PixiEditorLogo.svg" Height="40" VerticalAlignment="Center" />
@@ -42,7 +43,7 @@
                 </TextBlock>
             </Label>
         </StackPanel>
-        <StackPanel Orientation="Horizontal" Margin="20 5">
+        <StackPanel Orientation="Horizontal" Margin="20 0">
             <Ellipse Width="32" Height="32" FlowDirection="LeftToRight">
                 <Ellipse.Fill>
                     <ImageBrush Source="/Images/SocialMedia/Avatars/Equbuxu.png" />
@@ -62,80 +63,95 @@
                 </Ellipse.Fill>
             </Ellipse>
             <Label Margin="10 0 0 0" FontSize="14">
-                <TextBlock ui2:Hyperlink.Url="https://github.com/CPKreuz">
+                <TextBlock ui2:Hyperlink.Url="https://github.com/CPKreu">
                     <Run Text="Philip Kreuz (cpk)" />
                     <Run Text="{DynamicResource icon-link}" Classes="pixi-icon" />
                 </TextBlock>
             </Label>
         </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="20 0">
+            <Ellipse Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality" FlowDirection="LeftToRight">
+                <Ellipse.Fill>
+                    <ImageBrush Source="/Images/SocialMedia/Avatars/axin.png" />
+                </Ellipse.Fill>
+            </Ellipse>
+            <Label Margin="10 0 0 0" FontSize="14">
+                <TextBlock ui2:Hyperlink.Url="https://github.com/axinlab">
+                    <Run Text="Anna Kocaj (Axin)" />
+                    <Run Text="{DynamicResource icon-link}" Classes="pixi-icon" />
+                </TextBlock>
+            </Label>
+        </StackPanel>
 
-        <Label Margin="20 10 0 0" FontSize="14">
+        <Label Margin="20 0 0 0" FontSize="14">
             <TextBlock ui2:Hyperlink.Url="https://github.com/PixiEditor/PixiEditor/graphs/contributors">
                 <Run ui:Translator.Key="OTHER_AWESOME_CONTRIBUTORS" />
                 <Run Text="{DynamicResource icon-link}" Classes="pixi-icon" />
             </TextBlock>
         </Label>
 
-        <Separator Margin="0 10 0 0" />
+        <Separator Margin="0 5 0 5" />
 
-        <Label Margin="20 10 0 0" FontSize="14">
-            <TextBlock ui2:Hyperlink.Url="LICENSE">
-                <Run ui:Translator.Key="LICENSE" />
-                <Run Text="{DynamicResource icon-link}" Classes="pixi-icon" />
-            </TextBlock>
-        </Label>
+        <StackPanel Spacing="5" Orientation="Horizontal" HorizontalAlignment="Center">
+            <Label FontSize="12">
+                <TextBlock ui2:Hyperlink.Url="LICENSE">
+                    <Run ui:Translator.Key="LICENSE" />
+                    <Run Text="{DynamicResource icon-link}" Classes="pixi-icon" />
+                </TextBlock>
+            </Label>
 
-        <Label Margin="20 10 0 0" FontSize="14">
-            <TextBlock ui2:Hyperlink.Url="Third Party Licenses">
-                <Run ui:Translator.Key="THIRD_PARTY_LICENSES" />
-                <Run Text="{DynamicResource icon-link}" Classes="pixi-icon" />
-            </TextBlock>
-        </Label>
+            <Label FontSize="12">
+                <TextBlock ui2:Hyperlink.Url="Third Party Licenses">
+                    <Run ui:Translator.Key="THIRD_PARTY_LICENSES" />
+                    <Run Text="{DynamicResource icon-link}" Classes="pixi-icon" />
+                </TextBlock>
+            </Label>
 
-        <Label Margin="20 10 0 0" FontSize="14">
-            <TextBlock ui2:Hyperlink.Url="https://pixieditor.net/docs/introduction">
-                <Run ui:Translator.Key="DOCUMENTATION" />
-                <Run Text="{DynamicResource icon-link}" Classes="pixi-icon" />
-            </TextBlock>
-        </Label>
+            <Label FontSize="12">
+                <TextBlock ui2:Hyperlink.Url="https://pixieditor.net/docs/">
+                    <Run ui:Translator.Key="DOCUMENTATION" />
+                    <Run Text="{DynamicResource icon-link}" Classes="pixi-icon" />
+                </TextBlock>
+            </Label>
+        </StackPanel>
 
         <panels:AlignableWrapPanel DockPanel.Dock="Bottom" HorizontalContentAlignment="Center"
-                                   HorizontalAlignment="Center" Margin="0,20,0,15">
-             <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}"
-                                CommandParameter="https://pixieditor.net"
-                                ui:Translator.TooltipKey="WEBSITE"
-                                Classes="SocialMediaButton" Tag="#e3002d"
-                                Content="{DynamicResource icon-globe}" />
-                        <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}"
-                                CommandParameter="https://discord.gg/tzkQFDkqQS"
-                                Classes="SocialMediaButton" Tag="#5865F2" ui:Translator.TooltipKey="DISCORD"
-                                Content="{DynamicResource icon-discord}" />
-                        <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}"
-                                CommandParameter="https://reddit.com/r/PixiEditor"
-                                Classes="SocialMediaButton" Tag="#FF4500" ui:Translator.TooltipKey="REDDIT"
-                                Content="{DynamicResource icon-reddit}" />
-                        <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}"
-                                CommandParameter="https://store.steampowered.com/app/2218560"
-                                Classes="SocialMediaButton" Tag="#00adee" ui:Translator.TooltipKey="STEAM"
-                                Content="{DynamicResource icon-steam}" />
-                        <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}"
-                                CommandParameter="https://github.com/PixiEditor/PixiEditor"
-                                Classes="SocialMediaButton" Tag="Black" ui:Translator.TooltipKey="GITHUB"
-                                Content="{DynamicResource icon-github}" />
-                        <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}"
-                                CommandParameter="https://www.youtube.com/channel/UCT5XvyvX1q5PAIaXfWmpsMQ"
-                                Classes="SocialMediaButton" Tag="#FF0000" ui:Translator.TooltipKey="YOUTUBE"
-                                Content="{DynamicResource icon-youtube-filled}" />
-                        <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}"
-                                IsVisible="{Binding ShowDonateButton}"
-                                CommandParameter="https://opencollective.com/pixieditor"
-                                Classes="SocialMediaButton" Tag="#d4af37" ui:Translator.TooltipKey="DONATE"
-                                Content="{DynamicResource icon-heart-handshake}" />
-                        <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}"
-                                IsVisible="{Binding !ShowDonateButton}"
-                                CommandParameter="https://store.steampowered.com/app/2435860/PixiEditor__Supporter_Pack/"
-                                Classes="SocialMediaButton" Tag="#d4af37" ui:Translator.TooltipKey="BUY_SUPPORTER_PACK"
-                                Content="{DynamicResource icon-heart-handshake}" />
+                                   HorizontalAlignment="Center">
+            <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}"
+                    CommandParameter="https://pixieditor.net"
+                    ui:Translator.TooltipKey="WEBSITE"
+                    Classes="SocialMediaButton" Tag="#e3002d"
+                    Content="{DynamicResource icon-globe}" />
+            <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}"
+                    CommandParameter="https://discord.gg/tzkQFDkqQS"
+                    Classes="SocialMediaButton" Tag="#5865F2" ui:Translator.TooltipKey="DISCORD"
+                    Content="{DynamicResource icon-discord}" />
+            <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}"
+                    CommandParameter="https://reddit.com/r/PixiEditor"
+                    Classes="SocialMediaButton" Tag="#FF4500" ui:Translator.TooltipKey="REDDIT"
+                    Content="{DynamicResource icon-reddit}" />
+            <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}"
+                    CommandParameter="https://store.steampowered.com/app/2218560"
+                    Classes="SocialMediaButton" Tag="#00adee" ui:Translator.TooltipKey="STEAM"
+                    Content="{DynamicResource icon-steam}" />
+            <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}"
+                    CommandParameter="https://github.com/PixiEditor/PixiEditor"
+                    Classes="SocialMediaButton" Tag="Black" ui:Translator.TooltipKey="GITHUB"
+                    Content="{DynamicResource icon-github}" />
+            <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}"
+                    CommandParameter="https://www.youtube.com/channel/UCT5XvyvX1q5PAIaXfWmpsMQ"
+                    Classes="SocialMediaButton" Tag="#FF0000" ui:Translator.TooltipKey="YOUTUBE"
+                    Content="{DynamicResource icon-youtube-filled}" />
+            <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}"
+                    IsVisible="{Binding DisplayDonationButton}"
+                    CommandParameter="https://opencollective.com/pixieditor"
+                    Classes="SocialMediaButton" Tag="#d4af37" ui:Translator.TooltipKey="DONATE"
+                    Content="{DynamicResource icon-heart-handshake}" />
+            <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}"
+                    IsVisible="{Binding !DisplayDonationButton}"
+                    CommandParameter="https://store.steampowered.com/app/2435860/PixiEditor__Supporter_Pack/"
+                    Classes="SocialMediaButton" Tag="#d4af37" ui:Translator.TooltipKey="BUY_SUPPORTER_PACK"
+                    Content="{DynamicResource icon-heart-handshake}" />
         </panels:AlignableWrapPanel>
     </StackPanel>
 </dialogs:PixiEditorPopup>

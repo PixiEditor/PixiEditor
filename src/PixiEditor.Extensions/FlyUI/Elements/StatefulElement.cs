@@ -1,6 +1,7 @@
 ﻿using System.Collections.Immutable;
 using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
+using Avalonia.Threading;
 using PixiEditor.Extensions.CommonApi.FlyUI;
 using PixiEditor.Extensions.CommonApi.FlyUI.State;
 
@@ -58,6 +59,16 @@ public abstract class StatefulElement<TState> : LayoutElement,
     // React seems not to do that, so there might be a reason for that, however, it would be good to check out the topic more
     public void ContentFromLayout(ILayoutElement<Control> newTree)
     {
+        if (_content == null)
+        {
+            Dispatcher.UIThread.Invoke(() =>
+            {
+                CreateNativeControl();
+            });
+
+            return;
+        }
+
         PerformDiff(_content, newTree);
     }
 

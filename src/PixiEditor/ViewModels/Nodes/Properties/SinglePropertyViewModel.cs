@@ -23,7 +23,13 @@ internal class SinglePropertyViewModel : NodePropertyViewModel<float>
     public double DoubleValue
     {
         get => Value;
-        set => Value = (float)value;
+        set
+        {
+            if (updateBlocker)
+                return;
+
+            Value = (float)value;
+        }
     }
 
     public double Min
@@ -44,6 +50,8 @@ internal class SinglePropertyViewModel : NodePropertyViewModel<float>
         set => SetProperty(ref sliderSettings, value);
     }
 
+    private bool updateBlocker = false;
+
     public SinglePropertyViewModel(NodeViewModel node, Type valueType) : base(node, valueType)
     {
     }
@@ -51,9 +59,12 @@ internal class SinglePropertyViewModel : NodePropertyViewModel<float>
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)
     {
         base.OnPropertyChanged(e);
+
+        updateBlocker = true;
         if (e.PropertyName == nameof(Value))
         {
             OnPropertyChanged(nameof(DoubleValue));
         }
+        updateBlocker = false;
     }
 }

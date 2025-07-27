@@ -27,6 +27,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample8_CommandLibrary", "S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample9_Document", "Sample9_Document\Sample9_Document.csproj", "{E018D2C3-2DD7-4BC7-AAAF-91DA949789E4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample10_VisualTree", "Sample10_VisualTree\Sample10_VisualTree.csproj", "{574D7C79-8899-4A69-911A-05AEA650A275}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -80,6 +82,10 @@ Global
 		{E018D2C3-2DD7-4BC7-AAAF-91DA949789E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E018D2C3-2DD7-4BC7-AAAF-91DA949789E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E018D2C3-2DD7-4BC7-AAAF-91DA949789E4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{574D7C79-8899-4A69-911A-05AEA650A275}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{574D7C79-8899-4A69-911A-05AEA650A275}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{574D7C79-8899-4A69-911A-05AEA650A275}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{574D7C79-8899-4A69-911A-05AEA650A275}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{FD9B4C32-4D2E-410E-BC6B-787779BEB6E2} = {7CC35BC4-829F-4EF4-8EB6-E1D46206E7DC}

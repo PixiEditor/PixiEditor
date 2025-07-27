@@ -32,32 +32,46 @@ public class Translator : Control
     public static readonly AttachedProperty<bool> UseLanguageFlowDirectionProperty =
         AvaloniaProperty.RegisterAttached<Translator, Control, bool>("UseLanguageFlowDirection");
 
-    public static void SetUseLanguageFlowDirection(Control obj, bool value) => obj.SetValue(UseLanguageFlowDirectionProperty, value);
+    public static void SetUseLanguageFlowDirection(Control obj, bool value) =>
+        obj.SetValue(UseLanguageFlowDirectionProperty, value);
+
     public static bool GetUseLanguageFlowDirection(Control obj) => obj.GetValue(UseLanguageFlowDirectionProperty);
 
     static Translator()
     {
-        IObserver<AvaloniaPropertyChangedEventArgs<string>> keyObserver = new AnonymousObserver<AvaloniaPropertyChangedEventArgs<string>>(KeyPropertyChanged);
+        IObserver<AvaloniaPropertyChangedEventArgs<string>> keyObserver =
+            new AnonymousObserver<AvaloniaPropertyChangedEventArgs<string>>(KeyPropertyChanged);
         KeyProperty.Changed.Subscribe(keyObserver);
 
-        IObserver<AvaloniaPropertyChangedEventArgs<LocalizedString>> localizedStringObserver = new AnonymousObserver<AvaloniaPropertyChangedEventArgs<LocalizedString>>(LocalizedStringPropertyChanged);
+        IObserver<AvaloniaPropertyChangedEventArgs<LocalizedString>> localizedStringObserver =
+            new AnonymousObserver<AvaloniaPropertyChangedEventArgs<LocalizedString>>(LocalizedStringPropertyChanged);
         LocalizedStringProperty.Changed.Subscribe(localizedStringObserver);
 
-        IObserver<AvaloniaPropertyChangedEventArgs<object>> enumObserver = new AnonymousObserver<AvaloniaPropertyChangedEventArgs<object>>(EnumPropertyChanged);
+        IObserver<AvaloniaPropertyChangedEventArgs<object>> enumObserver =
+            new AnonymousObserver<AvaloniaPropertyChangedEventArgs<object>>(EnumPropertyChanged);
         EnumProperty.Changed.Subscribe(enumObserver);
 
-        IObserver<AvaloniaPropertyChangedEventArgs<string>> tooltipKeyObserver = new AnonymousObserver<AvaloniaPropertyChangedEventArgs<string>>(TooltipKeyPropertyChanged);
+        IObserver<AvaloniaPropertyChangedEventArgs<string>> tooltipKeyObserver =
+            new AnonymousObserver<AvaloniaPropertyChangedEventArgs<string>>(TooltipKeyPropertyChanged);
         TooltipKeyProperty.Changed.Subscribe(tooltipKeyObserver);
 
-        IObserver<AvaloniaPropertyChangedEventArgs<LocalizedString>> tooltipLocalizedStringObserver = new AnonymousObserver<AvaloniaPropertyChangedEventArgs<LocalizedString>>(TooltipLocalizedStringPropertyChanged);
+        IObserver<AvaloniaPropertyChangedEventArgs<LocalizedString>> tooltipLocalizedStringObserver =
+            new AnonymousObserver<AvaloniaPropertyChangedEventArgs<LocalizedString>>(
+                TooltipLocalizedStringPropertyChanged);
         TooltipLocalizedStringProperty.Changed.Subscribe(tooltipLocalizedStringObserver);
 
-        IObserver<AvaloniaPropertyChangedEventArgs<bool>> useLanguageFlowDirectionObserver = new AnonymousObserver<AvaloniaPropertyChangedEventArgs<bool>>(UseLanguageFlowDirectionPropertyChanged);
+        IObserver<AvaloniaPropertyChangedEventArgs<bool>> useLanguageFlowDirectionObserver =
+            new AnonymousObserver<AvaloniaPropertyChangedEventArgs<bool>>(UseLanguageFlowDirectionPropertyChanged);
         UseLanguageFlowDirectionProperty.Changed.Subscribe(useLanguageFlowDirectionObserver);
     }
 
     private static void UseLanguageFlowDirectionPropertyChanged(AvaloniaPropertyChangedEventArgs<bool> obj)
     {
+        if (ILocalizationProvider.Current == null)
+        {
+            return;
+        }
+
         if (!obj.NewValue.Value)
         {
             obj.Sender.SetValue(Control.FlowDirectionProperty, FlowDirection.LeftToRight);
@@ -72,7 +86,8 @@ public class Translator : Control
 
     private static void OnLanguageChangedFlowDirection(AvaloniaObject objSender)
     {
-        objSender.SetValue(Control.FlowDirectionProperty, ILocalizationProvider.Current?.CurrentLanguage.FlowDirection ?? FlowDirection.LeftToRight);
+        objSender.SetValue(Control.FlowDirectionProperty,
+            ILocalizationProvider.Current?.CurrentLanguage.FlowDirection ?? FlowDirection.LeftToRight);
     }
 
     private static void TooltipLocalizedStringPropertyChanged(AvaloniaPropertyChangedEventArgs<LocalizedString> e)
@@ -159,17 +174,19 @@ public class Translator : Control
 
     private static void UpdateKey(AvaloniaObject d, string key)
     {
-        if(key == null) return;
+        if (key == null) return;
         var parameters = GetLocalizedString(d).Parameters;
         LocalizedString localizedString = new(key, parameters);
 
         var valueObservable = d.GetObservable(ValueProperty);
 
-        ExternalProperty externalProperty = ExternalProperties.FirstOrDefault(x => x.PropertyType.IsAssignableFrom(d.GetType()));
+        ExternalProperty externalProperty =
+            ExternalProperties.FirstOrDefault(x => x.PropertyType.IsAssignableFrom(d.GetType()));
 
         if (d is ICustomTranslatorElement customTranslatorElement)
         {
-            customTranslatorElement.SetTranslationBinding(customTranslatorElement.GetDependencyProperty(), valueObservable);
+            customTranslatorElement.SetTranslationBinding(customTranslatorElement.GetDependencyProperty(),
+                valueObservable);
         }
         else if (externalProperty != null)
         {
@@ -220,7 +237,7 @@ public class Translator : Control
         {
             throw new ArgumentException($"'{d.GetType().Name}' does not support {nameof(Translator)}.Key");
         }
-        #endif
+#endif
 
         d.SetValue(ValueProperty, localizedString.Value);
     }

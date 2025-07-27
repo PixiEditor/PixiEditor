@@ -12,6 +12,7 @@
 
     <ItemGroup>
       <PackageReference Include="Avalonia.Win32" Version="$(AvaloniaVersion)" />
+      <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="8.0.0" />
     </ItemGroup>
 
 </Project>
