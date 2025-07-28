@@ -260,7 +260,7 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition />
                         </Grid.RowDefinitions>
-                        <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                        <StackPanel Spacing="5" Margin="0, 5" HorizontalAlignment="Center" Orientation="Horizontal">
                             <!--<StackPanel.Resources>
                                 <Style TargetType="Button" BasedOn="{StaticResource DarkRoundButton}">
                                     <Setter Property="HorizontalAlignment" Value="Stretch"/>
