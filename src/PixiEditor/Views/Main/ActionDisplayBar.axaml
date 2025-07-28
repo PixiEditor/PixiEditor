@@ -62,7 +62,7 @@
                 HorizontalAlignment="Right"
                 Foreground="{DynamicResource ThemeForegroundBrush}"
                 FontSize="14"
-                Text="{Binding DataContext.UpdateSubViewModel.VersionText, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}" />
+                ui:Translator.LocalizedString="{Binding DataContext.UpdateSubViewModel.VersionText, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}" />
         </StackPanel>
     </Grid>
 </UserControl>

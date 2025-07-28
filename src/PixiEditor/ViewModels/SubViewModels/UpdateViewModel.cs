@@ -48,9 +48,9 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    private string versionText;
+    private LocalizedString versionText;
 
-    public string VersionText
+    public LocalizedString VersionText
     {
         get => versionText;
         set
