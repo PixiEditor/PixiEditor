@@ -49,13 +49,11 @@ internal class OnboardingViewModel : PixiObservableObject
 
     public ObservableCollection<FormStep> AllFormSteps { get; } = new()
     {
-        new FormStep { Title = new LocalizedString("ONB_SELECT_PRIMARY_TOOLSET"), Step = 0 },
-        new FormStep { Title = new LocalizedString("LANGUAGE"), Step = 1 },
+        new FormStep { Title = new LocalizedString("LANGUAGE"), Step = 0 },
+        new FormStep { Title = new LocalizedString("ONB_SELECT_PRIMARY_TOOLSET"), Step = 1 },
         new FormStep { Title = new LocalizedString("ONB_SHORTCUTS"), Step = 2 },
         new FormStep { Title = new LocalizedString("ONB_ANALYTICS"), Step = 3 },
-#if !FOUNDERS_PACK_REQUIRED
         new FormStep { Title = new LocalizedString("FOUNDERS_BUNDLE"), Step = 4 }
-#endif
     };
 
     public RelayCommand NextFormStepCommand { get; }

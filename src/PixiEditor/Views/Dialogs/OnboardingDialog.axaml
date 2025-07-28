@@ -163,7 +163,7 @@
                            ui:Translator.LocalizedString="{Binding FormStep.Title}" HorizontalAlignment="Center"
                            VerticalAlignment="Center" />
                 <StackPanel Grid.Row="1"
-                            IsVisible="{Binding FormStep.Step, Converter={converters:IsEqualConverter}, ConverterParameter=0}"
+                            IsVisible="{Binding FormStep.Step, Converter={converters:IsEqualConverter}, ConverterParameter=1}"
                             HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="32"
                             Orientation="Horizontal">
                     <ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto">
@@ -212,7 +212,7 @@
                 <StackPanel Grid.Row="1"
                             HorizontalAlignment="Center" VerticalAlignment="Center"
                             Spacing="32"
-                            IsVisible="{Binding FormStep.Step, Converter={converters:IsEqualConverter}, ConverterParameter=1}">
+                            IsVisible="{Binding FormStep.Step, Converter={converters:IsEqualConverter}, ConverterParameter=0}">
                     <ComboBox Width="200" HorizontalAlignment="Center" Margin="0, -20, 0, 0"
                               ItemsSource="{Binding GeneralSettings.AvailableLanguages}"
                               SelectedItem="{Binding GeneralSettings.SelectedLanguage, Mode=TwoWay}">
@@ -229,7 +229,7 @@
                             </DataTemplate>
                         </ComboBox.ItemTemplate>
                     </ComboBox>
-                    <TextBlock DockPanel.Dock="Bottom" ui1:Hyperlink.Url="https://discord.gg/qSRMYmq"
+                    <TextBlock TextWrapping="Wrap" Padding="10, 0" DockPanel.Dock="Bottom" ui1:Hyperlink.Url="https://discord.gg/qSRMYmq"
                                ui:Translator.Key="LANGUAGE_INFO" />
                 </StackPanel>
                 <StackPanel Grid.Row="1"
