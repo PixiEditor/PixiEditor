@@ -6,6 +6,7 @@ using Avalonia.Media;
 using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
 using PixiEditor.Extensions.Extensions;
 using PixiEditor.Extensions.FlyUI.Converters;
+using PixiEditor.UI.Common.Localization;
 using FontStyle = PixiEditor.Extensions.CommonApi.FlyUI.Properties.FontStyle;
 using FontWeight = PixiEditor.Extensions.CommonApi.FlyUI.Properties.FontWeight;
 
@@ -81,7 +82,7 @@ public class Text : LayoutElement
             Converter = new ColorToAvaloniaBrushConverter(),
         };
         
-        textBlock.Bind(TextBlock.TextProperty, valueBinding);
+        textBlock.Bind(Translator.KeyProperty, valueBinding);
         textBlock.Bind(TextBlock.TextWrappingProperty, textWrapBinding);
         if (TextStyle.FontStyle != null)
         {
