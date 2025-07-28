@@ -1,18 +1,19 @@
 ﻿using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Windows;
 
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("PixiEditor")]
-[assembly: AssemblyDescription("A fast, nice looking pixel art editor.")]
+[assembly: AssemblyDescription("Fast, universal graphics editor.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("PixiEditor")]
 [assembly: AssemblyProduct("PixiEditor")]
-[assembly: AssemblyCopyright("Copyright PixiEditor © 2017 - 2024")]
+[assembly: AssemblyCopyright("Copyright PixiEditor © 2017 - 2025")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
+[assembly: InternalsVisibleTo("PixiEditor.Tests")]
 
 // Setting ComVisible to false makes the types in this assembly not visible
 // to COM components.  If you need to access a type in this assembly from
@@ -32,14 +33,6 @@ using System.Windows;
 // (used if a resource is not found in the page,
 // or application resource dictionaries)
 
-// ResourceDictionaryLocation.SourceAssembly where the generic resource dictionary is located
-// (used if a resource is not found in the page,
-// app, or any theme specific resource dictionaries)
-[assembly: ThemeInfo(
-    ResourceDictionaryLocation.None,
-    ResourceDictionaryLocation.SourceAssembly)
-]
-
 // Version information for an assembly consists of the following four values:
 //
 //      Major Version
@@ -50,5 +43,5 @@ using System.Windows;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.2.5.0")]
-[assembly: AssemblyFileVersion("1.2.5.0")]
+[assembly: AssemblyVersion("2.0.1.0")]
+[assembly: AssemblyFileVersion("2.0.1.0")]

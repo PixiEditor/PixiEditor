@@ -1,0 +1,17 @@
+﻿<properties:NodePropertyView xmlns="https://github.com/avaloniaui"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+                             xmlns:properties="clr-namespace:PixiEditor.Views.Nodes.Properties"
+                             xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+                             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+                             x:Class="PixiEditor.Views.Nodes.Properties.GenericPropertyView">
+    <Grid>
+        <TextBlock
+            VerticalAlignment="Center"
+            ui:Translator.TooltipKey="{Binding DisplayName}"
+            ui:Translator.Key="{Binding DisplayName}"
+            HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Left'}}" />
+    </Grid>
+</properties:NodePropertyView>

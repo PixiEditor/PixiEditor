@@ -2,9 +2,10 @@
 using ChunkyImageLib.Operations;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Changes.Drawing.FloodFill;
-using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface.Vector;
+using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Vector;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Selection.MagicWand;
 internal class MagicWandHelper
@@ -107,14 +108,17 @@ internal class MagicWandHelper
     }
 
     public static VectorPath DoMagicWandFloodFill(VecI startingPos, HashSet<Guid> membersToFloodFill,
-        IReadOnlyDocument document)
+        double tolerance,
+        IReadOnlyDocument document, int frame)
     {
         if (startingPos.X < 0 || startingPos.Y < 0 || startingPos.X >= document.Size.X || startingPos.Y >= document.Size.Y)
             return new VectorPath();
+        
+        tolerance = Math.Clamp(tolerance, 0, 1);
 
         int chunkSize = ChunkResolution.Full.PixelSize();
 
-        FloodFillChunkCache cache = FloodFillHelper.CreateCache(membersToFloodFill, document);
+        FloodFillChunkCache cache = FloodFillHelper.CreateCache(membersToFloodFill, document, frame);
 
         VecI initChunkPos = OperationHelper.GetChunkPos(startingPos, chunkSize);
         VecI imageSizeInChunks = (VecI)(document.Size / (double)chunkSize).Ceiling();
@@ -122,11 +126,11 @@ internal class MagicWandHelper
 
 
         Color colorToReplace = cache.GetChunk(initChunkPos).Match(
-            (Chunk chunk) => chunk.Surface.GetSRGBPixel(initPosOnChunk),
+            (Chunk chunk) => chunk.Surface.GetRawPixel(initPosOnChunk),
             static (EmptyChunk _) => Colors.Transparent
         );
 
-        ColorBounds colorRange = new(colorToReplace);
+        ColorBounds colorRange = new(colorToReplace, tolerance);
 
         HashSet<VecI> processedEmptyChunks = new();
 
@@ -253,7 +257,7 @@ internal class MagicWandHelper
         VecI pos,
         ColorBounds bounds, Lines lines)
     {
-        if (!bounds.IsWithinBounds(referenceChunk.Surface.GetSRGBPixel(pos)))
+        if (!bounds.IsWithinBounds(referenceChunk.Surface.GetRawPixel(pos)))
         {
             return null;
         }

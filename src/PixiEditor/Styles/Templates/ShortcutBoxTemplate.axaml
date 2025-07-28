@@ -1,0 +1,13 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:shortcuts="clr-namespace:PixiEditor.Views.Shortcuts">
+    <ControlTheme x:Key="{x:Type shortcuts:ShortcutBox}" TargetType="shortcuts:ShortcutBox">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="shortcuts:ShortcutBox">
+                   <ContentPresenter Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </ControlTheme>
+</ResourceDictionary>

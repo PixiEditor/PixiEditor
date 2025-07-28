@@ -18,4 +18,5 @@ public enum BlendMode
     Saturation,
     Luminosity,
     Color,
+    Erase
 }

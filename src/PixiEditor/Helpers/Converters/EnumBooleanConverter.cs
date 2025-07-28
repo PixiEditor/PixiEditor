@@ -1,4 +1,4 @@
-﻿using System.Windows;
+﻿using Avalonia;
 
 namespace PixiEditor.Helpers.Converters;
 
@@ -9,10 +9,10 @@ internal class EnumBooleanConverter : SingleInstanceConverter<EnumBooleanConvert
     {
         string parameterString = parameter as string;
         if (parameterString == null)
-            return DependencyProperty.UnsetValue;
+            return AvaloniaProperty.UnsetValue;
 
         if (Enum.IsDefined(value.GetType(), value) == false)
-            return DependencyProperty.UnsetValue;
+            return AvaloniaProperty.UnsetValue;
 
         object parameterValue = Enum.Parse(value.GetType(), parameterString);
 
@@ -23,9 +23,14 @@ internal class EnumBooleanConverter : SingleInstanceConverter<EnumBooleanConvert
     {
         string parameterString = parameter as string;
         if (parameterString == null)
-            return DependencyProperty.UnsetValue;
+            return AvaloniaProperty.UnsetValue;
 
-        return Enum.Parse(targetType, parameterString);
+        if ((bool)value)
+        {
+            return Enum.Parse(targetType, parameterString);
+        }
+
+        return AvaloniaProperty.UnsetValue;
     }
     #endregion
 }

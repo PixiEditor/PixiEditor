@@ -1,0 +1,17 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker.AvaloniaUI"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:views="clr-namespace:PixiEditor.Views"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             Name="SettingColorPicker"
+             x:ClassModifier="internal"
+             x:Class="PixiEditor.Views.Input.ToolSettingColorPicker">
+    <colorPicker:PortableColorPicker Width="40" Height="20" x:Name="ColorPicker" UseHintColor="True"
+                                     HintColor="{Binding DataContext.ColorsSubViewModel.PrimaryColor,
+        RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type views:MainWindow}, AncestorLevel=1},
+        Converter={converters:GenericColorToMediaColorConverter}}"
+                                     SelectedBrush="{Binding SelectedBrush, ElementName=SettingColorPicker, Mode=TwoWay}"/>
+</UserControl>

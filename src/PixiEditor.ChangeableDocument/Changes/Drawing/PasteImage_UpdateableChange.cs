@@ -1,9 +1,10 @@
-﻿using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+﻿using Drawie.Backend.Core;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
-internal class PasteImage_UpdateableChange : UpdateableChange
+internal class PasteImage_UpdateableChange : InterruptableUpdateableChange
 {
     private ShapeCorners corners;
     private readonly Guid memberGuid;
@@ -11,18 +12,22 @@ internal class PasteImage_UpdateableChange : UpdateableChange
     private readonly bool drawOnMask;
     private readonly Surface imageToPaste;
     private CommittedChunkStorage? savedChunks;
+    private int? frame;
+    private Guid? targetKeyFrameGuid;
     private static Paint RegularPaint { get; } = new Paint() { BlendMode = BlendMode.SrcOver };
 
     private bool hasEnqueudImage = false;
 
     [GenerateUpdateableChangeActions]
-    public PasteImage_UpdateableChange(Surface image, ShapeCorners corners, Guid memberGuid, bool ignoreClipsSymmetriesEtc, bool isDrawingOnMask)
+    public PasteImage_UpdateableChange(Surface image, ShapeCorners corners, Guid memberGuid, bool ignoreClipsSymmetriesEtc, bool isDrawingOnMask, int frame, Guid targetKeyFrameGuid)
     {
         this.corners = corners;
         this.memberGuid = memberGuid;
         this.ignoreClipsSymmetriesEtc = ignoreClipsSymmetriesEtc;
         this.drawOnMask = isDrawingOnMask;
         this.imageToPaste = new Surface(image);
+        this.frame = frame;
+        this.targetKeyFrameGuid = targetKeyFrameGuid;
     }
 
     public override bool InitializeAndValidate(Document target)
@@ -53,7 +58,16 @@ internal class PasteImage_UpdateableChange : UpdateableChange
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
-        ChunkyImage targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
+        ChunkyImage targetImage;
+        if (targetKeyFrameGuid.HasValue && targetKeyFrameGuid != Guid.Empty)
+        {
+            targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, targetKeyFrameGuid.Value);
+        }
+        else
+        {
+            targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame.Value);
+        }
+        
         var chunks = DrawImage(target, targetImage);
         savedChunks?.Dispose();
         savedChunks = new(targetImage, targetImage.FindAffectedArea().Chunks);
@@ -65,13 +79,30 @@ internal class PasteImage_UpdateableChange : UpdateableChange
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> ApplyTemporarily(Document target)
     {
-        ChunkyImage targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
+        ChunkyImage targetImage;
+        if (targetKeyFrameGuid.HasValue && targetKeyFrameGuid != Guid.Empty)
+        {
+            targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, targetKeyFrameGuid.Value);
+        }
+        else
+        {
+            targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame.Value);
+        }
         return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, DrawImage(target, targetImage), drawOnMask);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        var chunks = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, memberGuid, drawOnMask, ref savedChunks);
+        AffectedArea chunks;
+        if (targetKeyFrameGuid.HasValue && targetKeyFrameGuid != Guid.Empty)
+        {
+            chunks = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, memberGuid, drawOnMask, targetKeyFrameGuid.Value, ref savedChunks);
+        }
+        else
+        {
+            chunks = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, memberGuid, drawOnMask, frame.Value, ref savedChunks);
+        }
+        
         return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, chunks, drawOnMask);
     }
 

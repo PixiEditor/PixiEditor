@@ -1,9 +1,10 @@
-﻿using System.Net;
+﻿using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
-using PixiEditor.Extensions.Palettes;
-using PixiEditor.Models.DataHolders.Palettes;
 using PixiEditor.Models.Dialogs;
+using PixiEditor.Models.Palettes;
 
 namespace PixiEditor.Models.ExternalServices;
 

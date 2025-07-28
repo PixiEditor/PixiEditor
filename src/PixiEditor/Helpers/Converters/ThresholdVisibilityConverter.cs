@@ -1,5 +1,5 @@
 ﻿using System.Globalization;
-using System.Windows;
+using PixiEditor.UI.Common.Converters;
 
 namespace PixiEditor.Helpers.Converters;
 
@@ -11,8 +11,13 @@ internal class ThresholdVisibilityConverter
 
     public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
+        return Check((double)value);
+    }
+
+    public bool Check(double value)
+    {
         return CheckIfLess
-            ? (double)value < Threshold ? Visibility.Visible : Visibility.Hidden
-            : (double)value >= Threshold ? Visibility.Visible : Visibility.Hidden;
+            ? value < Threshold
+            : value >= Threshold;
     }
 }

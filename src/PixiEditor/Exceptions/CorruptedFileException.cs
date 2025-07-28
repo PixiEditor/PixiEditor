@@ -1,7 +1,6 @@
-﻿using System.IO;
-using System.Runtime.Serialization;
-using PixiEditor.Extensions.Common.Localization;
-using PixiEditor.Models.Localization;
+﻿using System.Runtime.Serialization;
+using PixiEditor.Extensions.Exceptions;
+using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.Exceptions;
 

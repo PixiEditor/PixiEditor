@@ -1,0 +1,29 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:input="clr-namespace:PixiEditor.Views.Input"
+                    xmlns:ui="clr-namespace:PixiEditor.Helpers.UI">
+    <ControlTheme x:Key="{x:Type input:ListSwitchButton}" TargetType="input:ListSwitchButton">
+            <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderLowBrush}"/>
+            <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="Padding" Value="5, 0"/>
+            <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="input:ListSwitchButton">
+                        <Border
+                            CornerRadius="{TemplateBinding CornerRadius}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            Background="{Binding Path=ActiveItem.Background, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type input:ListSwitchButton}}}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding Path=ActiveItem.Content, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type input:ListSwitchButton}}}"
+                                       FontSize="{TemplateBinding FontSize}" Padding="{TemplateBinding Padding}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+    </ControlTheme>
+</ResourceDictionary>

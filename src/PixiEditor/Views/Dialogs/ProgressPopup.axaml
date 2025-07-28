@@ -1,0 +1,19 @@
+﻿<dialogs:PixiEditorPopup xmlns="https://github.com/avaloniaui"
+                         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                         xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
+                         xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+                         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+                         x:Class="PixiEditor.Views.Dialogs.ProgressPopup"
+                         CanMinimize="False"
+                         CanResize="False"
+                         ui:Translator.Key="PROGRESS_POPUP_TITLE"
+                         Width="400" Height="150">
+    <StackPanel
+        DataContext="{Binding RelativeSource={RelativeSource AncestorType=dialogs:ProgressPopup, Mode=FindAncestor}}">
+        <TextBlock ui:Translator.Key="{Binding Status}" Margin="10" Classes="h3" />
+        <ProgressBar VerticalAlignment="Center" ShowProgressText="True" Value="{Binding Progress}" Maximum="100"
+                     Margin="10" />
+    </StackPanel>
+</dialogs:PixiEditorPopup>

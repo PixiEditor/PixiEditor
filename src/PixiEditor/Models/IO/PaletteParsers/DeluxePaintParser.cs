@@ -1,17 +1,22 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Text;
-using PixiEditor.Extensions.Palettes;
-using PixiEditor.Extensions.Palettes.Parsers;
+using System.Threading.Tasks;
+using PixiEditor.Extensions.CommonApi.Palettes;
+using PixiEditor.Extensions.CommonApi.Palettes.Parsers;
 
 namespace PixiEditor.Models.IO.PaletteParsers;
 
-// Reads 8-bit color palette data from Interleaved Bitmap format (LBM/BBM)
-// most commonly used by DeluxePaint on Amiga and MS DOS.
-//
-// https://en.wikipedia.org/wiki/ILBM
-
-// Note: A BBM file is essentially a LBM without a full image.
-
+/// <summary>
+/// Reads 8-bit color palette data from Interleaved Bitmap format (LBM/BBM)
+/// most commonly used by DeluxePaint on Amiga and MS DOS.
+///
+/// https://en.wikipedia.org/wiki/ILBM
+///
+/// Note: A BBM file is essentially a LBM without a full image.
+/// 
+/// Code adapted from https://devblog.cyotek.com/post/loading-the-color-palette-from-a-bbm-lbm-image-file-using-csharp
+/// </summary>
 internal class DeluxePaintParser : PaletteFileParser
 {
     public override string FileName { get; } = "DeluxePaint Interleaved Bitmap Palette";

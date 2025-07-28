@@ -1,0 +1,40 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <UsingTask TaskName="EncryptResourcesTask"
+             AssemblyFile="$(MSBuildThisFileDirectory)PixiEditor.Api.CGlueMSBuild.dll"
+             Condition="'$(RuntimeIdentifier)' == 'wasi-wasm' And '$(EncryptResources)' == 'true'"/>
+
+  <Target Name="EncryptResources" BeforeTargets="GenerateGlueCode" Condition="'$(RuntimeIdentifier)' == 'wasi-wasm' And '$(EncryptResources)' == 'true'">
+    <EncryptResourcesTask ResourcesPath="$(MSBuildProjectDirectory)\Resources" IntermediateOutputPath="$(IntermediateOutputPath)" OutputPath="$(OutputPath)">
+      <Output TaskParameter="EncryptionKey" PropertyName="EncryptionKey"/>
+      <Output TaskParameter="EncryptionIv" PropertyName="EncryptedIv"/>
+    </EncryptResourcesTask>
+  </Target>
+
+  <UsingTask TaskName="GenerateCGlueTask"
+             AssemblyFile="$(MSBuildThisFileDirectory)PixiEditor.Api.CGlueMSBuild.dll" Condition="'$(RuntimeIdentifier)' == 'wasi-wasm'"/>
+  <Target Name="GenerateGlueCode" AfterTargets="Build" BeforeTargets="_BeforeWasmBuildApp" Condition="'$(RuntimeIdentifier)' == 'wasi-wasm'">
+    <GenerateCGlueTask AssemblyPath="$(TargetPath)"
+                       EncryptionKey="$(EncryptionKey)"
+                       EncryptionIv="$(EncryptedIv)"
+                       OutputPath="$(IntermediateOutputPath)native" InteropCFilePath="$(MSBuildThisFileDirectory)..\native\interop.c"/>
+    <ItemGroup>
+      <NativeFileReference Include="$(IntermediateOutputPath)native\*.c"/>
+      <_WasmNativeFileForLinking Include="@(NativeFileReference)"/>
+    </ItemGroup>
+  </Target>
+  <UsingTask TaskName="BuildPackageTask"
+             AssemblyFile="$(MSBuildThisFileDirectory)PixiEditor.Extensions.MSPackageBuilder.dll"
+             Condition="'$(RuntimeIdentifier)' == 'wasi-wasm' And '$(GenerateExtensionPackage)' == 'true'"/>
+
+  <Target Name="BuildPackageTask" AfterTargets="_WasiGenerateAppBundle"
+          Condition="'$(RuntimeIdentifier)' == 'wasi-wasm' And '$(GenerateExtensionPackage)' == 'true'">
+    <PropertyGroup Condition="'$(PixiExtOutputPath)' == ''">
+      <PixiExtOutputPath>$(OutputPath)\Extensions</PixiExtOutputPath>
+    </PropertyGroup>
+    <Message Text="Building extension package to $(PixiExtOutputPath)" Importance="high"/>
+    <BuildPackageTask
+      EncryptionKey="$(EncryptionKey)"
+      BuildResultDirectory="$(OutputPath)" TargetDirectory="$(PixiExtOutputPath)"/>
+  </Target>
+</Project>

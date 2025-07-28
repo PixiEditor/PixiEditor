@@ -1,9 +1,12 @@
 ﻿using ChunkyImageLib.Operations;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using PixiEditor.ChangeableDocument.Enums;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 
 namespace PixiEditor.ChangeableDocument.Changes.Root;
@@ -12,12 +15,14 @@ internal sealed class FlipImage_Change : Change
 {
     private readonly FlipType flipType;
     private List<Guid> membersToFlip;
+    private int frame;
 
     [GenerateMakeChangeAction]
-    public FlipImage_Change(FlipType flipType, List<Guid>? membersToFlip = null)
+    public FlipImage_Change(FlipType flipType, int frame, List<Guid>? membersToFlip = null)
     {
         this.flipType = flipType;
         membersToFlip ??= new List<Guid>();
+        this.frame = frame;
         this.membersToFlip = membersToFlip;
     }
     
@@ -48,7 +53,7 @@ internal sealed class FlipImage_Change : Change
     {
         using Paint paint = new()
         {
-            BlendMode = DrawingApi.Core.Surface.BlendMode.Src
+            BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.Src
         };
 
         RectI bounds = new RectI(VecI.Zero, img.LatestSize);
@@ -61,14 +66,14 @@ internal sealed class FlipImage_Change : Change
             }
         }
 
-        using Surface originalSurface = new(img.LatestSize);
+        using Surface originalSurface = Surface.ForProcessing(img.LatestSize, img.ProcessingColorSpace);
         img.DrawMostUpToDateRegionOn(
             new RectI(VecI.Zero, img.LatestSize), 
             ChunkResolution.Full,
             originalSurface.DrawingSurface,
             VecI.Zero);
 
-        using Surface flipped = new Surface(img.LatestSize);
+        using Surface flipped = Surface.ForProcessing(img.LatestSize, img.ProcessingColorSpace);
 
         bool flipX = flipType == FlipType.Horizontal;
         bool flipY = flipType == FlipType.Vertical;
@@ -97,22 +102,33 @@ internal sealed class FlipImage_Change : Change
 
         target.ForEveryMember(member =>
         {
-            if (membersToFlip.Count == 0 || membersToFlip.Contains(member.GuidValue))
+            if (membersToFlip.Count == 0 || membersToFlip.Contains(member.Id))
             {
-                if (member is Layer layer)
+                if (member is ImageLayerNode layer)
                 {
-                    FlipImage(layer.LayerImage);
+                    var image = layer.GetLayerImageAtFrame(frame);
+                    FlipImage(image);
                     changes.Add(
-                        new LayerImageArea_ChangeInfo(member.GuidValue, layer.LayerImage.FindAffectedArea()));
-                    layer.LayerImage.CommitChanges();
+                        new LayerImageArea_ChangeInfo(member.Id, image.FindAffectedArea()));
+                    image.CommitChanges();
+                }
+                else if (member is ITransformableObject transformableObject)
+                {
+                    RectD? tightBounds = member.GetTightBounds(frame);
+                    if(tightBounds == null) return;
+                    transformableObject.TransformationMatrix = transformableObject.TransformationMatrix.PostConcat(
+                        Matrix3X3.CreateScale(
+                            flipType == FlipType.Horizontal ? -1 : 1,
+                            flipType == FlipType.Vertical ? -1 : 1, 
+                            (float)tightBounds.Value.Center.X, (float)tightBounds.Value.Center.Y));
                 }
 
-                if (member.Mask is not null)
+                if (member.EmbeddedMask is not null)
                 {
-                    FlipImage(member.Mask);
+                    FlipImage(member.EmbeddedMask);
                     changes.Add(
-                        new MaskArea_ChangeInfo(member.GuidValue, member.Mask.FindAffectedArea()));
-                    member.Mask.CommitChanges();
+                        new MaskArea_ChangeInfo(member.Id, member.EmbeddedMask.FindAffectedArea()));
+                    member.EmbeddedMask.CommitChanges();
                 }
             }
         });

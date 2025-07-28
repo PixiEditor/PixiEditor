@@ -1,0 +1,25 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="PixiEditor.Views.Input.FontFamilyPicker">
+    <StackPanel Orientation="Horizontal" Spacing="5" DataContext="{Binding RelativeSource={RelativeSource AncestorType=UserControl}}">
+        <Button Classes="pixi-icon" FontSize="16"
+                ui:Translator.TooltipKey="CUSTOM_FONT"
+                Command="{Binding UploadFontCommand}" Content="{DynamicResource icon-upload}" />
+        <ComboBox VerticalAlignment="Center"
+                  MinWidth="85"
+                  ItemsSource="{Binding Fonts}"
+                  SelectedIndex="{Binding FontIndex, Mode=TwoWay}">
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Name}"
+                               FontFamily="{Binding Converter={converters:FontFamilyNameToAvaloniaFontFamily}}" />
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+    </StackPanel>
+</UserControl>

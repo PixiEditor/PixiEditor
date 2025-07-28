@@ -1,17 +1,18 @@
-﻿using System.Collections;
-using System.ComponentModel;
-using System.Windows.Input;
-using PixiEditor.Extensions.Common.Localization;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Avalonia.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
+using PixiEditor.Models.Commands.Evaluators;
 using PixiEditor.Models.Commands.Commands;
-using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.Localization;
+using PixiEditor.Models.Input;
+using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.Models.Commands;
 
-internal class CommandGroup : NotifyableObject
+internal class CommandGroup : ObservableObject
 {
-    private readonly Command[] commands;
-    private readonly Command[] visibleCommands;
+    private List<Command> commands;
+    private List<Command> visibleCommands;
 
     private LocalizedString displayName;
 
@@ -23,15 +24,17 @@ internal class CommandGroup : NotifyableObject
 
     public bool HasAssignedShortcuts { get; set; }
 
-    public IEnumerable<Command> Commands => commands;
+    public string? IsVisibleProperty { get; set; }
 
-    public IEnumerable<Command> VisibleCommands => visibleCommands;
+    public IReadOnlyList<Command> Commands => commands;
+
+    public IReadOnlyList<Command> VisibleCommands => visibleCommands;
 
     public CommandGroup(LocalizedString displayName, IEnumerable<Command> commands)
     {
         DisplayName = displayName;
-        this.commands = commands.ToArray();
-        visibleCommands = commands.Where(x => !string.IsNullOrEmpty(x.DisplayName.Value)).ToArray();
+        this.commands = commands.ToList();
+        visibleCommands = commands.Where(x => !string.IsNullOrEmpty(x.DisplayName.Value)).ToList();
 
         foreach (var command in commands)
         {
@@ -40,6 +43,20 @@ internal class CommandGroup : NotifyableObject
         }
 
         ILocalizationProvider.Current.OnLanguageChanged += OnLanguageChanged;
+    }
+
+    public void AddCommand(Command command)
+    {
+        command.ShortcutChanged += Command_ShortcutChanged;
+        HasAssignedShortcuts |= command.Shortcut.Key != Key.None;
+        commands.Add(command);
+        if (!string.IsNullOrEmpty(command.DisplayName.Value))
+        {
+            visibleCommands.Add(command);
+        }
+
+        OnPropertyChanged(nameof(VisibleCommands));
+        OnPropertyChanged(nameof(Commands));
     }
 
     private void OnLanguageChanged(Language obj)

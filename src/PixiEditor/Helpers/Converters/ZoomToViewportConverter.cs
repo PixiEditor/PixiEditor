@@ -1,6 +1,5 @@
 ﻿using System.Globalization;
-using System.Windows;
-using System.Windows.Data;
+using Avalonia;
 
 namespace PixiEditor.Helpers.Converters;
 
@@ -11,12 +10,20 @@ internal class ZoomToViewportConverter
     {
         if (value is double scale && parameter is double factor)
         {
-            double newSize = Math.Clamp((double)factor / scale, 1, 9999);
-            if (newSize > 1 && newSize < 4)
-                newSize = 4;
-            return new Rect(0, 0, newSize, newSize);
+            var newSize = ZoomToViewport(factor, scale);
+            return new RelativeRect(0, 0, newSize, newSize, RelativeUnit.Absolute);
         }
 
-        return Binding.DoNothing;
+        return AvaloniaProperty.UnsetValue;
+    }
+
+    public static double ZoomToViewport(double factor, double scale)
+    {
+        double newSize = Math.Clamp(factor / scale, 1, 9999);
+
+        double log = Math.Log(newSize, 2);
+        //round to power of 2
+        newSize = Math.Pow(2, Math.Round(log));
+        return newSize;
     }
 }

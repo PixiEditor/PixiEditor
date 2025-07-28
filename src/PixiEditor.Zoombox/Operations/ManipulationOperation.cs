@@ -2,7 +2,8 @@
 using System.Linq;
 using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
-using PixiEditor.DrawingApi.Core.Numerics;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Numerics;
 
 namespace PixiEditor.Zoombox.Operations;
 
@@ -22,12 +23,13 @@ internal class ManipulationOperation
 
     public void Start()
     {
-        updatedAngle = owner.Angle;
-        initialAngle = owner.Angle;
-        rotationProcess = new LockingRotationProcess(owner.Angle);
+        updatedAngle = owner.AngleRadians;
+        initialAngle = owner.AngleRadians;
+        rotationProcess = new LockingRotationProcess(owner.AngleRadians);
     }
 
-    public void Update(ManipulationDeltaEventArgs args)
+    //TODO: Implement this
+    /*public void Update(ManipulationDeltaEventArgs args)
     {
         args.Handled = true;
         double thresholdFactor = 1;
@@ -44,7 +46,7 @@ internal class ManipulationOperation
         if (owner.FlipX ^ owner.FlipY)
             deltaAngle = -deltaAngle;
         Manipulate(args.DeltaManipulation.Scale.X, screenTranslation, screenOrigin, deltaAngle, thresholdFactor);
-    }
+    }*/
 
     private void Manipulate(double deltaScale, VecD screenTranslation, VecD screenOrigin, double rotation, double thresholdFactor)
     {
@@ -57,7 +59,7 @@ internal class ManipulationOperation
         double newAngle = startedRotating ? rotationProcess!.UpdateRotation(updatedAngle) : initialAngle;
 
         VecD originalPos = owner.ToZoomboxSpace(screenOrigin);
-        owner.Angle = newAngle;
+        owner.AngleRadians = newAngle;
         owner.Scale = newScale;
         VecD newPos = owner.ToZoomboxSpace(screenOrigin);
         VecD centerTranslation = originalPos - newPos;

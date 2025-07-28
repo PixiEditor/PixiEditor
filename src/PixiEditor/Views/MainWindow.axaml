@@ -1,0 +1,32 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:views1="clr-namespace:PixiEditor.Views"
+        xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+        xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+        MinHeight="500"
+        MinWidth="700"
+        Height="1000"
+        Width="1600"
+        mc:Ignorable="d" d:DesignWidth="1600" d:DesignHeight="1000"
+        x:Class="PixiEditor.Views.MainWindow"
+        x:ClassModifier="internal"
+        WindowState="Maximized"
+        Name="Window"
+        Icon="/Images/favicon.ico"
+        Initialized="MainWindow_Initialized"
+        localization:Translator.UseLanguageFlowDirection="True"
+        Title="PixiEditor">
+    <Window.SystemDecorations>
+        <OnPlatform>
+            <OnPlatform.Default>
+                <SystemDecorations>Full</SystemDecorations>
+            </OnPlatform.Default>
+            <OnPlatform.Linux>
+                <SystemDecorations>None</SystemDecorations>
+            </OnPlatform.Linux>
+        </OnPlatform> 
+    </Window.SystemDecorations>
+    <views1:MainView />
+</Window>

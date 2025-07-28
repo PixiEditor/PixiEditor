@@ -1,0 +1,41 @@
+﻿<local:PixiEditorPopup
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:local="clr-namespace:PixiEditor.Views.Dialogs"
+    xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+    xmlns:panels="clr-namespace:PixiEditor.Views.Panels"
+    mc:Ignorable="d"
+    d:DesignWidth="800"
+    d:DesignHeight="450"
+    MinWidth="250"
+    MinHeight="150"
+    x:Class="PixiEditor.Views.Dialogs.OptionPopup"
+    SizeToContent="WidthAndHeight"
+    Name="popup"
+    ui:Translator.Key="{Binding #popup.Title, Mode=OneTime}">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <ContentPresenter Content="{Binding #popup.PopupContent}"
+                          Grid.Row="0" Margin="15" />
+
+        <ItemsControl ItemsSource="{Binding #popup.Options}" Grid.Row="1" Margin="15">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Button Content="{Binding}" MinWidth="70" Margin="5,0"
+                            Command="{Binding #popup.PickOptionCommand}" CommandParameter="{Binding}" />
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <panels:AlignableWrapPanel HorizontalAlignment="Center" HorizontalContentAlignment="Center" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ItemsControl>
+    </Grid>
+</local:PixiEditorPopup>

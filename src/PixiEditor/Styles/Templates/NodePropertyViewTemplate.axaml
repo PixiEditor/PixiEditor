@@ -1,0 +1,45 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:properties="clr-namespace:PixiEditor.Views.Nodes.Properties"
+        xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+        xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters">
+
+    <Style Selector="properties|NodePropertyView">
+        <Setter Property="ClipToBounds" Value="False" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid Margin="-5, 2" ColumnDefinitions="15, *, 15" MinHeight="18"
+                      IsVisible="{Binding DataContext.IsVisible, RelativeSource={RelativeSource TemplatedParent}}">
+                    <properties:NodeSocket Name="PART_InputSocket"
+                                           ClipToBounds="False"
+                                           Node="{Binding DataContext.Node, RelativeSource={RelativeSource TemplatedParent}}"
+                                           SocketBrush="{Binding DataContext.SocketBrush, RelativeSource={RelativeSource TemplatedParent}}"
+                                           IsVisible="{Binding DataContext.IsInput, RelativeSource={RelativeSource TemplatedParent}}"
+                                           IsFunc="{Binding DataContext.IsFunc, RelativeSource={RelativeSource TemplatedParent}}">
+                        <properties:NodeSocket.IsInput>
+                            <x:Boolean>True</x:Boolean>
+                        </properties:NodeSocket.IsInput>
+                    </properties:NodeSocket>
+                    <ContentPresenter Grid.Column="1" Name="PART_Presenter"
+                                      VerticalAlignment="Top" Content="{TemplateBinding Content}" />
+                    <properties:NodeSocket Name="PART_OutputSocket"
+                                           ClipToBounds="False" HorizontalAlignment="Right" Grid.Column="2"
+                                           Node="{Binding DataContext.Node, RelativeSource={RelativeSource TemplatedParent}}"
+                                           SocketBrush="{Binding DataContext.SocketBrush, RelativeSource={RelativeSource TemplatedParent}}"
+                                           IsVisible="{Binding !DataContext.IsInput,RelativeSource={RelativeSource TemplatedParent}}"
+                                           IsFunc="{Binding DataContext.IsFunc, RelativeSource={RelativeSource TemplatedParent}}">
+                        <properties:NodeSocket.IsInput>
+                            <x:Boolean>False</x:Boolean>
+                        </properties:NodeSocket.IsInput>
+                    </properties:NodeSocket>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+
+    <Style Selector="properties|NodePropertyView:has-errors ContentPresenter#PART_Presenter">
+        <Setter Property="Foreground" Value="{DynamicResource ErrorOnDarkBrush}" />
+        <Setter Property="(ui:Translator.TooltipKey)"
+                Value="{Binding DataContext.Errors, RelativeSource={RelativeSource TemplatedParent}}" />
+    </Style>
+</Styles>

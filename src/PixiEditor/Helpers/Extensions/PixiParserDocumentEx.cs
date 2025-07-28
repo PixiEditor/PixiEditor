@@ -1,10 +1,12 @@
-﻿using ChunkyImageLib;
-using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.Extensions.Palettes;
+﻿using Drawie.Backend.Core;
+using PixiEditor.Extensions.CommonApi.Palettes;
+using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.Models.IO;
 using PixiEditor.Parser;
-using PixiEditor.Parser.Deprecated;
-using PixiEditor.ViewModels.SubViewModels.Document;
+using PixiEditor.Parser.Graph;
+using PixiEditor.Parser.Skia;
+using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.Helpers.Extensions;
 
@@ -14,111 +16,87 @@ internal static class PixiParserDocumentEx
     {
         return new VecD(vec.X, vec.Y);
     }
-    
+
+    public static Vector2 ToVector2(this VecD vec)
+    {
+        return new Vector2() { X = vec.X, Y = vec.Y };
+    }
+
     public static DocumentViewModel ToDocument(this Document document)
     {
-        return DocumentViewModel.Build(b =>
+        ImageEncoder? encoder = document.GetEncoder();
+        if (encoder == null)
         {
-            b.WithSize(document.Width, document.Height)
-                .WithPalette(document.Palette, x => new PaletteColor(x.R, x.G, x.B))
-                .WithSwatches(document.Swatches, x => new(x.R, x.G, x.B))
-                .WithReferenceLayer(document.ReferenceLayer, (r, builder) => builder
-                    .WithIsVisible(r.Enabled)
-                    .WithShape(r.Corners)
-                    .WithSurface(Surface.Load(r.ImageBytes)));
-
-            BuildChildren(b, document.RootFolder.Children);
-        });
-
-        void BuildChildren(ChildrenBuilder builder, IEnumerable<IStructureMember> members)
-        {
-            foreach (var member in members)
-            {
-                if (member is Folder folder)
-                {
-                    builder.WithFolder(x => BuildFolder(x, folder));
-                }
-                else if (member is ImageLayer layer)
-                {
-                    builder.WithLayer(x => BuildLayer(x, layer));
-                }
-                else
-                {
-                    throw new NotImplementedException($"StructureMember of type '{member.GetType().FullName}' has not been implemented");
-                }
-            }
+            throw new ArgumentException("Document does not have a valid encoder");
         }
 
-        void BuildFolder(DocumentViewModelBuilder.FolderBuilder builder, Folder folder) => builder
-            .WithName(folder.Name)
-            .WithVisibility(folder.Enabled)
-            .WithOpacity(folder.Opacity)
-            .WithBlendMode((PixiEditor.ChangeableDocument.Enums.BlendMode)(int)folder.BlendMode)
-            .WithChildren(x => BuildChildren(x, folder.Children))
-            .WithClipToBelow(folder.ClipToMemberBelow)
-            .WithMask(folder.Mask, (x, m) => x.WithVisibility(m.Enabled).WithSurface(m.Width, m.Height, x => x.WithImage(m.ImageBytes, m.OffsetX, m.OffsetY)));
+        return DocumentViewModel.Build(b => b
+            .WithPixiParserVersion(document.Version)
+            .WithSerializerData(document.SerializerName, document.SerializerVersion)
+            .WithSrgbColorBlending(document.SrgbColorBlending)
+            .WithSize(document.Width, document.Height)
+            .WithImageEncoder(document.ImageEncoderUsed)
+            .WithPalette(document.Palette, color => new PaletteColor(color.R, color.G, color.B))
+            .WithSwatches(document.Swatches, x => new(x.R, x.G, x.B))
+            .WithReferenceLayer(document.ReferenceLayer, BuildReferenceLayer, encoder)
+            .WithGraph(document.Graph, BuildGraph)
+            .WithAnimationData(document.AnimationData, document.Graph)
+            .WithResources(document.Resources));
+    }
 
-        void BuildLayer(DocumentViewModelBuilder.LayerBuilder builder, ImageLayer layer)
+    private static void BuildGraph(NodeGraph graph, NodeGraphBuilder graphBuilder)
+    {
+        if (graph.AllNodes != null)
         {
-            builder
-                .WithName(layer.Name)
-                .WithVisibility(layer.Enabled)
-                .WithOpacity(layer.Opacity)
-                .WithBlendMode((PixiEditor.ChangeableDocument.Enums.BlendMode)(int)layer.BlendMode)
-                .WithRect(layer.Width, layer.Height, layer.OffsetX, layer.OffsetY)
-                .WithClipToBelow(layer.ClipToMemberBelow)
-                .WithLockAlpha(layer.LockAlpha)
-                .WithMask(layer.Mask,
-                    (x, m) => x.WithVisibility(m.Enabled).WithSurface(m.Width, m.Height,
-                        x => x.WithImage(m.ImageBytes, m.OffsetX, m.OffsetY)));
-
-            if (layer.Width > 0 && layer.Height > 0)
+            foreach (var node in graph.AllNodes)
             {
-                builder.WithSurface(x => x.WithImage(layer.ImageBytes, 0, 0));
+                graphBuilder.WithNode(x => x
+                    .WithId(node.Id)
+                    .WithPosition(node.Position)
+                    .WithName(node.Name)
+                    .WithUniqueNodeName(node.UniqueNodeName)
+                    .WithKeyFrames(node.KeyFrames)
+                    .WithInputValues(ToDictionary(node.InputPropertyValues))
+                    .WithAdditionalData(node.AdditionalData)
+                    .WithPairId(node.PairId)
+                    .WithConnections(node.InputConnections));
             }
         }
     }
-    
-    public static SKBitmap RenderOldDocument(this SerializableDocument document)
+
+    private static Dictionary<string, object> ToDictionary(IEnumerable<NodePropertyValue> properties)
     {
-        SKImageInfo info = new(document.Width, document.Height, SKColorType.RgbaF32, SKAlphaType.Unpremul, SKColorSpace.CreateSrgb());
-        using SKSurface surface = SKSurface.Create(info);
-        SKCanvas canvas = surface.Canvas;
-        using SKPaint paint = new();
-
-        foreach (var layer in document)
+        Dictionary<string, object> dict = new();
+        foreach (var property in properties)
         {
-            if (layer.PngBytes == null || layer.PngBytes.Length == 0)
-            {
-                continue;
-            }
-
-            bool visible = document.Layers.GetFinalLayerVisibilty(layer);
-
-            if (!visible)
-            {
-                continue;
-            }
-
-            double opacity = document.Layers.GetFinalLayerOpacity(layer);
-
-            if (opacity == 0)
-            {
-                continue;
-            }
-
-            using SKColorFilter filter = SKColorFilter.CreateBlendMode(SKColors.White.WithAlpha((byte)(opacity * 255)), SKBlendMode.DstIn);
-            paint.ColorFilter = filter;
-
-            using var image = SKImage.FromEncodedData(layer.PngBytes);
-            
-            canvas.DrawImage(image, layer.OffsetX, layer.OffsetY, paint);
+            dict[property.PropertyName] = property.Value;
         }
 
-        SKBitmap bitmap = new(info);
+        return dict;
+    }
 
-        surface.ReadPixels(info, bitmap.GetPixels(), info.RowBytes, 0, 0);
+    private static void BuildReferenceLayer(
+        ReferenceLayer referenceLayer,
+        DocumentViewModelBuilder.ReferenceLayerBuilder layerBuilder,
+        ImageEncoder encoder)
+    {
+        var surface = DecodeSurface(referenceLayer.ImageBytes, referenceLayer.ImageWidth, referenceLayer.ImageHeight, encoder);
 
-        return bitmap;
+        layerBuilder
+            .WithIsVisible(referenceLayer.Enabled)
+            .WithShape(referenceLayer.Corners)
+            .WithIsTopmost(referenceLayer.Topmost)
+            .WithSurface(surface);
+    }
+
+    private static Surface DecodeSurface(byte[] imgBytes, int width, int height, ImageEncoder encoder)
+    {
+        Surface surface = new Surface(new VecI(width, height));
+
+        byte[] decoded =
+            encoder.Decode(imgBytes, out SKImageInfo info);
+        surface.DrawBytes(surface.Size, decoded, info.ColorType.ToColorType(), info.AlphaType.ToAlphaType());
+
+        return surface;
     }
 }

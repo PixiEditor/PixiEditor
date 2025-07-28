@@ -1,0 +1,265 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=System.Runtime">
+
+    <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Dark">
+            <Color x:Key="ThemeBackgroundColor">#252525</Color> <!--This is the lowest elevation color-->
+            <Color x:Key="ThemeBackgroundTranslucentColor">#C8202020</Color>
+            <Color x:Key="ThemeBackgroundColor1">#2D2D30</Color>
+            <Color x:Key="ThemeBackgroundColor2">#3f3f46</Color>
+
+            <Color x:Key="AccentLowColor">#8d001b</Color>
+            <Color x:Key="AccentColor">#B00022</Color>
+            <Color x:Key="AccentHighColor">#c0334e</Color>
+            <Color x:Key="ThemeAccent2Color">#5fad65</Color>
+            <Color x:Key="ThemeAccent2HighColor">#3dd276</Color>
+            <Color x:Key="ThemeAccent3Color">DodgerBlue</Color>
+
+            <Color x:Key="ThemeForegroundColor">#FFFFFF</Color>
+            <Color x:Key="ThemeForegroundSecondaryColor">#B3FFFFFF</Color>
+
+            <Color x:Key="ThemeControlLowColor">#252525</Color>
+            <Color x:Key="ThemeControlMidColor">#303030</Color>
+            <Color x:Key="ThemeControlHighColor">#404040</Color>
+            <Color x:Key="ThemeControlHighlightColor">#515151</Color>
+            <Color x:Key="HighlightForegroundColor">#FFFFFF</Color>
+
+            <Color x:Key="ThemeBorderLowColor">#1A1A1A</Color>
+            <Color x:Key="ThemeBorderMidColor">#3F3F46</Color>
+            <Color x:Key="ThemeBorderHighColor">#4F4F4F</Color>
+
+            <Color x:Key="ErrorColor">#B00020</Color>
+            <Color x:Key="ErrorOnDarkColor">#FF4267</Color>
+
+            <Color x:Key="GlyphColor">#444</Color>
+            <Color x:Key="GlyphBackground">White</Color>
+            <Color x:Key="ThumbColor">#606060</Color>
+
+            <Color x:Key="SelectionFillColor">#510051ff</Color>
+
+            <Color x:Key="NotificationCardBackgroundColor">#303030</Color>
+
+            <!--                          -->
+            <!--     <| Node Colors |>    -->
+            <!--                          -->
+
+            <!-- Sockets -->
+            <Color x:Key="DefaultSocketColor">#FF00FF</Color>
+            <Color x:Key="ImageSocketColor">#99c47a</Color>
+            <Color x:Key="PainterSocketColor">#ff8c00</Color>
+            <Color x:Key="FilterSocketColor">#CC5C5C</Color>
+            <Color x:Key="BoolSocketColor">#68abdf</Color>
+            <Color x:Key="FloatSocketColor">#ffc66d</Color>
+            <Color x:Key="DoubleSocketColor">#eea55c</Color>
+            <Color x:Key="ColorSocketColor">#8cf2dd</Color>
+            <Color x:Key="PaintableSocketColor">#48b099</Color>
+            <Color x:Key="VecDSocketColor">#c984ca</Color>
+            <Color x:Key="Vec3DSocketColor">#597513</Color>
+            <Color x:Key="VecISocketColor">#c9b4ca</Color>
+            <Color x:Key="IntSocketColor">#4C64B1</Color>
+            <Color x:Key="StringSocketColor">#C9E4C6</Color>
+            <Color x:Key="EllipseDataSocketColor">#a473a5</Color>
+            <Color x:Key="PointsDataSocketColor">#e1d0e1</Color>
+            <Color x:Key="TextDataSocketColor">#f2f2f2</Color>
+            <Color x:Key="Matrix3X3SocketColor">#ffea4f</Color>
+            <GradientStops x:Key="ShapeDataSocketGradient">
+                <GradientStop Offset="0" Color="{StaticResource EllipseDataSocketColor}" />
+                <GradientStop Offset="0.33" Color="{StaticResource EllipseDataSocketColor}" />
+                <GradientStop Offset="0.33" Color="{StaticResource TextDataSocketColor}" />
+                <GradientStop Offset="0.66" Color="{StaticResource TextDataSocketColor}" />
+                <GradientStop Offset="0.66" Color="{StaticResource PointsDataSocketColor}" />
+                <GradientStop Offset="1" Color="{StaticResource PointsDataSocketColor}" />
+            </GradientStops>
+
+            <!-- Zones & Frames -->
+            <Color x:Key="PixiEditorModifyImageBorderColor">#68abdf</Color>
+            <Color x:Key="PixiEditorModifyImageNodeBackgroundColor">#4068abdf</Color>
+
+            <Color x:Key="PixiEditorColorEvaluatorBorderColor">#99e4aa</Color>
+            <Color x:Key="PixiEditorColorEvaluatorNodeBackgroundColor">#4099e4aa</Color>
+
+            <Color x:Key="NodeFrameBorderColor">#101010</Color>
+            <Color x:Key="NodeFrameBackgroundColor">#40101010</Color>
+
+            <!-- Categories -->
+            <Color x:Key="ImageCategoryBackgroundColor">#5B7348</Color>
+            <Color x:Key="StructureCategoryBackgroundColor">#735C39</Color>
+            <Color x:Key="FiltersCategoryBackgroundColor">#733535</Color>
+            <Color x:Key="ShapeCategoryBackgroundColor">#654266</Color>
+            <Color x:Key="NumbersCategoryBackgroundColor">#666666</Color>
+            <Color x:Key="ColorCategoryBackgroundColor">#3B665D</Color>
+            <Color x:Key="AnimationCategoryBackgroundColor">#4D4466</Color>
+            <Color x:Key="EffectsCategoryBackgroundColor">#e36262</Color>
+            <Color x:Key="MatrixCategoryBackgroundColor">#9169ff</Color>
+
+            <Color x:Key="HorizontalSnapAxisColor">#B00022</Color>
+            <Color x:Key="VerticalSnapAxisColor">#5fad65</Color>
+            <Color x:Key="SnapPointPreviewColor">#68abdf</Color>
+
+            <Color x:Key="FoundersPurpleColor">#cba3ff</Color>
+
+            <Color x:Key="AutosaveDotColor">white</Color>
+            <Color x:Key="UnsavedDotColor">white</Color>
+
+            <system:Double x:Key="ThemeDisabledOpacity">0.4</system:Double>
+
+            <SolidColorBrush x:Key="ThemeForegroundLowBrush" Color="gray"></SolidColorBrush>
+
+            <SolidColorBrush x:Key="ThemeBackgroundBrush" Color="{StaticResource ThemeBackgroundColor}" />
+            <SolidColorBrush x:Key="ThemeBackgroundTranslucentBrush"
+                             Color="{StaticResource ThemeBackgroundTranslucentColor}" />
+            <SolidColorBrush x:Key="ThemeBackgroundBrush1" Color="{StaticResource ThemeBackgroundColor1}" />
+            <SolidColorBrush x:Key="ThemeBackgroundBrush2" Color="{StaticResource ThemeBackgroundColor2}" />
+            <SolidColorBrush x:Key="ThemeAccentLowBrush" Color="{StaticResource AccentLowColor}" />
+            <SolidColorBrush x:Key="ThemeAccentBrush" Color="{StaticResource AccentColor}" />
+            <SolidColorBrush x:Key="ThemeAccentHighBrush" Color="{StaticResource AccentHighColor}" />
+            <SolidColorBrush x:Key="ThemeAccent2Brush" Color="{StaticResource ThemeAccent2Color}" />
+            <SolidColorBrush x:Key="ThemeAccent3Brush" Color="{StaticResource ThemeAccent3Color}" />
+
+            <SolidColorBrush x:Key="ThemeForegroundBrush" Color="{StaticResource ThemeForegroundColor}" />
+            <SolidColorBrush x:Key="ThemeForegroundSecondaryBrush"
+                             Color="{StaticResource ThemeForegroundSecondaryColor}" />
+
+            <SolidColorBrush x:Key="ThemeControlLowBrush" Color="{StaticResource ThemeControlLowColor}" />
+            <SolidColorBrush x:Key="ThemeControlMidBrush" Color="{StaticResource ThemeControlMidColor}" />
+            <SolidColorBrush x:Key="ThemeControlHighBrush" Color="{StaticResource ThemeControlHighColor}" />
+            <SolidColorBrush x:Key="ThemeControlHighlightBrush" Color="{StaticResource ThemeControlHighlightColor}" />
+            <SolidColorBrush x:Key="ThemeHighlightForegroundBrush" Color="{StaticResource HighlightForegroundColor}" />
+
+            <SolidColorBrush x:Key="ThemeBorderLowBrush" Color="{StaticResource ThemeBorderLowColor}" />
+            <SolidColorBrush x:Key="ThemeBorderMidBrush" Color="{StaticResource ThemeBorderMidColor}" />
+            <SolidColorBrush x:Key="ThemeBorderHighBrush" Color="{StaticResource ThemeBorderHighColor}" />
+
+            <SolidColorBrush x:Key="NotificationCardBackgroundBrush"
+                             Color="{StaticResource NotificationCardBackgroundColor}" />
+
+            <SolidColorBrush x:Key="ErrorBrush" Color="{StaticResource ErrorColor}" />
+            <SolidColorBrush x:Key="ErrorOnDarkBrush" Color="{StaticResource ErrorOnDarkColor}" />
+            <SolidColorBrush x:Key="GlyphBrush" Color="{StaticResource GlyphColor}" />
+            <SolidColorBrush x:Key="ThumbBrush" Color="{StaticResource ThumbColor}" />
+
+            <SolidColorBrush x:Key="SelectionFillBrush" Color="{StaticResource SelectionFillColor}" />
+
+            <!--                           -->
+            <!--     <| Node Brushes |>    -->
+            <!--                           -->
+
+            <!-- Sockets -->
+            <SolidColorBrush x:Key="DefaultSocketBrush" Color="{StaticResource DefaultSocketColor}" />
+            <SolidColorBrush x:Key="TextureSocketBrush" Color="{StaticResource ImageSocketColor}" />
+            <SolidColorBrush x:Key="PainterSocketBrush" Color="{StaticResource PainterSocketColor}" />
+            <SolidColorBrush x:Key="FilterSocketBrush" Color="{StaticResource FilterSocketColor}" />
+            <SolidColorBrush x:Key="TextureSamplerSocketBrush" Color="{StaticResource ImageSocketColor}" />
+            <SolidColorBrush x:Key="BooleanSocketBrush" Color="{StaticResource BoolSocketColor}" />
+            <SolidColorBrush x:Key="SingleSocketBrush" Color="{StaticResource FloatSocketColor}" />
+            <SolidColorBrush x:Key="DoubleSocketBrush" Color="{StaticResource DoubleSocketColor}" />
+            <SolidColorBrush x:Key="Float1SocketBrush" Color="{StaticResource DoubleSocketColor}" />
+            <SolidColorBrush x:Key="ColorSocketBrush" Color="{StaticResource ColorSocketColor}" />
+            <SolidColorBrush x:Key="PaintableSocketBrush" Color="{StaticResource PaintableSocketColor}" />
+            <SolidColorBrush x:Key="Half4SocketBrush" Color="{StaticResource ColorSocketColor}" />
+            <SolidColorBrush x:Key="VecDSocketBrush" Color="{StaticResource VecDSocketColor}" />
+            <SolidColorBrush x:Key="Vec3DSocketBrush" Color="{StaticResource Vec3DSocketColor}" />
+            <SolidColorBrush x:Key="Float2SocketBrush" Color="{StaticResource VecDSocketColor}" />
+            <SolidColorBrush x:Key="VecISocketBrush" Color="{StaticResource VecISocketColor}" />
+            <SolidColorBrush x:Key="Int2SocketBrush" Color="{StaticResource VecISocketColor}" />
+            <SolidColorBrush x:Key="Int32SocketBrush" Color="{StaticResource IntSocketColor}" />
+            <SolidColorBrush x:Key="Int1SocketBrush" Color="{StaticResource IntSocketColor}" />
+            <SolidColorBrush x:Key="StringSocketBrush" Color="{StaticResource StringSocketColor}" />
+            <SolidColorBrush x:Key="Matrix3X3SocketBrush" Color="{StaticResource Matrix3X3SocketColor}" />
+            <SolidColorBrush x:Key="Float3x3SocketBrush" Color="{StaticResource Matrix3X3SocketColor}" />
+
+            <SolidColorBrush x:Key="FoundersPurpleBrush" Color="{StaticResource FoundersPurpleColor}" />
+
+            <ConicGradientBrush x:Key="ShapeVectorDataSocketBrush"
+                                GradientStops="{StaticResource ShapeDataSocketGradient}" />
+            <SolidColorBrush x:Key="EllipseVectorDataSocketBrush" Color="{StaticResource EllipseDataSocketColor}" />
+            <SolidColorBrush x:Key="PointsVectorDataSocketBrush" Color="{StaticResource PointsDataSocketColor}" />
+            <SolidColorBrush x:Key="TextVectorDataSocketBrush" Color="{StaticResource TextDataSocketColor}" />
+
+            <!-- Zones & Frames -->
+            <SolidColorBrush x:Key="PixiEditorModifyImageLeftBorderBrush"
+                             Color="{StaticResource PixiEditorModifyImageBorderColor}" />
+            <SolidColorBrush x:Key="PixiEditorModifyImageRightBorderBrush"
+                             Color="{StaticResource PixiEditorModifyImageBorderColor}" />
+            <SolidColorBrush x:Key="PixiEditorModifyImageZoneBorderBrush"
+                             Color="{StaticResource PixiEditorModifyImageBorderColor}" />
+            <SolidColorBrush x:Key="PixiEditorModifyImageZoneBackgroundBrush"
+                             Color="{StaticResource PixiEditorModifyImageNodeBackgroundColor}" />
+
+            <SolidColorBrush x:Key="PixiEditorColorEvaluatorLeftBorderBrush"
+                             Color="{StaticResource PixiEditorColorEvaluatorBorderColor}" />
+            <SolidColorBrush x:Key="PixiEditorColorEvaluatorRightBorderBrush"
+                             Color="{StaticResource PixiEditorColorEvaluatorBorderColor}" />
+            <SolidColorBrush x:Key="PixiEditorColorEvaluatorZoneBorderBrush"
+                             Color="{StaticResource PixiEditorColorEvaluatorBorderColor}" />
+            <SolidColorBrush x:Key="PixiEditorColorEvaluatorZoneBackgroundBrush"
+                             Color="{StaticResource PixiEditorColorEvaluatorNodeBackgroundColor}" />
+
+            <SolidColorBrush x:Key="NodeFrameBorderBrush" Color="{StaticResource NodeFrameBorderColor}" />
+            <SolidColorBrush x:Key="NodeFrameBackgroundBrush" Color="{StaticResource NodeFrameBackgroundColor}" />
+
+            <!-- Categories -->
+            <SolidColorBrush x:Key="ImageCategoryBackgroundBrush" Color="{StaticResource ImageCategoryBackgroundColor}" />
+            <SolidColorBrush x:Key="StructureCategoryBackgroundBrush"
+                             Color="{StaticResource StructureCategoryBackgroundColor}" />
+            <SolidColorBrush x:Key="FiltersCategoryBackgroundBrush"
+                             Color="{StaticResource FiltersCategoryBackgroundColor}" />
+            <SolidColorBrush x:Key="ShapeCategoryBackgroundBrush" Color="{StaticResource ShapeCategoryBackgroundColor}" />
+            <SolidColorBrush x:Key="NumbersCategoryBackgroundBrush"
+                             Color="{StaticResource NumbersCategoryBackgroundColor}" />
+            <SolidColorBrush x:Key="ColorCategoryBackgroundBrush" Color="{StaticResource ColorCategoryBackgroundColor}" />
+            <SolidColorBrush x:Key="AnimationCategoryBackgroundBrush"
+                             Color="{StaticResource AnimationCategoryBackgroundColor}" />
+            <SolidColorBrush x:Key="EffectsCategoryBackgroundBrush"
+                             Color="{StaticResource EffectsCategoryBackgroundColor}" />
+            <SolidColorBrush x:Key="MatrixCategoryBackgroundBrush"
+                             Color="{StaticResource MatrixCategoryBackgroundColor}" />
+
+            <SolidColorBrush x:Key="HorizontalSnapAxisBrush" Color="{StaticResource HorizontalSnapAxisColor}" />
+            <SolidColorBrush x:Key="VerticalSnapAxisBrush" Color="{StaticResource VerticalSnapAxisColor}" />
+            <SolidColorBrush x:Key="SnapPointPreviewBrush" Color="{StaticResource SnapPointPreviewColor}" />
+
+            <CornerRadius x:Key="ControlCornerRadius">5</CornerRadius>
+            <CornerRadius x:Key="ControlCornerRadiusTop">5, 5, 0, 0</CornerRadius>
+            <system:Double x:Key="ControlCornerRadiusValue">5</system:Double>
+            <Thickness x:Key="ThemeBorderThickness">1</Thickness>
+            <system:Double x:Key="ScrollBarThickness">12</system:Double>
+            <system:Double x:Key="ScrollBarThumbThickness">8</system:Double>
+
+            <SolidColorBrush x:Key="DockApplicationAccentBrushLow" Color="{DynamicResource AccentLowColor}" />
+            <SolidColorBrush x:Key="DockApplicationAccentBrushMed" Color="{DynamicResource AccentColor}" />
+            <SolidColorBrush x:Key="DockApplicationAccentBrushHigh" Color="{DynamicResource AccentHighColor}" />
+            <SolidColorBrush x:Key="DockApplicationAccentForegroundBrush"
+                             Color="{DynamicResource ThemeForegroundColor}" />
+            <SolidColorBrush x:Key="DockApplicationAccentBrushIndicator" Color="{DynamicResource AccentColor}" />
+
+            <SolidColorBrush x:Key="UnsavedDotBrush" Color="{DynamicResource UnsavedDotColor}" />
+            <SolidColorBrush x:Key="AutosaveDotBrush" Color="{DynamicResource AutosaveDotColor}" />
+
+            <SolidColorBrush x:Key="DockThemeBorderLowBrush" Color="{DynamicResource ThemeBorderMidColor}" />
+            <SolidColorBrush x:Key="DockThemeBackgroundBrush" Color="{DynamicResource ThemeBackgroundColor}" />
+            <SolidColorBrush x:Key="DockThemeAccentBrush" Color="{DynamicResource ThemeAccentColor}" />
+            <SolidColorBrush x:Key="DockThemeForegroundBrush" Color="{DynamicResource ThemeForegroundColor}" />
+            <SolidColorBrush x:Key="DockThemeControlBackgroundBrush" Color="{DynamicResource ThemeBackground1Color}" />
+            <system:Double x:Key="DockFontSizeNormal">12</system:Double>
+
+            <system:Double x:Key="FontSizeSmall">10</system:Double>
+            <system:Double x:Key="FontSizeNormal">12</system:Double>
+            <system:Double x:Key="FontSizeLarge">16</system:Double>
+
+            <system:Double x:Key="Header0">40</system:Double>
+            <system:Double x:Key="Header1">32</system:Double>
+            <system:Double x:Key="Header2">26</system:Double>
+            <system:Double x:Key="Header3">22</system:Double>
+            <system:Double x:Key="Header4">20</system:Double>
+            <system:Double x:Key="Header5">16</system:Double>
+        </ResourceDictionary>
+    </ResourceDictionary.ThemeDictionaries>
+
+
+    <FontFamily x:Key="ContentControlThemeFontFamily">$Default</FontFamily>
+    <SolidColorBrush x:Key="RefreshVisualizerBackground">Pink</SolidColorBrush>
+    <SolidColorBrush x:Key="RefreshVisualizerForeground">White</SolidColorBrush>
+
+</ResourceDictionary>

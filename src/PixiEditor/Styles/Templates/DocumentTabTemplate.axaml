@@ -1,0 +1,55 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="clr-namespace:PixiDocks.Avalonia.Controls"
+                    xmlns:docking="clr-namespace:PixiDocks.Core.Docking;assembly=PixiDocks.Core"
+                    xmlns:dock="clr-namespace:PixiEditor.ViewModels.Dock"
+                    xmlns:helpers="clr-namespace:PixiDocks.Avalonia.Helpers;assembly=PixiDocks.Avalonia"
+                    xmlns:converters="clr-namespace:PixiDocks.Avalonia.Converters;assembly=PixiDocks.Avalonia">
+
+    <DataTemplate DataType="dock:DocumentTabCustomizationSettings"
+                  x:Key="{x:Type dock:DocumentTabCustomizationSettings}">
+        <Grid Margin="5, 0">
+            <Grid.Resources>
+                <helpers:ConditionToSizeConverter x:Key="ConditionToSizeConverter" />
+                <converters:ValidImageIconConverter x:Key="ValidIconConverter" />
+                <converters:SourceToImageConverter x:Key="SourceToImageConverter" />
+                <converters:ControlIconConverter x:Key="ControlIconConverter" />
+            </Grid.Resources>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition
+                    Width="{Binding Icon,
+                Converter={StaticResource ConditionToSizeConverter}, ConverterParameter=20}" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition
+                    Width="{Binding ShowUnsavedDot,
+                Converter={StaticResource ConditionToSizeConverter}, ConverterParameter=8}" />
+                <ColumnDefinition
+                    Width="{Binding ShowCloseButton,
+                Converter={StaticResource ConditionToSizeConverter}, ConverterParameter=20}" />
+            </Grid.ColumnDefinitions>
+            <Image IsVisible="{Binding Icon, Converter={StaticResource ValidIconConverter}}"
+                   Source="{Binding Icon, Converter={StaticResource SourceToImageConverter}}"
+                   VerticalAlignment="Center"
+                   RenderOptions.BitmapInterpolationMode="None"
+                   DockPanel.Dock="Left" Width="16" Height="16" />
+            <ContentPresenter
+                Grid.Column="0" VerticalAlignment="Center"
+                DockPanel.Dock="Left" Width="16" Height="16"
+                Content="{Binding Icon}"
+                IsVisible="{Binding Icon, Converter={StaticResource ControlIconConverter}}"/>
+                <TextBlock Grid.Column="1" Padding="5" DockPanel.Dock="Left"
+                           Foreground="{DynamicResource ThemeForegroundBrush}"
+                           VerticalAlignment="Center"
+                           Text="{Binding $parent[ContentControl].Tag.Title, FallbackValue=TITLE}" />
+                <Ellipse Grid.Column="2" Width="5" Height="5"
+                         Fill="{Binding SavedStateColor}"
+                         IsVisible="{Binding ShowUnsavedDot}" />
+                <Button Grid.Column="3" Classes="CloseTabButton"
+                        Height="16" Width="16" Margin="5, 0, 0, 0"
+                        VerticalAlignment="Center"
+                        Command="{Binding $parent[ContentControl].Tag.CloseDockable}"
+                        IsVisible="{Binding ShowCloseButton}"
+                        IsEnabled="{Binding $parent[ContentControl].Tag.CanClose}" />
+        </Grid>
+    </DataTemplate>
+</ResourceDictionary>

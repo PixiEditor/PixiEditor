@@ -1,0 +1,70 @@
+﻿<UserControl x:Class="PixiEditor.Views.Palettes.PaletteColorControl"
+             x:ClassModifier="internal"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:palettes1="clr-namespace:PixiEditor.Views.Palettes"
+             mc:Ignorable="d"
+             d:DesignHeight="45" d:DesignWidth="45"
+             x:Name="uc"
+             PointerPressed="PaletteColor_OnMouseDown"
+             PointerMoved="PaletteColor_OnMouseMove"
+             PointerReleased="PaletteColor_OnMouseUp">
+    <UserControl.Styles>
+        <Style Selector="palettes1|PaletteColorControl">
+            <Setter Property="Width" Value="36"/>
+            <Setter Property="Height" Value="36"/>
+        </Style>
+        <Style Selector="Grid#mainGrid">
+            <Setter Property="Margin" Value="0"/>
+        </Style>
+        <Style Selector="Grid#mainGrid.isSelected">
+            <Setter Property="Margin" Value="3"/>
+        </Style>
+        <Style Selector="Grid#mainGrid.isSelectedSecondary">
+            <Setter Property="Margin" Value="3"/>
+        </Style>
+        <Style Selector="Border.highlight.isSelectedSecondary">
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccent3Brush}"/>
+        </Style>
+        <Style Selector="Border.highlight.isSelected">
+            <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccent2Brush}"/>
+            <Setter Property="BorderThickness" Value="2"/>
+        </Style>
+    </UserControl.Styles>
+    <Panel Width="{Binding ElementName=uc, Path=Width}" Height="{Binding ElementName=uc, Path=Height}">
+    <Grid
+        Classes.isSelected="{Binding IsSelected, ElementName=uc}"
+        Classes.isSelectedSecondary="{Binding IsSelectedSecondary, ElementName=uc}"
+        Name="mainGrid">
+        <Border CornerRadius="{Binding ElementName=uc, Path=CornerRadius}"
+                RenderOptions.BitmapInterpolationMode="None">
+            <Border.Background>
+                <VisualBrush>
+                    <VisualBrush.Visual>
+                        <Image Source="/Images/CheckerTile.png" RenderOptions.BitmapInterpolationMode="None"/>
+                    </VisualBrush.Visual>
+                </VisualBrush>
+            </Border.Background>
+        </Border>
+        <Border BorderBrush="White" BorderThickness="0, 0, 0, 0.1" CornerRadius="{Binding ElementName=uc, Path=CornerRadius}">
+            <Border.Background>
+                <SolidColorBrush Color="{Binding Color, Converter={converters:GenericColorToMediaColorConverter}, ElementName=uc}" />
+            </Border.Background>
+        </Border>
+        <Border HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="15" Margin="0 0 0 -1"
+                IsVisible="{Binding ElementName=uc, Path=AssociatedKey, Converter={converters:NotNullToVisibilityConverter}}"
+                Background="{DynamicResource ThemeBackgroundBrush1}" CornerRadius="3.5 0 3.5 0">
+            <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Center" Margin="1 0 0 0"
+                                        Text="{Binding AssociatedKey, ElementName=uc}"/>
+        </Border>
+    </Grid>
+    <Border Classes="highlight"
+            CornerRadius="{Binding ElementName=uc, Path=CornerRadius}"
+            Classes.isSelected="{Binding IsSelected, ElementName=uc}"
+            Classes.isSelectedSecondary="{Binding IsSelectedSecondary, ElementName=uc}"/>
+    </Panel>
+</UserControl>

@@ -1,31 +1,32 @@
-﻿using System.Windows;
-using Microsoft.Xaml.Behaviors;
+﻿using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Interactivity;
+using Avalonia.Xaml.Interactivity;
 using PixiEditor.Models.Controllers;
 
 namespace PixiEditor.Helpers.Behaviours;
 
-internal class ClearFocusOnClickBehavior : Behavior<FrameworkElement>
+internal class ClearFocusOnClickBehavior : Behavior<Control>
 {
     protected override void OnAttached()
     {
         base.OnAttached();
-        AssociatedObject.MouseDown += AssociatedObject_MouseDown;
-        AssociatedObject.LostKeyboardFocus += AssociatedObject_LostKeyboardFocus;
+        AssociatedObject.AddHandler(InputElement.PointerPressedEvent, AssociatedObject_MouseDown);
+        AssociatedObject.AddHandler(InputElement.LostFocusEvent, AssociatedObject_LostFocus);
     }
 
-    private void AssociatedObject_LostKeyboardFocus(object sender, System.Windows.Input.KeyboardFocusChangedEventArgs e)
+    private void AssociatedObject_LostFocus(object? sender, RoutedEventArgs? e)
     {
-
     }
 
     protected override void OnDetaching()
     {
-        AssociatedObject.MouseDown -= AssociatedObject_MouseDown;
+        AssociatedObject.RemoveHandler(InputElement.PointerPressedEvent, AssociatedObject_MouseDown);
     }
 
-    private void AssociatedObject_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    private void AssociatedObject_MouseDown(object? sender, PointerPressedEventArgs? e)
     {
-        AssociatedObject.Focus();
+        AssociatedObject?.Focus();
         ShortcutController.UnblockShortcutExecutionAll();
     }
 }

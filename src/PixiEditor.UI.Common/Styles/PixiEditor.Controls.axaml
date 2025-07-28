@@ -1,0 +1,79 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Styles.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/ContentControl.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/Window.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/Button.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/CheckBox.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/RadioButton.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/TextBox.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/ComboBox.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/ComboBoxItem.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/ScrollViewer.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/ScrolLBar.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/ToggleButton.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/PopupRoot.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/RepeatButton.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/ProgressBar.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/Slider.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/ToolTip.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/Separator.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/TitleBar.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/ContextMenu.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/Menu.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/MenuItem.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/ListBox.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/ListBoxItem.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/NotificationCard.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/AdornerLayer.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/AutoCompleteBox.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/ButtonSpinner.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/Calendar.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/CalendarButton.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/CalendarDatePicker.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/CalendarItem.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/CaptionButtons.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/Carousel.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/DataValidationErrors.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/DatePicker.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/DatePickerShared.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/DropDownButton.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/EmbeddableControlRoot.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/Expander.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/FlyoutPresenter.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/GridSplitter.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/ItemsControl.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/Label.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/ManagedFileChooser.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/MenuFlyoutPresenter.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/NativeMenuBar.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/NumericUpDown.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/OverlayPopupHost.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/PathIcon.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/RefreshContainer.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/RefreshVisualizer.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/SelectableTextBlock.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/SplitButton.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/SplitView.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/TabControl.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/TabItem.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/TabStrip.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/TabStripItem.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/ThemeVariantScope.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/TimePicker.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/ToggleSwitch.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/TransitioningContentControl.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/TreeView.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/TreeViewItem.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/WindowNotificationManager.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/Shelf.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/ToggleableMenuItem.axaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Styles.Resources>
+
+    <StyleInclude Source="avares://PixiEditor.UI.Common/Controls/UserControl.axaml" />
+</Styles>

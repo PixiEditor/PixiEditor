@@ -1,4 +1,6 @@
-﻿namespace PixiEditor.Helpers.Extensions;
+﻿using System.Collections.Generic;
+
+namespace PixiEditor.Helpers.Extensions;
 
 internal static class DictionaryHelper
 {

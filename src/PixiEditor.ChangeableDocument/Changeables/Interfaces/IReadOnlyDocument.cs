@@ -1,19 +1,27 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Rendering;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces.ImageData;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Interfaces;
 
-public interface IReadOnlyDocument
+public interface IReadOnlyDocument : IDisposable
 {    
+    public Guid DocumentId { get; }
     /// <summary>
     /// The root folder of the document
     /// </summary>
-    IReadOnlyFolder StructureRoot { get; }
+    IReadOnlyNodeGraph NodeGraph { get; }
 
     /// <summary>
     /// The selection of the document
     /// </summary>
     IReadOnlySelection Selection { get; }
+    
+    IReadOnlyAnimationData AnimationData { get; }
 
     /// <summary>
     /// The size of the document
@@ -39,20 +47,22 @@ public interface IReadOnlyDocument
     /// The position of the vertical symmetry axis (Mirrors left and right)
     /// </summary>
     double VerticalSymmetryAxisX { get; }
-
+    
     /// <summary>
     /// Performs the specified action on each readonly member of the document
     /// </summary>
-    void ForEveryReadonlyMember(Action<IReadOnlyStructureMember> action);
+    void ForEveryReadonlyMember(Action<IReadOnlyStructureNode> action);
     
-    public Surface? GetLayerImage(Guid layerGuid);
-    public RectI? GetChunkAlignedLayerBounds(Guid layerGuid);
+    public Image? GetLayerRasterizedImage(Guid layerGuid, int frame);
+    public RectI? GetChunkAlignedLayerBounds(Guid layerGuid, int frame);
 
+    IReadOnlyNode FindNode(Guid guid);
+    
     /// <summary>
     /// Finds the member with the <paramref name="guid"/> or returns null if not found
     /// </summary>
-    /// <param name="guid">The <see cref="IReadOnlyStructureMember.GuidValue"/> of the member</param>
-    IReadOnlyStructureMember? FindMember(Guid guid);
+    /// <param name="guid">The <see cref="IReadOnlyStructureNode.GuidValue"/> of the member</param>
+    IReadOnlyStructureNode? FindMember(Guid guid);
 
     /// <summary>
     /// Tries finding the member with the <paramref name="guid"/> of type <typeparamref name="T"/> and returns true if it was found
@@ -60,7 +70,7 @@ public interface IReadOnlyDocument
     /// <param name="guid">The <see cref="StructureMember.GuidValue"/> of the <paramref name="member"/></param>
     /// <param name="member">The member</param>
     /// <returns>True if the member could be found, otherwise false</returns>
-    bool TryFindMember<T>(Guid guid, [NotNullWhen(true)] out T? member) where T : IReadOnlyStructureMember;
+    bool TryFindMember<T>(Guid guid, [NotNullWhen(true)] out T? member) where T : IReadOnlyStructureNode;
 
     /// <summary>
     /// Tries finding the member with the <paramref name="guid"/> and returns true if it was found
@@ -68,27 +78,32 @@ public interface IReadOnlyDocument
     /// <param name="guid">The <see cref="StructureMember.GuidValue"/> of the <paramref name="member"/></param>
     /// <param name="member">The member</param>
     /// <returns>True if the member could be found, otherwise false</returns>
-    bool TryFindMember(Guid guid, [NotNullWhen(true)] out IReadOnlyStructureMember? member);
+    bool TryFindMember(Guid guid, [NotNullWhen(true)] out IReadOnlyStructureNode? member);
 
     /// <summary>
     /// Finds the member with the <paramref name="guid"/> or throws a ArgumentException if not found
     /// </summary>
     /// <param name="guid">The <see cref="StructureMember.GuidValue"/> of the member</param>
     /// <exception cref="ArgumentException">Thrown if the member could not be found</exception>
-    IReadOnlyStructureMember FindMemberOrThrow(Guid guid);
+    IReadOnlyStructureNode FindMemberOrThrow(Guid guid);
 
     /// <summary>
     /// Finds a member with the <paramref name="childGuid"/>  and its parent, throws a ArgumentException if they can't be found
     /// </summary>
-    /// <param name="childGuid">The <see cref="IReadOnlyStructureMember.GuidValue"/> of the member</param>
+    /// <param name="childGuid">The <see cref="IReadOnlyStructureNode.GuidValue"/> of the member</param>
     /// <returns>A value tuple consisting of child (<see cref="ValueTuple{T, T}.Item1"/>) and parent (<see cref="ValueTuple{T, T}.Item2"/>)</returns>
     /// <exception cref="ArgumentException">Thrown if the member and parent could not be found</exception>
-    (IReadOnlyStructureMember, IReadOnlyFolder) FindChildAndParentOrThrow(Guid childGuid);
+    (IReadOnlyStructureNode, IReadOnlyNode) FindChildAndParentOrThrow(Guid childGuid);
 
     /// <summary>
     /// Finds the path to the member with <paramref name="guid"/>, the first element will be the member
     /// </summary>
-    /// <param name="guid">The <see cref="IReadOnlyStructureMember.GuidValue"/> of the member</param>
-    IReadOnlyList<IReadOnlyStructureMember> FindMemberPath(Guid guid);
+    /// <param name="guid">The <see cref="IReadOnlyStructureNode.GuidValue"/> of the member</param>
+    IReadOnlyList<IReadOnlyStructureNode> FindMemberPath(Guid guid);
     IReadOnlyReferenceLayer? ReferenceLayer { get; }
+    public DocumentRenderer Renderer { get; }
+    public ColorSpace ProcessingColorSpace { get; }
+    public void InitProcessingColorSpace(ColorSpace processingColorSpace);
+    public List<IReadOnlyStructureNode> GetParents(Guid memberGuid);
+    public ICrossDocumentPipe<T> CreateNodePipe<T>(Guid layerId) where T : class, IReadOnlyNode;
 }

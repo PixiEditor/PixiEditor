@@ -1,37 +1,84 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-    </PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RuntimeIdentifiers>win-x64;win-arm64;linux-x64;linux-arm64;osx-x64;osx-arm64</RuntimeIdentifiers>
+  </PropertyGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\PixiEditor.Platform\PixiEditor.Platform.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <PackageReference Include="Steamworks.NET" Version="20.1.0" />
-    </ItemGroup>
-
-  <ItemGroup Condition="'$(Platform)' == 'x86'">
-    <None Update="steam_api.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+  <ItemGroup>
+    <ProjectReference Include="..\PixiEditor.Platform\PixiEditor.Platform.csproj"/>
   </ItemGroup>
 
-  <ItemGroup Condition="'$(Platform)' == 'AnyCPU'">
-    <None Update="steam_api.dll">
+  <ItemGroup>
+    <PackageReference Include="SkiaSharp" Version="3.116.1" />
+    <PackageReference Include="Steamworks.NET" Version="2024.8.0" />
+  </ItemGroup>
+  
+  <ItemGroup Condition="'$(RuntimeIdentifier)'=='win-x64'">
+    <None Include="Windows-x64\steam_api64.dll">
+      <Link>steam_api64.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="steam_api64.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <None Include="Windows-x64\Steamworks.NET.dll">
+      <Link>Steamworks.NET.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
-  <ItemGroup Condition="'$(Platform)' == 'x64'">
-    <None Update="steam_api64.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+  <ItemGroup Condition="'$(RuntimeIdentifier)'=='win-arm64'">
+    <None Include="Windows-arm64\steam_api64.dll">
+      <Link>steam_api64.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Windows-arm64\Steamworks.NET.dll">
+      <Link>Steamworks.NET.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(RuntimeIdentifier)'=='linux-x64'">
+    <None Include="OSX-Linux-x64/libsteam_api.so">
+      <Link>libsteam_api.so</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="OSX-Linux-x64/Steamworks.NET.dll">
+      <Link>Steamworks.NET.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(RuntimeIdentifier)'=='linux-arm64'">
+    <None Include="OSX-Linux-x64/libsteam_api.so">
+      <Link>libsteam_api.so</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="OSX-Linux-x64/Steamworks.NET.dll">
+      <Link>Steamworks.NET.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(RuntimeIdentifier)'=='osx-x64'">
+    <None Include="OSX-Linux-x64/steam_api.bundle">
+      <Link>steam_api.bundle</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="OSX-Linux-x64/Steamworks.NET.dll">
+      <Link>Steamworks.NET.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(RuntimeIdentifier)'=='osx-arm64'">
+    <None Include="OSX-Linux-x64/steam_api.bundle">
+      <Link>steam_api.bundle</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="OSX-Linux-x64/Steamworks.NET.dll">
+      <Link>Steamworks.NET.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

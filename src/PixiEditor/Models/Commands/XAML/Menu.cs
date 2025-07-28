@@ -1,35 +1,37 @@
-﻿using System.ComponentModel;
-using System.Windows;
-using System.Windows.Controls;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Layout;
+using Avalonia.Media;
+using Avalonia.Media.Imaging;
 using PixiEditor.Helpers;
-using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Commands.CommandContext;
+using PixiEditor.Models.Input;
 
 namespace PixiEditor.Models.Commands.XAML;
 
-internal class Menu : System.Windows.Controls.Menu
+internal class Menu : global::Avalonia.Controls.Menu
 {
-    public static readonly DependencyProperty CommandNameProperty =
-        DependencyProperty.RegisterAttached(
-            "Command",
-            typeof(string),
-            typeof(Menu),
-            new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender, CommandChanged)
-        );
-
-    public const double IconDimensions = 21;
+    public const double IconDimensions = 18;
+    public const double IconFontSize = 18;
     
-    public static string GetCommand(UIElement target) => (string)target.GetValue(CommandNameProperty);
+    public static readonly AttachedProperty<string> CommandProperty =
+        AvaloniaProperty.RegisterAttached<Menu, MenuItem, string>(nameof(Command));
 
-    public static void SetCommand(UIElement target, string value) => target.SetValue(CommandNameProperty, value);
-
-    public static void CommandChanged(object sender, DependencyPropertyChangedEventArgs e)
+    static Menu()
     {
-        if (e.NewValue is not string value || sender is not MenuItem item)
+        CommandProperty.Changed.Subscribe(CommandChanged);
+    }
+    public static string GetCommand(MenuItem menu) => (string)menu.GetValue(CommandProperty);
+    public static void SetCommand(MenuItem menu, string value) => menu.SetValue(CommandProperty, value);
+
+    public static async void CommandChanged(AvaloniaPropertyChangedEventArgs e) //TODO: Validate async void works
+    {
+        if (e.NewValue is not string value || e.Sender is not MenuItem item)
         {
             throw new InvalidOperationException($"{nameof(Menu)}.Command only works for MenuItem's");
         }
 
-        if (DesignerProperties.GetIsInDesignMode(sender as DependencyObject))
+        if (Design.IsDesignMode)
         {
             HandleDesignMode(item, value);
             return;
@@ -37,29 +39,25 @@ internal class Menu : System.Windows.Controls.Menu
 
         var command = CommandController.Current.Commands[value];
 
-        var icon = new Image 
-        { 
-            Source = command.GetIcon(), 
-            Width = IconDimensions, Height = IconDimensions,
-            Opacity = command.CanExecute() ? 1 : 0.75
-        };
-        
-        icon.IsVisibleChanged += (_, v) =>
+        bool canExecute = command.CanExecute();
+
+        var icon = new Image
         {
-            if ((bool)v.NewValue)
-            {
-                icon.Opacity = command.CanExecute() ? 1 : 0.75;
-            }
+            Source = command.GetIcon(),
+            Width = IconDimensions, Height = IconDimensions,
+            Stretch = Stretch.Uniform,
+            VerticalAlignment = VerticalAlignment.Center,
+            HorizontalAlignment = HorizontalAlignment.Center,
         };
 
-        item.Command = Command.GetICommand(command, false);
+        item.Command = Command.GetICommand(command, new MenuSourceInfo(MenuType.Menu), false);
         item.Icon = icon;
-        item.SetBinding(MenuItem.InputGestureTextProperty, ShortcutBinding.GetBinding(command, null));
+        item.Bind(MenuItem.InputGestureProperty, ShortcutBinding.GetBinding(command, null, true));
     }
 
     private static void HandleDesignMode(MenuItem item, string name)
     {
         var command = DesignCommandHelpers.GetCommandAttribute(name);
-        item.InputGestureText = new KeyCombination(command.Key, command.Modifiers).ToString();
+        item.InputGesture = new KeyCombination(command.Key, command.Modifiers).ToKeyGesture();
     }
 }

@@ -1,10 +1,13 @@
 ﻿using ChunkyImageLib.Operations;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
-using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
-using PixiEditor.DrawingApi.Core.Surface.Vector;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.ImageData;
+using Drawie.Backend.Core.Vector;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing.FloodFill;
 
@@ -18,17 +21,21 @@ public static class FloodFillHelper
     private static readonly VecI Left = new VecI(-1, 0);
     private static readonly VecI Right = new VecI(1, 0);
 
-    internal static FloodFillChunkCache CreateCache(HashSet<Guid> membersToFloodFill, IReadOnlyDocument document)
+    internal static FloodFillChunkCache CreateCache(HashSet<Guid> membersToFloodFill, IReadOnlyDocument document,
+        int frame)
     {
         if (membersToFloodFill.Count == 1)
         {
             Guid guid = membersToFloodFill.First();
             var member = document.FindMemberOrThrow(guid);
-            if (member is IReadOnlyFolder folder)
-                return new FloodFillChunkCache(membersToFloodFill, document.StructureRoot);
-            return new FloodFillChunkCache(((IReadOnlyLayer)member).LayerImage);
+            if (member is IReadOnlyFolderNode)
+                return new FloodFillChunkCache(membersToFloodFill, document, frame);
+            if (member is not IReadOnlyImageNode rasterLayer)
+                throw new InvalidOperationException("Member is not a raster layer");
+            return new FloodFillChunkCache(rasterLayer.GetLayerImageAtFrame(frame));
         }
-        return new FloodFillChunkCache(membersToFloodFill, document.StructureRoot);
+
+        return new FloodFillChunkCache(membersToFloodFill, document, frame);
     }
 
     public static Dictionary<VecI, Chunk> FloodFill(
@@ -36,32 +43,50 @@ public static class FloodFillHelper
         IReadOnlyDocument document,
         VectorPath? selection,
         VecI startingPos,
-        Color drawingColor)
+        Color drawingColor,
+        float tolerance,
+        int frame, bool lockTransparency)
     {
         if (selection is not null && !selection.Contains(startingPos.X + 0.5f, startingPos.Y + 0.5f))
             return new();
 
         int chunkSize = ChunkResolution.Full.PixelSize();
 
-        FloodFillChunkCache cache = CreateCache(membersToFloodFill, document);
+        FloodFillChunkCache cache = CreateCache(membersToFloodFill, document, frame);
 
         VecI initChunkPos = OperationHelper.GetChunkPos(startingPos, chunkSize);
         VecI imageSizeInChunks = (VecI)(document.Size / (double)chunkSize).Ceiling();
         VecI initPosOnChunk = startingPos - initChunkPos * chunkSize;
-        Color colorToReplace = cache.GetChunk(initChunkPos).Match(
-            (Chunk chunk) => chunk.Surface.GetSRGBPixel(initPosOnChunk),
+        var chunkAtPos = cache.GetChunk(initChunkPos);
+        Color colorToReplace = chunkAtPos.Match(
+            (Chunk chunk) => chunk.Surface.GetRawPixel(initPosOnChunk),
             static (EmptyChunk _) => Colors.Transparent
         );
 
-        if ((drawingColor.A == 0) || colorToReplace == drawingColor)
+        ulong uLongColor = drawingColor.ToULong();
+        Color colorSpaceCorrectedColor = drawingColor;
+        if (!document.ProcessingColorSpace.IsSrgb)
+        {
+            var srgbTransform = ColorSpace.CreateSrgb().GetTransformFunction();
+
+            var fixedColor = drawingColor.TransformColor(srgbTransform);
+            uLongColor = fixedColor.ToULong();
+            colorSpaceCorrectedColor = (Color)fixedColor;
+        }
+
+        if ((colorSpaceCorrectedColor.A == 0) || colorToReplace == colorSpaceCorrectedColor)
             return new();
+
+        if (colorToReplace.A == 0 && lockTransparency)
+        {
+            return new();
+        }
 
         RectI globalSelectionBounds = (RectI?)selection?.TightBounds ?? new RectI(VecI.Zero, document.Size);
 
         // Pre-multiplies the color and convert it to floats. Since floats are imprecise, a range is used.
         // Used for faster pixel checking
-        ColorBounds colorRange = new(colorToReplace);
-        ulong uLongColor = drawingColor.ToULong();
+        ColorBounds colorRange = new(colorToReplace, tolerance);
 
         Dictionary<VecI, Chunk> drawingChunks = new();
         HashSet<VecI> processedEmptyChunks = new();
@@ -77,10 +102,11 @@ public static class FloodFillHelper
 
             if (!drawingChunks.ContainsKey(chunkPos))
             {
-                var chunk = Chunk.Create();
+                var chunk = Chunk.Create(document.ProcessingColorSpace);
                 chunk.Surface.DrawingSurface.Canvas.Clear(Colors.Transparent);
                 drawingChunks[chunkPos] = chunk;
             }
+
             var drawingChunk = drawingChunks[chunkPos];
             var referenceChunk = cache.GetChunk(chunkPos);
 
@@ -89,7 +115,24 @@ public static class FloodFillHelper
             {
                 if (colorToReplace.A == 0 && !processedEmptyChunks.Contains(chunkPos))
                 {
-                    drawingChunk.Surface.DrawingSurface.Canvas.Clear(drawingColor);
+                    int saved = drawingChunk.Surface.DrawingSurface.Canvas.Save();
+                    if (selection is not null && !selection.IsEmpty)
+                    {
+                        using VectorPath localSelection = new VectorPath(selection);
+                        localSelection.Transform(Matrix3X3.CreateTranslation(-chunkPos.X * chunkSize, -chunkPos.Y * chunkSize));
+                        
+                        drawingChunk.Surface.DrawingSurface.Canvas.ClipPath(localSelection);
+                        if (SelectionIntersectsChunk(selection, chunkPos, chunkSize))
+                        {
+                            drawingChunk.Surface.DrawingSurface.Canvas.Clear(drawingColor);
+                        }
+                    }
+                    else
+                    {
+                        drawingChunk.Surface.DrawingSurface.Canvas.Clear(drawingColor);
+                    }
+
+                    drawingChunk.Surface.DrawingSurface.Canvas.RestoreToCount(saved);
                     for (int i = 0; i < chunkSize; i++)
                     {
                         if (chunkPos.Y > 0)
@@ -101,8 +144,10 @@ public static class FloodFillHelper
                         if (chunkPos.X < imageSizeInChunks.X - 1)
                             positionsToFloodFill.Push((new(chunkPos.X + 1, chunkPos.Y), new(0, i)));
                     }
+
                     processedEmptyChunks.Add(chunkPos);
                 }
+
                 continue;
             }
 
@@ -116,7 +161,7 @@ public static class FloodFillHelper
                 chunkPos,
                 chunkSize,
                 uLongColor,
-                drawingColor,
+                colorSpaceCorrectedColor,
                 posOnChunk,
                 colorRange,
                 iter != 0);
@@ -135,6 +180,7 @@ public static class FloodFillHelper
                     positionsToFloodFill.Push((new(chunkPos.X + 1, chunkPos.Y), new(0, i)));
             }
         }
+
         return drawingChunks;
     }
 
@@ -151,9 +197,13 @@ public static class FloodFillHelper
         ColorBounds bounds,
         bool checkFirstPixel)
     {
-        if (referenceChunk.Surface.GetSRGBPixel(pos) == color || drawingChunk.Surface.GetSRGBPixel(pos) == color)
+        // color should be a fixed color
+        if (referenceChunk.Surface.GetRawPixel(pos) == color || drawingChunk.Surface.GetRawPixel(pos) == color)
             return null;
-        if (checkFirstPixel && !bounds.IsWithinBounds(referenceChunk.Surface.GetSRGBPixel(pos)))
+        if (checkFirstPixel && !bounds.IsWithinBounds(referenceChunk.Surface.GetRawPixel(pos)))
+            return null;
+        
+        if(!SelectionIntersectsChunk(selection, chunkPos, chunkSize))
             return null;
 
         byte[] pixelStates = new byte[chunkSize * chunkSize];
@@ -179,22 +229,26 @@ public static class FloodFillHelper
 
             if (curPos.X > 0 && pixelStates[pixelOffset - 1] == InSelection && bounds.IsWithinBounds(refPixel - 4))
                 toVisit.Push(new(curPos.X - 1, curPos.Y));
-            if (curPos.X < chunkSize - 1 && pixelStates[pixelOffset + 1] == InSelection && bounds.IsWithinBounds(refPixel + 4))
+            if (curPos.X < chunkSize - 1 && pixelStates[pixelOffset + 1] == InSelection &&
+                bounds.IsWithinBounds(refPixel + 4))
                 toVisit.Push(new(curPos.X + 1, curPos.Y));
-            if (curPos.Y > 0 && pixelStates[pixelOffset - chunkSize] == InSelection && bounds.IsWithinBounds(refPixel - 4 * chunkSize))
+            if (curPos.Y > 0 && pixelStates[pixelOffset - chunkSize] == InSelection &&
+                bounds.IsWithinBounds(refPixel - 4 * chunkSize))
                 toVisit.Push(new(curPos.X, curPos.Y - 1));
-            if (curPos.Y < chunkSize - 1 && pixelStates[pixelOffset + chunkSize] == InSelection && bounds.IsWithinBounds(refPixel + 4 * chunkSize))
+            if (curPos.Y < chunkSize - 1 && pixelStates[pixelOffset + chunkSize] == InSelection &&
+                bounds.IsWithinBounds(refPixel + 4 * chunkSize))
                 toVisit.Push(new(curPos.X, curPos.Y + 1));
         }
+
         return pixelStates;
     }
 
     public static Surface FillSelection(IReadOnlyDocument document, VectorPath selection)
     {
-        Surface surface = new Surface(document.Size);
+        Surface surface = Surface.ForProcessing(document.Size, document.ProcessingColorSpace);
 
         var inverse = new VectorPath();
-        inverse.AddRect(new RectI(new(0, 0), document.Size));
+        inverse.AddRect((RectD)new RectI(new(0, 0), document.Size));
 
         surface.DrawingSurface.Canvas.Clear(new Color(255, 255, 255, 255));
         surface.DrawingSurface.Canvas.Flush();
@@ -208,27 +262,38 @@ public static class FloodFillHelper
     /// <summary>
     /// Use skia to set all pixels in array that are inside selection to InSelection
     /// </summary>
-    private static unsafe void DrawSelection(byte[] array, VectorPath? selection, RectI globalBounds, VecI chunkPos, int chunkSize)
+    private static unsafe void DrawSelection(byte[] array, VectorPath? selection, RectI globalBounds, VecI chunkPos,
+        int chunkSize)
     {
         if (selection is null)
         {
             selection = new VectorPath();
-            selection.AddRect(globalBounds);
+            selection.AddRect((RectD)globalBounds);
         }
 
         RectI localBounds = globalBounds.Offset(-chunkPos * chunkSize).Intersect(new(0, 0, chunkSize, chunkSize));
         if (localBounds.IsZeroOrNegativeArea)
             return;
-        VectorPath shiftedSelection = new VectorPath(selection);
+        using VectorPath shiftedSelection = new VectorPath(selection);
         shiftedSelection.Transform(Matrix3X3.CreateTranslation(-chunkPos.X * chunkSize, -chunkPos.Y * chunkSize));
 
         fixed (byte* arr = array)
         {
             using DrawingSurface drawingSurface = DrawingSurface.Create(
-                new ImageInfo(localBounds.Right, localBounds.Bottom, ColorType.Gray8, AlphaType.Opaque), (IntPtr)arr, chunkSize);
+                new ImageInfo(localBounds.Right, localBounds.Bottom, ColorType.Gray8, AlphaType.Opaque), (IntPtr)arr,
+                chunkSize);
             drawingSurface.Canvas.ClipPath(shiftedSelection);
             drawingSurface.Canvas.Clear(new Color(InSelection, InSelection, InSelection));
             drawingSurface.Canvas.Flush();
         }
+    }
+    
+    private static bool SelectionIntersectsChunk(VectorPath selection, VecI chunkPos, int chunkSize)
+    {
+        if (selection is null || selection.IsEmpty)
+            return true;
+        
+        RectD chunkBounds = new(chunkPos * chunkSize, new VecI(chunkSize));
+        return selection.Bounds.IntersectsWithInclusive(chunkBounds);
     }
 }

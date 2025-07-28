@@ -1,0 +1,32 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:themes="clr-namespace:PixiEditor.UI.Common.Themes;assembly=PixiEditor.UI.Common"
+             xmlns:avaloniaUi="clr-namespace:PixiEditor"
+             xmlns:avalonia="clr-namespace:PixiDocks.Avalonia;assembly=PixiDocks.Avalonia"
+             xmlns:templates1="clr-namespace:ColorPicker.AvaloniaUI.Templates;assembly=ColorPicker.AvaloniaUI"
+             x:Class="PixiEditor.App"
+             Name="PixiEditor"
+             RequestedThemeVariant="Dark">
+    <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+    <Application.DataTemplates>
+        <avaloniaUi:ViewLocator />
+    </Application.DataTemplates>
+    <Application.Styles>
+        <themes:PixiEditorTheme />
+        <avalonia:PixiDockSimpleTheme />
+        <templates1:PixiPerfectColorPickerTheme />
+        <StyleInclude Source="/Styles/PixiEditor.Controls.axaml" />
+        <StyleInclude Source="/Styles/PixiEditor.Animators.axaml" />
+        <StyleInclude Source="/Styles/PixiEditor.Handles.axaml" />
+        <StyleInclude Source="/Styles/PixiEditor.Layers.axaml" />
+        <StyleInclude Source="/Styles/PixiEditorPopupTemplate.axaml" />
+        <StyleInclude Source="/Styles/Buttons/CaptionButtonsStyle.axaml" />
+    </Application.Styles>
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceInclude Source="/Styles/Templates/ListSwitchButton.axaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

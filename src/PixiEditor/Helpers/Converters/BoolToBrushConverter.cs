@@ -1,29 +1,30 @@
-﻿using System.Globalization;
-using System.Windows;
-using System.Windows.Data;
-using System.Windows.Media;
+﻿using System.Collections.Generic;
+using System.Globalization;
+using Avalonia;
+using Avalonia.Data.Converters;
+using Avalonia.Media;
 
 namespace PixiEditor.Helpers.Converters;
 internal class BoolToBrushConverter : IMultiValueConverter
 {
-    public Brush FalseBrush { get; set; } = Brushes.Black;
-    public Brush TrueBrush { get; set; } = Brushes.White;
+    public IBrush FalseBrush { get; set; } = new SolidColorBrush(Brushes.Black.Color);
+    public IBrush TrueBrush { get; set; } = new SolidColorBrush(Brushes.White.Color);
 
-    public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+    public object? Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (values.Length == 1)
+        if (values.Count == 1)
         {
             if (values[0] is not bool conv)
-                return DependencyProperty.UnsetValue;
+                return AvaloniaProperty.UnsetValue;
             return conv ? TrueBrush : FalseBrush;
         }
-        else if (values.Length == 2)
+        else if (values.Count == 2)
         {
             if (values[0] is not bool conv || values[1] is not bool conv2)
-                return DependencyProperty.UnsetValue;
+                return AvaloniaProperty.UnsetValue;
             return (conv || !conv2) ? TrueBrush : FalseBrush;
         }
-        return DependencyProperty.UnsetValue;
+        return AvaloniaProperty.UnsetValue;
     }
 
     public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)

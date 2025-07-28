@@ -1,6 +1,7 @@
-﻿using PixiEditor.ChangeableDocument.Enums;
-using PixiEditor.Models.Enums;
-using PixiEditor.Views.UserControls.SymmetryOverlay;
+﻿using PixiEditor.ChangeableDocument.Actions.Generated;
+using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.Models.Tools;
+using PixiEditor.Views.Overlays.SymmetryOverlay;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 internal class SymmetryExecutor : UpdateableChangeExecutor

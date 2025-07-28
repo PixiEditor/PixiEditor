@@ -1,6 +1,7 @@
-﻿using System.Windows.Media;
+﻿using Avalonia.Media;
+using PixiEditor.Models.Commands.CommandContext;
 using PixiEditor.Models.Commands.Commands;
-using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Input;
 
 namespace PixiEditor.Models.Commands.Search;
 
@@ -12,11 +13,18 @@ internal class CommandSearchResult : SearchResult
 
     public override bool CanExecute => Command.CanExecute();
 
-    public override ImageSource Icon => Command.IconEvaluator.CallEvaluate(Command, this);
+    public override IImage Icon => Command.IconEvaluator.CallEvaluate(Command, this);
 
     public override KeyCombination Shortcut => Command.Shortcut;
 
-    public CommandSearchResult(Command command) => Command = command;
+    public CommandSearchResult(Command command)
+    {
+        Command = command;
+        Command.CanExecuteChanged += () => OnPropertyChanged(nameof(CanExecute));
+    }
 
-    public override void Execute() => Command.Execute();
+    public override void Execute()
+    {
+        Command.Execute(SearchSourceInfo.GetContext(SearchTerm), false);
+    }
 }

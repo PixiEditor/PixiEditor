@@ -1,5 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
-using PixiEditor.DrawingApi.Core.ColorsImpl;
+using Drawie.Backend.Core.ColorsImpl;
 
 namespace ChunkyImageLib.DataHolders;
 
@@ -21,13 +21,17 @@ public struct ColorBounds
 
     public float UpperA { get; set; }
 
-    public ColorBounds(Color color)
+    public ColorBounds(Color color, double tolerance = 0)
     {
         static (float lower, float upper) FindInclusiveBoundaryPremul(byte channel, float alpha)
         {
-            float subHalf = channel > 0 ? channel - .5f : channel;
-            float addHalf = channel < 255 ? channel + .5f : channel;
-            return (subHalf * alpha / 255f, addHalf * alpha / 255f);
+            float subHalf = channel > 0 ? channel - 1f : channel;
+            float addHalf = channel < 255 ? channel + 1f : channel;
+            
+            var lower = subHalf * alpha / 255f;
+            var upper = addHalf * alpha / 255f;
+            
+            return (lower, upper);
         }
 
         static (float lower, float upper) FindInclusiveBoundary(byte channel)
@@ -40,9 +44,20 @@ public struct ColorBounds
         float a = color.A / 255f;
 
         (LowerR, UpperR) = FindInclusiveBoundaryPremul(color.R, a);
+        LowerR -= (float)tolerance;
+        UpperR += (float)tolerance;
+        
         (LowerG, UpperG) = FindInclusiveBoundaryPremul(color.G, a);
+        LowerG -= (float)tolerance;
+        UpperG += (float)tolerance;
+        
         (LowerB, UpperB) = FindInclusiveBoundaryPremul(color.B, a);
+        LowerB -= (float)tolerance;
+        UpperB += (float)tolerance;
+        
         (LowerA, UpperA) = FindInclusiveBoundary(color.A);
+        LowerA -= (float)tolerance;
+        UpperA += (float)tolerance;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

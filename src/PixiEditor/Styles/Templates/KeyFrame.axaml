@@ -1,0 +1,73 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:animations="clr-namespace:PixiEditor.Views.Animations"
+                    xmlns:visuals="clr-namespace:PixiEditor.Views.Visuals"
+                    xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+                    xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters">
+    <ControlTheme TargetType="animations:KeyFrame" x:Key="{x:Type animations:KeyFrame}">
+        <Setter Property="ClipToBounds" Value="False" />
+        <Setter Property="Height" Value="70" />
+        <Setter Property="MinWidth" Value="35" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid>
+                    <Border CornerRadius="{DynamicResource ControlCornerRadius}" Name="MainBorder"
+                            Background="{DynamicResource ThemeBackgroundBrush1}" Margin="0 15"
+                            BorderBrush="{DynamicResource ThemeBorderMidBrush}" BorderThickness="1">
+                        <Grid>
+                            <Panel HorizontalAlignment="Right" Name="PART_ResizePanelRight" Width="15"
+                                   Cursor="SizeWestEast" Background="Transparent" ZIndex="1" />
+                            <Panel Margin="-35, 0, 0, 0" HorizontalAlignment="Left" Name="PART_ResizePanelLeft"
+                                   Width="15" Cursor="SizeWestEast" Background="Transparent" ZIndex="1" />
+                        </Grid>
+                    </Border>
+
+                    <Border IsVisible="{Binding !IsCollapsed, RelativeSource={RelativeSource TemplatedParent}}"
+                            CornerRadius="{DynamicResource ControlCornerRadius}" Width="60" Height="60"
+                            Margin="-30, 0, 0, 0"
+                            ClipToBounds="True"
+                            BorderThickness="1" VerticalAlignment="Center" IsHitTestVisible="True" Name="PreviewBorder"
+                            HorizontalAlignment="Left" BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                            RenderOptions.BitmapInterpolationMode="None">
+                        <Border.Background>
+                            <ImageBrush Source="/Images/CheckerTile.png" TileMode="Tile">
+                                <ImageBrush.Transform>
+                                    <ScaleTransform ScaleX="0.4" ScaleY="0.4" />
+                                </ImageBrush.Transform>
+                            </ImageBrush>
+                        </Border.Background>
+                        <visuals:PreviewPainterControl
+                            PreviewPainter="{Binding Item.PreviewPainter, RelativeSource={RelativeSource TemplatedParent}}"
+                            Width="60" Height="60" RenderOptions.BitmapInterpolationMode="None">
+                            </visuals:PreviewPainterControl>
+                    </Border>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+
+        <Style Selector="^:collapsed">
+            <Setter Property="Height" Value="30" />
+            <Setter Property="MinWidth" Value="5" />
+        </Style>
+
+        <Style Selector="^:collapsed /template/ Panel#PART_ResizePanelLeft">
+            <Setter Property="Margin" Value="0" />
+        </Style>
+        <Style Selector="^:collapsed /template/ Border#MainBorder">
+            <Setter Property="Margin" Value="0 5" />
+        </Style>
+
+        <Style Selector="^:selected /template/ Border#MainBorder">
+            <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccent2Color}" />
+        </Style>
+
+        <Style Selector="^:selected /template/ Border#PreviewBorder">
+            <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccent2Color}" />
+        </Style>
+
+        <Style Selector="^:disabled">
+            <Setter Property="Opacity" Value="0.5" />
+        </Style>
+    </ControlTheme>
+
+</ResourceDictionary>

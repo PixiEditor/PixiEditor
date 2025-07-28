@@ -1,0 +1,73 @@
+<dialogs:PixiEditorPopup xmlns="https://github.com/avaloniaui"
+                         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                         xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
+                         xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+                         xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
+                         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+                         Width="600" Height="400"
+                         x:Class="PixiEditor.Views.Dialogs.Debugging.CommandDebugPopup"
+                         Name="uc"
+                         Title="CommandDebugPopup">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+
+        <StackPanel Orientation="Horizontal" Margin="5" Spacing="10">
+            <Button Content="Export list"
+                    Command="{xaml:Command PixiEditor.Debug.DumpAllCommands}" Width="100" />
+            <CheckBox Content="Show only with issues" IsCheckedChanged="ShowOnlyWithIssues_OnIsCheckedChanged"/>
+            <CheckBox Content="Show only without icons" IsCheckedChanged="ShowOnlyWithoutIcons_OnIsCheckedChanged"/>
+            <TextBox Width="150" Watermark="Search" TextChanged="TextBox_OnTextChanged"/>
+        </StackPanel>
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="1">
+            <ItemsControl ItemsSource="{Binding Commands, ElementName=uc}" Margin="5,0,0,5">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <VirtualizingStackPanel/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border BorderThickness="0,0,0,1" BorderBrush="{DynamicResource ThemeBackgroundBrush1}">
+                            <Grid Margin="0,5,0,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="35" />
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+
+                                <Image Grid.RowSpan="3" Source="{Binding Image}" Margin="0,0,5,0" />
+
+                                <TextBlock Text="{Binding Command.InternalName}" Grid.Column="1" />
+                                <TextBlock
+                                    Text="{Binding Command.DisplayName, Converter={converters:EmptyStringFillerConverter EmptyText='[internal]', NullText='[internal]'}}"
+                                    Grid.Column="2" />
+                                <TextBlock
+                                    Text="{Binding Command.Description, Converter={converters:EmptyStringFillerConverter}}"
+                                    Grid.Column="3" />
+
+                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Command.DefaultShortcut, StringFormat=Default Shortcut: {0}}"/>
+                                <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding Command.Shortcut, StringFormat=Current Shortcut: {0}}"/>
+                                <TextBlock Grid.Row="1" Grid.Column="3" Text="{Binding Command.IsDebug, StringFormat=Is Debug: {0}}"/>
+
+                                <ContentControl Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3"
+                                                Content="{Binding Comments}" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </Grid>
+</dialogs:PixiEditorPopup>

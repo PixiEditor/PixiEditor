@@ -1,0 +1,31 @@
+<UserControl x:Class="PixiEditor.Views.Main.ViewportControls.FixedViewport"
+             x:ClassModifier="internal"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:converters1="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"
+             xmlns:visuals="clr-namespace:PixiEditor.Views.Visuals"
+             xmlns:ui1="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+             mc:Ignorable="d"
+             x:Name="uc"
+             HorizontalAlignment="Center"
+             VerticalAlignment="Center"
+             d:DesignHeight="450" d:DesignWidth="800">
+    
+        <visuals:PreviewPainterControl
+            x:Name="mainImage"
+            Focusable="True"
+            PreviewPainter="{Binding Document.PreviewPainter, ElementName=uc}"
+            CustomRenderSize="{Binding CustomRenderSize, ElementName=uc}"
+            FrameToRender="{Binding Document.AnimationDataViewModel.ActiveFrameBindable, ElementName=uc}"
+            SizeChanged="OnImageSizeChanged">
+            <ui1:RenderOptionsBindable.BitmapInterpolationMode>
+                <MultiBinding Converter="{converters1:WidthToBitmapScalingModeConverter}">
+                    <Binding ElementName="uc" Path="Document.SizeBindable.X" />
+                    <Binding ElementName="mainImage" Path="Bounds.Width" />
+                </MultiBinding>
+            </ui1:RenderOptionsBindable.BitmapInterpolationMode>
+        </visuals:PreviewPainterControl>
+</UserControl>

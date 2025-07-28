@@ -1,0 +1,47 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:animations="clr-namespace:PixiEditor.Views.Animations"
+                    xmlns:visuals="clr-namespace:PixiEditor.Views.Visuals"
+                    xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+                    xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters">
+    <ControlTheme TargetType="animations:TimelineGroupHeader" x:Key="{x:Type animations:TimelineGroupHeader}">
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Background="{TemplateBinding Background}" BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                        BorderThickness="0 0 1 1">
+                    <DockPanel LastChildFill="False" VerticalAlignment="Center">
+                        <CheckBox VerticalAlignment="Center" Classes="ImageCheckBox" DockPanel.Dock="Left"
+                                  IsChecked="{Binding Item.IsVisible, RelativeSource={RelativeSource TemplatedParent}}" />
+                        <Border IsVisible="{Binding ElementName=PART_CollapseButton, Path=!IsChecked}" CornerRadius="{DynamicResource ControlCornerRadius}" Width="60" Height="60"
+                                BorderThickness="1" VerticalAlignment="Center" IsHitTestVisible="True"
+                                ClipToBounds="True"
+                                Name="PreviewBorder" Margin="5 0"
+                                HorizontalAlignment="Left" BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                                RenderOptions.BitmapInterpolationMode="None">
+                            <Border.Background>
+                                <ImageBrush Source="/Images/CheckerTile.png" TileMode="Tile">
+                                    <ImageBrush.Transform>
+                                        <ScaleTransform ScaleX="0.4" ScaleY="0.4" />
+                                    </ImageBrush.Transform>
+                                </ImageBrush>
+                            </Border.Background>
+                            <visuals:PreviewPainterControl
+                                PreviewPainter="{Binding Item.PreviewPainter, RelativeSource={RelativeSource TemplatedParent}}"
+                                Width="60" Height="60" RenderOptions.BitmapInterpolationMode="None"/>
+                        </Border>
+                        <TextBlock Margin="5 0 0 0" VerticalAlignment="Center" Text="{Binding Item.LayerName, RelativeSource={RelativeSource TemplatedParent}}" />
+                        <ToggleButton Background="Transparent" Name="PART_CollapseButton" Margin="0 0 5 0" DockPanel.Dock="Right" Classes="ExpandCollapseToggleStyle" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                    </DockPanel>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+
+        <Style Selector="^">
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+        <Style Selector="^:selected">
+            <Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush2}" />
+        </Style>
+    </ControlTheme>
+
+</ResourceDictionary>

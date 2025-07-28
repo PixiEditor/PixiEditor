@@ -1,89 +1,35 @@
-﻿using System.Collections;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Media;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
 using PixiEditor.Models.Commands.Commands;
+using PixiEditor.Models.Commands.Search;
+using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.Models.Commands.Evaluators;
 
-internal class IconEvaluator : Evaluator<ImageSource>
+internal class IconEvaluator : Evaluator<IImage>
 {
-    public static IconEvaluator Default { get; } = new CommandNameEvaluator();
+    public static IconEvaluator Default { get; } = new FontIconEvaluator();
 
-    public override ImageSource CallEvaluate(Command command, object parameter) =>
-        base.CallEvaluate(command, parameter ?? command);
-
-    public static string GetDefaultPath(Command command)
+    public override IImage? CallEvaluate(Command command, object parameter)
     {
-        string path;
-
-        if (command.IconPath != null)
-        {
-            if (command.IconPath.StartsWith('@'))
-            {
-                path = command.IconPath[1..];
-            }
-            else if (command.IconPath.StartsWith('$'))
-            {
-                path = $"Images/Commands/{command.IconPath[1..].Replace('.', '/')}.png";
-            }
-            else
-            {
-                path = $"Images/{command.IconPath}";
-            }
-        }
-        else
-        {
-            path = $"Images/Commands/{command.InternalName.Replace('.', '/')}.png";
-        }
-
-        path = path.ToLower();
-
-        if (path.StartsWith("/"))
-        {
-            path = path[1..];
-        }
-
-        return path;
+        return base.CallEvaluate(command, parameter is CommandSearchResult or Command ? parameter : command);
     }
 
     [DebuggerDisplay("IconEvaluator.Default")]
-    private class CommandNameEvaluator : IconEvaluator
+    private class FontIconEvaluator : IconEvaluator
     {
-        public static string[] resources = GetResourceNames();
 
-        public static Dictionary<string, BitmapImage> images = new();
-
-        public override ImageSource CallEvaluate(Command command, object parameter)
+        public override IImage? CallEvaluate(Command command, object parameter)
         {
-            string path = GetDefaultPath(command);
+            string symbolCode = command.Icon;
 
-            if (resources.Contains(path))
-            {
-                var image = images.GetValueOrDefault(path);
-
-                if (image == null)
-                {
-                    image = new BitmapImage(new($"pack://application:,,,/{path}"));
-                    images.Add(path, image);
-                }
-
-                return image;
-            }
-
-            return null;
-        }
-
-        private static string[] GetResourceNames()
-        {
-            var assembly = Assembly.GetExecutingAssembly();
-            string resName = assembly.GetName().Name + ".g.resources";
-            using var stream = assembly.GetManifestResourceStream(resName);
-            using var reader = new System.Resources.ResourceReader(stream);
-
-            return reader.Cast<DictionaryEntry>().Select(entry =>
-                (string)entry.Key).ToArray();
+            return PixiPerfectIconExtensions.ToIcon(symbolCode);
         }
     }
 }

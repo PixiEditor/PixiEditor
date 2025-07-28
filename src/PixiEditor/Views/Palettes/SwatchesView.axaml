@@ -1,0 +1,41 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:palettes="clr-namespace:PixiEditor.Views.Palettes"
+             xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="PixiEditor.Views.Palettes.SwatchesView"
+             x:ClassModifier="internal"
+             Name="swatchesView">
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+        <ItemsControl ItemsSource="{Binding Swatches, ElementName=swatchesView}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel Margin="10,10,0,10" Orientation="Horizontal"
+                               HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <palettes:PaletteColorControl Cursor="Hand" Color="{Binding}" Margin="0 5 5 5">
+                        <Interaction.Behaviors>
+                            <EventTriggerBehavior EventName="PointerReleased">
+                                <InvokeCommandAction
+                                    Command="{Binding SelectSwatchCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type palettes:SwatchesView}}}"
+                                    CommandParameter="{Binding}" />
+                            </EventTriggerBehavior>
+                        </Interaction.Behaviors>
+                        <palettes:PaletteColorControl.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Remove" Foreground="{DynamicResource ThemeForegroundBrush}"
+                                          Command="{xaml:Command PixiEditor.Colors.RemoveSwatch, UseProvided=True}"
+                                          CommandParameter="{Binding}" />
+                            </ContextMenu>
+                        </palettes:PaletteColorControl.ContextMenu>
+                    </palettes:PaletteColorControl>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </ScrollViewer>
+</UserControl>

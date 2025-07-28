@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
-using System.Windows;
-using System.Windows.Data;
+using Avalonia.Controls;
+using Avalonia.Data;
 
 namespace PixiEditor.Helpers.Converters;
 
@@ -16,6 +16,6 @@ internal class IndentConverter
 
     public override object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        return Binding.DoNothing;
+        return BindingOperations.DoNothing;
     }
 }

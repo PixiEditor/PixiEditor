@@ -1,8 +1,9 @@
-﻿using PixiEditor.ChangeableDocument.Enums;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.Models.Enums;
-using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
-using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
+﻿using PixiEditor.ChangeableDocument.Actions.Generated;
+using PixiEditor.ChangeableDocument.Enums;
+using Drawie.Backend.Core.Numerics;
+using PixiEditor.Models.Handlers.Tools;
+using PixiEditor.Models.Tools;
+using Drawie.Numerics;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
@@ -12,7 +13,7 @@ internal sealed class LassoToolExecutor : UpdateableChangeExecutor
     
     public override ExecutionState Start()
     {
-        mode = ViewModelMain.Current?.ToolsSubViewModel.GetTool<LassoToolViewModel>()?.ResultingSelectionMode;
+        mode = GetHandler<ILassoToolHandler>()?.ResultingSelectionMode;
 
         if (mode is null)
             return ExecutionState.Error;
@@ -24,7 +25,7 @@ internal sealed class LassoToolExecutor : UpdateableChangeExecutor
 
     public override void OnPixelPositionChange(VecI pos) => AddStartAction(pos);
 
-    public override void OnLeftMouseButtonUp()
+    public override void OnLeftMouseButtonUp(VecD argsPositionOnCanvas)
     {
         internals!.ActionAccumulator.AddFinishedActions(new EndSelectLasso_Action());
         onEnded!(this);

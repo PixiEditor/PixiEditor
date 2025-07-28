@@ -1,0 +1,155 @@
+﻿<controls:UserControl x:Class="PixiEditor.Views.Input.AnchorPointPicker"
+                      x:ClassModifier="internal"
+                      xmlns="https://github.com/avaloniaui"
+                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                      xmlns:controls="https://github.com/avaloniaui"
+                      xmlns:enums="clr-namespace:PixiEditor.ChangeableDocument.Enums;assembly=PixiEditor.ChangeableDocument"
+                      xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+                      xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+                      mc:Ignorable="d" Name="picker"
+                      d:DesignHeight="78" d:DesignWidth="78">
+    <Grid Name="container">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="26" />
+            <RowDefinition Height="26" />
+            <RowDefinition Height="26" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="26" />
+            <ColumnDefinition Width="26" />
+            <ColumnDefinition Width="26" />
+        </Grid.ColumnDefinitions>
+        <ToggleButton Click="ToggleButton_Click" Margin="0.25"
+                      Classes="AnchorPointToggleButtonStyle" ui:Translator.TooltipKey="TOP_LEFT" Grid.Row="0"
+                      Name="topLeft"
+                      Grid.Column="0" CornerRadius="5,0,0,0">
+            <ToggleButton.IsChecked>
+                <MultiBinding Converter="{converters:AnchorPointVisibilityConverter}">
+                    <Binding ElementName="picker" Path="AnchorPoint" />
+                    <Binding>
+                        <Binding.Source>
+                            <enums:ResizeAnchor>TopLeft</enums:ResizeAnchor>
+                        </Binding.Source>
+                    </Binding>
+                </MultiBinding>
+            </ToggleButton.IsChecked>
+        </ToggleButton>
+        <ToggleButton Click="ToggleButton_Click" Margin="0.25"
+                      Classes="AnchorPointToggleButtonStyle" Grid.Row="0" ui:Translator.TooltipKey="TOP_CENTER"
+                      Name="topCenter"
+                      Grid.Column="1">
+            <ToggleButton.IsChecked>
+                <MultiBinding Converter="{converters:AnchorPointVisibilityConverter}">
+                    <Binding ElementName="picker" Path="AnchorPoint" />
+                    <Binding>
+                        <Binding.Source>
+                            <enums:ResizeAnchor>Top</enums:ResizeAnchor>
+                        </Binding.Source>
+                    </Binding>
+                </MultiBinding>
+            </ToggleButton.IsChecked>
+        </ToggleButton>
+        <ToggleButton Click="ToggleButton_Click" Margin="0.25" Name="topRight"
+                      Classes="AnchorPointToggleButtonStyle" ui:Translator.TooltipKey="TOP_RIGHT"
+                      CornerRadius="0,5,0,0" Grid.Row="0"
+                      Grid.Column="2">
+            <ToggleButton.IsChecked>
+                <MultiBinding Converter="{converters:AnchorPointVisibilityConverter}">
+                    <Binding ElementName="picker" Path="AnchorPoint" />
+                    <Binding>
+                        <Binding.Source>
+                            <enums:ResizeAnchor>TopRight</enums:ResizeAnchor>
+                        </Binding.Source>
+                    </Binding>
+                </MultiBinding>
+            </ToggleButton.IsChecked>
+        </ToggleButton>
+        <ToggleButton Click="ToggleButton_Click" Margin="0.25"
+                      Classes="AnchorPointToggleButtonStyle" Grid.Row="1" ui:Translator.TooltipKey="MIDDLE_LEFT"
+                      Name="middleLeft"
+                      Grid.Column="0">
+            <ToggleButton.IsChecked>
+                <MultiBinding Converter="{converters:AnchorPointVisibilityConverter}">
+                    <Binding ElementName="picker" Path="AnchorPoint" />
+                    <Binding>
+                        <Binding.Source>
+                            <enums:ResizeAnchor>Left</enums:ResizeAnchor>
+                        </Binding.Source>
+                    </Binding>
+                </MultiBinding>
+            </ToggleButton.IsChecked>
+        </ToggleButton>
+        <ToggleButton Click="ToggleButton_Click" Margin="0.25"
+                      Classes="AnchorPointToggleButtonStyle" Grid.Row="1" Grid.Column="1" Name="middleCenter"
+                      ui:Translator.TooltipKey="MIDDLE_CENTER">
+            <ToggleButton.IsChecked>
+                <MultiBinding Converter="{converters:AnchorPointVisibilityConverter}">
+                    <Binding ElementName="picker" Path="AnchorPoint" />
+                    <Binding>
+                        <Binding.Source>
+                            <enums:ResizeAnchor>Center</enums:ResizeAnchor>
+                        </Binding.Source>
+                    </Binding>
+                </MultiBinding>
+            </ToggleButton.IsChecked>
+        </ToggleButton>
+        <ToggleButton Click="ToggleButton_Click" Margin="0.25"
+                      Classes="AnchorPointToggleButtonStyle" Grid.Row="1" Grid.Column="2" Name="middleRight"
+                      ui:Translator.TooltipKey="MIDDLE_RIGHT">
+            <ToggleButton.IsChecked>
+                <MultiBinding Converter="{converters:AnchorPointVisibilityConverter}">
+                    <Binding ElementName="picker" Path="AnchorPoint" />
+                    <Binding>
+                        <Binding.Source>
+                            <enums:ResizeAnchor>Right</enums:ResizeAnchor>
+                        </Binding.Source>
+                    </Binding>
+                </MultiBinding>
+            </ToggleButton.IsChecked>
+        </ToggleButton>
+        <ToggleButton Click="ToggleButton_Click" Margin="0.25"
+                      Classes="AnchorPointToggleButtonStyle" Grid.Row="2" Grid.Column="0" Name="bottomLeft"
+                      ui:Translator.TooltipKey="BOTTOM_LEFT" CornerRadius="0,0,0,5">
+            <ToggleButton.IsChecked>
+                <MultiBinding Converter="{converters:AnchorPointVisibilityConverter}">
+                    <Binding ElementName="picker" Path="AnchorPoint" />
+                    <Binding>
+                        <Binding.Source>
+                            <enums:ResizeAnchor>BottomLeft</enums:ResizeAnchor>
+                        </Binding.Source>
+                    </Binding>
+                </MultiBinding>
+            </ToggleButton.IsChecked>
+        </ToggleButton>
+        <ToggleButton Click="ToggleButton_Click" Margin="0.25"
+                      Classes="AnchorPointToggleButtonStyle" Grid.Row="2" Grid.Column="1" Name="bottomCenter"
+                      ui:Translator.TooltipKey="BOTTOM_CENTER">
+            <ToggleButton.IsChecked>
+                <MultiBinding Converter="{converters:AnchorPointVisibilityConverter}">
+                    <Binding ElementName="picker" Path="AnchorPoint" />
+                    <Binding>
+                        <Binding.Source>
+                            <enums:ResizeAnchor>Bottom</enums:ResizeAnchor>
+                        </Binding.Source>
+                    </Binding>
+                </MultiBinding>
+            </ToggleButton.IsChecked>
+        </ToggleButton>
+        <ToggleButton Click="ToggleButton_Click" Margin="0.25" Name="bottomRight"
+                      Classes="AnchorPointToggleButtonStyle" CornerRadius="0,0,5,0" Grid.Row="2" Grid.Column="2"
+                      ui:Translator.TooltipKey="BOTTOM_RIGHT">
+            <ToggleButton.IsChecked>
+                <MultiBinding Converter="{converters:AnchorPointVisibilityConverter}">
+                    <Binding ElementName="picker" Path="AnchorPoint" />
+                    <Binding>
+                        <Binding.Source>
+                            <enums:ResizeAnchor>BottomRight</enums:ResizeAnchor>
+                        </Binding.Source>
+                    </Binding>
+                </MultiBinding>
+            </ToggleButton.IsChecked>
+        </ToggleButton>
+    </Grid>
+</controls:UserControl>

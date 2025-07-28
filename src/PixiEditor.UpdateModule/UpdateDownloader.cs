@@ -11,39 +11,48 @@ public static class UpdateDownloader
 {
     public static string DownloadLocation { get; } = Path.Join(Path.GetTempPath(), "PixiEditor");
 
-    public static async Task DownloadReleaseZip(ReleaseInfo release)
-    {
-        Asset matchingAsset = GetMatchingAsset(release);
+    public static event Action<double> ProgressChanged;
 
-        using (HttpClient client = new HttpClient())
+    public static async Task DownloadReleaseZip(ReleaseInfo release, string contentType, string extension)
+    {
+        Asset? matchingAsset = GetMatchingAsset(release, contentType);
+
+        if (matchingAsset == null)
         {
-            client.DefaultRequestHeaders.Add("User-Agent", "PixiEditor");
-            client.DefaultRequestHeaders.Add("Accept", "application/octet-stream");
-            var response = await client.GetAsync(matchingAsset.Url);
-            if (response.StatusCode == HttpStatusCode.OK)
-            {
-                byte[] bytes = await response.Content.ReadAsByteArrayAsync();
-                CreateTempDirectory();
-                File.WriteAllBytes(Path.Join(DownloadLocation, $"update-{release.TagName}.zip"), bytes);
-            }
+            throw new FileNotFoundException("No matching update for your system found.");
         }
+
+        using WebClient client = new WebClient();
+        client.Headers.Add("User-Agent", "PixiEditor");
+        client.Headers.Add("Accept", "application/octet-stream");
+        client.DownloadProgressChanged += (sender, args) =>
+        {
+            ProgressChanged?.Invoke(args.ProgressPercentage);
+        };
+
+        var bytes = await client.DownloadDataTaskAsync(matchingAsset.Url);
+        CreateTempDirectory();
+        await File.WriteAllBytesAsync(Path.Join(DownloadLocation, $"update-{release.TagName}.{extension}"), bytes);
     }
 
     public static async Task DownloadInstaller(ReleaseInfo info)
     {
-        Asset matchingAsset = GetMatchingAsset(info, "application/x-msdownload");
+        Asset? matchingAsset = GetMatchingAsset(info, "application/x-msdownload");
 
-        using (HttpClient client = new HttpClient())
+        if (matchingAsset == null)
         {
-            client.DefaultRequestHeaders.Add("User-Agent", "PixiEditor");
-            client.DefaultRequestHeaders.Add("Accept", "application/octet-stream");
-            var response = await client.GetAsync(matchingAsset.Url);
-            if (response.StatusCode == HttpStatusCode.OK)
-            {
-                byte[] bytes = await response.Content.ReadAsByteArrayAsync();
-                CreateTempDirectory();
-                File.WriteAllBytes(Path.Join(DownloadLocation, $"update-{info.TagName}.exe"), bytes);
-            }
+            throw new FileNotFoundException("No matching update for your system found.");
+        }
+
+        using HttpClient client = new HttpClient();
+        client.DefaultRequestHeaders.Add("User-Agent", "PixiEditor");
+        client.DefaultRequestHeaders.Add("Accept", "application/octet-stream");
+        var response = await client.GetAsync(matchingAsset.Url);
+        if (response.StatusCode == HttpStatusCode.OK)
+        {
+            byte[] bytes = await response.Content.ReadAsByteArrayAsync();
+            CreateTempDirectory();
+            await File.WriteAllBytesAsync(Path.Join(DownloadLocation, $"update-{info.TagName}.exe"), bytes);
         }
     }
 
@@ -55,10 +64,19 @@ public static class UpdateDownloader
         }
     }
 
-    private static Asset GetMatchingAsset(ReleaseInfo release, string assetType = "zip")
+    private static Asset? GetMatchingAsset(ReleaseInfo release, string assetType)
     {
-        string arch = IntPtr.Size == 8 ? "x64" : "x86";
-        return release.Assets.First(x => x.ContentType.Contains(assetType)
-                                         && x.Name.Contains(arch));
+        if (release.TagName.StartsWith("1."))
+        {
+            string archOld = IntPtr.Size == 8 ? "x64" : "x86";
+            return release.Assets.FirstOrDefault(x => x.ContentType.Contains(assetType)
+                                                      && x.Name.Contains(archOld));
+        }
+
+        string arch = OperatingSystem.IsWindows() ? "x64" :
+            OperatingSystem.IsLinux() ? "amd64" : "universal";
+        string os = OperatingSystem.IsWindows() ? "win" : OperatingSystem.IsLinux() ? "linux" : "macos";
+        return release.Assets.FirstOrDefault(x => x.ContentType.Contains(assetType)
+                                                  && x.Name.Contains(arch) && x.Name.Contains(os));
     }
 }

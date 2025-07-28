@@ -12,6 +12,7 @@ public abstract class Extension
     public ExtensionServices Api { get; private set; }
     public ExtensionMetadata Metadata { get; private set; }
     public Assembly Assembly => GetType().Assembly;
+    public virtual string Location => Assembly.Location;
 
     public void ProvideMetadata(ExtensionMetadata metadata)
     {
@@ -34,6 +35,16 @@ public abstract class Extension
         OnInitialized();
     }
 
+    public void UserReady()
+    {
+        OnUserReady();
+    }
+
+    public void MainWindowLoaded()
+    {
+        OnMainWindowLoaded();
+    }
+
     /// <summary>
     ///     Called right after the extension is loaded. Not all extensions are initialized at this point. PixiEditor API at this point is not available.
     ///     Use this method to load resources, patch language files, etc.
@@ -47,5 +58,23 @@ public abstract class Extension
     /// </summary>
     protected virtual void OnInitialized()
     {
+    }
+
+    /// <summary>
+    ///     Called after OnInitialized. It is called when startup screen should be shown to the user.
+    /// If the user didn't complete onboarding, it will be called after the user completes it.
+    /// </summary>
+    protected virtual void OnUserReady()
+    {
+
+    }
+
+    /// <summary>
+    /// This method is called when the main window is loaded.
+    /// You can use this method to perform actions that require the main window to be fully loaded.
+    /// </summary>
+    protected virtual void OnMainWindowLoaded()
+    {
+
     }
 }

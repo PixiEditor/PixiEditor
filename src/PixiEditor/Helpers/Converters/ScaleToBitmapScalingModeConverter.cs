@@ -1,6 +1,5 @@
 ﻿using System.Globalization;
-using System.Windows;
-using System.Windows.Media;
+using Avalonia.Media.Imaging;
 
 namespace PixiEditor.Helpers.Converters;
 
@@ -9,10 +8,15 @@ internal class ScaleToBitmapScalingModeConverter : SingleInstanceConverter<Scale
     public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
         if (value is not double scale)
-            return DependencyProperty.UnsetValue;
+            return BitmapInterpolationMode.None;
+        return Calculate(scale);
+    }
+
+    public static BitmapInterpolationMode Calculate(double scale)
+    {
         if (scale < 1)
-            return BitmapScalingMode.HighQuality;
-        return BitmapScalingMode.NearestNeighbor;
+            return BitmapInterpolationMode.HighQuality;
+        return BitmapInterpolationMode.None;
     }
 
     public override object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

@@ -1,47 +1,46 @@
-﻿using System.Windows;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
+﻿using Avalonia.Media.Imaging;
 using ChunkyImageLib;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
+using PixiEditor.Helpers.Extensions;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces.ImageData;
+using Drawie.Numerics;
 
 namespace PixiEditor.Helpers;
 
 public static class SurfaceHelpers
 {
-    public static Surface FromBitmapSource(BitmapSource original)
+    public static Surface FromBitmap(Bitmap original)
     {
-        ColorType color = original.Format.ToColorType(out AlphaType alpha);
-        if (original.PixelWidth <= 0 || original.PixelHeight <= 0)
+        if(original.Format == null) throw new ArgumentException("Bitmap format must be non-null");
+
+        ColorType color = original.Format.Value.ToColorType(out AlphaType alpha);
+        if (original.PixelSize.Width <= 0 || original.PixelSize.Height <= 0)
             throw new ArgumentException("Surface dimensions must be non-zero");
 
-        int stride = (original.PixelWidth * original.Format.BitsPerPixel + 7) / 8;
-        byte[] pixels = new byte[stride * original.PixelHeight];
-        original.CopyPixels(pixels, stride, 0);
+        int stride = (original.PixelSize.Width * original.Format.Value.BitsPerPixel + 7) / 8;
+        byte[] pixels = original.ExtractPixels();
 
-        Surface surface = new Surface(new VecI(original.PixelWidth, original.PixelHeight));
+        Surface surface = new Surface(new VecI(original.PixelSize.Width, original.PixelSize.Height));
         surface.DrawBytes(surface.Size, pixels, color, alpha);
         return surface;
     }
 
     public static WriteableBitmap ToWriteableBitmap(this Surface surface)
     {
-        int width = surface.Size.X;
-        int height = surface.Size.Y;
-        WriteableBitmap result = new WriteableBitmap(width, height, 96, 96, PixelFormats.Pbgra32, null);
-        result.Lock();
-        var dirty = new Int32Rect(0, 0, width, height);
-        result.WritePixels(dirty, ToByteArray(surface), width * 4, 0);
-        result.AddDirtyRect(dirty);
-        result.Unlock();
+        WriteableBitmap result = WriteableBitmapUtility.CreateBitmap(surface.Size);
+        using var framebuffer = result.Lock();
+        var dirty = new RectI(0, 0, surface.Size.X, surface.Size.Y);
+        framebuffer.WritePixels(dirty, ToByteArray(surface));
+        //result.AddDirtyRect(dirty); //TODO: Look at this later, no DirtyRect in Avalonia
         return result;
     }
 
-    private static unsafe byte[] ToByteArray(Surface surface, ColorType colorType = ColorType.Bgra8888, AlphaType alphaType = AlphaType.Premul)
+    public static unsafe byte[] ToByteArray(this Surface surface, ColorType colorType = ColorType.Bgra8888, AlphaType alphaType = AlphaType.Premul, ColorSpace colorSpace = null)
     {
         int width = surface.Size.X;
         int height = surface.Size.Y;
-        var imageInfo = new ImageInfo(width, height, colorType, alphaType, ColorSpace.CreateSrgb());
+        var imageInfo = new ImageInfo(width, height, colorType, alphaType, colorSpace == null ? surface.ImageInfo.ColorSpace : colorSpace);
 
         byte[] buffer = new byte[width * height * imageInfo.BytesPerPixel];
         fixed (void* pointer = buffer)

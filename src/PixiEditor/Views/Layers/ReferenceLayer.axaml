@@ -1,0 +1,115 @@
+﻿<UserControl x:Class="PixiEditor.Views.Layers.ReferenceLayer"
+             x:ClassModifier="internal"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
+             xmlns:cmds="clr-namespace:PixiEditor.Models.Commands.XAML"
+             xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
+             xmlns:viewModels="clr-namespace:PixiEditor.ViewModels"
+             xmlns:ui1="clr-namespace:PixiEditor.Helpers.UI"
+             xmlns:visuals="clr-namespace:PixiEditor.Views.Visuals"
+             xmlns:layers="clr-namespace:PixiEditor.Views.Layers"
+             mc:Ignorable="d"
+             d:DesignHeight="60" d:DesignWidth="350" VerticalAlignment="Center" x:Name="uc">
+    <UserControl.Styles>
+        <Style Selector="Button#topmostBtn">
+            <Setter Property="Content" Value="{DynamicResource icon-layers-top}"></Setter>
+        </Style>
+        <Style Selector=":topmost Button#topmostBtn">
+            <Setter Property="Content" Value="{DynamicResource icon-layers-bottom}"/>
+        </Style>
+    </UserControl.Styles>
+    <Border BorderThickness="0 2 0 0" MinWidth="60"
+            Name="DragBorder"
+            Focusable="True" DragDrop.AllowDrop="True">
+        <Interaction.Behaviors>
+            <behaviours:ClearFocusOnClickBehavior />
+        </Interaction.Behaviors>
+        <DockPanel Background="Transparent">
+            <controls:Shelf ControlToCollapse="{Binding RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}">
+                <Grid Height="40" x:Name="mainDockPanel">
+                    <Grid
+                        IsVisible="{Binding Document.ReferenceLayerViewModel.ReferenceTexture, ElementName=uc, Converter={converters:NullToVisibilityConverter}}"
+                        Panel.ZIndex="5">
+                        <Grid Cursor="Hand" IsVisible="{Binding ElementName=visibilityCheckbox, Path=!IsChecked}"
+                              Background="Transparent">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" DockPanel.Dock="Left">
+                                <TextBlock Margin="5 0 5 0" VerticalAlignment="Center" FontSize="24" Text="{DynamicResource icon-add-reference}" Classes="pixi-icon"
+                                       IsVisible="{Binding Document.ReferenceLayerViewModel.ReferenceTexture, ElementName=uc, Converter={converters:NullToVisibilityConverter}}" />
+
+                                <TextBlock IsEnabled="{Binding ElementName=uc, Path=IsEnabled}"
+                                           Margin="0 0 5 0" Foreground="{DynamicResource ThemeForegroundBrush}"
+                                           FontSize="15" VerticalAlignment="Center"
+                                           ui:Translator.Key="ADD_REFERENCE_LAYER" />
+                            </StackPanel>
+                            <Interaction.Behaviors>
+                                <EventTriggerBehavior EventName="PointerReleased">
+                                    <InvokeCommandAction Command="{cmds:Command PixiEditor.Layer.ImportReferenceLayer}"
+                                                         PassEventArgsToCommand="True" />
+                                </EventTriggerBehavior>
+                            </Interaction.Behaviors>
+                        </Grid>
+                    </Grid>
+
+                    <DockPanel Grid.Row="0" VerticalAlignment="Center" Height="40"
+                               IsVisible="{Binding Document.ReferenceLayerViewModel.ReferenceTexture, ElementName=uc, Converter={converters:NotNullToVisibilityConverter}}">
+                        <Grid Height="16" Name="layerVisibilityCheckboxGrid" DockPanel.Dock="Left" Margin="10,0,5,0">
+                            <CheckBox
+                                Classes="ImageCheckBox"
+                                VerticalAlignment="Center"
+                                IsThreeState="False" HorizontalAlignment="Center"
+                                IsChecked="{Binding Path=Document.ReferenceLayerViewModel.IsVisibleBindable, Mode=TwoWay, ElementName=uc}" />
+                        </Grid>
+                        <Button Cursor="Hand" DockPanel.Dock="Left"
+                                Command="{cmds:Command PixiEditor.Layer.ToggleReferenceLayerTopMost}"
+                                Name="topmostBtn"
+                                Classes="pixi-icon"
+                                ToolTip.Tip="{Binding Document.ReferenceLayerViewModel.IsTopMost, ElementName=uc, Converter={converters:BoolToValueConverter FalseValue='localized:PUT_REFERENCE_LAYER_ABOVE', TrueValue='localized:PUT_REFERENCE_LAYER_BELOW'}}"
+                                RenderOptions.BitmapInterpolationMode="HighQuality"
+                                Width="24" Height="24" HorizontalAlignment="Right"/>
+                        <Border
+                            HorizontalAlignment="Left" DockPanel.Dock="Left"
+                            Width="30" Height="30"
+                            BorderThickness="1"
+                            BorderBrush="Black"
+                            Background="{DynamicResource ThemeBackgroundBrush}"
+                            Margin="5, 0, 10, 0">
+                            <visuals:TextureControl Texture="{Binding Document.ReferenceLayerViewModel.ReferenceTexture,ElementName=uc}"
+                                   Stretch="Uniform" Width="26" Height="26"
+                                   RenderOptions.BitmapInterpolationMode="HighQuality" IsHitTestVisible="False" />
+                        </Border>
+                        <Button Cursor="Hand" Grid.Column="1" DockPanel.Dock="Right"
+                                Command="{cmds:Command PixiEditor.Layer.DeleteReferenceLayer}"
+                                Classes="pixi-icon"
+                                RenderOptions.BitmapInterpolationMode="HighQuality"
+                                Margin="3,0,5,0"
+                                Content="{DynamicResource icon-trash}"
+                                Width="24" Height="24" HorizontalAlignment="Right"/>
+                        <Button Cursor="Hand" DockPanel.Dock="Right"
+                                Command="{cmds:Command PixiEditor.Layer.ResetReferenceLayerPosition}"
+                                Classes="pixi-icon"
+                                Content="{DynamicResource icon-reset}"
+                                Margin="2, 0, 0, 0"
+                                ui:Translator.TooltipKey="RESET_REFERENCE_LAYER_POS"
+                                RenderOptions.BitmapInterpolationMode="HighQuality"
+                                Width="24" Height="24" HorizontalAlignment="Right"/>
+                        <Button Cursor="Hand" DockPanel.Dock="Right"
+                                Command="{cmds:Command PixiEditor.Layer.TransformReferenceLayer}"
+                                Classes="pixi-icon"
+                                Content="{DynamicResource icon-crop}"
+                                ui:Translator.TooltipKey="TRANSFORM_REFERENCE_LAYER"
+                                RenderOptions.BitmapInterpolationMode="HighQuality"
+                                Width="24" Height="24" HorizontalAlignment="Right"/>
+                        <TextBlock IsEnabled="{Binding ElementName=uc, Path=IsEnabled}" HorizontalAlignment="Center"
+                                   Margin="0 0 5 0" Foreground="White"
+                                   FontSize="15" VerticalAlignment="Center" ui:Translator.Key="REFERENCE" />
+                    </DockPanel>
+                </Grid>
+            </controls:Shelf>
+        </DockPanel>
+    </Border>
+</UserControl>

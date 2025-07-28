@@ -1,4 +1,4 @@
-﻿{
+{
   "$schema": "./LocalizationDataSchema.json",
   "Languages": [
     {
@@ -13,42 +13,43 @@
       "code": "pl",
       "localeFileName": "pl.json",
       "iconFileName": "pl.png",
-      "lastUpdated": "2023-12-14 16:59:56"
+      "lastUpdated": "2025-07-28 07:08:12"
     },
     {
       "name": "Deutsch",
       "code": "de",
       "localeFileName": "de.json",
       "iconFileName": "de.png",
-      "lastUpdated": "2023-12-14 16:40:04"
+      "lastUpdated": "2025-07-24 17:51:17"
     },
     {
       "name": "Español",
       "code": "es",
       "localeFileName": "es.json",
       "iconFileName": "es.png",
-      "lastUpdated": "2023-05-17 18:46:19"
+      "lastUpdated": "2023-05-17 16:46:19"
     },
     {
       "name": "中文",
       "code": "zh",
+      "remoteCode": "zh-CN",
       "localeFileName": "zh.json",
       "iconFileName": "zh.png",
-      "lastUpdated": "2023-08-14 07:59:43"
+      "lastUpdated": "2023-05-15 03:23:28"
     },
     {
       "name": "Русский",
       "code": "ru",
       "localeFileName": "ru.json",
       "iconFileName": "ru.png",
-      "lastUpdated": "2023-12-14 16:54:15"
+      "lastUpdated": "2025-06-30 11:13:26"
     },
     {
       "name": "Українська",
       "code": "uk",
       "localeFileName": "uk.json",
       "iconFileName": "uk.png",
-      "lastUpdated": "2023-12-14 16:56:58"
+      "lastUpdated": "2025-06-28 12:26:13"
     },
     {
       "name": "عربي",
@@ -56,42 +57,28 @@
       "localeFileName": "ar.json",
       "iconFileName": "ar.png",
       "rightToLeft": true,
-      "lastUpdated": "2023-12-14 17:25:23"
+      "lastUpdated": "2025-06-04 18:20:46"
     },
     {
       "name": "Čeština",
       "code": "cs",
       "localeFileName": "cs.json",
       "iconFileName": "cs.png",
-      "lastUpdated": "2023-12-14 20:10:32"
+      "lastUpdated": "2025-07-25 12:03:22"
     },
     {
       "name": "Português (Brasil)",
       "code": "pt-br",
       "localeFileName": "pt-br.json",
       "iconFileName": "pt-br.png",
-      "lastUpdated": "2023-07-06 04:00:53"
+      "lastUpdated": "2023-07-06 02:00:39"
     },
     {
       "name": "Magyar",
       "code": "hu",
       "localeFileName": "hu.json",
       "iconFileName": "hu.png",
-      "lastUpdated": "2023-05-09 00:07:37"
-    },
-    {
-      "name": "Italiano",
-      "code": "it",
-      "localeFileName": "it.json",
-      "iconFileName": "it.png",
-      "lastUpdated": "2023-06-25 14:44:38"
-    },
-    {
-      "name": "Türkçe",
-      "code": "tr",
-      "localeFileName": "tr.json",
-      "iconFileName": "tr.png",
-      "lastUpdated": "2023-06-29 22:44:34"
+      "lastUpdated": "2023-05-08 22:07:37"
     }
   ]
 }

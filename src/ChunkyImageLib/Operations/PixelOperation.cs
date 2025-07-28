@@ -1,8 +1,9 @@
 ﻿using ChunkyImageLib.DataHolders;
-using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Numerics;
 
 namespace ChunkyImageLib.Operations;
 
@@ -54,7 +55,7 @@ internal class PixelOperation : IMirroredDrawOperation
         if (colorProcessor != null && getCommitedPixelFunc != null)
         {
             var pos = pixel - chunkPos * ChunkyImage.FullChunkSize;
-            pixelColor = colorProcessor(getCommitedPixelFunc(pixel), chunk.Surface.GetSRGBPixel(pos));
+            pixelColor = colorProcessor(getCommitedPixelFunc(pixel), chunk.Surface.GetSrgbPixel(pos));
         }
 
         return new Color(pixelColor.R, pixelColor.G, pixelColor.B, (byte)(pixelColor.A * chunk.Resolution.Multiplier()));

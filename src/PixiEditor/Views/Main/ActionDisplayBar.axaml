@@ -1,0 +1,68 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:PixiEditor.ViewModels"
+             xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+             xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
+             xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker.AvaloniaUI"
+             xmlns:visuals="clr-namespace:PixiEditor.Views.Visuals"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="viewModels:ViewModelMain"
+             x:Class="PixiEditor.Views.Main.ActionDisplayBar">
+    <Design.DataContext>
+        <viewModels:ViewModelMain />
+    </Design.DataContext>
+
+    <Grid Background="{DynamicResource ThemeBackgroundBrush1}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="40" />
+            <ColumnDefinition
+                Width="*" />
+            <ColumnDefinition
+                Width="290" />
+        </Grid.ColumnDefinitions>
+        <!--<visuals:ColorsPreviewer/>-->
+        <colorPicker:ColorDisplay
+            SelectedColor="{Binding DataContext.ColorsSubViewModel.PrimaryColor, Converter={converters:GenericColorToMediaColorConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
+            SecondaryColor="{Binding DataContext.ColorsSubViewModel.SecondaryColor, Converter={converters:GenericColorToMediaColorConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}">
+            <colorPicker:ColorDisplay.Styles>
+                <Style Selector="Button">
+                    <Setter Property="IsVisible" Value="False" />
+                </Style>
+            </colorPicker:ColorDisplay.Styles>
+        </colorPicker:ColorDisplay>
+        <DockPanel Grid.Column="1" ClipToBounds="True">
+            <TextBlock
+                ui:Translator.LocalizedString="{Binding DataContext.ActiveActionDisplay, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
+                Foreground="{DynamicResource ThemeForegroundBrush}"
+                FontSize="15"
+                Margin="10,0,0,0"
+                VerticalAlignment="Center" />
+            <StackPanel
+                DockPanel.Dock="Right"
+                Orientation="Horizontal"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Center">
+                <TextBlock
+                    Text="{Binding DataContext.DocumentManagerSubViewModel.ActiveDocument.CoordinatesString, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
+                    Foreground="{DynamicResource ThemeForegroundBrush}"
+                    FontSize="16" />
+            </StackPanel>
+        </DockPanel>
+        <StackPanel
+            Margin="10,0,0,0"
+            VerticalAlignment="Center"
+            Grid.Column="2"
+            Orientation="Horizontal">
+            <TextBlock
+                VerticalAlignment="Center"
+                Padding="10, 0"
+                HorizontalAlignment="Right"
+                Foreground="{DynamicResource ThemeForegroundBrush}"
+                FontSize="14"
+                Text="{Binding DataContext.UpdateSubViewModel.VersionText, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}" />
+        </StackPanel>
+    </Grid>
+</UserControl>

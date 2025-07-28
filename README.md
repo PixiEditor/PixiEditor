@@ -1,39 +1,58 @@
-<img src="https://user-images.githubusercontent.com/25402427/102633463-c1d3bb80-4150-11eb-8262-535e568fa781.png" width="700">
+<img src="https://github.com/user-attachments/assets/bd08c8bd-f610-449d-b1e2-6a990e562518">
 
----
 
-**PixiEditor** is a Pixel art editing software. Create beautiful sprites for your games, animations (coming soon!), and edit images. All packed in eye-friendly dark theme.
+**PixiEditor** is a universal 2D editor that aims to provide you with tools and features for all your 2D needs. Create beautiful sprites for your games, animations, edit images, create logos. All packed in an eye-friendly dark theme.     
 
-[![Build Status](https://img.shields.io/azure-devops/build/flabbet/PixiEditor/6/master)](https://dev.azure.com/flabbet/PixiEditor/_build?definitionId=6) 
-[![CodeFactor](https://www.codefactor.io/repository/github/pixieditor/pixieditor/badge)](https://www.codefactor.io/repository/github/pixieditor/pixieditor)
+
 [![Release](https://img.shields.io/github/v/release/flabbet/PixiEditor)](https://github.com/flabbet/PixiEditor/releases) 
 [![Downloads](https://img.shields.io/github/downloads/PixiEditor/PixiEditor/total)](https://github.com/flabbet/PixiEditor/releases)
 [![Discord Server](https://badgen.net/badge/discord/join%20chat/7289DA?icon=discord)](https://discord.gg/qSRMYmq)
 [![Subreddit subscribers](https://img.shields.io/reddit/subreddit-subscribers/PixiEditor?label=%20r%2FPixiEditor&logoColor=%23e3002d)](https://reddit.com/r/PixiEditor)
-[![contributions](https://img.shields.io/badge/contributions-open-brightgreen)](https://github.com/flabbet/PixiEditor/pulls)
+[![Forum](https://img.shields.io/badge/PixiEditor-Forum-red?link=https%3A%2F%2Fforum.pixieditor.net%2F)](https://forum.pixieditor.net/)
 
-### Check out our website [pixieditor.net](https://pixieditor.net)
+### Check out our website [pixieditor.net](https://pixieditor.net) and [PixiEditor Forum](https://forum.pixieditor.net/)
 
 ## About PixiEditor
 
-Want to create beautiful pixel art for your games? PixiEditor can help you! Our goal is to create a fully open-source, fast, and feature-rich pixel art creator. 
+PixiEditor aims to be all-in-one solution for 2D image editing, we want to achieve this by building a solid foundation with built-in tools for editing raster and vector graphics, procedural artworks, animations and more. To fully customize PixiEditor for all of your 2D needs, we built advanced Node Graph rendering, that allows for creating basically anything. From tiled texturing workspace, procedural animations that wouldn't be possible to make by hand, to even rendering 3D shapes.
+
+The project started as a pixel-art editor, but quickly evolved into something much more complex. Version 1.0 was downloaded over 100 000 times on all platforms and received 93% positive rating on Steam.
 
 ### Familiar interface
 
 Have you ever used Photoshop or Gimp? Reinventing the wheel is unnecessary, we wanted users to get familiar with the tool quickly and with ease. 
 
-![](https://user-images.githubusercontent.com/45312141/235351211-e00bcaea-9c63-4ecd-a2ee-e4fb2b2c9651.png)
+![](https://opencollective-production.s3.us-west-1.amazonaws.com/account-long-description/d2e269a7-8ded-4e0a-a723-c014730dba1c/PixiEditor_6OoxS5PGVD.png)
 
-### Fast
+### Toolsets for any scenario
 
-PixiEditor is fast, drawing feels smooth on any canvas size, we've developed original chunk-based system and adaptive rendering to minimize pixel processing time.
+PixiEditor 2.0 comes by default with multiple toolsets: 
+- Pixel art - it contains tool suited for pixel-perfect scenarios
+- Painting - Basic painting tools, soft brushes, anti aliased shapes
+- Vector - Shapes and paths for creating vectors
 
-### Active development
+All toolsets can be used on one canvas, mix vector with raster. Export to png, jpg, svg, gif, mp4 and more!
 
-PixiEditor started in 2018 and it's been actively developed since. We continuously improve code quality to ensure the best experience and performance.
+![](https://github.com/user-attachments/assets/605c901a-24aa-4c91-9ef9-0fa44878b614)
 
+### Animations
 
-## Installation
+Version 2.0 comes with Timeline and animation capabilities. You can create frame by frame animations or use nodes to animate your custom shaders.
+Key frame animations with vectors are planned.
+
+![PixiEditor_YdWFRnYxfb](https://github.com/user-attachments/assets/8fba0c6c-35c8-4ccb-9d69-d6beaff5d97f)
+
+### Nodes
+
+Node render system is what powers such extensive capabilities. All layers, effects, layer structure are nodes or a result of node connections. PixiEditor exposes node graph for every document, so you are free to customize your image however you want and create procedural art/animations!
+
+Here are some examples of what you can do with custom nodes https://pixieditor.net/blog/2024/08/16/devlog7#madeinpixieditor20
+
+## Installation - PixiEditor 2.0
+
+Currently version 2.0 is in open beta, follow this guide to install it https://pixieditor.net/docs/open-beta
+
+## Installation PixiEditor 1.0 - Pixel Art Editor
 
 <a href='//www.microsoft.com/store/apps/9NDDRHS8PBRN?cid=storebadge&ocid=badge'><img src='https://developer.microsoft.com/store/badges/images/English_get-it-from-MS.png' alt='Microsoft Store badge' width="184"/></a>
 
@@ -49,7 +68,6 @@ Follow these instructions to get PixiEditor working on your machine.
 2. Extract the installer from the archive
 3. Launch it
 4. Follow the steps in the installer to finish the installation
-
 
 ## Featured content
 
@@ -70,31 +88,51 @@ Check out some pixel arts made with PixiEditor [here](https://github.com/PixiEdi
 
 Struggling with something? You can find support in a few places:
 
-* Check out [documentation](https://github.com/flabbet/PixiEditor/wiki)
+* Check out [documentation](https://pixieditor.net/docs)
 
 * Ask on [Discord](https://discord.gg/qSRMYmq)
+* Check out [Forum](https://forum.pixieditor.net)
 * Open new [Issue](https://github.com/flabbet/PixiEditor/issues)
-* Check out the [FAQ](https://github.com/PixiEditor/PixiEditor/wiki/FAQ). 
-
+* [Get help](https://pixieditor.net/help)
 
 
 ## Building from source
 
 ### Software Requirements
 
-* .NET 7
+* .NET 8 SDK
+* [wasi-sdk](https://github.com/WebAssembly/wasi-sdk) - PixiEditor uses WASI modules for extensions
 
 ### Instructions
 
-1. Clone Repository
+1. Clone Repository with nested submodules
 
-2. Open PixiEditor/src/PixiEditor/PixiEditor.sln in Visual Studio
+`git clone --recurse-submodules -j8 https://github.com/PixiEditor/PixiEditor.git`
 
-3. Build solution
+or if cloned already, init submodules with
+
+```
+cd PixiEditor
+```
+```
+git submodule update --init --recursive
+```
+
+2. Download [Wasi-sdk](https://github.com/WebAssembly/wasi-sdk/releases) release for your system
+3. Extract downloaded sdk 
+4. Set `WASI_SDK_PATH` enviroment variable to extracted directory
+5. Run 
+```
+dotnet workload install wasi-experimental
+```
+
+7. Open PixiEditor/src/PixiEditor.sln in Visual Studio or other IDE of your choice
+
+8. Build solution and run PixiEditor.Desktop project
 
 ## Contributing 
 
-Please read [CONTRIBUTING.md](https://github.com/flabbet/PixiEditor/blob/master/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
+Start with [Contributing Guide](https://github.com/PixiEditor/PixiEditor/blob/master/CONTRIBUTING.md)
 
 ## License
 

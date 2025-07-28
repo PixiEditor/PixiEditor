@@ -1,0 +1,11 @@
+syntax = "proto3";
+package PixiEditor.Palettes;
+
+option csharp_namespace = "PixiEditor.Extensions.CommonApi.Palettes";
+
+message PaletteColor
+{
+  uint32 R_Value = 1;
+  uint32 G_Value = 2;
+  uint32 B_Value = 3;
+}

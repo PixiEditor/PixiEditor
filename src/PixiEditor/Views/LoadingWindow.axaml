@@ -1,0 +1,24 @@
+<Window x:Class="PixiEditor.Views.LoadingWindow"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:gif="http://wpfanimatedgif.codeplex.com"
+        xmlns:indicators="clr-namespace:PixiEditor.Views.Indicators"
+        mc:Ignorable="d" ShowInTaskbar="False" SystemDecorations="None"
+        CanResize="False" WindowStartupLocation="CenterScreen"
+        Title="LoadingWindow" MinHeight="180" MinWidth="160" MaxHeight="180" MaxWidth="160"
+        Background="Transparent"
+        x:Name="Window">
+    <Border Background="{StaticResource ThemeBackgroundBrush}"
+            BorderBrush="{StaticResource ThemeBorderMidBrush}" BorderThickness="1.5"
+            CornerRadius="10">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+           <indicators:LoadingIndicator/>
+            <TextBlock Foreground="White" Text="PixiEditor"
+                       FontFamily="Roboto" FontWeight="900" FontSize="28"
+                       HorizontalAlignment="Center" 
+                       Margin="0,10,0,0"/>
+        </StackPanel>
+    </Border>
+</Window>

@@ -1,0 +1,28 @@
+﻿<properties:NodePropertyView xmlns="https://github.com/avaloniaui"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                             xmlns:properties="clr-namespace:PixiEditor.Views.Nodes.Properties"
+                             xmlns:input="clr-namespace:PixiEditor.Views.Input"
+                             xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+                             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+                             xmlns:properties1="clr-namespace:PixiEditor.ViewModels.Nodes.Properties"
+                             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+                             x:Class="PixiEditor.Views.Nodes.Properties.GenericEnumPropertyView">
+    <Design.DataContext>
+        <properties1:GenericEnumPropertyViewModel />
+    </Design.DataContext>
+
+    <Grid
+        HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
+        <TextBlock ui:Translator.TooltipKey="{Binding DisplayName}" VerticalAlignment="Center" ui:Translator.Key="{Binding DisplayName}" />
+        <ComboBox PointerPressed="InputElement_OnPointerPressed" HorizontalAlignment="Right" MinWidth="100" IsVisible="{Binding ShowInputField}"
+                  SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}" ItemsSource="{Binding Values}">
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock ui:Translator.Key="{Binding Converter={converters:EnumToLocalizedStringConverter}}" />
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+    </Grid>
+</properties:NodePropertyView>

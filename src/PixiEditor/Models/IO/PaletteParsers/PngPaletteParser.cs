@@ -1,9 +1,13 @@
-﻿using System.IO;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using PixiEditor.Extensions.Palettes;
-using PixiEditor.Extensions.Palettes.Parsers;
-using Color = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
+using Avalonia.Media.Imaging;
+using PixiEditor.Helpers.Extensions;
+using Drawie.Backend.Core.Numerics;
+using PixiEditor.Extensions.CommonApi.Palettes;
+using PixiEditor.Extensions.CommonApi.Palettes.Parsers;
+using PixiEditor.Helpers;
+using Drawie.Numerics;
 
 namespace PixiEditor.Models.IO.PaletteParsers;
 
@@ -28,11 +32,9 @@ internal class PngPaletteParser : PaletteFileParser
     {
         return await Task.Run(() =>
         {
-            PngBitmapDecoder decoder = new PngBitmapDecoder(new Uri(path), BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.Default);
+            Bitmap bitmap = new(path);
 
-            BitmapFrame frame = decoder.Frames[0];
-
-            PaletteColor[] colors = ExtractFromBitmap(frame);
+            PaletteColor[] colors = ExtractFromBitmap(bitmap);
 
             PaletteFileData data = new(
                 Path.GetFileNameWithoutExtension(path), colors);
@@ -41,27 +43,28 @@ internal class PngPaletteParser : PaletteFileParser
         });
     }
 
-    private PaletteColor[] ExtractFromBitmap(BitmapFrame frame)
+    private PaletteColor[] ExtractFromBitmap(Bitmap bmp)
     {
-        if (frame.Palette is not null && frame.Palette.Colors.Count > 0)
+        /*if (bmp.Palette is not null && bmp.Palette.Colors.Count > 0)
         {
-            return ExtractFromBitmapPalette(frame.Palette);
-        }
+            return ExtractFromBitmapPalette(bmp.Palette);
+        }*/
 
-        return ExtractFromBitmapSource(frame);
+        return ExtractFromBitmapSource(bmp);
     }
 
-    private PaletteColor[] ExtractFromBitmapSource(BitmapFrame frame)
+    private PaletteColor[] ExtractFromBitmapSource(Bitmap frame)
     {
-        if (frame.PixelWidth == 0 || frame.PixelHeight == 0)
+        int width = frame.PixelSize.Width;
+        int height = frame.PixelSize.Height;
+        if (width == 0 || height == 0)
         {
             return Array.Empty<PaletteColor>();
         }
 
         List<PaletteColor> colors = new();
 
-        byte[] pixels = new byte[frame.PixelWidth * frame.PixelHeight * 4];
-        frame.CopyPixels(pixels, frame.PixelWidth * 4, 0);
+        byte[] pixels = frame.ExtractPixels();
         int pixelCount = pixels.Length / 4;
         for (int i = 0; i < pixelCount; i++)
         {
@@ -80,7 +83,8 @@ internal class PngPaletteParser : PaletteFileParser
         return new PaletteColor(pixels[i * 4 + 2], pixels[i * 4 + 1], pixels[i * 4]);
     }
 
-    private PaletteColor[] ExtractFromBitmapPalette(BitmapPalette palette)
+    // TODO: there is no palette in Bitmap, maybe there is a different way to parse png
+    /*private PaletteColor[] ExtractFromBitmapPalette(BitmapPalette palette)
     {
         if (palette.Colors == null || palette.Colors.Count == 0)
         {
@@ -88,7 +92,7 @@ internal class PngPaletteParser : PaletteFileParser
         }
 
         return palette.Colors.Select(color => new PaletteColor(color.R, color.G, color.B)).ToArray();
-    }
+    }*/
 
     public override async Task<bool> Save(string path, PaletteFileData data)
     {
@@ -107,19 +111,15 @@ internal class PngPaletteParser : PaletteFileParser
     {
         await Task.Run(() =>
         {
-            WriteableBitmap bitmap = new(data.Colors.Length, 1, 96, 96, PixelFormats.Bgra32, null);
-            bitmap.Lock();
+            WriteableBitmap bitmap = WriteableBitmapUtility.CreateBitmap(new VecI(data.Colors.Length, 1));
+            using var framebuffer = bitmap.Lock();
             for (int i = 0; i < data.Colors.Length; i++)
             {
                 PaletteColor color = data.Colors[i];
-                bitmap.SetPixel(i, 0, new System.Windows.Media.Color { R = color.R, G = color.G, B = color.B, A = 255 });
+                framebuffer.WritePixel(i, 0, new global::Avalonia.Media.Color(255, color.R, color.G, color.B));
             }
 
-            bitmap.Unlock();
-            PngBitmapEncoder encoder = new();
-            encoder.Frames.Add(BitmapFrame.Create(bitmap));
-            using FileStream stream = new(path, FileMode.Create);
-            encoder.Save(stream);
+            bitmap.Save(path);
         });
     }
 }

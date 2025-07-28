@@ -1,0 +1,398 @@
+﻿<dialogs:PixiEditorPopup x:Class="PixiEditor.Views.Windows.HelloTherePopup"
+                         x:ClassModifier="internal"
+                         xmlns="https://github.com/avaloniaui"
+                         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                         xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+                         xmlns:system="clr-namespace:System;assembly=System.Runtime"
+                         xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+                         xmlns:dataHolders="clr-namespace:PixiEditor.Models.UserData"
+                         xmlns:panels="clr-namespace:PixiEditor.Views.Panels"
+                         xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
+                         xmlns:indicators1="clr-namespace:PixiEditor.Views.Indicators"
+                         xmlns:newsFeed1="clr-namespace:PixiEditor.Views.NewsFeed"
+                         xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
+                         xmlns:visuals="clr-namespace:PixiEditor.Views.Visuals"
+                         xmlns:windows="clr-namespace:PixiEditor.Views.Windows"
+                         xmlns:ui1="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+                         mc:Ignorable="d"
+                         Title="Hello there!" Height="680" Width="982" MinHeight="500" MinWidth="600">
+
+    <Window.Styles>
+        <Style Selector="TextBlock">
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="FontSize" Value="16" />
+        </Style>
+    </Window.Styles>
+
+    <DockPanel>
+        <Grid Background="{DynamicResource ThemeBackgroundBrush}" x:Name="grid">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="300" />
+            </Grid.ColumnDefinitions>
+
+            <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto"
+                          IsVisible="{Binding !ShowAllBetaExamples, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}"
+                          Margin="3,0">
+                <Grid Grid.Row="1" Margin="0,30,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="90" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition MinHeight="120" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.RowSpan="3" HorizontalAlignment="Right" VerticalAlignment="Center">
+                        <CheckBox IsVisible="{Binding !NewsDisabled}" Cursor="Hand"
+                                  Width="40" Height="40" IsChecked="{Binding NewsPanelCollapsed}">
+                            <CheckBox.Styles>
+                                <Style Selector="CheckBox:checked TextBlock#checkboxImage">
+                                    <Setter Property="Text" Value="{DynamicResource icon-chevron-right}" />
+                                    <Setter Property="Margin" Value="2 0 0 0" />
+                                </Style>
+                            </CheckBox.Styles>
+                            <CheckBox.Template>
+                                <ControlTemplate TargetType="{x:Type CheckBox}">
+                                    <Border CornerRadius="50" Width="40" Height="40"
+                                            Background="{DynamicResource ThemeBackgroundBrush2}">
+                                        <TextBlock Focusable="False" x:Name="checkboxImage"
+                                                   Classes="pixi-icon" FontSize="40" Margin="-2 0 0 0"
+                                                   Text="{DynamicResource icon-chevron-left}" />
+                                    </Border>
+                                </ControlTemplate>
+                            </CheckBox.Template>
+                        </CheckBox>
+                    </Grid>
+                    <StackPanel Grid.Row="0" HorizontalAlignment="Center">
+                        <Svg Path="/Images/PixiEditorLogoWithName.svg" Height="60" VerticalAlignment="Top" />
+                        <TextBlock HorizontalAlignment="Center" FontSize="20" FontWeight="Medium"
+                                   Text="{Binding VersionText}" />
+                    </StackPanel>
+
+                    <StackPanel Name="FilesRow" Grid.Row="1" Orientation="Vertical" HorizontalAlignment="Center">
+                        <StackPanel Orientation="Horizontal">
+                            <Button Command="{Binding OpenFileCommand}" MinWidth="150" Margin="10"
+                                    ui:Translator.Key="OPEN_FILE" />
+                            <Button Command="{Binding OpenNewFileCommand}" MinWidth="150" Margin="10"
+                                    ui:Translator.Key="NEW_FILE" />
+                            <Button Classes="pixi-icon" Content="{DynamicResource icon-paste-as-new-layer}"
+                                    Command="{Binding NewFromClipboardCommand}"
+                                    ui:Translator.TooltipKey="NEW_FROM_CLIPBOARD" />
+                        </StackPanel>
+
+                        <UniformGrid Width="320"
+                                     Margin="10,0,0,0"
+                                     HorizontalAlignment="Left"
+                                     ColumnSpacing="20"
+                                     Columns="{Binding ElementName=ExampleFilesGrid, Path=Children.Count}"
+                                     Name="ExampleFilesGrid">
+                            <Button
+                                    Background="{DynamicResource ThemeAccentBrush2}"
+                                    ui:Translator.Key="EXAMPLE_FILES"
+                                    Command="{Binding SetShowAllBetaExamplesCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}"
+                                    CommandParameter="{x:True}" />
+                        </UniformGrid>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="2" HorizontalAlignment="Center">
+                        <TextBlock Margin="0,8,0,0" FontSize="23" FontWeight="SemiBold" HorizontalAlignment="Center"
+                                   ui:Translator.Key="RECENT_FILES" />
+                        <TextBlock Margin="0,12.5,0,0" Foreground="LightGray" HorizontalAlignment="Center"
+                                   ui:Translator.Key="RECENT_EMPTY_TEXT">
+                            <TextBlock.IsVisible>
+                                <Binding Path="RecentlyOpened.Count"
+                                         Converter="{converters:EqualityBoolToIsVisibleConverter}">
+                                    <Binding.ConverterParameter>
+                                        <system:Int32>0</system:Int32>
+                                    </Binding.ConverterParameter>
+                                </Binding>
+                            </TextBlock.IsVisible>
+                        </TextBlock>
+                        <ItemsControl ItemsSource="{Binding RecentlyOpened}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type dataHolders:RecentlyOpenedDocument}">
+                                    <Grid>
+                                        <StackPanel Margin="8,5,8,0">
+                                            <Button Margin="0,10,0,0" HorizontalAlignment="Center"
+                                                    Width="100" Height="100"
+                                                    Padding="0"
+                                                    Command="{Binding DataContext.OpenRecentCommand, RelativeSource={RelativeSource AncestorType=panels:AlignableWrapPanel}}"
+                                                    CommandParameter="{Binding FilePath}"
+                                                    x:Name="fileButton">
+                                                <Grid Width="100" Height="100">
+                                                    <visuals:PixiFilePreviewImage
+                                                        FilePath="{Binding FilePath}"
+                                                        Corrupt="{Binding Corrupt}"
+                                                        Margin="10"
+                                                        Stretch="Uniform"
+                                                        x:Name="image">
+                                                        <ui1:RenderOptionsBindable.BitmapInterpolationMode>
+                                                            <MultiBinding
+                                                                Converter="{converters:WidthToBitmapScalingModeConverter}">
+                                                                <Binding Path="ImageSize.X" ElementName="image" />
+                                                                <Binding Path="Width" ElementName="image" />
+                                                            </MultiBinding>
+                                                        </ui1:RenderOptionsBindable.BitmapInterpolationMode>
+                                                    </visuals:PixiFilePreviewImage>
+                                                    <Border Grid.Row="1" Height="8" Width="8" x:Name="extensionBorder"
+                                                            Margin="5"
+                                                            Background="{Binding FileExtension, Converter={converters:FileExtensionToColorConverter}}"
+                                                            VerticalAlignment="Bottom" HorizontalAlignment="Right">
+                                                        <!--<Border.Style>
+                                                            <Style TargetType="Border">
+                                                                <Style.Triggers>
+                                                                    <Trigger Property="IsMouseOver" Value="False">
+                                                                        <Setter Property="CornerRadius" Value="2"/>
+                                                                    </Trigger>
+                                                                    <DataTrigger Binding="{Binding IsMouseOver, ElementName=fileButton}" Value="True">
+                                                                        <DataTrigger.EnterActions>
+                                                                            <BeginStoryboard Name="open">
+                                                                                <Storyboard BeginTime="0:0:.1">
+                                                                                    <DoubleAnimation Storyboard.TargetProperty="Height" By="8" To="70" BeginTime="0:0:.1" Duration="0:0:.3">
+                                                                                        <DoubleAnimation.EasingFunction>
+                                                                                            <ExponentialEase/>
+                                                                                        </DoubleAnimation.EasingFunction>
+                                                                                    </DoubleAnimation>
+                                                                                    <DoubleAnimation Storyboard.TargetProperty="Width" By="8" To="100" Duration="0:0:.1">
+                                                                                        <DoubleAnimation.EasingFunction>
+                                                                                            <ExponentialEase/>
+                                                                                        </DoubleAnimation.EasingFunction>
+                                                                                    </DoubleAnimation>
+                                                                                    <ThicknessAnimation Storyboard.TargetProperty="Margin" By="5" To="0" BeginTime="0:0:.1" Duration="0:0:.25">
+                                                                                        <ThicknessAnimation.EasingFunction>
+                                                                                            <ExponentialEase/>
+                                                                                        </ThicknessAnimation.EasingFunction>
+                                                                                    </ThicknessAnimation>
+                                                                                </Storyboard>
+                                                                            </BeginStoryboard>
+                                                                        </DataTrigger.EnterActions>
+                                                                        <DataTrigger.ExitActions>
+                                                                            <BeginStoryboard Name="close">
+                                                                                <Storyboard>
+                                                                                    <DoubleAnimation Storyboard.TargetProperty="Height" By="70" To="8"  Duration="0:0:.2">
+                                                                                        <DoubleAnimation.EasingFunction>
+                                                                                            <ExponentialEase/>
+                                                                                        </DoubleAnimation.EasingFunction>
+                                                                                    </DoubleAnimation>
+                                                                                    <DoubleAnimation Storyboard.TargetProperty="Width" By="100" To="8" BeginTime="0:0:.2" Duration="0:0:.1">
+                                                                                        <DoubleAnimation.EasingFunction>
+                                                                                            <ExponentialEase/>
+                                                                                        </DoubleAnimation.EasingFunction>
+                                                                                    </DoubleAnimation>
+                                                                                    <ThicknessAnimation Storyboard.TargetProperty="Margin" By="0" To="5" Duration="0:0:.1">
+                                                                                        <ThicknessAnimation.EasingFunction>
+                                                                                            <ExponentialEase/>
+                                                                                        </ThicknessAnimation.EasingFunction>
+                                                                                    </ThicknessAnimation>
+                                                                                </Storyboard>
+                                                                            </BeginStoryboard>
+                                                                        </DataTrigger.ExitActions>
+                                                                        <Setter Property="CornerRadius" Value="0,0,4,4"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Border.Style>-->
+                                                        <Grid HorizontalAlignment="Center" Margin="0,10,0,0"
+                                                              Opacity="0">
+                                                            <!--<Grid.Style>
+                                                                <Style TargetType="Grid">
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding IsMouseOver, ElementName=fileButton}" Value="True">
+                                                                            <DataTrigger.EnterActions>
+                                                                                <BeginStoryboard Name="start">
+                                                                                    <Storyboard BeginTime="0:0:.2">
+                                                                                        <DoubleAnimation Storyboard.TargetProperty="Opacity" By="0" To="1" Duration="0:0:.4">
+                                                                                            <DoubleAnimation.EasingFunction>
+                                                                                                <PowerEase/>
+                                                                                            </DoubleAnimation.EasingFunction>
+                                                                                        </DoubleAnimation>
+                                                                                    </Storyboard>
+                                                                                </BeginStoryboard>
+                                                                            </DataTrigger.EnterActions>
+                                                                            <DataTrigger.ExitActions>
+                                                                                <RemoveStoryboard BeginStoryboardName="start"/>
+                                                                            </DataTrigger.ExitActions>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Grid.Style>-->
+                                                            <TextBlock x:Name="extension" VerticalAlignment="Top"
+                                                                       Text="{Binding FileExtension}" FontSize="15"
+                                                                       TextAlignment="Center" />
+                                                            <StackPanel Orientation="Horizontal"
+                                                                        VerticalAlignment="Bottom"
+                                                                        HorizontalAlignment="Center">
+                                                                <StackPanel.Styles>
+                                                                    <Style Selector="Button">
+                                                                        <Setter Property="Margin" Value="0,0,0,5" />
+                                                                        <Setter Property="Width" Value="25" />
+                                                                        <Setter Property="Height" Value="25" />
+                                                                        <Setter Property="MinWidth" Value="25" />
+                                                                        <Setter Property="MinHeight" Value="25" />
+                                                                        <Setter Property="Background"
+                                                                            Value="Transparent" />
+                                                                    </Style>
+                                                                    <Style Selector="Button:hover">
+                                                                        <Setter Property="Background" Value="#70FFFFFF" />
+                                                                    </Style>
+                                                                </StackPanel.Styles>
+                                                                <Button
+                                                                    Command="{Binding DataContext.OpenInExplorerCommand, RelativeSource={RelativeSource AncestorType=panels:AlignableWrapPanel}}"
+                                                                    CommandParameter="{Binding FilePath}"
+                                                                    ToolTip.Tip="Open in File Explorer">
+                                                                    <TextBlock Text="&#xEC50;"
+                                                                               FontFamily="Segoe MDL2 Assets"
+                                                                               TextAlignment="Center" FontSize="18" />
+                                                                </Button>
+                                                                <Button
+                                                                    Command="{xaml:Command Name=PixiEditor.File.RemoveRecent, UseProvided=True}"
+                                                                    CommandParameter="{Binding FilePath}"
+                                                                    ToolTip.Tip="Remove from list">
+                                                                    <TextBlock Text=""
+                                                                               FontFamily="{DynamicResource Feather}"
+                                                                               TextAlignment="Center" FontSize="20" />
+                                                                </Button>
+                                                            </StackPanel>
+                                                        </Grid>
+                                                    </Border>
+                                                </Grid>
+                                            </Button>
+
+                                            <TextBlock Text="{Binding FileName}" ToolTip.Tip="{Binding FilePath}"
+                                                       Width="110" TextAlignment="Center"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       FontSize="18" Margin="10,10,10,2" HorizontalAlignment="Center" />
+                                        </StackPanel>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <panels:AlignableWrapPanel HorizontalAlignment="Center"
+                                                               HorizontalContentAlignment="Center" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                    </StackPanel>
+
+                    <panels:AlignableWrapPanel Grid.Row="3" HorizontalContentAlignment="Center"
+                                               HorizontalAlignment="Center" Margin="0,5,0,15">
+                        <Button Command="{xaml:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}"
+                                CommandParameter="https://pixieditor.net"
+                                ui:Translator.TooltipKey="WEBSITE"
+                                Classes="SocialMediaButton" Tag="#e3002d"
+                                Content="{DynamicResource icon-globe}" />
+                        <Button Command="{xaml:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}"
+                                CommandParameter="https://discord.gg/tzkQFDkqQS"
+                                Classes="SocialMediaButton" Tag="#5865F2" ui:Translator.TooltipKey="DISCORD"
+                                Content="{DynamicResource icon-discord}" />
+                        <Button Command="{xaml:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}"
+                                CommandParameter="https://reddit.com/r/PixiEditor"
+                                Classes="SocialMediaButton" Tag="#FF4500" ui:Translator.TooltipKey="REDDIT"
+                                Content="{DynamicResource icon-reddit}" />
+                        <Button Command="{xaml:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}"
+                                CommandParameter="https://store.steampowered.com/app/2218560"
+                                Classes="SocialMediaButton" Tag="#00adee" ui:Translator.TooltipKey="STEAM"
+                                Content="{DynamicResource icon-steam}" />
+                        <Button Command="{xaml:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}"
+                                CommandParameter="https://github.com/PixiEditor/PixiEditor"
+                                Classes="SocialMediaButton" Tag="Black" ui:Translator.TooltipKey="GITHUB"
+                                Content="{DynamicResource icon-github}" />
+                        <Button Command="{xaml:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}"
+                                CommandParameter="https://www.youtube.com/channel/UCT5XvyvX1q5PAIaXfWmpsMQ"
+                                Classes="SocialMediaButton" Tag="#FF0000" ui:Translator.TooltipKey="YOUTUBE"
+                                Content="{DynamicResource icon-youtube-filled}" />
+                        <Button Command="{xaml:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}"
+                                IsVisible="{Binding ShowDonateButton}"
+                                CommandParameter="https://opencollective.com/pixieditor"
+                                Classes="SocialMediaButton" Tag="#d4af37" ui:Translator.TooltipKey="DONATE"
+                                Content="{DynamicResource icon-heart-handshake}" />
+                        <Button Command="{xaml:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}"
+                                IsVisible="{Binding !ShowDonateButton}"
+                                CommandParameter="https://store.steampowered.com/app/2435860/PixiEditor__Supporter_Pack/"
+                                Classes="SocialMediaButton" Tag="#d4af37" ui:Translator.TooltipKey="BUY_SUPPORTER_PACK"
+                                Content="{DynamicResource icon-heart-handshake}" />
+                    </panels:AlignableWrapPanel>
+                </Grid>
+            </ScrollViewer>
+
+            <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto"
+                          IsVisible="{Binding ShowAllBetaExamples, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}"
+                          Margin="3,0">
+                <StackPanel>
+                    <Button Margin="6,8,0,0" HorizontalAlignment="Left"
+                            Command="{Binding SetShowAllBetaExamplesCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}"
+                            CommandParameter="{x:False}"
+                            Content="Go back" HorizontalContentAlignment="Left" />
+
+                    <TextBlock ui:Translator.Key="EXAMPLE_FILES" Margin="0,-9,0,5" HorizontalAlignment="Center"
+                               TextAlignment="Center" FontSize="22" FontWeight="Bold" />
+
+                    <TextBlock ui:Translator.Key="PROCEDURAL_GENERATION" Margin="0,2" HorizontalAlignment="Center"
+                               TextAlignment="Center" FontSize="18" FontWeight="SemiBold" />
+
+                    <ScrollViewer HorizontalAlignment="Center" VerticalScrollBarVisibility="Auto">
+                        <panels:AlignableWrapPanel>
+                            <windows:BetaExampleButton FileName="Disco Ball.pixi" DisplayName="DISCO_BALL_EXAMPLE"
+                                                       CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
+                            <windows:BetaExampleButton FileName="Pond.pixi" DisplayName="POND_EXAMPLE"
+                                                       CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
+                            <windows:BetaExampleButton FileName="Tree.pixi" DisplayName="TREE_EXAMPLE"
+                                                       CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
+                            <windows:BetaExampleButton FileName="Island.pixi" DisplayName="ISLAND_EXAMPLE"
+                                                       CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
+                            <windows:BetaExampleButton FileName="Stars.pixi" DisplayName="STARS_EXAMPLE"
+                                                       CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
+                            <windows:BetaExampleButton FileName="Outline.pixi" DisplayName="OUTLINE_EXAMPLE"
+                                                       CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
+                        </panels:AlignableWrapPanel>
+                    </ScrollViewer>
+
+                    <TextBlock ui:Translator.Key="BETA_ANIMATIONS" Margin="0,8,0,2" HorizontalAlignment="Center"
+                               TextAlignment="Center" FontSize="18" FontWeight="SemiBold" />
+
+                    <ScrollViewer HorizontalAlignment="Center" VerticalScrollBarVisibility="Auto">
+                        <StackPanel Orientation="Horizontal">
+                            <windows:BetaExampleButton FileName="Slime.pixi" DisplayName="SLIME_EXAMPLE"
+                                                       CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <TextBlock ui:Translator.Key="PHOTO_EXAMPLES" Margin="0,8,0,2" HorizontalAlignment="Center"
+                               TextAlignment="Center" FontSize="18" FontWeight="SemiBold" />
+                    <ScrollViewer HorizontalAlignment="Center" VerticalScrollBarVisibility="Auto">
+                        <StackPanel Orientation="Horizontal">
+                            <windows:BetaExampleButton FileName="Mask.pixi" DisplayName="MASK_EXAMPLE"
+                                                       CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
+                        </StackPanel>
+                    </ScrollViewer>
+
+                </StackPanel>
+            </ScrollViewer>
+
+            <ScrollViewer Grid.Column="1"
+                          IsVisible="{Binding !NewsPanelCollapsed}">
+                <Border Padding="5" BorderThickness="3 0 0 0" BorderBrush="{DynamicResource ThemeBackgroundBrush1}">
+                    <Grid>
+                        <indicators1:LoadingIndicator IsVisible="{Binding IsFetchingNews}" Width="100" Height="100" />
+                        <TextBlock ui:Translator.Key="FAILED_FETCH_NEWS" FontSize="20"
+                                   VerticalAlignment="Center" TextAlignment="Center"
+                                   IsVisible="{Binding Path=FailedFetchingNews}" />
+                        <StackPanel Orientation="Vertical" IsVisible="{Binding !IsFetchingNews}">
+                            <TextBlock HorizontalAlignment="Center" ui:Translator.Key="NEWS" FontSize="18" />
+                            <ItemsControl ItemsSource="{Binding Path=News}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <newsFeed1:NewsItem Margin="5" News="{Binding Path=.}" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </ScrollViewer>
+        </Grid>
+    </DockPanel>
+</dialogs:PixiEditorPopup>

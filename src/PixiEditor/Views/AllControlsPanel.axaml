@@ -1,0 +1,238 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:dialogs="clr-namespace:Avalonia.Dialogs;assembly=Avalonia.Dialogs"
+             xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="PixiEditor.Views.AllControlsPanel" Background="{DynamicResource ThemeBackgroundBrush}">
+
+    <WrapPanel Orientation="Vertical" Margin="10" HorizontalAlignment="Left">
+
+            <Label Content="Label"/>
+            <TextBlock Text="Text"/>
+            <TextBlock Text="h1" Classes="h1"/>
+            <TextBlock Text="h2" Classes="h2"/>
+            <TextBlock Text="h3" Classes="h3"/>
+            <TextBlock Text="h4" Classes="h4"/>
+
+            <Separator/>
+
+            <TextBlock localization:Translator.Key="LANGUAGE" localization:Translator.TooltipKey="LANGUAGE"/>
+            <SelectableTextBlock Text="Selectable text block"/>
+
+        <Separator/>
+
+        <Button Content="Button"/>
+        <Button Content="Button Disabled" Margin="0 10" IsEnabled="False"/>
+
+        <ToggleButton Content="ToggleButton"/>
+
+        <RepeatButton Margin="0 10" Content="Repeat Button" />
+
+        <Separator/>
+
+        <CheckBox Content="CheckBox" IsThreeState="True"/>
+
+        <Separator/>
+
+        <RadioButton GroupName="Radios" Margin="0 10" Content="Option 1"/>
+        <RadioButton GroupName="Radios" Content="Option 2"/>
+
+        <Separator/>
+
+        <ScrollViewer Height="50">
+            <StackPanel>
+                <TextBlock Text="ScrollViewer"/>
+                <TextBlock Text="ScrollViewer"/>
+                <TextBlock Text="ScrollViewer"/>
+                <TextBlock Text="ScrollViewer"/>
+                <TextBlock Text="ScrollViewer"/>
+            </StackPanel>
+        </ScrollViewer>
+
+        <Separator/>
+
+        <TextBox Watermark="TextBox" Margin="0 10" Text="Sample text"/>
+
+        <Separator/>
+
+        <ComboBox SelectedIndex="0">
+            <ComboBoxItem Content="ComboBoxItem 1"/>
+            <ComboBoxItem Content="ComboBoxItem 2"/>
+            <ComboBoxItem Content="ComboBoxItem 3"/>
+        </ComboBox>
+
+        <ListBox SelectedIndex="0" Margin="0 10">
+            <ListBoxItem Content="ListBoxItem 1"/>
+            <ListBoxItem Content="ListBoxItem 2"/>
+            <ListBoxItem Content="ListBoxItem 3"/>
+        </ListBox>
+
+        <Slider Margin="0 10" Value="50"/>
+        <ProgressBar VerticalAlignment="Center" IsIndeterminate="True" />
+        <ProgressBar VerticalAlignment="Center" Value="5" Margin="0 10" Maximum="10" />
+        <ProgressBar VerticalAlignment="Center" Value="50" />
+        <ProgressBar VerticalAlignment="Center" Value="50" ShowProgressText="True" Margin="0 10"
+                     Minimum="25" Maximum="75" />
+        <ProgressBar HorizontalAlignment="Left" IsIndeterminate="True" Orientation="Vertical" />
+
+        <Border Background="{DynamicResource ThemeBackgroundBrush1}">
+            <Border.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Hello"/>
+                    <MenuItem Header="Hello2"/>
+                    <Separator/>
+                    <MenuItem Header="Hello Nested">
+                        <MenuItem Header="Hover for more">
+                            <MenuItem Header="If you hover again, you'll get a cookie">
+                                <MenuItem Header="Sike! No cookie here, keep going">
+                                    <MenuItem Header="Ok, take some rest 🍪"/>
+                                </MenuItem>
+                                </MenuItem>
+                        </MenuItem>
+                        </MenuItem>
+                </ContextMenu>
+            </Border.ContextMenu>
+            <TextBlock Text="Right click for context menu"/>
+        </Border>
+
+        <Menu>
+            <MenuItem Header="Hello"/>
+            <MenuItem Header="Hello2"/>
+            <Separator/>
+            <MenuItem Header="Hello Nested">
+                <MenuItem Header="Hover for more">
+                    <MenuItem Header="If you hover again, you'll get a cookie">
+                        <MenuItem Header="Sike! No cookie here, keep going">
+                            <MenuItem Header="Ok, take some rest 🍪"/>
+                        </MenuItem>
+                    </MenuItem>
+                </MenuItem>
+            </MenuItem>
+        </Menu>
+
+        <NotificationCard Content="Notification Card"/>
+        <AutoCompleteBox Margin="0 10" Watermark="No, this is" Name="autoComplete" />
+        <ButtonSpinner AllowSpin="True" ButtonSpinnerLocation="Right" ShowButtonSpinner="True">
+            <TextBlock Text="Button Spinner"/>
+        </ButtonSpinner>
+        <Calendar/>
+        <DatePicker/>
+        <CaptionButtons/>
+        <Carousel>
+            <Carousel.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock>Hello</TextBlock>
+                </DataTemplate>
+            </Carousel.ItemTemplate>
+            <Carousel.Items>
+                <TextBlock/>
+                <TextBlock/>
+                <TextBlock/>
+            </Carousel.Items>
+        </Carousel>
+        <DropDownButton/>
+        <Expander/>
+        <FlyoutPresenter/>
+        <Grid Width="200" Height="200" ColumnDefinitions="*, 4, *">
+            <Rectangle Grid.Column="0" Fill="Blue"/>
+            <GridSplitter Grid.Column="1" Background="Black" ResizeDirection="Columns"/>
+            <Rectangle Grid.Column="2" Fill="Red"/>
+        </Grid>
+
+            <dialogs:ManagedFileChooser Width="300"/>
+            <MenuFlyoutPresenter/>
+            <NativeMenuBar/>
+            <NumericUpDown Margin="0 10"/>
+            <RefreshContainer Content="Refresh Container"/>
+
+            <RefreshVisualizer Orientation="Auto">
+                123
+            </RefreshVisualizer>
+
+            <SplitButton Margin="0 10" Content="Split Button">
+                <SplitButton.Flyout>
+                    <Flyout>
+                        <StackPanel>
+                            <Button Content="Some flyout button"/>
+                        </StackPanel>
+                    </Flyout>
+                </SplitButton.Flyout>
+            </SplitButton>
+            <Border Width="200" Height="200">
+                <SplitView DisplayMode="Inline"
+                           IsPaneOpen="True">
+                    <SplitView.Pane>
+                        <Border Background="Green" />
+                    </SplitView.Pane>
+                    <SplitView.Content>
+                        <Border Background="Blue" />
+                    </SplitView.Content>
+                </SplitView>
+            </Border>
+
+            <TabControl>
+                <TabItem Header="Tab 1">
+                    <TextBlock Text="Tab 1"/>
+                </TabItem>
+                <TabItem Header="Tab 2">
+                    <TextBlock Text="Tab 2"/>
+                </TabItem>
+                <TabItem Header="Tab 3">
+                    <TextBlock Text="Tab 3"/>
+                </TabItem>
+            </TabControl>
+
+            <ThemeVariantScope/>
+
+            <TimePicker/>
+
+            <StackPanel Margin="20" Width="250" Spacing="24">
+                <StackPanel Spacing="12">
+                    <TextBlock
+                        Text="Automatic updates"
+                        Classes="h1" />
+                    <TextBlock
+                        Text="Updates will be automaticly Downloaded and installed shile the computer is shutting down or restarting"
+                        TextWrapping="Wrap" />
+                    <ToggleSwitch HorizontalContentAlignment="Left"
+                                  Content="Enable automatic Updates?"
+                                  OffContent="Uit"
+                                  OnContent="Aan"
+                                  VerticalAlignment="Bottom" />
+                </StackPanel>
+
+                <StackPanel Spacing="12">
+                    <TextBlock
+                        Text="Previewer"
+                        Classes="h1" />
+                    <TextBlock
+                        Text="The previewer Shows a preview off your code, this could slow down your system"
+                        TextWrapping="Wrap" />
+                    <ToggleSwitch
+                        Content="Previewer"
+                        IsChecked="True" />
+                </StackPanel>
+
+                <TreeView>
+                    <TreeViewItem Header="Item 1">
+                        <TreeViewItem Header="Item 1.1"/>
+                        <TreeViewItem Header="Item 1.2"/>
+                        <TreeViewItem Header="Item 1.3"/>
+                    </TreeViewItem>
+                    <TreeViewItem Header="Item 2">
+                        <TreeViewItem Header="Item 2.1"/>
+                        <TreeViewItem Header="Item 2.2"/>
+                        <TreeViewItem Header="Item 2.3"/>
+                    </TreeViewItem>
+                    <TreeViewItem Header="Item 3">
+                        <TreeViewItem Header="Item 3.1"/>
+                        <TreeViewItem Header="Item 3.2"/>
+                        <TreeViewItem Header="Item 3.3"/>
+                    </TreeViewItem>
+                </TreeView>
+
+            </StackPanel>
+        </WrapPanel>
+</UserControl>

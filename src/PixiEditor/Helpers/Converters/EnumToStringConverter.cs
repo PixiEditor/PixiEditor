@@ -1,5 +1,4 @@
-﻿using PixiEditor.Models.Enums;
-using System;
+﻿using PixiEditor.Models.Dialogs;
 
 namespace PixiEditor.Helpers.Converters;
 

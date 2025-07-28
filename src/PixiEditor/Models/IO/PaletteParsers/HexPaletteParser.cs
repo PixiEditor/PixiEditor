@@ -1,9 +1,10 @@
-﻿using System.Globalization;
+﻿using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Text;
-using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.Extensions.Palettes;
-using PixiEditor.Extensions.Palettes.Parsers;
+using System.Threading.Tasks;
+using PixiEditor.Extensions.CommonApi.Palettes;
+using PixiEditor.Extensions.CommonApi.Palettes.Parsers;
 
 namespace PixiEditor.Models.IO.PaletteParsers;
 

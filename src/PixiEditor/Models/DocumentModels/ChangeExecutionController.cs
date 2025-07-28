@@ -1,36 +1,50 @@
-﻿using System.Windows.Input;
+﻿using Avalonia.Input;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Enums;
-using PixiEditor.DrawingApi.Core.Numerics;
+using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Vector;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
-using PixiEditor.Models.Enums;
-using PixiEditor.ViewModels.SubViewModels.Document;
-using PixiEditor.Views.UserControls.SymmetryOverlay;
+using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
+using PixiEditor.Models.Handlers;
+using PixiEditor.Models.Tools;
+using Drawie.Numerics;
+using PixiEditor.Models.Controllers.InputDevice;
+using PixiEditor.Views.Overlays.SymmetryOverlay;
 
 namespace PixiEditor.Models.DocumentModels;
 #nullable enable
 internal class ChangeExecutionController
 {
-    public MouseButtonState LeftMouseState { get; private set; }
+    public bool LeftMousePressed { get; private set; }
     public ShapeCorners LastTransformState { get; private set; }
     public VecI LastPixelPosition => lastPixelPos;
     public VecD LastPrecisePosition => lastPrecisePos;
-    public bool IsChangeActive => currentSession is not null;
+    public bool IsBlockingChangeActive => currentSession is not null && currentSession.BlocksOtherActions;
 
-    private readonly DocumentViewModel document;
+    public event Action ToolSessionFinished;
+
+    private readonly IDocument document;
+    private readonly IServiceProvider services;
     private readonly DocumentInternalParts internals;
 
     private VecI lastPixelPos;
     private VecD lastPrecisePos;
 
     private UpdateableChangeExecutor? currentSession = null;
-    
+
     private UpdateableChangeExecutor? _queuedExecutor = null;
 
-    public ChangeExecutionController(DocumentViewModel document, DocumentInternalParts internals)
+    public ChangeExecutionController(IDocument document, DocumentInternalParts internals, IServiceProvider services)
     {
         this.document = document;
         this.internals = internals;
+        this.services = services;
+    }
+
+    public bool IsChangeOfTypeActive<T>() where T : IExecutorFeature
+    {
+        return currentSession is T sessionT && sessionT.IsFeatureEnabled<T>();
     }
 
     public ExecutorType GetCurrentExecutorType()
@@ -43,33 +57,33 @@ internal class ChangeExecutionController
     public bool TryStartExecutor<T>(bool force = false)
         where T : UpdateableChangeExecutor, new()
     {
-        if (CanStartExecutor(force))
+        if (!CanStartExecutor(force))
             return false;
         if (force)
             currentSession?.ForceStop();
-        
+
         T executor = new T();
         return TryStartExecutorInternal(executor);
     }
 
     public bool TryStartExecutor(UpdateableChangeExecutor brandNewExecutor, bool force = false)
     {
-        if (CanStartExecutor(force))
+        if (!CanStartExecutor(force))
             return false;
-        if (force)
-            currentSession?.ForceStop();
-        
+
+        currentSession?.ForceStop();
         return TryStartExecutorInternal(brandNewExecutor);
     }
 
     private bool CanStartExecutor(bool force)
     {
-        return (currentSession is not null || _queuedExecutor is not null) && !force;
+        return (currentSession is null && _queuedExecutor is null) || force ||
+               currentSession is { BlocksOtherActions: false };
     }
 
     private bool TryStartExecutorInternal(UpdateableChangeExecutor executor)
     {
-        executor.Initialize(document, internals, this, EndExecutor);
+        executor.Initialize(document, internals, services, this, EndExecutor);
 
         if (executor.StartMode == ExecutorStartMode.OnMouseLeftButtonDown)
         {
@@ -79,7 +93,7 @@ internal class ChangeExecutionController
 
         return StartExecutor(executor);
     }
-    
+
     private bool StartExecutor(UpdateableChangeExecutor brandNewExecutor)
     {
         if (brandNewExecutor.Start() == ExecutionState.Success)
@@ -97,6 +111,8 @@ internal class ChangeExecutionController
             throw new InvalidOperationException();
         currentSession = null;
         _queuedExecutor = null;
+
+        ToolSessionFinished?.Invoke();
     }
 
     public bool TryStopActiveExecutor()
@@ -105,11 +121,32 @@ internal class ChangeExecutionController
             return false;
         currentSession.ForceStop();
         currentSession = null;
+
+        ToolSessionFinished?.Invoke();
         return true;
     }
 
-    public void MidChangeUndoInlet() => currentSession?.OnMidChangeUndo();
-    public void MidChangeRedoInlet() => currentSession?.OnMidChangeRedo();
+    public void MidChangeUndoInlet()
+    {
+        if (currentSession is null)
+            return;
+
+        if (currentSession is IMidChangeUndoableExecutor undoableExecutor)
+        {
+            undoableExecutor.OnMidChangeUndo();
+        }
+    }
+
+    public void MidChangeRedoInlet()
+    {
+        if (currentSession is null)
+            return;
+
+        if (currentSession is IMidChangeUndoableExecutor undoableExecutor)
+        {
+            undoableExecutor.OnMidChangeRedo();
+        }
+    }
 
     public void ConvertedKeyDownInlet(Key key)
     {
@@ -131,6 +168,7 @@ internal class ChangeExecutionController
             lastPixelPos = newPixelPos;
             pixelPosChanged = true;
         }
+
         lastPrecisePos = newCanvasPos;
 
         //call session events
@@ -143,13 +181,16 @@ internal class ChangeExecutionController
     }
 
     public void OpacitySliderDragStartedInlet() => currentSession?.OnOpacitySliderDragStarted();
+
     public void OpacitySliderDraggedInlet(float newValue)
     {
         currentSession?.OnOpacitySliderDragged(newValue);
     }
+
     public void OpacitySliderDragEndedInlet() => currentSession?.OnOpacitySliderDragEnded();
 
     public void SymmetryDragStartedInlet(SymmetryAxisDirection dir) => currentSession?.OnSymmetryDragStarted(dir);
+
     public void SymmetryDraggedInlet(SymmetryAxisDragInfo info)
     {
         currentSession?.OnSymmetryDragged(info);
@@ -157,44 +198,127 @@ internal class ChangeExecutionController
 
     public void SymmetryDragEndedInlet(SymmetryAxisDirection dir) => currentSession?.OnSymmetryDragEnded(dir);
 
-    public void LeftMouseButtonDownInlet(VecD canvasPos)
+    public void LeftMouseButtonDownInlet(MouseOnCanvasEventArgs args)
     {
         //update internal state
-        LeftMouseState = MouseButtonState.Pressed;
+        LeftMousePressed = true;
 
         if (_queuedExecutor != null && currentSession == null)
         {
             StartExecutor(_queuedExecutor);
         }
-        
+
         //call session event
-        currentSession?.OnLeftMouseButtonDown(canvasPos);
+        currentSession?.OnLeftMouseButtonDown(args);
     }
 
-    public void LeftMouseButtonUpInlet()
+    public void LeftMouseButtonUpInlet(VecD argsPositionOnCanvas)
     {
         //update internal state
-        LeftMouseState = MouseButtonState.Released;
+        LeftMousePressed = false;
 
         //call session events
-        currentSession?.OnLeftMouseButtonUp();
+        currentSession?.OnLeftMouseButtonUp(argsPositionOnCanvas);
     }
 
-    public void TransformMovedInlet(ShapeCorners corners)
+    public void TransformChangedInlet(ShapeCorners corners)
     {
-        LastTransformState = corners;
-        currentSession?.OnTransformMoved(corners);
+        if (currentSession is ITransformableExecutor transformableExecutor)
+        {
+            LastTransformState = corners;
+            transformableExecutor.OnTransformChanged(corners);
+        }
     }
 
-    public void TransformAppliedInlet() => currentSession?.OnTransformApplied();
+    public void TransformDraggedInlet(VecD from, VecD to)
+    {
+        if (currentSession is ITransformDraggedEvent transformableExecutor)
+        {
+            transformableExecutor.OnTransformDragged(from, to);
+        }
+    }
+
+    public void TransformStoppedInlet()
+    {
+        if (currentSession is ITransformStoppedEvent transformStoppedEvent)
+        {
+            transformStoppedEvent.OnTransformStopped();
+        }
+    }
+
+    public void MembersSelectedInlet(List<Guid> memberGuids)
+    {
+        currentSession?.OnMembersSelected(memberGuids);
+    }
+
+    public void TransformAppliedInlet()
+    {
+        if (currentSession is ITransformableExecutor transformableExecutor)
+        {
+            transformableExecutor.OnTransformApplied();
+        }
+    }
+
+    public void SettingsChangedInlet(string name, object value)
+    {
+        currentSession?.OnSettingsChanged(name, value);
+    }
 
     public void LineOverlayMovedInlet(VecD start, VecD end)
     {
-        currentSession?.OnLineOverlayMoved(start, end);
+        if (currentSession is ITransformableExecutor lineOverlayExecutor)
+        {
+            lineOverlayExecutor.OnLineOverlayMoved(start, end);
+        }
     }
 
     public void SelectedObjectNudgedInlet(VecI distance)
     {
-        currentSession?.OnSelectedObjectNudged(distance);
+        if (currentSession is ITransformableExecutor transformableExecutor)
+        {
+            transformableExecutor.OnSelectedObjectNudged(distance);
+        }
+    }
+
+    public void PrimaryColorChangedInlet(Color color)
+    {
+        currentSession?.OnColorChanged(color, true);
+    }
+
+    public void SecondaryColorChangedInlet(Color color)
+    {
+        currentSession?.OnColorChanged(color, false);
+    }
+
+    public T? TryGetExecutorFeature<T>()
+    {
+        if (currentSession is T feature)
+            return feature;
+
+        return default;
+    }
+
+    public void PathOverlayChangedInlet(VectorPath path)
+    {
+        if (currentSession is IPathExecutorFeature vectorPathToolExecutor)
+        {
+            vectorPathToolExecutor.OnPathChanged(path);
+        }
+    }
+
+    public void TextOverlayTextChangedInlet(string text)
+    {
+        if (currentSession is ITextOverlayEvents textOverlayHandler)
+        {
+            textOverlayHandler.OnTextChanged(text);
+        }
+    }
+
+    public void QuickToolSwitchInlet()
+    {
+        if (currentSession is IQuickToolSwitchable quickToolSwitchable)
+        {
+            quickToolSwitchable.OnQuickToolSwitch();
+        }
     }
 }

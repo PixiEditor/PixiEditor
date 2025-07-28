@@ -1,12 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\PixiEditor.IdentityProvider.PixiAuth\PixiEditor.IdentityProvider.PixiAuth.csproj" />
+      <ProjectReference Include="..\PixiEditor.PixiAuth\PixiEditor.PixiAuth.csproj" />
       <ProjectReference Include="..\PixiEditor.Platform\PixiEditor.Platform.csproj" />
     </ItemGroup>
 

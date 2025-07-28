@@ -1,0 +1,40 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels1="clr-namespace:PixiEditor.ViewModels"
+             xmlns:main1="clr-namespace:PixiEditor.Views.Main"
+             xmlns:tools="clr-namespace:PixiEditor.Views.Main.Tools"
+             xmlns:commandSearch="clr-namespace:PixiEditor.Views.Main.CommandSearch"
+             xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"
+             xmlns:controls="clr-namespace:PixiDocks.Avalonia.Controls;assembly=PixiDocks.Avalonia"
+             xmlns:visuals="clr-namespace:PixiEditor.Views.Visuals"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="PixiEditor.Views.MainView"
+             x:DataType="viewModels1:ViewModelMain">
+    <Design.DataContext>
+        <viewModels1:ViewModelMain />
+    </Design.DataContext>
+    <Grid DragDrop.AllowDrop="True" Name="DropGrid">
+        <!--A hacky way to fix first element not rendering in OpenGL render api--> 
+        <visuals:TextureControl Name="OpenGlInitDummy" IsVisible="False"/>
+        <DockPanel>
+            <main1:MainTitleBar DockPanel.Dock="Top" DataContext="{Binding MenuBarViewModel}" />
+            <Grid Focusable="True" Name="FocusableGrid">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="30" />
+                </Grid.RowDefinitions>
+
+                <controls:DockableAreaRegion Grid.Row="0"
+                                             Root="{Binding LayoutSubViewModel.LayoutManager.ActiveLayout.Root}"
+                                             Context="{Binding LayoutSubViewModel.LayoutManager.DockContext}" />
+                <main1:ActionDisplayBar Grid.Row="1" DataContext="{Binding .}" />
+            </Grid>
+        </DockPanel>
+        <commandSearch:CommandSearchControl
+            IsVisible="{Binding SearchSubViewModel.SearchWindowOpen, Mode=TwoWay}"
+            SearchTerm="{Binding SearchSubViewModel.SearchTerm, Mode=TwoWay}"
+            />
+    </Grid>
+</UserControl>

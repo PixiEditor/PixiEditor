@@ -1,0 +1,171 @@
+﻿<UserControl x:Class="PixiEditor.Views.Layers.LayersManager"
+             x:ClassModifier="internal"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:uiExt="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+             xmlns:converters1="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:layers="clr-namespace:PixiEditor.Views.Layers"
+             xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
+             xmlns:input="clr-namespace:PixiEditor.Views.Input"
+             xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
+             xmlns:docVm="clr-namespace:PixiEditor.ViewModels.Document"
+             xmlns:ui1="clr-namespace:PixiEditor.Helpers.UI"
+             xmlns:panels="clr-namespace:PixiEditor.Views.Panels"
+             xmlns:nodes="clr-namespace:PixiEditor.ViewModels.Document.Nodes"
+             xmlns:handlers="clr-namespace:PixiEditor.Models.Handlers"
+             xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="250" x:Name="layersManager">
+    <UserControl.Resources>
+        <sys:Double x:Key="OpacityMultiplier">100</sys:Double>
+    </UserControl.Resources>
+    <Grid DragDrop.AllowDrop="True" Name="RootGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="58" />
+            <RowDefinition Height="15" />
+            <RowDefinition Height="1*" />
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" HorizontalAlignment="Stretch" Background="{DynamicResource ThemeBackgroundColor1}">
+            <DockPanel HorizontalAlignment="Stretch" Margin="3,5,3,3">
+                <Button
+                    Command="{xaml:Command PixiEditor.Layer.NewLayer}"
+                    DockPanel.Dock="Left"
+                    Height="24" Width="24" Cursor="Hand" uiExt:Translator.TooltipKey="NEW_LAYER"
+                    HorizontalAlignment="Stretch" Margin="0,0,5,0"
+                    Classes="pixi-icon"
+                    Focusable="False"
+                    Content="{DynamicResource icon-file-plus}"
+                    FlowDirection="LeftToRight" />
+                <Button
+                    Command="{xaml:Command PixiEditor.Layer.NewFolder}"
+                    Height="24" Width="24" uiExt:Translator.TooltipKey="NEW_FOLDER" Cursor="Hand"
+                    DockPanel.Dock="Left"
+                    HorizontalAlignment="Stretch" Margin="0,0,5,0"
+                    Classes="pixi-icon"
+                    Focusable="False"
+                    Content="{DynamicResource icon-folder-plus}"
+                    FlowDirection="LeftToRight" />
+                <Button
+                    Command="{xaml:Command PixiEditor.Layer.DeleteAllSelected}" Height="24" Width="24"
+                    uiExt:Translator.TooltipKey="LAYER_DELETE_ALL_SELECTED"
+                    Cursor="Hand"
+                    HorizontalAlignment="Stretch" Margin="0,0,5,0"
+                    DockPanel.Dock="Left"
+                    Classes="pixi-icon"
+                    Focusable="False"
+                    Content="{DynamicResource icon-trash}"
+                    FlowDirection="LeftToRight" />
+                <Button
+                    Command="{xaml:Command PixiEditor.Layer.MergeWithBelow}" Height="24" Width="24"
+                    uiExt:Translator.TooltipKey="MERGE_WITH_BELOW" Cursor="Hand"
+                    DockPanel.Dock="Right"
+                    HorizontalAlignment="Stretch" Margin="5,0,0,0"
+                    Classes="pixi-icon"
+                    Focusable="False"
+                    Content="{DynamicResource icon-merge}"
+                    FlowDirection="LeftToRight" />
+                <Button
+                    Height="24" Width="24" uiExt:Translator.TooltipKey="CREATE_MASK" Cursor="Hand"
+                    DockPanel.Dock="Right"
+                    HorizontalAlignment="Stretch" Margin="5,0,0,0"
+                    Classes="pixi-icon"
+                    Focusable="False"
+                    Content="{DynamicResource icon-create-mask}"
+                    Command="{xaml:Command PixiEditor.Layer.CreateMask}"
+                    FlowDirection="LeftToRight" />
+                <Button
+                    Height="24" Width="24" uiExt:Translator.TooltipKey="LOCK_TRANSPARENCY" Cursor="Hand"
+                    DockPanel.Dock="Right"
+                    HorizontalAlignment="Stretch" Margin="5,0,0,0"
+                    Classes="pixi-icon"
+                    Focusable="False"
+                    Content="{DynamicResource icon-alpha-lock}"
+                    Command="{xaml:Command PixiEditor.Layer.ToggleLockTransparency}"
+                    FlowDirection="LeftToRight" />
+                <Grid />
+            </DockPanel>
+            <DockPanel Margin="3,0">
+                <input:BlendModeComboBox
+                    DockPanel.Dock="Left"
+                    Margin="0,0,5,0"
+                    Width="80"
+                    SelectedBlendMode="{Binding DataContext.ActiveDocument.SelectedStructureMember.BlendModeBindable, Mode=TwoWay, ElementName=layersManager}" />
+                <controls:NumberInput
+                    Min="0" Max="100"
+                    x:Name="numberInput"
+                    d:Value="100"
+                    DockPanel.Dock="Right"
+                    IsEnabled="{Binding Path=DataContext.ActiveDocument, ElementName=layersManager, Converter={converters1:NotNullToVisibilityConverter}}"
+                    Value="{Binding Path=DataContext.ActiveDocument.SelectedStructureMember.OpacityBindable, Mode=TwoWay, ElementName=layersManager,
+                        Converter={converters1:MultiplyConverter}, ConverterParameter={StaticResource OpacityMultiplier}}"
+                    Width="40"
+                    Margin="5,0,0,0"
+                    VerticalAlignment="Center"
+                    LostFocus="NumberInput_LostFocus" />
+                <Slider
+                    Minimum="0"
+                    Maximum="1"
+                    SmallChange="0.01"
+                    LargeChange="0.1"
+                    IsSnapToTickEnabled="True"
+                    TickFrequency="0.01"
+                    x:Name="opacitySlider"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Stretch">
+                    <Interaction.Behaviors>
+                        <behaviours:SliderUpdateBehavior
+                            Binding="{Binding ElementName=layersManager, Path=DataContext.ActiveDocument.SelectedStructureMember.OpacityBindable, Mode=OneWay}"
+                            DragStarted="{xaml:Command PixiEditor.Layer.OpacitySliderDragStarted}"
+                            DragValueChanged="{xaml:Command PixiEditor.Layer.OpacitySliderDragged, UseProvided=True}"
+                            DragEnded="{xaml:Command PixiEditor.Layer.OpacitySliderDragEnded}"
+                            SetValueCommand="{xaml:Command PixiEditor.Layer.OpacitySliderSet, UseProvided=True}"
+                            ValueFromSlider="{Binding ElementName=opacitySlider, Path=Value, Mode=TwoWay}" />
+                    </Interaction.Behaviors>
+                </Slider>
+            </DockPanel>
+        </StackPanel>
+        <Separator Grid.Row="1" Margin="0,-12, 0, 0" BorderBrush="{DynamicResource ThemeAccentBrush2}"
+                   BorderThickness="2" />
+        <DockPanel LastChildFill="True" Grid.Row="2" Margin="0, -12, 0, 0">
+            <layers:ReferenceLayer
+                DockPanel.Dock="Bottom"
+                Document="{Binding Path=DataContext.ActiveDocument, ElementName=layersManager}"
+                IsVisible="{Binding Path=DataContext.ActiveDocument, ElementName=layersManager, Converter={converters1:NotNullToVisibilityConverter}}"
+                Background="{DynamicResource ThemeBackgroundBrush}"
+                Grid.Row="3" VerticalAlignment="Bottom" />
+            <TreeView DockPanel.Dock="Top" Name="treeView" BorderThickness="0"
+                      ItemsSource="{Binding DataContext.ActiveDocument.NodeGraph.StructureTree.Members, ElementName=layersManager}">
+                <TreeView.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel />
+                    </ItemsPanelTemplate>
+                </TreeView.ItemsPanel>
+                <TreeView.Resources>
+                    <!--<SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Transparent"/>
+                    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="Transparent" />-->
+
+                </TreeView.Resources>
+                <TreeView.DataTemplates>
+                    <TreeDataTemplate DataType="nodes:FolderNodeViewModel" ItemsSource="{Binding Children}">
+                        <layers:FolderControl
+                            Folder="{Binding}"
+                            Manager="{Binding ElementName=layersManager}"
+                            PointerPressed="FolderControl_MouseDown"
+                            PointerReleased="FolderControl_MouseUp" />
+                    </TreeDataTemplate>
+                    <DataTemplate DataType="{x:Type handlers:ILayerHandler}">
+                        <layers:LayerControl
+                            Layer="{Binding}"
+                            Manager="{Binding ElementName=layersManager}"
+                            PointerPressed="LayerControl_MouseDown"
+                            PointerReleased="LayerControl_MouseUp" />
+                    </DataTemplate>
+                </TreeView.DataTemplates>
+            </TreeView>
+            <Border Name="dropBorder" DragDrop.AllowDrop="True" Background="Transparent" BorderThickness="0, 5, 0, 0" />
+        </DockPanel>
+    </Grid>
+</UserControl>

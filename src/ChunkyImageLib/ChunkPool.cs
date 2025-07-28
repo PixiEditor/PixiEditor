@@ -1,5 +1,6 @@
 ﻿using ChunkyImageLib.DataHolders;
 using System.Collections.Concurrent;
+using Drawie.Backend.Core.Surfaces.ImageData;
 
 namespace ChunkyImageLib;
 
@@ -10,6 +11,7 @@ internal class ChunkPool
 
     private static object lockObj = new();
     private static ChunkPool? instance;
+
     /// <summary>
     /// The instance of the <see cref="ChunkPool"/>
     /// </summary>
@@ -24,30 +26,33 @@ internal class ChunkPool
                     instance ??= new ChunkPool();
                 }
             }
+
             return instance;
         }
     }
 
-    private readonly ConcurrentBag<Chunk> fullChunks = new();
-    private readonly ConcurrentBag<Chunk> halfChunks = new();
-    private readonly ConcurrentBag<Chunk> quarterChunks = new();
-    private readonly ConcurrentBag<Chunk> eighthChunks = new();
-    
+    private readonly ConcurrentDictionary<ColorSpace, ConcurrentBag<Chunk>> fullChunks = new();
+    private readonly ConcurrentDictionary<ColorSpace, ConcurrentBag<Chunk>> halfChunks = new();
+    private readonly ConcurrentDictionary<ColorSpace, ConcurrentBag<Chunk>> quarterChunks = new();
+    private readonly ConcurrentDictionary<ColorSpace, ConcurrentBag<Chunk>> eighthChunks = new();
+
     /// <summary>
     /// Tries to take a chunk from the pool, returns null if there's no Chunk available
     /// </summary>
     /// <param name="resolution">The resolution for the chunk</param>
-    internal Chunk? Get(ChunkResolution resolution) => GetBag(resolution).TryTake(out Chunk? item) ? item : null;
+    /// <param name="chunkCs"></param>
+    internal Chunk? Get(ChunkResolution resolution, ColorSpace chunkCs) =>
+        GetBag(resolution, chunkCs).TryTake(out Chunk? item) ? item : null;
 
-    private ConcurrentBag<Chunk> GetBag(ChunkResolution resolution)
+    private ConcurrentBag<Chunk> GetBag(ChunkResolution resolution, ColorSpace colorSpace)
     {
         return resolution switch
         {
-            ChunkResolution.Full => fullChunks,
-            ChunkResolution.Half => halfChunks,
-            ChunkResolution.Quarter => quarterChunks,
-            ChunkResolution.Eighth => eighthChunks,
-            _ => fullChunks
+            ChunkResolution.Full => fullChunks.GetOrAdd(colorSpace, _ => new ConcurrentBag<Chunk>()),
+            ChunkResolution.Half => halfChunks.GetOrAdd(colorSpace, _ => new ConcurrentBag<Chunk>()),
+            ChunkResolution.Quarter => quarterChunks.GetOrAdd(colorSpace, _ => new ConcurrentBag<Chunk>()),
+            ChunkResolution.Eighth => eighthChunks.GetOrAdd(colorSpace, _ => new ConcurrentBag<Chunk>()),
+            _ => fullChunks.GetOrAdd(colorSpace, _ => new ConcurrentBag<Chunk>()),
         };
     }
 
@@ -56,9 +61,9 @@ internal class ChunkPool
     /// </summary>
     internal void Push(Chunk chunk)
     {
-        var chunks = GetBag(chunk.Resolution);
+        var chunks = GetBag(chunk.Resolution, chunk.ColorSpace);
         //a race condition can cause the count to go above 200, but likely not by much
-        if (chunks.Count < 200)
+        if (chunks.Count <= 32)
             chunks.Add(chunk);
         else
             chunk.Surface.Dispose();

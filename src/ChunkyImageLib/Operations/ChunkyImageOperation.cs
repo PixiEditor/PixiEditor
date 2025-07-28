@@ -1,5 +1,8 @@
 ﻿using ChunkyImageLib.DataHolders;
-using PixiEditor.DrawingApi.Core.Numerics;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Numerics;
 
 namespace ChunkyImageLib.Operations;
 internal class ChunkyImageOperation : IMirroredDrawOperation
@@ -8,15 +11,18 @@ internal class ChunkyImageOperation : IMirroredDrawOperation
     private readonly VecI targetPos;
     private readonly bool mirrorHorizontal;
     private readonly bool mirrorVertical;
+    private readonly bool drawUpToDate;
 
     public bool IgnoreEmptyChunks => false;
 
-    public ChunkyImageOperation(ChunkyImage imageToDraw, VecI targetPos, bool mirrorHorizontal, bool mirrorVertical)
+    public ChunkyImageOperation(ChunkyImage imageToDraw, VecI targetPos, bool mirrorHorizontal, bool mirrorVertical,
+        bool drawUpToDate)
     {
         this.imageToDraw = imageToDraw;
         this.targetPos = targetPos;
         this.mirrorHorizontal = mirrorHorizontal;
         this.mirrorVertical = mirrorVertical;
+        this.drawUpToDate = drawUpToDate;
     }
 
     public void DrawOnChunk(Chunk targetChunk, VecI chunkPos)
@@ -27,7 +33,7 @@ internal class ChunkyImageOperation : IMirroredDrawOperation
             VecI topLeftImageCorner = GetTopLeft();
             RectD clippingRect = RectD.Create(
                 OperationHelper.ConvertForResolution(topLeftImageCorner - pixelPos, targetChunk.Resolution),
-                OperationHelper.ConvertForResolution(imageToDraw.CommittedSize, targetChunk.Resolution));
+                OperationHelper.ConvertForResolution(drawUpToDate ? imageToDraw.LatestSize : imageToDraw.CommittedSize, targetChunk.Resolution));
             targetChunk.Surface.DrawingSurface.Canvas.ClipRect(clippingRect);
         }
 
@@ -57,36 +63,41 @@ internal class ChunkyImageOperation : IMirroredDrawOperation
         VecI bottomLeft = OperationHelper.GetChunkPos(
             new VecI(chunkCenterOnImage.X - halfChunk.X, chunkCenterOnImage.Y + halfChunk.Y), ChunkyImage.FullChunkSize);
 
-        imageToDraw.DrawCommittedChunkOn(
+        Func<VecI, ChunkResolution, DrawingSurface, VecD, Paint?, bool> drawMethod = drawUpToDate ? imageToDraw.DrawMostUpToDateChunkOn : imageToDraw.DrawCommittedChunkOn;
+        
+        drawMethod(
             topLeft,
             targetChunk.Resolution,
             targetChunk.Surface.DrawingSurface,
-            (VecI)((topLeft * ChunkyImage.FullChunkSize - chunkCenterOnImage).Add(ChunkyImage.FullChunkSize / 2) * targetChunk.Resolution.Multiplier()));
+            (VecI)((topLeft * ChunkyImage.FullChunkSize - chunkCenterOnImage).Add(ChunkyImage.FullChunkSize / 2) * targetChunk.Resolution.Multiplier()), null);
 
         VecI gridShift = targetPos % ChunkyImage.FullChunkSize;
         if (gridShift.X != 0)
         {
-            imageToDraw.DrawCommittedChunkOn(
+            drawMethod(
             topRight,
             targetChunk.Resolution,
             targetChunk.Surface.DrawingSurface,
-            (VecI)((topRight * ChunkyImage.FullChunkSize - chunkCenterOnImage).Add(ChunkyImage.FullChunkSize / 2) * targetChunk.Resolution.Multiplier()));
+            (VecI)((topRight * ChunkyImage.FullChunkSize - chunkCenterOnImage).Add(ChunkyImage.FullChunkSize / 2) * targetChunk.Resolution.Multiplier()),
+            null);
         }
         if (gridShift.Y != 0)
         {
-            imageToDraw.DrawCommittedChunkOn(
+            drawMethod(
             bottomLeft,
             targetChunk.Resolution,
             targetChunk.Surface.DrawingSurface,
-            (VecI)((bottomLeft * ChunkyImage.FullChunkSize - chunkCenterOnImage).Add(ChunkyImage.FullChunkSize / 2) * targetChunk.Resolution.Multiplier()));
+            (VecI)((bottomLeft * ChunkyImage.FullChunkSize - chunkCenterOnImage).Add(ChunkyImage.FullChunkSize / 2) * targetChunk.Resolution.Multiplier()),
+            null);
         }
         if (gridShift.X != 0 && gridShift.Y != 0)
         {
-            imageToDraw.DrawCommittedChunkOn(
+            drawMethod(
             bottomRight,
             targetChunk.Resolution,
             targetChunk.Surface.DrawingSurface,
-            (VecI)((bottomRight * ChunkyImage.FullChunkSize - chunkCenterOnImage).Add(ChunkyImage.FullChunkSize / 2) * targetChunk.Resolution.Multiplier()));
+            (VecI)((bottomRight * ChunkyImage.FullChunkSize - chunkCenterOnImage).Add(ChunkyImage.FullChunkSize / 2) * targetChunk.Resolution.Multiplier()),
+            null);
         }
 
         targetChunk.Surface.DrawingSurface.Canvas.Restore();
@@ -115,7 +126,8 @@ internal class ChunkyImageOperation : IMirroredDrawOperation
             newPos = (VecI)newPos.ReflectX((double)verAxisX).Round();
         if (horAxisY is not null)
             newPos = (VecI)newPos.ReflectY((double)horAxisY).Round();
-        return new ChunkyImageOperation(imageToDraw, newPos, mirrorHorizontal ^ (verAxisX is not null), mirrorVertical ^ (horAxisY is not null));
+        return new ChunkyImageOperation(imageToDraw, newPos, mirrorHorizontal ^ (verAxisX is not null), mirrorVertical ^ (horAxisY is not null),
+            drawUpToDate);
     }
 
     public void Dispose() { }

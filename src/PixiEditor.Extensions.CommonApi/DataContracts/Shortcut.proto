@@ -1,0 +1,10 @@
+syntax = "proto3";
+package PixiEditor.Commands;
+
+option csharp_namespace = "PixiEditor.Extensions.CommonApi.Commands";
+
+message Shortcut
+{
+   int32 Key = 1;
+   int32 Modifiers = 2;
+}

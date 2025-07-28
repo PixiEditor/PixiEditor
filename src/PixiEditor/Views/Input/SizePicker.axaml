@@ -1,0 +1,134 @@
+﻿<UserControl x:Class="PixiEditor.Views.Input.SizePicker"
+             x:ClassModifier="internal"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+             xmlns:input="clr-namespace:PixiEditor.Views.Input"
+             xmlns:converters1="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
+             mc:Ignorable="d" Background="Transparent"
+             d:DesignHeight="200" d:DesignWidth="240" Name="uc">
+    <Interaction.Behaviors>
+        <EventTriggerBehavior EventName="Loaded">
+            <InvokeCommandAction Command="{Binding ElementName=uc, Path=LoadedCommand}"/>
+        </EventTriggerBehavior>
+    </Interaction.Behaviors>
+    <UserControl.Styles>
+        <Style Selector="controls|SizeInput">
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="MaxSize" Value="99999"/>
+            <Setter Property="BehaveLikeSmallEmbeddedField" Value="False"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Margin" Value="10,0,0,0"/>
+            <Setter Property="Height" Value="25"/>
+        </Style>
+    </UserControl.Styles>
+    <Border VerticalAlignment="Stretch" CornerRadius="10" Padding="15,0">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Grid Height="60" HorizontalAlignment="Stretch" DockPanel.Dock="Top"
+                  IsVisible="{Binding IsSizeUnitSelectionVisible, ElementName=uc}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="30"/>
+                </Grid.RowDefinitions>
+
+                <Grid HorizontalAlignment="Stretch">
+                <RadioButton Grid.Row="0"
+                             x:Name="PercentageRb" 
+                             Foreground="White" 
+                             FontSize="12"
+                             GroupName="Unit"
+                             Margin="0,0,5,0"
+                             IsCheckedChanged="PercentageRb_Checked"
+                             HorizontalAlignment="Left"
+                             VerticalAlignment="Center"
+                             IsChecked="{Binding Path=SelectedUnit,  
+                                              ElementName=uc, 
+                                              Converter={converters1:EnumBooleanConverter},
+                                              ConverterParameter=Percentage,
+                                              Mode=TwoWay
+                                              }" ui:Translator.Key="PERCENTAGE"/>
+                <controls:SizeInput Grid.Row="0"
+                                     VerticalAlignment="Center"
+                                     HorizontalAlignment="Right"
+                                     x:Name="PercentageSizePicker"
+                                     IsEnabled="{Binding EditingEnabled, ElementName=uc}"
+                                     Size="{Binding Path=ChosenPercentageSize, ElementName=uc, Mode=TwoWay}"
+                                     Unit="%"
+                                     Margin="-10,0,0,0"
+                                     MaxSize="99999"
+                                     Width="{Binding Bounds.Width, ElementName=WidthPicker}">
+                    <Interaction.Behaviors>
+                        <EventTriggerBehavior EventName="LostFocus">
+                            <InvokeCommandAction Command="{Binding ElementName=uc, Path=PercentageLostFocusCommand}"/>
+                        </EventTriggerBehavior>
+                    </Interaction.Behaviors>
+                </controls:SizeInput>
+                </Grid>
+
+                <RadioButton Grid.Row="1" Grid.Column="0"  
+                             x:Name="AbsoluteRb" 
+                             Foreground="White" 
+                             FontSize="12"
+                             GroupName="Unit"
+                             IsCheckedChanged="AbsoluteRb_Checked"
+                             VerticalAlignment="Center"
+                             IsChecked="{Binding Path=SelectedUnit,  
+                                              ElementName=uc, 
+                                              Converter={converters1:EnumBooleanConverter},
+                                              Mode=TwoWay,
+                                              ConverterParameter=Pixel}" ui:Translator.Key="ABSOLUTE"/>
+
+            </Grid>
+
+            <Grid Height="90" HorizontalAlignment="Center" DockPanel.Dock="Top">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="60"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Column="0" Grid.Row="0" Foreground="Snow" ui:Translator.Key="WIDTH" VerticalAlignment="Center" HorizontalAlignment="Left" />
+                <controls:SizeInput Grid.Column="1" Grid.Row="0"
+                             x:Name="WidthPicker"
+                             IsEnabled="{Binding EditingEnabled, ElementName=uc}"
+                             Size="{Binding Path=ChosenWidth, ElementName=uc, Mode=TwoWay}"
+                             Margin="50,0,0,0">
+                    <Interaction.Behaviors>
+                        <EventTriggerBehavior EventName="LostFocus">
+                            <InvokeCommandAction Command="{Binding ElementName=uc, Path=WidthLostFocusCommand}"/>
+                        </EventTriggerBehavior>
+                    </Interaction.Behaviors>
+                </controls:SizeInput>
+
+                <TextBlock Grid.Column="0" Grid.Row="1" Foreground="Snow" ui:Translator.Key="HEIGHT" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                <controls:SizeInput Grid.Column="1" Grid.Row="1"
+                             x:Name="HeightPicker"
+                             IsEnabled="{Binding EditingEnabled, ElementName=uc}"
+                             Margin="50,0,0,0"
+                             Size="{Binding ChosenHeight, ElementName=uc, Mode=TwoWay}">
+                    <Interaction.Behaviors>
+                        <EventTriggerBehavior EventName="LostFocus">
+                            <InvokeCommandAction Command="{Binding ElementName=uc, Path=HeightLostFocusCommand}"/>
+                        </EventTriggerBehavior>
+                    </Interaction.Behaviors>
+                </controls:SizeInput>
+
+                <CheckBox
+                  Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2"
+                  Name="aspectRatio" 
+                  IsChecked="{Binding ElementName=uc, Path=PreserveAspectRatio}"
+                  ui:Translator.Key="PRESERVE_ASPECT_RATIO"
+                  Foreground="White" 
+                  HorizontalAlignment="Left" 
+                  VerticalAlignment="Center" />
+            </Grid>
+        </StackPanel>
+    </Border>
+</UserControl>

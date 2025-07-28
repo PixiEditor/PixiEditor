@@ -1,0 +1,84 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:system="clr-namespace:System;assembly=System.Runtime"
+        xmlns:data="clr-namespace:PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;assembly=PixiEditor.ChangeableDocument"
+        xmlns:resources="clr-namespace:PixiEditor.Helpers.Resources">
+    <Styles.Resources>
+        <ResourceDictionary>
+            <DrawingGroup x:Key="MoveHandle">
+                <DrawingGroup.ClipGeometry>
+                    <RectangleGeometry Rect="0.0,0.0,24.0,24.0" />
+                </DrawingGroup.ClipGeometry>
+                <GeometryDrawing>
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="{DynamicResource HandleBrush}" LineJoin="Round" Thickness="2.0" LineCap="Round" />
+                    </GeometryDrawing.Pen>
+                    <GeometryDrawing.Geometry>
+                        <PathGeometry Figures="M 5 9 L 2 12 L 5 15" />
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+                <GeometryDrawing>
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="{DynamicResource HandleBrush}" LineJoin="Round" Thickness="2.0" LineCap="Round" />
+                    </GeometryDrawing.Pen>
+                    <GeometryDrawing.Geometry>
+                        <PathGeometry Figures="M 9 5 L 12 2 L 15 5" />
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+                <GeometryDrawing>
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="{DynamicResource HandleBrush}" LineJoin="Round" Thickness="2.0" LineCap="Round" />
+                    </GeometryDrawing.Pen>
+                    <GeometryDrawing.Geometry>
+                        <PathGeometry Figures="M 15 19 L 12 22 L 9 19" />
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+                <GeometryDrawing>
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="{DynamicResource HandleBrush}" LineJoin="Round" Thickness="2.0" LineCap="Round" />
+                    </GeometryDrawing.Pen>
+                    <GeometryDrawing.Geometry>
+                        <PathGeometry Figures="M 19 9 L 22 12 L 19 15" />
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+                <GeometryDrawing>
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="{DynamicResource HandleBrush}" LineJoin="Round" Thickness="2.0" LineCap="Round" />
+                    </GeometryDrawing.Pen>
+                    <GeometryDrawing.Geometry>
+                        <LineGeometry StartPoint="2.0,12.0" EndPoint="22.0,12.0" />
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+                <GeometryDrawing>
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="{DynamicResource HandleBrush}" LineJoin="Round" Thickness="2.0" LineCap="Round" />
+                    </GeometryDrawing.Pen>
+                    <GeometryDrawing.Geometry>
+                        <LineGeometry StartPoint="12.0,2.0" EndPoint="12.0,22.0" />
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+            </DrawingGroup>
+
+            <system:String x:Key="MarkerHandle">M -1.1146 -0.6603 c -0.1215 -0.1215 -0.3187 -0.1215 -0.4401 0 l -0.4401 0.4401 c -0.1215 0.1215 -0.1215 0.3187 0 0.4401 l 0.4401 0.4401 c 0.1215 0.1215 0.3187 0.1215 0.4401 0 l 0.4401 -0.4401 c 0.1215 -0.1215 0.1215 -0.3187 0 -0.4401 l -0.4401 -0.4401 Z M -0.5834 0.0012 l 0.5833 -0.0013</system:String>
+            <system:String x:Key="RotateHandle">M -1.26 -0.455 Q 0 0.175 1.26 -0.455 L 1.12 -0.735 L 2.1 -0.7 L 1.54 0.105 L 1.4 -0.175 Q 0 0.525 -1.4 -0.175 L -1.54 0.105 L -2.1 -0.7 L -1.12 -0.735 Z</system:String>
+            <resources:VectorPathResource x:Key="ShearHandle"
+                                          StrokeWidth="0.5"
+                                          StrokeColor="Black"
+                                          FillColor="White"
+                                          StrokeLineCap="Butt"
+                                          StrokeLineJoin="Bevel">
+                <resources:VectorPathResource.SvgPath>
+                    M17.586,6L15.293,3.707L16.707,2.293L21.414,7L16.707,11.707L15.293,10.293L17.586,8L4,8L4,6L17.586,6ZM6.414,16L20,16L20,18L6.414,18L8.707,20.293L7.293,21.707L2.586,17L7.293,12.293L8.707,13.707L6.414,16Z
+                </resources:VectorPathResource.SvgPath>
+            </resources:VectorPathResource>
+            <SolidColorBrush x:Key="HandleBrush" Color="{DynamicResource GlyphColor}" />
+            <SolidColorBrush x:Key="SelectedHandleBrush" Color="{DynamicResource ThemeAccent2Color}" />
+            <SolidColorBrush x:Key="HandleBackgroundBrush" Color="{DynamicResource GlyphBackground}" />
+
+            <system:Double x:Key="HandleSize">20</system:Double>
+            <system:Double x:Key="AnchorHandleSize">10</system:Double>
+            <system:Double x:Key="AnchorRadius">2.5</system:Double>
+        </ResourceDictionary>
+    </Styles.Resources>
+
+</Styles>

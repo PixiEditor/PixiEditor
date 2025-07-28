@@ -1,5 +1,6 @@
-﻿using PixiEditor.ChangeableDocument.Enums;
-using PixiEditor.Models.Enums;
+﻿using System.Threading.Tasks;
+using Avalonia.Controls;
+using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.Models.Dialogs;
@@ -9,7 +10,7 @@ internal class ResizeDocumentDialog : CustomDialog
     private int height;
     private int width;
 
-    public ResizeDocumentDialog(int currentWidth, int currentHeight, bool openResizeCanvas = false)
+    public ResizeDocumentDialog(int currentWidth, int currentHeight, Window owner, bool openResizeCanvas = false) : base(owner)
     {
         Width = currentWidth;
         Height = currentHeight;
@@ -28,7 +29,7 @@ internal class ResizeDocumentDialog : CustomDialog
             if (width != value)
             {
                 width = value;
-                RaisePropertyChanged(nameof(Width));
+                OnPropertyChanged(nameof(Width));
             }
         }
     }
@@ -41,17 +42,17 @@ internal class ResizeDocumentDialog : CustomDialog
             if (height != value)
             {
                 height = value;
-                RaisePropertyChanged(nameof(Height));
+                OnPropertyChanged(nameof(Height));
             }
         }
     }
 
-    public override bool ShowDialog()
+    public override async Task<bool> ShowDialog()
     {
-        return OpenResizeCanvas ? ShowResizeCanvasDialog() : ShowResizeDocumentCanvas();
+        return OpenResizeCanvas ? await ShowResizeCanvasDialog() : await ShowResizeDocumentCanvas();
     }
 
-    bool ShowDialog<T>()
+    async Task<bool> ShowDialog<T>()
         where T : ResizeablePopup, new()
     {
         T popup = new T()
@@ -62,8 +63,8 @@ internal class ResizeDocumentDialog : CustomDialog
             NewSelectedUnit = SizeUnit.Pixel
         };
 
-        popup.ShowDialog();
-        if (popup.DialogResult == true)
+        var result = await popup.ShowDialog<bool>(OwnerWindow);
+        if (result)
         {
             Width = popup.NewAbsoluteWidth;
             Height = popup.NewAbsoluteHeight;
@@ -71,18 +72,20 @@ internal class ResizeDocumentDialog : CustomDialog
             {
                 ResizeAnchor = resizeCanvas.SelectedAnchorPoint;
             }
+
+            return true;
         }
 
-        return (bool)popup.DialogResult;
+        return false;
     }
 
-    private bool ShowResizeDocumentCanvas()
+    private async Task<bool> ShowResizeDocumentCanvas()
     {
-        return ShowDialog<ResizeDocumentPopup>();
+        return await ShowDialog<ResizeDocumentPopup>();
     }
 
-    private bool ShowResizeCanvasDialog()
+    private async Task<bool> ShowResizeCanvasDialog()
     {
-        return ShowDialog<ResizeCanvasPopup>();
+        return await ShowDialog<ResizeCanvasPopup>();
     }
 }

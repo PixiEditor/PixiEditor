@@ -1,0 +1,146 @@
+﻿[
+  {
+    "Name": "PIXEL_ART_TOOLSET",
+    "Icon": "icon-lowres-circle",
+    "Tools": [
+      "MoveViewport",
+      "RotateViewport",
+      "Move",
+      {
+        "ToolName": "Pen",
+        "Settings": {
+          "ExposePixelPerfectEnabled": true,
+          "Spacing": 0,
+          "ExposePaintShape": true
+        }
+      },
+      "Select",
+      "MagicWand",
+      "Lasso",
+      {
+        "ToolName": "FloodFill",
+        "Settings": {
+          "Tolerance": 0
+        }
+      },
+      "RasterLine",
+      "RasterEllipse",
+      "RasterRectangle",
+      {
+        "ToolName": "Text",
+        "Settings": {
+          "AntiAliasing": false,
+          "ForceLowDpiRendering": true
+        },
+        "Icon": "icon-text-pixel"
+      },
+      {
+        "ToolName": "Eraser",
+        "Settings": {
+          "Spacing": 0,
+          "ExposePaintShape": true
+        }
+      },
+      "ColorPicker",
+      "Brightness",
+      "Zoom"
+    ]
+  },
+  {
+    "Name": "PAINT_TOOLSET",
+    "Icon": "icon-paint-brush",
+    "Tools": [
+      "MoveViewport",
+      "RotateViewport",
+      "Move",
+      {
+        "ToolName": "Pen",
+        "Settings": {
+          "AntiAliasing": true,
+          "ExposeHardness": true,
+          "ExposeSpacing": true,
+          "BrushShapeSetting": "CircleSmooth",
+          "PaintShape": "Circle",
+          "PixelPerfectEnabled": false
+        }
+      },
+      "Select",
+      {
+        "ToolName": "MagicWand",
+        "Settings": {
+          "ExposeTolerance": true
+        }
+      },
+      "Lasso",
+      {
+        "ToolName": "FloodFill",
+        "Settings": {
+          "ExposeTolerance": true
+        }
+      },
+      {
+        "ToolName": "RasterLine",
+        "Settings": {
+          "AntiAliasing": true
+        },
+        "Icon": "icon-line"
+      },
+      {
+        "ToolName": "RasterEllipse",
+        "Settings": {
+          "AntiAliasing": true
+        },
+        "Icon": "icon-circle"
+      },
+      {
+        "ToolName": "RasterRectangle",
+        "Settings": {
+          "AntiAliasing": true
+        },
+        "Icon": "icon-square"
+      },
+      {
+        "ToolName": "Text",
+        "Settings": {
+          "AntiAliasing": true,
+          "ForceLowDpiRendering": true
+        },
+        "Icon": "icon-text-antialiased"
+      },
+      {
+        "ToolName": "Eraser",
+        "Settings": {
+          "AntiAliasing": true,
+          "ExposeHardness": true,
+          "ExposeSpacing": true,
+          "BrushShapeSetting": "CircleSmooth",
+          "PaintShape": "Circle"
+        }
+      },
+      "ColorPicker",
+      "Zoom"
+    ]
+  },
+  {
+    "Name": "VECTOR_TOOLSET",
+    "Icon": "icon-vector-pen",
+    "Tools": [
+      "MoveViewport",
+      "RotateViewport",
+      "Move",
+      "VectorPath",
+      "VectorLine",
+      "VectorEllipse",
+      "VectorRectangle",
+      {
+        "ToolName": "Text",
+        "Settings": {
+          "AntiAliasing": true,
+          "ForceLowDpiRendering": false
+        }
+      },
+      "ColorPicker",
+      "Zoom"
+    ]
+  }
+]

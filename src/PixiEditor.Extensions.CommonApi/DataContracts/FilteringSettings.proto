@@ -1,0 +1,21 @@
+﻿syntax = "proto3";
+package PixiEditor.Palettes;
+
+option csharp_namespace = "PixiEditor.Extensions.CommonApi.Palettes";
+
+enum ColorsNumberMode
+{
+    Any = 0;
+    Max = 1;
+    Min = 2;
+    Exact = 3;
+}
+
+message FilteringSettings
+{
+  ColorsNumberMode ColorsNumberMode = 1;
+  int32 ColorsCount = 2;
+  string Name = 3;
+  bool ShowOnlyFavourites = 4;
+  repeated string Favourites = 5;
+}

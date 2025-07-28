@@ -1,6 +1,7 @@
 ﻿using ChunkyImageLib.DataHolders;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Numerics;
 
 namespace ChunkyImageLib.Operations;
 
@@ -21,7 +22,7 @@ public static class OperationHelper
     /// <summary>
     /// toModify[x,y].Alpha = Math.Min(toModify[x,y].Alpha, toGetAlphaFrom[x,y].Alpha)
     /// </summary>
-    public static unsafe void ClampAlpha(DrawingSurface toModify, DrawingSurface toGetAlphaFrom, RectI? clippingRect = null)
+    public static unsafe void ClampAlpha(IPixelsMap toModify, IPixelsMap toGetAlphaFrom, RectI? clippingRect = null)
     {
         if (clippingRect is not null)
         {
@@ -58,7 +59,7 @@ public static class OperationHelper
         }
     }
 
-    private static unsafe void ClampAlphaWithClippingRect(DrawingSurface toModify, DrawingSurface toGetAlphaFrom, RectI clippingRect)
+    private static unsafe void ClampAlphaWithClippingRect(IPixelsMap toModify, IPixelsMap toGetAlphaFrom, RectI clippingRect)
     {
         using Pixmap map = toModify.PeekPixels();
         using Pixmap refMap = toGetAlphaFrom.PeekPixels();
@@ -117,10 +118,10 @@ public static class OperationHelper
     }
 
     public static Matrix3X3 CreateMatrixFromPoints(ShapeCorners corners, VecD size)
-        => CreateMatrixFromPoints((Point)corners.TopLeft, (Point)corners.TopRight, (Point)corners.BottomRight, (Point)corners.BottomLeft, (float)size.X, (float)size.Y);
+        => CreateMatrixFromPoints((VecF)corners.TopLeft, (VecF)corners.TopRight, (VecF)corners.BottomRight, (VecF)corners.BottomLeft, (float)size.X, (float)size.Y);
 
     // see https://stackoverflow.com/questions/48416118/perspective-transform-in-skia/72364829#72364829
-    public static Matrix3X3 CreateMatrixFromPoints(Point topLeft, Point topRight, Point botRight, Point botLeft, double width, double height)
+    public static Matrix3X3 CreateMatrixFromPoints(VecF topLeft, VecF topRight, VecF botRight, VecF botLeft, double width, double height)
     {
         (double x1, double y1) = (topLeft.X, topLeft.Y);
         (double x2, double y2) = (topRight.X, topRight.Y);
@@ -175,15 +176,19 @@ public static class OperationHelper
         return chunks;
     }
 
-    public static HashSet<VecI> FindChunksFullyInsideEllipse(VecD pos, double radiusX, double radiusY, int chunkSize)
+    public static HashSet<VecI> FindChunksFullyInsideEllipse(VecD pos, double radiusX, double radiusY, int chunkSize,
+        double rotation)
     {
         double stretchX = radiusX / radiusY;
         var (left, right) = CreateStretchedHexagon(pos, radiusY, stretchX);
+        left = left.AsRotated(rotation, pos);
+        right = right.AsRotated(rotation, pos);
+        
         var chunks = FindChunksFullyInsideQuadrilateral(left, chunkSize);
         chunks.UnionWith(FindChunksFullyInsideQuadrilateral(right, chunkSize));
         return chunks;
     }
-
+    
     public static HashSet<VecI> FindChunksTouchingQuadrilateral(ShapeCorners corners, int chunkSize)
     {
         if (corners.IsRect && Math.Abs(corners.RectRotation) < 0.0001)

@@ -1,7 +1,8 @@
 ﻿using ChunkyImageLib.DataHolders;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Numerics;
 
 namespace ChunkyImageLib.Operations;
 
@@ -77,26 +78,43 @@ internal class ImageOperation : IMirroredDrawOperation
         imageWasCopied = copyImage;
     }
 
-
-
     public void DrawOnChunk(Chunk targetChunk, VecI chunkPos)
     {
         //customPaint.FilterQuality = chunk.Resolution != ChunkResolution.Full;
         float scaleMult = (float)targetChunk.Resolution.Multiplier();
         VecD trans = -chunkPos * ChunkPool.FullChunkSize;
 
-        var scaleTrans = Matrix3X3.CreateScaleTranslation(scaleMult, scaleMult, (float)trans.X * scaleMult, (float)trans.Y * scaleMult);
+        var scaleTrans = Matrix3X3.CreateScaleTranslation(scaleMult, scaleMult, (float)trans.X * scaleMult,
+            (float)trans.Y * scaleMult);
         var finalMatrix = Matrix3X3.Concat(scaleTrans, transformMatrix);
 
+        using var snapshot = toPaint.DrawingSurface.Snapshot();
         targetChunk.Surface.DrawingSurface.Canvas.Save();
         targetChunk.Surface.DrawingSurface.Canvas.SetMatrix(finalMatrix);
-        targetChunk.Surface.DrawingSurface.Canvas.DrawSurface(toPaint.DrawingSurface, 0, 0, customPaint);
+
+        bool hasPerspective = Math.Abs(finalMatrix.Persp0) > 0.0001 || Math.Abs(finalMatrix.Persp1) > 0.0001;
+
+        // More optimized, but works badly with perspective transformation
+        if (!hasPerspective)
+        {
+            ShapeCorners chunkCorners = new ShapeCorners(new RectD(VecD.Zero, targetChunk.PixelSize));
+            RectD rect = chunkCorners.WithMatrix(finalMatrix.Invert()).AABBBounds;
+
+            targetChunk.Surface.DrawingSurface.Canvas.DrawImage(snapshot, rect, rect, customPaint);
+        }
+        else
+        {
+            // Slower, but works with perspective transformation
+            targetChunk.Surface.DrawingSurface.Canvas.DrawImage(snapshot, 0, 0, customPaint);
+        }
+
         targetChunk.Surface.DrawingSurface.Canvas.Restore();
     }
 
     public AffectedArea FindAffectedArea(VecI imageSize)
     {
-        return new AffectedArea(OperationHelper.FindChunksTouchingQuadrilateral(corners, ChunkPool.FullChunkSize), (RectI)corners.AABBBounds.RoundOutwards());
+        return new AffectedArea(OperationHelper.FindChunksTouchingQuadrilateral(corners, ChunkPool.FullChunkSize),
+            (RectI)corners.AABBBounds.RoundOutwards());
     }
 
     public void Dispose()
@@ -111,18 +129,22 @@ internal class ImageOperation : IMirroredDrawOperation
         if (verAxisX is not null && horAxisY is not null)
         {
             return new ImageOperation
-                (corners.AsMirroredAcrossVerAxis((double)verAxisX).AsMirroredAcrossHorAxis((double)horAxisY), toPaint, customPaint, imageWasCopied);
+            (corners.AsMirroredAcrossVerAxis((double)verAxisX).AsMirroredAcrossHorAxis((double)horAxisY), toPaint,
+                customPaint, imageWasCopied);
         }
+
         if (verAxisX is not null)
         {
             return new ImageOperation
                 (corners.AsMirroredAcrossVerAxis((double)verAxisX), toPaint, customPaint, imageWasCopied);
         }
+
         if (horAxisY is not null)
         {
             return new ImageOperation
                 (corners.AsMirroredAcrossHorAxis((double)horAxisY), toPaint, customPaint, imageWasCopied);
         }
+
         return new ImageOperation(corners, toPaint, customPaint, imageWasCopied);
     }
 }

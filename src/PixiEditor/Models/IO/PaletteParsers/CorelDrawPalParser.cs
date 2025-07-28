@@ -1,13 +1,15 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Text;
-using PixiEditor.Extensions.Palettes;
-using PixiEditor.Extensions.Palettes.Parsers;
+using System.Threading.Tasks;
+using PixiEditor.Extensions.CommonApi.Palettes;
+using PixiEditor.Extensions.CommonApi.Palettes.Parsers;
 
 namespace PixiEditor.Models.IO.PaletteParsers;
 
 internal class CorelDrawPalParser : PaletteFileParser
 {
-    public override string FileName { get; } = "CorelDRAW! 3.0 Palette";
+    public override string FileName => "CorelDRAW! 3.0 Palette";
     public override string[] SupportedFileExtensions { get; } = { ".pal" };
 
     // Default name to use for colors (color name is required by format)
@@ -35,7 +37,7 @@ internal class CorelDrawPalParser : PaletteFileParser
         {
             using (TextReader reader = new StreamReader(stream, Encoding.ASCII))
             {
-                string line;
+                string? line;
 
                 while ((line = reader.ReadLine()) != null && (line.Length == 0 || line[0] != (char)26))
                 {
@@ -186,7 +188,7 @@ internal class CorelDrawPalParser : PaletteFileParser
         sb.Append(name);
         sb.Append('"');
 
-        for (int j = (name ?? string.Empty).Length; j < name.Length; j++)
+        for (int j = name.Length; j < name.Length; j++)
         {
             sb.Append(' ');
         }

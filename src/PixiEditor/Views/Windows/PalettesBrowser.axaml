@@ -1,0 +1,151 @@
+﻿<dialogs:PixiEditorPopup
+    x:Class="PixiEditor.Views.Windows.PalettesBrowser"
+    x:ClassModifier="internal"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+    xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
+    xmlns:input="clr-namespace:PixiEditor.Views.Input"
+    xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
+    xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+    xmlns:ui1="clr-namespace:PixiEditor.Helpers.UI"
+    xmlns:palettes1="clr-namespace:PixiEditor.Views.Palettes"
+    xmlns:indicators1="clr-namespace:PixiEditor.Views.Indicators"
+    xmlns:palettes="clr-namespace:PixiEditor.Models.Palettes"
+    xmlns:behaviors="clr-namespace:PixiEditor.UI.Common.Behaviors;assembly=PixiEditor.UI.Common"
+    xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
+    xmlns:ui2="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+    mc:Ignorable="d"
+    Height="600" Width="850"
+    x:Name="palettesBrowser"
+    Title="PALETTE_BROWSER">
+    <Grid Background="{DynamicResource ThemeBackgroundBrush}" Focusable="True" PointerPressed="Grid_MouseDown">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="45" />
+            <RowDefinition Height="1*" />
+        </Grid.RowDefinitions>
+
+        <DockPanel Background="{DynamicResource ThemeBackgroundBrush1}" Grid.Row="0">
+            <StackPanel HorizontalAlignment="Left" Margin="10" Orientation="Horizontal" VerticalAlignment="Center">
+                <Label ui:Translator.Key="SORT_BY" VerticalAlignment="Center" />
+                <ComboBox x:Name="sortingComboBox" VerticalAlignment="Center" SelectedIndex="0"
+                          SelectionChanged="SortingComboBox_SelectionChanged">
+                    <ComboBoxItem ui:Translator.Key="DEFAULT" />
+                    <ComboBoxItem ui:Translator.Key="ALPHABETICAL" />
+                    <ComboBoxItem ui:Translator.Key="COLOR_COUNT" />
+                </ComboBox>
+                <ToggleButton Margin="10 0 0 0" Name="toggleBtn" Classes="pixi-icon"
+                              IsChecked="{Binding SortAscending, ElementName=palettesBrowser}"
+                              Focusable="False">
+                    <ToggleButton.Styles>
+                        <Style Selector="ToggleButton">
+                            <Setter Property="ui:Translator.TooltipKey" Value="DESCENDING" />
+                            <Setter Property="Content" Value="{DynamicResource icon-chevrons-down}" />
+                        </Style>
+                        <Style Selector="ToggleButton[IsChecked=True]">
+                            <Setter Property="ui:Translator.TooltipKey" Value="ASCENDING" />
+                            <Setter Property="Content" Value="{DynamicResource icon-chevrons-up}" />
+                        </Style>
+                    </ToggleButton.Styles>
+                </ToggleButton>
+                <Label Margin="10 0 0 0" ui:Translator.Key="NAME" VerticalAlignment="Center" />
+                <input:InputBox
+                    Text="{Binding NameFilter, ElementName=palettesBrowser}"
+                    VerticalAlignment="Center" Width="150">
+                    <Interaction.Behaviors>
+                        <behaviors:TextBoxFocusBehavior SelectOnMouseClick="True" ConfirmOnEnter="True"
+                                                        FocusNext="{Binding ElementName=numberInput, Path=FocusNext}" />
+                        <behaviours:GlobalShortcutFocusBehavior />
+                    </Interaction.Behaviors>
+                </input:InputBox>
+
+                <Label Margin="10 0 0 0" ui:Translator.Key="COLORS" VerticalAlignment="Center" />
+                <ComboBox x:Name="colorsComboBox" VerticalAlignment="Center" SelectedIndex="0"
+                          SelectionChanged="ColorsComboBox_SelectionChanged">
+                    <ComboBoxItem ui:Translator.Key="ANY" />
+                    <ComboBoxItem ui:Translator.Key="MAX" />
+                    <ComboBoxItem ui:Translator.Key="MIN" />
+                    <ComboBoxItem ui:Translator.Key="EXACT" />
+                </ComboBox>
+                <controls:NumberInput Width="50" VerticalAlignment="Center" Margin="10 0 0 0"
+                                      FocusNext="True"
+                                      Value="{Binding ColorsNumber, ElementName=palettesBrowser, Mode=TwoWay}" />
+                <CheckBox Margin="10 0 0 0" VerticalAlignment="Center"
+                          IsChecked="{Binding ShowOnlyFavourites, ElementName=palettesBrowser}"
+                          ui:Translator.Key="FAVORITES" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right"
+                        Margin="0 0 10 0">
+                <Button ui:Translator.TooltipKey="ADD_FROM_CURRENT_PALETTE"
+                        Command="{Binding ElementName=palettesBrowser, Path=AddFromPaletteCommand}"
+                        Cursor="Hand" Margin="10 0" Width="24" Height="24" Classes="pixi-icon"
+                        Content="{DynamicResource icon-plus-square}" />
+                <Button Cursor="Hand" Click="OpenFolder_OnClick" Width="24" Height="24"
+                        ui:Translator.TooltipKey="OPEN_PALETTES_DIR_TOOLTIP"
+                        Classes="pixi-icon" Content="{DynamicResource icon-folder}" />
+                <Button HorizontalAlignment="Right" Margin="10 0 0 0"
+                        ui:Translator.TooltipKey="BROWSE_ON_LOSPEC_TOOLTIP"
+                        Width="24" Height="24"
+                        Click="BrowseOnLospec_OnClick"
+                        CommandParameter="https://lospec.com/palette-list" Classes="pixi-icon"
+                        Content="{DynamicResource icon-globe}" />
+                <Button HorizontalAlignment="Right" Margin="10 0 0 0"
+                        ui:Translator.TooltipKey="IMPORT_FROM_FILE_TOOLTIP"
+                        Width="24" Height="24"
+                        Click="ImportFromFile_OnClick" Classes="pixi-icon"
+                        Content="{DynamicResource icon-hard-drive}" />
+            </StackPanel>
+        </DockPanel>
+        <Grid Grid.Row="1" Margin="10">
+            <indicators1:LoadingIndicator
+                IsVisible="{Binding IsFetching, ElementName=palettesBrowser}"
+                HorizontalAlignment="Center" VerticalAlignment="Center"
+                ZIndex="10"
+                Height="150" Width="150" />
+
+            <Panel IsVisible="{Binding ElementName=palettesBrowser, Path=!IsFetching}">
+                <TextBlock ui:Translator.Key="COULD_NOT_LOAD_PALETTE"
+                           Foreground="{DynamicResource ThemeForegroundBrush}" FontSize="20"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center" IsVisible="{Binding !IsVisible, ElementName=itemsControl}" />
+                <StackPanel Panel.ZIndex="10" Orientation="Vertical" HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            IsVisible="{Binding ElementName=palettesBrowser, Path=SortedResults.Count, Converter={converters:CountToVisibilityConverter}}">
+                    <TextBlock ui:Translator.Key="NO_PALETTES_FOUND"
+                               Foreground="{DynamicResource ThemeForegroundBrush}" FontSize="20"
+                               TextAlignment="Center" />
+                    <TextBlock Margin="0 10 0 0">
+                        <TextBlock ui:Translator.Key="LOSPEC_LINK_TEXT"
+                                   ui2:Hyperlink.Url="https://lospec.com/palette-list" />
+                    </TextBlock>
+                    <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
+                               FontSize="128" Text="{DynamicResource icon-search}" Classes="pixi-icon"
+                               Foreground="{DynamicResource ThemeForegroundSecondaryBrush}" />
+                </StackPanel>
+            </Panel>
+
+            <ScrollViewer x:Name="scrollViewer" Margin="5" HorizontalScrollBarVisibility="Disabled"
+                          VerticalScrollBarVisibility="Auto" ScrollChanged="ScrollViewer_ScrollChanged">
+                <ItemsControl x:Name="itemsControl" ItemsSource="{Binding SortedResults, ElementName=palettesBrowser}"
+                              IsVisible="{Binding PaletteList.FetchedCorrectly, ElementName=palettesBrowser}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <VirtualizingStackPanel Orientation="Vertical" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.DataTemplates>
+                        <DataTemplate x:DataType="palettes:Palette">
+                            <palettes1:PaletteItem Palette="{Binding}"
+                                                   OnRename="PaletteItem_OnRename"
+                                                   ToggleFavouriteCommand="{Binding ToggleFavouriteCommand, ElementName=palettesBrowser}"
+                                                   DeletePaletteCommand="{Binding DeletePaletteCommand, ElementName=palettesBrowser}"
+                                                   ImportPaletteCommand="{Binding ImportPaletteCommand, ElementName=palettesBrowser}" />
+                        </DataTemplate>
+                    </ItemsControl.DataTemplates>
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</dialogs:PixiEditorPopup>

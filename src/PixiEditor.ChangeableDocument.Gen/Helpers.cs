@@ -1,4 +1,7 @@
-﻿using System.Text;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -21,6 +24,8 @@ internal static class Helpers
 
         StringBuilder sb = new();
          
+        sb.AppendLine("using Drawie.Backend.Core.Numerics;");
+        sb.AppendLine("using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;");
         sb.AppendLine("namespace PixiEditor.ChangeableDocument.Actions.Generated;\n");
         sb.AppendLine("[System.Runtime.CompilerServices.CompilerGenerated]");
         sb.AppendLine($"public record class {actionName} : PixiEditor.ChangeableDocument.Actions.IMakeChangeAction");
@@ -38,7 +43,7 @@ internal static class Helpers
     }
 
     public static Result<string> CreateStartUpdateChangeAction
-        (MethodInfo changeConstructorInfo, MethodInfo updateMethodInfo, ClassDeclarationSyntax containingClass)
+        (MethodInfo changeConstructorInfo, MethodInfo updateMethodInfo, ClassDeclarationSyntax containingClass, bool isCancelable)
     {
         string actionName = changeConstructorInfo.ContainingClass.Name.Split('_')[0] + "_Action";
         List<TypeWithName> constructorArgs = changeConstructorInfo.Arguments;
@@ -54,8 +59,10 @@ internal static class Helpers
 
         StringBuilder sb = new();
 
+        sb.AppendLine("using Drawie.Backend.Core.Numerics;");
+        sb.AppendLine("using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;");
         sb.AppendLine("namespace PixiEditor.ChangeableDocument.Actions.Generated;");
-        sb.AppendLine($"public record class {actionName} : PixiEditor.ChangeableDocument.Actions.IStartOrUpdateChangeAction");
+        sb.AppendLine($"public record class {actionName} : PixiEditor.ChangeableDocument.Actions.IStartOrUpdateChangeAction" + (isCancelable ? ", PixiEditor.ChangeableDocument.Actions.ICancelableAction" : ""));
         sb.AppendLine("{");
         sb.Append($"public {actionName}");
         AppendArgumentList(sb, constructorArgs);

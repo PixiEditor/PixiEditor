@@ -1,9 +1,12 @@
 ﻿using ChunkyImageLib.DataHolders;
-using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
+using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.ImageData;
+using Drawie.Numerics;
 
 namespace ChunkyImageLib.Operations;
+
 internal class ReplaceColorOperation : IDrawOperation
 {
     private readonly Color oldColor;
@@ -24,7 +27,18 @@ internal class ReplaceColorOperation : IDrawOperation
 
     public void DrawOnChunk(Chunk targetChunk, VecI chunkPos)
     {
-        ReplaceColor(oldColorBounds, newColorBits, targetChunk);
+        ulong targetColorBits = newColor.ToULong();
+        ColorBounds colorBounds = new(oldColor);
+        if (targetChunk.Surface.ImageInfo.ColorSpace is { IsSrgb: false })
+        {
+            var transform = ColorSpace.CreateSrgb().GetTransformFunction();
+            targetColorBits = newColor.TransformColor(transform).ToULong();
+
+            var transformOld = targetChunk.Surface.ImageInfo.ColorSpace.GetTransformFunction();
+            colorBounds = new ColorBounds((Color)oldColor.TransformColor(transform));
+        }
+
+        ReplaceColor(colorBounds, targetColorBits, targetChunk);
     }
 
     private static unsafe void ReplaceColor(ColorBounds oldColorBounds, ulong newColorBits, Chunk chunk)

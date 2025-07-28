@@ -1,0 +1,44 @@
+﻿<dialogs:PixiEditorPopup
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+    xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
+    xmlns:viewModels="clr-namespace:PixiEditor.ViewModels"
+    xmlns:shortcuts="clr-namespace:PixiEditor.Views.Shortcuts"
+    mc:Ignorable="d"
+    d:DesignWidth="800"
+    d:DesignHeight="450"
+    x:Class="PixiEditor.Views.Shortcuts.ImportShortcutTemplatePopup"
+    WindowStartupLocation="CenterOwner"
+    MinWidth="580"
+    SizeToContent="WidthAndHeight"
+    Background="{DynamicResource AccentColor}"
+    Name="window"
+    ui:Translator.UseLanguageFlowDirection="True"
+    ui:Translator.Key="IMPORT_FROM_TEMPLATE">
+
+    <Grid>
+        <ItemsControl
+            ItemsSource="{Binding Templates, ElementName=window}"
+            Margin="10,10,10,5">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <shortcuts:ShortcutsTemplateCard
+                        TemplateName="{Binding Name}"
+                        Margin="0 0 5 0"
+                        Logo="{Binding LogoPath}"
+                        Cursor="Hand"
+                        PointerReleased="OnTemplateCardPointerReleased"
+                        HoverLogo="{Binding Path=HoverLogoPath}" />
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </Grid>
+</dialogs:PixiEditorPopup>

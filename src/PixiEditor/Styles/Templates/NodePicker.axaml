@@ -1,0 +1,77 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:nodes="clr-namespace:PixiEditor.Views.Nodes"
+                    xmlns:visuals="clr-namespace:PixiEditor.Views.Visuals"
+                    xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+                    xmlns:input="clr-namespace:PixiEditor.Views.Input"
+                    xmlns:nodes1="clr-namespace:PixiEditor.ViewModels.Nodes">
+    <ControlTheme TargetType="nodes:NodePicker" x:Key="{x:Type nodes:NodePicker}">
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid Height="400" Width="450">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="150" />
+                        <ColumnDefinition Width="300" />
+                    </Grid.ColumnDefinitions>
+
+                    <input:InputBox Grid.ColumnSpan="2"
+                                    Text="{Binding SearchQuery, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                                    Name="PART_InputBox" />
+
+                    <ListBox Grid.Column="0" Grid.Row="1" ItemsSource="{TemplateBinding FilteredCategories}"
+                             BorderBrush="{DynamicResource ThemeBorderLowBrush}" BorderThickness="0 0 1 0"
+                             SelectedItem="{Binding SelectedCategory, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock
+                                    VerticalAlignment="Center"
+                                    ui:Translator.Key="{Binding .}" />
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+
+                    <ScrollViewer Grid.Row="1" Grid.Column="1" Name="PART_ScrollViewer"
+                                  Offset="{Binding ScrollOffset, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
+                        <ItemsControl MinHeight="200" Name="PART_NodeList"
+                                      ItemsSource="{TemplateBinding FilteredNodeGroups}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="nodes1:NodeTypeGroup">
+                                    <StackPanel>
+                                        <TextBlock
+                                            ui:Translator.Key="{Binding Name}"
+                                            FontWeight="Bold"
+                                            Margin="5" />
+                                        <ItemsControl ItemsSource="{Binding NodeTypes}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate DataType="nodes1:NodeTypeInfo">
+                                                    <Button
+                                                        Background="Transparent"
+                                                        BorderThickness="0"
+                                                        Command="{Binding SelectNodeCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodePicker}}"
+                                                        CommandParameter="{Binding}"
+                                                        HorizontalContentAlignment="Left"
+                                                        IsVisible="{Binding !Hidden}">
+                                                        <TextBlock Margin="10 0 0 0">
+                                                            <Run Classes="pixi-icon"
+                                                                 BaselineAlignment="Center"
+                                                                 Text="{Binding Icon}" />
+                                                            <Run ui:Translator.Key="{Binding FinalPickerName}" />
+                                                        </TextBlock>
+                                                    </Button>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+</ResourceDictionary>

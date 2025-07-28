@@ -1,43 +1,57 @@
 ﻿#nullable enable
 using PixiEditor.ChangeableDocument.Actions;
-using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.Extensions.Palettes;
-using PixiEditor.Models.Enums;
-using PixiEditor.ViewModels.SubViewModels.Document;
-using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
-using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
+using PixiEditor.ChangeableDocument.Actions.Generated;
+using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Numerics;
+using PixiEditor.Extensions.CommonApi.Palettes;
+using PixiEditor.Models.Handlers;
+using PixiEditor.Models.Handlers.Toolbars;
+using PixiEditor.Models.Handlers.Tools;
+using PixiEditor.Models.Tools;
+using Drawie.Numerics;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
 internal class EraserToolExecutor : UpdateableChangeExecutor
 {
+    public bool SquareBrush => penToolbar.PaintShape == PaintBrushShape.Square;
     private Guid guidValue;
     private Color color;
-    private int toolSize;
+    private double toolSize;
+    private bool antiAliasing;
+    private float hardness;
+    private float spacing;
+    
     private bool drawOnMask;
+    private IPenToolbar penToolbar;
 
     public override ExecutionState Start()
     {
-        ViewModelMain? vm = ViewModelMain.Current;
-        StructureMemberViewModel? member = document!.SelectedStructureMember;
-        EraserToolViewModel? eraserTool = (EraserToolViewModel?)(vm?.ToolsSubViewModel.GetTool<EraserToolViewModel>());
-        BasicToolbar? toolbar = eraserTool?.Toolbar as BasicToolbar;
-        if (vm is null || eraserTool is null || member is null || toolbar is null)
+        IStructureMemberHandler? member = document!.SelectedStructureMember;
+        IEraserToolHandler? eraserTool = GetHandler<IEraserToolHandler>();
+        IPenToolbar? toolbar = eraserTool?.Toolbar as IPenToolbar;
+        penToolbar = toolbar;
+        IColorsHandler? colorsHandler = GetHandler<IColorsHandler>();
+
+        if (colorsHandler is null || eraserTool is null || member is null || toolbar is null)
             return ExecutionState.Error;
-        drawOnMask = member is LayerViewModel layer ? layer.ShouldDrawOnMask : true;
+        drawOnMask = member is not ILayerHandler layer || layer.ShouldDrawOnMask;
         if (drawOnMask && !member.HasMaskBindable)
             return ExecutionState.Error;
-        if (!drawOnMask && member is not LayerViewModel)
+        if (!drawOnMask && member is not ILayerHandler)
             return ExecutionState.Error;
 
-        guidValue = member.GuidValue;
-        color = vm.ColorsSubViewModel.PrimaryColor;
-        toolSize = toolbar.ToolSize;
 
-        vm.ColorsSubViewModel.AddSwatch(new PaletteColor(color.R, color.G, color.B));
-        IAction? action = new LineBasedPen_Action(guidValue, DrawingApi.Core.ColorsImpl.Colors.Transparent, controller!.LastPixelPosition, toolSize, true,
-            drawOnMask);
+        guidValue = member.Id;
+        color = GetHandler<IColorsHandler>().PrimaryColor;
+        toolSize = toolbar.ToolSize;
+        antiAliasing = toolbar.AntiAliasing;
+        hardness = toolbar.Hardness;
+        spacing = toolbar.Spacing;
+
+        colorsHandler.AddSwatch(new PaletteColor(color.R, color.G, color.B));
+        IAction? action = new LineBasedPen_Action(guidValue, Colors.White, controller!.LastPixelPosition, (float)eraserTool.ToolSize, true,
+            antiAliasing, hardness, spacing, SquareBrush, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
         internals!.ActionAccumulator.AddActions(action);
 
         return ExecutionState.Success;
@@ -45,11 +59,11 @@ internal class EraserToolExecutor : UpdateableChangeExecutor
 
     public override void OnPixelPositionChange(VecI pos)
     {
-        IAction? action = new LineBasedPen_Action(guidValue, DrawingApi.Core.ColorsImpl.Colors.Transparent, pos, toolSize, true, drawOnMask);
+        IAction? action = new LineBasedPen_Action(guidValue, Colors.White, pos, (float)toolSize, true, antiAliasing, hardness, spacing, SquareBrush, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
         internals!.ActionAccumulator.AddActions(action);
     }
 
-    public override void OnLeftMouseButtonUp()
+    public override void OnLeftMouseButtonUp(VecD argsPositionOnCanvas)
     {
         internals!.ActionAccumulator.AddFinishedActions(new EndLineBasedPen_Action());
         onEnded?.Invoke(this);

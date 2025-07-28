@@ -1,9 +1,11 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Xml;
 using PixiEditor.Exceptions;
+using PixiEditor.Extensions.Exceptions;
 
-namespace PixiEditor.Models.Commands.Templates.Parsers;
+namespace PixiEditor.Models.Commands.Templates.Providers.Parsers;
 
 /// <summary>
 ///     Aseprite uses XML (under .aseprite-keys file) to store keybindings.
@@ -36,9 +38,10 @@ public class AsepriteKeysParser : KeysParser
 
         if (Path.GetExtension(path) != ".aseprite-keys")
         {
-            throw new InvalidFileTypeException("FILE_FORMAT_NOT_ASEPRITE_KEYS", $"File {path} is not an aseprite-keys file");
+            throw new InvalidFileTypeException("FILE_FORMAT_NOT_ASEPRITE_KEYS",
+                $"File {path} is not an aseprite-keys file");
         }
-        
+
         return LoadAndParse(path, applyDefaults);
     }
 
@@ -58,7 +61,7 @@ public class AsepriteKeysParser : KeysParser
         {
             throw new RecoverableException("FAILED_TO_OPEN_FILE", e);
         }
-        
+
         List<KeyDefinition> keyDefinitions = new List<KeyDefinition>(); // DefaultShortcut is actually mapped shortcut.
 
         LoadCommands(doc, keyDefinitions, applyDefaults);
@@ -85,57 +88,60 @@ public class AsepriteKeysParser : KeysParser
 
         foreach (XmlNode commandNode in commands)
         {
-            if(commandNode.Attributes == null) continue;
-            
+            if (commandNode.Attributes == null) continue;
+
             XmlAttribute command = commandNode.Attributes["command"];
             XmlAttribute shortcut = commandNode.Attributes["shortcut"];
             XmlNodeList paramNodes = commandNode.SelectNodes("param");
 
-            if(command == null || shortcut == null) continue;
+            if (command == null || shortcut == null) continue;
 
             string commandName = $"{command.Value}{GetParamString(paramNodes)}";
             string shortcutValue = shortcut.Value;
-            
+
             if (!Map.ContainsKey(commandName))
             {
                 continue;
             }
 
             var mappedEntry = Map[commandName];
-            commandName = mappedEntry.Command;
-            
-            HumanReadableKeyCombination combination;
-            
-            XmlAttribute removed = commandNode.Attributes["removed"];
-            if (removed is { Value: "true" })
+            foreach (var mappedCommand in mappedEntry.Commands)
             {
-                combination = new HumanReadableKeyCombination("None");
-            }
-            else
-            {
-                combination = HumanReadableKeyCombination.FromStringCombination(shortcutValue);
-            }
+                commandName = mappedCommand;
 
-            // We should override existing entry, because aseprite-keys file can contain multiple entries for the same command.
-            // Last one is the one that should be used.
-            keyDefinitions.RemoveAll(x => x.Command == commandName);
-            
-            keyDefinitions.Add(new KeyDefinition(commandName, combination));
+                HumanReadableKeyCombination combination;
+
+                XmlAttribute removed = commandNode.Attributes["removed"];
+                if (removed is { Value: "true" })
+                {
+                    combination = new HumanReadableKeyCombination("None");
+                }
+                else
+                {
+                    combination = HumanReadableKeyCombination.FromStringCombination(shortcutValue);
+                }
+
+                // We should override existing entry, because aseprite-keys file can contain multiple entries for the same command.
+                // Last one is the one that should be used.
+                keyDefinitions.RemoveAll(x => x.Commands.Contains(commandName));
+
+                keyDefinitions.Add(new KeyDefinition(new[] { commandName }, combination));
+            }
         }
     }
 
     private string GetParamString(XmlNodeList paramNodes)
     {
-        if(paramNodes == null || paramNodes.Count == 0) return string.Empty;
-        
+        if (paramNodes == null || paramNodes.Count == 0) return string.Empty;
+
         StringBuilder builder = new StringBuilder();
         foreach (XmlNode paramNode in paramNodes)
         {
-            if(paramNode.Attributes == null) continue;
-            
+            if (paramNode.Attributes == null) continue;
+
             XmlAttribute paramName = paramNode.Attributes["name"];
             XmlAttribute paramValue = paramNode.Attributes["value"];
-            if(paramName == null || paramValue == null) continue;
+            if (paramName == null || paramValue == null) continue;
 
             builder.Append('.');
             builder.Append(paramName.Value);
@@ -161,12 +167,12 @@ public class AsepriteKeysParser : KeysParser
 
         foreach (XmlNode tool in tools)
         {
-            if(tool.Attributes == null) continue;
-            
+            if (tool.Attributes == null) continue;
+
             XmlAttribute command = tool.Attributes["tool"];
             XmlAttribute shortcut = tool.Attributes["shortcut"];
 
-            if(command == null || shortcut == null) continue;
+            if (command == null || shortcut == null) continue;
 
             string commandName = command.Value;
             string shortcutValue = shortcut.Value;
@@ -177,25 +183,28 @@ public class AsepriteKeysParser : KeysParser
             }
 
             var mappedEntry = Map[commandName];
-            commandName = mappedEntry.Command;
-
-            HumanReadableKeyCombination combination;
-            
-            XmlAttribute removed = tool.Attributes["removed"];
-            if (removed is { Value: "true" })
+            foreach (var mappedCommand in mappedEntry.Commands)
             {
-                combination = new HumanReadableKeyCombination("None");
-            }
-            else
-            {
-                combination = HumanReadableKeyCombination.FromStringCombination(shortcutValue);
-            }
+                commandName = mappedCommand;
 
-            // We should override existing entry, because aseprite-keys file can contain multiple entries for the same tool.
-            // Last one is the one that should be used.
-            keyDefinitions.RemoveAll(x => x.Command == commandName);
-            
-            keyDefinitions.Add(new KeyDefinition(commandName, combination));
+                HumanReadableKeyCombination combination;
+
+                XmlAttribute removed = tool.Attributes["removed"];
+                if (removed is { Value: "true" })
+                {
+                    combination = new HumanReadableKeyCombination("None");
+                }
+                else
+                {
+                    combination = HumanReadableKeyCombination.FromStringCombination(shortcutValue);
+                }
+
+                // We should override existing entry, because aseprite-keys file can contain multiple entries for the same tool.
+                // Last one is the one that should be used.
+                keyDefinitions.RemoveAll(x => x.Commands.Contains(commandName));
+
+                keyDefinitions.Add(new KeyDefinition(new[] { commandName }, combination));
+            }
         }
     }
 
@@ -203,9 +212,12 @@ public class AsepriteKeysParser : KeysParser
     {
         foreach (var mapEntry in Map)
         {
-            if (mapEntry.Value.Command.StartsWith(commandGroup))
+            foreach (var command in mapEntry.Value.Commands)
             {
-                keyDefinitions.Add(mapEntry.Value);
+                if (command.StartsWith(commandGroup))
+                {
+                    keyDefinitions.Add(mapEntry.Value);
+                }
             }
         }
     }

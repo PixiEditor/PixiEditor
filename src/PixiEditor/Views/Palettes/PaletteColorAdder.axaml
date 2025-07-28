@@ -1,0 +1,30 @@
+﻿<UserControl x:Class="PixiEditor.Views.Palettes.PaletteColorAdder"
+             x:ClassModifier="internal"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker.AvaloniaUI"
+             xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+             mc:Ignorable="d" Name="paletteColorAdder"
+             d:DesignHeight="36" d:DesignWidth="120">
+    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="5">
+        <colorPicker:PortableColorPicker
+            ColorChanged="PortableColorPicker_ColorChanged"
+            EnableGradientsTab="False"
+            SelectedColor="{Binding SelectedColor, ElementName=paletteColorAdder, Mode=TwoWay}"
+            UseHintColor="True" HintColor="{Binding ElementName=paletteColorAdder, Path=HintColor}"
+            Width="50" Focusable="False"
+            ShowAlpha="False"/>
+        <Button Name="AddButton" Width="24" Height="24" 
+                Classes="pixi-icon"
+                Content="{DynamicResource icon-plus-square}"
+                ui:Translator.TooltipKey="ADD_COLOR_TO_PALETTE"
+                Cursor="Hand" Click="Button_Click"/>
+        <Button Name="AddFromSwatches" Width="24" Height="24" 
+                Classes="pixi-icon"
+                ui:Translator.TooltipKey="ADD_FROM_SWATCHES"
+                Cursor="Hand" Click="AddFromSwatches_OnClick"
+                Content="{DynamicResource icon-copy-add}"/>
+    </StackPanel>
+</UserControl>

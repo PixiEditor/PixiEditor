@@ -1,21 +1,36 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net7.0-windows</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-      <UseWPF>true</UseWPF>
+      <TargetFramework>net8.0</TargetFramework>
+      <ImplicitUsings>enable</ImplicitUsings>
+      <Nullable>enable</Nullable>
       <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
       <Version>0.0.3</Version>
       <Title>PixiEditor Extensions</Title>
       <Authors>PixiEditor Organization</Authors>
       <Copyright>PixiEditor Organization</Copyright>
-      <Description>Package for creating custom extensions for pixel art editor PixiEditor</Description>
+      <Description>Package for creating custom extensions for univrsal 2D editor PixiEditor</Description>
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
-      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
+      <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
+      <PackageReference Include="Avalonia.Remote.Protocol" Version="$(AvaloniaVersion)" />
+      <PackageReference Include="Svg.Controls.Skia.Avalonia" Version="11.3.0.1" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.0" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Drawie\src\Drawie.Backend.Core\Drawie.Backend.Core.csproj" />
+      <ProjectReference Include="..\Drawie\src\Drawie.Numerics\Drawie.Numerics.csproj" />
+      <ProjectReference Include="..\PixiEditor.Extensions.CommonApi\PixiEditor.Extensions.CommonApi.csproj" />
+      <ProjectReference Include="..\PixiEditor.OperatingSystem\PixiEditor.OperatingSystem.csproj" />
+      <ProjectReference Include="..\PixiEditor.UI.Common\PixiEditor.UI.Common.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Common\Localization\" />
+      <Folder Include="Controls\" />
     </ItemGroup>
 </Project>

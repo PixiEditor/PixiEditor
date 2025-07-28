@@ -1,24 +1,23 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
-using System.Text;
+using System.Linq;
+using System.Threading.Tasks;
+using Avalonia.Platform.Storage;
+using CommunityToolkit.Mvvm.ComponentModel;
+using PixiEditor.Extensions.Exceptions;
 using PixiEditor.Models.Commands;
-using PixiEditor.Models.Dialogs;
-using PixiEditor.ViewModels.SubViewModels.UserPreferences;
-using System.Windows;
-using System.Windows.Input;
-using Microsoft.Win32;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Templates;
-using PixiEditor.Views.Dialogs;
-using PixiEditor.Exceptions;
-using PixiEditor.Extensions.Common.Localization;
-using PixiEditor.Extensions.Common.UserPreferences;
-using PixiEditor.Models.Localization;
-using PixiEditor.Models.Preferences;
+using PixiEditor.Models.Dialogs;
+using PixiEditor.UI.Common.Localization;
+using PixiEditor.ViewModels.UserPreferences;
+using PixiEditor.Views;
+using PixiEditor.Views.Shortcuts;
 
 namespace PixiEditor.ViewModels;
 
-internal class SettingsPage : NotifyableObject
+internal class SettingsPage : ObservableObject
 {
     private LocalizedString name;
 
@@ -38,10 +37,15 @@ internal class SettingsPage : NotifyableObject
         Name = new LocalizedString(Name.Key);
     }
 }
-internal class SettingsWindowViewModel : ViewModelBase
+
+internal partial class SettingsWindowViewModel : ViewModelBase
 {
     private string searchTerm;
+    
+    [ObservableProperty]
     private int visibleGroups;
+    
+    [ObservableProperty]
     private int currentPage;
 
     public bool ShowUpdateTab
@@ -61,25 +65,14 @@ internal class SettingsWindowViewModel : ViewModelBase
         get => searchTerm;
         set
         {
-            if (SetProperty(ref searchTerm, value, out var oldValue) &&
+            string oldValue = searchTerm;
+            if (SetProperty(ref searchTerm, value) &&
                 !(string.IsNullOrWhiteSpace(value) && string.IsNullOrWhiteSpace(oldValue)))
             {
                 UpdateSearchResults();
-                VisibleGroups = Commands.Count(x => x.Visibility == Visibility.Visible);
+                VisibleGroups = Commands.Count(x => x.IsVisible);
             }
         }
-    }
-
-    public int CurrentPage
-    {
-        get => currentPage;
-        set => SetProperty(ref currentPage, value);
-    }
-
-    public int VisibleGroups
-    {
-        get => visibleGroups;
-        private set => SetProperty(ref visibleGroups, value);
     }
 
     public SettingsViewModel SettingsSubViewModel { get; set; }
@@ -87,63 +80,127 @@ internal class SettingsWindowViewModel : ViewModelBase
     public List<GroupSearchResult> Commands { get; }
     public ObservableCollection<SettingsPage> Pages { get; }
 
-    private static List<ICustomShortcutFormat> _customShortcutFormats;
+    private static List<ICustomShortcutFormat>? customShortcutFormats;
 
     [Command.Internal("PixiEditor.Shortcuts.Reset")]
-    public static void ResetCommand()
+    public static async Task ResetCommand()
     {
-        var dialog = new OptionsDialog<string>("ARE_YOU_SURE", new LocalizedString("WARNING_RESET_SHORTCUTS_DEFAULT"))
+        await new OptionsDialog<string>("ARE_YOU_SURE", new LocalizedString("WARNING_RESET_SHORTCUTS_DEFAULT"), MainWindow.Current!)
         {
             { new LocalizedString("YES"), x => CommandController.Current.ResetShortcuts() },
-            new LocalizedString("CANCEL")
+            new LocalizedString("CANCEL"),
         }.ShowDialog();
     }
 
     [Command.Internal("PixiEditor.Shortcuts.Export")]
-    public static void ExportShortcuts()
+    public static async Task ExportShortcuts()
     {
-        var dialog = new SaveFileDialog();
-        dialog.Filter = "PixiShorts (*.pixisc)|*.pixisc|json (*.json)|*.json|All files (*.*)|*.*";
-        dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-        if (dialog.ShowDialog().GetValueOrDefault())
+        var file = await MainWindow.Current!.StorageProvider.SaveFilePickerAsync(new()
         {
-            File.Copy(CommandController.ShortcutsPath, dialog.FileName, true);
+            SuggestedStartLocation = await MainWindow.Current!.StorageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Documents),
+            FileTypeChoices = new List<FilePickerFileType>()
+            {
+                new FilePickerFileType("PixiShorts (*.pixisc)")
+                {
+                    Patterns = new List<string>
+                    {
+                        "*.pixisc"
+                    },
+                },
+                new FilePickerFileType("json (*.json)")
+                {
+                    Patterns = new List<string>
+                    {
+                        "*.json"
+                    },
+                },
+                new FilePickerFileType("All files (*.*)")
+                {
+                    Patterns = new List<string>
+                    {
+                        "*.*"
+                    },
+                },
+            },
+        });
+        
+        
+        if (file is not null)
+        {
+            File.Copy(CommandController.ShortcutsPath, file.Path.LocalPath, true);
         }
+        
         // Sometimes, focus was brought back to the last edited shortcut
-        Keyboard.ClearFocus();
+        // TODO: Keyboard.ClearFocus(); should be there but I can't find an equivalent from avalonia
     }
 
     [Command.Internal("PixiEditor.Shortcuts.Import")]
-    public static void ImportShortcuts()
+    public static async Task ImportShortcuts()
     {
-        _customShortcutFormats ??= ShortcutProvider.GetProviders().OfType<ICustomShortcutFormat>().ToList();
-        var dialog = new OpenFileDialog();
-        string filterEntries = $"PixiShorts (*.pixisc)|*.pixisc|json (*.json)|*.json{BuildCustomParsersFormat(_customShortcutFormats, out string extensionsString)}";
-        extensionsString = $"*.pixisc;*json;{extensionsString}";
-        dialog.Filter = $"All Shortcut ({extensionsString})|{extensionsString}|{filterEntries}|All files (*.*)|*.*";
-        dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-        if (dialog.ShowDialog().GetValueOrDefault())
+        List<FilePickerFileType> fileTypes = new List<FilePickerFileType>
+        {
+            new("PixiShorts (*.pixisc)")
+            {
+                Patterns = new List<string>
+                {
+                    "*.pixisc"
+                },
+            },
+            new("json (*.json)")
+            {
+                Patterns = new List<string>
+                {
+                    "*.json"
+                },
+            },
+        };
+        
+        customShortcutFormats ??= ShortcutProvider.GetProviders().OfType<ICustomShortcutFormat>().ToList();
+        AddCustomParsersFormat(customShortcutFormats, fileTypes);
+        
+        fileTypes.Add(new FilePickerFileType("All files (*.*)")
+        {
+            Patterns = new List<string>
+            {
+                "*.*"
+            },
+        });
+        
+        fileTypes.Insert(0, new FilePickerFileType($"All Shortcut files {string.Join(",", fileTypes.SelectMany(a => a.Patterns))}")
+        {
+            Patterns = fileTypes.SelectMany(a => a.Patterns).ToList(),
+        });
+        
+        IReadOnlyList<IStorageFile> files = await MainWindow.Current!.StorageProvider.OpenFilePickerAsync(new()
+        {
+            AllowMultiple = false,
+            SuggestedStartLocation = await MainWindow.Current!.StorageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Documents),
+            FileTypeFilter = fileTypes,
+        });
+        
+        if (files.Count > 0)
         {
             List<Shortcut> shortcuts = new List<Shortcut>();
-            if (!TryImport(dialog, ref shortcuts))
+            if (!TryImport(files[0], ref shortcuts))
                 return;
             
             CommandController.Current.ResetShortcuts();
             CommandController.Current.Import(shortcuts, false);
-            File.Copy(dialog.FileName, CommandController.ShortcutsPath, true);
+            File.Copy(files[0].Path.LocalPath, CommandController.ShortcutsPath, true);
             NoticeDialog.Show("SHORTCUTS_IMPORTED_SUCCESS", "SUCCESS");
         }
+        
         // Sometimes, focus was brought back to the last edited shortcut
-        Keyboard.ClearFocus();
+        // TODO: Keyboard.ClearFocus(); should be there but I can't find an equivalent from avalonia
     }
 
-    private static bool TryImport(OpenFileDialog dialog, ref List<Shortcut> shortcuts)
+    private static bool TryImport(IStorageFile file, ref List<Shortcut> shortcuts)
     {
-        if (dialog.FileName.EndsWith(".pixisc") || dialog.FileName.EndsWith(".json"))
+        if (file.Name.EndsWith(".pixisc") || file.Name.EndsWith(".json"))
         {
             try
             {
-                shortcuts = ShortcutFile.LoadTemplate(dialog.FileName)?.Shortcuts.ToList();
+                shortcuts = ShortcutFile.LoadTemplate(file.Path.LocalPath)?.Shortcuts.ToList();
             }
             catch (Exception)
             {
@@ -159,8 +216,8 @@ internal class SettingsWindowViewModel : ViewModelBase
         }
         else
         {
-            var provider = _customShortcutFormats.FirstOrDefault(x =>
-                x.CustomShortcutExtensions.Contains(Path.GetExtension(dialog.FileName), StringComparer.OrdinalIgnoreCase));
+            var provider = customShortcutFormats.FirstOrDefault(x =>
+                x.CustomShortcutExtensions.Contains(Path.GetExtension(file.Name), StringComparer.OrdinalIgnoreCase));
             if (provider is null)
             {
                 NoticeDialog.Show("UNSUPPORTED_FILE_FORMAT", "INVALID_FILE");
@@ -169,7 +226,7 @@ internal class SettingsWindowViewModel : ViewModelBase
 
             try
             {
-                shortcuts = provider.KeysParser.Parse(dialog.FileName, false)?.Shortcuts.ToList();
+                shortcuts = provider.KeysParser.Parse(file.Path.LocalPath, false)?.Shortcuts.ToList();
             }
             catch (RecoverableException e)
             {
@@ -181,58 +238,49 @@ internal class SettingsWindowViewModel : ViewModelBase
         return true;
     }
 
-    private static string BuildCustomParsersFormat(IList<ICustomShortcutFormat> customFormats, out string extensionsString)
+    private static void AddCustomParsersFormat(IList<ICustomShortcutFormat>? customFormats, List<FilePickerFileType> listToAddTo)
     {
         if (customFormats is null || customFormats.Count == 0)
-        {
-            extensionsString = string.Empty;
-            return string.Empty;
-        }
+            return;
 
-        StringBuilder builder = new StringBuilder();
-        StringBuilder extensionsBuilder = new StringBuilder();
         foreach (ICustomShortcutFormat format in customFormats)
         {
             foreach (var extension in format.CustomShortcutExtensions)
             {
                 string extensionWithoutDot = extension.TrimStart('.');
-                extensionsBuilder.Append($"*.{extensionWithoutDot};");
-                builder.Append($"|{extensionWithoutDot} (*.{extensionWithoutDot})|*.{extensionWithoutDot}");
+                listToAddTo.Add(new FilePickerFileType(extensionWithoutDot)
+                {
+                    Patterns = new[] { $"*.{extensionWithoutDot}" },
+                });
             }
         }
-
-        extensionsString = extensionsBuilder.ToString();
-        return builder.ToString();
     }
 
     [Command.Internal("PixiEditor.Shortcuts.OpenTemplatePopup")]
     public static void OpenTemplatePopup()
     {
         ImportShortcutTemplatePopup popup = new ImportShortcutTemplatePopup();
-        var settingsWindow = Application.Current.Windows.OfType<SettingsWindow>().FirstOrDefault();
-        if(settingsWindow is not null)
-        {
-            popup.Owner = settingsWindow;
-        }
-        
-        popup.ShowDialog();
+        popup.ShowDialog(MainWindow.Current!);
     }
 
     public SettingsWindowViewModel()
     {
         Pages = new ObservableCollection<SettingsPage>
         {
-            new SettingsPage("GENERAL"),
-            new SettingsPage("DISCORD"),
-            new SettingsPage("KEY_BINDINGS"),
+            new("GENERAL"),
+            new("DISCORD"),
+            new("KEY_BINDINGS"),
+            new SettingsPage("UPDATES"),
+            new("EXPORT"),
+            new SettingsPage("SCENE")
         };
 
         ILocalizationProvider.Current.OnLanguageChanged += OnLanguageChanged;
         Commands = new(CommandController.Current.CommandGroups.Select(x => new GroupSearchResult(x)));
         UpdateSearchResults();
         SettingsSubViewModel = new SettingsViewModel(this);
-        PreferencesSettings.Current.AddCallback("IsDebugModeEnabled", _ => UpdateSearchResults());
-        VisibleGroups = Commands.Count(x => x.Visibility == Visibility.Visible);
+        ViewModelMain.Current.Preferences.AddCallback("IsDebugModeEnabled", (_, _) => UpdateSearchResults());
+        VisibleGroups = Commands.Count(x => x.IsVisible);
     }
 
     private void UpdatePages()
@@ -242,7 +290,7 @@ internal class SettingsWindowViewModel : ViewModelBase
             page.UpdateName();
         }
 
-        RaisePropertyChanged(nameof(Pages));
+        OnPropertyChanged(nameof(Pages));
     }
 
     private void OnLanguageChanged(Language obj)
@@ -250,7 +298,7 @@ internal class SettingsWindowViewModel : ViewModelBase
         UpdatePages();
     }
 
-    public void UpdateSearchResults()
+    private void UpdateSearchResults()
     {
         if (string.IsNullOrWhiteSpace(searchTerm))
         {
@@ -264,15 +312,15 @@ internal class SettingsWindowViewModel : ViewModelBase
                         !command.Command.IsDebug)
                     {
                         visibleCommands++;
-                        command.Visibility = Visibility.Visible;
+                        command.IsVisible = true;
                     }
                     else
                     {
-                        command.Visibility = Visibility.Collapsed;
+                        command.IsVisible = false;
                     }
                 }
 
-                group.Visibility = visibleCommands > 0 ? Visibility.Visible : Visibility.Collapsed;
+                group.IsVisible = visibleCommands > 0;
             }
             return;
         }
@@ -285,54 +333,44 @@ internal class SettingsWindowViewModel : ViewModelBase
                 if (command.Command.DisplayName.Value.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase))
                 {
                     visibleCommands++;
-                    command.Visibility = Visibility.Visible;
+                    command.IsVisible = true;
                 }
                 else
                 {
-                    command.Visibility = Visibility.Collapsed;
+                    command.IsVisible = false;
                 }
             }
 
-            group.Visibility = visibleCommands > 0 ? Visibility.Visible : Visibility.Collapsed;
+            group.IsVisible = visibleCommands > 0;
         }
     }
+}
 
-    internal class GroupSearchResult : NotifyableObject
+internal partial class GroupSearchResult : ObservableObject
+{
+    [ObservableProperty]
+    private bool isVisible;
+
+    public LocalizedString DisplayName { get; set; }
+
+    public List<CommandSearchResult> Commands { get; set; }
+
+    public GroupSearchResult(CommandGroup group)
     {
-        private Visibility visibility;
-
-        public LocalizedString DisplayName { get; set; }
-
-        public List<CommandSearchResult> Commands { get; set; }
-
-        public Visibility Visibility
-        {
-            get => visibility;
-            set => SetProperty(ref visibility, value);
-        }
-
-        public GroupSearchResult(CommandGroup group)
-        {
-            DisplayName = group.DisplayName;
-            Commands = new(group.VisibleCommands.Select(x => new CommandSearchResult(x)));
-        }
+        DisplayName = group.DisplayName;
+        Commands = new(group.VisibleCommands.Select(x => new CommandSearchResult(x)));
     }
+}
 
-    internal class CommandSearchResult : NotifyableObject
+internal partial class CommandSearchResult : ObservableObject
+{
+    [ObservableProperty]
+    private bool isVisible;
+
+    public Models.Commands.Commands.Command Command { get; set; }
+
+    public CommandSearchResult(Models.Commands.Commands.Command command)
     {
-        private Visibility visibility;
-
-        public Models.Commands.Commands.Command Command { get; set; }
-
-        public Visibility Visibility
-        {
-            get => visibility;
-            set => SetProperty(ref visibility, value);
-        }
-
-        public CommandSearchResult(Models.Commands.Commands.Command command)
-        {
-            Command = command;
-        }
+        Command = command;
     }
 }

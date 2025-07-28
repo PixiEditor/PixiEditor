@@ -1,5 +1,4 @@
-﻿using PixiEditor.Extensions.Common.Localization;
-using PixiEditor.Models.Localization;
+﻿using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.Models.Commands.Attributes.Commands;
 
@@ -11,6 +10,8 @@ internal partial class Command
         public string InternalName { get; }
 
         public LocalizedString DisplayName { get; }
+
+        public string? IsVisibleMenuProperty { get; set; }
 
         /// <summary>
         /// Groups all commands that start with the name <paramref name="internalName"/>

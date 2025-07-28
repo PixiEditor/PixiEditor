@@ -1,19 +1,26 @@
-﻿using System.Windows;
-using System.Windows.Input;
-using PixiEditor.Helpers;
+﻿namespace PixiEditor.ViewModels;
 
-namespace PixiEditor.ViewModels;
-
-internal class ViewModelBase : NotifyableObject
+public class ViewModelBase : PixiObservableObject
 {
-    protected void CloseButton(object parameter)
+    public void AddPropertyChangedCallback(string propertyName, Action action)
     {
-        ((Window)parameter).Close();
-    }
+        if (action == null)
+        {
+            throw new ArgumentNullException(nameof(propertyName));
+        }
 
-    protected void DragMove(object parameter)
-    {
-        Window popup = Application.Current.Windows.OfType<Window>().SingleOrDefault(x => x.IsActive);
-        if (Mouse.LeftButton == MouseButtonState.Pressed) popup.DragMove();
+        if (string.IsNullOrWhiteSpace(propertyName))
+        {
+            PropertyChanged += (_, _) => action();
+            return;
+        }
+
+        PropertyChanged += (sender, e) =>
+        {
+            if (e.PropertyName == propertyName)
+            {
+                action();
+            }
+        };
     }
 }

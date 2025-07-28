@@ -1,0 +1,14 @@
+<UserControl x:Class="PixiEditor.Views.Decorators.Chip"
+             x:ClassModifier="internal"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" x:Name="chip"
+             d:DesignHeight="30" d:DesignWidth="60">
+    <Border VerticalAlignment="Center" Background="{DynamicResource GlyphBrush}" BorderThickness="1"
+            BorderBrush="{Binding ElementName=chip, Path=OutlineColor}"
+            Padding="5 2.5" CornerRadius="2.5">
+        <TextBlock Text="{Binding ElementName=chip, Path=Text}" Foreground="{DynamicResource ThemeForegroundBrush}"/>
+    </Border>
+</UserControl>

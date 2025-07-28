@@ -1,33 +1,36 @@
-﻿using System.Globalization;
+﻿using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text;
-using System.Windows.Input;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using ByteSizeLib;
 using Hardware.Info;
-using PixiEditor.Models.DataHolders;
-using Mouse = System.Windows.Input.Mouse;
+using PixiEditor.Models.AnalyticsAPI;
+using PixiEditor.Models.ExceptionHandling;
+using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.Helpers;
 
-internal class CrashHelper
+internal partial class CrashHelper
 {
     private readonly IHardwareInfo hwInfo;
 
-    public static void SaveCrashInfo(Exception exception)
+    public static void SaveCrashInfo(Exception exception, IEnumerable<DocumentViewModel> documents)
     {
         try
         {
-            Mouse.OverrideCursor = Cursors.Wait;
+            //TODO: proper implementation of Mouse.OverrideCursor = Cursors.Wait;
         }
         catch (Exception e)
         {
             exception = new AggregateException(exception, e);
         }
         
-        var report = CrashReport.Generate(exception);
-        report.TrySave();
+        var report = CrashReport.Generate(exception, null);
+        report.TrySave(documents);
         report.RestartToCrashReport();
     }
 
@@ -36,11 +39,18 @@ internal class CrashHelper
         hwInfo = new HardwareInfo();
     }
 
-    public void GetCPUInformation(StringBuilder builder)
+    public void GetCPUInformation(StringBuilder builder, ApiCrashReport report)
     {
         builder.AppendLine("CPU:");
         hwInfo.RefreshCPUList(false);
 
+        report.SystemInformation["CPUs"] = hwInfo.CpuList.Select(x => new
+        {
+            x.Name,
+            SpeedGhz = (x.CurrentClockSpeed / 1000f).ToString("F2", CultureInfo.InvariantCulture),
+            MaxSpeedGhz = (x.MaxClockSpeed / 1000f).ToString("F2", CultureInfo.InvariantCulture)
+        });
+        
         foreach (var processor in hwInfo.CpuList)
         {
             builder
@@ -51,11 +61,17 @@ internal class CrashHelper
         }
     }
 
-    public void GetGPUInformation(StringBuilder builder)
+    public void GetGPUInformation(StringBuilder builder, ApiCrashReport report)
     {
         builder.AppendLine("GPU:");
         hwInfo.RefreshVideoControllerList();
 
+        report.SystemInformation["GPUs"] = hwInfo.VideoControllerList.Select(x => new
+        {
+            x.Name,
+            x.DriverVersion
+        });
+        
         foreach (var gpu in hwInfo.VideoControllerList)
         {
             builder
@@ -65,13 +81,19 @@ internal class CrashHelper
         }
     }
 
-    public void GetMemoryInformation(StringBuilder builder)
+    public void GetMemoryInformation(StringBuilder builder, ApiCrashReport report)
     {
         builder.AppendLine("Memory:");
         hwInfo.RefreshMemoryStatus();
 
         var memInfo = hwInfo.MemoryStatus;
 
+        report.SystemInformation["Memory"] = new
+        {
+            memInfo.AvailablePhysical,
+            memInfo.TotalPhysical
+        };
+        
         builder
             .AppendLine($"  Available: {new ByteSize(memInfo.AvailablePhysical).ToString("", CultureInfo.InvariantCulture)}")
             .AppendLine($"  Total: {new ByteSize(memInfo.TotalPhysical).ToString("", CultureInfo.InvariantCulture)}");
@@ -83,7 +105,7 @@ internal class CrashHelper
             .AppendLine("\n-------Crash message-------")
             .Append(e.GetType().ToString())
             .Append(": ")
-            .AppendLine(e.Message);
+            .AppendLine(TrimFilePaths(e.Message));
         {
             var innerException = e.InnerException;
             while (innerException != null)
@@ -92,7 +114,7 @@ internal class CrashHelper
                     .Append("\n-----Inner exception-----\n")
                     .Append(innerException.GetType().ToString())
                     .Append(": ")
-                    .Append(innerException.Message);
+                    .Append(TrimFilePaths(innerException.Message));
                 innerException = innerException.InnerException;
             }
         }
@@ -112,44 +134,49 @@ internal class CrashHelper
         }
     }
 
-    public static void SendExceptionInfoToWebhook(Exception e, bool wait = false,
+    public static string TrimFilePaths(string text) => FilePathRegex().Replace(text, "{{ FILE PATH }}");
+    
+    public static void SendExceptionInfo(Exception e, bool wait = false,
         [CallerFilePath] string filePath = "<unknown>", [CallerMemberName] string memberName = "<unknown>")
     {
-        var task = Task.Run(() => SendExceptionInfoToWebhookAsync(e, filePath, memberName));
+        // TODO: quadruple check that this Task.Run is actually acceptable here
+        // I think it might not be because there is stuff about the main window in the crash report, so Avalonia is touched from a different thread (is it bad for avalonia?)
+        var task = Task.Run(() => SendExceptionInfoAsync(e, filePath, memberName));
         if (wait)
         {
             task.Wait();
         }
     }
 
-    public static async Task SendExceptionInfoToWebhookAsync(Exception e, [CallerFilePath] string filePath = "<unknown>", [CallerMemberName] string memberName = "<unknown>")
+    public static async Task SendExceptionInfoAsync(Exception e, [CallerFilePath] string filePath = "<unknown>", [CallerMemberName] string memberName = "<unknown>")
     {
-        if (DebugViewModel.IsDebugBuild)
-            return;
-        await SendReportTextToWebhookAsync(CrashReport.Generate(e), $"{filePath}; Method {memberName}");
+        // TODO: Proper DebugBuild checking
+        /*if (DebugViewModel.IsDebugBuild)
+            return;*/
+
+        var report = CrashReport.Generate(e, new NonCrashInfo(filePath, memberName));
+        
+        await SendReportToAnalyticsApiAsync(report);
     }
 
-    public static async Task SendReportTextToWebhookAsync(CrashReport report, string catchLocation = null)
+    public static async Task SendReportToAnalyticsApiAsync(CrashReport report)
     {
-        string reportText = report.ReportText;
-        if (catchLocation is not null)
+        if (AnalyticsClient.GetAnalyticsUrl() is not { } analyticsUrl)
         {
-            reportText = $"The report was generated from an exception caught in {catchLocation}.\r\n{reportText}";
+            return;
         }
 
-        byte[] bytes = Encoding.UTF8.GetBytes(reportText);
-        string filename = Path.GetFileNameWithoutExtension(report.FilePath) + ".txt";
-
-        MultipartFormDataContent formData = new MultipartFormDataContent
-        {
-            { new ByteArrayContent(bytes, 0, bytes.Length), "crash-report", filename }
-        };
         try
         {
-            using HttpClient httpClient = new HttpClient();
-            string url = BuildConstants.CrashReportWebhookUrl;
-            await httpClient.PostAsync(url, formData);
+            using var analyticsClient = new AnalyticsClient(analyticsUrl);
+            await analyticsClient.SendReportAsync(report.ApiReportJson);
         }
         catch { }
     }
+
+    /// <summary>
+    /// Matches file paths with spaces when in quotes, otherwise not
+    /// </summary>
+    [GeneratedRegex(@"'([^']*[\/\\][^']*)'|(\S*[\/\\]\S*)")]
+    private static partial Regex FilePathRegex();
 }

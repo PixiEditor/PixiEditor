@@ -1,0 +1,124 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ControlTheme x:Key="SliderRepeatTrackTheme"
+                  TargetType="RepeatButton">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RepeatButton">
+                    <Border Background="Transparent"></Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </ControlTheme>
+
+    <ControlTheme x:Key="{x:Type Slider}"
+                  TargetType="Slider">
+        <Style Selector="^:horizontal">
+            <Setter Property="MinWidth" Value="40" />
+            <Setter Property="MinHeight" Value="20" />
+            <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Grid Name="grid">
+                        <Border Margin="6, 0" CornerRadius="4" Background="{DynamicResource ThemeControlLowBrush}"
+                                Name="TrackBackground"
+                                Height="6"
+                                VerticalAlignment="Center">
+                        </Border>
+                        <Canvas Margin="-6,-1">
+                            <Rectangle IsVisible="false" x:Name="PART_SelectionRange" Height="4.0"
+                                       StrokeThickness="1.0" />
+                        </Canvas>
+                        <Track Name="PART_Track"
+                               Grid.Row="1"
+                               IsDirectionReversed="{TemplateBinding IsDirectionReversed}"
+                               Orientation="Horizontal">
+                            <Track.DecreaseButton>
+                                <RepeatButton Name="PART_DecreaseButton"
+                                              Theme="{StaticResource SliderRepeatTrackTheme}" />
+                            </Track.DecreaseButton>
+                            <Track.IncreaseButton>
+                                <RepeatButton Name="PART_IncreaseButton"
+                                              Theme="{StaticResource SliderRepeatTrackTheme}" />
+                            </Track.IncreaseButton>
+                            <Thumb Name="thumb"
+                                   MinWidth="20"
+                                   MinHeight="20">
+                                <Thumb.Template>
+                                    <ControlTemplate>
+                                        <Border Background="{DynamicResource ThumbBrush}" Width="8" Height="18"
+                                                CornerRadius="4" />
+                                    </ControlTemplate>
+                                </Thumb.Template>
+                            </Thumb>
+                        </Track>
+                    </Grid>
+                </ControlTemplate>
+            </Setter>
+        </Style>
+        <Style Selector="^:vertical">
+            <Setter Property="MinWidth" Value="20" />
+            <Setter Property="MinHeight" Value="40" />
+            <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Border CornerRadius="{TemplateBinding CornerRadius}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto"
+                                                  MinWidth="26" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Border Name="TrackBackground"
+                                    Grid.Column="1"
+                                    Width="4"
+                                    Margin="0,6"
+                                    HorizontalAlignment="Center" />
+                            <Track Name="PART_Track"
+                                   Grid.Column="1"
+                                   IsDirectionReversed="{TemplateBinding IsDirectionReversed}"
+                                   Orientation="Vertical">
+                                <Track.DecreaseButton>
+                                    <RepeatButton Name="PART_DecreaseButton"
+                                                  Theme="{StaticResource SliderRepeatTrackTheme}" />
+                                </Track.DecreaseButton>
+                                <Track.IncreaseButton>
+                                    <RepeatButton Name="PART_IncreaseButton"
+                                                  Theme="{StaticResource SliderRepeatTrackTheme}" />
+                                </Track.IncreaseButton>
+                                <Thumb Name="thumb"
+                                       MinWidth="20"
+                                       MinHeight="20">
+                                    <Thumb.Template>
+                                        <ControlTemplate>
+                                            <Border Background="{DynamicResource ThumbBrush}" Width="18" Height="8"
+                                                    CornerRadius="4" />
+                                        </ControlTemplate>
+                                    </Thumb.Template>
+                                </Thumb>
+                            </Track>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter>
+        </Style>
+
+        <Style Selector="^ /template/ Track#PART_Track">
+            <Setter Property="Minimum" Value="{TemplateBinding Minimum}" />
+            <Setter Property="Maximum" Value="{TemplateBinding Maximum}" />
+            <Setter Property="Value" Value="{TemplateBinding Value, Mode=TwoWay}" />
+        </Style>
+        <Style Selector="^ /template/ Border#TrackBackground">
+            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderLowBrush}" />
+        </Style>
+        <Style Selector="^ /template/ TickBar">
+            <Setter Property="Ticks" Value="{TemplateBinding Ticks}" />
+        </Style>
+        <Style Selector="^:disabled /template/ Grid#grid">
+            <Setter Property="Opacity" Value="{DynamicResource ThemeDisabledOpacity}" />
+        </Style>
+    </ControlTheme>
+</ResourceDictionary>

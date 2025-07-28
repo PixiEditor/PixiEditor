@@ -1,0 +1,104 @@
+﻿<UserControl
+    x:Class="PixiEditor.Views.Palettes.PaletteItem"
+    x:ClassModifier="internal"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+    xmlns:input="clr-namespace:PixiEditor.Views.Input"
+    xmlns:decorators="clr-namespace:PixiEditor.Views.Decorators"
+    xmlns:palettes="clr-namespace:PixiEditor.Views.Palettes"
+    mc:Ignorable="d"
+    d:DesignHeight="200"
+    d:DesignWidth="800"
+    Name="paletteItem">
+    <UserControl.Styles>
+        <Style Selector="Button#FavouriteButton">
+            <Setter Property="Content" Value="{DynamicResource icon-star}" />
+        </Style>
+        <Style Selector="palettes|PaletteItem:favourite Button#FavouriteButton">
+            <Setter Property="Content" Value="{DynamicResource icon-star-filled}" />
+        </Style>
+    </UserControl.Styles>
+    <Grid Background="{DynamicResource ThemeBackgroundBrush}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="100*" />
+            <ColumnDefinition Width="95" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60" />
+            <RowDefinition Height="60*" MinHeight="45" />
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Vertical" Grid.RowSpan="2" Grid.ColumnSpan="2">
+            <Separator Background="{DynamicResource ThemeBackgroundBrush1}" />
+            <DockPanel>
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                    <input:EditableTextBlock x:Name="titleTextBlock" OnSubmit="EditableTextBlock_OnSubmit"
+                                             Text="{Binding Palette.Name, ElementName=paletteItem, Mode=TwoWay}"
+                                             FontSize="20" MaxChars="50" />
+                    <Button IsVisible="{Binding ElementName=paletteItem, Path=IsPointerOver}"
+                            Click="RenameButton_Click"
+                            Cursor="Hand" FontSize="20" Classes="pixi-icon"
+                            Content="{DynamicResource icon-edit}" Margin="5 0 0 0" />
+                </StackPanel>
+                <decorators:Chip Margin="0 5 5 0"
+                                 ui:Translator.Key="{Binding ElementName=paletteItem, Path=Palette.Source.Name}"
+                                 DockPanel.Dock="Right" HorizontalAlignment="Right" />
+            </DockPanel>
+            <TextBlock Margin="0 5 0 0" />
+        </StackPanel>
+        <ItemsControl Margin="0 -20 0 10" Grid.Row="1" Grid.Column="0"
+                      ItemsSource="{Binding ElementName=paletteItem, Path=Palette.Colors}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Rectangle Fill="{Binding Hex}" ToolTip.Tip="{Binding}" Width="30" Height="30" />
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <StackPanel Spacing="2" Orientation="Horizontal" Grid.Row="0" Grid.RowSpan="2" Grid.Column="1"
+                    VerticalAlignment="Center">
+            <Button
+                ui:Translator.TooltipKey="USE_IN_CURRENT_IMAGE" Cursor="Hand"
+                Margin="0 3 0 0" Padding="2" Width="28" Height="28"
+                CommandParameter="{Binding ElementName=paletteItem, Path=Palette.Colors}"
+                Classes="pixi-icon"
+                Content="{DynamicResource icon-check}"
+                Command="{Binding ImportPaletteCommand, ElementName=paletteItem}">
+                <Button.Styles>
+                    <Style Selector="Button:pointerover">
+                        <Setter Property="Background" Value="SeaGreen" />
+                    </Style>
+                </Button.Styles>
+            </Button>
+            <Button
+                Command="{Binding ElementName=paletteItem, Path=ToggleFavouriteCommand}"
+                CommandParameter="{Binding ElementName=paletteItem, Path=Palette}"
+                Name="FavouriteButton" Width="28" Height="28"
+                Classes="pixi-icon" Padding="2"
+                ui:Translator.TooltipKey="ADD_TO_FAVORITES">
+                <Button.Styles>
+                    <Style Selector="Button:pointerover">
+                        <Setter Property="Background" Value="Orange" />
+                    </Style>
+                </Button.Styles>
+            </Button>
+            <Button Name="deleteButton" Command="{Binding DeletePaletteCommand, ElementName=paletteItem}"
+                    CommandParameter="{Binding ElementName=paletteItem, Path=Palette}"
+                    Classes="pixi-icon" Width="28" Height="28"
+                    Content="{DynamicResource icon-trash}"
+                    ui:Translator.TooltipKey="DELETE" Padding="2" Margin="0" Cursor="Hand">
+                <Button.Styles>
+                    <Style Selector="Button:pointerover">
+                        <Setter Property="Background" Value="Red" />
+                    </Style>
+                </Button.Styles>
+            </Button>
+        </StackPanel>
+    </Grid>
+</UserControl>

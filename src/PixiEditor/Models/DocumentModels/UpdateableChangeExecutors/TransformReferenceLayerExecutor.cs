@@ -1,50 +1,61 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ChunkyImageLib.DataHolders;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.Models.Enums;
+﻿using ChunkyImageLib.DataHolders;
+using PixiEditor.ChangeableDocument.Actions.Generated;
+using Drawie.Backend.Core.Numerics;
+using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
+using PixiEditor.Models.Tools;
+using Drawie.Numerics;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
-internal class TransformReferenceLayerExecutor : UpdateableChangeExecutor
+internal class TransformReferenceLayerExecutor : UpdateableChangeExecutor, ITransformableExecutor
 {
     public override ExecutionState Start()
     {
-        if (document!.ReferenceLayerViewModel.ReferenceBitmap is null)
+        if (document!.ReferenceLayerHandler.ReferenceTexture is null)
             return ExecutionState.Error;
 
-        ShapeCorners corners = document.ReferenceLayerViewModel.ReferenceShapeBindable;
-        document.TransformViewModel.ShowTransform(DocumentTransformMode.Scale_Rotate_Shear_NoPerspective, true, corners, true);
-        document.ReferenceLayerViewModel.IsTransforming = true;
+        ShapeCorners corners = document.ReferenceLayerHandler.ReferenceShapeBindable;
+        document.TransformHandler.ShowTransform(DocumentTransformMode.Scale_Rotate_Shear_Perspective, true, corners, true);
+        document.ReferenceLayerHandler.IsTransforming = true;
         internals!.ActionAccumulator.AddActions(new TransformReferenceLayer_Action(corners));
         return ExecutionState.Success;
     }
 
-    public override void OnTransformMoved(ShapeCorners corners)
+    public bool IsTransforming => true;
+
+    public void OnTransformChanged(ShapeCorners corners)
     {
         internals!.ActionAccumulator.AddActions(new TransformReferenceLayer_Action(corners));
     }
 
-    public override void OnSelectedObjectNudged(VecI distance) => document!.TransformViewModel.Nudge(distance);
+    public void OnLineOverlayMoved(VecD start, VecD end) { }
 
-    public override void OnMidChangeUndo() => document!.TransformViewModel.Undo();
+    public void OnSelectedObjectNudged(VecI distance) => document!.TransformHandler.Nudge(distance);
+    public bool IsTransformingMember(Guid id)
+    {
+        return false;
+    }
 
-    public override void OnMidChangeRedo() => document!.TransformViewModel.Redo();
+    public void OnMidChangeUndo() => document!.TransformHandler.Undo();
 
-    public override void OnTransformApplied()
+    public void OnMidChangeRedo() => document!.TransformHandler.Redo();
+
+    public void OnTransformApplied()
     {
         internals!.ActionAccumulator.AddFinishedActions(new EndTransformReferenceLayer_Action());
-        document!.TransformViewModel.HideTransform();
-        document.ReferenceLayerViewModel.IsTransforming = false;
+        document!.TransformHandler.HideTransform();
+        document.ReferenceLayerHandler.IsTransforming = false;
         onEnded!.Invoke(this);
     }
 
     public override void ForceStop()
     {
         internals!.ActionAccumulator.AddFinishedActions(new EndTransformReferenceLayer_Action());
-        document!.TransformViewModel.HideTransform();
-        document.ReferenceLayerViewModel.IsTransforming = false;
+        document!.TransformHandler.HideTransform();
+        document.ReferenceLayerHandler.IsTransforming = false;
+    }
+
+    public bool IsFeatureEnabled<T>()
+    {
+        return typeof(T) == typeof(ITransformableExecutor);
     }
 }

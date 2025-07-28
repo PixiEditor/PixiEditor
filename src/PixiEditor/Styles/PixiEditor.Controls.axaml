@@ -1,0 +1,30 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Styles.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <MergeResourceInclude Source="avares://PixiEditor/Styles/CommandsMenu.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor/Styles/BlendModeComboBox.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor/Styles/Buttons/DialogButtonTheme.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor/Styles/Templates/ShortcutBoxTemplate.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor/Styles/Templates/DocumentTabTemplate.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor/Styles/Templates/Timeline.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor/Styles/Templates/KeyFrame.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor/Styles/Templates/TimelineSlider.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor/Styles/Templates/TimelineGroupHeader.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor/Styles/Templates/NodeFrameView.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor/Styles/Templates/NodeGraphView.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor/Styles/Templates/NodeView.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor/Styles/Templates/NodeSocket.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor/Styles/Templates/ConnectionView.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor/Styles/Templates/NodePicker.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor/Styles/Templates/ShortcutsTemplateCard.axaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Styles.Resources>
+
+    <StyleInclude Source="avares://PixiEditor/Styles/Templates/NodePropertyViewTemplate.axaml"/>
+    <StyleInclude Source="avares://PixiEditor/Styles/PortingWipStyles.axaml"/>
+    <StyleInclude Source="avares://PixiEditor/Styles/ToolPickerButton.Styles.axaml"/>
+</Styles>

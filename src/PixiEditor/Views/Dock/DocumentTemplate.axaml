@@ -1,0 +1,50 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+             xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
+             xmlns:viewModels1="clr-namespace:PixiEditor.ViewModels"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:palettes1="clr-namespace:PixiEditor.Views.Palettes"
+             xmlns:viewportControls="clr-namespace:PixiEditor.Views.Main.ViewportControls"
+             xmlns:subViewModels="clr-namespace:PixiEditor.ViewModels.SubViewModels"
+             xmlns:document="clr-namespace:PixiEditor.ViewModels.Document"
+             xmlns:palettes="clr-namespace:PixiEditor.Extensions.CommonApi.Palettes;assembly=PixiEditor.Extensions.CommonApi"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="subViewModels:ViewportWindowViewModel"
+             x:Class="PixiEditor.Views.Dock.DocumentTemplate">
+    <Design.DataContext>
+        <subViewModels:ViewportWindowViewModel />
+    </Design.DataContext>
+
+    <viewportControls:Viewport
+        x:Name="Viewport"
+        CenterViewportTrigger="{Binding DockCenterViewportTrigger}"
+        ZoomViewportTrigger="{Binding ZoomViewportTrigger}"
+        MouseDownCommand="{Binding Path=IoSubViewModel.MouseDownCommand, Source={viewModels1:MainVM}}"
+        MouseMoveCommand="{Binding Path=IoSubViewModel.MouseMoveCommand, Source={viewModels1:MainVM}}"
+        MouseUpCommand="{Binding Path=IoSubViewModel.MouseUpCommand, Source={viewModels1:MainVM}}"
+        MouseWheelCommand="{Binding Path=IoSubViewModel.MouseWheelCommand, Source={viewModels1:MainVM}}"
+        MiddleMouseClickedCommand="{Binding IoSubViewModel.PreviewMouseMiddleButtonCommand, Source={viewModels1:MainVM}}"
+        Cursor="{Binding ToolsSubViewModel.ToolCursor, Source={viewModels1:MainVM}}"
+        GridLinesVisible="{Binding ViewportSubViewModel.GridLinesEnabled, Source={viewModels1:MainVM}}"
+        HighResPreview="{Binding ViewportSubViewModel.HighResRender, Source={viewModels1:MainVM}, Mode=TwoWay}"
+        ZoomMode="{Binding ToolsSubViewModel.ActiveTool, Source={viewModels1:MainVM}, Converter={converters:ActiveToolToZoomModeConverter}}"
+        ZoomOutOnClick="{Binding ToolsSubViewModel.ZoomTool.ZoomOutOnClick, Source={viewModels1:MainVM}}"
+        UseTouchGestures="{Binding StylusSubViewModel.UseTouchGestures, Source={viewModels1:MainVM}}"
+        FlipX="{Binding FlipX, Mode=TwoWay}"
+        FlipY="{Binding FlipY, Mode=TwoWay}"
+        Channels="{Binding Channels, Mode=TwoWay}"
+        SnappingViewModel="{Binding ActiveDocument.SnappingViewModel, Source={viewModels1:MainVM DocumentManagerSVM}}"
+        SnappingEnabled="{Binding ViewportSubViewModel.SnappingEnabled, Source={viewModels1:MainVM}, Mode=TwoWay}"
+        AvailableRenderOutputs="{Binding ActiveDocument.NodeGraph.AvailableRenderOutputs, Source={viewModels1:MainVM DocumentManagerSVM}}"
+        ViewportRenderOutput="{Binding RenderOutputName, Mode=TwoWay}"
+        AutoBackgroundScale="{Binding AutoScaleBackground, Mode=OneWay}"
+        CustomBackgroundScaleX="{Binding CustomBackgroundScaleX, Mode=OneWay}"
+        CustomBackgroundScaleY="{Binding CustomBackgroundScaleY, Mode=OneWay}"
+        BackgroundBitmap="{Binding BackgroundBitmap, Mode=OneWay}"
+        HudVisible="{Binding HudVisible}"
+        Document="{Binding Document}">
+    </viewportControls:Viewport>
+</UserControl>

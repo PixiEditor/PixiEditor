@@ -1,0 +1,16 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        x:Class="PixiEditor.UI.Common.Themes.PixiEditorTheme"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Styles.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <MergeResourceInclude Source="/Accents/Base.axaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Styles.Resources>
+
+    <StyleInclude Source="/Styles/PixiEditor.Controls.axaml"/>
+    <StyleInclude Source="/Styles/PixiEditor.Styles.axaml"/>
+    <StyleInclude Source="/Fonts/PixiPerfectStyles.axaml"/>
+    <StyleInclude Source="/Fonts/PixiPerfectIcons.axaml"/>
+</Styles>

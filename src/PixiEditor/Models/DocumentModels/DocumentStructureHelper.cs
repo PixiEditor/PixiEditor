@@ -1,140 +1,174 @@
-﻿using PixiEditor.ChangeableDocument.Enums;
-using PixiEditor.Extensions.Common.Localization;
-using PixiEditor.Models.Enums;
-using PixiEditor.Models.Localization;
-using PixiEditor.ViewModels.SubViewModels.Document;
+﻿using System.Collections.Generic;
+using PixiEditor.ChangeableDocument;
+using PixiEditor.ViewModels.Document;
+using PixiEditor.ChangeableDocument.Actions.Generated;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.Models.Handlers;
+using PixiEditor.Models.Layers;
+using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.Models.DocumentModels;
 #nullable enable
 internal class DocumentStructureHelper
 {
-    private DocumentViewModel doc;
+    private IDocument doc;
     private DocumentInternalParts internals;
-    public DocumentStructureHelper(DocumentViewModel doc, DocumentInternalParts internals)
+
+    public DocumentStructureHelper(IDocument doc, DocumentInternalParts internals)
     {
         this.doc = doc;
         this.internals = internals;
     }
 
-    private string GetUniqueName(string name, FolderViewModel folder)
+    private string GetUniqueName(string name, INodeHandler node)
     {
         int count = 1;
-        foreach (var child in folder.Children)
+        node.TraverseBackwards(newNode =>
         {
-            string childName = child.NameBindable;
-            if (childName.StartsWith(name))
-                count++;
-        }
+            if (newNode is IStructureMemberHandler structureMemberHandler)
+            {
+                string childName = structureMemberHandler.NodeNameBindable;
+                if (childName.StartsWith(name))
+                    count++;
+            }
+
+            return true;
+        });
         return $"{name} {count}";
     }
 
     public Guid CreateNewStructureMember(StructureMemberType type, string? name = null, bool finish = true)
     {
-        StructureMemberViewModel? member = doc.SelectedStructureMember;
+        IStructureMemberHandler? member = doc.SelectedStructureMember;
         if (member is null)
         {
             Guid guid = Guid.NewGuid();
             //put member on top
-            internals.ActionAccumulator.AddActions(new CreateStructureMember_Action(doc.StructureRoot.GuidValue, guid, doc.StructureRoot.Children.Count, type));
-            name ??= GetUniqueName(type == StructureMemberType.Layer ? new LocalizedString("NEW_LAYER") : new LocalizedString("NEW_FOLDER"), doc.StructureRoot);
+            internals.ActionAccumulator.AddActions(new CreateStructureMember_Action(
+                doc.NodeGraphHandler.OutputNode.Id,
+                guid, type == StructureMemberType.Layer ? typeof(ImageLayerNode) : typeof(FolderNode)));
+            name ??= GetUniqueName(
+                type == StructureMemberType.Layer
+                    ? new LocalizedString("NEW_LAYER")
+                    : new LocalizedString("NEW_FOLDER"), doc.NodeGraphHandler.OutputNode);
             internals.ActionAccumulator.AddActions(new StructureMemberName_Action(guid, name));
             if (finish)
                 internals.ActionAccumulator.AddFinishedActions();
             return guid;
         }
-        if (member is FolderViewModel folder)
+
+        if (member is IFolderHandler folder)
         {
             Guid guid = Guid.NewGuid();
             //put member inside folder on top
-            internals.ActionAccumulator.AddActions(new CreateStructureMember_Action(folder.GuidValue, guid, folder.Children.Count, type));
-            name ??= GetUniqueName(type == StructureMemberType.Layer ? new LocalizedString("NEW_LAYER") : new LocalizedString("NEW_FOLDER"), folder);
+            Type nodeType = type == StructureMemberType.Layer ? typeof(ImageLayerNode) : typeof(FolderNode);
+            internals.ActionAccumulator.AddActions(new CreateStructureMember_Action(folder.Id, guid, nodeType));
+            name ??= GetUniqueName(
+                type == StructureMemberType.Layer
+                    ? new LocalizedString("NEW_LAYER")
+                    : new LocalizedString("NEW_FOLDER"), folder);
             internals.ActionAccumulator.AddActions(new StructureMemberName_Action(guid, name));
             if (finish)
                 internals.ActionAccumulator.AddFinishedActions();
             return guid;
         }
-        if (member is LayerViewModel layer)
+
+        if (member is ILayerHandler layer)
         {
             Guid guid = Guid.NewGuid();
             //put member above the layer
-            List<StructureMemberViewModel> path = doc.StructureHelper.FindPath(layer.GuidValue);
-            if (path.Count < 2)
-                throw new InvalidOperationException("Couldn't find a path to the selected member");
-            FolderViewModel parent = (FolderViewModel)path[1];
-            internals.ActionAccumulator.AddActions(new CreateStructureMember_Action(parent.GuidValue, guid, parent.Children.IndexOf(layer) + 1, type));
-            name ??= GetUniqueName(type == StructureMemberType.Layer ? new LocalizedString("NEW_LAYER") : new LocalizedString("NEW_FOLDER"), parent);
+            INodeHandler parent = doc.StructureHelper.GetFirstForwardNode(layer);
+            if (parent is null)
+                parent = doc.NodeGraphHandler.OutputNode;
+
+            Type nodeType = type == StructureMemberType.Layer ? typeof(ImageLayerNode) : typeof(FolderNode);
+
+            internals.ActionAccumulator.AddActions(new CreateStructureMember_Action(parent.Id, guid, nodeType));
+            name ??= GetUniqueName(
+                type == StructureMemberType.Layer
+                    ? new LocalizedString("NEW_LAYER")
+                    : new LocalizedString("NEW_FOLDER"), parent);
             internals.ActionAccumulator.AddActions(new StructureMemberName_Action(guid, name));
             if (finish)
                 internals.ActionAccumulator.AddFinishedActions();
             return guid;
         }
+
         throw new ArgumentException($"Unknown member type: {type}");
     }
 
-    private void HandleMoveInside(List<StructureMemberViewModel> memberToMovePath, List<StructureMemberViewModel> memberToMoveIntoPath)
+    public Guid? CreateNewStructureMember(Type structureMemberType, string? name, ActionSource source)
     {
-        if (memberToMoveIntoPath[0] is not FolderViewModel folder || memberToMoveIntoPath.Contains(memberToMovePath[0]))
-            return;
-        int index = folder.Children.Count;
-        if (memberToMoveIntoPath[0].GuidValue == memberToMovePath[1].GuidValue) // member is already in this folder
-            index--;
-        internals.ActionAccumulator.AddFinishedActions(new MoveStructureMember_Action(memberToMovePath[0].GuidValue, folder.GuidValue, index));
-        return;
+        Guid guid = Guid.NewGuid();
+        var selectedMember = doc.SelectedStructureMember;
+
+        //put member above the layer
+        INodeHandler parent = selectedMember != null
+            ? doc.StructureHelper.GetFirstForwardNode(selectedMember)
+            : doc.NodeGraphHandler.OutputNode;
+        if (parent is null)
+            parent = doc.NodeGraphHandler.OutputNode;
+
+        internals.ActionAccumulator.AddActions(source,
+            new CreateStructureMember_Action(parent.Id, guid, structureMemberType));
+        name ??= GetUniqueName(
+            structureMemberType.IsAssignableTo(typeof(LayerNode))
+                ? new LocalizedString("NEW_LAYER")
+                : new LocalizedString("NEW_FOLDER"), parent);
+        internals.ActionAccumulator.AddActions(source, new StructureMemberName_Action(guid, name));
+        if (source == ActionSource.User)
+            internals.ActionAccumulator.AddFinishedActions();
+        return guid;
     }
 
-    private void HandleMoveAboveBelow(List<StructureMemberViewModel> memberToMovePath, List<StructureMemberViewModel> memberToMoveRelativeToPath, bool above)
+    private void HandleMoveInside(Guid memberToMove, Guid memberToMoveInto)
     {
-        FolderViewModel targetFolder = (FolderViewModel)memberToMoveRelativeToPath[1];
-        if (memberToMovePath[1].GuidValue == memberToMoveRelativeToPath[1].GuidValue)
-        { // members are in the same folder
-            int indexOfMemberToMove = targetFolder.Children.IndexOf(memberToMovePath[0]);
-            int indexOfMemberToMoveAbove = targetFolder.Children.IndexOf(memberToMoveRelativeToPath[0]);
-            int index = indexOfMemberToMoveAbove;
-            if (above)
-                index++;
-            if (indexOfMemberToMove < indexOfMemberToMoveAbove)
-                index--;
-            internals.ActionAccumulator.AddFinishedActions(new MoveStructureMember_Action(memberToMovePath[0].GuidValue, targetFolder.GuidValue, index));
-        }
-        else
-        { // members are in different folders
-            if (memberToMoveRelativeToPath.Contains(memberToMovePath[0]))
-                return;
-            int index = targetFolder.Children.IndexOf(memberToMoveRelativeToPath[0]);
-            if (above)
-                index++;
-            internals.ActionAccumulator.AddFinishedActions(new MoveStructureMember_Action(memberToMovePath[0].GuidValue, targetFolder.GuidValue, index));
-        }
+        if (memberToMoveInto == memberToMove)
+            return;
+
+        internals.ActionAccumulator.AddFinishedActions(new MoveStructureMember_Action(memberToMove, memberToMoveInto,
+            true));
     }
 
-    public void TryMoveStructureMember(Guid memberToMove, Guid memberToMoveIntoOrNextTo, StructureMemberPlacement placement)
+    private void HandleMoveAboveBelow(Guid memberToMove, Guid referenceMemberId, bool above)
     {
-        List<StructureMemberViewModel> memberPath = doc.StructureHelper.FindPath(memberToMove);
-        List<StructureMemberViewModel> refPath = doc.StructureHelper.FindPath(memberToMoveIntoOrNextTo);
-        if (memberPath.Count < 2 || refPath.Count < 2)
-            return;
+        var referenceMember = doc.StructureHelper.FindNode<INodeHandler>(referenceMemberId);
+        var memberToMoveInto = !above ? referenceMember : doc.StructureHelper.GetFirstForwardNode(referenceMember);
+        if (memberToMoveInto.Id == memberToMove)
+        {
+            memberToMoveInto = doc.StructureHelper.GetFirstForwardNode(memberToMoveInto);
+        }
+
+        internals.ActionAccumulator.AddFinishedActions(
+            new MoveStructureMember_Action(memberToMove, memberToMoveInto.Id,
+                above && memberToMoveInto is IFolderHandler folder && folder.Children.Contains(referenceMember)));
+    }
+
+    public void TryMoveStructureMember(Guid memberToMove, Guid memberToMoveIntoOrNextTo,
+        StructureMemberPlacement placement)
+    {
         switch (placement)
         {
             case StructureMemberPlacement.Above:
-                HandleMoveAboveBelow(memberPath, refPath, true);
+                HandleMoveAboveBelow(memberToMove, memberToMoveIntoOrNextTo, true);
                 break;
             case StructureMemberPlacement.Below:
-                HandleMoveAboveBelow(memberPath, refPath, false);
+                HandleMoveAboveBelow(memberToMove, memberToMoveIntoOrNextTo, false);
                 break;
             case StructureMemberPlacement.Inside:
-                HandleMoveInside(memberPath, refPath);
+                HandleMoveInside(memberToMove, memberToMoveIntoOrNextTo);
                 break;
             case StructureMemberPlacement.BelowOutsideFolder:
-                {
-                    FolderViewModel refFolder = (FolderViewModel)refPath[1];
-                    int refIndexInParent = refFolder.Children.IndexOf(refPath[0]);
-                    if (refIndexInParent > 0 || refPath.Count == 2)
-                    {
-                        HandleMoveAboveBelow(memberPath, refPath, false);
-                        break;
-                    }
-                    HandleMoveAboveBelow(memberPath, doc.StructureHelper.FindPath(refPath[1].GuidValue), false);
-                }
+            {
+                var path = doc.StructureHelper.FindPath(memberToMoveIntoOrNextTo);
+                var folder = path.FirstOrDefault(x => x is IFolderHandler) as IFolderHandler;
+                if (folder is null)
+                    HandleMoveAboveBelow(memberToMove, memberToMoveIntoOrNextTo, false);
+                else
+                    HandleMoveAboveBelow(memberToMove, folder.Id, false);
+            }
                 break;
         }
     }

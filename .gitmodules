@@ -1,0 +1,12 @@
+[submodule "src/PixiDocks"]
+	path = src/PixiDocks
+	url = https://github.com/PixiEditor/PixiDocks.git
+[submodule "src/PixiParser"]
+	path = src/PixiParser
+	url = https://github.com/PixiEditor/PixiParser.git
+[submodule "src/Drawie"]
+	path = src/Drawie
+	url = https://github.com/PixiEditor/Drawie.git
+[submodule "src/ColorPicker"]
+	path = src/ColorPicker
+	url = https://github.com/PixiEditor/ColorPicker.git

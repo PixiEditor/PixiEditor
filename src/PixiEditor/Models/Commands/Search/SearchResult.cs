@@ -1,18 +1,26 @@
-﻿using System.Text.RegularExpressions;
-using System.Windows;
-using System.Windows.Documents;
-using System.Windows.Media;
-using PixiEditor.Helpers;
-using PixiEditor.Models.DataHolders;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Windows.Input;
+using Avalonia;
+using Avalonia.Controls.Documents;
+using Avalonia.Media;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using PixiEditor.Models.Input;
 
 namespace PixiEditor.Models.Commands.Search;
 
-internal abstract class SearchResult : NotifyableObject
+[DebuggerDisplay("{Text}, Can Execute = {CanExecute}")]
+internal abstract class SearchResult : ObservableObject
 {
     private bool isSelected;
     private bool isMouseSelected;
 
     public string SearchTerm { get; init; }
+    
+    public int Index { get; init; }
 
     public virtual Inline[] TextBlockContent => GetInlines().ToArray();
 
@@ -20,11 +28,11 @@ internal abstract class SearchResult : NotifyableObject
 
     public abstract string Text { get; }
 
-    public virtual FrameworkElement Description { get; }
+    public virtual AvaloniaObject Description { get; }
 
     public abstract bool CanExecute { get; }
 
-    public abstract ImageSource Icon { get; }
+    public abstract IImage Icon { get; }
 
     public bool IsSelected
     {
@@ -38,16 +46,15 @@ internal abstract class SearchResult : NotifyableObject
         set => SetProperty(ref isMouseSelected, value);
     }
 
-
     public abstract void Execute();
 
     public virtual KeyCombination Shortcut { get; }
 
-    public RelayCommand ExecuteCommand { get; }
+    public ICommand ExecuteCommand { get; }
 
     public SearchResult()
     {
-        ExecuteCommand = new(_ => Execute(), _ => CanExecute);
+        ExecuteCommand = new RelayCommand(Execute, () => CanExecute);
     }
 
     private IEnumerable<Inline> GetInlines()
@@ -64,12 +71,10 @@ internal abstract class SearchResult : NotifyableObject
 
             if (group.Value.Equals(SearchTerm, StringComparison.OrdinalIgnoreCase))
             {
-                yield return new Bold(run);
+                run.FontWeight = FontWeight.Bold;
             }
-            else
-            {
-                yield return run;
-            }
+
+            yield return run;
         }
     }
 }

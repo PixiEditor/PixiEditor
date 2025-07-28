@@ -1,0 +1,24 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:palettes="clr-namespace:PixiEditor.Views.Palettes"
+             xmlns:cmds="clr-namespace:PixiEditor.Models.Commands.XAML"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:dock="clr-namespace:PixiEditor.ViewModels.Dock"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="PixiEditor.Views.Dock.PaletteViewerDockView">
+    <Design.DataContext>
+        <dock:PaletteViewerDockViewModel />
+    </Design.DataContext>
+    <palettes:PaletteViewer
+        IsEnabled="{Binding DocumentManagerSubViewModel.ActiveDocument, Converter={x:Static ObjectConverters.IsNotNull}}"
+        Colors="{Binding DocumentManagerSubViewModel.ActiveDocument.Palette}"
+        Swatches="{Binding DocumentManagerSubViewModel.ActiveDocument.Swatches}"
+        SelectColorCommand="{cmds:Command PixiEditor.Colors.SelectColor, UseProvided=True}"
+        HintColor="{Binding Path=ColorsSubViewModel.PrimaryColor,Converter={converters:GenericColorToMediaColorConverter}}"
+        SecondaryColor="{Binding Path=ColorsSubViewModel.SecondaryColor,Converter={converters:GenericColorToMediaColorConverter}}"
+        PaletteProvider="{Binding ColorsSubViewModel.PaletteProvider}"
+        ImportPaletteCommand="{cmds:Command PixiEditor.Colors.ImportPalette, UseProvided=True}"
+        ReplaceColorsCommand="{cmds:Command PixiEditor.Colors.ReplaceColors, UseProvided=True}" />
+</UserControl>

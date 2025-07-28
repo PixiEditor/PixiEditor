@@ -1,7 +1,10 @@
 ﻿using ChunkyImageLib.DataHolders;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.ImageData;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Numerics;
 
 namespace ChunkyImageLib;
 
@@ -20,7 +23,18 @@ public class Chunk : IDisposable
     /// <summary>
     /// The surface of the chunk
     /// </summary>
-    public Surface Surface { get; }
+    public Surface Surface
+    {
+        get
+        {
+            if (returned)
+            {
+                throw new ObjectDisposedException("Chunk has been disposed");
+            }
+
+            return internalSurface;
+        }
+    }
 
     /// <summary>
     /// The size of the chunk
@@ -31,21 +45,34 @@ public class Chunk : IDisposable
     /// The resolution of the chunk
     /// </summary>
     public ChunkResolution Resolution { get; }
-    private Chunk(ChunkResolution resolution)
+
+    public ColorSpace ColorSpace { get; }
+
+    public bool Disposed => returned;
+
+    private Surface internalSurface;
+
+    private Chunk(ChunkResolution resolution, ColorSpace colorSpace)
     {
         int size = resolution.PixelSize();
 
         Resolution = resolution;
+        ColorSpace = colorSpace;
         PixelSize = new(size, size);
-        Surface = new Surface(PixelSize);
+        internalSurface = new Surface(new ImageInfo(size, size, ColorType.RgbaF16, AlphaType.Premul, colorSpace));
     }
 
     /// <summary>
     /// Tries to take a chunk with the <paramref name="resolution"/> from the pool, or creates a new one
     /// </summary>
-    public static Chunk Create(ChunkResolution resolution = ChunkResolution.Full)
+    public static Chunk Create(ColorSpace chunkCs, ChunkResolution resolution = ChunkResolution.Full)
     {
-        var chunk = ChunkPool.Instance.Get(resolution) ?? new Chunk(resolution);
+        var chunk = ChunkPool.Instance.Get(resolution, chunkCs);
+        if (chunk == null || chunk.Disposed)
+        {
+            chunk = new Chunk(resolution, chunkCs);
+        }
+
         chunk.returned = false;
         Interlocked.Increment(ref chunkCounter);
         return chunk;
@@ -56,22 +83,24 @@ public class Chunk : IDisposable
     /// </summary>
     /// <param name="pos">The destination for the <paramref name="surface"/></param>
     /// <param name="paint">The paint to use while drawing</param>
-    public void DrawOnSurface(DrawingSurface surface, VecI pos, Paint? paint = null)
+    public void DrawChunkOn(DrawingSurface surface, VecD pos, Paint? paint = null)
     {
-        surface.Canvas.DrawSurface(Surface.DrawingSurface, pos.X, pos.Y, paint);
+        surface.Canvas.DrawSurface(Surface.DrawingSurface, (float)pos.X, (float)pos.Y, paint);
     }
-    
+
     public unsafe RectI? FindPreciseBounds(RectI? passedSearchRegion = null)
     {
         RectI? bounds = null;
-        if (returned) 
+        if (returned)
             return bounds;
 
-        if (passedSearchRegion is not null && !new RectI(VecI.Zero, Surface.Size).ContainsInclusive(passedSearchRegion.Value))
-            throw new ArgumentException("Passed search region lies outside of the chunk's surface", nameof(passedSearchRegion));
+        if (passedSearchRegion is not null &&
+            !new RectI(VecI.Zero, Surface.Size).ContainsInclusive(passedSearchRegion.Value))
+            throw new ArgumentException("Passed search region lies outside of the chunk's surface",
+                nameof(passedSearchRegion));
 
         RectI searchRegion = passedSearchRegion ?? new RectI(VecI.Zero, Surface.Size);
-        
+
         ulong* ptr = (ulong*)Surface.PixelBuffer;
         for (int y = searchRegion.Top; y < searchRegion.Bottom; y++)
         {
@@ -87,7 +116,7 @@ public class Chunk : IDisposable
                 }
             }
         }
-        
+
         return bounds;
     }
 
@@ -98,9 +127,9 @@ public class Chunk : IDisposable
     {
         if (returned)
             return;
-        returned = true;
         Interlocked.Decrement(ref chunkCounter);
-        Surface.DrawingSurface.Canvas.RestoreToCount(-1);
+        Surface.DrawingSurface.Canvas.Clear();
         ChunkPool.Instance.Push(this);
+        returned = true;
     }
 }

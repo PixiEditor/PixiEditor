@@ -1,0 +1,33 @@
+﻿<dialogs:PixiEditorPopup
+    x:Class="PixiEditor.Views.Dialogs.NewFilePopup"
+    x:ClassModifier="internal"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+    xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
+    xmlns:input="clr-namespace:PixiEditor.Views.Input"
+    xmlns:system="clr-namespace:System;assembly=System.Runtime"
+    Width="300" Height="250"
+    SizeToContent="Height"
+    CanResize="False"
+    CanMinimize="False"
+    Name="popup"
+    ui:Translator.Key="CREATE_NEW_IMAGE">
+    <StackPanel Background="{DynamicResource ThemeBackgroundBrush}" Focusable="True" Orientation="Vertical">
+        <input:SizePicker HorizontalAlignment="Center" MinWidth="230" Height="125" Margin="15,30,15,0"
+                          PreserveAspectRatio="False"
+                          Background="{DynamicResource ThemeBackgroundBrush1}"
+                          CornerRadius="{DynamicResource ControlCornerRadius}"
+                          ChosenHeight="{Binding FileHeight, Mode=TwoWay, ElementName=popup}"
+                          ChosenWidth="{Binding FileWidth, Mode=TwoWay, ElementName=popup}"
+                          x:Name="sizePicker" />
+
+        <Button DockPanel.Dock="Bottom" Margin="0,15,0,15" HorizontalAlignment="Center"
+                IsDefault="True" ui:Translator.Key="CREATE" x:Name="createButton" Focusable="True"
+                Command="{Binding Path=DataContext.SetResultAndCloseCommand, ElementName=popup}">
+            <Button.CommandParameter>
+                <system:Boolean>True</system:Boolean>
+            </Button.CommandParameter>
+        </Button>
+    </StackPanel>
+</dialogs:PixiEditorPopup>

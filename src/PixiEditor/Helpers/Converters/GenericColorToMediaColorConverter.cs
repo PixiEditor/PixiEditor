@@ -1,7 +1,8 @@
 ﻿using System.Globalization;
-using System.Windows.Media;
-using PixiEditor.Extensions.Palettes;
-using BackendColor = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
+using Avalonia.Media;
+using PixiEditor.Helpers.Extensions;
+using PixiEditor.Extensions.CommonApi.Palettes;
+using BackendColor = Drawie.Backend.Core.ColorsImpl.Color;
 
 namespace PixiEditor.Helpers.Converters;
 

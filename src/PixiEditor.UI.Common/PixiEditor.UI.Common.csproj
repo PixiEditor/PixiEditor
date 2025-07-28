@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <AvaloniaResource Include="Assets/**"/>
+      <AvaloniaResource Include="Fonts/**"/>
+      <None Include="Assets/**" CopyToOutputDirectory="PreserveNewest" />
+      <None Include="Fonts/PixiPerfect.ttf" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
+  
+
+    <ItemGroup>
+      <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
+      <PackageReference Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)" />
+      <PackageReference Include="Avalonia.Xaml.Behaviors" Version="11.0.5" />
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    </ItemGroup>
+</Project>

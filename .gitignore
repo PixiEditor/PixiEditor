@@ -85,6 +85,8 @@ StyleCopReport.xml
 *.svclog
 *.scc
 
+.packages
+
 # Chutzpah Test files
 _Chutzpah*
 
@@ -329,9 +331,13 @@ ASALocalRun/
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
 
-PixiEditor/Properties/
-
 .vscode/
 
 Builds/
 Installer/Assets
+
+GitIgnore
+
+Cache/
+.DS_Store
+nohup.out

@@ -1,0 +1,12 @@
+<Project>
+    <PropertyGroup>
+        <CodeAnalysisRuleSet>../Custom.ruleset</CodeAnalysisRuleSet>
+		<AvaloniaVersion>11.3.0</AvaloniaVersion>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="StyleCop.Analyzers" Version="1.1.118" />
+    </ItemGroup>
+    <ItemGroup>
+        <AdditionalFiles Include="../stylecop.json" />
+    </ItemGroup>
+</Project>

@@ -5,6 +5,7 @@ namespace PixiEditor.Models.Commands;
 
 internal class CommandMethods
 {
+    public CanExecuteEvaluator CanExecuteEvaluator => _canExecute;
     private readonly Command _command;
     private readonly Action<object> _execute;
     private readonly CanExecuteEvaluator _canExecute;
@@ -20,7 +21,7 @@ internal class CommandMethods
     {
         var log = CommandController.Current?.Log;
         ToLog(log, null);
-        
+
         if (!CanExecute(parameter))
         {
             ToLog(log, false);
@@ -32,7 +33,8 @@ internal class CommandMethods
     }
 
     public bool CanExecute(object parameter) => _canExecute.CallEvaluate(_command, parameter);
-
+    
+    
     private void ToLog(CommandLog.CommandLog? log, bool? canExecute)
     {
         if (log != null && _command != null)

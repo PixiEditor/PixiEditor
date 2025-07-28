@@ -1,8 +1,9 @@
-﻿using System.ComponentModel;
-using System.Windows;
+﻿using System.Collections.Generic;
 using System.Windows.Input;
-using System.Windows.Markup;
+using Avalonia.Controls;
+using Avalonia.Markup.Xaml;
 using PixiEditor.Helpers;
+using PixiEditor.Models.Commands.CommandContext;
 
 namespace PixiEditor.Models.Commands.XAML;
 
@@ -15,6 +16,8 @@ internal class Command : MarkupExtension
     public bool UseProvided { get; set; }
 
     public bool GetPixiCommand { get; set; }
+    
+    public string SourceInfoTag { get; set; }
 
     public Command() { }
 
@@ -22,7 +25,7 @@ internal class Command : MarkupExtension
 
     public override object ProvideValue(IServiceProvider serviceProvider)
     {
-        if ((bool)(DesignerProperties.IsInDesignModeProperty.GetMetadata(typeof(DependencyObject)).DefaultValue))
+        if (Design.IsDesignMode)
         {
             var attribute = DesignCommandHelpers.GetCommandAttribute(Name);
             return GetICommand(
@@ -33,48 +36,79 @@ internal class Command : MarkupExtension
                     Description = attribute.Description,
                     DefaultShortcut = attribute.GetShortcut(),
                     Shortcut = attribute.GetShortcut()
-                }, false);
+                }, null, false);
         }
 
         if (commandController is null)
         {
-            commandController = ViewModelMain.Current.CommandController;
+            commandController = CommandController.Current;
         }
 
-        var command = commandController.Commands[Name];
-        return GetPixiCommand ? command : GetICommand(command, UseProvided);
+        bool contains = commandController.Commands.ContainsKey(Name);
+
+        if (!contains)
+        {
+            return null;
+        }
+
+        Commands.Command command = commandController.Commands[Name];
+        return GetPixiCommand ? command : GetICommand(command, new CommandBindingSourceInfo(SourceInfoTag), UseProvided);
     }
 
-    public static ICommand GetICommand(Commands.Command command, bool useProvidedParameter) => new ProvidedICommand()
+    public static ICommand GetICommand(Commands.Command command, ICommandExecutionSourceInfo? source, bool useProvidedParameter) => new ProvidedICommand()
     {
         Command = command,
         UseProvidedParameter = useProvidedParameter,
+        Source = source
     };
 
     class ProvidedICommand : ICommand
     {
-        public event EventHandler CanExecuteChanged
+        public event EventHandler? CanExecuteChanged
         {
-            add => CommandManager.RequerySuggested += value;
-            remove => CommandManager.RequerySuggested -= value;
+            add
+            {
+                if (CanExecuteChangedHandlers.Count == 0)
+                {
+                    CommandController.ListenForCanExecuteChanged(Command);
+                }
+
+                CanExecuteChangedHandlers.Add(value);
+            }
+            remove
+            {
+                CanExecuteChangedHandlers.Remove(value);
+                if (CanExecuteChangedHandlers.Count == 0)
+                {
+                    CommandController.StopListeningForCanExecuteChanged(Command);
+                }
+            }
         }
 
-        public Commands.Command Command { get; init; }
+        private List<EventHandler> CanExecuteChangedHandlers { get; } = new();
+
+        private Commands.Command command;
+
+        public Commands.Command Command
+        {
+            get => command;
+            init
+            {
+                command = value;
+                Command.CanExecuteChanged += () => CanExecuteChangedHandlers.ForEach(x => x.Invoke(this, EventArgs.Empty));
+            }
+        }
 
         public bool UseProvidedParameter { get; init; }
 
+        public ICommandExecutionSourceInfo Source { get; init; }
+        
         public bool CanExecute(object parameter) => UseProvidedParameter ? Command.Methods.CanExecute(parameter) : Command.CanExecute();
 
         public void Execute(object parameter)
         {
-            if (UseProvidedParameter)
-            {
-                Command.Methods.Execute(parameter);
-            }
-            else
-            {
-                Command.Execute();
-            }
+            var context = new CommandExecutionContext(parameter, Source);
+            Command.Execute(context, UseProvidedParameter);
         }
     }
 }

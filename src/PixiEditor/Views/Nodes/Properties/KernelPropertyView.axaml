@@ -1,0 +1,56 @@
+﻿<properties:NodePropertyView xmlns="https://github.com/avaloniaui"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                             xmlns:properties="clr-namespace:PixiEditor.Views.Nodes.Properties"
+                             xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+                             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+                             xmlns:input="clr-namespace:PixiEditor.Views.Input"
+                             xmlns:system="clr-namespace:System;assembly=System.Runtime"
+                             xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
+                             xmlns:properties1="clr-namespace:PixiEditor.ViewModels.Nodes.Properties"
+                             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+                             x:Class="PixiEditor.Views.Nodes.Properties.KernelPropertyView">
+    <Design.DataContext>
+        <properties1:KernelPropertyViewModel />
+    </Design.DataContext>
+
+    <StackPanel Margin="0,2">
+        <Grid ColumnDefinitions="*,*,*" Margin="0,0,0,2">
+            <TextBlock ui:Translator.TooltipKey="{Binding DisplayName}" ui:Translator.Key="{Binding DisplayName}" VerticalAlignment="Center"/>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Button Padding="0" Content="-" Width="35" Command="{Binding AdjustSizeCommand}">
+                    <Button.CommandParameter>
+                        <system:Int32>-1</system:Int32>
+                    </Button.CommandParameter>
+                </Button>
+                <Button Padding="0" Content="+" Width="35" Command="{Binding AdjustSizeCommand}">
+                    <Button.CommandParameter>
+                        <system:Int32>1</system:Int32>
+                    </Button.CommandParameter>
+                </Button>
+            </StackPanel>
+            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
+                <TextBlock ui:Translator.Key="KERNEL_VIEW_SUM" Padding="0,0,2,0"
+                           ui:Translator.TooltipKey="KERNEL_VIEW_SUM_TOOLTIP"
+                           TextAlignment="Right"/>
+                <TextBlock Text="{Binding Sum, StringFormat='0.###'}"
+                           ui:Translator.TooltipKey="KERNEL_VIEW_SUM_TOOLTIP"
+                           TextAlignment="Right"/>
+            </StackPanel>
+        </Grid>
+
+        <ItemsControl ItemsSource="{Binding ReferenceCollections}" Margin="0,1">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <controls:NumberInput DraggingGrabber="{Binding Path=MergeChanges, Mode=OneWayToSource}" EnableScrollChange="False" Value="{Binding Value, Mode=TwoWay}" Decimals="4" />
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid Columns="{Binding Width}" Rows="{Binding Height}" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ItemsControl>
+    </StackPanel>
+</properties:NodePropertyView>

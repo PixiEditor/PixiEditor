@@ -1,0 +1,61 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls">
+    <ControlTheme TargetType="controls:Shelf" x:Key="{x:Type controls:Shelf}">
+        <Setter Property="Transitions">
+            <Transitions>
+                <TransformOperationsTransition Easing="SineEaseInOut" Property="RenderTransform" Duration="0:0:0.3" />
+            </Transitions>
+        </Setter>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border CornerRadius="{DynamicResource ControlCornerRadiusTop}"
+                        Background="{DynamicResource ThemeBackgroundBrush1}">
+                    <DockPanel LastChildFill="True">
+                        <CheckBox IsChecked="{TemplateBinding IsOpen, Mode=TwoWay}" Focusable="False" ZIndex="10"
+                                  Name="PART_VisibilityCheckbox" Height="16" HorizontalAlignment="Right"
+                                  DockPanel.Dock="Right" VerticalAlignment="Top" Margin="0,5,5,0">
+                            <CheckBox.Transitions>
+                                <Transitions>
+                                    <TransformOperationsTransition Easing="SineEaseInOut" Property="RenderTransform"
+                                                                   Duration="0:0:0.3" />
+                                </Transitions>
+                            </CheckBox.Transitions>
+                            <CheckBox.Template>
+                                <ControlTemplate TargetType="{x:Type CheckBox}">
+                                    <StackPanel Orientation="Horizontal" Focusable="False">
+                                        <Image Focusable="False" Width="14" Cursor="Hand" Name="PART_CheckboxImage"
+                                               Source="avares://PixiEditor.UI.Common/Assets/ChevronDown.png" />
+                                        <ContentPresenter Focusable="False" />
+                                    </StackPanel>
+                                </ControlTemplate>
+                            </CheckBox.Template>
+                        </CheckBox>
+                        <ContentPresenter Content="{TemplateBinding Content}">
+                            <ContentPresenter.Transitions>
+                                <Transitions>
+                                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.3" />
+                                    <DoubleTransition Property="Opacity" Duration="0:0:0.3" />
+                                </Transitions>
+                            </ContentPresenter.Transitions>
+                        </ContentPresenter>
+                    </DockPanel>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+
+        <Style Selector="^ /template/ CheckBox">
+            <Setter Property="RenderTransformOrigin" Value="7, 7" />
+            <Setter Property="RenderTransform" Value="rotate(0deg)" />
+        </Style>
+
+        <Style Selector="^:not(:isOpen) /template/ CheckBox">
+            <Setter Property="RenderTransform" Value="rotate(180deg)" />
+        </Style>
+
+        <Style Selector="^:not(:isOpen) /template/ ContentPresenter">
+            <Setter Property="Opacity" Value="0" />
+            <Setter Property="IsHitTestVisible" Value="False" />
+        </Style>
+    </ControlTheme>
+</ResourceDictionary>

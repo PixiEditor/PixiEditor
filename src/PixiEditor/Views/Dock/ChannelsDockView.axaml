@@ -1,0 +1,48 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:dock="clr-namespace:PixiEditor.ViewModels.Dock"
+             xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="PixiEditor.Views.Dock.ChannelsDockView"
+             x:DataType="dock:ChannelsDockViewModel">
+    <Design.DataContext>
+        <dock:ChannelsDockViewModel/>
+    </Design.DataContext>
+    
+    <StackPanel>
+        <!-- TODO: Improve this UI -->
+        <Grid ColumnDefinitions="*,Auto">
+            <TextBlock ui:Translator.Key="RED" />
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <ToggleButton Classes="pixi-icon" Content="{DynamicResource icon-eye}" IsChecked="{Binding IsRedVisible}" />
+                <ToggleButton Classes="pixi-icon" Content="{DynamicResource icon-trash}" IsChecked="{Binding IsRedSolo}" />
+            </StackPanel>
+        </Grid>
+        
+        <Grid ColumnDefinitions="*,Auto">
+            <TextBlock ui:Translator.Key="GREEN" />
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <ToggleButton Classes="pixi-icon" Content="{DynamicResource icon-eye}" IsChecked="{Binding IsGreenVisible}" />
+                <ToggleButton Classes="pixi-icon" Content="{DynamicResource icon-trash}" IsChecked="{Binding IsGreenSolo}" />
+            </StackPanel>
+        </Grid>
+
+        <Grid ColumnDefinitions="*,Auto">
+            <TextBlock ui:Translator.Key="BLUE" />
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <ToggleButton Classes="pixi-icon" Content="{DynamicResource icon-eye}" IsChecked="{Binding IsBlueVisible}" />
+                <ToggleButton Classes="pixi-icon" Content="{DynamicResource icon-trash}" IsChecked="{Binding IsBlueSolo}" />
+            </StackPanel>
+        </Grid>
+
+        <Grid ColumnDefinitions="*,Auto">
+            <TextBlock ui:Translator.Key="ALPHA" />
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <ToggleButton Classes="pixi-icon" Content="{DynamicResource icon-eye}" IsChecked="{Binding IsAlphaVisible}" />
+                <ToggleButton Classes="pixi-icon" Content="{DynamicResource icon-trash}" IsChecked="{Binding IsAlphaSolo}" />
+            </StackPanel>
+        </Grid>
+    </StackPanel>
+</UserControl>

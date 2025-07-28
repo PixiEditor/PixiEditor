@@ -1,32 +1,31 @@
-﻿using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
+﻿using System.Collections.Generic;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Documents;
 
 namespace PixiEditor.Helpers.Behaviours;
 
-internal static class TextBlockExtensions
+internal class TextBlockExtensions : AvaloniaObject
 {
-    public static IEnumerable<Inline> GetBindableInlines(DependencyObject obj)
+    public static readonly AttachedProperty<IEnumerable<Inline>> BindableInlinesProperty =
+        AvaloniaProperty.RegisterAttached<TextBlockExtensions, TextBlock, IEnumerable<Inline>>("BindableInlines");
+
+    public static void SetBindableInlines(TextBlock obj, IEnumerable<Inline> value) => obj.SetValue(BindableInlinesProperty, value);
+    public static IEnumerable<Inline> GetBindableInlines(TextBlock obj) => obj.GetValue(BindableInlinesProperty);
+
+    static TextBlockExtensions()
     {
-        return (IEnumerable<Inline>)obj.GetValue(BindableInlinesProperty);
+        BindableInlinesProperty.Changed.Subscribe(OnBindableInlinesChanged);
     }
 
-    public static void SetBindableInlines(DependencyObject obj, IEnumerable<Inline> value)
+    private static void OnBindableInlinesChanged(AvaloniaPropertyChangedEventArgs<IEnumerable<Inline>> e)
     {
-        obj.SetValue(BindableInlinesProperty, value);
-    }
-
-    public static readonly DependencyProperty BindableInlinesProperty =
-        DependencyProperty.RegisterAttached("BindableInlines", typeof(IEnumerable<Inline>), typeof(TextBlockExtensions), new PropertyMetadata(null, OnBindableInlinesChanged));
-
-    private static void OnBindableInlinesChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-    {
-        if (d is not TextBlock target)
+        if (e.Sender is not TextBlock target || e.NewValue.Value is null)
         {
             return;
         }
 
         target.Inlines.Clear();
-        target.Inlines.AddRange((System.Collections.IEnumerable)e.NewValue);
+        target.Inlines.AddRange(e.NewValue.Value);
     }
 }

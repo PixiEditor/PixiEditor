@@ -1,0 +1,385 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:animations="clr-namespace:PixiEditor.Views.Animations"
+                    xmlns:document="clr-namespace:PixiEditor.ViewModels.Document"
+                    xmlns:handlers="clr-namespace:PixiEditor.Models.Handlers"
+                    xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
+                    xmlns:commands="clr-namespace:PixiEditor.Models.Commands.Attributes.Commands"
+                    xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
+                    xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+                    xmlns:input="clr-namespace:PixiEditor.Views.Input"
+                    xmlns:system="clr-namespace:System;assembly=System.Runtime"
+                    xmlns:ui1="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+                    xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
+                    xmlns:behaviors="clr-namespace:PixiEditor.UI.Common.Behaviors;assembly=PixiEditor.UI.Common"
+                    xmlns:viewModels="clr-namespace:PixiEditor.ViewModels">
+    <ControlTheme TargetType="animations:Timeline" x:Key="{x:Type animations:Timeline}">
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid Background="{DynamicResource ThemeBackgroundBrush1}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="200" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border DockPanel.Dock="Left" BorderThickness="0 0 1 0"
+                            BorderBrush="{DynamicResource ThemeBorderMidBrush}">
+                        <DockPanel LastChildFill="False" Margin="5 0">
+                            <controls:SizeInput Unit="FPS"
+                                                Width="90" Height="25" HorizontalAlignment="Left"
+                                                Size="{Binding Fps, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" />
+
+                            <Button Classes="pixi-icon" DockPanel.Dock="Right"
+                                    Content="{DynamicResource icon-settings}"
+                                    ui1:Translator.TooltipKey="SETTINGS">
+                                <Button.Styles>
+                                    <Style Selector="Button:pointerover">
+                                        <Setter Property="RenderTransform" Value="rotate(45deg)" />
+                                    </Style>
+                                </Button.Styles>
+                                <Button.Transitions>
+                                    <Transitions>
+                                        <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.3"
+                                                                       Easing="SineEaseInOut" />
+                                    </Transitions>
+                                </Button.Transitions>
+                                <Button.Flyout>
+                                    <Flyout Placement="Top">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Row="0" Classes="h4" Margin="5" ui1:Translator.Key="SETTINGS" />
+                                            <TextBlock Grid.Column="0" Grid.Row="1" VerticalAlignment="Center"
+                                                       ui1:Translator.Key="ONION_FRAMES_COUNT" />
+                                            <controls:NumberInput Grid.Column="1" Grid.Row="1" Margin="0, 5"
+                                                HorizontalAlignment="Left" Width="50"
+                                                Min="1" Decimals="0"
+                                                Max="128"
+                                                Value="{Binding OnionFrames, RelativeSource={RelativeSource TemplatedParent},
+                                                    Mode=TwoWay}" />
+                                            <TextBlock Grid.Column="0" Grid.Row="2" VerticalAlignment="Center"
+                                                       ui1:Translator.Key="ONION_OPACITY" />
+                                            <controls:SizeInput Grid.Column="1" Grid.Row="2"
+                                                HorizontalAlignment="Left" Width="80"
+                                                MaxSize="100" Unit="%"
+                                                Size="{Binding OnionOpacity, RelativeSource={RelativeSource TemplatedParent},
+                                                    Mode=TwoWay}" />
+                                        </Grid>
+                                    </Flyout>
+                                </Button.Flyout>
+                            </Button>
+                        </DockPanel>
+                    </Border>
+                    <Border Grid.Row="0" Grid.Column="1">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5">
+                            <Button Classes="pixi-icon" Content="{DynamicResource icon-step-start}"
+                                    ui1:Translator.TooltipKey="STEP_START"
+                                    Command="{Binding StepStartCommand, RelativeSource={RelativeSource TemplatedParent}}" />
+                            <Button Classes="pixi-icon"
+                                    ui1:Translator.TooltipKey="STEP_BACK"
+                                    Command="{Binding StepBackCommand, RelativeSource={RelativeSource TemplatedParent}}"
+                                    Content="{DynamicResource icon-step-back}" />
+                            <ToggleButton Margin="0, 5" Width="24" HorizontalAlignment="Center" Classes="PlayButton"
+                                          Name="PART_PlayToggle"
+                                          IsChecked="{Binding IsPlaying, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" />
+                            <Button Classes="pixi-icon"
+                                    ui1:Translator.TooltipKey="STEP_FORWARD"
+                                    Command="{Binding StepForwardCommand, RelativeSource={RelativeSource TemplatedParent}}"
+                                    Content="{DynamicResource icon-step-forward}" />
+                            <Button Classes="pixi-icon"
+                                    ui1:Translator.TooltipKey="STEP_END"
+                                    Command="{Binding StepEndCommand, RelativeSource={RelativeSource TemplatedParent}}"
+                                    Content="{DynamicResource icon-step-end}" />
+                            <TextBlock Name="lengthTb" VerticalAlignment="Center" FontSize="14"
+                                       IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=
+                            !!KeyFrames.Count}">
+                                <TextBlock.ContextFlyout>
+                                    <Flyout Placement="Top">
+                                        <StackPanel>
+                                            <TextBlock Classes="h4" Margin="5"
+                                                       ui1:Translator.Key="CHANGE_KEYFRAMES_LENGTH" />
+
+                                        </StackPanel>
+                                    </Flyout>
+                                </TextBlock.ContextFlyout>
+                                <Run>
+                                    <Run.Text>
+                                        <MultiBinding>
+                                            <MultiBinding.Converter>
+                                                <converters:FrameToTimeConverter />
+                                            </MultiBinding.Converter>
+                                            <Binding Path="ActiveFrame"
+                                                     RelativeSource="{RelativeSource TemplatedParent}" />
+                                            <Binding Path="Fps" RelativeSource="{RelativeSource TemplatedParent}" />
+                                        </MultiBinding>
+                                    </Run.Text>
+                                </Run>
+                                <Run Text="/" />
+                                <Run>
+                                    <Run.Text>
+                                        <MultiBinding>
+                                            <MultiBinding.Converter>
+                                                <converters:FrameToTimeConverter />
+                                            </MultiBinding.Converter>
+                                            <Binding Path="EndFrame" RelativeSource="{RelativeSource TemplatedParent}" />
+                                            <Binding Path="Fps" RelativeSource="{RelativeSource TemplatedParent}" />
+                                        </MultiBinding>
+                                    </Run.Text>
+                                </Run>
+                            </TextBlock>
+                            <StackPanel Orientation="Horizontal"
+                                        IsVisible="{Binding ElementName=lengthTb, Path=!IsVisible}"
+                                        Margin="5, 0, 0, 0">
+                                <StackPanel.Resources>
+                                    <converters:TwoWayFrameToTimeConverter
+                                        Fps="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Fps}"
+                                        x:Key="FrameToTimeConverter" />
+                                </StackPanel.Resources>
+                                <TextBlock VerticalAlignment="Center" FontSize="14">
+                                    <Run>
+                                        <Run.Text>
+                                            <MultiBinding>
+                                                <MultiBinding.Converter>
+                                                    <converters:FrameToTimeConverter />
+                                                </MultiBinding.Converter>
+                                                <Binding Path="ActiveFrame"
+                                                         RelativeSource="{RelativeSource TemplatedParent}" />
+                                                <Binding Path="Fps" RelativeSource="{RelativeSource TemplatedParent}" />
+                                            </MultiBinding>
+                                        </Run.Text>
+                                    </Run>
+                                    <Run Text="/" />
+                                </TextBlock>
+                                <TextBox Margin="5, 0, 0, 0" MinWidth="50" VerticalAlignment="Center"
+                                         HorizontalAlignment="Left"
+                                         Text="{Binding DefaultEndFrame, UpdateSourceTrigger=LostFocus, RelativeSource={RelativeSource TemplatedParent},
+                                         Mode=TwoWay, Converter={StaticResource FrameToTimeConverter}}">
+                                    <Interaction.Behaviors>
+                                        <BehaviorCollection>
+                                            <behaviors:TextBoxFocusBehavior ConfirmOnEnter="True"
+                                                                            DeselectOnFocusLoss="True" />
+                                            <behaviours:GlobalShortcutFocusBehavior />
+                                        </BehaviorCollection>
+                                    </Interaction.Behaviors>
+                                </TextBox>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="0" Grid.Row="1" BorderThickness="0 1 1 1"
+                            BorderBrush="{DynamicResource ThemeBorderMidBrush}">
+                        <StackPanel Margin="5, 0" Orientation="Horizontal" Height="40">
+                            <Button Classes="pixi-icon"
+                                    Content="{DynamicResource icon-plus-square}"
+                                    ui1:Translator.TooltipKey="ADD_EMPTY_FRAME"
+                                    Command="{TemplateBinding NewKeyFrameCommand}" />
+                            <Button Classes="pixi-icon"
+                                    Content="{DynamicResource icon-duplicate}"
+                                    ui1:Translator.TooltipKey="DUPLICATE_FRAME"
+                                    Command="{TemplateBinding DuplicateKeyFrameCommand}" />
+                            <ToggleButton Classes="pixi-icon"
+                                          Content="{DynamicResource icon-onion}"
+                                          ui1:Translator.TooltipKey="TOGGLE_ONION_SKINNING"
+                                          IsChecked="{Binding OnionSkinningEnabled, RelativeSource={RelativeSource TemplatedParent}}" />
+                            <Button Classes="pixi-icon"
+                                    Content="{DynamicResource icon-trash}"
+                                    ui1:Translator.TooltipKey="DELETE_FRAME"
+                                    Command="{TemplateBinding DeleteKeyFrameCommand}"
+                                    IsEnabled="{Binding SelectedKeyFrames.Count, RelativeSource={RelativeSource TemplatedParent}}"
+                                    CommandParameter="{Binding SelectedKeyFrames, RelativeSource={RelativeSource TemplatedParent}}" />
+                        </StackPanel>
+                    </Border>
+
+                    <Grid Grid.Row="1" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" /> <!-- For the timeline slider -->
+                            <RowDefinition Height="*" />    <!-- For the keyframes and headers -->
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="200" /> <!-- For the headers -->
+                            <ColumnDefinition Width="*" />    <!-- For the timeline slider and keyframes -->
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Row="0" Grid.Column="1" BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                                BorderThickness="0 1">
+                            <animations:TimelineSlider
+                                TickFrequency="1" Height="40" ClipToBounds="False"
+                                TickPlacement="TopLeft" VerticalAlignment="Top"
+                                SmallChange="1" ZIndex="10"
+                                LargeChange="10"
+                                Scale="{Binding Scale, RelativeSource={RelativeSource TemplatedParent}}"
+                                Offset="{Binding ScrollOffset, RelativeSource={RelativeSource TemplatedParent}}"
+                                MinLeftOffset="{Binding MinLeftOffset, RelativeSource={RelativeSource TemplatedParent}}"
+                                IsSnapToTickEnabled="True"
+                                Name="PART_TimelineSlider"
+                                Minimum="1">
+                                <!--<animations:TimelineSlider.Maximum>
+                                    <MultiBinding>
+                                        <MultiBinding.Converter>
+                                            <converters:TimelineSliderWidthToMaximumConverter />
+                                        </MultiBinding.Converter>
+                                        <Binding Path="Bounds"
+                                                 RelativeSource="{RelativeSource Self}" />
+                                        <Binding RelativeSource="{RelativeSource TemplatedParent}"
+                                                 Path="Scale" />
+                                        <Binding RelativeSource="{RelativeSource TemplatedParent}"
+                                                 Path="ScrollOffset" />
+                                        <Binding RelativeSource="{RelativeSource TemplatedParent}"
+                                                 Path="ActiveFrame" />
+                                    </MultiBinding>
+                                </animations:TimelineSlider.Maximum>-->
+                                <Interaction.Behaviors>
+                                    <behaviours:SliderUpdateBehavior
+                                        Binding="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=ActiveFrame, Mode=OneWay}"
+                                        DragStarted="{xaml:Command PixiEditor.Document.StartChangeActiveFrame}"
+                                        DragValueChanged="{xaml:Command PixiEditor.Document.ChangeActiveFrame, UseProvided=True}"
+                                        DragEnded="{xaml:Command PixiEditor.Document.EndChangeActiveFrame}"
+                                        SetValueCommand="{xaml:Command PixiEditor.Animation.ActiveFrameSet, UseProvided=True}"
+                                        ValueFromSlider="{Binding ElementName=PART_TimelineSlider, Path=Value, Mode=TwoWay}" />
+                                </Interaction.Behaviors>
+                            </animations:TimelineSlider>
+                        </Border>
+
+                        <Panel ClipToBounds="True" Grid.Row="1" Grid.Column="1" Margin="29, -22, 0, 0"
+                               VerticalAlignment="Stretch"
+                               ZIndex="11" HorizontalAlignment="Left" IsHitTestVisible="False">
+                            <Border Width="2" Background="{DynamicResource ThemeAccentBrush}">
+                                <Border.Margin>
+                                    <MultiBinding Converter="{converters:TimelineSliderValueToMarginConverter}">
+                                        <Binding Path="ActiveFrame"
+                                                 RelativeSource="{RelativeSource TemplatedParent}" />
+                                        <Binding Path="Minimum" ElementName="PART_TimelineSlider" />
+                                        <Binding Path="Scale"
+                                                 RelativeSource="{RelativeSource TemplatedParent}" />
+                                        <Binding Path="ScrollOffset"
+                                                 RelativeSource="{RelativeSource TemplatedParent}" />
+                                    </MultiBinding>
+                                </Border.Margin>
+                            </Border>
+                        </Panel>
+
+                        <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Hidden"
+                                      Name="PART_TimelineHeaderScroll"
+                                      Grid.Row="1" Grid.Column="0">
+                            <StackPanel Orientation="Vertical" Background="{DynamicResource ThemeBackgroundBrush1}">
+                                <ItemsControl
+                                    ItemsSource="{Binding KeyFrames, RelativeSource={RelativeSource TemplatedParent}}">
+                                    <ItemsControl.DataTemplates>
+                                        <DataTemplate DataType="document:CelGroupViewModel">
+                                            <animations:TimelineGroupHeader Height="70"
+                                                                            SelectCommand="{xaml:Command PixiEditor.Layer.SelectActiveMember, UseProvided=True}"
+                                                                            Item="{Binding}"/>
+                                        </DataTemplate>
+                                    </ItemsControl.DataTemplates>
+                                    <ItemsControl.Styles>
+                                        <Style Selector="animations|TimelineGroupHeader:collapsed">
+                                            <Setter Property="Height" Value="30" />
+                                        </Style>
+                                    </ItemsControl.Styles>
+                                </ItemsControl>
+                            </StackPanel>
+                        </ScrollViewer>
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
+                                      Grid.Row="1"
+                                      Offset="{Binding ScrollOffset, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                                      Name="PART_TimelineKeyFramesScroll" Grid.Column="1">
+                            <Grid Background="{DynamicResource ThemeBackgroundBrush}" Name="PART_ContentGrid">
+                                <Interaction.Behaviors>
+                                    <EventTriggerBehavior EventName="PointerPressed">
+                                        <InvokeCommandAction
+                                            Command="{Binding ClearSelectedKeyFramesCommand,
+                                                        RelativeSource={RelativeSource FindAncestor, AncestorType=animations:Timeline}}"
+                                            CommandParameter="{x:Null}" />
+                                    </EventTriggerBehavior>
+                                </Interaction.Behaviors>
+                                <ItemsControl ClipToBounds="False" Name="PART_KeyFramesHost"
+                                              ItemsSource="{Binding KeyFrames, RelativeSource={RelativeSource TemplatedParent}}">
+                                    <ItemsControl.DataTemplates>
+                                        <DataTemplate DataType="document:CelGroupViewModel">
+                                            <ItemsControl ClipToBounds="False"
+                                                          BorderThickness="0, 0, 0, 1"
+                                                          BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                                                          ItemsSource="{Binding Children}">
+                                                <ItemsControl.ItemContainerTheme>
+                                                    <ControlTheme TargetType="ContentPresenter">
+                                                        <Setter Property="HorizontalAlignment" Value="Left" />
+                                                        <Setter Property="ZIndex"
+                                                                Value="{Binding StartFrameBindable}" />
+                                                    </ControlTheme>
+                                                </ItemsControl.ItemContainerTheme>
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <Grid
+                                                            Margin="{Binding  Path=MinLeftOffset,
+                                                        RelativeSource={RelativeSource FindAncestor, AncestorType=animations:Timeline},
+                                                        Converter={converters:DoubleToThicknessConverter}, ConverterParameter=LR}" />
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                            </ItemsControl>
+                                        </DataTemplate>
+                                        <DataTemplate DataType="document:IRasterCelViewModel">
+                                            <animations:KeyFrame
+                                                Scale="{Binding Scale, RelativeSource={RelativeSource FindAncestor, AncestorType=animations:Timeline}}"
+                                                IsEnabled="{Binding IsVisible}"
+                                                IsSelected="{Binding IsSelected, Mode=TwoWay}"
+                                                SelectLayerCommand="{xaml:Command PixiEditor.Layer.SelectActiveMember, UseProvided=True}"
+                                                IsCollapsed="{Binding IsCollapsed}"
+                                                Min="{Binding ElementName=PART_TimelineSlider, Path=Minimum}"
+                                                Item="{Binding}">
+                                                <animations:KeyFrame.Width>
+                                                    <MultiBinding Converter="{converters:DurationToWidthConverter}">
+                                                        <Binding Path="DurationBindable" />
+                                                        <Binding
+                                                            RelativeSource="{RelativeSource FindAncestor, AncestorType=animations:Timeline}"
+                                                            Path="Scale" />
+                                                    </MultiBinding>
+                                                </animations:KeyFrame.Width>
+                                                <Interaction.Behaviors>
+                                                    <EventTriggerBehavior EventName="PointerPressed">
+                                                        <InvokeCommandAction
+                                                            Command="{Binding PressedKeyFrameCommand,
+                                                        RelativeSource={RelativeSource FindAncestor, AncestorType=animations:Timeline}}"
+                                                            PassEventArgsToCommand="True" />
+                                                    </EventTriggerBehavior>
+                                                    <EventTriggerBehavior EventName="PointerMoved">
+                                                        <InvokeCommandAction
+                                                            Command="{Binding DraggedKeyFrameCommand,
+                                                        RelativeSource={RelativeSource FindAncestor, AncestorType=animations:Timeline}}"
+                                                            PassEventArgsToCommand="True" />
+                                                    </EventTriggerBehavior>
+                                                    <EventTriggerBehavior EventName="PointerCaptureLost">
+                                                        <InvokeCommandAction
+                                                            Command="{Binding ReleasedKeyFrameCommand,
+                                                        RelativeSource={RelativeSource FindAncestor, AncestorType=animations:Timeline}}"
+                                                            CommandParameter="{Binding}" />
+                                                    </EventTriggerBehavior>
+                                                </Interaction.Behaviors>
+                                            </animations:KeyFrame>
+                                        </DataTemplate>
+                                    </ItemsControl.DataTemplates>
+                                </ItemsControl>
+
+                                <Rectangle Name="PART_SelectionRectangle" HorizontalAlignment="Left"
+                                           VerticalAlignment="Top"
+                                           IsVisible="False" ZIndex="100"
+                                           Fill="{DynamicResource SelectionFillBrush}" Opacity="1" />
+                            </Grid>
+                        </ScrollViewer>
+                    </Grid>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+
+</ResourceDictionary>

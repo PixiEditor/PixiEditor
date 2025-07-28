@@ -1,6 +1,7 @@
 ﻿using System.Collections;
-using PixiEditor.Extensions.Common.Localization;
-using PixiEditor.Models.Localization;
+using System.Collections.Generic;
+using System.Linq;
+using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.Helpers.Collections;
 
@@ -25,7 +26,7 @@ public class ActionDisplayList : IEnumerable<KeyValuePair<string, LocalizedStrin
                 notifyUpdate();
                 return;
             }
-            
+
             _dictionary[key] = value.Value;
             notifyUpdate();
         }

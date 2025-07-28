@@ -1,7 +1,8 @@
 ﻿using PixiEditor.ChangeableDocument.Changes.Drawing;
 using PixiEditor.ChangeableDocument.Enums;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface.Vector;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Vector;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Selection.MagicWand;
 
@@ -12,14 +13,18 @@ internal class MagicWand_Change : Change
     private VecI point;
     private readonly List<Guid> memberGuids;
     private readonly SelectionMode mode;
+    private int frame;
+    private double tolerance;
 
     [GenerateMakeChangeAction]
-    public MagicWand_Change(List<Guid> memberGuids, VecI point, SelectionMode mode)
+    public MagicWand_Change(List<Guid> memberGuids, VecI point, SelectionMode mode, double tolerance, int frame)
     {
         path.MoveTo(point);
         this.mode = mode;
         this.memberGuids = memberGuids;
         this.point = point;
+        this.frame = frame;
+        this.tolerance = tolerance;
     }
 
     public override bool InitializeAndValidate(Document target)
@@ -34,11 +39,11 @@ internal class MagicWand_Change : Change
 
         target.ForEveryReadonlyMember(member =>
         {
-            if (memberGuids.Contains(member.GuidValue))
-                membersToReference.Add(member.GuidValue);
+            if (memberGuids.Contains(member.Id))
+                membersToReference.Add(member.Id);
         });
 
-        path = MagicWandHelper.DoMagicWandFloodFill(point, membersToReference, target);
+        path = MagicWandHelper.DoMagicWandFloodFill(point, membersToReference, tolerance, target, frame);
 
         ignoreInUndo = false;
         return CommonApply(target);

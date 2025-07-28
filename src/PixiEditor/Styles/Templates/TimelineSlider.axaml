@@ -1,0 +1,93 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:animations="clr-namespace:PixiEditor.Views.Animations"
+                    xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters">
+
+    <ControlTheme x:Key="SliderRepeatTrackTheme"
+                  TargetType="RepeatButton">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RepeatButton">
+                    <Border Background="Transparent"></Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </ControlTheme>
+
+    <ControlTheme x:Key="{x:Type animations:TimelineSlider}"
+                  TargetType="animations:TimelineSlider">
+        <Style Selector="^:horizontal">
+            <Setter Property="MinWidth" Value="40" />
+            <Setter Property="MinHeight" Value="20" />
+            <Setter Property="ClipToBounds" Value="True"/>
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Grid Name="grid">
+                        <Border Background="{DynamicResource ThemeControlLowBrush}"
+                                Height="40"
+                                VerticalAlignment="Center">
+                        </Border>
+                        <Canvas Margin="-6,-1">
+                            <Rectangle IsVisible="false" x:Name="PART_SelectionRange" Height="4.0"
+                                       StrokeThickness="1.0" />
+                        </Canvas>
+                        <animations:TimelineTickBar
+                            Name="TopTickBar"
+                            ClipToBounds="True"
+                            Scale="{TemplateBinding Scale}"
+                            Offset="{TemplateBinding Offset}"
+                            MinLeftOffset="{TemplateBinding MinLeftOffset}"
+                            MinValue="{TemplateBinding Minimum}"
+                            Fill="{DynamicResource ThemeControlHighBrush}" 
+                            Foreground="{DynamicResource ThemeForegroundBrush}"
+                            Margin="0 0 0 5"/>
+                        <animations:TimelineSliderTrack Name="PART_Track"
+                               IsDirectionReversed="{TemplateBinding IsDirectionReversed}"
+                               Margin="15, 0, 0, 0"
+                               ScaleFactor="{TemplateBinding Scale}"
+                               Offset="{TemplateBinding Offset}"
+                               Minimum="{TemplateBinding Minimum}"
+                               Orientation="Horizontal">
+                            <Track.IncreaseButton>
+                                <RepeatButton Name="PART_IncreaseButton"
+                                              Theme="{StaticResource SliderRepeatTrackTheme}" />
+                            </Track.IncreaseButton>
+                            <Thumb Name="thumb" VerticalAlignment="Top"
+                                   MinWidth="30" IsHitTestVisible="False"
+                                   MinHeight="20">
+                                <Thumb.Template>
+                                    <ControlTemplate>
+                                        <Border Background="{DynamicResource ThemeAccentBrush}" Width="30"
+                                                Height="18"
+                                                CornerRadius="4">
+                                            <TextBlock
+                                                Text="{Binding Value, RelativeSource={RelativeSource FindAncestor, AncestorType=animations:TimelineSlider}}"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center" />
+                                        </Border>
+                                    </ControlTemplate>
+                                </Thumb.Template>
+                            </Thumb>
+                        </animations:TimelineSliderTrack>
+                    </Grid>
+                </ControlTemplate>
+            </Setter>
+        </Style>
+
+        <Style Selector="^ /template/ Track#PART_Track">
+            <Setter Property="Minimum" Value="{TemplateBinding Minimum}" />
+            <Setter Property="Maximum" Value="{TemplateBinding Maximum}" />
+            <Setter Property="Value" Value="{TemplateBinding Value, Mode=TwoWay}" />
+        </Style>
+        <Style Selector="^ /template/ Border#TrackBackground">
+            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderLowBrush}" />
+        </Style>
+        <Style Selector="^ /template/ TickBar">
+            <Setter Property="Ticks" Value="{TemplateBinding Ticks}" />
+        </Style>
+        <Style Selector="^:disabled /template/ Grid#grid">
+            <Setter Property="Opacity" Value="{DynamicResource ThemeDisabledOpacity}" />
+        </Style>
+    </ControlTheme>
+</ResourceDictionary>

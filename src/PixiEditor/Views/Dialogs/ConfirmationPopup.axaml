@@ -1,0 +1,46 @@
+﻿<dialogs1:PixiEditorPopup x:Class="PixiEditor.Views.Dialogs.ConfirmationPopup"
+                          x:ClassModifier="internal"
+                          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                          xmlns="https://github.com/avaloniaui"
+                          xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                          xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                          xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+                          xmlns:system="clr-namespace:System;assembly=System.Runtime"
+                          xmlns:dialogs1="clr-namespace:PixiEditor.Views.Dialogs"
+                          mc:Ignorable="d" d:Title="Unsaved changes"
+                          Name="popup"
+                          Height="180" Width="400" MinHeight="180" MinWidth="400"
+                          CanMinimize="False" CanResize="False"
+                          ui:Translator.Key="{Binding ElementName=popup, Path=Title, Mode=OneTime}">
+
+    <DockPanel Focusable="True">
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Center"
+                    Margin="0,0,10,15">
+            <Button Margin="10,0,10,0" IsDefault="True" Padding="5 0"
+                    ui:Translator.LocalizedString="{Binding FirstOptionText}" MinWidth="70"
+                    Command="{Binding Path=SetConfirmationResultAndCloseCommand, ElementName=popup}">
+                <Button.CommandParameter>
+                    <system:Boolean>True</system:Boolean>
+                </Button.CommandParameter>
+            </Button>
+            <Button Padding="5 0"
+                    Command="{Binding Path=SetConfirmationResultAndCloseCommand, ElementName=popup}" MinWidth="70"
+                    ui:Translator.LocalizedString="{Binding SecondOptionText}">
+                <Button.CommandParameter>
+                    <system:Boolean>False</system:Boolean>
+                </Button.CommandParameter>
+            </Button>
+            <Button Margin="10,0,10,0" ui:Translator.Key="CANCEL" MinWidth="70"
+                    Command="{Binding CancelCommand, ElementName=popup}" />
+        </StackPanel>
+
+        <TextBlock
+            Text="{Binding Body, ElementName=popup}"
+            HorizontalAlignment="Center" Margin="20,0"
+            TextWrapping="WrapWithOverflow"
+            TextTrimming="WordEllipsis"
+            TextAlignment="Center"
+            VerticalAlignment="Center" FontSize="15" Foreground="White"
+            d:Text="The document has been modified. Do you want to save changes?" />
+    </DockPanel>
+</dialogs1:PixiEditorPopup>

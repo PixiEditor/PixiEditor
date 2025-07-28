@@ -1,6 +1,6 @@
-﻿using System.Windows.Input;
+﻿using Avalonia.Input;
 
-namespace PixiEditor.Models.Commands.Templates.Parsers;
+namespace PixiEditor.Models.Commands.Templates.Providers.Parsers;
 
 public static class KeyParser
 {

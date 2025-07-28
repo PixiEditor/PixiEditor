@@ -1,0 +1,46 @@
+﻿<Window x:Class="PixiEditor.Views.Dialogs.CrashReportDialog"
+        x:ClassModifier="internal"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
+        xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+        xmlns:viewModels="clr-namespace:PixiEditor.ViewModels"
+        mc:Ignorable="d"
+        ExtendClientAreaToDecorationsHint="False"
+        ExtendClientAreaChromeHints="Default"
+        Title="PixiEditor has crashed!"
+        MinWidth="480" MinHeight="195"
+        x:DataType="viewModels:CrashReportViewModel"
+        Width="480" Height="195">
+    <Design.DataContext>
+        <viewModels:CrashReportViewModel />
+    </Design.DataContext>
+    <Grid Margin="30,30,30,0">
+        <StackPanel>
+            <Grid Background="{DynamicResource ThemeBackgroundBrush}">
+                <StackPanel Margin="7" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding DocumentCount, StringFormat={}{0} file(s) might be recoverable}"
+                               d:Text="2 file(s) can be recovered" />
+                    <TextBlock TextWrapping="Wrap">You can help the developers fix this bug by sending a crash report that was generated (you will still be able to recover the files).</TextBlock>
+                </StackPanel>
+            </Grid>
+
+            <WrapPanel Margin="0,20,0,5" Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button Command="{Binding OpenSendCrashReportCommand}"
+                        Width="120">
+                    Send report
+                </Button>
+                <Button Margin="5,0,5,0" Width="120"
+                        Command="{Binding RecoverDocumentsCommand}">
+                    Recover files
+                </Button>
+                <Button Width="120"
+                        Command="{Binding RunInSafeModeCommand}">
+                    Safe mode
+                </Button>
+            </WrapPanel>
+        </StackPanel>
+    </Grid>
+</Window>

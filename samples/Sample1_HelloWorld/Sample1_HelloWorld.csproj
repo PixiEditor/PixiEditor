@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <RuntimeIdentifier>wasi-wasm</RuntimeIdentifier>
+        <OutputType>Exe</OutputType>
+        <PublishTrimmed>true</PublishTrimmed>
+        <WasmSingleFileBundle>true</WasmSingleFileBundle>
+        <GenerateExtensionPackage>true</GenerateExtensionPackage>
+        <PixiExtOutputPath>..\..\src\PixiEditor.Desktop\bin\Debug\net8.0\win-x64\Extensions</PixiExtOutputPath>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <RootNamespace>HelloWorld</RootNamespace>
+        <ValidateExecutableReferencesMatchSelfContained>false</ValidateExecutableReferencesMatchSelfContained>
+    </PropertyGroup>
+    
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\PixiEditor.Extensions.Sdk\PixiEditor.Extensions.Sdk.csproj" />
+    </ItemGroup>
+    
+    <!--Below is not required if you use Nuget package, this sample references project directly, so it must be here-->
+    <Import Project="..\..\src\PixiEditor.Extensions.Sdk\build\PixiEditor.Extensions.Sdk.props"/>
+    <Import Project="..\..\src\PixiEditor.Extensions.Sdk\build\PixiEditor.Extensions.Sdk.targets" />
+    
+    <ItemGroup>
+        <None Remove="extension.json" />
+        <Content Include="extension.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+
+</Project>

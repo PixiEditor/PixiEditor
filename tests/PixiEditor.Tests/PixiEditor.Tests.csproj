@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+
+        <IsPackable>false</IsPackable>
+        <IsTestProject>true</IsTestProject>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
+        <PackageReference Include="Avalonia.Headless.XUnit" Version="$(AvaloniaVersion)" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+        <PackageReference Include="xunit" Version="2.9.2"/>
+        <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="coverlet.collector" Version="6.0.2">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+    </ItemGroup>
+
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\src\Drawie\src\DrawiEngine.Desktop\DrawiEngine.Desktop.csproj" />
+      <ProjectReference Include="..\..\src\PixiEditor.Desktop\PixiEditor.Desktop.csproj" />
+      <ProjectReference Include="..\..\src\PixiEditor.Linux\PixiEditor.Linux.csproj" />
+      <ProjectReference Include="..\..\src\PixiEditor.MacOs\PixiEditor.MacOs.csproj" />
+        <ProjectReference Include="..\..\src\PixiEditor.Windows\PixiEditor.Windows.csproj" />
+    </ItemGroup>
+    
+    <ItemGroup>
+        <Content Include="TestFiles\**" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <Folder Include="TestFiles\ResolutionTests\" />
+    </ItemGroup>
+
+</Project>

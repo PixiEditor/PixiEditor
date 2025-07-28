@@ -1,26 +1,26 @@
 ﻿using PixiEditor.ChangeableDocument.Enums;
-using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
-using PixiEditor.Models.Enums;
-using PixiEditor.ViewModels.SubViewModels.Document;
+using PixiEditor.Models.Handlers;
+using PixiEditor.Models.Tools;
 
-namespace Models.DocumentModels.Public;
+namespace PixiEditor.Models.DocumentModels.Public;
+
 internal class DocumentToolsModule
 {
-    private DocumentViewModel Document { get; set; }
+    private IDocument Document { get; set; }
     private DocumentInternalParts Internals { get; set; }
 
-    public DocumentToolsModule(DocumentViewModel doc, DocumentInternalParts internals)
+    public DocumentToolsModule(IDocument doc, DocumentInternalParts internals)
     {
         this.Document = doc;
         this.Internals = internals;
     }
 
-    public void UseSymmetry(SymmetryAxisDirection dir) => Internals.ChangeController.TryStartExecutor(new SymmetryExecutor(dir));
+    public void UseSymmetry(SymmetryAxisDirection dir) =>
+        Internals.ChangeController.TryStartExecutor(new SymmetryExecutor(dir));
 
     public void UseOpacitySlider() => Internals.ChangeController.TryStartExecutor<StructureMemberOpacityExecutor>();
 
-    public void UseShiftLayerTool() => Internals.ChangeController.TryStartExecutor<ShiftLayerExecutor>();
 
     public void UsePenTool() => Internals.ChangeController.TryStartExecutor<PenToolExecutor>();
 
@@ -28,22 +28,46 @@ internal class DocumentToolsModule
 
     public void UseColorPickerTool() => Internals.ChangeController.TryStartExecutor<ColorPickerToolExecutor>();
 
-    public void UseRectangleTool()
+    public void UseRasterRectangleTool()
     {
         bool force = Internals.ChangeController.GetCurrentExecutorType() == ExecutorType.ToolLinked;
-        Internals.ChangeController.TryStartExecutor<RectangleToolExecutor>(force);
+        Internals.ChangeController.TryStartExecutor<RasterRectangleToolExecutor>(force);
     }
 
-    public void UseEllipseTool()
+    public void UseRasterEllipseTool()
     {
         bool force = Internals.ChangeController.GetCurrentExecutorType() == ExecutorType.ToolLinked;
-        Internals.ChangeController.TryStartExecutor<EllipseToolExecutor>(force);
+        Internals.ChangeController.TryStartExecutor<RasterEllipseToolExecutor>(force);
     }
 
-    public void UseLineTool()
+    public void UseRasterLineTool()
     {
         bool force = Internals.ChangeController.GetCurrentExecutorType() == ExecutorType.ToolLinked;
-        Internals.ChangeController.TryStartExecutor<LineToolExecutor>(force);
+        Internals.ChangeController.TryStartExecutor<RasterLineToolExecutor>(force);
+    }
+
+    public void UseVectorEllipseTool()
+    {
+        bool force = Internals.ChangeController.GetCurrentExecutorType() == ExecutorType.ToolLinked;
+        Internals.ChangeController.TryStartExecutor<VectorEllipseToolExecutor>(force);
+    }
+
+    public void UseVectorRectangleTool()
+    {
+        bool force = Internals.ChangeController.GetCurrentExecutorType() == ExecutorType.ToolLinked;
+        Internals.ChangeController.TryStartExecutor<VectorRectangleToolExecutor>(force);
+    }
+
+    public void UseVectorLineTool()
+    {
+        bool force = Internals.ChangeController.GetCurrentExecutorType() == ExecutorType.ToolLinked;
+        Internals.ChangeController.TryStartExecutor<VectorLineToolExecutor>(force);
+    }
+
+    public void UseVectorPathTool()
+    {
+        bool force = Internals.ChangeController.GetCurrentExecutorType() == ExecutorType.ToolLinked;
+        Internals.ChangeController.TryStartExecutor<VectorPathToolExecutor>(force);
     }
 
     public void UseSelectTool() => Internals.ChangeController.TryStartExecutor<SelectToolExecutor>();
@@ -55,4 +79,10 @@ internal class DocumentToolsModule
     public void UseLassoTool() => Internals.ChangeController.TryStartExecutor<LassoToolExecutor>();
 
     public void UseMagicWandTool() => Internals.ChangeController.TryStartExecutor<MagicWandToolExecutor>();
+
+    public void UseTextTool()
+    {
+        bool force = Internals.ChangeController.GetCurrentExecutorType() == ExecutorType.ToolLinked;
+        Internals.ChangeController.TryStartExecutor<VectorTextToolExecutor>(force);
+    }
 }

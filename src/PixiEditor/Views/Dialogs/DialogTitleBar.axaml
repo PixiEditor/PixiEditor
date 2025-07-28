@@ -1,0 +1,32 @@
+﻿<UserControl
+    x:Class="PixiEditor.Views.Dialogs.DialogTitleBar"
+    x:ClassModifier="internal"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+    xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+    mc:Ignorable="d"
+    x:Name="uc"
+    Height="36"
+    d:DesignWidth="300">
+    <Grid DataContext="{Binding ElementName=uc}">
+        <Grid Background="{DynamicResource ThemeBackgroundBrush1}" IsHitTestVisible="False" />
+        <TextBlock
+            IsHitTestVisible="False"
+            TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center"
+            ui:Translator.Key="{Binding Path=TitleKey}"
+            Foreground="{DynamicResource ThemeForegroundBrush}"
+            FontSize="13"
+            Margin="5,0,0,0" />
+        <DockPanel IsHitTestVisible="True">
+            <CaptionButtons Name="captionButtons" DockPanel.Dock="Right"
+                            IsVisible="{OnPlatform macOS=false, Default=true}" />
+            <ContentPresenter DockPanel.Dock="Right" IsVisible="{Binding !!AdditionalElement}"
+                              Content="{Binding Path=AdditionalElement}" />
+            <Panel Background="{OnPlatform Default={x:Null}, Linux=Transparent}" IsHitTestVisible="True" />
+            <!-- dummy control to occupy dockpanel center -->
+        </DockPanel>
+    </Grid>
+</UserControl>

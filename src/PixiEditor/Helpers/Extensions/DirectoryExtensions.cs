@@ -1,4 +1,6 @@
-﻿namespace PixiEditor.Helpers.Extensions;
+﻿using System.Linq;
+
+namespace PixiEditor.Helpers.Extensions;
 
 internal static class DirectoryExtensions
 {

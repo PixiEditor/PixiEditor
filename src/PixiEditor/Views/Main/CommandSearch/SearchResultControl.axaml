@@ -1,0 +1,42 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
+             xmlns:shortcuts="clr-namespace:PixiEditor.Views.Shortcuts"
+             x:ClassModifier="internal"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             Name="resultControl"
+             x:Class="PixiEditor.Views.Main.CommandSearch.SearchResultControl">
+    <Button DataContext="{Binding ElementName=resultControl}" Padding="5" Height="40" BorderThickness="0"
+            Command="{Binding ButtonClickedCommand}" CornerRadius="0"
+            CommandParameter="{Binding}"
+            HorizontalContentAlignment="Stretch"
+            Classes.keyboard="{Binding Result.IsSelected}"
+            IsEnabled="{Binding CanExecute}">
+        <Button.Styles>
+            <Style Selector="Button">
+                <Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush}"/>
+            </Style>
+            <Style Selector="Button.keyboard">
+                <Setter Property="Background"
+                        Value="{DynamicResource ThemeControlHighBrush}" />
+            </Style>
+        </Button.Styles>
+        <Grid VerticalAlignment="Center" x:Name="dp" Margin="5,0,10,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Orientation="Horizontal">
+                <Border Width="25" Margin="0,0,5,0" Padding="1">
+                    <Image HorizontalAlignment="Center" Source="{Binding EvaluatedIcon}" />
+                </Border>
+                <TextBlock VerticalAlignment="Center"
+                           behaviours:TextBlockExtensions.BindableInlines="{Binding Result.TextBlockContent}" />
+            </StackPanel>
+
+            <shortcuts:ShortcutHint Grid.Column="1" VerticalAlignment="Center" Shortcut="{Binding Result.Shortcut}" />
+        </Grid>
+    </Button>
+</UserControl>

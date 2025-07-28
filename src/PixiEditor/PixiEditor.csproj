@@ -1,571 +1,160 @@
-<Project Sdk="Microsoft.NET.Sdk">
-
-	<PropertyGroup>
-		<OutputType>WinExe</OutputType>
-		<TargetFramework>net7.0-windows</TargetFramework>
-		<UseWPF>true</UseWPF>
-		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-		<AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-		<GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
-		<AssemblyName>PixiEditor</AssemblyName>
-		<RootNamespace>PixiEditor</RootNamespace>
-		<RepositoryUrl>https://github.com/PixiEditor/PixiEditor</RepositoryUrl>
-		<PackageLicenseFile>LICENSE</PackageLicenseFile>
-		<PackageIcon>icon.ico</PackageIcon>
-		<ApplicationIcon>..\icon.ico</ApplicationIcon>
-		<Authors>Krzysztof Krysiński, Egor Mozgovoy, CPK</Authors>
-		<Configurations>Debug;Release;MSIX;MSIX Debug;Steam;DevRelease;DevSteam</Configurations>
-		<Platforms>AnyCPU;x64;x86</Platforms>
-    <RuntimeIdentifiers>win-x86;win-x64</RuntimeIdentifiers>
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+    <RepositoryUrl>https://github.com/PixiEditor/PixiEditor</RepositoryUrl>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageIcon>icon.ico</PackageIcon>
+    <ApplicationIcon>..\icon.ico</ApplicationIcon>
+    <Authors>Krzysztof Krysiński, Egor Mozgovoy, CPK, Contributors</Authors>
+    <Configurations>Debug;Release;MSIX;MSIX Debug;Steam;DevRelease;DevSteam;DebugSteam</Configurations>
+    <Platforms>x64;arm64</Platforms>
+    <RuntimeIdentifiers>win-x64;win-arm64;linux-x64;linux-arm64;osx-x64;osx-arm64</RuntimeIdentifiers>
     <ImplicitUsings>true</ImplicitUsings>
-    <AssemblyVersion></AssemblyVersion>
-    <LangVersion>11</LangVersion>
+    <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX|AnyCPU'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DefineConstants>TRACE;RELEASE</DefineConstants>
-    <Optimize>true</Optimize>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX|x86'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DefineConstants>TRACE;RELEASE</DefineConstants>
-    <Optimize>true</Optimize>
-		<PlatformTarget>x86</PlatformTarget>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX|x64'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DefineConstants>TRACE;RELEASE</DefineConstants>
-    <Optimize>true</Optimize>
-		<PlatformTarget>x64</PlatformTarget>
-	</PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX Debug|AnyCPU'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DebugType>full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-    <Optimize>false</Optimize>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX Debug|x86'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DebugType>full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-    <Optimize>false</Optimize>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <PlatformTarget>x86</PlatformTarget>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX Debug|x64'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DebugType>full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-    <Optimize>false</Optimize>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <PlatformTarget>x64</PlatformTarget>
-  </PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<DefineConstants>TRACE;UPDATE</DefineConstants>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<DefineConstants>TRACE;UPDATE</DefineConstants>
-		<PlatformTarget>x86</PlatformTarget>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<DefineConstants>TRACE;UPDATE</DefineConstants>
-		<PlatformTarget>x64</PlatformTarget>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<DebugType>full</DebugType>
-		<DebugSymbols>true</DebugSymbols>
-		<WarningLevel>0</WarningLevel>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<DebugType>full</DebugType>
-		<DebugSymbols>true</DebugSymbols>
-		<PlatformTarget>x86</PlatformTarget>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<DebugType>full</DebugType>
-		<DebugSymbols>true</DebugSymbols>
-		<PlatformTarget>x64</PlatformTarget>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Steam|x86'">
-	  <DefineConstants>TRACE;RELEASE;STEAM</DefineConstants>
-	  <Optimize>True</Optimize>
-	  <OutputPath>bin\x86\Steam\</OutputPath>
-	  <PlatformTarget>x86</PlatformTarget>
-	</PropertyGroup>
-
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Steam|x64' ">
-	  <DefineConstants>TRACE;RELEASE;STEAM</DefineConstants>
-	  <Optimize>True</Optimize>
-	  <PlatformTarget>x64</PlatformTarget>
-	</PropertyGroup>
-
-	<PropertyGroup Condition=" '$(Configuration)' == 'Steam' ">
-	  <DefineConstants>TRACE;RELEASE;STEAM</DefineConstants>
-	  <Optimize>True</Optimize>
-	</PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DevSteam|x86'">
-    <DefineConstants>TRACE;RELEASE;STEAM</DefineConstants>
-    <Optimize>True</Optimize>
-    <OutputPath>bin\x86\Steam\</OutputPath>
-    <PlatformTarget>x86</PlatformTarget>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DevSteam|x64' ">
-    <DefineConstants>TRACE;RELEASE;STEAM</DefineConstants>
-    <Optimize>True</Optimize>
-    <PlatformTarget>x64</PlatformTarget>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)' == 'DevSteam' ">
-    <DefineConstants>TRACE;RELEASE;STEAM</DefineConstants>
-    <Optimize>True</Optimize>
-  </PropertyGroup>
-
-	<PropertyGroup Condition=" '$(Configuration)' == 'DevRelease' ">
-	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-	  <DefineConstants>TRACE;UPDATE;RELEASE</DefineConstants>
-	  <Optimize>True</Optimize>
-	  <PlatformTarget>AnyCPU</PlatformTarget>
-	</PropertyGroup>
-
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DevRelease|x64' ">
-	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-	  <DefineConstants>TRACE;UPDATE;RELEASE</DefineConstants>
-    <PlatformTarget>x64</PlatformTarget>
-	  <Optimize>True</Optimize>
-	</PropertyGroup>
-
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DevRelease|x86' ">
-	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-	  <DefineConstants>TRACE;UPDATE;RELEASE</DefineConstants>
-    <PlatformTarget>x86</PlatformTarget>
-	  <Optimize>True</Optimize>
-	</PropertyGroup>
-  
-	<ItemGroup>
-		<Compile Remove="Styles\AvalonDock\Images\**" />
-		<EmbeddedResource Remove="Styles\AvalonDock\Images\**" />
-		<EmbeddedResource Include="OfficialExtensions\supporter-pack.snk" />
-		<None Remove="Styles\AvalonDock\Images\**" />
-		<Page Remove="Styles\AvalonDock\Images\**" />
-		<None Update="Extensions\readme.txt">
-		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-	</ItemGroup>
-
-	<ItemGroup>
-		<None Remove="Images\Add-reference.png" />
-		<None Remove="Images\AnchorDot.png" />
-		<None Remove="Images\Arrow-right.png" />
-		<None Remove="Images\Check-square.png" />
-		<None Remove="Images\CheckerTile.png" />
-		<None Remove="Images\ChevronDown.png" />
-		<None Remove="Images\Commands\PixiEditor\Clipboard\Copy.png" />
-		<None Remove="Images\Commands\PixiEditor\Clipboard\Cut.png" />
-		<None Remove="Images\Commands\PixiEditor\Clipboard\Paste.png" />
-		<None Remove="Images\Commands\PixiEditor\Colors\Swap.png" />
-		<None Remove="Images\Commands\PixiEditor\Document\CenterContent.png" />
-		<None Remove="Images\Commands\PixiEditor\Document\ResizeCanvas.png" />
-		<None Remove="Images\Commands\PixiEditor\Document\ResizeDocument.png" />
-		<None Remove="Images\ChevronsDown.png" />
-		<None Remove="Images\CopyAdd.png" />
-		<None Remove="Images\Database.png" />
-		<None Remove="Images\DiagonalRed.png" />
-		<None Remove="Images\Download.png" />
-		<None Remove="Images\Edit.png" />
-		<None Remove="Images\Eye-off.png" />
-		<None Remove="Images\Eye.png" />
-		<None Remove="Images\FlipVertical.png" />
-		<None Remove="Images\Folder-add.png" />
-		<None Remove="Images\Folder.png" />
-		<None Remove="Images\Globe.png" />
-		<None Remove="Images\hard-drive.png" />
-		<None Remove="Images\Layer-add.png" />
-		<None Remove="Images\Lock-alpha.png" />
-		<None Remove="Images\Merge-downwards.png" />
-		<None Remove="Images\MoveImage.png" />
-		<None Remove="Images\MoveViewportImage.png" />
-		<None Remove="Images\penMode.png" />
-		<None Remove="Images\PixiBotLogo.png" />
-		<None Remove="Images\PixiEditorLogo.png" />
-		<None Remove="Images\PixiParserLogo.png" />
-		<None Remove="Images\Placeholder.png" />
-		<None Remove="Images\Processing.gif" />
-		<None Remove="Images\Replace.png" />
-		<None Remove="Images\Search.png" />
-		<None Remove="Images\SelectImage.png" />
-		<None Remove="Images\SocialMedia\DiscordIcon.png" />
-		<None Remove="Images\SocialMedia\DonateIcon.png" />
-		<None Remove="Images\SocialMedia\GitHubIcon.png" />
-		<None Remove="Images\SocialMedia\RedditIcon.png" />
-		<None Remove="Images\SocialMedia\SteamIcon.png" />
-		<None Remove="Images\SocialMedia\WebsiteIcon.png" />
-		<None Remove="Images\SocialMedia\YouTubeIcon.png" />
-		<None Remove="Images\SymmetryHorizontal.png" />
-		<None Remove="Images\Tools\BrightnessImage.png" />
-		<None Remove="Images\Tools\ColorPickerImage.png" />
-		<None Remove="Images\Tools\EllipseImage.png" />
-		<None Remove="Images\Tools\EraserImage.png" />
-		<None Remove="Images\Tools\FloodFillImage.png" />
-		<None Remove="Images\Tools\LineImage.png" />
-		<None Remove="Images\Tools\MagicWandImage.png" />
-		<None Remove="Images\Tools\MoveImage.png" />
-		<None Remove="Images\Tools\MoveViewportImage.png" />
-		<None Remove="Images\Tools\PenImage.png" />
-		<None Remove="Images\Tools\RectangleImage.png" />
-		<None Remove="Images\Tools\RotateViewportImage.png" />
-		<None Remove="Images\Tools\SelectImage.png" />
-		<None Remove="Images\Tools\ZoomImage.png" />
-		<None Remove="Images\Trash.png" />
-		<None Remove="Images\UnknownFile.png" />
-		<None Remove="Images\ZoomImage.png" />
-		<None Include="..\icon.ico">
-			<Pack>True</Pack>
-			<PackagePath></PackagePath>
-		</None>
-		<None Include="..\LICENSE">
-			<Pack>True</Pack>
-			<PackagePath></PackagePath>
-		</None>
-	</ItemGroup>
-	<ItemGroup>
-		<PackageReference Include="CLSEncoderDecoder" Version="1.0.0" />
-		<PackageReference Include="Dirkster.AvalonDock" Version="4.72.0" />
-		<PackageReference Include="ByteSize" Version="2.1.1" />
-		<PackageReference Include="DiscordRichPresence" Version="1.1.3.18" />
-		<PackageReference Include="Hardware.Info" Version="11.0.0" />
-		<PackageReference Include="MessagePack" Version="2.5.108" />
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-		<PackageReference Include="OneOf" Version="3.0.243" />
-		<PackageReference Include="PixiEditor.ColorPicker" Version="3.3.1" />
-		<PackageReference Include="PixiEditor.Parser" Version="3.3.0" />
-		<PackageReference Include="PixiEditor.Parser.Skia" Version="3.0.0" />
-		<PackageReference Include="System.Drawing.Common" Version="7.0.0" />
-		<PackageReference Include="WpfAnimatedGif" Version="2.0.2" />
-		<PackageReference Update="StyleCop.Analyzers" Version="1.2.0-beta.435">
-		  <PrivateAssets>all</PrivateAssets>
-		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
-	</ItemGroup>
-	<ItemGroup>
-		<Resource Include="Images\Add-reference.png" />
-		<Resource Include="Images\AnchorDot.png" />
-		<Resource Include="Images\Arrow-right.png" />
-		<Resource Include="Images\Check-square.png" />
-		<Resource Include="Images\CheckerTile.png" />
-		<Resource Include="Images\ChevronDown.png" />
-		<Resource Include="Images\Commands\PixiEditor\Clipboard\Copy.png" />
-		<Resource Include="Images\Commands\PixiEditor\Clipboard\Cut.png" />
-		<Resource Include="Images\Commands\PixiEditor\Clipboard\Paste.png" />
-		<Resource Include="Images\Commands\PixiEditor\Colors\Swap.png" />
-		<Resource Include="Images\Commands\PixiEditor\Document\CenterContent.png" />
-		<Resource Include="Images\Commands\PixiEditor\Document\ResizeCanvas.png" />
-		<Resource Include="Images\Commands\PixiEditor\Document\ResizeDocument.png" />
-		<Resource Include="Images\Commands\PixiEditor\File\New.png" />
-		<Resource Include="Images\ChevronsDown.png" />
-		<Resource Include="Images\CopyAdd.png" />
-		<Resource Include="Images\Database.png" />
-		<Resource Include="Images\DiagonalRed.png" />
-		<Resource Include="Images\Download.png" />
-		<Resource Include="Images\Edit.png" />
-		<Resource Include="Images\Eye-off.png" />
-		<Resource Include="Images\Eye.png" />
-		<Resource Include="Images\FlipVertical.png" />
-		<Resource Include="Images\Folder-add.png" />
-		<Resource Include="Images\Folder.png" />
-		<Resource Include="Images\Globe.png" />
-		<Resource Include="Images\hard-drive.png" />
-		<Resource Include="Images\LanguageFlags\uk.png" />
-		<Resource Include="Images\Layer-add.png" />
-		<Resource Include="Images\Lock-alpha.png" />
-		<Resource Include="Images\Merge-downwards.png" />
-		<Resource Include="Images\News\Article.png" />
-		<Resource Include="Images\penMode.png" />
-		<Resource Include="Images\PixiBotLogo.png" />
-		<Resource Include="Images\PixiEditorLogo.png" />
-		<Resource Include="Images\PixiParserLogo.png" />
-		<Resource Include="Images\Placeholder.png" />
-		<Resource Include="Images\Processing.gif" />
-		<Resource Include="Images\Replace.png" />
-		<Resource Include="Images\Search.png" />
-		<Resource Include="Images\SocialMedia\Avatars\flabbet.png" />
-		<Resource Include="Images\SocialMedia\DiscordIcon.png" />
-		<Resource Include="Images\SocialMedia\DonateIcon.png" />
-		<Resource Include="Images\SocialMedia\GitHubIcon.png" />
-		<Resource Include="Images\SocialMedia\RedditIcon.png" />
-		<Resource Include="Images\SocialMedia\SteamIcon.png" />
-		<Resource Include="Images\SocialMedia\WebsiteIcon.png" />
-		<Resource Include="Images\SocialMedia\YouTubeIcon.png" />
-		<Resource Include="Images\SymmetryHorizontal.png" />
-		<Resource Include="Images\Tools\BrightnessImage.png" />
-		<Resource Include="Images\Tools\EllipseImage.png" />
-		<Resource Include="Images\Tools\ColorPickerImage.png" />
-		<Resource Include="Images\Tools\EraserImage.png" />
-		<Resource Include="Images\Tools\FloodFillImage.png" />
-		<Resource Include="Images\Tools\LineImage.png" />
-		<Resource Include="Images\Tools\MagicWandImage.png" />
-		<Resource Include="Images\Tools\MoveImage.png" />
-		<Resource Include="Images\Tools\MoveViewportImage.png" />
-		<Resource Include="Images\Tools\PenImage.png" />
-		<Resource Include="Images\Tools\RectangleImage.png" />
-		<Resource Include="Images\Tools\RotateViewportImage.png" />
-		<Resource Include="Images\Tools\SelectImage.png" />
-		<Resource Include="Images\Tools\ZoomImage.png" />
-		<Resource Include="Images\Trash.png" />
-		<None Remove="Images\Commands\PixiEditor\Window\OpenSettingsWindow.png" />
-		<Resource Include="Images\Commands\PixiEditor\Window\OpenSettingsWindow.png" />
-		<None Remove="Images\Commands\PixiEditor\Window\OpenStartupWindow.png" />
-		<Resource Include="Images\Commands\PixiEditor\Window\OpenStartupWindow.png" />
-		<None Remove="Images\Commands\PixiEditor\Window\OpenNavigationWindow.png" />
-		<Resource Include="Images\Commands\PixiEditor\Window\OpenNavigationWindow.png" />
-		<None Remove="Images\Commands\PixiEditor\File\New.png" />
-		<Resource Include="Images\Commands\PixiEditor\File\Open.png" />
-		<None Remove="Images\Commands\PixiEditor\Document\NewDocument.png" />
-		<None Remove="Images\Commands\PixiEditor\Selection\Clear.png" />
-		<Resource Include="Images\Commands\PixiEditor\Selection\Clear.png" />
-		<None Remove="Images\Commands\PixiEditor\Selection\SelectAll.png" />
-		<Resource Include="Images\Commands\PixiEditor\Selection\SelectAll.png" />
-		<None Remove="Images\Commands\PixiEditor\Search\Toggle.png" />
-		<Resource Include="Images\Commands\PixiEditor\Search\Toggle.png" />
-		<None Remove="Images\Commands\PixiEditor\Links\OpenDocumentation.png" />
-		<Resource Include="Images\Commands\PixiEditor\Links\OpenDocumentation.png" />
-		<None Remove="Images\Commands\PixiEditor\Links\OpenRepository.png" />
-		<Resource Include="Images\Commands\PixiEditor\Links\OpenRepository.png" />
-		<None Remove="Images\Commands\PixiEditor\File\Export.png" />
-		<Resource Include="Images\Commands\PixiEditor\File\Export.png" />
-		<None Remove="Images\Commands\PixiEditor\View\ToggleGrid.png" />
-		<Resource Include="Images\Commands\PixiEditor\View\ToggleGrid.png" />
-		<None Remove="Images\Commands\PixiEditor\View\ZoomIn.png" />
-		<Resource Include="Images\Commands\PixiEditor\View\ZoomIn.png" />
-		<None Remove="Images\Commands\PixiEditor\View\ZoomOut.png" />
-		<Resource Include="Images\Commands\PixiEditor\View\ZoomOut.png" />
-		<None Remove="Images\Commands\PixiEditor\Document\ClipCanvas.png" />
-		<None Remove="Fonts\feather.ttf" />
-		<Resource Include="Fonts\feather.ttf" />
-		<None Remove="Images\Load.png" />
-		<Resource Include="Images\Load.png" />
-		<None Remove="Images\Plus-square.png" />
-		<Resource Include="Images\Plus-square.png" />
-		<None Remove="Images\Save.png" />
-		<Resource Include="Images\Save.png" />
-		<None Remove="Images\Star.png" />
-		<Resource Include="Images\Star.png" />
-		<None Remove="Images\Star-filled.png" />
-		<Resource Include="Images\Star-filled.png" />
-		<None Remove="Images\Shuffle.png" />
-		<Resource Include="Images\Shuffle.png" />
-		<None Remove="Images\Layout.png" />
-		<Resource Include="Images\Layout.png" />
-		<None Remove="Images\SymmetryVertical.png" />
-		<Resource Include="Images\SymmetryVertical.png" />
-		<None Remove="Images\Settings.png" />
-		<Resource Include="Images\Settings.png" />
-		<None Remove="Images\Tools\LassoImage.png" />
-		<Resource Include="Images\Tools\LassoImage.png" />
-		<None Remove="Images\TemplateLogos\Aseprite.png" />
-		<Resource Include="Images\TemplateLogos\Aseprite.png" />
-		<None Remove="Images\TemplateLogos\Aseprite-Hover.png" />
-		<Resource Include="Images\TemplateLogos\Aseprite-Hover.png" />
-		<None Remove="Images\SocialMedia\flabbet.png" />
-		<None Remove="Images\SocialMedia\Avatars\Equbuxu.png" />
-		<Resource Include="Images\SocialMedia\Avatars\Equbuxu.png" />
-		<None Remove="Images\SocialMedia\Avatars\CPK.png" />
-		<Resource Include="Images\SocialMedia\Avatars\CPK.png" />
-		<None Remove="Images\Create-mask.png" />
-		<Resource Include="Images\Create-mask.png" />
-		<None Remove="Images\FlipHorizontal.png" />
-		<Resource Include="Images\FlipHorizontal.png" />
-		<None Remove="Images\Commands\PixiEditor\Layer\ToggleMask.png" />
-		<Resource Include="Images\Commands\PixiEditor\Layer\ToggleMask.png" />
-		<None Remove="Images\Commands\PixiEditor\Layer\ToggleVisible.png" />
-		<Resource Include="Images\Commands\PixiEditor\Layer\ToggleVisible.png" />
-		<None Remove="Images\Commands\PixiEditor\Document\Rotate90Deg.png" />
-		<Resource Include="Images\Commands\PixiEditor\Document\Rotate90Deg.png" />
-		<None Remove="Images\Commands\PixiEditor\Document\Rotate180Deg.png" />
-		<Resource Include="Images\Commands\PixiEditor\Document\Rotate180Deg.png" />
-		<None Remove="Images\Commands\PixiEditor\Document\Rotate270Deg.png" />
-		<Resource Include="Images\Commands\PixiEditor\Document\Rotate270Deg.png" />
-		<None Remove="Images\Commands\PixiEditor\Document\Rotate90DegLayers.png" />
-		<Resource Include="Images\Commands\PixiEditor\Document\Rotate90DegLayers.png" />
-		<None Remove="Images\Commands\PixiEditor\Document\Rotate180DegLayers.png" />
-		<Resource Include="Images\Commands\PixiEditor\Document\Rotate180DegLayers.png" />
-		<None Remove="Images\Commands\PixiEditor\Document\Rotate270DegLayers.png" />
-		<Resource Include="Images\Commands\PixiEditor\Document\Rotate270DegLayers.png" />
-		<None Remove="Images\Crop.png" />
-		<Resource Include="Images\Crop.png" />
-		<None Remove="Images\ReferenceLayerAbove.png" />
-		<Resource Include="Images\ReferenceLayerAbove.png" />
-		<None Remove="Images\ReferenceLayerBelow.png" />
-		<Resource Include="Images\ReferenceLayerBelow.png" />
-		<None Remove="Images\Commands\PixiEditor\Selection\SubtractFromMask.png" />
-		<Resource Include="Images\Commands\PixiEditor\Selection\SubtractFromMask.png" />
-		<None Remove="Images\Commands\PixiEditor\Selection\IntersectSelectionMask.png" />
-		<Resource Include="Images\Commands\PixiEditor\Selection\IntersectSelectionMask.png" />
-		<None Remove="Images\Commands\PixiEditor\Selection\AddToMask.png" />
-		<Resource Include="Images\Commands\PixiEditor\Selection\AddToMask.png" />
-		<None Remove="Images\Commands\PixiEditor\Selection\NewToMask.png" />
-		<Resource Include="Images\Commands\PixiEditor\Selection\NewToMask.png" />
-		<None Remove="Images\LanguageFlags\en.png" />
-		<Resource Include="Images\LanguageFlags\en.png" />
-		<None Remove="Images\LanguageFlags\pl.png" />
-		<Resource Include="Images\LanguageFlags\pl.png" />
-		<None Remove="Images\LanguageFlags\ar.png" />
-		<Resource Include="Images\LanguageFlags\ar.png" />
-		<None Remove="Images\LanguageFlags\cz.png" />
-		<None Remove="Images\LanguageFlags\de.png" />
-		<Resource Include="Images\LanguageFlags\de.png" />
-		<None Remove="Images\LanguageFlags\es.png" />
-		<Resource Include="Images\LanguageFlags\es.png" />
-		<None Remove="Images\LanguageFlags\ru.png" />
-		<Resource Include="Images\LanguageFlags\ru.png" />
-		<None Remove="Images\LanguageFlags\cs.png" />
-		<Resource Include="Images\LanguageFlags\cs.png" />
-		<None Remove="Images\LanguageFlags\tr.png" />
-		<Resource Include="Images\LanguageFlags\tr.png" />
-		<None Remove="Images\Commands\PixiEditor\Clipboard\PasteReferenceLayer.png" />
-		<Resource Include="Images\Commands\PixiEditor\Clipboard\PasteReferenceLayer.png" />
-		<None Remove="Images\Commands\PixiEditor\Clipboard\PasteAsNewLayer.png" />
-		<Resource Include="Images\Commands\PixiEditor\Clipboard\PasteAsNewLayer.png" />
-		<None Remove="Images\Commands\PixiEditor\File\OpenFileFromClipboard.png" />
-		<Resource Include="Images\Commands\PixiEditor\File\OpenFileFromClipboard.png" />
-		<None Remove="Images\Commands\PixiEditor\Window\OpenShortcutWindow.png" />
-		<Resource Include="Images\Commands\PixiEditor\Window\OpenShortcutWindow.png" />
-		<None Remove="Images\Commands\PixiEditor\Window\OpenAboutWindow.png" />
-		<Resource Include="Images\Commands\PixiEditor\Window\OpenAboutWindow.png" />
-		<None Remove="Images\Commands\PixiEditor\Layer\DuplicateSelectedLayer.png" />
-		<Resource Include="Images\Commands\PixiEditor\Layer\DuplicateSelectedLayer.png" />
-		<None Remove="Images\Commands\PixiEditor\Selection\InvertSelection.png" />
-		<Resource Include="Images\Commands\PixiEditor\Selection\InvertSelection.png" />
-		<None Remove="Images\LanguageFlags\zh.png" />
-		<Resource Include="Images\LanguageFlags\zh.png" />
-		<None Remove="Images\Commands\PixiEditor\Selection\CropToSelection.png" />
-		<Resource Include="Images\Commands\PixiEditor\Selection\CropToSelection.png" />
-		<None Remove="Images\LanguageFlags\hu.png" />
-		<Resource Include="Images\LanguageFlags\hu.png" />
-		<None Remove="Images\LanguageFlags\pt-br.png" />
-		<Resource Include="Images\LanguageFlags\pt-br.png" />
-		<None Remove="OfficialExtensions\supporter-pack.snk" />
-		<None Remove="Images\News\YouTube.png" />
-		<Resource Include="Images\News\YouTube.png" />
-		<None Remove="Images\News\Misc.png" />
-		<Resource Include="Images\News\Misc.png" />
-		<None Remove="Images\News\NewVersion.png" />
-		<Resource Include="Images\News\NewVersion.png" />
-		<None Remove="Images\News\OfficialAnnouncement.png" />
-		<Resource Include="Images\News\OfficialAnnouncement.png" />
-		<None Remove="Images\Chevron-right.png" />
-		<Resource Include="Images\Chevron-right.png" />
-		<None Remove="Images\LanguageFlags\it.png" />
-		<Resource Include="Images\LanguageFlags\it.png" />
-	</ItemGroup>
-	<ItemGroup>
-		<None Include="..\LICENSE">
-			<Pack>True</Pack>
-			<PackagePath></PackagePath>
-		</None>
-	</ItemGroup>
-	<ItemGroup>
-		<ProjectReference Include="..\PixiEditor.ChangeableDocument\PixiEditor.ChangeableDocument.csproj" />
-		<ProjectReference Include="..\PixiEditor.DrawingApi.Skia\PixiEditor.DrawingApi.Skia.csproj" />
-		<ProjectReference Include="..\PixiEditor.Extensions\PixiEditor.Extensions.csproj" />
-		<ProjectReference Include="..\PixiEditor.Platform\PixiEditor.Platform.csproj" />
-		<ProjectReference Include="..\PixiEditor.UpdateModule\PixiEditor.UpdateModule.csproj" />
-		<ProjectReference Include="..\PixiEditor.Zoombox\PixiEditor.Zoombox.csproj" />
-		<ProjectReference Include="..\PixiEditorGen\PixiEditorGen.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-	</ItemGroup>
-	<ItemGroup>
-		<Reference Include="PixiParser">
-			<HintPath>..\..\PixiParser\src\PixiParser.Skia\bin\Debug\net5.0\PixiParser.dll</HintPath>
-		</Reference>
-		<Reference Include="PixiParser.Skia">
-			<HintPath>..\..\PixiParser\src\PixiParser.Skia\bin\Debug\net5.0\PixiParser.Skia.dll</HintPath>
-		</Reference>
-	</ItemGroup>
-
-  <ItemGroup Condition="'$(Configuration)' == 'DevRelease'">
-    <ProjectReference Include="..\PixiEditor.Platform.Standalone\PixiEditor.Platform.Standalone.csproj" />
+  <ItemGroup Condition="'$(RuntimeIdentifier)'=='win-x64'">
+    <ProjectReference Include="..\PixiEditor.Windows\PixiEditor.Windows.csproj"/>
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <ProjectReference Include="..\PixiEditor.Platform.Standalone\PixiEditor.Platform.Standalone.csproj" />
+  <ItemGroup Condition="'$(RuntimeIdentifier)'=='win-arm64'">
+    <ProjectReference Include="..\PixiEditor.Windows\PixiEditor.Windows.csproj"/>
   </ItemGroup>
 
-  <ItemGroup Condition="'$(Configuration)' == 'Release'">
-    <ProjectReference Include="..\PixiEditor.Platform.Standalone\PixiEditor.Platform.Standalone.csproj" />
+  <ItemGroup Condition="'$(RuntimeIdentifier)'=='linux-x64'">
+    <ProjectReference Include="..\PixiEditor.Linux\PixiEditor.Linux.csproj"/>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(RuntimeIdentifier)'=='linux-arm64'">
+    <ProjectReference Include="..\PixiEditor.Linux\PixiEditor.Linux.csproj"/>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(RuntimeIdentifier)'=='osx-x64'">
+    <ProjectReference Include="..\PixiEditor.MacOs\PixiEditor.MacOs.csproj"/>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(RuntimeIdentifier)'=='osx-arm64'">
+    <ProjectReference Include="..\PixiEditor.MacOs\PixiEditor.MacOs.csproj"/>
   </ItemGroup>
 
   <ItemGroup Condition="'$(Configuration)' == 'Steam'">
-    <ProjectReference Include="..\PixiEditor.Platform.Steam\PixiEditor.Platform.Steam.csproj" />
+    <ProjectReference Include="..\PixiEditor.Platform.Steam\PixiEditor.Platform.Steam.csproj"/>
   </ItemGroup>
 
   <ItemGroup Condition="'$(Configuration)' == 'DevSteam'">
-    <ProjectReference Include="..\PixiEditor.Platform.Steam\PixiEditor.Platform.Steam.csproj" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(Configuration)' == 'MSIX Debug'">
-    <ProjectReference Include="..\PixiEditor.Platform.MSStore\PixiEditor.Platform.MSStore.csproj" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(Configuration)' == 'MSIX'">
-    <ProjectReference Include="..\PixiEditor.Platform.MSStore\PixiEditor.Platform.MSStore.csproj" />
+    <ProjectReference Include="..\PixiEditor.Platform.Steam\PixiEditor.Platform.Steam.csproj"/>
   </ItemGroup>
   
-	<ItemGroup>
-		<Compile Update="Properties\Settings.Designer.cs">
-			<DesignTimeSharedInput>True</DesignTimeSharedInput>
-			<AutoGen>True</AutoGen>
-			<DependentUpon>Settings.settings</DependentUpon>
-		</Compile>
-	</ItemGroup>
-	<ItemGroup>
-		<None Update="Properties\Settings.settings">
-			<Generator>SettingsSingleFileGenerator</Generator>
-			<LastGenOutput>Settings.Designer.cs</LastGenOutput>
-		</None>
-	</ItemGroup>
-	<ItemGroup>
-	  <Page Update="Views\UserControls\Viewport.xaml">
-	    <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
-	  </Page>
-	</ItemGroup>
-  <ItemGroup>
-    <Content Include="Data\*">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Data\ShortcutActionMaps\*">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Data\Localization\*">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Data\Localization\Languages\*">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+  <ItemGroup Condition="'$(Configuration)' == 'DebugSteam'">
+    <ProjectReference Include="..\PixiEditor.Platform.Steam\PixiEditor.Platform.Steam.csproj"/>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Models\Colors" />
+
+
+  <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <ProjectReference Include="..\PixiEditor.Platform.Standalone\PixiEditor.Platform.Standalone.csproj"/>
   </ItemGroup>
+
+  <ItemGroup Condition=" '$(Configuration)' == 'Release' ">
+    <ProjectReference Include="..\PixiEditor.Platform.Standalone\PixiEditor.Platform.Standalone.csproj"/>
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(Configuration)' == 'ReleaseNoUpdate' ">
+    <ProjectReference Include="..\PixiEditor.Platform.Standalone\PixiEditor.Platform.Standalone.csproj"/>
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(Configuration)' == 'DevRelease' ">
+    <ProjectReference Include="..\PixiEditor.Platform.Standalone\PixiEditor.Platform.Standalone.csproj"/>
+  </ItemGroup>
+  
+  <ItemGroup Condition=" '$(Configuration)' == 'MSIX' ">
+    <ProjectReference Include="..\PixiEditor.Platform.MSStore\PixiEditor.Platform.MSStore.csproj"/>
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(Configuration)' == 'MSIX Debug' ">
+    <ProjectReference Include="..\PixiEditor.Platform.MSStore\PixiEditor.Platform.MSStore.csproj"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <AvaloniaResource Include="Images\**"/>
+    <AvaloniaResource Include="Fonts\**"/>
+    <AvaloniaResource Include="Data\**"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AsyncImageLoader.Avalonia" Version="3.3.0"/>
+    <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)"/>
+    <PackageReference Include="Avalonia.Headless" Version="$(AvaloniaVersion)"/>
+    <PackageReference Include="Avalonia.Labs.Lottie" Version="11.3.0" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)"/>
+    <PackageReference Include="Avalonia.Skia" Version="$(AvaloniaVersion)"/>
+    <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
+    <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)"/>
+    <PackageReference Condition="'$(Configuration)' == 'DebugSteam'" Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)"/>
+    <PackageReference Include="ByteSize" Version="2.1.2"/>
+    <PackageReference Include="CLSEncoderDecoder" Version="1.0.0"/>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="DiscordRichPresence" Version="1.3.0.28" />
+    <PackageReference Include="Hardware.Info" Version="101.0.1.1" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.14.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
+    <PackageReference Include="Svg.Controls.Skia.Avalonia" Version="11.3.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ColorPicker\src\ColorPicker.AvaloniaUI\ColorPicker.AvaloniaUI.csproj"/>
+    <ProjectReference Include="..\Drawie\src\Drawie.Interop.Avalonia\Drawie.Interop.Avalonia.csproj"/>
+    <ProjectReference Include="..\Drawie\src\Drawie.Interop.Avalonia.Core\Drawie.Interop.Avalonia.Core.csproj"/>
+    <ProjectReference Include="..\PixiDocks\src\PixiDocks.Avalonia\PixiDocks.Avalonia.csproj"/>
+    <ProjectReference Include="..\PixiEditor.IdentityProvider.PixiAuth\PixiEditor.IdentityProvider.PixiAuth.csproj"/>
+    <ProjectReference Include="..\PixiEditor.IdentityProvider\PixiEditor.IdentityProvider.csproj"/>
+    <ProjectReference Include="..\PixiEditor.PixiAuth\PixiEditor.PixiAuth.csproj"/>
+    <ProjectReference Include="..\PixiEditor.SVG\PixiEditor.SVG.csproj"/>
+    <ProjectReference Include="..\PixiParser\src\PixiParser.Skia\PixiParser.Skia.csproj"/>
+    <ProjectReference Include="..\PixiParser\src\PixiParser\PixiParser.csproj"/>
+    <ProjectReference Include="..\ChunkyImageLib\ChunkyImageLib.csproj"/>
+    <ProjectReference Include="..\PixiEditor.AnimationRenderer.Core\PixiEditor.AnimationRenderer.Core.csproj"/>
+    <ProjectReference Include="..\PixiEditor.AnimationRenderer.FFmpeg\PixiEditor.AnimationRenderer.FFmpeg.csproj"/>
+    <ProjectReference Include="..\PixiEditor.ChangeableDocument.Gen\PixiEditor.ChangeableDocument.Gen.csproj"/>
+    <ProjectReference Include="..\PixiEditor.ChangeableDocument\PixiEditor.ChangeableDocument.csproj"/>
+    <ProjectReference Include="..\PixiEditor.Extensions.Runtime\PixiEditor.Extensions.Runtime.csproj"/>
+    <ProjectReference Include="..\PixiEditor.Extensions.WasmRuntime\PixiEditor.Extensions.WasmRuntime.csproj"/>
+    <ProjectReference Include="..\PixiEditor.Extensions\PixiEditor.Extensions.csproj"/>
+    <ProjectReference Include="..\PixiEditor.UI.Common\PixiEditor.UI.Common.csproj"/>
+    <ProjectReference Include="..\PixiEditor.UpdateModule\PixiEditor.UpdateModule.csproj"/>
+    <ProjectReference Include="..\PixiEditor.Zoombox\PixiEditor.Zoombox.csproj"/>
+    <ProjectReference Include="..\PixiEditor.Gen\PixiEditor.Gen.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="../../LICENSE">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <!--Would be great to automate that on publish-->
+    <None Include="../../Third Party Licenses/**" LinkBase="Third Party Licenses/">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+
+    <None Include="Extensions\*.pixiext">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Extensions\"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  
 </Project>

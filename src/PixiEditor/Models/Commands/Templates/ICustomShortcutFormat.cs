@@ -1,4 +1,4 @@
-﻿using PixiEditor.Models.Commands.Templates.Parsers;
+﻿using PixiEditor.Models.Commands.Templates.Providers.Parsers;
 
 namespace PixiEditor.Models.Commands.Templates;
 

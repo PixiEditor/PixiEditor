@@ -1,0 +1,26 @@
+﻿<dialogs:PixiEditorPopup x:Class="PixiEditor.Views.Dialogs.NoticePopup"
+                         x:ClassModifier="internal"
+                         xmlns="https://github.com/avaloniaui"
+                         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                         xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+                         xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
+                         mc:Ignorable="d"
+                         d:Title="Notice" Height="180" Width="400" MinHeight="180" MinWidth="400"
+                         CanResize="False"
+                         CanMinimize="False"
+                         x:Name="popup"
+                         ui:Translator.Key="{Binding ElementName=popup, Path=Title, Mode=OneTime}">
+
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,15">
+            <Button Width="70" IsDefault="True" Click="OkButton_Close" ui:Translator.Key="CLOSE" />
+        </StackPanel>
+
+        <TextBlock
+            Grid.Row="1" Text="{Binding Body, ElementName=popup}" TextAlignment="Center"
+            VerticalAlignment="Center" FontSize="15" Foreground="White" Margin="20,0" d:Text="The file does not exist"
+            TextWrapping="WrapWithOverflow" TextTrimming="WordEllipsis" />
+    </DockPanel>
+</dialogs:PixiEditorPopup>

@@ -1,19 +1,19 @@
-﻿using System.Windows.Input;
-using PixiEditor.Models.DataHolders;
+﻿using Avalonia.Input;
+using PixiEditor.Models.Input;
 
-namespace PixiEditor.Models.Commands.Templates.Parsers;
+namespace PixiEditor.Models.Commands.Templates.Providers.Parsers;
 
 [Serializable]
 public class KeyDefinition
 {
-    public string Command { get; set; }
+    public string[] Commands { get; set; }
     public HumanReadableKeyCombination DefaultShortcut { get; set; }
     public string[] Parameters { get; set; }
     
     public KeyDefinition() { }
-    public KeyDefinition(string command, HumanReadableKeyCombination defaultShortcut, params string[] parameters)
+    public KeyDefinition(string[] commands, HumanReadableKeyCombination defaultShortcut, params string[] parameters)
     {
-        Command = command;
+        Commands = commands;
         DefaultShortcut = defaultShortcut;
         Parameters = parameters;
     }
@@ -24,7 +24,7 @@ public record HumanReadableKeyCombination(string key, string[] modifiers = null)
     public KeyCombination ToKeyCombination()
     {
         Key parsedKey = Key.None;
-        ModifierKeys parsedModifiers = ModifierKeys.None;
+        KeyModifiers parsedModifiers = KeyModifiers.None;
 
         if (KeyParser.TryParseSpecial(key, out parsedKey) || Enum.TryParse(key, true, out parsedKey))
         {
@@ -38,30 +38,33 @@ public record HumanReadableKeyCombination(string key, string[] modifiers = null)
         return new KeyCombination(parsedKey, parsedModifiers);
     }
 
-    private ModifierKeys ParseModifiers(string[] strings)
+    private KeyModifiers ParseModifiers(string[] strings)
     {
         if(strings == null || strings.Length == 0)
         {
-            return ModifierKeys.None;
+            return KeyModifiers.None;
         }
         
-        ModifierKeys modifiers = ModifierKeys.None;
+        KeyModifiers modifiers = KeyModifiers.None;
 
         for (int i = 0; i < strings.Length; i++)
         {
             switch (strings[i].ToLower())
             {
                 case "ctrl": 
-                    modifiers |= ModifierKeys.Control;
+                    modifiers |= KeyModifiers.Control;
                     break;
                 case "alt":
-                    modifiers |= ModifierKeys.Alt;
+                    modifiers |= KeyModifiers.Alt;
                     break;
                 case "shift":
-                    modifiers |= ModifierKeys.Shift;
+                    modifiers |= KeyModifiers.Shift;
                     break;
                 case "win":
-                    modifiers |= ModifierKeys.Windows;
+                    modifiers |= KeyModifiers.Meta;
+                    break;
+                case "cmd":
+                    modifiers |= KeyModifiers.Meta;
                     break;
             }
         }

@@ -1,0 +1,42 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
+             xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:tools="clr-namespace:PixiEditor.ViewModels.Tools"
+             xmlns:markupExtensions="clr-namespace:PixiEditor.Helpers.MarkupExtensions"
+             xmlns:ui1="clr-namespace:PixiEditor.Helpers.UI"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             d:DataContext="{tools:ToolViewModel}" Name="Uc"
+             x:Class="PixiEditor.Views.Main.Tools.ToolPickerButton">
+    <Design.DataContext>
+        <tools:ToolViewModel />
+    </Design.DataContext>
+    <Button Command="{xaml:Command PixiEditor.Tools.SelectTool, UseProvided=true}"
+            CommandParameter="{Binding}"
+            Focusable="False"
+            Width="44" Height="34"
+            ui:Translator.TooltipLocalizedString="{Binding Tooltip}"
+            Background="{DynamicResource ThemeBackgroundBrush1}">
+        <Button.Template>
+            <ControlTemplate>
+                <Border Height="34" Width="34"
+                        Background="{DynamicResource ThemeBackgroundBrush1}">
+                    <ContentPresenter Content="{TemplateBinding Content}" />
+                </Border>
+            </ControlTemplate>
+        </Button.Template>
+        <Button.Content>
+            <Grid>
+                <TextBlock Classes="pixi-icon" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"
+                           Text="{Binding Path=IconToUse}" />
+                <TextBlock Background="{DynamicResource ThemeBorderLowBrush}"
+                           IsVisible="{Binding !CanBeUsedOnActiveLayer}"
+                           Classes="pixi-icon" FontSize="12" Text="{DynamicResource icon-plus-square}"
+                           HorizontalAlignment="Right" VerticalAlignment="Bottom" />
+            </Grid>
+        </Button.Content>
+    </Button>
+</UserControl>

@@ -1,0 +1,64 @@
+﻿<ResourceDictionary
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+    xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+    xmlns:shortcuts="clr-namespace:PixiEditor.Views.Shortcuts">
+
+    <ControlTheme TargetType="shortcuts:ShortcutsTemplateCard" x:Key="{x:Type shortcuts:ShortcutsTemplateCard}">
+        <Setter Property="Width" Value="150" />
+        <Setter Property="Height" Value="150" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderMidBrush}" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border BorderThickness="1"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        CornerRadius="15">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="12" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Image Grid.Row="0" Grid.RowSpan="2" Name="img" HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Source="{TemplateBinding Logo, Converter={converters:ImagePathToBitmapConverter}}">
+                            <Image.Transitions>
+                                <Transitions>
+                                    <DoubleTransition Duration="0:0:0.15" Property="Width" />
+                                    <DoubleTransition Duration="0:0:0.15" Property="Height" />
+                                </Transitions>
+                            </Image.Transitions>
+                        </Image>
+                        <TextBlock Classes="pixi-icon" Text="{TemplateBinding Icon}"
+                                   FontSize="64"
+                                   Grid.Row="0" Grid.RowSpan="2" Name="icon" HorizontalAlignment="Center"
+                                   VerticalAlignment="Center">
+                        </TextBlock>
+                        <TextBlock
+                            Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center"
+                            Margin="0, 0, 0, 10" Padding="0"
+                            Classes="h4"
+                            ui:Translator.Key="{TemplateBinding TemplateName}" />
+                    </Grid>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+        <Style Selector="^ /template/ Border Image">
+            <Setter Property="Width" Value="72" />
+            <Setter Property="Height" Value="72" />
+            <Setter Property="Source" Value="{TemplateBinding Logo, Converter={converters:ImagePathToBitmapConverter}}" />
+        </Style>
+        <Style Selector="^:pointerover /template/ Border Image">
+            <Setter Property="Width" Value="100" />
+            <Setter Property="Height" Value="100" />
+            <Setter Property="Source"
+                    Value="{TemplateBinding HoverLogo, Converter={converters:ImagePathToBitmapConverter}}" />
+        </Style>
+    </ControlTheme>
+
+</ResourceDictionary>

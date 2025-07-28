@@ -1,0 +1,187 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+        xmlns:rendering="clr-namespace:PixiEditor.UI.Common.Rendering;assembly=PixiEditor.UI.Common">
+    <Design.PreviewWith>
+        <Border Padding="20">
+            <!-- Add Controls for Previewer Here -->
+        </Border>
+    </Design.PreviewWith>
+
+    <Style Selector="Button.GrayRoundButton">
+
+    </Style>
+
+    <Style Selector="Button.OverlayToggleButton">
+        <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+
+    <Style Selector="Button.OverlayButton">
+        <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+
+    <Style Selector="Button.ImageButtonStyle">
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Cursor="Hand" Background="{TemplateBinding Background}">
+                    <ContentPresenter />
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+
+    <Style Selector="CheckBox.ImageCheckBox">
+        <Setter Property="Content" Value="{DynamicResource icon-eye-off}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Border Cursor="Hand" Background="{TemplateBinding Background}">
+                        <TextBlock Text="{TemplateBinding Content}" FontSize="16" Classes="pixi-icon" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style Selector="CheckBox.ImageCheckBox:checked">
+        <Setter Property="Content" Value="{DynamicResource icon-eye}" />
+    </Style>
+
+    <Style Selector="ToggleButton.PlayButton">
+        <Setter Property="Content" Value="{DynamicResource icon-play}" />
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{DynamicResource ThemeAccent2Brush}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Border Cursor="Hand" Background="{TemplateBinding Background}">
+                        <TextBlock Text="{TemplateBinding Content}" FontSize="{TemplateBinding Width}"
+                                   Classes="pixi-icon" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style Selector="ToggleButton.PlayButton:checked">
+        <Setter Property="Content" Value="{DynamicResource icon-pause}" />
+        <Setter Property="Foreground" Value="{DynamicResource ThemeAccentHighBrush}"/>
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+    <Style Selector="ToggleButton.PlayButton:pressed">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <Style Selector="ToggleButton.ExpandCollapseToggleStyle">
+        <Setter Property="Content" Value="{DynamicResource icon-chevron-down}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Border Cursor="Hand" Background="{TemplateBinding Background}">
+                        <TextBlock Text="{TemplateBinding Content}" FontSize="16" Classes="pixi-icon" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style Selector="ToggleButton.Right">
+        <Setter Property="Content" Value="{DynamicResource icon-chevron-left}" />
+    </Style>
+
+    <Style Selector="ToggleButton.ExpandCollapseToggleStyle:pressed">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+    <Style Selector="ToggleButton.ExpandCollapseToggleStyle:checked">
+        <Setter Property="Content" Value="{DynamicResource icon-chevron-left}" />
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+    <Style Selector="ToggleButton.Right:checked">
+        <Setter Property="Content" Value="{DynamicResource icon-chevron-right}" />
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+    <Style Selector="Button.SocialMediaButton">
+        <Setter Property="Width" Value="50" />
+        <Setter Property="Margin" Value="5,8,5,0" />
+        <Setter Property="FontSize" Value="18" />
+        <Setter Property="Height" Value="50" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="MinWidth" Value="0" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border
+                        x:Name="Border"
+                        Background="{TemplateBinding Background}"
+                        Width="{TemplateBinding Width}" Height="{TemplateBinding Height}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        CornerRadius="5">
+                        <ContentControl>
+                            <TextBlock Classes="pixi-icon"
+                                       HorizontalAlignment="Center"
+                                       FontSize="30"
+                                   Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Content}" />
+                        </ContentControl>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style Selector="Button.SocialMediaButton:pointerover">
+        <Setter Property="Background" Value="{Binding Tag, RelativeSource={RelativeSource Self}}" />
+    </Style>
+
+    <Style Selector="ToggleButton.AnchorPointToggleButtonStyle">
+        <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderMidBrush}" />
+        <Setter Property="CornerRadius" Value="0" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <!--TODO: After toggling on and off, weird visual glitch appears on the corner of rounded anchor-->
+                    <Border CornerRadius="{TemplateBinding CornerRadius}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            Background="Transparent"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <Border.Transitions>
+                            <Transitions>
+                                <BrushTransition Duration="0:0:0.1" Property="BorderBrush" />
+                            </Transitions>
+                        </Border.Transitions>
+                        <Grid>
+                            <TextBlock Text="{DynamicResource icon-dot}" VerticalAlignment="Center"
+                                       HorizontalAlignment="Center" Classes="pixi-icon" />
+                            <ContentPresenter Padding="{TemplateBinding Padding}"
+                                              HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              Content="{TemplateBinding Content}"
+                                              ContentTemplate="{TemplateBinding ContentTemplate}"
+                                              RecognizesAccessKey="True"
+                                              TextElement.Foreground="{TemplateBinding Foreground}" />
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style Selector="ToggleButton.AnchorPointToggleButtonStyle:checked">
+        <Setter Property="BorderBrush" Value="{DynamicResource ThemeHighlightForegroundBrush}" />
+    </Style>
+
+    <Style Selector="Border.KeyBorder">
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderMidBrush}" />
+        <Setter Property="Background" Value="{DynamicResource ThemeControlMidBrush}" />
+        <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
+        <Setter Property="Padding" Value="7, 0" />
+        <Setter Property="Margin" Value="0,3,5,3" />
+    </Style>
+
+    <Style Selector="Border.KeyBorderLast">
+        <Setter Property="Margin" Value="0, 3" />
+    </Style>
+</Styles>

@@ -1,0 +1,30 @@
+﻿<UserControl x:Class="PixiEditor.Views.Input.EditableTextBlock"
+             x:ClassModifier="internal"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
+             mc:Ignorable="d" x:Name="etb"
+             d:DesignHeight="60" d:DesignWidth="100" Focusable="True">
+    <Grid>
+        <TextBlock Foreground="{Binding ElementName=etb, Path=Foreground}"
+                   DoubleTapped="OnDoubleTapped"
+                   TextTrimming="CharacterEllipsis" Name="textBlock"
+                   IsVisible="{Binding Path=TextBlockVisibility, ElementName=etb}"
+                   Text="{Binding Path=Text, ElementName=etb, Mode=TwoWay}" />
+        <TextBox Foreground="{Binding ElementName=etb, Path=Foreground}"
+                 MaxLength="{Binding Path=MaxChars, ElementName=etb, Mode=TwoWay}"
+                 LostFocus="TextBox_LostFocus"
+                 Text="{Binding Path=Text, ElementName=etb, Mode=TwoWay}"
+                 Padding="0" Margin="-1"
+                 KeyDown="TextBox_KeyDown"
+                 IsVisible="{Binding !TextBlockVisibility, ElementName=etb}"
+                 RenderTransform="scale(0.95)"
+                 Name="textBox">
+            <Interaction.Behaviors>
+                <behaviours:GlobalShortcutFocusBehavior/>
+            </Interaction.Behaviors>
+        </TextBox>
+    </Grid>
+</UserControl>

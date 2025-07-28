@@ -1,0 +1,189 @@
+﻿<UserControl x:Class="PixiEditor.Views.Palettes.PaletteViewer"
+             x:ClassModifier="internal"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+             xmlns:palettes="clr-namespace:PixiEditor.Views.Palettes"
+             xmlns:ui1="clr-namespace:PixiEditor.Helpers.UI"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker.AvaloniaUI"
+             d:DesignHeight="450" d:DesignWidth="300" Name="paletteControl">
+    <Grid>
+        <DockPanel IsVisible="{Binding !IsCompact, ElementName=paletteControl}">
+            <palettes:ColorReplacer Grid.Row="3" VerticalAlignment="Bottom" Name="Replacer" DockPanel.Dock="Bottom"
+                                    IsVisible="{Binding !IsCompact, ElementName=paletteControl}"
+                                    ReplaceColorsCommand="{Binding ElementName=paletteControl, Path=ReplaceColorsCommand}"
+                                    HintColor="{Binding ElementName=paletteControl, Path=HintColor}" />
+            <Grid DragDrop.AllowDrop="True"
+                  Name="MainDropTarget">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="35" />
+                    <RowDefinition Height="5" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <StackPanel Orientation="Vertical" Grid.Row="0" Background="{DynamicResource ThemeBackgroundBrush1}">
+                    <DockPanel VerticalAlignment="Center" Margin="0 5 0 0">
+                        <colorPicker:ColorDisplay
+                            DockPanel.Dock="Left" Width="30"
+                            SelectedColor="{Binding ElementName=paletteControl, Path=HintColor}"
+                            SecondaryColor="{Binding ElementName=paletteControl, Path=SecondaryColor}">
+                            <colorPicker:ColorDisplay.Styles>
+                                <Style Selector="Button">
+                                    <Setter Property="IsVisible" Value="False" />
+                                </Style>
+                            </colorPicker:ColorDisplay.Styles>
+                        </colorPicker:ColorDisplay>
+                        <palettes:PaletteColorAdder DockPanel.Dock="Left" Margin="5 0 0 0"
+                                                    Swatches="{Binding ElementName=paletteControl, Path=Swatches}"
+                                                    HintColor="{Binding ElementName=paletteControl, Path=HintColor}"
+                                                    Colors="{Binding ElementName=paletteControl, Path=Colors}" />
+                        <StackPanel Margin="0, 0, 5, 0" HorizontalAlignment="Right" Width="120"
+                                    Spacing="5"
+                                    VerticalAlignment="Center" Orientation="Horizontal">
+                            <Button
+                                Classes="pixi-icon" Click="BrowsePalettes_Click"
+                                Content="{DynamicResource icon-database}"
+                                Cursor="Hand" Height="24" Width="24" ui:Translator.TooltipKey="BROWSE_PALETTES" />
+                            <Button Classes="pixi-icon"
+                                    Cursor="Hand" Height="24" Width="24" ui:Translator.TooltipKey="LOAD_PALETTE"
+                                    Content="{DynamicResource icon-hard-drive}"
+                                    Click="ImportPalette_OnClick" />
+                            <Button Height="24" Width="24" Classes="pixi-icon"
+                                    Content="{DynamicResource icon-save}"
+                                    IsEnabled="{Binding ElementName=paletteControl, Path=Colors.Count}"
+                                    Cursor="Hand" ui:Translator.TooltipKey="SAVE_PALETTE" Click="SavePalette_OnClick" />
+                            <Button Height="24" Width="24" Classes="pixi-icon"
+                                    Content="{DynamicResource icon-trash}"
+                                    IsEnabled="{Binding ElementName=paletteControl, Path=Colors.Count}"
+                                    Cursor="Hand" ui:Translator.TooltipKey="DISCARD_PALETTE"
+                                    Click="DiscardPalette_OnClick" />
+                        </StackPanel>
+                    </DockPanel>
+                </StackPanel>
+                <Separator Grid.Row="1" Margin="0, 0, 0, 0" BorderBrush="{DynamicResource ThemeControlLowBrush}"
+                           BorderThickness="2" />
+                <Grid IsVisible="False" Background="{DynamicResource ThemeControlHighlightBrush}" Opacity="0.7"
+                      Grid.Row="2" Name="dragDropGrid">
+                    <TextBlock TextWrapping="Wrap" ui:Translator.Key="DROP_PALETTE" Foreground="White" FontSize="32"
+                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Grid>
+                <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl Name="PaletteItemsSource" ItemsSource="{Binding Colors, ElementName=paletteControl}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Margin="10" Orientation="Horizontal"
+                                           HorizontalAlignment="Left" VerticalAlignment="Top" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <palettes:PaletteColorControl Cursor="Hand"
+                                                              ClipToBounds="False"
+                                                              ui:Translator.TooltipKey="PALETTE_COLOR_TOOLTIP"
+                                                              DragDrop.AllowDrop="True" Color="{Binding}"
+                                                              Margin="2.5"
+                                                              DropCommand="{Binding ElementName=paletteControl, Path=DropColorCommand}">
+                                    <palettes:PaletteColorControl.IsSelected>
+                                        <MultiBinding Converter="{converters:PaletteColorEqualsConverter}">
+                                            <Binding Path="." />
+                                            <Binding Path="HintColor" ElementName="paletteControl" />
+                                        </MultiBinding>
+                                    </palettes:PaletteColorControl.IsSelected>
+                                    <palettes:PaletteColorControl.IsSelectedSecondary>
+                                        <MultiBinding Converter="{converters:PaletteColorEqualsConverter}">
+                                            <Binding Path="." />
+                                            <Binding Path="SecondaryColor" ElementName="paletteControl" />
+                                        </MultiBinding>
+                                    </palettes:PaletteColorControl.IsSelectedSecondary>
+                                    <palettes:PaletteColorControl.AssociatedKey>
+                                        <MultiBinding Converter="{converters:IndexToAssociatedKeyConverter}">
+                                            <Binding Path="." />
+                                            <Binding Path="Colors" ElementName="paletteControl" />
+                                        </MultiBinding>
+                                    </palettes:PaletteColorControl.AssociatedKey>
+                                    <Interaction.Behaviors>
+                                        <EventTriggerBehavior EventName="PointerReleased">
+                                            <InvokeCommandAction
+                                                Command="{Binding SelectColorCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type palettes:PaletteViewer}}}"
+                                                CommandParameter="{Binding}" />
+                                        </EventTriggerBehavior>
+                                    </Interaction.Behaviors>
+                                    <palettes:PaletteColorControl.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem ui:Translator.Key="CHOOSE" Foreground="White"
+                                                      Click="MenuItem_OnClick"
+                                                      CommandParameter="{Binding}" />
+                                            <MenuItem ui:Translator.Key="REMOVE" Foreground="White"
+                                                      Click="RemoveColorMenuItem_OnClick"
+                                                      CommandParameter="{Binding}" />
+                                            <MenuItem ui:Translator.Key="REPLACE" Foreground="White"
+                                                      CommandParameter="{Binding}"
+                                                      Click="ReplaceColor_OnClick" />
+                                        </ContextMenu>
+                                    </palettes:PaletteColorControl.ContextMenu>
+                                </palettes:PaletteColorControl>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
+        </DockPanel>
+        <StackPanel IsVisible="{Binding ElementName=paletteControl, Path=IsCompact}">
+            <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto"
+                          Height="{Binding ElementName=paletteControl, Path=Bounds.Height}">
+                <ItemsControl Name="PaletteItemsSourceCompact"
+                              ItemsSource="{Binding Colors, ElementName=paletteControl}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal"
+                                       HorizontalAlignment="Left" VerticalAlignment="Top" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <palettes:PaletteColorControl Cursor="Hand"
+                                                          ui:Translator.TooltipKey="PALETTE_COLOR_TOOLTIP"
+                                                          DragDrop.AllowDrop="True" Color="{Binding}"
+                                                          Height="24" Width="24" CornerRadius="0"
+                                                          DropCommand="{Binding ElementName=paletteControl, Path=DropColorCommand}">
+                                <palettes:PaletteColorControl.IsSelected>
+                                    <MultiBinding Converter="{converters:PaletteColorEqualsConverter}">
+                                        <Binding Path="." />
+                                        <Binding Path="HintColor" ElementName="paletteControl" />
+                                    </MultiBinding>
+                                </palettes:PaletteColorControl.IsSelected>
+                                <palettes:PaletteColorControl.IsSelectedSecondary>
+                                    <MultiBinding Converter="{converters:PaletteColorEqualsConverter}">
+                                        <Binding Path="." />
+                                        <Binding Path="SecondaryColor" ElementName="paletteControl" />
+                                    </MultiBinding>
+                                </palettes:PaletteColorControl.IsSelectedSecondary>
+                                <Interaction.Behaviors>
+                                    <EventTriggerBehavior EventName="PointerReleased">
+                                        <InvokeCommandAction
+                                            Command="{Binding SelectColorCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type palettes:PaletteViewer}}}"
+                                            CommandParameter="{Binding}" />
+                                    </EventTriggerBehavior>
+                                </Interaction.Behaviors>
+                                <palettes:PaletteColorControl.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem ui:Translator.Key="CHOOSE" Foreground="White"
+                                                  Click="MenuItem_OnClick"
+                                                  CommandParameter="{Binding}" />
+                                        <MenuItem ui:Translator.Key="REMOVE" Foreground="White"
+                                                  Click="RemoveColorMenuItem_OnClick"
+                                                  CommandParameter="{Binding}" />
+                                        <MenuItem ui:Translator.Key="REPLACE" Foreground="White"
+                                                  CommandParameter="{Binding}"
+                                                  Click="ReplaceColor_OnClick" />
+                                    </ContextMenu>
+                                </palettes:PaletteColorControl.ContextMenu>
+                            </palettes:PaletteColorControl>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </StackPanel>
+    </Grid>
+</UserControl>

@@ -1,20 +1,20 @@
-﻿using System.Windows;
+﻿using Avalonia;
+using Avalonia.Controls;
 
 namespace PixiEditor.Helpers.UI;
 
 internal static class TreeViewItemHelper
 {
-    public static GridLength GetIndent(DependencyObject obj)
+    public static GridLength GetIndent(AvaloniaObject obj)
     {
-        return (GridLength)obj.GetValue(IndentProperty);
+        return obj.GetValue(IndentProperty);
     }
 
-    public static void SetIndent(DependencyObject obj, GridLength value)
+    public static void SetIndent(AvaloniaObject obj, GridLength value)
     {
         obj.SetValue(IndentProperty, value);
     }
 
-
-    public static readonly DependencyProperty IndentProperty =
-        DependencyProperty.RegisterAttached("Indent", typeof(GridLength), typeof(TreeViewItemHelper), new PropertyMetadata(new GridLength(0)));
+    public static readonly AttachedProperty<GridLength> IndentProperty =
+        AvaloniaProperty.RegisterAttached<AvaloniaObject, GridLength>("Indent", typeof(TreeViewItemHelper), new GridLength(0));
 }

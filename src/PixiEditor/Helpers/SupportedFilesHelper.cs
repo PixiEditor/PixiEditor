@@ -1,53 +1,36 @@
-﻿using System.IO;
-using PixiEditor.Models.Enums;
+﻿using Avalonia.Platform.Storage;
+using PixiEditor.Models.Files;
 using PixiEditor.Models.IO;
 
 namespace PixiEditor.Helpers;
 
 internal class SupportedFilesHelper
 {
-    static Dictionary<FileType, FileTypeDialogData> fileTypeDialogsData;
-    static List<FileTypeDialogData> allFileTypeDialogsData;
     public static string[] AllSupportedExtensions { get; private set; }
     public static string[] PrimaryExtensions { get; private set; }
-
-    static SupportedFilesHelper()
+    
+    public static List<IoFileType> FileTypes { get; private set; }
+    
+    public static void InitFileTypes(IEnumerable<IoFileType> fileTypes)
     {
-        fileTypeDialogsData = new Dictionary<FileType, FileTypeDialogData>();
-        allFileTypeDialogsData = new List<FileTypeDialogData>();
+        FileTypes = fileTypes.ToList();
 
-        var allFormats = Enum.GetValues(typeof(FileType)).Cast<FileType>().ToList();
-
-        foreach (var format in allFormats)
-        {
-            var fileTypeDialogData = new FileTypeDialogData(format);
-            if (format != FileType.Unset)
-                fileTypeDialogsData[format] = fileTypeDialogData;
-
-            allFileTypeDialogsData.Add(fileTypeDialogData);
-        }
-
-        AllSupportedExtensions = fileTypeDialogsData.SelectMany(i => i.Value.Extensions).ToArray();
-        PrimaryExtensions = fileTypeDialogsData.Select(i => i.Value.PrimaryExtension).ToArray();
+        AllSupportedExtensions = FileTypes.SelectMany(i => i.Extensions).ToArray();
+        PrimaryExtensions = FileTypes.Select(i => i.PrimaryExtension).ToArray();
     }
 
-    public static FileTypeDialogData GetFileTypeDialogData(FileType type)
+    public static string FixFileExtension(string pathWithOrWithoutExtension, IoFileType requestedType)
     {
-        return allFileTypeDialogsData.Where(i => i.FileType == type).Single();
-    }
-
-    public static string FixFileExtension(string pathWithOrWithoutExtension, FileType requestedType)
-    {
-        if (requestedType == FileType.Unset)
+        if (requestedType == null)
             throw new ArgumentException("A valid filetype is required", nameof(requestedType));
 
-        var typeFromPath = SupportedFilesHelper.ParseImageFormat(Path.GetExtension(pathWithOrWithoutExtension));
-        if (typeFromPath != FileType.Unset && typeFromPath == requestedType)
+        var typeFromPath = ParseImageFormat(Path.GetExtension(pathWithOrWithoutExtension));
+        if (typeFromPath != null && typeFromPath == requestedType)
             return pathWithOrWithoutExtension;
-        return AppendExtension(pathWithOrWithoutExtension, SupportedFilesHelper.GetFileTypeDialogData(requestedType));
+        return AppendExtension(pathWithOrWithoutExtension, requestedType);
     }
 
-    public static string AppendExtension(string path, FileTypeDialogData data)
+    public static string AppendExtension(string path, IoFileType data)
     {
         string ext = data.Extensions.First();
         string filename = Path.GetFileName(path);
@@ -57,58 +40,61 @@ internal class SupportedFilesHelper
         return Path.Combine(Path.GetDirectoryName(path), filename);
     }
 
-    public static bool IsSupportedFile(string path)
+    public static bool IsSupported(string path)
     {
         var ext = Path.GetExtension(path.ToLower());
+        if (string.IsNullOrEmpty(ext))
+        {
+            ext = $".{path.ToLower()}";
+        }
+
         return IsExtensionSupported(ext);
     }
 
     public static bool IsExtensionSupported(string fileExtension)
     {
-        return AllSupportedExtensions.Contains(fileExtension);
+        return AllSupportedExtensions.Contains(fileExtension, StringComparer.OrdinalIgnoreCase);
     }
-    public static FileType ParseImageFormat(string extension)
+    public static IoFileType? ParseImageFormat(string extension)
     {
-        var allExts = fileTypeDialogsData.Values.ToList();
-        var fileData = allExts.Where(i => i.Extensions.Contains(extension)).SingleOrDefault();
-        if (fileData != null)
-            return fileData.FileType;
-        return FileType.Unset;
+        var allExts = FileTypes;
+        var fileData = allExts.SingleOrDefault(i => i.Extensions.Contains(extension, StringComparer.OrdinalIgnoreCase));
+        return fileData;
     }
 
-    public static List<FileTypeDialogData> GetAllSupportedFileTypes(bool includePixi)
+    public static List<IoFileType> GetAllSupportedFileTypes(FileTypeDialogDataSet.SetKind setKind)
     {
-        var allExts = fileTypeDialogsData.Values.ToList();
-        if (!includePixi)
-            allExts.RemoveAll(item => item.FileType == FileType.Pixi);
+        var allExts = FileTypes.Where(x => setKind.HasFlag(x.SetKind)).ToList();
         return allExts;
     }
 
-    public static string BuildSaveFilter(bool includePixi)
+    public static List<FilePickerFileType> BuildSaveFilter(FileTypeDialogDataSet.SetKind setKind = FileTypeDialogDataSet.SetKind.Any)
     {
-        var allSupportedExtensions = GetAllSupportedFileTypes(includePixi);
-        var filter = string.Join("|", allSupportedExtensions.Select(i => i.SaveFilter));
+        var allSupportedExtensions = GetAllSupportedFileTypes(setKind).Where(x => x.CanSave).ToList();
+        var filter = allSupportedExtensions.Select(i => i.SaveFilter).ToList();
 
         return filter;
     }
 
-    public static FileType GetSaveFileTypeFromFilterIndex(bool includePixi, int filterIndex)
+    public static IoFileType GetSaveFileType(FileTypeDialogDataSet.SetKind setKind, IStorageFile file)
     {
-        var allSupportedExtensions = GetAllSupportedFileTypes(includePixi);
-        //filter index starts at 1 for some reason
-        int index = filterIndex - 1;
-        if (allSupportedExtensions.Count <= index)
-            return FileType.Unset;
-        return allSupportedExtensions[index].FileType;
+        var allSupportedExtensions = GetAllSupportedFileTypes(setKind);
+
+        if (file is null)
+            return null;
+
+        string extension = Path.GetExtension(file.Path.LocalPath);
+        return allSupportedExtensions.Single(i => i.CanSave && i.Extensions.Contains(extension, StringComparer.OrdinalIgnoreCase));
     }
 
-    public static string BuildOpenFilter()
+    public static List<FilePickerFileType> BuildOpenFilter()
     {
-        var any = new FileTypeDialogDataSet(FileTypeDialogDataSet.SetKind.Any).GetFormattedTypes();
-        var pixi = new FileTypeDialogDataSet(FileTypeDialogDataSet.SetKind.Pixi).GetFormattedTypes();
-        var images = new FileTypeDialogDataSet(FileTypeDialogDataSet.SetKind.Images).GetFormattedTypes();
+        var any = new FileTypeDialogDataSet(FileTypeDialogDataSet.SetKind.Any).GetFormattedTypes(true);
+        return any.ToList();
+    }
 
-        var filter = any + "|" + pixi + "|" + images;
-        return filter;
+    public static bool IsRasterFormat(string fileExtension)
+    {
+        return FileTypes.Any(i => i.Extensions.Contains(fileExtension, StringComparer.OrdinalIgnoreCase) && i.SetKind == FileTypeDialogDataSet.SetKind.Image);
     }
 }

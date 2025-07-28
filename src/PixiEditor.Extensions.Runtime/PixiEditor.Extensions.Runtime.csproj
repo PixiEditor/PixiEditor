@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\PixiEditor.Extensions.WasmRuntime\PixiEditor.Extensions.WasmRuntime.csproj" />
+      <ProjectReference Include="..\PixiEditor.Extensions\PixiEditor.Extensions.csproj" />
+      <ProjectReference Include="..\PixiEditor.Platform\PixiEditor.Platform.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Services\" />
+    </ItemGroup>
+
+</Project>

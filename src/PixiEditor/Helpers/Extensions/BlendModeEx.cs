@@ -8,6 +8,7 @@ internal static class BlendModeEx
         return mode switch
         {
             BlendMode.Normal => "NORMAL_BLEND_MODE",
+            BlendMode.Erase => "ERASE_BLEND_MODE",
             BlendMode.Darken => "DARKEN_BLEND_MODE",
             BlendMode.Multiply => "MULTIPLY_BLEND_MODE",
             BlendMode.ColorBurn => "COLOR_BURN_BLEND_MODE",

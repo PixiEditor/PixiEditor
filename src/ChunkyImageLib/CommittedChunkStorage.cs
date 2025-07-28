@@ -1,7 +1,8 @@
 ﻿using ChunkyImageLib.DataHolders;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Numerics;
 
 namespace ChunkyImageLib;
 
@@ -15,7 +16,7 @@ public class CommittedChunkStorage : IDisposable
     {
         foreach (var chunkPos in committedChunksToSave)
         {
-            Chunk copy = Chunk.Create();
+            Chunk copy = Chunk.Create(image.ProcessingColorSpace);
             if (!image.DrawCommittedChunkOn(chunkPos, ChunkResolution.Full, copy.Surface.DrawingSurface, VecI.Zero, ReplacingPaint))
             {
                 copy.Dispose();

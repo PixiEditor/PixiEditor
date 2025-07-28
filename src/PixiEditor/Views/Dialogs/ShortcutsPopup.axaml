@@ -1,0 +1,81 @@
+<dialogs:PixiEditorPopup xmlns="https://github.com/avaloniaui"
+                         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                         xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+                         xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
+                         xmlns:commands="clr-namespace:PixiEditor.Models.Commands"
+                         xmlns:commands1="clr-namespace:PixiEditor.Models.Commands.XAML"
+                         xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+                         xmlns:commands2="clr-namespace:PixiEditor.Models.Commands.Commands"
+                         xmlns:panels="clr-namespace:PixiEditor.Views.Panels"
+                         xmlns:ui1="clr-namespace:PixiEditor.Helpers.UI"
+                         xmlns:system="clr-namespace:System;assembly=System.Runtime"
+                         xmlns:shortcuts="clr-namespace:PixiEditor.Views.Shortcuts"
+                         xmlns:ui2="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+                         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+                         x:Class="PixiEditor.Views.Dialogs.ShortcutsPopup"
+                         CloseIsHide="True"
+                         x:ClassModifier="internal"
+                         ui:Translator.Key="SHORTCUTS_TITLE">
+    <Grid>
+        <Grid.Styles>
+            <Style Selector="ItemsControl">
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="BorderThickness" Value="0" />
+            </Style>
+
+            <Style Selector="TextBlock">
+                <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}" />
+                <Setter Property="FontSize" Value="14" />
+            </Style>
+        </Grid.Styles>
+
+        <DockPanel>
+            <TextBlock Margin="10"
+                       HorizontalAlignment="Left" DockPanel.Dock="Bottom"
+                       ui2:Hyperlink.Command="{commands1:Command PixiEditor.Window.OpenSettingsWindow, UseProvided=True}">
+                <ui2:Hyperlink.CommandParameter>
+                    <system:Int32>2</system:Int32>
+                </ui2:Hyperlink.CommandParameter>
+                <Run ui:Translator.Key="EDIT" />
+                <Run Text="{DynamicResource icon-link}" Classes="pixi-icon" />
+            </TextBlock>
+            <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
+                <DockPanel HorizontalAlignment="Center" Margin="2">
+                    <ItemsControl ItemsSource="{Binding Controller.CommandGroups}" Background="Transparent">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type commands:CommandGroup}">
+                                <StackPanel IsVisible="{Binding HasAssignedShortcuts}">
+                                    <TextBlock Text="{Binding DisplayName}" Classes="h5"
+                                               Foreground="{DynamicResource ThemeForegroundSecondaryBrush}"
+                                               Margin="10,8,0,5" />
+                                    <ItemsControl ItemsSource="{Binding VisibleCommands}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate DataType="{x:Type commands2:Command}">
+                                                <StackPanel Orientation="Horizontal" Margin="20,0,0,0"
+                                                            IsVisible="{Binding Shortcut.Key, ConverterParameter=None, Converter={converters:EqualityBoolToIsVisibleConverter Invert=True}}"
+                                                            ToolTip.Tip="{Binding Description}">
+                                                    <shortcuts:ShortcutHint Shortcut="{Binding Shortcut}" />
+
+                                                    <TextBlock Text="{Binding DisplayName}"
+                                                               VerticalAlignment="Center"
+                                                               Margin="8,0,0,0" />
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <panels:AlignableWrapPanel />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+                </DockPanel>
+            </ScrollViewer>
+        </DockPanel>
+    </Grid>
+</dialogs:PixiEditorPopup>

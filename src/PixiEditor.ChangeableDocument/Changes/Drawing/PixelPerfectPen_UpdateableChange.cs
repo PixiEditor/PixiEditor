@@ -1,7 +1,8 @@
 ﻿using ChunkyImageLib.Operations;
-using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
+using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 
@@ -15,13 +16,15 @@ internal class PixelPerfectPen_UpdateableChange : UpdateableChange
     private HashSet<VecI> pixelsToConfirm2 = new();
     private List<VecI>? incomingPoints = new();
     private CommittedChunkStorage? chunkStorage;
+    private int frame;
 
     [GenerateUpdateableChangeActions]
-    public PixelPerfectPen_UpdateableChange(Guid memberGuid, VecI pos, Color color, bool drawOnMask)
+    public PixelPerfectPen_UpdateableChange(Guid memberGuid, VecI pos, Color color, bool drawOnMask, int frame)
     {
         this.memberGuid = memberGuid;
         this.color = color;
         this.drawOnMask = drawOnMask;
+        this.frame = frame;
     }
 
     [UpdateChangeMethod]
@@ -34,7 +37,7 @@ internal class PixelPerfectPen_UpdateableChange : UpdateableChange
     {
         if (!DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask))
             return false;
-        var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
+        var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame);
         image.SetBlendMode(BlendMode.SrcOver);
         DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, image, memberGuid, drawOnMask);
         return true;
@@ -70,11 +73,12 @@ internal class PixelPerfectPen_UpdateableChange : UpdateableChange
         (pixelsToConfirm2, pixelsToConfirm) = (pixelsToConfirm, pixelsToConfirm2);
         pixelsToConfirm.Clear();
 
-        Point[] line = BresenhamLineHelper.GetBresenhamLine(incomingPoints[pointsCount - 2], incomingPoints[pointsCount - 1]);
-        foreach (Point pixel in line)
+        VecI[] line = BresenhamLineHelper.GetBresenhamLine(incomingPoints[pointsCount - 2], incomingPoints[pointsCount - 1]);
+        foreach (VecI pixel in line)
         {
             pixelsToConfirm.Add(pixel);
         }
+
         image.EnqueueDrawPixels(line.Select(point => new VecI((int)point.X, (int)point.Y)), color, BlendMode.Src);
 
         if (pointsCount >= 3 && IsLShape(pointsCount - 1) && !confirmedPixels.Contains(incomingPoints[pointsCount - 2]))
@@ -89,7 +93,7 @@ internal class PixelPerfectPen_UpdateableChange : UpdateableChange
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> ApplyTemporarily(Document target)
     {
-        ChunkyImage image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
+        ChunkyImage image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame);
 
         int changeCount = image.QueueLength;
         DoDrawingIteration(image, incomingPoints!.Count);
@@ -103,7 +107,7 @@ internal class PixelPerfectPen_UpdateableChange : UpdateableChange
             throw new InvalidOperationException("Trying to save chunks while a saved one already exist");
 
         ignoreInUndo = false;
-        var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
+        var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame);
         if (firstApply)
         {
             incomingPoints = null;
@@ -125,7 +129,7 @@ internal class PixelPerfectPen_UpdateableChange : UpdateableChange
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        var chunks = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, memberGuid, drawOnMask, ref chunkStorage);
+        var chunks = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, memberGuid, drawOnMask, frame, ref chunkStorage);
         return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, chunks, drawOnMask);
     }
 }

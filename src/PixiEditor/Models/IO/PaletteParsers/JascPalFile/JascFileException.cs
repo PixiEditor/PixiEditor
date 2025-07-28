@@ -1,7 +1,6 @@
 ﻿using System.Runtime.Serialization;
-using PixiEditor.Exceptions;
-using PixiEditor.Extensions.Common.Localization;
-using PixiEditor.Models.Localization;
+using PixiEditor.Extensions.Exceptions;
+using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.Models.IO.PaletteParsers.JascPalFile;
 

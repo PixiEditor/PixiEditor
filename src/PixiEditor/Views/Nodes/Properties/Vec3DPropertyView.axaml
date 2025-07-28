@@ -1,0 +1,24 @@
+﻿<properties:NodePropertyView xmlns="https://github.com/avaloniaui"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                             xmlns:properties="clr-namespace:PixiEditor.Views.Nodes.Properties"
+                             xmlns:input="clr-namespace:PixiEditor.Views.Input"
+                             xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+                             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+                             xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
+                             xmlns:properties1="clr-namespace:PixiEditor.ViewModels.Nodes.Properties"
+                             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+                             x:Class="PixiEditor.Views.Nodes.Properties.Vec3DPropertyView">
+    <Design.DataContext>
+        <properties1:Vec3DPropertyViewModel />
+    </Design.DataContext>
+    <StackPanel HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
+        <TextBlock ui:Translator.TooltipKey="{Binding DisplayName}" VerticalAlignment="Center" ui:Translator.Key="{Binding DisplayName}"/>
+        <StackPanel IsVisible="{Binding ShowInputField}">
+            <controls:NumberInput EnableScrollChange="False" MinWidth="100" DraggingGrabber="{Binding MergeChanges, Mode=OneWayToSource}" Value="{Binding XValue, Mode=TwoWay}" Margin="0,2" />
+            <controls:NumberInput EnableScrollChange="False" MinWidth="100" DraggingGrabber="{Binding MergeChanges, Mode=OneWayToSource}" Value="{Binding YValue, Mode=TwoWay}" Margin="0,2" />
+            <controls:NumberInput EnableScrollChange="False" MinWidth="100" DraggingGrabber="{Binding MergeChanges, Mode=OneWayToSource}" Value="{Binding ZValue, Mode=TwoWay}" Margin="0,2" />
+        </StackPanel>
+    </StackPanel>
+</properties:NodePropertyView>

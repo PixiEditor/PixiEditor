@@ -1,4 +1,5 @@
-﻿using PixiEditor.Models.Enums;
+﻿using PixiEditor.ChangeableDocument.Actions.Generated;
+using PixiEditor.Models.Tools;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 internal class StructureMemberOpacityExecutor : UpdateableChangeExecutor
@@ -8,7 +9,7 @@ internal class StructureMemberOpacityExecutor : UpdateableChangeExecutor
     {
         if (document.SelectedStructureMember is null)
             return ExecutionState.Error;
-        memberGuid = document.SelectedStructureMember.GuidValue;
+        memberGuid = document.SelectedStructureMember.Id;
         StructureMemberOpacity_Action action = new StructureMemberOpacity_Action(memberGuid, document.SelectedStructureMember.OpacityBindable);
         internals.ActionAccumulator.AddActions(action);
         return ExecutionState.Success;

@@ -1,10 +1,9 @@
 ﻿using System.Globalization;
-using System.Windows;
-using System.Windows.Data;
+using PixiEditor.UI.Common.Converters;
 
 namespace PixiEditor.Helpers.Converters;
 
-[ValueConversion(typeof(object), typeof(Visibility))]
+// TODO: check if this converter can be replaced with StringConverters.IsNullOrEmpty, StringConverters.IsNotNullOrEmpty, ObjectConverters.IsNull, or ObjectConverters.IsNotNull
 internal class NotNullToVisibilityConverter
     : MarkupConverter
 {
@@ -19,7 +18,7 @@ internal class NotNullToVisibilityConverter
             isNull = !isNull;
         }
 
-        return isNull ? Visibility.Collapsed : Visibility.Visible;
+        return !isNull;
     }
     
     bool IsDefaultValue(object obj)
@@ -31,11 +30,13 @@ internal class NotNullToVisibilityConverter
         
         var type = obj.GetType();
 
-        if (type.IsValueType)
+        //TODO: Try to find what breaks without below, because in my opinion this
+        // is not a correct thing to do with NotNull converter, lots with false positives, like 0 as a int
+        /*if (type.IsValueType)
         {
             object defaultValue = Activator.CreateInstance(type);
             return obj.Equals(defaultValue);
-        }
+        }*/
 
         return false;
     }

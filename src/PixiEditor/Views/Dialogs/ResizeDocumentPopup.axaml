@@ -1,0 +1,31 @@
+﻿<dialogs:ResizeDocumentPopup x:Class="PixiEditor.Views.Dialogs.ResizeDocumentPopup"
+                             x:ClassModifier="internal"
+                             xmlns="https://github.com/avaloniaui"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                             xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+                             xmlns:input="clr-namespace:PixiEditor.Views.Input"
+                             xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
+                             mc:Ignorable="d" Name="window"
+                             ui:Translator.Key="RESIZE_IMAGE"
+                             CanResize="False"
+                             CanMinimize="False"
+                             Height="305" Width="310" MinHeight="305" MinWidth="310">
+    <DockPanel Focusable="True">
+        <Button DockPanel.Dock="Bottom" HorizontalAlignment="Center" Margin="15"
+                ui:Translator.Key="RESIZE" Click="Button_Click" IsDefault="True" />
+
+        <input:SizePicker HorizontalAlignment="Center" Width="240" Height="180" Margin="0,30,0,0"
+                          x:Name="sizePicker"
+                          Background="{DynamicResource ThemeBackgroundBrush1}"
+                          CornerRadius="{DynamicResource ControlCornerRadius}"
+                          PreserveAspectRatio="True" Focusable="True"
+                          ChosenHeight="{Binding NewAbsoluteHeight, Mode=TwoWay, ElementName=window}"
+                          ChosenWidth="{Binding NewAbsoluteWidth, Mode=TwoWay, ElementName=window}"
+                          ChosenPercentageSize="{Binding NewPercentageSize, Mode=TwoWay, ElementName=window}"
+                          SelectedUnit="{Binding NewSelectedUnit, Mode=TwoWay, ElementName=window}"
+                          IsSizeUnitSelectionVisible="True" />
+
+    </DockPanel>
+</dialogs:ResizeDocumentPopup>

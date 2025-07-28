@@ -1,5 +1,5 @@
 ﻿using System.Globalization;
-using System.Windows;
+using Avalonia;
 
 namespace PixiEditor.Helpers.Converters;
 internal class MultiplyConverter : SingleInstanceConverter<MultiplyConverter>
@@ -9,7 +9,7 @@ internal class MultiplyConverter : SingleInstanceConverter<MultiplyConverter>
         double? actuallyValue = NumberToDouble(value);
         double? factor = NumberToDouble(parameter);
         if (actuallyValue is null || factor is null)
-            return DependencyProperty.UnsetValue;
+            return AvaloniaProperty.UnsetValue;
         return actuallyValue * factor;
     }
 
@@ -18,7 +18,7 @@ internal class MultiplyConverter : SingleInstanceConverter<MultiplyConverter>
         double? actuallyValue = NumberToDouble(value);
         double? factor = NumberToDouble(parameter);
         if (actuallyValue is null || factor is null)
-            return DependencyProperty.UnsetValue;
+            return AvaloniaProperty.UnsetValue;
         return actuallyValue / factor;
     }
 

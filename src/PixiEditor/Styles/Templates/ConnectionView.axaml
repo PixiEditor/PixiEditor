@@ -1,0 +1,29 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:nodes="clr-namespace:PixiEditor.Views.Nodes"
+                    xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters">
+
+    <ControlTheme TargetType="nodes:ConnectionView" x:Key="{x:Type nodes:ConnectionView}">
+        <Setter Property="ClipToBounds" Value="False"/>
+        <Setter Property="IsHitTestVisible" Value="False"/>
+        <Setter Property="Template">
+            <ControlTemplate>
+                    <nodes:ConnectionLine Thickness="2"
+                          StartPoint="{Binding StartPoint, RelativeSource={RelativeSource TemplatedParent}}"
+                          EndPoint="{Binding EndPoint, RelativeSource={RelativeSource TemplatedParent}}">
+                        <nodes:ConnectionLine.LineBrush>
+                            <LinearGradientBrush>
+                                <LinearGradientBrush.GradientStops>
+                                    <GradientStop Offset="0" Color="#555" />
+                                    <GradientStop Offset=".05" Color="{Binding InputProperty.SocketBrush, RelativeSource={RelativeSource TemplatedParent}, Converter={converters:SocketColorConverter}}" />
+                                    <GradientStop Offset="0.95" Color="{Binding OutputProperty.SocketBrush, RelativeSource={RelativeSource TemplatedParent}, Converter={converters:SocketColorConverter}}" />
+                                    <GradientStop Offset="1" Color="#555" />
+                                </LinearGradientBrush.GradientStops>
+                            </LinearGradientBrush>
+                        </nodes:ConnectionLine.LineBrush>
+                    </nodes:ConnectionLine>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+
+</ResourceDictionary>

@@ -1,0 +1,154 @@
+<dialogs:PixiEditorPopup xmlns="https://github.com/avaloniaui"
+                         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                         xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
+                         xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+                         xmlns:markupExtensions="clr-namespace:PixiEditor.Helpers.MarkupExtensions"
+                         xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
+                         xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+                         xmlns:main="clr-namespace:PixiEditor.ViewModels.SubViewModels"
+                         xmlns:ui1="clr-namespace:PixiEditor.Helpers.UI"
+                         xmlns:localization1="clr-namespace:PixiEditor.Views.Dialogs.Debugging.Localization"
+                         xmlns:ui2="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+                         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+                         Width="600"
+                         Height="400"
+                         x:Class="PixiEditor.Views.Dialogs.Debugging.Localization.LocalizationDebugWindow"
+                         Title="LOCALIZATION_DEBUG_WINDOW_TITLE">
+    <StackPanel Grid.Row="1" Margin="5">
+        <StackPanel Orientation="Horizontal" Height="25">
+            <TextBlock ui:Translator.Key="LOCALIZATION_VIEW_TYPE" Margin="0,0,5,0" MinWidth="160" />
+            <ComboBox
+                SelectedItem="{Binding DebugViewModel.LocalizationKeyShowMode}"
+                ItemsSource="{markupExtensions:Enum {x:Type ui:LocalizationKeyShowMode}}" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Height="25" Margin="0,5,0,0">
+            <TextBlock ui:Translator.Key="FORCE_OTHER_FLOW_DIRECTION" Margin="0,0,5,0" MinWidth="160" />
+            <CheckBox IsChecked="{Binding DebugViewModel.ForceOtherFlowDirection}" />
+        </StackPanel>
+        <Button ui:Translator.Key="LOAD_LANGUAGE_FROM_FILE"
+                Command="{xaml:Command PixiEditor.Debug.SetLanguageFromFilePicker}"
+                Margin="0,5,0,0" />
+        <TextBlock Text="POEditor" FontWeight="Bold" FontSize="22" Margin="0,10,0,0" />
+        <Grid Height="25">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="120" />
+                <ColumnDefinition />
+                <ColumnDefinition Width="120" />
+            </Grid.ColumnDefinitions>
+            <TextBlock ui:Translator.Key="API_KEY" Margin="0,0,5,0" />
+            <TextBox Grid.Column="1" TextChanged="ApiKeyChanged"
+                     Text="{Binding ApiKey}" />
+            <Button Margin="5,0,0,0" Grid.Column="2"
+                    ui:Translator.Key="LOG_IN"
+                    Command="{Binding LoadApiKeyCommand}" />
+        </Grid>
+        <StackPanel
+            IsVisible="{Binding LoggedIn, Mode=OneWay}">
+            <Grid Margin="0,5,0,0" Height="25">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="120" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <TextBlock ui:Translator.Key="LANGUAGE" Margin="0,0,5,0" />
+                <Grid Grid.Column="1">
+                    <ComboBox ItemsSource="{Binding LanguageCodes}"
+                              SelectedItem="{Binding SelectedLanguage}"
+                              x:Name="LanguageComboBox">
+                        <ComboBox.ItemContainerTheme>
+                            <ControlTheme TargetType="ComboBoxItem">
+                                <Setter Property="ContentTemplate">
+                                    <Setter.Value>
+                                        <DataTemplate DataType="localization1:PoeLanguage">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Ellipse Width="10" Height="10"
+                                                         VerticalAlignment="Center"
+                                                         Fill="{Binding StatusBrush}"
+                                                         Margin="0,0,5,0" />
+                                                <TextBlock VerticalAlignment="Center">
+                                                    <Run Text="{Binding Name, Mode=OneWay}" />
+                                                    <Run Text="{Binding Code, Mode=OneWay, StringFormat='(\{0\})'}" />
+                                                </TextBlock>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="{x:Type ComboBoxItem}">
+                                            <Border Height="25" Margin="0" Padding="5,0" BorderThickness="0,1">
+                                                <ContentPresenter Content="{TemplateBinding Content}"
+                                                                  ContentTemplate="{TemplateBinding ContentTemplate}" />
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style Selector="^ComboBoxItem /template/ Border">
+                                    <Setter Property="Background" Value="Transparent" />
+                                    <Setter Property="BorderBrush" Value="Transparent" />
+                                </Style>
+                                <Style Selector="^ComboBoxItem:pointerover /template/ Border">
+                                    <Setter Property="Background" Value="{DynamicResource ThemeControlMidBrush}" />
+                                    <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderHighBrush}" />
+                                </Style>
+                            </ControlTheme>
+                        </ComboBox.ItemContainerTheme>
+                    </ComboBox>
+                    <TextBlock ui:Translator.Key="SELECT_A_LANGUAGE"
+                               IsVisible="{Binding SelectedItem, ElementName=LanguageComboBox, Converter={converters:NullToVisibilityConverter}}"
+                               Margin="5,0,0,0" VerticalAlignment="Center"
+                               IsHitTestVisible="False" />
+                </Grid>
+            </Grid>
+            <Border Padding="5"
+                    BorderThickness="1" CornerRadius="5"
+                    Margin="0,5,0,5"
+                    IsVisible="{Binding SelectedLanguage, Mode=OneWay, Converter={converters:NotNullToVisibilityConverter}}">
+                <StackPanel>
+                    <Grid Margin="0,0,0,5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock>
+                            <Run Text="{Binding SelectedLanguage.Name, Mode=OneWay}" />
+                            <Run Text="{Binding SelectedLanguage.Code, Mode=OneWay, StringFormat='(\{0\})'}" />
+                        </TextBlock>
+                        <TextBlock Grid.Column="1">
+                            <Run Text="{Binding SelectedLanguage.Percentage, Mode=OneWay, StringFormat='\{0\}%'}" />
+                            <Run ui:Translator.Key="DONE" />
+                        </TextBlock>
+                    </Grid>
+                    <Grid Margin="0,0,0,5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="4" />
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Border Background="{Binding SelectedLanguage.StatusBrush, Mode=OneWay}" CornerRadius="2" />
+                        <TextBlock Grid.Column="1"
+                                   ui:Translator.LocalizedString="{Binding SelectedLanguage.StatusText, Mode=OneWay}"
+                                   Margin="5,0" />
+                        <TextBlock ui2:Hyperlink.Command="{Binding CopySelectedUpdatedCommand}" Grid.Column="2"
+                                   ui:Translator.TooltipKey="COPY_TO_CLIPBOARD">
+                            <Run
+                                Text="{Binding SelectedLanguage.UpdatedLocal, Mode=OneWay, StringFormat='g'}" />
+                        </TextBlock>
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <Button ui:Translator.Key="APPLY" Command="{Binding ApplyLanguageCommand}" />
+                        <Button Grid.Column="1" Margin="5,0,0,0" ui:Translator.Key="UPDATE_SOURCE"
+                                Command="{Binding UpdateSourceCommand}"
+                                IsVisible="{Binding Source={x:Static main:DebugViewModel.IsDebugBuild}}" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+        <TextBlock Text="{Binding StatusMessage}" />
+    </StackPanel>
+</dialogs:PixiEditorPopup>

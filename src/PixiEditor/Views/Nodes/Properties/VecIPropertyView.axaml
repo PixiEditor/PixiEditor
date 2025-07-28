@@ -1,0 +1,26 @@
+﻿<properties:NodePropertyView xmlns="https://github.com/avaloniaui"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                             xmlns:properties="clr-namespace:PixiEditor.Views.Nodes.Properties"
+                             xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+                             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+                             xmlns:input="clr-namespace:PixiEditor.Views.Input"
+                             xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
+                             xmlns:properties1="clr-namespace:PixiEditor.ViewModels.Nodes.Properties"
+                             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+                             x:Class="PixiEditor.Views.Nodes.Properties.VecIPropertyView">
+    <Design.DataContext>
+        <properties1:VecIPropertyViewModel />
+    </Design.DataContext>
+    <StackPanel
+        HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
+        <TextBlock ui:Translator.TooltipKey="{Binding DisplayName}" VerticalAlignment="Center" ui:Translator.Key="{Binding DisplayName}" />
+        <StackPanel IsVisible="{Binding ShowInputField}">
+            <controls:NumberInput DraggingGrabber="{Binding MergeChanges, Mode=OneWayToSource}" EnableScrollChange="False" MinWidth="100" Decimals="0"
+                                  Value="{Binding XValue, Mode=TwoWay}" Margin="0,2" />
+            <controls:NumberInput DraggingGrabber="{Binding MergeChanges, Mode=OneWayToSource}" EnableScrollChange="False" MinWidth="100" Decimals="0"
+                                  Value="{Binding YValue, Mode=TwoWay}" />
+        </StackPanel>
+    </StackPanel>
+</properties:NodePropertyView>

@@ -1,26 +1,27 @@
 ﻿using System.Collections.Immutable;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
-using PixiEditor.DrawingApi.Core.Numerics;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables;
 
 public class ReferenceLayer : IReadOnlyReferenceLayer
 {
-    public ImmutableArray<byte> ImagePbgra32Bytes { get; }
+    public ImmutableArray<byte> ImageBgra8888Bytes { get; }
     public VecI ImageSize { get; }
     public ShapeCorners Shape { get; set; }
     public bool IsVisible { get; set; } = true;
     public bool IsTopMost { get; set; }
     
-    public ReferenceLayer(ImmutableArray<byte> imagePbgra32Bytes, VecI imageSize, ShapeCorners shape)
+    public ReferenceLayer(ImmutableArray<byte> imageBgra8888Bytes, VecI imageSize, ShapeCorners shape)
     {
-        ImagePbgra32Bytes = imagePbgra32Bytes;
+        ImageBgra8888Bytes = imageBgra8888Bytes;
         ImageSize = imageSize;
         Shape = shape;
     }
 
     public ReferenceLayer Clone()
     {
-        return new ReferenceLayer(ImagePbgra32Bytes, ImageSize, Shape);
+        return new ReferenceLayer(ImageBgra8888Bytes, ImageSize, Shape);
     }
 }

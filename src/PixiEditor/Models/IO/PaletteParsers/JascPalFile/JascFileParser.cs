@@ -1,6 +1,7 @@
 ﻿using System.IO;
-using PixiEditor.Extensions.Palettes;
-using PixiEditor.Extensions.Palettes.Parsers;
+using System.Threading.Tasks;
+using PixiEditor.Extensions.CommonApi.Palettes;
+using PixiEditor.Extensions.CommonApi.Palettes.Parsers;
 
 namespace PixiEditor.Models.IO.PaletteParsers.JascPalFile;
 

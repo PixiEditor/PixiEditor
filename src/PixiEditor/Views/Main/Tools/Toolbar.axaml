@@ -1,0 +1,106 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:cmds="clr-namespace:PixiEditor.Models.Commands.XAML"
+             xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+             xmlns:decorators="clr-namespace:PixiEditor.Views.Decorators"
+             xmlns:settings="clr-namespace:PixiEditor.ViewModels.Tools.ToolSettings.Settings"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="PixiEditor.Views.Main.Tools.Toolbar">
+    <Border CornerRadius="{DynamicResource ControlCornerRadius}"
+            BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+            BorderThickness="{DynamicResource ThemeBorderThickness}"
+            Cursor="Arrow"
+            IsHitTestVisible="True"
+            Padding="2.5"
+            HorizontalAlignment="Left"
+            Background="{DynamicResource ThemeBackgroundBrush1}">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Orientation="Horizontal">
+                <Button
+                    Width="36" Height="36"
+                    Classes="pixi-icon"
+                    Command="{cmds:Command PixiEditor.Undo.Undo}"
+                    ui:Translator.TooltipKey="UNDO">
+                    <TextBlock Text="{DynamicResource icon-undo}" FontSize="20" />
+                </Button>
+                <Button
+                    Command="{cmds:Command PixiEditor.Undo.Redo}"
+                    Width="36" Height="36"
+                    Classes="pixi-icon"
+                    Margin="0, 0, 5, 0"
+                    ui:Translator.TooltipKey="REDO">
+                    <TextBlock Text="{DynamicResource icon-redo}" FontSize="20" />
+                </Button>
+                <ToggleButton
+                    Width="30"
+                    BorderThickness="0"
+                    ui:Translator.TooltipKey="PEN_MODE"
+                    Focusable="False"
+                    Classes="pixi-icon"
+                    Content="{DynamicResource icon-edit}"
+                    FontSize="20"
+                    IsChecked="{Binding StylusSubViewModel.IsPenModeEnabled}">
+                </ToggleButton>
+                <Grid Margin="5,5,10,5" Background="{DynamicResource ThemeBackgroundBrush2}" Width="5"
+                      IsVisible="{Binding ElementName=CollapseButton, Path=!IsChecked}" />
+                <Label CornerRadius="5" Background="{DynamicResource ThemeBackgroundBrush2}" Padding="5" FontSize="12"
+                       VerticalAlignment="Center" IsVisible="{Binding ElementName=CollapseButton, Path=!IsChecked}"
+                       ui:Translator.Key="{Binding ToolsSubViewModel.ActiveTool.DisplayName.Key}"
+                       ui:Translator.TooltipLocalizedString="{Binding ToolsSubViewModel.ActiveTool.ActionDisplay}" />
+            </StackPanel>
+            <ItemsControl VerticalAlignment="Center" Grid.Column="1"
+                          IsVisible="{Binding ElementName=CollapseButton, Path=!IsChecked}"
+                          ItemsSource="{Binding ToolsSubViewModel.ActiveTool.Toolbar.Settings}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal" Margin="0, 0, 0, 0" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="settings:Setting">
+                        <StackPanel IsVisible="{Binding IsExposed}" Orientation="Horizontal"
+                                    VerticalAlignment="Center" Margin="5,0,5,0">
+                            <Label
+                                IsVisible="{Binding IsBuiltInLabelVisible}" VerticalAlignment="Center"
+                                Foreground="{DynamicResource ThemeForegroundBrush}"
+                                ui:Translator.TooltipKey="{Binding Tooltip}"
+                                ui:Translator.Key="{Binding Label.Key}" />
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                Foreground="{DynamicResource ThemeForegroundBrush}"
+                                ui:Translator.TooltipKey="{Binding Tooltip}"
+                                Classes="pixi-icon"
+                                FontSize="18"
+                                Padding="5 0"
+                                Text="{Binding Icon}">
+                                <TextBlock.IsVisible>
+                                    <MultiBinding Converter="{converters:AllTrueConverter}">
+                                        <Binding Path="HasIcon" />
+                                        <Binding Path="AllowIconLabel" />
+                                    </MultiBinding>
+                                </TextBlock.IsVisible>
+                            </TextBlock>
+                            <ContentControl VerticalAlignment="Center" Content="{Binding }" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <StackPanel Grid.Column="2" Orientation="Horizontal">
+                <Border Margin="5 -5 5 -5" Width="1"
+                        Background="{DynamicResource ThemeBackgroundBrush2}" />
+                <ToggleButton Name="CollapseButton" Classes="ExpandCollapseToggleStyle Right"
+                              Background="Transparent"
+                              VerticalAlignment="Center" />
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>

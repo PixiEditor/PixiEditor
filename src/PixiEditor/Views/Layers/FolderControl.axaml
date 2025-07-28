@@ -1,0 +1,178 @@
+﻿<UserControl x:Class="PixiEditor.Views.Layers.FolderControl"
+             x:ClassModifier="internal"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+             xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
+             xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:input="clr-namespace:PixiEditor.Views.Input"
+             xmlns:helpers="clr-namespace:PixiEditor.Helpers.UI"
+             xmlns:input1="clr-namespace:PixiEditor.Views.Input;assembly=PixiEditor.UI.Common"
+             xmlns:visuals="clr-namespace:PixiEditor.Views.Visuals"
+             xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
+             mc:Ignorable="d"
+             Focusable="True"
+             d:DesignHeight="35"
+             d:DesignWidth="250"
+             x:Name="folderControl">
+    <Border BorderThickness="0 0 0 0.5" BorderBrush="Gray" MinWidth="60" Focusable="True"
+            Tag="{Binding ElementName=folderControl}">
+        <Border.Background>
+            <Binding ElementName="folderControl" Path="Folder.Selection">
+                <Binding.Converter>
+                    <converters:StructureMemberSelectionTypeToColorConverter
+                        SoftColor="{StaticResource SoftSelectedLayerBrush}"
+                        HardColor="{StaticResource SelectedLayerBrush}"
+                        NoneColor="Transparent" />
+                </Binding.Converter>
+            </Binding>
+        </Border.Background>
+        <Interaction.Behaviors>
+            <behaviours:ClearFocusOnClickBehavior />
+        </Interaction.Behaviors>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="10" />
+                <RowDefinition Height="16" />
+                <RowDefinition Height="10" />
+            </Grid.RowDefinitions>
+            <Grid DragDrop.AllowDrop="True" IsVisible="False" Name="TopDropGrid" Grid.Row="0" Grid.ColumnSpan="3"
+                  Background="Transparent" Panel.ZIndex="5" />
+            <Grid IsVisible="False" Margin="20, 0, 0,0" x:Name="middleDropGrid" Grid.Row="1" DragDrop.AllowDrop="True"
+                  Panel.ZIndex="5" Background="Transparent" />
+            <Grid x:Name="centerGrid" ZIndex="3" Grid.Row="0" DragDrop.AllowDrop="True" Grid.RowSpan="3" Background="Transparent">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="24" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <CheckBox Classes="ImageCheckBox" VerticalAlignment="Center"
+                          IsThreeState="False" HorizontalAlignment="Center"
+                          IsChecked="{Binding Path=Folder.IsVisibleBindable, ElementName=folderControl, Mode=TwoWay}"
+                          Grid.Column="0" Height="16" />
+
+                <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Left">
+                    <Rectangle
+                        Width="{Binding Path=(helpers:TreeViewItemHelper.Indent).Value, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ItemsPresenter}}"
+                        Fill="Transparent" StrokeThickness="0" />
+                    <Border
+                        IsVisible="{Binding Folder.ClipToMemberBelowEnabledBindable, ElementName=folderControl}"
+                        Background="{DynamicResource ThemeAccentBrush}" Width="3" Margin="1,1,2,1" CornerRadius="1" />
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Grid.Column="0" HorizontalAlignment="Left">
+                        <Border Width="32" Height="32" BorderThickness="1" BorderBrush="Black"
+                                RenderOptions.BitmapInterpolationMode="None">
+                            <Border.Background>
+                                <ImageBrush Source="/Images/CheckerTile.png" TileMode="Tile">
+                                    <ImageBrush.Transform>
+                                        <ScaleTransform ScaleX="0.4" ScaleY="0.4" />
+                                    </ImageBrush.Transform>
+                                </ImageBrush>
+                            </Border.Background>
+                            <visuals:PreviewPainterControl
+                                PreviewPainter="{Binding Folder.PreviewPainter, ElementName=folderControl}"
+                                ClipToBounds="True"
+                                FrameToRender="{Binding Manager.ActiveDocument.AnimationDataViewModel.ActiveFrameBindable, ElementName=folderControl}"
+                                Width="30" Height="30" RenderOptions.BitmapInterpolationMode="None" />
+                        </Border>
+                        <Border
+                            Width="32" Height="32"
+                            BorderThickness="1"
+                            Margin="3,0,0,0"
+                            RenderOptions.BitmapInterpolationMode="None"
+                            IsVisible="{Binding Folder.HasMaskBindable, ElementName=folderControl}"
+                            BorderBrush="White">
+                            <Border.Background>
+                                <ImageBrush Source="/Images/CheckerTile.png" TileMode="Tile">
+                                    <ImageBrush.Transform>
+                                        <ScaleTransform ScaleX="0.4" ScaleY="0.4" />
+                                    </ImageBrush.Transform>
+                                </ImageBrush>
+                            </Border.Background>
+                            <Grid IsHitTestVisible="False">
+                                <visuals:PreviewPainterControl
+                                    PreviewPainter="{Binding Folder.MaskPreviewPainter, ElementName=folderControl}"
+                                    Width="30" Height="30"
+                                    ClipToBounds="True"
+                                    FrameToRender="{Binding Manager.ActiveDocument.AnimationDataViewModel.ActiveFrameBindable, ElementName=folderControl}"
+                                    RenderOptions.BitmapInterpolationMode="None" IsHitTestVisible="False" />
+                                <Path
+                                    Data="M 2 0 L 10 8 L 18 0 L 20 2 L 12 10 L 20 18 L 18 20 L 10 12 L 2 20 L 0 18 L 8 10 L 0 2 Z"
+                                    Fill="{DynamicResource ThemeAccentBrush}" HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    IsVisible="{Binding !Folder.MaskIsVisibleBindable, ElementName=folderControl}" />
+                            </Grid>
+                        </Border>
+                        <StackPanel Orientation="Vertical" Margin="3,0,5,0">
+                            <input:EditableTextBlock
+                                x:Name="editableTextBlock"
+                                d:Text="New Folder" FontSize="14"
+                                VerticalAlignment="Center"
+                                Text="{Binding Folder.NodeNameBindable, ElementName=folderControl, Mode=TwoWay}" />
+                            <!--Don't change above Text to Translator.Key, it will break renaming-->
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock d:Text="100" Foreground="White" FontSize="11">
+                                    <TextBlock.Text>
+                                        <Binding ElementName="folderControl" Path="Folder.OpacityBindable"
+                                                 Converter="{converters:MultiplyConverter}" StringFormat="N0">
+                                            <Binding.ConverterParameter>
+                                                <sys:Double>100.0</sys:Double>
+                                            </Binding.ConverterParameter>
+                                        </Binding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                                <TextBlock Foreground="White" FontSize="11">%</TextBlock>
+                                <TextBlock
+                                    Margin="5,0,0,0"
+                                    d:Text="Normal"
+                                    Foreground="White"
+                                    FontSize="11"
+                                    Text="{Binding Folder.BlendModeBindable, ElementName=folderControl, Converter={converters:BlendModeToStringConverter}}" />
+                            </StackPanel>
+                        </StackPanel>
+                    </StackPanel>
+                    <TextBlock Text="{DynamicResource icon-folder}" Classes="pixi-icon" FontSize="20" Margin="0,0,10,0"
+                               HorizontalAlignment="Right" />
+                </StackPanel>
+            </Grid>
+            <Grid
+                Grid.Row="2"
+                Name="BottomDropGrid"
+                IsVisible="False"
+                Panel.ZIndex="5"
+                DragDrop.AllowDrop="True"
+                Grid.ColumnSpan="2" Background="Transparent" />
+            <Panel Grid.Row="0" Grid.Column="0" Grid.RowSpan="3" Name="BackgroundGrid" 
+                   Background="Transparent" DragDrop.AllowDrop="True"/>
+        </Grid>
+        <Border.ContextMenu>
+            <ContextMenu>
+                <MenuItem ui:Translator.Key="DUPLICATE"
+                          Command="{xaml:Command PixiEditor.Layer.DuplicateSelectedMember}" />
+                <MenuItem ui:Translator.Key="DELETE" Command="{xaml:Command PixiEditor.Layer.DeleteAllSelected}" />
+                <MenuItem ui:Translator.Key="RENAME" Click="RenameMenuItem_Click" />
+                <controls:ToggleableMenuItem
+                    IsChecked="{Binding $parent[UserControl].Folder.ClipToMemberBelowEnabledBindable, Mode=TwoWay}"
+                    ui:Translator.Key="CLIP_TO_BELOW" />
+                <Separator />
+                <MenuItem ui:Translator.Key="MOVE_UPWARDS"
+                          Command="{xaml:Command PixiEditor.Layer.MoveSelectedMemberUpwards}" />
+                <MenuItem ui:Translator.Key="MOVE_DOWNWARDS"
+                          Command="{xaml:Command PixiEditor.Layer.MoveSelectedMemberDownwards}" />
+                <Separator />
+                <MenuItem ui:Translator.Key="CREATE_MASK" Command="{xaml:Command PixiEditor.Layer.CreateMask}" />
+                <MenuItem ui:Translator.Key="DELETE_MASK" Command="{xaml:Command PixiEditor.Layer.DeleteMask}" />
+                <controls:ToggleableMenuItem
+                    IsChecked="{Binding $parent[UserControl].Folder.MaskIsVisibleBindable, Mode=TwoWay}"
+                    IsEnabled="{Binding $parent[UserControl].Folder.HasMaskBindable}"
+                    ui:Translator.Key="ENABLE_MASK" />
+                <Separator />
+                <MenuItem ui:Translator.Key="MERGE_SELECTED" Command="{xaml:Command PixiEditor.Layer.MergeSelected}" />
+                <MenuItem ui:Translator.Key="MERGE_WITH_ABOVE" Command="{xaml:Command PixiEditor.Layer.MergeWithAbove}" />
+                <MenuItem ui:Translator.Key="MERGE_WITH_BELOW" Command="{xaml:Command PixiEditor.Layer.MergeWithBelow}" />
+            </ContextMenu>
+        </Border.ContextMenu>
+    </Border>
+</UserControl>

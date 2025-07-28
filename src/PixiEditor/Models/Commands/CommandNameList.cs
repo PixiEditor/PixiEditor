@@ -1,4 +1,6 @@
-﻿namespace PixiEditor.Models.Commands;
+﻿using System.Collections.Generic;
+
+namespace PixiEditor.Models.Commands;
 
 internal partial class CommandNameList
 {

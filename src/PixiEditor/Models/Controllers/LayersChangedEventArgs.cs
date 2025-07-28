@@ -1,4 +1,4 @@
-﻿using PixiEditor.Models.Enums;
+﻿using PixiEditor.Models.Layers;
 
 namespace PixiEditor.Models.Controllers;
 

@@ -1,0 +1,20 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:PixiEditor.ViewModels"
+             xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="viewModels:ViewModelMain"
+             x:Class="PixiEditor.Views.Main.CreateDocumentFallbackView">
+    <Design.DataContext>
+        <viewModels:ViewModelMain/>
+    </Design.DataContext>
+
+    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="48">
+        <TextBlock Classes="h1" Foreground="{DynamicResource ThemeForegroundBrush}"  ui:Translator.Key="NO_DOCUMENT_OPEN" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <TextBlock FontSize="128" Opacity="0.5" Classes="pixi-icon" Foreground="{DynamicResource ThemeForegroundBrush}"
+                   Text="{DynamicResource icon-ghost}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <Button Width="240" Background="{DynamicResource ThemeAccentBrush}" ui:Translator.Key="EMPTY_DOCUMENT_ACTION_BTN" Command="{Binding WindowSubViewModel.OpenHelloThereWindow}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    </StackPanel>
+</UserControl>

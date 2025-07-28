@@ -1,0 +1,40 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:settings="clr-namespace:PixiEditor.ViewModels.Tools.ToolSettings.Settings"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+             xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="PixiEditor.Views.Tools.ToolSettings.Settings.BoolSettingView">
+    <Design.DataContext>
+        <settings:BoolSettingViewModel />
+    </Design.DataContext>
+
+    <Grid>
+        <CheckBox VerticalAlignment="Center" Focusable="False"
+                  localization:Translator.LocalizedString="{Binding Label}"
+                  IsChecked="{Binding Value, Mode=TwoWay}">
+           <CheckBox.IsVisible>
+               <MultiBinding Converter="{converters:AllTrueConverter}">
+                   <Binding Path="HasLabel"/>
+                   <Binding Path="!HasIcon"/>
+               </MultiBinding>
+           </CheckBox.IsVisible>
+        </CheckBox>
+        <ToggleButton VerticalAlignment="Center" Focusable="False"
+                      localization:Translator.TooltipKey="{Binding Tooltip}"
+                      IsChecked="{Binding Value, Mode=TwoWay}"
+                      FontSize="18"
+                      Padding="5"
+                      Classes="pixi-icon" Content="{Binding Icon}">
+            <ToggleButton.IsVisible>
+                <MultiBinding Converter="{converters:AllTrueConverter}">
+                    <Binding Path="HasIcon"/>
+                    <Binding Path="!HasLabel"/>
+                </MultiBinding>
+            </ToggleButton.IsVisible>
+        </ToggleButton>
+    </Grid>
+</UserControl>

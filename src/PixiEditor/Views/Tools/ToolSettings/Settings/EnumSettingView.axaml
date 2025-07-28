@@ -1,0 +1,32 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:settings="clr-namespace:PixiEditor.ViewModels.Tools.ToolSettings.Settings"
+             xmlns:enums="clr-namespace:PixiEditor.ChangeableDocument.Enums;assembly=PixiEditor.ChangeableDocument"
+             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+             xmlns:helpers="clr-namespace:PixiEditor.Helpers"
+             xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="PixiEditor.Views.Tools.ToolSettings.Settings.EnumSettingView">
+    <Design.DataContext>
+        <settings:EnumSettingViewModel x:TypeArguments="enums:BlendMode" />
+    </Design.DataContext>
+    
+    <ComboBox VerticalAlignment="Center"
+              MinWidth="85"
+              SelectedIndex="{Binding Value, Mode=TwoWay}" 
+              ItemsSource="{Binding EnumValues}">
+        <ComboBox.ItemContainerTheme>
+            <ControlTheme TargetType="ComboBoxItem" BasedOn="{StaticResource {x:Type ComboBoxItem}}">
+                <Setter Property="Tag" Value="{Binding .}"/>
+                <Setter Property="(localization:Translator.Key)" Value="{Binding ., Converter={helpers:EnumDescriptionConverter}}"/>
+            </ControlTheme>
+        </ComboBox.ItemContainerTheme>
+       <ComboBox.ItemTemplate>
+           <DataTemplate>
+               <TextBlock localization:Translator.Key="{Binding ., Converter={helpers:EnumDescriptionConverter}}"/>
+           </DataTemplate>
+       </ComboBox.ItemTemplate>
+    </ComboBox>
+</UserControl>

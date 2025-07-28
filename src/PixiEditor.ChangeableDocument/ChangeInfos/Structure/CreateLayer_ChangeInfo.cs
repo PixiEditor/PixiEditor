@@ -1,11 +1,17 @@
-﻿using PixiEditor.ChangeableDocument.Enums;
+﻿using System.Collections.Immutable;
+using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
+using PixiEditor.ChangeableDocument.Enums;
 
 namespace PixiEditor.ChangeableDocument.ChangeInfos.Structure;
+
 public record class CreateLayer_ChangeInfo : CreateStructureMember_ChangeInfo
 {
     public CreateLayer_ChangeInfo(
-        Guid parentGuid,
-        int index,
+        string internalName,
         float opacity,
         bool isVisible,
         bool clipToMemberBelow,
@@ -14,27 +20,36 @@ public record class CreateLayer_ChangeInfo : CreateStructureMember_ChangeInfo
         Guid guidValue,
         bool hasMask,
         bool maskIsVisible,
-        bool lockTransparency) : base(parentGuid, index, opacity, isVisible, clipToMemberBelow, name, blendMode, guidValue, hasMask, maskIsVisible)
+        bool lockTransparency,
+        ImmutableArray<NodePropertyInfo> inputs,
+        ImmutableArray<NodePropertyInfo> outputs,
+        VecD position,
+        NodeMetadata metadata) :
+        base(internalName, opacity, isVisible, clipToMemberBelow, name, blendMode, guidValue, hasMask,
+            maskIsVisible, inputs, outputs, position, metadata)
     {
         LockTransparency = lockTransparency;
     }
 
     public bool LockTransparency { get; }
 
-    internal static CreateLayer_ChangeInfo FromLayer(Guid parentGuid, int index, Layer layer)
+    internal static CreateLayer_ChangeInfo FromLayer(LayerNode layer)
     {
         return new CreateLayer_ChangeInfo(
-            parentGuid,
-            index,
-            layer.Opacity,
-            layer.IsVisible,
-            layer.ClipToMemberBelow,
-            layer.Name,
-            layer.BlendMode,
-            layer.GuidValue,
-            layer.Mask is not null,
-            layer.MaskIsVisible,
-            layer.LockTransparency
-            );
+            layer.GetNodeTypeUniqueName(),
+            layer.Opacity.Value,
+            layer.IsVisible.Value,
+            layer.ClipToPreviousMember,
+            layer.MemberName,
+            layer.BlendMode.Value,
+            layer.Id,
+            layer.EmbeddedMask is not null,
+            layer.MaskIsVisible.Value,
+            layer is ITransparencyLockable { LockTransparency: true },
+            CreatePropertyInfos(layer.InputProperties, true, layer.Id),
+            CreatePropertyInfos(layer.OutputProperties, false, layer.Id),
+            layer.Position,
+            new NodeMetadata(layer.GetType())
+        );
     }
 }

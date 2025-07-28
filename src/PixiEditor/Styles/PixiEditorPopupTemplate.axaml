@@ -1,0 +1,83 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:PixiEditor.Views.Dialogs"
+        xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
+        xmlns:markupExtensions="clr-namespace:PixiEditor.Helpers.MarkupExtensions"
+        xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+        xmlns:platform="clr-namespace:Avalonia.Platform;assembly=Avalonia.Controls"
+        xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common">
+    <Design.PreviewWith>
+        <controls:PixiEditorPopup Width="400" Height="400" SizeToContent="Manual" />
+    </Design.PreviewWith>
+
+    <Style Selector="controls|PixiEditorPopup">
+        <Setter Property="WindowStartupLocation" Value="CenterOwner" />
+        <Setter Property="TransparencyLevelHint" Value="Transparent" />
+        <Setter Property="SystemDecorations">
+            <OnPlatform>
+                <OnPlatform.Default>
+                    <SystemDecorations>Full</SystemDecorations>
+                </OnPlatform.Default>
+                <OnPlatform.Linux>
+                    <SystemDecorations>None</SystemDecorations>
+                </OnPlatform.Linux>
+            </OnPlatform>
+        </Setter>
+        <Setter Property="ExtendClientAreaChromeHints">
+            <Setter.Value>
+                <OnPlatform>
+                    <OnPlatform.Default>
+                        <platform:ExtendClientAreaChromeHints>NoChrome</platform:ExtendClientAreaChromeHints>
+                    </OnPlatform.Default>
+                    <OnPlatform.macOS>
+                        <platform:ExtendClientAreaChromeHints>Default,NoChrome,OSXThickTitleBar</platform:ExtendClientAreaChromeHints>
+                    </OnPlatform.macOS>
+                </OnPlatform>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ExtendClientAreaToDecorationsHint" Value="True" />
+        <Setter Property="ExtendClientAreaTitleBarHeightHint" Value="36" />
+        <Setter Property="FontFamily" Value="{DynamicResource ContentControlThemeFontFamily}" />
+        <Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}" />
+        <Setter Property="FontSize" Value="{DynamicResource FontSizeNormal}" />
+        <Setter Property="ShowInTaskbar" Value="{Binding CanMinimize, RelativeSource={RelativeSource TemplatedParent}}" />
+        <Setter Property="localization:Translator.UseLanguageFlowDirection" Value="True"></Setter>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <VisualLayerManager>
+                    <Panel Name="PART_ResizePanel">
+                        <DockPanel>
+                            <controls:DialogTitleBar
+                                Name="PART_TitleBar"
+                                IsVisible="{TemplateBinding ShowTitleBar}"
+                                DockPanel.Dock="Top" 
+                                CloseCommand="{TemplateBinding CloseCommand}"
+                                CanMinimize="{TemplateBinding CanMinimize}"
+                                CanFullscreen="{TemplateBinding CanResize}"
+                                TitleKey="{TemplateBinding Title}" />
+                            <Grid Background="{DynamicResource ThemeBackgroundBrush}" Focusable="True">
+                                <Interaction.Behaviors>
+                                    <behaviours:ClearFocusOnClickBehavior />
+                                </Interaction.Behaviors>
+
+                                <!--TODO: FocusAdorner seems not to work-->
+                                <ContentPresenter DockPanel.Dock="Bottom"
+                                                  Name="PART_ContentPresenter"
+                                                  Margin="{TemplateBinding Padding}"
+                                                  HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                  VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                  Content="{TemplateBinding Content}"
+                                                  ContentTemplate="{TemplateBinding ContentTemplate}" />
+                            </Grid>
+                        </DockPanel>
+                    </Panel>
+                </VisualLayerManager>
+            </ControlTemplate>
+        </Setter>
+
+        <Style Selector="^controls|PixiEditorPopup[WindowState=Maximized] /template/ Panel">
+            <Setter Property="Margin" Value="8" />
+        </Style>
+    </Style>
+</Styles>

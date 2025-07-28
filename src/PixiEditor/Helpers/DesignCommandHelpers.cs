@@ -1,5 +1,8 @@
-﻿using System.Reflection;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using PixiEditor.Models.Commands;
+using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Exceptions;
 using CommandAttribute = PixiEditor.Models.Commands.Attributes.Commands.Command;
 
@@ -10,9 +13,9 @@ namespace PixiEditor.Helpers;
 /// </summary>
 internal static class DesignCommandHelpers
 {
-    private static IEnumerable<CommandAttribute.CommandAttribute> _commands;
+    private static IEnumerable<Command.CommandAttribute> _commands;
 
-    public static CommandAttribute.CommandAttribute GetCommandAttribute(string name)
+    public static Command.CommandAttribute GetCommandAttribute(string name)
     {
         if (_commands == null)
         {
@@ -20,7 +23,7 @@ internal static class DesignCommandHelpers
                 .GetAssembly(typeof(CommandController))
                 .GetTypes()
                 .SelectMany(x => x.GetMethods())
-                .SelectMany(x => x.GetCustomAttributes<CommandAttribute.CommandAttribute>());
+                .SelectMany(x => x.GetCustomAttributes<Command.CommandAttribute>());
         }
 
         var command = _commands.SingleOrDefault(x => x.InternalName == name || x.InternalName == $"#DEBUG#{name}");

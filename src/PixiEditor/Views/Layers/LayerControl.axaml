@@ -1,0 +1,209 @@
+﻿<UserControl x:Class="PixiEditor.Views.Layers.LayerControl"
+             x:ClassModifier="internal"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+             xmlns:helpers="clr-namespace:PixiEditor.Helpers.UI"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
+             xmlns:input="clr-namespace:PixiEditor.Views.Input"
+             xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
+             xmlns:visuals="clr-namespace:PixiEditor.Views.Visuals"
+             xmlns:input1="clr-namespace:PixiEditor.Views.Input;assembly=PixiEditor.UI.Common"
+             xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
+             mc:Ignorable="d"
+             Focusable="True"
+             d:DesignHeight="35" d:DesignWidth="250" Name="uc"
+             PointerExited="LayerItem_OnMouseLeave" PointerEntered="LayerItem_OnMouseEnter">
+    <UserControl.Resources>
+        <converters:BoolToBrushConverter x:Key="LayerBorderConverter" FalseBrush="White" TrueBrush="Black" />
+        <converters:BoolToBrushConverter x:Key="MaskBorderConverter" FalseBrush="Black" TrueBrush="White" />
+    </UserControl.Resources>
+    <Border BorderThickness="0 0 0 0.5" BorderBrush="Gray" MinWidth="60" Focusable="True"
+            Tag="{Binding ElementName=uc}">
+        <Border.Background>
+            <Binding ElementName="uc" Path="Layer.Selection">
+                <Binding.Converter>
+                    <converters:StructureMemberSelectionTypeToColorConverter
+                        SoftColor="{StaticResource SoftSelectedLayerBrush}"
+                        HardColor="{StaticResource SelectedLayerBrush}"
+                        NoneColor="Transparent" />
+                </Binding.Converter>
+            </Binding>
+        </Border.Background>
+        <Interaction.Behaviors>
+            <behaviours:ClearFocusOnClickBehavior />
+        </Interaction.Behaviors>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="10" />
+                <RowDefinition Height="26" />
+            </Grid.RowDefinitions>
+            <Panel Grid.ColumnSpan="2" Grid.RowSpan="2" Name="BackgroundGrid" Background="Transparent" DragDrop.AllowDrop="True"/>
+            <Grid DragDrop.AllowDrop="True"
+                  Name="TopGrid"
+                  Grid.Row="0" Grid.ColumnSpan="3" Background="Transparent" />
+            <Grid Grid.Row="1" Margin="0,-17,0,0" VerticalAlignment="Center" DragDrop.AllowDrop="False">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="24" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <CheckBox Classes="ImageCheckBox" VerticalAlignment="Center"
+                          IsThreeState="False" HorizontalAlignment="Center"
+                          IsChecked="{Binding Path=Layer.IsVisibleBindable, ElementName=uc, Mode=TwoWay}"
+                          Grid.Column="0" Height="16" />
+                <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Left">
+                    <Rectangle
+                        Width="{Binding Path=(helpers:TreeViewItemHelper.Indent).Value, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ItemsPresenter}}"
+                        Fill="Transparent" StrokeThickness="0" />
+                    <Border
+                        IsVisible="{Binding Layer.ClipToMemberBelowEnabledBindable, ElementName=uc}"
+                        Background="{DynamicResource ThemeAccentBrush}" Width="3" Margin="1,1,2,1" CornerRadius="1" />
+                    <Border
+                        Width="32" Height="32"
+                        BorderThickness="1"
+                        RenderOptions.BitmapInterpolationMode="None"
+                        PointerPressed="LayerMouseDown">
+                        <Border.Background>
+                            <ImageBrush Source="/Images/CheckerTile.png" TileMode="Tile">
+                                <ImageBrush.Transform>
+                                    <ScaleTransform ScaleX="0.4" ScaleY="0.4" />
+                                </ImageBrush.Transform>
+                            </ImageBrush>
+                        </Border.Background>
+                        <Border.BorderBrush>
+                            <MultiBinding Converter="{StaticResource LayerBorderConverter}">
+                                <Binding ElementName="uc" Path="Layer.ShouldDrawOnMask" />
+                                <Binding ElementName="uc" Path="Layer.HasMaskBindable" />
+                            </MultiBinding>
+                        </Border.BorderBrush>
+                        <visuals:PreviewPainterControl 
+                            ClipToBounds="True" 
+                            PreviewPainter="{Binding Layer.PreviewPainter, ElementName=uc}"
+                            FrameToRender="{Binding Manager.ActiveDocument.AnimationDataViewModel.ActiveFrameBindable, ElementName=uc}"
+                            Width="30" Height="30"
+                            RenderOptions.BitmapInterpolationMode="None" IsHitTestVisible="False" />
+                    </Border>
+                    <Border
+                        Width="32" Height="32"
+                        BorderThickness="1"
+                        Margin="3,0,0,0"
+                        RenderOptions.BitmapInterpolationMode="None"
+                        IsVisible="{Binding Layer.HasMaskBindable, ElementName=uc}"
+                        PointerPressed="MaskMouseDown">
+                        <Border.Background>
+                            <ImageBrush Source="/Images/CheckerTile.png" TileMode="Tile">
+                                <ImageBrush.Transform>
+                                    <ScaleTransform ScaleX="0.4" ScaleY="0.4" />
+                                </ImageBrush.Transform>
+                            </ImageBrush>
+                        </Border.Background>
+                        <Border.BorderBrush>
+                            <MultiBinding Converter="{StaticResource MaskBorderConverter}">
+                                <Binding ElementName="uc" Path="Layer.ShouldDrawOnMask" />
+                            </MultiBinding>
+                        </Border.BorderBrush>
+                        <Grid IsHitTestVisible="False">
+                             <visuals:PreviewPainterControl 
+                                    PreviewPainter="{Binding Layer.MaskPreviewPainter, ElementName=uc}" 
+                                    Width="30" Height="30"
+                                    ClipToBounds="True"
+                                    FrameToRender="{Binding Path=Manager.ActiveDocument.AnimationDataViewModel.ActiveFrameBindable, ElementName=uc}"
+                                    RenderOptions.BitmapInterpolationMode="None" IsHitTestVisible="False"/>
+                            <Path
+                                Data="M 2 0 L 10 8 L 18 0 L 20 2 L 12 10 L 20 18 L 18 20 L 10 12 L 2 20 L 0 18 L 8 10 L 0 2 Z"
+                                Fill="{DynamicResource ThemeAccentBrush}" HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                IsVisible="{Binding !Layer.MaskIsVisibleBindable, ElementName=uc}" />
+                        </Grid>
+                    </Border>
+                    <StackPanel Margin="3,0,5,0">
+                        <input:EditableTextBlock
+                            x:Name="editableTextBlock"
+                            VerticalAlignment="Center"
+                            d:Text="New Layer" FontSize="14"
+                            Text="{Binding Layer.NodeNameBindable, ElementName=uc, Mode=TwoWay}" />
+                        <!--Don't change above Text to Translator.Key, it will break renaming-->
+
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock d:Text="100" Foreground="White" FontSize="11">
+                                <TextBlock.Text>
+                                    <Binding ElementName="uc" Path="Layer.OpacityBindable"
+                                             Converter="{converters:MultiplyConverter}" StringFormat="N0">
+                                        <Binding.ConverterParameter>
+                                            <sys:Double>100.0</sys:Double>
+                                        </Binding.ConverterParameter>
+                                    </Binding>
+                                </TextBlock.Text>
+                            </TextBlock>
+                            <TextBlock Foreground="White" FontSize="11">%</TextBlock>
+                            <TextBlock FontSize="11"
+                                       Margin="5,0,0,0"
+                                       d:Text="Normal"
+                                       Foreground="White"
+                                       Text="{Binding Layer.BlendModeBindable, ElementName=uc, Converter={converters:BlendModeToStringConverter}}" />
+                        </StackPanel>
+                    </StackPanel>
+                    <WrapPanel Orientation="Vertical" Margin="0,3,3,3">
+                        <TextBlock
+                            Text="{DynamicResource icon-alpha-lock}" FontSize="14" Width="14" Height="14"
+                            Classes="pixi-icon"
+                            IsVisible="{Binding Layer.LockTransparencyBindable, ElementName=uc}" />
+                    </WrapPanel>
+                </StackPanel>
+                <Grid Margin="0, 0, 0, -2.5"
+                      VerticalAlignment="Bottom"
+                      Height="10" Grid.Row="2" Grid.Column="0"
+                      DragDrop.AllowDrop="True" Background="Transparent" Name="dropBelowGrid" />
+                <Grid Margin="0, 0, 0, -2.5"
+                      VerticalAlignment="Bottom"
+                      Height="10" Grid.Row="2"
+                      Grid.Column="1"
+                      Background="{Binding ElementName=dropBelowGrid, Path=Background}" />
+
+                <Grid Margin="0, 0, 0, -2.5" VerticalAlignment="Bottom"
+                      Height="10" Grid.Row="2" Grid.Column="2"
+                      Name="thirdDropGrid"
+                      DragDrop.AllowDrop="True" Background="Transparent" />
+            </Grid>
+        </Grid>
+        <Border.ContextMenu>
+            <ContextMenu>
+                <MenuItem ui:Translator.Key="DUPLICATE"
+                          Command="{xaml:Command PixiEditor.Layer.DuplicateSelectedMember}" />
+                <MenuItem ui:Translator.Key="DELETE" Command="{xaml:Command PixiEditor.Layer.DeleteAllSelected}" />
+                <MenuItem ui:Translator.Key="RENAME" Click="RenameMenuItem_Click" />
+                <controls:ToggleableMenuItem
+                    IsChecked="{Binding $parent[UserControl].Layer.ClipToMemberBelowEnabledBindable, Mode=TwoWay}"
+                    ui:Translator.Key="CLIP_TO_BELOW" />
+                <controls:ToggleableMenuItem
+                    IsChecked="{Binding $parent[UserControl].Layer.LockTransparencyBindable, Mode=TwoWay}"
+                    ui:Translator.Key="LOCK_TRANSPARENCY" />
+                <Separator />
+                <MenuItem ui:Translator.Key="MOVE_UPWARDS"
+                          Command="{xaml:Command PixiEditor.Layer.MoveSelectedMemberUpwards}" />
+                <MenuItem ui:Translator.Key="MOVE_DOWNWARDS"
+                          Command="{xaml:Command PixiEditor.Layer.MoveSelectedMemberDownwards}" />
+                <Separator />
+                <MenuItem ui:Translator.Key="CREATE_MASK" Command="{xaml:Command PixiEditor.Layer.CreateMask}" />
+                <MenuItem ui:Translator.Key="DELETE_MASK" Command="{xaml:Command PixiEditor.Layer.DeleteMask}" />
+                <controls:ToggleableMenuItem
+                    IsChecked="{Binding $parent[UserControl].Layer.MaskIsVisibleBindable, Mode=TwoWay}"
+                    IsEnabled="{Binding $parent[UserControl].Layer.HasMaskBindable}"
+                    ui:Translator.Key="ENABLE_MASK" />
+                <MenuItem ui:Translator.Key="APPLY_MASK" Command="{xaml:Command PixiEditor.Layer.ApplyMask}" />
+                <Separator />
+                <MenuItem ui:Translator.Key="MERGE_SELECTED" Command="{xaml:Command PixiEditor.Layer.MergeSelected}" />
+                <MenuItem ui:Translator.Key="MERGE_WITH_ABOVE" Command="{xaml:Command PixiEditor.Layer.MergeWithAbove}" />
+                <MenuItem ui:Translator.Key="MERGE_WITH_BELOW" Command="{xaml:Command PixiEditor.Layer.MergeWithBelow}" />
+                <Separator />
+                <MenuItem ui:Translator.Key="RASTERIZE" Command="{xaml:Command PixiEditor.Layer.Rasterize}" />
+                <MenuItem ui:Translator.Key="CONVERT_TO_CURVE" Command="{xaml:Command PixiEditor.Layer.ConvertToCurve}" />
+                <MenuItem ui:Translator.Key="SEPARATE_SHAPES" Command="{xaml:Command PixiEditor.Layer.SeparateShapes}" />
+            </ContextMenu>
+        </Border.ContextMenu>
+    </Border>
+</UserControl>

@@ -1,7 +1,0 @@
-﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
-    <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="/PixiEditor;component/Styles/AvalonDock/DarkBrushes.xaml" />
-        <ResourceDictionary Source="/PixiEditor;component/Styles/AvalonDock/Themes/Generic.xaml" />
-    </ResourceDictionary.MergedDictionaries>
-
-</ResourceDictionary>

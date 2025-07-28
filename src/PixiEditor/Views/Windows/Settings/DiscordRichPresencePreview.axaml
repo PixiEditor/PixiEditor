@@ -1,0 +1,81 @@
+﻿<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+    mc:Ignorable="d"
+    d:DesignWidth="300"
+    x:Class="PixiEditor.Views.Windows.Settings.DiscordRichPresencePreview"
+    Name="uc">
+    <Grid>
+        <Border CornerRadius="5" Background="#292b2f" x:Name="OutsideBorder">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Grid>
+                    <Border CornerRadius="5,5,0,0" Background="#e3042c" Height="60" VerticalAlignment="Top"/>
+                    <StackPanel>
+                        <Border HorizontalAlignment="Left" Width="85" Height="85" Margin="15" BorderThickness="6" BorderBrush="#292b2f" CornerRadius="90">
+                            <Grid>
+                                <Image Source="{Binding #uc.UserSource, Converter={converters:ImagePathToBitmapConverter}}"/>
+                                <Border Height="30" Width="30" Background="#FF43B581" CornerRadius="90" BorderThickness="6" BorderBrush="#292b2f">
+                                    <Border.RenderTransform>
+                                        <TransformGroup>
+                                            <TranslateTransform X="27" Y="27" />
+                                        </TransformGroup>
+                                    </Border.RenderTransform>
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+                <Border Grid.Row="1" Background="#18191C" Margin="10,10" CornerRadius="5" Padding="10">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0">
+                            <TextBlock Foreground="White" FontWeight="DemiBold" FontSize="22">PixiBot</TextBlock>
+                            <TextBlock Foreground="White" FontWeight="DemiBold" FontSize="22">#8523</TextBlock>
+                            <Border CornerRadius="3" BorderThickness="1" Background="#5865f2" Margin="5,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Foreground="White" FontSize="10" Margin="4,2,4,2" FontWeight="Medium">BOT</TextBlock>
+                            </Border>
+                        </StackPanel>
+                        <Grid Margin="0,5">
+                            <StackPanel Orientation="Vertical">
+                                <Grid Margin="0,15" Background="#262729" Height="2"/>
+                                <TextBlock FontWeight="Bold" FontSize="12" Foreground="White" Margin="0,0,0,10" Text="ABOUT ME"/>
+                                <TextBlock Foreground="White" Text="Use me to display your .pixi files in Discord. &#10;Start by sending a file in any appropriate channel" />
+                            </StackPanel>
+                        </Grid>
+                        <Grid Margin="0,5">
+                            <StackPanel Orientation="Vertical">
+                                <TextBlock FontWeight="Bold" Foreground="White" Margin="0,0,0,10" Text="DISCORD MEMBER SINCE"/>
+                                <TextBlock Foreground="White" Text="Oct 29, 2020" />
+                            </StackPanel>
+                        </Grid>
+                        <Grid IsVisible="{Binding #uc.IsPlaying}" Margin="0,5, 0, 0">
+                            <StackPanel Orientation="Vertical">
+                                <TextBlock FontWeight="Bold" FontSize="12" Foreground="White" Margin="0,0,0,10" Text="PLAYING A GAME"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <Svg Path="/Images/PixiEditorLogo.svg" Height="60" Width="60"/>
+                                    <StackPanel Margin="15,0,0,0" VerticalAlignment="Center">
+                                        <TextBlock Foreground="White" FontSize="12" FontWeight="SemiBold">PixiEditor</TextBlock>
+                                        <TextBlock Foreground="White" FontSize="12" 
+                                                   Text="{Binding #uc.Detail}" 
+                                                   IsVisible="{Binding #uc.Detail, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                                        <TextBlock Foreground="White" FontSize="12" 
+                                                   Text="{Binding ElementName=uc, Path=State}" 
+                                                   IsVisible="{Binding #uc.State, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                                        <TextBlock Foreground="White" FontSize="12" Text="00:00 elapsed"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

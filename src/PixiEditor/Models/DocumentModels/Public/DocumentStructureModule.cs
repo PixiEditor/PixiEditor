@@ -1,127 +1,276 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using PixiEditor.Parser;
-using PixiEditor.ViewModels.SubViewModels.Document;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.Models.Handlers;
 
 namespace PixiEditor.Models.DocumentModels.Public;
 #nullable enable
 internal class DocumentStructureModule
 {
-    private readonly DocumentViewModel doc;
-    public DocumentStructureModule(DocumentViewModel owner)
+    private readonly IDocument doc;
+
+    public DocumentStructureModule(IDocument owner)
     {
         this.doc = owner;
     }
 
-    public StructureMemberViewModel FindOrThrow(Guid guid) => Find(guid) ?? throw new ArgumentException("Could not find member with guid " + guid.ToString());
-    public StructureMemberViewModel? Find(Guid guid)
+    public IStructureMemberHandler FindOrThrow(Guid guid) => Find(guid) ??
+                                                             throw new ArgumentException(
+                                                                 "Could not find member with guid " + guid.ToString());
+
+    public IStructureMemberHandler? Find(Guid guid)
     {
-        List<StructureMemberViewModel>? list = FindPath(guid);
-        return list.Count > 0 ? list[0] : null;
+        return FindNode<IStructureMemberHandler>(guid);
     }
 
-    public StructureMemberViewModel? FindFirstWhere(Predicate<StructureMemberViewModel> predicate)
+    public T? FindNode<T>(Guid guid) where T : class, INodeHandler
     {
-        return FindFirstWhere(predicate, doc.StructureRoot);
+        return doc.NodeGraphHandler.AllNodes.FirstOrDefault(x => x.Id == guid && x is T) as T;
     }
-    private StructureMemberViewModel? FindFirstWhere(Predicate<StructureMemberViewModel> predicate, FolderViewModel folderVM)
+
+    public bool TryFindNode<T>(Guid guid, out T found) where T : class, INodeHandler
     {
-        foreach (StructureMemberViewModel? child in folderVM.Children)
+        found = FindNode<T>(guid);
+        return found != null;
+    }
+
+    public Guid FindClosestMember(IReadOnlyList<Guid> guids)
+    {
+        IStructureMemberHandler? firstNode = FindNode<IStructureMemberHandler>(guids[0]);
+        if (firstNode is null)
+            return Guid.Empty;
+
+        INodeHandler? parent = null;
+
+        firstNode.TraverseForwards(traversedNode =>
         {
-            if (predicate(child))
-                return child;
-            if (child is FolderViewModel innerFolderVM)
+            if (!guids.Contains(traversedNode.Id) && traversedNode is IStructureMemberHandler)
             {
-                StructureMemberViewModel? result = FindFirstWhere(predicate, innerFolderVM);
-                if (result is not null)
-                    return result;
+                parent = traversedNode;
+                return false;
             }
-        }
-        return null;
-    }
 
-    public (StructureMemberViewModel?, FolderViewModel?) FindChildAndParent(Guid childGuid)
-    {
-        List<StructureMemberViewModel>? path = FindPath(childGuid);
-        return path.Count switch
+            return true;
+        });
+
+        if (parent is null)
         {
-            0 => (null, null),
-            1 => (path[0], null),
-            >= 2 => (path[0], (FolderViewModel)path[1]),
-            _ => (null, null),
-        }; 
+            var lastNode = FindNode<IStructureMemberHandler>(guids[^1]);
+            if (lastNode is null)
+                return Guid.Empty;
+
+            lastNode.TraverseBackwards(traversedNode =>
+            {
+                if (!guids.Contains(traversedNode.Id) && traversedNode is IStructureMemberHandler)
+                {
+                    parent = traversedNode;
+                    return false;
+                }
+
+                return true;
+            });
+        }
+
+        if (parent is null)
+            return Guid.Empty;
+
+        return parent.Id;
     }
 
-    public (StructureMemberViewModel, FolderViewModel) FindChildAndParentOrThrow(Guid childGuid)
+    public INodeHandler? FindFirstWhere(Predicate<INodeHandler> predicate)
     {
-        List<StructureMemberViewModel>? path = FindPath(childGuid);
+        return FindFirstWhere(predicate, doc.NodeGraphHandler);
+    }
+
+    private INodeHandler? FindFirstWhere(
+        Predicate<INodeHandler> predicate,
+        INodeGraphHandler graphVM)
+    {
+        INodeHandler? result = null;
+        graphVM.TryTraverse(node =>
+        {
+            if (predicate(node))
+            {
+                result = node;
+                return false;
+            }
+
+            return true;
+        });
+
+        return result;
+    }
+
+    public List<IStructureMemberHandler> GetParents(Guid child)
+    {
+        var childNode = FindNode<IStructureMemberHandler>(child);
+        if (childNode == null)
+            return new List<IStructureMemberHandler>();
+
+        List<IStructureMemberHandler> parents = new List<IStructureMemberHandler>();
+        childNode.TraverseForwards((node, previous, output, input) =>
+        {
+            if (node is IStructureMemberHandler parent && input is { PropertyName: FolderNode.ContentInternalName })
+                parents.Add(parent);
+            return true;
+        });
+
+        return parents;
+    }
+
+    public (IStructureMemberHandler, IFolderHandler) FindChildAndParentOrThrow(Guid childGuid)
+    {
+        List<IStructureMemberHandler>? path = FindPath(childGuid);
         if (path.Count < 2)
             throw new ArgumentException("Couldn't find child and parent");
-        return (path[0], (FolderViewModel)path[1]);
+        return (path[0], (IFolderHandler)path[1]);
     }
-    public List<StructureMemberViewModel> FindPath(Guid guid)
+
+    public List<IStructureMemberHandler> FindPath(Guid guid)
     {
-        List<StructureMemberViewModel>? list = new List<StructureMemberViewModel>();
-        if (FillPath(doc.StructureRoot, guid, list))
-            list.Add(doc.StructureRoot);
-        return list;
+        List<INodeHandler>? list = new List<INodeHandler>();
+        var targetNode = FindNode<INodeHandler>(guid);
+        if (targetNode == null) return [];
+        FillPath(targetNode, list);
+        return list.Cast<IStructureMemberHandler>().ToList();
     }
-    
+
     /// <summary>
     ///     Returns all layers in the document.
     /// </summary>
-    /// <returns>List of LayerViewModels. Empty if no layers found.</returns>
-    public List<LayerViewModel> GetAllLayers()
+    /// <returns>List of ILayerHandlers. Empty if no layers found.</returns>
+    public List<ILayerHandler> GetAllLayers()
     {
-        List<LayerViewModel> layers = new List<LayerViewModel>();
-        foreach (StructureMemberViewModel? member in doc.StructureRoot.Children)
+        List<ILayerHandler> layers = new List<ILayerHandler>();
+
+        doc.NodeGraphHandler.TryTraverse(node =>
         {
-            if (member is LayerViewModel layer)
+            if (node is ILayerHandler layer)
                 layers.Add(layer);
-            else if (member is FolderViewModel folder)
-                layers.AddRange(GetAllLayers(folder, layers));
-        }
-        
-        return layers;
-    }
-    
-    private List<LayerViewModel> GetAllLayers(FolderViewModel folder, List<LayerViewModel> layers)
-    {
-        foreach (StructureMemberViewModel? member in folder.Children)
-        {
-            if (member is LayerViewModel layer)
-                layers.Add(layer);
-            else if (member is FolderViewModel innerFolder)
-                layers.AddRange(GetAllLayers(innerFolder, layers));
-        }
+            return true;
+        });
+
         return layers;
     }
 
-    private bool FillPath(FolderViewModel folder, Guid guid, List<StructureMemberViewModel> toFill)
+    public List<IStructureMemberHandler> TraverseAllMembers()
     {
-        if (folder.GuidValue == guid)
+        List<IStructureMemberHandler> members = new List<IStructureMemberHandler>();
+
+        doc.NodeGraphHandler.TryTraverse(node =>
         {
+            if (node is IStructureMemberHandler member)
+                members.Add(member);
             return true;
-        }
-        foreach (StructureMemberViewModel? member in folder.Children)
+        });
+
+        return members;
+    }
+
+    public List<IStructureMemberHandler> GetAllMembers()
+    {
+        List<IStructureMemberHandler> members = new List<IStructureMemberHandler>();
+
+        foreach (INodeHandler node in doc.NodeGraphHandler.AllNodes)
         {
-            if (member is LayerViewModel childLayer && childLayer.GuidValue == guid)
-            {
-                toFill.Add(member);
-                return true;
-            }
-            if (member is FolderViewModel childFolder)
-            {
-                if (FillPath(childFolder, guid, toFill))
-                {
-                    toFill.Add(childFolder);
-                    return true;
-                }
-            }
+            if (node is IStructureMemberHandler member)
+                members.Add(member);
         }
-        return false;
+
+        return members;
+    }
+
+    private void FillPath(INodeHandler node, List<INodeHandler> toFill)
+    {
+        node.TraverseForwards(newNode =>
+        {
+            if (newNode is IStructureMemberHandler strNode)
+            {
+                toFill.Add(strNode);
+            }
+
+            return true;
+        });
+    }
+
+    public INodeHandler? GetFirstForwardNode(INodeHandler startNode)
+    {
+        INodeHandler? result = null;
+        startNode.TraverseForwards(node =>
+        {
+            if (node == startNode)
+                return true;
+
+            result = node;
+            return false;
+        });
+
+        return result;
+    }
+
+    public IStructureMemberHandler? GetAboveMember(Guid memberId, bool includeFolders)
+    {
+        INodeHandler member = FindNode<INodeHandler>(memberId);
+        if (member == null)
+            return null;
+
+        IStructureMemberHandler? result = null;
+        member.TraverseForwards(node =>
+        {
+            if (node != member && node is IStructureMemberHandler structureMemberNode)
+            {
+                if (node is IFolderHandler && !includeFolders)
+                    return true;
+
+                result = structureMemberNode;
+                return false;
+            }
+
+            return true;
+        });
+
+        return result;
+    }
+
+    public IStructureMemberHandler? GetBelowMember(Guid memberId, bool includeFolders)
+    {
+        INodeHandler member = FindNode<INodeHandler>(memberId);
+        if (member == null)
+            return null;
+
+        IStructureMemberHandler? result = null;
+        member.TraverseBackwards(node =>
+        {
+            if (node != member && node is IStructureMemberHandler structureMemberNode)
+            {
+                if (node is IFolderHandler && !includeFolders)
+                    return true;
+
+                result = structureMemberNode;
+                return false;
+            }
+
+            return true;
+        });
+
+        return result;
+    }
+
+    public List<IStructureMemberHandler> GetFolderChildren(Guid folderId)
+    {
+        List<IStructureMemberHandler> children = new List<IStructureMemberHandler>();
+
+        INodeHandler folder = FindNode<INodeHandler>(folderId);
+        var connectionInput = folder?.Inputs.FirstOrDefault(x => x.PropertyName == FolderNode.ContentInternalName);
+        if (folder == null || connectionInput?.ConnectedOutput == null)
+            return children;
+
+        connectionInput.ConnectedOutput.Node.TraverseBackwards(node =>
+        {
+            if (node is IStructureMemberHandler structureMemberNode)
+                children.Add(structureMemberNode);
+
+            return true;
+        });
+
+        return children;
     }
 }

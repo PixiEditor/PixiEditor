@@ -1,0 +1,37 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:tools="clr-namespace:PixiEditor.ViewModels.Tools"
+             xmlns:tools1="clr-namespace:PixiEditor.Views.Main.Tools"
+             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+             xmlns:system="clr-namespace:System;assembly=System.Runtime"
+             xmlns:viewModels="clr-namespace:PixiEditor.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             ClipToBounds="False"
+             x:Class="PixiEditor.Views.Main.Tools.ToolsPicker" Name="picker">
+    <Border
+        ClipToBounds="True"
+        Cursor="Arrow" Width="48"
+        BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+        CornerRadius="{DynamicResource ControlCornerRadius}"
+        Padding="0, 5"
+        BorderThickness="{DynamicResource ThemeBorderThickness}"
+        Background="{DynamicResource ThemeBackgroundBrush1}">
+        <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding ElementName=picker, Path=ToolSet.Tools}" Padding="0 2">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="tools:ToolViewModel">
+                        <tools1:ToolPickerButton DataContext="{Binding}"
+                                                 IsSelected="{Binding IsActive}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Vertical" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+        </ScrollViewer>
+    </Border>
+</UserControl>

@@ -1,0 +1,28 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:document="clr-namespace:PixiEditor.ViewModels.Document"
+             xmlns:dock="clr-namespace:PixiEditor.ViewModels.Dock"
+             xmlns:animations="clr-namespace:PixiEditor.Views.Animations"
+             xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="dock:TimelineDockViewModel"
+             x:Class="PixiEditor.Views.Dock.TimelineDockView">
+    <Design.DataContext>
+        <dock:TimelineDockViewModel />
+    </Design.DataContext>
+    <animations:Timeline 
+        KeyFrames="{Binding DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.KeyFrames}" 
+        ActiveFrame="{Binding DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.ActiveFrameBindable, Mode=TwoWay}"
+        NewKeyFrameCommand="{xaml:Command PixiEditor.Animation.CreateCel}"
+        Fps="{Binding DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.FrameRateBindable, Mode=TwoWay}"
+        DefaultEndFrame="{Binding DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.DefaultEndFrameBindable, Mode=TwoWay}"
+        OnionSkinningEnabled="{Binding DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.OnionSkinningEnabledBindable, Mode=TwoWay}"
+        OnionFrames="{Binding DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.OnionFramesBindable, Mode=TwoWay}"
+        OnionOpacity="{Binding DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.OnionOpacityBindable, Mode=TwoWay}"
+        IsPlaying="{Binding DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.IsPlayingBindable, Mode=TwoWay}"
+        DuplicateKeyFrameCommand="{xaml:Command PixiEditor.Animation.DuplicateCel}"
+        DeleteKeyFrameCommand="{xaml:Command PixiEditor.Animation.DeleteCels, UseProvided=True}"
+        ChangeKeyFramesLengthCommand="{xaml:Command PixiEditor.Animation.ChangeKeyFramesStartPos, UseProvided=True}"/>
+</UserControl>

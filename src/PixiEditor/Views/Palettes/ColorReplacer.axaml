@@ -1,0 +1,62 @@
+﻿<UserControl x:Class="PixiEditor.Views.Palettes.ColorReplacer"
+             x:ClassModifier="internal"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+             xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
+             xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker.AvaloniaUI"
+             xmlns:palettes="clr-namespace:PixiEditor.Views.Palettes"
+             xmlns:ui1="clr-namespace:PixiEditor.Helpers.UI"
+             xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
+             Name="uc">
+    <UserControl.Styles>
+        <Style Selector="TextBlock#arrow[FlowDirection=RightToLeft]">
+            <Setter Property="RenderTransform">
+                <RotateTransform Angle="180"/>
+            </Setter>
+        </Style>
+    </UserControl.Styles>
+    <Border BorderBrush="{DynamicResource ThemeBorderMidColor}"
+            Background="{DynamicResource ThemeBackgroundColor}"
+            BorderThickness="0 2 0 0" MinWidth="60" Focusable="True">
+        <Interaction.Behaviors>
+            <behaviours:ClearFocusOnClickBehavior/>
+        </Interaction.Behaviors>
+        <Grid>
+            <Grid Grid.Row="0"  VerticalAlignment="Center">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid Grid.ColumnSpan="2" Grid.RowSpan="2">
+                    <Grid IsVisible="{Binding ElementName=VisibilityCheckbox, Path=!IsChecked}"  Background="Transparent"/>
+                </Grid>
+                <controls:Shelf Name="Shelf">
+                <StackPanel Name="MiddleStackPanel" Height="40" Orientation="Horizontal" HorizontalAlignment="Center">
+                    <palettes:PaletteColorControl Color="{Binding ElementName=uc, Path=ColorToReplace}"
+                                               Height="35"
+                                               Width="35"
+                                               ui:Translator.TooltipKey="REPLACER_TOOLTIP"
+                                               Name="DropTarget"
+                                               DragDrop.AllowDrop="True" />
+                    <TextBlock Name="arrow" VerticalAlignment="Center" Text="{DynamicResource icon-arrow-right}" Classes="pixi-icon" 
+                               FontSize="24" Margin="10 0" ui:Translator.UseLanguageFlowDirection="True"/>
+                    <colorPicker:PortableColorPicker
+                        UseHintColor="True"
+                        EnableGradientsTab="False"
+                        SelectedColor="{Binding ElementName=uc, Path=NewColor, Mode=TwoWay}"
+                        HintColor="{Binding ElementName=uc, Path=HintColor}"
+                        Height="37"
+                        Width="37" Focusable="False" Margin="0 0 10 0"
+                        ui:Translator.TooltipKey="CLICK_TO_CHOOSE_COLOR"
+                        ShowAlpha="False"/>
+                    <Button Click="ReplaceButton_OnClick" ui:Translator.TooltipKey="REPLACE_COLOR"
+                            Classes="pixi-icon" 
+                            Content="{DynamicResource icon-swap}"
+                            Cursor="Hand" 
+                            Height="24" Width="24"/>
+                </StackPanel>
+                </controls:Shelf>
+            </Grid>
+        </Grid>
+    </Border>
+</UserControl>

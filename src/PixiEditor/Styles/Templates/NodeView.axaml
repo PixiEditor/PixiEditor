@@ -1,0 +1,82 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:nodes="clr-namespace:PixiEditor.Views.Nodes"
+                    xmlns:visuals="clr-namespace:PixiEditor.Views.Visuals"
+                    xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+                    >
+    <ControlTheme TargetType="nodes:NodeView" x:Key="{x:Type nodes:NodeView}">
+        <Setter Property="Background" Value="{DynamicResource ThemeControlMidBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderMidBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
+        <Setter Property="Padding" Value="5" />
+        <Setter Property="ClipToBounds" Value="False" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="{TemplateBinding CornerRadius}"
+                        MinWidth="200"
+                        Margin="{TemplateBinding Margin}"
+                        Name="RootBorder">
+                    <Border.Effect>
+                        <DropShadowEffect Opacity="0.5" BlurRadius="25"></DropShadowEffect>
+                    </Border.Effect>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Border Padding="{TemplateBinding Padding}" Grid.ColumnSpan="3" Grid.Row="0"
+                                CornerRadius="4.5, 4.5, 0 ,0"
+                                Background="{TemplateBinding CategoryBackgroundBrush}">
+                            <TextBlock FontWeight="Bold">
+                                <Run Classes="pixi-icon" BaselineAlignment="Center" Text="{TemplateBinding Icon}" />
+                                <Run BaselineAlignment="Center" ui:Translator.Key="{TemplateBinding DisplayName}" />
+                            </TextBlock>
+                        </Border>
+                        <Border Grid.Row="1" Background="{DynamicResource ThemeControlMidBrush}">
+                            <StackPanel>
+                                <ItemsControl Name="PART_Outputs" ItemsSource="{TemplateBinding Outputs}"
+                                              ClipToBounds="False">
+                                    <ItemsControl.ItemContainerTheme>
+                                        <ControlTheme TargetType="ContentPresenter">
+                                            <Setter Property="DataContext" Value="." />
+                                        </ControlTheme>
+                                    </ItemsControl.ItemContainerTheme>
+                                </ItemsControl>
+                                <ItemsControl Name="PART_Inputs" ItemsSource="{TemplateBinding Inputs}" ClipToBounds="False">
+                                    <ItemsControl.ItemContainerTheme>
+                                        <ControlTheme TargetType="ContentPresenter">
+                                            <Setter Property="DataContext" Value="." />
+                                        </ControlTheme>
+                                    </ItemsControl.ItemContainerTheme>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+                        <Border IsVisible="{Binding CanRenderPreview, RelativeSource={RelativeSource TemplatedParent}, FallbackValue=False}"
+                                CornerRadius="0, 0, 4.5, 4.5" Grid.Row="2" ClipToBounds="True">
+                            <Panel RenderOptions.BitmapInterpolationMode="None" Width="200" Height="200">
+                                <Panel.Background>
+                                    <ImageBrush Source="/Images/CheckerTile.png"
+                                                TileMode="Tile" DestinationRect="0, 0, 25, 25" />
+                                </Panel.Background>
+                                <visuals:PreviewPainterControl
+                                    PreviewPainter="{TemplateBinding ResultPreview}"
+                                    FrameToRender="{TemplateBinding ActiveFrame}"
+                                    RenderOptions.BitmapInterpolationMode="None">
+                                </visuals:PreviewPainterControl>
+                            </Panel>
+                        </Border>
+                    </Grid>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+
+        <Style Selector="^:selected /template/ Border#RootBorder">
+            <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccent2Brush}" />
+        </Style>
+    </ControlTheme>
+</ResourceDictionary>

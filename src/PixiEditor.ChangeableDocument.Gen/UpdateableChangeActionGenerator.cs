@@ -1,4 +1,6 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using System.Linq;
+using System.Threading;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 
@@ -12,7 +14,7 @@ public class UpdateableChangeActionGenerator : IIncrementalGenerator
     private static NamespacedType constructorAttributeType = new NamespacedType(ConstructorAttribute, AttributesNamespace);
     private static NamespacedType updateMethodAttributeType = new NamespacedType(UpdateMethodAttribute, AttributesNamespace);
 
-    private static Result<(IMethodSymbol, IMethodSymbol, ClassDeclarationSyntax)>? TransformSyntax
+    private static Result<(IMethodSymbol, IMethodSymbol, ClassDeclarationSyntax, bool)>? TransformSyntax
         (GeneratorSyntaxContext context, CancellationToken cancelToken)
     {
         ClassDeclarationSyntax containingClass;
@@ -33,9 +35,11 @@ public class UpdateableChangeActionGenerator : IIncrementalGenerator
         var classSymbol = (INamedTypeSymbol)context.SemanticModel.GetDeclaredSymbol(containingClass)!;
         if (!Helpers.IsInheritedFrom(classSymbol, new("UpdateableChange", "PixiEditor.ChangeableDocument.Changes")))
         {
-            return Result<(IMethodSymbol, IMethodSymbol, ClassDeclarationSyntax)>.Error
+            return Result<(IMethodSymbol, IMethodSymbol, ClassDeclarationSyntax, bool)>.Error
                 ("The GenerateUpdateableChangeActions and UpdateChangeMethodAttribute can only be used inside UpdateableChanges", containingClass.SyntaxTree, containingClass.Span);
         }
+        
+        bool isCancelable = Helpers.IsInheritedFrom(classSymbol, new("CancelableUpdateableChange", "PixiEditor.ChangeableDocument.Changes"));
 
         // here we are sure we are inside an updateable change, time to find the update method
         MethodDeclarationSyntax? methodSyntax = null;
@@ -43,7 +47,7 @@ public class UpdateableChangeActionGenerator : IIncrementalGenerator
         const string errorMessage = $"Update method isn't marked with {UpdateMethodAttribute}";
         if (!members.Any())
         {
-            return Result<(IMethodSymbol, IMethodSymbol, ClassDeclarationSyntax)>.Error
+            return Result<(IMethodSymbol, IMethodSymbol, ClassDeclarationSyntax, bool)>.Error
                 (errorMessage, containingClass.SyntaxTree, containingClass.Span);
         }
         foreach (var member in members)
@@ -59,7 +63,7 @@ public class UpdateableChangeActionGenerator : IIncrementalGenerator
         }
         if (methodSyntax is null)
         {
-            return Result<(IMethodSymbol, IMethodSymbol, ClassDeclarationSyntax)>.Error
+            return Result<(IMethodSymbol, IMethodSymbol, ClassDeclarationSyntax, bool)>.Error
                 (errorMessage, containingClass.SyntaxTree, containingClass.Span);
         }
 
@@ -68,23 +72,24 @@ public class UpdateableChangeActionGenerator : IIncrementalGenerator
         var constructorSymbol = context.SemanticModel.GetDeclaredSymbol(constructorSyntax, cancelToken);
         if (constructorSymbol is not IMethodSymbol || methodSymbol is not IMethodSymbol)
             return null;
-        return ((IMethodSymbol)constructorSymbol, (IMethodSymbol)methodSymbol, containingClass);
+        
+        return ((IMethodSymbol)constructorSymbol, (IMethodSymbol)methodSymbol, containingClass, isCancelable);
     }
 
     private static Result<(NamedSourceCode, NamedSourceCode)> GenerateActions
-        (Result<(IMethodSymbol, IMethodSymbol, ClassDeclarationSyntax)>? prevResult, CancellationToken cancelToken)
+        (Result<(IMethodSymbol, IMethodSymbol, ClassDeclarationSyntax, bool)>? prevResult, CancellationToken cancelToken)
     {
         if (prevResult!.Value.ErrorText is not null)
         {
             return Result<(NamedSourceCode, NamedSourceCode)>.Error
                 (prevResult.Value.ErrorText, prevResult.Value.SyntaxTree!, (TextSpan)prevResult.Value.Span!);
         }
-        var (constructor, update, containingClass) = prevResult.Value.Value;
+        var (constructor, update, containingClass, isCancelable) = prevResult.Value.Value;
 
         var constructorInfo = Helpers.ExtractMethodInfo(constructor!);
         var updateInfo = Helpers.ExtractMethodInfo(update!);
 
-        var maybeStartUpdateAction = Helpers.CreateStartUpdateChangeAction(constructorInfo, updateInfo, containingClass);
+        var maybeStartUpdateAction = Helpers.CreateStartUpdateChangeAction(constructorInfo, updateInfo, containingClass, isCancelable);
         if (maybeStartUpdateAction.ErrorText is not null)
         {
             return Result<(NamedSourceCode, NamedSourceCode)>.Error

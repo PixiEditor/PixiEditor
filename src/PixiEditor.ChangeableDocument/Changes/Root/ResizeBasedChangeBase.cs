@@ -1,5 +1,8 @@
-﻿using PixiEditor.ChangeableDocument.ChangeInfos.Root;
-using PixiEditor.DrawingApi.Core.Numerics;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.ChangeInfos.Root;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
 namespace PixiEditor.ChangeableDocument.Changes.Root;
 
@@ -8,9 +11,15 @@ internal abstract class ResizeBasedChangeBase : Change
     protected VecI _originalSize;
     protected double _originalHorAxisY;
     protected double _originalVerAxisX;
-    protected Dictionary<Guid, CommittedChunkStorage> deletedChunks = new();
-    protected Dictionary<Guid, CommittedChunkStorage> deletedMaskChunks = new();
+    protected Dictionary<Guid, List<CommittedChunkStorage>> deletedChunks = new();
+    protected Dictionary<Guid, List<CommittedChunkStorage>> deletedMaskChunks = new();
     
+    protected Dictionary<Guid, Matrix3X3> originalTransformations = new();
+
+    public ResizeBasedChangeBase()
+    {
+    }
+
     public override bool InitializeAndValidate(Document target)
     {
         _originalSize = target.Size;
@@ -18,37 +27,52 @@ internal abstract class ResizeBasedChangeBase : Change
         _originalVerAxisX = target.VerticalSymmetryAxisX;
         return true;
     }
-    
+
     /// <summary>
     /// Notice: this commits image changes, you won't have a chance to revert or set ignoreInUndo to true
     /// </summary>
-    protected virtual void Resize(ChunkyImage img, Guid memberGuid, VecI size, VecI offset, Dictionary<Guid, CommittedChunkStorage> deletedChunksDict)
+    protected virtual void Resize(ChunkyImage img, Guid memberGuid, VecI size, VecI offset,
+        Dictionary<Guid, List<CommittedChunkStorage>> deletedChunksDict)
     {
         img.EnqueueResize(size);
         img.EnqueueClear();
-        img.EnqueueDrawChunkyImage(offset, img);
+        img.EnqueueDrawCommitedChunkyImage(offset, img);
+        
+        if (!deletedChunksDict.ContainsKey(memberGuid))
+            deletedChunksDict.Add(memberGuid, new());
 
-        deletedChunksDict.Add(memberGuid, new CommittedChunkStorage(img, img.FindAffectedArea().Chunks));
+        deletedChunksDict[memberGuid].Add(new CommittedChunkStorage(img, img.FindAffectedArea().Chunks));
         img.CommitChanges();
     }
-    
+
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         target.Size = _originalSize;
         target.ForEveryMember((member) =>
         {
-            if (member is Layer layer)
+            if (member is ImageLayerNode layer)
             {
-                layer.LayerImage.EnqueueResize(_originalSize);
-                deletedChunks[layer.GuidValue].ApplyChunksToImage(layer.LayerImage);
-                layer.LayerImage.CommitChanges();
+                layer.ForEveryFrame(img =>
+                {
+                    img.EnqueueResize(_originalSize);
+                    foreach (var stored in deletedChunks[layer.Id])
+                        stored.ApplyChunksToImage(img);
+                    img.CommitChanges();
+                });
             }
-            
-            if (member.Mask is null)
+            else if (member is ITransformableObject transformableObject)
+            {
+                if (originalTransformations.TryGetValue(member.Id, out var transformation))
+                {
+                    transformableObject.TransformationMatrix = transformation;
+                }
+            }
+
+            if (member.EmbeddedMask is null)
                 return;
-            member.Mask.EnqueueResize(_originalSize);
-            deletedMaskChunks[member.GuidValue].ApplyChunksToImage(member.Mask);
-            member.Mask.CommitChanges();
+            member.EmbeddedMask.EnqueueResize(_originalSize);
+            deletedMaskChunks[member.Id][0].ApplyChunksToImage(member.EmbeddedMask);
+            member.EmbeddedMask.CommitChanges();
         });
 
         target.HorizontalSymmetryAxisY = _originalHorAxisY;
@@ -58,18 +82,29 @@ internal abstract class ResizeBasedChangeBase : Change
 
         return new Size_ChangeInfo(_originalSize, _originalVerAxisX, _originalHorAxisY);
     }
-    
+
     private void DisposeDeletedChunks()
     {
         foreach (var stored in deletedChunks)
-            stored.Value.Dispose();
+        {
+            foreach (var storage in stored.Value)
+            {
+                storage.Dispose();
+            }
+
+        }
         deletedChunks = new();
 
         foreach (var stored in deletedMaskChunks)
-            stored.Value.Dispose();
+        {
+            foreach (var storage in stored.Value)
+            {
+                storage.Dispose();
+            }
+        }
         deletedMaskChunks = new();
     }
-    
+
     public override void Dispose()
     {
         DisposeDeletedChunks();

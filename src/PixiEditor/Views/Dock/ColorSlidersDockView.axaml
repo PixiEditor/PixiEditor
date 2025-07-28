@@ -1,0 +1,15 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:dock="clr-namespace:PixiEditor.ViewModels.Dock"
+             xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker.AvaloniaUI"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="PixiEditor.Views.Dock.ColorSlidersDockView" x:DataType="dock:ColorSlidersDockViewModel">
+    <Design.DataContext>
+        <dock:ColorSlidersDockViewModel/>
+    </Design.DataContext>
+
+    <colorPicker:ColorSliders ColorState="{Binding Path=ColorsSubViewModel.PrimaryColorState, Mode=TwoWay}"/>
+
+</UserControl>

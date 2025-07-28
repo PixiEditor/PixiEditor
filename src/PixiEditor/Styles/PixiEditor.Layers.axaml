@@ -1,0 +1,13 @@
+<Styles xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:ui1="clr-namespace:PixiEditor.Helpers.UI"
+                    xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters">
+
+    <Styles.Resources>
+        <Color x:Key="SelectedLayerColor">#505056</Color>
+        <Color x:Key="SoftSelectedLayerColor">#7D505056</Color>
+
+        <SolidColorBrush x:Key="SelectedLayerBrush" Color="{DynamicResource SelectedLayerColor}" />
+        <SolidColorBrush x:Key="SoftSelectedLayerBrush" Color="{DynamicResource SoftSelectedLayerColor}" />
+    </Styles.Resources>
+</Styles>

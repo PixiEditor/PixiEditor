@@ -1,26 +1,29 @@
 ﻿using System.IO;
 using System.IO.Compression;
 using System.Runtime.InteropServices;
-using System.Windows.Media.Imaging;
+using Avalonia.Media.Imaging;
 using ChunkyImageLib;
-using ChunkyImageLib.DataHolders;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using CommunityToolkit.Mvvm.ComponentModel;
+using PixiEditor.Helpers.Extensions;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.ImageData;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
 using PixiEditor.Exceptions;
-using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Extensions.Exceptions;
 using PixiEditor.Helpers;
-using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.Localization;
+using Drawie.Numerics;
 using PixiEditor.Parser;
-using PixiEditor.Parser.Deprecated;
-using PixiEditor.ViewModels.SubViewModels.Document;
-using BlendMode = PixiEditor.DrawingApi.Core.Surface.BlendMode;
+using PixiEditor.Parser.Old.PixiV4;
+using PixiEditor.UI.Common.Localization;
+using PixiEditor.ViewModels.Document;
+using Bitmap = Avalonia.Media.Imaging.Bitmap;
+using BlendMode = Drawie.Backend.Core.Surfaces.BlendMode;
 
 namespace PixiEditor.Models.IO;
 
-internal class Importer : NotifyableObject
+internal class Importer : ObservableObject
 {
     /// <summary>
     ///     Imports image from path and resizes it to given dimensions.
@@ -32,7 +35,7 @@ internal class Importer : NotifyableObject
     {
         if (!Path.Exists(path))
             throw new MissingFileException();
-            
+
         Surface original;
         try
         {
@@ -42,7 +45,7 @@ internal class Importer : NotifyableObject
         {
             throw new CorruptedFileException(e);
         }
-            
+
         if (original.Size == size || size == VecI.NegativeOne)
         {
             return original;
@@ -53,27 +56,21 @@ internal class Importer : NotifyableObject
         return resized;
     }
 
-    public static WriteableBitmap ImportWriteableBitmap(string path)
+    public static Bitmap ImportBitmap(string path)
     {
         try
         {
-            Uri uri = new Uri(path, UriKind.RelativeOrAbsolute);
-            BitmapImage bitmap = new BitmapImage();
-            bitmap.BeginInit();
-            bitmap.UriSource = uri;
-            bitmap.CacheOption = BitmapCacheOption.OnLoad;
-            bitmap.EndInit();
-
-            return BitmapFactory.ConvertToPbgra32Format(bitmap);
+            return new Bitmap(path);
         }
         catch (NotSupportedException e)
         {
-            throw new InvalidFileTypeException(new LocalizedString("FILE_EXTENSION_NOT_SUPPORTED", Path.GetExtension(path)), e);
+            throw new InvalidFileTypeException(
+                new LocalizedString("FILE_EXTENSION_NOT_SUPPORTED", Path.GetExtension(path)), e);
         }
-        catch (FileFormatException e)
+        /*catch (FileFormatException e) TODO: Not found in Avalonia
         {
             throw new CorruptedFileException("FAILED_TO_OPEN_FILE", e);
-        }
+        }*/
         catch (Exception e)
         {
             throw new RecoverableException("ERROR_IMPORTING_IMAGE", e);
@@ -84,32 +81,35 @@ internal class Importer : NotifyableObject
     {
         try
         {
-            var doc = PixiParser.Deserialize(path).ToDocument();
-            
+            using var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read);
+            var pixiDocument = PixiParser.DeserializeUsingCompatible(fileStream);
+
+            var document = pixiDocument switch
+            {
+                Document v5 => v5.ToDocument(),
+                DocumentV4 v4 => v4.ToDocument()
+                // TODO: Default handling
+            };
+
             if (associatePath)
             {
-                doc.FullFilePath = path;
+                document.FullFilePath = path;
             }
 
-            return doc;
+            return document;
         }
-        catch (InvalidFileException)
+        catch (DirectoryNotFoundException)
         {
-            try
-            {
-                var doc = DepractedPixiParser.Deserialize(path).ToDocument();
-                
-                if (associatePath)
-                {
-                    doc.FullFilePath = path;
-                }
-
-                return doc;
-            }
-            catch (Exception e)
-            {
-                throw new CorruptedFileException("FAILED_TO_OPEN_FILE", e);
-            }
+            //TODO: Handle
+            throw new RecoverableException();
+        }
+        catch (InvalidFileException e)
+        {
+            throw new CorruptedFileException("FAILED_TO_OPEN_FILE", e);
+        }
+        catch (OldFileFormatException e)
+        {
+            throw new CorruptedFileException("FAILED_TO_OPEN_FILE", e);
         }
     }
 
@@ -117,37 +117,54 @@ internal class Importer : NotifyableObject
     {
         try
         {
-            var doc = PixiParser.Deserialize(file).ToDocument();
-            doc.FullFilePath = originalFilePath;
-            return doc;
+            if (!PixiParser.TryGetCompatibleVersion(file, out var parser))
+            {
+                // TODO: Handle
+                throw new RecoverableException();
+            }
+
+            var pixiDocument = parser.Deserialize(file);
+
+            var document = pixiDocument switch
+            {
+                Document v5 => v5.ToDocument(),
+                DocumentV4 v4 => v4.ToDocument()
+                // TODO: Default handling
+            };
+
+            document.FullFilePath = originalFilePath;
+
+            return document;
         }
-        catch (InvalidFileException)
+        catch (InvalidFileException e)
         {
-            try
-            {
-                var doc = DepractedPixiParser.Deserialize(file).ToDocument();
-                doc.FullFilePath = originalFilePath;
-                return doc;
-            }
-            catch (InvalidFileException e)
-            {
-                throw new CorruptedFileException("FAILED_TO_OPEN_FILE", e);
-            }
+            throw new CorruptedFileException("FAILED_TO_OPEN_FILE", e);
+        }
+        catch (OldFileFormatException e)
+        {
+            throw new CorruptedFileException("FAILED_TO_OPEN_FILE", e);
         }
     }
 
-    public static WriteableBitmap GetPreviewBitmap(string path)
+    public static Surface GetPreviewSurface(string path)
     {
         if (!IsSupportedFile(path))
         {
-            throw new InvalidFileTypeException(new LocalizedString("FILE_EXTENSION_NOT_SUPPORTED", Path.GetExtension(path)));
+            throw new InvalidFileTypeException(new LocalizedString("FILE_EXTENSION_NOT_SUPPORTED",
+                Path.GetExtension(path)));
         }
-        return Path.GetExtension(path) != ".pixi" ? ImportWriteableBitmap(path) : PixiParser.Deserialize(path).ToDocument().PreviewBitmap;
+
+        if (Path.GetExtension(path) != ".pixi")
+            return Surface.Load(path);
+
+        using var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read);
+
+        return Surface.Load(PixiParser.ReadPreview(fileStream));
     }
 
     public static bool IsSupportedFile(string path)
     {
-        return SupportedFilesHelper.IsSupportedFile(path);
+        return SupportedFilesHelper.IsSupported(path);
     }
 
     public static Surface LoadFromGZippedBytes(string path)

@@ -1,14 +1,14 @@
-﻿using PixiEditor.Extensions.Common.Localization;
-using PixiEditor.Models.Enums;
-using PixiEditor.Models.Localization;
-using PixiEditor.Views;
+﻿using System.Threading.Tasks;
+using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.Models.Dialogs;
 
 internal static class ConfirmationDialog
 {
-    public static ConfirmationType Show(LocalizedString message, LocalizedString title)
+    public static async Task<ConfirmationType> Show(LocalizedString message, LocalizedString title)
     {
         ConfirmationPopup popup = new ConfirmationPopup
         {
@@ -16,9 +16,13 @@ internal static class ConfirmationDialog
             Body = message,
             ShowInTaskbar = false
         };
-        if (popup.ShowDialog().GetValueOrDefault())
+
+        if(Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            return popup.Result ? ConfirmationType.Yes : ConfirmationType.No;
+            if (await popup.ShowDialog<bool>(desktop.MainWindow))
+            {
+                return popup.Result ? ConfirmationType.Yes : ConfirmationType.No;
+            }
         }
 
         return ConfirmationType.Canceled;

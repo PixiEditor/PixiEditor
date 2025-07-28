@@ -1,0 +1,76 @@
+<colorPicker:DualPickerControlBase xmlns="https://github.com/avaloniaui"
+                                   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                                   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                                   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                                   xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+                                   xmlns:input="clr-namespace:PixiEditor.Views.Input"
+                                   xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker.AvaloniaUI"
+                                   xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
+                                   x:Class="PixiEditor.Views.Input.SmallColorPicker"
+                                   x:ClassModifier="internal"
+                                   mc:Ignorable="d"
+                                   d:DesignHeight="380"
+                                   d:DesignWidth="270"
+                                   MaxWidth="400">
+    <colorPicker:DualPickerControlBase.Template>
+        <ControlTemplate TargetType="input:SmallColorPicker">
+            <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                <colorPicker:StandardColorPicker ColorState="{Binding Path=ColorState, Mode=TwoWay}"
+                                                 SecondColorState="{Binding  Path=SecondColorState, Mode=TwoWay}"
+                                                 EnableGradientsTab="{Binding  Path=EnableGradientsTab}"
+                                                 GradientState="{Binding  Path=GradientState, Mode=TwoWay}"
+                                                 SelectedBrush="{Binding  Path=SelectedBrush, Mode=TwoWay}"
+                                                 EnableRecentColors="{TemplateBinding EnableRecentBrushes}"
+                                                 EnableRecentGradients="{TemplateBinding EnableRecentBrushes}"
+                                                 IsVisible="{Binding  Path=Bounds.Height, Converter={converters:ThresholdVisibilityConverter CheckIfLess=False, Threshold=380}}"
+                                                 x:Name="mainColorPicker" />
+                <Grid
+                    IsVisible="{Binding  Path=Bounds.Height, Converter={converters:ThresholdVisibilityConverter CheckIfLess=True, Threshold=380}}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition MaxWidth="80" Width="1*" />
+                        <ColumnDefinition Width="3*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="8*" />
+                        <RowDefinition Height="2*" />
+                        <RowDefinition Height="1.2*" />
+                        <RowDefinition Height="25" />
+                    </Grid.RowDefinitions>
+                    <colorPicker:SquarePicker Grid.ColumnSpan="2" Grid.RowSpan="2" Margin="3"
+                                              x:Name="mainPicker"
+                                              ColorState="{Binding ColorState, Mode=TwoWay}"
+                                              PickerType="{Binding ElementName=colorSpaceComboBox, Path=SelectedIndex, Converter={converters:IntToPickerTypeConverter}}" />
+                    <colorPicker:ColorDisplay Grid.Row="1" Grid.RowSpan="2" HorizontalAlignment="Stretch"
+                                              VerticalAlignment="Stretch" Margin="3,0,0,0"
+                                              ColorState="{Binding ColorState, Mode=TwoWay, ElementName=mainPicker}"
+                                              SecondColorState="{Binding SecondColorState, Mode=TwoWay}" />
+                    <ComboBox Grid.Row="1" Grid.RowSpan="2" SelectedIndex="0" Grid.Column="2"
+                              HorizontalAlignment="Right"
+                              VerticalAlignment="Bottom" x:Name="colorSpaceComboBox" Margin="0,0,90,0">
+                        <ComboBoxItem>HSV</ComboBoxItem>
+                        <ComboBoxItem>HSL</ComboBoxItem>
+                    </ComboBox>
+                    <colorPicker:HexColorTextBox Grid.Row="1" Grid.RowSpan="2" Grid.Column="2" Margin="0,0,3,0"
+                                                 HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                                                 ColorState="{Binding ColorState, Mode=TwoWay}" />
+                    <Grid Grid.Row="3" Grid.ColumnSpan="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="25" />
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="50" />
+                        </Grid.ColumnDefinitions>
+                        <Label VerticalAlignment="Center" Margin="3,0,0,0">A:</Label>
+                        <colorPicker:AlphaSlider Margin="5,0" Grid.Column="1" VerticalAlignment="Center"
+                                                 ColorState="{Binding ColorState, Mode=TwoWay}" />
+                        <controls:NumberInput
+                            Grid.Column="2" HorizontalAlignment="Right" Margin="5,0"
+                            Min="0" Max="255"
+                            Width="40"
+                            VerticalAlignment="Center"
+                            Value="{Binding Path=Color.A, Mode=TwoWay, Converter={converters:FloorConverter}}" />
+                    </Grid>
+                </Grid>
+            </Grid>
+        </ControlTemplate>
+    </colorPicker:DualPickerControlBase.Template>
+</colorPicker:DualPickerControlBase>

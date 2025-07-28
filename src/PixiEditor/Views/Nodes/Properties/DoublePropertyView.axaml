@@ -1,0 +1,90 @@
+﻿<properties:NodePropertyView x:TypeArguments="system:Double" xmlns="https://github.com/avaloniaui"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                             xmlns:properties="clr-namespace:PixiEditor.Views.Nodes.Properties"
+                             xmlns:system="clr-namespace:System;assembly=System.Runtime"
+                             xmlns:input="clr-namespace:PixiEditor.Views.Input"
+                             xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+                             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+                             xmlns:properties1="clr-namespace:PixiEditor.ViewModels.Nodes.Properties"
+                             xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
+                             xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
+                             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+                             x:DataType="properties1:DoublePropertyViewModel"
+                             x:Class="PixiEditor.Views.Nodes.Properties.DoublePropertyView">
+    <Design.DataContext>
+        <properties1:DoublePropertyViewModel />
+    </Design.DataContext>
+    <StackPanel Orientation="Vertical"
+                HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
+
+        <DockPanel>
+            <TextBlock ui:Translator.TooltipKey="{Binding DisplayName}" VerticalAlignment="Center" DockPanel.Dock="Left" ui:Translator.Key="{Binding DisplayName}" />
+            <Panel HorizontalAlignment="Right" IsVisible="{Binding ShowInputField}">
+                <controls:NumberInput EnableScrollChange="False" Name="input"
+                                      DraggingGrabber="{Binding MergeChanges, Mode=OneWayToSource}"
+                                   MinWidth="100" Decimals="6"
+                                   IsVisible="{Binding NumberPickerMode,
+                                Converter={converters:EnumBooleanConverter}, ConverterParameter=NumberInput}"
+                                   Min="{Binding Min}" Max="{Binding Max}"
+                                   Value="{Binding DoubleValue, Mode=TwoWay}" />
+            </Panel>
+        </DockPanel>
+
+        <Panel IsVisible="{Binding ShowInputField}">
+            <DockPanel
+                LastChildFill="True"
+                IsVisible="{Binding NumberPickerMode,
+                                            Converter={converters:EnumBooleanConverter}, ConverterParameter=Slider}">
+                <controls:NumberInput DockPanel.Dock="Right"
+                                   EnableScrollChange="False" Name="sliderInput"
+                                   Width="45" Decimals="2"
+                                   EnableGrabber="False"
+                                   Min="{Binding Min}" Max="{Binding Max}"
+                                   Value="{Binding DoubleValue, Mode=TwoWay}" />
+
+                <Slider
+                        Margin="5, 0" Name="slider"
+                        Classes.colorSlider="{Binding SliderSettings.IsColorSlider}"
+                        Minimum="{Binding Min}" Maximum="{Binding Max}">
+                    <Interaction.Behaviors>
+                        <behaviours:SliderBindingBehavior
+                            CanBind="{Binding NumberPickerMode,
+                                            Converter={converters:EnumBooleanConverter}, ConverterParameter=Slider}"
+                            ValueBinding="{Binding DoubleValue, Mode=TwoWay}"/>
+                    </Interaction.Behaviors>
+                    <Slider.Styles>
+                        <Style Selector="Slider.colorSlider Border#TrackBackground">
+                            <Setter Property="Background" Value="{Binding SliderSettings.BackgroundBrush}" />
+                            <Setter Property="BorderThickness" Value="0" />
+                            <Setter Property="Height" Value="8" />
+                            <Setter Property="Margin" Value="0" />
+                        </Style>
+                        <Style Selector="Slider.colorSlider Thumb">
+                            <Setter Property="Width" Value="10" />
+                            <Setter Property="Height" Value="10" />
+                            <Setter Property="MinWidth" Value="10" />
+                            <Setter Property="MinHeight" Value="10" />
+                        </Style>
+                        <Style Selector="Slider.colorSlider Thumb Border">
+                            <Setter Property="Width" Value="10" />
+                            <Setter Property="Height" Value="10" />
+                            <Setter Property="CornerRadius" Value="50" />
+                            <Setter Property="Background">
+                                <Setter.Value>
+                                    <VisualBrush>
+                                        <VisualBrush.Visual>
+                                            <Ellipse Width="10" Height="10" Fill="Transparent" Stroke="White"
+                                                     StrokeThickness="1" />
+                                        </VisualBrush.Visual>
+                                    </VisualBrush>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Slider.Styles>
+                </Slider>
+            </DockPanel>
+        </Panel>
+    </StackPanel>
+</properties:NodePropertyView>

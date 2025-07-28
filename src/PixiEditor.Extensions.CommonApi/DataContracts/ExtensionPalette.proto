@@ -1,0 +1,14 @@
+syntax = "proto3";
+package PixiEditor.Palettes;
+
+import "PaletteColor.proto";
+
+option csharp_namespace = "PixiEditor.Extensions.CommonApi.Palettes";
+
+message ExtensionPalette
+{
+  string Name = 1;
+  repeated PixiEditor.Palettes.PaletteColor Colors = 2;
+  bool IsFavourite = 3;
+  string FileName = 4;
+}

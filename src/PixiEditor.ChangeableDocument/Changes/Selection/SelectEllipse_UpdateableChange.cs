@@ -1,6 +1,7 @@
 ﻿using PixiEditor.ChangeableDocument.Enums;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface.Vector;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Vector;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Selection;
 
@@ -28,7 +29,7 @@ internal class SelectEllipse_UpdateableChange : UpdateableChange
     {
         originalPath = new VectorPath(target.Selection.SelectionPath);
         documentConstraint = new VectorPath();
-        documentConstraint.AddRect(new RectI(VecI.Zero, target.Size));
+        documentConstraint.AddRect((RectD)new RectI(VecI.Zero, target.Size));
         return true;
     }
 
@@ -36,7 +37,7 @@ internal class SelectEllipse_UpdateableChange : UpdateableChange
     {
         using var ellipsePath = new VectorPath() { FillType = PathFillType.EvenOdd };
         if (!borders.IsZeroArea)
-            ellipsePath.AddOval(borders);
+            ellipsePath.AddOval((RectD)borders);
 
         using var inConstraint = ellipsePath.Op(documentConstraint!, VectorPathOp.Intersect);
 
