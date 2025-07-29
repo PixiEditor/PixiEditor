@@ -114,7 +114,7 @@ public class OutlineNode : RenderNode, IRenderInput
             surface.Canvas.RestoreToCount(saved);
         }
 
-        Background.Value.Paint(context, surface);
+        Background?.Value?.Paint(context, surface);
     }
 
     public override RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
