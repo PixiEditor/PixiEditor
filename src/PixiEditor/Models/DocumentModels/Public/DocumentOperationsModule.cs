@@ -149,6 +149,8 @@ internal class DocumentOperationsModule : IDocumentOperations
 
         Internals.ChangeController.TryStopActiveExecutor();
 
+        var changeBlock = Document.Operations.StartChangeBlock();
+
         RectI maxSize = new RectI(VecI.Zero, Document.SizeBindable);
         foreach (var imageWithName in images)
         {
@@ -167,7 +169,7 @@ internal class DocumentOperationsModule : IDocumentOperations
                 layerGuid, true, false, frame, false);
         }
 
-        Internals.ActionAccumulator.AddFinishedActions();
+        changeBlock.Dispose();
     }
 
     /// <summary>
