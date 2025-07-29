@@ -252,7 +252,7 @@ internal static class ClipboardController
         if (images.Count == 0)
             return false;
 
-        if (images.Count == 1)
+        if (images.Count == 1 || (images.Count > 1 && !pasteAsNew))
         {
             var dataImage = images[0];
             var position = dataImage.Position;
@@ -409,14 +409,17 @@ internal static class ClipboardController
 
         VecD pos = VecD.Zero;
 
+        string? importingType = null;
+
         foreach (var dataObject in data)
         {
-            if (TryExtractSingleImage(dataObject, out var singleImage))
+            if (importingType is null or "bytes" && TryExtractSingleImage(dataObject, out var singleImage))
             {
                 surfaces.Add(new DataImage(singleImage,
                     dataObject.Contains(ClipboardDataFormats.PositionFormat)
                         ? (VecI)dataObject.GetVecD(ClipboardDataFormats.PositionFormat)
                         : (VecI)pos));
+                importingType = "bytes";
                 continue;
             }
 
@@ -436,7 +439,7 @@ internal static class ClipboardController
                 paths.Add(textPath);
             }
 
-            if (paths == null || paths.Count == 0)
+            if (paths == null || paths.Count == 0 || (importingType != null && importingType != "files"))
             {
                 continue;
             }
@@ -463,6 +466,7 @@ internal static class ClipboardController
                     string filename = Path.GetFullPath(path);
                     surfaces.Add(new DataImage(filename, imported,
                         (VecI)dataObject.GetVecD(ClipboardDataFormats.PositionFormat)));
+                    importingType = "files";
                 }
                 catch
                 {
