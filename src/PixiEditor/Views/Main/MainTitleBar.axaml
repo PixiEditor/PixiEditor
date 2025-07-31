@@ -20,8 +20,11 @@
         <menu:MenuBarViewModel />
     </Design.DataContext>
     <Panel>
-        <Panel Background="{DynamicResource ThemeBackgroundBrush1}" IsHitTestVisible="False"/>
+        <Panel Background="{DynamicResource ThemeBackgroundBrush1}" IsHitTestVisible="False" />
         <DockPanel>
+            <DockPanel.Background>
+                <OnPlatform Default="{x:Null}" Linux="Transparent"/>
+            </DockPanel.Background>
             <dialogs:DialogTitleBar
                 DockPanel.Dock="Right">
                 <dialogs:DialogTitleBar.AdditionalElement>
