@@ -76,8 +76,10 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// <summary>
     /// Deletes selected pixels
     /// </summary>
+    /// <param name="frame"></param>
     /// <param name="clearSelection">Should the selection be cleared</param>
-    public void DeleteSelectedPixels(int frame, bool clearSelection = false)
+    /// <param name="lastTransformRect"></param>
+    public void DeleteSelectedPixels(int frame, bool clearSelection = false, RectD? lastTransformRect = null)
     {
         var member = Document.SelectedStructureMember;
         if (Internals.ChangeController.IsBlockingChangeActive || member is null)
@@ -85,11 +87,22 @@ internal class DocumentOperationsModule : IDocumentOperations
 
         Internals.ChangeController.TryStopActiveExecutor();
 
+        VectorPath? selection = Internals.Tracker.Document.Selection?.SelectionPath ?? null;
+
+        if (selection == null || selection.IsEmpty)
+        {
+            selection = new VectorPath();
+            if (lastTransformRect is not null)
+            {
+                selection.AddRect(lastTransformRect.Value);
+            }
+        }
+
         bool drawOnMask = member is not ILayerHandler layer || layer.ShouldDrawOnMask;
         if (drawOnMask && !member.HasMaskBindable)
             return;
         Internals.ActionAccumulator.AddActions(new ClearSelectedArea_Action(member.Id,
-            Internals.Tracker.Document.Selection.SelectionPath, drawOnMask, frame));
+            selection, drawOnMask, frame));
         if (clearSelection)
             Internals.ActionAccumulator.AddActions(new ClearSelection_Action());
         Internals.ActionAccumulator.AddFinishedActions();
@@ -1018,5 +1031,13 @@ internal class DocumentOperationsModule : IDocumentOperations
 
         Internals.ActionAccumulator.AddFinishedActions(
             new ExtractSelectedText_Action(memberId, startIndex, endIndex, extractEachCharacter));
+    }
+
+    public void TryStopActiveExecutor()
+    {
+        if (Internals.ChangeController.IsBlockingChangeActive)
+            return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
     }
 }

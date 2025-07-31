@@ -60,7 +60,7 @@ internal static class ClipboardController
     ///     2. Position of the copied area
     ///     3. Layers guid, this is used to duplicate the layer when pasting
     /// </summary>
-    public static async Task CopyToClipboard(DocumentViewModel document)
+    public static async Task CopyToClipboard(DocumentViewModel document, RectD? lastTransform)
     {
         await Clipboard.ClearAsync();
 
@@ -84,16 +84,18 @@ internal static class ClipboardController
             surfaceToCopy = surface.AsT2.Item1;
             copyArea = (RectD)surface.AsT2.Item2;
         }
-        else if (document.TransformViewModel.TransformActive)
+        else if (document.TransformViewModel.TransformActive || lastTransform != null)
         {
+            RectD transform = document.TransformViewModel.TransformActive ? document.TransformViewModel.Corners.AABBBounds
+                : lastTransform.Value;
             var surface =
                 document.TryExtractAreaFromSelected(
-                    (RectI)document.TransformViewModel.Corners.AABBBounds.RoundOutwards());
+                    (RectI)transform.RoundOutwards());
             if (surface.IsT0 || surface.IsT1)
                 return;
 
             surfaceToCopy = surface.AsT2.Item1;
-            copyArea = document.TransformViewModel.Corners.AABBBounds;
+            copyArea = transform;
         }
         else if (document.SelectedStructureMember != null)
         {
@@ -575,18 +577,18 @@ internal static class ClipboardController
         return false;
     }
 
-    private static Bitmap FromPNG(IDataObject data)
+    private static Surface FromPNG(IDataObject data)
     {
         object obj = data.Get("PNG");
         if (obj is byte[] bytes)
         {
-            using MemoryStream stream = new MemoryStream(bytes);
-            return new Bitmap(stream);
+            return Surface.Load(bytes);
         }
 
         if (obj is MemoryStream memoryStream)
         {
-            return new Bitmap(memoryStream);
+            bytes = memoryStream.ToArray();
+            return Surface.Load(bytes);
         }
 
         throw new InvalidDataException("PNG data is not in a supported format.");
@@ -598,7 +600,7 @@ internal static class ClipboardController
     {
         try
         {
-            Bitmap source;
+            Surface source;
             if (data.Contains(ClipboardDataFormats.Png) || data.Contains(ClipboardDataFormats.ImageSlashPng))
             {
                 source = FromPNG(data);
@@ -609,7 +611,7 @@ internal static class ClipboardController
                 return false;
             }
 
-            if (source.Format.Value.IsSkiaSupported())
+            /*if (source.Format.Value.IsSkiaSupported())
             {
                 result = SurfaceHelpers.FromBitmap(source);
             }
@@ -620,8 +622,9 @@ internal static class ClipboardController
                     source.Dpi, source.PixelSize.Width * 4);
 
                 result = SurfaceHelpers.FromBitmap(newFormat);
-            }
+            }*/
 
+            result = source;
             return true;
         }
         catch { }
