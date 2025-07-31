@@ -33,7 +33,10 @@ public class AnalyticsPeriodicReporter
         _client = client;
         _performanceReporter = new PeriodicPerformanceReporter(this);
 
-        PixiEditorSettings.Analytics.AnalyticsEnabled.ValueChanged += EnableAnalyticsOnValueChanged;
+        if (PixiEditorSettings.Analytics.AnalyticsEnabled != null)
+        {
+            PixiEditorSettings.Analytics.AnalyticsEnabled.ValueChanged += EnableAnalyticsOnValueChanged;
+        }
     }
 
     public void Start(Guid? sessionId)
