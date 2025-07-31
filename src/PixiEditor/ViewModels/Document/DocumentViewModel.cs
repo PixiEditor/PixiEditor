@@ -1302,13 +1302,20 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
     public void Dispose()
     {
-        NodeGraph.Dispose();
-        Renderer.Dispose();
-        SceneRenderer.Dispose();
-        AnimationDataViewModel.Dispose();
-        Internals.ChangeController.TryStopActiveExecutor();
-        Internals.Tracker.Dispose();
-        Internals.Tracker.Document.Dispose();
+        try
+        {
+            NodeGraph.Dispose();
+            Renderer.Dispose();
+            SceneRenderer.Dispose();
+            AnimationDataViewModel.Dispose();
+            Internals.ChangeController.TryStopActiveExecutor();
+            Internals.Tracker.Dispose();
+            Internals.Tracker.Document.Dispose();
+        }
+        catch (Exception ex)
+        {
+            CrashHelper.SendExceptionInfo(ex);
+        }
     }
 
     public VecI GetRenderOutputSize(string renderOutputName)
