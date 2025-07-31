@@ -97,7 +97,7 @@ internal class PasteImageExecutor : UpdateableChangeExecutor, ITransformableExec
     public override void ForceStop()
     {
         document!.TransformHandler.HideTransform();
-        internals!.ActionAccumulator.AddActions(new EndPasteImage_Action());
+        internals!.ActionAccumulator.AddFinishedActions(new EndPasteImage_Action());
     }
 
     public bool IsFeatureEnabled<T>()

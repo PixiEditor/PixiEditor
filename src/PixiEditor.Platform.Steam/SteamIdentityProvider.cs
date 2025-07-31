@@ -12,6 +12,7 @@ public class SteamIdentityProvider : IIdentityProvider
     public IUser User { get; private set; }
     public bool IsLoggedIn { get; private set; }
     public Uri? EditProfileUrl { get; } = new Uri("https://store.steampowered.com/login/");
+
     public bool IsValid
     {
         get
@@ -40,7 +41,10 @@ public class SteamIdentityProvider : IIdentityProvider
         var ownedContent = GetOwnedDlcs();
         var user = new SteamUser()
         {
-            Username = username, AvatarUrl = avatar, Id = id.m_SteamID, IsLoggedIn = true,
+            Username = username,
+            AvatarUrl = avatar,
+            Id = id.m_SteamID,
+            IsLoggedIn = true,
             OwnedProducts = ownedContent,
         };
 
@@ -56,6 +60,11 @@ public class SteamIdentityProvider : IIdentityProvider
         int avatar = SteamFriends.GetLargeFriendAvatar(id);
 
         string cache = Path.Combine(Path.GetTempPath(), "PixiEditor", $"SteamAvatar_{id.m_SteamID}.png");
+
+        if (!Directory.Exists(Path.GetDirectoryName(cache)))
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(cache)!);
+        }
 
         bool cacheExists = File.Exists(cache);
 
@@ -74,7 +83,8 @@ public class SteamIdentityProvider : IIdentityProvider
                 using SKBitmap bitmap = new SKBitmap((int)width, (int)height);
                 var allocated = GCHandle.Alloc(image, GCHandleType.Pinned);
                 var info = new SKImageInfo((int)width, (int)height, SKColorType.Rgba8888, SKAlphaType.Premul);
-                bitmap.InstallPixels(info, allocated.AddrOfPinnedObject(), bitmap.RowBytes, delegate { allocated.Free(); }, null);
+                bitmap.InstallPixels(info, allocated.AddrOfPinnedObject(), bitmap.RowBytes,
+                    delegate { allocated.Free(); }, null);
                 using FileStream stream = new FileStream(cache, FileMode.Create);
                 bitmap.Encode(SKEncodedImageFormat.Png, 100).SaveTo(stream);
             }
@@ -91,8 +101,11 @@ public class SteamIdentityProvider : IIdentityProvider
         for (int i = 0; i < dlcCount; i++)
         {
             bool success = SteamApps.BGetDLCDataByIndex(i, out AppId_t appId, out bool available, out string name, 128);
-            if (success && available)
+            if (success)
             {
+                bool owned = SteamApps.BIsDlcInstalled(appId);
+                if (!owned)
+                    continue;
                 ownedDlcs.Add(new ProductData(appId.m_AppId.ToString(), name));
             }
         }

@@ -61,7 +61,7 @@ internal class ImportLayer_Change : Change
 
         var clone = (LayerNode)layerNode.Clone();
         clone.Id = duplicateGuid;
-        clonedLayer = clone;
+        clonedLayer ??= clone.Clone(true) as LayerNode;
 
         ResizeImageData(clone, target.Size);
 

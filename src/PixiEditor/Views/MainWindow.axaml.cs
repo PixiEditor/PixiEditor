@@ -81,8 +81,15 @@ internal partial class MainWindow : Window
         
         StartupPerformance.ReportToMainViewModel();
 
-        var analytics = services.GetService<AnalyticsPeriodicReporter>();
-        analytics?.Start(analyticsSessionId);
+        try
+        {
+            var analytics = services.GetService<AnalyticsPeriodicReporter>();
+            analytics?.Start(analyticsSessionId);
+        }
+        catch (Exception e)
+        {
+            CrashHelper.SendExceptionInfo(e);
+        }
 
         InitializeComponent();
     }

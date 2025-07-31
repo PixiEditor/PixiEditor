@@ -60,7 +60,7 @@ internal static class ClipboardController
     ///     2. Position of the copied area
     ///     3. Layers guid, this is used to duplicate the layer when pasting
     /// </summary>
-    public static async Task CopyToClipboard(DocumentViewModel document)
+    public static async Task CopyToClipboard(DocumentViewModel document, RectD? lastTransform)
     {
         await Clipboard.ClearAsync();
 
@@ -84,16 +84,18 @@ internal static class ClipboardController
             surfaceToCopy = surface.AsT2.Item1;
             copyArea = (RectD)surface.AsT2.Item2;
         }
-        else if (document.TransformViewModel.TransformActive)
+        else if (document.TransformViewModel.TransformActive || lastTransform != null)
         {
+            RectD transform = document.TransformViewModel.TransformActive ? document.TransformViewModel.Corners.AABBBounds
+                : lastTransform.Value;
             var surface =
                 document.TryExtractAreaFromSelected(
-                    (RectI)document.TransformViewModel.Corners.AABBBounds.RoundOutwards());
+                    (RectI)transform.RoundOutwards());
             if (surface.IsT0 || surface.IsT1)
                 return;
 
             surfaceToCopy = surface.AsT2.Item1;
-            copyArea = document.TransformViewModel.Corners.AABBBounds;
+            copyArea = transform;
         }
         else if (document.SelectedStructureMember != null)
         {
@@ -252,7 +254,7 @@ internal static class ClipboardController
         if (images.Count == 0)
             return false;
 
-        if (images.Count == 1)
+        if (images.Count == 1 || (images.Count > 1 && !pasteAsNew))
         {
             var dataImage = images[0];
             var position = dataImage.Position;
@@ -409,14 +411,17 @@ internal static class ClipboardController
 
         VecD pos = VecD.Zero;
 
+        string? importingType = null;
+
         foreach (var dataObject in data)
         {
-            if (TryExtractSingleImage(dataObject, out var singleImage))
+            if (importingType is null or "bytes" && TryExtractSingleImage(dataObject, out var singleImage))
             {
                 surfaces.Add(new DataImage(singleImage,
                     dataObject.Contains(ClipboardDataFormats.PositionFormat)
                         ? (VecI)dataObject.GetVecD(ClipboardDataFormats.PositionFormat)
                         : (VecI)pos));
+                importingType = "bytes";
                 continue;
             }
 
@@ -436,7 +441,7 @@ internal static class ClipboardController
                 paths.Add(textPath);
             }
 
-            if (paths == null || paths.Count == 0)
+            if (paths == null || paths.Count == 0 || (importingType != null && importingType != "files"))
             {
                 continue;
             }
@@ -463,6 +468,7 @@ internal static class ClipboardController
                     string filename = Path.GetFullPath(path);
                     surfaces.Add(new DataImage(filename, imported,
                         (VecI)dataObject.GetVecD(ClipboardDataFormats.PositionFormat)));
+                    importingType = "files";
                 }
                 catch
                 {
@@ -571,18 +577,18 @@ internal static class ClipboardController
         return false;
     }
 
-    private static Bitmap FromPNG(IDataObject data)
+    private static Surface FromPNG(IDataObject data)
     {
         object obj = data.Get("PNG");
         if (obj is byte[] bytes)
         {
-            using MemoryStream stream = new MemoryStream(bytes);
-            return new Bitmap(stream);
+            return Surface.Load(bytes);
         }
 
         if (obj is MemoryStream memoryStream)
         {
-            return new Bitmap(memoryStream);
+            bytes = memoryStream.ToArray();
+            return Surface.Load(bytes);
         }
 
         throw new InvalidDataException("PNG data is not in a supported format.");
@@ -594,7 +600,7 @@ internal static class ClipboardController
     {
         try
         {
-            Bitmap source;
+            Surface source;
             if (data.Contains(ClipboardDataFormats.Png) || data.Contains(ClipboardDataFormats.ImageSlashPng))
             {
                 source = FromPNG(data);
@@ -605,7 +611,7 @@ internal static class ClipboardController
                 return false;
             }
 
-            if (source.Format.Value.IsSkiaSupported())
+            /*if (source.Format.Value.IsSkiaSupported())
             {
                 result = SurfaceHelpers.FromBitmap(source);
             }
@@ -616,8 +622,9 @@ internal static class ClipboardController
                     source.Dpi, source.PixelSize.Width * 4);
 
                 result = SurfaceHelpers.FromBitmap(newFormat);
-            }
+            }*/
 
+            result = source;
             return true;
         }
         catch { }

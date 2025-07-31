@@ -654,8 +654,6 @@
   "BUILD_ID": "ID сборки: {0}",
   "WITHOUT_FILTERS": "Без фильтров",
   "RAW_LAYER_OUTPUT": "Исходник",
-  "BETA_EXAMPLE_FILES": "Примеры (Beta)",
-  "BETA_PROCEDURAL_GENERATION": "Процедурная анимация",
   "POND_EXAMPLE": "Пруд",
   "TREE_EXAMPLE": "Ветреный день",
   "OUTLINE_EXAMPLE": "Автообводка",
@@ -673,5 +671,12 @@
   "NEW_PALETTE_FILE": "палитра",
   "CHANGE_ACTIVE_FRAME_PREVIOUS": "Перейти на предыдущий кадр",
   "CHANGE_ACTIVE_FRAME_NEXT": "Перейти на следующий кадр",
-  "NEW_FROM_CLIPBOARD": "Создать из буфера обмена"
+  "NEW_FROM_CLIPBOARD": "Создать из буфера обмена",
+  "MIN_DISTANCE": "Мин. расстояние",
+  "MAX_POINTS": "Макс. точек",
+  "DISTRIBUTE_POINTS": "Распределить точки",
+  "REMOVE_CLOSE_POINTS": "Удалить близкие точки",
+  "RASTERIZE_SHAPE": "Растрировать фигуру",
+  "MODE": "Режим",
+  "Factor": "Степень"
 }
