@@ -12,6 +12,15 @@ public class Translate : MarkupExtension
 
     public Translate()
     {
+        if (ILocalizationProvider.Current == null)
+        {
+            ILocalizationProvider.OnLocalizationProviderChanged += (provider) =>
+            {
+                ILocalizationProvider.Current.OnLanguageChanged += (lang) => LanguageChanged();
+            };
+            return;
+        }
+
         ILocalizationProvider.Current.OnLanguageChanged += (lang) => LanguageChanged();
     }
 
