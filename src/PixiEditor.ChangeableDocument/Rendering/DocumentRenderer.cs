@@ -273,6 +273,7 @@ public class DocumentRenderer : IPreviewRenderable, IDisposable
         if (isExecuting) return;
 
         isExecuting = true;
+        using var ctx = DrawingBackendApi.Current?.RenderingDispatcher.EnsureContext();
         while (renderRequests.Count > 0)
         {
             RenderRequest request = renderRequests.Dequeue();
