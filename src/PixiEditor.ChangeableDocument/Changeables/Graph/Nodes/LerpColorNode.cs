@@ -36,9 +36,17 @@ public class LerpColorNode : Node // TODO: ILerpable as inputs?
 
         var constFrom = (Color)from.GetConstant();
         var constTo = (Color)to.GetConstant();
-        var constTime = (double)time.GetConstant();
+        var constTime = time.GetConstant();
 
-        Color result = Color.Lerp(constFrom, constTo, constTime);
+        double dTime = constTime switch
+        {
+            double d => d,
+            int i => i,
+            float f => f,
+            _ => throw new InvalidOperationException("Unsupported constant type for time.")
+        };
+
+        Color result = Color.Lerp(constFrom, constTo, dTime);
         return new Half4("") { ConstantValue = result };
     }
 
