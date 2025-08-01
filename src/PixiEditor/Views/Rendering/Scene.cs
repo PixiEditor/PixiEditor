@@ -465,7 +465,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                 }
             }
 
-            if(Cursor.ToString() != finalCursor.ToString())
+            if (Cursor.ToString() != finalCursor.ToString())
                 Cursor = finalCursor;
             e.Handled = args.Handled;
         }
@@ -766,6 +766,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     {
         if (resources != null && !resources.IsDisposed)
         {
+            using var ctx = IDrawieInteropContext.Current.EnsureContext();
             if (size.Width == 0 || size.Height == 0)
             {
                 return;
