@@ -212,7 +212,7 @@ public class DocumentRenderer : IPreviewRenderable, IDisposable
     public void RenderDocument(DrawingSurface toRenderOn, KeyFrameTime frameTime, VecI renderSize,
         string? customOutput = null)
     {
-        var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
+        using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
         IsBusy = true;
 
         if (renderTexture == null || renderTexture.Size != renderSize)
@@ -264,7 +264,6 @@ public class DocumentRenderer : IPreviewRenderable, IDisposable
         renderTexture.DrawingSurface.Canvas.Restore();
         toRenderOn.Canvas.Restore();
 
-        ctx.Dispose();
         IsBusy = false;
     }
 
