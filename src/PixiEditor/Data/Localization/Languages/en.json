@@ -647,6 +647,7 @@
   "OUTPUT_NODE": "Output",
   "NOISE_NODE": "Noise",
   "ELLIPSE_NODE": "Ellipse",
+  "RECTANGLE_NODE": "Rectangle",
   "CREATE_IMAGE_NODE": "Create Image",
   "FOLDER_NODE": "Folder",
   "IMAGE_LAYER_NODE": "Image Layer",
