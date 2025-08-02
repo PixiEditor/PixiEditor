@@ -192,6 +192,30 @@
                                       IsChecked="{Binding SettingsSubViewModel.Tools.EnableSharedToolbar}"
                                       ui:Translator.Key="ENABLE_SHARED_TOOLBAR" />
 
+                            <TextBlock ui:Translator.Key="Rendering" Classes="h5" />
+
+                            <Label Target="primaryToolsetComboBox" ui:Translator.Key="PREFERRED_RENDERER"
+                                   VerticalAlignment="Center" />
+
+                            <StackPanel Orientation="Horizontal" Spacing="5">
+                                <ComboBox Classes="leftOffset" Width="200" HorizontalAlignment="Left"
+                                          ItemsSource="{Binding SettingsSubViewModel.General.AvailableRenderApis}"
+                                          SelectedItem="{Binding SettingsSubViewModel.General.SelectedRenderApi, Mode=TwoWay}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock ui:Translator.Key="{Binding}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                                <Button Command="{cmds:Command Name=PixiEditor.Restart}"
+                                        Background="{DynamicResource ThemeAccentBrush}"
+                                        IsVisible="{Binding SettingsSubViewModel.General.RenderApiChangePending}"
+                                        d:Content="Restart to apply changes"
+                                        ui:Translator.Key="RESTART"
+                                        HorizontalAlignment="Left"
+                                        VerticalAlignment="Center" />
+                            </StackPanel>
+
                             <TextBlock ui:Translator.Key="DEBUG" Classes="h5" />
                             <CheckBox Classes="leftOffset"
                                       IsChecked="{Binding SettingsSubViewModel.General.IsDebugModeEnabled}"
@@ -322,12 +346,12 @@
                                               ItemsSource="{Binding SettingsSubViewModel.Update.UpdateChannels}"
                                               SelectedValue="{Binding SettingsSubViewModel.Update.UpdateChannelName}" />
                                     <TextBlock Cursor="Help"
-                                           Classes="pixi-icon"
-                                           Text="{DynamicResource icon-help}"
-                                           VerticalAlignment="Center"
-                                           ToolTip.ShowDelay="0"
-                                           IsVisible="{Binding !ShowUpdateTab}"
-                                           ui:Translator.TooltipKey="UPDATE_CHANNEL_HELP_TOOLTIP" />
+                                               Classes="pixi-icon"
+                                               Text="{DynamicResource icon-help}"
+                                               VerticalAlignment="Center"
+                                               ToolTip.ShowDelay="0"
+                                               IsVisible="{Binding !ShowUpdateTab}"
+                                               ui:Translator.TooltipKey="UPDATE_CHANNEL_HELP_TOOLTIP" />
                                     <!-- ToolTipService.InitialShowDelay="0"-->
                                 </StackPanel>
                             </StackPanel>
@@ -373,12 +397,12 @@
                             <StackPanel Spacing="5" Orientation="Horizontal" Classes="leftOffset">
                                 <Label Content="X" />
                                 <controls:SizeInput MinSize="0.5" Decimals="1"
-                                                 Size="{Binding SettingsSubViewModel.Scene.CustomBackgroundScaleX, Mode=TwoWay}"
-                                                 HorizontalAlignment="Left" />
+                                                    Size="{Binding SettingsSubViewModel.Scene.CustomBackgroundScaleX, Mode=TwoWay}"
+                                                    HorizontalAlignment="Left" />
                                 <Label Content="Y" />
                                 <controls:SizeInput MinSize="0.5" Decimals="1"
-                                                 Size="{Binding SettingsSubViewModel.Scene.CustomBackgroundScaleY, Mode=TwoWay}"
-                                                 HorizontalAlignment="Left" />
+                                                    Size="{Binding SettingsSubViewModel.Scene.CustomBackgroundScaleY, Mode=TwoWay}"
+                                                    HorizontalAlignment="Left" />
                             </StackPanel>
 
                             <StackPanel Orientation="Horizontal" Spacing="5">

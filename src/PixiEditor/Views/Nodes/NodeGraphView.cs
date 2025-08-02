@@ -87,8 +87,9 @@ internal class NodeGraphView : Zoombox.Zoombox
         AvaloniaProperty.Register<NodeGraphView, ICommand>(
             "CreateNodeFromContextCommand");
 
-    public static readonly StyledProperty<SocketsInfo> SocketsInfoProperty = AvaloniaProperty.Register<NodeGraphView, SocketsInfo>(
-        nameof(SocketsInfo));
+    public static readonly StyledProperty<SocketsInfo> SocketsInfoProperty =
+        AvaloniaProperty.Register<NodeGraphView, SocketsInfo>(
+            nameof(SocketsInfo));
 
     public SocketsInfo SocketsInfo
     {
@@ -402,6 +403,11 @@ internal class NodeGraphView : Zoombox.Zoombox
 
     private void CreateNodeType(NodeTypeInfo nodeType)
     {
+        if (nodeType == null)
+        {
+            return;
+        }
+
         var type = nodeType.NodeType;
         if (CreateNodeCommand != null && CreateNodeCommand.CanExecute(type))
         {
@@ -589,7 +595,7 @@ internal class NodeGraphView : Zoombox.Zoombox
 
         if (e.Source is NodeView nodeView)
         {
-            UpdateConnections(/*nodeView*/);
+            UpdateConnections( /*nodeView*/);
         }
     }
 
@@ -639,7 +645,7 @@ internal class NodeGraphView : Zoombox.Zoombox
         if (e.Property == BoundsProperty)
         {
             NodeView nodeView = (NodeView)sender!;
-            UpdateConnections(/*nodeView*/);
+            UpdateConnections( /*nodeView*/);
         }
     }
 
@@ -673,7 +679,7 @@ internal class NodeGraphView : Zoombox.Zoombox
         startDragConnectionPoint = _previewConnectionLine.StartPoint;
     }
 
-    private void UpdateConnections(/*NodeView nodeView*/)
+    private void UpdateConnections( /*NodeView nodeView*/)
     {
         connectionRenderer?.InvalidateVisual();
         /*if (nodeView == null)
@@ -822,8 +828,10 @@ internal class NodeGraphView : Zoombox.Zoombox
         {
             foreach (NodeConnectionViewModel connection in e.NewItems)
             {
-                SocketsInfo.Sockets[$"i:{connection.InputNode.Id}.{connection.InputProperty.PropertyName}"] = connection.InputProperty;
-                SocketsInfo.Sockets[$"o:{connection.OutputNode.Id}.{connection.OutputProperty.PropertyName}"] = connection.OutputProperty;
+                SocketsInfo.Sockets[$"i:{connection.InputNode.Id}.{connection.InputProperty.PropertyName}"] =
+                    connection.InputProperty;
+                SocketsInfo.Sockets[$"o:{connection.OutputNode.Id}.{connection.OutputProperty.PropertyName}"] =
+                    connection.OutputProperty;
             }
         }
         else if (e.Action == NotifyCollectionChangedAction.Reset)
@@ -841,14 +849,18 @@ internal class NodeGraphView : Zoombox.Zoombox
         {
             e.OldValue.Value.Connections.CollectionChanged += nodeGraph.OnConnectionsChanged;
         }
+
         if (e.NewValue.Value != null)
         {
             e.NewValue.Value.Connections.CollectionChanged += nodeGraph.OnConnectionsChanged;
             nodeGraph.SocketsInfo.Sockets.Clear();
             foreach (var connection in e.NewValue.Value.Connections)
             {
-                nodeGraph.SocketsInfo.Sockets[$"i:{connection.InputNode.Id}.{connection.InputProperty.PropertyName}"] = connection.InputProperty;
-                nodeGraph.SocketsInfo.Sockets[$"o:{connection.OutputNode.Id}.{connection.OutputProperty.PropertyName}"] = connection.OutputProperty;
+                nodeGraph.SocketsInfo.Sockets[$"i:{connection.InputNode.Id}.{connection.InputProperty.PropertyName}"] =
+                    connection.InputProperty;
+                nodeGraph.SocketsInfo.Sockets
+                        [$"o:{connection.OutputNode.Id}.{connection.OutputProperty.PropertyName}"] =
+                    connection.OutputProperty;
             }
         }
     }
