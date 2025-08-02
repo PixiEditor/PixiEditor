@@ -1123,5 +1123,9 @@
   "NORMALIZE_COORDINATES": "Normalize Coordinates",
   "TRANSFORMED_POSITION": "Transformed Position",
   "ACCOUNT_PROVIDER_NOT_AVAILABLE": "This build of PixiEditor does not support accounts. Use the official build from pixieditor.net to manage your account.",
-  "STEAM_OFFLINE": "Cannot validate the account. Steam is offline. Make sure Steam client is running and you are logged in."
+  "STEAM_OFFLINE": "Cannot validate the account. Steam is offline. Make sure Steam client is running and you are logged in.",
+  "ERROR_GPU_RESOURCES_CREATION": "Failed to create resources: Try updating your GPU drivers or try setting different rendering api in settings. \nError: '{0}'",
+  "ERROR_SAVING_PREFERENCES_DESC": "Failed to save preferences with error: '{0}'. Please check if you have write permissions to the PixiEditor data folder.",
+  "ERROR_SAVING_PREFERENCES": "Failed to save preferences",
+  "PREFERRED_RENDERER": "Preferred Render Api"
 }

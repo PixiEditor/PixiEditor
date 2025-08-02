@@ -36,5 +36,7 @@ public interface IOperatingSystem
 
     public bool HandleNewInstance(Dispatcher? dispatcher, Action<string, bool> openInExistingAction,
         IApplicationLifetime lifetime);
+
+    public string[] GetAvailableRenderers();
 }
 
