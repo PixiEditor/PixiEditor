@@ -466,12 +466,13 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
 
     public int GetFirstVisibleFrame()
     {
-        return keyFrames.Count > 0 ? keyFrames.Where(x => x.IsVisible).Min(x => x.StartFrameBindable) : 1;
+        return keyFrames.Count > 0 && keyFrames.Any(x => x.IsVisible)
+            ? keyFrames.Where(x => x.IsVisible).Min(x => x.StartFrameBindable) : 1;
     }
 
     public int GetLastVisibleFrame()
     {
-        return keyFrames.Count > 0
+        return keyFrames.Count > 0 && keyFrames.Any(x => x.IsVisible)
             ? keyFrames.Where(x => x.IsVisible).Max(x => x.StartFrameBindable + x.DurationBindable)
             : DefaultEndFrameBindable;
     }
