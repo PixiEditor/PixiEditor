@@ -75,7 +75,8 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
             ? doc.TransformViewModel.Corners.AABBBounds
             : null;
 
-        await Copy();
+        doc.Operations.TryStopActiveExecutor();
+        await Copy(lastTransformRect);
         doc.Operations.DeleteSelectedPixels(doc.AnimationDataViewModel.ActiveFrameBindable, true, lastTransformRect);
     }
 
@@ -349,9 +350,17 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         if (doc is null)
             return;
 
-        RectD? lastTransformRect = doc.TransformViewModel.TransformActive ?
-            doc.TransformViewModel.Corners.AABBBounds : null;
-        doc.Operations.TryStopActiveExecutor();
+        await ClipboardController.CopyToClipboard(doc, null);
+
+        SetHasImageInClipboard();
+    }
+
+    private async Task Copy(RectD? lastTransformRect)
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return;
+
         await ClipboardController.CopyToClipboard(doc, lastTransformRect);
 
         SetHasImageInClipboard();

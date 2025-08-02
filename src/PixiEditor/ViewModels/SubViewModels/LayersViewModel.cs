@@ -375,6 +375,15 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     public bool ActiveMemberHasMask() =>
         Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember?.HasMaskBindable ?? false;
 
+    [Evaluator.CanExecute("PixiEditor.Layer.ActiveLayerHasApplyableMask",
+        nameof(ViewModelMain.DocumentManagerSubViewModel.ActiveDocument),
+        nameof(ViewModelMain.DocumentManagerSubViewModel.ActiveDocument.SelectedStructureMember),
+        nameof(ViewModelMain.DocumentManagerSubViewModel.ActiveDocument.SelectedStructureMember.HasMaskBindable))]
+
+    public bool ActiveMemberHasApplyableMask() =>
+        (Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember?.HasMaskBindable ?? false)
+        && Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember is IRasterLayerHandler;
+
     [Evaluator.CanExecute("PixiEditor.Layer.ActiveLayerHasNoMask",
         nameof(ViewModelMain.DocumentManagerSubViewModel.ActiveDocument),
         nameof(ViewModelMain.DocumentManagerSubViewModel.ActiveDocument.SelectedStructureMember),
@@ -419,7 +428,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.Layer.ApplyMask", "APPLY_MASK", "APPLY_MASK",
-        CanExecute = "PixiEditor.Layer.ActiveLayerHasMask", AnalyticsTrack = true)]
+        CanExecute = "PixiEditor.Layer.ActiveLayerHasApplyableMask", AnalyticsTrack = true)]
     public void ApplyMask()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;

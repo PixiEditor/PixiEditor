@@ -21,7 +21,7 @@ internal sealed class ApplyMask_Change : Change
     public override bool InitializeAndValidate(Document target)
     {
         var member = target.FindMember(structureMemberGuid);
-        bool isValid = member is not (null or FolderNode) && member.EmbeddedMask is not null;
+        bool isValid = member is ImageLayerNode && member.EmbeddedMask is not null;
 
         return isValid;
     }

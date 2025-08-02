@@ -92,6 +92,11 @@ public sealed class WindowsOperatingSystem : IOperatingSystem
         return false;
     }
 
+    public string[] GetAvailableRenderers()
+    {
+        return ["Vulkan", "OpenGL"];
+    }
+
     public void HandleActivatedWithFile(FileActivatedEventArgs fileActivatedEventArgs) { }
 
     public void HandleActivatedWithUri(ProtocolActivatedEventArgs openUriEventArgs) { }

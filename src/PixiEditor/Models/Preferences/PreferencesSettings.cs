@@ -2,6 +2,9 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
+using PixiEditor.Helpers;
+using PixiEditor.Models.Dialogs;
+using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.Models.Preferences;
 
@@ -89,8 +92,17 @@ internal class PreferencesSettings : IPreferences
             Init();
         }
 
-        File.WriteAllText(PathToRoamingUserPreferences, JsonConvert.SerializeObject(Preferences));
-        File.WriteAllText(PathToLocalPreferences, JsonConvert.SerializeObject(LocalPreferences));
+        try
+        {
+            File.WriteAllText(PathToRoamingUserPreferences, JsonConvert.SerializeObject(Preferences));
+            File.WriteAllText(PathToLocalPreferences, JsonConvert.SerializeObject(LocalPreferences));
+        }
+        catch (Exception ex)
+        {
+            NoticeDialog.Show(
+                new LocalizedString("ERROR_SAVING_PREFERENCES_DESC", ex.Message),
+                "ERROR_SAVING_PREFERENCES");
+        }
     }
 
     public Dictionary<string, List<Action<string, object>>> Callbacks { get; set; } = new Dictionary<string, List<Action<string, object>>>();

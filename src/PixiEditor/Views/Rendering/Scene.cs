@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Globalization;
 using Avalonia;
 using Avalonia.Animation;
 using Avalonia.Input;
@@ -465,7 +466,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                 }
             }
 
-            if(Cursor.ToString() != finalCursor.ToString())
+            if (Cursor.ToString() != finalCursor.ToString())
                 Cursor = finalCursor;
             e.Handled = args.Handled;
         }
@@ -741,9 +742,28 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     protected (bool success, string info) InitializeGraphicsResources(Compositor targetCompositor,
         CompositionDrawingSurface compositionDrawingSurface, ICompositionGpuInterop interop)
     {
-        resources = IDrawieInteropContext.Current.CreateResources(compositionDrawingSurface, interop);
+        try
+        {
+            resources = IDrawieInteropContext.Current.CreateResources(compositionDrawingSurface, interop);
+        }
+        catch (Exception e)
+        {
+            return (false, new LocalizedString("ERROR_GPU_RESOURCES_CREATION", e.Message));
+        }
 
         return (true, string.Empty);
+    }
+
+    public override void Render(DrawingContext context)
+    {
+        if (!string.IsNullOrEmpty(info))
+        {
+            Point center = new Point(Bounds.Width / 2, Bounds.Height / 2);
+            context.DrawText(
+                new FormattedText(info, CultureInfo.CurrentCulture, FlowDirection.LeftToRight, Typeface.Default, 12,
+                    Brushes.White),
+                center);
+        }
     }
 
     protected async Task FreeGraphicsResources()
@@ -766,6 +786,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     {
         if (resources != null && !resources.IsDisposed)
         {
+            using var ctx = IDrawieInteropContext.Current.EnsureContext();
             if (size.Width == 0 || size.Height == 0)
             {
                 return;
