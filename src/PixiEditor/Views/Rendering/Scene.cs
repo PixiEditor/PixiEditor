@@ -705,7 +705,17 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         }
 
         var size = new PixelSize((int)Bounds.Width, (int)Bounds.Height);
-        RenderFrame(size);
+        try
+        {
+            RenderFrame(size);
+            info = string.Empty;
+        }
+        catch (Exception e)
+        {
+            info = new LocalizedString("ERROR_GPU_RESOURCES_CREATION", e.Message);
+            CrashHelper.SendExceptionInfo(e);
+            return;
+        }
     }
 
     public void QueueNextFrame()
