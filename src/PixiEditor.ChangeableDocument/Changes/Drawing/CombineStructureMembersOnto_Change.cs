@@ -4,6 +4,8 @@ using PixiEditor.ChangeableDocument.Changes.Structure;
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Bridge;
+using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
@@ -144,6 +146,11 @@ internal class CombineStructureMembersOnto_Change : Change
 
         var ordererd = OrderLayers(layersToCombine, target);
 
+        if (ordererd.Count == 0)
+        {
+            return changes;
+        }
+
         foreach (var guid in ordererd)
         {
             var layer = target.FindMemberOrThrow<StructureNode>(guid);
@@ -215,6 +222,11 @@ internal class CombineStructureMembersOnto_Change : Change
             }
             else
             {
+                if (targetPath == null)
+                {
+                    targetPath = new VectorPath();
+                }
+
                 targetPath.AddPath(path, vectorNode.EmbeddedShapeData.TransformationMatrix, AddPathMode.Append);
                 path.Dispose();
             }
@@ -227,10 +239,10 @@ internal class CombineStructureMembersOnto_Change : Change
             ShapeVectorData shape = clone as ShapeVectorData;
             data = new PathVectorData(targetPath)
             {
-                Stroke = shape.Stroke,
-                FillPaintable = shape.FillPaintable,
-                StrokeWidth = shape.StrokeWidth,
-                Fill = shape.Fill,
+                Stroke = shape?.Stroke,
+                FillPaintable = shape?.FillPaintable,
+                StrokeWidth = shape?.StrokeWidth ?? 1,
+                Fill = shape?.Fill ?? true,
                 TransformationMatrix = Matrix3X3.Identity
             };
         }
@@ -248,9 +260,9 @@ internal class CombineStructureMembersOnto_Change : Change
 
     private AffectedArea RasterMerge(Document target, StructureNode targetLayer, int frame)
     {
-        if(targetLayer is not ImageLayerNode)
+        if (targetLayer is not ImageLayerNode)
             throw new InvalidOperationException("Target layer is not a raster layer");
-        
+
         var toDrawOnImage = ((ImageLayerNode)targetLayer).GetLayerImageAtFrame(frame);
         toDrawOnImage.EnqueueClear();
 
@@ -261,7 +273,8 @@ internal class CombineStructureMembersOnto_Change : Change
         AffectedArea affArea = new();
         DrawingBackendApi.Current.RenderingDispatcher.Invoke(() =>
         {
-            renderer.RenderLayers(tempTexture.DrawingSurface, layersToCombine, frame, ChunkResolution.Full, target.Size);
+            renderer.RenderLayers(tempTexture.DrawingSurface, layersToCombine, frame, ChunkResolution.Full,
+                target.Size);
 
             toDrawOnImage.EnqueueDrawTexture(VecI.Zero, tempTexture);
 
@@ -288,7 +301,8 @@ internal class CombineStructureMembersOnto_Change : Change
         return ordered.Reverse().ToHashSet();
     }
 
-    private void AddMissingKeyFrame(StructureNode targetLayer, int frame, StructureNode layer, List<IChangeInfo> changes,
+    private void AddMissingKeyFrame(StructureNode targetLayer, int frame, StructureNode layer,
+        List<IChangeInfo> changes,
         Document target)
     {
         bool hasKeyframe = targetLayer.KeyFrames.Any(x => x.IsInFrame(frame));
