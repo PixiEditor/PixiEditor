@@ -32,11 +32,26 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
     protected override bool ExecuteOnlyOnCacheChange => true;
     protected override CacheTriggerFlags CacheTrigger => CacheTriggerFlags.All;
 
+    private string defaultShaderCode = """
+                                       // Below is a list of built-in special uniforms that are automatically added by PixiEditor.
+                                       // Any other uniform will be added as a Node input
+                                       
+                                       uniform vec2 iResolution; // The resolution of current render output. It is usually a document size.
+                                       uniform float iNormalizedTime; // The normalized time of the current frame, from 0 to 1.
+                                       uniform int iFrame; // The current frame number.
+                                       uniform shader iImage; // The Background input of the node, alternatively you can use "Background" uniform.
+                                       
+                                       half4 main(float2 uv)
+                                       {
+                                           return half4(1, 1, 1, 1);
+                                       }
+                                       """;
+
     public ShaderNode()
     {
         Background = CreateRenderInput("Background", "BACKGROUND");
         ColorSpace = CreateInput("ColorSpace", "COLOR_SPACE", ColorSpaceType.Inherit);
-        ShaderCode = CreateInput("ShaderCode", "SHADER_CODE", "")
+        ShaderCode = CreateInput("ShaderCode", "SHADER_CODE", defaultShaderCode)
             .WithRules(validator => validator.Custom(ValidateShaderCode))
             .NonOverridenChanged(RegenerateUniformInputs);
 
@@ -118,6 +133,7 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
         lastImageShader = snapshot.ToShader();
 
         uniforms.Add("iImage", new Uniform("iImage", lastImageShader));
+        uniforms.Add("Background", new Uniform("Background", lastImageShader));
 
         snapshot.Dispose();
         //texture.Dispose();
@@ -220,6 +236,11 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
         var uniforms = declarations;
 
         var nonExistingUniforms = uniformInputs.Keys.Where(x => uniforms.All(y => y.Name != x)).ToList();
+        if(nonExistingUniforms.Contains("Background"))
+        {
+            nonExistingUniforms.Remove("Background");
+        }
+
         foreach (var nonExistingUniform in nonExistingUniforms)
         {
             RemoveInputProperty(uniformInputs[nonExistingUniform].prop);
@@ -388,7 +409,7 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
 
     private bool IsBuiltInUniform(string name)
     {
-        return name is "iResolution" or "iNormalizedTime" or "iFrame" or "iImage";
+        return name is "iResolution" or "iNormalizedTime" or "iFrame" or "iImage" or "Background";
     }
 
     private ValidatorResult ValidateShaderCode(object? value)

@@ -43,6 +43,11 @@ public sealed class LinuxOperatingSystem : IOperatingSystem
         return true;
     }
 
+    public string[] GetAvailableRenderers()
+    {
+        return ["Vulkan", "OpenGL"];
+    }
+
     public void HandleActivatedWithFile(FileActivatedEventArgs fileActivatedEventArgs)
     {
         // TODO: Check if this is executed on Linux at all

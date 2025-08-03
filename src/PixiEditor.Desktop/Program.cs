@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Linq;
 using Avalonia;
 using Avalonia.Logging;
 using Drawie.Interop.Avalonia;
 using Drawie.Interop.VulkanAvalonia;
+using PixiEditor.Helpers;
 
 namespace PixiEditor.Desktop;
 
@@ -17,16 +19,37 @@ public class Program
 
     // Avalonia configuration, don't remove; also used by visual designer.
     public static AppBuilder BuildAvaloniaApp()
-        => AppBuilder.Configure<App>()
+    {
+        bool openGlPreferred = false;
+        try
+        {
+            openGlPreferred = string.Equals(RenderApiPreferenceManager.TryReadRenderApiPreference(), "opengl",
+                StringComparison.OrdinalIgnoreCase);
+
+            if (!openGlPreferred)
+            {
+                var cmdArgs = Environment.GetCommandLineArgs();
+                if (cmdArgs is { Length: > 0 })
+                {
+                    openGlPreferred = cmdArgs.Any(arg =>
+                        string.Equals(arg, "--opengl", StringComparison.OrdinalIgnoreCase));
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+        }
+
+        return AppBuilder.Configure<App>()
             .UsePlatformDetect()
             .With(new Win32PlatformOptions()
             {
-                RenderingMode = new Win32RenderingMode[] { Win32RenderingMode.Vulkan, Win32RenderingMode.Wgl },
+                RenderingMode = openGlPreferred ? [ Win32RenderingMode.Wgl, Win32RenderingMode.Vulkan] : [ Win32RenderingMode.Vulkan, Win32RenderingMode.Wgl],
                 OverlayPopups = true,
             })
             .With(new X11PlatformOptions()
             {
-                RenderingMode = new X11RenderingMode[] { X11RenderingMode.Vulkan, X11RenderingMode.Glx },
+                RenderingMode = openGlPreferred ? [ X11RenderingMode.Glx, X11RenderingMode.Vulkan] : [ X11RenderingMode.Vulkan, X11RenderingMode.Glx],
                 OverlayPopups = true,
             })
             .With(new SkiaOptions()
@@ -38,4 +61,5 @@ public class Program
             .LogToTrace(LogEventLevel.Verbose, "Vulkan")
 #endif
             .LogToTrace();
+    }
 }
