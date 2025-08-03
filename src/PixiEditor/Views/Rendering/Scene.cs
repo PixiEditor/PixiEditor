@@ -358,18 +358,25 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         {
             foreach (Overlay overlay in AllOverlays)
             {
-                if (!overlay.IsVisible || overlay.OverlayRenderSorting != sorting)
+                try
                 {
-                    continue;
+                    if (!overlay.IsVisible || overlay.OverlayRenderSorting != sorting)
+                    {
+                        continue;
+                    }
+
+                    overlay.PointerPosition = lastMousePosition;
+
+                    overlay.ZoomScale = Scale;
+
+                    if (!overlay.CanRender()) continue;
+
+                    overlay.RenderOverlay(renderSurface.Canvas, dirtyBounds);
                 }
-
-                overlay.PointerPosition = lastMousePosition;
-
-                overlay.ZoomScale = Scale;
-
-                if (!overlay.CanRender()) continue;
-
-                overlay.RenderOverlay(renderSurface.Canvas, dirtyBounds);
+                catch (Exception ex)
+                {
+                    CrashHelper.SendExceptionInfo(ex);
+                }
             }
         }
     }
@@ -417,160 +424,202 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     protected override void OnPointerMoved(PointerEventArgs e)
     {
         base.OnPointerMoved(e);
-        if (AllOverlays != null)
+        try
         {
-            OverlayPointerArgs args = ConstructPointerArgs(e);
-            lastMousePosition = args.Point;
-
-            Cursor finalCursor = DefaultCursor;
-
-            if (capturedOverlay != null)
+            if (AllOverlays != null)
             {
-                capturedOverlay.MovePointer(args);
-                if (capturedOverlay.IsHitTestVisible)
+                OverlayPointerArgs args = ConstructPointerArgs(e);
+                lastMousePosition = args.Point;
+
+                Cursor finalCursor = DefaultCursor;
+
+                if (capturedOverlay != null)
                 {
-                    finalCursor = capturedOverlay.Cursor ?? DefaultCursor;
-                }
-            }
-            else
-            {
-                foreach (Overlay overlay in AllOverlays)
-                {
-                    if (!overlay.IsVisible) continue;
-
-                    if (overlay.TestHit(args.Point))
+                    capturedOverlay.MovePointer(args);
+                    if (capturedOverlay.IsHitTestVisible)
                     {
-                        if (!mouseOverOverlays.Contains(overlay))
-                        {
-                            overlay.EnterPointer(args);
-                            mouseOverOverlays.Add(overlay);
-                        }
-                    }
-                    else
-                    {
-                        if (mouseOverOverlays.Contains(overlay))
-                        {
-                            overlay.ExitPointer(args);
-                            mouseOverOverlays.Remove(overlay);
-
-                            e.Handled = args.Handled;
-                            return;
-                        }
-                    }
-
-                    overlay.MovePointer(args);
-                    if (overlay.IsHitTestVisible)
-                    {
-                        finalCursor = overlay.Cursor ?? DefaultCursor;
+                        finalCursor = capturedOverlay.Cursor ?? DefaultCursor;
                     }
                 }
-            }
+                else
+                {
+                    foreach (Overlay overlay in AllOverlays)
+                    {
+                        if (!overlay.IsVisible) continue;
 
-            if (Cursor.ToString() != finalCursor.ToString())
-                Cursor = finalCursor;
-            e.Handled = args.Handled;
+                        if (overlay.TestHit(args.Point))
+                        {
+                            if (!mouseOverOverlays.Contains(overlay))
+                            {
+                                overlay.EnterPointer(args);
+                                mouseOverOverlays.Add(overlay);
+                            }
+                        }
+                        else
+                        {
+                            if (mouseOverOverlays.Contains(overlay))
+                            {
+                                overlay.ExitPointer(args);
+                                mouseOverOverlays.Remove(overlay);
+
+                                e.Handled = args.Handled;
+                                return;
+                            }
+                        }
+
+                        overlay.MovePointer(args);
+                        if (overlay.IsHitTestVisible)
+                        {
+                            finalCursor = overlay.Cursor ?? DefaultCursor;
+                        }
+                    }
+                }
+
+                if (Cursor.ToString() != finalCursor.ToString())
+                    Cursor = finalCursor;
+                e.Handled = args.Handled;
+            }
+        }
+        catch (Exception ex)
+        {
+            CrashHelper.SendExceptionInfo(ex);
         }
     }
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)
     {
         base.OnPointerPressed(e);
-        if (AllOverlays != null)
+        try
         {
-            OverlayPointerArgs args = ConstructPointerArgs(e);
-            if (capturedOverlay != null)
+            if (AllOverlays != null)
             {
-                capturedOverlay?.PressPointer(args);
-            }
-            else
-            {
-                foreach (var overlay in AllOverlays)
+                OverlayPointerArgs args = ConstructPointerArgs(e);
+                if (capturedOverlay != null)
                 {
-                    if (args.Handled) break;
-                    if (!overlay.IsVisible) continue;
-
-                    if (!overlay.IsHitTestVisible || !overlay.TestHit(args.Point)) continue;
-
-                    overlay.PressPointer(args);
+                    capturedOverlay?.PressPointer(args);
                 }
-            }
+                else
+                {
+                    foreach (var overlay in AllOverlays)
+                    {
+                        if (args.Handled) break;
+                        if (!overlay.IsVisible) continue;
 
-            e.Handled = args.Handled;
+                        if (!overlay.IsHitTestVisible || !overlay.TestHit(args.Point)) continue;
+
+                        overlay.PressPointer(args);
+                    }
+                }
+
+                e.Handled = args.Handled;
+            }
+        }
+        catch (Exception ex)
+        {
+            CrashHelper.SendExceptionInfo(ex);
         }
     }
 
     protected override void OnPointerExited(PointerEventArgs e)
     {
         base.OnPointerExited(e);
-        if (AllOverlays != null)
+        try
         {
-            OverlayPointerArgs args = ConstructPointerArgs(e);
-            for (var i = 0; i < mouseOverOverlays.Count; i++)
+            if (AllOverlays != null)
             {
-                var overlay = mouseOverOverlays[i];
-                if (args.Handled) break;
-                if (!overlay.IsVisible) continue;
+                OverlayPointerArgs args = ConstructPointerArgs(e);
+                for (var i = 0; i < mouseOverOverlays.Count; i++)
+                {
+                    var overlay = mouseOverOverlays[i];
+                    if (args.Handled) break;
+                    if (!overlay.IsVisible) continue;
 
-                overlay.ExitPointer(args);
-                mouseOverOverlays.Remove(overlay);
-                i--;
+                    overlay.ExitPointer(args);
+                    mouseOverOverlays.Remove(overlay);
+                    i--;
+                }
+
+                e.Handled = args.Handled;
             }
-
-            e.Handled = args.Handled;
+        }
+        catch (Exception ex)
+        {
+            CrashHelper.SendExceptionInfo(ex);
         }
     }
 
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
     {
         base.OnPointerExited(e);
-        if (AllOverlays != null)
+        try
         {
-            OverlayPointerArgs args = ConstructPointerArgs(e);
+            if (AllOverlays != null)
+            {
+                OverlayPointerArgs args = ConstructPointerArgs(e);
 
-            if (capturedOverlay != null)
-            {
-                capturedOverlay.ReleasePointer(args);
-                capturedOverlay = null;
-            }
-            else
-            {
-                foreach (Overlay overlay in AllOverlays)
+                if (capturedOverlay != null)
                 {
-                    if (args.Handled) break;
-                    if (!overlay.IsVisible) continue;
+                    capturedOverlay.ReleasePointer(args);
+                    capturedOverlay = null;
+                }
+                else
+                {
+                    foreach (Overlay overlay in AllOverlays)
+                    {
+                        if (args.Handled) break;
+                        if (!overlay.IsVisible) continue;
 
-                    if (!overlay.IsHitTestVisible || !overlay.TestHit(args.Point)) continue;
+                        if (!overlay.IsHitTestVisible || !overlay.TestHit(args.Point)) continue;
 
-                    overlay.ReleasePointer(args);
+                        overlay.ReleasePointer(args);
+                    }
                 }
             }
+        }
+        catch (Exception ex)
+        {
+            CrashHelper.SendExceptionInfo(ex);
         }
     }
 
     protected override void OnKeyDown(KeyEventArgs e)
     {
         base.OnKeyDown(e);
-        if (AllOverlays != null)
+        try
         {
-            foreach (Overlay overlay in AllOverlays)
+            if (AllOverlays != null)
             {
-                if (!overlay.IsVisible) continue;
+                foreach (Overlay overlay in AllOverlays)
+                {
+                    if (!overlay.IsVisible) continue;
 
-                overlay.KeyPressed(e);
+                    overlay.KeyPressed(e);
+                }
             }
+        }
+        catch (Exception ex)
+        {
+            CrashHelper.SendExceptionInfo(ex);
         }
     }
 
     protected override void OnKeyUp(KeyEventArgs e)
     {
         base.OnKeyUp(e);
-        if (AllOverlays != null)
+        try
         {
-            foreach (Overlay overlay in AllOverlays)
+            if (AllOverlays != null)
             {
-                if (!overlay.IsVisible) continue;
-                overlay.KeyReleased(e);
+                foreach (Overlay overlay in AllOverlays)
+                {
+                    if (!overlay.IsVisible) continue;
+                    overlay.KeyReleased(e);
+                }
             }
+        }
+        catch (Exception ex)
+        {
+            CrashHelper.SendExceptionInfo(ex);
         }
     }
 
@@ -597,26 +646,40 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     protected override void OnGotFocus(GotFocusEventArgs e)
     {
         base.OnGotFocus(e);
-        if (AllOverlays != null)
+        try
         {
-            foreach (Overlay overlay in AllOverlays)
+            if (AllOverlays != null)
             {
-                if (!overlay.IsVisible) continue;
-                overlay.FocusChanged(true);
+                foreach (Overlay overlay in AllOverlays)
+                {
+                    if (!overlay.IsVisible) continue;
+                    overlay.FocusChanged(true);
+                }
             }
+        }
+        catch (Exception ex)
+        {
+            CrashHelper.SendExceptionInfo(ex);
         }
     }
 
     protected override void OnLostFocus(RoutedEventArgs e)
     {
         base.OnLostFocus(e);
-        if (AllOverlays != null)
+        try
         {
-            foreach (Overlay overlay in AllOverlays)
+            if (AllOverlays != null)
             {
-                if (!overlay.IsVisible) continue;
-                overlay.FocusChanged(false);
+                foreach (Overlay overlay in AllOverlays)
+                {
+                    if (!overlay.IsVisible) continue;
+                    overlay.FocusChanged(false);
+                }
             }
+        }
+        catch (Exception ex)
+        {
+            CrashHelper.SendExceptionInfo(ex);
         }
     }
 
