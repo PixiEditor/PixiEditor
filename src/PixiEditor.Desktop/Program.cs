@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Avalonia;
 using Avalonia.Logging;
 using Drawie.Interop.Avalonia;
@@ -19,7 +20,26 @@ public class Program
     // Avalonia configuration, don't remove; also used by visual designer.
     public static AppBuilder BuildAvaloniaApp()
     {
-        bool openGlPreferred = string.Equals(RenderApiPreferenceManager.TryReadRenderApiPreference(), "opengl", StringComparison.OrdinalIgnoreCase);
+        bool openGlPreferred = false;
+        try
+        {
+            openGlPreferred = string.Equals(RenderApiPreferenceManager.TryReadRenderApiPreference(), "opengl",
+                StringComparison.OrdinalIgnoreCase);
+
+            if (!openGlPreferred)
+            {
+                var cmdArgs = Environment.GetCommandLineArgs();
+                if (cmdArgs is { Length: > 0 })
+                {
+                    openGlPreferred = cmdArgs.Any(arg =>
+                        string.Equals(arg, "--opengl", StringComparison.OrdinalIgnoreCase));
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+        }
+
         return AppBuilder.Configure<App>()
             .UsePlatformDetect()
             .With(new Win32PlatformOptions()

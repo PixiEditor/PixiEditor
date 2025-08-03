@@ -174,7 +174,7 @@ internal class LineToolOverlay : Overlay
         isDraggingHandle = false;
         IsSizeBoxEnabled = false;
         
-        AddToUndoCommand.Execute((LineStart, LineEnd));
+        AddToUndoCommand?.Execute((LineStart, LineEnd));
     }
 
     protected override void ZoomChanged(double newZoom)
