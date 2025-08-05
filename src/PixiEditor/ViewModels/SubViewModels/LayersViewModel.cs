@@ -557,6 +557,12 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
             NoticeDialog.Show(title: "ERROR", message: e.Message);
             return;
         }
+        catch (Exception e)
+        {
+            CrashHelper.SendExceptionInfo(e);
+            NoticeDialog.Show(title: "ERROR", message: e.Message);
+            return;
+        }
 
         byte[] bytes = bitmap.ToByteArray();
 

@@ -16,7 +16,7 @@ public class PixiAuthClient
     {
         httpClient = new HttpClient();
         httpClient.BaseAddress = new Uri(baseUrl);
-        httpClient.Timeout = TimeSpan.FromSeconds(30);
+        httpClient.Timeout = Timeout.InfiniteTimeSpan;
         if (apiKey != null)
         {
             httpClient.DefaultRequestHeaders.Add("X-API-KEY", apiKey);
