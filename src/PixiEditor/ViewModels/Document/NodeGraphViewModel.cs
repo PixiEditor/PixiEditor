@@ -109,31 +109,10 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
 
         Connections.Add(connection);
         
-        AddToFramesPartOf(connection.InputNode);
-        AddToFramesPartOf(connection.OutputNode);
+        UpdatesFramesPartOf(connection.InputNode);
+        UpdatesFramesPartOf(connection.OutputNode);
 
         StructureTree.Update(this);
-    }
-
-    private void AddToFramesPartOf(INodeHandler node)
-    {
-        node.TraverseBackwards(x =>
-        {
-            if (x is IPairNodeEndViewModel)
-                return false;
-
-            if (x is not IPairNodeStartViewModel)
-                return true;
-
-            var zone = Frames
-                .OfType<NodeZoneViewModel>()
-                .First(z => z.Start == x);
-
-            if (!zone.Nodes.Contains(node))
-                zone.Nodes.Add(node);
-
-            return true;
-        });
     }
 
     public void RemoveConnection(Guid nodeId, string property)
@@ -147,8 +126,8 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
             Connections.Remove(connection);
         }
 
-        RemoveFromFramesNotPartOf(connection.InputNode);
-        RemoveFromFramesNotPartOf(connection.OutputNode);
+        UpdatesFramesPartOf(connection.InputNode);
+        UpdatesFramesPartOf(connection.OutputNode);
         
         var node = AllNodes.FirstOrDefault(x => x.Id == nodeId);
         if (node != null)
@@ -163,30 +142,41 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
         StructureTree.Update(this);
     }
 
-    private void RemoveFromFramesNotPartOf(INodeHandler node)
+    private void UpdatesFramesPartOf(INodeHandler node)
     {
-        var framesPartOf =
-            Frames.OfType<NodeZoneViewModel>().Where(x => x.Nodes.Contains(node));
-
-        foreach (var frame in framesPartOf)
+        var lastKnownFramesPartOf = node.Frames.OfType<NodeZoneViewModel>().ToList();
+        var currentlyPartOf = new List<NodeZoneViewModel>();
+        
+        node.TraverseBackwards(x =>
         {
-            var stillConnected = false;
-
-            node.TraverseBackwards(x =>
-            {
-                if (x is not IPairNodeStartViewModel || frame.Start != x)
-                {
-                    return true;
-                }
-
-                stillConnected = true;
+            if (x is IPairNodeEndViewModel)
                 return false;
-            });
 
-            if (!stillConnected)
-            {
-                frame.Nodes.Remove(node);
-            }
+            if (x is not IPairNodeStartViewModel)
+                return true;
+
+            var zone = Frames
+                .OfType<NodeZoneViewModel>()
+                .First(z => z.Start == x);
+
+            currentlyPartOf.Add(zone);
+
+            return true;
+        });
+
+        foreach (var frame in currentlyPartOf)
+        {
+            if (!frame.Nodes.Contains(node))
+                frame.Nodes.Add(node);
+            
+            if (!node.Frames.Contains(frame))
+                node.Frames.Add(frame);
+        }
+
+        foreach (var removedFrom in lastKnownFramesPartOf.Except(currentlyPartOf))
+        {
+            removedFrom.Nodes.Remove(node);
+            node.Frames.Remove(removedFrom);
         }
     }
 

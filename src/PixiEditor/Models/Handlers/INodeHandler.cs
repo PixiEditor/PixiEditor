@@ -9,6 +9,7 @@ using Drawie.Backend.Core;
 using PixiEditor.Models.Rendering;
 using PixiEditor.Models.Structures;
 using Drawie.Numerics;
+using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.Models.Handlers;
 
@@ -33,6 +34,7 @@ public interface INodeHandler : INotifyPropertyChanged, IDisposable
     public void TraverseForwards(Func<INodeHandler, INodeHandler, bool> func);
     public void TraverseForwards(Func<INodeHandler, INodeHandler, INodePropertyHandler, bool> func);
     public void TraverseForwards(Func<INodeHandler, INodeHandler, INodePropertyHandler, INodePropertyHandler, bool> func);
+    public List<NodeFrameViewModelBase> Frames { get; }
     public IReadOnlyDictionary<string, INodePropertyHandler> InputPropertyMap { get; }
     public IReadOnlyDictionary<string, INodePropertyHandler> OutputPropertyMap { get; }
 }

@@ -436,6 +436,7 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
         }
     }
 
+    public List<NodeFrameViewModelBase> Frames { get; } = [];
 
     public virtual void Dispose()
     {
