@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using PixiEditor.Models.Handlers;
 using Drawie.Numerics;
@@ -10,6 +11,7 @@ namespace PixiEditor.ViewModels.Nodes;
 public abstract class NodeFrameViewModelBase : ObservableObject
 {
     private Guid id;
+    private StreamGeometry geometry;
     private VecD topLeft;
     private VecD bottomRight;
     private VecD size;
@@ -24,22 +26,10 @@ public abstract class NodeFrameViewModelBase : ObservableObject
         set => SetProperty(ref id, value);
     }
     
-    public VecD TopLeft
+    public StreamGeometry Geometry
     {
-        get => topLeft;
-        set => SetProperty(ref topLeft, value);
-    }
-
-    public VecD BottomRight
-    {
-        get => bottomRight;
-        set => SetProperty(ref bottomRight, value);
-    }
-
-    public VecD Size
-    {
-        get => size;
-        set => SetProperty(ref size, value);
+        get => geometry;
+        set => SetProperty(ref geometry, value);
     }
 
     public NodeFrameViewModelBase(Guid id, IEnumerable<INodeHandler> nodes)

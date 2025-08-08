@@ -110,9 +110,8 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <nodes:NodeFrameView
-                                    TopLeft="{Binding TopLeft}"
-                                    BottomRight="{Binding BottomRight}"
-                                    Size="{Binding Size}">
+                                    Geometry="{Binding Geometry}"
+                                    ClipToBounds="False">
                                     <nodes:NodeFrameView.Background>
                                         <MultiBinding Converter="{converters:UnsetSkipMultiConverter}">
                                             <Binding Path="InternalName"
@@ -132,12 +131,6 @@
                                 </nodes:NodeFrameView>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
-                        <ItemsControl.ItemContainerTheme>
-                            <ControlTheme TargetType="ContentPresenter">
-                                <Setter Property="Canvas.Left" Value="{Binding TopLeft.X}" />
-                                <Setter Property="Canvas.Top" Value="{Binding TopLeft.Y}" />
-                            </ControlTheme>
-                        </ItemsControl.ItemContainerTheme>
                     </ItemsControl>
                 </Grid>
             </ControlTemplate>
