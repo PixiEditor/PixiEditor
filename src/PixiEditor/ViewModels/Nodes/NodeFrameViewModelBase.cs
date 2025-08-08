@@ -44,10 +44,16 @@ public abstract class NodeFrameViewModelBase : ObservableObject
     private void OnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         var action = e.Action;
-        if (action != NotifyCollectionChangedAction.Add && action != NotifyCollectionChangedAction.Remove && action != NotifyCollectionChangedAction.Replace && action != NotifyCollectionChangedAction.Reset)
+        if (action is
+            not NotifyCollectionChangedAction.Add and
+            not NotifyCollectionChangedAction.Remove and
+            not NotifyCollectionChangedAction.Replace and
+            not NotifyCollectionChangedAction.Reset)
         {
             return;
         }
+
+        CalculateBounds();
         
         if (e.NewItems != null)
             AddHandlers(e.NewItems.Cast<INodeHandler>());
