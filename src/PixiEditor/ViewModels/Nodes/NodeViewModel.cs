@@ -25,6 +25,7 @@ namespace PixiEditor.ViewModels.Nodes;
 internal abstract class NodeViewModel : ObservableObject, INodeHandler
 {
     private LocalizedString displayName;
+    private Rect size;
     private IBrush? categoryBrush;
     private string? nodeNameBindable;
     private VecD position;
@@ -109,6 +110,12 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
                     new EndNodePosition_Action());
             }
         }
+    }
+
+    public Rect UiSize
+    {
+        get => size;
+        set => SetProperty(ref size, value);
     }
 
     public ObservableRangeCollection<INodePropertyHandler> Inputs

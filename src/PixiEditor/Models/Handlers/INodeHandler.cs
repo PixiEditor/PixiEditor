@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
+using Avalonia;
 using Avalonia.Media;
 using ChunkyImageLib;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
@@ -22,6 +23,7 @@ public interface INodeHandler : INotifyPropertyChanged, IDisposable
     public ObservableRangeCollection<INodePropertyHandler> Outputs { get; }
     public PreviewPainter? ResultPainter { get; set; }
     public VecD PositionBindable { get; set; }
+    public Rect UiSize { get; set; }
     public bool IsNodeSelected { get; set; }
     public string Icon { get; }
     public void TraverseBackwards(Func<INodeHandler, bool> func);

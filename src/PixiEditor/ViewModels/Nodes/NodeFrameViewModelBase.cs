@@ -81,7 +81,9 @@ public abstract class NodeFrameViewModelBase : ObservableObject
 
     private void NodePropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName != nameof(INodeHandler.PositionBindable))
+        if (e.PropertyName is
+            not nameof(INodeHandler.PositionBindable) and
+            not nameof(INodeHandler.UiSize))
         {
             return;
         }

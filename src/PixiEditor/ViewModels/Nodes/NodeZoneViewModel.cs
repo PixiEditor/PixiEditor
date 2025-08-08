@@ -51,22 +51,30 @@ public sealed class NodeZoneViewModel : NodeFrameViewModelBase
         const int defaultXOffset = -30;
         const int defaultYOffset = -45;
         
-        // TODO: Use the actual node height
         foreach (var node in Nodes)
         {
+            var size = new VecD(node.UiSize.Size.Width, node.UiSize.Size.Height);
+
             if (node == start)
             {
-                list.Add(new RectD(node.PositionBindable + new VecD(100, defaultYOffset), new VecD(100, 400)));
-                continue;
-            }
-
-            if (node == end)
-            {
-                list.Add(new RectD(node.PositionBindable + new VecD(defaultXOffset, defaultYOffset), new VecD(100, 400)));
+                // The + 40 ensure that the rectangle has a minimum size
+                var safeSizeOffset = size + new VecD(-size.X + 40, defaultYOffset * -2);
+                
+                list.Add(new RectD(node.PositionBindable + new VecD(size.X / 3 * 2, defaultYOffset), safeSizeOffset));
                 continue;
             }
             
-            list.Add(new RectD(node.PositionBindable + new VecD(defaultXOffset, defaultYOffset), new VecD(200, 400)));
+            if (node == end)
+            {
+                var sizeOffset = size + new VecD(-size.X, defaultYOffset * -2);
+
+                list.Add(new RectD(node.PositionBindable + new VecD(size.X / 3, defaultYOffset), sizeOffset));
+                continue;
+            }
+            
+            var sizeNormalOffset = size + new VecD(defaultXOffset * -2, defaultYOffset * -2);
+
+            list.Add(new RectD(node.PositionBindable + new VecD(defaultXOffset, defaultYOffset), sizeNormalOffset));
         }
         
         return list;
