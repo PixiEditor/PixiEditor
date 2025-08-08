@@ -7,13 +7,10 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate>
-                    <Grid Width="{Binding Size.X, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeFrameView}}">
-                        <Rectangle Fill="{TemplateBinding Background}"
-                                   Stroke="{TemplateBinding BorderBrush}"
-                                   StrokeThickness="2" RadiusX="10" RadiusY="10"
-                                   Width="{Binding Size.X, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeFrameView}}"
-                                   Height="{Binding Size.Y, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeFrameView}}" />
-                    </Grid>
+                    <Path Data="{Binding Geometry, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeFrameView}}"
+                          Fill="{TemplateBinding Background}"
+                          Stroke="{TemplateBinding BorderBrush}"
+                          StrokeThickness="2" />
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
