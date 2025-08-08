@@ -49,8 +49,11 @@ public abstract class NodeFrameViewModelBase : ObservableObject
             return;
         }
         
-        AddHandlers((IEnumerable<NodeViewModel>)e.NewItems);
-        RemoveHandlers((IEnumerable<NodeViewModel>)e.OldItems);
+        if (e.NewItems != null)
+            AddHandlers(e.NewItems.Cast<INodeHandler>());
+        
+        if (e.OldItems != null)
+            RemoveHandlers(e.OldItems.Cast<INodeHandler>());
     }
 
     private void AddHandlers(IEnumerable<INodeHandler> nodes)

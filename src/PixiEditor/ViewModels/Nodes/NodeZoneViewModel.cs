@@ -9,16 +9,17 @@ namespace PixiEditor.ViewModels.Nodes;
 
 public sealed class NodeZoneViewModel : NodeFrameViewModelBase
 {
-    private INodeHandler start;
-    private INodeHandler end;
+    public INodeHandler Start { get; }
+    
+    public INodeHandler End { get; }
 
     public NodeZoneViewModel(Guid id, string internalName, INodeHandler start, INodeHandler end) : base(id,
         [start, end])
     {
         InternalName = internalName;
 
-        this.start = start.Metadata.IsPairNodeStart ? start : end;
-        this.end = start.Metadata.IsPairNodeStart ? end : start;
+        this.Start = start.Metadata.IsPairNodeStart ? start : end;
+        this.End = start.Metadata.IsPairNodeStart ? end : start;
 
         CalculateBounds();
     }
@@ -223,7 +224,7 @@ public sealed class NodeZoneViewModel : NodeFrameViewModelBase
             var pos = node.PositionBindable;
             var size = new VecD(node.UiSize.Size.Width, node.UiSize.Size.Height);
 
-            if (node == start)
+            if (node == Start)
             {
                 var twoThirdsX = size.X * (2.0 / 3.0);
 
@@ -235,7 +236,7 @@ public sealed class NodeZoneViewModel : NodeFrameViewModelBase
                 continue;
             }
 
-            if (node == end)
+            if (node == End)
             {
                 var oneThirdX = size.X / 3.0;
 
@@ -252,7 +253,7 @@ public sealed class NodeZoneViewModel : NodeFrameViewModelBase
 
             list.Add(pos + new VecD(-defaultXOffset, -defaultYOffset));
             list.Add(pos + new VecD(right, -defaultYOffset));
-            list.Add(pos + new VecD(-defaultXOffset, -bottom));
+            list.Add(pos + new VecD(-defaultXOffset, bottom));
             list.Add(pos + new VecD(right, bottom));
         }
 
