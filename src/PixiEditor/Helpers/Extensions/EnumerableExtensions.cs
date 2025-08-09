@@ -95,4 +95,17 @@ internal static class EnumerableExtensions
 
         return IndexOrNext(collection, predicate, index, false);
     }
+
+    public static T IndexOrNextInDirection<T>(this IEnumerable<T> collection, Predicate<T> predicate, int index, NextToDirection direction, bool overrun = true) => direction switch
+    {
+        NextToDirection.Forwards => IndexOrNext(collection, predicate, index, overrun),
+        NextToDirection.Backwards => IndexOrPrevious(collection, predicate, index, overrun),
+        _ => throw new ArgumentOutOfRangeException(nameof(direction)),
+    };
+}
+
+enum NextToDirection
+{
+    Forwards = 1,
+    Backwards = -1
 }
