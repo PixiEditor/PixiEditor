@@ -79,6 +79,13 @@
       "localeFileName": "hu.json",
       "iconFileName": "hu.png",
       "lastUpdated": "2023-05-08 22:07:37"
+    },
+    {
+      "name": "Français",
+      "code": "fr",
+      "localeFileName": "fr.json",
+      "iconFileName": "fr.png",
+      "lastUpdated": "2025-08-09 07:43:20"
     }
   ]
 }
