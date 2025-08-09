@@ -5,7 +5,10 @@ using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
+using PixiEditor.Helpers.Extensions;
 using PixiEditor.Helpers.Nodes;
 using PixiEditor.ViewModels.Nodes;
 using PixiEditor.Views.Input;
@@ -41,6 +44,15 @@ public partial class NodePicker : TemplatedControl
     {
         get => GetValue(SelectedCategoryProperty);
         set => SetValue(SelectedCategoryProperty, value);
+    }
+
+    public static readonly StyledProperty<NodeTypeInfo> SelectedNodeProperty =
+        AvaloniaProperty.Register<NodePicker, NodeTypeInfo>(nameof(SelectedNode));
+
+    public NodeTypeInfo? SelectedNode
+    {
+        get => GetValue(SelectedNodeProperty);
+        set => SetValue(SelectedNodeProperty, value);
     }
 
     public ObservableCollection<NodeTypeInfo> AllNodeTypeInfos
@@ -113,6 +125,7 @@ public partial class NodePicker : TemplatedControl
     {
         _inputBox = e.NameScope.Find<InputBox>("PART_InputBox");
 
+        _inputBox.Loaded += (_, _) => _inputBox.SelectAll();
         _inputBox.KeyDown += OnInputBoxKeyDown;
 
         _itemsControl = e.NameScope.Find<ItemsControl>("PART_NodeList");
@@ -158,6 +171,8 @@ public partial class NodePicker : TemplatedControl
             return;
         }
 
+        nodePicker.SelectedNode = null;
+        
         if (NodeAbbreviation.IsAbbreviation(nodePicker.SearchQuery, out var abbreviationName))
         {
             nodePicker.FilteredNodeGroups = nodePicker.NodeTypeGroupsFromQuery(abbreviationName);
@@ -235,8 +250,22 @@ public partial class NodePicker : TemplatedControl
 
     private void OnInputBoxKeyDown(object? sender, KeyEventArgs e)
     {
-        if (e.Key != Key.Enter)
+        switch (e.Key)
         {
+            case Key.Enter:
+                HandleEnterDown(sender, e);
+                return;
+            case Key.Down or Key.Up:
+                HandleKeyUpDown(sender, e); 
+                return;
+        }
+    }
+
+    private void HandleEnterDown(object? sender, KeyEventArgs e)
+    {
+        if (SelectedNode != null)
+        {
+            SelectNodeCommand.Execute(SelectedNode);
             return;
         }
 
@@ -247,17 +276,62 @@ public partial class NodePicker : TemplatedControl
             return;
         }
 
-        if (nodes == null && FilteredNodeGroups.Count > 0)
+        foreach (var node in nodes)
         {
-            SelectNodeCommand.Execute(FilteredNodeGroups[0]);
+            SelectNodeCommand.Execute(node);
         }
-        else
+    }
+
+    private void HandleKeyUpDown(object? sender, KeyEventArgs e)
+    {
+        if (SelectedNode == null)
         {
-            foreach (var node in nodes)
-            {
-                SelectNodeCommand.Execute(node);
-            }
+            SelectedNode = e.Key == Key.Down
+                ? FilteredNodeGroups.FirstOrDefault()?.NodeTypes.FirstOrDefault()
+                : FilteredNodeGroups.LastOrDefault()?.NodeTypes.LastOrDefault();
+                
+            return;
         }
+
+        var direction = e.Key == Key.Down ? NextToDirection.Forwards : NextToDirection.Backwards;
+        SelectedNode = GetNodeNextTo(FilteredNodeGroups, SelectedNode, direction, out var group);
+
+        var container = _itemsControl.ContainerFromItem(group);
+        var buttonList = container.FindDescendantOfType<ItemsControl>();
+        
+        var button = buttonList.ContainerFromItem(SelectedNode);
+
+        const double padding = 2.6;
+        const double paddingHeight = padding * 2 + 1;
+        
+        // Bring Button above/below also into view
+        button.BringIntoView(new Rect(0, button.Bounds.Height * -padding, button.Bounds.Width, button.Bounds.Height * paddingHeight));
+    }
+
+    private static NodeTypeInfo? GetNodeNextTo(ObservableCollection<NodeTypeGroup> groups, NodeTypeInfo node, NextToDirection direction, out NodeTypeGroup group)
+    {
+        var currentGroup = groups.FirstOrDefault(x => x.NodeTypes.Contains(node));
+
+        group = currentGroup;
+        if (currentGroup == null)
+            return null;
+        
+        var indexInGroup = currentGroup.NodeTypes.IndexOf(node);
+        var groupIndex = groups.IndexOf(currentGroup);
+
+        if (direction == NextToDirection.Backwards && indexInGroup == 0)
+        {
+            group = groups.WrapPreviousBeforeIndex(groupIndex);
+            return group.NodeTypes.Last();
+        }
+
+        if (direction == NextToDirection.Forwards && indexInGroup == currentGroup.NodeTypes.Count - 1)
+        {
+            group = groups.WrapNextAfterIndex(groupIndex);
+            return group.NodeTypes.First();
+        }
+
+        return currentGroup.NodeTypes[indexInGroup + (int)direction];
     }
 
     private static bool SearchComparer(NodeTypeInfo x, string lookFor) =>

@@ -184,11 +184,11 @@ internal partial class CommandSearchControl : UserControl, INotifyPropertyChange
         }
         else if (e.Key is Key.Down or Key.PageDown)
         {
-            MoveSelection(1);
+            MoveSelection(NextToDirection.Forwards);
         }
         else if (e.Key is Key.Up or Key.PageUp)
         {
-            MoveSelection(-1);
+            MoveSelection(NextToDirection.Backwards);
         }
         else if (e.Key == Key.Escape ||
                  CommandController.Current.Commands["PixiEditor.Search.Toggle"].Shortcut
@@ -266,22 +266,18 @@ internal partial class CommandSearchControl : UserControl, INotifyPropertyChange
         }
     }
 
-    private void MoveSelection(int delta)
+    private void MoveSelection(NextToDirection direction)
     {
-        if (delta == 0)
-            return;
         if (SelectedResult is null)
         {
             SelectedResult = Results.FirstOrDefault(x => x.CanExecute);
             return;
         }
 
-        int newIndex = Results.IndexOf(SelectedResult) + delta;
+        var newIndex = Results.IndexOf(SelectedResult) + (int)direction;
         newIndex = (newIndex % Results.Count + Results.Count) % Results.Count;
 
-        SelectedResult = delta > 0
-            ? Results.IndexOrNext(x => x.CanExecute, newIndex)
-            : Results.IndexOrPrevious(x => x.CanExecute, newIndex);
+        SelectedResult = Results.IndexOrNextInDirection(x => x.CanExecute, newIndex, direction);
 
         newIndex = Results.IndexOf(SelectedResult);
         itemscontrol.ContainerFromIndex(newIndex)?.BringIntoView();
