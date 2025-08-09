@@ -113,6 +113,7 @@ public partial class NodePicker : TemplatedControl
     {
         _inputBox = e.NameScope.Find<InputBox>("PART_InputBox");
 
+        _inputBox.Loaded += (_, _) => _inputBox.SelectAll();
         _inputBox.KeyDown += OnInputBoxKeyDown;
 
         _itemsControl = e.NameScope.Find<ItemsControl>("PART_NodeList");
