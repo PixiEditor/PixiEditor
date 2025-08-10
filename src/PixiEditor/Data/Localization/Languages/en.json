@@ -1127,5 +1127,6 @@
   "ERROR_GPU_RESOURCES_CREATION": "Failed to create resources: Try updating your GPU drivers or try setting different rendering api in settings. \nError: '{0}'",
   "ERROR_SAVING_PREFERENCES_DESC": "Failed to save preferences with error: '{0}'. Please check if you have write permissions to the PixiEditor data folder.",
   "ERROR_SAVING_PREFERENCES": "Failed to save preferences",
-  "PREFERRED_RENDERER": "Preferred Render Api"
+  "PREFERRED_RENDERER": "Preferred Render Api",
+  "INVERT_MASK": "Invert mask"
 }

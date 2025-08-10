@@ -25,16 +25,18 @@ public class ApplyFilterNode : RenderNode, IRenderInput
     public RenderInputProperty Background { get; }
 
     public RenderInputProperty Mask { get; }
+    
+    public InputProperty<bool> InvertMask { get; }
 
     public ApplyFilterNode()
     {
         Background = CreateRenderInput("Input", "IMAGE");
         Filter = CreateInput<Filter>("Filter", "FILTER", null);
         Mask = CreateRenderInput("Mask", "MASK");
+        InvertMask = CreateInput("InvertMask", "INVERT_MASK", false);
         Output.FirstInChain = null;
         AllowHighDpiRendering = true;
     }
-
 
     protected override void Paint(RenderContext context, DrawingSurface surface)
     {
@@ -105,6 +107,7 @@ public class ApplyFilterNode : RenderNode, IRenderInput
 
     private void ApplyWithMask(RenderContext context, DrawingSurface processedSurface, DrawingSurface finalSurface)
     {
+        _maskPaint.BlendMode = !InvertMask.Value ? BlendMode.DstIn : BlendMode.DstOut;
         var maskLayer = processedSurface.Canvas.SaveLayer(_maskPaint);
         Mask.Value?.Paint(context, processedSurface);
         processedSurface.Canvas.RestoreToCount(maskLayer);
