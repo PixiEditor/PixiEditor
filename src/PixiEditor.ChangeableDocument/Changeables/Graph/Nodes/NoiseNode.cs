@@ -122,10 +122,83 @@ public class NoiseNode : RenderNode
                 (float)(1d / Scale.Value),
                 (float)(1d / Scale.Value),
                 octaves, (float)Seed.Value),
+            Nodes.NoiseType.Voronoi => CreateVoronoiShader((float)Seed.Value, (float)(1d / (Scale.Value)), octaves),
             _ => null
         };
 
         return shader;
+    }
+
+    private Shader CreateVoronoiShader(float seed, float frequency, int octaves)
+    {
+        string voronoiShaderCode = """
+                                   uniform float iSeed;
+                                   uniform float iFrequency;
+                                   uniform int iOctaves;
+                                   
+                                   const int MAX_OCTAVES = 8;
+                                   const float LARGE_NUMBER = 1e9;
+                                   const float FEATURE_SEED_SCALE = 10.0;
+                                   
+                                   float hashPoint(float2 p, float seed) {
+                                       p = fract(p * float2(0.3183099, 0.3678794) + seed);
+                                       p += dot(p, p.yx + 19.19);
+                                       return fract(p.x * p.y);
+                                   }
+                                   
+                                   float2 getFeaturePoint(float2 cell, float seed) {
+                                       return float2(
+                                           hashPoint(cell, seed),
+                                           hashPoint(cell, seed + 17.0)
+                                       );
+                                   }
+                                   
+                                   float getNearestVoronoiDistance(float2 pos, float seed) {
+                                       float2 cell = floor(pos);
+                                       float minDist = LARGE_NUMBER;
+                                   
+                                       for (int y = -1; y <= 1; y++) {
+                                           for (int x = -1; x <= 1; x++) {
+                                               float2 neighborCell = cell + float2(float(x), float(y));
+                                               float2 featurePoint = getFeaturePoint(neighborCell, seed);
+                                               float2 delta = pos - (neighborCell + featurePoint);
+                                               float dist = length(delta);
+                                               minDist = min(minDist, dist);
+                                           }
+                                       }
+                                       return minDist;
+                                   }
+                                   
+                                   half4 main(float2 uv) {
+                                       float noiseSum = 0.0;
+                                       float amplitude = 1.0;
+                                       float amplitudeSum = 0.0;
+                                   
+                                       for (int octave = 0; octave < MAX_OCTAVES; octave++) {
+                                           if (octave >= iOctaves) break;
+                                   
+                                           float freq = iFrequency * exp2(float(octave));
+                                           float2 samplePos = uv * freq;
+                                           float dist = getNearestVoronoiDistance(
+                                               samplePos,
+                                               iSeed + float(octave) * FEATURE_SEED_SCALE
+                                           );
+                                   
+                                           noiseSum += dist * amplitude;
+                                           amplitudeSum += amplitude;
+                                           amplitude *= 0.5;
+                                       }
+                                   
+                                       return half4(noiseSum / amplitudeSum);
+                                   }
+                                   """;
+        
+        Uniforms uniforms = new Uniforms();
+        uniforms.Add("iSeed", new Uniform("iSeed", seed));
+        uniforms.Add("iFrequency", new Uniform("iFrequency", frequency));
+        uniforms.Add("iOctaves", new Uniform("iOctaves", octaves));
+        
+        return Shader.Create(voronoiShaderCode, uniforms, out _);
     }
 
     public override Node CreateCopy() => new NoiseNode();
@@ -134,5 +207,6 @@ public class NoiseNode : RenderNode
 public enum NoiseType
 {
     TurbulencePerlin,
-    FractalPerlin
+    FractalPerlin,
+    Voronoi
 }
