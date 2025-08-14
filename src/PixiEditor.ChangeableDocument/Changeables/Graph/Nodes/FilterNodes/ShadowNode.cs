@@ -1,6 +1,7 @@
 ﻿using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 
@@ -18,7 +19,7 @@ public class ShadowNode : FilterNode
         Color = CreateInput("Color", "COLOR", Colors.Black);
     }
 
-    protected override ImageFilter? GetImageFilter()
+    protected override ImageFilter? GetImageFilter(RenderContext context)
     {
         return ImageFilter.CreateDropShadow((float)Offset.Value.X, (float)Offset.Value.Y, (float)Sigma.Value.X, (float)Sigma.Value.Y, Color.Value, null);
     }

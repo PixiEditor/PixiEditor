@@ -1,6 +1,7 @@
 ﻿using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 
@@ -17,7 +18,7 @@ public class ColorMatrixFilterNode : FilterNode
         Matrix = CreateInput(nameof(Matrix), "MATRIX", ColorMatrix.Identity);
     }
 
-    protected override ColorFilter? GetColorFilter()
+    protected override ColorFilter? GetColorFilter(RenderContext context)
     {
         if (Matrix.Value.Equals(lastMatrix))
         {

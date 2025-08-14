@@ -1,6 +1,7 @@
 ﻿using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 
@@ -34,7 +35,7 @@ public class GrayscaleNode : FilterNode
         CustomWeight = CreateInput("CustomWeight", "WEIGHT_FACTOR", new Vec3D(1, 1, 1));
     }
 
-    protected override ColorFilter? GetColorFilter()
+    protected override ColorFilter? GetColorFilter(RenderContext context)
     {
         if (Mode.Value == lastMode 
             && Factor.Value == lastFactor 
