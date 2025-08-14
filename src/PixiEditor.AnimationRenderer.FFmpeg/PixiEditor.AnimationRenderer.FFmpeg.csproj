@@ -32,13 +32,13 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(RuntimeIdentifier)' == 'osx-x64'">
-    <Content Include="ThirdParty\MacOS\ffmpeg\**">
+    <Content Include="ThirdParty/MacOS/ffmpeg/**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
   <ItemGroup Condition="'$(RuntimeIdentifier)' == 'osx-arm64'">
-    <Content Include="ThirdParty\MacOS\ffmpeg\**">
+    <Content Include="ThirdParty/MacOS/ffmpeg/**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
