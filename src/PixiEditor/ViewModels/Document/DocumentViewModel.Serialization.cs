@@ -314,7 +314,10 @@ internal partial class DocumentViewModel
         var path = new SvgPath();
         if (data.Path != null)
         {
-            string pathData = data.Path.ToSvgPathData();
+            // This is super strange, we got reports that on linux with different locales, numbers are separated by commas
+            // and not dots. Comma separated svg data is invalid. This is raw Skia call, there is no other place where it could be changed.
+            // That's why we replace commas with dots here. I really hope skia never uses commas as a number separator
+            string pathData = data.Path.ToSvgPathData().Replace(",", ".");
             path.PathData.Unit = new SvgStringUnit(pathData);
             SvgFillRule fillRule = data.Path.FillType switch
             {
