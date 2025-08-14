@@ -33,6 +33,7 @@ public class NoiseNode : RenderNode
     public InputProperty<int> Octaves { get; }
 
     public InputProperty<double> Seed { get; }
+    public InputProperty<double> Randomness { get; }
 
     public NoiseNode()
     {
@@ -45,6 +46,9 @@ public class NoiseNode : RenderNode
             .WithRules(validator => validator.Min(1));
 
         Seed = CreateInput(nameof(Seed), "SEED", 0d);
+        
+        Randomness = CreateInput(nameof(Randomness), "RANDOMNESS", 0d)
+            .WithRules(v => v.Min(0d).Max(1d));
     }
 
     protected override void OnPaint(RenderContext context, DrawingSurface target)
@@ -122,19 +126,20 @@ public class NoiseNode : RenderNode
                 (float)(1d / Scale.Value),
                 (float)(1d / Scale.Value),
                 octaves, (float)Seed.Value),
-            Nodes.NoiseType.Voronoi => CreateVoronoiShader((float)Seed.Value, (float)(1d / (Scale.Value)), octaves),
+            Nodes.NoiseType.Voronoi => CreateVoronoiShader((float)Seed.Value, (float)(1d / (Scale.Value)), octaves, (float)Randomness.Value),
             _ => null
         };
 
         return shader;
     }
 
-    private Shader CreateVoronoiShader(float seed, float frequency, int octaves)
+    private Shader CreateVoronoiShader(float seed, float frequency, int octaves, float randomness)
     {
         string voronoiShaderCode = """
                                    uniform float iSeed;
                                    uniform float iFrequency;
                                    uniform int iOctaves;
+                                   uniform float iRandomness;
                                    
                                    const int MAX_OCTAVES = 8;
                                    const float LARGE_NUMBER = 1e9;
@@ -146,11 +151,12 @@ public class NoiseNode : RenderNode
                                        return fract(p.x * p.y);
                                    }
                                    
-                                   float2 getFeaturePoint(float2 cell, float seed) {
-                                       return float2(
+                                   float2 getFeaturePoint(float2 cell, float seed, float randomness) {
+                                       float2 randomFeaturePoint = float2(
                                            hashPoint(cell, seed),
                                            hashPoint(cell, seed + 17.0)
                                        );
+                                       return mix(float2(0.5, 0.5), randomFeaturePoint, randomness);
                                    }
                                    
                                    float getNearestVoronoiDistance(float2 pos, float seed) {
@@ -160,7 +166,7 @@ public class NoiseNode : RenderNode
                                        for (int y = -1; y <= 1; y++) {
                                            for (int x = -1; x <= 1; x++) {
                                                float2 neighborCell = cell + float2(float(x), float(y));
-                                               float2 featurePoint = getFeaturePoint(neighborCell, seed);
+                                               float2 featurePoint = getFeaturePoint(neighborCell, seed, iRandomness);
                                                float2 delta = pos - (neighborCell + featurePoint);
                                                float dist = length(delta);
                                                minDist = min(minDist, dist);
@@ -197,6 +203,7 @@ public class NoiseNode : RenderNode
         uniforms.Add("iSeed", new Uniform("iSeed", seed));
         uniforms.Add("iFrequency", new Uniform("iFrequency", frequency));
         uniforms.Add("iOctaves", new Uniform("iOctaves", octaves));
+        uniforms.Add("iRandomness", new Uniform("iRandomness", randomness));
         
         return Shader.Create(voronoiShaderCode, uniforms, out _);
     }
