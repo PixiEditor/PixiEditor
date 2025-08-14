@@ -1,5 +1,6 @@
 ﻿using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
+using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 
@@ -54,7 +55,7 @@ public class ColorAdjustmentsFilterNode : FilterNode
             .WithRules(rules => rules.Min(-180d).Max(180d));
     }
 
-    protected override ColorFilter? GetColorFilter()
+    protected override ColorFilter? GetColorFilter(RenderContext context)
     {
         filters.ForEach(filter => filter.Dispose());
         filters.Clear();

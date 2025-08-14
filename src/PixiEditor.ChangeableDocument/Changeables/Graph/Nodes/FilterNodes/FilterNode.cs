@@ -20,8 +20,8 @@ public abstract class FilterNode : Node
 
     protected override void OnExecute(RenderContext context)
     {
-        var colorFilter = GetColorFilter();
-        var imageFilter = GetImageFilter();
+        var colorFilter = GetColorFilter(context);
+        var imageFilter = GetImageFilter(context);
 
         if (colorFilter == null && imageFilter == null)
         {
@@ -34,7 +34,7 @@ public abstract class FilterNode : Node
         Output.Value = filter == null ? new Filter(colorFilter, imageFilter) : filter.Add(colorFilter, imageFilter);
     }
 
-    protected virtual ColorFilter? GetColorFilter() => null;
+    protected virtual ColorFilter? GetColorFilter(RenderContext context) => null;
 
-    protected virtual ImageFilter? GetImageFilter() => null;
+    protected virtual ImageFilter? GetImageFilter(RenderContext context) => null;
 }
