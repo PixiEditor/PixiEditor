@@ -86,7 +86,8 @@ internal static class ClipboardController
         }
         else if (document.TransformViewModel.TransformActive || lastTransform != null)
         {
-            RectD transform = document.TransformViewModel.TransformActive ? document.TransformViewModel.Corners.AABBBounds
+            RectD transform = document.TransformViewModel.TransformActive
+                ? document.TransformViewModel.Corners.AABBBounds
                 : lastTransform.Value;
             var surface =
                 document.TryExtractAreaFromSelected(
@@ -149,7 +150,7 @@ internal static class ClipboardController
             copyArea = document.TransformViewModel.Corners.AABBBounds;
         }
 
-        if(copyArea.IsZeroOrNegativeArea || copyArea.HasNaNOrInfinity)
+        if (copyArea.IsZeroOrNegativeArea || copyArea.HasNaNOrInfinity)
         {
             NoticeDialog.Show("SELECTED_AREA_EMPTY", "NOTHING_TO_COPY");
             return;
@@ -185,8 +186,13 @@ internal static class ClipboardController
             await pngData.AsStream().CopyToAsync(pngStream);
 
             var pngArray = pngStream.ToArray();
-            data.Set(ClipboardDataFormats.Png, pngArray);
-            data.Set(ClipboardDataFormats.ImageSlashPng, pngArray);
+            foreach (string format in ClipboardDataFormats.PngFormats)
+            {
+                if (!data.Contains(format))
+                {
+                    data.Set(format, pngArray);
+                }
+            }
 
             pngStream.Position = 0;
             try
@@ -221,17 +227,18 @@ internal static class ClipboardController
     /// <summary>
     ///     Pastes image from clipboard into new layer.
     /// </summary>
-    public static bool TryPaste(DocumentViewModel document, DocumentManagerViewModel manager, IEnumerable<IDataObject>
+    public static async Task<bool> TryPaste(DocumentViewModel document, DocumentManagerViewModel manager, IImportObject[]
         data, bool pasteAsNew = false)
     {
-        Guid sourceDocument = GetSourceDocument(data, document.Id);
-        Guid[] layerIds = GetLayerIds(data);
+        Guid sourceDocument = await GetSourceDocument(data, document.Id);
+        Guid[] layerIds = await GetLayerIds(data);
 
         bool hasPos = data.Any(x => x.Contains(ClipboardDataFormats.PositionFormat));
 
         IDocument? targetDoc = manager.Documents.FirstOrDefault(x => x.Id == sourceDocument);
 
-        if (targetDoc != null && pasteAsNew && layerIds is { Length: > 0 } && (!hasPos || AllMatchesPos(layerIds, data, targetDoc)))
+        if (targetDoc != null && pasteAsNew && layerIds is { Length: > 0 } &&
+            (!hasPos || await AllMatchesPos(layerIds, data, targetDoc)))
         {
             foreach (var layerId in layerIds)
             {
@@ -250,7 +257,7 @@ internal static class ClipboardController
             return true;
         }
 
-        List<DataImage> images = GetImage(data);
+        List<DataImage> images = await GetImage(data);
         if (images.Count == 0)
             return false;
 
@@ -291,16 +298,14 @@ internal static class ClipboardController
         return true;
     }
 
-    private static bool AllMatchesPos(Guid[] layerIds, IEnumerable<IDataObject> data, IDocument doc)
+    private static async Task<bool> AllMatchesPos(Guid[] layerIds, IImportObject[] dataFormats, IDocument doc)
     {
-        var dataObjects = data as IDataObject[] ?? data.ToArray();
-
-        var dataObjectWithPos = dataObjects.FirstOrDefault(x => x.Contains(ClipboardDataFormats.PositionFormat));
+        var dataObjectWithPos = dataFormats.FirstOrDefault(x => x.Contains(ClipboardDataFormats.PositionFormat));
         VecD pos = VecD.Zero;
 
         if (dataObjectWithPos != null)
         {
-            pos = dataObjectWithPos.GetVecD(ClipboardDataFormats.PositionFormat);
+            pos = await GetVecD(ClipboardDataFormats.PositionFormat);
         }
 
         RectD? tightBounds = null;
@@ -325,13 +330,13 @@ internal static class ClipboardController
         return tightBounds.HasValue && tightBounds.Value.Pos.AlmostEquals(pos);
     }
 
-    private static Guid[] GetLayerIds(IEnumerable<IDataObject> data)
+    private static async Task<Guid[]> GetLayerIds(IImportObject[] formats)
     {
-        foreach (var dataObject in data)
+        foreach (var dataObject in formats)
         {
             if (dataObject.Contains(ClipboardDataFormats.LayerIdList))
             {
-                byte[] layerIds = (byte[])dataObject.Get(ClipboardDataFormats.LayerIdList);
+                byte[] layerIds = await Clipboard.GetDataAsync(ClipboardDataFormats.LayerIdList) as byte[];
                 string layerIdsString = System.Text.Encoding.UTF8.GetString(layerIds);
                 return layerIdsString.Split(';').Select(Guid.Parse).ToArray();
             }
@@ -340,13 +345,14 @@ internal static class ClipboardController
         return [];
     }
 
-    private static Guid GetSourceDocument(IEnumerable<IDataObject> data, Guid fallback)
+    private static async Task<Guid> GetSourceDocument(IImportObject[] formats, Guid fallback)
     {
-        foreach (var dataObject in data)
+        foreach (var dataObject in formats)
         {
             if (dataObject.Contains(ClipboardDataFormats.DocumentFormat))
             {
-                byte[] guidBytes = (byte[])dataObject.Get(ClipboardDataFormats.DocumentFormat);
+                var data = await Clipboard.GetDataAsync(ClipboardDataFormats.DocumentFormat);
+                byte[] guidBytes = (byte[])data;
                 string guidString = System.Text.Encoding.UTF8.GetString(guidBytes);
                 return Guid.Parse(guidString);
             }
@@ -361,65 +367,58 @@ internal static class ClipboardController
     public static async Task<bool> TryPasteFromClipboard(DocumentViewModel document, DocumentManagerViewModel manager,
         bool pasteAsNew = false)
     {
-        var data = await TryGetDataObject();
+        var data = await TryGetImportObjects();
         if (data == null)
             return false;
 
-        return TryPaste(document, manager, data, pasteAsNew);
+        return await TryPaste(document, manager, data, pasteAsNew);
     }
 
-    private static async Task<List<DataObject?>> TryGetDataObject()
+    private static async Task<ClipboardPromiseObject[]> TryGetImportObjects()
     {
         string[] formats = await Clipboard.GetFormatsAsync();
         if (formats.Length == 0)
             return null;
 
-        List<DataObject?> dataObjects = new();
+        List<ClipboardPromiseObject?> dataObjects = new();
 
         for (int i = 0; i < formats.Length; i++)
         {
             string format = formats[i];
-            var obj = await Clipboard.GetDataAsync(format);
-
-            if (obj == null)
-                continue;
-
-            DataObject data = new DataObject();
-            data.Set(format, obj);
-
-            dataObjects.Add(data);
+            dataObjects.Add(new ClipboardPromiseObject(format, Clipboard));
         }
 
-        return dataObjects;
+        return dataObjects.ToArray();
     }
 
     public static async Task<List<DataImage>> GetImagesFromClipboard()
     {
-        var dataObj = await TryGetDataObject();
-        return GetImage(dataObj);
+        var dataObj = await TryGetImportObjects();
+        return await GetImage(dataObj);
     }
 
     /// <summary>
     /// Gets images from clipboard, supported PNG and Bitmap.
     /// </summary>
-    public static List<DataImage> GetImage(IEnumerable<IDataObject?> data)
+    public static async Task<List<DataImage>> GetImage(IImportObject[] importableObjects)
     {
         List<DataImage> surfaces = new();
 
-        if (data == null)
+        if (importableObjects == null)
             return surfaces;
 
         VecD pos = VecD.Zero;
 
         string? importingType = null;
 
-        foreach (var dataObject in data)
+        foreach (var dataObject in importableObjects)
         {
-            if (importingType is null or "bytes" && TryExtractSingleImage(dataObject, out var singleImage))
+            var img = await TryExtractSingleImage(dataObject);
+            if (importingType is null or "bytes" && img != null)
             {
-                surfaces.Add(new DataImage(singleImage,
+                surfaces.Add(new DataImage(img,
                     dataObject.Contains(ClipboardDataFormats.PositionFormat)
-                        ? (VecI)dataObject.GetVecD(ClipboardDataFormats.PositionFormat)
+                        ? (VecI)await GetVecD(ClipboardDataFormats.PositionFormat)
                         : (VecI)pos));
                 importingType = "bytes";
                 continue;
@@ -427,7 +426,7 @@ internal static class ClipboardController
 
             if (dataObject.Contains(ClipboardDataFormats.PositionFormat))
             {
-                pos = dataObject.GetVecD(ClipboardDataFormats.PositionFormat);
+                pos = await GetVecD(ClipboardDataFormats.PositionFormat);
                 for (var i = 0; i < surfaces.Count; i++)
                 {
                     var surface = surfaces[i];
@@ -435,10 +434,11 @@ internal static class ClipboardController
                 }
             }
 
-            var paths = dataObject.GetFileDropList().Select(x => x.Path.LocalPath).ToList();
-            if (paths != null && dataObject.TryGetRawTextPath(out string? textPath))
+            var paths = (await GetFileDropList(importableObjects)).Select(x => x.Path.LocalPath).ToList();
+            string? rawPath = await TryGetRawTextPath(importableObjects);
+            if (paths != null && rawPath != null)
             {
-                paths.Add(textPath);
+                paths.Add(rawPath);
             }
 
             if (paths == null || paths.Count == 0 || (importingType != null && importingType != "files"))
@@ -467,7 +467,7 @@ internal static class ClipboardController
 
                     string filename = Path.GetFullPath(path);
                     surfaces.Add(new DataImage(filename, imported,
-                        (VecI)dataObject.GetVecD(ClipboardDataFormats.PositionFormat)));
+                        (VecI)await GetVecD(ClipboardDataFormats.PositionFormat)));
                     importingType = "files";
                 }
                 catch
@@ -478,6 +478,47 @@ internal static class ClipboardController
         }
 
         return surfaces;
+    }
+
+    private static async Task<string?> TryGetRawTextPath(IImportObject[] importObjs)
+    {
+        var first = importObjs.FirstOrDefault(x => x.Contains(DataFormats.Text));
+        if (first == null)
+        {
+            return null;
+        }
+
+        string text = await first.GetDataAsync(DataFormats.Text) as string;
+
+        if (Directory.Exists(text) || File.Exists(text))
+        {
+            return text;
+        }
+
+        return null;
+    }
+
+    private static async Task<IEnumerable<IStorageItem>> GetFileDropList(IImportObject[] objs)
+    {
+        var first = objs.FirstOrDefault(x => x.Contains(DataFormats.Files));
+        if (first == null)
+            return [];
+
+        return ((IEnumerable<IStorageItem>)await first.GetDataAsync(DataFormats.Files));
+    }
+
+
+    private static async Task<VecD> GetVecD(string format)
+    {
+        if (!format.Contains(format))
+            return new VecD(-1, -1);
+
+        byte[] bytes = (byte[])await Clipboard.GetDataAsync(format);
+
+        if (bytes is { Length: < 16 })
+            return new VecD(-1, -1);
+
+        return VecD.FromBytes(bytes);
     }
 
     public static bool IsImage(IDataObject? dataObject)
@@ -501,7 +542,7 @@ internal static class ClipboardController
             return false;
         }
 
-        return HasData(dataObject, ClipboardDataFormats.Png, ClipboardDataFormats.ImageSlashPng);
+        return HasData(dataObject, ClipboardDataFormats.PngFormats);
     }
 
     public static async Task<bool> IsImageInClipboard()
@@ -563,7 +604,7 @@ internal static class ClipboardController
     {
         foreach (var format in formats)
         {
-            if (format == ClipboardDataFormats.Png)
+            if (ClipboardDataFormats.PngFormats.Contains(format, StringComparer.OrdinalIgnoreCase))
             {
                 return true;
             }
@@ -577,38 +618,55 @@ internal static class ClipboardController
         return false;
     }
 
-    private static Surface FromPNG(IDataObject data)
+    private static async Task<Surface?> FromPNG(IImportObject importObj)
     {
-        object obj = data.Get("PNG");
-        if (obj is byte[] bytes)
+        object? pngData = null;
+        foreach (string format in ClipboardDataFormats.PngFormats)
+        {
+            if (importObj.Contains(format))
+            {
+                object? data = await importObj.GetDataAsync(format);
+                if (data == null)
+                    continue;
+
+                pngData = data;
+                break;
+            }
+        }
+
+        if (pngData is byte[] bytes)
         {
             return Surface.Load(bytes);
         }
 
-        if (obj is MemoryStream memoryStream)
+        if (pngData is MemoryStream memoryStream)
         {
             bytes = memoryStream.ToArray();
             return Surface.Load(bytes);
         }
 
-        throw new InvalidDataException("PNG data is not in a supported format.");
+        return null;
     }
 
     private static bool HasData(IDataObject dataObject, params string[] formats) => formats.Any(dataObject.Contains);
 
-    private static bool TryExtractSingleImage(IDataObject data, [NotNullWhen(true)] out Surface? result)
+    private static async Task<Surface?> TryExtractSingleImage(IImportObject importedObj)
     {
         try
         {
             Surface source;
-            if (data.Contains(ClipboardDataFormats.Png) || data.Contains(ClipboardDataFormats.ImageSlashPng))
+            bool dataContainsPng = ClipboardDataFormats.PngFormats.Any(importedObj.Contains);
+            if (dataContainsPng)
             {
-                source = FromPNG(data);
+                source = await FromPNG(importedObj);
+                if (source == null)
+                {
+                    return null;
+                }
             }
             else
             {
-                result = null;
-                return false;
+                return null;
             }
 
             /*if (source.Format.Value.IsSkiaSupported())
@@ -624,13 +682,11 @@ internal static class ClipboardController
                 result = SurfaceHelpers.FromBitmap(newFormat);
             }*/
 
-            result = source;
-            return true;
+            return source;
         }
         catch { }
 
-        result = null;
-        return false;
+        return null;
     }
 
     public static async Task CopyNodes(Guid[] nodeIds, Guid docId)
@@ -650,9 +706,10 @@ internal static class ClipboardController
 
     public static async Task<Guid[]> GetIds(string format)
     {
-        var data = await TryGetDataObject();
-        return GetIds(data, format);
+        var data = await TryGetImportObjects();
+        return await GetIds(format);
     }
+
 
     private static Guid[] GetIds(IEnumerable<IDataObject?> data, string format)
     {
@@ -710,7 +767,7 @@ internal static class ClipboardController
 
     public static async Task<Guid> GetDocumentId()
     {
-        var data = await TryGetDataObject();
+        var data = await TryGetImportObjects();
         if (data == null)
             return Guid.Empty;
 
@@ -718,7 +775,7 @@ internal static class ClipboardController
         {
             if (dataObject.Contains(ClipboardDataFormats.DocumentFormat))
             {
-                byte[] guidBytes = (byte[])dataObject.Get(ClipboardDataFormats.DocumentFormat);
+                byte[] guidBytes = (byte[])await dataObject.GetDataAsync(ClipboardDataFormats.DocumentFormat);
                 string guidString = System.Text.Encoding.UTF8.GetString(guidBytes);
                 return Guid.Parse(guidString);
             }

@@ -181,7 +181,8 @@ internal partial class LayersManager : UserControl
             e.Handled = true;
         }
 
-        if (ClipboardController.TryPaste(ActiveDocument, ManagerViewModel, new[] { (IDataObject)e.Data }, true))
+        // Imported object doesn't do any async operations so .Result is safe to use here.
+        if (ClipboardController.TryPaste(ActiveDocument, ManagerViewModel, new[] { new ImportedObject((IDataObject)e.Data) }, true).Result)
         {
             e.Handled = true;
         }
