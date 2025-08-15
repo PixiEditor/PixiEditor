@@ -848,7 +848,7 @@ internal static class ClipboardController
         data.Set(ClipboardDataFormats.DocumentFormat, Encoding.UTF8.GetBytes(docId.ToString()));
 
         byte[] idsBytes = Encoding.UTF8.GetBytes(string.Join(";", ids.Select(x => x.ToString())));
-
+        
         data.Set(format, idsBytes);
 
         await Clipboard.SetDataObjectAsync(data);
