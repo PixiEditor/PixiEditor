@@ -411,17 +411,19 @@ internal static class ClipboardController
         VecD pos = VecD.Zero;
 
         string? importingType = null;
+        bool pngImported = false;
 
         foreach (var dataObject in importableObjects)
         {
             var img = await TryExtractSingleImage(dataObject);
-            if (importingType is null or "bytes" && img != null)
+            if (importingType is null or "bytes" && img != null && !pngImported)
             {
                 surfaces.Add(new DataImage(img,
                     dataObject.Contains(ClipboardDataFormats.PositionFormat)
                         ? (VecI)await GetVecD(ClipboardDataFormats.PositionFormat)
                         : (VecI)pos));
                 importingType = "bytes";
+                pngImported = true;
                 continue;
             }
 
@@ -435,7 +437,7 @@ internal static class ClipboardController
                 }
             }
 
-            var paths = (await GetFileDropList(dataObject)).Select(x => x.Path.LocalPath).ToList();
+            var paths = (await GetFileDropList(dataObject))?.Select(x => x.Path.LocalPath).ToList();
             string[]? rawPaths = await TryGetRawTextPaths(dataObject);
             if (paths != null && rawPaths != null)
             {
