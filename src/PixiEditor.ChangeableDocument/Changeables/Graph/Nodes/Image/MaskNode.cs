@@ -10,16 +10,19 @@ public class MaskNode : RenderNode, IRenderInput
 {
     public RenderInputProperty Background { get; }
     public RenderInputProperty Mask { get; }
+    public InputProperty<bool> Invert { get; }
 
-    protected Paint maskPaint = new Paint()
+    protected Paint maskPaint = new()
     {
-        BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.DstIn, ColorFilter = Nodes.Filters.MaskFilter
+        BlendMode = BlendMode.DstIn,
+        ColorFilter = Filters.MaskFilter
     };
 
     public MaskNode()
     {
         Background = CreateRenderInput("Background", "INPUT");
         Mask = CreateRenderInput("Mask", "MASK");
+        Invert = CreateInput("Invert", "INVERT", false);
         AllowHighDpiRendering = true;
         Output.FirstInChain = null;
     }
@@ -38,11 +41,12 @@ public class MaskNode : RenderNode, IRenderInput
             return;
         }
 
+        maskPaint.BlendMode = !Invert.Value ? BlendMode.DstIn : BlendMode.DstOut;
+
         int layer = surface.Canvas.SaveLayer(maskPaint);
         Mask.Value.Paint(context, surface);
         surface.Canvas.RestoreToCount(layer);
     }
-
 
     public override Node CreateCopy()
     {

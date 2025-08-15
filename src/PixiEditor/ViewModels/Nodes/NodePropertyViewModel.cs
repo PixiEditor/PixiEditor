@@ -27,6 +27,7 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
     private INodePropertyHandler? connectedOutput;
 
     public event NodePropertyValueChanged? ValueChanged;
+    public event EventHandler? ConnectedOutputChanged;
 
     public string DisplayName
     {
@@ -115,6 +116,7 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
             if (SetProperty(ref connectedOutput, value))
             {
                 OnPropertyChanged(nameof(ShowInputField));
+                ConnectedOutputChanged?.Invoke(this, EventArgs.Empty);
             }
         }
     }
