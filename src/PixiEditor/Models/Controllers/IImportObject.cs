@@ -54,4 +54,9 @@ public class ClipboardPromiseObject : IImportObject
 
         return await Clipboard.GetDataAsync(format);
     }
+
+    public override string ToString()
+    {
+        return $"ClipboardPromiseObject: {Format}";
+    }
 }

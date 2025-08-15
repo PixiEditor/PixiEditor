@@ -306,7 +306,7 @@ internal static class ClipboardController
 
         if (dataObjectWithPos != null)
         {
-            pos = await GetVecD(ClipboardDataFormats.PositionFormat);
+            pos = await GetVecD(ClipboardDataFormats.PositionFormat, dataFormats);
         }
 
         RectD? tightBounds = null;
@@ -420,7 +420,7 @@ internal static class ClipboardController
             {
                 surfaces.Add(new DataImage(img,
                     dataObject.Contains(ClipboardDataFormats.PositionFormat)
-                        ? (VecI)await GetVecD(ClipboardDataFormats.PositionFormat)
+                        ? (VecI)await GetVecD(ClipboardDataFormats.PositionFormat, importableObjects)
                         : (VecI)pos));
                 importingType = "bytes";
                 pngImported = true;
@@ -429,7 +429,7 @@ internal static class ClipboardController
 
             if (dataObject.Contains(ClipboardDataFormats.PositionFormat))
             {
-                pos = await GetVecD(ClipboardDataFormats.PositionFormat);
+                pos = await GetVecD(ClipboardDataFormats.PositionFormat, importableObjects);
                 for (var i = 0; i < surfaces.Count; i++)
                 {
                     var surface = surfaces[i];
@@ -470,7 +470,7 @@ internal static class ClipboardController
 
                     string filename = Path.GetFullPath(path);
                     surfaces.Add(new DataImage(filename, imported,
-                        (VecI)await GetVecD(ClipboardDataFormats.PositionFormat)));
+                        (VecI)await GetVecD(ClipboardDataFormats.PositionFormat, importableObjects)));
                     importingType = "files";
                 }
                 catch
@@ -499,12 +499,12 @@ internal static class ClipboardController
                 paths = Encoding.UTF8.GetString(bytes).Split(['\n', '\r'], StringSplitOptions.RemoveEmptyEntries);
             }
         }
-        
+
         if (paths.Length == 0)
         {
             return null;
         }
-        
+
         List<string> validPaths = new();
 
         foreach (string path in paths)
@@ -520,7 +520,7 @@ internal static class ClipboardController
             {
                 try
                 {
-                    Uri uri = new Uri(path, UriKind.RelativeOrAbsolute);
+                    Uri uri = new Uri(path);
                     if (uri.IsAbsoluteUri && (Directory.Exists(uri.LocalPath) || File.Exists(uri.LocalPath)))
                     {
                         validPaths.Add(uri.LocalPath);
@@ -532,7 +532,7 @@ internal static class ClipboardController
                 }
             }
         }
-        
+
         return validPaths.Count > 0 ? validPaths.ToArray() : null;
     }
 
@@ -545,10 +545,10 @@ internal static class ClipboardController
         if (data == null)
             return [];
 
-        if(data is IEnumerable<IStorageItem> storageItems)
+        if (data is IEnumerable<IStorageItem> storageItems)
             return storageItems;
 
-        if(data is Task<object> task)
+        if (data is Task<object> task)
         {
             data = await task;
             if (data is IEnumerable<IStorageItem> storageItemsFromTask)
@@ -559,12 +559,13 @@ internal static class ClipboardController
     }
 
 
-    private static async Task<VecD> GetVecD(string format)
+    private static async Task<VecD> GetVecD(string format, IImportObject[] availableFormats)
     {
-        if (!format.Contains(format))
+        var firstFormat = availableFormats.FirstOrDefault(x => x.Contains(format));
+        if (firstFormat == null)
             return new VecD(-1, -1);
 
-        byte[] bytes = (byte[])await Clipboard.GetDataAsync(format);
+        byte[] bytes = (byte[])await firstFormat.GetDataAsync(format);
 
         if (bytes is { Length: < 16 })
             return new VecD(-1, -1);
@@ -607,8 +608,20 @@ internal static class ClipboardController
         if (!isImage)
         {
             string path = await TryFindImageInFiles(formats);
-            Uri uri = new Uri(path, UriKind.RelativeOrAbsolute);
-            return Path.Exists(uri.LocalPath);
+            try
+            {
+                Uri uri = new Uri(path);
+                return Path.Exists(uri.LocalPath);
+            }
+            catch (UriFormatException)
+            {
+                return false;
+            }
+            catch (Exception ex)
+            {
+                CrashHelper.SendExceptionInfo(ex);
+                return false;
+            }
         }
 
         return isImage;
@@ -618,15 +631,7 @@ internal static class ClipboardController
     {
         foreach (string format in formats)
         {
-            if (format == DataFormats.Text)
-            {
-                string text = await ClipboardController.GetTextFromClipboard();
-                if (Importer.IsSupportedFile(text))
-                {
-                    return text;
-                }
-            }
-            else if (format == DataFormats.Files || format == ClipboardDataFormats.UriList)
+            if (format == DataFormats.Files || format == ClipboardDataFormats.UriList)
             {
                 var files = await ClipboardController.Clipboard.GetDataAsync(format);
                 if (files is IEnumerable<IStorageItem> storageFiles)
@@ -646,7 +651,8 @@ internal static class ClipboardController
                         }
                     }
                 }
-                else if (files is byte[] bytes)
+                
+                if (files is byte[] bytes)
                 {
                     string utf8String = Encoding.UTF8.GetString(bytes);
                     string[] paths = utf8String.Split(['\n', '\r'], StringSplitOptions.RemoveEmptyEntries);
@@ -656,6 +662,15 @@ internal static class ClipboardController
                         {
                             return path;
                         }
+                    }
+                }
+
+                if (format == DataFormats.Text)
+                {
+                    string text = await ClipboardController.GetTextFromClipboard();
+                    if (Importer.IsSupportedFile(text))
+                    {
+                        return text;
                     }
                 }
             }

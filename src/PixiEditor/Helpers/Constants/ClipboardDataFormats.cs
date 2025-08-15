@@ -2,7 +2,7 @@
 
 public static class ClipboardDataFormats
 {
-    public static readonly string[] PngFormats = [ "PNG", "image/png" ];
+    public static readonly string[] PngFormats = [ "PNG", "image/png", "public.png" ];
     public const string LayerIdList = "PixiEditor.LayerIdList";
     public const string PositionFormat = "PixiEditor.Position";
     public const string DocumentFormat = "PixiEditor.Document";
