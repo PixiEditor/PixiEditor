@@ -541,7 +541,21 @@ internal static class ClipboardController
         if (!obj.Contains(DataFormats.Files))
             return [];
 
-        return ((IEnumerable<IStorageItem>)await obj.GetDataAsync(DataFormats.Files));
+        var data = await obj.GetDataAsync(DataFormats.Files);
+        if (data == null)
+            return [];
+
+        if(data is IEnumerable<IStorageItem> storageItems)
+            return storageItems;
+
+        if(data is Task<object> task)
+        {
+            data = await task;
+            if (data is IEnumerable<IStorageItem> storageItemsFromTask)
+                return storageItemsFromTask;
+        }
+
+        return [];
     }
 
 
