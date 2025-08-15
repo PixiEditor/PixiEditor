@@ -490,7 +490,15 @@ internal static class ClipboardController
             return null;
         }
 
-        string text = await importObj.GetDataAsync(DataFormats.Text) as string;
+        string text = null;
+        try
+        {
+            text = await importObj.GetDataAsync(DataFormats.Text) as string;
+        }
+        catch(InvalidCastException ex) // bug on x11
+        {
+        }
+
         string[] paths = [text];
         if (text == null)
         {
