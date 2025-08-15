@@ -651,7 +651,7 @@ internal static class ClipboardController
                         }
                     }
                 }
-                
+
                 if (files is byte[] bytes)
                 {
                     string utf8String = Encoding.UTF8.GetString(bytes);
@@ -786,17 +786,19 @@ internal static class ClipboardController
     public static async Task<Guid[]> GetIds(string format)
     {
         var data = await TryGetImportObjects();
-        return await GetIds(format);
+        return await GetIds(data, format);
     }
 
 
-    private static Guid[] GetIds(IEnumerable<IDataObject?> data, string format)
+    private static async Task<Guid[]> GetIds(IEnumerable<IImportObject?> data, string format)
     {
         foreach (var dataObject in data)
         {
             if (dataObject.Contains(format))
             {
-                byte[] nodeIds = (byte[])dataObject.Get(format);
+                byte[] nodeIds = await dataObject.GetDataAsync(format) as byte[];
+                if (nodeIds == null || nodeIds.Length == 0)
+                    return [];
                 string nodeIdsString = System.Text.Encoding.UTF8.GetString(nodeIds);
                 return nodeIdsString.Split(';').Select(Guid.Parse).ToArray();
             }
