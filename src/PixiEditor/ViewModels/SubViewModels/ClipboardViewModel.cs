@@ -134,7 +134,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
             DataImage imageData =
                 (data == null
                     ? await ClipboardController.GetImagesFromClipboard()
-                    : ClipboardController.GetImage(new[] { data })).First();
+                    : ClipboardController.GetImage(new[] { new ImportedObject(data) }).Result).First();
             using var surface = imageData.Image;
 
             var bitmap = imageData.Image.ToWriteableBitmap();
@@ -398,7 +398,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         var selectedNodes = doc.NodeGraph.AllNodes.Where(x => x.IsNodeSelected).Select(x => x.Id).ToArray();
         if (selectedNodes.Length == 0)
             return;
-
+        
         await ClipboardController.CopyNodes(selectedNodes, doc.Id);
 
         areNodesInClipboard = true;
