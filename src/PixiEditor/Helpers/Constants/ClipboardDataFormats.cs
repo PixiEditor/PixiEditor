@@ -9,4 +9,5 @@ public static class ClipboardDataFormats
     public const string NodeIdList = "PixiEditor.NodeIdList";
     public const string CelIdList = "PixiEditor.CelIdList";
     public const string PixiVectorData = "PixiEditor.VectorData";
+    public const string UriList = "text/uri-list";
 }

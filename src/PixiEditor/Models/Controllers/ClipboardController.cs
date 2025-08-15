@@ -227,8 +227,9 @@ internal static class ClipboardController
     /// <summary>
     ///     Pastes image from clipboard into new layer.
     /// </summary>
-    public static async Task<bool> TryPaste(DocumentViewModel document, DocumentManagerViewModel manager, IImportObject[]
-        data, bool pasteAsNew = false)
+    public static async Task<bool> TryPaste(DocumentViewModel document, DocumentManagerViewModel manager,
+        IImportObject[]
+            data, bool pasteAsNew = false)
     {
         Guid sourceDocument = await GetSourceDocument(data, document.Id);
         Guid[] layerIds = await GetLayerIds(data);
@@ -434,11 +435,11 @@ internal static class ClipboardController
                 }
             }
 
-            var paths = (await GetFileDropList(importableObjects)).Select(x => x.Path.LocalPath).ToList();
-            string? rawPath = await TryGetRawTextPath(importableObjects);
-            if (paths != null && rawPath != null)
+            var paths = (await GetFileDropList(dataObject)).Select(x => x.Path.LocalPath).ToList();
+            string[]? rawPaths = await TryGetRawTextPaths(dataObject);
+            if (paths != null && rawPaths != null)
             {
-                paths.Add(rawPath);
+                paths.AddRange(rawPaths);
             }
 
             if (paths == null || paths.Count == 0 || (importingType != null && importingType != "files"))
@@ -480,31 +481,65 @@ internal static class ClipboardController
         return surfaces;
     }
 
-    private static async Task<string?> TryGetRawTextPath(IImportObject[] importObjs)
+    private static async Task<string[]?> TryGetRawTextPaths(IImportObject importObj)
     {
-        var first = importObjs.FirstOrDefault(x => x.Contains(DataFormats.Text));
-        if (first == null)
+        if (!importObj.Contains(DataFormats.Text) && !importObj.Contains(ClipboardDataFormats.UriList))
         {
             return null;
         }
 
-        string text = await first.GetDataAsync(DataFormats.Text) as string;
-
-        if (Directory.Exists(text) || File.Exists(text))
+        string text = await importObj.GetDataAsync(DataFormats.Text) as string;
+        string[] paths = [text];
+        if (text == null)
         {
-            return text;
+            if (await importObj.GetDataAsync(ClipboardDataFormats.UriList) is byte[] bytes)
+            {
+                paths = Encoding.UTF8.GetString(bytes).Split(['\n', '\r'], StringSplitOptions.RemoveEmptyEntries);
+            }
         }
+        
+        if (paths.Length == 0)
+        {
+            return null;
+        }
+        
+        List<string> validPaths = new();
 
-        return null;
+        foreach (string path in paths)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+                continue;
+
+            if (Directory.Exists(path) || File.Exists(path))
+            {
+                validPaths.Add(path);
+            }
+            else
+            {
+                try
+                {
+                    Uri uri = new Uri(path, UriKind.RelativeOrAbsolute);
+                    if (uri.IsAbsoluteUri && (Directory.Exists(uri.LocalPath) || File.Exists(uri.LocalPath)))
+                    {
+                        validPaths.Add(uri.LocalPath);
+                    }
+                }
+                catch (UriFormatException)
+                {
+                    // Ignore invalid URIs
+                }
+            }
+        }
+        
+        return validPaths.Count > 0 ? validPaths.ToArray() : null;
     }
 
-    private static async Task<IEnumerable<IStorageItem>> GetFileDropList(IImportObject[] objs)
+    private static async Task<IEnumerable<IStorageItem>> GetFileDropList(IImportObject obj)
     {
-        var first = objs.FirstOrDefault(x => x.Contains(DataFormats.Files));
-        if (first == null)
+        if (!obj.Contains(DataFormats.Files))
             return [];
 
-        return ((IEnumerable<IStorageItem>)await first.GetDataAsync(DataFormats.Files));
+        return ((IEnumerable<IStorageItem>)await obj.GetDataAsync(DataFormats.Files));
     }
 
 
@@ -556,7 +591,8 @@ internal static class ClipboardController
         if (!isImage)
         {
             string path = await TryFindImageInFiles(formats);
-            return Path.Exists(path);
+            Uri uri = new Uri(path, UriKind.RelativeOrAbsolute);
+            return Path.Exists(uri.LocalPath);
         }
 
         return isImage;
@@ -574,7 +610,7 @@ internal static class ClipboardController
                     return text;
                 }
             }
-            else if (format == DataFormats.Files)
+            else if (format == DataFormats.Files || format == ClipboardDataFormats.UriList)
             {
                 var files = await ClipboardController.Clipboard.GetDataAsync(format);
                 if (files is IEnumerable<IStorageItem> storageFiles)
@@ -591,6 +627,18 @@ internal static class ClipboardController
                         catch (UriFormatException)
                         {
                             continue;
+                        }
+                    }
+                }
+                else if (files is byte[] bytes)
+                {
+                    string utf8String = Encoding.UTF8.GetString(bytes);
+                    string[] paths = utf8String.Split(['\n', '\r'], StringSplitOptions.RemoveEmptyEntries);
+                    foreach (string path in paths)
+                    {
+                        if (Importer.IsSupportedFile(path))
+                        {
+                            return path;
                         }
                     }
                 }
