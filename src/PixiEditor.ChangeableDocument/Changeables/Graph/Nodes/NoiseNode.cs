@@ -18,6 +18,9 @@ public class NoiseNode : RenderNode
     private NoiseType previousNoiseType = Nodes.NoiseType.FractalPerlin;
     private int previousOctaves = -1;
     private VecD previousOffset = new VecD(0d, 0d);
+    private VoronoiFeature previousVoronoiFeature = Nodes.VoronoiFeature.F1;
+    private double previousRandomness = double.NaN;
+    private double previousAngleOffset = double.NaN;
 
     private Paint paint = new();
 
@@ -67,6 +70,9 @@ public class NoiseNode : RenderNode
             || previousOctaves != Octaves.Value
             || previousNoiseType != NoiseType.Value
             || previousOffset != Offset.Value
+            || previousVoronoiFeature != VoronoiFeature.Value
+            || Math.Abs(previousRandomness - Randomness.Value) > 0.000001
+            || Math.Abs(previousAngleOffset - AngleOffset.Value) > 0.000001
             || double.IsNaN(previousScale))
         {
             if (Scale.Value < 0.000001)
@@ -89,6 +95,9 @@ public class NoiseNode : RenderNode
             previousSeed = Seed.Value;
             previousOctaves = Octaves.Value;
             previousNoiseType = NoiseType.Value;
+            previousVoronoiFeature = VoronoiFeature.Value;
+            previousRandomness = Randomness.Value;
+            previousAngleOffset = AngleOffset.Value;
         }
 
         RenderNoise(target);
