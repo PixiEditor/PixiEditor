@@ -11,12 +11,14 @@ internal class NoiseNodeViewModel : NodeViewModel<NoiseNode>
     private GenericEnumPropertyViewModel Type { get; set; }
     private GenericEnumPropertyViewModel VoronoiFeature { get; set; }
     private NodePropertyViewModel Randomness { get; set; }
+    private NodePropertyViewModel AngleOffset { get; set; }
 
     public override void OnInitialized()
     {
         Type = FindInputProperty("NoiseType") as GenericEnumPropertyViewModel;
         VoronoiFeature = FindInputProperty("VoronoiFeature") as GenericEnumPropertyViewModel;
         Randomness = FindInputProperty("Randomness");
+        AngleOffset = FindInputProperty("AngleOffset");
 
         Type.ValueChanged += (_, _) => UpdateInputVisibility();
         UpdateInputVisibility();
@@ -29,5 +31,6 @@ internal class NoiseNodeViewModel : NodeViewModel<NoiseNode>
         
         Randomness.IsVisible = type == NoiseType.Voronoi;
         VoronoiFeature.IsVisible = type == NoiseType.Voronoi;
+        AngleOffset.IsVisible = type == NoiseType.Voronoi;
     }
 }
