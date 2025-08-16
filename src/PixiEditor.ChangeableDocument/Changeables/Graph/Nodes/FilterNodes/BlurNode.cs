@@ -2,6 +2,7 @@
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 
@@ -11,16 +12,18 @@ public class BlurNode : FilterNode
     public InputProperty<bool> PreserveAlpha { get; }
     
     public InputProperty<VecD> Radius { get; }
-    
+
+    protected override bool ExecuteOnlyOnCacheChange => true;
+
     public BlurNode()
     {
         PreserveAlpha = CreateInput("PreserveAlpha", "PRESERVE_ALPHA", true);
         Radius = CreateInput("Radius", "RADIUS", new VecD(1, 1)).WithRules(x => x.Min(new VecD(0, 0)));
     }
 
-    protected override ImageFilter GetImageFilter()
+    protected override ImageFilter? GetImageFilter(RenderContext context)
     {
-        var sigma = (VecF)Radius.Value;
+        var sigma = (VecF)(Radius.Value * context.ChunkResolution.Multiplier());
         var preserveAlpha = PreserveAlpha.Value;
 
         var xFilter = GetGaussianFilter(sigma.X, true, preserveAlpha, null, out float[] xKernel);

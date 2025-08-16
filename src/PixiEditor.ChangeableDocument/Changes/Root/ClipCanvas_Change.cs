@@ -45,8 +45,8 @@ internal class ClipCanvas_Change : ResizeBasedChangeBase
         VecI size = (VecI)newBounds.Size.Ceiling();
         
         target.Size = size;
-        target.VerticalSymmetryAxisX = Math.Clamp(_originalVerAxisX, 0, target.Size.X);
-        target.HorizontalSymmetryAxisY = Math.Clamp(_originalHorAxisY, 0, target.Size.Y);
+        target.VerticalSymmetryAxisX = Math.Clamp(_originalVerAxisX, 0, Math.Max(target.Size.X, 1));
+        target.HorizontalSymmetryAxisY = Math.Clamp(_originalHorAxisY, 0, Math.Max(target.Size.Y, 1));
         
         target.ForEveryMember((member) =>
         {

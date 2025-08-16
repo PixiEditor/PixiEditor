@@ -235,6 +235,9 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         AnalyticsTrack = true)]
     public void DuplicateMember()
     {
+        if (Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember == null)
+            return;
+
         var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
 
         member.Document.Operations.DuplicateMember(member.Id);
@@ -379,7 +382,6 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         nameof(ViewModelMain.DocumentManagerSubViewModel.ActiveDocument),
         nameof(ViewModelMain.DocumentManagerSubViewModel.ActiveDocument.SelectedStructureMember),
         nameof(ViewModelMain.DocumentManagerSubViewModel.ActiveDocument.SelectedStructureMember.HasMaskBindable))]
-
     public bool ActiveMemberHasApplyableMask() =>
         (Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember?.HasMaskBindable ?? false)
         && Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember is IRasterLayerHandler;

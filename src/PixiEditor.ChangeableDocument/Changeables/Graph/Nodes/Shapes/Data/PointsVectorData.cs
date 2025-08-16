@@ -16,7 +16,7 @@ public class PointsVectorData : ShapeVectorData
         Points = new List<VecD>(points);
     }
 
-    public override RectD GeometryAABB => new RectD(Points.Min(p => p.X), Points.Min(p => p.Y), Points.Max(p => p.X),
+    public override RectD GeometryAABB => Points == null || Points.Count == 0 ? RectD.Empty : new RectD(Points.Min(p => p.X), Points.Min(p => p.Y), Points.Max(p => p.X),
         Points.Max(p => p.Y));
 
     public override RectD VisualAABB => GeometryAABB;
