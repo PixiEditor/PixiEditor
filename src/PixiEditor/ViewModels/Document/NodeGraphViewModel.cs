@@ -108,6 +108,9 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
         connection.OutputProperty.ConnectedInputs.Add(connection.InputProperty);
 
         Connections.Add(connection);
+        
+        UpdatesFramesPartOf(connection.InputNode);
+        UpdatesFramesPartOf(connection.OutputNode);
 
         StructureTree.Update(this);
     }
@@ -123,6 +126,9 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
             Connections.Remove(connection);
         }
 
+        UpdatesFramesPartOf(connection.InputNode);
+        UpdatesFramesPartOf(connection.OutputNode);
+        
         var node = AllNodes.FirstOrDefault(x => x.Id == nodeId);
         if (node != null)
         {
@@ -134,6 +140,44 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
         }
 
         StructureTree.Update(this);
+    }
+
+    private void UpdatesFramesPartOf(INodeHandler node)
+    {
+        var lastKnownFramesPartOf = node.Frames.OfType<NodeZoneViewModel>().ToList();
+        var currentlyPartOf = new List<NodeZoneViewModel>();
+        
+        node.TraverseBackwards(x =>
+        {
+            if (x is IPairNodeEndViewModel)
+                return false;
+
+            if (x is not IPairNodeStartViewModel)
+                return true;
+
+            var zone = Frames
+                .OfType<NodeZoneViewModel>()
+                .First(z => z.Start == x);
+
+            currentlyPartOf.Add(zone);
+
+            return true;
+        });
+
+        foreach (var frame in currentlyPartOf)
+        {
+            if (!frame.Nodes.Contains(node))
+                frame.Nodes.Add(node);
+            
+            if (!node.Frames.Contains(frame))
+                node.Frames.Add(frame);
+        }
+
+        foreach (var removedFrom in lastKnownFramesPartOf.Except(currentlyPartOf))
+        {
+            removedFrom.Nodes.Remove(node);
+            node.Frames.Remove(removedFrom);
+        }
     }
 
     public void RemoveConnections(Guid nodeId)
