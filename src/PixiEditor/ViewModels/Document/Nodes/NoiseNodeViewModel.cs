@@ -9,11 +9,13 @@ namespace PixiEditor.ViewModels.Document.Nodes;
 internal class NoiseNodeViewModel : NodeViewModel<NoiseNode>
 {
     private GenericEnumPropertyViewModel Type { get; set; }
+    private GenericEnumPropertyViewModel VoronoiFeature { get; set; }
     private NodePropertyViewModel Randomness { get; set; }
 
     public override void OnInitialized()
     {
         Type = FindInputProperty("NoiseType") as GenericEnumPropertyViewModel;
+        VoronoiFeature = FindInputProperty("VoronoiFeature") as GenericEnumPropertyViewModel;
         Randomness = FindInputProperty("Randomness");
 
         Type.ValueChanged += (_, _) => UpdateInputVisibility();
@@ -26,5 +28,6 @@ internal class NoiseNodeViewModel : NodeViewModel<NoiseNode>
             return;
         
         Randomness.IsVisible = type == NoiseType.Voronoi;
+        VoronoiFeature.IsVisible = type == NoiseType.Voronoi;
     }
 }
