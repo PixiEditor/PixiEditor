@@ -86,6 +86,7 @@ public class NoiseNode : RenderNode
                 return;
             }
 
+            paint?.Shader?.Dispose();
             paint.Shader = shader;
 
             // Define a grayscale color filter to apply to the image
@@ -124,6 +125,7 @@ public class NoiseNode : RenderNode
             return false;
         }
         
+        paint?.Shader?.Dispose();
         paint.Shader = shader;
         paint.ColorFilter = grayscaleFilter;
         
