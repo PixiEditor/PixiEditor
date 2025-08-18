@@ -91,7 +91,7 @@
     <PackageReference Include="AsyncImageLoader.Avalonia" Version="3.3.0"/>
     <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)"/>
     <PackageReference Include="Avalonia.Headless" Version="$(AvaloniaVersion)"/>
-    <PackageReference Include="Avalonia.Labs.Lottie" Version="11.3.0" />
+    <PackageReference Include="Avalonia.Labs.Lottie" Version="11.3.1" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)"/>
     <PackageReference Include="Avalonia.Skia" Version="$(AvaloniaVersion)"/>
     <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
@@ -105,7 +105,7 @@
     <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.14.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
-    <PackageReference Include="Svg.Controls.Skia.Avalonia" Version="11.3.0.1" />
+    <PackageReference Include="Svg.Controls.Skia.Avalonia" Version="11.3.0.3" />
   </ItemGroup>
 
   <ItemGroup>
