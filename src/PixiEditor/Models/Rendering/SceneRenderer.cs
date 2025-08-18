@@ -4,6 +4,7 @@ using Drawie.Backend.Core.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
@@ -64,7 +65,14 @@ internal class SceneRenderer : IDisposable
         Matrix3X3 matrixDiff = SolveMatrixDiff(target, cachedTexture);
         int saved = target.Canvas.Save();
         target.Canvas.SetMatrix(matrixDiff);
-        target.Canvas.DrawSurface(cachedTexture.DrawingSurface, 0, 0);
+        using var img = cachedTexture.DrawingSurface.Snapshot();
+        SamplingOptions samplingOptions = SamplingOptions.Default;
+        if (matrixDiff.ScaleX < 1 || matrixDiff.ScaleY < 1)
+        {
+            samplingOptions = new SamplingOptions(FilterMode.Linear, MipmapMode.Linear);
+        }
+
+        target.Canvas.DrawImage(img, 0, 0, samplingOptions);
         target.Canvas.RestoreToCount(saved);
     }
 
@@ -110,7 +118,9 @@ internal class SceneRenderer : IDisposable
 
         if (renderTexture != null)
         {
-            target.Canvas.DrawSurface(renderTexture.DrawingSurface, 0, 0);
+            using var snapshot = renderTexture.DrawingSurface.Snapshot();
+            SamplingOptions samplingOptions = resolution == ChunkResolution.Full ? SamplingOptions.Default : new SamplingOptions(FilterMode.Linear, MipmapMode.Linear);
+            target.Canvas.DrawImage(snapshot, 0, 0, samplingOptions);
             target.Canvas.RestoreToCount(restoreCanvasTo);
         }
 
@@ -168,7 +178,9 @@ internal class SceneRenderer : IDisposable
         }
 
         bool renderInDocumentSize = RenderInOutputSize(finalGraph);
-        VecI compareSize = renderInDocumentSize ? (VecI)(Document.Size * resolution.Multiplier()) : target.DeviceClipBounds.Size;
+        VecI compareSize = renderInDocumentSize
+            ? (VecI)(Document.Size * resolution.Multiplier())
+            : target.DeviceClipBounds.Size;
 
         if (cachedTexture.DrawingSurface.DeviceClipBounds.Size != compareSize)
         {

@@ -139,7 +139,14 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         }
         else
         {
-            workingSurface.Canvas.DrawSurface(fullResrenderedSurface.DrawingSurface, -topLeft, paint);
+            var samplingOptions = SamplingOptions.Default;
+            if (ctx.ChunkResolution != ChunkResolution.Full)
+            {
+                samplingOptions = new SamplingOptions(FilterMode.Linear, MipmapMode.Linear);
+            }
+
+            using var snapshot = fullResrenderedSurface.DrawingSurface.Snapshot();
+            workingSurface.Canvas.DrawImage(snapshot, -(float)topLeft.X, -(float)topLeft.Y, samplingOptions, paint);
         }
 
         workingSurface.Canvas.RestoreToCount(saved);

@@ -155,7 +155,13 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
         float multiplier = (float)resolution.InvertedMultiplier();
         target.Canvas.Scale(multiplier, multiplier);
 
-        target.Canvas.DrawSurface(source, 0, 0, blendPaint);
+        using var snapshot = source.Snapshot();
+        SamplingOptions samplingOptions =
+            target.DeviceClipBounds.Size.LengthSquared < source.DeviceClipBounds.Size.LengthSquared
+                ? new SamplingOptions(FilterMode.Linear, MipmapMode.Linear)
+                : SamplingOptions.Default;
+
+        target.Canvas.DrawImage(snapshot, 0, 0, samplingOptions, blendPaint);
 
         target.Canvas.RestoreToCount(scaled);
     }
