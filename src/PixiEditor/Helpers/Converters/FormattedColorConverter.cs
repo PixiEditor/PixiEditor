@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
 using Avalonia.Media;
+using PixiEditor.Helpers.Extensions;
 
 namespace PixiEditor.Helpers.Converters;
 
@@ -24,7 +25,7 @@ internal class FormattedColorConverter
 
         return format.ToLowerInvariant() switch
         {
-            "hex" => color.ToString(),
+            "hex" => color.ToColor().ToRgbHex(),
             "rgba" => $"({color.R}, {color.G}, {color.B}, {color.A})",
             _ => "",
         };

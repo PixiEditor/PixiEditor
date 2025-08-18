@@ -10,11 +10,11 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 [NodeInfo("Lerp")]
 public class LerpColorNode : Node // TODO: ILerpable as inputs? 
 {
-    public FuncOutputProperty<Half4> Result { get; } 
+    public FuncOutputProperty<Half4> Result { get; }
     public FuncInputProperty<Half4> From { get; }
     public FuncInputProperty<Half4> To { get; }
     public FuncInputProperty<Float1> Time { get; }
-    
+
     public LerpColorNode()
     {
         Result = CreateFuncOutput<Half4>("Result", "RESULT", Lerp);
@@ -28,8 +28,26 @@ public class LerpColorNode : Node // TODO: ILerpable as inputs?
         var from = arg.GetValue(From);
         var to = arg.GetValue(To);
         var time = arg.GetValue(Time);
-        
-        return arg.NewHalf4(ShaderMath.Lerp(from, to, time)); 
+
+        if (arg.HasContext)
+        {
+            return arg.NewHalf4(ShaderMath.Lerp(from, to, time));
+        }
+
+        var constFrom = (Color)from.GetConstant();
+        var constTo = (Color)to.GetConstant();
+        var constTime = time.GetConstant();
+
+        double dTime = constTime switch
+        {
+            double d => d,
+            int i => i,
+            float f => f,
+            _ => throw new InvalidOperationException("Unsupported constant type for time.")
+        };
+
+        Color result = Color.Lerp(constFrom, constTo, dTime);
+        return new Half4("") { ConstantValue = result };
     }
 
     protected override void OnExecute(RenderContext context)

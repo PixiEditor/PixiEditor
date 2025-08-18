@@ -20,8 +20,11 @@
         <menu:MenuBarViewModel />
     </Design.DataContext>
     <Panel>
-        <Panel Background="{DynamicResource ThemeBackgroundBrush1}" IsHitTestVisible="False"/>
+        <Panel Background="{DynamicResource ThemeBackgroundBrush1}" IsHitTestVisible="False" />
         <DockPanel>
+            <DockPanel.Background>
+                <OnPlatform Default="{x:Null}" Linux="Transparent"/>
+            </DockPanel.Background>
             <dialogs:DialogTitleBar
                 DockPanel.Dock="Right">
                 <dialogs:DialogTitleBar.AdditionalElement>
@@ -32,7 +35,7 @@
                     </StackPanel>
                 </dialogs:DialogTitleBar.AdditionalElement>
             </dialogs:DialogTitleBar>
-            <Panel DockPanel.Dock="Left"
+            <Panel DockPanel.Dock="Left" Name="LogoPanel"
                    HorizontalAlignment="Left" Width="20" Height="20">
                 <Panel.Margin>
                     <OnPlatform>
@@ -150,13 +153,6 @@
             </Panel>
 
             <StackPanel Orientation="Horizontal">
-                <StackPanel.Margin>
-                    <OnPlatform>
-                        <OnPlatform.macOS>
-                            <Thickness>95, 0, 0, 0</Thickness>
-                        </OnPlatform.macOS>
-                    </OnPlatform>
-                </StackPanel.Margin>
                 <xaml:Menu IsVisible="{OnPlatform macOS=false, Default=true}"
                            Margin="5, 0, 0, 0"
                            DockPanel.Dock="Left"

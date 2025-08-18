@@ -61,7 +61,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         };
     }
 
-    [Command.Basic("PixiEditor.Clipboard.Cut", "CUT", "CUT_DESCRIPTIVE", CanExecute = "PixiEditor.Selection.IsNotEmpty",
+    [Command.Basic("PixiEditor.Clipboard.Cut", "CUT", "CUT_DESCRIPTIVE",
         Key = Key.X, Modifiers = KeyModifiers.Control,
         MenuItemPath = "EDIT/CUT", MenuItemOrder = 2, Icon = PixiPerfectIcons.Scissors, AnalyticsTrack = true)]
     public async Task Cut()
@@ -69,8 +69,15 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is null)
             return;
-        await Copy();
-        doc.Operations.DeleteSelectedPixels(doc.AnimationDataViewModel.ActiveFrameBindable, true);
+
+        var transformActive = doc.TransformViewModel.TransformActive;
+        RectD? lastTransformRect = transformActive
+            ? doc.TransformViewModel.Corners.AABBBounds
+            : null;
+
+        doc.Operations.TryStopActiveExecutor();
+        await Copy(lastTransformRect);
+        doc.Operations.DeleteSelectedPixels(doc.AnimationDataViewModel.ActiveFrameBindable, true, lastTransformRect);
     }
 
     [Command.Basic("PixiEditor.Clipboard.PasteAsNewLayer", true, "PASTE_AS_NEW_LAYER", "PASTE_AS_NEW_LAYER_DESCRIPTIVE",
@@ -127,7 +134,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
             DataImage imageData =
                 (data == null
                     ? await ClipboardController.GetImagesFromClipboard()
-                    : ClipboardController.GetImage(new[] { data })).First();
+                    : ClipboardController.GetImage(new[] { new ImportedObject(data) }).Result).First();
             using var surface = imageData.Image;
 
             var bitmap = imageData.Image.ToWriteableBitmap();
@@ -343,7 +350,18 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         if (doc is null)
             return;
 
-        await ClipboardController.CopyToClipboard(doc);
+        await ClipboardController.CopyToClipboard(doc, null);
+
+        SetHasImageInClipboard();
+    }
+
+    private async Task Copy(RectD? lastTransformRect)
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return;
+
+        await ClipboardController.CopyToClipboard(doc, lastTransformRect);
 
         SetHasImageInClipboard();
     }
@@ -380,7 +398,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         var selectedNodes = doc.NodeGraph.AllNodes.Where(x => x.IsNodeSelected).Select(x => x.Id).ToArray();
         if (selectedNodes.Length == 0)
             return;
-
+        
         await ClipboardController.CopyNodes(selectedNodes, doc.Id);
 
         areNodesInClipboard = true;

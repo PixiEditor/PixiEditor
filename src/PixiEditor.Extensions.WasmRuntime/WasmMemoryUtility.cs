@@ -94,8 +94,8 @@ public class WasmMemoryUtility
     public int WriteString(string value)
     {
         string valueWithNullTerminator = value + '\0';
-        var ptr = malloc.Invoke(valueWithNullTerminator.Length);
-        memory.WriteString(ptr, valueWithNullTerminator);
+        var ptr = malloc.Invoke(Encoding.UTF8.GetByteCount(valueWithNullTerminator));
+        memory.WriteString(ptr, valueWithNullTerminator, Encoding.UTF8);
         return ptr;
     }
     

@@ -1,6 +1,7 @@
 ﻿using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 
@@ -37,7 +38,7 @@ public class KernelFilterNode : FilterNode
         OnAlpha = CreateInput(nameof(OnAlpha), "ON_ALPHA", false);
     }
 
-    protected override ImageFilter? GetImageFilter()
+    protected override ImageFilter? GetImageFilter(RenderContext context)
     {
         var kernel = Kernel.Value;
         

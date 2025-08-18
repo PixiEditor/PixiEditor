@@ -56,7 +56,7 @@
                                 </ItemsControl>
                             </StackPanel>
                         </Border>
-                        <Border IsVisible="{Binding !!ResultPreview, RelativeSource={RelativeSource TemplatedParent}}"
+                        <Border IsVisible="{Binding CanRenderPreview, RelativeSource={RelativeSource TemplatedParent}, FallbackValue=False}"
                                 CornerRadius="0, 0, 4.5, 4.5" Grid.Row="2" ClipToBounds="True">
                             <Panel RenderOptions.BitmapInterpolationMode="None" Width="200" Height="200">
                                 <Panel.Background>

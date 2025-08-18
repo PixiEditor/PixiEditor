@@ -38,6 +38,19 @@ public class DocumentChangeTracker : IDisposable
     {
         if (running)
             throw new InvalidOperationException("Something is currently being processed");
+
+        if (activeUpdateableChange != null)
+        {
+            try
+            {
+                activeUpdateableChange.Apply(document, false, out var _);
+            }
+            catch (Exception e)
+            {
+                Trace.WriteLine($"Failed to apply active updateable change {activeUpdateableChange}: {e}");
+            }
+        }
+
         if (disposed)
             return;
         disposed = true;

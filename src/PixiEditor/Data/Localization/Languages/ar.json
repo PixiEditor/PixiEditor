@@ -650,5 +650,12 @@
   "MATH_MODE": "وضع الرياضيات",
   "NOISE_TYPE": "نوع الضوضاء",
   "ACTIVE_FRAME": "الإطار النشط",
-  "NORMALIZED_TIME": "الوقت الطبيعي"
+  "NORMALIZED_TIME": "الوقت الطبيعي",
+  "BETA_ANIMATIONS": "الرسوم المتحركة",
+  "SHOW_ALL_EXAMPLES": "عرض الكل",
+  "APPLY_FILTER_NODE": "تطبيق الفلتر",
+  "FILTER": "فلتر",
+  "FROM": "من",
+  "TO": "الى",
+  "TIME": "الوقت"
 }

@@ -87,6 +87,16 @@ internal class NodeGraphView : Zoombox.Zoombox
         AvaloniaProperty.Register<NodeGraphView, ICommand>(
             "CreateNodeFromContextCommand");
 
+    public static readonly StyledProperty<SocketsInfo> SocketsInfoProperty =
+        AvaloniaProperty.Register<NodeGraphView, SocketsInfo>(
+            nameof(SocketsInfo));
+
+    public SocketsInfo SocketsInfo
+    {
+        get => GetValue(SocketsInfoProperty);
+        set => SetValue(SocketsInfoProperty, value);
+    }
+
     public ICommand CreateNodeFromContextCommand
     {
         get => GetValue(CreateNodeFromContextCommandProperty);
@@ -214,6 +224,12 @@ internal class NodeGraphView : Zoombox.Zoombox
         AvaloniaProperty.Register<NodeGraphView, int>("ActiveFrame");
 
     private Panel rootPanel;
+    private ConnectionRenderer connectionRenderer;
+
+    static NodeGraphView()
+    {
+        NodeGraphProperty.Changed.Subscribe(OnNodeGraphChanged);
+    }
 
     public NodeGraphView()
     {
@@ -226,6 +242,16 @@ internal class NodeGraphView : Zoombox.Zoombox
 
         AllNodeTypes = new ObservableCollection<Type>(GatherAssemblyTypes<NodeViewModel>());
         AllNodeTypeInfos = new ObservableCollection<NodeTypeInfo>(AllNodeTypes.Select(x => new NodeTypeInfo(x)));
+        SocketsInfo = new SocketsInfo((socket =>
+        {
+            var canvas = nodeItemsControl.FindDescendantOfType<Canvas>();
+            var view = nodeViewsCache.FirstOrDefault(x =>
+                x is ContentPresenter { Child: NodeView nodeView } && nodeView.Node == socket.Node) as ContentPresenter;
+            if (view == null)
+                return new Point(0, 0);
+
+            return (view.Child as NodeView).GetSocketPoint(socket, canvas);
+        }));
     }
 
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
@@ -234,6 +260,7 @@ internal class NodeGraphView : Zoombox.Zoombox
         nodeItemsControl = e.NameScope.Find<ItemsControl>("PART_Nodes");
         connectionItemsControl = e.NameScope.Find<ItemsControl>("PART_Connections");
         selectionRectangle = e.NameScope.Find<Rectangle>("PART_SelectionRectangle");
+        connectionRenderer = e.NameScope.Find<ConnectionRenderer>("PART_ConnectionRenderer");
 
         rootPanel = e.NameScope.Find<Panel>("PART_RootPanel");
 
@@ -369,16 +396,18 @@ internal class NodeGraphView : Zoombox.Zoombox
             if (sender is NodeViewModel node)
             {
                 Dispatcher.UIThread.Post(
-                    () =>
-                    {
-                        UpdateConnections(FindNodeView(node));
-                    }, DispatcherPriority.Render);
+                    UpdateConnections, DispatcherPriority.Render);
             }
         }
     }
 
     private void CreateNodeType(NodeTypeInfo nodeType)
     {
+        if (nodeType == null)
+        {
+            return;
+        }
+
         var type = nodeType.NodeType;
         if (CreateNodeCommand != null && CreateNodeCommand.CanExecute(type))
         {
@@ -566,7 +595,7 @@ internal class NodeGraphView : Zoombox.Zoombox
 
         if (e.Source is NodeView nodeView)
         {
-            UpdateConnections(nodeView);
+            UpdateConnections( /*nodeView*/);
         }
     }
 
@@ -616,7 +645,7 @@ internal class NodeGraphView : Zoombox.Zoombox
         if (e.Property == BoundsProperty)
         {
             NodeView nodeView = (NodeView)sender!;
-            UpdateConnections(nodeView);
+            UpdateConnections( /*nodeView*/);
         }
     }
 
@@ -650,9 +679,10 @@ internal class NodeGraphView : Zoombox.Zoombox
         startDragConnectionPoint = _previewConnectionLine.StartPoint;
     }
 
-    private void UpdateConnections(NodeView nodeView)
+    private void UpdateConnections( /*NodeView nodeView*/)
     {
-        if (nodeView == null)
+        connectionRenderer?.InvalidateVisual();
+        /*if (nodeView == null)
         {
             return;
         }
@@ -661,11 +691,13 @@ internal class NodeGraphView : Zoombox.Zoombox
         {
             NodePropertyViewModel property = (NodePropertyViewModel)propertyView.DataContext;
             UpdateConnectionView(property);
-        }
+        }*/
     }
 
     private void UpdateConnectionView(NodePropertyViewModel? propertyView)
     {
+        if (connectionItemsControl == null) return;
+
         foreach (var connection in connectionItemsControl.ItemsPanelRoot.Children)
         {
             if (connection is ContentPresenter contentPresenter)
@@ -787,6 +819,49 @@ internal class NodeGraphView : Zoombox.Zoombox
         foreach (var node in SelectedNodes)
         {
             node.IsNodeSelected = false;
+        }
+    }
+
+    private void OnConnectionsChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (e.Action == NotifyCollectionChangedAction.Add)
+        {
+            foreach (NodeConnectionViewModel connection in e.NewItems)
+            {
+                SocketsInfo.Sockets[$"i:{connection.InputNode.Id}.{connection.InputProperty.PropertyName}"] =
+                    connection.InputProperty;
+                SocketsInfo.Sockets[$"o:{connection.OutputNode.Id}.{connection.OutputProperty.PropertyName}"] =
+                    connection.OutputProperty;
+            }
+        }
+        else if (e.Action == NotifyCollectionChangedAction.Reset)
+        {
+            SocketsInfo.Sockets.Clear();
+        }
+
+        UpdateConnections();
+    }
+
+    private static void OnNodeGraphChanged(AvaloniaPropertyChangedEventArgs<INodeGraphHandler> e)
+    {
+        var nodeGraph = e.Sender as NodeGraphView;
+        if (e.OldValue.Value != null)
+        {
+            e.OldValue.Value.Connections.CollectionChanged += nodeGraph.OnConnectionsChanged;
+        }
+
+        if (e.NewValue.Value != null)
+        {
+            e.NewValue.Value.Connections.CollectionChanged += nodeGraph.OnConnectionsChanged;
+            nodeGraph.SocketsInfo.Sockets.Clear();
+            foreach (var connection in e.NewValue.Value.Connections)
+            {
+                nodeGraph.SocketsInfo.Sockets[$"i:{connection.InputNode.Id}.{connection.InputProperty.PropertyName}"] =
+                    connection.InputProperty;
+                nodeGraph.SocketsInfo.Sockets
+                        [$"o:{connection.OutputNode.Id}.{connection.OutputProperty.PropertyName}"] =
+                    connection.OutputProperty;
+            }
         }
     }
 }

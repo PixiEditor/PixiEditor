@@ -91,12 +91,12 @@ public abstract class NodePropertyView : UserControl
 
     protected void HideSocket(bool hideInputSocket, bool hideOutputSocket)
     {
-        if (hideInputSocket)
+        if (hideInputSocket && InputSocket is not null)
         {
             InputSocket.IsVisible = false;
         }
 
-        if (hideOutputSocket)
+        if (hideOutputSocket && OutputSocket is not null)
         {
             OutputSocket.IsVisible = false;
         }

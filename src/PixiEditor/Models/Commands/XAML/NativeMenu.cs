@@ -65,9 +65,19 @@ internal class NativeMenu : global::Avalonia.Controls.Menu
         {
             if (!ShortcutController.ShortcutExecutionBlocked)
             {
-                if (iCommand.CanExecute(parameter))
+                if (command?.Shortcut != null && command.Shortcut.Gesture != null && command.Shortcut.Gesture.Key != Key.None || command.Shortcut.Gesture.KeyModifiers != KeyModifiers.None)
                 {
-                    iCommand.Execute(parameter);
+                     ViewModelMain.Current.ShortcutController.KeyPressed(
+                         false,
+                         command.Shortcut.Key,
+                         command.Shortcut.Modifiers);
+                }
+                else
+                {
+                    if (iCommand.CanExecute(parameter))
+                    {
+                        iCommand.Execute(parameter);
+                    }
                 }
             }
             else

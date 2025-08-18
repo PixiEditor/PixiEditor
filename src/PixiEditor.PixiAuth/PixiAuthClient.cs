@@ -16,7 +16,7 @@ public class PixiAuthClient
     {
         httpClient = new HttpClient();
         httpClient.BaseAddress = new Uri(baseUrl);
-        httpClient.Timeout = TimeSpan.FromSeconds(30);
+        httpClient.Timeout = Timeout.InfiniteTimeSpan;
         if (apiKey != null)
         {
             httpClient.DefaultRequestHeaders.Add("X-API-KEY", apiKey);
@@ -46,7 +46,7 @@ public class PixiAuthClient
         {
             throw new BadRequestException(await response.Content.ReadAsStringAsync());
         }
-        else if (response.StatusCode == HttpStatusCode.InternalServerError)
+        else if (response.StatusCode >= HttpStatusCode.InternalServerError)
         {
             throw new InternalServerErrorException("INTERNAL_SERVER_ERROR");
         }
@@ -101,7 +101,7 @@ public class PixiAuthClient
         {
             throw new BadRequestException(await response.Content.ReadAsStringAsync());
         }
-        else if (response.StatusCode == HttpStatusCode.InternalServerError)
+        else if (response.StatusCode >= HttpStatusCode.InternalServerError)
         {
             throw new InternalServerErrorException("INTERNAL_SERVER_ERROR");
         }
@@ -208,7 +208,7 @@ public class PixiAuthClient
                 }
             }
         }
-        else if (response.StatusCode == HttpStatusCode.InternalServerError)
+        else if (response.StatusCode >= HttpStatusCode.InternalServerError)
         {
             throw new InternalServerErrorException("INTERNAL_SERVER_ERROR");
         }
@@ -227,7 +227,7 @@ public class PixiAuthClient
             throw new BadRequestException(await response.Content.ReadAsStringAsync());
         }
 
-        if (response.StatusCode == HttpStatusCode.InternalServerError)
+        if (response.StatusCode >= HttpStatusCode.InternalServerError)
         {
             throw new InternalServerErrorException("INTERNAL_SERVER_ERROR");
         }
@@ -261,7 +261,7 @@ public class PixiAuthClient
             throw new BadRequestException(await response.Content.ReadAsStringAsync());
         }
 
-        if (response.StatusCode == HttpStatusCode.InternalServerError)
+        if (response.StatusCode >= HttpStatusCode.InternalServerError)
         {
             throw new InternalServerErrorException("INTERNAL_SERVER_ERROR");
         }
@@ -299,7 +299,7 @@ public class PixiAuthClient
             throw new BadRequestException(await response.Content.ReadAsStringAsync());
         }
 
-        if (response.StatusCode == HttpStatusCode.InternalServerError)
+        if (response.StatusCode >= HttpStatusCode.InternalServerError)
         {
             throw new InternalServerErrorException("INTERNAL_SERVER_ERROR");
         }

@@ -37,13 +37,21 @@ public static class DataObjectExtensions
             return false;
         }
 
-        string text = data.GetText();
-
-        if (Directory.Exists(text) || File.Exists(text))
+        try
         {
-            path = text;
-            return true;
+            var text = data.GetText();
+            if (Directory.Exists(text) || File.Exists(text))
+            {
+                path = text;
+                return true;
+            }
         }
+        catch(InvalidCastException ex) // bug on x11
+        {
+            path = null;
+            return false;
+        }
+
 
         path = null;
         return false;

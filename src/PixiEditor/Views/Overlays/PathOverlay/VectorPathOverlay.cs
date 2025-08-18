@@ -419,7 +419,7 @@ public class VectorPathOverlay : Overlay
         }
 
         Path = editableVectorPath.ToVectorPath();
-        AddToUndoCommand.Execute(Path);
+        AddToUndoCommand?.Execute(Path);
     }
 
     private void CreateHandle(int atIndex, bool isControlPoint = false)
@@ -529,7 +529,7 @@ public class VectorPathOverlay : Overlay
         if (IsOverPath(args.Point, out VecD closestPoint))
         {
             AddPointAt(closestPoint);
-            AddToUndoCommand.Execute(Path);
+            AddToUndoCommand?.Execute(Path);
             args.Handled = true;
         }
         else if (args.Modifiers == KeyModifiers.None)
@@ -541,7 +541,7 @@ public class VectorPathOverlay : Overlay
                 converted = false;
             }
 
-            AddToUndoCommand.Execute(Path);
+            AddToUndoCommand?.Execute(Path);
         }
     }
 
@@ -875,7 +875,7 @@ public class VectorPathOverlay : Overlay
 
     private void OnHandleRelease(Handle source, OverlayPointerArgs args)
     {
-        AddToUndoCommand.Execute(Path);
+        AddToUndoCommand?.Execute(Path);
 
         if (source is AnchorHandle anchorHandle)
         {
