@@ -4,7 +4,8 @@
                     xmlns:visuals="clr-namespace:PixiEditor.Views.Visuals"
                     xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
                     xmlns:input="clr-namespace:PixiEditor.Views.Input"
-                    xmlns:nodes1="clr-namespace:PixiEditor.ViewModels.Nodes">
+                    xmlns:nodes1="clr-namespace:PixiEditor.ViewModels.Nodes"
+                    xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters">
     <ControlTheme TargetType="nodes:NodePicker" x:Key="{x:Type nodes:NodePicker}">
         <Setter Property="Template">
             <ControlTemplate>
@@ -55,6 +56,19 @@
                                                         CommandParameter="{Binding}"
                                                         HorizontalContentAlignment="Left"
                                                         IsVisible="{Binding !Hidden}">
+                                                        <Classes.KeyboardSelected>
+                                                            <MultiBinding Converter="{converters:AreEqualConverter}">
+                                                                <Binding />
+                                                                <Binding Path="SelectedNode" RelativeSource="{RelativeSource FindAncestor, AncestorType=nodes:NodePicker}" Mode="OneWay"/>
+                                                            </MultiBinding>
+                                                        </Classes.KeyboardSelected>
+                                                        
+                                                        <Button.Styles>
+                                                            <Style Selector="Button.KeyboardSelected">
+                                                                <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightBrush}" />
+                                                            </Style>
+                                                        </Button.Styles>
+                                                        
                                                         <TextBlock Margin="10 0 0 0">
                                                             <Run Classes="pixi-icon"
                                                                  BaselineAlignment="Center"
