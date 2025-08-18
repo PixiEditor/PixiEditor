@@ -21,6 +21,8 @@ public class NoiseNode : RenderNode
     private VoronoiFeature previousVoronoiFeature = Nodes.VoronoiFeature.F1;
     private double previousRandomness = double.NaN;
     private double previousAngleOffset = double.NaN;
+    
+    private Shader voronoiShader;
 
     private Paint paint = new();
 
@@ -86,7 +88,10 @@ public class NoiseNode : RenderNode
                 return;
             }
 
-            paint?.Shader?.Dispose();
+            if (paint.Shader != voronoiShader)
+            {
+                paint?.Shader?.Dispose();
+            }
             paint.Shader = shader;
 
             // Define a grayscale color filter to apply to the image
@@ -124,8 +129,11 @@ public class NoiseNode : RenderNode
         {
             return false;
         }
-        
-        paint?.Shader?.Dispose();
+
+        if (paint.Shader != voronoiShader)
+        {
+            paint?.Shader?.Dispose();
+        }
         paint.Shader = shader;
         paint.ColorFilter = grayscaleFilter;
         
@@ -146,14 +154,14 @@ public class NoiseNode : RenderNode
                 (float)(1d / Scale.Value),
                 (float)(1d / Scale.Value),
                 octaves, (float)Seed.Value),
-            Nodes.NoiseType.Voronoi => CreateVoronoiShader((float)Seed.Value, (float)(1d / (Scale.Value)), octaves, (float)Randomness.Value, (int)VoronoiFeature.Value, (float)AngleOffset.Value),
+            Nodes.NoiseType.Voronoi => GetVoronoiShader((float)(1d / (Scale.Value)), octaves, (float)Seed.Value, (int)VoronoiFeature.Value, (float)Randomness.Value, (float)AngleOffset.Value),
             _ => null
         };
 
         return shader;
     }
 
-    private Shader CreateVoronoiShader(float seed, float frequency, int octaves, float randomness, int feature, float angleOffset)
+    private Shader GetVoronoiShader(float frequency, int octaves, float seed, int feature, float randomness, float angleOffset)
     {
         string voronoiShaderCode = """
                                    uniform float iSeed;
@@ -259,8 +267,17 @@ public class NoiseNode : RenderNode
         uniforms.Add("iRandomness", new Uniform("iRandomness", randomness));
         uniforms.Add("iFeature", new Uniform("iFeature", feature));
         uniforms.Add("iAngleOffset", new Uniform("iAngleOffset", angleOffset));
+
+        if (voronoiShader == null)
+        {
+            voronoiShader = Shader.Create(voronoiShaderCode, uniforms, out _);
+        }
+        else
+        {
+            voronoiShader = voronoiShader.WithUpdatedUniforms(uniforms);
+        }
         
-        return Shader.Create(voronoiShaderCode, uniforms, out _);
+        return voronoiShader;
     }
 
     public override Node CreateCopy() => new NoiseNode();
