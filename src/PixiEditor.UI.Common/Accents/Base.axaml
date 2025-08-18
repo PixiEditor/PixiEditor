@@ -60,6 +60,7 @@
             <Color x:Key="IntSocketColor">#4C64B1</Color>
             <Color x:Key="StringSocketColor">#C9E4C6</Color>
             <Color x:Key="EllipseDataSocketColor">#a473a5</Color>
+            <Color x:Key="LineDataSocketColor">#816382</Color>
             <Color x:Key="RectangleDataSocketColor">#825e8a</Color>
             <Color x:Key="PointsDataSocketColor">#e1d0e1</Color>
             <Color x:Key="TextDataSocketColor">#f2f2f2</Color>
@@ -175,6 +176,7 @@
             <ConicGradientBrush x:Key="ShapeVectorDataSocketBrush"
                                 GradientStops="{StaticResource ShapeDataSocketGradient}" />
             <SolidColorBrush x:Key="EllipseVectorDataSocketBrush" Color="{StaticResource EllipseDataSocketColor}" />
+            <SolidColorBrush x:Key="LineVectorDataSocketBrush" Color="{StaticResource LineDataSocketColor}" />
             <SolidColorBrush x:Key="RectangleVectorDataSocketBrush" Color="{StaticResource RectangleDataSocketColor}" />
             <SolidColorBrush x:Key="PointsVectorDataSocketBrush" Color="{StaticResource PointsDataSocketColor}" />
             <SolidColorBrush x:Key="TextVectorDataSocketBrush" Color="{StaticResource TextDataSocketColor}" />
