@@ -170,11 +170,23 @@ internal partial class SettingsWindowViewModel : ViewModelBase
         {
             Patterns = fileTypes.SelectMany(a => a.Patterns).ToList(),
         });
-        
+
+        IStorageFolder? suggestedLocation = null;
+        try
+        {
+            suggestedLocation =
+                await MainWindow.Current!.StorageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Documents);
+        }
+        catch (Exception)
+        {
+            // If we can't get the documents folder, we will just use the default location
+            // This is not a critical error, so we can ignore it
+        }
+
         IReadOnlyList<IStorageFile> files = await MainWindow.Current!.StorageProvider.OpenFilePickerAsync(new()
         {
             AllowMultiple = false,
-            SuggestedStartLocation = await MainWindow.Current!.StorageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Documents),
+            SuggestedStartLocation = suggestedLocation,
             FileTypeFilter = fileTypes,
         });
         
