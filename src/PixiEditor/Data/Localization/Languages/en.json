@@ -650,6 +650,7 @@
   "LINE_NODE": "Line",
   "LINE_START": "Start",
   "LINE_END": "End",
+  "RECTANGLE_NODE": "Rectangle",
   "CREATE_IMAGE_NODE": "Create Image",
   "FOLDER_NODE": "Folder",
   "IMAGE_LAYER_NODE": "Image Layer",
