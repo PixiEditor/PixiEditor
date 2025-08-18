@@ -116,7 +116,7 @@ internal class MemberPreviewUpdater
                 {
                     if (!keyFramesGuids.Contains(childFrame.Id))
                     {
-                        if (!memberGuids.Contains(childFrame.LayerGuid) || !IsInFrame(childFrame))
+                        if (!memberGuids.Contains(childFrame.LayerGuid) || !IsInFrame(childFrame) || !groupHandler.IsVisible)
                             continue;
                     }
 
