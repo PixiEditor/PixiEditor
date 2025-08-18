@@ -65,10 +65,15 @@ public class FuncInputProperty<T> : InputProperty<Func<FuncContext, T>>, IFuncIn
                 else if (sourceObj is Expression expression)
                 {
                     ShaderExpressionVariable shaderExpressionVariable = (ShaderExpressionVariable)toReturn;
-                    shaderExpressionVariable.OverrideExpression = Adjust(expression, toReturn, out var adjustNested);
+                    var adjusted = Adjust(expression, toReturn, out var adjustNested);
                     if (adjustNested)
                     {
                         AdjustNested(((IMultiValueVariable)toReturn), expression);
+                        shaderExpressionVariable.OverrideExpression = ((IMultiValueVariable)toReturn).GetWholeNestedExpression();
+                    }
+                    else
+                    {
+                        shaderExpressionVariable.OverrideExpression = adjusted;
                     }
                 }
 
@@ -91,7 +96,6 @@ public class FuncInputProperty<T> : InputProperty<Func<FuncContext, T>>, IFuncIn
         if (toReturn is IMultiValueVariable)
         {
             adjustNestedVariables = true;
-            return expression;
         }
 
         return expression;

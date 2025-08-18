@@ -1,4 +1,5 @@
-﻿using Avalonia;
+﻿using System;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
 using Avalonia.Input;
@@ -76,7 +77,14 @@ public abstract class Handle : IHandle
         {
             if (shape is string path)
             {
-                return new PathVectorData(VectorPath.FromSvgPath(path));
+                try
+                {
+                    return new PathVectorData(VectorPath.FromSvgPath(path));
+                }
+                catch (Exception ex)
+                {
+                    return new PathVectorData(VectorPath.FromSvgPath("M 0 0 L 1 0 M 0 0 L 0 1"));
+                }
             }
 
             if (shape is VectorPathResource resource)
