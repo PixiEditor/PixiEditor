@@ -10,14 +10,12 @@ using PixiEditor.Extensions;
 using PixiEditor.Extensions.Runtime;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Behaviours;
-using PixiEditor.IdentityProvider;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.ExceptionHandling;
 using PixiEditor.Models.IO;
 using PixiEditor.OperatingSystem;
 using PixiEditor.Platform;
 using PixiEditor.UI.Common.Controls;
-using PixiEditor.ViewModels.SubViewModels;
 using PixiEditor.Views;
 using PixiEditor.Views.Auth;
 using PixiEditor.Views.Dialogs;
@@ -149,7 +147,7 @@ internal class ClassicDesktopEntry
         }
 
         ExtensionLoader extensionLoader = new ExtensionLoader(
-            [Paths.InstallDirExtensionPackagesPath, Paths.LocalExtensionPackagesPath], Paths.UserExtensionsPath);
+            [Paths.InstallDirExtensionPackagesPath, Paths.LocalExtensionPackagesPath], Paths.UnpackedExtensionsPath);
         if (!safeMode)
         {
             extensionLoader.LoadExtensions();
@@ -174,8 +172,8 @@ internal class ClassicDesktopEntry
         return new PixiEditor.Platform.MSStore.MicrosoftStorePlatform(Paths.LocalExtensionPackagesPath, GetApiUrl(),
             GetApiKey());
 #else
-        return new PixiEditor.Platform.Standalone.StandalonePlatform(Paths.LocalExtensionPackagesPath, GetApiUrl(),
-            GetApiKey());
+        return new PixiEditor.Platform.Standalone.StandalonePlatform([Paths.LocalExtensionPackagesPath, Paths.InstallDirExtensionPackagesPath], GetApiUrl(),
+            GetApiKey()); // The first in the extensionsPath array should be local, because it's the default where extensions are installed. Otherwise, OS access rights may cause issues.
 #endif
     }
 
@@ -194,7 +192,7 @@ internal class ClassicDesktopEntry
 #elif MACOS
         return new PixiEditor.MacOs.MacOperatingSystem();
 #else
-        throw new PlatformNotSupportedException("This platform is not supported");
+        throw new PlatformNotSupportedException("This OS is not supported");
 #endif
     }
 
@@ -260,10 +258,7 @@ internal class ClassicDesktopEntry
             if (restartQueued)
             {
                 var process = Process.GetCurrentProcess().MainModule.FileName;
-                desktop.Exit += (_, _) =>
-                {
-                    Process.Start(process);
-                };
+                Process.Start(process);
             }
         });
     }
@@ -280,7 +275,7 @@ internal class ClassicDesktopEntry
     {
         string? baseUrl = RuntimeConstants.PixiEditorApiUrl;
 #if DEBUG
-        if (baseUrl != null && baseUrl.Contains('{') && baseUrl.Contains('}'))
+        if (baseUrl == null)
         {
             string? envUrl = Environment.GetEnvironmentVariable("PIXIEDITOR_API_URL");
             if (envUrl != null)
@@ -297,7 +292,7 @@ internal class ClassicDesktopEntry
     {
         string? apiKey = RuntimeConstants.PixiEditorApiKey;
 #if DEBUG
-        if (apiKey != null && apiKey.Contains('{') && apiKey.Contains('}'))
+        if (apiKey == null)
         {
             string? envApiKey = Environment.GetEnvironmentVariable("PIXIEDITOR_API_KEY");
             if (envApiKey != null)

@@ -14,7 +14,7 @@
 
     <Grid>
         <CheckBox VerticalAlignment="Center" Focusable="False"
-                  localization:Translator.Key="{Binding Label}"
+                  localization:Translator.LocalizedString="{Binding Label}"
                   IsChecked="{Binding Value, Mode=TwoWay}">
            <CheckBox.IsVisible>
                <MultiBinding Converter="{converters:AllTrueConverter}">

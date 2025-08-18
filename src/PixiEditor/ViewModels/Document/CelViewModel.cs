@@ -91,7 +91,11 @@ internal abstract class CelViewModel : ObservableObject, ICelHandler
     public bool IsSelected
     {
         get => isSelected;
-        set => SetProperty(ref isSelected, value);
+        set
+        {
+            if (StartFrameBindable == 0) return;
+            SetProperty(ref isSelected, value);
+        }
     }
 
     protected CelViewModel(int startFrame, int duration, Guid layerGuid, Guid id,

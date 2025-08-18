@@ -39,4 +39,9 @@ public sealed class MacOperatingSystem : IOperatingSystem
     {
         return true;
     }
+
+    public string[] GetAvailableRenderers()
+    {
+        return ["OpenGL"];
+    }
 }

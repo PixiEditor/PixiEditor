@@ -7,7 +7,7 @@ public static class NodeAbbreviation
 {
     private static readonly SearchValues<char> SearchFor = SearchValues.Create(['.']);
 
-    
+
     public static bool IsAbbreviation(string value, out string? lastValue)
     {
         var span = value.AsSpan();
@@ -23,32 +23,37 @@ public static class NodeAbbreviation
         lastValue = span[(i + 1)..].ToString();
         return true;
     }
-    
+
     public static List<NodeTypeInfo>? FromString(string value, ICollection<NodeTypeInfo> allNodes)
     {
-        var span = value.AsSpan();
-
-        if (!span.ContainsAny(SearchFor))
+        if (string.IsNullOrEmpty(value))
         {
             return null;
         }
-        
+
+        var span = value.AsSpan();
+
+        string lookFor = value;
+        if (!span.ContainsAny(SearchFor))
+        {
+            return [allNodes.FirstOrDefault(SearchComparer)];
+        }
+
         var list = new List<NodeTypeInfo>();
 
         var enumerator = new PartEnumerator(span, SearchFor);
 
         foreach (var name in enumerator)
         {
-            var lookFor = name.Name.ToString();
+            lookFor = name.Name.ToString();
             var node = allNodes.First(SearchComparer);
 
             list.Add(node);
-
-            continue;
-
-            bool SearchComparer(NodeTypeInfo x) =>
-                x.FinalPickerName.Value.Replace(" ", "").Contains(lookFor.Replace(" ", ""), StringComparison.OrdinalIgnoreCase);
         }
+
+        bool SearchComparer(NodeTypeInfo x) =>
+            x.FinalPickerName.Value.Replace(" ", "")
+                .Contains(lookFor.Replace(" ", ""), StringComparison.OrdinalIgnoreCase);
 
         return list;
     }

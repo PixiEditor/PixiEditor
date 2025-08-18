@@ -72,9 +72,11 @@ public static class NodeOperations
         return node;
     }
 
-    public static List<IChangeInfo> AppendMember(Node parent, Node toAppend, out Dictionary<Guid, VecD> originalPositions)
+    public static List<IChangeInfo> AppendMember(Node parent, Node toAppend,
+        out Dictionary<Guid, VecD> originalPositions)
     {
-        InputProperty<Painter?>? parentInput = parent.GetInputProperty(OutputNode.InputPropertyName) as InputProperty<Painter?>;
+        InputProperty<Painter?>? parentInput =
+            parent.GetInputProperty(OutputNode.InputPropertyName) as InputProperty<Painter?>;
         if (parentInput == null)
         {
             throw new InvalidOperationException("Parent node does not have an input property for appending members.");
@@ -86,18 +88,21 @@ public static class NodeOperations
             throw new InvalidOperationException("Node to append does not have an output property named 'Output'.");
         }
 
-        InputProperty<Painter>? toAddInput = toAppend.GetInputProperty(OutputNode.InputPropertyName) as InputProperty<Painter>;
+        InputProperty<Painter>? toAddInput =
+            toAppend.GetInputProperty(OutputNode.InputPropertyName) as InputProperty<Painter>;
 
         if (toAddInput == null)
         {
-            throw new InvalidOperationException("Node to append does not have an input property for appending members.");
+            throw new InvalidOperationException(
+                "Node to append does not have an input property for appending members.");
         }
 
         Guid memberId = toAppend.Id;
 
         List<IChangeInfo> changes = AppendMember(parentInput, toAddOutput, toAddInput, memberId);
 
-        var adjustedPositions = AdjustPositionsAfterAppend(toAppend, parent, parentInput.Connection?.Node as Node ?? null, out originalPositions);
+        var adjustedPositions = AdjustPositionsAfterAppend(toAppend, parent,
+            parentInput.Connection?.Node as Node ?? null, out originalPositions);
 
         changes.AddRange(adjustedPositions);
         return changes;
@@ -110,6 +115,9 @@ public static class NodeOperations
     {
         List<IChangeInfo> changes = new();
         IOutputProperty? previouslyConnected = null;
+
+        if(parentInput == null) return changes;
+
         if (parentInput.Connection != null)
         {
             previouslyConnected = parentInput.Connection;
@@ -215,8 +223,8 @@ public static class NodeOperations
                 toMove.Position = pos;
                 toMove.Position = new VecD(toMove.Position.X, y);
                 changes.Add(new NodePosition_ChangeInfo(toMove.Id, toMove.Position));
-                
-                if(aNode == appendedTo) return false;
+
+                if (aNode == appendedTo) return false;
             }
 
             return true;
@@ -270,15 +278,35 @@ public static class NodeOperations
     public static List<IChangeInfo> ConnectStructureNodeProperties(ConnectionsData originalConnections, Node node,
         IReadOnlyNodeGraph graph)
     {
+        if (node == null || originalConnections == null || graph == null)
+        {
+            return new List<IChangeInfo>();
+        }
+
         List<IChangeInfo> changes = new();
         foreach (var connections in originalConnections.originalOutputConnections)
         {
             PropertyConnection outputConnection = connections.Key;
+            if (outputConnection == null)
+                continue;
+
             IOutputProperty outputProp = node.GetOutputProperty(outputConnection.PropertyName);
+
+            if (outputProp == null)
+            {
+                continue;
+            }
+
             foreach (var connection in connections.Value)
             {
                 var inputNode = graph.AllNodes.FirstOrDefault(x => x.Id == connection.NodeId);
+                if (inputNode is null)
+                    continue;
+
                 IInputProperty property = inputNode.GetInputProperty(connection.PropertyName);
+                if (property is null)
+                    continue;
+
                 outputProp.ConnectTo(property);
                 changes.Add(new ConnectProperty_ChangeInfo(node.Id, property.Node.Id, outputProp.InternalPropertyName,
                     property.InternalPropertyName));

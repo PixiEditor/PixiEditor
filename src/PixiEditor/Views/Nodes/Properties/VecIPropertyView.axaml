@@ -7,15 +7,19 @@
                              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
                              xmlns:input="clr-namespace:PixiEditor.Views.Input"
                              xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
+                             xmlns:properties1="clr-namespace:PixiEditor.ViewModels.Nodes.Properties"
                              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
                              x:Class="PixiEditor.Views.Nodes.Properties.VecIPropertyView">
+    <Design.DataContext>
+        <properties1:VecIPropertyViewModel />
+    </Design.DataContext>
     <StackPanel
         HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
-        <TextBlock VerticalAlignment="Center" ui:Translator.Key="{Binding DisplayName}" />
+        <TextBlock ui:Translator.TooltipKey="{Binding DisplayName}" VerticalAlignment="Center" ui:Translator.Key="{Binding DisplayName}" />
         <StackPanel IsVisible="{Binding ShowInputField}">
-            <controls:NumberInput EnableScrollChange="False" MinWidth="100" Decimals="0"
+            <controls:NumberInput DraggingGrabber="{Binding MergeChanges, Mode=OneWayToSource}" EnableScrollChange="False" MinWidth="100" Decimals="0"
                                   Value="{Binding XValue, Mode=TwoWay}" Margin="0,2" />
-            <controls:NumberInput EnableScrollChange="False" MinWidth="100" Decimals="0"
+            <controls:NumberInput DraggingGrabber="{Binding MergeChanges, Mode=OneWayToSource}" EnableScrollChange="False" MinWidth="100" Decimals="0"
                                   Value="{Binding YValue, Mode=TwoWay}" />
         </StackPanel>
     </StackPanel>

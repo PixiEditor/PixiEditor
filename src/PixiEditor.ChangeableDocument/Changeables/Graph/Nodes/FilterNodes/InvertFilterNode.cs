@@ -1,6 +1,7 @@
 ﻿using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 
@@ -20,7 +21,7 @@ public class InvertFilterNode : FilterNode
         filter = ColorFilter.CreateColorMatrix(invertedMatrix);
     }
 
-    protected override ColorFilter? GetColorFilter()
+    protected override ColorFilter? GetColorFilter(RenderContext context)
     {
         filter?.Dispose();
 

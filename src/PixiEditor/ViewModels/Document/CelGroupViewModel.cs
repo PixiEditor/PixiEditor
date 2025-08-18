@@ -23,7 +23,7 @@ internal class CelGroupViewModel : CelViewModel, ICelGroupHandler
 
     public string LayerName => Document.StructureHelper.Find(LayerGuid).NodeNameBindable;
 
-    public bool IsGroupSelected => Document.SelectedStructureMember.Id == LayerGuid;
+    public bool IsGroupSelected => Document?.SelectedStructureMember?.Id == LayerGuid;
 
     public bool IsCollapsed
     {

@@ -8,12 +8,16 @@
                              xmlns:input="clr-namespace:PixiEditor.Views.Input"
                              xmlns:system="clr-namespace:System;assembly=System.Runtime"
                              xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
+                             xmlns:properties1="clr-namespace:PixiEditor.ViewModels.Nodes.Properties"
                              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
                              x:Class="PixiEditor.Views.Nodes.Properties.KernelPropertyView">
+    <Design.DataContext>
+        <properties1:KernelPropertyViewModel />
+    </Design.DataContext>
 
     <StackPanel Margin="0,2">
         <Grid ColumnDefinitions="*,*,*" Margin="0,0,0,2">
-            <TextBlock ui:Translator.Key="{Binding DisplayName}" VerticalAlignment="Center"/>
+            <TextBlock ui:Translator.TooltipKey="{Binding DisplayName}" ui:Translator.Key="{Binding DisplayName}" VerticalAlignment="Center"/>
             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Button Padding="0" Content="-" Width="35" Command="{Binding AdjustSizeCommand}">
                     <Button.CommandParameter>
@@ -39,7 +43,7 @@
         <ItemsControl ItemsSource="{Binding ReferenceCollections}" Margin="0,1">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <controls:NumberInput EnableScrollChange="False" Value="{Binding Value, Mode=TwoWay}" Decimals="4" />
+                    <controls:NumberInput DraggingGrabber="{Binding Path=MergeChanges, Mode=OneWayToSource}" EnableScrollChange="False" Value="{Binding Value, Mode=TwoWay}" Decimals="4" />
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
             <ItemsControl.ItemsPanel>

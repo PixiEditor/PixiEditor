@@ -12,6 +12,7 @@ public class PixiAuthIdentityProvider : IIdentityProvider
     public string ProviderName { get; } = "PixiAuth";
     public bool AllowsLogout { get; } = true;
     public bool IsValid => isValid;
+    public string InvalidInfo { get; } = "ACCOUNT_PROVIDER_NOT_AVAILABLE";
     private bool isValid = true;
     public PixiAuthClient PixiAuthClient { get; }
     public PixiUser User { get; private set; }

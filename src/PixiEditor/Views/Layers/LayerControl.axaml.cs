@@ -144,19 +144,26 @@ internal partial class LayerControl : UserControl
 
     public static Guid[]? ExtractMemberGuids(IDataObject droppedMemberDataObject)
     {
-        object droppedLayer = droppedMemberDataObject.Get(LayersManager.LayersDataName);
-        if (droppedLayer is null)
-            return null;
-
-        if (droppedLayer is Guid droppedLayerGuid)
-            return new[] { droppedLayerGuid };
-
-        if (droppedLayer is Guid[] droppedLayerGuids)
+        try
         {
-            return droppedLayerGuids;
-        }
+            object droppedLayer = droppedMemberDataObject.Get(LayersManager.LayersDataName);
+            if (droppedLayer is null)
+                return null;
 
-        return null;
+            if (droppedLayer is Guid droppedLayerGuid)
+                return new[] { droppedLayerGuid };
+
+            if (droppedLayer is Guid[] droppedLayerGuids)
+            {
+                return droppedLayerGuids;
+            }
+
+            return null;
+        }
+        catch (Exception e)
+        {
+            return null;
+        }
     }
 
     private bool HandleDrop(IDataObject dataObj, StructureMemberPlacement placement)

@@ -1,4 +1,6 @@
 ﻿using Avalonia;
+using Avalonia.Interactivity;
+using Avalonia.LogicalTree;
 using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
@@ -17,8 +19,9 @@ public class PreviewPainterControl : DrawieControl
         AvaloniaProperty.Register<PreviewPainterControl, PreviewPainter>(
             nameof(PreviewPainter));
 
-    public static readonly StyledProperty<VecI> CustomRenderSizeProperty = AvaloniaProperty.Register<PreviewPainterControl, VecI>(
-        nameof(CustomRenderSize));
+    public static readonly StyledProperty<VecI> CustomRenderSizeProperty =
+        AvaloniaProperty.Register<PreviewPainterControl, VecI>(
+            nameof(CustomRenderSize));
 
     public VecI CustomRenderSize
     {
@@ -55,6 +58,37 @@ public class PreviewPainterControl : DrawieControl
     {
         PreviewPainter = previewPainter;
         FrameToRender = frameToRender;
+    }
+
+    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnDetachedFromVisualTree(e);
+        if (PreviewPainter != null && painterInstance != null)
+        {
+            PreviewPainter.RemovePainterInstance(painterInstance.RequestId);
+            painterInstance.RequestMatrix = null;
+            painterInstance.RequestRepaint = null;
+            painterInstance = null;
+        }
+    }
+
+    protected override void OnLoaded(RoutedEventArgs e)
+    {
+        base.OnLoaded(e);
+        if (PreviewPainter != null && painterInstance == null)
+        {
+            painterInstance = PreviewPainter.AttachPainterInstance();
+            VecI finalSize = GetFinalSize();
+            if (finalSize is { X: > 0, Y: > 0 })
+            {
+                PreviewPainter.ChangeRenderTextureSize(painterInstance.RequestId, finalSize);
+            }
+
+            painterInstance.RequestMatrix = OnPainterRequestMatrix;
+            painterInstance.RequestRepaint = OnPainterRenderRequest;
+
+            PreviewPainter.RepaintFor(painterInstance.RequestId);
+        }
     }
 
     private static void PainterChanged(AvaloniaPropertyChangedEventArgs<PreviewPainter> args)
@@ -136,8 +170,10 @@ public class PreviewPainterControl : DrawieControl
 
     private VecI GetFinalSize()
     {
-        VecI finalSize = CustomRenderSize.ShortestAxis > 0 ? CustomRenderSize : new VecI((int)Bounds.Width, (int)Bounds.Height);
-        if(Bounds.Width < finalSize.X && Bounds.Height < finalSize.Y)
+        VecI finalSize = CustomRenderSize.ShortestAxis > 0
+            ? CustomRenderSize
+            : new VecI((int)Bounds.Width, (int)Bounds.Height);
+        if (Bounds.Width < finalSize.X && Bounds.Height < finalSize.Y)
         {
             finalSize = new VecI((int)Bounds.Width, (int)Bounds.Height);
         }

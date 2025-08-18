@@ -85,6 +85,19 @@ internal class NodeGraphManagerViewModel : SubViewModel<ViewModelMain>
             args.value);
     }
 
+    [Command.Internal("PixiEditor.NodeGraph.BeginUpdateValue", AnalyticsTrack = true)]
+    public void BeginUpdatePropertyValue((INodeHandler node, string property, object value) args)
+    {
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.BeginUpdatePropertyValue(args.node, args.property,
+            args.value);
+    }
+
+    [Command.Internal("PixiEditor.NodeGraph.EndUpdateValue", AnalyticsTrack = true)]
+    public void EndUpdatePropertyValue()
+    {
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.EndUpdatePropertyValue();
+    }
+
     [Command.Internal("PixiEditor.NodeGraph.EndChangeNodePos")]
     public void EndChangeNodePos()
     {

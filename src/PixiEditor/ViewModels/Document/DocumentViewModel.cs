@@ -445,7 +445,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 {
                     object value =
                         SerializationUtil.Deserialize(propertyValue.Value, config, allFactories, serializerData);
-                    acc.AddActions(new UpdatePropertyValue_Action(guid, propertyValue.Key, value));
+                    acc.AddActions(new UpdatePropertyValue_Action(guid, propertyValue.Key, value), new EndUpdatePropertyValue_Action());
                 }
             }
 
@@ -852,7 +852,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         if (finalBounds.IsZeroOrNegativeArea)
             return new None();
 
-        Surface output = new(finalBounds.Size);
+        Surface output = Surface.ForDisplay(finalBounds.Size);
 
         VectorPath clipPath = new VectorPath(SelectionPathBindable) { FillType = PathFillType.EvenOdd };
         //clipPath.Transform(Matrix3X3.CreateTranslation(-bounds.X, -bounds.Y));
@@ -1302,13 +1302,20 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
     public void Dispose()
     {
-        NodeGraph.Dispose();
-        Renderer.Dispose();
-        SceneRenderer.Dispose();
-        AnimationDataViewModel.Dispose();
-        Internals.ChangeController.TryStopActiveExecutor();
-        Internals.Tracker.Dispose();
-        Internals.Tracker.Document.Dispose();
+        try
+        {
+            NodeGraph.Dispose();
+            Renderer.Dispose();
+            SceneRenderer.Dispose();
+            AnimationDataViewModel.Dispose();
+            Internals.ChangeController.TryStopActiveExecutor();
+            Internals.Tracker.Dispose();
+            Internals.Tracker.Document.Dispose();
+        }
+        catch (Exception ex)
+        {
+            CrashHelper.SendExceptionInfo(ex);
+        }
     }
 
     public VecI GetRenderOutputSize(string renderOutputName)
