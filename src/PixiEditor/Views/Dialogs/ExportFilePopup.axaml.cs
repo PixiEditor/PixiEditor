@@ -247,10 +247,14 @@ internal partial class ExportFilePopup : PixiEditorPopup
     protected override void OnClosing(WindowClosingEventArgs e)
     {
         base.OnClosing(e);
-        videoPreviewTimer.Stop();
-        videoPreviewTimer.Tick -= OnVideoPreviewTimerOnTick;
-        videoPreviewTimer = null;
-        cancellationTokenSource.Cancel();
+        if (videoPreviewTimer != null)
+        {
+            videoPreviewTimer.Stop();
+            videoPreviewTimer.Tick -= OnVideoPreviewTimerOnTick;
+            videoPreviewTimer = null;
+        }
+
+        cancellationTokenSource?.Cancel();
 
         ExportPreview?.Dispose();
 
