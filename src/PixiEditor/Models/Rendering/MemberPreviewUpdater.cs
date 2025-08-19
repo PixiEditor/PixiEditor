@@ -138,7 +138,7 @@ internal class MemberPreviewUpdater
     private bool IsInFrame(ICelHandler cel)
     {
         return cel.StartFrameBindable <= doc.AnimationHandler.ActiveFrameBindable &&
-               cel.StartFrameBindable + cel.DurationBindable >= doc.AnimationHandler.ActiveFrameBindable;
+               cel.StartFrameBindable + cel.DurationBindable > doc.AnimationHandler.ActiveFrameBindable;
     }
 
     private void RenderFramePreview(ICelHandler cel)
