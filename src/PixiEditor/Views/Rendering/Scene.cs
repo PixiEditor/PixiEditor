@@ -148,6 +148,15 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         set { SetValue(RenderOutputProperty, value); }
     }
 
+    public static readonly StyledProperty<int> MaxBilinearSamplingSizeProperty = AvaloniaProperty.Register<Scene, int>(
+        nameof(MaxBilinearSamplingSize), 4096);
+
+    public int MaxBilinearSamplingSize
+    {
+        get => GetValue(MaxBilinearSamplingSizeProperty);
+        set => SetValue(MaxBilinearSamplingSizeProperty, value);
+    }
+
     private Overlay? capturedOverlay;
 
     private List<Overlay> mouseOverOverlays = new();
@@ -232,9 +241,16 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     private SamplingOptions CalculateSampling()
     {
-        return Scale >= 1
-            ? SamplingOptions.Default
-            : SamplingOptions.Bilinear;
+        if (Document.SizeBindable.LongestAxis > MaxBilinearSamplingSize)
+        {
+            return SamplingOptions.Default;
+        }
+
+        VecD densityVec = Dimensions.Divide(RealDimensions);
+        double density = Math.Min(densityVec.X, densityVec.Y);
+        return density > 1
+            ? SamplingOptions.Bilinear
+            : SamplingOptions.Default;
     }
 
     protected override void OnLoaded(RoutedEventArgs e)
@@ -319,7 +335,8 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         DrawOverlays(renderTexture.DrawingSurface, bounds, OverlayRenderSorting.Background);
         try
         {
-            SceneRenderer.RenderScene(renderTexture.DrawingSurface, CalculateResolution(), CalculateSampling(), renderOutput);
+            SceneRenderer.RenderScene(renderTexture.DrawingSurface, CalculateResolution(), CalculateSampling(),
+                renderOutput);
         }
         catch (Exception e)
         {

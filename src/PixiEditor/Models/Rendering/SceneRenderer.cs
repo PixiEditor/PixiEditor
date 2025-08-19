@@ -40,7 +40,7 @@ internal class SceneRenderer : IDisposable
     {
         if (Document.Renderer.IsBusy || DocumentViewModel.Busy ||
             target.DeviceClipBounds.Size.ShortestAxis <= 0) return;
-        RenderOnionSkin(target, resolution, targetOutput);
+        RenderOnionSkin(target, resolution, samplingOptions, targetOutput);
 
         string adjustedTargetOutput = targetOutput ?? "";
 
@@ -266,7 +266,7 @@ internal class SceneRenderer : IDisposable
         return highDpiRenderNodePresent;
     }
 
-    private void RenderOnionSkin(DrawingSurface target, ChunkResolution resolution, string? targetOutput)
+    private void RenderOnionSkin(DrawingSurface target, ChunkResolution resolution, SamplingOptions sampling, string? targetOutput)
     {
         var animationData = Document.AnimationData;
         if (!DocumentViewModel.AnimationHandler.OnionSkinningEnabledBindable)
@@ -279,10 +279,6 @@ internal class SceneRenderer : IDisposable
 
         var finalGraph = RenderingUtils.SolveFinalNodeGraph(targetOutput, Document);
         var renderOutputSize = SolveRenderOutputSize(targetOutput, finalGraph, Document.Size);
-
-        SamplingOptions samplingOptions = resolution == ChunkResolution.Full
-            ? SamplingOptions.Default
-            : new SamplingOptions(FilterMode.Linear, MipmapMode.Linear);
 
         // Render previous frames'
         for (int i = 1; i <= animationData.OnionFrames; i++)
@@ -297,7 +293,7 @@ internal class SceneRenderer : IDisposable
 
 
             RenderContext onionContext = new(target, frame, resolution, renderOutputSize, Document.Size,
-                Document.ProcessingColorSpace, samplingOptions, finalOpacity);
+                Document.ProcessingColorSpace, sampling, finalOpacity);
             onionContext.TargetOutput = targetOutput;
             finalGraph.Execute(onionContext);
         }
@@ -313,7 +309,7 @@ internal class SceneRenderer : IDisposable
 
             double finalOpacity = onionOpacity * alphaFalloffMultiplier * (animationData.OnionFrames - i + 1);
             RenderContext onionContext = new(target, frame, resolution, renderOutputSize, Document.Size,
-                Document.ProcessingColorSpace, samplingOptions, finalOpacity);
+                Document.ProcessingColorSpace, sampling, finalOpacity);
             onionContext.TargetOutput = targetOutput;
             finalGraph.Execute(onionContext);
         }

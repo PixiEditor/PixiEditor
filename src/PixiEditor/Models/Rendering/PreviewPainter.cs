@@ -138,7 +138,8 @@ public class PreviewPainter : IDisposable
     {
         var dirtyArray = dirtyTextures.ToArray();
         bool couldRender = canRender;
-        canRender = PreviewRenderable?.GetPreviewBounds(FrameTime.Frame, ElementToRenderName) != null;
+        canRender = PreviewRenderable?.GetPreviewBounds(FrameTime.Frame, ElementToRenderName) != null &&
+                    painterInstances.Count > 0;
         if (couldRender != canRender)
         {
             CanRenderChanged?.Invoke(canRender);
@@ -258,12 +259,10 @@ public class PreviewPainter : IDisposable
 
     private SamplingOptions FindSamplingOptions(VecI bounds)
     {
-        if (DocumentSize.X / (double)bounds.X > 2.01)
-        {
-            return SamplingOptions.Bilinear;
-        }
-
-        return SamplingOptions.Default;
+        var density = DocumentSize.X / (double)bounds.X;
+        return density > 1
+            ? SamplingOptions.Bilinear
+            : SamplingOptions.Default;
     }
 
     public void Dispose()

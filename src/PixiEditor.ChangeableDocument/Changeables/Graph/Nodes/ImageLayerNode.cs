@@ -275,7 +275,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
             img.DrawMostUpToDateRegionOn(
                 new RectI(0, 0, img.LatestSize.X, img.LatestSize.Y),
                 context.ChunkResolution,
-                renderOnto, VecI.Zero, blendPaint);
+                renderOnto, VecI.Zero, blendPaint, context.DesiredSamplingOptions);
         }
 
         return true;

@@ -35,6 +35,7 @@ using PixiEditor.Models.Tools;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
 using PixiEditor.Models.IO;
+using PixiEditor.Models.Position;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Skia;
 using PixiEditor.UI.Common.Localization;
@@ -373,6 +374,9 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         {
             viewModel.MarkAsSaved();
         }));
+
+        // This also refreshes previews on start. On big documents, previews are empty on start if not this
+        acc.AddActions(new SetActiveFrame_PassthroughAction(1));
 
         foreach (var factory in allFactories)
         {

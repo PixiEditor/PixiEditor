@@ -284,7 +284,8 @@ internal partial class SettingsWindowViewModel : ViewModelBase
             new("KEY_BINDINGS"),
             new SettingsPage("UPDATES"),
             new("EXPORT"),
-            new SettingsPage("SCENE")
+            new SettingsPage("SCENE"),
+            new("PERFORMANCE")
         };
 
         ILocalizationProvider.Current.OnLanguageChanged += OnLanguageChanged;
