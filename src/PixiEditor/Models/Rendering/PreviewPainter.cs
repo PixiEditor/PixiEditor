@@ -23,6 +23,8 @@ public class PreviewPainter : IDisposable
     public VecI DocumentSize { get; set; }
     public DocumentRenderer Renderer { get; set; }
 
+    public bool AllowPartialResolutions { get; set; } = true;
+
     public bool CanRender => canRender;
 
     public event Action<bool>? CanRenderChanged;
@@ -167,11 +169,18 @@ public class PreviewPainter : IDisposable
             renderTexture.DrawingSurface.Canvas.Save();
 
             Matrix3X3? matrix = painterInstance.RequestMatrix?.Invoke();
+            VecI bounds = painterInstance.RequestRenderBounds?.Invoke() ?? VecI.Zero;
+
+            ChunkResolution finalResolution = FindResolution(bounds);
+            SamplingOptions samplingOptions = FindSamplingOptions(bounds);
 
             renderTexture.DrawingSurface.Canvas.SetMatrix(matrix ?? Matrix3X3.Identity);
+            renderTexture.DrawingSurface.Canvas.Scale((float)finalResolution.InvertedMultiplier());
 
-            RenderContext context = new(renderTexture.DrawingSurface, FrameTime, ChunkResolution.Full, DocumentSize, DocumentSize,
-                ProcessingColorSpace);
+            RenderContext context = new(renderTexture.DrawingSurface, FrameTime, finalResolution,
+                DocumentSize,
+                DocumentSize,
+                ProcessingColorSpace, samplingOptions);
 
             dirtyTextures.Remove(texture);
             Renderer.RenderNodePreview(PreviewRenderable, renderTexture.DrawingSurface, context, ElementToRenderName)
@@ -230,6 +239,33 @@ public class PreviewPainter : IDisposable
         }
     }
 
+    private ChunkResolution FindResolution(VecI bounds)
+    {
+        if (bounds.X <= 0 || bounds.Y <= 0 || !AllowPartialResolutions)
+        {
+            return ChunkResolution.Full;
+        }
+
+        double density = DocumentSize.X / (double)bounds.X;
+        if (density > 8.01)
+            return ChunkResolution.Eighth;
+        if (density > 4.01)
+            return ChunkResolution.Quarter;
+        if (density > 2.01)
+            return ChunkResolution.Half;
+        return ChunkResolution.Full;
+    }
+
+    private SamplingOptions FindSamplingOptions(VecI bounds)
+    {
+        if (DocumentSize.X / (double)bounds.X > 2.01)
+        {
+            return SamplingOptions.Bilinear;
+        }
+
+        return SamplingOptions.Default;
+    }
+
     public void Dispose()
     {
         foreach (var texture in renderTextures)
@@ -242,6 +278,8 @@ public class PreviewPainter : IDisposable
 public class PainterInstance
 {
     public int RequestId { get; set; }
+    public Func<VecI> RequestRenderBounds;
+
     public Func<Matrix3X3?>? RequestMatrix;
     public Action RequestRepaint;
 }

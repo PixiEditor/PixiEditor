@@ -147,7 +147,7 @@ internal class ActionAccumulator
                 previewUpdater.UpdatePreviews(
                     affectedAreas.ChangedMembers,
                     affectedAreas.ChangedMasks,
-                    affectedAreas.ChangedNodes, affectedAreas.ChangedKeyFrames);
+                    affectedAreas.ChangedNodes, affectedAreas.ChangedKeyFrames, affectedAreas.IgnoreAnimationPreviews);
 
                 // force refresh viewports for better responsiveness
                 foreach (var (_, value) in internals.State.Viewports)

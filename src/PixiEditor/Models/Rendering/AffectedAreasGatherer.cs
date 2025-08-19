@@ -30,6 +30,7 @@ internal class AffectedAreasGatherer
 
     public AffectedArea MainImageArea { get; private set; } = new();
     public HashSet<Guid> ChangedMembers { get; private set; } = new();
+    public bool IgnoreAnimationPreviews => ignoreAnimationPreviews;
     public HashSet<Guid> ChangedMasks { get; private set; } = new();
     public HashSet<Guid> ChangedKeyFrames { get; private set; } = new();
 
@@ -38,6 +39,7 @@ internal class AffectedAreasGatherer
     public HashSet<Guid> ChangedNodes { get; set; } = new();
 
     private bool alreadyAddedWholeCanvasToEveryImagePreview = false;
+    private bool ignoreAnimationPreviews = false;
 
     public AffectedAreasGatherer(KeyFrameTime activeFrame, DocumentChangeTracker tracker,
         IReadOnlyList<IChangeInfo> changes)
@@ -153,6 +155,7 @@ internal class AffectedAreasGatherer
                     AddWholeCanvasToMainImage();
                     AddWholeCanvasToEveryImagePreview();
                     AddAllNodesToImagePreviews();
+                    ignoreAnimationPreviews = true;
                     break;
                 case KeyFrameLength_ChangeInfo:
                     AddWholeCanvasToMainImage();
@@ -386,7 +389,13 @@ internal class AffectedAreasGatherer
         if (alreadyAddedWholeCanvasToEveryImagePreview)
             return;
 
-        tracker.Document.ForEveryReadonlyMember((member) => AddWholeCanvasToImagePreviews(member.Id));
+        tracker.Document.ForEveryReadonlyMember((member) =>
+        {
+            if (member.KeyFrames.Count > 0)
+            {
+                AddWholeCanvasToImagePreviews(member.Id);
+            }
+        });
         alreadyAddedWholeCanvasToEveryImagePreview = true;
     }
 

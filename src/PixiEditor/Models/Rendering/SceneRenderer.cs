@@ -35,7 +35,8 @@ internal class SceneRenderer : IDisposable
         DocumentViewModel = documentViewModel;
     }
 
-    public void RenderScene(DrawingSurface target, ChunkResolution resolution, string? targetOutput = null)
+    public void RenderScene(DrawingSurface target, ChunkResolution resolution, SamplingOptions samplingOptions,
+        string? targetOutput = null)
     {
         if (Document.Renderer.IsBusy || DocumentViewModel.Busy ||
             target.DeviceClipBounds.Size.ShortestAxis <= 0) return;
@@ -56,7 +57,7 @@ internal class SceneRenderer : IDisposable
                 cachedTextures[adjustedTargetOutput]?.Dispose();
             }
 
-            var rendered = RenderGraph(target, resolution, targetOutput, finalGraph);
+            var rendered = RenderGraph(target, resolution, samplingOptions, targetOutput, finalGraph);
             cachedTextures[adjustedTargetOutput] = rendered;
             return;
         }
@@ -65,18 +66,21 @@ internal class SceneRenderer : IDisposable
         Matrix3X3 matrixDiff = SolveMatrixDiff(target, cachedTexture);
         int saved = target.Canvas.Save();
         target.Canvas.SetMatrix(matrixDiff);
-        using var img = cachedTexture.DrawingSurface.Snapshot();
-        SamplingOptions samplingOptions = SamplingOptions.Default;
-        if (matrixDiff.ScaleX < 1 || matrixDiff.ScaleY < 1)
+        if (samplingOptions == SamplingOptions.Default)
         {
-            samplingOptions = new SamplingOptions(FilterMode.Linear, MipmapMode.Linear);
+            target.Canvas.DrawSurface(cachedTexture.DrawingSurface, 0, 0);
+        }
+        else
+        {
+            using var img = cachedTexture.DrawingSurface.Snapshot();
+            target.Canvas.DrawImage(img, 0, 0, samplingOptions);
         }
 
-        target.Canvas.DrawImage(img, 0, 0, samplingOptions);
         target.Canvas.RestoreToCount(saved);
     }
 
-    private Texture RenderGraph(DrawingSurface target, ChunkResolution resolution, string? targetOutput,
+    private Texture RenderGraph(DrawingSurface target, ChunkResolution resolution, SamplingOptions samplingOptions,
+        string? targetOutput,
         IReadOnlyNodeGraph finalGraph)
     {
         DrawingSurface renderTarget = target;
@@ -112,15 +116,22 @@ internal class SceneRenderer : IDisposable
         }
 
         RenderContext context = new(renderTarget, DocumentViewModel.AnimationHandler.ActiveFrameTime,
-            resolution, finalSize, Document.Size, Document.ProcessingColorSpace);
+            resolution, finalSize, Document.Size, Document.ProcessingColorSpace, samplingOptions);
         context.TargetOutput = targetOutput;
         finalGraph.Execute(context);
 
         if (renderTexture != null)
         {
-            using var snapshot = renderTexture.DrawingSurface.Snapshot();
-            SamplingOptions samplingOptions = resolution == ChunkResolution.Full ? SamplingOptions.Default : new SamplingOptions(FilterMode.Linear, MipmapMode.Linear);
-            target.Canvas.DrawImage(snapshot, 0, 0, samplingOptions);
+            if (samplingOptions == SamplingOptions.Default)
+            {
+                target.Canvas.DrawSurface(renderTexture.DrawingSurface, 0, 0);
+            }
+            else
+            {
+                using var snapshot = renderTexture.DrawingSurface.Snapshot();
+                target.Canvas.DrawImage(snapshot, 0, 0, samplingOptions);
+            }
+
             target.Canvas.RestoreToCount(restoreCanvasTo);
         }
 
@@ -269,6 +280,10 @@ internal class SceneRenderer : IDisposable
         var finalGraph = RenderingUtils.SolveFinalNodeGraph(targetOutput, Document);
         var renderOutputSize = SolveRenderOutputSize(targetOutput, finalGraph, Document.Size);
 
+        SamplingOptions samplingOptions = resolution == ChunkResolution.Full
+            ? SamplingOptions.Default
+            : new SamplingOptions(FilterMode.Linear, MipmapMode.Linear);
+
         // Render previous frames'
         for (int i = 1; i <= animationData.OnionFrames; i++)
         {
@@ -280,9 +295,9 @@ internal class SceneRenderer : IDisposable
 
             double finalOpacity = onionOpacity * alphaFalloffMultiplier * (animationData.OnionFrames - i + 1);
 
+
             RenderContext onionContext = new(target, frame, resolution, renderOutputSize, Document.Size,
-                Document.ProcessingColorSpace,
-                finalOpacity);
+                Document.ProcessingColorSpace, samplingOptions, finalOpacity);
             onionContext.TargetOutput = targetOutput;
             finalGraph.Execute(onionContext);
         }
@@ -298,8 +313,7 @@ internal class SceneRenderer : IDisposable
 
             double finalOpacity = onionOpacity * alphaFalloffMultiplier * (animationData.OnionFrames - i + 1);
             RenderContext onionContext = new(target, frame, resolution, renderOutputSize, Document.Size,
-                Document.ProcessingColorSpace,
-                finalOpacity);
+                Document.ProcessingColorSpace, samplingOptions, finalOpacity);
             onionContext.TargetOutput = targetOutput;
             finalGraph.Execute(onionContext);
         }

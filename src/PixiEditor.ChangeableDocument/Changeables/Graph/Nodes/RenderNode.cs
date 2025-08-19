@@ -85,7 +85,9 @@ public abstract class RenderNode : Node, IPreviewRenderable, IHighDpiRenderNode
     public virtual bool RenderPreview(DrawingSurface renderOn, RenderContext context,
         string elementToRenderName)
     {
+        int saved = renderOn.Canvas.Save();
         OnPaint(context, renderOn);
+        renderOn.Canvas.RestoreToCount(saved);
         return true;
     }
 

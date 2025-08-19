@@ -42,14 +42,14 @@ public class ApplyFilterNode : RenderNode, IRenderInput
 
         if (!context.ProcessingColorSpace.IsSrgb)
         {
-            var intermediate = Texture.ForProcessing(surface, context.ProcessingColorSpace);
+            using var intermediate = Texture.ForProcessing(surface, context.ProcessingColorSpace);
 
             int saved = surface.Canvas.Save();
             surface.Canvas.SetMatrix(Matrix3X3.Identity);
 
             Background.Value?.Paint(context, intermediate.DrawingSurface);
 
-            var srgbSurface = Texture.ForProcessing(intermediate.Size, ColorSpace.CreateSrgb());
+            using var srgbSurface = Texture.ForProcessing(intermediate.Size, ColorSpace.CreateSrgb());
 
             srgbSurface.DrawingSurface.Canvas.SaveLayer(_paint);
             srgbSurface.DrawingSurface.Canvas.DrawSurface(intermediate.DrawingSurface, 0, 0);
@@ -57,8 +57,6 @@ public class ApplyFilterNode : RenderNode, IRenderInput
 
             surface.Canvas.DrawSurface(srgbSurface.DrawingSurface, 0, 0);
             surface.Canvas.RestoreToCount(saved);
-            intermediate.Dispose();
-            srgbSurface.Dispose();
         }
         else
         {

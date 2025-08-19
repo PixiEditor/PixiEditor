@@ -230,6 +230,13 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         };
     }
 
+    private SamplingOptions CalculateSampling()
+    {
+        return Scale >= 1
+            ? SamplingOptions.Default
+            : SamplingOptions.Bilinear;
+    }
+
     protected override void OnLoaded(RoutedEventArgs e)
     {
         base.OnLoaded(e);
@@ -312,7 +319,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         DrawOverlays(renderTexture.DrawingSurface, bounds, OverlayRenderSorting.Background);
         try
         {
-            SceneRenderer.RenderScene(renderTexture.DrawingSurface, CalculateResolution(), renderOutput);
+            SceneRenderer.RenderScene(renderTexture.DrawingSurface, CalculateResolution(), CalculateSampling(), renderOutput);
         }
         catch (Exception e)
         {

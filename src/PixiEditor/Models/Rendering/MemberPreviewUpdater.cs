@@ -26,13 +26,14 @@ internal class MemberPreviewUpdater
     }
 
     public void UpdatePreviews(HashSet<Guid> membersToUpdate,
-        HashSet<Guid> masksToUpdate, HashSet<Guid> nodesToUpdate, HashSet<Guid> keyFramesToUpdate)
+        HashSet<Guid> masksToUpdate, HashSet<Guid> nodesToUpdate, HashSet<Guid> keyFramesToUpdate,
+        bool ignoreAnimationPreviews)
     {
         if (!membersToUpdate.Any() && !masksToUpdate.Any() && !nodesToUpdate.Any() &&
             !keyFramesToUpdate.Any())
             return;
 
-        UpdatePreviewPainters(membersToUpdate, masksToUpdate, nodesToUpdate, keyFramesToUpdate);
+        UpdatePreviewPainters(membersToUpdate, masksToUpdate, nodesToUpdate, keyFramesToUpdate, ignoreAnimationPreviews);
     }
 
     /// <summary>
@@ -41,13 +42,16 @@ internal class MemberPreviewUpdater
     /// <param name="members">Members that should be rendered</param>
     /// <param name="masksToUpdate">Masks that should be rendered</param>
     private void UpdatePreviewPainters(HashSet<Guid> members, HashSet<Guid> masksToUpdate,
-        HashSet<Guid> nodesToUpdate, HashSet<Guid> keyFramesToUpdate)
+        HashSet<Guid> nodesToUpdate, HashSet<Guid> keyFramesToUpdate, bool ignoreAnimationPreviews)
     {
         RenderWholeCanvasPreview();
         RenderLayersPreview(members);
         RenderMaskPreviews(masksToUpdate);
 
-        RenderAnimationPreviews(members, keyFramesToUpdate);
+        if (!ignoreAnimationPreviews)
+        {
+            RenderAnimationPreviews(members, keyFramesToUpdate);
+        }
 
         RenderNodePreviews(nodesToUpdate);
     }
@@ -287,6 +291,7 @@ internal class MemberPreviewUpdater
                 nodeVm.ResultPainter = new PreviewPainter(doc.Renderer, renderable,
                     doc.AnimationHandler.ActiveFrameTime,
                     doc.SizeBindable, internals.Tracker.Document.ProcessingColorSpace);
+                nodeVm.ResultPainter.AllowPartialResolutions = false;
                 nodeVm.ResultPainter.Repaint();
             }
             else
