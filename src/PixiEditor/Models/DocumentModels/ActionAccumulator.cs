@@ -105,7 +105,8 @@ internal class ActionAccumulator
                 queuedActions = new();
 
                 List<IChangeInfo?> changes;
-                if (AreAllPassthrough(toExecute))
+                bool allPassthrough = AreAllPassthrough(toExecute);
+                if (allPassthrough)
                 {
                     changes = toExecute.Select(a => (IChangeInfo?)a.action).ToList();
                 }
@@ -133,10 +134,12 @@ internal class ActionAccumulator
                 if (undoBoundaryPassed)
                     internals.Updater.AfterUndoBoundaryPassed();
 
+
                 var affectedAreas = new AffectedAreasGatherer(document.AnimationHandler.ActiveFrameTime,
                     internals.Tracker,
                     optimizedChanges);
-                if (DrawingBackendApi.Current.IsHardwareAccelerated)
+
+                if (DrawingBackendApi.Current.IsHardwareAccelerated && !allPassthrough)
                 {
                     canvasUpdater.UpdateGatheredChunksSync(affectedAreas,
                         undoBoundaryPassed || viewportRefreshRequest);
