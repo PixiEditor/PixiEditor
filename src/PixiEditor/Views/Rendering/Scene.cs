@@ -30,6 +30,8 @@ using PixiEditor.Models.Rendering;
 using Drawie.Numerics;
 using Drawie.Skia;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
+using PixiEditor.ChangeableDocument.Rendering.ContextData;
+using PixiEditor.Common;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Document.Nodes.Workspace;
@@ -173,7 +175,10 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     private PixelSize lastSize = PixelSize.Empty;
     private Cursor lastCursor;
-    private VecD lastMousePosition;
+    private VecD lastMousePositionOnCanvas;
+    private Point lastDirCalculationPoint;
+
+    private PointerInfo lastPointerInfo;
 
     public static readonly StyledProperty<string> RenderOutputProperty =
         AvaloniaProperty.Register<Scene, string>("RenderOutput");
@@ -312,7 +317,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         DrawOverlays(renderTexture.DrawingSurface, bounds, OverlayRenderSorting.Background);
         try
         {
-            SceneRenderer.RenderScene(renderTexture.DrawingSurface, CalculateResolution(), renderOutput);
+            SceneRenderer.RenderScene(renderTexture.DrawingSurface, CalculateResolution(), lastPointerInfo, renderOutput);
         }
         catch (Exception e)
         {
@@ -365,7 +370,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                         continue;
                     }
 
-                    overlay.PointerPosition = lastMousePosition;
+                    overlay.PointerPosition = lastMousePositionOnCanvas;
 
                     overlay.ZoomScale = Scale;
 
@@ -384,6 +389,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     protected override void OnPointerEntered(PointerEventArgs e)
     {
         base.OnPointerEntered(e);
+        lastPointerInfo = ConstructPointerInfo(e);
         if (AllOverlays != null)
         {
             OverlayPointerArgs args = ConstructPointerArgs(e);
@@ -423,13 +429,14 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     protected override void OnPointerMoved(PointerEventArgs e)
     {
+        lastPointerInfo = ConstructPointerInfo(e);
         base.OnPointerMoved(e);
         try
         {
             if (AllOverlays != null)
             {
                 OverlayPointerArgs args = ConstructPointerArgs(e);
-                lastMousePosition = args.Point;
+                lastMousePositionOnCanvas = args.Point;
 
                 Cursor finalCursor = DefaultCursor;
 
@@ -491,6 +498,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         base.OnPointerPressed(e);
         try
         {
+            lastPointerInfo = ConstructPointerInfo(e);
             if (AllOverlays != null)
             {
                 OverlayPointerArgs args = ConstructPointerArgs(e);
@@ -525,6 +533,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         base.OnPointerExited(e);
         try
         {
+            lastPointerInfo = ConstructPointerInfo(e);
             if (AllOverlays != null)
             {
                 OverlayPointerArgs args = ConstructPointerArgs(e);
@@ -553,6 +562,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         base.OnPointerExited(e);
         try
         {
+            lastPointerInfo = ConstructPointerInfo(e);
             if (AllOverlays != null)
             {
                 OverlayPointerArgs args = ConstructPointerArgs(e);
@@ -636,6 +646,29 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                 : MouseButton.None,
             ClickCount = e is PointerPressedEventArgs pressed ? pressed.ClickCount : 0,
         };
+    }
+
+    private PointerInfo ConstructPointerInfo(PointerEventArgs e)
+    {
+        var data = e.GetCurrentPoint(this);
+        VecD lastPoint = new VecD(lastDirCalculationPoint.X, lastDirCalculationPoint.Y);
+        VecD currentPoint = new VecD(data.Position.X, data.Position.Y);
+        if (VecD.Distance(lastPoint, currentPoint) > 20)
+        {
+            lastDirCalculationPoint = Lerp(lastPoint, currentPoint, 0.5f);
+        }
+
+        var properties = data.Properties;
+        VecD position = ToCanvasSpace(data.Position);
+        Point dir = lastDirCalculationPoint - data.Position;
+        VecD vecDir = new VecD(dir.X, dir.Y);
+        VecD dirNormalized = vecDir.Length > 0 ? vecDir.Normalize() : lastPointerInfo.MovementDirection;
+        return new PointerInfo(position, properties.Pressure, properties.Twist, new VecD(properties.XTilt, properties.YTilt), dirNormalized);
+    }
+
+    private static Point Lerp(VecD a, VecD b, float t)
+    {
+        return new Point(a.X + (b.X - a.X) * t, a.Y + (b.Y - a.Y) * t);
     }
 
     private void FocusOverlay()

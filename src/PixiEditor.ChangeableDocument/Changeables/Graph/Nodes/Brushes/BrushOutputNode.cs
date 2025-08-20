@@ -9,7 +9,6 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 public class BrushOutputNode : Node
 {
     public InputProperty<ShapeVectorData> VectorShape { get; }
-    public InputProperty<Paintable> Paint { get; }
 
     public BrushOutputNode()
     {

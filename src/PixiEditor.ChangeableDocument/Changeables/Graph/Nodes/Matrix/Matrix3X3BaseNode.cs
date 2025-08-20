@@ -5,6 +5,7 @@ using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Matrix;
@@ -13,21 +14,36 @@ public abstract class Matrix3X3BaseNode : RenderNode, IRenderInput
 {
     public RenderInputProperty Background { get; }
     public FuncInputProperty<Float3x3> Input { get; }
+    public InputProperty<ShapeVectorData> InputVector { get; }
     public FuncOutputProperty<Float3x3> Matrix { get; }
+    public OutputProperty<ShapeVectorData> OutputVector { get; }
 
     public Matrix3X3BaseNode()
     {
         Background = CreateRenderInput("Background", "IMAGE");
         Input = CreateFuncInput<Float3x3>("Input", "INPUT_MATRIX",
             new Float3x3("") { ConstantValue = Matrix3X3.Identity });
+        InputVector = CreateInput<ShapeVectorData>("VectorShape", "SHAPE_LABEL", null);
         Matrix = CreateFuncOutput<Float3x3>("Matrix", "OUTPUT_MATRIX",
             (c) => CalculateMatrix(c, c.GetValue(Input)));
+
+        OutputVector = CreateOutput<ShapeVectorData>("OutputVector", "OUTPUT_VECTOR", null);
         Output.FirstInChain = null;
         AllowHighDpiRendering = true;
     }
 
     protected override void OnExecute(RenderContext context)
     {
+        if (InputVector.Value != null)
+        {
+            var clone = InputVector.Value.Clone() as ShapeVectorData;
+            Matrix3X3 mtx = Matrix.Value.Invoke(FuncContext.NoContext).GetConstant() as Matrix3X3? ??
+                            Matrix3X3.Identity;
+
+            clone.TransformationMatrix = clone.TransformationMatrix.PostConcat(mtx);
+            OutputVector.Value = clone;
+        }
+
         if (Background.Value == null)
             return;
 

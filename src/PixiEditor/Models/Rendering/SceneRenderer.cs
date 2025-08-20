@@ -1,4 +1,5 @@
-﻿using ChunkyImageLib.DataHolders;
+﻿using Avalonia.Input;
+using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
@@ -9,6 +10,7 @@ using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
+using PixiEditor.ChangeableDocument.Rendering.ContextData;
 using PixiEditor.Models.Handlers;
 
 namespace PixiEditor.Models.Rendering;
@@ -34,7 +36,7 @@ internal class SceneRenderer : IDisposable
         DocumentViewModel = documentViewModel;
     }
 
-    public void RenderScene(DrawingSurface target, ChunkResolution resolution, string? targetOutput = null)
+    public void RenderScene(DrawingSurface target, ChunkResolution resolution, PointerInfo pointerInfo, string? targetOutput = null)
     {
         if (Document.Renderer.IsBusy || DocumentViewModel.Busy ||
             target.DeviceClipBounds.Size.ShortestAxis <= 0) return;
@@ -55,7 +57,7 @@ internal class SceneRenderer : IDisposable
                 cachedTextures[adjustedTargetOutput]?.Dispose();
             }
 
-            var rendered = RenderGraph(target, resolution, targetOutput, finalGraph);
+            var rendered = RenderGraph(target, resolution, targetOutput, finalGraph, pointerInfo);
             cachedTextures[adjustedTargetOutput] = rendered;
             return;
         }
@@ -69,7 +71,7 @@ internal class SceneRenderer : IDisposable
     }
 
     private Texture RenderGraph(DrawingSurface target, ChunkResolution resolution, string? targetOutput,
-        IReadOnlyNodeGraph finalGraph)
+        IReadOnlyNodeGraph finalGraph, PointerInfo pointerInfo)
     {
         DrawingSurface renderTarget = target;
         Texture? renderTexture = null;
@@ -105,6 +107,8 @@ internal class SceneRenderer : IDisposable
 
         RenderContext context = new(renderTarget, DocumentViewModel.AnimationHandler.ActiveFrameTime,
             resolution, finalSize, Document.Size, Document.ProcessingColorSpace);
+        context.PointerInfo = pointerInfo;
+
         context.TargetOutput = targetOutput;
         finalGraph.Execute(context);
 

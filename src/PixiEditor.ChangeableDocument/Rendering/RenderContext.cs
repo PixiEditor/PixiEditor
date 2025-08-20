@@ -2,6 +2,7 @@
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Rendering.ContextData;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 using DrawingApiBlendMode = Drawie.Backend.Core.Surfaces.BlendMode;
 
@@ -18,9 +19,10 @@ public class RenderContext
     public VecI DocumentSize { get; set; }
     public DrawingSurface RenderSurface { get; set; }
     public bool FullRerender { get; set; } = false;
-    
+
+    public PointerInfo PointerInfo { get; set; }
     public ColorSpace ProcessingColorSpace { get; set; }
-    public string? TargetOutput { get; set; }   
+    public string? TargetOutput { get; set; }
 
 
     public RenderContext(DrawingSurface renderSurface, KeyFrameTime frameTime, ChunkResolution chunkResolution,
@@ -63,10 +65,7 @@ public class RenderContext
 
     public RenderContext Clone()
     {
-        return new RenderContext(RenderSurface, FrameTime, ChunkResolution, RenderOutputSize, DocumentSize, ProcessingColorSpace, Opacity)
-        {
-            FullRerender = FullRerender,
-            TargetOutput = TargetOutput
-        };
+        return new RenderContext(RenderSurface, FrameTime, ChunkResolution, RenderOutputSize, DocumentSize,
+            ProcessingColorSpace, Opacity) { FullRerender = FullRerender, TargetOutput = TargetOutput, PointerInfo = PointerInfo};
     }
 }

@@ -31,6 +31,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     private int frame;
     private VecF lastPos;
     private int lastAppliedPointIndex = -1;
+    private BrushOutputNode? brushOutputNode;
 
     [GenerateUpdateableChangeActions]
     public LineBasedPen_UpdateableChange(Guid memberGuid, Color color, VecI pos, float strokeWidth, bool erasing,
@@ -79,6 +80,10 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         }
 
         this.strokeWidth = strokeWidth;
+        if (brushOutputNode != null)
+        {
+            brushData = new BrushData(brushOutputNode.VectorShape.Value);
+        }
     }
 
     public override bool InitializeAndValidate(Document target)
@@ -95,7 +100,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
 
         if (brushOutputGuid != Guid.Empty)
         {
-            BrushOutputNode? brushOutputNode = target.FindNode<BrushOutputNode>(brushOutputGuid);
+            brushOutputNode = target.FindNode<BrushOutputNode>(brushOutputGuid);
             if (brushOutputNode != null)
             {
                 brushData = new BrushData(brushOutputNode.VectorShape.Value);
@@ -144,8 +149,14 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
                 var path = brushData.VectorShape.ToPath(true);
                 path.Offset(brushData.VectorShape.TransformedAABB.Pos - brushData.VectorShape.GeometryAABB.Pos);
                 path.Offset(rect.Center - path.Bounds.Center);
-                path.Transform(Matrix3X3.CreateScale(rect.Size.X / (float)path.Bounds.Width, rect.Size.Y / (float)path.Bounds.Height, (float)rect.Center.X, (float)rect.Center.Y));
-                image.EnqueueDrawPath(path, finalPaintable, 1, StrokeCap.Butt, blendMode, PaintStyle.StrokeAndFill);
+                /*VecD scale = new VecD(rect.Size.X / (float)path.Bounds.Width, rect.Size.Y / (float)path.Bounds.Height);
+                if (scale.IsNaNOrInfinity())
+                {
+                    scale = VecD.Zero;
+                }
+                VecD uniformScale = new VecD(Math.Min(scale.X, scale.Y));
+                path.Transform(Matrix3X3.CreateScale((float)uniformScale.X, (float)uniformScale.Y, (float)rect.Center.X, (float)rect.Center.Y));*/
+                image.EnqueueDrawPath(path, finalPaintable, 1, StrokeCap.Butt, blendMode, PaintStyle.StrokeAndFill, true);
             }
         }
 

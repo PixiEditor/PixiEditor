@@ -15,6 +15,8 @@ internal class PathOperation : IMirroredDrawOperation
     private readonly Paint paint;
     private readonly RectI bounds;
 
+    private bool antiAliasing;
+
     public bool IgnoreEmptyChunks => false;
 
     public PathOperation(VectorPath path, Color color, float strokeWidth, StrokeCap cap, BlendMode blendMode, RectI? customBounds = null)
@@ -26,8 +28,9 @@ internal class PathOperation : IMirroredDrawOperation
         bounds = floatBounds.Inflate((int)Math.Ceiling(strokeWidth) + 1);
     }
 
-    public PathOperation(VectorPath path, Paintable paintable, float strokeWidth, StrokeCap cap, BlendMode blendMode, PaintStyle style, RectI? customBounds = null)
+    public PathOperation(VectorPath path, Paintable paintable, float strokeWidth, StrokeCap cap, BlendMode blendMode, PaintStyle style, bool antiAliasing, RectI? customBounds = null)
     {
+        this.antiAliasing = antiAliasing;
         this.path = new VectorPath(path);
         paint = new() { Paintable = paintable, Style = style, StrokeWidth = strokeWidth, StrokeCap = cap, BlendMode = blendMode };
 
@@ -37,7 +40,7 @@ internal class PathOperation : IMirroredDrawOperation
 
     public void DrawOnChunk(Chunk targetChunk, VecI chunkPos)
     {
-        paint.IsAntiAliased = targetChunk.Resolution != ChunkResolution.Full;
+        paint.IsAntiAliased = antiAliasing || targetChunk.Resolution != ChunkResolution.Full;
         var surf = targetChunk.Surface.DrawingSurface;
         surf.Canvas.Save();
         surf.Canvas.Scale((float)targetChunk.Resolution.Multiplier());
