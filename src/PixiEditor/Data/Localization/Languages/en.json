@@ -1092,6 +1092,7 @@
   "REMAP_NODE": "Remap",
   "TEXT_TOOL_ACTION_DISPLAY": "Click on the canvas to add a new text (drag while clicking to set the size). Click on existing text to edit it.",
   "PASTE_CELS": "Paste cels",
+  "PASTE_CELS_DESCRIPTIVE": "Paste cels from clipboard into the current frame",
   "SCALE_X": "Scale X",
   "SCALE_Y": "Scale Y",
   "TRANSLATE_X": "Translate X",
