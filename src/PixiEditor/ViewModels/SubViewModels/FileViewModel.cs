@@ -235,7 +235,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             {
                 if (File.Exists(dataImage.Name))
                 {
-                    OpenRegularImage(dataImage.Image, null);
+                    OpenRegularImage(dataImage.Image, dataImage.Name);
                     continue;
                 }
 

@@ -189,7 +189,7 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
     {
         var activeDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;
 
-        if (activeDocument is null)
+        if (activeDocument is null || info == default)
             return;
 
         if (!info.end)

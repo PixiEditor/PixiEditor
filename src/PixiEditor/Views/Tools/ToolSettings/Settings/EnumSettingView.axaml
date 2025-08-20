@@ -4,9 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:settings="clr-namespace:PixiEditor.ViewModels.Tools.ToolSettings.Settings"
              xmlns:enums="clr-namespace:PixiEditor.ChangeableDocument.Enums;assembly=PixiEditor.ChangeableDocument"
-             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
-             xmlns:helpers="clr-namespace:PixiEditor.Helpers"
              xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.Views.Tools.ToolSettings.Settings.EnumSettingView">
     <Design.DataContext>
@@ -20,12 +19,12 @@
         <ComboBox.ItemContainerTheme>
             <ControlTheme TargetType="ComboBoxItem" BasedOn="{StaticResource {x:Type ComboBoxItem}}">
                 <Setter Property="Tag" Value="{Binding .}"/>
-                <Setter Property="(localization:Translator.Key)" Value="{Binding ., Converter={helpers:EnumDescriptionConverter}}"/>
+                <Setter Property="(localization:Translator.Key)" Value="{Binding ., Converter={converters:EnumToLocalizedStringConverter}}"/>
             </ControlTheme>
         </ComboBox.ItemContainerTheme>
        <ComboBox.ItemTemplate>
            <DataTemplate>
-               <TextBlock localization:Translator.Key="{Binding ., Converter={helpers:EnumDescriptionConverter}}"/>
+               <TextBlock localization:Translator.Key="{Binding ., Converter={converters:EnumToLocalizedStringConverter}}"/>
            </DataTemplate>
        </ComboBox.ItemTemplate>
     </ComboBox>

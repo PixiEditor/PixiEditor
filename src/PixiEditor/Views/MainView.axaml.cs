@@ -75,9 +75,13 @@ public partial class MainView : UserControl
             return;
         }
 
-        if (fileDropList is { Length: > 0 } && Importer.IsSupportedFile(fileDropList[0].Path.LocalPath))
+        if (fileDropList is { Length: > 0 })
         {
-            Context.FileSubViewModel.OpenFromPath(fileDropList[0].Path.LocalPath);
+            foreach (var item in fileDropList)
+            {
+                Importer.IsSupportedFile(item.Path.LocalPath);
+                Context.FileSubViewModel.OpenFromPath(item.Path.LocalPath);
+            }
         }
     }
 
