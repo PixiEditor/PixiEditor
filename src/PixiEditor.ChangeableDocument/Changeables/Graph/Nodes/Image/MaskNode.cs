@@ -6,13 +6,13 @@ using PixiEditor.ChangeableDocument.Rendering;
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Image;
 
 [NodeInfo("Mask")]
-public class MaskNode : RenderNode, IRenderInput
+public sealed class MaskNode : RenderNode, IRenderInput
 {
     public RenderInputProperty Background { get; }
     public RenderInputProperty Mask { get; }
     public InputProperty<bool> Invert { get; }
 
-    protected Paint maskPaint = new()
+    private readonly Paint maskPaint = new()
     {
         BlendMode = BlendMode.DstIn,
         ColorFilter = Filters.MaskFilter
@@ -51,5 +51,12 @@ public class MaskNode : RenderNode, IRenderInput
     public override Node CreateCopy()
     {
         return new MaskNode();
+    }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        
+        maskPaint.Dispose();
     }
 }

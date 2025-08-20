@@ -11,7 +11,7 @@ using Drawie.Numerics;
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 
 [NodeInfo("ApplyFilter")]
-public class ApplyFilterNode : RenderNode, IRenderInput
+public sealed class ApplyFilterNode : RenderNode, IRenderInput
 {
     private readonly Paint _paint = new();
     private readonly Paint _maskPaint = new()
@@ -123,4 +123,12 @@ public class ApplyFilterNode : RenderNode, IRenderInput
         PreviewUtils.FindPreviewBounds(Background.Connection, frame, elementToRenderName);
 
     public override Node CreateCopy() => new ApplyFilterNode();
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        
+        _paint.Dispose();
+        _maskPaint.Dispose();
+    }
 }
