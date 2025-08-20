@@ -115,6 +115,9 @@ public static class NodeOperations
     {
         List<IChangeInfo> changes = new();
         IOutputProperty? previouslyConnected = null;
+
+        if(parentInput == null) return changes;
+
         if (parentInput.Connection != null)
         {
             previouslyConnected = parentInput.Connection;
