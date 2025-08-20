@@ -1,5 +1,6 @@
 ﻿using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
@@ -20,6 +21,15 @@ internal class PathOperation : IMirroredDrawOperation
     {
         this.path = new VectorPath(path);
         paint = new() { Color = color, Style = PaintStyle.Stroke, StrokeWidth = strokeWidth, StrokeCap = cap, BlendMode = blendMode };
+
+        RectI floatBounds = customBounds ?? (RectI)(path.TightBounds).RoundOutwards();
+        bounds = floatBounds.Inflate((int)Math.Ceiling(strokeWidth) + 1);
+    }
+
+    public PathOperation(VectorPath path, Paintable paintable, float strokeWidth, StrokeCap cap, BlendMode blendMode, PaintStyle style, RectI? customBounds = null)
+    {
+        this.path = new VectorPath(path);
+        paint = new() { Paintable = paintable, Style = style, StrokeWidth = strokeWidth, StrokeCap = cap, BlendMode = blendMode };
 
         RectI floatBounds = customBounds ?? (RectI)(path.TightBounds).RoundOutwards();
         bounds = floatBounds.Inflate((int)Math.Ceiling(strokeWidth) + 1);

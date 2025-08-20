@@ -742,6 +742,19 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
         }
     }
 
+    /// <param name="customBounds">Bounds used for affected chunks, will be computed from path in O(n) if null is passed</param>
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
+    public void EnqueueDrawPath(VectorPath path, Paintable paintable, float strokeWidth, StrokeCap strokeCap,
+        BlendMode blendMode, PaintStyle style, RectI? customBounds = null)
+    {
+        lock (lockObject)
+        {
+            ThrowIfDisposed();
+            PathOperation operation = new(path, paintable, strokeWidth, strokeCap, blendMode, style, customBounds);
+            EnqueueOperation(operation);
+        }
+    }
+
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public void EnqueueDrawBresenhamLine(VecI from, VecI to, Paintable paintable, BlendMode blendMode)
     {

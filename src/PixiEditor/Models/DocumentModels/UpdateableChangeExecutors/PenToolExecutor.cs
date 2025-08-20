@@ -1,12 +1,14 @@
 ﻿using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Vector;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Brushes;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable
@@ -23,6 +25,8 @@ internal class PenToolExecutor : UpdateableChangeExecutor
     private float hardness;
     private float spacing = 1;
     private bool transparentErase;
+
+    private Guid brushOutputGuid = Guid.Empty;
 
     private IPenToolbar penToolbar;
 
@@ -53,10 +57,12 @@ internal class PenToolExecutor : UpdateableChangeExecutor
             colorsHandler.AddSwatch(new PaletteColor(color.R, color.G, color.B));
         }
 
+        brushOutputGuid = document.NodeGraphHandler.AllNodes.FirstOrDefault(x => x.InternalName == "PixiEditor.BrushOutput")?.Id ?? Guid.Empty;
+
         transparentErase = color.A == 0;
         IAction? action = pixelPerfect switch
         {
-            false => new LineBasedPen_Action(guidValue, color, controller!.LastPixelPosition, (float)ToolSize, transparentErase, antiAliasing, hardness, spacing, SquareBrush, drawOnMask, document!.AnimationHandler.ActiveFrameBindable),
+            false => new LineBasedPen_Action(guidValue, color, controller!.LastPixelPosition, (float)ToolSize, transparentErase, antiAliasing, hardness, spacing, brushOutputGuid, drawOnMask, document!.AnimationHandler.ActiveFrameBindable),
             true => new PixelPerfectPen_Action(guidValue, controller!.LastPixelPosition, color, drawOnMask, document!.AnimationHandler.ActiveFrameBindable)
         };
         internals!.ActionAccumulator.AddActions(action);
@@ -68,7 +74,7 @@ internal class PenToolExecutor : UpdateableChangeExecutor
     {
         IAction? action = pixelPerfect switch
         {
-            false => new LineBasedPen_Action(guidValue, color, pos, (float)ToolSize, transparentErase, antiAliasing, hardness, spacing, SquareBrush, drawOnMask, document!.AnimationHandler.ActiveFrameBindable),
+            false => new LineBasedPen_Action(guidValue, color, pos, (float)ToolSize, transparentErase, antiAliasing, hardness, spacing, brushOutputGuid, drawOnMask, document!.AnimationHandler.ActiveFrameBindable),
             true => new PixelPerfectPen_Action(guidValue, pos, color, drawOnMask, document!.AnimationHandler.ActiveFrameBindable)
         };
         internals!.ActionAccumulator.AddActions(action);

@@ -6,6 +6,8 @@ using Drawie.Backend.Core.Shaders;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Brushes;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 
@@ -17,7 +19,8 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     private readonly bool erasing;
     private readonly bool drawOnMask;
     private readonly bool antiAliasing;
-    private bool squareBrush;
+    private Guid brushOutputGuid;
+    private BrushData brushData;
     private float hardness;
     private float spacing = 1;
     private readonly Paint srcPaint = new Paint() { BlendMode = BlendMode.Src };
@@ -34,7 +37,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         bool antiAliasing,
         float hardness,
         float spacing,
-        bool squareBrush,
+        Guid brushOutputGuid,
         bool drawOnMask, int frame)
     {
         this.memberGuid = memberGuid;
@@ -43,9 +46,9 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         this.erasing = erasing;
         this.antiAliasing = antiAliasing;
         this.drawOnMask = drawOnMask;
+        this.brushOutputGuid = brushOutputGuid;
         this.hardness = hardness;
         this.spacing = spacing;
-        this.squareBrush = squareBrush;
         points.Add(pos);
         this.frame = frame;
 
@@ -89,6 +92,18 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
             image.SetBlendMode(BlendMode.SrcOver);
         DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, image, memberGuid, drawOnMask);
         srcPaint.IsAntiAliased = antiAliasing;
+
+        if (brushOutputGuid != Guid.Empty)
+        {
+            BrushOutputNode? brushOutputNode = target.FindNode<BrushOutputNode>(brushOutputGuid);
+            if (brushOutputNode != null)
+            {
+                brushData = new BrushData(brushOutputNode.VectorShape.Value);
+            }
+
+            return brushOutputNode != null;
+        }
+
         return true;
     }
 
@@ -110,7 +125,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
             var rect = new RectI(point - new VecI((int)(strokeWidth / 2f)), new VecI((int)strokeWidth));
             finalPaintable = color;
 
-            if (!squareBrush)
+            if (brushData.VectorShape == null)
             {
                 if (antiAliasing)
                 {
@@ -122,9 +137,15 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
             else
             {
                 BlendMode blendMode = srcPaint.BlendMode;
-                ShapeData shapeData = new ShapeData(rect.Center, rect.Size, 0, 0, 0, finalPaintable, finalPaintable,
+                /*ShapeData shapeData = new ShapeData(rect.Center, rect.Size, 0, 0, 0, finalPaintable, finalPaintable,
                     blendMode);
-                image.EnqueueDrawRectangle(shapeData);
+                image.EnqueueDrawRectangle(shapeData);*/
+
+                var path = brushData.VectorShape.ToPath(true);
+                path.Offset(brushData.VectorShape.TransformedAABB.Pos - brushData.VectorShape.GeometryAABB.Pos);
+                path.Offset(rect.Center - path.Bounds.Center);
+                path.Transform(Matrix3X3.CreateScale(rect.Size.X / (float)path.Bounds.Width, rect.Size.Y / (float)path.Bounds.Height, (float)rect.Center.X, (float)rect.Center.Y));
+                image.EnqueueDrawPath(path, finalPaintable, 1, StrokeCap.Butt, blendMode, PaintStyle.StrokeAndFill);
             }
         }
 
@@ -142,7 +163,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
             var rect = new RectI(points[0] - new VecI((int)(strokeWidth / 2f)), new VecI((int)strokeWidth));
             finalPaintable = color;
 
-            if (!squareBrush)
+            if (brushData.VectorShape == null)
             {
                 if (antiAliasing)
                 {
@@ -176,7 +197,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
             var rect = new RectI(points[i] - new VecI((int)(strokeWidth / 2f)), new VecI((int)strokeWidth));
             finalPaintable = color;
 
-            if (!squareBrush)
+            if (brushData.VectorShape == null)
             {
                 if (antiAliasing)
                 {
