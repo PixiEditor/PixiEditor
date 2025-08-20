@@ -218,9 +218,8 @@ public sealed class NodeZoneViewModel : NodeFrameViewModelBase
         const int defaultXOffset = 30;
         const int defaultYOffset = 45;
 
-        for (var i = 0; i < Nodes.Count; i++)
+        foreach (var node in Nodes)
         {
-            var node = Nodes[i];
             var pos = node.PositionBindable;
             var size = new VecD(node.UiSize.Size.Width, node.UiSize.Size.Height);
 

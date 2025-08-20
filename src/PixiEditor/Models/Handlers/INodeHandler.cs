@@ -34,7 +34,7 @@ public interface INodeHandler : INotifyPropertyChanged, IDisposable
     public void TraverseForwards(Func<INodeHandler, INodeHandler, bool> func);
     public void TraverseForwards(Func<INodeHandler, INodeHandler, INodePropertyHandler, bool> func);
     public void TraverseForwards(Func<INodeHandler, INodeHandler, INodePropertyHandler, INodePropertyHandler, bool> func);
-    public List<NodeFrameViewModelBase> Frames { get; }
+    public HashSet<NodeFrameViewModelBase> Frames { get; }
     public IReadOnlyDictionary<string, INodePropertyHandler> InputPropertyMap { get; }
     public IReadOnlyDictionary<string, INodePropertyHandler> OutputPropertyMap { get; }
 }

@@ -144,8 +144,9 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
 
     private void UpdatesFramesPartOf(INodeHandler node)
     {
-        var lastKnownFramesPartOf = node.Frames.OfType<NodeZoneViewModel>().ToList();
-        var currentlyPartOf = new List<NodeZoneViewModel>();
+        var lastKnownFramesPartOf = node.Frames.OfType<NodeZoneViewModel>().ToHashSet();
+        var startLookup = Frames.OfType<NodeZoneViewModel>().ToDictionary(x => x.Start);
+        var currentlyPartOf = new HashSet<NodeZoneViewModel>();
         
         node.TraverseBackwards(x =>
         {
@@ -155,10 +156,7 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
             if (x is not IPairNodeStartViewModel)
                 return true;
 
-            var zone = Frames
-                .OfType<NodeZoneViewModel>()
-                .First(z => z.Start == x);
-
+            var zone = startLookup[x];
             currentlyPartOf.Add(zone);
 
             return true;
@@ -166,14 +164,12 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
 
         foreach (var frame in currentlyPartOf)
         {
-            if (!frame.Nodes.Contains(node))
-                frame.Nodes.Add(node);
-            
-            if (!node.Frames.Contains(frame))
-                node.Frames.Add(frame);
+            frame.Nodes.Add(node);
+            node.Frames.Add(frame);
         }
 
-        foreach (var removedFrom in lastKnownFramesPartOf.Except(currentlyPartOf))
+        lastKnownFramesPartOf.ExceptWith(currentlyPartOf);
+        foreach (var removedFrom in lastKnownFramesPartOf)
         {
             removedFrom.Nodes.Remove(node);
             node.Frames.Remove(removedFrom);

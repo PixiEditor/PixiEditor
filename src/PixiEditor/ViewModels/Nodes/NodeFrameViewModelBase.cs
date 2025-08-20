@@ -5,6 +5,7 @@ using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using PixiEditor.Models.Handlers;
 using Drawie.Numerics;
+using PixiEditor.Models.Structures;
 
 namespace PixiEditor.ViewModels.Nodes;
 
@@ -16,7 +17,7 @@ public abstract class NodeFrameViewModelBase : ObservableObject
     private VecD bottomRight;
     private VecD size;
     
-    public ObservableCollection<INodeHandler> Nodes { get; }
+    public ObservableHashSet<INodeHandler> Nodes { get; }
 
     public string InternalName { get; init; }
     
@@ -35,7 +36,7 @@ public abstract class NodeFrameViewModelBase : ObservableObject
     public NodeFrameViewModelBase(Guid id, IEnumerable<INodeHandler> nodes)
     {
         Id = id;
-        Nodes = new ObservableCollection<INodeHandler>(nodes);
+        Nodes = new(nodes);
 
         Nodes.CollectionChanged += OnCollectionChanged;
         AddHandlers(Nodes);
