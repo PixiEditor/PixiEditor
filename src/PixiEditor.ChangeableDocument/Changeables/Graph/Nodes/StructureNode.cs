@@ -246,7 +246,12 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
 
         VecI targetSize = img.LatestSize;
 
-        var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
+        if (targetSize.X <= 0 || targetSize.Y <= 0)
+        {
+            return;
+        }
+
+        using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
         renderSurface = RequestTexture(textureId, targetSize, processingColorSpace, false);
 
         int saved = renderSurface.DrawingSurface.Canvas.Save();
@@ -264,7 +269,6 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         }
 
         renderSurface.DrawingSurface.Canvas.RestoreToCount(saved);
-        ctx?.Dispose();
     }
 
     protected void ApplyRasterClip(DrawingSurface toClip, DrawingSurface clipSource)
