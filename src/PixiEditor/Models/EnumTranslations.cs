@@ -89,7 +89,12 @@ using PixiEditor.Helpers;
 
 [assembly: LocalizeEnum<NoiseType>(NoiseType.TurbulencePerlin, "TURBULENCE_PERLIN_NOISE_TYPE")]
 [assembly: LocalizeEnum<NoiseType>(NoiseType.FractalPerlin, "FRACTAL_PERLIN_NOISE_TYPE")]
+[assembly: LocalizeEnum<NoiseType>(NoiseType.Voronoi, "VORONOI_PERLIN_NOISE_TYPE")]
 
 [assembly: LocalizeEnum<OutlineType>(OutlineType.Simple, "SIMPLE_OUTLINE_TYPE")]
 [assembly: LocalizeEnum<OutlineType>(OutlineType.Gaussian, "GAUSSIAN_OUTLINE_TYPE")]
 [assembly: LocalizeEnum<OutlineType>(OutlineType.PixelPerfect, "PIXEL_PERFECT_OUTLINE_TYPE")]
+
+[assembly: LocalizeEnum<VoronoiFeature>(VoronoiFeature.F1, "F1_VORONOI_FEATURE")]
+[assembly: LocalizeEnum<VoronoiFeature>(VoronoiFeature.F2, "F2_VORONOI_FEATURE")]
+[assembly: LocalizeEnum<VoronoiFeature>(VoronoiFeature.F2MinusF1, "F2_MINUS_F1_VORONOI_FEATURE")]
