@@ -185,6 +185,16 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
     public IStructureMemberHandler? SelectedStructureMember { get; private set; } = null;
 
+    private PreviewPainter miniPreviewPainter;
+
+    public PreviewPainter MiniPreviewPainter
+    {
+        get => miniPreviewPainter;
+        set
+        {
+            SetProperty(ref miniPreviewPainter, value);
+        }
+    }
 
     private PreviewPainter previewSurface;
 
@@ -375,8 +385,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             viewModel.MarkAsSaved();
         }));
 
-        // This also refreshes previews on start. On big documents, previews are empty on start if not this
-        acc.AddActions(new SetActiveFrame_PassthroughAction(1));
+        acc.AddActions(new SetActiveFrame_PassthroughAction(1), new RefreshPreviews_PassthroughAction());
 
         foreach (var factory in allFactories)
         {

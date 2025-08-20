@@ -120,6 +120,8 @@ internal class ActionAccumulator
                         action.action is ChangeBoundary_Action or Redo_Action or Undo_Action);
                 bool viewportRefreshRequest =
                     toExecute.Any(static action => action.action is RefreshViewport_PassthroughAction);
+                bool refreshPreviewsRequest =
+                    toExecute.Any(static action => action.action is RefreshPreviews_PassthroughAction);
                 bool changeFrameRequest =
                     toExecute.Any(static action => action.action is SetActiveFrame_PassthroughAction);
 
@@ -156,7 +158,7 @@ internal class ActionAccumulator
                             affectedAreas.ChangedMembers,
                             affectedAreas.ChangedMasks,
                             affectedAreas.ChangedNodes, affectedAreas.ChangedKeyFrames,
-                            affectedAreas.IgnoreAnimationPreviews);
+                            affectedAreas.IgnoreAnimationPreviews, undoBoundaryPassed || refreshPreviewsRequest);
                     }
                 }
 

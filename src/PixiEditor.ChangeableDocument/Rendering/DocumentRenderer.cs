@@ -19,6 +19,7 @@ namespace PixiEditor.ChangeableDocument.Rendering;
 
 public class DocumentRenderer : IPreviewRenderable, IDisposable
 {
+
     private Queue<RenderRequest> renderRequests = new();
     private Texture renderTexture;
 
