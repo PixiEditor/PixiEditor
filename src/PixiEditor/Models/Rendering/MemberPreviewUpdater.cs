@@ -19,7 +19,6 @@ internal class MemberPreviewUpdater
 
     private AnimationKeyFramePreviewRenderer AnimationKeyFramePreviewRenderer { get; }
 
-
     public MemberPreviewUpdater(IDocument doc, DocumentInternalParts internals)
     {
         this.doc = doc;
@@ -35,7 +34,8 @@ internal class MemberPreviewUpdater
             !keyFramesToUpdate.Any())
             return;
 
-        UpdatePreviewPainters(membersToUpdate, masksToUpdate, nodesToUpdate, keyFramesToUpdate, ignoreAnimationPreviews, renderMiniPreviews);
+        UpdatePreviewPainters(membersToUpdate, masksToUpdate, nodesToUpdate, keyFramesToUpdate, ignoreAnimationPreviews,
+            renderMiniPreviews);
     }
 
     /// <summary>
@@ -44,7 +44,8 @@ internal class MemberPreviewUpdater
     /// <param name="members">Members that should be rendered</param>
     /// <param name="masksToUpdate">Masks that should be rendered</param>
     private void UpdatePreviewPainters(HashSet<Guid> members, HashSet<Guid> masksToUpdate,
-        HashSet<Guid> nodesToUpdate, HashSet<Guid> keyFramesToUpdate, bool ignoreAnimationPreviews, bool renderLowPriorityPreviews)
+        HashSet<Guid> nodesToUpdate, HashSet<Guid> keyFramesToUpdate, bool ignoreAnimationPreviews,
+        bool renderLowPriorityPreviews)
     {
         RenderWholeCanvasPreview(renderLowPriorityPreviews);
         if (renderLowPriorityPreviews)
@@ -64,37 +65,33 @@ internal class MemberPreviewUpdater
     /// <summary>
     /// Re-renders the preview of the whole canvas which is shown as the tab icon
     /// </summary>
-    /// <param name="renderMiniPreviews"></param>
+    /// <param name="renderMiniPreviews">Decides whether to re-render mini previews for the document</param>
     private void RenderWholeCanvasPreview(bool renderMiniPreviews)
     {
         var previewSize = StructureHelpers.CalculatePreviewSize(internals.Tracker.Document.Size);
         //float scaling = (float)previewSize.X / doc.SizeBindable.X;
 
-        if (doc.PreviewPainter == null)
-        {
-            doc.PreviewPainter = new PreviewPainter(doc.Renderer, doc.Renderer, doc.AnimationHandler.ActiveFrameTime,
-                doc.SizeBindable, internals.Tracker.Document.ProcessingColorSpace);
-        }
+        doc.PreviewPainter ??= new PreviewPainter(doc.Renderer, doc.Renderer, doc.AnimationHandler.ActiveFrameTime,
+            doc.SizeBindable, internals.Tracker.Document.ProcessingColorSpace);
 
-        doc.PreviewPainter.DocumentSize = doc.SizeBindable;
-        doc.PreviewPainter.ProcessingColorSpace = internals.Tracker.Document.ProcessingColorSpace;
-        doc.PreviewPainter.FrameTime = doc.AnimationHandler.ActiveFrameTime;
-        doc.PreviewPainter.Repaint();
+        UpdateDocPreviewPainter(doc.PreviewPainter);
 
-        if(!renderMiniPreviews)
+        if (!renderMiniPreviews)
             return;
 
-        if (doc.MiniPreviewPainter == null)
-        {
-            doc.MiniPreviewPainter = new PreviewPainter(doc.Renderer, doc.Renderer,
-                doc.AnimationHandler.ActiveFrameTime,
-                doc.SizeBindable, internals.Tracker.Document.ProcessingColorSpace);
-        }
+        doc.MiniPreviewPainter ??= new PreviewPainter(doc.Renderer, doc.Renderer,
+            doc.AnimationHandler.ActiveFrameTime,
+            doc.SizeBindable, internals.Tracker.Document.ProcessingColorSpace);
 
-        doc.MiniPreviewPainter.DocumentSize = doc.SizeBindable;
-        doc.MiniPreviewPainter.ProcessingColorSpace = internals.Tracker.Document.ProcessingColorSpace;
-        doc.MiniPreviewPainter.FrameTime = doc.AnimationHandler.ActiveFrameTime;
-        doc.MiniPreviewPainter.Repaint();
+        UpdateDocPreviewPainter(doc.MiniPreviewPainter);
+    }
+
+    private void UpdateDocPreviewPainter(PreviewPainter painter)
+    {
+        painter.DocumentSize = doc.SizeBindable;
+        painter.ProcessingColorSpace = internals.Tracker.Document.ProcessingColorSpace;
+        painter.FrameTime = doc.AnimationHandler.ActiveFrameTime;
+        painter.Repaint();
     }
 
     private void RenderLayersPreview(HashSet<Guid> memberGuids)

@@ -30,7 +30,7 @@ internal class AffectedAreasGatherer
 
     public AffectedArea MainImageArea { get; private set; } = new();
     public HashSet<Guid> ChangedMembers { get; private set; } = new();
-    public bool IgnoreAnimationPreviews => ignoreAnimationPreviews;
+    public bool IgnoreAnimationPreviews { get; private set; }
     public HashSet<Guid> ChangedMasks { get; private set; } = new();
     public HashSet<Guid> ChangedKeyFrames { get; private set; } = new();
 
@@ -39,7 +39,6 @@ internal class AffectedAreasGatherer
     public HashSet<Guid> ChangedNodes { get; set; } = new();
 
     private bool alreadyAddedWholeCanvasToEveryImagePreview = false;
-    private bool ignoreAnimationPreviews = false;
 
     public AffectedAreasGatherer(KeyFrameTime activeFrame, DocumentChangeTracker tracker,
         IReadOnlyList<IChangeInfo> changes)
@@ -155,7 +154,7 @@ internal class AffectedAreasGatherer
                     AddWholeCanvasToMainImage();
                     AddWholeCanvasToEveryImagePreview();
                     AddAllNodesToImagePreviews();
-                    ignoreAnimationPreviews = true;
+                    IgnoreAnimationPreviews = true;
                     break;
                 case KeyFrameLength_ChangeInfo:
                     AddWholeCanvasToMainImage();
