@@ -21,6 +21,7 @@ public class DocumentRenderer : IPreviewRenderable, IDisposable
 {
     private Queue<RenderRequest> renderRequests = new();
     private Texture renderTexture;
+    private int lastExecutedGraphFrame = -1;
 
     public DocumentRenderer(IReadOnlyDocument document)
     {
@@ -68,7 +69,7 @@ public class DocumentRenderer : IPreviewRenderable, IDisposable
         toRenderOn.Canvas.SetMatrix(Matrix3X3.Identity);
 
         RenderContext context = new(renderTexture.DrawingSurface, frame, resolution, Document.Size, Document.Size,
-            Document.ProcessingColorSpace);
+            Document.ProcessingColorSpace, SamplingOptions.Default);
         context.FullRerender = true;
         IReadOnlyNodeGraph membersOnlyGraph = ConstructMembersOnlyGraph(layersToCombine, Document.NodeGraph);
         try
@@ -114,7 +115,7 @@ public class DocumentRenderer : IPreviewRenderable, IDisposable
         toRenderOn.Canvas.SetMatrix(Matrix3X3.Identity);
 
         RenderContext context = new(renderTexture.DrawingSurface, frameTime, resolution, Document.Size, Document.Size,
-            Document.ProcessingColorSpace);
+            Document.ProcessingColorSpace, SamplingOptions.Default);
         context.FullRerender = true;
 
         node.RenderForOutput(context, toRenderOn, null);
@@ -134,7 +135,7 @@ public class DocumentRenderer : IPreviewRenderable, IDisposable
         RenderRequest request = new(tcs, context, renderOn, previewRenderable, elementToRenderName);
 
         renderRequests.Enqueue(request);
-        ExecuteRenderRequests();
+        ExecuteRenderRequests(context.FrameTime);
 
         return await tcs.Task;
     }
@@ -201,8 +202,12 @@ public class DocumentRenderer : IPreviewRenderable, IDisposable
         IsBusy = true;
 
         renderOn.Canvas.Clear();
+        int savedCount = renderOn.Canvas.Save();
+        renderOn.Canvas.Scale((float)context.ChunkResolution.Multiplier());
         context.RenderSurface = renderOn;
         Document.NodeGraph.Execute(context);
+        lastExecutedGraphFrame = context.FrameTime.Frame;
+        renderOn.Canvas.RestoreToCount(savedCount);
 
         IsBusy = false;
 
@@ -236,8 +241,9 @@ public class DocumentRenderer : IPreviewRenderable, IDisposable
             : Document.NodeGraph;
 
         RenderContext context =
-            new(renderTexture.DrawingSurface, frameTime, ChunkResolution.Full, SolveRenderOutputSize(customOutput, graph, Document.Size),
-                Document.Size, Document.ProcessingColorSpace) { FullRerender = true };
+            new(renderTexture.DrawingSurface, frameTime, ChunkResolution.Full,
+                SolveRenderOutputSize(customOutput, graph, Document.Size),
+                Document.Size, Document.ProcessingColorSpace, SamplingOptions.Default) { FullRerender = true };
 
         if (hasCustomOutput)
         {
@@ -264,18 +270,27 @@ public class DocumentRenderer : IPreviewRenderable, IDisposable
         renderTexture.DrawingSurface.Canvas.Restore();
         toRenderOn.Canvas.Restore();
 
+        lastExecutedGraphFrame = frameTime.Frame;
+
         IsBusy = false;
     }
 
-    private void ExecuteRenderRequests()
+    private void ExecuteRenderRequests(KeyFrameTime frameTime)
     {
         if (isExecuting) return;
 
         isExecuting = true;
         using var ctx = DrawingBackendApi.Current?.RenderingDispatcher.EnsureContext();
+
         while (renderRequests.Count > 0)
         {
             RenderRequest request = renderRequests.Dequeue();
+
+            if (frameTime.Frame != lastExecutedGraphFrame && request.PreviewRenderable != this)
+            {
+                using Texture executeSurface = Texture.ForDisplay(new VecI(1));
+                RenderDocument(executeSurface.DrawingSurface, frameTime, VecI.One);
+            }
 
             try
             {

@@ -1112,5 +1112,9 @@
   "ERROR_SAVING_PREFERENCES_DESC": "Failed to save preferences with error: '{0}'. Please check if you have write permissions to the PixiEditor data folder.",
   "ERROR_SAVING_PREFERENCES": "Failed to save preferences",
   "PREFERRED_RENDERER": "Preferred Render Api",
+  "PERFORMANCE": "Performance",
+  "DISABLE_PREVIEWS": "Disable Previews",
+  "MAX_BILINEAR_CANVAS_SIZE": "Max Bilinear Canvas Size",
+  "MAX_BILINEAR_CANVAS_SIZE_DESC": "Maximum canvas size for bilinear filtering. Set to 0 to disable bilinear filtering. Bilinear filtering improves the quality of the canvas, but can cause performance issues on large canvases.",
   "INVERT_MASK": "Invert mask"
 }

@@ -83,9 +83,17 @@ public class Chunk : IDisposable
     /// </summary>
     /// <param name="pos">The destination for the <paramref name="surface"/></param>
     /// <param name="paint">The paint to use while drawing</param>
-    public void DrawChunkOn(DrawingSurface surface, VecD pos, Paint? paint = null)
+    public void DrawChunkOn(DrawingSurface surface, VecD pos, Paint? paint = null, SamplingOptions? samplingOptions = null)
     {
-        surface.Canvas.DrawSurface(Surface.DrawingSurface, (float)pos.X, (float)pos.Y, paint);
+        if (samplingOptions == null || samplingOptions == SamplingOptions.Default)
+        {
+            surface.Canvas.DrawSurface(Surface.DrawingSurface, (float)pos.X, (float)pos.Y, paint);
+        }
+        else
+        {
+            using var snapshot = Surface.DrawingSurface.Snapshot();
+            surface.Canvas.DrawImage(snapshot, (float)pos.X, (float)pos.Y, samplingOptions.Value, paint);
+        }
     }
 
     public unsafe RectI? FindPreciseBounds(RectI? passedSearchRegion = null)

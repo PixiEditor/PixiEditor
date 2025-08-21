@@ -132,7 +132,11 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
             return false;
         }
 
+
+        int savedCount = renderOn.Canvas.Save();
+        renderOn.Canvas.Scale((float)context.ChunkResolution.Multiplier());
         Rasterize(renderOn, paint);
+        renderOn.Canvas.RestoreToCount(savedCount);
 
         return true;
     }
@@ -188,8 +192,9 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
     {
         int layer;
         // TODO: This can be further optimized by passing opacity, blend mode and filters directly to the rasterization method
-        if (paint != null && (paint.Color.A < 255 || paint.ColorFilter != null || paint.ImageFilter != null || paint.Shader != null ||
-            paint.BlendMode != Drawie.Backend.Core.Surfaces.BlendMode.SrcOver))
+        if (paint != null && (paint.Color.A < 255 || paint.ColorFilter != null || paint.ImageFilter != null ||
+                              paint.Shader != null ||
+                              paint.BlendMode != Drawie.Backend.Core.Surfaces.BlendMode.SrcOver))
         {
             layer = surface.Canvas.SaveLayer(paint);
         }
@@ -197,7 +202,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         {
             layer = surface.Canvas.Save();
         }
-        
+
         RenderableShapeData?.RasterizeTransformed(surface.Canvas);
 
         surface.Canvas.RestoreToCount(layer);

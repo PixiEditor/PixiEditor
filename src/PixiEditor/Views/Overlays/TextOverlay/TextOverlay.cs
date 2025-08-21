@@ -260,7 +260,8 @@ internal class TextOverlay : Overlay
         caret.GlyphWidths = glyphWidths;
         caret.Offset = Position;
 
-        caret.CaretWidth = 2f / (float)ZoomScale;
+        caret.CaretWidth = (2f / (float)ZoomScale) / Matrix.ScaleX;
+
         caret.Render(context);
     }
 

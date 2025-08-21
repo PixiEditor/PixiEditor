@@ -11,6 +11,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Effects;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Matrix;
 using PixiEditor.Helpers;
+using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 
 [assembly: LocalizeEnum<StrokeCap>(StrokeCap.Butt, "BUTT_STROKE_CAP")]
 [assembly: LocalizeEnum<StrokeCap>(StrokeCap.Round, "ROUND_STROKE_CAP")]
@@ -98,3 +99,22 @@ using PixiEditor.Helpers;
 [assembly: LocalizeEnum<VoronoiFeature>(VoronoiFeature.F1, "F1_VORONOI_FEATURE")]
 [assembly: LocalizeEnum<VoronoiFeature>(VoronoiFeature.F2, "F2_VORONOI_FEATURE")]
 [assembly: LocalizeEnum<VoronoiFeature>(VoronoiFeature.F2MinusF1, "F2_MINUS_F1_VORONOI_FEATURE")]
+
+[assembly: LocalizeEnum<BlendMode>(BlendMode.Normal, "NORMAL_BLEND_MODE")]
+[assembly: LocalizeEnum<BlendMode>(BlendMode.Darken, "DARKEN_BLEND_MODE")]
+[assembly: LocalizeEnum<BlendMode>(BlendMode.Lighten, "LIGHTEN_BLEND_MODE")]
+[assembly: LocalizeEnum<BlendMode>(BlendMode.Multiply, "MULTIPLY_BLEND_MODE")]
+[assembly: LocalizeEnum<BlendMode>(BlendMode.Screen, "SCREEN_BLEND_MODE")]
+[assembly: LocalizeEnum<BlendMode>(BlendMode.Overlay, "OVERLAY_BLEND_MODE")]
+[assembly: LocalizeEnum<BlendMode>(BlendMode.HardLight, "HARD_LIGHT_BLEND_MODE")]
+[assembly: LocalizeEnum<BlendMode>(BlendMode.SoftLight, "SOFT_LIGHT_BLEND_MODE")]
+[assembly: LocalizeEnum<BlendMode>(BlendMode.ColorDodge, "COLOR_DODGE_BLEND_MODE")]
+[assembly: LocalizeEnum<BlendMode>(BlendMode.ColorBurn, "COLOR_BURN_BLEND_MODE")]
+[assembly: LocalizeEnum<BlendMode>(BlendMode.Hue, "HUE_BLEND_MODE")]
+[assembly: LocalizeEnum<BlendMode>(BlendMode.Saturation, "SATURATION_BLEND_MODE")]
+[assembly: LocalizeEnum<BlendMode>(BlendMode.Color, "COLOR_BLEND_MODE")]
+[assembly: LocalizeEnum<BlendMode>(BlendMode.Luminosity, "LUMINOSITY_BLEND_MODE")]
+[assembly: LocalizeEnum<BlendMode>(BlendMode.Difference, "DIFFERENCE_BLEND_MODE")]
+[assembly: LocalizeEnum<BlendMode>(BlendMode.Exclusion, "EXCLUSION_BLEND_MODE")]
+[assembly: LocalizeEnum<BlendMode>(BlendMode.Erase, "ERASE_BLEND_MODE")]
+[assembly: LocalizeEnum<BlendMode>(BlendMode.LinearDodge, "LINEAR_DODGE_BLEND_MODE")]

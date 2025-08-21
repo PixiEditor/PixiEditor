@@ -5,6 +5,7 @@ using PixiEditor.ChangeableDocument.Helpers;
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
@@ -130,6 +131,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
         var sceneSize = GetSceneSize(ctx.FrameTime);
         VecD topLeft = sceneSize / 2f;
+
         if (renderedSurfaceFrame == null || ctx.FullRerender || ctx.FrameTime.Frame != renderedSurfaceFrame)
         {
             GetLayerImageAtFrame(ctx.FrameTime.Frame).DrawMostUpToDateRegionOn(
@@ -139,7 +141,18 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         }
         else
         {
-            workingSurface.Canvas.DrawSurface(fullResrenderedSurface.DrawingSurface, -topLeft, paint);
+            if (ctx.DesiredSamplingOptions == SamplingOptions.Default)
+            {
+                workingSurface.Canvas.DrawSurface(
+                    fullResrenderedSurface.DrawingSurface, -(float)topLeft.X, -(float)topLeft.Y, paint);
+            }
+            else
+            {
+                using var snapshot = fullResrenderedSurface.DrawingSurface.Snapshot();
+                workingSurface.Canvas.DrawImage(snapshot, -(float)topLeft.X, -(float)topLeft.Y,
+                    ctx.DesiredSamplingOptions,
+                    paint);
+            }
         }
 
         workingSurface.Canvas.RestoreToCount(saved);
@@ -242,14 +255,27 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
         if (renderedSurfaceFrame == cacheFrame)
         {
-            renderOnto.Canvas.DrawSurface(fullResrenderedSurface.DrawingSurface, VecI.Zero, blendPaint);
+            int saved = renderOnto.Canvas.Save();
+            renderOnto.Canvas.Scale((float)context.ChunkResolution.Multiplier());
+            if (context.DesiredSamplingOptions == SamplingOptions.Default)
+            {
+                renderOnto.Canvas.DrawSurface(
+                    fullResrenderedSurface.DrawingSurface, 0, 0, blendPaint);
+            }
+            else
+            {
+                using var snapshot = fullResrenderedSurface.DrawingSurface.Snapshot();
+                renderOnto.Canvas.DrawImage(snapshot, 0, 0, context.DesiredSamplingOptions, blendPaint);
+            }
+
+            renderOnto.Canvas.RestoreToCount(saved);
         }
         else
         {
             img.DrawMostUpToDateRegionOn(
                 new RectI(0, 0, img.LatestSize.X, img.LatestSize.Y),
                 context.ChunkResolution,
-                renderOnto, VecI.Zero, blendPaint);
+                renderOnto, VecI.Zero, blendPaint, context.DesiredSamplingOptions);
         }
 
         return true;

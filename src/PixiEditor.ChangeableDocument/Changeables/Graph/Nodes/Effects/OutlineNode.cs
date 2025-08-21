@@ -88,7 +88,8 @@ public class OutlineNode : RenderNode, IRenderInput
 
             var ctx = context.Clone();
             ctx.ChunkResolution = ChunkResolution.Full;
-            ctx.RenderOutputSize = (VecI)(context.RenderOutputSize * context.ChunkResolution.InvertedMultiplier());
+            bool isAdjusted = context.DocumentSize == context.RenderOutputSize;
+            ctx.RenderOutputSize = isAdjusted ? context.RenderOutputSize : (VecI)(context.RenderOutputSize * context.ChunkResolution.InvertedMultiplier());
 
             Background.Value.Paint(ctx, temp.DrawingSurface);
 
@@ -124,7 +125,10 @@ public class OutlineNode : RenderNode, IRenderInput
 
     public override bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
     {
+        int saved = renderOn.Canvas.Save();
+        renderOn.Canvas.Scale((float)context.ChunkResolution.Multiplier());
         OnPaint(context, renderOn);
+        renderOn.Canvas.RestoreToCount(saved);
         return true;
     }
 
