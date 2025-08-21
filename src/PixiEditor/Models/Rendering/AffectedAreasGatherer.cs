@@ -41,10 +41,20 @@ internal class AffectedAreasGatherer
     private bool alreadyAddedWholeCanvasToEveryImagePreview = false;
 
     public AffectedAreasGatherer(KeyFrameTime activeFrame, DocumentChangeTracker tracker,
-        IReadOnlyList<IChangeInfo> changes)
+        IReadOnlyList<IChangeInfo> changes, bool refreshAllPreviews)
     {
         this.tracker = tracker;
         ActiveFrame = activeFrame;
+
+        if (refreshAllPreviews)
+        {
+            AddWholeCanvasToMainImage();
+            AddWholeCanvasToEveryImagePreview(false);
+            AddWholeCanvasToEveryMaskPreview();
+            AddAllNodesToImagePreviews();
+            return;
+        }
+
         ProcessChanges(changes);
 
         var outputNode = tracker.Document.NodeGraph.OutputNode;
@@ -103,7 +113,7 @@ internal class AffectedAreasGatherer
                     break;
                 case Size_ChangeInfo:
                     AddWholeCanvasToMainImage();
-                    AddWholeCanvasToEveryImagePreview();
+                    AddWholeCanvasToEveryImagePreview(false);
                     AddWholeCanvasToEveryMaskPreview();
                     break;
                 case StructureMemberMask_ChangeInfo info:
@@ -152,25 +162,25 @@ internal class AffectedAreasGatherer
                     break;
                 case SetActiveFrame_PassthroughAction:
                     AddWholeCanvasToMainImage();
-                    AddWholeCanvasToEveryImagePreview();
+                    AddWholeCanvasToEveryImagePreview(true);
                     AddAllNodesToImagePreviews();
                     IgnoreAnimationPreviews = true;
                     break;
                 case KeyFrameLength_ChangeInfo:
                     AddWholeCanvasToMainImage();
-                    AddWholeCanvasToEveryImagePreview();
+                    AddWholeCanvasToEveryImagePreview(true);
                     break;
                 case DeleteKeyFrame_ChangeInfo:
                     AddWholeCanvasToMainImage();
-                    AddWholeCanvasToEveryImagePreview();
+                    AddWholeCanvasToEveryImagePreview(true);
                     break;
                 case KeyFrameVisibility_ChangeInfo:
                     AddWholeCanvasToMainImage();
-                    AddWholeCanvasToEveryImagePreview();
+                    AddWholeCanvasToEveryImagePreview(true);
                     break;
                 case ConnectProperty_ChangeInfo info:
                     AddWholeCanvasToMainImage();
-                    AddWholeCanvasToEveryImagePreview();
+                    AddWholeCanvasToEveryImagePreview(false);
                     AddToNodePreviews(info.InputNodeId);
                     if (info.OutputNodeId.HasValue)
                     {
@@ -180,7 +190,7 @@ internal class AffectedAreasGatherer
                     break;
                 case PropertyValueUpdated_ChangeInfo info:
                     AddWholeCanvasToMainImage();
-                    AddWholeCanvasToEveryImagePreview();
+                    AddWholeCanvasToEveryImagePreview(false);
                     AddToNodePreviews(info.NodeId);
                     break;
                 case ToggleOnionSkinning_PassthroughAction:
@@ -196,7 +206,7 @@ internal class AffectedAreasGatherer
                     break;
                 case ProcessingColorSpace_ChangeInfo:
                     AddWholeCanvasToMainImage();
-                    AddWholeCanvasToEveryImagePreview();
+                    AddWholeCanvasToEveryImagePreview(false);
                     AddWholeCanvasToEveryMaskPreview();
                     break;
             }
@@ -383,14 +393,14 @@ internal class AffectedAreasGatherer
         }
     }
 
-    private void AddWholeCanvasToEveryImagePreview()
+    private void AddWholeCanvasToEveryImagePreview(bool onlyWithKeyFrames)
     {
         if (alreadyAddedWholeCanvasToEveryImagePreview)
             return;
 
         tracker.Document.ForEveryReadonlyMember((member) =>
         {
-            if (member.KeyFrames.Count > 0)
+            if (!onlyWithKeyFrames || member.KeyFrames.Count > 0)
             {
                 AddWholeCanvasToImagePreviews(member.Id);
             }

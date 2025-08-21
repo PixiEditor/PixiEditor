@@ -66,7 +66,15 @@ public abstract class RenderNode : Node, IPreviewRenderable, IHighDpiRenderNode
                 surface.Canvas.Scale((float)context.ChunkResolution.InvertedMultiplier());
             }
 
-            surface.Canvas.DrawSurface(target, 0, 0);
+            if (context.DesiredSamplingOptions != SamplingOptions.Default)
+            {
+                using var snapshot = target.Snapshot();
+                surface.Canvas.DrawImage(snapshot, 0, 0, context.DesiredSamplingOptions);
+            }
+            else
+            {
+                surface.Canvas.DrawSurface(target, 0, 0);
+            }
 
             if (RendersInAbsoluteCoordinates)
             {

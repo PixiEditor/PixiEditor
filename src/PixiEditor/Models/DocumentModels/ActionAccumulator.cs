@@ -137,7 +137,7 @@ internal class ActionAccumulator
 
                 var affectedAreas = new AffectedAreasGatherer(document.AnimationHandler.ActiveFrameTime,
                     internals.Tracker,
-                    optimizedChanges);
+                    optimizedChanges, refreshPreviewsRequest);
 
                 if (DrawingBackendApi.Current.IsHardwareAccelerated && !allPassthrough)
                 {
