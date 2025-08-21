@@ -15,6 +15,7 @@ public interface INodePropertyHandler
     public ObservableCollection<INodePropertyHandler> ConnectedInputs { get; }
 
     public event NodePropertyValueChanged ValueChanged;
+    public event EventHandler ConnectedOutputChanged;
     public INodeHandler Node { get; set; }
     public Type PropertyType { get; }
     public void UpdateComputedValue();
