@@ -9,6 +9,7 @@ using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Rendering.ContextData;
 using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Views.Overlays.SymmetryOverlay;
 
@@ -20,6 +21,7 @@ internal class ChangeExecutionController
     public ShapeCorners LastTransformState { get; private set; }
     public VecI LastPixelPosition => lastPixelPos;
     public VecD LastPrecisePosition => lastPrecisePos;
+    public PointerInfo LastPointerInfo => lastPointerInfo;
     public bool IsBlockingChangeActive => currentSession is not null && currentSession.BlocksOtherActions;
 
     public event Action ToolSessionFinished;
@@ -30,6 +32,9 @@ internal class ChangeExecutionController
 
     private VecI lastPixelPos;
     private VecD lastPrecisePos;
+    private PointerInfo pointerInfo;
+    private VecD lastDirCalculationPoint;
+    private PointerInfo lastPointerInfo;
 
     private UpdateableChangeExecutor? currentSession = null;
 
@@ -158,8 +163,9 @@ internal class ChangeExecutionController
         currentSession?.OnConvertedKeyUp(key);
     }
 
-    public void MouseMoveInlet(VecD newCanvasPos)
+    public void MouseMoveInlet(MouseOnCanvasEventArgs args)
     {
+        VecD newCanvasPos = args.PositionOnCanvas;
         //update internal state
         VecI newPixelPos = (VecI)newCanvasPos.Floor();
         bool pixelPosChanged = false;
@@ -171,12 +177,14 @@ internal class ChangeExecutionController
 
         lastPrecisePos = newCanvasPos;
 
+        lastPointerInfo = ConstructPointerInfo(newCanvasPos, args.Properties);
+
         //call session events
         if (currentSession is not null)
         {
             if (pixelPosChanged)
-                currentSession.OnPixelPositionChange(newPixelPos);
-            currentSession.OnPrecisePositionChange(newCanvasPos);
+                currentSession.OnPixelPositionChange(newPixelPos, args);
+            currentSession.OnPrecisePositionChange(args);
         }
     }
 
@@ -320,5 +328,20 @@ internal class ChangeExecutionController
         {
             quickToolSwitchable.OnQuickToolSwitch();
         }
+    }
+
+
+    private PointerInfo ConstructPointerInfo(VecD currentPoint, PointerPointProperties properties)
+    {
+        if (VecD.Distance(lastDirCalculationPoint, currentPoint) > 20)
+        {
+            lastDirCalculationPoint = lastDirCalculationPoint.Lerp(currentPoint, 0.5f);
+        }
+
+        VecD dir = lastDirCalculationPoint - currentPoint;
+        VecD vecDir = new VecD(dir.X, dir.Y);
+        VecD dirNormalized = vecDir.Length > 0 ? vecDir.Normalize() : lastPointerInfo.MovementDirection;
+        return new PointerInfo(currentPoint, properties.Pressure, properties.Twist,
+            new VecD(properties.XTilt, properties.YTilt), dirNormalized);
     }
 }

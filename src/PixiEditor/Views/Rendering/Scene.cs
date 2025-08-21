@@ -340,7 +340,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         DrawOverlays(renderTexture.DrawingSurface, bounds, OverlayRenderSorting.Background);
         try
         {
-            SceneRenderer.RenderScene(renderTexture.DrawingSurface, CalculateResolution(), CalculateSampling(), lastPointerInfo,
+            SceneRenderer.RenderScene(renderTexture.DrawingSurface, CalculateResolution(), lastPointerInfo, CalculateSampling(),
                 renderOutput);
         }
         catch (Exception e)
@@ -669,6 +669,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                 ? released.InitialPressMouseButton
                 : MouseButton.None,
             ClickCount = e is PointerPressedEventArgs pressed ? pressed.ClickCount : 0,
+            Properties = e.GetCurrentPoint(this).Properties,
         };
     }
 

@@ -6,6 +6,7 @@ using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
+using PixiEditor.Models.Controllers.InputDevice;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable
@@ -39,7 +40,7 @@ internal class BrightnessToolExecutor : UpdateableChangeExecutor
         return ExecutionState.Success;
     }
 
-    public override void OnPixelPositionChange(VecI pos)
+    public override void OnPixelPositionChange(VecI pos, MouseOnCanvasEventArgs args)
     {
         ChangeBrightness_Action action = new(guidValue, pos, correctionFactor, toolSize, squareBrush, repeat, document!.AnimationHandler.ActiveFrameBindable);
         internals!.ActionAccumulator.AddActions(action);

@@ -10,14 +10,16 @@ internal class MouseOnCanvasEventArgs : EventArgs
     public VecD PositionOnCanvas { get; }
     public KeyModifiers KeyModifiers { get; }
     public bool Handled { get; set; }
-    
     public int ClickCount { get; set; } = 1;
+    public PointerPointProperties Properties { get; }
 
-    public MouseOnCanvasEventArgs(MouseButton button, VecD positionOnCanvas, KeyModifiers keyModifiers, int clickCount)
+    public MouseOnCanvasEventArgs(MouseButton button, VecD positionOnCanvas, KeyModifiers keyModifiers, int clickCount,
+        PointerPointProperties properties)
     {
         Button = button;
         PositionOnCanvas = positionOnCanvas;
         KeyModifiers = keyModifiers;
         ClickCount = clickCount;
+        Properties = properties;
     }
 }

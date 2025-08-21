@@ -9,7 +9,7 @@ namespace PixiEditor.Models.Controllers.InputDevice;
 internal class MouseInputFilter
 {
     public EventHandler<MouseOnCanvasEventArgs> OnMouseDown;
-    public EventHandler<VecD> OnMouseMove;
+    public EventHandler<MouseOnCanvasEventArgs> OnMouseMove;
     public EventHandler<MouseOnCanvasEventArgs> OnMouseUp;
     public EventHandler<ScrollOnCanvasEventArgs> OnMouseWheel;
 
@@ -35,7 +35,7 @@ internal class MouseInputFilter
         OnMouseDown?.Invoke(this, args);
     }
 
-    public void MouseMoveInlet(object args) => OnMouseMove?.Invoke(this, ((MouseOnCanvasEventArgs)args).PositionOnCanvas);
+    public void MouseMoveInlet(object args) => OnMouseMove?.Invoke(this, ((MouseOnCanvasEventArgs)args));
     public void MouseUpInlet(object args) => MouseUpInlet(((MouseOnCanvasEventArgs)args));
     public void MouseUpInlet(object? sender, Point p, MouseButton button) => MouseUpInlet(button);
     public void MouseUpInlet(MouseOnCanvasEventArgs args)
@@ -53,13 +53,13 @@ internal class MouseInputFilter
 
     public void DeactivatedInlet(object? sender, EventArgs e)
     {
-        MouseOnCanvasEventArgs argsLeft = new(MouseButton.Left, VecD.Zero, KeyModifiers.None, 0);
+        MouseOnCanvasEventArgs argsLeft = new(MouseButton.Left, VecD.Zero, KeyModifiers.None, 0, PointerPointProperties.None);
         MouseUpInlet(argsLeft);
         
-        MouseOnCanvasEventArgs argsMiddle = new(MouseButton.Middle, VecD.Zero, KeyModifiers.None, 0);
+        MouseOnCanvasEventArgs argsMiddle = new(MouseButton.Middle, VecD.Zero, KeyModifiers.None, 0, PointerPointProperties.None);
         MouseUpInlet(argsMiddle);
         
-        MouseOnCanvasEventArgs argsRight = new(MouseButton.Right, VecD.Zero, KeyModifiers.None, 0);
+        MouseOnCanvasEventArgs argsRight = new(MouseButton.Right, VecD.Zero, KeyModifiers.None, 0, PointerPointProperties.None);
         MouseUpInlet(argsRight);
     }
 }

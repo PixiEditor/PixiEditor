@@ -341,12 +341,12 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         Owner.ToolsSubViewModel.SetActiveTool<MoveViewportToolViewModel>(true);
     }
 
-    private void OnMouseMove(object? sender, VecD pos)
+    private void OnMouseMove(object? sender, MouseOnCanvasEventArgs args)
     {
         DocumentViewModel? activeDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (activeDocument is null)
             return;
-        activeDocument.EventInlet.OnCanvasMouseMove(pos);
+        activeDocument.EventInlet.OnCanvasMouseMove(args);
     }
 
     private void OnMouseUp(object? sender, MouseOnCanvasEventArgs args)

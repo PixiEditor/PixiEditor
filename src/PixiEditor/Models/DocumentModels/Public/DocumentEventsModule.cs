@@ -35,10 +35,10 @@ internal class DocumentEventsModule
     }
 
     public void OnCanvasLeftMouseButtonDown(MouseOnCanvasEventArgs args) => Internals.ChangeController.LeftMouseButtonDownInlet(args);
-    public void OnCanvasMouseMove(VecD newPos)
+    public void OnCanvasMouseMove(MouseOnCanvasEventArgs args)
     {
-        DocumentsHandler.CoordinatesString = $"X: {(int)newPos.X} Y: {(int)newPos.Y}";
-        Internals.ChangeController.MouseMoveInlet(newPos);
+        DocumentsHandler.CoordinatesString = $"X: {(int)args.PositionOnCanvas.X} Y: {(int)args.PositionOnCanvas.Y}";
+        Internals.ChangeController.MouseMoveInlet(args);
     }
     public void OnCanvasLeftMouseButtonUp(VecD argsPositionOnCanvas) => Internals.ChangeController.LeftMouseButtonUpInlet(argsPositionOnCanvas);
     public void OnOpacitySliderDragStarted() => Internals.ChangeController.OpacitySliderDragStartedInlet();

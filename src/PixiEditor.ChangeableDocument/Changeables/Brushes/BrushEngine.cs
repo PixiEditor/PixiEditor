@@ -10,17 +10,20 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.ChangeableDocument.Rendering.ContextData;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Brushes;
 
 internal class BrushEngine
 {
-    public void ExecuteBrush(ChunkyImage target, BrushData brushData, VecI point, KeyFrameTime frameTime)
+    public void ExecuteBrush(ChunkyImage target, BrushData brushData, VecI point, KeyFrameTime frameTime, ColorSpace cs, SamplingOptions samplingOptions, PointerInfo pointerInfo)
     {
-        ExecuteVectorShapeBrush(target, brushData, point, frameTime);
+        ExecuteVectorShapeBrush(target, brushData, point, frameTime, cs, samplingOptions, pointerInfo);
     }
 
-    private void ExecuteVectorShapeBrush(ChunkyImage target, BrushData brushData, VecI point, KeyFrameTime frameTime)
+    private void ExecuteVectorShapeBrush(ChunkyImage target, BrushData brushData, VecI point, KeyFrameTime frameTime,
+        ColorSpace colorSpace, SamplingOptions samplingOptions,
+        PointerInfo pointerInfo)
     {
         var brushNode = brushData.BrushGraph.AllNodes.FirstOrDefault(x => x is BrushOutputNode) as BrushOutputNode;
         if (brushNode == null)
@@ -31,7 +34,8 @@ internal class BrushEngine
         VecI size = new VecI((int)float.Ceiling(brushData.StrokeWidth));
         using var texture = Texture.ForDisplay(size);
         RenderContext context = new RenderContext(texture.DrawingSurface, frameTime, ChunkResolution.Full, size, size,
-            ColorSpace.CreateSrgbLinear());
+            colorSpace, samplingOptions) { PointerInfo = pointerInfo };
+
         brushData.BrushGraph.Execute(brushNode, context);
 
         var vectorShape = brushNode.VectorShape.Value;
@@ -52,7 +56,7 @@ internal class BrushEngine
         path.Offset(vectorShape.TransformedAABB.Pos - vectorShape.GeometryAABB.Pos);
         path.Offset(rect.Center - path.Bounds.Center);
 
-        if (brushData.FitToStrokeSize)
+        if (brushNode.FitToStrokeSize.Value)
         {
             VecD scale = new VecD(rect.Size.X / (float)path.Bounds.Width, rect.Size.Y / (float)path.Bounds.Height);
             if (scale.IsNaNOrInfinity())
@@ -65,7 +69,8 @@ internal class BrushEngine
                 (float)rect.Center.Y));
         }
 
-        Matrix3X3 pressureScale = Matrix3X3.CreateScale(brushData.Pressure, brushData.Pressure, (float)rect.Center.X,
+        var pressure = brushNode.Pressure.Value;
+        Matrix3X3 pressureScale = Matrix3X3.CreateScale(pressure, pressure, (float)rect.Center.X,
             (float)rect.Center.Y);
         path.Transform(pressureScale);
 

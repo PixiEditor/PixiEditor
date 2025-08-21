@@ -133,19 +133,19 @@ internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor,
         restoreSnapping = DisableSelfSnapping(memberId, document);
     }
 
-    public override void OnPrecisePositionChange(VecD pos)
+    public override void OnPrecisePositionChange(MouseOnCanvasEventArgs args)
     {
         if (ActiveMode == ShapeToolMode.Preview)
         {
-            PrecisePositionChangePreviewMode(pos);
+            PrecisePositionChangePreviewMode(args.PositionOnCanvas);
         }
         else if (ActiveMode == ShapeToolMode.Drawing)
         {
-            PrecisePositionChangeDrawingMode(pos);
+            PrecisePositionChangeDrawingMode(args.PositionOnCanvas);
         }
         else if (ActiveMode == ShapeToolMode.Transform)
         {
-            PrecisePositionChangeTransformMode(pos);
+            PrecisePositionChangeTransformMode(args.PositionOnCanvas);
         }
     }
 

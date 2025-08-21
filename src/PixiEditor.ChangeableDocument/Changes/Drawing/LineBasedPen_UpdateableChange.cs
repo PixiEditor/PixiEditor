@@ -1,4 +1,5 @@
-﻿using ChunkyImageLib.Operations;
+﻿using System.Reflection;
+using ChunkyImageLib.Operations;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.ColorsImpl.Paintables;
@@ -13,6 +14,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.ChangeableDocument.Rendering.ContextData;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 
@@ -38,6 +40,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     private VecF lastPos;
     private int lastAppliedPointIndex = -1;
     private BrushOutputNode? brushOutputNode;
+    private PointerInfo pointerInfo;
 
     [GenerateUpdateableChangeActions]
     public LineBasedPen_UpdateableChange(Guid memberGuid, Color color, VecI pos, float strokeWidth, bool erasing,
@@ -45,7 +48,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         float hardness,
         float spacing,
         Guid brushOutputGuid,
-        bool drawOnMask, int frame)
+        bool drawOnMask, int frame, PointerInfo pointerInfo)
     {
         this.memberGuid = memberGuid;
         this.color = color;
@@ -58,6 +61,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         this.spacing = spacing;
         points.Add(pos);
         this.frame = frame;
+        this.pointerInfo = pointerInfo;
 
         srcPaint.Shader?.Dispose();
         srcPaint.Shader = null;
@@ -77,7 +81,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     }
 
     [UpdateChangeMethod]
-    public void Update(VecI pos, float strokeWidth)
+    public void Update(VecI pos, float strokeWidth, PointerInfo pointerInfo)
     {
         if (points.Count > 0)
         {
@@ -86,6 +90,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         }
 
         this.strokeWidth = strokeWidth;
+        this.pointerInfo = pointerInfo;
         UpdateBrushData();
     }
 
@@ -149,7 +154,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
             brushData.Spacing = spacing;
             brushData.StrokeWidth = strokeWidth;
 
-            engine.ExecuteBrush(image, brushData, point, frame);
+            engine.ExecuteBrush(image, brushData, point, frame, target.ProcessingColorSpace, SamplingOptions.Default, pointerInfo);
 
             /*if (brushData.VectorShape == null)
             {
@@ -200,7 +205,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
             var rect = new RectI(points[0] - new VecI((int)(strokeWidth / 2f)), new VecI((int)strokeWidth));
             finalPaintable = color;
 
-            engine.ExecuteBrush(targetImage, brushData, points[0], frameTime);
+            engine.ExecuteBrush(targetImage, brushData, points[0], frameTime, targetImage.ProcessingColorSpace, SamplingOptions.Default, pointerInfo);
 
             return;
         }
@@ -218,7 +223,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
             var rect = new RectI(points[i] - new VecI((int)(strokeWidth / 2f)), new VecI((int)strokeWidth));
             finalPaintable = color;
 
-            engine.ExecuteBrush(targetImage, brushData, points[i], frameTime);
+            engine.ExecuteBrush(targetImage, brushData, points[i], frameTime, targetImage.ProcessingColorSpace, SamplingOptions.Default, pointerInfo);
         }
     }
 

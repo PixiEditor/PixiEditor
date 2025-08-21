@@ -9,6 +9,7 @@ using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Brushes;
+using PixiEditor.Models.Controllers.InputDevice;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable
@@ -62,7 +63,7 @@ internal class PenToolExecutor : UpdateableChangeExecutor
         transparentErase = color.A == 0;
         IAction? action = pixelPerfect switch
         {
-            false => new LineBasedPen_Action(guidValue, color, controller!.LastPixelPosition, (float)ToolSize, transparentErase, antiAliasing, hardness, spacing, brushOutputGuid, drawOnMask, document!.AnimationHandler.ActiveFrameBindable),
+            false => new LineBasedPen_Action(guidValue, color, controller!.LastPixelPosition, (float)ToolSize, transparentErase, antiAliasing, hardness, spacing, brushOutputGuid, drawOnMask, document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo),
             true => new PixelPerfectPen_Action(guidValue, controller!.LastPixelPosition, color, drawOnMask, document!.AnimationHandler.ActiveFrameBindable)
         };
         internals!.ActionAccumulator.AddActions(action);
@@ -70,11 +71,11 @@ internal class PenToolExecutor : UpdateableChangeExecutor
         return ExecutionState.Success;
     }
 
-    public override void OnPixelPositionChange(VecI pos)
+    public override void OnPixelPositionChange(VecI pos, MouseOnCanvasEventArgs args)
     {
         IAction? action = pixelPerfect switch
         {
-            false => new LineBasedPen_Action(guidValue, color, pos, (float)ToolSize, transparentErase, antiAliasing, hardness, spacing, brushOutputGuid, drawOnMask, document!.AnimationHandler.ActiveFrameBindable),
+            false => new LineBasedPen_Action(guidValue, color, pos, (float)ToolSize, transparentErase, antiAliasing, hardness, spacing, brushOutputGuid, drawOnMask, document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo),
             true => new PixelPerfectPen_Action(guidValue, pos, color, drawOnMask, document!.AnimationHandler.ActiveFrameBindable)
         };
         internals!.ActionAccumulator.AddActions(action);

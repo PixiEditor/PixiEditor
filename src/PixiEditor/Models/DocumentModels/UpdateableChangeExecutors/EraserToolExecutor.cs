@@ -9,6 +9,7 @@ using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
+using PixiEditor.Models.Controllers.InputDevice;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
@@ -51,15 +52,15 @@ internal class EraserToolExecutor : UpdateableChangeExecutor
 
         colorsHandler.AddSwatch(new PaletteColor(color.R, color.G, color.B));
         IAction? action = new LineBasedPen_Action(guidValue, Colors.White, controller!.LastPixelPosition, (float)eraserTool.ToolSize, true,
-            antiAliasing, hardness, spacing, Guid.Empty, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
+            antiAliasing, hardness, spacing, Guid.Empty, drawOnMask, document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo);
         internals!.ActionAccumulator.AddActions(action);
 
         return ExecutionState.Success;
     }
 
-    public override void OnPixelPositionChange(VecI pos)
+    public override void OnPixelPositionChange(VecI pos, MouseOnCanvasEventArgs args)
     {
-        IAction? action = new LineBasedPen_Action(guidValue, Colors.White, pos, (float)toolSize, true, antiAliasing, hardness, spacing, Guid.Empty, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
+        IAction? action = new LineBasedPen_Action(guidValue, Colors.White, pos, (float)toolSize, true, antiAliasing, hardness, spacing, Guid.Empty, drawOnMask, document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo);
         internals!.ActionAccumulator.AddActions(action);
     }
 

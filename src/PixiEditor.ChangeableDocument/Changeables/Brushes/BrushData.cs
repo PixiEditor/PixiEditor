@@ -2,6 +2,7 @@
 using Drawie.Backend.Core.Surfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Rendering.ContextData;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Brushes;
 
@@ -13,9 +14,6 @@ public struct BrushData
     public float Spacing { get; set; }
     public float StrokeWidth { get; set; }
 
-    public bool FitToStrokeSize { get; set; } = true;
-
-    public float Pressure { get; set; } = 1f;
     public BlendMode BlendMode { get; set; } = BlendMode.SrcOver;
 
 

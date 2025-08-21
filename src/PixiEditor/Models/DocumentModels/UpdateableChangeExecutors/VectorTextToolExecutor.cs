@@ -148,14 +148,14 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             }, false);
     }
 
-    public override void OnPrecisePositionChange(VecD pos)
+    public override void OnPrecisePositionChange(MouseOnCanvasEventArgs args)
     {
         if (document.TextOverlayHandler.IsActive && internals.ChangeController.LeftMousePressed && string.IsNullOrEmpty(lastText))
         {
-            double distance = Math.Abs(clickPos.Y - pos.Y);
+            double distance = Math.Abs(clickPos.Y - args.PositionOnCanvas.Y);
             if (!wasDrawingSize && distance < 10) return;
             wasDrawingSize = true;
-            position = new VecD(position.X, pos.Y);
+            position = new VecD(position.X, args.PositionOnCanvas.Y);
             document.TextOverlayHandler.Position = position;
             document.TextOverlayHandler.PreviewSize = true;
             var textData = ConstructTextData(lastText);
