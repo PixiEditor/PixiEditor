@@ -7,8 +7,8 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph;
 
 public class NodeGraph : IReadOnlyNodeGraph, IDisposable
 {
-    private ImmutableList<IReadOnlyNode>? cachedExecutionList;
-    
+    private Dictionary<IReadOnlyNode, ImmutableList<IReadOnlyNode>?> cachedExecutionList;
+
     private readonly List<Node> _nodes = new();
     public IReadOnlyCollection<Node> Nodes => _nodes;
     public IReadOnlyDictionary<Guid, Node> NodeLookup => nodeLookup;
@@ -27,7 +27,7 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
         {
             return;
         }
-        
+
         node.ConnectionsChanged += ResetCache;
         _nodes.Add(node);
         nodeLookup[node.Id] = node;
@@ -61,10 +61,19 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
     {
         return new Queue<IReadOnlyNode>(CalculateExecutionQueueInternal(outputNode));
     }
-    
+
     private ImmutableList<IReadOnlyNode> CalculateExecutionQueueInternal(IReadOnlyNode outputNode)
     {
-        return cachedExecutionList ??= GraphUtils.CalculateExecutionQueue(outputNode).ToImmutableList();
+        var cached = this.cachedExecutionList?.GetValueOrDefault(outputNode);
+        if (cached != null)
+        {
+            return cached;
+        }
+
+        var calculated = GraphUtils.CalculateExecutionQueue(outputNode).ToImmutableList();
+        cachedExecutionList ??= new Dictionary<IReadOnlyNode, ImmutableList<IReadOnlyNode>?>();
+        cachedExecutionList[outputNode] = calculated;
+        return calculated;
     }
 
     void IReadOnlyNodeGraph.AddNode(IReadOnlyNode node) => AddNode((Node)node);
@@ -81,31 +90,31 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
 
     public bool TryTraverse(Action<IReadOnlyNode> action)
     {
-        if(OutputNode == null) return false;
-        
+        if (OutputNode == null) return false;
+
         var queue = CalculateExecutionQueueInternal(OutputNode);
-        
+
         foreach (var node in queue)
         {
             action(node);
         }
-        
+
         return true;
     }
 
-    public void Execute(RenderContext context)
+    public void Execute(IReadOnlyNode end, RenderContext context)
     {
-        if (OutputNode == null) return;
-        if(!CanExecute()) return;
+        if (end == null) return;
+        if (!CanExecute()) return;
 
-        var queue = CalculateExecutionQueueInternal(OutputNode);
-        
+        var queue = CalculateExecutionQueueInternal(end);
+
         foreach (var node in queue)
         {
             if (node is Node typedNode)
             {
-                if(typedNode.IsDisposed) continue;
-                
+                if (typedNode.IsDisposed) continue;
+
                 typedNode.ExecuteInternal(context);
             }
             else
@@ -114,7 +123,9 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
             }
         }
     }
-    
+
+    public void Execute(RenderContext context) => Execute(OutputNode, context);
+
     private bool CanExecute()
     {
         foreach (var node in Nodes)
@@ -127,7 +138,7 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
 
         return true;
     }
-    
+
     private void ResetCache()
     {
         cachedExecutionList = null;

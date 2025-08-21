@@ -1,4 +1,5 @@
 ﻿using ChunkyImageLib.Operations;
+using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
@@ -6,8 +7,12 @@ using Drawie.Backend.Core.Shaders;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Brushes;
+using PixiEditor.ChangeableDocument.Changeables.Graph;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
+using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 
@@ -21,6 +26,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     private readonly bool antiAliasing;
     private Guid brushOutputGuid;
     private BrushData brushData;
+    private BrushEngine engine = new BrushEngine();
     private float hardness;
     private float spacing = 1;
     private readonly Paint srcPaint = new Paint() { BlendMode = BlendMode.Src };
@@ -80,10 +86,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         }
 
         this.strokeWidth = strokeWidth;
-        if (brushOutputNode != null)
-        {
-            brushData = new BrushData(brushOutputNode.VectorShape.Value);
-        }
+        UpdateBrushData();
     }
 
     public override bool InitializeAndValidate(Document target)
@@ -101,15 +104,27 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         if (brushOutputGuid != Guid.Empty)
         {
             brushOutputNode = target.FindNode<BrushOutputNode>(brushOutputGuid);
-            if (brushOutputNode != null)
-            {
-                brushData = new BrushData(brushOutputNode.VectorShape.Value);
-            }
+            brushData = new BrushData(target.NodeGraph);
+            UpdateBrushData();
 
             return brushOutputNode != null;
         }
 
         return true;
+    }
+
+    private void UpdateBrushData()
+    {
+        if (brushOutputNode != null)
+        {
+            brushData = new BrushData(brushData.BrushGraph)
+            {
+                StrokeWidth = strokeWidth,
+                AntiAliasing = antiAliasing,
+                Hardness = hardness,
+                Spacing = spacing,
+            };
+        }
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> ApplyTemporarily(Document target)
@@ -127,10 +142,16 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
                 continue;
 
             lastPos = point;
-            var rect = new RectI(point - new VecI((int)(strokeWidth / 2f)), new VecI((int)strokeWidth));
             finalPaintable = color;
 
-            if (brushData.VectorShape == null)
+            brushData.AntiAliasing = antiAliasing;
+            brushData.Hardness = hardness;
+            brushData.Spacing = spacing;
+            brushData.StrokeWidth = strokeWidth;
+
+            engine.ExecuteBrush(image, brushData, point, frame);
+
+            /*if (brushData.VectorShape == null)
             {
                 if (antiAliasing)
                 {
@@ -144,7 +165,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
                 BlendMode blendMode = srcPaint.BlendMode;
                 /*ShapeData shapeData = new ShapeData(rect.Center, rect.Size, 0, 0, 0, finalPaintable, finalPaintable,
                     blendMode);
-                image.EnqueueDrawRectangle(shapeData);*/
+                image.EnqueueDrawRectangle(shapeData);#1#
 
                 var path = brushData.VectorShape.ToPath(true);
                 path.Offset(brushData.VectorShape.TransformedAABB.Pos - brushData.VectorShape.GeometryAABB.Pos);
@@ -155,9 +176,9 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
                     scale = VecD.Zero;
                 }
                 VecD uniformScale = new VecD(Math.Min(scale.X, scale.Y));
-                path.Transform(Matrix3X3.CreateScale((float)uniformScale.X, (float)uniformScale.Y, (float)rect.Center.X, (float)rect.Center.Y));*/
+                path.Transform(Matrix3X3.CreateScale((float)uniformScale.X, (float)uniformScale.Y, (float)rect.Center.X, (float)rect.Center.Y));#1#
                 image.EnqueueDrawPath(path, finalPaintable, 1, StrokeCap.Butt, blendMode, PaintStyle.StrokeAndFill, true);
-            }
+            }*/
         }
 
         lastAppliedPointIndex = points.Count - 1;
@@ -167,30 +188,19 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affChunks, drawOnMask);
     }
 
-    private void FastforwardEnqueueDrawLines(ChunkyImage targetImage)
+    private void FastforwardEnqueueDrawLines(ChunkyImage targetImage, KeyFrameTime frameTime)
     {
+        brushData.AntiAliasing = antiAliasing;
+        brushData.Hardness = hardness;
+        brushData.Spacing = spacing;
+        brushData.StrokeWidth = strokeWidth;
+
         if (points.Count == 1)
         {
             var rect = new RectI(points[0] - new VecI((int)(strokeWidth / 2f)), new VecI((int)strokeWidth));
             finalPaintable = color;
 
-            if (brushData.VectorShape == null)
-            {
-                if (antiAliasing)
-                {
-                    finalPaintable = ApplySoftnessGradient(points[0]);
-                }
-
-                targetImage.EnqueueDrawEllipse((RectD)rect, finalPaintable, finalPaintable, 0, 0, antiAliasing,
-                    srcPaint);
-            }
-            else
-            {
-                BlendMode blendMode = srcPaint.BlendMode;
-                ShapeData shapeData = new ShapeData(rect.Center, rect.Size, 0, 0, 0, finalPaintable, finalPaintable,
-                    blendMode);
-                targetImage.EnqueueDrawRectangle(shapeData);
-            }
+            engine.ExecuteBrush(targetImage, brushData, points[0], frameTime);
 
             return;
         }
@@ -208,23 +218,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
             var rect = new RectI(points[i] - new VecI((int)(strokeWidth / 2f)), new VecI((int)strokeWidth));
             finalPaintable = color;
 
-            if (brushData.VectorShape == null)
-            {
-                if (antiAliasing)
-                {
-                    finalPaintable = ApplySoftnessGradient(points[i]);
-                }
-
-                targetImage.EnqueueDrawEllipse((RectD)rect, finalPaintable, finalPaintable, 0, 0, antiAliasing,
-                    srcPaint);
-            }
-            else
-            {
-                BlendMode blendMode = srcPaint.BlendMode;
-                ShapeData shapeData = new ShapeData(rect.Center, rect.Size, 0, 0, 0, finalPaintable, finalPaintable,
-                    blendMode);
-                targetImage.EnqueueDrawRectangle(shapeData);
-            }
+            engine.ExecuteBrush(targetImage, brushData, points[i], frameTime);
         }
     }
 
@@ -267,7 +261,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
                 image.SetBlendMode(BlendMode.SrcOver);
             DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, image, memberGuid, drawOnMask);
 
-            FastforwardEnqueueDrawLines(image);
+            FastforwardEnqueueDrawLines(image, frame);
             var affArea = image.FindAffectedArea();
             storedChunks = new CommittedChunkStorage(image, affArea.Chunks);
             image.CommitChanges();

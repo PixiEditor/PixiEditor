@@ -1,14 +1,26 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Graph;
+﻿using Drawie.Backend.Core.ColorsImpl.Paintables;
+using Drawie.Backend.Core.Surfaces;
+using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Brushes;
 
 public struct BrushData
 {
-    public IReadOnlyShapeVectorData? VectorShape { get; }
+    public IReadOnlyNodeGraph BrushGraph { get; set; }
+    public bool AntiAliasing { get; set; }
+    public float Hardness { get; set; }
+    public float Spacing { get; set; }
+    public float StrokeWidth { get; set; }
 
-    public BrushData(IReadOnlyShapeVectorData vectorShape)
+    public bool FitToStrokeSize { get; set; } = true;
+
+    public float Pressure { get; set; } = 1f;
+    public BlendMode BlendMode { get; set; } = BlendMode.SrcOver;
+
+
+    public BrushData(IReadOnlyNodeGraph brushGraph)
     {
-        VectorShape = vectorShape;
+        BrushGraph = brushGraph;
     }
 }

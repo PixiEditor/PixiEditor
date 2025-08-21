@@ -30,6 +30,7 @@ public class CreateImageNode : Node, IPreviewRenderable
 
     private TextureCache textureCache = new();
 
+
     public CreateImageNode()
     {
         Output = CreateOutput<Texture>(nameof(Output), "IMAGE", null);

@@ -1,9 +1,11 @@
 ﻿using System.Numerics;
 using System.Reflection;
+using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.ColorsImpl.Paintables;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using Drawie.Backend.Core.Shaders.Generation;
+using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.NodeGraph;
@@ -67,6 +69,11 @@ public static class ConversionTable
                     (typeof(VecD), new TypeConverter<Vec3D, VecD>(v => new VecD(v.X, v.Y))),
                     (typeof(VecI), new TypeConverter<Vec3D, VecI>(v => new VecI((int)v.X, (int)v.Y))),
                     (typeof(Color), new TypeConverter<Vec3D, Color>(v => new Color((byte)Math.Clamp(v.X, 0, 255), (byte)Math.Clamp(v.Y, 0, 255), (byte)Math.Clamp(v.Z, 0, 255)))),
+                ]
+            },
+            {
+                typeof(Texture), [
+                    (typeof(Paintable), new TypeConverter<Texture, Paintable>(img => new TexturePaintable(img))),
                 ]
             }
         };
@@ -191,6 +198,27 @@ public static class ConversionTable
     private static int VecDToInt(VecD vec)
     {
         return (int)vec.X;
+    }
+
+    public static bool CanConvertType(Type inputValueType, Type outputValueType)
+    {
+        if (inputValueType == outputValueType)
+        {
+            return true;
+        }
+
+        if (_conversionTable.TryGetValue(outputValueType, out var converters))
+        {
+            foreach (var (outType, _) in converters)
+            {
+                if (outType == inputValueType)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return outputValueType.IsAssignableFrom(inputValueType);
     }
 }
 
