@@ -382,6 +382,8 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     private MouseUpdateController? mouseUpdateController;
     private ViewportOverlays builtInOverlays = new();
+    public static readonly StyledProperty<int> MaxBilinearSamplingSizeProperty
+        = AvaloniaProperty.Register<Viewport, int>("MaxBilinearSamplingSize", 4096);
 
     public static readonly StyledProperty<bool> SnappingEnabledProperty =
         AvaloniaProperty.Register<Viewport, bool>("SnappingEnabled");
@@ -443,6 +445,12 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     {
         get { return (ObservableCollection<string>)GetValue(AvailableRenderOutputsProperty); }
         set { SetValue(AvailableRenderOutputsProperty, value); }
+    }
+
+    public int MaxBilinearSamplingSize
+    {
+        get { return (int)GetValue(MaxBilinearSamplingSizeProperty); }
+        set { SetValue(MaxBilinearSamplingSizeProperty, value); }
     }
 
     private void ForceRefreshFinalImage()

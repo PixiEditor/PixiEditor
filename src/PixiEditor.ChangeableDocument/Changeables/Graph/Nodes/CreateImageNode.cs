@@ -73,10 +73,9 @@ public class CreateImageNode : Node, IPreviewRenderable
 
         int saved = surface.DrawingSurface.Canvas.Save();
 
-        RenderContext ctx = new RenderContext(surface.DrawingSurface, context.FrameTime, context.ChunkResolution,
-            surface.Size, context.DocumentSize, context.ProcessingColorSpace);
-        ctx.FullRerender = context.FullRerender;
-        ctx.TargetOutput = context.TargetOutput;
+        RenderContext ctx = context.Clone();
+        ctx.RenderSurface = surface.DrawingSurface;
+        ctx.RenderOutputSize = surface.Size;
 
         float chunkMultiplier = (float)context.ChunkResolution.Multiplier();
 

@@ -17,6 +17,8 @@ internal class SettingsViewModel : SubViewModel<SettingsWindowViewModel>
 
     public SceneSettings Scene { get; set; } = new();
 
+    public PerformanceSettings Performance { get; set; } = new();
+
     public SettingsViewModel(SettingsWindowViewModel owner)
         : base(owner)
     {

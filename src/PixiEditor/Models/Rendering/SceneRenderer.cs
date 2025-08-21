@@ -5,6 +5,7 @@ using Drawie.Backend.Core.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
@@ -36,11 +37,12 @@ internal class SceneRenderer : IDisposable
         DocumentViewModel = documentViewModel;
     }
 
-    public void RenderScene(DrawingSurface target, ChunkResolution resolution, PointerInfo pointerInfo, string? targetOutput = null)
+    public void RenderScene(DrawingSurface target, ChunkResolution resolution, PointerInfo pointerInfo, SamplingOptions samplingOptions,
+        string? targetOutput = null)
     {
         if (Document.Renderer.IsBusy || DocumentViewModel.Busy ||
             target.DeviceClipBounds.Size.ShortestAxis <= 0) return;
-        RenderOnionSkin(target, resolution, targetOutput);
+        RenderOnionSkin(target, resolution, samplingOptions, targetOutput);
 
         string adjustedTargetOutput = targetOutput ?? "";
 
@@ -57,7 +59,7 @@ internal class SceneRenderer : IDisposable
                 cachedTextures[adjustedTargetOutput]?.Dispose();
             }
 
-            var rendered = RenderGraph(target, resolution, targetOutput, finalGraph, pointerInfo);
+            var rendered = RenderGraph(target, resolution, samplingOptions, targetOutput, finalGraph, pointerInfo);
             cachedTextures[adjustedTargetOutput] = rendered;
             return;
         }
@@ -66,11 +68,21 @@ internal class SceneRenderer : IDisposable
         Matrix3X3 matrixDiff = SolveMatrixDiff(target, cachedTexture);
         int saved = target.Canvas.Save();
         target.Canvas.SetMatrix(matrixDiff);
-        target.Canvas.DrawSurface(cachedTexture.DrawingSurface, 0, 0);
+        if (samplingOptions == SamplingOptions.Default)
+        {
+            target.Canvas.DrawSurface(cachedTexture.DrawingSurface, 0, 0);
+        }
+        else
+        {
+            using var img = cachedTexture.DrawingSurface.Snapshot();
+            target.Canvas.DrawImage(img, 0, 0, samplingOptions);
+        }
+
         target.Canvas.RestoreToCount(saved);
     }
 
-    private Texture RenderGraph(DrawingSurface target, ChunkResolution resolution, string? targetOutput,
+    private Texture RenderGraph(DrawingSurface target, ChunkResolution resolution, SamplingOptions samplingOptions,
+        string? targetOutput,
         IReadOnlyNodeGraph finalGraph, PointerInfo pointerInfo)
     {
         DrawingSurface renderTarget = target;
@@ -106,7 +118,7 @@ internal class SceneRenderer : IDisposable
         }
 
         RenderContext context = new(renderTarget, DocumentViewModel.AnimationHandler.ActiveFrameTime,
-            resolution, finalSize, Document.Size, Document.ProcessingColorSpace);
+            resolution, finalSize, Document.Size, Document.ProcessingColorSpace, samplingOptions);
         context.PointerInfo = pointerInfo;
 
         context.TargetOutput = targetOutput;
@@ -114,7 +126,16 @@ internal class SceneRenderer : IDisposable
 
         if (renderTexture != null)
         {
-            target.Canvas.DrawSurface(renderTexture.DrawingSurface, 0, 0);
+            if (samplingOptions == SamplingOptions.Default)
+            {
+                target.Canvas.DrawSurface(renderTexture.DrawingSurface, 0, 0);
+            }
+            else
+            {
+                using var snapshot = renderTexture.DrawingSurface.Snapshot();
+                target.Canvas.DrawImage(snapshot, 0, 0, samplingOptions);
+            }
+
             target.Canvas.RestoreToCount(restoreCanvasTo);
         }
 
@@ -172,7 +193,9 @@ internal class SceneRenderer : IDisposable
         }
 
         bool renderInDocumentSize = RenderInOutputSize(finalGraph);
-        VecI compareSize = renderInDocumentSize ? (VecI)(Document.Size * resolution.Multiplier()) : target.DeviceClipBounds.Size;
+        VecI compareSize = renderInDocumentSize
+            ? (VecI)(Document.Size * resolution.Multiplier())
+            : target.DeviceClipBounds.Size;
 
         if (cachedTexture.DrawingSurface.DeviceClipBounds.Size != compareSize)
         {
@@ -247,7 +270,7 @@ internal class SceneRenderer : IDisposable
         return highDpiRenderNodePresent;
     }
 
-    private void RenderOnionSkin(DrawingSurface target, ChunkResolution resolution, string? targetOutput)
+    private void RenderOnionSkin(DrawingSurface target, ChunkResolution resolution, SamplingOptions sampling, string? targetOutput)
     {
         var animationData = Document.AnimationData;
         if (!DocumentViewModel.AnimationHandler.OnionSkinningEnabledBindable)
@@ -272,9 +295,9 @@ internal class SceneRenderer : IDisposable
 
             double finalOpacity = onionOpacity * alphaFalloffMultiplier * (animationData.OnionFrames - i + 1);
 
+
             RenderContext onionContext = new(target, frame, resolution, renderOutputSize, Document.Size,
-                Document.ProcessingColorSpace,
-                finalOpacity);
+                Document.ProcessingColorSpace, sampling, finalOpacity);
             onionContext.TargetOutput = targetOutput;
             finalGraph.Execute(onionContext);
         }
@@ -290,8 +313,7 @@ internal class SceneRenderer : IDisposable
 
             double finalOpacity = onionOpacity * alphaFalloffMultiplier * (animationData.OnionFrames - i + 1);
             RenderContext onionContext = new(target, frame, resolution, renderOutputSize, Document.Size,
-                Document.ProcessingColorSpace,
-                finalOpacity);
+                Document.ProcessingColorSpace, sampling, finalOpacity);
             onionContext.TargetOutput = targetOutput;
             finalGraph.Execute(onionContext);
         }

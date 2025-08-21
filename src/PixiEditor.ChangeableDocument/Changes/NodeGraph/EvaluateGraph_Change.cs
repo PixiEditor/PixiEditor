@@ -1,4 +1,5 @@
 ﻿using Drawie.Backend.Core;
+using Drawie.Backend.Core.Surfaces;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Rendering;
@@ -33,7 +34,7 @@ internal class EvaluateGraph_Change : Change
         using Texture renderTexture = Texture.ForProcessing(target.Size, target.ProcessingColorSpace);
         RenderContext context =
             new(renderTexture.DrawingSurface, frameTime, ChunkResolution.Full, target.Size, target.Size,
-                target.ProcessingColorSpace) { FullRerender = true };
+                target.ProcessingColorSpace, SamplingOptions.Default) { FullRerender = true };
         foreach (var nodeToEvaluate in queue)
         {
             nodeToEvaluate.Execute(context);

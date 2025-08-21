@@ -1,6 +1,9 @@
 ﻿using Avalonia.Input;
+using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.Models.Preferences;
 using PixiEditor.UI.Common.Fonts;
+using PixiEditor.ViewModels.UserPreferences.Settings;
 
 namespace PixiEditor.ViewModels.SubViewModels;
 #nullable enable
@@ -36,9 +39,25 @@ internal class ViewOptionsViewModel : SubViewModel<ViewModelMain>
         }
     }
 
+    private int maxBilinearSampleSize = 4096;
+    public int MaxBilinearSampleSize
+    {
+        get => maxBilinearSampleSize;
+        set
+        {
+            SetProperty(ref maxBilinearSampleSize, value);
+        }
+    }
+
     public ViewOptionsViewModel(ViewModelMain owner)
         : base(owner)
     {
+        MaxBilinearSampleSize = PixiEditorSettings.Performance.MaxBilinearSampleSize.Value;
+
+        PixiEditorSettings.Performance.MaxBilinearSampleSize.ValueChanged += (s, e) =>
+        {
+            MaxBilinearSampleSize = PixiEditorSettings.Performance.MaxBilinearSampleSize.Value;
+        };
     }
 
     [Command.Basic("PixiEditor.View.ToggleGrid", "TOGGLE_GRIDLINES", "TOGGLE_GRIDLINES", Key = Key.OemTilde,

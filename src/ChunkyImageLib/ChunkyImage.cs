@@ -365,7 +365,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
     /// </returns>
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public bool DrawMostUpToDateChunkOn(VecI chunkPos, ChunkResolution resolution, DrawingSurface surface, VecD pos,
-        Paint? paint = null)
+        Paint? paint = null, SamplingOptions? samplingOptions = null)
     {
         lock (lockObject)
         {
@@ -390,7 +390,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
             {
                 if (committedChunk is null)
                     return false;
-                committedChunk.DrawChunkOn(surface, pos, paint);
+                committedChunk.DrawChunkOn(surface, pos, paint, samplingOptions);
                 return true;
             }
 
@@ -399,7 +399,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
             {
                 if (latestChunk.IsT2)
                 {
-                    latestChunk.AsT2.DrawChunkOn(surface, pos, paint);
+                    latestChunk.AsT2.DrawChunkOn(surface, pos, paint, samplingOptions);
                     return true;
                 }
 
@@ -415,7 +415,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
                 blendModePaint);
             if (lockTransparency)
                 OperationHelper.ClampAlpha(tempChunk.Surface.DrawingSurface, committedChunk.Surface.DrawingSurface);
-            tempChunk.DrawChunkOn(surface, pos, paint);
+            tempChunk.DrawChunkOn(surface, pos, paint, samplingOptions);
 
             return true;
         }
@@ -458,7 +458,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
 
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public bool DrawCommittedChunkOn(VecI chunkPos, ChunkResolution resolution, DrawingSurface surface, VecD pos,
-        Paint? paint = null)
+        Paint? paint = null, SamplingOptions? samplingOptions = null)
     {
         lock (lockObject)
         {
@@ -466,7 +466,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
             var chunk = GetCommittedChunk(chunkPos, resolution);
             if (chunk is null)
                 return false;
-            chunk.DrawChunkOn(surface, pos, paint);
+            chunk.DrawChunkOn(surface, pos, paint, samplingOptions);
             return true;
         }
     }

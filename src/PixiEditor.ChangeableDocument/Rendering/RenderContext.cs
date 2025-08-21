@@ -14,6 +14,7 @@ public class RenderContext
 
     public KeyFrameTime FrameTime { get; }
     public ChunkResolution ChunkResolution { get; set; }
+    public SamplingOptions DesiredSamplingOptions { get; set; } = SamplingOptions.Default;
     public VecI RenderOutputSize { get; set; }
 
     public VecI DocumentSize { get; set; }
@@ -26,7 +27,7 @@ public class RenderContext
 
 
     public RenderContext(DrawingSurface renderSurface, KeyFrameTime frameTime, ChunkResolution chunkResolution,
-        VecI renderOutputSize, VecI documentSize, ColorSpace processingColorSpace, double opacity = 1)
+        VecI renderOutputSize, VecI documentSize, ColorSpace processingColorSpace, SamplingOptions desiredSampling, double opacity = 1)
     {
         RenderSurface = renderSurface;
         FrameTime = frameTime;
@@ -35,6 +36,7 @@ public class RenderContext
         Opacity = opacity;
         ProcessingColorSpace = processingColorSpace;
         DocumentSize = documentSize;
+        DesiredSamplingOptions = desiredSampling;
     }
 
     public static DrawingApiBlendMode GetDrawingBlendMode(BlendMode blendMode)
@@ -65,7 +67,10 @@ public class RenderContext
 
     public RenderContext Clone()
     {
-        return new RenderContext(RenderSurface, FrameTime, ChunkResolution, RenderOutputSize, DocumentSize,
-            ProcessingColorSpace, Opacity) { FullRerender = FullRerender, TargetOutput = TargetOutput, PointerInfo = PointerInfo};
+        return new RenderContext(RenderSurface, FrameTime, ChunkResolution, RenderOutputSize, DocumentSize, ProcessingColorSpace, DesiredSamplingOptions, Opacity)
+        {
+            FullRerender = FullRerender,
+            TargetOutput = TargetOutput,
+        };
     }
 }
