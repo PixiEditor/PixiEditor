@@ -7,6 +7,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 [NodeInfo("PointerInfo")]
 public class PointerInfoNode : Node
 {
+    public OutputProperty<VecD> PositionOnCanvas { get; }
     public OutputProperty<double> Pressure { get; }
     public OutputProperty<double> Twist { get; }
     public OutputProperty<VecD> Tilt { get; }
@@ -15,6 +16,7 @@ public class PointerInfoNode : Node
 
     public PointerInfoNode()
     {
+        PositionOnCanvas = CreateOutput<VecD>("PositionOnCanvas", "POSITION_ON_CANVAS", new VecD(0, 0));
         Pressure = CreateOutput<double>("Pressure", "PRESSURE", 1.0);
         Twist = CreateOutput<double>("Twist", "TWIST", 0.0);
         Tilt = CreateOutput<VecD>("Tilt", "TILT", new VecD(0, 0));
@@ -29,6 +31,7 @@ public class PointerInfoNode : Node
             return;
         }
 
+        PositionOnCanvas.Value = context.PointerInfo.PositionOnCanvas;
         Pressure.Value = context.PointerInfo.Pressure;
         Twist.Value = context.PointerInfo.Twist;
         Tilt.Value = context.PointerInfo.Tilt;
