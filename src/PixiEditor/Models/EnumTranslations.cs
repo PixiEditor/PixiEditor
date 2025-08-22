@@ -118,3 +118,7 @@ using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 [assembly: LocalizeEnum<BlendMode>(BlendMode.Exclusion, "EXCLUSION_BLEND_MODE")]
 [assembly: LocalizeEnum<BlendMode>(BlendMode.Erase, "ERASE_BLEND_MODE")]
 [assembly: LocalizeEnum<BlendMode>(BlendMode.LinearDodge, "LINEAR_DODGE_BLEND_MODE")]
+
+[assembly: LocalizeEnum<GradientType>(GradientType.Linear, "LINEAR_GRADIENT_TYPE")]
+[assembly: LocalizeEnum<GradientType>(GradientType.Radial, "RADIAL_GRADIENT_TYPE")]
+[assembly: LocalizeEnum<GradientType>(GradientType.Conical, "CONICAL_GRADIENT_TYPE")]

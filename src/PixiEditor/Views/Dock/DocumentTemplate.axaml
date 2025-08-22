@@ -46,6 +46,7 @@
         BackgroundBitmap="{Binding BackgroundBitmap, Mode=OneWay}"
         HudVisible="{Binding HudVisible}"
         MaxBilinearSamplingSize="{Binding ViewportSubViewModel.MaxBilinearSampleSize, Source={viewModels1:MainVM}}"
+        EditorDataFunc="{Binding GetEditorData, Source={viewModels1:MainVM}}"
         Document="{Binding Document}">
     </viewportControls:Viewport>
 </UserControl>

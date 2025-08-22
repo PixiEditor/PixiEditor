@@ -20,8 +20,8 @@ public class RenderContext
     public VecI DocumentSize { get; set; }
     public DrawingSurface RenderSurface { get; set; }
     public bool FullRerender { get; set; } = false;
-
     public PointerInfo PointerInfo { get; set; }
+    public EditorData EditorData { get; set; }
     public ColorSpace ProcessingColorSpace { get; set; }
     public string? TargetOutput { get; set; }
 

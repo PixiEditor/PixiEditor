@@ -6,6 +6,7 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
 using Drawie.Backend.Core.ColorsImpl;
+using PixiEditor.ChangeableDocument.Rendering.ContextData;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Collections;
@@ -107,6 +108,8 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
 
     public MainWindow? AttachedWindow { get; private set; }
 
+    public Func<EditorData> GetEditorData { get; private set; }
+
     public ViewModelMain()
     {
         Current = this;
@@ -182,6 +185,8 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         AutosaveViewModel = services.GetService<AutosaveViewModel>();
 
         ExtensionsSubViewModel.Init();  // Must be last
+
+        GetEditorData = ConstructEditorData;
 
         DocumentManagerSubViewModel.ActiveDocumentChanged += OnActiveDocumentChanged;
         BeforeDocumentClosed += OnBeforeDocumentClosed;
@@ -390,6 +395,11 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
                 shutdown();
             }
         });
+    }
+
+    public EditorData ConstructEditorData()
+    {
+        return new EditorData(ColorsSubViewModel.PrimaryColor, ColorsSubViewModel.SecondaryColor);
     }
 
     private void OnActiveDocumentChanged(object sender, DocumentChangedEventArgs e)

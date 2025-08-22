@@ -7,6 +7,8 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using Drawie.Backend.Core.Shaders.Generation;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 namespace PixiEditor.ChangeableDocument.Changes.NodeGraph;
 

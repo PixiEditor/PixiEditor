@@ -38,6 +38,7 @@ internal class SceneRenderer : IDisposable
     }
 
     public void RenderScene(DrawingSurface target, ChunkResolution resolution, PointerInfo pointerInfo, SamplingOptions samplingOptions,
+        EditorData editorData,
         string? targetOutput = null)
     {
         if (Document.Renderer.IsBusy || DocumentViewModel.Busy ||
@@ -59,7 +60,7 @@ internal class SceneRenderer : IDisposable
                 cachedTextures[adjustedTargetOutput]?.Dispose();
             }
 
-            var rendered = RenderGraph(target, resolution, samplingOptions, targetOutput, finalGraph, pointerInfo);
+            var rendered = RenderGraph(target, resolution, samplingOptions, targetOutput, finalGraph, pointerInfo, editorData);
             cachedTextures[adjustedTargetOutput] = rendered;
             return;
         }
@@ -83,7 +84,7 @@ internal class SceneRenderer : IDisposable
 
     private Texture RenderGraph(DrawingSurface target, ChunkResolution resolution, SamplingOptions samplingOptions,
         string? targetOutput,
-        IReadOnlyNodeGraph finalGraph, PointerInfo pointerInfo)
+        IReadOnlyNodeGraph finalGraph, PointerInfo pointerInfo, EditorData editorData)
     {
         DrawingSurface renderTarget = target;
         Texture? renderTexture = null;
@@ -120,6 +121,7 @@ internal class SceneRenderer : IDisposable
         RenderContext context = new(renderTarget, DocumentViewModel.AnimationHandler.ActiveFrameTime,
             resolution, finalSize, Document.Size, Document.ProcessingColorSpace, samplingOptions);
         context.PointerInfo = pointerInfo;
+        context.EditorData = editorData;
 
         context.TargetOutput = targetOutput;
         finalGraph.Execute(context);

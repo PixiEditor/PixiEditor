@@ -20,6 +20,7 @@ using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Position;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Rendering.ContextData;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.UI.Common.Behaviors;
 using PixiEditor.ViewModels.Document;
@@ -382,6 +383,8 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     private MouseUpdateController? mouseUpdateController;
     private ViewportOverlays builtInOverlays = new();
+    public static readonly StyledProperty<Func<EditorData>> EditorDataFuncProperty = AvaloniaProperty.Register<Viewport, Func<EditorData>>("EditorDataFunc");
+
     public static readonly StyledProperty<int> MaxBilinearSamplingSizeProperty
         = AvaloniaProperty.Register<Viewport, int>("MaxBilinearSamplingSize", 4096);
 
@@ -451,6 +454,12 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     {
         get { return (int)GetValue(MaxBilinearSamplingSizeProperty); }
         set { SetValue(MaxBilinearSamplingSizeProperty, value); }
+    }
+
+    public Func<EditorData> EditorDataFunc
+    {
+        get { return (Func<EditorData>)GetValue(EditorDataFuncProperty); }
+        set { SetValue(EditorDataFuncProperty, value); }
     }
 
     private void ForceRefreshFinalImage()
@@ -534,7 +543,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         var pos = e.GetPosition(Scene);
         VecD scenePos = Scene.ToZoomboxSpace(new VecD(pos.X, pos.Y));
         MouseOnCanvasEventArgs? parameter =
-            new MouseOnCanvasEventArgs(mouseButton, scenePos, e.KeyModifiers, e.ClickCount,
+            new MouseOnCanvasEventArgs(mouseButton, e.Pointer.Type, scenePos, e.KeyModifiers, e.ClickCount,
                 e.GetCurrentPoint(this).Properties);
 
         if (MouseDownCommand.CanExecute(parameter))
@@ -550,7 +559,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
         MouseButton mouseButton = e.GetMouseButton(this);
 
-        MouseOnCanvasEventArgs parameter = new(mouseButton, conv, e.KeyModifiers, 0, e.GetCurrentPoint(this).Properties);
+        MouseOnCanvasEventArgs parameter = new(mouseButton, e.Pointer.Type, conv, e.KeyModifiers, 0, e.GetCurrentPoint(this).Properties);
 
         if (MouseMoveCommand.CanExecute(parameter))
             MouseMoveCommand.Execute(parameter);
@@ -563,7 +572,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
         Point pos = e.GetPosition(Scene);
         VecD conv = Scene.ToZoomboxSpace(new VecD(pos.X, pos.Y));
-        MouseOnCanvasEventArgs parameter = new(e.InitialPressMouseButton, conv, e.KeyModifiers, 0, e.GetCurrentPoint(this).Properties);
+        MouseOnCanvasEventArgs parameter = new(e.InitialPressMouseButton, e.Pointer.Type, conv, e.KeyModifiers, 0, e.GetCurrentPoint(this).Properties);
         if (MouseUpCommand.CanExecute(parameter))
             MouseUpCommand.Execute(parameter);
     }

@@ -1,4 +1,5 @@
 ﻿using Drawie.Backend.Core;
+using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
@@ -16,14 +17,14 @@ namespace PixiEditor.ChangeableDocument.Changeables.Brushes;
 
 internal class BrushEngine
 {
-    public void ExecuteBrush(ChunkyImage target, BrushData brushData, VecI point, KeyFrameTime frameTime, ColorSpace cs, SamplingOptions samplingOptions, PointerInfo pointerInfo)
+    public void ExecuteBrush(ChunkyImage target, BrushData brushData, VecI point, KeyFrameTime frameTime, ColorSpace cs, SamplingOptions samplingOptions, PointerInfo pointerInfo, EditorData editorData)
     {
-        ExecuteVectorShapeBrush(target, brushData, point, frameTime, cs, samplingOptions, pointerInfo);
+        ExecuteVectorShapeBrush(target, brushData, point, frameTime, cs, samplingOptions, pointerInfo, editorData);
     }
 
     private void ExecuteVectorShapeBrush(ChunkyImage target, BrushData brushData, VecI point, KeyFrameTime frameTime,
         ColorSpace colorSpace, SamplingOptions samplingOptions,
-        PointerInfo pointerInfo)
+        PointerInfo pointerInfo, EditorData editorData)
     {
         var brushNode = brushData.BrushGraph.AllNodes.FirstOrDefault(x => x is BrushOutputNode) as BrushOutputNode;
         if (brushNode == null)
@@ -34,7 +35,7 @@ internal class BrushEngine
         VecI size = new VecI((int)float.Ceiling(brushData.StrokeWidth));
         using var texture = Texture.ForDisplay(size);
         RenderContext context = new RenderContext(texture.DrawingSurface, frameTime, ChunkResolution.Full, size, size,
-            colorSpace, samplingOptions) { PointerInfo = pointerInfo };
+            colorSpace, samplingOptions) { PointerInfo = pointerInfo, EditorData = editorData };
 
         brushData.BrushGraph.Execute(brushNode, context);
 

@@ -87,7 +87,7 @@ internal class PenToolExecutor : UpdateableChangeExecutor
             {
                 false => new LineBasedPen_Action(guidValue, color, controller!.LastPixelPosition, (float)ToolSize,
                     transparentErase, antiAliasing, hardness, spacing, brushOutputGuid, drawOnMask,
-                    document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo),
+                    document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo, controller.EditorData),
                 true => new PixelPerfectPen_Action(guidValue, controller!.LastPixelPosition, color, drawOnMask,
                     document!.AnimationHandler.ActiveFrameBindable)
             };
@@ -106,7 +106,7 @@ internal class PenToolExecutor : UpdateableChangeExecutor
         {
             false => new LineBasedPen_Action(guidValue, color, controller!.LastPixelPosition, (float)ToolSize,
                 transparentErase, antiAliasing, hardness, spacing, brushOutputGuid, drawOnMask,
-                document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo),
+                document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo, controller.EditorData),
             true => new PixelPerfectPen_Action(guidValue, controller!.LastPixelPosition, color, drawOnMask,
                 document!.AnimationHandler.ActiveFrameBindable)
         };
@@ -132,7 +132,7 @@ internal class PenToolExecutor : UpdateableChangeExecutor
             {
                 false => new LineBasedPen_Action(guidValue, color, pos, (float)ToolSize, transparentErase, antiAliasing,
                     hardness, spacing, brushOutputGuid, drawOnMask, document!.AnimationHandler.ActiveFrameBindable,
-                    controller.LastPointerInfo),
+                    controller.LastPointerInfo, controller.EditorData),
                 true => new PixelPerfectPen_Action(guidValue, pos, color, drawOnMask,
                     document!.AnimationHandler.ActiveFrameBindable)
             };

@@ -11,6 +11,7 @@ using PixiEditor.Models.Tools;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Rendering.ContextData;
 using PixiEditor.Models.Controllers.InputDevice;
+using PixiEditor.ViewModels;
 using PixiEditor.Views.Overlays.SymmetryOverlay;
 
 namespace PixiEditor.Models.DocumentModels;
@@ -23,6 +24,7 @@ internal class ChangeExecutionController
     public VecD LastPrecisePosition => lastPrecisePos;
     public PointerInfo LastPointerInfo => lastPointerInfo;
     public bool IsBlockingChangeActive => currentSession is not null && currentSession.BlocksOtherActions;
+    public EditorData EditorData => GetEditorData();
 
     public event Action ToolSessionFinished;
 
@@ -35,6 +37,7 @@ internal class ChangeExecutionController
     private PointerInfo pointerInfo;
     private VecD lastDirCalculationPoint;
     private PointerInfo lastPointerInfo;
+    private ViewModelMain viewModelMain;
 
     private UpdateableChangeExecutor? currentSession = null;
 
@@ -45,6 +48,7 @@ internal class ChangeExecutionController
         this.document = document;
         this.internals = internals;
         this.services = services;
+        viewModelMain = (ViewModelMain)services.GetService(typeof(ViewModelMain))!;
     }
 
     public bool IsChangeOfTypeActive<T>() where T : IExecutorFeature
@@ -177,7 +181,7 @@ internal class ChangeExecutionController
 
         lastPrecisePos = newCanvasPos;
 
-        lastPointerInfo = ConstructPointerInfo(newCanvasPos, args.Properties);
+        lastPointerInfo = ConstructPointerInfo(newCanvasPos, args);
 
         //call session events
         if (currentSession is not null)
@@ -330,18 +334,28 @@ internal class ChangeExecutionController
         }
     }
 
+    private EditorData GetEditorData()
+    {
+        return viewModelMain.GetEditorData();
+    }
 
-    private PointerInfo ConstructPointerInfo(VecD currentPoint, PointerPointProperties properties)
+    private PointerInfo ConstructPointerInfo(VecD currentPoint, MouseOnCanvasEventArgs args)
     {
         if (VecD.Distance(lastDirCalculationPoint, currentPoint) > 20)
         {
             lastDirCalculationPoint = lastDirCalculationPoint.Lerp(currentPoint, 0.5f);
         }
 
+        float pressure = args.Properties.Pressure;
+        if (args.PointerType == PointerType.Mouse)
+        {
+            pressure = args.Properties.Pressure > 0 ? 1 : 0;
+        }
+
         VecD dir = lastDirCalculationPoint - currentPoint;
         VecD vecDir = new VecD(dir.X, dir.Y);
         VecD dirNormalized = vecDir.Length > 0 ? vecDir.Normalize() : lastPointerInfo.MovementDirection;
-        return new PointerInfo(currentPoint, properties.Pressure, properties.Twist,
-            new VecD(properties.XTilt, properties.YTilt), dirNormalized);
+        return new PointerInfo(currentPoint, pressure, args.Properties.Twist,
+            new VecD(args.Properties.XTilt, args.Properties.YTilt), dirNormalized);
     }
 }

@@ -42,6 +42,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     private int lastAppliedPointIndex = -1;
     private BrushOutputNode? brushOutputNode;
     private PointerInfo pointerInfo;
+    private EditorData editorData;
 
     [GenerateUpdateableChangeActions]
     public LineBasedPen_UpdateableChange(Guid memberGuid, Color color, VecI pos, float strokeWidth, bool erasing,
@@ -49,7 +50,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         float hardness,
         float spacing,
         Guid brushOutputGuid,
-        bool drawOnMask, int frame, PointerInfo pointerInfo)
+        bool drawOnMask, int frame, PointerInfo pointerInfo, EditorData editorData)
     {
         this.memberGuid = memberGuid;
         this.color = color;
@@ -63,6 +64,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         points.Add(pos);
         this.frame = frame;
         this.pointerInfo = pointerInfo;
+        this.editorData = editorData;
 
         srcPaint.Shader?.Dispose();
         srcPaint.Shader = null;
@@ -153,7 +155,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
             brushData.StrokeWidth = strokeWidth;
 
             engine.ExecuteBrush(image, brushData, point, frame, target.ProcessingColorSpace, SamplingOptions.Default,
-                pointerInfo);
+                pointerInfo, editorData);
 
             /*if (brushData.VectorShape == null)
             {
@@ -213,7 +215,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
             finalPaintable = color;
 
             engine.ExecuteBrush(targetImage, brushData, points[0], frameTime, targetImage.ProcessingColorSpace,
-                SamplingOptions.Default, pointerInfo);
+                SamplingOptions.Default, pointerInfo, editorData);
 
             return;
         }
@@ -232,7 +234,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
             finalPaintable = color;
 
             engine.ExecuteBrush(targetImage, brushData, points[i], frameTime, targetImage.ProcessingColorSpace,
-                SamplingOptions.Default, pointerInfo);
+                SamplingOptions.Default, pointerInfo, editorData);
         }
     }
 

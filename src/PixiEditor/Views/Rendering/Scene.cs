@@ -73,6 +73,15 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     public static readonly StyledProperty<bool> AutoBackgroundScaleProperty = AvaloniaProperty.Register<Scene, bool>(
         nameof(AutoBackgroundScale), true);
 
+    public static readonly StyledProperty<Func<EditorData>> EditorDataFuncProperty = AvaloniaProperty.Register<Scene, Func<EditorData>>(
+        nameof(EditorDataFunc));
+
+    public Func<EditorData> EditorDataFunc
+    {
+        get => GetValue(EditorDataFuncProperty);
+        set => SetValue(EditorDataFuncProperty, value);
+    }
+
     public bool AutoBackgroundScale
     {
         get => GetValue(AutoBackgroundScaleProperty);
@@ -341,7 +350,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         try
         {
             SceneRenderer.RenderScene(renderTexture.DrawingSurface, CalculateResolution(), lastPointerInfo, CalculateSampling(),
-                renderOutput);
+                EditorDataFunc?.Invoke() ?? new EditorData(), renderOutput);
         }
         catch (Exception e)
         {
@@ -684,11 +693,17 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         }
 
         var properties = data.Properties;
+        float pressure = properties.Pressure;
+        if (e.Pointer.Type != PointerType.Pen)
+        {
+            pressure = pressure > 0 ? 1 : 0;
+        }
+
         VecD position = ToCanvasSpace(data.Position);
         Point dir = lastDirCalculationPoint - data.Position;
         VecD vecDir = new VecD(dir.X, dir.Y);
         VecD dirNormalized = vecDir.Length > 0 ? vecDir.Normalize() : lastPointerInfo.MovementDirection;
-        return new PointerInfo(position, properties.Pressure, properties.Twist, new VecD(properties.XTilt, properties.YTilt), dirNormalized);
+        return new PointerInfo(position, pressure, properties.Twist, new VecD(properties.XTilt, properties.YTilt), dirNormalized);
     }
 
     private static Point Lerp(VecD a, VecD b, float t)
