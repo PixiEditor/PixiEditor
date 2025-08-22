@@ -5,10 +5,12 @@ using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.ColorsImpl.Paintables;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using Drawie.Backend.Core.Shaders.Generation;
+using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changes.NodeGraph;
 
@@ -76,6 +78,7 @@ public static class ConversionTable
             {
                 typeof(Texture), [
                     (typeof(Paintable), new TypeConverter<Texture, Paintable>(img => new TexturePaintable(img))),
+                    (typeof(Painter), new TypeConverter<Texture, Painter>(img => new Painter((c, s) => s.Canvas.DrawSurface(img.DrawingSurface, 0, 0)))),
                 ]
             }
         };

@@ -7,7 +7,9 @@ using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.ChangeableDocument.Rendering;
@@ -17,6 +19,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Brushes;
 
 internal class BrushEngine
 {
+    private TextureCache cache = new();
     public void ExecuteBrush(ChunkyImage target, BrushData brushData, VecI point, KeyFrameTime frameTime, ColorSpace cs, SamplingOptions samplingOptions, PointerInfo pointerInfo, EditorData editorData)
     {
         ExecuteVectorShapeBrush(target, brushData, point, frameTime, cs, samplingOptions, pointerInfo, editorData);
@@ -32,10 +35,14 @@ internal class BrushEngine
             return;
         }
 
+        float strokeWidth = brushData.StrokeWidth;
+        var rect = new RectI(point - new VecI((int)(strokeWidth / 2f)), new VecI((int)strokeWidth));
         VecI size = new VecI((int)float.Ceiling(brushData.StrokeWidth));
+
         using var texture = Texture.ForDisplay(size);
-        RenderContext context = new RenderContext(texture.DrawingSurface, frameTime, ChunkResolution.Full, size, size,
-            colorSpace, samplingOptions) { PointerInfo = pointerInfo, EditorData = editorData };
+        var surfaceUnderRect = UpdateSurfaceUnderRect(target, rect, colorSpace);
+        BrushRenderContext context = new BrushRenderContext(texture.DrawingSurface, frameTime, ChunkResolution.Full, size, size,
+            colorSpace, samplingOptions, brushData, surfaceUnderRect) { PointerInfo = pointerInfo, EditorData = editorData };
 
         brushData.BrushGraph.Execute(brushNode, context);
 
@@ -51,8 +58,6 @@ internal class BrushEngine
             return;
         }
 
-        float strokeWidth = brushData.StrokeWidth;
-        var rect = new RectI(point - new VecI((int)(strokeWidth / 2f)), new VecI((int)strokeWidth));
 
         path.Offset(vectorShape.TransformedAABB.Pos - vectorShape.GeometryAABB.Pos);
         path.Offset(rect.Center - path.Bounds.Center);
@@ -74,6 +79,18 @@ internal class BrushEngine
         Matrix3X3 pressureScale = Matrix3X3.CreateScale(pressure, pressure, (float)rect.Center.X,
             (float)rect.Center.Y);
         path.Transform(pressureScale);
+
+        if (brushNode.Content.Value != null)
+        {
+            var brushTexture = brushNode.ContentTexture;
+            if (brushTexture != null)
+            {
+                TexturePaintable brushTexturePaintable = new(brushTexture);
+                target.EnqueueDrawPath(path, brushTexturePaintable, vectorShape.StrokeWidth,
+                    StrokeCap.Butt, brushData.BlendMode, PaintStyle.Fill, brushData.AntiAliasing);
+                return;
+            }
+        }
 
         StrokeCap strokeCap = StrokeCap.Butt;
         PaintStyle strokeStyle = PaintStyle.Fill;
@@ -106,5 +123,13 @@ internal class BrushEngine
             target.EnqueueDrawPath(path, stroke, vectorShape.StrokeWidth,
                 strokeCap, brushData.BlendMode, strokeStyle, brushData.AntiAliasing);
         }
+    }
+
+    private Texture UpdateSurfaceUnderRect(ChunkyImage target, RectI rect, ColorSpace colorSpace)
+    {
+        var surfaceUnderRect = cache.RequestTexture(0, rect.Size, colorSpace);
+
+        target.DrawCommittedRegionOn(rect, ChunkResolution.Full, surfaceUnderRect.DrawingSurface, VecI.Zero);
+        return surfaceUnderRect;
     }
 }

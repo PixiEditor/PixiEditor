@@ -30,7 +30,6 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     private Guid brushOutputGuid;
     private BrushData brushData;
     private BrushEngine engine = new BrushEngine();
-    private float hardness;
     private float spacing = 1;
     private readonly Paint srcPaint = new Paint() { BlendMode = BlendMode.Src };
     private Paintable? finalPaintable;
@@ -47,7 +46,6 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     [GenerateUpdateableChangeActions]
     public LineBasedPen_UpdateableChange(Guid memberGuid, Color color, VecI pos, float strokeWidth, bool erasing,
         bool antiAliasing,
-        float hardness,
         float spacing,
         Guid brushOutputGuid,
         bool drawOnMask, int frame, PointerInfo pointerInfo, EditorData editorData)
@@ -59,7 +57,6 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         this.antiAliasing = antiAliasing;
         this.drawOnMask = drawOnMask;
         this.brushOutputGuid = brushOutputGuid;
-        this.hardness = hardness;
         this.spacing = spacing;
         points.Add(pos);
         this.frame = frame;
@@ -127,7 +124,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         {
             brushData = new BrushData(brushData.BrushGraph)
             {
-                StrokeWidth = strokeWidth, AntiAliasing = antiAliasing, Hardness = hardness, Spacing = spacing,
+                StrokeWidth = strokeWidth, AntiAliasing = antiAliasing, Spacing = spacing,
             };
         }
     }
@@ -138,7 +135,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
 
         int opCount = image.QueueLength;
 
-        float spacingPixels = strokeWidth * spacing;
+        float spacingPixels = (strokeWidth * pointerInfo.Pressure) * spacing;
 
         for (int i = Math.Max(lastAppliedPointIndex, 0); i < points.Count; i++)
         {
@@ -150,7 +147,6 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
             finalPaintable = color;
 
             brushData.AntiAliasing = antiAliasing;
-            brushData.Hardness = hardness;
             brushData.Spacing = spacing;
             brushData.StrokeWidth = strokeWidth;
 
@@ -205,7 +201,6 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     private void FastforwardEnqueueDrawLines(ChunkyImage targetImage, KeyFrameTime frameTime)
     {
         brushData.AntiAliasing = antiAliasing;
-        brushData.Hardness = hardness;
         brushData.Spacing = spacing;
         brushData.StrokeWidth = strokeWidth;
 
@@ -222,7 +217,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
 
         VecF lastPos = points[0];
 
-        float spacingInPixels = strokeWidth * this.spacing;
+        float spacingInPixels = (strokeWidth * pointerInfo.Pressure) * this.spacing;
 
         for (int i = 0; i < points.Count; i++)
         {
@@ -236,23 +231,6 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
             engine.ExecuteBrush(targetImage, brushData, points[i], frameTime, targetImage.ProcessingColorSpace,
                 SamplingOptions.Default, pointerInfo, editorData);
         }
-    }
-
-    private Paintable? ApplySoftnessGradient(VecD pos)
-    {
-        srcPaint.Paintable?.Dispose();
-        if (hardness >= 1)
-        {
-            return new ColorPaintable(color);
-        }
-
-        float radius = strokeWidth / 2f;
-        radius = MathF.Max(1, radius);
-        return new RadialGradientPaintable(pos, radius,
-        [
-            new GradientStop(color, Math.Max(hardness - 0.05f, 0)),
-            new GradientStop(color.WithAlpha(0), 0.95f)
-        ]) { AbsoluteValues = true };
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,

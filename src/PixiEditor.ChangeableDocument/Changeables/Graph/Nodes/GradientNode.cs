@@ -61,7 +61,7 @@ public class GradientNode : Node
 
             if (!HasInputProperty("Radius"))
             {
-                Radius = CreateInput<double>("Radius", "RADIUS", 0.5);
+                Radius = CreateInput<double>("Radius", "RADIUS", 0.5).WithRules(x => x.Min(0d));
             }
         }
         else if (type == GradientType.Conical)
@@ -83,19 +83,25 @@ public class GradientNode : Node
 
     private void RegenerateStops()
     {
-        foreach (var (colorInput, positionInput) in ColorStops)
+        if (StopsCount.Value < ColorStops.Count)
         {
-            RemoveInputProperty(colorInput);
-            RemoveInputProperty(positionInput);
+            int diff = ColorStops.Count - StopsCount.Value;
+            var keysToRemove = ColorStops.Keys.TakeLast(diff).ToList();
+            foreach (var key in keysToRemove)
+            {
+                RemoveInputProperty(key);
+                RemoveInputProperty(ColorStops[key]);
+                ColorStops.Remove(key);
+            }
         }
 
-        ColorStops.Clear();
         GenerateStops();
     }
 
     private void GenerateStops()
     {
-        for (int i = 0; i < StopsCount.Value; i++)
+        int startIndex = ColorStops.Count;
+        for (int i = startIndex; i < StopsCount.Value; i++)
         {
             var colorInput = CreateInput<Color>($"ColorStop{i + 1}Color", $"COLOR_STOP_COLOR",
                 Drawie.Backend.Core.ColorsImpl.Colors.White);
