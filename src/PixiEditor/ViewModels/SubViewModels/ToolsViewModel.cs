@@ -63,6 +63,19 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         }
     }
 
+    public bool SelectionTintingEnabled
+    {
+        get => PixiEditorSettings.Tools.SelectionTintingEnabled.Value;
+        set
+        {
+            if (SelectionTintingEnabled == value)
+                return;
+
+            PixiEditorSettings.Tools.SelectionTintingEnabled.Value = value;
+            OnPropertyChanged();
+        }
+    }
+
     private Cursor? toolCursor;
 
     public Cursor? ToolCursor
@@ -118,6 +131,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     {
         owner.DocumentManagerSubViewModel.ActiveDocumentChanged += ActiveDocumentChanged;
         PixiEditorSettings.Tools.PrimaryToolset.ValueChanged += PrimaryToolsetOnValueChanged;
+        SubscribeSettingsValueChanged(PixiEditorSettings.Tools.SelectionTintingEnabled, nameof(SelectionTintingEnabled));
     }
 
     private void PrimaryToolsetOnValueChanged(Setting<string> setting, string? newPrimaryToolset)
@@ -173,6 +187,9 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
 
         OnPropertyChanged(nameof(NonSelectedToolSets));
     }
+
+    [Command.Basic("PixiEditor.Tools.ToggleSelectionTinting", "TOGGLE_TINTING_SELECTION", "TOGGLE_TINTING_SELECTION_DESCRIPTIVE", AnalyticsTrack = true)]
+    public void ToggleTintSelection() => SelectionTintingEnabled = !SelectionTintingEnabled;
 
     public void SetupToolsTooltipShortcuts()
     {
