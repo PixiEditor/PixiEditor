@@ -27,13 +27,13 @@ public interface INodeHandler : INotifyPropertyChanged, IDisposable
     public Rect UiSize { get; set; }
     public bool IsNodeSelected { get; set; }
     public string Icon { get; }
-    public void TraverseBackwards(Func<INodeHandler, bool> func);
-    public void TraverseBackwards(Func<INodeHandler, INodeHandler, bool> func);
-    public void TraverseBackwards(Func<INodeHandler, INodeHandler, INodePropertyHandler, bool> func);
-    public void TraverseForwards(Func<INodeHandler, bool> func);
-    public void TraverseForwards(Func<INodeHandler, INodeHandler, bool> func);
-    public void TraverseForwards(Func<INodeHandler, INodeHandler, INodePropertyHandler, bool> func);
-    public void TraverseForwards(Func<INodeHandler, INodeHandler, INodePropertyHandler, INodePropertyHandler, bool> func);
+    public void TraverseBackwards(Func<INodeHandler, Traverse> func);
+    public void TraverseBackwards(Func<INodeHandler, INodeHandler, Traverse> func);
+    public void TraverseBackwards(Func<INodeHandler, INodeHandler, INodePropertyHandler, Traverse> func);
+    public void TraverseForwards(Func<INodeHandler, Traverse> func);
+    public void TraverseForwards(Func<INodeHandler, INodeHandler, Traverse> func);
+    public void TraverseForwards(Func<INodeHandler, INodeHandler, INodePropertyHandler, Traverse> func);
+    public void TraverseForwards(Func<INodeHandler, INodeHandler, INodePropertyHandler, INodePropertyHandler, Traverse> func);
     public HashSet<NodeFrameViewModelBase> Frames { get; }
     public IReadOnlyDictionary<string, INodePropertyHandler> InputPropertyMap { get; }
     public IReadOnlyDictionary<string, INodePropertyHandler> OutputPropertyMap { get; }

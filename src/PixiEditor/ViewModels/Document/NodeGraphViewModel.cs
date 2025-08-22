@@ -156,15 +156,15 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
         node.TraverseBackwards(x =>
         {
             if (x is IPairNodeEndViewModel)
-                return false;
+                return Traverse.NoFurther;
 
             if (x is not IPairNodeStartViewModel)
-                return true;
+                return Traverse.Further;
 
             var zone = startLookup[x];
             currentlyPartOf.Add(zone);
 
-            return true;
+            return Traverse.Further;
         });
 
         foreach (var frame in currentlyPartOf)
@@ -203,14 +203,14 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
                      .SelectMany(x => x.ConnectedInputs)
                      .Select(x => x.Node))
         {
-            node.TraverseForwards((x, _, _) =>
+            node.TraverseForwards((x) =>
             {
                 if (x is IPairNodeEndViewModel)
-                    return false;
+                    return Traverse.NoFurther;
 
                 currentlyPartOf.Add(x);
 
-                return true;
+                return Traverse.Further;
             });
         }
 

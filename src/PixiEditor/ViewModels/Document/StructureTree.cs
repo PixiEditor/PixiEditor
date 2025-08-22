@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using PixiEditor.Models.Handlers;
+using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document;
 
@@ -60,7 +61,7 @@ internal class StructureTree
 
             _memberMap.TryAdd(node, lastRoot);
 
-            return true;
+            return Traverse.Further;
         });
 
         List<IStructureMemberHandler> toRemove = new();

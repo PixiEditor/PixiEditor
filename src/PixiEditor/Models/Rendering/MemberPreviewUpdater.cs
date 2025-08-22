@@ -8,6 +8,7 @@ using PixiEditor.Helpers;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
 using Drawie.Numerics;
+using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.Models.Rendering;
 
@@ -265,16 +266,16 @@ internal class MemberPreviewUpdater
         nodeVm.TraverseForwards(next =>
         {
             if (next is not INodeHandler nextVm)
-                return true;
+                return Traverse.Further;
 
             var nextNode = allNodes.FirstOrDefault(x => x.Id == next.Id);
 
             if (nextNode is null || actualRepaintedNodes.Contains(next.Id))
-                return true;
+                return Traverse.Further;
 
             RequestRepaintNode(nextNode, nextVm);
             actualRepaintedNodes.Add(next.Id);
-            return true;
+            return Traverse.Further;
         });
     }
 
