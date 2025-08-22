@@ -175,7 +175,8 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
         PixiEditorSettings.Scene.PrimaryBackgroundColor.ValueChanged += UpdateBackgroundBitmap;
         PixiEditorSettings.Scene.SecondaryBackgroundColor.ValueChanged += UpdateBackgroundBitmap;
 
-        previewPainterControl = new PreviewPainterControl(Document.PreviewPainter,
+        previewPainterControl = new PreviewPainterControl(
+            Document.MiniPreviewPainter,
             Document.AnimationDataViewModel.ActiveFrameTime.Frame);
         TabCustomizationSettings.Icon = previewPainterControl;
     }
@@ -187,9 +188,9 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
         {
             OnPropertyChanged(nameof(Title));
         }
-        else if (e.PropertyName == nameof(DocumentViewModel.PreviewPainter))
+        else if (e.PropertyName == nameof(DocumentViewModel.MiniPreviewPainter))
         {
-            previewPainterControl.PreviewPainter = Document.PreviewPainter;
+            previewPainterControl.PreviewPainter = Document.MiniPreviewPainter;
             previewPainterControl.FrameToRender = Document.AnimationDataViewModel.ActiveFrameTime.Frame;
         }
         else if (e.PropertyName == nameof(DocumentViewModel.AllChangesSaved))

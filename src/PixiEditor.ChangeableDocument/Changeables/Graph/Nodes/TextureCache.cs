@@ -14,7 +14,7 @@ public class TextureCache : IDisposable
     {
         if (_managedTextures.TryGetValue(id, out var texture))
         {
-            if (texture.Size != size || texture.IsDisposed || texture.ColorSpace != processingCs)
+            if (texture.Size != size || texture.IsDisposed || !texture.ColorSpace.Equals(processingCs))
             {
                 texture.Dispose();
                 texture = new Texture(CreateImageInfo(size, processingCs));
