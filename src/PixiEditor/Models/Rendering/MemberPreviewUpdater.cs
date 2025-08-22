@@ -9,6 +9,7 @@ using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
 using Drawie.Numerics;
 using PixiEditor.ViewModels.Nodes;
+using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.Models.Rendering;
 
@@ -27,13 +28,15 @@ internal class MemberPreviewUpdater
     }
 
     public void UpdatePreviews(HashSet<Guid> membersToUpdate,
-        HashSet<Guid> masksToUpdate, HashSet<Guid> nodesToUpdate, HashSet<Guid> keyFramesToUpdate)
+        HashSet<Guid> masksToUpdate, HashSet<Guid> nodesToUpdate, HashSet<Guid> keyFramesToUpdate,
+        bool ignoreAnimationPreviews, bool renderMiniPreviews)
     {
         if (!membersToUpdate.Any() && !masksToUpdate.Any() && !nodesToUpdate.Any() &&
             !keyFramesToUpdate.Any())
             return;
 
-        UpdatePreviewPainters(membersToUpdate, masksToUpdate, nodesToUpdate, keyFramesToUpdate);
+        UpdatePreviewPainters(membersToUpdate, masksToUpdate, nodesToUpdate, keyFramesToUpdate, ignoreAnimationPreviews,
+            renderMiniPreviews);
     }
 
     /// <summary>
@@ -42,13 +45,20 @@ internal class MemberPreviewUpdater
     /// <param name="members">Members that should be rendered</param>
     /// <param name="masksToUpdate">Masks that should be rendered</param>
     private void UpdatePreviewPainters(HashSet<Guid> members, HashSet<Guid> masksToUpdate,
-        HashSet<Guid> nodesToUpdate, HashSet<Guid> keyFramesToUpdate)
+        HashSet<Guid> nodesToUpdate, HashSet<Guid> keyFramesToUpdate, bool ignoreAnimationPreviews,
+        bool renderLowPriorityPreviews)
     {
-        RenderWholeCanvasPreview();
-        RenderLayersPreview(members);
-        RenderMaskPreviews(masksToUpdate);
+        RenderWholeCanvasPreview(renderLowPriorityPreviews);
+        if (renderLowPriorityPreviews)
+        {
+            RenderLayersPreview(members);
+            RenderMaskPreviews(masksToUpdate);
+        }
 
-        RenderAnimationPreviews(members, keyFramesToUpdate);
+        if (!ignoreAnimationPreviews)
+        {
+            RenderAnimationPreviews(members, keyFramesToUpdate);
+        }
 
         RenderNodePreviews(nodesToUpdate);
     }
@@ -56,21 +66,33 @@ internal class MemberPreviewUpdater
     /// <summary>
     /// Re-renders the preview of the whole canvas which is shown as the tab icon
     /// </summary>
-    private void RenderWholeCanvasPreview()
+    /// <param name="renderMiniPreviews">Decides whether to re-render mini previews for the document</param>
+    private void RenderWholeCanvasPreview(bool renderMiniPreviews)
     {
         var previewSize = StructureHelpers.CalculatePreviewSize(internals.Tracker.Document.Size);
         //float scaling = (float)previewSize.X / doc.SizeBindable.X;
 
-        if (doc.PreviewPainter == null)
-        {
-            doc.PreviewPainter = new PreviewPainter(doc.Renderer, doc.Renderer, doc.AnimationHandler.ActiveFrameTime,
-                doc.SizeBindable, internals.Tracker.Document.ProcessingColorSpace);
-        }
+        doc.PreviewPainter ??= new PreviewPainter(doc.Renderer, doc.Renderer, doc.AnimationHandler.ActiveFrameTime,
+            doc.SizeBindable, internals.Tracker.Document.ProcessingColorSpace);
 
-        doc.PreviewPainter.DocumentSize = doc.SizeBindable;
-        doc.PreviewPainter.ProcessingColorSpace = internals.Tracker.Document.ProcessingColorSpace;
-        doc.PreviewPainter.FrameTime = doc.AnimationHandler.ActiveFrameTime;
-        doc.PreviewPainter.Repaint();
+        UpdateDocPreviewPainter(doc.PreviewPainter);
+
+        if (!renderMiniPreviews)
+            return;
+
+        doc.MiniPreviewPainter ??= new PreviewPainter(doc.Renderer, doc.Renderer,
+            doc.AnimationHandler.ActiveFrameTime,
+            doc.SizeBindable, internals.Tracker.Document.ProcessingColorSpace);
+
+        UpdateDocPreviewPainter(doc.MiniPreviewPainter);
+    }
+
+    private void UpdateDocPreviewPainter(PreviewPainter painter)
+    {
+        painter.DocumentSize = doc.SizeBindable;
+        painter.ProcessingColorSpace = internals.Tracker.Document.ProcessingColorSpace;
+        painter.FrameTime = doc.AnimationHandler.ActiveFrameTime;
+        painter.Repaint();
     }
 
     private void RenderLayersPreview(HashSet<Guid> memberGuids)
@@ -117,7 +139,8 @@ internal class MemberPreviewUpdater
                 {
                     if (!keyFramesGuids.Contains(childFrame.Id))
                     {
-                        if (!memberGuids.Contains(childFrame.LayerGuid) || !IsInFrame(childFrame))
+                        if (!memberGuids.Contains(childFrame.LayerGuid) || !IsInFrame(childFrame) ||
+                            !groupHandler.IsVisible)
                             continue;
                     }
 
@@ -135,7 +158,7 @@ internal class MemberPreviewUpdater
     private bool IsInFrame(ICelHandler cel)
     {
         return cel.StartFrameBindable <= doc.AnimationHandler.ActiveFrameBindable &&
-               cel.StartFrameBindable + cel.DurationBindable >= doc.AnimationHandler.ActiveFrameBindable;
+               cel.StartFrameBindable + cel.DurationBindable > doc.AnimationHandler.ActiveFrameBindable;
     }
 
     private void RenderFramePreview(ICelHandler cel)
@@ -288,6 +311,7 @@ internal class MemberPreviewUpdater
                 nodeVm.ResultPainter = new PreviewPainter(doc.Renderer, renderable,
                     doc.AnimationHandler.ActiveFrameTime,
                     doc.SizeBindable, internals.Tracker.Document.ProcessingColorSpace);
+                nodeVm.ResultPainter.AllowPartialResolutions = false;
                 nodeVm.ResultPainter.Repaint();
             }
             else

@@ -6,6 +6,7 @@ using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.ChangeInfos;
 using Drawie.Backend.Core.Bridge;
+using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.Models.Handlers;
@@ -104,7 +105,8 @@ internal class ActionAccumulator
                 queuedActions = new();
 
                 List<IChangeInfo?> changes;
-                if (AreAllPassthrough(toExecute))
+                bool allPassthrough = AreAllPassthrough(toExecute);
+                if (allPassthrough)
                 {
                     changes = toExecute.Select(a => (IChangeInfo?)a.action).ToList();
                 }
@@ -119,6 +121,8 @@ internal class ActionAccumulator
                         action.action is ChangeBoundary_Action or Redo_Action or Undo_Action);
                 bool viewportRefreshRequest =
                     toExecute.Any(static action => action.action is RefreshViewport_PassthroughAction);
+                bool refreshPreviewsRequest =
+                    toExecute.Any(static action => action.action is RefreshPreviews_PassthroughAction);
                 bool changeFrameRequest =
                     toExecute.Any(static action => action.action is SetActiveFrame_PassthroughAction);
 
@@ -130,10 +134,12 @@ internal class ActionAccumulator
                 if (undoBoundaryPassed)
                     internals.Updater.AfterUndoBoundaryPassed();
 
+
                 var affectedAreas = new AffectedAreasGatherer(document.AnimationHandler.ActiveFrameTime,
                     internals.Tracker,
-                    optimizedChanges);
-                if (DrawingBackendApi.Current.IsHardwareAccelerated)
+                    optimizedChanges, refreshPreviewsRequest);
+
+                if (DrawingBackendApi.Current.IsHardwareAccelerated && !allPassthrough)
                 {
                     canvasUpdater.UpdateGatheredChunksSync(affectedAreas,
                         undoBoundaryPassed || viewportRefreshRequest);
@@ -144,10 +150,21 @@ internal class ActionAccumulator
                         undoBoundaryPassed || viewportRefreshRequest);
                 }*/
 
-                previewUpdater.UpdatePreviews(
-                    affectedAreas.ChangedMembers,
-                    affectedAreas.ChangedMasks,
-                    affectedAreas.ChangedNodes, affectedAreas.ChangedKeyFrames);
+                bool previewsDisabled = PixiEditorSettings.Performance.DisablePreviews.Value;
+
+                if (!previewsDisabled)
+                {
+                    if (undoBoundaryPassed || viewportRefreshRequest || changeFrameRequest ||
+                        document.SizeBindable.LongestAxis <= LiveUpdatePerformanceThreshold)
+                    {
+                        previewUpdater.UpdatePreviews(
+                            affectedAreas.ChangedMembers,
+                            affectedAreas.ChangedMasks,
+                            affectedAreas.ChangedNodes, affectedAreas.ChangedKeyFrames,
+                            affectedAreas.IgnoreAnimationPreviews,
+                            undoBoundaryPassed || refreshPreviewsRequest);
+                    }
+                }
 
                 // force refresh viewports for better responsiveness
                 foreach (var (_, value) in internals.State.Viewports)
@@ -174,6 +191,8 @@ internal class ActionAccumulator
             document.Busy = false;
         executing = false;
     }
+
+    private const int LiveUpdatePerformanceThreshold = 2048;
 
     private bool AreAllPassthrough(List<(ActionSource, IAction)> actions)
     {

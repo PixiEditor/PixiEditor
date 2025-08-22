@@ -62,7 +62,8 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
                 DrawLayerOnTexture(context, tempSurface.DrawingSurface, context.ChunkResolution, useFilters, targetPaint);
 
                 blendPaint.SetFilters(null);
-                DrawWithResolution(tempSurface.DrawingSurface, renderOnto, context.ChunkResolution);
+                DrawWithResolution(tempSurface.DrawingSurface, renderOnto, context.ChunkResolution,
+                    context.DesiredSamplingOptions);
             }
 
             return;
@@ -130,7 +131,8 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
             blendPaint.SetFilters(null);
         }
 
-        DrawWithResolution(outputWorkingSurface.DrawingSurface, renderOnto, adjustedResolution);
+        DrawWithResolution(outputWorkingSurface.DrawingSurface, renderOnto, adjustedResolution,
+            context.DesiredSamplingOptions);
 
         renderOnto.Canvas.RestoreToCount(saved);
         outputWorkingSurface.DrawingSurface.Canvas.Restore();
@@ -149,13 +151,21 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
         workingSurface.Canvas.RestoreToCount(scaled);
     }
 
-    private void DrawWithResolution(DrawingSurface source, DrawingSurface target, ChunkResolution resolution)
+    private void DrawWithResolution(DrawingSurface source, DrawingSurface target, ChunkResolution resolution, SamplingOptions sampling)
     {
         int scaled = target.Canvas.Save();
         float multiplier = (float)resolution.InvertedMultiplier();
         target.Canvas.Scale(multiplier, multiplier);
 
-        target.Canvas.DrawSurface(source, 0, 0, blendPaint);
+        if (sampling == SamplingOptions.Default)
+        {
+            target.Canvas.DrawSurface(source, 0, 0, blendPaint);
+        }
+        else
+        {
+            using var snapshot = source.Snapshot();
+            target.Canvas.DrawImage(snapshot, 0, 0, sampling, blendPaint);
+        }
 
         target.Canvas.RestoreToCount(scaled);
     }

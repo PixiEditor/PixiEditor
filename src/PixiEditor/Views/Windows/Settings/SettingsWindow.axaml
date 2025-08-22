@@ -369,7 +369,7 @@
                         <!--Background="{StaticResource AccentColor}"-->
                         <controls:FixedSizeStackPanel Orientation="Vertical" ChildSize="32"
                                                       VerticalChildrenAlignment="Center" Margin="12">
-
+                            <TextBlock ui:Translator.Key="EXPORT" Classes="h5" />
                             <CheckBox Classes="leftOffset" Width="200" HorizontalAlignment="Left"
                                       ui:Translator.Key="OPEN_DIRECTORY_ON_EXPORT"
                                       IsChecked="{Binding SettingsSubViewModel.File.OpenDirectoryOnExport}" />
@@ -387,7 +387,7 @@
                         <controls:FixedSizeStackPanel Orientation="Vertical" ChildSize="32"
                                                       VerticalChildrenAlignment="Center" Margin="12">
 
-                            <TextBlock ui:Translator.Key="BACKGROUND" Classes="h4" />
+                            <TextBlock ui:Translator.Key="BACKGROUND" Classes="h5" />
 
                             <CheckBox Classes="leftOffset" Width="200" HorizontalAlignment="Left"
                                       ui:Translator.Key="AUTO_SCALE_BACKGROUND"
@@ -421,6 +421,43 @@
                                 d:Content="Reset"
                                 Background="{DynamicResource ThemeAccentBrush}"
                                 ui:Translator.Key="RESET" />
+                        </controls:FixedSizeStackPanel>
+                    </ScrollViewer>
+                    <ScrollViewer>
+                        <ScrollViewer.IsVisible>
+                            <Binding Path="CurrentPage" Converter="{converters:IsEqualConverter}">
+                                <Binding.ConverterParameter>
+                                    <sys:Int32>6</sys:Int32>
+                                </Binding.ConverterParameter>
+                            </Binding>
+                        </ScrollViewer.IsVisible>
+                        <!--Background="{StaticResource AccentColor}"-->
+                        <controls:FixedSizeStackPanel Orientation="Vertical" ChildSize="32"
+                                                      VerticalChildrenAlignment="Center" Margin="12">
+                            <TextBlock ui:Translator.Key="PERFORMANCE" Classes="h5" />
+
+                            <CheckBox Classes="leftOffset" Width="200" HorizontalAlignment="Left"
+                                      ui:Translator.Key="DISABLE_PREVIEWS"
+                                      IsChecked="{Binding SettingsSubViewModel.Performance.DisablePreviews}" />
+
+                            <StackPanel Orientation="Horizontal" Classes="leftOffset">
+                                <Label d:Content="Height" ui:Translator.Key="MAX_BILINEAR_CANVAS_SIZE" />
+                                <controls:SizeInput
+                                    Size="{Binding SettingsSubViewModel.Performance.MaxBilinearSize, Mode=TwoWay}"
+                                    MinSize="0"
+                                    MaxSize="99999" HorizontalAlignment="Left" />
+                                <TextBlock Cursor="Help"
+                                           Classes="pixi-icon"
+                                           Text="{DynamicResource icon-help}"
+                                           FontSize="24"
+                                           Margin="5, 0, 0, 0"
+                                           VerticalAlignment="Center"
+                                           ToolTip.ShowDelay="0">
+                                    <ToolTip.Tip>
+                                        <TextBlock TextWrapping="Wrap" MaxWidth="200" ui:Translator.Key="MAX_BILINEAR_CANVAS_SIZE_DESC" />
+                                    </ToolTip.Tip>
+                                </TextBlock>
+                            </StackPanel>
                         </controls:FixedSizeStackPanel>
                     </ScrollViewer>
                 </Grid>

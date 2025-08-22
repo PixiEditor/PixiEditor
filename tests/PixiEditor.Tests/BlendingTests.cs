@@ -1,12 +1,13 @@
 using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
-using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.ChangeableDocument.Rendering;
+using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 
 namespace PixiEditor.Tests;
 
@@ -58,7 +59,7 @@ public class BlendingTests : PixiEditorTest
         secondImageLayer.BlendMode.NonOverridenValue = blendMode;
 
         Surface output = Surface.ForProcessing(VecI.One, ColorSpace.CreateSrgbLinear());
-        graph.Execute(new RenderContext(output.DrawingSurface, 0, ChunkResolution.Full, VecI.One, VecI.One, ColorSpace.CreateSrgbLinear(), 1));
+        graph.Execute(new RenderContext(output.DrawingSurface, 0, ChunkResolution.Full, VecI.One, VecI.One, ColorSpace.CreateSrgbLinear(), SamplingOptions.Default, 1));
 
         Color result = output.GetSrgbPixel(VecI.Zero);
         Assert.Equal(expectedColor, result.ToRgbHex());

@@ -4,6 +4,7 @@ using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Surfaces;
 using Drawie.Numerics;
 using PixiEditor.Models.IO;
 using Xunit.Abstractions;
@@ -89,7 +90,7 @@ public class RenderTests : FullPixiEditorTest
 
         var document = Importer.ImportDocument(pixiFile);
         using Surface output = Surface.ForDisplay(document.SizeBindable);
-        document.SceneRenderer.RenderScene(output.DrawingSurface, ChunkResolution.Half);
+        document.SceneRenderer.RenderScene(output.DrawingSurface, ChunkResolution.Half, SamplingOptions.Default);
 
         Color expectedColor = Colors.Yellow;
 
