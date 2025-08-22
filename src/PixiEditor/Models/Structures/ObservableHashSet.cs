@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Immutable;
 using System.Collections.Specialized;
 using System.Runtime.Serialization;
 
@@ -35,7 +36,7 @@ public class ObservableHashSet<T> : ISet<T>, IReadOnlySet<T>, IDeserializationCa
     public void Clear()
     {
         setImplementation.Clear();
-        CallCollectionChanged(NotifyCollectionChangedAction.Reset);
+        CallCollectionChanged(NotifyCollectionChangedAction.Reset, Array.Empty<T>(), setImplementation.ToList());
     }
 
     public bool Remove(T item)
@@ -50,28 +51,53 @@ public class ObservableHashSet<T> : ISet<T>, IReadOnlySet<T>, IDeserializationCa
         return isRemoved;
     }
 
+    /// <summary>
+    /// Not implemented
+    /// </summary>
+    /// <exception cref="NotSupportedException">This method is not implemented.</exception>
     public void ExceptWith(IEnumerable<T> other)
     {
-        setImplementation.ExceptWith(other);
-        CallCollectionChanged(NotifyCollectionChangedAction.Reset);
+        throw new NotSupportedException();
     }
 
+    /// <summary>
+    /// Not implemented
+    /// </summary>
+    /// <exception cref="NotSupportedException">This method is not implemented.</exception>
     public void IntersectWith(IEnumerable<T> other)
     {
-        setImplementation.IntersectWith(other);
-        CallCollectionChanged(NotifyCollectionChangedAction.Reset);
+        throw new NotSupportedException();
     }
 
+    /// <summary>
+    /// Not implemented
+    /// </summary>
+    /// <exception cref="NotSupportedException">This method is not implemented.</exception>
     public void SymmetricExceptWith(IEnumerable<T> other)
     {
-        setImplementation.SymmetricExceptWith(other);
-        CallCollectionChanged(NotifyCollectionChangedAction.Reset);
+        throw new NotSupportedException();
     }
 
     public void UnionWith(IEnumerable<T> other)
     {
-        setImplementation.UnionWith(other);
-        CallCollectionChanged(NotifyCollectionChangedAction.Reset);
+        var allOther = other.ToImmutableHashSet();
+        var addedOnly = allOther.Except(setImplementation);
+        
+        setImplementation.UnionWith(allOther);
+        CallCollectionChanged(
+            NotifyCollectionChangedAction.Reset, 
+            addedOnly.ToList());
+    }
+
+    public void ReplaceBy(IEnumerable<T> other)
+    {
+        var otherOriginal = other.ToHashSet();
+        var original = setImplementation.ToImmutableHashSet();
+        var removed = original.Except(otherOriginal);
+
+        setImplementation.Clear();
+        setImplementation.UnionWith(otherOriginal);
+        CallCollectionChanged(NotifyCollectionChangedAction.Replace, otherOriginal.ToList(), removed.ToList());
     }
 
     public bool IsProperSubsetOf(IEnumerable<T> other) => setImplementation.IsProperSubsetOf(other);
@@ -105,6 +131,12 @@ public class ObservableHashSet<T> : ISet<T>, IReadOnlySet<T>, IDeserializationCa
     private void CallCollectionChanged(NotifyCollectionChangedAction action) =>
         CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(action));
     
+    private void CallCollectionChanged(NotifyCollectionChangedAction action, IList added, IList removed) =>
+        CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(action, added, removed));
+
+    private void CallCollectionChanged(NotifyCollectionChangedAction action, IList changed) =>
+        CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(action, changed));
+
     private void CallCollectionChanged(NotifyCollectionChangedAction action, T item) =>
         CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(action, item));
 

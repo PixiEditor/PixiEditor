@@ -19,6 +19,8 @@ namespace PixiEditor.ViewModels.Document;
 
 internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposable
 {
+    private bool isFullyCreated;
+    
     public DocumentViewModel DocumentViewModel { get; }
     public ObservableCollection<INodeHandler> AllNodes { get; } = new();
     public ObservableCollection<NodeConnectionViewModel> Connections { get; } = new();
@@ -142,8 +144,11 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
         StructureTree.Update(this);
     }
 
-    private void UpdatesFramesPartOf(INodeHandler node)
+    public void UpdatesFramesPartOf(INodeHandler node)
     {
+        if (!isFullyCreated)
+            return;
+
         var lastKnownFramesPartOf = node.Frames.OfType<NodeZoneViewModel>().ToHashSet();
         var startLookup = Frames.OfType<NodeZoneViewModel>().ToDictionary(x => x.Start);
         var currentlyPartOf = new HashSet<NodeZoneViewModel>();
@@ -174,6 +179,42 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
             removedFrom.Nodes.Remove(node);
             node.Frames.Remove(removedFrom);
         }
+    }
+
+    public void FinalizeCreation()
+    {
+        if (isFullyCreated)
+            return;
+        
+        isFullyCreated = true;
+        
+        foreach (var nodeZoneViewModel in Frames.OfType<NodeZoneViewModel>())
+        {
+            UpdateNodesPartOf(nodeZoneViewModel);
+        }
+    }
+
+    private static void UpdateNodesPartOf(NodeZoneViewModel zone)
+    {
+        var currentlyPartOf = new HashSet<INodeHandler>([zone.Start, zone.End]);
+
+        foreach (var node in zone.Start
+                     .Outputs
+                     .SelectMany(x => x.ConnectedInputs)
+                     .Select(x => x.Node))
+        {
+            node.TraverseForwards((x, _, _) =>
+            {
+                if (x is IPairNodeEndViewModel)
+                    return false;
+
+                currentlyPartOf.Add(x);
+
+                return true;
+            });
+        }
+
+        zone.Nodes.ReplaceBy(currentlyPartOf);
     }
 
     public void RemoveConnections(Guid nodeId)

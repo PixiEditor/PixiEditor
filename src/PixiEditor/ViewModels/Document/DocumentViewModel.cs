@@ -379,6 +379,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             factory.ResourceLocator = null;
         }
 
+        viewModel.NodeGraph.FinalizeCreation();
+
         return viewModel;
 
 
