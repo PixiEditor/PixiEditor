@@ -1,6 +1,7 @@
 ﻿using Avalonia.Input;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Vector;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
@@ -30,7 +31,7 @@ internal class BrightnessToolViewModel : ToolViewModel, IBrightnessToolHandler
     public override bool IsErasable => true;
     public override LocalizedString Tooltip => new LocalizedString("BRIGHTNESS_TOOL_TOOLTIP", Shortcut);
 
-    public override BrushShape FinalBrushShape => BrushShape == PaintBrushShape.Square ? Views.Overlays.BrushShapeOverlay.BrushShape.Square : Views.Overlays.BrushShapeOverlay.BrushShape.CirclePixelated;
+    //TODO: BrushShape == PaintBrushShape.Square ? Views.Overlays.BrushShapeOverlay.BrushShape.Square : Views.Overlays.BrushShapeOverlay.BrushShape.CirclePixelated;
 
     public override string DefaultIcon => PixiPerfectIcons.Sun;
 

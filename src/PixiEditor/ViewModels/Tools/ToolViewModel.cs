@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using Avalonia.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Vector;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.Input;
@@ -18,6 +19,7 @@ namespace PixiEditor.ViewModels.Tools;
 internal abstract class ToolViewModel : ObservableObject, IToolHandler
 {
     private bool canBeUsedOnActiveLayerOnActiveLayer = true;
+    private VectorPath? brushShape;
     public bool IsTransient { get; set; } = false;
     public KeyCombination Shortcut { get; set; }
 
@@ -28,7 +30,11 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
 
     public virtual string DefaultIcon => PixiPerfectIcons.Placeholder;
 
-    public virtual BrushShape FinalBrushShape => BrushShape.Square;
+    public VectorPath? FinalBrushShape
+    {
+        get => brushShape;
+        set => SetProperty(ref brushShape, value);
+    }
 
     public abstract Type[]? SupportedLayerTypes { get; }
 

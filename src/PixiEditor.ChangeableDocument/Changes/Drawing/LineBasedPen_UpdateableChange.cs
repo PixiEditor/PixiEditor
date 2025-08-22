@@ -13,6 +13,7 @@ using PixiEditor.ChangeableDocument.Changeables.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
+using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.ChangeableDocument.Rendering.ContextData;
 
@@ -124,10 +125,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         {
             brushData = new BrushData(brushData.BrushGraph)
             {
-                StrokeWidth = strokeWidth,
-                AntiAliasing = antiAliasing,
-                Hardness = hardness,
-                Spacing = spacing,
+                StrokeWidth = strokeWidth, AntiAliasing = antiAliasing, Hardness = hardness, Spacing = spacing,
             };
         }
     }
@@ -154,7 +152,8 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
             brushData.Spacing = spacing;
             brushData.StrokeWidth = strokeWidth;
 
-            engine.ExecuteBrush(image, brushData, point, frame, target.ProcessingColorSpace, SamplingOptions.Default, pointerInfo);
+            engine.ExecuteBrush(image, brushData, point, frame, target.ProcessingColorSpace, SamplingOptions.Default,
+                pointerInfo);
 
             /*if (brushData.VectorShape == null)
             {
@@ -190,7 +189,15 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
 
         var affChunks = image.FindAffectedArea(opCount);
 
-        return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affChunks, drawOnMask);
+        var changeInfo = DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affChunks, drawOnMask);
+        List<IChangeInfo> changes = new()
+        {
+            changeInfo.AsT1,
+            new ComputedPropertyValue_ChangeInfo(brushOutputGuid, "VectorShape", true,
+                brushOutputNode.VectorShape.Value)
+        };
+
+        return changes;
     }
 
     private void FastforwardEnqueueDrawLines(ChunkyImage targetImage, KeyFrameTime frameTime)
@@ -205,7 +212,8 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
             var rect = new RectI(points[0] - new VecI((int)(strokeWidth / 2f)), new VecI((int)strokeWidth));
             finalPaintable = color;
 
-            engine.ExecuteBrush(targetImage, brushData, points[0], frameTime, targetImage.ProcessingColorSpace, SamplingOptions.Default, pointerInfo);
+            engine.ExecuteBrush(targetImage, brushData, points[0], frameTime, targetImage.ProcessingColorSpace,
+                SamplingOptions.Default, pointerInfo);
 
             return;
         }
@@ -223,7 +231,8 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
             var rect = new RectI(points[i] - new VecI((int)(strokeWidth / 2f)), new VecI((int)strokeWidth));
             finalPaintable = color;
 
-            engine.ExecuteBrush(targetImage, brushData, points[i], frameTime, targetImage.ProcessingColorSpace, SamplingOptions.Default, pointerInfo);
+            engine.ExecuteBrush(targetImage, brushData, points[i], frameTime, targetImage.ProcessingColorSpace,
+                SamplingOptions.Default, pointerInfo);
         }
     }
 
@@ -258,7 +267,14 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
             storedChunks = new CommittedChunkStorage(image, affArea.Chunks);
             image.CommitChanges();
 
-            return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affArea, drawOnMask);
+            var change = DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affArea, drawOnMask).AsT1;
+            List<IChangeInfo> changes = new()
+            {
+                change,
+                new ComputedPropertyValue_ChangeInfo(brushOutputGuid, "VectorShape", true,
+                    brushOutputNode?.VectorShape.Value)
+            };
+            return changes;
         }
         else
         {
@@ -271,7 +287,16 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
             storedChunks = new CommittedChunkStorage(image, affArea.Chunks);
             image.CommitChanges();
 
-            return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affArea, drawOnMask);
+            IChangeInfo info = DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affArea, drawOnMask).AsT1;
+
+            List<IChangeInfo> changes = new()
+            {
+                info,
+                new ComputedPropertyValue_ChangeInfo(brushOutputGuid, "VectorShape", true,
+                    brushOutputNode?.VectorShape.Value)
+            };
+
+            return changes;
         }
     }
 

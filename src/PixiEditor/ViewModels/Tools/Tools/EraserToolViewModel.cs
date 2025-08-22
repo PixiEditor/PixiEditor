@@ -1,6 +1,7 @@
 ﻿using Avalonia.Input;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Vector;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
@@ -27,7 +28,7 @@ internal class EraserToolViewModel : ToolViewModel, IEraserToolHandler
     public override bool IsErasable => true;
 
     public override string ToolNameLocalizationKey => "ERASER_TOOL";
-    public override BrushShape FinalBrushShape => PaintShape == PaintBrushShape.Square ? BrushShape.Square : BrushShapeSetting;
+    //TODO: PaintShape == PaintBrushShape.Square ? BrushShape.Square : BrushShapeSetting;
     public override Type[]? SupportedLayerTypes { get; } = { typeof(IRasterLayerHandler) };
 
     public override string DefaultIcon => PixiPerfectIcons.Eraser;

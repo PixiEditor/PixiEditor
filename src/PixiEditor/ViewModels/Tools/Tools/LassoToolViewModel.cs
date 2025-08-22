@@ -1,6 +1,7 @@
 ﻿using Avalonia.Input;
 using PixiEditor.ChangeableDocument.Enums;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Vector;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Handlers.Tools;
 using Drawie.Numerics;
@@ -50,8 +51,9 @@ internal class LassoToolViewModel : ToolViewModel, ILassoToolHandler
 
     public override string ToolNameLocalizationKey => "LASSO_TOOL";
     public override string DefaultIcon => PixiPerfectIcons.Lasso;
-    public override BrushShape FinalBrushShape => BrushShape.Pixel;
-    
+
+    //TODO: BrushShape.Pixel;
+
     public override Type[]? SupportedLayerTypes { get; } = null; // all layer types are supported
 
     [Settings.Enum("MODE_LABEL")]

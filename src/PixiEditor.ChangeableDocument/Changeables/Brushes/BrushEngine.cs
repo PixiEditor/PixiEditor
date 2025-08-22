@@ -79,6 +79,7 @@ internal class BrushEngine
 
         var fill = brushNode.Fill.Value;
         var stroke = brushNode.Stroke.Value;
+        var paintable = fill;
 
         if (fill != null && fill.AnythingVisible)
         {
@@ -87,6 +88,7 @@ internal class BrushEngine
         else
         {
             strokeStyle = PaintStyle.Stroke;
+            paintable = stroke;
         }
 
         if (vectorShape is PathVectorData pathData)
@@ -94,7 +96,7 @@ internal class BrushEngine
             strokeCap = pathData.StrokeLineCap;
         }
 
-        target.EnqueueDrawPath(path, fill, vectorShape.StrokeWidth,
+        target.EnqueueDrawPath(path, paintable, vectorShape.StrokeWidth,
             strokeCap, brushData.BlendMode, strokeStyle, brushData.AntiAliasing);
 
         if (fill is { AnythingVisible: true } && stroke is { AnythingVisible: true })

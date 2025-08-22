@@ -1,4 +1,5 @@
 ﻿using Avalonia.Input;
+using Drawie.Backend.Core.Vector;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Models.Commands.Attributes.Commands;
@@ -22,9 +23,10 @@ namespace PixiEditor.ViewModels.Tools.Tools
 
         public override string ToolNameLocalizationKey => "PEN_TOOL";
 
-        public override BrushShape FinalBrushShape =>
+            /*
             PaintShape == PaintBrushShape.Square ? BrushShape.Square : BrushShapeSetting;
-        
+            */
+
         public override Type[]? SupportedLayerTypes { get; } = { typeof(IRasterLayerHandler) };
 
         public PenToolViewModel()
@@ -70,6 +72,21 @@ namespace PixiEditor.ViewModels.Tools.Tools
         }
 
         public override void UseTool(VecD pos)
+        {
+            ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UsePenTool();
+        }
+
+        public void OnToolSelected(bool restoring)
+        {
+            ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UsePenTool();
+        }
+
+        public void OnPostUndoInlet()
+        {
+            ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UsePenTool();
+        }
+
+        public override void OnPostRedoInlet()
         {
             ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UsePenTool();
         }
@@ -147,7 +164,7 @@ namespace PixiEditor.ViewModels.Tools.Tools
                 }
             }
         }
-        
+
         private void BrushShapeChanged()
         {
             OnPropertyChanged(nameof(FinalBrushShape));

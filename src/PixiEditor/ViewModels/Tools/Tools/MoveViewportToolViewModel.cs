@@ -1,6 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Input;
 using Avalonia.Media.Imaging;
+using Drawie.Backend.Core.Vector;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Commands.Attributes.Commands;
@@ -14,7 +15,6 @@ namespace PixiEditor.ViewModels.Tools.Tools;
 internal class MoveViewportToolViewModel : ToolViewModel
 {
     public override string ToolNameLocalizationKey => "MOVE_VIEWPORT_TOOL";
-    public override BrushShape FinalBrushShape => BrushShape.Hidden;
     public override Type[]? SupportedLayerTypes { get; } = null;
     public override Type LayerTypeToCreateOnEmptyUse { get; } = null;
     public override bool HideHighlight => true;

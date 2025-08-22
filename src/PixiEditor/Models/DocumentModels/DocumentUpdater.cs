@@ -903,14 +903,15 @@ internal class DocumentUpdater
     private void ProcessComputedPropertyValue(ComputedPropertyValue_ChangeInfo info)
     {
         object finalValue = info.Value;
-        if (info.Value != null && !info.Value.GetType().IsValueType && info.Value is not string)
+        // TODO: Why to string???
+        /*if (info.Value != null && !info.Value.GetType().IsValueType && info.Value is not string)
         {
             bool valueToStringIsDefault = info.Value.GetType().FullName == info.Value.ToString();
             if (valueToStringIsDefault)
             {
                 finalValue = info.Value?.GetType().Name ?? finalValue;
             }
-        }
+        }*/
 
         NodeViewModel node = doc.StructureHelper.FindNode<NodeViewModel>(info.Node);
         INodePropertyHandler property;

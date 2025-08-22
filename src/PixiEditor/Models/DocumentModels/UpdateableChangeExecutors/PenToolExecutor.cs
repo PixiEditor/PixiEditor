@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.Actions;
+﻿using Avalonia.Input;
+using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Vector;
@@ -9,7 +10,13 @@ using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Brushes;
+using PixiEditor.ChangeableDocument.Changeables.Graph;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.Models.Controllers.InputDevice;
+using PixiEditor.ViewModels.Document.Nodes.Brushes;
+using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable
@@ -19,6 +26,7 @@ internal class PenToolExecutor : UpdateableChangeExecutor
     private Color color;
     public double ToolSize => penToolbar.ToolSize;
     public bool SquareBrush => penToolbar.PaintShape == PaintBrushShape.Square;
+    public override bool BlocksOtherActions => controller.LeftMousePressed;
 
     private bool drawOnMask;
     private bool pixelPerfect;
@@ -28,8 +36,10 @@ internal class PenToolExecutor : UpdateableChangeExecutor
     private bool transparentErase;
 
     private Guid brushOutputGuid = Guid.Empty;
+    private INodePropertyHandler vectorShapeInput;
 
     private IPenToolbar penToolbar;
+    private IPenToolHandler handler;
 
     public override ExecutionState Start()
     {
@@ -45,6 +55,7 @@ internal class PenToolExecutor : UpdateableChangeExecutor
         if (!drawOnMask && member is not ILayerHandler)
             return ExecutionState.Error;
 
+        handler = penTool;
         penToolbar = toolbar;
         guidValue = member.Id;
         color = colorsHandler.PrimaryColor;
@@ -58,27 +69,81 @@ internal class PenToolExecutor : UpdateableChangeExecutor
             colorsHandler.AddSwatch(new PaletteColor(color.R, color.G, color.B));
         }
 
-        brushOutputGuid = document.NodeGraphHandler.AllNodes.FirstOrDefault(x => x.InternalName == "PixiEditor.BrushOutput")?.Id ?? Guid.Empty;
+        brushOutputGuid =
+            document.NodeGraphHandler.AllNodes.FirstOrDefault(x => x.InternalName == "PixiEditor.BrushOutput")?.Id ??
+            Guid.Empty;
+        if (brushOutputGuid == Guid.Empty)
+            return ExecutionState.Error;
+
+        vectorShapeInput =
+            (document.NodeGraphHandler.NodeLookup[brushOutputGuid] as BrushOutputNodeViewModel).Inputs
+            .FirstOrDefault(x => x.PropertyName == "VectorShape");
 
         transparentErase = color.A == 0;
-        IAction? action = pixelPerfect switch
+        vectorShapeInput.UpdateComputedValue();
+        if (controller.LeftMousePressed)
         {
-            false => new LineBasedPen_Action(guidValue, color, controller!.LastPixelPosition, (float)ToolSize, transparentErase, antiAliasing, hardness, spacing, brushOutputGuid, drawOnMask, document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo),
-            true => new PixelPerfectPen_Action(guidValue, controller!.LastPixelPosition, color, drawOnMask, document!.AnimationHandler.ActiveFrameBindable)
-        };
-        internals!.ActionAccumulator.AddActions(action);
+            IAction? action = pixelPerfect switch
+            {
+                false => new LineBasedPen_Action(guidValue, color, controller!.LastPixelPosition, (float)ToolSize,
+                    transparentErase, antiAliasing, hardness, spacing, brushOutputGuid, drawOnMask,
+                    document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo),
+                true => new PixelPerfectPen_Action(guidValue, controller!.LastPixelPosition, color, drawOnMask,
+                    document!.AnimationHandler.ActiveFrameBindable)
+            };
+            internals!.ActionAccumulator.AddActions(action);
+        }
+
+        handler.FinalBrushShape = (vectorShapeInput.ComputedValue as IReadOnlyShapeVectorData)?.ToPath(true);
 
         return ExecutionState.Success;
     }
 
-    public override void OnPixelPositionChange(VecI pos, MouseOnCanvasEventArgs args)
+    public override void OnLeftMouseButtonDown(MouseOnCanvasEventArgs args)
     {
+        base.OnLeftMouseButtonDown(args);
         IAction? action = pixelPerfect switch
         {
-            false => new LineBasedPen_Action(guidValue, color, pos, (float)ToolSize, transparentErase, antiAliasing, hardness, spacing, brushOutputGuid, drawOnMask, document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo),
-            true => new PixelPerfectPen_Action(guidValue, pos, color, drawOnMask, document!.AnimationHandler.ActiveFrameBindable)
+            false => new LineBasedPen_Action(guidValue, color, controller!.LastPixelPosition, (float)ToolSize,
+                transparentErase, antiAliasing, hardness, spacing, brushOutputGuid, drawOnMask,
+                document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo),
+            true => new PixelPerfectPen_Action(guidValue, controller!.LastPixelPosition, color, drawOnMask,
+                document!.AnimationHandler.ActiveFrameBindable)
         };
         internals!.ActionAccumulator.AddActions(action);
+    }
+
+    public override void OnPrecisePositionChange(MouseOnCanvasEventArgs args)
+    {
+        base.OnPrecisePositionChange(args);
+        if (!controller.LeftMousePressed)
+        {
+            vectorShapeInput.UpdateComputedValue();
+        }
+
+        handler.FinalBrushShape = (vectorShapeInput.ComputedValue as IReadOnlyShapeVectorData)?.ToPath(true);
+    }
+
+    public override void OnPixelPositionChange(VecI pos, MouseOnCanvasEventArgs args)
+    {
+        if (controller.LeftMousePressed)
+        {
+            IAction? action = pixelPerfect switch
+            {
+                false => new LineBasedPen_Action(guidValue, color, pos, (float)ToolSize, transparentErase, antiAliasing,
+                    hardness, spacing, brushOutputGuid, drawOnMask, document!.AnimationHandler.ActiveFrameBindable,
+                    controller.LastPointerInfo),
+                true => new PixelPerfectPen_Action(guidValue, pos, color, drawOnMask,
+                    document!.AnimationHandler.ActiveFrameBindable)
+            };
+            internals!.ActionAccumulator.AddActions(action);
+        }
+    }
+
+    public override void OnConvertedKeyDown(Key key)
+    {
+        base.OnConvertedKeyDown(key);
+        handler.FinalBrushShape = (vectorShapeInput.ComputedValue as IReadOnlyShapeVectorData)?.ToPath(true);
     }
 
     public override void OnLeftMouseButtonUp(VecD argsPositionOnCanvas)
@@ -90,7 +155,6 @@ internal class PenToolExecutor : UpdateableChangeExecutor
         };
 
         internals!.ActionAccumulator.AddFinishedActions(action);
-        onEnded?.Invoke(this);
     }
 
     public override void ForceStop()
