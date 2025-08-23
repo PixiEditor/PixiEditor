@@ -1123,5 +1123,8 @@
   "FIRST_POSITION": "First position",
   "LAST_POSITION": "Last position",
   "MATCH_CASE": "Match case",
-  "SEARCH_TEXT": "Search text"
+  "SEARCH_TEXT": "Search text",
+  "TEXT_INFO_NODE": "Text info",
+  "TEXT_LENGTH": "Length",
+  "TEXT_LINE_COUNT": "Line count"
 }
