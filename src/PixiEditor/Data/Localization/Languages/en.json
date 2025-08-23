@@ -1126,5 +1126,6 @@
   "SEARCH_TEXT": "Search text",
   "TEXT_INFO_NODE": "Text info",
   "TEXT_LENGTH": "Length",
-  "TEXT_LINE_COUNT": "Line count"
+  "TEXT_LINE_COUNT": "Line count",
+  "TEXT_SLICE_USE_LENGTH": "Use length"
 }

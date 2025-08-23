@@ -7,6 +7,8 @@ public class SliceTextNode : Node
 {
     public OutputProperty<string> SlicedText { get; }
     
+    public InputProperty<bool> UseLength { get; }
+    
     public InputProperty<string> Text { get; }
     
     public InputProperty<int> Index { get; }
@@ -17,6 +19,7 @@ public class SliceTextNode : Node
     {
         SlicedText = CreateOutput("SlicedText", "TEXT", string.Empty);
         Text = CreateInput("Text", "TEXT", string.Empty);
+        UseLength = CreateInput("UseLength", "TEXT_SLICE_USE_LENGTH", true);
         
         Index = CreateInput("Index", "INDEX_START_AT", 0)
             .WithRules(x => x.Min(0));
@@ -27,12 +30,18 @@ public class SliceTextNode : Node
 
     protected override void OnExecute(RenderContext context)
     {
-        var textLength = Text.Value.Length;
+        var text = Text.Value;
+        var startIndex = Math.Clamp(Index.Value, 0, text.Length);
 
-        var startIndex = Math.Clamp(Index.Value, 0, textLength);
-        var length = Math.Clamp(Length.Value, 0, textLength - startIndex);
+        if (!UseLength.Value)
+        {
+            SlicedText.Value = text.Substring(startIndex);
+            return;
+        }
+
+        var length = Math.Clamp(Length.Value, 0, text.Length - startIndex);
         
-        SlicedText.Value = Text.Value.Substring(startIndex, length);
+        SlicedText.Value = text.Substring(startIndex, length);
     }
 
     public override Node CreateCopy() =>
