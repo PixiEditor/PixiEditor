@@ -27,9 +27,12 @@ public class SliceTextNode : Node
 
     protected override void OnExecute(RenderContext context)
     {
-        SlicedText.Value = Text.Value.Substring(
-            Math.Min(Index.Value, Text.Value.Length - 1),
-            Math.Min(Length.Value, Text.Value.Length));
+        var textLength = Text.Value.Length;
+
+        var startIndex = Math.Clamp(Index.Value, 0, textLength);
+        var length = Math.Clamp(Length.Value, 0, textLength - startIndex);
+        
+        SlicedText.Value = Text.Value.Substring(startIndex, length);
     }
 
     public override Node CreateCopy() =>
