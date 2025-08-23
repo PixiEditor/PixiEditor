@@ -1117,7 +1117,7 @@
   "MAX_BILINEAR_CANVAS_SIZE": "Max Bilinear Canvas Size",
   "MAX_BILINEAR_CANVAS_SIZE_DESC": "Maximum canvas size for bilinear filtering. Set to 0 to disable bilinear filtering. Bilinear filtering improves the quality of the canvas, but can cause performance issues on large canvases.",
   "INVERT_MASK": "Invert mask",
-  "SLICE_TEXT": "Slice text",
+  "SLICE_TEXT_NODE": "Slice text",
   "INDEX_START_AT": "Start at",
   "CHARACTER_POSITION_NODE": "Character Position",
   "FIRST_POSITION": "First position",
