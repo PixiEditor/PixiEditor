@@ -3,13 +3,7 @@
         <CodeAnalysisRuleSet>../Custom.ruleset</CodeAnalysisRuleSet>
 		    <AvaloniaVersion>11.3.0</AvaloniaVersion>
     </PropertyGroup>
-    <ItemGroup>
-        <PackageReference Include="StyleCop.Analyzers" Version="1.1.118" />
-    </ItemGroup>
-    <ItemGroup>
-        <AdditionalFiles Include="$(SolutionDir)/stylecop.json" />
-    </ItemGroup>
-
+  
   <PropertyGroup Condition="$([MSBuild]::IsOsPlatform('Windows')) AND '$(Platform)' == 'x64'">
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
   </PropertyGroup>
