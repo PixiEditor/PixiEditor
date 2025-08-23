@@ -1,6 +1,6 @@
 <Project>
     <PropertyGroup>
-        <CodeAnalysisRuleSet>../Custom.ruleset</CodeAnalysisRuleSet>
+        <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)Custom.ruleset</CodeAnalysisRuleSet>
 		    <AvaloniaVersion>11.3.0</AvaloniaVersion>
     </PropertyGroup>
   
