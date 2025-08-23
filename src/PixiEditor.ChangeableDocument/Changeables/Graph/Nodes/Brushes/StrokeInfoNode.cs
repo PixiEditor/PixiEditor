@@ -16,7 +16,7 @@ public class StrokeInfoNode : Node
     {
         StrokeWidth = CreateOutput<float>("StrokeWidth", "STROKE_WIDTH", 1f);
         Spacing = CreateOutput<float>("Spacing", "SPACING", 0.1f);
-        TargetSmallTexture = CreateOutput<Texture>("TargetSmallTexture", "TARGET_SMALL_TEXTURE", null);
+        TargetSmallTexture = CreateOutput<Texture>("TargetSampleTexture", "TARGET_SAMPLE_TEXTURE", null);
         TargetFullTexture = CreateOutput<Texture>("TargetFullTexture", "TARGET_FULL_TEXTURE", null);
     }
 
