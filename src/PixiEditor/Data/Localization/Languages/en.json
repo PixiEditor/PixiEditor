@@ -1127,5 +1127,10 @@
   "SECONDARY_COLOR": "Secondary Color",
   "STROKE_INFO_NODE": "Stroke Info",
   "SPACING": "Spacing",
-  "EDITOR_INFO_NODE": "Editor Info"
+  "EDITOR_INFO_NODE": "Editor Info",
+  "POSITION_ON_CANVAS": "Position on Canvas",
+  "MOVEMENT_DIRECTION": "Movement Direction",
+  "TWIST": "Twist",
+    "TILT": "Tilt",
+  "POINTER_INFO_NODE": "Pointer Info"
 }

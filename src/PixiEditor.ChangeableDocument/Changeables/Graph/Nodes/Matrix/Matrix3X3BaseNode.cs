@@ -27,7 +27,7 @@ public abstract class Matrix3X3BaseNode : RenderNode, IRenderInput
         Matrix = CreateFuncOutput<Float3x3>("Matrix", "OUTPUT_MATRIX",
             (c) => CalculateMatrix(c, c.GetValue(Input)));
 
-        OutputVector = CreateOutput<ShapeVectorData>("OutputVector", "OUTPUT_VECTOR", null);
+        OutputVector = CreateOutput<ShapeVectorData>("OutputVector", "VECTOR", null);
         Output.FirstInChain = null;
         AllowHighDpiRendering = true;
     }

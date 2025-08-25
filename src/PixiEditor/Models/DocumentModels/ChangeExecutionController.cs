@@ -341,7 +341,7 @@ internal class ChangeExecutionController
 
     private PointerInfo ConstructPointerInfo(VecD currentPoint, MouseOnCanvasEventArgs args)
     {
-        if (VecD.Distance(lastDirCalculationPoint, currentPoint) > 20)
+        if (VecD.Distance(lastDirCalculationPoint, currentPoint) > 1)
         {
             lastDirCalculationPoint = lastDirCalculationPoint.Lerp(currentPoint, 0.5f);
         }

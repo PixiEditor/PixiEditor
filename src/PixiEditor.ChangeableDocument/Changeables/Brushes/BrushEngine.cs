@@ -29,6 +29,10 @@ internal class BrushEngine
         ColorSpace colorSpace, SamplingOptions samplingOptions,
         PointerInfo pointerInfo, EditorData editorData)
     {
+        if (brushData.BrushGraph == null)
+        {
+            return;
+        }
         var brushNode = brushData.BrushGraph.AllNodes.FirstOrDefault(x => x is BrushOutputNode) as BrushOutputNode;
         if (brushNode == null)
         {

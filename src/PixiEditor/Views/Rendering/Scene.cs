@@ -687,7 +687,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         var data = e.GetCurrentPoint(this);
         VecD lastPoint = new VecD(lastDirCalculationPoint.X, lastDirCalculationPoint.Y);
         VecD currentPoint = new VecD(data.Position.X, data.Position.Y);
-        if (VecD.Distance(lastPoint, currentPoint) > 20)
+        if (VecD.Distance(lastPoint, currentPoint) > 1)
         {
             lastDirCalculationPoint = Lerp(lastPoint, currentPoint, 0.5f);
         }
