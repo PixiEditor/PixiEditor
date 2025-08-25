@@ -60,10 +60,10 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
                 if (node is IFolderHandler parent && input is { PropertyName: FolderNode.ContentInternalName })
                 {
                     visible = parent.IsVisibleBindable;
-                    return visible;
+                    return visible ? Traverse.Further : Traverse.Exit;
                 }
 
-                return true;
+                return Traverse.Further;
             });
 
             return visible;
