@@ -421,6 +421,13 @@
                                 d:Content="Reset"
                                 Background="{DynamicResource ThemeAccentBrush}"
                                 ui:Translator.Key="RESET" />
+                            
+                            <TextBlock ui:Translator.Key="SELECTION" Classes="h5" />
+
+                            <CheckBox Classes="leftOffset" Width="200" HorizontalAlignment="Left"
+                                      ui:Translator.Key="TINT_SELECTION"
+                                      IsChecked="{Binding SettingsSubViewModel.Scene.SelectionTintingEnabled}" />
+
                         </controls:FixedSizeStackPanel>
                     </ScrollViewer>
                     <ScrollViewer>
