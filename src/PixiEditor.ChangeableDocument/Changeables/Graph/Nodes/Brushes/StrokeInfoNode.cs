@@ -5,18 +5,18 @@ using PixiEditor.ChangeableDocument.Rendering;
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 
 [NodeInfo("StrokeInfo")]
-public class StrokeInfoNode : Node
+public class StrokeInfoNode : Node, IBrushSampleTextureNode
 {
     public OutputProperty<float> StrokeWidth { get; }
     public OutputProperty<float> Spacing { get; }
-    public OutputProperty<Texture> TargetSmallTexture { get; }
+    public OutputProperty<Texture> TargetSampleTexture { get; }
     public OutputProperty<Texture> TargetFullTexture { get; }
 
     public StrokeInfoNode()
     {
         StrokeWidth = CreateOutput<float>("StrokeWidth", "STROKE_WIDTH", 1f);
         Spacing = CreateOutput<float>("Spacing", "SPACING", 0.1f);
-        TargetSmallTexture = CreateOutput<Texture>("TargetSampleTexture", "TARGET_SAMPLE_TEXTURE", null);
+        TargetSampleTexture = CreateOutput<Texture>("TargetSampleTexture", "TARGET_SAMPLE_TEXTURE", null);
         TargetFullTexture = CreateOutput<Texture>("TargetFullTexture", "TARGET_FULL_TEXTURE", null);
     }
 
@@ -28,14 +28,14 @@ public class StrokeInfoNode : Node
         StrokeWidth.Value = brushRenderContext.BrushData.StrokeWidth;
         Spacing.Value = brushRenderContext.BrushData.Spacing;
 
-        if (TargetSmallTexture.Connections.Count > 0)
+        if (TargetSampleTexture.Connections.Count > 0)
         {
-            TargetSmallTexture.Value = brushRenderContext.TargetSampledTexture;
+            TargetSampleTexture.Value = brushRenderContext.TargetSampledTexture;
         }
 
         if (TargetFullTexture.Connections.Count > 0)
         {
-            // TODO: Implement
+            TargetFullTexture.Value = brushRenderContext.TargetFullTexture;
         }
     }
 

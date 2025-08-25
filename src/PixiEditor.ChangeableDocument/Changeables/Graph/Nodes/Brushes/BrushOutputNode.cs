@@ -1,5 +1,6 @@
 ﻿using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl.Paintables;
+using Drawie.Backend.Core.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.ChangeableDocument.Rendering;
@@ -13,8 +14,10 @@ public class BrushOutputNode : Node
     public InputProperty<Paintable> Stroke { get; }
     public InputProperty<Paintable> Fill { get; }
     public RenderInputProperty Content { get; }
+    public InputProperty<Matrix3X3> Transform { get; }
     public InputProperty<float> Pressure { get; }
     public InputProperty<bool> FitToStrokeSize { get; }
+    public InputProperty<bool> AllowSampleStacking { get; }
 
     internal Texture ContentTexture;
 
@@ -28,9 +31,11 @@ public class BrushOutputNode : Node
         Stroke = CreateInput<Paintable>("Stroke", "STROKE", null);
         Fill = CreateInput<Paintable>("Fill", "FILL", null);
         Content = CreateRenderInput("Content", "CONTENT");
+        Transform = CreateInput<Matrix3X3>("Transform", "TRANSFORM", Matrix3X3.Identity);
 
         Pressure = CreateInput<float>("Pressure", "PRESSURE", 1f);
         FitToStrokeSize = CreateInput<bool>("FitToStrokeSize", "FIT_TO_STROKE_SIZE", true);
+        AllowSampleStacking = CreateInput<bool>("AllowSampleStacking", "ALLOW_SAMPLE_STACKING", false);
     }
 
     protected override void OnExecute(RenderContext context)
@@ -38,7 +43,10 @@ public class BrushOutputNode : Node
         if (Content.Value != null)
         {
             ContentTexture = cache.RequestTexture(0, context.RenderOutputSize, context.ProcessingColorSpace);
+            ContentTexture.DrawingSurface.Canvas.Save();
+            ContentTexture.DrawingSurface.Canvas.SetMatrix(Transform.Value);
             Content.Value.Paint(context, ContentTexture.DrawingSurface);
+            ContentTexture.DrawingSurface.Canvas.Restore();
         }
     }
 

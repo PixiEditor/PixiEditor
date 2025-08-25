@@ -28,7 +28,8 @@ internal class PathOperation : IMirroredDrawOperation
         bounds = floatBounds.Inflate((int)Math.Ceiling(strokeWidth) + 1);
     }
 
-    public PathOperation(VectorPath path, Paintable paintable, float strokeWidth, StrokeCap cap, BlendMode blendMode, PaintStyle style, bool antiAliasing, RectI? customBounds = null)
+    public PathOperation(VectorPath path, Paintable paintable, float strokeWidth, StrokeCap cap, BlendMode blendMode,
+        PaintStyle style, bool antiAliasing, RectI? customBounds = null)
     {
         this.antiAliasing = antiAliasing;
         this.path = new VectorPath(path);

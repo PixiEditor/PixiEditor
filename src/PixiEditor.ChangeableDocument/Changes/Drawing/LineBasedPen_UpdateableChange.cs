@@ -32,13 +32,10 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     private BrushEngine engine = new BrushEngine();
     private float spacing = 1;
     private readonly Paint srcPaint = new Paint() { BlendMode = BlendMode.Src };
-    private Paintable? finalPaintable;
 
     private CommittedChunkStorage? storedChunks;
     private readonly List<VecI> points = new();
     private int frame;
-    private VecF lastPos;
-    private int lastAppliedPointIndex = -1;
     private BrushOutputNode? brushOutputNode;
     private PointerInfo pointerInfo;
     private EditorData editorData;
@@ -81,7 +78,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     }
 
     [UpdateChangeMethod]
-    public void Update(VecI pos, float strokeWidth, PointerInfo pointerInfo)
+    public void Update(VecI pos, float strokeWidth, float spacing, PointerInfo pointerInfo)
     {
         if (points.Count > 0)
         {
@@ -91,6 +88,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
 
         this.strokeWidth = strokeWidth;
         this.pointerInfo = pointerInfo;
+        this.spacing = spacing;
         UpdateBrushData();
     }
 
@@ -135,55 +133,12 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
 
         int opCount = image.QueueLength;
 
-        float spacingPixels = (strokeWidth * pointerInfo.Pressure) * spacing;
+        brushData.AntiAliasing = antiAliasing;
+        brushData.Spacing = spacing;
+        brushData.StrokeWidth = strokeWidth;
 
-        for (int i = Math.Max(lastAppliedPointIndex, 0); i < points.Count; i++)
-        {
-            var point = points[i];
-            if (points.Count > 1 && VecF.Distance(lastPos, point) < spacingPixels)
-                continue;
-
-            lastPos = point;
-            finalPaintable = color;
-
-            brushData.AntiAliasing = antiAliasing;
-            brushData.Spacing = spacing;
-            brushData.StrokeWidth = strokeWidth;
-
-            engine.ExecuteBrush(image, brushData, point, frame, target.ProcessingColorSpace, SamplingOptions.Default,
-                pointerInfo, editorData);
-
-            /*if (brushData.VectorShape == null)
-            {
-                if (antiAliasing)
-                {
-                    finalPaintable = ApplySoftnessGradient((VecD)point);
-                }
-
-                image.EnqueueDrawEllipse((RectD)rect, finalPaintable, finalPaintable, 0, 0, antiAliasing, srcPaint);
-            }
-            else
-            {
-                BlendMode blendMode = srcPaint.BlendMode;
-                /*ShapeData shapeData = new ShapeData(rect.Center, rect.Size, 0, 0, 0, finalPaintable, finalPaintable,
-                    blendMode);
-                image.EnqueueDrawRectangle(shapeData);#1#
-
-                var path = brushData.VectorShape.ToPath(true);
-                path.Offset(brushData.VectorShape.TransformedAABB.Pos - brushData.VectorShape.GeometryAABB.Pos);
-                path.Offset(rect.Center - path.Bounds.Center);
-                /*VecD scale = new VecD(rect.Size.X / (float)path.Bounds.Width, rect.Size.Y / (float)path.Bounds.Height);
-                if (scale.IsNaNOrInfinity())
-                {
-                    scale = VecD.Zero;
-                }
-                VecD uniformScale = new VecD(Math.Min(scale.X, scale.Y));
-                path.Transform(Matrix3X3.CreateScale((float)uniformScale.X, (float)uniformScale.Y, (float)rect.Center.X, (float)rect.Center.Y));#1#
-                image.EnqueueDrawPath(path, finalPaintable, 1, StrokeCap.Butt, blendMode, PaintStyle.StrokeAndFill, true);
-            }*/
-        }
-
-        lastAppliedPointIndex = points.Count - 1;
+        engine.ExecuteBrush(image, brushData, points, frame, target.ProcessingColorSpace, SamplingOptions.Default,
+            pointerInfo, editorData);
 
         var affChunks = image.FindAffectedArea(opCount);
 
@@ -206,31 +161,14 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
 
         if (points.Count == 1)
         {
-            var rect = new RectI(points[0] - new VecI((int)(strokeWidth / 2f)), new VecI((int)strokeWidth));
-            finalPaintable = color;
-
             engine.ExecuteBrush(targetImage, brushData, points[0], frameTime, targetImage.ProcessingColorSpace,
                 SamplingOptions.Default, pointerInfo, editorData);
 
             return;
         }
 
-        VecF lastPos = points[0];
-
-        float spacingInPixels = (strokeWidth * pointerInfo.Pressure) * this.spacing;
-
-        for (int i = 0; i < points.Count; i++)
-        {
-            if (i > 0 && VecF.Distance(lastPos, points[i]) < spacingInPixels)
-                continue;
-
-            lastPos = points[i];
-            var rect = new RectI(points[i] - new VecI((int)(strokeWidth / 2f)), new VecI((int)strokeWidth));
-            finalPaintable = color;
-
-            engine.ExecuteBrush(targetImage, brushData, points[i], frameTime, targetImage.ProcessingColorSpace,
-                SamplingOptions.Default, pointerInfo, editorData);
-        }
+        engine.ExecuteBrush(targetImage, brushData, points, frameTime, targetImage.ProcessingColorSpace,
+            SamplingOptions.Default, pointerInfo, editorData);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,

@@ -12,10 +12,12 @@ internal class BrushRenderContext : RenderContext
 {
     public BrushData BrushData { get; }
     public Texture TargetSampledTexture { get; }
+    public Texture TargetFullTexture { get; }
 
-    public BrushRenderContext(DrawingSurface renderSurface, KeyFrameTime frameTime, ChunkResolution chunkResolution, VecI renderOutputSize, VecI documentSize, ColorSpace processingColorSpace, SamplingOptions desiredSampling, BrushData brushData, Texture targetSampledTexture, double opacity = 1) : base(renderSurface, frameTime, chunkResolution, renderOutputSize, documentSize, processingColorSpace, desiredSampling, opacity)
+    public BrushRenderContext(DrawingSurface renderSurface, KeyFrameTime frameTime, ChunkResolution chunkResolution, VecI renderOutputSize, VecI documentSize, ColorSpace processingColorSpace, SamplingOptions desiredSampling, BrushData brushData, Texture? targetSampledTexture, Texture? targetFullTexture, double opacity = 1) : base(renderSurface, frameTime, chunkResolution, renderOutputSize, documentSize, processingColorSpace, desiredSampling, opacity)
     {
         BrushData = brushData;
         TargetSampledTexture = targetSampledTexture;
+        TargetFullTexture = targetFullTexture;
     }
 }

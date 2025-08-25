@@ -1132,5 +1132,6 @@
   "MOVEMENT_DIRECTION": "Movement Direction",
   "TWIST": "Twist",
     "TILT": "Tilt",
-  "POINTER_INFO_NODE": "Pointer Info"
+  "POINTER_INFO_NODE": "Pointer Info",
+  "ALLOW_SAMPLE_STACKING": "Allow sample stacking"
 }

@@ -26,12 +26,12 @@ internal class PenToolExecutor : UpdateableChangeExecutor
     private Color color;
     public double ToolSize => penToolbar.ToolSize;
     public bool SquareBrush => penToolbar.PaintShape == PaintBrushShape.Square;
+    public float Spacing => penToolbar.Spacing;
     public override bool BlocksOtherActions => controller.LeftMousePressed;
 
     private bool drawOnMask;
     private bool pixelPerfect;
     private bool antiAliasing;
-    private float spacing = 1;
     private bool transparentErase;
 
     private Guid brushOutputGuid = Guid.Empty;
@@ -60,7 +60,6 @@ internal class PenToolExecutor : UpdateableChangeExecutor
         color = colorsHandler.PrimaryColor;
         pixelPerfect = penTool.PixelPerfectEnabled;
         antiAliasing = toolbar.AntiAliasing;
-        spacing = toolbar.Spacing;
 
         if (color.A > 0)
         {
@@ -84,7 +83,7 @@ internal class PenToolExecutor : UpdateableChangeExecutor
             IAction? action = pixelPerfect switch
             {
                 false => new LineBasedPen_Action(guidValue, color, controller!.LastPixelPosition, (float)ToolSize,
-                    transparentErase, antiAliasing, spacing, brushOutputGuid, drawOnMask,
+                    transparentErase, antiAliasing, Spacing, brushOutputGuid, drawOnMask,
                     document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo, controller.EditorData),
                 true => new PixelPerfectPen_Action(guidValue, controller!.LastPixelPosition, color, drawOnMask,
                     document!.AnimationHandler.ActiveFrameBindable)
@@ -103,7 +102,7 @@ internal class PenToolExecutor : UpdateableChangeExecutor
         IAction? action = pixelPerfect switch
         {
             false => new LineBasedPen_Action(guidValue, color, controller!.LastPixelPosition, (float)ToolSize,
-                transparentErase, antiAliasing, spacing, brushOutputGuid, drawOnMask,
+                transparentErase, antiAliasing, Spacing, brushOutputGuid, drawOnMask,
                 document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo, controller.EditorData),
             true => new PixelPerfectPen_Action(guidValue, controller!.LastPixelPosition, color, drawOnMask,
                 document!.AnimationHandler.ActiveFrameBindable)
@@ -129,7 +128,7 @@ internal class PenToolExecutor : UpdateableChangeExecutor
             IAction? action = pixelPerfect switch
             {
                 false => new LineBasedPen_Action(guidValue, color, pos, (float)ToolSize, transparentErase, antiAliasing,
-                    spacing, brushOutputGuid, drawOnMask, document!.AnimationHandler.ActiveFrameBindable,
+                    Spacing, brushOutputGuid, drawOnMask, document!.AnimationHandler.ActiveFrameBindable,
                     controller.LastPointerInfo, controller.EditorData),
                 true => new PixelPerfectPen_Action(guidValue, pos, color, drawOnMask,
                     document!.AnimationHandler.ActiveFrameBindable)

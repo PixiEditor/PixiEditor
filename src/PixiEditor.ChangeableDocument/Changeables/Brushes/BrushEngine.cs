@@ -4,6 +4,7 @@ using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
@@ -20,7 +21,34 @@ namespace PixiEditor.ChangeableDocument.Changeables.Brushes;
 internal class BrushEngine
 {
     private TextureCache cache = new();
-    public void ExecuteBrush(ChunkyImage target, BrushData brushData, VecI point, KeyFrameTime frameTime, ColorSpace cs, SamplingOptions samplingOptions, PointerInfo pointerInfo, EditorData editorData)
+    private VecF lastPos;
+    private int lastAppliedPointIndex = -1;
+
+    public void ExecuteBrush(ChunkyImage target, BrushData brushData, List<VecI> points, KeyFrameTime frameTime,
+        ColorSpace cs,
+        SamplingOptions samplingOptions, PointerInfo pointerInfo, EditorData editorData)
+    {
+        float strokeWidth = brushData.StrokeWidth;
+        float spacing = brushData.Spacing;
+
+        float spacingPixels = (strokeWidth * pointerInfo.Pressure) * spacing;
+
+        for (int i = Math.Max(lastAppliedPointIndex, 0); i < points.Count; i++)
+        {
+            var point = points[i];
+            if (points.Count > 1 && VecF.Distance(lastPos, point) < spacingPixels)
+                continue;
+
+            ExecuteVectorShapeBrush(target, brushData, point, frameTime, cs, samplingOptions, pointerInfo, editorData);
+
+            lastPos = point;
+        }
+
+        lastAppliedPointIndex = points.Count - 1;
+    }
+
+    public void ExecuteBrush(ChunkyImage target, BrushData brushData, VecI point, KeyFrameTime frameTime, ColorSpace cs,
+        SamplingOptions samplingOptions, PointerInfo pointerInfo, EditorData editorData)
     {
         ExecuteVectorShapeBrush(target, brushData, point, frameTime, cs, samplingOptions, pointerInfo, editorData);
     }
@@ -33,6 +61,7 @@ internal class BrushEngine
         {
             return;
         }
+
         var brushNode = brushData.BrushGraph.AllNodes.FirstOrDefault(x => x is BrushOutputNode) as BrushOutputNode;
         if (brushNode == null)
         {
@@ -43,10 +72,28 @@ internal class BrushEngine
         var rect = new RectI(point - new VecI((int)(strokeWidth / 2f)), new VecI((int)strokeWidth));
         VecI size = new VecI((int)float.Ceiling(brushData.StrokeWidth));
 
-        using var texture = Texture.ForDisplay(size);
-        var surfaceUnderRect = UpdateSurfaceUnderRect(target, rect, colorSpace);
-        BrushRenderContext context = new BrushRenderContext(texture.DrawingSurface, frameTime, ChunkResolution.Full, size, size,
-            colorSpace, samplingOptions, brushData, surfaceUnderRect) { PointerInfo = pointerInfo, EditorData = editorData };
+        bool requiresSampleTexture = GraphUsesSampleTexture(brushData.BrushGraph, brushNode);
+        bool requiresFullTexture = GraphUsesFullTexture(brushData.BrushGraph, brushNode);
+        Texture? surfaceUnderRect = null;
+        Texture? fullTexture = null;
+        Texture texture = null;
+
+        if (requiresSampleTexture)
+        {
+            surfaceUnderRect = UpdateSurfaceUnderRect(target, rect, colorSpace, brushNode.AllowSampleStacking.Value);
+        }
+
+        if (requiresFullTexture)
+        {
+            fullTexture = UpdateFullTexture(target, colorSpace, brushNode.AllowSampleStacking.Value);
+        }
+
+        BrushRenderContext context = new BrushRenderContext(texture?.DrawingSurface, frameTime, ChunkResolution.Full,
+            size, size,
+            colorSpace, samplingOptions, brushData, surfaceUnderRect, fullTexture)
+        {
+            PointerInfo = pointerInfo, EditorData = editorData
+        };
 
         brushData.BrushGraph.Execute(brushNode, context);
 
@@ -89,9 +136,9 @@ internal class BrushEngine
             var brushTexture = brushNode.ContentTexture;
             if (brushTexture != null)
             {
-                TexturePaintable brushTexturePaintable = new(brushTexture);
+                TexturePaintable brushTexturePaintable = new(new Texture(brushTexture), true);
                 target.EnqueueDrawPath(path, brushTexturePaintable, vectorShape.StrokeWidth,
-                    StrokeCap.Butt, brushData.BlendMode, PaintStyle.Fill, brushData.AntiAliasing);
+                    StrokeCap.Butt, brushData.BlendMode, PaintStyle.Fill, brushData.AntiAliasing, null);
                 return;
             }
         }
@@ -119,21 +166,95 @@ internal class BrushEngine
         }
 
         target.EnqueueDrawPath(path, paintable, vectorShape.StrokeWidth,
-            strokeCap, brushData.BlendMode, strokeStyle, brushData.AntiAliasing);
+            strokeCap, brushData.BlendMode, strokeStyle, brushData.AntiAliasing, null);
 
         if (fill is { AnythingVisible: true } && stroke is { AnythingVisible: true })
         {
             strokeStyle = PaintStyle.Stroke;
             target.EnqueueDrawPath(path, stroke, vectorShape.StrokeWidth,
-                strokeCap, brushData.BlendMode, strokeStyle, brushData.AntiAliasing);
+                strokeCap, brushData.BlendMode, strokeStyle, brushData.AntiAliasing, null);
         }
     }
 
-    private Texture UpdateSurfaceUnderRect(ChunkyImage target, RectI rect, ColorSpace colorSpace)
+    private Texture UpdateFullTexture(ChunkyImage target, ColorSpace colorSpace, bool sampleLatest)
+    {
+        var texture = cache.RequestTexture(1, target.LatestSize, colorSpace);
+        if (!sampleLatest)
+        {
+            target.DrawCommittedRegionOn(new RectI(VecI.Zero, target.LatestSize), ChunkResolution.Full, texture.DrawingSurface, VecI.Zero);
+            return texture;
+        }
+
+        target.DrawMostUpToDateRegionOn(new RectI(VecI.Zero, target.LatestSize), ChunkResolution.Full, texture.DrawingSurface, VecI.Zero);
+        return texture;
+    }
+
+    private Texture UpdateSurfaceUnderRect(ChunkyImage target, RectI rect, ColorSpace colorSpace, bool sampleLatest)
     {
         var surfaceUnderRect = cache.RequestTexture(0, rect.Size, colorSpace);
 
-        target.DrawCommittedRegionOn(rect, ChunkResolution.Full, surfaceUnderRect.DrawingSurface, VecI.Zero);
+        if (sampleLatest)
+        {
+            target.DrawMostUpToDateRegionOn(rect, ChunkResolution.Full, surfaceUnderRect.DrawingSurface, VecI.Zero);
+        }
+        else
+        {
+            target.DrawCommittedRegionOn(rect, ChunkResolution.Full, surfaceUnderRect.DrawingSurface, VecI.Zero);
+        }
+
         return surfaceUnderRect;
     }
+
+    private bool GraphUsesSampleTexture(IReadOnlyNodeGraph graph, IReadOnlyNode brushNode)
+    {
+        return GraphUsesInput(graph, brushNode, node => node.TargetSampleTexture.Connections);
+    }
+
+    private bool GraphUsesFullTexture(IReadOnlyNodeGraph graph, IReadOnlyNode brushNode)
+    {
+        return GraphUsesInput(graph, brushNode, node => node.TargetFullTexture.Connections);
+    }
+
+    private bool GraphUsesInput(IReadOnlyNodeGraph graph, IReadOnlyNode brushNode, Func<IBrushSampleTextureNode, IReadOnlyCollection<IInputProperty>> getConnections)
+    {
+        var sampleTextureNodes = graph.AllNodes.Where(x => x is IBrushSampleTextureNode).ToList();
+        if (sampleTextureNodes.Count == 0)
+        {
+            return false;
+        }
+
+        foreach (var node in sampleTextureNodes)
+        {
+            if (node is IBrushSampleTextureNode brushSampleTextureNode)
+            {
+                var connections = getConnections(brushSampleTextureNode);
+                if (connections.Count == 0)
+                {
+                    continue;
+                }
+                foreach (var connection in connections)
+                {
+                    bool found = false;
+                    connection.Connection.Node.TraverseForwards(x =>
+                    {
+                        if (x == brushNode)
+                        {
+                            found = true;
+                            return false;
+                        }
+
+                        return true;
+                    });
+
+                    if (found)
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
 }

@@ -91,8 +91,12 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
     public bool TryTraverse(Action<IReadOnlyNode> action)
     {
         if (OutputNode == null) return false;
+        return TryTraverse(OutputNode, action);
+    }
 
-        var queue = CalculateExecutionQueueInternal(OutputNode);
+    public bool TryTraverse(IReadOnlyNode end, Action<IReadOnlyNode> action)
+    {
+        var queue = CalculateExecutionQueueInternal(end);
 
         foreach (var node in queue)
         {
