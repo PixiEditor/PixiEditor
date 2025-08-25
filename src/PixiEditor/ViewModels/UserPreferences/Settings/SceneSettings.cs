@@ -3,6 +3,7 @@ using Avalonia.Media;
 using CommunityToolkit.Mvvm.Input;
 using Drawie.Numerics;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
+using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Helpers.Extensions;
 
 namespace PixiEditor.ViewModels.UserPreferences.Settings;
@@ -44,6 +45,12 @@ internal class SceneSettings : SettingsGroup
         set => RaiseAndUpdatePreference(ref _secondaryBackgroundColorHex, value, PreferencesConstants.SecondaryBackgroundColor);
     }
 
+    public bool SelectionTintingEnabled
+    {
+        get => PixiEditorSettings.Tools.SelectionTintingEnabled.Value;
+        set => RaiseAndUpdatePreference(PixiEditorSettings.Tools.SelectionTintingEnabled, value);
+    }
+
     public Color PrimaryBackgroundColor
     {
         get => Color.Parse(PrimaryBackgroundColorHex);
@@ -65,5 +72,7 @@ internal class SceneSettings : SettingsGroup
             PrimaryBackgroundColorHex = PreferencesConstants.PrimaryBackgroundColorDefault;
             SecondaryBackgroundColorHex = PreferencesConstants.SecondaryBackgroundColorDefault;
         });
+        
+        SubscribeValueChanged(PixiEditorSettings.Tools.SelectionTintingEnabled, nameof(SelectionTintingEnabled));
     }
 }

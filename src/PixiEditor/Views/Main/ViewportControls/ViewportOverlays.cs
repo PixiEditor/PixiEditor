@@ -155,6 +155,13 @@ internal class ViewportOverlays
             Mode = BindingMode.OneWay
         };
 
+        Binding selectionTintingEnabled = new()
+        {
+            Source = ViewModelMain.Current,
+            Path = "ToolsSubViewModel.SelectionTintingEnabled",
+            Mode = BindingMode.OneWay
+        };
+
         MultiBinding showFillBinding = new()
         {
             Converter = new AllTrueConverter(),
@@ -162,7 +169,8 @@ internal class ViewportOverlays
             Bindings = new List<IBinding>()
             {
                 toolIsSelectionBinding,
-                isTransformingBinding
+                isTransformingBinding,
+                selectionTintingEnabled
             }
         };
 
