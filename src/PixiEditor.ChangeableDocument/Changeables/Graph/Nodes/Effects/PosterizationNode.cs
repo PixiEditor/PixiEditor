@@ -12,23 +12,52 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Effects;
 public class PosterizationNode : RenderNode, IRenderInput
 {
     public RenderInputProperty Background { get; }
+    public InputProperty<PosterizationMode> Mode { get; }
     public InputProperty<int> Levels { get; }
     
     private Paint paint;
     private Shader shader;
     
     private Shader? lastImageShader;
+    private PosterizationMode? lastMode = null;
     private VecI lastDocumentSize;
     
     private string shaderCode = """
                                  uniform shader iImage;
+                                 uniform int iMode;
                                  uniform float iLevels;
-
+                                 
+                                 half posterize(half value, float levels) {
+                                     return clamp(floor(value * (levels - 1) + 0.5) / (levels - 1), 0.0, 1.0);
+                                 }
+                                 
+                                 half4 posterizeRgb(half4 color, float levels) {
+                                     return half4(
+                                         posterize(color.r, levels),
+                                         posterize(color.g, levels),
+                                         posterize(color.b, levels),
+                                         color.a
+                                     );
+                                 }
+                                 
+                                 half4 posterizeLuminance(half4 color, float levels) {
+                                     half lum = dot(color.rgb, half3(0.299, 0.587, 0.114));
+                                     half posterizedLum = posterize(lum, levels);
+                                     return half4(posterizedLum, posterizedLum, posterizedLum, color.a);
+                                 }
+                                 
                                  half4 main(float2 uv)
                                  {
                                     half4 color = iImage.eval(uv);
-                                    half3 posterized = floor(color.rgb * iLevels) / iLevels;
-                                    return half4(posterized, color.a);
+                                    half4 result;
+                                    
+                                    if(iMode == 0) {
+                                        result = posterizeRgb(color, iLevels);
+                                    } else if(iMode == 1) {
+                                        result = posterizeLuminance(color, iLevels);
+                                    } 
+                                    
+                                    return result;
                                  }
                                  """;
 
@@ -37,6 +66,7 @@ public class PosterizationNode : RenderNode, IRenderInput
     public PosterizationNode()
     {
         Background = CreateRenderInput("Background", "BACKGROUND");
+        Mode = CreateInput("Mode", "MODE", PosterizationMode.Rgb);
         Levels = CreateInput("Levels", "LEVELS", 8)
             .WithRules(v => v.Min(2).Max(256));
 
@@ -48,9 +78,11 @@ public class PosterizationNode : RenderNode, IRenderInput
     {
         base.OnExecute(context);
         lastDocumentSize = context.RenderOutputSize;
+        lastMode = Mode.Value;
         
         Uniforms uniforms = new Uniforms();
         uniforms.Add("iImage", new Uniform("iImage", lastImageShader));
+        uniforms.Add("iMode", new Uniform("iMode", (int)Mode.Value));
         uniforms.Add("iLevels", new Uniform("iLevels", (float)Levels.Value));
         shader?.Dispose();
         shader = Shader.Create(shaderCode, uniforms, out _);
@@ -71,6 +103,7 @@ public class PosterizationNode : RenderNode, IRenderInput
 
         Uniforms uniforms = new Uniforms();
         uniforms.Add("iImage", new Uniform("iImage", lastImageShader));
+        uniforms.Add("iMode", new Uniform("iMode", (int)Mode.Value));
         uniforms.Add("iLevels", new Uniform("iLevels", (float)Levels.Value));
         shader = shader.WithUpdatedUniforms(uniforms);
         paint.Shader = shader;
@@ -97,4 +130,10 @@ public class PosterizationNode : RenderNode, IRenderInput
     {
         return new PosterizationNode();
     }
+}
+
+public enum PosterizationMode
+{
+    Rgb = 0,
+    Luminance = 1,
 }
