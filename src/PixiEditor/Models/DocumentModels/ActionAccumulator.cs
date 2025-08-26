@@ -150,6 +150,8 @@ internal class ActionAccumulator
                         undoBoundaryPassed || viewportRefreshRequest);
                 }*/
 
+                await document.SceneRenderer.RenderAsync(internals.State.Viewports);
+
                 bool previewsDisabled = PixiEditorSettings.Performance.DisablePreviews.Value;
 
                 if (!previewsDisabled)

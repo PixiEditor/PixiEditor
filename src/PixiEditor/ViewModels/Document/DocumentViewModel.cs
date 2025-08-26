@@ -207,6 +207,10 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         }
     }
 
+    public Dictionary<Guid, Texture> SceneTextures { get; } = new();
+    public Texture DocumentTexture { get; set; }
+
+
     private VectorPath selectionPath = new VectorPath();
     public VectorPath SelectionPathBindable => selectionPath;
     public ObservableCollection<PaletteColor> Swatches { get; set; } = new();

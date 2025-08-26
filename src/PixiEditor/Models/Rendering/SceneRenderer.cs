@@ -1,5 +1,6 @@
 ﻿using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core;
+using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
@@ -11,6 +12,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
 using PixiEditor.Models.Handlers;
+using PixiEditor.Models.Position;
 
 namespace PixiEditor.Models.Rendering;
 
@@ -21,7 +23,6 @@ internal class SceneRenderer : IDisposable
     public IDocument DocumentViewModel { get; }
     public bool HighResRendering { get; set; } = true;
 
-    private Dictionary<string, Texture> cachedTextures = new();
     private bool lastHighResRendering = true;
     private int lastGraphCacheHash = -1;
     private KeyFrameTime lastFrameTime;
@@ -30,11 +31,36 @@ internal class SceneRenderer : IDisposable
 
     private ChunkResolution? lastResolution;
 
-    public SceneRenderer(IReadOnlyDocument trackerDocument, IDocument documentViewModel, PreviewRenderer previewRenderer)
+    public SceneRenderer(IReadOnlyDocument trackerDocument, IDocument documentViewModel,
+        PreviewRenderer previewRenderer)
     {
         Document = trackerDocument;
         DocumentViewModel = documentViewModel;
         this.previewRenderer = previewRenderer;
+    }
+
+
+    public async Task RenderAsync(Dictionary<Guid, ViewportInfo> stateViewports)
+    {
+        await Task.Run(() =>
+        {
+            foreach (var viewport in stateViewports)
+            {
+                if (viewport.Value.RealDimensions.ShortestAxis <= 0) continue;
+
+                if (!DocumentViewModel.SceneTextures.TryGetValue(viewport.Key, out var texture)
+                    || texture.Size != (VecI)viewport.Value.RealDimensions)
+                {
+                    texture?.Dispose();
+                    texture = Texture.ForProcessing((VecI)viewport.Value.RealDimensions,
+                        Document.ProcessingColorSpace);
+                }
+
+                RenderScene(texture.DrawingSurface, viewport.Value.Resolution,
+                    viewport.Value.Sampling, viewport.Value.RenderOutput == "DEFAULT" ? null : viewport.Value.RenderOutput);
+                DocumentViewModel.SceneTextures[viewport.Key] = texture;
+            }
+        }).ConfigureAwait(false);
     }
 
     public void RenderScene(DrawingSurface target, ChunkResolution resolution, SamplingOptions samplingOptions,
@@ -52,20 +78,14 @@ internal class SceneRenderer : IDisposable
         // TODO: Check if clipping to visible area improves performance on full resolution
         // Meaning zoomed big textures
 
+        using var rendered = RenderGraph(target, resolution, samplingOptions, targetOutput, finalGraph);
         if (shouldRerender)
         {
-            if (cachedTextures.ContainsKey(adjustedTargetOutput))
-            {
-                cachedTextures[adjustedTargetOutput]?.Dispose();
-            }
-
-            var rendered = RenderGraph(target, resolution, samplingOptions, targetOutput, finalGraph);
             //previewRenderer.RenderPreviews(DocumentViewModel.AnimationHandler.ActiveFrameTime);
-            cachedTextures[adjustedTargetOutput] = rendered;
             return;
         }
 
-        var cachedTexture = cachedTextures[adjustedTargetOutput];
+        /*var cachedTexture = DocumentViewModel.SceneTextures[adjustedTargetOutput];
         Matrix3X3 matrixDiff = SolveMatrixDiff(target, cachedTexture);
         int saved = target.Canvas.Save();
         target.Canvas.SetMatrix(matrixDiff);
@@ -79,7 +99,7 @@ internal class SceneRenderer : IDisposable
             target.Canvas.DrawImage(img, 0, 0, samplingOptions);
         }
 
-        target.Canvas.RestoreToCount(saved);
+        target.Canvas.RestoreToCount(saved);*/
     }
 
     private Texture RenderGraph(DrawingSurface target, ChunkResolution resolution, SamplingOptions samplingOptions,
@@ -125,6 +145,7 @@ internal class SceneRenderer : IDisposable
 
         if (renderTexture != null)
         {
+            target.Canvas.Clear();
             if (samplingOptions == SamplingOptions.Default)
             {
                 target.Canvas.DrawSurface(renderTexture.DrawingSurface, 0, 0);
@@ -173,11 +194,13 @@ internal class SceneRenderer : IDisposable
     private bool ShouldRerender(DrawingSurface target, ChunkResolution resolution, string? targetOutput,
         IReadOnlyNodeGraph finalGraph)
     {
+        /*
         if (!cachedTextures.TryGetValue(targetOutput ?? "", out var cachedTexture) || cachedTexture == null ||
             cachedTexture.IsDisposed)
         {
             return true;
         }
+        */
 
         if (lastResolution != resolution)
         {
@@ -196,10 +219,12 @@ internal class SceneRenderer : IDisposable
             ? (VecI)(Document.Size * resolution.Multiplier())
             : target.DeviceClipBounds.Size;
 
+        /*
         if (cachedTexture.DrawingSurface.DeviceClipBounds.Size != compareSize)
         {
             return true;
         }
+        */
 
         if (lastFrameTime.Frame != DocumentViewModel.AnimationHandler.ActiveFrameTime.Frame)
         {
@@ -224,7 +249,7 @@ internal class SceneRenderer : IDisposable
             }
         }
 
-        if (!renderInDocumentSize)
+        /*if (!renderInDocumentSize)
         {
             double lengthDiff = target.LocalClipBounds.Size.Length -
                                 cachedTexture.DrawingSurface.LocalClipBounds.Size.Length;
@@ -233,7 +258,7 @@ internal class SceneRenderer : IDisposable
             {
                 return true;
             }
-        }
+        }*/
 
         int currentGraphCacheHash = finalGraph.GetCacheHash();
         if (lastGraphCacheHash != currentGraphCacheHash)
@@ -269,7 +294,8 @@ internal class SceneRenderer : IDisposable
         return highDpiRenderNodePresent;
     }
 
-    private void RenderOnionSkin(DrawingSurface target, ChunkResolution resolution, SamplingOptions sampling, string? targetOutput)
+    private void RenderOnionSkin(DrawingSurface target, ChunkResolution resolution, SamplingOptions sampling,
+        string? targetOutput)
     {
         var animationData = Document.AnimationData;
         if (!DocumentViewModel.AnimationHandler.OnionSkinningEnabledBindable)
@@ -320,9 +346,9 @@ internal class SceneRenderer : IDisposable
 
     public void Dispose()
     {
-        foreach (var texture in cachedTextures)
+        /*foreach (var texture in cachedTextures)
         {
             texture.Value?.Dispose();
-        }
+        }*/
     }
 }

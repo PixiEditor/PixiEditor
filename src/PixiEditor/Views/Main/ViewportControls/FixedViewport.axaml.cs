@@ -7,6 +7,8 @@ using Avalonia.Media;
 using Avalonia.Threading;
 using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Position;
 using Drawie.Numerics;
@@ -123,6 +125,9 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
             0,
             docSize / 2,
             new VecD(mainImage.Bounds.Width, mainImage.Bounds.Height),
+            Matrix3X3.Identity,
+            "Default",
+            SamplingOptions.Bilinear,
             docSize,
             CalculateResolution(),
             GuidValue,

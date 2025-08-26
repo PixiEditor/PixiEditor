@@ -157,6 +157,15 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         set => SetValue(MaxBilinearSamplingSizeProperty, value);
     }
 
+    public static readonly StyledProperty<Guid> ViewportIdProperty = AvaloniaProperty.Register<Scene, Guid>(
+        nameof(ViewportId));
+
+    public Guid ViewportId
+    {
+        get => GetValue(ViewportIdProperty);
+        set => SetValue(ViewportIdProperty, value);
+    }
+
     private Overlay? capturedOverlay;
 
     private List<Overlay> mouseOverOverlays = new();
@@ -239,8 +248,11 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         };
     }
 
-    private SamplingOptions CalculateSampling()
+    internal SamplingOptions CalculateSampling()
     {
+        if (Document == null)
+            return SamplingOptions.Default;
+
         if (Document.SizeBindable.LongestAxis > MaxBilinearSamplingSize)
         {
             return SamplingOptions.Default;
@@ -335,8 +347,9 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         DrawOverlays(renderTexture.DrawingSurface, bounds, OverlayRenderSorting.Background);
         try
         {
-            SceneRenderer.RenderScene(renderTexture.DrawingSurface, CalculateResolution(), CalculateSampling(),
-                renderOutput);
+            renderTexture.DrawingSurface.Canvas.DrawSurface(Document.SceneTextures[ViewportId].DrawingSurface, 0, 0);
+            /*SceneRenderer.RenderScene(renderTexture.DrawingSurface, CalculateResolution(), CalculateSampling(),
+                renderOutput);*/
         }
         catch (Exception e)
         {
@@ -714,7 +727,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         return new VecD(transformed.X, transformed.Y);
     }
 
-    private Matrix CalculateTransformMatrix()
+    internal Matrix CalculateTransformMatrix()
     {
         Matrix transform = Matrix.Identity;
         transform = transform.Append(Matrix.CreateRotation((float)AngleRadians));
