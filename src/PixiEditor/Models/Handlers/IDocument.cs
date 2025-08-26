@@ -51,6 +51,7 @@ internal interface IDocument : IHandler, Extensions.CommonApi.Documents.IDocumen
     public ISnappingHandler SnappingHandler { get; }
     public IReadOnlyCollection<Guid> SelectedMembers { get; }
     public PreviewPainter? MiniPreviewPainter { get; set; }
+    public PreviewRenderer PreviewRenderer { get; }
     public void RemoveSoftSelectedMember(IStructureMemberHandler member);
     public void ClearSoftSelectedMembers();
     public void AddSoftSelectedMember(IStructureMemberHandler member);

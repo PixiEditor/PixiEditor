@@ -47,7 +47,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
     private VecI lastRenderSize = new VecI(0, 0);
 
-    protected internal bool IsDisposed => _isDisposed;
+    public bool IsDisposed => _isDisposed;
     private bool _isDisposed;
 
     private int lastContentCacheHash = -1;

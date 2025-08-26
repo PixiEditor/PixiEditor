@@ -26,13 +26,15 @@ internal class SceneRenderer : IDisposable
     private int lastGraphCacheHash = -1;
     private KeyFrameTime lastFrameTime;
     private Dictionary<Guid, bool> lastFramesVisibility = new();
+    private PreviewRenderer previewRenderer;
 
     private ChunkResolution? lastResolution;
 
-    public SceneRenderer(IReadOnlyDocument trackerDocument, IDocument documentViewModel)
+    public SceneRenderer(IReadOnlyDocument trackerDocument, IDocument documentViewModel, PreviewRenderer previewRenderer)
     {
         Document = trackerDocument;
         DocumentViewModel = documentViewModel;
+        this.previewRenderer = previewRenderer;
     }
 
     public void RenderScene(DrawingSurface target, ChunkResolution resolution, SamplingOptions samplingOptions,
@@ -58,6 +60,7 @@ internal class SceneRenderer : IDisposable
             }
 
             var rendered = RenderGraph(target, resolution, samplingOptions, targetOutput, finalGraph);
+            //previewRenderer.RenderPreviews(DocumentViewModel.AnimationHandler.ActiveFrameTime);
             cachedTextures[adjustedTargetOutput] = rendered;
             return;
         }

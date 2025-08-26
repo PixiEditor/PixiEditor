@@ -222,6 +222,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public AnimationDataViewModel AnimationDataViewModel { get; }
     public TextOverlayViewModel TextOverlayViewModel { get; }
 
+    public PreviewRenderer PreviewRenderer { get; }
 
     public IReadOnlyCollection<IStructureMemberHandler> SoftSelectedStructureMembers => softSelectedStructureMembers;
     private DocumentInternalParts Internals { get; }
@@ -299,7 +300,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         ReferenceLayerViewModel = new(this, Internals);
 
         Renderer = new DocumentRenderer(Internals.Tracker.Document);
-        SceneRenderer = new SceneRenderer(Internals.Tracker.Document, this);
+        PreviewRenderer = new PreviewRenderer(Internals.Tracker.Document);
+        SceneRenderer = new SceneRenderer(Internals.Tracker.Document, this, PreviewRenderer);
     }
 
     /// <summary>

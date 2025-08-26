@@ -17,6 +17,7 @@ internal class MemberPreviewUpdater
 {
     private readonly IDocument doc;
     private readonly DocumentInternalParts internals;
+    private PreviewRenderer renderer => doc.PreviewRenderer;
 
     private AnimationKeyFramePreviewRenderer AnimationKeyFramePreviewRenderer { get; }
 
@@ -72,7 +73,7 @@ internal class MemberPreviewUpdater
         var previewSize = StructureHelpers.CalculatePreviewSize(internals.Tracker.Document.Size);
         //float scaling = (float)previewSize.X / doc.SizeBindable.X;
 
-        doc.PreviewPainter ??= new PreviewPainter(doc.Renderer, doc.Renderer, doc.AnimationHandler.ActiveFrameTime,
+        doc.PreviewPainter ??= new PreviewPainter(renderer, doc.Renderer, doc.AnimationHandler.ActiveFrameTime,
             doc.SizeBindable, internals.Tracker.Document.ProcessingColorSpace);
 
         UpdateDocPreviewPainter(doc.PreviewPainter);
@@ -80,7 +81,7 @@ internal class MemberPreviewUpdater
         if (!renderMiniPreviews)
             return;
 
-        doc.MiniPreviewPainter ??= new PreviewPainter(doc.Renderer, doc.Renderer,
+        doc.MiniPreviewPainter ??= new PreviewPainter(renderer, doc.Renderer,
             doc.AnimationHandler.ActiveFrameTime,
             doc.SizeBindable, internals.Tracker.Document.ProcessingColorSpace);
 
@@ -111,7 +112,7 @@ internal class MemberPreviewUpdater
                         continue;
 
                     structureMemberHandler.PreviewPainter =
-                        new PreviewPainter(doc.Renderer, previewRenderable,
+                        new PreviewPainter(renderer, previewRenderable,
                             doc.AnimationHandler.ActiveFrameTime, doc.SizeBindable,
                             internals.Tracker.Document.ProcessingColorSpace);
                     structureMemberHandler.PreviewPainter.Repaint();
@@ -168,7 +169,7 @@ internal class MemberPreviewUpdater
             KeyFrameTime frameTime = doc.AnimationHandler.ActiveFrameTime;
             if (cel.PreviewPainter == null)
             {
-                cel.PreviewPainter = new PreviewPainter(doc.Renderer, AnimationKeyFramePreviewRenderer, frameTime,
+                cel.PreviewPainter = new PreviewPainter(renderer, AnimationKeyFramePreviewRenderer, frameTime,
                     doc.SizeBindable,
                     internals.Tracker.Document.ProcessingColorSpace, cel.Id.ToString());
             }
@@ -195,7 +196,7 @@ internal class MemberPreviewUpdater
             if (groupHandler.PreviewPainter == null)
             {
                 groupHandler.PreviewPainter =
-                    new PreviewPainter(doc.Renderer, AnimationKeyFramePreviewRenderer, frameTime, documentSize,
+                    new PreviewPainter(renderer, AnimationKeyFramePreviewRenderer, frameTime, documentSize,
                         processingColorSpace,
                         groupHandler.Id.ToString());
             }
@@ -226,7 +227,7 @@ internal class MemberPreviewUpdater
                 if (structureMemberHandler.MaskPreviewPainter == null)
                 {
                     structureMemberHandler.MaskPreviewPainter = new PreviewPainter(
-                        doc.Renderer,
+                        renderer,
                         previewRenderable,
                         doc.AnimationHandler.ActiveFrameTime,
                         doc.SizeBindable,
@@ -308,7 +309,7 @@ internal class MemberPreviewUpdater
         {
             if (nodeVm.ResultPainter == null)
             {
-                nodeVm.ResultPainter = new PreviewPainter(doc.Renderer, renderable,
+                nodeVm.ResultPainter = new PreviewPainter(renderer, renderable,
                     doc.AnimationHandler.ActiveFrameTime,
                     doc.SizeBindable, internals.Tracker.Document.ProcessingColorSpace);
                 nodeVm.ResultPainter.AllowPartialResolutions = false;

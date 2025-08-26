@@ -84,7 +84,7 @@ internal class ActionAccumulator
         TryExecuteAccumulatedActions();
     }
 
-    internal void TryExecuteAccumulatedActions()
+    internal async Task TryExecuteAccumulatedActions()
     {
         if (executing || queuedActions.Count == 0)
             return;
@@ -112,7 +112,7 @@ internal class ActionAccumulator
                 }
                 else
                 {
-                    changes = internals.Tracker.ProcessActionsSync(toExecute);
+                    changes = await internals.Tracker.ProcessActions(toExecute);
                 }
 
                 List<IChangeInfo> optimizedChanges = ChangeInfoListOptimizer.Optimize(changes);

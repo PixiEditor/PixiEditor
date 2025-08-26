@@ -21,7 +21,7 @@ public class PreviewPainter : IDisposable
     public ColorSpace ProcessingColorSpace { get; set; }
     public KeyFrameTime FrameTime { get; set; }
     public VecI DocumentSize { get; set; }
-    public DocumentRenderer Renderer { get; set; }
+    public PreviewRenderer Renderer { get; set; }
 
     public bool AllowPartialResolutions { get; set; } = true;
 
@@ -42,7 +42,7 @@ public class PreviewPainter : IDisposable
 
     private int lastRequestId = 0;
 
-    public PreviewPainter(DocumentRenderer renderer, IPreviewRenderable previewRenderable, KeyFrameTime frameTime,
+    public PreviewPainter(PreviewRenderer renderer, IPreviewRenderable previewRenderable, KeyFrameTime frameTime,
         VecI documentSize, ColorSpace processingColorSpace, string elementToRenderName = "")
     {
         PreviewRenderable = previewRenderable;
@@ -184,7 +184,7 @@ public class PreviewPainter : IDisposable
                 ProcessingColorSpace, samplingOptions);
 
             dirtyTextures.Remove(texture);
-            Renderer.RenderNodePreview(PreviewRenderable, renderTexture.DrawingSurface, context, ElementToRenderName)
+            Renderer.QueueRenderNodePreview(PreviewRenderable, renderTexture.DrawingSurface, context, ElementToRenderName)
                 .ContinueWith(_ =>
                 {
                     Dispatcher.UIThread.Invoke(() =>
