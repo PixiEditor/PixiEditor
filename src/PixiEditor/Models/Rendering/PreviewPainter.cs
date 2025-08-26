@@ -173,7 +173,7 @@ public class PreviewPainter : IDisposable
             VecI bounds = painterInstance.RequestRenderBounds?.Invoke() ?? VecI.Zero;
 
             ChunkResolution finalResolution = FindResolution(bounds);
-            SamplingOptions samplingOptions = FindSamplingOptions(bounds);
+            SamplingOptions samplingOptions = FindSamplingOptions(matrix);
 
             renderTexture.DrawingSurface.Canvas.SetMatrix(matrix ?? Matrix3X3.Identity);
             renderTexture.DrawingSurface.Canvas.Scale((float)finalResolution.InvertedMultiplier());
@@ -257,10 +257,10 @@ public class PreviewPainter : IDisposable
         return ChunkResolution.Full;
     }
 
-    private SamplingOptions FindSamplingOptions(VecI bounds)
+    private SamplingOptions FindSamplingOptions(Matrix3X3? matrix)
     {
-        var density = DocumentSize.X / (double)bounds.X;
-        return density > 1
+        Matrix3X3 mtx = matrix ?? Matrix3X3.Identity;
+        return mtx.ScaleX < 1f || mtx.ScaleY < 1f
             ? SamplingOptions.Bilinear
             : SamplingOptions.Default;
     }
