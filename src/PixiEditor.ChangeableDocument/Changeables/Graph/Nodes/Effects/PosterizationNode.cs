@@ -1,6 +1,7 @@
 ﻿using Drawie.Backend.Core;
 using Drawie.Backend.Core.Shaders;
 using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
@@ -14,6 +15,7 @@ public class PosterizationNode : RenderNode, IRenderInput
     public RenderInputProperty Background { get; }
     public InputProperty<PosterizationMode> Mode { get; }
     public InputProperty<int> Levels { get; }
+    public InputProperty<bool> UseDocumentColorSpace { get; }
     
     private Paint paint;
     private Shader shader;
@@ -69,7 +71,8 @@ public class PosterizationNode : RenderNode, IRenderInput
         Mode = CreateInput("Mode", "MODE", PosterizationMode.Rgb);
         Levels = CreateInput("Levels", "LEVELS", 8)
             .WithRules(v => v.Min(2).Max(256));
-
+        UseDocumentColorSpace = CreateInput("UseDocumentColorSpace", "USE_DOCUMENT_COLOR_SPACE", false);
+        
         paint = new Paint();
         Output.FirstInChain = null;
     }
@@ -94,7 +97,12 @@ public class PosterizationNode : RenderNode, IRenderInput
         {
             return;
         }
-        using Texture temp = Texture.ForProcessing(surface, context.ProcessingColorSpace);
+        
+        var colorSpace = UseDocumentColorSpace.Value
+            ? context.ProcessingColorSpace
+            : ColorSpace.CreateSrgb();
+        
+        using Texture temp = Texture.ForProcessing(surface, colorSpace);
         Background.Value.Paint(context, temp.DrawingSurface);
         var snapshot = temp.DrawingSurface.Snapshot();
         
@@ -109,10 +117,11 @@ public class PosterizationNode : RenderNode, IRenderInput
         paint.Shader = shader;
         snapshot.Dispose();
         
-        var saved = surface.Canvas.Save();
-        surface.Canvas.Scale((float)context.ChunkResolution.InvertedMultiplier());
-        surface.Canvas.DrawRect(0, 0, context.RenderOutputSize.X, context.RenderOutputSize.Y, paint);
-        surface.Canvas.RestoreToCount(saved);
+        var saved = temp.DrawingSurface.Canvas.Save();
+        temp.DrawingSurface.Canvas.Scale((float)context.ChunkResolution.InvertedMultiplier());
+        temp.DrawingSurface.Canvas.DrawRect(0, 0, context.RenderOutputSize.X, context.RenderOutputSize.Y, paint);
+        temp.DrawingSurface.Canvas.RestoreToCount(saved);
+        surface.Canvas.DrawSurface(temp.DrawingSurface, 0, 0);
     }
     
     public override RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
