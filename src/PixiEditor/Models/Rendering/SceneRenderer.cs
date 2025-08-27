@@ -48,42 +48,46 @@ internal class SceneRenderer : IDisposable
             {
                 if (viewport.Value.RealDimensions.ShortestAxis <= 0) continue;
 
-                if (!DocumentViewModel.SceneTextures.TryGetValue(viewport.Key, out var texture)
-                    || texture.Size != (VecI)viewport.Value.RealDimensions)
+                var rendered = RenderScene((VecI)viewport.Value.RealDimensions, viewport.Value.Transform,
+                    viewport.Value.Resolution,
+                    viewport.Value.Sampling,
+                    viewport.Value.RenderOutput.Equals("DEFAULT", StringComparison.InvariantCultureIgnoreCase)
+                        ? null
+                        : viewport.Value.RenderOutput);
+                if (DocumentViewModel.SceneTextures.TryGetValue(viewport.Key, out var texture))
                 {
-                    texture?.Dispose();
-                    texture = Texture.ForProcessing((VecI)viewport.Value.RealDimensions,
-                        Document.ProcessingColorSpace);
+                    texture.Dispose();
                 }
 
-                RenderScene(texture.DrawingSurface, viewport.Value.Resolution,
-                    viewport.Value.Sampling, viewport.Value.RenderOutput == "DEFAULT" ? null : viewport.Value.RenderOutput);
-                DocumentViewModel.SceneTextures[viewport.Key] = texture;
+                DocumentViewModel.SceneTextures[viewport.Key] = rendered;
             }
-        }).ConfigureAwait(false);
+        });
     }
 
-    public void RenderScene(DrawingSurface target, ChunkResolution resolution, SamplingOptions samplingOptions,
+    public Texture? RenderScene(VecI renderTargetSize, Matrix3X3 targetMatrix, ChunkResolution resolution,
+        SamplingOptions samplingOptions,
         string? targetOutput = null)
     {
-        if (Document.Renderer.IsBusy || DocumentViewModel.Busy ||
-            target.DeviceClipBounds.Size.ShortestAxis <= 0) return;
-        RenderOnionSkin(target, resolution, samplingOptions, targetOutput);
+        /*if (Document.Renderer.IsBusy || DocumentViewModel.Busy ||
+            target.DeviceClipBounds.Size.ShortestAxis <= 0) return;*/
+        //RenderOnionSkin(target, resolution, samplingOptions, targetOutput);
 
         string adjustedTargetOutput = targetOutput ?? "";
 
         IReadOnlyNodeGraph finalGraph = RenderingUtils.SolveFinalNodeGraph(targetOutput, Document);
-        bool shouldRerender = ShouldRerender(target, resolution, adjustedTargetOutput, finalGraph);
+        //bool shouldRerender = ShouldRerender(target, resolution, adjustedTargetOutput, finalGraph);
 
         // TODO: Check if clipping to visible area improves performance on full resolution
         // Meaning zoomed big textures
 
-        using var rendered = RenderGraph(target, resolution, samplingOptions, targetOutput, finalGraph);
+        return RenderGraph(renderTargetSize, targetMatrix, resolution, samplingOptions, targetOutput, finalGraph);
+        //previewRenderer.RenderPreviews(DocumentViewModel.AnimationHandler.ActiveFrameTime);
+        /*
         if (shouldRerender)
         {
-            //previewRenderer.RenderPreviews(DocumentViewModel.AnimationHandler.ActiveFrameTime);
             return;
         }
+        */
 
         /*var cachedTexture = DocumentViewModel.SceneTextures[adjustedTargetOutput];
         Matrix3X3 matrixDiff = SolveMatrixDiff(target, cachedTexture);
@@ -102,11 +106,12 @@ internal class SceneRenderer : IDisposable
         target.Canvas.RestoreToCount(saved);*/
     }
 
-    private Texture RenderGraph(DrawingSurface target, ChunkResolution resolution, SamplingOptions samplingOptions,
+    private Texture RenderGraph(VecI renderTargetSize, Matrix3X3 targetMatrix, ChunkResolution resolution,
+        SamplingOptions samplingOptions,
         string? targetOutput,
         IReadOnlyNodeGraph finalGraph)
     {
-        DrawingSurface renderTarget = target;
+        DrawingSurface renderTarget = null;
         Texture? renderTexture = null;
         int restoreCanvasTo;
 
@@ -117,23 +122,24 @@ internal class SceneRenderer : IDisposable
 
             renderTexture = Texture.ForProcessing(finalSize, Document.ProcessingColorSpace);
             renderTarget = renderTexture.DrawingSurface;
+            renderTarget.Canvas.Save();
             renderTexture.DrawingSurface.Canvas.Save();
             renderTexture.DrawingSurface.Canvas.Scale((float)resolution.Multiplier());
 
-            restoreCanvasTo = target.Canvas.Save();
-            target.Canvas.Scale((float)resolution.InvertedMultiplier());
+            /*restoreCanvasTo = target.Canvas.Save();
+            target.Canvas.Scale((float)resolution.InvertedMultiplier());*/
         }
         else
         {
-            renderTexture = Texture.ForProcessing(renderTarget.DeviceClipBounds.Size, Document.ProcessingColorSpace);
+            renderTexture = Texture.ForProcessing(renderTargetSize, Document.ProcessingColorSpace);
 
             renderTarget = renderTexture.DrawingSurface;
 
-            restoreCanvasTo = target.Canvas.Save();
-            renderTarget.Canvas.Save();
+            /*restoreCanvasTo = target.Canvas.Save();
+            renderTarget.Canvas.Save();*/
 
-            renderTarget.Canvas.SetMatrix(target.Canvas.TotalMatrix);
-            target.Canvas.SetMatrix(Matrix3X3.Identity);
+            /*target.Canvas.SetMatrix(Matrix3X3.Identity);*/
+            renderTarget.Canvas.SetMatrix(targetMatrix);
             renderTarget.Canvas.ClipRect(new RectD(0, 0, finalSize.X, finalSize.Y));
             resolution = ChunkResolution.Full;
         }
@@ -143,7 +149,9 @@ internal class SceneRenderer : IDisposable
         context.TargetOutput = targetOutput;
         finalGraph.Execute(context);
 
-        if (renderTexture != null)
+        renderTarget.Canvas.Restore();
+
+        /*if (renderTexture != null)
         {
             target.Canvas.Clear();
             if (samplingOptions == SamplingOptions.Default)
@@ -157,7 +165,7 @@ internal class SceneRenderer : IDisposable
             }
 
             target.Canvas.RestoreToCount(restoreCanvasTo);
-        }
+        }*/
 
         return renderTexture;
     }

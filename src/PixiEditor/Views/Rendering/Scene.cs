@@ -347,7 +347,21 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         DrawOverlays(renderTexture.DrawingSurface, bounds, OverlayRenderSorting.Background);
         try
         {
+            var tex = Document.SceneTextures[ViewportId];
+            bool hasSaved = false;
+            int saved = -1;
+            if (tex.Size == (VecI)RealDimensions)
+            {
+                saved = renderTexture.DrawingSurface.Canvas.Save();
+                renderTexture.DrawingSurface.Canvas.SetMatrix(Matrix3X3.Identity);
+                hasSaved = true;
+            }
+
             renderTexture.DrawingSurface.Canvas.DrawSurface(Document.SceneTextures[ViewportId].DrawingSurface, 0, 0);
+            if (hasSaved)
+            {
+                renderTexture.DrawingSurface.Canvas.RestoreToCount(saved);
+            }
             /*SceneRenderer.RenderScene(renderTexture.DrawingSurface, CalculateResolution(), CalculateSampling(),
                 renderOutput);*/
         }
