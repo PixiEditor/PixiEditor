@@ -3,7 +3,7 @@ using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document.Nodes.Effects;
 
-[NodeViewModel("POSTERIZATION_NODE", "EFFECTS", PixiPerfectIcons.Outline)]
+[NodeViewModel("POSTERIZATION_NODE", "EFFECTS", PixiPerfectIcons.ColorPalette)]
 internal class PosterizationNodeViewModel : NodeViewModel<PosterizationNode>
 {
     
