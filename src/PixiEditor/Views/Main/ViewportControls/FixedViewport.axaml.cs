@@ -126,7 +126,7 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
             docSize / 2,
             new VecD(mainImage.Bounds.Width, mainImage.Bounds.Height),
             Matrix3X3.Identity,
-            "Default",
+            "DEFAULT",
             SamplingOptions.Bilinear,
             docSize,
             CalculateResolution(),

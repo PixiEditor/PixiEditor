@@ -1,4 +1,5 @@
-﻿using ChunkyImageLib.DataHolders;
+﻿using Avalonia.Threading;
+using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -59,7 +60,7 @@ internal class CanvasUpdater
     public async Task UpdateGatheredChunks
         (AffectedAreasGatherer chunkGatherer, bool rerenderDelayed)
     {
-        await Task.Run(() => Render(chunkGatherer, rerenderDelayed)).ConfigureAwait(true);
+        await Dispatcher.UIThread.InvokeAsync(() => Render(chunkGatherer, rerenderDelayed), DispatcherPriority.Background);
     }
 
     /// <summary>

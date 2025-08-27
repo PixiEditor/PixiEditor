@@ -323,61 +323,69 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         QueueNextFrame();
     }
 
-    public void Draw(DrawingSurface renderTexture)
+    public void Draw(DrawingSurface texture)
     {
         if (Document == null || SceneRenderer == null) return;
 
-        renderTexture.Canvas.Save();
+        texture.Canvas.Save();
         var matrix = CalculateTransformMatrix();
 
-        renderTexture.Canvas.SetMatrix(matrix.ToSKMatrix().ToMatrix3X3());
+        texture.Canvas.SetMatrix(matrix.ToSKMatrix().ToMatrix3X3());
 
         VecI outputSize = FindOutputSize();
 
         RectD dirtyBounds = new RectD(0, 0, outputSize.X, outputSize.Y);
-        RenderScene(dirtyBounds);
+        RenderScene(texture, dirtyBounds);
 
-        renderTexture.Canvas.Restore();
+        texture.Canvas.Restore();
     }
 
-    private void RenderScene(RectD bounds)
+    private void RenderScene(DrawingSurface texture, RectD bounds)
     {
         var renderOutput = RenderOutput == "DEFAULT" ? null : RenderOutput;
-        DrawCheckerboard(renderTexture.DrawingSurface, bounds);
-        DrawOverlays(renderTexture.DrawingSurface, bounds, OverlayRenderSorting.Background);
+        DrawCheckerboard(texture, bounds);
+        DrawOverlays(texture, bounds, OverlayRenderSorting.Background);
         try
         {
             var tex = Document.SceneTextures[ViewportId];
+
             bool hasSaved = false;
             int saved = -1;
             if (tex.Size == (VecI)RealDimensions)
             {
-                saved = renderTexture.DrawingSurface.Canvas.Save();
-                renderTexture.DrawingSurface.Canvas.SetMatrix(Matrix3X3.Identity);
+                saved = texture.Canvas.Save();
+                texture.Canvas.SetMatrix(Matrix3X3.Identity);
+                hasSaved = true;
+            }
+            else
+            {
+                float scale = CalculateResolutionScale();
+                saved = texture.Canvas.Save();
+                texture.Canvas.Scale(scale);
                 hasSaved = true;
             }
 
-            renderTexture.DrawingSurface.Canvas.DrawSurface(Document.SceneTextures[ViewportId].DrawingSurface, 0, 0);
+            texture.Canvas.DrawSurface(Document.SceneTextures[ViewportId].DrawingSurface, 0, 0);
             if (hasSaved)
             {
-                renderTexture.DrawingSurface.Canvas.RestoreToCount(saved);
+                texture.Canvas.RestoreToCount(saved);
             }
             /*SceneRenderer.RenderScene(renderTexture.DrawingSurface, CalculateResolution(), CalculateSampling(),
                 renderOutput);*/
         }
         catch (Exception e)
         {
-            renderTexture.DrawingSurface.Canvas.Clear();
+            texture.Canvas.Clear();
             using Paint paint = new Paint { Color = Colors.White, IsAntiAliased = true };
 
             using Font defaultSizedFont = Font.CreateDefault();
             defaultSizedFont.Size = 24;
 
-            renderTexture.DrawingSurface.Canvas.DrawText(new LocalizedString("ERROR_GRAPH"), renderTexture.Size / 2f,
+            texture.Canvas.DrawText(new LocalizedString("ERROR_GRAPH"), renderTexture.Size / 2f,
                 TextAlign.Center, defaultSizedFont, paint);
         }
 
-        DrawOverlays(renderTexture.DrawingSurface, bounds, OverlayRenderSorting.Foreground);
+        DrawOverlays(texture, bounds, OverlayRenderSorting.Foreground);
     }
 
     private void DrawCheckerboard(DrawingSurface surface, RectD dirtyBounds)

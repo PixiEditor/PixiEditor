@@ -139,16 +139,11 @@ internal class ActionAccumulator
                     internals.Tracker,
                     optimizedChanges, refreshPreviewsRequest);
 
-                if (DrawingBackendApi.Current.IsHardwareAccelerated && !allPassthrough)
-                {
-                    canvasUpdater.UpdateGatheredChunksSync(affectedAreas,
-                        undoBoundaryPassed || viewportRefreshRequest);
-                }
-                /*else
+                if (!allPassthrough)
                 {
                     await canvasUpdater.UpdateGatheredChunks(affectedAreas,
                         undoBoundaryPassed || viewportRefreshRequest);
-                }*/
+                }
 
                 await document.SceneRenderer.RenderAsync(internals.State.Viewports);
 

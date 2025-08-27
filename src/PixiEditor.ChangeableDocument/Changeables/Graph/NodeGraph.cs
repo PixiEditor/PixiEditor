@@ -8,7 +8,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph;
 public class NodeGraph : IReadOnlyNodeGraph
 {
     private ImmutableList<IReadOnlyNode>? cachedExecutionList;
-    
+
     private readonly List<Node> _nodes = new();
     public IReadOnlyCollection<Node> Nodes => _nodes;
     public IReadOnlyDictionary<Guid, Node> NodeLookup => nodeLookup;
@@ -27,7 +27,7 @@ public class NodeGraph : IReadOnlyNodeGraph
         {
             return;
         }
-        
+
         node.ConnectionsChanged += ResetCache;
         _nodes.Add(node);
         nodeLookup[node.Id] = node;
@@ -86,8 +86,10 @@ public class NodeGraph : IReadOnlyNodeGraph
                     var connectedNode = input.Connection.Node;
                     if (nodeMapping.TryGetValue(connectedNode as Node, out var clonedConnectedNode))
                     {
-                        var clonedOutput = clonedConnectedNode.OutputProperties.FirstOrDefault(o => o.InternalPropertyName == input.Connection.InternalPropertyName);
-                        var clonedInput = clonedNode.InputProperties.FirstOrDefault(i => i.InternalPropertyName == input.InternalPropertyName);
+                        var clonedOutput = clonedConnectedNode.OutputProperties.FirstOrDefault(o =>
+                            o.InternalPropertyName == input.Connection.InternalPropertyName);
+                        var clonedInput = clonedNode.InputProperties.FirstOrDefault(i =>
+                            i.InternalPropertyName == input.InternalPropertyName);
                         if (clonedOutput != null && clonedInput != null)
                         {
                             clonedOutput.ConnectTo(clonedInput);
@@ -125,44 +127,49 @@ public class NodeGraph : IReadOnlyNodeGraph
 
     public bool TryTraverse(Action<IReadOnlyNode> action)
     {
-        if(OutputNode == null) return false;
-        
+        if (OutputNode == null) return false;
+
         var queue = CalculateExecutionQueueInternal(OutputNode);
-        
+
         foreach (var node in queue)
         {
             action(node);
         }
-        
+
         return true;
     }
 
     bool isexecuting = false;
+
     public void Execute(RenderContext context)
     {
         if (isexecuting) return;
         isexecuting = true;
         if (OutputNode == null) return;
-        if(!CanExecute()) return;
+        if (!CanExecute()) return;
 
         var queue = CalculateExecutionQueueInternal(OutputNode);
-        
+
         foreach (var node in queue)
         {
-            if (node is Node typedNode)
+            lock (node)
             {
-                if(typedNode.IsDisposed) continue;
-                
-                typedNode.ExecuteInternal(context);
-            }
-            else
-            {
-                node.Execute(context);
+                if (node is Node typedNode)
+                {
+                    if (typedNode.IsDisposed) continue;
+
+                    typedNode.ExecuteInternal(context);
+                }
+                else
+                {
+                    node.Execute(context);
+                }
             }
         }
+
         isexecuting = false;
     }
-    
+
     private bool CanExecute()
     {
         foreach (var node in Nodes)
@@ -175,7 +182,7 @@ public class NodeGraph : IReadOnlyNodeGraph
 
         return true;
     }
-    
+
     private void ResetCache()
     {
         cachedExecutionList = null;

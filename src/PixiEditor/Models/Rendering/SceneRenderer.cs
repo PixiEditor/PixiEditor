@@ -1,4 +1,5 @@
-﻿using ChunkyImageLib.DataHolders;
+﻿using Avalonia.Threading;
+using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
@@ -31,6 +32,8 @@ internal class SceneRenderer : IDisposable
 
     private ChunkResolution? lastResolution;
 
+    private TextureCache textureCache = new();
+
     public SceneRenderer(IReadOnlyDocument trackerDocument, IDocument documentViewModel,
         PreviewRenderer previewRenderer)
     {
@@ -39,32 +42,35 @@ internal class SceneRenderer : IDisposable
         this.previewRenderer = previewRenderer;
     }
 
-
     public async Task RenderAsync(Dictionary<Guid, ViewportInfo> stateViewports)
     {
-        await Task.Run(() =>
+        await Dispatcher.UIThread.InvokeAsync(() =>
         {
             foreach (var viewport in stateViewports)
             {
                 if (viewport.Value.RealDimensions.ShortestAxis <= 0) continue;
 
-                var rendered = RenderScene((VecI)viewport.Value.RealDimensions, viewport.Value.Transform,
+                var rendered = RenderScene(
+                    viewport.Key,
+                    (VecI)viewport.Value.RealDimensions,
+                    viewport.Value.Transform,
                     viewport.Value.Resolution,
                     viewport.Value.Sampling,
                     viewport.Value.RenderOutput.Equals("DEFAULT", StringComparison.InvariantCultureIgnoreCase)
                         ? null
                         : viewport.Value.RenderOutput);
-                if (DocumentViewModel.SceneTextures.TryGetValue(viewport.Key, out var texture))
+                if (DocumentViewModel.SceneTextures.TryGetValue(viewport.Key, out var texture) && texture != rendered)
                 {
                     texture.Dispose();
                 }
 
                 DocumentViewModel.SceneTextures[viewport.Key] = rendered;
             }
-        });
+        }, DispatcherPriority.Background);
     }
 
-    public Texture? RenderScene(VecI renderTargetSize, Matrix3X3 targetMatrix, ChunkResolution resolution,
+    public Texture? RenderScene(Guid viewportId, VecI renderTargetSize, Matrix3X3 targetMatrix,
+        ChunkResolution resolution,
         SamplingOptions samplingOptions,
         string? targetOutput = null)
     {
@@ -75,22 +81,23 @@ internal class SceneRenderer : IDisposable
         string adjustedTargetOutput = targetOutput ?? "";
 
         IReadOnlyNodeGraph finalGraph = RenderingUtils.SolveFinalNodeGraph(targetOutput, Document);
-        //bool shouldRerender = ShouldRerender(target, resolution, adjustedTargetOutput, finalGraph);
+        bool shouldRerender =
+            ShouldRerender(renderTargetSize, targetMatrix, resolution, viewportId, finalGraph);
 
         // TODO: Check if clipping to visible area improves performance on full resolution
         // Meaning zoomed big textures
 
-        return RenderGraph(renderTargetSize, targetMatrix, resolution, samplingOptions, targetOutput, finalGraph);
-        //previewRenderer.RenderPreviews(DocumentViewModel.AnimationHandler.ActiveFrameTime);
-        /*
         if (shouldRerender)
         {
-            return;
+            return RenderGraph(renderTargetSize, targetMatrix, resolution, samplingOptions, targetOutput, finalGraph);
         }
-        */
+        //previewRenderer.RenderPreviews(DocumentViewModel.AnimationHandler.ActiveFrameTime);
 
-        /*var cachedTexture = DocumentViewModel.SceneTextures[adjustedTargetOutput];
-        Matrix3X3 matrixDiff = SolveMatrixDiff(target, cachedTexture);
+        var cachedTexture = DocumentViewModel.SceneTextures[viewportId];
+
+        return cachedTexture;
+        Matrix3X3 matrixDiff = SolveMatrixDiff(targetMatrix, cachedTexture);
+        var target = cachedTexture.DrawingSurface;
         int saved = target.Canvas.Save();
         target.Canvas.SetMatrix(matrixDiff);
         if (samplingOptions == SamplingOptions.Default)
@@ -103,7 +110,9 @@ internal class SceneRenderer : IDisposable
             target.Canvas.DrawImage(img, 0, 0, samplingOptions);
         }
 
-        target.Canvas.RestoreToCount(saved);*/
+        target.Canvas.RestoreToCount(saved);
+
+        return cachedTexture;
     }
 
     private Texture RenderGraph(VecI renderTargetSize, Matrix3X3 targetMatrix, ChunkResolution resolution,
@@ -120,7 +129,7 @@ internal class SceneRenderer : IDisposable
         {
             finalSize = (VecI)(finalSize * resolution.Multiplier());
 
-            renderTexture = Texture.ForProcessing(finalSize, Document.ProcessingColorSpace);
+            renderTexture = textureCache.RequestTexture(0, finalSize, Document.ProcessingColorSpace);
             renderTarget = renderTexture.DrawingSurface;
             renderTarget.Canvas.Save();
             renderTexture.DrawingSurface.Canvas.Save();
@@ -131,7 +140,7 @@ internal class SceneRenderer : IDisposable
         }
         else
         {
-            renderTexture = Texture.ForProcessing(renderTargetSize, Document.ProcessingColorSpace);
+            renderTexture = textureCache.RequestTexture(0, renderTargetSize, Document.ProcessingColorSpace);
 
             renderTarget = renderTexture.DrawingSurface;
 
@@ -199,16 +208,15 @@ internal class SceneRenderer : IDisposable
         return !HighResRendering || !HighDpiRenderNodePresent(finalGraph);
     }
 
-    private bool ShouldRerender(DrawingSurface target, ChunkResolution resolution, string? targetOutput,
+    private bool ShouldRerender(VecI targetSize, Matrix3X3 matrix, ChunkResolution resolution,
+        Guid viewporId,
         IReadOnlyNodeGraph finalGraph)
     {
-        /*
-        if (!cachedTextures.TryGetValue(targetOutput ?? "", out var cachedTexture) || cachedTexture == null ||
+        if (!DocumentViewModel.SceneTextures.TryGetValue(viewporId, out var cachedTexture) || cachedTexture == null ||
             cachedTexture.IsDisposed)
         {
             return true;
         }
-        */
 
         if (lastResolution != resolution)
         {
@@ -225,14 +233,12 @@ internal class SceneRenderer : IDisposable
         bool renderInDocumentSize = RenderInOutputSize(finalGraph);
         VecI compareSize = renderInDocumentSize
             ? (VecI)(Document.Size * resolution.Multiplier())
-            : target.DeviceClipBounds.Size;
+            : targetSize;
 
-        /*
-        if (cachedTexture.DrawingSurface.DeviceClipBounds.Size != compareSize)
+        if (cachedTexture.Size != compareSize)
         {
             return true;
         }
-        */
 
         if (lastFrameTime.Frame != DocumentViewModel.AnimationHandler.ActiveFrameTime.Frame)
         {
@@ -257,16 +263,17 @@ internal class SceneRenderer : IDisposable
             }
         }
 
-        /*if (!renderInDocumentSize)
+        if (!renderInDocumentSize)
         {
-            double lengthDiff = target.LocalClipBounds.Size.Length -
-                                cachedTexture.DrawingSurface.LocalClipBounds.Size.Length;
-            if (lengthDiff > 0 || target.LocalClipBounds.Pos != cachedTexture.DrawingSurface.LocalClipBounds.Pos ||
-                lengthDiff < -ZoomDiffToRerender)
+            if (!renderInDocumentSize)
             {
-                return true;
+                double zoomDiff = Math.Abs(matrix.ScaleX - cachedTexture.DrawingSurface.Canvas.TotalMatrix.ScaleX);
+                if (zoomDiff != 0)
+                {
+                    return true;
+                }
             }
-        }*/
+        }
 
         int currentGraphCacheHash = finalGraph.GetCacheHash();
         if (lastGraphCacheHash != currentGraphCacheHash)
@@ -278,10 +285,10 @@ internal class SceneRenderer : IDisposable
         return false;
     }
 
-    private Matrix3X3 SolveMatrixDiff(DrawingSurface target, Texture cachedTexture)
+    private Matrix3X3 SolveMatrixDiff(Matrix3X3 matrix, Texture cachedTexture)
     {
         Matrix3X3 old = cachedTexture.DrawingSurface.Canvas.TotalMatrix;
-        Matrix3X3 current = target.Canvas.TotalMatrix;
+        Matrix3X3 current = matrix;
 
         Matrix3X3 solveMatrixDiff = current.Concat(old.Invert());
         return solveMatrixDiff;
