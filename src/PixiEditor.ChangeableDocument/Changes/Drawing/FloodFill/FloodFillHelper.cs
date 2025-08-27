@@ -209,10 +209,10 @@ public static class FloodFillHelper
         byte[] pixelStates = new byte[chunkSize * chunkSize];
         DrawSelection(pixelStates, selection, globalSelectionBounds, chunkPos, chunkSize);
 
-        using var refPixmap = referenceChunk.Surface.DrawingSurface.PeekPixels();
+        using var refPixmap = referenceChunk.Surface.PeekPixels();
         Half* refArray = (Half*)refPixmap.GetPixels();
 
-        using var drawPixmap = drawingChunk.Surface.DrawingSurface.PeekPixels();
+        using var drawPixmap = drawingChunk.Surface.PeekPixels();
         Half* drawArray = (Half*)drawPixmap.GetPixels();
 
         Stack<VecI> toVisit = new();

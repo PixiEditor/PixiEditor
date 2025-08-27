@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+﻿using System.Diagnostics;
+using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Helpers;
@@ -132,14 +133,26 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         var sceneSize = GetSceneSize(ctx.FrameTime);
         VecD topLeft = sceneSize / 2f;
 
-        if (renderedSurfaceFrame == null || ctx.FullRerender || ctx.FrameTime.Frame != renderedSurfaceFrame)
+        //if (renderedSurfaceFrame == null || ctx.FullRerender || ctx.FrameTime.Frame != renderedSurfaceFrame)
         {
-            GetLayerImageAtFrame(ctx.FrameTime.Frame).DrawMostUpToDateRegionOn(
-                new RectI(0, 0, layerImage.LatestSize.X, layerImage.LatestSize.Y),
-                ChunkResolution.Full,
-                workingSurface, -topLeft, paint);
+            topLeft *= ctx.ChunkResolution.Multiplier();
+            workingSurface.Canvas.Scale((float)ctx.ChunkResolution.InvertedMultiplier());
+            if (ctx.AffectedArea.Chunks.Count > 0)
+            {
+                GetLayerImageAtFrame(ctx.FrameTime.Frame).DrawMostUpToDateRegionOnWithAffected(
+                    new RectI(0, 0, layerImage.LatestSize.X, layerImage.LatestSize.Y),
+                    ctx.ChunkResolution,
+                    workingSurface, ctx.AffectedArea, -topLeft, paint);
+            }
+            else
+            {
+                GetLayerImageAtFrame(ctx.FrameTime.Frame).DrawMostUpToDateRegionOn(
+                    new RectI(0, 0, layerImage.LatestSize.X, layerImage.LatestSize.Y),
+                    ctx.ChunkResolution,
+                    workingSurface, -topLeft, paint);
+            }
         }
-        else
+        /*else
         {
             if (ctx.DesiredSamplingOptions == SamplingOptions.Default)
             {
@@ -153,7 +166,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
                     ctx.DesiredSamplingOptions,
                     paint);
             }
-        }
+        }*/
 
         workingSurface.Canvas.RestoreToCount(saved);
     }
@@ -349,6 +362,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     public override void RenderChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime,
         ColorSpace processColorSpace)
     {
+        return;
         base.RenderChunk(chunkPos, resolution, frameTime, processColorSpace);
 
         var img = GetLayerImageAtFrame(frameTime.Frame);

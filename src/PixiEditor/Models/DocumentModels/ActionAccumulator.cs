@@ -141,11 +141,11 @@ internal class ActionAccumulator
 
                 if (!allPassthrough)
                 {
-                    await canvasUpdater.UpdateGatheredChunks(affectedAreas,
-                        undoBoundaryPassed || viewportRefreshRequest);
+                    /*await canvasUpdater.UpdateGatheredChunks(affectedAreas,
+                        undoBoundaryPassed || viewportRefreshRequest);*/
                 }
 
-                await document.SceneRenderer.RenderAsync(internals.State.Viewports);
+                await document.SceneRenderer.RenderAsync(internals.State.Viewports, affectedAreas.MainImageArea);
 
                 bool previewsDisabled = PixiEditorSettings.Performance.DisablePreviews.Value;
 

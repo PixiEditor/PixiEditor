@@ -21,7 +21,8 @@ public class RenderContext
     public bool FullRerender { get; set; } = false;
     
     public ColorSpace ProcessingColorSpace { get; set; }
-    public string? TargetOutput { get; set; }   
+    public string? TargetOutput { get; set; }
+    public AffectedArea AffectedArea { get; set; }
 
 
     public RenderContext(DrawingSurface renderSurface, KeyFrameTime frameTime, ChunkResolution chunkResolution,

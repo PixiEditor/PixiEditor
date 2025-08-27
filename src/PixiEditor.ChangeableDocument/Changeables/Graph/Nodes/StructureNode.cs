@@ -186,6 +186,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
             context.FrameTime, context.ChunkResolution, context.RenderOutputSize, context.DocumentSize, renderTarget == context.RenderSurface,
             context.ProcessingColorSpace, context.DesiredSamplingOptions, context.Opacity);
         renderObjectContext.FullRerender = context.FullRerender;
+        renderObjectContext.AffectedArea = context.AffectedArea;
         return renderObjectContext;
     }
 

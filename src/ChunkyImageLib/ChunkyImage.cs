@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
@@ -191,7 +192,8 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
     /// Finds the precise bounds in <paramref name="suggestedResolution"/>. If there are no chunks rendered for that resolution, full res chunks are used instead.
     /// </summary>
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
-    public RectI? FindTightCommittedBounds(ChunkResolution suggestedResolution = ChunkResolution.Full, bool fallbackToChunkAligned = false)
+    public RectI? FindTightCommittedBounds(ChunkResolution suggestedResolution = ChunkResolution.Full,
+        bool fallbackToChunkAligned = false)
     {
         lock (lockObject)
         {
@@ -267,7 +269,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
                 var image = GetCommittedChunk(chunk, ChunkResolution.Full);
                 if (image is null)
                     continue;
-                output.EnqueueDrawImage(chunk * FullChunkSize, image.Surface);
+                output.EnqueueDrawTexture(chunk * FullChunkSize, image.Surface);
             }
 
             output.CommitChanges();
@@ -416,6 +418,64 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
             if (lockTransparency)
                 OperationHelper.ClampAlpha(tempChunk.Surface.DrawingSurface, committedChunk.Surface.DrawingSurface);
             tempChunk.DrawChunkOn(surface, pos, paint, samplingOptions);
+
+            return true;
+        }
+    }
+
+    public bool DrawCachedMostUpToDateChunkOn(VecI chunkPos, ChunkResolution resolution, DrawingSurface surface,
+        VecD pos,
+        Paint? paint = null, SamplingOptions? sampling = null)
+    {
+        lock (lockObject)
+        {
+            ThrowIfDisposed();
+            OneOf<None, EmptyChunk, Chunk> latestChunk;
+            {
+                var chunk = MaybeGetLatestChunk(chunkPos, resolution);
+                if (latestChunksData[resolution].TryGetValue(chunkPos, out var chunkData) && chunkData.IsDeleted)
+                {
+                    latestChunk = new EmptyChunk();
+                }
+                else
+                {
+                    latestChunk = chunk is null ? new None() : chunk;
+                }
+            }
+
+            var committedChunk = GetCommittedChunk(chunkPos, resolution);
+
+            // draw committed directly
+            if (latestChunk.IsT0 || latestChunk.IsT1 && committedChunk is not null && blendMode != BlendMode.Src)
+            {
+                if (committedChunk is null)
+                    return false;
+                committedChunk.DrawChunkOn(surface, pos, paint, sampling);
+                return true;
+            }
+
+            // no need to combine with committed, draw directly
+            if (blendMode == BlendMode.Src || committedChunk is null)
+            {
+                if (latestChunk.IsT2)
+                {
+                    latestChunk.AsT2.DrawChunkOn(surface, pos, paint, sampling);
+                    return true;
+                }
+
+                return false;
+            }
+
+            // combine with committed and then draw
+            using var tempChunk = Chunk.Create(ProcessingColorSpace, resolution);
+            tempChunk.Surface.DrawingSurface.Canvas.DrawSurface(committedChunk.Surface.DrawingSurface, 0, 0,
+                ReplacingPaint);
+            blendModePaint.BlendMode = blendMode;
+            tempChunk.Surface.DrawingSurface.Canvas.DrawSurface(latestChunk.AsT2.Surface.DrawingSurface, 0, 0,
+                blendModePaint);
+            if (lockTransparency)
+                OperationHelper.ClampAlpha(tempChunk.Surface.DrawingSurface, committedChunk.Surface.DrawingSurface);
+            tempChunk.DrawChunkOn(surface, pos, paint, sampling);
 
             return true;
         }

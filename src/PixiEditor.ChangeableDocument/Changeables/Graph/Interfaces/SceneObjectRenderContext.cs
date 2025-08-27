@@ -11,6 +11,7 @@ public class SceneObjectRenderContext : RenderContext
     public RectD LocalBounds { get; }
     public bool RenderSurfaceIsScene { get; }
     public RenderOutputProperty TargetPropertyOutput { get; }
+    public AffectedArea AffectedArea { get; set; }
 
     public SceneObjectRenderContext(RenderOutputProperty targetPropertyOutput, DrawingSurface surface, RectD localBounds, KeyFrameTime frameTime,
         ChunkResolution chunkResolution, VecI renderOutputSize, VecI documentSize, bool renderSurfaceIsScene, ColorSpace processingColorSpace, SamplingOptions desiredSampling, double opacity) : base(surface, frameTime, chunkResolution, renderOutputSize, documentSize, processingColorSpace, desiredSampling, opacity)

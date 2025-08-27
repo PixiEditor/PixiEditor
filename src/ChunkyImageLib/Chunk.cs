@@ -23,7 +23,7 @@ public class Chunk : IDisposable
     /// <summary>
     /// The surface of the chunk
     /// </summary>
-    public Surface Surface
+    public Texture Surface
     {
         get
         {
@@ -50,7 +50,7 @@ public class Chunk : IDisposable
 
     public bool Disposed => returned;
 
-    private Surface internalSurface;
+    private Texture internalSurface;
 
     private Chunk(ChunkResolution resolution, ColorSpace colorSpace)
     {
@@ -59,7 +59,7 @@ public class Chunk : IDisposable
         Resolution = resolution;
         ColorSpace = colorSpace;
         PixelSize = new(size, size);
-        internalSurface = new Surface(new ImageInfo(size, size, ColorType.RgbaF16, AlphaType.Premul, colorSpace));
+        internalSurface = new Texture(new ImageInfo(size, size, ColorType.RgbaF16, AlphaType.Premul, colorSpace) {GpuBacked = true});
     }
 
     /// <summary>
@@ -67,6 +67,7 @@ public class Chunk : IDisposable
     /// </summary>
     public static Chunk Create(ColorSpace chunkCs, ChunkResolution resolution = ChunkResolution.Full)
     {
+        /*
         var chunk = ChunkPool.Instance.Get(resolution, chunkCs);
         if (chunk == null || chunk.Disposed)
         {
@@ -75,7 +76,8 @@ public class Chunk : IDisposable
 
         chunk.returned = false;
         Interlocked.Increment(ref chunkCounter);
-        return chunk;
+        */
+        return new Chunk(resolution, chunkCs);
     }
 
     /// <summary>
@@ -109,7 +111,8 @@ public class Chunk : IDisposable
 
         RectI searchRegion = passedSearchRegion ?? new RectI(VecI.Zero, Surface.Size);
 
-        ulong* ptr = (ulong*)Surface.PixelBuffer;
+        using var pixmap = Surface.PeekPixels();
+        ulong* ptr = (ulong*)pixmap.GetPixels();
         for (int y = searchRegion.Top; y < searchRegion.Bottom; y++)
         {
             for (int x = searchRegion.Left; x < searchRegion.Right; x++)
@@ -133,11 +136,13 @@ public class Chunk : IDisposable
     /// </summary>
     public void Dispose()
     {
-        if (returned)
+        Surface.Dispose();
+        returned = true;
+        /*if (returned)
             return;
         Interlocked.Decrement(ref chunkCounter);
         Surface.DrawingSurface.Canvas.Clear();
         ChunkPool.Instance.Push(this);
-        returned = true;
+        returned = true;*/
     }
 }

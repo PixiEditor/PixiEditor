@@ -1,4 +1,5 @@
-﻿using Avalonia.Threading;
+﻿using System.Diagnostics;
+using Avalonia.Threading;
 using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
@@ -42,7 +43,7 @@ internal class SceneRenderer : IDisposable
         this.previewRenderer = previewRenderer;
     }
 
-    public async Task RenderAsync(Dictionary<Guid, ViewportInfo> stateViewports)
+    public async Task RenderAsync(Dictionary<Guid, ViewportInfo> stateViewports, AffectedArea affectedArea)
     {
         await Dispatcher.UIThread.InvokeAsync(() =>
         {
@@ -55,6 +56,7 @@ internal class SceneRenderer : IDisposable
                     (VecI)viewport.Value.RealDimensions,
                     viewport.Value.Transform,
                     viewport.Value.Resolution,
+                    affectedArea,
                     viewport.Value.Sampling,
                     viewport.Value.RenderOutput.Equals("DEFAULT", StringComparison.InvariantCultureIgnoreCase)
                         ? null
@@ -71,6 +73,7 @@ internal class SceneRenderer : IDisposable
 
     public Texture? RenderScene(Guid viewportId, VecI renderTargetSize, Matrix3X3 targetMatrix,
         ChunkResolution resolution,
+        AffectedArea affectedArea,
         SamplingOptions samplingOptions,
         string? targetOutput = null)
     {
@@ -89,7 +92,7 @@ internal class SceneRenderer : IDisposable
 
         if (shouldRerender)
         {
-            return RenderGraph(renderTargetSize, targetMatrix, resolution, samplingOptions, targetOutput, finalGraph);
+            return RenderGraph(renderTargetSize, targetMatrix, resolution, samplingOptions, affectedArea, targetOutput, finalGraph);
         }
         //previewRenderer.RenderPreviews(DocumentViewModel.AnimationHandler.ActiveFrameTime);
 
@@ -117,6 +120,7 @@ internal class SceneRenderer : IDisposable
 
     private Texture RenderGraph(VecI renderTargetSize, Matrix3X3 targetMatrix, ChunkResolution resolution,
         SamplingOptions samplingOptions,
+        AffectedArea area,
         string? targetOutput,
         IReadOnlyNodeGraph finalGraph)
     {
@@ -156,6 +160,8 @@ internal class SceneRenderer : IDisposable
         RenderContext context = new(renderTarget, DocumentViewModel.AnimationHandler.ActiveFrameTime,
             resolution, finalSize, Document.Size, Document.ProcessingColorSpace, samplingOptions);
         context.TargetOutput = targetOutput;
+        context.AffectedArea = area;
+
         finalGraph.Execute(context);
 
         renderTarget.Canvas.Restore();
