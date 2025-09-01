@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
+using Avalonia.Controls;
 using Avalonia.Input;
 using CommunityToolkit.Mvvm.Input;
 using Drawie.Numerics;
@@ -302,5 +303,32 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>, IWindowHandler
 
         popup.Show();
         return popup;
+    }
+
+    /// <summary>
+    /// Used to save the WindowState before toggling to FullScreen-Mode.
+    /// </summary>
+    private WindowState LastWindowState { get; set; }
+
+    /// <summary>
+    /// Method used to toggle to FullScreen-Mode.
+    /// </summary>
+    [Commands_Command.Basic("PixiEditor.Window.ToggleFullscreen", "TOGGLE_FULLSCREEN", "TOGGLE_FULLSCREEN",
+        Key = Key.F11,
+        Icon = PixiPerfectIcons.Fullscreen,
+        AnalyticsTrack = true)]
+    public void ToggleFullscreen()
+    {
+        var window = Owner.AttachedWindow;
+
+        if (window is null) return;
+
+        if (window.WindowState != WindowState.FullScreen) LastWindowState = window.WindowState;
+
+        window.WindowState = window.WindowState switch
+        {
+            WindowState.FullScreen => LastWindowState,
+            _ => WindowState.FullScreen
+        };
     }
 }
