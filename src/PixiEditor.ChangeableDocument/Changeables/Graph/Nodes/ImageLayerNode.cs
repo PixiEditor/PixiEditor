@@ -137,7 +137,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         {
             topLeft *= ctx.ChunkResolution.Multiplier();
             workingSurface.Canvas.Scale((float)ctx.ChunkResolution.InvertedMultiplier());
-            if (ctx.AffectedArea.Chunks.Count > 0)
+            if (ctx?.AffectedArea.Chunks?.Count > 0)
             {
                 GetLayerImageAtFrame(ctx.FrameTime.Frame).DrawMostUpToDateRegionOnWithAffected(
                     new RectI(0, 0, layerImage.LatestSize.X, layerImage.LatestSize.Y),
