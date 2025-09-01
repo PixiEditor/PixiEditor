@@ -44,6 +44,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
                 blendPaint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
             }
 
+            // TODO: Optimizattion: Simple graphs can draw directly to scene, skipping the intermediate surface
             if (AllowHighDpiRendering || renderOnto.DeviceClipBounds.Size == context.RenderOutputSize)
             {
                 DrawLayerInScene(context, renderOnto, useFilters);

@@ -398,6 +398,11 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     static Viewport()
     {
         DocumentProperty.Changed.Subscribe(OnDocumentChange);
+        ViewportRenderOutputProperty.Changed.Subscribe(e =>
+        {
+            Viewport? viewport = (Viewport)e.Sender;
+            viewport.Document?.Operations.AddOrUpdateViewport(viewport.GetLocation());
+        });
         ZoomViewportTriggerProperty.Changed.Subscribe(ZoomViewportTriggerChanged);
         CenterViewportTriggerProperty.Changed.Subscribe(CenterViewportTriggerChanged);
         HighResPreviewProperty.Changed.Subscribe(OnHighResPreviewChanged);

@@ -25,7 +25,7 @@ internal class SceneRenderer : IDisposable
     public IDocument DocumentViewModel { get; }
     public bool HighResRendering { get; set; } = true;
 
-    private bool lastHighResRendering = true;
+    private Dictionary<Guid, RenderState> lastRenderedStates = new();
     private int lastGraphCacheHash = -1;
     private KeyFrameTime lastFrameTime;
     private Dictionary<Guid, bool> lastFramesVisibility = new();
@@ -83,12 +83,16 @@ internal class SceneRenderer : IDisposable
             target.DeviceClipBounds.Size.ShortestAxis <= 0) return;*/
         //RenderOnionSkin(target, resolution, samplingOptions, targetOutput);
 
+        /*TODO:
+         - Onion skinning
+         - Previews generation
+         - Rendering optimizer
+         - Render thread and proper locking/synchronization
+         */
+
         IReadOnlyNodeGraph finalGraph = RenderingUtils.SolveFinalNodeGraph(targetOutput, Document);
         bool shouldRerender =
             ShouldRerender(renderTargetSize, targetMatrix, resolution, viewportId, targetOutput, finalGraph);
-
-        // TODO: Check if clipping to visible area improves performance on full resolution
-        // Meaning zoomed big textures
 
         if (shouldRerender)
         {
@@ -99,10 +103,6 @@ internal class SceneRenderer : IDisposable
         //previewRenderer.RenderPreviews(DocumentViewModel.AnimationHandler.ActiveFrameTime);
 
         var cachedTexture = DocumentViewModel.SceneTextures[viewportId];
-        Matrix3X3 matrixDiff = SolveMatrixDiff(targetMatrix, cachedTexture);
-        var target = cachedTexture.DrawingSurface;
-        target.Canvas.SetMatrix(matrixDiff);
-
         return cachedTexture;
     }
 
@@ -221,9 +221,25 @@ internal class SceneRenderer : IDisposable
             return true;
         }
 
-        if (lastHighResRendering != HighResRendering)
+        var renderState = new RenderState
         {
-            lastHighResRendering = HighResRendering;
+            ChunkResolution = resolution,
+            HighResRendering = HighResRendering,
+            TargetOutput = targetOutput,
+            GraphCacheHash = finalGraph.GetCacheHash()
+        };
+
+        if (lastRenderedStates.TryGetValue(viewportId, out var lastState))
+        {
+            if (!lastState.Equals(renderState))
+            {
+                lastRenderedStates[viewportId] = renderState;
+                return true;
+            }
+        }
+        else
+        {
+            lastRenderedStates[viewportId] = renderState;
             return true;
         }
 
@@ -271,25 +287,8 @@ internal class SceneRenderer : IDisposable
         }
         //}
 
-        int currentGraphCacheHash = finalGraph.GetCacheHash();
-        if (lastGraphCacheHash != currentGraphCacheHash)
-        {
-            lastGraphCacheHash = currentGraphCacheHash;
-            return true;
-        }
-
         return false;
     }
-
-    private Matrix3X3 SolveMatrixDiff(Matrix3X3 matrix, Texture cachedTexture)
-    {
-        Matrix3X3 old = cachedTexture.DrawingSurface.Canvas.TotalMatrix;
-        Matrix3X3 current = matrix;
-
-        Matrix3X3 solveMatrixDiff = current.Concat(old.Invert());
-        return solveMatrixDiff;
-    }
-
 
     private bool HighDpiRenderNodePresent(IReadOnlyNodeGraph documentNodeGraph)
     {
@@ -361,5 +360,19 @@ internal class SceneRenderer : IDisposable
         {
             texture.Value?.Dispose();
         }*/
+    }
+}
+
+
+struct RenderState
+{
+    public ChunkResolution ChunkResolution { get; set; }
+    public bool HighResRendering { get; set; }
+    public string TargetOutput { get; set; }
+    public int GraphCacheHash { get; set; }
+
+    public bool Equals(RenderState other)
+    {
+        return ChunkResolution.Equals(other.ChunkResolution) && HighResRendering == other.HighResRendering && TargetOutput == other.TargetOutput && GraphCacheHash == other.GraphCacheHash;
     }
 }

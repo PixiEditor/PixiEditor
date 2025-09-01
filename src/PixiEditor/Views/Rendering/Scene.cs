@@ -351,28 +351,36 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
             bool hasSaved = false;
             int saved = -1;
+
+            var matrix = CalculateTransformMatrix().ToSKMatrix().ToMatrix3X3();
+            var cachedTexture = Document.SceneTextures[ViewportId];
+            Matrix3X3 matrixDiff = SolveMatrixDiff(matrix, cachedTexture);
+            var target = cachedTexture.DrawingSurface;
+
             if (tex.Size == (VecI)RealDimensions)
             {
                 saved = texture.Canvas.Save();
                 texture.Canvas.ClipRect(bounds);
-                texture.Canvas.SetMatrix(Matrix3X3.Identity);
+                texture.Canvas.SetMatrix(matrixDiff);
                 hasSaved = true;
             }
             else
             {
                 float scale = CalculateResolutionScale();
                 saved = texture.Canvas.Save();
+                texture.Canvas.SetMatrix(matrixDiff);
                 texture.Canvas.Scale(scale);
                 hasSaved = true;
             }
 
-            texture.Canvas.DrawSurface(Document.SceneTextures[ViewportId].DrawingSurface, 0, 0);
+
+            texture.Canvas.Save();
+
+            texture.Canvas.DrawSurface(target, 0, 0);
             if (hasSaved)
             {
                 texture.Canvas.RestoreToCount(saved);
             }
-            /*SceneRenderer.RenderScene(renderTexture.DrawingSurface, CalculateResolution(), CalculateSampling(),
-                renderOutput);*/
         }
         catch (Exception e)
         {
@@ -858,6 +866,16 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         }
 
         base.OnPropertyChanged(change);
+    }
+
+
+    private Matrix3X3 SolveMatrixDiff(Matrix3X3 matrix, Texture cachedTexture)
+    {
+        Matrix3X3 old = cachedTexture.DrawingSurface.Canvas.TotalMatrix;
+        Matrix3X3 current = matrix;
+
+        Matrix3X3 solveMatrixDiff = current.Concat(old.Invert());
+        return solveMatrixDiff;
     }
 
     private async Task<(bool success, string info)> DoInitialize(Compositor compositor,
