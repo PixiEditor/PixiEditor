@@ -59,7 +59,7 @@ public class Chunk : IDisposable
         Resolution = resolution;
         ColorSpace = colorSpace;
         PixelSize = new(size, size);
-        internalSurface = new Texture(new ImageInfo(size, size, ColorType.RgbaF16, AlphaType.Premul, colorSpace) {GpuBacked = true});
+        internalSurface = new Texture(new ImageInfo(size, size, ColorType.RgbaF16, AlphaType.Premul, colorSpace) { GpuBacked = true });
     }
 
     /// <summary>

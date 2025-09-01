@@ -354,6 +354,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             if (tex.Size == (VecI)RealDimensions)
             {
                 saved = texture.Canvas.Save();
+                texture.Canvas.ClipRect(bounds);
                 texture.Canvas.SetMatrix(Matrix3X3.Identity);
                 hasSaved = true;
             }

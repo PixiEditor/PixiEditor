@@ -128,7 +128,6 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     private void DrawLayer(DrawingSurface workingSurface, Paint paint, SceneObjectRenderContext ctx)
     {
         int saved = workingSurface.Canvas.Save();
-        AllowHighDpiRendering = true;
 
         var sceneSize = GetSceneSize(ctx.FrameTime);
         var region = ctx.VisibleDocumentRegion ?? new RectI(0, 0, layerImage.LatestSize.X, layerImage.LatestSize.Y);

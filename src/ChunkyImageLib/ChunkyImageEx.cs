@@ -115,7 +115,7 @@ public static class IReadOnlyChunkyImageEx
             for (int i = chunkTopLeft.X; i <= chunkBotRight.X; i++)
             {
                 var chunkPos = new VecI(i, j);
-                if (area.Chunks.Contains(chunkPos))
+                if (area.Chunks != null && area.Chunks.Contains(chunkPos))
                 {
                     drawingFunc(chunkPos, resolution, surface,
                         offsetTargetRes + (chunkPos - chunkTopLeft) * resolution.PixelSize() + pos, paint,

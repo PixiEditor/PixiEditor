@@ -83,8 +83,6 @@ internal class SceneRenderer : IDisposable
             target.DeviceClipBounds.Size.ShortestAxis <= 0) return;*/
         //RenderOnionSkin(target, resolution, samplingOptions, targetOutput);
 
-        string adjustedTargetOutput = targetOutput ?? "";
-
         IReadOnlyNodeGraph finalGraph = RenderingUtils.SolveFinalNodeGraph(targetOutput, Document);
         bool shouldRerender =
             ShouldRerender(renderTargetSize, targetMatrix, resolution, viewportId, targetOutput, finalGraph);
@@ -94,7 +92,8 @@ internal class SceneRenderer : IDisposable
 
         if (shouldRerender)
         {
-            return RenderGraph(renderTargetSize, targetMatrix, viewportId, resolution, samplingOptions, affectedArea, visibleDocumentRegion, targetOutput,
+            return RenderGraph(renderTargetSize, targetMatrix, viewportId, resolution, samplingOptions, affectedArea,
+                visibleDocumentRegion, targetOutput,
                 finalGraph);
         }
         //previewRenderer.RenderPreviews(DocumentViewModel.AnimationHandler.ActiveFrameTime);
@@ -135,7 +134,8 @@ internal class SceneRenderer : IDisposable
         }
         else
         {
-            renderTexture = textureCache.RequestTexture(viewportId.GetHashCode(), renderTargetSize, Document.ProcessingColorSpace);
+            renderTexture = textureCache.RequestTexture(viewportId.GetHashCode(), renderTargetSize,
+                Document.ProcessingColorSpace);
 
             renderTarget = renderTexture.DrawingSurface;
 
@@ -143,7 +143,6 @@ internal class SceneRenderer : IDisposable
             renderTarget.Canvas.Save();*/
 
             /*target.Canvas.SetMatrix(Matrix3X3.Identity);*/
-            renderTarget.Canvas.ClipRect(new RectD(0, 0, finalSize.X, finalSize.Y));
             renderTarget.Canvas.SetMatrix(targetMatrix);
         }
 
@@ -201,7 +200,8 @@ internal class SceneRenderer : IDisposable
 
     private bool RenderInOutputSize(IReadOnlyNodeGraph finalGraph, VecI renderTargetSize, VecI finalSize)
     {
-        return !HighResRendering || (!HighDpiRenderNodePresent(finalGraph) && renderTargetSize.Length > finalSize.Length);
+        return !HighResRendering ||
+               (!HighDpiRenderNodePresent(finalGraph) && renderTargetSize.Length > finalSize.Length);
     }
 
     private bool ShouldRerender(VecI targetSize, Matrix3X3 matrix, ChunkResolution resolution,
@@ -261,17 +261,15 @@ internal class SceneRenderer : IDisposable
             }
         }
 
-        if (!renderInDocumentSize)
+        // if (!renderInDocumentSize)
+        //{
+        double zoomDiff = Math.Abs(matrix.ScaleX - cachedTexture.DrawingSurface.Canvas.TotalMatrix.ScaleX);
+        zoomDiff += Math.Abs(matrix.ScaleY - cachedTexture.DrawingSurface.Canvas.TotalMatrix.ScaleY);
+        if (zoomDiff != 0)
         {
-            if (!renderInDocumentSize)
-            {
-                double zoomDiff = Math.Abs(matrix.ScaleX - cachedTexture.DrawingSurface.Canvas.TotalMatrix.ScaleX);
-                if (zoomDiff != 0)
-                {
-                    return true;
-                }
-            }
+            return true;
         }
+        //}
 
         int currentGraphCacheHash = finalGraph.GetCacheHash();
         if (lastGraphCacheHash != currentGraphCacheHash)

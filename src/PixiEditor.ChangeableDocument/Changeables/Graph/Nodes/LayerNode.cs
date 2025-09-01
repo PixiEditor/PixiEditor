@@ -37,7 +37,6 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
 
     private void RenderContent(SceneObjectRenderContext context, DrawingSurface renderOnto, bool useFilters)
     {
-        AllowHighDpiRendering = true;
         if (!HasOperations())
         {
             if (Background.Value != null)
