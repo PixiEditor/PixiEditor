@@ -56,6 +56,7 @@ public class OutputNode : Node, IRenderInput, IPreviewRenderable
         }
 
         int saved = renderOn.Canvas.Save();
+        renderOn.Canvas.Scale((float)context.ChunkResolution.Multiplier());
         Input.Value.Paint(context, renderOn);
 
         renderOn.Canvas.RestoreToCount(saved);

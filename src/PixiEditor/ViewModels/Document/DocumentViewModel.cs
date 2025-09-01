@@ -35,6 +35,7 @@ using PixiEditor.Models.Tools;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
 using PixiEditor.Models.IO;
+using PixiEditor.Models.Position;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Skia;
 using PixiEditor.UI.Common.Localization;
@@ -184,6 +185,16 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
     public IStructureMemberHandler? SelectedStructureMember { get; private set; } = null;
 
+    private PreviewPainter miniPreviewPainter;
+
+    public PreviewPainter MiniPreviewPainter
+    {
+        get => miniPreviewPainter;
+        set
+        {
+            SetProperty(ref miniPreviewPainter, value);
+        }
+    }
 
     private PreviewPainter previewSurface;
 
@@ -374,10 +385,14 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             viewModel.MarkAsSaved();
         }));
 
+        acc.AddActions(new SetActiveFrame_PassthroughAction(1), new RefreshPreviews_PassthroughAction());
+
         foreach (var factory in allFactories)
         {
             factory.ResourceLocator = null;
         }
+
+        viewModel.NodeGraph.FinalizeCreation();
 
         return viewModel;
 

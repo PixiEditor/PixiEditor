@@ -50,4 +50,9 @@ public static class PreferencesConstants
     public const string SecondaryBackgroundColorDefault = "#353535";
     public const string SecondaryBackgroundColor = "SecondaryBackgroundColor";
 
+    public const string MaxBilinearSampleSize = "MaxBilinearSampleSize";
+    public const int MaxBilinearSampleSizeDefault = 4096;
+
+    public const string DisablePreviews = "DisablePreviews";
+    public const bool DisablePreviewsDefault = false;
 }
