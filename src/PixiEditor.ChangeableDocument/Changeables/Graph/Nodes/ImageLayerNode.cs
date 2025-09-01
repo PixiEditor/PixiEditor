@@ -31,7 +31,6 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     private ColorSpace colorSpace;
     private ChunkyImage layerImage => keyFrames[0]?.Data as ChunkyImage;
 
-    private Texture fullResrenderedSurface;
     private int renderedSurfaceFrame = -1;
 
     public ImageLayerNode(VecI size, ColorSpace colorSpace)
@@ -129,27 +128,29 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     private void DrawLayer(DrawingSurface workingSurface, Paint paint, SceneObjectRenderContext ctx)
     {
         int saved = workingSurface.Canvas.Save();
+        AllowHighDpiRendering = true;
 
         var sceneSize = GetSceneSize(ctx.FrameTime);
-        VecD topLeft = sceneSize / 2f;
+        var region = ctx.VisibleDocumentRegion ?? new RectI(0, 0, layerImage.LatestSize.X, layerImage.LatestSize.Y);
+        VecD topLeft = region.TopLeft - sceneSize / 2;
 
         //if (renderedSurfaceFrame == null || ctx.FullRerender || ctx.FrameTime.Frame != renderedSurfaceFrame)
         {
             topLeft *= ctx.ChunkResolution.Multiplier();
             workingSurface.Canvas.Scale((float)ctx.ChunkResolution.InvertedMultiplier());
-            if (ctx?.AffectedArea.Chunks?.Count > 0)
+            if (!ctx.FullRerender)
             {
                 GetLayerImageAtFrame(ctx.FrameTime.Frame).DrawMostUpToDateRegionOnWithAffected(
-                    new RectI(0, 0, layerImage.LatestSize.X, layerImage.LatestSize.Y),
+                    region,
                     ctx.ChunkResolution,
-                    workingSurface, ctx.AffectedArea, -topLeft, paint);
+                    workingSurface, ctx.AffectedArea, topLeft, paint, ctx.DesiredSamplingOptions);
             }
             else
             {
                 GetLayerImageAtFrame(ctx.FrameTime.Frame).DrawMostUpToDateRegionOn(
-                    new RectI(0, 0, layerImage.LatestSize.X, layerImage.LatestSize.Y),
+                    region,
                     ctx.ChunkResolution,
-                    workingSurface, -topLeft, paint);
+                    workingSurface, topLeft, paint, ctx.DesiredSamplingOptions);
             }
         }
         /*else
@@ -270,7 +271,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         {
             int saved = renderOnto.Canvas.Save();
             renderOnto.Canvas.Scale((float)context.ChunkResolution.Multiplier());
-            if (context.DesiredSamplingOptions == SamplingOptions.Default)
+            /*if (context.DesiredSamplingOptions == SamplingOptions.Default)
             {
                 renderOnto.Canvas.DrawSurface(
                     fullResrenderedSurface.DrawingSurface, 0, 0, blendPaint);
@@ -279,7 +280,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
             {
                 using var snapshot = fullResrenderedSurface.DrawingSurface.Snapshot();
                 renderOnto.Canvas.DrawImage(snapshot, 0, 0, context.DesiredSamplingOptions, blendPaint);
-            }
+            }*/
 
             renderOnto.Canvas.RestoreToCount(saved);
         }
@@ -343,12 +344,6 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         return image;
     }
 
-    public override void Dispose()
-    {
-        base.Dispose();
-        fullResrenderedSurface?.Dispose();
-    }
-
     IReadOnlyChunkyImage IReadOnlyImageNode.GetLayerImageAtFrame(int frame) => GetLayerImageAtFrame(frame);
 
     IReadOnlyChunkyImage IReadOnlyImageNode.GetLayerImageByKeyFrameGuid(Guid keyFrameGuid) =>
@@ -367,7 +362,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
         var img = GetLayerImageAtFrame(frameTime.Frame);
 
-        RenderChunkyImageChunk(chunkPos, resolution, img, 85, processColorSpace, ref fullResrenderedSurface);
+        //RenderChunkyImageChunk(chunkPos, resolution, img, 85, processColorSpace, ref fullResrenderedSurface);
         renderedSurfaceFrame = frameTime.Frame;
     }
 

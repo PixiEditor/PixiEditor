@@ -57,6 +57,7 @@ internal class SceneRenderer : IDisposable
                     viewport.Value.Transform,
                     viewport.Value.Resolution,
                     affectedArea,
+                    viewport.Value.VisibleDocumentRegion,
                     viewport.Value.Sampling,
                     viewport.Value.RenderOutput.Equals("DEFAULT", StringComparison.InvariantCultureIgnoreCase)
                         ? null
@@ -74,6 +75,7 @@ internal class SceneRenderer : IDisposable
     public Texture? RenderScene(Guid viewportId, VecI renderTargetSize, Matrix3X3 targetMatrix,
         ChunkResolution resolution,
         AffectedArea affectedArea,
+        RectI? visibleDocumentRegion,
         SamplingOptions samplingOptions,
         string? targetOutput = null)
     {
@@ -85,42 +87,31 @@ internal class SceneRenderer : IDisposable
 
         IReadOnlyNodeGraph finalGraph = RenderingUtils.SolveFinalNodeGraph(targetOutput, Document);
         bool shouldRerender =
-            ShouldRerender(renderTargetSize, targetMatrix, resolution, viewportId, finalGraph);
+            ShouldRerender(renderTargetSize, targetMatrix, resolution, viewportId, targetOutput, finalGraph);
 
         // TODO: Check if clipping to visible area improves performance on full resolution
         // Meaning zoomed big textures
 
         if (shouldRerender)
         {
-            return RenderGraph(renderTargetSize, targetMatrix, resolution, samplingOptions, affectedArea, targetOutput, finalGraph);
+            return RenderGraph(renderTargetSize, targetMatrix, viewportId, resolution, samplingOptions, affectedArea, visibleDocumentRegion, targetOutput,
+                finalGraph);
         }
         //previewRenderer.RenderPreviews(DocumentViewModel.AnimationHandler.ActiveFrameTime);
 
         var cachedTexture = DocumentViewModel.SceneTextures[viewportId];
-
-        return cachedTexture;
         Matrix3X3 matrixDiff = SolveMatrixDiff(targetMatrix, cachedTexture);
         var target = cachedTexture.DrawingSurface;
-        int saved = target.Canvas.Save();
         target.Canvas.SetMatrix(matrixDiff);
-        if (samplingOptions == SamplingOptions.Default)
-        {
-            target.Canvas.DrawSurface(cachedTexture.DrawingSurface, 0, 0);
-        }
-        else
-        {
-            using var img = cachedTexture.DrawingSurface.Snapshot();
-            target.Canvas.DrawImage(img, 0, 0, samplingOptions);
-        }
-
-        target.Canvas.RestoreToCount(saved);
 
         return cachedTexture;
     }
 
-    private Texture RenderGraph(VecI renderTargetSize, Matrix3X3 targetMatrix, ChunkResolution resolution,
+    private Texture RenderGraph(VecI renderTargetSize, Matrix3X3 targetMatrix, Guid viewportId,
+        ChunkResolution resolution,
         SamplingOptions samplingOptions,
         AffectedArea area,
+        RectI? visibleDocumentRegion,
         string? targetOutput,
         IReadOnlyNodeGraph finalGraph)
     {
@@ -129,7 +120,7 @@ internal class SceneRenderer : IDisposable
         int restoreCanvasTo;
 
         VecI finalSize = SolveRenderOutputSize(targetOutput, finalGraph, Document.Size);
-        if (RenderInOutputSize(finalGraph))
+        if (RenderInOutputSize(finalGraph, renderTargetSize, finalSize))
         {
             finalSize = (VecI)(finalSize * resolution.Multiplier());
 
@@ -144,7 +135,7 @@ internal class SceneRenderer : IDisposable
         }
         else
         {
-            renderTexture = textureCache.RequestTexture(0, renderTargetSize, Document.ProcessingColorSpace);
+            renderTexture = textureCache.RequestTexture(viewportId.GetHashCode(), renderTargetSize, Document.ProcessingColorSpace);
 
             renderTarget = renderTexture.DrawingSurface;
 
@@ -152,16 +143,15 @@ internal class SceneRenderer : IDisposable
             renderTarget.Canvas.Save();*/
 
             /*target.Canvas.SetMatrix(Matrix3X3.Identity);*/
-            renderTarget.Canvas.SetMatrix(targetMatrix);
             renderTarget.Canvas.ClipRect(new RectD(0, 0, finalSize.X, finalSize.Y));
-            resolution = ChunkResolution.Full;
+            renderTarget.Canvas.SetMatrix(targetMatrix);
         }
 
         RenderContext context = new(renderTarget, DocumentViewModel.AnimationHandler.ActiveFrameTime,
             resolution, finalSize, Document.Size, Document.ProcessingColorSpace, samplingOptions);
         context.TargetOutput = targetOutput;
         context.AffectedArea = area;
-
+        context.VisibleDocumentRegion = visibleDocumentRegion;
         finalGraph.Execute(context);
 
         renderTarget.Canvas.Restore();
@@ -209,16 +199,17 @@ internal class SceneRenderer : IDisposable
         return finalSize;
     }
 
-    private bool RenderInOutputSize(IReadOnlyNodeGraph finalGraph)
+    private bool RenderInOutputSize(IReadOnlyNodeGraph finalGraph, VecI renderTargetSize, VecI finalSize)
     {
-        return !HighResRendering || !HighDpiRenderNodePresent(finalGraph);
+        return !HighResRendering || (!HighDpiRenderNodePresent(finalGraph) && renderTargetSize.Length > finalSize.Length);
     }
 
     private bool ShouldRerender(VecI targetSize, Matrix3X3 matrix, ChunkResolution resolution,
-        Guid viewporId,
+        Guid viewportId,
+        string targetOutput,
         IReadOnlyNodeGraph finalGraph)
     {
-        if (!DocumentViewModel.SceneTextures.TryGetValue(viewporId, out var cachedTexture) || cachedTexture == null ||
+        if (!DocumentViewModel.SceneTextures.TryGetValue(viewportId, out var cachedTexture) || cachedTexture == null ||
             cachedTexture.IsDisposed)
         {
             return true;
@@ -236,7 +227,8 @@ internal class SceneRenderer : IDisposable
             return true;
         }
 
-        bool renderInDocumentSize = RenderInOutputSize(finalGraph);
+        VecI finalSize = SolveRenderOutputSize(targetOutput, finalGraph, Document.Size);
+        bool renderInDocumentSize = RenderInOutputSize(finalGraph, targetSize, finalSize);
         VecI compareSize = renderInDocumentSize
             ? (VecI)(Document.Size * resolution.Multiplier())
             : targetSize;

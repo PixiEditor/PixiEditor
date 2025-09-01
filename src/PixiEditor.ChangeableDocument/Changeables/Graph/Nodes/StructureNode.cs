@@ -187,6 +187,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
             context.ProcessingColorSpace, context.DesiredSamplingOptions, context.Opacity);
         renderObjectContext.FullRerender = context.FullRerender;
         renderObjectContext.AffectedArea = context.AffectedArea;
+        renderObjectContext.VisibleDocumentRegion = context.VisibleDocumentRegion;
         return renderObjectContext;
     }
 

@@ -13,6 +13,7 @@ internal readonly record struct ViewportInfo(
     VecD Center,
     VecD RealDimensions,
     Matrix3X3 Transform,
+    RectI? VisibleDocumentRegion,
     string RenderOutput,
     SamplingOptions Sampling,
     VecD Dimensions,

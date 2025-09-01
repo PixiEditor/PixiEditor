@@ -121,14 +121,17 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     public static readonly StyledProperty<bool> AutoBackgroundScaleProperty = AvaloniaProperty.Register<Viewport, bool>(
         nameof(AutoBackgroundScale), true);
 
-    public static readonly StyledProperty<double> CustomBackgroundScaleXProperty = AvaloniaProperty.Register<Viewport, double>(
-        nameof(CustomBackgroundScaleX));
+    public static readonly StyledProperty<double> CustomBackgroundScaleXProperty =
+        AvaloniaProperty.Register<Viewport, double>(
+            nameof(CustomBackgroundScaleX));
 
-    public static readonly StyledProperty<double> CustomBackgroundScaleYProperty = AvaloniaProperty.Register<Viewport, double>(
-        nameof(CustomBackgroundScaleY));
+    public static readonly StyledProperty<double> CustomBackgroundScaleYProperty =
+        AvaloniaProperty.Register<Viewport, double>(
+            nameof(CustomBackgroundScaleY));
 
-    public static readonly StyledProperty<Bitmap> BackgroundBitmapProperty = AvaloniaProperty.Register<Viewport, Bitmap>(
-        nameof(BackgroundBitmap));
+    public static readonly StyledProperty<Bitmap> BackgroundBitmapProperty =
+        AvaloniaProperty.Register<Viewport, Bitmap>(
+            nameof(BackgroundBitmap));
 
     public Bitmap BackgroundBitmap
     {
@@ -141,6 +144,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         get => GetValue(CustomBackgroundScaleYProperty);
         set => SetValue(CustomBackgroundScaleYProperty, value);
     }
+
     public double CustomBackgroundScaleX
     {
         get => GetValue(CustomBackgroundScaleXProperty);
@@ -384,6 +388,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     private MouseUpdateController? mouseUpdateController;
     private ViewportOverlays builtInOverlays = new();
+
     public static readonly StyledProperty<int> MaxBilinearSamplingSizeProperty
         = AvaloniaProperty.Register<Viewport, int>("MaxBilinearSamplingSize", 4096);
 
@@ -514,7 +519,10 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     private ViewportInfo GetLocation()
     {
-        return new(AngleRadians, Center, RealDimensions, Scene.CalculateTransformMatrix().ToSKMatrix().ToMatrix3X3(), ViewportRenderOutput, Scene.CalculateSampling(), Dimensions,CalculateResolution(), GuidValue, Delayed,
+        return new(AngleRadians, Center, RealDimensions,
+            Scene.CalculateTransformMatrix().ToSKMatrix().ToMatrix3X3(),
+            CalculateVisibleRegion(),
+            ViewportRenderOutput, Scene.CalculateSampling(), Dimensions, CalculateResolution(), GuidValue, Delayed,
             ForceRefreshFinalImage);
     }
 
@@ -611,6 +619,32 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     {
         scene.AngleRadians = 0;
         scene.CenterContent(Document.GetRenderOutputSize(ViewportRenderOutput));
+    }
+
+    private RectI? CalculateVisibleRegion()
+    {
+        if (Document is null) return null;
+        VecD viewportDimensions = scene.RealDimensions;
+        var transform = scene.CanvasTransform.Value.ToSKMatrix().ToMatrix3X3();
+        var docSize = Document.GetRenderOutputSize(ViewportRenderOutput);
+        if (docSize.X == 0 || docSize.Y == 0) return null;
+
+        VecD topLeft = new(0, 0);
+        VecD topRight = new(viewportDimensions.X, 0);
+        VecD bottomLeft = new(0, viewportDimensions.Y);
+        VecD bottomRight = new(viewportDimensions.X, viewportDimensions.Y);
+        topLeft = transform.Invert().MapPoint(topLeft);
+        topRight = transform.Invert().MapPoint(topRight);
+        bottomLeft = transform.Invert().MapPoint(bottomLeft);
+        bottomRight = transform.Invert().MapPoint(bottomRight);
+
+        double minX = Math.Min(Math.Min(topLeft.X, topRight.X), Math.Min(bottomLeft.X, bottomRight.X));
+        double maxX = Math.Max(Math.Max(topLeft.X, topRight.X), Math.Max(bottomLeft.X, bottomRight.X));
+        double minY = Math.Min(Math.Min(topLeft.Y, topRight.Y), Math.Min(bottomLeft.Y, bottomRight.Y));
+        double maxY = Math.Max(Math.Max(topLeft.Y, topRight.Y), Math.Max(bottomLeft.Y, bottomRight.Y));
+        RectD visibleRect = new(minX, minY, maxX - minX, maxY - minY);
+        visibleRect = visibleRect.Intersect(new RectD(0, 0, docSize.X, docSize.Y));
+        return (RectI)visibleRect.RoundOutwards();
     }
 
     private static void CenterViewportTriggerChanged(AvaloniaPropertyChangedEventArgs<ExecutionTrigger<VecI>> e)

@@ -67,7 +67,6 @@ public class Chunk : IDisposable
     /// </summary>
     public static Chunk Create(ColorSpace chunkCs, ChunkResolution resolution = ChunkResolution.Full)
     {
-        /*
         var chunk = ChunkPool.Instance.Get(resolution, chunkCs);
         if (chunk == null || chunk.Disposed)
         {
@@ -76,8 +75,7 @@ public class Chunk : IDisposable
 
         chunk.returned = false;
         Interlocked.Increment(ref chunkCounter);
-        */
-        return new Chunk(resolution, chunkCs);
+        return chunk;
     }
 
     /// <summary>
@@ -136,13 +134,12 @@ public class Chunk : IDisposable
     /// </summary>
     public void Dispose()
     {
-        Surface.Dispose();
-        returned = true;
-        /*if (returned)
+        if (returned)
             return;
         Interlocked.Decrement(ref chunkCounter);
         Surface.DrawingSurface.Canvas.Clear();
+        Surface.DrawingSurface.Canvas.SetMatrix(Matrix3X3.Identity);
         ChunkPool.Instance.Push(this);
-        returned = true;*/
+        returned = true;
     }
 }
