@@ -122,4 +122,14 @@ public class ByteExtractor
 
         return sb.ToString();
     }
+
+    public byte[] GetByteArray(int length)
+    {
+        byte[] value = new byte[length];
+        Array.Copy(_data, Position, value, 0, length);
+
+        Position += length;
+
+        return value;
+    }
 }

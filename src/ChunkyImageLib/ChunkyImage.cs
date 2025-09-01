@@ -1184,6 +1184,26 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
         }
     }
 
+    public Dictionary<VecI, Surface> CloneAllCommitedNonEmptyChunks()
+    {
+        lock (lockObject)
+        {
+            ThrowIfDisposed();
+            var dict = new Dictionary<VecI, Surface>();
+            foreach (var (pos, chunk) in committedChunks[ChunkResolution.Full])
+            {
+                if (chunk.FindPreciseBounds().HasValue)
+                {
+                    var surf = new Surface(chunk.Surface.ImageInfo);
+                    surf.DrawingSurface.Canvas.DrawSurface(chunk.Surface.DrawingSurface, 0, 0);
+                    dict[pos] = surf;
+                }
+            }
+
+            return dict;
+        }
+    }
+
     /// <returns>
     /// Chunks affected by operations that haven't been committed yet
     /// </returns>
