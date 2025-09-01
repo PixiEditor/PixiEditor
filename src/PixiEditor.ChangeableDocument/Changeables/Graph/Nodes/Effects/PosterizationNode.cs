@@ -1,4 +1,5 @@
 ﻿using Drawie.Backend.Core;
+using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Shaders;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
@@ -21,7 +22,6 @@ public class PosterizationNode : RenderNode, IRenderInput
     private Shader shader;
     
     private Shader? lastImageShader;
-    private PosterizationMode? lastMode = null;
     private VecI lastDocumentSize;
     
     private string shaderCode = """
@@ -74,6 +74,7 @@ public class PosterizationNode : RenderNode, IRenderInput
         UseDocumentColorSpace = CreateInput("UseDocumentColorSpace", "USE_DOCUMENT_COLOR_SPACE", false);
         
         paint = new Paint();
+        paint.BlendMode = BlendMode.Src;
         Output.FirstInChain = null;
     }
 
@@ -81,7 +82,6 @@ public class PosterizationNode : RenderNode, IRenderInput
     {
         base.OnExecute(context);
         lastDocumentSize = context.RenderOutputSize;
-        lastMode = Mode.Value;
         
         Uniforms uniforms = new Uniforms();
         uniforms.Add("iImage", new Uniform("iImage", lastImageShader));
@@ -117,11 +117,15 @@ public class PosterizationNode : RenderNode, IRenderInput
         paint.Shader = shader;
         snapshot.Dispose();
         
-        var saved = temp.DrawingSurface.Canvas.Save();
-        temp.DrawingSurface.Canvas.Scale((float)context.ChunkResolution.InvertedMultiplier());
+        var savedTemp = temp.DrawingSurface.Canvas.Save();
+        temp.DrawingSurface.Canvas.SetMatrix(Matrix3X3.Identity);
         temp.DrawingSurface.Canvas.DrawRect(0, 0, context.RenderOutputSize.X, context.RenderOutputSize.Y, paint);
-        temp.DrawingSurface.Canvas.RestoreToCount(saved);
+        temp.DrawingSurface.Canvas.RestoreToCount(savedTemp);
+        
+        var saved = surface.Canvas.Save();
+        surface.Canvas.SetMatrix(Matrix3X3.Identity);
         surface.Canvas.DrawSurface(temp.DrawingSurface, 0, 0);
+        surface.Canvas.RestoreToCount(saved);
     }
     
     public override RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
