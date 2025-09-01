@@ -19,6 +19,7 @@ internal interface IToolsHandler : IHandler
     public ICollection<IToolSetHandler> AllToolSets { get; }
     public RightClickMode RightClickMode { get; set; }
     public bool EnableSharedToolbar { get; set; }
+    public bool SelectionTintingEnabled { get; set; }
     public event EventHandler<SelectedToolEventArgs> SelectedToolChanged;
     public void SetupTools(IServiceProvider services, ToolSetsConfig toolSetConfig);
     public void SetupToolsTooltipShortcuts();

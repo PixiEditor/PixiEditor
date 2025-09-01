@@ -28,6 +28,8 @@ public static class PixiEditorSettings
     {
         public static SyncedSetting<bool> EnableSharedToolbar { get; } = SyncedSetting.NonOwned<bool>(PixiEditor);
 
+        public static SyncedSetting<bool> SelectionTintingEnabled { get; } = SyncedSetting.NonOwned(PixiEditor, true);
+
         public static SyncedSetting<RightClickMode> RightClickMode { get; } =
             SyncedSetting.NonOwned<RightClickMode>(PixiEditor);
 

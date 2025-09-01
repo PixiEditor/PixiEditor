@@ -11,6 +11,9 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Effects;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Matrix;
 using PixiEditor.Helpers;
+using PixiEditor.Models.Handlers.Toolbars;
+using PixiEditor.Models.Tools;
+using PixiEditor.Views.Overlays.BrushShapeOverlay;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 
 [assembly: LocalizeEnum<StrokeCap>(StrokeCap.Butt, "BUTT_STROKE_CAP")]
@@ -118,3 +121,6 @@ using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 [assembly: LocalizeEnum<BlendMode>(BlendMode.Exclusion, "EXCLUSION_BLEND_MODE")]
 [assembly: LocalizeEnum<BlendMode>(BlendMode.Erase, "ERASE_BLEND_MODE")]
 [assembly: LocalizeEnum<BlendMode>(BlendMode.LinearDodge, "LINEAR_DODGE_BLEND_MODE")]
+
+[assembly: LocalizeEnum<PaintBrushShape>(PaintBrushShape.Circle, "PAINT_BRUSH_SHAPE_CIRCLE")]
+[assembly: LocalizeEnum<PaintBrushShape>(PaintBrushShape.Square, "PAINT_BRUSH_SHAPE_SQUARE")]
