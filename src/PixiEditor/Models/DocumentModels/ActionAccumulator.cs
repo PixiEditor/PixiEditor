@@ -22,7 +22,6 @@ internal class ActionAccumulator
     private IDocument document;
     private DocumentInternalParts internals;
 
-    private CanvasUpdater canvasUpdater;
     private MemberPreviewUpdater previewUpdater;
 
     private bool isChangeBlockActive = false;
@@ -32,7 +31,6 @@ internal class ActionAccumulator
         this.document = doc;
         this.internals = internals;
 
-        canvasUpdater = new(doc, internals);
         previewUpdater = new(doc, internals);
     }
 
@@ -134,20 +132,15 @@ internal class ActionAccumulator
                 if (undoBoundaryPassed)
                     internals.Updater.AfterUndoBoundaryPassed();
 
-
                 var affectedAreas = new AffectedAreasGatherer(document.AnimationHandler.ActiveFrameTime,
                     internals.Tracker,
                     optimizedChanges, refreshPreviewsRequest);
 
-                if (!allPassthrough)
-                {
-                    /*await canvasUpdater.UpdateGatheredChunks(affectedAreas,
-                        undoBoundaryPassed || viewportRefreshRequest);*/
-                }
-
-                await document.SceneRenderer.RenderAsync(internals.State.Viewports, affectedAreas.MainImageArea);
-
                 bool previewsDisabled = PixiEditorSettings.Performance.DisablePreviews.Value;
+                bool updateDelayed = undoBoundaryPassed || viewportRefreshRequest || changeFrameRequest ||
+                                     document.SizeBindable.LongestAxis <= LiveUpdatePerformanceThreshold;
+
+                await document.SceneRenderer.RenderAsync(internals.State.Viewports, affectedAreas.MainImageArea, !previewsDisabled && updateDelayed);
 
                 if (!previewsDisabled)
                 {
@@ -161,13 +154,6 @@ internal class ActionAccumulator
                             affectedAreas.IgnoreAnimationPreviews,
                             undoBoundaryPassed || refreshPreviewsRequest);
                     }
-                }
-
-                // force refresh viewports for better responsiveness
-                foreach (var (_, value) in internals.State.Viewports)
-                {
-                    if (!value.Delayed)
-                        value.InvalidateVisual();
                 }
             }
         }

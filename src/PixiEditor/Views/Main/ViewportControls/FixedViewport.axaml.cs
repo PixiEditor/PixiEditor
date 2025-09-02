@@ -57,6 +57,8 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
         set => SetValue(DocumentProperty, value);
     }
 
+    public Texture? SceneTexture => Document?.SceneTextures.TryGetValue(GuidValue, out var tex) == true ? tex : null;
+
     public Guid GuidValue { get; } = Guid.NewGuid();
 
     static FixedViewport()
@@ -112,6 +114,7 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
 
     private void ForceRefreshFinalImage()
     {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SceneTexture)));
         mainImage.InvalidateVisual();
     }
 
@@ -121,11 +124,13 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
         if (Document is not null)
             docSize = Document.SizeBindable;
 
+        Matrix3X3 scaling = Matrix3X3.CreateScale((float)Bounds.Width / (float)docSize.X, (float)Bounds.Height / (float)docSize.Y);
+
         return new ViewportInfo(
             0,
             docSize / 2,
-            new VecD(mainImage.Bounds.Width, mainImage.Bounds.Height),
-            Matrix3X3.Identity,
+            new VecD(Bounds.Width, Bounds.Height),
+            scaling,
             null,
             "DEFAULT",
             SamplingOptions.Bilinear,

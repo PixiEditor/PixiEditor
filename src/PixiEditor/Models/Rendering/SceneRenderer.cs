@@ -43,12 +43,18 @@ internal class SceneRenderer : IDisposable
         this.previewRenderer = previewRenderer;
     }
 
-    public async Task RenderAsync(Dictionary<Guid, ViewportInfo> stateViewports, AffectedArea affectedArea)
+    public async Task RenderAsync(Dictionary<Guid, ViewportInfo> stateViewports, AffectedArea affectedArea,
+        bool updateDelayed)
     {
         await Dispatcher.UIThread.InvokeAsync(() =>
         {
             foreach (var viewport in stateViewports)
             {
+                if (viewport.Value.Delayed && !updateDelayed)
+                {
+                    continue;
+                }
+
                 if (viewport.Value.RealDimensions.ShortestAxis <= 0) continue;
 
                 var rendered = RenderScene(
@@ -68,6 +74,7 @@ internal class SceneRenderer : IDisposable
                 }
 
                 DocumentViewModel.SceneTextures[viewport.Key] = rendered;
+                viewport.Value.InvalidateVisual();
             }
         }, DispatcherPriority.Background);
     }
@@ -363,7 +370,6 @@ internal class SceneRenderer : IDisposable
     }
 }
 
-
 struct RenderState
 {
     public ChunkResolution ChunkResolution { get; set; }
@@ -373,6 +379,7 @@ struct RenderState
 
     public bool Equals(RenderState other)
     {
-        return ChunkResolution.Equals(other.ChunkResolution) && HighResRendering == other.HighResRendering && TargetOutput == other.TargetOutput && GraphCacheHash == other.GraphCacheHash;
+        return ChunkResolution.Equals(other.ChunkResolution) && HighResRendering == other.HighResRendering &&
+               TargetOutput == other.TargetOutput && GraphCacheHash == other.GraphCacheHash;
     }
 }
