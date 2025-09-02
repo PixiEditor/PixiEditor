@@ -185,25 +185,14 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
     public IStructureMemberHandler? SelectedStructureMember { get; private set; } = null;
 
-    private PreviewPainter miniPreviewPainter;
+    private Texture? miniPreviewTexture;
 
-    public PreviewPainter MiniPreviewPainter
+    public Texture MiniPreviewTexture
     {
-        get => miniPreviewPainter;
+        get => miniPreviewTexture;
         set
         {
-            SetProperty(ref miniPreviewPainter, value);
-        }
-    }
-
-    private PreviewPainter previewSurface;
-
-    public PreviewPainter PreviewPainter
-    {
-        get => previewSurface;
-        set
-        {
-            SetProperty(ref previewSurface, value);
+            SetProperty(ref miniPreviewTexture, value);
         }
     }
 

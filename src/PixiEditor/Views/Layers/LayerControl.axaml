@@ -80,10 +80,9 @@
                                 <Binding ElementName="uc" Path="Layer.HasMaskBindable" />
                             </MultiBinding>
                         </Border.BorderBrush>
-                        <visuals:PreviewPainterControl 
+                        <visuals:TextureControl
                             ClipToBounds="True" 
-                            PreviewPainter="{Binding Layer.PreviewPainter, ElementName=uc}"
-                            FrameToRender="{Binding Manager.ActiveDocument.AnimationDataViewModel.ActiveFrameBindable, ElementName=uc}"
+                            Texture="{Binding Layer.Preview, ElementName=uc}"
                             Width="30" Height="30"
                             RenderOptions.BitmapInterpolationMode="None" IsHitTestVisible="False" />
                     </Border>
@@ -107,11 +106,10 @@
                             </MultiBinding>
                         </Border.BorderBrush>
                         <Grid IsHitTestVisible="False">
-                             <visuals:PreviewPainterControl 
-                                    PreviewPainter="{Binding Layer.MaskPreviewPainter, ElementName=uc}" 
+                             <visuals:TextureControl
+                                    Texture="{Binding Layer.MaskPreview, ElementName=uc}"
                                     Width="30" Height="30"
                                     ClipToBounds="True"
-                                    FrameToRender="{Binding Path=Manager.ActiveDocument.AnimationDataViewModel.ActiveFrameBindable, ElementName=uc}"
                                     RenderOptions.BitmapInterpolationMode="None" IsHitTestVisible="False"/>
                             <Path
                                 Data="M 2 0 L 10 8 L 18 0 L 20 2 L 12 10 L 20 18 L 18 20 L 10 12 L 2 20 L 0 18 L 8 10 L 0 2 Z"

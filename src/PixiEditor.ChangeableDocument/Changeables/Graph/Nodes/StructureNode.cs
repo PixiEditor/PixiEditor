@@ -188,6 +188,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         renderObjectContext.FullRerender = context.FullRerender;
         renderObjectContext.AffectedArea = context.AffectedArea;
         renderObjectContext.VisibleDocumentRegion = context.VisibleDocumentRegion;
+        renderObjectContext.PreviewTextures = context.PreviewTextures;
         return renderObjectContext;
     }
 
@@ -229,48 +230,6 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
     {
         return HashCode.Combine(base.GetContentCacheHash(), EmbeddedMask?.GetCacheHash() ?? 0,
             ClipToPreviousMember ? 1 : 0);
-    }
-
-    public virtual void RenderChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime,
-        ColorSpace processingColorSpace)
-    {
-        RenderChunkyImageChunk(chunkPos, resolution, EmbeddedMask, 55, processingColorSpace, ref renderedMask);
-    }
-
-    protected void RenderChunkyImageChunk(VecI chunkPos, ChunkResolution resolution, ChunkyImage img,
-        int textureId, ColorSpace processingColorSpace,
-        ref Texture? renderSurface)
-    {
-        if (img is null)
-        {
-            return;
-        }
-
-        VecI targetSize = img.LatestSize;
-
-        if (targetSize.X <= 0 || targetSize.Y <= 0)
-        {
-            return;
-        }
-
-        using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
-        renderSurface = RequestTexture(textureId, targetSize, processingColorSpace, false);
-
-        int saved = renderSurface.DrawingSurface.Canvas.Save();
-
-        if (!img.DrawMostUpToDateChunkOn(
-                chunkPos,
-                ChunkResolution.Full,
-                renderSurface.DrawingSurface,
-                chunkPos * ChunkResolution.Full.PixelSize(),
-                replacePaint))
-        {
-            var chunkSize = ChunkResolution.Full.PixelSize();
-            renderSurface.DrawingSurface.Canvas.DrawRect(new RectD(chunkPos * chunkSize, new VecD(chunkSize)),
-                clearPaint);
-        }
-
-        renderSurface.DrawingSurface.Canvas.RestoreToCount(saved);
     }
 
     protected void ApplyRasterClip(DrawingSurface toClip, DrawingSurface clipSource)

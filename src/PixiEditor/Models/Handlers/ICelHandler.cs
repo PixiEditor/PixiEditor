@@ -6,7 +6,7 @@ namespace PixiEditor.Models.Handlers;
 
 internal interface ICelHandler : IDisposable
 {
-    public PreviewPainter? PreviewPainter { get; set; }
+    public Texture? PreviewTexture { get; }
     public int StartFrameBindable { get; }
     public int DurationBindable { get; }
     public bool IsSelected { get; set; }

@@ -1,5 +1,7 @@
 ﻿#nullable enable
 
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -28,15 +30,16 @@ internal class MemberPreviewUpdater
         AnimationKeyFramePreviewRenderer = new AnimationKeyFramePreviewRenderer(internals);
     }
 
-    public void UpdatePreviews(HashSet<Guid> membersToUpdate,
+    public Dictionary<Guid, Texture>? UpdatePreviews(HashSet<Guid> membersToUpdate,
         HashSet<Guid> masksToUpdate, HashSet<Guid> nodesToUpdate, HashSet<Guid> keyFramesToUpdate,
         bool ignoreAnimationPreviews, bool renderMiniPreviews)
     {
         if (!membersToUpdate.Any() && !masksToUpdate.Any() && !nodesToUpdate.Any() &&
             !keyFramesToUpdate.Any())
-            return;
+            return null;
 
-        UpdatePreviewPainters(membersToUpdate, masksToUpdate, nodesToUpdate, keyFramesToUpdate, ignoreAnimationPreviews,
+        return UpdatePreviewPainters(membersToUpdate, masksToUpdate, nodesToUpdate, keyFramesToUpdate,
+            ignoreAnimationPreviews,
             renderMiniPreviews);
     }
 
@@ -45,30 +48,35 @@ internal class MemberPreviewUpdater
     /// </summary>
     /// <param name="members">Members that should be rendered</param>
     /// <param name="masksToUpdate">Masks that should be rendered</param>
-    private void UpdatePreviewPainters(HashSet<Guid> members, HashSet<Guid> masksToUpdate,
+    private Dictionary<Guid, Texture> UpdatePreviewPainters(HashSet<Guid> members, HashSet<Guid> masksToUpdate,
         HashSet<Guid> nodesToUpdate, HashSet<Guid> keyFramesToUpdate, bool ignoreAnimationPreviews,
         bool renderLowPriorityPreviews)
     {
-        RenderWholeCanvasPreview(renderLowPriorityPreviews);
+        Dictionary<Guid, Texture> previewTextures = new();
+        //RenderWholeCanvasPreview(renderLowPriorityPreviews);
         if (renderLowPriorityPreviews)
         {
-            RenderLayersPreview(members);
-            RenderMaskPreviews(masksToUpdate);
+            RenderLayersPreview(members, previewTextures);
+            //RenderMaskPreviews(masksToUpdate);
         }
 
         if (!ignoreAnimationPreviews)
         {
-            RenderAnimationPreviews(members, keyFramesToUpdate);
+            //RenderAnimationPreviews(members, keyFramesToUpdate);
         }
 
-        RenderNodePreviews(nodesToUpdate);
+        //RenderNodePreviews(nodesToUpdate);
+
+        return previewTextures;
     }
 
     /// <summary>
     /// Re-renders the preview of the whole canvas which is shown as the tab icon
     /// </summary>
+    /// <param name="memberGuids"></param>
+    /// <param name="previewTextures"></param>
     /// <param name="renderMiniPreviews">Decides whether to re-render mini previews for the document</param>
-    private void RenderWholeCanvasPreview(bool renderMiniPreviews)
+    /*private void RenderWholeCanvasPreview(bool renderMiniPreviews)
     {
         var previewSize = StructureHelpers.CalculatePreviewSize(internals.Tracker.Document.Size);
         //float scaling = (float)previewSize.X / doc.SizeBindable.X;
@@ -86,17 +94,15 @@ internal class MemberPreviewUpdater
             doc.SizeBindable, internals.Tracker.Document.ProcessingColorSpace);
 
         UpdateDocPreviewPainter(doc.MiniPreviewPainter);
-    }
-
-    private void UpdateDocPreviewPainter(PreviewPainter painter)
+    }*/
+    /*private void UpdateDocPreviewPainter(PreviewPainter painter)
     {
         painter.DocumentSize = doc.SizeBindable;
         painter.ProcessingColorSpace = internals.Tracker.Document.ProcessingColorSpace;
         painter.FrameTime = doc.AnimationHandler.ActiveFrameTime;
         painter.Repaint();
-    }
-
-    private void RenderLayersPreview(HashSet<Guid> memberGuids)
+    }*/
+    private void RenderLayersPreview(HashSet<Guid> memberGuids, Dictionary<Guid, Texture> previewTextures)
     {
         foreach (var node in doc.NodeGraphHandler.AllNodes)
         {
@@ -105,32 +111,21 @@ internal class MemberPreviewUpdater
                 if (!memberGuids.Contains(node.Id))
                     continue;
 
-                if (structureMemberHandler.PreviewPainter == null)
+                if (structureMemberHandler.Preview == null)
                 {
                     var member = internals.Tracker.Document.FindMember(node.Id);
                     if (member is not IPreviewRenderable previewRenderable)
                         continue;
 
-                    structureMemberHandler.PreviewPainter =
-                        new PreviewPainter(renderer, previewRenderable,
-                            doc.AnimationHandler.ActiveFrameTime, doc.SizeBindable,
-                            internals.Tracker.Document.ProcessingColorSpace);
-                    structureMemberHandler.PreviewPainter.Repaint();
+                    structureMemberHandler.Preview = Texture.ForDisplay(new VecI(30, 30));
                 }
-                else
-                {
-                    structureMemberHandler.PreviewPainter.FrameTime = doc.AnimationHandler.ActiveFrameTime;
-                    structureMemberHandler.PreviewPainter.DocumentSize = doc.SizeBindable;
-                    structureMemberHandler.PreviewPainter.ProcessingColorSpace =
-                        internals.Tracker.Document.ProcessingColorSpace;
 
-                    structureMemberHandler.PreviewPainter.Repaint();
-                }
+                previewTextures[node.Id] = structureMemberHandler.Preview;
             }
         }
     }
 
-    private void RenderAnimationPreviews(HashSet<Guid> memberGuids, HashSet<Guid> keyFramesGuids)
+    /*private void RenderAnimationPreviews(HashSet<Guid> memberGuids, HashSet<Guid> keyFramesGuids)
     {
         foreach (var keyFrame in doc.AnimationHandler.KeyFrames)
         {
@@ -154,7 +149,7 @@ internal class MemberPreviewUpdater
                 RenderGroupPreview(groupHandler);
             }
         }
-    }
+    }*/
 
     private bool IsInFrame(ICelHandler cel)
     {
@@ -162,7 +157,7 @@ internal class MemberPreviewUpdater
                cel.StartFrameBindable + cel.DurationBindable > doc.AnimationHandler.ActiveFrameBindable;
     }
 
-    private void RenderFramePreview(ICelHandler cel)
+    /*private void RenderFramePreview(ICelHandler cel)
     {
         if (internals.Tracker.Document.AnimationData.TryFindKeyFrame(cel.Id, out KeyFrame _))
         {
@@ -182,9 +177,9 @@ internal class MemberPreviewUpdater
 
             cel.PreviewPainter.Repaint();
         }
-    }
+    }*/
 
-    private void RenderGroupPreview(ICelGroupHandler groupHandler)
+    /*private void RenderGroupPreview(ICelGroupHandler groupHandler)
     {
         var group = internals.Tracker.Document.AnimationData.KeyFrames.FirstOrDefault(x => x.Id == groupHandler.Id);
         if (group != null)
@@ -209,9 +204,9 @@ internal class MemberPreviewUpdater
 
             groupHandler.PreviewPainter.Repaint();
         }
-    }
+    }*/
 
-    private void RenderMaskPreviews(HashSet<Guid> members)
+    /*private void RenderMaskPreviews(HashSet<Guid> members)
     {
         foreach (var node in doc.NodeGraphHandler.AllNodes)
         {
@@ -245,9 +240,9 @@ internal class MemberPreviewUpdater
                 structureMemberHandler.MaskPreviewPainter.Repaint();
             }
         }
-    }
+    }*/
 
-    private void RenderNodePreviews(HashSet<Guid> nodesGuids)
+    /*private void RenderNodePreviews(HashSet<Guid> nodesGuids)
     {
         var outputNode = internals.Tracker.Document.NodeGraph.OutputNode;
 
@@ -266,9 +261,9 @@ internal class MemberPreviewUpdater
         {
             QueueRepaintNode(actualRepaintedNodes, guid, allNodes);
         }
-    }
+    }*/
 
-    private void QueueRepaintNode(List<Guid> actualRepaintedNodes, Guid guid,
+    /*private void QueueRepaintNode(List<Guid> actualRepaintedNodes, Guid guid,
         IReadOnlyCollection<IReadOnlyNode> allNodes)
     {
         if (actualRepaintedNodes.Contains(guid))
@@ -301,9 +296,9 @@ internal class MemberPreviewUpdater
             actualRepaintedNodes.Add(next.Id);
             return Traverse.Further;
         });
-    }
+    }*/
 
-    private void RequestRepaintNode(IReadOnlyNode node, INodeHandler nodeVm)
+    /*private void RequestRepaintNode(IReadOnlyNode node, INodeHandler nodeVm)
     {
         if (node is IPreviewRenderable renderable)
         {
@@ -324,5 +319,5 @@ internal class MemberPreviewUpdater
                 nodeVm.ResultPainter?.Repaint();
             }
         }
-    }
+    }*/
 }

@@ -33,7 +33,6 @@ internal interface IDocument : IHandler, Extensions.CommonApi.Documents.IDocumen
     public VectorPath SelectionPathBindable { get; }
     public INodeGraphHandler NodeGraphHandler { get; }
     public DocumentStructureModule StructureHelper { get; }
-    public PreviewPainter? PreviewPainter { get; set; }
     public bool AllChangesSaved { get; }
     public string CoordinatesString { get; set; }
     public IReadOnlyCollection<IStructureMemberHandler> SoftSelectedStructureMembers { get; }
@@ -50,7 +49,6 @@ internal interface IDocument : IHandler, Extensions.CommonApi.Documents.IDocumen
     public DocumentRenderer Renderer { get; }
     public ISnappingHandler SnappingHandler { get; }
     public IReadOnlyCollection<Guid> SelectedMembers { get; }
-    public PreviewPainter? MiniPreviewPainter { get; set; }
     public PreviewRenderer PreviewRenderer { get; }
     public Dictionary<Guid, Texture> SceneTextures { get; }
     public Texture DocumentTexture { get; }

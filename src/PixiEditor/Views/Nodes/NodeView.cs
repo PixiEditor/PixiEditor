@@ -41,8 +41,8 @@ public class NodeView : TemplatedControl
         AvaloniaProperty.Register<NodeView, ObservableRangeCollection<INodePropertyHandler>>(
             nameof(Outputs));
 
-    public static readonly StyledProperty<PreviewPainter> ResultPreviewProperty =
-        AvaloniaProperty.Register<NodeView, PreviewPainter>(
+    public static readonly StyledProperty<Texture> ResultPreviewProperty =
+        AvaloniaProperty.Register<NodeView, Texture>(
             nameof(ResultPreview));
 
     public static readonly StyledProperty<bool> IsSelectedProperty = AvaloniaProperty.Register<NodeView, bool>(
@@ -94,7 +94,7 @@ public class NodeView : TemplatedControl
         set => SetValue(IsSelectedProperty, value);
     }
 
-    public PreviewPainter ResultPreview
+    public Texture ResultPreview
     {
         get => GetValue(ResultPreviewProperty);
         set => SetValue(ResultPreviewProperty, value);
@@ -177,7 +177,6 @@ public class NodeView : TemplatedControl
     static NodeView()
     {
         IsSelectedProperty.Changed.Subscribe(NodeSelectionChanged);
-        ResultPreviewProperty.Changed.Subscribe(PainterChanged);
     }
 
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
@@ -309,23 +308,6 @@ public class NodeView : TemplatedControl
         if (e.Sender is NodeView nodeView)
         {
             nodeView.PseudoClasses.Set(":selected", e.NewValue.Value);
-        }
-    }
-
-    private static void PainterChanged(AvaloniaPropertyChangedEventArgs<PreviewPainter> e)
-    {
-        if (e.Sender is NodeView nodeView)
-        {
-            if (e.OldValue.Value is not null)
-            {
-                e.OldValue.Value.CanRenderChanged -= nodeView.ResultPreview_CanRenderChanged;
-            }
-
-            if (e.NewValue.Value is not null)
-            {
-                e.NewValue.Value.CanRenderChanged += nodeView.ResultPreview_CanRenderChanged;
-                nodeView.ResultPreview_CanRenderChanged(e.NewValue.Value.CanRender);
-            }
         }
     }
 

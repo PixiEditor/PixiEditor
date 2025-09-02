@@ -31,8 +31,6 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     private ColorSpace colorSpace;
     private ChunkyImage layerImage => keyFrames[0]?.Data as ChunkyImage;
 
-    private int renderedSurfaceFrame = -1;
-
     public ImageLayerNode(VecI size, ColorSpace colorSpace)
     {
         if (keyFrames.Count == 0)
@@ -266,30 +264,10 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
             return false;
         }
 
-        if (renderedSurfaceFrame == cacheFrame)
-        {
-            int saved = renderOnto.Canvas.Save();
-            renderOnto.Canvas.Scale((float)context.ChunkResolution.Multiplier());
-            /*if (context.DesiredSamplingOptions == SamplingOptions.Default)
-            {
-                renderOnto.Canvas.DrawSurface(
-                    fullResrenderedSurface.DrawingSurface, 0, 0, blendPaint);
-            }
-            else
-            {
-                using var snapshot = fullResrenderedSurface.DrawingSurface.Snapshot();
-                renderOnto.Canvas.DrawImage(snapshot, 0, 0, context.DesiredSamplingOptions, blendPaint);
-            }*/
-
-            renderOnto.Canvas.RestoreToCount(saved);
-        }
-        else
-        {
-            img.DrawMostUpToDateRegionOn(
-                new RectI(0, 0, img.LatestSize.X, img.LatestSize.Y),
-                context.ChunkResolution,
-                renderOnto, VecI.Zero, blendPaint, context.DesiredSamplingOptions);
-        }
+        img.DrawCommittedRegionOn(
+            new RectI(0, 0, img.LatestSize.X, img.LatestSize.Y),
+            context.ChunkResolution,
+            renderOnto, VecI.Zero, replacePaint, context.DesiredSamplingOptions);
 
         return true;
     }
@@ -352,18 +330,6 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         SetLayerImageAtFrame(frame, (ChunkyImage)newLayerImage);
 
     void IReadOnlyImageNode.ForEveryFrame(Action<IReadOnlyChunkyImage> action) => ForEveryFrame(action);
-
-    public override void RenderChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime,
-        ColorSpace processColorSpace)
-    {
-        return;
-        base.RenderChunk(chunkPos, resolution, frameTime, processColorSpace);
-
-        var img = GetLayerImageAtFrame(frameTime.Frame);
-
-        //RenderChunkyImageChunk(chunkPos, resolution, img, 85, processColorSpace, ref fullResrenderedSurface);
-        renderedSurfaceFrame = frameTime.Frame;
-    }
 
     public void ForEveryFrame(Action<ChunkyImage> action)
     {

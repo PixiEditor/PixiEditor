@@ -33,6 +33,8 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
 
         RenderContent(sceneContext, sceneContext.RenderSurface,
             sceneContext.TargetPropertyOutput == Output);
+
+        RenderPreviews(sceneContext);
     }
 
     private void RenderContent(SceneObjectRenderContext context, DrawingSurface renderOnto, bool useFilters)
@@ -222,6 +224,36 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
 
     protected abstract void DrawWithFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
         Paint paint);
+
+    private void RenderPreviews(RenderContext ctx)
+    {
+        var previewTexture = ctx.GetPreviewTexture(Id);
+        if (previewTexture == null || previewTexture.IsDisposed)
+            return;
+
+        int saved = previewTexture.DrawingSurface.Canvas.Save();
+
+        VecD densityVec = ((VecD)ctx.DocumentSize).Divide(previewTexture.Size);
+        double density = Math.Min(densityVec.X, densityVec.Y);
+        ChunkResolution resolution = density switch
+        {
+            > 8.01 => ChunkResolution.Eighth,
+            > 4.01 => ChunkResolution.Quarter,
+            > 2.01 => ChunkResolution.Half,
+            _ => ChunkResolution.Full
+        };
+
+        RenderContext previewCtx = ctx.Clone();
+        previewCtx.ChunkResolution = resolution;
+
+        VecD scaling = new VecD((double)previewTexture.Size.X / ctx.DocumentSize.X,
+            (double)previewTexture.Size.Y / ctx.DocumentSize.Y) * resolution.InvertedMultiplier();
+        previewTexture.DrawingSurface.Canvas.Scale((float)scaling.X, (float)scaling.Y);
+
+        RenderPreview(previewTexture.DrawingSurface, previewCtx, "");
+
+        previewTexture.DrawingSurface.Canvas.RestoreToCount(saved);
+    }
 
     protected Texture TryInitWorkingSurface(VecI imageSize, ChunkResolution resolution, ColorSpace processingCs, int id)
     {

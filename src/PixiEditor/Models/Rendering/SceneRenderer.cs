@@ -44,7 +44,7 @@ internal class SceneRenderer : IDisposable
     }
 
     public async Task RenderAsync(Dictionary<Guid, ViewportInfo> stateViewports, AffectedArea affectedArea,
-        bool updateDelayed)
+        bool updateDelayed, Dictionary<Guid, Texture>? previewTextures)
     {
         await Dispatcher.UIThread.InvokeAsync(() =>
         {
@@ -57,17 +57,7 @@ internal class SceneRenderer : IDisposable
 
                 if (viewport.Value.RealDimensions.ShortestAxis <= 0) continue;
 
-                var rendered = RenderScene(
-                    viewport.Key,
-                    (VecI)viewport.Value.RealDimensions,
-                    viewport.Value.Transform,
-                    viewport.Value.Resolution,
-                    affectedArea,
-                    viewport.Value.VisibleDocumentRegion,
-                    viewport.Value.Sampling,
-                    viewport.Value.RenderOutput.Equals("DEFAULT", StringComparison.InvariantCultureIgnoreCase)
-                        ? null
-                        : viewport.Value.RenderOutput);
+                var rendered = RenderScene(viewport.Value, affectedArea, previewTextures);
                 if (DocumentViewModel.SceneTextures.TryGetValue(viewport.Key, out var texture) && texture != rendered)
                 {
                     texture.Dispose();
@@ -79,23 +69,28 @@ internal class SceneRenderer : IDisposable
         }, DispatcherPriority.Background);
     }
 
-    public Texture? RenderScene(Guid viewportId, VecI renderTargetSize, Matrix3X3 targetMatrix,
-        ChunkResolution resolution,
-        AffectedArea affectedArea,
-        RectI? visibleDocumentRegion,
-        SamplingOptions samplingOptions,
-        string? targetOutput = null)
+    public Texture? RenderScene(ViewportInfo viewport, AffectedArea affectedArea, Dictionary<Guid, Texture>? previewTextures = null)
     {
         /*if (Document.Renderer.IsBusy || DocumentViewModel.Busy ||
             target.DeviceClipBounds.Size.ShortestAxis <= 0) return;*/
         //RenderOnionSkin(target, resolution, samplingOptions, targetOutput);
 
         /*TODO:
-         - Onion skinning
-         - Previews generation
+         - [ ] Onion skinning
+         - [ ] Previews generation
          - Rendering optimizer
-         - Render thread and proper locking/synchronization
+         - [?] Render thread and proper locking/synchronization
          */
+
+        VecI renderTargetSize = (VecI)viewport.RealDimensions;
+        Matrix3X3 targetMatrix = viewport.Transform;
+        Guid viewportId = viewport.Id;
+        ChunkResolution resolution = viewport.Resolution;
+        SamplingOptions samplingOptions = viewport.Sampling;
+        RectI? visibleDocumentRegion = viewport.VisibleDocumentRegion;
+        string? targetOutput = viewport.RenderOutput.Equals("DEFAULT", StringComparison.InvariantCultureIgnoreCase)
+            ? null
+            : viewport.RenderOutput;
 
         IReadOnlyNodeGraph finalGraph = RenderingUtils.SolveFinalNodeGraph(targetOutput, Document);
         bool shouldRerender =
@@ -104,10 +99,8 @@ internal class SceneRenderer : IDisposable
         if (shouldRerender)
         {
             return RenderGraph(renderTargetSize, targetMatrix, viewportId, resolution, samplingOptions, affectedArea,
-                visibleDocumentRegion, targetOutput,
-                finalGraph);
+                visibleDocumentRegion, targetOutput, finalGraph, previewTextures);
         }
-        //previewRenderer.RenderPreviews(DocumentViewModel.AnimationHandler.ActiveFrameTime);
 
         var cachedTexture = DocumentViewModel.SceneTextures[viewportId];
         return cachedTexture;
@@ -119,7 +112,7 @@ internal class SceneRenderer : IDisposable
         AffectedArea area,
         RectI? visibleDocumentRegion,
         string? targetOutput,
-        IReadOnlyNodeGraph finalGraph)
+        IReadOnlyNodeGraph finalGraph, Dictionary<Guid, Texture>? previewTextures)
     {
         DrawingSurface renderTarget = null;
         Texture? renderTexture = null;
@@ -135,9 +128,6 @@ internal class SceneRenderer : IDisposable
             renderTarget.Canvas.Save();
             renderTexture.DrawingSurface.Canvas.Save();
             renderTexture.DrawingSurface.Canvas.Scale((float)resolution.Multiplier());
-
-            /*restoreCanvasTo = target.Canvas.Save();
-            target.Canvas.Scale((float)resolution.InvertedMultiplier());*/
         }
         else
         {
@@ -145,11 +135,6 @@ internal class SceneRenderer : IDisposable
                 Document.ProcessingColorSpace);
 
             renderTarget = renderTexture.DrawingSurface;
-
-            /*restoreCanvasTo = target.Canvas.Save();
-            renderTarget.Canvas.Save();*/
-
-            /*target.Canvas.SetMatrix(Matrix3X3.Identity);*/
             renderTarget.Canvas.SetMatrix(targetMatrix);
         }
 
@@ -158,25 +143,10 @@ internal class SceneRenderer : IDisposable
         context.TargetOutput = targetOutput;
         context.AffectedArea = area;
         context.VisibleDocumentRegion = visibleDocumentRegion;
+        context.PreviewTextures = previewTextures;
         finalGraph.Execute(context);
 
         renderTarget.Canvas.Restore();
-
-        /*if (renderTexture != null)
-        {
-            target.Canvas.Clear();
-            if (samplingOptions == SamplingOptions.Default)
-            {
-                target.Canvas.DrawSurface(renderTexture.DrawingSurface, 0, 0);
-            }
-            else
-            {
-                using var snapshot = renderTexture.DrawingSurface.Snapshot();
-                target.Canvas.DrawImage(snapshot, 0, 0, samplingOptions);
-            }
-
-            target.Canvas.RestoreToCount(restoreCanvasTo);
-        }*/
 
         return renderTexture;
     }

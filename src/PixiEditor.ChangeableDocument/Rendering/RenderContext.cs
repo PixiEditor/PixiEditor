@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+﻿using Drawie.Backend.Core;
+using PixiEditor.ChangeableDocument.Changeables.Animations;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
@@ -24,6 +25,7 @@ public class RenderContext
     public ColorSpace ProcessingColorSpace { get; set; }
     public string? TargetOutput { get; set; }
     public AffectedArea AffectedArea { get; set; }
+    public Dictionary<Guid, Texture>? PreviewTextures { get; set; }
 
 
     public RenderContext(DrawingSurface renderSurface, KeyFrameTime frameTime, ChunkResolution chunkResolution,
@@ -37,6 +39,15 @@ public class RenderContext
         ProcessingColorSpace = processingColorSpace;
         DocumentSize = documentSize;
         DesiredSamplingOptions = desiredSampling;
+    }
+
+    public Texture? GetPreviewTexture(Guid guid)
+    {
+        if (PreviewTextures is null)
+            return null;
+        PreviewTextures.TryGetValue(guid, out Texture? texture);
+        PreviewTextures.Remove(guid);
+        return texture;
     }
 
     public static DrawingApiBlendMode GetDrawingBlendMode(BlendMode blendMode)
@@ -71,6 +82,9 @@ public class RenderContext
         {
             FullRerender = FullRerender,
             TargetOutput = TargetOutput,
+            AffectedArea = AffectedArea,
+            PreviewTextures = PreviewTextures,
+            VisibleDocumentRegion = VisibleDocumentRegion
         };
     }
 }

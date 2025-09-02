@@ -63,11 +63,10 @@
                                     <ImageBrush Source="/Images/CheckerTile.png"
                                                 TileMode="Tile" DestinationRect="0, 0, 25, 25" />
                                 </Panel.Background>
-                                <visuals:PreviewPainterControl
-                                    PreviewPainter="{TemplateBinding ResultPreview}"
-                                    FrameToRender="{TemplateBinding ActiveFrame}"
+                                <visuals:TextureControl
+                                    Texture="{TemplateBinding ResultPreview}"
                                     RenderOptions.BitmapInterpolationMode="None">
-                                </visuals:PreviewPainterControl>
+                                </visuals:TextureControl>
                             </Panel>
                         </Border>
                     </Grid>

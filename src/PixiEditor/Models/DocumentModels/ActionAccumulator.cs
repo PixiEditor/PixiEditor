@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using Avalonia.Threading;
+using Drawie.Backend.Core;
 using PixiEditor.ChangeableDocument;
 using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Generated;
@@ -140,14 +141,14 @@ internal class ActionAccumulator
                 bool updateDelayed = undoBoundaryPassed || viewportRefreshRequest || changeFrameRequest ||
                                      document.SizeBindable.LongestAxis <= LiveUpdatePerformanceThreshold;
 
-                await document.SceneRenderer.RenderAsync(internals.State.Viewports, affectedAreas.MainImageArea, !previewsDisabled && updateDelayed);
+                Dictionary<Guid, Texture>? previewTextures = null;
 
                 if (!previewsDisabled)
                 {
                     if (undoBoundaryPassed || viewportRefreshRequest || changeFrameRequest ||
                         document.SizeBindable.LongestAxis <= LiveUpdatePerformanceThreshold)
                     {
-                        previewUpdater.UpdatePreviews(
+                        previewTextures = previewUpdater.UpdatePreviews(
                             affectedAreas.ChangedMembers,
                             affectedAreas.ChangedMasks,
                             affectedAreas.ChangedNodes, affectedAreas.ChangedKeyFrames,
@@ -155,6 +156,9 @@ internal class ActionAccumulator
                             undoBoundaryPassed || refreshPreviewsRequest);
                     }
                 }
+
+                await document.SceneRenderer.RenderAsync(internals.State.Viewports, affectedAreas.MainImageArea,
+                    !previewsDisabled && updateDelayed, previewTextures);
             }
         }
         catch (Exception e)

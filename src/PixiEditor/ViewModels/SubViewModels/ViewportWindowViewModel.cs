@@ -146,7 +146,7 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
         }
     }
 
-    private PreviewPainterControl previewPainterControl;
+    private TextureControl previewPainterControl;
 
     public void IndexChanged()
     {
@@ -175,9 +175,8 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
         PixiEditorSettings.Scene.PrimaryBackgroundColor.ValueChanged += UpdateBackgroundBitmap;
         PixiEditorSettings.Scene.SecondaryBackgroundColor.ValueChanged += UpdateBackgroundBitmap;
 
-        previewPainterControl = new PreviewPainterControl(
-            Document.MiniPreviewPainter,
-            Document.AnimationDataViewModel.ActiveFrameTime.Frame);
+        previewPainterControl = new TextureControl();
+        previewPainterControl.Texture = Document.MiniPreviewTexture;
         TabCustomizationSettings.Icon = previewPainterControl;
     }
 
@@ -188,10 +187,9 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
         {
             OnPropertyChanged(nameof(Title));
         }
-        else if (e.PropertyName == nameof(DocumentViewModel.MiniPreviewPainter))
+        else if (e.PropertyName == nameof(DocumentViewModel.MiniPreviewTexture))
         {
-            previewPainterControl.PreviewPainter = Document.MiniPreviewPainter;
-            previewPainterControl.FrameToRender = Document.AnimationDataViewModel.ActiveFrameTime.Frame;
+            previewPainterControl.Texture = Document.MiniPreviewTexture;
         }
         else if (e.PropertyName == nameof(DocumentViewModel.AllChangesSaved))
         {

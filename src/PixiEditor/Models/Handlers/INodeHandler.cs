@@ -22,7 +22,7 @@ public interface INodeHandler : INotifyPropertyChanged, IDisposable
     public NodeMetadata Metadata { get; set; }
     public ObservableRangeCollection<INodePropertyHandler> Inputs { get; }
     public ObservableRangeCollection<INodePropertyHandler> Outputs { get; }
-    public PreviewPainter? ResultPainter { get; set; }
+    public Texture? Preview { get; set; }
     public VecD PositionBindable { get; set; }
     public Rect UiSize { get; set; }
     public bool IsNodeSelected { get; set; }
