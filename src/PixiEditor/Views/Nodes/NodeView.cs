@@ -17,6 +17,7 @@ using Drawie.Backend.Core;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Rendering;
 using PixiEditor.Models.Structures;
+using PixiEditor.ViewModels.Document;
 using PixiEditor.Views.Nodes.Properties;
 
 namespace PixiEditor.Views.Nodes;
@@ -41,8 +42,8 @@ public class NodeView : TemplatedControl
         AvaloniaProperty.Register<NodeView, ObservableRangeCollection<INodePropertyHandler>>(
             nameof(Outputs));
 
-    public static readonly StyledProperty<Texture> ResultPreviewProperty =
-        AvaloniaProperty.Register<NodeView, Texture>(
+    public static readonly StyledProperty<TexturePreview> ResultPreviewProperty =
+        AvaloniaProperty.Register<NodeView, TexturePreview>(
             nameof(ResultPreview));
 
     public static readonly StyledProperty<bool> IsSelectedProperty = AvaloniaProperty.Register<NodeView, bool>(
@@ -94,7 +95,7 @@ public class NodeView : TemplatedControl
         set => SetValue(IsSelectedProperty, value);
     }
 
-    public Texture ResultPreview
+    public TexturePreview ResultPreview
     {
         get => GetValue(ResultPreviewProperty);
         set => SetValue(ResultPreviewProperty, value);
@@ -308,14 +309,6 @@ public class NodeView : TemplatedControl
         if (e.Sender is NodeView nodeView)
         {
             nodeView.PseudoClasses.Set(":selected", e.NewValue.Value);
-        }
-    }
-
-    private void ResultPreview_CanRenderChanged(bool canRender)
-    {
-        if (CanRenderPreview != canRender)
-        {
-            CanRenderPreview = canRender;
         }
     }
 }

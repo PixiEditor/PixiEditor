@@ -80,9 +80,9 @@
                                 <Binding ElementName="uc" Path="Layer.HasMaskBindable" />
                             </MultiBinding>
                         </Border.BorderBrush>
-                        <visuals:TextureControl
-                            ClipToBounds="True" 
-                            Texture="{Binding Layer.Preview, ElementName=uc}"
+                        <visuals:PreviewTextureControl
+                            ClipToBounds="True"
+                            TexturePreview="{Binding Layer.Preview, ElementName=uc}"
                             Width="30" Height="30"
                             RenderOptions.BitmapInterpolationMode="None" IsHitTestVisible="False" />
                     </Border>
@@ -106,8 +106,8 @@
                             </MultiBinding>
                         </Border.BorderBrush>
                         <Grid IsHitTestVisible="False">
-                             <visuals:TextureControl
-                                    Texture="{Binding Layer.MaskPreview, ElementName=uc}"
+                             <visuals:PreviewTextureControl
+                                    TexturePreview="{Binding Layer.MaskPreview, ElementName=uc}"
                                     Width="30" Height="30"
                                     ClipToBounds="True"
                                     RenderOptions.BitmapInterpolationMode="None" IsHitTestVisible="False"/>

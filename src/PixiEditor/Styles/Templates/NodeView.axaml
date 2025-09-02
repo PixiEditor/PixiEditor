@@ -56,17 +56,17 @@
                                 </ItemsControl>
                             </StackPanel>
                         </Border>
-                        <Border IsVisible="{Binding CanRenderPreview, RelativeSource={RelativeSource TemplatedParent}, FallbackValue=False}"
+                        <Border IsVisible="{Binding ResultPreview, RelativeSource={RelativeSource TemplatedParent}}"
                                 CornerRadius="0, 0, 4.5, 4.5" Grid.Row="2" ClipToBounds="True">
                             <Panel RenderOptions.BitmapInterpolationMode="None" Width="200" Height="200">
                                 <Panel.Background>
                                     <ImageBrush Source="/Images/CheckerTile.png"
                                                 TileMode="Tile" DestinationRect="0, 0, 25, 25" />
                                 </Panel.Background>
-                                <visuals:TextureControl
-                                    Texture="{TemplateBinding ResultPreview}"
+                                <visuals:PreviewTextureControl
+                                    TexturePreview="{TemplateBinding ResultPreview}"
                                     RenderOptions.BitmapInterpolationMode="None">
-                                </visuals:TextureControl>
+                                </visuals:PreviewTextureControl>
                             </Panel>
                         </Border>
                     </Grid>

@@ -19,6 +19,8 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
 {
     public StructureMemberViewModel()
     {
+        Preview = new TexturePreview(Id);
+        MaskPreview = new TexturePreview(Id);
     }
 
     private bool isVisible;
@@ -76,16 +78,16 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
         OnPropertyChanged(nameof(MaskIsVisibleBindable));
     }
 
-    private Texture? maskPreview;
-    private Texture? preview;
+    private TexturePreview? maskPreview;
+    private TexturePreview? preview;
 
-    public Texture? Preview
+    public TexturePreview? Preview
     {
         get => preview;
         set => SetProperty(ref preview, value);
     }
 
-    public Texture? MaskPreview
+    public TexturePreview? MaskPreview
     {
         get => maskPreview;
         set => SetProperty(ref maskPreview, value);
@@ -183,13 +185,6 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
     }
 
     IDocument IStructureMemberHandler.Document => Document;
-
-    public override void Dispose()
-    {
-        base.Dispose();
-        Preview?.Dispose();
-        MaskPreview?.Dispose();
-    }
 }
 
 public static class StructureMemberViewModel

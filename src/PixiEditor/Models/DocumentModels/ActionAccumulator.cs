@@ -149,7 +149,7 @@ internal class ActionAccumulator
                     if (undoBoundaryPassed || viewportRefreshRequest || changeFrameRequest ||
                         document.SizeBindable.LongestAxis <= LiveUpdatePerformanceThreshold)
                     {
-                        previewTextures = previewUpdater.UpdatePreviews(
+                        previewTextures = previewUpdater.GatherPreviewsToUpdate(
                             affectedAreas.ChangedMembers,
                             affectedAreas.ChangedMasks,
                             affectedAreas.ChangedNodes, affectedAreas.ChangedKeyFrames,
@@ -158,8 +158,19 @@ internal class ActionAccumulator
                     }
                 }
 
+                List<Action>? updatePreviewActions = previewTextures?.Values.Select(x => x.Select(r => r.TextureUpdatedAction))
+                    .SelectMany(x => x).ToList();
+
                 await document.SceneRenderer.RenderAsync(internals.State.Viewports, affectedAreas.MainImageArea,
                     !previewsDisabled && updateDelayed, previewTextures);
+
+                if (updatePreviewActions != null)
+                {
+                    foreach (var action in updatePreviewActions)
+                    {
+                        action();
+                    }
+                }
             }
         }
         catch (Exception e)

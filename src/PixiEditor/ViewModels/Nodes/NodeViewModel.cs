@@ -30,7 +30,7 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
     private IBrush? categoryBrush;
     private string? nodeNameBindable;
     private VecD position;
-    private Texture? resultTexture;
+    private TexturePreview? resultTexture;
     private ObservableRangeCollection<INodePropertyHandler> inputs;
     private ObservableRangeCollection<INodePropertyHandler> outputs;
     private bool isSelected;
@@ -38,7 +38,7 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
 
     protected Guid id;
 
-    public Texture? Preview
+    public TexturePreview? Preview
     {
         get => resultTexture;
         set => SetProperty(ref resultTexture, value);
@@ -506,7 +506,6 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
 
     public virtual void Dispose()
     {
-        Preview?.Dispose();
     }
 
     public NodePropertyViewModel FindInputProperty(string propName)
