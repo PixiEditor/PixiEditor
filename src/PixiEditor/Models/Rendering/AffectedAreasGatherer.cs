@@ -210,6 +210,10 @@ internal class AffectedAreasGatherer
                     AddWholeCanvasToEveryImagePreview(false);
                     AddWholeCanvasToEveryMaskPreview();
                     break;
+                case RefreshPreview_PassthroughAction info:
+                    AddToImagePreviews(info.Id);
+                    AddToNodePreviews(info.Id);
+                    break;
             }
         }
     }

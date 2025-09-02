@@ -25,14 +25,18 @@ public class TexturePreview : ObservableObject
 
     public event Action TextureUpdated;
 
-    public TexturePreview(Guid forId)
+    private Action<Guid> requestRender;
+
+    public TexturePreview(Guid forId, Action<Guid> requestRender)
     {
         Id = forId;
+        this.requestRender = requestRender;
     }
 
     public void Attach(object source, Func<VecI> getSize)
     {
         Listeners.TryAdd(source, getSize);
+        requestRender(Id);
     }
 
     public void Detach(object source)

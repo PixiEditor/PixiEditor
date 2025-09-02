@@ -78,7 +78,8 @@ internal class SceneRenderer : IDisposable
         /*TODO:
          - [ ] Onion skinning
          - [ ] Previews generation
-         - Rendering optimizer
+         - [ ] Panning doesn't rerender in cases where it should
+         - [ ] Rendering optimizer
          - [?] Render thread and proper locking/synchronization
          */
 

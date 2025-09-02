@@ -19,8 +19,6 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
 {
     public StructureMemberViewModel()
     {
-        Preview = new TexturePreview(Id);
-        MaskPreview = new TexturePreview(Id);
     }
 
     private bool isVisible;

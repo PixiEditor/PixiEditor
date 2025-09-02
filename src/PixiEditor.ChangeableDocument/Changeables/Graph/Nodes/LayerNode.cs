@@ -34,7 +34,6 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
 
         RenderContent(sceneContext, sceneContext.RenderSurface,
             sceneContext.TargetPropertyOutput == Output);
-
     }
 
     private void RenderContent(SceneObjectRenderContext context, DrawingSurface renderOnto, bool useFilters)
@@ -245,7 +244,16 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
         if (texture == null || texture.IsDisposed)
             return;
 
-        VecD densityVec = ((VecD)ctx.DocumentSize).Divide(texture.Size);
+
+
+        int saved = texture.DrawingSurface.Canvas.Save();
+
+        RenderContext previewCtx = ctx.Clone();
+
+        var approxBounds = GetApproxBounds(ctx.FrameTime);
+
+        VecD size = approxBounds?.Size ?? ctx.DocumentSize;
+        VecD densityVec = size.Divide(texture.Size);
         double density = Math.Min(densityVec.X, densityVec.Y);
         ChunkResolution resolution = density switch
         {
@@ -255,14 +263,36 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
             _ => ChunkResolution.Full
         };
 
-        int saved = texture.DrawingSurface.Canvas.Save();
-
-        RenderContext previewCtx = ctx.Clone();
         previewCtx.ChunkResolution = resolution;
 
-        VecD scaling = new VecD((double)texture.Size.X / ctx.DocumentSize.X,
-            (double)texture.Size.Y / ctx.DocumentSize.Y) * resolution.InvertedMultiplier();
-        texture.DrawingSurface.Canvas.Scale((float)scaling.X, (float)scaling.Y);
+        if (approxBounds.HasValue)
+        {
+            var bounds = approxBounds.Value;
+
+            // target size = texture size
+            var targetW = texture.Size.X;
+            var targetH = texture.Size.Y;
+
+            // scale so that bounds fits inside target
+            double scaleX = (double)targetW / bounds.Width;
+            double scaleY = (double)targetH / bounds.Height;
+            double uniformScale = Math.Min(scaleX, scaleY);
+
+            // scaled content size
+            double scaledW = bounds.Width * uniformScale;
+            double scaledH = bounds.Height * uniformScale;
+
+            // offset so it’s centered
+            double offsetX = (targetW - scaledW) / 2.0 - bounds.Left * uniformScale;
+            double offsetY = (targetH - scaledH) / 2.0 - bounds.Top * uniformScale;
+
+            var canvas = texture.DrawingSurface.Canvas;
+            canvas.Translate((float)offsetX, (float)offsetY);
+            uniformScale *= resolution.InvertedMultiplier();
+            canvas.Scale((float)uniformScale, (float)uniformScale);
+
+            previewCtx.DesiredSamplingOptions = uniformScale < 1.0 ? SamplingOptions.Bilinear : SamplingOptions.Default;
+        }
 
         RenderPreview(texture.DrawingSurface, previewCtx, elementToRender);
 

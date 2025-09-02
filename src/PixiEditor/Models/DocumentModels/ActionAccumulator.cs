@@ -123,6 +123,8 @@ internal class ActionAccumulator
                     toExecute.Any(static action => action.action is RefreshViewport_PassthroughAction);
                 bool refreshPreviewsRequest =
                     toExecute.Any(static action => action.action is RefreshPreviews_PassthroughAction);
+                bool refreshPreviewRequest =
+                    toExecute.Any(static action => action.action is RefreshPreview_PassthroughAction);
                 bool changeFrameRequest =
                     toExecute.Any(static action => action.action is SetActiveFrame_PassthroughAction);
 
@@ -146,7 +148,7 @@ internal class ActionAccumulator
 
                 if (!previewsDisabled)
                 {
-                    if (undoBoundaryPassed || viewportRefreshRequest || changeFrameRequest ||
+                    if (undoBoundaryPassed || viewportRefreshRequest || refreshPreviewsRequest || refreshPreviewRequest || changeFrameRequest ||
                         document.SizeBindable.LongestAxis <= LiveUpdatePerformanceThreshold)
                     {
                         previewTextures = previewUpdater.GatherPreviewsToUpdate(

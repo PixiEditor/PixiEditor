@@ -12,6 +12,7 @@ using PixiEditor.Models.Handlers;
 using Drawie.Numerics;
 using PixiEditor.ViewModels.Nodes;
 using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.Models.Rendering;
@@ -117,7 +118,7 @@ internal class MemberPreviewUpdater
                 var member = internals.Tracker.Document.FindMember(node.Id);
                 if (structureMemberHandler.Preview == null)
                 {
-                    structureMemberHandler.Preview = new TexturePreview(node.Id);
+                    structureMemberHandler.Preview = new TexturePreview(node.Id, RequestRender);
                     continue;
                 }
 
@@ -247,7 +248,7 @@ internal class MemberPreviewUpdater
 
                 if (structureMemberHandler.MaskPreview == null)
                 {
-                    structureMemberHandler.MaskPreview = new TexturePreview(node.Id);
+                    structureMemberHandler.MaskPreview = new TexturePreview(node.Id, RequestRender);
                     continue;
                 }
 
@@ -346,7 +347,7 @@ internal class MemberPreviewUpdater
 
         if (node is IPreviewRenderable renderable)
         {
-            nodeVm.Preview ??= new TexturePreview(node.Id);
+            nodeVm.Preview ??= new TexturePreview(node.Id, RequestRender);
             if (nodeVm.Preview.Listeners.Count == 0)
             {
                 nodeVm.Preview.Preview?.Dispose();
@@ -378,5 +379,10 @@ internal class MemberPreviewUpdater
             previews[node.Id]
                 .Add(new PreviewRenderRequest(nodeVm.Preview.Preview, nodeVm.Preview.InvokeTextureUpdated));
         }
+    }
+
+    private void RequestRender(Guid id)
+    {
+        internals.ActionAccumulator.AddActions(new RefreshPreview_PassthroughAction(id));
     }
 }
