@@ -7,6 +7,7 @@ using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.ChangeInfos;
 using Drawie.Backend.Core.Bridge;
+using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DocumentPassthroughActions;
@@ -141,7 +142,7 @@ internal class ActionAccumulator
                 bool updateDelayed = undoBoundaryPassed || viewportRefreshRequest || changeFrameRequest ||
                                      document.SizeBindable.LongestAxis <= LiveUpdatePerformanceThreshold;
 
-                Dictionary<Guid, Texture>? previewTextures = null;
+                Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures = null;
 
                 if (!previewsDisabled)
                 {

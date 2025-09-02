@@ -22,6 +22,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
 
     public override void Render(SceneObjectRenderContext sceneContext)
     {
+        RenderPreviews(sceneContext);
         if (!IsVisible.Value || Opacity.Value <= 0 || IsEmptyMask())
         {
             Output.Value = Background.Value;
@@ -34,7 +35,6 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
         RenderContent(sceneContext, sceneContext.RenderSurface,
             sceneContext.TargetPropertyOutput == Output);
 
-        RenderPreviews(sceneContext);
     }
 
     private void RenderContent(SceneObjectRenderContext context, DrawingSurface renderOnto, bool useFilters)
@@ -62,7 +62,8 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
                 var tempSurface = TryInitWorkingSurface(context.RenderOutputSize, context.ChunkResolution,
                     context.ProcessingColorSpace, 22);
 
-                DrawLayerOnTexture(context, tempSurface.DrawingSurface, context.ChunkResolution, useFilters, targetPaint);
+                DrawLayerOnTexture(context, tempSurface.DrawingSurface, context.ChunkResolution, useFilters,
+                    targetPaint);
 
                 blendPaint.SetFilters(null);
                 DrawWithResolution(tempSurface.DrawingSurface, renderOnto, context.ChunkResolution,
@@ -154,7 +155,8 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
         workingSurface.Canvas.RestoreToCount(scaled);
     }
 
-    private void DrawWithResolution(DrawingSurface source, DrawingSurface target, ChunkResolution resolution, SamplingOptions sampling)
+    private void DrawWithResolution(DrawingSurface source, DrawingSurface target, ChunkResolution resolution,
+        SamplingOptions sampling)
     {
         int scaled = target.Canvas.Save();
         float multiplier = (float)resolution.InvertedMultiplier();
@@ -227,13 +229,23 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
 
     private void RenderPreviews(RenderContext ctx)
     {
-        var previewTexture = ctx.GetPreviewTexture(Id);
-        if (previewTexture == null || previewTexture.IsDisposed)
+        var previewTexture = ctx.GetPreviewTexturesForNode(Id);
+
+        if (previewTexture == null || previewTexture.Count == 0)
             return;
 
-        int saved = previewTexture.DrawingSurface.Canvas.Save();
+        foreach (var request in previewTexture)
+        {
+            RenderPreviewFor(ctx, request.Texture, request.ElementToRender);
+        }
+    }
 
-        VecD densityVec = ((VecD)ctx.DocumentSize).Divide(previewTexture.Size);
+    private void RenderPreviewFor(RenderContext ctx, Texture texture, string elementToRender)
+    {
+        if (texture == null || texture.IsDisposed)
+            return;
+
+        VecD densityVec = ((VecD)ctx.DocumentSize).Divide(texture.Size);
         double density = Math.Min(densityVec.X, densityVec.Y);
         ChunkResolution resolution = density switch
         {
@@ -243,16 +255,18 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
             _ => ChunkResolution.Full
         };
 
+        int saved = texture.DrawingSurface.Canvas.Save();
+
         RenderContext previewCtx = ctx.Clone();
         previewCtx.ChunkResolution = resolution;
 
-        VecD scaling = new VecD((double)previewTexture.Size.X / ctx.DocumentSize.X,
-            (double)previewTexture.Size.Y / ctx.DocumentSize.Y) * resolution.InvertedMultiplier();
-        previewTexture.DrawingSurface.Canvas.Scale((float)scaling.X, (float)scaling.Y);
+        VecD scaling = new VecD((double)texture.Size.X / ctx.DocumentSize.X,
+            (double)texture.Size.Y / ctx.DocumentSize.Y) * resolution.InvertedMultiplier();
+        texture.DrawingSurface.Canvas.Scale((float)scaling.X, (float)scaling.Y);
 
-        RenderPreview(previewTexture.DrawingSurface, previewCtx, "");
+        RenderPreview(texture.DrawingSurface, previewCtx, elementToRender);
 
-        previewTexture.DrawingSurface.Canvas.RestoreToCount(saved);
+        texture.DrawingSurface.Canvas.RestoreToCount(saved);
     }
 
     protected Texture TryInitWorkingSurface(VecI imageSize, ChunkResolution resolution, ColorSpace processingCs, int id)

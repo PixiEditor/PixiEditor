@@ -119,6 +119,7 @@ internal class AffectedAreasGatherer
                 case StructureMemberMask_ChangeInfo info:
                     AddWholeCanvasToMainImage();
                     AddWholeCanvasToImagePreviews(info.Id, true);
+                    AddToMaskPreview(info.Id);
                     AddToNodePreviews(info.Id);
                     break;
                 case StructureMemberBlendMode_ChangeInfo info:

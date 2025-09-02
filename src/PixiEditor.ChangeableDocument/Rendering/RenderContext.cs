@@ -25,7 +25,7 @@ public class RenderContext
     public ColorSpace ProcessingColorSpace { get; set; }
     public string? TargetOutput { get; set; }
     public AffectedArea AffectedArea { get; set; }
-    public Dictionary<Guid, Texture>? PreviewTextures { get; set; }
+    public Dictionary<Guid, List<PreviewRenderRequest>>? PreviewTextures { get; set; }
 
 
     public RenderContext(DrawingSurface renderSurface, KeyFrameTime frameTime, ChunkResolution chunkResolution,
@@ -41,13 +41,13 @@ public class RenderContext
         DesiredSamplingOptions = desiredSampling;
     }
 
-    public Texture? GetPreviewTexture(Guid guid)
+    public List<PreviewRenderRequest>? GetPreviewTexturesForNode(Guid id)
     {
         if (PreviewTextures is null)
             return null;
-        PreviewTextures.TryGetValue(guid, out Texture? texture);
-        PreviewTextures.Remove(guid);
-        return texture;
+        PreviewTextures.TryGetValue(id, out List<PreviewRenderRequest> requests);
+        PreviewTextures.Remove(id);
+        return requests;
     }
 
     public static DrawingApiBlendMode GetDrawingBlendMode(BlendMode blendMode)

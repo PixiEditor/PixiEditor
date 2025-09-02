@@ -30,7 +30,7 @@ internal class MemberPreviewUpdater
         AnimationKeyFramePreviewRenderer = new AnimationKeyFramePreviewRenderer(internals);
     }
 
-    public Dictionary<Guid, Texture>? UpdatePreviews(HashSet<Guid> membersToUpdate,
+    public Dictionary<Guid, List<PreviewRenderRequest>> UpdatePreviews(HashSet<Guid> membersToUpdate,
         HashSet<Guid> masksToUpdate, HashSet<Guid> nodesToUpdate, HashSet<Guid> keyFramesToUpdate,
         bool ignoreAnimationPreviews, bool renderMiniPreviews)
     {
@@ -48,16 +48,17 @@ internal class MemberPreviewUpdater
     /// </summary>
     /// <param name="members">Members that should be rendered</param>
     /// <param name="masksToUpdate">Masks that should be rendered</param>
-    private Dictionary<Guid, Texture> UpdatePreviewPainters(HashSet<Guid> members, HashSet<Guid> masksToUpdate,
+    private Dictionary<Guid, List<PreviewRenderRequest>>? UpdatePreviewPainters(HashSet<Guid> members,
+        HashSet<Guid> masksToUpdate,
         HashSet<Guid> nodesToUpdate, HashSet<Guid> keyFramesToUpdate, bool ignoreAnimationPreviews,
         bool renderLowPriorityPreviews)
     {
-        Dictionary<Guid, Texture> previewTextures = new();
+        Dictionary<Guid, List<PreviewRenderRequest>> previewTextures = new();
         //RenderWholeCanvasPreview(renderLowPriorityPreviews);
         if (renderLowPriorityPreviews)
         {
             RenderLayersPreview(members, previewTextures);
-            //RenderMaskPreviews(masksToUpdate);
+            RenderMaskPreviews(masksToUpdate, previewTextures);
         }
 
         if (!ignoreAnimationPreviews)
@@ -102,7 +103,8 @@ internal class MemberPreviewUpdater
         painter.FrameTime = doc.AnimationHandler.ActiveFrameTime;
         painter.Repaint();
     }*/
-    private void RenderLayersPreview(HashSet<Guid> memberGuids, Dictionary<Guid, Texture> previewTextures)
+    private void RenderLayersPreview(HashSet<Guid> memberGuids,
+        Dictionary<Guid, List<PreviewRenderRequest>> previewTextures)
     {
         foreach (var node in doc.NodeGraphHandler.AllNodes)
         {
@@ -114,13 +116,13 @@ internal class MemberPreviewUpdater
                 if (structureMemberHandler.Preview == null)
                 {
                     var member = internals.Tracker.Document.FindMember(node.Id);
-                    if (member is not IPreviewRenderable previewRenderable)
-                        continue;
-
                     structureMemberHandler.Preview = Texture.ForDisplay(new VecI(30, 30));
                 }
 
-                previewTextures[node.Id] = structureMemberHandler.Preview;
+                if (!previewTextures.ContainsKey(node.Id))
+                    previewTextures[node.Id] = new List<PreviewRenderRequest>();
+
+                previewTextures[node.Id].Add(new PreviewRenderRequest(structureMemberHandler.Preview));
             }
         }
     }
@@ -206,7 +208,8 @@ internal class MemberPreviewUpdater
         }
     }*/
 
-    /*private void RenderMaskPreviews(HashSet<Guid> members)
+    private void RenderMaskPreviews(HashSet<Guid> members,
+        Dictionary<Guid, List<PreviewRenderRequest>> previewTextures)
     {
         foreach (var node in doc.NodeGraphHandler.AllNodes)
         {
@@ -219,28 +222,18 @@ internal class MemberPreviewUpdater
                 if (member is not IPreviewRenderable previewRenderable)
                     continue;
 
-                if (structureMemberHandler.MaskPreviewPainter == null)
+                if (structureMemberHandler.MaskPreview == null)
                 {
-                    structureMemberHandler.MaskPreviewPainter = new PreviewPainter(
-                        renderer,
-                        previewRenderable,
-                        doc.AnimationHandler.ActiveFrameTime,
-                        doc.SizeBindable,
-                        internals.Tracker.Document.ProcessingColorSpace,
-                        nameof(StructureNode.EmbeddedMask));
+                    structureMemberHandler.MaskPreview = Texture.ForDisplay(new VecI(30, 30));
                 }
-                else
-                {
-                    structureMemberHandler.MaskPreviewPainter.FrameTime = doc.AnimationHandler.ActiveFrameTime;
-                    structureMemberHandler.MaskPreviewPainter.DocumentSize = doc.SizeBindable;
-                    structureMemberHandler.MaskPreviewPainter.ProcessingColorSpace =
-                        internals.Tracker.Document.ProcessingColorSpace;
-                }
+                if (!previewTextures.ContainsKey(node.Id))
+                    previewTextures[node.Id] = new List<PreviewRenderRequest>();
 
-                structureMemberHandler.MaskPreviewPainter.Repaint();
+                previewTextures[node.Id].Add(new PreviewRenderRequest(structureMemberHandler.MaskPreview,
+                    nameof(StructureNode.EmbeddedMask)));
             }
         }
-    }*/
+    }
 
     /*private void RenderNodePreviews(HashSet<Guid> nodesGuids)
     {

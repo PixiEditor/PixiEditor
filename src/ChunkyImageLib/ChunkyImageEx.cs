@@ -22,9 +22,9 @@ public static class IReadOnlyChunkyImageEx
     /// <param name="paint">Paint to use for drawing</param>
     public static void DrawMostUpToDateRegionOn
     (this IReadOnlyChunkyImage image, RectI fullResRegion, ChunkResolution resolution, DrawingSurface surface,
-        VecD pos, Paint? paint = null, SamplingOptions? sampling = null)
+        VecD pos, Paint? paint = null, SamplingOptions? sampling = null, bool drawPaintOnEmpty = false)
     {
-        DrawRegionOn(fullResRegion, resolution, surface, pos, image.DrawMostUpToDateChunkOn, paint, sampling);
+        DrawRegionOn(fullResRegion, resolution, surface, pos, image.DrawMostUpToDateChunkOn, paint, sampling, drawPaintOnEmpty);
     }
 
     /// <summary>
@@ -39,10 +39,10 @@ public static class IReadOnlyChunkyImageEx
     /// <param name="paint">Paint to use for drawing</param>
     public static void DrawMostUpToDateRegionOnWithAffected
     (this IReadOnlyChunkyImage image, RectI fullResRegion, ChunkResolution resolution, DrawingSurface surface,
-        AffectedArea affectedArea, VecD pos, Paint? paint = null, SamplingOptions? sampling = null)
+        AffectedArea affectedArea, VecD pos, Paint? paint = null, SamplingOptions? sampling = null, bool drawPaintOnEmpty = false)
     {
         DrawRegionOn(fullResRegion, resolution, surface, pos, image.DrawMostUpToDateChunkOn,
-            image.DrawCachedMostUpToDateChunkOn, affectedArea, paint, sampling);
+            image.DrawCachedMostUpToDateChunkOn, affectedArea, paint, sampling, drawPaintOnEmpty);
     }
 
     /// <summary>
@@ -57,9 +57,9 @@ public static class IReadOnlyChunkyImageEx
     /// <param name="paint">Paint to use for drawing</param>
     public static void DrawCommittedRegionOn
     (this IReadOnlyChunkyImage image, RectI fullResRegion, ChunkResolution resolution, DrawingSurface surface,
-        VecI pos, Paint? paint = null, SamplingOptions? samplingOptions = null)
+        VecI pos, Paint? paint = null, SamplingOptions? samplingOptions = null, bool drawPaintOnEmpty = false)
     {
-        DrawRegionOn(fullResRegion, resolution, surface, pos, image.DrawCommittedChunkOn, paint, samplingOptions);
+        DrawRegionOn(fullResRegion, resolution, surface, pos, image.DrawCommittedChunkOn, paint, samplingOptions, drawPaintOnEmpty);
     }
 
     private static void DrawRegionOn(
@@ -68,7 +68,7 @@ public static class IReadOnlyChunkyImageEx
         DrawingSurface surface,
         VecD pos,
         Func<VecI, ChunkResolution, DrawingSurface, VecD, Paint?, SamplingOptions?, bool> drawingFunc,
-        Paint? paint = null, SamplingOptions? samplingOptions = null)
+        Paint? paint = null, SamplingOptions? samplingOptions = null, bool drawPaintOnEmpty = false)
     {
         int count = surface.Canvas.Save();
         surface.Canvas.ClipRect(new RectD(pos, fullResRegion.Size));
@@ -83,9 +83,14 @@ public static class IReadOnlyChunkyImageEx
             for (int i = chunkTopLeft.X; i <= chunkBotRight.X; i++)
             {
                 var chunkPos = new VecI(i, j);
-                drawingFunc(chunkPos, resolution, surface,
-                    offsetTargetRes + (chunkPos - chunkTopLeft) * resolution.PixelSize() + pos, paint,
-                    samplingOptions);
+                if (!drawingFunc(chunkPos, resolution, surface,
+                        offsetTargetRes + (chunkPos - chunkTopLeft) * resolution.PixelSize() + pos, paint,
+                        samplingOptions) && paint != null && drawPaintOnEmpty)
+                {
+                    surface.Canvas.DrawRect(new RectD(
+                        offsetTargetRes + (chunkPos - chunkTopLeft) * resolution.PixelSize() + pos,
+                        new VecD(resolution.PixelSize())), paint);
+                }
             }
         }
 
@@ -100,7 +105,7 @@ public static class IReadOnlyChunkyImageEx
         Func<VecI, ChunkResolution, DrawingSurface, VecD, Paint?, SamplingOptions?, bool> drawingFunc,
         Func<VecI, ChunkResolution, DrawingSurface, VecD, Paint?, SamplingOptions?, bool> quickDrawingFunc,
         AffectedArea area,
-        Paint? paint = null, SamplingOptions? samplingOptions = null)
+        Paint? paint = null, SamplingOptions? samplingOptions = null, bool drawPaintOnEmpty = false)
     {
         int count = surface.Canvas.Save();
         surface.Canvas.ClipRect(new RectD(pos, fullResRegion.Size));
@@ -117,15 +122,25 @@ public static class IReadOnlyChunkyImageEx
                 var chunkPos = new VecI(i, j);
                 if (area.Chunks != null && area.Chunks.Contains(chunkPos))
                 {
-                    drawingFunc(chunkPos, resolution, surface,
-                        offsetTargetRes + (chunkPos - chunkTopLeft) * resolution.PixelSize() + pos, paint,
-                        samplingOptions);
+                    if (!drawingFunc(chunkPos, resolution, surface,
+                            offsetTargetRes + (chunkPos - chunkTopLeft) * resolution.PixelSize() + pos, paint,
+                            samplingOptions) && paint != null && drawPaintOnEmpty)
+                    {
+                        surface.Canvas.DrawRect(new RectD(
+                            offsetTargetRes + (chunkPos - chunkTopLeft) * resolution.PixelSize() + pos,
+                            new VecD(resolution.PixelSize())), paint);
+                    }
                 }
                 else
                 {
-                    quickDrawingFunc(chunkPos, resolution, surface,
-                        offsetTargetRes + (chunkPos - chunkTopLeft) * resolution.PixelSize() + pos, paint,
-                        samplingOptions);
+                    if (!quickDrawingFunc(chunkPos, resolution, surface,
+                            offsetTargetRes + (chunkPos - chunkTopLeft) * resolution.PixelSize() + pos, paint,
+                            samplingOptions) && paint != null && drawPaintOnEmpty)
+                    {
+                        surface.Canvas.DrawRect(new RectD(
+                            offsetTargetRes + (chunkPos - chunkTopLeft) * resolution.PixelSize() + pos,
+                            new VecD(resolution.PixelSize())), paint);
+                    }
                 }
             }
         }

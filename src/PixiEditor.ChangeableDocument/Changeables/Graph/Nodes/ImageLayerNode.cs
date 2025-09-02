@@ -29,6 +29,8 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     private VecI startSize;
     private ColorSpace colorSpace;
+
+
     private ChunkyImage layerImage => keyFrames[0]?.Data as ChunkyImage;
 
     public ImageLayerNode(VecI size, ColorSpace colorSpace)
@@ -131,40 +133,24 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         var region = ctx.VisibleDocumentRegion ?? new RectI(0, 0, layerImage.LatestSize.X, layerImage.LatestSize.Y);
         VecD topLeft = region.TopLeft - sceneSize / 2;
 
-        //if (renderedSurfaceFrame == null || ctx.FullRerender || ctx.FrameTime.Frame != renderedSurfaceFrame)
+        topLeft *= ctx.ChunkResolution.Multiplier();
+        workingSurface.Canvas.Scale((float)ctx.ChunkResolution.InvertedMultiplier());
+        var img = GetLayerImageAtFrame(ctx.FrameTime.Frame);
+
+        if (!ctx.FullRerender)
         {
-            topLeft *= ctx.ChunkResolution.Multiplier();
-            workingSurface.Canvas.Scale((float)ctx.ChunkResolution.InvertedMultiplier());
-            if (!ctx.FullRerender)
-            {
-                GetLayerImageAtFrame(ctx.FrameTime.Frame).DrawMostUpToDateRegionOnWithAffected(
-                    region,
-                    ctx.ChunkResolution,
-                    workingSurface, ctx.AffectedArea, topLeft, paint, ctx.DesiredSamplingOptions);
-            }
-            else
-            {
-                GetLayerImageAtFrame(ctx.FrameTime.Frame).DrawMostUpToDateRegionOn(
-                    region,
-                    ctx.ChunkResolution,
-                    workingSurface, topLeft, paint, ctx.DesiredSamplingOptions);
-            }
+            img.DrawMostUpToDateRegionOnWithAffected(
+                region,
+                ctx.ChunkResolution,
+                workingSurface, ctx.AffectedArea, topLeft, paint, ctx.DesiredSamplingOptions);
         }
-        /*else
+        else
         {
-            if (ctx.DesiredSamplingOptions == SamplingOptions.Default)
-            {
-                workingSurface.Canvas.DrawSurface(
-                    fullResrenderedSurface.DrawingSurface, -(float)topLeft.X, -(float)topLeft.Y, paint);
-            }
-            else
-            {
-                using var snapshot = fullResrenderedSurface.DrawingSurface.Snapshot();
-                workingSurface.Canvas.DrawImage(snapshot, -(float)topLeft.X, -(float)topLeft.Y,
-                    ctx.DesiredSamplingOptions,
-                    paint);
-            }
-        }*/
+            img.DrawMostUpToDateRegionOn(
+                region,
+                ctx.ChunkResolution,
+                workingSurface, topLeft, paint, ctx.DesiredSamplingOptions);
+        }
 
         workingSurface.Canvas.RestoreToCount(saved);
     }

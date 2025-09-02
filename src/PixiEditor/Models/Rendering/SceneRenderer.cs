@@ -44,7 +44,7 @@ internal class SceneRenderer : IDisposable
     }
 
     public async Task RenderAsync(Dictionary<Guid, ViewportInfo> stateViewports, AffectedArea affectedArea,
-        bool updateDelayed, Dictionary<Guid, Texture>? previewTextures)
+        bool updateDelayed, Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures)
     {
         await Dispatcher.UIThread.InvokeAsync(() =>
         {
@@ -69,7 +69,7 @@ internal class SceneRenderer : IDisposable
         }, DispatcherPriority.Background);
     }
 
-    public Texture? RenderScene(ViewportInfo viewport, AffectedArea affectedArea, Dictionary<Guid, Texture>? previewTextures = null)
+    public Texture? RenderScene(ViewportInfo viewport, AffectedArea affectedArea,Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures = null)
     {
         /*if (Document.Renderer.IsBusy || DocumentViewModel.Busy ||
             target.DeviceClipBounds.Size.ShortestAxis <= 0) return;*/
@@ -94,7 +94,7 @@ internal class SceneRenderer : IDisposable
 
         IReadOnlyNodeGraph finalGraph = RenderingUtils.SolveFinalNodeGraph(targetOutput, Document);
         bool shouldRerender =
-            ShouldRerender(renderTargetSize, targetMatrix, resolution, viewportId, targetOutput, finalGraph);
+            ShouldRerender(renderTargetSize, targetMatrix, resolution, viewportId, targetOutput, finalGraph, previewTextures);
 
         if (shouldRerender)
         {
@@ -112,7 +112,7 @@ internal class SceneRenderer : IDisposable
         AffectedArea area,
         RectI? visibleDocumentRegion,
         string? targetOutput,
-        IReadOnlyNodeGraph finalGraph, Dictionary<Guid, Texture>? previewTextures)
+        IReadOnlyNodeGraph finalGraph, Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures)
     {
         DrawingSurface renderTarget = null;
         Texture? renderTexture = null;
@@ -184,10 +184,15 @@ internal class SceneRenderer : IDisposable
     private bool ShouldRerender(VecI targetSize, Matrix3X3 matrix, ChunkResolution resolution,
         Guid viewportId,
         string targetOutput,
-        IReadOnlyNodeGraph finalGraph)
+        IReadOnlyNodeGraph finalGraph, Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures)
     {
         if (!DocumentViewModel.SceneTextures.TryGetValue(viewportId, out var cachedTexture) || cachedTexture == null ||
             cachedTexture.IsDisposed)
+        {
+            return true;
+        }
+
+        if(previewTextures is { Count: > 0 })
         {
             return true;
         }

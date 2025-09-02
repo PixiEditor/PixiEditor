@@ -353,7 +353,9 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             int saved = -1;
 
             var matrix = CalculateTransformMatrix().ToSKMatrix().ToMatrix3X3();
-            var cachedTexture = Document.SceneTextures[ViewportId];
+            if(!Document.SceneTextures.TryGetValue(ViewportId, out var cachedTexture))
+                return;
+
             Matrix3X3 matrixDiff = SolveMatrixDiff(matrix, cachedTexture);
             var target = cachedTexture.DrawingSurface;
 
