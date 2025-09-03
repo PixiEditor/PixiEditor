@@ -25,11 +25,22 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
     public static readonly StyledProperty<bool> DelayedProperty =
         AvaloniaProperty.Register<FixedViewport, bool>(nameof(Delayed), false);
 
-    public static readonly StyledProperty<bool> RenderInDocSizeProperty = AvaloniaProperty.Register<FixedViewport, bool>(
-        nameof(RenderInDocSize));
+    public static readonly StyledProperty<bool> RenderInDocSizeProperty =
+        AvaloniaProperty.Register<FixedViewport, bool>(
+            nameof(RenderInDocSize));
 
-    public static readonly StyledProperty<VecI> CustomRenderSizeProperty = AvaloniaProperty.Register<FixedViewport, VecI>(
-        nameof(CustomRenderSize));
+    public static readonly StyledProperty<VecI> CustomRenderSizeProperty =
+        AvaloniaProperty.Register<FixedViewport, VecI>(
+            nameof(CustomRenderSize));
+
+    public static readonly StyledProperty<int> MaxBilinearSampleSizeProperty = AvaloniaProperty.Register<FixedViewport, int>(
+        nameof(MaxBilinearSampleSize));
+
+    public int MaxBilinearSampleSize
+    {
+        get => GetValue(MaxBilinearSampleSizeProperty);
+        set => SetValue(MaxBilinearSampleSizeProperty, value);
+    }
 
     public VecI CustomRenderSize
     {
@@ -84,7 +95,7 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
             height = availableSize.Height;
             width = height * aspectRatio;
         }
-        
+
         return new Size(width, height);
     }
 
@@ -124,7 +135,8 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
         if (Document is not null)
             docSize = Document.SizeBindable;
 
-        Matrix3X3 scaling = Matrix3X3.CreateScale((float)Bounds.Width / (float)docSize.X, (float)Bounds.Height / (float)docSize.Y);
+        Matrix3X3 scaling = Matrix3X3.CreateScale((float)Bounds.Width / (float)docSize.X,
+            (float)Bounds.Height / (float)docSize.Y);
 
         return new ViewportInfo(
             0,
@@ -133,12 +145,29 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
             scaling,
             null,
             "DEFAULT",
-            SamplingOptions.Bilinear,
+            CalculateSampling(),
             docSize,
             CalculateResolution(),
             GuidValue,
             Delayed,
             ForceRefreshFinalImage);
+    }
+
+    internal SamplingOptions CalculateSampling()
+    {
+        if (Document == null)
+            return SamplingOptions.Default;
+
+        if (Document.SizeBindable.LongestAxis > MaxBilinearSampleSize || SceneTexture == null)
+        {
+            return SamplingOptions.Default;
+        }
+
+        VecD densityVec = ((VecD)SceneTexture.Size).Divide(new VecD(Bounds.Width, Bounds.Height));
+        double density = Math.Min(densityVec.X, densityVec.Y);
+        return density > 1
+            ? SamplingOptions.Bilinear
+            : SamplingOptions.Default;
     }
 
     private static void OnDocumentChange(AvaloniaPropertyChangedEventArgs<DocumentViewModel> args)
@@ -154,11 +183,12 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
         {
             oldDoc.SizeChanged -= viewport.DocSizeChanged;
         }
+
         if (newDoc != null)
         {
             newDoc.SizeChanged += viewport.DocSizeChanged;
         }
-        
+
         viewport.ForceRefreshFinalImage();
     }
 
@@ -181,4 +211,3 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
         Document?.Operations.AddOrUpdateViewport(GetLocation());
     }
 }
-
