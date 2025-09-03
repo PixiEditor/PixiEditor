@@ -106,10 +106,12 @@ public abstract class RenderNode : Node, IHighDpiRenderNode
             int saved = preview.Texture.DrawingSurface.Canvas.Save();
             preview.Texture.DrawingSurface.Canvas.Clear();
 
-            VecD scaling = PreviewUtility.CalculateUniformScaling(ctx.DocumentSize, preview.Texture.Size);
+            VecD scaling = PreviewUtility.CalculateUniformScaling(ctx.RenderOutputSize, preview.Texture.Size);
+            VecD offset = PreviewUtility.CalculateCenteringOffset(ctx.RenderOutputSize, preview.Texture.Size, scaling);
             RenderContext adjusted =
-                PreviewUtility.CreatePreviewContext(ctx, scaling, ctx.DocumentSize, preview.Texture.Size);
+                PreviewUtility.CreatePreviewContext(ctx, scaling, ctx.RenderOutputSize, preview.Texture.Size);
 
+            preview.Texture.DrawingSurface.Canvas.Translate((float)offset.X, (float)offset.Y);
             preview.Texture.DrawingSurface.Canvas.Scale((float)scaling.X, (float)scaling.Y);
 
             RenderPreview(preview.Texture.DrawingSurface, adjusted, preview.ElementToRender);

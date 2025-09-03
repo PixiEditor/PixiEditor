@@ -28,6 +28,15 @@ public static class PreviewUtility
         return new VecD(uniformScale, uniformScale);
     }
 
+    public static VecD CalculateCenteringOffset(VecD originalSize, VecD targetSize, VecD scaling)
+    {
+        if (originalSize.X == 0 || originalSize.Y == 0)
+            return VecD.Zero;
+
+        VecD scaledOriginal = originalSize.Multiply(scaling);
+        return (targetSize - scaledOriginal) / 2;
+    }
+
     public static RenderContext CreatePreviewContext(RenderContext ctx, VecD scaling, VecD renderSize, VecD textureSize)
     {
         var clone = ctx.Clone();

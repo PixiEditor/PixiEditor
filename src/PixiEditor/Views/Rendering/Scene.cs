@@ -347,8 +347,9 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         DrawOverlays(texture, bounds, OverlayRenderSorting.Background);
         try
         {
-            var tex = Document.SceneTextures[ViewportId];
-
+            if(Document == null || Document.SceneTextures.TryGetValue(ViewportId, out var tex) == false)
+                return;
+            
             bool hasSaved = false;
             int saved = -1;
 

@@ -75,7 +75,6 @@ internal class SceneRenderer : IDisposable
         /*TODO:
          - [ ] Onion skinning
          - [ ] Previews generation
-         - [ ] Panning doesn't rerender in cases where it should
          - [ ] Rendering optimizer
          - [?] Render thread and proper locking/synchronization
          */
@@ -92,7 +91,7 @@ internal class SceneRenderer : IDisposable
 
         IReadOnlyNodeGraph finalGraph = RenderingUtils.SolveFinalNodeGraph(targetOutput, Document);
         bool shouldRerender =
-            ShouldRerender(renderTargetSize, targetMatrix, resolution, viewportId, targetOutput, finalGraph, previewTextures);
+            ShouldRerender(renderTargetSize, targetMatrix, resolution, viewportId, targetOutput, finalGraph, previewTextures, visibleDocumentRegion);
 
         if (shouldRerender)
         {
@@ -182,7 +181,8 @@ internal class SceneRenderer : IDisposable
     private bool ShouldRerender(VecI targetSize, Matrix3X3 matrix, ChunkResolution resolution,
         Guid viewportId,
         string targetOutput,
-        IReadOnlyNodeGraph finalGraph, Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures)
+        IReadOnlyNodeGraph finalGraph, Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures,
+        RectI? visibleDocumentRegion)
     {
         if (!DocumentViewModel.SceneTextures.TryGetValue(viewportId, out var cachedTexture) || cachedTexture == null ||
             cachedTexture.IsDisposed)
@@ -206,7 +206,8 @@ internal class SceneRenderer : IDisposable
             ChunkResolution = resolution,
             HighResRendering = HighResRendering,
             TargetOutput = targetOutput,
-            GraphCacheHash = finalGraph.GetCacheHash()
+            GraphCacheHash = finalGraph.GetCacheHash(),
+            VisibleDocumentRegion = (RectD?)visibleDocumentRegion ?? new RectD(0, 0, Document.Size.X, Document.Size.Y)
         };
 
         if (lastRenderedStates.TryGetValue(viewportId, out var lastState))
@@ -349,10 +350,12 @@ struct RenderState
     public bool HighResRendering { get; set; }
     public string TargetOutput { get; set; }
     public int GraphCacheHash { get; set; }
+    public RectD VisibleDocumentRegion { get; set; }
 
     public bool Equals(RenderState other)
     {
         return ChunkResolution.Equals(other.ChunkResolution) && HighResRendering == other.HighResRendering &&
-               TargetOutput == other.TargetOutput && GraphCacheHash == other.GraphCacheHash;
+               TargetOutput == other.TargetOutput && GraphCacheHash == other.GraphCacheHash &&
+               VisibleDocumentRegion == other.VisibleDocumentRegion;
     }
 }

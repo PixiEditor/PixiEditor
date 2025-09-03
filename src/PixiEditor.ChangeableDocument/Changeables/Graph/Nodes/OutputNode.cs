@@ -45,10 +45,13 @@ public class OutputNode : Node, IRenderInput
             int saved = texture.DrawingSurface.Canvas.Save();
 
             VecD scaling = PreviewUtility.CalculateUniformScaling(context.DocumentSize, texture.Size);
+            VecD offset = PreviewUtility.CalculateCenteringOffset(context.DocumentSize, texture.Size, scaling);
+            texture.DrawingSurface.Canvas.Translate((float)offset.X, (float)offset.Y);
             texture.DrawingSurface.Canvas.Scale((float)scaling.X, (float)scaling.Y);
             var previewCtx =
                 PreviewUtility.CreatePreviewContext(context, scaling, context.RenderOutputSize, texture.Size);
 
+            texture.DrawingSurface.Canvas.Clear();
             Input.Value?.Paint(previewCtx, texture.DrawingSurface);
             texture.DrawingSurface.Canvas.RestoreToCount(saved);
         }
