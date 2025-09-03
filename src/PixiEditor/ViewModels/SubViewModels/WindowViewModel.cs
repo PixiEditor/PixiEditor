@@ -313,7 +313,7 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>, IWindowHandler
     /// <summary>
     /// Method used to toggle to FullScreen-Mode.
     /// </summary>
-    [Commands_Command.Basic("PixiEditor.Window.ToggleFullscreen", "TOGGLE_FULLSCREEN", "TOGGLE_FULLSCREEN",
+    [Commands_Command.Basic("PixiEditor.Window.ToggleFullscreen", "TOGGLE_FULLSCREEN", "TOGGLE_FULLSCREEN_DESCRIPTIVE",
         Key = Key.F11,
         Icon = PixiPerfectIcons.Fullscreen,
         AnalyticsTrack = true)]
