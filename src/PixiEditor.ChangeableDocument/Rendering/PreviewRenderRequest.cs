@@ -10,7 +10,7 @@ public record struct PreviewRenderRequest
         {
             if (!accessedTexture)
             {
-                texture = textureCreateFunc();
+                texture = textureCreateFunc(true);
                 accessedTexture = true;
             }
 
@@ -20,11 +20,11 @@ public record struct PreviewRenderRequest
     public string? ElementToRender { get; set; }
     public Action TextureUpdatedAction { get; set; }
 
-    private Func<Texture?> textureCreateFunc;
+    private Func<bool, Texture?> textureCreateFunc;
     private Texture? texture;
     private bool accessedTexture = false;
 
-    public PreviewRenderRequest(Func<Texture?> textureCreateFunc, Action textureUpdatedAction, string? elementToRender = null)
+    public PreviewRenderRequest(Func<bool, Texture?> textureCreateFunc, Action textureUpdatedAction, string? elementToRender = null)
     {
         this.textureCreateFunc = textureCreateFunc;
         TextureUpdatedAction = textureUpdatedAction;
@@ -34,5 +34,10 @@ public record struct PreviewRenderRequest
     public void InvokeTextureUpdated()
     {
         TextureUpdatedAction?.Invoke();
+    }
+
+    public Texture? GetTextureCached()
+    {
+        return textureCreateFunc(false);
     }
 }

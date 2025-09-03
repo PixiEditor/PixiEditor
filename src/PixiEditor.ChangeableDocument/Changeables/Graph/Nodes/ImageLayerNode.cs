@@ -130,7 +130,9 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         int saved = workingSurface.Canvas.Save();
 
         var sceneSize = GetSceneSize(ctx.FrameTime);
-        var region = ctx.VisibleDocumentRegion ?? new RectI(0, 0, layerImage.LatestSize.X, layerImage.LatestSize.Y);
+        RectI latestSize = new(0, 0, layerImage.LatestSize.X, layerImage.LatestSize.Y);
+        var region = ctx.VisibleDocumentRegion ?? latestSize;
+
         VecD topLeft = region.TopLeft - sceneSize / 2;
 
         topLeft *= ctx.ChunkResolution.Multiplier();

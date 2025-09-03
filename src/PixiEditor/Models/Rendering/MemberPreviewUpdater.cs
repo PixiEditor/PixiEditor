@@ -134,14 +134,17 @@ internal class MemberPreviewUpdater
                 if (textureSize.X <= 0 || textureSize.Y <= 0)
                     continue;
 
-                Texture? CreateTextureForLayer()
+                Texture? CreateTextureForLayer(bool createIfNull)
                 {
-                    if (structureMemberHandler.Preview.Preview == null ||
-                        structureMemberHandler.Preview.Preview.IsDisposed ||
-                        structureMemberHandler.Preview.Preview.Size != textureSize)
+                    if (createIfNull)
                     {
-                        structureMemberHandler.Preview.Preview?.Dispose();
-                        structureMemberHandler.Preview.Preview = Texture.ForDisplay(textureSize);
+                        if (structureMemberHandler.Preview.Preview == null ||
+                            structureMemberHandler.Preview.Preview.IsDisposed ||
+                            structureMemberHandler.Preview.Preview.Size != textureSize)
+                        {
+                            structureMemberHandler.Preview.Preview?.Dispose();
+                            structureMemberHandler.Preview.Preview = Texture.ForDisplay(textureSize);
+                        }
                     }
 
                     return structureMemberHandler.Preview.Preview;
@@ -263,14 +266,17 @@ internal class MemberPreviewUpdater
                 if (textureSize.X <= 0 || textureSize.Y <= 0)
                     continue;
 
-                Texture? CreateTextureForMask()
+                Texture? CreateTextureForMask(bool createIfNull)
                 {
-                    if (structureMemberHandler.MaskPreview.Preview == null ||
-                        structureMemberHandler.MaskPreview.Preview.IsDisposed ||
-                        structureMemberHandler.MaskPreview.Preview.Size != textureSize)
+                    if (createIfNull)
                     {
-                        structureMemberHandler.MaskPreview.Preview?.Dispose();
-                        structureMemberHandler.MaskPreview.Preview = Texture.ForDisplay(textureSize);
+                        if (structureMemberHandler.MaskPreview.Preview == null ||
+                            structureMemberHandler.MaskPreview.Preview.IsDisposed ||
+                            structureMemberHandler.MaskPreview.Preview.Size != textureSize)
+                        {
+                            structureMemberHandler.MaskPreview.Preview?.Dispose();
+                            structureMemberHandler.MaskPreview.Preview = Texture.ForDisplay(textureSize);
+                        }
                     }
 
                     return structureMemberHandler.MaskPreview.Preview;
@@ -363,13 +369,16 @@ internal class MemberPreviewUpdater
         if (textureSize.X <= 0 || textureSize.Y <= 0)
             return;
 
-        Texture? CreateTextureForNode()
+        Texture? CreateTextureForNode(bool createIfNull)
         {
-            if (nodeVm.Preview.Preview == null || nodeVm.Preview.Preview.IsDisposed ||
-                nodeVm.Preview.Preview.Size != textureSize)
+            if (createIfNull)
             {
-                nodeVm.Preview.Preview?.Dispose();
-                nodeVm.Preview.Preview = Texture.ForDisplay(textureSize);
+                if (nodeVm.Preview.Preview == null || nodeVm.Preview.Preview.IsDisposed ||
+                    nodeVm.Preview.Preview.Size != textureSize)
+                {
+                    nodeVm.Preview.Preview?.Dispose();
+                    nodeVm.Preview.Preview = Texture.ForDisplay(textureSize);
+                }
             }
 
             return nodeVm.Preview.Preview;

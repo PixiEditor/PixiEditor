@@ -43,8 +43,13 @@ public class OutputNode : Node, IRenderInput
             if (texture is null) continue;
 
             int saved = texture.DrawingSurface.Canvas.Save();
-            texture.DrawingSurface.Canvas.Scale((float)context.ChunkResolution.Multiplier());
-            Input.Value?.Paint(context, texture.DrawingSurface);
+
+            VecD scaling = PreviewUtility.CalculateUniformScaling(context.DocumentSize, texture.Size);
+            texture.DrawingSurface.Canvas.Scale((float)scaling.X, (float)scaling.Y);
+            var previewCtx =
+                PreviewUtility.CreatePreviewContext(context, scaling, context.RenderOutputSize, texture.Size);
+
+            Input.Value?.Paint(previewCtx, texture.DrawingSurface);
             texture.DrawingSurface.Canvas.RestoreToCount(saved);
         }
     }

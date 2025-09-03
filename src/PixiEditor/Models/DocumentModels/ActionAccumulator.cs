@@ -148,7 +148,8 @@ internal class ActionAccumulator
 
                 if (!previewsDisabled)
                 {
-                    if (undoBoundaryPassed || viewportRefreshRequest || refreshPreviewsRequest || refreshPreviewRequest || changeFrameRequest ||
+                    if (undoBoundaryPassed || viewportRefreshRequest || refreshPreviewsRequest ||
+                        refreshPreviewRequest || changeFrameRequest ||
                         document.SizeBindable.LongestAxis <= LiveUpdatePerformanceThreshold)
                     {
                         previewTextures = previewUpdater.GatherPreviewsToUpdate(
@@ -160,19 +161,14 @@ internal class ActionAccumulator
                     }
                 }
 
-                List<Action>? updatePreviewActions = previewTextures?.Values.Select(x => x.Select(r => r.TextureUpdatedAction))
+                List<Action>? updatePreviewActions = previewTextures?.Values
+                    .Select(x => x.Select(r => r.TextureUpdatedAction))
                     .SelectMany(x => x).ToList();
 
                 await document.SceneRenderer.RenderAsync(internals.State.Viewports, affectedAreas.MainImageArea,
                     !previewsDisabled && updateDelayed, previewTextures);
 
-                if (updatePreviewActions != null)
-                {
-                    foreach (var action in updatePreviewActions)
-                    {
-                        action();
-                    }
-                }
+                NotifyUpdatedPreviews(updatePreviewActions);
             }
         }
         catch (Exception e)
@@ -191,6 +187,17 @@ internal class ActionAccumulator
         if (document.Busy)
             document.Busy = false;
         executing = false;
+    }
+
+    private static void NotifyUpdatedPreviews(List<Action>? updatePreviewActions)
+    {
+        if (updatePreviewActions != null)
+        {
+            foreach (var action in updatePreviewActions)
+            {
+                action();
+            }
+        }
     }
 
     private const int LiveUpdatePerformanceThreshold = 2048;

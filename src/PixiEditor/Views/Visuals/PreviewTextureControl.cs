@@ -59,7 +59,7 @@ public class PreviewTextureControl : DrawieControl
 
     public override void Draw(DrawingSurface surface)
     {
-        if (TexturePreview is { Preview: not null })
+        if (TexturePreview is { Preview: not null } && TexturePreview.Preview is { IsDisposed: false })
         {
             VecD scaling = new(Bounds.Size.Width / TexturePreview.Preview.Size.X, Bounds.Size.Height / TexturePreview.Preview.Size.Y);
             surface.Canvas.Save();

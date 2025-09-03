@@ -681,7 +681,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     private static void OnHighResPreviewChanged(AvaloniaPropertyChangedEventArgs<bool> e)
     {
         Viewport? viewport = (Viewport)e.Sender;
-        viewport.ForceRefreshFinalImage();
+        viewport.Document?.Operations.AddOrUpdateViewport(viewport.GetLocation());
     }
 
     private void MenuItem_OnClick(object? sender, PointerReleasedEventArgs e)

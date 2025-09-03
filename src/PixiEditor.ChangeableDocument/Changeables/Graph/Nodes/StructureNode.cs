@@ -169,9 +169,38 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         VecD sceneSize = GetSceneSize(context.FrameTime);
         //renderTarget.Canvas.ClipRect(new RectD(scenePos - (sceneSize / 2f), sceneSize));
 
+        // Custom shader may modify the actual visible region, so we must force rendering full region
+        if (IsConnectedToCustomShaderNode(output))
+        {
+            renderObjectContext.VisibleDocumentRegion = null;
+        }
+
         Render(renderObjectContext);
 
         renderTarget?.Canvas.RestoreToCount(renderSaved);
+    }
+
+    private bool IsConnectedToCustomShaderNode(RenderOutputProperty output)
+    {
+        foreach (var conn in output.Connections)
+        {
+            bool isCustomShader = false;
+            conn.Node.TraverseForwards(x =>
+            {
+                if (x is ICustomShaderNode)
+                {
+                    isCustomShader = true;
+                    return false;
+                }
+
+                return true;
+            });
+
+            if (isCustomShader)
+                return true;
+        }
+
+        return false;
     }
 
     protected SceneObjectRenderContext CreateSceneContext(RenderContext context, DrawingSurface renderTarget,
