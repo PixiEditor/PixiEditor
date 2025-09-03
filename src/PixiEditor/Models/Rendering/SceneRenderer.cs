@@ -15,6 +15,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Position;
+using PixiEditor.Views.Main.ViewportControls;
 
 namespace PixiEditor.Models.Rendering;
 
@@ -45,6 +46,7 @@ internal class SceneRenderer : IDisposable
     {
         await Dispatcher.UIThread.InvokeAsync(() =>
         {
+            int renderedCount = 0;
             foreach (var viewport in stateViewports)
             {
                 if (viewport.Value.Delayed && !updateDelayed)
@@ -62,8 +64,32 @@ internal class SceneRenderer : IDisposable
 
                 DocumentViewModel.SceneTextures[viewport.Key] = rendered;
                 viewport.Value.InvalidateVisual();
+                renderedCount++;
             }
+
+            if(renderedCount == 0 && previewTextures is { Count: > 0 })
+            {
+                RenderOnlyPreviews(affectedArea, previewTextures);
+            }
+
         }, DispatcherPriority.Background);
+    }
+
+    private void RenderOnlyPreviews(AffectedArea affectedArea, Dictionary<Guid, List<PreviewRenderRequest>> previewTextures)
+    {
+        ViewportInfo previewGenerationViewport = new()
+        {
+            RealDimensions = new VecD(1, 1),
+            Transform = Matrix3X3.Identity,
+            Id = Guid.NewGuid(),
+            Resolution = ChunkResolution.Full,
+            Sampling = SamplingOptions.Bilinear,
+            VisibleDocumentRegion = null,
+            RenderOutput = "DEFAULT",
+            Delayed = false
+        };
+        var rendered = RenderScene(previewGenerationViewport, affectedArea, previewTextures);
+        rendered.Dispose();
     }
 
     public Texture? RenderScene(ViewportInfo viewport, AffectedArea affectedArea,Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures = null)
