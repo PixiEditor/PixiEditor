@@ -2,6 +2,7 @@
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core;
+using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Shaders.Generation;
 using Drawie.Backend.Core.Shaders.Generation.Expressions;
 using Drawie.Backend.Core.Surfaces;
@@ -119,7 +120,10 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
         var startNode = FindStartNode();
         if (drawingPaint != null && startNode is { Image.Value: not null })
         {
-            renderOn.Canvas.DrawRect(0, 0, startNode.Image.Value.Size.X, startNode.Image.Value.Size.Y, drawingPaint);
+            using var tmpTex = Texture.ForProcessing(startNode.Image.Value.Size, context.ProcessingColorSpace);
+
+            tmpTex.DrawingSurface.Canvas.DrawRect(0, 0, startNode.Image.Value.Size.X, startNode.Image.Value.Size.Y, drawingPaint);
+            renderOn.Canvas.DrawSurface(tmpTex.DrawingSurface, 0, 0);
         }
     }
 

@@ -48,11 +48,36 @@ public class ModifyImageLeftNode : Node, IPairNode
 
     protected override void OnExecute(RenderContext context)
     {
+        RenderPreviews(context);
     }
 
     public override Node CreateCopy() => new ModifyImageLeftNode();
 
-    public bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
+    private void RenderPreviews(RenderContext context)
+    {
+        var previews = context.GetPreviewTexturesForNode(Id);
+        if (previews is null) return;
+        foreach (var request in previews)
+        {
+            var texture = request.Texture;
+            if (texture is null) continue;
+
+            int saved = texture.DrawingSurface.Canvas.Save();
+
+            VecD scaling = PreviewUtility.CalculateUniformScaling(context.DocumentSize, texture.Size);
+            VecD offset = PreviewUtility.CalculateCenteringOffset(context.DocumentSize, texture.Size, scaling);
+            texture.DrawingSurface.Canvas.Translate((float)offset.X, (float)offset.Y);
+            texture.DrawingSurface.Canvas.Scale((float)scaling.X, (float)scaling.Y);
+            var previewCtx =
+                PreviewUtility.CreatePreviewContext(context, scaling, context.RenderOutputSize, texture.Size);
+
+            texture.DrawingSurface.Canvas.Clear();
+            RenderPreview(texture.DrawingSurface);
+            texture.DrawingSurface.Canvas.RestoreToCount(saved);
+        }
+    }
+
+    public bool RenderPreview(DrawingSurface renderOn)
     {
         if(Image.Value is null)
         {

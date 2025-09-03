@@ -48,6 +48,7 @@ public class CreateImageNode : Node
         }
 
         var surface = Render(context);
+        RenderPreviews(surface, context);
 
         Output.Value = surface;
 
@@ -99,35 +100,35 @@ public class CreateImageNode : Node
         surface.Canvas.RestoreToCount(saved);
     }
 
+    private void RenderPreviews(Texture surface, RenderContext context)
+    {
+        var previews = context.GetPreviewTexturesForNode(Id);
+        if (previews is null) return;
+        foreach (var request in previews)
+        {
+            var texture = request.Texture;
+            if (texture is null) continue;
+
+            int saved = texture.DrawingSurface.Canvas.Save();
+
+            VecD scaling = PreviewUtility.CalculateUniformScaling(surface.Size, texture.Size);
+            VecD offset = PreviewUtility.CalculateCenteringOffset(surface.Size, texture.Size, scaling);
+            texture.DrawingSurface.Canvas.Translate((float)offset.X, (float)offset.Y);
+            texture.DrawingSurface.Canvas.Scale((float)scaling.X, (float)scaling.Y);
+            var previewCtx =
+                PreviewUtility.CreatePreviewContext(context, scaling, context.RenderOutputSize, texture.Size);
+
+            texture.DrawingSurface.Canvas.Clear();
+            texture.DrawingSurface.Canvas.DrawSurface(surface.DrawingSurface, 0, 0);
+            texture.DrawingSurface.Canvas.RestoreToCount(saved);
+        }
+    }
+
     public override Node CreateCopy() => new CreateImageNode();
 
     public override void Dispose()
     {
         base.Dispose();
         textureCache.Dispose();
-    }
-
-    public bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
-    {
-        if (Size.Value.X <= 0 || Size.Value.Y <= 0)
-        {
-            return false;
-        }
-
-        if (Output.Value == null)
-        {
-            return false;
-        }
-
-        var surface = Render(context);
-        
-        if (surface == null || surface.IsDisposed)
-        {
-            return false;
-        }
-        
-        renderOn.Canvas.DrawSurface(surface.DrawingSurface, 0, 0);
-        
-        return true;
     }
 }
