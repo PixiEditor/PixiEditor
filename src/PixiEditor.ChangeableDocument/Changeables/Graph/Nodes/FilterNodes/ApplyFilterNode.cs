@@ -119,8 +119,11 @@ public sealed class ApplyFilterNode : RenderNode, IRenderInput
         finalSurface.Canvas.RestoreToCount(saved);
     }
 
-    public override RectD? GetPreviewBounds(int frame, string elementToRenderName = "") =>
-        PreviewUtils.FindPreviewBounds(Background.Connection, frame, elementToRenderName);
+    public override RectD? GetPreviewBounds(RenderContext ctx, string elementToRenderName = "") =>
+        null;
+        /*
+        PreviewUtils.FindPreviewBounds(Background.Connection, ctx.FrameTime.Frame, elementToRenderName);
+        */
 
     public override Node CreateCopy() => new ApplyFilterNode();
 

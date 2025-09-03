@@ -36,7 +36,7 @@ public class ChunkyImageSerializationFactory : SerializationFactory<byte[], Chun
     {
         SurfaceSerializationFactory surfaceFactory = new();
         surfaceFactory.Config = Config;
-        if (IsFilePreVersion(serializerData, new Version(2, 0, 1, 12)))
+        if (IsFilePreVersion(serializerData, new Version(2, 0, 1, 12)) || serializerData == default)
         {
             if (serialized is byte[] imgBytes)
             {

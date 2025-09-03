@@ -90,31 +90,35 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         Rasterize(workingSurface, paint);
     }
 
-    public override RectD? GetPreviewBounds(int frame, string elementFor = "")
+    protected override bool ShouldRenderPreview(string elementToRenderName)
     {
-        if (elementFor == nameof(EmbeddedMask))
+        if(RenderableShapeData == null)
         {
-            base.GetPreviewBounds(frame, elementFor);
-        }
-        else
-        {
-            return RenderableShapeData?.TransformedVisualAABB;
+            return false;
         }
 
-        return null;
+        VecI tightBoundsSize = (VecI)RenderableShapeData.TransformedVisualAABB.Size;
+
+        VecI translation = new VecI(
+            (int)Math.Max(RenderableShapeData.TransformedAABB.TopLeft.X, 0),
+            (int)Math.Max(RenderableShapeData.TransformedAABB.TopLeft.Y, 0));
+
+        VecI size = tightBoundsSize + translation;
+        return size.X > 0 && size.Y > 0;
     }
 
-    public override bool RenderPreview(DrawingSurface renderOn, RenderContext context,
+    public override void RenderPreview(DrawingSurface renderOn, RenderContext context,
         string elementToRenderName)
     {
         if (elementToRenderName == nameof(EmbeddedMask))
         {
-            return base.RenderPreview(renderOn, context, elementToRenderName);
+            base.RenderPreview(renderOn, context, elementToRenderName);
+            return;
         }
 
         if (RenderableShapeData == null)
         {
-            return false;
+            return;
         }
 
         using var paint = new Paint();
@@ -129,16 +133,13 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
 
         if (size.X == 0 || size.Y == 0)
         {
-            return false;
+            return;
         }
-
 
         int savedCount = renderOn.Canvas.Save();
         renderOn.Canvas.Scale((float)context.ChunkResolution.Multiplier());
         Rasterize(renderOn, paint);
         renderOn.Canvas.RestoreToCount(savedCount);
-
-        return true;
     }
 
     public override RectD? GetApproxBounds(KeyFrameTime frameTime)

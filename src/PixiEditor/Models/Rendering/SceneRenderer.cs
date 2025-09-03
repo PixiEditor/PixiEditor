@@ -29,18 +29,15 @@ internal class SceneRenderer : IDisposable
     private int lastGraphCacheHash = -1;
     private KeyFrameTime lastFrameTime;
     private Dictionary<Guid, bool> lastFramesVisibility = new();
-    private PreviewRenderer previewRenderer;
 
     private ChunkResolution? lastResolution;
 
     private TextureCache textureCache = new();
 
-    public SceneRenderer(IReadOnlyDocument trackerDocument, IDocument documentViewModel,
-        PreviewRenderer previewRenderer)
+    public SceneRenderer(IReadOnlyDocument trackerDocument, IDocument documentViewModel)
     {
         Document = trackerDocument;
         DocumentViewModel = documentViewModel;
-        this.previewRenderer = previewRenderer;
     }
 
     public async Task RenderAsync(Dictionary<Guid, ViewportInfo> stateViewports, AffectedArea affectedArea,

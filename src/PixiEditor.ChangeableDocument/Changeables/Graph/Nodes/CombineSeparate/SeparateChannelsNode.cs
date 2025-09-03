@@ -10,7 +10,7 @@ using Drawie.Numerics;
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 
 [NodeInfo("SeparateChannels")]
-public class SeparateChannelsNode : Node, IRenderInput, IPreviewRenderable
+public class SeparateChannelsNode : Node, IRenderInput
 {
     private readonly Paint _paint = new();
     
@@ -96,8 +96,7 @@ public class SeparateChannelsNode : Node, IRenderInput, IPreviewRenderable
     RenderInputProperty IRenderInput.Background => Image;
     public RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
     {
-        RectD? bounds = PreviewUtils.FindPreviewBounds(Image.Connection, frame, elementToRenderName);
-        return bounds;
+        return null;
     }
 
     public bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)

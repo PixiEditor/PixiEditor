@@ -244,8 +244,6 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
         if (texture == null || texture.IsDisposed)
             return;
 
-
-
         int saved = texture.DrawingSurface.Canvas.Save();
 
         RenderContext previewCtx = ctx.Clone();
@@ -253,30 +251,17 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
         var approxBounds = GetApproxBounds(ctx.FrameTime);
 
         VecD size = approxBounds?.Size ?? ctx.DocumentSize;
-        VecD densityVec = size.Divide(texture.Size);
-        double density = Math.Min(densityVec.X, densityVec.Y);
-        ChunkResolution resolution = density switch
-        {
-            > 8.01 => ChunkResolution.Eighth,
-            > 4.01 => ChunkResolution.Quarter,
-            > 2.01 => ChunkResolution.Half,
-            _ => ChunkResolution.Full
-        };
 
-        previewCtx.ChunkResolution = resolution;
+        previewCtx.ChunkResolution = PreviewUtility.CalculateResolution(size, texture.Size);
 
         if (approxBounds.HasValue)
         {
             var bounds = approxBounds.Value;
 
-            // target size = texture size
             var targetW = texture.Size.X;
             var targetH = texture.Size.Y;
 
-            // scale so that bounds fits inside target
-            double scaleX = (double)targetW / bounds.Width;
-            double scaleY = (double)targetH / bounds.Height;
-            double uniformScale = Math.Min(scaleX, scaleY);
+            double uniformScale = PreviewUtility.CalculateUniformScaling(bounds.Size, texture.Size).X;
 
             // scaled content size
             double scaledW = bounds.Width * uniformScale;
@@ -288,12 +273,13 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
 
             var canvas = texture.DrawingSurface.Canvas;
             canvas.Translate((float)offsetX, (float)offsetY);
-            uniformScale *= resolution.InvertedMultiplier();
+            uniformScale *= previewCtx.ChunkResolution.InvertedMultiplier();
             canvas.Scale((float)uniformScale, (float)uniformScale);
 
             previewCtx.DesiredSamplingOptions = uniformScale < 1.0 ? SamplingOptions.Bilinear : SamplingOptions.Default;
         }
 
+        texture.DrawingSurface.Canvas.Clear();
         RenderPreview(texture.DrawingSurface, previewCtx, elementToRender);
 
         texture.DrawingSurface.Canvas.RestoreToCount(saved);

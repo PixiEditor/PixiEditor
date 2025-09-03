@@ -8,7 +8,7 @@ using Drawie.Numerics;
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 [NodeInfo("Output")]
-public class OutputNode : Node, IRenderInput, IPreviewRenderable
+public class OutputNode : Node, IRenderInput
 {
     public const string UniqueName = "PixiEditor.Output";
     public const string InputPropertyName = "Background";
@@ -34,33 +34,20 @@ public class OutputNode : Node, IRenderInput, IPreviewRenderable
 
         Input.Value?.Paint(context, context.RenderSurface);
         lastDocumentSize = context.DocumentSize;
+
+        var previews = context.GetPreviewTexturesForNode(Id);
+        if (previews is null) return;
+        foreach (var request in previews)
+        {
+            var texture = request.Texture;
+            if (texture is null) continue;
+
+            int saved = texture.DrawingSurface.Canvas.Save();
+            texture.DrawingSurface.Canvas.Scale((float)context.ChunkResolution.Multiplier());
+            Input.Value?.Paint(context, texture.DrawingSurface);
+            texture.DrawingSurface.Canvas.RestoreToCount(saved);
+        }
     }
 
     RenderInputProperty IRenderInput.Background => Input;
-
-    public RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
-    {
-        if (lastDocumentSize == null)
-        {
-            return null;
-        }
-
-        return new RectD(0, 0, lastDocumentSize.Value.X, lastDocumentSize.Value.Y);
-    }
-
-    public bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
-    {
-        if (Input.Value == null)
-        {
-            return false;
-        }
-
-        int saved = renderOn.Canvas.Save();
-        renderOn.Canvas.Scale((float)context.ChunkResolution.Multiplier());
-        Input.Value.Paint(context, renderOn);
-
-        renderOn.Canvas.RestoreToCount(saved);
-
-        return true;
-    }
 }

@@ -238,22 +238,13 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
         return guids;
     }
 
-    public override RectD? GetPreviewBounds(int frame, string elementFor = "")
-    {
-        if (elementFor == nameof(EmbeddedMask))
-        {
-            return base.GetPreviewBounds(frame, elementFor);
-        }
-
-        return GetApproxBounds(frame);
-    }
-
-    public override bool RenderPreview(DrawingSurface renderOn, RenderContext context,
+    public override void RenderPreview(DrawingSurface renderOn, RenderContext context,
         string elementToRenderName)
     {
         if (elementToRenderName == nameof(EmbeddedMask))
         {
-            return base.RenderPreview(renderOn, context, elementToRenderName);
+            base.RenderPreview(renderOn, context, elementToRenderName);
+            return;
         }
 
         if (Content.Connection != null)
@@ -268,14 +259,12 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
                     continue;
                 }
 
-                if (node is IPreviewRenderable previewRenderable)
+                /*if (node is IPreviewRenderable previewRenderable)
                 {
                     previewRenderable.RenderPreview(renderOn, context, elementToRenderName);
-                }
+                }*/
             }
         }
-
-        return true;
     }
 
     void IClipSource.DrawClipSource(SceneObjectRenderContext context, DrawingSurface drawOnto)

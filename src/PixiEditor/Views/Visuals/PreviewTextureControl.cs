@@ -29,9 +29,24 @@ public class PreviewTextureControl : DrawieControl
         base.OnAttachedToVisualTree(e);
         if (TexturePreview != null)
         {
-            TexturePreview.Attach(this, () => new VecI((int)Math.Ceiling(Bounds.Size.Width), (int)Math.Ceiling(Bounds.Size.Height)));
+            TexturePreview.Attach(this, () =>
+            {
+                return GetBounds();
+            });
             TexturePreview.TextureUpdated += QueueNextFrame;
         }
+    }
+
+    private VecI GetBounds()
+    {
+        double width = double.IsPositive(Width) ? Width : Bounds.Width;
+        double height = double.IsPositive(Height) ? Height : Bounds.Height;
+        if (double.IsNaN(width) || double.IsInfinity(width))
+            width = Bounds.Width;
+        if (double.IsNaN(height) || double.IsInfinity(height))
+            height = Bounds.Height;
+
+        return new VecI((int)Math.Ceiling(width), (int)Math.Ceiling(height));
     }
 
     protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
@@ -61,8 +76,7 @@ public class PreviewTextureControl : DrawieControl
             args.OldValue.Value?.Detach(control);
             if(args.OldValue.Value != null)
                 args.OldValue.Value.TextureUpdated -= control.QueueNextFrame;
-            args.NewValue.Value?.Attach(control, () =>
-                new VecI((int)Math.Ceiling(control.Bounds.Size.Width), (int)Math.Ceiling(control.Bounds.Size.Height)));
+            args.NewValue.Value?.Attach(control, () => control.GetBounds());
             if(args.NewValue.Value != null)
                 args.NewValue.Value.TextureUpdated += control.QueueNextFrame;
         }

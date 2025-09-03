@@ -285,37 +285,30 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         }
     }
 
-    public override RectD? GetPreviewBounds(int frame, string elementFor = "")
+    protected override bool ShouldRenderPreview(string elementToRenderName)
     {
-        if (elementFor == nameof(EmbeddedMask) && EmbeddedMask != null)
+        if (elementToRenderName == nameof(EmbeddedMask))
         {
-            return new RectD(VecD.Zero, EmbeddedMask.LatestSize);
+            return true;
         }
 
-        return null;
+        return EmbeddedMask != null;
     }
 
-    public override bool RenderPreview(DrawingSurface renderOn, RenderContext context,
+    public override void RenderPreview(DrawingSurface renderOn, RenderContext context,
         string elementToRenderName)
     {
-        if (elementToRenderName != nameof(EmbeddedMask))
-        {
-            return false;
-        }
-
         var img = EmbeddedMask;
 
         if (img is null)
         {
-            return false;
+            return;
         }
 
         img.DrawMostUpToDateRegionOn(
             new RectI(0, 0, img.LatestSize.X, img.LatestSize.Y),
             context.ChunkResolution,
             renderOn, VecI.Zero, maskPreviewPaint, drawPaintOnEmpty: true);
-
-        return true;
     }
 
     public override void Dispose()

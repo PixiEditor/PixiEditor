@@ -50,20 +50,17 @@ public abstract class Matrix3X3BaseNode : RenderNode, IRenderInput
         surface.Canvas.RestoreToCount(layer);
     }
 
-    public override RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
+    public override RectD? GetPreviewBounds(RenderContext ctx, string elementToRenderName = "")
     {
         if (Background.Value == null)
             return null;
 
-        return base.GetPreviewBounds(frame, elementToRenderName);
+        return base.GetPreviewBounds(ctx, elementToRenderName);
     }
 
-    public override bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
+    protected override bool ShouldRenderPreview(string elementToRenderName)
     {
-        if (Background.Value == null)
-            return false;
-
-        return base.RenderPreview(renderOn, context, elementToRenderName);
+        return Background.Value != null;
     }
 
     protected abstract Float3x3 CalculateMatrix(FuncContext ctx, Float3x3 input);

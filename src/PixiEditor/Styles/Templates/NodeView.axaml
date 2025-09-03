@@ -3,7 +3,7 @@
                     xmlns:nodes="clr-namespace:PixiEditor.Views.Nodes"
                     xmlns:visuals="clr-namespace:PixiEditor.Views.Visuals"
                     xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
-                    >
+                    xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters">
     <ControlTheme TargetType="nodes:NodeView" x:Key="{x:Type nodes:NodeView}">
         <Setter Property="Background" Value="{DynamicResource ThemeControlMidBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderMidBrush}" />
@@ -47,7 +47,8 @@
                                         </ControlTheme>
                                     </ItemsControl.ItemContainerTheme>
                                 </ItemsControl>
-                                <ItemsControl Name="PART_Inputs" ItemsSource="{TemplateBinding Inputs}" ClipToBounds="False">
+                                <ItemsControl Name="PART_Inputs" ItemsSource="{TemplateBinding Inputs}"
+                                              ClipToBounds="False">
                                     <ItemsControl.ItemContainerTheme>
                                         <ControlTheme TargetType="ContentPresenter">
                                             <Setter Property="DataContext" Value="." />
@@ -56,14 +57,24 @@
                                 </ItemsControl>
                             </StackPanel>
                         </Border>
-                        <Border IsVisible="{Binding ResultPreview, RelativeSource={RelativeSource TemplatedParent}}"
-                                CornerRadius="0, 0, 4.5, 4.5" Grid.Row="2" ClipToBounds="True">
+                        <Border
+                            CornerRadius="0, 0, 4.5, 4.5" Grid.Row="2" ClipToBounds="True">
+                            <Border.IsVisible>
+                                <MultiBinding Converter="{converters:ResultPreviewIsPresentConverter}">
+                                    <Binding Path="ResultPreview"
+                                             RelativeSource="{RelativeSource TemplatedParent}" />
+                                    <Binding Path="ResultPreview.Preview"
+                                             RelativeSource="{RelativeSource TemplatedParent}" />
+                                </MultiBinding>
+                            </Border.IsVisible>
                             <Panel RenderOptions.BitmapInterpolationMode="None" Width="200" Height="200">
                                 <Panel.Background>
                                     <ImageBrush Source="/Images/CheckerTile.png"
                                                 TileMode="Tile" DestinationRect="0, 0, 25, 25" />
                                 </Panel.Background>
                                 <visuals:PreviewTextureControl
+                                    Width="200"
+                                    Height="200"
                                     TexturePreview="{TemplateBinding ResultPreview}"
                                     RenderOptions.BitmapInterpolationMode="None">
                                 </visuals:PreviewTextureControl>

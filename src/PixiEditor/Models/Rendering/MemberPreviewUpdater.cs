@@ -21,7 +21,6 @@ internal class MemberPreviewUpdater
 {
     private readonly IDocument doc;
     private readonly DocumentInternalParts internals;
-    private PreviewRenderer renderer => doc.PreviewRenderer;
 
     private AnimationKeyFramePreviewRenderer AnimationKeyFramePreviewRenderer { get; }
 
@@ -135,18 +134,21 @@ internal class MemberPreviewUpdater
                 if (textureSize.X <= 0 || textureSize.Y <= 0)
                     continue;
 
-                if (structureMemberHandler.Preview.Preview == null || structureMemberHandler.Preview.Preview.IsDisposed ||
-                    structureMemberHandler.Preview.Preview.Size != textureSize)
+                Texture? CreateTextureForLayer()
                 {
-                    structureMemberHandler.Preview.Preview?.Dispose();
-                    structureMemberHandler.Preview.Preview = Texture.ForDisplay(textureSize);
-                }
-                else
-                {
-                    structureMemberHandler.Preview.Preview?.DrawingSurface.Canvas.Clear();
+                    if (structureMemberHandler.Preview.Preview == null ||
+                        structureMemberHandler.Preview.Preview.IsDisposed ||
+                        structureMemberHandler.Preview.Preview.Size != textureSize)
+                    {
+                        structureMemberHandler.Preview.Preview?.Dispose();
+                        structureMemberHandler.Preview.Preview = Texture.ForDisplay(textureSize);
+                    }
+
+                    return structureMemberHandler.Preview.Preview;
                 }
 
-                previewTextures[node.Id].Add(new PreviewRenderRequest(structureMemberHandler.Preview.Preview, structureMemberHandler.Preview.InvokeTextureUpdated));
+                previewTextures[node.Id].Add(new PreviewRenderRequest(CreateTextureForLayer,
+                    structureMemberHandler.Preview.InvokeTextureUpdated));
             }
         }
     }
@@ -242,10 +244,6 @@ internal class MemberPreviewUpdater
                 if (!members.Contains(node.Id))
                     continue;
 
-                var member = internals.Tracker.Document.FindMember(node.Id);
-                if (member is not IPreviewRenderable previewRenderable)
-                    continue;
-
                 if (structureMemberHandler.MaskPreview == null)
                 {
                     structureMemberHandler.MaskPreview = new TexturePreview(node.Id, RequestRender);
@@ -265,18 +263,20 @@ internal class MemberPreviewUpdater
                 if (textureSize.X <= 0 || textureSize.Y <= 0)
                     continue;
 
-                if (structureMemberHandler.MaskPreview.Preview == null || structureMemberHandler.MaskPreview.Preview.IsDisposed ||
-                    structureMemberHandler.MaskPreview.Preview.Size != textureSize)
+                Texture? CreateTextureForMask()
                 {
-                    structureMemberHandler.MaskPreview.Preview?.Dispose();
-                    structureMemberHandler.MaskPreview.Preview = Texture.ForDisplay(textureSize);
-                }
-                else
-                {
-                    structureMemberHandler.MaskPreview.Preview?.DrawingSurface.Canvas.Clear();
+                    if (structureMemberHandler.MaskPreview.Preview == null ||
+                        structureMemberHandler.MaskPreview.Preview.IsDisposed ||
+                        structureMemberHandler.MaskPreview.Preview.Size != textureSize)
+                    {
+                        structureMemberHandler.MaskPreview.Preview?.Dispose();
+                        structureMemberHandler.MaskPreview.Preview = Texture.ForDisplay(textureSize);
+                    }
+
+                    return structureMemberHandler.MaskPreview.Preview;
                 }
 
-                previewTextures[node.Id].Add(new PreviewRenderRequest(structureMemberHandler.MaskPreview.Preview,
+                previewTextures[node.Id].Add(new PreviewRenderRequest(CreateTextureForMask,
                     structureMemberHandler.MaskPreview.InvokeTextureUpdated));
             }
         }
@@ -345,40 +345,38 @@ internal class MemberPreviewUpdater
         if (previews == null)
             return;
 
-        if (node is IPreviewRenderable renderable)
+        nodeVm.Preview ??= new TexturePreview(node.Id, RequestRender);
+        if (nodeVm.Preview.Listeners.Count == 0)
         {
-            nodeVm.Preview ??= new TexturePreview(node.Id, RequestRender);
-            if (nodeVm.Preview.Listeners.Count == 0)
-            {
-                nodeVm.Preview.Preview?.Dispose();
-                return;
-            }
+            nodeVm.Preview.Preview?.Dispose();
+            return;
+        }
 
-            if (!previews.ContainsKey(node.Id))
-                previews[node.Id] = new List<PreviewRenderRequest>();
+        if (!previews.ContainsKey(node.Id))
+            previews[node.Id] = new List<PreviewRenderRequest>();
 
-            if (previews.TryGetValue(node.Id, out var existingPreviews) &&
-                existingPreviews.Any(x => string.IsNullOrEmpty(x.ElementToRender)))
-                return;
+        if (previews.TryGetValue(node.Id, out var existingPreviews) &&
+            existingPreviews.Any(x => string.IsNullOrEmpty(x.ElementToRender)))
+            return;
 
-            VecI textureSize = nodeVm.Preview.GetMaxListenerSize();
-            if (textureSize.X <= 0 || textureSize.Y <= 0)
-                return;
+        VecI textureSize = nodeVm.Preview.GetMaxListenerSize();
+        if (textureSize.X <= 0 || textureSize.Y <= 0)
+            return;
 
+        Texture? CreateTextureForNode()
+        {
             if (nodeVm.Preview.Preview == null || nodeVm.Preview.Preview.IsDisposed ||
                 nodeVm.Preview.Preview.Size != textureSize)
             {
                 nodeVm.Preview.Preview?.Dispose();
                 nodeVm.Preview.Preview = Texture.ForDisplay(textureSize);
             }
-            else
-            {
-                nodeVm.Preview.Preview?.DrawingSurface.Canvas.Clear();
-            }
 
-            previews[node.Id]
-                .Add(new PreviewRenderRequest(nodeVm.Preview.Preview, nodeVm.Preview.InvokeTextureUpdated));
-        }
+            return nodeVm.Preview.Preview;
+        };
+
+        previews[node.Id]
+            .Add(new PreviewRenderRequest(CreateTextureForNode, nodeVm.Preview.InvokeTextureUpdated));
     }
 
     private void RequestRender(Guid id)

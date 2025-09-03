@@ -13,7 +13,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 [NodeInfo("CreateImage")]
-public class CreateImageNode : Node, IPreviewRenderable
+public class CreateImageNode : Node
 {
     public OutputProperty<Texture> Output { get; }
 
@@ -105,16 +105,6 @@ public class CreateImageNode : Node, IPreviewRenderable
     {
         base.Dispose();
         textureCache.Dispose();
-    }
-
-    public RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
-    {
-        if (Size.Value.X <= 0 || Size.Value.Y <= 0)
-        {
-            return null;
-        }
-
-        return new RectD(0, 0, Size.Value.X, Size.Value.Y);
     }
 
     public bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)

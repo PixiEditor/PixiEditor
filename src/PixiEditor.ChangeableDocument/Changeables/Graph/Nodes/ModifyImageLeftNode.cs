@@ -12,7 +12,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 [NodeInfo("ModifyImageLeft")]
 [PairNode(typeof(ModifyImageRightNode), "ModifyImageZone", true)]
-public class ModifyImageLeftNode : Node, IPairNode, IPreviewRenderable
+public class ModifyImageLeftNode : Node, IPairNode
 {
     public InputProperty<Texture?> Image { get; }
 
@@ -51,15 +51,6 @@ public class ModifyImageLeftNode : Node, IPairNode, IPreviewRenderable
     }
 
     public override Node CreateCopy() => new ModifyImageLeftNode();
-    public RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
-    {
-        if(Image.Value == null)
-        {
-            return null;
-        } 
-        
-        return new RectD(0, 0, Image.Value.Size.X, Image.Value.Size.Y);
-    }
 
     public bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
     {

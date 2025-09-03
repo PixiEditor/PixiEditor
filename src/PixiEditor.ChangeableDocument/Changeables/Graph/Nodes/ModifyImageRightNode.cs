@@ -114,28 +114,13 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
         builder.Dispose();
     }
 
-    public override RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
-    {
-        var startNode = FindStartNode();
-        if (startNode != null)
-        {
-            return startNode.GetPreviewBounds(frame, elementToRenderName);
-        }
-
-        return null;
-    }
-
-    public override bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
+    public override void RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
     {
         var startNode = FindStartNode();
         if (drawingPaint != null && startNode is { Image.Value: not null })
         {
             renderOn.Canvas.DrawRect(0, 0, startNode.Image.Value.Size.X, startNode.Image.Value.Size.Y, drawingPaint);
-
-            return true;
         }
-
-        return false;
     }
 
     public override void Dispose()

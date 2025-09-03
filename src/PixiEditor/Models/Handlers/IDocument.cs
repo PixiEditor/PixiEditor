@@ -49,7 +49,6 @@ internal interface IDocument : IHandler, Extensions.CommonApi.Documents.IDocumen
     public DocumentRenderer Renderer { get; }
     public ISnappingHandler SnappingHandler { get; }
     public IReadOnlyCollection<Guid> SelectedMembers { get; }
-    public PreviewRenderer PreviewRenderer { get; }
     public Dictionary<Guid, Texture> SceneTextures { get; }
     public Texture DocumentTexture { get; }
     public SceneRenderer SceneRenderer { get; }

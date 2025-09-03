@@ -207,15 +207,9 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
         }
     }
 
-    public override RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
-    {
-        return new RectD(0, 0, lastDocumentSize.X, lastDocumentSize.Y);
-    }
-
-    public override bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
+    public override void RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
     {
         OnPaint(context, renderOn);
-        return true;
     }
 
     public override Node CreateCopy()

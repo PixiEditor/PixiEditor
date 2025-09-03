@@ -4,13 +4,29 @@ namespace PixiEditor.ChangeableDocument.Rendering;
 
 public record struct PreviewRenderRequest
 {
-    public Texture? Texture { get; set; }
+    public Texture? Texture
+    {
+        get
+        {
+            if (!accessedTexture)
+            {
+                texture = textureCreateFunc();
+                accessedTexture = true;
+            }
+
+            return texture;
+        }
+    }
     public string? ElementToRender { get; set; }
     public Action TextureUpdatedAction { get; set; }
 
-    public PreviewRenderRequest(Texture? texture, Action textureUpdatedAction, string? elementToRender = null)
+    private Func<Texture?> textureCreateFunc;
+    private Texture? texture;
+    private bool accessedTexture = false;
+
+    public PreviewRenderRequest(Func<Texture?> textureCreateFunc, Action textureUpdatedAction, string? elementToRender = null)
     {
-        Texture = texture;
+        this.textureCreateFunc = textureCreateFunc;
         TextureUpdatedAction = textureUpdatedAction;
         ElementToRender = elementToRender;
     }

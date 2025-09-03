@@ -155,7 +155,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         workingSurface.Canvas.RestoreToCount(saved);
     }
 
-    public override RectD? GetPreviewBounds(int frame, string elementFor = "")
+    /*public override RectD? GetPreviewBounds(int frame, string elementFor = "")
     {
         if (IsDisposed)
         {
@@ -211,19 +211,20 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         {
             return null;
         }
-    }
+    }*/
 
-    public override bool RenderPreview(DrawingSurface renderOnto, RenderContext context,
+    public override void RenderPreview(DrawingSurface renderOnto, RenderContext context,
         string elementToRenderName)
     {
         if (IsDisposed)
         {
-            return false;
+            return;
         }
 
         if (elementToRenderName == nameof(EmbeddedMask))
         {
-            return base.RenderPreview(renderOnto, context, elementToRenderName);
+            base.RenderPreview(renderOnto, context, elementToRenderName);
+            return;
         }
 
         var img = GetLayerImageAtFrame(context.FrameTime.Frame);
@@ -247,15 +248,13 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
         if (img is null)
         {
-            return false;
+            return;
         }
 
         img.DrawCommittedRegionOn(
             new RectI(0, 0, img.LatestSize.X, img.LatestSize.Y),
             context.ChunkResolution,
             renderOnto, VecI.Zero, replacePaint, context.DesiredSamplingOptions);
-
-        return true;
     }
 
     private KeyFrameData GetFrameWithImage(KeyFrameTime frame)
