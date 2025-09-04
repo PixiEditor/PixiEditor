@@ -226,6 +226,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
     protected abstract void DrawWithFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
         Paint paint);
 
+    /*
     private void RenderPreviews(RenderContext ctx)
     {
         var previewTexture = ctx.GetPreviewTexturesForNode(Id);
@@ -237,9 +238,9 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
         {
             RenderPreviewFor(ctx, request.Texture, request.ElementToRender);
         }
-    }
+    }*/
 
-    private void RenderPreviewFor(RenderContext ctx, Texture texture, string elementToRender)
+    /*private void RenderPreviewFor(RenderContext ctx, Texture texture, string elementToRender)
     {
         if (texture == null || texture.IsDisposed)
             return;
@@ -248,7 +249,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
 
         RenderContext previewCtx = ctx.Clone();
 
-        var approxBounds = GetApproxBounds(ctx.FrameTime);
+        var approxBounds = GetPreviewBounds(ctx, elementToRender);
 
         VecD size = approxBounds?.Size ?? ctx.DocumentSize;
 
@@ -283,7 +284,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
         RenderPreview(texture.DrawingSurface, previewCtx, elementToRender);
 
         texture.DrawingSurface.Canvas.RestoreToCount(saved);
-    }
+    }*/
 
     protected Texture TryInitWorkingSurface(VecI imageSize, ChunkResolution resolution, ColorSpace processingCs, int id)
     {

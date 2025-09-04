@@ -4,4 +4,4 @@ using PixiEditor.Models.Position;
 
 namespace PixiEditor.Models.DocumentPassthroughActions;
 
-internal record class RefreshPreview_PassthroughAction(Guid Id) : IAction, IChangeInfo;
+internal record class RefreshPreview_PassthroughAction(Guid Id, Guid? SubId = null) : IAction, IChangeInfo;

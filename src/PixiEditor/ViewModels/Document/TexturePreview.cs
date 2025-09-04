@@ -10,6 +10,8 @@ public class TexturePreview : ObservableObject
 
     public Guid Id { get; }
 
+    public Guid? SubId { get; init; }
+
     public Texture Preview
     {
         get => preview;
@@ -25,18 +27,25 @@ public class TexturePreview : ObservableObject
 
     public event Action TextureUpdated;
 
-    private Action<Guid> requestRender;
+    private Action<Guid, Guid?> requestRender;
 
     public TexturePreview(Guid forId, Action<Guid> requestRender)
     {
         Id = forId;
+        this.requestRender = (id, _) => requestRender(id);
+    }
+
+    public TexturePreview(Guid forId, Guid subId, Action<Guid, Guid?> requestRender)
+    {
+        Id = forId;
+        SubId = subId;
         this.requestRender = requestRender;
     }
 
     public void Attach(object source, Func<VecI> getSize)
     {
-        Listeners.TryAdd(source, getSize);
-        requestRender(Id);
+        if(Listeners.TryAdd(source, getSize))
+            requestRender(Id, SubId);
     }
 
     public void Detach(object source)

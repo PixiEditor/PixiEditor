@@ -1,13 +1,10 @@
-﻿using System.Diagnostics;
-using Avalonia.Threading;
+﻿using Avalonia.Threading;
 using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core;
-using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core.Surfaces;
-using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
@@ -15,7 +12,6 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Position;
-using PixiEditor.Views.Main.ViewportControls;
 
 namespace PixiEditor.Models.Rendering;
 
@@ -146,7 +142,7 @@ internal class SceneRenderer : IDisposable
         {
             finalSize = (VecI)(finalSize * resolution.Multiplier());
 
-            renderTexture = textureCache.RequestTexture(0, finalSize, Document.ProcessingColorSpace);
+            renderTexture = textureCache.RequestTexture(viewportId.GetHashCode(), finalSize, Document.ProcessingColorSpace);
             renderTarget = renderTexture.DrawingSurface;
             renderTarget.Canvas.Save();
             renderTexture.DrawingSurface.Canvas.Save();

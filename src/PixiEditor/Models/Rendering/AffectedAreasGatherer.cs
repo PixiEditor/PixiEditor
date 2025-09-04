@@ -52,6 +52,7 @@ internal class AffectedAreasGatherer
             AddWholeCanvasToEveryImagePreview(false);
             AddWholeCanvasToEveryMaskPreview();
             AddAllNodesToImagePreviews();
+            AddAllKeyFrames();
             return;
         }
 
@@ -211,18 +212,39 @@ internal class AffectedAreasGatherer
                     AddWholeCanvasToEveryMaskPreview();
                     break;
                 case RefreshPreview_PassthroughAction info:
-                    AddToImagePreviews(info.Id);
-                    AddToNodePreviews(info.Id);
+                    if (info.SubId == null)
+                    {
+                        AddToImagePreviews(info.Id);
+                        AddToNodePreviews(info.Id);
+                    }
+                    else
+                    {
+                        AddKeyFrame(info.SubId.Value);
+                    }
+
                     break;
             }
         }
     }
 
+    private void AddAllKeyFrames()
+    {
+        ChangedKeyFrames ??= new HashSet<Guid>();
+        tracker.Document.ForEveryReadonlyMember((member) =>
+        {
+            foreach (var keyFrame in member.KeyFrames)
+            {
+                ChangedKeyFrames.Add(keyFrame.KeyFrameGuid);
+            }
+
+            ChangedKeyFrames.Add(member.Id);
+        });
+    }
+
     private void AddKeyFrame(Guid infoKeyFrameId)
     {
         ChangedKeyFrames ??= new HashSet<Guid>();
-        if (!ChangedKeyFrames.Contains(infoKeyFrameId))
-            ChangedKeyFrames.Add(infoKeyFrameId);
+        ChangedKeyFrames.Add(infoKeyFrameId);
     }
 
     private void AddToNodePreviews(Guid nodeId)

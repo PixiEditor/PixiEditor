@@ -15,9 +15,9 @@ internal abstract class CelViewModel : ObservableObject, ICelHandler
     private bool isVisibleBindable = true;
     private bool isSelected;
     private bool isCollapsed;
-    private Texture? previewTexture;
+    private TexturePreview? previewTexture;
 
-    public Texture? PreviewTexture
+    public TexturePreview? PreviewTexture
     {
         get => previewTexture;
         set => SetProperty(ref previewTexture, value);
@@ -148,7 +148,6 @@ internal abstract class CelViewModel : ObservableObject, ICelHandler
 
     public void Dispose()
     {
-        PreviewTexture?.Dispose();
-        PreviewTexture = null;
+        PreviewTexture?.Preview?.Dispose();
     }
 }

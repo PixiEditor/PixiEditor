@@ -157,7 +157,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         workingSurface.Canvas.RestoreToCount(saved);
     }
 
-    /*public override RectD? GetPreviewBounds(int frame, string elementFor = "")
+    public override RectD? GetPreviewBounds(RenderContext context, string elementFor = "")
     {
         if (IsDisposed)
         {
@@ -166,11 +166,16 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
         if (elementFor == nameof(EmbeddedMask))
         {
-            return base.GetPreviewBounds(frame, elementFor);
+            return base.GetPreviewBounds(context, elementFor);
         }
 
         if (Guid.TryParse(elementFor, out Guid guid))
         {
+            if (guid == Id)
+            {
+                return new RectD(0, 0, layerImage.CommittedSize.X, layerImage.CommittedSize.Y);
+            }
+
             var keyFrame = keyFrames.FirstOrDefault(x => x.KeyFrameGuid == guid);
 
             if (keyFrame != null)
@@ -181,19 +186,13 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
                     return null;
                 }
 
-                RectI? bounds = (RectI?)GetApproxBounds(kf);
-                if (bounds.HasValue)
-                {
-                    return new RectD(bounds.Value.X, bounds.Value.Y,
-                        Math.Min(bounds.Value.Width, kf.CommittedSize.X),
-                        Math.Min(bounds.Value.Height, kf.CommittedSize.Y));
-                }
+                return new RectD(0, 0, kf.CommittedSize.X, kf.CommittedSize.Y);
             }
         }
 
         try
         {
-            var kf = GetLayerImageAtFrame(frame);
+            var kf = GetLayerImageAtFrame(context.FrameTime.Frame);
             if (kf == null)
             {
                 return null;
@@ -213,7 +212,22 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         {
             return null;
         }
-    }*/
+    }
+
+    protected override bool ShouldRenderPreview(string elementToRenderName)
+    {
+        if (IsDisposed)
+        {
+            return false;
+        }
+
+        if (elementToRenderName == nameof(EmbeddedMask))
+        {
+            return base.ShouldRenderPreview(elementToRenderName);
+        }
+
+        return true;
+    }
 
     public override void RenderPreview(DrawingSurface renderOnto, RenderContext context,
         string elementToRenderName)
@@ -231,7 +245,6 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
         var img = GetLayerImageAtFrame(context.FrameTime.Frame);
 
-        int cacheFrame = context.FrameTime.Frame;
         if (Guid.TryParse(elementToRenderName, out Guid guid))
         {
             var keyFrame = keyFrames.FirstOrDefault(x => x.KeyFrameGuid == guid);
@@ -239,12 +252,10 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
             if (keyFrame != null)
             {
                 img = GetLayerImageByKeyFrameGuid(keyFrame.KeyFrameGuid);
-                cacheFrame = keyFrame.StartFrame;
             }
             else if (guid == Id)
             {
                 img = GetLayerImageAtFrame(0);
-                cacheFrame = 0;
             }
         }
 

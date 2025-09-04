@@ -64,7 +64,7 @@ internal class MemberPreviewUpdater
 
         if (!ignoreAnimationPreviews)
         {
-            //RenderAnimationPreviews(members, keyFramesToUpdate);
+            RenderAnimationPreviews(members, keyFramesToUpdate, previewTextures);
         }
 
         RenderNodePreviews(nodesToUpdate, previewTextures);
@@ -156,7 +156,8 @@ internal class MemberPreviewUpdater
         }
     }
 
-    /*private void RenderAnimationPreviews(HashSet<Guid> memberGuids, HashSet<Guid> keyFramesGuids)
+    private void RenderAnimationPreviews(HashSet<Guid> memberGuids, HashSet<Guid> keyFramesGuids,
+        Dictionary<Guid, List<PreviewRenderRequest>> previewTextures)
     {
         foreach (var keyFrame in doc.AnimationHandler.KeyFrames)
         {
@@ -171,16 +172,16 @@ internal class MemberPreviewUpdater
                             continue;
                     }
 
-                    RenderFramePreview(childFrame);
+                    RenderFramePreview(childFrame, previewTextures);
                 }
 
-                if (!memberGuids.Contains(groupHandler.LayerGuid))
+                if (!keyFramesGuids.Contains(groupHandler.LayerGuid) && !memberGuids.Contains(groupHandler.LayerGuid))
                     continue;
 
-                RenderGroupPreview(groupHandler);
+                RenderGroupPreview(groupHandler, previewTextures);
             }
         }
-    }*/
+    }
 
     private bool IsInFrame(ICelHandler cel)
     {
@@ -188,54 +189,94 @@ internal class MemberPreviewUpdater
                cel.StartFrameBindable + cel.DurationBindable > doc.AnimationHandler.ActiveFrameBindable;
     }
 
-    /*private void RenderFramePreview(ICelHandler cel)
+    private void RenderFramePreview(ICelHandler cel, Dictionary<Guid, List<PreviewRenderRequest>> previewTextures)
     {
         if (internals.Tracker.Document.AnimationData.TryFindKeyFrame(cel.Id, out KeyFrame _))
         {
-            KeyFrameTime frameTime = doc.AnimationHandler.ActiveFrameTime;
-            if (cel.PreviewPainter == null)
+            if (cel.PreviewTexture == null)
             {
-                cel.PreviewPainter = new PreviewPainter(renderer, AnimationKeyFramePreviewRenderer, frameTime,
-                    doc.SizeBindable,
-                    internals.Tracker.Document.ProcessingColorSpace, cel.Id.ToString());
-            }
-            else
-            {
-                cel.PreviewPainter.FrameTime = frameTime;
-                cel.PreviewPainter.DocumentSize = doc.SizeBindable;
-                cel.PreviewPainter.ProcessingColorSpace = internals.Tracker.Document.ProcessingColorSpace;
+                cel.PreviewTexture = new TexturePreview(cel.LayerGuid, cel.Id, RequestCelRender);
+                return;
             }
 
-            cel.PreviewPainter.Repaint();
+            if (cel.PreviewTexture.Listeners.Count == 0)
+            {
+                cel.PreviewTexture.Preview?.Dispose();
+                return;
+            }
+
+            VecI textureSize = cel.PreviewTexture.GetMaxListenerSize();
+            if (textureSize.X <= 0 || textureSize.Y <= 0)
+                return;
+
+            Texture? CreateTextureForCel(bool createIfNull)
+            {
+                if (createIfNull)
+                {
+                    if (cel.PreviewTexture.Preview == null || cel.PreviewTexture.Preview.IsDisposed ||
+                        cel.PreviewTexture.Preview.Size != textureSize)
+                    {
+                        cel.PreviewTexture.Preview?.Dispose();
+                        cel.PreviewTexture.Preview = Texture.ForDisplay(textureSize);
+                    }
+                }
+
+                return cel.PreviewTexture.Preview;
+            }
+
+            if (!previewTextures.ContainsKey(cel.LayerGuid))
+                previewTextures[cel.LayerGuid] = new List<PreviewRenderRequest>();
+
+            previewTextures[cel.LayerGuid].Add(new PreviewRenderRequest(CreateTextureForCel,
+                cel.PreviewTexture.InvokeTextureUpdated, cel.Id.ToString()));
         }
-    }*/
+    }
 
-    /*private void RenderGroupPreview(ICelGroupHandler groupHandler)
+    private void RenderGroupPreview(ICelGroupHandler groupHandler,
+        Dictionary<Guid, List<PreviewRenderRequest>> previewTextures)
     {
         var group = internals.Tracker.Document.AnimationData.KeyFrames.FirstOrDefault(x => x.Id == groupHandler.Id);
         if (group != null)
         {
-            KeyFrameTime frameTime = doc.AnimationHandler.ActiveFrameTime;
-            ColorSpace processingColorSpace = internals.Tracker.Document.ProcessingColorSpace;
-            VecI documentSize = doc.SizeBindable;
-
-            if (groupHandler.PreviewPainter == null)
+            if (groupHandler.PreviewTexture == null)
             {
-                groupHandler.PreviewPainter =
-                    new PreviewPainter(renderer, AnimationKeyFramePreviewRenderer, frameTime, documentSize,
-                        processingColorSpace,
-                        groupHandler.Id.ToString());
-            }
-            else
-            {
-                groupHandler.PreviewPainter.FrameTime = frameTime;
-                groupHandler.PreviewPainter.DocumentSize = documentSize;
-                groupHandler.PreviewPainter.ProcessingColorSpace = processingColorSpace;
+                groupHandler.PreviewTexture = new TexturePreview(groupHandler.LayerGuid, groupHandler.LayerGuid, RequestCelRender);
+                return;
             }
 
-            groupHandler.PreviewPainter.Repaint();
+            if (groupHandler.PreviewTexture.Listeners.Count == 0)
+            {
+                groupHandler.PreviewTexture.Preview?.Dispose();
+                return;
+            }
+
+            VecI textureSize = groupHandler.PreviewTexture.GetMaxListenerSize();
+            if (textureSize.X <= 0 || textureSize.Y <= 0)
+                return;
+
+            Texture? CreateTextureForGroup(bool createIfNull)
+            {
+                if (createIfNull)
+                {
+                    if (groupHandler.PreviewTexture.Preview == null ||
+                        groupHandler.PreviewTexture.Preview.IsDisposed ||
+                        groupHandler.PreviewTexture.Preview.Size != textureSize)
+                    {
+                        groupHandler.PreviewTexture.Preview?.Dispose();
+                        groupHandler.PreviewTexture.Preview = Texture.ForDisplay(textureSize);
+                    }
+                }
+
+                return groupHandler.PreviewTexture.Preview;
+            }
+
+            if (!previewTextures.ContainsKey(groupHandler.LayerGuid))
+                previewTextures[groupHandler.LayerGuid] = new List<PreviewRenderRequest>();
+
+            previewTextures[groupHandler.LayerGuid].Add(new PreviewRenderRequest(CreateTextureForGroup,
+                groupHandler.PreviewTexture.InvokeTextureUpdated, groupHandler.Id.ToString()));
         }
-    }*/
+    }
 
     private void RenderMaskPreviews(HashSet<Guid> members,
         Dictionary<Guid, List<PreviewRenderRequest>> previewTextures)
@@ -391,5 +432,10 @@ internal class MemberPreviewUpdater
     private void RequestRender(Guid id)
     {
         internals.ActionAccumulator.AddActions(new RefreshPreview_PassthroughAction(id));
+    }
+
+    private void RequestCelRender(Guid nodeId, Guid? celId)
+    {
+        internals.ActionAccumulator.AddActions(new RefreshPreview_PassthroughAction(nodeId, celId));
     }
 }

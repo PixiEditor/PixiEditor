@@ -1,12 +1,13 @@
 ﻿using ChunkyImageLib;
 using Drawie.Backend.Core;
 using PixiEditor.Models.Rendering;
+using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.Models.Handlers;
 
 internal interface ICelHandler : IDisposable
 {
-    public Texture? PreviewTexture { get; }
+    TexturePreview? PreviewTexture { get; set; }
     public int StartFrameBindable { get; }
     public int DurationBindable { get; }
     public bool IsSelected { get; set; }
