@@ -1,12 +1,8 @@
 ﻿#nullable enable
 
 using Drawie.Backend.Core;
-using Drawie.Backend.Core.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
-using Drawie.Backend.Core.Surfaces.ImageData;
-using PixiEditor.Helpers;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
 using Drawie.Numerics;
@@ -96,14 +92,16 @@ internal class MemberPreviewUpdater
             doc.SizeBindable, internals.Tracker.Document.ProcessingColorSpace);
 
         UpdateDocPreviewPainter(doc.MiniPreviewPainter);
-    }*/
-    /*private void UpdateDocPreviewPainter(PreviewPainter painter)
+    }
+
+    private void UpdateDocPreviewPainter(PreviewPainter painter)
     {
         painter.DocumentSize = doc.SizeBindable;
         painter.ProcessingColorSpace = internals.Tracker.Document.ProcessingColorSpace;
         painter.FrameTime = doc.AnimationHandler.ActiveFrameTime;
         painter.Repaint();
     }*/
+
     private void RenderLayersPreview(HashSet<Guid> memberGuids,
         Dictionary<Guid, List<PreviewRenderRequest>> previewTextures)
     {

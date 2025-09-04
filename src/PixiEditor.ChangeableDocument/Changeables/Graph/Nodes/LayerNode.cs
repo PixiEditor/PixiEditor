@@ -226,66 +226,6 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
     protected abstract void DrawWithFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
         Paint paint);
 
-    /*
-    private void RenderPreviews(RenderContext ctx)
-    {
-        var previewTexture = ctx.GetPreviewTexturesForNode(Id);
-
-        if (previewTexture == null || previewTexture.Count == 0)
-            return;
-
-        foreach (var request in previewTexture)
-        {
-            RenderPreviewFor(ctx, request.Texture, request.ElementToRender);
-        }
-    }*/
-
-    /*private void RenderPreviewFor(RenderContext ctx, Texture texture, string elementToRender)
-    {
-        if (texture == null || texture.IsDisposed)
-            return;
-
-        int saved = texture.DrawingSurface.Canvas.Save();
-
-        RenderContext previewCtx = ctx.Clone();
-
-        var approxBounds = GetPreviewBounds(ctx, elementToRender);
-
-        VecD size = approxBounds?.Size ?? ctx.DocumentSize;
-
-        previewCtx.ChunkResolution = PreviewUtility.CalculateResolution(size, texture.Size);
-
-        if (approxBounds.HasValue)
-        {
-            var bounds = approxBounds.Value;
-
-            var targetW = texture.Size.X;
-            var targetH = texture.Size.Y;
-
-            double uniformScale = PreviewUtility.CalculateUniformScaling(bounds.Size, texture.Size).X;
-
-            // scaled content size
-            double scaledW = bounds.Width * uniformScale;
-            double scaledH = bounds.Height * uniformScale;
-
-            // offset so it’s centered
-            double offsetX = (targetW - scaledW) / 2.0 - bounds.Left * uniformScale;
-            double offsetY = (targetH - scaledH) / 2.0 - bounds.Top * uniformScale;
-
-            var canvas = texture.DrawingSurface.Canvas;
-            canvas.Translate((float)offsetX, (float)offsetY);
-            uniformScale *= previewCtx.ChunkResolution.InvertedMultiplier();
-            canvas.Scale((float)uniformScale, (float)uniformScale);
-
-            previewCtx.DesiredSamplingOptions = uniformScale < 1.0 ? SamplingOptions.Bilinear : SamplingOptions.Default;
-        }
-
-        texture.DrawingSurface.Canvas.Clear();
-        RenderPreview(texture.DrawingSurface, previewCtx, elementToRender);
-
-        texture.DrawingSurface.Canvas.RestoreToCount(saved);
-    }*/
-
     protected Texture TryInitWorkingSurface(VecI imageSize, ChunkResolution resolution, ColorSpace processingCs, int id)
     {
         ChunkResolution targetResolution = resolution;

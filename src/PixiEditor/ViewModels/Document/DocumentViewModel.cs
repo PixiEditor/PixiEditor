@@ -185,20 +185,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
     public IStructureMemberHandler? SelectedStructureMember { get; private set; } = null;
 
-    private Texture? miniPreviewTexture;
-
-    public Texture MiniPreviewTexture
-    {
-        get => miniPreviewTexture;
-        set
-        {
-            SetProperty(ref miniPreviewTexture, value);
-        }
-    }
-
     public Dictionary<Guid, Texture> SceneTextures { get; } = new();
-    public Texture DocumentTexture { get; set; }
-
 
     private VectorPath selectionPath = new VectorPath();
     public VectorPath SelectionPathBindable => selectionPath;

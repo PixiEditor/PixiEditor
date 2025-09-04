@@ -50,7 +50,6 @@ internal interface IDocument : IHandler, Extensions.CommonApi.Documents.IDocumen
     public ISnappingHandler SnappingHandler { get; }
     public IReadOnlyCollection<Guid> SelectedMembers { get; }
     public Dictionary<Guid, Texture> SceneTextures { get; }
-    public Texture DocumentTexture { get; }
     public SceneRenderer SceneRenderer { get; }
     public void RemoveSoftSelectedMember(IStructureMemberHandler member);
     public void ClearSoftSelectedMembers();
