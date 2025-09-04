@@ -116,16 +116,16 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     protected override void DrawWithoutFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
         Paint paint)
     {
-        DrawLayer(workingSurface, paint, ctx);
+        DrawLayer(workingSurface, paint, ctx, false);
     }
 
     protected override void DrawWithFilters(SceneObjectRenderContext context, DrawingSurface workingSurface,
         Paint paint)
     {
-        DrawLayer(workingSurface, paint, context);
+        DrawLayer(workingSurface, paint, context, true);
     }
 
-    private void DrawLayer(DrawingSurface workingSurface, Paint paint, SceneObjectRenderContext ctx)
+    private void DrawLayer(DrawingSurface workingSurface, Paint paint, SceneObjectRenderContext ctx, bool saveLayer)
     {
         int saved = workingSurface.Canvas.Save();
 
@@ -139,19 +139,24 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         workingSurface.Canvas.Scale((float)ctx.ChunkResolution.InvertedMultiplier());
         var img = GetLayerImageAtFrame(ctx.FrameTime.Frame);
 
+        if (saveLayer)
+        {
+            workingSurface.Canvas.SaveLayer(paint);
+        }
+
         if (!ctx.FullRerender)
         {
             img.DrawMostUpToDateRegionOnWithAffected(
                 region,
                 ctx.ChunkResolution,
-                workingSurface, ctx.AffectedArea, topLeft, paint, ctx.DesiredSamplingOptions);
+                workingSurface, ctx.AffectedArea, topLeft, saveLayer ? null : paint, ctx.DesiredSamplingOptions);
         }
         else
         {
             img.DrawMostUpToDateRegionOn(
                 region,
                 ctx.ChunkResolution,
-                workingSurface, topLeft, paint, ctx.DesiredSamplingOptions);
+                workingSurface, topLeft, saveLayer ? null : paint, ctx.DesiredSamplingOptions);
         }
 
         workingSurface.Canvas.RestoreToCount(saved);
