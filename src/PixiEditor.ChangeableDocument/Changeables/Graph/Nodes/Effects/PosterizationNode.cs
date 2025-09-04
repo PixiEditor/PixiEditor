@@ -5,6 +5,7 @@ using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.ColorSpaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 
@@ -16,7 +17,7 @@ public class PosterizationNode : RenderNode, IRenderInput
     public RenderInputProperty Background { get; }
     public InputProperty<PosterizationMode> Mode { get; }
     public InputProperty<int> Levels { get; }
-    public InputProperty<bool> UseDocumentColorSpace { get; }
+    public InputProperty<ColorSpaceType> PosterizationColorSpace { get; }
     
     private Paint paint;
     private Shader shader;
@@ -71,7 +72,7 @@ public class PosterizationNode : RenderNode, IRenderInput
         Mode = CreateInput("Mode", "MODE", PosterizationMode.Rgb);
         Levels = CreateInput("Levels", "LEVELS", 8)
             .WithRules(v => v.Min(2).Max(256));
-        UseDocumentColorSpace = CreateInput("UseDocumentColorSpace", "USE_DOCUMENT_COLOR_SPACE", false);
+        PosterizationColorSpace = CreateInput("PosterizationColorSpace", "COLOR_SPACE", ColorSpaceType.Srgb);
         
         paint = new Paint();
         paint.BlendMode = BlendMode.Src;
@@ -97,10 +98,23 @@ public class PosterizationNode : RenderNode, IRenderInput
         {
             return;
         }
-        
-        var colorSpace = UseDocumentColorSpace.Value
-            ? context.ProcessingColorSpace
-            : ColorSpace.CreateSrgb();
+
+        ColorSpace colorSpace;
+        switch (PosterizationColorSpace.Value)
+        {
+            case ColorSpaceType.Srgb:
+                colorSpace = ColorSpace.CreateSrgb();
+                break;
+            case ColorSpaceType.LinearSrgb:
+                colorSpace = ColorSpace.CreateSrgbLinear();
+                break;
+            case ColorSpaceType.Inherit:
+                colorSpace = context.ProcessingColorSpace;
+                break;
+            default:
+                colorSpace = ColorSpace.CreateSrgb();
+                break;
+        }
         
         using Texture temp = Texture.ForProcessing(surface, colorSpace);
         Background.Value.Paint(context, temp.DrawingSurface);
