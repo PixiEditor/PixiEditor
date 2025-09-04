@@ -150,6 +150,7 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
             CalculateResolution(),
             GuidValue,
             Delayed,
+            false,
             ForceRefreshFinalImage);
     }
 

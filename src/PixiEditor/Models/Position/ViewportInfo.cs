@@ -20,6 +20,7 @@ internal readonly record struct ViewportInfo(
     ChunkResolution Resolution,
     Guid Id,
     bool Delayed,
+    bool IsScene,
     Action InvalidateVisual)
 {
 }

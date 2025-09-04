@@ -528,7 +528,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
             Scene.CalculateTransformMatrix().ToSKMatrix().ToMatrix3X3(),
             CalculateVisibleRegion(),
             ViewportRenderOutput, Scene.CalculateSampling(), Dimensions, CalculateResolution(), GuidValue, Delayed,
-            ForceRefreshFinalImage);
+            true, ForceRefreshFinalImage);
     }
 
     private void Image_MouseDown(object? sender, PointerPressedEventArgs e)
