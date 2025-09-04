@@ -76,7 +76,7 @@ public class RenderContext
         };
     }
 
-    public RenderContext Clone()
+    public virtual RenderContext Clone()
     {
         return new RenderContext(RenderSurface, FrameTime, ChunkResolution, RenderOutputSize, DocumentSize, ProcessingColorSpace, DesiredSamplingOptions, Opacity)
         {

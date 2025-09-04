@@ -44,6 +44,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
 
     public override void Render(SceneObjectRenderContext sceneContext)
     {
+        RenderPreviews(sceneContext);
         if (!IsVisible.Value || Opacity.Value <= 0 || IsEmptyMask())
         {
             Output.Value = Background.Value;
@@ -238,6 +239,21 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
         return guids;
     }
 
+    protected override bool ShouldRenderPreview(string elementToRenderName)
+    {
+        if (elementToRenderName == nameof(EmbeddedMask))
+        {
+            return base.ShouldRenderPreview(elementToRenderName);
+        }
+
+        return Content.Connection != null;
+    }
+
+    public override RectD? GetPreviewBounds(RenderContext ctx, string elementToRenderName)
+    {
+        return GetApproxBounds(ctx.FrameTime);
+    }
+
     public override void RenderPreview(DrawingSurface renderOn, RenderContext context,
         string elementToRenderName)
     {
@@ -249,20 +265,9 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
 
         if (Content.Connection != null)
         {
-            var executionQueue = GraphUtils.CalculateExecutionQueue(Content.Connection.Node, FilterInvisibleFolders);
-            while (executionQueue.Count > 0)
+            if (context is SceneObjectRenderContext ctx)
             {
-                IReadOnlyNode node = executionQueue.Dequeue();
-
-                if (node is IReadOnlyStructureNode { IsVisible.Value: false })
-                {
-                    continue;
-                }
-
-                /*if (node is IPreviewRenderable previewRenderable)
-                {
-                    previewRenderable.RenderPreview(renderOn, context, elementToRenderName);
-                }*/
+                RenderFolderContent(ctx, true);
             }
         }
     }

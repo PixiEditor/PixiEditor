@@ -71,8 +71,8 @@
                                     </ImageBrush.Transform>
                                 </ImageBrush>
                             </Border.Background>
-                            <visuals:TextureControl
-                                Texture="{Binding Folder.Preview, ElementName=folderControl}"
+                            <visuals:PreviewTextureControl
+                                TexturePreview="{Binding Folder.Preview, ElementName=folderControl}"
                                 ClipToBounds="True"
                                 Width="30" Height="30" RenderOptions.BitmapInterpolationMode="None" />
                         </Border>
@@ -91,8 +91,8 @@
                                 </ImageBrush>
                             </Border.Background>
                             <Grid IsHitTestVisible="False">
-                                <visuals:TextureControl
-                                    Texture="{Binding Folder.MaskPreview, ElementName=folderControl}"
+                                <visuals:PreviewTextureControl
+                                    TexturePreview="{Binding Folder.MaskPreview, ElementName=folderControl}"
                                     Width="30" Height="30"
                                     ClipToBounds="True"
                                     RenderOptions.BitmapInterpolationMode="None" IsHitTestVisible="False" />
