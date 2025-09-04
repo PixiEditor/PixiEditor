@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.Diagnostics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Rendering;
@@ -193,7 +194,8 @@ public class NodeGraph : IReadOnlyNodeGraph
         HashCode hash = new();
         foreach (var node in Nodes)
         {
-            hash.Add(node.GetCacheHash());
+            int nodeCache = node.GetCacheHash();
+            hash.Add(nodeCache);
         }
 
         return hash.ToHashCode();

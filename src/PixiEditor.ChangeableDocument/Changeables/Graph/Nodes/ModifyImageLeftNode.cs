@@ -64,8 +64,9 @@ public class ModifyImageLeftNode : Node, IPairNode
 
             int saved = texture.DrawingSurface.Canvas.Save();
 
-            VecD scaling = PreviewUtility.CalculateUniformScaling(context.DocumentSize, texture.Size);
-            VecD offset = PreviewUtility.CalculateCenteringOffset(context.DocumentSize, texture.Size, scaling);
+            VecI size = Image.Value?.Size ?? context.RenderOutputSize;
+            VecD scaling = PreviewUtility.CalculateUniformScaling(size, texture.Size);
+            VecD offset = PreviewUtility.CalculateCenteringOffset(size, texture.Size, scaling);
             texture.DrawingSurface.Canvas.Translate((float)offset.X, (float)offset.Y);
             texture.DrawingSurface.Canvas.Scale((float)scaling.X, (float)scaling.Y);
             var previewCtx =

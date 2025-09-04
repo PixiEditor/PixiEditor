@@ -28,6 +28,9 @@ public sealed class ApplyFilterNode : RenderNode, IRenderInput
     
     public InputProperty<bool> InvertMask { get; }
 
+    protected override bool ExecuteOnlyOnCacheChange => true;
+    protected override CacheTriggerFlags CacheTrigger => CacheTriggerFlags.Inputs;
+
     public ApplyFilterNode()
     {
         Background = CreateRenderInput("Input", "IMAGE");
@@ -40,7 +43,7 @@ public sealed class ApplyFilterNode : RenderNode, IRenderInput
 
     protected override void Paint(RenderContext context, DrawingSurface surface)
     {
-        AllowHighDpiRendering = (Background.Connection.Node as RenderNode)?.AllowHighDpiRendering ?? true;
+        AllowHighDpiRendering = (Background.Connection?.Node as RenderNode)?.AllowHighDpiRendering ?? true;
         base.Paint(context, surface);
     }
 

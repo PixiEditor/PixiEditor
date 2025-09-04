@@ -115,6 +115,11 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
         builder.Dispose();
     }
 
+    public override RectD? GetPreviewBounds(RenderContext ctx, string elementToRenderName)
+    {
+        return size.HasValue ? new RectD(0, 0, size.Value.X, size.Value.Y) : null;
+    }
+
     public override void RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
     {
         var startNode = FindStartNode();

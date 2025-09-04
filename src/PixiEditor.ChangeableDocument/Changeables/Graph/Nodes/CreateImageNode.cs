@@ -30,6 +30,9 @@ public class CreateImageNode : Node
 
     private TextureCache textureCache = new();
 
+    protected override bool ExecuteOnlyOnCacheChange => true;
+    protected override CacheTriggerFlags CacheTrigger => CacheTriggerFlags.Inputs;
+
     public CreateImageNode()
     {
         Output = CreateOutput<Texture>(nameof(Output), "IMAGE", null);
@@ -57,7 +60,8 @@ public class CreateImageNode : Node
 
     private Texture Render(RenderContext context)
     {
-        var surface = textureCache.RequestTexture(0, (VecI)(Size.Value * context.ChunkResolution.Multiplier()), context.ProcessingColorSpace, false);
+        int id = (Size.Value * context.ChunkResolution.Multiplier()).GetHashCode();
+        var surface = textureCache.RequestTexture(id, (VecI)(Size.Value * context.ChunkResolution.Multiplier()), context.ProcessingColorSpace, false);
         surface.DrawingSurface.Canvas.SetMatrix(Matrix3X3.Identity);
 
         if (Fill.Value is ColorPaintable colorPaintable)

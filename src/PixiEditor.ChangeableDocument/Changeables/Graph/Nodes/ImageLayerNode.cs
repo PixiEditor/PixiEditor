@@ -264,10 +264,15 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
             return;
         }
 
+        int saved = renderOnto.Canvas.Save();
+        renderOnto.Canvas.Scale((float)context.ChunkResolution.InvertedMultiplier());
+
         img.DrawCommittedRegionOn(
             new RectI(0, 0, img.LatestSize.X, img.LatestSize.Y),
             context.ChunkResolution,
             renderOnto, VecI.Zero, replacePaint, context.DesiredSamplingOptions);
+
+        renderOnto.Canvas.RestoreToCount(saved);
     }
 
     private KeyFrameData GetFrameWithImage(KeyFrameTime frame)
