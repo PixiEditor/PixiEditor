@@ -19,4 +19,16 @@ public class SceneObjectRenderContext : RenderContext
         LocalBounds = localBounds;
         RenderSurfaceIsScene = renderSurfaceIsScene;
     }
+
+    public override RenderContext Clone()
+    {
+        return new SceneObjectRenderContext(TargetPropertyOutput, RenderSurface, LocalBounds, FrameTime, ChunkResolution, RenderOutputSize, DocumentSize, RenderSurfaceIsScene, ProcessingColorSpace, DesiredSamplingOptions, Opacity)
+        {
+            VisibleDocumentRegion = VisibleDocumentRegion,
+            AffectedArea = AffectedArea,
+            FullRerender = FullRerender,
+            TargetOutput = TargetOutput,
+            PreviewTextures = PreviewTextures,
+        };
+    }
 }

@@ -58,11 +58,11 @@ public class SampleImageNode : Node
 
         if (SampleMode.Value == ColorSampleMode.ColorManaged)
         {
-            color = Image.Value.GetSRGBPixel(pixelCoordinate);
+            color = Image.Value.GetSrgbPixel(pixelCoordinate);
         }
         else
         {
-            color = Image.Value.GetPixel(pixelCoordinate);
+            color = Image.Value.GetRawPixel(pixelCoordinate);
         }
 
         return new Half4("") { ConstantValue = color };

@@ -36,10 +36,10 @@
                                 </ImageBrush.Transform>
                             </ImageBrush>
                         </Border.Background>
-                        <visuals:PreviewPainterControl
-                            PreviewPainter="{Binding Item.PreviewPainter, RelativeSource={RelativeSource TemplatedParent}}"
+                        <visuals:PreviewTextureControl
+                            TexturePreview="{Binding Item.PreviewTexture, RelativeSource={RelativeSource TemplatedParent}}"
                             Width="60" Height="60" RenderOptions.BitmapInterpolationMode="None">
-                            </visuals:PreviewPainterControl>
+                        </visuals:PreviewTextureControl>
                     </Border>
                 </Grid>
             </ControlTemplate>

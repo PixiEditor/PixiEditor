@@ -69,15 +69,4 @@ public class TileNode : RenderNode
     {
         return new TileNode();
     }
-
-    public override RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
-    {
-        return null;
-    }
-
-    public override bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
-    {
-        return false;
-    }
-
 }

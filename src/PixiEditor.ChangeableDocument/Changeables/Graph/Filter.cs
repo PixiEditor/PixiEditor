@@ -1,9 +1,10 @@
 ﻿using System.Diagnostics.Contracts;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
+using PixiEditor.Common;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph;
 
-public sealed class Filter : IDisposable
+public sealed class Filter : IDisposable, ICacheable
 {
     public Filter(ColorFilter? colorFilter, ImageFilter? imageFilter)
     {
@@ -44,5 +45,13 @@ public sealed class Filter : IDisposable
     {
         ColorFilter?.Dispose();
         ImageFilter?.Dispose();
+    }
+
+    public int GetCacheHash()
+    {
+        HashCode hash = new();
+        hash.Add(ColorFilter?.GetHashCode() ?? 0);
+        hash.Add(ImageFilter?.GetHashCode() ?? 0);
+        return hash.ToHashCode();
     }
 }
