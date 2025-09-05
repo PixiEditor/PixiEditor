@@ -1,6 +1,7 @@
 ﻿using Avalonia.Threading;
 using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core;
+using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
@@ -38,7 +39,7 @@ internal class SceneRenderer : IDisposable
     public async Task RenderAsync(Dictionary<Guid, ViewportInfo> stateViewports, AffectedArea affectedArea,
         bool updateDelayed, Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures)
     {
-        await Dispatcher.UIThread.InvokeAsync(() =>
+        await DrawingBackendApi.Current.RenderingDispatcher.InvokeAsync(() =>
         {
             int renderedCount = 0;
             foreach (var viewport in stateViewports)
@@ -65,7 +66,7 @@ internal class SceneRenderer : IDisposable
             {
                 RenderOnlyPreviews(affectedArea, previewTextures);
             }
-        }, DispatcherPriority.Background);
+        });
     }
 
     private void RenderOnlyPreviews(AffectedArea affectedArea,
@@ -93,7 +94,7 @@ internal class SceneRenderer : IDisposable
             target.DeviceClipBounds.Size.ShortestAxis <= 0) return;*/
 
         /*TODO:
-         - [ ] Onion skinning
+         - [ ] Fix masks preview along with test case that fails
          - [ ] Rendering optimizer
          - [?] Render thread and proper locking/synchronization
          */
