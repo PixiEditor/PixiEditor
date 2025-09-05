@@ -39,7 +39,7 @@ internal class SceneRenderer : IDisposable
     public async Task RenderAsync(Dictionary<Guid, ViewportInfo> stateViewports, AffectedArea affectedArea,
         bool updateDelayed, Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures)
     {
-        await DrawingBackendApi.Current.RenderingDispatcher.InvokeAsync(() =>
+        await DrawingBackendApi.Current.RenderingDispatcher.InvokeInBackgroundAsync(() =>
         {
             using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
             int renderedCount = 0;
