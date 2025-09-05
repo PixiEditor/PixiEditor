@@ -1300,7 +1300,10 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         {
             NodeGraph.Dispose();
             Renderer.Dispose();
-            SceneRenderer.Dispose();
+            foreach (var texture in SceneTextures)
+            {
+                texture.Value?.Dispose();
+            }
             AnimationDataViewModel.Dispose();
             Internals.ChangeController.TryStopActiveExecutor();
             Internals.Tracker.Dispose();

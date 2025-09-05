@@ -16,9 +16,10 @@ using PixiEditor.Models.Position;
 
 namespace PixiEditor.Models.Rendering;
 
-internal class SceneRenderer : IDisposable
+internal class SceneRenderer
 {
     public const double ZoomDiffToRerender = 20;
+    public const float OversizeFactor = 1.25f;
     public IReadOnlyDocument Document { get; }
     public IDocument DocumentViewModel { get; }
     public bool HighResRendering { get; set; } = true;
@@ -110,14 +111,24 @@ internal class SceneRenderer : IDisposable
             : viewport.RenderOutput;
 
         IReadOnlyNodeGraph finalGraph = RenderingUtils.SolveFinalNodeGraph(targetOutput, Document);
+
+        float oversizeFactor = 1;
+        if (visibleDocumentRegion != null && viewport.IsScene && visibleDocumentRegion.Value != new RectI(0, 0, Document.Size.X, Document.Size.Y))
+        {
+            visibleDocumentRegion = (RectI)visibleDocumentRegion.Value.Scale(OversizeFactor,
+                visibleDocumentRegion.Value.Center);
+            oversizeFactor = OversizeFactor;
+        }
+
         bool shouldRerender =
             ShouldRerender(renderTargetSize, targetMatrix, resolution, viewportId, targetOutput, finalGraph,
-                previewTextures, visibleDocumentRegion);
+                previewTextures, visibleDocumentRegion, oversizeFactor);
+
 
         if (shouldRerender)
         {
             return RenderGraph(renderTargetSize, targetMatrix, viewportId, resolution, samplingOptions, affectedArea,
-                visibleDocumentRegion, targetOutput, viewport.IsScene, finalGraph, previewTextures);
+                visibleDocumentRegion, targetOutput, viewport.IsScene, oversizeFactor, finalGraph, previewTextures);
         }
 
         var cachedTexture = DocumentViewModel.SceneTextures[viewportId];
@@ -131,6 +142,7 @@ internal class SceneRenderer : IDisposable
         RectI? visibleDocumentRegion,
         string? targetOutput,
         bool canRenderOnionSkinning,
+        float oversizeFactor,
         IReadOnlyNodeGraph finalGraph, Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures)
     {
         DrawingSurface renderTarget = null;
@@ -151,11 +163,16 @@ internal class SceneRenderer : IDisposable
         }
         else
         {
-            renderTexture = textureCache.RequestTexture(viewportId.GetHashCode(), renderTargetSize,
+            var bufferedSize = (VecI)(renderTargetSize * oversizeFactor);
+            renderTexture = textureCache.RequestTexture(viewportId.GetHashCode(), bufferedSize,
                 Document.ProcessingColorSpace);
 
+            var bufferedMatrix = targetMatrix.PostConcat(Matrix3X3.CreateTranslation(
+                (bufferedSize.X - renderTargetSize.X) / 2.0,
+                (bufferedSize.Y - renderTargetSize.Y) / 2.0));
+
             renderTarget = renderTexture.DrawingSurface;
-            renderTarget.Canvas.SetMatrix(targetMatrix);
+            renderTarget.Canvas.SetMatrix(bufferedMatrix);
         }
 
         bool renderOnionSkinning = canRenderOnionSkinning &&
@@ -178,6 +195,7 @@ internal class SceneRenderer : IDisposable
                 RenderContext onionContext = new(renderTarget, frame, resolution, finalSize, Document.Size,
                     Document.ProcessingColorSpace, samplingOptions, finalOpacity);
                 onionContext.TargetOutput = targetOutput;
+                onionContext.VisibleDocumentRegion = visibleDocumentRegion;
                 finalGraph.Execute(onionContext);
             }
         }
@@ -204,6 +222,7 @@ internal class SceneRenderer : IDisposable
                 RenderContext onionContext = new(renderTarget, frame, resolution, finalSize, Document.Size,
                     Document.ProcessingColorSpace, samplingOptions, finalOpacity);
                 onionContext.TargetOutput = targetOutput;
+                onionContext.VisibleDocumentRegion = visibleDocumentRegion;
                 finalGraph.Execute(onionContext);
             }
         }
@@ -248,7 +267,7 @@ internal class SceneRenderer : IDisposable
         Guid viewportId,
         string targetOutput,
         IReadOnlyNodeGraph finalGraph, Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures,
-        RectI? visibleDocumentRegion)
+        RectI? visibleDocumentRegion, float oversizeFactor)
     {
         if (!DocumentViewModel.SceneTextures.TryGetValue(viewportId, out var cachedTexture) ||
             cachedTexture == null ||
@@ -296,7 +315,7 @@ internal class SceneRenderer : IDisposable
             ? (VecI)(Document.Size * resolution.Multiplier())
             : targetSize;
 
-        if (cachedTexture.Size != compareSize)
+        if (cachedTexture.Size != (VecI)(compareSize * oversizeFactor))
         {
             return true;
         }
@@ -341,64 +360,6 @@ internal class SceneRenderer : IDisposable
 
         return highDpiRenderNodePresent;
     }
-
-    private void RenderOnionSkin(DrawingSurface target, ChunkResolution resolution, SamplingOptions sampling,
-        string? targetOutput)
-    {
-        var animationData = Document.AnimationData;
-        if (!DocumentViewModel.AnimationHandler.OnionSkinningEnabledBindable)
-        {
-            return;
-        }
-
-        double onionOpacity = animationData.OnionOpacity / 100.0;
-        double alphaFalloffMultiplier = 1.0 / animationData.OnionFrames;
-
-        var finalGraph = RenderingUtils.SolveFinalNodeGraph(targetOutput, Document);
-        var renderOutputSize = SolveRenderOutputSize(targetOutput, finalGraph, Document.Size);
-
-        // Render previous frames'
-        for (int i = 1; i <= animationData.OnionFrames; i++)
-        {
-            int frame = DocumentViewModel.AnimationHandler.ActiveFrameTime.Frame - i;
-            if (frame < DocumentViewModel.AnimationHandler.FirstVisibleFrame)
-            {
-                break;
-            }
-
-            double finalOpacity = onionOpacity * alphaFalloffMultiplier * (animationData.OnionFrames - i + 1);
-
-
-            RenderContext onionContext = new(target, frame, resolution, renderOutputSize, Document.Size,
-                Document.ProcessingColorSpace, sampling, finalOpacity);
-            onionContext.TargetOutput = targetOutput;
-            finalGraph.Execute(onionContext);
-        }
-
-        // Render next frames
-        for (int i = 1; i <= animationData.OnionFrames; i++)
-        {
-            int frame = DocumentViewModel.AnimationHandler.ActiveFrameTime.Frame + i;
-            if (frame >= DocumentViewModel.AnimationHandler.LastFrame)
-            {
-                break;
-            }
-
-            double finalOpacity = onionOpacity * alphaFalloffMultiplier * (animationData.OnionFrames - i + 1);
-            RenderContext onionContext = new(target, frame, resolution, renderOutputSize, Document.Size,
-                Document.ProcessingColorSpace, sampling, finalOpacity);
-            onionContext.TargetOutput = targetOutput;
-            finalGraph.Execute(onionContext);
-        }
-    }
-
-    public void Dispose()
-    {
-        /*foreach (var texture in cachedTextures)
-        {
-            texture.Value?.Dispose();
-        }*/
-    }
 }
 
 struct RenderState
@@ -417,7 +378,7 @@ struct RenderState
     {
         return !ChunkResolution.Equals(other.ChunkResolution) || HighResRendering != other.HighResRendering ||
                TargetOutput != other.TargetOutput || GraphCacheHash != other.GraphCacheHash ||
-                OnionFrames != other.OnionFrames || Math.Abs(OnionOpacity - other.OnionOpacity) > 0.05 ||
+               OnionFrames != other.OnionFrames || Math.Abs(OnionOpacity - other.OnionOpacity) > 0.05 ||
                OnionSkinning != other.OnionSkinning ||
                VisibleRegionChanged(other) || ZoomDiff(other) > 0;
     }
