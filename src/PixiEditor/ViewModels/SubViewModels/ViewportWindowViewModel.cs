@@ -210,9 +210,6 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
                     previewPainterControl.Texture = minSize.Value;
                 }
             }
-        }
-        else if (e.PropertyName == nameof(DocumentViewModel.AllChangesSaved))
-        {
             TabCustomizationSettings.SavedState = GetSaveState(Document);
         }
         else if (e.PropertyName == nameof(DocumentViewModel.AllChangesAutosaved))
