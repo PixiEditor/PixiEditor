@@ -1,5 +1,6 @@
 ﻿using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core;
+using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
@@ -86,6 +87,7 @@ public class Chunk : IDisposable
     /// <param name="paint">The paint to use while drawing</param>
     public void DrawChunkOn(DrawingSurface surface, VecD pos, Paint? paint = null, SamplingOptions? samplingOptions = null)
     {
+        using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
         if (samplingOptions == null || samplingOptions == SamplingOptions.Default)
         {
             surface.Canvas.DrawSurface(Surface.DrawingSurface, (float)pos.X, (float)pos.Y, paint);
@@ -99,6 +101,7 @@ public class Chunk : IDisposable
 
     public unsafe RectI? FindPreciseBounds(RectI? passedSearchRegion = null)
     {
+        using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
         RectI? bounds = null;
         if (returned)
             return bounds;

@@ -7,6 +7,7 @@ using OneOf;
 using OneOf.Types;
 using PixiEditor.Common;
 using Drawie.Backend.Core;
+using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
@@ -1338,6 +1339,8 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
     {
         if (operation is ClearOperation)
             return true;
+
+        using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
 
         if (operation is IDrawOperation chunkOperation)
         {

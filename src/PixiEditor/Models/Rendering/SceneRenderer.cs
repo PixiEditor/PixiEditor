@@ -41,6 +41,7 @@ internal class SceneRenderer : IDisposable
     {
         await DrawingBackendApi.Current.RenderingDispatcher.InvokeAsync(() =>
         {
+            using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
             int renderedCount = 0;
             foreach (var viewport in stateViewports)
             {
@@ -94,7 +95,6 @@ internal class SceneRenderer : IDisposable
             target.DeviceClipBounds.Size.ShortestAxis <= 0) return;*/
 
         /*TODO:
-         - [ ] Fix masks preview along with test case that fails
          - [ ] Rendering optimizer
          - [?] Render thread and proper locking/synchronization
          */

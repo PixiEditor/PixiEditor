@@ -273,6 +273,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     protected override async void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
     {
+        using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
         framebuffer?.Dispose();
         framebuffer = null;
 
@@ -922,6 +923,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     protected async Task FreeGraphicsResources()
     {
+        using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
         renderTexture?.Dispose();
         renderTexture = null;
 
