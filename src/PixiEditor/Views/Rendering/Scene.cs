@@ -361,7 +361,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             Matrix3X3 matrixDiff = SolveMatrixDiff(matrix, cachedTexture);
             var target = cachedTexture.DrawingSurface;
 
-            if (tex.Size == (VecI)RealDimensions)
+            if (tex.Size == (VecI)RealDimensions || tex.Size == (VecI)(RealDimensions * SceneRenderer.OversizeFactor))
             {
                 saved = texture.Canvas.Save();
                 texture.Canvas.ClipRect(bounds);
