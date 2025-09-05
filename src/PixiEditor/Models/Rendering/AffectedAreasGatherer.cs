@@ -214,8 +214,15 @@ internal class AffectedAreasGatherer
                 case RefreshPreview_PassthroughAction info:
                     if (info.SubId == null)
                     {
-                        AddToImagePreviews(info.Id);
-                        AddToNodePreviews(info.Id);
+                        if (info.ElementToRender == nameof(StructureNode.EmbeddedMask))
+                        {
+                            AddToMaskPreview(info.Id);
+                        }
+                        else
+                        {
+                            AddToImagePreviews(info.Id);
+                            AddToNodePreviews(info.Id);
+                        }
                     }
                     else
                     {

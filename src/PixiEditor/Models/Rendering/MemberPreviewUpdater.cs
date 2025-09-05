@@ -6,6 +6,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ViewModels.Nodes;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.Models.DocumentPassthroughActions;
@@ -288,7 +289,7 @@ internal class MemberPreviewUpdater
 
                 if (structureMemberHandler.MaskPreview == null)
                 {
-                    structureMemberHandler.MaskPreview = new TexturePreview(node.Id, RequestRender);
+                    structureMemberHandler.MaskPreview = new TexturePreview(node.Id, RequestMaskRender);
                     continue;
                 }
 
@@ -322,7 +323,7 @@ internal class MemberPreviewUpdater
                 }
 
                 previewTextures[node.Id].Add(new PreviewRenderRequest(CreateTextureForMask,
-                    structureMemberHandler.MaskPreview.InvokeTextureUpdated));
+                    structureMemberHandler.MaskPreview.InvokeTextureUpdated) {ElementToRender = nameof(StructureNode.EmbeddedMask) });
             }
         }
     }
@@ -435,5 +436,10 @@ internal class MemberPreviewUpdater
     private void RequestCelRender(Guid nodeId, Guid? celId)
     {
         internals.ActionAccumulator.AddActions(new RefreshPreview_PassthroughAction(nodeId, celId));
+    }
+
+    private void RequestMaskRender(Guid id)
+    {
+        internals.ActionAccumulator.AddActions(new RefreshPreview_PassthroughAction(id, null, nameof(StructureNode.EmbeddedMask)));
     }
 }

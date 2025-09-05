@@ -355,8 +355,8 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
                 using Chunk tempChunk = Chunk.Create(ProcessingColorSpace, ChunkResolution.Eighth);
                 using Paint committedPaint = new Paint() { Color = committedColor, BlendMode = BlendMode.Src };
                 using Paint latestPaint = new Paint() { Color = latestColor, BlendMode = this.blendMode };
-                tempChunk.Surface.DrawingSurface.Canvas.DrawPixel(VecI.Zero, committedPaint);
-                tempChunk.Surface.DrawingSurface.Canvas.DrawPixel(VecI.Zero, latestPaint);
+                tempChunk.Surface.DrawingSurface.Canvas.DrawRect(new RectD(VecI.Zero, new VecD(1)), committedPaint);
+                tempChunk.Surface.DrawingSurface.Canvas.DrawRect(new RectD(VecI.Zero, new VecI(1)), latestPaint);
                 return tempChunk.Surface.GetSrgbPixel(VecI.Zero);
             }
         }

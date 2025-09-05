@@ -324,6 +324,13 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         return EmbeddedMask != null;
     }
 
+    public override RectD? GetPreviewBounds(RenderContext ctx, string elementToRenderName)
+    {
+        return EmbeddedMask is null
+            ? null
+            : new RectD(0, 0, EmbeddedMask.LatestSize.X, EmbeddedMask.LatestSize.Y);
+    }
+
     public override void RenderPreview(DrawingSurface renderOn, RenderContext context,
         string elementToRenderName)
     {
@@ -334,10 +341,13 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
             return;
         }
 
+        int saved = renderOn.Canvas.Save();
+        renderOn.Canvas.Scale((float)context.ChunkResolution.InvertedMultiplier());
         img.DrawMostUpToDateRegionOn(
             new RectI(0, 0, img.LatestSize.X, img.LatestSize.Y),
             context.ChunkResolution,
             renderOn, VecI.Zero, maskPreviewPaint, drawPaintOnEmpty: true);
+        renderOn.Canvas.RestoreToCount(saved);
     }
 
     public override void Dispose()

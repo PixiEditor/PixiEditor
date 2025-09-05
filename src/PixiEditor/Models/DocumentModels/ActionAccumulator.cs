@@ -157,7 +157,7 @@ internal class ActionAccumulator
                             affectedAreas.ChangedMasks,
                             affectedAreas.ChangedNodes, affectedAreas.ChangedKeyFrames,
                             affectedAreas.IgnoreAnimationPreviews,
-                            undoBoundaryPassed || refreshPreviewsRequest);
+                            undoBoundaryPassed || refreshPreviewsRequest || refreshPreviewRequest);
                     }
                 }
 

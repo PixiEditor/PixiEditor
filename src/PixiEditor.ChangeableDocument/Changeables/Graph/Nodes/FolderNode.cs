@@ -100,7 +100,12 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
 
         Content.Value?.Paint(sceneContext, outputWorkingSurface.DrawingSurface);
 
+        int saved2 = outputWorkingSurface.DrawingSurface.Canvas.Save();
+        outputWorkingSurface.DrawingSurface.Canvas.Scale((float)sceneContext.ChunkResolution.InvertedMultiplier());
+
         ApplyMaskIfPresent(outputWorkingSurface.DrawingSurface, sceneContext, sceneContext.ChunkResolution);
+
+        outputWorkingSurface.DrawingSurface.Canvas.RestoreToCount(saved2);
 
         if (Background.Value != null && sceneContext.TargetPropertyOutput != RawOutput)
         {
