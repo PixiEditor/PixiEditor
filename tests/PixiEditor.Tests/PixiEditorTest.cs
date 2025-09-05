@@ -154,6 +154,17 @@ class TestsRenderingDispatcher : IRenderingDispatcher
         return Task.FromResult(function());
     }
 
+    public Task<TResult> InvokeInBackgroundAsync<TResult>(Func<TResult> function)
+    {
+        return Task.FromResult(function());
+    }
+
+    public Task InvokeInBackgroundAsync(Action function)
+    {
+        function();
+        return Task.CompletedTask;
+    }
+
     public Task InvokeAsync(Action function)
     {
         function();
