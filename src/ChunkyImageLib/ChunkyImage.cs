@@ -343,6 +343,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
 
             // something is queued, blend mode is not Src so we have to do merging
             {
+                using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
                 Chunk? committedChunk = MaybeGetCommittedChunk(chunkPos, ChunkResolution.Full);
                 Chunk? latestChunk = GetLatestChunk(chunkPos, ChunkResolution.Full);
                 Color committedColor = committedChunk is null
@@ -409,6 +410,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
                 return false;
             }
 
+            using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
             // combine with committed and then draw
             using var tempChunk = Chunk.Create(ProcessingColorSpace, resolution);
             tempChunk.Surface.DrawingSurface.Canvas.DrawSurface(committedChunk.Surface.DrawingSurface, 0, 0,
@@ -466,6 +468,8 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
 
                 return false;
             }
+
+            using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
 
             // combine with committed and then draw
             using var tempChunk = Chunk.Create(ProcessingColorSpace, resolution);
@@ -1016,6 +1020,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
     {
         lock (lockObject)
         {
+            using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
             ThrowIfDisposed();
             var affectedArea = FindAffectedArea();
 
@@ -1105,6 +1110,8 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
                         committedChunks[resolution].Add(pos, chunk);
                         continue;
                     }
+
+                    using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
 
                     //blend
                     blendModePaint.BlendMode = blendMode;
@@ -1467,6 +1474,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
     /// </summary>
     private Chunk GetOrCreateCommittedChunk(VecI chunkPos, ChunkResolution resolution)
     {
+        using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
         // committed chunk of the same resolution exists
         Chunk? targetChunk = MaybeGetCommittedChunk(chunkPos, resolution);
         if (targetChunk is not null)
@@ -1509,6 +1517,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
     /// </summary>
     private Chunk GetOrCreateLatestChunk(VecI chunkPos, ChunkResolution resolution)
     {
+        using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
         // latest chunk exists
         Chunk? targetChunk = MaybeGetLatestChunk(chunkPos, resolution);
         if (targetChunk is not null)

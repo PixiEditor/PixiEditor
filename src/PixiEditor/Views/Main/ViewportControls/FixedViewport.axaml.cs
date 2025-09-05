@@ -81,8 +81,6 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
     public FixedViewport()
     {
         InitializeComponent();
-        Loaded += OnLoad;
-        Unloaded += OnUnload;
     }
 
     protected override Size MeasureOverride(Size availableSize)
@@ -99,14 +97,14 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
         return new Size(width, height);
     }
 
-    private void OnUnload(object sender, RoutedEventArgs e)
-    {
-        Document?.Operations.RemoveViewport(GuidValue);
-    }
-
-    private void OnLoad(object sender, RoutedEventArgs e)
+    protected override void OnLoaded(RoutedEventArgs e)
     {
         Document?.Operations.AddOrUpdateViewport(GetLocation());
+    }
+
+    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        Document?.Operations.RemoveViewport(GuidValue);
     }
 
     private ChunkResolution CalculateResolution()
@@ -208,6 +206,11 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
     }
 
     private void OnImageSizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        Document?.Operations.AddOrUpdateViewport(GetLocation());
+    }
+
+    protected override void OnSizeChanged(SizeChangedEventArgs e)
     {
         Document?.Operations.AddOrUpdateViewport(GetLocation());
     }

@@ -2,6 +2,7 @@
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using Drawie.Backend.Core;
+using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
@@ -52,6 +53,8 @@ public static class FloodFillHelper
             return new();
 
         int chunkSize = ChunkResolution.Full.PixelSize();
+
+        using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
 
         FloodFillChunkCache cache = CreateCache(membersToFloodFill, document, frame);
 
