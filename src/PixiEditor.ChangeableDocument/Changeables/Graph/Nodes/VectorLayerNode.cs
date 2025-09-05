@@ -136,10 +136,17 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
             return;
         }
 
-        int savedCount = renderOn.Canvas.Save();
-        renderOn.Canvas.Scale((float)context.ChunkResolution.Multiplier());
         Rasterize(renderOn, paint);
-        renderOn.Canvas.RestoreToCount(savedCount);
+    }
+
+    public override RectD? GetPreviewBounds(RenderContext ctx, string elementToRenderName)
+    {
+        if (elementToRenderName == nameof(EmbeddedMask))
+        {
+            return base.GetPreviewBounds(ctx, elementToRenderName);
+        }
+
+        return GetTightBounds(ctx.FrameTime);
     }
 
     public override RectD? GetApproxBounds(KeyFrameTime frameTime)
