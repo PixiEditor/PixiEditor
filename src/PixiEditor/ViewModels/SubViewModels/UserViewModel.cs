@@ -246,6 +246,10 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         DispatcherTimer.RunOnce(
             () =>
             {
+                if (TimeToEndTimeout.HasValue && TimeToEndTimeout.Value > DateTime.Now)
+                {
+                    return;
+                }
                 TimeToEndTimeout = null;
                 LastError = null;
                 NotifyProperties();
