@@ -8,7 +8,7 @@ public class KeyFrameData : IDisposable, IReadOnlyKeyFrameData
 {
     public int StartFrame { get; set; }
     public int Duration { get; set; }
-    public Guid KeyFrameGuid { get; }
+    public Guid KeyFrameGuid { get; internal set; }
     public string AffectedElement { get; set; }
     public object Data { get; set; }
     public bool IsVisible { get; set; } = true;
