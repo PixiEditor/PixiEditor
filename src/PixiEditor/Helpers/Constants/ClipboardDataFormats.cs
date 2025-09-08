@@ -10,4 +10,5 @@ public static class ClipboardDataFormats
     public const string CelIdList = "PixiEditor.CelIdList";
     public const string PixiVectorData = "PixiEditor.VectorData";
     public const string UriList = "text/uri-list";
+    public const string HadSelectionFormat = "PixiEditor.HadSelection";
 }

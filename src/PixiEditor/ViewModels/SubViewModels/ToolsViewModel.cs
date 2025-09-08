@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using Avalonia.Input;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.ChangeableDocument;
@@ -180,12 +181,34 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     {
         ActiveTool?.OnToolDeselected(false);
         ActiveToolSet = toolSetHandler;
+        if (ActiveTool != null && !ActiveToolSet.Tools.Contains(ActiveTool))
+        {
+            TrySelectCommonToolInNewToolSet();
+        }
         ActiveToolSet.ApplyToolSetSettings();
         UpdateEnabledState();
+
 
         ActiveTool?.OnToolSelected(false);
 
         OnPropertyChanged(nameof(NonSelectedToolSets));
+    }
+
+    private void TrySelectCommonToolInNewToolSet()
+    {
+        var commonTool = ActiveToolSet.Tools.FirstOrDefault(tool =>
+        {
+            var attr = tool.GetType().GetCustomAttribute<Command.ToolAttribute>();
+            if (attr is null) return false;
+
+            return ActiveTool?.GetType().GetCustomAttribute<Command.ToolAttribute>()?.CommonToolType ==
+                   attr.CommonToolType;
+        });
+
+        if (commonTool is not null)
+        {
+            SetActiveTool(commonTool, false);
+        }
     }
 
     [Command.Basic("PixiEditor.Tools.ToggleSelectionTinting", "TOGGLE_TINTING_SELECTION", "TOGGLE_TINTING_SELECTION_DESCRIPTIVE", AnalyticsTrack = true)]
@@ -389,7 +412,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         if (foundTool == null)
         {
             foundTool = allTools.FirstOrDefault(x => x.GetType().IsAssignableFrom(toolType));
-            if(foundTool == null)
+            if(foundTool == null || SimilarToolInActiveToolSetExists(toolType))
                 return;
 
             var toolset = AllToolSets.FirstOrDefault(x => x.Tools.Contains(foundTool));
@@ -424,6 +447,18 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         {
             ToolCursor = new Cursor(StandardCursorType.Arrow);
         }
+    }
+
+    private bool SimilarToolInActiveToolSetExists(Type toolType)
+    {
+        Command.ToolAttribute attr = toolType.GetCustomAttribute<Command.ToolAttribute>();
+        if (attr is null) return false;
+
+        return ActiveToolSet.Tools.Any(tool =>
+        {
+            var toolAttr = tool.GetType().GetCustomAttribute<Command.ToolAttribute>();
+            return toolAttr is not null && toolAttr.CommonToolType == attr.CommonToolType;
+        });
     }
 
     public void HandleToolRepeatShortcutDown()
