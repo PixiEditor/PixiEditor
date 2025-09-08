@@ -235,7 +235,8 @@ internal class DocumentOperationsModule : IDocumentOperations
         {
             Internals.ActionAccumulator.AddFinishedActions(
                 new DuplicateFolder_Action(guidValue, newGuid, null),
-                new SetSelectedMember_PassthroughAction(newGuid));
+                new SetSelectedMember_PassthroughAction(newGuid),
+                new CreateAnimationDataFromFolder_Action(newGuid));
         }
 
         return newGuid;
