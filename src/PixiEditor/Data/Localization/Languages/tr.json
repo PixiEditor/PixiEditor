@@ -1123,8 +1123,5 @@
   "TRANSFORMED_POSITION": "Dönüştürülmüş Konum",
   "ACCOUNT_PROVIDER_NOT_AVAILABLE": "PixiEditor'ın bu yapısı hesapları desteklemiyor. Hesabınızı yönetmek için pixieditor.net'teki resmi yapıyı kullanın.",
   "STEAM_OFFLINE": "Hesap doğrulanamıyor. Steam çevrimdışı. Steam istemcisinin çalıştığından ve giriş yaptığınızdan emin olun.",
-  "ERROR_GPU_RESOURCES_CREATION": "Kaynaklar oluşturulamadı: GPU sürücülerinizi güncellemeyi deneyin veya ayarlarda farklı bir oluşturma API'si ayarlamayı deneyin. \nHata: '{0}'",
-  "ERROR_SAVING_PREFERENCES_DESC": "Tercihler şu hatayla kaydedilemedi: '{0}'. Lütfen PixiEditor veri klasörüne yazma izniniz olup olmadığını kontrol edin.",
-  "ERROR_SAVING_PREFERENCES": "Tercihler kaydedilemedi",
-  "PREFERRED_RENDERER": "Tercih Edilen Oluşturma Api"
+  "OPEN_COMMAND_DEBUG_WINDOW": "Komut hata ayıklama penceresini aç"
 }
