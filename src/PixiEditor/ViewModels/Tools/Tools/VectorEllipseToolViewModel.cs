@@ -12,7 +12,7 @@ using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.ViewModels.Tools.Tools;
 
-[Command.Tool(Key = Key.C)]
+[Command.Tool(Key = Key.C, CommonToolType = "Ellipse")]
 internal class VectorEllipseToolViewModel : ShapeTool, IVectorEllipseToolHandler
 {
     public const string NewLayerKey = "NEW_ELLIPSE_LAYER_NAME";
