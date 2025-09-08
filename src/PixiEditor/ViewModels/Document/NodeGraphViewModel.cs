@@ -20,7 +20,7 @@ namespace PixiEditor.ViewModels.Document;
 internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposable
 {
     private bool isFullyCreated;
-    
+
     public DocumentViewModel DocumentViewModel { get; }
     public ObservableCollection<INodeHandler> AllNodes { get; } = new();
     public ObservableCollection<NodeConnectionViewModel> Connections { get; } = new();
@@ -110,7 +110,7 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
         connection.OutputProperty.ConnectedInputs.Add(connection.InputProperty);
 
         Connections.Add(connection);
-        
+
         UpdatesFramesPartOf(connection.InputNode);
         UpdatesFramesPartOf(connection.OutputNode);
 
@@ -126,11 +126,11 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
             connection.InputProperty.ConnectedOutput = null;
             connection.OutputProperty.ConnectedInputs.Remove(connection.InputProperty);
             Connections.Remove(connection);
+
+            UpdatesFramesPartOf(connection.InputNode);
+            UpdatesFramesPartOf(connection.OutputNode);
         }
 
-        UpdatesFramesPartOf(connection.InputNode);
-        UpdatesFramesPartOf(connection.OutputNode);
-        
         var node = AllNodes.FirstOrDefault(x => x.Id == nodeId);
         if (node != null)
         {
@@ -152,7 +152,7 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
         var lastKnownFramesPartOf = node.Frames.OfType<NodeZoneViewModel>().ToHashSet();
         var startLookup = Frames.OfType<NodeZoneViewModel>().ToDictionary(x => x.Start);
         var currentlyPartOf = new HashSet<NodeZoneViewModel>();
-        
+
         node.TraverseBackwards(x =>
         {
             if (x is IPairNodeEndViewModel)
@@ -185,9 +185,9 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
     {
         if (isFullyCreated)
             return;
-        
+
         isFullyCreated = true;
-        
+
         foreach (var nodeZoneViewModel in Frames.OfType<NodeZoneViewModel>())
         {
             UpdateNodesPartOf(nodeZoneViewModel);
