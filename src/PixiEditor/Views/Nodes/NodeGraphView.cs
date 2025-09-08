@@ -773,10 +773,6 @@ internal class NodeGraphView : Zoombox.Zoombox
                 {
                     connection = (endConnectionProperty, startConnectionProperty, null);
                 }
-                else
-                {
-                    return;
-                }
             }
         }
 
