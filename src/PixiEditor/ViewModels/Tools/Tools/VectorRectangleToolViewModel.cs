@@ -13,7 +13,7 @@ using PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
 
 namespace PixiEditor.ViewModels.Tools.Tools;
 
-[Command.Tool(Key = Key.R)]
+[Command.Tool(Key = Key.R, CommonToolType = "Rectangle")]
 internal class VectorRectangleToolViewModel : ShapeTool, IVectorRectangleToolHandler
 {
     public const string NewLayerKey = "NEW_RECTANGLE_LAYER_NAME";

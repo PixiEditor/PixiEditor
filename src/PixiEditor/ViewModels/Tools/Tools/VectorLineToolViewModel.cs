@@ -16,7 +16,7 @@ using PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
 
 namespace PixiEditor.ViewModels.Tools.Tools;
 
-[Command.Tool(Key = Key.L)]
+[Command.Tool(Key = Key.L, CommonToolType = "Line")]
 internal class VectorLineToolViewModel : ShapeTool, IVectorLineToolHandler
 {
     public const string NewLayerKey = "NEW_LINE_LAYER_NAME";
