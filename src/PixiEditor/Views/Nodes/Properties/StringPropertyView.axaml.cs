@@ -17,14 +17,16 @@ namespace PixiEditor.Views.Nodes.Properties;
 
 public partial class StringPropertyView : NodePropertyView
 {
-    public static readonly StyledProperty<ICommand> OpenInDefaultAppCommandProperty = AvaloniaProperty.Register<StringPropertyView, ICommand>(
-        nameof(OpenInDefaultAppCommand));
+    public static readonly StyledProperty<ICommand> OpenInDefaultAppCommandProperty =
+        AvaloniaProperty.Register<StringPropertyView, ICommand>(
+            nameof(OpenInDefaultAppCommand));
 
     public ICommand OpenInDefaultAppCommand
     {
         get => GetValue(OpenInDefaultAppCommandProperty);
         set => SetValue(OpenInDefaultAppCommandProperty, value);
     }
+
     public StringPropertyView()
     {
         InitializeComponent();
@@ -33,7 +35,18 @@ public partial class StringPropertyView : NodePropertyView
     protected override void OnLoaded(RoutedEventArgs e)
     {
         base.OnLoaded(e);
+        if (smallTextBox is null)
+        {
+            return;
+        }
+
         ScrollViewer scroll = smallTextBox.FindDescendantOfType<ScrollViewer>();
+
+        if (scroll is null)
+        {
+            return;
+        }
+
         scroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
         scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Disabled;
     }

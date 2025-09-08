@@ -45,6 +45,7 @@
         CustomBackgroundScaleY="{Binding CustomBackgroundScaleY, Mode=OneWay}"
         BackgroundBitmap="{Binding BackgroundBitmap, Mode=OneWay}"
         HudVisible="{Binding HudVisible}"
+        MaxBilinearSamplingSize="{Binding ViewportSubViewModel.MaxBilinearSampleSize, Source={viewModels1:MainVM}}"
         Document="{Binding Document}">
     </viewportControls:Viewport>
 </UserControl>

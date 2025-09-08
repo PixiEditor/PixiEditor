@@ -19,9 +19,10 @@ public static class IReadOnlyChunkyImageEx
     /// <param name="pos">Starting position on the surface</param>
     /// <param name="paint">Paint to use for drawing</param>
     public static void DrawMostUpToDateRegionOn
-        (this IReadOnlyChunkyImage image, RectI fullResRegion, ChunkResolution resolution, DrawingSurface surface, VecD pos, Paint? paint = null)
+    (this IReadOnlyChunkyImage image, RectI fullResRegion, ChunkResolution resolution, DrawingSurface surface,
+        VecD pos, Paint? paint = null, SamplingOptions? sampling = null)
     {
-        DrawRegionOn(fullResRegion, resolution, surface, pos, image.DrawMostUpToDateChunkOn, paint);
+        DrawRegionOn(fullResRegion, resolution, surface, pos, image.DrawMostUpToDateChunkOn, paint, sampling);
     }
     
     /// <summary>
@@ -35,9 +36,9 @@ public static class IReadOnlyChunkyImageEx
     /// <param name="pos">Starting position on the surface</param>
     /// <param name="paint">Paint to use for drawing</param>
     public static void DrawCommittedRegionOn
-        (this IReadOnlyChunkyImage image, RectI fullResRegion, ChunkResolution resolution, DrawingSurface surface, VecI pos, Paint? paint = null)
+        (this IReadOnlyChunkyImage image, RectI fullResRegion, ChunkResolution resolution, DrawingSurface surface, VecI pos, Paint? paint = null, SamplingOptions? samplingOptions = null)
     {
-        DrawRegionOn(fullResRegion, resolution, surface, pos, image.DrawCommittedChunkOn, paint);
+        DrawRegionOn(fullResRegion, resolution, surface, pos, image.DrawCommittedChunkOn, paint, samplingOptions);
     }
     
     private static void DrawRegionOn(
@@ -45,8 +46,8 @@ public static class IReadOnlyChunkyImageEx
         ChunkResolution resolution,
         DrawingSurface surface,
         VecD pos,
-        Func<VecI, ChunkResolution, DrawingSurface, VecD, Paint?, bool> drawingFunc,
-        Paint? paint = null)
+        Func<VecI, ChunkResolution, DrawingSurface, VecD, Paint?, SamplingOptions?, bool> drawingFunc,
+        Paint? paint = null, SamplingOptions? samplingOptions = null)
     {
         int count = surface.Canvas.Save();
         surface.Canvas.ClipRect(new RectD(pos, fullResRegion.Size));
@@ -61,7 +62,7 @@ public static class IReadOnlyChunkyImageEx
             for (int i = chunkTopLeft.X; i <= chunkBotRight.X; i++)
             {
                 var chunkPos = new VecI(i, j);
-                drawingFunc(chunkPos, resolution, surface, offsetTargetRes + (chunkPos - chunkTopLeft) * resolution.PixelSize() + pos, paint);
+                drawingFunc(chunkPos, resolution, surface, offsetTargetRes + (chunkPos - chunkTopLeft) * resolution.PixelSize() + pos, paint, samplingOptions);
             }
         }
 

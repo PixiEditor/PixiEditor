@@ -21,6 +21,7 @@ using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.Models.DocumentModels.Public;
 #nullable enable
@@ -617,10 +618,10 @@ internal class DocumentOperationsModule : IDocumentOperations
             if (!members.Contains(traversedNode.Id))
             {
                 parent = traversedNode;
-                return false;
+                return Traverse.Exit;
             }
 
-            return true;
+            return Traverse.Further;
         });
 
         if (parent is null)

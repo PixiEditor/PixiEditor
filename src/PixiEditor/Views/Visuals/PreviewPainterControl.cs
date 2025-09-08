@@ -68,6 +68,7 @@ public class PreviewPainterControl : DrawieControl
             PreviewPainter.RemovePainterInstance(painterInstance.RequestId);
             painterInstance.RequestMatrix = null;
             painterInstance.RequestRepaint = null;
+            painterInstance.RequestRenderBounds = null;
             painterInstance = null;
         }
     }
@@ -86,6 +87,7 @@ public class PreviewPainterControl : DrawieControl
 
             painterInstance.RequestMatrix = OnPainterRequestMatrix;
             painterInstance.RequestRepaint = OnPainterRenderRequest;
+            painterInstance.RequestRenderBounds = OnPainterRequestBounds;
 
             PreviewPainter.RepaintFor(painterInstance.RequestId);
         }
@@ -116,6 +118,7 @@ public class PreviewPainterControl : DrawieControl
 
             sender.painterInstance.RequestMatrix = sender.OnPainterRequestMatrix;
             sender.painterInstance.RequestRepaint = sender.OnPainterRenderRequest;
+            sender.painterInstance.RequestRenderBounds = sender.OnPainterRequestBounds;
 
             args.NewValue.Value.RepaintFor(sender.painterInstance.RequestId);
         }
@@ -215,5 +218,10 @@ public class PreviewPainterControl : DrawieControl
         float y = (float)(previewBounds?.Height ?? 0);
 
         return UniformScale(x, y, previewBounds.Value);
+    }
+
+    private VecI OnPainterRequestBounds()
+    {
+        return GetFinalSize();
     }
 }

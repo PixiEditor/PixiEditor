@@ -104,7 +104,8 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
         Uniforms uniforms;
         uniforms = new Uniforms();
 
-        VecI finalSize = (VecI)(context.RenderOutputSize * context.ChunkResolution.InvertedMultiplier());
+        bool isAdjusted = context.RenderOutputSize == context.DocumentSize;
+        VecI finalSize = isAdjusted ? context.RenderOutputSize : (VecI)(context.RenderOutputSize * context.ChunkResolution.InvertedMultiplier());
 
         uniforms.Add("iResolution", new Uniform("iResolution", (VecD)finalSize));
         uniforms.Add("iNormalizedTime", new Uniform("iNormalizedTime", (float)context.FrameTime.NormalizedTime));
@@ -123,8 +124,11 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
         int saved = texture.DrawingSurface.Canvas.Save();
         //texture.DrawingSurface.Canvas.Scale((float)context.ChunkResolution.Multiplier(), (float)context.ChunkResolution.Multiplier());
 
-        var ctx = new RenderContext(texture.DrawingSurface, context.FrameTime, ChunkResolution.Full, finalSize,
-            context.DocumentSize, context.ProcessingColorSpace, context.Opacity);
+        var ctx = context.Clone();
+        ctx.RenderSurface = texture.DrawingSurface;
+        ctx.RenderOutputSize = finalSize;
+        ctx.ChunkResolution = ChunkResolution.Full;
+
         Background.Value.Paint(ctx, texture.DrawingSurface);
         texture.DrawingSurface.Canvas.RestoreToCount(saved);
 
@@ -156,8 +160,10 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
 
         if (context.ChunkResolution != ChunkResolution.Full)
         {
+            bool isAdjusted = context.RenderOutputSize == context.DocumentSize;
+            VecI finalSize = isAdjusted ? context.RenderOutputSize : (VecI)(context.RenderOutputSize * context.ChunkResolution.InvertedMultiplier());
             var intermediateSurface = RequestTexture(51,
-                (VecI)(context.RenderOutputSize * context.ChunkResolution.InvertedMultiplier()),
+                finalSize,
                 ColorSpace.Value == ColorSpaceType.Inherit
                     ? context.ProcessingColorSpace
                     : ColorSpace.Value == ColorSpaceType.Srgb

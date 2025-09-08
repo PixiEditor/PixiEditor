@@ -1,5 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Models.Handlers;
+using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.Models.DocumentModels.Public;
 #nullable enable
@@ -45,10 +46,10 @@ internal class DocumentStructureModule
             if (!guids.Contains(traversedNode.Id) && traversedNode is IStructureMemberHandler)
             {
                 parent = traversedNode;
-                return false;
+                return Traverse.Exit;
             }
 
-            return true;
+            return Traverse.Further;
         });
 
         if (parent is null)
@@ -62,10 +63,10 @@ internal class DocumentStructureModule
                 if (!guids.Contains(traversedNode.Id) && traversedNode is IStructureMemberHandler)
                 {
                     parent = traversedNode;
-                    return false;
+                    return Traverse.Exit;
                 }
 
-                return true;
+                return Traverse.Further;
             });
         }
 
@@ -110,7 +111,7 @@ internal class DocumentStructureModule
         {
             if (node is IStructureMemberHandler parent && input is { PropertyName: FolderNode.ContentInternalName })
                 parents.Add(parent);
-            return true;
+            return Traverse.Further;
         });
 
         return parents;
@@ -187,7 +188,7 @@ internal class DocumentStructureModule
                 toFill.Add(strNode);
             }
 
-            return true;
+            return Traverse.Further;
         });
     }
 
@@ -197,10 +198,10 @@ internal class DocumentStructureModule
         startNode.TraverseForwards(node =>
         {
             if (node == startNode)
-                return true;
+                return Traverse.Further;
 
             result = node;
-            return false;
+            return Traverse.Exit;
         });
 
         return result;
@@ -218,13 +219,13 @@ internal class DocumentStructureModule
             if (node != member && node is IStructureMemberHandler structureMemberNode)
             {
                 if (node is IFolderHandler && !includeFolders)
-                    return true;
+                    return Traverse.Further;
 
                 result = structureMemberNode;
-                return false;
+                return Traverse.Exit;
             }
 
-            return true;
+            return Traverse.Further;
         });
 
         return result;
@@ -242,13 +243,13 @@ internal class DocumentStructureModule
             if (node != member && node is IStructureMemberHandler structureMemberNode)
             {
                 if (node is IFolderHandler && !includeFolders)
-                    return true;
+                    return Traverse.Further;
 
                 result = structureMemberNode;
-                return false;
+                return Traverse.Exit;
             }
 
-            return true;
+            return Traverse.Further;
         });
 
         return result;
@@ -268,7 +269,7 @@ internal class DocumentStructureModule
             if (node is IStructureMemberHandler structureMemberNode)
                 children.Add(structureMemberNode);
 
-            return true;
+            return Traverse.Further;
         });
 
         return children;
