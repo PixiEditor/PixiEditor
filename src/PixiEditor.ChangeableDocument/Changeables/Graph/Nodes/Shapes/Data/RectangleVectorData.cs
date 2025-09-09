@@ -27,7 +27,7 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
     }
 
     public override ShapeCorners TransformationCorners =>
-        new ShapeCorners(VisualAABB).WithMatrix(TransformationMatrix);
+        new ShapeCorners(GeometryAABB).WithMatrix(TransformationMatrix);
 
 
     public RectangleVectorData(VecD center, VecD size)
