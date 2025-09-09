@@ -731,6 +731,11 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         return Internals.Tracker.Document.CreateNodePipe<T>(layerId);
     }
 
+    public ICrossDocumentPipe<IReadOnlyNodeGraph> ShareGraph()
+    {
+        return Internals.Tracker.Document.CreateGraphPipe();
+    }
+
     public OneOf<Error, Surface> TryRenderWholeImage(KeyFrameTime frameTime, VecI renderSize)
     {
         return TryRenderWholeImage(frameTime, renderSize, SizeBindable);

@@ -173,6 +173,11 @@ internal class Document : IChangeable, IReadOnlyDocument
         return new DocumentNodePipe<T>(this, layerId);
     }
 
+    public ICrossDocumentPipe<IReadOnlyNodeGraph> CreateGraphPipe()
+    {
+        return new DocumentGraphPipe(this);
+    }
+
     private void ForEveryReadonlyMember(IReadOnlyNodeGraph graph, Action<IReadOnlyStructureNode> action)
     {
         graph.TryTraverse((node) =>

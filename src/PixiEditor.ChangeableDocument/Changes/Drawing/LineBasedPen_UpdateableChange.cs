@@ -27,7 +27,6 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     private readonly bool erasing;
     private readonly bool drawOnMask;
     private readonly bool antiAliasing;
-    private Guid brushOutputGuid;
     private BrushData brushData;
     private BrushEngine engine = new BrushEngine();
     private float spacing = 1;
@@ -44,7 +43,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     public LineBasedPen_UpdateableChange(Guid memberGuid, Color color, VecI pos, float strokeWidth, bool erasing,
         bool antiAliasing,
         float spacing,
-        Guid brushOutputGuid,
+        BrushData brushData,
         bool drawOnMask, int frame, PointerInfo pointerInfo, EditorData editorData)
     {
         this.memberGuid = memberGuid;
@@ -53,8 +52,8 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         this.erasing = erasing;
         this.antiAliasing = antiAliasing;
         this.drawOnMask = drawOnMask;
-        this.brushOutputGuid = brushOutputGuid;
         this.spacing = spacing;
+        this.brushData = brushData;
         points.Add(pos);
         this.frame = frame;
         this.pointerInfo = pointerInfo;
@@ -104,16 +103,10 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, image, memberGuid, drawOnMask);
         srcPaint.IsAntiAliased = antiAliasing;
 
-        if (brushOutputGuid != Guid.Empty)
-        {
-            brushOutputNode = target.FindNode<BrushOutputNode>(brushOutputGuid);
-            brushData = new BrushData(target.NodeGraph);
-            UpdateBrushData();
+        brushOutputNode = brushData.BrushGraph?.AllNodes.FirstOrDefault(x => x is BrushOutputNode) as BrushOutputNode;
+        UpdateBrushData();
 
-            return brushOutputNode != null;
-        }
-
-        return true;
+        return brushOutputNode != null;
     }
 
     private void UpdateBrushData()
@@ -146,8 +139,8 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         List<IChangeInfo> changes = new()
         {
             changeInfo.AsT1,
-            new ComputedPropertyValue_ChangeInfo(brushOutputGuid, "VectorShape", true,
-                brushOutputNode.VectorShape.Value)
+            /*new ComputedPropertyValue_ChangeInfo(brushOutputGuid, "VectorShape", true,
+                brushOutputNode.VectorShape.Value)*/
         };
 
         return changes;
@@ -189,8 +182,8 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
             List<IChangeInfo> changes = new()
             {
                 change,
-                new ComputedPropertyValue_ChangeInfo(brushOutputGuid, "VectorShape", true,
-                    brushOutputNode?.VectorShape.Value)
+                /*new ComputedPropertyValue_ChangeInfo(brushOutputGuid, "VectorShape", true,
+                    brushOutputNode?.VectorShape.Value)*/
             };
             return changes;
         }
@@ -210,8 +203,8 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
             List<IChangeInfo> changes = new()
             {
                 info,
-                new ComputedPropertyValue_ChangeInfo(brushOutputGuid, "VectorShape", true,
-                    brushOutputNode?.VectorShape.Value)
+                /*new ComputedPropertyValue_ChangeInfo(brushOutputGuid, "VectorShape", true,
+                    brushOutputNode?.VectorShape.Value)*/
             };
 
             return changes;

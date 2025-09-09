@@ -1,4 +1,6 @@
-﻿using PixiEditor.Models.Handlers.Toolbars;
+﻿using Drawie.Backend.Core.Surfaces.PaintImpl;
+using PixiEditor.Models.BrushEngine;
+using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.ViewModels.Tools.ToolSettings.Settings;
 using PixiEditor.Views.Overlays.BrushShapeOverlay;
 
@@ -30,6 +32,12 @@ internal class PenToolbar : Toolbar, IPenToolbar
         set => GetSetting<EnumSettingViewModel<PaintBrushShape>>(nameof(PaintShape)).Value = value;
     }
 
+    public Brush Brush
+    {
+        get => GetSetting<BrushSettingViewModel>(nameof(Brush)).Value;
+        set => GetSetting<BrushSettingViewModel>(nameof(Brush)).Value = value;
+    }
+
     public override void OnLoadedSettings()
     {
         OnPropertyChanged(nameof(ToolSize));
@@ -43,5 +51,6 @@ internal class PenToolbar : Toolbar, IPenToolbar
         setting.ValueChanged += (_, _) => OnPropertyChanged(nameof(ToolSize));
         AddSetting(setting);
         AddSetting(new EnumSettingViewModel<PaintBrushShape>(nameof(PaintShape), "PAINT_SHAPE_SETTING") { IsExposed = false });
+        AddSetting(new BrushSettingViewModel(nameof(Brush), "BRUSH_SETTING") { IsExposed = true });
     }
 }

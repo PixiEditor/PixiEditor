@@ -20,6 +20,7 @@ using PixiEditor.Models.Handlers;
 using Drawie.Numerics;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
 using PixiEditor.Models.Handlers.Toolbars;
+using PixiEditor.Models.IO;
 using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Tools;
@@ -102,6 +103,8 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
 
     public event EventHandler<SelectedToolEventArgs>? SelectedToolChanged;
 
+    public BrushLibrary BrushLibrary { get; private set; }
+
     private bool shiftIsDown;
     private bool ctrlIsDown;
     private bool altIsDown;
@@ -118,6 +121,23 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     {
         owner.DocumentManagerSubViewModel.ActiveDocumentChanged += ActiveDocumentChanged;
         PixiEditorSettings.Tools.PrimaryToolset.ValueChanged += PrimaryToolsetOnValueChanged;
+        BrushLibrary = new BrushLibrary(Paths.PathToBrushesFolder);
+        owner.AttachedToWindow += window =>
+        {
+            if (!window.IsLoaded)
+            {
+                window.Loaded += (_, _) => LoadBrushLibrary();
+            }
+            else
+            {
+                LoadBrushLibrary();
+            }
+        };
+    }
+
+    private void LoadBrushLibrary()
+    {
+        BrushLibrary.LoadBrushes();
     }
 
     private void PrimaryToolsetOnValueChanged(Setting<string> setting, string? newPrimaryToolset)

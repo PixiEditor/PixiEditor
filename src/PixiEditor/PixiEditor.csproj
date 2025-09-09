@@ -156,5 +156,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Views\Tools\ToolSettings\Settings\BrushSettingView.axaml.cs">
+      <DependentUpon>BrushSettingView.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
   
 </Project>
