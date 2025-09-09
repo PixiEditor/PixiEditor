@@ -29,10 +29,7 @@ public class PreviewTextureControl : DrawieControl
         base.OnAttachedToVisualTree(e);
         if (TexturePreview != null)
         {
-            TexturePreview.Attach(this, () =>
-            {
-                return GetBounds();
-            });
+            TexturePreview.Attach(this, GetBounds);
             TexturePreview.TextureUpdated += QueueNextFrame;
         }
     }

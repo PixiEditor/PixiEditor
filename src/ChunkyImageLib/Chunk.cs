@@ -69,6 +69,8 @@ public class Chunk : IDisposable
     public static Chunk Create(ColorSpace chunkCs, ChunkResolution resolution = ChunkResolution.Full)
     {
         return new Chunk(resolution, chunkCs);
+
+        // Leaving this in case chunk pooling turns out to be better
         /*var chunk = ChunkPool.Instance.Get(resolution, chunkCs);
         if (chunk == null || chunk.Disposed)
         {
@@ -140,6 +142,7 @@ public class Chunk : IDisposable
     {
         returned = true;
         internalSurface.Dispose();
+        // Leaving this in case chunk pooling turns out to be better
         /*if (returned)
             return;
         Interlocked.Decrement(ref chunkCounter);

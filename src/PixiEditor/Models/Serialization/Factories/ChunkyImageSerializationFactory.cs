@@ -72,7 +72,7 @@ public class ChunkyImageSerializationFactory : SerializationFactory<byte[], Chun
         {
             VecD chunkPos = byteExtractor.GetVecD();
             int chunkDataLength = byteExtractor.GetInt();
-            byte[] chunkData = byteExtractor.GetByteArray(chunkDataLength);
+            Span<byte> chunkData = byteExtractor.GetByteSpan(chunkDataLength);
             if (!surfaceFactory.TryDeserialize(chunkData, out Surface chunkSurface, serializerData))
             {
                 original.Dispose();

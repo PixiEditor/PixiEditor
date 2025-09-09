@@ -123,13 +123,10 @@ public class ByteExtractor
         return sb.ToString();
     }
 
-    public byte[] GetByteArray(int length)
+    public Span<byte> GetByteSpan(int length)
     {
-        byte[] value = new byte[length];
-        Array.Copy(_data, Position, value, 0, length);
-
+        Span<byte> span = new Span<byte>(_data, Position, length);
         Position += length;
-
-        return value;
+        return span;
     }
 }

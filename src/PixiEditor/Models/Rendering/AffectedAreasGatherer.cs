@@ -212,25 +212,29 @@ internal class AffectedAreasGatherer
                     AddWholeCanvasToEveryMaskPreview();
                     break;
                 case RefreshPreview_PassthroughAction info:
-                    if (info.SubId == null)
-                    {
-                        if (info.ElementToRender == nameof(StructureNode.EmbeddedMask))
-                        {
-                            AddToMaskPreview(info.Id);
-                        }
-                        else
-                        {
-                            AddToImagePreviews(info.Id);
-                            AddToNodePreviews(info.Id);
-                        }
-                    }
-                    else
-                    {
-                        AddKeyFrame(info.SubId.Value);
-                    }
-
+                    ProcessRefreshPreview(info);
                     break;
             }
+        }
+    }
+
+    private void ProcessRefreshPreview(RefreshPreview_PassthroughAction info)
+    {
+        if (info.SubId == null)
+        {
+            if (info.ElementToRender == nameof(StructureNode.EmbeddedMask))
+            {
+                AddToMaskPreview(info.Id);
+            }
+            else
+            {
+                AddToImagePreviews(info.Id);
+                AddToNodePreviews(info.Id);
+            }
+        }
+        else
+        {
+            AddKeyFrame(info.SubId.Value);
         }
     }
 
