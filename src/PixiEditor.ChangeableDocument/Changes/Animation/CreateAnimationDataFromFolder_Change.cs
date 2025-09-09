@@ -42,11 +42,11 @@ internal class CreateAnimationDataFromFolder_Change : Change
             foreach (var frame in node.KeyFrames)
             {
                 Guid keyFrameId = frame.KeyFrameGuid;
-                target.AnimationData.AddKeyFrame(new RasterKeyFrame(keyFrameId, folder.Id, frame.StartFrame, target)
+                target.AnimationData.AddKeyFrame(new RasterKeyFrame(keyFrameId, node.Id, frame.StartFrame, target)
                 {
                     Duration = frame.Duration
                 });
-                infos.Add(new CreateRasterKeyFrame_ChangeInfo(folder.Id, frame.StartFrame, keyFrameId, true));
+                infos.Add(new CreateRasterKeyFrame_ChangeInfo(node.Id, frame.StartFrame, keyFrameId, true));
             }
         }
 
