@@ -161,8 +161,10 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
             if (x is not IPairNodeStartViewModel)
                 return Traverse.Further;
 
-            var zone = startLookup[x];
-            currentlyPartOf.Add(zone);
+            if (startLookup != null && startLookup.TryGetValue(x, out var zone))
+            {
+                currentlyPartOf.Add(zone);
+            }
 
             return Traverse.Further;
         });
