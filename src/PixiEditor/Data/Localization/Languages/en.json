@@ -1127,5 +1127,20 @@
   "TEXT_INFO_NODE": "Text info",
   "TEXT_LENGTH": "Length",
   "TEXT_LINE_COUNT": "Line count",
-  "TEXT_SLICE_USE_LENGTH": "Use length"
+  "TEXT_SLICE_USE_LENGTH": "Use length",
+  "TOGGLE_TINTING_SELECTION": "Toggle selection tinting",
+  "TOGGLE_TINTING_SELECTION_DESCRIPTIVE": "Toggle selection tinting",
+  "TINT_SELECTION": "Selection tinting",
+  "PAINT_BRUSH_SHAPE_CIRCLE": "Circle",
+  "PAINT_BRUSH_SHAPE_SQUARE": "Square",
+  "BRIGHTNESS_MODE_DEFAULT": "Default",
+  "BRIGHTNESS_MODE_REPEAT": "Repeat",
+  "ROUND_STROKE_CAP": "Round",
+  "BUTT_STROKE_CAP": "Butt",
+  "SQUARE_STROKE_CAP": "Square",
+  "ROUND_STROKE_JOIN": "Round",
+  "MITER_STROKE_JOIN": "Miter",
+  "BEVEL_STROKE_JOIN": "Bevel",
+  "TOGGLE_FULLSCREEN": "Toggle Fullscreen",
+  "TOGGLE_FULLSCREEN_DESCRIPTIVE": "Enter or Exit Fullscreen Mode"
 }

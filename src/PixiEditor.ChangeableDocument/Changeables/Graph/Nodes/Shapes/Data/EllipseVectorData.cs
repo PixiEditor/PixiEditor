@@ -21,7 +21,7 @@ public class EllipseVectorData : ShapeVectorData, IReadOnlyEllipseData
         RectD.FromCenterAndSize(Center, Radius * 2).Inflate(StrokeWidth / 2);
 
     public override ShapeCorners TransformationCorners =>
-        new ShapeCorners(VisualAABB).WithMatrix(TransformationMatrix);
+        new ShapeCorners(GeometryAABB).WithMatrix(TransformationMatrix);
 
 
     public EllipseVectorData(VecD center, VecD radius)
