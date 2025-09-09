@@ -70,9 +70,8 @@ internal class DrawingSurfaceLineOperation : IMirroredDrawOperation
             newTo = (VecI)newTo.ReflectY((double)horAxisY).Round();
         }
 
-        Color color = paint.Paintable is ColorPaintable colorPaintable ? colorPaintable.Color : paint.Color;
 
-        return new DrawingSurfaceLineOperation(newFrom, newTo, paint.StrokeCap, paint.StrokeWidth, color, paint.BlendMode);
+        return new DrawingSurfaceLineOperation(newFrom, newTo, paint);
     }
 
     public void Dispose()

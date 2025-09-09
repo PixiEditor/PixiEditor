@@ -40,7 +40,7 @@ internal class RectangleOperation : IMirroredDrawOperation
         surf.Canvas.RotateRadians((float)Data.Angle, (float)rect.Center.X, (float)rect.Center.Y);
 
         double maxRadiusInPx = Math.Min(Data.Size.X, Data.Size.Y) / 2;
-        double radiusInPx = Data.CornerRadius * maxRadiusInPx;
+        double radiusInPx = Data.CornerRadius * Math.Abs(maxRadiusInPx);
 
         if (Data.AntiAliasing)
         {
