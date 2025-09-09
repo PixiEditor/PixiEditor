@@ -91,11 +91,11 @@ internal class ResizeImage_Change : Change
         {
             if (member is ImageLayerNode layer)
             {
-                layer.ForEveryFrame(img =>
+                layer.ForEveryFrame((img, id) =>
                 {
                     ScaleChunkyImage(img);
                     var affected = img.FindAffectedArea();
-                    savedChunks[layer.Id] = new CommittedChunkStorage(img, affected.Chunks);
+                    savedChunks[id] = new CommittedChunkStorage(img, affected.Chunks);
                     img.CommitChanges();
                 });
             }
@@ -127,11 +127,11 @@ internal class ResizeImage_Change : Change
         {
             if (member is ImageLayerNode layer)
             {
-                layer.ForEveryFrame(layerImage =>
+                layer.ForEveryFrame((layerImage, id) =>
                 {
                     layerImage.EnqueueResize(originalSize);
                     layerImage.EnqueueClear();
-                    savedChunks[layer.Id].ApplyChunksToImage(layerImage);
+                    savedChunks[id].ApplyChunksToImage(layerImage);
                     layerImage.CommitChanges();
                 });
             }

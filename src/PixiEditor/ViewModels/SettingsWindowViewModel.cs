@@ -95,9 +95,21 @@ internal partial class SettingsWindowViewModel : ViewModelBase
     [Command.Internal("PixiEditor.Shortcuts.Export")]
     public static async Task ExportShortcuts()
     {
+        IStorageFolder? suggestedStartLocation = null;
+        try
+        {
+            suggestedStartLocation =
+                await MainWindow.Current!.StorageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Documents);
+        }
+        catch (Exception)
+        {
+            // If we can't get the documents folder, we will just use the default location
+            // This is not a critical error, so we can ignore it
+        }
+
         var file = await MainWindow.Current!.StorageProvider.SaveFilePickerAsync(new()
         {
-            SuggestedStartLocation = await MainWindow.Current!.StorageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Documents),
+            SuggestedStartLocation = suggestedStartLocation,
             FileTypeChoices = new List<FilePickerFileType>()
             {
                 new FilePickerFileType("PixiShorts (*.pixisc)")
@@ -127,7 +139,15 @@ internal partial class SettingsWindowViewModel : ViewModelBase
         
         if (file is not null)
         {
-            File.Copy(CommandController.ShortcutsPath, file.Path.LocalPath, true);
+            try
+            {
+                File.Copy(CommandController.ShortcutsPath, file.Path.LocalPath, true);
+            }
+            catch (Exception ex)
+            {
+                string errMessageTrimmed = ex.Message.Length > 100 ? ex.Message[..100] + "..." : ex.Message;
+                NoticeDialog.Show(title: "ERROR", message: new LocalizedString("UNKNOWN_ERROR_SAVING").Value + $" {errMessageTrimmed}");
+            }
         }
         
         // Sometimes, focus was brought back to the last edited shortcut
