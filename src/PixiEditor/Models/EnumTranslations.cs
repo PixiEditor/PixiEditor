@@ -99,6 +99,9 @@ using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 [assembly: LocalizeEnum<OutlineType>(OutlineType.Gaussian, "GAUSSIAN_OUTLINE_TYPE")]
 [assembly: LocalizeEnum<OutlineType>(OutlineType.PixelPerfect, "PIXEL_PERFECT_OUTLINE_TYPE")]
 
+[assembly: LocalizeEnum<PosterizationMode>(PosterizationMode.Rgb, "RGB_POSTERIZATION_MODE")]
+[assembly: LocalizeEnum<PosterizationMode>(PosterizationMode.Luminance, "LUMINANCE_POSTERIZATION_MODE")]
+
 [assembly: LocalizeEnum<VoronoiFeature>(VoronoiFeature.F1, "F1_VORONOI_FEATURE")]
 [assembly: LocalizeEnum<VoronoiFeature>(VoronoiFeature.F2, "F2_VORONOI_FEATURE")]
 [assembly: LocalizeEnum<VoronoiFeature>(VoronoiFeature.F2MinusF1, "F2_MINUS_F1_VORONOI_FEATURE")]
