@@ -952,7 +952,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         if (transformed.X < 0 || transformed.Y < 0 || transformed.X >= bitmap.Size.X || transformed.Y >= bitmap.Size.Y)
             return null;
 
-        return bitmap.GetSRGBPixel(new VecI((int)transformed.X, (int)transformed.Y));
+        return bitmap.GetSrgbPixel(new VecI((int)transformed.X, (int)transformed.Y));
     }
 
     public void SuppressAllOverlayEvents(string suppressor)
