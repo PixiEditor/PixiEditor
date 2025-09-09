@@ -1,6 +1,7 @@
 ﻿using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
@@ -17,6 +18,8 @@ internal class DuplicateFolder_Change : Change
     private Guid[] contentDuplicateGuids;
 
     private Guid[]? childGuidsToUse;
+    private Dictionary<Guid, List<Guid>> keyFramesMap = new();
+    private Dictionary<Guid, Guid> nodeMap = new();
 
     private ConnectionsData? connectionsData;
     private Dictionary<Guid, ConnectionsData> contentConnectionsData = new();
@@ -64,14 +67,15 @@ internal class DuplicateFolder_Change : Change
         List<IChangeInfo> operations = new();
 
         target.NodeGraph.AddNode(clone);
-        
+
         var previousConnection = targetInput.Connection;
 
         operations.Add(CreateNode_ChangeInfo.CreateFromNode(clone));
         operations.AddRange(NodeOperations.AppendMember(targetInput, clone.Output, clone.Background, clone.Id));
-        operations.AddRange(NodeOperations.AdjustPositionsAfterAppend(clone, targetInput.Node, previousConnection?.Node as Node, out originalPositions));
+        operations.AddRange(NodeOperations.AdjustPositionsAfterAppend(clone, targetInput.Node,
+            previousConnection?.Node as Node, out originalPositions));
 
-        DuplicateContent(target, clone, existingLayer, operations);
+        DuplicateContent(target, clone, existingLayer, operations, firstApply);
 
         ignoreInUndo = false;
 
@@ -116,13 +120,23 @@ internal class DuplicateFolder_Change : Change
     }
 
     private void DuplicateContent(Document target, FolderNode clone, FolderNode existingLayer,
-        List<IChangeInfo> operations)
+        List<IChangeInfo> operations, bool firstApply)
     {
-        Dictionary<Guid, Guid> nodeMap = new Dictionary<Guid, Guid>();
+        if (firstApply)
+        {
+            nodeMap = new Dictionary<Guid, Guid>();
+            nodeMap[existingLayer.Id] = clone.Id;
+        }
 
-        nodeMap[existingLayer.Id] = clone.Id;
         int counter = 0;
         List<Guid> contentGuidList = new();
+
+        if (firstApply)
+        {
+            keyFramesMap = new Dictionary<Guid, List<Guid>>();
+        }
+
+        int childCounter = 0;
 
         existingLayer.Content.Connection?.Node.TraverseBackwards(x =>
         {
@@ -130,15 +144,46 @@ internal class DuplicateFolder_Change : Change
                 return false;
 
             Node? node = targetNode.Clone();
-            
-            if(node is not FolderNode && childGuidsToUse is not null && counter < childGuidsToUse.Length)
+
+            if (contentDuplicateGuids != null && contentDuplicateGuids.Length > 0)
             {
-                node.Id = childGuidsToUse[counter];
-                counter++;
+                node.Id = contentDuplicateGuids[childCounter];
+                childCounter++;
             }
-            
-            nodeMap[x.Id] = node.Id;
-            contentGuidList.Add(node.Id);
+            else
+            {
+                if (node is not FolderNode && childGuidsToUse is not null && counter < childGuidsToUse.Length)
+                {
+                    node.Id = childGuidsToUse[counter];
+                    counter++;
+                }
+            }
+
+            if (firstApply)
+            {
+                keyFramesMap[node.Id] = new List<Guid>();
+                keyFramesMap[node.Id].AddRange(x.KeyFrames.Select(kf => kf.KeyFrameGuid));
+            }
+            else
+            {
+                if (keyFramesMap.TryGetValue(node.Id, out List<Guid>? keyFrameGuids))
+                {
+                    for (int i = 0; i < x.KeyFrames.Count; i++)
+                    {
+                        if (i < keyFrameGuids.Count)
+                        {
+                            var kf = x.KeyFrames[i] as KeyFrameData;
+                            kf.KeyFrameGuid = keyFrameGuids[i];
+                        }
+                    }
+                }
+            }
+
+            if (firstApply)
+            {
+                nodeMap[x.Id] = node.Id;
+                contentGuidList.Add(node.Id);
+            }
 
             target.NodeGraph.AddNode(node);
 
@@ -154,6 +199,9 @@ internal class DuplicateFolder_Change : Change
                 target.FindNodeOrThrow<Node>(targetNodeId), target.NodeGraph));
         }
 
-        contentDuplicateGuids = contentGuidList.ToArray();
+        if (firstApply)
+        {
+            contentDuplicateGuids = contentGuidList.ToArray();
+        }
     }
 }

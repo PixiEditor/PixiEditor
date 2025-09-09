@@ -10,6 +10,8 @@ internal partial class Command
         public Key Transient { get; set; }
         public bool TransientImmediate { get; set; } = false;
 
+        public string? CommonToolType { get; set; }
+
         public ToolAttribute() : base(null, null, null)
         {
         }

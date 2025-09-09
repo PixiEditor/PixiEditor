@@ -68,6 +68,7 @@ internal static class ClipboardController
 
         Surface surfaceToCopy = null;
         RectD copyArea = RectD.Empty;
+        bool hadSelection = false;
 
         if (!document.SelectionPathBindable.IsEmpty)
         {
@@ -83,6 +84,7 @@ internal static class ClipboardController
 
             surfaceToCopy = surface.AsT2.Item1;
             copyArea = (RectD)surface.AsT2.Item2;
+            hadSelection = true;
         }
         else if (document.TransformViewModel.TransformActive || lastTransform != null)
         {
@@ -120,6 +122,11 @@ internal static class ClipboardController
         if (copyArea.Size != document.SizeBindable && copyArea.Pos != VecI.Zero && copyArea != RectD.Empty)
         {
             data.SetVecD(ClipboardDataFormats.PositionFormat, copyArea.Pos);
+        }
+
+        if (hadSelection)
+        {
+            data.Set(ClipboardDataFormats.HadSelectionFormat, true);
         }
 
         string[] layerIds = document.GetSelectedMembers().Select(x => x.ToString()).ToArray();
@@ -235,14 +242,18 @@ internal static class ClipboardController
         Guid[] layerIds = await GetLayerIds(data);
 
         bool hasPos = data.Any(x => x.Contains(ClipboardDataFormats.PositionFormat));
+        bool hadSelection = data.Any(x => x.Contains(ClipboardDataFormats.HadSelectionFormat));
 
         IDocument? targetDoc = manager.Documents.FirstOrDefault(x => x.Id == sourceDocument);
 
-        if (targetDoc != null && pasteAsNew && layerIds is { Length: > 0 } &&
+        if (targetDoc != null && !hadSelection && pasteAsNew && layerIds is { Length: > 0 } &&
             (!hasPos || await AllMatchesPos(layerIds, data, targetDoc)))
         {
             foreach (var layerId in layerIds)
             {
+                if (targetDoc.StructureHelper.Find(layerId) == null)
+                    continue;
+
                 if (sourceDocument == document.Id)
                 {
                     document.Operations.DuplicateMember(layerId);
@@ -495,7 +506,7 @@ internal static class ClipboardController
         {
             text = await importObj.GetDataAsync(DataFormats.Text) as string;
         }
-        catch(InvalidCastException ex) // bug on x11
+        catch (InvalidCastException ex) // bug on x11
         {
         }
 
@@ -848,7 +859,7 @@ internal static class ClipboardController
         data.Set(ClipboardDataFormats.DocumentFormat, Encoding.UTF8.GetBytes(docId.ToString()));
 
         byte[] idsBytes = Encoding.UTF8.GetBytes(string.Join(";", ids.Select(x => x.ToString())));
-        
+
         data.Set(format, idsBytes);
 
         await Clipboard.SetDataObjectAsync(data);

@@ -20,7 +20,7 @@
 
     <viewportControls:Viewport
         x:Name="Viewport"
-        CenterViewportTrigger="{Binding DockCenterViewportTrigger}"
+        CenterViewportTrigger="{Binding CenterViewportTrigger}"
         ZoomViewportTrigger="{Binding ZoomViewportTrigger}"
         MouseDownCommand="{Binding Path=IoSubViewModel.MouseDownCommand, Source={viewModels1:MainVM}}"
         MouseMoveCommand="{Binding Path=IoSubViewModel.MouseMoveCommand, Source={viewModels1:MainVM}}"

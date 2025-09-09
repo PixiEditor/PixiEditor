@@ -14,6 +14,7 @@ using PixiEditor.ChangeableDocument;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changes.Vectors;
+using PixiEditor.Models.DocumentModels.Public;
 using PixiEditor.ViewModels.Document.TransformOverlays;
 using PixiEditor.Views.Overlays.TransformOverlay;
 using Color = Drawie.Backend.Core.ColorsImpl.Color;
@@ -314,7 +315,8 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
 
         if (highlight)
         {
-            HighlightSnapAxis(snapXAxis, snapYAxis, string.IsNullOrEmpty(snapXAxis) && string.IsNullOrEmpty(snapYAxis) ? null : snapped);
+            HighlightSnapAxis(snapXAxis, snapYAxis,
+                string.IsNullOrEmpty(snapXAxis) && string.IsNullOrEmpty(snapYAxis) ? null : snapped);
         }
 
         if (AlignToPixels)
@@ -344,7 +346,8 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
 
         if (highlight)
         {
-            HighlightSnapAxis(snapXAxis, snapYAxis, string.IsNullOrEmpty(snapXAxis) && string.IsNullOrEmpty(snapYAxis) ? null : snapped);
+            HighlightSnapAxis(snapXAxis, snapYAxis,
+                string.IsNullOrEmpty(snapXAxis) && string.IsNullOrEmpty(snapYAxis) ? null : snapped);
         }
 
         if (snapped != VecI.Zero)
@@ -422,9 +425,10 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
                 if (SelectLayerOnTap)
                 {
                     var layersUnderCursor = QueryLayers<ILayerHandler>(argsPositionOnCanvas);
-                    var firstValidLayer = layersUnderCursor.FirstOrDefault(x => CanSelectLayer(x));
+                    var firstValidLayer = layersUnderCursor.FirstOrDefault(x => CanSelectLayer(x) && x.Id != memberId);
                     if (firstValidLayer != null)
                     {
+                        document.Operations.SetSelectedMember(Guid.Empty); // fixes reselecting
                         document.Operations.SetSelectedMember(firstValidLayer.Id);
                     }
                 }
