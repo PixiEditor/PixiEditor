@@ -9,7 +9,7 @@ public class SliceTextNode : Node
     
     public InputProperty<bool> UseLength { get; }
     
-    public InputProperty<string> Text { get; }
+    public InputProperty<string?> Text { get; }
     
     public InputProperty<int> Index { get; }
     
@@ -31,6 +31,13 @@ public class SliceTextNode : Node
     protected override void OnExecute(RenderContext context)
     {
         var text = Text.Value;
+
+        if (text == null)
+        {
+            SlicedText.Value = string.Empty;
+            return;
+        }
+
         var startIndex = Math.Clamp(Index.Value, 0, text.Length);
 
         if (!UseLength.Value)

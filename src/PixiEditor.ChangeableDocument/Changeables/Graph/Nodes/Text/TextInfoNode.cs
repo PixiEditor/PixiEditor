@@ -22,6 +22,13 @@ public class TextInfoNode : Node
     protected override void OnExecute(RenderContext context)
     {
         var text = Text.Value;
+
+        if (string.IsNullOrEmpty(text))
+        {
+            Length.Value = 0;
+            LineCount.Value = 0;
+            return;
+        }
         
         Length.Value = text.Length;
         LineCount.Value = text.AsSpan().Count('\n');

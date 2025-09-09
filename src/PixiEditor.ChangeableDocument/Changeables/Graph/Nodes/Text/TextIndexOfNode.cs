@@ -11,9 +11,9 @@ public class TextIndexOfNode : Node
     
     public InputProperty<bool> MatchCase { get; }
     
-    public InputProperty<string> Text { get; }
+    public InputProperty<string?> Text { get; }
     
-    public InputProperty<string> SearchText { get; }
+    public InputProperty<string?> SearchText { get; }
 
     public TextIndexOfNode()
     {
@@ -33,6 +33,14 @@ public class TextIndexOfNode : Node
 
         var text = Text.Value;
         var searchText = SearchText.Value;
+
+        if (string.IsNullOrEmpty(text) || string.IsNullOrEmpty(searchText))
+        {
+            FirstIndex.Value = -1;
+            LastIndex.Value = -1;
+            
+            return;
+        }
 
         FirstIndex.Value = text.IndexOf(searchText, comparisonMode);
         LastIndex.Value = text.LastIndexOf(searchText, comparisonMode);
