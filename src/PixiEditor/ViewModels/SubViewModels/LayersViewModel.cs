@@ -347,13 +347,15 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     private void MoveSelectedMember(bool upwards)
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
-        var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
+        var member = doc?.SelectedStructureMember;
         if (member is null)
             return;
         var path = doc!.StructureHelper.FindPath(member.Id);
         if (path.Count < 2 || path[1] is not FolderNodeViewModel folderVm)
             return;
         var parent = folderVm;
+        if(parent.Children.Count == 0)
+            return;
         int curIndex = parent.Children.IndexOf(path[0]);
         if (upwards)
         {

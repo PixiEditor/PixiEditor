@@ -49,9 +49,9 @@ internal class ResizeCanvas_Change : ResizeBasedChangeBase
         {
             if (member is ImageLayerNode layer)
             {
-                layer.ForEveryFrame(img =>
+                layer.ForEveryFrame((img, id) =>
                 {
-                    Resize(img, layer.Id, newSize, offset, deletedChunks);
+                    Resize(img, id, newSize, offset, deletedChunks);
                 });
             }
 

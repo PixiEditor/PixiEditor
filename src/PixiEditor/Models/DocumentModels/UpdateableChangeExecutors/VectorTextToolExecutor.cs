@@ -84,11 +84,18 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             toolbar.FillBrush = textData.FillPaintable.ToBrush();
             toolbar.StrokeBrush = textData.Stroke.ToBrush();
             toolbar.ToolSize = textData.StrokeWidth;
-            toolbar.FontFamily = textData.Font.Family;
-            toolbar.FontSize = textData.Font.Size;
-            toolbar.Spacing = textData.Spacing ?? textData.Font.Size;
-            toolbar.Bold = textData.Font.Bold;
-            toolbar.Italic = textData.Font.Italic;
+            try
+            {
+                toolbar.FontFamily = textData.Font.Family;
+                toolbar.FontSize = textData.Font.Size;
+                toolbar.Spacing = textData.Spacing ?? textData.Font.Size;
+                toolbar.Bold = textData.Font.Bold;
+                toolbar.Italic = textData.Font.Italic;
+            }
+            catch (InvalidOperationException) // Native font likely disposed
+            {
+                
+            }
 
             onPath = textData.Path;
             lastText = textData.Text;

@@ -299,6 +299,12 @@ internal partial class DocumentViewModel
         float centerY = (float)rectangleData.Center.Y;
         float halfWidth = (float)rectangleData.Size.X / 2f;
         float halfHeight = (float)rectangleData.Size.Y / 2f;
+        float minHalf = Math.Min(halfWidth, halfHeight);
+        float clampedCorner = Math.Clamp((float)rectangleData.CornerRadius, 0f, 1f);
+        float radius = minHalf * clampedCorner;
+        float radiusX = Math.Min(radius, halfWidth);
+        float radiusY = Math.Min(radius, halfHeight);
+
 
         rect.X.Unit = SvgNumericUnit.FromUserUnits(centerX - halfWidth);
         rect.Y.Unit = SvgNumericUnit.FromUserUnits(centerY - halfHeight);
@@ -306,6 +312,9 @@ internal partial class DocumentViewModel
         rect.Width.Unit = SvgNumericUnit.FromUserUnits(rectangleData.Size.X);
         rect.Height.Unit = SvgNumericUnit.FromUserUnits(rectangleData.Size.Y);
 
+        rect.Rx.Unit = SvgNumericUnit.FromUserUnits(radiusX);
+        rect.Ry.Unit = SvgNumericUnit.FromUserUnits(radiusY);
+        
         return rect;
     }
 
