@@ -52,10 +52,10 @@ internal abstract class ResizeBasedChangeBase : Change
         {
             if (member is ImageLayerNode layer)
             {
-                layer.ForEveryFrame(img =>
+                layer.ForEveryFrame((img, id) =>
                 {
                     img.EnqueueResize(_originalSize);
-                    foreach (var stored in deletedChunks[layer.Id])
+                    foreach (var stored in deletedChunks[id])
                         stored.ApplyChunksToImage(img);
                     img.CommitChanges();
                 });
