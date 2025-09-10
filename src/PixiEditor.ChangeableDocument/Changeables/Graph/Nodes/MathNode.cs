@@ -13,29 +13,29 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 [NodeInfo("Math")]
 public class MathNode : Node
 {
-    public FuncOutputProperty<Float1> Result { get; }
+    public FuncOutputProperty<Float1, ShaderFuncContext> Result { get; }
 
     public InputProperty<MathNodeMode> Mode { get; }
     
     public InputProperty<bool> Clamp { get; }
 
-    public FuncInputProperty<Float1> X { get; }
+    public FuncInputProperty<Float1, ShaderFuncContext> X { get; }
     
-    public FuncInputProperty<Float1> Y { get; }
+    public FuncInputProperty<Float1, ShaderFuncContext> Y { get; }
     
-    public FuncInputProperty<Float1> Z { get; }
+    public FuncInputProperty<Float1, ShaderFuncContext> Z { get; }
     
     public MathNode()
     {
-        Result = CreateFuncOutput<Float1>(nameof(Result), "RESULT", Calculate);
+        Result = CreateFuncOutput<Float1, ShaderFuncContext>(nameof(Result), "RESULT", Calculate);
         Mode = CreateInput(nameof(Mode), "MATH_MODE", MathNodeMode.Add);
         Clamp = CreateInput(nameof(Clamp), "CLAMP", false);
-        X = CreateFuncInput<Float1>(nameof(X), "X", 0d);
-        Y = CreateFuncInput<Float1>(nameof(Y), "Y", 0d);
-        Z = CreateFuncInput<Float1>(nameof(Z), "Z", 0d);
+        X = CreateFuncInput<Float1, ShaderFuncContext>(nameof(X), "X", 0d);
+        Y = CreateFuncInput<Float1, ShaderFuncContext>(nameof(Y), "Y", 0d);
+        Z = CreateFuncInput<Float1, ShaderFuncContext>(nameof(Z), "Z", 0d);
     }
 
-    private Float1 Calculate(FuncContext context)
+    private Float1 Calculate(ShaderFuncContext context)
     {
         var (x, y, z) = GetValues(context);
 
@@ -125,7 +125,7 @@ public class MathNode : Node
         return new Float1(string.Empty) { ConstantValue = constValue };
     }
 
-    private (Float1 xConst, Float1 y, Float1 z) GetValues(FuncContext context)
+    private (Float1 xConst, Float1 y, Float1 z) GetValues(ShaderFuncContext context)
     {
         return (context.GetValue(X), context.GetValue(Y), context.GetValue(Z));
     }

@@ -9,38 +9,38 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Matrix;
 [NodeInfo("ComposeMatrix")]
 public class ComposeMatrixNode : Node
 {
-    public FuncInputProperty<Float3x3> MatrixInput { get; }
-    public FuncInputProperty<Float1> ScaleX { get; }
-    public FuncInputProperty<Float1> SkewX { get; }
-    public FuncInputProperty<Float1> TransX { get; }
-    public FuncInputProperty<Float1> SkewY { get; }
-    public FuncInputProperty<Float1> ScaleY { get; }
-    public FuncInputProperty<Float1> TransY { get; }
-    public FuncInputProperty<Float1> Persp0 { get; }
-    public FuncInputProperty<Float1> Persp1 { get; }
-    public FuncInputProperty<Float1> Persp2 { get; }
+    public FuncInputProperty<Float3x3, ShaderFuncContext> MatrixInput { get; }
+    public FuncInputProperty<Float1, ShaderFuncContext> ScaleX { get; }
+    public FuncInputProperty<Float1, ShaderFuncContext> SkewX { get; }
+    public FuncInputProperty<Float1, ShaderFuncContext> TransX { get; }
+    public FuncInputProperty<Float1, ShaderFuncContext> SkewY { get; }
+    public FuncInputProperty<Float1, ShaderFuncContext> ScaleY { get; }
+    public FuncInputProperty<Float1, ShaderFuncContext> TransY { get; }
+    public FuncInputProperty<Float1, ShaderFuncContext> Persp0 { get; }
+    public FuncInputProperty<Float1, ShaderFuncContext> Persp1 { get; }
+    public FuncInputProperty<Float1, ShaderFuncContext> Persp2 { get; }
 
-    public FuncOutputProperty<Float3x3> Matrix { get; }
+    public FuncOutputProperty<Float3x3, ShaderFuncContext> Matrix { get; }
 
     public ComposeMatrixNode()
     {
-        MatrixInput = CreateFuncInput<Float3x3>("MatrixInput", "INPUT_MATRIX",
+        MatrixInput = CreateFuncInput<Float3x3, ShaderFuncContext>("MatrixInput", "INPUT_MATRIX",
             new Float3x3("") { ConstantValue = Matrix3X3.Identity });
 
-        ScaleX = CreateFuncInput<Float1>("ScaleX", "SCALE_X", 1.0f);
-        ScaleY = CreateFuncInput<Float1>("ScaleY", "SCALE_Y", 1.0f);
-        SkewX = CreateFuncInput<Float1>("SkewX", "SKEW_X", 0.0f);
-        SkewY = CreateFuncInput<Float1>("SkewY", "SKEW_Y", 0.0f);
-        TransX = CreateFuncInput<Float1>("TranslateX", "TRANSLATE_X", 0.0f);
-        TransY = CreateFuncInput<Float1>("TranslateY", "TRANSLATE_Y", 0.0f);
-        Persp0 = CreateFuncInput<Float1>("Perspective0", "PERSPECTIVE_0", 0.0f);
-        Persp1 = CreateFuncInput<Float1>("Perspective1", "PERSPECTIVE_1", 0.0f);
-        Persp2 = CreateFuncInput<Float1>("Perspective2", "PERSPECTIVE_2", 1.0f);
+        ScaleX = CreateFuncInput<Float1, ShaderFuncContext>("ScaleX", "SCALE_X", 1.0f);
+        ScaleY = CreateFuncInput<Float1, ShaderFuncContext>("ScaleY", "SCALE_Y", 1.0f);
+        SkewX = CreateFuncInput<Float1, ShaderFuncContext>("SkewX", "SKEW_X", 0.0f);
+        SkewY = CreateFuncInput<Float1, ShaderFuncContext>("SkewY", "SKEW_Y", 0.0f);
+        TransX = CreateFuncInput<Float1, ShaderFuncContext>("TranslateX", "TRANSLATE_X", 0.0f);
+        TransY = CreateFuncInput<Float1, ShaderFuncContext>("TranslateY", "TRANSLATE_Y", 0.0f);
+        Persp0 = CreateFuncInput<Float1, ShaderFuncContext>("Perspective0", "PERSPECTIVE_0", 0.0f);
+        Persp1 = CreateFuncInput<Float1, ShaderFuncContext>("Perspective1", "PERSPECTIVE_1", 0.0f);
+        Persp2 = CreateFuncInput<Float1, ShaderFuncContext>("Perspective2", "PERSPECTIVE_2", 1.0f);
 
-        Matrix = CreateFuncOutput<Float3x3>("Matrix", "MATRIX", ComposeMatrix);
+        Matrix = CreateFuncOutput<Float3x3, ShaderFuncContext>("Matrix", "MATRIX", ComposeMatrix);
     }
 
-    private Float3x3 ComposeMatrix(FuncContext context)
+    private Float3x3 ComposeMatrix(ShaderFuncContext context)
     {
         if (context.HasContext)
         {

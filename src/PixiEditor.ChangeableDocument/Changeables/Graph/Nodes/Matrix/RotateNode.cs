@@ -9,17 +9,17 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Matrix;
 public class RotateNode : Matrix3X3BaseNode
 {
     public InputProperty<RotationType> RotationType { get; }
-    public FuncInputProperty<Float1> Angle { get; }
-    public FuncInputProperty<Float2> Center { get; }
+    public FuncInputProperty<Float1, ShaderFuncContext> Angle { get; }
+    public FuncInputProperty<Float2, ShaderFuncContext> Center { get; }
 
     public RotateNode()
     {
         RotationType = CreateInput("RotationType", "UNIT", Nodes.Matrix.RotationType.Degrees);
-        Angle = CreateFuncInput<Float1>("Angle", "ANGLE", 0.0);
-        Center = CreateFuncInput<Float2>("Center", "CENTER", new VecD(0, 0));
+        Angle = CreateFuncInput<Float1, ShaderFuncContext>("Angle", "ANGLE", 0.0);
+        Center = CreateFuncInput<Float2, ShaderFuncContext>("Center", "CENTER", new VecD(0, 0));
     }
 
-    protected override Float3x3 CalculateMatrix(FuncContext ctx, Float3x3 input)
+    protected override Float3x3 CalculateMatrix(ShaderFuncContext ctx, Float3x3 input)
     {
         Float1 angle = ctx.GetValue(Angle);
 

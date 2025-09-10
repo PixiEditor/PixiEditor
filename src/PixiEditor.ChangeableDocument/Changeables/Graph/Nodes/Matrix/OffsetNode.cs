@@ -8,14 +8,14 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Matrix;
 [NodeInfo("Offset")]
 public class OffsetNode : Matrix3X3BaseNode
 {
-    public FuncInputProperty<Float2> Translation { get; }
+    public FuncInputProperty<Float2, ShaderFuncContext> Translation { get; }
 
     public OffsetNode()
     {
-        Translation = CreateFuncInput<Float2>("Offset", "OFFSET", VecD.Zero);
+        Translation = CreateFuncInput<Float2, ShaderFuncContext>("Offset", "OFFSET", VecD.Zero);
     }
 
-    protected override Float3x3 CalculateMatrix(FuncContext ctx, Float3x3 input)
+    protected override Float3x3 CalculateMatrix(ShaderFuncContext ctx, Float3x3 input)
     {
         Float2 translation = ctx.GetValue(Translation);
 

@@ -7,22 +7,22 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Animable;
 [NodeInfo("Easing")]
 public class EasingNode : Node
 {
-    public FuncInputProperty<Float1> Value { get; }
+    public FuncInputProperty<Float1, ShaderFuncContext> Value { get; }
     public InputProperty<EasingType> Easing { get; }
-    public FuncOutputProperty<Float1> Output { get; }
+    public FuncOutputProperty<Float1, ShaderFuncContext> Output { get; }
 
     public EasingNode()
     {
-        Value = CreateFuncInput<Float1>("Value", "VALUE", 0.0);
+        Value = CreateFuncInput<Float1, ShaderFuncContext>("Value", "VALUE", 0.0);
         Easing = CreateInput("EasingType", "EASING_TYPE", EasingType.Linear);
-        Output = CreateFuncOutput<Float1>("Output", "OUTPUT", Evaluate);
+        Output = CreateFuncOutput<Float1, ShaderFuncContext>("Output", "OUTPUT", Evaluate);
     }
 
     protected override void OnExecute(RenderContext context)
     {
     }
 
-    public Float1 Evaluate(FuncContext context)
+    public Float1 Evaluate(ShaderFuncContext context)
     {
         var x = context.GetValue(Value);
         if (!context.HasContext)
@@ -121,7 +121,7 @@ public class EasingNode : Node
         return n1 * (x -= 2.625 / d1) * x + 0.984375;
     }
 
-    private Expression? GetExpression(FuncContext ctx)
+    private Expression? GetExpression(ShaderFuncContext ctx)
     {
         Float1 x = ctx.GetValue(Value);
         return Easing.Value switch

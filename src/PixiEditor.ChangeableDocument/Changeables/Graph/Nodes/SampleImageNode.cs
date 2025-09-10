@@ -14,9 +14,9 @@ public class SampleImageNode : Node
 {
     public InputProperty<Texture?> Image { get; }
 
-    public FuncInputProperty<Float2> Coordinate { get; }
+    public FuncInputProperty<Float2, ShaderFuncContext> Coordinate { get; }
 
-    public FuncOutputProperty<Half4> Color { get; }
+    public FuncOutputProperty<Half4, ShaderFuncContext> Color { get; }
 
     public InputProperty<ColorSampleMode> SampleMode { get; }
 
@@ -25,13 +25,13 @@ public class SampleImageNode : Node
     public SampleImageNode()
     {
         Image = CreateInput<Texture>("Texture", "IMAGE", null);
-        Coordinate = CreateFuncInput<Float2>("Coordinate", "UV", VecD.Zero);
-        Color = CreateFuncOutput("Color", "COLOR", GetColor);
+        Coordinate = CreateFuncInput<Float2, ShaderFuncContext>("Coordinate", "UV", VecD.Zero);
+        Color = CreateFuncOutput<Half4, ShaderFuncContext>("Color", "COLOR", GetColor);
         SampleMode = CreateInput("SampleMode", "COLOR_SAMPLE_MODE", ColorSampleMode.ColorManaged);
         NormalizedCoordinates = CreateInput("NormalizedCoordinates", "NORMALIZE_COORDINATES", true);
     }
 
-    private Half4 GetColor(FuncContext context)
+    private Half4 GetColor(ShaderFuncContext context)
     {
         if (Image.Value is null || Image.Value.IsDisposed)
         {

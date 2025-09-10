@@ -9,17 +9,17 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 [NodeInfo("SeparateVecD")]
 public class SeparateVecDNode : Node
 {
-    public FuncInputProperty<Float2> Vector { get; }
+    public FuncInputProperty<Float2, ShaderFuncContext> Vector { get; }
     
-    public FuncOutputProperty<Float1> X { get; }
+    public FuncOutputProperty<Float1, ShaderFuncContext> X { get; }
     
-    public FuncOutputProperty<Float1> Y { get; }
+    public FuncOutputProperty<Float1, ShaderFuncContext> Y { get; }
     
     public SeparateVecDNode()
     {
-        X = CreateFuncOutput<Float1>("X", "X", ctx => ctx.GetValue(Vector).X);
-        Y = CreateFuncOutput("Y", "Y", ctx => ctx.GetValue(Vector).Y);
-        Vector = CreateFuncInput<Float2>("Vector", "VECTOR", VecD.Zero);
+        X = CreateFuncOutput<Float1, ShaderFuncContext>("X", "X", ctx => ctx.GetValue(Vector).X);
+        Y = CreateFuncOutput<Float1, ShaderFuncContext>("Y", "Y", ctx => ctx.GetValue(Vector).Y);
+        Vector = CreateFuncInput<Float2, ShaderFuncContext>("Vector", "VECTOR", VecD.Zero);
     }
 
     protected override void OnExecute(RenderContext context)

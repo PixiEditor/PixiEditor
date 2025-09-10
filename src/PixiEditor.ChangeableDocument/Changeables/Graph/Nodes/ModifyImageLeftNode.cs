@@ -16,9 +16,9 @@ public class ModifyImageLeftNode : Node, IPairNode, IPreviewRenderable
 {
     public InputProperty<Texture?> Image { get; }
 
-    public FuncOutputProperty<Float2> Coordinate { get; }
+    public FuncOutputProperty<Float2, ShaderFuncContext> Coordinate { get; }
 
-    public FuncOutputProperty<Half4> Color { get; }
+    public FuncOutputProperty<Half4, ShaderFuncContext> Color { get; }
     
     public InputProperty<ColorSampleMode> SampleMode { get; }
     public InputProperty<bool> NormalizeCoordinates { get; }
@@ -28,13 +28,13 @@ public class ModifyImageLeftNode : Node, IPairNode, IPreviewRenderable
     public ModifyImageLeftNode()
     {
         Image = CreateInput<Texture?>("Surface", "IMAGE", null);
-        Coordinate = CreateFuncOutput("Coordinate", "UV", ctx => ctx.OriginalPosition ?? new Float2(""));
-        Color = CreateFuncOutput("Color", "COLOR", GetColor);
+        Coordinate = CreateFuncOutput<Float2, ShaderFuncContext>("Coordinate", "UV", ctx => ctx.OriginalPosition ?? new Float2(""));
+        Color = CreateFuncOutput<Half4, ShaderFuncContext>("Color", "COLOR", GetColor);
         SampleMode = CreateInput("SampleMode", "COLOR_SAMPLE_MODE", ColorSampleMode.ColorManaged);
         NormalizeCoordinates = CreateInput("NormalizeCoordinates", "NORMALIZE_COORDINATES", true);
     }
     
-    private Half4 GetColor(FuncContext context)
+    private Half4 GetColor(ShaderFuncContext context)
     {
         context.ThrowOnMissingContext();
         

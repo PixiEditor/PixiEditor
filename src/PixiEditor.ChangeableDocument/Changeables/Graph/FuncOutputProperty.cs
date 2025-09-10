@@ -5,9 +5,9 @@ using Drawie.Backend.Core.Shaders;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph;
 
-public class FuncOutputProperty<T> : OutputProperty<Func<FuncContext, T>>
+public class FuncOutputProperty<T, TContext> : OutputProperty<Func<TContext, T>> where TContext : FuncContext
 {
-    internal FuncOutputProperty(Node node, string internalName, string displayName, Func<FuncContext, T> defaultValue) : base(node, internalName, displayName, defaultValue)
+    internal FuncOutputProperty(Node node, string internalName, string displayName, Func<TContext, T> defaultValue) : base(node, internalName, displayName, defaultValue)
     {
         
     }

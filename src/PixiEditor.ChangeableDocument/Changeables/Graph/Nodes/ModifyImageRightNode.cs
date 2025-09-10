@@ -2,6 +2,7 @@
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core;
+using Drawie.Backend.Core.Shaders;
 using Drawie.Backend.Core.Shaders.Generation;
 using Drawie.Backend.Core.Shaders.Generation.Expressions;
 using Drawie.Backend.Core.Surfaces;
@@ -18,8 +19,8 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
 
     private Paint drawingPaint = new Paint() { BlendMode = BlendMode.SrcOver };
 
-    public FuncInputProperty<Float2> Coordinate { get; }
-    public FuncInputProperty<Half4> Color { get; }
+    public FuncInputProperty<Float2, ShaderFuncContext> Coordinate { get; }
+    public FuncInputProperty<Half4, ShaderFuncContext> Color { get; }
 
 
     private string _lastSksl;
@@ -31,8 +32,8 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
 
     public ModifyImageRightNode()
     {
-        Coordinate = CreateFuncInput(nameof(Coordinate), "UV", new Float2("coords"));
-        Color = CreateFuncInput(nameof(Color), "COLOR", new Half4(""));
+        Coordinate = CreateFuncInput<Float2, ShaderFuncContext>(nameof(Coordinate), "UV", new Float2("coords"));
+        Color = CreateFuncInput<Half4, ShaderFuncContext>(nameof(Color), "COLOR", new Half4(""));
 
         RendersInAbsoluteCoordinates = true;
     }
@@ -64,7 +65,7 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
         size = imgSize;
 
         ShaderBuilder builder = new(size.Value, startNode.NormalizeCoordinates.Value);
-        FuncContext context = new(renderContext, builder);
+        ShaderFuncContext context = new(renderContext, builder);
 
         if (Coordinate.Connection != null)
         {
@@ -80,7 +81,7 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
         }
         else
         {
-            var constCoords = Coordinate.NonOverridenValue(FuncContext.NoContext);
+            var constCoords = Coordinate.NonOverridenValue(ShaderFuncContext.NoContext);
             constCoords.VariableName = "constCords";
             builder.AddUniform(constCoords.VariableName, constCoords.ConstantValue);
             builder.Set(context.SamplePosition, constCoords);
@@ -92,7 +93,7 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
         }
         else
         {
-            Half4 color = Color.NonOverridenValue(FuncContext.NoContext);
+            Half4 color = Color.NonOverridenValue(ShaderFuncContext.NoContext);
             color.VariableName = "color";
             builder.AddUniform(color.VariableName, color.ConstantValue);
             builder.ReturnVar(color, false); // Do not premultiply, since we are modifying already premultiplied image

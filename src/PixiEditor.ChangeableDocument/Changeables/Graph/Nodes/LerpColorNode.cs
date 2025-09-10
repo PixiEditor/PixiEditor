@@ -10,20 +10,20 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 [NodeInfo("Lerp")]
 public class LerpColorNode : Node // TODO: ILerpable as inputs? 
 {
-    public FuncOutputProperty<Half4> Result { get; }
-    public FuncInputProperty<Half4> From { get; }
-    public FuncInputProperty<Half4> To { get; }
-    public FuncInputProperty<Float1> Time { get; }
+    public FuncOutputProperty<Half4, ShaderFuncContext> Result { get; }
+    public FuncInputProperty<Half4, ShaderFuncContext> From { get; }
+    public FuncInputProperty<Half4, ShaderFuncContext> To { get; }
+    public FuncInputProperty<Float1, ShaderFuncContext> Time { get; }
 
     public LerpColorNode()
     {
-        Result = CreateFuncOutput<Half4>("Result", "RESULT", Lerp);
-        From = CreateFuncInput<Half4>("From", "FROM", Colors.Black);
-        To = CreateFuncInput<Half4>("To", "TO", Colors.White);
-        Time = CreateFuncInput<Float1>("Time", "TIME", 0.5);
+        Result = CreateFuncOutput<Half4, ShaderFuncContext>("Result", "RESULT", Lerp);
+        From = CreateFuncInput<Half4, ShaderFuncContext>("From", "FROM", Colors.Black);
+        To = CreateFuncInput<Half4, ShaderFuncContext>("To", "TO", Colors.White);
+        Time = CreateFuncInput<Float1, ShaderFuncContext>("Time", "TIME", 0.5);
     }
 
-    private Half4 Lerp(FuncContext arg)
+    private Half4 Lerp(ShaderFuncContext arg)
     {
         var from = arg.GetValue(From);
         var to = arg.GetValue(To);

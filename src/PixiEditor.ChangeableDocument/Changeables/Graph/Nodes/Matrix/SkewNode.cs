@@ -8,14 +8,14 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Matrix;
 [NodeInfo("Skew")]
 public class SkewNode : Matrix3X3BaseNode
 {
-    public FuncInputProperty<Float2> Skew { get; }
+    public FuncInputProperty<Float2, ShaderFuncContext> Skew { get; }
 
     public SkewNode()
     {
-        Skew = CreateFuncInput<Float2>("Skew", "SKEW", VecD.Zero);
+        Skew = CreateFuncInput<Float2, ShaderFuncContext>("Skew", "SKEW", VecD.Zero);
     }
 
-    protected override Float3x3 CalculateMatrix(FuncContext ctx, Float3x3 input)
+    protected override Float3x3 CalculateMatrix(ShaderFuncContext ctx, Float3x3 input)
     {
         Float2 skew = ctx.GetValue(Skew);
 

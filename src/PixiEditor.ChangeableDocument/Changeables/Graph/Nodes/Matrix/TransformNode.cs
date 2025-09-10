@@ -7,17 +7,17 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Matrix;
 [NodeInfo("Transform")]
 public class TransformNode : Matrix3X3BaseNode
 {
-    public FuncInputProperty<Float2> Position { get; }
-    public FuncOutputProperty<Float2> TransformedPosition { get; }
+    public FuncInputProperty<Float2, ShaderFuncContext> Position { get; }
+    public FuncOutputProperty<Float2, ShaderFuncContext> TransformedPosition { get; }
 
     public TransformNode()
     {
-        Position = CreateFuncInput<Float2>("Position", "POSITION", VecD.Zero);
+        Position = CreateFuncInput<Float2, ShaderFuncContext>("Position", "POSITION", VecD.Zero);
         TransformedPosition =
-            CreateFuncOutput<Float2>("TransformedPosition", "TRANSFORMED_POSITION", TransformPosition);
+            CreateFuncOutput<Float2, ShaderFuncContext>("TransformedPosition", "TRANSFORMED_POSITION", TransformPosition);
     }
 
-    private Float2 TransformPosition(FuncContext arg)
+    private Float2 TransformPosition(ShaderFuncContext arg)
     {
         if (arg.HasContext)
         {
@@ -39,7 +39,7 @@ public class TransformNode : Matrix3X3BaseNode
         return new TransformNode();
     }
 
-    protected override Float3x3 CalculateMatrix(FuncContext ctx, Float3x3 input)
+    protected override Float3x3 CalculateMatrix(ShaderFuncContext ctx, Float3x3 input)
     {
         return input;
     }

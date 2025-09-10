@@ -8,16 +8,16 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Matrix;
 [NodeInfo("Scale")]
 public class ScaleNode : Matrix3X3BaseNode
 {
-    public FuncInputProperty<Float2> Scale { get; }
-    public FuncInputProperty<Float2> Center { get; }
+    public FuncInputProperty<Float2, ShaderFuncContext> Scale { get; }
+    public FuncInputProperty<Float2, ShaderFuncContext> Center { get; }
 
     public ScaleNode()
     {
-        Scale = CreateFuncInput<Float2>("Scale", "SCALE", new VecD(1, 1));
-        Center = CreateFuncInput<Float2>("Center", "CENTER", new VecD(0, 0));
+        Scale = CreateFuncInput<Float2, ShaderFuncContext>("Scale", "SCALE", new VecD(1, 1));
+        Center = CreateFuncInput<Float2, ShaderFuncContext>("Center", "CENTER", new VecD(0, 0));
     }
 
-    protected override Float3x3 CalculateMatrix(FuncContext ctx, Float3x3 input)
+    protected override Float3x3 CalculateMatrix(ShaderFuncContext ctx, Float3x3 input)
     {
         Float2 scale = ctx.GetValue(Scale);
         Float2 center = ctx.GetValue(Center);

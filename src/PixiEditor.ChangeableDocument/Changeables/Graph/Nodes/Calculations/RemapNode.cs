@@ -8,27 +8,27 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Calculations;
 [NodeInfo("Remap")]
 public class RemapNode : Node
 {
-    public FuncInputProperty<Float1> OldMin { get; }
-    public FuncInputProperty<Float1> OldMax { get; }
-    public FuncInputProperty<Float1> NewMin { get; }
-    public FuncInputProperty<Float1> NewMax { get; }
+    public FuncInputProperty<Float1, ShaderFuncContext> OldMin { get; }
+    public FuncInputProperty<Float1, ShaderFuncContext> OldMax { get; }
+    public FuncInputProperty<Float1, ShaderFuncContext> NewMin { get; }
+    public FuncInputProperty<Float1, ShaderFuncContext> NewMax { get; }
 
-    public FuncInputProperty<Float1> Value { get; }
+    public FuncInputProperty<Float1, ShaderFuncContext> Value { get; }
 
-    public FuncOutputProperty<Float1> Result { get; }
+    public FuncOutputProperty<Float1, ShaderFuncContext> Result { get; }
 
     public RemapNode()
     {
-        OldMin = CreateFuncInput<Float1>("OldMin", "OLD_MIN", 0.0);
-        OldMax = CreateFuncInput<Float1>("OldMax", "OLD_MAX", 1.0);
-        NewMin = CreateFuncInput<Float1>("NewMin", "NEW_MIN", 0.0);
-        NewMax = CreateFuncInput<Float1>("NewMax", "NEW_MAX", 1.0);
-        Value = CreateFuncInput<Float1>("Value", "VALUE", 0.5);
+        OldMin = CreateFuncInput<Float1, ShaderFuncContext>("OldMin", "OLD_MIN", 0.0);
+        OldMax = CreateFuncInput<Float1, ShaderFuncContext>("OldMax", "OLD_MAX", 1.0);
+        NewMin = CreateFuncInput<Float1, ShaderFuncContext>("NewMin", "NEW_MIN", 0.0);
+        NewMax = CreateFuncInput<Float1, ShaderFuncContext>("NewMax", "NEW_MAX", 1.0);
+        Value = CreateFuncInput<Float1, ShaderFuncContext>("Value", "VALUE", 0.5);
 
-        Result = CreateFuncOutput<Float1>("Result", "RESULT", Remap);
+        Result = CreateFuncOutput<Float1, ShaderFuncContext>("Result", "RESULT", Remap);
     }
 
-    private Float1 Remap(FuncContext context)
+    private Float1 Remap(ShaderFuncContext context)
     {
         if (context.HasContext)
         {

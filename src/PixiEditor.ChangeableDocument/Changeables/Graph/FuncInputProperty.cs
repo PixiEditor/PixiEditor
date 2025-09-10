@@ -8,7 +8,7 @@ using Drawie.Backend.Core.Shaders.Generation.Expressions;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph;
 
-public class FuncInputProperty<T> : InputProperty<Func<FuncContext, T>>, IFuncInputProperty
+public class FuncInputProperty<T, TContext> : InputProperty<Func<TContext, T>>, IFuncInputProperty where TContext : FuncContext
 {
     private T? constantNonOverrideValue;
     private int lastConstantHashCode;
@@ -20,14 +20,14 @@ public class FuncInputProperty<T> : InputProperty<Func<FuncContext, T>>, IFuncIn
         NonOverridenValue = _ => constantNonOverrideValue;
     }
 
-    protected override void NonOverridenValueSet(Func<FuncContext, T> value)
+    protected override void NonOverridenValueSet(Func<TContext, T> value)
     {
-        constantNonOverrideValue = value(FuncContext.NoContext);
+        constantNonOverrideValue = value(null);
     }
 
     protected internal override object FuncFactory(object toReturn)
     {
-        Func<FuncContext, T> func = _ =>
+        Func<TContext, T> func = _ =>
         {
             if (typeof(T).IsAssignableTo(typeof(ShaderExpressionVariable)))
             {
@@ -43,7 +43,7 @@ public class FuncInputProperty<T> : InputProperty<Func<FuncContext, T>>, IFuncIn
 
     protected override object FuncFactoryDelegate(Delegate delegateToCast)
     {
-        Func<FuncContext, T> func = f =>
+        Func<TContext, T> func = f =>
         {
             Type targetType = typeof(T);
             bool isShaderExpression = false;

@@ -364,9 +364,9 @@ public abstract class Node : IReadOnlyNode, IDisposable
     }
 
 
-    protected FuncInputProperty<T> CreateFuncInput<T>(string propName, string displayName, T defaultValue)
+    protected FuncInputProperty<T, TContext> CreateFuncInput<T, TContext>(string propName, string displayName, T defaultValue) where TContext : FuncContext
     {
-        var property = new FuncInputProperty<T>(this, propName, displayName, defaultValue);
+        var property = new FuncInputProperty<T, TContext>(this, propName, displayName, defaultValue);
         if (InputProperties.Any(x => x.InternalPropertyName == propName))
         {
             throw new InvalidOperationException($"Input with name {propName} already exists.");
@@ -390,10 +390,10 @@ public abstract class Node : IReadOnlyNode, IDisposable
         return property;
     }
 
-    protected FuncOutputProperty<T> CreateFuncOutput<T>(string propName, string displayName,
-        Func<FuncContext, T> defaultFunc)
+    protected FuncOutputProperty<T, TContext> CreateFuncOutput<T, TContext>(string propName, string displayName,
+        Func<TContext, T> defaultFunc) where TContext : FuncContext
     {
-        var property = new FuncOutputProperty<T>(this, propName, displayName, defaultFunc);
+        var property = new FuncOutputProperty<T, TContext>(this, propName, displayName, defaultFunc);
         outputs.Add(property);
         return property;
     }

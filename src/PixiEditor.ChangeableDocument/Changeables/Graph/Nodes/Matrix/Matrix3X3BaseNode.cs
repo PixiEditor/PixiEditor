@@ -12,15 +12,15 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Matrix;
 public abstract class Matrix3X3BaseNode : RenderNode, IRenderInput
 {
     public RenderInputProperty Background { get; }
-    public FuncInputProperty<Float3x3> Input { get; }
-    public FuncOutputProperty<Float3x3> Matrix { get; }
+    public FuncInputProperty<Float3x3, ShaderFuncContext> Input { get; }
+    public FuncOutputProperty<Float3x3, ShaderFuncContext> Matrix { get; }
 
     public Matrix3X3BaseNode()
     {
         Background = CreateRenderInput("Background", "IMAGE");
-        Input = CreateFuncInput<Float3x3>("Input", "INPUT_MATRIX",
+        Input = CreateFuncInput<Float3x3, ShaderFuncContext>("Input", "INPUT_MATRIX",
             new Float3x3("") { ConstantValue = Matrix3X3.Identity });
-        Matrix = CreateFuncOutput<Float3x3>("Matrix", "OUTPUT_MATRIX",
+        Matrix = CreateFuncOutput<Float3x3, ShaderFuncContext>("Matrix", "OUTPUT_MATRIX",
             (c) => CalculateMatrix(c, c.GetValue(Input)));
         Output.FirstInChain = null;
         AllowHighDpiRendering = true;
@@ -38,7 +38,7 @@ public abstract class Matrix3X3BaseNode : RenderNode, IRenderInput
     {
         int layer = surface.Canvas.Save();
 
-        Float3x3 mtx = Matrix.Value.Invoke(FuncContext.NoContext);
+        Float3x3 mtx = Matrix.Value.Invoke(ShaderFuncContext.NoContext);
 
         surface.Canvas.SetMatrix(
             surface.Canvas.TotalMatrix.Concat(mtx.GetConstant() as Matrix3X3? ?? Matrix3X3.Identity));
@@ -66,5 +66,5 @@ public abstract class Matrix3X3BaseNode : RenderNode, IRenderInput
         return base.RenderPreview(renderOn, context, elementToRenderName);
     }
 
-    protected abstract Float3x3 CalculateMatrix(FuncContext ctx, Float3x3 input);
+    protected abstract Float3x3 CalculateMatrix(ShaderFuncContext ctx, Float3x3 input);
 }
