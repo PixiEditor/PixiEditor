@@ -7,9 +7,10 @@ using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 
-[NodeInfo("BrushOutput")]
+[NodeInfo(NodeId)]
 public class BrushOutputNode : Node
 {
+    public const string NodeId = "BrushOutput";
     public InputProperty<ShapeVectorData> VectorShape { get; }
     public InputProperty<Paintable> Stroke { get; }
     public InputProperty<Paintable> Fill { get; }
@@ -17,6 +18,7 @@ public class BrushOutputNode : Node
     public InputProperty<Matrix3X3> Transform { get; }
     public InputProperty<float> Pressure { get; }
     public InputProperty<bool> FitToStrokeSize { get; }
+    public InputProperty<bool> AutoPosition { get; }
     public InputProperty<bool> AllowSampleStacking { get; }
 
     internal Texture ContentTexture;
@@ -35,6 +37,7 @@ public class BrushOutputNode : Node
 
         Pressure = CreateInput<float>("Pressure", "PRESSURE", 1f);
         FitToStrokeSize = CreateInput<bool>("FitToStrokeSize", "FIT_TO_STROKE_SIZE", true);
+        AutoPosition = CreateInput<bool>("AutoPosition", "AUTO_POSITION", true);
         AllowSampleStacking = CreateInput<bool>("AllowSampleStacking", "ALLOW_SAMPLE_STACKING", false);
     }
 

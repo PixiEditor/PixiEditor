@@ -151,7 +151,9 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
     public int GetCacheHash()
     {
         HashCode hash = new();
-        foreach (var node in Nodes)
+        var queue = CalculateExecutionQueueInternal(OutputNode);
+
+        foreach (var node in queue)
         {
             hash.Add(node.GetCacheHash());
         }

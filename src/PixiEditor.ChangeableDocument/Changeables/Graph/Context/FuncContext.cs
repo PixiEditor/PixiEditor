@@ -92,11 +92,26 @@ public class FuncContext
         if (!HasContext && first is Int1 firstInt && second is Int1 secondInt)
         {
             Int2 constantInt = new Int2("");
-            constantInt.ConstantValue = new VecI(firstInt.ConstantValue, secondInt.ConstantValue);
+            constantInt.ConstantValue = new VecI(GetIntConstant(firstInt), GetIntConstant(secondInt));
             return constantInt;
         }
 
         return Builder.ConstructInt2(first, second);
+    }
+
+    private static int GetIntConstant(Int1 int1)
+    {
+        object constant = int1.GetConstant();
+        return constant switch
+        {
+            int i => i,
+            double d => (int)d,
+            float f => (int)f,
+            long l => (int)l,
+            byte b => b,
+            short s => s,
+            _ => 0
+        };
     }
 
     public Half4 NewHalf4(Expression r, Expression g, Expression b, Expression a)

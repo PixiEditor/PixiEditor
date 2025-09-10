@@ -94,7 +94,7 @@ internal class PenToolExecutor : UpdateableChangeExecutor
             internals!.ActionAccumulator.AddActions(action);
         }
 
-        handler.FinalBrushShape = vectorShapeInput.Value?.ToPath(true);
+        handler.FinalBrushShape = vectorShapeInput?.Value?.ToPath(true);
 
         return ExecutionState.Success;
     }
@@ -158,7 +158,7 @@ internal class PenToolExecutor : UpdateableChangeExecutor
                 });
         }
 
-        handler.FinalBrushShape = vectorShapeInput?.Value.ToPath(true);
+        handler.FinalBrushShape = vectorShapeInput?.Value?.ToPath(true);
     }
 
     public override void OnPixelPositionChange(VecI pos, MouseOnCanvasEventArgs args)
@@ -180,7 +180,7 @@ internal class PenToolExecutor : UpdateableChangeExecutor
     public override void OnConvertedKeyDown(Key key)
     {
         base.OnConvertedKeyDown(key);
-        handler.FinalBrushShape = vectorShapeInput.Value?.ToPath(true);
+        handler.FinalBrushShape = vectorShapeInput?.Value?.ToPath(true);
     }
 
     public override void OnLeftMouseButtonUp(VecD argsPositionOnCanvas)

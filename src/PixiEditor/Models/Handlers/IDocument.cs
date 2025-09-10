@@ -25,6 +25,7 @@ namespace PixiEditor.Models.Handlers;
 internal interface IDocument : IHandler, Extensions.CommonApi.Documents.IDocument
 {
     public Guid Id { get; }
+    public string FullFilePath { get; }
     public ObservableRangeCollection<PaletteColor> Palette { get; set; }
     public VecI SizeBindable { get; }
     public IStructureMemberHandler? SelectedStructureMember { get; }

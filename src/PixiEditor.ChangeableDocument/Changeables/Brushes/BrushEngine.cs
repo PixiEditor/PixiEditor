@@ -110,8 +110,11 @@ internal class BrushEngine
         }
 
 
-        path.Offset(vectorShape.TransformedAABB.Pos - vectorShape.GeometryAABB.Pos);
-        path.Offset(rect.Center - path.Bounds.Center);
+        if (brushNode.AutoPosition.Value)
+        {
+            path.Offset(vectorShape.TransformedAABB.Pos - vectorShape.GeometryAABB.Pos);
+            path.Offset(rect.Center - path.Bounds.Center);
+        }
 
         if (brushNode.FitToStrokeSize.Value)
         {
@@ -122,8 +125,9 @@ internal class BrushEngine
             }
 
             VecD uniformScale = new VecD(Math.Min(scale.X, scale.Y));
-            path.Transform(Matrix3X3.CreateScale((float)uniformScale.X, (float)uniformScale.Y, (float)rect.Center.X,
-                (float)rect.Center.Y));
+            VecD center = brushNode.AutoPosition.Value ? rect.Center : vectorShape.TransformedAABB.Center;
+            path.Transform(Matrix3X3.CreateScale((float)uniformScale.X, (float)uniformScale.Y, (float)center.X,
+                (float)center.Y));
         }
 
         var pressure = brushNode.Pressure.Value;

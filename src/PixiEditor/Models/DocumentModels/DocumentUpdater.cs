@@ -24,12 +24,16 @@ using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Layers;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
+using PixiEditor.Models.BrushEngine;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
+using PixiEditor.ViewModels;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Document.Nodes;
 using PixiEditor.ViewModels.Nodes;
+using PixiEditor.ViewModels.SubViewModels;
 
 namespace PixiEditor.Models.DocumentModels;
 #nullable enable
@@ -179,6 +183,7 @@ internal class DocumentUpdater
                 break;
             case CreateNode_ChangeInfo info:
                 ProcessCreateNode(info);
+                ProcessCreateBrushNodeIfNeeded(info);
                 break;
             case DeleteNode_ChangeInfo info:
                 ProcessDeleteNode(info);
@@ -930,5 +935,16 @@ internal class DocumentUpdater
         }
 
         property.InternalSetComputedValue(finalValue);
+    }
+
+    private void ProcessCreateBrushNodeIfNeeded(CreateNode_ChangeInfo info)
+    {
+        if(info.InternalName != "PixiEditor." + BrushOutputNode.NodeId) return;
+
+        if (ViewModelMain.Current.ToolsSubViewModel is ToolsViewModel toolsHandler)
+        {
+            if(ViewModelMain.Current.DocumentManagerSubViewModel.Documents.All(x => x.Id != doc.Id)) return;
+            toolsHandler.BrushLibrary.Add(new Brush(!string.IsNullOrWhiteSpace(doc.FullFilePath) ? Path.GetFileName(doc.FullFilePath) : "Unnamed", doc));
+        }
     }
 }

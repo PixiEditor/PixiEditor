@@ -67,18 +67,22 @@ public static class ConversionTable
                 ]
             },
             {
-                typeof(Vec3D),[
+                typeof(Vec3D), [
                     (typeof(double), new TypeConverter<Vec3D, double>(v => v.X)),
                     (typeof(int), new TypeConverter<Vec3D, int>(v => (int)v.X)),
                     (typeof(VecD), new TypeConverter<Vec3D, VecD>(v => new VecD(v.X, v.Y))),
                     (typeof(VecI), new TypeConverter<Vec3D, VecI>(v => new VecI((int)v.X, (int)v.Y))),
-                    (typeof(Color), new TypeConverter<Vec3D, Color>(v => new Color((byte)Math.Clamp(v.X, 0, 255), (byte)Math.Clamp(v.Y, 0, 255), (byte)Math.Clamp(v.Z, 0, 255)))),
+                    (typeof(Color),
+                        new TypeConverter<Vec3D, Color>(v => new Color((byte)Math.Clamp(v.X, 0, 255),
+                            (byte)Math.Clamp(v.Y, 0, 255), (byte)Math.Clamp(v.Z, 0, 255)))),
                 ]
             },
             {
                 typeof(Texture), [
                     (typeof(Paintable), new TypeConverter<Texture, Paintable>(img => new TexturePaintable(img))),
-                    (typeof(Painter), new TypeConverter<Texture, Painter>(img => new Painter((c, s) => s.Canvas.DrawSurface(img.DrawingSurface, 0, 0)))),
+                    (typeof(Painter),
+                        new TypeConverter<Texture, Painter>(img =>
+                            new Painter((c, s) => s.Canvas.DrawSurface(img.DrawingSurface, 0, 0)))),
                 ]
             }
         };
@@ -125,6 +129,12 @@ public static class ConversionTable
 
         try
         {
+            if (!arg.GetType().IsValueType && targetType.IsValueType)
+            {
+                result = null;
+                return false;
+            }
+
             result = System.Convert.ChangeType(arg, targetType);
             return true;
         }

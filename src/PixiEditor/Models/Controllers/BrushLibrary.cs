@@ -73,4 +73,10 @@ internal class BrushLibrary
         LoadBuiltIn();
         LoadBrushesFromPath(pathToBrushes);
     }
+
+    public void Add(Brush brush)
+    {
+        if (!brushes.Contains(brush))
+            brushes.Add(brush);
+    }
 }
