@@ -77,7 +77,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     }
 
     [UpdateChangeMethod]
-    public void Update(VecI pos, float strokeWidth, float spacing, PointerInfo pointerInfo)
+    public void Update(VecI pos, float strokeWidth, float spacing, PointerInfo pointerInfo, BrushData brushData)
     {
         if (points.Count > 0)
         {
@@ -88,6 +88,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         this.strokeWidth = strokeWidth;
         this.pointerInfo = pointerInfo;
         this.spacing = spacing;
+        this.brushData = brushData;
         UpdateBrushData();
     }
 

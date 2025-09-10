@@ -1091,6 +1091,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         OnPropertyChanged(nameof(SoftSelectedStructureMembers));
     }
 
+    public ColorSpace ProcessingColorSpace => UsesSrgbBlending ? ColorSpace.CreateSrgb() : ColorSpace.CreateSrgbLinear();
+
     public void RemoveSoftSelectedMember(IStructureMemberHandler member)
     {
         softSelectedStructureMembers.Remove(member);
