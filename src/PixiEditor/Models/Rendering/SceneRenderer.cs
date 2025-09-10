@@ -1,5 +1,7 @@
 ﻿using Avalonia.Threading;
+using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
+using ChunkyImageLib.Operations;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.Numerics;
@@ -123,11 +125,11 @@ internal class SceneRenderer
 
         bool shouldRerender =
             ShouldRerender(renderTargetSize, targetMatrix, resolution, viewportId, targetOutput, finalGraph,
-                previewTextures, visibleDocumentRegion, oversizeFactor);
-
+                previewTextures, visibleDocumentRegion, oversizeFactor, out bool fullAffectedArea);
 
         if (shouldRerender)
         {
+            affectedArea = fullAffectedArea && viewport.VisibleDocumentRegion.HasValue ? new AffectedArea(OperationHelper.FindChunksTouchingRectangle(viewport.VisibleDocumentRegion.Value, ChunkyImage.FullChunkSize)) : affectedArea;
             return RenderGraph(renderTargetSize, targetMatrix, viewportId, resolution, samplingOptions, affectedArea,
                 visibleDocumentRegion, targetOutput, viewport.IsScene, oversizeFactor, finalGraph, previewTextures);
         }
@@ -268,8 +270,9 @@ internal class SceneRenderer
         Guid viewportId,
         string targetOutput,
         IReadOnlyNodeGraph finalGraph, Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures,
-        RectI? visibleDocumentRegion, float oversizeFactor)
+        RectI? visibleDocumentRegion, float oversizeFactor, out bool fullAffectedArea)
     {
+        fullAffectedArea = false;
         if (!DocumentViewModel.SceneTextures.TryGetValue(viewportId, out var cachedTexture) ||
             cachedTexture == null ||
             cachedTexture.IsDisposed)
@@ -301,6 +304,7 @@ internal class SceneRenderer
             if (lastState.ShouldRerender(renderState))
             {
                 lastRenderedStates[viewportId] = renderState;
+                fullAffectedArea = lastState.ZoomLevel > renderState.ZoomLevel;
                 return true;
             }
         }
