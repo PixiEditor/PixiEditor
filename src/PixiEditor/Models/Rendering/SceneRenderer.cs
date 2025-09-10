@@ -24,6 +24,7 @@ internal class SceneRenderer
     public IDocument DocumentViewModel { get; }
     public bool HighResRendering { get; set; } = true;
 
+    public IReadOnlyDictionary<Guid, RenderState> LastRenderedStates => lastRenderedStates;
     private Dictionary<Guid, RenderState> lastRenderedStates = new();
     private int lastGraphCacheHash = -1;
     private KeyFrameTime lastFrameTime;

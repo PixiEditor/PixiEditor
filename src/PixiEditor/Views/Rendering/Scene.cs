@@ -370,10 +370,14 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             }
             else
             {
-                float scale = CalculateResolutionScale();
                 saved = texture.Canvas.Save();
+                ChunkResolution renderedResolution = ChunkResolution.Full;
+                if (SceneRenderer != null && SceneRenderer.LastRenderedStates.ContainsKey(ViewportId))
+                {
+                    renderedResolution = SceneRenderer.LastRenderedStates[ViewportId].ChunkResolution;
+                }
                 texture.Canvas.SetMatrix(matrixDiff);
-                texture.Canvas.Scale(scale);
+                texture.Canvas.Scale((float)renderedResolution.InvertedMultiplier());
                 hasSaved = true;
             }
 
