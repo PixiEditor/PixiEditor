@@ -44,7 +44,7 @@ internal class RectangleOperation : IMirroredDrawOperation
 
         if (Data.AntiAliasing)
         {
-            DrawAntiAliased(surf, rect, innerRect, radiusInPx);
+            DrawAntiAliased(surf, rect, radiusInPx);
         }
         else
         {
@@ -56,6 +56,7 @@ internal class RectangleOperation : IMirroredDrawOperation
 
     private void DrawPixelPerfect(DrawingSurface surf, RectD rect, RectD innerRect, double radius)
     {
+        VecD vecInnerRadius = new VecD(Math.Max(0, radius - Data.StrokeWidth));
         // draw fill
         if (Data.FillPaintable.AnythingVisible)
         {
@@ -66,7 +67,7 @@ internal class RectangleOperation : IMirroredDrawOperation
             }
             else
             {
-                surf.Canvas.ClipRoundRect(innerRect, new VecD(radius), ClipOperation.Intersect);
+                surf.Canvas.ClipRoundRect(innerRect, vecInnerRadius, ClipOperation.Intersect);
             }
 
             surf.Canvas.DrawPaintable(Data.FillPaintable, Data.BlendMode);
@@ -84,31 +85,16 @@ internal class RectangleOperation : IMirroredDrawOperation
         {
             VecD vecRadius = new VecD(radius);
             surf.Canvas.ClipRoundRect(rect, vecRadius, ClipOperation.Intersect);
-            surf.Canvas.ClipRoundRect(innerRect, vecRadius, ClipOperation.Difference);
+            surf.Canvas.ClipRoundRect(innerRect, vecInnerRadius, ClipOperation.Difference);
         }
 
         surf.Canvas.DrawPaintable(Data.Stroke, Data.BlendMode);
     }
 
-    private void DrawAntiAliased(DrawingSurface surf, RectD rect, RectD innerRect, double radius)
+    private void DrawAntiAliased(DrawingSurface surf, RectD rect, double radius)
     {
-        surf.Canvas.Save();
-        paint.StrokeWidth = Data.StrokeWidth > 0 ? Data.StrokeWidth : 1;
-        paint.SetPaintable(Data.StrokeWidth > 0 ? Data.Stroke : Data.FillPaintable);
-        paint.Style = PaintStyle.Fill;
-
-        if (radius == 0)
-        {
-            surf.Canvas.DrawRect((float)rect.Left, (float)rect.Top, (float)rect.Width,
-                (float)rect.Height, paint);
-        }
-        else
-        {
-            surf.Canvas.DrawRoundRect((float)rect.Left, (float)rect.Top, (float)rect.Width,
-                (float)rect.Height, (float)radius, (float)radius, paint);
-        }
-
-        // draw fill
+        // shrink radius too so corners match inner curve
+        // Draw fill first
         if (Data.FillPaintable.AnythingVisible)
         {
             int saved = surf.Canvas.Save();
@@ -116,17 +102,73 @@ internal class RectangleOperation : IMirroredDrawOperation
             paint.StrokeWidth = 0;
             paint.SetPaintable(Data.FillPaintable);
             paint.Style = PaintStyle.Fill;
+            RectD fillRect = rect;
+            double innerRadius = Math.Max(0, radius - Data.StrokeWidth);
+            bool hasStroke = Data is { StrokeWidth: > 0, Stroke.AnythingVisible: true };
+            if (hasStroke)
+            {
+                paint.IsAntiAliased = false;
+                fillRect = rect.Inflate(-Data.StrokeWidth + 0.5);
+                surf.Canvas.ClipRoundRect(fillRect, new VecD(innerRadius), ClipOperation.Intersect);
+            }
+
             if (radius == 0)
             {
-                surf.Canvas.DrawRect((float)innerRect.Left, (float)innerRect.Top, (float)innerRect.Width, (float)innerRect.Height, paint);
+                surf.Canvas.DrawRect((float)fillRect.Left, (float)fillRect.Top,
+                    (float)fillRect.Width, (float)fillRect.Height, paint);
             }
             else
             {
-                surf.Canvas.DrawRoundRect((float)innerRect.Left, (float)innerRect.Top, (float)innerRect.Width,
-                    (float)innerRect.Height, (float)radius, (float)radius, paint);
+                if (hasStroke)
+                {
+                    surf.Canvas.DrawPaintable(Data.FillPaintable, Data.BlendMode);
+                }
+                else
+                {
+                    surf.Canvas.DrawRoundRect((float)fillRect.Left, (float)fillRect.Top,
+                        (float)fillRect.Width, (float)fillRect.Height,
+                        (float)innerRadius, (float)innerRadius, paint);
+                }
             }
 
             surf.Canvas.RestoreToCount(saved);
+        }
+
+        bool hasFill = Data.FillPaintable.AnythingVisible;
+
+        // Draw stroke fully inside
+        if (Data.StrokeWidth > 0)
+        {
+            surf.Canvas.Save();
+
+            paint.StrokeWidth = Data.StrokeWidth;
+            paint.SetPaintable(Data.Stroke);
+            paint.Style = PaintStyle.Stroke;
+            paint.IsAntiAliased = Data.AntiAliasing;
+
+            // shrink rect so stroke is fully inside
+            RectD innerRect = rect.Inflate(-Data.StrokeWidth / 2f);
+
+            double innerRadius = Math.Max(0, radius - Data.StrokeWidth / 2f);
+
+            if (radius > 0 && innerRadius <= 0)
+            {
+                innerRadius = 0.0001;
+            }
+
+            if (innerRadius == 0)
+            {
+                surf.Canvas.DrawRect((float)innerRect.Left, (float)innerRect.Top,
+                    (float)innerRect.Width, (float)innerRect.Height, paint);
+            }
+            else
+            {
+                surf.Canvas.DrawRoundRect((float)innerRect.Left, (float)innerRect.Top,
+                    (float)innerRect.Width, (float)innerRect.Height,
+                    (float)innerRadius, (float)innerRadius, paint);
+            }
+
+            surf.Canvas.Restore();
         }
     }
 
@@ -147,10 +189,14 @@ internal class RectangleOperation : IMirroredDrawOperation
         var chunks =
             OperationHelper.FindChunksTouchingRectangle(Data.Center, Data.Size.Abs(), Data.Angle,
                 ChunkPool.FullChunkSize);
+
+        VecD radiusShrink = new VecD(Data.CornerRadius * Math.Min(Data.Size.X, Data.Size.Y),
+            Data.CornerRadius * Math.Min(Data.Size.X, Data.Size.Y));
+        VecD innerSize = Data.Size.Abs() - radiusShrink;
         chunks.ExceptWith(
             OperationHelper.FindChunksFullyInsideRectangle(
                 Data.Center,
-                Data.Size.Abs() - new VecD(Data.StrokeWidth * 2, Data.StrokeWidth * 2),
+                innerSize - new VecD(Data.StrokeWidth * 2, Data.StrokeWidth * 2),
                 Data.Angle,
                 ChunkPool.FullChunkSize));
         return new(chunks, affRect);
