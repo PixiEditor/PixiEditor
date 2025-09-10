@@ -30,14 +30,19 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
     private IBrush? categoryBrush;
     private string? nodeNameBindable;
     private VecD position;
+    private TexturePreview? resultTexture;
     private ObservableRangeCollection<INodePropertyHandler> inputs;
     private ObservableRangeCollection<INodePropertyHandler> outputs;
-    private PreviewPainter resultPainter;
     private bool isSelected;
     private string? icon;
 
     protected Guid id;
 
+    public TexturePreview? Preview
+    {
+        get => resultTexture;
+        set => SetProperty(ref resultTexture, value);
+    }
     public IReadOnlyDictionary<string, INodePropertyHandler> InputPropertyMap => inputPropertyMap;
     public IReadOnlyDictionary<string, INodePropertyHandler> OutputPropertyMap => outputPropertyMap;
 
@@ -161,12 +166,6 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
                 outputs.CollectionChanged += UpdateOutputPropertyMapEvent;
             }
         }
-    }
-
-    public PreviewPainter ResultPainter
-    {
-        get => resultPainter;
-        set => SetProperty(ref resultPainter, value);
     }
 
     public bool IsNodeSelected
@@ -507,7 +506,6 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
 
     public virtual void Dispose()
     {
-        ResultPainter?.Dispose();
     }
 
     public NodePropertyViewModel FindInputProperty(string propName)

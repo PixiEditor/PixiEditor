@@ -83,4 +83,9 @@ public class ByteBuilder
     {
         _data.Add(value ? (byte)1 : (byte)0);
     }
+
+    public void AddByteArray(byte[] serialized)
+    {
+        _data.AddRange(serialized);
+    }
 }

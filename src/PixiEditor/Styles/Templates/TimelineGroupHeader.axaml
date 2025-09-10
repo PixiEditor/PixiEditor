@@ -25,8 +25,8 @@
                                     </ImageBrush.Transform>
                                 </ImageBrush>
                             </Border.Background>
-                            <visuals:PreviewPainterControl
-                                PreviewPainter="{Binding Item.PreviewPainter, RelativeSource={RelativeSource TemplatedParent}}"
+                            <visuals:PreviewTextureControl
+                                TexturePreview="{Binding Item.PreviewTexture, RelativeSource={RelativeSource TemplatedParent}}"
                                 Width="60" Height="60" RenderOptions.BitmapInterpolationMode="None"/>
                         </Border>
                         <TextBlock Margin="5 0 0 0" VerticalAlignment="Center" Text="{Binding Item.LayerName, RelativeSource={RelativeSource TemplatedParent}}" />

@@ -2,6 +2,7 @@
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core;
+using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Shaders.Generation;
 using Drawie.Backend.Core.Shaders.Generation.Expressions;
 using Drawie.Backend.Core.Surfaces;
@@ -114,28 +115,21 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
         builder.Dispose();
     }
 
-    public override RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
+    public override RectD? GetPreviewBounds(RenderContext ctx, string elementToRenderName)
     {
-        var startNode = FindStartNode();
-        if (startNode != null)
-        {
-            return startNode.GetPreviewBounds(frame, elementToRenderName);
-        }
-
-        return null;
+        return size.HasValue ? new RectD(0, 0, size.Value.X, size.Value.Y) : null;
     }
 
-    public override bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
+    public override void RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
     {
         var startNode = FindStartNode();
         if (drawingPaint != null && startNode is { Image.Value: not null })
         {
-            renderOn.Canvas.DrawRect(0, 0, startNode.Image.Value.Size.X, startNode.Image.Value.Size.Y, drawingPaint);
+            using var tmpTex = Texture.ForProcessing(startNode.Image.Value.Size, context.ProcessingColorSpace);
 
-            return true;
+            tmpTex.DrawingSurface.Canvas.DrawRect(0, 0, startNode.Image.Value.Size.X, startNode.Image.Value.Size.Y, drawingPaint);
+            renderOn.Canvas.DrawSurface(tmpTex.DrawingSurface, 0, 0);
         }
-
-        return false;
     }
 
     public override void Dispose()
