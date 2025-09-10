@@ -137,14 +137,8 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         var affChunks = image.FindAffectedArea(opCount);
 
         var changeInfo = DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affChunks, drawOnMask);
-        List<IChangeInfo> changes = new()
-        {
-            changeInfo.AsT1,
-            /*new ComputedPropertyValue_ChangeInfo(brushOutputGuid, "VectorShape", true,
-                brushOutputNode.VectorShape.Value)*/
-        };
 
-        return changes;
+        return changeInfo;
     }
 
     private void FastforwardEnqueueDrawLines(ChunkyImage targetImage, KeyFrameTime frameTime)
@@ -180,13 +174,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
             image.CommitChanges();
 
             var change = DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affArea, drawOnMask).AsT1;
-            List<IChangeInfo> changes = new()
-            {
-                change,
-                /*new ComputedPropertyValue_ChangeInfo(brushOutputGuid, "VectorShape", true,
-                    brushOutputNode?.VectorShape.Value)*/
-            };
-            return changes;
+            return OneOf<None, IChangeInfo, List<IChangeInfo>>.FromT1(change);
         }
         else
         {
@@ -201,14 +189,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
 
             IChangeInfo info = DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affArea, drawOnMask).AsT1;
 
-            List<IChangeInfo> changes = new()
-            {
-                info,
-                /*new ComputedPropertyValue_ChangeInfo(brushOutputGuid, "VectorShape", true,
-                    brushOutputNode?.VectorShape.Value)*/
-            };
-
-            return changes;
+            return OneOf<None, IChangeInfo, List<IChangeInfo>>.FromT1(info);
         }
     }
 

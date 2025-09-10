@@ -103,7 +103,7 @@ internal class BrushShapeOverlay : Overlay
             paint.IsAntiAliased = true;
             targetCanvas.Save();
             using var path = new VectorPath(BrushShape);
-            var rect = new RectI((VecI)lastMousePos - new VecI((int)(BrushSize / 2f)), new VecI((int)BrushSize));
+            var rect = new RectD(lastMousePos - new VecD((BrushSize / 2f)), new VecD(BrushSize));
 
             path.Offset(rect.Center - path.Bounds.Center);
 
