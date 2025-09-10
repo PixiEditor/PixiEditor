@@ -10,5 +10,6 @@
                              x:Class="PixiEditor.Views.Nodes.Properties.BooleanPropertyView">
     <StackPanel Orientation="Horizontal" HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
         <CheckBox localization:Translator.Key="{Binding DisplayName}" Margin="0,0,4,0" IsVisible="{Binding ShowInputField}" IsChecked="{Binding Value}"/>
+        <TextBlock localization:Translator.Key="{Binding DisplayName}" Margin="0,0,4,0" IsVisible="{Binding !ShowInputField}" />
     </StackPanel>
 </properties:NodePropertyView>
