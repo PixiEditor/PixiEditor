@@ -362,17 +362,17 @@ internal class SceneRenderer
     }
 }
 
-struct RenderState
+readonly struct RenderState
 {
-    public ChunkResolution ChunkResolution { get; set; }
-    public bool HighResRendering { get; set; }
-    public string TargetOutput { get; set; }
-    public int GraphCacheHash { get; set; }
-    public RectD VisibleDocumentRegion { get; set; }
-    public double ZoomLevel { get; set; }
-    public int OnionFrames { get; set; }
-    public double OnionOpacity { get; set; }
-    public bool OnionSkinning { get; set; }
+    public ChunkResolution ChunkResolution { get; init; }
+    public bool HighResRendering { get; init; }
+    public string TargetOutput { get; init; }
+    public int GraphCacheHash { get; init; }
+    public RectD VisibleDocumentRegion { get; init; }
+    public double ZoomLevel { get; init; }
+    public int OnionFrames { get; init; }
+    public double OnionOpacity { get; init; }
+    public bool OnionSkinning { get; init; }
 
     public bool ShouldRerender(RenderState other)
     {
