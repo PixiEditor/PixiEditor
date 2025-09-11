@@ -11,6 +11,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 public class ShaderFuncContext : FuncContext
 {
     public static ShaderFuncContext NoContext { get; } = new();
+
     /// <summary>
     ///     Original position of the pixel in the image. This is the input argument of the main function.
     /// </summary>
@@ -40,10 +41,10 @@ public class ShaderFuncContext : FuncContext
 
     public ShaderFuncContext()
     {
-
     }
 
-     public Half4 SampleSurface(DrawingSurface surface, Expression pos, ColorSampleMode sampleMode, bool normalizedCoordinates)
+    public Half4 SampleSurface(DrawingSurface surface, Expression pos, ColorSampleMode sampleMode,
+        bool normalizedCoordinates)
     {
         SurfaceSampler texName = Builder.AddOrGetSurface(surface, sampleMode);
         return Builder.Sample(texName, pos, normalizedCoordinates);
@@ -199,8 +200,16 @@ public class ShaderFuncContext : FuncContext
             }
         }
 
+        Float1 val;
+        if (getFrom.Value == null)
+        {
+            val = new Float1("") { ConstantValue = 0.0 };
+        }
+        else
+        {
+            val = getFrom.Value(this);
+        }
 
-        var val = getFrom.Value(this);
         _cachedValues[getFrom] = val;
 
         return val;
@@ -226,7 +235,16 @@ public class ShaderFuncContext : FuncContext
             }
         }
 
-        var val = getFrom.Value(this);
+        Int1 val;
+        if (getFrom.Value == null)
+        {
+            val = new Int1("") { ConstantValue = 0 };
+        }
+        else
+        {
+            val = getFrom.Value(this);
+        }
+
         _cachedValues[getFrom] = val;
 
         return val;
@@ -258,7 +276,16 @@ public class ShaderFuncContext : FuncContext
             }
         }
 
-        var val = getFrom.Value(this);
+        Half4 val;
+        if (getFrom.Value == null)
+        {
+            val = new Half4("") { ConstantValue = Colors.Transparent };
+        }
+        else
+        {
+            val = getFrom.Value(this);
+        }
+
         _cachedValues[getFrom] = val;
 
         return val;
@@ -285,7 +312,16 @@ public class ShaderFuncContext : FuncContext
             }
         }
 
-        var val = getFrom.Value(this);
+        Float2 val;
+        if (getFrom.Value == null)
+        {
+            val = new Float2("") { ConstantValue = new VecD(0, 0) };
+        }
+        else
+        {
+            val = getFrom.Value(this);
+        }
+
         _cachedValues[getFrom] = val;
 
         return val;
@@ -312,7 +348,16 @@ public class ShaderFuncContext : FuncContext
             }
         }
 
-        var val = getFrom.Value(this);
+        Int2 val;
+        if (getFrom?.Value == null)
+        {
+            val = new Int2("") { ConstantValue = new VecI(0, 0) };
+        }
+        else
+        {
+            val = getFrom.Value(this);
+        }
+
         _cachedValues[getFrom] = val;
 
         return val;
@@ -339,7 +384,16 @@ public class ShaderFuncContext : FuncContext
             }
         }
 
-        var val = getFrom.Value(this);
+        Float3x3 val;
+        if (getFrom.Value == null)
+        {
+            val = new Float3x3("") { ConstantValue = Matrix3X3.Identity };
+        }
+        else
+        {
+            val = getFrom.Value(this);
+        }
+
         _cachedValues[getFrom] = val;
 
         return val;

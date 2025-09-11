@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
+﻿using Drawie.Backend.Core.Shaders.Generation;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 
@@ -60,12 +61,8 @@ public class RepeatNodeStart : Node, IPairNode
                 node.Execute(context);
             }
 
-            Output.Value = endNode.Output.Value;
-        }
 
-        if (iterations > 0)
-        {
-            Output.Value = Input.Value;
+            Output.Value = endNode.Output.Value;
         }
 
         iterationInProgress = false;

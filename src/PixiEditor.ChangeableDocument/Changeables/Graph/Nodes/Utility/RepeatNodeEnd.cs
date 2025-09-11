@@ -1,4 +1,5 @@
 ﻿using Drawie.Backend.Core.Shaders;
+using Drawie.Backend.Core.Shaders.Generation;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
@@ -34,7 +35,46 @@ public class RepeatNodeEnd : Node, IPairNode, IExecutionFlowNode
             }
         }
 
-        Output.Value = Input.Value;
+        if(startNode.Iterations.Value <= 0)
+        {
+            Output.Value = DefaultOfType(Input.Value);
+        }
+        else
+        {
+            if (Input.Value is Delegate del)
+            {
+                var result = del.DynamicInvoke(ShaderFuncContext.NoContext);
+                if (result is ShaderExpressionVariable expressionVariable)
+                {
+                    var constant = expressionVariable.GetConstant();
+                    Output.Value = constant;
+                }
+                else
+                {
+                    Output.Value = result;
+                }
+            }
+            else
+            {
+                Output.Value = Input.Value;
+            }
+        }
+    }
+
+    private object DefaultOfType(object? val)
+    {
+        if (val == null) return null;
+        var type = val.GetType();
+        if (type.IsValueType) return Activator.CreateInstance(type)!;
+        if (val is Delegate del)
+        {
+            var result = del.DynamicInvoke(ShaderFuncContext.NoContext);
+            if (result is ShaderExpressionVariable expressionVariable)
+            {
+                return DefaultOfType(expressionVariable.GetConstant());
+            }
+        }
+        return null;
     }
 
     public override Node CreateCopy()
@@ -52,11 +92,13 @@ public class RepeatNodeEnd : Node, IPairNode, IExecutionFlowNode
             {
                 nestingCount++;
             }
+
             if (node is RepeatNodeStart leftNode && nestingCount == 0)
             {
                 startNode = leftNode;
                 return false;
             }
+
             if (node is RepeatNodeStart)
             {
                 nestingCount--;
@@ -85,12 +127,15 @@ public class RepeatNodeEnd : Node, IPairNode, IExecutionFlowNode
             {
                 nestingCount++;
             }
+
             if (node is RepeatNodeEnd leftNode && nestingCount == 0)
             {
                 if (leftNode == this)
                 {
+                    handled.Add(node);
                     break;
                 }
+
                 nestingCount--;
             }
 
