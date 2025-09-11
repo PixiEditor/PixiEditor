@@ -200,6 +200,11 @@ internal class ConnectProperties_Change : Change
     {
         if (input.ValueType != output.ValueType)
         {
+            if(IsConnectingObject(output))
+            {
+                return true;
+            }
+
             if (IsCrossExpression(output.Value, input.ValueType))
             {
                 return true;
@@ -233,13 +238,23 @@ internal class ConnectProperties_Change : Change
         return true;
     }
 
+    private static bool IsConnectingObject(OutputProperty output)
+    {
+        if (output.ValueType == typeof(object))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
     private static bool IsConstantToExpression(InputProperty input, object objValue, out object result)
     {
         if (input.Value is Delegate func && func.Method.ReturnType.IsAssignableTo(typeof(ShaderExpressionVariable)))
         {
             try
             {
-                var actualArg = func.DynamicInvoke(FuncContext.NoContext);
+                var actualArg = func.DynamicInvoke(ShaderFuncContext.NoContext);
                 if (actualArg is ShaderExpressionVariable variable)
                 {
                     result = variable.GetConstant();
@@ -263,7 +278,7 @@ internal class ConnectProperties_Change : Change
         {
             try
             {
-                o = func.DynamicInvoke(FuncContext.NoContext);
+                o = func.DynamicInvoke(ShaderFuncContext.NoContext);
                 if (o is ShaderExpressionVariable variable)
                 {
                     o = variable.GetConstant();

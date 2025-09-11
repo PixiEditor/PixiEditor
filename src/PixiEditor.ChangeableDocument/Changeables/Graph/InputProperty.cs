@@ -42,7 +42,7 @@ public class InputProperty : IInputProperty
             {
                 try
                 {
-                    target = connectionField.DynamicInvoke(FuncContext.NoContext);
+                    target = connectionField.DynamicInvoke(ShaderFuncContext.NoContext);
                 }
                 catch
                 {
@@ -232,7 +232,7 @@ public class InputProperty : IInputProperty
         {
             try
             {
-                var constant = func.DynamicInvoke(FuncContext.NoContext);
+                var constant = func.DynamicInvoke(ShaderFuncContext.NoContext);
                 if (constant is ShaderExpressionVariable shaderExpression)
                 {
                     hash.Add(shaderExpression.GetConstant());

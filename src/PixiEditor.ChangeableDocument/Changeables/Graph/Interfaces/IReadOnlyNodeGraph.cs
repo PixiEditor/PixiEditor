@@ -12,5 +12,5 @@ public interface IReadOnlyNodeGraph : ICacheable
     public void RemoveNode(IReadOnlyNode node);
     public bool TryTraverse(Action<IReadOnlyNode> action);
     public void Execute(RenderContext context);
-    Queue<IReadOnlyNode> CalculateExecutionQueue(IReadOnlyNode endNode);
+    Queue<IReadOnlyNode> CalculateExecutionQueue(IReadOnlyNode endNode, bool considerFlowNodes = false);
 }

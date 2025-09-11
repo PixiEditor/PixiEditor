@@ -83,7 +83,7 @@ public static class ConversionTable
         {
             try
             {
-                var actualArg = func.DynamicInvoke(FuncContext.NoContext);
+                var actualArg = func.DynamicInvoke(ShaderFuncContext.NoContext);
                 return TryConvert(actualArg, targetType, out result);
             }
             catch

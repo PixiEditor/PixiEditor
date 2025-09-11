@@ -18,7 +18,7 @@ public static class SerializationUtil
         
         if (value is Delegate del)
         {
-            value = del.DynamicInvoke(FuncContext.NoContext);
+            value = del.DynamicInvoke(ShaderFuncContext.NoContext);
             if (value is ShaderExpressionVariable expressionVariable)
             { 
                 value = expressionVariable.GetConstant();

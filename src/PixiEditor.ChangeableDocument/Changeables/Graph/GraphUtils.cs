@@ -5,10 +5,12 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph;
 public static class GraphUtils
 {
     public static Queue<IReadOnlyNode> CalculateExecutionQueue(IReadOnlyNode outputNode,
+        bool considerFlowNodes = false,
         Func<IInputProperty, bool>? branchFilter = null)
     {
         var finalQueue = new HashSet<IReadOnlyNode>();
         var queueNodes = new Queue<IReadOnlyNode>();
+        var nodesToExclude = new HashSet<IReadOnlyNode>();
         queueNodes.Enqueue(outputNode);
 
         while (queueNodes.Count > 0)
@@ -18,6 +20,14 @@ public static class GraphUtils
             if (finalQueue.Contains(node))
             {
                 continue;
+            }
+
+            if (considerFlowNodes && node is IExecutionFlowNode flowNode)
+            {
+                foreach (var handled in flowNode.HandledNodes)
+                {
+                    nodesToExclude.Add(handled);
+                }
             }
 
             bool canAdd = true;
@@ -62,6 +72,8 @@ public static class GraphUtils
                 queueNodes.Enqueue(node);
             }
         }
+
+        finalQueue = new HashSet<IReadOnlyNode>(finalQueue.Except(nodesToExclude));
 
         return new Queue<IReadOnlyNode>(finalQueue);
     }

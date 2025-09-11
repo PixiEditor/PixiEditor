@@ -7,8 +7,9 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph;
 
 public class NodeGraph : IReadOnlyNodeGraph, IDisposable
 {
-    private ImmutableList<IReadOnlyNode>? cachedExecutionList;
-    
+    private ImmutableList<IReadOnlyNode>? cachedExecutionListWithoutFlowNodes;
+    private ImmutableList<IReadOnlyNode>? cachedExecutionListWithFlowNodes;
+
     private readonly List<Node> _nodes = new();
     public IReadOnlyCollection<Node> Nodes => _nodes;
     public IReadOnlyDictionary<Guid, Node> NodeLookup => nodeLookup;
@@ -57,14 +58,17 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
         return nodeLookup.TryGetValue(guid, out Node? node) && node is T typedNode ? typedNode : null;
     }
 
-    public Queue<IReadOnlyNode> CalculateExecutionQueue(IReadOnlyNode outputNode)
+    public Queue<IReadOnlyNode> CalculateExecutionQueue(IReadOnlyNode outputNode, bool considerFlowNodes = false)
     {
-        return new Queue<IReadOnlyNode>(CalculateExecutionQueueInternal(outputNode));
+        return new Queue<IReadOnlyNode>(CalculateExecutionQueueInternal(outputNode, considerFlowNodes));
     }
     
-    private ImmutableList<IReadOnlyNode> CalculateExecutionQueueInternal(IReadOnlyNode outputNode)
+    private ImmutableList<IReadOnlyNode> CalculateExecutionQueueInternal(IReadOnlyNode outputNode, bool considerFlowNodes = false)
     {
-        return cachedExecutionList ??= GraphUtils.CalculateExecutionQueue(outputNode).ToImmutableList();
+        if (considerFlowNodes)
+            return cachedExecutionListWithFlowNodes ??= GraphUtils.CalculateExecutionQueue(outputNode, considerFlowNodes).ToImmutableList();
+
+        return cachedExecutionListWithoutFlowNodes ??= GraphUtils.CalculateExecutionQueue(outputNode, considerFlowNodes).ToImmutableList();
     }
 
     void IReadOnlyNodeGraph.AddNode(IReadOnlyNode node) => AddNode((Node)node);
@@ -98,7 +102,7 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
         if (OutputNode == null) return;
         if(!CanExecute()) return;
 
-        var queue = CalculateExecutionQueueInternal(OutputNode);
+        var queue = CalculateExecutionQueueInternal(OutputNode, true);
         
         foreach (var node in queue)
         {
@@ -130,7 +134,8 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
     
     private void ResetCache()
     {
-        cachedExecutionList = null;
+        cachedExecutionListWithoutFlowNodes = null;
+        cachedExecutionListWithFlowNodes = null;
     }
 
     public int GetCacheHash()

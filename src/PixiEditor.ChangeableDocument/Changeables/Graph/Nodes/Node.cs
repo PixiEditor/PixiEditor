@@ -586,7 +586,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
         if (input != null && value is Delegate del)
         {
-            object constant = del.DynamicInvoke(FuncContext.NoContext);
+            object constant = del.DynamicInvoke(ShaderFuncContext.NoContext);
             if (constant is ShaderExpressionVariable expr)
             {
                 return input.FuncFactory(expr.GetConstant());

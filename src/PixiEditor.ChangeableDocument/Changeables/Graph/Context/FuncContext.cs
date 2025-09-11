@@ -15,8 +15,6 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 
 public class FuncContext
 {
-    public static FuncContext NoContext { get; } = new();
-
     public bool HasContext { get; protected set; }
 
     public void ThrowOnMissingContext()

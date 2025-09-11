@@ -58,7 +58,7 @@ internal class GetComputedPropertyValue_Change : Change
         {
             try
             {
-                value = del.DynamicInvoke(FuncContext.NoContext);
+                value = del.DynamicInvoke(ShaderFuncContext.NoContext);
             }
             catch (Exception e)
             {

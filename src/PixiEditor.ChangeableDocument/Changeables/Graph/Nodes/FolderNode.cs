@@ -258,7 +258,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
 
         if (Content.Connection != null)
         {
-            var executionQueue = GraphUtils.CalculateExecutionQueue(Content.Connection.Node, FilterInvisibleFolders);
+            var executionQueue = GraphUtils.CalculateExecutionQueue(Content.Connection.Node, false, FilterInvisibleFolders);
             while (executionQueue.Count > 0)
             {
                 IReadOnlyNode node = executionQueue.Dequeue();
