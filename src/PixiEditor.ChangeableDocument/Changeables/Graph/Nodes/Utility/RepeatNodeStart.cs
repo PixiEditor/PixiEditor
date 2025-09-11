@@ -6,12 +6,17 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Utility;
 
 [NodeInfo("RepeatStart")]
 [PairNode(typeof(RepeatNodeEnd), "RepeatZone", true)]
-public class RepeatNodeStart : Node, IExecutionFlowNode
+public class RepeatNodeStart : Node, IPairNode
 {
     public InputProperty<int> Iterations { get; }
     public InputProperty<object> Input { get; }
     public OutputProperty<int> CurrentIteration { get; }
     public OutputProperty<object> Output { get; }
+
+    public Guid OtherNode { get; set; }
+    private RepeatNodeEnd? endNode;
+
+    private bool iterationInProgress = false;
 
     public RepeatNodeStart()
     {
@@ -23,36 +28,80 @@ public class RepeatNodeStart : Node, IExecutionFlowNode
 
     protected override void OnExecute(RenderContext context)
     {
+        if (iterationInProgress)
+        {
+            return;
+        }
+
+        endNode = FindEndNode();
+        if (endNode == null)
+        {
+            return;
+        }
+
+        OtherNode = endNode?.Id ?? Guid.Empty;
+
+        int iterations = Iterations.Value;
+        var queue = GraphUtils.CalculateExecutionQueue(endNode, true, true,
+            property => property.Connection?.Node != this);
+
         Output.Value = Input.Value;
-        CurrentIteration.Value = 0;
+        iterationInProgress = true;
+        for (int i = 0; i < iterations; i++)
+        {
+            CurrentIteration.Value = i + 1;
+            foreach (var node in queue)
+            {
+                if (node == this)
+                {
+                    continue;
+                }
+
+                node.Execute(context);
+            }
+
+            Output.Value = endNode.Output.Value;
+        }
+
+        if (iterations > 0)
+        {
+            Output.Value = Input.Value;
+        }
+
+        iterationInProgress = false;
     }
 
-    public override Node CreateCopy()
+    private RepeatNodeEnd FindEndNode()
     {
-        return new RepeatNodeStart();
-    }
-
-    public HashSet<IReadOnlyNode> HandledNodes => CalculateHandledNodes();
-
-    private HashSet<IReadOnlyNode> CalculateHandledNodes()
-    {
-        HashSet<IReadOnlyNode> handled = new();
-
+        RepeatNodeEnd repeatNodeEnd = null;
+        int nestingCount = 0;
+        HashSet<Guid> visitedNodes = new HashSet<Guid>();
         TraverseForwards(node =>
         {
-            if (node is RepeatNodeEnd)
+            if (node is RepeatNodeStart && node != this)
             {
+                nestingCount++;
+            }
+
+            if (node is RepeatNodeEnd rightNode && nestingCount == 0 && rightNode.OtherNode == Id)
+            {
+                repeatNodeEnd = rightNode;
                 return false;
             }
 
-            if (node != this)
+            if (node is RepeatNodeEnd && visitedNodes.Add(node.Id))
             {
-                handled.Add(node);
+                nestingCount--;
             }
 
             return true;
         });
 
-        return handled;
+        return repeatNodeEnd;
+    }
+
+    public override Node CreateCopy()
+    {
+        return new RepeatNodeStart();
     }
 }

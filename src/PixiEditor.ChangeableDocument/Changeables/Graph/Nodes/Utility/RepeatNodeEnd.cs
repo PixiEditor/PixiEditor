@@ -7,7 +7,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Utility;
 
 [NodeInfo("RepeatEnd")]
 [PairNode(typeof(RepeatNodeStart), "RepeatZone", false)]
-public class RepeatNodeEnd : Node, IPairNode
+public class RepeatNodeEnd : Node, IPairNode, IExecutionFlowNode
 {
     public InputProperty<object> Input { get; }
     public OutputProperty<object> Output { get; }
@@ -34,38 +34,7 @@ public class RepeatNodeEnd : Node, IPairNode
             }
         }
 
-        int iterations = startNode.Iterations.Value;
-        var queue = GraphUtils.CalculateExecutionQueue(this, false, (input => input.Connection?.Node != startNode));
-
-        for (int i = 0; i < iterations; i++)
-        {
-            startNode.CurrentIteration.Value = i;
-            foreach (var node in queue)
-            {
-                if (node is RepeatNodeStart or RepeatNodeEnd)
-                {
-                    continue;
-                }
-
-                node.Execute(context);
-            }
-
-            startNode.Output.Value = Input.Value;
-        }
-        startNode.CurrentIteration.Value = 0;
-        if (iterations <= 0)
-        {
-            Output.Value = startNode.Input.Value;
-        }
-        else
-        {
-            Output.Value = Input.Value;
-        }
-    }
-
-    private object GetOutput(ShaderFuncContext context)
-    {
-        return null;
+        Output.Value = Input.Value;
     }
 
     public override Node CreateCopy()
@@ -76,17 +45,61 @@ public class RepeatNodeEnd : Node, IPairNode
     private RepeatNodeStart FindStartNode()
     {
         RepeatNodeStart startNode = null;
+        int nestingCount = 0;
         TraverseBackwards(node =>
         {
-            if (node is RepeatNodeStart leftNode)
+            if (node is RepeatNodeEnd && node != this)
+            {
+                nestingCount++;
+            }
+            if (node is RepeatNodeStart leftNode && nestingCount == 0)
             {
                 startNode = leftNode;
                 return false;
+            }
+            if (node is RepeatNodeStart)
+            {
+                nestingCount--;
             }
 
             return true;
         });
 
         return startNode;
+    }
+
+    public HashSet<IReadOnlyNode> HandledNodes => CalculateHandledNodes();
+
+    private HashSet<IReadOnlyNode> CalculateHandledNodes()
+    {
+        HashSet<IReadOnlyNode> handled = new();
+
+        startNode = FindStartNode();
+
+        int nestingCount = 0;
+        var queue = GraphUtils.CalculateExecutionQueue(this, false, property => property.Connection.Node != startNode);
+
+        foreach (var node in queue)
+        {
+            if (node is RepeatNodeStart && node != this)
+            {
+                nestingCount++;
+            }
+            if (node is RepeatNodeEnd leftNode && nestingCount == 0)
+            {
+                if (leftNode == this)
+                {
+                    break;
+                }
+                nestingCount--;
+            }
+
+            if (node != this && node != startNode)
+            {
+                handled.Add(node);
+            }
+        }
+
+        return handled;
     }
 }

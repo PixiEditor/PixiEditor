@@ -150,7 +150,13 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
             return;
 
         var lastKnownFramesPartOf = node.Frames.OfType<NodeZoneViewModel>().ToHashSet();
-        var startLookup = Frames.OfType<NodeZoneViewModel>().ToDictionary(x => x.Start);
+        var zones = Frames.OfType<NodeZoneViewModel>();
+        Dictionary<INodeHandler, NodeZoneViewModel>? startLookup = new Dictionary<INodeHandler, NodeZoneViewModel>();
+        foreach (var zone in zones)
+        {
+            startLookup.TryAdd(zone.Start, zone);
+        }
+
         var currentlyPartOf = new HashSet<NodeZoneViewModel>();
 
         node.TraverseBackwards(x =>
@@ -311,7 +317,8 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
 
     public void UpdatePropertyValue(INodeHandler node, string property, object? value)
     {
-        Internals.ActionAccumulator.AddFinishedActions(new UpdatePropertyValue_Action(node.Id, property, value), new EndUpdatePropertyValue_Action());
+        Internals.ActionAccumulator.AddFinishedActions(new UpdatePropertyValue_Action(node.Id, property, value),
+            new EndUpdatePropertyValue_Action());
     }
 
     public void BeginUpdatePropertyValue(INodeHandler node, string property, object value)
