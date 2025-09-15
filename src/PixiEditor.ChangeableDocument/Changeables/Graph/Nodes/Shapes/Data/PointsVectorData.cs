@@ -24,12 +24,12 @@ public class PointsVectorData : ShapeVectorData
     public override ShapeCorners TransformationCorners => new ShapeCorners(
         GeometryAABB).WithMatrix(TransformationMatrix);
 
-    public override void RasterizeGeometry(Canvas drawingSurface)
+    public override void RasterizeGeometry(Canvas drawingSurface, ChunkResolution resolution)
     {
         Rasterize(drawingSurface, false);
     }
 
-    public override void RasterizeTransformed(Canvas drawingSurface)
+    public override void RasterizeTransformed(Canvas drawingSurface, ChunkResolution resolution)
     {
         Rasterize(drawingSurface, true);
     }

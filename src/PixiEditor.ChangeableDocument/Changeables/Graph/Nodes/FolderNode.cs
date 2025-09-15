@@ -62,6 +62,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
                 paint.ImageFilter = Filters.Value?.ImageFilter;
             }
 
+            // TODO: Detect if any content layer needs blending or opacity, if not, skip SaveLayer
             int saved = sceneContext.RenderSurface.Canvas.SaveLayer(paint);
             Content.Value?.Paint(sceneContext, sceneContext.RenderSurface);
 

@@ -1,4 +1,5 @@
 ﻿using Avalonia;
+using Avalonia.Threading;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Interop.Avalonia.Core.Controls;
 using Drawie.Numerics;
@@ -17,6 +18,9 @@ public class PreviewTextureControl : DrawieControl
         get => GetValue(TexturePreviewProperty);
         set => SetValue(TexturePreviewProperty, value);
     }
+
+    private TexturePreview? preview;
+    private Rect bounds;
 
     static PreviewTextureControl()
     {
@@ -54,14 +58,20 @@ public class PreviewTextureControl : DrawieControl
             TexturePreview.TextureUpdated -= QueueNextFrame;
     }
 
+    protected override void PrepareToDraw()
+    {
+        preview = TexturePreview;
+        bounds = Bounds;
+    }
+
     public override void Draw(DrawingSurface surface)
     {
-        if (TexturePreview is { Preview: not null } && TexturePreview.Preview is { IsDisposed: false })
+        if (preview is { Preview: not null } && preview.Preview is { IsDisposed: false })
         {
-            VecD scaling = new(Bounds.Size.Width / TexturePreview.Preview.Size.X, Bounds.Size.Height / TexturePreview.Preview.Size.Y);
+            VecD scaling = new(bounds.Size.Width / preview.Preview.Size.X, bounds.Size.Height / preview.Preview.Size.Y);
             surface.Canvas.Save();
             surface.Canvas.Scale((float)scaling.X, (float)scaling.Y);
-            surface.Canvas.DrawSurface(TexturePreview.Preview.DrawingSurface, 0, 0);
+            surface.Canvas.DrawSurface(preview.Preview.DrawingSurface, 0, 0);
             surface.Canvas.Restore();
         }
     }

@@ -20,7 +20,7 @@ namespace PixiEditor.Models.Rendering;
 
 internal class SceneRenderer
 {
-    public const double ZoomDiffToRerender = 20;
+    public const double ZoomDiffToRerender = 50;
     public const float OversizeFactor = 1.25f;
     public IReadOnlyDocument Document { get; }
     public IDocument DocumentViewModel { get; }
@@ -34,44 +34,62 @@ internal class SceneRenderer
 
     private TextureCache textureCache = new();
 
+    private SceneRenderRequest latestRequest;
+
+
     public SceneRenderer(IReadOnlyDocument trackerDocument, IDocument documentViewModel)
     {
         Document = trackerDocument;
         DocumentViewModel = documentViewModel;
     }
 
-    public async Task RenderAsync(Dictionary<Guid, ViewportInfo> stateViewports, AffectedArea affectedArea,
+    public void RenderAsync(Dictionary<Guid, ViewportInfo> stateViewports, AffectedArea affectedArea,
         bool updateDelayed, Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures)
     {
-        await DrawingBackendApi.Current.RenderingDispatcher.InvokeInBackgroundAsync(() =>
+        latestRequest = new SceneRenderRequest
         {
-            using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
-            int renderedCount = 0;
-            foreach (var viewport in stateViewports)
+            Viewports = stateViewports,
+            AffectedArea = affectedArea,
+            UpdateDelayed = updateDelayed,
+            PreviewTextures = previewTextures
+        };
+
+        DrawingBackendApi.Current.RenderingDispatcher.QueueRender(DispatchRender);
+    }
+
+    private void DispatchRender()
+    {
+        if (latestRequest.Equals(default(SceneRenderRequest))) return;
+
+        int renderedCount = 0;
+        foreach (var viewport in latestRequest.Viewports)
+        {
+            if (viewport.Value.Delayed && !latestRequest.UpdateDelayed)
             {
-                if (viewport.Value.Delayed && !updateDelayed)
-                {
-                    continue;
-                }
+                continue;
+            }
 
-                if (viewport.Value.RealDimensions.ShortestAxis <= 0) continue;
+            if (viewport.Value.RealDimensions.ShortestAxis <= 0) continue;
 
-                var rendered = RenderScene(viewport.Value, affectedArea, previewTextures);
+            var rendered = RenderScene(viewport.Value, latestRequest.AffectedArea, latestRequest.PreviewTextures);
+            lock (DocumentViewModel.SceneTextures)
+            {
                 if (DocumentViewModel.SceneTextures.TryGetValue(viewport.Key, out var texture) && texture != rendered)
                 {
                     texture.Dispose();
                 }
 
                 DocumentViewModel.SceneTextures[viewport.Key] = rendered;
-                viewport.Value.InvalidateVisual();
-                renderedCount++;
             }
 
-            if (renderedCount == 0 && previewTextures is { Count: > 0 })
-            {
-                RenderOnlyPreviews(affectedArea, previewTextures);
-            }
-        });
+            Dispatcher.UIThread.Invoke(() => viewport.Value.InvalidateVisual());
+            renderedCount++;
+        }
+
+        if (renderedCount == 0 && latestRequest.PreviewTextures is { Count: > 0 })
+        {
+            RenderOnlyPreviews(latestRequest.AffectedArea, latestRequest.PreviewTextures);
+        }
     }
 
     private void RenderOnlyPreviews(AffectedArea affectedArea,
@@ -116,7 +134,8 @@ internal class SceneRenderer
         IReadOnlyNodeGraph finalGraph = RenderingUtils.SolveFinalNodeGraph(targetOutput, Document);
 
         float oversizeFactor = 1;
-        if (visibleDocumentRegion != null && viewport.IsScene && visibleDocumentRegion.Value != new RectI(0, 0, Document.Size.X, Document.Size.Y))
+        if (visibleDocumentRegion != null && viewport.IsScene &&
+            visibleDocumentRegion.Value != new RectI(0, 0, Document.Size.X, Document.Size.Y))
         {
             visibleDocumentRegion = (RectI)visibleDocumentRegion.Value.Scale(OversizeFactor,
                 visibleDocumentRegion.Value.Center);
@@ -129,9 +148,14 @@ internal class SceneRenderer
 
         if (shouldRerender)
         {
-            affectedArea = fullAffectedArea && viewport.VisibleDocumentRegion.HasValue ? new AffectedArea(OperationHelper.FindChunksTouchingRectangle(viewport.VisibleDocumentRegion.Value, ChunkyImage.FullChunkSize)) : affectedArea;
-            return RenderGraph(renderTargetSize, targetMatrix, viewportId, resolution, samplingOptions, affectedArea,
+            affectedArea = fullAffectedArea && viewport.VisibleDocumentRegion.HasValue
+                ? new AffectedArea(OperationHelper.FindChunksTouchingRectangle(viewport.VisibleDocumentRegion.Value,
+                    ChunkyImage.FullChunkSize))
+                : affectedArea;
+            var rendered = RenderGraph(renderTargetSize, targetMatrix, viewportId, resolution, samplingOptions,
+                affectedArea,
                 visibleDocumentRegion, targetOutput, viewport.IsScene, oversizeFactor, finalGraph, previewTextures);
+            return rendered;
         }
 
         var cachedTexture = DocumentViewModel.SceneTextures[viewportId];
@@ -295,6 +319,7 @@ internal class SceneRenderer
             OnionSkinning = DocumentViewModel.AnimationHandler.OnionSkinningEnabledBindable,
             GraphCacheHash = finalGraph.GetCacheHash(),
             ZoomLevel = matrix.ScaleX,
+            Matrix = matrix,
             VisibleDocumentRegion =
                 (RectD?)visibleDocumentRegion ?? new RectD(0, 0, Document.Size.X, Document.Size.Y)
         };
@@ -378,6 +403,7 @@ readonly struct RenderState
     public int OnionFrames { get; init; }
     public double OnionOpacity { get; init; }
     public bool OnionSkinning { get; init; }
+    public Matrix3X3 Matrix { get; init; }
 
     public bool ShouldRerender(RenderState other)
     {
@@ -385,7 +411,7 @@ readonly struct RenderState
                TargetOutput != other.TargetOutput || GraphCacheHash != other.GraphCacheHash ||
                OnionFrames != other.OnionFrames || Math.Abs(OnionOpacity - other.OnionOpacity) > 0.05 ||
                OnionSkinning != other.OnionSkinning ||
-               VisibleRegionChanged(other) || ZoomDiff(other) > 0;
+               VisibleRegionChanged(other) || ZoomDiff(other);
     }
 
     private bool VisibleRegionChanged(RenderState other)
@@ -393,8 +419,18 @@ readonly struct RenderState
         return !other.VisibleDocumentRegion.IsFullyInside(VisibleDocumentRegion);
     }
 
-    private double ZoomDiff(RenderState other)
+    private bool ZoomDiff(RenderState other)
     {
-        return Math.Abs(ZoomLevel - other.ZoomLevel);
+        var diff = VisibleDocumentRegion.Size.Length - other.VisibleDocumentRegion.Size.Length;
+
+        return Math.Abs(diff) > SceneRenderer.ZoomDiffToRerender;
     }
+}
+
+readonly record struct SceneRenderRequest
+{
+    public Dictionary<Guid, ViewportInfo> Viewports { get; init; }
+    public AffectedArea AffectedArea { get; init; }
+    public bool UpdateDelayed { get; init; }
+    public Dictionary<Guid, List<PreviewRenderRequest>>? PreviewTextures { get; init; }
 }

@@ -42,12 +42,12 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
         Size = new VecD(width, height);
     }
 
-    public override void RasterizeGeometry(Canvas canvas)
+    public override void RasterizeGeometry(Canvas canvas, ChunkResolution resolution)
     {
         Rasterize(canvas, false);
     }
 
-    public override void RasterizeTransformed(Canvas canvas)
+    public override void RasterizeTransformed(Canvas canvas, ChunkResolution resolution)
     {
         Rasterize(canvas, true);
     }

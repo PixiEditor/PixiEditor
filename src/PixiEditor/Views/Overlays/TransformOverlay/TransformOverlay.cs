@@ -485,7 +485,7 @@ internal class TransformOverlay : Overlay
 
             context.SetMatrix(context.TotalMatrix.Concat(matrix));
 
-            shearCursorGeometry.RasterizeTransformed(context);
+            shearCursorGeometry.RasterizeTransformed(context, ChunkResolution.Full);
         }
 
         context.RestoreToCount(saved);

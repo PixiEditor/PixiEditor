@@ -22,7 +22,7 @@ public class BetaExampleFile : IDisposable
         var stream = GetStream();
         var bytes = PixiParser.ReadPreview(stream);
 
-        PreviewImage = Texture.Load(bytes);
+        //PreviewImage = Texture.Load(bytes);
     }
     
     public Stream GetStream() => AssetLoader.Open(new Uri(resourcePath));

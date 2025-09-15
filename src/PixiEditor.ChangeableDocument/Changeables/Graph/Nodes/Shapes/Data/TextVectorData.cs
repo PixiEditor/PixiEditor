@@ -182,12 +182,12 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
         return path;
     }
 
-    public override void RasterizeGeometry(Canvas canvas)
+    public override void RasterizeGeometry(Canvas canvas, ChunkResolution resolution)
     {
         Rasterize(canvas, false);
     }
 
-    public override void RasterizeTransformed(Canvas canvas)
+    public override void RasterizeTransformed(Canvas canvas, ChunkResolution resolution)
     {
         Rasterize(canvas, true);
     }

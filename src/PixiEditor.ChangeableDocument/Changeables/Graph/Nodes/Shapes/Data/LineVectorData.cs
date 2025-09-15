@@ -62,12 +62,12 @@ public class LineVectorData : ShapeVectorData, IReadOnlyLineData
         Fill = false;
     }
 
-    public override void RasterizeGeometry(Canvas canvas)
+    public override void RasterizeGeometry(Canvas canvas, ChunkResolution resolution)
     {
         Rasterize(canvas, false);
     }
 
-    public override void RasterizeTransformed(Canvas canvas)
+    public override void RasterizeTransformed(Canvas canvas, ChunkResolution resolution)
     {
         Rasterize(canvas, true);
     }

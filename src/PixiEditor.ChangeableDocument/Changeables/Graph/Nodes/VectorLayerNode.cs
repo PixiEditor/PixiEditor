@@ -72,27 +72,43 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
     protected override void DrawWithoutFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
         Paint paint)
     {
-        if (RenderableShapeData == null)
+        if (RenderableShapeData == null || IsOutOfBounds(ctx.VisibleDocumentRegion))
         {
             return;
         }
 
-        Rasterize(workingSurface, paint);
+        Rasterize(workingSurface, paint, ctx.ChunkResolution);
     }
 
     protected override void DrawWithFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface, Paint paint)
     {
-        if (RenderableShapeData == null)
+        if (RenderableShapeData == null || IsOutOfBounds(ctx.VisibleDocumentRegion))
         {
             return;
         }
 
-        Rasterize(workingSurface, paint);
+        Rasterize(workingSurface, paint, ctx.ChunkResolution);
+    }
+
+    private bool IsOutOfBounds(RectI? visibleDocumentRegion)
+    {
+        if (visibleDocumentRegion == null)
+        {
+            return false;
+        }
+
+        if (RenderableShapeData == null)
+        {
+            return true;
+        }
+
+        RectD shapeBounds = RenderableShapeData.TransformedAABB;
+        return !shapeBounds.IntersectsWithInclusive((RectD)visibleDocumentRegion);
     }
 
     protected override bool ShouldRenderPreview(string elementToRenderName)
     {
-        if(RenderableShapeData == null)
+        if (RenderableShapeData == null)
         {
             return false;
         }
@@ -198,6 +214,11 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
 
     public void Rasterize(DrawingSurface surface, Paint paint)
     {
+        Rasterize(surface, paint, ChunkResolution.Full);
+    }
+
+    public void Rasterize(DrawingSurface surface, Paint paint, ChunkResolution resolution)
+    {
         int layer;
         // TODO: This can be further optimized by passing opacity, blend mode and filters directly to the rasterization method
         if (paint != null && (paint.Color.A < 255 || paint.ColorFilter != null || paint.ImageFilter != null ||
@@ -211,7 +232,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
             layer = surface.Canvas.Save();
         }
 
-        RenderableShapeData?.RasterizeTransformed(surface.Canvas);
+        RenderableShapeData?.RasterizeTransformed(surface.Canvas, resolution);
 
         surface.Canvas.RestoreToCount(layer);
     }

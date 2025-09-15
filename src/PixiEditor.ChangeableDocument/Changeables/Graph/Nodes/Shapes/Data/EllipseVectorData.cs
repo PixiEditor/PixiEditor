@@ -30,12 +30,12 @@ public class EllipseVectorData : ShapeVectorData, IReadOnlyEllipseData
         Radius = radius;
     }
 
-    public override void RasterizeGeometry(Canvas drawingSurface)
+    public override void RasterizeGeometry(Canvas drawingSurface, ChunkResolution resolution)
     {
         Rasterize(drawingSurface, false);
     }
 
-    public override void RasterizeTransformed(Canvas drawingSurface)
+    public override void RasterizeTransformed(Canvas drawingSurface, ChunkResolution resolution)
     {
         Rasterize(drawingSurface, true);
     }

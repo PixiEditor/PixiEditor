@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.Globalization;
 using Avalonia;
 using Avalonia.Animation;
@@ -19,6 +20,7 @@ using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Shaders;
 using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Text;
 using Drawie.Interop.Avalonia.Core;
@@ -187,11 +189,13 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     private RenderApiResources resources;
 
     private DrawingSurface framebuffer;
-    private Texture renderTexture;
+    private Texture intermediateSurface;
 
-    private PixelSize lastSize = PixelSize.Empty;
+    private VecI lastSize = VecI.Zero;
     private Cursor lastCursor;
     private VecD lastMousePosition;
+
+    private IDisposable? toPresent;
 
     public static readonly StyledProperty<string> RenderOutputProperty =
         AvaloniaProperty.Register<Scene, string>("RenderOutput");
@@ -324,44 +328,83 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         QueueNextFrame();
     }
 
+    public override void Render(DrawingContext context)
+    {
+        if (!string.IsNullOrEmpty(info))
+        {
+            Point center = new Point(Bounds.Width / 2, Bounds.Height / 2);
+            context.DrawText(
+                new FormattedText(info, CultureInfo.CurrentCulture, FlowDirection.LeftToRight, Typeface.Default, 12,
+                    Brushes.White),
+                center);
+        }
+    }
+
+    private float angleRadians;
+    private bool flipX;
+    private bool flipY;
+    private float scale;
+    private VecD canvasPos;
+    private DocumentViewModel doc;
+    string renderOutput;
+    private void PrepareToDraw()
+    {
+        angleRadians = (float)AngleRadians;
+        flipX = FlipX;
+        flipY = FlipY;
+        scale = (float)Scale;
+        canvasPos = CanvasPos;
+        doc = Document;
+        renderOutput = RenderOutput;
+    }
+
     public void Draw(DrawingSurface texture)
     {
-        if (Document == null || SceneRenderer == null) return;
-
         texture.Canvas.Save();
-        var matrix = CalculateTransformMatrix();
+        var matrix = CalculateTransformMatrix(angleRadians, flipX, flipY, scale, canvasPos);
 
         texture.Canvas.SetMatrix(matrix.ToSKMatrix().ToMatrix3X3());
 
-        VecI outputSize = FindOutputSize();
+        VecI outputSize = FindOutputSize(doc, renderOutput);
 
         RectD dirtyBounds = new RectD(0, 0, outputSize.X, outputSize.Y);
-        RenderScene(texture, dirtyBounds);
+        RenderScene(texture, dirtyBounds, doc, angleRadians, flipX, flipY, scale, canvasPos);
 
         texture.Canvas.Restore();
     }
 
-    private void RenderScene(DrawingSurface texture, RectD bounds)
+    private void RenderScene(DrawingSurface texture, RectD bounds, DocumentViewModel document,
+        float angleRadians, bool flipX, bool flipY, float scale, VecD canvasPos)
     {
-        var renderOutput = RenderOutput == "DEFAULT" ? null : RenderOutput;
-        DrawCheckerboard(texture, bounds);
-        DrawOverlays(texture, bounds, OverlayRenderSorting.Background);
+        //var renderOutput = RenderOutput == "DEFAULT" ? null : RenderOutput;
+        //DrawCheckerboard(texture, bounds);
+        //DrawOverlays(texture, bounds, OverlayRenderSorting.Background);
         try
         {
-            if(Document == null || Document.SceneTextures.TryGetValue(ViewportId, out var tex) == false)
+            Guid viewportId = default;
+            VecD realDimensions = VecD.Zero;
+            Dispatcher.UIThread.Invoke(() =>
+            {
+                viewportId = ViewportId;
+                realDimensions = RealDimensions;
+            });
+
+            if (document == null || document.SceneTextures.TryGetValue(viewportId, out var tex) == false)
                 return;
-            
+
             bool hasSaved = false;
             int saved = -1;
 
-            var matrix = CalculateTransformMatrix().ToSKMatrix().ToMatrix3X3();
-            if(!Document.SceneTextures.TryGetValue(ViewportId, out var cachedTexture))
+            var matrix = CalculateTransformMatrix(angleRadians, flipX, flipY, scale, canvasPos).ToSKMatrix()
+                .ToMatrix3X3();
+            if (!document.SceneTextures.TryGetValue(viewportId, out var cachedTexture))
                 return;
 
-            Matrix3X3 matrixDiff = SolveMatrixDiff(matrix, cachedTexture);
-            var target = cachedTexture.DrawingSurface;
+            Matrix3X3 matrixDiff =
+                SolveMatrixDiff(matrix, document.SceneRenderer.LastRenderedStates[viewportId].Matrix);
+            var target = cachedTexture;
 
-            if (tex.Size == (VecI)RealDimensions || tex.Size == (VecI)(RealDimensions * SceneRenderer.OversizeFactor))
+            if (tex.Size == (VecI)realDimensions || tex.Size == (VecI)(realDimensions * SceneRenderer.OversizeFactor))
             {
                 saved = texture.Canvas.Save();
                 texture.Canvas.ClipRect(bounds);
@@ -372,10 +415,11 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             {
                 saved = texture.Canvas.Save();
                 ChunkResolution renderedResolution = ChunkResolution.Full;
-                if (SceneRenderer != null && SceneRenderer.LastRenderedStates.ContainsKey(ViewportId))
+                if (SceneRenderer != null && SceneRenderer.LastRenderedStates.ContainsKey(viewportId))
                 {
-                    renderedResolution = SceneRenderer.LastRenderedStates[ViewportId].ChunkResolution;
+                    renderedResolution = SceneRenderer.LastRenderedStates[viewportId].ChunkResolution;
                 }
+
                 texture.Canvas.SetMatrix(matrixDiff);
                 texture.Canvas.Scale((float)renderedResolution.InvertedMultiplier());
                 hasSaved = true;
@@ -384,7 +428,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
             texture.Canvas.Save();
 
-            texture.Canvas.DrawSurface(target, 0, 0);
+            texture.Canvas.DrawSurface(target.DrawingSurface, 0, 0);
             if (hasSaved)
             {
                 texture.Canvas.RestoreToCount(saved);
@@ -398,11 +442,11 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             using Font defaultSizedFont = Font.CreateDefault();
             defaultSizedFont.Size = 24;
 
-            texture.Canvas.DrawText(new LocalizedString("ERROR_GRAPH"), renderTexture.Size / 2f,
+            texture.Canvas.DrawText(new LocalizedString("ERROR_GRAPH"), intermediateSurface.Size / 2f,
                 TextAlign.Center, defaultSizedFont, paint);
         }
 
-        DrawOverlays(texture, bounds, OverlayRenderSorting.Foreground);
+        //DrawOverlays(texture, bounds, OverlayRenderSorting.Foreground);
     }
 
     private void DrawCheckerboard(DrawingSurface surface, RectD dirtyBounds)
@@ -474,18 +518,18 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         }
     }
 
-    private VecI FindOutputSize()
+    private VecI FindOutputSize(DocumentViewModel doc, string renderOutput)
     {
-        VecI outputSize = Document.SizeBindable;
+        VecI outputSize = doc.SizeBindable;
 
-        if (!string.IsNullOrEmpty(RenderOutput))
+        if (!string.IsNullOrEmpty(renderOutput))
         {
-            if (Document.NodeGraph.CustomRenderOutputs.TryGetValue(RenderOutput, out var node))
+            if (doc.NodeGraph.CustomRenderOutputs.TryGetValue(renderOutput, out var node))
             {
                 var prop = node?.Inputs.FirstOrDefault(x => x.PropertyName == CustomOutputNode.SizePropertyName);
                 if (prop != null)
                 {
-                    VecI size = Document.NodeGraph.GetComputedPropertyValue<VecI>(prop);
+                    VecI size = doc.NodeGraph.GetComputedPropertyValue<VecI>(prop);
                     if (size.ShortestAxis > 0)
                     {
                         outputSize = size;
@@ -761,18 +805,18 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     private VecD ToCanvasSpace(Point scenePosition)
     {
-        Matrix transform = CalculateTransformMatrix();
+        Matrix transform = CalculateTransformMatrix((float)AngleRadians, FlipX, FlipY, (float)Scale, CanvasPos);
         Point transformed = transform.Invert().Transform(scenePosition);
         return new VecD(transformed.X, transformed.Y);
     }
 
-    internal Matrix CalculateTransformMatrix()
+    internal Matrix CalculateTransformMatrix(float angleRadians, bool flipX, bool flipY, double scale, VecD canvasPos)
     {
         Matrix transform = Matrix.Identity;
-        transform = transform.Append(Matrix.CreateRotation((float)AngleRadians));
-        transform = transform.Append(Matrix.CreateScale(FlipX ? -1 : 1, FlipY ? -1 : 1));
-        transform = transform.Append(Matrix.CreateScale((float)Scale, (float)Scale));
-        transform = transform.Append(Matrix.CreateTranslation(CanvasPos.X, CanvasPos.Y));
+        transform = transform.Append(Matrix.CreateRotation(angleRadians));
+        transform = transform.Append(Matrix.CreateScale(flipX ? -1 : 1, flipY ? -1 : 1));
+        transform = transform.Append(Matrix.CreateScale((float)scale, (float)scale));
+        transform = transform.Append(Matrix.CreateTranslation(canvasPos.X, canvasPos.Y));
         return transform;
     }
 
@@ -843,10 +887,9 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             return;
         }
 
-        var size = new PixelSize((int)Bounds.Width, (int)Bounds.Height);
         try
         {
-            RenderFrame(size);
+            RenderFrame();
             info = string.Empty;
         }
         catch (Exception e)
@@ -857,13 +900,39 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         }
     }
 
+    private void RenderFrame()
+    {
+        toPresent?.Dispose();
+        toPresent = null;
+    }
+
     public void QueueNextFrame()
     {
         if (initialized && !updateQueued && compositor != null && surface is { IsDisposed: false })
         {
-            updateQueued = true;
-            compositor.RequestCompositionUpdate(update);
+            QueueFrameRequested();
+            RequestBlit();
         }
+    }
+
+
+    protected void QueueFrameRequested()
+    {
+        if (Bounds.Width <= 0 || Bounds.Height <= 0 || double.IsNaN(Bounds.Width) || double.IsNaN(Bounds.Height))
+            return;
+
+        PrepareToDraw();
+        DrawingBackendApi.Current.RenderingDispatcher.QueueRender(() =>
+        {
+            BeginDraw(new VecI((int)Bounds.Width, (int)Bounds.Height));
+            Dispatcher.UIThread.Post(RequestBlit);
+        });
+    }
+
+    private void RequestBlit()
+    {
+        updateQueued = true;
+        compositor.RequestCompositionUpdate(update);
     }
 
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
@@ -877,9 +946,9 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     }
 
 
-    private Matrix3X3 SolveMatrixDiff(Matrix3X3 matrix, Texture cachedTexture)
+    private Matrix3X3 SolveMatrixDiff(Matrix3X3 matrix, Matrix3X3 renderedMatrix)
     {
-        Matrix3X3 old = cachedTexture.DrawingSurface.Canvas.TotalMatrix;
+        Matrix3X3 old = renderedMatrix;
         Matrix3X3 current = matrix;
 
         Matrix3X3 solveMatrixDiff = current.Concat(old.Invert());
@@ -895,41 +964,36 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             return (false, "Composition interop not available");
         }
 
-        return InitializeGraphicsResources(compositor, surface, interop);
-    }
-
-    protected (bool success, string info) InitializeGraphicsResources(Compositor targetCompositor,
-        CompositionDrawingSurface compositionDrawingSurface, ICompositionGpuInterop interop)
-    {
-        try
+        var resources = InitializeGraphicsResources(compositor, surface, interop, out string info);
+        if (resources == null)
         {
-            resources = IDrawieInteropContext.Current.CreateResources(compositionDrawingSurface, interop);
-        }
-        catch (Exception e)
-        {
-            return (false, new LocalizedString("ERROR_GPU_RESOURCES_CREATION", e.Message));
+            return (false, "Failed to create graphics resources: " + info);
         }
 
+        this.resources = resources;
         return (true, string.Empty);
     }
 
-    public override void Render(DrawingContext context)
+    protected RenderApiResources? InitializeGraphicsResources(Compositor targetCompositor,
+        CompositionDrawingSurface compositionDrawingSurface, ICompositionGpuInterop interop, out string? createInfo)
     {
-        if (!string.IsNullOrEmpty(info))
+        try
         {
-            Point center = new Point(Bounds.Width / 2, Bounds.Height / 2);
-            context.DrawText(
-                new FormattedText(info, CultureInfo.CurrentCulture, FlowDirection.LeftToRight, Typeface.Default, 12,
-                    Brushes.White),
-                center);
+            createInfo = null;
+            return IDrawieInteropContext.Current.CreateResources(compositionDrawingSurface, interop);
+        }
+        catch (Exception e)
+        {
+            createInfo = e.Message;
+            return null;
         }
     }
 
     protected async Task FreeGraphicsResources()
     {
         using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
-        renderTexture?.Dispose();
-        renderTexture = null;
+        intermediateSurface?.Dispose();
+        intermediateSurface = null;
 
         framebuffer?.Dispose();
         framebuffer = null;
@@ -942,12 +1006,12 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         resources = null;
     }
 
-    protected void RenderFrame(PixelSize size)
+    public void BeginDraw(VecI size)
     {
-        if (resources != null && !resources.IsDisposed)
+        if (resources is { IsDisposed: false })
         {
             using var ctx = IDrawieInteropContext.Current.EnsureContext();
-            if (size.Width == 0 || size.Height == 0)
+            if (size.X == 0 || size.Y == 0)
             {
                 return;
             }
@@ -956,27 +1020,29 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             {
                 resources.CreateTemporalObjects(size);
 
-                VecI sizeVec = new VecI(size.Width, size.Height);
+                VecI sizeVec = new VecI(size.X, size.Y);
 
                 framebuffer?.Dispose();
-                renderTexture?.Dispose();
 
                 framebuffer =
                     DrawingBackendApi.Current.CreateRenderSurface(sizeVec,
                         resources.Texture, SurfaceOrigin.BottomLeft);
 
-                renderTexture = Texture.ForDisplay(sizeVec);
+                intermediateSurface?.Dispose();
+                intermediateSurface = Texture.ForDisplay(sizeVec);
 
                 lastSize = size;
             }
 
-            resources.Render(size, () =>
+            toPresent = resources.Render(size, () =>
             {
                 framebuffer.Canvas.Clear();
-                renderTexture.DrawingSurface.Canvas.Clear();
-                Draw(renderTexture.DrawingSurface);
-                framebuffer.Canvas.DrawSurface(renderTexture.DrawingSurface, 0, 0);
-                framebuffer.Flush();
+                intermediateSurface?.DrawingSurface.Canvas.Clear();
+
+                Draw(intermediateSurface.DrawingSurface);
+                framebuffer.Canvas.DrawSurface(intermediateSurface.DrawingSurface, 0, 0);
+
+                //framebuffer.Flush();
             });
         }
     }

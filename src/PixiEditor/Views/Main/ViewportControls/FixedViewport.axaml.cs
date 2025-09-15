@@ -14,6 +14,7 @@ using PixiEditor.Models.Position;
 using Drawie.Numerics;
 using PixiEditor.Models.Rendering;
 using PixiEditor.ViewModels.Document;
+using Image = Drawie.Backend.Core.Surfaces.ImageData.Image;
 
 namespace PixiEditor.Views.Main.ViewportControls;
 

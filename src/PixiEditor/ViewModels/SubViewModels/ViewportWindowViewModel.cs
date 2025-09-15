@@ -176,7 +176,7 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
         PixiEditorSettings.Scene.SecondaryBackgroundColor.ValueChanged += UpdateBackgroundBitmap;
 
         previewPainterControl = new TextureControl();
-        var nonZoomed = Document.SceneTextures.Where(x =>
+        /*var nonZoomed = Document.SceneTextures.Where(x =>
             x.Value is { DrawingSurface.Canvas.TotalMatrix: { TransX: 0, TransY: 0, SkewX: 0, SkewY: 0 } }).ToArray();
         if (nonZoomed.Length > 0)
         {
@@ -185,7 +185,7 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
             {
                 previewPainterControl.Texture = minSize.Value;
             }
-        }
+        }*/
 
         TabCustomizationSettings.Icon = previewPainterControl;
     }
@@ -199,15 +199,15 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
         }
         else if (e.PropertyName == nameof(DocumentViewModel.AllChangesSaved))
         {
-            var nonZoomed = Document.SceneTextures.Where(x =>
-                    x.Value is { DrawingSurface.Canvas.TotalMatrix: { TransX: 0, TransY: 0, SkewX: 0, SkewY: 0 } })
+            var nonZoomed = Document.SceneRenderer.LastRenderedStates.Where(x =>
+                    x.Value is { Matrix: { TransX: 0, TransY: 0, SkewX: 0, SkewY: 0 } })
                 .ToArray();
             if (nonZoomed.Length > 0)
             {
-                var minSize = nonZoomed.MinBy(x => x.Value.Size);
+                var minSize = Document.SceneTextures.Where(x => nonZoomed.Any(y => y.Key == x.Key)).MinBy(x => x.Value.Size);
                 if (minSize.Value != null)
                 {
-                    previewPainterControl.Texture = minSize.Value;
+                    //previewPainterControl.Texture = minSize.Value;
                 }
             }
             TabCustomizationSettings.SavedState = GetSaveState(Document);

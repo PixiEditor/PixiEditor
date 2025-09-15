@@ -10,7 +10,18 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 
 public class PathVectorData : ShapeVectorData, IReadOnlyPathData
 {
-    public VectorPath Path { get; set; }
+    private Dictionary<ChunkResolution, VectorPath> simplifiedPaths = new();
+    private VectorPath path;
+
+    public VectorPath Path
+    {
+        get => path;
+        set
+        {
+            path = value;
+            RecalculateSimplifiedPaths();
+        }
+    }
     public override RectD GeometryAABB => Path?.TightBounds ?? RectD.Empty;
     public override RectD VisualAABB => GeometryAABB.Inflate(StrokeWidth / 2);
 
@@ -44,17 +55,17 @@ public class PathVectorData : ShapeVectorData, IReadOnlyPathData
         }
     }
 
-    public override void RasterizeGeometry(Canvas canvas)
+    public override void RasterizeGeometry(Canvas canvas, ChunkResolution resolution)
     {
-        Rasterize(canvas, false);
+        Rasterize(canvas, false, resolution);
     }
 
-    public override void RasterizeTransformed(Canvas canvas)
+    public override void RasterizeTransformed(Canvas canvas, ChunkResolution resolution)
     {
-        Rasterize(canvas, true);
+        Rasterize(canvas, true, resolution);
     }
 
-    private void Rasterize(Canvas canvas, bool applyTransform)
+    private void Rasterize(Canvas canvas, bool applyTransform, ChunkResolution resolution)
     {
         if (Path == null)
         {
@@ -68,6 +79,8 @@ public class PathVectorData : ShapeVectorData, IReadOnlyPathData
             ApplyTransformTo(canvas);
         }
 
+        var finalPath = simplifiedPaths[resolution];
+
         using Paint paint = new Paint()
         {
             IsAntiAliased = true, StrokeJoin = StrokeLineJoin, StrokeCap = StrokeLineCap
@@ -78,7 +91,7 @@ public class PathVectorData : ShapeVectorData, IReadOnlyPathData
             paint.SetPaintable(FillPaintable);
             paint.Style = PaintStyle.Fill;
 
-            canvas.DrawPath(Path, paint);
+            canvas.DrawPath(finalPath, paint);
         }
 
         if (StrokeWidth > 0 && Stroke.AnythingVisible)
@@ -87,7 +100,7 @@ public class PathVectorData : ShapeVectorData, IReadOnlyPathData
             paint.Style = PaintStyle.Stroke;
             paint.StrokeWidth = StrokeWidth;
 
-            canvas.DrawPath(Path, paint);
+            canvas.DrawPath(finalPath, paint);
         }
 
         if (applyTransform)
@@ -131,10 +144,32 @@ public class PathVectorData : ShapeVectorData, IReadOnlyPathData
         return newPath;
     }
 
+    private void RecalculateSimplifiedPaths()
+    {
+        foreach (var sPath in simplifiedPaths.Values)
+        {
+            if (!Equals(sPath, Path))
+            {
+                sPath.Dispose();
+            }
+        }
+
+        simplifiedPaths.Clear();
+
+        simplifiedPaths[ChunkResolution.Full] = Path;
+        var half = Path.Simplify();
+        simplifiedPaths[ChunkResolution.Half] = half;
+        var quarter = half.Simplify();
+        simplifiedPaths[ChunkResolution.Quarter] = quarter;
+        var eighth = quarter.Simplify();
+        simplifiedPaths[ChunkResolution.Eighth] = eighth;
+    }
+
     protected bool Equals(PathVectorData other)
     {
-        return base.Equals(other) && Path.Equals(other.Path) && StrokeLineCap == other.StrokeLineCap && StrokeLineJoin == other.StrokeLineJoin
-                && FillType == other.FillType;
+        return base.Equals(other) && Path.Equals(other.Path) && StrokeLineCap == other.StrokeLineCap &&
+               StrokeLineJoin == other.StrokeLineJoin
+               && FillType == other.FillType;
     }
 
     public override bool Equals(object? obj)

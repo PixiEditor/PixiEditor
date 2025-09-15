@@ -29,7 +29,7 @@ public class RasterizeShapeNode : RenderNode
 
         AllowHighDpiRendering = HighDpiRendering.Value;
 
-        shape.RasterizeTransformed(surface.Canvas);
+        shape.RasterizeTransformed(surface.Canvas, context.ChunkResolution);
     }
 
     public override Node CreateCopy() => new RasterizeShapeNode();
@@ -51,6 +51,6 @@ public class RasterizeShapeNode : RenderNode
         if (shape == null || !shape.IsValid())
             return;
 
-        shape.RasterizeTransformed(renderOn.Canvas);
+        shape.RasterizeTransformed(renderOn.Canvas, context.ChunkResolution);
     }
 }

@@ -165,7 +165,7 @@ internal class ActionAccumulator
                     .Select(x => x.Select(r => r.TextureUpdatedAction))
                     .SelectMany(x => x).ToList();
 
-                await document.SceneRenderer.RenderAsync(internals.State.Viewports, affectedAreas.MainImageArea,
+                document.SceneRenderer.RenderAsync(internals.State.Viewports, affectedAreas.MainImageArea,
                     !previewsDisabled && updateDelayed, previewTextures);
 
                 NotifyUpdatedPreviews(updatePreviewActions);

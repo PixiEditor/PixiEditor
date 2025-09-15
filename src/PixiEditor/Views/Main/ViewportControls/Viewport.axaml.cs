@@ -525,7 +525,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     private ViewportInfo GetLocation()
     {
         return new(AngleRadians, Center, RealDimensions,
-            Scene.CalculateTransformMatrix().ToSKMatrix().ToMatrix3X3(),
+            Scene.CalculateTransformMatrix((float)Scene.AngleRadians, Scene.FlipX, Scene.FlipY, Scene.Scale, Scene.CanvasPos).ToSKMatrix().ToMatrix3X3(),
             CalculateVisibleRegion(),
             ViewportRenderOutput, Scene.CalculateSampling(), Dimensions, CalculateResolution(), GuidValue, Delayed,
             true, ForceRefreshFinalImage);

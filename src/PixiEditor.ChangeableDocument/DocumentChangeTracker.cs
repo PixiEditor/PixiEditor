@@ -431,7 +431,8 @@ public class DocumentChangeTracker : IDisposable
         if (running)
             throw new InvalidOperationException("Already currently processing");
         running = true;
-        var result = await DrawingBackendApi.Current.RenderingDispatcher.InvokeAsync(() => ProcessActionList(actions));
+        //TODO: Implement async processing
+        var result = ProcessActionList(actions);
         running = false;
         return result;
     }
