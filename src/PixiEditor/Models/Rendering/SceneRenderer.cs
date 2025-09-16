@@ -76,13 +76,13 @@ internal class SceneRenderer
             {
                 if (DocumentViewModel.SceneTextures.TryGetValue(viewport.Key, out var texture) && texture != rendered)
                 {
-                    texture.Dispose();
+                    texture?.Dispose();
                 }
 
                 DocumentViewModel.SceneTextures[viewport.Key] = rendered;
+                Dispatcher.UIThread.Post(viewport.Value.InvalidateVisual, DispatcherPriority.Render);
             }
 
-            Dispatcher.UIThread.Invoke(() => viewport.Value.InvalidateVisual());
             renderedCount++;
         }
 
@@ -132,6 +132,9 @@ internal class SceneRenderer
             : viewport.RenderOutput;
 
         IReadOnlyNodeGraph finalGraph = RenderingUtils.SolveFinalNodeGraph(targetOutput, Document);
+
+        if(renderTargetSize.X <= 0 || renderTargetSize.Y <= 0)
+            return null;
 
         float oversizeFactor = 1;
         if (visibleDocumentRegion != null && viewport.IsScene &&

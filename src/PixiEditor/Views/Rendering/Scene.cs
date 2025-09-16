@@ -194,8 +194,8 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     private VecI lastSize = VecI.Zero;
     private Cursor lastCursor;
     private VecD lastMousePosition;
+    private bool needsRedraw;
 
-    private IDisposable? toPresent;
 
     public static readonly StyledProperty<string> RenderOutputProperty =
         AvaloniaProperty.Register<Scene, string>("RenderOutput");
@@ -340,71 +340,44 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         }
     }
 
-    private float angleRadians;
-    private bool flipX;
-    private bool flipY;
-    private float scale;
-    private VecD canvasPos;
-    private DocumentViewModel doc;
-    string renderOutput;
-    private void PrepareToDraw()
-    {
-        angleRadians = (float)AngleRadians;
-        flipX = FlipX;
-        flipY = FlipY;
-        scale = (float)Scale;
-        canvasPos = CanvasPos;
-        doc = Document;
-        renderOutput = RenderOutput;
-    }
-
     public void Draw(DrawingSurface texture)
     {
         texture.Canvas.Save();
-        var matrix = CalculateTransformMatrix(angleRadians, flipX, flipY, scale, canvasPos);
+        var matrix = CalculateTransformMatrix();
 
         texture.Canvas.SetMatrix(matrix.ToSKMatrix().ToMatrix3X3());
 
-        VecI outputSize = FindOutputSize(doc, renderOutput);
+        VecI outputSize = FindOutputSize(Document, RenderOutput);
 
         RectD dirtyBounds = new RectD(0, 0, outputSize.X, outputSize.Y);
-        RenderScene(texture, dirtyBounds, doc, angleRadians, flipX, flipY, scale, canvasPos);
+        RenderScene(texture, dirtyBounds);
 
         texture.Canvas.Restore();
     }
 
-    private void RenderScene(DrawingSurface texture, RectD bounds, DocumentViewModel document,
-        float angleRadians, bool flipX, bool flipY, float scale, VecD canvasPos)
+    private void RenderScene(DrawingSurface texture, RectD bounds)
     {
-        //var renderOutput = RenderOutput == "DEFAULT" ? null : RenderOutput;
-        //DrawCheckerboard(texture, bounds);
-        //DrawOverlays(texture, bounds, OverlayRenderSorting.Background);
+        var renderOutput = RenderOutput == "DEFAULT" ? null : RenderOutput;
+        DrawCheckerboard(texture, bounds);
+        DrawOverlays(texture, bounds, OverlayRenderSorting.Background);
         try
         {
-            Guid viewportId = default;
-            VecD realDimensions = VecD.Zero;
-            Dispatcher.UIThread.Invoke(() =>
-            {
-                viewportId = ViewportId;
-                realDimensions = RealDimensions;
-            });
-
-            if (document == null || document.SceneTextures.TryGetValue(viewportId, out var tex) == false)
+            if (Document == null || Document.SceneTextures.TryGetValue(ViewportId, out var tex) == false)
                 return;
 
             bool hasSaved = false;
             int saved = -1;
 
-            var matrix = CalculateTransformMatrix(angleRadians, flipX, flipY, scale, canvasPos).ToSKMatrix()
+            var matrix = CalculateTransformMatrix().ToSKMatrix()
                 .ToMatrix3X3();
-            if (!document.SceneTextures.TryGetValue(viewportId, out var cachedTexture))
+            if (!Document.SceneTextures.TryGetValue(ViewportId, out var cachedTexture))
                 return;
 
             Matrix3X3 matrixDiff =
-                SolveMatrixDiff(matrix, document.SceneRenderer.LastRenderedStates[viewportId].Matrix);
+                SolveMatrixDiff(matrix, Document.SceneRenderer.LastRenderedStates[ViewportId].Matrix);
             var target = cachedTexture;
 
-            if (tex.Size == (VecI)realDimensions || tex.Size == (VecI)(realDimensions * SceneRenderer.OversizeFactor))
+            if (tex.Size == (VecI)RealDimensions || tex.Size == (VecI)(RealDimensions * SceneRenderer.OversizeFactor))
             {
                 saved = texture.Canvas.Save();
                 texture.Canvas.ClipRect(bounds);
@@ -415,9 +388,9 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             {
                 saved = texture.Canvas.Save();
                 ChunkResolution renderedResolution = ChunkResolution.Full;
-                if (SceneRenderer != null && SceneRenderer.LastRenderedStates.ContainsKey(viewportId))
+                if (SceneRenderer != null && SceneRenderer.LastRenderedStates.ContainsKey(ViewportId))
                 {
-                    renderedResolution = SceneRenderer.LastRenderedStates[viewportId].ChunkResolution;
+                    renderedResolution = SceneRenderer.LastRenderedStates[ViewportId].ChunkResolution;
                 }
 
                 texture.Canvas.SetMatrix(matrixDiff);
@@ -442,11 +415,11 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             using Font defaultSizedFont = Font.CreateDefault();
             defaultSizedFont.Size = 24;
 
-            texture.Canvas.DrawText(new LocalizedString("ERROR_GRAPH"), intermediateSurface.Size / 2f,
+            texture.Canvas.DrawText(new LocalizedString("ERROR_GRAPH"), RealDimensions / 2f,
                 TextAlign.Center, defaultSizedFont, paint);
         }
 
-        //DrawOverlays(texture, bounds, OverlayRenderSorting.Foreground);
+        DrawOverlays(texture, bounds, OverlayRenderSorting.Foreground);
     }
 
     private void DrawCheckerboard(DrawingSurface surface, RectD dirtyBounds)
@@ -805,18 +778,18 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     private VecD ToCanvasSpace(Point scenePosition)
     {
-        Matrix transform = CalculateTransformMatrix((float)AngleRadians, FlipX, FlipY, (float)Scale, CanvasPos);
+        Matrix transform = CalculateTransformMatrix();
         Point transformed = transform.Invert().Transform(scenePosition);
         return new VecD(transformed.X, transformed.Y);
     }
 
-    internal Matrix CalculateTransformMatrix(float angleRadians, bool flipX, bool flipY, double scale, VecD canvasPos)
+    internal Matrix CalculateTransformMatrix()
     {
         Matrix transform = Matrix.Identity;
-        transform = transform.Append(Matrix.CreateRotation(angleRadians));
-        transform = transform.Append(Matrix.CreateScale(flipX ? -1 : 1, flipY ? -1 : 1));
-        transform = transform.Append(Matrix.CreateScale((float)scale, (float)scale));
-        transform = transform.Append(Matrix.CreateTranslation(canvasPos.X, canvasPos.Y));
+        transform = transform.Append(Matrix.CreateRotation(AngleRadians));
+        transform = transform.Append(Matrix.CreateScale(FlipX ? -1 : 1, FlipY ? -1 : 1));
+        transform = transform.Append(Matrix.CreateScale((float)Scale, (float)Scale));
+        transform = transform.Append(Matrix.CreateTranslation(CanvasPos.X, CanvasPos.Y));
         return transform;
     }
 
@@ -889,7 +862,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
         try
         {
-            RenderFrame();
+            RenderFrame(new PixelSize((int)Bounds.Width, (int)Bounds.Height));
             info = string.Empty;
         }
         catch (Exception e)
@@ -900,39 +873,66 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         }
     }
 
-    private void RenderFrame()
+    private void RenderFrame(PixelSize pixelSize)
     {
-        toPresent?.Dispose();
-        toPresent = null;
+        if (!needsRedraw)
+            return;
+
+        VecI size = new VecI(pixelSize.Width, pixelSize.Height);
+
+        if (resources is { IsDisposed: false })
+        {
+            using var ctx = IDrawieInteropContext.Current.EnsureContext();
+            if (size.X == 0 || size.Y == 0)
+            {
+                return;
+            }
+
+            if (lastSize != size || framebuffer == null || framebuffer.IsDisposed ||
+                framebuffer.DeviceClipBounds.Size != size)
+            {
+                resources.CreateTemporalObjects(size);
+
+                framebuffer?.Dispose();
+                framebuffer =
+                    DrawingBackendApi.Current.CreateRenderSurface(size, resources.Texture, SurfaceOrigin.BottomLeft);
+
+                lastSize = size;
+            }
+
+            using var _ = resources.Render(size, () =>
+            {
+                framebuffer.Canvas.Clear();
+                Draw(framebuffer);
+                framebuffer.Canvas.Flush();
+            });
+
+            needsRedraw = false;
+        }
     }
 
     public void QueueNextFrame()
     {
         if (initialized && !updateQueued && compositor != null && surface is { IsDisposed: false })
         {
+            updateQueued = true;
             QueueFrameRequested();
-            RequestBlit();
         }
     }
-
 
     protected void QueueFrameRequested()
     {
         if (Bounds.Width <= 0 || Bounds.Height <= 0 || double.IsNaN(Bounds.Width) || double.IsNaN(Bounds.Height))
             return;
 
-        PrepareToDraw();
-        DrawingBackendApi.Current.RenderingDispatcher.QueueRender(() =>
-        {
-            BeginDraw(new VecI((int)Bounds.Width, (int)Bounds.Height));
-            Dispatcher.UIThread.Post(RequestBlit);
-        });
+        needsRedraw = true;
+        RequestBlit();
+        InvalidateVisual();
     }
 
-    private void RequestBlit()
+    protected void RequestBlit()
     {
-        updateQueued = true;
-        compositor.RequestCompositionUpdate(update);
+        DrawingBackendApi.Current.RenderingDispatcher.EnqueueUIUpdate(update);
     }
 
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
@@ -1004,47 +1004,6 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         }
 
         resources = null;
-    }
-
-    public void BeginDraw(VecI size)
-    {
-        if (resources is { IsDisposed: false })
-        {
-            using var ctx = IDrawieInteropContext.Current.EnsureContext();
-            if (size.X == 0 || size.Y == 0)
-            {
-                return;
-            }
-
-            if (framebuffer == null || lastSize != size)
-            {
-                resources.CreateTemporalObjects(size);
-
-                VecI sizeVec = new VecI(size.X, size.Y);
-
-                framebuffer?.Dispose();
-
-                framebuffer =
-                    DrawingBackendApi.Current.CreateRenderSurface(sizeVec,
-                        resources.Texture, SurfaceOrigin.BottomLeft);
-
-                intermediateSurface?.Dispose();
-                intermediateSurface = Texture.ForDisplay(sizeVec);
-
-                lastSize = size;
-            }
-
-            toPresent = resources.Render(size, () =>
-            {
-                framebuffer.Canvas.Clear();
-                intermediateSurface?.DrawingSurface.Canvas.Clear();
-
-                Draw(intermediateSurface.DrawingSurface);
-                framebuffer.Canvas.DrawSurface(intermediateSurface.DrawingSurface, 0, 0);
-
-                //framebuffer.Flush();
-            });
-        }
     }
 
     #endregion

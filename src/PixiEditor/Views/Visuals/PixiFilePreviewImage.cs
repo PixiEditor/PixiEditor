@@ -1,6 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Threading;
 using Drawie.Backend.Core;
+using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.Surfaces;
 using PixiEditor.Extensions.Exceptions;
 using PixiEditor.Helpers;
@@ -74,16 +75,22 @@ internal class PixiFilePreviewImage : TextureControl
             return;
         }
 
-        Dispatcher.UIThread.Post(() =>
+        DrawingBackendApi.Current.RenderingDispatcher.QueueRender(() =>
         {
             try
             {
                 var surface = LoadTexture(imageBytes);
-                SetImage(surface);
+                Dispatcher.UIThread.Post(() =>
+                {
+                    SetImage(surface);
+                });
             }
             catch (Exception e)
             {
-                SetCorrupt();
+                Dispatcher.UIThread.Post(() =>
+                {
+                    SetCorrupt();
+                });
             }
         });
     }

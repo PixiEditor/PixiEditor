@@ -125,7 +125,7 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
     private void ForceRefreshFinalImage()
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SceneTexture)));
-        mainImage.InvalidateVisual();
+        mainImage.QueueNextFrame();
     }
 
     private ViewportInfo GetLocation()
