@@ -75,7 +75,7 @@ internal class PixiFilePreviewImage : TextureControl
             return;
         }
 
-        DrawingBackendApi.Current.RenderingDispatcher.QueueRender(() =>
+        DrawingBackendApi.Current.RenderingDispatcher.Enqueue(() =>
         {
             try
             {

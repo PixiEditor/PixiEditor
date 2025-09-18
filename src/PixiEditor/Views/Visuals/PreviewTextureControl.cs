@@ -20,7 +20,6 @@ public class PreviewTextureControl : DrawieControl
         set => SetValue(TexturePreviewProperty, value);
     }
 
-    private Rect bounds;
 
     static PreviewTextureControl()
     {
@@ -58,14 +57,22 @@ public class PreviewTextureControl : DrawieControl
             TexturePreview.TextureUpdated -= QueueNextFrame;
     }
 
+    TexturePreview? texturePreview;
+    private Rect bounds;
+    protected override void PrepareToDraw()
+    {
+        texturePreview = TexturePreview;
+        bounds = Bounds;
+    }
+
     public override void Draw(DrawingSurface surface)
     {
-        if (TexturePreview is { Preview: { IsDisposed: false } })
+        if (texturePreview is { Preview: { IsDisposed: false } })
         {
-            VecD scaling = new(bounds.Size.Width / TexturePreview.Preview.Size.X, bounds.Size.Height / TexturePreview.Preview.Size.Y);
+            VecD scaling = new(bounds.Size.Width / texturePreview.Preview.Size.X, bounds.Size.Height / texturePreview.Preview.Size.Y);
             surface.Canvas.Save();
             surface.Canvas.Scale((float)scaling.X, (float)scaling.Y);
-            surface.Canvas.DrawSurface(TexturePreview.Preview.DrawingSurface, 0, 0);
+            surface.Canvas.DrawSurface(texturePreview.Preview.DrawingSurface, 0, 0);
             surface.Canvas.Restore();
         }
     }

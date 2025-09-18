@@ -54,7 +54,7 @@ internal class SceneRenderer
             PreviewTextures = previewTextures
         };
 
-        DrawingBackendApi.Current.RenderingDispatcher.QueueRender(DispatchRender);
+        DrawingBackendApi.Current.RenderingDispatcher.Enqueue(DispatchRender);
     }
 
     private void DispatchRender()

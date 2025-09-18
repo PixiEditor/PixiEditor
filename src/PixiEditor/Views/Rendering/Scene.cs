@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Diagnostics;
@@ -18,6 +19,7 @@ using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Rendering;
 using Drawie.Backend.Core.Shaders;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
@@ -235,6 +237,10 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             new DoubleTransition { Property = OpacityProperty, Duration = new TimeSpan(0, 0, 0, 0, 100) }
         };
 
+        frameRequest = new SynchronizedRequest(QueueRender,
+            QueueWriteBackToFront,
+            QueueCompositorUpdate);
+
         update = UpdateFrame;
         QueueNextFrame();
     }
@@ -340,14 +346,31 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         }
     }
 
+
+    private DocumentViewModel document;
+    string renderOutput;
+    VecI realDimensions;
+    private Matrix3X3 matrix;
+    private Guid viewportId;
+    SceneRenderer sceneRenderer;
+
+    protected virtual void PrepareToDraw()
+    {
+        document = Document;
+        renderOutput = RenderOutput;
+        realDimensions = FindOutputSize(document, renderOutput);
+        matrix = CalculateTransformMatrix().ToSKMatrix()
+            .ToMatrix3X3();
+        viewportId = ViewportId;
+        sceneRenderer = SceneRenderer;
+    }
     public void Draw(DrawingSurface texture)
     {
         texture.Canvas.Save();
-        var matrix = CalculateTransformMatrix();
 
-        texture.Canvas.SetMatrix(matrix.ToSKMatrix().ToMatrix3X3());
+        texture.Canvas.SetMatrix(matrix);
 
-        VecI outputSize = FindOutputSize(Document, RenderOutput);
+        VecI outputSize = FindOutputSize(document, renderOutput);
 
         RectD dirtyBounds = new RectD(0, 0, outputSize.X, outputSize.Y);
         RenderScene(texture, dirtyBounds);
@@ -357,27 +380,26 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     private void RenderScene(DrawingSurface texture, RectD bounds)
     {
-        var renderOutput = RenderOutput == "DEFAULT" ? null : RenderOutput;
-        DrawCheckerboard(texture, bounds);
-        DrawOverlays(texture, bounds, OverlayRenderSorting.Background);
+        //DrawCheckerboard(texture, bounds);
+        //DrawOverlays(texture, bounds, OverlayRenderSorting.Background);
         try
         {
-            if (Document == null || Document.SceneTextures.TryGetValue(ViewportId, out var tex) == false)
+            if (document == null || document.SceneTextures.TryGetValue(viewportId, out var tex) == false)
                 return;
 
             bool hasSaved = false;
             int saved = -1;
 
-            var matrix = CalculateTransformMatrix().ToSKMatrix()
-                .ToMatrix3X3();
-            if (!Document.SceneTextures.TryGetValue(ViewportId, out var cachedTexture))
+            /*var matrix = CalculateTransformMatrix().ToSKMatrix()
+                .ToMatrix3X3();*/
+            if (!document.SceneTextures.TryGetValue(viewportId, out var cachedTexture))
                 return;
 
             Matrix3X3 matrixDiff =
-                SolveMatrixDiff(matrix, Document.SceneRenderer.LastRenderedStates[ViewportId].Matrix);
+                SolveMatrixDiff(matrix, document.SceneRenderer.LastRenderedStates[viewportId].Matrix);
             var target = cachedTexture;
 
-            if (tex.Size == (VecI)RealDimensions || tex.Size == (VecI)(RealDimensions * SceneRenderer.OversizeFactor))
+            if (tex.Size == (VecI)realDimensions || tex.Size == (VecI)(realDimensions * SceneRenderer.OversizeFactor))
             {
                 saved = texture.Canvas.Save();
                 texture.Canvas.ClipRect(bounds);
@@ -388,9 +410,9 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             {
                 saved = texture.Canvas.Save();
                 ChunkResolution renderedResolution = ChunkResolution.Full;
-                if (SceneRenderer != null && SceneRenderer.LastRenderedStates.ContainsKey(ViewportId))
+                if (sceneRenderer != null && sceneRenderer.LastRenderedStates.ContainsKey(viewportId))
                 {
-                    renderedResolution = SceneRenderer.LastRenderedStates[ViewportId].ChunkResolution;
+                    renderedResolution = sceneRenderer.LastRenderedStates[viewportId].ChunkResolution;
                 }
 
                 texture.Canvas.SetMatrix(matrixDiff);
@@ -415,11 +437,11 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             using Font defaultSizedFont = Font.CreateDefault();
             defaultSizedFont.Size = 24;
 
-            texture.Canvas.DrawText(new LocalizedString("ERROR_GRAPH"), RealDimensions / 2f,
+            texture.Canvas.DrawText(new LocalizedString("ERROR_GRAPH"), realDimensions / 2f,
                 TextAlign.Center, defaultSizedFont, paint);
         }
 
-        DrawOverlays(texture, bounds, OverlayRenderSorting.Foreground);
+        //DrawOverlays(texture, bounds, OverlayRenderSorting.Foreground);
     }
 
     private void DrawCheckerboard(DrawingSurface surface, RectD dirtyBounds)
@@ -825,7 +847,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         {
             foreach (Overlay overlay in e.OldItems)
             {
-                overlay.RefreshRequested -= QueueRender;
+                overlay.RefreshRequested -= QueueNextFrame;
                 overlay.RefreshCursorRequested -= RefreshCursor;
                 overlay.FocusRequested -= FocusOverlay;
             }
@@ -835,7 +857,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         {
             foreach (Overlay overlay in e.NewItems)
             {
-                overlay.RefreshRequested += QueueRender;
+                overlay.RefreshRequested += QueueNextFrame;
                 overlay.RefreshCursorRequested += RefreshCursor;
                 overlay.FocusRequested += FocusOverlay;
             }
@@ -843,6 +865,14 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     }
 
     #region Interop
+
+    private object backingLock = new object();
+    private DrawingSurface? backbuffer;
+
+    private SynchronizedRequest frameRequest;
+
+    private Frame lastFrame;
+    private ConcurrentStack<Frame> pendingFrames = new ConcurrentStack<Frame>();
 
     void UpdateFrame()
     {
@@ -862,7 +892,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
         try
         {
-            RenderFrame(new PixelSize((int)Bounds.Width, (int)Bounds.Height));
+            OnCompositorRender(new VecI((int)Bounds.Width, (int)Bounds.Height));
             info = string.Empty;
         }
         catch (Exception e)
@@ -873,41 +903,22 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         }
     }
 
-    private void RenderFrame(PixelSize pixelSize)
+    protected void OnCompositorRender(VecI size)
     {
-        if (!needsRedraw)
-            return;
-
-        VecI size = new VecI(pixelSize.Width, pixelSize.Height);
-
-        if (resources is { IsDisposed: false })
+        lock (backingLock)
         {
-            using var ctx = IDrawieInteropContext.Current.EnsureContext();
-            if (size.X == 0 || size.Y == 0)
+            if (pendingFrames.TryPop(out var frame) && frame.PresentFrame != null)
             {
-                return;
+                if (size == frame.Size)
+                {
+                    frame.PresentFrame(size);
+                    frame.ReturnFrame?.Dispose();
+                }
+                else
+                {
+                    frame.Texture?.DisposeAsync(); // Dont return to pool, size mismatch
+                }
             }
-
-            if (lastSize != size || framebuffer == null || framebuffer.IsDisposed ||
-                framebuffer.DeviceClipBounds.Size != size)
-            {
-                resources.CreateTemporalObjects(size);
-
-                framebuffer?.Dispose();
-                framebuffer =
-                    DrawingBackendApi.Current.CreateRenderSurface(size, resources.Texture, SurfaceOrigin.BottomLeft);
-
-                lastSize = size;
-            }
-
-            using var _ = resources.Render(size, () =>
-            {
-                framebuffer.Canvas.Clear();
-                Draw(framebuffer);
-                framebuffer.Canvas.Flush();
-            });
-
-            needsRedraw = false;
         }
     }
 
@@ -915,24 +926,87 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     {
         if (initialized && !updateQueued && compositor != null && surface is { IsDisposed: false })
         {
+            if (Bounds.Width <= 0 || Bounds.Height <= 0 || double.IsNaN(Bounds.Width) || double.IsNaN(Bounds.Height))
+            {
+                return;
+            }
+
             updateQueued = true;
-            QueueFrameRequested();
+            if (Dispatcher.UIThread.CheckAccess())
+            {
+                QueueFrameRequested();
+                return;
+            }
+
+            Dispatcher.UIThread.Post(QueueFrameRequested, DispatcherPriority.Render);
         }
     }
 
     protected void QueueFrameRequested()
     {
-        if (Bounds.Width <= 0 || Bounds.Height <= 0 || double.IsNaN(Bounds.Width) || double.IsNaN(Bounds.Height))
-            return;
+        if (Dispatcher.UIThread.CheckAccess())
+        {
+            PrepareToDraw();
+        }
+        else
+        {
+            Dispatcher.UIThread.Invoke(PrepareToDraw);
+        }
 
-        needsRedraw = true;
-        RequestBlit();
-        InvalidateVisual();
+        frameRequest.QueueRequestBackbufferUpdate(new VecI((int)Bounds.Width, (int)Bounds.Height));
     }
 
-    protected void RequestBlit()
+    private void QueueWriteBackToFront(VecI size)
     {
-        DrawingBackendApi.Current.RenderingDispatcher.EnqueueUIUpdate(update);
+        DrawingBackendApi.Current.RenderingDispatcher.Enqueue(() =>
+        {
+            WriteBackToFront(size);
+        }, Priority.BackbufferUpdate);
+    }
+
+    private void QueueCompositorUpdate()
+    {
+        DrawingBackendApi.Current.RenderingDispatcher.Enqueue(() =>
+        {
+            Dispatcher.UIThread.Post(RequestCompositorUpdate, DispatcherPriority.Render);
+        }, Priority.UI);
+    }
+
+    protected void RequestCompositorUpdate()
+    {
+        compositor.RequestCompositionUpdate(update);
+    }
+
+    protected void UpdateBackbuffer(VecI size)
+    {
+        if (resources == null)
+            return;
+
+        if (resources.Texture == null || resources.Texture.Size != size)
+        {
+            resources.CreateTemporalObjects(size);
+
+            backbuffer?.Dispose();
+            backbuffer =
+                DrawingBackendApi.Current.CreateRenderSurface(size, resources.Texture, SurfaceOrigin.BottomLeft);
+        }
+
+        using (var ctx = IDrawieInteropContext.Current.EnsureContext())
+        {
+            backbuffer.Canvas.Clear();
+            Draw(backbuffer);
+            backbuffer.Flush();
+        }
+    }
+
+    public void WriteBackToFront(VecI size)
+    {
+        lock (backingLock)
+        {
+            pendingFrames.Push(resources?.Render(size, () => { }) ?? default);
+        }
+
+        frameRequest.SignalSwapFinished();
     }
 
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
@@ -1025,10 +1099,21 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         }
     }
 
-    private void QueueRender()
+    private void QueueRender(VecI size)
     {
-        Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Render);
-        QueueNextFrame();
+        DrawingBackendApi.Current.RenderingDispatcher.Enqueue(() =>
+        {
+            UpdateBackbuffer(size);
+            frameRequest.SignalBackbufferUpdated();
+        });
+
+        if (Dispatcher.UIThread.CheckAccess())
+        {
+            RequestCompositorUpdate();
+            return;
+        }
+
+        Dispatcher.UIThread.Post(RequestCompositorUpdate, DispatcherPriority.Render);
     }
 
     private static void FadeOutChanged(Scene scene, AvaloniaPropertyChangedEventArgs e)
