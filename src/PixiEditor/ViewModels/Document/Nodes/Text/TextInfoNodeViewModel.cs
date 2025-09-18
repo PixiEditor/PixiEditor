@@ -3,5 +3,5 @@ using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document.Nodes.Text;
 
-[NodeViewModel("TEXT_INFO_NODE", "SHAPE", null)]
+[NodeViewModel("TEXT_INFO_NODE", "SHAPE", PixiPerfectIcons.Shredder)]
 internal class TextInfoNodeViewModel : NodeViewModel<TextInfoNode>;

@@ -5,7 +5,7 @@ using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document.Nodes.Text;
 
-[NodeViewModel("SLICE_TEXT_NODE", "SHAPE", null)]
+[NodeViewModel("SLICE_TEXT_NODE", "SHAPE", PixiPerfectIcons.Slice)]
 internal class SliceTextNodeViewModel : NodeViewModel<SliceTextNode>
 {
     private NodePropertyViewModel<bool> _useLengthProperty;
