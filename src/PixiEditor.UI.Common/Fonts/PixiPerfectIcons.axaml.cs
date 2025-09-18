@@ -155,7 +155,9 @@ public static partial class PixiPerfectIcons
     public const string SelectAll = "\uE970";
     public const string SeparateVector = "\uE91C";
     public const string Settings = "\uE971";
+    public const string Shredder = "\uE9CA";
     public const string Shuffle = "\uE992";
+    public const string Slice = "\uE9CC";
     public const string Sliders = "\uE972";
     public const string Snapping = "\uE9A7";
     public const string SplineChart = "\uE9BE";
@@ -194,6 +196,7 @@ public static partial class PixiPerfectIcons
     public const string UploadCloud = "\uE98E";
     public const string User = "\uE97B";
     public const string VectorPen = "\uE965";
+    public const string WholeWord = "\uE9CB";
     public const string Write = "\uE988";
     public const string XFlip = "\uE900";
     public const string XSymmetry = "\uE980";
