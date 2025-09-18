@@ -41,37 +41,49 @@ internal class SceneRenderer
     }
 
     public async Task RenderAsync(Dictionary<Guid, ViewportInfo> stateViewports, AffectedArea affectedArea,
-        bool updateDelayed, Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures)
+        bool updateDelayed, Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures, bool immediateRender)
     {
+        if (immediateRender)
+        {
+            Render(stateViewports, affectedArea, updateDelayed, previewTextures);
+            return;
+        }
+
         await DrawingBackendApi.Current.RenderingDispatcher.InvokeInBackgroundAsync(() =>
         {
-            using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
-            int renderedCount = 0;
-            foreach (var viewport in stateViewports)
-            {
-                if (viewport.Value.Delayed && !updateDelayed)
-                {
-                    continue;
-                }
-
-                if (viewport.Value.RealDimensions.ShortestAxis <= 0) continue;
-
-                var rendered = RenderScene(viewport.Value, affectedArea, previewTextures);
-                if (DocumentViewModel.SceneTextures.TryGetValue(viewport.Key, out var texture) && texture != rendered)
-                {
-                    texture.Dispose();
-                }
-
-                DocumentViewModel.SceneTextures[viewport.Key] = rendered;
-                viewport.Value.InvalidateVisual();
-                renderedCount++;
-            }
-
-            if (renderedCount == 0 && previewTextures is { Count: > 0 })
-            {
-                RenderOnlyPreviews(affectedArea, previewTextures);
-            }
+            Render(stateViewports, affectedArea, updateDelayed, previewTextures);
         });
+    }
+
+    private void Render(Dictionary<Guid, ViewportInfo> stateViewports, AffectedArea affectedArea, bool updateDelayed,
+        Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures)
+    {
+        using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
+        int renderedCount = 0;
+        foreach (var viewport in stateViewports)
+        {
+            if (viewport.Value.Delayed && !updateDelayed)
+            {
+                continue;
+            }
+
+            if (viewport.Value.RealDimensions.ShortestAxis <= 0) continue;
+
+            var rendered = RenderScene(viewport.Value, affectedArea, previewTextures);
+            if (DocumentViewModel.SceneTextures.TryGetValue(viewport.Key, out var texture) && texture != rendered)
+            {
+                texture.Dispose();
+            }
+
+            DocumentViewModel.SceneTextures[viewport.Key] = rendered;
+            viewport.Value.InvalidateVisual();
+            renderedCount++;
+        }
+
+        if (renderedCount == 0 && previewTextures is { Count: > 0 })
+        {
+            RenderOnlyPreviews(affectedArea, previewTextures);
+        }
     }
 
     private void RenderOnlyPreviews(AffectedArea affectedArea,
@@ -100,7 +112,8 @@ internal class SceneRenderer
 
         /*TODO:
          - [ ] Rendering optimizer
-         - [?] Render thread and proper locking/synchronization
+         - [?] Render thread and proper locking/synchronization - check async-rendering branch (both drawie and pixieditor)
+               but be aware, this is a nightmare and good luck
          */
 
         VecI renderTargetSize = (VecI)viewport.RealDimensions;
@@ -116,7 +129,8 @@ internal class SceneRenderer
         IReadOnlyNodeGraph finalGraph = RenderingUtils.SolveFinalNodeGraph(targetOutput, Document);
 
         float oversizeFactor = 1;
-        if (visibleDocumentRegion != null && viewport.IsScene && visibleDocumentRegion.Value != new RectI(0, 0, Document.Size.X, Document.Size.Y))
+        if (visibleDocumentRegion != null && viewport.IsScene &&
+            visibleDocumentRegion.Value != new RectI(0, 0, Document.Size.X, Document.Size.Y))
         {
             visibleDocumentRegion = (RectI)visibleDocumentRegion.Value.Scale(OversizeFactor,
                 visibleDocumentRegion.Value.Center);
@@ -129,7 +143,10 @@ internal class SceneRenderer
 
         if (shouldRerender)
         {
-            affectedArea = fullAffectedArea && viewport.VisibleDocumentRegion.HasValue ? new AffectedArea(OperationHelper.FindChunksTouchingRectangle(viewport.VisibleDocumentRegion.Value, ChunkyImage.FullChunkSize)) : affectedArea;
+            affectedArea = fullAffectedArea && viewport.VisibleDocumentRegion.HasValue
+                ? new AffectedArea(OperationHelper.FindChunksTouchingRectangle(viewport.VisibleDocumentRegion.Value,
+                    ChunkyImage.FullChunkSize))
+                : affectedArea;
             return RenderGraph(renderTargetSize, targetMatrix, viewportId, resolution, samplingOptions, affectedArea,
                 visibleDocumentRegion, targetOutput, viewport.IsScene, oversizeFactor, finalGraph, previewTextures);
         }

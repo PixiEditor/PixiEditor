@@ -52,7 +52,6 @@ internal class MemberPreviewUpdater
         bool renderLowPriorityPreviews)
     {
         Dictionary<Guid, List<PreviewRenderRequest>> previewTextures = new();
-        //RenderWholeCanvasPreview(renderLowPriorityPreviews);
         if (renderLowPriorityPreviews)
         {
             RenderLayersPreview(members, previewTextures);
@@ -350,6 +349,27 @@ internal class MemberPreviewUpdater
         }
     }
 
+    private bool IsSmallStructureNode(Guid guid, Dictionary<Guid, List<PreviewRenderRequest>>? previews)
+    {
+        var node = doc.StructureHelper.FindNode<INodeHandler>(guid);
+        if (node is null)
+            return false;
+
+        if (node is not IStructureMemberHandler memberHandler)
+            return false;
+
+        var member = internals.Tracker.Document.FindMember(guid);
+        if (member is null)
+            return false;
+
+        if(previews == null || !previews.ContainsKey(member.Id))
+            return false;
+
+        var value = previews[guid];
+
+        return value is { Count: > 0 } && value.Max(x => x.Texture.Size.LongestAxis < 64);
+    }
+
     private void QueueRepaintNode(List<Guid> actualRepaintedNodes, Guid guid,
         IReadOnlyCollection<IReadOnlyNode> allNodes, Dictionary<Guid, List<PreviewRenderRequest>>? previews)
     {
@@ -406,6 +426,8 @@ internal class MemberPreviewUpdater
             return;
 
         VecI textureSize = nodeVm.Preview.GetMaxListenerSize();
+        if (nodeVm is IStructureMemberHandler && textureSize.LongestAxis < 64)
+            return;
         if (textureSize.X <= 0 || textureSize.Y <= 0)
             return;
 
