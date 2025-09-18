@@ -233,7 +233,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
         catch (Exception ex)
         {
             UpdateState = UpdateState.UnableToCheck;
-            CrashHelper.SendExceptionInfoAsync(ex);
+            CrashHelper.SendExceptionInfo(ex);
             return;
         }
 
