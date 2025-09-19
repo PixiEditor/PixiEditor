@@ -13,7 +13,18 @@ public class RepeatNodeEnd : Node, IPairNode, IExecutionFlowNode
     public InputProperty<object> Input { get; }
     public OutputProperty<object> Output { get; }
 
-    public Guid OtherNode { get; set; }
+    public Guid OtherNode
+    {
+        get
+        {
+            startNode = FindStartNode();
+            return startNode?.Id ?? Guid.Empty;
+        }
+        set
+        {
+           // no op, the start node is found dynamically
+        }
+    }
 
     private RepeatNodeStart startNode;
 
@@ -27,17 +38,12 @@ public class RepeatNodeEnd : Node, IPairNode, IExecutionFlowNode
 
     protected override void OnExecute(RenderContext context)
     {
-        if (OtherNode == Guid.Empty || startNode == null)
+        if (OtherNode == Guid.Empty)
         {
-            startNode = FindStartNode();
-            OtherNode = startNode?.Id ?? Guid.Empty;
-            if (OtherNode == Guid.Empty)
-            {
-                return;
-            }
+            return;
         }
 
-        if(startNode.Iterations.Value == 0)
+        if (startNode.Iterations.Value == 0)
         {
             Output.Value = DefaultOfType(Input.Value);
             return;

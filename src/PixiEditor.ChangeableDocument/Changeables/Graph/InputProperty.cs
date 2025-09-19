@@ -16,6 +16,7 @@ public class InputProperty : IInputProperty
     private PropertyValidator? validator;
     private IOutputProperty? connection;
     private Dictionary<Guid, IOutputProperty> virtualConnections = new();
+    private Dictionary<Guid, object> virtualNonOverridenValues = new();
 
     public event Action ConnectionChanged;
     public event Action<object> NonOverridenValueChanged;
@@ -24,6 +25,19 @@ public class InputProperty : IInputProperty
     public string DisplayName { get; }
 
     public Guid? ActiveVirtualSession { get; set; } = null;
+
+    public IOutputProperty? Connection
+    {
+        get => ActiveVirtualSession != null ? virtualConnections.GetValueOrDefault(ActiveVirtualSession.Value) : connection;
+        set
+        {
+            if (connection != value)
+            {
+                connection = value;
+                ConnectionChanged?.Invoke();
+            }
+        }
+    }
 
     public object? Value
     {
@@ -35,7 +49,7 @@ public class InputProperty : IInputProperty
 
             if (connection == null)
             {
-                return _internalValue;
+                return NonOverridenValue;
             }
 
             var connectionValue = connection.Value;
@@ -45,51 +59,58 @@ public class InputProperty : IInputProperty
                 return null;
             }
 
-            object target = connectionValue;
-            if (!ValueType.IsAssignableTo(typeof(Delegate)) && connectionValue is Delegate connectionField)
-            {
-                try
-                {
-                    target = connectionField.DynamicInvoke(ShaderFuncContext.NoContext);
-                }
-                catch
-                {
-                    return null;
-                }
-            }
+            return Validator.GetClosestValidValue(CastValue(connectionValue));
+        }
+    }
 
-            if (ValueType.IsAssignableTo(typeof(Delegate)) && connectionValue is not Delegate)
+    private object CastValue(object value)
+    {
+        object target = value;
+        if (!ValueType.IsAssignableTo(typeof(Delegate)) && value is Delegate connectionField)
+        {
+            try
             {
-                return FuncFactory(connectionValue);
+                target = connectionField.DynamicInvoke(ShaderFuncContext.NoContext);
             }
-
-            if (connectionValue.GetType().IsAssignableTo(ValueType))
-            {
-                return connectionValue;
-            }
-
-            if (connectionValue is Delegate func && ValueType.IsAssignableTo(typeof(Delegate)))
-            {
-                return FuncFactoryDelegate(func);
-            }
-
-            if (target is ShaderExpressionVariable shaderExpression)
-            {
-                target = shaderExpression.GetConstant();
-            }
-
-            if (!ConversionTable.TryConvert(target, ValueType, out object result))
+            catch
             {
                 return null;
             }
-
-            return Validator.GetClosestValidValue(result);
         }
+
+        if (ValueType.IsAssignableTo(typeof(Delegate)) && value is not Delegate)
+        {
+            return FuncFactory(value);
+        }
+
+        if (value.GetType().IsAssignableTo(ValueType))
+        {
+            return value;
+        }
+
+        if (value is Delegate func && ValueType.IsAssignableTo(typeof(Delegate)))
+        {
+            return FuncFactoryDelegate(func);
+        }
+
+        if (target is ShaderExpressionVariable shaderExpression)
+        {
+            target = shaderExpression.GetConstant();
+        }
+
+        if (!ConversionTable.TryConvert(target, ValueType, out object result))
+        {
+            return null;
+        }
+
+        return result;
     }
 
     public object NonOverridenValue
     {
-        get => _internalValue;
+        get => ActiveVirtualSession != null && virtualNonOverridenValues.TryGetValue(ActiveVirtualSession.Value, out var virtualValue)
+            ? virtualValue
+            : _internalValue;
         set
         {
             object evaluatedValue = value;
@@ -215,23 +236,10 @@ public class InputProperty : IInputProperty
         return virtualConnections.GetValueOrDefault(virtualConnectionId);
     }
 
-    public void SetVirtualConnection(OutputProperty outputProperty, Guid virtualConnectionId, RenderContext context)
+    public void SetVirtualConnection(IOutputProperty outputProperty, Guid virtualConnectionId, RenderContext context)
     {
         virtualConnections[virtualConnectionId] = outputProperty;
         context.RecordVirtualConnection(this, virtualConnectionId);
-    }
-
-    public IOutputProperty? Connection
-    {
-        get => ActiveVirtualSession != null ? virtualConnections.GetValueOrDefault(ActiveVirtualSession.Value) : connection;
-        set
-        {
-            if (connection != value)
-            {
-                connection = value;
-                ConnectionChanged?.Invoke();
-            }
-        }
     }
 
     internal InputProperty(Node node, string internalName, string displayName, object defaultValue, Type valueType)
@@ -271,6 +279,17 @@ public class InputProperty : IInputProperty
 
         hash.Add(Connection?.GetCacheHash() ?? 0);
         return hash.ToHashCode();
+    }
+
+    public void SetVirtualNonOverridenValue<T>(T value, Guid virtualConnectionId, RenderContext context)
+    {
+        virtualNonOverridenValues[virtualConnectionId] = CastValue(value);
+        context.RecordVirtualNonOverridenValue(this, virtualConnectionId);
+    }
+
+    public void RemoveVirtualNonOverridenValues(Guid virtualSessionId)
+    {
+        virtualNonOverridenValues.Remove(virtualSessionId);
     }
 }
 

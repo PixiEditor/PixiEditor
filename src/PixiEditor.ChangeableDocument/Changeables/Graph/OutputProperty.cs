@@ -17,6 +17,8 @@ public class OutputProperty : IOutputProperty
     public Node Node { get; }
     public Type ValueType { get; }
 
+    public Guid? ActiveVirtualSession { get; set; }
+
     IReadOnlyNode INodeProperty.Node => Node;
 
     public object Value
@@ -28,11 +30,14 @@ public class OutputProperty : IOutputProperty
         }
     }
 
-    public IReadOnlyCollection<IInputProperty> Connections => _connections;
+    public IReadOnlyCollection<IInputProperty> Connections => ActiveVirtualSession != null && _virtualConnections.TryGetValue(ActiveVirtualSession.Value, out var virtualConnections)
+        ? virtualConnections
+        : _connections;
     public IReadOnlyCollection<IInputProperty> GetVirtualConnections(Guid virtualSession) => _virtualConnections[virtualSession];
 
     public event InputConnectedEvent Connected;
     public event InputConnectedEvent Disconnected;
+
 
     internal OutputProperty(Node node, string internalName, string displayName, object defaultValue, Type valueType)
     {

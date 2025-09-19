@@ -1,4 +1,5 @@
 ﻿using Drawie.Backend.Core.Shaders.Generation;
+using Drawie.Backend.Core.Shaders.Generation.Expressions;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
@@ -17,7 +18,7 @@ public class RepeatNodeStart : Node, IPairNode
     public Guid OtherNode { get; set; }
     private RepeatNodeEnd? endNode;
 
-
+    private bool iterationInProgress = false;
     private Guid virtualSessionId;
     private Queue<IReadOnlyNode> unrolledQueue;
     private List<IReadOnlyNode> clonedNodes = new List<IReadOnlyNode>();
@@ -44,28 +45,41 @@ public class RepeatNodeStart : Node, IPairNode
         var queue = GraphUtils.CalculateExecutionQueue(endNode, true, true,
             property => property.Connection?.Node != this);
 
+        if (iterationInProgress)
+        {
+            return;
+        }
+
+        iterationInProgress = true;
+
         if (iterations == 0)
         {
             Output.Value = null;
             CurrentIteration.Value = 0;
+            iterationInProgress = false;
             return;
         }
 
         if (iterations > 1)
         {
+            ClearLastUnrolledNodes();
             virtualSessionId = Guid.NewGuid();
             context.BeginVirtualConnectionScope(virtualSessionId);
-            ClearLastUnrolledNodes();
-            queue = UnrollLoop(iterations, queue, context);
+            var unrollQueue = GraphUtils.CalculateExecutionQueue(endNode, false, true,
+                property => property.Connection?.Node != this);
+            queue = UnrollLoop(iterations, unrollQueue, context);
         }
 
+        CurrentIteration.Value = 1;
         Output.Value = Input.Value;
-        CurrentIteration.Value = 0; // TODO: Increment iteration in unrolled nodes
 
         foreach (var node in queue)
         {
+            context.SetActiveVirtualConnectionScope(virtualSessionId);
             node.Execute(context);
         }
+
+        iterationInProgress = false;
     }
 
     private void ClearLastUnrolledNodes()
@@ -85,16 +99,20 @@ public class RepeatNodeStart : Node, IPairNode
     {
         var connectToNextStart = endNode.Input.Connection;
         var connectPreviousTo = Output.Connections;
+        var originalConnectedToIteration = CurrentIteration.Connections;
 
         Queue<IReadOnlyNode> lastQueue = new Queue<IReadOnlyNode>(executionQueue.Where(x => x != this && x != endNode));
         for (int i = 0; i < iterations - 1; i++)
         {
             var mapping = new Dictionary<Guid, Node>();
-            CloneNodes(lastQueue, mapping);
+            CloneNodes(lastQueue, mapping, virtualSessionId, context);
             connectPreviousTo =
                 ReplaceConnections(connectToNextStart, connectPreviousTo, mapping, virtualSessionId, context);
             connectToNextStart = mapping[connectToNextStart.Node.Id].OutputProperties
                 .FirstOrDefault(y => y.InternalPropertyName == connectToNextStart.InternalPropertyName);
+
+            originalConnectedToIteration =
+                SetIterationConstants(mapping, originalConnectedToIteration, i + 2, virtualSessionId, context);
 
             clonedNodes.AddRange(mapping.Values);
             lastQueue = new Queue<IReadOnlyNode>(mapping.Values);
@@ -104,6 +122,27 @@ public class RepeatNodeStart : Node, IPairNode
 
         return GraphUtils.CalculateExecutionQueue(endNode, true, true,
             property => property.Connection?.Node != this);
+    }
+
+    private List<IInputProperty> SetIterationConstants(Dictionary<Guid, Node> mapping,
+        IReadOnlyCollection<IInputProperty> originalConnectedToIteration, int iteration, Guid virtualConnectionId,
+        RenderContext context)
+    {
+        List<IInputProperty> iterationInputs = new List<IInputProperty>();
+        foreach (var input in originalConnectedToIteration)
+        {
+            if (mapping.TryGetValue(input.Node.Id, out var mappedNode))
+            {
+                var mappedInput =
+                    mappedNode.InputProperties.FirstOrDefault(i =>
+                        i.InternalPropertyName == input.InternalPropertyName);
+
+                mappedInput.SetVirtualNonOverridenValue(iteration, virtualConnectionId, context);
+                iterationInputs.Add(mappedInput);
+            }
+        }
+
+        return iterationInputs;
     }
 
     private IReadOnlyCollection<IInputProperty> ReplaceConnections(IOutputProperty? connectToNextStart,
@@ -133,19 +172,21 @@ public class RepeatNodeStart : Node, IPairNode
         return connectPreviousToMapped;
     }
 
-    private void CloneNodes(Queue<IReadOnlyNode> originalQueue, Dictionary<Guid, Node> mapping)
+    private void CloneNodes(Queue<IReadOnlyNode> originalQueue, Dictionary<Guid, Node> mapping, Guid virtualSession, RenderContext context)
     {
         foreach (var node in originalQueue)
         {
             if (node is not Node n) continue;
-            var clonedNode = n.Clone();
+            Node clonedNode;
+            clonedNode = n.Clone();
+
             mapping[node.Id] = clonedNode;
         }
 
-        ConnectRelatedNodes(originalQueue, mapping);
+        ConnectRelatedNodes(originalQueue, mapping, virtualSession, context);
     }
 
-    private void ConnectRelatedNodes(Queue<IReadOnlyNode> originalQueue, Dictionary<Guid, Node> mapping)
+    private void ConnectRelatedNodes(Queue<IReadOnlyNode> originalQueue, Dictionary<Guid, Node> mapping, Guid virtualSession, RenderContext context)
     {
         foreach (var node in originalQueue)
         {
@@ -163,9 +204,15 @@ public class RepeatNodeStart : Node, IPairNode
                     {
                         var inputProp = clonedNode.InputProperties.FirstOrDefault(i =>
                             i.InternalPropertyName == input.InternalPropertyName);
-                        output.ConnectTo(inputProp);
+                        output.ConnectTo(inputProp); // No need for virtual connection as it is a cloned node anyway
                     }
-                }
+                } // TODO: Handle external connections
+                /*else if(input.Connection != null && input.Connection.Node != this) // External property connection, keep it
+                {
+                    var inputProp = clonedNode.InputProperties.FirstOrDefault(i =>
+                        i.InternalPropertyName == input.InternalPropertyName);
+                    input.Connection.VirtualConnectTo(inputProp, virtualSession, context);
+                }*/
             }
         }
     }

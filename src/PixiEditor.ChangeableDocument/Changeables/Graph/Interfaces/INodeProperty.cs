@@ -22,7 +22,7 @@ public interface INodeProperty<T> : INodeProperty
 public interface IInputProperty : INodeProperty
 {
     public IOutputProperty? GetVirtualConnection(Guid virtualConnectionId);
-    public void SetVirtualConnection(OutputProperty outputProperty, Guid virtualConnectionId, RenderContext context);
+    public void SetVirtualConnection(IOutputProperty outputProperty, Guid virtualConnectionId, RenderContext context);
     public IOutputProperty? Connection { get; set; }
     public object NonOverridenValue { get; set;  }
     public void RemoveVirtualConnection(Guid virtualConnectionId);

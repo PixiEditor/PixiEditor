@@ -25,6 +25,7 @@ public class RenderContext
     public string? TargetOutput { get; set; }   
 
     private List<Guid> virtualGraphSessions = new List<Guid>();
+
     private Dictionary<Guid, List<InputProperty>> recordedVirtualInputs = new();
     private Dictionary<Guid, List<OutputProperty>> recordedVirtualOutputs = new();
 
@@ -84,6 +85,30 @@ public class RenderContext
         virtualGraphSessions.Add(virtualSessionId);
     }
 
+    public void SetActiveVirtualConnectionScope(Guid? virtualSessionId)
+    {
+        if (virtualSessionId == null || !virtualGraphSessions.Contains(virtualSessionId.Value))
+            return;
+
+        var inputProperties = recordedVirtualInputs.GetValueOrDefault(virtualSessionId.Value);
+        if (inputProperties != null)
+        {
+            foreach (var input in inputProperties)
+            {
+                input.ActiveVirtualSession = virtualSessionId;
+            }
+        }
+
+        var outputProperties = recordedVirtualOutputs.GetValueOrDefault(virtualSessionId.Value);
+        if (outputProperties != null)
+        {
+            foreach (var output in outputProperties)
+            {
+                output.ActiveVirtualSession = virtualSessionId;
+            }
+        }
+    }
+
     public void EndVirtualConnectionScope(Guid virtualSessionId)
     {
         if (!virtualGraphSessions.Contains(virtualSessionId))
@@ -96,6 +121,7 @@ public class RenderContext
             foreach (var input in inputProperty.Value)
             {
                 input.RemoveVirtualConnection(virtualSessionId);
+                input.RemoveVirtualNonOverridenValues(virtualSessionId);
                 input.ActiveVirtualSession = null;
             }
         }
@@ -105,6 +131,7 @@ public class RenderContext
             foreach (var output in outputProperty.Value)
             {
                 output.RemoveAllVirtualConnections(virtualSessionId);
+                output.ActiveVirtualSession = null;
             }
         }
     }
@@ -136,13 +163,29 @@ public class RenderContext
         }
 
         outputs.Add(outputProperty);
+        outputProperty.ActiveVirtualSession = virtualConnectionId;
     }
 
     public void CleanupVirtualConnectionScopes()
     {
-        foreach (var virtualSessionId in virtualGraphSessions.ToArray())
+        while (virtualGraphSessions.Count > 0)
         {
-            EndVirtualConnectionScope(virtualSessionId);
+            EndVirtualConnectionScope(virtualGraphSessions[^1]);
         }
+    }
+
+    public void RecordVirtualNonOverridenValue(InputProperty inputProperty, Guid virtualConnectionId)
+    {
+        if (virtualGraphSessions.Count == 0)
+            return;
+
+        if(!recordedVirtualInputs.TryGetValue(virtualConnectionId, out var inputs))
+        {
+            inputs = new List<InputProperty>();
+            recordedVirtualInputs[virtualConnectionId] = inputs;
+        }
+
+        inputProperty.ActiveVirtualSession = virtualConnectionId;
+        inputs.Add(inputProperty);
     }
 }
