@@ -2,6 +2,7 @@
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 using DrawingApiBlendMode = Drawie.Backend.Core.Surfaces.BlendMode;
 
@@ -23,6 +24,9 @@ public class RenderContext
     public ColorSpace ProcessingColorSpace { get; set; }
     public string? TargetOutput { get; set; }   
 
+    private List<Guid> virtualGraphSessions = new List<Guid>();
+    private Dictionary<Guid, List<InputProperty>> recordedVirtualInputs = new();
+    private Dictionary<Guid, List<OutputProperty>> recordedVirtualOutputs = new();
 
     public RenderContext(DrawingSurface renderSurface, KeyFrameTime frameTime, ChunkResolution chunkResolution,
         VecI renderOutputSize, VecI documentSize, ColorSpace processingColorSpace, SamplingOptions desiredSampling, double opacity = 1)
@@ -70,5 +74,75 @@ public class RenderContext
             FullRerender = FullRerender,
             TargetOutput = TargetOutput,
         };
+    }
+
+    public void BeginVirtualConnectionScope(Guid virtualSessionId)
+    {
+        if (virtualGraphSessions.Contains(virtualSessionId))
+            return;
+
+        virtualGraphSessions.Add(virtualSessionId);
+    }
+
+    public void EndVirtualConnectionScope(Guid virtualSessionId)
+    {
+        if (!virtualGraphSessions.Contains(virtualSessionId))
+            return;
+
+        virtualGraphSessions.Remove(virtualSessionId);
+
+        foreach (var inputProperty in recordedVirtualInputs)
+        {
+            foreach (var input in inputProperty.Value)
+            {
+                input.RemoveVirtualConnection(virtualSessionId);
+                input.ActiveVirtualSession = null;
+            }
+        }
+
+        foreach (var outputProperty in recordedVirtualOutputs)
+        {
+            foreach (var output in outputProperty.Value)
+            {
+                output.RemoveAllVirtualConnections(virtualSessionId);
+            }
+        }
+    }
+
+    public void RecordVirtualConnection(InputProperty inputProperty, Guid virtualSessionId)
+    {
+        if (virtualGraphSessions.Count == 0)
+            return;
+
+        if (!recordedVirtualInputs.TryGetValue(virtualSessionId, out var inputs))
+        {
+            inputs = new List<InputProperty>();
+            recordedVirtualInputs[virtualSessionId] = inputs;
+        }
+
+        inputs.Add(inputProperty);
+        inputProperty.ActiveVirtualSession = virtualSessionId;
+    }
+
+    public void RecordVirtualConnection(OutputProperty outputProperty, Guid virtualConnectionId)
+    {
+        if (virtualGraphSessions.Count == 0)
+            return;
+
+        if (!recordedVirtualOutputs.TryGetValue(virtualConnectionId, out var outputs))
+        {
+            outputs = new List<OutputProperty>();
+            recordedVirtualOutputs[virtualConnectionId] = outputs;
+        }
+
+        outputs.Add(outputProperty);
+    }
+
+    public void CleanupVirtualConnectionScopes()
+    {
+        foreach (var virtualSessionId in virtualGraphSessions.ToArray())
+        {
+            EndVirtualConnectionScope(virtualSessionId);
+        }
     }
 }

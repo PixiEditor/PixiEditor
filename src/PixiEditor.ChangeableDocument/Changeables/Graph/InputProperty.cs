@@ -4,6 +4,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changes.NodeGraph;
 using PixiEditor.Common;
 using Drawie.Backend.Core.Shaders.Generation;
+using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph;
 
@@ -14,6 +15,7 @@ public class InputProperty : IInputProperty
     protected int lastConnectionHash = -1;
     private PropertyValidator? validator;
     private IOutputProperty? connection;
+    private Dictionary<Guid, IOutputProperty> virtualConnections = new();
 
     public event Action ConnectionChanged;
     public event Action<object> NonOverridenValueChanged;
@@ -21,16 +23,22 @@ public class InputProperty : IInputProperty
     public string InternalPropertyName { get; }
     public string DisplayName { get; }
 
+    public Guid? ActiveVirtualSession { get; set; } = null;
+
     public object? Value
     {
         get
         {
-            if (Connection == null)
+            var connection = ActiveVirtualSession is not null && virtualConnections.TryGetValue(ActiveVirtualSession.Value, out var virtualConnection)
+                ? virtualConnection
+                : Connection;
+
+            if (connection == null)
             {
                 return _internalValue;
             }
 
-            var connectionValue = Connection.Value;
+            var connectionValue = connection.Value;
 
             if (connectionValue is null)
             {
@@ -104,6 +112,11 @@ public class InputProperty : IInputProperty
             NonOverridenValueChanged?.Invoke(evaluatedValue);
             NonOverridenValueSet(evaluatedValue);
         }
+    }
+
+    public void RemoveVirtualConnection(Guid virtualConnectionId)
+    {
+        virtualConnections.Remove(virtualConnectionId);
     }
 
     public PropertyValidator Validator
@@ -197,9 +210,20 @@ public class InputProperty : IInputProperty
 
     IReadOnlyNode INodeProperty.Node => Node;
 
+    public IOutputProperty? GetVirtualConnection(Guid virtualConnectionId)
+    {
+        return virtualConnections.GetValueOrDefault(virtualConnectionId);
+    }
+
+    public void SetVirtualConnection(OutputProperty outputProperty, Guid virtualConnectionId, RenderContext context)
+    {
+        virtualConnections[virtualConnectionId] = outputProperty;
+        context.RecordVirtualConnection(this, virtualConnectionId);
+    }
+
     public IOutputProperty? Connection
     {
-        get => connection;
+        get => ActiveVirtualSession != null ? virtualConnections.GetValueOrDefault(ActiveVirtualSession.Value) : connection;
         set
         {
             if (connection != value)

@@ -17,6 +17,8 @@ public class RepeatNodeEnd : Node, IPairNode, IExecutionFlowNode
 
     private RepeatNodeStart startNode;
 
+    public HashSet<IReadOnlyNode> HandledNodes => CalculateHandledNodes();
+
     public RepeatNodeEnd()
     {
         Input = CreateInput<object>("Input", "INPUT", null);
@@ -35,30 +37,13 @@ public class RepeatNodeEnd : Node, IPairNode, IExecutionFlowNode
             }
         }
 
-        if(startNode.Iterations.Value <= 0)
+        if(startNode.Iterations.Value == 0)
         {
             Output.Value = DefaultOfType(Input.Value);
+            return;
         }
-        else
-        {
-            if (Input.Value is Delegate del)
-            {
-                var result = del.DynamicInvoke(ShaderFuncContext.NoContext);
-                if (result is ShaderExpressionVariable expressionVariable)
-                {
-                    var constant = expressionVariable.GetConstant();
-                    Output.Value = constant;
-                }
-                else
-                {
-                    Output.Value = result;
-                }
-            }
-            else
-            {
-                Output.Value = Input.Value;
-            }
-        }
+
+        Output.Value = Input.Value;
     }
 
     private object DefaultOfType(object? val)
@@ -74,6 +59,7 @@ public class RepeatNodeEnd : Node, IPairNode, IExecutionFlowNode
                 return DefaultOfType(expressionVariable.GetConstant());
             }
         }
+
         return null;
     }
 
@@ -110,8 +96,6 @@ public class RepeatNodeEnd : Node, IPairNode, IExecutionFlowNode
         return startNode;
     }
 
-    public HashSet<IReadOnlyNode> HandledNodes => CalculateHandledNodes();
-
     private HashSet<IReadOnlyNode> CalculateHandledNodes()
     {
         HashSet<IReadOnlyNode> handled = new();
@@ -132,7 +116,6 @@ public class RepeatNodeEnd : Node, IPairNode, IExecutionFlowNode
             {
                 if (leftNode == this)
                 {
-                    handled.Add(node);
                     break;
                 }
 

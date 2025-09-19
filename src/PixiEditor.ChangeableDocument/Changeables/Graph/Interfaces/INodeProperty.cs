@@ -1,4 +1,5 @@
-﻿using PixiEditor.Common;
+﻿using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.Common;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
@@ -20,14 +21,19 @@ public interface INodeProperty<T> : INodeProperty
 
 public interface IInputProperty : INodeProperty
 {
+    public IOutputProperty? GetVirtualConnection(Guid virtualConnectionId);
+    public void SetVirtualConnection(OutputProperty outputProperty, Guid virtualConnectionId, RenderContext context);
     public IOutputProperty? Connection { get; set; }
     public object NonOverridenValue { get; set;  }
+    public void RemoveVirtualConnection(Guid virtualConnectionId);
 }
 
 public interface IOutputProperty : INodeProperty
 {
+    public void VirtualConnectTo(IInputProperty property, Guid virtualConnectionId, RenderContext context);
     public void ConnectTo(IInputProperty property);
     public void DisconnectFrom(IInputProperty property);
+    public void DisconnectFromVirtual(IInputProperty property, Guid virtualConnectionId);
     IReadOnlyCollection<IInputProperty> Connections { get; }
 }
 

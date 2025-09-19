@@ -117,6 +117,8 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
                 node.Execute(context);
             }
         }
+
+        context.CleanupVirtualConnectionScopes();
     }
     
     private bool CanExecute()

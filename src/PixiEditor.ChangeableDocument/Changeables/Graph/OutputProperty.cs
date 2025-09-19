@@ -1,5 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.Common;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph;
@@ -8,6 +9,7 @@ public delegate void InputConnectedEvent(IInputProperty input, IOutputProperty o
 
 public class OutputProperty : IOutputProperty
 {
+    private Dictionary<Guid, List<IInputProperty>> _virtualConnections = new();
     private List<IInputProperty> _connections = new();
     private object _value;
     public string InternalPropertyName { get; }
@@ -27,6 +29,7 @@ public class OutputProperty : IOutputProperty
     }
 
     public IReadOnlyCollection<IInputProperty> Connections => _connections;
+    public IReadOnlyCollection<IInputProperty> GetVirtualConnections(Guid virtualSession) => _virtualConnections[virtualSession];
 
     public event InputConnectedEvent Connected;
     public event InputConnectedEvent Disconnected;
@@ -38,6 +41,26 @@ public class OutputProperty : IOutputProperty
         Value = defaultValue;
         Node = node;
         ValueType = valueType;
+    }
+
+    public void VirtualConnectTo(IInputProperty property, Guid virtualConnectionId, RenderContext context)
+    {
+        if (!_virtualConnections.ContainsKey(virtualConnectionId))
+        {
+            _virtualConnections[virtualConnectionId] = new List<IInputProperty>();
+        }
+
+        if (property.GetVirtualConnection(virtualConnectionId) != null)
+        {
+            property.GetVirtualConnection(virtualConnectionId).DisconnectFromVirtual(property, virtualConnectionId);
+        }
+
+        property.SetVirtualConnection(this, virtualConnectionId, context);
+
+        if (_virtualConnections[virtualConnectionId].Contains(property)) return;
+
+        _virtualConnections[virtualConnectionId].Add(property);
+        context.RecordVirtualConnection(this, virtualConnectionId);
     }
 
     public void ConnectTo(IInputProperty property)
@@ -67,6 +90,19 @@ public class OutputProperty : IOutputProperty
         Disconnected?.Invoke(property, this);
     }
 
+
+    public void DisconnectFromVirtual(IInputProperty property, Guid virtualConnectionId)
+    {
+        if (!_virtualConnections.TryGetValue(virtualConnectionId, out var connection)) return;
+        if (connection != property) return;
+
+        _virtualConnections.Remove(virtualConnectionId);
+        if (property.GetVirtualConnection(virtualConnectionId) == this)
+        {
+            property.RemoveVirtualConnection(virtualConnectionId);
+        }
+    }
+
     public int GetCacheHash()
     {
         if (Value is ICacheable cacheable)
@@ -75,6 +111,11 @@ public class OutputProperty : IOutputProperty
         }
 
         return 0;
+    }
+
+    public void RemoveAllVirtualConnections(Guid virtualSessionId)
+    {
+        _virtualConnections.Remove(virtualSessionId);
     }
 }
 
