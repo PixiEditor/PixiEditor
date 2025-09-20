@@ -12,7 +12,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 [NodeInfo("ModifyImageLeft")]
 [PairNode(typeof(ModifyImageRightNode), "ModifyImageZone", true)]
-public class ModifyImageLeftNode : Node, IPairNode, IPreviewRenderable
+public class ModifyImageLeftNode : Node, IPairNode
 {
     public InputProperty<Texture?> Image { get; }
 
@@ -48,20 +48,37 @@ public class ModifyImageLeftNode : Node, IPairNode, IPreviewRenderable
 
     protected override void OnExecute(RenderContext context)
     {
+        RenderPreviews(context);
     }
 
     public override Node CreateCopy() => new ModifyImageLeftNode();
-    public RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
+
+    private void RenderPreviews(RenderContext context)
     {
-        if(Image.Value == null)
+        var previews = context.GetPreviewTexturesForNode(Id);
+        if (previews is null) return;
+        foreach (var request in previews)
         {
-            return null;
-        } 
-        
-        return new RectD(0, 0, Image.Value.Size.X, Image.Value.Size.Y);
+            var texture = request.Texture;
+            if (texture is null) continue;
+
+            int saved = texture.DrawingSurface.Canvas.Save();
+
+            VecI size = Image.Value?.Size ?? context.RenderOutputSize;
+            VecD scaling = PreviewUtility.CalculateUniformScaling(size, texture.Size);
+            VecD offset = PreviewUtility.CalculateCenteringOffset(size, texture.Size, scaling);
+            texture.DrawingSurface.Canvas.Translate((float)offset.X, (float)offset.Y);
+            texture.DrawingSurface.Canvas.Scale((float)scaling.X, (float)scaling.Y);
+            var previewCtx =
+                PreviewUtility.CreatePreviewContext(context, scaling, context.RenderOutputSize, texture.Size);
+
+            texture.DrawingSurface.Canvas.Clear();
+            RenderPreview(texture.DrawingSurface);
+            texture.DrawingSurface.Canvas.RestoreToCount(saved);
+        }
     }
 
-    public bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
+    public bool RenderPreview(DrawingSurface renderOn)
     {
         if(Image.Value is null)
         {

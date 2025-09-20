@@ -70,46 +70,19 @@ public class MergeNode : RenderNode
         Top.Value?.Paint(context, target);
     }
 
-    public override RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
+    protected override bool ShouldRenderPreview(string elementToRenderName)
     {
-        if (Top.Value == null && Bottom.Value == null)
-        {
-            return null;
-        }
-
-        RectD? totalBounds = null;
-
-        if (Top.Connection != null && Top.Connection.Node is IPreviewRenderable topPreview)
-        {
-            var topBounds = topPreview.GetPreviewBounds(frame, elementToRenderName);
-            if (topBounds != null)
-            {
-                totalBounds = totalBounds?.Union(topBounds.Value) ?? topBounds;
-            }
-        }
-
-        if (Bottom.Connection != null && Bottom.Connection.Node is IPreviewRenderable bottomPreview)
-        {
-            var bottomBounds = bottomPreview.GetPreviewBounds(frame, elementToRenderName);
-            if (bottomBounds != null)
-            {
-                totalBounds = totalBounds?.Union(bottomBounds.Value) ?? bottomBounds;
-            }
-        }
-
-        return totalBounds;
+        return Top.Value != null || Bottom.Value != null;
     }
 
-    public override bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
+    public override void RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
     {
         if (Top.Value == null && Bottom.Value == null)
         {
-            return false;
+            return;
         }
 
         Merge(renderOn, context);
-
-        return true;
     }
 
     public override void Dispose()

@@ -1,11 +1,13 @@
 ﻿using System.Diagnostics;
 using Avalonia.Threading;
+using Drawie.Backend.Core;
 using PixiEditor.ChangeableDocument;
 using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.ChangeInfos;
 using Drawie.Backend.Core.Bridge;
+using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DocumentPassthroughActions;
@@ -22,7 +24,6 @@ internal class ActionAccumulator
     private IDocument document;
     private DocumentInternalParts internals;
 
-    private CanvasUpdater canvasUpdater;
     private MemberPreviewUpdater previewUpdater;
 
     private bool isChangeBlockActive = false;
@@ -32,7 +33,6 @@ internal class ActionAccumulator
         this.document = doc;
         this.internals = internals;
 
-        canvasUpdater = new(doc, internals);
         previewUpdater = new(doc, internals);
     }
 
@@ -84,7 +84,7 @@ internal class ActionAccumulator
         TryExecuteAccumulatedActions();
     }
 
-    internal void TryExecuteAccumulatedActions()
+    internal async Task TryExecuteAccumulatedActions()
     {
         if (executing || queuedActions.Count == 0)
             return;
@@ -112,7 +112,7 @@ internal class ActionAccumulator
                 }
                 else
                 {
-                    changes = internals.Tracker.ProcessActionsSync(toExecute);
+                    changes = await internals.Tracker.ProcessActions(toExecute);
                 }
 
                 List<IChangeInfo> optimizedChanges = ChangeInfoListOptimizer.Optimize(changes);
@@ -123,6 +123,8 @@ internal class ActionAccumulator
                     toExecute.Any(static action => action.action is RefreshViewport_PassthroughAction);
                 bool refreshPreviewsRequest =
                     toExecute.Any(static action => action.action is RefreshPreviews_PassthroughAction);
+                bool refreshPreviewRequest =
+                    toExecute.Any(static action => action.action is RefreshPreview_PassthroughAction);
                 bool changeFrameRequest =
                     toExecute.Any(static action => action.action is SetActiveFrame_PassthroughAction);
 
@@ -134,44 +136,41 @@ internal class ActionAccumulator
                 if (undoBoundaryPassed)
                     internals.Updater.AfterUndoBoundaryPassed();
 
-
                 var affectedAreas = new AffectedAreasGatherer(document.AnimationHandler.ActiveFrameTime,
                     internals.Tracker,
                     optimizedChanges, refreshPreviewsRequest);
 
-                if (DrawingBackendApi.Current.IsHardwareAccelerated && !allPassthrough)
-                {
-                    canvasUpdater.UpdateGatheredChunksSync(affectedAreas,
-                        undoBoundaryPassed || viewportRefreshRequest);
-                }
-                /*else
-                {
-                    await canvasUpdater.UpdateGatheredChunks(affectedAreas,
-                        undoBoundaryPassed || viewportRefreshRequest);
-                }*/
-
                 bool previewsDisabled = PixiEditorSettings.Performance.DisablePreviews.Value;
+                bool updateDelayed = undoBoundaryPassed || viewportRefreshRequest || changeFrameRequest ||
+                                     document.SizeBindable.LongestAxis <= LiveUpdatePerformanceThreshold;
+
+                Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures = null;
 
                 if (!previewsDisabled)
                 {
-                    if (undoBoundaryPassed || viewportRefreshRequest || changeFrameRequest ||
+                    if (undoBoundaryPassed || viewportRefreshRequest || refreshPreviewsRequest ||
+                        refreshPreviewRequest || changeFrameRequest ||
                         document.SizeBindable.LongestAxis <= LiveUpdatePerformanceThreshold)
                     {
-                        previewUpdater.UpdatePreviews(
+                        previewTextures = previewUpdater.GatherPreviewsToUpdate(
                             affectedAreas.ChangedMembers,
                             affectedAreas.ChangedMasks,
                             affectedAreas.ChangedNodes, affectedAreas.ChangedKeyFrames,
                             affectedAreas.IgnoreAnimationPreviews,
-                            undoBoundaryPassed || refreshPreviewsRequest);
+                            undoBoundaryPassed || refreshPreviewsRequest || refreshPreviewRequest);
                     }
                 }
 
-                // force refresh viewports for better responsiveness
-                foreach (var (_, value) in internals.State.Viewports)
-                {
-                    if (!value.Delayed)
-                        value.InvalidateVisual();
-                }
+                List<Action>? updatePreviewActions = previewTextures?.Values
+                    .Select(x => x.Select(r => r.TextureUpdatedAction))
+                    .SelectMany(x => x).ToList();
+
+                bool immediateRender = affectedAreas.MainImageArea.Chunks.Count > 0;
+
+                await document.SceneRenderer.RenderAsync(internals.State.Viewports, affectedAreas.MainImageArea,
+                    !previewsDisabled && updateDelayed, previewTextures, immediateRender);
+
+                NotifyUpdatedPreviews(updatePreviewActions);
             }
         }
         catch (Exception e)
@@ -190,6 +189,17 @@ internal class ActionAccumulator
         if (document.Busy)
             document.Busy = false;
         executing = false;
+    }
+
+    private static void NotifyUpdatedPreviews(List<Action>? updatePreviewActions)
+    {
+        if (updatePreviewActions != null)
+        {
+            foreach (var action in updatePreviewActions)
+            {
+                action();
+            }
+        }
     }
 
     private const int LiveUpdatePerformanceThreshold = 2048;

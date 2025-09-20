@@ -57,7 +57,7 @@ internal class FloodFill_Change : Change
 
         foreach (var (chunkPos, chunk) in floodFilledChunks)
         {
-            image.EnqueueDrawImage(chunkPos * ChunkyImage.FullChunkSize, chunk.Surface, null, false);
+            image.EnqueueDrawTexture(chunkPos * ChunkyImage.FullChunkSize, chunk.Surface, null, false);
         }
         var affArea = image.FindAffectedArea();
         chunkStorage = new CommittedChunkStorage(image, affArea.Chunks);

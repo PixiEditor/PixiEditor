@@ -82,9 +82,10 @@ public class CombineChannelsNode : RenderNode
         surface.Canvas.RestoreToCount(saved);
     }
 
-    public override RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
+    public override RectD? GetPreviewBounds(RenderContext ctx, string elementToRenderName = "")
     {
-        RectD? redBounds = PreviewUtils.FindPreviewBounds(Red.Connection, frame, elementToRenderName);
+        int frame = ctx.FrameTime.Frame;
+        /*RectD? redBounds = PreviewUtils.FindPreviewBounds(Red.Connection, frame, elementToRenderName);
         RectD? greenBounds = PreviewUtils.FindPreviewBounds(Green.Connection, frame, elementToRenderName);
         RectD? blueBounds = PreviewUtils.FindPreviewBounds(Blue.Connection, frame, elementToRenderName);
         RectD? alphaBounds = PreviewUtils.FindPreviewBounds(Alpha.Connection, frame, elementToRenderName);
@@ -116,19 +117,18 @@ public class CombineChannelsNode : RenderNode
             finalBounds = finalBounds?.Union(alphaBounds.Value) ?? alphaBounds.Value;
         }
         
-        return finalBounds;
+        return finalBounds;*/
+        return null;
     }
 
-    public override bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
+    protected override bool ShouldRenderPreview(string elementToRenderName)
     {
-        if (Red.Value == null && Green.Value == null && Blue.Value == null && Alpha.Value == null)
-        {
-            return false;
-        }
+        return Red.Value != null || Green.Value != null || Blue.Value != null || Alpha.Value != null;
+    }
 
-        OnPaint(context, renderOn); 
-        
-        return true;
+    public override void RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
+    {
+        OnPaint(context, renderOn);
     }
 
     public override Node CreateCopy() => new CombineChannelsNode();

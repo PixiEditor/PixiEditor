@@ -117,29 +117,23 @@ public class NoiseNode : RenderNode
         workingSurface.Canvas.RestoreToCount(saved);
     }
 
-    public override RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
-    {
-        return new RectD(0, 0, 128, 128); 
-    }
-
-    public override bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
+    public override void RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
     {
         var shader = SelectShader();
         if (shader == null)
         {
-            return false;
+            return;
         }
 
         if (paint.Shader != voronoiShader)
         {
             paint?.Shader?.Dispose();
         }
+
         paint.Shader = shader;
         paint.ColorFilter = grayscaleFilter;
         
         RenderNoise(renderOn);
-
-        return true;
     }
 
     private Shader SelectShader()

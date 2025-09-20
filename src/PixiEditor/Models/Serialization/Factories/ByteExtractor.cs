@@ -122,4 +122,11 @@ public class ByteExtractor
 
         return sb.ToString();
     }
+
+    public Span<byte> GetByteSpan(int length)
+    {
+        Span<byte> span = new Span<byte>(_data, Position, length);
+        Position += length;
+        return span;
+    }
 }

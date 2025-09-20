@@ -34,20 +34,23 @@ public class RasterizeShapeNode : RenderNode
 
     public override Node CreateCopy() => new RasterizeShapeNode();
 
-    public override RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
+    public override RectD? GetPreviewBounds(RenderContext ctx, string elementToRenderName = "")
     {
         return Data?.Value?.TransformedAABB;
     }
 
-    public override bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
+    protected override bool ShouldRenderPreview(string elementToRenderName)
+    {
+        return Data.Value != null && Data.Value.IsValid();
+    }
+
+    public override void RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
     {
         var shape = Data.Value;
 
         if (shape == null || !shape.IsValid())
-            return false;
+            return;
 
         shape.RasterizeTransformed(renderOn.Canvas);
-
-        return true;
     }
 }

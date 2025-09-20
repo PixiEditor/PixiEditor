@@ -1,12 +1,15 @@
 using Avalonia.Headless.XUnit;
+using Avalonia.Threading;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Numerics;
 using PixiEditor.Models.IO;
+using PixiEditor.Models.Position;
 using Xunit.Abstractions;
 using Color = Drawie.Backend.Core.ColorsImpl.Color;
 
@@ -89,12 +92,20 @@ public class RenderTests : FullPixiEditorTest
         string pixiFile = Path.Combine("TestFiles", "ResolutionTests", pixiName + ".pixi");
 
         var document = Importer.ImportDocument(pixiFile);
-        using Surface output = Surface.ForDisplay(document.SizeBindable);
-        document.SceneRenderer.RenderScene(output.DrawingSurface, ChunkResolution.Half, SamplingOptions.Default);
+        ViewportInfo info = new ViewportInfo(
+            0,
+            document.SizeBindable / 2f,
+            document.SizeBindable,
+            Matrix3X3.Identity, null, "DEFAULT", SamplingOptions.Default, document.SizeBindable, ChunkResolution.Half,
+            Guid.NewGuid(), false, false, () => { });
+        using var output = document.SceneRenderer.RenderScene(info, new AffectedArea(), null);
 
         Color expectedColor = Colors.Yellow;
 
-        Assert.True(AllPixelsAreColor(output, expectedColor));
+        using Surface surface = Surface.ForDisplay(document.SizeBindable);
+        surface.DrawingSurface.Canvas.DrawSurface(output.DrawingSurface, 0, 0);
+
+        Assert.True(AllPixelsAreColor(surface, expectedColor));
     }
 
     private static bool PixelCompare(Surface image, Surface compareTo)
