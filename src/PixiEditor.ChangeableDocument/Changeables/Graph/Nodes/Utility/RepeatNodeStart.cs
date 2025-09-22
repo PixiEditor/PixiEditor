@@ -27,7 +27,7 @@ public class RepeatNodeStart : Node, IPairNode
     {
         Iterations = CreateInput<int>("Iterations", "ITERATIONS", 1);
         Input = CreateInput<object>("Input", "INPUT", null);
-        CurrentIteration = CreateOutput<int>("CurrentIteration", "CURRENT_ITERATION", 0);
+        CurrentIteration = CreateOutput<int>("CurrentIteration", "CURRENT_ITERATION", 1);
         Output = CreateOutput<object>("Output", "OUTPUT", null);
     }
 
@@ -105,7 +105,7 @@ public class RepeatNodeStart : Node, IPairNode
         for (int i = 0; i < iterations - 1; i++)
         {
             var mapping = new Dictionary<Guid, Node>();
-            CloneNodes(lastQueue, mapping, virtualSessionId, context);
+            CloneNodes(lastQueue, mapping, virtualSessionId, context, i + 2);
             connectPreviousTo =
                 ReplaceConnections(connectToNextStart, connectPreviousTo, mapping, virtualSessionId, context);
             connectToNextStart = mapping[connectToNextStart.Node.Id].OutputProperties
@@ -120,8 +120,9 @@ public class RepeatNodeStart : Node, IPairNode
 
         connectToNextStart.VirtualConnectTo(endNode.Input, virtualSessionId, context);
 
-        return GraphUtils.CalculateExecutionQueue(endNode, true, true,
+        var finalQueue = GraphUtils.CalculateExecutionQueue(endNode, true, true,
             property => property.Connection?.Node != this);
+        return finalQueue;
     }
 
     private List<IInputProperty> SetIterationConstants(Dictionary<Guid, Node> mapping,
@@ -137,6 +138,7 @@ public class RepeatNodeStart : Node, IPairNode
                     mappedNode.InputProperties.FirstOrDefault(i =>
                         i.InternalPropertyName == input.InternalPropertyName);
 
+                if (mappedInput == null) continue;
                 mappedInput.SetVirtualNonOverridenValue(iteration, virtualConnectionId, context);
                 iterationInputs.Add(mappedInput);
             }
@@ -172,7 +174,8 @@ public class RepeatNodeStart : Node, IPairNode
         return connectPreviousToMapped;
     }
 
-    private void CloneNodes(Queue<IReadOnlyNode> originalQueue, Dictionary<Guid, Node> mapping, Guid virtualSession, RenderContext context)
+    private void CloneNodes(Queue<IReadOnlyNode> originalQueue, Dictionary<Guid, Node> mapping, Guid virtualSession,
+        RenderContext context, int i)
     {
         foreach (var node in originalQueue)
         {
@@ -183,10 +186,11 @@ public class RepeatNodeStart : Node, IPairNode
             mapping[node.Id] = clonedNode;
         }
 
-        ConnectRelatedNodes(originalQueue, mapping, virtualSession, context);
+        ConnectRelatedNodes(originalQueue, mapping, virtualSession, context, i);
     }
 
-    private void ConnectRelatedNodes(Queue<IReadOnlyNode> originalQueue, Dictionary<Guid, Node> mapping, Guid virtualSession, RenderContext context)
+    private void ConnectRelatedNodes(Queue<IReadOnlyNode> originalQueue, Dictionary<Guid, Node> mapping,
+        Guid virtualSession, RenderContext context, int i1)
     {
         foreach (var node in originalQueue)
         {
@@ -206,12 +210,24 @@ public class RepeatNodeStart : Node, IPairNode
                             i.InternalPropertyName == input.InternalPropertyName);
                         output.ConnectTo(inputProp); // No need for virtual connection as it is a cloned node anyway
                     }
-                } // TODO: Handle external connections
-                /*else if(input.Connection != null && input.Connection.Node != this) // External property connection, keep it
+                }
+                // Leaving this in case external connections are not working as intended. It might help, but no guarantees.
+                /*else if (input.Connection != null)
                 {
-                    var inputProp = clonedNode.InputProperties.FirstOrDefault(i =>
-                        i.InternalPropertyName == input.InternalPropertyName);
-                    input.Connection.VirtualConnectTo(inputProp, virtualSession, context);
+                    var clonedInput =
+                        clonedNode.InputProperties.FirstOrDefault(i =>
+                            i.InternalPropertyName == input.InternalPropertyName);
+                    if (clonedInput is { Connection: null } && input.Connection != Output &&
+                        !mapping.TryGetValue(input.Connection.Node.Id, out _))
+                    {
+                        if (input.Connection == CurrentIteration)
+                        {
+                            clonedInput.SetVirtualNonOverridenValue(i1, virtualSession, context);
+                            continue;
+                        }
+
+                        input.Connection.VirtualConnectTo(clonedInput, virtualSession, context);
+                    }
                 }*/
             }
         }
