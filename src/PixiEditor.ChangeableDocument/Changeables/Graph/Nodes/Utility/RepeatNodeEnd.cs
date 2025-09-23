@@ -17,16 +17,16 @@ public class RepeatNodeEnd : Node, IPairNode, IExecutionFlowNode
     {
         get
         {
-            startNode = FindStartNode();
+            startNode = FindStartNode(out _);
             return startNode?.Id ?? Guid.Empty;
         }
         set
         {
-           // no op, the start node is found dynamically
+            // no op, the start node is found dynamically
         }
     }
 
-    private RepeatNodeStart startNode;
+    internal RepeatNodeStart startNode;
 
     public HashSet<IReadOnlyNode> HandledNodes => CalculateHandledNodes();
 
@@ -38,7 +38,7 @@ public class RepeatNodeEnd : Node, IPairNode, IExecutionFlowNode
 
     protected override void OnExecute(RenderContext context)
     {
-        if (OtherNode == Guid.Empty)
+        if (startNode == null && OtherNode == Guid.Empty)
         {
             return;
         }
@@ -74,31 +74,40 @@ public class RepeatNodeEnd : Node, IPairNode, IExecutionFlowNode
         return new RepeatNodeEnd();
     }
 
-    private RepeatNodeStart FindStartNode()
+    internal RepeatNodeStart FindStartNode(out List<IReadOnlyNode> reversedCalculationQueue)
     {
         RepeatNodeStart startNode = null;
         int nestingCount = 0;
-        TraverseBackwards(node =>
+
+        var queue = GraphUtils.CalculateExecutionQueue(this);
+
+        int nestingLevel = 0;
+        var reversedQueue = queue.Reverse().ToList();
+        foreach (var node in reversedQueue)
         {
-            if (node is RepeatNodeEnd && node != this)
+            if (node == this)
             {
-                nestingCount++;
+                continue;
             }
 
-            if (node is RepeatNodeStart leftNode && nestingCount == 0)
+            if (node is RepeatNodeEnd)
             {
-                startNode = leftNode;
-                return false;
+                nestingLevel++;
             }
 
-            if (node is RepeatNodeStart)
+            if (node is RepeatNodeStart leftNode)
             {
-                nestingCount--;
+                if (nestingLevel == 0)
+                {
+                    startNode = leftNode;
+                    break;
+                }
+
+                nestingLevel--;
             }
+        }
 
-            return true;
-        });
-
+        reversedCalculationQueue = reversedQueue;
         return startNode;
     }
 
@@ -106,29 +115,40 @@ public class RepeatNodeEnd : Node, IPairNode, IExecutionFlowNode
     {
         HashSet<IReadOnlyNode> handled = new();
 
-        startNode = FindStartNode();
+        startNode = FindStartNode(out var calculationQueue);
 
         int nestingCount = 0;
-        var queue = GraphUtils.CalculateExecutionQueue(this, false, property => property.Connection.Node != startNode);
 
-        foreach (var node in queue)
+        bool withinPair = false;
+        foreach (var node in calculationQueue)
         {
-            if (node is RepeatNodeStart && node != this)
+            if (node == this)
+            {
+                withinPair = true;
+                continue;
+            }
+
+            if (node is RepeatNodeEnd)
             {
                 nestingCount++;
             }
 
-            if (node is RepeatNodeEnd leftNode && nestingCount == 0)
+            if (node is RepeatNodeStart leftNode)
             {
-                if (leftNode == this)
+                if (nestingCount == 0)
                 {
-                    break;
+                    if (leftNode == startNode)
+                    {
+                        break;
+                    }
                 }
-
-                nestingCount--;
+                else
+                {
+                    nestingCount--;
+                }
             }
 
-            if (node != this && node != startNode)
+            if (withinPair)
             {
                 handled.Add(node);
             }

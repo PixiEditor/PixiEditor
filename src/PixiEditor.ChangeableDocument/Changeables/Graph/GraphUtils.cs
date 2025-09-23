@@ -74,7 +74,10 @@ public static class GraphUtils
             }
         }
 
-        finalQueue = new HashSet<IReadOnlyNode>(finalQueue.Except(nodesToExclude));
+        if (nodesToExclude.Count > 0)
+        {
+            finalQueue = new HashSet<IReadOnlyNode>(finalQueue.Except(nodesToExclude));
+        }
 
         return new Queue<IReadOnlyNode>(finalQueue);
     }
@@ -153,7 +156,10 @@ public static class GraphUtils
         if(ignoreOutputFlowNode && outputNode is IExecutionFlowNode)
             nodesToExclude.Add(outputNode);
 
-        finalQueue = new HashSet<IReadOnlyNode>(finalQueue.Except(nodesToExclude));
+        if (nodesToExclude.Count > 0)
+        {
+            finalQueue = new HashSet<IReadOnlyNode>(finalQueue.Except(nodesToExclude));
+        }
 
         return new Queue<IReadOnlyNode>(finalQueue);
     }

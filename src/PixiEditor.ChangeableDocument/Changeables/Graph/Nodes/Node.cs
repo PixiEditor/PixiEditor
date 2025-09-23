@@ -19,18 +19,18 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 public abstract class Node : IReadOnlyNode, IDisposable
 {
     private string displayName;
-    private List<InputProperty> inputs = new();
-    private List<OutputProperty> outputs = new();
+    private InputProperties inputs = new();
+    private OutputProperties outputs = new();
     protected List<KeyFrameData> keyFrames = new();
     public Guid Id { get; internal set; } = Guid.NewGuid();
 
-    public IReadOnlyList<InputProperty> InputProperties => inputs;
-    public IReadOnlyList<OutputProperty> OutputProperties => outputs;
+    public InputProperties InputProperties => inputs;
+    public OutputProperties OutputProperties => outputs;
     public IReadOnlyList<KeyFrameData> KeyFrames => keyFrames;
     public event Action ConnectionsChanged;
 
-    IReadOnlyList<IInputProperty> IReadOnlyNode.InputProperties => inputs;
-    IReadOnlyList<IOutputProperty> IReadOnlyNode.OutputProperties => outputs;
+    IReadOnlyInputProperties IReadOnlyNode.InputProperties => inputs;
+    IReadOnlyOutputProperties IReadOnlyNode.OutputProperties => outputs;
     IReadOnlyList<IReadOnlyKeyFrameData> IReadOnlyNode.KeyFrames => keyFrames;
     public VecD Position { get; set; }
 
@@ -87,7 +87,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
         if (CacheTrigger.HasFlag(CacheTriggerFlags.Inputs))
         {
-            changed |= inputs.Any(x => x.CacheChanged);
+            changed |= inputs.Properties.Any(x => x.Value.CacheChanged);
         }
 
         if (CacheTrigger.HasFlag(CacheTriggerFlags.Timeline))
@@ -105,7 +105,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
     protected virtual void UpdateCache(RenderContext context)
     {
-        foreach (var input in inputs)
+        foreach (var input in inputs.Properties.Values)
         {
             input.UpdateCache();
         }
@@ -117,7 +117,8 @@ public abstract class Node : IReadOnlyNode, IDisposable
         lastContentCacheHash = GetContentCacheHash();
     }
 
-    public void TraverseBackwards(Func<IReadOnlyNode, IInputProperty, bool> action, Func<IInputProperty, bool>? branchCondition = null)
+    public void TraverseBackwards(Func<IReadOnlyNode, IInputProperty, bool> action,
+        Func<IInputProperty, bool>? branchCondition = null)
     {
         var visited = new HashSet<IReadOnlyNode>();
         var queueNodes = new Queue<(IReadOnlyNode, IInputProperty)>();
@@ -143,6 +144,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
                 {
                     continue;
                 }
+
                 if (inputProperty.Connection != null)
                 {
                     queueNodes.Enqueue((inputProperty.Connection.Node, inputProperty));
@@ -364,14 +366,10 @@ public abstract class Node : IReadOnlyNode, IDisposable
     }
 
 
-    protected FuncInputProperty<T, TContext> CreateFuncInput<T, TContext>(string propName, string displayName, T defaultValue) where TContext : FuncContext
+    protected FuncInputProperty<T, TContext> CreateFuncInput<T, TContext>(string propName, string displayName,
+        T defaultValue) where TContext : FuncContext
     {
         var property = new FuncInputProperty<T, TContext>(this, propName, displayName, defaultValue);
-        if (InputProperties.Any(x => x.InternalPropertyName == propName))
-        {
-            throw new InvalidOperationException($"Input with name {propName} already exists.");
-        }
-
         property.ConnectionChanged += InvokeConnectionsChanged;
         inputs.Add(property);
         return property;
@@ -380,10 +378,6 @@ public abstract class Node : IReadOnlyNode, IDisposable
     protected InputProperty<T> CreateInput<T>(string propName, string displayName, T defaultValue)
     {
         var property = new InputProperty<T>(this, propName, displayName, defaultValue);
-        if (InputProperties.Any(x => x.InternalPropertyName == propName))
-        {
-            throw new InvalidOperationException($"Input with name {propName} already exists.");
-        }
 
         property.ConnectionChanged += InvokeConnectionsChanged;
         inputs.Add(property);
@@ -420,11 +414,6 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
     protected void AddInputProperty(InputProperty property)
     {
-        if (InputProperties.Any(x => x.InternalPropertyName == property.InternalPropertyName))
-        {
-            throw new InvalidOperationException($"Input with name {property.InternalPropertyName} already exists.");
-        }
-
         property.ConnectionChanged += InvokeConnectionsChanged;
         inputs.Add(property);
     }
@@ -433,7 +422,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
     {
         _isDisposed = true;
         DisconnectAll();
-        foreach (var input in inputs)
+        foreach (var input in inputs.Properties.Values)
         {
             if (input is { Connection: null, NonOverridenValue: IDisposable disposable })
             {
@@ -442,7 +431,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
             }
         }
 
-        foreach (var output in outputs)
+        foreach (var output in outputs.Properties.Values)
         {
             if (output.Connections.Count == 0 && output.Value is IDisposable disposable)
             {
@@ -462,12 +451,12 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
     public void DisconnectAll()
     {
-        foreach (var input in inputs)
+        foreach (var input in inputs.Properties.Values)
         {
             input.Connection?.DisconnectFrom(input);
         }
 
-        foreach (var output in outputs)
+        foreach (var output in outputs.Properties.Values)
         {
             var connections = output.Connections.ToArray();
             for (var i = 0; i < connections.Length; i++)
@@ -499,11 +488,24 @@ public abstract class Node : IReadOnlyNode, IDisposable
         clone.Id = preserveGuids ? Id : Guid.NewGuid();
         clone.Position = Position;
 
-        for (var i = 0; i < clone.inputs.Count; i++)
+        foreach (var prop in inputs.Properties)
         {
-            var toClone = inputs[i];
-            object value = CloneValue(toClone.NonOverridenValue, clone.inputs[i]);
-            clone.inputs[i].NonOverridenValue = value;
+            var inputs = clone.inputs.Properties;
+            var virtualSession = prop.Value.ActiveVirtualSession;
+            if (prop.Value.ActiveVirtualSession != null)
+            {
+                prop.Value.ActiveVirtualSession = null;
+            }
+
+            var toClone = prop.Value;
+            object value = CloneValue(toClone.NonOverridenValue, clone.inputs.Properties[prop.Key]);
+            clone.inputs.Properties[prop.Key].NonOverridenValue = value;
+
+            if (virtualSession != null)
+            {
+                prop.Value.ActiveVirtualSession = virtualSession;
+                clone.inputs.Properties[prop.Key].SetVirtualNonOverridenValue(CloneValue(toClone.NonOverridenValue, clone.inputs.Properties[prop.Key]), virtualSession.Value, prop.Value.GetVirtualContext(virtualSession.Value));
+            }
         }
 
         // This makes shader outputs copy old delegate, also I don't think it's required because output is calculated based on inputs,
@@ -534,23 +536,23 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
     public InputProperty? GetInputProperty(string inputProperty)
     {
-        return inputs.FirstOrDefault(x => x.InternalPropertyName == inputProperty);
+        return inputs.Properties.GetValueOrDefault(inputProperty);
     }
 
     public OutputProperty? GetOutputProperty(string outputProperty)
     {
-        return outputs.FirstOrDefault(x => x.InternalPropertyName == outputProperty);
+        return outputs.Properties.GetValueOrDefault(outputProperty);
     }
 
 
     public bool HasInputProperty(string propertyName)
     {
-        return inputs.Any(x => x.InternalPropertyName == propertyName);
+        return inputs.Properties.ContainsKey(propertyName);
     }
 
     public bool HasOutputProperty(string propertyName)
     {
-        return outputs.Any(x => x.InternalPropertyName == propertyName);
+        return outputs.Properties.ContainsKey(propertyName);
     }
 
     IInputProperty? IReadOnlyNode.GetInputProperty(string inputProperty)
@@ -629,7 +631,6 @@ public abstract class Node : IReadOnlyNode, IDisposable
         }
 
         hash.Add(GetContentCacheHash());
-
         return hash.ToHashCode();
     }
 }

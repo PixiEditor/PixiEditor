@@ -29,6 +29,8 @@ public class RenderContext
     private Dictionary<Guid, List<InputProperty>> recordedVirtualInputs = new();
     private Dictionary<Guid, List<OutputProperty>> recordedVirtualOutputs = new();
 
+    public Guid ContextVirtualSession { get; } = Guid.NewGuid();
+
     public RenderContext(DrawingSurface renderSurface, KeyFrameTime frameTime, ChunkResolution chunkResolution,
         VecI renderOutputSize, VecI documentSize, ColorSpace processingColorSpace, SamplingOptions desiredSampling, double opacity = 1)
     {
@@ -109,19 +111,26 @@ public class RenderContext
         }
     }
 
-    public void EndVirtualConnectionScope(Guid virtualSessionId)
+    public void EndVirtualConnectionScope(Guid virtualSessionId, bool removeConnections = true)
     {
         if (!virtualGraphSessions.Contains(virtualSessionId))
             return;
 
-        virtualGraphSessions.Remove(virtualSessionId);
+        if (removeConnections)
+        {
+            virtualGraphSessions.Remove(virtualSessionId);
+        }
 
         foreach (var inputProperty in recordedVirtualInputs)
         {
             foreach (var input in inputProperty.Value)
             {
-                input.RemoveVirtualConnection(virtualSessionId);
-                input.RemoveVirtualNonOverridenValues(virtualSessionId);
+                if (removeConnections)
+                {
+                    input.RemoveVirtualConnection(virtualSessionId);
+                    input.RemoveVirtualNonOverridenValues(virtualSessionId);
+                }
+
                 input.ActiveVirtualSession = null;
             }
         }

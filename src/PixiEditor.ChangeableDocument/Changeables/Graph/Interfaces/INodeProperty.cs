@@ -26,6 +26,7 @@ public interface IInputProperty : INodeProperty
     public IOutputProperty? Connection { get; set; }
     public object NonOverridenValue { get; set;  }
     public void RemoveVirtualConnection(Guid virtualConnectionId);
+    public void SetVirtualNonOverridenValue<T>(T value, Guid virtualSession, RenderContext context);
 }
 
 public interface IOutputProperty : INodeProperty

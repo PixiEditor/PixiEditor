@@ -69,6 +69,9 @@ internal static class PixiParserDocumentEx
         Dictionary<string, object> dict = new();
         foreach (var property in properties)
         {
+            if (property == null)
+                continue;
+
             dict[property.PropertyName] = property.Value;
         }
 
@@ -80,7 +83,8 @@ internal static class PixiParserDocumentEx
         DocumentViewModelBuilder.ReferenceLayerBuilder layerBuilder,
         ImageEncoder encoder)
     {
-        var surface = DecodeSurface(referenceLayer.ImageBytes, referenceLayer.ImageWidth, referenceLayer.ImageHeight, encoder);
+        var surface = DecodeSurface(referenceLayer.ImageBytes, referenceLayer.ImageWidth, referenceLayer.ImageHeight,
+            encoder);
 
         layerBuilder
             .WithIsVisible(referenceLayer.Enabled)

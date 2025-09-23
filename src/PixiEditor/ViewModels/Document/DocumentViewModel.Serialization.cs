@@ -478,14 +478,17 @@ internal partial class DocumentViewModel
         {
             NodePropertyValue[] properties = new NodePropertyValue[node.InputProperties.Count];
 
-            for (int i = 0; i < node.InputProperties.Count(); i++)
+            int index = 0;
+            foreach(var input in node.InputProperties)
             {
-                properties[i] = new NodePropertyValue()
+                properties[index] = new NodePropertyValue()
                 {
-                    PropertyName = node.InputProperties[i].InternalPropertyName,
-                    Value = SerializationUtil.SerializeObject(node.InputProperties[i].NonOverridenValue, config,
+                    PropertyName = input.InternalPropertyName,
+                    Value = SerializationUtil.SerializeObject(input.NonOverridenValue, config,
                         allFactories)
                 };
+
+                index++;
             }
 
             Dictionary<string, object> additionalData = new();

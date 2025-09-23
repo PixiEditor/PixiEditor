@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
+﻿using System.Diagnostics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changes.NodeGraph;
@@ -16,6 +17,7 @@ public class InputProperty : IInputProperty
     private PropertyValidator? validator;
     private IOutputProperty? connection;
     private Dictionary<Guid, IOutputProperty> virtualConnections = new();
+    private Dictionary<Guid, RenderContext> virtualConnectionContexts = new();
     private Dictionary<Guid, object> virtualNonOverridenValues = new();
 
     public event Action ConnectionChanged;
@@ -239,6 +241,11 @@ public class InputProperty : IInputProperty
     public void SetVirtualConnection(IOutputProperty outputProperty, Guid virtualConnectionId, RenderContext context)
     {
         virtualConnections[virtualConnectionId] = outputProperty;
+        if(virtualConnectionContexts.TryGetValue(virtualConnectionId, out var existingContext) && existingContext != context)
+        {
+            throw new InvalidOperationException("A virtual connection can only be associated with one RenderContext.");
+        }
+        virtualConnectionContexts[virtualConnectionId] = context;
         context.RecordVirtualConnection(this, virtualConnectionId);
     }
 
@@ -256,9 +263,16 @@ public class InputProperty : IInputProperty
         HashCode hash = new();
         hash.Add(InternalPropertyName);
         hash.Add(ValueType);
+        Stopwatch sw = Stopwatch.StartNew();
+        sw.Start();
         if (Value is ICacheable cacheable)
         {
             hash.Add(cacheable.GetCacheHash());
+            if(sw.ElapsedMilliseconds > 50)
+            {
+                Debug.WriteLine($"Long cache hash calculation in InputProperty {Node.GetType().Name}.{InternalPropertyName}");
+            }
+            sw.Stop();
         }
         else if (Value is Delegate func && Connection == null)
         {
@@ -274,22 +288,33 @@ public class InputProperty : IInputProperty
         }
         else
         {
-            hash.Add(Value?.GetHashCode() ?? 0);
+            hash.Add(NonOverridenValue?.GetHashCode() ?? 0);
         }
 
         hash.Add(Connection?.GetCacheHash() ?? 0);
+
         return hash.ToHashCode();
     }
 
     public void SetVirtualNonOverridenValue<T>(T value, Guid virtualConnectionId, RenderContext context)
     {
-        virtualNonOverridenValues[virtualConnectionId] = CastValue(value);
+        virtualNonOverridenValues[virtualConnectionId] = value == null ? null : CastValue(value);
+        if(virtualConnectionContexts.TryGetValue(virtualConnectionId, out var existingContext) && existingContext != context)
+        {
+            throw new InvalidOperationException("A virtual connection can only be associated with one RenderContext.");
+        }
+        virtualConnectionContexts[virtualConnectionId] = context;
         context.RecordVirtualNonOverridenValue(this, virtualConnectionId);
     }
 
     public void RemoveVirtualNonOverridenValues(Guid virtualSessionId)
     {
         virtualNonOverridenValues.Remove(virtualSessionId);
+    }
+
+    public RenderContext? GetVirtualContext(Guid virtualSession)
+    {
+        return virtualConnectionContexts.GetValueOrDefault(virtualSession);
     }
 }
 

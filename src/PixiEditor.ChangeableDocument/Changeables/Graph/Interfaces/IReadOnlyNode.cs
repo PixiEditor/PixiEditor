@@ -10,8 +10,8 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 public interface IReadOnlyNode : ICacheable
 {
     public Guid Id { get; }
-    public IReadOnlyList<IInputProperty> InputProperties { get; }
-    public IReadOnlyList<IOutputProperty> OutputProperties { get; }
+    public IReadOnlyInputProperties InputProperties { get; }
+    public IReadOnlyOutputProperties OutputProperties { get; }
     public IReadOnlyList<IReadOnlyKeyFrameData> KeyFrames { get; }
     public VecD Position { get; }
     string DisplayName { get; }
