@@ -1,7 +1,9 @@
 ﻿using ChunkyImageLib.DataHolders;
+using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Backend.Core.Utils;
 using Drawie.Numerics;
 
 namespace ChunkyImageLib.Operations;
@@ -70,7 +72,7 @@ internal class RectangleOperation : IMirroredDrawOperation
                 surf.Canvas.ClipRoundRect(innerRect, vecInnerRadius, ClipOperation.Intersect);
             }
 
-            surf.Canvas.DrawPaintable(Data.FillPaintable, Data.BlendMode);
+            surf.Canvas.DrawPaintable(Data.FillPaintable, Data.BlendMode, rect);
             surf.Canvas.RestoreToCount(saved);
         }
 
@@ -88,7 +90,7 @@ internal class RectangleOperation : IMirroredDrawOperation
             surf.Canvas.ClipRoundRect(innerRect, vecInnerRadius, ClipOperation.Difference);
         }
 
-        surf.Canvas.DrawPaintable(Data.Stroke, Data.BlendMode);
+        surf.Canvas.DrawPaintable(Data.Stroke, Data.BlendMode, rect);
     }
 
     private void DrawAntiAliased(DrawingSurface surf, RectD rect, double radius)
@@ -121,7 +123,7 @@ internal class RectangleOperation : IMirroredDrawOperation
             {
                 if (hasStroke)
                 {
-                    surf.Canvas.DrawPaintable(Data.FillPaintable, Data.BlendMode);
+                    surf.Canvas.DrawPaintable(Data.FillPaintable, Data.BlendMode, fillRect);
                 }
                 else
                 {

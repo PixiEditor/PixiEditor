@@ -107,6 +107,7 @@ internal class EllipseOperation : IMirroredDrawOperation
         paint.IsAntiAliased = false;
         if (strokeWidth - 1 < 0.01)
         {
+            // TODO: Fix for strokewidth = 1 and gradient fill
             if (Math.Abs(rotation) < 0.001 && strokeWidth > 0)
             {
                 if (fillPaintable.AnythingVisible || paint.BlendMode != BlendMode.SrcOver)
@@ -151,14 +152,14 @@ internal class EllipseOperation : IMirroredDrawOperation
                 surf.Canvas.Save();
                 surf.Canvas.RotateRadians((float)rotation, (float)location.Center.X, (float)location.Center.Y);
                 surf.Canvas.ClipPath(innerPath!);
-                surf.Canvas.DrawPaintable(fillPaintable, paint.BlendMode);
+                surf.Canvas.DrawPaintable(fillPaintable, paint.BlendMode, location);
                 surf.Canvas.Restore();
             }
             surf.Canvas.Save();
             surf.Canvas.RotateRadians((float)rotation, (float)location.Center.X, (float)location.Center.Y);
             surf.Canvas.ClipPath(outerPath!);
             surf.Canvas.ClipPath(innerPath!, ClipOperation.Difference);
-            surf.Canvas.DrawPaintable(strokePaintable, paint.BlendMode);
+            surf.Canvas.DrawPaintable(strokePaintable, paint.BlendMode, location);
             surf.Canvas.Restore();
         }
     }
