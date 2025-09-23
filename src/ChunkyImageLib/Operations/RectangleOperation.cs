@@ -97,6 +97,16 @@ internal class RectangleOperation : IMirroredDrawOperation
     {
         // shrink radius too so corners match inner curve
         // Draw fill first
+        if (Data.FillPaintable != null)
+        {
+            Data.FillPaintable.Bounds = rect;
+        }
+
+        if (Data.Stroke != null)
+        {
+            Data.Stroke.Bounds = rect;
+        }
+
         if (Data.FillPaintable.AnythingVisible)
         {
             int saved = surf.Canvas.Save();
@@ -123,7 +133,7 @@ internal class RectangleOperation : IMirroredDrawOperation
             {
                 if (hasStroke)
                 {
-                    surf.Canvas.DrawPaintable(Data.FillPaintable, Data.BlendMode, fillRect);
+                    surf.Canvas.DrawPaintable(Data.FillPaintable, Data.BlendMode);
                 }
                 else
                 {
@@ -169,6 +179,12 @@ internal class RectangleOperation : IMirroredDrawOperation
                     (float)innerRect.Width, (float)innerRect.Height,
                     (float)innerRadius, (float)innerRadius, paint);
             }
+
+            if(Data.FillPaintable != null)
+                Data.FillPaintable.Bounds = null;
+
+            if(Data.Stroke != null)
+                Data.Stroke.Bounds = null;
 
             surf.Canvas.Restore();
         }
