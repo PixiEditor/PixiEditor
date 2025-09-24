@@ -38,7 +38,7 @@
   </Target>
 
   <Target Name="GenerateProtoContracts" BeforeTargets="BeforeCompile"
-          Condition="'$(ProtogenExists)' == 'true'">
+          Condition="'$(ProtogenExists)' == 'true'"
     Inputs="$(MSBuildProjectDirectory)\DataContracts\*.proto"
     Outputs="$(MSBuildProjectDirectory)\ProtoAutogen\*.cs">
     <Exec Command="dotnet tool run protogen --csharp_out=ProtoAutogen --proto_path=DataContracts +listset=yes *.proto"/>
