@@ -1,8 +1,8 @@
 [Desktop Entry]
 Name=PixiEditor
 Comment=PixiEditor is all-in-one solution for 2D image editing.
-Icon=pixieditor
-Exec=pixieditor
+Icon=net.pixieditor.PixiEditor
+Exec=PixiEditor.Desktop %U
 StartupWMClass=pixieditor
 Terminal=false
 Type=Application
