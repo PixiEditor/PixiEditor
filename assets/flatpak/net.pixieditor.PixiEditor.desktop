@@ -7,6 +7,7 @@ StartupWMClass=pixieditor
 Terminal=false
 Type=Application
 Categories=Graphics;2DGraphics;RasterGraphics;VectorGraphics
+MimeType=application/x-pixi;image/jpeg;image/png;image/gif;image/bmp;image/webp;image/svg+xml;font/otf;font/ttf;
 GenericName=2D Editor
 SingleMainWindow=true
 Keywords=editor;image;2d;graphics;design;vector;raster;
