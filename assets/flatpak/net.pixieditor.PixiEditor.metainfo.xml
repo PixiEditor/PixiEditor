@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2025 Krzysztof Krysiński -->
+<component type="desktop-application">
+  <id>net.pixieditor.PixiEditor</id>
+  
+  <name>PixiEditor</name>
+  <summary>Universal node-based 2D editor</summary>
+  
+  <metadata_license>CC-BY-SA-4.0</metadata_license>
+  <project_license>LGPL-3.0-or-later</project_license>
+
+  <developer id="net.pixieditor">
+    <name>PixiEditor</name>
+  </developer>
+
+  <requires>
+    <control>keyboard</control>
+    <control>pointing</control>
+    <display_length compare="ge">768</display_length>
+  </requires>
+
+  <url type="homepage">https://pixieditor.net</url>
+  <url type="bugtracker">https://github.com/PixiEditor/PixiEditor/issues</url>
+  <url type="donation">https://pixieditor.net/download</url>
+  <url type="contact">https://pixieditor.net/help</url>
+  <url type="faq">https://pixieditor.net/docs/faq</url>
+  <url type="contribute">https://github.com/PixiEditor/PixiEditor</url>
+  <url type="vcs-browser">https://github.com/PixiEditor/PixiEditor</url>
+
+  <icon type="stock">net.pixieditor.PixiEditor</icon>
+
+  <branding>
+    <color type="primary" scheme_preference="light">#ed333b</color>
+    <color type="primary" scheme_preference="dark">#1c1c1c</color>
+  </branding>
+
+  <content_rating type="oars-1.1" />
+
+  <releases>
+    <release>
+      	
+    </release>
+  </releases>
+  
+  <description>
+    <p>
+      PixiEditor is a universal 2D editor that was made to provide you with tools and features for all your 2D needs. Create beautiful sprites for your games, animations, edit images, create logos. All packed up in an intuitive and familiar interface.
+    </p>
+    <p>
+      PixiEditor 2.0 comes by default with 3 toolsets:
+    </p>
+    <p>
+      Pixel art - it contains tool suited for pixel-perfect scenarios     Painting - basic painting tools, soft brushes, anti aliased shapes     Vector - shapes and paths for creating vectors
+    </p>
+    <p>
+      All toolsets can be used on one canvas. Mix vector with raster. Export to png, jpg, svg, gif, mp4 and more!
+    </p>
+    <p>
+      Version 2.0 comes with a timeline and animation capabilities. You can create frame by frame animations or use nodes to animate your custom shaders.
+    </p>
+    <p>
+      Node Graph system is what powers such extensive capabilities. All layers, effects and the layer structure are nodes or a result of its connections. PixiEditor exposes node graph for every document, so you are free to customize your image however you want and create procedural art/animations!
+    </p>
+  </description>
+  
+  <launchable type="desktop-id">net.pixieditor.PixiEditor.desktop</launchable>
+  <screenshots>
+    <screenshot type="default">
+      <image>https://raw.githubusercontent.com/axinlab/supreme-train/refs/heads/main/interface.png</image>
+    </screenshot>
+    <screenshot>
+      <image>https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2218560/4d04a9859748f427ad40e2f69192a165f169a553/ss_4d04a9859748f427ad40e2f69192a165f169a553.1920x1080.jpg?t=1754304155</image>
+    </screenshot>
+    <screenshot>
+      <image>https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2218560/ecf5714db415c1a8c238a17617eb016ff2cd0725/ss_ecf5714db415c1a8c238a17617eb016ff2cd0725.1920x1080.jpg?t=1754304155</image>
+    </screenshot>
+  </screenshots>
+</component>

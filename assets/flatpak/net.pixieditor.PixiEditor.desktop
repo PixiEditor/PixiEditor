@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=PixiEditor
+Comment=PixiEditor is all-in-one solution for 2D image editing.
+Icon=pixieditor
+Exec=pixieditor
+StartupWMClass=pixieditor
+Terminal=false
+Type=Application
+Categories=Graphics;2DGraphics;RasterGraphics;VectorGraphics
+GenericName=2D Editor
+SingleMainWindow=true
+Keywords=editor;image;2d;graphics;design;vector;raster;
