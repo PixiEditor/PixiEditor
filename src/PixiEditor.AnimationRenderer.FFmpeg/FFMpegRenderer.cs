@@ -33,7 +33,13 @@ public class FFMpegRenderer : IAnimationRenderer
             MakeExecutableIfNeeded(binaryPath);
         }
 
-        string paletteTempPath = Path.Combine(Path.GetDirectoryName(outputPath), "RenderTemp", "palette.png");
+        string tempPath = Path.Combine(Path.GetTempPath(), "PixiEditor", "Rendering");
+        if (!Directory.Exists(tempPath))
+        {
+            Directory.CreateDirectory(tempPath);
+        }
+
+        string paletteTempPath = Path.Combine(tempPath, "palette.png");
 
         try
         {
@@ -45,12 +51,6 @@ public class FFMpegRenderer : IAnimationRenderer
             }
 
             RawVideoPipeSource streamPipeSource = new(frames) { FrameRate = FrameRate, };
-
-
-            if (!Directory.Exists(Path.GetDirectoryName(paletteTempPath)))
-            {
-                Directory.CreateDirectory(Path.GetDirectoryName(paletteTempPath));
-            }
 
             if (RequiresPaletteGeneration())
             {
@@ -98,7 +98,13 @@ public class FFMpegRenderer : IAnimationRenderer
             MakeExecutableIfNeeded(binaryPath);
         }
 
-        string paletteTempPath = Path.Combine(Path.GetDirectoryName(outputPath), "RenderTemp", "palette.png");
+        string tempPath = Path.Combine(Path.GetTempPath(), "PixiEditor", "Rendering");
+        if (!Directory.Exists(tempPath))
+        {
+            Directory.CreateDirectory(tempPath);
+        }
+
+        string paletteTempPath = Path.Combine(tempPath, "palette.png");
 
         try
         {
@@ -110,12 +116,6 @@ public class FFMpegRenderer : IAnimationRenderer
             }
 
             RawVideoPipeSource streamPipeSource = new(frames) { FrameRate = FrameRate, };
-
-
-            if (!Directory.Exists(Path.GetDirectoryName(paletteTempPath)))
-            {
-                Directory.CreateDirectory(Path.GetDirectoryName(paletteTempPath));
-            }
 
             if (RequiresPaletteGeneration())
             {
