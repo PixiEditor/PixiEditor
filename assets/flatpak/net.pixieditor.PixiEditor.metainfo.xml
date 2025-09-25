@@ -20,16 +20,16 @@
   </requires>
 
   <provides>
-    <mimetype>application/x-pixi</mimetype>
-    <mimetype>image/png</mimetype>
-    <mimetype>image/jpeg</mimetype>
-    <mimetype>image/bmp</mimetype>
-    <mimetype>image/webp</mimetype>
-    <mimetype>image/svg+xml</mimetype>
-    <mimetype>image/gif</mimetype>
-    <mimetype>font/otf</mimetype>
-    <mimetype>font/ttf</mimetype>
-    <mimetype>video/mp4</mimetype>
+    <mediatype>application/x-pixi</mediatype>
+    <mediatype>image/png</mediatype>
+    <mediatype>image/jpeg</mediatype>
+    <mediatype>image/bmp</mediatype>
+    <mediatype>image/webp</mediatype>
+    <mediatype>image/svg+xml</mediatype>
+    <mediatype>image/gif</mediatype>
+    <mediatype>font/otf</mediatype>
+    <mediatype>font/ttf</mediatype>
+    <mediatype>video/mp4</mediatype>
   </provides>
 
   <url type="homepage">https://pixieditor.net</url>
