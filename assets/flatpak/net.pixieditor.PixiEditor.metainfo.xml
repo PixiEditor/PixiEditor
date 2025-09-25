@@ -19,6 +19,19 @@
     <display_length compare="ge">768</display_length>
   </requires>
 
+  <provides>
+    <mimetype>application/x-pixi</mimetype>
+    <mimetype>image/png</mimetype>
+    <mimetype>image/jpeg</mimetype>
+    <mimetype>image/bmp</mimetype>
+    <mimetype>image/webp</mimetype>
+    <mimetype>image/svg+xml</mimetype>
+    <mimetype>image/gif</mimetype>
+    <mimetype>font/otf</mimetype>
+    <mimetype>font/ttf</mimetype>
+    <mimetype>video/mp4</mimetype>
+  </provides>
+
   <url type="homepage">https://pixieditor.net</url>
   <url type="bugtracker">https://github.com/PixiEditor/PixiEditor/issues</url>
   <url type="donation">https://pixieditor.net/download</url>

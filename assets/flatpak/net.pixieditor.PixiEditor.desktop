@@ -6,7 +6,6 @@ Exec=pixieditor.sh %u
 StartupWMClass=pixieditor
 Terminal=false
 Type=Application
-MimeType=application/x-pixi
 Categories=Graphics;2DGraphics;RasterGraphics;VectorGraphics
 GenericName=2D Editor
 SingleMainWindow=true

@@ -10,42 +10,5 @@ SPDX-License-Identifier: GPL-3.0-or-later
     <generic-icon name="application-x-pixi"/>
     <glob pattern="*.pixi"/>
   </mime-type>
-
-  <mime-type type="image/png">
-    <comment>PNG image</comment>
-  </mime-type>
-
-  <mime-type type="image/jpeg">
-    <comment>JPEG image</comment>
-  </mime-type>
-
-  <mime-type type="image/bmp">
-    <comment>BMP image</comment>
-  </mime-type>
-
-  <mime-type type="image/webp">
-    <comment>WebP image</comment>
-  </mime-type>
-
-  <mime-type type="image/svg+xml">
-    <comment>SVG image</comment>
-  </mime-type>
-
-  <mime-type type="image/gif">
-    <comment>GIF image</comment>
-  </mime-type>
-
-  <mime-type type="font/otf">
-    <comment>OpenType font</comment>
-  </mime-type>
-
-  <mime-type type="font/ttf">
-    <comment>TrueType font</comment>
-  </mime-type>
-
-  <mime-type type="video/mp4">
-    <comment>MPEG-4 video</comment>
-  </mime-type>
-
 </mime-info>
 
