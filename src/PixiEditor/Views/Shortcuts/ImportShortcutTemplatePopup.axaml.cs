@@ -62,7 +62,7 @@ internal partial class ImportShortcutTemplatePopup : PixiEditorPopup
         try
         {
             var template = defaults.GetInstalledShortcuts();
-            if (template.Errors.Count > 0)
+            if (template?.Errors?.Count > 0)
             {
                 errors.AddRange(template.Errors);
             }
