@@ -148,7 +148,6 @@
                                    CaretIndex="{TemplateBinding CaretIndex}"
                                    LineHeight="{TemplateBinding LineHeight}"
                                    LetterSpacing="{TemplateBinding LetterSpacing}"
-                                   Margin="2, 0"
                                    PasswordChar="{TemplateBinding PasswordChar}"
                                    RevealPassword="{TemplateBinding RevealPassword}"
                                    SelectionBrush="{TemplateBinding SelectionBrush}"
@@ -157,7 +156,14 @@
                                    SelectionStart="{TemplateBinding SelectionStart}"
                                    Text="{TemplateBinding Text,Mode=TwoWay}"
                                    TextAlignment="{TemplateBinding TextAlignment}"
-                                   TextWrapping="{TemplateBinding TextWrapping}" />
+                                   TextWrapping="{TemplateBinding TextWrapping}">
+                        <TextPresenter.Margin>
+                            <OnPlatform>
+                                <OnPlatform.Default>0</OnPlatform.Default>
+                                <OnPlatform.macOS>2, 0</OnPlatform.macOS>
+                            </OnPlatform>
+                        </TextPresenter.Margin>
+                    </TextPresenter>
                   </Panel>
                 </ScrollViewer>
                 <ContentPresenter Grid.Column="2"
