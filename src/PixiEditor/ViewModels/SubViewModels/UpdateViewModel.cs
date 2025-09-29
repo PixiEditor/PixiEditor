@@ -220,20 +220,14 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
             updateFileDoesNotExists = !AutoUpdateFileExists();
             updateExeDoesNotExists = !UpdateInstallerFileExists();
         }
-        catch (SocketException ex)
-        {
-            UpdateState = UpdateState.UnableToCheck;
-            return;
-        }
-        catch (IOException ex)
-        {
-            UpdateState = UpdateState.UnableToCheck;
-            return;
-        }
         catch (Exception ex)
         {
             UpdateState = UpdateState.UnableToCheck;
-            CrashHelper.SendExceptionInfo(ex);
+            if (ex is not IOException && ex is not SocketException)
+            {
+                CrashHelper.SendExceptionInfo(ex);
+            }
+
             return;
         }
 
