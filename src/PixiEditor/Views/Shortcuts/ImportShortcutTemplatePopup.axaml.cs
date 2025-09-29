@@ -6,6 +6,8 @@ using PixiEditor.Models.Commands;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Templates;
 using PixiEditor.Models.Dialogs;
+using PixiEditor.Models.IO;
+using PixiEditor.OperatingSystem;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.Views.Dialogs;
 
@@ -38,7 +40,7 @@ internal partial class ImportShortcutTemplatePopup : PixiEditorPopup
         CommandController.Current.Import(defaults.DefaultShortcuts);
 
         if (!quiet)
-            Success(provider);
+            DisplayImportSuccessInfo(provider.Name, null);
     }
 
     [Command.Internal("PixiEditor.Shortcuts.Provider.ImportInstallation")]
@@ -55,10 +57,17 @@ internal partial class ImportShortcutTemplatePopup : PixiEditorPopup
         }
 
         CommandController.Current.ResetShortcuts();
+        List<string> errors = new List<string>();
 
         try
         {
-            CommandController.Current.Import(defaults.GetInstalledShortcuts().Shortcuts);
+            var template = defaults.GetInstalledShortcuts();
+            if (template.Errors.Count > 0)
+            {
+                errors.AddRange(template.Errors);
+            }
+
+            CommandController.Current.Import(template.Shortcuts);
         }
         catch (RecoverableException e)
         {
@@ -68,12 +77,42 @@ internal partial class ImportShortcutTemplatePopup : PixiEditorPopup
 
         if (!quiet)
         {
-            Success(provider);
+            DisplayImportSuccessInfo(provider.Name, errors);
         }
     }
 
-    private static void Success(ShortcutProvider provider) =>
-        NoticeDialog.Show(new LocalizedString("SHORTCUTS_IMPORTED", provider.Name), "SUCCESS");
+    public static void DisplayImportSuccessInfo(string? providerName, List<string>? errors)
+    {
+        string title = providerName != null ? "SHORTCUTS_IMPORTED" : "SHORTCUTS_IMPORTED_SUCCESS";
+        if (errors == null || errors.Count == 0)
+        {
+            NoticeDialog.Show(new LocalizedString(title, providerName), "SUCCESS");
+        }
+        else
+        {
+            string errorMessage = string.Join("\n", errors);
+            string errorLogPath = Path.Combine(Paths.TempFilesPath, "shortcut_import_errors.txt");
+            try
+            {
+                File.WriteAllText(errorLogPath, errorMessage);
+            }
+            catch
+            {
+                // ignored
+            }
+
+            OptionsDialog<string> dialog = new(
+                "WARNING",
+                new LocalizedString("SHORTCUTS_IMPORTED_WITH_ERRORS", providerName),
+                MainWindow.Current!)
+            {
+                { new LocalizedString("OPEN_ERROR_LOG"), x => { IOperatingSystem.Current.OpenUri(errorLogPath); } },
+                { new LocalizedString("CLOSE"), x => { } }
+            };
+
+            dialog.ShowDialog();
+        }
+    }
 
     // TODO figure out what these are for
     /*
