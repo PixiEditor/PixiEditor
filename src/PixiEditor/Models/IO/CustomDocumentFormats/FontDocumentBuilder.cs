@@ -14,7 +14,13 @@ internal class FontDocumentBuilder : IDocumentBuilder
 
     public void Build(DocumentViewModelBuilder builder, string path)
     {
-        Font font = Font.FromFontFamily(new FontFamilyName(new Uri(path), Path.GetFileNameWithoutExtension(path)));
+        Font? font = Font.FromFontFamily(new FontFamilyName(new Uri(path), Path.GetFileNameWithoutExtension(path)));
+
+        if (font is null)
+        {
+            throw new Exception("Failed to load font");
+        }
+
         font.Size = 12;
 
         List<char> glyphs = new();
