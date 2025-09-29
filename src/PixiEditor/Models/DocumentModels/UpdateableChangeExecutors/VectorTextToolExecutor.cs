@@ -283,6 +283,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
                 new SetLowDpiRendering_Action(selectedMember.Id, toolbar.ForceLowDpiRendering));
         }
 
+        document.TextOverlayHandler.Font = null; // Forces refreshing glyphs
         document.TextOverlayHandler.Font = constructedText.Font;
         document.TextOverlayHandler.Spacing = toolbar.Spacing;
     }

@@ -699,6 +699,26 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         }
     }
 
+    protected override void OnTextInput(TextInputEventArgs e)
+    {
+        base.OnTextInput(e);
+        try
+        {
+            if (AllOverlays != null)
+            {
+                foreach (Overlay overlay in AllOverlays)
+                {
+                    if (!overlay.IsVisible) continue;
+                    overlay.TextInput(e.Text);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            CrashHelper.SendExceptionInfo(ex);
+        }
+    }
+
     private OverlayPointerArgs ConstructPointerArgs(PointerEventArgs e)
     {
         return new OverlayPointerArgs

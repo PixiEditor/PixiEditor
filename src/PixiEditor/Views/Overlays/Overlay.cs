@@ -160,6 +160,12 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
         if (args.Handled) return;
         PointerPressedOverlay?.Invoke(args);
     }
+    
+    public void TextInput(string text)
+    {
+        if(SuppressEvents) return;
+        OnOverlayTextInput(text);
+    }
 
     public void ReleasePointer(OverlayPointerArgs args)
     {
@@ -348,6 +354,11 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
 
     protected virtual void OnOverlayGotFocus()
     {
+    }
+
+    protected virtual void OnOverlayTextInput(string text)
+    {
+        
     }
 
     private static void OnZoomScaleChanged(AvaloniaPropertyChangedEventArgs<double> e)

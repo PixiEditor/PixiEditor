@@ -171,7 +171,9 @@ internal partial class DocumentViewModel
         if (previousElement != null)
         {
             var clone = previousElement.Clone();
-            (clone as SvgPrimitive).ClipPath.Unit = null;
+            if(clone is not IClipable clipable)
+                return;
+            clipable.ClipPath.Unit = null;
             clone.Id.Unit = null;
             defs.Children.Add(new SvgClipPath()
             {

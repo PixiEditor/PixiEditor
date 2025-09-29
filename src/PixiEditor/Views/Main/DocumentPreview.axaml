@@ -11,11 +11,11 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              Name="uc"
              x:Class="PixiEditor.Views.Main.DocumentPreview">
-     <Grid>
+    <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="5"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="5" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <Grid x:Name="imageGrid" RenderOptions.BitmapInterpolationMode="None"
@@ -29,74 +29,84 @@
                 MaxBilinearSampleSize="{Binding ElementName=uc, Path=MaxBilinearSamplingSize}"
                 RenderInDocSize="{Binding ElementName=highDpiButton, Path=IsChecked}"
                 Document="{Binding Document, ElementName=uc}"
-                Background="{Binding ActiveItem.Value, ElementName=backgroundButton}"/>
+                Background="{Binding ActiveItem.Value, ElementName=backgroundButton}" />
         </Grid>
 
         <Grid Grid.Row="1">
             <Grid.Background>
-                <SolidColorBrush Color="{Binding ColorCursorColor, ElementName=uc, FallbackValue=Black}"/>
+                <SolidColorBrush Color="{Binding ColorCursorColor, ElementName=uc, FallbackValue=Black}" />
             </Grid.Background>
         </Grid>
         <StackPanel Margin="10, 0, 0, 0" Grid.Row="2" Orientation="Horizontal" Height="30"
                     Background="{DynamicResource ThemeBackgroundBrush}">
             <StackPanel.Styles>
                 <Style Selector="TextBlock">
-                    <Setter Property="VerticalAlignment" Value="Center"/>
+                    <Setter Property="VerticalAlignment" Value="Center" />
                 </Style>
             </StackPanel.Styles>
 
-            <TextBlock Text="{Binding ColorCursorPosition.X, ElementName=uc, StringFormat='X: {0}'}"/>
-            <TextBlock Text="{Binding ColorCursorPosition.Y, ElementName=uc, StringFormat='Y: {0}'}"/>
+            <TextBlock>
+                <Run Text="{Binding ColorCursorPosition.X, ElementName=uc, StringFormat='X: {0}'}" />
+                <Run Text="{Binding ColorCursorPosition.Y, ElementName=uc, StringFormat='Y: {0}'}" />
+            </TextBlock>
 
             <TextBlock VerticalAlignment="Center" Margin="10, 0, 0, 0">
                 <TextBlock.Text>
                     <MultiBinding Converter="{converters:FormattedColorConverter}">
-                        <Binding Path="ColorCursorColor" ElementName="uc"/>
-                        <Binding Path="ActiveItem.Value" ElementName="formatButton"/>
+                        <Binding Path="ColorCursorColor" ElementName="uc" />
+                        <Binding Path="ActiveItem.Value" ElementName="formatButton" />
                     </MultiBinding>
                 </TextBlock.Text>
             </TextBlock>
         </StackPanel>
-        <Grid Grid.Row="2" HorizontalAlignment="Right" Margin="0,0,5,0" ui:RenderOptionsBindable.BitmapInterpolationMode="{Binding ElementName=backgroundButton, Path=ActiveItem.ScalingMode}">
+        <Grid Grid.Row="2" HorizontalAlignment="Right" Margin="0,0,5,0"
+              ui:RenderOptionsBindable.BitmapInterpolationMode="{Binding ElementName=backgroundButton, Path=ActiveItem.ScalingMode}">
             <StackPanel Spacing="5" Orientation="Horizontal">
                 <StackPanel.Styles>
                     <Style Selector="ToggleButton#highDpiButton">
-                        <Setter Property="Content" Value="{DynamicResource icon-circle}"/>
+                        <Setter Property="Content" Value="{DynamicResource icon-circle}" />
                     </Style>
                     <Style Selector="ToggleButton#highDpiButton:checked">
-                        <Setter Property="Content" Value="{DynamicResource icon-lowres-circle}"/>
-                        <Setter Property="Background" Value="Transparent"/>
-                        <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="Content" Value="{DynamicResource icon-lowres-circle}" />
+                        <Setter Property="Background" Value="Transparent" />
+                        <Setter Property="BorderThickness" Value="0" />
                     </Style>
                 </StackPanel.Styles>
 
-                <ToggleButton x:Name="highDpiButton" Classes="pixi-icon" localization:Translator.TooltipKey="TOGGLE_HIGH_RES_PREVIEW"/>
+                <ToggleButton x:Name="highDpiButton" Classes="pixi-icon"
+                              localization:Translator.TooltipKey="TOGGLE_HIGH_RES_PREVIEW" />
                 <input:ListSwitchButton x:Name="formatButton" Height="20">
                     <input:ListSwitchButton.Items>
                         <input:SwitchItemObservableCollection>
-                            <input:SwitchItem Content="RGBA" Background="{DynamicResource ThemeControlMidBrush}" Value="RGBA"/>
-                            <input:SwitchItem Content="HEX" Background="{DynamicResource ThemeControlMidBrush}" Value="HEX"/>
+                            <input:SwitchItem Content="RGBA" Background="{DynamicResource ThemeControlMidBrush}"
+                                              Value="RGBA" />
+                            <input:SwitchItem Content="HEX" Background="{DynamicResource ThemeControlMidBrush}"
+                                              Value="HEX" />
                         </input:SwitchItemObservableCollection>
                     </input:ListSwitchButton.Items>
                 </input:ListSwitchButton>
-                <input:ListSwitchButton RenderOptions.BitmapInterpolationMode="None" BorderBrush="{DynamicResource ThemeBorderMidBrush}" Width="25" Height="20" x:Name="backgroundButton">
+                <input:ListSwitchButton RenderOptions.BitmapInterpolationMode="None"
+                                        BorderBrush="{DynamicResource ThemeBorderMidBrush}" Width="25" Height="20"
+                                        x:Name="backgroundButton">
                     <input:ListSwitchButton.Items>
                         <input:SwitchItemObservableCollection>
                             <input:SwitchItem ScalingMode="None">
                                 <input:SwitchItem.Background>
-                                    <ImageBrush Source="/Images/CheckerTile.png" TileMode="Tile" DestinationRect="0, 0, 25 25"/>
+                                    <ImageBrush Source="/Images/CheckerTile.png" TileMode="Tile"
+                                                DestinationRect="0, 0, 25 25" />
                                 </input:SwitchItem.Background>
                                 <input:SwitchItem.Value>
-                                    <ImageBrush DestinationRect="0, 10, 10, 10" Source="/Images/CheckerTile.png" TileMode="Tile"/>
+                                    <ImageBrush DestinationRect="0, 10, 10, 10" Source="/Images/CheckerTile.png"
+                                                TileMode="Tile" />
                                 </input:SwitchItem.Value>
                             </input:SwitchItem>
                             <input:SwitchItem Value="Transparent">
                                 <input:SwitchItem.Background>
-                                    <ImageBrush Source="/Images/DiagonalRed.png"/>
+                                    <ImageBrush Source="/Images/DiagonalRed.png" />
                                 </input:SwitchItem.Background>
                             </input:SwitchItem>
-                            <input:SwitchItem Background="White" Value="White"/>
-                            <input:SwitchItem Background="Black" Value="Black"/>
+                            <input:SwitchItem Background="White" Value="White" />
+                            <input:SwitchItem Background="Black" Value="Black" />
                         </input:SwitchItemObservableCollection>
                     </input:ListSwitchButton.Items>
                 </input:ListSwitchButton>
