@@ -51,7 +51,7 @@ public class ConnectionRenderer : Control
                     ? socket
                     : null;
 
-            if (inputSocket == null || outputSocket == null)
+            if (inputSocket == null || outputSocket == null || !inputSocket.IsVisible || !outputSocket.IsVisible)
             {
                 continue;
             }
