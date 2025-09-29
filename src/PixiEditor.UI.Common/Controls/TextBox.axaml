@@ -148,6 +148,7 @@
                                    CaretIndex="{TemplateBinding CaretIndex}"
                                    LineHeight="{TemplateBinding LineHeight}"
                                    LetterSpacing="{TemplateBinding LetterSpacing}"
+                                   Margin="2, 0"
                                    PasswordChar="{TemplateBinding PasswordChar}"
                                    RevealPassword="{TemplateBinding RevealPassword}"
                                    SelectionBrush="{TemplateBinding SelectionBrush}"
