@@ -15,7 +15,7 @@ public class PathVectorData : ShapeVectorData, IReadOnlyPathData
     public override RectD VisualAABB => GeometryAABB.Inflate(StrokeWidth / 2);
 
     public override ShapeCorners TransformationCorners =>
-        new ShapeCorners(VisualAABB).WithMatrix(TransformationMatrix);
+        new ShapeCorners(Path.TightBounds).WithMatrix(TransformationMatrix);
 
     public StrokeCap StrokeLineCap { get; set; } = StrokeCap.Round;
 
