@@ -127,6 +127,8 @@ internal class TextOverlay : Overlay
     private Paint opacityPaint;
     private Paint sampleTextPaint;
 
+    private bool canInsertText;
+
     private int lastXMovementCursorIndex;
 
     static TextOverlay()
@@ -209,10 +211,7 @@ internal class TextOverlay : Overlay
         };
 
         opacityPaint = new Paint() { Color = Colors.White.WithAlpha(ThemeResources.SelectionFillColor.A) };
-        sampleTextPaint = new Paint()
-        {
-            Color = Colors.Black, Style = PaintStyle.Fill, IsAntiAliased = true
-        };
+        sampleTextPaint = new Paint() { Color = Colors.Black, Style = PaintStyle.Fill, IsAntiAliased = true };
     }
 
 
@@ -472,6 +471,13 @@ internal class TextOverlay : Overlay
         return indexOfClosest;
     }
 
+    protected override void OnOverlayTextInput(string text)
+    {
+        if (!IsEditing || !canInsertText) return;
+
+        InsertTextAtCursor(text);
+    }
+
     protected override void OnKeyPressed(KeyEventArgs args)
     {
         if (!IsEditing) return;
@@ -484,16 +490,23 @@ internal class TextOverlay : Overlay
         if (IsRegisteredExternalShortcut(key, keyModifiers))
         {
             ShortcutController.UnblockShortcutExecution(nameof(TextOverlay));
+            canInsertText = false;
             return;
         }
 
         if (IsShortcut(key, keyModifiers))
         {
             ExecuteShortcut(key, keyModifiers);
+            canInsertText = false;
             return;
         }
 
-        InsertChar(key, args.KeySymbol);
+        if (key == Key.Tab)
+        {
+            args.Handled = true;
+        }
+
+        canInsertText = !TryInsertSpecialChar(key, args.KeySymbol);
     }
 
     private bool IsRegisteredExternalShortcut(Key key, KeyModifiers keyModifiers)
@@ -506,25 +519,15 @@ internal class TextOverlay : Overlay
         return ctxCommand != null;
     }
 
-    private void InsertChar(Key key, string symbol)
+    private bool TryInsertSpecialChar(Key key, string symbol)
     {
         if (key == Key.Enter)
         {
             InsertTextAtCursor("\n");
+            return true;
         }
-        else if (key == Key.Space)
-        {
-            InsertTextAtCursor(" ");
-        }
-        else
-        {
-            if (symbol is { Length: 1 })
-            {
-                char symbolChar = symbol[0];
-                if (char.IsControl(symbolChar)) return;
-                InsertTextAtCursor(symbol);
-            }
-        }
+
+        return false;
     }
 
     private void InsertTextAtCursor(string toAdd)
