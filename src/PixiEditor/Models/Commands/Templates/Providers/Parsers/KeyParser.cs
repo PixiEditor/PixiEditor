@@ -101,6 +101,9 @@ public static class KeyParser
             case ")":
                 parsed = Key.D0;
                 return true;
+            case "|":
+                parsed = Key.Oem5;
+                return true;
             default:
                 parsed = Key.None;
                 return false;
