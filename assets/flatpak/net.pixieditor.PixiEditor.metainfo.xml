@@ -30,14 +30,14 @@
   <icon type="stock">net.pixieditor.PixiEditor</icon>
 
   <branding>
-    <color type="primary" scheme_preference="light">#ed333b</color>
-    <color type="primary" scheme_preference="dark">#1c1c1c</color>
+    <color type="primary" scheme_preference="light">#dedede</color>
+    <color type="primary" scheme_preference="dark">#1a1a1a</color>
   </branding>
 
   <content_rating type="oars-1.1" />
 
   <releases>
-    <release version="2.0.1.4" date="2025-10-09">
+    <release version="2.0.1.4" date="2025-09-10">
       <url type="details">https://forum.pixieditor.net/t/changelog-2-0-1-14/439/1</url>
       <description>
         <p>Fixed rectangle rendering issues</p>
@@ -47,35 +47,31 @@
   
   <description>
     <p>
-      PixiEditor is a universal 2D editor that was made to provide you with tools and features for all your 2D needs. Create beautiful sprites for your games, animations, edit images, create logos. All packed up in an intuitive and familiar interface.
+	PixiEditor is a universal 2D editor designed for all kinds of creative work. Whether you want to make game sprites, paint illustrations, design logos, edit images, or create animations, PixiEditor gives you the tools to bring your ideas to life—all in a clean and familiar interface.
     </p>
     <p>
-      PixiEditor 2.0 comes by default with 3 toolsets:
+	Powered by a Node Graph for advanced, non-destructive editing, PixiEditor comes with three unique toolsets that can be used together on the same canvas:
     </p>
     <p>
-      Pixel art - it contains tool suited for pixel-perfect scenarios     Painting - basic painting tools, soft brushes, anti aliased shapes     Vector - shapes and paths for creating vectors
-    </p>
-    <p>
-      All toolsets can be used on one canvas. Mix vector with raster. Export to png, jpg, svg, gif, mp4 and more!
-    </p>
-    <p>
-      Version 2.0 comes with a timeline and animation capabilities. You can create frame by frame animations or use nodes to animate your custom shaders.
-    </p>
-    <p>
-      Node Graph system is what powers such extensive capabilities. All layers, effects and the layer structure are nodes or a result of its connections. PixiEditor exposes node graph for every document, so you are free to customize your image however you want and create procedural art/animations!
+	Pixel Art – pixel-perfect drawing tools for sprites and retro graphics
+	Painting – soft brushes, smooth lines, and anti-aliased shapes
+		    Vector – scalable paths and shapes for logos and clean designs
     </p>
   </description>
   
   <launchable type="desktop-id">net.pixieditor.PixiEditor.desktop</launchable>
   <screenshots>
     <screenshot type="default">
-      <image>https://raw.githubusercontent.com/axinlab/supreme-train/refs/heads/main/interface.png</image>
+	    <image>https://raw.githubusercontent.com/pixieditor/pixieditor/refs/heads/main/assets/flatpak/anim.png</image>
     </screenshot>
     <screenshot>
-      <image>https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2218560/4d04a9859748f427ad40e2f69192a165f169a553/ss_4d04a9859748f427ad40e2f69192a165f169a553.1920x1080.jpg?t=1754304155</image>
+	    <image>https://raw.githubusercontent.com/pixieditor/pixieditor/refs/heads/main/assets/flatpak/graph.png</image>
     </screenshot>
     <screenshot>
-      <image>https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2218560/ecf5714db415c1a8c238a17617eb016ff2cd0725/ss_ecf5714db415c1a8c238a17617eb016ff2cd0725.1920x1080.jpg?t=1754304155</image>
+	    <image>https://raw.githubusercontent.com/pixieditor/pixieditor/refs/heads/main/assets/flatpak/palettes.png</image>
+    </screenshot>
+    <screenshot>
+	    <image>https://raw.githubusercontent.com/pixieditor/pixieditor/refs/heads/main/assets/flatpak/vector.png</image>
     </screenshot>
   </screenshots>
 </component>
