@@ -1,7 +1,9 @@
 ﻿using ChunkyImageLib.DataHolders;
+using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Backend.Core.Utils;
 using Drawie.Numerics;
 
 namespace ChunkyImageLib.Operations;
@@ -70,7 +72,7 @@ internal class RectangleOperation : IMirroredDrawOperation
                 surf.Canvas.ClipRoundRect(innerRect, vecInnerRadius, ClipOperation.Intersect);
             }
 
-            surf.Canvas.DrawPaintable(Data.FillPaintable, Data.BlendMode);
+            surf.Canvas.DrawPaintable(Data.FillPaintable, Data.BlendMode, rect);
             surf.Canvas.RestoreToCount(saved);
         }
 
@@ -88,13 +90,23 @@ internal class RectangleOperation : IMirroredDrawOperation
             surf.Canvas.ClipRoundRect(innerRect, vecInnerRadius, ClipOperation.Difference);
         }
 
-        surf.Canvas.DrawPaintable(Data.Stroke, Data.BlendMode);
+        surf.Canvas.DrawPaintable(Data.Stroke, Data.BlendMode, rect);
     }
 
     private void DrawAntiAliased(DrawingSurface surf, RectD rect, double radius)
     {
         // shrink radius too so corners match inner curve
         // Draw fill first
+        if (Data.FillPaintable != null)
+        {
+            Data.FillPaintable.Bounds = rect;
+        }
+
+        if (Data.Stroke != null)
+        {
+            Data.Stroke.Bounds = rect;
+        }
+
         if (Data.FillPaintable.AnythingVisible)
         {
             int saved = surf.Canvas.Save();
@@ -167,6 +179,12 @@ internal class RectangleOperation : IMirroredDrawOperation
                     (float)innerRect.Width, (float)innerRect.Height,
                     (float)innerRadius, (float)innerRadius, paint);
             }
+
+            if(Data.FillPaintable != null)
+                Data.FillPaintable.Bounds = null;
+
+            if(Data.Stroke != null)
+                Data.Stroke.Bounds = null;
 
             surf.Canvas.Restore();
         }

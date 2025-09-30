@@ -41,12 +41,10 @@ internal class SettingsPage : ObservableObject
 internal partial class SettingsWindowViewModel : ViewModelBase
 {
     private string searchTerm;
-    
-    [ObservableProperty]
-    private int visibleGroups;
-    
-    [ObservableProperty]
-    private int currentPage;
+
+    [ObservableProperty] private int visibleGroups;
+
+    [ObservableProperty] private int currentPage;
 
     public bool ShowUpdateTab
     {
@@ -85,7 +83,8 @@ internal partial class SettingsWindowViewModel : ViewModelBase
     [Command.Internal("PixiEditor.Shortcuts.Reset")]
     public static async Task ResetCommand()
     {
-        await new OptionsDialog<string>("ARE_YOU_SURE", new LocalizedString("WARNING_RESET_SHORTCUTS_DEFAULT"), MainWindow.Current!)
+        await new OptionsDialog<string>("ARE_YOU_SURE", new LocalizedString("WARNING_RESET_SHORTCUTS_DEFAULT"),
+            MainWindow.Current!)
         {
             { new LocalizedString("YES"), x => CommandController.Current.ResetShortcuts() },
             new LocalizedString("CANCEL"),
@@ -112,31 +111,13 @@ internal partial class SettingsWindowViewModel : ViewModelBase
             SuggestedStartLocation = suggestedStartLocation,
             FileTypeChoices = new List<FilePickerFileType>()
             {
-                new FilePickerFileType("PixiShorts (*.pixisc)")
-                {
-                    Patterns = new List<string>
-                    {
-                        "*.pixisc"
-                    },
-                },
-                new FilePickerFileType("json (*.json)")
-                {
-                    Patterns = new List<string>
-                    {
-                        "*.json"
-                    },
-                },
-                new FilePickerFileType("All files (*.*)")
-                {
-                    Patterns = new List<string>
-                    {
-                        "*.*"
-                    },
-                },
+                new FilePickerFileType("PixiShorts (*.pixisc)") { Patterns = new List<string> { "*.pixisc" }, },
+                new FilePickerFileType("json (*.json)") { Patterns = new List<string> { "*.json" }, },
+                new FilePickerFileType("All files (*.*)") { Patterns = new List<string> { "*.*" }, },
             },
         });
-        
-        
+
+
         if (file is not null)
         {
             try
@@ -146,10 +127,11 @@ internal partial class SettingsWindowViewModel : ViewModelBase
             catch (Exception ex)
             {
                 string errMessageTrimmed = ex.Message.Length > 100 ? ex.Message[..100] + "..." : ex.Message;
-                NoticeDialog.Show(title: "ERROR", message: new LocalizedString("UNKNOWN_ERROR_SAVING").Value + $" {errMessageTrimmed}");
+                NoticeDialog.Show(title: "ERROR",
+                    message: new LocalizedString("UNKNOWN_ERROR_SAVING").Value + $" {errMessageTrimmed}");
             }
         }
-        
+
         // Sometimes, focus was brought back to the last edited shortcut
         // TODO: Keyboard.ClearFocus(); should be there but I can't find an equivalent from avalonia
     }
@@ -159,37 +141,20 @@ internal partial class SettingsWindowViewModel : ViewModelBase
     {
         List<FilePickerFileType> fileTypes = new List<FilePickerFileType>
         {
-            new("PixiShorts (*.pixisc)")
-            {
-                Patterns = new List<string>
-                {
-                    "*.pixisc"
-                },
-            },
-            new("json (*.json)")
-            {
-                Patterns = new List<string>
-                {
-                    "*.json"
-                },
-            },
+            new("PixiShorts (*.pixisc)") { Patterns = new List<string> { "*.pixisc" }, },
+            new("json (*.json)") { Patterns = new List<string> { "*.json" }, },
         };
-        
+
         customShortcutFormats ??= ShortcutProvider.GetProviders().OfType<ICustomShortcutFormat>().ToList();
         AddCustomParsersFormat(customShortcutFormats, fileTypes);
-        
-        fileTypes.Add(new FilePickerFileType("All files (*.*)")
-        {
-            Patterns = new List<string>
+
+        fileTypes.Add(new FilePickerFileType("All files (*.*)") { Patterns = new List<string> { "*.*" }, });
+
+        fileTypes.Insert(0,
+            new FilePickerFileType($"All Shortcut files {string.Join(",", fileTypes.SelectMany(a => a.Patterns))}")
             {
-                "*.*"
-            },
-        });
-        
-        fileTypes.Insert(0, new FilePickerFileType($"All Shortcut files {string.Join(",", fileTypes.SelectMany(a => a.Patterns))}")
-        {
-            Patterns = fileTypes.SelectMany(a => a.Patterns).ToList(),
-        });
+                Patterns = fileTypes.SelectMany(a => a.Patterns).ToList(),
+            });
 
         IStorageFolder? suggestedLocation = null;
         try
@@ -205,34 +170,35 @@ internal partial class SettingsWindowViewModel : ViewModelBase
 
         IReadOnlyList<IStorageFile> files = await MainWindow.Current!.StorageProvider.OpenFilePickerAsync(new()
         {
-            AllowMultiple = false,
-            SuggestedStartLocation = suggestedLocation,
-            FileTypeFilter = fileTypes,
+            AllowMultiple = false, SuggestedStartLocation = suggestedLocation, FileTypeFilter = fileTypes,
         });
-        
+
         if (files.Count > 0)
         {
             List<Shortcut> shortcuts = new List<Shortcut>();
-            if (!TryImport(files[0], ref shortcuts))
+            if (!TryImport(files[0], ref shortcuts, out var errors))
                 return;
-            
+
             CommandController.Current.ResetShortcuts();
             CommandController.Current.Import(shortcuts, false);
             File.Copy(files[0].Path.LocalPath, CommandController.ShortcutsPath, true);
-            NoticeDialog.Show("SHORTCUTS_IMPORTED_SUCCESS", "SUCCESS");
+            ImportShortcutTemplatePopup.DisplayImportSuccessInfo(null, errors);
         }
-        
+
         // Sometimes, focus was brought back to the last edited shortcut
         // TODO: Keyboard.ClearFocus(); should be there but I can't find an equivalent from avalonia
     }
 
-    private static bool TryImport(IStorageFile file, ref List<Shortcut> shortcuts)
+    private static bool TryImport(IStorageFile file, ref List<Shortcut> shortcuts, out List<string>? errors)
     {
+        errors = null;
         if (file.Name.EndsWith(".pixisc") || file.Name.EndsWith(".json"))
         {
             try
             {
-                shortcuts = ShortcutFile.LoadTemplate(file.Path.LocalPath)?.Shortcuts.ToList();
+                var template = ShortcutFile.LoadTemplate(file.Path.LocalPath);
+                errors = template.Errors;
+                shortcuts = template.Shortcuts.ToList();
             }
             catch (Exception)
             {
@@ -258,7 +224,9 @@ internal partial class SettingsWindowViewModel : ViewModelBase
 
             try
             {
-                shortcuts = provider.KeysParser.Parse(file.Path.LocalPath, false)?.Shortcuts.ToList();
+                var template = provider.KeysParser.Parse(file.Path.LocalPath, false);
+                shortcuts = template?.Shortcuts.ToList();
+                errors = template?.Errors;
             }
             catch (RecoverableException e)
             {
@@ -270,7 +238,8 @@ internal partial class SettingsWindowViewModel : ViewModelBase
         return true;
     }
 
-    private static void AddCustomParsersFormat(IList<ICustomShortcutFormat>? customFormats, List<FilePickerFileType> listToAddTo)
+    private static void AddCustomParsersFormat(IList<ICustomShortcutFormat>? customFormats,
+        List<FilePickerFileType> listToAddTo)
     {
         if (customFormats is null || customFormats.Count == 0)
             return;
@@ -355,6 +324,7 @@ internal partial class SettingsWindowViewModel : ViewModelBase
 
                 group.IsVisible = visibleCommands > 0;
             }
+
             return;
         }
 
@@ -381,8 +351,7 @@ internal partial class SettingsWindowViewModel : ViewModelBase
 
 internal partial class GroupSearchResult : ObservableObject
 {
-    [ObservableProperty]
-    private bool isVisible;
+    [ObservableProperty] private bool isVisible;
 
     public LocalizedString DisplayName { get; set; }
 
@@ -397,8 +366,7 @@ internal partial class GroupSearchResult : ObservableObject
 
 internal partial class CommandSearchResult : ObservableObject
 {
-    [ObservableProperty]
-    private bool isVisible;
+    [ObservableProperty] private bool isVisible;
 
     public Models.Commands.Commands.Command Command { get; set; }
 

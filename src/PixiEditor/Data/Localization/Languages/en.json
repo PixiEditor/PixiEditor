@@ -1142,5 +1142,11 @@
   "MITER_STROKE_JOIN": "Miter",
   "BEVEL_STROKE_JOIN": "Bevel",
   "TOGGLE_FULLSCREEN": "Toggle Fullscreen",
-  "TOGGLE_FULLSCREEN_DESCRIPTIVE": "Enter or Exit Fullscreen Mode"
+  "TOGGLE_FULLSCREEN_DESCRIPTIVE": "Enter or Exit Fullscreen Mode",
+  "SHORTCUTS_IMPORTED_WITH_ERRORS": "Importing shortcuts finished with errors.\nSome shortcuts were not recognized and have been skipped.",
+  "OPEN_ERROR_LOG": "Open error log",
+  "POSTERIZATION_NODE": "Posterize",
+  "LEVELS": "Levels",
+  "RGB_POSTERIZATION_MODE": "RGB",
+  "LUMINANCE_POSTERIZATION_MODE": "Luminance"
 }

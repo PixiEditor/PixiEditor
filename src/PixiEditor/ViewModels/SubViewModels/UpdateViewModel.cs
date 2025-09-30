@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -212,9 +213,24 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
 
     public async Task Download()
     {
-        bool updateCompatible = await UpdateChecker.IsUpdateCompatible();
-        bool updateFileDoesNotExists = !AutoUpdateFileExists();
-        bool updateExeDoesNotExists = !UpdateInstallerFileExists();
+        bool updateCompatible, updateFileDoesNotExists, updateExeDoesNotExists;
+        try
+        {
+            updateCompatible = await UpdateChecker.IsUpdateCompatible();
+            updateFileDoesNotExists = !AutoUpdateFileExists();
+            updateExeDoesNotExists = !UpdateInstallerFileExists();
+        }
+        catch (Exception ex)
+        {
+            UpdateState = UpdateState.UnableToCheck;
+            if (ex is not IOException && ex is not SocketException)
+            {
+                CrashHelper.SendExceptionInfo(ex);
+            }
+
+            return;
+        }
+
 
         if (!updateExeDoesNotExists || !updateFileDoesNotExists)
         {

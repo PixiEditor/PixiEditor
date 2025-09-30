@@ -42,10 +42,6 @@ public class PixiAuthClient
                 return sessionId;
             }
         }
-        else if (response.StatusCode == HttpStatusCode.BadRequest)
-        {
-            throw new BadRequestException(await response.Content.ReadAsStringAsync());
-        }
         else if (response.StatusCode >= HttpStatusCode.InternalServerError)
         {
             throw new InternalServerErrorException("INTERNAL_SERVER_ERROR");
@@ -67,6 +63,10 @@ public class PixiAuthClient
         else if (response.StatusCode == HttpStatusCode.Forbidden)
         {
             throw new ForbiddenException("FORBIDDEN");
+        }
+        else if (response.StatusCode >= HttpStatusCode.BadRequest)
+        {
+            throw new BadRequestException(await response.Content.ReadAsStringAsync());
         }
 
         return null;
@@ -97,10 +97,6 @@ public class PixiAuthClient
                 return (token, expirationDate);
             }
         }
-        else if (response.StatusCode == HttpStatusCode.BadRequest)
-        {
-            throw new BadRequestException(await response.Content.ReadAsStringAsync());
-        }
         else if (response.StatusCode >= HttpStatusCode.InternalServerError)
         {
             throw new InternalServerErrorException("INTERNAL_SERVER_ERROR");
@@ -112,6 +108,10 @@ public class PixiAuthClient
         else if (response.StatusCode == HttpStatusCode.Forbidden)
         {
             throw new ForbiddenException("FORBIDDEN");
+        }
+        else if (response.StatusCode >= HttpStatusCode.BadRequest)
+        {
+            throw new BadRequestException(await response.Content.ReadAsStringAsync());
         }
 
         return (null, null);
@@ -157,17 +157,13 @@ public class PixiAuthClient
                 return (token, expirationDate);
             }
         }
-        else if (response.StatusCode == HttpStatusCode.Forbidden)
-        {
-            throw new ForbiddenException("SESSION_NOT_VALID");
-        }
-        else if (response.StatusCode == HttpStatusCode.BadRequest)
-        {
-            throw new BadRequestException(await response.Content.ReadAsStringAsync());
-        }
         else if ((int)response.StatusCode >= 500)
         {
             throw new InternalServerErrorException("INTERNAL_SERVER_ERROR");
+        }
+        else if (response.StatusCode == HttpStatusCode.Forbidden)
+        {
+            throw new ForbiddenException("SESSION_NOT_VALID");
         }
         else if (response.StatusCode == HttpStatusCode.Unauthorized)
         {
@@ -176,6 +172,10 @@ public class PixiAuthClient
         else if (response.StatusCode == HttpStatusCode.Forbidden)
         {
             throw new ForbiddenException("FORBIDDEN");
+        }
+        else if (response.StatusCode >= HttpStatusCode.BadRequest)
+        {
+            throw new BadRequestException(await response.Content.ReadAsStringAsync());
         }
 
         return (null, null);
@@ -222,14 +222,13 @@ public class PixiAuthClient
 
         var response = await httpClient.SendAsync(request);
 
-        if (response.StatusCode == HttpStatusCode.BadRequest)
-        {
-            throw new BadRequestException(await response.Content.ReadAsStringAsync());
-        }
-
         if (response.StatusCode >= HttpStatusCode.InternalServerError)
         {
             throw new InternalServerErrorException("INTERNAL_SERVER_ERROR");
+        }
+        if (response.StatusCode >= HttpStatusCode.BadRequest)
+        {
+            throw new BadRequestException(await response.Content.ReadAsStringAsync());
         }
 
         if (response.StatusCode == HttpStatusCode.OK)
@@ -256,14 +255,13 @@ public class PixiAuthClient
 
         var response = await httpClient.SendAsync(request);
 
-        if (response.StatusCode == HttpStatusCode.BadRequest)
-        {
-            throw new BadRequestException(await response.Content.ReadAsStringAsync());
-        }
-
         if (response.StatusCode >= HttpStatusCode.InternalServerError)
         {
             throw new InternalServerErrorException("INTERNAL_SERVER_ERROR");
+        }
+        if (response.StatusCode >= HttpStatusCode.BadRequest)
+        {
+            throw new BadRequestException(await response.Content.ReadAsStringAsync());
         }
 
         if (response.StatusCode == HttpStatusCode.OK)
@@ -294,14 +292,13 @@ public class PixiAuthClient
 
         var response = await httpClient.SendAsync(request);
 
-        if (response.StatusCode == HttpStatusCode.BadRequest)
-        {
-            throw new BadRequestException(await response.Content.ReadAsStringAsync());
-        }
-
         if (response.StatusCode >= HttpStatusCode.InternalServerError)
         {
             throw new InternalServerErrorException("INTERNAL_SERVER_ERROR");
+        }
+        if (response.StatusCode >= HttpStatusCode.BadRequest)
+        {
+            throw new BadRequestException(await response.Content.ReadAsStringAsync());
         }
 
         if (response.StatusCode == HttpStatusCode.OK)
