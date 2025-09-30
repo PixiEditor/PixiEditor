@@ -62,16 +62,20 @@
   <launchable type="desktop-id">net.pixieditor.PixiEditor.desktop</launchable>
   <screenshots>
     <screenshot type="default">
-	    <image>https://raw.githubusercontent.com/pixieditor/pixieditor/refs/heads/main/assets/flatpak/anim.png</image>
+	    <image>https://raw.githubusercontent.com/pixieditor/pixieditor/refs/heads/flatpak/assets/flatpak/screenshots/anim.png</image>
+	    <caption>Frame-by-frame animation with onion skinning</caption>
     </screenshot>
     <screenshot>
-	    <image>https://raw.githubusercontent.com/pixieditor/pixieditor/refs/heads/main/assets/flatpak/graph.png</image>
+	    <image>https://raw.githubusercontent.com/pixieditor/pixieditor/refs/heads/flatpak/assets/flatpak/screenshots/graph.png</image>
+	    <caption>Procedurally generated islands</caption>
     </screenshot>
     <screenshot>
-	    <image>https://raw.githubusercontent.com/pixieditor/pixieditor/refs/heads/main/assets/flatpak/palettes.png</image>
+	    <image>https://raw.githubusercontent.com/pixieditor/pixieditor/refs/heads/flatpak/assets/flatpak/screenshots/palettes.png</image>
+	    <caption>Palette browser</caption>
     </screenshot>
     <screenshot>
-	    <image>https://raw.githubusercontent.com/pixieditor/pixieditor/refs/heads/main/assets/flatpak/vector.png</image>
+	    <image>https://raw.githubusercontent.com/pixieditor/pixieditor/refs/heads/flatpak/assets/flatpak/screenshots/vector.png</image>
+	    <caption>Vectors editing tools</caption>
     </screenshot>
   </screenshots>
 </component>
