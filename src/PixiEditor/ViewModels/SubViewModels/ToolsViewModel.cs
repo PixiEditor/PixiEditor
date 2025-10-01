@@ -457,7 +457,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         return ActiveToolSet.Tools.Any(tool =>
         {
             var toolAttr = tool.GetType().GetCustomAttribute<Command.ToolAttribute>();
-            return toolAttr is not null && toolAttr.CommonToolType == attr.CommonToolType;
+            return toolAttr?.CommonToolType != null && toolAttr.CommonToolType == attr.CommonToolType;
         });
     }
 
