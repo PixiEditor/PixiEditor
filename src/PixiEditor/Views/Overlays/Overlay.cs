@@ -86,7 +86,15 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
 
     public virtual bool CanRender() => true;
 
-    public abstract void RenderOverlay(Canvas context, RectD canvasBounds);
+    public void RenderOverlay(Canvas context, RectD canvasBounds)
+    {
+        foreach (var handle in Handles)
+        {
+            handle.ResetIsRendered();
+        }
+        OnRenderOverlay(context, canvasBounds);
+    }
+    protected abstract void OnRenderOverlay(Canvas context, RectD canvasBounds);
 
     public void Refresh()
     {

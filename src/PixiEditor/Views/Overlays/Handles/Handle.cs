@@ -47,6 +47,7 @@ public abstract class Handle : IHandle
     private bool isPressed;
     private bool isHovered;
     private bool moved;
+    private bool isRendered;
 
     public Handle(IOverlay owner)
     {
@@ -57,13 +58,19 @@ public abstract class Handle : IHandle
             : new VecD(16);
     }
 
-    public abstract void Draw(Canvas target);
+    public void Draw(Canvas target)
+    {
+        isRendered = true;
+        OnDraw(target);
+    }
+
+    protected abstract void OnDraw(Canvas target);
 
     public virtual void OnPressed(OverlayPointerArgs args) { }
 
     public virtual bool IsWithinHandle(VecD handlePos, VecD pos, double zoomboxScale)
     {
-        return TransformHelper.IsWithinHandle(handlePos, pos, zoomboxScale, Size + HitSizeMargin);
+        return TransformHelper.IsWithinHandle(handlePos, pos, zoomboxScale, Size + HitSizeMargin) && isRendered;
     }
 
     public static T? GetResource<T>(string key)
@@ -204,5 +211,10 @@ public abstract class Handle : IHandle
             args.Pointer.Capture(null);
             args.Handled = true;
         }
+    }
+
+    public void ResetIsRendered()
+    {
+        isRendered = false;
     }
 }

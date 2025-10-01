@@ -17,7 +17,7 @@ public class ControlPointHandle : Handle
         Size = new VecD(GetResource<double>("AnchorHandleSize"));
     }
 
-    public override void Draw(Canvas target)
+    protected override void OnDraw(Canvas target)
     {
         float radius = (float)(Size.X / 2);
         radius /= (float)ZoomScale;
