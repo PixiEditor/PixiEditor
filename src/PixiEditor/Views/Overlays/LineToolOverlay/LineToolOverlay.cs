@@ -182,7 +182,7 @@ internal class LineToolOverlay : Overlay
         blackPaint.StrokeWidth = 1 / (float)newZoom;
     }
 
-    public override void RenderOverlay(Canvas context, RectD canvasBounds)
+    protected override void OnRenderOverlay(Canvas context, RectD canvasBounds)
     {
         VecD mappedStart = LineStart;
         VecD mappedEnd = LineEnd;
