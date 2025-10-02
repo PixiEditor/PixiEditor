@@ -17,12 +17,19 @@ public class VectorPathResource
     public IBrush StrokeColor { get; set; } = new SolidColorBrush(Avalonia.Media.Colors.Black);
     public float StrokeWidth { get; set; } = 1;
     public PathFillType FillType { get; set; } = PathFillType.Winding;
-    
-    public PathVectorData ToVectorPathData()
+
+    public PathVectorData? ToVectorPathData()
     {
+        if (string.IsNullOrWhiteSpace(SvgPath))
+            return null;
+
         VectorPath path = VectorPath.FromSvgPath(SvgPath);
+
+        if (path == null)
+            return null;
+
         path.FillType = FillType;
-        
+
         return new PathVectorData(path)
         {
             StrokeLineCap = StrokeLineCap,

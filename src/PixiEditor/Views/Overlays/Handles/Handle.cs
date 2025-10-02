@@ -96,7 +96,7 @@ public abstract class Handle : IHandle
 
             if (shape is VectorPathResource resource)
             {
-                return resource.ToVectorPathData();
+                return resource.ToVectorPathData() ?? new PathVectorData(VectorPath.FromSvgPath("M 0 0 L 1 0 M 0 0 L 0 1"));
             }
         }
 
