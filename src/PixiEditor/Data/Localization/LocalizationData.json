@@ -86,6 +86,27 @@
       "localeFileName": "tr.json",
       "iconFileName": "tr.png",
       "lastUpdated": "2025-08-07 18:24:00"
+    },
+    {
+      "name": "Français",
+      "code": "fr",
+      "localeFileName": "fr.json",
+      "iconFileName": "fr.png",
+      "lastUpdated": "2025-10-02 11:30:00"
+    },
+    {
+      "name": "Italiano",
+      "code": "it",
+      "localeFileName": "it.json",
+      "iconFileName": "it.png",
+      "lastUpdated": "2025-10-02 11:30:00"
+    },
+    {
+      "name": "Indonesia",
+      "code": "id",
+      "localeFileName": "id.json",
+      "iconFileName": "id.png",
+      "lastUpdated": "2025-10-02 11:30:00"
     }
   ]
 }
