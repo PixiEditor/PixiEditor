@@ -17,6 +17,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Image;
 public class PatternNode : RenderNode
 {
     public InputProperty<Texture> Fill { get; }
+    public InputProperty<Matrix3X3> FillMatrix { get; }
     public InputProperty<double> Spacing { get; }
     public InputProperty<ShapeVectorData> Path { get; }
     public InputProperty<PatternAlignment> Alignment { get; }
@@ -25,17 +26,19 @@ public class PatternNode : RenderNode
     public PatternNode()
     {
         Fill = CreateInput<Texture>("Fill", "FILL", null);
-        Spacing = CreateInput<double>("Spacing", "SPACING", 0);
-        Path = CreateInput<ShapeVectorData>("Path", "PATH", null);
+        FillMatrix = CreateInput<Matrix3X3>("FillMatrix", "MATRIX", Matrix3X3.Identity);
+        Spacing = CreateInput<double>("Spacing", "SPACING_LABEL", 0)
+            .WithRules(x => x.Min(0d));
+        Path = CreateInput<ShapeVectorData>("Path", "SHAPE", null);
         Alignment = CreateInput<PatternAlignment>("Alignment", "ALIGNMENT", PatternAlignment.Center);
-        Stretching = CreateInput<PatternStretching>("Stretching", "STRETCHING", PatternStretching.PlaceAlong);
+        Stretching = CreateInput<PatternStretching>("Stretching", "STRETCHING", PatternStretching.StretchToFit);
     }
 
     protected override void OnPaint(RenderContext context, DrawingSurface surface)
     {
         float spacing = (float)Spacing.Value;
 
-        if(Fill.Value == null || Path.Value == null)
+        if (Fill.Value == null || Path.Value == null)
             return;
 
         if (spacing == 0)
@@ -51,7 +54,7 @@ public class PatternNode : RenderNode
 
         using Paint tilePaint = new Paint();
         using var snapshot = Fill.Value.DrawingSurface.Snapshot();
-        using var shader = snapshot.ToShader();
+        using var shader = snapshot.ToShader(TileMode.Clamp, TileMode.Clamp, FillMatrix.Value);
         tilePaint.Shader = shader;
 
         while (distance < path.Length)
@@ -70,7 +73,8 @@ public class PatternNode : RenderNode
         }
     }
 
-    private void PlaceAlongPath(DrawingSurface surface, Drawie.Backend.Core.Surfaces.ImageData.Image image, VectorPath path, float distance)
+    private void PlaceAlongPath(DrawingSurface surface, Drawie.Backend.Core.Surfaces.ImageData.Image image,
+        VectorPath path, float distance)
     {
         var matrix = path.GetMatrixAtDistance(distance, false, PathMeasureMatrixMode.GetPositionAndTangent);
         if (matrix == null)
@@ -91,7 +95,8 @@ public class PatternNode : RenderNode
         surface.Canvas.Restore();
     }
 
-    private void PlaceStretchToFit(DrawingSurface surface, VectorPath path, float distance, float spacing, Paint tilePaint)
+    private void PlaceStretchToFit(DrawingSurface surface, VectorPath path, float distance, float spacing,
+        Paint tilePaint)
     {
         int texWidth = (int)Fill.Value.Size.X;
         int texHeight = (int)Fill.Value.Size.Y;
@@ -106,26 +111,33 @@ public class PatternNode : RenderNode
             float d1 = distance + u1 * spacing;
 
             var startSegment = path.GetPositionAndTangentAtDistance(d0, false);
-            var endSegment   = path.GetPositionAndTangentAtDistance(d1, false);
+            var endSegment = path.GetPositionAndTangentAtDistance(d1, false);
 
             var startNormal = new VecD(-startSegment.W, startSegment.Z).Normalize();
-            var endNormal   = new VecD(-endSegment.W, endSegment.Z).Normalize();
+            var endNormal = new VecD(-endSegment.W, endSegment.Z).Normalize();
 
             float halfHeight = texHeight / 2f;
 
-            // Quad corners following the path
-            var v0 = startSegment.XY - startNormal * halfHeight; // bottom-left
-            var v1 = startSegment.XY + startNormal * halfHeight; // top-left
-            var v2 = endSegment.XY + endNormal * halfHeight;     // top-right
-            var v3 = endSegment.XY - endNormal * halfHeight;     // bottom-right
+            VecD start = new VecD(startSegment.X, startSegment.Y);
+            VecD end = new VecD(endSegment.X, endSegment.Y);
 
-            var texCoords = new VecF[]
+            if (Alignment.Value == PatternAlignment.Inside)
             {
-                new(x, texHeight),
-                new(x, 0),
-                new(x + 1, 0),
-                new(x + 1, texHeight)
-            };
+                start += startNormal * halfHeight;
+                end += endNormal * halfHeight;
+            }
+            else if (Alignment.Value == PatternAlignment.Outside)
+            {
+                start -= startNormal * halfHeight;
+                end -= endNormal * halfHeight;
+            }
+
+            var v0 = start - startNormal * halfHeight;
+            var v1 = start + startNormal * halfHeight;
+            var v2 = end + endNormal * halfHeight;
+            var v3 = end - endNormal * halfHeight;
+
+            var texCoords = new VecF[] { new(x, texHeight), new(x, 0), new(x + 1, 0), new(x + 1, texHeight) };
 
             var verts = new VecF[] { (VecF)v0, (VecF)v1, (VecF)v2, (VecF)v3 };
             var indices = new ushort[] { 0, 1, 2, 0, 2, 3 };
@@ -145,9 +157,9 @@ public class PatternNode : RenderNode
 
 public enum PatternAlignment
 {
-   Center,
-   Outside,
-   Inside,
+    Center,
+    Outside,
+    Inside,
 }
 
 public enum PatternStretching
