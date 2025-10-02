@@ -79,7 +79,7 @@ internal class ReferenceLayerOverlay : Overlay
         FadeOutProperty.Changed.Subscribe(FadeOutChanged);
     }
 
-    public override void RenderOverlay(Canvas context, RectD dirtyCanvasBounds)
+    protected override void OnRenderOverlay(Canvas context, RectD dirtyCanvasBounds)
     {
         if (ReferenceLayer is { ReferenceTexture: not null })
         {

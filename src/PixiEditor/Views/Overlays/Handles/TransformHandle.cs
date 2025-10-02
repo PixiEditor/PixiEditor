@@ -28,7 +28,7 @@ public class TransformHandle : Handle
         Cursor = new Cursor(StandardCursorType.SizeAll);
     }
 
-    public override void Draw(Canvas context)
+    protected override void OnDraw(Canvas context)
     {
         double scaleMultiplier = (1.0 / ZoomScale);
         double radius = AnchorRadius * scaleMultiplier;
