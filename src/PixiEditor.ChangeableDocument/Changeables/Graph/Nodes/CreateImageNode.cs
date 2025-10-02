@@ -54,9 +54,16 @@ public class CreateImageNode : Node, IPreviewRenderable
         RenderOutput.ChainToPainterValue();
     }
 
-    private Texture Render(RenderContext context)
+    private Texture? Render(RenderContext context)
     {
-        var surface = textureCache.RequestTexture(0, (VecI)(Size.Value * context.ChunkResolution.Multiplier()), context.ProcessingColorSpace, false);
+        var size = (VecI)(Size.Value * context.ChunkResolution.Multiplier());
+        if (size.X <= 0 || size.Y <= 0)
+        {
+            return null;
+        }
+
+        var surface = textureCache.RequestTexture(0, (VecI)(Size.Value * context.ChunkResolution.Multiplier()),
+            context.ProcessingColorSpace, false);
         surface.DrawingSurface.Canvas.SetMatrix(Matrix3X3.Identity);
 
         if (Fill.Value is ColorPaintable colorPaintable)
@@ -90,7 +97,7 @@ public class CreateImageNode : Node, IPreviewRenderable
 
     private void OnPaint(RenderContext context, DrawingSurface surface)
     {
-        if(Output.Value == null || Output.Value.IsDisposed) return;
+        if (Output.Value == null || Output.Value.IsDisposed) return;
 
         int saved = surface.Canvas.Save();
         surface.Canvas.Scale((float)context.ChunkResolution.InvertedMultiplier());
@@ -130,14 +137,14 @@ public class CreateImageNode : Node, IPreviewRenderable
         }
 
         var surface = Render(context);
-        
+
         if (surface == null || surface.IsDisposed)
         {
             return false;
         }
-        
+
         renderOn.Canvas.DrawSurface(surface.DrawingSurface, 0, 0);
-        
+
         return true;
     }
 }

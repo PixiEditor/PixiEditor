@@ -9,6 +9,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Animable;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Effects;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Image;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Matrix;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Handlers.Toolbars;
@@ -127,3 +128,10 @@ using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 
 [assembly: LocalizeEnum<PaintBrushShape>(PaintBrushShape.Circle, "PAINT_BRUSH_SHAPE_CIRCLE")]
 [assembly: LocalizeEnum<PaintBrushShape>(PaintBrushShape.Square, "PAINT_BRUSH_SHAPE_SQUARE")]
+
+[assembly: LocalizeEnum<PatternAlignment>(PatternAlignment.Center, "CENTER_PATTERN_ALIGNMENT")]
+[assembly: LocalizeEnum<PatternAlignment>(PatternAlignment.Outside, "OUTSIDE_PATTERN_ALIGNMENT")]
+[assembly: LocalizeEnum<PatternAlignment>(PatternAlignment.Inside, "INSIDE_PATTERN_ALIGNMENT")]
+
+[assembly: LocalizeEnum<PatternStretching>(PatternStretching.StretchToFit, "STRETCH_TO_FIT_PATTERN_STRETCHING")]
+[assembly: LocalizeEnum<PatternStretching>(PatternStretching.PlaceAlong, "PLACE_ALONG_PATTERN_STRETCHING")]
