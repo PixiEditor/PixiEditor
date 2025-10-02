@@ -112,7 +112,7 @@ internal class SceneRenderer
 
         /*TODO:
          - [ ] Rendering optimizer
-         - [?] Render thread and proper locking/synchronization - check async-rendering branch (both drawie and pixieditor)
+         - [?] Render thread and proper locking/synchronization - check render-thread branch (both drawie and pixieditor)
                but be aware, this is a nightmare and good luck
          */
 
