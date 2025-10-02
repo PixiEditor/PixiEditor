@@ -1,6 +1,7 @@
 ﻿using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
 
@@ -12,6 +13,7 @@ internal class ImageOperation : IMirroredDrawOperation
     private ShapeCorners corners;
     private Surface toPaint;
     private bool imageWasCopied = false;
+    private SamplingOptions samplingOptions = SamplingOptions.Default;
     private readonly Paint? customPaint;
 
     public bool IgnoreEmptyChunks => false;
@@ -31,6 +33,7 @@ internal class ImageOperation : IMirroredDrawOperation
         transformMatrix = Matrix3X3.CreateIdentity();
         transformMatrix.TransX = pos.X;
         transformMatrix.TransY = pos.Y;
+        this.samplingOptions = samplingOptions;
 
         // copying is needed for thread safety
         if (copyImage)
@@ -56,7 +59,7 @@ internal class ImageOperation : IMirroredDrawOperation
         imageWasCopied = copyImage;
     }
 
-    public ImageOperation(Matrix3X3 transformMatrix, Surface image, Paint? paint = null, bool copyImage = true)
+    public ImageOperation(Matrix3X3 transformMatrix, Surface image, SamplingOptions samplingOptions, Paint? paint = null, bool copyImage = true)
     {
         if (paint is not null)
             customPaint = paint.Clone();
@@ -69,6 +72,7 @@ internal class ImageOperation : IMirroredDrawOperation
             BottomRight = transformMatrix.MapPoint(image.Size),
         };
         this.transformMatrix = transformMatrix;
+        this.samplingOptions = samplingOptions;
 
         // copying is needed for thread safety
         if (copyImage)
@@ -100,12 +104,12 @@ internal class ImageOperation : IMirroredDrawOperation
             ShapeCorners chunkCorners = new ShapeCorners(new RectD(VecD.Zero, targetChunk.PixelSize));
             RectD rect = chunkCorners.WithMatrix(finalMatrix.Invert()).AABBBounds;
 
-            targetChunk.Surface.DrawingSurface.Canvas.DrawImage(snapshot, rect, rect, customPaint);
+            targetChunk.Surface.DrawingSurface.Canvas.DrawImage(snapshot, rect, rect, customPaint, samplingOptions);
         }
         else
         {
             // Slower, but works with perspective transformation
-            targetChunk.Surface.DrawingSurface.Canvas.DrawImage(snapshot, 0, 0, customPaint);
+            targetChunk.Surface.DrawingSurface.Canvas.DrawImage(snapshot, 0, 0, samplingOptions, customPaint);
         }
 
         targetChunk.Surface.DrawingSurface.Canvas.Restore();
