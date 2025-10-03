@@ -94,7 +94,7 @@ public class VectorPathOverlay : Overlay
         transformHandle.ZoomScale = newZoom;
     }
 
-    public override void RenderOverlay(Canvas context, RectD canvasBounds)
+    protected override void OnRenderOverlay(Canvas context, RectD canvasBounds)
     {
         if (Path is null)
         {
@@ -105,7 +105,7 @@ public class VectorPathOverlay : Overlay
 
         RenderHandles(context);
 
-        if (canInsert)
+        if (canInsert && CapturedHandle == null)
         {
             insertPreviewHandle.Draw(context);
         }
@@ -148,9 +148,10 @@ public class VectorPathOverlay : Overlay
                 }
 
                 var handle = anchorHandles[anchorIndex];
-                var nextIndex = subPath.GetNextPoint(anchorIndex)?.Index ?? 0;
-                bool nextIsSelected = nextIndex < anchorHandles.Count &&
-                                      anchorHandles[nextIndex].IsSelected;
+                var nextLocalIndex = subPath.GetNextPoint(point.Index)?.Index ?? 0;
+                int nextGlobalIndex = editablePath.GetGlobalIndex(subPath, nextLocalIndex);
+                bool nextIsSelected = nextGlobalIndex < anchorHandles.Count &&
+                                      anchorHandles[nextGlobalIndex].IsSelected;
                 bool drawControl1 = handle.IsSelected;
                 bool drawControl2 = nextIsSelected;
 

@@ -58,20 +58,20 @@ public static class FloodFillHelper
         VecI imageSizeInChunks = (VecI)(document.Size / (double)chunkSize).Ceiling();
         VecI initPosOnChunk = startingPos - initChunkPos * chunkSize;
         var chunkAtPos = cache.GetChunk(initChunkPos);
-        Color colorToReplace = chunkAtPos.Match(
-            (Chunk chunk) => chunk.Surface.GetRawPixel(initPosOnChunk),
+        ColorF colorToReplace = chunkAtPos.Match(
+            (Chunk chunk) => chunk.Surface.GetRawPixelPrecise(initPosOnChunk),
             static (EmptyChunk _) => Colors.Transparent
         );
 
         ulong uLongColor = drawingColor.ToULong();
-        Color colorSpaceCorrectedColor = drawingColor;
+        ColorF colorSpaceCorrectedColor = drawingColor;
         if (!document.ProcessingColorSpace.IsSrgb)
         {
             var srgbTransform = ColorSpace.CreateSrgb().GetTransformFunction();
 
             var fixedColor = drawingColor.TransformColor(srgbTransform);
             uLongColor = fixedColor.ToULong();
-            colorSpaceCorrectedColor = (Color)fixedColor;
+            colorSpaceCorrectedColor = fixedColor;
         }
 
         if ((colorSpaceCorrectedColor.A == 0) || colorToReplace == colorSpaceCorrectedColor)
@@ -192,15 +192,16 @@ public static class FloodFillHelper
         VecI chunkPos,
         int chunkSize,
         ulong colorBits,
-        Color color,
+        ColorF color,
         VecI pos,
         ColorBounds bounds,
         bool checkFirstPixel)
     {
+        var rawPixelRef = referenceChunk.Surface.GetRawPixelPrecise(pos);
         // color should be a fixed color
-        if (referenceChunk.Surface.GetRawPixel(pos) == color || drawingChunk.Surface.GetRawPixel(pos) == color)
+        if ((Color)rawPixelRef == (Color)color || (Color)drawingChunk.Surface.GetRawPixelPrecise(pos) == (Color)color)
             return null;
-        if (checkFirstPixel && !bounds.IsWithinBounds(referenceChunk.Surface.GetRawPixel(pos)))
+        if (checkFirstPixel && !bounds.IsWithinBounds(rawPixelRef))
             return null;
         
         if(!SelectionIntersectsChunk(selection, chunkPos, chunkSize))

@@ -70,7 +70,7 @@ internal class BrushShapeOverlay : Overlay
         Refresh();
     }
 
-    public override void RenderOverlay(Canvas context, RectD canvasBounds) => Render(context);
+    protected override void OnRenderOverlay(Canvas context, RectD canvasBounds) => Render(context);
 
     public void Render(Canvas targetCanvas)
     {

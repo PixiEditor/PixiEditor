@@ -111,7 +111,7 @@ internal class EllipseOperation : IMirroredDrawOperation
         {
             if (Math.Abs(rotation) < 0.001 && strokeWidth > 0)
             {
-                RectD rect = (RectD)ellipseFillRect!.Value;
+                RectD rect = (((RectD?)(ellipseFillRect)) ?? (RectD?)location).Value;
                 fillPaintable.Bounds = location;
                 if (fillPaintable.AnythingVisible || paint.BlendMode != BlendMode.SrcOver)
                 {

@@ -28,6 +28,7 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
     private VecD tightBoundsSize;
     private RectD cornersToSelectionOffset;
     private VecD originalCornersSize;
+    private bool bilinearFiltering;
 
     private bool isTransformingSelection;
     private bool hasEnqueudImages = false;
@@ -42,11 +43,13 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
     public TransformSelected_UpdateableChange(
         ShapeCorners masterCorners,
         bool keepOriginal,
+        bool bilinearFiltering,
         Dictionary<Guid, ShapeCorners> memberCorners,
         bool transformMask,
         int frame)
     {
         memberData = new();
+        this.bilinearFiltering = bilinearFiltering;
         foreach (var corners in memberCorners)
         {
             memberData.Add(new MemberTransformationData(corners.Key) { MemberCorners = corners.Value });
@@ -417,7 +420,7 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
             finalPaint = LockedAlphaPaint;
         }
 
-        memberImage.EnqueueDrawImage(data.LocalMatrix, data.Image, finalPaint, false);
+        memberImage.EnqueueDrawImage(data.LocalMatrix, data.Image, bilinearFiltering ? SamplingOptions.Bilinear : SamplingOptions.Default, finalPaint, false);
         hasEnqueudImages = true;
 
         var affectedArea = memberImage.FindAffectedArea();
