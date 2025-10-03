@@ -34,10 +34,7 @@ public class FFMpegRenderer : IAnimationRenderer
         }
 
         string tempPath = Path.Combine(Path.GetTempPath(), "PixiEditor", "Rendering");
-        if (!Directory.Exists(tempPath))
-        {
-            Directory.CreateDirectory(tempPath);
-        }
+        Directory.CreateDirectory(tempPath);
 
         string paletteTempPath = Path.Combine(tempPath, "palette.png");
 
@@ -99,10 +96,7 @@ public class FFMpegRenderer : IAnimationRenderer
         }
 
         string tempPath = Path.Combine(Path.GetTempPath(), "PixiEditor", "Rendering");
-        if (!Directory.Exists(tempPath))
-        {
-            Directory.CreateDirectory(tempPath);
-        }
+        Directory.CreateDirectory(tempPath);
 
         string paletteTempPath = Path.Combine(tempPath, "palette.png");
 
