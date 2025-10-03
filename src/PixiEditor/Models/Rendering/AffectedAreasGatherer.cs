@@ -52,6 +52,7 @@ internal class AffectedAreasGatherer
             AddWholeCanvasToEveryImagePreview(false);
             AddWholeCanvasToEveryMaskPreview();
             AddAllNodesToImagePreviews();
+            AddAllKeyFrames();
             return;
         }
 
@@ -119,6 +120,7 @@ internal class AffectedAreasGatherer
                 case StructureMemberMask_ChangeInfo info:
                     AddWholeCanvasToMainImage();
                     AddWholeCanvasToImagePreviews(info.Id, true);
+                    AddToMaskPreview(info.Id);
                     AddToNodePreviews(info.Id);
                     break;
                 case StructureMemberBlendMode_ChangeInfo info:
@@ -209,15 +211,51 @@ internal class AffectedAreasGatherer
                     AddWholeCanvasToEveryImagePreview(false);
                     AddWholeCanvasToEveryMaskPreview();
                     break;
+                case RefreshPreview_PassthroughAction info:
+                    ProcessRefreshPreview(info);
+                    break;
             }
         }
+    }
+
+    private void ProcessRefreshPreview(RefreshPreview_PassthroughAction info)
+    {
+        if (info.SubId == null)
+        {
+            if (info.ElementToRender == nameof(StructureNode.EmbeddedMask))
+            {
+                AddToMaskPreview(info.Id);
+            }
+            else
+            {
+                AddToImagePreviews(info.Id);
+                AddToNodePreviews(info.Id);
+            }
+        }
+        else
+        {
+            AddKeyFrame(info.SubId.Value);
+        }
+    }
+
+    private void AddAllKeyFrames()
+    {
+        ChangedKeyFrames ??= new HashSet<Guid>();
+        tracker.Document.ForEveryReadonlyMember((member) =>
+        {
+            foreach (var keyFrame in member.KeyFrames)
+            {
+                ChangedKeyFrames.Add(keyFrame.KeyFrameGuid);
+            }
+
+            ChangedKeyFrames.Add(member.Id);
+        });
     }
 
     private void AddKeyFrame(Guid infoKeyFrameId)
     {
         ChangedKeyFrames ??= new HashSet<Guid>();
-        if (!ChangedKeyFrames.Contains(infoKeyFrameId))
-            ChangedKeyFrames.Add(infoKeyFrameId);
+        ChangedKeyFrames.Add(infoKeyFrameId);
     }
 
     private void AddToNodePreviews(Guid nodeId)

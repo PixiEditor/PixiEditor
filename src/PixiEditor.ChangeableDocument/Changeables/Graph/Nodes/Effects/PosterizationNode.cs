@@ -141,17 +141,6 @@ public class PosterizationNode : RenderNode, IRenderInput
         surface.Canvas.DrawSurface(temp.DrawingSurface, 0, 0);
         surface.Canvas.RestoreToCount(saved);
     }
-    
-    public override RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
-    {
-        return new RectD(0, 0, lastDocumentSize.X, lastDocumentSize.Y);
-    }
-
-    public override bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
-    {
-        OnPaint(context, renderOn);
-        return true;
-    }
 
     public override Node CreateCopy()
     {

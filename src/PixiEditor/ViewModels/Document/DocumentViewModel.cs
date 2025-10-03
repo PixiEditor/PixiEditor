@@ -185,27 +185,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
     public IStructureMemberHandler? SelectedStructureMember { get; private set; } = null;
 
-    private PreviewPainter miniPreviewPainter;
-
-    public PreviewPainter MiniPreviewPainter
-    {
-        get => miniPreviewPainter;
-        set
-        {
-            SetProperty(ref miniPreviewPainter, value);
-        }
-    }
-
-    private PreviewPainter previewSurface;
-
-    public PreviewPainter PreviewPainter
-    {
-        get => previewSurface;
-        set
-        {
-            SetProperty(ref previewSurface, value);
-        }
-    }
+    public Dictionary<Guid, Texture> SceneTextures { get; } = new();
 
     private VectorPath selectionPath = new VectorPath();
     public VectorPath SelectionPathBindable => selectionPath;
@@ -221,7 +201,6 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public LineToolOverlayViewModel LineToolOverlayViewModel { get; }
     public AnimationDataViewModel AnimationDataViewModel { get; }
     public TextOverlayViewModel TextOverlayViewModel { get; }
-
 
     public IReadOnlyCollection<IStructureMemberHandler> SoftSelectedStructureMembers => softSelectedStructureMembers;
     private DocumentInternalParts Internals { get; }
@@ -1321,7 +1300,10 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         {
             NodeGraph.Dispose();
             Renderer.Dispose();
-            SceneRenderer.Dispose();
+            foreach (var texture in SceneTextures)
+            {
+                texture.Value?.Dispose();
+            }
             AnimationDataViewModel.Dispose();
             Internals.ChangeController.TryStopActiveExecutor();
             Internals.Tracker.Dispose();
