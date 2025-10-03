@@ -21,6 +21,9 @@ internal class MemberPreviewUpdater
 
     private AnimationKeyFramePreviewRenderer AnimationKeyFramePreviewRenderer { get; }
 
+    private HashSet<Guid> queuedMembersToUpdate = new();
+    private HashSet<Guid> queuedMasksToUpdate = new();
+
     public MemberPreviewUpdater(IDocument doc, DocumentInternalParts internals)
     {
         this.doc = doc;
@@ -30,15 +33,15 @@ internal class MemberPreviewUpdater
 
     public Dictionary<Guid, List<PreviewRenderRequest>> GatherPreviewsToUpdate(HashSet<Guid> membersToUpdate,
         HashSet<Guid> masksToUpdate, HashSet<Guid> nodesToUpdate, HashSet<Guid> keyFramesToUpdate,
-        bool ignoreAnimationPreviews, bool renderMiniPreviews)
+        bool ignoreAnimationPreviews, bool renderLowPriorityPreviews)
     {
         if (!membersToUpdate.Any() && !masksToUpdate.Any() && !nodesToUpdate.Any() &&
-            !keyFramesToUpdate.Any())
+            !keyFramesToUpdate.Any() && !queuedMembersToUpdate.Any() && !queuedMasksToUpdate.Any())
             return null;
 
         return UpdatePreviewPainters(membersToUpdate, masksToUpdate, nodesToUpdate, keyFramesToUpdate,
             ignoreAnimationPreviews,
-            renderMiniPreviews);
+            renderLowPriorityPreviews);
     }
 
     /// <summary>
@@ -54,8 +57,18 @@ internal class MemberPreviewUpdater
         Dictionary<Guid, List<PreviewRenderRequest>> previewTextures = new();
         if (renderLowPriorityPreviews)
         {
+            members.UnionWith(queuedMembersToUpdate);
+            masksToUpdate.UnionWith(queuedMasksToUpdate);
             RenderLayersPreview(members, previewTextures);
             RenderMaskPreviews(masksToUpdate, previewTextures);
+
+            queuedMembersToUpdate.Clear();
+            queuedMasksToUpdate.Clear();
+        }
+        else
+        {
+            QueueMembersToUpdate(members);
+            QueueMasksToUpdate(masksToUpdate);
         }
 
         if (!ignoreAnimationPreviews)
@@ -66,6 +79,22 @@ internal class MemberPreviewUpdater
         RenderNodePreviews(nodesToUpdate, previewTextures);
 
         return previewTextures;
+    }
+
+    private void QueueMembersToUpdate(HashSet<Guid> members)
+    {
+        foreach (var member in members)
+        {
+            queuedMembersToUpdate.Add(member);
+        }
+    }
+
+    private void QueueMasksToUpdate(HashSet<Guid> masks)
+    {
+        foreach (var mask in masks)
+        {
+            queuedMasksToUpdate.Add(mask);
+        }
     }
 
     /// <summary>
