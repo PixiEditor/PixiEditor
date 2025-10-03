@@ -268,7 +268,14 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     protected override void OnLoaded(RoutedEventArgs e)
     {
         base.OnLoaded(e);
-        InitializeComposition();
+        if (DrawingBackendApi.Current.IsHardwareAccelerated)
+        {
+            InitializeComposition();
+        }
+        else
+        {
+            InitializeSoftwareRendering();
+        }
     }
 
     protected override async void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
@@ -319,9 +326,15 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         }
     }
 
+    private void InitializeSoftwareRendering()
+    {
+        resources = new SoftwareRenderApiResources(new InteropData());
+    }
+
     public new void InvalidateVisual()
     {
         QueueNextFrame();
+        base.InvalidateVisual();
     }
 
     public void Draw(DrawingSurface texture)
@@ -348,14 +361,14 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         DrawOverlays(texture, bounds, OverlayRenderSorting.Background);
         try
         {
-            if(Document == null || Document.SceneTextures.TryGetValue(ViewportId, out var tex) == false)
+            if (Document == null || Document.SceneTextures.TryGetValue(ViewportId, out var tex) == false)
                 return;
-            
+
             bool hasSaved = false;
             int saved = -1;
 
             var matrix = CalculateTransformMatrix().ToSKMatrix().ToMatrix3X3();
-            if(!Document.SceneTextures.TryGetValue(ViewportId, out var cachedTexture))
+            if (!Document.SceneTextures.TryGetValue(ViewportId, out var cachedTexture))
                 return;
 
             Matrix3X3 matrixDiff = SolveMatrixDiff(matrix, cachedTexture);
@@ -376,6 +389,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                 {
                     renderedResolution = SceneRenderer.LastRenderedStates[ViewportId].ChunkResolution;
                 }
+
                 texture.Canvas.SetMatrix(matrixDiff);
                 texture.Canvas.Scale((float)renderedResolution.InvertedMultiplier());
                 hasSaved = true;
@@ -890,12 +904,11 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     {
         if (change.Property == BoundsProperty)
         {
-            QueueNextFrame();
+            QueueRender();
         }
 
         base.OnPropertyChanged(change);
     }
-
 
     private Matrix3X3 SolveMatrixDiff(Matrix3X3 matrix, Texture cachedTexture)
     {
@@ -923,7 +936,8 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     {
         try
         {
-            resources = IDrawieInteropContext.Current.CreateResources(compositionDrawingSurface, interop);
+            resources = IDrawieInteropContext.Current.CreateResources(new InteropData(compositionDrawingSurface,
+                interop));
         }
         catch (Exception e)
         {
@@ -942,6 +956,31 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                 new FormattedText(info, CultureInfo.CurrentCulture, FlowDirection.LeftToRight, Typeface.Default, 12,
                     Brushes.White),
                 center);
+        }
+
+        if (DrawingBackendApi.Current != null && !DrawingBackendApi.Current.IsHardwareAccelerated)
+            RenderSoftware(context);
+    }
+
+    private void RenderSoftware(DrawingContext context)
+    {
+        if (double.IsNaN(Bounds.Width) || double.IsNaN(Bounds.Height) || Bounds.Width <= 0 || Bounds.Height <= 0)
+            return;
+        RenderFrame(new PixelSize((int)Bounds.Width, (int)Bounds.Height));
+        if (resources?.Texture is AvaloniaBitmapTexture bmp)
+        {
+            unsafe
+            {
+                using var locked = bmp.Bitmap.Lock();
+
+                using var pixmap = framebuffer.PeekPixels();
+                Buffer.MemoryCopy(pixmap.GetPixels().ToPointer(),
+                    locked.Address.ToPointer(),
+                    locked.Size.Width * locked.Size.Height * 4,
+                    pixmap.BytesSize);
+
+                context.DrawImage(bmp.Bitmap, new Rect(0, 0, bmp.Bitmap.PixelSize.Width, bmp.Bitmap.PixelSize.Height));
+            }
         }
     }
 
