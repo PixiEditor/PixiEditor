@@ -159,7 +159,9 @@
             <system:String x:Key="icon-select-all">&#xE970;</system:String>
             <system:String x:Key="icon-separate-vector">&#xE91C;</system:String>
             <system:String x:Key="icon-settings">&#xE971;</system:String>
+            <system:String x:Key="icon-shredder">&#xE9CA;</system:String>
             <system:String x:Key="icon-shuffle">&#xE992;</system:String>
+            <system:String x:Key="icon-slice">&#xE9CC;</system:String>
             <system:String x:Key="icon-sliders">&#xE972;</system:String>
             <system:String x:Key="icon-snapping">&#xE9A7;</system:String>
             <system:String x:Key="icon-spline-chart">&#xE9BE;</system:String>
@@ -198,6 +200,7 @@
             <system:String x:Key="icon-upload-cloud">&#xE98E;</system:String>
             <system:String x:Key="icon-user">&#xE97B;</system:String>
             <system:String x:Key="icon-vector-pen">&#xE965;</system:String>
+            <system:String x:Key="icon-whole-word">&#xE9CB;</system:String>
             <system:String x:Key="icon-write">&#xE988;</system:String>
             <system:String x:Key="icon-x-flip">&#xE900;</system:String>
             <system:String x:Key="icon-x-symmetry">&#xE980;</system:String>

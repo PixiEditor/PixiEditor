@@ -24,13 +24,13 @@ public class AnchorHandle : RectangleHandle
         StrokePaint = paint;
     }
 
-    public override void Draw(Canvas context)
+    protected override void OnDraw(Canvas context)
     {
         paint.StrokeWidth = (float)(1.0 / ZoomScale);
         selectedPaint.StrokeWidth = (float)(2.5 / ZoomScale);
         
         StrokePaint = IsSelected ? selectedPaint : paint;
         StrokePaint.Style = PaintStyle.Stroke;
-        base.Draw(context);
+        base.OnDraw(context);
     }
 }

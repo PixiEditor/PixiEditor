@@ -51,7 +51,7 @@ internal class SnappingOverlay : Overlay
         IsHitTestVisible = false;
     }
 
-    public override void RenderOverlay(Canvas context, RectD canvasBounds)
+    protected override void OnRenderOverlay(Canvas context, RectD canvasBounds)
     {
         if (SnappingController is null || SuppressEvents)
         {

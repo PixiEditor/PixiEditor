@@ -636,12 +636,12 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
     /// Surface is NOT THREAD SAFE, so if you pass a Surface here with copyImage == false you must not do anything with that surface anywhere (not even read) until CommitChanges/CancelChanges is called.
     /// </summary>
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
-    public void EnqueueDrawImage(Matrix3X3 transformMatrix, Surface image, Paint? paint = null, bool copyImage = true)
+    public void EnqueueDrawImage(Matrix3X3 transformMatrix, Surface image, SamplingOptions samplingOptions, Paint? paint = null, bool copyImage = true)
     {
         lock (lockObject)
         {
             ThrowIfDisposed();
-            ImageOperation operation = new(transformMatrix, image, paint, copyImage);
+            ImageOperation operation = new(transformMatrix, image, samplingOptions, paint, copyImage);
             EnqueueOperation(operation);
         }
     }

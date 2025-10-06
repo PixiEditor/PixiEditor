@@ -13,7 +13,7 @@
       "code": "pl",
       "localeFileName": "pl.json",
       "iconFileName": "pl.png",
-      "lastUpdated": "2025-07-28 07:08:12"
+      "lastUpdated": "2025-10-02 10:09:12"
     },
     {
       "name": "Deutsch",
@@ -27,7 +27,7 @@
       "code": "es",
       "localeFileName": "es.json",
       "iconFileName": "es.png",
-      "lastUpdated": "2025-09-07 02:23:00"
+      "lastUpdated": "2025-09-11 01:59:19"
     },
     {
       "name": "中文",
@@ -57,7 +57,7 @@
       "localeFileName": "ar.json",
       "iconFileName": "ar.png",
       "rightToLeft": true,
-      "lastUpdated": "2025-09-06 22:22:52"
+      "lastUpdated": "2025-09-30 04:49:02"
     },
     {
       "name": "Čeština",
@@ -86,6 +86,27 @@
       "localeFileName": "tr.json",
       "iconFileName": "tr.png",
       "lastUpdated": "2025-08-07 18:24:00"
+    },
+    {
+      "name": "Français",
+      "code": "fr",
+      "localeFileName": "fr.json",
+      "iconFileName": "fr.png",
+      "lastUpdated": "2025-08-21 13:08:35"
+    },
+    {
+      "name": "Italiano",
+      "code": "it",
+      "localeFileName": "it.json",
+      "iconFileName": "it.png",
+      "lastUpdated": "2023-06-25 10:37:34"
+    },
+    {
+      "name": "Indonesia",
+      "code": "id",
+      "localeFileName": "id.json",
+      "iconFileName": "id.png",
+      "lastUpdated": "2025-08-08 10:04:52"
     }
   ]
 }

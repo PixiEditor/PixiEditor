@@ -18,7 +18,7 @@ public class OriginAnchor : Handle
 
     }
 
-    public override void Draw(Canvas context)
+    protected override void OnDraw(Canvas context)
     {
         double radius = Size.LongestAxis / ZoomScale / 2;
         
