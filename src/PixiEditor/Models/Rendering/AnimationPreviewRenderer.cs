@@ -8,7 +8,7 @@ using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.Models.Rendering;
 
-internal class AnimationKeyFramePreviewRenderer(DocumentInternalParts internals) : IPreviewRenderable
+internal class AnimationKeyFramePreviewRenderer(DocumentInternalParts internals)
 {
     public RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
     {
@@ -22,7 +22,7 @@ internal class AnimationKeyFramePreviewRenderer(DocumentInternalParts internals)
         return null;
     }
 
-    public bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
+    /*public bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
     {
         if (internals.Tracker.Document.AnimationData.TryFindKeyFrame(
                 Guid.Parse(elementToRenderName),
@@ -38,5 +38,5 @@ internal class AnimationKeyFramePreviewRenderer(DocumentInternalParts internals)
         }
         
         return false;
-    }
+    }*/
 }

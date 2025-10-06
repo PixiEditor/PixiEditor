@@ -24,6 +24,14 @@ internal partial class DocumentPreview : UserControl
     public static readonly StyledProperty<Color> PrimaryColorProperty =
         AvaloniaProperty.Register<DocumentPreview, Color>(nameof(PrimaryColor));
 
+    public static readonly StyledProperty<int> MaxBilinearSamplingSizeProperty = AvaloniaProperty.Register<DocumentPreview, int>(
+        nameof(MaxBilinearSamplingSize), 4096);
+
+    public int MaxBilinearSamplingSize
+    {
+        get => GetValue(MaxBilinearSamplingSizeProperty);
+        set => SetValue(MaxBilinearSamplingSizeProperty, value);
+    }
     public DocumentViewModel Document
     {
         get => GetValue(DocumentProperty);

@@ -21,27 +21,9 @@ public struct ColorBounds
 
     public float UpperA { get; set; }
 
-    public ColorBounds(Color color, double tolerance = 0)
+    public ColorBounds(ColorF color, double tolerance = 0)
     {
-        static (float lower, float upper) FindInclusiveBoundaryPremul(byte channel, float alpha)
-        {
-            float subHalf = channel > 0 ? channel - 1f : channel;
-            float addHalf = channel < 255 ? channel + 1f : channel;
-            
-            var lower = subHalf * alpha / 255f;
-            var upper = addHalf * alpha / 255f;
-            
-            return (lower, upper);
-        }
-
-        static (float lower, float upper) FindInclusiveBoundary(byte channel)
-        {
-            float subHalf = channel > 0 ? channel - .5f : channel;
-            float addHalf = channel < 255 ? channel + .5f : channel;
-            return (subHalf / 255f, addHalf / 255f);
-        }
-
-        float a = color.A / 255f;
+        float a = color.A;
 
         (LowerR, UpperR) = FindInclusiveBoundaryPremul(color.R, a);
         LowerR -= (float)tolerance;
@@ -58,6 +40,26 @@ public struct ColorBounds
         (LowerA, UpperA) = FindInclusiveBoundary(color.A);
         LowerA -= (float)tolerance;
         UpperA += (float)tolerance;
+    }
+
+    private static (float lower, float upper) FindInclusiveBoundaryPremul(float channel, float alpha)
+    {
+        var step = 1f / 255f;
+        float subHalf = channel > 0 ? channel - step : channel;
+        float addHalf = channel < 1 ? channel + step : channel;
+
+        var lower = subHalf * alpha;
+        var upper = addHalf * alpha;
+
+        return (lower, upper);
+    }
+
+    private static (float lower, float upper) FindInclusiveBoundary(float channel)
+    {
+        float halfStep = 0.5f / 255f;
+        float subHalf = channel > 0 ? channel - halfStep : channel;
+        float addHalf = channel < 1 ? channel + halfStep : channel;
+        return (subHalf, addHalf);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -78,12 +80,12 @@ public struct ColorBounds
         return true;
     }
 
-    public bool IsWithinBounds(Color toCompare)
+    public bool IsWithinBounds(ColorF toCompare)
     {
-        float a = toCompare.A / 255f;
-        float r = (toCompare.R / 255f) * a;
-        float g = (toCompare.G / 255f) * a;
-        float b = (toCompare.B / 255f) * a;
+        float a = toCompare.A;
+        float r = (toCompare.R) * a;
+        float g = (toCompare.G) * a;
+        float b = (toCompare.B) * a;
         
         if (r < LowerR || r > UpperR)
             return false;

@@ -6,7 +6,7 @@ using PixiEditor.ChangeableDocument.Rendering;
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
 
 [NodeInfo("CustomOutput")]
-public class CustomOutputNode : Node, IRenderInput, IPreviewRenderable
+public class CustomOutputNode : Node, IRenderInput
 {
     public const string OutputNamePropertyName = "OutputName";
     public const string IsDefaultExportPropertyName = "IsDefaultExport";

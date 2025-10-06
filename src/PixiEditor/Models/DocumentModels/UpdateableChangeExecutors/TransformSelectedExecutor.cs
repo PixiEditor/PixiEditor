@@ -341,14 +341,14 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         if (!movedOnce)
         {
             internals!.ActionAccumulator.AddActions(
-                new TransformSelected_Action(lastCorners, tool.KeepOriginalImage, memberCorners, false,
+                new TransformSelected_Action(lastCorners, tool.KeepOriginalImage, tool.BilinearTransform, memberCorners, false,
                     document.AnimationHandler.ActiveFrameBindable));
 
             movedOnce = true;
         }
 
         internals!.ActionAccumulator.AddActions(
-            new TransformSelected_Action(corners, tool!.KeepOriginalImage, memberCorners, false,
+            new TransformSelected_Action(corners, tool!.KeepOriginalImage, tool.BilinearTransform, memberCorners, false,
                 document!.AnimationHandler.ActiveFrameBindable));
     }
 

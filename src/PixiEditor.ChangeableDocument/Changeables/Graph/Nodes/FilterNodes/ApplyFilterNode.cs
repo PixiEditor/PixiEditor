@@ -28,6 +28,9 @@ public sealed class ApplyFilterNode : RenderNode, IRenderInput
     
     public InputProperty<bool> InvertMask { get; }
 
+    protected override bool ExecuteOnlyOnCacheChange => true;
+    protected override CacheTriggerFlags CacheTrigger => CacheTriggerFlags.Inputs;
+
     public ApplyFilterNode()
     {
         Background = CreateRenderInput("Input", "IMAGE");
@@ -40,7 +43,7 @@ public sealed class ApplyFilterNode : RenderNode, IRenderInput
 
     protected override void Paint(RenderContext context, DrawingSurface surface)
     {
-        AllowHighDpiRendering = (Background.Connection.Node as RenderNode)?.AllowHighDpiRendering ?? true;
+        AllowHighDpiRendering = (Background.Connection?.Node as RenderNode)?.AllowHighDpiRendering ?? true;
         base.Paint(context, surface);
     }
 
@@ -119,8 +122,11 @@ public sealed class ApplyFilterNode : RenderNode, IRenderInput
         finalSurface.Canvas.RestoreToCount(saved);
     }
 
-    public override RectD? GetPreviewBounds(int frame, string elementToRenderName = "") =>
-        PreviewUtils.FindPreviewBounds(Background.Connection, frame, elementToRenderName);
+    public override RectD? GetPreviewBounds(RenderContext ctx, string elementToRenderName = "") =>
+        null;
+        /*
+        PreviewUtils.FindPreviewBounds(Background.Connection, ctx.FrameTime.Frame, elementToRenderName);
+        */
 
     public override Node CreateCopy() => new ApplyFilterNode();
 

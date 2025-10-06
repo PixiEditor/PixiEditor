@@ -10,12 +10,18 @@ namespace PixiEditor.ViewModels.Document;
 
 internal abstract class CelViewModel : ObservableObject, ICelHandler
 {
-    private PreviewPainter? previewPainter;
     private int startFrameBindable;
     private int durationBindable;
     private bool isVisibleBindable = true;
     private bool isSelected;
     private bool isCollapsed;
+    private TexturePreview? previewTexture;
+
+    public TexturePreview? PreviewTexture
+    {
+        get => previewTexture;
+        set => SetProperty(ref previewTexture, value);
+    }
 
     public bool IsCollapsed
     {
@@ -29,11 +35,6 @@ internal abstract class CelViewModel : ObservableObject, ICelHandler
 
     IDocument ICelHandler.Document => Document;
 
-    public PreviewPainter? PreviewPainter
-    {
-        get => previewPainter;
-        set => SetProperty(ref previewPainter, value);
-    }
 
     public virtual int StartFrameBindable
     {
@@ -147,7 +148,6 @@ internal abstract class CelViewModel : ObservableObject, ICelHandler
 
     public void Dispose()
     {
-        PreviewPainter?.Dispose();
-        PreviewPainter = null;
+        PreviewTexture?.Preview?.Dispose();
     }
 }

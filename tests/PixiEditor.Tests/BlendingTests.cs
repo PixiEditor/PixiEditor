@@ -1,9 +1,12 @@
 using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core;
+using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
+using Drawie.Skia;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Rendering;
@@ -39,13 +42,26 @@ public class BlendingTests : PixiEditorTest
         NodeGraph graph = new NodeGraph();
         var firstImageLayer = new ImageLayerNode(new VecI(1, 1), ColorSpace.CreateSrgbLinear());
 
+        using Paint redPaint = new Paint
+        {
+            Color = new Color(255, 0, 0, 255),
+            BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.Src
+        };
+
         var firstImg = firstImageLayer.GetLayerImageAtFrame(0);
-        firstImg.EnqueueDrawPixel(VecI.Zero, new Color(255, 0, 0, 255), Drawie.Backend.Core.Surfaces.BlendMode.Src);
+        firstImg.EnqueueDrawPaint(redPaint);
         firstImg.CommitChanges();
 
         var secondImageLayer = new ImageLayerNode(new VecI(1, 1), ColorSpace.CreateSrgbLinear());
         var secondImg = secondImageLayer.GetLayerImageAtFrame(0);
-        secondImg.EnqueueDrawPixel(VecI.Zero, new Color(255, 255, 255, 255), Drawie.Backend.Core.Surfaces.BlendMode.Src);
+
+        using var whitePaint = new Paint
+        {
+            Color = new Color(255, 255, 255, 255),
+            BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.Src
+        };
+
+        secondImg.EnqueueDrawPaint(whitePaint);
         secondImg.CommitChanges();
 
         var outputNode = new OutputNode();

@@ -22,7 +22,7 @@ public class SurfaceSerializationFactory : SerializationFactory<byte[], Surface>
     {
         if (serialized is byte[] imgBytes)
         {
-            original = DecodeSurface(imgBytes, Config.Encoder, Config.ProcessingColorSpace);
+            original = DecodeSurface(imgBytes, Config.Encoder);
             return true;
         }
 
@@ -30,11 +30,23 @@ public class SurfaceSerializationFactory : SerializationFactory<byte[], Surface>
         return false;
     }
 
+    public bool TryDeserialize(Span<byte> serialized, out Surface original,
+        (string serializerName, string serializerVersion) serializerData)
+    {
+        original = DecodeSurface(serialized, Config.Encoder);
+        return true;
+    }
 
-    public static Surface DecodeSurface(byte[] imgBytes, ImageEncoder encoder, ColorSpace processingColorSpace)
+
+    public static Surface DecodeSurface(byte[] imgBytes, ImageEncoder encoder)
+    {
+        return DecodeSurface(imgBytes.AsSpan(), encoder);
+    }
+
+    public static Surface DecodeSurface(Span<byte> imgSpan, ImageEncoder encoder)
     {
         byte[] decoded =
-            encoder.Decode(imgBytes, out SKImageInfo info);
+            encoder.Decode(imgSpan, out SKImageInfo info);
         ImageInfo finalInfo = info.ToImageInfo();
 
         using Image img = Image.FromPixels(finalInfo, decoded);
@@ -45,7 +57,6 @@ public class SurfaceSerializationFactory : SerializationFactory<byte[], Surface>
 
         return surface;
     }
-
 
     public override string DeserializationId { get; } = "PixiEditor.Surface";
 }

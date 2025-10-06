@@ -11,6 +11,7 @@ namespace ChunkyImageLib;
 public interface IReadOnlyChunkyImage
 {
     bool DrawMostUpToDateChunkOn(VecI chunkPos, ChunkResolution resolution, DrawingSurface surface, VecD pos, Paint? paint = null, SamplingOptions? sampling = null);
+    bool DrawCachedMostUpToDateChunkOn(VecI chunkPos, ChunkResolution resolution, DrawingSurface surface, VecD pos, Paint? paint = null, SamplingOptions? sampling = null);
     bool DrawCommittedChunkOn(VecI chunkPos, ChunkResolution resolution, DrawingSurface surface, VecD pos, Paint? paint = null, SamplingOptions? sampling = null);
     RectI? FindChunkAlignedMostUpToDateBounds();
     RectI? FindChunkAlignedCommittedBounds();
