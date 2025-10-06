@@ -86,6 +86,7 @@ public class CreateImageNode : Node
         RenderContext ctx = context.Clone();
         ctx.RenderSurface = surface.DrawingSurface;
         ctx.RenderOutputSize = surface.Size;
+        ctx.VisibleDocumentRegion = null;
 
         float chunkMultiplier = (float)context.ChunkResolution.Multiplier();
 

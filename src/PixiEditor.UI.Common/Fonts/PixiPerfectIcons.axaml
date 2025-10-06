@@ -167,6 +167,7 @@
             <system:String x:Key="icon-spline-chart">&#xE9BE;</system:String>
             <system:String x:Key="icon-spray">&#xE90E;</system:String>
             <system:String x:Key="icon-square">&#xE973;</system:String>
+            <system:String x:Key="icon-stamp">&#xE9CD;</system:String>
             <system:String x:Key="icon-star">&#xE99C;</system:String>
             <system:String x:Key="icon-star-filled">&#xE999;</system:String>
             <system:String x:Key="icon-star-half">&#xE9AB;</system:String>

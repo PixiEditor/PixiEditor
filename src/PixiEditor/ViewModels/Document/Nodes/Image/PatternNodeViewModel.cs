@@ -3,8 +3,5 @@ using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document.Nodes.Image;
 
-[NodeViewModel("Pattern", "IMAGE", null)]
-internal class PatternNodeViewModel : NodeViewModel<PatternNode>
-{
-
-}
+[NodeViewModel("PATTERN_NODE", "IMAGE", PixiPerfectIcons.Stamp)]
+internal class PatternNodeViewModel : NodeViewModel<PatternNode>;

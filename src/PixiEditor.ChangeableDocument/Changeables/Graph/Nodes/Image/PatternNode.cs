@@ -1,13 +1,11 @@
 ﻿using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
-using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Mesh;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.ChangeableDocument.Rendering;
 
@@ -16,10 +14,10 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Image;
 [NodeInfo("Pattern")]
 public class PatternNode : RenderNode
 {
-    public InputProperty<Texture> Fill { get; }
+    public InputProperty<Texture?> Fill { get; }
     public InputProperty<Matrix3X3> FillMatrix { get; }
     public InputProperty<double> Spacing { get; }
-    public InputProperty<ShapeVectorData> Path { get; }
+    public InputProperty<ShapeVectorData?> Path { get; }
     public InputProperty<PatternAlignment> Alignment { get; }
     public InputProperty<PatternStretching> Stretching { get; }
 
@@ -98,8 +96,8 @@ public class PatternNode : RenderNode
     private void PlaceStretchToFit(DrawingSurface surface, VectorPath path, float distance, float spacing,
         Paint tilePaint)
     {
-        int texWidth = (int)Fill.Value.Size.X;
-        int texHeight = (int)Fill.Value.Size.Y;
+        int texWidth = Fill.Value.Size.X;
+        int texHeight = Fill.Value.Size.Y;
 
         // Iterate over each column of the texture (1px wide quads)
         for (int x = 0; x < texWidth; x++)
@@ -147,7 +145,6 @@ public class PatternNode : RenderNode
             surface.Canvas.DrawVertices(vertices, BlendMode.SrcOver, tilePaint);
         }
     }
-
 
     public override Node CreateCopy()
     {
