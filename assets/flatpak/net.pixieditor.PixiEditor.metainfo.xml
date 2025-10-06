@@ -40,7 +40,7 @@
     <release version="2.0.1.16" date="2025-10-06">
       <url type="details">https://forum.pixieditor.net/t/changelog-2-0-1-16/461</url>
       <description>
-        <p>Fixed rectangle rendering issues</p>
+        <p>Posterize and Text Nodes, transforming improvements and new languagesW</p>
       </description>      
     </release>
     <release version="2.0.1.14" date="2025-09-10">
