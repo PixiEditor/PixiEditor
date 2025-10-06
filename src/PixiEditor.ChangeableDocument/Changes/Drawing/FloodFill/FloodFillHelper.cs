@@ -71,9 +71,15 @@ public static class FloodFillHelper
         ColorF colorSpaceCorrectedColor = drawingColor;
         if (!document.ProcessingColorSpace.IsSrgb)
         {
-            var srgbTransform = ColorSpace.CreateSrgb().GetTransformFunction();
+            // Mixing using actual surfaces is more accurate than using ColorTransformFn
+            // mismatch between actual surface color and transformed color here can lead to infinite loops
+            using Surface srgbSurface = Surface.ForProcessing(new VecI(1), ColorSpace.CreateSrgb());
+            using Paint srgbPaint = new Paint(){ Color = drawingColor };
+            srgbSurface.DrawingSurface.Canvas.DrawPixel(0, 0, srgbPaint);
+            using var processingSurface = Surface.ForProcessing(VecI.One, document.ProcessingColorSpace);
+            processingSurface.DrawingSurface.Canvas.DrawSurface(srgbSurface.DrawingSurface, 0, 0);
+            var fixedColor = processingSurface.GetRawPixelPrecise(VecI.Zero);
 
-            var fixedColor = drawingColor.TransformColor(srgbTransform);
             uLongColor = fixedColor.ToULong();
             colorSpaceCorrectedColor = fixedColor;
         }
