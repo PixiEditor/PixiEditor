@@ -37,7 +37,13 @@
   <content_rating type="oars-1.1" />
 
   <releases>
-    <release version="2.0.1.4" date="2025-09-10">
+    <release version="2.0.1.16" date="2025-10-06">
+      <url type="details">https://forum.pixieditor.net/t/changelog-2-0-1-16/461</url>
+      <description>
+        <p>Fixed rectangle rendering issues</p>
+      </description>      
+    </release>
+    <release version="2.0.1.14" date="2025-09-10">
       <url type="details">https://forum.pixieditor.net/t/changelog-2-0-1-14/439/1</url>
       <description>
         <p>Fixed rectangle rendering issues</p>
