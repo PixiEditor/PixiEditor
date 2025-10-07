@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+﻿using Drawie.Backend.Core;
+using PixiEditor.ChangeableDocument.Changeables.Animations;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
@@ -14,6 +15,7 @@ public class RenderContext
 
     public KeyFrameTime FrameTime { get; }
     public ChunkResolution ChunkResolution { get; set; }
+    public RectI? VisibleDocumentRegion { get; set; } = null;
     public SamplingOptions DesiredSamplingOptions { get; set; } = SamplingOptions.Default;
     public VecI RenderOutputSize { get; set; }
 
@@ -24,6 +26,8 @@ public class RenderContext
     public EditorData EditorData { get; set; }
     public ColorSpace ProcessingColorSpace { get; set; }
     public string? TargetOutput { get; set; }
+    public AffectedArea AffectedArea { get; set; }
+    public Dictionary<Guid, List<PreviewRenderRequest>>? PreviewTextures { get; set; }
 
 
     public RenderContext(DrawingSurface renderSurface, KeyFrameTime frameTime, ChunkResolution chunkResolution,
@@ -37,6 +41,15 @@ public class RenderContext
         ProcessingColorSpace = processingColorSpace;
         DocumentSize = documentSize;
         DesiredSamplingOptions = desiredSampling;
+    }
+
+    public List<PreviewRenderRequest>? GetPreviewTexturesForNode(Guid id)
+    {
+        if (PreviewTextures is null)
+            return null;
+        PreviewTextures.TryGetValue(id, out List<PreviewRenderRequest> requests);
+        PreviewTextures.Remove(id);
+        return requests;
     }
 
     public static DrawingApiBlendMode GetDrawingBlendMode(BlendMode blendMode)
@@ -65,12 +78,15 @@ public class RenderContext
         };
     }
 
-    public RenderContext Clone()
+    public virtual RenderContext Clone()
     {
         return new RenderContext(RenderSurface, FrameTime, ChunkResolution, RenderOutputSize, DocumentSize, ProcessingColorSpace, DesiredSamplingOptions, Opacity)
         {
             FullRerender = FullRerender,
             TargetOutput = TargetOutput,
+            AffectedArea = AffectedArea,
+            PreviewTextures = PreviewTextures,
+            VisibleDocumentRegion = VisibleDocumentRegion
         };
     }
 }

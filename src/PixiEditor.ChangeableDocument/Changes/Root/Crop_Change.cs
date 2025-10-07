@@ -37,9 +37,9 @@ internal class Crop_Change : ResizeBasedChangeBase
         {
             if (member is ImageLayerNode layer)
             {
-                layer.ForEveryFrame(frame =>
+                layer.ForEveryFrame((frame, id) =>
                 {
-                    Resize(frame, layer.Id, rect.Size, rect.Pos * -1, deletedChunks);
+                    Resize(frame, id, rect.Size, rect.Pos * -1, deletedChunks);
                 });
             }
             if (member.EmbeddedMask is null)

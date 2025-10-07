@@ -86,7 +86,15 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
 
     public virtual bool CanRender() => true;
 
-    public abstract void RenderOverlay(Canvas context, RectD canvasBounds);
+    public void RenderOverlay(Canvas context, RectD canvasBounds)
+    {
+        foreach (var handle in Handles)
+        {
+            handle.ResetIsRendered();
+        }
+        OnRenderOverlay(context, canvasBounds);
+    }
+    protected abstract void OnRenderOverlay(Canvas context, RectD canvasBounds);
 
     public void Refresh()
     {
@@ -159,6 +167,12 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
         OnOverlayPointerPressed(args);
         if (args.Handled) return;
         PointerPressedOverlay?.Invoke(args);
+    }
+    
+    public void TextInput(string text)
+    {
+        if(SuppressEvents) return;
+        OnOverlayTextInput(text);
     }
 
     public void ReleasePointer(OverlayPointerArgs args)
@@ -348,6 +362,11 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
 
     protected virtual void OnOverlayGotFocus()
     {
+    }
+
+    protected virtual void OnOverlayTextInput(string text)
+    {
+        
     }
 
     private static void OnZoomScaleChanged(AvaloniaPropertyChangedEventArgs<double> e)

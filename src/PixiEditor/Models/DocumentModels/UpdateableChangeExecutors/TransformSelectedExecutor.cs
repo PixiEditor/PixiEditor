@@ -61,7 +61,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         members = guids.Select(g => document.StructureHelper.Find(g)).ToList();
 
         if (!members.Any())
-            return ExecutionState.Error;
+            return ExecutionState.Success; // Listen for click events only
 
         document.TransformHandler.PassthroughPointerPressed += OnLeftMouseButtonDown;
 
@@ -109,13 +109,13 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
             }
             else
             {
-                return ExecutionState.Error;
+                return ExecutionState.Success; // Listen for click events only
             }
         }
 
         if (masterCorners.AABBBounds.Width == 0 || masterCorners.AABBBounds.Height == 0)
         {
-            return ExecutionState.Error;
+            return ExecutionState.Success; // Listen for click events only
         }
 
         DocumentTransformMode mode = allRaster
@@ -198,7 +198,14 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
             }
             else
             {
-                document.Operations.AddSoftSelectedMember(topMost.Id);
+                if (document.SoftSelectedStructureMembers.Contains(topMost) || document.SelectedStructureMember.Id == topMost.Id)
+                {
+                    Deselect(smallestSizeDifferenceList);
+                }
+                else
+                {
+                    document.Operations.AddSoftSelectedMember(topMost.Id);
+                }
             }
         }
         else if (isHoldingShift)
@@ -334,14 +341,14 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         if (!movedOnce)
         {
             internals!.ActionAccumulator.AddActions(
-                new TransformSelected_Action(lastCorners, tool.KeepOriginalImage, memberCorners, false,
+                new TransformSelected_Action(lastCorners, tool.KeepOriginalImage, tool.BilinearTransform, memberCorners, false,
                     document.AnimationHandler.ActiveFrameBindable));
 
             movedOnce = true;
         }
 
         internals!.ActionAccumulator.AddActions(
-            new TransformSelected_Action(corners, tool!.KeepOriginalImage, memberCorners, false,
+            new TransformSelected_Action(corners, tool!.KeepOriginalImage, tool.BilinearTransform, memberCorners, false,
                 document!.AnimationHandler.ActiveFrameBindable));
     }
 

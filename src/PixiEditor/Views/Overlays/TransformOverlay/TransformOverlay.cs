@@ -360,7 +360,7 @@ internal class TransformOverlay : Overlay
 
     private VecD pos;
 
-    public override void RenderOverlay(Canvas drawingContext, RectD canvasBounds)
+    protected override void OnRenderOverlay(Canvas drawingContext, RectD canvasBounds)
     {
         DrawOverlay(drawingContext, canvasBounds.Size, Corners, InternalState.Origin, (float)ZoomScale);
 

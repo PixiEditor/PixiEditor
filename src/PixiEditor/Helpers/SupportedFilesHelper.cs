@@ -83,7 +83,15 @@ internal class SupportedFilesHelper
         if (file is null)
             return null;
 
-        string extension = Path.GetExtension(file.Path.LocalPath);
+        string? localPath = file.TryGetLocalPath();
+
+        string extension = Path.GetExtension(localPath ?? file.Name);
+
+        if (string.IsNullOrEmpty(extension))
+        {
+            return allSupportedExtensions.First(i => i.CanSave);
+        }
+
         return allSupportedExtensions.Single(i => i.CanSave && i.Extensions.Contains(extension, StringComparer.OrdinalIgnoreCase));
     }
 

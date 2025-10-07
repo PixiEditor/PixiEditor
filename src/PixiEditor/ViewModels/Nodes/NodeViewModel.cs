@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using Avalonia;
 using Avalonia.Media;
@@ -25,17 +26,23 @@ namespace PixiEditor.ViewModels.Nodes;
 internal abstract class NodeViewModel : ObservableObject, INodeHandler
 {
     private LocalizedString displayName;
+    private Rect size;
     private IBrush? categoryBrush;
     private string? nodeNameBindable;
     private VecD position;
+    private TexturePreview? resultTexture;
     private ObservableRangeCollection<INodePropertyHandler> inputs;
     private ObservableRangeCollection<INodePropertyHandler> outputs;
-    private PreviewPainter resultPainter;
     private bool isSelected;
     private string? icon;
 
     protected Guid id;
 
+    public TexturePreview? Preview
+    {
+        get => resultTexture;
+        set => SetProperty(ref resultTexture, value);
+    }
     public IReadOnlyDictionary<string, INodePropertyHandler> InputPropertyMap => inputPropertyMap;
     public IReadOnlyDictionary<string, INodePropertyHandler> OutputPropertyMap => outputPropertyMap;
 
@@ -111,6 +118,12 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
         }
     }
 
+    public Rect UiSize
+    {
+        get => size;
+        set => SetProperty(ref size, value);
+    }
+
     public ObservableRangeCollection<INodePropertyHandler> Inputs
     {
         get => inputs;
@@ -153,12 +166,6 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
                 outputs.CollectionChanged += UpdateOutputPropertyMapEvent;
             }
         }
-    }
-
-    public PreviewPainter ResultPainter
-    {
-        get => resultPainter;
-        set => SetProperty(ref resultPainter, value);
     }
 
     public bool IsNodeSelected
@@ -218,7 +225,11 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
 
     public string Icon => icon ??= GetType().GetCustomAttribute<NodeViewModelAttribute>().Icon;
 
-    public void TraverseBackwards(Func<INodeHandler, bool> func)
+    [DoesNotReturn]
+    private void ThrowInvalidTraverseResult(Traverse traverse) =>
+        throw new IndexOutOfRangeException($"Invalid Traverse Option '{traverse}'");
+
+    public void TraverseBackwards(Func<INodeHandler, Traverse> func)
     {
         var visited = new HashSet<INodeHandler>();
         var queueNodes = new Queue<INodeHandler>();
@@ -233,9 +244,18 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
                 continue;
             }
 
-            if (!func(node))
+            var result = func(node);
+            switch (result)
             {
-                return;
+                case Traverse.NoFurther:
+                    continue;
+                case Traverse.Exit:
+                    return;
+                case Traverse.Further:
+                    break;
+                default:
+                    ThrowInvalidTraverseResult(result);
+                    break;
             }
 
             foreach (var inputProperty in node.Inputs)
@@ -248,7 +268,7 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
         }
     }
 
-    public void TraverseBackwards(Func<INodeHandler, INodeHandler, bool> func)
+    public void TraverseBackwards(Func<INodeHandler, INodeHandler, Traverse> func)
     {
         var visited = new HashSet<INodeHandler>();
         var queueNodes = new Queue<(INodeHandler, INodeHandler)>();
@@ -263,9 +283,18 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
                 continue;
             }
 
-            if (!func(node.Item1, node.Item2))
+            var result = func(node.Item1, node.Item2);
+            switch (result)
             {
-                return;
+                case Traverse.NoFurther:
+                    continue;
+                case Traverse.Exit:
+                    return;
+                case Traverse.Further:
+                    break;
+                default:
+                    ThrowInvalidTraverseResult(result);
+                    break;
             }
 
             foreach (var inputProperty in node.Item1.Inputs)
@@ -278,7 +307,7 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
         }
     }
 
-    public void TraverseBackwards(Func<INodeHandler, INodeHandler, INodePropertyHandler, bool> func)
+    public void TraverseBackwards(Func<INodeHandler, INodeHandler, INodePropertyHandler, Traverse> func)
     {
         var visited = new HashSet<INodeHandler>();
         var queueNodes = new Queue<(INodeHandler, INodeHandler, INodePropertyHandler)>();
@@ -292,10 +321,18 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
             {
                 continue;
             }
-
-            if (!func(node.Item1, node.Item2, node.Item3))
+            var result = func(node.Item1, node.Item2, node.Item3);
+            switch (result)
             {
-                return;
+                case Traverse.NoFurther:
+                    continue;
+                case Traverse.Exit:
+                    return;
+                case Traverse.Further:
+                    break;
+                default:
+                    ThrowInvalidTraverseResult(result);
+                    break;
             }
 
             foreach (var inputProperty in node.Item1.Inputs)
@@ -308,7 +345,7 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
         }
     }
 
-    public void TraverseForwards(Func<INodeHandler, bool> func)
+    public void TraverseForwards(Func<INodeHandler, Traverse> func)
     {
         var visited = new HashSet<INodeHandler>();
         var queueNodes = new Queue<INodeHandler>();
@@ -322,10 +359,19 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
             {
                 continue;
             }
-
-            if (!func(node))
+            
+            var result = func(node);
+            switch (result)
             {
-                return;
+                case Traverse.NoFurther:
+                    continue;
+                case Traverse.Exit:
+                    return;
+                case Traverse.Further:
+                    break;
+                default:
+                    ThrowInvalidTraverseResult(result);
+                    break;
             }
 
             foreach (var outputProperty in node.Outputs)
@@ -338,7 +384,7 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
         }
     }
 
-    public void TraverseForwards(Func<INodeHandler, INodeHandler, bool> func)
+    public void TraverseForwards(Func<INodeHandler, INodeHandler, Traverse> func)
     {
         var visited = new HashSet<INodeHandler>();
         var queueNodes = new Queue<(INodeHandler, INodeHandler)>();
@@ -352,10 +398,19 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
             {
                 continue;
             }
-
-            if (!func(node.Item1, node.Item2))
+            
+            var result = func(node.Item1, node.Item2);
+            switch (result)
             {
-                return;
+                case Traverse.NoFurther:
+                    continue;
+                case Traverse.Exit:
+                    return;
+                case Traverse.Further:
+                    break;
+                default:
+                    ThrowInvalidTraverseResult(result);
+                    break;
             }
 
             foreach (var outputProperty in node.Item1.Outputs)
@@ -368,7 +423,7 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
         }
     }
 
-    public void TraverseForwards(Func<INodeHandler, INodeHandler, INodePropertyHandler, bool> func)
+    public void TraverseForwards(Func<INodeHandler, INodeHandler, INodePropertyHandler, Traverse> func)
     {
         var visited = new HashSet<INodeHandler>();
         var queueNodes = new Queue<(INodeHandler, INodeHandler, INodePropertyHandler)>();
@@ -383,9 +438,18 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
                 continue;
             }
 
-            if (!func(node.Item1, node.Item2, node.Item3))
+            var result = func(node.Item1, node.Item2, node.Item3);
+            switch (result)
             {
-                return;
+                case Traverse.NoFurther:
+                    continue;
+                case Traverse.Exit:
+                    return;
+                case Traverse.Further:
+                    break;
+                default:
+                    ThrowInvalidTraverseResult(result);
+                    break;
             }
 
             foreach (var outputProperty in node.Item1.Outputs)
@@ -399,7 +463,7 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
     }
 
     public void TraverseForwards(
-        Func<INodeHandler, INodeHandler, INodePropertyHandler, INodePropertyHandler, bool> func)
+        Func<INodeHandler, INodeHandler, INodePropertyHandler, INodePropertyHandler, Traverse> func)
     {
         var visited = new HashSet<INodeHandler>();
         var queueNodes = new Queue<(INodeHandler, INodeHandler, INodePropertyHandler, INodePropertyHandler)>();
@@ -414,9 +478,18 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
                 continue;
             }
 
-            if (!func(node.Item1, node.Item2, node.Item3, node.Item4))
+            var result = func(node.Item1, node.Item2, node.Item3, node.Item4);
+            switch (result)
             {
-                return;
+                case Traverse.NoFurther:
+                    continue;
+                case Traverse.Exit:
+                    return;
+                case Traverse.Further:
+                    break;
+                default:
+                    ThrowInvalidTraverseResult(result);
+                    break;
             }
 
             foreach (var outputProperty in node.Item1.Outputs)
@@ -429,10 +502,10 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
         }
     }
 
+    public HashSet<NodeFrameViewModelBase> Frames { get; } = [];
 
     public virtual void Dispose()
     {
-        ResultPainter?.Dispose();
     }
 
     public NodePropertyViewModel FindInputProperty(string propName)

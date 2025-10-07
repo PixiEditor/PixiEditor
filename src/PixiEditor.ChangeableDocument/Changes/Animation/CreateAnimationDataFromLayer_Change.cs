@@ -30,9 +30,12 @@ internal class CreateAnimationDataFromLayer_Change : Change
             Guid keyFrameId = frame.KeyFrameGuid;
             target.AnimationData.AddKeyFrame(new RasterKeyFrame(keyFrameId, layer.Id, frame.StartFrame, target)
             {
-                Duration = frame.Duration
+                Duration = frame.Duration,
+                IsVisible = frame.IsVisible,
             });
             infos.Add(new CreateRasterKeyFrame_ChangeInfo(layer.Id, frame.StartFrame, keyFrameId, true));
+            infos.Add(new KeyFrameLength_ChangeInfo(keyFrameId, frame.StartFrame, frame.Duration));
+            infos.Add(new KeyFrameVisibility_ChangeInfo(keyFrameId, frame.IsVisible));
         }
 
         ignoreInUndo = false;

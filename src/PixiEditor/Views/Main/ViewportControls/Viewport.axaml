@@ -174,7 +174,7 @@
             </Grid.RowDefinitions>
             <tools:Toolbar
                 DataContext="{Binding Source={viewModels:MainVM}, Path=.}" />
-            <StackPanel Margin="0, 5, 0, 0" Background="Transparent" Grid.Row="1" Orientation="Horizontal" Name="toolsetsPanel">
+            <StackPanel Margin="0, 5, 0, 0" Grid.Row="1" Orientation="Horizontal" Name="toolsetsPanel">
                 <Border ClipToBounds="False"
                         HorizontalAlignment="Left"
                         Padding="5 0"
@@ -253,6 +253,7 @@
             FadeOut="{Binding Source={viewModels:ToolVM ColorPickerToolViewModel}, Path=PickOnlyFromReferenceLayer, Mode=OneWay}"
             DefaultCursor="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ToolCursor, Mode=OneWay}"
             RenderOutput="{Binding ViewportRenderOutput, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
+            ViewportId="{Binding GuidValue, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
             AutoBackgroundScale="{Binding AutoBackgroundScale, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
             CustomBackgroundScaleX="{Binding CustomBackgroundScaleX, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
             CustomBackgroundScaleY="{Binding CustomBackgroundScaleY, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"

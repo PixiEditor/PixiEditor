@@ -52,7 +52,7 @@ public class GridLinesOverlay : Overlay
         return visibilityConverter.Check(ZoomScale * Math.Min(GridXSize, GridYSize));
     }
 
-    public override void RenderOverlay(Canvas context, RectD canvasBounds)
+    protected override void OnRenderOverlay(Canvas context, RectD canvasBounds)
     {
         // Draw lines in vertical and horizontal directions, size should be relative to the scale
 

@@ -11,6 +11,9 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Effects;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Matrix;
 using PixiEditor.Helpers;
+using PixiEditor.Models.Handlers.Toolbars;
+using PixiEditor.Models.Tools;
+using PixiEditor.Views.Overlays.BrushShapeOverlay;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 
 [assembly: LocalizeEnum<StrokeCap>(StrokeCap.Butt, "BUTT_STROKE_CAP")]
@@ -96,6 +99,9 @@ using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 [assembly: LocalizeEnum<OutlineType>(OutlineType.Gaussian, "GAUSSIAN_OUTLINE_TYPE")]
 [assembly: LocalizeEnum<OutlineType>(OutlineType.PixelPerfect, "PIXEL_PERFECT_OUTLINE_TYPE")]
 
+[assembly: LocalizeEnum<PosterizationMode>(PosterizationMode.Rgb, "RGB_POSTERIZATION_MODE")]
+[assembly: LocalizeEnum<PosterizationMode>(PosterizationMode.Luminance, "LUMINANCE_POSTERIZATION_MODE")]
+
 [assembly: LocalizeEnum<VoronoiFeature>(VoronoiFeature.F1, "F1_VORONOI_FEATURE")]
 [assembly: LocalizeEnum<VoronoiFeature>(VoronoiFeature.F2, "F2_VORONOI_FEATURE")]
 [assembly: LocalizeEnum<VoronoiFeature>(VoronoiFeature.F2MinusF1, "F2_MINUS_F1_VORONOI_FEATURE")]
@@ -122,3 +128,5 @@ using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 [assembly: LocalizeEnum<GradientType>(GradientType.Linear, "LINEAR_GRADIENT_TYPE")]
 [assembly: LocalizeEnum<GradientType>(GradientType.Radial, "RADIAL_GRADIENT_TYPE")]
 [assembly: LocalizeEnum<GradientType>(GradientType.Conical, "CONICAL_GRADIENT_TYPE")]
+[assembly: LocalizeEnum<PaintBrushShape>(PaintBrushShape.Circle, "PAINT_BRUSH_SHAPE_CIRCLE")]
+[assembly: LocalizeEnum<PaintBrushShape>(PaintBrushShape.Square, "PAINT_BRUSH_SHAPE_SQUARE")]

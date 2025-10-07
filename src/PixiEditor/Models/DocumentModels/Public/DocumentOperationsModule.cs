@@ -21,6 +21,7 @@ using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.Models.DocumentModels.Public;
 #nullable enable
@@ -234,7 +235,8 @@ internal class DocumentOperationsModule : IDocumentOperations
         {
             Internals.ActionAccumulator.AddFinishedActions(
                 new DuplicateFolder_Action(guidValue, newGuid, null),
-                new SetSelectedMember_PassthroughAction(newGuid));
+                new SetSelectedMember_PassthroughAction(newGuid),
+                new CreateAnimationDataFromFolder_Action(newGuid));
         }
 
         return newGuid;
@@ -617,10 +619,10 @@ internal class DocumentOperationsModule : IDocumentOperations
             if (!members.Contains(traversedNode.Id))
             {
                 parent = traversedNode;
-                return false;
+                return Traverse.Exit;
             }
 
-            return true;
+            return Traverse.Further;
         });
 
         if (parent is null)

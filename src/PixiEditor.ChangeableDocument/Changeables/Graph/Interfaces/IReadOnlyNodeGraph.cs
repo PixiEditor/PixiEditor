@@ -4,7 +4,7 @@ using PixiEditor.Common;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
-public interface IReadOnlyNodeGraph : ICacheable
+public interface IReadOnlyNodeGraph : ICacheable, IDisposable
 {
     public IReadOnlyCollection<IReadOnlyNode> AllNodes { get; }
     public IReadOnlyNode OutputNode { get; }
@@ -15,4 +15,5 @@ public interface IReadOnlyNodeGraph : ICacheable
     public void Execute(RenderContext context);
     public void Execute(IReadOnlyNode end, RenderContext context);
     Queue<IReadOnlyNode> CalculateExecutionQueue(IReadOnlyNode endNode);
+    public IReadOnlyNodeGraph Clone();
 }

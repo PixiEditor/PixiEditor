@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using ChunkyImageLib.Operations;
+using Drawie.Backend.Core.Bridge;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Changes.Drawing.FloodFill;
 using Drawie.Backend.Core.ColorsImpl;
@@ -125,8 +126,8 @@ internal class MagicWandHelper
         VecI initPosOnChunk = startingPos - initChunkPos * chunkSize;
 
 
-        Color colorToReplace = cache.GetChunk(initChunkPos).Match(
-            (Chunk chunk) => chunk.Surface.GetRawPixel(initPosOnChunk),
+        ColorF colorToReplace = cache.GetChunk(initChunkPos).Match(
+            (Chunk chunk) => chunk.Surface.GetRawPixelPrecise(initPosOnChunk),
             static (EmptyChunk _) => Colors.Transparent
         );
 
@@ -257,14 +258,15 @@ internal class MagicWandHelper
         VecI pos,
         ColorBounds bounds, Lines lines)
     {
-        if (!bounds.IsWithinBounds(referenceChunk.Surface.GetRawPixel(pos)))
+        using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
+        if (!bounds.IsWithinBounds(referenceChunk.Surface.GetRawPixelPrecise(pos)))
         {
             return null;
         }
 
         bool[] pixelVisitedStates = new bool[chunkSize * chunkSize];
 
-        using var refPixmap = referenceChunk.Surface.DrawingSurface.PeekPixels();
+        using var refPixmap = referenceChunk.Surface.PeekPixels();
         Half* refArray = (Half*)refPixmap.GetPixels();
 
         Stack<VecI> toVisit = new();

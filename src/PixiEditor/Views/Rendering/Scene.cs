@@ -168,6 +168,15 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         set => SetValue(MaxBilinearSamplingSizeProperty, value);
     }
 
+    public static readonly StyledProperty<Guid> ViewportIdProperty = AvaloniaProperty.Register<Scene, Guid>(
+        nameof(ViewportId));
+
+    public Guid ViewportId
+    {
+        get => GetValue(ViewportIdProperty);
+        set => SetValue(ViewportIdProperty, value);
+    }
+
     private Overlay? capturedOverlay;
 
     private List<Overlay> mouseOverOverlays = new();
@@ -253,8 +262,11 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         };
     }
 
-    private SamplingOptions CalculateSampling()
+    internal SamplingOptions CalculateSampling()
     {
+        if (Document == null)
+            return SamplingOptions.Default;
+
         if (Document.SizeBindable.LongestAxis > MaxBilinearSamplingSize)
         {
             return SamplingOptions.Default;
@@ -275,6 +287,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     protected override async void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
     {
+        using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
         framebuffer?.Dispose();
         framebuffer = null;
 
@@ -325,46 +338,88 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         QueueNextFrame();
     }
 
-    public void Draw(DrawingSurface renderTexture)
+    public void Draw(DrawingSurface texture)
     {
         if (Document == null || SceneRenderer == null) return;
 
-        renderTexture.Canvas.Save();
+        texture.Canvas.Save();
         var matrix = CalculateTransformMatrix();
 
-        renderTexture.Canvas.SetMatrix(matrix.ToSKMatrix().ToMatrix3X3());
+        texture.Canvas.SetMatrix(matrix.ToSKMatrix().ToMatrix3X3());
 
         VecI outputSize = FindOutputSize();
 
         RectD dirtyBounds = new RectD(0, 0, outputSize.X, outputSize.Y);
-        RenderScene(dirtyBounds);
+        RenderScene(texture, dirtyBounds);
 
-        renderTexture.Canvas.Restore();
+        texture.Canvas.Restore();
     }
 
-    private void RenderScene(RectD bounds)
+    private void RenderScene(DrawingSurface texture, RectD bounds)
     {
         var renderOutput = RenderOutput == "DEFAULT" ? null : RenderOutput;
-        DrawCheckerboard(renderTexture.DrawingSurface, bounds);
-        DrawOverlays(renderTexture.DrawingSurface, bounds, OverlayRenderSorting.Background);
+        DrawCheckerboard(texture, bounds);
+        DrawOverlays(texture, bounds, OverlayRenderSorting.Background);
         try
         {
-            SceneRenderer.RenderScene(renderTexture.DrawingSurface, CalculateResolution(), lastPointerInfo, CalculateSampling(),
-                EditorDataFunc?.Invoke() ?? new EditorData(), renderOutput);
+            if(Document == null || Document.SceneTextures.TryGetValue(ViewportId, out var tex) == false)
+                return;
+            
+            bool hasSaved = false;
+            int saved = -1;
+
+            var matrix = CalculateTransformMatrix().ToSKMatrix().ToMatrix3X3();
+            if(!Document.SceneTextures.TryGetValue(ViewportId, out var cachedTexture))
+                return;
+
+            /*SceneRenderer.RenderScene(renderTexture.DrawingSurface, CalculateResolution(), lastPointerInfo, CalculateSampling(),
+                EditorDataFunc?.Invoke() ?? new EditorData(), renderOutput);*/
+
+            Matrix3X3 matrixDiff = SolveMatrixDiff(matrix, cachedTexture);
+            var target = cachedTexture.DrawingSurface;
+
+            if (tex.Size == (VecI)RealDimensions || tex.Size == (VecI)(RealDimensions * SceneRenderer.OversizeFactor))
+            {
+                saved = texture.Canvas.Save();
+                texture.Canvas.ClipRect(bounds);
+                texture.Canvas.SetMatrix(matrixDiff);
+                hasSaved = true;
+            }
+            else
+            {
+                saved = texture.Canvas.Save();
+                ChunkResolution renderedResolution = ChunkResolution.Full;
+                if (SceneRenderer != null && SceneRenderer.LastRenderedStates.ContainsKey(ViewportId))
+                {
+                    renderedResolution = SceneRenderer.LastRenderedStates[ViewportId].ChunkResolution;
+                }
+                texture.Canvas.SetMatrix(matrixDiff);
+                texture.Canvas.Scale((float)renderedResolution.InvertedMultiplier());
+                hasSaved = true;
+            }
+
+
+            texture.Canvas.Save();
+
+            texture.Canvas.DrawSurface(target, 0, 0);
+            if (hasSaved)
+            {
+                texture.Canvas.RestoreToCount(saved);
+            }
         }
         catch (Exception e)
         {
-            renderTexture.DrawingSurface.Canvas.Clear();
+            texture.Canvas.Clear();
             using Paint paint = new Paint { Color = Colors.White, IsAntiAliased = true };
 
             using Font defaultSizedFont = Font.CreateDefault();
             defaultSizedFont.Size = 24;
 
-            renderTexture.DrawingSurface.Canvas.DrawText(new LocalizedString("ERROR_GRAPH"), renderTexture.Size / 2f,
+            texture.Canvas.DrawText(new LocalizedString("ERROR_GRAPH"), renderTexture.Size / 2f,
                 TextAlign.Center, defaultSizedFont, paint);
         }
 
-        DrawOverlays(renderTexture.DrawingSurface, bounds, OverlayRenderSorting.Foreground);
+        DrawOverlays(texture, bounds, OverlayRenderSorting.Foreground);
     }
 
     private void DrawCheckerboard(DrawingSurface surface, RectD dirtyBounds)
@@ -666,6 +721,26 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         }
     }
 
+    protected override void OnTextInput(TextInputEventArgs e)
+    {
+        base.OnTextInput(e);
+        try
+        {
+            if (AllOverlays != null)
+            {
+                foreach (Overlay overlay in AllOverlays)
+                {
+                    if (!overlay.IsVisible) continue;
+                    overlay.TextInput(e.Text);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            CrashHelper.SendExceptionInfo(ex);
+        }
+    }
+
     private OverlayPointerArgs ConstructPointerArgs(PointerEventArgs e)
     {
         return new OverlayPointerArgs
@@ -763,7 +838,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         return new VecD(transformed.X, transformed.Y);
     }
 
-    private Matrix CalculateTransformMatrix()
+    internal Matrix CalculateTransformMatrix()
     {
         Matrix transform = Matrix.Identity;
         transform = transform.Append(Matrix.CreateRotation((float)AngleRadians));
@@ -873,6 +948,16 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         base.OnPropertyChanged(change);
     }
 
+
+    private Matrix3X3 SolveMatrixDiff(Matrix3X3 matrix, Texture cachedTexture)
+    {
+        Matrix3X3 old = cachedTexture.DrawingSurface.Canvas.TotalMatrix;
+        Matrix3X3 current = matrix;
+
+        Matrix3X3 solveMatrixDiff = current.Concat(old.Invert());
+        return solveMatrixDiff;
+    }
+
     private async Task<(bool success, string info)> DoInitialize(Compositor compositor,
         CompositionDrawingSurface surface)
     {
@@ -914,6 +999,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     protected async Task FreeGraphicsResources()
     {
+        using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
         renderTexture?.Dispose();
         renderTexture = null;
 

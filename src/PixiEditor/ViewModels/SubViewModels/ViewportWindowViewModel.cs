@@ -146,7 +146,7 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
         }
     }
 
-    private PreviewPainterControl previewPainterControl;
+    private TextureControl previewPainterControl;
 
     public void IndexChanged()
     {
@@ -175,9 +175,18 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
         PixiEditorSettings.Scene.PrimaryBackgroundColor.ValueChanged += UpdateBackgroundBitmap;
         PixiEditorSettings.Scene.SecondaryBackgroundColor.ValueChanged += UpdateBackgroundBitmap;
 
-        previewPainterControl = new PreviewPainterControl(
-            Document.MiniPreviewPainter,
-            Document.AnimationDataViewModel.ActiveFrameTime.Frame);
+        previewPainterControl = new TextureControl();
+        var nonZoomed = Document.SceneTextures.Where(x =>
+            x.Value is { DrawingSurface.Canvas.TotalMatrix: { TransX: 0, TransY: 0, SkewX: 0, SkewY: 0 } }).ToArray();
+        if (nonZoomed.Length > 0)
+        {
+            var minSize = nonZoomed.MinBy(x => x.Value.Size);
+            if (minSize.Value != null)
+            {
+                previewPainterControl.Texture = minSize.Value;
+            }
+        }
+
         TabCustomizationSettings.Icon = previewPainterControl;
     }
 
@@ -188,13 +197,19 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
         {
             OnPropertyChanged(nameof(Title));
         }
-        else if (e.PropertyName == nameof(DocumentViewModel.MiniPreviewPainter))
-        {
-            previewPainterControl.PreviewPainter = Document.MiniPreviewPainter;
-            previewPainterControl.FrameToRender = Document.AnimationDataViewModel.ActiveFrameTime.Frame;
-        }
         else if (e.PropertyName == nameof(DocumentViewModel.AllChangesSaved))
         {
+            var nonZoomed = Document.SceneTextures.Where(x =>
+                    x.Value is { DrawingSurface.Canvas.TotalMatrix: { TransX: 0, TransY: 0, SkewX: 0, SkewY: 0 } })
+                .ToArray();
+            if (nonZoomed.Length > 0)
+            {
+                var minSize = nonZoomed.MinBy(x => x.Value.Size);
+                if (minSize.Value != null)
+                {
+                    previewPainterControl.Texture = minSize.Value;
+                }
+            }
             TabCustomizationSettings.SavedState = GetSaveState(Document);
         }
         else if (e.PropertyName == nameof(DocumentViewModel.AllChangesAutosaved))
@@ -254,7 +269,7 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
 
     public VecI GetRenderOutputSize()
     {
-       return Document.GetRenderOutputSize(RenderOutputName);
+        return Document.GetRenderOutputSize(RenderOutputName);
     }
 
     private void UpdateBackgroundBitmap(Setting<string> setting, string newValue)

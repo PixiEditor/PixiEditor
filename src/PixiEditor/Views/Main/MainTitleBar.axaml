@@ -47,7 +47,7 @@
                         </OnPlatform.Default>
                     </OnPlatform>
                 </Panel.Margin>
-                <ToggleButton Name="LogoButton" Padding="0" BorderThickness="0">
+                <ToggleButton Name="LogoButton" Padding="0" BorderThickness="0" FlowDirection="LeftToRight">
                     <Interaction.Behaviors>
                         <behaviours:ShowFlyoutOnTrigger Trigger="{Binding OpenPixiEditorMenuTrigger}" />
                     </Interaction.Behaviors>

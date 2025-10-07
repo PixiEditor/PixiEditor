@@ -24,7 +24,7 @@
     <PropertyGroup>
       <ProtogenExists>false</ProtogenExists>
     </PropertyGroup>
-    <Exec Command="dotnet tool run protogen --version" IgnoreExitCode="true">
+    <Exec ContinueOnError="true" Command="dotnet tool run protogen --version" IgnoreExitCode="true">
       <Output TaskParameter="ExitCode" PropertyName="ProtogenExitCode"/>
     </Exec>
     <PropertyGroup>
@@ -32,21 +32,15 @@
     </PropertyGroup>
   </Target>
 
-  <Target Name="InstallProtogen" BeforeTargets="GenerateProtoContracts"
+  <Target Name="WarnProtogen" BeforeTargets="GenerateProtoContracts"
           Condition="'$(ProtogenExists)' != 'true'">
-    <Message Text="Downloading protogen v$(ProtogenVersion)..." Importance="high"/>
-    <Exec Command="dotnet tool install --local protobuf-net.Protogen --version $(ProtogenVersion)"/>
-    <PropertyGroup>
-      <ProtogenExists>true</ProtogenExists>
-    </PropertyGroup>
-
-    <Message Text="protogen installed successfully." Importance="high"/>
+    <Message Text="protogen is not installed. Skipping generating contracts" Importance="high"/>
   </Target>
 
-
   <Target Name="GenerateProtoContracts" BeforeTargets="BeforeCompile"
-          Inputs="$(MSBuildProjectDirectory)\DataContracts\*.proto"
-          Outputs="$(MSBuildProjectDirectory)\ProtoAutogen\*.cs">
+          Condition="'$(ProtogenExists)' == 'true'"
+    Inputs="$(MSBuildProjectDirectory)\DataContracts\*.proto"
+    Outputs="$(MSBuildProjectDirectory)\ProtoAutogen\*.cs">
     <Exec Command="dotnet tool run protogen --csharp_out=ProtoAutogen --proto_path=DataContracts +listset=yes *.proto"/>
 
     <ItemGroup>

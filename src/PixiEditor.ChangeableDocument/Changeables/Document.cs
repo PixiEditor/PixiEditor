@@ -449,12 +449,12 @@ internal class Document : IChangeable, IReadOnlyDocument
 
     private void ExtractLayers(FolderNode folder, List<Guid> list)
     {
-        List<Guid> result = new();
-        folder.TraverseBackwards(node =>
+        if(folder.Content.Connection == null) return;
+        folder.Content.Connection.Node.TraverseBackwards(node =>
         {
-            if (node is LayerNode layer && !result.Contains(layer.Id))
+            if (node is LayerNode layer && !list.Contains(layer.Id))
             {
-                result.Add(layer.Id);
+                list.Add(layer.Id);
             }
 
             return true;

@@ -60,10 +60,10 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
                 if (node is IFolderHandler parent && input is { PropertyName: FolderNode.ContentInternalName })
                 {
                     visible = parent.IsVisibleBindable;
-                    return visible;
+                    return visible ? Traverse.Further : Traverse.Exit;
                 }
 
-                return true;
+                return Traverse.Further;
             });
 
             return visible;
@@ -74,6 +74,21 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
     {
         this.maskIsVisible = maskIsVisible;
         OnPropertyChanged(nameof(MaskIsVisibleBindable));
+    }
+
+    private TexturePreview? maskPreview;
+    private TexturePreview? preview;
+
+    public TexturePreview? Preview
+    {
+        get => preview;
+        set => SetProperty(ref preview, value);
+    }
+
+    public TexturePreview? MaskPreview
+    {
+        get => maskPreview;
+        set => SetProperty(ref maskPreview, value);
     }
 
     public bool MaskIsVisibleBindable
@@ -167,31 +182,7 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
         set => SetProperty(ref selection, value);
     }
 
-    private PreviewPainter? previewSurface;
-    private PreviewPainter? _maskPreviewPainter;
-
-    public PreviewPainter? PreviewPainter
-    {
-        get => previewSurface;
-        set => SetProperty(ref previewSurface, value);
-    }
-
-    public PreviewPainter? MaskPreviewPainter
-    {
-        get => _maskPreviewPainter;
-        set => SetProperty(ref _maskPreviewPainter, value);
-    }
-
     IDocument IStructureMemberHandler.Document => Document;
-
-    public override void Dispose()
-    {
-        base.Dispose();
-        PreviewPainter?.Dispose();
-        MaskPreviewPainter?.Dispose();
-        PreviewPainter = null;
-        MaskPreviewPainter = null;
-    }
 }
 
 public static class StructureMemberViewModel

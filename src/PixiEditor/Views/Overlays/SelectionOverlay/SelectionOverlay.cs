@@ -114,7 +114,7 @@ internal class SelectionOverlay : Overlay
         }
     }
 
-    public override void RenderOverlay(Canvas context, RectD canvasBounds)
+    protected override void OnRenderOverlay(Canvas context, RectD canvasBounds)
     {
         if (isAnimating)
         {

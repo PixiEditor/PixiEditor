@@ -54,12 +54,17 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
     {
         get
         {
-            if (TimeToEndTimeout == null)
+            if (TimeToEndTimeout == null || !EmailEqualsLastSentMail)
             {
                 return string.Empty;
             }
 
             TimeSpan timeLeft = TimeToEndTimeout.Value - DateTime.Now;
+            if(timeLeft.TotalHours > 1)
+                return $"({timeLeft:hh\\:mm\\:ss})";
+            if(timeLeft.TotalMinutes > 1)
+                return $"({timeLeft:mm\\:ss})";
+
             return timeLeft.TotalSeconds > 0 ? $"({timeLeft:ss})" : string.Empty;
         }
     }
@@ -194,6 +199,7 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
             LastError = null;
             try
             {
+                lastSentHash = EmailUtility.GetEmailHash(email);
                 await pixiAuthIdentityProvider.RequestLogin(email);
             }
             catch (Exception ex)
@@ -206,7 +212,7 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
     public bool CanRequestLogin(string email)
     {
         return IdentityProvider is PixiAuthIdentityProvider && !string.IsNullOrEmpty(email) && email.Contains('@') &&
-               !HasTimeout();
+               !(HasTimeout() && EmailEqualsLastSentMail);
     }
 
     public async Task ResendActivation(string email)
@@ -240,6 +246,10 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         DispatcherTimer.RunOnce(
             () =>
             {
+                if (TimeToEndTimeout.HasValue && TimeToEndTimeout.Value > DateTime.Now)
+                {
+                    return;
+                }
                 TimeToEndTimeout = null;
                 LastError = null;
                 NotifyProperties();
@@ -376,6 +386,13 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
 
     private void OnError(string error, object? arg = null)
     {
+        if (error != "TOO_MANY_REQUESTS")
+        {
+            TimeToEndTimeout = null;
+            timerCancelable?.Dispose();
+            timerCancelable = null;
+            NotifyProperties();
+        }
         if (error == "SESSION_NOT_VALIDATED")
         {
             LastError = null;

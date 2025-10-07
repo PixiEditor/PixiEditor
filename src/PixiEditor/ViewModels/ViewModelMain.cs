@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
+using Drawie.Backend.Core.Bridge;
 using Microsoft.Extensions.DependencyInjection;
 using Drawie.Backend.Core.ColorsImpl;
 using PixiEditor.ChangeableDocument.Rendering.ContextData;
@@ -351,6 +352,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
 
         if (result != ConfirmationType.Canceled)
         {
+            using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
             BeforeDocumentClosed?.Invoke(document);
             if (!DocumentManagerSubViewModel.Documents.Remove(document))
                 throw new InvalidOperationException(

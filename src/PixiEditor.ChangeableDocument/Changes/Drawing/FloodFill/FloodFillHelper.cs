@@ -2,10 +2,12 @@
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using Drawie.Backend.Core;
+using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 
@@ -52,26 +54,34 @@ public static class FloodFillHelper
 
         int chunkSize = ChunkResolution.Full.PixelSize();
 
+        using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
+
         FloodFillChunkCache cache = CreateCache(membersToFloodFill, document, frame);
 
         VecI initChunkPos = OperationHelper.GetChunkPos(startingPos, chunkSize);
         VecI imageSizeInChunks = (VecI)(document.Size / (double)chunkSize).Ceiling();
         VecI initPosOnChunk = startingPos - initChunkPos * chunkSize;
         var chunkAtPos = cache.GetChunk(initChunkPos);
-        Color colorToReplace = chunkAtPos.Match(
-            (Chunk chunk) => chunk.Surface.GetRawPixel(initPosOnChunk),
+        ColorF colorToReplace = chunkAtPos.Match(
+            (Chunk chunk) => chunk.Surface.GetRawPixelPrecise(initPosOnChunk),
             static (EmptyChunk _) => Colors.Transparent
         );
 
         ulong uLongColor = drawingColor.ToULong();
-        Color colorSpaceCorrectedColor = drawingColor;
+        ColorF colorSpaceCorrectedColor = drawingColor;
         if (!document.ProcessingColorSpace.IsSrgb)
         {
-            var srgbTransform = ColorSpace.CreateSrgb().GetTransformFunction();
+            // Mixing using actual surfaces is more accurate than using ColorTransformFn
+            // mismatch between actual surface color and transformed color here can lead to infinite loops
+            using Surface srgbSurface = Surface.ForProcessing(new VecI(1), ColorSpace.CreateSrgb());
+            using Paint srgbPaint = new Paint(){ Color = drawingColor };
+            srgbSurface.DrawingSurface.Canvas.DrawPixel(0, 0, srgbPaint);
+            using var processingSurface = Surface.ForProcessing(VecI.One, document.ProcessingColorSpace);
+            processingSurface.DrawingSurface.Canvas.DrawSurface(srgbSurface.DrawingSurface, 0, 0);
+            var fixedColor = processingSurface.GetRawPixelPrecise(VecI.Zero);
 
-            var fixedColor = drawingColor.TransformColor(srgbTransform);
             uLongColor = fixedColor.ToULong();
-            colorSpaceCorrectedColor = (Color)fixedColor;
+            colorSpaceCorrectedColor = fixedColor;
         }
 
         if ((colorSpaceCorrectedColor.A == 0) || colorToReplace == colorSpaceCorrectedColor)
@@ -192,15 +202,16 @@ public static class FloodFillHelper
         VecI chunkPos,
         int chunkSize,
         ulong colorBits,
-        Color color,
+        ColorF color,
         VecI pos,
         ColorBounds bounds,
         bool checkFirstPixel)
     {
+        var rawPixelRef = referenceChunk.Surface.GetRawPixelPrecise(pos);
         // color should be a fixed color
-        if (referenceChunk.Surface.GetRawPixel(pos) == color || drawingChunk.Surface.GetRawPixel(pos) == color)
+        if ((Color)rawPixelRef == (Color)color || (Color)drawingChunk.Surface.GetRawPixelPrecise(pos) == (Color)color)
             return null;
-        if (checkFirstPixel && !bounds.IsWithinBounds(referenceChunk.Surface.GetRawPixel(pos)))
+        if (checkFirstPixel && !bounds.IsWithinBounds(rawPixelRef))
             return null;
         
         if(!SelectionIntersectsChunk(selection, chunkPos, chunkSize))
@@ -209,10 +220,12 @@ public static class FloodFillHelper
         byte[] pixelStates = new byte[chunkSize * chunkSize];
         DrawSelection(pixelStates, selection, globalSelectionBounds, chunkPos, chunkSize);
 
-        using var refPixmap = referenceChunk.Surface.DrawingSurface.PeekPixels();
+        using var refPixmap = referenceChunk.Surface.PeekPixels();
         Half* refArray = (Half*)refPixmap.GetPixels();
 
-        using var drawPixmap = drawingChunk.Surface.DrawingSurface.PeekPixels();
+        Surface cpuSurface = Surface.ForProcessing(new VecI(chunkSize), referenceChunk.Surface.ColorSpace);
+        cpuSurface.DrawingSurface.Canvas.DrawSurface(drawingChunk.Surface.DrawingSurface, 0, 0);
+        using var drawPixmap = cpuSurface.PeekPixels();
         Half* drawArray = (Half*)drawPixmap.GetPixels();
 
         Stack<VecI> toVisit = new();
@@ -239,6 +252,10 @@ public static class FloodFillHelper
                 bounds.IsWithinBounds(refPixel + 4 * chunkSize))
                 toVisit.Push(new(curPos.X, curPos.Y + 1));
         }
+
+        using Paint replacePaint = new Paint();
+        replacePaint.BlendMode = BlendMode.Src;
+        drawingChunk.Surface.DrawingSurface.Canvas.DrawSurface(cpuSurface.DrawingSurface, 0, 0, replacePaint);
 
         return pixelStates;
     }

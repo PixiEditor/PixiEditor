@@ -50,6 +50,14 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
         set => SetValue(value);
     }
 
+    [Settings.Bool("_bilinear_transform", false, ExposedByDefault = false)]
+    public bool BilinearTransform
+    {
+        get => GetValue<bool>();
+        set => SetValue(value);
+    }
+
+    public override BrushShape FinalBrushShape => BrushShape.Hidden;
     public override Type[]? SupportedLayerTypes { get; } = null;
     public override Type LayerTypeToCreateOnEmptyUse { get; } = null;
     public override bool HideHighlight => true;

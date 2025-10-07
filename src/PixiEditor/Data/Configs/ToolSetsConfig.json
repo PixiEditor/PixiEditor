@@ -5,7 +5,12 @@
     "Tools": [
       "MoveViewport",
       "RotateViewport",
-      "Move",
+      {
+        "ToolName": "Move",
+        "Settings": {
+          "BilinearTransform": false
+        }
+      },
       {
         "ToolName": "Pen",
         "Settings": {
@@ -52,7 +57,12 @@
     "Tools": [
       "MoveViewport",
       "RotateViewport",
-      "Move",
+      {
+        "ToolName": "Move",
+        "Settings": {
+          "BilinearTransform": true
+        }
+      },
       {
         "ToolName": "Pen",
         "Settings": {
@@ -127,7 +137,12 @@
     "Tools": [
       "MoveViewport",
       "RotateViewport",
-      "Move",
+      {
+        "ToolName": "Move",
+        "Settings": {
+          "BilinearTransform": true
+        }
+      },
       "VectorPath",
       "VectorLine",
       "VectorEllipse",

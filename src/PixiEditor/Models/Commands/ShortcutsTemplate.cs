@@ -11,6 +11,9 @@ public sealed class ShortcutsTemplate
 {
     public List<Shortcut> Shortcuts { get; set; }
 
+    [NonSerialized]
+    public List<string> Errors = new List<string>();
+
     public ShortcutsTemplate()
     {
         Shortcuts = new List<Shortcut>();
@@ -23,7 +26,14 @@ public sealed class ShortcutsTemplate
         {
             foreach (string command in keyDefinition.Commands)
             {
-                template.Shortcuts.Add(new Shortcut(keyDefinition.DefaultShortcut.ToKeyCombination(), command));
+                try
+                {
+                    template.Shortcuts.Add(new Shortcut(keyDefinition.DefaultShortcut.ToKeyCombination(), command));
+                }
+                catch (ArgumentException) // Invalid key
+                {
+                    template.Errors.Add($"Error for command {command}: Invalid key '{keyDefinition.DefaultShortcut.key}' with modifiers '{string.Join(", ", keyDefinition.DefaultShortcut.modifiers ?? [])}'");
+                }
             }
         }
 

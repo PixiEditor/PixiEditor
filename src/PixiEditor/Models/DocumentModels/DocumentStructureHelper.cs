@@ -8,6 +8,7 @@ using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Layers;
 using PixiEditor.UI.Common.Localization;
+using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.Models.DocumentModels;
 #nullable enable
@@ -34,7 +35,7 @@ internal class DocumentStructureHelper
                     count++;
             }
 
-            return true;
+            return Traverse.Further;
         });
         return $"{name} {count}";
     }

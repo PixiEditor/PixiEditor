@@ -1,11 +1,12 @@
 ﻿using System.Collections.Immutable;
+using System.Diagnostics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph;
 
-public class NodeGraph : IReadOnlyNodeGraph, IDisposable
+public class NodeGraph : IReadOnlyNodeGraph
 {
     private Dictionary<IReadOnlyNode, ImmutableList<IReadOnlyNode>?> cachedExecutionList;
 
@@ -62,6 +63,52 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
         return new Queue<IReadOnlyNode>(CalculateExecutionQueueInternal(outputNode));
     }
 
+    public IReadOnlyNodeGraph Clone()
+    {
+        var newGraph = new NodeGraph();
+        var nodeMapping = new Dictionary<Node, Node>();
+
+        // Clone nodes
+        foreach (var node in Nodes)
+        {
+            var clonedNode = node.Clone(true);
+            newGraph.AddNode(clonedNode);
+            nodeMapping[node] = clonedNode;
+        }
+
+        // Re-establish connections
+        foreach (var node in Nodes)
+        {
+            var clonedNode = nodeMapping[node];
+            foreach (var input in node.InputProperties)
+            {
+                if (input.Connection != null)
+                {
+                    var connectedNode = input.Connection.Node;
+                    if (nodeMapping.TryGetValue(connectedNode as Node, out var clonedConnectedNode))
+                    {
+                        var clonedOutput = clonedConnectedNode.OutputProperties.FirstOrDefault(o =>
+                            o.InternalPropertyName == input.Connection.InternalPropertyName);
+                        var clonedInput = clonedNode.InputProperties.FirstOrDefault(i =>
+                            i.InternalPropertyName == input.InternalPropertyName);
+                        if (clonedOutput != null && clonedInput != null)
+                        {
+                            clonedOutput.ConnectTo(clonedInput);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Set custom output node if applicable
+        if (CustomOutputNode != null && nodeMapping.TryGetValue(CustomOutputNode, out var mappedOutputNode))
+        {
+            newGraph.CustomOutputNode = mappedOutputNode;
+        }
+
+        return newGraph;
+    }
+
     private ImmutableList<IReadOnlyNode> CalculateExecutionQueueInternal(IReadOnlyNode outputNode)
     {
         var cached = this.cachedExecutionList?.GetValueOrDefault(outputNode);
@@ -91,12 +138,8 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
     public bool TryTraverse(Action<IReadOnlyNode> action)
     {
         if (OutputNode == null) return false;
-        return TryTraverse(OutputNode, action);
-    }
 
-    public bool TryTraverse(IReadOnlyNode end, Action<IReadOnlyNode> action)
-    {
-        var queue = CalculateExecutionQueueInternal(end);
+        var queue = CalculateExecutionQueueInternal(OutputNode);
 
         foreach (var node in queue)
         {
@@ -106,29 +149,36 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
         return true;
     }
 
-    public void Execute(IReadOnlyNode end, RenderContext context)
+    bool isexecuting = false;
+
+    public void Execute(RenderContext context)
     {
-        if (end == null) return;
+        if (isexecuting) return;
+        isexecuting = true;
+        if (OutputNode == null) return;
         if (!CanExecute()) return;
 
-        var queue = CalculateExecutionQueueInternal(end);
+        var queue = CalculateExecutionQueueInternal(OutputNode);
 
         foreach (var node in queue)
         {
-            if (node is Node typedNode)
+            lock (node)
             {
-                if (typedNode.IsDisposed) continue;
+                if (node is Node typedNode)
+                {
+                    if (typedNode.IsDisposed) continue;
 
-                typedNode.ExecuteInternal(context);
-            }
-            else
-            {
-                node.Execute(context);
+                    typedNode.ExecuteInternal(context);
+                }
+                else
+                {
+                    node.Execute(context);
+                }
             }
         }
-    }
 
-    public void Execute(RenderContext context) => Execute(OutputNode, context);
+        isexecuting = false;
+    }
 
     private bool CanExecute()
     {
@@ -155,7 +205,8 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
 
         foreach (var node in queue)
         {
-            hash.Add(node.GetCacheHash());
+            int nodeCache = node.GetCacheHash();
+            hash.Add(nodeCache);
         }
 
         return hash.ToHashCode();
