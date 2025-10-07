@@ -12,6 +12,7 @@ using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
+using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
@@ -221,7 +222,7 @@ internal class SceneRenderer
 
                 double finalOpacity = onionOpacity * alphaFalloffMultiplier * (animationData.OnionFrames - i + 1);
                 RenderContext onionContext = new(renderTarget, frame, resolution, finalSize, Document.Size,
-                    Document.ProcessingColorSpace, samplingOptions, finalOpacity);
+                    Document.ProcessingColorSpace, samplingOptions, Document.Blackboard, finalOpacity);
                 onionContext.TargetOutput = targetOutput;
                 onionContext.VisibleDocumentRegion = visibleDocumentRegion;
                 finalGraph.Execute(onionContext);
@@ -229,7 +230,7 @@ internal class SceneRenderer
         }
 
         RenderContext context = new(renderTarget, DocumentViewModel.AnimationHandler.ActiveFrameTime,
-            resolution, finalSize, Document.Size, Document.ProcessingColorSpace, samplingOptions);
+            resolution, finalSize, Document.Size, Document.ProcessingColorSpace, samplingOptions, Document.Blackboard);
         context.PointerInfo = pointerInfo;
         context.EditorData = editorData;
 
@@ -251,7 +252,7 @@ internal class SceneRenderer
 
                 double finalOpacity = onionOpacity * alphaFalloffMultiplier * (animationData.OnionFrames - i + 1);
                 RenderContext onionContext = new(renderTarget, frame, resolution, finalSize, Document.Size,
-                    Document.ProcessingColorSpace, samplingOptions, finalOpacity);
+                    Document.ProcessingColorSpace, samplingOptions, Document.Blackboard, finalOpacity);
                 onionContext.TargetOutput = targetOutput;
                 onionContext.VisibleDocumentRegion = visibleDocumentRegion;
                 finalGraph.Execute(onionContext);

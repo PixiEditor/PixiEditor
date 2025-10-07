@@ -212,7 +212,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         SceneObjectRenderContext renderObjectContext = new SceneObjectRenderContext(output, renderTarget, localBounds,
             context.FrameTime, context.ChunkResolution, context.RenderOutputSize, context.DocumentSize,
             renderTarget == context.RenderSurface,
-            context.ProcessingColorSpace, context.DesiredSamplingOptions, context.Opacity);
+            context.ProcessingColorSpace, context.DesiredSamplingOptions, context.Blackboard, context.Opacity);
         renderObjectContext.FullRerender = context.FullRerender;
         renderObjectContext.AffectedArea = context.AffectedArea;
         renderObjectContext.VisibleDocumentRegion = context.VisibleDocumentRegion;

@@ -26,6 +26,7 @@ using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
+using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph.Blackboard;
 using PixiEditor.Models.BrushEngine;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
@@ -236,6 +237,9 @@ internal class DocumentUpdater
                 break;
             case DefaultEndFrame_ChangeInfo info:
                 ProcessNewDefaultEndFrame(info);
+                break;
+            case BlackboardVariable_ChangeInfo info:
+                ProcessBlackboardVariable(info);
                 break;
         }
     }
@@ -956,5 +960,17 @@ internal class DocumentUpdater
         {
            toolsHandler.BrushLibrary.RemoveById(info.Id);
         }
+    }
+
+    private void ProcessBlackboardVariable(BlackboardVariable_ChangeInfo info)
+    {
+        var existingVar = doc.NodeGraphHandler.Blackboard.GetVariable(info.Name);
+        if (existingVar != null)
+        {
+            doc.NodeGraphHandler.Blackboard.SetVariableInternal(info.Name, info.Value);
+            return;
+        }
+
+        doc.NodeGraphHandler.Blackboard.AddVariableInternal(info.Name, info.Type, info.Value);
     }
 }

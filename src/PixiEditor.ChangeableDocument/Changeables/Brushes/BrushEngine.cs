@@ -26,7 +26,8 @@ internal class BrushEngine
 
     public void ExecuteBrush(ChunkyImage target, BrushData brushData, List<VecI> points, KeyFrameTime frameTime,
         ColorSpace cs,
-        SamplingOptions samplingOptions, PointerInfo pointerInfo, EditorData editorData)
+        SamplingOptions samplingOptions, PointerInfo pointerInfo, EditorData editorData,
+        IReadOnlyBlackboard targetBlackboard)
     {
         float strokeWidth = brushData.StrokeWidth;
         float spacing = brushData.Spacing;
@@ -39,7 +40,8 @@ internal class BrushEngine
             if (points.Count > 1 && VecF.Distance(lastPos, point) < spacingPixels)
                 continue;
 
-            ExecuteVectorShapeBrush(target, brushData, point, frameTime, cs, samplingOptions, pointerInfo, editorData);
+            ExecuteVectorShapeBrush(target, brushData, point, frameTime, cs, samplingOptions, pointerInfo, editorData,
+                targetBlackboard);
 
             lastPos = point;
         }
@@ -48,14 +50,15 @@ internal class BrushEngine
     }
 
     public void ExecuteBrush(ChunkyImage target, BrushData brushData, VecI point, KeyFrameTime frameTime, ColorSpace cs,
-        SamplingOptions samplingOptions, PointerInfo pointerInfo, EditorData editorData)
+        SamplingOptions samplingOptions, PointerInfo pointerInfo, EditorData editorData, IReadOnlyBlackboard targetBlackboard)
     {
-        ExecuteVectorShapeBrush(target, brushData, point, frameTime, cs, samplingOptions, pointerInfo, editorData);
+        ExecuteVectorShapeBrush(target, brushData, point, frameTime, cs, samplingOptions, pointerInfo, editorData,
+            targetBlackboard);
     }
 
     private void ExecuteVectorShapeBrush(ChunkyImage target, BrushData brushData, VecI point, KeyFrameTime frameTime,
         ColorSpace colorSpace, SamplingOptions samplingOptions,
-        PointerInfo pointerInfo, EditorData editorData)
+        PointerInfo pointerInfo, EditorData editorData, IReadOnlyBlackboard targetBlackboard)
     {
         if (brushData.BrushGraph == null)
         {
@@ -90,7 +93,7 @@ internal class BrushEngine
 
         BrushRenderContext context = new BrushRenderContext(texture?.DrawingSurface, frameTime, ChunkResolution.Full,
             size, size,
-            colorSpace, samplingOptions, brushData, surfaceUnderRect, fullTexture)
+            colorSpace, samplingOptions, brushData, surfaceUnderRect, fullTexture, targetBlackboard)
         {
             PointerInfo = pointerInfo, EditorData = editorData
         };

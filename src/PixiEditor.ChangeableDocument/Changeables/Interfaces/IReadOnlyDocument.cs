@@ -102,6 +102,7 @@ public interface IReadOnlyDocument : IDisposable
     IReadOnlyList<IReadOnlyStructureNode> FindMemberPath(Guid guid);
     IReadOnlyReferenceLayer? ReferenceLayer { get; }
     public DocumentRenderer Renderer { get; }
+    public IReadOnlyBlackboard Blackboard { get; }
     public ColorSpace ProcessingColorSpace { get; }
     public void InitProcessingColorSpace(ColorSpace processingColorSpace);
     public List<IReadOnlyStructureNode> GetParents(Guid memberGuid);

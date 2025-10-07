@@ -13,6 +13,7 @@ using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
+using PixiEditor.ViewModels.Document.Blackboard;
 using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document;
@@ -34,12 +35,17 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
 
     IReadOnlyDictionary<Guid, INodeHandler> INodeGraphHandler.NodeLookup => NodeLookup;
 
+    public BlackboardViewModel Blackboard { get; }
+
+    IBlackboardHandler INodeGraphHandler.Blackboard => Blackboard;
+
     private DocumentInternalParts Internals { get; }
 
     public NodeGraphViewModel(DocumentViewModel documentViewModel, DocumentInternalParts internals)
     {
         DocumentViewModel = documentViewModel;
         Internals = internals;
+        Blackboard = new BlackboardViewModel(internals);
     }
 
     public void AddNode(INodeHandler node)

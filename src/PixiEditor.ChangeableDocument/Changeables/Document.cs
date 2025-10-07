@@ -32,6 +32,7 @@ internal class Document : IChangeable, IReadOnlyDocument
 
     IReadOnlyReferenceLayer? IReadOnlyDocument.ReferenceLayer => ReferenceLayer;
     public DocumentRenderer Renderer { get; }
+    public IReadOnlyBlackboard Blackboard => NodeGraph.Blackboard;
     public ColorSpace ProcessingColorSpace { get; internal set; } = ColorSpace.CreateSrgbLinear();
 
     /// <summary>

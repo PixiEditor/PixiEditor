@@ -109,4 +109,10 @@ internal class NodeGraphManagerViewModel : SubViewModel<ViewModelMain>
     {
         Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.RequestUpdateComputedPropertyValue(property);
     }
+
+    [Command.Internal("PixiEditor.NodeGraph.AddVariable")]
+    public void AddVariable(Type type)
+    {
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.Blackboard.AddVariable(type);
+    }
 }

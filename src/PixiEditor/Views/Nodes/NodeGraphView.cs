@@ -22,6 +22,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changes.NodeGraph;
 using PixiEditor.Models.Handlers;
 using Drawie.Numerics;
+using PixiEditor.ViewModels.Document.Blackboard;
 using PixiEditor.ViewModels.Nodes;
 using PixiEditor.Views.Nodes.Properties;
 using PixiEditor.Zoombox;
@@ -90,6 +91,7 @@ internal class NodeGraphView : Zoombox.Zoombox
     public static readonly StyledProperty<SocketsInfo> SocketsInfoProperty =
         AvaloniaProperty.Register<NodeGraphView, SocketsInfo>(
             nameof(SocketsInfo));
+
 
     public SocketsInfo SocketsInfo
     {

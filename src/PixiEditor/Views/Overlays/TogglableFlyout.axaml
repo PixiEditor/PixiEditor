@@ -8,7 +8,7 @@
              d:DesignHeight="380" d:DesignWidth="200" Name="togglableFlyout">
     <Border Background="Transparent">
         <StackPanel Orientation="Vertical">
-            <Border HorizontalAlignment="Right" Background="{DynamicResource ThemeBackgroundBrush1}"
+            <Border HorizontalAlignment="{Binding ElementName=togglableFlyout, Path=HorizontalAlignment}" Background="{DynamicResource ThemeBackgroundBrush1}"
                     CornerRadius="{DynamicResource ControlCornerRadius}"
                     BorderBrush="{DynamicResource ThemeBorderMidBrush}"
                     BorderThickness="{DynamicResource ThemeBorderThickness}" Padding="5"

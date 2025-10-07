@@ -16,6 +16,8 @@ public class NodeGraph : IReadOnlyNodeGraph
     public Node? OutputNode => CustomOutputNode ?? Nodes.OfType<OutputNode>().FirstOrDefault();
     public Node? CustomOutputNode { get; set; }
 
+    public Blackboard Blackboard { get; } = new();
+
     private Dictionary<Guid, Node> nodeLookup = new();
 
     IReadOnlyCollection<IReadOnlyNode> IReadOnlyNodeGraph.AllNodes => Nodes;
@@ -105,6 +107,22 @@ public class NodeGraph : IReadOnlyNodeGraph
         if (CustomOutputNode != null && nodeMapping.TryGetValue(CustomOutputNode, out var mappedOutputNode))
         {
             newGraph.CustomOutputNode = mappedOutputNode;
+        }
+
+        // Clone blackboard variables
+        foreach (var kvp in Blackboard.Variables)
+        {
+            object valueCopy;
+            if (kvp.Value.Value is ICloneable cloneable)
+            {
+                valueCopy = cloneable.Clone();
+            }
+            else
+            {
+                valueCopy = kvp.Value.Value;
+            }
+
+            newGraph.Blackboard.SetVariable(kvp.Key, kvp.Value.Type, valueCopy);
         }
 
         return newGraph;
