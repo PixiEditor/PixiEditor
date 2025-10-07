@@ -8,11 +8,13 @@ namespace PixiEditor.Models.Controllers;
 
 internal class BrushLibrary
 {
-    private List<Brush> brushes = new List<Brush>();
-    public IReadOnlyList<Brush> Brushes => brushes;
+    private Dictionary<Guid, Brush> brushes = new();
+    public IReadOnlyDictionary<Guid, Brush> Brushes => brushes;
 
     private string pathToBrushes;
     public string PathToBrushes => pathToBrushes;
+
+    public event Action BrushesChanged;
 
     public BrushLibrary(string pathToBrushes)
     {
@@ -37,7 +39,7 @@ internal class BrushLibrary
                     stream.ReadExactly(buffer, 0, buffer.Length);
                     var doc = Importer.ImportDocument(buffer, null);
                     var brush = new Brush(Path.GetFileNameWithoutExtension(localPath), doc);
-                    brushes.Add(brush);
+                    brushes.Add(brush.Id, brush);
                 }
                 catch (Exception ex)
                 {
@@ -59,7 +61,7 @@ internal class BrushLibrary
             {
                 var doc = Importer.ImportDocument(file, false);
                 var brush = new Brush(Path.GetFileNameWithoutExtension(file), doc);
-                brushes.Add(brush);
+                brushes.Add(brush.Id, brush);
             }
             catch (Exception ex)
             {
@@ -72,11 +74,22 @@ internal class BrushLibrary
     {
         LoadBuiltIn();
         LoadBrushesFromPath(pathToBrushes);
+
+        BrushesChanged?.Invoke();
     }
 
     public void Add(Brush brush)
     {
-        if (!brushes.Contains(brush))
-            brushes.Add(brush);
+        var oldBrushes = Brushes.Values.ToList();
+        if (brushes.TryAdd(brush.Id, brush))
+        {
+            BrushesChanged?.Invoke();
+        }
+    }
+
+    public void RemoveById(Guid infoId)
+    {
+        brushes.Remove(infoId);
+        BrushesChanged?.Invoke();
     }
 }

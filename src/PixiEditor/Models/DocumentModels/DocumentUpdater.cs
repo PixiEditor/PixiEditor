@@ -187,6 +187,7 @@ internal class DocumentUpdater
                 break;
             case DeleteNode_ChangeInfo info:
                 ProcessDeleteNode(info);
+                ProcessDeleteBrushNodeIfNeeded(info);
                 break;
             case CreateNodeFrame_ChangeInfo info:
                 ProcessCreateNodeFrame(info);
@@ -944,7 +945,16 @@ internal class DocumentUpdater
         if (ViewModelMain.Current.ToolsSubViewModel is ToolsViewModel toolsHandler)
         {
             if(ViewModelMain.Current.DocumentManagerSubViewModel.Documents.All(x => x.Id != doc.Id)) return;
-            toolsHandler.BrushLibrary.Add(new Brush(!string.IsNullOrWhiteSpace(doc.FullFilePath) ? Path.GetFileName(doc.FullFilePath) : "Unnamed", doc));
+            toolsHandler.BrushLibrary.Add(
+                new Brush(!string.IsNullOrWhiteSpace(doc.FullFilePath) ? Path.GetFileName(doc.FullFilePath) : "Unnamed", doc, info.Id));
+        }
+    }
+
+    private void ProcessDeleteBrushNodeIfNeeded(DeleteNode_ChangeInfo info)
+    {
+        if (ViewModelMain.Current.ToolsSubViewModel is ToolsViewModel toolsHandler)
+        {
+           toolsHandler.BrushLibrary.RemoveById(info.Id);
         }
     }
 }

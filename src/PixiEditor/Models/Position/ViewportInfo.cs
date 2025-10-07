@@ -2,6 +2,7 @@
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Rendering.ContextData;
 
 namespace PixiEditor.Models.Position;
 
@@ -13,6 +14,8 @@ internal readonly record struct ViewportInfo(
     VecD Center,
     VecD RealDimensions,
     Matrix3X3 Transform,
+    PointerInfo PointerInfo,
+    EditorData EditorData,
     RectI? VisibleDocumentRegion,
     string RenderOutput,
     SamplingOptions Sampling,

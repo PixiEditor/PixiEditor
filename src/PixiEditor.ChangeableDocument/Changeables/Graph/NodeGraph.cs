@@ -21,6 +21,7 @@ public class NodeGraph : IReadOnlyNodeGraph
     IReadOnlyCollection<IReadOnlyNode> IReadOnlyNodeGraph.AllNodes => Nodes;
     IReadOnlyNode IReadOnlyNodeGraph.OutputNode => OutputNode;
 
+    bool isExecuting = false;
 
     public void AddNode(Node node)
     {
@@ -137,9 +138,14 @@ public class NodeGraph : IReadOnlyNodeGraph
 
     public bool TryTraverse(Action<IReadOnlyNode> action)
     {
-        if (OutputNode == null) return false;
+        return TryTraverse(OutputNode, action);
+    }
 
-        var queue = CalculateExecutionQueueInternal(OutputNode);
+    public bool TryTraverse(IReadOnlyNode end, Action<IReadOnlyNode> action)
+    {
+        if (end == null) return false;
+
+        var queue = CalculateExecutionQueueInternal(end);
 
         foreach (var node in queue)
         {
@@ -149,16 +155,20 @@ public class NodeGraph : IReadOnlyNodeGraph
         return true;
     }
 
-    bool isexecuting = false;
 
     public void Execute(RenderContext context)
     {
-        if (isexecuting) return;
-        isexecuting = true;
-        if (OutputNode == null) return;
+        Execute(OutputNode, context);
+    }
+
+    public void Execute(IReadOnlyNode end, RenderContext context)
+    {
+        if (isExecuting) return;
+        isExecuting = true;
+        if (end == null) return;
         if (!CanExecute()) return;
 
-        var queue = CalculateExecutionQueueInternal(OutputNode);
+        var queue = CalculateExecutionQueueInternal(end);
 
         foreach (var node in queue)
         {
@@ -177,7 +187,7 @@ public class NodeGraph : IReadOnlyNodeGraph
             }
         }
 
-        isexecuting = false;
+        isExecuting = false;
     }
 
     private bool CanExecute()

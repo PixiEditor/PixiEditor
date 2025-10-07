@@ -78,6 +78,18 @@ internal partial class BrushPicker : UserControl
         }
     }
 
+    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        if(SelectedBrush != null && BrushIndex == -1 && Brushes != null)
+        {
+            int index = Brushes.IndexOf(SelectedBrush);
+            if (index != -1)
+            {
+                BrushIndex = index;
+            }
+        }
+    }
+
     private void OnBrushIndexChanged(AvaloniaPropertyChangedEventArgs e)
     {
         if (suppressUpdate || (e.Sender is Visual v && !v.IsAttachedToVisualTree()))

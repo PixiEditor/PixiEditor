@@ -52,6 +52,7 @@ internal interface IDocument : IHandler, Extensions.CommonApi.Documents.IDocumen
     public IReadOnlyCollection<Guid> SelectedMembers { get; }
     public Dictionary<Guid, Texture> SceneTextures { get; }
     public SceneRenderer SceneRenderer { get; }
+    public ColorSpace ProcessingColorSpace { get; }
     public void RemoveSoftSelectedMember(IStructureMemberHandler member);
     public void ClearSoftSelectedMembers();
     public void AddSoftSelectedMember(IStructureMemberHandler member);

@@ -103,6 +103,7 @@ internal class SceneRenderer
             RenderOutput = "DEFAULT",
             Delayed = false
         };
+
         var rendered = RenderScene(previewGenerationViewport, affectedArea, previewTextures);
         rendered.Dispose();
     }
@@ -125,6 +126,8 @@ internal class SceneRenderer
         ChunkResolution resolution = viewport.Resolution;
         SamplingOptions samplingOptions = viewport.Sampling;
         RectI? visibleDocumentRegion = viewport.VisibleDocumentRegion;
+        PointerInfo pointerInfo = viewport.PointerInfo;
+        EditorData editorData = viewport.EditorData;
         string? targetOutput = viewport.RenderOutput.Equals("DEFAULT", StringComparison.InvariantCultureIgnoreCase)
             ? null
             : viewport.RenderOutput;
@@ -151,7 +154,7 @@ internal class SceneRenderer
                     ChunkyImage.FullChunkSize))
                 : affectedArea;
             return RenderGraph(renderTargetSize, targetMatrix, viewportId, resolution, samplingOptions, affectedArea,
-                visibleDocumentRegion, targetOutput, viewport.IsScene, oversizeFactor, finalGraph, previewTextures);
+                visibleDocumentRegion, targetOutput, viewport.IsScene, oversizeFactor, pointerInfo, editorData, finalGraph, previewTextures);
         }
 
         var cachedTexture = DocumentViewModel.SceneTextures[viewportId];
@@ -166,6 +169,8 @@ internal class SceneRenderer
         string? targetOutput,
         bool canRenderOnionSkinning,
         float oversizeFactor,
+        PointerInfo pointerInfo,
+        EditorData editorData,
         IReadOnlyNodeGraph finalGraph, Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures)
     {
         DrawingSurface renderTarget = null;

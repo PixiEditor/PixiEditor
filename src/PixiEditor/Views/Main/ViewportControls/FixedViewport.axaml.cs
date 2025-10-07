@@ -12,6 +12,7 @@ using Drawie.Backend.Core.Surfaces;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Position;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Rendering.ContextData;
 using PixiEditor.Models.Rendering;
 using PixiEditor.ViewModels.Document;
 
@@ -141,6 +142,8 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
             docSize / 2,
             new VecD(Bounds.Width, Bounds.Height),
             scaling,
+            new PointerInfo(),
+            new EditorData(),
             null,
             "DEFAULT",
             CalculateSampling(),

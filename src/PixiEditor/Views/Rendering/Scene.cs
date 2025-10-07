@@ -73,14 +73,6 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     public static readonly StyledProperty<bool> AutoBackgroundScaleProperty = AvaloniaProperty.Register<Scene, bool>(
         nameof(AutoBackgroundScale), true);
 
-    public static readonly StyledProperty<Func<EditorData>> EditorDataFuncProperty = AvaloniaProperty.Register<Scene, Func<EditorData>>(
-        nameof(EditorDataFunc));
-
-    public Func<EditorData> EditorDataFunc
-    {
-        get => GetValue(EditorDataFuncProperty);
-        set => SetValue(EditorDataFuncProperty, value);
-    }
 
     public bool AutoBackgroundScale
     {
@@ -176,6 +168,8 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         get => GetValue(ViewportIdProperty);
         set => SetValue(ViewportIdProperty, value);
     }
+
+    public PointerInfo LastPointerInfo => lastPointerInfo;
 
     private Overlay? capturedOverlay;
 
@@ -371,9 +365,6 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             var matrix = CalculateTransformMatrix().ToSKMatrix().ToMatrix3X3();
             if(!Document.SceneTextures.TryGetValue(ViewportId, out var cachedTexture))
                 return;
-
-            /*SceneRenderer.RenderScene(renderTexture.DrawingSurface, CalculateResolution(), lastPointerInfo, CalculateSampling(),
-                EditorDataFunc?.Invoke() ?? new EditorData(), renderOutput);*/
 
             Matrix3X3 matrixDiff = SolveMatrixDiff(matrix, cachedTexture);
             var target = cachedTexture.DrawingSurface;

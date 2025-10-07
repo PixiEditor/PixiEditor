@@ -21,6 +21,7 @@ using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Position;
 using Drawie.Numerics;
+using Drawie.Skia;
 using PixiEditor.ChangeableDocument.Rendering.ContextData;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.UI.Common.Behaviors;
@@ -534,6 +535,8 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     {
         return new(AngleRadians, Center, RealDimensions,
             Scene.CalculateTransformMatrix().ToSKMatrix().ToMatrix3X3(),
+            Scene.LastPointerInfo,
+            EditorDataFunc(),
             CalculateVisibleRegion(),
             ViewportRenderOutput, Scene.CalculateSampling(), Dimensions, CalculateResolution(), GuidValue, Delayed,
             true, ForceRefreshFinalImage);

@@ -22,9 +22,10 @@ internal class BrushSettingViewModel : Setting<Brush>
         }
     }
 
-    public ObservableCollection<Brush> AllBrushes => new ObservableCollection<Brush>(Library.Brushes);
+    public ObservableCollection<Brush> AllBrushes => new ObservableCollection<Brush>(Library.Brushes.Values);
     public BrushSettingViewModel(string name, string label) : base(name)
     {
         Label = label;
+        Library.BrushesChanged += () => OnPropertyChanged(nameof(AllBrushes));
     }
 }

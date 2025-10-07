@@ -103,6 +103,10 @@ internal class PenToolExecutor : UpdateableChangeExecutor
     {
         BrushOutputNode brushOutputNode = BrushData.BrushGraph.AllNodes
             .FirstOrDefault(x => x is BrushOutputNode) as BrushOutputNode;
+
+        if (brushOutputNode is null)
+            return;
+
         brushOutputGuid = brushOutputNode.Id;
 
         vectorShapeInput =
