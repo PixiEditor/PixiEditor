@@ -10,8 +10,10 @@ using Drawie.Numerics;
 using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.UI.Common.Fonts;
 using PixiEditor.UI.Common.Localization;
+using PixiEditor.ViewModels.Document.Blackboard;
 using PixiEditor.ViewModels.Tools.ToolSettings.Settings;
 using PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
+using PixiEditor.Views.Blackboard;
 using PixiEditor.Views.Overlays.BrushShapeOverlay;
 
 namespace PixiEditor.ViewModels.Tools.Tools
@@ -19,13 +21,14 @@ namespace PixiEditor.ViewModels.Tools.Tools
     [Command.Tool(Key = Key.B)]
     internal class PenToolViewModel : ShapeTool, IPenToolHandler
     {
+        private List<Setting> brushShapeSettings = new();
         private double actualToolSize = 1;
 
         public override string ToolNameLocalizationKey => "PEN_TOOL";
 
-            /*
-            PaintShape == PaintBrushShape.Square ? BrushShape.Square : BrushShapeSetting;
-            */
+        /*
+        PaintShape == PaintBrushShape.Square ? BrushShape.Square : BrushShapeSetting;
+        */
 
         public override Type[]? SupportedLayerTypes { get; } = { typeof(IRasterLayerHandler) };
 
@@ -33,19 +36,28 @@ namespace PixiEditor.ViewModels.Tools.Tools
         {
             Cursor = Cursors.PreciseCursor;
             Toolbar = ToolbarFactory.Create<PenToolViewModel, PenToolbar>(this);
+            (Toolbar as PenToolbar).SettingChanged += OnSettingChanged;
 
             ViewModelMain.Current.ToolsSubViewModel.SelectedToolChanged += SelectedToolChanged;
         }
 
+        private void OnSettingChanged(string name, object value)
+        {
+            if (name == nameof(PenToolbar.Brush))
+            {
+                AddBrushShapeSettings();
+            }
+        }
+
         public override LocalizedString Tooltip => new LocalizedString("PEN_TOOL_TOOLTIP", Shortcut);
 
-        [Settings.Inherited]
-        public double ToolSize => GetValue<double>();
+        [Settings.Inherited] public double ToolSize => GetValue<double>();
 
         [Settings.Bool("PIXEL_PERFECT_SETTING", Notify = nameof(PixelPerfectChanged), ExposedByDefault = false)]
         public bool PixelPerfectEnabled => GetValue<bool>();
-        
-        [Settings.Enum("BRUSH_SHAPE_SETTING", BrushShape.CirclePixelated, ExposedByDefault = false, Notify = nameof(BrushShapeChanged))]
+
+        [Settings.Enum("BRUSH_SHAPE_SETTING", BrushShape.CirclePixelated, ExposedByDefault = false,
+            Notify = nameof(BrushShapeChanged))]
         public BrushShape BrushShapeSetting
         {
             get
@@ -102,7 +114,7 @@ namespace PixiEditor.ViewModels.Tools.Tools
                     sizeSetting.Value = 1d;
                 }
             }
-            
+
             if (!PixiEditorSettings.Tools.EnableSharedToolbar.Value)
             {
                 return;
@@ -112,18 +124,18 @@ namespace PixiEditor.ViewModels.Tools.Tools
             {
                 return;
             }
-            
+
             var oldSetting = oldToolbar.Settings.FirstOrDefault(x => x.Name == nameof(oldToolbar.ToolSize));
             if (oldSetting is null)
             {
                 return;
             }
-            
-            if(oldSetting.Value is int intValue)
+
+            if (oldSetting.Value is int intValue)
             {
                 actualToolSize = intValue;
             }
-            else if(oldSetting.Value is double doubleValue)
+            else if (oldSetting.Value is double doubleValue)
             {
                 actualToolSize = (int)doubleValue;
             }
@@ -138,7 +150,7 @@ namespace PixiEditor.ViewModels.Tools.Tools
 
             var toolbar = (PenToolbar)Toolbar;
             var setting = toolbar.Settings.FirstOrDefault(x => x.Name == nameof(toolbar.ToolSize));
-            if(setting is SizeSettingViewModel sizeSetting)
+            if (setting is SizeSettingViewModel sizeSetting)
             {
                 sizeSetting.Value = actualToolSize;
             }
@@ -168,6 +180,29 @@ namespace PixiEditor.ViewModels.Tools.Tools
         private void BrushShapeChanged()
         {
             OnPropertyChanged(nameof(FinalBrushShape));
+        }
+
+        private void AddBrushShapeSettings()
+        {
+            foreach (var setting in brushShapeSettings)
+            {
+                Toolbar.RemoveSetting(setting);
+            }
+
+            brushShapeSettings.Clear();
+
+            var blackboard = ((PenToolbar)Toolbar).Brush?.Document?.NodeGraphHandler?.Blackboard;
+            if (blackboard is null)
+                return;
+
+            foreach (var blackboardVariable in blackboard.Variables)
+            {
+                if (blackboardVariable is VariableViewModel varVm)
+                {
+                    Toolbar.AddSetting(varVm.SettingView);
+                    brushShapeSettings.Add(varVm.SettingView);
+                }
+            }
         }
 
         private void PenShapeChanged()

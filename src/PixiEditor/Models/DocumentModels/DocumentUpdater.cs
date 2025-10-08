@@ -32,6 +32,7 @@ using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.ViewModels;
 using PixiEditor.ViewModels.Document;
+using PixiEditor.ViewModels.Document.Blackboard;
 using PixiEditor.ViewModels.Document.Nodes;
 using PixiEditor.ViewModels.Nodes;
 using PixiEditor.ViewModels.SubViewModels;
@@ -240,6 +241,9 @@ internal class DocumentUpdater
                 break;
             case BlackboardVariable_ChangeInfo info:
                 ProcessBlackboardVariable(info);
+                break;
+            case RenameBlackboardVariable_ChangeInfo info:
+                ProcessRenameBlackboardVariable(info);
                 break;
         }
     }
@@ -972,5 +976,19 @@ internal class DocumentUpdater
         }
 
         doc.NodeGraphHandler.Blackboard.AddVariableInternal(info.Name, info.Type, info.Value);
+    }
+
+    private void ProcessRenameBlackboardVariable(RenameBlackboardVariable_ChangeInfo info)
+    {
+        var existingVar = doc.NodeGraphHandler.Blackboard.GetVariable(info.OldName);
+        if (existingVar == null)
+        {
+            return;
+        }
+
+        if (existingVar is VariableViewModel varVm)
+        {
+            varVm.SetNameInternal(info.NewName);
+        }
     }
 }

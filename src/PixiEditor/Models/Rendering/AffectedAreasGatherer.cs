@@ -21,6 +21,7 @@ using PixiEditor.ChangeableDocument.ChangeInfos.Vectors;
 using Drawie.Backend.Core.Numerics;
 using PixiEditor.Models.DocumentPassthroughActions;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph.Blackboard;
 
 namespace PixiEditor.Models.Rendering;
 #nullable enable
@@ -213,6 +214,11 @@ internal class AffectedAreasGatherer
                     break;
                 case RefreshPreview_PassthroughAction info:
                     ProcessRefreshPreview(info);
+                    break;
+                case BlackboardVariable_ChangeInfo info:
+                    AddWholeCanvasToMainImage();
+                    AddWholeCanvasToEveryImagePreview(false);
+                    AddAllNodesToImagePreviews();
                     break;
             }
         }

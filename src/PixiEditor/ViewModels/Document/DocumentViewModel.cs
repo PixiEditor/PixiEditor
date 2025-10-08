@@ -349,6 +349,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         }
 
         AddNodes(builderInstance.Graph);
+        AddBlackboard(builderInstance.Graph.Blackboard);
 
         if (builderInstance.Graph.AllNodes.Count == 0 || !builderInstance.Graph.AllNodes.Any(x => x is OutputNode))
         {
@@ -374,6 +375,19 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         viewModel.NodeGraph.FinalizeCreation();
 
         return viewModel;
+
+        void AddBlackboard(NodeGraphBuilder.BlackboardBuilder blackboard)
+        {
+            if (blackboard is null)
+                return;
+
+            foreach (var varBuilder in blackboard.Variables)
+            {
+                object value =
+                    SerializationUtil.Deserialize(varBuilder.Value, config, allFactories, serializerData);
+                acc.AddActions(new SetBlackboardVariable_Action(varBuilder.Name, value));
+            }
+        }
 
 
         void AddNodes(NodeGraphBuilder graph)

@@ -6,6 +6,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
 public interface IReadOnlyNodeGraph : ICacheable, IDisposable
 {
+    public IReadOnlyBlackboard Blackboard { get; }
     public IReadOnlyCollection<IReadOnlyNode> AllNodes { get; }
     public IReadOnlyNode OutputNode { get; }
     public void AddNode(IReadOnlyNode node);

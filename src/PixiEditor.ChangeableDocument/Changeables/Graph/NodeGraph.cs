@@ -22,6 +22,7 @@ public class NodeGraph : IReadOnlyNodeGraph
 
     IReadOnlyCollection<IReadOnlyNode> IReadOnlyNodeGraph.AllNodes => Nodes;
     IReadOnlyNode IReadOnlyNodeGraph.OutputNode => OutputNode;
+    IReadOnlyBlackboard IReadOnlyNodeGraph.Blackboard => Blackboard;
 
     bool isExecuting = false;
 

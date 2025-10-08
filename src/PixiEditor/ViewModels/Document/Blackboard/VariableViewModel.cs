@@ -25,19 +25,29 @@ internal class VariableViewModel : ViewModelBase, IVariableHandler
     public string Name
     {
         get => name;
+        set
+        {
+            internals.ActionAccumulator.AddFinishedActions(
+                new RenameBlackboardVariable_Action(name, value));
+        }
     }
 
     public Setting SettingView { get; }
 
     private bool suppressValueChange;
 
+    private DocumentInternalParts internals { get; }
+
     public VariableViewModel(string name, Type type, object value, DocumentInternalParts internals)
     {
         this.type = type;
         this.name = name;
         this.value = value;
+        this.internals = internals;
 
         SettingView = CreateSettingFromType(type);
+
+        SettingView.Label = name;
         SettingView.Value = value;
 
         SettingView.ValueChanged += (sender, args) =>
@@ -82,5 +92,13 @@ internal class VariableViewModel : ViewModelBase, IVariableHandler
         SettingView.Value = value;
 
         suppressValueChange = false;
+    }
+
+    public void SetNameInternal(string newName)
+    {
+        name = newName;
+
+        SettingView.Label = newName;
+        OnPropertyChanged(nameof(Name));
     }
 }

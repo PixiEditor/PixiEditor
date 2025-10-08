@@ -101,7 +101,7 @@ internal class PenToolExecutor : UpdateableChangeExecutor
 
     private void UpdateBrushNodes()
     {
-        BrushOutputNode brushOutputNode = BrushData.BrushGraph.AllNodes
+        BrushOutputNode brushOutputNode = BrushData.BrushGraph?.AllNodes
             .FirstOrDefault(x => x is BrushOutputNode) as BrushOutputNode;
 
         if (brushOutputNode is null)

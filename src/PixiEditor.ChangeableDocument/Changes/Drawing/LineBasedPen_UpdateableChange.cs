@@ -132,7 +132,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         brushData.StrokeWidth = strokeWidth;
 
         engine.ExecuteBrush(image, brushData, points, frame, target.ProcessingColorSpace, SamplingOptions.Default,
-            pointerInfo, editorData, target.Blackboard);
+            pointerInfo, editorData);
 
         var affChunks = image.FindAffectedArea(opCount);
 
@@ -141,7 +141,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         return changeInfo;
     }
 
-    private void FastforwardEnqueueDrawLines(ChunkyImage targetImage, KeyFrameTime frameTime, IReadOnlyBlackboard blackboard)
+    private void FastforwardEnqueueDrawLines(ChunkyImage targetImage, KeyFrameTime frameTime)
     {
         brushData.AntiAliasing = antiAliasing;
         brushData.Spacing = spacing;
@@ -150,13 +150,13 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         if (points.Count == 1)
         {
             engine.ExecuteBrush(targetImage, brushData, points[0], frameTime, targetImage.ProcessingColorSpace,
-                SamplingOptions.Default, pointerInfo, editorData, blackboard);
+                SamplingOptions.Default, pointerInfo, editorData);
 
             return;
         }
 
         engine.ExecuteBrush(targetImage, brushData, points, frameTime, targetImage.ProcessingColorSpace,
-            SamplingOptions.Default, pointerInfo, editorData, blackboard);
+            SamplingOptions.Default, pointerInfo, editorData);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
@@ -182,7 +182,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
                 image.SetBlendMode(BlendMode.SrcOver);
             DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, image, memberGuid, drawOnMask);
 
-            FastforwardEnqueueDrawLines(image, frame, target.Blackboard);
+            FastforwardEnqueueDrawLines(image, frame);
             var affArea = image.FindAffectedArea();
             storedChunks = new CommittedChunkStorage(image, affArea.Chunks);
             image.CommitChanges();

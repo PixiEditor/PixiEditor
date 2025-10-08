@@ -1,9 +1,6 @@
-﻿using System.Collections;
-using System.Reflection;
+﻿using System.Reflection;
 using ChunkyImageLib;
-using ChunkyImageLib.DataHolders;
 using PixiEditor.Helpers.Extensions;
-using PixiEditor.ViewModels.Document;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using Drawie.Backend.Core;
@@ -354,7 +351,15 @@ internal class GroupKeyFrameBuilder : KeyFrameBuilder
 internal class NodeGraphBuilder
 {
     public List<NodeBuilder> AllNodes { get; set; } = new List<NodeBuilder>();
+    public BlackboardBuilder Blackboard { get; set; }
 
+    public BlackboardBuilder WithBlackboard(Action<BlackboardBuilder> builder)
+    {
+        var blackboard = new BlackboardBuilder();
+        builder(blackboard);
+        Blackboard = blackboard;
+        return blackboard;
+    }
 
     public NodeGraphBuilder WithNode(Action<NodeBuilder> nodeBuilder)
     {
@@ -527,5 +532,27 @@ internal class NodeGraphBuilder
             PairId = nodePairId;
             return this;
         }
+    }
+
+    public class BlackboardBuilder
+    {
+        public List<VariableBuilder> Variables { get; set; } = new List<VariableBuilder>();
+
+        public BlackboardBuilder WithVariable(string name, object value)
+        {
+            Variables.Add(new VariableBuilder
+            {
+                Name = name,
+                Value = value
+            });
+
+            return this;
+        }
+    }
+
+    public class VariableBuilder
+    {
+        public string Name { get; set; }
+        public object Value { get; set; }
     }
 }

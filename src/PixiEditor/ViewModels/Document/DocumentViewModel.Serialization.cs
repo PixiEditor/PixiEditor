@@ -28,6 +28,7 @@ using PixiEditor.Models.IO;
 using PixiEditor.Models.Serialization;
 using PixiEditor.Models.Serialization.Factories;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Collections;
 using PixiEditor.Parser.Graph;
@@ -44,8 +45,10 @@ using Color = System.Drawing.Color;
 using IKeyFrameChildrenContainer = PixiEditor.ChangeableDocument.Changeables.Interfaces.IKeyFrameChildrenContainer;
 using KeyFrameData = PixiEditor.Parser.KeyFrameData;
 using Node = PixiEditor.Parser.Graph.Node;
+using NodeGraph = PixiEditor.Parser.Graph.NodeGraph;
 using PixiDocument = PixiEditor.Parser.Document;
 using ReferenceLayer = PixiEditor.Parser.ReferenceLayer;
+using Variable = PixiEditor.Parser.Graph.Variable;
 
 namespace PixiEditor.ViewModels.Document;
 
@@ -71,6 +74,7 @@ internal partial class DocumentViewModel
             factory.Storage = storage;
         }
 
+        AddBlackboard(doc.Blackboard, graph, serializationConfig, factories);
         AddNodes(doc.NodeGraph, graph, nodeIdMap, keyFrameIdMap, serializationConfig, factories);
 
         var preview = TryRenderWholeImage(0);
@@ -553,6 +557,26 @@ internal partial class DocumentViewModel
 
             targetGraph.AllNodes.Add(parserNode);
         }
+    }
+
+    private static void AddBlackboard(IReadOnlyBlackboard blackboard, NodeGraph targetGraph,
+        SerializationConfig config, IReadOnlyList<SerializationFactory> allFactories)
+    {
+        List<Variable> variables = new();
+
+        foreach (var prop in blackboard.Variables)
+        {
+            variables.Add(new Variable()
+            {
+                Name = prop.Value.Name,
+                Value = SerializationUtil.SerializeObject(prop.Value.Value, config, allFactories),
+            });
+        }
+
+        targetGraph.Blackboard = new Parser.Graph.Blackboard()
+        {
+            Variables = variables
+        };
     }
 
     private static Dictionary<string, object> ConvertToSerializable(

@@ -61,6 +61,14 @@ internal static class PixiParserDocumentEx
                     .WithPairId(node.PairId)
                     .WithConnections(node.InputConnections));
             }
+
+            graphBuilder.WithBlackboard(x =>
+            {
+                foreach (var kvp in graph.Blackboard.Variables)
+                {
+                    x.WithVariable(kvp.Name, kvp.Value);
+                }
+            });
         }
     }
 
