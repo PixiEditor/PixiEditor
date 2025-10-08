@@ -570,6 +570,9 @@ internal partial class DocumentViewModel
             {
                 Name = prop.Value.Name,
                 Value = SerializationUtil.SerializeObject(prop.Value.Value, config, allFactories),
+                Unit = prop.Value.Unit,
+                Min = prop.Value.Min,
+                Max = prop.Value.Max,
             });
         }
 

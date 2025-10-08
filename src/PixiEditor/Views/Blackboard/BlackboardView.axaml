@@ -4,28 +4,33 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:blackboard="clr-namespace:PixiEditor.Views.Blackboard"
              xmlns:system="clr-namespace:System;assembly=System.Runtime"
+             xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
              x:ClassModifier="internal"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.Views.Blackboard.BlackboardView">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
 
-        <ComboBox SelectedIndex="0" Name="typeComboBox">
-            <ComboBoxItem Content="{x:Type system:Single}"/>
-            <ComboBoxItem Content="{x:Type system:Int32}"/>
-            <ComboBoxItem Content="{x:Type system:Boolean}"/>
-            <ComboBoxItem Content="{x:Type system:String}"/>
+        <ComboBox
+            SelectedIndex="0"
+            ItemsSource="{Binding VariableOptions, RelativeSource={RelativeSource AncestorType=blackboard:BlackboardView, Mode=FindAncestor}}"
+            Name="typeComboBox">
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock localization:Translator.Key="{Binding Name}" />
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
         </ComboBox>
         <Button Grid.Row="0" Grid.Column="1" Content="+" Margin="5"
                 Command="{Binding AddVariableCommand, RelativeSource={RelativeSource AncestorType=blackboard:BlackboardView, Mode=FindAncestor}}"
-                CommandParameter="{Binding SelectedItem.Content, ElementName=typeComboBox}"/>
+                CommandParameter="{Binding SelectedItem, ElementName=typeComboBox}"/>
 
         <ItemsControl Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
             ItemsSource="{Binding Variables, RelativeSource={RelativeSource AncestorType=blackboard:BlackboardView, Mode=FindAncestor}}">

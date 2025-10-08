@@ -13,5 +13,6 @@
     <StackPanel Orientation="Horizontal" Margin="5">
         <TextBox Text="{Binding Name, Mode=TwoWay}" Width="150" Margin="0,0,10,0"/>
         <ContentControl Content="{Binding SettingView}" />
+        <Button Content="X" Margin="10,0,0,0" Command="{Binding RemoveCommand}" />
     </StackPanel>
 </UserControl>

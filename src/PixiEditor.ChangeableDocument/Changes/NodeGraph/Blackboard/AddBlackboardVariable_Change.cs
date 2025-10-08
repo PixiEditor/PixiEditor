@@ -5,12 +5,18 @@ namespace PixiEditor.ChangeableDocument.Changes.NodeGraph.Blackboard;
 internal class AddBlackboardVariable_Change : Change
 {
     private string varName;
-    public Type type;
+    private Type type;
+    private double min;
+    private double max;
+    private string? unit;
 
     [GenerateMakeChangeAction]
-    public AddBlackboardVariable_Change(Type type)
+    public AddBlackboardVariable_Change(Type type, double min = double.NaN, double max = double.NaN, string? unit = null)
     {
         this.type = type;
+        this.min = min;
+        this.max = max;
+        this.unit = unit;
     }
 
     public override bool InitializeAndValidate(Document target)
@@ -34,16 +40,16 @@ internal class AddBlackboardVariable_Change : Change
 
         varName = name;
         object value = Activator.CreateInstance(type)!;
-        target.NodeGraph.Blackboard.SetVariable(name, type, value);
+        target.NodeGraph.Blackboard.SetVariable(name, type, value, unit, double.IsNaN(min) ? null : min, double.IsNaN(max) ? null : max);
         ignoreInUndo = false;
 
-        return new BlackboardVariable_ChangeInfo(name, type, value);
+        return new BlackboardVariable_ChangeInfo(name, type, value, min, max, unit);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         target.NodeGraph.Blackboard.RemoveVariable(varName);
-        return new BlackboardVariable_ChangeInfo(varName, type, null);
+        return new BlackboardVariable_ChangeInfo(varName, type, null, min, max, unit);
     }
 
     private bool NameExists(Document target, string name)

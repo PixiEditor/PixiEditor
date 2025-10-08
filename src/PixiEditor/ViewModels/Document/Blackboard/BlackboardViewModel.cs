@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using PixiEditor.ChangeableDocument.Actions.Generated;
+using PixiEditor.Models.Blackboard;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
 
@@ -18,14 +19,15 @@ internal class BlackboardViewModel : ViewModelBase, IBlackboardHandler
         this.internals = internals;
     }
 
-    public void AddVariable(Type type)
+    public void AddVariable(VariableDefinition definition)
     {
-        internals.ActionAccumulator.AddFinishedActions(new AddBlackboardVariable_Action(type));
+        internals.ActionAccumulator.AddFinishedActions(
+            new AddBlackboardVariable_Action(definition.UnderlyingType, definition.Min ?? double.NaN, definition.Max ?? double.NaN, definition.Unit));
     }
 
-    public void AddVariableInternal(string name, Type type, object value)
+    public void AddVariableInternal(string name, Type type, object value, string? unit = null, double min = double.MinValue, double max = double.MaxValue)
     {
-        Variables.Add(new VariableViewModel(name, type, value, internals));
+        Variables.Add(new VariableViewModel(name, type, value, unit, min, max, internals));
     }
 
     public IVariableHandler? GetVariable(string name)

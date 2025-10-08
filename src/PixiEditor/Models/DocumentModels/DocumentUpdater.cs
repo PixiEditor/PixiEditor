@@ -978,7 +978,8 @@ internal class DocumentUpdater
             return;
         }
 
-        doc.NodeGraphHandler.Blackboard.AddVariableInternal(info.Name, info.Type, info.Value);
+        doc.NodeGraphHandler.Blackboard.AddVariableInternal(info.Name, info.Type, info.Value, info.Unit, info.Min,
+            info.Max);
     }
 
     private void ProcessRenameBlackboardVariable(RenameBlackboardVariable_ChangeInfo info)

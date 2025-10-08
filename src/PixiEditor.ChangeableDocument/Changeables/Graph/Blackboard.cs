@@ -8,17 +8,20 @@ public class Blackboard : IReadOnlyBlackboard
     IReadOnlyDictionary<string, IReadOnlyVariable> IReadOnlyBlackboard.Variables =>
         variables.ToDictionary(kv => kv.Key, kv => (IReadOnlyVariable)kv.Value);
 
-    public void SetVariable(string name, Type type, object value)
+    public void SetVariable(string name, Type type, object value, string? unit = null, double? min = null, double? max = null)
     {
         if (variables.ContainsKey(name))
         {
             variables[name].Name = name;
             variables[name].Type = type;
             variables[name].Value = value;
+            variables[name].Unit = unit;
+            variables[name].Min = min;
+            variables[name].Max = max;
         }
         else
         {
-            variables[name] = new Variable { Type = type, Value = value, Name = name };
+            variables[name] = new Variable { Type = type, Value = value, Name = name, Unit = unit, Min = min, Max = max };
         }
     }
 
@@ -54,6 +57,9 @@ public class Variable : IReadOnlyVariable
     public string Name { get; set; }
     public Type Type { get; set; }
     public object Value { get; set; }
+    public string? Unit { get; set; }
+    public double? Min { get; set; }
+    public double? Max { get; set; }
 }
 
 public interface IReadOnlyVariable
@@ -61,4 +67,7 @@ public interface IReadOnlyVariable
     public string Name { get; }
     public Type Type { get; }
     public object Value { get; }
+    public string? Unit { get; }
+    public double? Min { get; }
+    public double? Max { get; }
 }
