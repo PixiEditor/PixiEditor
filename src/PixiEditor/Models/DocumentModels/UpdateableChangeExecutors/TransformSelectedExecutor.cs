@@ -191,14 +191,14 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         {
             var topMost = smallestSizeDifferenceList.First();
 
-            if (!isHoldingShift)
+            if (!isHoldingShift || document.SelectedStructureMember == null)
             {
                 document.Operations.ClearSoftSelectedMembers();
                 document.Operations.SetSelectedMember(topMost.Id);
             }
             else
             {
-                if (document.SoftSelectedStructureMembers.Contains(topMost) || document.SelectedStructureMember.Id == topMost.Id)
+                if (document.SoftSelectedStructureMembers.Contains(topMost) || document.SelectedStructureMember?.Id == topMost.Id)
                 {
                     Deselect(smallestSizeDifferenceList);
                 }
@@ -245,7 +245,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         var topMost = topMostWithinClick.FirstOrDefault();
         if (topMost is not null)
         {
-            bool deselectingWasMain = document.SelectedStructureMember.Id == topMost.Id;
+            bool deselectingWasMain = document.SelectedStructureMember?.Id == topMost.Id;
             if (deselectingWasMain)
             {
                 Guid? nextMain = document.SoftSelectedStructureMembers.FirstOrDefault().Id;
