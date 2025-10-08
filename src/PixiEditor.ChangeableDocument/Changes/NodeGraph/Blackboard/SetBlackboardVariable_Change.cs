@@ -1,11 +1,15 @@
-﻿using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph.Blackboard;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph;
+using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph.Blackboard;
 
 namespace PixiEditor.ChangeableDocument.Changes.NodeGraph.Blackboard;
 
 internal class SetBlackboardVariable_Change : Change
 {
+    private string variable;
     private object value;
-    private string? variable;
+
+    private bool existsInBlackboard;
+    private object? originalValue;
 
     [GenerateMakeChangeAction]
     public SetBlackboardVariable_Change(string variable, object value)
@@ -25,6 +29,9 @@ internal class SetBlackboardVariable_Change : Change
 
         if (blackboardVariable == null && value == null)
             return false;
+
+        originalValue = blackboardVariable?.Value;
+        existsInBlackboard = blackboardVariable != null;
 
         return true;
     }
@@ -48,6 +55,14 @@ internal class SetBlackboardVariable_Change : Change
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        throw new NotImplementedException();
+        if (!existsInBlackboard)
+        {
+            target.NodeGraph.Blackboard.RemoveVariable(variable);
+            return new BlackboardVariableRemoved_ChangeInfo(variable);
+        }
+
+        var currentVar = target.NodeGraph.Blackboard.Variables[variable];
+        target.NodeGraph.Blackboard.SetVariable(variable, currentVar.Type, originalValue!);
+        return new BlackboardVariable_ChangeInfo(variable, currentVar.Type, currentVar.Value);
     }
 }

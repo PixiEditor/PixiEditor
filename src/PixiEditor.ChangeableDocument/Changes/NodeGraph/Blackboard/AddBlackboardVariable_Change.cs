@@ -4,6 +4,7 @@ namespace PixiEditor.ChangeableDocument.Changes.NodeGraph.Blackboard;
 
 internal class AddBlackboardVariable_Change : Change
 {
+    private string varName;
     public Type type;
 
     [GenerateMakeChangeAction]
@@ -31,6 +32,7 @@ internal class AddBlackboardVariable_Change : Change
             name = $"{name}_{i}";
         }
 
+        varName = name;
         object value = Activator.CreateInstance(type)!;
         target.NodeGraph.Blackboard.SetVariable(name, type, value);
         ignoreInUndo = false;
@@ -40,7 +42,8 @@ internal class AddBlackboardVariable_Change : Change
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        throw new NotImplementedException();
+        target.NodeGraph.Blackboard.RemoveVariable(varName);
+        return new BlackboardVariable_ChangeInfo(varName, type, null);
     }
 
     private bool NameExists(Document target, string name)

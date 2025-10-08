@@ -38,4 +38,11 @@ internal class BlackboardViewModel : ViewModelBase, IBlackboardHandler
         VariableViewModel? variable = Variables.FirstOrDefault(v => v.Name == name);
         variable?.SetValueInternal(value);
     }
+
+    public void RemoveVariableInternal(string name)
+    {
+        VariableViewModel? variable = Variables.FirstOrDefault(v => v.Name == name);
+        if (variable != null)
+            Variables.Remove(variable);
+    }
 }

@@ -62,13 +62,16 @@ internal static class PixiParserDocumentEx
                     .WithConnections(node.InputConnections));
             }
 
-            graphBuilder.WithBlackboard(x =>
+            if (graph.Blackboard != null)
             {
-                foreach (var kvp in graph.Blackboard.Variables)
+                graphBuilder.WithBlackboard(x =>
                 {
-                    x.WithVariable(kvp.Name, kvp.Value);
-                }
-            });
+                    foreach (var kvp in graph.Blackboard.Variables)
+                    {
+                        x.WithVariable(kvp.Name, kvp.Value);
+                    }
+                });
+            }
         }
     }
 

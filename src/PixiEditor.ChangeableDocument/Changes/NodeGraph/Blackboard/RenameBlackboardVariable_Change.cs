@@ -36,6 +36,7 @@ internal class RenameBlackboardVariable_Change : Change
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        throw new NotImplementedException();
+        target.NodeGraph.Blackboard.RenameVariable(newName, oldName);
+        return new RenameBlackboardVariable_ChangeInfo(newName, oldName);
     }
 }

@@ -245,6 +245,9 @@ internal class DocumentUpdater
             case RenameBlackboardVariable_ChangeInfo info:
                 ProcessRenameBlackboardVariable(info);
                 break;
+            case BlackboardVariableRemoved_ChangeInfo info:
+                ProcessRemoveBlackboardVariable(info);
+                break;
         }
     }
 
@@ -990,5 +993,10 @@ internal class DocumentUpdater
         {
             varVm.SetNameInternal(info.NewName);
         }
+    }
+
+    private void ProcessRemoveBlackboardVariable(BlackboardVariableRemoved_ChangeInfo info)
+    {
+        doc.NodeGraphHandler.Blackboard.RemoveVariableInternal(info.VariableName);
     }
 }

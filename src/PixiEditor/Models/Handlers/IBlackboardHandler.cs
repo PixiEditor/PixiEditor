@@ -9,4 +9,5 @@ public interface IBlackboardHandler
     public void AddVariableInternal(string name, Type type, object value);
     public IVariableHandler GetVariable(string name);
     public void SetVariableInternal(string name, object value);
+    public void RemoveVariableInternal(string name);
 }

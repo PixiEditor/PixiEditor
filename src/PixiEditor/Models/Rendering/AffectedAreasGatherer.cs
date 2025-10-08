@@ -215,7 +215,7 @@ internal class AffectedAreasGatherer
                 case RefreshPreview_PassthroughAction info:
                     ProcessRefreshPreview(info);
                     break;
-                case BlackboardVariable_ChangeInfo info:
+                case BlackboardVariable_ChangeInfo or BlackboardVariableRemoved_ChangeInfo or RenameBlackboardVariable_ChangeInfo:
                     AddWholeCanvasToMainImage();
                     AddWholeCanvasToEveryImagePreview(false);
                     AddAllNodesToImagePreviews();

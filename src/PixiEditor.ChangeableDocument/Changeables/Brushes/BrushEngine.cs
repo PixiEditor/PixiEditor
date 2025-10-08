@@ -134,6 +134,8 @@ internal class BrushEngine
             (float)rect.Center.Y);
         path.Transform(pressureScale);
 
+        BlendMode blendMode = RenderContext.GetDrawingBlendMode(brushNode.BlendMode.Value);
+
         if (brushNode.Content.Value != null)
         {
             var brushTexture = brushNode.ContentTexture;
@@ -141,7 +143,7 @@ internal class BrushEngine
             {
                 TexturePaintable brushTexturePaintable = new(new Texture(brushTexture), true);
                 target.EnqueueDrawPath(path, brushTexturePaintable, vectorShape.StrokeWidth,
-                    StrokeCap.Butt, brushData.BlendMode, PaintStyle.Fill, brushData.AntiAliasing, null);
+                    StrokeCap.Butt, blendMode, PaintStyle.Fill, brushData.AntiAliasing, null);
                 return;
             }
         }
@@ -169,13 +171,13 @@ internal class BrushEngine
         }
 
         target.EnqueueDrawPath(path, paintable, vectorShape.StrokeWidth,
-            strokeCap, brushData.BlendMode, strokeStyle, brushData.AntiAliasing, null);
+            strokeCap, blendMode, strokeStyle, brushData.AntiAliasing, null);
 
         if (fill is { AnythingVisible: true } && stroke is { AnythingVisible: true })
         {
             strokeStyle = PaintStyle.Stroke;
             target.EnqueueDrawPath(path, stroke, vectorShape.StrokeWidth,
-                strokeCap, brushData.BlendMode, strokeStyle, brushData.AntiAliasing, null);
+                strokeCap, blendMode, strokeStyle, brushData.AntiAliasing, null);
         }
     }
 

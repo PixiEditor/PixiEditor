@@ -30,7 +30,7 @@ public class InputProperty : IInputProperty
                 return _internalValue;
             }
 
-            var connectionValue = Connection.Value;
+            var connectionValue = Connection?.Value;
 
             if (connectionValue is null)
             {
