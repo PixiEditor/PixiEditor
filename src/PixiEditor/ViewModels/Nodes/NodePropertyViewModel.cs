@@ -42,7 +42,8 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
         set
         {
             var oldValue = _value;
-            if (oldValue.Equals(value)) return;
+            if(value == null && oldValue == null) return;
+            if (oldValue != null && oldValue.Equals(value)) return;
 
             if (MergeChanges)
             {
