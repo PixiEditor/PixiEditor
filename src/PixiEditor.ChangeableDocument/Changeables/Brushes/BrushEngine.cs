@@ -15,6 +15,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.ChangeableDocument.Rendering.ContextData;
+using DrawingApiBlendMode = Drawie.Backend.Core.Surfaces.BlendMode;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Brushes;
 
@@ -102,20 +103,36 @@ internal class BrushEngine
             return;
         }
 
+        bool autoPosition = brushNode.AutoPosition.Value;
+        bool fitToStrokeSize = brushNode.FitToStrokeSize.Value;
+        float pressure = brushNode.Pressure.Value;
+        var blendMode = RenderContext.GetDrawingBlendMode(brushNode.BlendMode.Value);
+        var content = brushNode.Content.Value;
+        var contentTexture = brushNode.ContentTexture;
+        bool antiAliasing = brushData.AntiAliasing;
+        var fill = brushNode.Fill.Value;
+        var stroke = brushNode.Stroke.Value;
+
+        PaintBrush(target, autoPosition, vectorShape, rect, fitToStrokeSize, pressure, content, contentTexture, blendMode, antiAliasing, fill, stroke);
+    }
+
+    public static void PaintBrush(ChunkyImage target, bool autoPosition, ShapeVectorData vectorShape,
+        RectI rect, bool fitToStrokeSize, float pressure, Painter? content,
+        Texture? contentTexture, DrawingApiBlendMode blendMode, bool antiAliasing, Paintable fill, Paintable stroke)
+    {
         var path = vectorShape.ToPath(true);
         if (path == null)
         {
             return;
         }
 
-
-        if (brushNode.AutoPosition.Value)
+        if (autoPosition)
         {
             path.Offset(vectorShape.TransformedAABB.Pos - vectorShape.GeometryAABB.Pos);
             path.Offset(rect.Center - path.Bounds.Center);
         }
 
-        if (brushNode.FitToStrokeSize.Value)
+        if (fitToStrokeSize)
         {
             VecD scale = new VecD(rect.Size.X / (float)path.Bounds.Width, rect.Size.Y / (float)path.Bounds.Height);
             if (scale.IsNaNOrInfinity())
@@ -124,26 +141,22 @@ internal class BrushEngine
             }
 
             VecD uniformScale = new VecD(Math.Min(scale.X, scale.Y));
-            VecD center = brushNode.AutoPosition.Value ? rect.Center : vectorShape.TransformedAABB.Center;
+            VecD center = autoPosition ? rect.Center : vectorShape.TransformedAABB.Center;
             path.Transform(Matrix3X3.CreateScale((float)uniformScale.X, (float)uniformScale.Y, (float)center.X,
                 (float)center.Y));
         }
 
-        var pressure = brushNode.Pressure.Value;
         Matrix3X3 pressureScale = Matrix3X3.CreateScale(pressure, pressure, (float)rect.Center.X,
             (float)rect.Center.Y);
         path.Transform(pressureScale);
 
-        BlendMode blendMode = RenderContext.GetDrawingBlendMode(brushNode.BlendMode.Value);
-
-        if (brushNode.Content.Value != null)
+        if (content != null)
         {
-            var brushTexture = brushNode.ContentTexture;
-            if (brushTexture != null)
+            if (contentTexture != null)
             {
-                TexturePaintable brushTexturePaintable = new(new Texture(brushTexture), true);
+                TexturePaintable brushTexturePaintable = new(new Texture(contentTexture), true);
                 target.EnqueueDrawPath(path, brushTexturePaintable, vectorShape.StrokeWidth,
-                    StrokeCap.Butt, blendMode, PaintStyle.Fill, brushData.AntiAliasing, null);
+                    StrokeCap.Butt, blendMode, PaintStyle.Fill, antiAliasing, null);
                 return;
             }
         }
@@ -151,8 +164,6 @@ internal class BrushEngine
         StrokeCap strokeCap = StrokeCap.Butt;
         PaintStyle strokeStyle = PaintStyle.Fill;
 
-        var fill = brushNode.Fill.Value;
-        var stroke = brushNode.Stroke.Value;
         var paintable = fill;
 
         if (fill != null && fill.AnythingVisible)
@@ -171,13 +182,13 @@ internal class BrushEngine
         }
 
         target.EnqueueDrawPath(path, paintable, vectorShape.StrokeWidth,
-            strokeCap, blendMode, strokeStyle, brushData.AntiAliasing, null);
+            strokeCap, blendMode, strokeStyle, antiAliasing, null);
 
         if (fill is { AnythingVisible: true } && stroke is { AnythingVisible: true })
         {
             strokeStyle = PaintStyle.Stroke;
             target.EnqueueDrawPath(path, stroke, vectorShape.StrokeWidth,
-                strokeCap, blendMode, strokeStyle, brushData.AntiAliasing, null);
+                strokeCap, blendMode, strokeStyle, antiAliasing, null);
         }
     }
 

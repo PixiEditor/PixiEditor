@@ -15,6 +15,7 @@ using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
 using PixiEditor.ChangeableDocument.Rendering.ContextData;
 using PixiEditor.Models.Handlers;
@@ -155,7 +156,8 @@ internal class SceneRenderer
                     ChunkyImage.FullChunkSize))
                 : affectedArea;
             return RenderGraph(renderTargetSize, targetMatrix, viewportId, resolution, samplingOptions, affectedArea,
-                visibleDocumentRegion, targetOutput, viewport.IsScene, oversizeFactor, pointerInfo, editorData, finalGraph, previewTextures);
+                visibleDocumentRegion, targetOutput, viewport.IsScene, oversizeFactor, pointerInfo, editorData,
+                finalGraph, previewTextures);
         }
 
         var cachedTexture = DocumentViewModel.SceneTextures[viewportId];
@@ -239,6 +241,7 @@ internal class SceneRenderer
         context.VisibleDocumentRegion = visibleDocumentRegion;
         context.PreviewTextures = previewTextures;
         finalGraph.Execute(context);
+        //ExecuteBrushOutputPreviews(finalGraph, previewTextures, context);
 
         if (renderOnionSkinning)
         {
@@ -262,6 +265,28 @@ internal class SceneRenderer
         renderTarget.Canvas.Restore();
 
         return renderTexture;
+    }
+
+    private static void ExecuteBrushOutputPreviews(IReadOnlyNodeGraph finalGraph,
+        Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures, RenderContext ctx)
+    {
+        if (previewTextures == null || previewTextures.Count == 0)
+            return;
+
+        BrushOutputNode? brushOutputNode = null;
+        HashSet<BrushOutputNode> allBrushOutputNodes = finalGraph.AllNodes.OfType<BrushOutputNode>().ToHashSet();
+        do
+        {
+            if (previewTextures.Count > 0)
+            {
+                brushOutputNode = allBrushOutputNodes.FirstOrDefault(n => previewTextures.ContainsKey(n.Id));
+                if (brushOutputNode == null)
+                    break;
+
+                finalGraph.Execute(brushOutputNode, ctx);
+                allBrushOutputNodes.Remove(brushOutputNode);
+            }
+        } while (brushOutputNode != null && previewTextures.Count > 0);
     }
 
     private static VecI SolveRenderOutputSize(string? targetOutput, IReadOnlyNodeGraph finalGraph,
