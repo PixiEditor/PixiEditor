@@ -861,6 +861,18 @@ internal class DocumentUpdater
         {
             doc.NodeGraphHandler.UpdateAvailableRenderOutputs();
         }
+
+        if (info.Property == BrushOutputNode.BrushNameProperty)
+        {
+            if (ViewModelMain.Current.ToolsSubViewModel is ToolsViewModel toolsHandler)
+            {
+                var brush = toolsHandler.BrushLibrary.Brushes.FirstOrDefault(x => x.Key == node.Id && x.Value.Document.Id == doc.Id);
+                if (brush.Value != null)
+                {
+                    brush.Value.Name = info.Value?.ToString() ?? "Unnamed";
+                }
+            }
+        }
     }
 
     private void ProcessStructureMemberProperty(PropertyValueUpdated_ChangeInfo info, INodePropertyHandler property)
@@ -956,8 +968,11 @@ internal class DocumentUpdater
         if (ViewModelMain.Current.ToolsSubViewModel is ToolsViewModel toolsHandler)
         {
             if(ViewModelMain.Current.DocumentManagerSubViewModel.Documents.All(x => x.Id != doc.Id)) return;
+
+            string name = info.Inputs.FirstOrDefault(x => x.PropertyName == BrushOutputNode.BrushNameProperty)
+                ?.InputValue?.ToString() ?? "Unnamed";
             toolsHandler.BrushLibrary.Add(
-                new Brush(!string.IsNullOrWhiteSpace(doc.FullFilePath) ? Path.GetFileName(doc.FullFilePath) : "Unnamed", doc, info.Id));
+                new Brush(name, doc, info.Id));
         }
     }
 

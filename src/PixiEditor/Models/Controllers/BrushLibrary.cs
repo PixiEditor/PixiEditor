@@ -1,8 +1,10 @@
 ﻿using Avalonia.Platform;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.Helpers;
 using PixiEditor.Models.BrushEngine;
 using PixiEditor.Models.IO;
+using PixiEditor.ViewModels.Document.Nodes.Brushes;
 
 namespace PixiEditor.Models.Controllers;
 
@@ -38,8 +40,21 @@ internal class BrushLibrary
                     byte[] buffer = new byte[stream.Length];
                     stream.ReadExactly(buffer, 0, buffer.Length);
                     var doc = Importer.ImportDocument(buffer, null);
-                    var brush = new Brush(Path.GetFileNameWithoutExtension(localPath), doc);
-                    brushes.Add(brush.Id, brush);
+
+                    doc.Operations.InvokeCustomAction(() =>
+                    {
+                        using var graph = doc.ShareGraph();
+                        BrushOutputNode outputNode =
+                            graph.TryAccessData().AllNodes.OfType<BrushOutputNode>().FirstOrDefault();
+                        string name = Path.GetFileNameWithoutExtension(localPath);
+                        if (outputNode != null)
+                        {
+                            name = outputNode.BrushName.Value;
+                        }
+
+                        var brush = new Brush(name, doc);
+                        brushes.Add(brush.Id, brush);
+                    }, false);
                 }
                 catch (Exception ex)
                 {

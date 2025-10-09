@@ -6,5 +6,8 @@ namespace PixiEditor.ViewModels.Document.Nodes.Brushes;
 [NodeViewModel("BRUSH_OUTPUT_NODE", "BRUSHES", null)]
 internal class BrushOutputNodeViewModel : NodeViewModel<BrushOutputNode>
 {
-
+    public override void OnInitialized()
+    {
+        InputPropertyMap[BrushOutputNode.BrushNameProperty].SocketEnabled = false;
+    }
 }

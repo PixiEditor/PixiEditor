@@ -20,6 +20,7 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
     private IBrush socketBrush;
     private string errors = string.Empty;
     private bool mergeChanges = false;
+    private bool socketEnabledEnabled = true;
 
     private object computedValue;
 
@@ -151,6 +152,12 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
     }
 
     public Type PropertyType { get; }
+
+    public bool SocketEnabled
+    {
+        get => socketEnabledEnabled;
+        set => SetProperty(ref socketEnabledEnabled, value);
+    }
 
     public string? Errors
     {

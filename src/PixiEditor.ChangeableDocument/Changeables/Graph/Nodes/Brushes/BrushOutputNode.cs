@@ -12,6 +12,9 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 public class BrushOutputNode : Node
 {
     public const string NodeId = "BrushOutput";
+    public const string BrushNameProperty = "BrushName";
+
+    public InputProperty<string> BrushName { get; }
     public InputProperty<ShapeVectorData> VectorShape { get; }
     public InputProperty<Paintable> Stroke { get; }
     public InputProperty<Paintable> Fill { get; }
@@ -31,6 +34,7 @@ public class BrushOutputNode : Node
 
     public BrushOutputNode()
     {
+        BrushName = CreateInput<string>(BrushNameProperty, "NAME", "Unnamed");
         VectorShape = CreateInput<ShapeVectorData>("VectorShape", "SHAPE", null);
         Stroke = CreateInput<Paintable>("Stroke", "STROKE", null);
         Fill = CreateInput<Paintable>("Fill", "FILL", null);
