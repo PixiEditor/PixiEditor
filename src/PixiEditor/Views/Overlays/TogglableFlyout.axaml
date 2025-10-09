@@ -14,7 +14,9 @@
                     BorderThickness="{DynamicResource ThemeBorderThickness}" Padding="5"
                     x:Name="btnBorder">
                 <ToggleButton Padding="0" Margin="0"
-                              x:Name="toggleButton" BorderThickness="0" Width="24" Height="24" Background="Transparent">
+                              IsChecked="{Binding IsOpen, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                              x:Name="toggleButton" BorderThickness="0"
+                              Width="24" Height="24" Background="Transparent">
                     <ToggleButton.Template>
                         <ControlTemplate TargetType="{x:Type ToggleButton}">
                             <Grid>

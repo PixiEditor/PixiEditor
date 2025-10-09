@@ -21,11 +21,18 @@ internal class BlackboardViewModel : ViewModelBase, IBlackboardHandler
 
     public void AddVariable(VariableDefinition definition)
     {
+        if (definition == null)
+        {
+            return;
+        }
+
         internals.ActionAccumulator.AddFinishedActions(
-            new AddBlackboardVariable_Action(definition.UnderlyingType, definition.Min ?? double.NaN, definition.Max ?? double.NaN, definition.Unit));
+            new AddBlackboardVariable_Action(definition.UnderlyingType, definition.Min ?? double.NaN,
+                definition.Max ?? double.NaN, definition.Unit));
     }
 
-    public void AddVariableInternal(string name, Type type, object value, string? unit = null, double min = double.MinValue, double max = double.MaxValue)
+    public void AddVariableInternal(string name, Type type, object value, string? unit = null,
+        double min = double.MinValue, double max = double.MaxValue)
     {
         Variables.Add(new VariableViewModel(name, type, value, unit, min, max, internals));
     }

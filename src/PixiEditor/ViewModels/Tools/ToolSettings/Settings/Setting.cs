@@ -147,7 +147,7 @@ internal abstract class Setting : ObservableObject
         OnPropertyChanged(nameof(Value));
         OnPropertyChanged(nameof(IsExposed));
 
-        if (hadOverwrittenValue)
+        if (hadOverwrittenValue && old != _value)
         {
             ValueChanged?.Invoke(this, new SettingValueChangedEventArgs<object>(old, _value));
         }

@@ -12,6 +12,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -19,7 +20,7 @@
         </Grid.ColumnDefinitions>
 
         <ComboBox
-            SelectedIndex="0"
+            SelectedItem="{Binding SelectedVariableOption, RelativeSource={RelativeSource AncestorType=blackboard:BlackboardView, Mode=FindAncestor}, Mode=TwoWay}"
             ItemsSource="{Binding VariableOptions, RelativeSource={RelativeSource AncestorType=blackboard:BlackboardView, Mode=FindAncestor}}"
             Name="typeComboBox">
             <ComboBox.ItemTemplate>
@@ -28,15 +29,24 @@
                 </DataTemplate>
             </ComboBox.ItemTemplate>
         </ComboBox>
-        <Button Grid.Row="0" Grid.Column="1" Content="+" Margin="5"
+        <Button Grid.Row="0" Grid.Column="1" Margin="10,0,0,0"
+                Classes="pixi-icon"
+                Content="{DynamicResource icon-plus-square}"
                 Command="{Binding AddVariableCommand, RelativeSource={RelativeSource AncestorType=blackboard:BlackboardView, Mode=FindAncestor}}"
                 CommandParameter="{Binding SelectedItem, ElementName=typeComboBox}"/>
 
-        <ItemsControl Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+        <Separator Background="{DynamicResource ThemeControlHighBrush}" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,5"/>
+
+        <ItemsControl Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
             ItemsSource="{Binding Variables, RelativeSource={RelativeSource AncestorType=blackboard:BlackboardView, Mode=FindAncestor}}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Spacing="5" Orientation="Vertical" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <blackboard:VariableView DataContext="{Binding}" Margin="5" />
+                    <blackboard:VariableView DataContext="{Binding}" />
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>

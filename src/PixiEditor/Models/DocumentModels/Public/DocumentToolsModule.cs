@@ -85,4 +85,9 @@ internal class DocumentToolsModule
         bool force = Internals.ChangeController.GetCurrentExecutorType() == ExecutorType.ToolLinked;
         Internals.ChangeController.TryStartExecutor<VectorTextToolExecutor>(force);
     }
+
+    public bool TryStopActiveTool()
+    {
+        return Internals.ChangeController.TryStopActiveExecutor();
+    }
 }

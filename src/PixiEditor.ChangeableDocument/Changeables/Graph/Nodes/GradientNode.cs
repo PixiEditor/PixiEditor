@@ -103,9 +103,9 @@ public class GradientNode : Node
         int startIndex = ColorStops.Count;
         for (int i = startIndex; i < StopsCount.Value; i++)
         {
-            var colorInput = CreateInput<Color>($"ColorStop{i + 1}Color", $"COLOR_STOP_COLOR",
+            var colorInput = CreateInput<Color>($"ColorStopColor_{i + 1}", "COLOR_STOP_COLOR",
                 Drawie.Backend.Core.ColorsImpl.Colors.White);
-            var positionInput = CreateInput<float>($"ColorStop{i + 1}Position", $"COLOR_STOP_POSITION",
+            var positionInput = CreateInput<float>($"ColorStopPosition_{i + 1}", $"COLOR_STOP_POSITION",
                 i / (float)(StopsCount.Value - 1));
             ColorStops[colorInput] = positionInput;
         }

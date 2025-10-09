@@ -10,9 +10,11 @@
         <blackboard:VariableViewModel />
     </Design.DataContext>
 
-    <StackPanel Orientation="Horizontal" Margin="5">
-        <TextBox Text="{Binding Name, Mode=TwoWay}" Width="150" Margin="0,0,10,0"/>
-        <ContentControl Content="{Binding SettingView}" />
-        <Button Content="X" Margin="10,0,0,0" Command="{Binding RemoveCommand}" />
-    </StackPanel>
+    <Grid ColumnDefinitions="Auto,*,Auto">
+        <TextBox Grid.Column="0" Text="{Binding Name, Mode=TwoWay}" Width="150" Margin="0,0,10,0" />
+        <ContentControl Grid.Column="1" Content="{Binding SettingView}" />
+        <Button Grid.Column="2" Classes="pixi-icon"
+                Content="{DynamicResource icon-trash}"
+                Margin="10,0,0,0" Command="{Binding RemoveCommand}" />
+    </Grid>
 </UserControl>

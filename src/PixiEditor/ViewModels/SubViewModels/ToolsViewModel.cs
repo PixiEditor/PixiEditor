@@ -205,9 +205,9 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         {
             TrySelectCommonToolInNewToolSet();
         }
+
         ActiveToolSet.ApplyToolSetSettings();
         UpdateEnabledState();
-
 
         ActiveTool?.OnToolSelected(false);
 

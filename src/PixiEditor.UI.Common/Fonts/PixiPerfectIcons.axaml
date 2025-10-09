@@ -17,6 +17,7 @@
             <system:String x:Key="icon-arrow-up">&#xE927;</system:String>
             <system:String x:Key="icon-bold">&#xE9AD;</system:String>
             <system:String x:Key="icon-book">&#xE928;</system:String>
+            <system:String x:Key="icon-braces">&#xE9CF;</system:String>
             <system:String x:Key="icon-bucket">&#xE929;</system:String>
             <system:String x:Key="icon-camera">&#xE9BD;</system:String>
             <system:String x:Key="icon-canvas-resize">&#xE92A;</system:String>
@@ -167,6 +168,7 @@
             <system:String x:Key="icon-spline-chart">&#xE9BE;</system:String>
             <system:String x:Key="icon-spray">&#xE90E;</system:String>
             <system:String x:Key="icon-square">&#xE973;</system:String>
+            <system:String x:Key="icon-stamp">&#xE9CD;</system:String>
             <system:String x:Key="icon-star">&#xE99C;</system:String>
             <system:String x:Key="icon-star-filled">&#xE999;</system:String>
             <system:String x:Key="icon-star-half">&#xE9AB;</system:String>
@@ -199,6 +201,7 @@
             <system:String x:Key="icon-upload">&#xE98D;</system:String>
             <system:String x:Key="icon-upload-cloud">&#xE98E;</system:String>
             <system:String x:Key="icon-user">&#xE97B;</system:String>
+            <system:String x:Key="icon-variable">&#xE9CE;</system:String>
             <system:String x:Key="icon-vector-pen">&#xE965;</system:String>
             <system:String x:Key="icon-whole-word">&#xE9CB;</system:String>
             <system:String x:Key="icon-write">&#xE988;</system:String>

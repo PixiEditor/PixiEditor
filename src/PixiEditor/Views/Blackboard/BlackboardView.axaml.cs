@@ -2,6 +2,7 @@
 using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using PixiEditor.Models.Blackboard;
 using PixiEditor.ViewModels.Document.Blackboard;
@@ -28,6 +29,15 @@ internal partial class BlackboardView : UserControl
         set => SetValue(AddVariableCommandProperty, value);
     }
 
+    public static readonly StyledProperty<VariableDefinition> SelectedVariableOptionProperty = AvaloniaProperty.Register<BlackboardView, VariableDefinition>(
+        nameof(SelectedVariableOption));
+
+    public VariableDefinition SelectedVariableOption
+    {
+        get => GetValue(SelectedVariableOptionProperty);
+        set => SetValue(SelectedVariableOptionProperty, value);
+    }
+
     public ObservableCollection<VariableDefinition> VariableOptions { get; } = new ObservableCollection<VariableDefinition>
     {
         new VariableDefinition("DECIMAL_NUMBER", typeof(double)) { Min = double.MinValue, Max = double.MaxValue },
@@ -37,8 +47,15 @@ internal partial class BlackboardView : UserControl
         new VariableDefinition("BOOLEAN", typeof(bool)),
     };
 
+
     public BlackboardView()
     {
         InitializeComponent();
+    }
+
+    protected override void OnLoaded(RoutedEventArgs e)
+    {
+        if (SelectedVariableOption == null && VariableOptions.Count > 0)
+            SelectedVariableOption = VariableOptions[0];
     }
 }

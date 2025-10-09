@@ -143,6 +143,9 @@ namespace PixiEditor.ViewModels.Tools.Tools
 
         protected override void OnDeselecting(bool transient)
         {
+            actualToolSize = ToolSize;
+            ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.TryStopActiveTool();
+
             if (!PixelPerfectEnabled)
             {
                 return;

@@ -13,6 +13,7 @@ public static partial class PixiPerfectIcons
     public const string ArrowUp = "\uE927";
     public const string Bold = "\uE9AD";
     public const string Book = "\uE928";
+    public const string Braces = "\uE9CF";
     public const string Bucket = "\uE929";
     public const string Camera = "\uE9BD";
     public const string CanvasResize = "\uE92A";
@@ -163,6 +164,7 @@ public static partial class PixiPerfectIcons
     public const string SplineChart = "\uE9BE";
     public const string Spray = "\uE90E";
     public const string Square = "\uE973";
+    public const string Stamp = "\uE9CD";
     public const string Star = "\uE99C";
     public const string StarFilled = "\uE999";
     public const string StarHalf = "\uE9AB";
@@ -195,6 +197,7 @@ public static partial class PixiPerfectIcons
     public const string Upload = "\uE98D";
     public const string UploadCloud = "\uE98E";
     public const string User = "\uE97B";
+    public const string Variable = "\uE9CE";
     public const string VectorPen = "\uE965";
     public const string WholeWord = "\uE9CB";
     public const string Write = "\uE988";

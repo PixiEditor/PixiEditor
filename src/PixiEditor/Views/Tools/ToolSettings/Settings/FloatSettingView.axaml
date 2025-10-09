@@ -17,5 +17,5 @@
                        Decimals="{Binding DecimalPlaces}"
                        Margin="0,0,0,0" 
                        FocusNext="False"
-                       Width="40" />
+                       MinWidth="40" />
 </UserControl>
