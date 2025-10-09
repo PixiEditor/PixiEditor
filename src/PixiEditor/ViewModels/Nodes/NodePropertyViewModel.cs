@@ -42,6 +42,8 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
         set
         {
             var oldValue = _value;
+            if (oldValue.Equals(value)) return;
+
             if (MergeChanges)
             {
                 ViewModelMain.Current.NodeGraphManager.BeginUpdatePropertyValue((node, PropertyName, value));
