@@ -1183,5 +1183,7 @@
   "COLOR_STOP_COLOR": "Stop Color {0}",
   "COLOR_STOP_POSITION": "Stop Position {0}",
   "GRADIENT": "Gradient",
-  "BRUSH_SETTING": "Brush"
+  "BRUSH_SETTING": "Brush",
+  "ABSOLUTE_COORDINATES": "Absolute Coordinates",
+  "ALWAYS_CLEAR": "Always Clear"
 }

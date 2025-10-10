@@ -17,6 +17,7 @@
                  MaxLength="{Binding Path=MaxChars, ElementName=etb, Mode=TwoWay}"
                  LostFocus="TextBox_LostFocus"
                  Text="{Binding Path=Text, ElementName=etb, Mode=TwoWay}"
+                 VerticalContentAlignment="Center"
                  Padding="0" Margin="-1"
                  KeyDown="TextBox_KeyDown"
                  IsVisible="{Binding !TextBlockVisibility, ElementName=etb}"

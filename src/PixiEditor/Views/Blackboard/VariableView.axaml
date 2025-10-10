@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:blackboard="clr-namespace:PixiEditor.ViewModels.Document.Blackboard"
+             xmlns:input="clr-namespace:PixiEditor.Views.Input"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              d:DataContext="{x:Type blackboard:VariableViewModel}"
              x:Class="PixiEditor.Views.Blackboard.VariableView">
@@ -11,7 +12,7 @@
     </Design.DataContext>
 
     <Grid ColumnDefinitions="Auto,*,Auto">
-        <TextBox Grid.Column="0" Text="{Binding Name, Mode=TwoWay}" Width="150" Margin="0,0,10,0" />
+        <input:EditableTextBlock Grid.Column="0" Text="{Binding Name, Mode=TwoWay}" Width="150" Margin="0,0,10,0" />
         <ContentControl Grid.Column="1" Content="{Binding SettingView}" />
         <Button Grid.Column="2" Classes="pixi-icon"
                 Content="{DynamicResource icon-trash}"

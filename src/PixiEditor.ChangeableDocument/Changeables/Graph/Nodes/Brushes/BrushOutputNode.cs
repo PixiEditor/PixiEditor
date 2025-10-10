@@ -33,6 +33,7 @@ public class BrushOutputNode : Node
     public InputProperty<bool> FitToStrokeSize { get; }
     public InputProperty<bool> AutoPosition { get; }
     public InputProperty<bool> AllowSampleStacking { get; }
+    public InputProperty<bool> AlwaysClear { get; }
 
     internal Texture ContentTexture;
 
@@ -61,6 +62,7 @@ public class BrushOutputNode : Node
         FitToStrokeSize = CreateInput<bool>("FitToStrokeSize", "FIT_TO_STROKE_SIZE", true);
         AutoPosition = CreateInput<bool>("AutoPosition", "AUTO_POSITION", true);
         AllowSampleStacking = CreateInput<bool>("AllowSampleStacking", "ALLOW_SAMPLE_STACKING", false);
+        AlwaysClear = CreateInput<bool>("AlwaysClear", "ALWAYS_CLEAR", false);
     }
 
     protected override void OnExecute(RenderContext context)

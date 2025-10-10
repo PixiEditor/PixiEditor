@@ -23,7 +23,10 @@ internal class BrushEngine
 {
     private TextureCache cache = new();
     private VecF lastPos;
+    private VecF startPos;
     private int lastAppliedPointIndex = -1;
+
+    private bool drawnOnce = false;
 
     public void ExecuteBrush(ChunkyImage target, BrushData brushData, List<VecI> points, KeyFrameTime frameTime,
         ColorSpace cs, SamplingOptions samplingOptions, PointerInfo pointerInfo, EditorData editorData)
@@ -68,6 +71,13 @@ internal class BrushEngine
             return;
         }
 
+        if (!drawnOnce)
+        {
+            startPos = point;
+            lastPos = point;
+            drawnOnce = true;
+        }
+
         float strokeWidth = brushData.StrokeWidth;
         var rect = new RectI(point - new VecI((int)(strokeWidth / 2f)), new VecI((int)strokeWidth));
         VecI size = new VecI((int)float.Ceiling(brushData.StrokeWidth));
@@ -77,6 +87,11 @@ internal class BrushEngine
         Texture? surfaceUnderRect = null;
         Texture? fullTexture = null;
         Texture texture = null;
+
+        if (brushNode.AlwaysClear.Value)
+        {
+            target.EnqueueClear();
+        }
 
         if (requiresSampleTexture)
         {
@@ -88,9 +103,11 @@ internal class BrushEngine
             fullTexture = UpdateFullTexture(target, colorSpace, brushNode.AllowSampleStacking.Value);
         }
 
-        BrushRenderContext context = new BrushRenderContext(texture?.DrawingSurface, frameTime, ChunkResolution.Full,
-            size, size,
-            colorSpace, samplingOptions, brushData, surfaceUnderRect, fullTexture, brushData.BrushGraph)
+        BrushRenderContext context = new BrushRenderContext(
+            texture?.DrawingSurface, frameTime, ChunkResolution.Full, size, target.CommittedSize,
+            colorSpace, samplingOptions, brushData,
+            surfaceUnderRect, fullTexture, brushData.BrushGraph,
+            (VecD)startPos, (VecD)lastPos)
         {
             PointerInfo = pointerInfo, EditorData = editorData
         };
@@ -113,17 +130,21 @@ internal class BrushEngine
         var fill = brushNode.Fill.Value;
         var stroke = brushNode.Stroke.Value;
 
-        PaintBrush(target, autoPosition, vectorShape, rect, fitToStrokeSize, pressure, content, contentTexture, blendMode, antiAliasing, fill, stroke);
+        if (PaintBrush(target, autoPosition, vectorShape, rect, fitToStrokeSize, pressure, content, contentTexture,
+                blendMode, antiAliasing, fill, stroke))
+        {
+            lastPos = point;
+        }
     }
 
-    public static void PaintBrush(ChunkyImage target, bool autoPosition, ShapeVectorData vectorShape,
+    public static bool PaintBrush(ChunkyImage target, bool autoPosition, ShapeVectorData vectorShape,
         RectI rect, bool fitToStrokeSize, float pressure, Painter? content,
         Texture? contentTexture, DrawingApiBlendMode blendMode, bool antiAliasing, Paintable fill, Paintable stroke)
     {
         var path = vectorShape.ToPath(true);
         if (path == null)
         {
-            return;
+            return false;
         }
 
         if (autoPosition)
@@ -157,7 +178,7 @@ internal class BrushEngine
                 TexturePaintable brushTexturePaintable = new(new Texture(contentTexture), true);
                 target.EnqueueDrawPath(path, brushTexturePaintable, vectorShape.StrokeWidth,
                     StrokeCap.Butt, blendMode, PaintStyle.Fill, antiAliasing, null);
-                return;
+                return true;
             }
         }
 
@@ -190,6 +211,8 @@ internal class BrushEngine
             target.EnqueueDrawPath(path, stroke, vectorShape.StrokeWidth,
                 strokeCap, blendMode, strokeStyle, antiAliasing, null);
         }
+
+        return true;
     }
 
     private Texture UpdateFullTexture(ChunkyImage target, ColorSpace colorSpace, bool sampleLatest)

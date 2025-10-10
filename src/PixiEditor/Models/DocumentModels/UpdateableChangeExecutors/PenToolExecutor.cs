@@ -144,7 +144,8 @@ internal class PenToolExecutor : UpdateableChangeExecutor
         base.OnPrecisePositionChange(args);
         if (!controller.LeftMousePressed)
         {
-            var outputNode = BrushData.BrushGraph.AllNodes.FirstOrDefault(x => x.Id == brushOutputGuid) as BrushOutputNode;
+            var outputNode =
+                BrushData.BrushGraph.AllNodes.FirstOrDefault(x => x.Id == brushOutputGuid) as BrushOutputNode;
             using Texture surf = new(VecI.One);
             brushData.Value.BrushGraph.Execute(
                 outputNode,
@@ -152,8 +153,7 @@ internal class PenToolExecutor : UpdateableChangeExecutor
                     surf.Size, document.SizeBindable, document.ProcessingColorSpace, SamplingOptions.Default,
                     BrushData.BrushGraph)
                 {
-                    PointerInfo = controller.LastPointerInfo,
-                    EditorData = controller.EditorData,
+                    PointerInfo = controller.LastPointerInfo, EditorData = controller.EditorData,
                 });
         }
 

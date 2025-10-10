@@ -9,6 +9,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 public class GradientNode : Node
 {
     public InputProperty<GradientType> Type { get; }
+    public InputProperty<bool> AbsoluteCoordinates { get; }
     public InputProperty<VecD> StartPoint { get; private set; }
     public InputProperty<VecD> EndPoint { get; private set; }
     public InputProperty<VecD> CenterPoint { get; private set; }
@@ -22,6 +23,7 @@ public class GradientNode : Node
     public GradientNode()
     {
         Gradient = CreateOutput<GradientPaintable>("Gradient", "GRADIENT", null);
+        AbsoluteCoordinates = CreateInput<bool>("AbsoluteCoordinates", "ABSOLUTE_COORDINATES", false);
         Type = CreateInput<GradientType>("Type", "TYPE", GradientType.Linear)
             .NonOverridenChanged(UpdateType);
         StartPoint = CreateInput<VecD>("StartPoint", "START_POINT", new VecD(0, 0));
@@ -121,9 +123,9 @@ public class GradientNode : Node
     {
         return type switch
         {
-            GradientType.Linear => new LinearGradientPaintable(StartPoint.Value, EndPoint.Value, stops),
-            GradientType.Radial => new RadialGradientPaintable(CenterPoint.Value, Radius.Value, stops),
-            GradientType.Conical => new SweepGradientPaintable(CenterPoint.Value, Angle.Value, stops),
+            GradientType.Linear => new LinearGradientPaintable(StartPoint.Value, EndPoint.Value, stops) { AbsoluteValues = AbsoluteCoordinates.Value },
+            GradientType.Radial => new RadialGradientPaintable(CenterPoint.Value, Radius.Value, stops) { AbsoluteValues = AbsoluteCoordinates.Value },
+            GradientType.Conical => new SweepGradientPaintable(CenterPoint.Value, Angle.Value, stops) { AbsoluteValues = AbsoluteCoordinates.Value },
             _ => throw new NotImplementedException("Unknown gradient type")
         };
     }
