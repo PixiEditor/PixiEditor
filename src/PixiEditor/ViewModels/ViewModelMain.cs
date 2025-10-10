@@ -24,6 +24,7 @@ using PixiEditor.Models.Handlers;
 using PixiEditor.OperatingSystem;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document;
+using PixiEditor.ViewModels.Document.Nodes.Brushes;
 using PixiEditor.ViewModels.Menu;
 using PixiEditor.ViewModels.SubViewModels;
 using PixiEditor.ViewModels.SubViewModels.AdditionalContent;
@@ -375,6 +376,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
 
         return false;
     }
+
 
 
     public void OnShutdown(ShutdownRequestedEventArgs shutdownRequestedEventArgs, Action shutdown)

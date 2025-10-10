@@ -24,6 +24,7 @@ using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.IO;
 using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.Document;
+using PixiEditor.ViewModels.Document.Nodes.Brushes;
 using PixiEditor.ViewModels.Tools;
 using PixiEditor.ViewModels.Tools.Tools;
 using PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
@@ -134,6 +135,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         : base(owner)
     {
         owner.DocumentManagerSubViewModel.ActiveDocumentChanged += ActiveDocumentChanged;
+        Owner.BeforeDocumentClosed += OwnerOnBeforeDocumentClosed;
         PixiEditorSettings.Tools.PrimaryToolset.ValueChanged += PrimaryToolsetOnValueChanged;
         SubscribeSettingsValueChanged(PixiEditorSettings.Tools.SelectionTintingEnabled, nameof(SelectionTintingEnabled));
         BrushLibrary = new BrushLibrary(Paths.PathToBrushesFolder);
@@ -148,6 +150,23 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
                 LoadBrushLibrary();
             }
         };
+    }
+
+    private void OwnerOnBeforeDocumentClosed(DocumentViewModel doc)
+    {
+        UnregisterBrushes(doc);
+    }
+
+    private void UnregisterBrushes(DocumentViewModel document)
+    {
+        var brushNodes = document.NodeGraph.AllNodes.OfType<BrushOutputNodeViewModel>().ToList();
+        if (brushNodes != null)
+        {
+            foreach (var node in brushNodes)
+            {
+                BrushLibrary.RemoveById(node.Id);
+            }
+        }
     }
 
     private void LoadBrushLibrary()

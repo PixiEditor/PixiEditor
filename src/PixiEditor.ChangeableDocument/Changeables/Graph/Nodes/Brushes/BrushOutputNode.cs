@@ -124,11 +124,13 @@ public class BrushOutputNode : Node
         float offset = 0;
 
         int[] sizes = new int[] { 10, 25, 50 };
+        const int spacing = 10;
+        const int marginEdges = 30;
         VecD pos;
         for (var i = 0; i < sizes.Length; i++)
         {
             var size = sizes[i];
-            int x = 25 + i * 60;
+            int x = marginEdges + (int)(i * (size + spacing + (maxSize - size) / 2f));
             pos = new VecI(x, maxSize);
 
             engine.ExecuteBrush(previewChunkyImage,
@@ -146,8 +148,8 @@ public class BrushOutputNode : Node
             pos = new VecD(pos.X, pos.Y + maxSize / 2f);
 
             engine.ExecuteBrush(previewChunkyImage,
-                new BrushData(context.Graph) { StrokeWidth = maxSize, AntiAliasing = true, Spacing = 15 },
-                (VecI)pos, context.FrameTime, context.ProcessingColorSpace, context.DesiredSamplingOptions,
+                new BrushData(context.Graph) { StrokeWidth = maxSize, AntiAliasing = true, Spacing = 0.15f },
+                [(VecI)pos], context.FrameTime, context.ProcessingColorSpace, context.DesiredSamplingOptions,
                 new PointerInfo(pos, pressure, 0, VecD.Zero, vec4D.ZW),
                 new EditorData(Colors.White, Colors.Black));
 

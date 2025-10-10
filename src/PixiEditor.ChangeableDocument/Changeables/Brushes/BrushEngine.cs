@@ -36,7 +36,7 @@ internal class BrushEngine
         for (int i = Math.Max(lastAppliedPointIndex, 0); i < points.Count; i++)
         {
             var point = points[i];
-            if (points.Count > 1 && VecF.Distance(lastPos, point) < spacingPixels)
+            if (VecF.Distance(lastPos, point) < spacingPixels)
                 continue;
 
             ExecuteVectorShapeBrush(target, brushData, point, frameTime, cs, samplingOptions, pointerInfo, editorData);
