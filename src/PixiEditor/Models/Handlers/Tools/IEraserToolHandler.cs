@@ -1,6 +1,6 @@
 ﻿namespace PixiEditor.Models.Handlers.Tools;
 
-internal interface IEraserToolHandler : IToolHandler
+internal interface IEraserToolHandler : IBrushToolHandler
 {
     public double ToolSize { get; }
 }

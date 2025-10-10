@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using Avalonia.Media;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.AnimationRenderer.Core;
 using PixiEditor.AnimationRenderer.FFmpeg;

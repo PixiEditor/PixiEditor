@@ -15,55 +15,28 @@ using PixiEditor.Views.Overlays.BrushShapeOverlay;
 namespace PixiEditor.ViewModels.Tools.Tools;
 
 [Command.Tool(Key = Key.E)]
-internal class EraserToolViewModel : ToolViewModel, IEraserToolHandler
+internal class EraserToolViewModel : BrushBasedToolViewModel, IEraserToolHandler
 {
     public EraserToolViewModel()
     {
         ActionDisplay = "ERASER_TOOL_ACTION_DISPLAY";
-        Toolbar = ToolbarFactory.Create<EraserToolViewModel, PenToolbar>(this);
+        //Toolbar = ToolbarFactory.Create<EraserToolViewModel, PenToolbar>(this);
     }
-
-    [Settings.Inherited] public double ToolSize => GetValue<double>();
 
     public override bool IsErasable => true;
 
     public override string ToolNameLocalizationKey => "ERASER_TOOL";
-    //TODO: PaintShape == PaintBrushShape.Square ? BrushShape.Square : BrushShapeSetting;
-    public override Type[]? SupportedLayerTypes { get; } = { typeof(IRasterLayerHandler) };
-
     public override string DefaultIcon => PixiPerfectIcons.Eraser;
 
     public override LocalizedString Tooltip => new LocalizedString("ERASER_TOOL_TOOLTIP", Shortcut);
 
-    public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(ImageLayerNode);
-
-    [Settings.Enum("BRUSH_SHAPE_SETTING", BrushShape.CirclePixelated, ExposedByDefault = false,
-        Notify = nameof(BrushShapeChanged))]
-    public BrushShape BrushShapeSetting => GetValue<BrushShape>();
-
-    [Settings.Inherited(Notify = nameof(PenShapeChanged))]
-    public PaintBrushShape PaintShape
+    protected override Toolbar CreateToolbar()
     {
-        get => GetValue<PaintBrushShape>();
-        set
-        {
-            SetValue(value);
-            OnPropertyChanged(nameof(FinalBrushShape));
-        }
+        return ToolbarFactory.Create<EraserToolViewModel, BrushToolbar>(this);
     }
 
-    public override void UseTool(VecD pos)
+    protected override void SwitchToTool()
     {
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseEraserTool();
-    }
-
-    private void BrushShapeChanged()
-    {
-        OnPropertyChanged(nameof(FinalBrushShape));
-    }
-
-    private void PenShapeChanged()
-    {
-        OnPropertyChanged(nameof(FinalBrushShape));
     }
 }

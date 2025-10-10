@@ -54,17 +54,6 @@ internal class BrightnessToolViewModel : ToolViewModel, IBrightnessToolHandler
     [Settings.Enum("MODE_LABEL")]
     public BrightnessMode BrightnessMode => GetValue<BrightnessMode>();
 
-    [Settings.Enum("PAINT_SHAPE_SETTING", PaintBrushShape.Circle, Notify = nameof(BrushShapeChanged))]
-    public PaintBrushShape BrushShape
-    {
-        get => GetValue<PaintBrushShape>();
-        set
-        {
-            SetValue(value);
-            OnPropertyChanged(nameof(FinalBrushShape));
-        }
-    }
-    
     public bool Darken { get; private set; } = false;
 
     float IBrightnessToolHandler.CorrectionFactor => CorrectionFactor;

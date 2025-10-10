@@ -72,7 +72,9 @@ internal class BrushEngine
             return;
         }
 
-        var blendMode = RenderContext.GetDrawingBlendMode(brushNode.BlendMode.Value);
+        bool shouldErase = editorData.PrimaryColor.A == 0;
+
+        var blendMode = RenderContext.GetDrawingBlendMode(shouldErase ? BlendMode.Erase : brushNode.BlendMode.Value);
 
         if (!drawnOnce)
         {
@@ -113,7 +115,9 @@ internal class BrushEngine
             surfaceUnderRect, fullTexture, brushData.BrushGraph,
             (VecD)startPos, (VecD)lastPos)
         {
-            PointerInfo = pointerInfo, EditorData = editorData
+            PointerInfo = pointerInfo, EditorData = shouldErase ?
+                new EditorData(editorData.PrimaryColor.WithAlpha(255), editorData.SecondaryColor)
+                : editorData
         };
 
         brushData.BrushGraph.Execute(brushNode, context);

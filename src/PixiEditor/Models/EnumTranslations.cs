@@ -128,5 +128,3 @@ using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 [assembly: LocalizeEnum<GradientType>(GradientType.Linear, "LINEAR_GRADIENT_TYPE")]
 [assembly: LocalizeEnum<GradientType>(GradientType.Radial, "RADIAL_GRADIENT_TYPE")]
 [assembly: LocalizeEnum<GradientType>(GradientType.Conical, "CONICAL_GRADIENT_TYPE")]
-[assembly: LocalizeEnum<PaintBrushShape>(PaintBrushShape.Circle, "PAINT_BRUSH_SHAPE_CIRCLE")]
-[assembly: LocalizeEnum<PaintBrushShape>(PaintBrushShape.Square, "PAINT_BRUSH_SHAPE_SQUARE")]

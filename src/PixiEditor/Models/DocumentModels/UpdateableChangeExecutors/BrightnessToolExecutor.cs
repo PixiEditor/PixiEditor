@@ -32,8 +32,6 @@ internal class BrightnessToolExecutor : UpdateableChangeExecutor
         toolSize = (int)toolbar.ToolSize;
         correctionFactor = tool.Darken || tool.UsedWith == MouseButton.Right ? -tool.CorrectionFactor : tool.CorrectionFactor;
 
-        squareBrush = tool.BrushShape == PaintBrushShape.Square;
-
         ChangeBrightness_Action action = new(guidValue, controller!.LastPixelPosition, correctionFactor, toolSize, squareBrush, repeat, document.AnimationHandler.ActiveFrameBindable);
         internals!.ActionAccumulator.AddActions(action);
 

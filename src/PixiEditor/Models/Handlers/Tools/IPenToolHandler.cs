@@ -1,9 +1,6 @@
-﻿using Drawie.Backend.Core.Vector;
+﻿namespace PixiEditor.Models.Handlers.Tools;
 
-namespace PixiEditor.Models.Handlers.Tools;
-
-internal interface IPenToolHandler : IToolHandler
+internal interface IPenToolHandler : IBrushToolHandler
 {
     public bool PixelPerfectEnabled { get; }
-    VectorPath? FinalBrushShape { get; set; }
 }

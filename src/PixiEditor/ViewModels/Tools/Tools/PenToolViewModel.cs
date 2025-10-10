@@ -19,86 +19,35 @@ using PixiEditor.Views.Overlays.BrushShapeOverlay;
 namespace PixiEditor.ViewModels.Tools.Tools
 {
     [Command.Tool(Key = Key.B)]
-    internal class PenToolViewModel : ShapeTool, IPenToolHandler
+    internal class PenToolViewModel : BrushBasedToolViewModel, IPenToolHandler
     {
-        private List<Setting> brushShapeSettings = new();
         private double actualToolSize = 1;
 
         public override string ToolNameLocalizationKey => "PEN_TOOL";
 
-        /*
-        PaintShape == PaintBrushShape.Square ? BrushShape.Square : BrushShapeSetting;
-        */
-
-        public override Type[]? SupportedLayerTypes { get; } = { typeof(IRasterLayerHandler) };
-
         public PenToolViewModel()
         {
-            Cursor = Cursors.PreciseCursor;
-            Toolbar = ToolbarFactory.Create<PenToolViewModel, PenToolbar>(this);
-            (Toolbar as PenToolbar).SettingChanged += OnSettingChanged;
-
             ViewModelMain.Current.ToolsSubViewModel.SelectedToolChanged += SelectedToolChanged;
-        }
-
-        private void OnSettingChanged(string name, object value)
-        {
-            if (name == nameof(PenToolbar.Brush))
-            {
-                AddBrushShapeSettings();
-            }
         }
 
         public override LocalizedString Tooltip => new LocalizedString("PEN_TOOL_TOOLTIP", Shortcut);
 
-        [Settings.Inherited] public double ToolSize => GetValue<double>();
-
         [Settings.Bool("PIXEL_PERFECT_SETTING", Notify = nameof(PixelPerfectChanged), ExposedByDefault = false)]
         public bool PixelPerfectEnabled => GetValue<bool>();
 
-        [Settings.Enum("BRUSH_SHAPE_SETTING", BrushShape.CirclePixelated, ExposedByDefault = false,
-            Notify = nameof(BrushShapeChanged))]
-        public BrushShape BrushShapeSetting
-        {
-            get
-            {
-                return GetValue<BrushShape>();
-            }
-            set
-            {
-                SetValue(value);
-                OnPropertyChanged(nameof(FinalBrushShape));
-            }
-        }
-
-        [Settings.Inherited(Notify = nameof(PenShapeChanged))]
-        public PaintBrushShape PaintShape => GetValue<PaintBrushShape>();
-
         public override string DefaultIcon => PixiPerfectIcons.Pen;
-
-        public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(ImageLayerNode);
 
         public override void KeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown, Key argsKey)
         {
             ActionDisplay = new LocalizedString("PEN_TOOL_ACTION_DISPLAY", Shortcut);
         }
 
-        public override void UseTool(VecD pos)
+        protected override Toolbar CreateToolbar()
         {
-            ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UsePenTool();
+            return ToolbarFactory.Create<PenToolViewModel, BrushToolbar>(this);
         }
 
-        public void OnToolSelected(bool restoring)
-        {
-            ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UsePenTool();
-        }
-
-        public void OnPostUndoInlet()
-        {
-            ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UsePenTool();
-        }
-
-        public override void OnPostRedoInlet()
+        protected override void SwitchToTool()
         {
             ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UsePenTool();
         }
@@ -107,7 +56,7 @@ namespace PixiEditor.ViewModels.Tools.Tools
         {
             if (e.NewTool == this && PixelPerfectEnabled)
             {
-                var toolbar = (PenToolbar)Toolbar;
+                var toolbar = (BrushToolbar)Toolbar;
                 var setting = toolbar.Settings.FirstOrDefault(x => x.Name == nameof(toolbar.ToolSize));
                 if (setting is SizeSettingViewModel sizeSetting)
                 {
@@ -120,7 +69,7 @@ namespace PixiEditor.ViewModels.Tools.Tools
                 return;
             }
 
-            if (e.OldTool is not { Toolbar: PenToolbar oldToolbar })
+            if (e.OldTool is not { Toolbar: BrushToolbar oldToolbar })
             {
                 return;
             }
@@ -143,15 +92,15 @@ namespace PixiEditor.ViewModels.Tools.Tools
 
         protected override void OnDeselecting(bool transient)
         {
-            actualToolSize = ToolSize;
-            ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.TryStopActiveTool();
+            base.OnDeselecting(transient);
 
+            actualToolSize = ToolSize;
             if (!PixelPerfectEnabled)
             {
                 return;
             }
 
-            var toolbar = (PenToolbar)Toolbar;
+            var toolbar = (BrushToolbar)Toolbar;
             var setting = toolbar.Settings.FirstOrDefault(x => x.Name == nameof(toolbar.ToolSize));
             if (setting is SizeSettingViewModel sizeSetting)
             {
@@ -161,7 +110,7 @@ namespace PixiEditor.ViewModels.Tools.Tools
 
         private void PixelPerfectChanged()
         {
-            var toolbar = (PenToolbar)Toolbar;
+            var toolbar = (BrushToolbar)Toolbar;
             var setting = toolbar.Settings.FirstOrDefault(x => x.Name == nameof(toolbar.ToolSize));
 
             if (setting is SizeSettingViewModel sizeSettingViewModel)
@@ -178,40 +127,6 @@ namespace PixiEditor.ViewModels.Tools.Tools
                     sizeSettingViewModel.Value = actualToolSize;
                 }
             }
-        }
-
-        private void BrushShapeChanged()
-        {
-            OnPropertyChanged(nameof(FinalBrushShape));
-        }
-
-        private void AddBrushShapeSettings()
-        {
-            foreach (var setting in brushShapeSettings)
-            {
-                Toolbar.RemoveSetting(setting);
-            }
-
-            brushShapeSettings.Clear();
-
-            var blackboard = ((PenToolbar)Toolbar).Brush?.Document?.NodeGraphHandler?.Blackboard;
-            if (blackboard is null)
-                return;
-
-            foreach (var blackboardVariable in blackboard.Variables)
-            {
-                if (blackboardVariable is VariableViewModel varVm)
-                {
-                    Toolbar.AddSetting(varVm.SettingView);
-                    brushShapeSettings.Add(varVm.SettingView);
-                }
-            }
-        }
-
-        private void PenShapeChanged()
-        {
-            OnPropertyChanged(nameof(PaintShape));
-            OnPropertyChanged(nameof(FinalBrushShape));
         }
     }
 }
