@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:blackboard="clr-namespace:PixiEditor.ViewModels.Document.Blackboard"
              xmlns:input="clr-namespace:PixiEditor.Views.Input"
+             xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              d:DataContext="{x:Type blackboard:VariableViewModel}"
              x:Class="PixiEditor.Views.Blackboard.VariableView">
@@ -12,7 +13,24 @@
     </Design.DataContext>
 
     <Grid ColumnDefinitions="Auto,*,Auto">
-        <input:EditableTextBlock Grid.Column="0" Text="{Binding Name, Mode=TwoWay}" Width="150" Margin="0,0,10,0" />
+        <Grid.Styles>
+            <Style Selector="input|EditableTextBlock Border">
+                <Setter Property="Background" Value="{DynamicResource GlyphBrush}"/>
+                <Setter Property="HorizontalAlignment" Value="Left"/>
+                <Setter Property="Padding" Value="5"/>
+                <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
+                <Setter Property="Cursor" Value="Hand"/>
+            </Style>
+        </Grid.Styles>
+            <input:EditableTextBlock Grid.Column="0" Text="{Binding Name, Mode=TwoWay}"
+                                     Width="150" Margin="0,0,10,0" Name="name">
+                <input:EditableTextBlock.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem localization:Translator.Key="RENAME"
+                                  Command="{Binding ElementName=name, Path=EnableEditing}"/>
+                    </ContextMenu>
+                </input:EditableTextBlock.ContextMenu>
+            </input:EditableTextBlock>
         <ContentControl Grid.Column="1" Content="{Binding SettingView}" />
         <Button Grid.Column="2" Classes="pixi-icon"
                 Content="{DynamicResource icon-trash}"

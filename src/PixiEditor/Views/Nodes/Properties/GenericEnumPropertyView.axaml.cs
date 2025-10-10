@@ -13,12 +13,6 @@ public partial class GenericEnumPropertyView : NodePropertyView
         InitializeComponent();
     }
 
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
-    {
-        base.OnApplyTemplate(e);
-        HideSocket(true, false);
-    }
-
     private void InputElement_OnPointerPressed(object? sender, PointerPressedEventArgs e)
     {
         e.Handled = true;

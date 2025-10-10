@@ -120,6 +120,7 @@ public class BrushOutputNode : Node
 
         BrushEngine engine = new BrushEngine();
         previewChunkyImage.EnqueueClear();
+        previewChunkyImage.CommitChanges();
 
         float pressure;
         int maxSize = 50;

@@ -15,6 +15,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.ChangeableDocument.Rendering.ContextData;
+using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 using DrawingApiBlendMode = Drawie.Backend.Core.Surfaces.BlendMode;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Brushes;
@@ -71,11 +72,14 @@ internal class BrushEngine
             return;
         }
 
+        var blendMode = RenderContext.GetDrawingBlendMode(brushNode.BlendMode.Value);
+
         if (!drawnOnce)
         {
             startPos = point;
             lastPos = point;
             drawnOnce = true;
+            target.SetBlendMode(blendMode);
         }
 
         float strokeWidth = brushData.StrokeWidth;
@@ -123,7 +127,6 @@ internal class BrushEngine
         bool autoPosition = brushNode.AutoPosition.Value;
         bool fitToStrokeSize = brushNode.FitToStrokeSize.Value;
         float pressure = brushNode.Pressure.Value;
-        var blendMode = RenderContext.GetDrawingBlendMode(brushNode.BlendMode.Value);
         var content = brushNode.Content.Value;
         var contentTexture = brushNode.ContentTexture;
         bool antiAliasing = brushData.AntiAliasing;
@@ -131,7 +134,7 @@ internal class BrushEngine
         var stroke = brushNode.Stroke.Value;
 
         if (PaintBrush(target, autoPosition, vectorShape, rect, fitToStrokeSize, pressure, content, contentTexture,
-                blendMode, antiAliasing, fill, stroke))
+                DrawingApiBlendMode.SrcOver, antiAliasing, fill, stroke))
         {
             lastPos = point;
         }

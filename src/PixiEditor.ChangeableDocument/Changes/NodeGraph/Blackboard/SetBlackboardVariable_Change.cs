@@ -31,7 +31,7 @@ internal class SetBlackboardVariable_Change : Change
             return false;
 
         if (target.NodeGraph.Blackboard.Variables.TryGetValue(variable, out var blackboardVariable) &&
-            blackboardVariable.Type != value.GetType())
+            blackboardVariable.Type != value.GetType() && !TryConvert(blackboardVariable.Type, ref value))
             return false;
 
         if (blackboardVariable == null && value == null)
@@ -41,6 +41,23 @@ internal class SetBlackboardVariable_Change : Change
         existsInBlackboard = blackboardVariable != null;
 
         return true;
+    }
+
+    private bool TryConvert(Type targetType, ref object val)
+    {
+        try
+        {
+            if (val is IConvertible)
+            {
+                val = Convert.ChangeType(val, targetType);
+                return true;
+            }
+            return false;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
@@ -57,7 +74,7 @@ internal class SetBlackboardVariable_Change : Change
         var oldVar = target.NodeGraph.Blackboard.Variables[variable];
         target.NodeGraph.Blackboard.SetVariable(variable, oldVar.Type, value, oldVar.Unit, min, max);
 
-        return new BlackboardVariable_ChangeInfo(variable, oldVar.Type, oldVar.Value, oldVar.Min ?? double.MinValue, oldVar.Max ?? double.MaxValue, oldVar.Unit);
+        return new BlackboardVariable_ChangeInfo(variable, oldVar.Type, value, oldVar.Min ?? double.MinValue, oldVar.Max ?? double.MaxValue, oldVar.Unit);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)

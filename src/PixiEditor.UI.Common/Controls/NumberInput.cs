@@ -11,6 +11,7 @@ using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Xaml.Interactivity;
 using PixiEditor.UI.Common.Behaviors;
+using PixiEditor.UI.Common.Extensions;
 using Action = System.Action;
 
 namespace PixiEditor.UI.Common.Controls;

@@ -16,6 +16,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.Models.BrushEngine;
 using PixiEditor.Models.Controllers.InputDevice;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
@@ -33,7 +34,6 @@ internal class PenToolExecutor : UpdateableChangeExecutor
     private bool drawOnMask;
     private bool pixelPerfect;
     private bool antiAliasing;
-    private bool transparentErase;
 
     private InputProperty<ShapeVectorData> vectorShapeInput;
 
@@ -69,18 +69,14 @@ internal class PenToolExecutor : UpdateableChangeExecutor
             colorsHandler.AddSwatch(new PaletteColor(color.R, color.G, color.B));
         }
 
-        if (toolbar.Brush == null)
-            return ExecutionState.Error;
-
         UpdateBrushNodes();
 
-        transparentErase = color.A == 0;
         if (controller.LeftMousePressed)
         {
             IAction? action = pixelPerfect switch
             {
-                false => new LineBasedPen_Action(guidValue, color, controller!.LastPixelPosition, (float)ToolSize,
-                    transparentErase, antiAliasing, Spacing, BrushData, drawOnMask,
+                false => new LineBasedPen_Action(guidValue, controller!.LastPixelPosition, (float)ToolSize,
+                     antiAliasing, Spacing, BrushData, drawOnMask,
                     document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo, controller.EditorData),
                 true => new PixelPerfectPen_Action(guidValue, controller!.LastPixelPosition, color, drawOnMask,
                     document!.AnimationHandler.ActiveFrameBindable)
@@ -110,6 +106,11 @@ internal class PenToolExecutor : UpdateableChangeExecutor
 
     private BrushData GetBrushFromToolbar(IPenToolbar toolbar)
     {
+        Brush? brush = toolbar.Brush;
+        if (brush == null)
+        {
+            return new BrushData();
+        }
         var pipe = toolbar.Brush.Document.ShareGraph();
         var data = new BrushData(pipe.TryAccessData());
         pipe.Dispose();
@@ -130,8 +131,8 @@ internal class PenToolExecutor : UpdateableChangeExecutor
         base.OnLeftMouseButtonDown(args);
         IAction? action = pixelPerfect switch
         {
-            false => new LineBasedPen_Action(guidValue, color, controller!.LastPixelPosition, (float)ToolSize,
-                transparentErase, antiAliasing, Spacing, BrushData, drawOnMask,
+            false => new LineBasedPen_Action(guidValue, controller!.LastPixelPosition, (float)ToolSize,
+                antiAliasing, Spacing, BrushData, drawOnMask,
                 document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo, controller.EditorData),
             true => new PixelPerfectPen_Action(guidValue, controller!.LastPixelPosition, color, drawOnMask,
                 document!.AnimationHandler.ActiveFrameBindable)
@@ -166,7 +167,7 @@ internal class PenToolExecutor : UpdateableChangeExecutor
         {
             IAction? action = pixelPerfect switch
             {
-                false => new LineBasedPen_Action(guidValue, color, pos, (float)ToolSize, transparentErase, antiAliasing,
+                false => new LineBasedPen_Action(guidValue, pos, (float)ToolSize, antiAliasing,
                     Spacing, BrushData, drawOnMask, document!.AnimationHandler.ActiveFrameBindable,
                     controller.LastPointerInfo, controller.EditorData),
                 true => new PixelPerfectPen_Action(guidValue, pos, color, drawOnMask,

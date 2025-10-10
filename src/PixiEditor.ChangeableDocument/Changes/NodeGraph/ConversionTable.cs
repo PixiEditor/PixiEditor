@@ -115,6 +115,32 @@ public static class ConversionTable
             return true;
         }
 
+
+        if (targetType.IsEnum)
+        {
+            if (arg is string enumStr)
+            {
+                return Enum.TryParse(targetType, enumStr, true, out result);
+            }
+
+            if (TryConvert(arg, Enum.GetUnderlyingType(targetType), out var underlyingValue))
+            {
+                try
+                {
+                    result = Enum.ToObject(targetType, underlyingValue);
+                    return true;
+                }
+                catch
+                {
+                    result = null;
+                    return false;
+                }
+            }
+
+            result = null;
+            return false;
+        }
+
         if (_conversionTable.TryGetValue(arg.GetType(), out var converters))
         {
             foreach (var (outType, converter) in converters)

@@ -22,15 +22,12 @@ namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 internal class LineBasedPen_UpdateableChange : UpdateableChange
 {
     private readonly Guid memberGuid;
-    private readonly Color color;
     private float strokeWidth;
-    private readonly bool erasing;
     private readonly bool drawOnMask;
     private readonly bool antiAliasing;
     private BrushData brushData;
     private BrushEngine engine = new BrushEngine();
     private float spacing = 1;
-    private readonly Paint srcPaint = new Paint() { BlendMode = BlendMode.Src };
 
     private CommittedChunkStorage? storedChunks;
     private readonly List<VecI> points = new();
@@ -40,16 +37,14 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     private EditorData editorData;
 
     [GenerateUpdateableChangeActions]
-    public LineBasedPen_UpdateableChange(Guid memberGuid, Color color, VecI pos, float strokeWidth, bool erasing,
+    public LineBasedPen_UpdateableChange(Guid memberGuid, VecI pos, float strokeWidth,
         bool antiAliasing,
         float spacing,
         BrushData brushData,
         bool drawOnMask, int frame, PointerInfo pointerInfo, EditorData editorData)
     {
         this.memberGuid = memberGuid;
-        this.color = color;
         this.strokeWidth = strokeWidth;
-        this.erasing = erasing;
         this.antiAliasing = antiAliasing;
         this.drawOnMask = drawOnMask;
         this.spacing = spacing;
@@ -58,22 +53,6 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         this.frame = frame;
         this.pointerInfo = pointerInfo;
         this.editorData = editorData;
-
-        srcPaint.Shader?.Dispose();
-        srcPaint.Shader = null;
-
-        if (this.antiAliasing && !erasing)
-        {
-            srcPaint.BlendMode = BlendMode.SrcOver;
-        }
-        else if (erasing)
-        {
-            srcPaint.BlendMode = BlendMode.DstOut;
-            if (this.color.A == 0)
-            {
-                this.color = color.WithAlpha(255);
-            }
-        }
     }
 
     [UpdateChangeMethod]
@@ -99,10 +78,8 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         if (strokeWidth < 1)
             return false;
         var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame);
-        if (!erasing)
-            image.SetBlendMode(BlendMode.SrcOver);
+
         DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, image, memberGuid, drawOnMask);
-        srcPaint.IsAntiAliased = antiAliasing;
 
         brushOutputNode = brushData.BrushGraph?.AllNodes.FirstOrDefault(x => x is BrushOutputNode) as BrushOutputNode;
         UpdateBrushData();
@@ -178,8 +155,6 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         }
         else
         {
-            if (!erasing)
-                image.SetBlendMode(BlendMode.SrcOver);
             DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, image, memberGuid, drawOnMask);
 
             FastforwardEnqueueDrawLines(image, frame);
@@ -204,6 +179,5 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     public override void Dispose()
     {
         storedChunks?.Dispose();
-        srcPaint.Dispose();
     }
 }

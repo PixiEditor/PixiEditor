@@ -77,6 +77,19 @@ internal abstract class Setting : ObservableObject
         set
         {
             var old = _value;
+
+            if(value != null && _value != null && value.GetType() != _value.GetType())
+            {
+                try
+                {
+                    value = Convert.ChangeType(value, _value.GetType());
+                }
+                catch
+                {
+                    // ignored
+                }
+            }
+
             if (SetProperty(ref _value, value))
             {
                 ValueChanged?.Invoke(this, new SettingValueChangedEventArgs<object>(old, value));
