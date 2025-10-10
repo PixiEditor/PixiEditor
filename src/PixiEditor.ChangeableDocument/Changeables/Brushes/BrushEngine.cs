@@ -90,7 +90,7 @@ internal class BrushEngine
 
         BrushRenderContext context = new BrushRenderContext(texture?.DrawingSurface, frameTime, ChunkResolution.Full,
             size, size,
-            colorSpace, samplingOptions, brushData, surfaceUnderRect, fullTexture, brushData.BrushGraph.Blackboard)
+            colorSpace, samplingOptions, brushData, surfaceUnderRect, fullTexture, brushData.BrushGraph)
         {
             PointerInfo = pointerInfo, EditorData = editorData
         };

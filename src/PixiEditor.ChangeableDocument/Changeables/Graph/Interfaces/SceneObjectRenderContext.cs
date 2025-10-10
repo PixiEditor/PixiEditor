@@ -13,7 +13,7 @@ public class SceneObjectRenderContext : RenderContext
     public RenderOutputProperty TargetPropertyOutput { get; }
 
     public SceneObjectRenderContext(RenderOutputProperty targetPropertyOutput, DrawingSurface surface, RectD localBounds, KeyFrameTime frameTime,
-        ChunkResolution chunkResolution, VecI renderOutputSize, VecI documentSize, bool renderSurfaceIsScene, ColorSpace processingColorSpace, SamplingOptions desiredSampling, IReadOnlyBlackboard blackboard, double opacity) : base(surface, frameTime, chunkResolution, renderOutputSize, documentSize, processingColorSpace, desiredSampling, blackboard, opacity)
+        ChunkResolution chunkResolution, VecI renderOutputSize, VecI documentSize, bool renderSurfaceIsScene, ColorSpace processingColorSpace, SamplingOptions desiredSampling, IReadOnlyNodeGraph graph, double opacity) : base(surface, frameTime, chunkResolution, renderOutputSize, documentSize, processingColorSpace, desiredSampling, graph, opacity)
     {
         TargetPropertyOutput = targetPropertyOutput;
         LocalBounds = localBounds;
@@ -22,7 +22,7 @@ public class SceneObjectRenderContext : RenderContext
 
     public override RenderContext Clone()
     {
-        return new SceneObjectRenderContext(TargetPropertyOutput, RenderSurface, LocalBounds, FrameTime, ChunkResolution, RenderOutputSize, DocumentSize, RenderSurfaceIsScene, ProcessingColorSpace, DesiredSamplingOptions, Blackboard, Opacity)
+        return new SceneObjectRenderContext(TargetPropertyOutput, RenderSurface, LocalBounds, FrameTime, ChunkResolution, RenderOutputSize, DocumentSize, RenderSurfaceIsScene, ProcessingColorSpace, DesiredSamplingOptions, Graph, Opacity)
         {
             VisibleDocumentRegion = VisibleDocumentRegion,
             AffectedArea = AffectedArea,

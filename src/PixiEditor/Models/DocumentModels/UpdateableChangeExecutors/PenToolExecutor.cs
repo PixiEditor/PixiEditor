@@ -150,7 +150,7 @@ internal class PenToolExecutor : UpdateableChangeExecutor
                 outputNode,
                 new RenderContext(surf.DrawingSurface, document.AnimationHandler.ActiveFrameTime, ChunkResolution.Full,
                     surf.Size, document.SizeBindable, document.ProcessingColorSpace, SamplingOptions.Default,
-                    BrushData.BrushGraph.Blackboard)
+                    BrushData.BrushGraph)
                 {
                     PointerInfo = controller.LastPointerInfo,
                     EditorData = controller.EditorData,

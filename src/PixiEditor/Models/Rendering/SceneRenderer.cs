@@ -6,6 +6,7 @@ using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Bridge;
+using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
@@ -101,6 +102,7 @@ internal class SceneRenderer
             Id = Guid.NewGuid(),
             Resolution = ChunkResolution.Full,
             Sampling = SamplingOptions.Bilinear,
+            EditorData = new EditorData(Colors.White, Colors.Black),
             VisibleDocumentRegion = null,
             RenderOutput = "DEFAULT",
             Delayed = false
@@ -224,7 +226,7 @@ internal class SceneRenderer
 
                 double finalOpacity = onionOpacity * alphaFalloffMultiplier * (animationData.OnionFrames - i + 1);
                 RenderContext onionContext = new(renderTarget, frame, resolution, finalSize, Document.Size,
-                    Document.ProcessingColorSpace, samplingOptions, Document.Blackboard, finalOpacity);
+                    Document.ProcessingColorSpace, samplingOptions, Document.NodeGraph, finalOpacity);
                 onionContext.TargetOutput = targetOutput;
                 onionContext.VisibleDocumentRegion = visibleDocumentRegion;
                 finalGraph.Execute(onionContext);
@@ -232,7 +234,7 @@ internal class SceneRenderer
         }
 
         RenderContext context = new(renderTarget, DocumentViewModel.AnimationHandler.ActiveFrameTime,
-            resolution, finalSize, Document.Size, Document.ProcessingColorSpace, samplingOptions, Document.Blackboard);
+            resolution, finalSize, Document.Size, Document.ProcessingColorSpace, samplingOptions, Document.NodeGraph);
         context.PointerInfo = pointerInfo;
         context.EditorData = editorData;
 
@@ -241,7 +243,7 @@ internal class SceneRenderer
         context.VisibleDocumentRegion = visibleDocumentRegion;
         context.PreviewTextures = previewTextures;
         finalGraph.Execute(context);
-        //ExecuteBrushOutputPreviews(finalGraph, previewTextures, context);
+        ExecuteBrushOutputPreviews(finalGraph, previewTextures, context);
 
         if (renderOnionSkinning)
         {
@@ -255,7 +257,7 @@ internal class SceneRenderer
 
                 double finalOpacity = onionOpacity * alphaFalloffMultiplier * (animationData.OnionFrames - i + 1);
                 RenderContext onionContext = new(renderTarget, frame, resolution, finalSize, Document.Size,
-                    Document.ProcessingColorSpace, samplingOptions, Document.Blackboard, finalOpacity);
+                    Document.ProcessingColorSpace, samplingOptions, Document.NodeGraph, finalOpacity);
                 onionContext.TargetOutput = targetOutput;
                 onionContext.VisibleDocumentRegion = visibleDocumentRegion;
                 finalGraph.Execute(onionContext);

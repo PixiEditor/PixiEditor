@@ -14,6 +14,7 @@ using PixiEditor.Models.Position;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Rendering.ContextData;
 using PixiEditor.Models.Rendering;
+using PixiEditor.ViewModels;
 using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.Views.Main.ViewportControls;
@@ -143,7 +144,7 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
             new VecD(Bounds.Width, Bounds.Height),
             scaling,
             new PointerInfo(),
-            new EditorData(),
+            ViewModelMain.Current.GetEditorData(), // TODO: Remove singleton
             null,
             "DEFAULT",
             CalculateSampling(),

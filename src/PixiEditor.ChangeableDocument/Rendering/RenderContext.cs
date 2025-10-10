@@ -4,6 +4,7 @@ using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering.ContextData;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 using DrawingApiBlendMode = Drawie.Backend.Core.Surfaces.BlendMode;
@@ -29,10 +30,10 @@ public class RenderContext
     public string? TargetOutput { get; set; }
     public AffectedArea AffectedArea { get; set; }
     public Dictionary<Guid, List<PreviewRenderRequest>>? PreviewTextures { get; set; }
-    public IReadOnlyBlackboard Blackboard { get; set; }
+    public IReadOnlyNodeGraph Graph { get; set; }
 
     public RenderContext(DrawingSurface renderSurface, KeyFrameTime frameTime, ChunkResolution chunkResolution,
-        VecI renderOutputSize, VecI documentSize, ColorSpace processingColorSpace, SamplingOptions desiredSampling, IReadOnlyBlackboard blackboard, double opacity = 1)
+        VecI renderOutputSize, VecI documentSize, ColorSpace processingColorSpace, SamplingOptions desiredSampling, IReadOnlyNodeGraph graph, double opacity = 1)
     {
         RenderSurface = renderSurface;
         FrameTime = frameTime;
@@ -42,7 +43,7 @@ public class RenderContext
         ProcessingColorSpace = processingColorSpace;
         DocumentSize = documentSize;
         DesiredSamplingOptions = desiredSampling;
-        Blackboard = blackboard;
+        Graph = graph;
     }
 
     public List<PreviewRenderRequest>? GetPreviewTexturesForNode(Guid id)
@@ -82,7 +83,7 @@ public class RenderContext
 
     public virtual RenderContext Clone()
     {
-        return new RenderContext(RenderSurface, FrameTime, ChunkResolution, RenderOutputSize, DocumentSize, ProcessingColorSpace, DesiredSamplingOptions, Blackboard, Opacity)
+        return new RenderContext(RenderSurface, FrameTime, ChunkResolution, RenderOutputSize, DocumentSize, ProcessingColorSpace, DesiredSamplingOptions, Graph, Opacity)
         {
             FullRerender = FullRerender,
             TargetOutput = TargetOutput,

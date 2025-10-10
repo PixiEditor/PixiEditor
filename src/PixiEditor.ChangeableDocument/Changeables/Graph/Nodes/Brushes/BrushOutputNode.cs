@@ -1,13 +1,17 @@
 ﻿using Drawie.Backend.Core;
+using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.ChangeableDocument.Rendering.ContextData;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
@@ -37,6 +41,11 @@ public class BrushOutputNode : Node
     private ChunkyImage? previewChunkyImage;
 
     protected override bool ExecuteOnlyOnCacheChange => true;
+
+    private string previewSvg =
+        "M0.25 99.4606C0.25 99.4606 60.5709 79.3294 101.717 99.4606C147.825 122.019 199.75 99.4606 199.75 99.4606";
+
+    private VectorPath? previewVectorPath;
 
     public BrushOutputNode()
     {
@@ -82,16 +91,10 @@ public class BrushOutputNode : Node
             int saved = preview.Texture.DrawingSurface.Canvas.Save();
             preview.Texture.DrawingSurface.Canvas.Clear();
 
-            var bounds = new RectD(0, 0, 300, 100);
+            var bounds = new RectD(0, 0, 200, 200);
 
-            VecD scaling = PreviewUtility.CalculateUniformScaling(bounds.Size, preview.Texture.Size);
-            VecD offset = PreviewUtility.CalculateCenteringOffset(bounds.Size, preview.Texture.Size, scaling);
             RenderContext adjusted =
-                PreviewUtility.CreatePreviewContext(ctx, scaling, bounds.Size, preview.Texture.Size);
-
-            preview.Texture.DrawingSurface.Canvas.Translate((float)offset.X, (float)offset.Y);
-            preview.Texture.DrawingSurface.Canvas.Scale((float)scaling.X, (float)scaling.Y);
-            preview.Texture.DrawingSurface.Canvas.Translate((float)-bounds.X, (float)-bounds.Y);
+                PreviewUtility.CreatePreviewContext(ctx, new VecD(1), bounds.Size, preview.Texture.Size);
 
             adjusted.RenderSurface = preview.Texture.DrawingSurface;
             RenderPreview(preview.Texture.DrawingSurface, adjusted);
@@ -103,25 +106,56 @@ public class BrushOutputNode : Node
     {
         if (previewChunkyImage == null)
         {
-            previewChunkyImage = new ChunkyImage(new VecI(300, 100), context.ProcessingColorSpace);
+            previewChunkyImage = new ChunkyImage(new VecI(200, 200), context.ProcessingColorSpace);
         }
 
-        RectI rect = new(0, 0, 300, 100);
+        if (previewVectorPath == null)
+        {
+            previewVectorPath = VectorPath.FromSvgPath(previewSvg);
+        }
 
-        BrushEngine.PaintBrush(previewChunkyImage,
-            AutoPosition.Value,
-            VectorShape.Value,
-            rect,
-            FitToStrokeSize.Value,
-            Pressure.Value,
-            Content.Value,
-            ContentTexture,
-            RenderContext.GetDrawingBlendMode(BlendMode.Value),
-            true,
-            Fill.Value,
-            Stroke.Value);
+        RectI rect;
 
-        previewChunkyImage.DrawCachedMostUpToDateChunkOn(
+        BrushEngine engine = new BrushEngine();
+        previewChunkyImage.EnqueueClear();
+
+        float pressure;
+        int maxSize = 50;
+        float offset = 0;
+
+        int[] sizes = new int[] { 10, 25, 50 };
+        VecD pos;
+        for (var i = 0; i < sizes.Length; i++)
+        {
+            var size = sizes[i];
+            int x = 25 + i * 60;
+            pos = new VecI(x, maxSize);
+
+            engine.ExecuteBrush(previewChunkyImage,
+                new BrushData(context.Graph) { StrokeWidth = size, AntiAliasing = true, Spacing = 0 },
+                (VecI)pos, context.FrameTime, context.ProcessingColorSpace, context.DesiredSamplingOptions,
+                new PointerInfo(pos, 1, 0, VecD.Zero, new VecD(0, 1)),
+                new EditorData(Colors.White, Colors.Black));
+        }
+
+        while (offset <= previewChunkyImage.CommittedSize.X)
+        {
+            pressure = (float)Math.Sin((offset / previewChunkyImage.CommittedSize.X) * Math.PI);
+            var vec4D = previewVectorPath.GetPositionAndTangentAtDistance(offset, false);
+            pos = vec4D.XY;
+            pos = new VecD(pos.X, pos.Y + maxSize / 2f);
+
+            engine.ExecuteBrush(previewChunkyImage,
+                new BrushData(context.Graph) { StrokeWidth = maxSize, AntiAliasing = true, Spacing = 15 },
+                (VecI)pos, context.FrameTime, context.ProcessingColorSpace, context.DesiredSamplingOptions,
+                new PointerInfo(pos, pressure, 0, VecD.Zero, vec4D.ZW),
+                new EditorData(Colors.White, Colors.Black));
+
+            offset += 1;
+        }
+
+        previewChunkyImage.CommitChanges();
+        previewChunkyImage.DrawCommittedChunkOn(
             VecI.Zero, ChunkResolution.Full, surface, VecD.Zero);
     }
 

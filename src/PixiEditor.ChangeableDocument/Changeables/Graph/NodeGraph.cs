@@ -182,7 +182,7 @@ public class NodeGraph : IReadOnlyNodeGraph
 
     public void Execute(IReadOnlyNode end, RenderContext context)
     {
-        if (isExecuting) return;
+        //if (isExecuting) return;
         isExecuting = true;
         if (end == null) return;
         if (!CanExecute()) return;
