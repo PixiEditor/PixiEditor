@@ -30,8 +30,11 @@ internal class SetBlackboardVariable_Change : Change
         if (variable == null)
             return false;
 
+        if(target?.NodeGraph?.Blackboard?.Variables == null || string.IsNullOrEmpty(variable))
+            return false;
+
         if (target.NodeGraph.Blackboard.Variables.TryGetValue(variable, out var blackboardVariable) &&
-            blackboardVariable.Type != value.GetType() && !TryConvert(blackboardVariable.Type, ref value))
+            blackboardVariable?.Type != value?.GetType() && !TryConvert(blackboardVariable?.Type, ref value))
             return false;
 
         if (blackboardVariable == null && value == null)

@@ -31,8 +31,6 @@ internal class BrightnessToolViewModel : ToolViewModel, IBrightnessToolHandler
     public override bool IsErasable => true;
     public override LocalizedString Tooltip => new LocalizedString("BRIGHTNESS_TOOL_TOOLTIP", Shortcut);
 
-    //TODO: BrushShape == PaintBrushShape.Square ? Views.Overlays.BrushShapeOverlay.BrushShape.Square : Views.Overlays.BrushShapeOverlay.BrushShape.CirclePixelated;
-
     public override string DefaultIcon => PixiPerfectIcons.Sun;
 
     public override Type[]? SupportedLayerTypes { get; } =

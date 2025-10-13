@@ -1,0 +1,28 @@
+﻿<properties:NodePropertyView xmlns="https://github.com/avaloniaui"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                             xmlns:properties="clr-namespace:PixiEditor.Views.Nodes.Properties"
+                             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+                             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+                             xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+                             xmlns:input="clr-namespace:PixiEditor.Views.Input"
+                             xmlns:settings="clr-namespace:PixiEditor.Views.Tools.ToolSettings.Settings"
+                             xmlns:blackboard="clr-namespace:PixiEditor.ViewModels.Document.Blackboard"
+                             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+                             x:Class="PixiEditor.Views.Nodes.Properties.DocumentPropertyView">
+    <StackPanel Orientation="Horizontal"
+                HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
+        <TextBlock localization:Translator.TooltipKey="{Binding DisplayName}" VerticalAlignment="Center"
+                   localization:Translator.Key="{Binding DisplayName}" />
+        <Button Command="{Binding PickGraphFileCommand}" localization:Translator.Key="SELECT"/>
+        <ComboBox ItemsSource="{Binding BrushBlackboardVariables}"
+                  SelectedItem="{Binding SelectedBrushBlackboardVariable, Mode=TwoWay}">
+            <ComboBox.ItemTemplate>
+                <DataTemplate DataType="blackboard:VariableViewModel">
+                    <TextBlock Text="{Binding Name}" />
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+    </StackPanel>
+</properties:NodePropertyView>

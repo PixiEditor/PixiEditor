@@ -658,6 +658,11 @@ internal class NodeGraphView : Zoombox.Zoombox
 
     private void UpdatePreviewLine(NodeSocket nodeSocket)
     {
+        if (nodeSocket == null)
+        {
+            return;
+        }
+
         Canvas canvas = nodeSocket.FindAncestorOfType<Canvas>();
         if (_previewConnectionLine == null)
         {

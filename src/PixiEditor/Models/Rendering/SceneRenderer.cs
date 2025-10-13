@@ -61,6 +61,11 @@ internal class SceneRenderer
         });
     }
 
+    public void RenderSync(Dictionary<Guid, ViewportInfo> stateViewports, AffectedArea affectedAreasMainImageArea, bool updateDelayed, Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures)
+    {
+        Render(stateViewports, affectedAreasMainImageArea, updateDelayed, previewTextures);
+    }
+
     private void Render(Dictionary<Guid, ViewportInfo> stateViewports, AffectedArea affectedArea, bool updateDelayed,
         Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures)
     {

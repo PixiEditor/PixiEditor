@@ -172,13 +172,13 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public bool HasSavedUndo => Internals.Tracker.HasSavedUndo;
     public bool HasSavedRedo => Internals.Tracker.HasSavedRedo;
 
-    public NodeGraphViewModel NodeGraph { get; }
-    public DocumentStructureModule StructureHelper { get; }
-    public DocumentToolsModule Tools { get; }
-    public DocumentOperationsModule Operations { get; }
-    public DocumentRenderer Renderer { get; }
-    public SceneRenderer SceneRenderer { get; }
-    public DocumentEventsModule EventInlet { get; }
+    public NodeGraphViewModel NodeGraph { get; private set; }
+    public DocumentStructureModule StructureHelper { get; private set; }
+    public DocumentToolsModule Tools { get; private set; }
+    public DocumentOperationsModule Operations { get; private set; }
+    public DocumentRenderer Renderer { get; private set; }
+    public SceneRenderer SceneRenderer { get; private set; }
+    public DocumentEventsModule EventInlet { get; private set; }
 
     public ActionDisplayList ActionDisplays { get; } =
         new(() => ViewModelMain.Current.NotifyToolActionDisplayChanged());
@@ -192,15 +192,15 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public ObservableCollection<PaletteColor> Swatches { get; set; } = new();
     public Guid Id => Internals.Tracker.Document.DocumentId;
     public ObservableRangeCollection<PaletteColor> Palette { get; set; } = new();
-    public SnappingViewModel SnappingViewModel { get; }
+    public SnappingViewModel SnappingViewModel { get; set; }
     ISnappingHandler IDocument.SnappingHandler => SnappingViewModel;
     public IReadOnlyCollection<Guid> SelectedMembers => GetSelectedMembers().AsReadOnly();
-    public DocumentTransformViewModel TransformViewModel { get; }
-    public PathOverlayViewModel PathOverlayViewModel { get; }
-    public ReferenceLayerViewModel ReferenceLayerViewModel { get; }
-    public LineToolOverlayViewModel LineToolOverlayViewModel { get; }
-    public AnimationDataViewModel AnimationDataViewModel { get; }
-    public TextOverlayViewModel TextOverlayViewModel { get; }
+    public DocumentTransformViewModel TransformViewModel { get; set; }
+    public PathOverlayViewModel PathOverlayViewModel { get; set; }
+    public ReferenceLayerViewModel ReferenceLayerViewModel { get; set; }
+    public LineToolOverlayViewModel LineToolOverlayViewModel { get; set; }
+    public AnimationDataViewModel AnimationDataViewModel { get; set; }
+    public TextOverlayViewModel TextOverlayViewModel { get; set; }
 
     public IReadOnlyCollection<IStructureMemberHandler> SoftSelectedStructureMembers => softSelectedStructureMembers;
     private DocumentInternalParts Internals { get; }
@@ -213,12 +213,17 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     IReferenceLayerHandler IDocument.ReferenceLayerHandler => ReferenceLayerViewModel;
     IAnimationHandler IDocument.AnimationHandler => AnimationDataViewModel;
     public bool UsesSrgbBlending { get; private set; }
-    public AutosaveDocumentViewModel AutosaveViewModel { get; }
+    public AutosaveDocumentViewModel AutosaveViewModel { get; set; }
 
     private DocumentViewModel()
     {
         var serviceProvider = ViewModelMain.Current.Services;
         Internals = new DocumentInternalParts(this, serviceProvider);
+        InitializeViewModel();
+    }
+
+    private void InitializeViewModel()
+    {
         Internals.ChangeController.ToolSessionFinished += () => ToolSessionFinished?.Invoke();
 
         Tools = new DocumentToolsModule(this, Internals);
@@ -281,6 +286,12 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         SceneRenderer = new SceneRenderer(Internals.Tracker.Document, this);
     }
 
+    internal DocumentViewModel(IReadOnlyDocument doc)
+    {
+        Internals = new DocumentInternalParts(this, ViewModelMain.Current.Services, doc);
+        InitializeViewModel();
+    }
+
     /// <summary>
     /// Creates a new document using the <paramref name="builder"/>
     /// </summary>
@@ -303,6 +314,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         }
 
         var viewModel = new DocumentViewModel();
+        var changeBlock = viewModel.Operations.StartChangeBlock();
         viewModel.Operations.ResizeCanvas(new VecI(builderInstance.Width, builderInstance.Height), ResizeAnchor.Center);
 
         var acc = viewModel.Internals.ActionAccumulator;
@@ -351,13 +363,16 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         AddNodes(builderInstance.Graph);
         AddBlackboard(builderInstance.Graph.Blackboard);
 
-        if (builderInstance.Graph.AllNodes.Count == 0 || !builderInstance.Graph.AllNodes.Any(x => x is OutputNode))
+        if (builderInstance.Graph.AllNodes.Count == 0 || builderInstance.Graph.AllNodes.All(x => x.UniqueNodeName != OutputNode.UniqueName))
         {
             Guid outputNodeGuid = Guid.NewGuid();
             acc.AddActions(new CreateNode_Action(typeof(OutputNode), outputNodeGuid, Guid.Empty));
         }
 
         AddAnimationData(builderInstance.AnimationData, mappedNodeIds, mappedKeyFrameIds);
+
+       changeBlock.ExecuteQueuedActions();
+       changeBlock.Dispose();
 
         acc.AddFinishedActions(new ChangeBoundary_Action(), new DeleteRecordedChanges_Action());
         acc.AddActions(new InvokeAction_PassthroughAction(() =>
@@ -730,6 +745,15 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public ICrossDocumentPipe<IReadOnlyNodeGraph> ShareGraph()
     {
         return Internals.Tracker.Document.CreateGraphPipe();
+    }
+
+    /// <summary>
+    ///     Returns a read-only copy of the document.
+    /// </summary>
+    /// <returns>Copied internal document</returns>
+    public IReadOnlyDocument CloneInternalReadOnlyDocument()
+    {
+        return Internals.Tracker.Document.Clone();
     }
 
     public OneOf<Error, Surface> TryRenderWholeImage(KeyFrameTime frameTime, VecI renderSize)

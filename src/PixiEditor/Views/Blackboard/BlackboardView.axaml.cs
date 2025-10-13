@@ -5,6 +5,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using PixiEditor.Models.Blackboard;
+using PixiEditor.Models.BrushEngine;
 using PixiEditor.ViewModels.Document.Blackboard;
 
 namespace PixiEditor.Views.Blackboard;
@@ -45,6 +46,7 @@ internal partial class BlackboardView : UserControl
         new VariableDefinition("PERCENTAGE", typeof(double), "%", 0, 100),
         new VariableDefinition("WHOLE_NUMBER", typeof(int)),
         new VariableDefinition("BOOLEAN", typeof(bool)),
+        new VariableDefinition("BRUSH", typeof(Brush)),
     };
 
 

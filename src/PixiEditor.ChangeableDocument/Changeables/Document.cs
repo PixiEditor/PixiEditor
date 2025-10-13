@@ -9,6 +9,7 @@ using Drawie.Backend.Core;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables;
@@ -40,10 +41,10 @@ internal class Document : IChangeable, IReadOnlyDocument
     /// </summary>
     public static VecI DefaultSize { get; } = new VecI(64, 64);
 
-    internal NodeGraph NodeGraph { get; } = new();
-    internal Selection Selection { get; } = new();
+    internal NodeGraph NodeGraph { get; private set; } = new();
+    internal Selection Selection { get; private set; } = new();
     internal ReferenceLayer? ReferenceLayer { get; set; }
-    internal AnimationData AnimationData { get; }
+    internal AnimationData AnimationData { get; private set; }
     public VecI Size { get; set; } = DefaultSize;
     public bool HorizontalSymmetryAxisEnabled { get; set; }
     public bool VerticalSymmetryAxisEnabled { get; set; }
@@ -177,6 +178,25 @@ internal class Document : IChangeable, IReadOnlyDocument
     public ICrossDocumentPipe<IReadOnlyNodeGraph> CreateGraphPipe()
     {
         return new DocumentGraphPipe(this);
+    }
+
+    public IReadOnlyDocument Clone()
+    {
+        var clone = new Document
+        {
+            Size = Size,
+            ProcessingColorSpace = ProcessingColorSpace,
+            HorizontalSymmetryAxisEnabled = HorizontalSymmetryAxisEnabled,
+            VerticalSymmetryAxisEnabled = VerticalSymmetryAxisEnabled,
+            HorizontalSymmetryAxisY = HorizontalSymmetryAxisY,
+            VerticalSymmetryAxisX = VerticalSymmetryAxisX,
+            ReferenceLayer = ReferenceLayer?.Clone(),
+            NodeGraph = NodeGraph?.Clone() as NodeGraph,
+            AnimationData = AnimationData?.Clone() as AnimationData,
+            Selection = Selection != null ? new Selection() { SelectionPath = Selection.SelectionPath != null ? new VectorPath(Selection.SelectionPath) : null } : null
+        };
+
+        return clone;
     }
 
     private void ForEveryReadonlyMember(IReadOnlyNodeGraph graph, Action<IReadOnlyStructureNode> action)
@@ -450,7 +470,7 @@ internal class Document : IChangeable, IReadOnlyDocument
 
     private void ExtractLayers(FolderNode folder, List<Guid> list)
     {
-        if(folder.Content.Connection == null) return;
+        if (folder.Content.Connection == null) return;
         folder.Content.Connection.Node.TraverseBackwards(node =>
         {
             if (node is LayerNode layer && !list.Contains(layer.Id))

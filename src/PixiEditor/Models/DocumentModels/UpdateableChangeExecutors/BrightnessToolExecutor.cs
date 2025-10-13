@@ -7,10 +7,11 @@ using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
 using PixiEditor.Models.Controllers.InputDevice;
+using PixiEditor.ViewModels.Tools.Tools;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable
-internal class BrightnessToolExecutor : UpdateableChangeExecutor
+internal class BrightnessToolExecutor : BrushBasedExecutor<BrightnessToolViewModel>
 {
     private Guid guidValue;
     private bool repeat;

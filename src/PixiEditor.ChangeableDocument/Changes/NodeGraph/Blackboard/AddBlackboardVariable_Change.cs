@@ -39,7 +39,7 @@ internal class AddBlackboardVariable_Change : Change
         }
 
         varName = name;
-        object value = Activator.CreateInstance(type)!;
+        object? value = type.IsPrimitive ? Activator.CreateInstance(type) : (type == typeof(string) ? string.Empty : null);
         target.NodeGraph.Blackboard.SetVariable(name, type, value, unit, double.IsNaN(min) ? null : min, double.IsNaN(max) ? null : max);
         ignoreInUndo = false;
 

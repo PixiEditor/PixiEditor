@@ -1,6 +1,9 @@
 ﻿using System.Windows.Input;
 using CommunityToolkit.Mvvm.Input;
 using PixiEditor.ChangeableDocument.Actions.Generated;
+using PixiEditor.ChangeableDocument.Changeables.Brushes;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+using PixiEditor.Models.BrushEngine;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
 using PixiEditor.ViewModels.Tools.ToolSettings.Settings;
@@ -100,6 +103,11 @@ internal class VariableViewModel : ViewModelBase, IVariableHandler
             }
 
             return new SizeSettingViewModel("Variable", "Variable") { Min = min, Max = max, Unit = unit };
+        }
+
+        if (type.IsAssignableTo(typeof(Brush)))
+        {
+            return new BrushSettingViewModel("Variable", "Variable");
         }
 
         throw new NotSupportedException($"Type {type} is not supported for VariableViewModel.");

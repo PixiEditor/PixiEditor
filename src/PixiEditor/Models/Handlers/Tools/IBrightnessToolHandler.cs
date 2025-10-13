@@ -4,7 +4,7 @@ using PixiEditor.Models.Tools;
 
 namespace PixiEditor.Models.Handlers.Tools;
 
-internal interface IBrightnessToolHandler : IToolHandler
+internal interface IBrightnessToolHandler : IBrushToolHandler
 {
     public BrightnessMode BrightnessMode { get; }
     public bool Darken { get; }

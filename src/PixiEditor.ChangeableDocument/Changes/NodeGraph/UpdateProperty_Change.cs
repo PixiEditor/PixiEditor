@@ -105,6 +105,7 @@ internal class UpdatePropertyValue_Change : InterruptableUpdateableChange
                 if (_value == previousValue)
                 {
                     ignoreInUndo = true;
+                    return new None();
                 }
             }
 

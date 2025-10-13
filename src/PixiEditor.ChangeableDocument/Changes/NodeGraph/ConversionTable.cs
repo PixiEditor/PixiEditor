@@ -8,8 +8,10 @@ using Drawie.Backend.Core.Shaders.Generation;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changes.NodeGraph;
@@ -84,7 +86,7 @@ public static class ConversionTable
                         new TypeConverter<Texture, Painter>(img =>
                             new Painter((c, s) => s.Canvas.DrawSurface(img.DrawingSurface, 0, 0)))),
                 ]
-            }
+            },
         };
 
     public static bool TryConvert(object? arg, Type targetType, out object result)
@@ -149,6 +151,22 @@ public static class ConversionTable
                 {
                     result = converter.Convert(arg);
                     return true;
+                }
+            }
+        }
+
+        var availableInterfaces = arg.GetType().GetInterfaces();
+        foreach (var iface in availableInterfaces)
+        {
+            if (_conversionTable.TryGetValue(iface, out converters))
+            {
+                foreach (var (outType, converter) in converters)
+                {
+                    if (targetType == outType)
+                    {
+                        result = converter.Convert(arg);
+                        return true;
+                    }
                 }
             }
         }

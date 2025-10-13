@@ -2,6 +2,8 @@
 using Avalonia;
 using Avalonia.Media;
 using Drawie.Backend.Core.Shaders.Generation;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.Handlers;
 using PixiEditor.ViewModels.Nodes.Properties;
@@ -218,6 +220,11 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
         string typeName = propertyType.Name;
 
         string name = $"{typeName}PropertyViewModel";
+
+        if (propertyType == typeof(IReadOnlyDocument))
+        {
+            name = "DocumentPropertyViewModel";
+        }
 
         Type viewModelType = Type.GetType($"PixiEditor.ViewModels.Nodes.Properties.{name}");
         if (viewModelType == null)

@@ -1,4 +1,6 @@
-﻿using PixiEditor.Models.Handlers;
+﻿using PixiEditor.ChangeableDocument.Changeables.Brushes;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+using PixiEditor.Models.Handlers;
 
 namespace PixiEditor.Models.BrushEngine;
 

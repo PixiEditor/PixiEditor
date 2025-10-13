@@ -76,4 +76,5 @@ internal interface IDocument : IHandler, Extensions.CommonApi.Documents.IDocumen
     internal void InternalMarkSaveState(DocumentMarkType type);
     public ICrossDocumentPipe<T> ShareNode<T>(Guid layerId) where T : class, IReadOnlyNode;
     public ICrossDocumentPipe<IReadOnlyNodeGraph> ShareGraph();
+    public IReadOnlyDocument CloneInternalReadOnlyDocument();
 }

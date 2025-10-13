@@ -421,6 +421,12 @@ public abstract class Node : IReadOnlyNode, IDisposable
         }
     }
 
+
+    protected void RemoveOutputProperty(OutputProperty property)
+    {
+        outputs.Remove(property);
+    }
+
     protected void AddOutputProperty(OutputProperty property)
     {
         outputs.Add(property);
