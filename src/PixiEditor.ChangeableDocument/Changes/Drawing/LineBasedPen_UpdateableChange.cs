@@ -34,6 +34,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     private int frame;
     private BrushOutputNode? brushOutputNode;
     private PointerInfo pointerInfo;
+    private KeyboardInfo keyboardInfo;
     private EditorData editorData;
 
     [GenerateUpdateableChangeActions]
@@ -41,7 +42,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         bool antiAliasing,
         float spacing,
         BrushData brushData,
-        bool drawOnMask, int frame, PointerInfo pointerInfo, EditorData editorData)
+        bool drawOnMask, int frame, PointerInfo pointerInfo, KeyboardInfo keyboardInfo, EditorData editorData)
     {
         this.memberGuid = memberGuid;
         this.strokeWidth = strokeWidth;
@@ -52,11 +53,12 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         points.Add(pos);
         this.frame = frame;
         this.pointerInfo = pointerInfo;
+        this.keyboardInfo = keyboardInfo;
         this.editorData = editorData;
     }
 
     [UpdateChangeMethod]
-    public void Update(VecI pos, float strokeWidth, float spacing, PointerInfo pointerInfo, BrushData brushData)
+    public void Update(VecI pos, float strokeWidth, float spacing, PointerInfo pointerInfo, KeyboardInfo keyboardInfo, EditorData editorData, BrushData brushData)
     {
         if (points.Count > 0)
         {
@@ -66,6 +68,8 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
 
         this.strokeWidth = strokeWidth;
         this.pointerInfo = pointerInfo;
+        this.keyboardInfo = keyboardInfo;
+        this.editorData = editorData;
         this.spacing = spacing;
         this.brushData = brushData;
         UpdateBrushData();
@@ -109,7 +113,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         brushData.StrokeWidth = strokeWidth;
 
         engine.ExecuteBrush(image, brushData, points, frame, target.ProcessingColorSpace, SamplingOptions.Default,
-            pointerInfo, editorData);
+            pointerInfo, keyboardInfo, editorData);
 
         var affChunks = image.FindAffectedArea(opCount);
 
@@ -127,13 +131,13 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         if (points.Count == 1)
         {
             engine.ExecuteBrush(targetImage, brushData, points[0], frameTime, targetImage.ProcessingColorSpace,
-                SamplingOptions.Default, pointerInfo, editorData);
+                SamplingOptions.Default, pointerInfo, keyboardInfo, editorData);
 
             return;
         }
 
         engine.ExecuteBrush(targetImage, brushData, points, frameTime, targetImage.ProcessingColorSpace,
-            SamplingOptions.Default, pointerInfo, editorData);
+            SamplingOptions.Default, pointerInfo, keyboardInfo, editorData);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,

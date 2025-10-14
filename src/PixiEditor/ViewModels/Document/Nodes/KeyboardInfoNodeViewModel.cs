@@ -3,5 +3,8 @@ using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document.Nodes;
 
-[NodeViewModel("POINTER_INFO_NODE", "INPUTS", null)]
-internal class PointerInfoNodeViewModel : NodeViewModel<PointerInfoNode>;
+[NodeViewModel("KEYBOARD_INFO_NODE", "INPUTS", null)]
+internal class KeyboardInfoNodeViewModel : NodeViewModel<KeyboardInfoNode>
+{
+
+}

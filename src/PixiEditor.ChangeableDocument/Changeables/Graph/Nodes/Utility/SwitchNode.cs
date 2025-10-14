@@ -1,4 +1,6 @@
-﻿using PixiEditor.ChangeableDocument.Rendering;
+﻿using Drawie.Backend.Core.Shaders.Generation;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
+using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Utility;
 
@@ -22,6 +24,14 @@ public class SwitchNode : Node
     protected override void OnExecute(RenderContext context)
     {
         Output.Value = Condition.Value ? InputTrue.Value : InputFalse.Value;
+        if(Output.Value is Delegate del)
+        {
+            Output.Value = del.DynamicInvoke(FuncContext.NoContext);
+            if(Output.Value is ShaderExpressionVariable expr)
+            {
+                Output.Value = expr.GetConstant();
+            }
+        }
     }
 
     public override Node CreateCopy()

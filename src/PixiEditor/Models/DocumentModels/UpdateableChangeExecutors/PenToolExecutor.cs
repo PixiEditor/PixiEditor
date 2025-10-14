@@ -47,7 +47,7 @@ internal class PenToolExecutor : BrushBasedExecutor<IPenToolHandler>
         {
             false => new LineBasedPen_Action(layerId, controller!.LastPixelPosition, (float)ToolSize,
                 antiAliasing, Spacing, BrushData, drawOnMask,
-                document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo, controller.EditorData),
+                document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo, controller.LastKeyboardInfo, controller.EditorData),
             true => new PixelPerfectPen_Action(layerId, controller!.LastPixelPosition, color, drawOnMask,
                 document!.AnimationHandler.ActiveFrameBindable)
         };

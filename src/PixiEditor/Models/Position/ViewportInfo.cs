@@ -15,6 +15,7 @@ internal readonly record struct ViewportInfo(
     VecD RealDimensions,
     Matrix3X3 Transform,
     PointerInfo PointerInfo,
+    KeyboardInfo KeyboardInfo,
     EditorData EditorData,
     RectI? VisibleDocumentRegion,
     string RenderOutput,

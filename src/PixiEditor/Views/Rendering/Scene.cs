@@ -170,6 +170,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     }
 
     public PointerInfo LastPointerInfo => lastPointerInfo;
+    public KeyboardInfo LastKeyboardInfo => lastKeyboardInfo;
 
     private Overlay? capturedOverlay;
 
@@ -200,6 +201,12 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     private Point lastDirCalculationPoint;
 
     private PointerInfo lastPointerInfo;
+    private KeyboardInfo lastKeyboardInfo;
+
+    private bool isCtrlPressed;
+    private bool isShiftPressed;
+    private bool isAltPressed;
+    private bool isMetaPressed;
 
     public static readonly StyledProperty<string> RenderOutputProperty =
         AvaloniaProperty.Register<Scene, string>("RenderOutput");
@@ -676,6 +683,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         base.OnKeyDown(e);
         try
         {
+            UpdateKeyboardInfo(e, true);
             if (AllOverlays != null)
             {
                 foreach (Overlay overlay in AllOverlays)
@@ -697,6 +705,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         base.OnKeyUp(e);
         try
         {
+            UpdateKeyboardInfo(e, false);
             if (AllOverlays != null)
             {
                 foreach (Overlay overlay in AllOverlays)
@@ -746,6 +755,31 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             ClickCount = e is PointerPressedEventArgs pressed ? pressed.ClickCount : 0,
             Properties = e.GetCurrentPoint(this).Properties,
         };
+    }
+
+    private void UpdateKeyboardInfo(KeyEventArgs e, bool isKeyDown)
+    {
+        if (e.Key is Key.LeftCtrl or Key.RightCtrl)
+        {
+            isCtrlPressed = isKeyDown;
+        }
+
+        if (e.Key is Key.LeftShift or Key.RightShift)
+        {
+            isShiftPressed = isKeyDown;
+        }
+
+        if (e.Key is Key.LeftAlt or Key.RightAlt)
+        {
+            isAltPressed = isKeyDown;
+        }
+
+        if (e.Key is Key.LWin or Key.RWin)
+        {
+            isMetaPressed = isKeyDown;
+        }
+
+        lastKeyboardInfo = new KeyboardInfo(isCtrlPressed, isShiftPressed, isAltPressed, isMetaPressed);
     }
 
     private PointerInfo ConstructPointerInfo(PointerEventArgs e)

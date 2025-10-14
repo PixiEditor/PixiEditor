@@ -5,6 +5,7 @@ using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.ChangeableDocument.Rendering.ContextData;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 using DrawingApiBlendMode = Drawie.Backend.Core.Surfaces.BlendMode;
@@ -25,6 +26,7 @@ public class RenderContext
     public DrawingSurface RenderSurface { get; set; }
     public bool FullRerender { get; set; } = false;
     public PointerInfo PointerInfo { get; set; }
+    public KeyboardInfo KeyboardInfo { get; set; }
     public EditorData EditorData { get; set; }
     public ColorSpace ProcessingColorSpace { get; set; }
     public string? TargetOutput { get; set; }
@@ -92,6 +94,7 @@ public class RenderContext
             VisibleDocumentRegion = VisibleDocumentRegion,
             PointerInfo = PointerInfo,
             EditorData = EditorData,
+            KeyboardInfo = KeyboardInfo,
         };
     }
 }

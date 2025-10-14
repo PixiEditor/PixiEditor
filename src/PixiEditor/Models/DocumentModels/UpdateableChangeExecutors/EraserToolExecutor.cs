@@ -24,7 +24,7 @@ internal class EraserToolExecutor : BrushBasedExecutor<IEraserToolHandler>
         EditorData data = new EditorData(primaryColor, controller.EditorData.SecondaryColor);
         var action = new LineBasedPen_Action(layerId, controller.LastPixelPosition, (float)ToolSize, antiAliasing,
             Spacing, BrushData, drawOnMask,
-            document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo, data);
+            document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo, controller.LastKeyboardInfo, data);
 
         internals!.ActionAccumulator.AddActions(action);
     }

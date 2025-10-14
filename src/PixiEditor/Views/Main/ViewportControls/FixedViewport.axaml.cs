@@ -144,6 +144,7 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
             new VecD(Bounds.Width, Bounds.Height),
             scaling,
             new PointerInfo(),
+            new KeyboardInfo(),
             ViewModelMain.Current.GetEditorData(), // TODO: Remove singleton
             null,
             "DEFAULT",

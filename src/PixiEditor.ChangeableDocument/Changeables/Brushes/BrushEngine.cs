@@ -13,6 +13,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
+using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.ChangeableDocument.Rendering.ContextData;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
@@ -30,7 +31,7 @@ internal class BrushEngine
     private bool drawnOnce = false;
 
     public void ExecuteBrush(ChunkyImage target, BrushData brushData, List<VecI> points, KeyFrameTime frameTime,
-        ColorSpace cs, SamplingOptions samplingOptions, PointerInfo pointerInfo, EditorData editorData)
+        ColorSpace cs, SamplingOptions samplingOptions, PointerInfo pointerInfo, KeyboardInfo keyboardInfo, EditorData editorData)
     {
         float strokeWidth = brushData.StrokeWidth;
         float spacing = brushData.Spacing;
@@ -43,7 +44,7 @@ internal class BrushEngine
             if (VecF.Distance(lastPos, point) < spacingPixels)
                 continue;
 
-            ExecuteVectorShapeBrush(target, brushData, point, frameTime, cs, samplingOptions, pointerInfo, editorData);
+            ExecuteVectorShapeBrush(target, brushData, point, frameTime, cs, samplingOptions, pointerInfo, keyboardInfo, editorData);
 
             lastPos = point;
         }
@@ -52,14 +53,14 @@ internal class BrushEngine
     }
 
     public void ExecuteBrush(ChunkyImage target, BrushData brushData, VecI point, KeyFrameTime frameTime, ColorSpace cs,
-        SamplingOptions samplingOptions, PointerInfo pointerInfo, EditorData editorData)
+        SamplingOptions samplingOptions, PointerInfo pointerInfo, KeyboardInfo keyboardInfo, EditorData editorData)
     {
-        ExecuteVectorShapeBrush(target, brushData, point, frameTime, cs, samplingOptions, pointerInfo, editorData);
+        ExecuteVectorShapeBrush(target, brushData, point, frameTime, cs, samplingOptions, pointerInfo, keyboardInfo, editorData);
     }
 
     private void ExecuteVectorShapeBrush(ChunkyImage target, BrushData brushData, VecI point, KeyFrameTime frameTime,
         ColorSpace colorSpace, SamplingOptions samplingOptions,
-        PointerInfo pointerInfo, EditorData editorData)
+        PointerInfo pointerInfo, KeyboardInfo keyboardInfo, EditorData editorData)
     {
         if (brushData.BrushGraph == null)
         {
@@ -74,14 +75,14 @@ internal class BrushEngine
 
         bool shouldErase = editorData.PrimaryColor.A == 0;
 
-        var blendMode = RenderContext.GetDrawingBlendMode(shouldErase ? BlendMode.Erase : brushNode.BlendMode.Value);
+        var imageBlendMode = shouldErase ? DrawingApiBlendMode.DstOut : brushNode.ImageBlendMode.Value;
 
         if (!drawnOnce)
         {
             startPos = point;
             lastPos = point;
             drawnOnce = true;
-            target.SetBlendMode(blendMode);
+            target.SetBlendMode(imageBlendMode);
         }
 
         float strokeWidth = brushData.StrokeWidth;
@@ -115,9 +116,11 @@ internal class BrushEngine
             surfaceUnderRect, fullTexture, brushData.BrushGraph,
             (VecD)startPos, (VecD)lastPos)
         {
-            PointerInfo = pointerInfo, EditorData = shouldErase ?
+            PointerInfo = pointerInfo,
+            EditorData = shouldErase ?
                 new EditorData(editorData.PrimaryColor.WithAlpha(255), editorData.SecondaryColor)
-                : editorData
+                : editorData,
+            KeyboardInfo = keyboardInfo
         };
 
         brushData.BrushGraph.Execute(brushNode, context);
@@ -138,7 +141,7 @@ internal class BrushEngine
         var stroke = brushNode.Stroke.Value;
 
         if (PaintBrush(target, autoPosition, vectorShape, rect, fitToStrokeSize, pressure, content, contentTexture,
-                DrawingApiBlendMode.SrcOver, antiAliasing, fill, stroke))
+                brushNode.StampBlendMode.Value, antiAliasing, fill, stroke))
         {
             lastPos = point;
         }

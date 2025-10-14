@@ -80,7 +80,7 @@ internal class BrushBasedExecutor<T> : UpdateableChangeExecutor where T : IBrush
     {
         IAction? action = new LineBasedPen_Action(layerId, controller!.LastPixelPosition, (float)ToolSize,
             antiAliasing, Spacing, BrushData, drawOnMask,
-            document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo, controller.EditorData);
+            document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo, controller.LastKeyboardInfo, controller.EditorData);
 
         internals!.ActionAccumulator.AddActions(action);
     }
@@ -135,7 +135,9 @@ internal class BrushBasedExecutor<T> : UpdateableChangeExecutor where T : IBrush
                     surf.Size, document.SizeBindable, document.ProcessingColorSpace, SamplingOptions.Default,
                     BrushData.BrushGraph)
                 {
-                    PointerInfo = controller.LastPointerInfo, EditorData = controller.EditorData,
+                    PointerInfo = controller.LastPointerInfo,
+                    KeyboardInfo = controller.LastKeyboardInfo,
+                    EditorData = controller.EditorData,
                 });
         }
 

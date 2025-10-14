@@ -9,8 +9,10 @@ using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
+using Hardware.Info;
 using PixiEditor.ChangeableDocument.Rendering.ContextData;
 using PixiEditor.Models.Controllers.InputDevice;
+using PixiEditor.Models.Events;
 using PixiEditor.ViewModels;
 using PixiEditor.Views.Overlays.SymmetryOverlay;
 
@@ -23,6 +25,7 @@ internal class ChangeExecutionController
     public VecI LastPixelPosition => lastPixelPos;
     public VecD LastPrecisePosition => lastPrecisePos;
     public PointerInfo LastPointerInfo => lastPointerInfo;
+    public KeyboardInfo LastKeyboardInfo => lastKeyboardInfo;
     public bool IsBlockingChangeActive => currentSession is not null && currentSession.BlocksOtherActions;
     public EditorData EditorData => GetEditorData();
 
@@ -37,7 +40,13 @@ internal class ChangeExecutionController
     private PointerInfo pointerInfo;
     private VecD lastDirCalculationPoint;
     private PointerInfo lastPointerInfo;
+    private KeyboardInfo lastKeyboardInfo;
     private ViewModelMain viewModelMain;
+
+    private bool shiftPressed;
+    private bool ctrlPressed;
+    private bool altPressed;
+    private bool metaPressed;
 
     private UpdateableChangeExecutor? currentSession = null;
 
@@ -157,14 +166,16 @@ internal class ChangeExecutionController
         }
     }
 
-    public void ConvertedKeyDownInlet(Key key)
+    public void ConvertedKeyDownInlet(FilteredKeyEventArgs key)
     {
-        currentSession?.OnConvertedKeyDown(key);
+        currentSession?.OnConvertedKeyDown(key.Key);
+        lastKeyboardInfo = UpdateKeyboardInfo(key.IsCtrlDown, key.IsShiftDown, key.IsAltDown, key.IsMetaDown);
     }
 
-    public void ConvertedKeyUpInlet(Key key)
+    public void ConvertedKeyUpInlet(FilteredKeyEventArgs key)
     {
-        currentSession?.OnConvertedKeyUp(key);
+        currentSession?.OnConvertedKeyUp(key.Key);
+        lastKeyboardInfo = UpdateKeyboardInfo(key.IsCtrlDown, key.IsShiftDown, key.IsAltDown, key.IsMetaDown);
     }
 
     public void MouseMoveInlet(MouseOnCanvasEventArgs args)
@@ -337,6 +348,11 @@ internal class ChangeExecutionController
     private EditorData GetEditorData()
     {
         return viewModelMain.GetEditorData();
+    }
+
+    private KeyboardInfo UpdateKeyboardInfo(bool ctrl, bool shift, bool alt, bool meta)
+    {
+        return new KeyboardInfo(ctrl, shift, alt, meta);
     }
 
     private PointerInfo ConstructPointerInfo(VecD currentPoint, MouseOnCanvasEventArgs args)

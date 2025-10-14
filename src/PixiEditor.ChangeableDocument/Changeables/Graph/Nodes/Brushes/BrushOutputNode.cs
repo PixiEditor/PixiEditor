@@ -10,6 +10,7 @@ using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
+using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.ChangeableDocument.Rendering.ContextData;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
@@ -27,7 +28,8 @@ public class BrushOutputNode : Node
     public InputProperty<Paintable> Stroke { get; }
     public InputProperty<Paintable> Fill { get; }
     public RenderInputProperty Content { get; }
-    public InputProperty<BlendMode> BlendMode { get; }
+    public InputProperty<Drawie.Backend.Core.Surfaces.BlendMode> StampBlendMode { get; }
+    public InputProperty<Drawie.Backend.Core.Surfaces.BlendMode> ImageBlendMode { get; }
     public InputProperty<Matrix3X3> Transform { get; }
     public InputProperty<float> Pressure { get; }
     public InputProperty<bool> FitToStrokeSize { get; }
@@ -56,7 +58,10 @@ public class BrushOutputNode : Node
         Fill = CreateInput<Paintable>("Fill", "FILL", null);
         Content = CreateRenderInput("Content", "CONTENT");
         Transform = CreateInput<Matrix3X3>("Transform", "TRANSFORM", Matrix3X3.Identity);
-        BlendMode = CreateInput<BlendMode>("BlendMode", "BLEND_MODE", Enums.BlendMode.Normal);
+        ImageBlendMode = CreateInput<Drawie.Backend.Core.Surfaces.BlendMode>("BlendMode", "BLEND_MODE",
+            Drawie.Backend.Core.Surfaces.BlendMode.SrcOver);
+        StampBlendMode = CreateInput<Drawie.Backend.Core.Surfaces.BlendMode>("StampBlendMode", "STAMP_BLEND_MODE",
+            Drawie.Backend.Core.Surfaces.BlendMode.SrcOver);
 
         Pressure = CreateInput<float>("Pressure", "PRESSURE", 1f);
         FitToStrokeSize = CreateInput<bool>("FitToStrokeSize", "FIT_TO_STROKE_SIZE", true);
@@ -140,6 +145,7 @@ public class BrushOutputNode : Node
                 new BrushData(context.Graph) { StrokeWidth = size, AntiAliasing = true, Spacing = 0 },
                 (VecI)pos, context.FrameTime, context.ProcessingColorSpace, context.DesiredSamplingOptions,
                 new PointerInfo(pos, 1, 0, VecD.Zero, new VecD(0, 1)),
+                new KeyboardInfo(),
                 new EditorData(Colors.White, Colors.Black));
         }
 
@@ -154,6 +160,7 @@ public class BrushOutputNode : Node
                 new BrushData(context.Graph) { StrokeWidth = maxSize, AntiAliasing = true, Spacing = 0.15f },
                 [(VecI)pos], context.FrameTime, context.ProcessingColorSpace, context.DesiredSamplingOptions,
                 new PointerInfo(pos, pressure, 0, VecD.Zero, vec4D.ZW),
+                new KeyboardInfo(),
                 new EditorData(Colors.White, Colors.Black));
 
             offset += 1;

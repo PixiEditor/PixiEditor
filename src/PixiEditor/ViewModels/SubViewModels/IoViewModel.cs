@@ -64,7 +64,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         keyboardFilter.OnAnyKeyUp += OnKeyUp;
 
         keyboardFilter.OnConvertedKeyDown += OnConvertedKeyDown;
-        keyboardFilter.OnConvertedKeyUp += OnConvertedKeyDown;
+        keyboardFilter.OnConvertedKeyUp += OnConvertedKeyUp;
         
         Owner.AttachedToWindow += AttachWindowEvents;
     }

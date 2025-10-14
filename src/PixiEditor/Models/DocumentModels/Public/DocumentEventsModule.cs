@@ -25,12 +25,12 @@ internal class DocumentEventsModule
 
     public void OnConvertedKeyDown(FilteredKeyEventArgs args)
     {
-        Internals.ChangeController.ConvertedKeyDownInlet(args.Key);
+        Internals.ChangeController.ConvertedKeyDownInlet(args);
         DocumentsHandler.TransformHandler.KeyModifiersInlet(args.IsShiftDown, args.IsCtrlDown, args.IsAltDown);
     }
     public void OnConvertedKeyUp(FilteredKeyEventArgs args)
     {
-        Internals.ChangeController.ConvertedKeyUpInlet(args.Key);
+        Internals.ChangeController.ConvertedKeyUpInlet(args);
         DocumentsHandler.TransformHandler.KeyModifiersInlet(args.IsShiftDown, args.IsCtrlDown, args.IsAltDown);
     }
 

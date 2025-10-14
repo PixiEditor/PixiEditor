@@ -536,6 +536,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         return new(AngleRadians, Center, RealDimensions,
             Scene.CalculateTransformMatrix().ToSKMatrix().ToMatrix3X3(),
             Scene.LastPointerInfo,
+            Scene.LastKeyboardInfo,
             EditorDataFunc(),
             CalculateVisibleRegion(),
             ViewportRenderOutput, Scene.CalculateSampling(), Dimensions, CalculateResolution(), GuidValue, Delayed,

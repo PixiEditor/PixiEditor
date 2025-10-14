@@ -136,6 +136,7 @@ internal class SceneRenderer
         SamplingOptions samplingOptions = viewport.Sampling;
         RectI? visibleDocumentRegion = viewport.VisibleDocumentRegion;
         PointerInfo pointerInfo = viewport.PointerInfo;
+        KeyboardInfo keyboardInfo = viewport.KeyboardInfo;
         EditorData editorData = viewport.EditorData;
         string? targetOutput = viewport.RenderOutput.Equals("DEFAULT", StringComparison.InvariantCultureIgnoreCase)
             ? null
@@ -163,8 +164,8 @@ internal class SceneRenderer
                     ChunkyImage.FullChunkSize))
                 : affectedArea;
             return RenderGraph(renderTargetSize, targetMatrix, viewportId, resolution, samplingOptions, affectedArea,
-                visibleDocumentRegion, targetOutput, viewport.IsScene, oversizeFactor, pointerInfo, editorData,
-                finalGraph, previewTextures);
+                visibleDocumentRegion, targetOutput, viewport.IsScene, oversizeFactor,
+                pointerInfo, keyboardInfo, editorData, finalGraph, previewTextures);
         }
 
         var cachedTexture = DocumentViewModel.SceneTextures[viewportId];
@@ -180,6 +181,7 @@ internal class SceneRenderer
         bool canRenderOnionSkinning,
         float oversizeFactor,
         PointerInfo pointerInfo,
+        KeyboardInfo keyboardInfo,
         EditorData editorData,
         IReadOnlyNodeGraph finalGraph, Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures)
     {
@@ -241,6 +243,7 @@ internal class SceneRenderer
         RenderContext context = new(renderTarget, DocumentViewModel.AnimationHandler.ActiveFrameTime,
             resolution, finalSize, Document.Size, Document.ProcessingColorSpace, samplingOptions, Document.NodeGraph);
         context.PointerInfo = pointerInfo;
+        context.KeyboardInfo = keyboardInfo;
         context.EditorData = editorData;
 
         context.TargetOutput = targetOutput;
