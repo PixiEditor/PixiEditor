@@ -1,5 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core;
+using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.Common;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
@@ -17,4 +18,5 @@ public interface IReadOnlyNodeGraph : ICacheable, IDisposable
     public void Execute(IReadOnlyNode end, RenderContext context);
     Queue<IReadOnlyNode> CalculateExecutionQueue(IReadOnlyNode endNode);
     public IReadOnlyNodeGraph Clone();
+    public event Action<NodeOutputsChanged_ChangeInfo> NodeOutputsChanged;
 }

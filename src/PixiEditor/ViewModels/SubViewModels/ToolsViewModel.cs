@@ -19,7 +19,9 @@ using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.Handlers;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
+using PixiEditor.Models.BrushEngine;
 using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.IO;
 using PixiEditor.UI.Common.Fonts;
@@ -136,8 +138,10 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     {
         owner.DocumentManagerSubViewModel.ActiveDocumentChanged += ActiveDocumentChanged;
         Owner.BeforeDocumentClosed += OwnerOnBeforeDocumentClosed;
+        Owner.DocumentManagerSubViewModel.DocumentAdded += AddDocumentBrushes;
         PixiEditorSettings.Tools.PrimaryToolset.ValueChanged += PrimaryToolsetOnValueChanged;
-        SubscribeSettingsValueChanged(PixiEditorSettings.Tools.SelectionTintingEnabled, nameof(SelectionTintingEnabled));
+        SubscribeSettingsValueChanged(PixiEditorSettings.Tools.SelectionTintingEnabled,
+            nameof(SelectionTintingEnabled));
         BrushLibrary = new BrushLibrary(Paths.PathToBrushesFolder);
         owner.AttachedToWindow += window =>
         {
@@ -150,6 +154,21 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
                 LoadBrushLibrary();
             }
         };
+    }
+
+    private void AddDocumentBrushes(DocumentViewModel obj)
+    {
+        var brushNodes = obj.NodeGraph.AllNodes.OfType<BrushOutputNodeViewModel>().ToList();
+        if (brushNodes != null)
+        {
+            foreach (var node in brushNodes)
+            {
+                string name = node.Inputs.FirstOrDefault(x => x.PropertyName == BrushOutputNode.BrushNameProperty)
+                    ?.Value?.ToString() ?? "Unnamed";
+                BrushLibrary.Add(
+                    new Brush(name, node.Document, node.Id));
+            }
+        }
     }
 
     private void OwnerOnBeforeDocumentClosed(DocumentViewModel doc)
@@ -250,7 +269,8 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         }
     }
 
-    [Command.Basic("PixiEditor.Tools.ToggleSelectionTinting", "TOGGLE_TINTING_SELECTION", "TOGGLE_TINTING_SELECTION_DESCRIPTIVE", AnalyticsTrack = true)]
+    [Command.Basic("PixiEditor.Tools.ToggleSelectionTinting", "TOGGLE_TINTING_SELECTION",
+        "TOGGLE_TINTING_SELECTION_DESCRIPTIVE", AnalyticsTrack = true)]
     public void ToggleTintSelection() => SelectionTintingEnabled = !SelectionTintingEnabled;
 
     public void SetupToolsTooltipShortcuts()
@@ -451,7 +471,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         if (foundTool == null)
         {
             foundTool = allTools.FirstOrDefault(x => x.GetType().IsAssignableFrom(toolType));
-            if(foundTool == null || SimilarToolInActiveToolSetExists(toolType))
+            if (foundTool == null || SimilarToolInActiveToolSetExists(toolType))
                 return;
 
             var toolset = AllToolSets.FirstOrDefault(x => x.Tools.Contains(foundTool));
@@ -620,7 +640,8 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
 
                 if (!string.IsNullOrEmpty(toolFromToolset.Icon))
                 {
-                    toolSetViewModel.IconOverwrites[tool] = PixiPerfectIconExtensions.TryGetByName(toolFromToolset.Icon) ?? PixiPerfectIcons.Placeholder;
+                    toolSetViewModel.IconOverwrites[tool] =
+                        PixiPerfectIconExtensions.TryGetByName(toolFromToolset.Icon) ?? PixiPerfectIcons.Placeholder;
                 }
 
                 if (tool is null)

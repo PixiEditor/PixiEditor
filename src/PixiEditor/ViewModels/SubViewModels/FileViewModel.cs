@@ -549,7 +549,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
     private void AddDocumentViewModelToTheSystem(DocumentViewModel doc)
     {
-        Owner.DocumentManagerSubViewModel.Documents.Add(doc);
+        Owner.DocumentManagerSubViewModel.Add(doc);
         Owner.WindowSubViewModel.CreateNewViewport(doc);
         Owner.WindowSubViewModel.MakeDocumentViewportActive(doc);
     }

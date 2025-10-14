@@ -48,7 +48,14 @@ internal class DocumentUpdater
     {
         this.doc = doc;
         this.helper = helper;
+        helper.Tracker.Document.NodeGraph.NodeOutputsChanged += Node_OutputsChanged;
     }
+
+    private void Node_OutputsChanged(NodeOutputsChanged_ChangeInfo info)
+    {
+        ProcessOutputsChanged(info);
+    }
+
 
     /// <summary>
     /// Don't call this outside ActionAccumulator
@@ -669,6 +676,11 @@ internal class DocumentUpdater
     private void ProcessOutputsChanged(NodeOutputsChanged_ChangeInfo info)
     {
         NodeViewModel node = doc.StructureHelper.FindNode<NodeViewModel>(info.NodeId);
+
+        if (node == null)
+        {
+            return;
+        }
 
         List<INodePropertyHandler> removedOutputs = new List<INodePropertyHandler>();
 

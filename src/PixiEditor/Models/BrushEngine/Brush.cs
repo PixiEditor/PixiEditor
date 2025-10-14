@@ -4,9 +4,10 @@ using PixiEditor.Models.Handlers;
 
 namespace PixiEditor.Models.BrushEngine;
 
-internal class Brush
+internal class Brush : IBrush
 {
     public IDocument Document { get; set; }
+    IReadOnlyDocument IBrush.Document => Document.AccessInternalReadOnlyDocument();
     public string Name { get; set; }
     public Guid Id { get; } = Guid.NewGuid();
 

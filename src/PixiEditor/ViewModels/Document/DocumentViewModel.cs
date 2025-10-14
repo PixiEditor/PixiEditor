@@ -748,12 +748,12 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     }
 
     /// <summary>
-    ///     Returns a read-only copy of the document.
+    ///      Gives access to the internal <see cref="IReadOnlyDocument"/>. Use with caution, as it is not tracked by the <see cref="DocumentViewModel"/>.
+    /// <remarks>Never, ever, EVER, update the readonly document or dispose it if view model is in use.</remarks>
     /// </summary>
-    /// <returns>Copied internal document</returns>
-    public IReadOnlyDocument CloneInternalReadOnlyDocument()
+    public IReadOnlyDocument AccessInternalReadOnlyDocument()
     {
-        return Internals.Tracker.Document.Clone();
+        return Internals.Tracker.Document;
     }
 
     public OneOf<Error, Surface> TryRenderWholeImage(KeyFrameTime frameTime, VecI renderSize)

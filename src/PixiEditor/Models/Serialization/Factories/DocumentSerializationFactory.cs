@@ -21,8 +21,7 @@ internal class DocumentSerializationFactory : SerializationFactory<byte[], IRead
         if (serialized is byte[] bytes)
         {
             var doc = PixiParser.V5.Deserialize(bytes).ToDocument();
-            original = doc.CloneInternalReadOnlyDocument();
-            doc.Dispose();
+            original = doc.AccessInternalReadOnlyDocument();
             return true;
         }
 

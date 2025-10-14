@@ -68,6 +68,9 @@ internal class UpdatePropertyValue_Change : InterruptableUpdateableChange
             _value = SetValue(property, _value);
         }
 
+        if(property.Node is BlackboardVariableValueNode blackboardNode)
+            blackboardNode.UpdateValuesFromBlackboard(target.NodeGraph.Blackboard);
+
         List<IChangeInfo> changes = new();
         changes.Add(new PropertyValueUpdated_ChangeInfo(_nodeId, _propertyName, _value) { Errors = errors });
 

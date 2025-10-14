@@ -19,49 +19,11 @@ namespace PixiEditor.ViewModels.Nodes.Properties;
 
 internal class DocumentPropertyViewModel : NodePropertyViewModel<IReadOnlyDocument>
 {
-    private DocumentViewModel docVm;
-    private VariableViewModel? selectedBrushBlackboardVariable;
     public ICommand PickGraphFileCommand { get; }
-
-    public VariableViewModel? SelectedBrushBlackboardVariable
-    {
-        get => selectedBrushBlackboardVariable;
-        set
-        {
-            if (selectedBrushBlackboardVariable != null && selectedBrushBlackboardVariable.SettingView != null)
-                selectedBrushBlackboardVariable.SettingView.PropertyChanged -= OnVariablePropertyChanged;
-            if (SetProperty(ref selectedBrushBlackboardVariable, value) && value != null)
-            {
-                if (value.Value is Brush brush)
-                {
-                    Value?.Dispose();
-                    Value = brush.Document.CloneInternalReadOnlyDocument();
-                }
-            }
-
-            if(value != null && value.SettingView != null)
-                value.SettingView.PropertyChanged += OnVariablePropertyChanged;
-        }
-    }
-
-    public ObservableCollection<VariableViewModel> BrushBlackboardVariables =>
-        new ObservableCollection<VariableViewModel>(docVm.NodeGraph?.Blackboard?.Variables.Where(x => x.Type == typeof(Brush)));
 
     public DocumentPropertyViewModel(NodeViewModel node, Type valueType) : base(node, valueType)
     {
-        docVm = node.Document;
         PickGraphFileCommand = new AsyncRelayCommand(OnPickGraphFile);
-    }
-
-    private void OnVariablePropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
-    {
-        if (e.PropertyName == nameof(VariableViewModel.Value) && sender is BrushSettingViewModel vm)
-        {
-            if (vm.Value is { } brush)
-            {
-                Value = brush.Document.CloneInternalReadOnlyDocument();
-            }
-        }
     }
 
     private async Task OnPickGraphFile()
@@ -79,7 +41,7 @@ internal class DocumentPropertyViewModel : NodePropertyViewModel<IReadOnlyDocume
             var doc = Importer.ImportDocument(dialog[0].Path.LocalPath);
             doc.Operations.InvokeCustomAction(() =>
             {
-                Value = doc.CloneInternalReadOnlyDocument();
+                Value = doc.AccessInternalReadOnlyDocument();
             });
         }
     }

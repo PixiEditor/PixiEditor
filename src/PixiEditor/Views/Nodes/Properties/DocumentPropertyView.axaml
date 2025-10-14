@@ -16,13 +16,5 @@
         <TextBlock localization:Translator.TooltipKey="{Binding DisplayName}" VerticalAlignment="Center"
                    localization:Translator.Key="{Binding DisplayName}" />
         <Button Command="{Binding PickGraphFileCommand}" localization:Translator.Key="SELECT"/>
-        <ComboBox ItemsSource="{Binding BrushBlackboardVariables}"
-                  SelectedItem="{Binding SelectedBrushBlackboardVariable, Mode=TwoWay}">
-            <ComboBox.ItemTemplate>
-                <DataTemplate DataType="blackboard:VariableViewModel">
-                    <TextBlock Text="{Binding Name}" />
-                </DataTemplate>
-            </ComboBox.ItemTemplate>
-        </ComboBox>
     </StackPanel>
 </properties:NodePropertyView>

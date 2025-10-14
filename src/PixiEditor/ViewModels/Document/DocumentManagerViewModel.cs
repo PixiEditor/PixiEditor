@@ -61,6 +61,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
 
     public bool HasActiveDocument => ActiveDocument != null;
 
+    public event Action<DocumentViewModel> DocumentAdded;
     public DocumentManagerViewModel(ViewModelMain owner) : base(owner)
     {
         owner.WindowSubViewModel.ActiveViewportChanged += (_, args) =>
@@ -297,4 +298,10 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
     [Evaluator.CanExecute("PixiEditor.DocumentUsesLinearBlending", nameof(ActiveDocument),
         nameof(ActiveDocument.UsesSrgbBlending))]
     public bool DocumentUsesLinearBlending() => !ActiveDocument?.UsesSrgbBlending ?? true;
+
+    public void Add(DocumentViewModel doc)
+    {
+        Documents.Add(doc);
+        DocumentAdded?.Invoke(doc);
+    }
 }

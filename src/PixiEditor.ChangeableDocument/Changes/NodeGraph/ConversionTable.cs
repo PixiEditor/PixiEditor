@@ -87,6 +87,11 @@ public static class ConversionTable
                             new Painter((c, s) => s.Canvas.DrawSurface(img.DrawingSurface, 0, 0)))),
                 ]
             },
+            {
+                typeof(IBrush), [
+                    (typeof(IReadOnlyDocument), new TypeConverter<IBrush, IReadOnlyDocument>(b => b.Document))
+                ]
+            }
         };
 
     public static bool TryConvert(object? arg, Type targetType, out object result)

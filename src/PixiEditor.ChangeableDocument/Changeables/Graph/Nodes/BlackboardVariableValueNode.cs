@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.Rendering;
+﻿using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
@@ -17,13 +18,31 @@ public class BlackboardVariableValueNode : Node
     protected override void OnExecute(RenderContext context)
     {
         var variable = context.Graph.Blackboard.GetVariable(VariableName.Value);
+        Value.Value = variable?.Value;
+    }
+
+    public void UpdateValuesFromBlackboard(IReadOnlyBlackboard nodeGraphBlackboard)
+    {
+        var variable = nodeGraphBlackboard.GetVariable(VariableName.Value);
         if (variable != null)
         {
             Value.Value = variable.Value;
+            NotifyOutputs();
         }
         else
         {
             Value.Value = null;
+        }
+    }
+
+    private void NotifyOutputs()
+    {
+        foreach (var prop in Value.Connections)
+        {
+            if (prop.Node is IInputDependentOutputs dependentOutputsNode)
+            {
+                dependentOutputsNode.UpdateOutputs();
+            }
         }
     }
 

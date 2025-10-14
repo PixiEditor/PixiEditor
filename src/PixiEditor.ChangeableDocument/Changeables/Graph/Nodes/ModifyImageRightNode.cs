@@ -96,7 +96,7 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
             Half4 color = Color.NonOverridenValue(FuncContext.NoContext);
             color.VariableName = "color";
             builder.AddUniform(color.VariableName, color.ConstantValue);
-            builder.ReturnVar(color, false); // Do not premultiply, since we are modifying already premultiplied image
+            builder.ReturnVar(color, false);
         }
 
         string sksl = builder.ToSkSl();

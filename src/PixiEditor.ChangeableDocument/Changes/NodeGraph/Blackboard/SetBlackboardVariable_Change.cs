@@ -1,4 +1,7 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph.Blackboard;
 
 namespace PixiEditor.ChangeableDocument.Changes.NodeGraph.Blackboard;
@@ -71,12 +74,14 @@ internal class SetBlackboardVariable_Change : Change
         {
             Type type = value.GetType();
             target.NodeGraph.Blackboard.SetVariable(variable, type, value, unit, min, max);
+            InformBlackboardAccessingNodes(target, variable);
             return new BlackboardVariable_ChangeInfo(variable, value.GetType(), value, min, max, unit);
         }
 
         var oldVar = target.NodeGraph.Blackboard.Variables[variable];
         target.NodeGraph.Blackboard.SetVariable(variable, oldVar.Type, value, oldVar.Unit, min, max);
 
+        InformBlackboardAccessingNodes(target, variable);
         return new BlackboardVariable_ChangeInfo(variable, oldVar.Type, value, oldVar.Min ?? double.MinValue, oldVar.Max ?? double.MaxValue, oldVar.Unit);
     }
 
@@ -85,11 +90,24 @@ internal class SetBlackboardVariable_Change : Change
         if (!existsInBlackboard)
         {
             target.NodeGraph.Blackboard.RemoveVariable(variable);
+            InformBlackboardAccessingNodes(target, variable);
             return new BlackboardVariableRemoved_ChangeInfo(variable);
         }
 
         var currentVar = target.NodeGraph.Blackboard.Variables[variable];
         target.NodeGraph.Blackboard.SetVariable(variable, currentVar.Type, originalValue!);
+        InformBlackboardAccessingNodes(target, variable);
         return new BlackboardVariable_ChangeInfo(variable, currentVar.Type, currentVar.Value, currentVar.Min ?? double.MinValue, currentVar.Max ?? double.MaxValue, currentVar.Unit);
+    }
+
+    private void InformBlackboardAccessingNodes(Document target, string variableName)
+    {
+        foreach (var node in target.NodeGraph.Nodes.OfType<BlackboardVariableValueNode>())
+        {
+            if (node.VariableName.Value == variableName)
+            {
+                node.UpdateValuesFromBlackboard(target.NodeGraph.Blackboard);
+            }
+        }
     }
 }
