@@ -21,6 +21,7 @@ public class ToolSetConfig
 public class ToolConfig
 {
     public string ToolName { get; set; }
+    public string? Brush { get; set; }
     public Dictionary<string, object>? Settings { get; set; }
     public bool IsSimpleTool => Settings == null || Settings.Count == 0;
     public string? Icon { get; set; }

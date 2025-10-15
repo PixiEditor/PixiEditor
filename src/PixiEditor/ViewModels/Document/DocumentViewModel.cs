@@ -215,6 +215,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public bool UsesSrgbBlending { get; private set; }
     public AutosaveDocumentViewModel AutosaveViewModel { get; set; }
 
+    private bool isDisposed = false;
+
     private DocumentViewModel()
     {
         var serviceProvider = ViewModelMain.Current.Services;
@@ -363,7 +365,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         AddNodes(builderInstance.Graph);
         AddBlackboard(builderInstance.Graph.Blackboard);
 
-        if (builderInstance.Graph.AllNodes.Count == 0 || builderInstance.Graph.AllNodes.All(x => x.UniqueNodeName != OutputNode.UniqueName))
+        if (builderInstance.Graph.AllNodes.Count == 0 ||
+            builderInstance.Graph.AllNodes.All(x => x.UniqueNodeName != OutputNode.UniqueName))
         {
             Guid outputNodeGuid = Guid.NewGuid();
             acc.AddActions(new CreateNode_Action(typeof(OutputNode), outputNodeGuid, Guid.Empty));
@@ -371,8 +374,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
         AddAnimationData(builderInstance.AnimationData, mappedNodeIds, mappedKeyFrameIds);
 
-       changeBlock.ExecuteQueuedActions();
-       changeBlock.Dispose();
+        changeBlock.ExecuteQueuedActions();
+        changeBlock.Dispose();
 
         acc.AddFinishedActions(new ChangeBoundary_Action(), new DeleteRecordedChanges_Action());
         acc.AddActions(new InvokeAction_PassthroughAction(() =>
@@ -400,7 +403,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             {
                 object value =
                     SerializationUtil.Deserialize(varBuilder.Value, config, allFactories, serializerData);
-                acc.AddActions(new SetBlackboardVariable_Action(varBuilder.Name, value, varBuilder.Min ?? double.MinValue,
+                acc.AddActions(new SetBlackboardVariable_Action(varBuilder.Name, value,
+                    varBuilder.Min ?? double.MinValue,
                     varBuilder.Max ?? double.MaxValue, varBuilder.Unit));
             }
         }
@@ -469,7 +473,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 {
                     object value =
                         SerializationUtil.Deserialize(propertyValue.Value, config, allFactories, serializerData);
-                    acc.AddActions(new UpdatePropertyValue_Action(guid, propertyValue.Key, value), new EndUpdatePropertyValue_Action());
+                    acc.AddActions(new UpdatePropertyValue_Action(guid, propertyValue.Key, value),
+                        new EndUpdatePropertyValue_Action());
                 }
             }
 
@@ -1111,7 +1116,10 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         OnPropertyChanged(nameof(SoftSelectedStructureMembers));
     }
 
-    public ColorSpace ProcessingColorSpace => UsesSrgbBlending ? ColorSpace.CreateSrgb() : ColorSpace.CreateSrgbLinear();
+    public ColorSpace ProcessingColorSpace =>
+        UsesSrgbBlending ? ColorSpace.CreateSrgb() : ColorSpace.CreateSrgbLinear();
+
+    public bool IsDisposed => isDisposed;
 
     public void RemoveSoftSelectedMember(IStructureMemberHandler member)
     {
@@ -1344,12 +1352,17 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     {
         try
         {
+            if (isDisposed)
+                return;
+
+            isDisposed = true;
             NodeGraph.Dispose();
             Renderer.Dispose();
             foreach (var texture in SceneTextures)
             {
                 texture.Value?.Dispose();
             }
+
             AnimationDataViewModel.Dispose();
             Internals.ChangeController.TryStopActiveExecutor();
             Internals.Tracker.Dispose();

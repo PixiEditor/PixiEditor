@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using Avalonia.Input;
+using Avalonia.Platform;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.ChangeableDocument;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -21,6 +22,7 @@ using PixiEditor.Models.Handlers;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
+using PixiEditor.Helpers;
 using PixiEditor.Models.BrushEngine;
 using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.IO;
@@ -636,6 +638,11 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
             foreach (var toolFromToolset in toolSet.Tools)
             {
                 IToolHandler? tool = allTools.FirstOrDefault(tool => tool.ToolName == toolFromToolset.ToolName);
+                if (tool == null)
+                {
+                    tool = TryCreateBrushTool(toolFromToolset);
+                }
+
                 tool.SetToolSetSettings(toolSetViewModel, toolFromToolset.Settings);
 
                 if (!string.IsNullOrEmpty(toolFromToolset.Icon))
@@ -658,6 +665,34 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
 
             AllToolSets.Add(toolSetViewModel);
         }
+    }
+
+    private IToolHandler? TryCreateBrushTool(ToolConfig toolFromToolset)
+    {
+        if (!string.IsNullOrEmpty(toolFromToolset.Brush))
+        {
+            try
+            {
+                string path = toolFromToolset.Brush;
+                if (!path.StartsWith("avares://") && path.StartsWith("/"))
+                {
+                    path = "avares://PixiEditor/Data" + toolFromToolset.Brush;
+                }
+
+                Uri uri = new(path);
+                if (AssetLoader.Exists(uri))
+                {
+                    var brush = new Brush(uri);
+                    return new BrushBasedToolViewModel(brush);
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        return null;
     }
 
     private void ActiveDocumentChanged(object? sender, DocumentChangedEventArgs e)

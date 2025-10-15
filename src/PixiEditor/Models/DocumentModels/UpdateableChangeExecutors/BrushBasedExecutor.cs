@@ -20,7 +20,16 @@ using PixiEditor.Models.Tools;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
-internal class BrushBasedExecutor<T> : UpdateableChangeExecutor where T : IBrushToolHandler
+internal class BrushBasedExecutor<T> : BrushBasedExecutor where T : IBrushToolHandler
+{
+    public override ExecutionState Start()
+    {
+        BrushTool = GetHandler<T>();
+        return base.Start();
+    }
+}
+
+internal class BrushBasedExecutor : UpdateableChangeExecutor
 {
     public BrushData BrushData => brushData ??= GetBrushFromToolbar(BrushToolbar);
     private BrushData? brushData;
@@ -43,12 +52,21 @@ internal class BrushBasedExecutor<T> : UpdateableChangeExecutor where T : IBrush
 
     public override bool BlocksOtherActions => controller.LeftMousePressed;
 
+    public BrushBasedExecutor(IBrushToolHandler handler)
+    {
+        BrushTool = handler;
+    }
+
+    public BrushBasedExecutor()
+    {
+
+    }
+
     public override ExecutionState Start()
     {
         IStructureMemberHandler? member = document!.SelectedStructureMember;
         IColorsHandler? colorsHandler = GetHandler<IColorsHandler>();
 
-        BrushTool = GetHandler<T>();
         if (colorsHandler is null || BrushTool is null || member is null || BrushTool?.Toolbar is not IBrushToolbar toolbar)
             return ExecutionState.Error;
         drawOnMask = member is not ILayerHandler layer || layer.ShouldDrawOnMask;

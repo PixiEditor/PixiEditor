@@ -47,7 +47,11 @@
         }
       },
       "ColorPicker",
-      "Brightness",
+      {
+        "ToolName": "Brightness",
+        "Brush": "/BrushTools/Brightness.pixi",
+        "Icon": "icon-sun"
+      },
       "Zoom"
     ]
   },

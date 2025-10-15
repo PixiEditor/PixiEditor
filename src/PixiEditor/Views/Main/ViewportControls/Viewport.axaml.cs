@@ -714,12 +714,14 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         ViewportWindowViewModel vm = ((ViewportWindowViewModel)DataContext);
         var tools = vm.Owner.Owner.ToolsSubViewModel;
 
+        /*
         var superSpecialBrightnessTool = tools.RightClickMode == RightClickMode.SecondaryColor &&
                                          tools.ActiveTool is BrightnessToolViewModel;
+        */
         var superSpecialColorPicker =
             tools.RightClickMode == RightClickMode.Erase && tools.ActiveTool is ColorPickerToolViewModel;
 
-        if (superSpecialBrightnessTool || superSpecialColorPicker)
+        if (/*superSpecialBrightnessTool || */superSpecialColorPicker)
         {
             return;
         }

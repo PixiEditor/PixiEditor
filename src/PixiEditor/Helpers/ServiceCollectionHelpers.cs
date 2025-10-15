@@ -105,7 +105,6 @@ internal static class ServiceCollectionHelpers
             .AddTool<IRasterRectangleToolHandler, RasterRectangleToolViewModel>()
             .AddTool<IEraserToolHandler, EraserToolViewModel>()
             .AddTool<IColorPickerHandler, ColorPickerToolViewModel>()
-            .AddTool<IBrightnessToolHandler, BrightnessToolViewModel>()
             .AddTool<IVectorEllipseToolHandler, VectorEllipseToolViewModel>()
             .AddTool<IVectorRectangleToolHandler, VectorRectangleToolViewModel>()
             .AddTool<IVectorLineToolHandler, VectorLineToolViewModel>()

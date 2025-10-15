@@ -2,6 +2,7 @@
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Tools;
+using PixiEditor.ViewModels.Tools.Tools;
 
 namespace PixiEditor.Models.DocumentModels.Public;
 
@@ -72,14 +73,14 @@ internal class DocumentToolsModule
 
     public void UseSelectTool() => Internals.ChangeController.TryStartExecutor<SelectToolExecutor>();
 
-    public void UseBrightnessTool() => Internals.ChangeController.TryStartExecutor<BrightnessToolExecutor>();
-
     public void UseFloodFillTool() => Internals.ChangeController.TryStartExecutor<FloodFillToolExecutor>();
 
     public void UseLassoTool() => Internals.ChangeController.TryStartExecutor<LassoToolExecutor>();
 
     public void UseMagicWandTool() => Internals.ChangeController.TryStartExecutor<MagicWandToolExecutor>();
 
+    public void UseBrushBasedTool(BrushBasedToolViewModel brushBasedToolViewModel) =>
+        Internals.ChangeController.TryStartExecutor(new BrushBasedExecutor(brushBasedToolViewModel));
     public void UseTextTool()
     {
         bool force = Internals.ChangeController.GetCurrentExecutorType() == ExecutorType.ToolLinked;
@@ -90,4 +91,5 @@ internal class DocumentToolsModule
     {
         return Internals.ChangeController.TryStopActiveExecutor();
     }
+
 }

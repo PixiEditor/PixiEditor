@@ -88,7 +88,7 @@ internal class ActionAccumulator
 
     internal async Task TryExecuteAccumulatedActions()
     {
-        if (executing || queuedActions.Count == 0)
+        if (executing || queuedActions.Count == 0 || document.IsDisposed)
             return;
         executing = true;
         try

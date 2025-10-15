@@ -273,8 +273,10 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
                 HandleRightMouseEraseDown(tools);
                 return true;
             }
+            /*
             case RightClickMode.SecondaryColor when tools.ActiveTool is BrightnessToolViewModel:
                 return true;
+            */
             case RightClickMode.ContextMenu:
             default:
                 return false;

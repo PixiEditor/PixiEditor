@@ -1,6 +1,7 @@
 ﻿using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
+using PixiEditor.Models.BrushEngine;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.Handlers.Tools;
@@ -12,11 +13,14 @@ using PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
 
 namespace PixiEditor.ViewModels.Tools.Tools;
 
-internal abstract class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
+internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
 {
     private List<Setting> brushShapeSettings = new();
     public override Type[]? SupportedLayerTypes { get; } = { typeof(IRasterLayerHandler) };
     public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(ImageLayerNode);
+
+    public override LocalizedString Tooltip { get; }
+    public override string ToolNameLocalizationKey { get; }
 
     [Settings.Inherited] public double ToolSize => GetValue<double>();
 
@@ -28,9 +32,28 @@ internal abstract class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandl
         (Toolbar as Toolbar).SettingChanged += OnSettingChanged;
     }
 
-    protected abstract Toolbar CreateToolbar();
+    public BrushBasedToolViewModel(Brush brush)
+    {
+        Cursor = Cursors.PreciseCursor;
+        Toolbar = CreateToolbar();
 
-    protected abstract void SwitchToTool();
+        (Toolbar as Toolbar).SettingChanged += OnSettingChanged;
+
+        var brushSetting = Toolbar.GetSetting(nameof(BrushToolbar.Brush));
+
+        brushSetting.Value = brush;
+        brushSetting.IsExposed = false;
+    }
+
+    protected virtual Toolbar CreateToolbar()
+    {
+        return ToolbarFactory.Create<BrushBasedToolViewModel, BrushToolbar>(this);
+    }
+
+    protected virtual void SwitchToTool()
+    {
+        ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseBrushBasedTool(this);
+    }
 
     public override void UseTool(VecD pos)
     {
