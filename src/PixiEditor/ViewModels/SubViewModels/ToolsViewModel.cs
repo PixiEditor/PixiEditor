@@ -683,7 +683,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
                 if (AssetLoader.Exists(uri))
                 {
                     var brush = new Brush(uri);
-                    return new BrushBasedToolViewModel(brush);
+                    return new BrushBasedToolViewModel(brush, toolFromToolset.ToolTip, toolFromToolset.ToolName);
                 }
             }
             catch

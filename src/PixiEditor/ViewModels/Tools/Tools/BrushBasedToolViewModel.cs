@@ -19,10 +19,13 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
     public override Type[]? SupportedLayerTypes { get; } = { typeof(IRasterLayerHandler) };
     public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(ImageLayerNode);
 
-    public override LocalizedString Tooltip { get; }
-    public override string ToolNameLocalizationKey { get; }
+    public override LocalizedString Tooltip => toolTip;
+    public override string ToolNameLocalizationKey => toolName;
 
     [Settings.Inherited] public double ToolSize => GetValue<double>();
+
+    private string toolName;
+    private LocalizedString toolTip;
 
     public BrushBasedToolViewModel()
     {
@@ -32,7 +35,7 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
         (Toolbar as Toolbar).SettingChanged += OnSettingChanged;
     }
 
-    public BrushBasedToolViewModel(Brush brush)
+    public BrushBasedToolViewModel(Brush brush, string? tooltip, string? toolName)
     {
         Cursor = Cursors.PreciseCursor;
         Toolbar = CreateToolbar();
@@ -43,6 +46,9 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
 
         brushSetting.Value = brush;
         brushSetting.IsExposed = false;
+
+        this.toolName = toolName ?? brush.Name;
+        toolTip = tooltip ?? toolName ?? brush.Name;
     }
 
     protected virtual Toolbar CreateToolbar()

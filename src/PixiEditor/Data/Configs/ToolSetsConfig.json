@@ -50,7 +50,8 @@
       {
         "ToolName": "Brightness",
         "Brush": "/BrushTools/Brightness.pixi",
-        "Icon": "icon-sun"
+        "Icon": "icon-sun",
+        "ToolTip":"BRIGHTNESS_TOOL_TOOLTIP"
       },
       "Zoom"
     ]
