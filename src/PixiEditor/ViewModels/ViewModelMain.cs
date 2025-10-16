@@ -153,7 +153,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         ColorsSubViewModel = services.GetService<ColorsViewModel>();
         ColorsSubViewModel?.SetupPaletteProviders(services);
 
-        ToolSetsConfig toolSetConfig = Config.GetConfig<ToolSetsConfig>("ToolSetsConfig");
+        ToolsConfig toolSetConfig = Config.GetConfig<ToolsConfig>("ToolSetsConfig");
         ToolsSubViewModel?.SetupTools(services, toolSetConfig);
 
         DiscordViewModel = services.GetService<DiscordViewModel>();

@@ -1,166 +1,183 @@
-﻿[
-  {
-    "Name": "PIXEL_ART_TOOLSET",
-    "Icon": "icon-lowres-circle",
-    "Tools": [
-      "MoveViewport",
-      "RotateViewport",
-      {
-        "ToolName": "Move",
-        "Settings": {
-          "BilinearTransform": false
-        }
-      },
-      {
-        "ToolName": "Pen",
-        "Settings": {
-          "ExposePixelPerfectEnabled": true,
-          "Spacing": 0,
-          "ExposePaintShape": true
-        }
-      },
-      "Select",
-      "MagicWand",
-      "Lasso",
-      {
-        "ToolName": "FloodFill",
-        "Settings": {
-          "Tolerance": 0
-        }
-      },
-      "RasterLine",
-      "RasterEllipse",
-      "RasterRectangle",
-      {
-        "ToolName": "Text",
-        "Settings": {
-          "AntiAliasing": false,
-          "ForceLowDpiRendering": true
+﻿{
+  "CustomTools": [
+    {
+      "ToolName": "Brightness",
+      "Brush": "/BrushTools/Brightness.pixi",
+      "Icon": "icon-sun",
+      "ToolTip": "BRIGHTNESS_TOOL_TOOLTIP",
+      "DefaultShortcut": "U"
+    }
+  ],
+  "ToolSets": [
+    {
+      "Name": "PIXEL_ART_TOOLSET",
+      "Icon": "icon-lowres-circle",
+      "Tools": [
+        "MoveViewport",
+        "RotateViewport",
+        {
+          "ToolName": "Move",
+          "Settings": {
+            "BilinearTransform": false
+          }
         },
-        "Icon": "icon-text-pixel"
-      },
-      {
-        "ToolName": "Eraser",
-        "Settings": {
-          "Spacing": 0,
-          "ExposePaintShape": true
-        }
-      },
-      "ColorPicker",
-      {
-        "ToolName": "Brightness",
-        "Brush": "/BrushTools/Brightness.pixi",
-        "Icon": "icon-sun",
-        "ToolTip":"BRIGHTNESS_TOOL_TOOLTIP"
-      },
-      "Zoom"
-    ]
-  },
-  {
-    "Name": "PAINT_TOOLSET",
-    "Icon": "icon-paint-brush",
-    "Tools": [
-      "MoveViewport",
-      "RotateViewport",
-      {
-        "ToolName": "Move",
-        "Settings": {
-          "BilinearTransform": true
-        }
-      },
-      {
-        "ToolName": "Pen",
-        "Settings": {
-          "AntiAliasing": true,
-          "ExposeHardness": true,
-          "ExposeSpacing": true,
-          "BrushShapeSetting": "CircleSmooth",
-          "PaintShape": "Circle",
-          "PixelPerfectEnabled": false
-        }
-      },
-      "Select",
-      {
-        "ToolName": "MagicWand",
-        "Settings": {
-          "ExposeTolerance": true
-        }
-      },
-      "Lasso",
-      {
-        "ToolName": "FloodFill",
-        "Settings": {
-          "ExposeTolerance": true
-        }
-      },
-      {
-        "ToolName": "RasterLine",
-        "Settings": {
-          "AntiAliasing": true
+        {
+          "ToolName": "Pen",
+          "Settings": {
+            "ExposePixelPerfectEnabled": true,
+            "Spacing": 0,
+            "ExposePaintShape": true
+          }
         },
-        "Icon": "icon-line"
-      },
-      {
-        "ToolName": "RasterEllipse",
-        "Settings": {
-          "AntiAliasing": true
+        "Select",
+        "MagicWand",
+        "Lasso",
+        {
+          "ToolName": "FloodFill",
+          "Settings": {
+            "Tolerance": 0
+          }
         },
-        "Icon": "icon-circle"
-      },
-      {
-        "ToolName": "RasterRectangle",
-        "Settings": {
-          "AntiAliasing": true
+        "RasterLine",
+        "RasterEllipse",
+        "RasterRectangle",
+        {
+          "ToolName": "Text",
+          "Settings": {
+            "AntiAliasing": false,
+            "ForceLowDpiRendering": true
+          },
+          "Icon": "icon-text-pixel"
         },
-        "Icon": "icon-square"
-      },
-      {
-        "ToolName": "Text",
-        "Settings": {
-          "AntiAliasing": true,
-          "ForceLowDpiRendering": true
+        {
+          "ToolName": "Eraser",
+          "Settings": {
+            "Spacing": 0,
+            "ExposePaintShape": true
+          }
         },
-        "Icon": "icon-text-antialiased"
-      },
-      {
-        "ToolName": "Eraser",
-        "Settings": {
-          "AntiAliasing": true,
-          "ExposeHardness": true,
-          "ExposeSpacing": true,
-          "BrushShapeSetting": "CircleSmooth",
-          "PaintShape": "Circle"
-        }
-      },
-      "ColorPicker",
-      "Zoom"
-    ]
-  },
-  {
-    "Name": "VECTOR_TOOLSET",
-    "Icon": "icon-vector-pen",
-    "Tools": [
-      "MoveViewport",
-      "RotateViewport",
-      {
-        "ToolName": "Move",
-        "Settings": {
-          "BilinearTransform": true
-        }
-      },
-      "VectorPath",
-      "VectorLine",
-      "VectorEllipse",
-      "VectorRectangle",
-      {
-        "ToolName": "Text",
-        "Settings": {
-          "AntiAliasing": true,
-          "ForceLowDpiRendering": false
-        }
-      },
-      "ColorPicker",
-      "Zoom"
-    ]
-  }
-]
+        {
+            "ToolName": "Brightness",
+            "Settings": {
+              "AntiAliasing": false
+            }
+        },
+        "ColorPicker",
+        "Zoom"
+      ]
+    },
+    {
+      "Name": "PAINT_TOOLSET",
+      "Icon": "icon-paint-brush",
+      "Tools": [
+        "MoveViewport",
+        "RotateViewport",
+        {
+          "ToolName": "Move",
+          "Settings": {
+            "BilinearTransform": true
+          }
+        },
+        {
+          "ToolName": "Pen",
+          "Settings": {
+            "AntiAliasing": true,
+            "ExposeHardness": true,
+            "ExposeSpacing": true,
+            "BrushShapeSetting": "CircleSmooth",
+            "PaintShape": "Circle",
+            "PixelPerfectEnabled": false
+          }
+        },
+        "Select",
+        {
+          "ToolName": "MagicWand",
+          "Settings": {
+            "ExposeTolerance": true
+          }
+        },
+        "Lasso",
+        {
+          "ToolName": "FloodFill",
+          "Settings": {
+            "ExposeTolerance": true
+          }
+        },
+        {
+          "ToolName": "RasterLine",
+          "Settings": {
+            "AntiAliasing": true
+          },
+          "Icon": "icon-line"
+        },
+        {
+          "ToolName": "RasterEllipse",
+          "Settings": {
+            "AntiAliasing": true
+          },
+          "Icon": "icon-circle"
+        },
+        {
+          "ToolName": "RasterRectangle",
+          "Settings": {
+            "AntiAliasing": true
+          },
+          "Icon": "icon-square"
+        },
+        {
+          "ToolName": "Text",
+          "Settings": {
+            "AntiAliasing": true,
+            "ForceLowDpiRendering": true
+          },
+          "Icon": "icon-text-antialiased"
+        },
+        {
+          "ToolName": "Eraser",
+          "Settings": {
+            "AntiAliasing": true,
+            "ExposeHardness": true,
+            "ExposeSpacing": true,
+            "BrushShapeSetting": "CircleSmooth",
+            "PaintShape": "Circle"
+          }
+        },
+        {
+            "ToolName": "Brightness",
+            "Settings": {
+              "AntiAliasing": true
+            }
+        },
+        "ColorPicker",
+        "Zoom"
+      ]
+    },
+    {
+      "Name": "VECTOR_TOOLSET",
+      "Icon": "icon-vector-pen",
+      "Tools": [
+        "MoveViewport",
+        "RotateViewport",
+        {
+          "ToolName": "Move",
+          "Settings": {
+            "BilinearTransform": true
+          }
+        },
+        "VectorPath",
+        "VectorLine",
+        "VectorEllipse",
+        "VectorRectangle",
+        {
+          "ToolName": "Text",
+          "Settings": {
+            "AntiAliasing": true,
+            "ForceLowDpiRendering": false
+          }
+        },
+        "ColorPicker",
+        "Zoom"
+      ]
+    }
+  ]
+}
