@@ -16,7 +16,16 @@ internal class Brush : IBrush
 
     public Brush(Uri uri)
     {
-        using var stream = AssetLoader.Open(uri);
+        Stream stream;
+        if (uri.IsFile)
+        {
+            stream = File.OpenRead(uri.LocalPath);
+        }
+        else
+        {
+            stream = AssetLoader.Open(uri);
+        }
+
         byte[] buffer = new byte[stream.Length];
         stream.ReadExactly(buffer, 0, buffer.Length);
         var doc = Importer.ImportDocument(buffer, null);
@@ -32,6 +41,9 @@ internal class Brush : IBrush
 
         Name = name;
         Document = doc;
+
+        stream.Close();
+        stream.Dispose();
     }
 
     public Brush(string name, IDocument brushDocument)

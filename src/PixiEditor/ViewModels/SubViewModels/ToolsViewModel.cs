@@ -752,7 +752,8 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
                 }
 
                 Uri uri = new(path);
-                if (AssetLoader.Exists(uri))
+
+                if (AssetLoader.Exists(uri) || File.Exists(uri.LocalPath))
                 {
                     var brush = new Brush(uri);
                     KeyCombination? shortcut = TryParseShortcut(toolFromToolset.DefaultShortcut);

@@ -9,12 +9,67 @@ public class ToolSetsConfig : List<ToolSet>
 {
 }
 
-public class ToolsConfig
+public class ToolsConfig : IMergeable<ToolsConfig>
 {
     [JsonConverter(typeof(ToolConverter))]
     public List<ToolConfig> CustomTools { get; set; }
 
     public ToolSetsConfig ToolSets { get; set; }
+
+    public ToolsConfig TryMergeWith(ToolsConfig other)
+    {
+        var merged = new ToolsConfig
+        {
+            CustomTools = new List<ToolConfig>(CustomTools),
+            ToolSets = new ToolSetsConfig()
+        };
+
+        foreach (var tool in other.CustomTools)
+        {
+            if (!merged.CustomTools.Exists(t => t.ToolName == tool.ToolName))
+            {
+                merged.CustomTools.Add(tool);
+            }
+        }
+
+        foreach (var set in ToolSets)
+        {
+            var otherSet = other.ToolSets.Find(s => s.Name == set.Name);
+            if (otherSet != null)
+            {
+                var mergedSet = new ToolSet
+                {
+                    Name = set.Name,
+                    Icon = set.Icon,
+                    Tools = new List<ToolConfig>(set.Tools)
+                };
+
+                foreach (var tool in otherSet.Tools)
+                {
+                    if (!mergedSet.Tools.Exists(t => t.ToolName == tool.ToolName))
+                    {
+                        mergedSet.Tools.Add(tool);
+                    }
+                }
+
+                merged.ToolSets.Add(mergedSet);
+            }
+            else
+            {
+                merged.ToolSets.Add(set);
+            }
+        }
+
+        foreach (var set in other.ToolSets)
+        {
+            if (!merged.ToolSets.Exists(s => s.Name == set.Name))
+            {
+                merged.ToolSets.Add(set);
+            }
+        }
+
+        return merged;
+    }
 }
 
 public class ToolSet
