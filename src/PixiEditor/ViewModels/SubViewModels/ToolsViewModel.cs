@@ -244,7 +244,6 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     [Command.Internal("PixiEditor.Tools.SetActiveToolSet", AnalyticsTrack = true)]
     public void SetActiveToolSet(IToolSetHandler toolSetHandler)
     {
-        //ActiveTool?.OnToolDeselected(false);
         ActiveToolSet = toolSetHandler;
         if (ActiveTool != null)
         {
@@ -758,7 +757,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
                     var brush = new Brush(uri);
                     KeyCombination? shortcut = TryParseShortcut(toolFromToolset.DefaultShortcut);
                     return new BrushBasedToolViewModel(brush, toolFromToolset.ToolTip, toolFromToolset.ToolName,
-                        shortcut);
+                        shortcut, toolFromToolset.ActionDisplays);
                 }
             }
             catch

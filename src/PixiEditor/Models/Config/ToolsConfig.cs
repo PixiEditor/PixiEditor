@@ -35,6 +35,13 @@ public class ToolConfig
     public Dictionary<string, object>? Settings { get; set; }
     public bool IsSimpleTool => Settings == null || Settings.Count == 0;
     public string? Icon { get; set; }
+    public List<ActionDisplayConfig>? ActionDisplays { get; set; }
+}
+
+public class ActionDisplayConfig
+{
+    public string ActionDisplay { get; set; }
+    public string? Modifiers { get; set; }
 }
 
 public class ToolConverter : JsonConverter

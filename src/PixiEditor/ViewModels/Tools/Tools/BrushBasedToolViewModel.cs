@@ -1,7 +1,9 @@
-﻿using Drawie.Numerics;
+﻿using Avalonia.Input;
+using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
 using PixiEditor.Models.BrushEngine;
+using PixiEditor.Models.Config;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.Handlers.Tools;
@@ -30,6 +32,8 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
     private string? toolName;
     private string toolTipKey;
 
+    private List<ParsedActionDisplayConfig>? actionDisplays;
+
     public BrushBasedToolViewModel()
     {
         Cursor = Cursors.PreciseCursor;
@@ -38,7 +42,8 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
         (Toolbar as Toolbar).SettingChanged += OnSettingChanged;
     }
 
-    public BrushBasedToolViewModel(Brush brush, string? tooltip, string? toolName, KeyCombination? defaultShortcut)
+    public BrushBasedToolViewModel(Brush brush, string? tooltip, string? toolName, KeyCombination? defaultShortcut,
+        List<ActionDisplayConfig>? actionDisplays)
     {
         Cursor = Cursors.PreciseCursor;
         Toolbar = CreateToolbar();
@@ -54,6 +59,16 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
         toolTipKey = tooltip ?? toolName ?? brush.Name;
         DefaultShortcut = defaultShortcut;
         IsCustomBrushTool = true;
+        this.actionDisplays = ParseActionDisplays(actionDisplays);
+
+        if (this.actionDisplays is { Count: > 0 })
+        {
+            var defaultDisplay = this.actionDisplays.FirstOrDefault(x => x.Modifiers == KeyModifiers.None);
+            if (defaultDisplay != null)
+            {
+                ActionDisplay = defaultDisplay.ActionDisplay;
+            }
+        }
     }
 
     protected virtual Toolbar CreateToolbar()
@@ -84,6 +99,36 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
     public override void OnPostRedoInlet()
     {
         SwitchToTool();
+    }
+
+    public override void KeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown, Key argsKey)
+    {
+        if (actionDisplays is null || actionDisplays.Count == 0)
+        {
+            return;
+        }
+
+        var modifiers = KeyModifiers.None;
+        if (ctrlIsDown)
+        {
+            modifiers |= KeyModifiers.Control;
+        }
+
+        if (shiftIsDown)
+        {
+            modifiers |= KeyModifiers.Shift;
+        }
+
+        if (altIsDown)
+        {
+            modifiers |= KeyModifiers.Alt;
+        }
+
+        var display = actionDisplays.FirstOrDefault(x => x.Modifiers == modifiers);
+        if (display != null)
+        {
+            ActionDisplay = display.ActionDisplay;
+        }
     }
 
     private void OnSettingChanged(string name, object value)
@@ -121,4 +166,24 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
     {
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.TryStopActiveTool();
     }
+
+    private List<ParsedActionDisplayConfig>? ParseActionDisplays(List<ActionDisplayConfig>? configs)
+    {
+        if (configs is null || configs.Count == 0)
+        {
+            return null;
+        }
+
+        List<ParsedActionDisplayConfig> parsed = new();
+
+        foreach (var config in configs)
+        {
+            var combination = KeyCombination.TryParse(config.Modifiers);
+            parsed.Add(new ParsedActionDisplayConfig(combination.Modifiers, config.ActionDisplay));
+        }
+
+        return parsed;
+    }
 }
+
+record ParsedActionDisplayConfig(KeyModifiers Modifiers, string ActionDisplay);

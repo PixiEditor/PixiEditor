@@ -5,7 +5,16 @@
       "Brush": "/BrushTools/Brightness.pixi",
       "Icon": "icon-sun",
       "ToolTip": "BRIGHTNESS_TOOL_TOOLTIP",
-      "DefaultShortcut": "U"
+      "DefaultShortcut": "U",
+      "ActionDisplays": [
+        {
+          "ActionDisplay": "BRIGHTNESS_TOOL_ACTION_DISPLAY_DEFAULT"
+        },
+        {
+          "Modifiers": "Ctrl",
+          "ActionDisplay": "BRIGHTNESS_TOOL_ACTION_DISPLAY_CTRL"
+        }
+      ]
     }
   ],
   "ToolSets": [
@@ -57,10 +66,10 @@
           }
         },
         {
-            "ToolName": "Brightness",
-            "Settings": {
-              "AntiAliasing": false
-            }
+          "ToolName": "Brightness",
+          "Settings": {
+            "AntiAliasing": false
+          }
         },
         "ColorPicker",
         "Zoom"
@@ -143,10 +152,10 @@
           }
         },
         {
-            "ToolName": "Brightness",
-            "Settings": {
-              "AntiAliasing": true
-            }
+          "ToolName": "Brightness",
+          "Settings": {
+            "AntiAliasing": true
+          }
         },
         "ColorPicker",
         "Zoom"
