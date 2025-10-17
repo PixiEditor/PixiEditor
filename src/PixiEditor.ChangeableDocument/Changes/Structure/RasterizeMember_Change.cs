@@ -16,13 +16,16 @@ internal class RasterizeMember_Change : Change
     
     private Node originalNode;
     private Guid createdNodeId;
-    
+
+    private int frame = 0;
+
     private ConnectionsData originalConnections;
     
     [GenerateMakeChangeAction]
-    public RasterizeMember_Change(Guid memberId)
+    public RasterizeMember_Change(Guid memberId, int frame)
     {
         this.memberId = memberId;
+        this.frame = frame;
     }
     
     public override bool InitializeAndValidate(Document target)
@@ -51,7 +54,7 @@ internal class RasterizeMember_Change : Change
         target.NodeGraph.AddNode(imageLayer);
         
         using Surface surface = Surface.ForProcessing(target.Size, target.ProcessingColorSpace);
-        rasterizable.Rasterize(surface.DrawingSurface, null);
+        rasterizable.Rasterize(surface.DrawingSurface, null, frame);
         
         var image = imageLayer.GetLayerImageAtFrame(0);
         image.EnqueueDrawImage(VecI.Zero, surface);

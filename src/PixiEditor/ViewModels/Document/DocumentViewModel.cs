@@ -16,6 +16,7 @@ using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Vector;
@@ -1035,7 +1036,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 {
                     using Surface texture = new Surface(SizeBindable);
                     using Paint paint = new Paint();
-                    rasterizable.Rasterize(texture.DrawingSurface, paint);
+                    rasterizable.Rasterize(texture.DrawingSurface, paint, frameTime.Frame);
                     return texture.GetSrgbPixel(pos);
                 }
             }

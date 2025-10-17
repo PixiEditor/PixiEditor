@@ -15,6 +15,7 @@ using PixiEditor.Helpers.Converters;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.ChangeableDocument.Enums;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
 using PixiEditor.Extensions.Exceptions;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Attributes.Evaluators;
@@ -665,6 +666,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
 
         block.Dispose();
     }
+
 
     [Command.Basic("PixiEditor.Layer.ConvertToCurve", "CONVERT_TO_CURVE", "CONVERT_TO_CURVE_DESCRIPTIVE",
         CanExecute = "PixiEditor.Layer.AnySelectedMemberIsVectorLayer",

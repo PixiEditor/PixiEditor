@@ -1185,5 +1185,6 @@
   "GRADIENT": "Gradient",
   "BRUSH_SETTING": "Brush",
   "ABSOLUTE_COORDINATES": "Absolute Coordinates",
-  "ALWAYS_CLEAR": "Always Clear"
+  "ALWAYS_CLEAR": "Always Clear",
+  "BILINEAR_SAMPLING": "Bilinear Sampling"
 }

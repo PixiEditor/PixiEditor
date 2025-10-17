@@ -8,6 +8,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Enums;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Vector;
 using PixiEditor.Extensions.CommonApi.Palettes;
@@ -918,7 +919,7 @@ internal class DocumentOperationsModule : IDocumentOperations
 
         Internals.ChangeController.TryStopActiveExecutor();
 
-        Internals.ActionAccumulator.AddFinishedActions(new RasterizeMember_Action(memberId));
+        Internals.ActionAccumulator.AddFinishedActions(new RasterizeMember_Action(memberId, Document.AnimationHandler.ActiveFrameBindable));
     }
 
     public void InvokeCustomAction(Action action, bool stopActiveExecutor = true)

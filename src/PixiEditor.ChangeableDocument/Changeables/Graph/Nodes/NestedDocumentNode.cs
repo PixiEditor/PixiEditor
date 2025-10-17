@@ -13,14 +13,17 @@ using PixiEditor.ChangeableDocument.Rendering;
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 [NodeInfo("NestedDocument")]
-public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransformableObject
+public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransformableObject, IRasterizable, IVariableSampling
 {
     private IReadOnlyDocument? lastDocument;
     public InputProperty<IReadOnlyDocument> NestedDocument { get; }
 
+    public InputProperty<bool> BilinearSampling { get; }
+
     public Matrix3X3 TransformationMatrix { get; set; } = Matrix3X3.Identity;
 
-    public RectD TransformedAABB => new ShapeCorners(NestedDocument.Value?.Size / 2f ?? VecD.Zero, NestedDocument.Value?.Size ?? VecD.Zero)
+    public RectD TransformedAABB => new ShapeCorners(NestedDocument.Value?.Size / 2f ?? VecD.Zero,
+            NestedDocument.Value?.Size ?? VecD.Zero)
         .WithMatrix(TransformationMatrix).AABBBounds;
 
     private Texture? dummyTexture;
@@ -32,7 +35,9 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
         NestedDocument = CreateInput<IReadOnlyDocument>("Document", "DOCUMENT", null)
             .NonOverridenChanged(DocumentChanged);
         NestedDocument.ConnectionChanged += NestedDocumentOnConnectionChanged;
+        BilinearSampling = CreateInput<bool>("BilinearSampling", "BILINEAR_SAMPLING", false);
         AllowHighDpiRendering = true;
+
         builtInOutputs = OutputProperties.Select(x => x.InternalPropertyName).ToArray();
     }
 
@@ -149,11 +154,69 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
     {
         if (NestedDocument.Value is null)
             return;
+        int saved = workingSurface.Canvas.Save();
+        workingSurface.Canvas.SetMatrix(workingSurface.Canvas.TotalMatrix.Concat(TransformationMatrix));
 
+        ExecuteNested(ctx);
+
+        workingSurface.Canvas.RestoreToCount(saved);
+    }
+
+
+    protected override void DrawWithFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface, Paint paint)
+    {
+        if (NestedDocument.Value is null)
+            return;
+
+        int saved = workingSurface.Canvas.SaveLayer(paint);
+
+        workingSurface.Canvas.SetMatrix(workingSurface.Canvas.TotalMatrix.Concat(TransformationMatrix));
+
+        ExecuteNested(ctx);
+
+        workingSurface.Canvas.RestoreToCount(saved);
+    }
+
+    public void Rasterize(DrawingSurface surface, Paint paint, int atFrame)
+    {
+        if (NestedDocument.Value is null)
+            return;
+
+        int layer;
+        if (paint is { IsOpaqueStandardNonBlendingPaint: false })
+        {
+            layer = surface.Canvas.SaveLayer(paint);
+        }
+        else
+        {
+            layer = surface.Canvas.Save();
+        }
+
+        surface.Canvas.SetMatrix(surface.Canvas.TotalMatrix.Concat(TransformationMatrix));
+
+        RenderContext context = new(
+            surface, atFrame, ChunkResolution.Full,
+            surface.DeviceClipBounds.Size,
+            NestedDocument.Value.Size,
+            NestedDocument.Value.ProcessingColorSpace,
+            BilinearSampling.Value ? SamplingOptions.Bilinear : SamplingOptions.Default,
+            NestedDocument.Value.NodeGraph)
+        {
+            FullRerender = true,
+        };
+
+        ExecuteNested(context);
+
+        surface.Canvas.RestoreToCount(layer);
+    }
+
+    private void ExecuteNested(RenderContext ctx)
+    {
         var clonedContext = ctx.Clone();
         clonedContext.Graph = NestedDocument.Value.NodeGraph;
         clonedContext.DocumentSize = NestedDocument.Value.Size;
         clonedContext.ProcessingColorSpace = NestedDocument.Value.ProcessingColorSpace;
+        clonedContext.DesiredSamplingOptions = BilinearSampling.Value ? SamplingOptions.Bilinear : SamplingOptions.Default;
         if (clonedContext.VisibleDocumentRegion.HasValue)
         {
             clonedContext.VisibleDocumentRegion =
@@ -161,21 +224,11 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
                     .WithMatrix(TransformationMatrix.Invert()).AABBBounds;
         }
 
-        int saved = workingSurface.Canvas.Save();
-        workingSurface.Canvas.SetMatrix(workingSurface.Canvas.TotalMatrix.Concat(TransformationMatrix));
-
         var outputNode = NestedDocument.Value.NodeGraph.AllNodes.OfType<BrushOutputNode>().FirstOrDefault() ??
                          NestedDocument.Value.NodeGraph.OutputNode;
 
         NestedDocument.Value?.NodeGraph.Execute(outputNode, clonedContext);
-
-        workingSurface.Canvas.RestoreToCount(saved);
     }
-
-    protected override void DrawWithFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface, Paint paint)
-    {
-    }
-
 
     public override RectD? GetTightBounds(KeyFrameTime frameTime)
     {

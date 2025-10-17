@@ -11,6 +11,8 @@ using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 
@@ -274,11 +276,18 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
             }
             else if (member.IsTransformable)
             {
-                var transformable = target.FindMemberOrThrow(member.MemberId) as ITransformableObject;
+                var node = target.FindMemberOrThrow(member.MemberId);
+                var transformable = node as ITransformableObject;
                 transformable.TransformationMatrix = member.LocalMatrix;
 
                 AffectedArea area = GetTranslationAffectedArea();
                 infos.Add(new TransformObject_ChangeInfo(member.MemberId, area));
+                if (node is IVariableSampling variableSampling)
+                {
+                    variableSampling.BilinearSampling.NonOverridenValue = bilinearFiltering;
+                    infos.Add(new PropertyValueUpdated_ChangeInfo(member.MemberId,
+                        variableSampling.BilinearSampling.InternalPropertyName, bilinearFiltering));
+                }
             }
         }
 
@@ -311,7 +320,8 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
             }
             else if (member.IsTransformable)
             {
-                var transformable = target.FindMemberOrThrow(member.MemberId) as ITransformableObject;
+                var node = target.FindMemberOrThrow(member.MemberId);
+                var transformable = node as ITransformableObject;
                 transformable.TransformationMatrix = member.LocalMatrix;
 
                 AffectedArea translationAffectedArea = GetTranslationAffectedArea();
@@ -323,6 +333,13 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
 
                 lastAffectedArea = tmp;
                 infos.Add(new TransformObject_ChangeInfo(member.MemberId, translationAffectedArea));
+
+                if (node is IVariableSampling variableSampling)
+                {
+                    variableSampling.BilinearSampling.NonOverridenValue = bilinearFiltering;
+                    infos.Add(new PropertyValueUpdated_ChangeInfo(member.MemberId,
+                        variableSampling.BilinearSampling.InternalPropertyName, bilinearFiltering));
+                }
             }
         }
 
