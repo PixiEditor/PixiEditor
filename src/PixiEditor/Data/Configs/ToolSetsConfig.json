@@ -35,7 +35,6 @@
           "Settings": {
             "ExposePixelPerfectEnabled": true,
             "Spacing": 0,
-            "ExposePaintShape": true
           }
         },
         "Select",
@@ -61,8 +60,7 @@
         {
           "ToolName": "Eraser",
           "Settings": {
-            "Spacing": 0,
-            "ExposePaintShape": true
+            "Spacing": 0
           }
         },
         {
@@ -91,10 +89,7 @@
           "ToolName": "Pen",
           "Settings": {
             "AntiAliasing": true,
-            "ExposeHardness": true,
             "ExposeSpacing": true,
-            "BrushShapeSetting": "CircleSmooth",
-            "PaintShape": "Circle",
             "PixelPerfectEnabled": false
           }
         },
@@ -145,10 +140,7 @@
           "ToolName": "Eraser",
           "Settings": {
             "AntiAliasing": true,
-            "ExposeHardness": true,
-            "ExposeSpacing": true,
-            "BrushShapeSetting": "CircleSmooth",
-            "PaintShape": "Circle"
+            "ExposeSpacing": true
           }
         },
         {

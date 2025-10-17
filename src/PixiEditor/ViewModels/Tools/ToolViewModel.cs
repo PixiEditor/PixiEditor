@@ -105,6 +105,7 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
     public IToolbar Toolbar { get; set; } = new EmptyToolbar();
 
     public Dictionary<IToolSetHandler, Dictionary<string, object>> ToolSetSettings { get; } = new();
+    public bool IsPixiPerfectIcon => !Uri.TryCreate(IconToUse, UriKind.Absolute, out _);
 
     internal ToolViewModel()
     {
