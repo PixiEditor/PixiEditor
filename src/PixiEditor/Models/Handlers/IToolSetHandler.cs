@@ -7,4 +7,5 @@ internal interface IToolSetHandler : IHandler
     public ICollection<IToolHandler> Tools { get; }
     public void ApplyToolSetSettings();
     public IReadOnlyDictionary<IToolHandler, string> IconOverwrites { get; }
+    public bool IconIsPixiPerfect { get; }
 }

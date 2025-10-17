@@ -11,8 +11,7 @@ public class ToolSetsConfig : List<ToolSet>
 
 public class ToolsConfig : IMergeable<ToolsConfig>
 {
-    [JsonConverter(typeof(ToolConverter))]
-    public List<ToolConfig> CustomTools { get; set; }
+    [JsonConverter(typeof(ToolConverter))] public List<ToolConfig> CustomTools { get; set; }
 
     public ToolSetsConfig ToolSets { get; set; }
 
@@ -20,8 +19,7 @@ public class ToolsConfig : IMergeable<ToolsConfig>
     {
         var merged = new ToolsConfig
         {
-            CustomTools = new List<ToolConfig>(CustomTools),
-            ToolSets = new ToolSetsConfig()
+            CustomTools = new List<ToolConfig>(CustomTools), ToolSets = new ToolSetsConfig()
         };
 
         foreach (var tool in other.CustomTools)
@@ -29,6 +27,30 @@ public class ToolsConfig : IMergeable<ToolsConfig>
             if (!merged.CustomTools.Exists(t => t.ToolName == tool.ToolName))
             {
                 merged.CustomTools.Add(tool);
+            }
+            else
+            {
+                var existingTool = merged.CustomTools.Find(t => t.ToolName == tool.ToolName);
+                if (existingTool != null)
+                {
+                    existingTool.Icon = string.IsNullOrEmpty(tool.Icon) ? existingTool.Icon : tool.Icon;
+                    existingTool.ActionDisplays = tool.ActionDisplays ?? existingTool.ActionDisplays;
+                    existingTool.DefaultShortcut = string.IsNullOrEmpty(tool.DefaultShortcut)
+                        ? existingTool.DefaultShortcut
+                        : tool.DefaultShortcut;
+                    existingTool.ToolTip = string.IsNullOrEmpty(tool.ToolTip) ? existingTool.ToolTip : tool.ToolTip;
+                    if (existingTool.Settings != null && tool.Settings != null)
+                    {
+                        foreach (var kvp in tool.Settings)
+                        {
+                            existingTool.Settings[kvp.Key] = kvp.Value;
+                        }
+                    }
+                    else if (existingTool.Settings == null)
+                    {
+                        existingTool.Settings = tool.Settings;
+                    }
+                }
             }
         }
 
@@ -40,7 +62,7 @@ public class ToolsConfig : IMergeable<ToolsConfig>
                 var mergedSet = new ToolSet
                 {
                     Name = set.Name,
-                    Icon = set.Icon,
+                    Icon = string.IsNullOrEmpty(otherSet.Icon) ? set.Icon : otherSet.Icon,
                     Tools = new List<ToolConfig>(set.Tools)
                 };
 
@@ -49,6 +71,32 @@ public class ToolsConfig : IMergeable<ToolsConfig>
                     if (!mergedSet.Tools.Exists(t => t.ToolName == tool.ToolName))
                     {
                         mergedSet.Tools.Add(tool);
+                    }
+                    else
+                    {
+                        var existingTool = mergedSet.Tools.Find(t => t.ToolName == tool.ToolName);
+                        if (existingTool != null)
+                        {
+                            existingTool.Icon = string.IsNullOrEmpty(tool.Icon) ? existingTool.Icon : tool.Icon;
+                            existingTool.ActionDisplays = tool.ActionDisplays ?? existingTool.ActionDisplays;
+                            existingTool.DefaultShortcut = string.IsNullOrEmpty(tool.DefaultShortcut)
+                                ? existingTool.DefaultShortcut
+                                : tool.DefaultShortcut;
+                            existingTool.ToolTip =
+                                string.IsNullOrEmpty(tool.ToolTip) ? existingTool.ToolTip : tool.ToolTip;
+
+                            if (existingTool.Settings != null && tool.Settings != null)
+                            {
+                                foreach (var kvp in tool.Settings)
+                                {
+                                    existingTool.Settings[kvp.Key] = kvp.Value;
+                                }
+                            }
+                            else if (existingTool.Settings == null)
+                            {
+                                existingTool.Settings = tool.Settings;
+                            }
+                        }
                     }
                 }
 
