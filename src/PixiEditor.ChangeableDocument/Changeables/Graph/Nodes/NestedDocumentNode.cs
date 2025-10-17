@@ -13,7 +13,8 @@ using PixiEditor.ChangeableDocument.Rendering;
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 [NodeInfo("NestedDocument")]
-public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransformableObject, IRasterizable, IVariableSampling
+public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransformableObject, IRasterizable,
+    IVariableSampling
 {
     private IReadOnlyDocument? lastDocument;
     public InputProperty<IReadOnlyDocument> NestedDocument { get; }
@@ -108,6 +109,8 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
 
     protected override void OnExecute(RenderContext context)
     {
+        base.OnExecute(context);
+
         if (NestedDocument.Value is null)
             return;
 
@@ -146,15 +149,23 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
                 output.Value = correspondingInput.Value;
             }
         }
-
-        base.OnExecute(context);
     }
 
     protected override void DrawWithoutFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface, Paint paint)
     {
         if (NestedDocument.Value is null)
             return;
-        int saved = workingSurface.Canvas.Save();
+
+        int saved;
+        if (paint.IsOpaqueStandardNonBlendingPaint)
+        {
+            saved = workingSurface.Canvas.Save();
+        }
+        else
+        {
+            saved = workingSurface.Canvas.SaveLayer(paint);
+        }
+
         workingSurface.Canvas.SetMatrix(workingSurface.Canvas.TotalMatrix.Concat(TransformationMatrix));
 
         ExecuteNested(ctx);
@@ -200,10 +211,7 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
             NestedDocument.Value.Size,
             NestedDocument.Value.ProcessingColorSpace,
             BilinearSampling.Value ? SamplingOptions.Bilinear : SamplingOptions.Default,
-            NestedDocument.Value.NodeGraph)
-        {
-            FullRerender = true,
-        };
+            NestedDocument.Value.NodeGraph) { FullRerender = true, };
 
         ExecuteNested(context);
 
@@ -216,7 +224,8 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
         clonedContext.Graph = NestedDocument.Value.NodeGraph;
         clonedContext.DocumentSize = NestedDocument.Value.Size;
         clonedContext.ProcessingColorSpace = NestedDocument.Value.ProcessingColorSpace;
-        clonedContext.DesiredSamplingOptions = BilinearSampling.Value ? SamplingOptions.Bilinear : SamplingOptions.Default;
+        clonedContext.DesiredSamplingOptions =
+            BilinearSampling.Value ? SamplingOptions.Bilinear : SamplingOptions.Default;
         if (clonedContext.VisibleDocumentRegion.HasValue)
         {
             clonedContext.VisibleDocumentRegion =
@@ -228,6 +237,37 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
                          NestedDocument.Value.NodeGraph.OutputNode;
 
         NestedDocument.Value?.NodeGraph.Execute(outputNode, clonedContext);
+    }
+
+    protected override bool ShouldRenderPreview(string elementToRenderName)
+    {
+        if (IsDisposed)
+        {
+            return false;
+        }
+
+        if (elementToRenderName == nameof(EmbeddedMask))
+        {
+            return base.ShouldRenderPreview(elementToRenderName);
+        }
+
+        return NestedDocument.Value != null;
+    }
+
+    public override RectD? GetPreviewBounds(RenderContext ctx, string elementToRenderName)
+    {
+        return TransformedAABB;
+    }
+
+    public override void RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
+    {
+        if (elementToRenderName == nameof(EmbeddedMask))
+        {
+            base.RenderPreview(renderOn, context, elementToRenderName);
+            return;
+        }
+
+        Paint(context, renderOn);
     }
 
     public override RectD? GetTightBounds(KeyFrameTime frameTime)

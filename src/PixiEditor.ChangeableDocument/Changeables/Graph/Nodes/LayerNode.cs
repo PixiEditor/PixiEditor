@@ -61,8 +61,13 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
                 var tempSurface = TryInitWorkingSurface(context.RenderOutputSize, context.ChunkResolution,
                     context.ProcessingColorSpace, 22);
 
+                var originalSurface = context.RenderSurface;
+                context.RenderSurface = tempSurface.DrawingSurface;
+
                 DrawLayerOnTexture(context, tempSurface.DrawingSurface, context.ChunkResolution, useFilters,
                     targetPaint);
+
+                context.RenderSurface = originalSurface;
 
                 blendPaint.SetFilters(null);
                 DrawWithResolution(tempSurface.DrawingSurface, renderOnto, context.ChunkResolution,
@@ -95,7 +100,13 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
             Color = new Color(255, 255, 255, 255), BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.SrcOver
         };
 
+
+        var originalRenderSurface = context.RenderSurface;
+        context.RenderSurface = outputWorkingSurface.DrawingSurface;
+
         DrawLayerOnTexture(context, outputWorkingSurface.DrawingSurface, adjustedResolution, false, paint);
+
+        context.RenderSurface = originalRenderSurface;
 
         ApplyMaskIfPresent(outputWorkingSurface.DrawingSurface, context, adjustedResolution);
 
@@ -197,7 +208,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
             tex = Texture.ForProcessing(workingSurface,
                 ColorSpace.CreateSrgb());
             workingSurface.Canvas.SetMatrix(Matrix3X3.Identity);
-
+            ctx.RenderSurface = tex.DrawingSurface;
             targetSurface = tex.DrawingSurface;
         }
 
@@ -217,6 +228,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
             workingSurface.Canvas.DrawSurface(targetSurface, 0, 0);
             tex.Dispose();
             workingSurface.Canvas.RestoreToCount(saved);
+            ctx.RenderSurface = workingSurface;
         }
     }
 
