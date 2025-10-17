@@ -8,7 +8,7 @@ using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Interfaces;
 
-public interface IReadOnlyDocument : IDisposable
+public interface IReadOnlyDocument : IDisposable, ICloneable
 {    
     public Guid DocumentId { get; }
     /// <summary>

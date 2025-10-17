@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using System.Reflection;
 using Avalonia.Input;
 using PixiEditor.Models.Commands.Attributes.Commands;
@@ -47,6 +48,55 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
         Internals = internals;
         Blackboard = new BlackboardViewModel(internals);
     }
+
+    internal void InitFrom(IReadOnlyNodeGraph nodeGraph)
+    {
+        foreach (var node in nodeGraph.AllNodes)
+        {
+            Internals.Updater.ApplyChangeFromChangeInfo(new CreateNode_ChangeInfo(
+                node.GetNodeTypeUniqueName(),
+                node.DisplayName,
+                node.Position,
+                node.Id,
+                CreatePropertyInfos(node.InputProperties),
+                CreatePropertyInfos(node.OutputProperties),
+                new NodeMetadata(node) { PairNodeGuid = node is IPairNode pairNode ? pairNode.OtherNode : null }
+            ));
+        }
+    }
+
+    private static ImmutableArray<NodePropertyInfo> CreatePropertyInfos(IEnumerable<IInputProperty> properties)
+    {
+        List<NodePropertyInfo> inputInfos = new();
+        foreach (var prop in properties)
+        {
+            inputInfos.Add(new NodePropertyInfo(
+                prop.InternalPropertyName,
+                prop.DisplayName,
+                prop.ValueType,
+                true,
+                prop.Value, prop.Node.Id));
+        }
+
+        return [..inputInfos];
+    }
+
+    private static ImmutableArray<NodePropertyInfo> CreatePropertyInfos(IEnumerable<IOutputProperty> properties)
+    {
+        List<NodePropertyInfo> inputInfos = new();
+        foreach (var prop in properties)
+        {
+            inputInfos.Add(new NodePropertyInfo(
+                prop.InternalPropertyName,
+                prop.DisplayName,
+                prop.ValueType,
+                false,
+                prop.Value, prop.Node.Id));
+        }
+
+        return [..inputInfos];
+    }
+
 
     public void AddNode(INodeHandler node)
     {
@@ -317,7 +367,8 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
 
     public void UpdatePropertyValue(INodeHandler node, string property, object? value)
     {
-        Internals.ActionAccumulator.AddFinishedActions(new UpdatePropertyValue_Action(node.Id, property, value), new EndUpdatePropertyValue_Action());
+        Internals.ActionAccumulator.AddFinishedActions(new UpdatePropertyValue_Action(node.Id, property, value),
+            new EndUpdatePropertyValue_Action());
     }
 
     public void BeginUpdatePropertyValue(INodeHandler node, string property, object value)

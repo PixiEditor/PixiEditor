@@ -58,7 +58,7 @@ internal partial class DocumentViewModel
     {
         NodeGraph graph = new();
         ImageEncoder encoder = new QoiEncoder();
-        var serializationConfig = new SerializationConfig(encoder, ColorSpace.CreateSrgb());
+        var serializationConfig = new SerializationConfig(encoder, ProcessingColorSpace);
         var doc = Internals.Tracker.Document;
 
         Dictionary<Guid, int> nodeIdMap = new();

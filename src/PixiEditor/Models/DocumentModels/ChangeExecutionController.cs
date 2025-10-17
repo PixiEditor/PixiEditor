@@ -31,6 +31,7 @@ internal class ChangeExecutionController
 
     public event Action ToolSessionFinished;
 
+    public IDocument Document => document;
     private readonly IDocument document;
     private readonly IServiceProvider services;
     private readonly DocumentInternalParts internals;

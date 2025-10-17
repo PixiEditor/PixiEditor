@@ -11,7 +11,7 @@ internal class DocumentSerializationFactory : SerializationFactory<byte[], IRead
     public override string DeserializationId { get; } = "PixiEditor.Document";
     public override byte[] Serialize(IReadOnlyDocument original)
     {
-        DocumentViewModel vm = new(original);
+        var vm = new DocumentViewModel(original);
         return PixiParser.V5.Serialize(vm.ToSerializable());
     }
 

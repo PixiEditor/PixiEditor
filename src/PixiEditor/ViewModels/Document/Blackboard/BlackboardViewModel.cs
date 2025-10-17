@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using PixiEditor.ChangeableDocument.Actions.Generated;
+using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.Models.Blackboard;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
@@ -17,6 +18,17 @@ internal class BlackboardViewModel : ViewModelBase, IBlackboardHandler
     public BlackboardViewModel(DocumentInternalParts internals)
     {
         this.internals = internals;
+    }
+
+    internal BlackboardViewModel(DocumentInternalParts documentInternalParts, IReadOnlyBlackboard blackboard)
+    {
+        internals = documentInternalParts;
+        foreach (var variable in blackboard.Variables)
+        {
+            Variables.Add(new VariableViewModel(variable.Value.Name, variable.Value.Type, variable.Value.Value,
+                variable.Value.Unit, variable.Value.Min ?? double.MinValue, variable.Value.Max ?? double.MaxValue, internals));
+
+        }
     }
 
     public void AddVariable(VariableDefinition definition)

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using System.Collections.ObjectModel;
+using System.Drawing;
 using Avalonia.Threading;
 using ChunkyImageLib.DataHolders;
 using Microsoft.Extensions.DependencyInjection;
@@ -224,6 +225,25 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         InitializeViewModel();
     }
 
+    internal DocumentViewModel(IReadOnlyDocument document)
+    {
+        var serviceProvider = ViewModelMain.Current.Services;
+        Internals = new DocumentInternalParts(this, serviceProvider, document);
+        InitializeViewModel();
+
+        SetSize(document.Size);
+        SetProcessingColorSpace(document.ProcessingColorSpace);
+        SetHorizontalSymmetryAxisEnabled(document.HorizontalSymmetryAxisEnabled);
+        SetVerticalSymmetryAxisEnabled(document.VerticalSymmetryAxisEnabled);
+        SetHorizontalSymmetryAxisY(document.HorizontalSymmetryAxisY);
+        SetVerticalSymmetryAxisX(document.VerticalSymmetryAxisX);
+
+        NodeGraph.InitFrom(document.NodeGraph);
+        AnimationDataViewModel.InitFrom(document.AnimationData);
+        ReferenceLayerViewModel.InitFrom(document.ReferenceLayer);
+        UpdateSelectionPath(new VectorPath(document.Selection.SelectionPath));
+    }
+
     private void InitializeViewModel()
     {
         Internals.ChangeController.ToolSessionFinished += () => ToolSessionFinished?.Invoke();
@@ -286,12 +306,6 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
         Renderer = new DocumentRenderer(Internals.Tracker.Document);
         SceneRenderer = new SceneRenderer(Internals.Tracker.Document, this);
-    }
-
-    internal DocumentViewModel(IReadOnlyDocument doc)
-    {
-        Internals = new DocumentInternalParts(this, ViewModelMain.Current.Services, doc);
-        InitializeViewModel();
     }
 
     /// <summary>

@@ -576,7 +576,7 @@ internal class DocumentUpdater
 
     private void ProcessCreateRasterKeyFrame(CreateRasterKeyFrame_ChangeInfo info)
     {
-        var vm = new IRasterCelViewModel(info.TargetLayerGuid, info.Frame, 1,
+        var vm = new RasterCelViewModel(info.TargetLayerGuid, info.Frame, 1,
             info.KeyFrameId,
             (DocumentViewModel)doc, helper);
 

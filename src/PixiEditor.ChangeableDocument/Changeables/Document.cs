@@ -481,4 +481,9 @@ internal class Document : IChangeable, IReadOnlyDocument
             return true;
         });
     }
+
+    object ICloneable.Clone()
+    {
+        return Clone();
+    }
 }

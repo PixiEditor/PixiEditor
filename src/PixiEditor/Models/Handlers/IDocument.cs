@@ -19,6 +19,7 @@ using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.Models.DocumentPassthroughActions;
+using PixiEditor.Parser;
 
 namespace PixiEditor.Models.Handlers;
 

@@ -96,6 +96,11 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
         {
             tightBounds = vectorLayer.EmbeddedShapeData?.GeometryAABB ?? default;
         }
+        else if (memberData.Count == 1 && firstLayer is ITransformableObject transformableObject)
+        {
+            tightBounds = firstLayer.GetTransformationCorners(frame).WithMatrix(
+                transformableObject.TransformationMatrix.Invert()).AABBBounds;
+        }
 
         for (var i = 1; i < memberData.Count; i++)
         {
