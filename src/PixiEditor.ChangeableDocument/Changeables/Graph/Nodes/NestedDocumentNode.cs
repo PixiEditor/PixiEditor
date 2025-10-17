@@ -25,12 +25,15 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
 
     private Texture? dummyTexture;
 
+    private string[] builtInOutputs;
+
     public NestedDocumentNode()
     {
         NestedDocument = CreateInput<IReadOnlyDocument>("Document", "DOCUMENT", null)
             .NonOverridenChanged(DocumentChanged);
         NestedDocument.ConnectionChanged += NestedDocumentOnConnectionChanged;
         AllowHighDpiRendering = true;
+        builtInOutputs = OutputProperties.Select(x => x.InternalPropertyName).ToArray();
     }
 
     protected override int GetContentCacheHash()
@@ -74,7 +77,7 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
         for (int i = OutputProperties.Count - 1; i >= 0; i--)
         {
             var output = OutputProperties[i];
-            if (output.InternalPropertyName == Output.InternalPropertyName)
+            if (builtInOutputs.Contains(output.InternalPropertyName))
                 continue;
 
             var correspondingInput = brushOutput.InputProperties.FirstOrDefault(x =>
@@ -89,7 +92,9 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
 
     private void ClearOutputProperties()
     {
-        var toRemove = OutputProperties.Where(x => x.InternalPropertyName != Output.InternalPropertyName).ToList();
+        var toRemove = OutputProperties
+            .Where(x => !builtInOutputs.Contains(x.InternalPropertyName))
+            .ToList();
         foreach (var property in toRemove)
         {
             RemoveOutputProperty(property);
