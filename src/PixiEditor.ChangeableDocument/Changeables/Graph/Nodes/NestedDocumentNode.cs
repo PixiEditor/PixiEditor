@@ -16,16 +16,18 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransformableObject, IRasterizable,
     IVariableSampling
 {
-    private IReadOnlyDocument? lastDocument;
-    public InputProperty<IReadOnlyDocument> NestedDocument { get; }
+    private DocumentReference? lastDocument;
+    public InputProperty<DocumentReference> NestedDocument { get; }
 
     public InputProperty<bool> BilinearSampling { get; }
 
     public Matrix3X3 TransformationMatrix { get; set; } = Matrix3X3.Identity;
 
-    public RectD TransformedAABB => new ShapeCorners(NestedDocument.Value?.Size / 2f ?? VecD.Zero,
-            NestedDocument.Value?.Size ?? VecD.Zero)
+    public RectD TransformedAABB => new ShapeCorners(NestedDocument.Value?.DocumentInstance?.Size / 2f ?? VecD.Zero,
+            NestedDocument.Value?.DocumentInstance?.Size ?? VecD.Zero)
         .WithMatrix(TransformationMatrix).AABBBounds;
+
+    private IReadOnlyDocument? Instance => NestedDocument.Value?.DocumentInstance;
 
     private Texture? dummyTexture;
 
@@ -33,7 +35,7 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
 
     public NestedDocumentNode()
     {
-        NestedDocument = CreateInput<IReadOnlyDocument>("Document", "DOCUMENT", null)
+        NestedDocument = CreateInput<DocumentReference>("Document", "DOCUMENT", null)
             .NonOverridenChanged(DocumentChanged);
         NestedDocument.ConnectionChanged += NestedDocumentOnConnectionChanged;
         BilinearSampling = CreateInput<bool>("BilinearSampling", "BILINEAR_SAMPLING", false);
@@ -54,15 +56,15 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
         DocumentChanged(NestedDocument.Value);
     }
 
-    private void DocumentChanged(IReadOnlyDocument document)
+    private void DocumentChanged(DocumentReference document)
     {
-        if (document == null)
+        if (document?.DocumentInstance == null)
         {
             ClearOutputProperties();
             return;
         }
 
-        var brushOutput = document.NodeGraph.AllNodes.OfType<BrushOutputNode>().FirstOrDefault();
+        var brushOutput = document.DocumentInstance.NodeGraph.AllNodes.OfType<BrushOutputNode>().FirstOrDefault();
 
         if (brushOutput is null)
             return;
@@ -111,10 +113,10 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
     {
         base.OnExecute(context);
 
-        if (NestedDocument.Value is null)
+        if (Instance is null)
             return;
 
-        if (NestedDocument.Value != lastDocument)
+        if (Instance != lastDocument)
         {
             lastDocument = NestedDocument.Value;
             DocumentChanged(NestedDocument.Value);
@@ -123,17 +125,17 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
         if (AnyConnectionExists())
         {
             var clonedContext = context.Clone();
-            clonedContext.Graph = NestedDocument.Value.NodeGraph;
-            clonedContext.DocumentSize = NestedDocument.Value.Size;
-            clonedContext.ProcessingColorSpace = NestedDocument.Value.ProcessingColorSpace;
+            clonedContext.Graph = Instance?.NodeGraph;
+            clonedContext.DocumentSize = Instance.Size;
+            clonedContext.ProcessingColorSpace = Instance?.ProcessingColorSpace;
             clonedContext.VisibleDocumentRegion = null;
             clonedContext.RenderSurface =
                 (dummyTexture ??= Texture.ForProcessing(new VecI(1, 1), context.ProcessingColorSpace)).DrawingSurface;
 
-            var outputNode = NestedDocument.Value.NodeGraph.AllNodes.OfType<BrushOutputNode>().FirstOrDefault() ??
-                             NestedDocument.Value.NodeGraph.OutputNode;
+            var outputNode = Instance?.NodeGraph.AllNodes.OfType<BrushOutputNode>().FirstOrDefault() ??
+                             Instance?.NodeGraph.OutputNode;
 
-            NestedDocument.Value?.NodeGraph.Execute(outputNode, clonedContext);
+            Instance?.NodeGraph.Execute(outputNode, clonedContext);
 
             foreach (var output in OutputProperties)
             {
@@ -208,10 +210,10 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
         RenderContext context = new(
             surface, atFrame, ChunkResolution.Full,
             surface.DeviceClipBounds.Size,
-            NestedDocument.Value.Size,
-            NestedDocument.Value.ProcessingColorSpace,
+            Instance.Size,
+            Instance.ProcessingColorSpace,
             BilinearSampling.Value ? SamplingOptions.Bilinear : SamplingOptions.Default,
-            NestedDocument.Value.NodeGraph) { FullRerender = true, };
+            Instance.NodeGraph) { FullRerender = true, };
 
         ExecuteNested(context);
 
@@ -221,9 +223,9 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
     private void ExecuteNested(RenderContext ctx)
     {
         var clonedContext = ctx.Clone();
-        clonedContext.Graph = NestedDocument.Value.NodeGraph;
-        clonedContext.DocumentSize = NestedDocument.Value.Size;
-        clonedContext.ProcessingColorSpace = NestedDocument.Value.ProcessingColorSpace;
+        clonedContext.Graph = Instance?.NodeGraph;
+        clonedContext.DocumentSize = Instance?.Size ?? VecI.Zero;
+        clonedContext.ProcessingColorSpace = Instance?.ProcessingColorSpace;
         clonedContext.DesiredSamplingOptions =
             BilinearSampling.Value ? SamplingOptions.Bilinear : SamplingOptions.Default;
         if (clonedContext.VisibleDocumentRegion.HasValue)
@@ -233,10 +235,10 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
                     .WithMatrix(TransformationMatrix.Invert()).AABBBounds;
         }
 
-        var outputNode = NestedDocument.Value.NodeGraph.AllNodes.OfType<BrushOutputNode>().FirstOrDefault() ??
-                         NestedDocument.Value.NodeGraph.OutputNode;
+        var outputNode = Instance?.NodeGraph.AllNodes.OfType<BrushOutputNode>().FirstOrDefault() ??
+                         Instance?.NodeGraph.OutputNode;
 
-        NestedDocument.Value?.NodeGraph.Execute(outputNode, clonedContext);
+        Instance?.NodeGraph.Execute(outputNode, clonedContext);
     }
 
     protected override bool ShouldRenderPreview(string elementToRenderName)
@@ -282,7 +284,7 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
 
     public override ShapeCorners GetTransformationCorners(KeyFrameTime frameTime)
     {
-        return new ShapeCorners(NestedDocument.Value?.Size / 2f ?? VecD.Zero, NestedDocument.Value?.Size ?? VecD.Zero)
+        return new ShapeCorners(Instance?.Size / 2f ?? VecD.Zero, Instance?.Size ?? VecD.Zero)
             .WithMatrix(TransformationMatrix);
     }
 
@@ -297,7 +299,7 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
         List<IChangeInfo> infos)
     {
         base.DeserializeAdditionalData(target, data, infos);
-        if (data.TryGetValue("lastDocument", out var doc) && doc is IReadOnlyDocument document)
+        if (data.TryGetValue("lastDocument", out var doc) && doc is DocumentReference document)
         {
             DocumentChanged(document); // restore outputs
             infos.Add(NodeOutputsChanged_ChangeInfo.FromNode(this));

@@ -10,7 +10,7 @@
                              xmlns:settings="clr-namespace:PixiEditor.Views.Tools.ToolSettings.Settings"
                              xmlns:blackboard="clr-namespace:PixiEditor.ViewModels.Document.Blackboard"
                              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-                             x:Class="PixiEditor.Views.Nodes.Properties.DocumentPropertyView">
+                             x:Class="PixiEditor.Views.Nodes.Properties.DocumentReferencePropertyView">
     <StackPanel Orientation="Horizontal"
                 HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
         <TextBlock localization:Translator.TooltipKey="{Binding DisplayName}" VerticalAlignment="Center"

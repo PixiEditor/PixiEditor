@@ -89,7 +89,7 @@ public static class ConversionTable
             },
             {
                 typeof(IBrush), [
-                    (typeof(IReadOnlyDocument), new TypeConverter<IBrush, IReadOnlyDocument>(b => b.Document))
+                    (typeof(DocumentReference), new TypeConverter<IBrush, DocumentReference>(b => new DocumentReference(b.FilePath, b.Id, b.Document)))
                 ]
             }
         };

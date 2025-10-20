@@ -5,6 +5,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
+using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.Changeables.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
@@ -17,11 +18,11 @@ using PixiEditor.ViewModels.Tools.ToolSettings.Settings;
 
 namespace PixiEditor.ViewModels.Nodes.Properties;
 
-internal class DocumentPropertyViewModel : NodePropertyViewModel<IReadOnlyDocument>
+internal class DocumentReferencePropertyViewModel : NodePropertyViewModel<DocumentReference>
 {
     public ICommand PickGraphFileCommand { get; }
 
-    public DocumentPropertyViewModel(NodeViewModel node, Type valueType) : base(node, valueType)
+    public DocumentReferencePropertyViewModel(NodeViewModel node, Type valueType) : base(node, valueType)
     {
         PickGraphFileCommand = new AsyncRelayCommand(OnPickGraphFile);
     }
@@ -41,7 +42,7 @@ internal class DocumentPropertyViewModel : NodePropertyViewModel<IReadOnlyDocume
             var doc = Importer.ImportDocument(dialog[0].Path.LocalPath);
             doc.Operations.InvokeCustomAction(() =>
             {
-                Value = doc.AccessInternalReadOnlyDocument();
+                Value = new DocumentReference(doc.FullFilePath, doc.Id, doc.AccessInternalReadOnlyDocument());
             });
         }
     }

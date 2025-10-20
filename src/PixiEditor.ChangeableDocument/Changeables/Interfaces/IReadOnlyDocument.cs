@@ -47,7 +47,7 @@ public interface IReadOnlyDocument : IDisposable, ICloneable
     /// The position of the vertical symmetry axis (Mirrors left and right)
     /// </summary>
     double VerticalSymmetryAxisX { get; }
-    
+
     /// <summary>
     /// Performs the specified action on each readonly member of the document
     /// </summary>

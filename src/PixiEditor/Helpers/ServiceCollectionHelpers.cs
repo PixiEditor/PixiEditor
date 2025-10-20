@@ -123,7 +123,7 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<IoFileType, TtfFileType>()
             .AddSingleton<IoFileType, OtfFileType>()
             // Serialization Factories
-            .AddAssemblyTypes<SerializationFactory>()
+            .AddAssemblyTypesTransient<SerializationFactory>()
             // Custom document builders
             .AddSingleton<IDocumentBuilder, SvgDocumentBuilder>()
             .AddSingleton<IDocumentBuilder, FontDocumentBuilder>()
@@ -162,14 +162,14 @@ internal static class ServiceCollectionHelpers
         return collection;
     }
     
-    private static IServiceCollection AddAssemblyTypes<T>(this IServiceCollection collection)
+    private static IServiceCollection AddAssemblyTypesTransient<T>(this IServiceCollection collection)
     {
         Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
         IEnumerable<Type> types = assemblies.Where(asm => !asm.FullName.Contains("Steamworks")).SelectMany(x => x.GetTypes())
             .Where(x => typeof(T).IsAssignableFrom(x) && x is { IsInterface: false, IsAbstract: false });
         foreach (Type type in types)
         {
-            collection.AddSingleton(typeof(T), type);
+            collection.AddTransient(typeof(T), type);
         }
 
         return collection;

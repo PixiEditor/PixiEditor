@@ -4,9 +4,9 @@ using Avalonia.Markup.Xaml;
 
 namespace PixiEditor.Views.Nodes.Properties;
 
-public partial class DocumentPropertyView : NodePropertyView
+public partial class DocumentReferencePropertyView : NodePropertyView
 {
-    public DocumentPropertyView()
+    public DocumentReferencePropertyView()
     {
         InitializeComponent();
     }

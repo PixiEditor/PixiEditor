@@ -101,10 +101,6 @@ internal partial class DocumentViewModel
             ImageEncoderUsed = encoder.EncodedFormatName,
             Resources = storage
         };
-        foreach (var factory in factories)
-        {
-            factory.Storage = null;
-        }
 
         return document;
     }

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Immutable;
 using System.Collections.ObjectModel;
-using System.Drawing;
 using Avalonia.Threading;
 using ChunkyImageLib.DataHolders;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,7 +15,6 @@ using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.Numerics;
-using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Vector;
@@ -37,7 +35,6 @@ using PixiEditor.Models.Tools;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
 using PixiEditor.Models.IO;
-using PixiEditor.Models.Position;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Skia;
 using PixiEditor.UI.Common.Localization;
@@ -579,16 +576,25 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 Directory.CreateDirectory(resourcesPath);
 
             Dictionary<int, string> mapping = new();
+            Dictionary<int, byte[]> resourceData = new();
 
             foreach (var resource in resources.Resources)
             {
                 string formattedGuid = resource.CacheId.ToString("N");
-                string filePath = Path.Combine(resourcesPath, $"{formattedGuid}{Path.GetExtension(resource.FileName)}");
-                File.WriteAllBytes(filePath, resource.Data);
-                mapping.Add(resource.Handle, filePath);
+                if (!string.IsNullOrEmpty(Path.GetExtension(resource.FileName)))
+                {
+                    string filePath = Path.Combine(resourcesPath,
+                        $"{formattedGuid}{Path.GetExtension(resource.FileName)}");
+                    File.WriteAllBytes(filePath, resource.Data);
+                    mapping.Add(resource.Handle, filePath);
+                }
+                else
+                {
+                    resourceData.Add(resource.Handle, resource.Data);
+                }
             }
 
-            return new ResourceStorageLocator(mapping, resourcesPath);
+            return new ResourceStorageLocator(mapping, resourcesPath, resourceData);
         }
     }
 

@@ -12,6 +12,7 @@ internal class Brush : IBrush
     public IDocument Document { get; set; }
     IReadOnlyDocument IBrush.Document => Document.AccessInternalReadOnlyDocument();
     public string Name { get; set; }
+    public string? FilePath { get; }
     public Guid Id { get; } = Guid.NewGuid();
 
     public Brush(Uri uri)
@@ -20,6 +21,7 @@ internal class Brush : IBrush
         if (uri.IsFile)
         {
             stream = File.OpenRead(uri.LocalPath);
+            FilePath = uri.LocalPath;
         }
         else
         {
@@ -50,12 +52,14 @@ internal class Brush : IBrush
     {
         Name = name;
         Document = brushDocument;
+        FilePath = brushDocument.FullFilePath;
     }
 
     public Brush(string name, IDocument brushDocument, Guid id)
     {
         Name = name;
         Document = brushDocument;
+        FilePath = brushDocument.FullFilePath;
         Id = id;
     }
 
