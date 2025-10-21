@@ -1,13 +1,16 @@
 ﻿using Avalonia.Input;
+using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.ChangeableDocument.Rendering;
@@ -34,6 +37,9 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
     public BrushData BrushData => brushData ??= GetBrushFromToolbar(BrushToolbar);
     private BrushData? brushData;
     private Guid brushOutputGuid = Guid.Empty;
+    private BrushOutputNode? outputNode;
+    private ChunkyImage previewImage = null!;
+    private ChangeableDocument.Changeables.Brushes.BrushEngine engine = new();
 
     protected IBrushToolHandler BrushTool;
     protected IBrushToolbar BrushToolbar;
@@ -43,8 +49,6 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
     protected Guid layerId;
     protected Color color;
     protected bool antiAliasing;
-
-    private InputProperty<ShapeVectorData> vectorShapeInput;
 
     protected bool drawOnMask;
     public double ToolSize => BrushToolbar.ToolSize;
@@ -59,7 +63,6 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
 
     public BrushBasedExecutor()
     {
-
     }
 
     public override ExecutionState Start()
@@ -67,7 +70,8 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
         IStructureMemberHandler? member = document!.SelectedStructureMember;
         IColorsHandler? colorsHandler = GetHandler<IColorsHandler>();
 
-        if (colorsHandler is null || BrushTool is null || member is null || BrushTool?.Toolbar is not IBrushToolbar toolbar)
+        if (colorsHandler is null || BrushTool is null || member is null ||
+            BrushTool?.Toolbar is not IBrushToolbar toolbar)
             return ExecutionState.Error;
         drawOnMask = member is not ILayerHandler layer || layer.ShouldDrawOnMask;
         if (drawOnMask && !member.HasMaskBindable)
@@ -82,6 +86,8 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
         antiAliasing = toolbar.AntiAliasing;
         this.colorsHandler = colorsHandler;
 
+        previewImage = new ChunkyImage(new VecI(1), ColorSpace.CreateSrgb());
+
         UpdateBrushNodes();
 
         if (controller.LeftMousePressed)
@@ -89,7 +95,7 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
             EnqueueDrawActions();
         }
 
-        handler.FinalBrushShape = vectorShapeInput?.Value?.ToPath(true);
+        UpdateBrushOverlay(controller.LastPrecisePosition);
 
         return ExecutionState.Success;
     }
@@ -98,7 +104,8 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
     {
         IAction? action = new LineBasedPen_Action(layerId, controller!.LastPixelPosition, (float)ToolSize,
             antiAliasing, Spacing, BrushData, drawOnMask,
-            document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo, controller.LastKeyboardInfo, controller.EditorData);
+            document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo, controller.LastKeyboardInfo,
+            controller.EditorData);
 
         internals!.ActionAccumulator.AddActions(action);
     }
@@ -114,9 +121,8 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
 
         brushOutputGuid = brushOutputNode.Id;
 
-        vectorShapeInput =
-            brushOutputNode.InputProperties
-                .FirstOrDefault(x => x.InternalPropertyName == "VectorShape") as InputProperty<ShapeVectorData>;
+        outputNode =
+            BrushData.BrushGraph.AllNodes.FirstOrDefault(x => x.Id == brushOutputGuid) as BrushOutputNode;
     }
 
     private BrushData GetBrushFromToolbar(IBrushToolbar toolbar)
@@ -128,7 +134,10 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
         }
 
         var pipe = toolbar.Brush.Document.ShareGraph();
-        var data = new BrushData(pipe.TryAccessData());
+        var data = new BrushData(pipe.TryAccessData())
+        {
+            Spacing = toolbar.Spacing, AntiAliasing = toolbar.AntiAliasing, StrokeWidth = (float)toolbar.ToolSize
+        };
         pipe.Dispose();
         return data;
     }
@@ -144,22 +153,25 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
         base.OnPrecisePositionChange(args);
         if (!controller.LeftMousePressed)
         {
-            var outputNode =
-                BrushData.BrushGraph.AllNodes.FirstOrDefault(x => x.Id == brushOutputGuid) as BrushOutputNode;
-            using Texture surf = new(VecI.One);
-            brushData.Value.BrushGraph.Execute(
-                outputNode,
-                new RenderContext(surf.DrawingSurface, document.AnimationHandler.ActiveFrameTime, ChunkResolution.Full,
-                    surf.Size, document.SizeBindable, document.ProcessingColorSpace, SamplingOptions.Default,
-                    BrushData.BrushGraph)
-                {
-                    PointerInfo = controller.LastPointerInfo,
-                    KeyboardInfo = controller.LastKeyboardInfo,
-                    EditorData = controller.EditorData,
-                });
+            ExecuteBrush();
         }
 
-        handler.FinalBrushShape = vectorShapeInput?.Value?.ToPath(true);
+        UpdateBrushOverlay(args.PositionOnCanvas);
+    }
+
+    private void UpdateBrushOverlay(VecD pos)
+    {
+        if (!brushData.HasValue || brushData.Value.BrushGraph == null) return;
+
+        handler.FinalBrushShape = engine.EvaluateShape(pos, brushData.Value);
+    }
+
+    private void ExecuteBrush()
+    {
+        engine.ExecuteBrush(previewImage, BrushData, controller.LastPixelPosition,
+            document.AnimationHandler.ActiveFrameTime,
+            ColorSpace.CreateSrgb(), SamplingOptions.Default, controller.LastPointerInfo, controller.LastKeyboardInfo,
+            controller.EditorData);
     }
 
     public override void OnPixelPositionChange(VecI pos, MouseOnCanvasEventArgs args)
@@ -173,7 +185,7 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
     public override void OnConvertedKeyDown(Key key)
     {
         base.OnConvertedKeyDown(key);
-        handler.FinalBrushShape = vectorShapeInput?.Value?.ToPath(true);
+        UpdateBrushOverlay(controller.LastPrecisePosition);
     }
 
     public override void OnSettingsChanged(string name, object value)
@@ -183,6 +195,16 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
             brushData = GetBrushFromToolbar(BrushToolbar);
             UpdateBrushNodes();
         }
+
+        if (name == nameof(IBrushToolbar.ToolSize) ||
+            name == nameof(IBrushToolbar.Spacing) ||
+            name == nameof(IBrushToolbar.AntiAliasing))
+        {
+            brushData = GetBrushFromToolbar(BrushToolbar);
+        }
+
+        ExecuteBrush();
+        UpdateBrushOverlay(controller.LastPrecisePosition);
     }
 
 

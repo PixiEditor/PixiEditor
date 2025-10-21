@@ -260,6 +260,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         ActiveToolSet.ApplyToolSetSettings();
         UpdateEnabledState();
 
+        SelectedToolChanged?.Invoke(this, new SelectedToolEventArgs(LastActionTool, ActiveTool));
         ActiveTool?.OnToolSelected(false);
 
         OnPropertyChanged(nameof(NonSelectedToolSets));

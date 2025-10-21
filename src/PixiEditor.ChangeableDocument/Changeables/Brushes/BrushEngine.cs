@@ -21,7 +21,7 @@ using DrawingApiBlendMode = Drawie.Backend.Core.Surfaces.BlendMode;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Brushes;
 
-internal class BrushEngine
+public class BrushEngine
 {
     private TextureCache cache = new();
     private VecF lastPos;
@@ -31,7 +31,8 @@ internal class BrushEngine
     private bool drawnOnce = false;
 
     public void ExecuteBrush(ChunkyImage target, BrushData brushData, List<VecI> points, KeyFrameTime frameTime,
-        ColorSpace cs, SamplingOptions samplingOptions, PointerInfo pointerInfo, KeyboardInfo keyboardInfo, EditorData editorData)
+        ColorSpace cs, SamplingOptions samplingOptions, PointerInfo pointerInfo, KeyboardInfo keyboardInfo,
+        EditorData editorData)
     {
         float strokeWidth = brushData.StrokeWidth;
         float spacing = brushData.Spacing;
@@ -44,7 +45,8 @@ internal class BrushEngine
             if (VecF.Distance(lastPos, point) < spacingPixels)
                 continue;
 
-            ExecuteVectorShapeBrush(target, brushData, point, frameTime, cs, samplingOptions, pointerInfo, keyboardInfo, editorData);
+            ExecuteVectorShapeBrush(target, brushData, point, frameTime, cs, samplingOptions, pointerInfo, keyboardInfo,
+                editorData);
 
             lastPos = point;
         }
@@ -55,7 +57,8 @@ internal class BrushEngine
     public void ExecuteBrush(ChunkyImage target, BrushData brushData, VecI point, KeyFrameTime frameTime, ColorSpace cs,
         SamplingOptions samplingOptions, PointerInfo pointerInfo, KeyboardInfo keyboardInfo, EditorData editorData)
     {
-        ExecuteVectorShapeBrush(target, brushData, point, frameTime, cs, samplingOptions, pointerInfo, keyboardInfo, editorData);
+        ExecuteVectorShapeBrush(target, brushData, point, frameTime, cs, samplingOptions, pointerInfo, keyboardInfo,
+            editorData);
     }
 
     private void ExecuteVectorShapeBrush(ChunkyImage target, BrushData brushData, VecI point, KeyFrameTime frameTime,
@@ -117,8 +120,8 @@ internal class BrushEngine
             (VecD)startPos, (VecD)lastPos)
         {
             PointerInfo = pointerInfo,
-            EditorData = shouldErase ?
-                new EditorData(editorData.PrimaryColor.WithAlpha(255), editorData.SecondaryColor)
+            EditorData = shouldErase
+                ? new EditorData(editorData.PrimaryColor.WithAlpha(255), editorData.SecondaryColor)
                 : editorData,
             KeyboardInfo = keyboardInfo
         };
@@ -139,17 +142,19 @@ internal class BrushEngine
         bool antiAliasing = brushData.AntiAliasing;
         var fill = brushNode.Fill.Value;
         var stroke = brushNode.Stroke.Value;
+        bool snapToPixels = brushNode.SnapToPixels.Value;
 
         if (PaintBrush(target, autoPosition, vectorShape, rect, fitToStrokeSize, pressure, content, contentTexture,
-                brushNode.StampBlendMode.Value, antiAliasing, fill, stroke))
+                brushNode.StampBlendMode.Value, antiAliasing, fill, stroke, snapToPixels))
         {
             lastPos = point;
         }
     }
 
-    public static bool PaintBrush(ChunkyImage target, bool autoPosition, ShapeVectorData vectorShape,
+    public bool PaintBrush(ChunkyImage target, bool autoPosition, ShapeVectorData vectorShape,
         RectI rect, bool fitToStrokeSize, float pressure, Painter? content,
-        Texture? contentTexture, DrawingApiBlendMode blendMode, bool antiAliasing, Paintable fill, Paintable stroke)
+        Texture? contentTexture, DrawingApiBlendMode blendMode, bool antiAliasing, Paintable fill, Paintable stroke,
+        bool snapToPixels)
     {
         var path = vectorShape.ToPath(true);
         if (path == null)
@@ -157,29 +162,7 @@ internal class BrushEngine
             return false;
         }
 
-        if (autoPosition)
-        {
-            path.Offset(vectorShape.TransformedAABB.Pos - vectorShape.GeometryAABB.Pos);
-            path.Offset(rect.Center - path.Bounds.Center);
-        }
-
-        if (fitToStrokeSize)
-        {
-            VecD scale = new VecD(rect.Size.X / (float)path.Bounds.Width, rect.Size.Y / (float)path.Bounds.Height);
-            if (scale.IsNaNOrInfinity())
-            {
-                scale = VecD.Zero;
-            }
-
-            VecD uniformScale = new VecD(Math.Min(scale.X, scale.Y));
-            VecD center = autoPosition ? rect.Center : vectorShape.TransformedAABB.Center;
-            path.Transform(Matrix3X3.CreateScale((float)uniformScale.X, (float)uniformScale.Y, (float)center.X,
-                (float)center.Y));
-        }
-
-        Matrix3X3 pressureScale = Matrix3X3.CreateScale(pressure, pressure, (float)rect.Center.X,
-            (float)rect.Center.Y);
-        path.Transform(pressureScale);
+        EvaluateShape(autoPosition, path, vectorShape, (RectD)rect, snapToPixels, fitToStrokeSize, pressure);
 
         if (content != null)
         {
@@ -230,11 +213,13 @@ internal class BrushEngine
         var texture = cache.RequestTexture(1, target.LatestSize, colorSpace);
         if (!sampleLatest)
         {
-            target.DrawCommittedRegionOn(new RectI(VecI.Zero, target.LatestSize), ChunkResolution.Full, texture.DrawingSurface, VecI.Zero);
+            target.DrawCommittedRegionOn(new RectI(VecI.Zero, target.LatestSize), ChunkResolution.Full,
+                texture.DrawingSurface, VecI.Zero);
             return texture;
         }
 
-        target.DrawMostUpToDateRegionOn(new RectI(VecI.Zero, target.LatestSize), ChunkResolution.Full, texture.DrawingSurface, VecI.Zero);
+        target.DrawMostUpToDateRegionOn(new RectI(VecI.Zero, target.LatestSize), ChunkResolution.Full,
+            texture.DrawingSurface, VecI.Zero);
         return texture;
     }
 
@@ -264,7 +249,8 @@ internal class BrushEngine
         return GraphUsesInput(graph, brushNode, node => node.TargetFullTexture.Connections);
     }
 
-    private bool GraphUsesInput(IReadOnlyNodeGraph graph, IReadOnlyNode brushNode, Func<IBrushSampleTextureNode, IReadOnlyCollection<IInputProperty>> getConnections)
+    private bool GraphUsesInput(IReadOnlyNodeGraph graph, IReadOnlyNode brushNode,
+        Func<IBrushSampleTextureNode, IReadOnlyCollection<IInputProperty>> getConnections)
     {
         var sampleTextureNodes = graph.AllNodes.Where(x => x is IBrushSampleTextureNode).ToList();
         if (sampleTextureNodes.Count == 0)
@@ -281,6 +267,7 @@ internal class BrushEngine
                 {
                     continue;
                 }
+
                 foreach (var connection in connections)
                 {
                     bool found = false;
@@ -306,4 +293,76 @@ internal class BrushEngine
         return false;
     }
 
+    public VectorPath? EvaluateShape(VecD point, BrushData brushData)
+    {
+        return EvaluateShape(point, brushData,
+            brushData.BrushGraph.AllNodes.FirstOrDefault(x => x is BrushOutputNode) as BrushOutputNode);
+    }
+
+    public VectorPath? EvaluateShape(VecD point, BrushData brushData, BrushOutputNode brushNode)
+    {
+        var vectorShape = brushNode.VectorShape.Value;
+        if (vectorShape == null)
+        {
+            return null;
+        }
+
+        float strokeWidth = brushData.StrokeWidth;
+        var rect = new RectD(point - new VecD((strokeWidth / 2f)), new VecD(strokeWidth));
+
+        bool autoPosition = brushNode.AutoPosition.Value;
+        bool fitToStrokeSize = brushNode.FitToStrokeSize.Value;
+        float pressure = brushNode.Pressure.Value;
+        bool snapToPixels = brushNode.SnapToPixels.Value;
+
+        if (snapToPixels)
+        {
+            rect = (RectD)(new RectI((VecI)point - new VecI((int)(strokeWidth / 2f)), new VecI((int)strokeWidth)));
+        }
+
+        var path = vectorShape.ToPath(true);
+        if (path == null)
+        {
+            return null;
+        }
+
+        EvaluateShape(autoPosition, path, vectorShape, rect, snapToPixels, fitToStrokeSize, pressure);
+
+        return path;
+    }
+
+    private static void EvaluateShape(bool autoPosition, VectorPath path, ShapeVectorData vectorShape, RectD rect,
+        bool snapToPixels, bool fitToStrokeSize, float pressure)
+    {
+        if (autoPosition)
+        {
+            path.Offset(vectorShape.TransformedAABB.Pos - vectorShape.GeometryAABB.Pos);
+            path.Offset(rect.Center - path.Bounds.Center);
+
+            if (snapToPixels)
+            {
+                path.Offset(
+                    new VecD(Math.Round(path.Bounds.Pos.X) - path.Bounds.Pos.X,
+                        Math.Round(path.Bounds.Pos.Y) - path.Bounds.Pos.Y));
+            }
+        }
+
+        if (fitToStrokeSize)
+        {
+            VecD scale = new VecD(rect.Size.X / (float)path.Bounds.Width, rect.Size.Y / (float)path.Bounds.Height);
+            if (scale.IsNaNOrInfinity())
+            {
+                scale = VecD.Zero;
+            }
+
+            VecD uniformScale = new VecD(Math.Min(scale.X, scale.Y));
+            VecD center = autoPosition ? rect.Center : vectorShape.TransformedAABB.Center;
+            path.Transform(Matrix3X3.CreateScale((float)uniformScale.X, (float)uniformScale.Y, (float)center.X,
+                (float)center.Y));
+        }
+
+        Matrix3X3 pressureScale = Matrix3X3.CreateScale(pressure, pressure, (float)rect.Center.X,
+            (float)rect.Center.Y);
+        path.Transform(pressureScale);
+    }
 }

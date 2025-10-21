@@ -55,6 +55,16 @@ internal class PenToolExecutor : BrushBasedExecutor<IPenToolHandler>
         internals!.ActionAccumulator.AddActions(action);
     }
 
+    public override void OnSettingsChanged(string name, object value)
+    {
+        base.OnSettingsChanged(name, value);
+        if(name == nameof(IPenToolHandler.PixelPerfectEnabled) && value is bool bp)
+        {
+            EnqueueEndDraw();
+            pixelPerfect = bp;
+        }
+    }
+
     protected override void EnqueueEndDraw()
     {
         IAction? action = pixelPerfect switch

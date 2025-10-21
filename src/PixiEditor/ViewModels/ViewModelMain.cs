@@ -239,7 +239,8 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
     {
         if (e.OldTool != null)
             ((ToolViewModel)e.OldTool).PropertyChanged -= SelectedTool_PropertyChanged;
-        ((ToolViewModel)e.NewTool).PropertyChanged += SelectedTool_PropertyChanged;
+        if (e.NewTool != null)
+            ((ToolViewModel)e.NewTool).PropertyChanged += SelectedTool_PropertyChanged;
 
         NotifyToolActionDisplayChanged();
     }

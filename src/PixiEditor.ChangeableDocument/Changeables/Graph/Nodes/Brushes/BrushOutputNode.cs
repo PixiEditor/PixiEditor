@@ -37,6 +37,8 @@ public class BrushOutputNode : Node
     public InputProperty<bool> AllowSampleStacking { get; }
     public InputProperty<bool> AlwaysClear { get; }
 
+    public InputProperty<bool> SnapToPixels { get; }
+
     internal Texture ContentTexture;
 
     private TextureCache cache = new();
@@ -68,17 +70,21 @@ public class BrushOutputNode : Node
         AutoPosition = CreateInput<bool>("AutoPosition", "AUTO_POSITION", true);
         AllowSampleStacking = CreateInput<bool>("AllowSampleStacking", "ALLOW_SAMPLE_STACKING", false);
         AlwaysClear = CreateInput<bool>("AlwaysClear", "ALWAYS_CLEAR", false);
+        SnapToPixels = CreateInput<bool>("SnapToPixels", "SNAP_TO_PIXELS", false);
     }
 
     protected override void OnExecute(RenderContext context)
     {
         if (Content.Value != null)
         {
-            ContentTexture = cache.RequestTexture(0, context.RenderOutputSize, context.ProcessingColorSpace);
-            ContentTexture.DrawingSurface.Canvas.Save();
-            ContentTexture.DrawingSurface.Canvas.SetMatrix(Transform.Value);
-            Content.Value.Paint(context, ContentTexture.DrawingSurface);
-            ContentTexture.DrawingSurface.Canvas.Restore();
+            if (context.RenderOutputSize.LongestAxis > 0)
+            {
+                ContentTexture = cache.RequestTexture(0, context.RenderOutputSize, context.ProcessingColorSpace);
+                ContentTexture.DrawingSurface.Canvas.Save();
+                ContentTexture.DrawingSurface.Canvas.SetMatrix(Transform.Value);
+                Content.Value.Paint(context, ContentTexture.DrawingSurface);
+                ContentTexture.DrawingSurface.Canvas.Restore();
+            }
         }
 
         RenderPreviews(context.GetPreviewTexturesForNode(Id), context);

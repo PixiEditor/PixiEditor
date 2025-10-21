@@ -31,6 +31,15 @@ public static class ConversionTable
                 ]
             },
             {
+                typeof(float), [
+                    (typeof(double), new TypeConverter<float, double>(f => (double)f)),
+                    (typeof(int), new TypeConverter<float, int>(f => (int)f)),
+                    (typeof(VecD), new TypeConverter<float, VecD>(f => new VecD(f, f))),
+                    (typeof(VecI), new TypeConverter<float, VecI>(f => new VecI((int)f, (int)f))),
+                    (typeof(Vec3D), new TypeConverter<float, Vec3D>(f => new Vec3D(f, f, f))),
+                ]
+            },
+            {
                 typeof(int), [
                     (typeof(double), new TypeConverter<int, double>(ConvertIntToDouble)),
                     (typeof(float), new TypeConverter<int, float>(i => (float)i)),
@@ -89,7 +98,9 @@ public static class ConversionTable
             },
             {
                 typeof(IBrush), [
-                    (typeof(DocumentReference), new TypeConverter<IBrush, DocumentReference>(b => new DocumentReference(b.FilePath, b.Id, b.Document)))
+                    (typeof(DocumentReference),
+                        new TypeConverter<IBrush, DocumentReference>(b =>
+                            new DocumentReference(b.FilePath, b.Id, b.Document)))
                 ]
             }
         };
@@ -148,7 +159,9 @@ public static class ConversionTable
             return false;
         }
 
-        if (_conversionTable.TryGetValue(arg.GetType(), out var converters))
+        Type argType = arg.GetType();
+
+        if (_conversionTable.TryGetValue(argType, out var converters))
         {
             foreach (var (outType, converter) in converters)
             {
@@ -160,17 +173,44 @@ public static class ConversionTable
             }
         }
 
-        var availableInterfaces = arg.GetType().GetInterfaces();
-        foreach (var iface in availableInterfaces)
+        if (!argType.IsPrimitive && argType != typeof(string))
         {
-            if (_conversionTable.TryGetValue(iface, out converters))
+            var baseType = arg.GetType().BaseType;
+            while (baseType != null)
             {
-                foreach (var (outType, converter) in converters)
+                if (baseType == targetType)
                 {
-                    if (targetType == outType)
+                    result = arg;
+                    return true;
+                }
+
+                if (_conversionTable.TryGetValue(baseType, out converters))
+                {
+                    foreach (var (outType, converter) in converters)
                     {
-                        result = converter.Convert(arg);
-                        return true;
+                        if (targetType == outType)
+                        {
+                            result = converter.Convert(arg);
+                            return true;
+                        }
+                    }
+                }
+
+                baseType = baseType.BaseType;
+            }
+
+            var availableInterfaces = argType.GetInterfaces();
+            foreach (var iface in availableInterfaces)
+            {
+                if (_conversionTable.TryGetValue(iface, out converters))
+                {
+                    foreach (var (outType, converter) in converters)
+                    {
+                        if (targetType == outType)
+                        {
+                            result = converter.Convert(arg);
+                            return true;
+                        }
                     }
                 }
             }

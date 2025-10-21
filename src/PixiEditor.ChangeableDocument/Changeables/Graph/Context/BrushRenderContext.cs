@@ -9,7 +9,7 @@ using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 
-internal class BrushRenderContext : RenderContext
+public class BrushRenderContext : RenderContext
 {
     public BrushData BrushData { get; }
     public Texture TargetSampledTexture { get; }

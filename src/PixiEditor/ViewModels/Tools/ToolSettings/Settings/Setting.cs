@@ -29,12 +29,13 @@ internal abstract class Setting<T> : Setting
     {
         get
         {
-            if(base.Value != null && base.Value is not T value)
+            var adjusted = AdjustValue(base.Value);
+            if(adjusted != null && adjusted is not T)
             {
                 return default;
             }
-            
-            return (T)base.Value;
+
+            return (T)adjusted;
         }
         set
         {
@@ -55,7 +56,9 @@ internal abstract class Setting<T> : Setting
 
 internal abstract class Setting : ObservableObject
 {
-    private object _value;
+    private string currentToolset = "";
+    private Dictionary<string, object> toolsetValues = new Dictionary<string, object>();
+    private Dictionary<string, bool> defaultValuesSet = new Dictionary<string, bool>();
     private bool isExposed = true;
     
     protected bool overwrittenExposed;
@@ -73,16 +76,16 @@ internal abstract class Setting : ObservableObject
 
     public object Value
     {
-        get => hasOverwrittenValue ? overwrittenValue : _value;
+        get => hasOverwrittenValue ? overwrittenValue : toolsetValues.GetValueOrDefault(currentToolset, null);
         set
         {
-            var old = _value;
+            var old = toolsetValues.GetValueOrDefault(currentToolset, null);
 
-            if(value != null && _value != null && value.GetType() != _value.GetType())
+            if(value != null && old != null && value.GetType() != old.GetType())
             {
                 try
                 {
-                    value = Convert.ChangeType(value, _value.GetType());
+                    value = Convert.ChangeType(value, old.GetType());
                 }
                 catch
                 {
@@ -90,8 +93,10 @@ internal abstract class Setting : ObservableObject
                 }
             }
 
-            if (SetProperty(ref _value, value))
+            if (old != value)
             {
+                toolsetValues[currentToolset] = value;
+                OnPropertyChanged(nameof(Value));
                 ValueChanged?.Invoke(this, new SettingValueChangedEventArgs<object>(old, value));
             }
         }
@@ -99,7 +104,8 @@ internal abstract class Setting : ObservableObject
 
     protected void InvokeValueChanged()
     {
-        ValueChanged?.Invoke(this, new SettingValueChangedEventArgs<object>(_value, _value));
+        object value = toolsetValues.GetValueOrDefault(currentToolset, null);
+        ValueChanged?.Invoke(this, new SettingValueChangedEventArgs<object>(value, value));
     }
 
     public bool IsExposed
@@ -125,19 +131,45 @@ internal abstract class Setting : ObservableObject
 
     public object UserValue
     {
-        get => _value;
-        set => _value = value;
+        get => toolsetValues.GetValueOrDefault(currentToolset, null);
+        set => toolsetValues[currentToolset] = value;
     }
 
     public abstract Type GetSettingType();
     
     public void SetOverwriteValue(object value)
     {
-        overwrittenValue = value;
+        var adjusted = AdjustValue(value);
+        overwrittenValue = adjusted;
         hasOverwrittenValue = true;
         
         OnPropertyChanged(nameof(Value));
-        ValueChanged?.Invoke(this, new SettingValueChangedEventArgs<object>(_value, value));
+        ValueChanged?.Invoke(this, new SettingValueChangedEventArgs<object>(toolsetValues.GetValueOrDefault(currentToolset, null), adjusted));
+    }
+
+    public void SetCurrentToolset(string toolset)
+    {
+        currentToolset = toolset;
+        if (toolsetValues.Count <= 1)
+        {
+            if (toolsetValues.TryGetValue("", out object? value))
+            {
+                toolsetValues[toolset] = value;
+                toolsetValues.Remove("");
+            }
+        }
+
+        if(!toolsetValues.ContainsKey(currentToolset))
+        {
+            toolsetValues[currentToolset] = toolsetValues.FirstOrDefault().Value;
+        }
+
+        OnPropertyChanged(nameof(Value));
+    }
+
+    protected virtual object AdjustValue(object value)
+    {
+        return value;
     }
     
     public void SetOverwriteExposed(bool value)
@@ -146,6 +178,16 @@ internal abstract class Setting : ObservableObject
         hasOverwrittenExposed = true;
         
         OnPropertyChanged(nameof(IsExposed));
+    }
+
+    public void SetDefaultValue(object defaultValue)
+    {
+        if (!defaultValuesSet.GetValueOrDefault(currentToolset, false))
+        {
+            toolsetValues[currentToolset] = defaultValue;
+            defaultValuesSet[currentToolset] = true;
+            OnPropertyChanged(nameof(Value));
+        }
     }
     
     public void ResetOverwrite()
@@ -160,9 +202,10 @@ internal abstract class Setting : ObservableObject
         OnPropertyChanged(nameof(Value));
         OnPropertyChanged(nameof(IsExposed));
 
-        if (hadOverwrittenValue && old != _value)
+        object current = toolsetValues.GetValueOrDefault(currentToolset, null);
+        if (hadOverwrittenValue && old != current)
         {
-            ValueChanged?.Invoke(this, new SettingValueChangedEventArgs<object>(old, _value));
+            ValueChanged?.Invoke(this, new SettingValueChangedEventArgs<object>(old, current));
         }
     }
 }

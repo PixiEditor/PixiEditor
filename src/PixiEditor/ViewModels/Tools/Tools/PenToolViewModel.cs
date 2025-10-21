@@ -21,8 +21,6 @@ namespace PixiEditor.ViewModels.Tools.Tools
     [Command.Tool(Key = Key.B)]
     internal class PenToolViewModel : BrushBasedToolViewModel, IPenToolHandler
     {
-        private double actualToolSize = 1;
-
         public override string ToolNameLocalizationKey => "PEN_TOOL";
 
         public PenToolViewModel()
@@ -60,51 +58,8 @@ namespace PixiEditor.ViewModels.Tools.Tools
                 var setting = toolbar.Settings.FirstOrDefault(x => x.Name == nameof(toolbar.ToolSize));
                 if (setting is SizeSettingViewModel sizeSetting)
                 {
-                    sizeSetting.Value = 1d;
+                    sizeSetting.SetOverwriteValue(1d);
                 }
-            }
-
-            if (!PixiEditorSettings.Tools.EnableSharedToolbar.Value)
-            {
-                return;
-            }
-
-            if (e.OldTool is not { Toolbar: BrushToolbar oldToolbar })
-            {
-                return;
-            }
-
-            var oldSetting = oldToolbar.Settings.FirstOrDefault(x => x.Name == nameof(oldToolbar.ToolSize));
-            if (oldSetting is null)
-            {
-                return;
-            }
-
-            if (oldSetting.Value is int intValue)
-            {
-                actualToolSize = intValue;
-            }
-            else if (oldSetting.Value is double doubleValue)
-            {
-                actualToolSize = (int)doubleValue;
-            }
-        }
-
-        protected override void OnDeselecting(bool transient)
-        {
-            base.OnDeselecting(transient);
-
-            actualToolSize = ToolSize;
-            if (!PixelPerfectEnabled)
-            {
-                return;
-            }
-
-            var toolbar = (BrushToolbar)Toolbar;
-            var setting = toolbar.Settings.FirstOrDefault(x => x.Name == nameof(toolbar.ToolSize));
-            if (setting is SizeSettingViewModel sizeSetting)
-            {
-                sizeSetting.Value = actualToolSize;
             }
         }
 
@@ -119,12 +74,11 @@ namespace PixiEditor.ViewModels.Tools.Tools
 
                 if (PixelPerfectEnabled)
                 {
-                    actualToolSize = ToolSize;
-                    sizeSettingViewModel.Value = 1d;
+                    sizeSettingViewModel.SetOverwriteValue(1d);
                 }
                 else
                 {
-                    sizeSettingViewModel.Value = actualToolSize;
+                    sizeSettingViewModel.ResetOverwrite();
                 }
             }
         }

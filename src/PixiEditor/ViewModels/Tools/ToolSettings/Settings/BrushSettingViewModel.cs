@@ -28,4 +28,18 @@ internal class BrushSettingViewModel : Setting<Brush>
         Label = label;
         Library.BrushesChanged += () => OnPropertyChanged(nameof(AllBrushes));
     }
+
+    protected override object AdjustValue(object value)
+    {
+        if (value is string str)
+        {
+            var found = Library.Brushes.Values.FirstOrDefault(b => b.Name == str);
+            if (found != null)
+                return found;
+
+            return Library.Brushes.First().Value;
+        }
+
+        return base.AdjustValue(value);
+    }
 }
