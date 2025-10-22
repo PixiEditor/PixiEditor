@@ -198,7 +198,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
             }
             else
             {
-                if (document.SoftSelectedStructureMembers.Contains(topMost) || document.SelectedStructureMember.Id == topMost.Id)
+                if (document.SoftSelectedStructureMembers.Contains(topMost) || document.SelectedStructureMember?.Id == topMost.Id)
                 {
                     Deselect(smallestSizeDifferenceList);
                 }
@@ -248,7 +248,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
             bool deselectingWasMain = document.SelectedStructureMember.Id == topMost.Id;
             if (deselectingWasMain)
             {
-                Guid? nextMain = document.SoftSelectedStructureMembers.FirstOrDefault().Id;
+                Guid? nextMain = document.SoftSelectedStructureMembers.FirstOrDefault()?.Id;
                 List<Guid> softSelected = document.SoftSelectedStructureMembers
                     .Select(x => x.Id).Where(x => x != nextMain.Value).ToList();
 

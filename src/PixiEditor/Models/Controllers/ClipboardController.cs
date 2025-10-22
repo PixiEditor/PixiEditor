@@ -295,12 +295,18 @@ internal static class ClipboardController
 
                 manager.Owner.ToolsSubViewModel.SetActiveTool<MoveToolViewModel>(false);
                 document.Operations.SetSelectedMember(guid.Value);
-                document.Operations.PasteImageWithTransform(dataImage.Image, position, guid.Value, false);
+                document.Operations.InvokeCustomAction(() =>
+                {
+                    document.Operations.PasteImageWithTransform(dataImage.Image, position, guid.Value, false);
+                });
             }
             else
             {
                 manager.Owner.ToolsSubViewModel.SetActiveTool<MoveToolViewModel>(false);
-                document.Operations.PasteImageWithTransform(dataImage.Image, position);
+                document.Operations.InvokeCustomAction(() =>
+                {
+                    document.Operations.PasteImageWithTransform(dataImage.Image, position);
+                });
             }
 
             return true;
