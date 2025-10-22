@@ -79,18 +79,21 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
 
     public override void KeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown, Key argsKey)
     {
-        DuplicateOnMove = ctrlIsDown && argsKey is Key.None or Key.LeftCtrl or Key.RightCtrl && !shiftIsDown && !altIsDown;
+        DuplicateOnMove = ctrlIsDown && argsKey is Key.None or Key.LeftCtrl or Key.RightCtrl && !shiftIsDown &&
+                          !altIsDown;
     }
-    
+
     protected override void OnSelected(bool restoring)
     {
-        if (TransformingSelectedArea)
+        if (TransformingSelectedArea || restoring)
         {
             return;
         }
 
         DuplicateOnMove = false;
-        ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TransformSelectedArea(true);
+        var activeDoc = ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument;
+
+        activeDoc?.Operations.TransformSelectedArea(true);
     }
 
     protected override void OnDeselecting(bool transient)
@@ -125,7 +128,7 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
     {
         DuplicateOnMove = false;
     }
-    
+
     public override void OnPreRedoInlet()
     {
         DuplicateOnMove = false;
