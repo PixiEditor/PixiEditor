@@ -1,5 +1,6 @@
 ﻿using Avalonia.Input;
 using Avalonia.Input.Platform;
+using Avalonia.Platform.Storage;
 using PixiEditor.Models.Clipboard;
 
 namespace PixiEditor.Models.Controllers;
@@ -8,6 +9,7 @@ public interface IImportObject
 {
     public bool Contains<T>(DataFormat<T> format) where T : class;
     public Task<T?> GetDataAsync<T>(DataFormat<T> format) where T : class;
+    public Task<IReadOnlyList<IStorageItem>> GetFilesAsync();
 }
 
 public class ImportedObject : IImportObject
@@ -27,6 +29,16 @@ public class ImportedObject : IImportObject
     public async Task<T?> GetDataAsync<T>(DataFormat<T> format) where T : class
     {
         return await Task.FromResult(dataObject.TryGetValue<T?>(format));
+    }
+
+    public async Task<IReadOnlyList<IStorageItem>> GetFilesAsync()
+    {
+        if (!dataObject.Contains(DataFormat.File))
+        {
+            return [];
+        }
+
+        return dataObject.TryGetFiles();
     }
 }
 
@@ -54,6 +66,11 @@ public class ClipboardPromiseObject : IImportObject
         }
 
         return await Clipboard.GetDataAsync<T>(format);
+    }
+
+    public async Task<IReadOnlyList<IStorageItem>> GetFilesAsync()
+    {
+        return await Clipboard.GetFilesAsync();
     }
 
     public override string ToString()

@@ -228,10 +228,7 @@ internal static class ClipboardController
                 }
             }
 
-            //data.SetFileDropList(new[] { TempCopyFilePath });
-
-            // TODO: figure this out
-            //data.Add(DataTransferItem.Create(DataFormat.File, new[] { TempCopyFilePath }));
+            data.SetFileDropList(new[] { TempCopyFilePath });
         }
     }
 
@@ -432,6 +429,7 @@ internal static class ClipboardController
         VecD pos = VecD.Zero;
 
         string? importingType = null;
+        List<string> importedFiles = new();
         bool pngImported = false;
 
         foreach (var dataObject in importableObjects)
@@ -476,6 +474,9 @@ internal static class ClipboardController
                     continue;
                 try
                 {
+                    if (importedFiles.Contains(path))
+                        continue;
+
                     Surface imported;
 
                     if (Path.GetExtension(path) == ".pixi")
@@ -493,6 +494,7 @@ internal static class ClipboardController
                     surfaces.Add(new DataImage(filename, imported,
                         (VecI)await GetVecD(ClipboardDataFormats.PositionFormat, importableObjects)));
                     importingType = "files";
+                    importedFiles.Add(path);
                 }
                 catch
                 {
@@ -541,15 +543,21 @@ internal static class ClipboardController
             if (string.IsNullOrWhiteSpace(path))
                 continue;
 
-            if (Directory.Exists(path) || File.Exists(path))
+            string fixedPath = path.Trim();
+            if (path.StartsWith('"') && path.EndsWith('"'))
             {
-                validPaths.Add(path);
+                fixedPath = path[1..^1];
+            }
+
+            if (Directory.Exists(fixedPath) || File.Exists(fixedPath))
+            {
+                validPaths.Add(fixedPath);
             }
             else
             {
                 try
                 {
-                    Uri uri = new Uri(path);
+                    Uri uri = new Uri(fixedPath);
                     if (uri.IsAbsoluteUri && (Directory.Exists(uri.LocalPath) || File.Exists(uri.LocalPath)))
                     {
                         validPaths.Add(uri.LocalPath);
@@ -570,21 +578,13 @@ internal static class ClipboardController
         if (!obj.Contains(DataFormat.File))
             return [];
 
+        var files = await obj.GetFilesAsync();
+        if (files != null)
+            return files;
+
         var data = await obj.GetDataAsync(DataFormat.File);
         if (data == null)
             return [];
-
-        /*if (data is IEnumerable<IStorageItem> storageItems)
-            return storageItems;
-
-        if (data is Task<object> task)
-        {
-            data = await task;
-            if (data is IEnumerable<IStorageItem> storageItemsFromTask)
-                return storageItemsFromTask;
-        }*/
-
-        // TODO: Verify this
 
         return [data];
     }
@@ -664,22 +664,19 @@ internal static class ClipboardController
         {
             if (format == DataFormat.File)
             {
-                var files = await ClipboardController.Clipboard.GetDataAsync<IStorageItem>(DataFormat.File);
-                if (files is IEnumerable<IStorageItem> storageFiles)
+                var files = await ClipboardController.Clipboard.GetFilesAsync();
+                foreach (var file in files)
                 {
-                    foreach (var file in storageFiles)
+                    try
                     {
-                        try
+                        if (Importer.IsSupportedFile(file.Path.LocalPath))
                         {
-                            if (Importer.IsSupportedFile(file.Path.LocalPath))
-                            {
-                                return file.Path.LocalPath;
-                            }
+                            return file.Path.LocalPath;
                         }
-                        catch (UriFormatException)
-                        {
-                            continue;
-                        }
+                    }
+                    catch (UriFormatException)
+                    {
+                        continue;
                     }
                 }
             }
@@ -699,6 +696,11 @@ internal static class ClipboardController
             else if (format == DataFormat.Text)
             {
                 string text = await ClipboardController.GetTextFromClipboard();
+                if (text.StartsWith('"') && text.EndsWith('"'))
+                {
+                    text = text[1..^1];
+                }
+
                 if (Importer.IsSupportedFile(text))
                 {
                     return text;
@@ -876,7 +878,8 @@ internal static class ClipboardController
 
         DataTransfer data = new DataTransfer();
 
-        data.Add(DataTransferItem.Create(ClipboardDataFormats.DocumentFormat, Encoding.UTF8.GetBytes(docId.ToString())));
+        data.Add(DataTransferItem.Create(ClipboardDataFormats.DocumentFormat,
+            Encoding.UTF8.GetBytes(docId.ToString())));
 
         byte[] idsBytes = Encoding.UTF8.GetBytes(string.Join(";", ids.Select(x => x.ToString())));
 

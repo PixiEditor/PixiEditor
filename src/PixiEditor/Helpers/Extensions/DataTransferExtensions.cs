@@ -11,14 +11,17 @@ namespace PixiEditor.Helpers.Extensions;
 
 public static class DataTransferExtensions
 {
-    /*/// <summary>
+    /// <summary>
     ///     Clears the data object and sets the specified data.
     /// </summary>
     /// <param name="data">The data object to set the data on.</param>
     /// <param name="files">File paths to set.</param>
     public static void SetFileDropList(this DataTransfer data, IEnumerable<string> files)
     {
-    }*/
+        data.Add(DataTransferItem.Create(
+            DataFormat.CreateBytesPlatformFormat("File"),
+            files.SelectMany(f => System.Text.Encoding.UTF8.GetBytes(f + "\0")).ToArray()));
+    }
 
     /*public static IStorageItem[] GetFileDropList(this IDataObject data)
     {

@@ -1,5 +1,6 @@
 ﻿using Avalonia.Input;
 using Avalonia.Input.Platform;
+using Avalonia.Platform.Storage;
 
 namespace PixiEditor.Models.Clipboard;
 
@@ -43,5 +44,10 @@ public class PixiEditorClipboard : IPixiEditorClipboard
     public async Task<IReadOnlyList<DataFormat>> GetFormatsAsync()
     {
         return await avaloniaClipboard.GetDataFormatsAsync();
+    }
+
+    public async Task<IReadOnlyList<IStorageItem>> GetFilesAsync()
+    {
+        return await avaloniaClipboard.TryGetFilesAsync();
     }
 }
