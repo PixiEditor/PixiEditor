@@ -39,9 +39,9 @@ namespace PixiEditor.Models.Controllers;
 #nullable enable
 internal static class ClipboardController
 {
-    public static IClipboard Clipboard { get; private set; }
+    public static IPixiEditorClipboard Clipboard { get; private set; }
 
-    public static void Initialize(IClipboard clipboard)
+    public static void Initialize(IPixiEditorClipboard clipboard)
     {
         Clipboard = clipboard;
     }
@@ -64,7 +64,7 @@ internal static class ClipboardController
     {
         await Clipboard.ClearAsync();
 
-        DataObject data = new DataObject();
+        DataTransfer transfer = new DataTransfer();
 
         Surface surfaceToCopy = null;
         RectD copyArea = RectD.Empty;
@@ -117,16 +117,16 @@ internal static class ClipboardController
             return;
         }
 
-        await AddImageToClipboard(surfaceToCopy, data);
+        await AddImageToClipboard(surfaceToCopy, transfer);
 
         if (copyArea.Size != document.SizeBindable && copyArea.Pos != VecI.Zero && copyArea != RectD.Empty)
         {
-            data.SetVecD(ClipboardDataFormats.PositionFormat, copyArea.Pos);
+            transfer.SetVecD(ClipboardDataFormats.PositionFormat, copyArea.Pos);
         }
 
         if (hadSelection)
         {
-            data.Set(ClipboardDataFormats.HadSelectionFormat, true);
+            transfer.Add(DataTransferItem.Create(ClipboardDataFormats.HadSelectionFormat, [1])); // 1 = true
         }
 
         string[] layerIds = document.GetSelectedMembers().Select(x => x.ToString()).ToArray();
@@ -134,17 +134,18 @@ internal static class ClipboardController
 
         byte[] layerIdsBytes = Encoding.UTF8.GetBytes(layerIdsString);
 
-        data.Set(ClipboardDataFormats.LayerIdList, layerIdsBytes);
-        data.Set(ClipboardDataFormats.DocumentFormat, Encoding.UTF8.GetBytes(document.Id.ToString()));
+        transfer.Add(DataTransferItem.Create(ClipboardDataFormats.LayerIdList, layerIdsBytes));
+        transfer.Add(DataTransferItem.Create(ClipboardDataFormats.DocumentFormat,
+            Encoding.UTF8.GetBytes(document.Id.ToString())));
 
-        await Clipboard.SetDataObjectAsync(data);
+        await Clipboard.SetDataObjectAsync(transfer);
     }
 
     public static async Task CopyVisibleToClipboard(DocumentViewModel document, string? output = null)
     {
         await Clipboard.ClearAsync();
 
-        DataObject data = new DataObject();
+        DataTransfer data = new DataTransfer();
 
         RectD copyArea = new RectD(VecD.Zero, document.SizeBindable);
 
@@ -185,7 +186,7 @@ internal static class ClipboardController
         return await Clipboard.GetTextAsync();
     }
 
-    private static async Task AddImageToClipboard(Surface actuallySurface, DataObject data)
+    private static async Task AddImageToClipboard(Surface actuallySurface, DataTransfer data)
     {
         using (ImgData pngData = actuallySurface.DrawingSurface.Snapshot().Encode(EncodedImageFormat.Png))
         {
@@ -193,11 +194,11 @@ internal static class ClipboardController
             await pngData.AsStream().CopyToAsync(pngStream);
 
             var pngArray = pngStream.ToArray();
-            foreach (string format in ClipboardDataFormats.PngFormats)
+            foreach (var format in ClipboardDataFormats.PngFormats)
             {
-                if (!data.Contains(format))
+                if (!((IDataTransfer)data).Contains(format))
                 {
-                    data.Set(format, pngArray);
+                    data.Add(DataTransferItem.Create(format, pngArray));
                 }
             }
 
@@ -227,7 +228,10 @@ internal static class ClipboardController
                 }
             }
 
-            data.SetFileDropList(new[] { TempCopyFilePath });
+            //data.SetFileDropList(new[] { TempCopyFilePath });
+
+            // TODO: figure this out
+            //data.Add(DataTransferItem.Create(DataFormat.File, new[] { TempCopyFilePath }));
         }
     }
 
@@ -394,15 +398,15 @@ internal static class ClipboardController
 
     private static async Task<ClipboardPromiseObject[]> TryGetImportObjects()
     {
-        string[] formats = await Clipboard.GetFormatsAsync();
-        if (formats.Length == 0)
+        var formats = await Clipboard.GetFormatsAsync();
+        if (formats.Count == 0)
             return null;
 
         List<ClipboardPromiseObject?> dataObjects = new();
 
-        for (int i = 0; i < formats.Length; i++)
+        for (int i = 0; i < formats.Count; i++)
         {
-            string format = formats[i];
+            var format = formats[i];
             dataObjects.Add(new ClipboardPromiseObject(format, Clipboard));
         }
 
@@ -502,7 +506,7 @@ internal static class ClipboardController
 
     private static async Task<string[]?> TryGetRawTextPaths(IImportObject importObj)
     {
-        if (!importObj.Contains(DataFormats.Text) && !importObj.Contains(ClipboardDataFormats.UriList))
+        if (!importObj.Contains(DataFormat.Text) && !importObj.Contains(ClipboardDataFormats.UriList))
         {
             return null;
         }
@@ -510,7 +514,7 @@ internal static class ClipboardController
         string text = null;
         try
         {
-            text = await importObj.GetDataAsync(DataFormats.Text) as string;
+            text = await importObj.GetDataAsync(DataFormat.Text);
         }
         catch (InvalidCastException ex) // bug on x11
         {
@@ -563,14 +567,14 @@ internal static class ClipboardController
 
     private static async Task<IEnumerable<IStorageItem>> GetFileDropList(IImportObject obj)
     {
-        if (!obj.Contains(DataFormats.Files))
+        if (!obj.Contains(DataFormat.File))
             return [];
 
-        var data = await obj.GetDataAsync(DataFormats.Files);
+        var data = await obj.GetDataAsync(DataFormat.File);
         if (data == null)
             return [];
 
-        if (data is IEnumerable<IStorageItem> storageItems)
+        /*if (data is IEnumerable<IStorageItem> storageItems)
             return storageItems;
 
         if (data is Task<object> task)
@@ -578,19 +582,21 @@ internal static class ClipboardController
             data = await task;
             if (data is IEnumerable<IStorageItem> storageItemsFromTask)
                 return storageItemsFromTask;
-        }
+        }*/
 
-        return [];
+        // TODO: Verify this
+
+        return [data];
     }
 
 
-    private static async Task<VecD> GetVecD(string format, IImportObject[] availableFormats)
+    private static async Task<VecD> GetVecD(DataFormat<byte[]> format, IImportObject[] availableFormats)
     {
         var firstFormat = availableFormats.FirstOrDefault(x => x.Contains(format));
         if (firstFormat == null)
             return new VecD(-1, -1);
 
-        byte[] bytes = (byte[])await firstFormat.GetDataAsync(format);
+        byte[] bytes = await firstFormat.GetDataAsync(format);
 
         if (bytes is { Length: < 16 })
             return new VecD(-1, -1);
@@ -598,14 +604,14 @@ internal static class ClipboardController
         return VecD.FromBytes(bytes);
     }
 
-    public static bool IsImage(IDataObject? dataObject)
+    public static bool IsImage(IDataTransfer? dataObject)
     {
         if (dataObject == null)
             return false;
 
         try
         {
-            var files = dataObject.GetFileDropList();
+            var files = dataObject.TryGetFiles();
             if (files != null)
             {
                 if (IsImageFormat(files.Select(x => x.Path.LocalPath).ToArray()))
@@ -625,7 +631,7 @@ internal static class ClipboardController
     public static async Task<bool> IsImageInClipboard()
     {
         var formats = await Clipboard.GetFormatsAsync();
-        if (formats == null || formats.Length == 0)
+        if (formats == null || formats.Count == 0)
             return false;
 
         bool isImage = IsImageFormat(formats);
@@ -652,13 +658,13 @@ internal static class ClipboardController
         return isImage;
     }
 
-    private static async Task<string> TryFindImageInFiles(string[] formats)
+    private static async Task<string> TryFindImageInFiles(IReadOnlyList<DataFormat> formats)
     {
-        foreach (string format in formats)
+        foreach (var format in formats)
         {
-            if (format == DataFormats.Files || format == ClipboardDataFormats.UriList)
+            if (format == DataFormat.File)
             {
-                var files = await ClipboardController.Clipboard.GetDataAsync(format);
+                var files = await ClipboardController.Clipboard.GetDataAsync<IStorageItem>(DataFormat.File);
                 if (files is IEnumerable<IStorageItem> storageFiles)
                 {
                     foreach (var file in storageFiles)
@@ -676,27 +682,26 @@ internal static class ClipboardController
                         }
                     }
                 }
-
-                if (files is byte[] bytes)
+            }
+            else if (format == ClipboardDataFormats.UriList)
+            {
+                byte[] bytes = await ClipboardController.Clipboard.GetDataAsync<byte[]>(ClipboardDataFormats.UriList);
+                string utf8String = Encoding.UTF8.GetString(bytes);
+                string[] paths = utf8String.Split(['\n', '\r'], StringSplitOptions.RemoveEmptyEntries);
+                foreach (string path in paths)
                 {
-                    string utf8String = Encoding.UTF8.GetString(bytes);
-                    string[] paths = utf8String.Split(['\n', '\r'], StringSplitOptions.RemoveEmptyEntries);
-                    foreach (string path in paths)
+                    if (Importer.IsSupportedFile(path))
                     {
-                        if (Importer.IsSupportedFile(path))
-                        {
-                            return path;
-                        }
+                        return path;
                     }
                 }
-
-                if (format == DataFormats.Text)
+            }
+            else if (format == DataFormat.Text)
+            {
+                string text = await ClipboardController.GetTextFromClipboard();
+                if (Importer.IsSupportedFile(text))
                 {
-                    string text = await ClipboardController.GetTextFromClipboard();
-                    if (Importer.IsSupportedFile(text))
-                    {
-                        return text;
-                    }
+                    return text;
                 }
             }
         }
@@ -704,15 +709,24 @@ internal static class ClipboardController
         return string.Empty;
     }
 
-    public static bool IsImageFormat(string[] formats)
+    public static bool IsImageFormat(IEnumerable<DataFormat> formats)
     {
         foreach (var format in formats)
         {
-            if (ClipboardDataFormats.PngFormats.Contains(format, StringComparer.OrdinalIgnoreCase))
+            if (ClipboardDataFormats.PngFormats.Contains(format))
             {
                 return true;
             }
+        }
 
+        return false;
+    }
+
+
+    public static bool IsImageFormat(string[] paths)
+    {
+        foreach (var format in paths)
+        {
             if (Importer.IsSupportedFile(format))
             {
                 return true;
@@ -725,7 +739,7 @@ internal static class ClipboardController
     private static async Task<Surface?> FromPNG(IImportObject importObj)
     {
         object? pngData = null;
-        foreach (string format in ClipboardDataFormats.PngFormats)
+        foreach (var format in ClipboardDataFormats.PngFormats)
         {
             if (importObj.Contains(format))
             {
@@ -752,7 +766,8 @@ internal static class ClipboardController
         return null;
     }
 
-    private static bool HasData(IDataObject dataObject, params string[] formats) => formats.Any(dataObject.Contains);
+    private static bool HasData(IDataTransfer dataObject, params DataFormat[] formats) =>
+        formats.Any(dataObject.Contains);
 
     private static async Task<Surface?> TryExtractSingleImage(IImportObject importedObj)
     {
@@ -808,14 +823,13 @@ internal static class ClipboardController
         return await GetIds(ClipboardDataFormats.CelIdList);
     }
 
-    public static async Task<Guid[]> GetIds(string format)
+    public static async Task<Guid[]> GetIds(DataFormat<byte[]> format)
     {
         var data = await TryGetImportObjects();
         return await GetIds(data, format);
     }
 
-
-    private static async Task<Guid[]> GetIds(IEnumerable<IImportObject?> data, string format)
+    private static async Task<Guid[]> GetIds(IEnumerable<IImportObject?> data, DataFormat<byte[]> format)
     {
         foreach (var dataObject in data)
         {
@@ -842,10 +856,10 @@ internal static class ClipboardController
         return await AreIdsInClipboard(ClipboardDataFormats.CelIdList);
     }
 
-    public static async Task<bool> AreIdsInClipboard(string format)
+    public static async Task<bool> AreIdsInClipboard(DataFormat format)
     {
         var formats = await Clipboard.GetFormatsAsync();
-        if (formats == null || formats.Length == 0)
+        if (formats == null || formats.Count == 0)
             return false;
 
         return formats.Contains(format);
@@ -856,17 +870,17 @@ internal static class ClipboardController
         await CopyIds(celIds, ClipboardDataFormats.CelIdList, docId);
     }
 
-    public static async Task CopyIds(Guid[] ids, string format, Guid docId)
+    public static async Task CopyIds(Guid[] ids, DataFormat<byte[]> format, Guid docId)
     {
         await Clipboard.ClearAsync();
 
-        DataObject data = new DataObject();
+        DataTransfer data = new DataTransfer();
 
-        data.Set(ClipboardDataFormats.DocumentFormat, Encoding.UTF8.GetBytes(docId.ToString()));
+        data.Add(DataTransferItem.Create(ClipboardDataFormats.DocumentFormat, Encoding.UTF8.GetBytes(docId.ToString())));
 
         byte[] idsBytes = Encoding.UTF8.GetBytes(string.Join(";", ids.Select(x => x.ToString())));
 
-        data.Set(format, idsBytes);
+        data.Add(DataTransferItem.Create(format, idsBytes));
 
         await Clipboard.SetDataObjectAsync(data);
     }
@@ -881,7 +895,7 @@ internal static class ClipboardController
         {
             if (dataObject.Contains(ClipboardDataFormats.DocumentFormat))
             {
-                byte[] guidBytes = (byte[])await dataObject.GetDataAsync(ClipboardDataFormats.DocumentFormat);
+                byte[] guidBytes = await dataObject.GetDataAsync<byte[]>(ClipboardDataFormats.DocumentFormat);
                 string guidString = System.Text.Encoding.UTF8.GetString(guidBytes);
                 return Guid.Parse(guidString);
             }

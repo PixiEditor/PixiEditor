@@ -9,25 +9,24 @@ using Drawie.Numerics;
 
 namespace PixiEditor.Helpers.Extensions;
 
-public static class DataObjectExtensions
+public static class DataTransferExtensions
 {
-    /// <summary>
+    /*/// <summary>
     ///     Clears the data object and sets the specified data.
     /// </summary>
     /// <param name="data">The data object to set the data on.</param>
     /// <param name="files">File paths to set.</param>
-    public static void SetFileDropList(this DataObject data, IEnumerable<string> files)
+    public static void SetFileDropList(this DataTransfer data, IEnumerable<string> files)
     {
-        data.Set(DataFormats.Files, files);
-    }
+    }*/
 
-    public static IStorageItem[] GetFileDropList(this IDataObject data)
+    /*public static IStorageItem[] GetFileDropList(this IDataObject data)
     {
         if (!data.Contains(DataFormats.Files))
             return[];
 
-        return ((IEnumerable<IStorageItem>)data.Get(DataFormats.Files)).ToArray();
-    }
+        return ((IEnumerable<IStorageItem>)data.Get(DataFormat.File)).ToArray();
+    }*/
 
     public static bool TryGetRawTextPath(this IDataObject data, out string? path)
     {
@@ -83,6 +82,9 @@ public static class DataObjectExtensions
         return VecD.FromBytes(bytes);
     }
 
-    public static void SetVecI(this DataObject data, string format, VecI value) => data.Set(format, value.ToByteArray());
-    public static void SetVecD(this DataObject data, string format, VecD value) => data.Set(format, value.ToByteArray());
+    public static void SetVecI(this DataTransfer data, DataFormat<byte[]> format, VecI value) =>
+        data.Add(DataTransferItem.Create(format, value.ToByteArray()));
+
+    public static void SetVecD(this DataTransfer data, DataFormat<byte[]> format, VecD value) =>
+        data.Add(DataTransferItem.Create(format, value.ToByteArray()));
 }

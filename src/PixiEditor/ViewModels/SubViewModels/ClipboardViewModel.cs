@@ -1,16 +1,11 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Immutable;
-using System.Linq;
-using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
 using Avalonia.Media;
-using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using PixiEditor.Helpers.Extensions;
-using Drawie.Backend.Core.Numerics;
-using Drawie.Backend.Core.Surfaces;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Clipboard;
 using PixiEditor.Models.Commands.Attributes.Commands;
@@ -19,13 +14,8 @@ using PixiEditor.Models.Commands.Search;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.IO;
-using PixiEditor.Models.Layers;
 using Drawie.Numerics;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
-using PixiEditor.Helpers.Constants;
 using PixiEditor.Models.Commands;
-using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.Dock;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.Views;
@@ -50,7 +40,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
 
     private void AttachClipboard(MainWindow window)
     {
-        ClipboardController.Initialize(window.Clipboard);
+        ClipboardController.Initialize(new PixiEditorClipboard(window.Clipboard));
         window.GotFocus += (sender, args) =>
         {
             QueueHasImageInClipboard();
@@ -125,7 +115,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.Clipboard.PasteReferenceLayer", "PASTE_REFERENCE_LAYER",
         "PASTE_REFERENCE_LAYER_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.CanPaste",
         Icon = PixiPerfectIcons.PasteReferenceLayer, AnalyticsTrack = true)]
-    public void PasteReferenceLayer(IDataObject data)
+    public void PasteReferenceLayer(DataTransfer data)
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
 
@@ -467,7 +457,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
     {
         if (!Owner.DocumentIsNotNull(null)) return false;
 
-        if (parameter is IDataObject data)
+        if (parameter is DataTransfer data)
             return ClipboardController.IsImage(data);
 
         QueueCheckCanPasteImage();
