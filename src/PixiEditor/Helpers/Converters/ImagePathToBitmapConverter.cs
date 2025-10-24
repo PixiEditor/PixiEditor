@@ -34,11 +34,20 @@ internal class ImagePathToBitmapConverter : SingleInstanceConverter<ImagePathToB
         if (Uri.TryCreate(path, UriKind.RelativeOrAbsolute, out _))
         {
             bool isAbsolute = Uri.TryCreate(path, UriKind.Absolute, out Uri? absUri);
-            Uri uri = isAbsolute
-                ? absUri!
-                : new Uri(baseUri, path);
+            
+            Uri assetsUri = new Uri(baseUri, path);
+            
+            if (AssetLoader.Exists(assetsUri))
+            {
+                if (path.EndsWith(".svg"))
+                {
+                    return new SvgImage() { Source = new SvgSource(baseUri) { Path = path } };
+                }
 
-            if (isAbsolute)
+                return new Bitmap(AssetLoader.Open(assetsUri));
+            }
+
+            if (isAbsolute && File.Exists(absUri!.LocalPath))
             {
                 if (path.EndsWith(".svg"))
                 {
@@ -48,15 +57,7 @@ internal class ImagePathToBitmapConverter : SingleInstanceConverter<ImagePathToB
                 return new Bitmap(File.OpenRead(absUri!.LocalPath));
             }
 
-            if (AssetLoader.Exists(uri))
-            {
-                if (path.EndsWith(".svg"))
-                {
-                    return new SvgImage() { Source = new SvgSource(baseUri) { Path = path } };
-                }
-
-                return new Bitmap(AssetLoader.Open(uri));
-            }
+           
         }
 
         return null;
