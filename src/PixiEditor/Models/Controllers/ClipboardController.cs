@@ -696,6 +696,11 @@ internal static class ClipboardController
             else if (format == DataFormat.Text)
             {
                 string text = await ClipboardController.GetTextFromClipboard();
+                if (string.IsNullOrWhiteSpace(text))
+                {
+                    continue;
+                }
+
                 if (text.StartsWith('"') && text.EndsWith('"'))
                 {
                     text = text[1..^1];
