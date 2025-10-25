@@ -45,17 +45,17 @@ public class CustomOutputNode : Node, IRenderInput
 
             lastDocumentSize = targetSize;
 
-            DrawingSurface targetSurface = context.RenderSurface;
+            Canvas targetSurface = context.RenderSurface;
 
-            int saved = targetSurface.Canvas.Save();
+            int saved = targetSurface.Save();
 
             Input.Value?.Paint(context, targetSurface);
 
-            targetSurface.Canvas.RestoreToCount(saved);
+            targetSurface.RestoreToCount(saved);
 
             if (targetSurface != context.RenderSurface)
             {
-                context.RenderSurface.Canvas.DrawSurface(targetSurface, 0, 0);
+                context.RenderSurface.DrawSurface(targetSurface.Surface, 0, 0);
             }
         }
     }
@@ -74,7 +74,8 @@ public class CustomOutputNode : Node, IRenderInput
 
     public bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
     {
-        if (Input.Value == null)
+        // TODO: Implement preview rendering
+        /*if (Input.Value == null)
         {
             return false;
         }
@@ -82,7 +83,7 @@ public class CustomOutputNode : Node, IRenderInput
         int saved = renderOn.Canvas.Save();
         Input.Value.Paint(context, renderOn);
 
-        renderOn.Canvas.RestoreToCount(saved);
+        renderOn.Canvas.RestoreToCount(saved);*/
 
         return true;
     }

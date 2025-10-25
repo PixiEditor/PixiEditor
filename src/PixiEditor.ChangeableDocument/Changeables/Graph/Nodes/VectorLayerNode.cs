@@ -69,7 +69,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         Matrix.Value = TransformationMatrix;
     }
 
-    protected override void DrawWithoutFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
+    protected override void DrawWithoutFilters(SceneObjectRenderContext ctx, Canvas workingSurface,
         Paint paint)
     {
         if (RenderableShapeData == null)
@@ -80,7 +80,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         Rasterize(workingSurface, paint, ctx.FrameTime.Frame);
     }
 
-    protected override void DrawWithFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface, Paint paint)
+    protected override void DrawWithFilters(SceneObjectRenderContext ctx, Canvas workingSurface, Paint paint)
     {
         if (RenderableShapeData == null)
         {
@@ -136,7 +136,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
             return;
         }
 
-        Rasterize(renderOn, paint, context.FrameTime.Frame);
+        Rasterize(renderOn.Canvas, paint, context.FrameTime.Frame);
     }
 
     public override RectD? GetPreviewBounds(RenderContext ctx, string elementToRenderName)
@@ -196,22 +196,22 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         return RenderableShapeData?.TransformationCorners ?? new ShapeCorners();
     }
 
-    public void Rasterize(DrawingSurface surface, Paint paint, int frame)
+    public void Rasterize(Canvas surface, Paint paint, int frame)
     {
         int layer;
         // TODO: This can be further optimized by passing opacity, blend mode and filters directly to the rasterization method
         if (paint is { IsOpaqueStandardNonBlendingPaint: false })
         {
-            layer = surface.Canvas.SaveLayer(paint);
+            layer = surface.SaveLayer(paint);
         }
         else
         {
-            layer = surface.Canvas.Save();
+            layer = surface.Save();
         }
 
-        RenderableShapeData?.RasterizeTransformed(surface.Canvas);
+        RenderableShapeData?.RasterizeTransformed(surface);
 
-        surface.Canvas.RestoreToCount(layer);
+        surface.RestoreToCount(layer);
     }
 
     public override Node CreateCopy()

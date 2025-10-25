@@ -133,7 +133,7 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
             clonedContext.ProcessingColorSpace = Instance?.ProcessingColorSpace;
             clonedContext.VisibleDocumentRegion = null;
             clonedContext.RenderSurface =
-                (dummyTexture ??= Texture.ForProcessing(new VecI(1, 1), context.ProcessingColorSpace)).DrawingSurface;
+                (dummyTexture ??= Texture.ForProcessing(new VecI(1, 1), context.ProcessingColorSpace)).DrawingSurface.Canvas;
 
             var outputNode = Instance?.NodeGraph.AllNodes.OfType<BrushOutputNode>().FirstOrDefault() ??
                              Instance?.NodeGraph.OutputNode;
@@ -158,7 +158,7 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
         Graph.Value = Instance.NodeGraph;
     }
 
-    protected override void DrawWithoutFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface, Paint paint)
+    protected override void DrawWithoutFilters(SceneObjectRenderContext ctx, Canvas workingSurface, Paint paint)
     {
         if (NestedDocument.Value is null)
             return;
@@ -166,36 +166,36 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
         int saved;
         if (paint.IsOpaqueStandardNonBlendingPaint)
         {
-            saved = workingSurface.Canvas.Save();
+            saved = workingSurface.Save();
         }
         else
         {
-            saved = workingSurface.Canvas.SaveLayer(paint);
+            saved = workingSurface.SaveLayer(paint);
         }
 
-        workingSurface.Canvas.SetMatrix(workingSurface.Canvas.TotalMatrix.Concat(TransformationMatrix));
+        workingSurface.SetMatrix(workingSurface.TotalMatrix.Concat(TransformationMatrix));
 
         ExecuteNested(ctx);
 
-        workingSurface.Canvas.RestoreToCount(saved);
+        workingSurface.RestoreToCount(saved);
     }
 
 
-    protected override void DrawWithFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface, Paint paint)
+    protected override void DrawWithFilters(SceneObjectRenderContext ctx, Canvas workingSurface, Paint paint)
     {
         if (NestedDocument.Value is null)
             return;
 
-        int saved = workingSurface.Canvas.SaveLayer(paint);
+        int saved = workingSurface.SaveLayer(paint);
 
-        workingSurface.Canvas.SetMatrix(workingSurface.Canvas.TotalMatrix.Concat(TransformationMatrix));
+        workingSurface.SetMatrix(workingSurface.TotalMatrix.Concat(TransformationMatrix));
 
         ExecuteNested(ctx);
 
-        workingSurface.Canvas.RestoreToCount(saved);
+        workingSurface.RestoreToCount(saved);
     }
 
-    public void Rasterize(DrawingSurface surface, Paint paint, int atFrame)
+    public void Rasterize(Canvas surface, Paint paint, int atFrame)
     {
         if (NestedDocument.Value is null)
             return;
@@ -203,14 +203,14 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
         int layer;
         if (paint is { IsOpaqueStandardNonBlendingPaint: false })
         {
-            layer = surface.Canvas.SaveLayer(paint);
+            layer = surface.SaveLayer(paint);
         }
         else
         {
-            layer = surface.Canvas.Save();
+            layer = surface.Save();
         }
 
-        surface.Canvas.SetMatrix(surface.Canvas.TotalMatrix.Concat(TransformationMatrix));
+        surface.SetMatrix(surface.TotalMatrix.Concat(TransformationMatrix));
 
         RenderContext context = new(
             surface, atFrame, ChunkResolution.Full,
@@ -222,7 +222,7 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
 
         ExecuteNested(context);
 
-        surface.Canvas.RestoreToCount(layer);
+        surface.RestoreToCount(layer);
     }
 
     private void ExecuteNested(RenderContext ctx)
@@ -274,7 +274,7 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
             return;
         }
 
-        Paint(context, renderOn);
+        Paint(context, renderOn.Canvas);
     }
 
     public override RectD? GetTightBounds(KeyFrameTime frameTime)

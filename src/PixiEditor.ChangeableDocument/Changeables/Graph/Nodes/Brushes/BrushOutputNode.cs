@@ -86,7 +86,7 @@ public class BrushOutputNode : Node
                 ContentTexture = cache.RequestTexture(0, context.RenderOutputSize, context.ProcessingColorSpace);
                 ContentTexture.DrawingSurface.Canvas.Save();
                 ContentTexture.DrawingSurface.Canvas.SetMatrix(Transform.Value);
-                Content.Value.Paint(context, ContentTexture.DrawingSurface);
+                Content.Value.Paint(context, ContentTexture.DrawingSurface.Canvas);
                 ContentTexture.DrawingSurface.Canvas.Restore();
             }
         }
@@ -113,7 +113,7 @@ public class BrushOutputNode : Node
             RenderContext adjusted =
                 PreviewUtility.CreatePreviewContext(ctx, new VecD(1), bounds.Size, preview.Texture.Size);
 
-            adjusted.RenderSurface = preview.Texture.DrawingSurface;
+            adjusted.RenderSurface = preview.Texture.DrawingSurface.Canvas;
             RenderPreview(preview.Texture.DrawingSurface, adjusted);
             preview.Texture.DrawingSurface.Canvas.RestoreToCount(saved);
         }
@@ -177,7 +177,7 @@ public class BrushOutputNode : Node
 
         previewChunkyImage.CommitChanges();
         previewChunkyImage.DrawCommittedChunkOn(
-            VecI.Zero, ChunkResolution.Full, surface, VecD.Zero);
+            VecI.Zero, ChunkResolution.Full, surface.Canvas, VecD.Zero);
     }
 
 

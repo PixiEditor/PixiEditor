@@ -50,15 +50,15 @@ public abstract class Matrix3X3BaseNode : RenderNode, IRenderInput
         base.OnExecute(context);
     }
 
-    protected override void OnPaint(RenderContext context, DrawingSurface surface)
+    protected override void OnPaint(RenderContext context, Canvas surface)
     {
-        int layer = surface.Canvas.Save();
+        int layer = surface.Save();
 
         Float3x3 mtx = Matrix.Value.Invoke(FuncContext.NoContext);
 
         Matrix3X3 constant = mtx.GetConstant() as Matrix3X3? ?? Matrix3X3.Identity;
-        surface.Canvas.SetMatrix(
-            surface.Canvas.TotalMatrix.Concat(constant));
+        surface.SetMatrix(
+            surface.TotalMatrix.Concat(constant));
 
         var clonedCtx = context.Clone();
         if (clonedCtx.VisibleDocumentRegion.HasValue)
@@ -72,7 +72,7 @@ public abstract class Matrix3X3BaseNode : RenderNode, IRenderInput
             Background.Value?.Paint(clonedCtx, surface);
         }
 
-        surface.Canvas.RestoreToCount(layer);
+        surface.RestoreToCount(layer);
     }
 
     public override RectD? GetPreviewBounds(RenderContext ctx, string elementToRenderName = "")

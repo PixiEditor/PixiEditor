@@ -23,7 +23,7 @@ public class RenderContext
     public VecI RenderOutputSize { get; set; }
 
     public VecI DocumentSize { get; set; }
-    public DrawingSurface RenderSurface { get; set; }
+    public Canvas RenderSurface { get; set; }
     public bool FullRerender { get; set; } = false;
     public PointerInfo PointerInfo { get; set; }
     public KeyboardInfo KeyboardInfo { get; set; }
@@ -34,7 +34,7 @@ public class RenderContext
     public Dictionary<Guid, List<PreviewRenderRequest>>? PreviewTextures { get; set; }
     public IReadOnlyNodeGraph Graph { get; set; }
 
-    public RenderContext(DrawingSurface renderSurface, KeyFrameTime frameTime, ChunkResolution chunkResolution,
+    public RenderContext(Canvas renderSurface, KeyFrameTime frameTime, ChunkResolution chunkResolution,
         VecI renderOutputSize, VecI documentSize, ColorSpace processingColorSpace, SamplingOptions desiredSampling, IReadOnlyNodeGraph graph, double opacity = 1)
     {
         RenderSurface = renderSurface;

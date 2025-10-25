@@ -232,7 +232,7 @@ internal class SceneRenderer
                 }
 
                 double finalOpacity = onionOpacity * alphaFalloffMultiplier * (animationData.OnionFrames - i + 1);
-                RenderContext onionContext = new(renderTarget, frame, resolution, finalSize, Document.Size,
+                RenderContext onionContext = new(renderTarget.Canvas, frame, resolution, finalSize, Document.Size,
                     Document.ProcessingColorSpace, samplingOptions, Document.NodeGraph, finalOpacity);
                 onionContext.TargetOutput = targetOutput;
                 onionContext.VisibleDocumentRegion = visibleDocumentRegion;
@@ -240,7 +240,7 @@ internal class SceneRenderer
             }
         }
 
-        RenderContext context = new(renderTarget, DocumentViewModel.AnimationHandler.ActiveFrameTime,
+        RenderContext context = new(renderTarget.Canvas, DocumentViewModel.AnimationHandler.ActiveFrameTime,
             resolution, finalSize, Document.Size, Document.ProcessingColorSpace, samplingOptions, Document.NodeGraph);
         context.PointerInfo = pointerInfo;
         context.KeyboardInfo = keyboardInfo;
@@ -264,7 +264,7 @@ internal class SceneRenderer
                 }
 
                 double finalOpacity = onionOpacity * alphaFalloffMultiplier * (animationData.OnionFrames - i + 1);
-                RenderContext onionContext = new(renderTarget, frame, resolution, finalSize, Document.Size,
+                RenderContext onionContext = new(renderTarget.Canvas, frame, resolution, finalSize, Document.Size,
                     Document.ProcessingColorSpace, samplingOptions, Document.NodeGraph, finalOpacity);
                 onionContext.TargetOutput = targetOutput;
                 onionContext.VisibleDocumentRegion = visibleDocumentRegion;

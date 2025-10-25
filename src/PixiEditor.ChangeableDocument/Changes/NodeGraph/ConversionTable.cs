@@ -93,7 +93,7 @@ public static class ConversionTable
                     (typeof(Paintable), new TypeConverter<Texture, Paintable>(img => new TexturePaintable(img))),
                     (typeof(Painter),
                         new TypeConverter<Texture, Painter>(img =>
-                            new Painter((c, s) => s.Canvas.DrawSurface(img.DrawingSurface, 0, 0)))),
+                            new Painter((c, s) => s.DrawSurface(img.DrawingSurface, 0, 0)))),
                 ]
             },
             {

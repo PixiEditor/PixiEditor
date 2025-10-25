@@ -1042,7 +1042,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 {
                     using Surface texture = new Surface(SizeBindable);
                     using Paint paint = new Paint();
-                    rasterizable.Rasterize(texture.DrawingSurface, paint, frameTime.Frame);
+                    rasterizable.Rasterize(texture.DrawingSurface.Canvas, paint, frameTime.Frame);
                     return texture.GetSrgbPixel(pos);
                 }
             }

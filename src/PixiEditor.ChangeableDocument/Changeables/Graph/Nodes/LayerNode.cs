@@ -36,7 +36,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
             sceneContext.TargetPropertyOutput == Output);
     }
 
-    private void RenderContent(SceneObjectRenderContext context, DrawingSurface renderOnto, bool useFilters)
+    private void RenderContent(SceneObjectRenderContext context, Canvas renderOnto, bool useFilters)
     {
         if (!HasOperations())
         {
@@ -62,9 +62,9 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
                     context.ProcessingColorSpace, 22);
 
                 var originalSurface = context.RenderSurface;
-                context.RenderSurface = tempSurface.DrawingSurface;
+                context.RenderSurface = tempSurface.DrawingSurface.Canvas;
 
-                DrawLayerOnTexture(context, tempSurface.DrawingSurface, context.ChunkResolution, useFilters,
+                DrawLayerOnTexture(context, tempSurface.DrawingSurface.Canvas, context.ChunkResolution, useFilters,
                     targetPaint);
 
                 context.RenderSurface = originalSurface;
@@ -80,7 +80,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
         VecI size = AllowHighDpiRendering
             ? renderOnto.DeviceClipBounds.Size + renderOnto.DeviceClipBounds.Pos
             : context.RenderOutputSize;
-        int saved = renderOnto.Canvas.Save();
+        int saved = renderOnto.Save();
 
         var adjustedResolution = AllowHighDpiRendering ? ChunkResolution.Full : context.ChunkResolution;
 
@@ -91,8 +91,8 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
         outputWorkingSurface.DrawingSurface.Canvas.Save();
         if (AllowHighDpiRendering)
         {
-            outputWorkingSurface.DrawingSurface.Canvas.SetMatrix(renderOnto.Canvas.TotalMatrix);
-            renderOnto.Canvas.SetMatrix(Matrix3X3.Identity);
+            outputWorkingSurface.DrawingSurface.Canvas.SetMatrix(renderOnto.TotalMatrix);
+            renderOnto.SetMatrix(Matrix3X3.Identity);
         }
 
         using var paint = new Paint
@@ -102,13 +102,13 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
 
 
         var originalRenderSurface = context.RenderSurface;
-        context.RenderSurface = outputWorkingSurface.DrawingSurface;
+        context.RenderSurface = outputWorkingSurface.DrawingSurface.Canvas;
 
-        DrawLayerOnTexture(context, outputWorkingSurface.DrawingSurface, adjustedResolution, false, paint);
+        DrawLayerOnTexture(context, outputWorkingSurface.DrawingSurface.Canvas, adjustedResolution, false, paint);
 
         context.RenderSurface = originalRenderSurface;
 
-        ApplyMaskIfPresent(outputWorkingSurface.DrawingSurface, context, adjustedResolution);
+        ApplyMaskIfPresent(outputWorkingSurface.DrawingSurface.Canvas, context, adjustedResolution);
 
         if (Background.Value != null)
         {
@@ -129,7 +129,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
             tempSurface.DrawingSurface.Canvas.Clear();
             if (Background.Connection is { Node: IClipSource clipSource } && ClipToPreviousMember)
             {
-                DrawClipSource(tempSurface.DrawingSurface, clipSource, context);
+                DrawClipSource(tempSurface.DrawingSurface.Canvas, clipSource, context);
             }
 
             ApplyRasterClip(outputWorkingSurface.DrawingSurface, tempSurface.DrawingSurface);
@@ -148,52 +148,52 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
         DrawWithResolution(outputWorkingSurface.DrawingSurface, renderOnto, adjustedResolution,
             context.DesiredSamplingOptions);
 
-        renderOnto.Canvas.RestoreToCount(saved);
+        renderOnto.RestoreToCount(saved);
         outputWorkingSurface.DrawingSurface.Canvas.Restore();
     }
 
     protected internal virtual void DrawLayerOnTexture(SceneObjectRenderContext ctx,
-        DrawingSurface workingSurface,
+        Canvas workingSurface,
         ChunkResolution resolution,
         bool useFilters, Paint paint)
     {
-        int scaled = workingSurface.Canvas.Save();
-        workingSurface.Canvas.Scale((float)resolution.Multiplier());
+        int scaled = workingSurface.Save();
+        workingSurface.Scale((float)resolution.Multiplier());
 
         DrawLayerOnto(ctx, workingSurface, useFilters, paint);
 
-        workingSurface.Canvas.RestoreToCount(scaled);
+        workingSurface.RestoreToCount(scaled);
     }
 
-    private void DrawWithResolution(DrawingSurface source, DrawingSurface target, ChunkResolution resolution,
+    private void DrawWithResolution(DrawingSurface source, Canvas target, ChunkResolution resolution,
         SamplingOptions sampling)
     {
-        int scaled = target.Canvas.Save();
+        int scaled = target.Save();
         float multiplier = (float)resolution.InvertedMultiplier();
-        target.Canvas.Scale(multiplier, multiplier);
+        target.Scale(multiplier, multiplier);
 
         if (sampling == SamplingOptions.Default)
         {
-            target.Canvas.DrawSurface(source, 0, 0, blendPaint);
+            target.DrawSurface(source, 0, 0, blendPaint);
         }
         else
         {
             using var snapshot = source.Snapshot();
-            target.Canvas.DrawImage(snapshot, 0, 0, sampling, blendPaint);
+            target.DrawImage(snapshot, 0, 0, sampling, blendPaint);
         }
 
-        target.Canvas.RestoreToCount(scaled);
+        target.RestoreToCount(scaled);
     }
 
 
     protected internal virtual void DrawLayerInScene(SceneObjectRenderContext ctx,
-        DrawingSurface workingSurface,
+        Canvas workingSurface,
         bool useFilters = true)
     {
         DrawLayerOnto(ctx, workingSurface, useFilters, blendPaint);
     }
 
-    protected void DrawLayerOnto(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
+    protected void DrawLayerOnto(SceneObjectRenderContext ctx, Canvas workingSurface,
         bool useFilters, Paint paint)
     {
         paint.Color = paint.Color.WithAlpha((byte)Math.Round(Opacity.Value * ctx.Opacity * 255));
@@ -203,13 +203,13 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
         int saved = -1;
         if (!ctx.ProcessingColorSpace.IsSrgb && useFilters && Filters.Value != null)
         {
-            saved = workingSurface.Canvas.Save();
+            saved = workingSurface.Save();
 
             tex = Texture.ForProcessing(workingSurface,
                 ColorSpace.CreateSrgb());
-            workingSurface.Canvas.SetMatrix(Matrix3X3.Identity);
-            ctx.RenderSurface = tex.DrawingSurface;
-            targetSurface = tex.DrawingSurface;
+            workingSurface.SetMatrix(Matrix3X3.Identity);
+            ctx.RenderSurface = tex.DrawingSurface.Canvas;
+            targetSurface = tex.DrawingSurface.Canvas;
         }
 
         if (useFilters && Filters.Value != null)
@@ -225,17 +225,17 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
 
         if (targetSurface != workingSurface)
         {
-            workingSurface.Canvas.DrawSurface(targetSurface, 0, 0);
+            workingSurface.DrawSurface(targetSurface.Surface, 0, 0);
             tex.Dispose();
-            workingSurface.Canvas.RestoreToCount(saved);
+            workingSurface.RestoreToCount(saved);
             ctx.RenderSurface = workingSurface;
         }
     }
 
-    protected abstract void DrawWithoutFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
+    protected abstract void DrawWithoutFilters(SceneObjectRenderContext ctx, Canvas workingSurface,
         Paint paint);
 
-    protected abstract void DrawWithFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
+    protected abstract void DrawWithFilters(SceneObjectRenderContext ctx, Canvas workingSurface,
         Paint paint);
 
     protected Texture TryInitWorkingSurface(VecI imageSize, ChunkResolution resolution, ColorSpace processingCs, int id)
@@ -261,7 +261,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
         return workingSurface;
     }
 
-    void IClipSource.DrawClipSource(SceneObjectRenderContext context, DrawingSurface drawOnto)
+    void IClipSource.DrawClipSource(SceneObjectRenderContext context, Canvas drawOnto)
     {
         RenderContent(context, drawOnto, false);
     }

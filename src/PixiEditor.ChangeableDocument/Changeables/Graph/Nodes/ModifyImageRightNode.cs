@@ -38,7 +38,7 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
         RendersInAbsoluteCoordinates = true;
     }
 
-    protected override void OnPaint(RenderContext renderContext, DrawingSurface targetSurface)
+    protected override void OnPaint(RenderContext renderContext, Canvas targetSurface)
     {
         if (OtherNode == null || OtherNode == default)
         {
@@ -111,7 +111,7 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
             drawingPaint.Shader = drawingPaint.Shader.WithUpdatedUniforms(builder.Uniforms);
         }
 
-        targetSurface.Canvas.DrawRect(0, 0, size.Value.X, size.Value.Y, drawingPaint);
+        targetSurface.DrawRect(0, 0, size.Value.X, size.Value.Y, drawingPaint);
         builder.Dispose();
     }
 

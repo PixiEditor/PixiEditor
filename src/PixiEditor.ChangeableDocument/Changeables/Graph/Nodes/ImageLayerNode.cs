@@ -87,47 +87,47 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     }
 
     protected internal override void DrawLayerInScene(SceneObjectRenderContext ctx,
-        DrawingSurface workingSurface,
+        Canvas workingSurface,
         bool useFilters = true)
     {
-        int scaled = workingSurface.Canvas.Save();
+        int scaled = workingSurface.Save();
         float multiplier = (float)ctx.ChunkResolution.InvertedMultiplier();
-        workingSurface.Canvas.Translate(GetScenePosition(ctx.FrameTime));
+        workingSurface.Translate(GetScenePosition(ctx.FrameTime));
 
         base.DrawLayerInScene(ctx, workingSurface, useFilters);
 
-        workingSurface.Canvas.RestoreToCount(scaled);
+        workingSurface.RestoreToCount(scaled);
     }
 
     protected internal override void DrawLayerOnTexture(SceneObjectRenderContext ctx,
-        DrawingSurface workingSurface,
+        Canvas workingSurface,
         ChunkResolution resolution,
         bool useFilters, Paint paint)
     {
-        int scaled = workingSurface.Canvas.Save();
-        workingSurface.Canvas.Translate(GetScenePosition(ctx.FrameTime) * resolution.Multiplier());
-        workingSurface.Canvas.Scale((float)resolution.Multiplier());
+        int scaled = workingSurface.Save();
+        workingSurface.Translate(GetScenePosition(ctx.FrameTime) * resolution.Multiplier());
+        workingSurface.Scale((float)resolution.Multiplier());
 
         DrawLayerOnto(ctx, workingSurface, useFilters, paint);
 
-        workingSurface.Canvas.RestoreToCount(scaled);
+        workingSurface.RestoreToCount(scaled);
     }
 
-    protected override void DrawWithoutFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
+    protected override void DrawWithoutFilters(SceneObjectRenderContext ctx, Canvas workingSurface,
         Paint paint)
     {
         DrawLayer(workingSurface, paint, ctx, false);
     }
 
-    protected override void DrawWithFilters(SceneObjectRenderContext context, DrawingSurface workingSurface,
+    protected override void DrawWithFilters(SceneObjectRenderContext context, Canvas workingSurface,
         Paint paint)
     {
         DrawLayer(workingSurface, paint, context, true);
     }
 
-    private void DrawLayer(DrawingSurface workingSurface, Paint paint, SceneObjectRenderContext ctx, bool saveLayer)
+    private void DrawLayer(Canvas workingSurface, Paint paint, SceneObjectRenderContext ctx, bool saveLayer)
     {
-        int saved = workingSurface.Canvas.Save();
+        int saved = workingSurface.Save();
 
         var sceneSize = GetSceneSize(ctx.FrameTime);
         RectI latestSize = new(0, 0, layerImage.LatestSize.X, layerImage.LatestSize.Y);
@@ -136,12 +136,12 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         VecD topLeft = region.TopLeft - sceneSize / 2;
 
         topLeft *= ctx.ChunkResolution.Multiplier();
-        workingSurface.Canvas.Scale((float)ctx.ChunkResolution.InvertedMultiplier());
+        workingSurface.Scale((float)ctx.ChunkResolution.InvertedMultiplier());
         var img = GetLayerImageAtFrame(ctx.FrameTime.Frame);
 
         if (saveLayer)
         {
-            workingSurface.Canvas.SaveLayer(paint);
+            workingSurface.SaveLayer(paint);
         }
 
         if (!ctx.FullRerender)
@@ -159,7 +159,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
                 workingSurface, topLeft, saveLayer ? null : paint, ctx.DesiredSamplingOptions);
         }
 
-        workingSurface.Canvas.RestoreToCount(saved);
+        workingSurface.RestoreToCount(saved);
     }
 
     public override RectD? GetPreviewBounds(RenderContext context, string elementFor = "")
@@ -275,7 +275,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         img.DrawCommittedRegionOn(
             new RectI(0, 0, img.LatestSize.X, img.LatestSize.Y),
             context.ChunkResolution,
-            renderOnto, VecI.Zero, replacePaint, context.DesiredSamplingOptions);
+            renderOnto.Canvas, VecI.Zero, replacePaint, context.DesiredSamplingOptions);
 
         renderOnto.Canvas.RestoreToCount(saved);
     }

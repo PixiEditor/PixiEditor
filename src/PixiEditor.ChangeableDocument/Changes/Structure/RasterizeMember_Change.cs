@@ -54,7 +54,7 @@ internal class RasterizeMember_Change : Change
         target.NodeGraph.AddNode(imageLayer);
         
         using Surface surface = Surface.ForProcessing(target.Size, target.ProcessingColorSpace);
-        rasterizable.Rasterize(surface.DrawingSurface, null, frame);
+        rasterizable.Rasterize(surface.DrawingSurface.Canvas, null, frame);
         
         var image = imageLayer.GetLayerImageAtFrame(0);
         image.EnqueueDrawImage(VecI.Zero, surface);

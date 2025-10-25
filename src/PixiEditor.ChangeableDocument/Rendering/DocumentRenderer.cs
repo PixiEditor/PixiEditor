@@ -65,7 +65,7 @@ public class DocumentRenderer : IDisposable
         toRenderOn.Canvas.Save();
         toRenderOn.Canvas.SetMatrix(Matrix3X3.Identity);
 
-        RenderContext context = new(renderTexture.DrawingSurface, frame, resolution, Document.Size, Document.Size,
+        RenderContext context = new(renderTexture.DrawingSurface.Canvas, frame, resolution, Document.Size, Document.Size,
             Document.ProcessingColorSpace, SamplingOptions.Default, Document.NodeGraph);
         context.FullRerender = true;
         IReadOnlyNodeGraph membersOnlyGraph = ConstructMembersOnlyGraph(layersToCombine, Document.NodeGraph);
@@ -111,11 +111,11 @@ public class DocumentRenderer : IDisposable
         toRenderOn.Canvas.Save();
         toRenderOn.Canvas.SetMatrix(Matrix3X3.Identity);
 
-        RenderContext context = new(renderTexture.DrawingSurface, frameTime, resolution, Document.Size, Document.Size,
+        RenderContext context = new(renderTexture.DrawingSurface.Canvas, frameTime, resolution, Document.Size, Document.Size,
             Document.ProcessingColorSpace, SamplingOptions.Default, Document.NodeGraph);
         context.FullRerender = true;
 
-        node.RenderForOutput(context, toRenderOn, null);
+        node.RenderForOutput(context, toRenderOn.Canvas, null);
 
         renderTexture.DrawingSurface.Canvas.Restore();
         toRenderOn.Canvas.Restore();
@@ -203,7 +203,7 @@ public class DocumentRenderer : IDisposable
             : Document.NodeGraph;
 
         RenderContext context =
-            new(renderTexture.DrawingSurface, frameTime, ChunkResolution.Full,
+            new(renderTexture.DrawingSurface.Canvas, frameTime, ChunkResolution.Full,
                 SolveRenderOutputSize(customOutput, graph, Document.Size),
                 Document.Size, Document.ProcessingColorSpace, SamplingOptions.Default, Document.NodeGraph) { FullRerender = true };
 

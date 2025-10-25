@@ -108,7 +108,7 @@ public class BrushEngine : IDisposable
         }
 
         BrushRenderContext context = new BrushRenderContext(
-            texture?.DrawingSurface, frameTime, ChunkResolution.Full, target.CommittedSize, target.CommittedSize,
+            texture?.DrawingSurface.Canvas, frameTime, ChunkResolution.Full, target.CommittedSize, target.CommittedSize,
             colorSpace, samplingOptions, brushData,
             surfaceUnderRect, fullTexture, brushData.BrushGraph,
             (VecD)startPos, (VecD)lastPos)
@@ -233,12 +233,12 @@ public class BrushEngine : IDisposable
         if (!sampleLatest)
         {
             target.DrawCommittedRegionOn(new RectI(VecI.Zero, target.LatestSize), ChunkResolution.Full,
-                texture.DrawingSurface, VecI.Zero);
+                texture.DrawingSurface.Canvas, VecI.Zero);
             return texture;
         }
 
         target.DrawMostUpToDateRegionOn(new RectI(VecI.Zero, target.LatestSize), ChunkResolution.Full,
-            texture.DrawingSurface, VecI.Zero);
+            texture.DrawingSurface.Canvas, VecI.Zero);
         return texture;
     }
 
@@ -248,11 +248,11 @@ public class BrushEngine : IDisposable
 
         if (sampleLatest)
         {
-            target.DrawMostUpToDateRegionOn(rect, ChunkResolution.Full, surfaceUnderRect.DrawingSurface, VecI.Zero);
+            target.DrawMostUpToDateRegionOn(rect, ChunkResolution.Full, surfaceUnderRect.DrawingSurface.Canvas, VecI.Zero);
         }
         else
         {
-            target.DrawCommittedRegionOn(rect, ChunkResolution.Full, surfaceUnderRect.DrawingSurface, VecI.Zero);
+            target.DrawCommittedRegionOn(rect, ChunkResolution.Full, surfaceUnderRect.DrawingSurface.Canvas, VecI.Zero);
         }
 
         return surfaceUnderRect;

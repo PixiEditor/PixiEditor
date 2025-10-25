@@ -447,7 +447,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
     /// True if the chunk existed and was drawn, otherwise false
     /// </returns>
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
-    public bool DrawMostUpToDateChunkOn(VecI chunkPos, ChunkResolution resolution, DrawingSurface surface, VecD pos,
+    public bool DrawMostUpToDateChunkOn(VecI chunkPos, ChunkResolution resolution, Canvas surface, VecD pos,
         Paint? paint = null, SamplingOptions? samplingOptions = null)
     {
         lock (lockObject)
@@ -505,7 +505,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
         }
     }
 
-    public bool DrawCachedMostUpToDateChunkOn(VecI chunkPos, ChunkResolution resolution, DrawingSurface surface,
+    public bool DrawCachedMostUpToDateChunkOn(VecI chunkPos, ChunkResolution resolution, Canvas surface,
         VecD pos,
         Paint? paint = null, SamplingOptions? sampling = null)
     {
@@ -601,7 +601,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
     }
 
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
-    public bool DrawCommittedChunkOn(VecI chunkPos, ChunkResolution resolution, DrawingSurface surface, VecD pos,
+    public bool DrawCommittedChunkOn(VecI chunkPos, ChunkResolution resolution, Canvas surface, VecD pos,
         Paint? paint = null, SamplingOptions? samplingOptions = null)
     {
         lock (lockObject)
@@ -755,6 +755,16 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
         {
             ThrowIfDisposed();
             RectangleOperation operation = new(rect);
+            EnqueueOperation(operation);
+        }
+    }
+    
+    public void EnqueueDrawPaintable(Action<Canvas> customDrawPaintable, RectD pathBounds)
+    {
+        lock (lockObject)
+        {
+            ThrowIfDisposed();
+            CustomDrawPaintableOperation operation = new(customDrawPaintable, pathBounds);
             EnqueueOperation(operation);
         }
     }
@@ -1401,7 +1411,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
         {
             if (mask.CommittedChunkExists(chunkPos))
             {
-                mask.DrawCommittedChunkOn(chunkPos, resolution, intersection.Surface.DrawingSurface, VecI.Zero,
+                mask.DrawCommittedChunkOn(chunkPos, resolution, intersection.Surface.DrawingSurface.Canvas, VecI.Zero,
                     ClippingPaint);
             }
             else
@@ -1450,14 +1460,14 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
             var clip = combinedRasterClips.AsT2;
 
             using var tempChunk = Chunk.Create(ProcessingColorSpace, targetChunk.Resolution);
-            targetChunk.DrawChunkOn(tempChunk.Surface.DrawingSurface, VecI.Zero, ReplacingPaint);
+            targetChunk.DrawChunkOn(tempChunk.Surface.DrawingSurface.Canvas, VecI.Zero, ReplacingPaint);
 
             CallDrawWithClip(chunkOperation, operationAffectedArea.GlobalArea, tempChunk, resolution, chunkPos);
 
-            clip.DrawChunkOn(tempChunk.Surface.DrawingSurface, VecI.Zero, ClippingPaint);
-            clip.DrawChunkOn(targetChunk.Surface.DrawingSurface, VecI.Zero, InverseClippingPaint);
+            clip.DrawChunkOn(tempChunk.Surface.DrawingSurface.Canvas, VecI.Zero, ClippingPaint);
+            clip.DrawChunkOn(targetChunk.Surface.DrawingSurface.Canvas, VecI.Zero, InverseClippingPaint);
 
-            tempChunk.DrawChunkOn(targetChunk.Surface.DrawingSurface, VecI.Zero, AddingPaint);
+            tempChunk.DrawChunkOn(targetChunk.Surface.DrawingSurface.Canvas, VecI.Zero, AddingPaint);
             return false;
         }
 

@@ -25,7 +25,7 @@ internal class ApplyMaskOperation : IDrawOperation
     
     public void DrawOnChunk(Chunk targetChunk, VecI chunkPos)
     {
-        mask.DrawCommittedChunkOn(chunkPos, targetChunk.Resolution, targetChunk.Surface.DrawingSurface, VecI.Zero, clippingPaint);
+        mask.DrawCommittedChunkOn(chunkPos, targetChunk.Resolution, targetChunk.Surface.DrawingSurface.Canvas, VecI.Zero, clippingPaint);
     }
 
     public void Dispose()

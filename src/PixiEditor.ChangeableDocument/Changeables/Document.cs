@@ -106,7 +106,7 @@ internal class Document : IChangeable, IReadOnlyDocument
             chunkyImage.DrawCommittedRegionOn(
                 new RectI(0, 0, chunkyImage.CommittedSize.X, chunkyImage.CommittedSize.Y),
                 ChunkResolution.Full,
-                chunkSurface.DrawingSurface,
+                chunkSurface.DrawingSurface.Canvas,
                 VecI.Zero);
 
             image = chunkSurface;

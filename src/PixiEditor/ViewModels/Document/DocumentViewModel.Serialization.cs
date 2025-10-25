@@ -698,7 +698,7 @@ internal partial class DocumentViewModel
                 new ImageInfo(bounds.Value.Width, bounds.Value.Height));
 
             image.DrawMostUpToDateRegionOn(
-                new RectI(0, 0, bounds.Value.Width, bounds.Value.Height), ChunkResolution.Full, surface,
+                new RectI(0, 0, bounds.Value.Width, bounds.Value.Height), ChunkResolution.Full, surface.Canvas,
                 new VecI(0, 0));
         }
 
