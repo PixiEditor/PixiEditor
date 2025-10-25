@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Runtime.InteropServices;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
@@ -66,15 +67,29 @@ internal class StringPropertyViewModel : NodePropertyViewModel<string>
 
     private void OpenInFolder()
     {
-        if (!string.IsNullOrEmpty(fileWatcherPath) && File.Exists(fileWatcherPath))
+        try
         {
-            IOperatingSystem.Current.OpenFolder(fileWatcherPath);
-            return;
-        }
+            if (!string.IsNullOrEmpty(fileWatcherPath) && File.Exists(fileWatcherPath))
+            {
+                IOperatingSystem.Current.OpenFolder(fileWatcherPath);
+                return;
+            }
 
-        fileWatcherPath = CreateTempFile();
-        CreateFileWatcher(fileWatcherPath);
-        IOperatingSystem.Current.OpenFolder(fileWatcherPath);
+            fileWatcherPath = CreateTempFile();
+            CreateFileWatcher(fileWatcherPath);
+            IOperatingSystem.Current.OpenFolder(fileWatcherPath);
+        }
+        catch (COMException ex)
+        {
+            NoticeDialog.Show(new LocalizedString("FAILED_TO_OPEN_EDITABLE_STRING_MESSAGE", ex.Message),
+                "FAILED_TO_OPEN_EDITABLE_STRING_TITLE");
+        }
+        catch (Exception ex)
+        { 
+            NoticeDialog.Show(new LocalizedString("FAILED_TO_OPEN_EDITABLE_STRING_MESSAGE", ex.Message),
+                "FAILED_TO_OPEN_EDITABLE_STRING_TITLE");
+            CrashHelper.SendExceptionInfo(ex);
+        }
     }
 
     private string CreateTempFile()
