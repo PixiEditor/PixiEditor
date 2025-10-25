@@ -23,6 +23,7 @@ public class BrushOutputNode : Node
 {
     public const string NodeId = "BrushOutput";
     public const string BrushNameProperty = "BrushName";
+    public const string FitToStrokeSizeProperty = "FitToStrokeSize";
 
     public InputProperty<string> BrushName { get; }
     public InputProperty<ShapeVectorData> VectorShape { get; }
@@ -69,7 +70,7 @@ public class BrushOutputNode : Node
             Drawie.Backend.Core.Surfaces.BlendMode.SrcOver);
 
         Pressure = CreateInput<float>("Pressure", "PRESSURE", 1f);
-        FitToStrokeSize = CreateInput<bool>("FitToStrokeSize", "FIT_TO_STROKE_SIZE", true);
+        FitToStrokeSize = CreateInput<bool>(FitToStrokeSizeProperty, "FIT_TO_STROKE_SIZE", true);
         AutoPosition = CreateInput<bool>("AutoPosition", "AUTO_POSITION", true);
         AllowSampleStacking = CreateInput<bool>("AllowSampleStacking", "ALLOW_SAMPLE_STACKING", false);
         AlwaysClear = CreateInput<bool>("AlwaysClear", "ALWAYS_CLEAR", false);

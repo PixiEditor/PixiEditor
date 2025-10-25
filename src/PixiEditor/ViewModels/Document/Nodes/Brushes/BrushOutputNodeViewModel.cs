@@ -9,5 +9,6 @@ internal class BrushOutputNodeViewModel : NodeViewModel<BrushOutputNode>
     public override void OnInitialized()
     {
         InputPropertyMap[BrushOutputNode.BrushNameProperty].SocketEnabled = false;
+        InputPropertyMap[BrushOutputNode.FitToStrokeSizeProperty].SocketEnabled = false;
     }
 }

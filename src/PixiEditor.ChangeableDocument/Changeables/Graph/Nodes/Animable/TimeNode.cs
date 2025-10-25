@@ -9,7 +9,6 @@ public class TimeNode : Node
 {
     public OutputProperty<int> ActiveFrame { get; set; }
     public OutputProperty<double> NormalizedTime { get; set; }
-    
     public OutputProperty<double> Time { get; set; }
 
 
@@ -24,7 +23,7 @@ public class TimeNode : Node
     {
         ActiveFrame.Value = context.FrameTime.Frame;
         NormalizedTime.Value = context.FrameTime.NormalizedTime;
-        Time.Value = (DateTime.UtcNow - Process.GetCurrentProcess().StartTime.ToUniversalTime()).Seconds;
+        Time.Value = (DateTime.UtcNow - Process.GetCurrentProcess().StartTime.ToUniversalTime()).TotalSeconds;
     }
 
     public override Node CreateCopy()

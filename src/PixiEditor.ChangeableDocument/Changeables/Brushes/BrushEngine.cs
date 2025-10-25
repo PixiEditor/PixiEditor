@@ -106,9 +106,9 @@ public class BrushEngine : IDisposable
         {
             fullTexture = UpdateFullTexture(target, colorSpace, brushNode.AllowSampleStacking.Value);
         }
-
+        
         BrushRenderContext context = new BrushRenderContext(
-            texture?.DrawingSurface.Canvas, frameTime, ChunkResolution.Full, target.CommittedSize, target.CommittedSize,
+            texture?.DrawingSurface.Canvas, frameTime, ChunkResolution.Full, brushNode.FitToStrokeSize.NonOverridenValue ? rect.Size : target.CommittedSize, target.CommittedSize,
             colorSpace, samplingOptions, brushData,
             surfaceUnderRect, fullTexture, brushData.BrushGraph,
             (VecD)startPos, (VecD)lastPos)
@@ -119,6 +119,7 @@ public class BrushEngine : IDisposable
                 : editorData,
             KeyboardInfo = keyboardInfo
         };
+
 
         var previous = brushNode.Previous.Value;
         while(previous != null)
@@ -148,9 +149,7 @@ public class BrushEngine : IDisposable
         {
             return;
         }
-
-        context.RenderOutputSize = (VecI)vectorShape.VisualAABB.Size;
-
+        
         bool autoPosition = brushNode.AutoPosition.Value;
         bool fitToStrokeSize = brushNode.FitToStrokeSize.Value;
         float pressure = brushNode.Pressure.Value;
