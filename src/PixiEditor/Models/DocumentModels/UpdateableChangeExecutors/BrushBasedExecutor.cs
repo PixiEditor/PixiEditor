@@ -221,5 +221,6 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
     public override void ForceStop()
     {
         EnqueueEndDraw();
+        engine.Dispose();
     }
 }

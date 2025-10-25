@@ -7,21 +7,17 @@ using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
-using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
-using PixiEditor.ChangeableDocument.Enums;
-using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.ChangeableDocument.Rendering.ContextData;
-using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 using DrawingApiBlendMode = Drawie.Backend.Core.Surfaces.BlendMode;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Brushes;
 
-public class BrushEngine
+public class BrushEngine : IDisposable
 {
     private TextureCache cache = new();
     private VecF lastPos;
@@ -70,8 +66,7 @@ public class BrushEngine
             return;
         }
 
-        var brushNode = brushData.BrushGraph.AllNodes.FirstOrDefault(x => x is BrushOutputNode) as BrushOutputNode;
-        if (brushNode == null)
+        if (brushData.BrushGraph.AllNodes.FirstOrDefault(x => x is BrushOutputNode) is not BrushOutputNode brushNode)
         {
             return;
         }
@@ -90,7 +85,6 @@ public class BrushEngine
 
         float strokeWidth = brushData.StrokeWidth;
         var rect = new RectI(point - new VecI((int)(strokeWidth / 2f)), new VecI((int)strokeWidth));
-        VecI size = new VecI((int)float.Ceiling(brushData.StrokeWidth));
 
         bool requiresSampleTexture = GraphUsesSampleTexture(brushData.BrushGraph, brushNode);
         bool requiresFullTexture = GraphUsesFullTexture(brushData.BrushGraph, brushNode);
@@ -114,7 +108,7 @@ public class BrushEngine
         }
 
         BrushRenderContext context = new BrushRenderContext(
-            texture?.DrawingSurface, frameTime, ChunkResolution.Full, size, target.CommittedSize,
+            texture?.DrawingSurface, frameTime, ChunkResolution.Full, target.CommittedSize, target.CommittedSize,
             colorSpace, samplingOptions, brushData,
             surfaceUnderRect, fullTexture, brushData.BrushGraph,
             (VecD)startPos, (VecD)lastPos)
@@ -126,6 +120,27 @@ public class BrushEngine
             KeyboardInfo = keyboardInfo
         };
 
+        var previous = brushNode.Previous.Value;
+        while(previous != null)
+        {
+            var data = new BrushData(previous)
+            {
+                AntiAliasing = brushData.AntiAliasing,
+                Spacing = brushData.Spacing,
+                StrokeWidth = brushData.StrokeWidth,
+            };
+            
+            var previousBrushNode = previous.AllNodes.FirstOrDefault(x => x is BrushOutputNode) as BrushOutputNode;
+            PaintBrush(target, data, point, previousBrushNode, context, rect);
+            previous = previousBrushNode?.Previous.Value;
+        }
+
+        PaintBrush(target, brushData, point, brushNode, context, rect);
+    }
+
+    private void PaintBrush(ChunkyImage target, BrushData brushData, VecI point, BrushOutputNode brushNode,
+        BrushRenderContext context, RectI rect)
+    {
         brushData.BrushGraph.Execute(brushNode, context);
 
         var vectorShape = brushNode.VectorShape.Value;
@@ -133,6 +148,8 @@ public class BrushEngine
         {
             return;
         }
+
+        context.RenderOutputSize = (VecI)vectorShape.VisualAABB.Size;
 
         bool autoPosition = brushNode.AutoPosition.Value;
         bool fitToStrokeSize = brushNode.FitToStrokeSize.Value;
@@ -164,17 +181,6 @@ public class BrushEngine
 
         EvaluateShape(autoPosition, path, vectorShape, (RectD)rect, snapToPixels, fitToStrokeSize, pressure);
 
-        if (content != null)
-        {
-            if (contentTexture != null)
-            {
-                TexturePaintable brushTexturePaintable = new(new Texture(contentTexture), true);
-                target.EnqueueDrawPath(path, brushTexturePaintable, vectorShape.StrokeWidth,
-                    StrokeCap.Butt, blendMode, PaintStyle.Fill, antiAliasing, null);
-                return true;
-            }
-        }
-
         StrokeCap strokeCap = StrokeCap.Butt;
         PaintStyle strokeStyle = PaintStyle.Fill;
 
@@ -195,14 +201,27 @@ public class BrushEngine
             strokeCap = pathData.StrokeLineCap;
         }
 
-        target.EnqueueDrawPath(path, paintable, vectorShape.StrokeWidth,
-            strokeCap, blendMode, strokeStyle, antiAliasing, null);
+        if (paintable is { AnythingVisible: true })
+        {
+            target.EnqueueDrawPath(path, paintable, vectorShape.StrokeWidth,
+                strokeCap, blendMode, strokeStyle, antiAliasing, null);
+        }
 
         if (fill is { AnythingVisible: true } && stroke is { AnythingVisible: true })
         {
             strokeStyle = PaintStyle.Stroke;
             target.EnqueueDrawPath(path, stroke, vectorShape.StrokeWidth,
                 strokeCap, blendMode, strokeStyle, antiAliasing, null);
+        }
+        
+        if (content != null)
+        {
+            if (contentTexture != null)
+            {
+                TexturePaintable brushTexturePaintable = new(new Texture(contentTexture), true);
+                target.EnqueueDrawPath(path, brushTexturePaintable, vectorShape.StrokeWidth,
+                    StrokeCap.Butt, blendMode, PaintStyle.Fill, antiAliasing, null);
+            }
         }
 
         return true;
@@ -364,5 +383,10 @@ public class BrushEngine
         Matrix3X3 pressureScale = Matrix3X3.CreateScale(pressure, pressure, (float)rect.Center.X,
             (float)rect.Center.Y);
         path.Transform(pressureScale);
+    }
+
+    public void Dispose()
+    {
+        cache.Dispose();
     }
 }

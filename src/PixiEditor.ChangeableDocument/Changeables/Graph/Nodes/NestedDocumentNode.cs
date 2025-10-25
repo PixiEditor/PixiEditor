@@ -20,6 +20,8 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
     public InputProperty<DocumentReference> NestedDocument { get; }
 
     public InputProperty<bool> BilinearSampling { get; }
+    
+    public OutputProperty<IReadOnlyNodeGraph> Graph { get; }
 
     public Matrix3X3 TransformationMatrix { get; set; } = Matrix3X3.Identity;
 
@@ -39,6 +41,7 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
             .NonOverridenChanged(DocumentChanged);
         NestedDocument.ConnectionChanged += NestedDocumentOnConnectionChanged;
         BilinearSampling = CreateInput<bool>("BilinearSampling", "BILINEAR_SAMPLING", false);
+        Graph = CreateOutput<IReadOnlyNodeGraph>("Graph", "GRAPH", null);
         AllowHighDpiRendering = true;
 
         builtInOutputs = OutputProperties.Select(x => x.InternalPropertyName).ToArray();
@@ -151,6 +154,8 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
                 output.Value = correspondingInput.Value;
             }
         }
+        
+        Graph.Value = Instance.NodeGraph;
     }
 
     protected override void DrawWithoutFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface, Paint paint)

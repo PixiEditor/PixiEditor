@@ -8,6 +8,7 @@ using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Brushes;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.ChangeableDocument.Enums;
@@ -36,14 +37,16 @@ public class BrushOutputNode : Node
     public InputProperty<bool> AutoPosition { get; }
     public InputProperty<bool> AllowSampleStacking { get; }
     public InputProperty<bool> AlwaysClear { get; }
-
     public InputProperty<bool> SnapToPixels { get; }
+    
+    public InputProperty<IReadOnlyNodeGraph> Previous { get; }
 
     internal Texture ContentTexture;
 
     private TextureCache cache = new();
 
     private ChunkyImage? previewChunkyImage;
+    private BrushEngine previewEngine = new BrushEngine();
 
     protected override bool ExecuteOnlyOnCacheChange => true;
 
@@ -71,6 +74,7 @@ public class BrushOutputNode : Node
         AllowSampleStacking = CreateInput<bool>("AllowSampleStacking", "ALLOW_SAMPLE_STACKING", false);
         AlwaysClear = CreateInput<bool>("AlwaysClear", "ALWAYS_CLEAR", false);
         SnapToPixels = CreateInput<bool>("SnapToPixels", "SNAP_TO_PIXELS", false);
+        Previous = CreateInput<IReadOnlyNodeGraph>("Previous", "PREVIOUS", null);
     }
 
     protected override void OnExecute(RenderContext context)
@@ -129,7 +133,6 @@ public class BrushOutputNode : Node
 
         RectI rect;
 
-        BrushEngine engine = new BrushEngine();
         previewChunkyImage.EnqueueClear();
         previewChunkyImage.CommitChanges();
 
@@ -147,7 +150,7 @@ public class BrushOutputNode : Node
             int x = marginEdges + (int)(i * (size + spacing + (maxSize - size) / 2f));
             pos = new VecI(x, maxSize);
 
-            engine.ExecuteBrush(previewChunkyImage,
+            previewEngine.ExecuteBrush(previewChunkyImage,
                 new BrushData(context.Graph) { StrokeWidth = size, AntiAliasing = true, Spacing = 0 },
                 (VecI)pos, context.FrameTime, context.ProcessingColorSpace, context.DesiredSamplingOptions,
                 new PointerInfo(pos, 1, 0, VecD.Zero, new VecD(0, 1)),
@@ -162,7 +165,7 @@ public class BrushOutputNode : Node
             pos = vec4D.XY;
             pos = new VecD(pos.X, pos.Y + maxSize / 2f);
 
-            engine.ExecuteBrush(previewChunkyImage,
+            previewEngine.ExecuteBrush(previewChunkyImage,
                 new BrushData(context.Graph) { StrokeWidth = maxSize, AntiAliasing = true, Spacing = 0.15f },
                 [(VecI)pos], context.FrameTime, context.ProcessingColorSpace, context.DesiredSamplingOptions,
                 new PointerInfo(pos, pressure, 0, VecD.Zero, vec4D.ZW),
@@ -181,5 +184,12 @@ public class BrushOutputNode : Node
     public override Node CreateCopy()
     {
         return new BrushOutputNode();
+    }
+
+    public override void Dispose()
+    {
+        previewEngine.Dispose();
+        cache.Dispose();
+        base.Dispose();
     }
 }

@@ -183,5 +183,6 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     public override void Dispose()
     {
         storedChunks?.Dispose();
+        engine?.Dispose();
     }
 }
