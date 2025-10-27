@@ -97,7 +97,7 @@ public class BrushEngine : IDisposable
             target.EnqueueClear();
         }
 
-        if (requiresSampleTexture)
+        if (requiresSampleTexture && rect.Width > 0 && rect.Height > 0)
         {
             surfaceUnderRect = UpdateSurfaceUnderRect(target, rect, colorSpace, brushNode.AllowSampleStacking.Value);
         }

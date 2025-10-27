@@ -3,8 +3,8 @@ using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document.Nodes.Workspace;
 
-[NodeViewModel("EXPOSE_VARIABLE_NODE", "WORKSPACE", null)]
-internal class ExposeVariableNodeViewModel : NodeViewModel<ExposeVariableNode>
+[NodeViewModel("EXPOSE_VALUE_NODE", "WORKSPACE", null)]
+internal class ExposeValueNodeViewModel : NodeViewModel<ExposeValueNode>
 {
     
 }

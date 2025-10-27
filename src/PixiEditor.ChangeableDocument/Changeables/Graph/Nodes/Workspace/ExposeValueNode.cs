@@ -2,13 +2,13 @@
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
 
-[NodeInfo("ExposeVariable")]
-public class ExposeVariableNode : Node
+[NodeInfo("ExposeValue")]
+public class ExposeValueNode : Node
 {
     public InputProperty<string> Name { get; }
     public InputProperty<object?> Value { get; }
 
-    public ExposeVariableNode()
+    public ExposeValueNode()
     {
         Name = CreateInput<string>("Name", "NAME", "");
         Value = CreateInput<object?>("Input", "INPUT", null);
@@ -21,6 +21,6 @@ public class ExposeVariableNode : Node
 
     public override Node CreateCopy()
     {
-        return new ExposeVariableNode();
+        return new ExposeValueNode();
     }
 }

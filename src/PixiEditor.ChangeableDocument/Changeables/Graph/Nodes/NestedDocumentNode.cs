@@ -1,6 +1,7 @@
 ﻿using Drawie.Backend.Core;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
@@ -37,6 +38,9 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
     private string[] builtInOutputs;
     private string[] builtInInputs;
 
+    private ExposeValueNode[]? cachedExposeNodes;
+    private BrushOutputNode[]? brushOutputNodes;
+
     public NestedDocumentNode()
     {
         NestedDocument = CreateInput<DocumentReference>("Document", "DOCUMENT", null)
@@ -67,25 +71,47 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
         if (document?.DocumentInstance == null)
         {
             ClearOutputProperties();
+            ClearInputProperties();
+            cachedExposeNodes = null;
             return;
         }
+        
+        cachedExposeNodes = document.DocumentInstance.NodeGraph.AllNodes
+            .OfType<ExposeValueNode>().ToArray();
+        
+        brushOutputNodes = document.DocumentInstance.NodeGraph.AllNodes
+            .OfType<BrushOutputNode>().ToArray();
+        
+        Instance?.NodeGraph.Execute(cachedExposeNodes.Concat<IReadOnlyNode>(brushOutputNodes), new RenderContext(
+            (dummyTexture ??= Texture.ForProcessing(VecI.One, Instance.ProcessingColorSpace)).DrawingSurface.Canvas, 0, ChunkResolution.Full,
+            Instance.Size, Instance.Size,
+            Instance.ProcessingColorSpace,
+            SamplingOptions.Default,
+            Instance.NodeGraph) { FullRerender = true });
 
-        var brushOutput = document.DocumentInstance.NodeGraph.AllNodes.OfType<BrushOutputNode>().FirstOrDefault();
-
-
-        if (brushOutput != null)
+        foreach (var input in cachedExposeNodes)
         {
-            foreach (var input in brushOutput.InputProperties)
+            if (input.Name.Value == Output.InternalPropertyName)
+                continue;
+
+            if (OutputProperties.Any(x =>
+                    x.InternalPropertyName == input.Name.Value))
+                continue;
+
+            AddOutputProperty(new OutputProperty(this, input.Name.Value, input.Name.Value, input.Value.Value,
+                input.Value.Value?.GetType() ?? typeof(object)));
+        }
+        
+        foreach (var brushOutput in brushOutputNodes)
+        {
+            if (OutputProperties.Any(x =>
+                    brushOutput.InputProperties.Any(prop => $"{brushOutput.BrushName}_{prop.InternalPropertyName}" == x.InternalPropertyName)))
+                continue;
+
+            foreach (var output in brushOutput.InputProperties)
             {
-                if (input.InternalPropertyName == Output.InternalPropertyName)
-                    continue;
-
-                if (OutputProperties.Any(x =>
-                        x.InternalPropertyName == input.InternalPropertyName && x.ValueType == input.ValueType))
-                    continue;
-
-                AddOutputProperty(new OutputProperty(this, input.InternalPropertyName, input.DisplayName, input.Value,
-                    input.ValueType));
+                AddOutputProperty(new OutputProperty(this, $"{brushOutput.BrushName}_{output.InternalPropertyName}", output.DisplayName,
+                    output.Value, output.ValueType));
             }
         }
 
@@ -105,22 +131,29 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
             if (builtInOutputs.Contains(output.InternalPropertyName))
                 continue;
 
-            bool shouldRemove = false;
-            if (brushOutput != null)
+            bool shouldRemove = cachedExposeNodes.All(x => x.Name.Value != output.InternalPropertyName) &&
+                                brushOutputNodes.All(brushOutput => brushOutput.InputProperties
+                                    .All(prop => $"{brushOutput.BrushName}_{prop.InternalPropertyName}" != output.InternalPropertyName));
+            
+            if (shouldRemove)
             {
-                var correspondingInput = brushOutput.InputProperties.FirstOrDefault(x =>
-                    x.InternalPropertyName == output.InternalPropertyName && x.ValueType == output.ValueType);
-                shouldRemove = correspondingInput is null;
-            }
-
-            if (!shouldRemove)
-            {
-                bool variableExists = document.DocumentInstance.NodeGraph.Blackboard.Variables
-                    .Any(x => x.Key == output.InternalPropertyName && x.Value.Type == output.ValueType);
-                if (variableExists)
-                    continue;
-
                 RemoveOutputProperty(output);
+            }
+        }
+        
+        for (int i = InputProperties.Count - 1; i >= 0; i--)
+        {
+            var input = InputProperties[i];
+            if (builtInInputs.Contains(input.InternalPropertyName))
+                continue;
+
+            bool shouldRemove = document.DocumentInstance.NodeGraph.Blackboard.Variables
+                .All(x => x.Key != input.InternalPropertyName ||
+                          x.Value.Type != input.ValueType);
+            
+            if (shouldRemove)
+            {
+                RemoveInputProperty(input);
             }
         }
     }
@@ -135,6 +168,17 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
             RemoveOutputProperty(property);
         }
     }
+    
+    private void ClearInputProperties()
+    {
+        var toRemove = InputProperties
+            .Where(x => !builtInInputs.Contains(x.InternalPropertyName))
+            .ToList();
+        foreach (var property in toRemove)
+        {
+            RemoveInputProperty(property);
+        }
+    }
 
     protected override void OnExecute(RenderContext context)
     {
@@ -143,7 +187,7 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
         if (Instance is null)
             return;
 
-        if (Instance != lastDocument)
+        if (Instance != lastDocument?.DocumentInstance)
         {
             lastDocument = NestedDocument.Value;
             DocumentChanged(NestedDocument.Value);
@@ -160,36 +204,47 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
                 (dummyTexture ??= Texture.ForProcessing(new VecI(1, 1), context.ProcessingColorSpace)).DrawingSurface
                 .Canvas;
 
-            var exposeVariableNodes = Instance?.NodeGraph.AllNodes
-                .OfType<ExposeVariableNode>().ToArray();
-            
-            Instance?.NodeGraph.Execute(exposeVariableNodes, clonedContext);
+            Instance?.NodeGraph.Execute(cachedExposeNodes.Concat<IReadOnlyNode>(brushOutputNodes), clonedContext);
 
             foreach (var output in OutputProperties)
             {
                 if (output.InternalPropertyName == Output.InternalPropertyName)
                     continue;
 
-                var correspondingExposeNode = exposeVariableNodes?
+                var correspondingExposeNode = cachedExposeNodes?
                     .FirstOrDefault(x => x.Name.Value == output.InternalPropertyName &&
                                          x.Value.ValueType == output.ValueType);
 
                 if (correspondingExposeNode is null)
+                {
+                    var correspondingBrushNode = brushOutputNodes?
+                        .FirstOrDefault(brushOutput => brushOutput.InputProperties
+                            .Any(prop => $"{brushOutput.BrushName}_{prop.InternalPropertyName}" == output.InternalPropertyName &&
+                                         prop.ValueType == output.ValueType));
+                    if (correspondingBrushNode is not null)
+                    {
+                        var correspondingProp = correspondingBrushNode.InputProperties
+                            .First(prop => $"{correspondingBrushNode.BrushName}_{prop.InternalPropertyName}" == output.InternalPropertyName &&
+                                           prop.ValueType == output.ValueType);
+                        output.Value = correspondingProp.Value;
+                    }
+                    
                     continue;
+                }
 
-                output.Value = correspondingExposeNode.Value;
+                output.Value = correspondingExposeNode.Value.Value;
             }
         }
-        
+
         foreach (var blackboardVariable in Instance?.NodeGraph.Blackboard.Variables)
         {
             var input = InputProperties.FirstOrDefault(x =>
                 x.InternalPropertyName == blackboardVariable.Key &&
                 x.ValueType == blackboardVariable.Value.Type);
-                
+
             if (input is null || blackboardVariable.Value is not Variable variable)
                 continue;
-                
+
             variable.Value = input.Value;
         }
 

@@ -184,13 +184,13 @@ public class NodeGraph : IReadOnlyNodeGraph
         Execute(OutputNode, context);
     }
 
-    public void Execute(IEnumerable<IReadOnlyNode> exposeVariableNodes, RenderContext context)
+    public void Execute(IEnumerable<IReadOnlyNode> nodes, RenderContext context)
     {
         isExecuting = true;
         if (!CanExecute()) return;
 
         HashSet<IReadOnlyNode> executedNodes = new();
-        foreach (var exposeVariableNode in exposeVariableNodes)
+        foreach (var exposeVariableNode in nodes)
         {
             var queue = CalculateExecutionQueueInternal(exposeVariableNode);
 
