@@ -758,16 +758,6 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
             EnqueueOperation(operation);
         }
     }
-    
-    public void EnqueueDrawPaintable(Action<Canvas> customDrawPaintable, RectD pathBounds)
-    {
-        lock (lockObject)
-        {
-            ThrowIfDisposed();
-            CustomDrawPaintableOperation operation = new(customDrawPaintable, pathBounds);
-            EnqueueOperation(operation);
-        }
-    }
 
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public void EnqueueDrawEllipse(RectD location, Paintable? strokeColor, Paintable? fillColor, float strokeWidth,

@@ -184,6 +184,39 @@ public class NodeGraph : IReadOnlyNodeGraph
         Execute(OutputNode, context);
     }
 
+    public void Execute(IEnumerable<IReadOnlyNode> exposeVariableNodes, RenderContext context)
+    {
+        isExecuting = true;
+        if (!CanExecute()) return;
+
+        HashSet<IReadOnlyNode> executedNodes = new();
+        foreach (var exposeVariableNode in exposeVariableNodes)
+        {
+            var queue = CalculateExecutionQueueInternal(exposeVariableNode);
+
+            foreach (var node in queue)
+            {
+                if (!executedNodes.Add(node)) continue;
+
+                lock (node)
+                {
+                    if (node is Node typedNode)
+                    {
+                        if (typedNode.IsDisposed) continue;
+
+                        typedNode.ExecuteInternal(context);
+                    }
+                    else
+                    {
+                        node.Execute(context);
+                    }
+                }
+            }
+        }
+
+        isExecuting = false;
+    }
+
     public void Execute(IReadOnlyNode end, RenderContext context)
     {
         //if (isExecuting) return;
