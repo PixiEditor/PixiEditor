@@ -1,41 +1,38 @@
 ﻿using Avalonia.Media;
 using Drawie.Backend.Core.ColorsImpl.Paintables;
 using PixiEditor.Helpers.Extensions;
+using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
 
 namespace PixiEditor.ViewModels.Tools.ToolSettings.Settings;
 
-internal sealed class ColorSettingViewModel : Setting<IBrush>
+internal sealed class PaintableSettingViewModel : Setting<Paintable>
 {
-    private bool allowGradient = true;
+    private IBrush brushValue;
     public IBrush BrushValue
     {
-        get => base.Value;
+        get => base.Value.ToBrush();
         set
         {
-            if (base.Value != null && base.Value is GradientBrush oldGradientBrush)
+            if (brushValue != null && brushValue is GradientBrush oldGradientBrush)
             {
                 oldGradientBrush.GradientStops.CollectionChanged -= GradientStops_CollectionChanged;
             }
 
-            base.Value = value;
+            brushValue = value;
+            base.Value = value.ToPaintable();
 
-            if (base.Value is GradientBrush gradientBrush)
+            if (brushValue is GradientBrush gradientBrush)
             {
                 gradientBrush.GradientStops.CollectionChanged += GradientStops_CollectionChanged;
             }
         }
     }
 
-    public bool AllowGradient
-    {
-        get => allowGradient;
-        set => SetProperty(ref allowGradient, value);
-    }
 
-    public ColorSettingViewModel(string name, string label = "") : this(name, Brushes.White, label)
+    public PaintableSettingViewModel(string name, string label = "") : this(name, new ColorPaintable(Colors.White), label)
     { }
     
-    public ColorSettingViewModel(string name, IBrush defaultValue, string label = "")
+    public PaintableSettingViewModel(string name, Paintable defaultValue, string label = "")
         : base(name)
     {
         Label = label;
@@ -43,7 +40,7 @@ internal sealed class ColorSettingViewModel : Setting<IBrush>
         ValueChanged += OnValueChanged;
     }
 
-    private void OnValueChanged(object? sender, SettingValueChangedEventArgs<IBrush> e)
+    private void OnValueChanged(object? sender, SettingValueChangedEventArgs<Paintable> e)
     {
         OnPropertyChanged(nameof(BrushValue));
     }

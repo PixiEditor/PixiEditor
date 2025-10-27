@@ -1,5 +1,8 @@
 ﻿using System.Windows.Input;
 using CommunityToolkit.Mvvm.Input;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.ColorsImpl.Paintables;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
@@ -44,7 +47,8 @@ internal class VariableViewModel : ViewModelBase, IVariableHandler
     private DocumentInternalParts internals { get; }
     public ICommand RemoveCommand { get; }
 
-    public VariableViewModel(string name, Type type, object value, string? unit, double min, double max, DocumentInternalParts internals)
+    public VariableViewModel(string name, Type type, object value, string? unit, double min, double max,
+        DocumentInternalParts internals)
     {
         this.type = type;
         this.name = name;
@@ -89,10 +93,16 @@ internal class VariableViewModel : ViewModelBase, IVariableHandler
 
             if (unit == null)
             {
-                return new FloatSettingViewModel("Variable", 0, "Variable") { DecimalPlaces = 0, Min = intMin, Max = intMax };
+                return new FloatSettingViewModel("Variable", 0, "Variable")
+                {
+                    DecimalPlaces = 0, Min = intMin, Max = intMax
+                };
             }
 
-            return new SizeSettingViewModel("Variable", "Variable") { DecimalPlaces = 0, Min = min, Max = max, Unit = unit };
+            return new SizeSettingViewModel("Variable", "Variable")
+            {
+                DecimalPlaces = 0, Min = min, Max = max, Unit = unit
+            };
         }
 
         if (type == typeof(double) || type == typeof(float))
@@ -110,7 +120,23 @@ internal class VariableViewModel : ViewModelBase, IVariableHandler
             return new BrushSettingViewModel("Variable", "Variable");
         }
 
-        throw new NotSupportedException($"Type {type} is not supported for VariableViewModel.");
+        if (type == typeof(Paintable))
+        {
+            return new PaintableSettingViewModel("Variable", "Variable");
+        }
+        
+        
+        if (type == typeof(Color))
+        {
+            return new ColorSettingViewModel("Variable", "Variable") { AllowGradient = false };
+        }
+
+        if (type.IsAssignableTo(typeof(Texture)))
+        {
+            return new TextureSettingViewModel("Variable", "Variable");
+        }
+
+        return new GenericSettingViewModel("Variable");
     }
 
     public void SetValueInternal(object newValue)

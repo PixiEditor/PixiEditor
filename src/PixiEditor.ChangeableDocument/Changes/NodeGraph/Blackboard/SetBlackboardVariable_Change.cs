@@ -37,7 +37,7 @@ internal class SetBlackboardVariable_Change : Change
             return false;
 
         if (target.NodeGraph.Blackboard.Variables.TryGetValue(variable, out var blackboardVariable) &&
-            blackboardVariable?.Type != value?.GetType() && !TryConvert(blackboardVariable?.Type, ref value))
+            !IsTypeAssignable(blackboardVariable) && !TryConvert(blackboardVariable?.Type, ref value))
             return false;
 
         if (blackboardVariable == null && value == null)
@@ -47,6 +47,14 @@ internal class SetBlackboardVariable_Change : Change
         existsInBlackboard = blackboardVariable != null;
 
         return true;
+    }
+
+    private bool IsTypeAssignable(Variable blackboardVariable)
+    {
+        if (blackboardVariable?.Type == null || value == null)
+            return false;
+        
+        return value.GetType().IsAssignableTo(blackboardVariable.Type);
     }
 
     private bool TryConvert(Type targetType, ref object val)

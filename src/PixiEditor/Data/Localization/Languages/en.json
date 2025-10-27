@@ -1186,5 +1186,21 @@
   "BRUSH_SETTING": "Brush",
   "ABSOLUTE_COORDINATES": "Absolute Coordinates",
   "ALWAYS_CLEAR": "Always Clear",
-  "BILINEAR_SAMPLING": "Bilinear Sampling"
+  "BILINEAR_SAMPLING": "Bilinear Sampling",
+  "EXPOSE_VALUE_NODE": "Expose Value",
+  "NESTED_DOCUMENT": "Nested Document",
+  "PIXEL_PERFECT_ELLIPSE_NODE": "Pixel Perfect Ellipse",
+  "UTILITY": "Utility",
+  "SWITCH_NODE": "Switch",
+  "KEYBOARD_INFO_NODE": "Keyboard Info",
+  "DOCUMENT": "Document",
+  "IS_CTRL_PRESSED": "Is Ctrl Pressed",
+  "IS_SHIFT_PRESSED": "Is Shift Pressed",
+  "IS_ALT_PRESSED": "Is Alt Pressed",
+  "IS_META_PRESSED": "Is Meta Pressed",
+  "CONDITION": "Condition",
+  "ON_FALSE": "On False",
+  "ON_TRUE": "On True",
+  "GRAPH": "Graph",
+  "BRUSH": "Brush"
 }

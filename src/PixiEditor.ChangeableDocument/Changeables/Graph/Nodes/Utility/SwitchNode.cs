@@ -16,9 +16,9 @@ public class SwitchNode : Node
     public SwitchNode()
     {
         Condition = CreateInput<bool>("Condition", "CONDITION", false);
-        InputTrue = CreateInput<object>("InputTrue", "IN_TRUE", null);
-        InputFalse = CreateInput<object>("InputFalse", "IN_FALSE", null);
-        Output = CreateOutput<object>("Output", "OUT", null);
+        InputTrue = CreateInput<object>("InputTrue", "ON_TRUE", null);
+        InputFalse = CreateInput<object>("InputFalse", "ON_FALSE", null);
+        Output = CreateOutput<object>("Output", "RESULT", null);
     }
 
     protected override void OnExecute(RenderContext context)

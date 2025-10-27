@@ -4,18 +4,12 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:settings="clr-namespace:PixiEditor.ViewModels.Tools.ToolSettings.Settings"
              xmlns:input="clr-namespace:PixiEditor.Views.Input"
-             xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="PixiEditor.Views.Tools.ToolSettings.Settings.ColorSettingView">
+             x:Class="PixiEditor.Views.Tools.ToolSettings.Settings.TextureSettingView">
     <Design.DataContext>
-        <settings:ColorSettingViewModel/>
+        <settings:TextureSettingViewModel />
     </Design.DataContext>
-    
-    <input:ToolSettingColorPicker 
-        EnableGradientsTab="{Binding AllowGradient}"
-        SelectedBrush="{Binding BrushValue, Mode=TwoWay}">
-        <Interaction.Behaviors>
-            <behaviours:GlobalShortcutFocusBehavior/>
-        </Interaction.Behaviors>
-    </input:ToolSettingColorPicker>
+
+    <input:TexturePicker Texture="{Binding Value, Mode=TwoWay}" />
+
 </UserControl>
