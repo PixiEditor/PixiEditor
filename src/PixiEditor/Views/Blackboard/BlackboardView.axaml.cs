@@ -58,6 +58,7 @@ internal partial class BlackboardView : UserControl
             new VariableDefinition("WHOLE_NUMBER", typeof(int)),
             new VariableDefinition("VECTOR", typeof(VecD)), // TODO: Picker
             new VariableDefinition("WHOLE_NUM_VECTOR", typeof(VecI)), // TODO: Picker
+            new VariableDefinition("TEXT", typeof(string)), // TODO: Picker
             new VariableDefinition("MATRIX", typeof(Matrix3X3)),
             new VariableDefinition("BOOLEAN", typeof(bool)),
             new VariableDefinition("BRUSH", typeof(Brush)),
