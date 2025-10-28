@@ -1,12 +1,14 @@
 ﻿using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using Avalonia.Input;
+using Avalonia.Threading;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Attributes.Evaluators;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Handlers;
+using PixiEditor.Models.IO;
 using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.SubViewModels;
 using PixiEditor.ViewModels.Tools.Tools;
@@ -62,6 +64,10 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
     public bool HasActiveDocument => ActiveDocument != null;
 
     public event Action<DocumentViewModel> DocumentAdded;
+
+    private Dictionary<string, FileSystemWatcher> documentPathListeners = new Dictionary<string, FileSystemWatcher>();
+    private HashSet<Guid> documentIdListeners = new HashSet<Guid>();
+
     public DocumentManagerViewModel(ViewModelMain owner) : base(owner)
     {
         owner.WindowSubViewModel.ActiveViewportChanged += (_, args) =>
@@ -302,6 +308,72 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
     public void Add(DocumentViewModel doc)
     {
         Documents.Add(doc);
+        ListenForReferenceChanges(doc.DocumentReferences);
         DocumentAdded?.Invoke(doc);
+    }
+
+    private void ListenForReferenceChanges(List<(string originalPath, Guid refId)> docDocumentReferences)
+    {
+        foreach (var (originalPath, refId) in docDocumentReferences)
+        {
+            if (!string.IsNullOrEmpty(originalPath))
+            {
+                if (!documentPathListeners.ContainsKey(originalPath))
+                {
+                    try
+                    {
+                        var dirPath = System.IO.Path.GetDirectoryName(originalPath);
+                        FileSystemWatcher watcher = new FileSystemWatcher(dirPath);
+                        watcher.Filter = System.IO.Path.GetFileName(originalPath);
+
+                        watcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName;
+                        watcher.IncludeSubdirectories = false;
+                        documentPathListeners[originalPath] = watcher;
+
+                        watcher.Changed += (s, e) => OnDocumentReferenceDocumentChanged(refId, e.FullPath);
+                        watcher.Renamed += (s, e) =>
+                        {
+                            OnDocumentReferenceDocumentChanged(refId, e.FullPath);
+                            watcher.EnableRaisingEvents = false;
+                            documentPathListeners.Remove(originalPath);
+
+                            documentPathListeners[e.FullPath] = watcher;
+                            watcher.Filter = System.IO.Path.GetFileName(e.FullPath);
+                            watcher.EnableRaisingEvents = true;
+                        };
+
+                        watcher.EnableRaisingEvents = true;
+                    }
+                    catch (Exception)
+                    {
+                        // Ignore errors with file watchers
+                    }
+                }
+            }
+            else
+            {
+                /*if (!documentIdListeners.Contains(refId))
+                {
+                    ResourceLocator.ListenForDocumentChanges(refId, OnDocumentReferenceDocumentChanged);
+                    documentIdListeners.Add(refId);
+                }*/
+            }
+        }
+    }
+
+    private void OnDocumentReferenceDocumentChanged(Guid referenceId, string fullPath)
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            var loaded = Documents.FirstOrDefault(x => x.FullFilePath == fullPath) ??
+                Importer.ImportDocument(fullPath);
+            foreach (var doc in Documents)
+            {
+                if (doc.FullFilePath == fullPath)
+                    continue;
+
+                doc.UpdateDocumentReferences(referenceId, loaded);
+            }
+        });
     }
 }

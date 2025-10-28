@@ -33,11 +33,13 @@ using PixiEditor.Models.Serialization.Factories;
 using PixiEditor.Models.Structures;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
 using PixiEditor.Models.IO;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Skia;
 using PixiEditor.UI.Common.Localization;
+using PixiEditor.ViewModels.Document.Nodes;
 using PixiEditor.ViewModels.Document.Nodes.Workspace;
 using PixiEditor.ViewModels.Document.TransformOverlays;
 using PixiEditor.Views.Overlays.SymmetryOverlay;
@@ -213,6 +215,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     IAnimationHandler IDocument.AnimationHandler => AnimationDataViewModel;
     public bool UsesSrgbBlending { get; private set; }
     public AutosaveDocumentViewModel AutosaveViewModel { get; set; }
+
+    public List<(string originalPath, Guid refId)> DocumentReferences { get; } = new();
 
     private bool isDisposed = false;
 
@@ -485,6 +489,14 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 {
                     object value =
                         SerializationUtil.Deserialize(propertyValue.Value, config, allFactories, serializerData);
+                    if (value is DocumentReference docRef)
+                    {
+                        if (viewModel.DocumentReferences.All(x => x.refId != docRef.ReferenceId))
+                        {
+                            viewModel.DocumentReferences.Add((docRef.OriginalFilePath, docRef.ReferenceId));
+                        }
+                    }
+
                     acc.AddActions(new UpdatePropertyValue_Action(guid, propertyValue.Key, value),
                         new EndUpdatePropertyValue_Action());
                 }
@@ -1417,5 +1429,24 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     void Extensions.CommonApi.Documents.IDocument.Resize(int width, int height)
     {
         Operations.ResizeImage(new VecI(width, height), ResamplingMethod.NearestNeighbor);
+    }
+
+    public void UpdateDocumentReferences(Guid referenceId, DocumentViewModel newDoc)
+    {
+        var nestedNodes = NodeGraph.AllNodes.Where(x => x is NestedDocumentNodeViewModel)
+            .Cast<NestedDocumentNodeViewModel>();
+        using var changeBlock = Operations.StartChangeBlock();
+        foreach (var node in nestedNodes)
+        {
+            if(node.InputPropertyMap[NestedDocumentNode.DocumentPropertyName].Value is not DocumentReference docRef ||
+               docRef.ReferenceId != referenceId)
+                continue;
+
+            Internals.ActionAccumulator.AddActions(new UpdatePropertyValue_Action(node.Id,
+                NestedDocumentNode.DocumentPropertyName,
+                new DocumentReference(newDoc.FullFilePath, referenceId,
+                    newDoc.AccessInternalReadOnlyDocument().Clone())),
+                new EndUpdatePropertyValue_Action());
+        }
     }
 }

@@ -229,4 +229,12 @@ internal class UpdatePropertyValue_Change : InterruptableUpdateableChange
         return other is UpdatePropertyValue_Change change && change._nodeId == _nodeId &&
                change._propertyName == _propertyName && _value == change._value;
     }
+
+    public override void Dispose()
+    {
+        if(previousValue is IDisposable disposable)
+        {
+            disposable.Dispose();
+        }
+    }
 }

@@ -18,6 +18,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransformableObject, IRasterizable,
     IVariableSampling
 {
+    public const string DocumentPropertyName = "Document";
     private DocumentReference? lastDocument;
     public InputProperty<DocumentReference> NestedDocument { get; }
 
@@ -44,7 +45,7 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
 
     public NestedDocumentNode()
     {
-        NestedDocument = CreateInput<DocumentReference>("Document", "DOCUMENT", null)
+        NestedDocument = CreateInput<DocumentReference>(DocumentPropertyName, "DOCUMENT", null)
             .NonOverridenChanged(DocumentChanged);
         NestedDocument.ConnectionChanged += NestedDocumentOnConnectionChanged;
         BilinearSampling = CreateInput<bool>("BilinearSampling", "BILINEAR_SAMPLING", false);
@@ -69,6 +70,7 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
 
     private void DocumentChanged(DocumentReference document)
     {
+        lastDocument = NestedDocument.Value;
         if (document?.DocumentInstance == null)
         {
             ClearOutputProperties();
@@ -197,7 +199,6 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
 
         if (Instance != lastDocument?.DocumentInstance)
         {
-            lastDocument = NestedDocument.Value;
             DocumentChanged(NestedDocument.Value);
         }
 
