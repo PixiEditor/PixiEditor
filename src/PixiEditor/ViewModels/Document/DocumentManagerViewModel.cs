@@ -352,11 +352,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
             }
             else
             {
-                /*if (!documentIdListeners.Contains(refId))
-                {
-                    ResourceLocator.ListenForDocumentChanges(refId, OnDocumentReferenceDocumentChanged);
-                    documentIdListeners.Add(refId);
-                }*/
+               // TODO: Nested document references without paths
             }
         }
     }
