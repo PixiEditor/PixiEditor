@@ -40,7 +40,7 @@ internal class DocumentSerializationFactory : SerializationFactory<byte[], Docum
             if (ResourceLocator.ContainsInstance(handle))
             {
                 var existing = ResourceLocator.GetInstance<DocumentViewModel>(handle);
-                original = new DocumentReference(originalFilePath, refIdGuid, existing.AccessInternalReadOnlyDocument());
+                original = new DocumentReference(originalFilePath, refIdGuid, existing.AccessInternalReadOnlyDocument().Clone());
                 return true;
             }
 
@@ -48,7 +48,7 @@ internal class DocumentSerializationFactory : SerializationFactory<byte[], Docum
             {
                 var doc = Importer.ImportDocument(originalFilePath);
                 ResourceLocator.RegisterInstance(handle, doc);
-                original = new DocumentReference(originalFilePath, refIdGuid, doc.AccessInternalReadOnlyDocument());
+                original = new DocumentReference(originalFilePath, refIdGuid, doc.AccessInternalReadOnlyDocument().Clone());
                 return true;
             }
 
