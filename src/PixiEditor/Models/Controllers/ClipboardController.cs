@@ -355,7 +355,7 @@ internal static class ClipboardController
                         continue;
                     }
 
-                    Guid? guid = document.Operations.CreateStructureMember(StructureMemberType.Document);
+                    Guid? guid = document.Operations.CreateStructureMember(StructureMemberType.Document, Path.GetFileNameWithoutExtension(importedDoc.FileName));
 
                     if (guid == null)
                     {
