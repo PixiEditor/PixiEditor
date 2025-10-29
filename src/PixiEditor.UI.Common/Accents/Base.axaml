@@ -3,7 +3,7 @@
                     xmlns:system="clr-namespace:System;assembly=System.Runtime">
 
     <ResourceDictionary.ThemeDictionaries>
-        <ResourceDictionary x:Key="Dark">
+        <ResourceDictionary x:Key="Default">
             <Color x:Key="ThemeBackgroundColor">#252525</Color> <!--This is the lowest elevation color-->
             <Color x:Key="ThemeBackgroundTranslucentColor">#C8202020</Color>
             <Color x:Key="ThemeBackgroundColor1">#2D2D30</Color>

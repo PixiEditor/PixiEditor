@@ -3,22 +3,30 @@ using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
+using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
+using Avalonia.Xaml.Interactivity;
+using AvaloniaEdit;
+using AvaloniaEdit.Editing;
+using AvaloniaEdit.TextMate;
 using CommunityToolkit.Mvvm.Input;
 using PixiEditor.Helpers;
+using PixiEditor.Helpers.Behaviours;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.IO;
 using PixiEditor.OperatingSystem;
 using PixiEditor.UI.Common.Localization;
+using TextMateSharp.Grammars;
 
 namespace PixiEditor.Views.Input;
 
 [TemplatePart("PART_SmallTextBox", typeof(TextBox))]
-[TemplatePart("PART_BigTextBox", typeof(TextBox))]
+[TemplatePart("PART_Popup", typeof(Popup))]
+[TemplatePart("PART_BigTextBox", typeof(TextEditor))]
 [TemplatePart("PART_ErrorScrollViewer", typeof(ScrollViewer))]
 public class StringEditor : TemplatedControl
 {
@@ -70,7 +78,7 @@ public class StringEditor : TemplatedControl
     }
 
 
-    private TextBox bigTextBox;
+    private TextEditor bigTextBox;
     private TextBox smallTextBox;
 
     private string fileWatcherPath = string.Empty;
@@ -85,14 +93,48 @@ public class StringEditor : TemplatedControl
 
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
     {
-        bigTextBox = e.NameScope.Find<TextBox>("PART_BigTextBox");
+        bigTextBox = e.NameScope.Find<TextEditor>("PART_BigTextBox");
         bigTextBox.PointerWheelChanged += BigTextBoxOnPointerWheelChanged;
+
+        /*bool applied = false;
+        bigTextBox.Loaded += (s, e) =>
+        {
+            if (applied)
+            {
+                return;
+            }
+
+            applied = true;
+
+            var children = FindChildrenRecursively<TextArea, TextBox>(bigTextBox);
+            foreach (var child in children)
+            {
+                var behaviorCollection = Interaction.GetBehaviors(child);
+                behaviorCollection.Add(new GlobalShortcutFocusBehavior());
+                Interaction.SetBehaviors(child, behaviorCollection);
+            }
+        };*/
+
+        if (ContentKind == "sksl")
+        {
+            var _registryOptions = new RegistryOptions(ThemeName.Dark);
+
+            var _textMateInstallation = bigTextBox.InstallTextMate(_registryOptions);
+
+            _textMateInstallation.SetGrammar(
+                _registryOptions.GetScopeByLanguageId(_registryOptions.GetLanguageByExtension(".hlsl").Id));
+        }
 
         smallTextBox = e.NameScope.Find<TextBox>("PART_SmallTextBox");
 
-
         var errorScrollViewer = e.NameScope.Find<ScrollViewer>("PART_ErrorScrollViewer");
         errorScrollViewer.PointerWheelChanged += BigTextBoxOnPointerWheelChanged;
+
+        var popup = e.NameScope.Find<Popup>("PART_Popup");
+        popup.Opened += (sender, args) =>
+            {
+            }
+            ;
     }
 
     protected override void OnLoaded(RoutedEventArgs e)
@@ -200,5 +242,21 @@ public class StringEditor : TemplatedControl
     private void OpenInDefaultApp(string path)
     {
         IOperatingSystem.Current.OpenUri(path);
+    }
+
+    private static IEnumerable<Visual> FindChildrenRecursively<T1, T2>(Visual visual) where T1 : Visual where T2 : Visual
+    {
+        if (visual is T1 t || visual is T2)
+        {
+            yield return visual;
+        }
+
+        foreach (var child in visual.GetVisualChildren())
+        {
+            foreach (var descendant in FindChildrenRecursively<T1, T2>(child))
+            {
+                yield return descendant;
+            }
+        }
     }
 }

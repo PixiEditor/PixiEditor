@@ -4,7 +4,8 @@
                     xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
                     xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
                     xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
-                    xmlns:input="clr-namespace:PixiEditor.Views.Input">
+                    xmlns:input="clr-namespace:PixiEditor.Views.Input"
+                    xmlns:avaloniaEdit="https://github.com/avaloniaui/avaloniaedit">
     <Design.PreviewWith>
         <input:StringEditor />
     </Design.PreviewWith>
@@ -63,20 +64,31 @@
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="70" />
                                 </Grid.RowDefinitions>
-                                <TextBox
+                                <avaloniaEdit:TextEditor
                                     CornerRadius="0 0 5 5"
                                     Name="PART_BigTextBox"
-                                    Width="500"
+                                    MinWidth="500"
                                     Height="600"
-                                    AcceptsReturn="True"
-                                    AcceptsTab="True"
-                                    Text="{Binding Text, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                    Background="{DynamicResource ThemeControlLowBrush}"
+                                    BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                                    BorderThickness="1"
+                                    ShowLineNumbers="True"
                                     IsVisible="{Binding ElementName=bigModeToggle, Path=IsChecked}">
                                     <Interaction.Behaviors>
                                         <behaviours:GlobalShortcutFocusBehavior />
-                                        <AutoFocusBehavior />
+                                        <behaviours:DocumentTextBindingBehavior
+                                            Text="{Binding Text, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" />
                                     </Interaction.Behaviors>
-                                </TextBox>
+                                    <avaloniaEdit:TextEditor.Styles>
+                                        <Style Selector="TextBox">
+                                            <Setter Property="behaviours:BehaviorAttachHelper.EnableGlobalShortcutFocusBehavior" Value="True"/>
+                                        </Style>
+                                        <Style Selector="avaloniaEdit|TextArea">
+                                            <Setter Property="behaviours:BehaviorAttachHelper.EnableGlobalShortcutFocusBehavior" Value="True"/>
+                                            <Setter Property="behaviours:BehaviorAttachHelper.EnableAutoFocus" Value="True"/>
+                                        </Style>
+                                    </avaloniaEdit:TextEditor.Styles>
+                                </avaloniaEdit:TextEditor>
                                 <Border
                                     CornerRadius="0 0 5 5"
                                     BorderThickness="1" BorderBrush="{DynamicResource ThemeBorderMidBrush}"
