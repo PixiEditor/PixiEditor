@@ -1,0 +1,101 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="using:PixiEditor.UI.Common.Controls"
+                    xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
+                    xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+                    xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+                    xmlns:input="clr-namespace:PixiEditor.Views.Input">
+    <Design.PreviewWith>
+        <input:StringEditor />
+    </Design.PreviewWith>
+    <ControlTheme x:Key="{x:Type input:StringEditor}"
+                  TargetType="input:StringEditor">
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid>
+                    <TextBox MaxWidth="110"
+                             MinWidth="50"
+                             MaxLines="1"
+                             Name="PART_SmallTextBox"
+                             Text="{Binding Text, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
+                        <TextBox.InnerRightContent>
+                            <ToggleButton Name="bigModeToggle"
+                                          FontSize="16"
+                                          FontFamily="{DynamicResource PixiPerfectIcons}"
+                                          Background="Transparent"
+                                          BorderBrush="Transparent"
+                                          Padding="0"
+                                          Margin="0"
+                                          Content="{DynamicResource icon-fullscreen}" />
+                        </TextBox.InnerRightContent>
+                        <Interaction.Behaviors>
+                            <behaviours:GlobalShortcutFocusBehavior />
+                        </Interaction.Behaviors>
+                    </TextBox>
+                    <Popup IsOpen="{Binding ElementName=bigModeToggle, Path=IsChecked, Mode=TwoWay}"
+                           Placement="AnchorAndGravity"
+                           PlacementAnchor="Top"
+                           VerticalOffset="20"
+                           PlacementGravity="Bottom"
+                           IsLightDismissEnabled="True"
+                           Name="PART_Popup"
+                           PlacementTarget="{Binding ElementName=bigModeToggle}">
+                        <DockPanel LastChildFill="True">
+                            <Border CornerRadius="5 5 0 0" DockPanel.Dock="Top"
+                                    BorderThickness="1 1 1 0"
+                                    BorderBrush="{DynamicResource ThemeBorderHighBrush}"
+                                    Background="{DynamicResource ThemeBackgroundBrush1}">
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Margin="5" Classes="pixi-icon"
+                                            Name="openInDefaultAppButton"
+                                            Command="{TemplateBinding OpenInDefaultAppCommand}"
+                                            localization:Translator.TooltipKey="STRING_EDIT_IN_DEFAULT_APP"
+                                            Content="{DynamicResource icon-link}" FontSize="20" />
+                                    <Button Margin="5" Classes="pixi-icon"
+                                            Name="openInFolderButton"
+                                            localization:Translator.TooltipKey="STRING_OPEN_IN_FOLDER"
+                                            Command="{TemplateBinding OpenInFolderCommand}"
+                                            Content="{DynamicResource icon-folder}" FontSize="20" />
+                                </StackPanel>
+                            </Border>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="70" />
+                                </Grid.RowDefinitions>
+                                <TextBox
+                                    CornerRadius="0 0 5 5"
+                                    Name="PART_BigTextBox"
+                                    Width="500"
+                                    Height="600"
+                                    AcceptsReturn="True"
+                                    AcceptsTab="True"
+                                    Text="{Binding Text, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                    IsVisible="{Binding ElementName=bigModeToggle, Path=IsChecked}">
+                                    <Interaction.Behaviors>
+                                        <behaviours:GlobalShortcutFocusBehavior />
+                                        <AutoFocusBehavior />
+                                    </Interaction.Behaviors>
+                                </TextBox>
+                                <Border
+                                    CornerRadius="0 0 5 5"
+                                    BorderThickness="1" BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                                    IsVisible="{Binding Errors, Converter={converters:NotEmptyStringConverter}}"
+                                    Background="{DynamicResource ThemeBackgroundBrush}" Grid.Row="1">
+                                    <ScrollViewer Name="PART_ErrorScrollViewer"
+                                                  HorizontalScrollBarVisibility="Disabled"
+                                                  VerticalScrollBarVisibility="Auto">
+                                        <SelectableTextBlock
+                                            Foreground="{DynamicResource ErrorOnDarkBrush}"
+                                            TextWrapping="Wrap"
+                                            Text="{TemplateBinding Errors}" />
+                                    </ScrollViewer>
+                                </Border>
+                            </Grid>
+                        </DockPanel>
+                    </Popup>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+</ResourceDictionary>

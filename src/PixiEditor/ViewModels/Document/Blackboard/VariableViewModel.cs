@@ -125,7 +125,6 @@ internal class VariableViewModel : ViewModelBase, IVariableHandler
             return new PaintableSettingViewModel("Variable", "Variable");
         }
         
-        
         if (type == typeof(Color))
         {
             return new ColorSettingViewModel("Variable", "Variable") { AllowGradient = false };
@@ -134,6 +133,11 @@ internal class VariableViewModel : ViewModelBase, IVariableHandler
         if (type.IsAssignableTo(typeof(Texture)))
         {
             return new TextureSettingViewModel("Variable", "Variable");
+        }
+
+        if(type == typeof(string))
+        {
+            return new StringSettingViewModel("Variable", "Variable");
         }
 
         return new GenericSettingViewModel("Variable");
