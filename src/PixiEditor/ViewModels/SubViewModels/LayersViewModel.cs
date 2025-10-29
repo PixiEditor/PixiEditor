@@ -160,7 +160,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         if (Owner.DocumentManagerSubViewModel.ActiveDocument is not { } doc)
             return;
 
-        doc.Operations.CreateStructureMember(StructureMemberType.Layer);
+        doc.Operations.CreateStructureMember(StructureMemberType.ImageLayer);
     }
 
     public Guid? NewLayer(Type layerType, ActionSource source, string? name = null)
@@ -244,6 +244,18 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         member.Document.Operations.DuplicateMember(member.Id);
     }
 
+    [Command.Basic("PixiEditor.Layer.UnlinkNestedDocument", "UNLINK", "UNLINK_DESCRIPTIVE",
+        CanExecute = "PixiEditor.Layer.SelectedMemberIsNestedDocument",
+        Icon = PixiPerfectIcons.Link, AnalyticsTrack = true)]
+    public void UnlinkNestedDocument()
+    {
+        var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
+        if (member is not NestedDocumentNodeViewModel nestedDocVm)
+            return;
+
+        nestedDocVm.Document.Operations.UnlinkNestedDocument(nestedDocVm.Id);
+    }
+
     [Evaluator.CanExecute("PixiEditor.Layer.SelectedMemberIsLayer",
         nameof(DocumentManagerViewModel.ActiveDocument), nameof(DocumentViewModel.SelectedStructureMember))]
     public bool SelectedMemberIsLayer(object property)
@@ -316,6 +328,14 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         }
 
         return false;
+    }
+
+    [Evaluator.CanExecute("PixiEditor.Layer.SelectedMemberIsNestedDocument",
+        nameof(DocumentManagerViewModel.ActiveDocument), nameof(DocumentViewModel.SelectedStructureMember))]
+    public bool SelectedMemberIsNestedDocument(object property)
+    {
+        var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
+        return member is NestedDocumentNodeViewModel;
     }
 
     [Evaluator.CanExecute("PixiEditor.Layer.SelectedMemberIsSelectedText",

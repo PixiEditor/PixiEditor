@@ -65,8 +65,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
 
     public event Action<DocumentViewModel> DocumentAdded;
 
-    private Dictionary<string, FileSystemWatcher> documentPathListeners = new Dictionary<string, FileSystemWatcher>();
-    private HashSet<Guid> documentIdListeners = new HashSet<Guid>();
+    private HashSet<DocumentReferenceData> documentReferences = new();
 
     public DocumentManagerViewModel(ViewModelMain owner) : base(owner)
     {
@@ -80,6 +79,13 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
 
     [Evaluator.CanExecute("PixiEditor.HasDocument", nameof(ActiveDocument))]
     public bool DocumentNotNull() => ActiveDocument != null;
+
+    [Command.Basic("PixiEditor.Document.Open", "OPEN_DOCUMENT", "OPEN_DOCUMENT_DESC",
+        Icon = PixiPerfectIcons.File, AnalyticsTrack = true)]
+    public void OpenDocument(string path)
+    {
+        Owner.FileSubViewModel.OpenFromPath(path);
+    }
 
     [Command.Basic("PixiEditor.Document.ClipCanvas", "CLIP_CANVAS", "CLIP_CANVAS",
         CanExecute = "PixiEditor.HasDocument",
@@ -308,53 +314,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
     public void Add(DocumentViewModel doc)
     {
         Documents.Add(doc);
-        ListenForReferenceChanges(doc.DocumentReferences);
         DocumentAdded?.Invoke(doc);
-    }
-
-    private void ListenForReferenceChanges(List<(string originalPath, Guid refId)> docDocumentReferences)
-    {
-        foreach (var (originalPath, refId) in docDocumentReferences)
-        {
-            if (!string.IsNullOrEmpty(originalPath))
-            {
-                if (!documentPathListeners.ContainsKey(originalPath))
-                {
-                    try
-                    {
-                        var dirPath = System.IO.Path.GetDirectoryName(originalPath);
-                        FileSystemWatcher watcher = new FileSystemWatcher(dirPath);
-                        watcher.Filter = System.IO.Path.GetFileName(originalPath);
-
-                        watcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName;
-                        watcher.IncludeSubdirectories = false;
-                        documentPathListeners[originalPath] = watcher;
-
-                        watcher.Changed += (s, e) => OnDocumentReferenceDocumentChanged(refId, e.FullPath);
-                        watcher.Renamed += (s, e) =>
-                        {
-                            OnDocumentReferenceDocumentChanged(refId, e.FullPath);
-                            watcher.EnableRaisingEvents = false;
-                            documentPathListeners.Remove(originalPath);
-
-                            documentPathListeners[e.FullPath] = watcher;
-                            watcher.Filter = System.IO.Path.GetFileName(e.FullPath);
-                            watcher.EnableRaisingEvents = true;
-                        };
-
-                        watcher.EnableRaisingEvents = true;
-                    }
-                    catch (Exception)
-                    {
-                        // Ignore errors with file watchers
-                    }
-                }
-            }
-            else
-            {
-               // TODO: Nested document references without paths
-            }
-        }
     }
 
     private void OnDocumentReferenceDocumentChanged(Guid referenceId, string fullPath)
@@ -362,7 +322,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
         Dispatcher.UIThread.Post(() =>
         {
             var loaded = Documents.FirstOrDefault(x => x.FullFilePath == fullPath) ??
-                Importer.ImportDocument(fullPath);
+                         Importer.ImportDocument(fullPath);
             foreach (var doc in Documents)
             {
                 if (doc.FullFilePath == fullPath)
@@ -371,5 +331,106 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
                 doc.UpdateDocumentReferences(referenceId, loaded);
             }
         });
+    }
+
+    public void AddDocumentReference(Guid nodeId, string? originalPath, Guid docReferenceId)
+    {
+        var existingReference = documentReferences.FirstOrDefault(x =>
+            x.OriginalPath == originalPath);
+        existingReference?.ReferencingNodes.Add(nodeId);
+
+        if (existingReference == null)
+        {
+            var newReference = new DocumentReferenceData(originalPath, docReferenceId);
+            newReference.ReferencingNodes.Add(nodeId);
+            documentReferences.Add(newReference);
+            newReference.DocumentChanged += OnDocumentReferenceDocumentChanged;
+        }
+    }
+
+    public void RemoveDocumentReferenceByNodeId(Guid infoNodeId)
+    {
+        var reference = documentReferences.FirstOrDefault(x => x.ReferencingNodes.Contains(infoNodeId));
+        if (reference != null)
+        {
+            reference.ReferencingNodes.Remove(infoNodeId);
+            if (reference.ReferencingNodes.Count == 0)
+            {
+                reference.Dispose();
+                documentReferences.Remove(reference);
+            }
+        }
+    }
+
+    public void RemoveDocumentReferences(IEnumerable<Guid> ids)
+    {
+        foreach (var id in ids)
+        {
+            RemoveDocumentReferenceByNodeId(id);
+        }
+    }
+}
+
+class DocumentReferenceData : IDisposable
+{
+    public HashSet<Guid> ReferencingNodes { get; } = new HashSet<Guid>();
+    public string? OriginalPath { get; set; }
+    public Guid ReferenceId { get; set; }
+
+    public FileSystemWatcher? Watcher { get; set; }
+
+    public event Action<Guid, string>? DocumentChanged;
+
+
+    public DocumentReferenceData(string? originalPath, Guid referenceId)
+    {
+        OriginalPath = originalPath;
+        ReferenceId = referenceId;
+        TryCreateFileWatcher();
+    }
+
+    public void TryCreateFileWatcher()
+    {
+        if (!string.IsNullOrEmpty(OriginalPath))
+        {
+            try
+            {
+                var dirPath = System.IO.Path.GetDirectoryName(OriginalPath);
+                Watcher = new FileSystemWatcher(dirPath);
+                Watcher.Filter = System.IO.Path.GetFileName(OriginalPath);
+
+                Watcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName;
+                Watcher.IncludeSubdirectories = false;
+
+                Watcher.Changed += (s, e) =>
+                {
+                    DocumentChanged?.Invoke(ReferenceId, e.FullPath);
+                };
+
+                Watcher.Renamed += (s, e) =>
+                {
+                    DocumentChanged?.Invoke(ReferenceId, e.FullPath);
+                    Watcher.EnableRaisingEvents = false;
+
+                    Watcher.Filter = System.IO.Path.GetFileName(e.FullPath);
+                    Watcher.EnableRaisingEvents = true;
+                };
+
+                Watcher.EnableRaisingEvents = true;
+            }
+            catch (Exception)
+            {
+                // Ignore errors with file watchers
+            }
+        }
+        else
+        {
+            // TODO: Nested document references without paths
+        }
+    }
+
+    public void Dispose()
+    {
+        Watcher?.Dispose();
     }
 }

@@ -10,6 +10,8 @@ internal class NestedDocumentNodeViewModel :
     StructureMemberViewModel<ChangeableDocument.Changeables.Graph.Nodes.NestedDocumentNode>, ILayerHandler
 {
     bool lockTransparency;
+    Guid? referenceId = null;
+    string? _linkedDocumentPath = null;
 
     public void SetLockTransparency(bool lockTransparency)
     {
@@ -42,4 +44,20 @@ internal class NestedDocumentNodeViewModel :
     }
 
     public Type? QuickEditTool => typeof(MoveToolViewModel);
+
+    public bool IsLinked => _linkedDocumentPath != null || (referenceId != null && referenceId != Guid.Empty);
+    public string? LinkedDocumentPath => _linkedDocumentPath;
+
+    public void SetOriginalFilePath(string? infoOriginalFilePath)
+    {
+        _linkedDocumentPath = infoOriginalFilePath;
+        OnPropertyChanged(nameof(IsLinked));
+        OnPropertyChanged(nameof(LinkedDocumentPath));
+    }
+
+    public void SetReferenceId(Guid? infoReferenceId)
+    {
+        referenceId = infoReferenceId;
+        OnPropertyChanged(nameof(IsLinked));
+    }
 }

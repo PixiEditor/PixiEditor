@@ -24,6 +24,7 @@ using PixiEditor.Models.Handlers;
 using PixiEditor.OperatingSystem;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document;
+using PixiEditor.ViewModels.Document.Nodes;
 using PixiEditor.ViewModels.Document.Nodes.Brushes;
 using PixiEditor.ViewModels.Menu;
 using PixiEditor.ViewModels.SubViewModels;
@@ -371,6 +372,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
             WindowSubViewModel.CloseViewportsForDocument(document);
             document.Dispose();
             document.AutosaveViewModel.OnDocumentClosed();
+            DocumentManagerSubViewModel.RemoveDocumentReferences(document.NodeGraph.AllNodes.Where(x => x is NestedDocumentNodeViewModel).Select(x => x.Id));
 
             return true;
         }

@@ -23,6 +23,7 @@ using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Layers;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
@@ -254,6 +255,9 @@ internal class DocumentUpdater
                 break;
             case BlackboardVariableRemoved_ChangeInfo info:
                 ProcessRemoveBlackboardVariable(info);
+                break;
+            case NestedDocumentLink_ChangeInfo info:
+                ProcessNestedDocumentLinkChangeInfo(info);
                 break;
         }
     }
@@ -879,12 +883,27 @@ internal class DocumentUpdater
         {
             if (ViewModelMain.Current.ToolsSubViewModel is ToolsViewModel toolsHandler)
             {
-                var brush = toolsHandler.BrushLibrary.Brushes.FirstOrDefault(x => x.Key == node.Id && x.Value.Document.Id == doc.Id);
+                var brush = toolsHandler.BrushLibrary.Brushes.FirstOrDefault(x =>
+                    x.Key == node.Id && x.Value.Document.Id == doc.Id);
                 if (brush.Value != null)
                 {
                     brush.Value.Name = info.Value?.ToString() ?? "Unnamed";
                 }
             }
+        }
+
+        if (info.Property == NestedDocumentNode.DocumentPropertyName)
+        {
+            string? path = null;
+            Guid? referenceId = null;
+            if (info.Value is DocumentReference doc)
+            {
+                path = doc.OriginalFilePath;
+                referenceId = doc.ReferenceId;
+            }
+
+            ProcessNestedDocumentLinkChangeInfo(new NestedDocumentLink_ChangeInfo(info.NodeId,
+                path, referenceId));
         }
     }
 
@@ -976,11 +995,11 @@ internal class DocumentUpdater
 
     private void ProcessCreateBrushNodeIfNeeded(CreateNode_ChangeInfo info)
     {
-        if(info.InternalName != "PixiEditor." + BrushOutputNode.NodeId) return;
+        if (info.InternalName != "PixiEditor." + BrushOutputNode.NodeId) return;
 
         if (ViewModelMain.Current.ToolsSubViewModel is ToolsViewModel toolsHandler)
         {
-            if(ViewModelMain.Current.DocumentManagerSubViewModel.Documents.All(x => x.Id != doc.Id)) return;
+            if (ViewModelMain.Current.DocumentManagerSubViewModel.Documents.All(x => x.Id != doc.Id)) return;
 
             string name = info.Inputs.FirstOrDefault(x => x.PropertyName == BrushOutputNode.BrushNameProperty)
                 ?.InputValue?.ToString() ?? "Unnamed";
@@ -993,7 +1012,7 @@ internal class DocumentUpdater
     {
         if (ViewModelMain.Current.ToolsSubViewModel is ToolsViewModel toolsHandler)
         {
-           toolsHandler.BrushLibrary.RemoveById(info.Id);
+            toolsHandler.BrushLibrary.RemoveById(info.Id);
         }
     }
 
@@ -1027,5 +1046,21 @@ internal class DocumentUpdater
     private void ProcessRemoveBlackboardVariable(BlackboardVariableRemoved_ChangeInfo info)
     {
         doc.NodeGraphHandler.Blackboard.RemoveVariableInternal(info.VariableName);
+    }
+
+    private void ProcessNestedDocumentLinkChangeInfo(NestedDocumentLink_ChangeInfo info)
+    {
+        var node = doc.StructureHelper.FindNode<NestedDocumentNodeViewModel>(info.NodeId);
+        node.SetOriginalFilePath(info.OriginalFilePath);
+        node.SetReferenceId(info.ReferenceId);
+
+        if (!info.ReferenceId.HasValue || info.ReferenceId.Value == Guid.Empty)
+        {
+            ViewModelMain.Current.DocumentManagerSubViewModel.RemoveDocumentReferenceByNodeId(info.NodeId);
+        }
+        else
+        {
+            ViewModelMain.Current.DocumentManagerSubViewModel.AddDocumentReference(info.NodeId, info.OriginalFilePath, info.ReferenceId.Value);
+        }
     }
 }

@@ -216,8 +216,6 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public bool UsesSrgbBlending { get; private set; }
     public AutosaveDocumentViewModel AutosaveViewModel { get; set; }
 
-    public List<(string originalPath, Guid refId)> DocumentReferences { get; } = new();
-
     private bool isDisposed = false;
 
     private DocumentViewModel()
@@ -489,13 +487,6 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 {
                     object value =
                         SerializationUtil.Deserialize(propertyValue.Value, config, allFactories, serializerData);
-                    if (value is DocumentReference docRef)
-                    {
-                        if (viewModel.DocumentReferences.All(x => x.refId != docRef.ReferenceId))
-                        {
-                            viewModel.DocumentReferences.Add((docRef.OriginalFilePath, docRef.ReferenceId));
-                        }
-                    }
 
                     acc.AddActions(new UpdatePropertyValue_Action(guid, propertyValue.Key, value),
                         new EndUpdatePropertyValue_Action());
@@ -1438,14 +1429,14 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         using var changeBlock = Operations.StartChangeBlock();
         foreach (var node in nestedNodes)
         {
-            if(node.InputPropertyMap[NestedDocumentNode.DocumentPropertyName].Value is not DocumentReference docRef ||
-               docRef.ReferenceId != referenceId)
+            if (node.InputPropertyMap[NestedDocumentNode.DocumentPropertyName].Value is not DocumentReference docRef ||
+                docRef.ReferenceId != referenceId)
                 continue;
 
             Internals.ActionAccumulator.AddActions(new UpdatePropertyValue_Action(node.Id,
-                NestedDocumentNode.DocumentPropertyName,
-                new DocumentReference(newDoc.FullFilePath, referenceId,
-                    newDoc.AccessInternalReadOnlyDocument().Clone())),
+                    NestedDocumentNode.DocumentPropertyName,
+                    new DocumentReference(newDoc.FullFilePath, referenceId,
+                        newDoc.AccessInternalReadOnlyDocument().Clone())),
                 new EndUpdatePropertyValue_Action());
         }
     }

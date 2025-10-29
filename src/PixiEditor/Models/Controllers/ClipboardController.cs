@@ -26,7 +26,9 @@ using PixiEditor.Models.Commands.Attributes.Evaluators;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.IO;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Parser;
 using PixiEditor.UI.Common.Localization;
@@ -272,7 +274,9 @@ internal static class ClipboardController
 
         List<DataImage> images = await GetImage(data);
         if (images.Count == 0)
-            return false;
+        {
+            return await TryPasteNestedDocument(document, manager, data);
+        }
 
         if (images.Count == 1 || (images.Count > 1 && !pasteAsNew))
         {
@@ -286,7 +290,7 @@ internal static class ClipboardController
 
             if (pasteAsNew)
             {
-                var guid = document.Operations.CreateStructureMember(StructureMemberType.Layer,
+                var guid = document.Operations.CreateStructureMember(StructureMemberType.ImageLayer,
                     new LocalizedString("NEW_LAYER"), false);
 
                 if (guid == null)
@@ -315,6 +319,66 @@ internal static class ClipboardController
 
         document.Operations.PasteImagesAsLayers(images, document.AnimationDataViewModel.ActiveFrameBindable);
         return true;
+    }
+
+    private static async Task<bool> TryPasteNestedDocument(DocumentViewModel document, DocumentManagerViewModel manager,
+        IImportObject[] data)
+    {
+        foreach (var dataObject in data)
+        {
+            var paths = (await GetFileDropList(dataObject))?.Select(x => x.Path.LocalPath).ToList();
+            string[]? rawPaths = await TryGetRawTextPaths(dataObject);
+            if (paths != null && rawPaths != null)
+            {
+                paths.AddRange(rawPaths);
+            }
+
+            if (paths == null || paths.Count == 0)
+            {
+                continue;
+            }
+
+            using var block = document.Operations.StartChangeBlock();
+            bool importedAny = false;
+            foreach (string? path in paths)
+            {
+                if (path is null || !Importer.IsSupportedFile(path))
+                {
+                    continue;
+                }
+
+                try
+                {
+                    DocumentViewModel importedDoc = Importer.ImportDocument(path);
+                    if (importedDoc == null)
+                    {
+                        continue;
+                    }
+
+                    Guid? guid = document.Operations.CreateStructureMember(StructureMemberType.Document);
+
+                    if (guid == null)
+                    {
+                        continue;
+                    }
+
+                    document.Operations.SetNodeInputPropertyValue(guid.Value, NestedDocumentNode.DocumentPropertyName,
+                        new DocumentReference(importedDoc.FullFilePath, importedDoc.Id,
+                            importedDoc.AccessInternalReadOnlyDocument().Clone()));
+
+                    importedDoc.Dispose();
+                    importedAny = true;
+                }
+                catch
+                {
+                    continue;
+                }
+            }
+
+            return importedAny;
+        }
+
+        return false;
     }
 
     private static async Task<bool> AllMatchesPos(Guid[] layerIds, IImportObject[] dataFormats, IDocument doc)
@@ -479,16 +543,7 @@ internal static class ClipboardController
 
                     Surface imported;
 
-                    if (Path.GetExtension(path) == ".pixi")
-                    {
-                        using var stream = new FileStream(path, FileMode.Open, FileAccess.Read);
-
-                        imported = Surface.Load(PixiParser.ReadPreview(stream));
-                    }
-                    else
-                    {
-                        imported = Surface.Load(path);
-                    }
+                    imported = Surface.Load(path);
 
                     string filename = Path.GetFullPath(path);
                     surfaces.Add(new DataImage(filename, imported,

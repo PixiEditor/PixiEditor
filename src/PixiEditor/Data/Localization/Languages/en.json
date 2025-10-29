@@ -1202,5 +1202,7 @@
   "ON_FALSE": "On False",
   "ON_TRUE": "On True",
   "GRAPH": "Graph",
-  "BRUSH": "Brush"
+  "BRUSH": "Brush",
+  "UNLINK": "Unlink",
+  "UNLINK_DESCRIPTIVE": "Unlink this layer from the original document"
 }
