@@ -107,38 +107,47 @@ internal partial class DocumentViewModel
 
     public SvgDocument ToSvgDocument(KeyFrameTime atTime, VecI exportSize, VectorExportConfig? vectorExportConfig)
     {
+        return ToSvgDocument(Internals.Tracker.Document, atTime, exportSize, vectorExportConfig);
+    }
+
+    public static SvgDocument ToSvgDocument(IReadOnlyDocument document, KeyFrameTime atTime, VecI exportSize,
+        VectorExportConfig? vectorExportConfig)
+    {
         SvgDocument svgDocument = new(new RectD(0, 0, exportSize.X, exportSize.Y));
 
-        float resizeFactorX = (float)exportSize.X / Width;
-        float resizeFactorY = (float)exportSize.Y / Height;
+        float resizeFactorX = (float)exportSize.X / document.Size.X;
+        float resizeFactorY = (float)exportSize.Y / document.Size.Y;
         VecD resizeFactor = new VecD(resizeFactorX, resizeFactorY);
 
-        AddElements(NodeGraph.StructureTree.Members.Where(x => x.IsVisibleBindable).Reverse().ToList(), svgDocument,
-            atTime, resizeFactor, vectorExportConfig, svgDocument.Defs);
+        var root = document.GetStructureTreeInOrder().Where(x => x.IsVisible.Value).Reverse().ToList();
+
+        AddElements(document, root, svgDocument, atTime, exportSize, resizeFactor, vectorExportConfig,
+            svgDocument.Defs);
 
         return svgDocument;
     }
 
-    private void AddElements(IEnumerable<IStructureMemberHandler> root, IElementContainer elementContainer,
-        KeyFrameTime atTime,
+    private static void AddElements(IReadOnlyDocument doc, IEnumerable<IReadOnlyStructureNode> root,
+        IElementContainer elementContainer,
+        KeyFrameTime atTime, VecI exportSize,
         VecD resizeFactor, VectorExportConfig? vectorExportConfig, SvgDefs defs)
     {
         foreach (var member in root)
         {
-            if (member is FolderNodeViewModel folderNodeViewModel)
+            if (member is FolderNode folderNode)
             {
                 var group = new SvgGroup
                 {
-                    Opacity = { Unit = new SvgNumericUnit(folderNodeViewModel.OpacityBindable, "") },
-                    Id = { Unit = new SvgStringUnit(folderNodeViewModel.NodeNameBindable) },
+                    Opacity = { Unit = new SvgNumericUnit(folderNode.Opacity.Value, "") },
+                    Id = { Unit = new SvgStringUnit(folderNode.DisplayName) },
                 };
 
-                if (folderNodeViewModel.ClipToMemberBelowEnabledBindable &&
+                if (folderNode.ClipToPreviousMember &&
                     elementContainer.Children.Count > 0)
                 {
-                    IStructureMemberHandler? previousMember =
-                        folderNodeViewModel.Inputs.FirstOrDefault(x => x.PropertyName == "Background").ConnectedOutput
-                            ?.Node as IStructureMemberHandler;
+                    IReadOnlyStructureNode? previousMember =
+                        folderNode.Background.Connection
+                            ?.Node as IReadOnlyStructureNode;
                     var previousElement = elementContainer.Children.LastOrDefault();
 
                     AddToClipDefs(defs, previousElement, previousMember);
@@ -149,45 +158,53 @@ internal partial class DocumentViewModel
                     }
                 }
 
-                AddElements(folderNodeViewModel.Children.Where(x => x.IsVisibleBindable).Reverse().ToList(), group,
-                    atTime, resizeFactor, vectorExportConfig, defs);
+                AddElements(doc, folderNode.GetChildrenNodes().Where(x => x.IsVisible.Value).Reverse().ToList(), group,
+                    atTime, exportSize, resizeFactor, vectorExportConfig, defs);
                 elementContainer.Children.Add(group);
             }
 
-            if (member is IRasterLayerHandler)
+            if (member is IReadOnlyImageNode img)
             {
-                AddSvgImage(elementContainer, atTime, member, resizeFactor,
-                    vectorExportConfig?.UseNearestNeighborForImageUpscaling ?? false);
+                AddSvgImage(elementContainer, atTime, img, resizeFactor,
+                    vectorExportConfig?.UseNearestNeighborForImageUpscaling ?? false, doc);
             }
-            else if (member is IVectorLayerHandler vectorLayerHandler)
+            else if (member is IReadOnlyVectorNode vectorLayerHandler)
             {
                 AddSvgShape(elementContainer, vectorLayerHandler, resizeFactor, defs);
+            }
+            else if (member is NestedDocumentNode nested)
+            {
+                var nestedDocument = nested.NestedDocument.Value?.DocumentInstance;
+                if (nestedDocument == null)
+                    continue;
+
+                var svgDoc = ToSvgDocument(nestedDocument, atTime, exportSize, vectorExportConfig);
+                svgDoc.Transform.Unit = new SvgTransformUnit(nested.TransformationMatrix);
+                elementContainer.Children.Add(svgDoc);
             }
         }
     }
 
-    private static void AddToClipDefs(SvgDefs defs, SvgElement? previousElement, IStructureMemberHandler? previousMember)
+    private static void AddToClipDefs(SvgDefs defs, SvgElement? previousElement,
+        IReadOnlyStructureNode? previousMember)
     {
         if (previousElement != null)
         {
             var clone = previousElement.Clone();
-            if(clone is not IClipable clipable)
+            if (clone is not IClipable clipable)
                 return;
             clipable.ClipPath.Unit = null;
             clone.Id.Unit = null;
             defs.Children.Add(new SvgClipPath()
             {
-                Id = { Unit = new SvgStringUnit($"{previousMember.Id}_clip") },
-                Children = { previousElement }
+                Id = { Unit = new SvgStringUnit($"{previousMember.Id}_clip") }, Children = { previousElement }
             });
         }
     }
 
-    private void AddSvgShape(IElementContainer elementContainer, IVectorLayerHandler vectorLayerHandler,
+    private static void AddSvgShape(IElementContainer elementContainer, IReadOnlyVectorNode vectorNode,
         VecD resizeFactor, SvgDefs defs)
     {
-        IReadOnlyVectorNode vectorNode =
-            (IReadOnlyVectorNode)Internals.Tracker.Document.FindNode(vectorLayerHandler.Id);
         SvgElement? elementToAdd = null;
 
         if (vectorNode.ShapeData is IReadOnlyEllipseData ellipseData)
@@ -220,9 +237,9 @@ internal partial class DocumentViewModel
             transform = transform.PostConcat(Matrix3X3.CreateScale((float)resizeFactor.X, (float)resizeFactor.Y));
             primitive.Transform.Unit = new SvgTransformUnit?(new SvgTransformUnit(transform));
 
-            primitive.Id.Unit = new SvgStringUnit(vectorLayerHandler.NodeNameBindable);
+            primitive.Id.Unit = new SvgStringUnit(vectorNode.DisplayName);
 
-            primitive.Opacity.Unit = new SvgNumericUnit(vectorLayerHandler.OpacityBindable, "");
+            primitive.Opacity.Unit = new SvgNumericUnit(vectorNode.Opacity.Value, "");
 
             Paintable finalFill = data.Fill ? data.FillPaintable : new ColorPaintable(Colors.Transparent);
             primitive.Fill.Unit = new SvgPaintServerUnit(finalFill);
@@ -236,12 +253,12 @@ internal partial class DocumentViewModel
 
             primitive.StrokeWidth.Unit = SvgNumericUnit.FromUserUnits(data.StrokeWidth);
 
-            bool clipToMemberBelowEnabled = vectorLayerHandler.ClipToMemberBelowEnabledBindable;
+            bool clipToMemberBelowEnabled = vectorNode.ClipToPreviousMember;
             if (clipToMemberBelowEnabled && elementContainer.Children.Count > 0)
             {
-                IStructureMemberHandler? previousMember =
-                    vectorLayerHandler.Inputs.FirstOrDefault(x => x.PropertyName == "Background").ConnectedOutput?.Node
-                        as IStructureMemberHandler;
+                IReadOnlyStructureNode? previousMember =
+                    (vectorNode as VectorLayerNode).Background.Connection?.Node
+                    as IReadOnlyStructureNode;
 
                 var previousElement = elementContainer.Children[^1];
 
@@ -293,7 +310,7 @@ internal partial class DocumentViewModel
         return ellipse;
     }
 
-    private SvgRectangle AddRectangle(IReadOnlyRectangleData rectangleData)
+    private static SvgRectangle AddRectangle(IReadOnlyRectangleData rectangleData)
     {
         SvgRectangle rect = new SvgRectangle();
 
@@ -316,11 +333,11 @@ internal partial class DocumentViewModel
 
         rect.Rx.Unit = SvgNumericUnit.FromUserUnits(radiusX);
         rect.Ry.Unit = SvgNumericUnit.FromUserUnits(radiusY);
-        
+
         return rect;
     }
 
-    private SvgPath AddVectorPath(IReadOnlyPathData data)
+    private static SvgPath AddVectorPath(IReadOnlyPathData data)
     {
         var path = new SvgPath();
         if (data.Path != null)
@@ -346,11 +363,10 @@ internal partial class DocumentViewModel
         return path;
     }
 
-    private void AddSvgImage(IElementContainer elementContainer, KeyFrameTime atTime, INodeHandler member,
-        VecD resizeFactor, bool useNearestNeighborForImageUpscaling)
+    private static void AddSvgImage(IElementContainer elementContainer, KeyFrameTime atTime,
+        IReadOnlyImageNode imageNode,
+        VecD resizeFactor, bool useNearestNeighborForImageUpscaling, IReadOnlyDocument doc)
     {
-        IReadOnlyImageNode imageNode = (IReadOnlyImageNode)Internals.Tracker.Document.FindNode(member.Id);
-
         var tightBounds = imageNode.GetTightBounds(atTime);
 
         if (tightBounds == null || tightBounds.Value.IsZeroArea) return;
@@ -358,20 +374,20 @@ internal partial class DocumentViewModel
         Image toSave = null;
         DrawingBackendApi.Current.RenderingDispatcher.Invoke(() =>
         {
-            using Surface surface = new Surface(SizeBindable);
-            Renderer.RenderLayer(surface.DrawingSurface, imageNode.Id, ChunkResolution.Full, atTime.Frame,
-                SizeBindable);
+            using Surface surface = new Surface(doc.Size);
+            doc.Renderer.RenderLayer(surface.DrawingSurface, imageNode.Id, ChunkResolution.Full, atTime.Frame,
+                doc.Size);
 
             toSave = surface.DrawingSurface.Snapshot((RectI)tightBounds.Value);
         });
 
         var image = CreateImageElement(resizeFactor, tightBounds.Value, toSave, useNearestNeighborForImageUpscaling);
-        image.Id.Unit = new SvgStringUnit(member.NodeNameBindable);
+        image.Id.Unit = new SvgStringUnit(imageNode.DisplayName);
 
         elementContainer.Children.Add(image);
     }
 
-    private SvgElement AddText(IReadOnlyTextData textData)
+    private static SvgElement AddText(IReadOnlyTextData textData)
     {
         RichText rt = new RichText(textData.Text);
         rt.Spacing = textData.Spacing;
@@ -572,10 +588,7 @@ internal partial class DocumentViewModel
             });
         }
 
-        targetGraph.Blackboard = new Parser.Graph.Blackboard()
-        {
-            Variables = variables
-        };
+        targetGraph.Blackboard = new Parser.Graph.Blackboard() { Variables = variables };
     }
 
     private static Dictionary<string, object> ConvertToSerializable(

@@ -109,4 +109,5 @@ public interface IReadOnlyDocument : IDisposable, ICloneable
     public ICrossDocumentPipe<T> CreateNodePipe<T>(Guid layerId) where T : class, IReadOnlyNode;
     public ICrossDocumentPipe<IReadOnlyNodeGraph> CreateGraphPipe();
     public IReadOnlyDocument Clone();
+    public IReadOnlyStructureNode[] GetStructureTreeInOrder();
 }

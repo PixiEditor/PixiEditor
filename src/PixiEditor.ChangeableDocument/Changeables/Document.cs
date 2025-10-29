@@ -199,6 +199,13 @@ internal class Document : IChangeable, IReadOnlyDocument
         return clone;
     }
 
+    public IReadOnlyStructureNode[] GetStructureTreeInOrder()
+    {
+        var list = new List<IReadOnlyStructureNode>();
+        ForEveryReadonlyMember(NodeGraph, member => list.Add(member));
+        return list.ToArray();
+    }
+
     private void ForEveryReadonlyMember(IReadOnlyNodeGraph graph, Action<IReadOnlyStructureNode> action)
     {
         graph.TryTraverse((node) =>

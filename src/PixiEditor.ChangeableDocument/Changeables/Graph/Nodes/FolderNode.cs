@@ -293,4 +293,23 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
             }
         }
     }
+
+    public IReadOnlyStructureNode[] GetChildrenNodes()
+    {
+        List<IReadOnlyStructureNode> children = new();
+        if (Content.Connection != null)
+        {
+            Content.Connection.Node.TraverseBackwards((n) =>
+            {
+                if (n is IReadOnlyStructureNode structureNode)
+                {
+                    children.Add(structureNode);
+                }
+
+                return true;
+            });
+        }
+
+        return children.ToArray();
+    }
 }

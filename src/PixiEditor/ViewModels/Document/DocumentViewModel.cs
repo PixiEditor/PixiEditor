@@ -242,6 +242,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         AnimationDataViewModel.InitFrom(document.AnimationData);
         ReferenceLayerViewModel.InitFrom(document.ReferenceLayer);
         UpdateSelectionPath(new VectorPath(document.Selection.SelectionPath));
+        NodeGraph.StructureTree.Update(NodeGraph);
     }
 
     private void InitializeViewModel()

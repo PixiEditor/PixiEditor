@@ -1,4 +1,8 @@
-﻿using PixiEditor.ChangeableDocument.Actions.Generated;
+﻿using Drawie.Backend.Core.Numerics;
+using PixiEditor.ChangeableDocument.Actions.Generated;
+using PixiEditor.ChangeableDocument.Changeables;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Models.Handlers;
 using PixiEditor.ViewModels.Nodes;
 using PixiEditor.ViewModels.Tools.Tools;
@@ -12,6 +16,9 @@ internal class NestedDocumentNodeViewModel :
     bool lockTransparency;
     Guid? referenceId = null;
     string? _linkedDocumentPath = null;
+
+    public Matrix3X3 TransformationMatrix => (Internals.Tracker.Document.FindMember(Id) as ITransformableObject)
+        ?.TransformationMatrix ?? Matrix3X3.Identity;
 
     public void SetLockTransparency(bool lockTransparency)
     {
