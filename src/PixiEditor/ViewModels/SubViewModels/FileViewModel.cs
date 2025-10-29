@@ -293,6 +293,40 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         return null;
     }
 
+    /// <summary>
+    ///     Tries to import a Document from the passed file path without adding it to the system.
+    /// </summary>
+    /// <param name="path">Path to import document from.</param>
+    /// <param name="associatePath">Should file path be associated with document.</param>
+    /// <returns>Imported DocumentViewModel or null if import failed.</returns>
+    public DocumentViewModel? ImportFromPath(string path, bool associatePath = true)
+    {
+        try
+        {
+            if (path.EndsWith(".pixi"))
+            {
+                return Importer.ImportDocument(path, associatePath);
+            }
+
+            if (IsCustomFormat(path))
+            {
+                return ImportCustomFormat(path, associatePath);
+            }
+
+            return ImportRegularImage(path, associatePath);
+        }
+        catch (RecoverableException ex)
+        {
+            NoticeDialog.Show(ex.DisplayMessage, "ERROR");
+        }
+        catch (OldFileFormatException)
+        {
+            NoticeDialog.Show("OLD_FILE_FORMAT_DESCRIPTION", "OLD_FILE_FORMAT");
+        }
+
+        return null;
+    }
+
     public LazyDocumentViewModel OpenFromPathLazy(string path, bool associatePath = true)
     {
         if (MakeExistingDocumentActiveIfOpened(path))
@@ -337,6 +371,36 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         catch (Exception ex)
         {
             NoticeDialog.Show("FAILED_TO_OPEN_FILE", "ERROR");
+            Console.WriteLine(ex);
+            CrashHelper.SendExceptionInfo(ex);
+        }
+
+        return null;
+    }
+
+    private DocumentViewModel? ImportCustomFormat(string path, bool associatePath)
+    {
+        IDocumentBuilder builder = documentBuilders.First(x =>
+            x.Extensions.Contains(Path.GetExtension(path), StringComparer.OrdinalIgnoreCase));
+
+        if (!File.Exists(path))
+        {
+            return null;
+        }
+
+        try
+        {
+            DocumentViewModel document = DocumentViewModel.Build(docBuilder => builder.Build(docBuilder, path));
+
+            if (associatePath)
+            {
+                document.FullFilePath = path;
+            }
+
+            return document;
+        }
+        catch (Exception ex)
+        {
             Console.WriteLine(ex);
             CrashHelper.SendExceptionInfo(ex);
         }
@@ -411,6 +475,45 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         }
 
         AddRecentlyOpened(path);
+
+        var fileExtension = Path.GetExtension(path);
+        var fileType = SupportedFilesHelper.ParseImageFormat(fileExtension);
+
+        if (fileType != null)
+        {
+            var fileSize = new FileInfo(path).Length;
+            Analytics.SendOpenFile(fileType, fileSize, doc.SizeBindable);
+        }
+        else
+        {
+            CrashHelper.SendExceptionInfo(new InvalidFileTypeException(default,
+                $"Invalid file type '{fileExtension}'"));
+        }
+
+        return doc;
+    }
+
+    private DocumentViewModel ImportRegularImage(string path, bool associatePath)
+    {
+        var image = Importer.ImportImage(path, VecI.NegativeOne);
+
+        if (image == null) return null;
+
+        var doc = DocumentViewModel.Build(b => b
+            .WithSize(image.Size)
+            .WithGraph(x => x
+                .WithImageLayerNode(
+                    new LocalizedString("IMAGE"),
+                    image,
+                    ColorSpace.CreateSrgbLinear(),
+                    out int id)
+                .WithOutputNode(id, "Output")
+            ));
+
+        if (associatePath)
+        {
+            doc.FullFilePath = path;
+        }
 
         var fileExtension = Path.GetExtension(path);
         var fileType = SupportedFilesHelper.ParseImageFormat(fileExtension);

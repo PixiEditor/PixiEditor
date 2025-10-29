@@ -349,7 +349,7 @@ internal static class ClipboardController
 
                 try
                 {
-                    DocumentViewModel importedDoc = Importer.ImportDocument(path);
+                    DocumentViewModel importedDoc = manager.Owner.FileSubViewModel.ImportFromPath(path);
                     if (importedDoc == null)
                     {
                         continue;
