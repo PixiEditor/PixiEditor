@@ -372,7 +372,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
             WindowSubViewModel.CloseViewportsForDocument(document);
             document.Dispose();
             document.AutosaveViewModel.OnDocumentClosed();
-            DocumentManagerSubViewModel.RemoveDocumentReferences(document.NodeGraph.AllNodes.Where(x => x is NestedDocumentNodeViewModel).Select(x => x.Id));
+            DocumentManagerSubViewModel.RemoveDocumentReferences(document.Id, document.NodeGraph.AllNodes.Where(x => x is NestedDocumentNodeViewModel).Select(x => x.Id));
 
             return true;
         }

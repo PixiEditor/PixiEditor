@@ -1,4 +1,6 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections;
+using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using Avalonia.Input;
 using Avalonia.Threading;
@@ -62,6 +64,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
     }
 
     public bool HasActiveDocument => ActiveDocument != null;
+    public ImmutableHashSet<DocumentReferenceData> DocumentReferences => documentReferences.ToImmutableHashSet();
 
     public event Action<DocumentViewModel> DocumentAdded;
 
@@ -84,7 +87,14 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
         Icon = PixiPerfectIcons.File, AnalyticsTrack = true)]
     public void OpenDocument(string path)
     {
-        Owner.FileSubViewModel.OpenFromPath(path);
+        if (Guid.TryParse(path, out Guid referenceId))
+        {
+            Owner.FileSubViewModel.OpenDocumentReference(referenceId);
+        }
+        else
+        {
+            Owner.FileSubViewModel.OpenFromPath(path);
+        }
     }
 
     [Command.Basic("PixiEditor.Document.ClipCanvas", "CLIP_CANVAS", "CLIP_CANVAS",
@@ -333,48 +343,54 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
         });
     }
 
-    public void AddDocumentReference(Guid nodeId, string? originalPath, Guid docReferenceId)
+    public void AddDocumentReference(Guid documentId, Guid nodeId, string? originalPath, Guid docReferenceId)
     {
         var existingReference = documentReferences.FirstOrDefault(x =>
-            x.OriginalPath == originalPath);
-        existingReference?.ReferencingNodes.Add(nodeId);
+            x.OriginalFilePath == originalPath);
+        if (existingReference != null)
+        {
+            existingReference.AddReferencingNode(documentId, nodeId);
+            return;
+        }
 
         if (existingReference == null)
         {
             var newReference = new DocumentReferenceData(originalPath, docReferenceId);
-            newReference.ReferencingNodes.Add(nodeId);
+            newReference.ReferencingNodes[documentId] = new HashSet<Guid> { nodeId };
             documentReferences.Add(newReference);
             newReference.DocumentChanged += OnDocumentReferenceDocumentChanged;
         }
     }
 
-    public void RemoveDocumentReferenceByNodeId(Guid infoNodeId)
+    public void RemoveDocumentReferenceByNodeId(Guid documentId, Guid infoNodeId)
     {
-        var reference = documentReferences.FirstOrDefault(x => x.ReferencingNodes.Contains(infoNodeId));
+        var reference = documentReferences.FirstOrDefault(x => x.ReferencingNodes.ContainsKey(documentId) &&
+                                                               x.ReferencingNodes[documentId].Contains(infoNodeId));
         if (reference != null)
         {
-            reference.ReferencingNodes.Remove(infoNodeId);
-            if (reference.ReferencingNodes.Count == 0)
+            reference.ReferencingNodes[documentId].Remove(infoNodeId);
+            if (reference.ReferencingNodes[documentId].Count == 0)
             {
+                reference.ReferencingNodes.Remove(documentId);
                 reference.Dispose();
                 documentReferences.Remove(reference);
             }
         }
     }
 
-    public void RemoveDocumentReferences(IEnumerable<Guid> ids)
+    public void RemoveDocumentReferences(Guid documentId, IEnumerable<Guid> ids)
     {
         foreach (var id in ids)
         {
-            RemoveDocumentReferenceByNodeId(id);
+            RemoveDocumentReferenceByNodeId(documentId, id);
         }
     }
 }
 
-class DocumentReferenceData : IDisposable
+public class DocumentReferenceData : IDisposable, IDocumentReferenceData
 {
-    public HashSet<Guid> ReferencingNodes { get; } = new HashSet<Guid>();
-    public string? OriginalPath { get; set; }
+    public Dictionary<Guid, HashSet<Guid>> ReferencingNodes { get; } = new();
+    public string? OriginalFilePath { get; set; }
     public Guid ReferenceId { get; set; }
 
     public FileSystemWatcher? Watcher { get; set; }
@@ -382,22 +398,44 @@ class DocumentReferenceData : IDisposable
     public event Action<Guid, string>? DocumentChanged;
 
 
-    public DocumentReferenceData(string? originalPath, Guid referenceId)
+    public DocumentReferenceData(string? originalFilePath, Guid referenceId)
     {
-        OriginalPath = originalPath;
+        OriginalFilePath = originalFilePath;
         ReferenceId = referenceId;
         TryCreateFileWatcher();
     }
 
+    public void AddReferencingNode(Guid document, Guid nodeId)
+    {
+        if (!ReferencingNodes.ContainsKey(document))
+        {
+            ReferencingNodes[document] = new HashSet<Guid>();
+        }
+
+        ReferencingNodes[document].Add(nodeId);
+    }
+
+    public void RemoveReferencingNode(Guid document, Guid nodeId)
+    {
+        if (ReferencingNodes.ContainsKey(document))
+        {
+            ReferencingNodes[document].Remove(nodeId);
+            if (ReferencingNodes[document].Count == 0)
+            {
+                ReferencingNodes.Remove(document);
+            }
+        }
+    }
+
     public void TryCreateFileWatcher()
     {
-        if (!string.IsNullOrEmpty(OriginalPath))
+        if (!string.IsNullOrEmpty(OriginalFilePath))
         {
             try
             {
-                var dirPath = System.IO.Path.GetDirectoryName(OriginalPath);
+                var dirPath = System.IO.Path.GetDirectoryName(OriginalFilePath);
                 Watcher = new FileSystemWatcher(dirPath);
-                Watcher.Filter = System.IO.Path.GetFileName(OriginalPath);
+                Watcher.Filter = System.IO.Path.GetFileName(OriginalFilePath);
 
                 Watcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName;
                 Watcher.IncludeSubdirectories = false;

@@ -7,6 +7,7 @@ using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Text;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
@@ -17,7 +18,9 @@ using PixiEditor.SVG;
 using PixiEditor.SVG.Elements;
 using PixiEditor.SVG.Enums;
 using PixiEditor.SVG.Exceptions;
+using PixiEditor.SVG.Units;
 using PixiEditor.UI.Common.Localization;
+using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Tools.Tools;
 
 namespace PixiEditor.Models.IO.CustomDocumentFormats;
@@ -36,6 +39,11 @@ internal class SvgDocumentBuilder : IDocumentBuilder
             throw new SvgParsingException("Failed to parse SVG document");
         }
 
+        Build(builder, document);
+    }
+
+    private void Build(DocumentViewModelBuilder builder, SvgDocument document)
+    {
         StyleContext styleContext = new(document);
 
         VecI size = new((int)document.ViewBox.Unit.Value.Value.Width, (int)document.ViewBox.Unit.Value.Value.Height);
@@ -63,6 +71,10 @@ internal class SvgDocumentBuilder : IDocumentBuilder
                     else if (element is SvgImage svgImage)
                     {
                         lastId = AddImage(svgImage, style, graph, lastId);
+                    }
+                    else if (element is SvgDocument nestedDocument)
+                    {
+                        lastId = AddNestedDocument(nestedDocument, graph, lastId, style);
                     }
                 }
 
@@ -243,6 +255,39 @@ internal class SvgDocumentBuilder : IDocumentBuilder
 
         lastId = id;
 
+        return lastId;
+    }
+
+    private int? AddNestedDocument(SvgDocument nestedDocument, NodeGraphBuilder graph, int? lastId, StyleContext style)
+    {
+        SvgDocumentBuilder nestedBuilder = new();
+
+        var matrix = style.Transform.Unit?.MatrixValue ?? Matrix3X3.Identity;
+        nestedDocument.Transform.Unit = new SvgTransformUnit(Matrix3X3.Identity);
+        DocumentViewModel docViewModel = DocumentViewModel.Build(b =>
+            nestedBuilder.Build(b, nestedDocument));
+
+        var graphBuilder = graph.WithNodeOfType<NestedDocumentNode>(out int id)
+            .WithName(nestedDocument.Id.Unit?.Value ?? new LocalizedString("NEW_LAYER"))
+            .WithInputValues(new Dictionary<string, object>()
+            {
+                { NestedDocumentNode.DocumentPropertyName, new DocumentReference(null, docViewModel.Id, docViewModel.AccessInternalReadOnlyDocument()) }
+            }).WithAdditionalData(new Dictionary<string, object>()
+            {
+                {"TransformationMatrix", matrix }
+            });
+
+        if (lastId != null)
+        {
+            graphBuilder.WithConnections([
+                new PropertyConnection()
+                {
+                    InputPropertyName = "Background", OutputPropertyName = "Output", OutputNodeId = lastId.Value
+                }
+            ]);
+        }
+
+        lastId = id;
         return lastId;
     }
 

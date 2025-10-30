@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using System.Collections;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using Avalonia.Threading;
 using ChunkyImageLib.DataHolders;
@@ -213,6 +214,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     ILineOverlayHandler IDocument.LineToolOverlayHandler => LineToolOverlayViewModel;
     IReferenceLayerHandler IDocument.ReferenceLayerHandler => ReferenceLayerViewModel;
     IAnimationHandler IDocument.AnimationHandler => AnimationDataViewModel;
+
     public bool UsesSrgbBlending { get; private set; }
     public AutosaveDocumentViewModel AutosaveViewModel { get; set; }
 

@@ -895,15 +895,14 @@ internal class DocumentUpdater
         if (info.Property == NestedDocumentNode.DocumentPropertyName)
         {
             string? path = null;
-            Guid? referenceId = null;
+            Guid referenceId = Guid.Empty;
             if (info.Value is DocumentReference doc)
             {
                 path = doc.OriginalFilePath;
                 referenceId = doc.ReferenceId;
             }
 
-            ProcessNestedDocumentLinkChangeInfo(new NestedDocumentLink_ChangeInfo(info.NodeId,
-                path, referenceId));
+            ProcessNestedDocumentLinkChangeInfo(new NestedDocumentLink_ChangeInfo(info.NodeId, path, referenceId));
         }
     }
 
@@ -1054,13 +1053,13 @@ internal class DocumentUpdater
         node.SetOriginalFilePath(info.OriginalFilePath);
         node.SetReferenceId(info.ReferenceId);
 
-        if (!info.ReferenceId.HasValue || info.ReferenceId.Value == Guid.Empty)
+        if (info.ReferenceId == Guid.Empty)
         {
-            ViewModelMain.Current.DocumentManagerSubViewModel.RemoveDocumentReferenceByNodeId(info.NodeId);
+            ViewModelMain.Current.DocumentManagerSubViewModel.RemoveDocumentReferenceByNodeId(doc.Id, info.NodeId);
         }
         else
         {
-            ViewModelMain.Current.DocumentManagerSubViewModel.AddDocumentReference(info.NodeId, info.OriginalFilePath, info.ReferenceId.Value);
+            ViewModelMain.Current.DocumentManagerSubViewModel.AddDocumentReference(doc.Id, info.NodeId, info.OriginalFilePath, info.ReferenceId);
         }
     }
 }

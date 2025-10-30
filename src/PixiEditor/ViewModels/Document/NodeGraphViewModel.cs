@@ -14,6 +14,8 @@ using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
+using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
+using PixiEditor.ChangeableDocument.Changes.NodeGraph;
 using PixiEditor.ViewModels.Document.Blackboard;
 using PixiEditor.ViewModels.Nodes;
 
@@ -53,50 +55,21 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
     {
         foreach (var node in nodeGraph.AllNodes)
         {
-            Internals.Updater.ApplyChangeFromChangeInfo(new CreateNode_ChangeInfo(
-                node.GetNodeTypeUniqueName(),
-                node.DisplayName,
-                node.Position,
-                node.Id,
-                CreatePropertyInfos(node.InputProperties),
-                CreatePropertyInfos(node.OutputProperties),
-                new NodeMetadata(node) { PairNodeGuid = node is IPairNode pairNode ? pairNode.OtherNode : null }
-            ));
+            Internals.Updater.ApplyChangeFromChangeInfo(CreateNode_ChangeInfo.CreateFromNode(node));
+
+            foreach (var inputProperty in node.InputProperties)
+            {
+                Internals.Updater.ApplyChangeFromChangeInfo(
+                    new ConnectProperty_ChangeInfo(
+                        inputProperty.Connection?.Node.Id,
+                        inputProperty.Node.Id,
+                        inputProperty.Connection?.InternalPropertyName,
+                        inputProperty.InternalPropertyName));
+            }
+
+            Internals.Updater.ApplyChangeFromChangeInfo(new NodePosition_ChangeInfo(node.Id, node.Position));
         }
     }
-
-    private static ImmutableArray<NodePropertyInfo> CreatePropertyInfos(IEnumerable<IInputProperty> properties)
-    {
-        List<NodePropertyInfo> inputInfos = new();
-        foreach (var prop in properties)
-        {
-            inputInfos.Add(new NodePropertyInfo(
-                prop.InternalPropertyName,
-                prop.DisplayName,
-                prop.ValueType,
-                true,
-                prop.Value, prop.Node.Id));
-        }
-
-        return [..inputInfos];
-    }
-
-    private static ImmutableArray<NodePropertyInfo> CreatePropertyInfos(IEnumerable<IOutputProperty> properties)
-    {
-        List<NodePropertyInfo> inputInfos = new();
-        foreach (var prop in properties)
-        {
-            inputInfos.Add(new NodePropertyInfo(
-                prop.InternalPropertyName,
-                prop.DisplayName,
-                prop.ValueType,
-                false,
-                prop.Value, prop.Node.Id));
-        }
-
-        return [..inputInfos];
-    }
-
 
     public void AddNode(INodeHandler node)
     {

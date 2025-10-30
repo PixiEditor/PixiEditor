@@ -53,7 +53,7 @@ internal class NestedDocumentNodeViewModel :
     public Type? QuickEditTool => typeof(MoveToolViewModel);
 
     public bool IsLinked => _linkedDocumentPath != null || (referenceId != null && referenceId != Guid.Empty);
-    public string? LinkedDocumentPath => _linkedDocumentPath;
+    public string? LinkedDocumentPath => _linkedDocumentPath ?? referenceId?.ToString();
 
     public void SetOriginalFilePath(string? infoOriginalFilePath)
     {
@@ -66,5 +66,6 @@ internal class NestedDocumentNodeViewModel :
     {
         referenceId = infoReferenceId;
         OnPropertyChanged(nameof(IsLinked));
+        OnPropertyChanged(nameof(LinkedDocumentPath));
     }
 }

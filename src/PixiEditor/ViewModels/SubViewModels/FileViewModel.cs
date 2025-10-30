@@ -19,6 +19,8 @@ using PixiEditor.Models.IO;
 using PixiEditor.Models.UserData;
 using Drawie.Numerics;
 using Microsoft.Extensions.DependencyInjection;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.Extensions.CommonApi.Documents;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Models.DocumentModels.Autosave;
@@ -249,7 +251,8 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         foreach (DocumentViewModel document in Owner.DocumentManagerSubViewModel.Documents)
         {
             if (document.FullFilePath is not null &&
-                System.IO.Path.GetFullPath(document.FullFilePath) == System.IO.Path.GetFullPath(path))
+                path is not null &&
+                System.IO.Path.GetFullPath(document.FullFilePath) == Path.GetFullPath(path))
             {
                 Owner.WindowSubViewModel.MakeDocumentViewportActive(document);
                 return true;
@@ -259,11 +262,72 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         return false;
     }
 
+    public void OpenDocumentReference(Guid referenceId)
+    {
+        if (Guid.Empty == referenceId)
+            return;
+
+        foreach (DocumentViewModel document in Owner.DocumentManagerSubViewModel.Documents)
+        {
+            if (document.Id == referenceId)
+            {
+                Owner.WindowSubViewModel.MakeDocumentViewportActive(document);
+                return;
+            }
+        }
+
+        foreach (var nestedDocument in Owner.DocumentManagerSubViewModel.DocumentReferences)
+        {
+            if (nestedDocument.ReferenceId == referenceId)
+            {
+                IReadOnlyDocument nestedDoc = null;
+                foreach (var referenceData in nestedDocument.ReferencingNodes)
+                {
+                    nestedDoc = TryGetNestedDocument(referenceData.Key, referenceData.Value);
+                    if (nestedDoc  != null)
+                        break;
+                }
+
+                if (nestedDoc != null)
+                {
+                    DocumentViewModel vm = new DocumentViewModel(nestedDoc);
+                    AddDocumentViewModelToTheSystem(vm);
+                }
+
+                return;
+            }
+        }
+    }
+
+    private IReadOnlyDocument? TryGetNestedDocument(Guid documentId, HashSet<Guid> nodeIds)
+    {
+        foreach (var document in Owner.DocumentManagerSubViewModel.Documents)
+        {
+            if (document.Id == documentId)
+            {
+                foreach (var nodeId in nodeIds)
+                {
+                    var node = document.AccessInternalReadOnlyDocument().FindNode(nodeId) as NestedDocumentNode;
+                    var nestedDoc = node?.NestedDocument.Value?.DocumentInstance;
+                    if (nestedDoc != null)
+                    {
+                        return nestedDoc;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
     /// <summary>
     /// Tries to open the passed file if it isn't already open
     /// </summary>
     public DocumentViewModel OpenFromPath(string path, bool associatePath = true)
     {
+        if (path == null)
+            return null;
+
         if (MakeExistingDocumentActiveIfOpened(path))
             return null;
 
