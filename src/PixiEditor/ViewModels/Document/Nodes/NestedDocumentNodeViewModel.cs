@@ -9,7 +9,7 @@ using PixiEditor.ViewModels.Tools.Tools;
 
 namespace PixiEditor.ViewModels.Document.Nodes;
 
-[NodeViewModel("NESTED_DOCUMENT", null, null)]
+[NodeViewModel("NESTED_DOCUMENT", "STRUCTURE", PixiPerfectIcons.File)]
 internal class NestedDocumentNodeViewModel :
     StructureMemberViewModel<ChangeableDocument.Changeables.Graph.Nodes.NestedDocumentNode>, ILayerHandler
 {

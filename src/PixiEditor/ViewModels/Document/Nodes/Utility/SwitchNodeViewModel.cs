@@ -3,5 +3,5 @@ using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document.Nodes.Utility;
 
-[NodeViewModel("SWITCH_NODE", "UTILITY", null)]
+[NodeViewModel("SWITCH_NODE", "UTILITY", PixiPerfectIcons.EthernetPort)]
 internal class SwitchNodeViewModel : NodeViewModel<SwitchNode>;

@@ -3,7 +3,7 @@ using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document.Nodes.Brushes;
 
-[NodeViewModel("BRUSH_OUTPUT_NODE", "BRUSHES", null)]
+[NodeViewModel("BRUSH_OUTPUT_NODE", "BRUSHES", PixiPerfectIcons.PaintBrush)]
 internal class BrushOutputNodeViewModel : NodeViewModel<BrushOutputNode>
 {
     public override void OnInitialized()

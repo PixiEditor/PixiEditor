@@ -246,7 +246,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
 
     [Command.Basic("PixiEditor.Layer.UnlinkNestedDocument", "UNLINK", "UNLINK_DESCRIPTIVE",
         CanExecute = "PixiEditor.Layer.SelectedMemberIsNestedDocument",
-        Icon = PixiPerfectIcons.Link, AnalyticsTrack = true)]
+        Icon = PixiPerfectIcons.ChainBreak, AnalyticsTrack = true)]
     public void UnlinkNestedDocument()
     {
         var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;

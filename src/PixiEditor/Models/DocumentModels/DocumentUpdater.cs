@@ -733,7 +733,7 @@ internal class DocumentUpdater
         viewModel.Metadata = info.Metadata;
 
         AddZoneIfNeeded(info, viewModel);
-        LinkNestedDocumentIfNeeded(info, viewModel);
+        LinkNestedDocumentIfNeeded(info);
 
         viewModel.OnInitialized();
     }
@@ -1048,7 +1048,7 @@ internal class DocumentUpdater
         doc.NodeGraphHandler.Blackboard.RemoveVariableInternal(info.VariableName);
     }
 
-    private void LinkNestedDocumentIfNeeded(CreateNode_ChangeInfo info, NodeViewModel node)
+    private void LinkNestedDocumentIfNeeded(CreateNode_ChangeInfo info)
     {
         if (info.InternalName != "PixiEditor." + NestedDocumentNode.NodeId) return;
 

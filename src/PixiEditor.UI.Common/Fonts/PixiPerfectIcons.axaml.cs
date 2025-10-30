@@ -19,6 +19,7 @@ public static partial class PixiPerfectIcons
     public const string CanvasResize = "\uE92A";
     public const string Center = "\uE92B";
     public const string Chain = "\uE990";
+    public const string ChainBreak = "\uE9D4";
     public const string Check = "\uE98A";
     public const string CheckTick = "\uE97E";
     public const string ChevronDown = "\uE92C";
@@ -61,6 +62,7 @@ public static partial class PixiPerfectIcons
     public const string DuplicateImage = "\uE907";
     public const string Edit = "\uE942";
     public const string Eraser = "\uE96D";
+    public const string EthernetPort = "\uE9D5";
     public const string Exit = "\uE943";
     public const string Eye = "\uE945";
     public const string EyeOff = "\uE944";
@@ -95,6 +97,7 @@ public static partial class PixiPerfectIcons
     public const string Italic = "\uE9AF";
     public const string ItemSlot = "\uE90C";
     public const string ItemSlotOut = "\uE917";
+    public const string Keyboard = "\uE9D2";
     public const string Lasso = "\uE958";
     public const string Layers = "\uE959";
     public const string LayersBottom = "\uE96A";
@@ -104,7 +107,9 @@ public static partial class PixiPerfectIcons
     public const string LetterSpacing = "\uE9B2";
     public const string Line = "\uE95A";
     public const string LineHeight = "\uE9B3";
+    public const string LineSquiggle = "\uE9D0";
     public const string Link = "\uE98B";
+    public const string Link1 = "\uE9D3";
     public const string LinkedPipette = "\uE9B7";
     public const string Lock = "\uE95B";
     public const string LogOut = "\uE95C";
@@ -121,6 +126,7 @@ public static partial class PixiPerfectIcons
     public const string Minimize = "\uE95E";
     public const string MirrorHorizontal = "\uE97F";
     public const string MirrorVertical = "\uE97C";
+    public const string Mouse = "\uE9D1";
     public const string MousePointer = "\uE960";
     public const string MoveView = "\uE962";
     public const string NewMask = "\uE963";

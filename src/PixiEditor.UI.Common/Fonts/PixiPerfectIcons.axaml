@@ -23,6 +23,7 @@
             <system:String x:Key="icon-canvas-resize">&#xE92A;</system:String>
             <system:String x:Key="icon-center">&#xE92B;</system:String>
             <system:String x:Key="icon-chain">&#xE990;</system:String>
+            <system:String x:Key="icon-chain-break">&#xE9D4;</system:String>
             <system:String x:Key="icon-check">&#xE98A;</system:String>
             <system:String x:Key="icon-check-tick">&#xE97E;</system:String>
             <system:String x:Key="icon-chevron-down">&#xE92C;</system:String>
@@ -65,6 +66,7 @@
             <system:String x:Key="icon-duplicate-image">&#xE907;</system:String>
             <system:String x:Key="icon-edit">&#xE942;</system:String>
             <system:String x:Key="icon-eraser">&#xE96D;</system:String>
+            <system:String x:Key="icon-ethernet-port">&#xE9D5;</system:String>
             <system:String x:Key="icon-exit">&#xE943;</system:String>
             <system:String x:Key="icon-eye">&#xE945;</system:String>
             <system:String x:Key="icon-eye-off">&#xE944;</system:String>
@@ -99,6 +101,7 @@
             <system:String x:Key="icon-italic">&#xE9AF;</system:String>
             <system:String x:Key="icon-item-slot">&#xE90C;</system:String>
             <system:String x:Key="icon-item-slot-out">&#xE917;</system:String>
+            <system:String x:Key="icon-keyboard">&#xE9D2;</system:String>
             <system:String x:Key="icon-lasso">&#xE958;</system:String>
             <system:String x:Key="icon-layers">&#xE959;</system:String>
             <system:String x:Key="icon-layers-bottom">&#xE96A;</system:String>
@@ -108,7 +111,9 @@
             <system:String x:Key="icon-letter-spacing">&#xE9B2;</system:String>
             <system:String x:Key="icon-line">&#xE95A;</system:String>
             <system:String x:Key="icon-line-height">&#xE9B3;</system:String>
+            <system:String x:Key="icon-line-squiggle">&#xE9D0;</system:String>
             <system:String x:Key="icon-link">&#xE98B;</system:String>
+            <system:String x:Key="icon-link1">&#xE9D3;</system:String>
             <system:String x:Key="icon-linked-pipette">&#xE9B7;</system:String>
             <system:String x:Key="icon-lock">&#xE95B;</system:String>
             <system:String x:Key="icon-log-out">&#xE95C;</system:String>
@@ -125,6 +130,7 @@
             <system:String x:Key="icon-minimize">&#xE95E;</system:String>
             <system:String x:Key="icon-mirror-horizontal">&#xE97F;</system:String>
             <system:String x:Key="icon-mirror-vertical">&#xE97C;</system:String>
+            <system:String x:Key="icon-mouse">&#xE9D1;</system:String>
             <system:String x:Key="icon-mouse-pointer">&#xE960;</system:String>
             <system:String x:Key="icon-move-view">&#xE962;</system:String>
             <system:String x:Key="icon-new-mask">&#xE963;</system:String>
