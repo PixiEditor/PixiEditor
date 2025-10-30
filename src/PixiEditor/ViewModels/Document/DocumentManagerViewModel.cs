@@ -385,6 +385,23 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
             RemoveDocumentReferenceByNodeId(documentId, id);
         }
     }
+
+    public void ReloadReference(DocumentViewModel document)
+    {
+        var references = documentReferences.ToList();
+        foreach (var reference in references)
+        {
+            if (reference.ReferenceId == document.Id)
+            {
+                var docs = reference.ReferencingNodes.Keys;
+                foreach (var doc in docs)
+                {
+                    var documentVm = Documents.FirstOrDefault(x => x.Id == doc);
+                    documentVm?.UpdateDocumentReferences(reference.ReferenceId, document);
+                }
+            }
+        }
+    }
 }
 
 public class DocumentReferenceData : IDisposable, IDocumentReferenceData

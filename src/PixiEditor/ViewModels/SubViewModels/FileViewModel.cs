@@ -284,13 +284,14 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                 foreach (var referenceData in nestedDocument.ReferencingNodes)
                 {
                     nestedDoc = TryGetNestedDocument(referenceData.Key, referenceData.Value);
-                    if (nestedDoc  != null)
+                    if (nestedDoc != null)
                         break;
                 }
 
+
                 if (nestedDoc != null)
                 {
-                    DocumentViewModel vm = new DocumentViewModel(nestedDoc);
+                    DocumentViewModel vm = new DocumentViewModel(nestedDoc.Clone(true), true);
                     AddDocumentViewModelToTheSystem(vm);
                 }
 
@@ -737,36 +738,61 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
     public async Task<bool> SaveDocument(DocumentViewModel document, bool asNew)
     {
-        string finalPath = null;
-        if (asNew || string.IsNullOrEmpty(document.FullFilePath))
+        if (document.IsNestedDocument)
         {
-            ExportConfig config = new ExportConfig(document.SizeBindable);
-            var result = await Exporter.TrySaveWithDialog(document, config, null);
-            if (result.Result.ResultType == SaveResultType.Cancelled)
-                return false;
-            if (result.Result.ResultType != SaveResultType.Success)
+            if (asNew)
             {
-                ShowSaveError(result.Result);
-                return false;
+                ExportConfig config = new ExportConfig(document.SizeBindable);
+                var result = await Exporter.TrySaveWithDialog(document, config, null);
+                if (result.Result.ResultType == SaveResultType.Cancelled)
+                    return false;
+                if (result.Result.ResultType != SaveResultType.Success)
+                {
+                    ShowSaveError(result.Result);
+                    return false;
+                }
+
+                document.FullFilePath = result.Path;
+                document.IsNestedDocument = false;
+                AddRecentlyOpened(result.Path);
             }
 
-            finalPath = result.Path;
-            AddRecentlyOpened(result.Path);
+            Owner.DocumentManagerSubViewModel.ReloadReference(document);
         }
         else
         {
-            ExportConfig config = new ExportConfig(document.SizeBindable);
-            var result = await Exporter.TrySaveAsync(document, document.FullFilePath, config, null);
-            if (result.ResultType != SaveResultType.Success)
+            string finalPath = null;
+            if (asNew || (string.IsNullOrEmpty(document.FullFilePath)))
             {
-                ShowSaveError(result);
-                return false;
+                ExportConfig config = new ExportConfig(document.SizeBindable);
+                var result = await Exporter.TrySaveWithDialog(document, config, null);
+                if (result.Result.ResultType == SaveResultType.Cancelled)
+                    return false;
+                if (result.Result.ResultType != SaveResultType.Success)
+                {
+                    ShowSaveError(result.Result);
+                    return false;
+                }
+
+                finalPath = result.Path;
+                AddRecentlyOpened(result.Path);
+            }
+            else
+            {
+                ExportConfig config = new ExportConfig(document.SizeBindable);
+                var result = await Exporter.TrySaveAsync(document, document.FullFilePath, config, null);
+                if (result.ResultType != SaveResultType.Success)
+                {
+                    ShowSaveError(result);
+                    return false;
+                }
+
+                finalPath = document.FullFilePath;
             }
 
-            finalPath = document.FullFilePath;
+            document.FullFilePath = finalPath;
         }
 
-        document.FullFilePath = finalPath;
         document.MarkAsSaved();
         return true;
     }

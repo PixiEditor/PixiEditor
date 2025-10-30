@@ -142,6 +142,12 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public bool AnySymmetryAxisEnabledBindable =>
         HorizontalSymmetryAxisEnabledBindable || VerticalSymmetryAxisEnabledBindable;
 
+    
+    public bool IsNestedDocument
+    {
+        get => isNestedDocument;
+        set => SetProperty(ref isNestedDocument, value);
+    }
 
     public bool OverlayEventsSuppressed => overlaySuppressors.Count > 0;
 
@@ -203,9 +209,9 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public LineToolOverlayViewModel LineToolOverlayViewModel { get; set; }
     public AnimationDataViewModel AnimationDataViewModel { get; set; }
     public TextOverlayViewModel TextOverlayViewModel { get; set; }
-
-    public IReadOnlyCollection<IStructureMemberHandler> SoftSelectedStructureMembers => softSelectedStructureMembers;
     private DocumentInternalParts Internals { get; }
+    public AutosaveDocumentViewModel AutosaveViewModel { get; set; }
+    public IReadOnlyCollection<IStructureMemberHandler> SoftSelectedStructureMembers => softSelectedStructureMembers;
     INodeGraphHandler IDocument.NodeGraphHandler => NodeGraph;
     IDocumentOperations IDocument.Operations => Operations;
     ITransformHandler IDocument.TransformHandler => TransformViewModel;
@@ -216,9 +222,9 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     IAnimationHandler IDocument.AnimationHandler => AnimationDataViewModel;
 
     public bool UsesSrgbBlending { get; private set; }
-    public AutosaveDocumentViewModel AutosaveViewModel { get; set; }
 
     private bool isDisposed = false;
+    private bool isNestedDocument = false;
 
     private DocumentViewModel()
     {
@@ -227,7 +233,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         InitializeViewModel();
     }
 
-    internal DocumentViewModel(IReadOnlyDocument document)
+    internal DocumentViewModel(IReadOnlyDocument document, bool isNested)
     {
         var serviceProvider = ViewModelMain.Current.Services;
         Internals = new DocumentInternalParts(this, serviceProvider, document);
@@ -245,6 +251,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         ReferenceLayerViewModel.InitFrom(document.ReferenceLayer);
         UpdateSelectionPath(new VectorPath(document.Selection.SelectionPath));
         NodeGraph.StructureTree.Update(NodeGraph);
+
+        IsNestedDocument = isNested;
     }
 
     private void InitializeViewModel()
@@ -1439,7 +1447,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             Internals.ActionAccumulator.AddActions(new UpdatePropertyValue_Action(node.Id,
                     NestedDocumentNode.DocumentPropertyName,
                     new DocumentReference(newDoc.FullFilePath, referenceId,
-                        newDoc.AccessInternalReadOnlyDocument().Clone())),
+                        newDoc.AccessInternalReadOnlyDocument().Clone(true))),
                 new EndUpdatePropertyValue_Action());
         }
     }

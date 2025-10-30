@@ -1204,5 +1204,7 @@
   "GRAPH": "Graph",
   "BRUSH": "Brush",
   "UNLINK": "Unlink",
-  "UNLINK_DESCRIPTIVE": "Unlink this layer from the original document"
+  "UNLINK_DESCRIPTIVE": "Unlink this layer from the original document",
+  "CANNOT_SAVE_NESTED_DOCUMENT_PARENT_CLOSED": "Cannot save nested document because the parent document is not open.",
+  "NESTED_DOCUMENT": "Nested Document",
 }

@@ -16,7 +16,7 @@ namespace PixiEditor.ChangeableDocument.Changeables;
 
 internal class Document : IChangeable, IReadOnlyDocument
 {
-    public Guid DocumentId { get; } = Guid.NewGuid();
+    public Guid DocumentId { get; private set; } = Guid.NewGuid();
     IReadOnlyNodeGraph IReadOnlyDocument.NodeGraph => NodeGraph;
     IReadOnlySelection IReadOnlyDocument.Selection => Selection;
     IReadOnlyAnimationData IReadOnlyDocument.AnimationData => AnimationData;
@@ -180,7 +180,7 @@ internal class Document : IChangeable, IReadOnlyDocument
         return new DocumentGraphPipe(this);
     }
 
-    public IReadOnlyDocument Clone()
+    public IReadOnlyDocument Clone(bool preserveDocumentId = false)
     {
         var clone = new Document
         {
@@ -195,6 +195,11 @@ internal class Document : IChangeable, IReadOnlyDocument
             AnimationData = AnimationData?.Clone() as AnimationData,
             Selection = Selection != null ? new Selection() { SelectionPath = Selection.SelectionPath != null ? new VectorPath(Selection.SelectionPath) : null } : null
         };
+
+        if (preserveDocumentId)
+        {
+            clone.DocumentId = DocumentId;
+        }
 
         return clone;
     }

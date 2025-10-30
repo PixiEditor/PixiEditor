@@ -14,6 +14,7 @@ using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
+using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph.Blackboard;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Changes.NodeGraph;
 using PixiEditor.ViewModels.Document.Blackboard;
@@ -68,6 +69,15 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
             }
 
             Internals.Updater.ApplyChangeFromChangeInfo(new NodePosition_ChangeInfo(node.Id, node.Position));
+        }
+
+        foreach (var var in nodeGraph.Blackboard.Variables)
+        {
+            Internals.Updater.ApplyChangeFromChangeInfo(
+                new BlackboardVariable_ChangeInfo(var.Value.Name, var.Value.Type, var.Value.Value,
+                    var.Value.Min ?? double.MinValue,
+                    var.Value.Max ?? double.MaxValue,
+                    var.Value.Unit));
         }
     }
 

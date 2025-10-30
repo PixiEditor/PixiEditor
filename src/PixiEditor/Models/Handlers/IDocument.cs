@@ -79,4 +79,5 @@ internal interface IDocument : IHandler, Extensions.CommonApi.Documents.IDocumen
     public ICrossDocumentPipe<T> ShareNode<T>(Guid layerId) where T : class, IReadOnlyNode;
     public ICrossDocumentPipe<IReadOnlyNodeGraph> ShareGraph();
     public IReadOnlyDocument AccessInternalReadOnlyDocument();
+    public bool IsNestedDocument { get; }
 }
