@@ -99,6 +99,10 @@ internal class ActionAccumulator
                 queuedActions = new();
 
                 List<IChangeInfo?> changes;
+
+                if (internals.Tracker.IsDisposed)
+                    return;
+
                 bool allPassthrough = AreAllPassthrough(toExecute);
                 if (allPassthrough)
                 {
@@ -160,6 +164,9 @@ internal class ActionAccumulator
                     .SelectMany(x => x).ToList();
 
                 bool immediateRender = affectedAreas.MainImageArea.Chunks.Count > 0;
+
+                if(internals.Tracker.IsDisposed)
+                    return;
 
                 await document.SceneRenderer.RenderAsync(internals.State.Viewports, affectedAreas.MainImageArea,
                     !previewsDisabled && updateDelayed, previewTextures, immediateRender);

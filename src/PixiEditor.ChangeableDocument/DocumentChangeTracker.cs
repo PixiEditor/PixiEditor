@@ -29,6 +29,8 @@ public class DocumentChangeTracker : IDisposable
         }
     }
 
+    public bool IsDisposed => disposed;
+
     private UpdateableChange? activeUpdateableChange = null;
     private List<(ActionSource source, Change change)>? activePacket = null;
 
