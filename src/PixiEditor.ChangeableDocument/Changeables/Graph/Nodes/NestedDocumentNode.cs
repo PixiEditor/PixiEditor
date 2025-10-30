@@ -14,11 +14,12 @@ using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
-[NodeInfo("NestedDocument")]
+[NodeInfo(NodeId)]
 public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransformableObject, IRasterizable,
     IVariableSampling
 {
     public const string DocumentPropertyName = "Document";
+    public const string NodeId = "NestedDocument";
     private DocumentReference? lastDocument;
     public InputProperty<DocumentReference> NestedDocument { get; }
 
