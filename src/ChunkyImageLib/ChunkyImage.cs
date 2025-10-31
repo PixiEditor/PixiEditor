@@ -1578,7 +1578,8 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
             newChunk.Surface.DrawingSurface.Canvas.Save();
             newChunk.Surface.DrawingSurface.Canvas.Scale((float)resolution.Multiplier());
 
-            newChunk.Surface.DrawingSurface.Canvas.DrawSurface(existingFullResChunk.Surface.DrawingSurface, 0, 0,
+            using var snapshot = existingFullResChunk.Surface.DrawingSurface.Snapshot();
+            newChunk.Surface.DrawingSurface.Canvas.DrawImage(snapshot, 0, 0, SamplingOptions.Bilinear,
                 SmoothReplacingPaint);
             newChunk.Surface.DrawingSurface.Canvas.Restore();
             committedChunks[resolution][chunkPos] = newChunk;

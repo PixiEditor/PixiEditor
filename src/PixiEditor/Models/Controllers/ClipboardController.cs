@@ -355,7 +355,8 @@ internal static class ClipboardController
                         continue;
                     }
 
-                    Guid? guid = document.Operations.CreateStructureMember(StructureMemberType.Document, Path.GetFileNameWithoutExtension(importedDoc.FileName));
+                    Guid? guid = document.Operations.CreateStructureMember(StructureMemberType.Document,
+                        Path.GetFileNameWithoutExtension(importedDoc.FileName));
 
                     if (guid == null)
                     {
@@ -720,6 +721,11 @@ internal static class ClipboardController
             if (format == DataFormat.File)
             {
                 var files = await ClipboardController.Clipboard.GetFilesAsync();
+                if (files == null)
+                {
+                    continue;
+                }
+
                 foreach (var file in files)
                 {
                     try

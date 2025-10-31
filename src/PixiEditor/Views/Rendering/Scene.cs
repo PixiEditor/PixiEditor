@@ -398,8 +398,17 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
 
             texture.Canvas.Save();
+            var sampling = CalculateSampling();
+            if (sampling == SamplingOptions.Default)
+            {
+                texture.Canvas.DrawSurface(target, 0, 0);
+            }
+            else
+            {
+                using var snapshot = target.Snapshot();
+                texture.Canvas.DrawImage(snapshot, 0, 0, sampling);
+            }
 
-            texture.Canvas.DrawSurface(target, 0, 0);
             if (hasSaved)
             {
                 texture.Canvas.RestoreToCount(saved);
