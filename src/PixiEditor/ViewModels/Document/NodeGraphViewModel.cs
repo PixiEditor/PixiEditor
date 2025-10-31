@@ -57,7 +57,11 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
         foreach (var node in nodeGraph.AllNodes)
         {
             Internals.Updater.ApplyChangeFromChangeInfo(CreateNode_ChangeInfo.CreateFromNode(node));
+            Internals.Updater.ApplyChangeFromChangeInfo(new NodePosition_ChangeInfo(node.Id, node.Position));
+        }
 
+        foreach (var node in nodeGraph.AllNodes)
+        {
             foreach (var inputProperty in node.InputProperties)
             {
                 Internals.Updater.ApplyChangeFromChangeInfo(
@@ -67,8 +71,6 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
                         inputProperty.Connection?.InternalPropertyName,
                         inputProperty.InternalPropertyName));
             }
-
-            Internals.Updater.ApplyChangeFromChangeInfo(new NodePosition_ChangeInfo(node.Id, node.Position));
         }
 
         foreach (var var in nodeGraph.Blackboard.Variables)

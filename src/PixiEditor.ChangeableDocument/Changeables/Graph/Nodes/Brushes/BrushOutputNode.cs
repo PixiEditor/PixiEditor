@@ -34,12 +34,13 @@ public class BrushOutputNode : Node
     public InputProperty<Drawie.Backend.Core.Surfaces.BlendMode> ImageBlendMode { get; }
     public InputProperty<Matrix3X3> Transform { get; }
     public InputProperty<float> Pressure { get; }
+    public InputProperty<float> Spacing { get; }
     public InputProperty<bool> FitToStrokeSize { get; }
     public InputProperty<bool> AutoPosition { get; }
     public InputProperty<bool> AllowSampleStacking { get; }
     public InputProperty<bool> AlwaysClear { get; }
     public InputProperty<bool> SnapToPixels { get; }
-    
+
     public InputProperty<IReadOnlyNodeGraph> Previous { get; }
 
     internal Texture ContentTexture;
@@ -70,6 +71,7 @@ public class BrushOutputNode : Node
             Drawie.Backend.Core.Surfaces.BlendMode.SrcOver);
 
         Pressure = CreateInput<float>("Pressure", "PRESSURE", 1f);
+        Spacing = CreateInput<float>("Spacing", "SPACING", 0);
         FitToStrokeSize = CreateInput<bool>(FitToStrokeSizeProperty, "FIT_TO_STROKE_SIZE", true);
         AutoPosition = CreateInput<bool>("AutoPosition", "AUTO_POSITION", true);
         AllowSampleStacking = CreateInput<bool>("AllowSampleStacking", "ALLOW_SAMPLE_STACKING", false);
@@ -152,7 +154,7 @@ public class BrushOutputNode : Node
             pos = new VecI(x, maxSize);
 
             previewEngine.ExecuteBrush(previewChunkyImage,
-                new BrushData(context.Graph) { StrokeWidth = size, AntiAliasing = true, Spacing = 0 },
+                new BrushData(context.Graph) { StrokeWidth = size, AntiAliasing = true },
                 (VecI)pos, context.FrameTime, context.ProcessingColorSpace, context.DesiredSamplingOptions,
                 new PointerInfo(pos, 1, 0, VecD.Zero, new VecD(0, 1)),
                 new KeyboardInfo(),
@@ -167,7 +169,7 @@ public class BrushOutputNode : Node
             pos = new VecD(pos.X, pos.Y + maxSize / 2f);
 
             previewEngine.ExecuteBrush(previewChunkyImage,
-                new BrushData(context.Graph) { StrokeWidth = maxSize, AntiAliasing = true, Spacing = 0.15f },
+                new BrushData(context.Graph) { StrokeWidth = maxSize, AntiAliasing = true },
                 [(VecI)pos], context.FrameTime, context.ProcessingColorSpace, context.DesiredSamplingOptions,
                 new PointerInfo(pos, pressure, 0, VecD.Zero, vec4D.ZW),
                 new KeyboardInfo(),

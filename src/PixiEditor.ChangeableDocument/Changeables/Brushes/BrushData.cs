@@ -7,7 +7,6 @@ public struct BrushData
 {
     public IReadOnlyNodeGraph BrushGraph { get; set; }
     public bool AntiAliasing { get; set; }
-    public float Spacing { get; set; }
     public float StrokeWidth { get; set; }
 
 

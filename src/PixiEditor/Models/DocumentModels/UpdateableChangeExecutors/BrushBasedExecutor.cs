@@ -56,7 +56,6 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
 
     protected bool drawOnMask;
     public double ToolSize => BrushToolbar.ToolSize;
-    public float Spacing => BrushToolbar.Spacing;
 
     public override bool BlocksOtherActions => controller.LeftMousePressed;
 
@@ -107,7 +106,7 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
     protected virtual void EnqueueDrawActions()
     {
         IAction? action = new LineBasedPen_Action(layerId, GetStabilizedPoint(), (float)ToolSize,
-            antiAliasing, Spacing, BrushData, drawOnMask,
+            antiAliasing, BrushData, drawOnMask,
             document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo, controller.LastKeyboardInfo,
             controller.EditorData);
 
@@ -157,7 +156,7 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
         var pipe = toolbar.Brush.Document.ShareGraph();
         var data = new BrushData(pipe.TryAccessData())
         {
-            Spacing = toolbar.Spacing, AntiAliasing = toolbar.AntiAliasing, StrokeWidth = (float)toolbar.ToolSize
+            AntiAliasing = toolbar.AntiAliasing, StrokeWidth = (float)toolbar.ToolSize
         };
         pipe.Dispose();
         return data;
@@ -213,9 +212,7 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
             UpdateBrushNodes();
         }
 
-        if (name == nameof(IBrushToolbar.ToolSize) ||
-            name == nameof(IBrushToolbar.Spacing) ||
-            name == nameof(IBrushToolbar.AntiAliasing))
+        if (name is nameof(IBrushToolbar.ToolSize) or nameof(IBrushToolbar.AntiAliasing))
         {
             brushData = GetBrushFromToolbar(BrushToolbar);
         }

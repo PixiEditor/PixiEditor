@@ -46,7 +46,7 @@ internal class PenToolExecutor : BrushBasedExecutor<IPenToolHandler>
         IAction? action = pixelPerfect switch
         {
             false => new LineBasedPen_Action(layerId, GetStabilizedPoint(), (float)ToolSize,
-                antiAliasing, Spacing, BrushData, drawOnMask,
+                antiAliasing, BrushData, drawOnMask,
                 document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo, controller.LastKeyboardInfo, controller.EditorData),
             true => new PixelPerfectPen_Action(layerId, controller!.LastPixelPosition, color, drawOnMask,
                 document!.AnimationHandler.ActiveFrameBindable)

@@ -25,4 +25,21 @@ public class BrushRenderContext : RenderContext
         TargetSampledTexture = targetSampledTexture;
         TargetFullTexture = targetFullTexture;
     }
+
+    public override RenderContext Clone()
+    {
+        return new BrushRenderContext(RenderSurface, FrameTime, ChunkResolution, RenderOutputSize, DocumentSize,
+            ProcessingColorSpace, DesiredSamplingOptions, BrushData, TargetSampledTexture, TargetFullTexture, Graph,
+            StartPoint, LastAppliedPoint, Opacity)
+        {
+            VisibleDocumentRegion = VisibleDocumentRegion,
+            AffectedArea = AffectedArea,
+            FullRerender = FullRerender,
+            TargetOutput = TargetOutput,
+            PreviewTextures = PreviewTextures,
+            EditorData = EditorData,
+            KeyboardInfo = KeyboardInfo,
+            PointerInfo = PointerInfo
+        };
+    }
 }

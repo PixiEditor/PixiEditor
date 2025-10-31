@@ -9,7 +9,6 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 public class StrokeInfoNode : Node, IBrushSampleTextureNode
 {
     public OutputProperty<float> StrokeWidth { get; }
-    public OutputProperty<float> Spacing { get; }
     public OutputProperty<VecD> StartPoint { get; }
     public OutputProperty<VecD> LastAppliedPoint { get; }
     public OutputProperty<Texture> TargetSampleTexture { get; }
@@ -18,7 +17,6 @@ public class StrokeInfoNode : Node, IBrushSampleTextureNode
     public StrokeInfoNode()
     {
         StrokeWidth = CreateOutput<float>("StrokeWidth", "STROKE_WIDTH", 1f);
-        Spacing = CreateOutput<float>("Spacing", "SPACING", 0.1f);
         StartPoint = CreateOutput<VecD>("StartPoint", "START_POINT", VecD.Zero);
         LastAppliedPoint = CreateOutput<VecD>("LastAppliedPoint", "LAST_APPLIED_POINT", VecD.Zero);
         TargetSampleTexture = CreateOutput<Texture>("TargetSampleTexture", "TARGET_SAMPLE_TEXTURE", null);
@@ -31,7 +29,6 @@ public class StrokeInfoNode : Node, IBrushSampleTextureNode
             return;
 
         StrokeWidth.Value = brushRenderContext.BrushData.StrokeWidth;
-        Spacing.Value = brushRenderContext.BrushData.Spacing;
         StartPoint.Value = brushRenderContext.StartPoint;
         LastAppliedPoint.Value = brushRenderContext.LastAppliedPoint;
 

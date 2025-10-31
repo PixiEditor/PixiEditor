@@ -29,6 +29,9 @@ public class SceneObjectRenderContext : RenderContext
             FullRerender = FullRerender,
             TargetOutput = TargetOutput,
             PreviewTextures = PreviewTextures,
+            EditorData = EditorData,
+            KeyboardInfo = KeyboardInfo,
+            PointerInfo = PointerInfo
         };
     }
 }

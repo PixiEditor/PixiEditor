@@ -27,7 +27,6 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     private readonly bool antiAliasing;
     private BrushData brushData;
     private BrushEngine engine = new BrushEngine();
-    private float spacing = 1;
 
     private CommittedChunkStorage? storedChunks;
     private readonly List<VecD> points = new();
@@ -40,7 +39,6 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     [GenerateUpdateableChangeActions]
     public LineBasedPen_UpdateableChange(Guid memberGuid, VecD pos, float strokeWidth,
         bool antiAliasing,
-        float spacing,
         BrushData brushData,
         bool drawOnMask, int frame, PointerInfo pointerInfo, KeyboardInfo keyboardInfo, EditorData editorData)
     {
@@ -48,7 +46,6 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         this.strokeWidth = strokeWidth;
         this.antiAliasing = antiAliasing;
         this.drawOnMask = drawOnMask;
-        this.spacing = spacing;
         this.brushData = brushData;
         points.Add(pos);
         this.frame = frame;
@@ -58,7 +55,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     }
 
     [UpdateChangeMethod]
-    public void Update(VecD pos, float strokeWidth, float spacing, PointerInfo pointerInfo, KeyboardInfo keyboardInfo,
+    public void Update(VecD pos, float strokeWidth, PointerInfo pointerInfo, KeyboardInfo keyboardInfo,
         EditorData editorData, BrushData brushData)
     {
         if (points.Count > 0)
@@ -71,7 +68,6 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         this.pointerInfo = pointerInfo;
         this.keyboardInfo = keyboardInfo;
         this.editorData = editorData;
-        this.spacing = spacing;
         this.brushData = brushData;
         UpdateBrushData();
     }
@@ -98,7 +94,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         {
             brushData = new BrushData(brushData.BrushGraph)
             {
-                StrokeWidth = strokeWidth, AntiAliasing = antiAliasing, Spacing = spacing,
+                StrokeWidth = strokeWidth, AntiAliasing = antiAliasing
             };
         }
     }
@@ -110,7 +106,6 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         int opCount = image.QueueLength;
 
         brushData.AntiAliasing = antiAliasing;
-        brushData.Spacing = spacing;
         brushData.StrokeWidth = strokeWidth;
 
         // TODO: Sampling options?
@@ -127,7 +122,6 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     private void FastforwardEnqueueDrawLines(ChunkyImage targetImage, KeyFrameTime frameTime)
     {
         brushData.AntiAliasing = antiAliasing;
-        brushData.Spacing = spacing;
         brushData.StrokeWidth = strokeWidth;
         engine.ResetState();
 

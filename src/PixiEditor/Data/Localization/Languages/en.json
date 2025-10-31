@@ -1209,5 +1209,6 @@
   "INPUTS": "Inputs",
   "BRUSHES": "Brushes",
   "EDITOR": "Editor",
-  "PAINTABLE": "Paintable"
+  "PAINTABLE": "Paintable",
+  "HARDNESS": "Hardness"
 }

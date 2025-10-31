@@ -36,8 +36,18 @@ public class BrushEngine : IDisposable
         ColorSpace cs, SamplingOptions samplingOptions, PointerInfo pointerInfo, KeyboardInfo keyboardInfo,
         EditorData editorData)
     {
+        if (brushData.BrushGraph == null)
+        {
+            return;
+        }
+
+        if (brushData.BrushGraph.AllNodes.FirstOrDefault(x => x is BrushOutputNode) is not BrushOutputNode brushNode)
+        {
+            return;
+        }
+
         float strokeWidth = brushData.StrokeWidth;
-        float spacing = brushData.Spacing;
+        float spacing = brushNode.Spacing.Value / 100f;
 
         float spacingPixels = (strokeWidth * pointerInfo.Pressure) * spacing;
 
@@ -47,7 +57,7 @@ public class BrushEngine : IDisposable
             if (VecD.Distance(lastPos, point) < spacingPixels)
                 continue;
 
-            ExecuteVectorShapeBrush(target, brushData, point, frameTime, cs, samplingOptions, pointerInfo, keyboardInfo,
+            ExecuteVectorShapeBrush(target, brushNode, brushData, point, frameTime, cs, samplingOptions, pointerInfo, keyboardInfo,
                 editorData);
 
             lastPos = point;
@@ -59,24 +69,20 @@ public class BrushEngine : IDisposable
     public void ExecuteBrush(ChunkyImage target, BrushData brushData, VecD point, KeyFrameTime frameTime, ColorSpace cs,
         SamplingOptions samplingOptions, PointerInfo pointerInfo, KeyboardInfo keyboardInfo, EditorData editorData)
     {
-        ExecuteVectorShapeBrush(target, brushData, point, frameTime, cs, samplingOptions, pointerInfo, keyboardInfo,
+        var brushNode = brushData.BrushGraph.AllNodes.FirstOrDefault(x => x is BrushOutputNode) as BrushOutputNode;;
+        if (brushNode == null)
+        {
+            return;
+        }
+
+        ExecuteVectorShapeBrush(target, brushNode, brushData, point, frameTime, cs, samplingOptions, pointerInfo, keyboardInfo,
             editorData);
     }
 
-    private void ExecuteVectorShapeBrush(ChunkyImage target, BrushData brushData, VecD point, KeyFrameTime frameTime,
+    private void ExecuteVectorShapeBrush(ChunkyImage target, BrushOutputNode brushNode, BrushData brushData, VecD point, KeyFrameTime frameTime,
         ColorSpace colorSpace, SamplingOptions samplingOptions,
         PointerInfo pointerInfo, KeyboardInfo keyboardInfo, EditorData editorData)
     {
-        if (brushData.BrushGraph == null)
-        {
-            return;
-        }
-
-        if (brushData.BrushGraph.AllNodes.FirstOrDefault(x => x is BrushOutputNode) is not BrushOutputNode brushNode)
-        {
-            return;
-        }
-
         bool shouldErase = editorData.PrimaryColor.A == 0;
 
         var imageBlendMode = shouldErase ? DrawingApiBlendMode.DstOut : brushNode.ImageBlendMode.Value;
@@ -91,10 +97,11 @@ public class BrushEngine : IDisposable
 
         float strokeWidth = brushData.StrokeWidth;
         var rect = new RectD(point - new VecD((strokeWidth / 2f)), new VecD(strokeWidth));
-        if(brushNode.SnapToPixels.Value)
+        if (brushNode.SnapToPixels.Value)
         {
             VecI vecIpoint = (VecI)point;
-            rect = (RectD)new RectI(vecIpoint - new VecI((int)(strokeWidth / 2f)), new VecI((int)strokeWidth));        }
+            rect = (RectD)new RectI(vecIpoint - new VecI((int)(strokeWidth / 2f)), new VecI((int)strokeWidth));
+        }
 
         bool requiresSampleTexture = GraphUsesSampleTexture(brushData.BrushGraph, brushNode);
         bool requiresFullTexture = GraphUsesFullTexture(brushData.BrushGraph, brushNode);
@@ -109,16 +116,19 @@ public class BrushEngine : IDisposable
 
         if (requiresSampleTexture && rect.Width > 0 && rect.Height > 0)
         {
-            surfaceUnderRect = UpdateSurfaceUnderRect(target, (RectI)rect.RoundOutwards(), colorSpace, brushNode.AllowSampleStacking.Value);
+            surfaceUnderRect = UpdateSurfaceUnderRect(target, (RectI)rect.RoundOutwards(), colorSpace,
+                brushNode.AllowSampleStacking.Value);
         }
 
         if (requiresFullTexture)
         {
             fullTexture = UpdateFullTexture(target, colorSpace, brushNode.AllowSampleStacking.Value);
         }
-        
+
         BrushRenderContext context = new BrushRenderContext(
-            texture?.DrawingSurface.Canvas, frameTime, ChunkResolution.Full, brushNode.FitToStrokeSize.NonOverridenValue ? ((RectI)rect.RoundOutwards()).Size : target.CommittedSize, target.CommittedSize,
+            texture?.DrawingSurface.Canvas, frameTime, ChunkResolution.Full,
+            brushNode.FitToStrokeSize.NonOverridenValue ? ((RectI)rect.RoundOutwards()).Size : target.CommittedSize,
+            target.CommittedSize,
             colorSpace, samplingOptions, brushData,
             surfaceUnderRect, fullTexture, brushData.BrushGraph,
             startPos, lastPos)
@@ -132,15 +142,13 @@ public class BrushEngine : IDisposable
 
 
         var previous = brushNode.Previous.Value;
-        while(previous != null)
+        while (previous != null)
         {
             var data = new BrushData(previous)
             {
-                AntiAliasing = brushData.AntiAliasing,
-                Spacing = brushData.Spacing,
-                StrokeWidth = brushData.StrokeWidth,
+                AntiAliasing = brushData.AntiAliasing, StrokeWidth = brushData.StrokeWidth,
             };
-            
+
             var previousBrushNode = previous.AllNodes.FirstOrDefault(x => x is BrushOutputNode) as BrushOutputNode;
             PaintBrush(target, data, point, previousBrushNode, context, rect);
             previous = previousBrushNode?.Previous.Value;
@@ -159,7 +167,7 @@ public class BrushEngine : IDisposable
         {
             return;
         }
-        
+
         bool autoPosition = brushNode.AutoPosition.Value;
         bool fitToStrokeSize = brushNode.FitToStrokeSize.Value;
         float pressure = brushNode.Pressure.Value;
@@ -222,7 +230,7 @@ public class BrushEngine : IDisposable
             target.EnqueueDrawPath(path, stroke, vectorShape.StrokeWidth,
                 strokeCap, blendMode, strokeStyle, antiAliasing, null);
         }
-        
+
         if (content != null)
         {
             if (contentTexture != null)
@@ -257,7 +265,8 @@ public class BrushEngine : IDisposable
 
         if (sampleLatest)
         {
-            target.DrawMostUpToDateRegionOn(rect, ChunkResolution.Full, surfaceUnderRect.DrawingSurface.Canvas, VecI.Zero);
+            target.DrawMostUpToDateRegionOn(rect, ChunkResolution.Full, surfaceUnderRect.DrawingSurface.Canvas,
+                VecI.Zero);
         }
         else
         {
@@ -362,6 +371,21 @@ public class BrushEngine : IDisposable
     private static void EvaluateShape(bool autoPosition, VectorPath path, ShapeVectorData vectorShape, RectD rect,
         bool snapToPixels, bool fitToStrokeSize, float pressure)
     {
+        if (fitToStrokeSize)
+        {
+            VecD scale = new VecD(rect.Size.X / (float)path.Bounds.Width, rect.Size.Y / (float)path.Bounds.Height);
+            if (scale.IsNaNOrInfinity())
+            {
+                scale = VecD.Zero;
+            }
+
+            VecD uniformScale = new VecD(Math.Min(scale.X, scale.Y));
+            VecD center = autoPosition ? rect.Center : vectorShape.TransformedAABB.Center;
+
+            path.Transform(Matrix3X3.CreateScale((float)uniformScale.X, (float)uniformScale.Y, (float)center.X,
+                (float)center.Y));
+        }
+
         if (autoPosition)
         {
             path.Offset(vectorShape.TransformedAABB.Pos - vectorShape.GeometryAABB.Pos);
@@ -375,19 +399,7 @@ public class BrushEngine : IDisposable
             }
         }
 
-        if (fitToStrokeSize)
-        {
-            VecD scale = new VecD(rect.Size.X / (float)path.Bounds.Width, rect.Size.Y / (float)path.Bounds.Height);
-            if (scale.IsNaNOrInfinity())
-            {
-                scale = VecD.Zero;
-            }
 
-            VecD uniformScale = new VecD(Math.Min(scale.X, scale.Y));
-            VecD center = autoPosition ? rect.Center : vectorShape.TransformedAABB.Center;
-            path.Transform(Matrix3X3.CreateScale((float)uniformScale.X, (float)uniformScale.Y, (float)center.X,
-                (float)center.Y));
-        }
 
         Matrix3X3 pressureScale = Matrix3X3.CreateScale(pressure, pressure, (float)rect.Center.X,
             (float)rect.Center.Y);
