@@ -30,7 +30,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     private float spacing = 1;
 
     private CommittedChunkStorage? storedChunks;
-    private readonly List<VecI> points = new();
+    private readonly List<VecD> points = new();
     private int frame;
     private BrushOutputNode? brushOutputNode;
     private PointerInfo pointerInfo;
@@ -38,7 +38,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     private EditorData editorData;
 
     [GenerateUpdateableChangeActions]
-    public LineBasedPen_UpdateableChange(Guid memberGuid, VecI pos, float strokeWidth,
+    public LineBasedPen_UpdateableChange(Guid memberGuid, VecD pos, float strokeWidth,
         bool antiAliasing,
         float spacing,
         BrushData brushData,
@@ -58,12 +58,13 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     }
 
     [UpdateChangeMethod]
-    public void Update(VecI pos, float strokeWidth, float spacing, PointerInfo pointerInfo, KeyboardInfo keyboardInfo, EditorData editorData, BrushData brushData)
+    public void Update(VecD pos, float strokeWidth, float spacing, PointerInfo pointerInfo, KeyboardInfo keyboardInfo,
+        EditorData editorData, BrushData brushData)
     {
         if (points.Count > 0)
         {
-            var bresenham = BresenhamLineHelper.GetBresenhamLine(points[^1], pos);
-            points.AddRange(bresenham);
+            var line = LineHelper.GetInterpolatedPoints(points[^1], pos);
+            points.AddRange(line);
         }
 
         this.strokeWidth = strokeWidth;
@@ -112,6 +113,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         brushData.Spacing = spacing;
         brushData.StrokeWidth = strokeWidth;
 
+        // TODO: Sampling options?
         engine.ExecuteBrush(image, brushData, points, frame, target.ProcessingColorSpace, SamplingOptions.Default,
             pointerInfo, keyboardInfo, editorData);
 
@@ -127,6 +129,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         brushData.AntiAliasing = antiAliasing;
         brushData.Spacing = spacing;
         brushData.StrokeWidth = strokeWidth;
+        engine.ResetState();
 
         if (points.Count == 1)
         {

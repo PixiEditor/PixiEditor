@@ -1,4 +1,5 @@
-﻿using Avalonia.Input;
+﻿using System.Diagnostics;
+using Avalonia.Input;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core;
@@ -40,6 +41,8 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
     private BrushOutputNode? outputNode;
     private ChunkyImage previewImage = null!;
     private ChangeableDocument.Changeables.Brushes.BrushEngine engine = new();
+    private VecD lastSmoothed;
+    private Stopwatch stopwatch = new Stopwatch();
 
     protected IBrushToolHandler BrushTool;
     protected IBrushToolbar BrushToolbar;
@@ -49,6 +52,7 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
     protected Guid layerId;
     protected Color color;
     protected bool antiAliasing;
+    private bool firstApply = true;
 
     protected bool drawOnMask;
     public double ToolSize => BrushToolbar.ToolSize;
@@ -102,12 +106,29 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
 
     protected virtual void EnqueueDrawActions()
     {
-        IAction? action = new LineBasedPen_Action(layerId, controller!.LastPixelPosition, (float)ToolSize,
+        IAction? action = new LineBasedPen_Action(layerId, GetStabilizedPoint(), (float)ToolSize,
             antiAliasing, Spacing, BrushData, drawOnMask,
             document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo, controller.LastKeyboardInfo,
             controller.EditorData);
 
         internals!.ActionAccumulator.AddActions(action);
+    }
+
+    protected VecD GetStabilizedPoint()
+    {
+        float timeConstant = 0.01f;
+        float elapsed = (float)stopwatch.Elapsed.TotalSeconds;
+        float alpha = elapsed / Math.Max(timeConstant + elapsed, 0.0001f);
+        VecD smoothed = lastSmoothed + (controller.LastPrecisePosition - lastSmoothed) * alpha;
+        stopwatch.Restart();
+        if (firstApply)
+        {
+            smoothed = controller.LastPrecisePosition;
+        }
+
+        lastSmoothed = smoothed;
+        //firstApply = false;
+        return smoothed;
     }
 
 
@@ -155,6 +176,10 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
         {
             ExecuteBrush();
         }
+        else
+        {
+            EnqueueDrawActions();
+        }
 
         UpdateBrushOverlay(args.PositionOnCanvas);
     }
@@ -168,18 +193,10 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
 
     private void ExecuteBrush()
     {
-        engine.ExecuteBrush(previewImage, BrushData, controller.LastPixelPosition,
+        engine.ExecuteBrush(previewImage, BrushData, controller.LastPrecisePosition,
             document.AnimationHandler.ActiveFrameTime,
             ColorSpace.CreateSrgb(), SamplingOptions.Default, controller.LastPointerInfo, controller.LastKeyboardInfo,
             controller.EditorData);
-    }
-
-    public override void OnPixelPositionChange(VecI pos, MouseOnCanvasEventArgs args)
-    {
-        if (controller.LeftMousePressed)
-        {
-            EnqueueDrawActions();
-        }
     }
 
     public override void OnConvertedKeyDown(Key key)

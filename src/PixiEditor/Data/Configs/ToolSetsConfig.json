@@ -35,7 +35,8 @@
           "Settings": {
             "ExposePixelPerfectEnabled": true,
             "Spacing": 0,
-            "DefaultBrush": "Pixel Circle"
+            "DefaultBrush": "Pixel Circle",
+            "AntiAliasing": false
           }
         },
         "Select",

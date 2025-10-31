@@ -20,13 +20,19 @@ namespace PixiEditor.ChangeableDocument.Changeables.Brushes;
 public class BrushEngine : IDisposable
 {
     private TextureCache cache = new();
-    private VecF lastPos;
-    private VecF startPos;
+    private VecD lastPos;
+    private VecD startPos;
     private int lastAppliedPointIndex = -1;
 
     private bool drawnOnce = false;
 
-    public void ExecuteBrush(ChunkyImage target, BrushData brushData, List<VecI> points, KeyFrameTime frameTime,
+    public void ResetState()
+    {
+        lastAppliedPointIndex = -1;
+        drawnOnce = false;
+    }
+
+    public void ExecuteBrush(ChunkyImage target, BrushData brushData, List<VecD> points, KeyFrameTime frameTime,
         ColorSpace cs, SamplingOptions samplingOptions, PointerInfo pointerInfo, KeyboardInfo keyboardInfo,
         EditorData editorData)
     {
@@ -38,7 +44,7 @@ public class BrushEngine : IDisposable
         for (int i = Math.Max(lastAppliedPointIndex, 0); i < points.Count; i++)
         {
             var point = points[i];
-            if (VecF.Distance(lastPos, point) < spacingPixels)
+            if (VecD.Distance(lastPos, point) < spacingPixels)
                 continue;
 
             ExecuteVectorShapeBrush(target, brushData, point, frameTime, cs, samplingOptions, pointerInfo, keyboardInfo,
@@ -50,14 +56,14 @@ public class BrushEngine : IDisposable
         lastAppliedPointIndex = points.Count - 1;
     }
 
-    public void ExecuteBrush(ChunkyImage target, BrushData brushData, VecI point, KeyFrameTime frameTime, ColorSpace cs,
+    public void ExecuteBrush(ChunkyImage target, BrushData brushData, VecD point, KeyFrameTime frameTime, ColorSpace cs,
         SamplingOptions samplingOptions, PointerInfo pointerInfo, KeyboardInfo keyboardInfo, EditorData editorData)
     {
         ExecuteVectorShapeBrush(target, brushData, point, frameTime, cs, samplingOptions, pointerInfo, keyboardInfo,
             editorData);
     }
 
-    private void ExecuteVectorShapeBrush(ChunkyImage target, BrushData brushData, VecI point, KeyFrameTime frameTime,
+    private void ExecuteVectorShapeBrush(ChunkyImage target, BrushData brushData, VecD point, KeyFrameTime frameTime,
         ColorSpace colorSpace, SamplingOptions samplingOptions,
         PointerInfo pointerInfo, KeyboardInfo keyboardInfo, EditorData editorData)
     {
@@ -84,7 +90,11 @@ public class BrushEngine : IDisposable
         }
 
         float strokeWidth = brushData.StrokeWidth;
-        var rect = new RectI(point - new VecI((int)(strokeWidth / 2f)), new VecI((int)strokeWidth));
+        var rect = new RectD(point - new VecD((strokeWidth / 2f)), new VecD(strokeWidth));
+        if(brushNode.SnapToPixels.Value)
+        {
+            VecI vecIpoint = (VecI)point;
+            rect = (RectD)new RectI(vecIpoint - new VecI((int)(strokeWidth / 2f)), new VecI((int)strokeWidth));        }
 
         bool requiresSampleTexture = GraphUsesSampleTexture(brushData.BrushGraph, brushNode);
         bool requiresFullTexture = GraphUsesFullTexture(brushData.BrushGraph, brushNode);
@@ -99,7 +109,7 @@ public class BrushEngine : IDisposable
 
         if (requiresSampleTexture && rect.Width > 0 && rect.Height > 0)
         {
-            surfaceUnderRect = UpdateSurfaceUnderRect(target, rect, colorSpace, brushNode.AllowSampleStacking.Value);
+            surfaceUnderRect = UpdateSurfaceUnderRect(target, (RectI)rect.RoundOutwards(), colorSpace, brushNode.AllowSampleStacking.Value);
         }
 
         if (requiresFullTexture)
@@ -108,10 +118,10 @@ public class BrushEngine : IDisposable
         }
         
         BrushRenderContext context = new BrushRenderContext(
-            texture?.DrawingSurface.Canvas, frameTime, ChunkResolution.Full, brushNode.FitToStrokeSize.NonOverridenValue ? rect.Size : target.CommittedSize, target.CommittedSize,
+            texture?.DrawingSurface.Canvas, frameTime, ChunkResolution.Full, brushNode.FitToStrokeSize.NonOverridenValue ? ((RectI)rect.RoundOutwards()).Size : target.CommittedSize, target.CommittedSize,
             colorSpace, samplingOptions, brushData,
             surfaceUnderRect, fullTexture, brushData.BrushGraph,
-            (VecD)startPos, (VecD)lastPos)
+            startPos, lastPos)
         {
             PointerInfo = pointerInfo,
             EditorData = shouldErase
@@ -139,8 +149,8 @@ public class BrushEngine : IDisposable
         PaintBrush(target, brushData, point, brushNode, context, rect);
     }
 
-    private void PaintBrush(ChunkyImage target, BrushData brushData, VecI point, BrushOutputNode brushNode,
-        BrushRenderContext context, RectI rect)
+    private void PaintBrush(ChunkyImage target, BrushData brushData, VecD point, BrushOutputNode brushNode,
+        BrushRenderContext context, RectD rect)
     {
         brushData.BrushGraph.Execute(brushNode, context);
 
@@ -168,7 +178,7 @@ public class BrushEngine : IDisposable
     }
 
     public bool PaintBrush(ChunkyImage target, bool autoPosition, ShapeVectorData vectorShape,
-        RectI rect, bool fitToStrokeSize, float pressure, Painter? content,
+        RectD rect, bool fitToStrokeSize, float pressure, Painter? content,
         Texture? contentTexture, DrawingApiBlendMode blendMode, bool antiAliasing, Paintable fill, Paintable stroke,
         bool snapToPixels)
     {
@@ -178,7 +188,7 @@ public class BrushEngine : IDisposable
             return false;
         }
 
-        EvaluateShape(autoPosition, path, vectorShape, (RectD)rect, snapToPixels, fitToStrokeSize, pressure);
+        EvaluateShape(autoPosition, path, vectorShape, rect, snapToPixels, fitToStrokeSize, pressure);
 
         StrokeCap strokeCap = StrokeCap.Butt;
         PaintStyle strokeStyle = PaintStyle.Fill;
