@@ -8,6 +8,7 @@ public class TextIndexOfNode : Node
     public OutputProperty<int> FirstIndex { get; }
     
     public OutputProperty<int> LastIndex { get; }
+    public OutputProperty<int> Count { get; }
     
     public InputProperty<bool> MatchCase { get; }
     
@@ -19,6 +20,7 @@ public class TextIndexOfNode : Node
     {
         FirstIndex = CreateOutput("FirstIndex", "FIRST_POSITION", -1);
         LastIndex = CreateOutput("LastIndex", "LAST_POSITION", -1);
+        Count = CreateOutput("Count", "COUNT", 0);
         
         MatchCase = CreateInput("MatchCase", "MATCH_CASE", false);
         Text = CreateInput("Text", "TEXT", string.Empty);
@@ -38,12 +40,23 @@ public class TextIndexOfNode : Node
         {
             FirstIndex.Value = -1;
             LastIndex.Value = -1;
+            Count.Value = 0;
             
             return;
         }
 
+        int matchCount = 0;
+        int index = 0;
+
+        while ((index = text.IndexOf(searchText, index, comparisonMode)) != -1)
+        {
+            matchCount++;
+            index += searchText.Length;
+        }
+
         FirstIndex.Value = text.IndexOf(searchText, comparisonMode);
         LastIndex.Value = text.LastIndexOf(searchText, comparisonMode);
+        Count.Value = matchCount;
     }
 
     public override Node CreateCopy() =>

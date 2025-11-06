@@ -115,7 +115,7 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
 
     protected VecD GetStabilizedPoint()
     {
-        float timeConstant = 0.01f;
+        float timeConstant = 0.1f;
         float elapsed = (float)stopwatch.Elapsed.TotalSeconds;
         float alpha = elapsed / Math.Max(timeConstant + elapsed, 0.0001f);
         VecD smoothed = lastSmoothed + (controller.LastPrecisePosition - lastSmoothed) * alpha;

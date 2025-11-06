@@ -57,7 +57,8 @@ public class BrushEngine : IDisposable
             if (VecD.Distance(lastPos, point) < spacingPixels)
                 continue;
 
-            ExecuteVectorShapeBrush(target, brushNode, brushData, point, frameTime, cs, samplingOptions, pointerInfo, keyboardInfo,
+            ExecuteVectorShapeBrush(target, brushNode, brushData, point, frameTime, cs, samplingOptions, pointerInfo,
+                keyboardInfo,
                 editorData);
 
             lastPos = point;
@@ -69,17 +70,19 @@ public class BrushEngine : IDisposable
     public void ExecuteBrush(ChunkyImage target, BrushData brushData, VecD point, KeyFrameTime frameTime, ColorSpace cs,
         SamplingOptions samplingOptions, PointerInfo pointerInfo, KeyboardInfo keyboardInfo, EditorData editorData)
     {
-        var brushNode = brushData.BrushGraph.AllNodes.FirstOrDefault(x => x is BrushOutputNode) as BrushOutputNode;;
+        var brushNode = brushData.BrushGraph?.AllNodes?.FirstOrDefault(x => x is BrushOutputNode) as BrushOutputNode;
         if (brushNode == null)
         {
             return;
         }
 
-        ExecuteVectorShapeBrush(target, brushNode, brushData, point, frameTime, cs, samplingOptions, pointerInfo, keyboardInfo,
+        ExecuteVectorShapeBrush(target, brushNode, brushData, point, frameTime, cs, samplingOptions, pointerInfo,
+            keyboardInfo,
             editorData);
     }
 
-    private void ExecuteVectorShapeBrush(ChunkyImage target, BrushOutputNode brushNode, BrushData brushData, VecD point, KeyFrameTime frameTime,
+    private void ExecuteVectorShapeBrush(ChunkyImage target, BrushOutputNode brushNode, BrushData brushData, VecD point,
+        KeyFrameTime frameTime,
         ColorSpace colorSpace, SamplingOptions samplingOptions,
         PointerInfo pointerInfo, KeyboardInfo keyboardInfo, EditorData editorData)
     {
@@ -398,7 +401,6 @@ public class BrushEngine : IDisposable
                         Math.Round(path.Bounds.Pos.Y) - path.Bounds.Pos.Y));
             }
         }
-
 
 
         Matrix3X3 pressureScale = Matrix3X3.CreateScale(pressure, pressure, (float)rect.Center.X,

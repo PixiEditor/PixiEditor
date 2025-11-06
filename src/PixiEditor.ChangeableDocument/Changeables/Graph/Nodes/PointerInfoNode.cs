@@ -13,6 +13,7 @@ public class PointerInfoNode : Node
     public OutputProperty<VecD> Tilt { get; }
     public OutputProperty<VecD> MovementDirection { get; }
     public OutputProperty<double> Rotation { get; }
+    // TODO: Add velocity
 
     public PointerInfoNode()
     {
