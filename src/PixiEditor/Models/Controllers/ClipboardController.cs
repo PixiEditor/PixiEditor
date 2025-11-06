@@ -278,7 +278,7 @@ internal static class ClipboardController
             var dataImage = images[0];
             var position = dataImage.Position;
 
-            if (document.SizeBindable.X < position.X || document.SizeBindable.Y < position.Y)
+            if (document.SizeBindable.X < position.X || document.SizeBindable.Y < position.Y || !hasPos)
             {
                 position = VecI.Zero;
             }
