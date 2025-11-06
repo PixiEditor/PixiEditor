@@ -331,11 +331,11 @@ internal static class ClipboardController
 
             if (tightBounds == null)
             {
-                tightBounds = layer.TightBounds;
+                tightBounds = layer.TransformationCorners.AABBBounds;
             }
             else if (layer.TightBounds.HasValue)
             {
-                tightBounds = tightBounds.Value.Union(layer.TightBounds.Value);
+                tightBounds = tightBounds.Value.Union(layer.TransformationCorners.AABBBounds);
             }
         }
 
