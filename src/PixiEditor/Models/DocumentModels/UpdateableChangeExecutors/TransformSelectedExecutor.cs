@@ -174,10 +174,12 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
             .ToList();
 
         var nonSelected = orderedBySize.Where(x => x != document.SelectedStructureMember
-                                              && !document.SoftSelectedStructureMembers.Contains(x));
+                                                   && !document.SoftSelectedStructureMembers.Contains(x));
 
         var smallestSizeDifferenceList = nonSelected
-            .Where(x => x.TightBounds is not null && (x.TightBounds.Value.Size.Length + (x is IFolderHandler ? 1 : 0)) <= (document.SelectedStructureMember?.TightBounds?.Size.Length ?? double.MaxValue))
+            .Where(x => x.TightBounds is not null &&
+                        (x.TightBounds.Value.Size.Length + (x is IFolderHandler ? 1 : 0)) <=
+                        (document.SelectedStructureMember?.TightBounds?.Size.Length ?? double.MaxValue))
             .ToList();
 
         if (!smallestSizeDifferenceList.Any() && orderedBySize.Count != 0)
@@ -198,7 +200,8 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
             }
             else
             {
-                if (document.SoftSelectedStructureMembers.Contains(topMost) || document.SelectedStructureMember?.Id == topMost.Id)
+                if (document.SoftSelectedStructureMembers.Contains(topMost) ||
+                    document.SelectedStructureMember?.Id == topMost.Id)
                 {
                     Deselect(smallestSizeDifferenceList);
                 }
@@ -216,7 +219,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
                 Deselect(topMostList);
             }
         }
-        else if(!topMostWithinClick.Any())
+        else if (!topMostWithinClick.Any())
         {
             document?.Operations.ClearSoftSelectedMembers();
             document?.Operations.SetSelectedMember(Guid.Empty);
@@ -242,14 +245,17 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
 
     private void Deselect(List<IStructureMemberHandler> topMostWithinClick)
     {
-        var topMost = topMostWithinClick.FirstOrDefault();
+        if (document is null)
+            return;
+
+        var topMost = topMostWithinClick?.FirstOrDefault();
         if (topMost is not null)
         {
             bool deselectingWasMain = document.SelectedStructureMember?.Id == topMost.Id;
             if (deselectingWasMain)
             {
-                Guid? nextMain = document.SoftSelectedStructureMembers.FirstOrDefault().Id;
-                List<Guid> softSelected = document.SoftSelectedStructureMembers
+                Guid? nextMain = document.SoftSelectedStructureMembers?.FirstOrDefault().Id;
+                List<Guid> softSelected = document.SoftSelectedStructureMembers?
                     .Select(x => x.Id).Where(x => x != nextMain.Value).ToList();
 
                 document.Operations.ClearSoftSelectedMembers();
@@ -262,8 +268,8 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
             }
             else
             {
-                List<Guid> softSelected = document.SoftSelectedStructureMembers
-                    .Select(x => x.Id).Where(x => x != topMost.Id).ToList();
+                List<Guid> softSelected = document.SoftSelectedStructureMembers?
+                    .Select(x => x.Id).Where(x => x != topMost?.Id).ToList();
 
                 document.Operations.ClearSoftSelectedMembers();
 
@@ -341,7 +347,8 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         if (!movedOnce)
         {
             internals!.ActionAccumulator.AddActions(
-                new TransformSelected_Action(lastCorners, tool.KeepOriginalImage, tool.BilinearTransform, memberCorners, false,
+                new TransformSelected_Action(lastCorners, tool.KeepOriginalImage, tool.BilinearTransform, memberCorners,
+                    false,
                     document.AnimationHandler.ActiveFrameBindable));
 
             movedOnce = true;
@@ -456,6 +463,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
     public void OnLineOverlayMoved(VecD start, VecD end) { }
 
     public void OnSelectedObjectNudged(VecI distance) => document!.TransformHandler.Nudge(distance);
+
     public bool IsTransformingMember(Guid id)
     {
         if (document!.SelectedStructureMember is null)
