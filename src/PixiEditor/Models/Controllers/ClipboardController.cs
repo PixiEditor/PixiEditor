@@ -249,22 +249,40 @@ internal static class ClipboardController
         if (targetDoc != null && !hadSelection && pasteAsNew && layerIds is { Length: > 0 } &&
             (!hasPos || await AllMatchesPos(layerIds, data, targetDoc)))
         {
-            foreach (var layerId in layerIds)
+            List<Guid> adjustedLayerIds = AdjustIdsForImport(layerIds, targetDoc, document);
+            List<Guid?> newIds = new();
+            using var block = document.Operations.StartChangeBlock();
+            foreach (var layerId in adjustedLayerIds)
             {
                 if (targetDoc.StructureHelper.Find(layerId) == null)
                     continue;
 
                 if (sourceDocument == document.Id)
                 {
-                    document.Operations.DuplicateMember(layerId);
+                    newIds.Add(document.Operations.DuplicateMember(layerId));
                 }
                 else
                 {
-                    document.Operations.ImportMember(layerId, targetDoc);
+                    newIds.Add(document.Operations.ImportMember(layerId, targetDoc));
                 }
             }
 
             manager.Owner.ToolsSubViewModel.SetActiveTool<MoveToolViewModel>(false);
+            Guid? mainGuid = newIds.FirstOrDefault(x => x != null);
+            if (mainGuid != null)
+            {
+                document.Operations.ClearSoftSelectedMembers();
+                document.Operations.SetSelectedMember(mainGuid.Value);
+
+                Guid[] restGuids = newIds.Where(x => x != null && x != mainGuid).Select(x => x.Value).ToArray();
+                if (restGuids.Length > 0)
+                {
+                    foreach (var guid in restGuids)
+                    {
+                        document.Operations.AddSoftSelectedMember(guid);
+                    }
+                }
+            }
 
             return true;
         }
@@ -314,6 +332,34 @@ internal static class ClipboardController
 
         document.Operations.PasteImagesAsLayers(images, document.AnimationDataViewModel.ActiveFrameBindable);
         return true;
+    }
+
+    private static List<Guid> AdjustIdsForImport(Guid[] layerIds, IDocument targetDoc, DocumentViewModel document)
+    {
+        // This should only copy root level layers
+        List<Guid> adjustedIds = new();
+        foreach (var layerId in layerIds)
+        {
+           var parents = targetDoc.StructureHelper.GetParents(layerId);
+           if (parents.Count == 0)
+           {
+                adjustedIds.Add(layerId);
+                continue;
+           }
+
+           // only include if no parent is in layerIds
+           if (!parents.Any(x => layerIds.Contains(x.Id)))
+           {
+                adjustedIds.Add(layerId);
+           }
+        }
+
+        var all = targetDoc.StructureHelper.GetAllMembersInOrder();
+
+        // order by document order
+        adjustedIds = adjustedIds.OrderBy(x => all.FindIndex(y => y.Id == x)).ToList();
+
+        return adjustedIds;
     }
 
     private static async Task<bool> AllMatchesPos(Guid[] layerIds, IImportObject[] dataFormats, IDocument doc)

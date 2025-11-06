@@ -96,26 +96,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
 
         Dispatcher.UIThread.InvokeAsync(async () =>
         {
-            Guid[] guids = doc.StructureHelper.GetAllLayers().Select(x => x.Id).ToArray();
             await ClipboardController.TryPasteFromClipboard(doc, Owner.DocumentManagerSubViewModel, pasteAsNewLayer);
-
-            doc.Operations.InvokeCustomAction(
-                () =>
-                {
-                    Guid[] newGuids = doc.StructureHelper.GetAllLayers().Select(x => x.Id).ToArray();
-
-                    var diff = newGuids.Except(guids).ToArray();
-                    if (diff.Length > 0)
-                    {
-                        doc.Operations.ClearSoftSelectedMembers();
-                        doc.Operations.SetSelectedMember(diff[0]);
-
-                        for (int i = 1; i < diff.Length; i++)
-                        {
-                            doc.Operations.AddSoftSelectedMember(diff[i]);
-                        }
-                    }
-                }, false);
         });
     }
 
