@@ -84,6 +84,11 @@ public class DocumentRenderer : IPreviewRenderable, IDisposable
         {
             renderTexture.DrawingSurface.Canvas.Restore();
             toRenderOn.Canvas.Restore();
+            if (membersOnlyGraph is IDisposable disposableGraph)
+            {
+                disposableGraph.Dispose();
+            }
+
             IsBusy = false;
         }
     }
