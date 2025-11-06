@@ -163,6 +163,7 @@ public static partial class PixiPerfectIcons
     public const string SplineChart = "\uE9BE";
     public const string Spray = "\uE90E";
     public const string Square = "\uE973";
+    public const string Stamp = "\uE9CD";
     public const string Star = "\uE99C";
     public const string StarFilled = "\uE999";
     public const string StarHalf = "\uE9AB";

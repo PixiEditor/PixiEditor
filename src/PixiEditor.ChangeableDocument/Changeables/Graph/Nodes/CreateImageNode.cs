@@ -58,8 +58,14 @@ public class CreateImageNode : Node
         RenderOutput.ChainToPainterValue();
     }
 
-    private Texture Render(RenderContext context)
+    private Texture? Render(RenderContext context)
     {
+        var size = (VecI)(Size.Value * context.ChunkResolution.Multiplier());
+        if (size.X <= 0 || size.Y <= 0)
+        {
+            return null;
+        }
+
         int id = (Size.Value * context.ChunkResolution.Multiplier()).GetHashCode();
         var surface = textureCache.RequestTexture(id, (VecI)(Size.Value * context.ChunkResolution.Multiplier()), context.ProcessingColorSpace, false);
         surface.DrawingSurface.Canvas.SetMatrix(Matrix3X3.Identity);
@@ -80,6 +86,7 @@ public class CreateImageNode : Node
         RenderContext ctx = context.Clone();
         ctx.RenderSurface = surface.DrawingSurface;
         ctx.RenderOutputSize = surface.Size;
+        ctx.VisibleDocumentRegion = null;
 
         float chunkMultiplier = (float)context.ChunkResolution.Multiplier();
 
@@ -95,7 +102,7 @@ public class CreateImageNode : Node
 
     private void OnPaint(RenderContext context, DrawingSurface surface)
     {
-        if(Output.Value == null || Output.Value.IsDisposed) return;
+        if (Output.Value == null || Output.Value.IsDisposed) return;
 
         int saved = surface.Canvas.Save();
         surface.Canvas.Scale((float)context.ChunkResolution.InvertedMultiplier());
