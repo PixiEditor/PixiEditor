@@ -372,7 +372,7 @@ internal static class ClipboardController
             pos = await GetVecD(ClipboardDataFormats.PositionFormat, dataFormats);
         }
 
-        RectD? tightBounds = null;
+        RectD? transformBounds = null;
         for (var i = 0; i < layerIds.Length; i++)
         {
             var layerId = layerIds[i];
@@ -381,17 +381,17 @@ internal static class ClipboardController
 
             if (layer == null) return false;
 
-            if (tightBounds == null)
+            if (transformBounds == null)
             {
-                tightBounds = layer.TransformationCorners.AABBBounds;
+                transformBounds = layer.TransformationCorners.AABBBounds;
             }
-            else if (layer.TightBounds.HasValue)
+            else if (!layer.TransformationCorners.HasNaNOrInfinity)
             {
-                tightBounds = tightBounds.Value.Union(layer.TransformationCorners.AABBBounds);
+                transformBounds = transformBounds.Value.Union(layer.TransformationCorners.AABBBounds);
             }
         }
 
-        return tightBounds.HasValue && tightBounds.Value.Pos.AlmostEquals(pos);
+        return transformBounds.HasValue && transformBounds.Value.Pos.AlmostEquals(pos);
     }
 
     private static async Task<Guid[]> GetLayerIds(IImportObject[] formats)
