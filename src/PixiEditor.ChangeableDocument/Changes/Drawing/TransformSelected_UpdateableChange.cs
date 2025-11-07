@@ -65,7 +65,7 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
     {
         if (memberData.Count == 0)
             return false;
-        
+
         originalCornersSize = masterCorners.RectSize;
         RectD tightBoundsWithSelection = default;
         bool hasSelection = target.Selection.SelectionPath is { IsEmpty: false };
@@ -77,9 +77,9 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
             originalSelectionBounds = tightBoundsWithSelection;
             selectionAwareSize = tightBoundsWithSelection.Size;
             isTransformingSelection = true;
-            
+
             tightBoundsSize = tightBoundsWithSelection.Size;
-            cornersToSelectionOffset = new RectD(masterCorners.TopLeft - tightBoundsWithSelection.TopLeft, 
+            cornersToSelectionOffset = new RectD(masterCorners.TopLeft - tightBoundsWithSelection.TopLeft,
                 tightBoundsSize - masterCorners.RectSize);
         }
 
@@ -90,30 +90,32 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
         }
 
         StructureNode firstLayer = foundMember;
-        RectD tightBounds = firstLayer.GetTightBounds(frame) ?? default;
+        RectD tightBounds = firstLayer.GetTransformationCorners(frame).AABBBounds;
 
         if (memberData.Count == 1 && firstLayer is VectorLayerNode vectorLayer)
         {
             tightBounds = vectorLayer.EmbeddedShapeData?.GeometryAABB ?? default;
+            hasSelection = false;
+            isTransformingSelection = false;
         }
 
         for (var i = 1; i < memberData.Count; i++)
         {
             StructureNode layer = target.FindMemberOrThrow(memberData[i].MemberId);
-            
-            var layerTightBounds = layer.GetTightBounds(frame);
-            
+
+            var layerTightBounds = layer.GetTransformationCorners(frame).AABBBounds;
+
             if (tightBounds == default)
             {
-                tightBounds = layerTightBounds.GetValueOrDefault();
+                tightBounds = layerTightBounds;
             }
 
-            if (layerTightBounds is not null)
+            if (layerTightBounds != default)
             {
-                tightBounds = tightBounds.Union(layerTightBounds.Value);
+                tightBounds = tightBounds.Union(layerTightBounds);
             }
         }
-        
+
         if (tightBounds == default)
             return false;
 
@@ -141,10 +143,10 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
         MemberTransformationData member,
         ITransformableObject transformable, RectD tightBounds)
     {
-        member.OriginalBounds = tightBounds; 
+        member.OriginalBounds = tightBounds;
         VecD posRelativeToMaster = member.OriginalBounds.Value.TopLeft - masterCorners.TopLeft;
 
-        member.OriginalPos = (VecI)posRelativeToMaster;
+        member.OriginalPos = posRelativeToMaster;
         member.AddTransformableObject(transformableId, transformable.TransformationMatrix);
     }
 
@@ -158,7 +160,7 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
 
         if (pathToExtract == null)
         {
-            RectD tightBounds = layer.GetTightBounds(frame).GetValueOrDefault();
+            RectD tightBounds = layer.GetTransformationCorners(frame).AABBBounds;
             pathToExtract = new VectorPath();
             pathToExtract.AddRect(tightBounds.RoundOutwards());
         }
@@ -187,14 +189,14 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
 
             if (member.IsImage)
             {
-                localMatrix = 
+                localMatrix =
                     Matrix3X3.CreateTranslation(
                         (float)-cornersToSelectionOffset.TopLeft.X, (float)-cornersToSelectionOffset.TopLeft.Y)
                         .PostConcat(
                     Matrix3X3.CreateTranslation(
                     (float)member.OriginalPos.Value.X - (float)member.OriginalBounds.Value.Left,
                     (float)member.OriginalPos.Value.Y - (float)member.OriginalBounds.Value.Top));
-                
+
                 localMatrix = localMatrix.PostConcat(selectionAwareSize.Length > 0 ? globalMatrixWithSelection : tightBoundsGlobalMatrix);
             }
             else if (member.OriginalMatrix is not null)
@@ -205,7 +207,7 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
                     localMatrix = localMatrix.PostConcat(Matrix3X3.CreateTranslation(
                             (float)member.OriginalPos.Value.X - (float)member.OriginalBounds.Value.Left,
                             (float)member.OriginalPos.Value.Y - (float)member.OriginalBounds.Value.Top))
-                        .PostConcat(tightBoundsGlobalMatrix);
+                        .PostConcat(selectionAwareSize.Length > 0 ? globalMatrixWithSelection : tightBoundsGlobalMatrix);
                 }
                 else
                 {
@@ -282,7 +284,7 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
             infos.Add(SelectionChangeHelper.DoSelectionTransform(target, originalPath!, originalSelectionBounds,
                 masterCorners, cornersToSelectionOffset, originalCornersSize));
         }
-        
+
         hasEnqueudImages = false;
         ignoreInUndo = false;
         return infos;
@@ -365,7 +367,7 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
         }
 
         infos.Add(new Selection_ChangeInfo(new VectorPath(target.Selection.SelectionPath)));
-        
+
         appliedOnce = false;
 
         return infos;

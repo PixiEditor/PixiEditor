@@ -53,7 +53,7 @@ public static class FloodFillHelper
 
         int chunkSize = ChunkResolution.Full.PixelSize();
 
-        FloodFillChunkCache cache = CreateCache(membersToFloodFill, document, frame);
+        using FloodFillChunkCache cache = CreateCache(membersToFloodFill, document, frame);
 
         VecI initChunkPos = OperationHelper.GetChunkPos(startingPos, chunkSize);
         VecI imageSizeInChunks = (VecI)(document.Size / (double)chunkSize).Ceiling();
@@ -111,6 +111,7 @@ public static class FloodFillHelper
             {
                 var chunk = Chunk.Create(document.ProcessingColorSpace);
                 chunk.Surface.DrawingSurface.Canvas.Clear(Colors.Transparent);
+
                 drawingChunks[chunkPos] = chunk;
             }
 

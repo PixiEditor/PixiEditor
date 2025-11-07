@@ -460,7 +460,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 {
                     object value =
                         SerializationUtil.Deserialize(propertyValue.Value, config, allFactories, serializerData);
-                    acc.AddActions(new UpdatePropertyValue_Action(guid, propertyValue.Key, value), new EndUpdatePropertyValue_Action());
+                    acc.AddActions(new UpdatePropertyValue_Action(guid, propertyValue.Key, value),
+                        new EndUpdatePropertyValue_Action());
                 }
             }
 
@@ -825,6 +826,21 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             return new Error();
         if (bounds.IsZeroOrNegativeArea)
             return new None();
+
+        var toAdd = new HashSet<Guid>();
+        foreach (var layer in selectedLayers)
+        {
+            var parents = StructureHelper.GetParents(layer);
+            if (parents is null)
+                continue;
+
+            foreach (var parent in parents)
+            {
+                toAdd.Add(parent.Id);
+            }
+        }
+
+        selectedLayers.UnionWith(toAdd);
 
         RectI finalBounds = default;
 

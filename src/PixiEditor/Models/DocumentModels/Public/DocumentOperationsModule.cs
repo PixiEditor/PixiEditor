@@ -82,8 +82,8 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// <param name="lastTransformRect"></param>
     public void DeleteSelectedPixels(int frame, bool clearSelection = false, RectD? lastTransformRect = null)
     {
-        var member = Document.SelectedStructureMember;
-        if (Internals.ChangeController.IsBlockingChangeActive || member is null)
+        var members = Document.SelectedMembers;
+        if (Internals.ChangeController.IsBlockingChangeActive || members?.Count == 0)
             return;
 
         Internals.ChangeController.TryStopActiveExecutor();
@@ -99,11 +99,40 @@ internal class DocumentOperationsModule : IDocumentOperations
             }
         }
 
-        bool drawOnMask = member is not ILayerHandler layer || layer.ShouldDrawOnMask;
-        if (drawOnMask && !member.HasMaskBindable)
-            return;
-        Internals.ActionAccumulator.AddActions(new ClearSelectedArea_Action(member.Id,
-            selection, drawOnMask, frame));
+        foreach (var memberGuid in members)
+        {
+            var member = Document.StructureHelper.FindNode<IStructureMemberHandler>(memberGuid);
+            if (member is null)
+                continue;
+
+            bool drawOnMask = member is not ILayerHandler layer || layer.ShouldDrawOnMask;
+            if (drawOnMask && !member.HasMaskBindable)
+                return;
+
+            if (member is not IRasterLayerHandler)
+            {
+                var bounds = member.TightBounds;
+                if (bounds is null)
+                    continue;
+
+                using var rectPath = new VectorPath();
+                rectPath.AddRect(new RectD(bounds.Value.Pos, bounds.Value.Size));
+
+                using var opped = selection.Op(rectPath, VectorPathOp.Intersect);
+
+                if (!opped.IsEmpty)
+                {
+                    // TODO: Cut vectors
+                    Internals.ActionAccumulator.AddActions(new DeleteNode_Action(member.Id));
+                }
+            }
+            else
+            {
+                Internals.ActionAccumulator.AddActions(new ClearSelectedArea_Action(member.Id,
+                    selection, drawOnMask, frame));
+            }
+        }
+
         if (clearSelection)
             Internals.ActionAccumulator.AddActions(new ClearSelection_Action());
         Internals.ActionAccumulator.AddFinishedActions();
@@ -268,7 +297,8 @@ internal class DocumentOperationsModule : IDocumentOperations
         {
             Internals.ActionAccumulator.AddFinishedActions(
                 new ImportFolder_Action(sourceDocument.ShareNode<IReadOnlyFolderNode>(folder.Id), newGuid, null),
-                new SetSelectedMember_PassthroughAction(newGuid));
+                new SetSelectedMember_PassthroughAction(newGuid),
+                new CreateAnimationDataFromFolder_Action(newGuid));
         }
 
         return newGuid;

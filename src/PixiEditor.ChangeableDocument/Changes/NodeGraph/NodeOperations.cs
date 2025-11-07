@@ -116,7 +116,7 @@ public static class NodeOperations
         List<IChangeInfo> changes = new();
         IOutputProperty? previouslyConnected = null;
 
-        if(parentInput == null) return changes;
+        if (parentInput == null) return changes;
 
         if (parentInput.Connection != null)
         {
@@ -240,6 +240,11 @@ public static class NodeOperations
     public static List<IChangeInfo> RevertPositions(Dictionary<Guid, VecD> positions, IReadOnlyDocument target)
     {
         List<IChangeInfo> changes = new();
+        if (positions == null)
+        {
+            return changes;
+        }
+
         foreach (var (guid, position) in positions)
         {
             var node = target.FindNode(guid) as Node;

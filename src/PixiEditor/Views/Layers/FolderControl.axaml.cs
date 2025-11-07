@@ -53,19 +53,30 @@ internal partial class FolderControl : UserControl
         TopDropGrid.AddHandler(DragDrop.DragEnterEvent, Grid_DragEnter);
         TopDropGrid.AddHandler(DragDrop.DragLeaveEvent, Grid_DragLeave);
         TopDropGrid.AddHandler(DragDrop.DropEvent, Grid_Drop_Top);
+        TopDropGrid.AddHandler(PointerEnteredEvent, Grid_PointerEntered);
 
         BottomDropGrid.AddHandler(DragDrop.DragEnterEvent, Grid_DragEnter);
         BottomDropGrid.AddHandler(DragDrop.DragLeaveEvent, Grid_DragLeave);
         BottomDropGrid.AddHandler(DragDrop.DropEvent, Grid_Drop_Bottom);
+        TopDropGrid.AddHandler(PointerEnteredEvent, Grid_PointerEntered);
 
         middleDropGrid.AddHandler(DragDrop.DragEnterEvent, Grid_CenterEnter);
         middleDropGrid.AddHandler(DragDrop.DragLeaveEvent, Grid_CenterLeave);
         middleDropGrid.AddHandler(DragDrop.DropEvent, Grid_Drop_Center);
+        middleDropGrid.AddHandler(PointerEnteredEvent, Grid_PointerEntered);
 
         BackgroundGrid.AddHandler(DragDrop.DropEvent, BackgroundGrid_Drop);
         centerGrid.AddHandler(DragDrop.DropEvent, BackgroundGrid_Drop);
 
         DisableDropPanels();
+    }
+
+    private void Grid_PointerEntered(object? sender, PointerEventArgs e)
+    {
+        if (!e.Properties.IsLeftButtonPressed)
+        {
+            DisableDropPanels();
+        }
     }
 
     private void DisableDropPanels()

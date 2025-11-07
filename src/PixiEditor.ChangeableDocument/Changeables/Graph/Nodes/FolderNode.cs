@@ -176,6 +176,42 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
         return null;
     }
 
+    public override ShapeCorners GetTransformationCorners(KeyFrameTime frameTime)
+    {
+        RectD? bounds = null;
+        if (!IsVisible.Value)
+            return new ShapeCorners();
+
+        if (Content.Connection != null)
+        {
+            Content.Connection.Node.TraverseBackwards(
+                (n, input) =>
+                {
+                    if (n is StructureNode { IsVisible.Value: true } structureNode)
+                    {
+                        ShapeCorners childBounds = structureNode.GetTransformationCorners(frameTime);
+                        if (childBounds != default)
+                        {
+                            if (bounds == null)
+                            {
+                                bounds = childBounds.AABBBounds;
+                            }
+                            else
+                            {
+                                bounds = bounds.Value.Union(childBounds.AABBBounds);
+                            }
+                        }
+                    }
+
+                    return true;
+                }, FilterInvisibleFolders);
+
+            return bounds != null ? new ShapeCorners(bounds.Value) : new ShapeCorners();
+        }
+
+        return new ShapeCorners();
+    }
+
     public override RectD? GetApproxBounds(KeyFrameTime frameTime)
     {
         RectD? bounds = null;
