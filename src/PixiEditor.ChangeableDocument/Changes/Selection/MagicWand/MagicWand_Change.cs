@@ -6,7 +6,7 @@ using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Selection.MagicWand;
 
-internal class MagicWand_Change : Change
+internal class MagicWand_UpdateableChange : UpdateableChange
 {
     private VectorPath? originalPath;
     private VectorPath path = new() { FillType = PathFillType.EvenOdd };
@@ -16,8 +16,8 @@ internal class MagicWand_Change : Change
     private int frame;
     private double tolerance;
 
-    [GenerateMakeChangeAction]
-    public MagicWand_Change(List<Guid> memberGuids, VecI point, SelectionMode mode, double tolerance, int frame)
+    [GenerateUpdateableChangeActions]
+    public MagicWand_UpdateableChange(List<Guid> memberGuids, VecI point, SelectionMode mode, double tolerance, int frame)
     {
         path.MoveTo(point);
         this.mode = mode;
@@ -31,6 +31,12 @@ internal class MagicWand_Change : Change
     {
         originalPath = new VectorPath(target.Selection.SelectionPath);
         return true;
+    }
+
+    [UpdateChangeMethod]
+    public void Update(VecI point)
+    {
+        this.point = point;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
@@ -49,11 +55,9 @@ internal class MagicWand_Change : Change
         return CommonApply(target);
     }
 
-    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> ApplyTemporarily(Document target)
     {
-        (var toDispose, target.Selection.SelectionPath) = (target.Selection.SelectionPath, new VectorPath(originalPath!));
-        toDispose.Dispose();
-        return new Selection_ChangeInfo(new VectorPath(target.Selection.SelectionPath));
+        return CommonApply(target);
     }
 
     private Selection_ChangeInfo CommonApply(Document target)
@@ -71,6 +75,13 @@ internal class MagicWand_Change : Change
         }
         toDispose.Dispose();
 
+        return new Selection_ChangeInfo(new VectorPath(target.Selection.SelectionPath));
+    }
+
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
+    {
+        (var toDispose, target.Selection.SelectionPath) = (target.Selection.SelectionPath, new VectorPath(originalPath!));
+        toDispose.Dispose();
         return new Selection_ChangeInfo(new VectorPath(target.Selection.SelectionPath));
     }
 
