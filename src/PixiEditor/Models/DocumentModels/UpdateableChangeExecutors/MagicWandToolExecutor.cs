@@ -25,7 +25,7 @@ internal class MagicWandToolExecutor : UpdateableChangeExecutor
         if (magicWand is null || members.Count == 0)
             return ExecutionState.Error;
 
-        mode = magicWand.SelectMode;
+        mode = magicWand.ResultingSelectionMode;
         memberGuids = members;
         considerAllLayers = magicWand.DocumentScope == DocumentScope.Canvas;
         if (considerAllLayers)
@@ -40,21 +40,21 @@ internal class MagicWandToolExecutor : UpdateableChangeExecutor
 
     public override void OnPixelPositionChange(VecI pos)
     {
-        AddUpdateAction(pos);
         internals!.ActionAccumulator.AddActions(new ChangeBoundary_Action());
+        AddUpdateAction(pos);
     }
 
     public override void OnLeftMouseButtonUp(VecD argsPositionOnCanvas)
     {
-        AddFinishAction();
         internals!.ActionAccumulator.AddActions(new ChangeBoundary_Action());
+        AddFinishAction();
         onEnded!(this);
     }
 
     public override void ForceStop()
     {
-        AddFinishAction();
         internals!.ActionAccumulator.AddActions(new ChangeBoundary_Action());
+        AddFinishAction();
     }
 
     private void AddUpdateAction(VecI pos)

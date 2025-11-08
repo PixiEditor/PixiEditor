@@ -71,7 +71,8 @@ internal class MagicWand_UpdateableChange : UpdateableChange
         }
         else
         {
-            target.Selection.SelectionPath = originalPath!.Op(path, mode.ToVectorPathOp());
+            originalPath = originalPath!.Op(path, mode.ToVectorPathOp());
+            target.Selection.SelectionPath = originalPath;
         }
         toDispose.Dispose();
 
