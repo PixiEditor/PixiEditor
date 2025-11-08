@@ -17,7 +17,7 @@ namespace PixiEditor.ViewModels.Tools.Tools;
 internal class MagicWandToolViewModel : ToolViewModel, IMagicWandToolHandler
 {
     public override LocalizedString Tooltip => new LocalizedString("MAGIC_WAND_TOOL_TOOLTIP", Shortcut);
-    private string defaultActionDisplay = "MAGIC_WAND_TOOL_ACTION_DISPLAY_DEFAULT";
+    private LocalizedString defaultActionDisplay => new LocalizedString("MAGIC_WAND_ACTION_DISPLAY");
     public override string ToolNameLocalizationKey => "MAGIC_WAND_TOOL";
     public override BrushShape FinalBrushShape => BrushShape.Pixel;
     public override Type[]? SupportedLayerTypes { get; } = { typeof(IRasterLayerHandler) };
@@ -37,7 +37,7 @@ internal class MagicWandToolViewModel : ToolViewModel, IMagicWandToolHandler
     public MagicWandToolViewModel()
     {
         Toolbar = ToolbarFactory.Create(this);
-        ActionDisplay = "MAGIC_WAND_ACTION_DISPLAY";
+        ActionDisplay = defaultActionDisplay;
     }
 
     public override Type LayerTypeToCreateOnEmptyUse { get; } = null;
@@ -51,12 +51,12 @@ internal class MagicWandToolViewModel : ToolViewModel, IMagicWandToolHandler
     {
         if (shiftIsDown)
         {
-            ActionDisplay = new LocalizedString("MAGIC_WAND_TOOL_ACTION_DISPLAY_SHIFT");
+            ActionDisplay = new LocalizedString("MAGIC_WAND_ACTION_DISPLAY_SHIFT");
             KeyModifierselectionMode = SelectionMode.Add;
         }
         else if (ctrlIsDown)
         {
-            ActionDisplay = new LocalizedString("MAGIC_WAND_TOOL_ACTION_DISPLAY_CTRL");
+            ActionDisplay = new LocalizedString("MAGIC_WAND_ACTION_DISPLAY_CTRL");
             KeyModifierselectionMode = SelectionMode.Subtract;
         }
         else
