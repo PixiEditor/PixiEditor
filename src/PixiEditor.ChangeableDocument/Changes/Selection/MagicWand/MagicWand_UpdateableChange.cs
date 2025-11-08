@@ -41,16 +41,6 @@ internal class MagicWand_UpdateableChange : UpdateableChange
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
-        HashSet<Guid> membersToReference = new();
-
-        target.ForEveryReadonlyMember(member =>
-        {
-            if (memberGuids.Contains(member.Id))
-                membersToReference.Add(member.Id);
-        });
-
-        path = MagicWandHelper.DoMagicWandFloodFill(point, membersToReference, tolerance, target, frame);
-
         ignoreInUndo = false;
         return CommonApply(target);
     }
@@ -62,6 +52,16 @@ internal class MagicWand_UpdateableChange : UpdateableChange
 
     private Selection_ChangeInfo CommonApply(Document target)
     {
+        HashSet<Guid> membersToReference = new();
+
+        target.ForEveryReadonlyMember(member =>
+        {
+            if (memberGuids.Contains(member.Id))
+                membersToReference.Add(member.Id);
+        });
+
+        path = MagicWandHelper.DoMagicWandFloodFill(point, membersToReference, tolerance, target, frame);
+
         var toDispose = target.Selection.SelectionPath;
         if (mode == SelectionMode.New)
         {
