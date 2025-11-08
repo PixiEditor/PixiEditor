@@ -37,6 +37,12 @@
   <content_rating type="oars-1.1" />
 
   <releases>
+    <release version="2.0.1.18" date="2025-11-07">
+      <url type="details">https://forum.pixieditor.net/t/changelog-2-0-1-18/489</url>
+      <description>
+	      <p>A patch with fixes related to copy pasting, transforming and memory leaks</p>
+      </description>      
+    </release>
     <release version="2.0.1.16" date="2025-10-06">
       <url type="details">https://forum.pixieditor.net/t/changelog-2-0-1-16/461</url>
       <description>
