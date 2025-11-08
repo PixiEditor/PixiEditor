@@ -40,21 +40,21 @@ internal class MagicWandToolExecutor : UpdateableChangeExecutor
 
     public override void OnPixelPositionChange(VecI pos)
     {
-        internals!.ActionAccumulator.AddActions(new ChangeBoundary_Action());
         AddUpdateAction(pos);
+        internals!.ActionAccumulator.AddActions(new ChangeBoundary_Action());
     }
 
     public override void OnLeftMouseButtonUp(VecD argsPositionOnCanvas)
     {
-        internals!.ActionAccumulator.AddActions(new ChangeBoundary_Action());
         AddFinishAction();
+        internals!.ActionAccumulator.AddActions(new ChangeBoundary_Action());
         onEnded!(this);
     }
 
     public override void ForceStop()
     {
-        internals!.ActionAccumulator.AddActions(new ChangeBoundary_Action());
         AddFinishAction();
+        internals!.ActionAccumulator.AddActions(new ChangeBoundary_Action());
     }
 
     private void AddUpdateAction(VecI pos)

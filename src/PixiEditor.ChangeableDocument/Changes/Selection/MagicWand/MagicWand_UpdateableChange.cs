@@ -71,8 +71,7 @@ internal class MagicWand_UpdateableChange : UpdateableChange
         }
         else
         {
-            originalPath = originalPath!.Op(path, mode.ToVectorPathOp());
-            target.Selection.SelectionPath = originalPath;
+            target.Selection.SelectionPath = target.Selection.SelectionPath!.Op(path, mode.ToVectorPathOp());
         }
         toDispose.Dispose();
 
@@ -81,7 +80,8 @@ internal class MagicWand_UpdateableChange : UpdateableChange
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        (var toDispose, target.Selection.SelectionPath) = (target.Selection.SelectionPath, new VectorPath(originalPath!));
+        var toDispose = target.Selection.SelectionPath;
+        target.Selection.SelectionPath = new VectorPath(originalPath!);
         toDispose.Dispose();
         return new Selection_ChangeInfo(new VectorPath(target.Selection.SelectionPath));
     }
