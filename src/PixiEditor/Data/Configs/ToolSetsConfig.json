@@ -40,7 +40,12 @@
           }
         },
         "Select",
-        "MagicWand",
+        {
+            "ToolName": "MagicWand",
+            "Settings": {
+              "Spacing": 0
+            }
+        },
         "Lasso",
         {
           "ToolName": "FloodFill",

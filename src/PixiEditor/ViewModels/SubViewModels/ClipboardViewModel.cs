@@ -86,29 +86,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
 
         Dispatcher.UIThread.InvokeAsync(async () =>
         {
-            Guid[] guids = doc.StructureHelper.GetAllLayers().Select(x => x.Id).ToArray();
             await ClipboardController.TryPasteFromClipboard(doc, Owner.DocumentManagerSubViewModel, pasteAsNewLayer);
-
-            // Leaving the code below commented out in case something breaks.
-            // It instantly ended paste image operation after I made it interruptable,
-            // I did test it, and it seems everything works fine without it.
-            /*doc.Operations.InvokeCustomAction(
-                () =>
-            {
-                Guid[] newGuids = doc.StructureHelper.GetAllLayers().Select(x => x.Id).ToArray();
-
-                var diff = newGuids.Except(guids).ToArray();
-                if (diff.Length > 0)
-                {
-                    doc.Operations.ClearSoftSelectedMembers();
-                    doc.Operations.SetSelectedMember(diff[0]);
-
-                    for (int i = 1; i < diff.Length; i++)
-                    {
-                        doc.Operations.AddSoftSelectedMember(diff[i]);
-                    }
-                }
-            }, false);*/
         });
     }
 
@@ -388,7 +366,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         var selectedNodes = doc.NodeGraph.AllNodes.Where(x => x.IsNodeSelected).Select(x => x.Id).ToArray();
         if (selectedNodes.Length == 0)
             return;
-        
+
         await ClipboardController.CopyNodes(selectedNodes, doc.Id);
 
         areNodesInClipboard = true;
@@ -573,7 +551,8 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         return ColorSearchResult.GetIcon(targetColor.ToOpaqueMediaColor().ToOpaqueColor());
     }
 
-    private void ConnectRelatedNodes(IDocument sourceDoc, DocumentViewModel targetDoc, Dictionary<Guid, Guid> nodeMapping)
+    private void ConnectRelatedNodes(IDocument sourceDoc, DocumentViewModel targetDoc,
+        Dictionary<Guid, Guid> nodeMapping)
     {
         foreach (var connection in sourceDoc.NodeGraphHandler.Connections)
         {

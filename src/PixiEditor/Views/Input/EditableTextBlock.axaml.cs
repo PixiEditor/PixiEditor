@@ -115,6 +115,16 @@ internal partial class EditableTextBlock : UserControl
         e.Handled = true;
     }
 
+
+    private void TextBlock_OnPointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (e.ClickCount == 2)
+        {
+            EnableEditing();
+            e.Handled = true;
+        }
+    }
+
     private void TextBox_KeyDown(object sender, KeyEventArgs e)
     {
         if (e.Key is Key.Enter or Key.Escape)

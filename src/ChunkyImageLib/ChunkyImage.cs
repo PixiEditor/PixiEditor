@@ -291,7 +291,37 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
 
             foreach (var chunkPos in possibleChunks)
             {
-                var chunk = GetLatestChunk(chunkPos, suggestedResolution) ?? GetCommittedChunk(chunkPos, suggestedResolution);
+                var committedChunk = GetCommittedChunk(chunkPos, suggestedResolution);
+                var latestChunk = GetLatestChunk(chunkPos, suggestedResolution);
+
+                Chunk? chunk;
+                bool isTempChunk = false;
+
+                if (latestChunk != null && committedChunk != null)
+                {
+                    // both exist, need to merge
+                    var tempChunk = Chunk.Create(ProcessingColorSpace, suggestedResolution);
+                    tempChunk.Surface.DrawingSurface.Canvas.DrawSurface(committedChunk.Surface.DrawingSurface, 0, 0,
+                        ReplacingPaint);
+                    blendModePaint.BlendMode = blendMode;
+                    tempChunk.Surface.DrawingSurface.Canvas.DrawSurface(latestChunk.Surface.DrawingSurface, 0, 0,
+                        blendModePaint);
+                    if (lockTransparency)
+                        OperationHelper.ClampAlpha(tempChunk.Surface.DrawingSurface,
+                            committedChunk.Surface.DrawingSurface);
+                    chunk = tempChunk;
+                    isTempChunk = true;
+                }
+                else if (latestChunk != null)
+                {
+                    chunk = latestChunk;
+                }
+                else
+                {
+                    chunk = committedChunk;
+                }
+
+
                 if (chunk != null)
                 {
                     RectI visibleArea = new RectI(chunkPos * chunkSize, new VecI(chunkSize))
@@ -304,6 +334,11 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
 
                     preciseBounds ??= globalChunkBounds;
                     preciseBounds = preciseBounds.Value.Union(globalChunkBounds);
+
+                    if (isTempChunk)
+                    {
+                        chunk.Dispose();
+                    }
                 }
                 else
                 {
@@ -1695,10 +1730,13 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
         hash.Add(commitCounter);
         hash.Add(queuedOperations.Count);
         hash.Add(operationCounter);
+
         foreach (var queuedOperation in queuedOperations)
         {
             hash.Add(queuedOperation.affectedArea.GlobalArea?.GetHashCode() ?? 0);
+            hash.Add(queuedOperation.operation.GetHashCode());
         }
+
         hash.Add(activeClips.Count);
         hash.Add((int)blendMode);
         hash.Add(lockTransparency);

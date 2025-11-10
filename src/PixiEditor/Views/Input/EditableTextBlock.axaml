@@ -10,9 +10,10 @@
     <Grid>
         <Border IsVisible="{Binding Path=TextBlockVisibility, ElementName=etb}">
             <TextBlock Foreground="{Binding ElementName=etb, Path=Foreground}"
-                       DoubleTapped="OnDoubleTapped"
-                       TextTrimming="CharacterEllipsis" Name="textBlock"
-                       Text="{Binding Path=Text, ElementName=etb, Mode=TwoWay}" />
+                   DoubleTapped="OnDoubleTapped"
+                   PointerPressed="TextBlock_OnPointerPressed"
+                   TextTrimming="CharacterEllipsis" Name="textBlock"
+                   Text="{Binding Path=Text, ElementName=etb, Mode=TwoWay}" />
         </Border>
         <TextBox Foreground="{Binding ElementName=etb, Path=Foreground}"
                  MaxLength="{Binding Path=MaxChars, ElementName=etb, Mode=TwoWay}"

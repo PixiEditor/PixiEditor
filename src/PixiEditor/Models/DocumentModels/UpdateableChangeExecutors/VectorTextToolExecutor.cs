@@ -130,8 +130,9 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         clickPos = args.PositionOnCanvas;
         var firstLayer = topMostWithinClick.FirstOrDefault();
         args.Handled = firstLayer != null;
-        if (firstLayer is not IVectorLayerHandler layerHandler)
+        if (firstLayer is not IVectorLayerHandler layerHandler || layerHandler.GetShapeData(document.AnimationHandler.ActiveFrameTime) is not TextVectorData)
         {
+            args.Handled = false;
             if (document.TextOverlayHandler.IsActive)
             {
                 args.Handled = true;

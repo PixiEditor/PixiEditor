@@ -274,4 +274,27 @@ internal class DocumentStructureModule
 
         return children;
     }
+
+    public List<IStructureMemberHandler> GetAllMembersInOrder()
+    {
+        var allMembers = doc.NodeGraphHandler.StructureTree.Members;
+
+        List<IStructureMemberHandler> membersInOrder = new List<IStructureMemberHandler>();
+        for (var i = allMembers.Count - 1; i >= 0; i--)
+        {
+            var member = allMembers[i];
+            membersInOrder.Add(member);
+
+            if (member is IFolderHandler folder)
+            {
+                membersInOrder.AddRange(GetFolderChildren(folder.Id));
+            }
+            else
+            {
+                membersInOrder.Add(member);
+            }
+        }
+
+        return membersInOrder;
+    }
 }

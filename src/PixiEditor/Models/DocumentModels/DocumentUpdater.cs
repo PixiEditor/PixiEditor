@@ -859,6 +859,9 @@ internal class DocumentUpdater
     private void ProcessNodePosition(NodePosition_ChangeInfo info)
     {
         NodeViewModel node = doc.StructureHelper.FindNode<NodeViewModel>(info.NodeId);
+        if (node == null)
+            return;
+
         node.SetPosition(info.NewPosition);
     }
 
