@@ -67,6 +67,42 @@ public class BrushEngine : IDisposable
         lastAppliedPointIndex = points.Count - 1;
     }
 
+    public void ExecuteBrush(ChunkyImage target, BrushData brushData, List<RecordedPoint> points,
+        KeyFrameTime frameTime,
+        ColorSpace cs, SamplingOptions samplingOptions)
+    {
+        if (brushData.BrushGraph == null)
+        {
+            return;
+        }
+
+        if (brushData.BrushGraph.AllNodes.FirstOrDefault(x => x is BrushOutputNode) is not BrushOutputNode brushNode)
+        {
+            return;
+        }
+
+        float strokeWidth = brushData.StrokeWidth;
+        float spacing = brushNode.Spacing.Value / 100f;
+
+        for (int i = Math.Max(lastAppliedPointIndex, 0); i < points.Count; i++)
+        {
+            var point = points[i];
+
+            float spacingPixels = (strokeWidth * point.PointerInfo.Pressure) * spacing;
+            if (VecD.Distance(lastPos, point.Position) < spacingPixels)
+                continue;
+
+            ExecuteVectorShapeBrush(target, brushNode, brushData, point.Position, frameTime, cs, samplingOptions, point.PointerInfo,
+                point.KeyboardInfo,
+                point.EditorData);
+
+            lastPos = point.Position;
+        }
+
+        lastAppliedPointIndex = points.Count - 1;
+    }
+
+
     public void ExecuteBrush(ChunkyImage target, BrushData brushData, VecD point, KeyFrameTime frameTime, ColorSpace cs,
         SamplingOptions samplingOptions, PointerInfo pointerInfo, KeyboardInfo keyboardInfo, EditorData editorData)
     {
