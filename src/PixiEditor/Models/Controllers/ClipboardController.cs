@@ -398,6 +398,8 @@ internal static class ClipboardController
         }
 
         return false;
+    }
+
     private static List<Guid> AdjustIdsForImport(Guid[] layerIds, IDocument targetDoc, DocumentViewModel document)
     {
         // This should only copy root level layers
