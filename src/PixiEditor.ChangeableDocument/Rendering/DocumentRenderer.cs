@@ -193,27 +193,6 @@ public class DocumentRenderer : IDisposable
         return true;
     }
 
-    RectD? IPreviewRenderable.GetPreviewBounds(int frame, string elementNameToRender = "") =>
-        new(0, 0, Document.Size.X, Document.Size.Y);
-
-    bool IPreviewRenderable.RenderPreview(DrawingSurface renderOn, RenderContext context,
-        string elementToRenderName)
-    {
-        IsBusy = true;
-
-        renderOn.Canvas.Clear();
-        int savedCount = renderOn.Canvas.Save();
-        renderOn.Canvas.Scale((float)context.ChunkResolution.Multiplier());
-        context.RenderSurface = renderOn;
-        Document.NodeGraph.Execute(context);
-        lastExecutedGraphFrame = context.FrameTime.Frame;
-        renderOn.Canvas.RestoreToCount(savedCount);
-
-        IsBusy = false;
-
-        return true;
-    }
-
     public void RenderDocument(DrawingSurface toRenderOn, KeyFrameTime frameTime, VecI renderSize,
         string? customOutput = null)
     {
