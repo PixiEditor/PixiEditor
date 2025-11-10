@@ -10,6 +10,7 @@
     <Grid>
         <TextBlock Foreground="{Binding ElementName=etb, Path=Foreground}"
                    DoubleTapped="OnDoubleTapped"
+                   PointerPressed="TextBlock_OnPointerPressed"
                    TextTrimming="CharacterEllipsis" Name="textBlock"
                    IsVisible="{Binding Path=TextBlockVisibility, ElementName=etb}"
                    Text="{Binding Path=Text, ElementName=etb, Mode=TwoWay}" />

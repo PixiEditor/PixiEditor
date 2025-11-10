@@ -114,6 +114,7 @@ public static class FloodFillHelper
             {
                 var chunk = Chunk.Create(document.ProcessingColorSpace);
                 chunk.Surface.DrawingSurface.Canvas.Clear(Colors.Transparent);
+
                 drawingChunks[chunkPos] = chunk;
             }
 

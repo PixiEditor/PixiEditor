@@ -64,8 +64,10 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
     private readonly object lockObject = new();
     private int commitCounter = 0;
 
-    private RectI cachedPreciseBounds = RectI.Empty;
-    private int lastBoundsCacheHash = -1;
+    private RectI cachedPreciseCommitedBounds = RectI.Empty;
+    private RectI cachedPreciseLatestBounds = RectI.Empty;
+    private int lastCommitedBoundsCacheHash = -1;
+    private int lastLatestBoundsCacheHash = -1;
 
     public const int FullChunkSize = ChunkPool.FullChunkSize;
     private static Paint ClippingPaint { get; } = new Paint() { BlendMode = BlendMode.DstIn };
@@ -200,9 +202,9 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
         {
             ThrowIfDisposed();
 
-            if (lastBoundsCacheHash == GetCacheHash())
+            if (lastCommitedBoundsCacheHash == GetCacheHash())
             {
-                return cachedPreciseBounds;
+                return cachedPreciseCommitedBounds;
             }
 
             var chunkSize = suggestedResolution.PixelSize();
@@ -250,8 +252,120 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
             preciseBounds = (RectI?)preciseBounds?.Scale(suggestedResolution.InvertedMultiplier()).RoundOutwards();
             preciseBounds = preciseBounds?.Intersect(new RectI(preciseBounds.Value.Pos, CommittedSize));
 
-            cachedPreciseBounds = preciseBounds.GetValueOrDefault();
-            lastBoundsCacheHash = GetCacheHash();
+            cachedPreciseCommitedBounds = preciseBounds.GetValueOrDefault();
+            lastCommitedBoundsCacheHash = GetCacheHash();
+
+            return preciseBounds;
+        }
+    }
+
+    public RectI? FindTightLatestBounds(ChunkResolution suggestedResolution = ChunkResolution.Full,
+        bool fallbackToChunkAligned = false)
+    {
+        lock (lockObject)
+        {
+            ThrowIfDisposed();
+
+            if(queuedOperations.Count == 0)
+            {
+                return FindTightCommittedBounds(suggestedResolution, fallbackToChunkAligned);
+            }
+
+            /*if (lastLatestBoundsCacheHash == GetCacheHash())
+            {
+                return cachedPreciseLatestBounds;
+            }*/
+
+            var chunkSize = suggestedResolution.PixelSize();
+            var multiplier = suggestedResolution.Multiplier();
+            RectI scaledLatestSize = (RectI)(new RectD(VecI.Zero, LatestSize * multiplier)).RoundOutwards();
+
+            RectI? preciseBounds = null;
+
+            var possibleChunks = new HashSet<VecI>();
+            foreach (var (pos, _) in committedChunks[ChunkResolution.Full])
+                possibleChunks.Add(pos);
+
+            foreach (var (pos, _) in latestChunks[ChunkResolution.Full])
+                possibleChunks.Add(pos);
+
+            foreach (var chunkPos in possibleChunks)
+            {
+                var committedChunk = GetCommittedChunk(chunkPos, suggestedResolution);
+                var latestChunk = GetLatestChunk(chunkPos, suggestedResolution);
+
+                Chunk? chunk;
+                bool isTempChunk = false;
+
+                if (latestChunk != null && committedChunk != null)
+                {
+                    // both exist, need to merge
+                    var tempChunk = Chunk.Create(ProcessingColorSpace, suggestedResolution);
+                    tempChunk.Surface.DrawingSurface.Canvas.DrawSurface(committedChunk.Surface.DrawingSurface, 0, 0,
+                        ReplacingPaint);
+                    blendModePaint.BlendMode = blendMode;
+                    tempChunk.Surface.DrawingSurface.Canvas.DrawSurface(latestChunk.Surface.DrawingSurface, 0, 0,
+                        blendModePaint);
+                    if (lockTransparency)
+                        OperationHelper.ClampAlpha(tempChunk.Surface.DrawingSurface,
+                            committedChunk.Surface.DrawingSurface);
+                    chunk = tempChunk;
+                    isTempChunk = true;
+                }
+                else if (latestChunk != null)
+                {
+                    chunk = latestChunk;
+                }
+                else
+                {
+                    chunk = committedChunk;
+                }
+
+
+                if (chunk != null)
+                {
+                    RectI visibleArea = new RectI(chunkPos * chunkSize, new VecI(chunkSize))
+                        .Intersect(scaledLatestSize).Translate(-chunkPos * chunkSize);
+
+                    RectI? chunkPreciseBounds = chunk.FindPreciseBounds(visibleArea);
+                    if (chunkPreciseBounds is null)
+                        continue;
+                    RectI globalChunkBounds = chunkPreciseBounds.Value.Offset(chunkPos * chunkSize);
+
+                    preciseBounds ??= globalChunkBounds;
+                    preciseBounds = preciseBounds.Value.Union(globalChunkBounds);
+
+                    if (isTempChunk)
+                    {
+                        chunk.Dispose();
+                    }
+                }
+                else
+                {
+                    if (fallbackToChunkAligned)
+                    {
+                        return FindChunkAlignedMostUpToDateBounds();
+                    }
+
+                    RectI visibleArea = new RectI(chunkPos * FullChunkSize, new VecI(FullChunkSize))
+                        .Intersect(new RectI(VecI.Zero, LatestSize)).Translate(-chunkPos * FullChunkSize);
+
+                    RectI? chunkPreciseBounds = chunk.FindPreciseBounds(visibleArea);
+                    if (chunkPreciseBounds is null)
+                        continue;
+                    RectI globalChunkBounds = (RectI)chunkPreciseBounds.Value.Scale(multiplier)
+                        .Offset(chunkPos * chunkSize).RoundOutwards();
+
+                    preciseBounds ??= globalChunkBounds;
+                    preciseBounds = preciseBounds.Value.Union(globalChunkBounds);
+                }
+            }
+
+            preciseBounds = (RectI?)preciseBounds?.Scale(suggestedResolution.InvertedMultiplier()).RoundOutwards();
+            preciseBounds = preciseBounds?.Intersect(new RectI(preciseBounds.Value.Pos, LatestSize));
+
+            cachedPreciseLatestBounds = preciseBounds.GetValueOrDefault();
+            lastLatestBoundsCacheHash = GetCacheHash();
 
             return preciseBounds;
         }
@@ -1608,10 +1722,26 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
 
     public int GetCacheHash()
     {
-        return commitCounter + queuedOperations.Count + operationCounter + activeClips.Count
-               + (int)blendMode + (lockTransparency ? 1 : 0)
-               + (horizontalSymmetryAxis is not null ? (int)(horizontalSymmetryAxis * 100) : 0)
-               + (verticalSymmetryAxis is not null ? (int)(verticalSymmetryAxis * 100) : 0)
-               + (clippingPath is not null ? 1 : 0);
+        HashCode hash = new HashCode();
+        hash.Add(commitCounter);
+        hash.Add(queuedOperations.Count);
+        hash.Add(operationCounter);
+
+        foreach (var queuedOperation in queuedOperations)
+        {
+            hash.Add(queuedOperation.affectedArea.GlobalArea?.GetHashCode() ?? 0);
+            hash.Add(queuedOperation.operation.GetHashCode());
+        }
+
+        hash.Add(activeClips.Count);
+        hash.Add((int)blendMode);
+        hash.Add(lockTransparency);
+        if (horizontalSymmetryAxis is not null)
+            hash.Add((int)(horizontalSymmetryAxis * 100));
+        if (verticalSymmetryAxis is not null)
+            hash.Add((int)(verticalSymmetryAxis * 100));
+        if (clippingPath is not null)
+            hash.Add(1);
+        return hash.ToHashCode();
     }
 }

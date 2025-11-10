@@ -81,6 +81,11 @@ public class DocumentRenderer : IDisposable
         {
             renderTexture.DrawingSurface.Canvas.Restore();
             toRenderOn.Canvas.Restore();
+            if (membersOnlyGraph is IDisposable disposableGraph)
+            {
+                disposableGraph.Dispose();
+            }
+
             IsBusy = false;
         }
     }
@@ -142,38 +147,50 @@ public class DocumentRenderer : IDisposable
 
         fullGraph.OutputNode.TraverseBackwards((node, input) =>
         {
-            if (node is StructureNode structureNode && membersToCombine != null &&
-                !membersToCombine.Contains(structureNode.Id))
-            {
-                return true;
-            }
-
-            if (node is LayerNode layer)
-            {
-                LayerNode clone = (LayerNode)layer.Clone();
-                membersOnlyGraph.AddNode(clone);
-
-
-                IInputProperty targetInput = GetTargetInput(input, fullGraph, membersOnlyGraph, nodeMapping);
-
-                clone.Output.ConnectTo(targetInput);
-                nodeMapping[layer.Id] = clone.Id;
-            }
-            else if (node is FolderNode folder)
-            {
-                FolderNode clone = (FolderNode)folder.Clone();
-                membersOnlyGraph.AddNode(clone);
-
-                var targetInput = GetTargetInput(input, fullGraph, membersOnlyGraph, nodeMapping);
-
-                clone.Output.ConnectTo(targetInput);
-                nodeMapping[folder.Id] = clone.Id;
-            }
-
-            return true;
+            return CloneElement(membersToCombine, fullGraph, node, membersOnlyGraph, input, nodeMapping);
         });
 
         return membersOnlyGraph;
+    }
+
+    private static bool CloneElement(HashSet<Guid>? membersToCombine, IReadOnlyNodeGraph fullGraph, IReadOnlyNode node,
+        NodeGraph membersOnlyGraph, IInputProperty input, Dictionary<Guid, Guid> nodeMapping,
+        IInputProperty? fallback = null)
+    {
+        if (node is StructureNode structureNode && membersToCombine != null &&
+            !membersToCombine.Contains(structureNode.Id))
+        {
+            return true;
+        }
+
+        if (node is LayerNode layer)
+        {
+            LayerNode clone = (LayerNode)layer.Clone();
+            membersOnlyGraph.AddNode(clone);
+
+            IInputProperty targetInput = GetTargetInput(input, fullGraph, membersOnlyGraph, nodeMapping, fallback);
+
+            clone.Output.ConnectTo(targetInput);
+            nodeMapping[layer.Id] = clone.Id;
+        }
+        else if (node is FolderNode folder)
+        {
+            FolderNode clone = (FolderNode)folder.Clone();
+            membersOnlyGraph.AddNode(clone);
+
+            var targetInput = GetTargetInput(input, fullGraph, membersOnlyGraph, nodeMapping, fallback);
+
+            clone.Output.ConnectTo(targetInput);
+            nodeMapping[folder.Id] = clone.Id;
+
+            folder.Content.Connection?.Node.TraverseBackwards((childNode, childInput) =>
+            {
+                return CloneElement(membersToCombine, fullGraph, childNode, membersOnlyGraph, childInput,
+                    nodeMapping, clone.Content);
+            });
+        }
+
+        return true;
     }
 
     public void RenderDocument(DrawingSurface toRenderOn, KeyFrameTime frameTime, VecI renderSize,
@@ -238,9 +255,13 @@ public class DocumentRenderer : IDisposable
     private static IInputProperty GetTargetInput(IInputProperty? input,
         IReadOnlyNodeGraph sourceGraph,
         NodeGraph membersOnlyGraph,
-        Dictionary<Guid, Guid> nodeMapping)
+        Dictionary<Guid, Guid> nodeMapping, IInputProperty? fallback = null)
     {
-        if (input == null)
+        if (input == null && fallback != null)
+        {
+            return fallback;
+        }
+        else if (input == null)
         {
             if (membersOnlyGraph.OutputNode is IRenderInput inputNode) return inputNode.Background;
 

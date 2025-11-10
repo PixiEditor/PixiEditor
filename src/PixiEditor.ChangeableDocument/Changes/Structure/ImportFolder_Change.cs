@@ -152,6 +152,11 @@ internal class ImportFolder_Change : Change
                     counter++;
                 }
 
+                if (node is LayerNode layerNode)
+                {
+                    ResizeImageData(layerNode, target.Size);
+                }
+
                 contentGuidToNodeMap[x.Id] = node.Id;
 
                 target.NodeGraph.AddNode(node);
@@ -176,6 +181,18 @@ internal class ImportFolder_Change : Change
             Guid targetNodeId = contentGuidToNodeMap[data.Key];
             operations.AddRange(NodeOperations.ConnectStructureNodeProperties(updatedData,
                 target.FindNodeOrThrow<Node>(targetNodeId), target.NodeGraph));
+        }
+    }
+
+    private void ResizeImageData(LayerNode layerNode, VecI docSize)
+    {
+        foreach (var imageData in layerNode.KeyFrames)
+        {
+            if (imageData.Data is ChunkyImage img)
+            {
+                img.EnqueueResize(docSize);
+                img.CommitChanges();
+            }
         }
     }
 

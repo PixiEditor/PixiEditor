@@ -137,7 +137,13 @@
                 Background="{DynamicResource ThemeBackgroundBrush}"
                 Grid.Row="3" VerticalAlignment="Bottom" />
             <TreeView DockPanel.Dock="Top" Name="treeView" BorderThickness="0"
-                      ItemsSource="{Binding DataContext.ActiveDocument.NodeGraph.StructureTree.Members, ElementName=layersManager}">
+                      AutoScrollToSelectedItem="True"
+                          ItemsSource="{Binding DataContext.ActiveDocument.NodeGraph.StructureTree.Members, ElementName=layersManager}">
+                <TreeView.Styles>
+                    <Style Selector="TreeViewItem">
+                        <Setter Property="IsExpanded" Value="{Binding (nodes:FolderNodeViewModel).IsOpen, Mode=TwoWay}"></Setter>
+                    </Style>
+                </TreeView.Styles>
                 <TreeView.ItemsPanel>
                     <ItemsPanelTemplate>
                         <StackPanel />
