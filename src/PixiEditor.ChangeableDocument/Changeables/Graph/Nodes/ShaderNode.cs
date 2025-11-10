@@ -24,7 +24,6 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
     private string lastShaderCode;
     private Paint paint;
 
-    private VecI lastDocumentSize;
     private List<Shader> lastCustomImageShaders = new();
 
     private Dictionary<string, (InputProperty prop, UniformValueType valueType)> uniformInputs = new();
@@ -75,7 +74,6 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
             shader = shader.WithUpdatedUniforms(uniforms);
         }
 
-        lastDocumentSize = context.DocumentSize;
         paint.Shader = shader;
     }
 
@@ -207,15 +205,12 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
         }
     }
 
-    public override RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
+    public override void RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
     {
-        return new RectD(0, 0, lastDocumentSize.X, lastDocumentSize.Y);
-    }
-
-    public override bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
-    {
+        int saved = renderOn.Canvas.Save();
+        renderOn.Canvas.Scale((float)context.ChunkResolution.InvertedMultiplier());
         OnPaint(context, renderOn);
-        return true;
+        renderOn.Canvas.RestoreToCount(saved);
     }
 
     public override Node CreateCopy()

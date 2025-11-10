@@ -8,24 +8,19 @@
              xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"
              xmlns:visuals="clr-namespace:PixiEditor.Views.Visuals"
              xmlns:ui1="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+             xmlns:viewportControls="clr-namespace:PixiEditor.Views.Main.ViewportControls"
              mc:Ignorable="d"
              x:Name="uc"
              HorizontalAlignment="Center"
              VerticalAlignment="Center"
              d:DesignHeight="450" d:DesignWidth="800">
-    
-        <visuals:PreviewPainterControl
-            x:Name="mainImage"
-            Focusable="True"
-            PreviewPainter="{Binding Document.PreviewPainter, ElementName=uc}"
-            CustomRenderSize="{Binding CustomRenderSize, ElementName=uc}"
-            FrameToRender="{Binding Document.AnimationDataViewModel.ActiveFrameBindable, ElementName=uc}"
-            SizeChanged="OnImageSizeChanged">
-            <ui1:RenderOptionsBindable.BitmapInterpolationMode>
-                <MultiBinding Converter="{converters1:WidthToBitmapScalingModeConverter}">
-                    <Binding ElementName="uc" Path="Document.SizeBindable.X" />
-                    <Binding ElementName="mainImage" Path="Bounds.Width" />
-                </MultiBinding>
-            </ui1:RenderOptionsBindable.BitmapInterpolationMode>
-        </visuals:PreviewPainterControl>
+
+    <visuals:TextureControl
+        x:Name="mainImage"
+        Focusable="True"
+        Stretch="Uniform"
+        Texture="{Binding  SceneTexture,
+        RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:FixedViewport}}"
+        SizeChanged="OnImageSizeChanged">
+    </visuals:TextureControl>
 </UserControl>

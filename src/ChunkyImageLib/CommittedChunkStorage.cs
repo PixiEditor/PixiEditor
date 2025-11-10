@@ -36,7 +36,7 @@ public class CommittedChunkStorage : IDisposable
             if (chunk is null)
                 image.EnqueueClearRegion(new(pos * ChunkPool.FullChunkSize, new(ChunkPool.FullChunkSize, ChunkPool.FullChunkSize)));
             else
-                image.EnqueueDrawImage(pos * ChunkPool.FullChunkSize, chunk.Surface, ReplacingPaint);
+                image.EnqueueDrawTexture(pos * ChunkPool.FullChunkSize, chunk.Surface, ReplacingPaint);
         }
     }
 

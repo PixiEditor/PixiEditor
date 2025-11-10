@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using Drawie.Backend.Core.Bridge;
 using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
@@ -430,7 +431,7 @@ public class DocumentChangeTracker : IDisposable
         if (running)
             throw new InvalidOperationException("Already currently processing");
         running = true;
-        var result = await Task.Run(() => ProcessActionList(actions)).ConfigureAwait(true);
+        var result = await DrawingBackendApi.Current.RenderingDispatcher.InvokeAsync(() => ProcessActionList(actions));
         running = false;
         return result;
     }

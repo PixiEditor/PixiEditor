@@ -44,6 +44,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
 
     public override void Render(SceneObjectRenderContext sceneContext)
     {
+        RenderPreviews(sceneContext);
         if (!IsVisible.Value || Opacity.Value <= 0 || IsEmptyMask())
         {
             Output.Value = Background.Value;
@@ -99,7 +100,12 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
 
         Content.Value?.Paint(sceneContext, outputWorkingSurface.DrawingSurface);
 
+        int saved2 = outputWorkingSurface.DrawingSurface.Canvas.Save();
+        outputWorkingSurface.DrawingSurface.Canvas.Scale((float)sceneContext.ChunkResolution.InvertedMultiplier());
+
         ApplyMaskIfPresent(outputWorkingSurface.DrawingSurface, sceneContext, sceneContext.ChunkResolution);
+
+        outputWorkingSurface.DrawingSurface.Canvas.RestoreToCount(saved2);
 
         if (Background.Value != null && sceneContext.TargetPropertyOutput != RawOutput)
         {
@@ -274,44 +280,37 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
         return guids;
     }
 
-    public override RectD? GetPreviewBounds(int frame, string elementFor = "")
+    protected override bool ShouldRenderPreview(string elementToRenderName)
     {
-        if (elementFor == nameof(EmbeddedMask))
+        if (elementToRenderName == nameof(EmbeddedMask))
         {
-            return base.GetPreviewBounds(frame, elementFor);
+            return base.ShouldRenderPreview(elementToRenderName);
         }
 
-        return GetApproxBounds(frame);
+        return Content.Connection != null;
     }
 
-    public override bool RenderPreview(DrawingSurface renderOn, RenderContext context,
+    public override RectD? GetPreviewBounds(RenderContext ctx, string elementToRenderName)
+    {
+        return GetApproxBounds(ctx.FrameTime);
+    }
+
+    public override void RenderPreview(DrawingSurface renderOn, RenderContext context,
         string elementToRenderName)
     {
         if (elementToRenderName == nameof(EmbeddedMask))
         {
-            return base.RenderPreview(renderOn, context, elementToRenderName);
+            base.RenderPreview(renderOn, context, elementToRenderName);
+            return;
         }
 
         if (Content.Connection != null)
         {
-            var executionQueue = GraphUtils.CalculateExecutionQueue(Content.Connection.Node, FilterInvisibleFolders);
-            while (executionQueue.Count > 0)
+            if (context is SceneObjectRenderContext ctx)
             {
-                IReadOnlyNode node = executionQueue.Dequeue();
-
-                if (node is IReadOnlyStructureNode { IsVisible.Value: false })
-                {
-                    continue;
-                }
-
-                if (node is IPreviewRenderable previewRenderable)
-                {
-                    previewRenderable.RenderPreview(renderOn, context, elementToRenderName);
-                }
+                RenderFolderContent(ctx, true);
             }
         }
-
-        return true;
     }
 
     void IClipSource.DrawClipSource(SceneObjectRenderContext context, DrawingSurface drawOnto)

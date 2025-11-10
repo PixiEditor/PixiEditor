@@ -22,6 +22,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
 
     public override void Render(SceneObjectRenderContext sceneContext)
     {
+        RenderPreviews(sceneContext);
         if (!IsVisible.Value || Opacity.Value <= 0 || IsEmptyMask())
         {
             Output.Value = Background.Value;
@@ -44,6 +45,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
                 blendPaint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
             }
 
+            // TODO: Optimizattion: Simple graphs can draw directly to scene, skipping the intermediate surface
             if (AllowHighDpiRendering || renderOnto.DeviceClipBounds.Size == context.RenderOutputSize)
             {
                 DrawLayerInScene(context, renderOnto, useFilters);
@@ -59,7 +61,8 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
                 var tempSurface = TryInitWorkingSurface(context.RenderOutputSize, context.ChunkResolution,
                     context.ProcessingColorSpace, 22);
 
-                DrawLayerOnTexture(context, tempSurface.DrawingSurface, context.ChunkResolution, useFilters, targetPaint);
+                DrawLayerOnTexture(context, tempSurface.DrawingSurface, context.ChunkResolution, useFilters,
+                    targetPaint);
 
                 blendPaint.SetFilters(null);
                 DrawWithResolution(tempSurface.DrawingSurface, renderOnto, context.ChunkResolution,
@@ -151,7 +154,8 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
         workingSurface.Canvas.RestoreToCount(scaled);
     }
 
-    private void DrawWithResolution(DrawingSurface source, DrawingSurface target, ChunkResolution resolution, SamplingOptions sampling)
+    private void DrawWithResolution(DrawingSurface source, DrawingSurface target, ChunkResolution resolution,
+        SamplingOptions sampling)
     {
         int scaled = target.Canvas.Save();
         float multiplier = (float)resolution.InvertedMultiplier();
