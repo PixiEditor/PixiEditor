@@ -86,6 +86,10 @@
                                         <Style Selector="avaloniaEdit|TextArea">
                                             <Setter Property="behaviours:BehaviorAttachHelper.EnableGlobalShortcutFocusBehavior" Value="True"/>
                                             <Setter Property="behaviours:BehaviorAttachHelper.EnableAutoFocus" Value="True"/>
+                                            <Setter Property="SelectionBrush" Value="{DynamicResource SelectedLayerBrush}"/>
+                                        </Style>
+                                        <Style Selector="avaloniaEdit|TextView">
+                                            <Setter Property="LinkTextForegroundBrush" Value="{DynamicResource ThemeAccentHighBrush}" />
                                         </Style>
                                     </avaloniaEdit:TextEditor.Styles>
                                 </avaloniaEdit:TextEditor>
