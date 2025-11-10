@@ -34,7 +34,7 @@ internal class BrushToolbar : Toolbar, IBrushToolbar
     public BrushToolbar()
     {
         AddSetting(new BoolSettingViewModel(nameof(AntiAliasing), "ANTI_ALIASING_SETTING") { IsExposed = false });
-        var setting = new SizeSettingViewModel(nameof(ToolSize), "TOOL_SIZE_LABEL");
+        var setting = new SizeSettingViewModel(nameof(ToolSize), "TOOL_SIZE_LABEL", decimalPlaces: 1, min: 0.1);
         setting.ValueChanged += (_, _) => OnPropertyChanged(nameof(ToolSize));
         AddSetting(setting);
         AddSetting(new BrushSettingViewModel(nameof(Brush), "BRUSH_SETTING") { IsExposed = true });

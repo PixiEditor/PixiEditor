@@ -81,7 +81,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     {
         if (!DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask))
             return false;
-        if (strokeWidth < 1)
+        if (strokeWidth < 0.1)
             return false;
         var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame);
 
