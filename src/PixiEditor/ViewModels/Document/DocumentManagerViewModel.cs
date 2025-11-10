@@ -335,7 +335,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
         Dispatcher.UIThread.Post(() =>
         {
             var loaded = Documents.FirstOrDefault(x => x.FullFilePath == fullPath) ??
-                         Importer.ImportDocument(fullPath);
+                         Owner.FileSubViewModel.ImportFromPath(fullPath);
             foreach (var doc in Documents)
             {
                 if (doc.FullFilePath == fullPath)

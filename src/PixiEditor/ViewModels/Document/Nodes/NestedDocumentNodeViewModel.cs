@@ -89,31 +89,14 @@ internal partial class NestedDocumentNodeViewModel :
         {
             if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                var suggestedPath =
-                    await desktop.MainWindow.StorageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Documents);
-
-                string directory = Path.GetDirectoryName(_linkedDocumentPath) ?? string.Empty;
-
-                if (IsFileLinked && !string.IsNullOrEmpty(directory) && Directory.Exists(directory))
-                    suggestedPath = await desktop.MainWindow.StorageProvider.TryGetFolderFromPathAsync(directory);
-
-                var dialog = await desktop.MainWindow.StorageProvider.OpenFolderPickerAsync(
-                    new FolderPickerOpenOptions
-                    {
-                        AllowMultiple = false,
-                        SuggestedStartLocation = suggestedPath,
-                        Title = new LocalizedString("RELINK_DOCUMENT_TITLE")
-                    });
-
-                if (dialog.Count == 0)
-                    return;
-
-                string selectedPath = dialog[0].Path.LocalPath;
-                string fullSelectedPath = Path.Combine(selectedPath, Path.GetFileName(_linkedDocumentPath ?? string.Empty));
-                if (!SupportedFilesHelper.IsSupported(fullSelectedPath))
+                string fullSelectedPath;
+                if (string.IsNullOrEmpty(_linkedDocumentPath))
                 {
-                    throw new InvalidFileTypeException(new LocalizedString("FILE_EXTENSION_NOT_SUPPORTED",
-                        Path.GetExtension(fullSelectedPath)));
+                    fullSelectedPath = await RelinkFile(desktop);
+                }
+                else
+                {
+                    fullSelectedPath = await RelinkFolder(desktop);
                 }
 
                 Internals.ActionAccumulator.AddFinishedActions(new ChangeDocumentReferenceFilePath_Action(Id, fullSelectedPath));
@@ -123,6 +106,59 @@ internal partial class NestedDocumentNodeViewModel :
         {
             NoticeDialog.Show(new LocalizedString("ERROR_RELINKING_DOCUMENT", e.Message), "ERROR");
         }
+    }
+
+    private async Task<string> RelinkFolder(IClassicDesktopStyleApplicationLifetime desktop)
+    {
+        var suggestedPath =
+            await desktop.MainWindow.StorageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Documents);
+
+        string directory = Path.GetDirectoryName(_linkedDocumentPath) ?? string.Empty;
+
+        if (IsFileLinked && !string.IsNullOrEmpty(directory) && Directory.Exists(directory))
+            suggestedPath = await desktop.MainWindow.StorageProvider.TryGetFolderFromPathAsync(directory);
+
+        var dialog = await desktop.MainWindow.StorageProvider.OpenFolderPickerAsync(
+            new FolderPickerOpenOptions
+            {
+                AllowMultiple = false,
+                SuggestedStartLocation = suggestedPath,
+                Title = new LocalizedString("RELINK_DOCUMENT_TITLE")
+            });
+
+        if (dialog.Count == 0)
+            return null;
+
+        string selectedPath = dialog[0].Path.LocalPath;
+        string fullSelectedPath = Path.Combine(selectedPath, Path.GetFileName(_linkedDocumentPath ?? string.Empty));
+        if (!SupportedFilesHelper.IsSupported(fullSelectedPath))
+        {
+            throw new InvalidFileTypeException(new LocalizedString("FILE_EXTENSION_NOT_SUPPORTED",
+                Path.GetExtension(fullSelectedPath)));
+        }
+
+        return fullSelectedPath;
+    }
+
+    private async Task<string> RelinkFile(IClassicDesktopStyleApplicationLifetime desktop)
+    {
+        var suggestedPath =
+            await desktop.MainWindow.StorageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Documents);
+
+        var dialog = await desktop.MainWindow.StorageProvider.OpenFilePickerAsync(
+            new FilePickerOpenOptions
+            {
+                AllowMultiple = false,
+                SuggestedStartLocation = suggestedPath,
+                Title = new LocalizedString("RELINK_DOCUMENT_TITLE"),
+                FileTypeFilter = SupportedFilesHelper.BuildOpenFilter()
+            });
+
+        if (dialog.Count == 0)
+            return null;
+
+        string fullSelectedPath = dialog[0].Path.LocalPath;
+        return fullSelectedPath;
     }
 
     public void SetOriginalFilePath(string? infoOriginalFilePath)

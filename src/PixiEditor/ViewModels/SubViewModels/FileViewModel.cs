@@ -269,7 +269,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
         foreach (DocumentViewModel document in Owner.DocumentManagerSubViewModel.Documents)
         {
-            if (document.Id == referenceId)
+            if (document.ReferenceId == referenceId)
             {
                 Owner.WindowSubViewModel.MakeDocumentViewportActive(document);
                 return;

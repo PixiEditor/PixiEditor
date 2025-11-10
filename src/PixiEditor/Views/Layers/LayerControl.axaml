@@ -228,8 +228,10 @@
                 <MenuItem ui:Translator.Key="EDIT" IsVisible="{Binding $parent[UserControl].Layer.IsLinked, FallbackValue=False}"
                           Command="{xaml:Command PixiEditor.Document.Open, UseProvided=True}"
                             CommandParameter="{Binding $parent[UserControl].Layer.LinkedDocumentPath}" />
-                <MenuItem ui:Translator.Key="UNLINK" IsVisible="{Binding $parent[UserControl].Layer.IsLinked, FallbackValue=False}"
+                <MenuItem ui:Translator.Key="UNLINK" IsVisible="{Binding $parent[UserControl].Layer.IsFileLinked, FallbackValue=False}"
                           Command="{xaml:Command PixiEditor.Layer.UnlinkNestedDocument}" />
+                <MenuItem ui:Translator.Key="RELINK" IsVisible="{Binding $parent[UserControl].Layer.IsLinked, FallbackValue=False}"
+                          Command="{Binding $parent[UserControl].Layer.RelinkWithDialogCommand}" />
             </ContextMenu>
         </Border.ContextMenu>
     </Border>
