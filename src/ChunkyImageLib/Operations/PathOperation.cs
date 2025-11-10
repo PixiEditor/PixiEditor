@@ -66,6 +66,12 @@ internal class PathOperation : IMirroredDrawOperation
             newBounds = (RectI)newBounds.ReflectX((double)verAxisX).Round();
         if (horAxisY is not null)
             newBounds = (RectI)newBounds.ReflectY((double)horAxisY).Round();
+        if (paint.Paintable != null)
+        {
+            return new PathOperation(copy, paint.Paintable, paint.StrokeWidth, paint.StrokeCap, paint.BlendMode,
+                paint.Style, antiAliasing, newBounds);
+        }
+
         return new PathOperation(copy, paint.Color, paint.StrokeWidth, paint.StrokeCap, paint.BlendMode, newBounds);
     }
 

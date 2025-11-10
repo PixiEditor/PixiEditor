@@ -252,7 +252,7 @@ internal static class ClipboardController
         if (targetDoc != null && !hadSelection && pasteAsNew && layerIds is { Length: > 0 } &&
             (!hasPos || await AllMatchesPos(layerIds, data, targetDoc)))
         {
-            List<Guid> adjustedLayerIds = AdjustIdsForImport(layerIds, targetDoc, document);
+            List<Guid> adjustedLayerIds = AdjustIdsForImport(layerIds, targetDoc);
             List<Guid?> newIds = new();
             using var block = document.Operations.StartChangeBlock();
             foreach (var layerId in adjustedLayerIds)
@@ -400,7 +400,7 @@ internal static class ClipboardController
         return false;
     }
 
-    private static List<Guid> AdjustIdsForImport(Guid[] layerIds, IDocument targetDoc, DocumentViewModel document)
+    private static List<Guid> AdjustIdsForImport(Guid[] layerIds, IDocument targetDoc)
     {
         // This should only copy root level layers
         List<Guid> adjustedIds = new();
