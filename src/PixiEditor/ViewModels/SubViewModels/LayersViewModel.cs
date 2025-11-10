@@ -375,7 +375,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         if (path.Count < 2 || path[1] is not FolderNodeViewModel folderVm)
             return;
         var parent = folderVm;
-        if(parent.Children.Count == 0)
+        if (parent.Children.Count == 0)
             return;
         int curIndex = parent.Children.IndexOf(path[0]);
         if (upwards)

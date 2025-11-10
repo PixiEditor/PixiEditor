@@ -142,11 +142,17 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public bool AnySymmetryAxisEnabledBindable =>
         HorizontalSymmetryAxisEnabledBindable || VerticalSymmetryAxisEnabledBindable;
 
-    
-    public bool IsNestedDocument
+
+    public bool IsNestedDocument => referenceId != Guid.Empty;
+
+    public Guid ReferenceId
     {
-        get => isNestedDocument;
-        set => SetProperty(ref isNestedDocument, value);
+        get => referenceId;
+        set
+        {
+            SetProperty(ref referenceId, value);
+            OnPropertyChanged(nameof(IsNestedDocument));
+        }
     }
 
     public bool OverlayEventsSuppressed => overlaySuppressors.Count > 0;
@@ -224,7 +230,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public bool UsesSrgbBlending { get; private set; }
 
     private bool isDisposed = false;
-    private bool isNestedDocument = false;
+    private Guid referenceId = Guid.Empty;
 
     private DocumentViewModel()
     {
@@ -233,7 +239,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         InitializeViewModel();
     }
 
-    internal DocumentViewModel(IReadOnlyDocument document, bool isNested)
+    internal DocumentViewModel(IReadOnlyDocument document, Guid referenceId)
     {
         var serviceProvider = ViewModelMain.Current.Services;
         Internals = new DocumentInternalParts(this, serviceProvider, document);
@@ -252,7 +258,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         UpdateSelectionPath(new VectorPath(document.Selection.SelectionPath));
         NodeGraph.StructureTree.Update(NodeGraph);
 
-        IsNestedDocument = isNested;
+        ReferenceId = referenceId;
     }
 
     private void InitializeViewModel()
@@ -1463,6 +1469,22 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                     new DocumentReference(newDoc.FullFilePath, referenceId,
                         newDoc.AccessInternalReadOnlyDocument().Clone(true))),
                 new EndUpdatePropertyValue_Action());
+        }
+    }
+
+    public void UpdateNestedLinkedStatus(Guid referenceId)
+    {
+        var nestedNodes = NodeGraph.AllNodes.Where(x => x is NestedDocumentNodeViewModel)
+            .Cast<NestedDocumentNodeViewModel>();
+
+        foreach (var nodeVm in nestedNodes)
+        {
+            if (nodeVm.InputPropertyMap[NestedDocumentNode.DocumentPropertyName]
+                    .Value is not DocumentReference docRef ||
+                docRef.ReferenceId != referenceId)
+                continue;
+
+            nodeVm.UpdateLinkedStatus();
         }
     }
 }

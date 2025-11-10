@@ -288,10 +288,9 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                         break;
                 }
 
-
                 if (nestedDoc != null)
                 {
-                    DocumentViewModel vm = new DocumentViewModel(nestedDoc.Clone(true), true);
+                    DocumentViewModel vm = new DocumentViewModel(nestedDoc.Clone(true), referenceId);
                     AddDocumentViewModelToTheSystem(vm);
                 }
 
@@ -753,7 +752,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                 }
 
                 document.FullFilePath = result.Path;
-                document.IsNestedDocument = false;
+                document.ReferenceId = Guid.Empty;
                 AddRecentlyOpened(result.Path);
             }
 

@@ -15,7 +15,7 @@ internal class DocumentSerializationFactory : SerializationFactory<byte[], Docum
 
     public override byte[] Serialize(DocumentReference original)
     {
-        var vm = new DocumentViewModel(original.DocumentInstance, false);
+        var vm = new DocumentViewModel(original.DocumentInstance, Guid.Empty);
         string? originalFilePath = original.OriginalFilePath;
 
         int handle = Storage.AddFromBytes(original.ReferenceId.ToString(), PixiParser.V5.Serialize(vm.ToSerializable()));

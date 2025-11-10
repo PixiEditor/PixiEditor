@@ -1,45 +1,41 @@
 ﻿namespace PixiEditor.ChangeableDocument.Changes.Structure;
 
-internal class UnlinkNestedDocument_Change : Change
+internal class ChangeDocumentReferenceFilePath_Change : Change
 {
     private Guid id;
     private string? originalFilePath = null;
-    private Guid originalReferenceId = Guid.Empty;
-    private Guid newUniqueId = Guid.NewGuid();
+    private string newFilePath;
 
     [GenerateMakeChangeAction]
-    public UnlinkNestedDocument_Change(Guid id)
+    public ChangeDocumentReferenceFilePath_Change(Guid id, string filePath)
     {
         this.id = id;
+        this.newFilePath = filePath;
     }
 
     public override bool InitializeAndValidate(Document target)
     {
         var node = target.FindNodeOrThrow<ChangeableDocument.Changeables.Graph.Nodes.NestedDocumentNode>(id);
-        return node.NestedDocument.NonOverridenValue?.OriginalFilePath != null;
+        return node.NestedDocument.NonOverridenValue?.DocumentInstance != null;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
         var node = target.FindNodeOrThrow<ChangeableDocument.Changeables.Graph.Nodes.NestedDocumentNode>(id);
         originalFilePath = node.NestedDocument.NonOverridenValue?.OriginalFilePath;
-        originalReferenceId = node.NestedDocument.NonOverridenValue?.ReferenceId ?? Guid.Empty;
 
-        node.NestedDocument.NonOverridenValue.OriginalFilePath = null;
-        // Reference ID should always be present after unlinking, since duplicating, editing in external tab should still work.
-        node.NestedDocument.NonOverridenValue.ReferenceId = newUniqueId;
+        node.NestedDocument.NonOverridenValue.OriginalFilePath = newFilePath;
 
 
-        ignoreInUndo = false;
-        return new ChangeInfos.Structure.NestedDocumentLink_ChangeInfo(id, null, node.NestedDocument.NonOverridenValue.ReferenceId);
+        ignoreInUndo = originalFilePath == newFilePath;
+        return new ChangeInfos.Structure.NestedDocumentLink_ChangeInfo(id, newFilePath, node.NestedDocument.NonOverridenValue.ReferenceId);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         var node = target.FindNodeOrThrow<ChangeableDocument.Changeables.Graph.Nodes.NestedDocumentNode>(id);
         node.NestedDocument.NonOverridenValue.OriginalFilePath = originalFilePath;
-        node.NestedDocument.NonOverridenValue.ReferenceId = originalReferenceId;
 
-        return new ChangeInfos.Structure.NestedDocumentLink_ChangeInfo(id, originalFilePath, originalReferenceId);
+        return new ChangeInfos.Structure.NestedDocumentLink_ChangeInfo(id, originalFilePath, node.NestedDocument.NonOverridenValue.ReferenceId);
     }
 }

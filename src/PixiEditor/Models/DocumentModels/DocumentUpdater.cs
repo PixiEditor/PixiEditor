@@ -1066,16 +1066,25 @@ internal class DocumentUpdater
     private void ProcessNestedDocumentLinkChangeInfo(NestedDocumentLink_ChangeInfo info)
     {
         var node = doc.StructureHelper.FindNode<NestedDocumentNodeViewModel>(info.NodeId);
-        node.SetOriginalFilePath(info.OriginalFilePath);
-        node.SetReferenceId(info.ReferenceId);
 
-        if (info.ReferenceId == Guid.Empty)
+        if (node.ReferenceId != info.ReferenceId)
         {
             ViewModelMain.Current.DocumentManagerSubViewModel.RemoveDocumentReferenceByNodeId(doc.Id, info.NodeId);
         }
-        else
+
+        if (info.ReferenceId != Guid.Empty)
         {
-            ViewModelMain.Current.DocumentManagerSubViewModel.AddDocumentReference(doc.Id, info.NodeId, info.OriginalFilePath, info.ReferenceId);
+            ViewModelMain.Current.DocumentManagerSubViewModel.AddDocumentReference(doc.Id, info.NodeId,
+                info.OriginalFilePath, info.ReferenceId);
         }
+
+        if (info.OriginalFilePath != node.FilePath)
+        {
+            ViewModelMain.Current.DocumentManagerSubViewModel.ReloadDocumentReference(info.ReferenceId, info.OriginalFilePath);
+        }
+
+        node.SetOriginalFilePath(info.OriginalFilePath);
+        node.SetReferenceId(info.ReferenceId);
+        node.UpdateLinkedStatus();
     }
 }

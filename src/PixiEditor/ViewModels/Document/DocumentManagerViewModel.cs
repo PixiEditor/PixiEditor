@@ -91,7 +91,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
         {
             Owner.FileSubViewModel.OpenDocumentReference(referenceId);
         }
-        else
+        else if (Path.Exists(path))
         {
             Owner.FileSubViewModel.OpenFromPath(path);
         }
@@ -327,8 +327,11 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
         DocumentAdded?.Invoke(doc);
     }
 
-    private void OnDocumentReferenceDocumentChanged(Guid referenceId, string fullPath)
+    public void ReloadDocumentReference(Guid referenceId, string fullPath)
     {
+        if (string.IsNullOrEmpty(fullPath) || !Path.Exists(fullPath))
+            return;
+
         Dispatcher.UIThread.Post(() =>
         {
             var loaded = Documents.FirstOrDefault(x => x.FullFilePath == fullPath) ??
@@ -339,6 +342,17 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
                     continue;
 
                 doc.UpdateDocumentReferences(referenceId, loaded);
+            }
+        });
+    }
+
+    private void OnDocumentReferenceDeleted(Guid referenceId)
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            foreach (var doc in Documents)
+            {
+                doc.UpdateNestedLinkedStatus(referenceId);
             }
         });
     }
@@ -358,7 +372,8 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
             var newReference = new DocumentReferenceData(originalPath, docReferenceId);
             newReference.ReferencingNodes[documentId] = new HashSet<Guid> { nodeId };
             documentReferences.Add(newReference);
-            newReference.DocumentChanged += OnDocumentReferenceDocumentChanged;
+            newReference.DocumentChanged += ReloadDocumentReference;
+            newReference.LinkedDocumentDeleted += OnDocumentReferenceDeleted;
         }
     }
 
@@ -391,7 +406,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
         var references = documentReferences.ToList();
         foreach (var reference in references)
         {
-            if (reference.ReferenceId == document.Id)
+            if (reference.ReferenceId == document.ReferenceId)
             {
                 var docs = reference.ReferencingNodes.Keys;
                 foreach (var doc in docs)
@@ -413,6 +428,7 @@ public class DocumentReferenceData : IDisposable, IDocumentReferenceData
     public FileSystemWatcher? Watcher { get; set; }
 
     public event Action<Guid, string>? DocumentChanged;
+    public event Action<Guid>? LinkedDocumentDeleted;
 
 
     public DocumentReferenceData(string? originalFilePath, Guid referenceId)
@@ -469,6 +485,11 @@ public class DocumentReferenceData : IDisposable, IDocumentReferenceData
 
                     Watcher.Filter = System.IO.Path.GetFileName(e.FullPath);
                     Watcher.EnableRaisingEvents = true;
+                };
+
+                Watcher.Deleted += (sender, args) =>
+                {
+                    LinkedDocumentDeleted?.Invoke(ReferenceId);
                 };
 
                 Watcher.EnableRaisingEvents = true;
