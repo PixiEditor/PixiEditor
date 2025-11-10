@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.ColorsImpl.Paintables;
+using Drawie.Backend.Core.Text;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
@@ -138,6 +139,11 @@ internal class VariableViewModel : ViewModelBase, IVariableHandler
         if(type == typeof(string))
         {
             return new StringSettingViewModel("Variable", "Variable");
+        }
+
+        if (type == (typeof(FontFamilyName)))
+        {
+            return new FontFamilySettingViewModel("Variable", "Variable");
         }
 
         return new GenericSettingViewModel("Variable");
