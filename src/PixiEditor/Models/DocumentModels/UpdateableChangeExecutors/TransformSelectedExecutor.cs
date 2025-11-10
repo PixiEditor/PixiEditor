@@ -200,8 +200,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
             }
             else
             {
-                if (document.SoftSelectedStructureMembers.Contains(topMost) ||
-                    document.SelectedStructureMember?.Id == topMost.Id)
+                if (document.SoftSelectedStructureMembers?.Contains(topMost) || document.SelectedStructureMember?.Id == topMost.Id)
                 {
                     Deselect(smallestSizeDifferenceList);
                 }

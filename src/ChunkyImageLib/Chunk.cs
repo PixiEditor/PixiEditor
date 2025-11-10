@@ -1,5 +1,6 @@
 ﻿using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core;
+using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
@@ -23,7 +24,7 @@ public class Chunk : IDisposable
     /// <summary>
     /// The surface of the chunk
     /// </summary>
-    public Surface Surface
+    public Texture Surface
     {
         get
         {
@@ -50,7 +51,7 @@ public class Chunk : IDisposable
 
     public bool Disposed => returned;
 
-    private Surface internalSurface;
+    private Texture internalSurface;
 
     private Chunk(ChunkResolution resolution, ColorSpace colorSpace)
     {
@@ -59,7 +60,7 @@ public class Chunk : IDisposable
         Resolution = resolution;
         ColorSpace = colorSpace;
         PixelSize = new(size, size);
-        internalSurface = new Surface(new ImageInfo(size, size, ColorType.RgbaF16, AlphaType.Premul, colorSpace));
+        internalSurface = new Texture(new ImageInfo(size, size, ColorType.RgbaF16, AlphaType.Premul, colorSpace) { GpuBacked = true });
     }
 
     /// <summary>
@@ -67,7 +68,10 @@ public class Chunk : IDisposable
     /// </summary>
     public static Chunk Create(ColorSpace chunkCs, ChunkResolution resolution = ChunkResolution.Full)
     {
-        var chunk = ChunkPool.Instance.Get(resolution, chunkCs);
+        return new Chunk(resolution, chunkCs);
+
+        // Leaving this in case chunk pooling turns out to be better
+        /*var chunk = ChunkPool.Instance.Get(resolution, chunkCs);
         if (chunk == null || chunk.Disposed)
         {
             chunk = new Chunk(resolution, chunkCs);
@@ -75,7 +79,7 @@ public class Chunk : IDisposable
 
         chunk.returned = false;
         Interlocked.Increment(ref chunkCounter);
-        return chunk;
+        return chunk;*/
     }
 
     /// <summary>
@@ -85,6 +89,7 @@ public class Chunk : IDisposable
     /// <param name="paint">The paint to use while drawing</param>
     public void DrawChunkOn(DrawingSurface surface, VecD pos, Paint? paint = null, SamplingOptions? samplingOptions = null)
     {
+        using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
         if (samplingOptions == null || samplingOptions == SamplingOptions.Default)
         {
             surface.Canvas.DrawSurface(Surface.DrawingSurface, (float)pos.X, (float)pos.Y, paint);
@@ -98,6 +103,7 @@ public class Chunk : IDisposable
 
     public unsafe RectI? FindPreciseBounds(RectI? passedSearchRegion = null)
     {
+        using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
         RectI? bounds = null;
         if (returned)
             return bounds;
@@ -109,7 +115,8 @@ public class Chunk : IDisposable
 
         RectI searchRegion = passedSearchRegion ?? new RectI(VecI.Zero, Surface.Size);
 
-        ulong* ptr = (ulong*)Surface.PixelBuffer;
+        using var pixmap = Surface.PeekPixels();
+        ulong* ptr = (ulong*)pixmap.GetPixels();
         for (int y = searchRegion.Top; y < searchRegion.Bottom; y++)
         {
             for (int x = searchRegion.Left; x < searchRegion.Right; x++)
@@ -133,11 +140,15 @@ public class Chunk : IDisposable
     /// </summary>
     public void Dispose()
     {
-        if (returned)
+        returned = true;
+        internalSurface.Dispose();
+        // Leaving this in case chunk pooling turns out to be better
+        /*if (returned)
             return;
         Interlocked.Decrement(ref chunkCounter);
         Surface.DrawingSurface.Canvas.Clear();
+        Surface.DrawingSurface.Canvas.SetMatrix(Matrix3X3.Identity);
         ChunkPool.Instance.Push(this);
-        returned = true;
+        returned = true;*/
     }
 }

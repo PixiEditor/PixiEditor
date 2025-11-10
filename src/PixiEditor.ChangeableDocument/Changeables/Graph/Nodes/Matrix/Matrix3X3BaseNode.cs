@@ -40,30 +40,36 @@ public abstract class Matrix3X3BaseNode : RenderNode, IRenderInput
 
         Float3x3 mtx = Matrix.Value.Invoke(FuncContext.NoContext);
 
+        Matrix3X3 constant = mtx.GetConstant() as Matrix3X3? ?? Matrix3X3.Identity;
         surface.Canvas.SetMatrix(
-            surface.Canvas.TotalMatrix.Concat(mtx.GetConstant() as Matrix3X3? ?? Matrix3X3.Identity));
+            surface.Canvas.TotalMatrix.Concat(constant));
+
+        var clonedCtx = context.Clone();
+        if (clonedCtx.VisibleDocumentRegion.HasValue)
+        {
+            clonedCtx.VisibleDocumentRegion =
+                (RectI)constant.Invert().TransformRect((RectD)clonedCtx.VisibleDocumentRegion.Value);
+        }
+
         if (!surface.LocalClipBounds.IsZeroOrNegativeArea)
         {
-            Background.Value?.Paint(context, surface);
+            Background.Value?.Paint(clonedCtx, surface);
         }
 
         surface.Canvas.RestoreToCount(layer);
     }
 
-    public override RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
+    public override RectD? GetPreviewBounds(RenderContext ctx, string elementToRenderName = "")
     {
         if (Background.Value == null)
             return null;
 
-        return base.GetPreviewBounds(frame, elementToRenderName);
+        return base.GetPreviewBounds(ctx, elementToRenderName);
     }
 
-    public override bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
+    protected override bool ShouldRenderPreview(string elementToRenderName)
     {
-        if (Background.Value == null)
-            return false;
-
-        return base.RenderPreview(renderOn, context, elementToRenderName);
+        return Background.Value != null;
     }
 
     protected abstract Float3x3 CalculateMatrix(FuncContext ctx, Float3x3 input);

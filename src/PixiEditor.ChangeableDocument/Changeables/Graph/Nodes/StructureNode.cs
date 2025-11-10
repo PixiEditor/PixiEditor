@@ -47,8 +47,6 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
 
     public ChunkyImage? EmbeddedMask { get; set; }
 
-    protected Texture renderedMask;
-
     protected static readonly Paint replacePaint =
         new Paint() { BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.Src };
 
@@ -171,9 +169,38 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         VecD sceneSize = GetSceneSize(context.FrameTime);
         //renderTarget.Canvas.ClipRect(new RectD(scenePos - (sceneSize / 2f), sceneSize));
 
+        // Custom shader may modify the actual visible region, so we must force rendering full region
+        if (IsConnectedToCustomShaderNode(output))
+        {
+            renderObjectContext.VisibleDocumentRegion = null;
+        }
+
         Render(renderObjectContext);
 
         renderTarget?.Canvas.RestoreToCount(renderSaved);
+    }
+
+    private bool IsConnectedToCustomShaderNode(RenderOutputProperty output)
+    {
+        foreach (var conn in output.Connections)
+        {
+            bool isCustomShader = false;
+            conn.Node.TraverseForwards(x =>
+            {
+                if (x is ICustomShaderNode)
+                {
+                    isCustomShader = true;
+                    return false;
+                }
+
+                return true;
+            });
+
+            if (isCustomShader)
+                return true;
+        }
+
+        return false;
     }
 
     protected SceneObjectRenderContext CreateSceneContext(RenderContext context, DrawingSurface renderTarget,
@@ -183,9 +210,13 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         RectD localBounds = new RectD(0, 0, sceneSize.X, sceneSize.Y);
 
         SceneObjectRenderContext renderObjectContext = new SceneObjectRenderContext(output, renderTarget, localBounds,
-            context.FrameTime, context.ChunkResolution, context.RenderOutputSize, context.DocumentSize, renderTarget == context.RenderSurface,
+            context.FrameTime, context.ChunkResolution, context.RenderOutputSize, context.DocumentSize,
+            renderTarget == context.RenderSurface,
             context.ProcessingColorSpace, context.DesiredSamplingOptions, context.Opacity);
         renderObjectContext.FullRerender = context.FullRerender;
+        renderObjectContext.AffectedArea = context.AffectedArea;
+        renderObjectContext.VisibleDocumentRegion = context.VisibleDocumentRegion;
+        renderObjectContext.PreviewTextures = context.PreviewTextures;
         return renderObjectContext;
     }
 
@@ -203,22 +234,12 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
 
                 surface.Canvas.RestoreToCount(layer);
             }
-            else if (EmbeddedMask != null)
+            else
             {
-                if (context.FullRerender)
-                {
-                    EmbeddedMask.DrawMostUpToDateRegionOn(
-                        new RectI(0, 0, EmbeddedMask.LatestSize.X, EmbeddedMask.LatestSize.Y),
-                        ChunkResolution.Full,
-                        surface, VecI.Zero, maskPaint);
-                }
-                else if (renderedMask != null)
-                {
-                    int saved = surface.Canvas.Save();
-                    surface.Canvas.Scale((float)renderResolution.Multiplier());
-                    surface.Canvas.DrawSurface(renderedMask.DrawingSurface, 0, 0, maskPaint);
-                    surface.Canvas.RestoreToCount(saved);
-                }
+                EmbeddedMask?.DrawMostUpToDateRegionOn(
+                    new RectI(0, 0, EmbeddedMask.LatestSize.X, EmbeddedMask.LatestSize.Y),
+                    context.ChunkResolution,
+                    surface, VecI.Zero, maskPaint, drawPaintOnEmpty: true);
             }
         }
     }
@@ -227,48 +248,6 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
     {
         return HashCode.Combine(base.GetContentCacheHash(), EmbeddedMask?.GetCacheHash() ?? 0,
             ClipToPreviousMember ? 1 : 0);
-    }
-
-    public virtual void RenderChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime,
-        ColorSpace processingColorSpace)
-    {
-        RenderChunkyImageChunk(chunkPos, resolution, EmbeddedMask, 55, processingColorSpace, ref renderedMask);
-    }
-
-    protected void RenderChunkyImageChunk(VecI chunkPos, ChunkResolution resolution, ChunkyImage img,
-        int textureId, ColorSpace processingColorSpace,
-        ref Texture? renderSurface)
-    {
-        if (img is null)
-        {
-            return;
-        }
-
-        VecI targetSize = img.LatestSize;
-
-        if (targetSize.X <= 0 || targetSize.Y <= 0)
-        {
-            return;
-        }
-
-        using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
-        renderSurface = RequestTexture(textureId, targetSize, processingColorSpace, false);
-
-        int saved = renderSurface.DrawingSurface.Canvas.Save();
-
-        if (!img.DrawMostUpToDateChunkOn(
-                chunkPos,
-                ChunkResolution.Full,
-                renderSurface.DrawingSurface,
-                chunkPos * ChunkResolution.Full.PixelSize(),
-                replacePaint))
-        {
-            var chunkSize = ChunkResolution.Full.PixelSize();
-            renderSurface.DrawingSurface.Canvas.DrawRect(new RectD(chunkPos * chunkSize, new VecD(chunkSize)),
-                clearPaint);
-        }
-
-        renderSurface.DrawingSurface.Canvas.RestoreToCount(saved);
     }
 
     protected void ApplyRasterClip(DrawingSurface toClip, DrawingSurface clipSource)
@@ -335,40 +314,45 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         }
     }
 
-    public override RectD? GetPreviewBounds(int frame, string elementFor = "")
+    protected override bool ShouldRenderPreview(string elementToRenderName)
     {
-        if (elementFor == nameof(EmbeddedMask) && EmbeddedMask != null)
+        if (elementToRenderName == nameof(EmbeddedMask))
         {
-            return new RectD(VecD.Zero, EmbeddedMask.LatestSize);
+            return true;
         }
 
-        return null;
+        return EmbeddedMask != null;
     }
 
-    public override bool RenderPreview(DrawingSurface renderOn, RenderContext context,
+    public override RectD? GetPreviewBounds(RenderContext ctx, string elementToRenderName)
+    {
+        return EmbeddedMask is null
+            ? null
+            : new RectD(0, 0, EmbeddedMask.LatestSize.X, EmbeddedMask.LatestSize.Y);
+    }
+
+    public override void RenderPreview(DrawingSurface renderOn, RenderContext context,
         string elementToRenderName)
     {
-        if (elementToRenderName != nameof(EmbeddedMask))
-        {
-            return false;
-        }
-
         var img = EmbeddedMask;
 
         if (img is null)
         {
-            return false;
+            return;
         }
 
-        renderOn.Canvas.DrawSurface(renderedMask.DrawingSurface, VecI.Zero, maskPreviewPaint);
-
-        return true;
+        int saved = renderOn.Canvas.Save();
+        renderOn.Canvas.Scale((float)context.ChunkResolution.InvertedMultiplier());
+        img.DrawMostUpToDateRegionOn(
+            new RectI(0, 0, img.LatestSize.X, img.LatestSize.Y),
+            context.ChunkResolution,
+            renderOn, VecI.Zero, maskPreviewPaint, drawPaintOnEmpty: true);
+        renderOn.Canvas.RestoreToCount(saved);
     }
 
     public override void Dispose()
     {
         base.Dispose();
-        renderedMask?.Dispose();
         EmbeddedMask?.Dispose();
         Output.Value = null;
         maskPaint.Dispose();
