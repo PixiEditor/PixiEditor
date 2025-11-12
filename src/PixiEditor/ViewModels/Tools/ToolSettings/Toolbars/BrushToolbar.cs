@@ -28,6 +28,12 @@ internal class BrushToolbar : Toolbar, IBrushToolbar
         set => GetSetting<BrushSettingViewModel>(nameof(Brush)).Value = value;
     }
 
+    public float Stabilization
+    {
+        get => GetSetting<FloatSettingViewModel>(nameof(Stabilization)).Value;
+        set => GetSetting<FloatSettingViewModel>(nameof(Stabilization)).Value = value;
+    }
+
     public BrushData CreateBrushData()
     {
         Brush? brush = Brush;
@@ -57,6 +63,7 @@ internal class BrushToolbar : Toolbar, IBrushToolbar
         setting.ValueChanged += (_, _) => OnPropertyChanged(nameof(ToolSize));
         AddSetting(setting);
         AddSetting(new BrushSettingViewModel(nameof(Brush), "BRUSH_SETTING") { IsExposed = true });
+        AddSetting(new FloatSettingViewModel(nameof(Stabilization), 0, "STABILIZATION_SETTING", min: 0, max: 15) { IsExposed = true });
 
         foreach (var aSetting in Settings)
         {

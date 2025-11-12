@@ -10,4 +10,5 @@ internal interface IBrushToolbar : IToolbar, IToolSizeToolbar
     public Brush Brush { get; set; }
     public BrushData CreateBrushData();
     public BrushData LastBrushData { get; }
+    public float Stabilization { get; set; }
 }
