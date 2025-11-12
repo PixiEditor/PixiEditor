@@ -12,7 +12,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 public class BrushRenderContext : RenderContext
 {
     public BrushData BrushData { get; }
-    public Texture TargetSampledTexture { get; }
+    public Texture TargetSampledTexture { get; set; }
     public Texture TargetFullTexture { get; }
     public VecD StartPoint { get; }
     public VecD LastAppliedPoint { get; }

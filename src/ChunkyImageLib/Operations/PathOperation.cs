@@ -35,7 +35,7 @@ internal class PathOperation : IMirroredDrawOperation
         this.path = new VectorPath(path);
         paint = new() { Paintable = paintable, Style = style, StrokeWidth = strokeWidth, StrokeCap = cap, BlendMode = blendMode };
 
-        RectI floatBounds = customBounds ?? (RectI)(path.TightBounds).RoundOutwards();
+        RectI floatBounds = customBounds ?? (RectI)(path.Bounds).RoundOutwards();
         bounds = floatBounds.Inflate((int)Math.Ceiling(strokeWidth) + 1);
     }
 

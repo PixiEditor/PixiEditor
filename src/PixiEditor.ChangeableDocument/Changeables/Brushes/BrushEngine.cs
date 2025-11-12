@@ -92,7 +92,8 @@ public class BrushEngine : IDisposable
             if (VecD.Distance(lastPos, point.Position) < spacingPixels)
                 continue;
 
-            ExecuteVectorShapeBrush(target, brushNode, brushData, point.Position, frameTime, cs, samplingOptions, point.PointerInfo,
+            ExecuteVectorShapeBrush(target, brushNode, brushData, point.Position, frameTime, cs, samplingOptions,
+                point.PointerInfo,
                 point.KeyboardInfo,
                 point.EditorData);
 
@@ -179,6 +180,24 @@ public class BrushEngine : IDisposable
             KeyboardInfo = keyboardInfo
         };
 
+
+        if (requiresSampleTexture && brushNode.VectorShape.Value != null)
+        {
+            brushData.BrushGraph.Execute(brushNode, context);
+
+            using var shape = brushNode.VectorShape.Value.ToPath(true);
+            EvaluateShape(brushNode.AutoPosition.Value, shape, brushNode.VectorShape.Value, rect,
+                brushNode.SnapToPixels.Value, brushNode.FitToStrokeSize.Value, brushNode.Pressure.Value);
+
+            if (shape.Bounds is { Width: > 0, Height: > 0 })
+            {
+                context.TargetSampledTexture?.Dispose();
+                surfaceUnderRect = UpdateSurfaceUnderRect(target, (RectI)shape.TightBounds.RoundOutwards(), colorSpace,
+                    brushNode.AllowSampleStacking.Value);
+                context.TargetSampledTexture = surfaceUnderRect;
+                context.RenderOutputSize = ((RectI)shape.TightBounds.RoundOutwards()).Size;
+            }
+        }
 
         var previous = brushNode.Previous.Value;
         while (previous != null)
@@ -412,7 +431,7 @@ public class BrushEngine : IDisposable
     {
         if (fitToStrokeSize)
         {
-            VecD scale = new VecD(rect.Size.X / (float)path.Bounds.Width, rect.Size.Y / (float)path.Bounds.Height);
+            VecD scale = new VecD(rect.Size.X / (float)path.TightBounds.Width, rect.Size.Y / (float)path.TightBounds.Height);
             if (scale.IsNaNOrInfinity())
             {
                 scale = VecD.Zero;
@@ -423,18 +442,28 @@ public class BrushEngine : IDisposable
 
             path.Transform(Matrix3X3.CreateScale((float)uniformScale.X, (float)uniformScale.Y, (float)center.X,
                 (float)center.Y));
+
+            if (snapToPixels)
+            {
+                // stretch to pixels
+                path.Transform(Matrix3X3.CreateScale(
+                    (float)(Math.Round(path.TightBounds.Width) / path.TightBounds.Width),
+                    (float)(Math.Round(path.TightBounds.Height) / path.TightBounds.Height),
+                    (float)center.X,
+                    (float)center.Y));
+            }
         }
 
         if (autoPosition)
         {
             path.Offset(vectorShape.TransformedAABB.Pos - vectorShape.GeometryAABB.Pos);
-            path.Offset(rect.Center - path.Bounds.Center);
+            path.Offset(rect.Center - path.TightBounds.Center);
 
             if (snapToPixels)
             {
                 path.Offset(
-                    new VecD(Math.Round(path.Bounds.Pos.X) - path.Bounds.Pos.X,
-                        Math.Round(path.Bounds.Pos.Y) - path.Bounds.Pos.Y));
+                    new VecD(Math.Round(path.TightBounds.Pos.X) - path.TightBounds.Pos.X,
+                        Math.Round(path.TightBounds.Pos.Y) - path.TightBounds.Pos.Y));
             }
         }
 
