@@ -11,11 +11,37 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 public class PathVectorData : ShapeVectorData, IReadOnlyPathData
 {
     public VectorPath Path { get; set; }
-    public override RectD GeometryAABB => Path?.TightBounds ?? RectD.Empty;
+
+    public override RectD GeometryAABB
+    {
+        get
+        {
+            var tightBounds = Path?.TightBounds ?? RectD.Empty;
+            if (tightBounds.Width == 0 || tightBounds.Height == 0)
+            {
+                // If the path is a line or a point, we need to inflate the bounds by half the stroke width
+                double halfStroke = StrokeWidth / 2;
+                tightBounds = new RectD(
+                    tightBounds.X - halfStroke,
+                    tightBounds.Y - halfStroke,
+                    tightBounds.Width + StrokeWidth,
+                    tightBounds.Height + StrokeWidth);
+            }
+
+            return tightBounds;
+        }
+    }
+
     public override RectD VisualAABB => GeometryAABB.Inflate(StrokeWidth / 2);
 
-    public override ShapeCorners TransformationCorners =>
-        new ShapeCorners(Path.TightBounds).WithMatrix(TransformationMatrix);
+    public override ShapeCorners TransformationCorners
+    {
+        get
+        {
+            var tightCorners = new ShapeCorners(GeometryAABB);
+            return tightCorners.WithMatrix(TransformationMatrix);
+        }
+    }
 
     public StrokeCap StrokeLineCap { get; set; } = StrokeCap.Round;
 
@@ -133,8 +159,9 @@ public class PathVectorData : ShapeVectorData, IReadOnlyPathData
 
     protected bool Equals(PathVectorData other)
     {
-        return base.Equals(other) && Path.Equals(other.Path) && StrokeLineCap == other.StrokeLineCap && StrokeLineJoin == other.StrokeLineJoin
-                && FillType == other.FillType;
+        return base.Equals(other) && Path.Equals(other.Path) && StrokeLineCap == other.StrokeLineCap &&
+               StrokeLineJoin == other.StrokeLineJoin
+               && FillType == other.FillType;
     }
 
     public override bool Equals(object? obj)
