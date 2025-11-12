@@ -35,12 +35,10 @@ internal class BrushBasedExecutor<T> : BrushBasedExecutor where T : IBrushToolHa
 
 internal class BrushBasedExecutor : UpdateableChangeExecutor
 {
-    public BrushData BrushData => brushData ??= GetBrushFromToolbar(BrushToolbar);
+    public BrushData BrushData => brushData ??= BrushToolbar.CreateBrushData();
     private BrushData? brushData;
     private Guid brushOutputGuid = Guid.Empty;
     private BrushOutputNode? outputNode;
-    private ChunkyImage previewImage = null!;
-    private ChangeableDocument.Changeables.Brushes.BrushEngine engine = new();
     private VecD lastSmoothed;
     private Stopwatch stopwatch = new Stopwatch();
 
@@ -89,16 +87,12 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
         antiAliasing = toolbar.AntiAliasing;
         this.colorsHandler = colorsHandler;
 
-        previewImage = new ChunkyImage(new VecI(1), ColorSpace.CreateSrgb());
-
         UpdateBrushNodes();
 
         if (controller.LeftMousePressed)
         {
             EnqueueDrawActions();
         }
-
-        UpdateBrushOverlay(controller.LastPrecisePosition);
 
         return ExecutionState.Success;
     }
@@ -145,23 +139,6 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
             BrushData.BrushGraph.AllNodes.FirstOrDefault(x => x.Id == brushOutputGuid) as BrushOutputNode;
     }
 
-    private BrushData GetBrushFromToolbar(IBrushToolbar toolbar)
-    {
-        Brush? brush = toolbar.Brush;
-        if (brush == null)
-        {
-            return new BrushData();
-        }
-
-        var pipe = toolbar.Brush.Document.ShareGraph();
-        var data = new BrushData(pipe.TryAccessData())
-        {
-            AntiAliasing = toolbar.AntiAliasing, StrokeWidth = (float)toolbar.ToolSize
-        };
-        pipe.Dispose();
-        return data;
-    }
-
     public override void OnLeftMouseButtonDown(MouseOnCanvasEventArgs args)
     {
         base.OnLeftMouseButtonDown(args);
@@ -171,54 +148,37 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
     public override void OnPrecisePositionChange(MouseOnCanvasEventArgs args)
     {
         base.OnPrecisePositionChange(args);
-        if (!controller.LeftMousePressed)
-        {
-            ExecuteBrush();
-        }
-        else
+        if (controller.LeftMousePressed)
         {
             EnqueueDrawActions();
         }
-
-        UpdateBrushOverlay(args.PositionOnCanvas);
-    }
-
-    private void UpdateBrushOverlay(VecD pos)
-    {
-        if (!brushData.HasValue || brushData.Value.BrushGraph == null) return;
-
-        handler.FinalBrushShape = engine.EvaluateShape(pos, brushData.Value);
-    }
-
-    private void ExecuteBrush()
-    {
-        engine.ExecuteBrush(previewImage, BrushData, controller.LastPrecisePosition,
-            document.AnimationHandler.ActiveFrameTime,
-            ColorSpace.CreateSrgb(), SamplingOptions.Default, controller.LastPointerInfo with { Pressure = 1f}, controller.LastKeyboardInfo,
-            controller.EditorData);
     }
 
     public override void OnConvertedKeyDown(Key key)
     {
         base.OnConvertedKeyDown(key);
+        /*
         UpdateBrushOverlay(controller.LastPrecisePosition);
+    */
     }
 
     public override void OnSettingsChanged(string name, object value)
     {
         if (name == nameof(BrushToolbar.Brush))
         {
-            brushData = GetBrushFromToolbar(BrushToolbar);
+            brushData = BrushToolbar.CreateBrushData();
             UpdateBrushNodes();
         }
 
         if (name is nameof(IBrushToolbar.ToolSize) or nameof(IBrushToolbar.AntiAliasing))
         {
-            brushData = GetBrushFromToolbar(BrushToolbar);
+            brushData = BrushToolbar.CreateBrushData();
         }
 
+        /*
         ExecuteBrush();
         UpdateBrushOverlay(controller.LastPrecisePosition);
+    */
     }
 
 
@@ -235,6 +195,5 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
     public override void ForceStop()
     {
         EnqueueEndDraw();
-        engine.Dispose();
     }
 }

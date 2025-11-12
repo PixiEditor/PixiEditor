@@ -104,7 +104,7 @@ public class BrushEngine : IDisposable
     }
 
 
-    public void ExecuteBrush(ChunkyImage target, BrushData brushData, VecD point, KeyFrameTime frameTime, ColorSpace cs,
+    public void ExecuteBrush(ChunkyImage? target, BrushData brushData, VecD point, KeyFrameTime frameTime, ColorSpace cs,
         SamplingOptions samplingOptions, PointerInfo pointerInfo, KeyboardInfo keyboardInfo, EditorData editorData)
     {
         var brushNode = brushData.BrushGraph?.AllNodes?.FirstOrDefault(x => x is BrushOutputNode) as BrushOutputNode;
@@ -118,7 +118,7 @@ public class BrushEngine : IDisposable
             editorData);
     }
 
-    private void ExecuteVectorShapeBrush(ChunkyImage target, BrushOutputNode brushNode, BrushData brushData, VecD point,
+    private void ExecuteVectorShapeBrush(ChunkyImage? target, BrushOutputNode brushNode, BrushData brushData, VecD point,
         KeyFrameTime frameTime,
         ColorSpace colorSpace, SamplingOptions samplingOptions,
         PointerInfo pointerInfo, KeyboardInfo keyboardInfo, EditorData editorData)
@@ -132,7 +132,7 @@ public class BrushEngine : IDisposable
             startPos = point;
             lastPos = point;
             drawnOnce = true;
-            target.SetBlendMode(imageBlendMode);
+            target?.SetBlendMode(imageBlendMode);
         }
 
         float strokeWidth = brushData.StrokeWidth;
@@ -151,24 +151,24 @@ public class BrushEngine : IDisposable
 
         if (brushNode.AlwaysClear.Value)
         {
-            target.EnqueueClear();
+            target?.EnqueueClear();
         }
 
-        if (requiresSampleTexture && rect.Width > 0 && rect.Height > 0)
+        if (requiresSampleTexture && rect.Width > 0 && rect.Height > 0 && target != null)
         {
             surfaceUnderRect = UpdateSurfaceUnderRect(target, (RectI)rect.RoundOutwards(), colorSpace,
                 brushNode.AllowSampleStacking.Value);
         }
 
-        if (requiresFullTexture)
+        if (requiresFullTexture && target != null)
         {
             fullTexture = UpdateFullTexture(target, colorSpace, brushNode.AllowSampleStacking.Value);
         }
 
         BrushRenderContext context = new BrushRenderContext(
             texture?.DrawingSurface.Canvas, frameTime, ChunkResolution.Full,
-            brushNode.FitToStrokeSize.NonOverridenValue ? ((RectI)rect.RoundOutwards()).Size : target.CommittedSize,
-            target.CommittedSize,
+            brushNode.FitToStrokeSize.NonOverridenValue ? ((RectI)rect.RoundOutwards()).Size : target?.CommittedSize ?? VecI.Zero,
+            target?.CommittedSize ?? VecI.Zero,
             colorSpace, samplingOptions, brushData,
             surfaceUnderRect, fullTexture, brushData.BrushGraph,
             startPos, lastPos)
@@ -180,6 +180,13 @@ public class BrushEngine : IDisposable
             KeyboardInfo = keyboardInfo
         };
 
+        // Evaluate shape without painting if no target
+        if (target == null)
+        {
+            brushData.BrushGraph.Execute(brushNode, context);
+            using var shape = brushNode.VectorShape.Value.ToPath(true);
+            return;
+        }
 
         if (requiresSampleTexture && brushNode.VectorShape.Value != null)
         {

@@ -99,6 +99,11 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         get => ActiveTool?.Toolbar as IToolSizeToolbar;
     }
 
+    public IBrushToolbar? ActiveBrushToolbar
+    {
+        get => ActiveTool?.Toolbar as IBrushToolbar;
+    }
+
     private IToolHandler? activeTool;
 
     public IToolHandler? ActiveTool
@@ -108,6 +113,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         {
             SetProperty(ref activeTool, value);
             OnPropertyChanged(nameof(ActiveBasicToolbar));
+            OnPropertyChanged(nameof(ActiveBrushToolbar));
         }
     }
 

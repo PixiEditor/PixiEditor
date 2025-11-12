@@ -363,15 +363,16 @@ internal class ChangeExecutionController
             lastDirCalculationPoint = lastDirCalculationPoint.Lerp(currentPoint, 0.5f);
         }
 
+        VecD dir = lastDirCalculationPoint - currentPoint;
+        VecD vecDir = new VecD(dir.X, dir.Y);
+        VecD dirNormalized = vecDir.Length > 0 ? vecDir.Normalize() : lastPointerInfo.MovementDirection;
+
         float pressure = args.Properties.Pressure;
         if (args.PointerType == PointerType.Mouse)
         {
             pressure = args.Properties.Pressure > 0 ? 1 : 0;
         }
 
-        VecD dir = lastDirCalculationPoint - currentPoint;
-        VecD vecDir = new VecD(dir.X, dir.Y);
-        VecD dirNormalized = vecDir.Length > 0 ? vecDir.Normalize() : lastPointerInfo.MovementDirection;
         return new PointerInfo(currentPoint, pressure, args.Properties.Twist,
             new VecD(args.Properties.XTilt, args.Properties.YTilt), dirNormalized);
     }

@@ -1,4 +1,6 @@
-﻿using Drawie.Backend.Core.Surfaces.PaintImpl;
+﻿using System.ComponentModel;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using PixiEditor.ChangeableDocument.Changeables.Brushes;
 using PixiEditor.Models.BrushEngine;
 using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.ViewModels.Tools.ToolSettings.Settings;
@@ -26,6 +28,23 @@ internal class BrushToolbar : Toolbar, IBrushToolbar
         set => GetSetting<BrushSettingViewModel>(nameof(Brush)).Value = value;
     }
 
+    public BrushData CreateBrushData()
+    {
+        Brush? brush = Brush;
+        if (brush == null)
+        {
+            return new BrushData();
+        }
+
+        var pipe = Brush.Document.ShareGraph();
+        var data = new BrushData(pipe.TryAccessData()) { AntiAliasing = AntiAliasing, StrokeWidth = (float)ToolSize };
+
+        pipe.Dispose();
+        return data;
+    }
+
+    public BrushData LastBrushData { get; private set; } = new BrushData();
+
     public override void OnLoadedSettings()
     {
         OnPropertyChanged(nameof(ToolSize));
@@ -38,5 +57,19 @@ internal class BrushToolbar : Toolbar, IBrushToolbar
         setting.ValueChanged += (_, _) => OnPropertyChanged(nameof(ToolSize));
         AddSetting(setting);
         AddSetting(new BrushSettingViewModel(nameof(Brush), "BRUSH_SETTING") { IsExposed = true });
+
+        foreach (var aSetting in Settings)
+        {
+            if (aSetting.Name == "Brush" || aSetting.Name == "AntiAliasing" || aSetting.Name == "ToolSize")
+            {
+                aSetting.ValueChanged += SettingOnValueChanged;
+            }
+        }
+    }
+
+    private void SettingOnValueChanged(object? sender, SettingValueChangedEventArgs<object> e)
+    {
+        LastBrushData = CreateBrushData();
+        OnPropertyChanged(nameof(LastBrushData));
     }
 }

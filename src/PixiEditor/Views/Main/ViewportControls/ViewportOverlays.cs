@@ -456,14 +456,9 @@ internal class ViewportOverlays
             Source = Viewport, Path = "IsOverCanvas", Mode = BindingMode.OneWay
         };
 
-        Binding brushSizeBinding = new()
+        Binding brushDataBinding = new()
         {
-            Source = ViewModelMain.Current.ToolsSubViewModel, Path = "ActiveBasicToolbar.ToolSize", Mode = BindingMode.OneWay
-        };
-
-        Binding brushShapeBinding = new()
-        {
-            Source = ViewModelMain.Current.ToolsSubViewModel, Path = "ActiveTool.FinalBrushShape", Mode = BindingMode.OneWay
+            Source = ViewModelMain.Current.ToolsSubViewModel, Path = "ActiveBrushToolbar.LastBrushData", Mode = BindingMode.OneWay
         };
 
         MultiBinding isVisibleMultiBinding = new()
@@ -477,9 +472,20 @@ internal class ViewportOverlays
             }
         };
 
+        Binding activeFrameTimeBidning = new()
+        {
+            Source = ViewModelMain.Current.DocumentManagerSubViewModel, Path = "ActiveDocument.AnimationDataViewModel.ActiveFrameTime", Mode = BindingMode.OneWay
+        };
+
+        Binding editorDataBinding = new()
+        {
+            Source = ViewModelMain.Current, Path = "GetEditorData", Mode = BindingMode.OneWay
+        };
+
         brushShapeOverlay.Bind(Visual.IsVisibleProperty, isVisibleMultiBinding);
-        brushShapeOverlay.Bind(BrushShapeOverlay.BrushSizeProperty, brushSizeBinding);
-        brushShapeOverlay.Bind(BrushShapeOverlay.BrushShapeProperty, brushShapeBinding);
+        brushShapeOverlay.Bind(BrushShapeOverlay.BrushDataProperty, brushDataBinding);
+        brushShapeOverlay.Bind(BrushShapeOverlay.ActiveFrameTimeProperty, activeFrameTimeBidning);
+        brushShapeOverlay.Bind(BrushShapeOverlay.EditorDataProperty, editorDataBinding);
     }
 
     private void BindTextOverlay()
