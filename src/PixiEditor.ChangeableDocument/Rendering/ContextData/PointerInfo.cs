@@ -4,12 +4,12 @@ namespace PixiEditor.ChangeableDocument.Rendering.ContextData;
 
 public record struct PointerInfo
 {
-    public VecD PositionOnCanvas { get; }
-    public float Pressure { get; }
-    public float Twist { get; }
-    public VecD Tilt { get; }
-    public VecD MovementDirection { get; }
-    public double Rotation { get; }
+    public VecD PositionOnCanvas { get; set; }
+    public float Pressure { get; set; }
+    public float Twist { get; set; }
+    public VecD Tilt { get; set; }
+    public VecD MovementDirection { get; set; }
+    public double Rotation { get; set; }
 
     public PointerInfo(VecD positionOnCanvas, float pressure, float twist, VecD tilt, VecD movementDirection)
     {

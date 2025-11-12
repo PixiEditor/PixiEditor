@@ -194,7 +194,7 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
     {
         engine.ExecuteBrush(previewImage, BrushData, controller.LastPrecisePosition,
             document.AnimationHandler.ActiveFrameTime,
-            ColorSpace.CreateSrgb(), SamplingOptions.Default, controller.LastPointerInfo, controller.LastKeyboardInfo,
+            ColorSpace.CreateSrgb(), SamplingOptions.Default, controller.LastPointerInfo with { Pressure = 1f}, controller.LastKeyboardInfo,
             controller.EditorData);
     }
 
