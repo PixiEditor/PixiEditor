@@ -16,10 +16,13 @@
         <DockPanel LastChildFill="True"
                    HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
             <TextBlock ui:Translator.TooltipKey="{Binding DisplayName}" VerticalAlignment="Center" ui:Translator.Key="{Binding DisplayName}" />
+            <Panel IsVisible="{Binding ShowInputField}">
             <input:StringEditor
+                IsVisible="{Binding IsInput}"
                 Text="{Binding Value, Mode=TwoWay}"
                 ContentKind="{Binding Kind}"
                 Errors="{Binding Errors}"/>
+            </Panel>
         </DockPanel>
     </Grid>
 </properties:NodePropertyView>
