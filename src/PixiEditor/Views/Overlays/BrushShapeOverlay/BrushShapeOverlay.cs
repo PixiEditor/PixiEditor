@@ -13,11 +13,9 @@ using PixiEditor.ChangeableDocument.Rendering.ContextData;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Handlers.Toolbars;
-using PixiEditor.UI.Common.Extensions;
 using PixiEditor.Views.Rendering;
 using Canvas = Drawie.Backend.Core.Surfaces.Canvas;
 using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
-using IBrush = Avalonia.Media.IBrush;
 
 namespace PixiEditor.Views.Overlays.BrushShapeOverlay;
 #nullable enable

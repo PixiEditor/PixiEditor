@@ -6,26 +6,75 @@
              xmlns:enums="clr-namespace:PixiEditor.ChangeableDocument.Enums;assembly=PixiEditor.ChangeableDocument"
              xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:settings1="clr-namespace:PixiEditor.Views.Tools.ToolSettings.Settings"
+             xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="PixiEditor.Views.Tools.ToolSettings.Settings.EnumSettingView">
+             x:Class="PixiEditor.Views.Tools.ToolSettings.Settings.EnumSettingView" Name="uc">
     <Design.DataContext>
         <settings:EnumSettingViewModel x:TypeArguments="enums:BlendMode" />
     </Design.DataContext>
-    
-    <ComboBox VerticalAlignment="Center"
-              MinWidth="85"
-              SelectedIndex="{Binding Value, Mode=TwoWay}" 
-              ItemsSource="{Binding EnumValues}">
-        <ComboBox.ItemContainerTheme>
-            <ControlTheme TargetType="ComboBoxItem" BasedOn="{StaticResource {x:Type ComboBoxItem}}">
-                <Setter Property="Tag" Value="{Binding .}"/>
-                <Setter Property="(localization:Translator.Key)" Value="{Binding ., Converter={converters:EnumToLocalizedStringConverter}}"/>
-            </ControlTheme>
-        </ComboBox.ItemContainerTheme>
-       <ComboBox.ItemTemplate>
-           <DataTemplate>
-               <TextBlock localization:Translator.Key="{Binding ., Converter={converters:EnumToLocalizedStringConverter}}"/>
-           </DataTemplate>
-       </ComboBox.ItemTemplate>
-    </ComboBox>
+
+    <Panel>
+        <ComboBox VerticalAlignment="Center"
+                  MinWidth="85"
+                  IsVisible="{Binding !PickerIsIconButtons}"
+                  SelectedIndex="{Binding Value, Mode=TwoWay}"
+                  ItemsSource="{Binding EnumValues}">
+            <ComboBox.ItemContainerTheme>
+                <ControlTheme TargetType="ComboBoxItem" BasedOn="{StaticResource {x:Type ComboBoxItem}}">
+                    <Setter Property="Tag" Value="{Binding .}" />
+                    <Setter Property="(localization:Translator.Key)"
+                            Value="{Binding ., Converter={converters:EnumToLocalizedStringConverter}}" />
+                </ControlTheme>
+            </ComboBox.ItemContainerTheme>
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock
+                        localization:Translator.Key="{Binding ., Converter={converters:EnumToLocalizedStringConverter}}" />
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+        <ItemsControl IsVisible="{Binding PickerIsIconButtons}"
+                      Name="iconButtonsPicker"
+                      ItemsSource="{Binding EnumValues}"
+                      HorizontalAlignment="Center">
+                <ItemsControl.Styles>
+                    <Style Selector="ContentPresenter:nth-last-child(1) ToggleButton">
+                        <Setter Property="CornerRadius" Value="0,4,4,0"/>
+                        <Setter Property="BorderThickness" Value="0,1,1,1"/>
+                    </Style>
+                    <Style Selector="ContentPresenter.first ToggleButton">
+                        <Setter Property="CornerRadius" Value="4,0,0,4"/>
+                        <Setter Property="BorderThickness" Value="1,1,0,1"/>
+                    </Style>
+                    <Style Selector="ToggleButton">
+                        <Setter Property="CornerRadius" Value="0"/>
+                        <Setter Property="BorderThickness" Value="0, 1"/>
+                    </Style>
+                    <Style Selector="ToggleButton:unchecked">
+                        <Setter Property="Background" Value="{DynamicResource ThemeControlLowBrush}"/>
+                    </Style>
+                </ItemsControl.Styles>
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Center" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <ToggleButton Padding="4"
+                                  behaviours:ToggleGroupBehavior.GroupName="PickerMode"
+                                  behaviours:ToggleGroupBehavior.Value="{Binding .}"
+                                  behaviours:ToggleGroupBehavior.SelectedValue="{Binding DataContext.Value,
+                              RelativeSource={RelativeSource AncestorType=UserControl}, Mode=TwoWay}"
+                                  localization:Translator.TooltipKey="{Binding ., Converter={converters:EnumToLocalizedStringConverter}}">
+
+                        <TextBlock FontSize="20" Classes="pixi-icon" Text="{Binding ., Converter={converters:EnumToIconConverter}}"/>
+                    </ToggleButton>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+
+        </ItemsControl>
+    </Panel>
 </UserControl>

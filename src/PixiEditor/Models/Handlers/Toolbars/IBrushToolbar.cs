@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using PixiEditor.ChangeableDocument.Changeables.Brushes;
 using PixiEditor.Helpers;
+using PixiEditor.Helpers.Decorators;
 using PixiEditor.Models.BrushEngine;
 using PixiEditor.Views.Overlays.BrushShapeOverlay;
 
@@ -18,10 +19,13 @@ internal interface IBrushToolbar : IToolbar, IToolSizeToolbar
 
 public enum StabilizationMode
 {
-    [Description("NONE")]
+    [Description("NONE_STABILIZATION")]
+    [IconName("icon-sun")]
     None,
-    [Description("TIME_BASED")]
+    [Description("TIME_BASED_STABILIZATION")]
+    [IconName("icon-clock")]
     TimeBased,
-    [Description("DISTANCE_BASED")]
+    [Description("DISTANCE_BASED_STABILIZATION")]
+    [IconName("icon-circle")]
     CircleRope
 }

@@ -7,15 +7,6 @@ using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.ViewModels.Tools.ToolSettings.Settings;
 
-internal abstract class Setting<T, TControl> : Setting<T>
-    where TControl : Control
-{
-    protected Setting(string name)
-        : base(name)
-    {
-    }
-}
-
 internal abstract class Setting<T> : Setting
 {
     protected Setting(string name)
