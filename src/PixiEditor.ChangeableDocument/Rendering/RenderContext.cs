@@ -28,6 +28,7 @@ public class RenderContext
     public PointerInfo PointerInfo { get; set; }
     public KeyboardInfo KeyboardInfo { get; set; }
     public EditorData EditorData { get; set; }
+    public ViewportData ViewportData { get; set; }
     public ColorSpace ProcessingColorSpace { get; set; }
     public string? TargetOutput { get; set; }
     public AffectedArea AffectedArea { get; set; }
@@ -95,6 +96,7 @@ public class RenderContext
             PointerInfo = PointerInfo,
             EditorData = EditorData,
             KeyboardInfo = KeyboardInfo,
+            ViewportData = ViewportData
         };
     }
 }

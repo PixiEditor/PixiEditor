@@ -13,7 +13,7 @@ internal readonly record struct ViewportInfo(
     double Angle,
     VecD Center,
     VecD RealDimensions,
-    Matrix3X3 Transform,
+    ViewportData ViewportData,
     PointerInfo PointerInfo,
     KeyboardInfo KeyboardInfo,
     EditorData EditorData,

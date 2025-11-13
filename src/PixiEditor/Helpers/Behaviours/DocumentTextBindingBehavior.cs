@@ -53,7 +53,7 @@ public class DocumentTextBindingBehavior : Behavior<TextEditor>
         {
             var caretOffset = _textEditor.CaretOffset;
             _textEditor.Document.Text = text;
-            _textEditor.CaretOffset = caretOffset;
+            _textEditor.CaretOffset = Math.Min(caretOffset, text.Length);
         }
     }
 }

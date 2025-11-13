@@ -103,7 +103,7 @@ internal class SceneRenderer
         ViewportInfo previewGenerationViewport = new()
         {
             RealDimensions = new VecD(1, 1),
-            Transform = Matrix3X3.Identity,
+            ViewportData = new ViewportData(Matrix3X3.Identity, new VecD(1, 1), 0, false, false),
             Id = Guid.NewGuid(),
             Resolution = ChunkResolution.Full,
             Sampling = SamplingOptions.Bilinear,
@@ -130,7 +130,7 @@ internal class SceneRenderer
          */
 
         VecI renderTargetSize = (VecI)viewport.RealDimensions;
-        Matrix3X3 targetMatrix = viewport.Transform;
+        Matrix3X3 targetMatrix = viewport.ViewportData.Transform;
         Guid viewportId = viewport.Id;
         ChunkResolution resolution = viewport.Resolution;
         SamplingOptions samplingOptions = viewport.Sampling;
@@ -141,8 +141,24 @@ internal class SceneRenderer
         string? targetOutput = viewport.RenderOutput.Equals("DEFAULT", StringComparison.InvariantCultureIgnoreCase)
             ? null
             : viewport.RenderOutput;
+        bool isFullViewportRender = false;
 
         IReadOnlyNodeGraph finalGraph = RenderingUtils.SolveFinalNodeGraph(targetOutput, Document);
+
+        if (targetOutput != null)
+        {
+            var outputNode = finalGraph.AllNodes.FirstOrDefault(n =>
+                n is CustomOutputNode outputNode && outputNode.OutputName.Value == targetOutput);
+
+            if (outputNode is CustomOutputNode customOutputNode)
+            {
+                isFullViewportRender = customOutputNode.FullViewportRender.Value;
+                visibleDocumentRegion = isFullViewportRender
+                    ? null
+                    : viewport.VisibleDocumentRegion;
+                resolution = ChunkResolution.Full;
+            }
+        }
 
         float oversizeFactor = 1;
         if (visibleDocumentRegion != null && viewport.IsScene &&
@@ -154,7 +170,7 @@ internal class SceneRenderer
         }
 
         bool shouldRerender =
-            ShouldRerender(renderTargetSize, targetMatrix, resolution, viewportId, targetOutput, finalGraph,
+            ShouldRerender(renderTargetSize, isFullViewportRender ? Matrix3X3.Identity : targetMatrix, resolution, viewportId, targetOutput, finalGraph,
                 previewTextures, visibleDocumentRegion, oversizeFactor, out bool fullAffectedArea);
 
         if (shouldRerender)
@@ -165,7 +181,7 @@ internal class SceneRenderer
                 : affectedArea;
             return RenderGraph(renderTargetSize, targetMatrix, viewportId, resolution, samplingOptions, affectedArea,
                 visibleDocumentRegion, targetOutput, viewport.IsScene, oversizeFactor,
-                pointerInfo, keyboardInfo, editorData, finalGraph, previewTextures);
+                pointerInfo, keyboardInfo, editorData, viewport.ViewportData, finalGraph, previewTextures);
         }
 
         var cachedTexture = DocumentViewModel.SceneTextures[viewportId];
@@ -183,36 +199,47 @@ internal class SceneRenderer
         PointerInfo pointerInfo,
         KeyboardInfo keyboardInfo,
         EditorData editorData,
+        ViewportData viewportData,
         IReadOnlyNodeGraph finalGraph, Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures)
     {
         DrawingSurface renderTarget = null;
         Texture? renderTexture = null;
         int restoreCanvasTo;
 
-        VecI finalSize = SolveRenderOutputSize(targetOutput, finalGraph, Document.Size);
-        if (RenderInOutputSize(finalGraph, renderTargetSize, finalSize))
+        VecI finalSize = SolveRenderOutputSize(targetOutput, finalGraph, Document.Size, renderTargetSize, out bool isFullViewportRender);
+        if (isFullViewportRender)
         {
-            finalSize = (VecI)(finalSize * resolution.Multiplier());
-
             renderTexture =
-                textureCache.RequestTexture(viewportId.GetHashCode(), finalSize, Document.ProcessingColorSpace);
+                textureCache.RequestTexture(viewportId.GetHashCode(), renderTargetSize, Document.ProcessingColorSpace);
             renderTarget = renderTexture.DrawingSurface;
             renderTarget.Canvas.Save();
-            renderTexture.DrawingSurface.Canvas.Save();
-            renderTexture.DrawingSurface.Canvas.Scale((float)resolution.Multiplier());
         }
         else
         {
-            var bufferedSize = (VecI)(renderTargetSize * oversizeFactor);
-            renderTexture = textureCache.RequestTexture(viewportId.GetHashCode(), bufferedSize,
-                Document.ProcessingColorSpace);
+            if (RenderInOutputSize(finalGraph, renderTargetSize, finalSize))
+            {
+                finalSize = (VecI)(finalSize * resolution.Multiplier());
 
-            var bufferedMatrix = targetMatrix.PostConcat(Matrix3X3.CreateTranslation(
-                (bufferedSize.X - renderTargetSize.X) / 2.0,
-                (bufferedSize.Y - renderTargetSize.Y) / 2.0));
+                renderTexture =
+                    textureCache.RequestTexture(viewportId.GetHashCode(), finalSize, Document.ProcessingColorSpace);
+                renderTarget = renderTexture.DrawingSurface;
+                renderTarget.Canvas.Save();
+                renderTexture.DrawingSurface.Canvas.Save();
+                renderTexture.DrawingSurface.Canvas.Scale((float)resolution.Multiplier());
+            }
+            else
+            {
+                var bufferedSize = (VecI)(renderTargetSize * oversizeFactor);
+                renderTexture = textureCache.RequestTexture(viewportId.GetHashCode(), bufferedSize,
+                    Document.ProcessingColorSpace);
 
-            renderTarget = renderTexture.DrawingSurface;
-            renderTarget.Canvas.SetMatrix(bufferedMatrix);
+                var bufferedMatrix = targetMatrix.PostConcat(Matrix3X3.CreateTranslation(
+                    (bufferedSize.X - renderTargetSize.X) / 2.0,
+                    (bufferedSize.Y - renderTargetSize.Y) / 2.0));
+
+                renderTarget = renderTexture.DrawingSurface;
+                renderTarget.Canvas.SetMatrix(bufferedMatrix);
+            }
         }
 
         bool renderOnionSkinning = canRenderOnionSkinning &&
@@ -236,6 +263,7 @@ internal class SceneRenderer
                     Document.ProcessingColorSpace, samplingOptions, Document.NodeGraph, finalOpacity);
                 onionContext.TargetOutput = targetOutput;
                 onionContext.VisibleDocumentRegion = visibleDocumentRegion;
+                onionContext.ViewportData = viewportData;
                 finalGraph.Execute(onionContext);
             }
         }
@@ -250,6 +278,7 @@ internal class SceneRenderer
         context.AffectedArea = area;
         context.VisibleDocumentRegion = visibleDocumentRegion;
         context.PreviewTextures = previewTextures;
+        context.ViewportData = viewportData;
         finalGraph.Execute(context);
         ExecuteBrushOutputPreviews(finalGraph, previewTextures, context);
 
@@ -268,6 +297,7 @@ internal class SceneRenderer
                     Document.ProcessingColorSpace, samplingOptions, Document.NodeGraph, finalOpacity);
                 onionContext.TargetOutput = targetOutput;
                 onionContext.VisibleDocumentRegion = visibleDocumentRegion;
+                onionContext.ViewportData = viewportData;
                 finalGraph.Execute(onionContext);
             }
         }
@@ -300,9 +330,10 @@ internal class SceneRenderer
     }
 
     private static VecI SolveRenderOutputSize(string? targetOutput, IReadOnlyNodeGraph finalGraph,
-        VecI documentSize)
+        VecI documentSize, VecI viewportSize, out bool isFullViewportRender)
     {
         VecI finalSize = documentSize;
+        isFullViewportRender = false;
         if (targetOutput != null)
         {
             var outputNode = finalGraph.AllNodes.FirstOrDefault(n =>
@@ -310,7 +341,12 @@ internal class SceneRenderer
 
             if (outputNode is CustomOutputNode customOutputNode)
             {
-                if (customOutputNode.Size.Value.ShortestAxis > 0)
+                if (customOutputNode.FullViewportRender.Value)
+                {
+                    finalSize = viewportSize;
+                    isFullViewportRender = true;
+                }
+                else if (customOutputNode.Size.Value.ShortestAxis > 0)
                 {
                     finalSize = customOutputNode.Size.Value;
                 }
@@ -378,7 +414,7 @@ internal class SceneRenderer
             return true;
         }
 
-        VecI finalSize = SolveRenderOutputSize(targetOutput, finalGraph, Document.Size);
+        VecI finalSize = SolveRenderOutputSize(targetOutput, finalGraph, Document.Size, targetSize, out _);
         bool renderInDocumentSize = RenderInOutputSize(finalGraph, targetSize, finalSize);
         VecI compareSize = renderInDocumentSize
             ? (VecI)(Document.Size * resolution.Multiplier())

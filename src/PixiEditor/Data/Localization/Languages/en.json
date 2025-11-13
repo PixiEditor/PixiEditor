@@ -1215,5 +1215,10 @@
   "UNLINK_DOCUMENT_MESSAGE": "Are you sure you want to unlink this document? Layer will stay in its current state.",
   "RELINK_DOCUMENT_TITLE": "Relink Document",
   "ERROR_RELINKING_DOCUMENT": "Error relinking document: {0}",
-  "RELINK": "Relink"
+  "RELINK": "Relink",
+  "FULL_VIEWPORT_RENDER": "Full Viewport Render",
+  "PAN_POSITION": "Pan Position",
+  "ZOOM": "Zoom",
+  "FLIP_X": "Flip X",
+  "FLIP_Y": "Flip Y"
 }

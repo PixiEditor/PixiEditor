@@ -5,4 +5,13 @@ using PixiEditor.ViewModels.Nodes;
 namespace PixiEditor.ViewModels.Document.Nodes.Workspace;
 
 [NodeViewModel("CUSTOM_OUTPUT_NODE", "WORKSPACE", PixiPerfectIcons.Surveillance)]
-internal class CustomOutputNodeViewModel : NodeViewModel<CustomOutputNode>;
+internal class CustomOutputNodeViewModel : NodeViewModel<CustomOutputNode>
+{
+    public override void OnInitialized()
+    {
+        InputPropertyMap[CustomOutputNode.FullViewportRenderPropertyName].ValueChanged += (property, args) =>
+        {
+            InputPropertyMap[CustomOutputNode.SizePropertyName].IsVisible = !(bool)args.NewValue!;
+        };
+    }
+}

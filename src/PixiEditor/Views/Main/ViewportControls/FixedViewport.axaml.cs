@@ -142,7 +142,7 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
             0,
             docSize / 2,
             new VecD(Bounds.Width, Bounds.Height),
-            scaling,
+            new ViewportData(scaling, VecD.Zero, 1, false, false),
             new PointerInfo(),
             new KeyboardInfo(),
             ViewModelMain.Current.GetEditorData(), // TODO: Remove singleton

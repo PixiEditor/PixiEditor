@@ -346,17 +346,17 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         texture.Canvas.Save();
         var matrix = CalculateTransformMatrix();
 
-        texture.Canvas.SetMatrix(matrix.ToSKMatrix().ToMatrix3X3());
+        VecI outputSize = FindOutputSize(out var isFullscreen);
 
-        VecI outputSize = FindOutputSize();
+        texture.Canvas.SetMatrix(isFullscreen ? Matrix3X3.Identity : matrix.ToSKMatrix().ToMatrix3X3());
 
         RectD dirtyBounds = new RectD(0, 0, outputSize.X, outputSize.Y);
-        RenderScene(texture, dirtyBounds);
+        RenderScene(texture, dirtyBounds, isFullscreen);
 
         texture.Canvas.Restore();
     }
 
-    private void RenderScene(DrawingSurface texture, RectD bounds)
+    private void RenderScene(DrawingSurface texture, RectD bounds, bool isFullscreenRender)
     {
         var renderOutput = RenderOutput == "DEFAULT" ? null : RenderOutput;
         DrawCheckerboard(texture, bounds);
@@ -373,7 +373,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             if(!Document.SceneTextures.TryGetValue(ViewportId, out var cachedTexture))
                 return;
 
-            Matrix3X3 matrixDiff = SolveMatrixDiff(matrix, cachedTexture);
+            Matrix3X3 matrixDiff = isFullscreenRender ? Matrix3X3.Identity : SolveMatrixDiff(matrix, cachedTexture);
             var target = cachedTexture.DrawingSurface;
 
             if (tex.Size == (VecI)RealDimensions || tex.Size == (VecI)(RealDimensions * SceneRenderer.OversizeFactor))
@@ -499,9 +499,10 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         }
     }
 
-    private VecI FindOutputSize()
+    private VecI FindOutputSize(out bool isFullscreen)
     {
         VecI outputSize = Document.SizeBindable;
+        isFullscreen = false;
 
         if (!string.IsNullOrEmpty(RenderOutput))
         {
@@ -515,11 +516,17 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                     {
                         outputSize = size;
                     }
+
+                    var fullScreenProp = node?.Inputs.FirstOrDefault(x => x.PropertyName == CustomOutputNode.FullViewportRenderPropertyName);
+                    if (fullScreenProp != null)
+                    {
+                        isFullscreen = Document.NodeGraph.GetComputedPropertyValue<bool>(fullScreenProp);
+                    }
                 }
             }
         }
 
-        return outputSize;
+        return isFullscreen ? new VecI((int)Bounds.Size.Width, (int)Bounds.Size.Height) : outputSize;
     }
 
     protected override void OnPointerMoved(PointerEventArgs e)
@@ -880,12 +887,6 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         transform = transform.Append(Matrix.CreateScale((float)Scale, (float)Scale));
         transform = transform.Append(Matrix.CreateTranslation(CanvasPos.X, CanvasPos.Y));
         return transform;
-    }
-
-    private float CalculateResolutionScale()
-    {
-        var resolution = CalculateResolution();
-        return (float)resolution.InvertedMultiplier();
     }
 
     private void CaptureOverlay(Overlay? overlay, IPointer pointer)
