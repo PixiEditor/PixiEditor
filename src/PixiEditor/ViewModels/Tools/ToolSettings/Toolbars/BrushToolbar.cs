@@ -28,10 +28,16 @@ internal class BrushToolbar : Toolbar, IBrushToolbar
         set => GetSetting<BrushSettingViewModel>(nameof(Brush)).Value = value;
     }
 
-    public float Stabilization
+    public double Stabilization
     {
-        get => GetSetting<FloatSettingViewModel>(nameof(Stabilization)).Value;
-        set => GetSetting<FloatSettingViewModel>(nameof(Stabilization)).Value = value;
+        get => GetSetting<SizeSettingViewModel>(nameof(Stabilization)).Value;
+        set => GetSetting<SizeSettingViewModel>(nameof(Stabilization)).Value = value;
+    }
+
+    public StabilizationMode StabilizationMode
+    {
+        get => GetSetting<EnumSettingViewModel<StabilizationMode>>(nameof(StabilizationMode)).Value;
+        set => GetSetting<EnumSettingViewModel<StabilizationMode>>(nameof(StabilizationMode)).Value = value;
     }
 
     public BrushData CreateBrushData()
@@ -54,6 +60,10 @@ internal class BrushToolbar : Toolbar, IBrushToolbar
     public override void OnLoadedSettings()
     {
         OnPropertyChanged(nameof(ToolSize));
+        OnPropertyChanged(nameof(Brush));
+        OnPropertyChanged(nameof(AntiAliasing));
+        OnPropertyChanged(nameof(Stabilization));
+        OnPropertyChanged(nameof(StabilizationMode));
     }
 
     public BrushToolbar()
@@ -63,13 +73,24 @@ internal class BrushToolbar : Toolbar, IBrushToolbar
         setting.ValueChanged += (_, _) => OnPropertyChanged(nameof(ToolSize));
         AddSetting(setting);
         AddSetting(new BrushSettingViewModel(nameof(Brush), "BRUSH_SETTING") { IsExposed = true });
-        AddSetting(new FloatSettingViewModel(nameof(Stabilization), 0, "STABILIZATION_SETTING", min: 0, max: 15) { IsExposed = true });
+        AddSetting(new EnumSettingViewModel<StabilizationMode>(nameof(StabilizationMode), "STABILIZATION_MODE_SETTING") { IsExposed = true });
+        AddSetting(new SizeSettingViewModel(nameof(Stabilization), "STABILIZATION_SETTING", 0, min: 0, max: 128) { IsExposed = true });
 
         foreach (var aSetting in Settings)
         {
-            if (aSetting.Name == "Brush" || aSetting.Name == "AntiAliasing" || aSetting.Name == "ToolSize")
+            if (aSetting.Name is "Brush" or "AntiAliasing" or "ToolSize")
             {
                 aSetting.ValueChanged += SettingOnValueChanged;
+            }
+
+            if(aSetting.Name == "Stabilization")
+            {
+                aSetting.ValueChanged += (_, _) => OnPropertyChanged(nameof(Stabilization));
+            }
+
+            if (aSetting.Name == "StabilizationMode")
+            {
+                aSetting.ValueChanged += (_, _) => OnPropertyChanged(nameof(StabilizationMode));
             }
         }
     }

@@ -1,4 +1,6 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Brushes;
+﻿using System.ComponentModel;
+using PixiEditor.ChangeableDocument.Changeables.Brushes;
+using PixiEditor.Helpers;
 using PixiEditor.Models.BrushEngine;
 using PixiEditor.Views.Overlays.BrushShapeOverlay;
 
@@ -10,5 +12,16 @@ internal interface IBrushToolbar : IToolbar, IToolSizeToolbar
     public Brush Brush { get; set; }
     public BrushData CreateBrushData();
     public BrushData LastBrushData { get; }
-    public float Stabilization { get; set; }
+    public double Stabilization { get; set; }
+    public StabilizationMode StabilizationMode { get; set; }
+}
+
+public enum StabilizationMode
+{
+    [Description("NONE")]
+    None,
+    [Description("TIME_BASED")]
+    TimeBased,
+    [Description("DISTANCE_BASED")]
+    CircleRope
 }

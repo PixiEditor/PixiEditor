@@ -365,7 +365,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         {
             if(Document == null || Document.SceneTextures.TryGetValue(ViewportId, out var tex) == false)
                 return;
-            
+
             bool hasSaved = false;
             int saved = -1;
 
@@ -615,7 +615,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                         if (args.Handled) break;
                         if (!overlay.IsVisible) continue;
 
-                        if (!overlay.IsHitTestVisible || !overlay.TestHit(args.Point)) continue;
+                        if ((!overlay.IsHitTestVisible || !overlay.TestHit(args.Point)) && !overlay.AlwaysPassPointerEvents) continue;
 
                         overlay.PressPointer(args);
                     }
@@ -681,7 +681,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                         if (args.Handled) break;
                         if (!overlay.IsVisible) continue;
 
-                        if (!overlay.IsHitTestVisible || !overlay.TestHit(args.Point)) continue;
+                        if ((!overlay.IsHitTestVisible || !overlay.TestHit(args.Point)) && !overlay.AlwaysPassPointerEvents) continue;
 
                         overlay.ReleasePointer(args);
                     }

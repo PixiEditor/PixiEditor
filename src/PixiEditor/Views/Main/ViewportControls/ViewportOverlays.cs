@@ -482,10 +482,30 @@ internal class ViewportOverlays
             Source = ViewModelMain.Current, Path = "GetEditorData", Mode = BindingMode.OneWay
         };
 
+        Binding stabilizationModeBinding = new()
+        {
+            Source = ViewModelMain.Current.ToolsSubViewModel, Path = "ActiveBrushToolbar.StabilizationMode", Mode = BindingMode.OneWay
+        };
+
+        Binding stabilizationBinding = new()
+        {
+            Source = ViewModelMain.Current.ToolsSubViewModel, Path = "ActiveBrushToolbar.Stabilization", Mode = BindingMode.OneWay
+        };
+
+        Binding lastAppliedPointBinding = new()
+        {
+            Source = ViewModelMain.Current.ToolsSubViewModel,
+            Path = "ActiveTool.LastAppliedPoint",
+            Mode = BindingMode.OneWay
+        };
+
         brushShapeOverlay.Bind(Visual.IsVisibleProperty, isVisibleMultiBinding);
         brushShapeOverlay.Bind(BrushShapeOverlay.BrushDataProperty, brushDataBinding);
         brushShapeOverlay.Bind(BrushShapeOverlay.ActiveFrameTimeProperty, activeFrameTimeBidning);
         brushShapeOverlay.Bind(BrushShapeOverlay.EditorDataProperty, editorDataBinding);
+        brushShapeOverlay.Bind(BrushShapeOverlay.StabilizationModeProperty, stabilizationModeBinding);
+        brushShapeOverlay.Bind(BrushShapeOverlay.StabilizationProperty, stabilizationBinding);
+        brushShapeOverlay.Bind(BrushShapeOverlay.LastAppliedPointProperty, lastAppliedPointBinding);
     }
 
     private void BindTextOverlay()

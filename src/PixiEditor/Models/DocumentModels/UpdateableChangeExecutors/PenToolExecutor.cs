@@ -43,11 +43,18 @@ internal class PenToolExecutor : BrushBasedExecutor<IPenToolHandler>
 
     protected override void EnqueueDrawActions()
     {
+        var point = GetStabilizedPoint();
+        if (handler != null)
+        {
+            handler.LastAppliedPoint = point;
+        }
+
         IAction? action = pixelPerfect switch
         {
-            false => new LineBasedPen_Action(layerId, GetStabilizedPoint(), (float)ToolSize,
+            false => new LineBasedPen_Action(layerId, point, (float)ToolSize,
                 antiAliasing, BrushData, drawOnMask,
-                document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo, controller.LastKeyboardInfo, controller.EditorData),
+                document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo, controller.LastKeyboardInfo,
+                controller.EditorData),
             true => new PixelPerfectPen_Action(layerId, controller!.LastPixelPosition, color, drawOnMask,
                 document!.AnimationHandler.ActiveFrameBindable)
         };
@@ -58,7 +65,7 @@ internal class PenToolExecutor : BrushBasedExecutor<IPenToolHandler>
     public override void OnSettingsChanged(string name, object value)
     {
         base.OnSettingsChanged(name, value);
-        if(name == nameof(IPenToolHandler.PixelPerfectEnabled) && value is bool bp)
+        if (name == nameof(IPenToolHandler.PixelPerfectEnabled) && value is bool bp)
         {
             EnqueueEndDraw();
             pixelPerfect = bp;
@@ -67,6 +74,7 @@ internal class PenToolExecutor : BrushBasedExecutor<IPenToolHandler>
 
     protected override void EnqueueEndDraw()
     {
+        firstApply = true;
         IAction? action = pixelPerfect switch
         {
             false => new EndLineBasedPen_Action(),

@@ -1220,5 +1220,10 @@
   "PAN_POSITION": "Pan Position",
   "ZOOM": "Zoom",
   "FLIP_X": "Flip X",
-  "FLIP_Y": "Flip Y"
+  "FLIP_Y": "Flip Y",
+  "STABILIZATION_SETTING": "Stabilization",
+  "STABILIZATION_MODE_SETTING": "Stabilization Mode",
+  "NONE": "None",
+  "DISTANCE_BASED": "Distance Based",
+  "TIME_BASED": "Time Based"
 }

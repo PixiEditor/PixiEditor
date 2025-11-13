@@ -17,6 +17,8 @@ namespace PixiEditor.ViewModels.Tools.Tools;
 
 internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
 {
+    private VecD lastPoint;
+
     private List<Setting> brushShapeSettings = new();
     public override Type[]? SupportedLayerTypes { get; } = { typeof(IRasterLayerHandler) };
     public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(ImageLayerNode);
@@ -26,6 +28,12 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
     public override string ToolName => toolName ?? base.ToolName;
     public bool IsCustomBrushTool { get; private set; }
     public KeyCombination? DefaultShortcut { get; set; }
+
+    public VecD LastAppliedPoint
+    {
+        get => lastPoint;
+        set => SetProperty(ref lastPoint, value);
+    }
 
     [Settings.Inherited] public double ToolSize => GetValue<double>();
 

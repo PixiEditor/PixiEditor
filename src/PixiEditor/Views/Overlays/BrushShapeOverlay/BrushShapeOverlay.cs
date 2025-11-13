@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Input;
+using Avalonia.Media;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
@@ -9,10 +10,14 @@ using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Brushes;
 using PixiEditor.ChangeableDocument.Rendering.ContextData;
+using PixiEditor.Helpers;
+using PixiEditor.Helpers.Extensions;
+using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.UI.Common.Extensions;
 using PixiEditor.Views.Rendering;
 using Canvas = Drawie.Backend.Core.Surfaces.Canvas;
 using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
+using IBrush = Avalonia.Media.IBrush;
 
 namespace PixiEditor.Views.Overlays.BrushShapeOverlay;
 #nullable enable
@@ -32,6 +37,36 @@ internal class BrushShapeOverlay : Overlay
     public static readonly StyledProperty<Func<EditorData>> EditorDataProperty =
         AvaloniaProperty.Register<BrushShapeOverlay, Func<EditorData>>(
             nameof(EditorData));
+
+    public static readonly StyledProperty<StabilizationMode> StabilizationModeProperty =
+        AvaloniaProperty.Register<BrushShapeOverlay, StabilizationMode>(
+            nameof(StabilizationMode));
+
+    public static readonly StyledProperty<double> StabilizationProperty =
+        AvaloniaProperty.Register<BrushShapeOverlay, double>(
+            nameof(Stabilization));
+
+    public static readonly StyledProperty<VecD> LastAppliedPointProperty =
+        AvaloniaProperty.Register<BrushShapeOverlay, VecD>(
+            nameof(LastAppliedPoint));
+
+    public VecD LastAppliedPoint
+    {
+        get => GetValue(LastAppliedPointProperty);
+        set => SetValue(LastAppliedPointProperty, value);
+    }
+
+    public double Stabilization
+    {
+        get => GetValue(StabilizationProperty);
+        set => SetValue(StabilizationProperty, value);
+    }
+
+    public StabilizationMode StabilizationMode
+    {
+        get => GetValue(StabilizationModeProperty);
+        set => SetValue(StabilizationModeProperty, value);
+    }
 
     public Func<EditorData> EditorData
     {
@@ -69,11 +104,16 @@ internal class BrushShapeOverlay : Overlay
 
     private Paint paint = new Paint() { Color = Colors.LightGray, StrokeWidth = 1, Style = PaintStyle.Stroke };
 
+    private VecD lastPoint;
     private VecD lastDirCalculationPoint;
     private float lastSize;
+    private bool isMouseDown;
     private PointerInfo lastPointerInfo;
 
     private ChangeableDocument.Changeables.Brushes.BrushEngine engine = new();
+
+    private Drawie.Backend.Core.ColorsImpl.Color ropeColor;
+    private Drawie.Backend.Core.ColorsImpl.Color pointColor;
 
     static BrushShapeOverlay()
     {
@@ -86,6 +126,9 @@ internal class BrushShapeOverlay : Overlay
     public BrushShapeOverlay()
     {
         IsHitTestVisible = false;
+        AlwaysPassPointerEvents = true;
+        ropeColor = ResourceLoader.GetResource<Color>("ErrorOnDarkColor").ToColor();
+        pointColor = ResourceLoader.GetResource<Color>("ThemeAccent3Color").ToColor();
     }
 
     private static void UpdateBrush(AvaloniaPropertyChangedEventArgs args)
@@ -110,7 +153,8 @@ internal class BrushShapeOverlay : Overlay
         PointerInfo pointer = new PointerInfo(pos, 1, 0, VecD.Zero, dirNormalized);
 
         engine.ExecuteBrush(null, BrushData, pos, ActiveFrameTime,
-            ColorSpace.CreateSrgb(), SamplingOptions.Default, pointer, new KeyboardInfo(), EditorData?.Invoke() ?? new EditorData(Colors.White, Colors.Black));
+            ColorSpace.CreateSrgb(), SamplingOptions.Default, pointer, new KeyboardInfo(),
+            EditorData?.Invoke() ?? new EditorData(Colors.White, Colors.Black));
     }
 
     protected override void OnOverlayPointerMoved(OverlayPointerArgs args)
@@ -121,8 +165,19 @@ internal class BrushShapeOverlay : Overlay
         }
 
         UpdateBrushShape(args.Point);
+        lastPoint = args.Point;
 
         Refresh();
+    }
+
+    protected override void OnOverlayPointerPressed(OverlayPointerArgs args)
+    {
+        isMouseDown = true;
+    }
+
+    protected override void OnOverlayPointerReleased(OverlayPointerArgs args)
+    {
+        isMouseDown = false;
     }
 
     protected override void OnKeyPressed(KeyEventArgs args)
@@ -146,23 +201,32 @@ internal class BrushShapeOverlay : Overlay
         {
             paint.IsAntiAliased = true;
             targetCanvas.Save();
-            /*using var path = new VectorPath(BrushShape);
-            var rect = new RectD(lastMousePos - new VecD((BrushSize / 2f)), new VecD(BrushSize));
 
-            path.Offset(rect.Center - path.Bounds.Center);
-
-            VecD scale = new VecD(rect.Size.X / (float)path.Bounds.Width, rect.Size.Y / (float)path.Bounds.Height);
-            if (scale.IsNaNOrInfinity())
+            if (isMouseDown)
             {
-                scale = VecD.Zero;
+                if (StabilizationMode == StabilizationMode.CircleRope)
+                {
+                    float radius = (float)Stabilization / (float)ZoomScale;
+                    paint.Style = PaintStyle.Stroke;
+
+                    paint.Color = pointColor;
+                    targetCanvas.DrawCircle(LastAppliedPoint, 5f / (float)ZoomScale, paint);
+
+                    paint.Color = ropeColor;
+
+                    DrawConstrainedRope(targetCanvas, lastPoint, LastAppliedPoint, radius, paint);
+
+                    paint.Color = pointColor;
+                    targetCanvas.DrawCircle(lastPoint, 5f / (float)ZoomScale, paint);
+                }
             }
 
-            VecD uniformScale = new VecD(Math.Min(scale.X, scale.Y));
-            path.Transform(Matrix3X3.CreateScale((float)uniformScale.X, (float)uniformScale.Y, (float)rect.Center.X,
-                (float)rect.Center.Y));
+            if (StabilizationMode == StabilizationMode.None)
+            {
+                paint.Color = Colors.LightGray;
+                targetCanvas.DrawPath(BrushShape, paint);
+            }
 
-            */
-            targetCanvas.DrawPath(BrushShape, paint);
             targetCanvas.Restore();
         }
     }
@@ -170,5 +234,39 @@ internal class BrushShapeOverlay : Overlay
     protected override void ZoomChanged(double newZoom)
     {
         paint.StrokeWidth = (float)(1.0f / newZoom);
+    }
+
+    void DrawConstrainedRope(Canvas targetCanvas, VecD A, VecD B, double radius, Paint paint)
+    {
+        var AB = B - A;
+        double d = AB.Length;
+
+        using var path = new VectorPath();
+
+        if (d >= radius || d <= 1e-9)
+        {
+            path.MoveTo((VecF)A);
+            path.LineTo((VecF)B);
+            targetCanvas.DrawPath(path, paint);
+            return;
+        }
+
+        var dir = AB.Normalize();
+        var perp = new VecD(-dir.Y, dir.X);
+        var mid = (A + B) * 0.5;
+
+        // compute perpendicular offset so total rope length = radius
+        double halfD = d / 2.0;
+        double halfR = radius / 2.0;
+        double h = Math.Sqrt(Math.Max(0.0, halfR * halfR - halfD * halfD));
+
+        VecD P = mid + perp * h;
+
+        VecD c1 = A + (P - A) * 0.5;
+        VecD c2 = B + (P - B) * 0.5;
+
+        path.MoveTo((VecF)A);
+        path.CubicTo((VecF)c1, (VecF)c2, (VecF)B);
+        targetCanvas.DrawPath(path, paint);
     }
 }

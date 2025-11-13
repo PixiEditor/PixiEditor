@@ -40,7 +40,8 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
     private Guid brushOutputGuid = Guid.Empty;
     private BrushOutputNode? outputNode;
     private VecD lastSmoothed;
-    private Stopwatch stopwatch = new Stopwatch();
+    private DateTime lastTime;
+    private double lastViewportZoom = 1.0;
 
     protected IBrushToolHandler BrushTool;
     protected IBrushToolbar BrushToolbar;
@@ -50,7 +51,7 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
     protected Guid layerId;
     protected Color color;
     protected bool antiAliasing;
-    private bool firstApply = true;
+    protected bool firstApply = true;
 
     protected bool drawOnMask;
     public double ToolSize => BrushToolbar.ToolSize;
@@ -99,7 +100,13 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
 
     protected virtual void EnqueueDrawActions()
     {
-        IAction? action = new LineBasedPen_Action(layerId, GetStabilizedPoint(), (float)ToolSize,
+        var point = GetStabilizedPoint();
+        if (handler != null)
+        {
+            handler.LastAppliedPoint = point;
+        }
+
+        IAction? action = new LineBasedPen_Action(layerId, point, (float)ToolSize,
             antiAliasing, BrushData, drawOnMask,
             document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo, controller.LastKeyboardInfo,
             controller.EditorData);
@@ -109,21 +116,53 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
 
     protected VecD GetStabilizedPoint()
     {
-        float timeConstant = (float)BrushToolbar.Stabilization / 100f;
-        float elapsed = (float)stopwatch.Elapsed.TotalSeconds;
-        float alpha = elapsed / Math.Max(timeConstant + elapsed, 0.0001f);
-        VecD smoothed = lastSmoothed + (controller.LastPrecisePosition - lastSmoothed) * alpha;
-        stopwatch.Restart();
         if (firstApply)
         {
-            smoothed = controller.LastPrecisePosition;
+            lastSmoothed = controller.LastPrecisePosition;
+            lastTime = DateTime.Now;
+            firstApply = false;
+            return lastSmoothed;
         }
 
+        if (BrushToolbar.StabilizationMode == StabilizationMode.TimeBased)
+        {
+            return GetStabilizedPointTimeBased();
+        }
+
+        if (BrushToolbar.StabilizationMode == StabilizationMode.CircleRope)
+        {
+            return GetStabilizedPointCircleRope(lastViewportZoom);
+        }
+
+        return controller.LastPrecisePosition;
+    }
+
+    private VecD GetStabilizedPointTimeBased()
+    {
+        float timeConstant = (float)BrushToolbar.Stabilization / 100f;
+        float elapsed = (float)(DateTime.Now - lastTime).TotalSeconds;
+        float alpha = elapsed / Math.Max(timeConstant + elapsed, 0.0001f);
+        VecD smoothed = lastSmoothed + (controller.LastPrecisePosition - lastSmoothed) * alpha;
+        lastTime = DateTime.Now;
+
         lastSmoothed = smoothed;
-        firstApply = false;
         return smoothed;
     }
 
+    private VecD GetStabilizedPointCircleRope(double viewportZoom)
+    {
+        float radius = (float)BrushToolbar.Stabilization / (float)viewportZoom;
+        VecD direction = controller.LastPrecisePosition - lastSmoothed;
+        float distance = (float)direction.Length;
+
+        if (distance > radius)
+        {
+            direction = direction.Normalize();
+            lastSmoothed += direction * (distance - radius);
+        }
+
+        return lastSmoothed;
+    }
 
     private void UpdateBrushNodes()
     {
@@ -150,6 +189,7 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
         base.OnPrecisePositionChange(args);
         if (controller.LeftMousePressed)
         {
+            lastViewportZoom = args.ViewportScale;
             EnqueueDrawActions();
         }
     }
@@ -189,6 +229,7 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
 
     protected virtual void EnqueueEndDraw()
     {
+        firstApply = true;
         internals!.ActionAccumulator.AddFinishedActions(new EndLineBasedPen_Action());
     }
 
