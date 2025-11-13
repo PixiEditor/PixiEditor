@@ -159,6 +159,7 @@ internal class BrushShapeOverlay : Overlay
 
     protected override void OnOverlayPointerMoved(OverlayPointerArgs args)
     {
+        isMouseDown = args.Properties.IsLeftButtonPressed;
         if (!args.Properties.IsLeftButtonPressed && BrushData.BrushGraph != null)
         {
             ExecuteBrush(args.Point);
@@ -178,6 +179,16 @@ internal class BrushShapeOverlay : Overlay
     protected override void OnOverlayPointerReleased(OverlayPointerArgs args)
     {
         isMouseDown = false;
+    }
+
+    protected override void OnOverlayPointerExited(OverlayPointerArgs args)
+    {
+        isMouseDown = false;
+    }
+
+    protected override void OnOverlayPointerEntered(OverlayPointerArgs args)
+    {
+        isMouseDown = args.Properties.IsLeftButtonPressed;
     }
 
     protected override void OnKeyPressed(KeyEventArgs args)
@@ -219,9 +230,22 @@ internal class BrushShapeOverlay : Overlay
                     paint.Color = pointColor;
                     targetCanvas.DrawCircle(lastPoint, 5f / (float)ZoomScale, paint);
                 }
+                else if (StabilizationMode == StabilizationMode.TimeBased)
+                {
+                    paint.Style = PaintStyle.Stroke;
+
+                    paint.Color = pointColor;
+                    targetCanvas.DrawCircle(LastAppliedPoint, 5f / (float)ZoomScale, paint);
+
+                    paint.Color = ropeColor;
+                    targetCanvas.DrawLine(LastAppliedPoint, lastPoint, paint);
+
+                    paint.Color = pointColor;
+                    targetCanvas.DrawCircle(lastPoint, 5f / (float)ZoomScale, paint);
+                }
             }
 
-            if (StabilizationMode == StabilizationMode.None)
+            if (StabilizationMode == StabilizationMode.None || !isMouseDown)
             {
                 paint.Color = Colors.LightGray;
                 targetCanvas.DrawPath(BrushShape, paint);

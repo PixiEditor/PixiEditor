@@ -490,7 +490,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             OverlayPointerArgs args = ConstructPointerArgs(e);
             foreach (Overlay overlay in AllOverlays)
             {
-                if (!overlay.IsVisible || mouseOverOverlays.Contains(overlay) || !overlay.TestHit(args.Point)) continue;
+                if ((!overlay.IsHitTestVisible || !overlay.TestHit(args.Point)) && !overlay.AlwaysPassPointerEvents) continue;
                 overlay.EnterPointer(args);
                 mouseOverOverlays.Add(overlay);
             }
