@@ -21,8 +21,8 @@ internal class MagicWandToolViewModel : ToolViewModel, IMagicWandToolHandler
     public override string ToolNameLocalizationKey => "MAGIC_WAND_TOOL";
     public override BrushShape FinalBrushShape => BrushShape.Pixel;
     public override Type[]? SupportedLayerTypes { get; } = { typeof(IRasterLayerHandler) };
-    private SelectionMode KeyModifierselectionMode = SelectionMode.New;
-    public SelectionMode ResultingSelectionMode => KeyModifierselectionMode != SelectionMode.New ? KeyModifierselectionMode : SelectMode;
+    private SelectionMode KeyModifierSelectionMode = SelectionMode.New;
+    public SelectionMode ResultingSelectionMode => KeyModifierSelectionMode != SelectionMode.New ? KeyModifierSelectionMode : SelectMode;
     [Settings.Enum("MODE_LABEL")]
     public SelectionMode SelectMode => GetValue<SelectionMode>();
 
@@ -52,17 +52,17 @@ internal class MagicWandToolViewModel : ToolViewModel, IMagicWandToolHandler
         if (shiftIsDown)
         {
             ActionDisplay = new LocalizedString("MAGIC_WAND_ACTION_DISPLAY_SHIFT");
-            KeyModifierselectionMode = SelectionMode.Add;
+            KeyModifierSelectionMode = SelectionMode.Add;
         }
         else if (ctrlIsDown)
         {
             ActionDisplay = new LocalizedString("MAGIC_WAND_ACTION_DISPLAY_CTRL");
-            KeyModifierselectionMode = SelectionMode.Subtract;
+            KeyModifierSelectionMode = SelectionMode.Subtract;
         }
         else
         {
             ActionDisplay = defaultActionDisplay;
-            KeyModifierselectionMode = SelectionMode.New;
+            KeyModifierSelectionMode = SelectionMode.New;
         }
     }
 }
