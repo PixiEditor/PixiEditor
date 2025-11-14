@@ -22,7 +22,6 @@ using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Tools.Tools;
 using PixiEditor.Views;
-using SharpHook;
 
 namespace PixiEditor.ViewModels.SubViewModels;
 #nullable enable

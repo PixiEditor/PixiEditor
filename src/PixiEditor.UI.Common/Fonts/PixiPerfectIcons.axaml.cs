@@ -52,6 +52,7 @@ public static partial class PixiPerfectIcons
     public const string Database = "\uE93D";
     public const string Deselect = "\uE93E";
     public const string Discord = "\uE911";
+    public const string DistanceStabilizer = "\uE9D7";
     public const string Dot = "\uE983";
     public const string Download = "\uE99F";
     public const string DownloadCloud = "\uE989";
@@ -124,6 +125,7 @@ public static partial class PixiPerfectIcons
     public const string Merge = "\uE95F";
     public const string Message = "\uE98F";
     public const string Minimize = "\uE95E";
+    public const string Minus = "\uE9D8";
     public const string MirrorHorizontal = "\uE97F";
     public const string MirrorVertical = "\uE97C";
     public const string Mouse = "\uE9D1";
@@ -192,6 +194,7 @@ public static partial class PixiPerfectIcons
     public const string TextPixel = "\uE9B4";
     public const string TextRound = "\uE9B9";
     public const string TextUnderline = "\uE9B8";
+    public const string TimeStabilizer = "\uE9D6";
     public const string Timeline = "\uE9A3";
     public const string Tool = "\uE977";
     public const string Train = "\uE9C3";

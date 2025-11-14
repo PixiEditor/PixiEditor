@@ -56,6 +56,7 @@
             <system:String x:Key="icon-database">&#xE93D;</system:String>
             <system:String x:Key="icon-deselect">&#xE93E;</system:String>
             <system:String x:Key="icon-discord">&#xE911;</system:String>
+            <system:String x:Key="icon-distance-stabilizer">&#xE9D7;</system:String>
             <system:String x:Key="icon-dot">&#xE983;</system:String>
             <system:String x:Key="icon-download">&#xE99F;</system:String>
             <system:String x:Key="icon-download-cloud">&#xE989;</system:String>
@@ -128,6 +129,7 @@
             <system:String x:Key="icon-merge">&#xE95F;</system:String>
             <system:String x:Key="icon-message">&#xE98F;</system:String>
             <system:String x:Key="icon-minimize">&#xE95E;</system:String>
+            <system:String x:Key="icon-minus">&#xE9D8;</system:String>
             <system:String x:Key="icon-mirror-horizontal">&#xE97F;</system:String>
             <system:String x:Key="icon-mirror-vertical">&#xE97C;</system:String>
             <system:String x:Key="icon-mouse">&#xE9D1;</system:String>
@@ -196,6 +198,7 @@
             <system:String x:Key="icon-text-pixel">&#xE9B4;</system:String>
             <system:String x:Key="icon-text-round">&#xE9B9;</system:String>
             <system:String x:Key="icon-text-underline">&#xE9B8;</system:String>
+            <system:String x:Key="icon-time-stabilizer">&#xE9D6;</system:String>
             <system:String x:Key="icon-timeline">&#xE9A3;</system:String>
             <system:String x:Key="icon-tool">&#xE977;</system:String>
             <system:String x:Key="icon-train">&#xE9C3;</system:String>

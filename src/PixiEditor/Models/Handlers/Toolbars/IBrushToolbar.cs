@@ -20,12 +20,12 @@ internal interface IBrushToolbar : IToolbar, IToolSizeToolbar
 public enum StabilizationMode
 {
     [Description("NONE_STABILIZATION")]
-    [IconName("icon-sun")]
+    [IconName(PixiPerfectIcons.Minus)]
     None,
     [Description("TIME_BASED_STABILIZATION")]
-    [IconName("icon-clock")]
+    [IconName(PixiPerfectIcons.TimeStabilizer)]
     TimeBased,
     [Description("DISTANCE_BASED_STABILIZATION")]
-    [IconName("icon-circle")]
+    [IconName(PixiPerfectIcons.DistanceStabilizer)]
     CircleRope
 }
