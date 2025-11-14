@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using Drawie.Backend.Core;
+using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
@@ -42,7 +43,7 @@ public class BrushEngine : IDisposable
             return;
         }
 
-        if (brushData.BrushGraph.AllNodes.FirstOrDefault(x => x is BrushOutputNode) is not BrushOutputNode brushNode)
+        if (brushData.BrushGraph.LookupNode(brushData.TargetBrushNodeId) is not BrushOutputNode brushNode)
         {
             return;
         }
@@ -108,7 +109,7 @@ public class BrushEngine : IDisposable
     public void ExecuteBrush(ChunkyImage? target, BrushData brushData, VecD point, KeyFrameTime frameTime, ColorSpace cs,
         SamplingOptions samplingOptions, PointerInfo pointerInfo, KeyboardInfo keyboardInfo, EditorData editorData)
     {
-        var brushNode = brushData.BrushGraph?.AllNodes?.FirstOrDefault(x => x is BrushOutputNode) as BrushOutputNode;
+        var brushNode = brushData.BrushGraph?.LookupNode(brushData.TargetBrushNodeId) as BrushOutputNode;
         if (brushNode == null)
         {
             return;
@@ -119,7 +120,8 @@ public class BrushEngine : IDisposable
             editorData);
     }
 
-    private void ExecuteVectorShapeBrush(ChunkyImage? target, BrushOutputNode brushNode, BrushData brushData, VecD point,
+    private void ExecuteVectorShapeBrush(ChunkyImage? target, BrushOutputNode brushNode, BrushData brushData,
+        VecD point,
         KeyFrameTime frameTime,
         ColorSpace colorSpace, SamplingOptions samplingOptions,
         PointerInfo pointerInfo, KeyboardInfo keyboardInfo, EditorData editorData)

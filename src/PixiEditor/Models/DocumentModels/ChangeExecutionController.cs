@@ -181,7 +181,7 @@ internal class ChangeExecutionController
 
     public void MouseMoveInlet(MouseOnCanvasEventArgs args)
     {
-        if (args.IntermediatePoints != null)
+        if (args.IntermediatePoints != null && args.PointerType == PointerType.Pen)
         {
             foreach (var point in args.IntermediatePoints)
             {

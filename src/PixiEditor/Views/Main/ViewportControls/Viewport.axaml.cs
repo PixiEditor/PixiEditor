@@ -580,8 +580,9 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
         var intermediate = e.GetIntermediatePoints(this);
         List<PointerPosition> intermediatePositions = new();
-        foreach (var point in intermediate)
+        for (var i = 0; i < intermediate.Count; i++)
         {
+            var point = intermediate[i];
             Point interPos = point.Position;
             VecD interConv = Scene.ToZoomboxSpace(new VecD(interPos.X, interPos.Y));
             intermediatePositions.Add(new PointerPosition(interConv, point.Properties));
