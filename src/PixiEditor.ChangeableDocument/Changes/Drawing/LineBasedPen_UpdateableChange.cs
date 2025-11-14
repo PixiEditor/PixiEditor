@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics;
+using System.Reflection;
 using ChunkyImageLib.Operations;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
@@ -97,7 +98,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     {
         if (brushOutputNode != null)
         {
-            brushData = new BrushData(brushData.BrushGraph) { StrokeWidth = strokeWidth, AntiAliasing = antiAliasing };
+            brushData = new BrushData(brushData.BrushGraph, brushData.TargetBrushNodeId) { StrokeWidth = strokeWidth, AntiAliasing = antiAliasing };
         }
     }
 

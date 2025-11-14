@@ -49,7 +49,7 @@ internal class BrushToolbar : Toolbar, IBrushToolbar
         }
 
         var pipe = Brush.Document.ShareGraph();
-        var data = new BrushData(pipe.TryAccessData()) { AntiAliasing = AntiAliasing, StrokeWidth = (float)ToolSize };
+        var data = new BrushData(pipe.TryAccessData(), Brush.Id) { AntiAliasing = AntiAliasing, StrokeWidth = (float)ToolSize };
 
         pipe.Dispose();
         return data;

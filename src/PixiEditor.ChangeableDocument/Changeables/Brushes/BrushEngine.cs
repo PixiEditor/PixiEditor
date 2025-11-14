@@ -1,4 +1,5 @@
-﻿using Drawie.Backend.Core;
+﻿using System.Diagnostics;
+using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
@@ -76,7 +77,7 @@ public class BrushEngine : IDisposable
             return;
         }
 
-        if (brushData.BrushGraph.AllNodes.FirstOrDefault(x => x is BrushOutputNode) is not BrushOutputNode brushNode)
+        if (brushData.BrushGraph.LookupNode(brushData.TargetBrushNodeId) is not BrushOutputNode brushNode)
         {
             return;
         }
@@ -209,7 +210,7 @@ public class BrushEngine : IDisposable
         var previous = brushNode.Previous.Value;
         while (previous != null)
         {
-            var data = new BrushData(previous)
+            var data = new BrushData(previous, brushData.TargetBrushNodeId)
             {
                 AntiAliasing = brushData.AntiAliasing, StrokeWidth = brushData.StrokeWidth,
             };

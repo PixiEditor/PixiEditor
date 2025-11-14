@@ -4,6 +4,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.IO;
+using PixiEditor.ViewModels.Document.Nodes.Brushes;
 
 namespace PixiEditor.Models.BrushEngine;
 
@@ -13,7 +14,7 @@ internal class Brush : IBrush
     IReadOnlyDocument IBrush.Document => Document.AccessInternalReadOnlyDocument();
     public string Name { get; set; }
     public string? FilePath { get; }
-    public Guid Id { get; } = Guid.NewGuid();
+    public Guid Id { get; }
 
     public Brush(Uri uri)
     {
@@ -39,6 +40,11 @@ internal class Brush : IBrush
         if (outputNode != null)
         {
             name = outputNode.BrushName.Value;
+            Id = outputNode.Id;
+        }
+        else
+        {
+            Id = Guid.NewGuid();
         }
 
         Name = name;
@@ -53,6 +59,7 @@ internal class Brush : IBrush
         Name = name;
         Document = brushDocument;
         FilePath = brushDocument.FullFilePath;
+        Id = brushDocument.NodeGraphHandler.AllNodes.OfType<BrushOutputNodeViewModel>().FirstOrDefault()?.Id ?? Guid.NewGuid();
     }
 
     public Brush(string name, IDocument brushDocument, Guid id)

@@ -101,6 +101,7 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
     protected virtual void EnqueueDrawActions()
     {
         var point = GetStabilizedPoint();
+
         if (handler != null)
         {
             handler.LastAppliedPoint = point;

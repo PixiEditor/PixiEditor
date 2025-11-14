@@ -154,7 +154,7 @@ public class BrushOutputNode : Node
             pos = new VecI(x, maxSize);
 
             previewEngine.ExecuteBrush(previewChunkyImage,
-                new BrushData(context.Graph) { StrokeWidth = size, AntiAliasing = true },
+                new BrushData(context.Graph, Id) { StrokeWidth = size, AntiAliasing = true },
                 (VecI)pos, context.FrameTime, context.ProcessingColorSpace, context.DesiredSamplingOptions,
                 new PointerInfo(pos, 1, 0, VecD.Zero, new VecD(0, 1)),
                 new KeyboardInfo(),
@@ -169,7 +169,7 @@ public class BrushOutputNode : Node
             pos = new VecD(pos.X, pos.Y + maxSize / 2f);
 
             previewEngine.ExecuteBrush(previewChunkyImage,
-                new BrushData(context.Graph) { StrokeWidth = maxSize, AntiAliasing = true },
+                new BrushData(context.Graph, Id) { StrokeWidth = maxSize, AntiAliasing = true },
                 [(VecI)pos], context.FrameTime, context.ProcessingColorSpace, context.DesiredSamplingOptions,
                 new PointerInfo(pos, pressure, 0, VecD.Zero, vec4D.ZW),
                 new KeyboardInfo(),

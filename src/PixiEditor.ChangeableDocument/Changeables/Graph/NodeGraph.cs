@@ -14,6 +14,7 @@ public class NodeGraph : IReadOnlyNodeGraph
     private readonly List<Node> _nodes = new();
     public IReadOnlyCollection<Node> Nodes => _nodes;
     public IReadOnlyDictionary<Guid, Node> NodeLookup => nodeLookup;
+
     public Node? OutputNode => CustomOutputNode ?? Nodes.OfType<OutputNode>().FirstOrDefault();
     public Node? CustomOutputNode { get; set; }
 
@@ -28,6 +29,11 @@ public class NodeGraph : IReadOnlyNodeGraph
     IReadOnlyBlackboard IReadOnlyNodeGraph.Blackboard => Blackboard;
 
     bool isExecuting = false;
+
+    public IReadOnlyNode LookupNode(Guid guid)
+    {
+        return nodeLookup[guid];
+    }
 
     public void AddNode(Node node)
     {

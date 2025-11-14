@@ -2,6 +2,7 @@
 using PixiEditor.Models.BrushEngine;
 using PixiEditor.Parser;
 using PixiEditor.ViewModels.Document;
+using PixiEditor.ViewModels.Document.Nodes.Brushes;
 
 namespace PixiEditor.Models.Serialization.Factories;
 
@@ -29,7 +30,7 @@ internal class BrushSerializationFactory : SerializationFactory<byte[], Brush>
             int docLength = extractor.GetInt();
             byte[] docBytes = extractor.GetByteSpan(docLength).ToArray();
             var doc = PixiParser.V5.Deserialize(docBytes).ToDocument();
-            original = new Brush(name, doc, doc.Id);
+            original = new Brush(name, doc, doc.NodeGraph.AllNodes.OfType<BrushOutputNodeViewModel>().FirstOrDefault()?.Id ?? Guid.NewGuid());
 
             return true;
         }
