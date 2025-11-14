@@ -8,6 +8,7 @@
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              xmlns:settings1="clr-namespace:PixiEditor.Views.Tools.ToolSettings.Settings"
              xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
+             xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.Views.Tools.ToolSettings.Settings.EnumSettingView" Name="uc">
     <Design.DataContext>
@@ -34,47 +35,46 @@
                 </DataTemplate>
             </ComboBox.ItemTemplate>
         </ComboBox>
-        <ItemsControl IsVisible="{Binding PickerIsIconButtons}"
-                      Name="iconButtonsPicker"
-                      ItemsSource="{Binding EnumValues}"
-                      HorizontalAlignment="Center">
+        <Border Background="{DynamicResource ThemeControlLowBrush}" CornerRadius="4">
+            <ItemsControl IsVisible="{Binding PickerIsIconButtons}"
+                          Name="iconButtonsPicker"
+                          ItemsSource="{Binding EnumValues}"
+                          HorizontalAlignment="Center">
                 <ItemsControl.Styles>
-                    <Style Selector="ContentPresenter:nth-last-child(1) ToggleButton">
-                        <Setter Property="CornerRadius" Value="0,4,4,0"/>
-                        <Setter Property="BorderThickness" Value="0,1,1,1"/>
-                    </Style>
-                    <Style Selector="ContentPresenter.first ToggleButton">
-                        <Setter Property="CornerRadius" Value="4,0,0,4"/>
-                        <Setter Property="BorderThickness" Value="1,1,0,1"/>
-                    </Style>
                     <Style Selector="ToggleButton">
-                        <Setter Property="CornerRadius" Value="0"/>
-                        <Setter Property="BorderThickness" Value="0, 1"/>
+                        <Setter Property="CornerRadius" Value="0" />
+                        <Setter Property="BorderThickness" Value="0, 0" />
+                        <Setter Property="Background" Value="Transparent" />
                     </Style>
                     <Style Selector="ToggleButton:unchecked">
-                        <Setter Property="Background" Value="{DynamicResource ThemeControlLowBrush}"/>
+                        <Setter Property="Background" Value="Transparent" />
+                    </Style>
+                    <Style Selector="ToggleButton:checked">
+                        <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
+                        <Setter Property="Background" Value="Transparent" />
                     </Style>
                 </ItemsControl.Styles>
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <StackPanel Orientation="Horizontal"
-                                HorizontalAlignment="Center" />
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <ToggleButton Padding="4"
-                                  behaviours:ToggleGroupBehavior.GroupName="PickerMode"
-                                  behaviours:ToggleGroupBehavior.Value="{Binding .}"
-                                  behaviours:ToggleGroupBehavior.SelectedValue="{Binding DataContext.Value,
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <controls:SelectableStrip />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <ToggleButton Padding="4"
+                                      controls:SelectableStrip.IsStripSelected="{Binding RelativeSource={RelativeSource Self}, Path=IsChecked}"
+                                      behaviours:ToggleGroupBehavior.GroupName="PickerMode"
+                                      behaviours:ToggleGroupBehavior.Value="{Binding .}"
+                                      behaviours:ToggleGroupBehavior.SelectedValue="{Binding DataContext.Value,
                               RelativeSource={RelativeSource AncestorType=UserControl}, Mode=TwoWay}"
-                                  localization:Translator.TooltipKey="{Binding ., Converter={converters:EnumToLocalizedStringConverter}}">
+                                      localization:Translator.TooltipKey="{Binding ., Converter={converters:EnumToLocalizedStringConverter}}">
 
-                        <TextBlock FontSize="20" Classes="pixi-icon" Text="{Binding ., Converter={converters:EnumToIconConverter}}"/>
-                    </ToggleButton>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-
-        </ItemsControl>
+                            <TextBlock FontSize="20" Classes="pixi-icon" Name="iconTextBlock"
+                                       Text="{Binding ., Converter={converters:EnumToIconConverter}}"/>
+                        </ToggleButton>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Border>
     </Panel>
 </UserControl>

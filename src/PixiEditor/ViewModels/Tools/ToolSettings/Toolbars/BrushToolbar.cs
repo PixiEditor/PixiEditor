@@ -73,8 +73,15 @@ internal class BrushToolbar : Toolbar, IBrushToolbar
         setting.ValueChanged += (_, _) => OnPropertyChanged(nameof(ToolSize));
         AddSetting(setting);
         AddSetting(new BrushSettingViewModel(nameof(Brush), "BRUSH_SETTING") { IsExposed = true });
-        AddSetting(new EnumSettingViewModel<StabilizationMode>(nameof(StabilizationMode), "STABILIZATION_MODE_SETTING") { IsExposed = true, PickerType = EnumSettingPickerType.IconButtons, IsLabelVisible = false});
-        AddSetting(new SizeSettingViewModel(nameof(Stabilization), "STABILIZATION_SETTING", 0, min: 0, max: 128) { IsExposed = true });
+        AddSetting(new EnumSettingViewModel<StabilizationMode>(nameof(StabilizationMode), "STABILIZATION_MODE_SETTING")
+            { IsExposed = true, PickerType = EnumSettingPickerType.IconButtons, IsLabelVisible = false});
+        var stabilizationSetting = new SizeSettingViewModel(nameof(Stabilization), "STABILIZATION_SETTING", 10, min: 0, max: 128)
+        {
+            IsExposed = false,
+            IsLabelVisible = false
+        };
+
+        AddSetting(stabilizationSetting);
 
         foreach (var aSetting in Settings)
         {
@@ -90,7 +97,11 @@ internal class BrushToolbar : Toolbar, IBrushToolbar
 
             if (aSetting.Name == "StabilizationMode")
             {
-                aSetting.ValueChanged += (_, _) => OnPropertyChanged(nameof(StabilizationMode));
+                aSetting.ValueChanged += (_, _) =>
+                {
+                    stabilizationSetting.IsExposed = StabilizationMode != StabilizationMode.None;
+                    OnPropertyChanged(nameof(StabilizationMode));
+                };
             }
         }
     }

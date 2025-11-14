@@ -14,25 +14,5 @@ public partial class EnumSettingView : UserControl
     {
         InitializeComponent();
     }
-
-    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
-    {
-        base.OnAttachedToVisualTree(e);
-        iconButtonsPicker.ContainerPrepared += IconButtonsPickerOnContainerPrepared;
-    }
-
-    override protected void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
-    {
-        base.OnDetachedFromVisualTree(e);
-        iconButtonsPicker.ContainerPrepared -= IconButtonsPickerOnContainerPrepared;
-    }
-
-    private void IconButtonsPickerOnContainerPrepared(object? sender, ContainerPreparedEventArgs e)
-    {
-        if (e.Index == 0)
-        {
-            e.Container.Classes.Add("first");
-        }
-    }
 }
 
