@@ -10,6 +10,7 @@
              x:ClassModifier="internal"
              x:Class="PixiEditor.Views.Input.ToolSettingColorPicker">
     <colorPicker:PortableColorPicker Width="40" Height="20" x:Name="ColorPicker" UseHintColor="True"
+                                     EnableGradientsTab="{Binding EnableGradientsTab, ElementName=SettingColorPicker}"
                                      HintColor="{Binding DataContext.ColorsSubViewModel.PrimaryColor,
         RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type views:MainWindow}, AncestorLevel=1},
         Converter={converters:GenericColorToMediaColorConverter}}"

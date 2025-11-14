@@ -34,7 +34,7 @@ public class MergeNode : RenderNode
     }
 
 
-    protected override void OnPaint(RenderContext context, DrawingSurface target)
+    protected override void OnPaint(RenderContext context, Canvas target)
     {
         if (Top.Value == null && Bottom.Value == null)
         {
@@ -50,19 +50,19 @@ public class MergeNode : RenderNode
         Merge(target, context);
     }
 
-    private void Merge(DrawingSurface target, RenderContext context)
+    private void Merge(Canvas target, RenderContext context)
     {
         if (Bottom.Value != null && Top.Value != null)
         {
-            int saved = target.Canvas.SaveLayer();
+            int saved = target.SaveLayer();
             Bottom.Value?.Paint(context, target);
-            target.Canvas.RestoreToCount(saved);
+            target.RestoreToCount(saved);
 
             paint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
-            target.Canvas.SaveLayer(paint);
+            target.SaveLayer(paint);
 
             Top.Value?.Paint(context, target);
-            target.Canvas.RestoreToCount(saved);
+            target.RestoreToCount(saved);
             return;
         }
 
@@ -82,7 +82,7 @@ public class MergeNode : RenderNode
             return;
         }
 
-        Merge(renderOn, context);
+        Merge(renderOn.Canvas, context);
     }
 
     public override void Dispose()

@@ -2,6 +2,7 @@
 
 public enum StructureMemberType
 {
-    Layer,
-    Folder
+    ImageLayer,
+    Folder,
+    Document
 }

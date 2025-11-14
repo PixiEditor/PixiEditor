@@ -39,47 +39,47 @@ public class CombineChannelsNode : RenderNode
     }
 
     
-    protected override void OnPaint(RenderContext context, DrawingSurface surface)
+    protected override void OnPaint(RenderContext context, Canvas surface)
     {
-        int saved = surface.Canvas.SaveLayer();
+        int saved = surface.SaveLayer();
         if (Red.Value is { } red)
         {
             _screenPaint.ColorFilter = _redFilter;
             
-            int savedRed = surface.Canvas.SaveLayer(_screenPaint);
+            int savedRed = surface.SaveLayer(_screenPaint);
             red.Paint(context, surface);
             
-            surface.Canvas.RestoreToCount(savedRed);
+            surface.RestoreToCount(savedRed);
         }
 
         if (Green.Value is { } green)
         {
             _screenPaint.ColorFilter = _greenFilter;
-            int savedGreen = surface.Canvas.SaveLayer(_screenPaint);
+            int savedGreen = surface.SaveLayer(_screenPaint);
             green.Paint(context, surface);
             
-            surface.Canvas.RestoreToCount(savedGreen);
+            surface.RestoreToCount(savedGreen);
         }
 
         if (Blue.Value is { } blue)
         {
             _screenPaint.ColorFilter = _blueFilter;
-            int savedBlue = surface.Canvas.SaveLayer(_screenPaint);
+            int savedBlue = surface.SaveLayer(_screenPaint);
             blue.Paint(context, surface);
             
-            surface.Canvas.RestoreToCount(savedBlue);
+            surface.RestoreToCount(savedBlue);
         }
 
         if (Alpha.Value is { } alpha)
         {
             _clearPaint.ColorFilter = Grayscale.Value ? Filters.AlphaGrayscaleFilter : null;
-            int savedAlpha = surface.Canvas.SaveLayer(_clearPaint);
+            int savedAlpha = surface.SaveLayer(_clearPaint);
             alpha.Paint(context, surface);
             
-            surface.Canvas.RestoreToCount(savedAlpha);
+            surface.RestoreToCount(savedAlpha);
         }
             
-        surface.Canvas.RestoreToCount(saved);
+        surface.RestoreToCount(saved);
     }
 
     public override RectD? GetPreviewBounds(RenderContext ctx, string elementToRenderName = "")
@@ -128,7 +128,7 @@ public class CombineChannelsNode : RenderNode
 
     public override void RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
     {
-        OnPaint(context, renderOn);
+        OnPaint(context, renderOn.Canvas);
     }
 
     public override Node CreateCopy() => new CombineChannelsNode();

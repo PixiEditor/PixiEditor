@@ -2,6 +2,8 @@
 using Avalonia;
 using Avalonia.Media;
 using Drawie.Backend.Core.Shaders.Generation;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.Handlers;
 using PixiEditor.ViewModels.Nodes.Properties;
@@ -20,6 +22,7 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
     private IBrush socketBrush;
     private string errors = string.Empty;
     private bool mergeChanges = false;
+    private bool socketEnabledEnabled = true;
 
     private object computedValue;
 
@@ -41,6 +44,9 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
         set
         {
             var oldValue = _value;
+            if(value == null && oldValue == null) return;
+            if (oldValue != null && oldValue.Equals(value)) return;
+
             if (MergeChanges)
             {
                 ViewModelMain.Current.NodeGraphManager.BeginUpdatePropertyValue((node, PropertyName, value));
@@ -152,6 +158,12 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
 
     public Type PropertyType { get; }
 
+    public bool SocketEnabled
+    {
+        get => socketEnabledEnabled;
+        set => SetProperty(ref socketEnabledEnabled, value);
+    }
+
     public string? Errors
     {
         get => errors;
@@ -208,6 +220,11 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
         string typeName = propertyType.Name;
 
         string name = $"{typeName}PropertyViewModel";
+
+        if (propertyType == typeof(IReadOnlyDocument))
+        {
+            name = "DocumentPropertyViewModel";
+        }
 
         Type viewModelType = Type.GetType($"PixiEditor.ViewModels.Nodes.Properties.{name}");
         if (viewModelType == null)

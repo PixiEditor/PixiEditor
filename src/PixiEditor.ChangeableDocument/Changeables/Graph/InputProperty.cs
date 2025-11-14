@@ -30,7 +30,7 @@ public class InputProperty : IInputProperty
                 return _internalValue;
             }
 
-            var connectionValue = Connection.Value;
+            var connectionValue = Connection?.Value;
 
             if (connectionValue is null)
             {
@@ -265,6 +265,7 @@ public class InputProperty<T> : InputProperty, IInputProperty<T>
             if (value is ShaderExpressionVariable shaderExpression)
             {
                 value = shaderExpression.GetConstant();
+                if (value is null) return default(T);
             }
 
             if (!ConversionTable.TryConvert(value, ValueType, out object result))

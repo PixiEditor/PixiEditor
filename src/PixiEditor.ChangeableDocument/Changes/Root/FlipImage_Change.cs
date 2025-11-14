@@ -70,7 +70,7 @@ internal sealed class FlipImage_Change : Change
         img.DrawMostUpToDateRegionOn(
             new RectI(VecI.Zero, img.LatestSize), 
             ChunkResolution.Full,
-            originalSurface.DrawingSurface,
+            originalSurface.DrawingSurface.Canvas,
             VecI.Zero);
 
         using Surface flipped = Surface.ForProcessing(img.LatestSize, img.ProcessingColorSpace);

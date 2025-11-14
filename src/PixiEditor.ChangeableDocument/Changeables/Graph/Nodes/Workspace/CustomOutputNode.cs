@@ -11,14 +11,12 @@ public class CustomOutputNode : Node, IRenderInput
     public const string OutputNamePropertyName = "OutputName";
     public const string IsDefaultExportPropertyName = "IsDefaultExport";
     public const string SizePropertyName = "Size";
+    public const string FullViewportRenderPropertyName = "FullViewportRender";
     public RenderInputProperty Input { get; }
     public InputProperty<string> OutputName { get; }
     public InputProperty<bool> IsDefaultExport { get; }
     public InputProperty<VecI> Size { get; }
-
-    private VecI? lastDocumentSize;
-
-    private TextureCache textureCache = new TextureCache();
+    public InputProperty<bool> FullViewportRender { get; }
 
     public CustomOutputNode()
     {
@@ -28,6 +26,7 @@ public class CustomOutputNode : Node, IRenderInput
         OutputName = CreateInput(OutputNamePropertyName, "OUTPUT_NAME", "");
         IsDefaultExport = CreateInput(IsDefaultExportPropertyName, "IS_DEFAULT_EXPORT", false);
         Size = CreateInput(SizePropertyName, "SIZE", VecI.Zero);
+        FullViewportRender = CreateInput(FullViewportRenderPropertyName, "FULL_VIEWPORT_RENDER", false);
     }
 
     public override Node CreateCopy()
@@ -43,47 +42,58 @@ public class CustomOutputNode : Node, IRenderInput
                 ? context.RenderOutputSize
                 : (VecI)(Size.Value * context.ChunkResolution.Multiplier());
 
-            lastDocumentSize = targetSize;
+            Canvas targetSurface = context.RenderSurface;
 
-            DrawingSurface targetSurface = context.RenderSurface;
-
-            int saved = targetSurface.Canvas.Save();
+            int saved = targetSurface.Save();
 
             Input.Value?.Paint(context, targetSurface);
 
-            targetSurface.Canvas.RestoreToCount(saved);
+            targetSurface.RestoreToCount(saved);
 
             if (targetSurface != context.RenderSurface)
             {
-                context.RenderSurface.Canvas.DrawSurface(targetSurface, 0, 0);
+                context.RenderSurface.DrawSurface(targetSurface.Surface, 0, 0);
             }
+
+            RenderPreviews(context);
         }
     }
 
     RenderInputProperty IRenderInput.Background => Input;
 
-    public RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
+    protected void RenderPreviews(RenderContext ctx)
     {
-        if (lastDocumentSize == null)
-        {
-            return null;
-        }
+        var previewToRender = ctx.GetPreviewTexturesForNode(Id);
+        if (previewToRender == null || previewToRender.Count == 0)
+            return;
 
-        return new RectD(0, 0, lastDocumentSize.Value.X, lastDocumentSize.Value.Y);
+        foreach (var preview in previewToRender)
+        {
+            if (preview.Texture == null)
+                continue;
+
+            int saved = preview.Texture.DrawingSurface.Canvas.Save();
+            preview.Texture.DrawingSurface.Canvas.Clear();
+
+            var bounds = new RectD(0, 0, ctx.RenderOutputSize.X, ctx.RenderOutputSize.Y);
+
+            VecD scaling = PreviewUtility.CalculateUniformScaling(bounds.Size, preview.Texture.Size);
+            VecD offset = PreviewUtility.CalculateCenteringOffset(bounds.Size, preview.Texture.Size, scaling);
+            RenderContext adjusted =
+                PreviewUtility.CreatePreviewContext(ctx, scaling, bounds.Size, preview.Texture.Size);
+
+            preview.Texture.DrawingSurface.Canvas.Translate((float)offset.X, (float)offset.Y);
+            preview.Texture.DrawingSurface.Canvas.Scale((float)scaling.X, (float)scaling.Y);
+            preview.Texture.DrawingSurface.Canvas.Translate((float)-bounds.X, (float)-bounds.Y);
+
+            adjusted.RenderSurface = preview.Texture.DrawingSurface.Canvas;
+            RenderPreview(preview.Texture.DrawingSurface.Canvas, adjusted);
+            preview.Texture.DrawingSurface.Canvas.RestoreToCount(saved);
+        }
     }
 
-    public bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
+    protected virtual void RenderPreview(Canvas surface, RenderContext context)
     {
-        if (Input.Value == null)
-        {
-            return false;
-        }
-
-        int saved = renderOn.Canvas.Save();
-        Input.Value.Paint(context, renderOn);
-
-        renderOn.Canvas.RestoreToCount(saved);
-
-        return true;
+        Input.Value?.Paint(context, surface);
     }
 }

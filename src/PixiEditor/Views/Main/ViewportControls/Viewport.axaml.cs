@@ -22,6 +22,7 @@ using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Position;
 using Drawie.Numerics;
 using Drawie.Skia;
+using PixiEditor.ChangeableDocument.Rendering.ContextData;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.UI.Common.Behaviors;
 using PixiEditor.ViewModels.Document;
@@ -382,6 +383,8 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         set => SetValue(ViewportRenderOutputProperty, value);
     }
 
+    public static readonly StyledProperty<Func<EditorData>> EditorDataFuncProperty = AvaloniaProperty.Register<Viewport, Func<EditorData>>("EditorDataFunc");
+
     public ObservableCollection<Overlay> ActiveOverlays { get; } = new();
 
     public Guid GuidValue { get; } = Guid.NewGuid();
@@ -465,6 +468,12 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         set { SetValue(MaxBilinearSamplingSizeProperty, value); }
     }
 
+    public Func<EditorData> EditorDataFunc
+    {
+        get { return (Func<EditorData>)GetValue(EditorDataFuncProperty); }
+        set { SetValue(EditorDataFuncProperty, value); }
+    }
+
     private void ForceRefreshFinalImage()
     {
         Scene.InvalidateVisual();
@@ -525,7 +534,10 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     private ViewportInfo GetLocation()
     {
         return new(AngleRadians, Center, RealDimensions,
-            Scene.CalculateTransformMatrix().ToSKMatrix().ToMatrix3X3(),
+            new ViewportData(Scene.CalculateTransformMatrix().ToSKMatrix().ToMatrix3X3(), Scene.Pan, Scene.Scale, FlipX, FlipY),
+            Scene.LastPointerInfo,
+            Scene.LastKeyboardInfo,
+            EditorDataFunc(),
             CalculateVisibleRegion(),
             ViewportRenderOutput, Scene.CalculateSampling(), Dimensions, CalculateResolution(), GuidValue, Delayed,
             true, ForceRefreshFinalImage);
@@ -549,7 +561,8 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         var pos = e.GetPosition(Scene);
         VecD scenePos = Scene.ToZoomboxSpace(new VecD(pos.X, pos.Y));
         MouseOnCanvasEventArgs? parameter =
-            new MouseOnCanvasEventArgs(mouseButton, scenePos, e.KeyModifiers, e.ClickCount);
+            new MouseOnCanvasEventArgs(mouseButton, e.Pointer.Type, scenePos, e.KeyModifiers, e.ClickCount,
+                e.GetCurrentPoint(this).Properties, Scene.Scale);
 
         if (MouseDownCommand.CanExecute(parameter))
             MouseDownCommand.Execute(parameter);
@@ -561,10 +574,21 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
             return;
         Point pos = e.GetPosition(Scene);
         VecD conv = Scene.ToZoomboxSpace(new VecD(pos.X, pos.Y));
-
         MouseButton mouseButton = e.GetMouseButton(this);
 
-        MouseOnCanvasEventArgs parameter = new(mouseButton, conv, e.KeyModifiers, 0);
+        MouseOnCanvasEventArgs parameter = new(mouseButton, e.Pointer.Type, conv, e.KeyModifiers, 0, e.GetCurrentPoint(this).Properties, Scene.Scale);
+
+        var intermediate = e.GetIntermediatePoints(this);
+        List<PointerPosition> intermediatePositions = new();
+        for (var i = 0; i < intermediate.Count; i++)
+        {
+            var point = intermediate[i];
+            Point interPos = point.Position;
+            VecD interConv = Scene.ToZoomboxSpace(new VecD(interPos.X, interPos.Y));
+            intermediatePositions.Add(new PointerPosition(interConv, point.Properties));
+        }
+
+        parameter.IntermediatePoints = intermediatePositions;
 
         if (MouseMoveCommand.CanExecute(parameter))
             MouseMoveCommand.Execute(parameter);
@@ -577,7 +601,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
         Point pos = e.GetPosition(Scene);
         VecD conv = Scene.ToZoomboxSpace(new VecD(pos.X, pos.Y));
-        MouseOnCanvasEventArgs parameter = new(e.InitialPressMouseButton, conv, e.KeyModifiers, 0);
+        MouseOnCanvasEventArgs parameter = new(e.InitialPressMouseButton, e.Pointer.Type, conv, e.KeyModifiers, 0, e.GetCurrentPoint(this).Properties, Scene.Scale);
         if (MouseUpCommand.CanExecute(parameter))
             MouseUpCommand.Execute(parameter);
     }
@@ -701,12 +725,14 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         ViewportWindowViewModel vm = ((ViewportWindowViewModel)DataContext);
         var tools = vm.Owner.Owner.ToolsSubViewModel;
 
+        /*
         var superSpecialBrightnessTool = tools.RightClickMode == RightClickMode.SecondaryColor &&
                                          tools.ActiveTool is BrightnessToolViewModel;
+        */
         var superSpecialColorPicker =
             tools.RightClickMode == RightClickMode.Erase && tools.ActiveTool is ColorPickerToolViewModel;
 
-        if (superSpecialBrightnessTool || superSpecialColorPicker)
+        if (/*superSpecialBrightnessTool || */superSpecialColorPicker)
         {
             return;
         }

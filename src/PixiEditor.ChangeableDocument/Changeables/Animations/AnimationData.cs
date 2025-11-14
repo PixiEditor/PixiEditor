@@ -92,6 +92,23 @@ internal class AnimationData : IReadOnlyAnimationData
         return TryFindKeyFrameCallback(id, out keyFrame, null);
     }
 
+    public IReadOnlyAnimationData Clone()
+    {
+        AnimationData clone = new AnimationData(document)
+        {
+            FrameRate = FrameRate,
+            OnionFrames = OnionFrames,
+            DefaultEndFrame = DefaultEndFrame,
+            OnionOpacity = OnionOpacity
+        };
+        foreach (var keyFrame in keyFrames)
+        {
+            clone.keyFrames.Add(keyFrame.Clone());
+        }
+
+        return clone;
+    }
+
     private bool TryFindKeyFrameCallback<T>(Guid id, out T? foundKeyFrame,
         Action<KeyFrame, GroupKeyFrame?> onFound = null) where T : IReadOnlyKeyFrame
     {

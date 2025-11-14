@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
+using Avalonia.Media;
 using Avalonia.Threading;
 using Drawie.Backend.Core;
-using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using PixiDocks.Core.Docking;
@@ -13,9 +13,11 @@ using PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Handlers;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Dock;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.Views.Visuals;
+using Color = Drawie.Backend.Core.ColorsImpl.Color;
 
 namespace PixiEditor.ViewModels.SubViewModels;
 #nullable enable
@@ -30,7 +32,7 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
     public string Index => _index;
 
     public string Id => id;
-    public string Title => $"{Document.FileName}{Index}";
+    public string Title => Document.IsNestedDocument ? new LocalizedString("NESTED_DOCUMENT") :$"{Document.FileName}{Index}";
     public bool CanFloat => true;
     public bool CanClose => true;
 
@@ -188,6 +190,7 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
         }
 
         TabCustomizationSettings.Icon = previewPainterControl;
+        TabCustomizationSettings.FontStyle = Document.IsNestedDocument ? FontStyle.Italic : FontStyle.Normal;
     }
 
 
@@ -215,6 +218,11 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
         else if (e.PropertyName == nameof(DocumentViewModel.AllChangesAutosaved))
         {
             TabCustomizationSettings.SavedState = GetSaveState(Document);
+        }
+        else if (e.PropertyName == nameof(DocumentViewModel.IsNestedDocument))
+        {
+            TabCustomizationSettings.FontStyle = Document.IsNestedDocument ? FontStyle.Italic : FontStyle.Normal;
+            OnPropertyChanged(nameof(Title));
         }
     }
 

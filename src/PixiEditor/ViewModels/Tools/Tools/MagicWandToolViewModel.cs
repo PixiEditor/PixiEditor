@@ -1,6 +1,7 @@
 ﻿using Avalonia.Input;
 using PixiEditor.ChangeableDocument.Enums;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Vector;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
@@ -19,8 +20,7 @@ internal class MagicWandToolViewModel : ToolViewModel, IMagicWandToolHandler
     public override LocalizedString Tooltip => new LocalizedString("MAGIC_WAND_TOOL_TOOLTIP", Shortcut);
 
     public override string ToolNameLocalizationKey => "MAGIC_WAND_TOOL";
-    public override BrushShape FinalBrushShape => BrushShape.Pixel;
-    public override Type[]? SupportedLayerTypes { get; } = { typeof(IRasterLayerHandler) }; 
+    public override Type[]? SupportedLayerTypes { get; } = { typeof(IRasterLayerHandler) };
 
     [Settings.Enum("MODE_LABEL")]
     public SelectionMode SelectMode => GetValue<SelectionMode>();

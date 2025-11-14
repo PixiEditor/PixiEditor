@@ -4,6 +4,7 @@ using PixiEditor.ViewModels.Nodes;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Handlers;
 using Drawie.Numerics;
+using PixiEditor.Models.Blackboard;
 using PixiEditor.ViewModels.Dock;
 
 namespace PixiEditor.ViewModels.SubViewModels;
@@ -108,5 +109,11 @@ internal class NodeGraphManagerViewModel : SubViewModel<ViewModelMain>
     public void GetComputedPropertyValue(INodePropertyHandler property)
     {
         Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.RequestUpdateComputedPropertyValue(property);
+    }
+
+    [Command.Internal("PixiEditor.NodeGraph.AddVariable")]
+    public void AddVariable(VariableDefinition variableDefinition)
+    {
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.Blackboard.AddVariable(variableDefinition);
     }
 }

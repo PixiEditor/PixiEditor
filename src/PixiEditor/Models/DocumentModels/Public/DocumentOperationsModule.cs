@@ -8,6 +8,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Enums;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Vector;
 using PixiEditor.Extensions.CommonApi.Palettes;
@@ -20,6 +21,7 @@ using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ViewModels.Nodes;
 
@@ -205,7 +207,7 @@ internal class DocumentOperationsModule : IDocumentOperations
 
         foreach (var imageWithName in images)
         {
-            var layerGuid = Internals.StructureHelper.CreateNewStructureMember(StructureMemberType.Layer,
+            var layerGuid = Internals.StructureHelper.CreateNewStructureMember(StructureMemberType.ImageLayer,
                 Path.GetFileName(imageWithName.Name));
             DrawImage(imageWithName.Image,
                 new ShapeCorners(new RectD(imageWithName.Position, imageWithName.Image.Size)),
@@ -948,7 +950,7 @@ internal class DocumentOperationsModule : IDocumentOperations
 
         Internals.ChangeController.TryStopActiveExecutor();
 
-        Internals.ActionAccumulator.AddFinishedActions(new RasterizeMember_Action(memberId));
+        Internals.ActionAccumulator.AddFinishedActions(new RasterizeMember_Action(memberId, Document.AnimationHandler.ActiveFrameBindable));
     }
 
     public void InvokeCustomAction(Action action, bool stopActiveExecutor = true)
@@ -1065,11 +1067,31 @@ internal class DocumentOperationsModule : IDocumentOperations
             new ExtractSelectedText_Action(memberId, startIndex, endIndex, extractEachCharacter));
     }
 
+    public void UnlinkNestedDocument(Guid id)
+    {
+        if (Internals.ChangeController.IsBlockingChangeActive)
+            return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+
+        Internals.ActionAccumulator.AddFinishedActions(new UnlinkNestedDocument_Action(id));
+    }
+
     public void TryStopActiveExecutor()
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
 
         Internals.ChangeController.TryStopActiveExecutor();
+    }
+
+    public void SetNodeInputPropertyValue(Guid guid, string propertyName, object value)
+    {
+        if (Internals.ChangeController.IsBlockingChangeActive)
+            return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+
+        Internals.ActionAccumulator.AddFinishedActions(new UpdatePropertyValue_Action(guid, propertyName, value), new EndUpdatePropertyValue_Action());
     }
 }

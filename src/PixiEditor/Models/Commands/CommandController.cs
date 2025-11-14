@@ -19,6 +19,7 @@ using PixiEditor.Models.Commands.Commands;
 using PixiEditor.Models.Commands.Evaluators;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Handlers;
+using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Input;
 using PixiEditor.Models.Structures;
 using PixiEditor.OperatingSystem;
@@ -237,6 +238,36 @@ internal class CommandController
 
             Commands.Add(command);
             AddCommandToCommandsCollection(command, commandGroupsData, commands);
+        }
+
+        var tools = toolsHandler.AllToolSets.SelectMany(x => x.Tools).Distinct().ToList();
+        foreach (var toolHandler in tools)
+        {
+            if (toolHandler is IBrushToolHandler brushTool)
+            {
+                if (!brushTool.IsCustomBrushTool)
+                {
+                    continue;
+                }
+
+                LocalizedString displayName = new("SELECT_TOOL", brushTool.ToolName);
+                string internalName = $"PixiEditor.Tools.Select.{brushTool.ToolName.Replace(" ", string.Empty)}";
+                var command = new Models.Commands.Commands.Command.ToolCommand(toolsHandler)
+                {
+                    DefaultShortcut = brushTool.DefaultShortcut ?? KeyCombination.None,
+                    Shortcut = GetShortcut(internalName, brushTool.DefaultShortcut ?? KeyCombination.None, template),
+                    ToolType = brushTool.GetType(),
+                    Icon = brushTool.DefaultIcon,
+                    DisplayName = displayName,
+                    InternalName = internalName,
+                    IconEvaluator = IconEvaluator.Default,
+                    Description = displayName,
+                    Handler = brushTool
+                };
+
+                Commands.Add(command);
+                AddCommandToCommandsCollection(command, commandGroupsData, commands);
+            }
         }
     }
 

@@ -4,6 +4,7 @@ using Drawie.Backend.Core.Numerics;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
+using PixiEditor.Models.Controllers.InputDevice;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
@@ -23,7 +24,7 @@ internal sealed class LassoToolExecutor : UpdateableChangeExecutor
         return ExecutionState.Success;
     }
 
-    public override void OnPixelPositionChange(VecI pos) => AddStartAction(pos);
+    public override void OnPixelPositionChange(VecI pos, MouseOnCanvasEventArgs args) => AddStartAction(pos);
 
     public override void OnLeftMouseButtonUp(VecD argsPositionOnCanvas)
     {

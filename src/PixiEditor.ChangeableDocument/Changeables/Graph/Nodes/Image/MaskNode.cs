@@ -27,7 +27,7 @@ public sealed class MaskNode : RenderNode, IRenderInput
         Output.FirstInChain = null;
     }
 
-    protected override void OnPaint(RenderContext context, DrawingSurface surface)
+    protected override void OnPaint(RenderContext context, Canvas surface)
     {
         if (Background.Value == null)
         {
@@ -43,9 +43,9 @@ public sealed class MaskNode : RenderNode, IRenderInput
 
         maskPaint.BlendMode = !Invert.Value ? BlendMode.DstIn : BlendMode.DstOut;
 
-        int layer = surface.Canvas.SaveLayer(maskPaint);
+        int layer = surface.SaveLayer(maskPaint);
         Mask.Value.Paint(context, surface);
-        surface.Canvas.RestoreToCount(layer);
+        surface.RestoreToCount(layer);
     }
 
     public override Node CreateCopy()

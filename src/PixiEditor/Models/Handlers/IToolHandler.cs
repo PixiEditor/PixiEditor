@@ -2,6 +2,7 @@
 using Drawie.Backend.Core.Numerics;
 using PixiEditor.Models.Handlers.Toolbars;
 using Drawie.Numerics;
+using PixiEditor.Models.Input;
 using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.Models.Handlers;

@@ -41,13 +41,13 @@ public sealed class ApplyFilterNode : RenderNode, IRenderInput
         AllowHighDpiRendering = true;
     }
 
-    protected override void Paint(RenderContext context, DrawingSurface surface)
+    protected override void Paint(RenderContext context, Canvas surface)
     {
         AllowHighDpiRendering = (Background.Connection?.Node as RenderNode)?.AllowHighDpiRendering ?? true;
         base.Paint(context, surface);
     }
 
-    protected override void OnPaint(RenderContext context, DrawingSurface outputSurface)
+    protected override void OnPaint(RenderContext context, Canvas outputSurface)
     {
         using var _ = DetermineTargetSurface(context, outputSurface, out var processingSurface);
 
@@ -60,7 +60,7 @@ public sealed class ApplyFilterNode : RenderNode, IRenderInput
         }
     }
 
-    private void DrawWithFilter(RenderContext context, DrawingSurface outputSurface, DrawingSurface processingSurface)
+    private void DrawWithFilter(RenderContext context, Canvas outputSurface, Canvas processingSurface)
     {
         _paint.SetFilters(Filter.Value);
 
@@ -70,16 +70,16 @@ public sealed class ApplyFilterNode : RenderNode, IRenderInput
             return;
         }
 
-        var layer = processingSurface.Canvas.SaveLayer(_paint);
+        var layer = processingSurface.SaveLayer(_paint);
         Background.Value?.Paint(context, processingSurface);
-        processingSurface.Canvas.RestoreToCount(layer);
+        processingSurface.RestoreToCount(layer);
     }
 
-    private void HandleNonSrgbContext(RenderContext context, DrawingSurface surface, DrawingSurface targetSurface)
+    private void HandleNonSrgbContext(RenderContext context, Canvas surface, Canvas targetSurface)
     {
         using var intermediate = Texture.ForProcessing(surface, context.ProcessingColorSpace);
 
-        Background.Value?.Paint(context, intermediate.DrawingSurface);
+        Background.Value?.Paint(context, intermediate.DrawingSurface.Canvas);
 
         using var srgbSurface = Texture.ForProcessing(intermediate.Size, ColorSpace.CreateSrgb());
 
@@ -87,14 +87,14 @@ public sealed class ApplyFilterNode : RenderNode, IRenderInput
         srgbSurface.DrawingSurface.Canvas.DrawSurface(intermediate.DrawingSurface, 0, 0);
         srgbSurface.DrawingSurface.Canvas.Restore();
 
-        var saved = targetSurface.Canvas.Save();
-        targetSurface.Canvas.SetMatrix(Matrix3X3.Identity);
+        var saved = targetSurface.Save();
+        targetSurface.SetMatrix(Matrix3X3.Identity);
 
-        targetSurface.Canvas.DrawSurface(srgbSurface.DrawingSurface, 0, 0);
-        targetSurface.Canvas.RestoreToCount(saved);
+        targetSurface.DrawSurface(srgbSurface.DrawingSurface, 0, 0);
+        targetSurface.RestoreToCount(saved);
     }
 
-    private Texture? DetermineTargetSurface(RenderContext context, DrawingSurface outputSurface, out DrawingSurface targetSurface)
+    private Texture? DetermineTargetSurface(RenderContext context, Canvas outputSurface, out Canvas targetSurface)
     {
         targetSurface = outputSurface;
         
@@ -103,23 +103,23 @@ public sealed class ApplyFilterNode : RenderNode, IRenderInput
         
         Background.Value?.Paint(context, outputSurface);
         var texture = Texture.ForProcessing(outputSurface, context.ProcessingColorSpace);
-        targetSurface = texture.DrawingSurface;
+        targetSurface = texture.DrawingSurface.Canvas;
         
         return texture;
     }
 
-    private void ApplyWithMask(RenderContext context, DrawingSurface processedSurface, DrawingSurface finalSurface)
+    private void ApplyWithMask(RenderContext context, Canvas processedSurface, Canvas finalSurface)
     {
         _maskPaint.BlendMode = !InvertMask.Value ? BlendMode.DstIn : BlendMode.DstOut;
-        var maskLayer = processedSurface.Canvas.SaveLayer(_maskPaint);
+        var maskLayer = processedSurface.SaveLayer(_maskPaint);
         Mask.Value?.Paint(context, processedSurface);
-        processedSurface.Canvas.RestoreToCount(maskLayer);
+        processedSurface.RestoreToCount(maskLayer);
 
-        var saved = finalSurface.Canvas.Save();
-        finalSurface.Canvas.SetMatrix(Matrix3X3.Identity);
+        var saved = finalSurface.Save();
+        finalSurface.SetMatrix(Matrix3X3.Identity);
 
-        finalSurface.Canvas.DrawSurface(processedSurface, 0, 0);
-        finalSurface.Canvas.RestoreToCount(saved);
+        finalSurface.DrawSurface(processedSurface.Surface, 0, 0);
+        finalSurface.RestoreToCount(saved);
     }
 
     public override RectD? GetPreviewBounds(RenderContext ctx, string elementToRenderName = "") =>

@@ -6,6 +6,7 @@ namespace PixiEditor.ViewModels.Dock;
 
 public class DocumentTabCustomizationSettings : TabCustomizationSettings
 {
+    private FontStyle fontStyle = FontStyle.Normal;
     private SavedState savedState;
     public SavedState SavedState
     {
@@ -16,6 +17,12 @@ public class DocumentTabCustomizationSettings : TabCustomizationSettings
             OnPropertyChanged(nameof(ShowUnsavedDot));
             OnPropertyChanged(nameof(SavedStateColor));
         }
+    }
+
+    public FontStyle FontStyle
+    {
+        get => fontStyle;
+        set => SetField(ref fontStyle, value);
     }
 
     public bool ShowUnsavedDot => SavedState != SavedState.Saved;

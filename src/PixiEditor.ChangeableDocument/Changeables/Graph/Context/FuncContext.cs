@@ -92,11 +92,26 @@ public class FuncContext
         if (!HasContext && first is Int1 firstInt && second is Int1 secondInt)
         {
             Int2 constantInt = new Int2("");
-            constantInt.ConstantValue = new VecI(firstInt.ConstantValue, secondInt.ConstantValue);
+            constantInt.ConstantValue = new VecI(GetIntConstant(firstInt), GetIntConstant(secondInt));
             return constantInt;
         }
 
         return Builder.ConstructInt2(first, second);
+    }
+
+    private static int GetIntConstant(Int1 int1)
+    {
+        object constant = int1.GetConstant();
+        return constant switch
+        {
+            int i => i,
+            double d => (int)d,
+            float f => (int)f,
+            long l => (int)l,
+            byte b => b,
+            short s => s,
+            _ => 0
+        };
     }
 
     public Half4 NewHalf4(Expression r, Expression g, Expression b, Expression a)
@@ -198,8 +213,14 @@ public class FuncContext
         {
             if (getFrom.Connection == null || !IsFuncType(getFrom))
             {
+                float value = 0;
+                if (getFrom?.Value != null)
+                {
+                    value = (float)getFrom.Value(this).ConstantValue;
+                }
+
                 string uniformName = $"float_{Builder.GetUniqueNameNumber()}";
-                Builder.AddUniform(uniformName, (float)getFrom.Value(this).ConstantValue);
+                Builder.AddUniform(uniformName, value);
                 return new Float1(uniformName);
             }
 
@@ -225,8 +246,14 @@ public class FuncContext
         {
             if (getFrom.Connection == null || !IsFuncType(getFrom))
             {
+                int value = 0;
+                if (getFrom?.Value != null)
+                {
+                    value = getFrom.Value(this)?.ConstantValue ?? 0;
+                }
+
                 string uniformName = $"int_{Builder.GetUniqueNameNumber()}";
-                Builder.AddUniform(uniformName, (int)getFrom.Value(this).ConstantValue);
+                Builder.AddUniform(uniformName, value);
                 return new Int1(uniformName);
             }
 
@@ -256,9 +283,9 @@ public class FuncContext
         {
             if (getFrom.Connection == null || !IsFuncType(getFrom))
             {
-                Half4 color = getFrom.Value(this);
+                Half4 color = getFrom?.Value != null ? getFrom.Value(this) : new Half4("");
                 color.VariableName = $"color_{Builder.GetUniqueNameNumber()}";
-                Builder.AddUniform(color.VariableName, color.ConstantValue);
+                Builder.AddUniform(color.VariableName, color?.ConstantValue ?? Colors.Transparent);
                 return color;
             }
 
@@ -283,9 +310,9 @@ public class FuncContext
         {
             if (getFrom.Connection == null || !IsFuncType(getFrom))
             {
-                Float2 value = getFrom.Value(this);
+                Float2 value = getFrom?.Value != null ? getFrom.Value(this) : new Float2("");
                 value.VariableName = $"float2_{Builder.GetUniqueNameNumber()}";
-                Builder.AddUniform(value.VariableName, value.ConstantValue);
+                Builder.AddUniform(value.VariableName, value?.ConstantValue ?? VecD.Zero);
                 return value;
             }
 
@@ -310,9 +337,9 @@ public class FuncContext
         {
             if (getFrom?.Connection == null || !IsFuncType(getFrom))
             {
-                Int2 value = getFrom.Value(this);
+                Int2 value = getFrom?.Value != null ? getFrom.Value(this) : new Int2("");
                 value.VariableName = $"int2_{Builder.GetUniqueNameNumber()}";
-                Builder.AddUniform(value.VariableName, value.ConstantValue);
+                Builder.AddUniform(value.VariableName, value?.ConstantValue ?? VecI.Zero);
                 return value;
             }
 
@@ -337,9 +364,9 @@ public class FuncContext
         {
             if (getFrom.Connection == null || !IsFuncType(getFrom))
             {
-                Float3x3 value = getFrom.Value(this);
+                Float3x3 value = getFrom?.Value != null ? getFrom.Value(this) : new Float3x3("");
                 value.VariableName = $"float3x3_{Builder.GetUniqueNameNumber()}";
-                Builder.AddUniform(value.VariableName, value.ConstantValue);
+                Builder.AddUniform(value.VariableName, value?.ConstantValue ?? Matrix3X3.Identity);
                 return value;
             }
 
@@ -382,7 +409,7 @@ public class FuncContext
         if (!HasContext && matrixExpression is Float3x3 float3x3)
         {
             Float3x3 constantMatrix = new Float3x3("");
-            constantMatrix.ConstantValue = float3x3.ConstantValue;
+            constantMatrix.ConstantValue = float3x3?.ConstantValue ?? Matrix3X3.Identity;
             return constantMatrix;
         }
 

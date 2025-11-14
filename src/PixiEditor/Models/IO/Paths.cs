@@ -29,6 +29,10 @@ public static class Paths
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
         "PixiEditor", "Palettes");
 
+    public static string PathToBrushesFolder { get; } = Path.Join(
+        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+        "PixiEditor", "Brushes");
+
     public static string InternalResourceDataPath { get; } =
         $"avares://{Assembly.GetExecutingAssembly().GetName().Name}/Data";
 

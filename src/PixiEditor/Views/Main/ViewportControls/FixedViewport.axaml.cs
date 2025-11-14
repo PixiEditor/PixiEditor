@@ -12,7 +12,9 @@ using Drawie.Backend.Core.Surfaces;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Position;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Rendering.ContextData;
 using PixiEditor.Models.Rendering;
+using PixiEditor.ViewModels;
 using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.Views.Main.ViewportControls;
@@ -140,7 +142,10 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
             0,
             docSize / 2,
             new VecD(Bounds.Width, Bounds.Height),
-            scaling,
+            new ViewportData(scaling, VecD.Zero, 1, false, false),
+            new PointerInfo(),
+            new KeyboardInfo(),
+            ViewModelMain.Current.GetEditorData(), // TODO: Remove singleton
             null,
             "DEFAULT",
             CalculateSampling(),
@@ -162,7 +167,7 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
             return SamplingOptions.Default;
         }
 
-        VecD densityVec = ((VecD)SceneTexture.Size).Divide(new VecD(Bounds.Width, Bounds.Height));
+        VecD densityVec = ((VecD)Document.SizeBindable).Divide(new VecD(Bounds.Width, Bounds.Height));
         double density = Math.Min(densityVec.X, densityVec.Y);
         return density > 1
             ? SamplingOptions.Bilinear

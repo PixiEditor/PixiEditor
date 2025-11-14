@@ -1,98 +1,86 @@
-﻿using PixiEditor.ChangeableDocument.Actions;
+﻿using Avalonia.Input;
+using ChunkyImageLib.DataHolders;
+using Drawie.Backend.Core;
+using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Surfaces;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Brushes;
+using PixiEditor.ChangeableDocument.Changeables.Graph;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
+using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.Models.BrushEngine;
+using PixiEditor.Models.Controllers.InputDevice;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable
-internal class PenToolExecutor : UpdateableChangeExecutor
+internal class PenToolExecutor : BrushBasedExecutor<IPenToolHandler>
 {
-    private Guid guidValue;
-    private Color color;
-    public double ToolSize => penToolbar.ToolSize;
-    public bool SquareBrush => penToolbar.PaintShape == PaintBrushShape.Square;
-
-    private bool drawOnMask;
     private bool pixelPerfect;
-    private bool antiAliasing;
-    private float hardness;
-    private float spacing = 1;
-    private bool transparentErase;
-
-    private IPenToolbar penToolbar;
 
     public override ExecutionState Start()
     {
-        IStructureMemberHandler? member = document!.SelectedStructureMember;
-        IColorsHandler? colorsHandler = GetHandler<IColorsHandler>();
-
-        IPenToolHandler? penTool = GetHandler<IPenToolHandler>();
-        if (colorsHandler is null || penTool is null || member is null || penTool?.Toolbar is not IPenToolbar toolbar)
-            return ExecutionState.Error;
-        drawOnMask = member is not ILayerHandler layer || layer.ShouldDrawOnMask;
-        if (drawOnMask && !member.HasMaskBindable)
-            return ExecutionState.Error;
-        if (!drawOnMask && member is not ILayerHandler)
+        if (base.Start() == ExecutionState.Error)
             return ExecutionState.Error;
 
-        penToolbar = toolbar;
-        guidValue = member.Id;
-        color = colorsHandler.PrimaryColor;
+        var penTool = GetHandler<IPenToolHandler>();
         pixelPerfect = penTool.PixelPerfectEnabled;
-        antiAliasing = toolbar.AntiAliasing;
-        hardness = toolbar.Hardness;
-        spacing = toolbar.Spacing;
 
         if (color.A > 0)
         {
             colorsHandler.AddSwatch(new PaletteColor(color.R, color.G, color.B));
         }
 
-        transparentErase = color.A == 0;
-        IAction? action = pixelPerfect switch
-        {
-            false => new LineBasedPen_Action(guidValue, color, controller!.LastPixelPosition, (float)ToolSize, transparentErase, antiAliasing, hardness, spacing, SquareBrush, drawOnMask, document!.AnimationHandler.ActiveFrameBindable),
-            true => new PixelPerfectPen_Action(guidValue, controller!.LastPixelPosition, color, drawOnMask, document!.AnimationHandler.ActiveFrameBindable)
-        };
-        internals!.ActionAccumulator.AddActions(action);
-
         return ExecutionState.Success;
     }
 
-    public override void OnPixelPositionChange(VecI pos)
+    protected override void EnqueueDrawActions()
     {
+        var point = GetStabilizedPoint();
+        if (handler != null)
+        {
+            handler.LastAppliedPoint = point;
+        }
+
         IAction? action = pixelPerfect switch
         {
-            false => new LineBasedPen_Action(guidValue, color, pos, (float)ToolSize, transparentErase, antiAliasing, hardness, spacing, SquareBrush, drawOnMask, document!.AnimationHandler.ActiveFrameBindable),
-            true => new PixelPerfectPen_Action(guidValue, pos, color, drawOnMask, document!.AnimationHandler.ActiveFrameBindable)
+            false => new LineBasedPen_Action(layerId, point, (float)ToolSize,
+                antiAliasing, BrushData, drawOnMask,
+                document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo, controller.LastKeyboardInfo,
+                controller.EditorData),
+            true => new PixelPerfectPen_Action(layerId, controller!.LastPixelPosition, color, drawOnMask,
+                document!.AnimationHandler.ActiveFrameBindable)
         };
+
         internals!.ActionAccumulator.AddActions(action);
     }
 
-    public override void OnLeftMouseButtonUp(VecD argsPositionOnCanvas)
+    public override void OnSettingsChanged(string name, object value)
     {
-        IAction? action = pixelPerfect switch
+        base.OnSettingsChanged(name, value);
+        if (name == nameof(IPenToolHandler.PixelPerfectEnabled) && value is bool bp)
         {
-            false => new EndLineBasedPen_Action(),
-            true => new EndPixelPerfectPen_Action()
-        };
-
-        internals!.ActionAccumulator.AddFinishedActions(action);
-        onEnded?.Invoke(this);
+            EnqueueEndDraw();
+            pixelPerfect = bp;
+        }
     }
 
-    public override void ForceStop()
+    protected override void EnqueueEndDraw()
     {
+        firstApply = true;
         IAction? action = pixelPerfect switch
         {
             false => new EndLineBasedPen_Action(),
             true => new EndPixelPerfectPen_Action()
         };
+
         internals!.ActionAccumulator.AddFinishedActions(action);
     }
 }

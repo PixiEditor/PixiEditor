@@ -1,5 +1,6 @@
 ﻿using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core;
+using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
@@ -89,7 +90,8 @@ internal class TextureOperation : IMirroredDrawOperation
 
         targetChunk.Surface.DrawingSurface.Canvas.Save();
         targetChunk.Surface.DrawingSurface.Canvas.SetMatrix(finalMatrix);
-        targetChunk.Surface.DrawingSurface.Canvas.DrawImage(toPaint.DrawingSurface.Snapshot(), 0, 0, customPaint);
+        using var snap = toPaint.DrawingSurface.Snapshot();
+        targetChunk.Surface.DrawingSurface.Canvas.DrawImage(snap, 0, 0, customPaint);
         targetChunk.Surface.DrawingSurface.Canvas.Restore();
     }
 

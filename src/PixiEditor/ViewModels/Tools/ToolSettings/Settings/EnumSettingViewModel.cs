@@ -1,15 +1,19 @@
-﻿using Avalonia;
+﻿using System.Windows.Input;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Layout;
+using CommunityToolkit.Mvvm.Input;
 using PixiEditor.Extensions.Helpers;
 using PixiEditor.Extensions.UI;
+using PixiEditor.Helpers.Decorators;
 
 namespace PixiEditor.ViewModels.Tools.ToolSettings.Settings;
 
-internal sealed class EnumSettingViewModel<TEnum> : Setting<TEnum, ComboBox>
+internal sealed class EnumSettingViewModel<TEnum> : Setting<TEnum>
     where TEnum : struct, Enum
 {
+    private EnumSettingPickerType pickerType = EnumSettingPickerType.ComboBox;
     private int selectedIndex;
 
     /// <summary>
@@ -49,13 +53,28 @@ internal sealed class EnumSettingViewModel<TEnum> : Setting<TEnum, ComboBox>
             base.Value = value;
         }
     }
+
+    public EnumSettingPickerType PickerType
+    {
+        get => pickerType;
+        set
+        {
+            SetProperty(ref pickerType, value);
+            OnPropertyChanged(nameof(PickerIsIconButtons));
+        }
+    }
+
+    public bool PickerIsIconButtons => PickerType == EnumSettingPickerType.IconButtons;
     
     public TEnum[] EnumValues { get; } = Enum.GetValues<TEnum>();
+
+    public ICommand ChangeValueCommand { get; }
 
     public EnumSettingViewModel(string name, string label)
         : base(name)
     {
         Label = label;
+        ChangeValueCommand = new RelayCommand<TEnum>(val => Value = val);
     }
 
     public EnumSettingViewModel(string name, string label, TEnum defaultValue)
@@ -86,4 +105,10 @@ internal sealed class EnumSettingViewModel<TEnum> : Setting<TEnum, ComboBox>
 
         return Enum.GetValues<TEnum>()[index];
     }
+}
+
+public enum EnumSettingPickerType
+{
+    ComboBox,
+    IconButtons
 }

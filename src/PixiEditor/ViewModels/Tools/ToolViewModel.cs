@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using Avalonia.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Vector;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.Input;
@@ -18,6 +19,7 @@ namespace PixiEditor.ViewModels.Tools;
 internal abstract class ToolViewModel : ObservableObject, IToolHandler
 {
     private bool canBeUsedOnActiveLayerOnActiveLayer = true;
+    private VectorPath? brushShape;
     public bool IsTransient { get; set; } = false;
     public KeyCombination Shortcut { get; set; }
 
@@ -28,7 +30,11 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
 
     public virtual string DefaultIcon => PixiPerfectIcons.Placeholder;
 
-    public virtual BrushShape FinalBrushShape => BrushShape.Square;
+    public VectorPath? FinalBrushShape
+    {
+        get => brushShape;
+        set => SetProperty(ref brushShape, value);
+    }
 
     public abstract Type[]? SupportedLayerTypes { get; }
 
@@ -99,6 +105,7 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
     public IToolbar Toolbar { get; set; } = new EmptyToolbar();
 
     public Dictionary<IToolSetHandler, Dictionary<string, object>> ToolSetSettings { get; } = new();
+    public bool IsPixiPerfectIcon => !Uri.TryCreate(IconToUse, UriKind.Absolute, out _);
 
     internal ToolViewModel()
     {
@@ -194,9 +201,9 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
     public virtual void OnPreUndoInlet() { }
 
     public virtual void OnPreRedoInlet() { }
+
     public virtual void QuickToolSwitchInlet()
     {
-
     }
 
     public void SetToolSetSettings(IToolSetHandler toolset, Dictionary<string, object>? settings)
@@ -220,7 +227,8 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
     public void ApplyToolSetSettings(IToolSetHandler toolset)
     {
         IconOverwrite = null;
-        foreach (var toolbarSetting in Toolbar.Settings)
+        var toolbarSettings = Toolbar.Settings.ToArray();
+        foreach (var toolbarSetting in toolbarSettings)
         {
             toolbarSetting.ResetOverwrite();
         }
@@ -228,6 +236,11 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
         if (toolset.IconOverwrites.TryGetValue(this, out var icon))
         {
             IconOverwrite = icon;
+        }
+
+        foreach (var toolbarSetting in toolbarSettings)
+        {
+            toolbarSetting.SetCurrentToolset(toolset.Name);
         }
 
         if (!ToolSetSettings.TryGetValue(toolset, out var settings))
@@ -247,6 +260,17 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
                 }
 
                 foundSetting.SetOverwriteExposed(expose);
+            }
+            else if (IsDefaultSetting(setting, out object defaultValue))
+            {
+                string settingName = setting.Key.Replace("Default", string.Empty);
+                var foundSetting = TryGetSettingByName(settingName, setting);
+                if (foundSetting is null)
+                {
+                    continue;
+                }
+
+                foundSetting.SetDefaultValue(defaultValue);
             }
             else
             {
@@ -312,7 +336,7 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
     protected void SetValue<T>(T value, [CallerMemberName] string name = null)
     {
         var setting = Toolbar.GetSetting(name);
-        if(setting is null)
+        if (setting is null)
         {
             throw new InvalidOperationException($"Setting {name} not found in toolbar {Toolbar.GetType().Name}");
         }
@@ -321,10 +345,10 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
         {
             throw new InvalidCastException($"Setting {name} is not of type {typeof(T).Name}");
         }
-        
+
         setting.Value = value;
     }
-    
+
 
     private bool IsExposeSetting(KeyValuePair<string, object> settingConfig, out bool expose)
     {
@@ -345,5 +369,19 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
 
         expose = false;
         return false;
+    }
+
+    private bool IsDefaultSetting(KeyValuePair<string, object> settingConfig, out object defaultValue)
+    {
+        bool isDefault = settingConfig.Key.StartsWith("Default", StringComparison.InvariantCultureIgnoreCase);
+        if (!isDefault)
+        {
+            defaultValue = null!;
+            return false;
+        }
+
+        var settingName = settingConfig.Key.Replace("Default", string.Empty);
+        defaultValue = settingConfig.Value;
+        return true;
     }
 }

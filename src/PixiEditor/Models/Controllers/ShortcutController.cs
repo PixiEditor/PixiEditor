@@ -2,6 +2,7 @@
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Commands.CommandContext;
 using PixiEditor.Models.Commands.Commands;
+using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Input;
 
 namespace PixiEditor.Models.Controllers;
@@ -41,6 +42,11 @@ internal class ShortcutController
     public KeyCombination? GetToolShortcut(Type type)
     {
         return CommandController.Current.Commands.FirstOrDefault(x => x is Command.ToolCommand tool && tool.ToolType == type)?.Shortcut;
+    }
+
+    public KeyCombination? GetToolShortcut(IToolHandler tool)
+    {
+        return CommandController.Current.Commands.FirstOrDefault(x => x is Command.ToolCommand toolCmd && tool == toolCmd.Handler)?.Shortcut;
     }
 
     public void KeyPressed(bool isRepeat, Key key, KeyModifiers modifiers)

@@ -1,0 +1,15 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:input="clr-namespace:PixiEditor.Views.Input"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:ClassModifier="internal"
+             x:Class="PixiEditor.Views.Input.BrushPicker">
+    <ComboBox VerticalAlignment="Center"
+              MinWidth="85"
+              ItemsSource="{Binding Brushes, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type input:BrushPicker}}}"
+              SelectedIndex="{Binding BrushIndex,
+              RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type input:BrushPicker}}, Mode=TwoWay}">
+    </ComboBox>
+</UserControl>

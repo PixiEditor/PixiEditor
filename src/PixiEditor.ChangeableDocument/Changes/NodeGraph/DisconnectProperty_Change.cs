@@ -38,8 +38,10 @@ internal class DisconnectProperty_Change : Change
         out bool ignoreInUndo)
     {
         var node = target.FindNodeOrThrow<Node>(nodeGuid);
+
         var input = node.GetInputProperty(property);
         input.Connection.DisconnectFrom(input);
+
 
         ignoreInUndo = false;
         return new ConnectProperty_ChangeInfo(null, node.Id, null, property);

@@ -7,6 +7,7 @@ using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
+using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Views.Overlays.SelectionOverlay;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
@@ -51,7 +52,7 @@ internal class SelectToolExecutor : UpdateableChangeExecutor
         _ => throw new NotImplementedException(),
     };
 
-    public override void OnPixelPositionChange(VecI pos)
+    public override void OnPixelPositionChange(VecI pos, MouseOnCanvasEventArgs args)
     {
         IAction action = CreateUpdateAction(selectShape, RectI.FromTwoPixels(startPos, pos), selectMode);
         internals!.ActionAccumulator.AddActions(action);

@@ -98,7 +98,7 @@ public class MathNode : Node
             MathNodeMode.GreaterThanOrEqual => xConst >= yConst ? 1 : 0,
             MathNodeMode.LessThan => xConst < yConst ? 1 : 0,
             MathNodeMode.LessThanOrEqual => xConst <= yConst ? 1 : 0,
-            MathNodeMode.Compare => Math.Abs(xConst - yConst) < zConst ? 1 : 0,
+            MathNodeMode.Compare => Math.Abs(xConst - yConst) <= zConst ? 1 : 0,
             MathNodeMode.Power => Math.Pow(xConst, yConst),
             MathNodeMode.Logarithm => Math.Log(xConst, yConst),
             MathNodeMode.NaturalLogarithm => Math.Log(xConst),

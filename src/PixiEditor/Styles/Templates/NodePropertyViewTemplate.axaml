@@ -14,8 +14,16 @@
                                            ClipToBounds="False"
                                            Node="{Binding DataContext.Node, RelativeSource={RelativeSource TemplatedParent}}"
                                            SocketBrush="{Binding DataContext.SocketBrush, RelativeSource={RelativeSource TemplatedParent}}"
-                                           IsVisible="{Binding DataContext.IsInput, RelativeSource={RelativeSource TemplatedParent}}"
                                            IsFunc="{Binding DataContext.IsFunc, RelativeSource={RelativeSource TemplatedParent}}">
+                        <properties:NodeSocket.IsVisible>
+                            <MultiBinding>
+                                <MultiBinding.Converter>
+                                    <converters:AllTrueConverter />
+                                </MultiBinding.Converter>
+                                <Binding Path="DataContext.IsInput" RelativeSource="{RelativeSource TemplatedParent}" />
+                                <Binding Path="DataContext.SocketEnabled" RelativeSource="{RelativeSource TemplatedParent}" />
+                            </MultiBinding>
+                        </properties:NodeSocket.IsVisible>
                         <properties:NodeSocket.IsInput>
                             <x:Boolean>True</x:Boolean>
                         </properties:NodeSocket.IsInput>

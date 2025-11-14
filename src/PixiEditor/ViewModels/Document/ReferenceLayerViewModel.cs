@@ -14,6 +14,8 @@ using Drawie.Backend.Core.Surfaces.ImageData;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+using PixiEditor.ChangeableDocument.ChangeInfos.Root.ReferenceLayerChangeInfos;
 using PixiEditor.ViewModels.Tools.Tools;
 
 namespace PixiEditor.ViewModels.Document;
@@ -95,6 +97,16 @@ internal class ReferenceLayerViewModel : PixiObservableObject, IReferenceLayerHa
     {
         this.doc = doc;
         this.internals = internals;
+    }
+
+    internal void InitFrom(IReadOnlyReferenceLayer? documentReferenceLayer)
+    {
+        if (documentReferenceLayer is not null)
+        {
+            internals.Updater.ApplyChangeFromChangeInfo(new SetReferenceLayer_ChangeInfo(documentReferenceLayer.ImageBgra8888Bytes, documentReferenceLayer.ImageSize, documentReferenceLayer.Shape));
+            internals.Updater.ApplyChangeFromChangeInfo(new ReferenceLayerIsVisible_ChangeInfo(documentReferenceLayer.IsVisible));
+            internals.Updater.ApplyChangeFromChangeInfo(new ReferenceLayerTopMost_ChangeInfo(documentReferenceLayer.IsTopMost));
+        }
     }
 
     private bool IsColorPickerSelected()

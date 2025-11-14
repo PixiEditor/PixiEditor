@@ -201,6 +201,11 @@ public class NodeView : TemplatedControl
 
     private void ChildrenOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
+        UpdatePropertyViews();
+    }
+
+    private void UpdatePropertyViews()
+    {
         propertyViews = this.GetVisualDescendants().OfType<NodePropertyView>()
             .ToDictionary(x => (INodePropertyHandler)x.DataContext, x => x);
     }
@@ -278,6 +283,11 @@ public class NodeView : TemplatedControl
 
     public NodeSocket GetSocket(INodePropertyHandler property)
     {
+        if (Inputs.Count + Outputs.Count != propertyViews.Count)
+        {
+            UpdatePropertyViews();
+        }
+
         if (propertyViews.TryGetValue(property, out var view))
         {
             if (view is null)

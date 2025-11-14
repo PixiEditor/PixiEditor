@@ -9,13 +9,14 @@ using Drawie.Backend.Core;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables;
 
 internal class Document : IChangeable, IReadOnlyDocument
 {
-    public Guid DocumentId { get; } = Guid.NewGuid();
+    public Guid DocumentId { get; private set; } = Guid.NewGuid();
     IReadOnlyNodeGraph IReadOnlyDocument.NodeGraph => NodeGraph;
     IReadOnlySelection IReadOnlyDocument.Selection => Selection;
     IReadOnlyAnimationData IReadOnlyDocument.AnimationData => AnimationData;
@@ -32,6 +33,7 @@ internal class Document : IChangeable, IReadOnlyDocument
 
     IReadOnlyReferenceLayer? IReadOnlyDocument.ReferenceLayer => ReferenceLayer;
     public DocumentRenderer Renderer { get; }
+    public IReadOnlyBlackboard Blackboard => NodeGraph.Blackboard;
     public ColorSpace ProcessingColorSpace { get; internal set; } = ColorSpace.CreateSrgbLinear();
 
     /// <summary>
@@ -39,10 +41,10 @@ internal class Document : IChangeable, IReadOnlyDocument
     /// </summary>
     public static VecI DefaultSize { get; } = new VecI(64, 64);
 
-    internal NodeGraph NodeGraph { get; } = new();
-    internal Selection Selection { get; } = new();
+    internal NodeGraph NodeGraph { get; private set; } = new();
+    internal Selection Selection { get; private set; } = new();
     internal ReferenceLayer? ReferenceLayer { get; set; }
-    internal AnimationData AnimationData { get; }
+    internal AnimationData AnimationData { get; private set; }
     public VecI Size { get; set; } = DefaultSize;
     public bool HorizontalSymmetryAxisEnabled { get; set; }
     public bool VerticalSymmetryAxisEnabled { get; set; }
@@ -104,7 +106,7 @@ internal class Document : IChangeable, IReadOnlyDocument
             chunkyImage.DrawCommittedRegionOn(
                 new RectI(0, 0, chunkyImage.CommittedSize.X, chunkyImage.CommittedSize.Y),
                 ChunkResolution.Full,
-                chunkSurface.DrawingSurface,
+                chunkSurface.DrawingSurface.Canvas,
                 VecI.Zero);
 
             image = chunkSurface;
@@ -171,6 +173,42 @@ internal class Document : IChangeable, IReadOnlyDocument
     public ICrossDocumentPipe<T> CreateNodePipe<T>(Guid layerId) where T : class, IReadOnlyNode
     {
         return new DocumentNodePipe<T>(this, layerId);
+    }
+
+    public ICrossDocumentPipe<IReadOnlyNodeGraph> CreateGraphPipe()
+    {
+        return new DocumentGraphPipe(this);
+    }
+
+    public IReadOnlyDocument Clone(bool preserveDocumentId = false)
+    {
+        var clone = new Document
+        {
+            Size = Size,
+            ProcessingColorSpace = ProcessingColorSpace,
+            HorizontalSymmetryAxisEnabled = HorizontalSymmetryAxisEnabled,
+            VerticalSymmetryAxisEnabled = VerticalSymmetryAxisEnabled,
+            HorizontalSymmetryAxisY = HorizontalSymmetryAxisY,
+            VerticalSymmetryAxisX = VerticalSymmetryAxisX,
+            ReferenceLayer = ReferenceLayer?.Clone(),
+            NodeGraph = NodeGraph?.Clone() as NodeGraph,
+            AnimationData = AnimationData?.Clone() as AnimationData,
+            Selection = Selection != null ? new Selection() { SelectionPath = Selection.SelectionPath != null ? new VectorPath(Selection.SelectionPath) : null } : null
+        };
+
+        if (preserveDocumentId)
+        {
+            clone.DocumentId = DocumentId;
+        }
+
+        return clone;
+    }
+
+    public IReadOnlyStructureNode[] GetStructureTreeInOrder()
+    {
+        var list = new List<IReadOnlyStructureNode>();
+        ForEveryReadonlyMember(NodeGraph, member => list.Add(member));
+        return list.ToArray();
     }
 
     private void ForEveryReadonlyMember(IReadOnlyNodeGraph graph, Action<IReadOnlyStructureNode> action)
@@ -444,7 +482,7 @@ internal class Document : IChangeable, IReadOnlyDocument
 
     private void ExtractLayers(FolderNode folder, List<Guid> list)
     {
-        if(folder.Content.Connection == null) return;
+        if (folder.Content.Connection == null) return;
         folder.Content.Connection.Node.TraverseBackwards(node =>
         {
             if (node is LayerNode layer && !list.Contains(layer.Id))
@@ -454,5 +492,10 @@ internal class Document : IChangeable, IReadOnlyDocument
 
             return true;
         });
+    }
+
+    object ICloneable.Clone()
+    {
+        return Clone();
     }
 }

@@ -141,6 +141,41 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         Document.LayersChanged += (sender, args) => SortByLayers();
     }
 
+    internal void InitFrom(IReadOnlyAnimationData documentAnimationData)
+    {
+        frameRateBindable = documentAnimationData.FrameRate;
+        onionFrames = documentAnimationData.OnionFrames;
+        onionOpacity = documentAnimationData.OnionOpacity;
+        defaultEndFrameBindable = documentAnimationData.DefaultEndFrame;
+        foreach (var readOnlyKeyFrame in documentAnimationData.KeyFrames)
+        {
+            AddKeyFrameInternal(Document, Internals, readOnlyKeyFrame);
+        }
+    }
+
+    private void AddKeyFrameInternal(DocumentViewModel doc, DocumentInternalParts internals,
+        IReadOnlyKeyFrame readOnlyKeyFrame)
+    {
+        if (readOnlyKeyFrame is IKeyFrameChildrenContainer childrenContainer)
+        {
+            var groupViewModel = new CelGroupViewModel(readOnlyKeyFrame.StartFrame, readOnlyKeyFrame.Duration,
+                readOnlyKeyFrame.NodeId, readOnlyKeyFrame.Id, doc, internals);
+
+            foreach (var child in childrenContainer.Children)
+            {
+                AddKeyFrameInternal(doc, internals, child);
+            }
+
+            AddKeyFrame(groupViewModel);
+        }
+        else
+        {
+            var rasterCel = new RasterCelViewModel(readOnlyKeyFrame.NodeId, readOnlyKeyFrame.StartFrame,
+                readOnlyKeyFrame.Duration, readOnlyKeyFrame.Id, doc, internals);
+            AddKeyFrame(rasterCel);
+        }
+    }
+
     public KeyFrameTime ActiveFrameTime => new KeyFrameTime(ActiveFrameBindable, ActiveNormalizedTime);
 
     public Guid? CreateCel(Guid targetLayerGuid, int frame, Guid? toCloneFrom = null,

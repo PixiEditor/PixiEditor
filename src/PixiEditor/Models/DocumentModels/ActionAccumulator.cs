@@ -7,9 +7,11 @@ using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.ChangeInfos;
 using Drawie.Backend.Core.Bridge;
+using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Helpers;
+using PixiEditor.Models.DocumentModels.Public;
 using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Rendering;
@@ -48,7 +50,7 @@ internal class ActionAccumulator
     {
         isChangeBlockActive = false;
         queuedActions.Add((ActionSource.Automated, new ChangeBoundary_Action()));
-        TryExecuteAccumulatedActions();
+        TryExecuteAccumulatedActionsSync();
     }
 
     public void AddFinishedActions(params IAction[] actions)
@@ -86,17 +88,9 @@ internal class ActionAccumulator
 
     internal async Task TryExecuteAccumulatedActions()
     {
-        if (executing || queuedActions.Count == 0)
+        if (executing || queuedActions.Count == 0 || document.IsDisposed)
             return;
         executing = true;
-        /*DispatcherTimer busyTimer = new DispatcherTimer() { Interval = TimeSpan.FromMilliseconds(2000) };
-        busyTimer.Tick += (_, _) =>
-        {
-            busyTimer.Stop();
-            document.Busy = true;
-        };
-        busyTimer.Start();*/
-
         try
         {
             while (queuedActions.Count > 0)
@@ -105,6 +99,10 @@ internal class ActionAccumulator
                 queuedActions = new();
 
                 List<IChangeInfo?> changes;
+
+                if (internals.Tracker.IsDisposed)
+                    return;
+
                 bool allPassthrough = AreAllPassthrough(toExecute);
                 if (allPassthrough)
                 {
@@ -167,6 +165,9 @@ internal class ActionAccumulator
 
                 bool immediateRender = affectedAreas.MainImageArea.Chunks.Count > 0;
 
+                if(internals.Tracker.IsDisposed)
+                    return;
+
                 await document.SceneRenderer.RenderAsync(internals.State.Viewports, affectedAreas.MainImageArea,
                     !previewsDisabled && updateDelayed, previewTextures, immediateRender);
 
@@ -175,7 +176,6 @@ internal class ActionAccumulator
         }
         catch (Exception e)
         {
-            //busyTimer.Stop();
             document.Busy = false;
             executing = false;
 #if DEBUG
@@ -185,7 +185,101 @@ internal class ActionAccumulator
             throw;
         }
 
-        //busyTimer.Stop();
+        if (document.Busy)
+            document.Busy = false;
+        executing = false;
+    }
+
+      internal void TryExecuteAccumulatedActionsSync()
+    {
+        if (executing || queuedActions.Count == 0)
+            return;
+        executing = true;
+        try
+        {
+            while (queuedActions.Count > 0)
+            {
+                var toExecute = queuedActions;
+                queuedActions = new();
+
+                List<IChangeInfo?> changes;
+                bool allPassthrough = AreAllPassthrough(toExecute);
+                if (allPassthrough)
+                {
+                    changes = toExecute.Select(a => (IChangeInfo?)a.action).ToList();
+                }
+                else
+                {
+                    changes = internals.Tracker.ProcessActionsSync(toExecute);
+                }
+
+                List<IChangeInfo> optimizedChanges = ChangeInfoListOptimizer.Optimize(changes);
+                bool undoBoundaryPassed =
+                    toExecute.Any(static action =>
+                        action.action is ChangeBoundary_Action or Redo_Action or Undo_Action);
+                bool viewportRefreshRequest =
+                    toExecute.Any(static action => action.action is RefreshViewport_PassthroughAction);
+                bool refreshPreviewsRequest =
+                    toExecute.Any(static action => action.action is RefreshPreviews_PassthroughAction);
+                bool refreshPreviewRequest =
+                    toExecute.Any(static action => action.action is RefreshPreview_PassthroughAction);
+                bool changeFrameRequest =
+                    toExecute.Any(static action => action.action is SetActiveFrame_PassthroughAction);
+
+                foreach (IChangeInfo info in optimizedChanges)
+                {
+                    internals.Updater.ApplyChangeFromChangeInfo(info);
+                }
+
+                if (undoBoundaryPassed)
+                    internals.Updater.AfterUndoBoundaryPassed();
+
+                var affectedAreas = new AffectedAreasGatherer(document.AnimationHandler.ActiveFrameTime,
+                    internals.Tracker,
+                    optimizedChanges, refreshPreviewsRequest);
+
+                bool previewsDisabled = PixiEditorSettings.Performance.DisablePreviews.Value;
+                bool updateDelayed = undoBoundaryPassed || viewportRefreshRequest || changeFrameRequest ||
+                                     document.SizeBindable.LongestAxis <= LiveUpdatePerformanceThreshold;
+
+                Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures = null;
+
+                if (!previewsDisabled)
+                {
+                    if (undoBoundaryPassed || viewportRefreshRequest || refreshPreviewsRequest ||
+                        refreshPreviewRequest || changeFrameRequest ||
+                        document.SizeBindable.LongestAxis <= LiveUpdatePerformanceThreshold)
+                    {
+                        previewTextures = previewUpdater.GatherPreviewsToUpdate(
+                            affectedAreas.ChangedMembers,
+                            affectedAreas.ChangedMasks,
+                            affectedAreas.ChangedNodes, affectedAreas.ChangedKeyFrames,
+                            affectedAreas.IgnoreAnimationPreviews,
+                            undoBoundaryPassed || refreshPreviewsRequest || refreshPreviewRequest);
+                    }
+                }
+
+                List<Action>? updatePreviewActions = previewTextures?.Values
+                    .Select(x => x.Select(r => r.TextureUpdatedAction))
+                    .SelectMany(x => x).ToList();
+
+                document.SceneRenderer.RenderSync(internals.State.Viewports, affectedAreas.MainImageArea,
+                    !previewsDisabled && updateDelayed, previewTextures);
+
+                NotifyUpdatedPreviews(updatePreviewActions);
+            }
+        }
+        catch (Exception e)
+        {
+            document.Busy = false;
+            executing = false;
+#if DEBUG
+            Console.WriteLine(e);
+#endif
+            CrashHelper.SendExceptionInfo(e);
+            throw;
+        }
+
         if (document.Busy)
             document.Busy = false;
         executing = false;

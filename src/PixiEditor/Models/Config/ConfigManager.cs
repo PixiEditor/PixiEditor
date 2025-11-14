@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using Avalonia.Platform;
 using Newtonsoft.Json;
+using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.IO;
 using PixiEditor.Views;
 
@@ -8,31 +9,27 @@ namespace PixiEditor.Models.Config;
 
 public class ConfigManager
 {
-    public T GetConfig<T>(string configName)
+    public T GetConfig<T>(string configName) where T : IMergeable<T>
     {
-        // TODO: Local configs require a mechanism that will allow to update them when the embedded config changes
-        // but merges the changes with the local config or something like that, leaving as is for now
-        /*if (LocalConfigExists(configName))
+        var embeddedConfig = GetEmbeddedConfig<T>(configName);
+        if (LocalConfigExists(configName))
         {
             try
             {
-                return GetLocalConfig<T>(configName);
+                return embeddedConfig.TryMergeWith(GetLocalConfig<T>(configName));
             }
-            catch(JsonReaderException)
+            catch (JsonReaderException)
             {
-                // If the local config is corrupted, delete it and load the embedded one
-                File.Delete(Path.Combine(Paths.UserConfigPath, $"Configs/{configName}.json"));
+                return embeddedConfig;
             }
-        }*/
+        }
 
-        var embeddedConfig = GetEmbeddedConfig<T>(configName);
-        //SaveConfig(embeddedConfig, configName);
         return embeddedConfig;
     }
 
     private T GetLocalConfig<T>(string configName)
     {
-        string path = $"Configs/{configName}.json";
+        string path = $"{configName}.json";
         using FileStream file = File.Open(Path.Combine(Paths.UserConfigPath, path), FileMode.Open);
         using StreamReader reader = new(file);
 
@@ -50,10 +47,10 @@ public class ConfigManager
         string json = reader.ReadToEnd();
         return JsonConvert.DeserializeObject<T>(json);
     }
-    
+
     private void SaveConfig<T>(T config, string configName)
     {
-        string path = Path.Combine(Paths.UserConfigPath, $"Configs/{configName}.json");
+        string path = Path.Combine(Paths.UserConfigPath, $"{configName}.json");
         string json = JsonConvert.SerializeObject(config, Formatting.Indented);
 
         Directory.CreateDirectory(Path.GetDirectoryName(path));
@@ -62,10 +59,10 @@ public class ConfigManager
 
         writer.Write(json);
     }
-    
+
     private bool LocalConfigExists(string configName)
     {
-        string path = Path.Combine(Paths.UserConfigPath, $"Configs/{configName}.json");
+        string path = Path.Combine(Paths.UserConfigPath, $"{configName}.json");
         return File.Exists(path);
     }
 }
