@@ -181,8 +181,22 @@ internal class ChangeExecutionController
 
     public void MouseMoveInlet(MouseOnCanvasEventArgs args)
     {
-        VecD newCanvasPos = args.PositionOnCanvas;
+        if (args.IntermediatePoints != null)
+        {
+            foreach (var point in args.IntermediatePoints)
+            {
+                MouseOnCanvasEventArgs arg = MouseOnCanvasEventArgs.FromIntermediatePoint(args, point);
+                MouseMoveInlet(arg);
+            }
+        }
+
+        VecD newCanvasPos = args.Point.PositionOnCanvas;
         //update internal state
+        ProcessMove(args, newCanvasPos);
+    }
+
+    private void ProcessMove(MouseOnCanvasEventArgs args, VecD newCanvasPos)
+    {
         VecI newPixelPos = (VecI)newCanvasPos.Floor();
         bool pixelPosChanged = false;
         if (lastPixelPos != newPixelPos)
@@ -367,13 +381,13 @@ internal class ChangeExecutionController
         VecD vecDir = new VecD(dir.X, dir.Y);
         VecD dirNormalized = vecDir.Length > 0 ? vecDir.Normalize() : lastPointerInfo.MovementDirection;
 
-        float pressure = args.Properties.Pressure;
+        float pressure = args.Point.Properties.Pressure;
         if (args.PointerType == PointerType.Mouse)
         {
-            pressure = args.Properties.Pressure > 0 ? 1 : 0;
+            pressure = args.Point.Properties.Pressure > 0 ? 1 : 0;
         }
 
-        return new PointerInfo(currentPoint, pressure, args.Properties.Twist,
-            new VecD(args.Properties.XTilt, args.Properties.YTilt), dirNormalized);
+        return new PointerInfo(currentPoint, pressure, args.Point.Properties.Twist,
+            new VecD(args.Point.Properties.XTilt, args.Point.Properties.YTilt), dirNormalized);
     }
 }

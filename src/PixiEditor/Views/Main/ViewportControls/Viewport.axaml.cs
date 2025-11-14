@@ -574,10 +574,20 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
             return;
         Point pos = e.GetPosition(Scene);
         VecD conv = Scene.ToZoomboxSpace(new VecD(pos.X, pos.Y));
-
         MouseButton mouseButton = e.GetMouseButton(this);
 
         MouseOnCanvasEventArgs parameter = new(mouseButton, e.Pointer.Type, conv, e.KeyModifiers, 0, e.GetCurrentPoint(this).Properties, Scene.Scale);
+
+        var intermediate = e.GetIntermediatePoints(this);
+        List<PointerPosition> intermediatePositions = new();
+        foreach (var point in intermediate)
+        {
+            Point interPos = point.Position;
+            VecD interConv = Scene.ToZoomboxSpace(new VecD(interPos.X, interPos.Y));
+            intermediatePositions.Add(new PointerPosition(interConv, point.Properties));
+        }
+
+        parameter.IntermediatePoints = intermediatePositions;
 
         if (MouseMoveCommand.CanExecute(parameter))
             MouseMoveCommand.Execute(parameter);

@@ -127,7 +127,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
         }
 
         VecD mouseSnap =
-            document.SnappingHandler.SnappingController.GetSnapPoint(args.PositionOnCanvas, out string snapXAxis,
+            document.SnappingHandler.SnappingController.GetSnapPoint(args.Point.PositionOnCanvas, out string snapXAxis,
                 out string snapYAxis);
         HighlightSnapping(snapXAxis, snapYAxis);
 

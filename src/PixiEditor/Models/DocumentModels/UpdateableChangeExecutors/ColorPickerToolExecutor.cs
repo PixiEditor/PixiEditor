@@ -45,7 +45,7 @@ internal class ColorPickerToolExecutor : UpdateableChangeExecutor
         string? customOutput = windowHandler?.ActiveWindow is IViewport viewport ? viewport.RenderOutputName : null;
         customOutput = customOutput == "DEFAULT" ? null : customOutput;
 
-        colorsViewModel.PrimaryColor = document.PickColor(args.PositionOnCanvas, scope, includeReference, includeCanvas, document.AnimationHandler.ActiveFrameBindable, document.ReferenceLayerHandler.IsTopMost, customOutput);
+        colorsViewModel.PrimaryColor = document.PickColor(args.Point.PositionOnCanvas, scope, includeReference, includeCanvas, document.AnimationHandler.ActiveFrameBindable, document.ReferenceLayerHandler.IsTopMost, customOutput);
     }
 
     public override void OnPixelPositionChange(VecI pos, MouseOnCanvasEventArgs args)

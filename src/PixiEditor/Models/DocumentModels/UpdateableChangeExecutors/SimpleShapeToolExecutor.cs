@@ -137,15 +137,15 @@ internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor,
     {
         if (ActiveMode == ShapeToolMode.Preview)
         {
-            PrecisePositionChangePreviewMode(args.PositionOnCanvas);
+            PrecisePositionChangePreviewMode(args.Point.PositionOnCanvas);
         }
         else if (ActiveMode == ShapeToolMode.Drawing)
         {
-            PrecisePositionChangeDrawingMode(args.PositionOnCanvas);
+            PrecisePositionChangeDrawingMode(args.Point.PositionOnCanvas);
         }
         else if (ActiveMode == ShapeToolMode.Transform)
         {
-            PrecisePositionChangeTransformMode(args.PositionOnCanvas);
+            PrecisePositionChangeTransformMode(args.Point.PositionOnCanvas);
         }
     }
 

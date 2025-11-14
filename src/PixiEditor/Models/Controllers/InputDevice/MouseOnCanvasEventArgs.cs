@@ -9,22 +9,42 @@ internal class MouseOnCanvasEventArgs : EventArgs
 {
     public MouseButton Button { get; }
     public PointerType PointerType { get; }
-    public VecD PositionOnCanvas { get; }
     public KeyModifiers KeyModifiers { get; }
+    public PointerPosition Point { get; }
     public bool Handled { get; set; }
     public int ClickCount { get; set; } = 1;
-    public PointerPointProperties Properties { get; }
     public double ViewportScale { get; set; }
+    public IReadOnlyList<PointerPosition> IntermediatePoints { get; set; }
 
     public MouseOnCanvasEventArgs(MouseButton button, PointerType type, VecD positionOnCanvas, KeyModifiers keyModifiers, int clickCount,
         PointerPointProperties properties, double viewportScale)
     {
         Button = button;
-        PositionOnCanvas = positionOnCanvas;
+        Point = new PointerPosition(positionOnCanvas, properties);
         KeyModifiers = keyModifiers;
         ClickCount = clickCount;
-        Properties = properties;
         PointerType = type;
         ViewportScale = viewportScale;
+    }
+
+    public static MouseOnCanvasEventArgs FromIntermediatePoint(MouseOnCanvasEventArgs args, PointerPosition point)
+    {
+        return new MouseOnCanvasEventArgs(args.Button, args.PointerType, point.PositionOnCanvas, args.KeyModifiers, args.ClickCount,
+            point.Properties, args.ViewportScale)
+        {
+            Handled = args.Handled,
+        };
+    }
+}
+
+struct PointerPosition
+{
+    public VecD PositionOnCanvas { get; set; }
+    public PointerPointProperties Properties { get; set; }
+
+    public PointerPosition(VecD positionOnCanvas, PointerPointProperties properties)
+    {
+        PositionOnCanvas = positionOnCanvas;
+        Properties = properties;
     }
 }
