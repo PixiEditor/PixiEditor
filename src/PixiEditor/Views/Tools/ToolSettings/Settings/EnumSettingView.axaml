@@ -35,9 +35,8 @@
                 </DataTemplate>
             </ComboBox.ItemTemplate>
         </ComboBox>
-        <Border Background="{DynamicResource ThemeControlLowBrush}" CornerRadius="4">
-            <ItemsControl IsVisible="{Binding PickerIsIconButtons}"
-                          Name="iconButtonsPicker"
+        <Border IsVisible="{Binding PickerIsIconButtons}" Background="{DynamicResource ThemeControlLowBrush}" CornerRadius="4">
+            <ItemsControl Name="iconButtonsPicker"
                           ItemsSource="{Binding EnumValues}"
                           HorizontalAlignment="Center">
                 <ItemsControl.Styles>
