@@ -1148,5 +1148,8 @@
   "POSTERIZATION_NODE": "Posterize",
   "LEVELS": "Levels",
   "RGB_POSTERIZATION_MODE": "RGB",
-  "LUMINANCE_POSTERIZATION_MODE": "Luminance"
+  "LUMINANCE_POSTERIZATION_MODE": "Luminance",
+  "ACCESSIBILITY": "Accessibility",
+  "UI_SCALE": "UI Scale",
+  "UI_SCALE_EXEMPTS_SETTINGS": "Setting windows are intentionally not affected by UI Scaling."
 }

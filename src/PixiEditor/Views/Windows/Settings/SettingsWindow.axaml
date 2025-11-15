@@ -467,6 +467,36 @@
                             </StackPanel>
                         </controls:FixedSizeStackPanel>
                     </ScrollViewer>
+                    <ScrollViewer>
+                        <ScrollViewer.IsVisible>
+                            <Binding Path="CurrentPage" Converter="{converters:IsEqualConverter}">
+                                <Binding.ConverterParameter>
+                                    <sys:Int32>7</sys:Int32>
+                                </Binding.ConverterParameter>
+                            </Binding>
+                        </ScrollViewer.IsVisible>
+
+                        <controls:FixedSizeStackPanel Orientation="Vertical" ChildSize="32"
+                                                      VerticalChildrenAlignment="Center" Margin="12">
+
+                            <TextBlock ui:Translator.Key="UI_SCALE" Classes="h5" />
+
+                            <StackPanel Orientation="Horizontal" Spacing="10" Classes="leftOffset">
+                                <Slider Width="200"
+                                        Minimum="0.5" Maximum="2.5"
+                                        TickFrequency="0.05"
+                                        IsSnapToTickEnabled="True"
+                                        Value="{Binding SettingsSubViewModel.Accessibility.UiScaleFactor, Mode=TwoWay}"/>
+                                
+                                <TextBlock Text="{Binding SettingsSubViewModel.Accessibility.UiScaleFactorPreview}"
+                                           VerticalAlignment="Center"/>
+                                
+                            </StackPanel>
+                            
+                            <TextBlock ui:Translator.Key="UI_SCALE_EXEMPTS_SETTINGS" Classes="leftOffset subtext" />
+
+                        </controls:FixedSizeStackPanel>
+                    </ScrollViewer>
                 </Grid>
             </Border>
         </DockPanel>
