@@ -559,5 +559,8 @@
   "USE_SECONDARY_COLOR": "Usa colore secondario",
   "RIGHT_CLICK_MODE": "Modalità tasto destro",
   "ADD_PRIMARY_COLOR_TO_PALETTE": "Aggiungi colore primario alla tavolozza",
-  "ADD_PRIMARY_COLOR_TO_PALETTE_DESCRIPTIVE": "Aggiungi colore primario alla tavolozza corrente"
+  "ADD_PRIMARY_COLOR_TO_PALETTE_DESCRIPTIVE": "Aggiungi colore primario alla tavolozza corrente",
+  "ACCESSIBILITY": "Accessibilità",
+  "UI_SCALE": "Ingrandimento UI",
+  "UI_SCALE_EXEMPTS_SETTINGS": "Le finestre d'impostazione sono intenzionalmente escluse dall'ingrandimento.",
 }
