@@ -181,6 +181,7 @@ internal class ChangeExecutionController
 
     public void MouseMoveInlet(MouseOnCanvasEventArgs args)
     {
+        // Todo: Remove pen restriction when avalonia merges https://github.com/AvaloniaUI/Avalonia/pull/20075
         if (args.IntermediatePoints != null && args.PointerType == PointerType.Pen)
         {
             foreach (var point in args.IntermediatePoints)
