@@ -13,6 +13,7 @@
             <Color x:Key="AccentColor">#B00022</Color>
             <Color x:Key="AccentHighColor">#c0334e</Color>
             <Color x:Key="ThemeAccent2Color">#5fad65</Color>
+            <Color x:Key="ThemeAccent2TranslucentColor">#7F5fad65</Color>
             <Color x:Key="ThemeAccent2HighColor">#3dd276</Color>
             <Color x:Key="ThemeAccent3Color">DodgerBlue</Color>
 
@@ -117,6 +118,7 @@
             <SolidColorBrush x:Key="ThemeAccentBrush" Color="{StaticResource AccentColor}" />
             <SolidColorBrush x:Key="ThemeAccentHighBrush" Color="{StaticResource AccentHighColor}" />
             <SolidColorBrush x:Key="ThemeAccent2Brush" Color="{StaticResource ThemeAccent2Color}" />
+            <SolidColorBrush x:Key="ThemeAccent2TranslucentBrush" Color="{StaticResource ThemeAccent2TranslucentColor}" />
             <SolidColorBrush x:Key="ThemeAccent3Brush" Color="{StaticResource ThemeAccent3Color}" />
 
             <SolidColorBrush x:Key="ThemeForegroundBrush" Color="{StaticResource ThemeForegroundColor}" />

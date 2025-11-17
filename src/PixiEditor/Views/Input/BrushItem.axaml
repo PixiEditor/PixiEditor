@@ -1,0 +1,55 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:visuals="clr-namespace:PixiEditor.Views.Visuals"
+             xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+             xmlns:input="clr-namespace:PixiEditor.Views.Input"
+             xmlns:surfaces="clr-namespace:Drawie.Backend.Core.Surfaces;assembly=Drawie.Backend.Core"
+             xmlns:controls="clr-namespace:Drawie.Interop.Avalonia.Core.Controls;assembly=Drawie.Interop.Avalonia.Core"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="PixiEditor.Views.Input.BrushItem">
+    <UserControl.Styles>
+        <Style Selector="Button#FavouriteButton">
+            <Setter Property="Content" Value="{DynamicResource icon-star}" />
+        </Style>
+        <Style Selector="input|BrushItem:favourite Button#FavouriteButton">
+            <Setter Property="Content" Value="{DynamicResource icon-star-filled}" />
+        </Style>
+    </UserControl.Styles>
+    <Grid>
+        <DockPanel LastChildFill="True"
+                   DataContext="{Binding RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}">
+            <controls:DrawieTextureControl Height="32" Width="32"
+                                    SamplingOptions="Bilinear"
+                                    Margin="0, 0, 5, 0"
+                                    Texture="{Binding Brush.Preview}" DockPanel.Dock="Left" />
+            <TextBlock VerticalAlignment="Center"
+                       Text="{Binding Brush.Name}" />
+
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                <Button
+                    Name="FavouriteButton" Width="28" Height="28"
+                    Classes="pixi-icon" Padding="2"
+                    localization:Translator.TooltipKey="ADD_TO_FAVORITES">
+                    <Button.Styles>
+                        <Style Selector="Button:pointerover">
+                            <Setter Property="Background" Value="Orange" />
+                        </Style>
+                    </Button.Styles>
+                </Button>
+                <Button Name="deleteButton"
+                        Classes="pixi-icon" Width="28" Height="28"
+                        Content="{DynamicResource icon-trash}"
+                        localization:Translator.TooltipKey="DELETE" Padding="2" Margin="0" Cursor="Hand">
+                    <Button.Styles>
+                        <Style Selector="Button:pointerover">
+                            <Setter Property="Background" Value="Red" />
+                        </Style>
+                    </Button.Styles>
+                </Button>
+            </StackPanel>
+            <Panel />
+        </DockPanel>
+    </Grid>
+</UserControl>
