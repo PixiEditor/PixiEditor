@@ -130,6 +130,8 @@ public class BrushOutputNode : Node
             RenderPreview(preview.Texture.DrawingSurface, adjusted);
             preview.Texture.DrawingSurface.Canvas.RestoreToCount(saved);
         }
+
+        GeneratePreviews(ctx.Graph);
     }
 
     private void RenderPreview(DrawingSurface surface, RenderContext context)
@@ -239,7 +241,7 @@ public class BrushOutputNode : Node
             new EditorData(Colors.White, Colors.Black));
     }
 
-    private void GeneratePreviews(IReadOnlyDocument doc)
+    private void GeneratePreviews(IReadOnlyNodeGraph graph)
     {
         if (PointPreviewTexture == null || PointPreviewTexture.Size.X != PointPreviewSize ||
             PointPreviewTexture.Size.Y != PointPreviewSize)
@@ -261,7 +263,7 @@ public class BrushOutputNode : Node
         RenderContext context = new RenderContext(PointPreviewTexture.DrawingSurface.Canvas, 0, ChunkResolution.Full,
             new VecI(PointPreviewSize, PointPreviewSize), new VecI(PointPreviewSize), ColorSpace.CreateSrgb(),
             SamplingOptions.Default,
-           doc.NodeGraph);
+           graph);
 
         using var chunkyImage = new ChunkyImage(new VecI(PointPreviewSize, PointPreviewSize), context.ProcessingColorSpace);
 
@@ -284,7 +286,7 @@ public class BrushOutputNode : Node
     public override void SerializeAdditionalData(IReadOnlyDocument target, Dictionary<string, object> additionalData)
     {
         base.SerializeAdditionalData(target, additionalData);
-        GeneratePreviews(target);
+        GeneratePreviews(target.NodeGraph);
         additionalData["PointPreviewTexture"] = PointPreviewTexture;
         additionalData["StrokePreviewTexture"] = StrokePreviewTexture;
     }
