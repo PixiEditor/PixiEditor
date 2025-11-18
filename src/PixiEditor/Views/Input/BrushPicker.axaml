@@ -11,10 +11,10 @@
              x:Class="PixiEditor.Views.Input.BrushPicker">
     <Panel>
         <controls:DrawieTextureControl
-            Width="40" Height="20"
+            Width="36" Height="16"
             ZIndex="1"
             SamplingOptions="Bilinear"
-            Texture="{Binding $parent[input:BrushPicker].SelectedBrush.Preview, FallbackValue={x:Null}}" />
+            Texture="{Binding Path=SelectedBrush.PointPreview, RelativeSource={RelativeSource FindAncestor, AncestorType=input:BrushPicker}}" />
         <ToggleButton Name="PopupToggle" Width="40" Height="20">
             <ToggleButton.Styles>
                 <Style Selector="FlyoutPresenter">

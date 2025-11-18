@@ -17,7 +17,7 @@ public class BlackboardVariableValueNode : Node
 
     protected override void OnExecute(RenderContext context)
     {
-        var variable = context.Graph.Blackboard.GetVariable(VariableName.Value);
+        var variable = context.Graph?.Blackboard.GetVariable(VariableName.Value);
         Value.Value = variable?.Value;
     }
 

@@ -580,7 +580,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
         return GetOutputProperty(outputProperty);
     }
 
-    public virtual void SerializeAdditionalData(Dictionary<string, object> additionalData)
+    public virtual void SerializeAdditionalData(IReadOnlyDocument target, Dictionary<string, object> additionalData)
     {
     }
 

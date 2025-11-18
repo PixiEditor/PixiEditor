@@ -150,9 +150,9 @@ public abstract class RenderNode : Node, IHighDpiRenderNode
         return textureCache.RequestTexture(id, size, processingCs, clear);
     }
 
-    public override void SerializeAdditionalData(Dictionary<string, object> additionalData)
+    public override void SerializeAdditionalData(IReadOnlyDocument target, Dictionary<string, object> additionalData)
     {
-        base.SerializeAdditionalData(additionalData);
+        base.SerializeAdditionalData(target, additionalData);
         additionalData["AllowHighDpiRendering"] = AllowHighDpiRendering;
     }
 

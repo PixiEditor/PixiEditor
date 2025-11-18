@@ -154,9 +154,9 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         return GetTightBounds(frameTime);
     }
 
-    public override void SerializeAdditionalData(Dictionary<string, object> additionalData)
+    public override void SerializeAdditionalData(IReadOnlyDocument target, Dictionary<string, object> additionalData)
     {
-        base.SerializeAdditionalData(additionalData);
+        base.SerializeAdditionalData(target, additionalData);
         additionalData["ShapeData"] = EmbeddedShapeData;
     }
 

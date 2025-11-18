@@ -75,7 +75,7 @@ internal partial class DocumentViewModel
         }
 
         AddBlackboard(doc.Blackboard, graph, serializationConfig, factories);
-        AddNodes(doc.NodeGraph, graph, nodeIdMap, keyFrameIdMap, serializationConfig, factories);
+        AddNodes(doc, graph, nodeIdMap, keyFrameIdMap, serializationConfig, factories);
 
         var preview = TryRenderWholeImage(0);
         byte[]? previewBytes = null;
@@ -477,7 +477,7 @@ internal partial class DocumentViewModel
         return image;
     }
 
-    private static void AddNodes(IReadOnlyNodeGraph graph, NodeGraph targetGraph,
+    private static void AddNodes(IReadOnlyDocument doc, NodeGraph targetGraph,
         Dictionary<Guid, int> nodeIdMap,
         Dictionary<Guid, int> keyFrameIdMap,
         SerializationConfig config, IReadOnlyList<SerializationFactory> allFactories)
@@ -486,13 +486,13 @@ internal partial class DocumentViewModel
 
         int id = 0;
         int keyFrameId = 0;
-        foreach (var node in graph.AllNodes)
+        foreach (var node in doc.NodeGraph.AllNodes)
         {
             nodeIdMap[node.Id] = id + 1;
             id++;
         }
 
-        foreach (var node in graph.AllNodes)
+        foreach (var node in doc.NodeGraph.AllNodes)
         {
             NodePropertyValue[] properties = new NodePropertyValue[node.InputProperties.Count];
 
@@ -507,7 +507,7 @@ internal partial class DocumentViewModel
             }
 
             Dictionary<string, object> additionalData = new();
-            node.SerializeAdditionalData(additionalData);
+            node.SerializeAdditionalData(doc, additionalData);
 
             KeyFrameData[] keyFrames = new KeyFrameData[node.KeyFrames.Count];
 
