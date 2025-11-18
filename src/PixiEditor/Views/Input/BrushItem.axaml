@@ -7,6 +7,7 @@
              xmlns:input="clr-namespace:PixiEditor.Views.Input"
              xmlns:surfaces="clr-namespace:Drawie.Backend.Core.Surfaces;assembly=Drawie.Backend.Core"
              xmlns:controls="clr-namespace:Drawie.Interop.Avalonia.Core.Controls;assembly=Drawie.Interop.Avalonia.Core"
+             Background="Transparent" IsHitTestVisible="True"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.Views.Input.BrushItem">
     <UserControl.Styles>
@@ -44,8 +45,9 @@
             </StackPanel>
             <controls:DrawieTextureControl Height="50" Width="100"
                                            SamplingOptions="Bilinear"
+                                           Name="StrokePreviewControl"
                                            Margin="0, 0, 5, 0"
-                                           Texture="{Binding Brush.StrokePreview}" DockPanel.Dock="Left" />
+                                           Texture="{Binding $parent[input:BrushItem].DrawingStrokeTexture}" DockPanel.Dock="Left" />
         </DockPanel>
     </Grid>
 </UserControl>

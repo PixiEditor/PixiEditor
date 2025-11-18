@@ -141,7 +141,7 @@ internal partial class BrushPicker : UserControl
         PopupToggle.Flyout.Opened += Flyout_Opened;
         SelectCategoriesListBox.ItemsSource = Categories;
         SelectCategoriesListBox.SelectionChanged += SelectCategoriesListBoxOnSelectionChanged;
-        
+
         SelectCategoriesListBox.SelectAll();
 
     }
