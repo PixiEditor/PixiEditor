@@ -1,6 +1,6 @@
 ﻿namespace PixiEditor.Models.Palettes;
 
-public enum SortingType
+public enum PaletteSortingType
 {
     Default,
     Alphabetical,

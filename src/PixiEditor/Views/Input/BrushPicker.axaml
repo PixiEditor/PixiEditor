@@ -6,6 +6,7 @@
              xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              xmlns:controls="clr-namespace:Drawie.Interop.Avalonia.Core.Controls;assembly=Drawie.Interop.Avalonia.Core"
+             xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:ClassModifier="internal"
              x:Class="PixiEditor.Views.Input.BrushPicker">
@@ -43,7 +44,7 @@
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
 
-                            <TextBox Watermark="{localization:Translate Key=SEARCH}">
+                            <TextBox Watermark="{localization:Translate Key=SEARCH}" Text="{Binding $parent[input:BrushPicker].SearchText}">
                                 <TextBox.InnerLeftContent>
                                     <TextBlock Classes="pixi-icon" Text="{DynamicResource icon-search}"
                                                Margin="0, 0, 5, 0" />
@@ -63,8 +64,10 @@
                                         HorizontalAlignment="Right" Margin="0,5,5,0" Spacing="5"
                                         IsVisible="{Binding IsChecked, ElementName=SortButton}">
                                 <TextBlock Text="{localization:Translate Key=SORT_BY}" />
-                                <ComboBox SelectedIndex="0">
-                                    <ComboBoxItem Content="{localization:Translate Key=ALPHABETICAL}" />
+                                <ComboBox SelectedIndex="{Binding $parent[input:BrushPicker].SelectedSortingIndex,
+                                                         Mode=TwoWay}"
+                                          ItemsSource="{Binding $parent[input:BrushPicker].SortingOptions}">
+
                                 </ComboBox>
                             </StackPanel>
 
@@ -73,10 +76,16 @@
                                 <ToggleButton
                                     IsVisible="{Binding IsChecked, ElementName=SortButton}"
                                     Content="{DynamicResource icon-arrow-up}"
+                                    behaviours:ToggleGroupBehavior.GroupName="SORTING_DIRECTION"
+                                    behaviours:ToggleGroupBehavior.Value="ascending"
+                                    behaviours:ToggleGroupBehavior.SelectedValue="{Binding $parent[input:BrushPicker].SortingDirection, Mode=TwoWay}"
                                     Classes="pixi-icon" />
                                 <ToggleButton
                                     IsVisible="{Binding IsChecked, ElementName=SortButton}"
                                     Content="{DynamicResource icon-arrow-down}"
+                                    behaviours:ToggleGroupBehavior.GroupName="SORTING_DIRECTION"
+                                    behaviours:ToggleGroupBehavior.Value="descending"
+                                    behaviours:ToggleGroupBehavior.SelectedValue="{Binding $parent[input:BrushPicker].SortingDirection, Mode=TwoWay}"
                                     Classes="pixi-icon" />
                             </StackPanel>
                         </Grid>
@@ -84,7 +93,7 @@
                         <ScrollViewer Grid.Row="1" Margin="0,10,0,0" HorizontalScrollBarVisibility="Disabled"
                                       VerticalScrollBarVisibility="Auto">
                             <ItemsControl
-                                ItemsSource="{Binding $parent[input:BrushPicker].Brushes}">
+                                ItemsSource="{Binding $parent[input:BrushPicker].FilteredBrushes}">
                                 <ItemsControl.Styles>
                                     <Style Selector="ContentPresenter > Border">
                                         <Setter Property="Background" Value="Transparent" />
