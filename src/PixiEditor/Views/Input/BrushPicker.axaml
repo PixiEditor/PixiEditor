@@ -7,6 +7,7 @@
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              xmlns:controls="clr-namespace:Drawie.Interop.Avalonia.Core.Controls;assembly=Drawie.Interop.Avalonia.Core"
              xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
+             xmlns:visuals="clr-namespace:PixiEditor.Views.Visuals"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:ClassModifier="internal"
              x:Class="PixiEditor.Views.Input.BrushPicker">
@@ -16,6 +17,14 @@
             ZIndex="1"
             SamplingOptions="Bilinear"
             Texture="{Binding Path=SelectedBrush.PointPreview, RelativeSource={RelativeSource FindAncestor, AncestorType=input:BrushPicker}}" />
+        <Panel.Styles>
+            <Style Selector="Panel > ToggleButton:checked">
+                <Setter Property="Background" Value="{DynamicResource ThemeControlMidBrush}" />
+            </Style>
+            <Style Selector="Panel > ToggleButton:pressed">
+                <Setter Property="Background" Value="{DynamicResource ThemeControlMidBrush}" />
+            </Style>
+        </Panel.Styles>
         <ToggleButton Name="PopupToggle" Width="40" Height="20">
             <ToggleButton.Styles>
                 <Style Selector="FlyoutPresenter">
@@ -44,29 +53,58 @@
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
 
-                            <TextBox Watermark="{localization:Translate Key=SEARCH}" Text="{Binding $parent[input:BrushPicker].SearchText}">
+                            <TextBox Watermark="{localization:Translate Key=SEARCH}"
+                                     Name="SearchBox"
+                                     Text="{Binding $parent[input:BrushPicker].SearchText}">
                                 <TextBox.InnerLeftContent>
                                     <TextBlock Classes="pixi-icon" Text="{DynamicResource icon-search}"
                                                Margin="0, 0, 5, 0" />
                                 </TextBox.InnerLeftContent>
                             </TextBox>
-                            <ComboBox Grid.Column="1" Margin="5,0,0,0" />
+                            <DropDownButton Grid.Row="0" Grid.Column="1"
+                                            Margin="5,0,0,0">
+                                <TextBlock Name="SelectionText"/>
+                                <DropDownButton.Flyout>
+                                    <Flyout>
+                                        <ListBox SelectionMode="Multiple,Toggle"
+                                                 Name="SelectCategoriesListBox">
+                                            <ListBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding }" Padding="5" />
+                                                </DataTemplate>
+                                            </ListBox.ItemTemplate>
+                                        </ListBox>
+                                    </Flyout>
+                                </DropDownButton.Flyout>
+                            </DropDownButton>
                             <StackPanel Orientation="Horizontal" Grid.Column="2" Grid.Row="0" Spacing="5"
                                         Margin="5,0,0,0">
+                                <StackPanel.Styles>
+                                    <Style Selector="ToggleButton#ViewModeListButton">
+                                        <Setter Property="Content" Value="{DynamicResource icon-grid}" />
+                                    </Style>
+                                    <Style Selector="ToggleButton#ViewModeListButton:checked">
+                                        <Setter Property="Content" Value="{DynamicResource icon-lasso}" />
+                                        <Setter Property="Background" Value="{DynamicResource ThemeControlMidBrush}" />
+                                    </Style>
+                                </StackPanel.Styles>
                                 <ToggleButton Classes="pixi-icon"
                                               Name="SortButton"
                                               Content="{DynamicResource icon-arrow-up}" />
                                 <ToggleButton Classes="pixi-icon"
-                                              Content="{DynamicResource icon-grid}" />
+                                              Name="ViewModeListButton"
+                                              IsChecked="{Binding $parent[input:BrushPicker].IsGridView,Mode=TwoWay}">
+                                </ToggleButton>
                             </StackPanel>
 
                             <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
                                         HorizontalAlignment="Right" Margin="0,5,5,0" Spacing="5"
                                         IsVisible="{Binding IsChecked, ElementName=SortButton}">
                                 <TextBlock Text="{localization:Translate Key=SORT_BY}" />
-                                <ComboBox SelectedIndex="{Binding $parent[input:BrushPicker].SelectedSortingIndex,
+                                <ComboBox
+                                    SelectedIndex="{Binding $parent[input:BrushPicker].SelectedSortingIndex,
                                                          Mode=TwoWay}"
-                                          ItemsSource="{Binding $parent[input:BrushPicker].SortingOptions}">
+                                    ItemsSource="{Binding $parent[input:BrushPicker].SortingOptions}">
 
                                 </ComboBox>
                             </StackPanel>
@@ -92,49 +130,109 @@
 
                         <ScrollViewer Grid.Row="1" Margin="0,10,0,0" HorizontalScrollBarVisibility="Disabled"
                                       VerticalScrollBarVisibility="Auto">
-                            <ItemsControl
-                                ItemsSource="{Binding $parent[input:BrushPicker].FilteredBrushes}">
-                                <ItemsControl.Styles>
-                                    <Style Selector="ContentPresenter > Border">
-                                        <Setter Property="Background" Value="Transparent" />
-                                        <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderMidBrush}" />
-                                        <Setter Property="BorderThickness" Value="0, 0, 0, 1" />
-                                        <Setter Property="Padding" Value="6, 6, 6, 5" />
-                                    </Style>
-                                    <Style Selector="ContentPresenter:pointerover > Border">
-                                        <Setter Property="Background" Value="{DynamicResource ThemeControlHighBrush}" />
-                                        <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderHighBrush}" />
-                                        <Setter Property="BorderThickness" Value="1" />
-                                        <Setter Property="Padding" Value="5" />
-                                    </Style>
+                            <Panel>
+                                <ItemsControl
+                                    IsVisible="{Binding Path=!$parent[input:BrushPicker].IsGridView}"
+                                    ItemsSource="{Binding $parent[input:BrushPicker].FilteredBrushes}">
+                                    <ItemsControl.Styles>
+                                        <Style Selector="ContentPresenter > Border">
+                                            <Setter Property="Background" Value="Transparent" />
+                                            <Setter Property="BorderBrush"
+                                                    Value="{DynamicResource ThemeBorderMidBrush}" />
+                                            <Setter Property="BorderThickness" Value="0, 0, 0, 1" />
+                                            <Setter Property="Padding" Value="6, 6, 6, 5" />
+                                        </Style>
+                                        <Style Selector="ContentPresenter:pointerover > Border">
+                                            <Setter Property="Background"
+                                                    Value="{DynamicResource ThemeControlHighBrush}" />
+                                            <Setter Property="BorderBrush"
+                                                    Value="{DynamicResource ThemeBorderHighBrush}" />
+                                            <Setter Property="BorderThickness" Value="1" />
+                                            <Setter Property="Padding" Value="5" />
+                                        </Style>
 
-                                    <Style Selector="ContentPresenter > Border.selected">
-                                        <Setter Property="Background"
-                                                Value="{DynamicResource ThemeAccent2TranslucentBrush}" />
-                                        <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccent2Brush}" />
-                                        <Setter Property="BorderThickness" Value="1" />
-                                        <Setter Property="Padding" Value="5" />
-                                    </Style>
-                                </ItemsControl.Styles>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border CornerRadius="4" IsHitTestVisible="True">
-                                            <input:BrushItem Brush="{Binding .}" />
-                                            <Interaction.Behaviors>
-                                                <ExecuteCommandOnPointerPressedBehavior
-                                                    Command="{Binding $parent[input:BrushPicker].SelectBrushCommand}"
-                                                    CommandParameter="{Binding }" />
-                                            </Interaction.Behaviors>
-                                            <Classes.selected>
-                                                <MultiBinding Converter="{converters:AreEqualConverter}">
-                                                    <Binding Path="$parent[input:BrushPicker].SelectedBrush" />
-                                                    <Binding />
-                                                </MultiBinding>
-                                            </Classes.selected>
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
+                                        <Style Selector="ContentPresenter > Border.selected">
+                                            <Setter Property="Background"
+                                                    Value="{DynamicResource ThemeAccent2TranslucentBrush}" />
+                                            <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccent2Brush}" />
+                                            <Setter Property="BorderThickness" Value="1" />
+                                            <Setter Property="Padding" Value="5" />
+                                        </Style>
+                                    </ItemsControl.Styles>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border CornerRadius="4" IsHitTestVisible="True">
+                                                <input:BrushItem Brush="{Binding .}" />
+                                                <Interaction.Behaviors>
+                                                    <ExecuteCommandOnPointerPressedBehavior
+                                                        Command="{Binding $parent[input:BrushPicker].SelectBrushCommand}"
+                                                        CommandParameter="{Binding }" />
+                                                </Interaction.Behaviors>
+                                                <Classes.selected>
+                                                    <MultiBinding Converter="{converters:AreEqualConverter}">
+                                                        <Binding Path="$parent[input:BrushPicker].SelectedBrush" />
+                                                        <Binding />
+                                                    </MultiBinding>
+                                                </Classes.selected>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <ItemsControl
+                                    IsVisible="{Binding Path=$parent[input:BrushPicker].IsGridView}"
+                                    ItemsSource="{Binding $parent[input:BrushPicker].FilteredBrushes}">
+                                    <ItemsControl.Styles>
+                                        <Style Selector="ContentPresenter > Border">
+                                            <Setter Property="Background" Value="Transparent" />
+                                            <Setter Property="BorderBrush"
+                                                    Value="{DynamicResource ThemeBorderMidBrush}" />
+                                            <Setter Property="BorderThickness" Value="0, 0, 0, 1" />
+                                            <Setter Property="Padding" Value="6, 6, 6, 5" />
+                                        </Style>
+                                        <Style Selector="ContentPresenter:pointerover > Border">
+                                            <Setter Property="BorderBrush"
+                                                    Value="{DynamicResource ThemeBorderHighBrush}" />
+                                            <Setter Property="BorderThickness" Value="1" />
+                                            <Setter Property="Padding" Value="5" />
+                                        </Style>
+
+                                        <Style Selector="ContentPresenter > Border.selected">
+                                            <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccent2Brush}" />
+                                            <Setter Property="BorderThickness" Value="1" />
+                                            <Setter Property="Padding" Value="5" />
+                                        </Style>
+                                    </ItemsControl.Styles>
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel Orientation="Horizontal" ItemWidth="60" ItemHeight="60"
+                                                       Margin="0" ItemSpacing="2" LineSpacing="2" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Cursor="Hand" CornerRadius="4"
+                                                    ToolTip.Tip="{Binding Name}"
+                                                    IsHitTestVisible="True">
+                                                <visuals:TextureControl
+                                                    Width="50" Height="50"
+                                                    SamplingOptions="Bilinear"
+                                                    Texture="{Binding PointPreview}" />
+                                                <Interaction.Behaviors>
+                                                    <ExecuteCommandOnPointerPressedBehavior
+                                                        Command="{Binding $parent[input:BrushPicker].SelectBrushCommand}"
+                                                        CommandParameter="{Binding }" />
+                                                </Interaction.Behaviors>
+                                                <Classes.selected>
+                                                    <MultiBinding Converter="{converters:AreEqualConverter}">
+                                                        <Binding Path="$parent[input:BrushPicker].SelectedBrush" />
+                                                        <Binding />
+                                                    </MultiBinding>
+                                                </Classes.selected>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Panel>
                         </ScrollViewer>
                     </Grid>
                 </Flyout>

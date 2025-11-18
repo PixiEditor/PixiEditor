@@ -1225,5 +1225,8 @@
   "STABILIZATION_MODE_SETTING": "Stabilization Mode",
   "NONE_STABILIZATION": "None - No stabilization is applied",
   "DISTANCE_BASED_STABILIZATION": "Distance Based - Stabilization based on pointer movement distance. Movement is applied when pointer moves more than the specified distance.",
-  "TIME_BASED_STABILIZATION": "Time Based - Stabilization based on time. Amount of smoothing is dependent on how much time has passed between points."
+  "TIME_BASED_STABILIZATION": "Time Based - Stabilization based on time. Amount of smoothing is dependent on how much time has passed between points.",
+  "ALL": "All",
+  "NONE": "None",
+  "SELECTED_CATEGORIES": "{0} selected"
 }

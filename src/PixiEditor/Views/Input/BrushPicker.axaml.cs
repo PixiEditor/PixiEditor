@@ -1,11 +1,17 @@
 ﻿using System.Collections.ObjectModel;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Controls.Templates;
+using Avalonia.Interactivity;
+using Avalonia.LogicalTree;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
+using Avalonia.Metadata;
 using Avalonia.VisualTree;
 using CommunityToolkit.Mvvm.Input;
 using PixiEditor.Models.Palettes;
+using PixiEditor.UI.Common.Localization;
 using Brush = PixiEditor.Models.BrushEngine.Brush;
 
 namespace PixiEditor.Views.Input;
@@ -26,8 +32,28 @@ internal partial class BrushPicker : UserControl
     public static readonly StyledProperty<int> SelectedSortingProperty = AvaloniaProperty.Register<BrushPicker, int>(
         nameof(SelectedSortingIndex));
 
-    public static readonly StyledProperty<string> SortingDirectionProperty = AvaloniaProperty.Register<BrushPicker, string>(
-        nameof(SortingDirection), "ascending");
+    public static readonly StyledProperty<string> SortingDirectionProperty =
+        AvaloniaProperty.Register<BrushPicker, string>(
+            nameof(SortingDirection), "ascending");
+
+    public static readonly StyledProperty<bool> IsGridViewProperty = AvaloniaProperty.Register<BrushPicker, bool>(
+        nameof(IsGridView));
+
+    public static readonly StyledProperty<ObservableCollection<string>> CategoriesProperty =
+        AvaloniaProperty.Register<BrushPicker, ObservableCollection<string>>(
+            nameof(Categories));
+
+    public ObservableCollection<string> Categories
+    {
+        get => GetValue(CategoriesProperty);
+        set => SetValue(CategoriesProperty, value);
+    }
+
+    public bool IsGridView
+    {
+        get => GetValue(IsGridViewProperty);
+        set => SetValue(IsGridViewProperty, value);
+    }
 
     public string SortingDirection
     {
@@ -102,14 +128,57 @@ internal partial class BrushPicker : UserControl
     public BrushPicker()
     {
         InitializeComponent();
+        Categories = new ObservableCollection<string>() { "Basic", "Texture", "Special", "Custom" };
     }
 
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
     {
-        if(SelectedSortingIndex < 0 || SelectedSortingIndex >= SortingOptions.Length)
+        if (SelectedSortingIndex < 0 || SelectedSortingIndex >= SortingOptions.Length)
         {
             SelectedSortingIndex = 0;
         }
+
+        PopupToggle.Flyout.Opened += Flyout_Opened;
+        SelectCategoriesListBox.ItemsSource = Categories;
+        SelectCategoriesListBox.SelectionChanged += SelectCategoriesListBoxOnSelectionChanged;
+        
+        SelectCategoriesListBox.SelectAll();
+
+    }
+
+    private void SelectCategoriesListBoxOnSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (Categories.Count == SelectCategoriesListBox.SelectedItems.Count)
+        {
+            SelectionText.Text = new LocalizedString("ALL");
+        }
+        else if (SelectCategoriesListBox.SelectedItems.Count == 0)
+        {
+            SelectionText.Text = new LocalizedString("NONE");
+        }
+        else if (SelectCategoriesListBox.SelectedItems.Count == 1)
+        {
+            SelectionText.Text = SelectCategoriesListBox.SelectedItems[0].ToString();
+        }
+        else
+        {
+            SelectionText.Text = new LocalizedString("SELECTED_CATEGORIES", SelectCategoriesListBox.SelectedItems.Count);
+        }
+
+        UpdateResults();
+    }
+
+    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        PopupToggle.Flyout.Opened -= Flyout_Opened;
+        SelectCategoriesListBox.SelectionChanged -= SelectCategoriesListBoxOnSelectionChanged;
+    }
+
+    private void Flyout_Opened(object? sender, EventArgs e)
+    {
+        int index = SelectedSortingIndex;
+        SelectedSortingIndex = -1;
+        SelectedSortingIndex = index;
     }
 
     private void UpdateResults()
