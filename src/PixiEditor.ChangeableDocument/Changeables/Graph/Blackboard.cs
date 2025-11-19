@@ -1,4 +1,6 @@
-﻿namespace PixiEditor.ChangeableDocument.Changeables.Graph;
+﻿using PixiEditor.Common;
+
+namespace PixiEditor.ChangeableDocument.Changeables.Graph;
 
 public class Blackboard : IReadOnlyBlackboard
 {
@@ -49,6 +51,34 @@ public class Blackboard : IReadOnlyBlackboard
         variables.Remove(oldName);
         variable.Name = newName;
         variables[newName] = variable;
+    }
+
+    public int GetCacheHash()
+    {
+        HashCode hash = new HashCode();
+        hash.Add(variables.Count);
+        foreach (var variable in variables.Values)
+        {
+            hash.Add(variable.Name);
+            hash.Add(variable.Type);
+            if (variable.Value != null)
+            {
+                if(variable.Value is ICacheable cacheable)
+                {
+                    hash.Add(cacheable.GetCacheHash());
+                }
+                else
+                {
+                    hash.Add(variable.Value.GetHashCode());
+                }
+            }
+
+            hash.Add(variable.Unit);
+            hash.Add(variable.Min);
+            hash.Add(variable.Max);
+        }
+
+        return hash.ToHashCode();
     }
 }
 

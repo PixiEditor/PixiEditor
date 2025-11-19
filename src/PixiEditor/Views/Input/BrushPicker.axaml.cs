@@ -12,18 +12,19 @@ using Avalonia.VisualTree;
 using CommunityToolkit.Mvvm.Input;
 using PixiEditor.Models.Palettes;
 using PixiEditor.UI.Common.Localization;
+using PixiEditor.ViewModels.BrushSystem;
 using Brush = PixiEditor.Models.BrushEngine.Brush;
 
 namespace PixiEditor.Views.Input;
 
 internal partial class BrushPicker : UserControl
 {
-    public static readonly StyledProperty<ObservableCollection<Brush>> BrushesProperty =
-        AvaloniaProperty.Register<BrushPicker, ObservableCollection<Brush>>(
+    public static readonly StyledProperty<ObservableCollection<BrushViewModel>> BrushesProperty =
+        AvaloniaProperty.Register<BrushPicker, ObservableCollection<BrushViewModel>>(
             nameof(Brushes));
 
-    public static readonly StyledProperty<ObservableCollection<Brush>> FilteredBrushesProperty =
-        AvaloniaProperty.Register<BrushPicker, ObservableCollection<Brush>>(
+    public static readonly StyledProperty<ObservableCollection<BrushViewModel>> FilteredBrushesProperty =
+        AvaloniaProperty.Register<BrushPicker, ObservableCollection<BrushViewModel>>(
             nameof(FilteredBrushes));
 
     public static readonly StyledProperty<string> SearchTextProperty = AvaloniaProperty.Register<BrushPicker, string>(
@@ -75,23 +76,23 @@ internal partial class BrushPicker : UserControl
         set => SetValue(SearchTextProperty, value);
     }
 
-    public ObservableCollection<Brush> FilteredBrushes
+    public ObservableCollection<BrushViewModel> FilteredBrushes
     {
         get => GetValue(FilteredBrushesProperty);
         set => SetValue(FilteredBrushesProperty, value);
     }
 
-    public ObservableCollection<Brush> Brushes
+    public ObservableCollection<BrushViewModel> Brushes
     {
         get => GetValue(BrushesProperty);
         set => SetValue(BrushesProperty, value);
     }
 
-    public static readonly StyledProperty<Brush?> SelectedBrushProperty =
-        AvaloniaProperty.Register<BrushPicker, Brush?>(
+    public static readonly StyledProperty<BrushViewModel?> SelectedBrushProperty =
+        AvaloniaProperty.Register<BrushPicker, BrushViewModel?>(
             nameof(SelectedBrush));
 
-    public Brush? SelectedBrush
+    public BrushViewModel? SelectedBrush
     {
         get => GetValue(SelectedBrushProperty);
         set => SetValue(SelectedBrushProperty, value);
@@ -183,10 +184,10 @@ internal partial class BrushPicker : UserControl
 
     private void UpdateResults()
     {
-        var filtered = new ObservableCollection<Brush>();
+        var filtered = new ObservableCollection<BrushViewModel>();
         if (string.IsNullOrWhiteSpace(SearchText))
         {
-            filtered = new ObservableCollection<Brush>(Brushes);
+            filtered = new ObservableCollection<BrushViewModel>(Brushes);
         }
         else
         {
@@ -202,7 +203,7 @@ internal partial class BrushPicker : UserControl
 
         filtered = SelectedSortingIndex switch
         {
-            (int)BrushSorting.Alphabetical => new ObservableCollection<Brush>(filtered.OrderBy(b => b.Name)),
+            (int)BrushSorting.Alphabetical => new ObservableCollection<BrushViewModel>(filtered.OrderBy(b => b.Name)),
             _ => filtered
         };
 
@@ -210,14 +211,14 @@ internal partial class BrushPicker : UserControl
         bool descending = SortingDirection == "descending";
         if (descending)
         {
-            filtered = new ObservableCollection<Brush>(filtered.Reverse());
+            filtered = new ObservableCollection<BrushViewModel>(filtered.Reverse());
         }
 
         FilteredBrushes = filtered;
     }
 
     [RelayCommand]
-    public void SelectBrush(Brush brush)
+    public void SelectBrush(BrushViewModel brush)
     {
         SelectedBrush = brush;
         PopupToggle.IsChecked = false;

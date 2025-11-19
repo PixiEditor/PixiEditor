@@ -1,11 +1,12 @@
 ﻿using System.Collections.ObjectModel;
 using PixiEditor.Models.BrushEngine;
 using PixiEditor.Models.Controllers;
+using PixiEditor.ViewModels.BrushSystem;
 using PixiEditor.ViewModels.SubViewModels;
 
 namespace PixiEditor.ViewModels.Tools.ToolSettings.Settings;
 
-internal class BrushSettingViewModel : Setting<Brush>
+internal class BrushSettingViewModel : Setting<BrushViewModel>
 {
     private static BrushLibrary library;
 
@@ -22,11 +23,21 @@ internal class BrushSettingViewModel : Setting<Brush>
         }
     }
 
-    public ObservableCollection<Brush> AllBrushes => new ObservableCollection<Brush>(Library.Brushes.Values);
+    public ObservableCollection<BrushViewModel> AllBrushes => viewModels;
+
+    private ObservableCollection<BrushViewModel> viewModels = new ObservableCollection<BrushViewModel>();
+
     public BrushSettingViewModel(string name, string label) : base(name)
     {
         Label = label;
-        Library.BrushesChanged += () => OnPropertyChanged(nameof(AllBrushes));
+        Library.BrushesChanged += () =>
+        {
+            viewModels = new ObservableCollection<BrushViewModel>(Library.Brushes.Values.Select(b => new BrushViewModel(b)));
+            OnPropertyChanged(nameof(AllBrushes));
+        };
+
+        viewModels = new ObservableCollection<BrushViewModel>(Library.Brushes.Values.Select(b => new BrushViewModel(b)));
+        OnPropertyChanged(nameof(AllBrushes));
     }
 
     protected override object AdjustValue(object value)

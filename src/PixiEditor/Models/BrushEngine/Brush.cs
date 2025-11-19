@@ -1,8 +1,14 @@
 ﻿using Avalonia.Platform;
+using ChunkyImageLib;
+using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.ImageData;
+using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.IO;
 using PixiEditor.ViewModels.Document.Nodes.Brushes;
@@ -16,8 +22,6 @@ internal class Brush : IBrush
     public string Name { get; set; }
     public string? FilePath { get; }
     public Guid Id { get; }
-    public Texture StrokePreview { get; }
-    public Texture? PointPreview { get; }
 
     public Brush(Uri uri)
     {
@@ -52,9 +56,6 @@ internal class Brush : IBrush
 
         Name = name;
         Document = doc;
-        var previews = ExtractPreviews(doc);
-        StrokePreview = previews.strokePreview;
-        PointPreview = previews.pointPreview;
 
         stream.Close();
         stream.Dispose();
@@ -66,9 +67,6 @@ internal class Brush : IBrush
         Document = brushDocument;
         FilePath = brushDocument.FullFilePath;
         Id = brushDocument.NodeGraphHandler.AllNodes.OfType<BrushOutputNodeViewModel>().FirstOrDefault()?.Id ?? Guid.NewGuid();
-        var previews = ExtractPreviews(brushDocument);
-        StrokePreview = previews.strokePreview;
-        PointPreview = previews.pointPreview;
     }
 
     public Brush(string name, IDocument brushDocument, Guid id)
@@ -77,24 +75,6 @@ internal class Brush : IBrush
         Document = brushDocument;
         FilePath = brushDocument.FullFilePath;
         Id = id;
-        var previews = ExtractPreviews(brushDocument);
-        StrokePreview = previews.strokePreview;
-        PointPreview = previews.pointPreview;
-    }
-
-    private (Texture? strokePreview, Texture? pointPreview) ExtractPreviews(IDocument brushDocument)
-    {
-        using var graph = brushDocument.ShareGraph();
-        BrushOutputNode outputNode =
-            graph.TryAccessData().AllNodes.OfType<BrushOutputNode>().FirstOrDefault();
-        if (outputNode != null)
-        {
-            Texture? strokePreview = outputNode.StrokePreviewTexture;
-            Texture? pointPreview = outputNode.PointPreviewTexture;
-            return (strokePreview, pointPreview);
-        }
-
-        return (null, null);
     }
 
     public override string ToString()

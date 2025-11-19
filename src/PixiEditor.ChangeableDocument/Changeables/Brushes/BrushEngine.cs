@@ -106,7 +106,8 @@ public class BrushEngine : IDisposable
     }
 
 
-    public void ExecuteBrush(ChunkyImage? target, BrushData brushData, VecD point, KeyFrameTime frameTime, ColorSpace cs,
+    public void ExecuteBrush(ChunkyImage? target, BrushData brushData, VecD point, KeyFrameTime frameTime,
+        ColorSpace cs,
         SamplingOptions samplingOptions, PointerInfo pointerInfo, KeyboardInfo keyboardInfo, EditorData editorData)
     {
         var brushNode = brushData.BrushGraph?.LookupNode(brushData.TargetBrushNodeId) as BrushOutputNode;
@@ -170,7 +171,9 @@ public class BrushEngine : IDisposable
 
         BrushRenderContext context = new BrushRenderContext(
             texture?.DrawingSurface.Canvas, frameTime, ChunkResolution.Full,
-            brushNode.FitToStrokeSize.NonOverridenValue ? ((RectI)rect.RoundOutwards()).Size : target?.CommittedSize ?? VecI.Zero,
+            brushNode.FitToStrokeSize.NonOverridenValue
+                ? ((RectI)rect.RoundOutwards()).Size
+                : target?.CommittedSize ?? VecI.Zero,
             target?.CommittedSize ?? VecI.Zero,
             colorSpace, samplingOptions, brushData,
             surfaceUnderRect, fullTexture, brushData.BrushGraph,
@@ -187,6 +190,9 @@ public class BrushEngine : IDisposable
         if (target == null)
         {
             brushData.BrushGraph.Execute(brushNode, context);
+            if (brushNode.VectorShape.Value == null)
+                return;
+
             using var shape = brushNode.VectorShape.Value.ToPath(true);
             return;
         }
@@ -441,7 +447,8 @@ public class BrushEngine : IDisposable
     {
         if (fitToStrokeSize)
         {
-            VecD scale = new VecD(rect.Size.X / (float)path.TightBounds.Width, rect.Size.Y / (float)path.TightBounds.Height);
+            VecD scale = new VecD(rect.Size.X / (float)path.TightBounds.Width,
+                rect.Size.Y / (float)path.TightBounds.Height);
             if (scale.IsNaNOrInfinity())
             {
                 scale = VecD.Zero;

@@ -16,12 +16,13 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.ChangeableDocument.Rendering.ContextData;
 using PixiEditor.Models.BrushEngine;
+using PixiEditor.ViewModels.BrushSystem;
 
 namespace PixiEditor.Views.Input;
 
 internal partial class BrushItem : UserControl
 {
-    public static readonly StyledProperty<Brush> BrushProperty = AvaloniaProperty.Register<BrushItem, Brush>("Brush");
+    public static readonly StyledProperty<BrushViewModel> BrushProperty = AvaloniaProperty.Register<BrushItem, BrushViewModel>("Brush");
 
     public static readonly StyledProperty<Texture> DrawingStrokeTextureProperty =
         AvaloniaProperty.Register<BrushItem, Texture>(
@@ -33,9 +34,9 @@ internal partial class BrushItem : UserControl
         set => SetValue(DrawingStrokeTextureProperty, value);
     }
 
-    public Brush Brush
+    public BrushViewModel Brush
     {
-        get { return (Brush)GetValue(BrushProperty); }
+        get { return (BrushViewModel)GetValue(BrushProperty); }
         set { SetValue(BrushProperty, value); }
     }
 
@@ -52,7 +53,8 @@ internal partial class BrushItem : UserControl
         BrushProperty.Changed.AddClassHandler<BrushItem>((x, e) =>
         {
             x.StopStrokePreviewLoop();
-            x.DrawingStrokeTexture = x.Brush?.StrokePreview;
+            var brush = e.NewValue as BrushViewModel;
+            x.DrawingStrokeTexture = brush?.DrawingStrokeTexture;
         });
     }
 
@@ -78,7 +80,7 @@ internal partial class BrushItem : UserControl
             return;
 
         BrushOutputNode? brushNode =
-            Brush.Document?.AccessInternalReadOnlyDocument().NodeGraph.LookupNode(Brush.Id) as BrushOutputNode;
+            Brush?.Brush?.Document?.AccessInternalReadOnlyDocument().NodeGraph.LookupNode(Brush?.Brush?.Id ?? Guid.Empty) as BrushOutputNode;
         if (brushNode == null)
             return;
 
@@ -116,7 +118,7 @@ internal partial class BrushItem : UserControl
             if (!enumerator.MoveNext())
             {
                 isPreviewingStroke = false;
-                DrawingStrokeTexture = Brush?.StrokePreview;
+                DrawingStrokeTexture = Brush?.DrawingStrokeTexture;
                 return false;
             }
 
@@ -142,7 +144,7 @@ internal partial class BrushItem : UserControl
             previewTexture.Size,
             ColorSpace.CreateSrgb(),
             SamplingOptions.Bilinear,
-            Brush.Document.AccessInternalReadOnlyDocument().NodeGraph);
+            Brush?.Brush?.Document.AccessInternalReadOnlyDocument().NodeGraph);
     }
 
     private void StopStrokePreviewLoop()
@@ -154,6 +156,6 @@ internal partial class BrushItem : UserControl
             disposable.Dispose();
         }
 
-        DrawingStrokeTexture = Brush?.StrokePreview;
+        DrawingStrokeTexture = Brush?.DrawingStrokeTexture;
     }
 }

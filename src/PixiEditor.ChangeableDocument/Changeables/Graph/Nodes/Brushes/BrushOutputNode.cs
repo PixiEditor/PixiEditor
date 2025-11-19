@@ -49,9 +49,6 @@ public class BrushOutputNode : Node
 
     public InputProperty<IReadOnlyNodeGraph> Previous { get; }
 
-    public Texture PointPreviewTexture { get; private set; }
-    public Texture StrokePreviewTexture { get; private set; }
-
     internal Texture ContentTexture;
 
     private TextureCache cache = new();
@@ -130,8 +127,6 @@ public class BrushOutputNode : Node
             RenderPreview(preview.Texture.DrawingSurface, adjusted);
             preview.Texture.DrawingSurface.Canvas.RestoreToCount(saved);
         }
-
-        GeneratePreviews(ctx.Graph);
     }
 
     private void RenderPreview(DrawingSurface surface, RenderContext context)
@@ -231,7 +226,7 @@ public class BrushOutputNode : Node
         }
     }
 
-    private void DrawPointPreview(ChunkyImage img, RenderContext context, int size, VecD pos)
+    public void DrawPointPreview(ChunkyImage img, RenderContext context, int size, VecD pos)
     {
         previewEngine.ExecuteBrush(img,
             new BrushData(context.Graph, Id) { StrokeWidth = size, AntiAliasing = true },
@@ -240,72 +235,6 @@ public class BrushOutputNode : Node
             new KeyboardInfo(),
             new EditorData(Colors.White, Colors.Black));
     }
-
-    private void GeneratePreviews(IReadOnlyNodeGraph graph)
-    {
-        if (PointPreviewTexture == null || PointPreviewTexture.Size.X != PointPreviewSize ||
-            PointPreviewTexture.Size.Y != PointPreviewSize)
-        {
-            PointPreviewTexture?.Dispose();
-            PointPreviewTexture = Texture.ForDisplay(new VecI(PointPreviewSize, PointPreviewSize));
-        }
-
-        if (StrokePreviewTexture == null || StrokePreviewTexture.Size.X != StrokePreviewSizeX ||
-            StrokePreviewTexture.Size.Y != StrokePreviewSizeY)
-        {
-            StrokePreviewTexture?.Dispose();
-            StrokePreviewTexture = Texture.ForDisplay(new VecI(StrokePreviewSizeX, StrokePreviewSizeY));
-        }
-
-        PointPreviewTexture.DrawingSurface.Canvas.Clear();
-        StrokePreviewTexture.DrawingSurface.Canvas.Clear();
-
-        RenderContext context = new RenderContext(PointPreviewTexture.DrawingSurface.Canvas, 0, ChunkResolution.Full,
-            new VecI(PointPreviewSize, PointPreviewSize), new VecI(PointPreviewSize), ColorSpace.CreateSrgb(),
-            SamplingOptions.Default,
-           graph);
-
-        using var chunkyImage = new ChunkyImage(new VecI(PointPreviewSize, PointPreviewSize), context.ProcessingColorSpace);
-
-        DrawPointPreview(chunkyImage, context, PointPreviewSize, new VecD(PointPreviewSize / 2f, PointPreviewSize / 2f));
-        chunkyImage.CommitChanges();
-        chunkyImage.DrawCommittedChunkOn(
-            VecI.Zero, ChunkResolution.Full, PointPreviewTexture.DrawingSurface.Canvas, VecD.Zero);
-
-        context.RenderOutputSize = new VecI(StrokePreviewSizeX, StrokePreviewSizeY);
-        context.DocumentSize = new VecI(StrokePreviewSizeX, StrokePreviewSizeY);
-        context.RenderSurface = StrokePreviewTexture.DrawingSurface.Canvas;
-
-        using var strokeChunkyImage = new ChunkyImage(new VecI(StrokePreviewSizeX, StrokePreviewSizeY), context.ProcessingColorSpace);
-        DrawStrokePreview(strokeChunkyImage, context, StrokePreviewSizeY / 2, new VecD(0, YOffsetInPreview));
-        strokeChunkyImage.CommitChanges();
-        strokeChunkyImage.DrawCommittedChunkOn(
-            VecI.Zero, ChunkResolution.Full, StrokePreviewTexture.DrawingSurface.Canvas, VecD.Zero);
-    }
-
-    public override void SerializeAdditionalData(IReadOnlyDocument target, Dictionary<string, object> additionalData)
-    {
-        base.SerializeAdditionalData(target, additionalData);
-        GeneratePreviews(target.NodeGraph);
-        additionalData["PointPreviewTexture"] = PointPreviewTexture;
-        additionalData["StrokePreviewTexture"] = StrokePreviewTexture;
-    }
-
-    internal override void DeserializeAdditionalData(IReadOnlyDocument target, IReadOnlyDictionary<string, object> data,
-        List<IChangeInfo> infos)
-    {
-        base.DeserializeAdditionalData(target, data, infos);
-        if (data.TryGetValue("PointPreviewTexture", out var texObj) && texObj is Texture tex)
-        {
-            PointPreviewTexture = tex;
-        }
-
-        if (data.TryGetValue("StrokePreviewTexture", out var strokeTexObj) && strokeTexObj is Texture strokeTex)
-        {
-            StrokePreviewTexture = strokeTex;
-        }
-    }
-
 
     public override Node CreateCopy()
     {

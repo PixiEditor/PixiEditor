@@ -41,20 +41,17 @@ internal class BrushLibrary
                     stream.ReadExactly(buffer, 0, buffer.Length);
                     var doc = Importer.ImportDocument(buffer, null);
 
-                    doc.Operations.InvokeCustomAction(() =>
+                    using var graph = doc.ShareGraph();
+                    BrushOutputNode outputNode =
+                        graph.TryAccessData().AllNodes.OfType<BrushOutputNode>().FirstOrDefault();
+                    string name = Path.GetFileNameWithoutExtension(localPath);
+                    if (outputNode != null)
                     {
-                        using var graph = doc.ShareGraph();
-                        BrushOutputNode outputNode =
-                            graph.TryAccessData().AllNodes.OfType<BrushOutputNode>().FirstOrDefault();
-                        string name = Path.GetFileNameWithoutExtension(localPath);
-                        if (outputNode != null)
-                        {
-                            name = outputNode.BrushName.Value;
-                        }
+                        name = outputNode.BrushName.Value;
+                    }
 
-                        var brush = new Brush(name, doc);
-                        brushes.Add(brush.Id, brush);
-                    }, false);
+                    var brush = new Brush(name, doc);
+                    brushes.Add(brush.Id, brush);
                 }
                 catch (Exception ex)
                 {

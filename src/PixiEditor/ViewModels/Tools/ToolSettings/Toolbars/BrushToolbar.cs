@@ -3,6 +3,7 @@ using Drawie.Backend.Core.Surfaces.PaintImpl;
 using PixiEditor.ChangeableDocument.Changeables.Brushes;
 using PixiEditor.Models.BrushEngine;
 using PixiEditor.Models.Handlers.Toolbars;
+using PixiEditor.ViewModels.BrushSystem;
 using PixiEditor.ViewModels.Tools.ToolSettings.Settings;
 using PixiEditor.Views.Overlays.BrushShapeOverlay;
 
@@ -24,8 +25,8 @@ internal class BrushToolbar : Toolbar, IBrushToolbar
 
     public Brush Brush
     {
-        get => GetSetting<BrushSettingViewModel>(nameof(Brush)).Value;
-        set => GetSetting<BrushSettingViewModel>(nameof(Brush)).Value = value;
+        get => GetSetting<BrushSettingViewModel>(nameof(Brush)).Value?.Brush;
+        set => GetSetting<BrushSettingViewModel>(nameof(Brush)).Value = value != null ? new BrushViewModel(value) : null;
     }
 
     public double Stabilization

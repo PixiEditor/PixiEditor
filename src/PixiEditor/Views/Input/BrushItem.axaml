@@ -24,7 +24,7 @@
             <controls:DrawieTextureControl Height="30" Width="30"
                                            SamplingOptions="Bilinear"
                                            Margin="0, 0, 5, 0"
-                                           Texture="{Binding Brush.PointPreview}" DockPanel.Dock="Left" />
+                                           Texture="{Binding $parent[input:BrushItem].Brush.PointPreviewTexture}" DockPanel.Dock="Left" />
             <TextBlock VerticalAlignment="Center"
                        Width="70"
                        ToolTip.Tip="{Binding Brush.Name}"
