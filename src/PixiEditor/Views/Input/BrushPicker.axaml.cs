@@ -10,6 +10,7 @@ using Avalonia.Media;
 using Avalonia.Metadata;
 using Avalonia.VisualTree;
 using CommunityToolkit.Mvvm.Input;
+using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Models.Palettes;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.BrushSystem;
@@ -107,6 +108,7 @@ internal partial class BrushPicker : UserControl
                 x.SelectedBrush = x.Brushes[0];
             }
 
+            x.UpdateTags();
             x.UpdateResults();
         });
 
@@ -129,7 +131,8 @@ internal partial class BrushPicker : UserControl
     public BrushPicker()
     {
         InitializeComponent();
-        Categories = new ObservableCollection<string>() { "Basic", "Texture", "Special", "Custom" };
+        Categories = new ObservableCollection<string>();
+        SelectionText.Text = new LocalizedString("ALL");
     }
 
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
@@ -140,15 +143,57 @@ internal partial class BrushPicker : UserControl
         }
 
         PopupToggle.Flyout.Opened += Flyout_Opened;
-        SelectCategoriesListBox.ItemsSource = Categories;
+        var options = new ObservableCollection<string>(Categories);
+        options.Insert(0, "ALL");
+        options.Insert(0, "NONE");
+        SelectCategoriesListBox.ItemsSource = options;
         SelectCategoriesListBox.SelectionChanged += SelectCategoriesListBoxOnSelectionChanged;
 
         SelectCategoriesListBox.SelectAll();
 
+        IPreferences.Current.AddCallback(PreferencesConstants.FavouriteBrushes, OnFaviouritesChanged);
+    }
+
+    private void OnFaviouritesChanged(string s, object o)
+    {
+        UpdateResults();
+    }
+
+    private void UpdateTags()
+    {
+        Categories.Clear();
+        foreach (var brush in Brushes)
+        {
+            foreach (var tag in brush.Brush.Tags)
+            {
+                if (!string.IsNullOrWhiteSpace(tag) && !Categories.Contains(tag))
+                {
+                    Categories.Add(tag);
+                }
+            }
+        }
+
+        Categories.Add("UNTAGGED");
+
+        Categories = new ObservableCollection<string>(Categories.OrderBy(c => c));
     }
 
     private void SelectCategoriesListBoxOnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
+        if (e.AddedItems != null && e.AddedItems.Contains("ALL"))
+        {
+            SelectCategoriesListBox.SelectedItems = Categories.ToList();
+        }
+        else if (e.AddedItems != null && e.AddedItems.Contains("NONE"))
+        {
+            SelectCategoriesListBox.UnselectAll();
+        }
+
+        if (SelectCategoriesListBox.SelectedItems.Contains("NONE"))
+        {
+            SelectCategoriesListBox.SelectedItems.Remove("NONE");
+        }
+
         if (Categories.Count == SelectCategoriesListBox.SelectedItems.Count)
         {
             SelectionText.Text = new LocalizedString("ALL");
@@ -159,11 +204,12 @@ internal partial class BrushPicker : UserControl
         }
         else if (SelectCategoriesListBox.SelectedItems.Count == 1)
         {
-            SelectionText.Text = SelectCategoriesListBox.SelectedItems[0].ToString();
+            SelectionText.Text = new LocalizedString(SelectCategoriesListBox.SelectedItems[0].ToString());
         }
         else
         {
-            SelectionText.Text = new LocalizedString("SELECTED_CATEGORIES", SelectCategoriesListBox.SelectedItems.Count);
+            SelectionText.Text =
+                new LocalizedString("SELECTED_CATEGORIES", SelectCategoriesListBox.SelectedItems.Count);
         }
 
         UpdateResults();
@@ -173,6 +219,7 @@ internal partial class BrushPicker : UserControl
     {
         PopupToggle.Flyout.Opened -= Flyout_Opened;
         SelectCategoriesListBox.SelectionChanged -= SelectCategoriesListBoxOnSelectionChanged;
+        IPreferences.Current.RemoveCallback(PreferencesConstants.FavouriteBrushes, OnFaviouritesChanged);
     }
 
     private void Flyout_Opened(object? sender, EventArgs e)
@@ -201,18 +248,36 @@ internal partial class BrushPicker : UserControl
             }
         }
 
-        filtered = SelectedSortingIndex switch
+        var selectedTags = SelectCategoriesListBox.SelectedItems.Cast<string>().ToList();
+        if (selectedTags.Count == 0 && Categories.Count > 0)
         {
-            (int)BrushSorting.Alphabetical => new ObservableCollection<BrushViewModel>(filtered.OrderBy(b => b.Name)),
-            _ => filtered
-        };
+            FilteredBrushes = new ObservableCollection<BrushViewModel>();
+            return;
+        }
 
+        if (selectedTags.Count == Categories.Count)
+        {
+            FilteredBrushes = filtered;
+        }
+        else
+        {
+            filtered = new ObservableCollection<BrushViewModel>(
+                filtered.Where(b =>
+                    selectedTags.Any(tag => b.Brush.Tags.Contains(tag) || tag == "UNTAGGED" && (!b.Brush.Tags.Any()))));
+        }
 
         bool descending = SortingDirection == "descending";
-        if (descending)
+
+        filtered = SelectedSortingIndex switch
         {
-            filtered = new ObservableCollection<BrushViewModel>(filtered.Reverse());
-        }
+            (int)BrushSorting.Alphabetical => new ObservableCollection<BrushViewModel>(descending
+                ? filtered.OrderByDescending(b => b.Name)
+                : filtered.OrderBy(b => b.Name)),
+
+            _ => new ObservableCollection<BrushViewModel>(descending
+                ? filtered.Reverse().OrderByDescending(b => b.IsFavourite)
+                : filtered.OrderByDescending(b => b.IsFavourite)),
+        };
 
         FilteredBrushes = filtered;
     }

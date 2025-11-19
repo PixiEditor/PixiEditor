@@ -1228,5 +1228,10 @@
   "TIME_BASED_STABILIZATION": "Time Based - Stabilization based on time. Amount of smoothing is dependent on how much time has passed between points.",
   "ALL": "All",
   "NONE": "None",
-  "SELECTED_CATEGORIES": "{0} selected"
+  "SELECTED_CATEGORIES": "{0} selected",
+  "BASIC": "Basic",
+  "ENGRAVING": "Engraving",
+  "PIXEL_PERFECT": "Pixel Perfect",
+  "ESSENTIALS": "Essentials",
+  "UNTAGGED": "Untagged"
 }

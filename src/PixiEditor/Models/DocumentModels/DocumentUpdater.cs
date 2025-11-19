@@ -35,6 +35,7 @@ using PixiEditor.ViewModels;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Document.Blackboard;
 using PixiEditor.ViewModels.Document.Nodes;
+using PixiEditor.ViewModels.Document.Nodes.Brushes;
 using PixiEditor.ViewModels.Nodes;
 using PixiEditor.ViewModels.SubViewModels;
 
@@ -1006,8 +1007,13 @@ internal class DocumentUpdater
 
             string name = info.Inputs.FirstOrDefault(x => x.PropertyName == BrushOutputNode.BrushNameProperty)
                 ?.InputValue?.ToString() ?? "Unnamed";
-            toolsHandler.BrushLibrary.Add(
-                new Brush(name, doc, info.Id));
+
+            doc.NodeGraphHandler.NodeLookup.TryGetValue(info.Id, out var node);
+            if (node is BrushOutputNodeViewModel brushVm)
+            {
+                toolsHandler.BrushLibrary.Add(
+                    new Brush(name, doc));
+            }
         }
     }
 

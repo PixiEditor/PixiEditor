@@ -46,6 +46,7 @@ public class BrushOutputNode : Node
     public InputProperty<bool> AllowSampleStacking { get; }
     public InputProperty<bool> AlwaysClear { get; }
     public InputProperty<bool> SnapToPixels { get; }
+    public InputProperty<string> Tags { get; }
 
     public InputProperty<IReadOnlyNodeGraph> Previous { get; }
 
@@ -57,6 +58,7 @@ public class BrushOutputNode : Node
     private BrushEngine previewEngine = new BrushEngine();
 
     protected override bool ExecuteOnlyOnCacheChange => true;
+    public Guid PersistentId { get; private set; } = Guid.NewGuid();
 
     public const string PreviewSvg =
         "M0.25 99.4606C0.25 99.4606 60.5709 79.3294 101.717 99.4606C147.825 122.019 199.75 99.4606 199.75 99.4606";
@@ -84,6 +86,7 @@ public class BrushOutputNode : Node
         AllowSampleStacking = CreateInput<bool>("AllowSampleStacking", "ALLOW_SAMPLE_STACKING", false);
         AlwaysClear = CreateInput<bool>("AlwaysClear", "ALWAYS_CLEAR", false);
         SnapToPixels = CreateInput<bool>("SnapToPixels", "SNAP_TO_PIXELS", false);
+        Tags = CreateInput<string>("Tags", "TAGS", "");
         Previous = CreateInput<IReadOnlyNodeGraph>("Previous", "PREVIOUS", null);
     }
 
@@ -102,6 +105,28 @@ public class BrushOutputNode : Node
         }
 
         RenderPreviews(context.GetPreviewTexturesForNode(Id), context);
+    }
+
+    public override void SerializeAdditionalData(IReadOnlyDocument target, Dictionary<string, object> additionalData)
+    {
+        base.SerializeAdditionalData(target, additionalData);
+        additionalData["PersistentId"] = PersistentId;
+    }
+
+    internal override void DeserializeAdditionalData(IReadOnlyDocument target, IReadOnlyDictionary<string, object> data, List<IChangeInfo> infos)
+    {
+        base.DeserializeAdditionalData(target, data, infos);
+        if (data.TryGetValue("PersistentId", out var persistentIdObj))
+        {
+            if (persistentIdObj is Guid persistentId)
+            {
+                PersistentId = persistentId;
+            }
+            else if (persistentIdObj is string persistentIdStr && Guid.TryParse(persistentIdStr, out Guid parsedGuid))
+            {
+                PersistentId = parsedGuid;
+            }
+        }
     }
 
     private void RenderPreviews(List<PreviewRenderRequest>? previews, RenderContext ctx)

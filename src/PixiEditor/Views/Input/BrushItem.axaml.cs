@@ -22,7 +22,8 @@ namespace PixiEditor.Views.Input;
 
 internal partial class BrushItem : UserControl
 {
-    public static readonly StyledProperty<BrushViewModel> BrushProperty = AvaloniaProperty.Register<BrushItem, BrushViewModel>("Brush");
+    public static readonly StyledProperty<BrushViewModel> BrushProperty =
+        AvaloniaProperty.Register<BrushItem, BrushViewModel>("Brush");
 
     public static readonly StyledProperty<Texture> DrawingStrokeTextureProperty =
         AvaloniaProperty.Register<BrushItem, Texture>(
@@ -55,6 +56,7 @@ internal partial class BrushItem : UserControl
             x.StopStrokePreviewLoop();
             var brush = e.NewValue as BrushViewModel;
             x.DrawingStrokeTexture = brush?.DrawingStrokeTexture;
+            x.PseudoClasses.Set(":favourite", brush?.IsFavourite ?? false);
         });
     }
 
@@ -69,6 +71,15 @@ internal partial class BrushItem : UserControl
         isPreviewingStroke = true;
     }
 
+    public void ToggleFavorite()
+    {
+        if (Brush == null)
+            return;
+
+        Brush.IsFavourite = !Brush.IsFavourite;
+        PseudoClasses.Set(":favourite", Brush.IsFavourite);
+    }
+
     protected override void OnPointerExited(PointerEventArgs e)
     {
         StopStrokePreviewLoop();
@@ -80,7 +91,8 @@ internal partial class BrushItem : UserControl
             return;
 
         BrushOutputNode? brushNode =
-            Brush?.Brush?.Document?.AccessInternalReadOnlyDocument().NodeGraph.LookupNode(Brush?.Brush?.Id ?? Guid.Empty) as BrushOutputNode;
+            Brush?.Brush?.Document?.AccessInternalReadOnlyDocument().NodeGraph
+                .LookupNode(Brush?.Brush?.OutputNodeId ?? Guid.Empty) as BrushOutputNode;
         if (brushNode == null)
             return;
 
@@ -117,8 +129,15 @@ internal partial class BrushItem : UserControl
         {
             if (!enumerator.MoveNext())
             {
-                isPreviewingStroke = false;
-                DrawingStrokeTexture = Brush?.DrawingStrokeTexture;
+                DispatcherTimer.RunOnce(() =>
+                {
+                    if (isPreviewingStroke)
+                    {
+                        StopStrokePreviewLoop();
+                        StartStrokePreviewLoop();
+                        isPreviewingStroke = true;
+                    }
+                }, TimeSpan.FromSeconds(1));
                 return false;
             }
 

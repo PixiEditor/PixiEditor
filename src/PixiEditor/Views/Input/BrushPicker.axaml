@@ -65,12 +65,12 @@
                                             Margin="5,0,0,0">
                                 <TextBlock Name="SelectionText"/>
                                 <DropDownButton.Flyout>
-                                    <Flyout>
+                                    <Flyout Placement="BottomEdgeAlignedLeft">
                                         <ListBox SelectionMode="Multiple,Toggle"
                                                  Name="SelectCategoriesListBox">
                                             <ListBox.ItemTemplate>
                                                 <DataTemplate>
-                                                    <TextBlock Text="{Binding }" Padding="5" />
+                                                    <TextBlock localization:Translator.Key="{Binding }" Padding="5" />
                                                 </DataTemplate>
                                             </ListBox.ItemTemplate>
                                         </ListBox>

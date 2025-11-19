@@ -1,4 +1,5 @@
-﻿using ChunkyImageLib;
+﻿using System.Collections.ObjectModel;
+using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Surfaces;
@@ -6,6 +7,7 @@ using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Models.BrushEngine;
 
 namespace PixiEditor.ViewModels.BrushSystem;
@@ -15,6 +17,7 @@ internal class BrushViewModel : ViewModelBase
     private Texture pointPreviewTexture;
     private Texture strokeTexture;
     private Brush brush;
+    private bool isFavourite;
 
     public Texture PointPreviewTexture
     {
@@ -49,6 +52,17 @@ internal class BrushViewModel : ViewModelBase
         get => Brush?.Name ?? "Unnamed Brush";
     }
 
+    public ObservableCollection<string> Tags
+    {
+        get
+        {
+            if(Brush?.Tags == null)
+                return new ObservableCollection<string>();
+
+            return new ObservableCollection<string>(Brush.Tags);
+        }
+    }
+
     public Brush Brush
     {
         get { return brush; }
@@ -61,18 +75,48 @@ internal class BrushViewModel : ViewModelBase
         }
     }
 
+    public bool IsFavourite
+    {
+        get => isFavourite;
+        set
+        {
+            if (SetProperty(ref isFavourite, value))
+            {
+                IPreferences.Current.UpdatePreference(PreferencesConstants.FavouriteBrushes, TogglePreference());
+            }
+        }
+    }
+
+    private List<Guid> TogglePreference()
+    {
+        var current = IPreferences.Current.GetPreference<List<Guid>>(PreferencesConstants.FavouriteBrushes) ?? new List<Guid>();
+        if (isFavourite)
+        {
+            if (!current.Contains(Brush.PersistentId))
+                current.Add(Brush.PersistentId);
+        }
+        else
+        {
+            if (current.Contains(Brush.PersistentId))
+                current.Remove(Brush.PersistentId);
+        }
+
+        return current;
+    }
+
     private int lastTextureCache;
 
     public BrushViewModel(Brush brush)
     {
         Brush = brush;
         lastTextureCache = 0;
+        isFavourite = IPreferences.Current.GetPreference<List<Guid>>(PreferencesConstants.FavouriteBrushes)?.Contains(Brush.PersistentId) ?? false;
     }
 
     private void GeneratePreviewTextures()
     {
         BrushOutputNode? brushNode =
-            Brush?.Document?.AccessInternalReadOnlyDocument().NodeGraph.LookupNode(Brush.Id) as BrushOutputNode;
+            Brush?.Document?.AccessInternalReadOnlyDocument().NodeGraph.LookupNode(Brush.OutputNodeId) as BrushOutputNode;
         if (brushNode == null)
             return;
 

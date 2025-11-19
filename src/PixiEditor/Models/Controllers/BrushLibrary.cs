@@ -51,7 +51,7 @@ internal class BrushLibrary
                     }
 
                     var brush = new Brush(name, doc);
-                    brushes.Add(brush.Id, brush);
+                    brushes.Add(brush.OutputNodeId, brush);
                 }
                 catch (Exception ex)
                 {
@@ -73,7 +73,7 @@ internal class BrushLibrary
             {
                 var doc = Importer.ImportDocument(file, false);
                 var brush = new Brush(Path.GetFileNameWithoutExtension(file), doc);
-                brushes.Add(brush.Id, brush);
+                brushes.Add(brush.OutputNodeId, brush);
             }
             catch (Exception ex)
             {
@@ -93,7 +93,7 @@ internal class BrushLibrary
     public void Add(Brush brush)
     {
         var oldBrushes = Brushes.Values.ToList();
-        if (brushes.TryAdd(brush.Id, brush))
+        if (brushes.TryAdd(brush.OutputNodeId, brush))
         {
             BrushesChanged?.Invoke();
         }

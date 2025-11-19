@@ -100,7 +100,7 @@ public static class ConversionTable
                 typeof(IBrush), [
                     (typeof(DocumentReference),
                         new TypeConverter<IBrush, DocumentReference>(b =>
-                            new DocumentReference(b.FilePath, b.Id, b.Document)))
+                            new DocumentReference(b.FilePath, b.OutputNodeId, b.Document)))
                 ]
             }
         };

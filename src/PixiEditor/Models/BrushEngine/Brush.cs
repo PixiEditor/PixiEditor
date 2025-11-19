@@ -21,7 +21,9 @@ internal class Brush : IBrush
     IReadOnlyDocument IBrush.Document => Document.AccessInternalReadOnlyDocument();
     public string Name { get; set; }
     public string? FilePath { get; }
-    public Guid Id { get; }
+    public Guid OutputNodeId { get; }
+    public Guid PersistentId { get; }
+    public string[] Tags { get; set; } = Array.Empty<string>();
 
     public Brush(Uri uri)
     {
@@ -47,15 +49,19 @@ internal class Brush : IBrush
         if (outputNode != null)
         {
             name = outputNode.BrushName.Value;
-            Id = outputNode.Id;
+            OutputNodeId = outputNode.Id;
+            PersistentId = outputNode.PersistentId;
         }
         else
         {
-            Id = Guid.NewGuid();
+            OutputNodeId = Guid.NewGuid();
+            PersistentId = Guid.NewGuid();
         }
 
         Name = name;
         Document = doc;
+
+        Tags = ExtractTags(outputNode)?.ToArray() ?? [];
 
         stream.Close();
         stream.Dispose();
@@ -66,15 +72,26 @@ internal class Brush : IBrush
         Name = name;
         Document = brushDocument;
         FilePath = brushDocument.FullFilePath;
-        Id = brushDocument.NodeGraphHandler.AllNodes.OfType<BrushOutputNodeViewModel>().FirstOrDefault()?.Id ?? Guid.NewGuid();
+        BrushOutputNode? outputNode =
+            brushDocument.AccessInternalReadOnlyDocument().NodeGraph.AllNodes.OfType<BrushOutputNode>()
+                .FirstOrDefault();
+        if (outputNode != null)
+        {
+            OutputNodeId = outputNode.Id;
+            PersistentId = outputNode.PersistentId;
+            Tags = ExtractTags(outputNode)?.ToArray() ?? [];
+        }
+        else
+        {
+            OutputNodeId = Guid.NewGuid();
+            PersistentId = Guid.NewGuid();
+        }
     }
 
-    public Brush(string name, IDocument brushDocument, Guid id)
+    private static IEnumerable<string> ExtractTags(BrushOutputNode outputNode)
     {
-        Name = name;
-        Document = brushDocument;
-        FilePath = brushDocument.FullFilePath;
-        Id = id;
+        return outputNode?.Tags.Value
+            ?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Select(t => t.Trim());
     }
 
     public override string ToString()

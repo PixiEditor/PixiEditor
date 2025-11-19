@@ -30,7 +30,7 @@ internal class BrushSerializationFactory : SerializationFactory<byte[], Brush>
             int docLength = extractor.GetInt();
             byte[] docBytes = extractor.GetByteSpan(docLength).ToArray();
             var doc = PixiParser.V5.Deserialize(docBytes).ToDocument();
-            original = new Brush(name, doc, doc.NodeGraph.AllNodes.OfType<BrushOutputNodeViewModel>().FirstOrDefault()?.Id ?? Guid.NewGuid());
+            original = new Brush(name, doc);
 
             return true;
         }

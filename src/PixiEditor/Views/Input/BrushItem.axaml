@@ -7,6 +7,7 @@
              xmlns:input="clr-namespace:PixiEditor.Views.Input"
              xmlns:surfaces="clr-namespace:Drawie.Backend.Core.Surfaces;assembly=Drawie.Backend.Core"
              xmlns:controls="clr-namespace:Drawie.Interop.Avalonia.Core.Controls;assembly=Drawie.Interop.Avalonia.Core"
+             xmlns:decorators="clr-namespace:PixiEditor.Views.Decorators"
              Background="Transparent" IsHitTestVisible="True"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.Views.Input.BrushItem">
@@ -19,12 +20,17 @@
         </Style>
     </UserControl.Styles>
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
         <DockPanel LastChildFill="True"
                    DataContext="{Binding RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}">
             <controls:DrawieTextureControl Height="30" Width="30"
                                            SamplingOptions="Bilinear"
                                            Margin="0, 0, 5, 0"
-                                           Texture="{Binding $parent[input:BrushItem].Brush.PointPreviewTexture}" DockPanel.Dock="Left" />
+                                           Texture="{Binding $parent[input:BrushItem].Brush.PointPreviewTexture}"
+                                           DockPanel.Dock="Left" />
             <TextBlock VerticalAlignment="Center"
                        Width="70"
                        ToolTip.Tip="{Binding Brush.Name}"
@@ -35,6 +41,7 @@
                 <Button
                     Name="FavouriteButton" Width="28" Height="28"
                     Classes="pixi-icon" Padding="2"
+                    Command="{Binding ToggleFavorite}"
                     localization:Translator.TooltipKey="ADD_TO_FAVORITES">
                     <Button.Styles>
                         <Style Selector="Button:pointerover">
@@ -43,11 +50,25 @@
                     </Button.Styles>
                 </Button>
             </StackPanel>
-            <controls:DrawieTextureControl Height="50" Width="100"
-                                           SamplingOptions="Bilinear"
-                                           Name="StrokePreviewControl"
-                                           Margin="0, 0, 5, 0"
-                                           Texture="{Binding $parent[input:BrushItem].DrawingStrokeTexture}" DockPanel.Dock="Left" />
+            <controls:DrawieTextureControl
+                Height="50" Width="100"
+                SamplingOptions="Bilinear"
+                Name="StrokePreviewControl"
+                Margin="0, 0, 5, 0"
+                Texture="{Binding $parent[input:BrushItem].DrawingStrokeTexture}"
+                DockPanel.Dock="Left" />
         </DockPanel>
+        <ItemsControl Grid.Row="1" ItemsSource="{Binding $parent[input:BrushItem].Brush.Tags}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel Orientation="Horizontal" ItemSpacing="5" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <decorators:Chip localization:Translator.Key="{Binding }" />
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
     </Grid>
 </UserControl>

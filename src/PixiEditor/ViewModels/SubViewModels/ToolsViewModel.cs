@@ -177,8 +177,9 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
             {
                 string name = node.Inputs.FirstOrDefault(x => x.PropertyName == BrushOutputNode.BrushNameProperty)
                     ?.Value?.ToString() ?? "Unnamed";
+
                 BrushLibrary.Add(
-                    new Brush(name, node.Document, node.Id));
+                    new Brush(name, node.Document));
             }
         }
     }
