@@ -71,6 +71,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
     public NodeGraphManagerViewModel NodeGraphManager { get; set; }
     public AutosaveViewModel AutosaveViewModel { get; set; }
     public UserViewModel UserViewModel { get; set; }
+    public BrushesViewModel BrushesSubViewModel { get; set; }
 
     public IPreferences Preferences { get; set; }
     public ILocalizationProvider LocalizationProvider { get; set; }
@@ -153,6 +154,8 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         ViewportSubViewModel = services.GetService<ViewOptionsViewModel>();
         ColorsSubViewModel = services.GetService<ColorsViewModel>();
         ColorsSubViewModel?.SetupPaletteProviders(services);
+
+        BrushesSubViewModel = services.GetService<BrushesViewModel>();
 
         ToolsConfig toolSetConfig = Config.GetConfig<ToolsConfig>("ToolSetsConfig");
         ToolsSubViewModel?.SetupTools(services, toolSetConfig);

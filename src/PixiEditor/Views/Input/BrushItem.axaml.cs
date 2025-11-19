@@ -68,7 +68,6 @@ internal partial class BrushItem : UserControl
     protected override void OnPointerEntered(PointerEventArgs e)
     {
         StartStrokePreviewLoop();
-        isPreviewingStroke = true;
     }
 
     public void ToggleFavorite()
@@ -81,6 +80,11 @@ internal partial class BrushItem : UserControl
     }
 
     protected override void OnPointerExited(PointerEventArgs e)
+    {
+        StopStrokePreviewLoop();
+    }
+
+    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
     {
         StopStrokePreviewLoop();
     }
@@ -127,17 +131,31 @@ internal partial class BrushItem : UserControl
         previewTexture.DrawingSurface.Canvas.Clear();
         previewTimer = DispatcherTimer.Run(() =>
         {
-            if (!enumerator.MoveNext())
+            if ((brushNode != null && previewTexture != null) && (brushNode.IsDisposed || previewTexture.IsDisposed))
             {
-                DispatcherTimer.RunOnce(() =>
+                StopStrokePreviewLoop();
+                return false;
+            }
+
+            try
+            {
+                if (!enumerator.MoveNext())
                 {
-                    if (isPreviewingStroke)
+                    DispatcherTimer.RunOnce(() =>
                     {
-                        StopStrokePreviewLoop();
-                        StartStrokePreviewLoop();
-                        isPreviewingStroke = true;
-                    }
-                }, TimeSpan.FromSeconds(1));
+                        if (isPreviewingStroke)
+                        {
+                            StopStrokePreviewLoop();
+                            StartStrokePreviewLoop();
+                            isPreviewingStroke = true;
+                        }
+                    }, TimeSpan.FromSeconds(1));
+                    return false;
+                }
+            }
+            catch
+            {
+                StopStrokePreviewLoop();
                 return false;
             }
 
@@ -151,6 +169,8 @@ internal partial class BrushItem : UserControl
 
             return isPreviewingStroke;
         }, TimeSpan.FromMilliseconds(8));
+
+        isPreviewingStroke = true;
     }
 
     private RenderContext CreateContext()

@@ -67,11 +67,11 @@ internal class Brush : IBrush
         stream.Dispose();
     }
 
-    public Brush(string name, IDocument brushDocument)
+    public Brush(string name, IDocument brushDocument, string? filePath = null)
     {
         Name = name;
         Document = brushDocument;
-        FilePath = brushDocument.FullFilePath;
+        FilePath = filePath ?? brushDocument.FullFilePath;
         BrushOutputNode? outputNode =
             brushDocument.AccessInternalReadOnlyDocument().NodeGraph.AllNodes.OfType<BrushOutputNode>()
                 .FirstOrDefault();

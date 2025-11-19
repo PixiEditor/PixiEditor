@@ -8,6 +8,7 @@
              xmlns:controls="clr-namespace:Drawie.Interop.Avalonia.Core.Controls;assembly=Drawie.Interop.Avalonia.Core"
              xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
              xmlns:visuals="clr-namespace:PixiEditor.Views.Visuals"
+             xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:ClassModifier="internal"
              x:Class="PixiEditor.Views.Input.BrushPicker">
@@ -93,8 +94,10 @@
                                               Content="{DynamicResource icon-arrow-up}" />
                                 <ToggleButton Classes="pixi-icon"
                                               Name="ViewModeListButton"
-                                              IsChecked="{Binding $parent[input:BrushPicker].IsGridView,Mode=TwoWay}">
-                                </ToggleButton>
+                                              IsChecked="{Binding $parent[input:BrushPicker].IsGridView,Mode=TwoWay}"/>
+                                <Button Classes="pixi-icon"
+                                        Command="{xaml:Command PixiEditor.Brushes.Import}"
+                                        Content="{DynamicResource icon-upload}"/>
                             </StackPanel>
 
                             <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"

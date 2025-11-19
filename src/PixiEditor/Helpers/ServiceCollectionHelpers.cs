@@ -76,6 +76,7 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<NodeGraphManagerViewModel>()
             .AddSingleton<AutosaveViewModel>()
             .AddSingleton<UserViewModel>()
+            .AddSingleton<BrushesViewModel>()
             .AddSingleton<IColorsHandler, ColorsViewModel>(x => x.GetRequiredService<ColorsViewModel>())
             .AddSingleton<IWindowHandler, WindowViewModel>(x => x.GetRequiredService<WindowViewModel>())
             .AddSingleton<RegistryViewModel>()

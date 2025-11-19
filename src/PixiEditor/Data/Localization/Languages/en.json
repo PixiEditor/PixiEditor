@@ -1233,5 +1233,7 @@
   "ENGRAVING": "Engraving",
   "PIXEL_PERFECT": "Pixel Perfect",
   "ESSENTIALS": "Essentials",
-  "UNTAGGED": "Untagged"
+  "UNTAGGED": "Untagged",
+  "ERROR_IMPORTING_BRUSH_TITLE": "Error importing brush",
+  "ERROR_IMPORTING_BRUSH_MESSAGE": "An error occurred while importing the brush: {0}"
 }

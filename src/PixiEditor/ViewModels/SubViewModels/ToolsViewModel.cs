@@ -131,7 +131,6 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
 
     public event EventHandler<SelectedToolEventArgs>? SelectedToolChanged;
 
-    public BrushLibrary BrushLibrary { get; private set; }
 
     private bool shiftIsDown;
     private bool ctrlIsDown;
@@ -149,61 +148,9 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         : base(owner)
     {
         owner.DocumentManagerSubViewModel.ActiveDocumentChanged += ActiveDocumentChanged;
-        Owner.BeforeDocumentClosed += OwnerOnBeforeDocumentClosed;
-        Owner.DocumentManagerSubViewModel.DocumentAdded += AddDocumentBrushes;
         PixiEditorSettings.Tools.PrimaryToolset.ValueChanged += PrimaryToolsetOnValueChanged;
         SubscribeSettingsValueChanged(PixiEditorSettings.Tools.SelectionTintingEnabled,
             nameof(SelectionTintingEnabled));
-        BrushLibrary = new BrushLibrary(Paths.PathToBrushesFolder);
-        owner.AttachedToWindow += window =>
-        {
-            if (!window.IsLoaded)
-            {
-                window.Loaded += (_, _) => LoadBrushLibrary();
-            }
-            else
-            {
-                LoadBrushLibrary();
-            }
-        };
-    }
-
-    private void AddDocumentBrushes(DocumentViewModel obj)
-    {
-        var brushNodes = obj.NodeGraph.AllNodes.OfType<BrushOutputNodeViewModel>().ToList();
-        if (brushNodes != null)
-        {
-            foreach (var node in brushNodes)
-            {
-                string name = node.Inputs.FirstOrDefault(x => x.PropertyName == BrushOutputNode.BrushNameProperty)
-                    ?.Value?.ToString() ?? "Unnamed";
-
-                BrushLibrary.Add(
-                    new Brush(name, node.Document));
-            }
-        }
-    }
-
-    private void OwnerOnBeforeDocumentClosed(DocumentViewModel doc)
-    {
-        UnregisterBrushes(doc);
-    }
-
-    private void UnregisterBrushes(DocumentViewModel document)
-    {
-        var brushNodes = document.NodeGraph.AllNodes.OfType<BrushOutputNodeViewModel>().ToList();
-        if (brushNodes != null)
-        {
-            foreach (var node in brushNodes)
-            {
-                BrushLibrary.RemoveById(node.Id);
-            }
-        }
-    }
-
-    private void LoadBrushLibrary()
-    {
-        BrushLibrary.LoadBrushes();
     }
 
     private void PrimaryToolsetOnValueChanged(Setting<string> setting, string? newPrimaryToolset)

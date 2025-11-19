@@ -886,14 +886,11 @@ internal class DocumentUpdater
 
         if (info.Property == BrushOutputNode.BrushNameProperty)
         {
-            if (ViewModelMain.Current.ToolsSubViewModel is ToolsViewModel toolsHandler)
+            var brush = ViewModelMain.Current.BrushesSubViewModel.BrushLibrary.Brushes.FirstOrDefault(x =>
+                x.Key == node.Id && x.Value.Document.Id == doc.Id);
+            if (brush.Value != null)
             {
-                var brush = toolsHandler.BrushLibrary.Brushes.FirstOrDefault(x =>
-                    x.Key == node.Id && x.Value.Document.Id == doc.Id);
-                if (brush.Value != null)
-                {
-                    brush.Value.Name = info.Value?.ToString() ?? "Unnamed";
-                }
+                brush.Value.Name = info.Value?.ToString() ?? "Unnamed";
             }
         }
 
@@ -1001,28 +998,22 @@ internal class DocumentUpdater
     {
         if (info.InternalName != "PixiEditor." + BrushOutputNode.NodeId) return;
 
-        if (ViewModelMain.Current.ToolsSubViewModel is ToolsViewModel toolsHandler)
+        if (ViewModelMain.Current.DocumentManagerSubViewModel.Documents.All(x => x.Id != doc.Id)) return;
+
+        string name = info.Inputs.FirstOrDefault(x => x.PropertyName == BrushOutputNode.BrushNameProperty)
+            ?.InputValue?.ToString() ?? "Unnamed";
+
+        doc.NodeGraphHandler.NodeLookup.TryGetValue(info.Id, out var node);
+        if (node is BrushOutputNodeViewModel brushVm)
         {
-            if (ViewModelMain.Current.DocumentManagerSubViewModel.Documents.All(x => x.Id != doc.Id)) return;
-
-            string name = info.Inputs.FirstOrDefault(x => x.PropertyName == BrushOutputNode.BrushNameProperty)
-                ?.InputValue?.ToString() ?? "Unnamed";
-
-            doc.NodeGraphHandler.NodeLookup.TryGetValue(info.Id, out var node);
-            if (node is BrushOutputNodeViewModel brushVm)
-            {
-                toolsHandler.BrushLibrary.Add(
-                    new Brush(name, doc));
-            }
+            ViewModelMain.Current.BrushesSubViewModel.BrushLibrary.Add(
+                new Brush(name, doc));
         }
     }
 
     private void ProcessDeleteBrushNodeIfNeeded(DeleteNode_ChangeInfo info)
     {
-        if (ViewModelMain.Current.ToolsSubViewModel is ToolsViewModel toolsHandler)
-        {
-            toolsHandler.BrushLibrary.RemoveById(info.Id);
-        }
+        ViewModelMain.Current.BrushesSubViewModel.BrushLibrary.RemoveById(info.Id);
     }
 
     private void ProcessBlackboardVariable(BlackboardVariable_ChangeInfo info)
@@ -1086,7 +1077,8 @@ internal class DocumentUpdater
 
         if (info.OriginalFilePath != node.FilePath)
         {
-            ViewModelMain.Current.DocumentManagerSubViewModel.ReloadDocumentReference(info.ReferenceId, info.OriginalFilePath);
+            ViewModelMain.Current.DocumentManagerSubViewModel.ReloadDocumentReference(info.ReferenceId,
+                info.OriginalFilePath);
         }
 
         node.SetOriginalFilePath(info.OriginalFilePath);

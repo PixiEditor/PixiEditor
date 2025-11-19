@@ -16,7 +16,7 @@ internal class BrushSettingViewModel : Setting<BrushViewModel>
         {
             if (library == null)
             {
-                library = (ViewModelMain.Current.ToolsSubViewModel as ToolsViewModel).BrushLibrary;
+                library = ViewModelMain.Current.BrushesSubViewModel.BrushLibrary;
             }
 
             return library;
