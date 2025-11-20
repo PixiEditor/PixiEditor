@@ -1235,5 +1235,11 @@
   "ESSENTIALS": "Essentials",
   "UNTAGGED": "Untagged",
   "ERROR_IMPORTING_BRUSH_TITLE": "Error importing brush",
-  "ERROR_IMPORTING_BRUSH_MESSAGE": "An error occurred while importing the brush: {0}"
+  "ERROR_IMPORTING_BRUSH_MESSAGE": "An error occurred while importing the brush: {0}",
+  "TAGS": "Tags",
+  "ADD_NEW": "Add New",
+  "ADD_NEW_CATEGORY": "Add New Category",
+  "CATEGORY_NAME": "Category Name",
+  "ERROR_DELETING_BRUSH_TITLE": "Error deleting brush",
+  "ERROR_DELETING_BRUSH_MESSAGE": "An error occurred while deleting the brush: {0}"
 }

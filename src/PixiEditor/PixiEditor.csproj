@@ -165,6 +165,10 @@
       <DependentUpon>BrushSettingView.axaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Views\Dialogs\InputPopup.axaml.cs">
+      <DependentUpon>InputDialog.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   
 </Project>

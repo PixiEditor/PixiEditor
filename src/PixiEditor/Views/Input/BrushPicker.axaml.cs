@@ -3,17 +3,22 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Templates;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using Avalonia.Metadata;
+using Avalonia.Threading;
 using Avalonia.VisualTree;
 using CommunityToolkit.Mvvm.Input;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
+using PixiEditor.Helpers;
+using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Palettes;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.BrushSystem;
+using PixiEditor.Views.Dialogs;
 using Brush = PixiEditor.Models.BrushEngine.Brush;
 
 namespace PixiEditor.Views.Input;
@@ -143,15 +148,21 @@ internal partial class BrushPicker : UserControl
         }
 
         PopupToggle.Flyout.Opened += Flyout_Opened;
-        var options = new ObservableCollection<string>(Categories);
-        options.Insert(0, "ALL");
-        options.Insert(0, "NONE");
-        SelectCategoriesListBox.ItemsSource = options;
+        UpdateOptions();
         SelectCategoriesListBox.SelectionChanged += SelectCategoriesListBoxOnSelectionChanged;
 
         SelectCategoriesListBox.SelectAll();
 
         IPreferences.Current.AddCallback(PreferencesConstants.FavouriteBrushes, OnFaviouritesChanged);
+    }
+
+    private void UpdateOptions()
+    {
+        var options = new ObservableCollection<string>(Categories);
+        options.Insert(0, "ALL");
+        options.Insert(0, "NONE");
+        options.Add("UNTAGGED");
+        SelectCategoriesListBox.ItemsSource = options;
     }
 
     private void OnFaviouritesChanged(string s, object o)
@@ -164,18 +175,25 @@ internal partial class BrushPicker : UserControl
         Categories.Clear();
         foreach (var brush in Brushes)
         {
-            foreach (var tag in brush.Brush.Tags)
+            foreach (var tag in brush.Brush.EmbeddedTags)
             {
                 if (!string.IsNullOrWhiteSpace(tag) && !Categories.Contains(tag))
                 {
                     Categories.Add(tag);
                 }
             }
+
+            IPreferences.Current.GetPreference<List<string>>($"{brush.Brush.PersistentId}_Tags")?.ForEach(tag =>
+            {
+                if (!string.IsNullOrWhiteSpace(tag) && !Categories.Contains(tag))
+                {
+                    Categories.Add(tag);
+                }
+            });
         }
 
-        Categories.Add("UNTAGGED");
-
         Categories = new ObservableCollection<string>(Categories.OrderBy(c => c));
+        UpdateOptions();
     }
 
     private void SelectCategoriesListBoxOnSelectionChanged(object? sender, SelectionChangedEventArgs e)
@@ -263,7 +281,7 @@ internal partial class BrushPicker : UserControl
         {
             filtered = new ObservableCollection<BrushViewModel>(
                 filtered.Where(b =>
-                    selectedTags.Any(tag => b.Brush.Tags.Contains(tag) || tag == "UNTAGGED" && (!b.Brush.Tags.Any()))));
+                    selectedTags.Any(tag => b.Tags.Contains(tag) || tag == "UNTAGGED" && (!b.Tags.Any()))));
         }
 
         bool descending = SortingDirection == "descending";
@@ -282,12 +300,55 @@ internal partial class BrushPicker : UserControl
         FilteredBrushes = filtered;
     }
 
-    [RelayCommand]
-    public void SelectBrush(BrushViewModel brush)
+    private void SelectBrushElementPressed(object? sender, PointerPressedEventArgs e)
     {
-        SelectedBrush = brush;
+        Control control = (Control)(sender!);
+        if (e.GetMouseButton(control) != MouseButton.Left)
+            return;
+
+        SelectedBrush = control.DataContext as BrushViewModel;
         PopupToggle.IsChecked = false;
         PopupToggle.Flyout.Hide();
+    }
+
+    private void AddNewCategory_OnClick(object? sender, RoutedEventArgs e)
+    {
+        InputPopup popup = new InputPopup();
+        popup.Title = new LocalizedString("ADD_NEW_CATEGORY");
+        popup.Label = new LocalizedString("CATEGORY_NAME");
+        BrushViewModel? context = null;
+        if (sender is MenuItem menuItem && menuItem.DataContext is BrushViewModel brushViewModel)
+        {
+            context = brushViewModel;
+        }
+
+        popup.ShowDialog().ContinueWith(x =>
+        {
+            if (!x.Result.HasValue || !x.Result.Value || string.IsNullOrWhiteSpace(popup.InputText))
+                return;
+
+            Dispatcher.UIThread.Post(() =>
+            {
+                string newCategory = popup.InputText!.Trim();
+                if (!Categories.Contains(newCategory))
+                {
+                    if (!Categories.Contains(newCategory))
+                        Categories.Add(newCategory);
+
+                    UpdateOptions();
+
+                    if (context != null)
+                    {
+                        if (!context.Tags.Contains(newCategory))
+                            context.Tags.Add(newCategory);
+                    }
+
+                    UpdateResults();
+                }
+
+                PopupToggle.Flyout.ShowAt(PopupToggle);
+            });
+        });
     }
 }
 

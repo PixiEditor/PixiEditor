@@ -9,6 +9,7 @@
              xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
              xmlns:visuals="clr-namespace:PixiEditor.Views.Visuals"
              xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
+             xmlns:controls1="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:ClassModifier="internal"
              x:Class="PixiEditor.Views.Input.BrushPicker">
@@ -64,7 +65,7 @@
                             </TextBox>
                             <DropDownButton Grid.Row="0" Grid.Column="1"
                                             Margin="5,0,0,0">
-                                <TextBlock Name="SelectionText"/>
+                                <TextBlock Name="SelectionText" />
                                 <DropDownButton.Flyout>
                                     <Flyout Placement="BottomEdgeAlignedLeft">
                                         <ListBox SelectionMode="Multiple,Toggle"
@@ -94,10 +95,10 @@
                                               Content="{DynamicResource icon-arrow-up}" />
                                 <ToggleButton Classes="pixi-icon"
                                               Name="ViewModeListButton"
-                                              IsChecked="{Binding $parent[input:BrushPicker].IsGridView,Mode=TwoWay}"/>
+                                              IsChecked="{Binding $parent[input:BrushPicker].IsGridView,Mode=TwoWay}" />
                                 <Button Classes="pixi-icon"
                                         Command="{xaml:Command PixiEditor.Brushes.Import}"
-                                        Content="{DynamicResource icon-upload}"/>
+                                        Content="{DynamicResource icon-upload}" />
                             </StackPanel>
 
                             <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
@@ -165,18 +166,44 @@
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <Border CornerRadius="4" IsHitTestVisible="True">
-                                                <input:BrushItem Brush="{Binding .}" />
-                                                <Interaction.Behaviors>
-                                                    <ExecuteCommandOnPointerPressedBehavior
-                                                        Command="{Binding $parent[input:BrushPicker].SelectBrushCommand}"
-                                                        CommandParameter="{Binding }" />
-                                                </Interaction.Behaviors>
+                                                <input:BrushItem PointerPressed="SelectBrushElementPressed"
+                                                                 Brush="{Binding .}" />
                                                 <Classes.selected>
                                                     <MultiBinding Converter="{converters:AreEqualConverter}">
                                                         <Binding Path="$parent[input:BrushPicker].SelectedBrush" />
                                                         <Binding />
                                                     </MultiBinding>
                                                 </Classes.selected>
+                                                <Border.ContextMenu>
+                                                    <ContextMenu Tag="{Binding}">
+                                                        <MenuItem
+                                                            Header="{localization:Translate Key=EDIT}"
+                                                            IsEnabled="{Binding !IsReadOnly}"
+                                                            Command="{xaml:Command PixiEditor.Brushes.Edit}"
+                                                            CommandParameter="{Binding }" />
+                                                        <MenuItem
+                                                            Header="{localization:Translate Key=DUPLICATE}"
+                                                            IsEnabled="{Binding IsDuplicable}"
+                                                            Command="{xaml:Command PixiEditor.Brushes.Duplicate}"
+                                                            CommandParameter="{Binding }" />
+                                                        <MenuItem Header="{localization:Translate Key=TAGS}">
+                                                            <Interaction.Behaviors>
+                                                                <behaviours:MenuItemSourceBehavior
+                                                                    CheckedItems="{Binding Tags}"
+                                                                    ItemsSource="{Binding $parent[input:BrushPicker].Categories}">
+                                                                    <behaviours:MenuItemSourceBehavior.AdditionalElement>
+                                                                        <MenuItem localization:Translator.Key="ADD_NEW" Click="AddNewCategory_OnClick"/>
+                                                                    </behaviours:MenuItemSourceBehavior.AdditionalElement>
+                                                                </behaviours:MenuItemSourceBehavior>
+                                                            </Interaction.Behaviors>
+                                                        </MenuItem>
+                                                        <MenuItem
+                                                            Header="{localization:Translate Key=DELETE}"
+                                                            Command="{xaml:Command PixiEditor.Brushes.Delete, UseProvided=True}"
+                                                            IsEnabled="{Binding !IsReadOnly}"
+                                                            CommandParameter="{Binding }" />
+                                                    </ContextMenu>
+                                                </Border.ContextMenu>
                                             </Border>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>

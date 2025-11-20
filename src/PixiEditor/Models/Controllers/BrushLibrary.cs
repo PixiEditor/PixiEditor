@@ -52,6 +52,7 @@ internal class BrushLibrary
                     var doc = Importer.ImportDocument(buffer, null);
 
                     var brush = LoadBrush(localPath, doc);
+                    brush.IsReadOnly = true;
                     brushes.Add(brush.OutputNodeId, brush);
                 }
                 catch (Exception ex)

@@ -1,17 +1,9 @@
 ﻿using Avalonia.Platform;
-using ChunkyImageLib;
-using ChunkyImageLib.DataHolders;
-using Drawie.Backend.Core;
-using Drawie.Backend.Core.Surfaces;
-using Drawie.Backend.Core.Surfaces.ImageData;
-using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
-using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.IO;
-using PixiEditor.ViewModels.Document.Nodes.Brushes;
 
 namespace PixiEditor.Models.BrushEngine;
 
@@ -23,7 +15,9 @@ internal class Brush : IBrush
     public string? FilePath { get; }
     public Guid OutputNodeId { get; }
     public Guid PersistentId { get; }
-    public string[] Tags { get; set; } = Array.Empty<string>();
+    public string[] EmbeddedTags { get; set; } = Array.Empty<string>();
+    public bool IsDuplicable { get; set; } = true;
+    public bool IsReadOnly { get; set; } = false;
 
     public Brush(Uri uri)
     {
@@ -61,7 +55,7 @@ internal class Brush : IBrush
         Name = name;
         Document = doc;
 
-        Tags = ExtractTags(outputNode)?.ToArray() ?? [];
+        EmbeddedTags = ExtractTags(outputNode)?.ToArray() ?? [];
 
         stream.Close();
         stream.Dispose();
@@ -79,7 +73,7 @@ internal class Brush : IBrush
         {
             OutputNodeId = outputNode.Id;
             PersistentId = outputNode.PersistentId;
-            Tags = ExtractTags(outputNode)?.ToArray() ?? [];
+            EmbeddedTags = ExtractTags(outputNode)?.ToArray() ?? [];
         }
         else
         {

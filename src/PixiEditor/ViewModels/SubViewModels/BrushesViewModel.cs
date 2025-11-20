@@ -10,6 +10,7 @@ using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.IO;
 using PixiEditor.UI.Common.Localization;
+using PixiEditor.ViewModels.BrushSystem;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Document.Nodes.Brushes;
 
@@ -80,6 +81,30 @@ internal class BrushesViewModel : SubViewModel<ViewModelMain>
         BrushLibrary.LoadBrushes();
     }
 
+    [Command.Internal("PixiEditor.Brushes.Delete", "DELETE_BRUSH")]
+    public void DeleteBrush(BrushViewModel brushViewModel)
+    {
+        try
+        {
+            if(brushViewModel == null || brushViewModel.IsReadOnly || brushViewModel.Brush == null)
+                return;
+
+            var directory = Path.GetDirectoryName(brushViewModel.Brush.FilePath);
+            if (directory == null || !Directory.Exists(directory) ||
+                !brushViewModel.Brush.FilePath.StartsWith(Paths.PathToBrushesFolder))
+            {
+                return;
+            }
+
+            File.Delete(brushViewModel.Brush.FilePath);
+        }
+        catch (Exception e)
+        {
+            NoticeDialog.Show(
+                new LocalizedString("ERROR_DELETING_BRUSH_MESSAGE", e.Message),
+                "ERROR_DELETING_BRUSH_TITLE");
+        }
+    }
 
     [Command.Basic("PixiEditor.Brushes.Import", "IMPORT_BRUSH", "IMPORT_BRUSH_DESCRIPTIVE")]
     public void ImportBrush()

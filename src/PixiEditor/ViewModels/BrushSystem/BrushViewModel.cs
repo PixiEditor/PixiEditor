@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core;
@@ -18,6 +19,7 @@ internal class BrushViewModel : ViewModelBase
     private Texture strokeTexture;
     private Brush brush;
     private bool isFavourite;
+    private ObservableCollection<string> tags;
 
     public Texture PointPreviewTexture
     {
@@ -56,11 +58,40 @@ internal class BrushViewModel : ViewModelBase
     {
         get
         {
-            if(Brush?.Tags == null)
-                return new ObservableCollection<string>();
+            if (tags == null)
+            {
+                ObservableCollection<string> collection;
+                if (tags != null)
+                {
+                    tags.CollectionChanged -= CollectionOnCollectionChanged;
+                }
 
-            return new ObservableCollection<string>(Brush.Tags);
+                if (Brush?.EmbeddedTags == null)
+                {
+                    collection = new ObservableCollection<string>();
+                }
+                else
+                {
+                    collection = new ObservableCollection<string>(Brush.EmbeddedTags);
+                }
+
+                var tagsInPreferences = IPreferences.Current.GetPreference<List<string>>($"{Brush.PersistentId}_Tags");
+                if (tagsInPreferences != null)
+                {
+                    collection = new ObservableCollection<string>(tagsInPreferences);
+                }
+
+                collection.CollectionChanged += CollectionOnCollectionChanged;
+                tags = collection;
+            }
+
+            return tags;
         }
+    }
+
+    private void CollectionOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        IPreferences.Current.UpdatePreference($"{Brush.PersistentId}_Tags", new List<string>(Tags));
     }
 
     public Brush Brush
@@ -87,9 +118,20 @@ internal class BrushViewModel : ViewModelBase
         }
     }
 
+    public bool IsDuplicable
+    {
+        get => Brush?.IsDuplicable ?? true;
+    }
+
+    public bool IsReadOnly
+    {
+       get => Brush?.IsReadOnly ?? false;
+    }
+
     private List<Guid> TogglePreference()
     {
-        var current = IPreferences.Current.GetPreference<List<Guid>>(PreferencesConstants.FavouriteBrushes) ?? new List<Guid>();
+        var current = IPreferences.Current.GetPreference<List<Guid>>(PreferencesConstants.FavouriteBrushes) ??
+                      new List<Guid>();
         if (isFavourite)
         {
             if (!current.Contains(Brush.PersistentId))
@@ -110,13 +152,15 @@ internal class BrushViewModel : ViewModelBase
     {
         Brush = brush;
         lastTextureCache = 0;
-        isFavourite = IPreferences.Current.GetPreference<List<Guid>>(PreferencesConstants.FavouriteBrushes)?.Contains(Brush.PersistentId) ?? false;
+        isFavourite = IPreferences.Current.GetPreference<List<Guid>>(PreferencesConstants.FavouriteBrushes)
+            ?.Contains(Brush.PersistentId) ?? false;
     }
 
     private void GeneratePreviewTextures()
     {
         BrushOutputNode? brushNode =
-            Brush?.Document?.AccessInternalReadOnlyDocument().NodeGraph.LookupNode(Brush.OutputNodeId) as BrushOutputNode;
+            Brush?.Document?.AccessInternalReadOnlyDocument().NodeGraph.LookupNode(Brush.OutputNodeId) as
+                BrushOutputNode;
         if (brushNode == null)
             return;
 
