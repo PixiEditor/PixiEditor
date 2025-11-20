@@ -179,12 +179,12 @@
                                                         <MenuItem
                                                             Header="{localization:Translate Key=EDIT}"
                                                             IsEnabled="{Binding !IsReadOnly}"
-                                                            Command="{xaml:Command PixiEditor.Brushes.Edit}"
+                                                            Command="{xaml:Command PixiEditor.Brushes.Edit, UseProvided=True}"
                                                             CommandParameter="{Binding }" />
                                                         <MenuItem
                                                             Header="{localization:Translate Key=DUPLICATE}"
                                                             IsEnabled="{Binding IsDuplicable}"
-                                                            Command="{xaml:Command PixiEditor.Brushes.Duplicate}"
+                                                            Command="{xaml:Command PixiEditor.Brushes.Duplicate, UseProvided=True}"
                                                             CommandParameter="{Binding }" />
                                                         <MenuItem Header="{localization:Translate Key=TAGS}">
                                                             <Interaction.Behaviors>

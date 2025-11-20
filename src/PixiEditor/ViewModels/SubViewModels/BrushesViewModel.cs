@@ -86,7 +86,7 @@ internal class BrushesViewModel : SubViewModel<ViewModelMain>
     {
         try
         {
-            if(brushViewModel == null || brushViewModel.IsReadOnly || brushViewModel.Brush == null)
+            if (brushViewModel == null || brushViewModel.IsReadOnly || brushViewModel.Brush == null)
                 return;
 
             var directory = Path.GetDirectoryName(brushViewModel.Brush.FilePath);
@@ -138,5 +138,32 @@ internal class BrushesViewModel : SubViewModel<ViewModelMain>
                     new LocalizedString("ERROR_IMPORTING_BRUSH_MESSAGE", e.Message));
             }
         });
+    }
+
+    [Command.Internal("PixiEditor.Brushes.Edit", "EDIT_BRUSH")]
+    public void EditBrush(BrushViewModel brushViewModel)
+    {
+        if (brushViewModel == null || brushViewModel.IsReadOnly || brushViewModel.Brush == null)
+            return;
+
+        Owner.DocumentManagerSubViewModel.OpenDocument(brushViewModel.Brush.FilePath);
+    }
+
+    [Command.Internal("PixiEditor.Brushes.Duplicate", "DUPLICATE_BRUSH")]
+    public void DuplicateBrush(BrushViewModel brushViewModel)
+    {
+        if (brushViewModel == null || brushViewModel.IsReadOnly || brushViewModel.Brush == null)
+            return;
+
+        if (File.Exists(brushViewModel.Brush.FilePath))
+        {
+            string directory = Path.GetDirectoryName(brushViewModel.Brush.FilePath) ?? Paths.PathToBrushesFolder;
+            string fileName = Path.GetFileNameWithoutExtension(brushViewModel.Brush.FilePath);
+            string extension = Path.GetExtension(brushViewModel.Brush.FilePath);
+            string newFilePath = FileHelper.GetUniqueFileName(Path.Combine(directory, $"{fileName}_copy{extension}"));
+
+            File.Copy(brushViewModel.Brush.FilePath, newFilePath);
+            Owner.DocumentManagerSubViewModel.OpenDocument(newFilePath);
+        }
     }
 }

@@ -72,7 +72,8 @@ internal class BrushLibrary
                 var doc = Importer.ImportDocument(e.FullPath, false);
 
                 var brush = LoadBrush(e.FullPath, doc);
-                brushes.Add(brush.OutputNodeId, brush);
+                brushes[brush.OutputNodeId] = brush;
+
                 BrushesChanged?.Invoke();
             }
             catch (Exception ex)
