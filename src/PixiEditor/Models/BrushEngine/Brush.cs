@@ -16,10 +16,11 @@ internal class Brush : IBrush
     public Guid OutputNodeId { get; }
     public Guid PersistentId { get; }
     public string[] EmbeddedTags { get; set; } = Array.Empty<string>();
+    public string Source { get; set; }
     public bool IsDuplicable { get; set; } = true;
     public bool IsReadOnly { get; set; } = false;
 
-    public Brush(Uri uri)
+    public Brush(Uri uri, string source)
     {
         Stream stream;
         if (uri.IsFile)
@@ -56,16 +57,17 @@ internal class Brush : IBrush
         Document = doc;
 
         EmbeddedTags = ExtractTags(outputNode)?.ToArray() ?? [];
+        Source = source;
 
         stream.Close();
         stream.Dispose();
     }
 
-    public Brush(string name, IDocument brushDocument, string? filePath = null)
+    public Brush(string name, IDocument brushDocument, string source, string? filePath)
     {
         Name = name;
         Document = brushDocument;
-        FilePath = filePath ?? brushDocument.FullFilePath;
+        FilePath = filePath;
         BrushOutputNode? outputNode =
             brushDocument.AccessInternalReadOnlyDocument().NodeGraph.AllNodes.OfType<BrushOutputNode>()
                 .FirstOrDefault();
@@ -80,6 +82,8 @@ internal class Brush : IBrush
             OutputNodeId = Guid.NewGuid();
             PersistentId = Guid.NewGuid();
         }
+
+        Source = source;
     }
 
     private static IEnumerable<string> ExtractTags(BrushOutputNode outputNode)

@@ -23,7 +23,7 @@ using PixiEditor.Parser;
 
 namespace PixiEditor.Models.Handlers;
 
-internal interface IDocument : IHandler, Extensions.CommonApi.Documents.IDocument
+internal interface IDocument : IHandler, Extensions.CommonApi.Documents.IDocument, IDisposable
 {
     public Guid Id { get; }
     public string FullFilePath { get; }

@@ -11,6 +11,7 @@ public static partial class PixiPerfectIcons
     public const string ArrowLeft = "\uE925";
     public const string ArrowRight = "\uE926";
     public const string ArrowUp = "\uE927";
+    public const string ArrowUpDown = "\uE9DA";
     public const string Bold = "\uE9AD";
     public const string Book = "\uE928";
     public const string Braces = "\uE9CF";
@@ -62,6 +63,7 @@ public static partial class PixiPerfectIcons
     public const string DuplicateFile = "\uE940";
     public const string DuplicateImage = "\uE907";
     public const string Edit = "\uE942";
+    public const string EllipsisVertical = "\uE9DB";
     public const string Eraser = "\uE96D";
     public const string EthernetPort = "\uE9D5";
     public const string Exit = "\uE943";
@@ -81,6 +83,7 @@ public static partial class PixiPerfectIcons
     public const string Github = "\uE99A";
     public const string Globe = "\uE94E";
     public const string Grid = "\uE94F";
+    public const string GridRound = "\uE9D9";
     public const string Gridlines = "\uE961";
     public const string Hand = "\uE9C9";
     public const string HardDrive = "\uE98C";
@@ -112,6 +115,7 @@ public static partial class PixiPerfectIcons
     public const string Link = "\uE98B";
     public const string Link1 = "\uE9D3";
     public const string LinkedPipette = "\uE9B7";
+    public const string List = "\uE9DC";
     public const string Lock = "\uE95B";
     public const string LogOut = "\uE95C";
     public const string LongArrowUp = "\uE91B";

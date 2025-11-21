@@ -1241,5 +1241,14 @@
   "ADD_NEW_CATEGORY": "Add New Category",
   "CATEGORY_NAME": "Category Name",
   "ERROR_DELETING_BRUSH_TITLE": "Error deleting brush",
-  "ERROR_DELETING_BRUSH_MESSAGE": "An error occurred while deleting the brush: {0}"
+  "ERROR_DELETING_BRUSH_MESSAGE": "An error occurred while deleting the brush: {0}",
+  "OPEN_BRUSH_FOLDER": "Open Brushes Folder",
+  "TOGGLE_VIEW_MODE": "Toggle View Mode",
+  "IMPORT_BRUSH": "Import Brush",
+  "SORTING": "Sorting",
+  "MORE_OPTIONS": "More Options",
+  "OPENED_DOCUMENT": "Opened Document",
+  "BUILT_IN": "Built-in",
+  "LOCAL": "Local",
+  "TOOL_CONFIG": "Tool Config"
 }

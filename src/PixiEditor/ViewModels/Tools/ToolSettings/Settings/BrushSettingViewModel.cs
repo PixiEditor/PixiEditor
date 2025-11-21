@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using Avalonia.Threading;
 using PixiEditor.Models.BrushEngine;
 using PixiEditor.Models.Controllers;
 using PixiEditor.ViewModels.BrushSystem;
@@ -32,8 +33,11 @@ internal class BrushSettingViewModel : Setting<BrushViewModel>
         Label = label;
         Library.BrushesChanged += () =>
         {
-            viewModels = new ObservableCollection<BrushViewModel>(Library.Brushes.Values.Select(b => new BrushViewModel(b)));
-            OnPropertyChanged(nameof(AllBrushes));
+            Dispatcher.UIThread.Post(() =>
+            {
+                viewModels = new ObservableCollection<BrushViewModel>(Library.Brushes.Values.Select(b => new BrushViewModel(b)));
+                OnPropertyChanged(nameof(AllBrushes));
+            });
         };
 
         viewModels = new ObservableCollection<BrushViewModel>(Library.Brushes.Values.Select(b => new BrushViewModel(b)));

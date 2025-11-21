@@ -72,11 +72,12 @@ internal partial class BrushItem : UserControl
 
     public void ToggleFavorite()
     {
-        if (Brush == null)
+        var brush = Brush;
+        if (brush == null)
             return;
 
-        Brush.IsFavourite = !Brush.IsFavourite;
-        PseudoClasses.Set(":favourite", Brush.IsFavourite);
+        brush.IsFavourite = !brush.IsFavourite;
+        PseudoClasses.Set(":favourite", brush.IsFavourite);
     }
 
     protected override void OnPointerExited(PointerEventArgs e)
@@ -87,6 +88,11 @@ internal partial class BrushItem : UserControl
     protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
     {
         StopStrokePreviewLoop();
+        previewTexture?.Dispose();
+        previewTexture = null;
+
+        previewImage?.Dispose();
+        previewImage = null;
     }
 
     private void StartStrokePreviewLoop()
@@ -118,7 +124,6 @@ internal partial class BrushItem : UserControl
                 new ChunkyImage(new VecI(BrushOutputNode.StrokePreviewSizeX, BrushOutputNode.StrokePreviewSizeY),
                     ColorSpace.CreateSrgb());
         }
-
 
         DrawingStrokeTexture = previewTexture;
 
@@ -152,20 +157,20 @@ internal partial class BrushItem : UserControl
                     }, TimeSpan.FromSeconds(1));
                     return false;
                 }
+
+                previewImage.DrawMostUpToDateRegionOn(
+                    new RectI(0, 0, previewImage.CommittedSize.X, previewImage.CommittedSize.Y),
+                    ChunkResolution.Full,
+                    previewTexture.DrawingSurface.Canvas,
+                    VecI.Zero, null, SamplingOptions.Bilinear);
+
+                StrokePreviewControl.QueueNextFrame();
             }
             catch
             {
                 StopStrokePreviewLoop();
                 return false;
             }
-
-            previewImage.DrawMostUpToDateRegionOn(
-                new RectI(0, 0, previewImage.CommittedSize.X, previewImage.CommittedSize.Y),
-                ChunkResolution.Full,
-                previewTexture.DrawingSurface.Canvas,
-                VecI.Zero, null, SamplingOptions.Bilinear);
-
-            StrokePreviewControl.QueueNextFrame();
 
             return isPreviewingStroke;
         }, TimeSpan.FromMilliseconds(8));

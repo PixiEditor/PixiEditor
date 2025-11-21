@@ -128,6 +128,8 @@ internal class BrushViewModel : ViewModelBase
        get => Brush?.IsReadOnly ?? false;
     }
 
+    public string Source => Brush?.Source ?? "";
+
     private List<Guid> TogglePreference()
     {
         var current = IPreferences.Current.GetPreference<List<Guid>>(PreferencesConstants.FavouriteBrushes) ??

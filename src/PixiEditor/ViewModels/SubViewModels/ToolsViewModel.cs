@@ -710,7 +710,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
 
                 if (AssetLoader.Exists(uri) || File.Exists(uri.LocalPath))
                 {
-                    var brush = new Brush(uri);
+                    var brush = new Brush(uri, "TOOL_CONFIG");
                     KeyCombination? shortcut = TryParseShortcut(toolFromToolset.DefaultShortcut);
                     return new BrushBasedToolViewModel(brush, toolFromToolset.ToolTip, toolFromToolset.ToolName,
                         shortcut, toolFromToolset.ActionDisplays);

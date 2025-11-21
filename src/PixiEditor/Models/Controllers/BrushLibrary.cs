@@ -28,6 +28,7 @@ internal class BrushLibrary
         brushWatcher = new FileSystemWatcher(pathToBrushes, "*.pixi");
         brushWatcher.IncludeSubdirectories = true;
         brushWatcher.Created += OnBrushAdded;
+        brushWatcher.Changed += OnBrushChanged;
         brushWatcher.Deleted += OnBrushRemoved;
 
         brushWatcher.EnableRaisingEvents = true;
@@ -51,7 +52,7 @@ internal class BrushLibrary
                     stream.ReadExactly(buffer, 0, buffer.Length);
                     var doc = Importer.ImportDocument(buffer, null);
 
-                    var brush = LoadBrush(localPath, doc);
+                    var brush = LoadBrush(localPath, doc, "BUILT_IN");
                     brush.IsReadOnly = true;
                     brushes.Add(brush.OutputNodeId, brush);
                 }
@@ -71,7 +72,7 @@ internal class BrushLibrary
             {
                 var doc = Importer.ImportDocument(e.FullPath, false);
 
-                var brush = LoadBrush(e.FullPath, doc);
+                var brush = LoadBrush(e.FullPath, doc, "LOCAL");
                 brushes[brush.OutputNodeId] = brush;
 
                 BrushesChanged?.Invoke();
@@ -83,7 +84,38 @@ internal class BrushLibrary
         });
     }
 
-    private static Brush LoadBrush(string fullFilePath, DocumentViewModel doc)
+    private void OnBrushChanged(object sender, FileSystemEventArgs e)
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            try
+            {
+                var oldBrush = brushes.Values.FirstOrDefault(b => string.Equals(
+                    e.FullPath,
+                    b.FilePath,
+                    StringComparison.OrdinalIgnoreCase));
+
+                var doc = Importer.ImportDocument(e.FullPath, false);
+
+                if (oldBrush is { Document: IDisposable disposableDoc })
+                {
+                    disposableDoc.Dispose();
+                    brushes.Remove(oldBrush.OutputNodeId);
+                }
+
+                var brush = LoadBrush(e.FullPath, doc, "LOCAL");
+                brushes[brush.OutputNodeId] = brush;
+
+                BrushesChanged?.Invoke();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to reload brush from {e.FullPath}: {ex.Message}");
+            }
+        });
+    }
+
+    private static Brush LoadBrush(string fullFilePath, DocumentViewModel doc, string source)
     {
         using var graph = doc.ShareGraph();
         BrushOutputNode outputNode =
@@ -94,7 +126,7 @@ internal class BrushLibrary
             name = outputNode.BrushName.Value;
         }
 
-        var brush = new Brush(name, doc, fullFilePath);
+        var brush = new Brush(name, doc, source, fullFilePath);
         return brush;
     }
 
@@ -123,7 +155,7 @@ internal class BrushLibrary
             try
             {
                 var doc = Importer.ImportDocument(file, false);
-                var brush = new Brush(Path.GetFileNameWithoutExtension(file), doc, file);
+                Brush brush = LoadBrush(file, doc, "LOCAL");
                 brushes.Add(brush.OutputNodeId, brush);
             }
             catch (Exception ex)

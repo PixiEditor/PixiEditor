@@ -30,7 +30,11 @@ internal class BrushSerializationFactory : SerializationFactory<byte[], Brush>
             int docLength = extractor.GetInt();
             byte[] docBytes = extractor.GetByteSpan(docLength).ToArray();
             var doc = PixiParser.V5.Deserialize(docBytes).ToDocument();
-            original = new Brush(name, doc);
+            original = new Brush(name, doc, "EMBEDDED", null)
+            {
+                IsDuplicable = false,
+                IsReadOnly = true
+            };
 
             return true;
         }

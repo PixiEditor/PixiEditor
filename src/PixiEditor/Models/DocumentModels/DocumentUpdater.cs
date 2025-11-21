@@ -1007,7 +1007,11 @@ internal class DocumentUpdater
         if (node is BrushOutputNodeViewModel brushVm)
         {
             ViewModelMain.Current.BrushesSubViewModel.BrushLibrary.Add(
-                new Brush(name, doc));
+                new Brush(name, doc, "OPENED_DOCUMENT", null)
+                {
+                    IsReadOnly = true,
+                    IsDuplicable = false
+                });
         }
     }
 

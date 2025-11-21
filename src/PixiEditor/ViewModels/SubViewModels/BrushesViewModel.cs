@@ -9,6 +9,7 @@ using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.IO;
+using PixiEditor.OperatingSystem;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.BrushSystem;
 using PixiEditor.ViewModels.Document;
@@ -54,7 +55,11 @@ internal class BrushesViewModel : SubViewModel<ViewModelMain>
                     ?.Value?.ToString() ?? "Unnamed";
 
                 BrushLibrary.Add(
-                    new Brush(name, node.Document));
+                    new Brush(name, node.Document, "OPENED_DOCUMENT", null)
+                    {
+                        IsDuplicable = false,
+                        IsReadOnly = true
+                    });
             }
         }
     }
@@ -165,5 +170,12 @@ internal class BrushesViewModel : SubViewModel<ViewModelMain>
             File.Copy(brushViewModel.Brush.FilePath, newFilePath);
             Owner.DocumentManagerSubViewModel.OpenDocument(newFilePath);
         }
+    }
+
+    [Command.Basic("PixiEditor.Brushes.OpenBrushesFolder", "OPEN_BRUSHES_FOLDER", "OPEN_BRUSHES_FOLDER_DESCRIPTIVE",
+        Icon = PixiPerfectIcons.Folder)]
+    public void OpenBrushesFolder()
+    {
+        IOperatingSystem.Current?.OpenFolder(Paths.PathToBrushesFolder);
     }
 }

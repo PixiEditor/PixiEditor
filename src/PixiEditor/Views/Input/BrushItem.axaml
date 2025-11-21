@@ -70,5 +70,7 @@
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
+        <TextBlock Grid.Row="1" Classes="subtext" VerticalAlignment="Bottom" HorizontalAlignment="Right"
+                   localization:Translator.Key="{Binding $parent[input:BrushItem].Brush.Source}"/>
     </Grid>
 </UserControl>

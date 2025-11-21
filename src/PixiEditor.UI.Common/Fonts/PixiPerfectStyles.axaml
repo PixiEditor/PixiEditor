@@ -47,4 +47,8 @@
     <Style Selector="ToggleButton.pixi-icon:checked">
         <Setter Property="Background" Value="{DynamicResource ThemeControlHighBrush}" />
     </Style>
+
+    <Style Selector="MenuItem.pixi-icon">
+        <Setter Property="FontFamily" Value="{DynamicResource PixiPerfectIcons}" />
+    </Style>
 </Styles>
