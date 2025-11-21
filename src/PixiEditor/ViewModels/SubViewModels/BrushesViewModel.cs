@@ -157,7 +157,7 @@ internal class BrushesViewModel : SubViewModel<ViewModelMain>
     [Command.Internal("PixiEditor.Brushes.Duplicate", "DUPLICATE_BRUSH")]
     public void DuplicateBrush(BrushViewModel brushViewModel)
     {
-        if (brushViewModel == null || brushViewModel.IsReadOnly || brushViewModel.Brush == null)
+        if (brushViewModel == null || !brushViewModel.IsDuplicable || brushViewModel.Brush == null)
             return;
 
         if (File.Exists(brushViewModel.Brush.FilePath))
@@ -169,6 +169,12 @@ internal class BrushesViewModel : SubViewModel<ViewModelMain>
 
             File.Copy(brushViewModel.Brush.FilePath, newFilePath);
             Owner.DocumentManagerSubViewModel.OpenDocument(newFilePath);
+        }
+        else if(brushViewModel.Brush.Document is DocumentViewModel dvm)
+        {
+            string uniqueName = FileHelper.GetUniqueFileName(
+                Path.Combine(Paths.PathToBrushesFolder, $"{brushViewModel.Brush.Name}_clone.pixi"));
+            Exporter.TrySave(dvm, uniqueName, new ExportConfig(dvm.SizeBindable), null);
         }
     }
 
