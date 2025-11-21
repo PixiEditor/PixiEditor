@@ -38,7 +38,7 @@ internal partial class TexturePicker : UserControl
 
     private async Task PickTextureFile()
     {
-        var any = new FileTypeDialogDataSet(FileTypeDialogDataSet.SetKind.Image).GetFormattedTypes(false);
+        var any = new FileTypeDialogDataSet(FileTypeDialogDataSet.SetKind.Image).GetFormattedTypes(true);
 
         if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
