@@ -1250,5 +1250,6 @@
   "OPENED_DOCUMENT": "Opened Document",
   "BUILT_IN": "Built-in",
   "LOCAL": "Local",
-  "TOOL_CONFIG": "Tool Config"
+  "TOOL_CONFIG": "Tool Config",
+  "FORCE_PRESSURE_SETTING": "Force Pressure"
 }

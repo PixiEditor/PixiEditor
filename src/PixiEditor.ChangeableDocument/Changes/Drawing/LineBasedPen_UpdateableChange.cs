@@ -98,7 +98,10 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     {
         if (brushOutputNode != null)
         {
-            brushData = new BrushData(brushData.BrushGraph, brushData.TargetBrushNodeId) { StrokeWidth = strokeWidth, AntiAliasing = antiAliasing };
+            brushData = new BrushData(brushData.BrushGraph, brushData.TargetBrushNodeId)
+            {
+                StrokeWidth = strokeWidth, AntiAliasing = antiAliasing, ForcePressure = brushData.ForcePressure
+            };
         }
     }
 

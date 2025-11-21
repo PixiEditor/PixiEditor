@@ -9,7 +9,7 @@ public struct BrushData
     public bool AntiAliasing { get; set; }
     public float StrokeWidth { get; set; }
     public Guid TargetBrushNodeId { get; set; }
-
+    public bool ForcePressure { get; set; }
 
     public BrushData(IReadOnlyNodeGraph brushGraph, Guid targetBrushNodeId)
     {

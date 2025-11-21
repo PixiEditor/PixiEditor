@@ -220,7 +220,9 @@ public class BrushEngine : IDisposable
         {
             var data = new BrushData(previous, brushData.TargetBrushNodeId)
             {
-                AntiAliasing = brushData.AntiAliasing, StrokeWidth = brushData.StrokeWidth,
+                AntiAliasing = brushData.AntiAliasing,
+                StrokeWidth = brushData.StrokeWidth,
+                ForcePressure = brushData.ForcePressure
             };
 
             var previousBrushNode = previous.AllNodes.FirstOrDefault(x => x is BrushOutputNode) as BrushOutputNode;
@@ -244,7 +246,7 @@ public class BrushEngine : IDisposable
 
         bool autoPosition = brushNode.AutoPosition.Value;
         bool fitToStrokeSize = brushNode.FitToStrokeSize.Value;
-        float pressure = brushNode.Pressure.Value;
+        float pressure = brushData.ForcePressure && brushNode.Pressure.Connection == null ? context.PointerInfo.Pressure : brushNode.Pressure.Value;
         var content = brushNode.Content.Value;
         var contentTexture = brushNode.ContentTexture;
         bool antiAliasing = brushData.AntiAliasing;
