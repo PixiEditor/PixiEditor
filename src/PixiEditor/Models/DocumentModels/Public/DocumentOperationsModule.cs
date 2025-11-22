@@ -1094,4 +1094,9 @@ internal class DocumentOperationsModule : IDocumentOperations
 
         Internals.ActionAccumulator.AddFinishedActions(new UpdatePropertyValue_Action(guid, propertyName, value), new EndUpdatePropertyValue_Action());
     }
+
+    public void RecordFrame()
+    {
+        Internals.ActionAccumulator.AddFinishedActions(new DebugRecordFrame_PassthroughAction());
+    }
 }

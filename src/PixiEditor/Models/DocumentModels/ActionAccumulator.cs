@@ -125,6 +125,8 @@ internal class ActionAccumulator
                     toExecute.Any(static action => action.action is RefreshPreview_PassthroughAction);
                 bool changeFrameRequest =
                     toExecute.Any(static action => action.action is SetActiveFrame_PassthroughAction);
+                bool debugRecordRequest =
+                    toExecute.Any(static action => action.action is DebugRecordFrame_PassthroughAction);
 
                 foreach (IChangeInfo info in optimizedChanges)
                 {
@@ -168,8 +170,16 @@ internal class ActionAccumulator
                 if(internals.Tracker.IsDisposed)
                     return;
 
-                await document.SceneRenderer.RenderAsync(internals.State.Viewports, affectedAreas.MainImageArea,
-                    !previewsDisabled && updateDelayed, previewTextures, immediateRender);
+                if (debugRecordRequest)
+                {
+                    await document.SceneRenderer.RecordRender(internals.State.Viewports, affectedAreas.MainImageArea,
+                        !previewsDisabled && updateDelayed, previewTextures, immediateRender);
+                }
+                else
+                {
+                    await document.SceneRenderer.RenderAsync(internals.State.Viewports, affectedAreas.MainImageArea,
+                        !previewsDisabled && updateDelayed, previewTextures, immediateRender);
+                }
 
                 NotifyUpdatedPreviews(updatePreviewActions);
             }

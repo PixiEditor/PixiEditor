@@ -46,28 +46,35 @@ internal class SceneRenderer
         DocumentViewModel = documentViewModel;
     }
 
+    public async Task RecordRender(Dictionary<Guid, ViewportInfo> stateViewports, AffectedArea affectedArea,
+        bool updateDelayed, Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures, bool immediateRender)
+    {
+        Render(stateViewports, affectedArea, updateDelayed, true, previewTextures);
+    }
+
     public async Task RenderAsync(Dictionary<Guid, ViewportInfo> stateViewports, AffectedArea affectedArea,
         bool updateDelayed, Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures, bool immediateRender)
     {
         if (immediateRender)
         {
-            Render(stateViewports, affectedArea, updateDelayed, previewTextures);
+            Render(stateViewports, affectedArea, updateDelayed, false, previewTextures);
             return;
         }
 
         await DrawingBackendApi.Current.RenderingDispatcher.InvokeInBackgroundAsync(() =>
         {
-            Render(stateViewports, affectedArea, updateDelayed, previewTextures);
+            Render(stateViewports, affectedArea, updateDelayed, false, previewTextures);
         });
     }
 
     public void RenderSync(Dictionary<Guid, ViewportInfo> stateViewports, AffectedArea affectedAreasMainImageArea,
         bool updateDelayed, Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures)
     {
-        Render(stateViewports, affectedAreasMainImageArea, updateDelayed, previewTextures);
+        Render(stateViewports, affectedAreasMainImageArea, updateDelayed, false, previewTextures);
     }
 
     private void Render(Dictionary<Guid, ViewportInfo> stateViewports, AffectedArea affectedArea, bool updateDelayed,
+        bool debugRecord,
         Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures)
     {
         using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
@@ -79,9 +86,10 @@ internal class SceneRenderer
                 continue;
             }
 
-            if (viewport.Value.RealDimensions.ShortestAxis <= 0 || Math.Abs(viewport.Value.RealDimensions.LongestAxis - double.MaxValue) < double.Epsilon) continue;
+            if (viewport.Value.RealDimensions.ShortestAxis <= 0 ||
+                Math.Abs(viewport.Value.RealDimensions.LongestAxis - double.MaxValue) < double.Epsilon) continue;
 
-            var rendered = RenderScene(viewport.Value, affectedArea, previewTextures);
+            var rendered = RenderScene(viewport.Value, affectedArea, debugRecord && viewport.Value.IsScene, previewTextures);
             if (DocumentViewModel.SceneTextures.TryGetValue(viewport.Key, out var texture) && texture != rendered)
             {
                 texture.Dispose();
@@ -114,11 +122,12 @@ internal class SceneRenderer
             Delayed = false
         };
 
-        var rendered = RenderScene(previewGenerationViewport, affectedArea, previewTextures);
+        var rendered = RenderScene(previewGenerationViewport, affectedArea, false, previewTextures);
         rendered.Dispose();
     }
 
     public Texture? RenderScene(ViewportInfo viewport, AffectedArea affectedArea,
+        bool debugRecord = false,
         Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures = null)
     {
         /*if (Document.Renderer.IsBusy || DocumentViewModel.Busy ||
@@ -174,7 +183,7 @@ internal class SceneRenderer
         bool shouldRerender =
             ShouldRerender(renderTargetSize, isFullViewportRender ? Matrix3X3.Identity : targetMatrix, resolution,
                 viewportId, targetOutput, finalGraph,
-                previewTextures, visibleDocumentRegion, oversizeFactor, out bool fullAffectedArea);
+                previewTextures, visibleDocumentRegion, oversizeFactor, out bool fullAffectedArea) || debugRecord;
 
         if (shouldRerender)
         {
@@ -184,7 +193,7 @@ internal class SceneRenderer
                 : affectedArea;
             return RenderGraph(renderTargetSize, targetMatrix, viewportId, resolution, samplingOptions, affectedArea,
                 visibleDocumentRegion, targetOutput, viewport.IsScene, oversizeFactor,
-                pointerInfo, keyboardInfo, editorData, viewport.ViewportData, finalGraph, previewTextures);
+                pointerInfo, keyboardInfo, editorData, viewport.ViewportData, debugRecord, finalGraph, previewTextures);
         }
 
         var cachedTexture = DocumentViewModel.SceneTextures[viewportId];
@@ -203,6 +212,7 @@ internal class SceneRenderer
         KeyboardInfo keyboardInfo,
         EditorData editorData,
         ViewportData viewportData,
+        bool debugRecord,
         IReadOnlyNodeGraph finalGraph, Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures)
     {
         DrawingSurface renderTarget = null;
@@ -234,8 +244,7 @@ internal class SceneRenderer
             else
             {
                 var bufferedSize = (VecI)(renderTargetSize * oversizeFactor);
-                renderTexture = textureCache.RequestTexture(viewportId.GetHashCode(), bufferedSize,
-                    Document.ProcessingColorSpace);
+                renderTexture = textureCache.RequestTexture(viewportId.GetHashCode(), bufferedSize, Document.ProcessingColorSpace);
 
                 var bufferedMatrix = targetMatrix.PostConcat(Matrix3X3.CreateTranslation(
                     (bufferedSize.X - renderTargetSize.X) / 2.0,
@@ -283,7 +292,22 @@ internal class SceneRenderer
         context.VisibleDocumentRegion = visibleDocumentRegion;
         context.PreviewTextures = previewTextures;
         context.ViewportData = viewportData;
-        finalGraph.Execute(context);
+        if (debugRecord)
+        {
+            using DrawingRecorder recorder = new DrawingRecorder();
+            var recordingCanvas = recorder.BeginRecording(new RectD(0, 0, renderTargetSize.X, renderTargetSize.Y));
+            recordingCanvas.SetMatrix(context.RenderSurface.TotalMatrix);
+            context.RenderSurface = recordingCanvas;
+            finalGraph.Execute(context);
+            var picture = recorder.EndRecordingImmutable();
+            using FileStream fs = new FileStream("data.skp", FileMode.Create, FileAccess.Write);
+            picture.Serialize(fs);
+        }
+        else
+        {
+            finalGraph.Execute(context);
+        }
+
         ExecuteBrushOutputPreviews(finalGraph, previewTextures, context);
 
         if (renderOnionSkinning)
