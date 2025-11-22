@@ -61,7 +61,8 @@ internal class SceneRenderer
         });
     }
 
-    public void RenderSync(Dictionary<Guid, ViewportInfo> stateViewports, AffectedArea affectedAreasMainImageArea, bool updateDelayed, Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures)
+    public void RenderSync(Dictionary<Guid, ViewportInfo> stateViewports, AffectedArea affectedAreasMainImageArea,
+        bool updateDelayed, Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures)
     {
         Render(stateViewports, affectedAreasMainImageArea, updateDelayed, previewTextures);
     }
@@ -78,7 +79,7 @@ internal class SceneRenderer
                 continue;
             }
 
-            if (viewport.Value.RealDimensions.ShortestAxis <= 0) continue;
+            if (viewport.Value.RealDimensions.ShortestAxis <= 0 || Math.Abs(viewport.Value.RealDimensions.LongestAxis - double.MaxValue) < double.Epsilon) continue;
 
             var rendered = RenderScene(viewport.Value, affectedArea, previewTextures);
             if (DocumentViewModel.SceneTextures.TryGetValue(viewport.Key, out var texture) && texture != rendered)
@@ -130,6 +131,7 @@ internal class SceneRenderer
          */
 
         VecI renderTargetSize = (VecI)viewport.RealDimensions;
+
         Matrix3X3 targetMatrix = viewport.ViewportData.Transform;
         Guid viewportId = viewport.Id;
         ChunkResolution resolution = viewport.Resolution;
@@ -170,7 +172,8 @@ internal class SceneRenderer
         }
 
         bool shouldRerender =
-            ShouldRerender(renderTargetSize, isFullViewportRender ? Matrix3X3.Identity : targetMatrix, resolution, viewportId, targetOutput, finalGraph,
+            ShouldRerender(renderTargetSize, isFullViewportRender ? Matrix3X3.Identity : targetMatrix, resolution,
+                viewportId, targetOutput, finalGraph,
                 previewTextures, visibleDocumentRegion, oversizeFactor, out bool fullAffectedArea);
 
         if (shouldRerender)
@@ -206,7 +209,8 @@ internal class SceneRenderer
         Texture? renderTexture = null;
         int restoreCanvasTo;
 
-        VecI finalSize = SolveRenderOutputSize(targetOutput, finalGraph, Document.Size, renderTargetSize, out bool isFullViewportRender);
+        VecI finalSize = SolveRenderOutputSize(targetOutput, finalGraph, Document.Size, renderTargetSize,
+            out bool isFullViewportRender);
         if (isFullViewportRender)
         {
             renderTexture =
