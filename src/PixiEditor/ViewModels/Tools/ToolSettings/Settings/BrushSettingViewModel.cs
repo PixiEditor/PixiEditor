@@ -50,9 +50,9 @@ internal class BrushSettingViewModel : Setting<BrushViewModel>
         {
             var found = Library.Brushes.Values.FirstOrDefault(b => b.Name == str);
             if (found != null)
-                return found;
+                return new BrushViewModel(found);
 
-            return Library.Brushes.First().Value;
+            return new BrushViewModel(Library.Brushes.First().Value);
         }
 
         return base.AdjustValue(value);

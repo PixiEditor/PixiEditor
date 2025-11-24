@@ -136,7 +136,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
 
     protected override void OnPaint(RenderContext context, Canvas renderTarget)
     {
-        if (Output.Connections.Count > 0)
+        if (Output.Connections.Count > 0 && renderTarget != null)
         {
             RenderForOutput(context, renderTarget, Output);
         }

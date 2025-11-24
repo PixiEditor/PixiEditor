@@ -10,6 +10,8 @@ using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.Models.BrushEngine;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
+using PixiEditor.ViewModels.BrushSystem;
+using PixiEditor.ViewModels.Tools.Tools;
 using PixiEditor.ViewModels.Tools.ToolSettings.Settings;
 using PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
 
@@ -67,7 +69,7 @@ internal class VariableViewModel : ViewModelBase, IVariableHandler
                 return;
 
             internals.ActionAccumulator.AddFinishedActions(
-                new SetBlackboardVariable_Action(Name, SettingView.Value, min, max, unit));
+                new SetBlackboardVariable_Action(Name, AdjustValueForBlackboard(SettingView.Value), min, max, unit));
         };
 
         RemoveCommand = new RelayCommand(() =>
@@ -75,6 +77,11 @@ internal class VariableViewModel : ViewModelBase, IVariableHandler
             internals.ActionAccumulator.AddFinishedActions(
                 new RemoveBlackboardVariable_Action(Name));
         });
+    }
+
+    protected virtual object AdjustValueForBlackboard(object value)
+    {
+        return value is BrushViewModel brushVm ? brushVm.Brush : value;
     }
 
     private Setting CreateSettingFromType(Type type, string? unit, double min, double max)
@@ -151,6 +158,11 @@ internal class VariableViewModel : ViewModelBase, IVariableHandler
 
     public void SetValueInternal(object newValue)
     {
+        if(SettingView is BrushSettingViewModel brushSetting && newValue is Brush brush)
+        {
+            newValue = new BrushViewModel(brush);
+        }
+
         this.value = newValue;
         suppressValueChange = true;
 

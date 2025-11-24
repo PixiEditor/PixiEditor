@@ -9,6 +9,7 @@ using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Input;
 using PixiEditor.UI.Common.Localization;
+using PixiEditor.ViewModels.BrushSystem;
 using PixiEditor.ViewModels.Document.Blackboard;
 using PixiEditor.ViewModels.Tools.ToolSettings.Settings;
 using PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
@@ -50,7 +51,7 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
         (Toolbar as Toolbar).SettingChanged += OnSettingChanged;
     }
 
-    public BrushBasedToolViewModel(Brush brush, string? tooltip, string? toolName, KeyCombination? defaultShortcut,
+    public BrushBasedToolViewModel(BrushViewModel brush, string? tooltip, string? toolName, KeyCombination? defaultShortcut,
         List<ActionDisplayConfig>? actionDisplays)
     {
         Cursor = Cursors.PreciseCursor;
@@ -141,7 +142,7 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
 
     private void OnSettingChanged(string name, object value)
     {
-        if (name == nameof(BrushToolbar.Brush))
+        if (value is BrushViewModel)
         {
             AddBrushShapeSettings();
         }

@@ -38,6 +38,9 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
 
     private void RenderContent(SceneObjectRenderContext context, Canvas renderOnto, bool useFilters)
     {
+        if (renderOnto == null)
+            return;
+
         if (!HasOperations())
         {
             if (Background.Value != null)

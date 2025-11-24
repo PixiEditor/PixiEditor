@@ -23,6 +23,7 @@ using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
 using PixiEditor.Helpers;
+using PixiEditor.Helpers.UI;
 using PixiEditor.Models.BrushEngine;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Handlers.Toolbars;
@@ -30,6 +31,7 @@ using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Input;
 using PixiEditor.Models.IO;
 using PixiEditor.UI.Common.Fonts;
+using PixiEditor.ViewModels.BrushSystem;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Document.Nodes.Brushes;
 using PixiEditor.ViewModels.Tools;
@@ -122,6 +124,8 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         get => _activeToolSet!;
         private set => SetProperty(ref _activeToolSet, value);
     }
+
+    public ExecutionTrigger<string> SettingChangedTrigger { get; } = new();
 
     ICollection<IToolSetHandler> IToolsHandler.AllToolSets => AllToolSets;
 
@@ -634,6 +638,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
             return;
 
         document.EventInlet.SettingsChanged(settingName, value);
+        SettingChangedTrigger?.Execute(this, settingName);
     }
 
     private void AddToolSets(List<ToolSet> toolSetConfig)
@@ -712,7 +717,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
                 {
                     var brush = new Brush(uri, "TOOL_CONFIG");
                     KeyCombination? shortcut = TryParseShortcut(toolFromToolset.DefaultShortcut);
-                    return new BrushBasedToolViewModel(brush, toolFromToolset.ToolTip, toolFromToolset.ToolName,
+                    return new BrushBasedToolViewModel(new BrushViewModel(brush), toolFromToolset.ToolTip, toolFromToolset.ToolName,
                         shortcut, toolFromToolset.ActionDisplays);
                 }
             }

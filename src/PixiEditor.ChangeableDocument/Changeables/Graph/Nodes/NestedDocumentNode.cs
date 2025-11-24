@@ -35,8 +35,6 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
 
     private IReadOnlyDocument? Instance => NestedDocument.Value?.DocumentInstance;
 
-    private Texture? dummyTexture;
-
     private string[] builtInOutputs;
     private string[] builtInInputs;
 
@@ -86,10 +84,11 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
         brushOutputNodes = document.DocumentInstance.NodeGraph.AllNodes
             .OfType<BrushOutputNode>().ToArray();
 
-        toExecute = cachedExposeNodes.Concat<IReadOnlyNode>(brushOutputNodes).Concat([Instance?.NodeGraph.OutputNode]).ToArray();
+        toExecute = cachedExposeNodes.Concat<IReadOnlyNode>(brushOutputNodes).Concat([Instance?.NodeGraph.OutputNode])
+            .ToArray();
 
-        Instance?.NodeGraph.Execute(cachedExposeNodes.Concat<IReadOnlyNode>(brushOutputNodes), new RenderContext(
-            (dummyTexture ??= Texture.ForProcessing(VecI.One, Instance.ProcessingColorSpace)).DrawingSurface.Canvas, 0,
+        Instance?.NodeGraph.Execute(cachedExposeNodes.Concat<IReadOnlyNode>(brushOutputNodes), new RenderContext(null,
+            0,
             ChunkResolution.Full,
             Instance.Size, Instance.Size,
             Instance.ProcessingColorSpace,
@@ -220,9 +219,7 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
         clonedContext.DocumentSize = Instance.Size;
         clonedContext.ProcessingColorSpace = Instance?.ProcessingColorSpace;
         clonedContext.VisibleDocumentRegion = null;
-        clonedContext.RenderSurface =
-            (dummyTexture ??= Texture.ForProcessing(new VecI(1, 1), context.ProcessingColorSpace)).DrawingSurface
-            .Canvas;
+        clonedContext.RenderSurface = null;
 
         Instance?.NodeGraph.Execute(toExecute, clonedContext);
 
@@ -374,6 +371,8 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
 
     public override void RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
     {
+        if (renderOn is null) return;
+
         if (elementToRenderName == nameof(EmbeddedMask))
         {
             base.RenderPreview(renderOn, context, elementToRenderName);

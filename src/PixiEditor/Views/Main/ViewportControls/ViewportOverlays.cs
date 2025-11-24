@@ -499,6 +499,13 @@ internal class ViewportOverlays
             Mode = BindingMode.OneWay
         };
 
+        Binding settingChangedTrigger = new()
+        {
+            Source = ViewModelMain.Current.ToolsSubViewModel,
+            Path = "SettingChangedTrigger",
+            Mode = BindingMode.OneWay
+        };
+
         brushShapeOverlay.Bind(Visual.IsVisibleProperty, isVisibleMultiBinding);
         brushShapeOverlay.Bind(BrushShapeOverlay.BrushDataProperty, brushDataBinding);
         brushShapeOverlay.Bind(BrushShapeOverlay.ActiveFrameTimeProperty, activeFrameTimeBidning);
@@ -506,6 +513,7 @@ internal class ViewportOverlays
         brushShapeOverlay.Bind(BrushShapeOverlay.StabilizationModeProperty, stabilizationModeBinding);
         brushShapeOverlay.Bind(BrushShapeOverlay.StabilizationProperty, stabilizationBinding);
         brushShapeOverlay.Bind(BrushShapeOverlay.LastAppliedPointProperty, lastAppliedPointBinding);
+        brushShapeOverlay.Bind(BrushShapeOverlay.BrushSettingChangedTriggerProperty, settingChangedTrigger);
     }
 
     private void BindTextOverlay()

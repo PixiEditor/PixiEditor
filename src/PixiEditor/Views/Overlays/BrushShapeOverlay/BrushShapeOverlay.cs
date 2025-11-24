@@ -12,8 +12,11 @@ using PixiEditor.ChangeableDocument.Changeables.Brushes;
 using PixiEditor.ChangeableDocument.Rendering.ContextData;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
+using PixiEditor.Helpers.UI;
 using PixiEditor.Models.Handlers.Toolbars;
+using PixiEditor.ViewModels.BrushSystem;
 using PixiEditor.Views.Rendering;
+using Brush = PixiEditor.Models.BrushEngine.Brush;
 using Canvas = Drawie.Backend.Core.Surfaces.Canvas;
 using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
 
@@ -82,6 +85,16 @@ internal class BrushShapeOverlay : Overlay
         AvaloniaProperty.Register<BrushShapeOverlay, BrushData>(
             nameof(BrushData));
 
+    public static readonly StyledProperty<ExecutionTrigger<string>> BrushSettingChangedTriggerProperty =
+        AvaloniaProperty.Register<BrushShapeOverlay, ExecutionTrigger<string>>(
+            nameof(BrushSettingChangedTrigger));
+
+    public ExecutionTrigger<string> BrushSettingChangedTrigger
+    {
+        get => GetValue(BrushSettingChangedTriggerProperty);
+        set => SetValue(BrushSettingChangedTriggerProperty, value);
+    }
+
     public BrushData BrushData
     {
         get => GetValue(BrushDataProperty);
@@ -116,7 +129,22 @@ internal class BrushShapeOverlay : Overlay
     static BrushShapeOverlay()
     {
         AffectsOverlayRender(BrushShapeProperty, BrushDataProperty, ActiveFrameTimeProperty, EditorDataProperty);
-        BrushDataProperty.Changed.AddClassHandler<BrushShapeOverlay>((overlay, args) => UpdateBrush(args));
+        BrushDataProperty.Changed.AddClassHandler<BrushShapeOverlay>((overlay, args) =>
+        {
+            UpdateBrush(args);
+        });
+        BrushSettingChangedTriggerProperty.Changed.AddClassHandler<BrushShapeOverlay>((overlay, args) =>
+        {
+            if (args.OldValue is ExecutionTrigger<string> oldTrigger)
+            {
+                oldTrigger.Triggered -= overlay.Triggered;
+            }
+
+            if (args.NewValue is ExecutionTrigger<string> trigger)
+            {
+                trigger.Triggered += overlay.Triggered;
+            }
+        });
         ActiveFrameTimeProperty.Changed.AddClassHandler<BrushShapeOverlay>((overlay, args) => UpdateBrush(args));
         EditorDataProperty.Changed.AddClassHandler<BrushShapeOverlay>((overlay, args) => UpdateBrush(args));
     }
@@ -127,6 +155,13 @@ internal class BrushShapeOverlay : Overlay
         AlwaysPassPointerEvents = true;
         ropeColor = ResourceLoader.GetResource<Color>("ErrorOnDarkColor").ToColor();
         pointColor = ResourceLoader.GetResource<Color>("ThemeAccent3Color").ToColor();
+    }
+
+    private void Triggered(object? sender, string s)
+    {
+        ExecuteBrush(lastDirCalculationPoint);
+        UpdateBrushShape(lastDirCalculationPoint);
+        Refresh();
     }
 
     private static void UpdateBrush(AvaloniaPropertyChangedEventArgs args)
