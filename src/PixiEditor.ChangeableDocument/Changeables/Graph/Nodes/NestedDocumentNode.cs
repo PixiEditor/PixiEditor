@@ -18,6 +18,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransformableObject, IRasterizable,
     IVariableSampling
 {
+    public const int MaxRecursionDepth = 5;
     public const string DocumentPropertyName = "Document";
     public const string NodeId = "NestedDocument";
     private DocumentReference? lastDocument;
@@ -215,6 +216,11 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
         }
 
         var clonedContext = context.Clone();
+        if (clonedContext.CloneDepth >= MaxRecursionDepth)
+        {
+            return;
+        }
+
         clonedContext.Graph = Instance?.NodeGraph;
         clonedContext.DocumentSize = Instance.Size;
         clonedContext.ProcessingColorSpace = Instance?.ProcessingColorSpace;
@@ -331,6 +337,11 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
     private void ExecuteNested(RenderContext ctx)
     {
         var clonedContext = ctx.Clone();
+        if (clonedContext.CloneDepth >= MaxRecursionDepth)
+        {
+            return;
+        }
+
         clonedContext.Graph = Instance?.NodeGraph;
         clonedContext.DocumentSize = Instance?.Size ?? VecI.Zero;
         clonedContext.ProcessingColorSpace = Instance?.ProcessingColorSpace;

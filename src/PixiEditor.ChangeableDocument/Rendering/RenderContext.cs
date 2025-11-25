@@ -14,6 +14,7 @@ namespace PixiEditor.ChangeableDocument.Rendering;
 
 public class RenderContext
 {
+    public int CloneDepth { get; protected init; } = 0;
     public double Opacity { get; set; }
 
     public KeyFrameTime FrameTime { get; }
@@ -96,7 +97,8 @@ public class RenderContext
             PointerInfo = PointerInfo,
             EditorData = EditorData,
             KeyboardInfo = KeyboardInfo,
-            ViewportData = ViewportData
+            ViewportData = ViewportData,
+            CloneDepth = CloneDepth + 1
         };
     }
 }

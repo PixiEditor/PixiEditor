@@ -31,7 +31,9 @@ public class SceneObjectRenderContext : RenderContext
             PreviewTextures = PreviewTextures,
             EditorData = EditorData,
             KeyboardInfo = KeyboardInfo,
-            PointerInfo = PointerInfo
+            PointerInfo = PointerInfo,
+            ViewportData = ViewportData,
+            CloneDepth = CloneDepth + 1,
         };
     }
 }
