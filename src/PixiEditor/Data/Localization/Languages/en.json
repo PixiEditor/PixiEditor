@@ -1251,5 +1251,6 @@
   "BUILT_IN": "Built-in",
   "LOCAL": "Local",
   "TOOL_CONFIG": "Tool Config",
-  "FORCE_PRESSURE_SETTING": "Force Pressure"
+  "FORCE_PRESSURE_SETTING": "Force Pressure",
+  "TO_SMART_LAYER": "To Smart Layer"
 }
