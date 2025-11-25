@@ -1252,5 +1252,8 @@
   "LOCAL": "Local",
   "TOOL_CONFIG": "Tool Config",
   "FORCE_PRESSURE_SETTING": "Force Pressure",
-  "TO_SMART_LAYER": "To Smart Layer"
+  "TO_SMART_LAYER": "To Smart Layer",
+  "PLACE_ELEMENT": "Place Element",
+  "PLACE_ELEMENT_DESCRIPTIVE": "Place an external image or document as a new layer",
+  "FAILED_TO_PLACE_ELEMENT": "Failed to place element: {0}"
 }

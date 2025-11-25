@@ -35,6 +35,7 @@ using PixiEditor.ViewModels.Document;
 using PixiEditor.Views;
 using PixiEditor.Views.Dialogs;
 using PixiEditor.Views.Windows;
+using Wasmtime;
 
 namespace PixiEditor.ViewModels.SubViewModels;
 
@@ -225,7 +226,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.File.OpenFileFromClipboard", "OPEN_FILE_FROM_CLIPBOARD",
         "OPEN_FILE_FROM_CLIPBOARD_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.HasImageInClipboard",
         Icon = PixiPerfectIcons.PasteAsNewLayer,
-        MenuItemPath = "FILE/OPEN_FILE_FROM_CLIPBOARD", MenuItemOrder = 2,
+        MenuItemPath = "FILE/OPEN_FILE_FROM_CLIPBOARD", MenuItemOrder = 3,
         AnalyticsTrack = true)]
     public void OpenFromClipboard()
     {
@@ -242,6 +243,37 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                 }
 
                 OpenRegularImage(dataImage.Image, null);
+            }
+        });
+    }
+
+    [Command.Basic("PixiEditor.File.PlaceElement", "PLACE_ELEMENT", "PLACE_ELEMENT_DESCRIPTIVE",
+        Key = Key.M, Modifiers = KeyModifiers.Control | KeyModifiers.Shift,
+        MenuItemPath = "FILE/PLACE_ELEMENT", MenuItemOrder = 2, Icon = PixiPerfectIcons.FilePlus,
+        AnalyticsTrack = true)]
+    public void PlaceElement()
+    {
+        Dispatcher.UIThread.InvokeAsync(async () =>
+        {
+            var filter = SupportedFilesHelper.BuildOpenFilter();
+
+            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                var dialog = await desktop.MainWindow.StorageProvider.OpenFilePickerAsync(
+                    new FilePickerOpenOptions { FileTypeFilter = filter });
+
+                if (dialog.Count == 0 || !Importer.IsSupportedFile(dialog[0].Path.LocalPath))
+                    return;
+
+                var manager = Owner.DocumentManagerSubViewModel;
+                if (manager.ActiveDocument is null)
+                    return;
+
+                if (!ClipboardController.TryPlaceNestedDocument(manager.ActiveDocument, manager,
+                        dialog[0].Path.LocalPath, out string? error))
+                {
+                    NoticeDialog.Show(new LocalizedString("FAILED_TO_PLACE_ELEMENT", error), "ERROR");
+                }
             }
         });
     }

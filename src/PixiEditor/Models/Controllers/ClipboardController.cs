@@ -345,39 +345,53 @@ internal static class ClipboardController
                     continue;
                 }
 
-                try
-                {
-                    DocumentViewModel importedDoc = manager.Owner.FileSubViewModel.ImportFromPath(path);
-                    if (importedDoc == null)
-                    {
-                        continue;
-                    }
-
-                    Guid? guid = document.Operations.CreateStructureMember(StructureMemberType.Document,
-                        Path.GetFileNameWithoutExtension(importedDoc.FileName));
-
-                    if (guid == null)
-                    {
-                        continue;
-                    }
-
-                    document.Operations.SetNodeInputPropertyValue(guid.Value, NestedDocumentNode.DocumentPropertyName,
-                        new DocumentReference(importedDoc.FullFilePath, importedDoc.Id,
-                            importedDoc.AccessInternalReadOnlyDocument().Clone()));
-
-                    importedDoc.Dispose();
-                    importedAny = true;
-                }
-                catch
+                bool imported = TryPlaceNestedDocument(document, manager, path, out _);
+                if(!imported)
                 {
                     continue;
                 }
+
+                importedAny = true;
             }
 
             return importedAny;
         }
 
         return false;
+    }
+
+    public static bool TryPlaceNestedDocument(DocumentViewModel document, DocumentManagerViewModel manager, string path, out string? error)
+    {
+        try
+        {
+            DocumentViewModel importedDoc = manager.Owner.FileSubViewModel.ImportFromPath(path);
+            error = null;
+            if (importedDoc == null)
+            {
+                return false;
+            }
+
+            Guid? guid = document.Operations.CreateStructureMember(StructureMemberType.Document,
+                Path.GetFileNameWithoutExtension(importedDoc.FileName));
+
+            if (guid == null)
+            {
+                return false;
+            }
+
+            document.Operations.SetNodeInputPropertyValue(guid.Value, NestedDocumentNode.DocumentPropertyName,
+                new DocumentReference(importedDoc.FullFilePath, importedDoc.Id,
+                    importedDoc.AccessInternalReadOnlyDocument().Clone()));
+
+            importedDoc.Dispose();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+            CrashHelper.SendExceptionInfo(ex);
+            return false;
+        }
     }
 
     private static List<Guid> AdjustIdsForImport(Guid[] layerIds, IDocument targetDoc)
