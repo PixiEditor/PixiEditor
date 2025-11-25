@@ -1133,7 +1133,41 @@ internal class DocumentOperationsModule : IDocumentOperations
 
             Internals.ActionAccumulator.AddActions(new UpdatePropertyValue_Action(nestedDocId.Value, NestedDocumentNode.DocumentPropertyName, new DocumentReference(null, referenceId, embedded.AccessInternalReadOnlyDocument())), new EndUpdatePropertyValue_Action());
             MoveStructureMember(nestedDocId.Value, memberId, StructureMemberPlacement.Above);
+            if (nestedDocId.HasValue)
+            {
+                ReconnectProperties(member, nestedDocId.Value);
+            }
+
             DeleteStructureMember(memberId);
         });
+    }
+
+    private void ReconnectProperties(IStructureMemberHandler from, Guid to)
+    {
+        foreach (var input in from.Inputs)
+        {
+            if (input.ConnectedOutput is not null)
+            {
+                Internals.ActionAccumulator.AddActions(
+                    new ConnectProperties_Action(
+                        to,
+                        input.ConnectedOutput.Node.Id,
+                        input.PropertyName,
+                        input.ConnectedOutput.PropertyName));
+            }
+        }
+
+        foreach (var output in from.Outputs)
+        {
+            foreach (var connectedInput in output.ConnectedInputs)
+            {
+                Internals.ActionAccumulator.AddActions(
+                    new ConnectProperties_Action(
+                        connectedInput.Node.Id,
+                        to,
+                        connectedInput.PropertyName,
+                        output.PropertyName));
+            }
+        }
     }
 }
