@@ -181,6 +181,10 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
             targetType = propertyType.GetMethod("Invoke").ReturnType;
         }
 
+        if (targetType.IsEnum)
+        {
+            targetType = typeof(Enum);
+        }
         if (Application.Current.Styles.TryGetResource($"{targetType.Name}SocketBrush", App.Current.ActualThemeVariant,
                 out object brush))
         {
