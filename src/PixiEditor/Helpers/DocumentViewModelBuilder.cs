@@ -446,6 +446,18 @@ internal class NodeGraphBuilder
         return node;
     }
 
+    public NodeBuilder WithNodeOfType(Type nodeType, out int id)
+    {
+        var node = new NodeBuilder();
+        node.WithUniqueNodeName(nodeType.GetCustomAttribute<NodeInfoAttribute>().UniqueName);
+
+        AllNodes.Add(node);
+
+        id = AllNodes.Count;
+
+        return node;
+    }
+
     public NodeBuilder WithNodeOfType<T>(out int id) where T : IReadOnlyNode
     {
         NodeBuilder builder = this.WithNodeOfType(typeof(T))

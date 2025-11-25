@@ -256,6 +256,16 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         nestedDocVm.Document.Operations.UnlinkNestedDocument(nestedDocVm.Id);
     }
 
+    [Command.Internal("PixiEditor.Layer.CreateNestedFromLayer")]
+    public void CreateNestedFromLayer(Guid layerGuid)
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return;
+
+        doc.Operations.CreateNestedDocumentFromMember(layerGuid);
+    }
+
     [Evaluator.CanExecute("PixiEditor.Layer.SelectedMemberIsLayer",
         nameof(DocumentManagerViewModel.ActiveDocument), nameof(DocumentViewModel.SelectedStructureMember))]
     public bool SelectedMemberIsLayer(object property)

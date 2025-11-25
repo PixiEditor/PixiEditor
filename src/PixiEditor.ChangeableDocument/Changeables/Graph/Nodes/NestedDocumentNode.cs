@@ -441,6 +441,12 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
         return new NestedDocumentNode() { TransformationMatrix = this.TransformationMatrix };
     }
 
+    public override void Dispose()
+    {
+        Graph.Value = null; // Prevent disposing nested document's graph
+        base.Dispose();
+    }
+
     private bool AnyConnectionExists()
     {
         foreach (var output in OutputProperties)

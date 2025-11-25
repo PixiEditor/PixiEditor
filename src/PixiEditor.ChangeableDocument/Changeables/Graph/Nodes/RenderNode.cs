@@ -13,6 +13,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 public abstract class RenderNode : Node, IHighDpiRenderNode
 {
+    public const string OutputPropertyName = "Output";
     public RenderOutputProperty Output { get; }
 
     public bool AllowHighDpiRendering { get; set; } = false;
@@ -26,7 +27,7 @@ public abstract class RenderNode : Node, IHighDpiRenderNode
     public RenderNode()
     {
         Painter painter = new Painter(Paint);
-        Output = CreateRenderOutput("Output", "OUTPUT",
+        Output = CreateRenderOutput(OutputPropertyName, "OUTPUT",
             () => painter,
             () => this is IRenderInput renderInput ? renderInput.Background.Value : null);
     }

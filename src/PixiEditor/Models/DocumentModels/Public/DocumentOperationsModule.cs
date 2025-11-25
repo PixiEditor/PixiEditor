@@ -23,6 +23,8 @@ using PixiEditor.Models.Tools;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.Helpers;
+using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.Models.DocumentModels.Public;
@@ -1098,5 +1100,40 @@ internal class DocumentOperationsModule : IDocumentOperations
     public void RecordFrame()
     {
         Internals.ActionAccumulator.AddFinishedActions(new DebugRecordFrame_PassthroughAction());
+    }
+
+    public void CreateNestedDocumentFromMember(Guid memberId)
+    {
+        if (Internals.ChangeController.IsBlockingChangeActive)
+            return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+
+
+        var member = Document.StructureHelper.FindNode<IStructureMemberHandler>(memberId);
+        if (member is null)
+        {
+            return;
+        }
+
+        Guid referenceId = Guid.NewGuid();
+        var embedded = DocumentViewModel.Build(builder =>
+            builder.WithSize(Document.SizeBindable).WithGraph(graph => graph.WithOutputNode(null, null)));
+        embedded.Operations.ImportMember(memberId, Document);
+        embedded.Operations.InvokeCustomAction(() =>
+        {
+            using var block = StartChangeBlock();
+            Guid? nestedDocId = CreateStructureMember(StructureMemberType.Document, member.NodeNameBindable);
+
+            if (nestedDocId is null)
+            {
+                embedded.Dispose();
+                return;
+            }
+
+            Internals.ActionAccumulator.AddActions(new UpdatePropertyValue_Action(nestedDocId.Value, NestedDocumentNode.DocumentPropertyName, new DocumentReference(null, referenceId, embedded.AccessInternalReadOnlyDocument())), new EndUpdatePropertyValue_Action());
+            MoveStructureMember(nestedDocId.Value, memberId, StructureMemberPlacement.Above);
+            DeleteStructureMember(memberId);
+        });
     }
 }
