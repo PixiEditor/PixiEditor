@@ -291,7 +291,7 @@ internal static class ClipboardController
         }
 
         List<DataImage> images = await GetImage(data);
-        if (images.Count == 0)
+        if (images.Count == 0 || pasteAsNew)
         {
             return await TryPasteNestedDocument(document, manager, data);
         }
@@ -306,31 +306,11 @@ internal static class ClipboardController
                 position = VecI.Zero;
             }
 
-            if (pasteAsNew)
+            manager.Owner.ToolsSubViewModel.SetActiveTool<MoveToolViewModel>(false);
+            document.Operations.InvokeCustomAction(() =>
             {
-                var guid = document.Operations.CreateStructureMember(StructureMemberType.ImageLayer,
-                    new LocalizedString("NEW_LAYER"), false);
-
-                if (guid == null)
-                {
-                    return false;
-                }
-
-                manager.Owner.ToolsSubViewModel.SetActiveTool<MoveToolViewModel>(false);
-                document.Operations.SetSelectedMember(guid.Value);
-                document.Operations.InvokeCustomAction(() =>
-                {
-                    document.Operations.PasteImageWithTransform(dataImage.Image, position, guid.Value, false);
-                });
-            }
-            else
-            {
-                manager.Owner.ToolsSubViewModel.SetActiveTool<MoveToolViewModel>(false);
-                document.Operations.InvokeCustomAction(() =>
-                {
-                    document.Operations.PasteImageWithTransform(dataImage.Image, position);
-                });
-            }
+                document.Operations.PasteImageWithTransform(dataImage.Image, position);
+            });
 
             return true;
         }
@@ -406,18 +386,18 @@ internal static class ClipboardController
         List<Guid> adjustedIds = new();
         foreach (var layerId in layerIds)
         {
-           var parents = targetDoc.StructureHelper.GetParents(layerId);
-           if (parents.Count == 0)
-           {
+            var parents = targetDoc.StructureHelper.GetParents(layerId);
+            if (parents.Count == 0)
+            {
                 adjustedIds.Add(layerId);
                 continue;
-           }
+            }
 
-           // only include if no parent is in layerIds
-           if (!parents.Any(x => layerIds.Contains(x.Id)))
-           {
+            // only include if no parent is in layerIds
+            if (!parents.Any(x => layerIds.Contains(x.Id)))
+            {
                 adjustedIds.Add(layerId);
-           }
+            }
         }
 
         var all = targetDoc.StructureHelper.GetAllMembersInOrder();

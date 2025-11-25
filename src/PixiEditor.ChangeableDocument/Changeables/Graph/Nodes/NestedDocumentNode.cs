@@ -334,6 +334,7 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
         clonedContext.Graph = Instance?.NodeGraph;
         clonedContext.DocumentSize = Instance?.Size ?? VecI.Zero;
         clonedContext.ProcessingColorSpace = Instance?.ProcessingColorSpace;
+        clonedContext.RenderOutputSize = clonedContext.DocumentSize;
         clonedContext.DesiredSamplingOptions =
             BilinearSampling.Value ? SamplingOptions.Bilinear : SamplingOptions.Default;
         if (clonedContext.VisibleDocumentRegion.HasValue)
