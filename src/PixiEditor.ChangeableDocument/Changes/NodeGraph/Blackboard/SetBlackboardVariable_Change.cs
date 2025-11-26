@@ -89,10 +89,10 @@ internal class SetBlackboardVariable_Change : Change
         }
 
         var oldVar = target.NodeGraph.Blackboard.Variables[variable];
-        target.NodeGraph.Blackboard.SetVariable(variable, oldVar.Type, value, oldVar.Unit, min, max);
+        target.NodeGraph.Blackboard.SetVariable(variable, oldVar.Type, value, oldVar.Unit, min, max, isExposed);
 
         InformBlackboardAccessingNodes(target, variable);
-        return new BlackboardVariable_ChangeInfo(variable, oldVar.Type, value, oldVar.Min ?? double.MinValue, oldVar.Max ?? double.MaxValue, oldVar.Unit);
+        return new List<IChangeInfo>() { new BlackboardVariable_ChangeInfo(variable, oldVar.Type, value, oldVar.Min ?? double.MinValue, oldVar.Max ?? double.MaxValue, oldVar.Unit), new BlackboardVariableExposed_ChangeInfo(variable, isExposed) };
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)

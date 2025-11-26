@@ -128,7 +128,9 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
         {
             if (InputProperties.Any(x =>
                     x.InternalPropertyName == variable.Key && x.ValueType == variable.Value.Type))
+            {
                 continue;
+            }
 
             if(!variable.Value.IsExposed)
                 continue;
@@ -163,7 +165,9 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
 
             bool shouldRemove = document.DocumentInstance.NodeGraph.Blackboard.Variables
                 .All(x => x.Key != input.InternalPropertyName ||
-                          x.Value.Type != input.ValueType);
+                          x.Value.Type != input.ValueType) ||
+                              !document.DocumentInstance.NodeGraph.Blackboard.Variables[input.InternalPropertyName]
+                                  .IsExposed;
 
             if (shouldRemove)
             {

@@ -133,7 +133,7 @@ public class NodeGraph : IReadOnlyNodeGraph
                 valueCopy = kvp.Value.Value;
             }
 
-            newGraph.Blackboard.SetVariable(kvp.Key, kvp.Value.Type, valueCopy);
+            newGraph.Blackboard.SetVariable(kvp.Key, kvp.Value.Type, valueCopy, kvp.Value.Unit, kvp.Value.Min, kvp.Value.Max, kvp.Value.IsExposed);
         }
 
         return newGraph;
