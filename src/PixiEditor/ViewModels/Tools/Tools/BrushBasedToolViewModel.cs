@@ -163,7 +163,7 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
 
         foreach (var blackboardVariable in blackboard.Variables)
         {
-            if (blackboardVariable is VariableViewModel varVm)
+            if (blackboardVariable is VariableViewModel { IsExposedBindable: true } varVm)
             {
                 Toolbar.AddSetting(varVm.SettingView);
                 brushShapeSettings.Add(varVm.SettingView);

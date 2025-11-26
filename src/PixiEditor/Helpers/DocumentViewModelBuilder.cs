@@ -550,7 +550,8 @@ internal class NodeGraphBuilder
     {
         public List<VariableBuilder> Variables { get; set; } = new List<VariableBuilder>();
 
-        public BlackboardBuilder WithVariable(string name, object value, string unit = null, double? min = null, double? max = null)
+        public BlackboardBuilder WithVariable(string name, object value, string unit = null, double? min = null,
+            double? max = null, bool isExposed = true)
         {
             Variables.Add(new VariableBuilder
             {
@@ -558,7 +559,8 @@ internal class NodeGraphBuilder
                 Value = value,
                 Unit = unit,
                 Min = min,
-                Max = max
+                Max = max,
+                IsExposed = isExposed
             });
 
             return this;
@@ -572,5 +574,6 @@ internal class NodeGraphBuilder
         public string Unit { get; set; }
         public double? Min { get; set; }
         public double? Max { get; set; }
+        public bool IsExposed { get; set; }
     }
 }

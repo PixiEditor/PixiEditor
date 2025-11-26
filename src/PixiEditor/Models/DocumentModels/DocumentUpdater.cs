@@ -260,6 +260,9 @@ internal class DocumentUpdater
             case NestedDocumentLink_ChangeInfo info:
                 ProcessNestedDocumentLinkChangeInfo(info);
                 break;
+            case BlackboardVariableExposed_ChangeInfo info:
+                ProcessBlackboardVariableExposedChangeInfo(info);
+                break;
         }
     }
 
@@ -1007,11 +1010,7 @@ internal class DocumentUpdater
         if (node is BrushOutputNodeViewModel brushVm)
         {
             ViewModelMain.Current.BrushesSubViewModel.BrushLibrary.Add(
-                new Brush(name, doc, "OPENED_DOCUMENT", null)
-                {
-                    IsReadOnly = true,
-                    IsDuplicable = false
-                });
+                new Brush(name, doc, "OPENED_DOCUMENT", null) { IsReadOnly = true, IsDuplicable = false });
         }
     }
 
@@ -1088,5 +1087,19 @@ internal class DocumentUpdater
         node.SetOriginalFilePath(info.OriginalFilePath);
         node.SetReferenceId(info.ReferenceId);
         node.UpdateLinkedStatus();
+    }
+
+    private void ProcessBlackboardVariableExposedChangeInfo(BlackboardVariableExposed_ChangeInfo info)
+    {
+        var existingVar = doc.NodeGraphHandler.Blackboard.GetVariable(info.VariableName);
+        if (existingVar == null)
+        {
+            return;
+        }
+
+        if (existingVar is VariableViewModel varVm)
+        {
+            varVm.SetIsExposedInternal(info.Value);
+        }
     }
 }

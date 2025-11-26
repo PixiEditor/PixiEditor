@@ -21,6 +21,7 @@ internal class BrushLibrary
     public event Action BrushesChanged;
 
     private FileSystemWatcher brushWatcher;
+    private HashSet<string> brushesBeingLoaded = new();
 
     public BrushLibrary(string pathToBrushes)
     {
@@ -86,6 +87,12 @@ internal class BrushLibrary
 
     private void OnBrushChanged(object sender, FileSystemEventArgs e)
     {
+        if (!brushesBeingLoaded.Add(e.FullPath))
+        {
+            // Prevent multiple change events from causing multiple reloads
+            return;
+        }
+
         Dispatcher.UIThread.Post(() =>
         {
             try
@@ -111,6 +118,10 @@ internal class BrushLibrary
             catch (Exception ex)
             {
                 Console.WriteLine($"Failed to reload brush from {e.FullPath}: {ex.Message}");
+            }
+            finally
+            {
+                brushesBeingLoaded.Remove(e.FullPath);
             }
         });
     }

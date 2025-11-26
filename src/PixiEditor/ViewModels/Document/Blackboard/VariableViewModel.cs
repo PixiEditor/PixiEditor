@@ -22,6 +22,7 @@ internal class VariableViewModel : ViewModelBase, IVariableHandler
     private Type type;
     private object value;
     private string name;
+    private bool isExposed = true;
 
     public Type Type
     {
@@ -50,6 +51,19 @@ internal class VariableViewModel : ViewModelBase, IVariableHandler
     private DocumentInternalParts internals { get; }
     public ICommand RemoveCommand { get; }
 
+    public bool IsExposedBindable
+    {
+        get => isExposed;
+        set
+        {
+            if (value != IsExposedBindable)
+            {
+                internals.ActionAccumulator.AddFinishedActions(
+                    new SetBlackboardVariableExposed_Action(Name, value));
+            }
+        }
+    }
+
     public VariableViewModel(string name, Type type, object value, string? unit, double min, double max,
         DocumentInternalParts internals)
     {
@@ -69,7 +83,7 @@ internal class VariableViewModel : ViewModelBase, IVariableHandler
                 return;
 
             internals.ActionAccumulator.AddFinishedActions(
-                new SetBlackboardVariable_Action(Name, AdjustValueForBlackboard(SettingView.Value), min, max, unit));
+                new SetBlackboardVariable_Action(Name, AdjustValueForBlackboard(SettingView.Value), min, max, unit, IsExposedBindable));
         };
 
         RemoveCommand = new RelayCommand(() =>
@@ -171,11 +185,17 @@ internal class VariableViewModel : ViewModelBase, IVariableHandler
         suppressValueChange = false;
     }
 
-    public void SetNameInternal(string newName)
+    internal void SetNameInternal(string newName)
     {
         name = newName;
 
         SettingView.Label = newName;
         OnPropertyChanged(nameof(Name));
+    }
+
+    internal void SetIsExposedInternal(bool infoValue)
+    {
+        isExposed = infoValue;
+        OnPropertyChanged(nameof(IsExposedBindable));
     }
 }

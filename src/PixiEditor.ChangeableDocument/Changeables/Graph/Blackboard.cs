@@ -10,7 +10,7 @@ public class Blackboard : IReadOnlyBlackboard
     IReadOnlyDictionary<string, IReadOnlyVariable> IReadOnlyBlackboard.Variables =>
         variables.ToDictionary(kv => kv.Key, kv => (IReadOnlyVariable)kv.Value);
 
-    public void SetVariable(string name, Type type, object value, string? unit = null, double? min = null, double? max = null)
+    public void SetVariable(string name, Type type, object value, string? unit = null, double? min = null, double? max = null, bool isExposed = true)
     {
         if (variables.ContainsKey(name))
         {
@@ -20,10 +20,11 @@ public class Blackboard : IReadOnlyBlackboard
             variables[name].Unit = unit;
             variables[name].Min = min;
             variables[name].Max = max;
+            variables[name].IsExposed = isExposed;
         }
         else
         {
-            variables[name] = new Variable { Type = type, Value = value, Name = name, Unit = unit, Min = min, Max = max };
+            variables[name] = new Variable { Type = type, Value = value, Name = name, Unit = unit, Min = min, Max = max, IsExposed = isExposed };
         }
     }
 
@@ -90,6 +91,7 @@ public class Variable : IReadOnlyVariable
     public string? Unit { get; set; }
     public double? Min { get; set; }
     public double? Max { get; set; }
+    public bool IsExposed { get; set; } = true;
 }
 
 public interface IReadOnlyVariable
@@ -100,4 +102,5 @@ public interface IReadOnlyVariable
     public string? Unit { get; }
     public double? Min { get; }
     public double? Max { get; }
+    public bool IsExposed { get; }
 }

@@ -585,6 +585,7 @@ internal partial class DocumentViewModel
                 Unit = prop.Value.Unit,
                 Min = prop.Value.Min,
                 Max = prop.Value.Max,
+                IsExposed = prop.Value.IsExposed
             });
         }
 

@@ -130,6 +130,9 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
                     x.InternalPropertyName == variable.Key && x.ValueType == variable.Value.Type))
                 continue;
 
+            if(!variable.Value.IsExposed)
+                continue;
+
             AddInputProperty(new InputProperty(this, variable.Key, variable.Key, variable.Value.Value,
                 variable.Value.Type));
         }

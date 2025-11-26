@@ -68,7 +68,7 @@ internal static class PixiParserDocumentEx
                 {
                     foreach (var kvp in graph.Blackboard.Variables)
                     {
-                        x.WithVariable(kvp.Name, kvp.Value, kvp.Unit, kvp.Min, kvp.Max);
+                        x.WithVariable(kvp.Name, kvp.Value, kvp.Unit, kvp.Min, kvp.Max, kvp.IsExposed);
                     }
                 });
             }

@@ -1255,5 +1255,6 @@
   "TO_SMART_LAYER": "To Smart Layer",
   "PLACE_ELEMENT": "Place Element",
   "PLACE_ELEMENT_DESCRIPTIVE": "Place an external image or document as a new layer",
-  "FAILED_TO_PLACE_ELEMENT": "Failed to place element: {0}"
+  "FAILED_TO_PLACE_ELEMENT": "Failed to place element: {0}",
+  "EXPOSE_VARIABLE_TOOLTIP": "Expose variable outside of the graph (Brush toolbar setting, Nested Node Input)"
 }

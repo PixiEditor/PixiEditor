@@ -12,30 +12,40 @@
         <blackboard:VariableViewModel />
     </Design.DataContext>
 
-    <Grid ColumnDefinitions="Auto,*,Auto">
+    <Grid ColumnDefinitions="Auto,*,Auto, Auto">
         <Grid.Styles>
             <Style Selector="input|EditableTextBlock Border">
-                <Setter Property="Background" Value="{DynamicResource GlyphBrush}"/>
-                <Setter Property="HorizontalAlignment" Value="Left"/>
-                <Setter Property="Padding" Value="5"/>
-                <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
-                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="Background" Value="{DynamicResource GlyphBrush}" />
+                <Setter Property="HorizontalAlignment" Value="Left" />
+                <Setter Property="Padding" Value="5" />
+                <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
+                <Setter Property="Cursor" Value="Hand" />
             </Style>
         </Grid.Styles>
-            <input:EditableTextBlock Grid.Column="0" Margin="0,0, 10,0"
-                                     Text="{Binding Name, Mode=TwoWay}"
-                                     MinWidth="50"
-                                     Name="name">
-                <input:EditableTextBlock.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem localization:Translator.Key="RENAME"
-                                  Command="{Binding ElementName=name, Path=EnableEditing}"/>
-                    </ContextMenu>
-                </input:EditableTextBlock.ContextMenu>
-            </input:EditableTextBlock>
-        <ContentControl Grid.Column="1" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Content="{Binding SettingView}" />
+        <input:EditableTextBlock Grid.Column="0" Margin="0,0, 10,0"
+                                 Text="{Binding Name, Mode=TwoWay}"
+                                 MinWidth="50"
+                                 Name="name">
+            <input:EditableTextBlock.ContextMenu>
+                <ContextMenu>
+                    <MenuItem localization:Translator.Key="RENAME"
+                              Command="{Binding ElementName=name, Path=EnableEditing}" />
+                </ContextMenu>
+            </input:EditableTextBlock.ContextMenu>
+        </input:EditableTextBlock>
+        <ContentControl Grid.Column="1" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                        Content="{Binding SettingView}" />
         <Button Grid.Column="2" Classes="pixi-icon"
                 Content="{DynamicResource icon-trash}"
                 Margin="10,0,0,0" Command="{Binding RemoveCommand}" />
+        <CheckBox Grid.Column="3" Classes="ImageCheckBox"
+                  localization:Translator.TooltipKey="EXPOSE_VARIABLE_TOOLTIP"
+                  Margin="10,0,0,0" IsChecked="{Binding IsExposedBindable, Mode=TwoWay}">
+            <CheckBox.Styles>
+                <Style Selector="TextBlock.pixi-icon">
+                    <Setter Property="FontSize" Value="20" />
+                </Style>
+            </CheckBox.Styles>
+        </CheckBox>
     </Grid>
 </UserControl>

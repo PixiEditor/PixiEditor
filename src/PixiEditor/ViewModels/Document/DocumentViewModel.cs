@@ -436,7 +436,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                     SerializationUtil.Deserialize(varBuilder.Value, config, allFactories, serializerData);
                 acc.AddActions(new SetBlackboardVariable_Action(varBuilder.Name, value,
                     varBuilder.Min ?? double.MinValue,
-                    varBuilder.Max ?? double.MaxValue, varBuilder.Unit));
+                    varBuilder.Max ?? double.MaxValue, varBuilder.Unit, varBuilder.IsExposed));
             }
         }
 
