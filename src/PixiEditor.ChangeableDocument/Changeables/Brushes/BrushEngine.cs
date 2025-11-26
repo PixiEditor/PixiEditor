@@ -25,6 +25,8 @@ public class BrushEngine : IDisposable
     private VecD lastPos;
     private VecD startPos;
     private int lastAppliedPointIndex = -1;
+    private VecI lastCachedTexturePaintableSize = VecI.Zero;
+    private TexturePaintable? lastCachedTexturePaintable = null;
 
     private bool drawnOnce = false;
 
@@ -246,16 +248,19 @@ public class BrushEngine : IDisposable
 
         bool autoPosition = brushNode.AutoPosition.Value;
         bool fitToStrokeSize = brushNode.FitToStrokeSize.Value;
-        float pressure = brushData.ForcePressure && brushNode.Pressure.Connection == null ? context.PointerInfo.Pressure : brushNode.Pressure.Value;
+        float pressure = brushData.ForcePressure && brushNode.Pressure.Connection == null
+            ? context.PointerInfo.Pressure
+            : brushNode.Pressure.Value;
         var content = brushNode.Content.Value;
         var contentTexture = brushNode.ContentTexture;
         bool antiAliasing = brushData.AntiAliasing;
         var fill = brushNode.Fill.Value;
         var stroke = brushNode.Stroke.Value;
         bool snapToPixels = brushNode.SnapToPixels.Value;
+        bool canReuseStamps = brushNode.CanReuseStamps.Value;
 
         if (PaintBrush(target, autoPosition, vectorShape, rect, fitToStrokeSize, pressure, content, contentTexture,
-                brushNode.StampBlendMode.Value, antiAliasing, fill, stroke, snapToPixels))
+                brushNode.StampBlendMode.Value, antiAliasing, fill, stroke, snapToPixels, canReuseStamps))
         {
             lastPos = point;
         }
@@ -264,7 +269,7 @@ public class BrushEngine : IDisposable
     public bool PaintBrush(ChunkyImage target, bool autoPosition, ShapeVectorData vectorShape,
         RectD rect, bool fitToStrokeSize, float pressure, Painter? content,
         Texture? contentTexture, DrawingApiBlendMode blendMode, bool antiAliasing, Paintable fill, Paintable stroke,
-        bool snapToPixels)
+        bool snapToPixels, bool canReuseStamps)
     {
         var path = vectorShape.ToPath(true);
         if (path == null)
@@ -311,8 +316,24 @@ public class BrushEngine : IDisposable
         {
             if (contentTexture != null)
             {
-                TexturePaintable brushTexturePaintable = new(new Texture(contentTexture), true);
-                target.EnqueueDrawPath(path, brushTexturePaintable, vectorShape.StrokeWidth,
+                TexturePaintable brushPaintable;
+                if (canReuseStamps)
+                {
+                    if (lastCachedTexturePaintableSize != contentTexture.Size || lastCachedTexturePaintable == null)
+                    {
+                        lastCachedTexturePaintable?.Dispose();
+                        lastCachedTexturePaintable = new TexturePaintable(new Texture(contentTexture), false);
+                        lastCachedTexturePaintableSize = contentTexture.Size;
+                    }
+
+                    brushPaintable = lastCachedTexturePaintable;
+                }
+                else
+                {
+                    brushPaintable = new TexturePaintable(new Texture(contentTexture), true);
+                }
+
+                target.EnqueueDrawPath(path, brushPaintable, vectorShape.StrokeWidth,
                     StrokeCap.Butt, blendMode, PaintStyle.Fill, antiAliasing, null);
             }
         }
@@ -495,5 +516,6 @@ public class BrushEngine : IDisposable
     public void Dispose()
     {
         cache.Dispose();
+        lastCachedTexturePaintable?.Dispose();
     }
 }

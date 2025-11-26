@@ -47,6 +47,8 @@ public class BrushOutputNode : Node
     public InputProperty<bool> AlwaysClear { get; }
     public InputProperty<bool> SnapToPixels { get; }
     public InputProperty<string> Tags { get; }
+    // Indicate whether stamps from this brush can be reused when drawing with the same brush again. Optimization option.
+    public InputProperty<bool> CanReuseStamps { get; }
 
     public InputProperty<IReadOnlyNodeGraph> Previous { get; }
 
@@ -78,6 +80,7 @@ public class BrushOutputNode : Node
             Drawie.Backend.Core.Surfaces.BlendMode.SrcOver);
         StampBlendMode = CreateInput<Drawie.Backend.Core.Surfaces.BlendMode>("StampBlendMode", "STAMP_BLEND_MODE",
             Drawie.Backend.Core.Surfaces.BlendMode.SrcOver);
+        CanReuseStamps = CreateInput<bool>("CanReuseStamps", "CAN_REUSE_STAMPS", false);
 
         Pressure = CreateInput<float>("Pressure", "PRESSURE", 1f);
         Spacing = CreateInput<float>("Spacing", "SPACING", 0);

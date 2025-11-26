@@ -1263,5 +1263,6 @@
   "FONT_FAMILY": "Font Family",
   "TEXTURE": "Texture",
   "PAINTER": "Painter",
-  "VECTOR_PATH": "Vector Path"
+  "VECTOR_PATH": "Vector Path",
+  "CAN_REUSE_STAMPS": "Can Reuse Stamps"
 }
