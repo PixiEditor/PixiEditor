@@ -69,6 +69,7 @@
             <Color x:Key="DocumentReferenceColor">#8F6A36</Color>
             <Color x:Key="IReadOnlyNodeGraphColor">#E86A9E</Color>
             <Color x:Key="EnumSocketColor">#a6aeba</Color>
+            <Color x:Key="BrushSocketColor">#DA3434</Color>
 
             <GradientStops x:Key="ShapeDataSocketGradient">
                 <GradientStop Offset="0" Color="{StaticResource EllipseDataSocketColor}" />
@@ -192,6 +193,7 @@
             <SolidColorBrush x:Key="DocumentReferenceSocketBrush" Color="{StaticResource DocumentReferenceColor}" />
             <SolidColorBrush x:Key="IReadOnlyNodeGraphSocketBrush" Color="{StaticResource IReadOnlyNodeGraphColor}" />
             <SolidColorBrush x:Key="EnumSocketBrush" Color="{StaticResource EnumSocketColor}" />
+            <SolidColorBrush x:Key="BrushSocketBrush" Color="{StaticResource BrushSocketColor}" />
 
             <SolidColorBrush x:Key="FoundersPurpleBrush" Color="{StaticResource FoundersPurpleColor}" />
 

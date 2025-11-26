@@ -1258,5 +1258,10 @@
   "FAILED_TO_PLACE_ELEMENT": "Failed to place element: {0}",
   "EXPOSE_VARIABLE_TOOLTIP": "Expose variable outside of the graph (Brush toolbar setting, Nested Node Input)",
   "STAMP_BLEND_MODE": "Stamp Blend Mode",
-  "SNAP_TO_PIXELS": "Snap to Pixels"
+  "SNAP_TO_PIXELS": "Snap to Pixels",
+  "WHOLE_NUM_VECTOR": "Whole Number Vector",
+  "FONT_FAMILY": "Font Family",
+  "TEXTURE": "Texture",
+  "PAINTER": "Painter",
+  "VECTOR_PATH": "Vector Path"
 }
