@@ -28,5 +28,8 @@
             </OnPlatform.Linux>
         </OnPlatform> 
     </Window.SystemDecorations>
-    <views1:MainView />
+    
+    <LayoutTransformControl x:Name="PrimaryScaleControl">
+        <views1:MainView />
+    </LayoutTransformControl>
 </Window>
