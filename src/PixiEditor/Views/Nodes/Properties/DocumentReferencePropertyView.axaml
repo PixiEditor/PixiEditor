@@ -9,12 +9,23 @@
                              xmlns:input="clr-namespace:PixiEditor.Views.Input"
                              xmlns:settings="clr-namespace:PixiEditor.Views.Tools.ToolSettings.Settings"
                              xmlns:blackboard="clr-namespace:PixiEditor.ViewModels.Document.Blackboard"
+                             xmlns:properties1="clr-namespace:PixiEditor.ViewModels.Nodes.Properties"
                              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
                              x:Class="PixiEditor.Views.Nodes.Properties.DocumentReferencePropertyView">
+    <Design.DataContext>
+        <properties1:DocumentReferencePropertyViewModel />
+    </Design.DataContext>
     <StackPanel Orientation="Horizontal"
                 HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
         <TextBlock localization:Translator.TooltipKey="{Binding DisplayName}" VerticalAlignment="Center"
                    localization:Translator.Key="{Binding DisplayName}" />
-        <Button Command="{Binding PickGraphFileCommand}" localization:Translator.Key="SELECT"/>
+        <Button Command="{Binding PickGraphFileCommand}"
+                MaxWidth="100"
+                Margin="5, 0, 0, 0">
+            <Panel>
+                <TextBlock FontSize="12" localization:Translator.Key="SELECT" IsVisible="{Binding Value.OriginalFilePath, Converter={converters:EmptyStringConverter}}" />
+                <TextBlock TextTrimming="CharacterEllipsis" FontSize="12" Text="{Binding Value.OriginalFilePath, Converter={converters:FilePathToFileNameConverter}}"/>
+            </Panel>
+        </Button>
     </StackPanel>
 </properties:NodePropertyView>
