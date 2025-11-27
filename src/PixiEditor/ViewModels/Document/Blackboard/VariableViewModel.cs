@@ -1,4 +1,5 @@
-﻿using System.Windows.Input;
+﻿using System.Collections.ObjectModel;
+using System.Windows.Input;
 using CommunityToolkit.Mvvm.Input;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
@@ -10,6 +11,7 @@ using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.Models.BrushEngine;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
+using PixiEditor.Parser.Graph;
 using PixiEditor.ViewModels.BrushSystem;
 using PixiEditor.ViewModels.Tools.Tools;
 using PixiEditor.ViewModels.Tools.ToolSettings.Settings;

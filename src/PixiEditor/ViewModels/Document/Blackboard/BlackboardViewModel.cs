@@ -15,6 +15,10 @@ internal class BlackboardViewModel : ViewModelBase, IBlackboardHandler
 
     private DocumentInternalParts internals;
 
+    public event Action<string> VariableAdded;
+    public event Action<string> VariableRemoved;
+    public event Action<string, string> VariableRenamed;
+
     public BlackboardViewModel(DocumentInternalParts internals)
     {
         this.internals = internals;
@@ -47,6 +51,7 @@ internal class BlackboardViewModel : ViewModelBase, IBlackboardHandler
         double min = double.MinValue, double max = double.MaxValue)
     {
         Variables.Add(new VariableViewModel(name, type, value, unit, min, max, internals));
+        VariableAdded?.Invoke(name);
     }
 
     public IVariableHandler? GetVariable(string name)
@@ -65,5 +70,16 @@ internal class BlackboardViewModel : ViewModelBase, IBlackboardHandler
         VariableViewModel? variable = Variables.FirstOrDefault(v => v.Name == name);
         if (variable != null)
             Variables.Remove(variable);
+
+        VariableRemoved?.Invoke(name);
+    }
+
+    public void RenameVariableInternal(string oldName, string newName)
+    {
+        VariableViewModel? variable = Variables.FirstOrDefault(v => v.Name == oldName);
+        if (variable != null)
+            variable.SetNameInternal(newName);
+
+        VariableRenamed?.Invoke(oldName, newName);
     }
 }

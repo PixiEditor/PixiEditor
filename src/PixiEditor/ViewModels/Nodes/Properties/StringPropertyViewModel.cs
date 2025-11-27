@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Runtime.InteropServices;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
@@ -14,11 +15,28 @@ namespace PixiEditor.ViewModels.Nodes.Properties;
 
 internal class StringPropertyViewModel : NodePropertyViewModel<string>
 {
+    private ObservableCollection<string>? availableOptions;
     private string kind = "txt";
+
     public string StringValue
     {
         get => Value;
-        set => Value = value;
+        set
+        {
+            Value = value;
+        }
+    }
+
+    public string StringNotNullValue
+    {
+        get => Value ?? string.Empty;
+        set
+        {
+            if (value == null)
+                return;
+
+            Value = value;
+        }
     }
 
     public string Kind
@@ -26,6 +44,13 @@ internal class StringPropertyViewModel : NodePropertyViewModel<string>
         get => kind;
         set => SetProperty(ref kind, value);
     }
+
+    public ObservableCollection<string>? AvailableOptions
+    {
+        get => availableOptions;
+        set => SetProperty(ref availableOptions, value);
+    }
+
 
     public StringPropertyViewModel(NodeViewModel node, Type valueType) : base(node, valueType)
     {
@@ -37,6 +62,7 @@ internal class StringPropertyViewModel : NodePropertyViewModel<string>
         if (e.PropertyName == nameof(Value))
         {
             OnPropertyChanged(nameof(StringValue));
+            OnPropertyChanged(nameof(StringNotNullValue));
         }
     }
 }

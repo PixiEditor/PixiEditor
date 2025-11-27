@@ -31,4 +31,9 @@ public partial class StringPropertyView : NodePropertyView
     {
         InitializeComponent();
     }
+
+    private void InputElement_OnPointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        e.Handled = true;
+    }
 }

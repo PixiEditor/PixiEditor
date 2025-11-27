@@ -1034,16 +1034,7 @@ internal class DocumentUpdater
 
     private void ProcessRenameBlackboardVariable(RenameBlackboardVariable_ChangeInfo info)
     {
-        var existingVar = doc.NodeGraphHandler.Blackboard.GetVariable(info.OldName);
-        if (existingVar == null)
-        {
-            return;
-        }
-
-        if (existingVar is VariableViewModel varVm)
-        {
-            varVm.SetNameInternal(info.NewName);
-        }
+        doc.NodeGraphHandler.Blackboard.RenameVariableInternal(info.OldName, info.NewName);
     }
 
     private void ProcessRemoveBlackboardVariable(BlackboardVariableRemoved_ChangeInfo info)

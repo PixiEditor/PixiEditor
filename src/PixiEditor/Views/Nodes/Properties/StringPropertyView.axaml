@@ -12,16 +12,26 @@
                              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
                              x:DataType="properties1:StringPropertyViewModel"
                              x:Class="PixiEditor.Views.Nodes.Properties.StringPropertyView">
+    <Design.DataContext>
+        <properties1:StringPropertyViewModel />
+    </Design.DataContext>
     <Grid>
         <DockPanel LastChildFill="True"
                    HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
-            <TextBlock ui:Translator.TooltipKey="{Binding DisplayName}" VerticalAlignment="Center" ui:Translator.Key="{Binding DisplayName}" />
+            <TextBlock ui:Translator.TooltipKey="{Binding DisplayName}" VerticalAlignment="Center"
+                       ui:Translator.Key="{Binding DisplayName}" />
             <Panel IsVisible="{Binding ShowInputField}">
-            <input:StringEditor
-                IsVisible="{Binding IsInput}"
-                Text="{Binding Value, Mode=TwoWay}"
-                ContentKind="{Binding Kind}"
-                Errors="{Binding Errors}"/>
+                <Panel IsVisible="{Binding IsInput}">
+                    <input:StringEditor
+                        IsVisible="{Binding AvailableOptions, Converter={converters:NotNullToVisibilityConverter Inverted=True}}"
+                        Text="{Binding Value, Mode=TwoWay}"
+                        ContentKind="{Binding Kind}"
+                        Errors="{Binding Errors}" />
+                    <ComboBox IsVisible="{Binding AvailableOptions, Converter={converters:NotNullToVisibilityConverter}}"
+                              ItemsSource="{Binding AvailableOptions}"
+                              PointerPressed="InputElement_OnPointerPressed"
+                              SelectedValue="{Binding StringNotNullValue, Mode=TwoWay}"/>
+                </Panel>
             </Panel>
         </DockPanel>
     </Grid>

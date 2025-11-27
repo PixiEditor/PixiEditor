@@ -10,4 +10,5 @@ public interface IBlackboardHandler
     public IVariableHandler GetVariable(string name);
     public void SetVariableInternal(string name, object value);
     public void RemoveVariableInternal(string name);
+    void RenameVariableInternal(string oldName, string newName);
 }

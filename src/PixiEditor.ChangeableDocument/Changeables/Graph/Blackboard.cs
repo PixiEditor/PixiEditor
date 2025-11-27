@@ -10,7 +10,8 @@ public class Blackboard : IReadOnlyBlackboard
     IReadOnlyDictionary<string, IReadOnlyVariable> IReadOnlyBlackboard.Variables =>
         variables.ToDictionary(kv => kv.Key, kv => (IReadOnlyVariable)kv.Value);
 
-    public void SetVariable(string name, Type type, object value, string? unit = null, double? min = null, double? max = null, bool isExposed = true)
+    public void SetVariable(string name, Type type, object value, string? unit = null, double? min = null,
+        double? max = null, bool isExposed = true)
     {
         if (variables.ContainsKey(name))
         {
@@ -24,12 +25,24 @@ public class Blackboard : IReadOnlyBlackboard
         }
         else
         {
-            variables[name] = new Variable { Type = type, Value = value, Name = name, Unit = unit, Min = min, Max = max, IsExposed = isExposed };
+            variables[name] = new Variable
+            {
+                Type = type,
+                Value = value,
+                Name = name,
+                Unit = unit,
+                Min = min,
+                Max = max,
+                IsExposed = isExposed
+            };
         }
     }
 
     public Variable? GetVariable(string name)
     {
+        if (name == null)
+            return null;
+
         return variables.GetValueOrDefault(name);
     }
 
@@ -64,7 +77,7 @@ public class Blackboard : IReadOnlyBlackboard
             hash.Add(variable.Type);
             if (variable.Value != null)
             {
-                if(variable.Value is ICacheable cacheable)
+                if (variable.Value is ICacheable cacheable)
                 {
                     hash.Add(cacheable.GetCacheHash());
                 }

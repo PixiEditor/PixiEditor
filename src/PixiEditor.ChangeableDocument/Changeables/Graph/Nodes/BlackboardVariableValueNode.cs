@@ -6,12 +6,13 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 [NodeInfo("BlackboardVariableValue")]
 public class BlackboardVariableValueNode : Node
 {
+    public const string NameProperty = "VariableName";
     public InputProperty<string> VariableName { get; }
     public OutputProperty<object> Value { get; }
 
     public BlackboardVariableValueNode()
     {
-        VariableName = CreateInput("VariableName", "VARIABLE_NAME", string.Empty);
+        VariableName = CreateInput(NameProperty, "VARIABLE_NAME", string.Empty);
         Value = CreateOutput<object>("Value", "VALUE", null);
     }
 

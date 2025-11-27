@@ -44,7 +44,7 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
         set
         {
             var oldValue = _value;
-            if(value == null && oldValue == null) return;
+            if (value == null && oldValue == null) return;
             if (oldValue != null && oldValue.Equals(value)) return;
 
             if (MergeChanges)
@@ -113,6 +113,7 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
         get => isVisible;
         set => SetProperty(ref isVisible, value);
     }
+
 
     public INodePropertyHandler? ConnectedOutput
     {
@@ -185,6 +186,7 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
         {
             targetType = typeof(Enum);
         }
+
         if (Application.Current.Styles.TryGetResource($"{targetType.Name}SocketBrush", App.Current.ActualThemeVariant,
                 out object brush))
         {
