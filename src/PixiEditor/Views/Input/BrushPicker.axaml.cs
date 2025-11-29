@@ -108,7 +108,7 @@ internal partial class BrushPicker : UserControl
     {
         BrushesProperty.Changed.AddClassHandler<BrushPicker>((x, e) =>
         {
-            if (x.SelectedBrush == null && x.Brushes.Count > 0)
+            if (x.SelectedBrush == null && x?.Brushes.Count > 0)
             {
                 x.SelectedBrush = x.Brushes[0];
             }
