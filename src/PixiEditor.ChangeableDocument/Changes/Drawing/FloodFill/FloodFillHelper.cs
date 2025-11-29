@@ -10,6 +10,8 @@ using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Enums;
+using BlendMode = Drawie.Backend.Core.Surfaces.BlendMode;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing.FloodFill;
 
@@ -47,7 +49,7 @@ public static class FloodFillHelper
         VecI startingPos,
         Color drawingColor,
         float tolerance,
-        int frame, bool lockTransparency)
+        int frame, bool lockTransparency, FloodFillMode fillMode)
     {
         if (selection is not null && !selection.Contains(startingPos.X + 0.5f, startingPos.Y + 0.5f))
             return new();
@@ -84,7 +86,7 @@ public static class FloodFillHelper
             colorSpaceCorrectedColor = fixedColor;
         }
 
-        if ((colorSpaceCorrectedColor.A == 0) || colorToReplace == colorSpaceCorrectedColor)
+        if ((colorSpaceCorrectedColor.A == 0 && fillMode == FloodFillMode.Overlay) || (colorToReplace == colorSpaceCorrectedColor && fillMode == FloodFillMode.Replace))
             return new();
 
         if (colorToReplace.A == 0 && lockTransparency)
@@ -113,7 +115,21 @@ public static class FloodFillHelper
             if (!drawingChunks.ContainsKey(chunkPos))
             {
                 var chunk = Chunk.Create(document.ProcessingColorSpace);
-                chunk.Surface.DrawingSurface.Canvas.Clear(Colors.Transparent);
+
+                if (fillMode == FloodFillMode.Replace)
+                {
+                    // For replace mode, copy original image data to avoid erasing unfilled pixels
+                    var originalChunk = cache.GetChunk(chunkPos);
+                    originalChunk.Switch(
+                        (Chunk origChunk) => chunk.Surface.DrawingSurface.Canvas.DrawSurface(origChunk.Surface.DrawingSurface, 0, 0),
+                        (EmptyChunk _) => chunk.Surface.DrawingSurface.Canvas.Clear(Colors.Transparent)
+                    );
+                }
+                else
+                {
+                    // For overlay mode, start with transparent
+                    chunk.Surface.DrawingSurface.Canvas.Clear(Colors.Transparent);
+                }
 
                 drawingChunks[chunkPos] = chunk;
             }
