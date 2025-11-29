@@ -3,6 +3,7 @@ using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.Enums;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing.FloodFill;
 
@@ -16,9 +17,10 @@ internal class FloodFill_Change : Change
     private CommittedChunkStorage? chunkStorage = null;
     private int frame;
     private float tolerance;
+    private FloodFillMode fillMode;
 
     [GenerateMakeChangeAction]
-    public FloodFill_Change(Guid memberGuid, VecI pos, Color color, bool referenceAll, float tolerance, bool drawOnMask, int frame)
+    public FloodFill_Change(Guid memberGuid, VecI pos, Color color, bool referenceAll, float tolerance, FloodFillMode fillMode, bool drawOnMask, int frame)
     {
         this.memberGuid = memberGuid;
         this.pos = pos;
@@ -27,6 +29,7 @@ internal class FloodFill_Change : Change
         this.drawOnMask = drawOnMask;
         this.frame = frame;
         this.tolerance = tolerance;
+        this.fillMode = fillMode;
     }
 
     public override bool InitializeAndValidate(Document target)

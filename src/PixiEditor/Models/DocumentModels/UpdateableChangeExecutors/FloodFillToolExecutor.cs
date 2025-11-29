@@ -7,6 +7,7 @@ using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Enums;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable
@@ -17,6 +18,7 @@ internal class FloodFillToolExecutor : UpdateableChangeExecutor
     private Guid memberGuid;
     private Color color;
     private float tolerance;
+    private FloodFillMode fillMode;
 
     public override ExecutionState Start()
     {
@@ -39,15 +41,16 @@ internal class FloodFillToolExecutor : UpdateableChangeExecutor
         color = colorsVM.PrimaryColor;
         var pos = controller!.LastPixelPosition;
         tolerance = fillTool.Tolerance;
-
-        internals!.ActionAccumulator.AddActions(new FloodFill_Action(memberGuid, pos, color, considerAllLayers, tolerance, drawOnMask, document!.AnimationHandler.ActiveFrameBindable));
+        fillMode = fillTool.FillMode;
+        
+        internals!.ActionAccumulator.AddActions(new FloodFill_Action(memberGuid, pos, color, considerAllLayers, tolerance, fillMode, drawOnMask, document!.AnimationHandler.ActiveFrameBindable));
 
         return ExecutionState.Success;
     }
 
     public override void OnPixelPositionChange(VecI pos)
     {
-        internals!.ActionAccumulator.AddActions(new FloodFill_Action(memberGuid, pos, color, considerAllLayers, tolerance, drawOnMask, document!.AnimationHandler.ActiveFrameBindable));
+        internals!.ActionAccumulator.AddActions(new FloodFill_Action(memberGuid, pos, color, considerAllLayers, tolerance, fillMode, drawOnMask, document!.AnimationHandler.ActiveFrameBindable));
     }
 
     public override void OnLeftMouseButtonUp(VecD argsPositionOnCanvas)

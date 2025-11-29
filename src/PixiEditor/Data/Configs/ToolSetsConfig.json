@@ -30,7 +30,8 @@
       {
         "ToolName": "FloodFill",
         "Settings": {
-          "Tolerance": 0
+          "Tolerance": 0,
+          "FillMode": "Replace"
         }
       },
       "RasterLine",
@@ -90,7 +91,8 @@
       {
         "ToolName": "FloodFill",
         "Settings": {
-          "ExposeTolerance": true
+          "ExposeTolerance": true,
+          "ExposeFillMode" : true
         }
       },
       {
