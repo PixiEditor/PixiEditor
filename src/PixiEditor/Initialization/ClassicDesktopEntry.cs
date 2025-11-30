@@ -134,7 +134,9 @@ internal class ClassicDesktopEntry
     private void Load(ViewModels_ViewModelMain viewModel, ExtensionLoader extensionLoader)
     {
         viewModel.Setup(Services);
+        
         desktop.MainWindow = new MainWindow(extensionLoader);
+        
         desktop.MainWindow.Show();
     }
 
