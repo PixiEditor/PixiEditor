@@ -1314,6 +1314,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
         lock (lockObject)
         {
             ThrowIfDisposed();
+            using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
             var dict = new Dictionary<VecI, Surface>();
             foreach (var (pos, chunk) in committedChunks[ChunkResolution.Full])
             {
@@ -1322,6 +1323,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
                     var surf = new Surface(chunk.Surface.ImageInfo);
                     surf.DrawingSurface.Canvas.DrawSurface(chunk.Surface.DrawingSurface, 0, 0);
                     dict[pos] = surf;
+                    surf.DrawingSurface.Flush();
                 }
             }
 
