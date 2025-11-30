@@ -6,5 +6,6 @@ public enum CacheTriggerFlags
     None = 0,
     Inputs = 1,
     Timeline = 2,
-    All = Inputs | Timeline
+    RenderSize = 4,
+    All = Inputs | Timeline | RenderSize
 }

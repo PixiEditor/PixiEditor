@@ -11,8 +11,9 @@ using PixiEditor.ChangeableDocument.Changes.Structure;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
-public abstract class RenderNode : Node, IPreviewRenderable, IHighDpiRenderNode
+public abstract class RenderNode : Node, IHighDpiRenderNode
 {
+    public const string OutputPropertyName = "Output";
     public RenderOutputProperty Output { get; }
 
     public bool AllowHighDpiRendering { get; set; } = false;
@@ -26,7 +27,7 @@ public abstract class RenderNode : Node, IPreviewRenderable, IHighDpiRenderNode
     public RenderNode()
     {
         Painter painter = new Painter(Paint);
-        Output = CreateRenderOutput("Output", "OUTPUT",
+        Output = CreateRenderOutput(OutputPropertyName, "OUTPUT",
             () => painter,
             () => this is IRenderInput renderInput ? renderInput.Background.Value : null);
     }
@@ -44,16 +45,18 @@ public abstract class RenderNode : Node, IPreviewRenderable, IHighDpiRenderNode
         lastDocumentSize = context.DocumentSize;
     }
 
-    protected virtual void Paint(RenderContext context, DrawingSurface surface)
+    protected virtual void Paint(RenderContext context, Canvas surface)
     {
-        DrawingSurface target = surface;
+        Canvas target = surface;
         bool useIntermediate = !AllowHighDpiRendering
                                && context.RenderOutputSize is { X: > 0, Y: > 0 }
-                               && (surface.DeviceClipBounds.Size != context.RenderOutputSize || (RendersInAbsoluteCoordinates && !surface.Canvas.TotalMatrix.IsIdentity));
+                               && (surface.DeviceClipBounds.Size != context.RenderOutputSize ||
+                                   (RendersInAbsoluteCoordinates && !surface.TotalMatrix.IsIdentity));
         if (useIntermediate)
         {
-            Texture intermediate = textureCache.RequestTexture(-6451, context.RenderOutputSize, context.ProcessingColorSpace);
-            target = intermediate.DrawingSurface;
+            Texture intermediate =
+                textureCache.RequestTexture(-6451, context.RenderOutputSize, context.ProcessingColorSpace);
+            target = intermediate.DrawingSurface.Canvas;
         }
 
         OnPaint(context, target);
@@ -62,41 +65,85 @@ public abstract class RenderNode : Node, IPreviewRenderable, IHighDpiRenderNode
         {
             if (RendersInAbsoluteCoordinates)
             {
-                surface.Canvas.Save();
-                surface.Canvas.Scale((float)context.ChunkResolution.InvertedMultiplier());
+                surface.Save();
+                surface.Scale((float)context.ChunkResolution.InvertedMultiplier());
             }
 
             if (context.DesiredSamplingOptions != SamplingOptions.Default)
             {
-                using var snapshot = target.Snapshot();
-                surface.Canvas.DrawImage(snapshot, 0, 0, context.DesiredSamplingOptions);
+                using var snapshot = target.Surface.Snapshot();
+                surface.DrawImage(snapshot, 0, 0, context.DesiredSamplingOptions);
             }
             else
             {
-                surface.Canvas.DrawSurface(target, 0, 0);
+                surface.DrawSurface(target.Surface, 0, 0);
             }
 
             if (RendersInAbsoluteCoordinates)
             {
-                surface.Canvas.Restore();
+                surface.Restore();
             }
+        }
+
+        RenderPreviews(context);
+    }
+
+    protected abstract void OnPaint(RenderContext context, Canvas surface);
+
+    protected void RenderPreviews(RenderContext ctx)
+    {
+        var previewToRender = ctx.GetPreviewTexturesForNode(Id);
+        if (previewToRender == null || previewToRender.Count == 0)
+            return;
+
+        foreach (var preview in previewToRender)
+        {
+            if (!ShouldRenderPreview(preview.ElementToRender))
+                continue;
+
+            if (preview.Texture == null)
+                continue;
+
+            int saved = preview.Texture.DrawingSurface.Canvas.Save();
+            preview.Texture.DrawingSurface.Canvas.Clear();
+
+            var bounds = GetPreviewBounds(ctx, preview.ElementToRender);
+            if (bounds == null)
+            {
+                bounds = new RectD(0, 0, ctx.RenderOutputSize.X, ctx.RenderOutputSize.Y);
+            }
+
+            VecD scaling = PreviewUtility.CalculateUniformScaling(bounds.Value.Size, preview.Texture.Size);
+            VecD offset = PreviewUtility.CalculateCenteringOffset(bounds.Value.Size, preview.Texture.Size, scaling);
+            RenderContext adjusted =
+                PreviewUtility.CreatePreviewContext(ctx, scaling, bounds.Value.Size, preview.Texture.Size);
+
+            preview.Texture.DrawingSurface.Canvas.Translate((float)offset.X, (float)offset.Y);
+            preview.Texture.DrawingSurface.Canvas.Scale((float)scaling.X, (float)scaling.Y);
+            preview.Texture.DrawingSurface.Canvas.Translate((float)-bounds.Value.X, (float)-bounds.Value.Y);
+
+            adjusted.RenderSurface = preview.Texture.DrawingSurface.Canvas;
+            RenderPreview(preview.Texture.DrawingSurface, adjusted, preview.ElementToRender);
+            preview.Texture.DrawingSurface.Canvas.RestoreToCount(saved);
         }
     }
 
-    protected abstract void OnPaint(RenderContext context, DrawingSurface surface);
-
-    public virtual RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
+    protected virtual bool ShouldRenderPreview(string elementToRenderName)
     {
-        return new RectD(0, 0, lastDocumentSize.X, lastDocumentSize.Y);
+        return true;
     }
 
-    public virtual bool RenderPreview(DrawingSurface renderOn, RenderContext context,
+    public virtual RectD? GetPreviewBounds(RenderContext ctx, string elementToRenderName)
+    {
+        return null;
+    }
+
+    public virtual void RenderPreview(DrawingSurface renderOn, RenderContext context,
         string elementToRenderName)
     {
         int saved = renderOn.Canvas.Save();
-        OnPaint(context, renderOn);
+        OnPaint(context, renderOn.Canvas);
         renderOn.Canvas.RestoreToCount(saved);
-        return true;
     }
 
     protected Texture RequestTexture(int id, VecI size, ColorSpace processingCs, bool clear = true)
@@ -104,25 +151,24 @@ public abstract class RenderNode : Node, IPreviewRenderable, IHighDpiRenderNode
         return textureCache.RequestTexture(id, size, processingCs, clear);
     }
 
-    public override void SerializeAdditionalData(Dictionary<string, object> additionalData)
+    public override void SerializeAdditionalData(IReadOnlyDocument target, Dictionary<string, object> additionalData)
     {
-        base.SerializeAdditionalData(additionalData);
+        base.SerializeAdditionalData(target, additionalData);
         additionalData["AllowHighDpiRendering"] = AllowHighDpiRendering;
     }
 
-    internal override void DeserializeAdditionalData(IReadOnlyDocument target, IReadOnlyDictionary<string, object> data, List<IChangeInfo> infos)
+    internal override void DeserializeAdditionalData(IReadOnlyDocument target, IReadOnlyDictionary<string, object> data,
+        List<IChangeInfo> infos)
     {
         base.DeserializeAdditionalData(target, data, infos);
 
-        if(data.TryGetValue("AllowHighDpiRendering", out var value))
+        if (data.TryGetValue("AllowHighDpiRendering", out var value))
             AllowHighDpiRendering = (bool)value;
     }
 
     public override void Dispose()
     {
         base.Dispose();
-        textureCache.Dispose(); 
+        textureCache.Dispose();
     }
-
-   
 }

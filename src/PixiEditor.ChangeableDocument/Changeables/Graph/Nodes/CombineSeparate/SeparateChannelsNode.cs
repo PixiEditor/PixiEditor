@@ -10,7 +10,7 @@ using Drawie.Numerics;
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 
 [NodeInfo("SeparateChannels")]
-public class SeparateChannelsNode : Node, IRenderInput, IPreviewRenderable
+public class SeparateChannelsNode : Node, IRenderInput
 {
     private readonly Paint _paint = new();
     
@@ -47,27 +47,27 @@ public class SeparateChannelsNode : Node, IRenderInput, IPreviewRenderable
         Grayscale = CreateInput(nameof(Grayscale), "GRAYSCALE", false);
     }
     
-    private void PaintRed(RenderContext context, DrawingSurface drawingSurface)
+    private void PaintRed(RenderContext context, Canvas drawingSurface)
     {
         Paint(context, drawingSurface, _redFilter, _redGrayscaleFilter);
     }
     
-    private void PaintGreen(RenderContext context, DrawingSurface drawingSurface)
+    private void PaintGreen(RenderContext context, Canvas drawingSurface)
     {
         Paint(context, drawingSurface, _greenFilter, _greenGrayscaleFilter);
     }
     
-    private void PaintBlue(RenderContext context, DrawingSurface drawingSurface)
+    private void PaintBlue(RenderContext context, Canvas drawingSurface)
     {
         Paint(context, drawingSurface, _blueFilter, _blueGrayscaleFilter);
     }
     
-    private void PaintAlpha(RenderContext context, DrawingSurface drawingSurface)
+    private void PaintAlpha(RenderContext context, Canvas drawingSurface)
     {
         Paint(context, drawingSurface, _alphaFilter, _alphaGrayscaleFilter);
     }
 
-    private void Paint(RenderContext context, DrawingSurface drawingSurface, ColorFilter colorFilter, ColorFilter grayscaleFilter)
+    private void Paint(RenderContext context, Canvas drawingSurface, ColorFilter colorFilter, ColorFilter grayscaleFilter)
     {
         if(Image.Value == null)
             return;
@@ -77,11 +77,11 @@ public class SeparateChannelsNode : Node, IRenderInput, IPreviewRenderable
         ColorFilter filter = grayscale ? grayscaleFilter : colorFilter; 
         _paint.ColorFilter = filter;
         
-        int saved = drawingSurface.Canvas.SaveLayer(_paint);
+        int saved = drawingSurface.SaveLayer(_paint);
         
         Image.Value.Paint(context, drawingSurface);
         
-        drawingSurface.Canvas.RestoreToCount(saved);
+        drawingSurface.RestoreToCount(saved);
     }
 
     protected override void OnExecute(RenderContext context)
@@ -94,13 +94,14 @@ public class SeparateChannelsNode : Node, IRenderInput, IPreviewRenderable
 
     public override Node CreateCopy() => new SeparateChannelsNode();
     RenderInputProperty IRenderInput.Background => Image;
+    
+    // TODO: Add previews
     public RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
     {
-        RectD? bounds = PreviewUtils.FindPreviewBounds(Image.Connection, frame, elementToRenderName);
-        return bounds;
+        return null;
     }
 
-    public bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
+    public bool RenderPreview(Canvas renderOn, RenderContext context, string elementToRenderName)
     {
         if (Image.Value == null)
             return false;
@@ -110,7 +111,7 @@ public class SeparateChannelsNode : Node, IRenderInput, IPreviewRenderable
         if (bounds == null)
             return false;
         
-        renderOn.Canvas.Save();
+        renderOn.Save();
 
         _paint.ColorFilter = Grayscale.Value ? _redGrayscaleFilter : _redFilter;
         RectD localBounds = new(bounds.Value.X, bounds.Value.Y, bounds.Value.Width / 2, bounds.Value.Height / 2);
@@ -128,23 +129,23 @@ public class SeparateChannelsNode : Node, IRenderInput, IPreviewRenderable
         localBounds = new(bounds.Value.X + bounds.Value.Width / 2, bounds.Value.Y + bounds.Value.Height / 2, bounds.Value.Width / 2, bounds.Value.Height / 2);
         PaintPreview(renderOn, localBounds, new VecD(bounds.Value.X + bounds.Value.Width, bounds.Value.Y + bounds.Value.Height), context);
         
-        renderOn.Canvas.Restore();
+        renderOn.Restore();
 
         return true;
     }
 
-    private void PaintPreview(DrawingSurface renderOn, RectD localBounds, VecD translation, RenderContext context)
+    private void PaintPreview(Canvas renderOn, RectD localBounds, VecD translation, RenderContext context)
     {
-        int saved = renderOn.Canvas.Save();
+        int saved = renderOn.Save();
         
-        renderOn.Canvas.ClipRect(localBounds);
-        renderOn.Canvas.SaveLayer(_paint, localBounds);
+        renderOn.ClipRect(localBounds);
+        renderOn.SaveLayer(_paint, localBounds);
 
-        renderOn.Canvas.Scale(0.5f);
-        renderOn.Canvas.Translate((float)translation.X, (float)translation.Y);
+        renderOn.Scale(0.5f);
+        renderOn.Translate((float)translation.X, (float)translation.Y);
         
         Image.Value.Paint(context, renderOn);
         
-        renderOn.Canvas.RestoreToCount(saved);
+        renderOn.RestoreToCount(saved);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Avalonia.Input;
+using Drawie.Backend.Core.Vector;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
@@ -8,7 +9,6 @@ namespace PixiEditor.ViewModels.Tools;
 
 internal abstract class ShapeTool : ToolViewModel, IShapeToolHandler
 {
-    public override BrushShape FinalBrushShape => BrushShape.Hidden;
 
     public override bool UsesColor => true;
 

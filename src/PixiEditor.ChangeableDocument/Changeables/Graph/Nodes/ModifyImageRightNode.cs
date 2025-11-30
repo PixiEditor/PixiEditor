@@ -2,6 +2,7 @@
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core;
+using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Shaders.Generation;
 using Drawie.Backend.Core.Shaders.Generation.Expressions;
 using Drawie.Backend.Core.Surfaces;
@@ -37,7 +38,7 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
         RendersInAbsoluteCoordinates = true;
     }
 
-    protected override void OnPaint(RenderContext renderContext, DrawingSurface targetSurface)
+    protected override void OnPaint(RenderContext renderContext, Canvas targetSurface)
     {
         if (OtherNode == null || OtherNode == default)
         {
@@ -95,7 +96,7 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
             Half4 color = Color.NonOverridenValue(FuncContext.NoContext);
             color.VariableName = "color";
             builder.AddUniform(color.VariableName, color.ConstantValue);
-            builder.ReturnVar(color, false); // Do not premultiply, since we are modifying already premultiplied image
+            builder.ReturnVar(color, false);
         }
 
         string sksl = builder.ToSkSl();
@@ -110,32 +111,25 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
             drawingPaint.Shader = drawingPaint.Shader.WithUpdatedUniforms(builder.Uniforms);
         }
 
-        targetSurface.Canvas.DrawRect(0, 0, size.Value.X, size.Value.Y, drawingPaint);
+        targetSurface.DrawRect(0, 0, size.Value.X, size.Value.Y, drawingPaint);
         builder.Dispose();
     }
 
-    public override RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
+    public override RectD? GetPreviewBounds(RenderContext ctx, string elementToRenderName)
     {
-        var startNode = FindStartNode();
-        if (startNode != null)
-        {
-            return startNode.GetPreviewBounds(frame, elementToRenderName);
-        }
-
-        return null;
+        return size.HasValue ? new RectD(0, 0, size.Value.X, size.Value.Y) : null;
     }
 
-    public override bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
+    public override void RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
     {
         var startNode = FindStartNode();
         if (drawingPaint != null && startNode is { Image.Value: not null })
         {
-            renderOn.Canvas.DrawRect(0, 0, startNode.Image.Value.Size.X, startNode.Image.Value.Size.Y, drawingPaint);
+            using var tmpTex = Texture.ForProcessing(startNode.Image.Value.Size, context.ProcessingColorSpace);
 
-            return true;
+            tmpTex.DrawingSurface.Canvas.DrawRect(0, 0, startNode.Image.Value.Size.X, startNode.Image.Value.Size.Y, drawingPaint);
+            renderOn.Canvas.DrawSurface(tmpTex.DrawingSurface, 0, 0);
         }
-
-        return false;
     }
 
     public override void Dispose()

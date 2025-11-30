@@ -69,7 +69,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         Matrix.Value = TransformationMatrix;
     }
 
-    protected override void DrawWithoutFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
+    protected override void DrawWithoutFilters(SceneObjectRenderContext ctx, Canvas workingSurface,
         Paint paint)
     {
         if (RenderableShapeData == null)
@@ -77,44 +77,48 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
             return;
         }
 
-        Rasterize(workingSurface, paint);
+        Rasterize(workingSurface, paint, ctx.FrameTime.Frame);
     }
 
-    protected override void DrawWithFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface, Paint paint)
+    protected override void DrawWithFilters(SceneObjectRenderContext ctx, Canvas workingSurface, Paint paint)
     {
         if (RenderableShapeData == null)
         {
             return;
         }
 
-        Rasterize(workingSurface, paint);
+        Rasterize(workingSurface, paint, ctx.FrameTime.Frame);
     }
 
-    public override RectD? GetPreviewBounds(int frame, string elementFor = "")
+    protected override bool ShouldRenderPreview(string elementToRenderName)
     {
-        if (elementFor == nameof(EmbeddedMask))
+        if(RenderableShapeData == null)
         {
-            base.GetPreviewBounds(frame, elementFor);
-        }
-        else
-        {
-            return RenderableShapeData?.TransformedVisualAABB;
+            return false;
         }
 
-        return null;
+        VecI tightBoundsSize = (VecI)RenderableShapeData.TransformedVisualAABB.Size;
+
+        VecI translation = new VecI(
+            (int)Math.Max(RenderableShapeData.TransformedAABB.TopLeft.X, 0),
+            (int)Math.Max(RenderableShapeData.TransformedAABB.TopLeft.Y, 0));
+
+        VecI size = tightBoundsSize + translation;
+        return size.X > 0 && size.Y > 0;
     }
 
-    public override bool RenderPreview(DrawingSurface renderOn, RenderContext context,
+    public override void RenderPreview(DrawingSurface renderOn, RenderContext context,
         string elementToRenderName)
     {
         if (elementToRenderName == nameof(EmbeddedMask))
         {
-            return base.RenderPreview(renderOn, context, elementToRenderName);
+            base.RenderPreview(renderOn, context, elementToRenderName);
+            return;
         }
 
         if (RenderableShapeData == null)
         {
-            return false;
+            return;
         }
 
         using var paint = new Paint();
@@ -129,16 +133,20 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
 
         if (size.X == 0 || size.Y == 0)
         {
-            return false;
+            return;
         }
 
+        Rasterize(renderOn.Canvas, paint, context.FrameTime.Frame);
+    }
 
-        int savedCount = renderOn.Canvas.Save();
-        renderOn.Canvas.Scale((float)context.ChunkResolution.Multiplier());
-        Rasterize(renderOn, paint);
-        renderOn.Canvas.RestoreToCount(savedCount);
+    public override RectD? GetPreviewBounds(RenderContext ctx, string elementToRenderName)
+    {
+        if (elementToRenderName == nameof(EmbeddedMask))
+        {
+            return base.GetPreviewBounds(ctx, elementToRenderName);
+        }
 
-        return true;
+        return GetTightBounds(ctx.FrameTime);
     }
 
     public override RectD? GetApproxBounds(KeyFrameTime frameTime)
@@ -146,9 +154,9 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         return GetTightBounds(frameTime);
     }
 
-    public override void SerializeAdditionalData(Dictionary<string, object> additionalData)
+    public override void SerializeAdditionalData(IReadOnlyDocument target, Dictionary<string, object> additionalData)
     {
-        base.SerializeAdditionalData(additionalData);
+        base.SerializeAdditionalData(target, additionalData);
         additionalData["ShapeData"] = EmbeddedShapeData;
     }
 
@@ -188,24 +196,22 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         return RenderableShapeData?.TransformationCorners ?? new ShapeCorners();
     }
 
-    public void Rasterize(DrawingSurface surface, Paint paint)
+    public void Rasterize(Canvas surface, Paint paint, int frame)
     {
         int layer;
         // TODO: This can be further optimized by passing opacity, blend mode and filters directly to the rasterization method
-        if (paint != null && (paint.Color.A < 255 || paint.ColorFilter != null || paint.ImageFilter != null ||
-                              paint.Shader != null ||
-                              paint.BlendMode != Drawie.Backend.Core.Surfaces.BlendMode.SrcOver))
+        if (paint is { IsOpaqueStandardNonBlendingPaint: false })
         {
-            layer = surface.Canvas.SaveLayer(paint);
+            layer = surface.SaveLayer(paint);
         }
         else
         {
-            layer = surface.Canvas.Save();
+            layer = surface.Save();
         }
 
-        RenderableShapeData?.RasterizeTransformed(surface.Canvas);
+        RenderableShapeData?.RasterizeTransformed(surface);
 
-        surface.Canvas.RestoreToCount(layer);
+        surface.RestoreToCount(layer);
     }
 
     public override Node CreateCopy()

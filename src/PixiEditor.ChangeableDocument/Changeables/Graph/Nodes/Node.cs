@@ -12,6 +12,7 @@ using Drawie.Backend.Core.Shaders;
 using Drawie.Backend.Core.Shaders.Generation;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
@@ -28,6 +29,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
     public IReadOnlyList<OutputProperty> OutputProperties => outputs;
     public IReadOnlyList<KeyFrameData> KeyFrames => keyFrames;
     public event Action ConnectionsChanged;
+    public event Action OutputsChanged;
 
     IReadOnlyList<IInputProperty> IReadOnlyNode.InputProperties => inputs;
     IReadOnlyList<IOutputProperty> IReadOnlyNode.OutputProperties => outputs;
@@ -47,7 +49,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
     private VecI lastRenderSize = new VecI(0, 0);
 
-    protected internal bool IsDisposed => _isDisposed;
+    public bool IsDisposed => _isDisposed;
     private bool _isDisposed;
 
     private int lastContentCacheHash = -1;
@@ -83,11 +85,16 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
     protected virtual bool CacheChanged(RenderContext context)
     {
-        bool changed = lastRenderSize != context.RenderOutputSize;
+        bool changed = false;
 
         if (CacheTrigger.HasFlag(CacheTriggerFlags.Inputs))
         {
             changed |= inputs.Any(x => x.CacheChanged);
+        }
+
+        if (CacheTrigger.HasFlag(CacheTriggerFlags.RenderSize))
+        {
+            changed |= lastRenderSize != context.RenderOutputSize;
         }
 
         if (CacheTrigger.HasFlag(CacheTriggerFlags.Timeline))
@@ -117,7 +124,8 @@ public abstract class Node : IReadOnlyNode, IDisposable
         lastContentCacheHash = GetContentCacheHash();
     }
 
-    public void TraverseBackwards(Func<IReadOnlyNode, IInputProperty, bool> action, Func<IInputProperty, bool>? branchCondition = null)
+    public void TraverseBackwards(Func<IReadOnlyNode, IInputProperty, bool> action,
+        Func<IInputProperty, bool>? branchCondition = null)
     {
         var visited = new HashSet<IReadOnlyNode>();
         var queueNodes = new Queue<(IReadOnlyNode, IInputProperty)>();
@@ -143,6 +151,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
                 {
                     continue;
                 }
+
                 if (inputProperty.Connection != null)
                 {
                     queueNodes.Enqueue((inputProperty.Connection.Node, inputProperty));
@@ -413,9 +422,17 @@ public abstract class Node : IReadOnlyNode, IDisposable
         }
     }
 
+
+    protected void RemoveOutputProperty(OutputProperty property)
+    {
+        outputs.Remove(property);
+        OutputsChanged?.Invoke();
+    }
+
     protected void AddOutputProperty(OutputProperty property)
     {
         outputs.Add(property);
+        OutputsChanged?.Invoke();
     }
 
     protected void AddInputProperty(InputProperty property)
@@ -563,7 +580,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
         return GetOutputProperty(outputProperty);
     }
 
-    public virtual void SerializeAdditionalData(Dictionary<string, object> additionalData)
+    public virtual void SerializeAdditionalData(IReadOnlyDocument target, Dictionary<string, object> additionalData)
     {
     }
 
@@ -613,6 +630,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
         hash.Add(GetType());
         hash.Add(DisplayName);
         hash.Add(Position);
+
         foreach (var input in inputs)
         {
             hash.Add(input.GetCacheHash());

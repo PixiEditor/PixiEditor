@@ -17,6 +17,7 @@ using Drawie.Backend.Core;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Rendering;
 using PixiEditor.Models.Structures;
+using PixiEditor.ViewModels.Document;
 using PixiEditor.Views.Nodes.Properties;
 
 namespace PixiEditor.Views.Nodes;
@@ -41,8 +42,8 @@ public class NodeView : TemplatedControl
         AvaloniaProperty.Register<NodeView, ObservableRangeCollection<INodePropertyHandler>>(
             nameof(Outputs));
 
-    public static readonly StyledProperty<PreviewPainter> ResultPreviewProperty =
-        AvaloniaProperty.Register<NodeView, PreviewPainter>(
+    public static readonly StyledProperty<TexturePreview> ResultPreviewProperty =
+        AvaloniaProperty.Register<NodeView, TexturePreview>(
             nameof(ResultPreview));
 
     public static readonly StyledProperty<bool> IsSelectedProperty = AvaloniaProperty.Register<NodeView, bool>(
@@ -94,7 +95,7 @@ public class NodeView : TemplatedControl
         set => SetValue(IsSelectedProperty, value);
     }
 
-    public PreviewPainter ResultPreview
+    public TexturePreview ResultPreview
     {
         get => GetValue(ResultPreviewProperty);
         set => SetValue(ResultPreviewProperty, value);
@@ -177,7 +178,6 @@ public class NodeView : TemplatedControl
     static NodeView()
     {
         IsSelectedProperty.Changed.Subscribe(NodeSelectionChanged);
-        ResultPreviewProperty.Changed.Subscribe(PainterChanged);
     }
 
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
@@ -200,6 +200,11 @@ public class NodeView : TemplatedControl
     }
 
     private void ChildrenOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        UpdatePropertyViews();
+    }
+
+    private void UpdatePropertyViews()
     {
         propertyViews = this.GetVisualDescendants().OfType<NodePropertyView>()
             .ToDictionary(x => (INodePropertyHandler)x.DataContext, x => x);
@@ -278,6 +283,11 @@ public class NodeView : TemplatedControl
 
     public NodeSocket GetSocket(INodePropertyHandler property)
     {
+        if (Inputs.Count + Outputs.Count != propertyViews.Count)
+        {
+            UpdatePropertyViews();
+        }
+
         if (propertyViews.TryGetValue(property, out var view))
         {
             if (view is null)
@@ -309,31 +319,6 @@ public class NodeView : TemplatedControl
         if (e.Sender is NodeView nodeView)
         {
             nodeView.PseudoClasses.Set(":selected", e.NewValue.Value);
-        }
-    }
-
-    private static void PainterChanged(AvaloniaPropertyChangedEventArgs<PreviewPainter> e)
-    {
-        if (e.Sender is NodeView nodeView)
-        {
-            if (e.OldValue.Value is not null)
-            {
-                e.OldValue.Value.CanRenderChanged -= nodeView.ResultPreview_CanRenderChanged;
-            }
-
-            if (e.NewValue.Value is not null)
-            {
-                e.NewValue.Value.CanRenderChanged += nodeView.ResultPreview_CanRenderChanged;
-                nodeView.ResultPreview_CanRenderChanged(e.NewValue.Value.CanRender);
-            }
-        }
-    }
-
-    private void ResultPreview_CanRenderChanged(bool canRender)
-    {
-        if (CanRenderPreview != canRender)
-        {
-            CanRenderPreview = canRender;
         }
     }
 }

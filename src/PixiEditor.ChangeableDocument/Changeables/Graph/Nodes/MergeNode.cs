@@ -34,7 +34,7 @@ public class MergeNode : RenderNode
     }
 
 
-    protected override void OnPaint(RenderContext context, DrawingSurface target)
+    protected override void OnPaint(RenderContext context, Canvas target)
     {
         if (Top.Value == null && Bottom.Value == null)
         {
@@ -50,19 +50,19 @@ public class MergeNode : RenderNode
         Merge(target, context);
     }
 
-    private void Merge(DrawingSurface target, RenderContext context)
+    private void Merge(Canvas target, RenderContext context)
     {
         if (Bottom.Value != null && Top.Value != null)
         {
-            int saved = target.Canvas.SaveLayer();
+            int saved = target.SaveLayer();
             Bottom.Value?.Paint(context, target);
-            target.Canvas.RestoreToCount(saved);
+            target.RestoreToCount(saved);
 
             paint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
-            target.Canvas.SaveLayer(paint);
+            target.SaveLayer(paint);
 
             Top.Value?.Paint(context, target);
-            target.Canvas.RestoreToCount(saved);
+            target.RestoreToCount(saved);
             return;
         }
 
@@ -70,46 +70,19 @@ public class MergeNode : RenderNode
         Top.Value?.Paint(context, target);
     }
 
-    public override RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
+    protected override bool ShouldRenderPreview(string elementToRenderName)
     {
-        if (Top.Value == null && Bottom.Value == null)
-        {
-            return null;
-        }
-
-        RectD? totalBounds = null;
-
-        if (Top.Connection != null && Top.Connection.Node is IPreviewRenderable topPreview)
-        {
-            var topBounds = topPreview.GetPreviewBounds(frame, elementToRenderName);
-            if (topBounds != null)
-            {
-                totalBounds = totalBounds?.Union(topBounds.Value) ?? topBounds;
-            }
-        }
-
-        if (Bottom.Connection != null && Bottom.Connection.Node is IPreviewRenderable bottomPreview)
-        {
-            var bottomBounds = bottomPreview.GetPreviewBounds(frame, elementToRenderName);
-            if (bottomBounds != null)
-            {
-                totalBounds = totalBounds?.Union(bottomBounds.Value) ?? bottomBounds;
-            }
-        }
-
-        return totalBounds;
+        return Top.Value != null || Bottom.Value != null;
     }
 
-    public override bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
+    public override void RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
     {
         if (Top.Value == null && Bottom.Value == null)
         {
-            return false;
+            return;
         }
 
-        Merge(renderOn, context);
-
-        return true;
+        Merge(renderOn.Canvas, context);
     }
 
     public override void Dispose()

@@ -2,6 +2,7 @@
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using Drawie.Backend.Core;
+using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
@@ -53,7 +54,9 @@ public static class FloodFillHelper
 
         int chunkSize = ChunkResolution.Full.PixelSize();
 
-        using FloodFillChunkCache cache = CreateCache(membersToFloodFill, document, frame);
+        using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
+
+        FloodFillChunkCache cache = CreateCache(membersToFloodFill, document, frame);
 
         VecI initChunkPos = OperationHelper.GetChunkPos(startingPos, chunkSize);
         VecI imageSizeInChunks = (VecI)(document.Size / (double)chunkSize).Ceiling();
@@ -218,10 +221,12 @@ public static class FloodFillHelper
         byte[] pixelStates = new byte[chunkSize * chunkSize];
         DrawSelection(pixelStates, selection, globalSelectionBounds, chunkPos, chunkSize);
 
-        using var refPixmap = referenceChunk.Surface.DrawingSurface.PeekPixels();
+        using var refPixmap = referenceChunk.Surface.PeekPixels();
         Half* refArray = (Half*)refPixmap.GetPixels();
 
-        using var drawPixmap = drawingChunk.Surface.DrawingSurface.PeekPixels();
+        Surface cpuSurface = Surface.ForProcessing(new VecI(chunkSize), referenceChunk.Surface.ColorSpace);
+        cpuSurface.DrawingSurface.Canvas.DrawSurface(drawingChunk.Surface.DrawingSurface, 0, 0);
+        using var drawPixmap = cpuSurface.PeekPixels();
         Half* drawArray = (Half*)drawPixmap.GetPixels();
 
         Stack<VecI> toVisit = new();
@@ -248,6 +253,10 @@ public static class FloodFillHelper
                 bounds.IsWithinBounds(refPixel + 4 * chunkSize))
                 toVisit.Push(new(curPos.X, curPos.Y + 1));
         }
+
+        using Paint replacePaint = new Paint();
+        replacePaint.BlendMode = BlendMode.Src;
+        drawingChunk.Surface.DrawingSurface.Canvas.DrawSurface(cpuSurface.DrawingSurface, 0, 0, replacePaint);
 
         return pixelStates;
     }

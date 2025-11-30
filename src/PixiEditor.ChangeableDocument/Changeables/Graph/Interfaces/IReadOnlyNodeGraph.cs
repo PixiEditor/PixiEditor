@@ -1,16 +1,25 @@
 ﻿using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
+using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.Common;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
-public interface IReadOnlyNodeGraph : ICacheable
+public interface IReadOnlyNodeGraph : ICacheable, IDisposable
 {
+    public IReadOnlyBlackboard Blackboard { get; }
     public IReadOnlyCollection<IReadOnlyNode> AllNodes { get; }
+    public IReadOnlyNode LookupNode(Guid guid);
     public IReadOnlyNode OutputNode { get; }
     public void AddNode(IReadOnlyNode node);
     public void RemoveNode(IReadOnlyNode node);
     public bool TryTraverse(Action<IReadOnlyNode> action);
+    public bool TryTraverse(IReadOnlyNode end, Action<IReadOnlyNode> action);
     public void Execute(RenderContext context);
+    public void Execute(IReadOnlyNode end, RenderContext context);
     Queue<IReadOnlyNode> CalculateExecutionQueue(IReadOnlyNode endNode);
+    public IReadOnlyNodeGraph Clone();
+    public event Action<NodeOutputsChanged_ChangeInfo> NodeOutputsChanged;
+    public void Execute(IEnumerable<IReadOnlyNode> nodes, RenderContext context);
 }

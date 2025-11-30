@@ -32,32 +32,8 @@ public partial class StringPropertyView : NodePropertyView
         InitializeComponent();
     }
 
-    protected override void OnLoaded(RoutedEventArgs e)
-    {
-        base.OnLoaded(e);
-        if (smallTextBox is null)
-        {
-            return;
-        }
-
-        ScrollViewer scroll = smallTextBox.FindDescendantOfType<ScrollViewer>();
-
-        if (scroll is null)
-        {
-            return;
-        }
-
-        scroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
-        scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Disabled;
-    }
-
-    private void InputElement_OnPointerWheelChanged(object? sender, PointerWheelEventArgs e)
+    private void InputElement_OnPointerPressed(object? sender, PointerPressedEventArgs e)
     {
         e.Handled = true;
-    }
-
-    private void Popup_OnOpened(object? sender, EventArgs e)
-    {
-        Dispatcher.UIThread.Post(() => bigTextBox.Focus());
     }
 }

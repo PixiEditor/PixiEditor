@@ -68,6 +68,9 @@ internal class UpdatePropertyValue_Change : InterruptableUpdateableChange
             _value = SetValue(property, _value);
         }
 
+        if(property.Node is BlackboardVariableValueNode blackboardNode)
+            blackboardNode.UpdateValuesFromBlackboard(target.NodeGraph.Blackboard);
+
         List<IChangeInfo> changes = new();
         changes.Add(new PropertyValueUpdated_ChangeInfo(_nodeId, _propertyName, _value) { Errors = errors });
 
@@ -105,6 +108,7 @@ internal class UpdatePropertyValue_Change : InterruptableUpdateableChange
                 if (_value == previousValue)
                 {
                     ignoreInUndo = true;
+                    return new None();
                 }
             }
 
@@ -224,5 +228,13 @@ internal class UpdatePropertyValue_Change : InterruptableUpdateableChange
     {
         return other is UpdatePropertyValue_Change change && change._nodeId == _nodeId &&
                change._propertyName == _propertyName && _value == change._value;
+    }
+
+    public override void Dispose()
+    {
+        if(previousValue is IDisposable disposable)
+        {
+            disposable.Dispose();
+        }
     }
 }

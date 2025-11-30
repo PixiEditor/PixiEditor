@@ -32,7 +32,6 @@ public class OutlineNode : RenderNode, IRenderInput
     private ImageFilter filter;
 
     private OutlineType? lastType = null;
-    private VecI lastDocumentSize;
 
     protected override bool ExecuteOnlyOnCacheChange => true;
 
@@ -52,7 +51,6 @@ public class OutlineNode : RenderNode, IRenderInput
     protected override void OnExecute(RenderContext context)
     {
         base.OnExecute(context);
-        lastDocumentSize = context.RenderOutputSize;
 
         Kernel finalKernel = Type.Value switch
         {
@@ -71,7 +69,7 @@ public class OutlineNode : RenderNode, IRenderInput
         lastType = Type.Value;
     }
 
-    protected override void OnPaint(RenderContext context, DrawingSurface surface)
+    protected override void OnPaint(RenderContext context, Canvas surface)
     {
         if (Background.Value == null)
         {
@@ -91,7 +89,7 @@ public class OutlineNode : RenderNode, IRenderInput
             bool isAdjusted = context.DocumentSize == context.RenderOutputSize;
             ctx.RenderOutputSize = isAdjusted ? context.RenderOutputSize : (VecI)(context.RenderOutputSize * context.ChunkResolution.InvertedMultiplier());
 
-            Background.Value.Paint(ctx, temp.DrawingSurface);
+            Background.Value.Paint(ctx, temp.DrawingSurface.Canvas);
 
             temp.DrawingSurface.Canvas.RestoreToCount(saved);
 
@@ -108,28 +106,27 @@ public class OutlineNode : RenderNode, IRenderInput
                 temp.DrawingSurface.Canvas.RestoreToCount(saved);
             }
 
-            saved = surface.Canvas.Save();
-            surface.Canvas.SetMatrix(Matrix3X3.Identity);
-            surface.Canvas.DrawSurface(temp.DrawingSurface, 0, 0);
+            saved = surface.Save();
+            surface.SetMatrix(Matrix3X3.Identity);
+            surface.DrawSurface(temp.DrawingSurface, 0, 0);
 
-            surface.Canvas.RestoreToCount(saved);
+            surface.RestoreToCount(saved);
         }
 
         Background?.Value?.Paint(context, surface);
     }
 
-    public override RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
+    public override RectD? GetPreviewBounds(RenderContext ctx, string elementToRenderName = "")
     {
-        return new RectD(0, 0, lastDocumentSize.X, lastDocumentSize.Y);
+        return new RectD(0, 0, ctx.DocumentSize.X, ctx.DocumentSize.Y);
     }
 
-    public override bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
+    public override void RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
     {
         int saved = renderOn.Canvas.Save();
         renderOn.Canvas.Scale((float)context.ChunkResolution.Multiplier());
-        OnPaint(context, renderOn);
+        OnPaint(context, renderOn.Canvas);
         renderOn.Canvas.RestoreToCount(saved);
-        return true;
     }
 
     public override Node CreateCopy()

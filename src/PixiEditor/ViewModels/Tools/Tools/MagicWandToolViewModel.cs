@@ -1,6 +1,7 @@
 ﻿using Avalonia.Input;
 using PixiEditor.ChangeableDocument.Enums;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Vector;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
@@ -17,11 +18,11 @@ namespace PixiEditor.ViewModels.Tools.Tools;
 internal class MagicWandToolViewModel : ToolViewModel, IMagicWandToolHandler
 {
     public override LocalizedString Tooltip => new LocalizedString("MAGIC_WAND_TOOL_TOOLTIP", Shortcut);
-
+    private LocalizedString defaultActionDisplay => new LocalizedString("MAGIC_WAND_ACTION_DISPLAY");
     public override string ToolNameLocalizationKey => "MAGIC_WAND_TOOL";
-    public override BrushShape FinalBrushShape => BrushShape.Pixel;
-    public override Type[]? SupportedLayerTypes { get; } = { typeof(IRasterLayerHandler) }; 
-
+    public override Type[]? SupportedLayerTypes { get; } = { typeof(IRasterLayerHandler) };
+    private SelectionMode KeyModifierSelectionMode = SelectionMode.New;
+    public SelectionMode ResultingSelectionMode => KeyModifierSelectionMode != SelectionMode.New ? KeyModifierSelectionMode : SelectMode;
     [Settings.Enum("MODE_LABEL")]
     public SelectionMode SelectMode => GetValue<SelectionMode>();
 
@@ -36,7 +37,7 @@ internal class MagicWandToolViewModel : ToolViewModel, IMagicWandToolHandler
     public MagicWandToolViewModel()
     {
         Toolbar = ToolbarFactory.Create(this);
-        ActionDisplay = "MAGIC_WAND_ACTION_DISPLAY";
+        ActionDisplay = defaultActionDisplay;
     }
 
     public override Type LayerTypeToCreateOnEmptyUse { get; } = null;
@@ -44,5 +45,24 @@ internal class MagicWandToolViewModel : ToolViewModel, IMagicWandToolHandler
     public override void UseTool(VecD pos)
     {
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseMagicWandTool();
+    }
+
+    public override void KeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown, Key argsKey)
+    {
+        if (shiftIsDown)
+        {
+            ActionDisplay = new LocalizedString("MAGIC_WAND_ACTION_DISPLAY_SHIFT");
+            KeyModifierSelectionMode = SelectionMode.Add;
+        }
+        else if (ctrlIsDown)
+        {
+            ActionDisplay = new LocalizedString("MAGIC_WAND_ACTION_DISPLAY_CTRL");
+            KeyModifierSelectionMode = SelectionMode.Subtract;
+        }
+        else
+        {
+            ActionDisplay = defaultActionDisplay;
+            KeyModifierSelectionMode = SelectionMode.New;
+        }
     }
 }

@@ -8,86 +8,31 @@
                              xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
                              xmlns:system="clr-namespace:System;assembly=System.Runtime"
                              xmlns:properties1="clr-namespace:PixiEditor.ViewModels.Nodes.Properties"
+                             xmlns:input="clr-namespace:PixiEditor.Views.Input"
                              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
                              x:DataType="properties1:StringPropertyViewModel"
                              x:Class="PixiEditor.Views.Nodes.Properties.StringPropertyView">
+    <Design.DataContext>
+        <properties1:StringPropertyViewModel />
+    </Design.DataContext>
     <Grid>
         <DockPanel LastChildFill="True"
                    HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
-            <TextBlock ui:Translator.TooltipKey="{Binding DisplayName}" VerticalAlignment="Center" ui:Translator.Key="{Binding DisplayName}" />
-            <TextBox MaxWidth="110"
-                     MaxLines="1"
-                     Name="smallTextBox"
-                     Text="{CompiledBinding StringValue, Mode=TwoWay}"
-                     IsVisible="{Binding ShowInputField}">
-                <TextBox.InnerRightContent>
-                    <ToggleButton Name="bigModeToggle" DockPanel.Dock="Right" FontSize="20" Classes="pixi-icon"
-                                  Content="{DynamicResource icon-fullscreen}" />
-                </TextBox.InnerRightContent>
-                <Interaction.Behaviors>
-                    <behaviours:GlobalShortcutFocusBehavior />
-                </Interaction.Behaviors>
-            </TextBox>
+            <TextBlock ui:Translator.TooltipKey="{Binding DisplayName}" VerticalAlignment="Center"
+                       ui:Translator.Key="{Binding DisplayName}" />
+            <Panel IsVisible="{Binding ShowInputField}">
+                <Panel IsVisible="{Binding IsInput}">
+                    <input:StringEditor
+                        IsVisible="{Binding AvailableOptions, Converter={converters:NotNullToVisibilityConverter Inverted=True}}"
+                        Text="{Binding Value, Mode=TwoWay}"
+                        ContentKind="{Binding Kind}"
+                        Errors="{Binding Errors}" />
+                    <ComboBox IsVisible="{Binding AvailableOptions, Converter={converters:NotNullToVisibilityConverter}}"
+                              ItemsSource="{Binding AvailableOptions}"
+                              PointerPressed="InputElement_OnPointerPressed"
+                              SelectedValue="{Binding StringNotNullValue, Mode=TwoWay}"/>
+                </Panel>
+            </Panel>
         </DockPanel>
-        <Popup IsOpen="{Binding ElementName=bigModeToggle, Path=IsChecked, Mode=TwoWay}"
-               Placement="AnchorAndGravity"
-               PlacementAnchor="Top"
-               VerticalOffset="20"
-               PlacementGravity="Bottom"
-               IsLightDismissEnabled="True"
-               Opened="Popup_OnOpened"
-               PlacementTarget="{Binding ElementName=bigModeToggle}">
-            <DockPanel LastChildFill="True">
-                <Border CornerRadius="5 5 0 0" DockPanel.Dock="Top"
-                        BorderThickness="1 1 1 0"
-                        BorderBrush="{DynamicResource ThemeBorderHighBrush}"
-                        Background="{DynamicResource ThemeBackgroundBrush1}">
-                    <StackPanel Orientation="Horizontal">
-                        <Button Margin="5" Classes="pixi-icon"
-                                Name="openInDefaultAppButton"
-                                Command="{Binding OpenInDefaultAppCommand}"
-                                ui:Translator.TooltipKey="STRING_EDIT_IN_DEFAULT_APP"
-                                Content="{DynamicResource icon-link}" FontSize="20" />
-                        <Button Margin="5" Classes="pixi-icon"
-                                Name="openInFolderButton"
-                                ui:Translator.TooltipKey="STRING_OPEN_IN_FOLDER"
-                                Command="{Binding OpenInFolderCommand}"
-                                Content="{DynamicResource icon-folder}" FontSize="20" />
-                    </StackPanel>
-                </Border>
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="70" />
-                    </Grid.RowDefinitions>
-                    <TextBox
-                        CornerRadius="0 0 5 5"
-                        Name="bigTextBox"
-                        Width="500"
-                        Height="600"
-                        AcceptsReturn="True"
-                        AcceptsTab="True"
-                        PointerWheelChanged="InputElement_OnPointerWheelChanged"
-                        Text="{Binding StringValue, Mode=TwoWay}"
-                        IsVisible="{Binding ElementName=bigModeToggle, Path=IsChecked}">
-                        <Interaction.Behaviors>
-                            <behaviours:GlobalShortcutFocusBehavior />
-                        </Interaction.Behaviors>
-                    </TextBox>
-                    <Border
-                        CornerRadius="0 0 5 5"
-                        BorderThickness="1" BorderBrush="{DynamicResource ThemeBorderMidBrush}"
-                        IsVisible="{Binding Errors, Converter={converters:NotEmptyStringConverter}}"
-                        Background="{DynamicResource ThemeBackgroundBrush}" Grid.Row="1">
-                        <ScrollViewer PointerWheelChanged="InputElement_OnPointerWheelChanged" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-                        <TextBlock
-                            Foreground="{DynamicResource ErrorOnDarkBrush}"
-                            TextWrapping="Wrap"
-                            Text="{Binding Errors}" />
-                        </ScrollViewer>
-                    </Border>
-                </Grid>
-            </DockPanel>
-        </Popup>
     </Grid>
 </properties:NodePropertyView>

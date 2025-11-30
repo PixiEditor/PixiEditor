@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using System.Collections;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using Avalonia.Threading;
 using ChunkyImageLib.DataHolders;
@@ -33,12 +34,13 @@ using PixiEditor.Models.Serialization.Factories;
 using PixiEditor.Models.Structures;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
 using PixiEditor.Models.IO;
-using PixiEditor.Models.Position;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Skia;
 using PixiEditor.UI.Common.Localization;
+using PixiEditor.ViewModels.Document.Nodes;
 using PixiEditor.ViewModels.Document.Nodes.Workspace;
 using PixiEditor.ViewModels.Document.TransformOverlays;
 using PixiEditor.Views.Overlays.SymmetryOverlay;
@@ -141,6 +143,18 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         HorizontalSymmetryAxisEnabledBindable || VerticalSymmetryAxisEnabledBindable;
 
 
+    public bool IsNestedDocument => referenceId != Guid.Empty;
+
+    public Guid ReferenceId
+    {
+        get => referenceId;
+        set
+        {
+            SetProperty(ref referenceId, value);
+            OnPropertyChanged(nameof(IsNestedDocument));
+        }
+    }
+
     public bool OverlayEventsSuppressed => overlaySuppressors.Count > 0;
 
     private readonly HashSet<string> overlaySuppressors = new();
@@ -172,59 +186,38 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public bool HasSavedUndo => Internals.Tracker.HasSavedUndo;
     public bool HasSavedRedo => Internals.Tracker.HasSavedRedo;
 
-    public NodeGraphViewModel NodeGraph { get; }
-    public DocumentStructureModule StructureHelper { get; }
-    public DocumentToolsModule Tools { get; }
-    public DocumentOperationsModule Operations { get; }
-    public DocumentRenderer Renderer { get; }
-    public SceneRenderer SceneRenderer { get; }
-    public DocumentEventsModule EventInlet { get; }
+    public NodeGraphViewModel NodeGraph { get; private set; }
+    public DocumentStructureModule StructureHelper { get; private set; }
+    public DocumentToolsModule Tools { get; private set; }
+    public DocumentOperationsModule Operations { get; private set; }
+    public DocumentRenderer Renderer { get; private set; }
+    public SceneRenderer SceneRenderer { get; private set; }
+    public DocumentEventsModule EventInlet { get; private set; }
 
     public ActionDisplayList ActionDisplays { get; } =
         new(() => ViewModelMain.Current.NotifyToolActionDisplayChanged());
 
     public IStructureMemberHandler? SelectedStructureMember { get; private set; } = null;
 
-    private PreviewPainter miniPreviewPainter;
-
-    public PreviewPainter MiniPreviewPainter
-    {
-        get => miniPreviewPainter;
-        set
-        {
-            SetProperty(ref miniPreviewPainter, value);
-        }
-    }
-
-    private PreviewPainter previewSurface;
-
-    public PreviewPainter PreviewPainter
-    {
-        get => previewSurface;
-        set
-        {
-            SetProperty(ref previewSurface, value);
-        }
-    }
+    public Dictionary<Guid, Texture> SceneTextures { get; } = new();
 
     private VectorPath selectionPath = new VectorPath();
     public VectorPath SelectionPathBindable => selectionPath;
     public ObservableCollection<PaletteColor> Swatches { get; set; } = new();
     public Guid Id => Internals.Tracker.Document.DocumentId;
     public ObservableRangeCollection<PaletteColor> Palette { get; set; } = new();
-    public SnappingViewModel SnappingViewModel { get; }
+    public SnappingViewModel SnappingViewModel { get; set; }
     ISnappingHandler IDocument.SnappingHandler => SnappingViewModel;
     public IReadOnlyCollection<Guid> SelectedMembers => GetSelectedMembers().AsReadOnly();
-    public DocumentTransformViewModel TransformViewModel { get; }
-    public PathOverlayViewModel PathOverlayViewModel { get; }
-    public ReferenceLayerViewModel ReferenceLayerViewModel { get; }
-    public LineToolOverlayViewModel LineToolOverlayViewModel { get; }
-    public AnimationDataViewModel AnimationDataViewModel { get; }
-    public TextOverlayViewModel TextOverlayViewModel { get; }
-
-
-    public IReadOnlyCollection<IStructureMemberHandler> SoftSelectedStructureMembers => softSelectedStructureMembers;
+    public DocumentTransformViewModel TransformViewModel { get; set; }
+    public PathOverlayViewModel PathOverlayViewModel { get; set; }
+    public ReferenceLayerViewModel ReferenceLayerViewModel { get; set; }
+    public LineToolOverlayViewModel LineToolOverlayViewModel { get; set; }
+    public AnimationDataViewModel AnimationDataViewModel { get; set; }
+    public TextOverlayViewModel TextOverlayViewModel { get; set; }
     private DocumentInternalParts Internals { get; }
+    public AutosaveDocumentViewModel AutosaveViewModel { get; set; }
+    public IReadOnlyCollection<IStructureMemberHandler> SoftSelectedStructureMembers => softSelectedStructureMembers;
     INodeGraphHandler IDocument.NodeGraphHandler => NodeGraph;
     IDocumentOperations IDocument.Operations => Operations;
     ITransformHandler IDocument.TransformHandler => TransformViewModel;
@@ -233,13 +226,43 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     ILineOverlayHandler IDocument.LineToolOverlayHandler => LineToolOverlayViewModel;
     IReferenceLayerHandler IDocument.ReferenceLayerHandler => ReferenceLayerViewModel;
     IAnimationHandler IDocument.AnimationHandler => AnimationDataViewModel;
+
     public bool UsesSrgbBlending { get; private set; }
-    public AutosaveDocumentViewModel AutosaveViewModel { get; }
+
+    private bool isDisposed = false;
+    private Guid referenceId = Guid.Empty;
 
     private DocumentViewModel()
     {
         var serviceProvider = ViewModelMain.Current.Services;
         Internals = new DocumentInternalParts(this, serviceProvider);
+        InitializeViewModel();
+    }
+
+    internal DocumentViewModel(IReadOnlyDocument document, Guid referenceId)
+    {
+        var serviceProvider = ViewModelMain.Current.Services;
+        Internals = new DocumentInternalParts(this, serviceProvider, document);
+        InitializeViewModel();
+
+        SetSize(document.Size);
+        SetProcessingColorSpace(document.ProcessingColorSpace);
+        SetHorizontalSymmetryAxisEnabled(document.HorizontalSymmetryAxisEnabled);
+        SetVerticalSymmetryAxisEnabled(document.VerticalSymmetryAxisEnabled);
+        SetHorizontalSymmetryAxisY(document.HorizontalSymmetryAxisY);
+        SetVerticalSymmetryAxisX(document.VerticalSymmetryAxisX);
+
+        NodeGraph.InitFrom(document.NodeGraph);
+        AnimationDataViewModel.InitFrom(document.AnimationData);
+        ReferenceLayerViewModel.InitFrom(document.ReferenceLayer);
+        UpdateSelectionPath(new VectorPath(document.Selection.SelectionPath));
+        NodeGraph.StructureTree.Update(NodeGraph);
+
+        ReferenceId = referenceId;
+    }
+
+    private void InitializeViewModel()
+    {
         Internals.ChangeController.ToolSessionFinished += () => ToolSessionFinished?.Invoke();
 
         Tools = new DocumentToolsModule(this, Internals);
@@ -324,6 +347,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         }
 
         var viewModel = new DocumentViewModel();
+        var changeBlock = viewModel.Operations.StartChangeBlock();
         viewModel.Operations.ResizeCanvas(new VecI(builderInstance.Width, builderInstance.Height), ResizeAnchor.Center);
 
         var acc = viewModel.Internals.ActionAccumulator;
@@ -370,14 +394,19 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         }
 
         AddNodes(builderInstance.Graph);
+        AddBlackboard(builderInstance.Graph.Blackboard);
 
-        if (builderInstance.Graph.AllNodes.Count == 0 || !builderInstance.Graph.AllNodes.Any(x => x is OutputNode))
+        if (builderInstance.Graph.AllNodes.Count == 0 ||
+            builderInstance.Graph.AllNodes.All(x => x.UniqueNodeName != OutputNode.UniqueName))
         {
             Guid outputNodeGuid = Guid.NewGuid();
             acc.AddActions(new CreateNode_Action(typeof(OutputNode), outputNodeGuid, Guid.Empty));
         }
 
         AddAnimationData(builderInstance.AnimationData, mappedNodeIds, mappedKeyFrameIds);
+
+        changeBlock.ExecuteQueuedActions();
+        changeBlock.Dispose();
 
         acc.AddFinishedActions(new ChangeBoundary_Action(), new DeleteRecordedChanges_Action());
         acc.AddActions(new InvokeAction_PassthroughAction(() =>
@@ -395,6 +424,21 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         viewModel.NodeGraph.FinalizeCreation();
 
         return viewModel;
+
+        void AddBlackboard(NodeGraphBuilder.BlackboardBuilder blackboard)
+        {
+            if (blackboard is null)
+                return;
+
+            foreach (var varBuilder in blackboard.Variables)
+            {
+                object value =
+                    SerializationUtil.Deserialize(varBuilder.Value, config, allFactories, serializerData);
+                acc.AddActions(new SetBlackboardVariable_Action(varBuilder.Name, value,
+                    varBuilder.Min ?? double.MinValue,
+                    varBuilder.Max ?? double.MaxValue, varBuilder.Unit, varBuilder.IsExposed));
+            }
+        }
 
 
         void AddNodes(NodeGraphBuilder graph)
@@ -551,16 +595,25 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 Directory.CreateDirectory(resourcesPath);
 
             Dictionary<int, string> mapping = new();
+            Dictionary<int, byte[]> resourceData = new();
 
             foreach (var resource in resources.Resources)
             {
                 string formattedGuid = resource.CacheId.ToString("N");
-                string filePath = Path.Combine(resourcesPath, $"{formattedGuid}{Path.GetExtension(resource.FileName)}");
-                File.WriteAllBytes(filePath, resource.Data);
-                mapping.Add(resource.Handle, filePath);
+                if (!string.IsNullOrEmpty(Path.GetExtension(resource.FileName)))
+                {
+                    string filePath = Path.Combine(resourcesPath,
+                        $"{formattedGuid}{Path.GetExtension(resource.FileName)}");
+                    File.WriteAllBytes(filePath, resource.Data);
+                    mapping.Add(resource.Handle, filePath);
+                }
+                else
+                {
+                    resourceData.Add(resource.Handle, resource.Data);
+                }
             }
 
-            return new ResourceStorageLocator(mapping, resourcesPath);
+            return new ResourceStorageLocator(mapping, resourcesPath, resourceData);
         }
     }
 
@@ -732,6 +785,20 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public ICrossDocumentPipe<T> ShareNode<T>(Guid layerId) where T : class, IReadOnlyNode
     {
         return Internals.Tracker.Document.CreateNodePipe<T>(layerId);
+    }
+
+    public ICrossDocumentPipe<IReadOnlyNodeGraph> ShareGraph()
+    {
+        return Internals.Tracker.Document.CreateGraphPipe();
+    }
+
+    /// <summary>
+    ///      Gives access to the internal <see cref="IReadOnlyDocument"/>. Use with caution, as it is not tracked by the <see cref="DocumentViewModel"/>.
+    /// <remarks>Never, ever, EVER, update the readonly document or dispose it if view model is in use.</remarks>
+    /// </summary>
+    public IReadOnlyDocument AccessInternalReadOnlyDocument()
+    {
+        return Internals.Tracker.Document;
     }
 
     public OneOf<Error, Surface> TryRenderWholeImage(KeyFrameTime frameTime, VecI renderSize)
@@ -1009,7 +1076,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 {
                     using Surface texture = new Surface(SizeBindable);
                     using Paint paint = new Paint();
-                    rasterizable.Rasterize(texture.DrawingSurface, paint);
+                    rasterizable.Rasterize(texture.DrawingSurface.Canvas, paint, frameTime.Frame);
                     return texture.GetSrgbPixel(pos);
                 }
             }
@@ -1103,6 +1170,11 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         Internals.ChangeController.MembersSelectedInlet(GetSelectedMembers());
         OnPropertyChanged(nameof(SoftSelectedStructureMembers));
     }
+
+    public ColorSpace ProcessingColorSpace =>
+        UsesSrgbBlending ? ColorSpace.CreateSrgb() : ColorSpace.CreateSrgbLinear();
+
+    public bool IsDisposed => isDisposed;
 
     public void RemoveSoftSelectedMember(IStructureMemberHandler member)
     {
@@ -1335,9 +1407,17 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     {
         try
         {
+            if (isDisposed)
+                return;
+
+            isDisposed = true;
             NodeGraph.Dispose();
             Renderer.Dispose();
-            SceneRenderer.Dispose();
+            foreach (var texture in SceneTextures)
+            {
+                texture.Value?.Dispose();
+            }
+
             AnimationDataViewModel.Dispose();
             Internals.ChangeController.TryStopActiveExecutor();
             Internals.Tracker.Dispose();
@@ -1371,5 +1451,40 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     void Extensions.CommonApi.Documents.IDocument.Resize(int width, int height)
     {
         Operations.ResizeImage(new VecI(width, height), ResamplingMethod.NearestNeighbor);
+    }
+
+    public void UpdateDocumentReferences(Guid referenceId, DocumentViewModel newDoc)
+    {
+        var nestedNodes = NodeGraph.AllNodes.Where(x => x is NestedDocumentNodeViewModel)
+            .Cast<NestedDocumentNodeViewModel>();
+        using var changeBlock = Operations.StartChangeBlock();
+        foreach (var node in nestedNodes)
+        {
+            if (node.InputPropertyMap[NestedDocumentNode.DocumentPropertyName].Value is not DocumentReference docRef ||
+                docRef.ReferenceId != referenceId)
+                continue;
+
+            Internals.ActionAccumulator.AddActions(new UpdatePropertyValue_Action(node.Id,
+                    NestedDocumentNode.DocumentPropertyName,
+                    new DocumentReference(newDoc.FullFilePath, referenceId,
+                        newDoc.AccessInternalReadOnlyDocument().Clone(true))),
+                new EndUpdatePropertyValue_Action());
+        }
+    }
+
+    public void UpdateNestedLinkedStatus(Guid referenceId)
+    {
+        var nestedNodes = NodeGraph.AllNodes.Where(x => x is NestedDocumentNodeViewModel)
+            .Cast<NestedDocumentNodeViewModel>();
+
+        foreach (var nodeVm in nestedNodes)
+        {
+            if (nodeVm.InputPropertyMap[NestedDocumentNode.DocumentPropertyName]
+                    .Value is not DocumentReference docRef ||
+                docRef.ReferenceId != referenceId)
+                continue;
+
+            nodeVm.UpdateLinkedStatus();
+        }
     }
 }

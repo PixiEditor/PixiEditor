@@ -64,8 +64,8 @@ public class ConnectionRenderer : Control
                 GradientStops = new GradientStops
                 {
                     new GradientStop { Offset = 0, Color = Color.FromRgb(85, 85, 85) },
-                    new GradientStop { Offset = 0.05, Color = SocketColorConverter.SocketToColor(connection.InputProperty.SocketBrush) },
-                    new GradientStop { Offset = 0.95, Color = SocketColorConverter.SocketToColor(connection.OutputProperty.SocketBrush) },
+                    new GradientStop { Offset = 0.05, Color = SocketColorConverter.SocketToColor(connection.OutputProperty.SocketBrush) },
+                    new GradientStop { Offset = 0.95, Color = SocketColorConverter.SocketToColor(connection.InputProperty.SocketBrush) },
                     new GradientStop { Offset = 1, Color = Color.FromRgb(85, 85, 85) }
                 }
             };
@@ -86,6 +86,7 @@ public class ConnectionRenderer : Control
 
                 controlPoint2 = new Point(p2.X, (p1.Y + p2.Y) / 2);
                 controlPoint = new Point(p1.X, (p1.Y + p2.Y) / 2);
+                SwapGradientColors(brush);
             }
 
             var geometry = new StreamGeometry();
@@ -105,6 +106,11 @@ public class ConnectionRenderer : Control
             pen.Thickness = thickness;
 
             context.DrawGeometry(brush, pen, geometry);
+        }
+
+        static void SwapGradientColors(LinearGradientBrush brush)
+        {
+            (brush.GradientStops[1].Color, brush.GradientStops[2].Color) = (brush.GradientStops[2].Color, brush.GradientStops[1].Color);
         }
     }
 }

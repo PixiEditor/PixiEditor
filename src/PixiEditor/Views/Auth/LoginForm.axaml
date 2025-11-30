@@ -8,6 +8,7 @@
              xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
              xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="subViewModels:UserViewModel"
              x:Class="PixiEditor.Views.Auth.LoginForm">
     <Design.DataContext>
         <subViewModels:UserViewModel />

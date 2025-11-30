@@ -1,4 +1,5 @@
-﻿using ChunkyImageLib.DataHolders;
+﻿using System.Diagnostics;
+using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
@@ -6,6 +7,7 @@ using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
 
 namespace ChunkyImageLib;
+
 public static class IReadOnlyChunkyImageEx
 {
     /// <summary>
@@ -19,12 +21,30 @@ public static class IReadOnlyChunkyImageEx
     /// <param name="pos">Starting position on the surface</param>
     /// <param name="paint">Paint to use for drawing</param>
     public static void DrawMostUpToDateRegionOn
-    (this IReadOnlyChunkyImage image, RectI fullResRegion, ChunkResolution resolution, DrawingSurface surface,
-        VecD pos, Paint? paint = null, SamplingOptions? sampling = null)
+    (this IReadOnlyChunkyImage image, RectI fullResRegion, ChunkResolution resolution, Canvas surface,
+        VecD pos, Paint? paint = null, SamplingOptions? sampling = null, bool drawPaintOnEmpty = false)
     {
-        DrawRegionOn(fullResRegion, resolution, surface, pos, image.DrawMostUpToDateChunkOn, paint, sampling);
+        DrawRegionOn(fullResRegion, resolution, surface, pos, image.DrawMostUpToDateChunkOn, paint, sampling, drawPaintOnEmpty);
     }
-    
+
+    /// <summary>
+    /// Extracts a region from the <see cref="ChunkyImage"/> and draws it onto the passed <see cref="DrawingSurface"/>.
+    /// The region is taken from the most up to date version of the <see cref="ChunkyImage"/>
+    /// </summary>
+    /// <param name="image"><see cref="ChunkyImage"/> to extract the region from</param>
+    /// <param name="fullResRegion">The region to extract</param>
+    /// <param name="resolution">Chunk resolution</param>
+    /// <param name="surface">Surface to draw onto</param>
+    /// <param name="pos">Starting position on the surface</param>
+    /// <param name="paint">Paint to use for drawing</param>
+    public static void DrawMostUpToDateRegionOnWithAffected
+    (this IReadOnlyChunkyImage image, RectI fullResRegion, ChunkResolution resolution, Canvas surface,
+        AffectedArea affectedArea, VecD pos, Paint? paint = null, SamplingOptions? sampling = null, bool drawPaintOnEmpty = false)
+    {
+        DrawRegionOn(fullResRegion, resolution, surface, pos, image.DrawMostUpToDateChunkOn,
+            image.DrawCachedMostUpToDateChunkOn, affectedArea, paint, sampling, drawPaintOnEmpty);
+    }
+
     /// <summary>
     /// Extracts a region from the <see cref="ChunkyImage"/> and draws it onto the passed <see cref="DrawingSurface"/>.
     /// The region is taken from the committed version of the <see cref="ChunkyImage"/>
@@ -36,21 +56,22 @@ public static class IReadOnlyChunkyImageEx
     /// <param name="pos">Starting position on the surface</param>
     /// <param name="paint">Paint to use for drawing</param>
     public static void DrawCommittedRegionOn
-        (this IReadOnlyChunkyImage image, RectI fullResRegion, ChunkResolution resolution, DrawingSurface surface, VecI pos, Paint? paint = null, SamplingOptions? samplingOptions = null)
+    (this IReadOnlyChunkyImage image, RectI fullResRegion, ChunkResolution resolution, Canvas surface,
+        VecI pos, Paint? paint = null, SamplingOptions? samplingOptions = null, bool drawPaintOnEmpty = false)
     {
-        DrawRegionOn(fullResRegion, resolution, surface, pos, image.DrawCommittedChunkOn, paint, samplingOptions);
+        DrawRegionOn(fullResRegion, resolution, surface, pos, image.DrawCommittedChunkOn, paint, samplingOptions, drawPaintOnEmpty);
     }
-    
+
     private static void DrawRegionOn(
         RectI fullResRegion,
         ChunkResolution resolution,
-        DrawingSurface surface,
+        Canvas surface,
         VecD pos,
-        Func<VecI, ChunkResolution, DrawingSurface, VecD, Paint?, SamplingOptions?, bool> drawingFunc,
-        Paint? paint = null, SamplingOptions? samplingOptions = null)
+        Func<VecI, ChunkResolution, Canvas, VecD, Paint?, SamplingOptions?, bool> drawingFunc,
+        Paint? paint = null, SamplingOptions? samplingOptions = null, bool drawPaintOnEmpty = false)
     {
-        int count = surface.Canvas.Save();
-        surface.Canvas.ClipRect(new RectD(pos, fullResRegion.Size));
+        int count = surface.Save();
+        surface.ClipRect(new RectD(pos, fullResRegion.Size));
 
         VecI chunkTopLeft = OperationHelper.GetChunkPos(fullResRegion.TopLeft, ChunkyImage.FullChunkSize);
         VecI chunkBotRight = OperationHelper.GetChunkPos(fullResRegion.BottomRight, ChunkyImage.FullChunkSize);
@@ -62,10 +83,68 @@ public static class IReadOnlyChunkyImageEx
             for (int i = chunkTopLeft.X; i <= chunkBotRight.X; i++)
             {
                 var chunkPos = new VecI(i, j);
-                drawingFunc(chunkPos, resolution, surface, offsetTargetRes + (chunkPos - chunkTopLeft) * resolution.PixelSize() + pos, paint, samplingOptions);
+                if (!drawingFunc(chunkPos, resolution, surface,
+                        offsetTargetRes + (chunkPos - chunkTopLeft) * resolution.PixelSize() + pos, paint,
+                        samplingOptions) && paint != null && drawPaintOnEmpty)
+                {
+                    surface.DrawRect(new RectD(
+                        offsetTargetRes + (chunkPos - chunkTopLeft) * resolution.PixelSize() + pos,
+                        new VecD(resolution.PixelSize())), paint);
+                }
             }
         }
 
-        surface.Canvas.RestoreToCount(count);
+        surface.RestoreToCount(count);
+    }
+
+    private static void DrawRegionOn(
+        RectI fullResRegion,
+        ChunkResolution resolution,
+        Canvas surface,
+        VecD pos,
+        Func<VecI, ChunkResolution, Canvas, VecD, Paint?, SamplingOptions?, bool> drawingFunc,
+        Func<VecI, ChunkResolution, Canvas, VecD, Paint?, SamplingOptions?, bool> quickDrawingFunc,
+        AffectedArea area,
+        Paint? paint = null, SamplingOptions? samplingOptions = null, bool drawPaintOnEmpty = false)
+    {
+        int count = surface.Save();
+        surface.ClipRect(new RectD(pos, fullResRegion.Size));
+
+        VecI chunkTopLeft = OperationHelper.GetChunkPos(fullResRegion.TopLeft, ChunkyImage.FullChunkSize);
+        VecI chunkBotRight = OperationHelper.GetChunkPos(fullResRegion.BottomRight, ChunkyImage.FullChunkSize);
+        VecI offsetFullRes = (chunkTopLeft * ChunkyImage.FullChunkSize) - fullResRegion.Pos;
+        VecI offsetTargetRes = (VecI)(offsetFullRes * resolution.Multiplier());
+
+        for (int j = chunkTopLeft.Y; j <= chunkBotRight.Y; j++)
+        {
+            for (int i = chunkTopLeft.X; i <= chunkBotRight.X; i++)
+            {
+                var chunkPos = new VecI(i, j);
+                if (area.Chunks != null && area.Chunks.Contains(chunkPos))
+                {
+                    if (!drawingFunc(chunkPos, resolution, surface,
+                            offsetTargetRes + (chunkPos - chunkTopLeft) * resolution.PixelSize() + pos, paint,
+                            samplingOptions) && paint != null && drawPaintOnEmpty)
+                    {
+                        surface.DrawRect(new RectD(
+                            offsetTargetRes + (chunkPos - chunkTopLeft) * resolution.PixelSize() + pos,
+                            new VecD(resolution.PixelSize())), paint);
+                    }
+                }
+                else
+                {
+                    if (!quickDrawingFunc(chunkPos, resolution, surface,
+                            offsetTargetRes + (chunkPos - chunkTopLeft) * resolution.PixelSize() + pos, paint,
+                            samplingOptions) && paint != null && drawPaintOnEmpty)
+                    {
+                        surface.DrawRect(new RectD(
+                            offsetTargetRes + (chunkPos - chunkTopLeft) * resolution.PixelSize() + pos,
+                            new VecD(resolution.PixelSize())), paint);
+                    }
+                }
+            }
+        }
+
+        surface.RestoreToCount(count);
     }
 }

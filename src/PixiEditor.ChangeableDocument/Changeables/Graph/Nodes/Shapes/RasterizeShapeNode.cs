@@ -20,7 +20,7 @@ public class RasterizeShapeNode : RenderNode
         HighDpiRendering = CreateInput<bool>("High DPI Rendering", "HIGH_DPI_RENDERING", true);
     }
 
-    protected override void OnPaint(RenderContext context, DrawingSurface surface)
+    protected override void OnPaint(RenderContext context, Canvas surface)
     {
         var shape = Data.Value;
 
@@ -29,25 +29,28 @@ public class RasterizeShapeNode : RenderNode
 
         AllowHighDpiRendering = HighDpiRendering.Value;
 
-        shape.RasterizeTransformed(surface.Canvas);
+        shape.RasterizeTransformed(surface);
     }
 
     public override Node CreateCopy() => new RasterizeShapeNode();
 
-    public override RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
+    public override RectD? GetPreviewBounds(RenderContext ctx, string elementToRenderName = "")
     {
         return Data?.Value?.TransformedAABB;
     }
 
-    public override bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
+    protected override bool ShouldRenderPreview(string elementToRenderName)
+    {
+        return Data.Value != null && Data.Value.IsValid();
+    }
+
+    public override void RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
     {
         var shape = Data.Value;
 
         if (shape == null || !shape.IsValid())
-            return false;
+            return;
 
         shape.RasterizeTransformed(renderOn.Canvas);
-
-        return true;
     }
 }

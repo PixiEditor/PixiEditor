@@ -11,7 +11,6 @@
     xmlns:vm="clr-namespace:PixiEditor.ViewModels"
     xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
     xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
-    xmlns:i="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
     xmlns:markupExtensions="clr-namespace:PixiEditor.Helpers.MarkupExtensions"
     xmlns:preferences="clr-namespace:PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;assembly=PixiEditor.Extensions.CommonApi"
     xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
@@ -306,9 +305,9 @@
                         <TextBox Grid.Row="1"
                                  Text="{Binding SearchTerm, Mode=TwoWay}">
                             <!--Styles="{StaticResource DarkTextBoxStyle}"-->
-                            <i:Interaction.Behaviors>
+                            <Interaction.Behaviors>
                                 <behaviours:GlobalShortcutFocusBehavior />
-                            </i:Interaction.Behaviors>
+                            </Interaction.Behaviors>
                         </TextBox>
 
                         <settings:ShortcutsBinder Grid.Row="2" />

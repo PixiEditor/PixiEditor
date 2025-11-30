@@ -13,7 +13,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 [NodeInfo("CreateImage")]
-public class CreateImageNode : Node, IPreviewRenderable
+public class CreateImageNode : Node
 {
     public OutputProperty<Texture> Output { get; }
 
@@ -29,6 +29,9 @@ public class CreateImageNode : Node, IPreviewRenderable
     public RenderOutputProperty RenderOutput { get; }
 
     private TextureCache textureCache = new();
+
+    protected override bool ExecuteOnlyOnCacheChange => true;
+    protected override CacheTriggerFlags CacheTrigger => CacheTriggerFlags.Inputs;
 
     public CreateImageNode()
     {
@@ -48,6 +51,7 @@ public class CreateImageNode : Node, IPreviewRenderable
         }
 
         var surface = Render(context);
+        RenderPreviews(surface, context);
 
         Output.Value = surface;
 
@@ -56,7 +60,8 @@ public class CreateImageNode : Node, IPreviewRenderable
 
     private Texture Render(RenderContext context)
     {
-        var surface = textureCache.RequestTexture(0, (VecI)(Size.Value * context.ChunkResolution.Multiplier()), context.ProcessingColorSpace, false);
+        int id = (Size.Value * context.ChunkResolution.Multiplier()).GetHashCode();
+        var surface = textureCache.RequestTexture(id, (VecI)(Size.Value * context.ChunkResolution.Multiplier()), context.ProcessingColorSpace, false);
         surface.DrawingSurface.Canvas.SetMatrix(Matrix3X3.Identity);
 
         if (Fill.Value is ColorPaintable colorPaintable)
@@ -67,13 +72,14 @@ public class CreateImageNode : Node, IPreviewRenderable
         {
             using Paint paint = new Paint();
             paint.SetPaintable(Fill.Value);
+            paint.BlendMode = BlendMode.Src;
             surface.DrawingSurface.Canvas.DrawRect(0, 0, Size.Value.X, Size.Value.Y, paint);
         }
 
         int saved = surface.DrawingSurface.Canvas.Save();
 
         RenderContext ctx = context.Clone();
-        ctx.RenderSurface = surface.DrawingSurface;
+        ctx.RenderSurface = surface.DrawingSurface.Canvas;
         ctx.RenderOutputSize = surface.Size;
 
         float chunkMultiplier = (float)context.ChunkResolution.Multiplier();
@@ -82,21 +88,45 @@ public class CreateImageNode : Node, IPreviewRenderable
             surface.DrawingSurface.Canvas.TotalMatrix.Concat(
                 Matrix3X3.CreateScale(chunkMultiplier, chunkMultiplier).Concat(ContentMatrix.Value)));
 
-        Content.Value?.Paint(ctx, surface.DrawingSurface);
+        Content.Value?.Paint(ctx, surface.DrawingSurface.Canvas);
 
         surface.DrawingSurface.Canvas.RestoreToCount(saved);
         return surface;
     }
 
-    private void OnPaint(RenderContext context, DrawingSurface surface)
+    private void OnPaint(RenderContext context, Canvas surface)
     {
         if(Output.Value == null || Output.Value.IsDisposed) return;
 
-        int saved = surface.Canvas.Save();
-        surface.Canvas.Scale((float)context.ChunkResolution.InvertedMultiplier());
-        surface.Canvas.DrawSurface(Output.Value.DrawingSurface, 0, 0);
+        int saved = surface.Save();
+        surface.Scale((float)context.ChunkResolution.InvertedMultiplier());
+        surface.DrawSurface(Output.Value.DrawingSurface, 0, 0);
 
-        surface.Canvas.RestoreToCount(saved);
+        surface.RestoreToCount(saved);
+    }
+
+    private void RenderPreviews(Texture surface, RenderContext context)
+    {
+        var previews = context.GetPreviewTexturesForNode(Id);
+        if (previews is null) return;
+        foreach (var request in previews)
+        {
+            var texture = request.Texture;
+            if (texture is null) continue;
+
+            int saved = texture.DrawingSurface.Canvas.Save();
+
+            VecD scaling = PreviewUtility.CalculateUniformScaling(surface.Size, texture.Size);
+            VecD offset = PreviewUtility.CalculateCenteringOffset(surface.Size, texture.Size, scaling);
+            texture.DrawingSurface.Canvas.Translate((float)offset.X, (float)offset.Y);
+            texture.DrawingSurface.Canvas.Scale((float)scaling.X, (float)scaling.Y);
+            var previewCtx =
+                PreviewUtility.CreatePreviewContext(context, scaling, context.RenderOutputSize, texture.Size);
+
+            texture.DrawingSurface.Canvas.Clear();
+            texture.DrawingSurface.Canvas.DrawSurface(surface.DrawingSurface, 0, 0);
+            texture.DrawingSurface.Canvas.RestoreToCount(saved);
+        }
     }
 
     public override Node CreateCopy() => new CreateImageNode();
@@ -105,39 +135,5 @@ public class CreateImageNode : Node, IPreviewRenderable
     {
         base.Dispose();
         textureCache.Dispose();
-    }
-
-    public RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
-    {
-        if (Size.Value.X <= 0 || Size.Value.Y <= 0)
-        {
-            return null;
-        }
-
-        return new RectD(0, 0, Size.Value.X, Size.Value.Y);
-    }
-
-    public bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
-    {
-        if (Size.Value.X <= 0 || Size.Value.Y <= 0)
-        {
-            return false;
-        }
-
-        if (Output.Value == null)
-        {
-            return false;
-        }
-
-        var surface = Render(context);
-        
-        if (surface == null || surface.IsDisposed)
-        {
-            return false;
-        }
-        
-        renderOn.Canvas.DrawSurface(surface.DrawingSurface, 0, 0);
-        
-        return true;
     }
 }

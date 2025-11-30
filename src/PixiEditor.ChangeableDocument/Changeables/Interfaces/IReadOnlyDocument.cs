@@ -8,7 +8,7 @@ using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Interfaces;
 
-public interface IReadOnlyDocument : IDisposable
+public interface IReadOnlyDocument : IDisposable, ICloneable
 {    
     public Guid DocumentId { get; }
     /// <summary>
@@ -47,7 +47,7 @@ public interface IReadOnlyDocument : IDisposable
     /// The position of the vertical symmetry axis (Mirrors left and right)
     /// </summary>
     double VerticalSymmetryAxisX { get; }
-    
+
     /// <summary>
     /// Performs the specified action on each readonly member of the document
     /// </summary>
@@ -102,8 +102,12 @@ public interface IReadOnlyDocument : IDisposable
     IReadOnlyList<IReadOnlyStructureNode> FindMemberPath(Guid guid);
     IReadOnlyReferenceLayer? ReferenceLayer { get; }
     public DocumentRenderer Renderer { get; }
+    public IReadOnlyBlackboard Blackboard { get; }
     public ColorSpace ProcessingColorSpace { get; }
     public void InitProcessingColorSpace(ColorSpace processingColorSpace);
     public List<IReadOnlyStructureNode> GetParents(Guid memberGuid);
     public ICrossDocumentPipe<T> CreateNodePipe<T>(Guid layerId) where T : class, IReadOnlyNode;
+    public ICrossDocumentPipe<IReadOnlyNodeGraph> CreateGraphPipe();
+    public IReadOnlyDocument Clone(bool preserveDocumentId = false);
+    public IReadOnlyStructureNode[] GetStructureTreeInOrder();
 }

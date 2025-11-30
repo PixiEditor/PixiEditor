@@ -19,12 +19,14 @@ using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.Models.DocumentPassthroughActions;
+using PixiEditor.Parser;
 
 namespace PixiEditor.Models.Handlers;
 
-internal interface IDocument : IHandler, Extensions.CommonApi.Documents.IDocument
+internal interface IDocument : IHandler, Extensions.CommonApi.Documents.IDocument, IDisposable
 {
     public Guid Id { get; }
+    public string FullFilePath { get; }
     public ObservableRangeCollection<PaletteColor> Palette { get; set; }
     public VecI SizeBindable { get; }
     public IStructureMemberHandler? SelectedStructureMember { get; }
@@ -33,7 +35,6 @@ internal interface IDocument : IHandler, Extensions.CommonApi.Documents.IDocumen
     public VectorPath SelectionPathBindable { get; }
     public INodeGraphHandler NodeGraphHandler { get; }
     public DocumentStructureModule StructureHelper { get; }
-    public PreviewPainter? PreviewPainter { get; set; }
     public bool AllChangesSaved { get; }
     public string CoordinatesString { get; set; }
     public IReadOnlyCollection<IStructureMemberHandler> SoftSelectedStructureMembers { get; }
@@ -50,7 +51,10 @@ internal interface IDocument : IHandler, Extensions.CommonApi.Documents.IDocumen
     public DocumentRenderer Renderer { get; }
     public ISnappingHandler SnappingHandler { get; }
     public IReadOnlyCollection<Guid> SelectedMembers { get; }
-    public PreviewPainter? MiniPreviewPainter { get; set; }
+    public Dictionary<Guid, Texture> SceneTextures { get; }
+    public SceneRenderer SceneRenderer { get; }
+    public ColorSpace ProcessingColorSpace { get; }
+    public bool IsDisposed { get; }
     public void RemoveSoftSelectedMember(IStructureMemberHandler member);
     public void ClearSoftSelectedMembers();
     public void AddSoftSelectedMember(IStructureMemberHandler member);
@@ -73,4 +77,7 @@ internal interface IDocument : IHandler, Extensions.CommonApi.Documents.IDocumen
     internal void InternalRaiseLayersChanged(LayersChangedEventArgs e);
     internal void InternalMarkSaveState(DocumentMarkType type);
     public ICrossDocumentPipe<T> ShareNode<T>(Guid layerId) where T : class, IReadOnlyNode;
+    public ICrossDocumentPipe<IReadOnlyNodeGraph> ShareGraph();
+    public IReadOnlyDocument AccessInternalReadOnlyDocument();
+    public bool IsNestedDocument { get; }
 }

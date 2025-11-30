@@ -44,12 +44,18 @@ public class Program
             .UsePlatformDetect()
             .With(new Win32PlatformOptions()
             {
-                RenderingMode = openGlPreferred ? [ Win32RenderingMode.Wgl, Win32RenderingMode.Vulkan] : [ Win32RenderingMode.Vulkan, Win32RenderingMode.Wgl],
+                RenderingMode =
+                    openGlPreferred
+                        ? [Win32RenderingMode.Wgl, Win32RenderingMode.Vulkan]
+                        : [Win32RenderingMode.Vulkan, Win32RenderingMode.Wgl],
                 OverlayPopups = true,
             })
             .With(new X11PlatformOptions()
             {
-                RenderingMode = openGlPreferred ? [ X11RenderingMode.Glx, X11RenderingMode.Vulkan] : [ X11RenderingMode.Vulkan, X11RenderingMode.Glx],
+                RenderingMode =
+                    openGlPreferred
+                        ? [X11RenderingMode.Glx, X11RenderingMode.Vulkan]
+                        : [X11RenderingMode.Vulkan, X11RenderingMode.Glx],
                 OverlayPopups = true,
             })
             .With(new SkiaOptions()
@@ -59,6 +65,7 @@ public class Program
             .WithDrawie()
 #if DEBUG
             .LogToTrace(LogEventLevel.Verbose, "Vulkan")
+            .WithDeveloperTools()
 #endif
             .LogToTrace();
     }

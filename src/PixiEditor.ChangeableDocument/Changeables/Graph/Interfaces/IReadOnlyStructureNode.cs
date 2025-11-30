@@ -8,7 +8,7 @@ using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
-public interface IReadOnlyStructureNode : IReadOnlyNode, ISceneObject, IChunkRenderable
+public interface IReadOnlyStructureNode : IReadOnlyNode, ISceneObject
 {
     public InputProperty<float> Opacity { get; }
     public InputProperty<bool> IsVisible { get; }
@@ -20,5 +20,5 @@ public interface IReadOnlyStructureNode : IReadOnlyNode, ISceneObject, IChunkRen
     public RectD? GetTightBounds(KeyFrameTime frameTime);
     public ChunkyImage? EmbeddedMask { get; }
     public ShapeCorners GetTransformationCorners(KeyFrameTime frameTime);
-    public void RenderForOutput(RenderContext context, DrawingSurface renderTarget, RenderOutputProperty output);
+    public void RenderForOutput(RenderContext context, Canvas renderTarget, RenderOutputProperty output);
 }

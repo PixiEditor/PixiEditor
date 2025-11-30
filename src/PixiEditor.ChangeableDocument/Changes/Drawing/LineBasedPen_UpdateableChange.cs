@@ -1,4 +1,7 @@
-﻿using ChunkyImageLib.Operations;
+﻿using System.Diagnostics;
+using System.Reflection;
+using ChunkyImageLib.Operations;
+using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
@@ -6,90 +9,100 @@ using Drawie.Backend.Core.Shaders;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Animations;
+using PixiEditor.ChangeableDocument.Changeables.Brushes;
+using PixiEditor.ChangeableDocument.Changeables.Graph;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
+using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
+using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.ChangeableDocument.Rendering.ContextData;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 
 internal class LineBasedPen_UpdateableChange : UpdateableChange
 {
     private readonly Guid memberGuid;
-    private readonly Color color;
     private float strokeWidth;
-    private readonly bool erasing;
     private readonly bool drawOnMask;
     private readonly bool antiAliasing;
-    private bool squareBrush;
-    private float hardness;
-    private float spacing = 1;
-    private readonly Paint srcPaint = new Paint() { BlendMode = BlendMode.Src };
-    private Paintable? finalPaintable;
+    private BrushData brushData;
+    private BrushEngine engine = new BrushEngine();
 
     private CommittedChunkStorage? storedChunks;
-    private readonly List<VecI> points = new();
+    private readonly List<RecordedPoint> points = new();
+
+    private int cachedCount = -1;
     private int frame;
-    private VecF lastPos;
-    private int lastAppliedPointIndex = -1;
+    private BrushOutputNode? brushOutputNode;
+    private PointerInfo pointerInfo;
+    private KeyboardInfo keyboardInfo;
+    private EditorData editorData;
 
     [GenerateUpdateableChangeActions]
-    public LineBasedPen_UpdateableChange(Guid memberGuid, Color color, VecI pos, float strokeWidth, bool erasing,
+    public LineBasedPen_UpdateableChange(Guid memberGuid, VecD pos, float strokeWidth,
         bool antiAliasing,
-        float hardness,
-        float spacing,
-        bool squareBrush,
-        bool drawOnMask, int frame)
+        BrushData brushData,
+        bool drawOnMask, int frame, PointerInfo pointerInfo, KeyboardInfo keyboardInfo, EditorData editorData)
     {
         this.memberGuid = memberGuid;
-        this.color = color;
         this.strokeWidth = strokeWidth;
-        this.erasing = erasing;
         this.antiAliasing = antiAliasing;
         this.drawOnMask = drawOnMask;
-        this.hardness = hardness;
-        this.spacing = spacing;
-        this.squareBrush = squareBrush;
-        points.Add(pos);
+        this.brushData = brushData;
+        points.Add(new RecordedPoint(pos, pointerInfo, keyboardInfo, editorData));
         this.frame = frame;
-
-        srcPaint.Shader?.Dispose();
-        srcPaint.Shader = null;
-
-        if (this.antiAliasing && !erasing)
-        {
-            srcPaint.BlendMode = BlendMode.SrcOver;
-        }
-        else if (erasing)
-        {
-            srcPaint.BlendMode = BlendMode.DstOut;
-            if (this.color.A == 0)
-            {
-                this.color = color.WithAlpha(255);
-            }
-        }
+        this.pointerInfo = pointerInfo;
+        this.keyboardInfo = keyboardInfo;
+        this.editorData = editorData;
     }
 
     [UpdateChangeMethod]
-    public void Update(VecI pos, float strokeWidth)
+    public void Update(VecD pos, float strokeWidth, PointerInfo pointerInfo, KeyboardInfo keyboardInfo,
+        EditorData editorData, BrushData brushData)
     {
         if (points.Count > 0)
         {
-            var bresenham = BresenhamLineHelper.GetBresenhamLine(points[^1], pos);
-            points.AddRange(bresenham);
+            var line = LineHelper.GetInterpolatedPoints(points[^1].Position, pos);
+            foreach (var linePt in line)
+            {
+                points.Add(new RecordedPoint(linePt, pointerInfo, keyboardInfo, editorData));
+            }
         }
 
         this.strokeWidth = strokeWidth;
+        this.pointerInfo = pointerInfo;
+        this.keyboardInfo = keyboardInfo;
+        this.editorData = editorData;
+        this.brushData = brushData;
+        UpdateBrushData();
     }
 
     public override bool InitializeAndValidate(Document target)
     {
         if (!DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask))
             return false;
-        if (strokeWidth < 1)
+        if (strokeWidth < 0.1)
             return false;
         var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame);
-        if (!erasing)
-            image.SetBlendMode(BlendMode.SrcOver);
+
         DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, image, memberGuid, drawOnMask);
-        srcPaint.IsAntiAliased = antiAliasing;
-        return true;
+
+        brushOutputNode = brushData.BrushGraph?.AllNodes.FirstOrDefault(x => x is BrushOutputNode) as BrushOutputNode;
+        UpdateBrushData();
+
+        return brushOutputNode != null;
+    }
+
+    private void UpdateBrushData()
+    {
+        if (brushOutputNode != null)
+        {
+            brushData = new BrushData(brushData.BrushGraph, brushData.TargetBrushNodeId)
+            {
+                StrokeWidth = strokeWidth, AntiAliasing = antiAliasing, ForcePressure = brushData.ForcePressure
+            };
+        }
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> ApplyTemporarily(Document target)
@@ -98,119 +111,35 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
 
         int opCount = image.QueueLength;
 
-        float spacingPixels = strokeWidth * spacing;
+        brushData.AntiAliasing = antiAliasing;
+        brushData.StrokeWidth = strokeWidth;
 
-        for (int i = Math.Max(lastAppliedPointIndex, 0); i < points.Count; i++)
-        {
-            var point = points[i];
-            if (points.Count > 1 && VecF.Distance(lastPos, point) < spacingPixels)
-                continue;
-
-            lastPos = point;
-            var rect = new RectI(point - new VecI((int)(strokeWidth / 2f)), new VecI((int)strokeWidth));
-            finalPaintable = color;
-
-            if (!squareBrush)
-            {
-                if (antiAliasing)
-                {
-                    finalPaintable = ApplySoftnessGradient((VecD)point);
-                }
-
-                image.EnqueueDrawEllipse((RectD)rect, finalPaintable, finalPaintable, 0, 0, antiAliasing, srcPaint);
-            }
-            else
-            {
-                BlendMode blendMode = srcPaint.BlendMode;
-                ShapeData shapeData = new ShapeData(rect.Center, rect.Size, 0, 0, 0, finalPaintable, finalPaintable,
-                    blendMode);
-                image.EnqueueDrawRectangle(shapeData);
-            }
-        }
-
-        lastAppliedPointIndex = points.Count - 1;
+        // TODO: Sampling options?
+        engine.ExecuteBrush(image, brushData, points, frame, target.ProcessingColorSpace, SamplingOptions.Default);
 
         var affChunks = image.FindAffectedArea(opCount);
 
-        return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affChunks, drawOnMask);
+        var changeInfo = DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affChunks, drawOnMask);
+
+        return changeInfo;
     }
 
-    private void FastforwardEnqueueDrawLines(ChunkyImage targetImage)
+    private void FastforwardEnqueueDrawLines(ChunkyImage targetImage, KeyFrameTime frameTime)
     {
+        brushData.AntiAliasing = antiAliasing;
+        brushData.StrokeWidth = strokeWidth;
+        engine.ResetState();
+
         if (points.Count == 1)
         {
-            var rect = new RectI(points[0] - new VecI((int)(strokeWidth / 2f)), new VecI((int)strokeWidth));
-            finalPaintable = color;
-
-            if (!squareBrush)
-            {
-                if (antiAliasing)
-                {
-                    finalPaintable = ApplySoftnessGradient(points[0]);
-                }
-
-                targetImage.EnqueueDrawEllipse((RectD)rect, finalPaintable, finalPaintable, 0, 0, antiAliasing,
-                    srcPaint);
-            }
-            else
-            {
-                BlendMode blendMode = srcPaint.BlendMode;
-                ShapeData shapeData = new ShapeData(rect.Center, rect.Size, 0, 0, 0, finalPaintable, finalPaintable,
-                    blendMode);
-                targetImage.EnqueueDrawRectangle(shapeData);
-            }
+            engine.ExecuteBrush(targetImage, brushData, points[0].Position, frameTime, targetImage.ProcessingColorSpace,
+                SamplingOptions.Default, pointerInfo, keyboardInfo, editorData);
 
             return;
         }
 
-        VecF lastPos = points[0];
-
-        float spacingInPixels = strokeWidth * this.spacing;
-
-        for (int i = 0; i < points.Count; i++)
-        {
-            if (i > 0 && VecF.Distance(lastPos, points[i]) < spacingInPixels)
-                continue;
-
-            lastPos = points[i];
-            var rect = new RectI(points[i] - new VecI((int)(strokeWidth / 2f)), new VecI((int)strokeWidth));
-            finalPaintable = color;
-
-            if (!squareBrush)
-            {
-                if (antiAliasing)
-                {
-                    finalPaintable = ApplySoftnessGradient(points[i]);
-                }
-
-                targetImage.EnqueueDrawEllipse((RectD)rect, finalPaintable, finalPaintable, 0, 0, antiAliasing,
-                    srcPaint);
-            }
-            else
-            {
-                BlendMode blendMode = srcPaint.BlendMode;
-                ShapeData shapeData = new ShapeData(rect.Center, rect.Size, 0, 0, 0, finalPaintable, finalPaintable,
-                    blendMode);
-                targetImage.EnqueueDrawRectangle(shapeData);
-            }
-        }
-    }
-
-    private Paintable? ApplySoftnessGradient(VecD pos)
-    {
-        srcPaint.Paintable?.Dispose();
-        if (hardness >= 1)
-        {
-            return new ColorPaintable(color);
-        }
-
-        float radius = strokeWidth / 2f;
-        radius = MathF.Max(1, radius);
-        return new RadialGradientPaintable(pos, radius,
-        [
-            new GradientStop(color, Math.Max(hardness - 0.05f, 0)),
-            new GradientStop(color.WithAlpha(0), 0.95f)
-        ]) { AbsoluteValues = true };
+        engine.ExecuteBrush(targetImage, brushData, points, frameTime, targetImage.ProcessingColorSpace,
+            SamplingOptions.Default);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
@@ -227,20 +156,21 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
             storedChunks = new CommittedChunkStorage(image, affArea.Chunks);
             image.CommitChanges();
 
-            return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affArea, drawOnMask);
+            var change = DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affArea, drawOnMask).AsT1;
+            return OneOf<None, IChangeInfo, List<IChangeInfo>>.FromT1(change);
         }
         else
         {
-            if (!erasing)
-                image.SetBlendMode(BlendMode.SrcOver);
             DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, image, memberGuid, drawOnMask);
 
-            FastforwardEnqueueDrawLines(image);
+            FastforwardEnqueueDrawLines(image, frame);
             var affArea = image.FindAffectedArea();
             storedChunks = new CommittedChunkStorage(image, affArea.Chunks);
             image.CommitChanges();
 
-            return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affArea, drawOnMask);
+            IChangeInfo info = DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affArea, drawOnMask).AsT1;
+
+            return OneOf<None, IChangeInfo, List<IChangeInfo>>.FromT1(info);
         }
     }
 
@@ -255,6 +185,6 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     public override void Dispose()
     {
         storedChunks?.Dispose();
-        srcPaint.Dispose();
+        engine?.Dispose();
     }
 }

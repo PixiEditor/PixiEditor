@@ -7,6 +7,7 @@ using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
+using PixiEditor.Models.Controllers.InputDevice;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable
@@ -45,7 +46,7 @@ internal class FloodFillToolExecutor : UpdateableChangeExecutor
         return ExecutionState.Success;
     }
 
-    public override void OnPixelPositionChange(VecI pos)
+    public override void OnPixelPositionChange(VecI pos, MouseOnCanvasEventArgs args)
     {
         internals!.ActionAccumulator.AddActions(new FloodFill_Action(memberGuid, pos, color, considerAllLayers, tolerance, drawOnMask, document!.AnimationHandler.ActiveFrameBindable));
     }
