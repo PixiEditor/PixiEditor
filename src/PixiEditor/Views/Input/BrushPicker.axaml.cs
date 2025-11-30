@@ -108,7 +108,7 @@ internal partial class BrushPicker : UserControl
     {
         BrushesProperty.Changed.AddClassHandler<BrushPicker>((x, e) =>
         {
-            if (x.SelectedBrush == null && x?.Brushes.Count > 0)
+            if (x.SelectedBrush == null && x?.Brushes?.Count > 0)
             {
                 x.SelectedBrush = x.Brushes[0];
             }
@@ -172,6 +172,8 @@ internal partial class BrushPicker : UserControl
 
     private void UpdateTags()
     {
+        if (Brushes == null)
+            return;
         Categories.Clear();
         foreach (var brush in Brushes)
         {
@@ -249,6 +251,9 @@ internal partial class BrushPicker : UserControl
 
     private void UpdateResults()
     {
+        if (Brushes == null)
+            return;
+
         var filtered = new ObservableCollection<BrushViewModel>();
         if (string.IsNullOrWhiteSpace(SearchText))
         {
