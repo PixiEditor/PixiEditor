@@ -4,6 +4,7 @@ using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Shaders;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
@@ -320,9 +321,11 @@ public class BrushEngine : IDisposable
         var stroke = brushNode.Stroke.Value;
         bool snapToPixels = brushNode.SnapToPixels.Value;
         bool canReuseStamps = brushNode.CanReuseStamps.Value;
+        Blender? stampBlender = brushNode.UseCustomStampBlender.Value ? brushNode.LastStampBlender : null;
+        //Blender? imageBlender = brushNode.UseCustomImageBlender.Value ? brushNode.LastImageBlender : null;
 
         if (PaintBrush(target, autoPosition, vectorShape, rect, fitToStrokeSize, pressure, content, contentTexture,
-                brushNode.StampBlendMode.Value, antiAliasing, fill, stroke, snapToPixels, canReuseStamps))
+                stampBlender, brushNode.StampBlendMode.Value, antiAliasing, fill, stroke, snapToPixels, canReuseStamps))
         {
             lastPos = point;
         }
@@ -330,7 +333,7 @@ public class BrushEngine : IDisposable
 
     public bool PaintBrush(ChunkyImage target, bool autoPosition, ShapeVectorData vectorShape,
         RectD rect, bool fitToStrokeSize, float pressure, Painter? content,
-        Texture? contentTexture, DrawingApiBlendMode blendMode, bool antiAliasing, Paintable fill, Paintable stroke,
+        Texture? contentTexture, Blender? blender, DrawingApiBlendMode blendMode, bool antiAliasing, Paintable fill, Paintable stroke,
         bool snapToPixels, bool canReuseStamps)
     {
         var path = vectorShape.ToPath(true);
@@ -363,15 +366,31 @@ public class BrushEngine : IDisposable
 
         if (paintable is { AnythingVisible: true })
         {
-            target.EnqueueDrawPath(path, paintable, vectorShape.StrokeWidth,
-                strokeCap, blendMode, strokeStyle, antiAliasing, null);
+            if (blender != null)
+            {
+                target.EnqueueDrawPath(path, paintable, vectorShape.StrokeWidth,
+                    strokeCap, blender, strokeStyle, antiAliasing, null);
+            }
+            else
+            {
+                target.EnqueueDrawPath(path, paintable, vectorShape.StrokeWidth,
+                    strokeCap, blendMode, strokeStyle, antiAliasing, null);
+            }
         }
 
         if (fill is { AnythingVisible: true } && stroke is { AnythingVisible: true })
         {
             strokeStyle = PaintStyle.Stroke;
-            target.EnqueueDrawPath(path, stroke, vectorShape.StrokeWidth,
-                strokeCap, blendMode, strokeStyle, antiAliasing, null);
+            if (blender != null)
+            {
+                target.EnqueueDrawPath(path, stroke, vectorShape.StrokeWidth,
+                    strokeCap, blender, strokeStyle, antiAliasing, null);
+            }
+            else
+            {
+                target.EnqueueDrawPath(path, stroke, vectorShape.StrokeWidth,
+                    strokeCap, blendMode, strokeStyle, antiAliasing, null);
+            }
         }
 
         if (content != null)
@@ -395,8 +414,16 @@ public class BrushEngine : IDisposable
                     brushPaintable = new TexturePaintable(new Texture(contentTexture), true);
                 }
 
-                target.EnqueueDrawPath(path, brushPaintable, vectorShape.StrokeWidth,
-                    StrokeCap.Butt, blendMode, PaintStyle.Fill, antiAliasing, null);
+                if (blender != null)
+                {
+                    target.EnqueueDrawPath(path, brushPaintable, vectorShape.StrokeWidth,
+                        StrokeCap.Butt, blender, PaintStyle.Fill, antiAliasing, null);
+                }
+                else
+                {
+                    target.EnqueueDrawPath(path, brushPaintable, vectorShape.StrokeWidth,
+                        StrokeCap.Butt, blendMode, PaintStyle.Fill, antiAliasing, null);
+                }
             }
         }
 

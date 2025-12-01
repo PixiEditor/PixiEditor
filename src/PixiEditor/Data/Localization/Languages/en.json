@@ -1266,5 +1266,7 @@
   "TEXTURE": "Texture",
   "PAINTER": "Painter",
   "VECTOR_PATH": "Vector Path",
-  "CAN_REUSE_STAMPS": "Can Reuse Stamps"
+  "CAN_REUSE_STAMPS": "Can Reuse Stamps",
+  "USE_CUSTOM_STAMP_BLENDER": "Use Custom Stamp Blender",
+  "CUSTOM_STAMP_BLENDER_CODE": "Stamp Blender"
 }

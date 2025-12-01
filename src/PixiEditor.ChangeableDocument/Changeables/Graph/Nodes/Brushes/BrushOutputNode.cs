@@ -3,6 +3,7 @@ using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Shaders;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
@@ -31,6 +32,21 @@ public class BrushOutputNode : Node
     public const int StrokePreviewSizeX = 200;
     public const int StrokePreviewSizeY = 50;
 
+    public const string DefaultBlenderCode = @"
+    vec4 main(vec4 src, vec4 dst) {
+    	return src + (1 - src.a) * dst;
+    }
+";
+
+    private string? lastStampBlenderCode = "";
+    private string? lastImageBlenderCode = "";
+
+    public Blender? LastStampBlender => cachedStampBlender;
+    public Blender? LastImageBlender => cachedImageBlender;
+
+    private Blender? cachedStampBlender = null;
+    private Blender? cachedImageBlender = null;
+
     public InputProperty<string> BrushName { get; }
     public InputProperty<ShapeVectorData> VectorShape { get; }
     public InputProperty<Paintable> Stroke { get; }
@@ -38,6 +54,8 @@ public class BrushOutputNode : Node
     public RenderInputProperty Content { get; }
     public InputProperty<Drawie.Backend.Core.Surfaces.BlendMode> StampBlendMode { get; }
     public InputProperty<Drawie.Backend.Core.Surfaces.BlendMode> ImageBlendMode { get; }
+    public InputProperty<bool> UseCustomStampBlender { get; }
+    public InputProperty<string> CustomStampBlenderCode { get; }
     public InputProperty<Matrix3X3> Transform { get; }
     public InputProperty<float> Pressure { get; }
     public InputProperty<float> Spacing { get; }
@@ -59,7 +77,7 @@ public class BrushOutputNode : Node
     private TextureCache cache = new();
 
     private ChunkyImage? previewChunkyImage;
-    private BrushEngine previewEngine = new BrushEngine() { PressureSmoothingWindowSize = 0};
+    private BrushEngine previewEngine = new BrushEngine() { PressureSmoothingWindowSize = 0 };
 
     protected override bool ExecuteOnlyOnCacheChange => true;
     public Guid PersistentId { get; private set; } = Guid.NewGuid();
@@ -83,6 +101,11 @@ public class BrushOutputNode : Node
             Drawie.Backend.Core.Surfaces.BlendMode.SrcOver);
         StampBlendMode = CreateInput<Drawie.Backend.Core.Surfaces.BlendMode>("StampBlendMode", "STAMP_BLEND_MODE",
             Drawie.Backend.Core.Surfaces.BlendMode.SrcOver);
+
+        UseCustomStampBlender = CreateInput<bool>("UseCustomStampBlender", "USE_CUSTOM_STAMP_BLENDER", false);
+
+        CustomStampBlenderCode =
+            CreateInput<string>("CustomStampBlenderCode", "CUSTOM_STAMP_BLENDER_CODE", DefaultBlenderCode);
         CanReuseStamps = CreateInput<bool>("CanReuseStamps", "CAN_REUSE_STAMPS", false);
 
         Pressure = CreateInput<float>("Pressure", "PRESSURE", 1f);
@@ -108,6 +131,22 @@ public class BrushOutputNode : Node
                 Content.Value.Paint(context, ContentTexture.DrawingSurface.Canvas);
                 ContentTexture.DrawingSurface.Canvas.Restore();
             }
+        }
+
+        if (UseCustomStampBlender.Value)
+        {
+            if (CustomStampBlenderCode.Value != lastStampBlenderCode || cachedStampBlender == null)
+            {
+                cachedStampBlender?.Dispose();
+                cachedStampBlender = Blender.CreateFromString(CustomStampBlenderCode.Value, out _);
+                lastStampBlenderCode = CustomStampBlenderCode.Value;
+            }
+        }
+        else
+        {
+            cachedStampBlender?.Dispose();
+            cachedStampBlender = null;
+            lastStampBlenderCode = "";
         }
 
         RenderPreviews(context.GetPreviewTexturesForNode(Id), context);
@@ -218,12 +257,13 @@ public class BrushOutputNode : Node
             var vec4D = previewVectorPath.GetPositionAndTangentAtDistance(offset, false);
             pos = vec4D.XY;
             pos = new VecD(pos.X, pos.Y + maxSize / 2f) + shift;
-            
+
             points.Add(new RecordedPoint((VecI)pos, new PointerInfo(pos, pressure, 0, VecD.Zero, vec4D.ZW),
                 new KeyboardInfo(), new EditorData(Colors.White, Colors.Black)));
 
             previewEngine.ExecuteBrush(target,
-                new BrushData(context.Graph, Id) { StrokeWidth = maxSize, AntiAliasing = true }, points, context.FrameTime,
+                new BrushData(context.Graph, Id) { StrokeWidth = maxSize, AntiAliasing = true }, points,
+                context.FrameTime,
                 context.ProcessingColorSpace, context.DesiredSamplingOptions);
             offset += 1;
         }
@@ -236,6 +276,7 @@ public class BrushOutputNode : Node
         {
             previewVectorPath = VectorPath.FromSvgPath(PreviewSvg);
         }
+
         List<RecordedPoint> points = new();
 
         float offset = 0;
