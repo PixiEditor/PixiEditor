@@ -46,7 +46,9 @@ public class BrushOutputNode : Node
     public InputProperty<bool> AllowSampleStacking { get; }
     public InputProperty<bool> AlwaysClear { get; }
     public InputProperty<bool> SnapToPixels { get; }
+
     public InputProperty<string> Tags { get; }
+
     // Indicate whether stamps from this brush can be reused when drawing with the same brush again. Optimization option.
     public InputProperty<bool> CanReuseStamps { get; }
 
@@ -57,13 +59,14 @@ public class BrushOutputNode : Node
     private TextureCache cache = new();
 
     private ChunkyImage? previewChunkyImage;
-    private BrushEngine previewEngine = new BrushEngine();
+    private BrushEngine previewEngine = new BrushEngine() { PressureSmoothingWindowSize = 0};
 
     protected override bool ExecuteOnlyOnCacheChange => true;
     public Guid PersistentId { get; private set; } = Guid.NewGuid();
 
     public const string PreviewSvg =
         "M0.25 99.4606C0.25 99.4606 60.5709 79.3294 101.717 99.4606C147.825 122.019 199.75 99.4606 199.75 99.4606";
+
     public const int YOffsetInPreview = -88;
 
     private VectorPath? previewVectorPath;
@@ -116,7 +119,8 @@ public class BrushOutputNode : Node
         additionalData["PersistentId"] = PersistentId;
     }
 
-    internal override void DeserializeAdditionalData(IReadOnlyDocument target, IReadOnlyDictionary<string, object> data, List<IChangeInfo> infos)
+    internal override void DeserializeAdditionalData(IReadOnlyDocument target, IReadOnlyDictionary<string, object> data,
+        List<IChangeInfo> infos)
     {
         base.DeserializeAdditionalData(target, data, infos);
         if (data.TryGetValue("PersistentId", out var persistentIdObj))
@@ -207,30 +211,32 @@ public class BrushOutputNode : Node
         float offset = 0;
         float pressure;
         VecD pos;
+        List<RecordedPoint> points = new();
         while (offset <= target.CommittedSize.X)
         {
             pressure = (float)Math.Sin((offset / target.CommittedSize.X) * Math.PI);
             var vec4D = previewVectorPath.GetPositionAndTangentAtDistance(offset, false);
             pos = vec4D.XY;
             pos = new VecD(pos.X, pos.Y + maxSize / 2f) + shift;
+            
+            points.Add(new RecordedPoint((VecI)pos, new PointerInfo(pos, pressure, 0, VecD.Zero, vec4D.ZW),
+                new KeyboardInfo(), new EditorData(Colors.White, Colors.Black)));
 
             previewEngine.ExecuteBrush(target,
-                new BrushData(context.Graph, Id) { StrokeWidth = maxSize, AntiAliasing = true },
-                [(VecI)pos], context.FrameTime, context.ProcessingColorSpace, context.DesiredSamplingOptions,
-                new PointerInfo(pos, pressure, 0, VecD.Zero, vec4D.ZW),
-                new KeyboardInfo(),
-                new EditorData(Colors.White, Colors.Black));
-
+                new BrushData(context.Graph, Id) { StrokeWidth = maxSize, AntiAliasing = true }, points, context.FrameTime,
+                context.ProcessingColorSpace, context.DesiredSamplingOptions);
             offset += 1;
         }
     }
 
-    public IEnumerable<float> DrawStrokePreviewEnumerable(ChunkyImage target, RenderContext context, int maxSize, VecD shift = default)
+    public IEnumerable<float> DrawStrokePreviewEnumerable(ChunkyImage target, RenderContext context, int maxSize,
+        VecD shift = default)
     {
         if (previewVectorPath == null)
         {
             previewVectorPath = VectorPath.FromSvgPath(PreviewSvg);
         }
+        List<RecordedPoint> points = new();
 
         float offset = 0;
         float pressure;
@@ -241,14 +247,12 @@ public class BrushOutputNode : Node
             var vec4D = previewVectorPath.GetPositionAndTangentAtDistance(offset, false);
             pos = vec4D.XY;
             pos = new VecD(pos.X, pos.Y + maxSize / 2f) + shift;
+            points.Add(new RecordedPoint((VecI)pos, new PointerInfo(pos, pressure, 0, VecD.Zero, vec4D.ZW),
+                new KeyboardInfo(), new EditorData(Colors.White, Colors.Black)));
 
             previewEngine.ExecuteBrush(target,
                 new BrushData(context.Graph, Id) { StrokeWidth = maxSize, AntiAliasing = true },
-                [(VecI)pos], context.FrameTime, context.ProcessingColorSpace, context.DesiredSamplingOptions,
-                new PointerInfo(pos, pressure, 0, VecD.Zero, vec4D.ZW),
-                new KeyboardInfo(),
-                new EditorData(Colors.White, Colors.Black));
-
+                points, context.FrameTime, context.ProcessingColorSpace, context.DesiredSamplingOptions);
             offset += 1;
             yield return offset;
         }

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using ChunkyImageLib.Operations;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.ColorsImpl.Paintables;
@@ -24,51 +25,51 @@ public class BrushEngine : IDisposable
     private TextureCache cache = new();
     private VecD lastPos;
     private VecD startPos;
+    private double lastPressure = 1.0;
     private int lastAppliedPointIndex = -1;
+    private int lastAppliedHistoryIndex = -1;
     private VecI lastCachedTexturePaintableSize = VecI.Zero;
     private TexturePaintable? lastCachedTexturePaintable = null;
+    private readonly List<RecordedPoint> pointsHistory = new();
 
     private bool drawnOnce = false;
+    
+    // Configuration: How many previous points to average.
+    // Higher = smoother but more "laggy" pressure response.
+    // 10 points is roughly 10 pixels of stroke history.
+    public int PressureSmoothingWindowSize { get; set; } = 10;
 
     public void ResetState()
     {
         lastAppliedPointIndex = -1;
         drawnOnce = false;
+        pointsHistory.Clear();
     }
 
-    public void ExecuteBrush(ChunkyImage target, BrushData brushData, List<VecD> points, KeyFrameTime frameTime,
-        ColorSpace cs, SamplingOptions samplingOptions, PointerInfo pointerInfo, KeyboardInfo keyboardInfo,
-        EditorData editorData)
+    /// <summary>
+    /// Calculates a smoothed pressure value based on the previous points in history.
+    /// This acts as a low-pass filter to remove jitter.
+    /// </summary>
+    private float GetSmoothedPressure(double targetPressure)
     {
-        if (brushData.BrushGraph == null)
+        if (pointsHistory.Count == 0)
+            return (float)targetPressure;
+
+        double sum = 0;
+        int count = 0;
+
+        // Iterate backwards through history
+        for (int i = pointsHistory.Count - 1; i >= 0 && count < PressureSmoothingWindowSize; i--)
         {
-            return;
+            sum += pointsHistory[i].PointerInfo.Pressure;
+            count++;
         }
 
-        if (brushData.BrushGraph.LookupNode(brushData.TargetBrushNodeId) is not BrushOutputNode brushNode)
-        {
-            return;
-        }
+        // Add the current target to the average so we pull towards the new value
+        sum += targetPressure;
+        count++;
 
-        float strokeWidth = brushData.StrokeWidth;
-        float spacing = brushNode.Spacing.Value / 100f;
-
-        float spacingPixels = (strokeWidth * pointerInfo.Pressure) * spacing;
-
-        for (int i = Math.Max(lastAppliedPointIndex, 0); i < points.Count; i++)
-        {
-            var point = points[i];
-            if (VecD.Distance(lastPos, point) < spacingPixels)
-                continue;
-
-            ExecuteVectorShapeBrush(target, brushNode, brushData, point, frameTime, cs, samplingOptions, pointerInfo,
-                keyboardInfo,
-                editorData);
-
-            lastPos = point;
-        }
-
-        lastAppliedPointIndex = points.Count - 1;
+        return (float)(sum / count);
     }
 
     public void ExecuteBrush(ChunkyImage target, BrushData brushData, List<RecordedPoint> points,
@@ -84,17 +85,72 @@ public class BrushEngine : IDisposable
         {
             return;
         }
+        
+        for (int i = lastAppliedPointIndex + 1; i < points.Count; i++)
+        {
+            RecordedPoint previousPoint = points[i];
+            if (i == 0)
+            {
+                if (pointsHistory.Count > 0)
+                {
+                    previousPoint = pointsHistory[^1];
+                }
+            }
+            else
+            {
+                previousPoint = points[i - 1];
+            }
+            
+            var currentPoint = points[i];
+            var dist = VecD.Distance(previousPoint.Position, currentPoint.Position);
+
+            if (dist > 0.5)
+            {
+                var interpolated = LineHelper.GetInterpolatedPoints(previousPoint.Position,
+                    currentPoint.Position);
+                
+                for (int j = 1; j < interpolated.Length; j++)
+                {
+                    var pt = interpolated[j];
+                    
+                    double ratio = VecD.Distance(previousPoint.Position, pt) /
+                                   VecD.Distance(previousPoint.Position, currentPoint.Position);
+                                   
+                    double linearTargetPressure = previousPoint.PointerInfo.Pressure +
+                                                  (currentPoint.PointerInfo.Pressure - previousPoint.PointerInfo.Pressure) * ratio;
+
+                    float smoothedPressure = GetSmoothedPressure(linearTargetPressure);
+                    
+                    pointsHistory.Add(new RecordedPoint(pt,
+                        currentPoint.PointerInfo with { Pressure = smoothedPressure },
+                        currentPoint.KeyboardInfo,
+                        currentPoint.EditorData));
+                }
+            }
+            else
+            {
+                float smoothedPressure = GetSmoothedPressure(currentPoint.PointerInfo.Pressure);
+                
+                pointsHistory.Add(new RecordedPoint(currentPoint.Position,
+                    currentPoint.PointerInfo with { Pressure = smoothedPressure },
+                    currentPoint.KeyboardInfo,
+                    currentPoint.EditorData));
+            }
+        }
+        
+        lastAppliedPointIndex = points.Count - 1;
 
         float strokeWidth = brushData.StrokeWidth;
         float spacing = brushNode.Spacing.Value / 100f;
 
-        for (int i = Math.Max(lastAppliedPointIndex, 0); i < points.Count; i++)
+        for (int i = Math.Max(lastAppliedHistoryIndex, 0); i < pointsHistory.Count; i++)
         {
-            var point = points[i];
+            var point = pointsHistory[i];
 
             float spacingPixels = (strokeWidth * point.PointerInfo.Pressure) * spacing;
             if (VecD.Distance(lastPos, point.Position) < spacingPixels)
                 continue;
+            
 
             ExecuteVectorShapeBrush(target, brushNode, brushData, point.Position, frameTime, cs, samplingOptions,
                 point.PointerInfo,
@@ -104,7 +160,8 @@ public class BrushEngine : IDisposable
             lastPos = point.Position;
         }
 
-        lastAppliedPointIndex = points.Count - 1;
+        lastPressure = pointsHistory.Count > 0 ? pointsHistory[^1].PointerInfo.Pressure : 1.0;
+        lastAppliedHistoryIndex = pointsHistory.Count - 1;
     }
 
 

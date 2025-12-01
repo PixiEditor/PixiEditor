@@ -61,15 +61,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     public void Update(VecD pos, float strokeWidth, PointerInfo pointerInfo, KeyboardInfo keyboardInfo,
         EditorData editorData, BrushData brushData)
     {
-        if (points.Count > 0)
-        {
-            var line = LineHelper.GetInterpolatedPoints(points[^1].Position, pos);
-            foreach (var linePt in line)
-            {
-                points.Add(new RecordedPoint(linePt, pointerInfo, keyboardInfo, editorData));
-            }
-        }
-
+        points.Add(new RecordedPoint(pos, pointerInfo, keyboardInfo, editorData));
         this.strokeWidth = strokeWidth;
         this.pointerInfo = pointerInfo;
         this.keyboardInfo = keyboardInfo;
