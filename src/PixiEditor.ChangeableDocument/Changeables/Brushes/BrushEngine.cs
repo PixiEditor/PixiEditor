@@ -142,20 +142,25 @@ public class BrushEngine : IDisposable
 
         float strokeWidth = brushData.StrokeWidth;
         float spacing = brushNode.Spacing.Value / 100f;
+        int startingIndex = Math.Max(lastAppliedHistoryIndex, 0);
+        float spacingPressure = pointsHistory.Count < startingIndex + 1
+            ? (float)lastPressure
+            : pointsHistory[startingIndex].PointerInfo.Pressure;
 
         for (int i = Math.Max(lastAppliedHistoryIndex, 0); i < pointsHistory.Count; i++)
         {
             var point = pointsHistory[i];
 
-            float spacingPixels = (strokeWidth * point.PointerInfo.Pressure) * spacing;
+            float spacingPixels = (strokeWidth * spacingPressure) * spacing;
             if (VecD.Distance(lastPos, point.Position) < spacingPixels)
                 continue;
-            
 
             ExecuteVectorShapeBrush(target, brushNode, brushData, point.Position, frameTime, cs, samplingOptions,
                 point.PointerInfo,
                 point.KeyboardInfo,
                 point.EditorData);
+
+            spacingPressure = brushNode.Pressure.Value;
 
             lastPos = point.Position;
         }
