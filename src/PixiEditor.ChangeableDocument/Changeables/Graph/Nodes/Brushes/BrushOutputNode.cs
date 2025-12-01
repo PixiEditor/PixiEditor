@@ -86,6 +86,9 @@ public class BrushOutputNode : Node
         "M0.25 99.4606C0.25 99.4606 60.5709 79.3294 101.717 99.4606C147.825 122.019 199.75 99.4606 199.75 99.4606";
 
     public const int YOffsetInPreview = -88;
+    public const string UseCustomStampBlenderProperty = "UseCustomStampBlender";
+    public const string CustomStampBlenderCodeProperty = "CustomStampBlender";
+    public const string StampBlendModeProperty = "StampBlendMode";
 
     private VectorPath? previewVectorPath;
 
@@ -99,13 +102,14 @@ public class BrushOutputNode : Node
         Transform = CreateInput<Matrix3X3>("Transform", "TRANSFORM", Matrix3X3.Identity);
         ImageBlendMode = CreateInput<Drawie.Backend.Core.Surfaces.BlendMode>("BlendMode", "BLEND_MODE",
             Drawie.Backend.Core.Surfaces.BlendMode.SrcOver);
-        StampBlendMode = CreateInput<Drawie.Backend.Core.Surfaces.BlendMode>("StampBlendMode", "STAMP_BLEND_MODE",
+        StampBlendMode = CreateInput<Drawie.Backend.Core.Surfaces.BlendMode>(StampBlendModeProperty, "STAMP_BLEND_MODE",
             Drawie.Backend.Core.Surfaces.BlendMode.SrcOver);
 
-        UseCustomStampBlender = CreateInput<bool>("UseCustomStampBlender", "USE_CUSTOM_STAMP_BLENDER", false);
+        UseCustomStampBlender = CreateInput<bool>(UseCustomStampBlenderProperty, "USE_CUSTOM_STAMP_BLENDER", false);
 
         CustomStampBlenderCode =
-            CreateInput<string>("CustomStampBlenderCode", "CUSTOM_STAMP_BLENDER_CODE", DefaultBlenderCode);
+            CreateInput<string>(CustomStampBlenderCodeProperty, "CUSTOM_STAMP_BLENDER_CODE", DefaultBlenderCode)
+                .WithRules(validator => validator.Custom(ValidateBlenderCode));
         CanReuseStamps = CreateInput<bool>("CanReuseStamps", "CAN_REUSE_STAMPS", false);
 
         Pressure = CreateInput<float>("Pressure", "PRESSURE", 1f);
@@ -117,6 +121,23 @@ public class BrushOutputNode : Node
         SnapToPixels = CreateInput<bool>("SnapToPixels", "SNAP_TO_PIXELS", false);
         Tags = CreateInput<string>("Tags", "TAGS", "");
         Previous = CreateInput<IReadOnlyNodeGraph>("Previous", "PREVIOUS", null);
+    }
+
+    private ValidatorResult ValidateBlenderCode(object? value)
+    {
+        if (value is string code)
+        {
+            Blender? blender = Blender.CreateFromString(code, out string? error);
+            if (blender != null)
+            {
+                blender.Dispose();
+                return new ValidatorResult(true, null);
+            }
+
+            return new ValidatorResult(false, error);
+        }
+
+        return new ValidatorResult(false, "Blender code must be a string.");
     }
 
     protected override void OnExecute(RenderContext context)
