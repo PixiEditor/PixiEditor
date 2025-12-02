@@ -240,6 +240,8 @@ public class BrushOutputNode : Node
         const int spacing = 10;
         const int marginEdges = 30;
         VecD pos = VecD.Zero;
+        previewEngine.ResetState();
+
         for (var i = 0; i < sizes.Length; i++)
         {
             var size = sizes[i];
@@ -253,6 +255,7 @@ public class BrushOutputNode : Node
                 new KeyboardInfo(),
                 new EditorData(Colors.White, Colors.Black));
         }
+        previewChunkyImage.CommitChanges();
 
         DrawStrokePreview(previewChunkyImage, context, maxSize);
 
@@ -272,6 +275,8 @@ public class BrushOutputNode : Node
         float pressure;
         VecD pos;
         List<RecordedPoint> points = new();
+        previewEngine.ResetState();
+
         while (offset <= target.CommittedSize.X)
         {
             pressure = (float)Math.Sin((offset / target.CommittedSize.X) * Math.PI);
@@ -303,6 +308,8 @@ public class BrushOutputNode : Node
         float offset = 0;
         float pressure;
         VecD pos;
+        previewEngine.ResetState();
+
         while (offset <= target.CommittedSize.X)
         {
             pressure = (float)Math.Sin((offset / target.CommittedSize.X) * Math.PI);
@@ -322,6 +329,7 @@ public class BrushOutputNode : Node
 
     public void DrawPointPreview(ChunkyImage img, RenderContext context, int size, VecD pos)
     {
+        previewEngine.ResetState();
         previewEngine.ExecuteBrush(img,
             new BrushData(context.Graph, Id) { StrokeWidth = size, AntiAliasing = true },
             pos, context.FrameTime, context.ProcessingColorSpace, context.DesiredSamplingOptions,

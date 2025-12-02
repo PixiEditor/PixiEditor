@@ -43,6 +43,10 @@ public class BrushEngine : IDisposable
     public void ResetState()
     {
         lastAppliedPointIndex = -1;
+        lastAppliedHistoryIndex = -1;
+        lastPos = VecD.Zero;
+        lastPressure = 1.0;
+        startPos = VecD.Zero;
         drawnOnce = false;
         pointsHistory.Clear();
     }
