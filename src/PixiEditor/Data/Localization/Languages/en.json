@@ -1268,5 +1268,17 @@
   "VECTOR_PATH": "Vector Path",
   "CAN_REUSE_STAMPS": "Can Reuse Stamps",
   "USE_CUSTOM_STAMP_BLENDER": "Use Custom Stamp Blender",
-  "CUSTOM_STAMP_BLENDER_CODE": "Stamp Blender"
+  "CUSTOM_STAMP_BLENDER_CODE": "Stamp Blender",
+  "CLEAR_BLEND_MODE": "Clear",
+  "REPLACE_BLEND_MODE": "Replace",
+  "BEHIND_BLEND_MODE": "Behind",
+  "MASK_INSIDE_BLEND_MODE": "Mask Inside",
+  "KEEP_INSIDE_BLEND_MODE": "Keep Inside",
+  "OUTSIDE_BLEND_MODE": "Outside",
+  "ON_TOP_OF_BLEND_MODE": "On Top Of",
+  "KEEP_UNDER_BLEND_MODE": "Keep Under",
+  "XOR_BLEND_MODE": "XOR",
+  "MODULATE_BLEND_MODE": "Modulate",
+  "TARGET_BLEND_MODE": "Target",
+  "LAST_APPLIED_POINT": "Last Applied Point"
 }
