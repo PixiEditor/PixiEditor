@@ -1280,5 +1280,7 @@
   "XOR_BLEND_MODE": "XOR",
   "MODULATE_BLEND_MODE": "Modulate",
   "TARGET_BLEND_MODE": "Target",
-  "LAST_APPLIED_POINT": "Last Applied Point"
+  "LAST_APPLIED_POINT": "Last Applied Point",
+  "VIEWPORT_INFO_NODE": "Viewport Info",
+  "EQUALS_NODE": "Equals"
 }
