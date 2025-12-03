@@ -1,7 +1,11 @@
 using Avalonia.Headless.XUnit;
+using Drawie.Backend.Core;
 using Drawie.Backend.Core.Bridge;
+using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Surfaces.ImageData;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Numerics;
 using Drawie.Skia;
 using DrawiEngine;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
@@ -11,6 +15,7 @@ using PixiEditor.Models.Serialization;
 using PixiEditor.Models.Serialization.Factories;
 using PixiEditor.Models.Serialization.Factories.Paintables;
 using PixiEditor.Parser.Skia.Encoders;
+using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.Tests;
 
@@ -47,6 +52,32 @@ public class SerializationTests : PixiEditorTest
         {
             var factory = factories.FirstOrDefault(x => x.OriginalType == type);
             Assert.NotNull(factory);
+        }
+    }
+
+    [Fact]
+    public void TestTexturePaintableFactory()
+    {
+        Texture texture = new Texture(new VecI(32, 32));
+        texture.DrawingSurface.Canvas.DrawCircle(16, 16, 16, new Paint() { Color = Colors.Red, BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.Src });
+        TexturePaintable paintable = new TexturePaintable(texture);
+        TexturePaintableSerializationFactory factory = new TexturePaintableSerializationFactory();
+        factory.Config = new SerializationConfig(new QoiEncoder(), ColorSpace.CreateSrgbLinear());
+        var serialized = factory.Serialize(paintable);
+        var deserialized = (TexturePaintable)factory.Deserialize(serialized, default);
+
+        Assert.NotNull(deserialized);
+        var deserializedImage = deserialized.Image;
+        Assert.NotNull(deserializedImage);
+        Assert.Equal(texture.Size, deserializedImage.Size);
+        for (int y = 0; y < texture.Size.Y; y++)
+        {
+            for (int x = 0; x < texture.Size.X; x++)
+            {
+                Color originalPixel = texture.GetSrgbPixel(new VecI(x, y));
+                Color deserializedPixel = deserializedImage.GetSrgbPixel(new VecI(x, y));
+                Assert.Equal(originalPixel, deserializedPixel);
+            }
         }
     }
 

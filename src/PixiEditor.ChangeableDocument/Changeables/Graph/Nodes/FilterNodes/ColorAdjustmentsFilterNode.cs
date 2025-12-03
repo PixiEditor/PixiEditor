@@ -26,6 +26,7 @@ public class ColorAdjustmentsFilterNode : FilterNode
     public InputProperty<double> HueValue { get; }
 
     private List<ColorFilter> filters = new List<ColorFilter>();
+    private List<ColorFilter> toDispose = new List<ColorFilter>();
     private ColorFilter lastCombinedFilter;
 
     public ColorAdjustmentsFilterNode()
@@ -57,7 +58,7 @@ public class ColorAdjustmentsFilterNode : FilterNode
 
     protected override ColorFilter? GetColorFilter(RenderContext context)
     {
-        filters.ForEach(filter => filter.Dispose());
+        toDispose.AddRange(filters);
         filters.Clear();
 
         CreateBrightnessFilter();
@@ -195,5 +196,16 @@ public class ColorAdjustmentsFilterNode : FilterNode
     public override Node CreateCopy()
     {
         return new ColorAdjustmentsFilterNode();
+    }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        foreach (var filter in toDispose)
+        {
+            filter.Dispose();
+        }
+
+        lastCombinedFilter?.Dispose();
     }
 }

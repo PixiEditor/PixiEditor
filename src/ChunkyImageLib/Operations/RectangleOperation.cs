@@ -193,7 +193,7 @@ internal class RectangleOperation : IMirroredDrawOperation
     public AffectedArea FindAffectedArea(VecI imageSize)
     {
         if (Math.Abs(Data.Size.X) < 1 || Math.Abs(Data.Size.Y) < 1 ||
-            (!Data.Stroke.AnythingVisible && !Data.FillPaintable.AnythingVisible))
+            (Data.Stroke is not { AnythingVisible: true } && Data.FillPaintable is not { AnythingVisible: true }))
             return new();
 
         RectI affRect = (RectI)new ShapeCorners(Data.Center, Data.Size).AsRotated(Data.Angle, Data.Center).AABBBounds

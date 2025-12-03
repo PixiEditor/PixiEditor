@@ -52,7 +52,7 @@ public class OutputNode : Node, IRenderInput
                 PreviewUtility.CreatePreviewContext(context, scaling, context.RenderOutputSize, texture.Size);
 
             texture.DrawingSurface.Canvas.Clear();
-            Input.Value?.Paint(previewCtx, texture.DrawingSurface);
+            Input.Value?.Paint(previewCtx, texture.DrawingSurface.Canvas);
             texture.DrawingSurface.Canvas.RestoreToCount(saved);
         }
     }

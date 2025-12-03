@@ -2,25 +2,38 @@
 using System.Diagnostics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph;
 
 public class NodeGraph : IReadOnlyNodeGraph
 {
-    private ImmutableList<IReadOnlyNode>? cachedExecutionList;
+    private Dictionary<IReadOnlyNode, ImmutableList<IReadOnlyNode>?> cachedExecutionList;
 
     private readonly List<Node> _nodes = new();
     public IReadOnlyCollection<Node> Nodes => _nodes;
     public IReadOnlyDictionary<Guid, Node> NodeLookup => nodeLookup;
+
     public Node? OutputNode => CustomOutputNode ?? Nodes.OfType<OutputNode>().FirstOrDefault();
     public Node? CustomOutputNode { get; set; }
 
+    public Blackboard Blackboard { get; } = new();
+
     private Dictionary<Guid, Node> nodeLookup = new();
+
+    public event Action<NodeOutputsChanged_ChangeInfo>? NodeOutputsChanged;
 
     IReadOnlyCollection<IReadOnlyNode> IReadOnlyNodeGraph.AllNodes => Nodes;
     IReadOnlyNode IReadOnlyNodeGraph.OutputNode => OutputNode;
+    IReadOnlyBlackboard IReadOnlyNodeGraph.Blackboard => Blackboard;
 
+    bool isExecuting = false;
+
+    public IReadOnlyNode LookupNode(Guid guid)
+    {
+        return nodeLookup[guid];
+    }
 
     public void AddNode(Node node)
     {
@@ -31,6 +44,7 @@ public class NodeGraph : IReadOnlyNodeGraph
 
         node.ConnectionsChanged += ResetCache;
         _nodes.Add(node);
+        node.OutputsChanged += () => NodeOutputsChanged?.Invoke(NodeOutputsChanged_ChangeInfo.FromNode(node));
         nodeLookup[node.Id] = node;
         ResetCache();
     }
@@ -106,12 +120,37 @@ public class NodeGraph : IReadOnlyNodeGraph
             newGraph.CustomOutputNode = mappedOutputNode;
         }
 
+        // Clone blackboard variables
+        foreach (var kvp in Blackboard.Variables)
+        {
+            object valueCopy;
+            if (kvp.Value.Value is ICloneable cloneable)
+            {
+                valueCopy = cloneable.Clone();
+            }
+            else
+            {
+                valueCopy = kvp.Value.Value;
+            }
+
+            newGraph.Blackboard.SetVariable(kvp.Key, kvp.Value.Type, valueCopy, kvp.Value.Unit, kvp.Value.Min, kvp.Value.Max, kvp.Value.IsExposed);
+        }
+
         return newGraph;
     }
 
     private ImmutableList<IReadOnlyNode> CalculateExecutionQueueInternal(IReadOnlyNode outputNode)
     {
-        return cachedExecutionList ??= GraphUtils.CalculateExecutionQueue(outputNode).ToImmutableList();
+        var cached = this.cachedExecutionList?.GetValueOrDefault(outputNode);
+        if (cached != null)
+        {
+            return cached;
+        }
+
+        var calculated = GraphUtils.CalculateExecutionQueue(outputNode).ToImmutableList();
+        cachedExecutionList ??= new Dictionary<IReadOnlyNode, ImmutableList<IReadOnlyNode>?>();
+        cachedExecutionList[outputNode] = calculated;
+        return calculated;
     }
 
     void IReadOnlyNodeGraph.AddNode(IReadOnlyNode node) => AddNode((Node)node);
@@ -128,9 +167,14 @@ public class NodeGraph : IReadOnlyNodeGraph
 
     public bool TryTraverse(Action<IReadOnlyNode> action)
     {
-        if (OutputNode == null) return false;
+        return TryTraverse(OutputNode, action);
+    }
 
-        var queue = CalculateExecutionQueueInternal(OutputNode);
+    public bool TryTraverse(IReadOnlyNode end, Action<IReadOnlyNode> action)
+    {
+        if (end == null) return false;
+
+        var queue = CalculateExecutionQueueInternal(end);
 
         foreach (var node in queue)
         {
@@ -140,16 +184,53 @@ public class NodeGraph : IReadOnlyNodeGraph
         return true;
     }
 
-    bool isexecuting = false;
 
     public void Execute(RenderContext context)
     {
-        if (isexecuting) return;
-        isexecuting = true;
-        if (OutputNode == null) return;
+        Execute(OutputNode, context);
+    }
+
+    public void Execute(IEnumerable<IReadOnlyNode> nodes, RenderContext context)
+    {
+        isExecuting = true;
         if (!CanExecute()) return;
 
-        var queue = CalculateExecutionQueueInternal(OutputNode);
+        HashSet<IReadOnlyNode> executedNodes = new();
+        foreach (var exposeVariableNode in nodes)
+        {
+            var queue = CalculateExecutionQueueInternal(exposeVariableNode);
+
+            foreach (var node in queue)
+            {
+                if (!executedNodes.Add(node)) continue;
+
+                lock (node)
+                {
+                    if (node is Node typedNode)
+                    {
+                        if (typedNode.IsDisposed) continue;
+
+                        typedNode.ExecuteInternal(context);
+                    }
+                    else
+                    {
+                        node.Execute(context);
+                    }
+                }
+            }
+        }
+
+        isExecuting = false;
+    }
+
+    public void Execute(IReadOnlyNode end, RenderContext context)
+    {
+        //if (isExecuting) return;
+        isExecuting = true;
+        if (end == null) return;
+        if (!CanExecute()) return;
+
+        var queue = CalculateExecutionQueueInternal(end);
 
         foreach (var node in queue)
         {
@@ -168,7 +249,7 @@ public class NodeGraph : IReadOnlyNodeGraph
             }
         }
 
-        isexecuting = false;
+        isExecuting = false;
     }
 
     private bool CanExecute()
@@ -192,7 +273,9 @@ public class NodeGraph : IReadOnlyNodeGraph
     public int GetCacheHash()
     {
         HashCode hash = new();
-        foreach (var node in Nodes)
+        var queue = CalculateExecutionQueueInternal(OutputNode);
+
+        foreach (var node in queue)
         {
             int nodeCache = node.GetCacheHash();
             hash.Add(nodeCache);

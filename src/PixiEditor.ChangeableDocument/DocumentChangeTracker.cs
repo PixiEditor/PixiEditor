@@ -29,6 +29,8 @@ public class DocumentChangeTracker : IDisposable
         }
     }
 
+    public bool IsDisposed => disposed;
+
     private UpdateableChange? activeUpdateableChange = null;
     private List<(ActionSource source, Change change)>? activePacket = null;
 
@@ -82,6 +84,13 @@ public class DocumentChangeTracker : IDisposable
     public DocumentChangeTracker()
     {
         document = new Document();
+    }
+
+    public DocumentChangeTracker(IReadOnlyDocument doc)
+    {
+        if(doc is not Document actDoc)
+            throw new ArgumentException("Document must be of type Document", nameof(doc));
+        document = actDoc;
     }
 
     private void AddToUndo(Change change, ActionSource source)

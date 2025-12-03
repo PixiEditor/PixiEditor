@@ -6,6 +6,7 @@ namespace PixiEditor.Views.Overlays.Pointers;
 
 internal class MouseOverlayPointer : IOverlayPointer
 {
+    public PointerType Type { get; }
     IPointer pointer;
     private Action<Overlay?, IPointer> captureAction;
 
@@ -13,7 +14,9 @@ internal class MouseOverlayPointer : IOverlayPointer
     {
         this.pointer = pointer;
         this.captureAction = captureAction;
+        Type = pointer.Type;
     }
+
 
     public void Capture(IOverlay? overlay)
     {

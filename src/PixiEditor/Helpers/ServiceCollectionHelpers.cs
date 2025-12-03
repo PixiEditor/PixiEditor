@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using Avalonia.Media;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.AnimationRenderer.Core;
 using PixiEditor.AnimationRenderer.FFmpeg;
@@ -75,6 +76,7 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<NodeGraphManagerViewModel>()
             .AddSingleton<AutosaveViewModel>()
             .AddSingleton<UserViewModel>()
+            .AddSingleton<BrushesViewModel>()
             .AddSingleton<IColorsHandler, ColorsViewModel>(x => x.GetRequiredService<ColorsViewModel>())
             .AddSingleton<IWindowHandler, WindowViewModel>(x => x.GetRequiredService<WindowViewModel>())
             .AddSingleton<RegistryViewModel>()
@@ -104,7 +106,6 @@ internal static class ServiceCollectionHelpers
             .AddTool<IRasterRectangleToolHandler, RasterRectangleToolViewModel>()
             .AddTool<IEraserToolHandler, EraserToolViewModel>()
             .AddTool<IColorPickerHandler, ColorPickerToolViewModel>()
-            .AddTool<IBrightnessToolHandler, BrightnessToolViewModel>()
             .AddTool<IVectorEllipseToolHandler, VectorEllipseToolViewModel>()
             .AddTool<IVectorRectangleToolHandler, VectorRectangleToolViewModel>()
             .AddTool<IVectorLineToolHandler, VectorLineToolViewModel>()
@@ -123,7 +124,7 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<IoFileType, TtfFileType>()
             .AddSingleton<IoFileType, OtfFileType>()
             // Serialization Factories
-            .AddAssemblyTypes<SerializationFactory>()
+            .AddAssemblyTypesTransient<SerializationFactory>()
             // Custom document builders
             .AddSingleton<IDocumentBuilder, SvgDocumentBuilder>()
             .AddSingleton<IDocumentBuilder, FontDocumentBuilder>()
@@ -162,14 +163,14 @@ internal static class ServiceCollectionHelpers
         return collection;
     }
     
-    private static IServiceCollection AddAssemblyTypes<T>(this IServiceCollection collection)
+    private static IServiceCollection AddAssemblyTypesTransient<T>(this IServiceCollection collection)
     {
         Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
         IEnumerable<Type> types = assemblies.Where(asm => !asm.FullName.Contains("Steamworks")).SelectMany(x => x.GetTypes())
             .Where(x => typeof(T).IsAssignableFrom(x) && x is { IsInterface: false, IsAbstract: false });
         foreach (Type type in types)
         {
-            collection.AddSingleton(typeof(T), type);
+            collection.AddTransient(typeof(T), type);
         }
 
         return collection;

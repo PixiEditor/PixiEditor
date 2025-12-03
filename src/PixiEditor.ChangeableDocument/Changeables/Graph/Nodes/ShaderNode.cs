@@ -123,11 +123,11 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
         //texture.DrawingSurface.Canvas.Scale((float)context.ChunkResolution.Multiplier(), (float)context.ChunkResolution.Multiplier());
 
         var ctx = context.Clone();
-        ctx.RenderSurface = texture.DrawingSurface;
+        ctx.RenderSurface = texture.DrawingSurface.Canvas;
         ctx.RenderOutputSize = finalSize;
         ctx.ChunkResolution = ChunkResolution.Full;
 
-        Background.Value.Paint(ctx, texture.DrawingSurface);
+        Background.Value.Paint(ctx, texture.DrawingSurface.Canvas);
         texture.DrawingSurface.Canvas.RestoreToCount(saved);
 
         var snapshot = texture.DrawingSurface.Snapshot();
@@ -142,15 +142,15 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
         return uniforms;
     }
 
-    protected override void OnPaint(RenderContext context, DrawingSurface surface)
+    protected override void OnPaint(RenderContext context, Canvas surface)
     {
         if (shader == null || paint == null)
         {
-            surface.Canvas.DrawColor(Colors.Magenta, BlendMode.Src);
+            surface.DrawColor(Colors.Magenta, BlendMode.Src);
             return;
         }
 
-        DrawingSurface targetSurface = surface;
+        Canvas targetSurface = surface;
 
         float width = (float)(context.RenderOutputSize.X);
         float height = (float)(context.RenderOutputSize.Y);
@@ -167,7 +167,7 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
                     : ColorSpace.Value == ColorSpaceType.Srgb
                         ? Drawie.Backend.Core.Surfaces.ImageData.ColorSpace.CreateSrgb()
                         : Drawie.Backend.Core.Surfaces.ImageData.ColorSpace.CreateSrgbLinear());
-            targetSurface = intermediateSurface.DrawingSurface;
+            targetSurface = intermediateSurface.DrawingSurface.Canvas;
             width = (float)(context.RenderOutputSize.X * context.ChunkResolution.InvertedMultiplier());
             height = (float)(context.RenderOutputSize.Y * context.ChunkResolution.InvertedMultiplier());
             scale = true;
@@ -179,29 +179,29 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
                 if (ColorSpace.Value == ColorSpaceType.Srgb && !context.ProcessingColorSpace.IsSrgb)
                 {
                     targetSurface = RequestTexture(51, context.RenderOutputSize,
-                        Drawie.Backend.Core.Surfaces.ImageData.ColorSpace.CreateSrgb()).DrawingSurface;
+                        Drawie.Backend.Core.Surfaces.ImageData.ColorSpace.CreateSrgb()).DrawingSurface.Canvas;
                 }
                 else if (ColorSpace.Value == ColorSpaceType.LinearSrgb && context.ProcessingColorSpace.IsSrgb)
                 {
                     targetSurface = RequestTexture(51, context.RenderOutputSize,
-                        Drawie.Backend.Core.Surfaces.ImageData.ColorSpace.CreateSrgbLinear()).DrawingSurface;
+                        Drawie.Backend.Core.Surfaces.ImageData.ColorSpace.CreateSrgbLinear()).DrawingSurface.Canvas;
                 }
             }
         }
 
-        targetSurface.Canvas.DrawRect(0, 0, width, height, paint);
+        targetSurface.DrawRect(0, 0, width, height, paint);
 
         if (targetSurface != surface)
         {
-            int saved = surface.Canvas.Save();
+            int saved = surface.Save();
             if (scale)
             {
-                surface.Canvas.Scale((float)context.ChunkResolution.Multiplier(),
+                surface.Scale((float)context.ChunkResolution.Multiplier(),
                     (float)context.ChunkResolution.Multiplier());
             }
 
-            surface.Canvas.DrawSurface(targetSurface, 0, 0);
-            surface.Canvas.RestoreToCount(saved);
+            surface.DrawSurface(targetSurface.Surface, 0, 0);
+            surface.RestoreToCount(saved);
         }
     }
 
@@ -209,7 +209,7 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
     {
         int saved = renderOn.Canvas.Save();
         renderOn.Canvas.Scale((float)context.ChunkResolution.InvertedMultiplier());
-        OnPaint(context, renderOn);
+        OnPaint(context, renderOn.Canvas);
         renderOn.Canvas.RestoreToCount(saved);
     }
 

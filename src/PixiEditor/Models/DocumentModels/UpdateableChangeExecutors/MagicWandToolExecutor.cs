@@ -4,6 +4,7 @@ using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 
@@ -38,7 +39,7 @@ internal class MagicWandToolExecutor : UpdateableChangeExecutor
         return ExecutionState.Success;
     }
 
-    public override void OnPixelPositionChange(VecI pos)
+    public override void OnPixelPositionChange(VecI pos, MouseOnCanvasEventArgs args)
     {
         AddUpdateAction(pos);
     }

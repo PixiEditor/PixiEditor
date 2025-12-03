@@ -21,6 +21,7 @@
         <StyleInclude Source="/Styles/PixiEditor.Layers.axaml" />
         <StyleInclude Source="/Styles/PixiEditorPopupTemplate.axaml" />
         <StyleInclude Source="/Styles/Buttons/CaptionButtonsStyle.axaml" />
+        <StyleInclude Source="avares://AvaloniaEdit/Themes/Simple/AvaloniaEdit.xaml" />
     </Application.Styles>
     <Application.Resources>
         <ResourceDictionary>

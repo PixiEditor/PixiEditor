@@ -20,7 +20,7 @@ public class RasterizeShapeNode : RenderNode
         HighDpiRendering = CreateInput<bool>("High DPI Rendering", "HIGH_DPI_RENDERING", true);
     }
 
-    protected override void OnPaint(RenderContext context, DrawingSurface surface)
+    protected override void OnPaint(RenderContext context, Canvas surface)
     {
         var shape = Data.Value;
 
@@ -29,7 +29,7 @@ public class RasterizeShapeNode : RenderNode
 
         AllowHighDpiRendering = HighDpiRendering.Value;
 
-        shape.RasterizeTransformed(surface.Canvas);
+        shape.RasterizeTransformed(surface);
     }
 
     public override Node CreateCopy() => new RasterizeShapeNode();

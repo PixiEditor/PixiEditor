@@ -56,7 +56,7 @@ internal class ResizeImage_Change : Change
         image.DrawMostUpToDateRegionOn(
             new(VecI.Zero, originalSize),
             ChunkResolution.Full,
-            originalSurface.DrawingSurface,
+            originalSurface.DrawingSurface.Canvas,
             VecI.Zero);
 
         bool downscaling = newSize.LengthSquared < originalSize.LengthSquared;

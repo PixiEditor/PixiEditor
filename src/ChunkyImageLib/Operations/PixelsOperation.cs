@@ -34,7 +34,12 @@ internal class PixelsOperation : IMirroredDrawOperation
         surf.Canvas.Save();
         surf.Canvas.Scale((float)targetChunk.Resolution.Multiplier());
         surf.Canvas.Translate(-chunkPos * ChunkyImage.FullChunkSize);
-        surf.Canvas.DrawPoints(PointMode.Points, pixels, paint);
+        //surf.Canvas.DrawPoints(PointMode.Points, pixels, paint);
+        // Drawing points with GPU chunks doesn't work well, that's why we draw rects instead
+        foreach (var pixel in pixels)
+        {
+            surf.Canvas.DrawRect(new RectD((VecD)pixel, new VecD(1)), paint);
+        }
         surf.Canvas.Restore();
     }
 

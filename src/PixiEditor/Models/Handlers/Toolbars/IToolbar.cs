@@ -13,4 +13,5 @@ internal interface IToolbar : IHandler
     public void SaveToolbarSettings();
     public void LoadSharedSettings();
     public event SettingChange SettingChanged;
+    public void RemoveSetting(Setting setting);
 }

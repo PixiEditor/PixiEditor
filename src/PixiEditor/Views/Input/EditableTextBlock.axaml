@@ -8,23 +8,25 @@
              mc:Ignorable="d" x:Name="etb"
              d:DesignHeight="60" d:DesignWidth="100" Focusable="True">
     <Grid>
-        <TextBlock Foreground="{Binding ElementName=etb, Path=Foreground}"
+        <Border IsVisible="{Binding Path=TextBlockVisibility, ElementName=etb}">
+            <TextBlock Foreground="{Binding ElementName=etb, Path=Foreground}"
                    DoubleTapped="OnDoubleTapped"
                    PointerPressed="TextBlock_OnPointerPressed"
                    TextTrimming="CharacterEllipsis" Name="textBlock"
-                   IsVisible="{Binding Path=TextBlockVisibility, ElementName=etb}"
                    Text="{Binding Path=Text, ElementName=etb, Mode=TwoWay}" />
+        </Border>
         <TextBox Foreground="{Binding ElementName=etb, Path=Foreground}"
                  MaxLength="{Binding Path=MaxChars, ElementName=etb, Mode=TwoWay}"
                  LostFocus="TextBox_LostFocus"
-                 Text="{Binding Path=Text, ElementName=etb, Mode=TwoWay}"
+                 Text="{Binding Path=Text, ElementName=etb, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                 VerticalContentAlignment="Center"
                  Padding="0" Margin="-1"
                  KeyDown="TextBox_KeyDown"
                  IsVisible="{Binding !TextBlockVisibility, ElementName=etb}"
                  RenderTransform="scale(0.95)"
                  Name="textBox">
             <Interaction.Behaviors>
-                <behaviours:GlobalShortcutFocusBehavior/>
+                <behaviours:GlobalShortcutFocusBehavior />
             </Interaction.Behaviors>
         </TextBox>
     </Grid>

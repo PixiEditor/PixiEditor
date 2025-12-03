@@ -9,7 +9,11 @@ using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
+using Hardware.Info;
+using PixiEditor.ChangeableDocument.Rendering.ContextData;
 using PixiEditor.Models.Controllers.InputDevice;
+using PixiEditor.Models.Events;
+using PixiEditor.ViewModels;
 using PixiEditor.Views.Overlays.SymmetryOverlay;
 
 namespace PixiEditor.Models.DocumentModels;
@@ -20,16 +24,30 @@ internal class ChangeExecutionController
     public ShapeCorners LastTransformState { get; private set; }
     public VecI LastPixelPosition => lastPixelPos;
     public VecD LastPrecisePosition => lastPrecisePos;
+    public PointerInfo LastPointerInfo => lastPointerInfo;
+    public KeyboardInfo LastKeyboardInfo => lastKeyboardInfo;
     public bool IsBlockingChangeActive => currentSession is not null && currentSession.BlocksOtherActions;
+    public EditorData EditorData => GetEditorData();
 
     public event Action ToolSessionFinished;
 
+    public IDocument Document => document;
     private readonly IDocument document;
     private readonly IServiceProvider services;
     private readonly DocumentInternalParts internals;
 
     private VecI lastPixelPos;
     private VecD lastPrecisePos;
+    private PointerInfo pointerInfo;
+    private VecD lastDirCalculationPoint;
+    private PointerInfo lastPointerInfo;
+    private KeyboardInfo lastKeyboardInfo;
+    private ViewModelMain viewModelMain;
+
+    private bool shiftPressed;
+    private bool ctrlPressed;
+    private bool altPressed;
+    private bool metaPressed;
 
     private UpdateableChangeExecutor? currentSession = null;
 
@@ -40,6 +58,7 @@ internal class ChangeExecutionController
         this.document = document;
         this.internals = internals;
         this.services = services;
+        viewModelMain = (ViewModelMain)services.GetService(typeof(ViewModelMain))!;
     }
 
     public bool IsChangeOfTypeActive<T>() where T : IExecutorFeature
@@ -148,19 +167,36 @@ internal class ChangeExecutionController
         }
     }
 
-    public void ConvertedKeyDownInlet(Key key)
+    public void ConvertedKeyDownInlet(FilteredKeyEventArgs key)
     {
-        currentSession?.OnConvertedKeyDown(key);
+        currentSession?.OnConvertedKeyDown(key.Key);
+        lastKeyboardInfo = UpdateKeyboardInfo(key.IsCtrlDown, key.IsShiftDown, key.IsAltDown, key.IsMetaDown);
     }
 
-    public void ConvertedKeyUpInlet(Key key)
+    public void ConvertedKeyUpInlet(FilteredKeyEventArgs key)
     {
-        currentSession?.OnConvertedKeyUp(key);
+        currentSession?.OnConvertedKeyUp(key.Key);
+        lastKeyboardInfo = UpdateKeyboardInfo(key.IsCtrlDown, key.IsShiftDown, key.IsAltDown, key.IsMetaDown);
     }
 
-    public void MouseMoveInlet(VecD newCanvasPos)
+    public void MouseMoveInlet(MouseOnCanvasEventArgs args)
     {
+        if (args.IntermediatePoints != null)
+        {
+            foreach (var point in args.IntermediatePoints)
+            {
+                MouseOnCanvasEventArgs arg = MouseOnCanvasEventArgs.FromIntermediatePoint(args, point);
+                MouseMoveInlet(arg);
+            }
+        }
+
+        VecD newCanvasPos = args.Point.PositionOnCanvas;
         //update internal state
+        ProcessMove(args, newCanvasPos);
+    }
+
+    private void ProcessMove(MouseOnCanvasEventArgs args, VecD newCanvasPos)
+    {
         VecI newPixelPos = (VecI)newCanvasPos.Floor();
         bool pixelPosChanged = false;
         if (lastPixelPos != newPixelPos)
@@ -171,12 +207,14 @@ internal class ChangeExecutionController
 
         lastPrecisePos = newCanvasPos;
 
+        lastPointerInfo = ConstructPointerInfo(newCanvasPos, args);
+
         //call session events
         if (currentSession is not null)
         {
             if (pixelPosChanged)
-                currentSession.OnPixelPositionChange(newPixelPos);
-            currentSession.OnPrecisePositionChange(newCanvasPos);
+                currentSession.OnPixelPositionChange(newPixelPos, args);
+            currentSession.OnPrecisePositionChange(args);
         }
     }
 
@@ -320,5 +358,36 @@ internal class ChangeExecutionController
         {
             quickToolSwitchable.OnQuickToolSwitch();
         }
+    }
+
+    private EditorData GetEditorData()
+    {
+        return viewModelMain.GetEditorData();
+    }
+
+    private KeyboardInfo UpdateKeyboardInfo(bool ctrl, bool shift, bool alt, bool meta)
+    {
+        return new KeyboardInfo(ctrl, shift, alt, meta);
+    }
+
+    private PointerInfo ConstructPointerInfo(VecD currentPoint, MouseOnCanvasEventArgs args)
+    {
+        if (VecD.Distance(lastDirCalculationPoint, currentPoint) > 1)
+        {
+            lastDirCalculationPoint = lastDirCalculationPoint.Lerp(currentPoint, 0.5f);
+        }
+
+        VecD dir = lastDirCalculationPoint - currentPoint;
+        VecD vecDir = new VecD(dir.X, dir.Y);
+        VecD dirNormalized = vecDir.Length > 0 ? vecDir.Normalize() : lastPointerInfo.MovementDirection;
+
+        float pressure = args.Point.Properties.Pressure;
+        if (args.PointerType == PointerType.Mouse)
+        {
+            pressure = args.Point.Properties.Pressure > 0 ? 1 : 0;
+        }
+
+        return new PointerInfo(currentPoint, pressure, args.Point.Properties.Twist,
+            new VecD(args.Point.Properties.XTilt, args.Point.Properties.YTilt), dirNormalized);
     }
 }

@@ -25,7 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.12.6" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.14.28" />
   </ItemGroup>
 
   <Target Name="PackTaskDependencies" BeforeTargets="GenerateNuspec">

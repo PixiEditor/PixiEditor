@@ -10,6 +10,9 @@ namespace PixiEditor.Views.Input;
 
 internal partial class ToolSettingColorPicker : UserControl
 {
+    public static readonly StyledProperty<bool> EnableGradientsTabProperty = 
+        AvaloniaProperty.Register<ToolSettingColorPicker, bool>(nameof(EnableGradientsTab), true);
+
     public static readonly StyledProperty<IBrush> SelectedBrushProperty =
         AvaloniaProperty.Register<ToolSettingColorPicker, IBrush>(
             nameof(SelectedBrush));
@@ -18,6 +21,12 @@ internal partial class ToolSettingColorPicker : UserControl
     {
         get => GetValue(SelectedBrushProperty);
         set => SetValue(SelectedBrushProperty, value);
+    }
+
+    public bool EnableGradientsTab
+    {
+        get { return (bool)GetValue(EnableGradientsTabProperty); }
+        set { SetValue(EnableGradientsTabProperty, value); }
     }
 
     public ToolSettingColorPicker()

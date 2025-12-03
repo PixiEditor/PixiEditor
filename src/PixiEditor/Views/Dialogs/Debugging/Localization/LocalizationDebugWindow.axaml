@@ -15,6 +15,7 @@
                          Width="600"
                          Height="400"
                          x:Class="PixiEditor.Views.Dialogs.Debugging.Localization.LocalizationDebugWindow"
+                         x:DataType="localization1:LocalizationDataContext"
                          Title="LOCALIZATION_DEBUG_WINDOW_TITLE">
     <StackPanel Grid.Row="1" Margin="5">
         <StackPanel Orientation="Horizontal" Height="25">

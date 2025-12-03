@@ -5,6 +5,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using Avalonia.Xaml.Interactivity;
+using Drawie.Backend.Core.Bridge;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Extensions;
 using PixiEditor.Extensions.Runtime;
@@ -117,9 +118,25 @@ internal class ClassicDesktopEntry
 
         var extensionLoader = InitApp(safeMode);
         ViewModels_ViewModelMain viewModel = Services.GetRequiredService<ViewModels_ViewModelMain>();
-        viewModel.Setup(Services);
+        if (!DrawingBackendApi.HasBackend)
+        {
+            DrawingBackendApi.OnBackendInitialized += () =>
+            {
+                Load(viewModel, extensionLoader);
+            };
+        }
+        else
+        {
+            Load(viewModel, extensionLoader);
+        }
+    }
 
+    private void Load(ViewModels_ViewModelMain viewModel, ExtensionLoader extensionLoader)
+    {
+        viewModel.Setup(Services);
+        
         desktop.MainWindow = new MainWindow(extensionLoader);
+        
         desktop.MainWindow.Show();
     }
 
@@ -172,7 +189,8 @@ internal class ClassicDesktopEntry
         return new PixiEditor.Platform.MSStore.MicrosoftStorePlatform(Paths.LocalExtensionPackagesPath, GetApiUrl(),
             GetApiKey());
 #else
-        return new PixiEditor.Platform.Standalone.StandalonePlatform([Paths.LocalExtensionPackagesPath, Paths.InstallDirExtensionPackagesPath], GetApiUrl(),
+        return new PixiEditor.Platform.Standalone.StandalonePlatform(
+            [Paths.LocalExtensionPackagesPath, Paths.InstallDirExtensionPackagesPath], GetApiUrl(),
             GetApiKey()); // The first in the extensionsPath array should be local, because it's the default where extensions are installed. Otherwise, OS access rights may cause issues.
 #endif
     }

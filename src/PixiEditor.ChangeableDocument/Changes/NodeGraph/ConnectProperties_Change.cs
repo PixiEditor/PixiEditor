@@ -227,6 +227,11 @@ internal class ConnectProperties_Change : Change
                 return true;
             }
 
+            if (outputValue == null)
+            {
+                return ConversionTable.CanConvertType(input.ValueType, output.ValueType);
+            }
+
             return false;
         }
 
