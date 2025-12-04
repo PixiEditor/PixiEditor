@@ -9,6 +9,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Animable;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Effects;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Image;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Matrix;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Handlers.Toolbars;
@@ -127,6 +128,12 @@ using DrawingBlendMode = Drawie.Backend.Core.Surfaces.BlendMode;
 [assembly: LocalizeEnum<BlendMode>(BlendMode.Erase, "ERASE_BLEND_MODE")]
 [assembly: LocalizeEnum<BlendMode>(BlendMode.LinearDodge, "LINEAR_DODGE_BLEND_MODE")]
 
+[assembly: LocalizeEnum<PatternAlignment>(PatternAlignment.Center, "CENTER_PATTERN_ALIGNMENT")]
+[assembly: LocalizeEnum<PatternAlignment>(PatternAlignment.Outside, "OUTSIDE_PATTERN_ALIGNMENT")]
+[assembly: LocalizeEnum<PatternAlignment>(PatternAlignment.Inside, "INSIDE_PATTERN_ALIGNMENT")]
+
+[assembly: LocalizeEnum<PatternStretching>(PatternStretching.StretchToFit, "STRETCH_TO_FIT_PATTERN_STRETCHING")]
+[assembly: LocalizeEnum<PatternStretching>(PatternStretching.PlaceAlong, "PLACE_ALONG_PATTERN_STRETCHING")]
 [assembly: LocalizeEnum<GradientType>(GradientType.Linear, "LINEAR_GRADIENT_TYPE")]
 [assembly: LocalizeEnum<GradientType>(GradientType.Radial, "RADIAL_GRADIENT_TYPE")]
 [assembly: LocalizeEnum<GradientType>(GradientType.Conical, "CONICAL_GRADIENT_TYPE")]
