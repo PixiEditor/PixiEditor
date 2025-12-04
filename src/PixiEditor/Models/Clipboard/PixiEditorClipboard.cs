@@ -1,4 +1,5 @@
-﻿using Avalonia.Input;
+﻿using System.Collections.Concurrent;
+using Avalonia.Input;
 using Avalonia.Input.Platform;
 using Avalonia.Platform.Storage;
 
@@ -7,6 +8,7 @@ namespace PixiEditor.Models.Clipboard;
 public class PixiEditorClipboard : IPixiEditorClipboard
 {
     private IClipboard avaloniaClipboard;
+    private List<IAsyncDataTransferItem>? lastProcessingDataTransfers;
 
     public PixiEditorClipboard(IClipboard avaloniaClipboard)
     {

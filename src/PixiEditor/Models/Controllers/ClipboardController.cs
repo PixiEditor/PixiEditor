@@ -64,7 +64,8 @@ internal static class ClipboardController
     /// </summary>
     public static async Task CopyToClipboard(DocumentViewModel document, RectD? lastTransform)
     {
-        await Clipboard.ClearAsync();
+        // This breaks often on X11 and macos
+        //await Clipboard.ClearAsync();
 
         DataTransfer transfer = new DataTransfer();
 
@@ -145,7 +146,8 @@ internal static class ClipboardController
 
     public static async Task CopyVisibleToClipboard(DocumentViewModel document, string? output = null)
     {
-        await Clipboard.ClearAsync();
+        // This breaks often on X11 and macos
+        //await Clipboard.ClearAsync();
 
         DataTransfer data = new DataTransfer();
 
@@ -255,6 +257,7 @@ internal static class ClipboardController
             List<Guid> adjustedLayerIds = AdjustIdsForImport(layerIds, targetDoc);
             List<Guid?> newIds = new();
             using var block = document.Operations.StartChangeBlock();
+            manager.Owner.ToolsSubViewModel.SetActiveTool<MoveToolViewModel>(false);
             foreach (var layerId in adjustedLayerIds)
             {
                 if (targetDoc.StructureHelper.Find(layerId) == null)
@@ -270,7 +273,6 @@ internal static class ClipboardController
                 }
             }
 
-            manager.Owner.ToolsSubViewModel.SetActiveTool<MoveToolViewModel>(false);
             Guid? mainGuid = newIds.FirstOrDefault(x => x != null);
             if (mainGuid != null)
             {
@@ -293,29 +295,37 @@ internal static class ClipboardController
         List<DataImage> images = await GetImage(data);
         if (images.Count == 0 || pasteAsNew)
         {
-            return await TryPasteNestedDocument(document, manager, data);
-        }
-
-        if (images.Count == 1 || (images.Count > 1 && !pasteAsNew))
-        {
-            var dataImage = images[0];
-            var position = dataImage.Position;
-
-            if (document.SizeBindable.X < position.X || document.SizeBindable.Y < position.Y || !hasPos)
+            if (await TryPasteNestedDocument(document, manager, data))
             {
-                position = VecI.Zero;
+                return true;
             }
-
-            manager.Owner.ToolsSubViewModel.SetActiveTool<MoveToolViewModel>(false);
-            document.Operations.InvokeCustomAction(() =>
-            {
-                document.Operations.PasteImageWithTransform(dataImage.Image, position);
-            });
-
-            return true;
         }
 
-        document.Operations.PasteImagesAsLayers(images, document.AnimationDataViewModel.ActiveFrameBindable);
+        if (images.Count > 0)
+        {
+            if (!pasteAsNew)
+            {
+                var dataImage = images[0];
+                var position = dataImage.Position;
+
+                if (document.SizeBindable.X < position.X || document.SizeBindable.Y < position.Y || !hasPos)
+                {
+                    position = VecI.Zero;
+                }
+
+                manager.Owner.ToolsSubViewModel.SetActiveTool<MoveToolViewModel>(false);
+                document.Operations.InvokeCustomAction(() =>
+                {
+                    document.Operations.PasteImageWithTransform(dataImage.Image, position);
+                });
+            }
+            else
+            {
+                manager.Owner.ToolsSubViewModel.SetActiveTool<MoveToolViewModel>(false);
+                document.Operations.PasteImagesAsLayers(images, document.AnimationDataViewModel.ActiveFrameBindable, images.Count > 1);
+            }
+        }
+
         return true;
     }
 
@@ -346,7 +356,7 @@ internal static class ClipboardController
                 }
 
                 bool imported = TryPlaceNestedDocument(document, manager, path, out _);
-                if(!imported)
+                if (!imported)
                 {
                     continue;
                 }
@@ -360,7 +370,8 @@ internal static class ClipboardController
         return false;
     }
 
-    public static bool TryPlaceNestedDocument(DocumentViewModel document, DocumentManagerViewModel manager, string path, out string? error)
+    public static bool TryPlaceNestedDocument(DocumentViewModel document, DocumentManagerViewModel manager, string path,
+        out string? error)
     {
         try
         {
@@ -980,7 +991,8 @@ internal static class ClipboardController
 
     public static async Task CopyIds(Guid[] ids, DataFormat<byte[]> format, Guid docId)
     {
-        await Clipboard.ClearAsync();
+        // This breaks often on X11 and macos
+        //await Clipboard.ClearAsync();
 
         DataTransfer data = new DataTransfer();
 
