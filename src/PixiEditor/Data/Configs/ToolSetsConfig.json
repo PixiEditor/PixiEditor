@@ -51,7 +51,7 @@
           "ToolName": "FloodFill",
           "Settings": {
             "Tolerance": 0,
-            "FillMode": "Replace"
+            "FillMode": "Overlay"
           }
         },
         "RasterLine",
@@ -113,7 +113,7 @@
           "ToolName": "FloodFill",
           "Settings": {
             "ExposeTolerance": true,
-            "ExposeFillMode": true,
+            "ExposeFillMode": true
           }
         },
         {
