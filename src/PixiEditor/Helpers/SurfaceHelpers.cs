@@ -40,7 +40,7 @@ public static class SurfaceHelpers
 
     public static unsafe byte[] ToByteArray(this Surface surface, ColorType colorType = ColorType.Bgra8888, AlphaType alphaType = AlphaType.Premul, ColorSpace colorSpace = null)
     {
-        using var ctx = IDrawieInteropContext.Current.EnsureContext();
+        using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
         int width = surface.Size.X;
         int height = surface.Size.Y;
         var imageInfo = new ImageInfo(width, height, colorType, alphaType, colorSpace == null ? surface.ImageInfo.ColorSpace : colorSpace);

@@ -148,6 +148,12 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
         }
     }
 
+    protected override void OnSelectedLayersChanged(IStructureMemberHandler[] layers)
+    {
+        OnDeselecting(false);
+        OnToolSelected(false);
+    }
+
     private void AddBrushShapeSettings()
     {
         foreach (var setting in brushShapeSettings)

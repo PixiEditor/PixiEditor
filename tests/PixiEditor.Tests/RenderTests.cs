@@ -8,6 +8,7 @@ using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Rendering.ContextData;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.Position;
 using Xunit.Abstractions;
@@ -96,9 +97,13 @@ public class RenderTests : FullPixiEditorTest
             0,
             document.SizeBindable / 2f,
             document.SizeBindable,
-            Matrix3X3.Identity, null, "DEFAULT", SamplingOptions.Default, document.SizeBindable, ChunkResolution.Half,
+            new ViewportData(),
+            new PointerInfo(),
+            new KeyboardInfo(),
+            new EditorData(),
+            null, "DEFAULT", SamplingOptions.Default, document.SizeBindable, ChunkResolution.Half,
             Guid.NewGuid(), false, false, () => { });
-        using var output = document.SceneRenderer.RenderScene(info, new AffectedArea(), null);
+        using var output = document.SceneRenderer.RenderScene(info, new AffectedArea());
 
         Color expectedColor = Colors.Yellow;
 

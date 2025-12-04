@@ -11,6 +11,7 @@ using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Shaders;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
@@ -930,6 +931,20 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
         {
             ThrowIfDisposed();
             PathOperation operation = new(path, paintable, strokeWidth, strokeCap, blendMode, style, antiAliasing,
+                customBounds);
+            EnqueueOperation(operation);
+        }
+    }
+
+    /// <param name="customBounds">Bounds used for affected chunks, will be computed from path in O(n) if null is passed</param>
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
+    public void EnqueueDrawPath(VectorPath path, Paintable paintable, float strokeWidth, StrokeCap strokeCap,
+        Blender blender, PaintStyle style, bool antiAliasing, RectI? customBounds = null)
+    {
+        lock (lockObject)
+        {
+            ThrowIfDisposed();
+            PathOperation operation = new(path, paintable, strokeWidth, strokeCap, blender, style, antiAliasing,
                 customBounds);
             EnqueueOperation(operation);
         }

@@ -1,5 +1,9 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
+﻿using Drawie.Backend.Core.Bridge;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
+using PixiEditor.Models.Events;
+using PixiEditor.Models.Handlers;
 using PixiEditor.ViewModels.Nodes;
+using PixiEditor.ViewModels.Nodes.Properties;
 
 namespace PixiEditor.ViewModels.Document.Nodes.Brushes;
 
@@ -10,5 +14,17 @@ internal class BrushOutputNodeViewModel : NodeViewModel<BrushOutputNode>
     {
         InputPropertyMap[BrushOutputNode.BrushNameProperty].SocketEnabled = false;
         InputPropertyMap[BrushOutputNode.FitToStrokeSizeProperty].SocketEnabled = false;
+        InputPropertyMap[BrushOutputNode.UseCustomStampBlenderProperty].ValueChanged += OnValueChanged;
+        if(InputPropertyMap[BrushOutputNode.CustomStampBlenderCodeProperty] is StringPropertyViewModel codeProperty)
+        {
+            codeProperty.IsVisible = (bool)InputPropertyMap[BrushOutputNode.UseCustomStampBlenderProperty].Value;
+            codeProperty.Kind = DrawingBackendApi.Current.ShaderImplementation.ShaderLanguageExtension;
+        }
+    }
+
+    private void OnValueChanged(INodePropertyHandler property, NodePropertyValueChangedArgs args)
+    {
+        InputPropertyMap[BrushOutputNode.CustomStampBlenderCodeProperty].IsVisible = (bool)args.NewValue;
+        InputPropertyMap[BrushOutputNode.StampBlendModeProperty].IsVisible = !(bool)args.NewValue;
     }
 }

@@ -4,6 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
 using Avalonia.Input;
 using Avalonia.Markup.Xaml;
+using Avalonia.Rendering.Composition;
 using Avalonia.Threading;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
@@ -11,6 +12,7 @@ using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.ChangeableDocument.Rendering;
@@ -128,7 +130,8 @@ internal partial class BrushItem : UserControl
         DrawingStrokeTexture = previewTexture;
 
         previewTexture.DrawingSurface.Canvas.Clear();
-        previewImage.CancelChanges();
+        previewImage.EnqueueClear();
+        previewImage.CommitChanges();
         enumerator = brushNode.DrawStrokePreviewEnumerable(previewImage, CreateContext(),
             BrushOutputNode.StrokePreviewSizeY / 2,
             new VecD(0, BrushOutputNode.YOffsetInPreview)).GetEnumerator();
@@ -158,11 +161,12 @@ internal partial class BrushItem : UserControl
                     return false;
                 }
 
+                using Paint srcOver = new() { BlendMode = BlendMode.Src, Style = PaintStyle.Fill };
                 previewImage.DrawMostUpToDateRegionOn(
                     new RectI(0, 0, previewImage.CommittedSize.X, previewImage.CommittedSize.Y),
                     ChunkResolution.Full,
                     previewTexture.DrawingSurface.Canvas,
-                    VecI.Zero, null, SamplingOptions.Bilinear);
+                    VecI.Zero, srcOver);
 
                 StrokePreviewControl.QueueNextFrame();
             }

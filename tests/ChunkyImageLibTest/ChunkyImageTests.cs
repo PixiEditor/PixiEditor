@@ -21,7 +21,7 @@ public class ChunkyImageTests : PixiEditorTest
         image.EnqueueDrawRectangle(new(new(5, 5), new(80, 80), 0, 0, 2, Colors.AliceBlue, Colors.Snow));
         using (Chunk target = Chunk.Create(ColorSpace.CreateSrgb()))
         {
-            image.DrawMostUpToDateChunkOn(new(0, 0), ChunkResolution.Full, target.Surface.DrawingSurface, VecI.Zero);
+            image.DrawMostUpToDateChunkOn(new(0, 0), ChunkResolution.Full, target.Surface.DrawingSurface.Canvas, VecI.Zero);
             image.CancelChanges();
             image.EnqueueResize(new(ChunkyImage.FullChunkSize * 4, ChunkyImage.FullChunkSize * 4));
             image.EnqueueDrawRectangle(new(VecD.Zero, image.CommittedSize, 0, 0, 2, Colors.AliceBlue, Colors.Snow,

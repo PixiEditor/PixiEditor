@@ -2,6 +2,7 @@
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Shaders;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Vector;
@@ -28,12 +29,31 @@ internal class PathOperation : IMirroredDrawOperation
         bounds = floatBounds.Inflate((int)Math.Ceiling(strokeWidth) + 1);
     }
 
+    public PathOperation(VectorPath path, Color color, float strokeWidth, StrokeCap cap, Blender blender, RectI? customBounds = null)
+    {
+        this.path = new VectorPath(path);
+        paint = new() { Color = color, Style = PaintStyle.Stroke, StrokeWidth = strokeWidth, StrokeCap = cap, Blender = blender };
+
+        RectI floatBounds = customBounds ?? (RectI)(path.TightBounds).RoundOutwards();
+        bounds = floatBounds.Inflate((int)Math.Ceiling(strokeWidth) + 1);
+    }
+
     public PathOperation(VectorPath path, Paintable paintable, float strokeWidth, StrokeCap cap, BlendMode blendMode,
         PaintStyle style, bool antiAliasing, RectI? customBounds = null)
     {
         this.antiAliasing = antiAliasing;
         this.path = new VectorPath(path);
         paint = new() { Paintable = paintable, Style = style, StrokeWidth = strokeWidth, StrokeCap = cap, BlendMode = blendMode };
+
+        RectI floatBounds = customBounds ?? (RectI)(path.Bounds).RoundOutwards();
+        bounds = floatBounds.Inflate((int)Math.Ceiling(strokeWidth) + 1);
+    }
+
+    public PathOperation(VectorPath path, Paintable paintable, float strokeWidth, StrokeCap cap, Blender blender, PaintStyle style, bool antiAliasing, RectI? customBounds)
+    {
+        this.antiAliasing = antiAliasing;
+        this.path = new VectorPath(path);
+        paint = new() { Paintable = paintable, Style = style, StrokeWidth = strokeWidth, StrokeCap = cap, Blender = blender };
 
         RectI floatBounds = customBounds ?? (RectI)(path.Bounds).RoundOutwards();
         bounds = floatBounds.Inflate((int)Math.Ceiling(strokeWidth) + 1);
@@ -68,8 +88,20 @@ internal class PathOperation : IMirroredDrawOperation
             newBounds = (RectI)newBounds.ReflectY((double)horAxisY).Round();
         if (paint.Paintable != null)
         {
-            return new PathOperation(copy, paint.Paintable, paint.StrokeWidth, paint.StrokeCap, paint.BlendMode,
-                paint.Style, antiAliasing, newBounds);
+            if( paint.Blender != null)
+            {
+                return new PathOperation(copy, paint.Paintable, paint.StrokeWidth, paint.StrokeCap, paint.Blender, paint.Style, antiAliasing, newBounds);
+            }
+            else
+            {
+                return new PathOperation(copy, paint.Paintable, paint.StrokeWidth, paint.StrokeCap, paint.BlendMode,
+                    paint.Style, antiAliasing, newBounds);
+            }
+        }
+
+        if (paint.Blender != null)
+        {
+            return new PathOperation(copy, paint.Color, paint.StrokeWidth, paint.StrokeCap, paint.Blender, newBounds);
         }
 
         return new PathOperation(copy, paint.Color, paint.StrokeWidth, paint.StrokeCap, paint.BlendMode, newBounds);
