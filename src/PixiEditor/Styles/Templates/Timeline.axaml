@@ -328,7 +328,7 @@
                                                 </ItemsControl.ItemsPanel>
                                             </ItemsControl>
                                         </DataTemplate>
-                                        <DataTemplate DataType="document:IRasterCelViewModel">
+                                        <DataTemplate DataType="document:RasterCelViewModel">
                                             <animations:KeyFrame
                                                 Scale="{Binding Scale, RelativeSource={RelativeSource FindAncestor, AncestorType=animations:Timeline}}"
                                                 IsEnabled="{Binding IsVisible}"

@@ -1,0 +1,300 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:input="clr-namespace:PixiEditor.Views.Input"
+             xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:controls="clr-namespace:Drawie.Interop.Avalonia.Core.Controls;assembly=Drawie.Interop.Avalonia.Core"
+             xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
+             xmlns:visuals="clr-namespace:PixiEditor.Views.Visuals"
+             xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
+             xmlns:controls1="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:ClassModifier="internal"
+             x:Class="PixiEditor.Views.Input.BrushPicker">
+    <Panel>
+        <controls:DrawieTextureControl
+            Width="36" Height="21"
+            ZIndex="1"
+            SamplingOptions="Bilinear"
+            Texture="{Binding Path=SelectedBrush.PointPreviewTexture, RelativeSource={RelativeSource FindAncestor, AncestorType=input:BrushPicker}}" />
+        <Panel.Styles>
+            <Style Selector="Panel > ToggleButton:checked">
+                <Setter Property="Background" Value="{DynamicResource ThemeControlMidBrush}" />
+            </Style>
+            <Style Selector="Panel > ToggleButton:pressed">
+                <Setter Property="Background" Value="{DynamicResource ThemeControlMidBrush}" />
+            </Style>
+        </Panel.Styles>
+        <ToggleButton Name="PopupToggle" Background="{DynamicResource ThemeBackgroundBrush}" Width="40" Height="25">
+            <ToggleButton.Styles>
+                <Style Selector="FlyoutPresenter">
+                    <Setter Property="Cursor" Value="Arrow" />
+                </Style>
+            </ToggleButton.Styles>
+            <ToggleButton.Flyout>
+                <Flyout
+                    IsOpen="{Binding IsChecked, RelativeSource={RelativeSource AncestorType=ToggleButton}, Mode=TwoWay}"
+                    Placement="BottomEdgeAlignedLeft"
+                    ShowMode="Transient">
+                    <Grid Width="388" Height="400" Margin="10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <TextBox Watermark="{localization:Translate Key=SEARCH}"
+                                     Name="SearchBox"
+                                     Text="{Binding $parent[input:BrushPicker].SearchText}">
+                                <TextBox.InnerLeftContent>
+                                    <TextBlock Classes="pixi-icon" Text="{DynamicResource icon-search}"
+                                               Margin="0, 0, 5, 0" />
+                                </TextBox.InnerLeftContent>
+                            </TextBox>
+                            <DropDownButton Grid.Row="0" Grid.Column="1"
+                                            Margin="5,0,0,0">
+                                <TextBlock Name="SelectionText" />
+                                <DropDownButton.Flyout>
+                                    <Flyout Placement="BottomEdgeAlignedLeft">
+                                        <ListBox SelectionMode="Multiple,Toggle"
+                                                 Name="SelectCategoriesListBox">
+                                            <ListBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock localization:Translator.Key="{Binding }" Padding="5" />
+                                                </DataTemplate>
+                                            </ListBox.ItemTemplate>
+                                        </ListBox>
+                                    </Flyout>
+                                </DropDownButton.Flyout>
+                            </DropDownButton>
+                            <StackPanel Orientation="Horizontal" Grid.Column="2" Grid.Row="0" Spacing="5"
+                                        Margin="5,0,0,0">
+                                <StackPanel.Styles>
+                                    <Style Selector="ToggleButton#ViewModeListButton">
+                                        <Setter Property="Content" Value="{DynamicResource icon-grid-round}" />
+                                    </Style>
+                                    <Style Selector="ToggleButton#ViewModeListButton:checked">
+                                        <Setter Property="Content" Value="{DynamicResource icon-list}" />
+                                        <Setter Property="Background" Value="{DynamicResource ThemeControlMidBrush}" />
+                                    </Style>
+                                </StackPanel.Styles>
+                                <ToggleButton Classes="pixi-icon"
+                                              Name="SortButton"
+                                              FontSize="24"
+                                              localization:Translator.TooltipKey="SORTING"
+                                              Content="{DynamicResource icon-arrow-up-down}" />
+                                <ToggleButton Classes="pixi-icon"
+                                              Name="ViewModeListButton"
+                                              localization:Translator.TooltipKey="TOGGLE_VIEW_MODE"
+                                              IsChecked="{Binding $parent[input:BrushPicker].IsGridView,Mode=TwoWay}" />
+                                <Button Classes="pixi-icon"
+                                        Command="{xaml:Command PixiEditor.Brushes.Import}"
+                                        FontSize="24"
+                                        localization:Translator.TooltipKey="IMPORT_BRUSH"
+                                        Content="{DynamicResource icon-upload}" />
+                                <Button Classes="pixi-icon"
+                                        Width="14"
+                                        FontSize="24"
+                                        localization:Translator.TooltipKey="MORE_OPTIONS"
+                                        Content="{DynamicResource icon-ellipsis-vertical}">
+                                    <Interaction.Behaviors>
+                                        <ButtonClickEventTriggerBehavior>
+                                            <ButtonClickEventTriggerBehavior.Actions>
+                                                <ShowContextMenuAction />
+                                            </ButtonClickEventTriggerBehavior.Actions>
+                                        </ButtonClickEventTriggerBehavior>
+                                    </Interaction.Behaviors>
+                                    <Button.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem
+                                                Header="{localization:Translate Key=OPEN_BRUSH_FOLDER}"
+                                                Icon="{DynamicResource icon-folder}"
+                                                Classes="pixi-icon"
+                                                Command="{xaml:Command Name=PixiEditor.Brushes.OpenBrushesFolder}" />
+                                        </ContextMenu>
+                                    </Button.ContextMenu>
+                                </Button>
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                        HorizontalAlignment="Right" Margin="0,5,5,0" Spacing="5"
+                                        IsVisible="{Binding IsChecked, ElementName=SortButton}">
+                                <TextBlock Text="{localization:Translate Key=SORT_BY}" />
+                                <ComboBox
+                                    SelectedIndex="{Binding $parent[input:BrushPicker].SelectedSortingIndex,
+                                                         Mode=TwoWay}"
+                                    ItemsSource="{Binding $parent[input:BrushPicker].SortingOptions}">
+
+                                </ComboBox>
+                            </StackPanel>
+
+                            <StackPanel Margin="5, 5, 0, 0" Orientation="Horizontal" Grid.Column="2" Grid.Row="1"
+                                        Spacing="5">
+                                <ToggleButton
+                                    IsVisible="{Binding IsChecked, ElementName=SortButton}"
+                                    Content="{DynamicResource icon-arrow-up}"
+                                    behaviours:ToggleGroupBehavior.GroupName="SORTING_DIRECTION"
+                                    behaviours:ToggleGroupBehavior.Value="ascending"
+                                    behaviours:ToggleGroupBehavior.SelectedValue="{Binding $parent[input:BrushPicker].SortingDirection, Mode=TwoWay}"
+                                    Classes="pixi-icon" />
+                                <ToggleButton
+                                    IsVisible="{Binding IsChecked, ElementName=SortButton}"
+                                    Content="{DynamicResource icon-arrow-down}"
+                                    behaviours:ToggleGroupBehavior.GroupName="SORTING_DIRECTION"
+                                    behaviours:ToggleGroupBehavior.Value="descending"
+                                    behaviours:ToggleGroupBehavior.SelectedValue="{Binding $parent[input:BrushPicker].SortingDirection, Mode=TwoWay}"
+                                    Classes="pixi-icon" />
+                            </StackPanel>
+                        </Grid>
+
+                        <ScrollViewer Grid.Row="1" Margin="0,10,0,0" HorizontalScrollBarVisibility="Disabled"
+                                      VerticalScrollBarVisibility="Auto">
+                            <Panel>
+                                <ItemsControl
+                                    IsVisible="{Binding Path=!$parent[input:BrushPicker].IsGridView}"
+                                    ItemsSource="{Binding $parent[input:BrushPicker].FilteredBrushes}">
+                                    <ItemsControl.Styles>
+                                        <Style Selector="ContentPresenter > Border">
+                                            <Setter Property="Background" Value="Transparent" />
+                                            <Setter Property="BorderBrush"
+                                                    Value="{DynamicResource ThemeBorderMidBrush}" />
+                                            <Setter Property="BorderThickness" Value="0, 0, 0, 1" />
+                                            <Setter Property="Padding" Value="6, 6, 6, 5" />
+                                        </Style>
+                                        <Style Selector="ContentPresenter:pointerover > Border">
+                                            <Setter Property="Background"
+                                                    Value="{DynamicResource ThemeControlHighBrush}" />
+                                            <Setter Property="BorderBrush"
+                                                    Value="{DynamicResource ThemeBorderHighBrush}" />
+                                            <Setter Property="BorderThickness" Value="1" />
+                                            <Setter Property="Padding" Value="5" />
+                                        </Style>
+
+                                        <Style Selector="ContentPresenter > Border.selected">
+                                            <Setter Property="Background"
+                                                    Value="{DynamicResource ThemeAccent2TranslucentBrush}" />
+                                            <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccent2Brush}" />
+                                            <Setter Property="BorderThickness" Value="1" />
+                                            <Setter Property="Padding" Value="5" />
+                                        </Style>
+
+                                        <Style Selector="ContentPresenter > Border.selected TextBlock.subtext">
+                                            <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}" />
+                                        </Style>
+                                    </ItemsControl.Styles>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border CornerRadius="4" IsHitTestVisible="True">
+                                                <input:BrushItem PointerPressed="SelectBrushElementPressed"
+                                                                 Brush="{Binding .}" />
+                                                <Classes.selected>
+                                                    <MultiBinding Converter="{converters:AreEqualConverter}">
+                                                        <Binding Path="$parent[input:BrushPicker].SelectedBrush" />
+                                                        <Binding />
+                                                    </MultiBinding>
+                                                </Classes.selected>
+                                                <Border.ContextMenu>
+                                                    <ContextMenu Tag="{Binding}">
+                                                        <MenuItem
+                                                            Header="{localization:Translate Key=EDIT}"
+                                                            IsEnabled="{Binding !IsReadOnly}"
+                                                            Command="{xaml:Command PixiEditor.Brushes.Edit, UseProvided=True}"
+                                                            CommandParameter="{Binding }" />
+                                                        <MenuItem
+                                                            Header="{localization:Translate Key=DUPLICATE}"
+                                                            IsEnabled="{Binding IsDuplicable}"
+                                                            Command="{xaml:Command PixiEditor.Brushes.Duplicate, UseProvided=True}"
+                                                            CommandParameter="{Binding }" />
+                                                        <MenuItem Header="{localization:Translate Key=TAGS}">
+                                                            <Interaction.Behaviors>
+                                                                <behaviours:MenuItemSourceBehavior
+                                                                    CheckedItems="{Binding Tags}"
+                                                                    ItemsSource="{Binding $parent[input:BrushPicker].Categories}">
+                                                                    <behaviours:MenuItemSourceBehavior.AdditionalElement>
+                                                                        <MenuItem localization:Translator.Key="ADD_NEW"
+                                                                                Click="AddNewCategory_OnClick" />
+                                                                    </behaviours:MenuItemSourceBehavior.AdditionalElement>
+                                                                </behaviours:MenuItemSourceBehavior>
+                                                            </Interaction.Behaviors>
+                                                        </MenuItem>
+                                                        <MenuItem
+                                                            Header="{localization:Translate Key=DELETE}"
+                                                            Command="{xaml:Command PixiEditor.Brushes.Delete, UseProvided=True}"
+                                                            IsEnabled="{Binding !IsReadOnly}"
+                                                            CommandParameter="{Binding }" />
+                                                    </ContextMenu>
+                                                </Border.ContextMenu>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <ItemsControl
+                                    IsVisible="{Binding Path=$parent[input:BrushPicker].IsGridView}"
+                                    ItemsSource="{Binding $parent[input:BrushPicker].FilteredBrushes}">
+                                    <ItemsControl.Styles>
+                                        <Style Selector="ContentPresenter > Border">
+                                            <Setter Property="Background" Value="Transparent" />
+                                            <Setter Property="BorderBrush"
+                                                    Value="{DynamicResource ThemeBorderMidBrush}" />
+                                            <Setter Property="BorderThickness" Value="0, 0, 0, 1" />
+                                            <Setter Property="Padding" Value="6, 6, 6, 5" />
+                                        </Style>
+                                        <Style Selector="ContentPresenter:pointerover > Border">
+                                            <Setter Property="BorderBrush"
+                                                    Value="{DynamicResource ThemeBorderHighBrush}" />
+                                            <Setter Property="BorderThickness" Value="1" />
+                                            <Setter Property="Padding" Value="5" />
+                                        </Style>
+
+                                        <Style Selector="ContentPresenter > Border.selected">
+                                            <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccent2Brush}" />
+                                            <Setter Property="BorderThickness" Value="1" />
+                                            <Setter Property="Padding" Value="5" />
+                                        </Style>
+                                    </ItemsControl.Styles>
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel Orientation="Horizontal" ItemWidth="60" ItemHeight="60"
+                                                       Margin="0" ItemSpacing="2" LineSpacing="2" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Cursor="Hand" CornerRadius="4"
+                                                    ToolTip.Tip="{Binding Name}"
+                                                    PointerPressed="SelectBrushElementPressed"
+                                                    IsHitTestVisible="True">
+                                                <visuals:TextureControl
+                                                    Width="50" Height="50"
+                                                    SamplingOptions="Bilinear"
+                                                    Texture="{Binding PointPreviewTexture}" />
+                                                <Classes.selected>
+                                                    <MultiBinding Converter="{converters:AreEqualConverter}">
+                                                        <Binding Path="$parent[input:BrushPicker].SelectedBrush" />
+                                                        <Binding />
+                                                    </MultiBinding>
+                                                </Classes.selected>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Panel>
+                        </ScrollViewer>
+                    </Grid>
+                </Flyout>
+            </ToggleButton.Flyout>
+        </ToggleButton>
+    </Panel>
+</UserControl>

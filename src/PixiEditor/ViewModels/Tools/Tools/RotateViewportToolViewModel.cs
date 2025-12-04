@@ -1,4 +1,5 @@
 ﻿using Avalonia.Input;
+using Drawie.Backend.Core.Vector;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.UI.Common.Fonts;
 using PixiEditor.UI.Common.Localization;
@@ -10,7 +11,6 @@ namespace PixiEditor.ViewModels.Tools.Tools;
 internal class RotateViewportToolViewModel : ToolViewModel
 {
     public override string ToolNameLocalizationKey => "ROTATE_VIEWPORT_TOOL";
-    public override BrushShape FinalBrushShape => BrushShape.Hidden;
     public override Type[]? SupportedLayerTypes { get; } = null; // null = all
     public override Type LayerTypeToCreateOnEmptyUse { get; } = null;
     public override bool HideHighlight => true;

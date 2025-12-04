@@ -38,6 +38,7 @@ internal class CreateNode_Change : Change
             id = Guid.NewGuid();
 
         Node node = NodeOperations.CreateNode(nodeType, target);
+
         if (pairId.HasValue && node is IPairNode pairNode)
         {
             pairNode.OtherNode = pairId.Value;

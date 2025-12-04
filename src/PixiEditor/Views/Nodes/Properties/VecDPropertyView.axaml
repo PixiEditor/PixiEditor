@@ -9,6 +9,7 @@
                              xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
                              xmlns:properties1="clr-namespace:PixiEditor.ViewModels.Nodes.Properties"
                              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+                             x:DataType="properties1:VecDPropertyViewModel"
                              x:Class="PixiEditor.Views.Nodes.Properties.VecDPropertyView">
     <Design.DataContext>
         <properties1:VecDPropertyViewModel />

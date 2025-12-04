@@ -157,7 +157,7 @@ internal partial class PalettesBrowser : PixiEditorPopup, IPopupWindow
 
     private char[] separators = new char[] { ' ', ',' };
 
-    private SortingType InternalSortingType => (SortingType)SortingIndex;
+    private PaletteSortingType InternalSortingType => (PaletteSortingType)SortingIndex;
     public ObservableRangeCollection<PaletteColor> CurrentEditingPalette { get; set; }
     public static PalettesBrowser Instance { get; internal set; }
 
@@ -563,13 +563,13 @@ internal partial class PalettesBrowser : PixiEditorPopup, IPopupWindow
         {
             switch (InternalSortingType)
             {
-                case SortingType.Default:
+                case PaletteSortingType.Default:
                     sorted = PaletteList.Palettes.OrderByDescending(x => x.IsFavourite).ThenBy(x => PaletteList.Palettes.IndexOf(x));
                     break;
-                case SortingType.Alphabetical:
+                case PaletteSortingType.Alphabetical:
                     sorted = PaletteList.Palettes.OrderBy(x => x.Name);
                     break;
-                case SortingType.ColorCount:
+                case PaletteSortingType.ColorCount:
                     sorted = PaletteList.Palettes.OrderBy(x => x.Colors.Count);
                     break;
             }
@@ -578,13 +578,13 @@ internal partial class PalettesBrowser : PixiEditorPopup, IPopupWindow
         {
             switch (InternalSortingType)
             {
-                case SortingType.Default:
+                case PaletteSortingType.Default:
                     sorted = PaletteList.Palettes.OrderByDescending(x => PaletteList.Palettes.IndexOf(x));
                     break;
-                case SortingType.Alphabetical:
+                case PaletteSortingType.Alphabetical:
                     sorted = PaletteList.Palettes.OrderByDescending(x => x.Name);
                     break;
-                case SortingType.ColorCount:
+                case PaletteSortingType.ColorCount:
                     sorted = PaletteList.Palettes.OrderByDescending(x => x.Colors.Count);
                     break;
             }

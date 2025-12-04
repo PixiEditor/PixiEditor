@@ -1,6 +1,7 @@
 ﻿using Avalonia.Input;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Vector;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
@@ -19,7 +20,8 @@ internal class FloodFillToolViewModel : ToolViewModel, IFloodFillToolHandler
     private readonly string defaultActionDisplay = "FLOOD_FILL_TOOL_ACTION_DISPLAY_DEFAULT";
 
     public override string ToolNameLocalizationKey => "FLOOD_FILL_TOOL";
-    public override BrushShape FinalBrushShape => BrushShape.Pixel;
+
+    //TODO: Brush Shape was Pixel
     public override Type[]? SupportedLayerTypes { get; } = { typeof(IRasterLayerHandler) };
 
     public override LocalizedString Tooltip => new("FLOOD_FILL_TOOL_TOOLTIP", Shortcut);

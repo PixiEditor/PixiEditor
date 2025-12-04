@@ -1,4 +1,5 @@
 ﻿using Avalonia.Input;
+using Drawie.Backend.Core.Vector;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.UI.Common.Fonts;
 using PixiEditor.UI.Common.Localization;
@@ -19,7 +20,6 @@ internal class ZoomToolViewModel : ToolViewModel
     private string defaultActionDisplay = new LocalizedString("ZOOM_TOOL_ACTION_DISPLAY_DEFAULT");
 
     public override string ToolNameLocalizationKey => "ZOOM_TOOL";
-    public override BrushShape FinalBrushShape => BrushShape.Hidden;
     public override Type[]? SupportedLayerTypes { get; } = null;
 
     public override bool StopsLinkedToolOnUse => false;

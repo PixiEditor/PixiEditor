@@ -15,6 +15,8 @@ using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.Tools;
 using PixiEditor.Views.Overlays.BrushShapeOverlay;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
+using DrawingBlendMode = Drawie.Backend.Core.Surfaces.BlendMode;
+
 
 [assembly: LocalizeEnum<StrokeCap>(StrokeCap.Butt, "BUTT_STROKE_CAP")]
 [assembly: LocalizeEnum<StrokeCap>(StrokeCap.Round, "ROUND_STROKE_CAP")]
@@ -125,5 +127,36 @@ using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 [assembly: LocalizeEnum<BlendMode>(BlendMode.Erase, "ERASE_BLEND_MODE")]
 [assembly: LocalizeEnum<BlendMode>(BlendMode.LinearDodge, "LINEAR_DODGE_BLEND_MODE")]
 
-[assembly: LocalizeEnum<PaintBrushShape>(PaintBrushShape.Circle, "PAINT_BRUSH_SHAPE_CIRCLE")]
-[assembly: LocalizeEnum<PaintBrushShape>(PaintBrushShape.Square, "PAINT_BRUSH_SHAPE_SQUARE")]
+[assembly: LocalizeEnum<GradientType>(GradientType.Linear, "LINEAR_GRADIENT_TYPE")]
+[assembly: LocalizeEnum<GradientType>(GradientType.Radial, "RADIAL_GRADIENT_TYPE")]
+[assembly: LocalizeEnum<GradientType>(GradientType.Conical, "CONICAL_GRADIENT_TYPE")]
+
+[assembly: LocalizeEnum<DrawingBlendMode>(DrawingBlendMode.SrcOver, "NORMAL_BLEND_MODE")]
+[assembly: LocalizeEnum<DrawingBlendMode>(DrawingBlendMode.Darken, "DARKEN_BLEND_MODE")]
+[assembly: LocalizeEnum<DrawingBlendMode>(DrawingBlendMode.Lighten, "LIGHTEN_BLEND_MODE")]
+[assembly: LocalizeEnum<DrawingBlendMode>(DrawingBlendMode.Multiply, "MULTIPLY_BLEND_MODE")]
+[assembly: LocalizeEnum<DrawingBlendMode>(DrawingBlendMode.Screen, "SCREEN_BLEND_MODE")]
+[assembly: LocalizeEnum<DrawingBlendMode>(DrawingBlendMode.Overlay, "OVERLAY_BLEND_MODE")]
+[assembly: LocalizeEnum<DrawingBlendMode>(DrawingBlendMode.HardLight, "HARD_LIGHT_BLEND_MODE")]
+[assembly: LocalizeEnum<DrawingBlendMode>(DrawingBlendMode.SoftLight, "SOFT_LIGHT_BLEND_MODE")]
+[assembly: LocalizeEnum<DrawingBlendMode>(DrawingBlendMode.ColorDodge, "COLOR_DODGE_BLEND_MODE")]
+[assembly: LocalizeEnum<DrawingBlendMode>(DrawingBlendMode.ColorBurn, "COLOR_BURN_BLEND_MODE")]
+[assembly: LocalizeEnum<DrawingBlendMode>(DrawingBlendMode.Hue, "HUE_BLEND_MODE")]
+[assembly: LocalizeEnum<DrawingBlendMode>(DrawingBlendMode.Saturation, "SATURATION_BLEND_MODE")]
+[assembly: LocalizeEnum<DrawingBlendMode>(DrawingBlendMode.Color, "COLOR_BLEND_MODE")]
+[assembly: LocalizeEnum<DrawingBlendMode>(DrawingBlendMode.Luminosity, "LUMINOSITY_BLEND_MODE")]
+[assembly: LocalizeEnum<DrawingBlendMode>(DrawingBlendMode.Difference, "DIFFERENCE_BLEND_MODE")]
+[assembly: LocalizeEnum<DrawingBlendMode>(DrawingBlendMode.Exclusion, "EXCLUSION_BLEND_MODE")]
+[assembly: LocalizeEnum<DrawingBlendMode>(DrawingBlendMode.DstOut, "ERASE_BLEND_MODE")]
+[assembly: LocalizeEnum<DrawingBlendMode>(DrawingBlendMode.Plus, "LINEAR_DODGE_BLEND_MODE")]
+[assembly: LocalizeEnum<DrawingBlendMode>(DrawingBlendMode.Src, "REPLACE_BLEND_MODE")]
+[assembly: LocalizeEnum<DrawingBlendMode>(DrawingBlendMode.SrcIn, "MASK_INSIDE_BLEND_MODE")]
+[assembly: LocalizeEnum<DrawingBlendMode>(DrawingBlendMode.SrcOut, "OUTSIDE_BLEND_MODE")]
+[assembly: LocalizeEnum<DrawingBlendMode>(DrawingBlendMode.SrcATop, "ON_TOP_OF_BLEND_MODE")]
+[assembly: LocalizeEnum<DrawingBlendMode>(DrawingBlendMode.Dst, "TARGET_BLEND_MODE")]
+[assembly: LocalizeEnum<DrawingBlendMode>(DrawingBlendMode.DstIn, "KEEP_INSIDE_BLEND_MODE")]
+[assembly: LocalizeEnum<DrawingBlendMode>(DrawingBlendMode.DstATop, "KEEP_UNDER_BLEND_MODE")]
+[assembly: LocalizeEnum<DrawingBlendMode>(DrawingBlendMode.DstOver, "BEHIND_BLEND_MODE")]
+[assembly: LocalizeEnum<DrawingBlendMode>(DrawingBlendMode.Xor, "XOR_BLEND_MODE")]
+[assembly: LocalizeEnum<DrawingBlendMode>(DrawingBlendMode.Modulate, "MODULATE_BLEND_MODE")]
+[assembly: LocalizeEnum<DrawingBlendMode>(DrawingBlendMode.Clear, "CLEAR_BLEND_MODE")]

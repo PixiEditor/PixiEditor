@@ -15,6 +15,5 @@ public partial class FontFamilyNamePropertyView : NodePropertyView
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
     {
         base.OnApplyTemplate(e);
-        HideSocket(true, true);
     }
 }

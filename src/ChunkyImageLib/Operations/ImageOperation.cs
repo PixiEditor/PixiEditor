@@ -84,7 +84,13 @@ internal class ImageOperation : IMirroredDrawOperation
 
     public void DrawOnChunk(Chunk targetChunk, VecI chunkPos)
     {
-        //customPaint.FilterQuality = chunk.Resolution != ChunkResolution.Full;
+        //customPaint.FilterQuality = targetChunk.Resolution != ChunkResolution.Full ? FilterQuality.High : FilterQuality.None;
+        var sampling = samplingOptions;
+        if (samplingOptions == SamplingOptions.Default && targetChunk.Resolution != ChunkResolution.Full)
+        {
+            sampling = SamplingOptions.Bilinear;
+        }
+
         float scaleMult = (float)targetChunk.Resolution.Multiplier();
         VecD trans = -chunkPos * ChunkPool.FullChunkSize;
 
@@ -104,12 +110,12 @@ internal class ImageOperation : IMirroredDrawOperation
             ShapeCorners chunkCorners = new ShapeCorners(new RectD(VecD.Zero, targetChunk.PixelSize));
             RectD rect = chunkCorners.WithMatrix(finalMatrix.Invert()).AABBBounds;
 
-            targetChunk.Surface.DrawingSurface.Canvas.DrawImage(snapshot, rect, rect, customPaint, samplingOptions);
+            targetChunk.Surface.DrawingSurface.Canvas.DrawImage(snapshot, rect, rect, customPaint, sampling);
         }
         else
         {
             // Slower, but works with perspective transformation
-            targetChunk.Surface.DrawingSurface.Canvas.DrawImage(snapshot, 0, 0, samplingOptions, customPaint);
+            targetChunk.Surface.DrawingSurface.Canvas.DrawImage(snapshot, 0, 0, sampling, customPaint);
         }
 
         targetChunk.Surface.DrawingSurface.Canvas.Restore();

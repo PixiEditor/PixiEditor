@@ -1,0 +1,76 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:visuals="clr-namespace:PixiEditor.Views.Visuals"
+             xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+             xmlns:input="clr-namespace:PixiEditor.Views.Input"
+             xmlns:surfaces="clr-namespace:Drawie.Backend.Core.Surfaces;assembly=Drawie.Backend.Core"
+             xmlns:controls="clr-namespace:Drawie.Interop.Avalonia.Core.Controls;assembly=Drawie.Interop.Avalonia.Core"
+             xmlns:decorators="clr-namespace:PixiEditor.Views.Decorators"
+             Background="Transparent" IsHitTestVisible="True"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="PixiEditor.Views.Input.BrushItem">
+    <UserControl.Styles>
+        <Style Selector="Button#FavouriteButton">
+            <Setter Property="Content" Value="{DynamicResource icon-star}" />
+        </Style>
+        <Style Selector="input|BrushItem:favourite Button#FavouriteButton">
+            <Setter Property="Content" Value="{DynamicResource icon-star-filled}" />
+        </Style>
+    </UserControl.Styles>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <DockPanel LastChildFill="True"
+                   DataContext="{Binding RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}">
+            <controls:DrawieTextureControl Height="30" Width="30"
+                                           SamplingOptions="Bilinear"
+                                           Margin="0, 0, 5, 0"
+                                           Texture="{Binding $parent[input:BrushItem].Brush.PointPreviewTexture}"
+                                           DockPanel.Dock="Left" />
+            <TextBlock VerticalAlignment="Center"
+                       Width="70"
+                       ToolTip.Tip="{Binding Brush.Name}"
+                       TextTrimming="CharacterEllipsis"
+                       Text="{Binding Brush.Name}" />
+
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                <Button
+                    Name="FavouriteButton" Width="28" Height="28"
+                    Classes="pixi-icon" Padding="2"
+                    Command="{Binding ToggleFavorite}"
+                    localization:Translator.TooltipKey="ADD_TO_FAVORITES">
+                    <Button.Styles>
+                        <Style Selector="Button:pointerover">
+                            <Setter Property="Background" Value="Orange" />
+                        </Style>
+                    </Button.Styles>
+                </Button>
+            </StackPanel>
+            <controls:DrawieTextureControl
+                Height="50" Width="100"
+                SamplingOptions="Bilinear"
+                Name="StrokePreviewControl"
+                Margin="0, 0, 5, 0"
+                Texture="{Binding $parent[input:BrushItem].DrawingStrokeTexture}"
+                DockPanel.Dock="Left" />
+        </DockPanel>
+        <ItemsControl Grid.Row="1" ItemsSource="{Binding $parent[input:BrushItem].Brush.Tags}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel Orientation="Horizontal" ItemSpacing="5" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <decorators:Chip localization:Translator.Key="{Binding }" />
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <TextBlock Grid.Row="1" Classes="subtext" VerticalAlignment="Bottom" HorizontalAlignment="Right"
+                   localization:Translator.Key="{Binding $parent[input:BrushItem].Brush.Source}"/>
+    </Grid>
+</UserControl>

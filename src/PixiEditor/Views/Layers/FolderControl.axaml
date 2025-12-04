@@ -170,6 +170,8 @@
                 <MenuItem ui:Translator.Key="MERGE_SELECTED" Command="{xaml:Command PixiEditor.Layer.MergeSelected}" />
                 <MenuItem ui:Translator.Key="MERGE_WITH_ABOVE" Command="{xaml:Command PixiEditor.Layer.MergeWithAbove}" />
                 <MenuItem ui:Translator.Key="MERGE_WITH_BELOW" Command="{xaml:Command PixiEditor.Layer.MergeWithBelow}" />
+                <MenuItem ui:Translator.Key="TO_SMART_LAYER" Command="{xaml:Command PixiEditor.Layer.CreateNestedFromLayer, UseProvided=True}"
+                          CommandParameter="{Binding $parent[UserControl].Folder.Id}" />
             </ContextMenu>
         </Border.ContextMenu>
     </Border>

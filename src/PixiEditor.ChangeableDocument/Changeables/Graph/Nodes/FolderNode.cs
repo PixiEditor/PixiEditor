@@ -62,10 +62,10 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
                 paint.ImageFilter = Filters.Value?.ImageFilter;
             }
 
-            int saved = sceneContext.RenderSurface.Canvas.SaveLayer(paint);
+            int saved = sceneContext.RenderSurface.SaveLayer(paint);
             Content.Value?.Paint(sceneContext, sceneContext.RenderSurface);
 
-            sceneContext.RenderSurface.Canvas.RestoreToCount(saved);
+            sceneContext.RenderSurface.RestoreToCount(saved);
             return;
         }
 
@@ -90,20 +90,20 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
         VecI size = sceneContext.RenderSurface.DeviceClipBounds.Size + sceneContext.RenderSurface.DeviceClipBounds.Pos;
         var outputWorkingSurface = RequestTexture(0, size, sceneContext.ProcessingColorSpace, true);
         outputWorkingSurface.DrawingSurface.Canvas.Save();
-        outputWorkingSurface.DrawingSurface.Canvas.SetMatrix(sceneContext.RenderSurface.Canvas.TotalMatrix);
+        outputWorkingSurface.DrawingSurface.Canvas.SetMatrix(sceneContext.RenderSurface.TotalMatrix);
 
-        int saved = sceneContext.RenderSurface.Canvas.Save();
-        sceneContext.RenderSurface.Canvas.SetMatrix(Matrix3X3.Identity);
+        int saved = sceneContext.RenderSurface.Save();
+        sceneContext.RenderSurface.SetMatrix(Matrix3X3.Identity);
 
         blendPaint.ImageFilter = null;
         blendPaint.ColorFilter = null;
 
-        Content.Value?.Paint(sceneContext, outputWorkingSurface.DrawingSurface);
+        Content.Value?.Paint(sceneContext, outputWorkingSurface.DrawingSurface.Canvas);
 
         int saved2 = outputWorkingSurface.DrawingSurface.Canvas.Save();
         outputWorkingSurface.DrawingSurface.Canvas.Scale((float)sceneContext.ChunkResolution.InvertedMultiplier());
 
-        ApplyMaskIfPresent(outputWorkingSurface.DrawingSurface, sceneContext, sceneContext.ChunkResolution);
+        ApplyMaskIfPresent(outputWorkingSurface.DrawingSurface.Canvas, sceneContext, sceneContext.ChunkResolution);
 
         outputWorkingSurface.DrawingSurface.Canvas.RestoreToCount(saved2);
 
@@ -116,7 +116,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
             outputWorkingSurface.DrawingSurface.Canvas.SetMatrix(Matrix3X3.Identity);
             if (Background.Connection.Node is IClipSource clipSource && ClipToPreviousMember)
             {
-                DrawClipSource(tempSurface.DrawingSurface, clipSource, sceneContext);
+                DrawClipSource(tempSurface.DrawingSurface.Canvas, clipSource, sceneContext);
             }
 
             ApplyRasterClip(outputWorkingSurface.DrawingSurface, tempSurface.DrawingSurface);
@@ -125,9 +125,9 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
         AdjustPaint(useFilters);
 
         blendPaint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
-        sceneContext.RenderSurface.Canvas.DrawSurface(outputWorkingSurface.DrawingSurface, 0, 0, blendPaint);
+        sceneContext.RenderSurface.DrawSurface(outputWorkingSurface.DrawingSurface, 0, 0, blendPaint);
 
-        sceneContext.RenderSurface.Canvas.RestoreToCount(saved);
+        sceneContext.RenderSurface.RestoreToCount(saved);
         outputWorkingSurface.DrawingSurface.Canvas.Restore();
     }
 
@@ -313,7 +313,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
         }
     }
 
-    void IClipSource.DrawClipSource(SceneObjectRenderContext context, DrawingSurface drawOnto)
+    void IClipSource.DrawClipSource(SceneObjectRenderContext context, Canvas drawOnto)
     {
         if (Content.Connection != null)
         {
@@ -328,5 +328,24 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
                 }
             }
         }
+    }
+
+    public IReadOnlyStructureNode[] GetChildrenNodes()
+    {
+        List<IReadOnlyStructureNode> children = new();
+        if (Content.Connection != null)
+        {
+            Content.Connection.Node.TraverseBackwards((n) =>
+            {
+                if (n is IReadOnlyStructureNode structureNode)
+                {
+                    children.Add(structureNode);
+                }
+
+                return true;
+            });
+        }
+
+        return children.ToArray();
     }
 }

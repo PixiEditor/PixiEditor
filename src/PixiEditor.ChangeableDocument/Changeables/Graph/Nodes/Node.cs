@@ -29,6 +29,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
     public IReadOnlyList<OutputProperty> OutputProperties => outputs;
     public IReadOnlyList<KeyFrameData> KeyFrames => keyFrames;
     public event Action ConnectionsChanged;
+    public event Action OutputsChanged;
 
     IReadOnlyList<IInputProperty> IReadOnlyNode.InputProperties => inputs;
     IReadOnlyList<IOutputProperty> IReadOnlyNode.OutputProperties => outputs;
@@ -421,9 +422,17 @@ public abstract class Node : IReadOnlyNode, IDisposable
         }
     }
 
+
+    protected void RemoveOutputProperty(OutputProperty property)
+    {
+        outputs.Remove(property);
+        OutputsChanged?.Invoke();
+    }
+
     protected void AddOutputProperty(OutputProperty property)
     {
         outputs.Add(property);
+        OutputsChanged?.Invoke();
     }
 
     protected void AddInputProperty(InputProperty property)
@@ -571,7 +580,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
         return GetOutputProperty(outputProperty);
     }
 
-    public virtual void SerializeAdditionalData(Dictionary<string, object> additionalData)
+    public virtual void SerializeAdditionalData(IReadOnlyDocument target, Dictionary<string, object> additionalData)
     {
     }
 

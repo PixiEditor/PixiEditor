@@ -1,6 +1,6 @@
 ﻿namespace PixiEditor.Models.Handlers.Tools;
 
-internal interface IPenToolHandler : IToolHandler
+internal interface IPenToolHandler : IBrushToolHandler
 {
     public bool PixelPerfectEnabled { get; }
 }

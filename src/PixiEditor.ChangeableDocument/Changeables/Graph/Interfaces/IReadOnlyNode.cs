@@ -44,6 +44,6 @@ public interface IReadOnlyNode : ICacheable
 
     public IInputProperty? GetInputProperty(string internalName);
     public IOutputProperty? GetOutputProperty(string internalName);
-    public void SerializeAdditionalData(Dictionary<string, object> additionalData);
+    public void SerializeAdditionalData(IReadOnlyDocument target, Dictionary<string, object> additionalData);
     public string GetNodeTypeUniqueName();
 }

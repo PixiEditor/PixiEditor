@@ -3,6 +3,7 @@ using ChunkyImageLib.DataHolders;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Vector;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Handlers.Tools;
 using Drawie.Numerics;
@@ -56,7 +57,6 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
         set => SetValue(value);
     }
 
-    public override BrushShape FinalBrushShape => BrushShape.Hidden;
     public override Type[]? SupportedLayerTypes { get; } = null;
     public override Type LayerTypeToCreateOnEmptyUse { get; } = null;
     public override bool HideHighlight => true;

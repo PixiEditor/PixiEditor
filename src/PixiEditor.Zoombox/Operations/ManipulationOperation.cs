@@ -64,8 +64,10 @@ internal class ManipulationOperation
         VecD newPos = owner.ToZoomboxSpace(screenOrigin);
         VecD centerTranslation = originalPos - newPos;
         owner.Center += centerTranslation;
+        //owner.Pan += centerTranslation;
 
         VecD translatedZoomboxPos = owner.ToZoomboxSpace(screenOrigin + screenTranslation);
         owner.Center -= translatedZoomboxPos - originalPos;
+        owner.Pan -= translatedZoomboxPos - originalPos;
     }
 }

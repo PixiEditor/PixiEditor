@@ -8,4 +8,5 @@ public interface IReadOnlyAnimationData
     public double OnionOpacity { get; }
     public int DefaultEndFrame { get; }
     public bool TryFindKeyFrame<T>(Guid id, out T keyFrame) where T : IReadOnlyKeyFrame;
+    public IReadOnlyAnimationData Clone();
 }

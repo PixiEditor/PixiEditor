@@ -1,12 +1,16 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections;
+using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using Avalonia.Input;
+using Avalonia.Threading;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Attributes.Evaluators;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Handlers;
+using PixiEditor.Models.IO;
 using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.SubViewModels;
 using PixiEditor.ViewModels.Tools.Tools;
@@ -60,6 +64,11 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
     }
 
     public bool HasActiveDocument => ActiveDocument != null;
+    public ImmutableHashSet<DocumentReferenceData> DocumentReferences => documentReferences.ToImmutableHashSet();
+
+    public event Action<DocumentViewModel> DocumentAdded;
+
+    private HashSet<DocumentReferenceData> documentReferences = new();
 
     public DocumentManagerViewModel(ViewModelMain owner) : base(owner)
     {
@@ -73,6 +82,20 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
 
     [Evaluator.CanExecute("PixiEditor.HasDocument", nameof(ActiveDocument))]
     public bool DocumentNotNull() => ActiveDocument != null;
+
+    [Command.Basic("PixiEditor.Document.Open", "OPEN_DOCUMENT", "OPEN_DOCUMENT_DESC",
+        Icon = PixiPerfectIcons.File, AnalyticsTrack = true)]
+    public void OpenDocument(string path)
+    {
+        if (Guid.TryParse(path, out Guid referenceId))
+        {
+            Owner.FileSubViewModel.OpenDocumentReference(referenceId);
+        }
+        else if (Path.Exists(path))
+        {
+            Owner.FileSubViewModel.OpenFromPath(path);
+        }
+    }
 
     [Command.Basic("PixiEditor.Document.ClipCanvas", "CLIP_CANVAS", "CLIP_CANVAS",
         CanExecute = "PixiEditor.HasDocument",
@@ -297,4 +320,193 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
     [Evaluator.CanExecute("PixiEditor.DocumentUsesLinearBlending", nameof(ActiveDocument),
         nameof(ActiveDocument.UsesSrgbBlending))]
     public bool DocumentUsesLinearBlending() => !ActiveDocument?.UsesSrgbBlending ?? true;
+
+    public void Add(DocumentViewModel doc)
+    {
+        Documents.Add(doc);
+        DocumentAdded?.Invoke(doc);
+    }
+
+    public void ReloadDocumentReference(Guid referenceId, string fullPath)
+    {
+        if (string.IsNullOrEmpty(fullPath) || !Path.Exists(fullPath))
+            return;
+
+        Dispatcher.UIThread.Post(() =>
+        {
+            var loaded = Documents.FirstOrDefault(x => x.FullFilePath == fullPath) ??
+                         Owner.FileSubViewModel.ImportFromPath(fullPath);
+            foreach (var doc in Documents)
+            {
+                if (doc.FullFilePath == fullPath)
+                    continue;
+
+                doc.UpdateDocumentReferences(referenceId, loaded);
+            }
+        });
+    }
+
+    private void OnDocumentReferenceDeleted(Guid referenceId)
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            foreach (var doc in Documents)
+            {
+                doc.UpdateNestedLinkedStatus(referenceId);
+            }
+        });
+    }
+
+    public void AddDocumentReference(Guid documentId, Guid nodeId, string? originalPath, Guid docReferenceId)
+    {
+        var existingReference = documentReferences.FirstOrDefault(x =>
+            x.OriginalFilePath == originalPath);
+        if (existingReference != null)
+        {
+            existingReference.AddReferencingNode(documentId, nodeId);
+            return;
+        }
+
+        if (existingReference == null)
+        {
+            var newReference = new DocumentReferenceData(originalPath, docReferenceId);
+            newReference.ReferencingNodes[documentId] = new HashSet<Guid> { nodeId };
+            documentReferences.Add(newReference);
+            newReference.DocumentChanged += ReloadDocumentReference;
+            newReference.LinkedDocumentDeleted += OnDocumentReferenceDeleted;
+        }
+    }
+
+    public void RemoveDocumentReferenceByNodeId(Guid documentId, Guid infoNodeId)
+    {
+        var reference = documentReferences.FirstOrDefault(x => x.ReferencingNodes.ContainsKey(documentId) &&
+                                                               x.ReferencingNodes[documentId].Contains(infoNodeId));
+        if (reference != null)
+        {
+            reference.ReferencingNodes[documentId].Remove(infoNodeId);
+            if (reference.ReferencingNodes[documentId].Count == 0)
+            {
+                reference.ReferencingNodes.Remove(documentId);
+                reference.Dispose();
+                documentReferences.Remove(reference);
+            }
+        }
+    }
+
+    public void RemoveDocumentReferences(Guid documentId, IEnumerable<Guid> ids)
+    {
+        foreach (var id in ids)
+        {
+            RemoveDocumentReferenceByNodeId(documentId, id);
+        }
+    }
+
+    public void ReloadReference(DocumentViewModel document)
+    {
+        var references = documentReferences.ToList();
+        foreach (var reference in references)
+        {
+            if (reference.ReferenceId == document.ReferenceId)
+            {
+                var docs = reference.ReferencingNodes.Keys;
+                foreach (var doc in docs)
+                {
+                    var documentVm = Documents.FirstOrDefault(x => x.Id == doc);
+                    documentVm?.UpdateDocumentReferences(reference.ReferenceId, document);
+                }
+            }
+        }
+    }
+}
+
+public class DocumentReferenceData : IDisposable, IDocumentReferenceData
+{
+    public Dictionary<Guid, HashSet<Guid>> ReferencingNodes { get; } = new();
+    public string? OriginalFilePath { get; set; }
+    public Guid ReferenceId { get; set; }
+
+    public FileSystemWatcher? Watcher { get; set; }
+
+    public event Action<Guid, string>? DocumentChanged;
+    public event Action<Guid>? LinkedDocumentDeleted;
+
+
+    public DocumentReferenceData(string? originalFilePath, Guid referenceId)
+    {
+        OriginalFilePath = originalFilePath;
+        ReferenceId = referenceId;
+        TryCreateFileWatcher();
+    }
+
+    public void AddReferencingNode(Guid document, Guid nodeId)
+    {
+        if (!ReferencingNodes.ContainsKey(document))
+        {
+            ReferencingNodes[document] = new HashSet<Guid>();
+        }
+
+        ReferencingNodes[document].Add(nodeId);
+    }
+
+    public void RemoveReferencingNode(Guid document, Guid nodeId)
+    {
+        if (ReferencingNodes.ContainsKey(document))
+        {
+            ReferencingNodes[document].Remove(nodeId);
+            if (ReferencingNodes[document].Count == 0)
+            {
+                ReferencingNodes.Remove(document);
+            }
+        }
+    }
+
+    public void TryCreateFileWatcher()
+    {
+        if (!string.IsNullOrEmpty(OriginalFilePath))
+        {
+            try
+            {
+                var dirPath = System.IO.Path.GetDirectoryName(OriginalFilePath);
+                Watcher = new FileSystemWatcher(dirPath);
+                Watcher.Filter = System.IO.Path.GetFileName(OriginalFilePath);
+
+                Watcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName;
+                Watcher.IncludeSubdirectories = false;
+
+                Watcher.Changed += (s, e) =>
+                {
+                    DocumentChanged?.Invoke(ReferenceId, e.FullPath);
+                };
+
+                Watcher.Renamed += (s, e) =>
+                {
+                    DocumentChanged?.Invoke(ReferenceId, e.FullPath);
+                    Watcher.EnableRaisingEvents = false;
+
+                    Watcher.Filter = System.IO.Path.GetFileName(e.FullPath);
+                    Watcher.EnableRaisingEvents = true;
+                };
+
+                Watcher.Deleted += (sender, args) =>
+                {
+                    LinkedDocumentDeleted?.Invoke(ReferenceId);
+                };
+
+                Watcher.EnableRaisingEvents = true;
+            }
+            catch (Exception)
+            {
+                // Ignore errors with file watchers
+            }
+        }
+        else
+        {
+            // TODO: Nested document references without paths
+        }
+    }
+
+    public void Dispose()
+    {
+        Watcher?.Dispose();
+    }
 }

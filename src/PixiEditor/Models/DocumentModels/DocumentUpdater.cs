@@ -23,13 +23,21 @@ using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Layers;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
+using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph.Blackboard;
+using PixiEditor.Models.BrushEngine;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
+using PixiEditor.ViewModels;
 using PixiEditor.ViewModels.Document;
+using PixiEditor.ViewModels.Document.Blackboard;
 using PixiEditor.ViewModels.Document.Nodes;
+using PixiEditor.ViewModels.Document.Nodes.Brushes;
 using PixiEditor.ViewModels.Nodes;
+using PixiEditor.ViewModels.SubViewModels;
 
 namespace PixiEditor.Models.DocumentModels;
 #nullable enable
@@ -42,7 +50,14 @@ internal class DocumentUpdater
     {
         this.doc = doc;
         this.helper = helper;
+        helper.Tracker.Document.NodeGraph.NodeOutputsChanged += Node_OutputsChanged;
     }
+
+    private void Node_OutputsChanged(NodeOutputsChanged_ChangeInfo info)
+    {
+        ProcessOutputsChanged(info);
+    }
+
 
     /// <summary>
     /// Don't call this outside ActionAccumulator
@@ -179,9 +194,11 @@ internal class DocumentUpdater
                 break;
             case CreateNode_ChangeInfo info:
                 ProcessCreateNode(info);
+                ProcessCreateBrushNodeIfNeeded(info);
                 break;
             case DeleteNode_ChangeInfo info:
                 ProcessDeleteNode(info);
+                ProcessDeleteBrushNodeIfNeeded(info);
                 break;
             case CreateNodeFrame_ChangeInfo info:
                 ProcessCreateNodeFrame(info);
@@ -230,6 +247,21 @@ internal class DocumentUpdater
                 break;
             case DefaultEndFrame_ChangeInfo info:
                 ProcessNewDefaultEndFrame(info);
+                break;
+            case BlackboardVariable_ChangeInfo info:
+                ProcessBlackboardVariable(info);
+                break;
+            case RenameBlackboardVariable_ChangeInfo info:
+                ProcessRenameBlackboardVariable(info);
+                break;
+            case BlackboardVariableRemoved_ChangeInfo info:
+                ProcessRemoveBlackboardVariable(info);
+                break;
+            case NestedDocumentLink_ChangeInfo info:
+                ProcessNestedDocumentLinkChangeInfo(info);
+                break;
+            case BlackboardVariableExposed_ChangeInfo info:
+                ProcessBlackboardVariableExposedChangeInfo(info);
                 break;
         }
     }
@@ -552,7 +584,7 @@ internal class DocumentUpdater
 
     private void ProcessCreateRasterKeyFrame(CreateRasterKeyFrame_ChangeInfo info)
     {
-        var vm = new IRasterCelViewModel(info.TargetLayerGuid, info.Frame, 1,
+        var vm = new RasterCelViewModel(info.TargetLayerGuid, info.Frame, 1,
             info.KeyFrameId,
             (DocumentViewModel)doc, helper);
 
@@ -653,6 +685,11 @@ internal class DocumentUpdater
     {
         NodeViewModel node = doc.StructureHelper.FindNode<NodeViewModel>(info.NodeId);
 
+        if (node == null)
+        {
+            return;
+        }
+
         List<INodePropertyHandler> removedOutputs = new List<INodePropertyHandler>();
 
         foreach (var output in node.Outputs)
@@ -663,7 +700,8 @@ internal class DocumentUpdater
             }
 
             if (info.Outputs.FirstOrDefault(x =>
-                    x.PropertyName == output.PropertyName && x.ValueType != output.Value.GetType()) is
+                    x.PropertyName == output.PropertyName
+                    && x.ValueType != output.Value?.GetType()) is
                 { } changedOutput)
             {
                 removedOutputs.Add(output);
@@ -699,6 +737,7 @@ internal class DocumentUpdater
         viewModel.Metadata = info.Metadata;
 
         AddZoneIfNeeded(info, viewModel);
+        LinkNestedDocumentIfNeeded(info);
 
         viewModel.OnInitialized();
     }
@@ -847,6 +886,29 @@ internal class DocumentUpdater
         {
             doc.NodeGraphHandler.UpdateAvailableRenderOutputs();
         }
+
+        if (info.Property == BrushOutputNode.BrushNameProperty)
+        {
+            var brush = ViewModelMain.Current.BrushesSubViewModel.BrushLibrary.Brushes.FirstOrDefault(x =>
+                x.Key == node.Id && x.Value.Document.Id == doc.Id);
+            if (brush.Value != null)
+            {
+                brush.Value.Name = info.Value?.ToString() ?? "Unnamed";
+            }
+        }
+
+        if (info.Property == NestedDocumentNode.DocumentPropertyName)
+        {
+            string? path = null;
+            Guid referenceId = Guid.Empty;
+            if (info.Value is DocumentReference doc)
+            {
+                path = doc.OriginalFilePath;
+                referenceId = doc.ReferenceId;
+            }
+
+            ProcessNestedDocumentLinkChangeInfo(new NestedDocumentLink_ChangeInfo(info.NodeId, path, referenceId));
+        }
     }
 
     private void ProcessStructureMemberProperty(PropertyValueUpdated_ChangeInfo info, INodePropertyHandler property)
@@ -906,14 +968,15 @@ internal class DocumentUpdater
     private void ProcessComputedPropertyValue(ComputedPropertyValue_ChangeInfo info)
     {
         object finalValue = info.Value;
-        if (info.Value != null && !info.Value.GetType().IsValueType && info.Value is not string)
+        // TODO: Why to string???
+        /*if (info.Value != null && !info.Value.GetType().IsValueType && info.Value is not string)
         {
             bool valueToStringIsDefault = info.Value.GetType().FullName == info.Value.ToString();
             if (valueToStringIsDefault)
             {
                 finalValue = info.Value?.GetType().Name ?? finalValue;
             }
-        }
+        }*/
 
         NodeViewModel node = doc.StructureHelper.FindNode<NodeViewModel>(info.Node);
         INodePropertyHandler property;
@@ -932,5 +995,102 @@ internal class DocumentUpdater
         }
 
         property.InternalSetComputedValue(finalValue);
+    }
+
+    private void ProcessCreateBrushNodeIfNeeded(CreateNode_ChangeInfo info)
+    {
+        if (info.InternalName != "PixiEditor." + BrushOutputNode.NodeId) return;
+
+        if (ViewModelMain.Current.DocumentManagerSubViewModel.Documents.All(x => x.Id != doc.Id)) return;
+
+        string name = info.Inputs.FirstOrDefault(x => x.PropertyName == BrushOutputNode.BrushNameProperty)
+            ?.InputValue?.ToString() ?? "Unnamed";
+
+        doc.NodeGraphHandler.NodeLookup.TryGetValue(info.Id, out var node);
+        if (node is BrushOutputNodeViewModel brushVm)
+        {
+            ViewModelMain.Current.BrushesSubViewModel.BrushLibrary.Add(
+                new Brush(name, doc, "OPENED_DOCUMENT", null) { IsReadOnly = true, IsDuplicable = false });
+        }
+    }
+
+    private void ProcessDeleteBrushNodeIfNeeded(DeleteNode_ChangeInfo info)
+    {
+        ViewModelMain.Current.BrushesSubViewModel.BrushLibrary.RemoveById(info.Id);
+    }
+
+    private void ProcessBlackboardVariable(BlackboardVariable_ChangeInfo info)
+    {
+        var existingVar = doc.NodeGraphHandler.Blackboard.GetVariable(info.Name);
+        if (existingVar != null)
+        {
+            doc.NodeGraphHandler.Blackboard.SetVariableInternal(info.Name, info.Value);
+            return;
+        }
+
+        doc.NodeGraphHandler.Blackboard.AddVariableInternal(info.Name, info.Type, info.Value, info.Unit, info.Min,
+            info.Max);
+    }
+
+    private void ProcessRenameBlackboardVariable(RenameBlackboardVariable_ChangeInfo info)
+    {
+        doc.NodeGraphHandler.Blackboard.RenameVariableInternal(info.OldName, info.NewName);
+    }
+
+    private void ProcessRemoveBlackboardVariable(BlackboardVariableRemoved_ChangeInfo info)
+    {
+        doc.NodeGraphHandler.Blackboard.RemoveVariableInternal(info.VariableName);
+    }
+
+    private void LinkNestedDocumentIfNeeded(CreateNode_ChangeInfo info)
+    {
+        if (info.InternalName != "PixiEditor." + NestedDocumentNode.NodeId) return;
+
+        var nestedDocInput = info.Inputs.FirstOrDefault(x => x.PropertyName == NestedDocumentNode.DocumentPropertyName);
+        if (nestedDocInput?.InputValue is DocumentReference docRef)
+        {
+            ProcessNestedDocumentLinkChangeInfo(new NestedDocumentLink_ChangeInfo(info.Id,
+                docRef.OriginalFilePath, docRef.ReferenceId));
+        }
+    }
+
+    private void ProcessNestedDocumentLinkChangeInfo(NestedDocumentLink_ChangeInfo info)
+    {
+        var node = doc.StructureHelper.FindNode<NestedDocumentNodeViewModel>(info.NodeId);
+
+        if (node.ReferenceId != info.ReferenceId)
+        {
+            ViewModelMain.Current.DocumentManagerSubViewModel.RemoveDocumentReferenceByNodeId(doc.Id, info.NodeId);
+        }
+
+        if (info.ReferenceId != Guid.Empty)
+        {
+            ViewModelMain.Current.DocumentManagerSubViewModel.AddDocumentReference(doc.Id, info.NodeId,
+                info.OriginalFilePath, info.ReferenceId);
+        }
+
+        if (info.OriginalFilePath != node.FilePath)
+        {
+            ViewModelMain.Current.DocumentManagerSubViewModel.ReloadDocumentReference(info.ReferenceId,
+                info.OriginalFilePath);
+        }
+
+        node.SetOriginalFilePath(info.OriginalFilePath);
+        node.SetReferenceId(info.ReferenceId);
+        node.UpdateLinkedStatus();
+    }
+
+    private void ProcessBlackboardVariableExposedChangeInfo(BlackboardVariableExposed_ChangeInfo info)
+    {
+        var existingVar = doc.NodeGraphHandler.Blackboard.GetVariable(info.VariableName);
+        if (existingVar == null)
+        {
+            return;
+        }
+
+        if (existingVar is VariableViewModel varVm)
+        {
+            varVm.SetIsExposedInternal(info.Value);
+        }
     }
 }
