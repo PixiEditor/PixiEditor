@@ -32,7 +32,7 @@ public class PatternNode : RenderNode
         Stretching = CreateInput<PatternStretching>("Stretching", "STRETCHING", PatternStretching.StretchToFit);
     }
 
-    protected override void OnPaint(RenderContext context, DrawingSurface surface)
+    protected override void OnPaint(RenderContext context, Canvas surface)
     {
         float spacing = (float)Spacing.Value;
 
@@ -71,7 +71,7 @@ public class PatternNode : RenderNode
         }
     }
 
-    private void PlaceAlongPath(DrawingSurface surface, Drawie.Backend.Core.Surfaces.ImageData.Image image,
+    private void PlaceAlongPath(Canvas surface, Drawie.Backend.Core.Surfaces.ImageData.Image image,
         VectorPath path, float distance)
     {
         var matrix = path.GetMatrixAtDistance(distance, false, PathMeasureMatrixMode.GetPositionAndTangent);
@@ -87,13 +87,13 @@ public class PatternNode : RenderNode
             matrix = matrix.Concat(Matrix3X3.CreateTranslation(0, -Fill.Value.Size.Y));
         }
 
-        surface.Canvas.Save();
-        surface.Canvas.SetMatrix(surface.Canvas.TotalMatrix.Concat(matrix));
-        surface.Canvas.DrawImage(image, 0, 0);
-        surface.Canvas.Restore();
+        surface.Save();
+        surface.SetMatrix(surface.TotalMatrix.Concat(matrix));
+        surface.DrawImage(image, 0, 0);
+        surface.Restore();
     }
 
-    private void PlaceStretchToFit(DrawingSurface surface, VectorPath path, float distance, float spacing,
+    private void PlaceStretchToFit(Canvas surface, VectorPath path, float distance, float spacing,
         Paint tilePaint)
     {
         int texWidth = Fill.Value.Size.X;
@@ -142,7 +142,7 @@ public class PatternNode : RenderNode
             Color[] colors = { Colors.Transparent, Colors.Transparent, Colors.Transparent, Colors.Transparent };
 
             using var vertices = new Vertices(VertexMode.Triangles, verts, texCoords, colors, indices);
-            surface.Canvas.DrawVertices(vertices, BlendMode.SrcOver, tilePaint);
+            surface.DrawVertices(vertices, BlendMode.SrcOver, tilePaint);
         }
     }
 
