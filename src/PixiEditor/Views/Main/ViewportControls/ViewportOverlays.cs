@@ -6,6 +6,7 @@ using Avalonia.Input;
 using PixiEditor.Views.Visuals;
 using PixiEditor.Helpers.Converters;
 using PixiEditor.Models.Commands.XAML;
+using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.ViewModels;
 using PixiEditor.ViewModels.Document.TransformOverlays;
 using PixiEditor.Views.Overlays;
@@ -461,6 +462,14 @@ internal class ViewportOverlays
             Source = ViewModelMain.Current.ToolsSubViewModel, Path = "ActiveBrushToolbar.LastBrushData", Mode = BindingMode.OneWay
         };
 
+        Binding isBrushToolActiveBinding = new()
+        {
+            Source = ViewModelMain.Current,
+            Path = "ToolsSubViewModel.ActiveTool",
+            Converter = new InlineConverter(obj => obj is IBrushToolHandler),
+            Mode = BindingMode.OneWay
+        };
+
         MultiBinding isVisibleMultiBinding = new()
         {
             Converter = new AllTrueConverter(),
@@ -468,7 +477,8 @@ internal class ViewportOverlays
             Bindings = new List<IBinding>()
             {
                 isTransformingBinding,
-                isOverCanvasBinding
+                isOverCanvasBinding,
+                isBrushToolActiveBinding
             }
         };
 

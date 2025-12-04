@@ -41,16 +41,17 @@
         },
         "Select",
         {
-            "ToolName": "MagicWand",
-            "Settings": {
-              "Spacing": 0
-            }
+          "ToolName": "MagicWand",
+          "Settings": {
+            "Spacing": 0
+          }
         },
         "Lasso",
         {
           "ToolName": "FloodFill",
           "Settings": {
-            "Tolerance": 0
+            "Tolerance": 0,
+            "FillMode": "Overlay"
           }
         },
         "RasterLine",
@@ -111,7 +112,8 @@
         {
           "ToolName": "FloodFill",
           "Settings": {
-            "ExposeTolerance": true
+            "ExposeTolerance": true,
+            "ExposeFillMode": true
           }
         },
         {

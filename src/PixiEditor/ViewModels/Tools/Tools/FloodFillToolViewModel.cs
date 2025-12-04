@@ -6,6 +6,7 @@ using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.UI.Common.Fonts;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
@@ -33,6 +34,8 @@ internal class FloodFillToolViewModel : ToolViewModel, IFloodFillToolHandler
 
     [Settings.Percent("TOLERANCE_LABEL", ExposedByDefault = false)]
     public float Tolerance => GetValue<float>();
+    [Settings.Enum("FLOOD_FILL_MODE_LABEL", FloodFillMode.Overlay, ExposedByDefault = false)]
+    public FloodFillMode FillMode => GetValue<FloodFillMode>();
 
     public override string DefaultIcon => PixiPerfectIcons.Bucket;
 

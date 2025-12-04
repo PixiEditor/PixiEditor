@@ -10,6 +10,8 @@ using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Enums;
+using BlendMode = Drawie.Backend.Core.Surfaces.BlendMode;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing.FloodFill;
 
@@ -47,7 +49,7 @@ public static class FloodFillHelper
         VecI startingPos,
         Color drawingColor,
         float tolerance,
-        int frame, bool lockTransparency)
+        int frame, bool lockTransparency, FloodFillMode fillMode)
     {
         if (selection is not null && !selection.Contains(startingPos.X + 0.5f, startingPos.Y + 0.5f))
             return new();
@@ -78,13 +80,13 @@ public static class FloodFillHelper
             srgbSurface.DrawingSurface.Canvas.DrawPixel(0, 0, srgbPaint);
             using var processingSurface = Surface.ForProcessing(VecI.One, document.ProcessingColorSpace);
             processingSurface.DrawingSurface.Canvas.DrawSurface(srgbSurface.DrawingSurface, 0, 0);
-            var fixedColor = processingSurface.GetRawPixelPrecise(VecI.Zero);
+            var fixedColor = processingSurface.GetRawPixelPrecise(VecI.Zero).Premultiplied();
 
             uLongColor = fixedColor.ToULong();
             colorSpaceCorrectedColor = fixedColor;
         }
 
-        if ((colorSpaceCorrectedColor.A == 0) || colorToReplace == colorSpaceCorrectedColor)
+        if ((colorSpaceCorrectedColor.A == 0 && fillMode == FloodFillMode.Overlay) || (colorToReplace == colorSpaceCorrectedColor && fillMode == FloodFillMode.Replace))
             return new();
 
         if (colorToReplace.A == 0 && lockTransparency)
@@ -113,7 +115,21 @@ public static class FloodFillHelper
             if (!drawingChunks.ContainsKey(chunkPos))
             {
                 var chunk = Chunk.Create(document.ProcessingColorSpace);
-                chunk.Surface.DrawingSurface.Canvas.Clear(Colors.Transparent);
+
+                if (fillMode == FloodFillMode.Replace)
+                {
+                    // For replace mode, copy original image data to avoid erasing unfilled pixels
+                    var originalChunk = cache.GetChunk(chunkPos);
+                    originalChunk.Switch(
+                        (Chunk origChunk) => chunk.Surface.DrawingSurface.Canvas.DrawSurface(origChunk.Surface.DrawingSurface, 0, 0),
+                        (EmptyChunk _) => chunk.Surface.DrawingSurface.Canvas.Clear(Colors.Transparent)
+                    );
+                }
+                else
+                {
+                    // For overlay mode, start with transparent
+                    chunk.Surface.DrawingSurface.Canvas.Clear(Colors.Transparent);
+                }
 
                 drawingChunks[chunkPos] = chunk;
             }
@@ -210,7 +226,7 @@ public static class FloodFillHelper
     {
         var rawPixelRef = referenceChunk.Surface.GetRawPixelPrecise(pos);
         // color should be a fixed color
-        if ((Color)rawPixelRef == (Color)color || (Color)drawingChunk.Surface.GetRawPixelPrecise(pos) == (Color)color)
+        if ((Color)rawPixelRef == (Color)color || (Color)drawingChunk.Surface.GetRawPixelPrecise(pos).Premultiplied() == (Color)color)
             return null;
         if (checkFirstPixel && !bounds.IsWithinBounds(rawPixelRef))
             return null;
@@ -224,7 +240,7 @@ public static class FloodFillHelper
         using var refPixmap = referenceChunk.Surface.PeekPixels();
         Half* refArray = (Half*)refPixmap.GetPixels();
 
-        Surface cpuSurface = Surface.ForProcessing(new VecI(chunkSize), referenceChunk.Surface.ColorSpace);
+        using Surface cpuSurface = Surface.ForProcessing(new VecI(chunkSize), referenceChunk.Surface.ColorSpace);
         cpuSurface.DrawingSurface.Canvas.DrawSurface(drawingChunk.Surface.DrawingSurface, 0, 0);
         using var drawPixmap = cpuSurface.PeekPixels();
         Half* drawArray = (Half*)drawPixmap.GetPixels();
