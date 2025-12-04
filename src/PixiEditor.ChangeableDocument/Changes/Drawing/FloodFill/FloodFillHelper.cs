@@ -80,7 +80,7 @@ public static class FloodFillHelper
             srgbSurface.DrawingSurface.Canvas.DrawPixel(0, 0, srgbPaint);
             using var processingSurface = Surface.ForProcessing(VecI.One, document.ProcessingColorSpace);
             processingSurface.DrawingSurface.Canvas.DrawSurface(srgbSurface.DrawingSurface, 0, 0);
-            var fixedColor = processingSurface.GetRawPixelPrecise(VecI.Zero);
+            var fixedColor = processingSurface.GetRawPixelPrecise(VecI.Zero).Premultiplied();
 
             uLongColor = fixedColor.ToULong();
             colorSpaceCorrectedColor = fixedColor;
@@ -226,7 +226,7 @@ public static class FloodFillHelper
     {
         var rawPixelRef = referenceChunk.Surface.GetRawPixelPrecise(pos);
         // color should be a fixed color
-        if ((Color)rawPixelRef == (Color)color || (Color)drawingChunk.Surface.GetRawPixelPrecise(pos) == (Color)color)
+        if ((Color)rawPixelRef == (Color)color || (Color)drawingChunk.Surface.GetRawPixelPrecise(pos).Premultiplied() == (Color)color)
             return null;
         if (checkFirstPixel && !bounds.IsWithinBounds(rawPixelRef))
             return null;
@@ -240,7 +240,7 @@ public static class FloodFillHelper
         using var refPixmap = referenceChunk.Surface.PeekPixels();
         Half* refArray = (Half*)refPixmap.GetPixels();
 
-        Surface cpuSurface = Surface.ForProcessing(new VecI(chunkSize), referenceChunk.Surface.ColorSpace);
+        using Surface cpuSurface = Surface.ForProcessing(new VecI(chunkSize), referenceChunk.Surface.ColorSpace);
         cpuSurface.DrawingSurface.Canvas.DrawSurface(drawingChunk.Surface.DrawingSurface, 0, 0);
         using var drawPixmap = cpuSurface.PeekPixels();
         Half* drawArray = (Half*)drawPixmap.GetPixels();
