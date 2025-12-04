@@ -4,6 +4,7 @@ using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 
@@ -25,7 +26,7 @@ internal class MagicWandToolExecutor : UpdateableChangeExecutor
         if (magicWand is null || members.Count == 0)
             return ExecutionState.Error;
 
-        mode = magicWand.SelectMode;
+        mode = magicWand.ResultingSelectionMode;
         memberGuids = members;
         considerAllLayers = magicWand.DocumentScope == DocumentScope.Canvas;
         if (considerAllLayers)
@@ -33,19 +34,34 @@ internal class MagicWandToolExecutor : UpdateableChangeExecutor
         var pos = controller!.LastPixelPosition;
         tolerance = (float)magicWand.Tolerance;
 
-        internals!.ActionAccumulator.AddActions(new MagicWand_Action(memberGuids, pos, mode, tolerance, document!.AnimationHandler.ActiveFrameBindable));
+        AddUpdateAction(pos);
 
         return ExecutionState.Success;
     }
 
+    public override void OnPixelPositionChange(VecI pos, MouseOnCanvasEventArgs args)
+    {
+        AddUpdateAction(pos);
+    }
+
     public override void OnLeftMouseButtonUp(VecD argsPositionOnCanvas)
     {
-        internals!.ActionAccumulator.AddActions(new ChangeBoundary_Action());
+        AddFinishAction();
         onEnded!(this);
     }
 
     public override void ForceStop()
     {
-        internals!.ActionAccumulator.AddActions(new ChangeBoundary_Action());
+        AddFinishAction();
+    }
+
+    private void AddUpdateAction(VecI pos)
+    {
+        var action = new MagicWand_Action(memberGuids, pos, mode, tolerance, document!.AnimationHandler.ActiveFrameBindable);
+        internals!.ActionAccumulator.AddActions(action);
+    }
+    private void AddFinishAction()
+    {
+        internals!.ActionAccumulator.AddFinishedActions(new EndMagicWand_Action());
     }
 }

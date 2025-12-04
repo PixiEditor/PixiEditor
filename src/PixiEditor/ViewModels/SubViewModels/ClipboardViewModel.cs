@@ -1,16 +1,11 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Immutable;
-using System.Linq;
-using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
 using Avalonia.Media;
-using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using PixiEditor.Helpers.Extensions;
-using Drawie.Backend.Core.Numerics;
-using Drawie.Backend.Core.Surfaces;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Clipboard;
 using PixiEditor.Models.Commands.Attributes.Commands;
@@ -19,13 +14,8 @@ using PixiEditor.Models.Commands.Search;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.IO;
-using PixiEditor.Models.Layers;
 using Drawie.Numerics;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
-using PixiEditor.Helpers.Constants;
 using PixiEditor.Models.Commands;
-using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.Dock;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.Views;
@@ -50,7 +40,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
 
     private void AttachClipboard(MainWindow window)
     {
-        ClipboardController.Initialize(window.Clipboard);
+        ClipboardController.Initialize(new PixiEditorClipboard(window.Clipboard));
         window.GotFocus += (sender, args) =>
         {
             QueueHasImageInClipboard();
@@ -96,36 +86,14 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
 
         Dispatcher.UIThread.InvokeAsync(async () =>
         {
-            Guid[] guids = doc.StructureHelper.GetAllLayers().Select(x => x.Id).ToArray();
             await ClipboardController.TryPasteFromClipboard(doc, Owner.DocumentManagerSubViewModel, pasteAsNewLayer);
-
-            // Leaving the code below commented out in case something breaks.
-            // It instantly ended paste image operation after I made it interruptable,
-            // I did test it, and it seems everything works fine without it.
-            /*doc.Operations.InvokeCustomAction(
-                () =>
-            {
-                Guid[] newGuids = doc.StructureHelper.GetAllLayers().Select(x => x.Id).ToArray();
-
-                var diff = newGuids.Except(guids).ToArray();
-                if (diff.Length > 0)
-                {
-                    doc.Operations.ClearSoftSelectedMembers();
-                    doc.Operations.SetSelectedMember(diff[0]);
-
-                    for (int i = 1; i < diff.Length; i++)
-                    {
-                        doc.Operations.AddSoftSelectedMember(diff[i]);
-                    }
-                }
-            }, false);*/
         });
     }
 
     [Command.Basic("PixiEditor.Clipboard.PasteReferenceLayer", "PASTE_REFERENCE_LAYER",
         "PASTE_REFERENCE_LAYER_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.CanPaste",
         Icon = PixiPerfectIcons.PasteReferenceLayer, AnalyticsTrack = true)]
-    public void PasteReferenceLayer(IDataObject data)
+    public void PasteReferenceLayer(DataTransfer data)
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
 
@@ -398,7 +366,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         var selectedNodes = doc.NodeGraph.AllNodes.Where(x => x.IsNodeSelected).Select(x => x.Id).ToArray();
         if (selectedNodes.Length == 0)
             return;
-        
+
         await ClipboardController.CopyNodes(selectedNodes, doc.Id);
 
         areNodesInClipboard = true;
@@ -467,7 +435,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
     {
         if (!Owner.DocumentIsNotNull(null)) return false;
 
-        if (parameter is IDataObject data)
+        if (parameter is DataTransfer data)
             return ClipboardController.IsImage(data);
 
         QueueCheckCanPasteImage();
@@ -583,7 +551,8 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         return ColorSearchResult.GetIcon(targetColor.ToOpaqueMediaColor().ToOpaqueColor());
     }
 
-    private void ConnectRelatedNodes(IDocument sourceDoc, DocumentViewModel targetDoc, Dictionary<Guid, Guid> nodeMapping)
+    private void ConnectRelatedNodes(IDocument sourceDoc, DocumentViewModel targetDoc,
+        Dictionary<Guid, Guid> nodeMapping)
     {
         foreach (var connection in sourceDoc.NodeGraphHandler.Connections)
         {

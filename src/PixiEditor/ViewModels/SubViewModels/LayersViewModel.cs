@@ -15,6 +15,7 @@ using PixiEditor.Helpers.Converters;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.ChangeableDocument.Enums;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
 using PixiEditor.Extensions.Exceptions;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Attributes.Evaluators;
@@ -159,7 +160,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         if (Owner.DocumentManagerSubViewModel.ActiveDocument is not { } doc)
             return;
 
-        doc.Operations.CreateStructureMember(StructureMemberType.Layer);
+        doc.Operations.CreateStructureMember(StructureMemberType.ImageLayer);
     }
 
     public Guid? NewLayer(Type layerType, ActionSource source, string? name = null)
@@ -243,6 +244,28 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         member.Document.Operations.DuplicateMember(member.Id);
     }
 
+    [Command.Basic("PixiEditor.Layer.UnlinkNestedDocument", "UNLINK", "UNLINK_DESCRIPTIVE",
+        CanExecute = "PixiEditor.Layer.SelectedMemberIsNestedDocument",
+        Icon = PixiPerfectIcons.ChainBreak, AnalyticsTrack = true)]
+    public void UnlinkNestedDocument()
+    {
+        var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
+        if (member is not NestedDocumentNodeViewModel nestedDocVm)
+            return;
+
+        nestedDocVm.Document.Operations.UnlinkNestedDocument(nestedDocVm.Id);
+    }
+
+    [Command.Internal("PixiEditor.Layer.CreateNestedFromLayer")]
+    public void CreateNestedFromLayer(Guid layerGuid)
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return;
+
+        doc.Operations.CreateNestedDocumentFromMember(layerGuid);
+    }
+
     [Evaluator.CanExecute("PixiEditor.Layer.SelectedMemberIsLayer",
         nameof(DocumentManagerViewModel.ActiveDocument), nameof(DocumentViewModel.SelectedStructureMember))]
     public bool SelectedMemberIsLayer(object property)
@@ -317,6 +340,14 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         return false;
     }
 
+    [Evaluator.CanExecute("PixiEditor.Layer.SelectedMemberIsNestedDocument",
+        nameof(DocumentManagerViewModel.ActiveDocument), nameof(DocumentViewModel.SelectedStructureMember))]
+    public bool SelectedMemberIsNestedDocument(object property)
+    {
+        var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
+        return member is NestedDocumentNodeViewModel;
+    }
+
     [Evaluator.CanExecute("PixiEditor.Layer.SelectedMemberIsSelectedText",
         nameof(DocumentManagerViewModel.ActiveDocument), nameof(DocumentViewModel.SelectedStructureMember))]
     public bool SelectedMemberIsSelectedText(object property)
@@ -354,7 +385,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         if (path.Count < 2 || path[1] is not FolderNodeViewModel folderVm)
             return;
         var parent = folderVm;
-        if(parent.Children.Count == 0)
+        if (parent.Children.Count == 0)
             return;
         int curIndex = parent.Children.IndexOf(path[0]);
         if (upwards)
@@ -665,6 +696,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
 
         block.Dispose();
     }
+
 
     [Command.Basic("PixiEditor.Layer.ConvertToCurve", "CONVERT_TO_CURVE", "CONVERT_TO_CURVE_DESCRIPTIVE",
         CanExecute = "PixiEditor.Layer.AnySelectedMemberIsVectorLayer",

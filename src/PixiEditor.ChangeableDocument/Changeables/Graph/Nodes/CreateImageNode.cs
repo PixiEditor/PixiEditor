@@ -78,13 +78,14 @@ public class CreateImageNode : Node
         {
             using Paint paint = new Paint();
             paint.SetPaintable(Fill.Value);
+            paint.BlendMode = BlendMode.Src;
             surface.DrawingSurface.Canvas.DrawRect(0, 0, Size.Value.X, Size.Value.Y, paint);
         }
 
         int saved = surface.DrawingSurface.Canvas.Save();
 
         RenderContext ctx = context.Clone();
-        ctx.RenderSurface = surface.DrawingSurface;
+        ctx.RenderSurface = surface.DrawingSurface.Canvas;
         ctx.RenderOutputSize = surface.Size;
         ctx.VisibleDocumentRegion = null;
 
@@ -94,21 +95,21 @@ public class CreateImageNode : Node
             surface.DrawingSurface.Canvas.TotalMatrix.Concat(
                 Matrix3X3.CreateScale(chunkMultiplier, chunkMultiplier).Concat(ContentMatrix.Value)));
 
-        Content.Value?.Paint(ctx, surface.DrawingSurface);
+        Content.Value?.Paint(ctx, surface.DrawingSurface.Canvas);
 
         surface.DrawingSurface.Canvas.RestoreToCount(saved);
         return surface;
     }
 
-    private void OnPaint(RenderContext context, DrawingSurface surface)
+    private void OnPaint(RenderContext context, Canvas surface)
     {
         if (Output.Value == null || Output.Value.IsDisposed) return;
 
-        int saved = surface.Canvas.Save();
-        surface.Canvas.Scale((float)context.ChunkResolution.InvertedMultiplier());
-        surface.Canvas.DrawSurface(Output.Value.DrawingSurface, 0, 0);
+        int saved = surface.Save();
+        surface.Scale((float)context.ChunkResolution.InvertedMultiplier());
+        surface.DrawSurface(Output.Value.DrawingSurface, 0, 0);
 
-        surface.Canvas.RestoreToCount(saved);
+        surface.RestoreToCount(saved);
     }
 
     private void RenderPreviews(Texture surface, RenderContext context)

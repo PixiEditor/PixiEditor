@@ -125,13 +125,14 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
     public override void OnLeftMouseButtonDown(MouseOnCanvasEventArgs args)
     {
-        var topMostWithinClick = QueryLayers<IVectorLayerHandler>(args.PositionOnCanvas);
+        var topMostWithinClick = QueryLayers<IVectorLayerHandler>(args.Point.PositionOnCanvas);
 
-        clickPos = args.PositionOnCanvas;
+        clickPos = args.Point.PositionOnCanvas;
         var firstLayer = topMostWithinClick.FirstOrDefault();
         args.Handled = firstLayer != null;
-        if (firstLayer is not IVectorLayerHandler layerHandler)
+        if (firstLayer is not IVectorLayerHandler layerHandler || layerHandler.GetShapeData(document.AnimationHandler.ActiveFrameTime) is not TextVectorData)
         {
+            args.Handled = false;
             if (document.TextOverlayHandler.IsActive)
             {
                 args.Handled = true;
@@ -151,18 +152,18 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
                         toolbar.Spacing);
                 }
 
-                document.TextOverlayHandler.SetCursorPosition(args.PositionOnCanvas);
+                document.TextOverlayHandler.SetCursorPosition(args.Point.PositionOnCanvas);
             }, false);
     }
 
-    public override void OnPrecisePositionChange(VecD pos)
+    public override void OnPrecisePositionChange(MouseOnCanvasEventArgs args)
     {
         if (document.TextOverlayHandler.IsActive && internals.ChangeController.LeftMousePressed && string.IsNullOrEmpty(lastText))
         {
-            double distance = Math.Abs(clickPos.Y - pos.Y);
+            double distance = Math.Abs(clickPos.Y - args.Point.PositionOnCanvas.Y);
             if (!wasDrawingSize && distance < 10) return;
             wasDrawingSize = true;
-            position = new VecD(position.X, pos.Y);
+            position = new VecD(position.X, args.Point.PositionOnCanvas.Y);
             document.TextOverlayHandler.Position = position;
             document.TextOverlayHandler.PreviewSize = true;
             var textData = ConstructTextData(lastText);

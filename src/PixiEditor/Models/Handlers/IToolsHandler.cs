@@ -21,7 +21,7 @@ internal interface IToolsHandler : IHandler
     public bool EnableSharedToolbar { get; set; }
     public bool SelectionTintingEnabled { get; set; }
     public event EventHandler<SelectedToolEventArgs> SelectedToolChanged;
-    public void SetupTools(IServiceProvider services, ToolSetsConfig toolSetConfig);
+    public void SetupTools(IServiceProvider services, ToolsConfig toolsConfig);
     public void SetupToolsTooltipShortcuts();
     public void SetActiveTool<T>(bool transient) where T : IToolHandler;
     public void SetActiveTool(Type toolType, bool transient);

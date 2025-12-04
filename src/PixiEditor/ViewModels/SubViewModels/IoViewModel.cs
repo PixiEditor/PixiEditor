@@ -52,8 +52,12 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         MouseWheelCommand = new RelayCommand<ScrollOnCanvasEventArgs>(mouseFilter.MouseWheelInlet);
         PreviewMouseMiddleButtonCommand = new RelayCommand(OnMiddleMouseButton);
         Owner.LayoutSubViewModel.LayoutManager.WindowFloated += OnLayoutManagerOnWindowFloated;
-        // TODO: Implement mouse capturing
-        //GlobalMouseHook.Instance.OnMouseUp += mouseFilter.MouseUpInlet;
+
+        //var hook = new EventLoopGlobalHook();
+
+        //hook.MouseMoved += (s, args) => mouseFilter.PumpMouseMove(args.Data.X, args.Data.Y);
+
+        //hook.RunAsync();
 
         mouseFilter.OnMouseDown += OnMouseDown;
         mouseFilter.OnMouseMove += OnMouseMove;
@@ -64,10 +68,29 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         keyboardFilter.OnAnyKeyUp += OnKeyUp;
 
         keyboardFilter.OnConvertedKeyDown += OnConvertedKeyDown;
-        keyboardFilter.OnConvertedKeyUp += OnConvertedKeyDown;
+        keyboardFilter.OnConvertedKeyUp += OnConvertedKeyUp;
         
         Owner.AttachedToWindow += AttachWindowEvents;
     }
+
+    /*
+    private MouseOnCanvasEventArgs CreateMoveArgs(SharpHook.MouseHookEventArgs data)
+    {
+        MouseButton btn = data.Data.Button switch
+        {
+            SharpHook.Data.MouseButton.Button1 => MouseButton.Left,
+            SharpHook.Data.MouseButton.Button2 => MouseButton.Right,
+            SharpHook.Data.MouseButton.Button3 => MouseButton.Middle,
+            _ => MouseButton.None
+        };
+
+        return new MouseOnCanvasEventArgs(
+            btn,
+            PointerType.Mouse,
+            new VecD(data.Data.X, data.Data.Y),
+            KeyModifiers.None,
+            data.Data.Clicks, new PointerPointProperties(), 1);
+    }*/
 
     public void AttachWindowEvents(MainWindow mainWindow)
     {
@@ -236,14 +259,14 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         activeDocument.EventInlet.OnCanvasLeftMouseButtonDown(args);
         if (args.Handled) return;
 
-        Owner.ToolsSubViewModel.UseToolEventInlet(args.PositionOnCanvas, args.Button);
+        Owner.ToolsSubViewModel.UseToolEventInlet(args.Point.PositionOnCanvas, args.Button);
 
         if (args.Button == MouseButton.Right)
         {
             HandleRightSwapColor();
         }
 
-        Analytics.SendUseTool(Owner.ToolsSubViewModel.ActiveTool, args.PositionOnCanvas, activeDocument.SizeBindable);
+        Analytics.SendUseTool(Owner.ToolsSubViewModel.ActiveTool, args.Point.PositionOnCanvas, activeDocument.SizeBindable);
     }
 
     private bool HandleRightMouseDown()
@@ -273,8 +296,10 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
                 HandleRightMouseEraseDown(tools);
                 return true;
             }
+            /*
             case RightClickMode.SecondaryColor when tools.ActiveTool is BrightnessToolViewModel:
                 return true;
+            */
             case RightClickMode.ContextMenu:
             default:
                 return false;
@@ -341,12 +366,12 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         Owner.ToolsSubViewModel.SetActiveTool<MoveViewportToolViewModel>(true);
     }
 
-    private void OnMouseMove(object? sender, VecD pos)
+    private void OnMouseMove(object? sender, MouseOnCanvasEventArgs args)
     {
         DocumentViewModel? activeDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (activeDocument is null)
             return;
-        activeDocument.EventInlet.OnCanvasMouseMove(pos);
+        activeDocument.EventInlet.OnCanvasMouseMove(args);
     }
 
     private void OnMouseUp(object? sender, MouseOnCanvasEventArgs args)
@@ -370,7 +395,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         if (button == MouseButton.Left || rightCanUp)
         {
             Owner.DocumentManagerSubViewModel.ActiveDocument.EventInlet
-                .OnCanvasLeftMouseButtonUp(args.PositionOnCanvas);
+                .OnCanvasLeftMouseButtonUp(args.Point.PositionOnCanvas);
         }
 
         drawingWithRight = null;

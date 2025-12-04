@@ -3,6 +3,7 @@ using ChunkyImageLib.DataHolders;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Vector;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Handlers.Tools;
 using Drawie.Numerics;
@@ -56,7 +57,6 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
         set => SetValue(value);
     }
 
-    public override BrushShape FinalBrushShape => BrushShape.Hidden;
     public override Type[]? SupportedLayerTypes { get; } = null;
     public override Type LayerTypeToCreateOnEmptyUse { get; } = null;
     public override bool HideHighlight => true;
@@ -79,18 +79,21 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
 
     public override void KeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown, Key argsKey)
     {
-        DuplicateOnMove = ctrlIsDown && argsKey is Key.None or Key.LeftCtrl or Key.RightCtrl && !shiftIsDown && !altIsDown;
+        DuplicateOnMove = ctrlIsDown && argsKey is Key.None or Key.LeftCtrl or Key.RightCtrl && !shiftIsDown &&
+                          !altIsDown;
     }
-    
+
     protected override void OnSelected(bool restoring)
     {
-        if (TransformingSelectedArea)
+        if (TransformingSelectedArea || restoring)
         {
             return;
         }
 
         DuplicateOnMove = false;
-        ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TransformSelectedArea(true);
+        var activeDoc = ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument;
+
+        activeDoc?.Operations.TransformSelectedArea(true);
     }
 
     protected override void OnDeselecting(bool transient)
@@ -125,7 +128,7 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
     {
         DuplicateOnMove = false;
     }
-    
+
     public override void OnPreRedoInlet()
     {
         DuplicateOnMove = false;

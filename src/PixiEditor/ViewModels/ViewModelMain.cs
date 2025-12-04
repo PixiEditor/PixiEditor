@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.Input;
 using Drawie.Backend.Core.Bridge;
 using Microsoft.Extensions.DependencyInjection;
 using Drawie.Backend.Core.ColorsImpl;
+using PixiEditor.ChangeableDocument.Rendering.ContextData;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Collections;
@@ -23,6 +24,8 @@ using PixiEditor.Models.Handlers;
 using PixiEditor.OperatingSystem;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document;
+using PixiEditor.ViewModels.Document.Nodes;
+using PixiEditor.ViewModels.Document.Nodes.Brushes;
 using PixiEditor.ViewModels.Menu;
 using PixiEditor.ViewModels.SubViewModels;
 using PixiEditor.ViewModels.SubViewModels.AdditionalContent;
@@ -68,6 +71,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
     public NodeGraphManagerViewModel NodeGraphManager { get; set; }
     public AutosaveViewModel AutosaveViewModel { get; set; }
     public UserViewModel UserViewModel { get; set; }
+    public BrushesViewModel BrushesSubViewModel { get; set; }
 
     public IPreferences Preferences { get; set; }
     public ILocalizationProvider LocalizationProvider { get; set; }
@@ -107,6 +111,8 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
     public event Action<MainWindow> AttachedToWindow;
 
     public MainWindow? AttachedWindow { get; private set; }
+
+    public Func<EditorData> GetEditorData { get; private set; }
 
     public ViewModelMain()
     {
@@ -149,7 +155,9 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         ColorsSubViewModel = services.GetService<ColorsViewModel>();
         ColorsSubViewModel?.SetupPaletteProviders(services);
 
-        ToolSetsConfig toolSetConfig = Config.GetConfig<ToolSetsConfig>("ToolSetsConfig");
+        BrushesSubViewModel = services.GetService<BrushesViewModel>();
+
+        ToolsConfig toolSetConfig = Config.GetConfig<ToolsConfig>("ToolSetsConfig");
         ToolsSubViewModel?.SetupTools(services, toolSetConfig);
 
         DiscordViewModel = services.GetService<DiscordViewModel>();
@@ -183,6 +191,8 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         AutosaveViewModel = services.GetService<AutosaveViewModel>();
 
         ExtensionsSubViewModel.Init();  // Must be last
+
+        GetEditorData = ConstructEditorData;
 
         DocumentManagerSubViewModel.ActiveDocumentChanged += OnActiveDocumentChanged;
         BeforeDocumentClosed += OnBeforeDocumentClosed;
@@ -233,7 +243,8 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
     {
         if (e.OldTool != null)
             ((ToolViewModel)e.OldTool).PropertyChanged -= SelectedTool_PropertyChanged;
-        ((ToolViewModel)e.NewTool).PropertyChanged += SelectedTool_PropertyChanged;
+        if (e.NewTool != null)
+            ((ToolViewModel)e.NewTool).PropertyChanged += SelectedTool_PropertyChanged;
 
         NotifyToolActionDisplayChanged();
     }
@@ -364,12 +375,14 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
             WindowSubViewModel.CloseViewportsForDocument(document);
             document.Dispose();
             document.AutosaveViewModel.OnDocumentClosed();
+            DocumentManagerSubViewModel.RemoveDocumentReferences(document.Id, document.NodeGraph.AllNodes.Where(x => x is NestedDocumentNodeViewModel).Select(x => x.Id));
 
             return true;
         }
 
         return false;
     }
+
 
 
     public void OnShutdown(ShutdownRequestedEventArgs shutdownRequestedEventArgs, Action shutdown)
@@ -392,6 +405,11 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
                 shutdown();
             }
         });
+    }
+
+    public EditorData ConstructEditorData()
+    {
+        return new EditorData(ColorsSubViewModel.PrimaryColor, ColorsSubViewModel.SecondaryColor);
     }
 
     private void OnActiveDocumentChanged(object sender, DocumentChangedEventArgs e)

@@ -20,6 +20,7 @@ using PixiEditor.Helpers;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Templates.Providers.Parsers;
 using PixiEditor.Models.Dialogs;
+using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.IO;
 using PixiEditor.OperatingSystem;
 using PixiEditor.UI.Common.Fonts;
@@ -129,6 +130,13 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
     {
         var path = Path.Combine(Path.GetTempPath(), subDirectory);
         OpenFolder(path);
+    }
+
+    [Command.Debug("PixiEditor.Debug.RecordGraphRender", "RECORD_GRAPH_RENDER", "RECORD_GRAPH_RENDER",
+        AnalyticsTrack = true)]
+    public void RecordGraphRender()
+    {
+        Owner.DocumentManagerSubViewModel.ActiveDocument.Operations.RecordFrame();
     }
 
     [Command.Debug("PixiEditor.Debug.DumpGPUDiagnostics", "DUMP_GPU_DIAGNOSTICS", "DUMP_GPU_DIAGNOSTICS",

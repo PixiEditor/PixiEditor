@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Bridge;
@@ -62,8 +63,9 @@ public partial class MainView : UserControl
     {
         Context.ActionDisplays[nameof(MainView_Drop)] = null;
 
-        var fileDropList = e.Data.GetFileDropList();
-        if (fileDropList == null || fileDropList.Length == 0)
+        var fileDropList = e.Data.GetFiles();
+        var storageItems = fileDropList as IStorageItem[] ?? fileDropList?.ToArray();
+        if (storageItems == null || storageItems.Length == 0)
         {
             if (!ColorHelper.ParseAnyFormat(e.Data, out var color))
             {
@@ -75,9 +77,9 @@ public partial class MainView : UserControl
             return;
         }
 
-        if (fileDropList is { Length: > 0 })
+        if (storageItems is { Length: > 0 })
         {
-            foreach (var item in fileDropList)
+            foreach (var item in storageItems)
             {
                 Importer.IsSupportedFile(item.Path.LocalPath);
                 Context.FileSubViewModel.OpenFromPath(item.Path.LocalPath);
@@ -87,7 +89,7 @@ public partial class MainView : UserControl
 
     private void MainView_DragEnter(object sender, DragEventArgs e)
     {
-        if (!ClipboardController.IsImage(e.Data))
+        if (!ClipboardController.IsImage(e.DataTransfer))
         {
             if (ColorHelper.ParseAnyFormat(e.Data, out _))
             {

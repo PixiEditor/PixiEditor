@@ -8,6 +8,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Enums;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Vector;
 using PixiEditor.Extensions.CommonApi.Palettes;
@@ -20,7 +21,10 @@ using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.Helpers;
+using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.Models.DocumentModels.Public;
@@ -82,8 +86,8 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// <param name="lastTransformRect"></param>
     public void DeleteSelectedPixels(int frame, bool clearSelection = false, RectD? lastTransformRect = null)
     {
-        var member = Document.SelectedStructureMember;
-        if (Internals.ChangeController.IsBlockingChangeActive || member is null)
+        var members = Document.SelectedMembers;
+        if (Internals.ChangeController.IsBlockingChangeActive || members?.Count == 0)
             return;
 
         Internals.ChangeController.TryStopActiveExecutor();
@@ -99,11 +103,40 @@ internal class DocumentOperationsModule : IDocumentOperations
             }
         }
 
-        bool drawOnMask = member is not ILayerHandler layer || layer.ShouldDrawOnMask;
-        if (drawOnMask && !member.HasMaskBindable)
-            return;
-        Internals.ActionAccumulator.AddActions(new ClearSelectedArea_Action(member.Id,
-            selection, drawOnMask, frame));
+        foreach (var memberGuid in members)
+        {
+            var member = Document.StructureHelper.FindNode<IStructureMemberHandler>(memberGuid);
+            if (member is null)
+                continue;
+
+            bool drawOnMask = member is not ILayerHandler layer || layer.ShouldDrawOnMask;
+            if (drawOnMask && !member.HasMaskBindable)
+                return;
+
+            if (member is not IRasterLayerHandler)
+            {
+                var bounds = member.TightBounds;
+                if (bounds is null)
+                    continue;
+
+                using var rectPath = new VectorPath();
+                rectPath.AddRect(new RectD(bounds.Value.Pos, bounds.Value.Size));
+
+                using var opped = selection.Op(rectPath, VectorPathOp.Intersect);
+
+                if (!opped.IsEmpty)
+                {
+                    // TODO: Cut vectors
+                    Internals.ActionAccumulator.AddActions(new DeleteNode_Action(member.Id));
+                }
+            }
+            else
+            {
+                Internals.ActionAccumulator.AddActions(new ClearSelectedArea_Action(member.Id,
+                    selection, drawOnMask, frame));
+            }
+        }
+
         if (clearSelection)
             Internals.ActionAccumulator.AddActions(new ClearSelection_Action());
         Internals.ActionAccumulator.AddFinishedActions();
@@ -176,7 +209,7 @@ internal class DocumentOperationsModule : IDocumentOperations
 
         foreach (var imageWithName in images)
         {
-            var layerGuid = Internals.StructureHelper.CreateNewStructureMember(StructureMemberType.Layer,
+            var layerGuid = Internals.StructureHelper.CreateNewStructureMember(StructureMemberType.ImageLayer,
                 Path.GetFileName(imageWithName.Name));
             DrawImage(imageWithName.Image,
                 new ShapeCorners(new RectD(imageWithName.Position, imageWithName.Image.Size)),
@@ -268,7 +301,8 @@ internal class DocumentOperationsModule : IDocumentOperations
         {
             Internals.ActionAccumulator.AddFinishedActions(
                 new ImportFolder_Action(sourceDocument.ShareNode<IReadOnlyFolderNode>(folder.Id), newGuid, null),
-                new SetSelectedMember_PassthroughAction(newGuid));
+                new SetSelectedMember_PassthroughAction(newGuid),
+                new CreateAnimationDataFromFolder_Action(newGuid));
         }
 
         return newGuid;
@@ -918,7 +952,7 @@ internal class DocumentOperationsModule : IDocumentOperations
 
         Internals.ChangeController.TryStopActiveExecutor();
 
-        Internals.ActionAccumulator.AddFinishedActions(new RasterizeMember_Action(memberId));
+        Internals.ActionAccumulator.AddFinishedActions(new RasterizeMember_Action(memberId, Document.AnimationHandler.ActiveFrameBindable));
     }
 
     public void InvokeCustomAction(Action action, bool stopActiveExecutor = true)
@@ -1035,11 +1069,105 @@ internal class DocumentOperationsModule : IDocumentOperations
             new ExtractSelectedText_Action(memberId, startIndex, endIndex, extractEachCharacter));
     }
 
+    public void UnlinkNestedDocument(Guid id)
+    {
+        if (Internals.ChangeController.IsBlockingChangeActive)
+            return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+
+        Internals.ActionAccumulator.AddFinishedActions(new UnlinkNestedDocument_Action(id));
+    }
+
     public void TryStopActiveExecutor()
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
 
         Internals.ChangeController.TryStopActiveExecutor();
+    }
+
+    public void SetNodeInputPropertyValue(Guid guid, string propertyName, object value)
+    {
+        if (Internals.ChangeController.IsBlockingChangeActive)
+            return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+
+        Internals.ActionAccumulator.AddFinishedActions(new UpdatePropertyValue_Action(guid, propertyName, value), new EndUpdatePropertyValue_Action());
+    }
+
+    public void RecordFrame()
+    {
+        Internals.ActionAccumulator.AddFinishedActions(new DebugRecordFrame_PassthroughAction());
+    }
+
+    public void CreateNestedDocumentFromMember(Guid memberId)
+    {
+        if (Internals.ChangeController.IsBlockingChangeActive)
+            return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+
+
+        var member = Document.StructureHelper.FindNode<IStructureMemberHandler>(memberId);
+        if (member is null)
+        {
+            return;
+        }
+
+        Guid referenceId = Guid.NewGuid();
+        var embedded = DocumentViewModel.Build(builder =>
+            builder.WithSize(Document.SizeBindable).WithGraph(graph => graph.WithOutputNode(null, null)));
+        embedded.Operations.ImportMember(memberId, Document);
+        embedded.Operations.InvokeCustomAction(() =>
+        {
+            using var block = StartChangeBlock();
+            Guid? nestedDocId = CreateStructureMember(StructureMemberType.Document, member.NodeNameBindable);
+
+            if (nestedDocId is null)
+            {
+                embedded.Dispose();
+                return;
+            }
+
+            Internals.ActionAccumulator.AddActions(new UpdatePropertyValue_Action(nestedDocId.Value, NestedDocumentNode.DocumentPropertyName, new DocumentReference(null, referenceId, embedded.AccessInternalReadOnlyDocument())), new EndUpdatePropertyValue_Action());
+            MoveStructureMember(nestedDocId.Value, memberId, StructureMemberPlacement.Above);
+            if (nestedDocId.HasValue)
+            {
+                ReconnectProperties(member, nestedDocId.Value);
+            }
+
+            DeleteStructureMember(memberId);
+        });
+    }
+
+    private void ReconnectProperties(IStructureMemberHandler from, Guid to)
+    {
+        foreach (var input in from.Inputs)
+        {
+            if (input.ConnectedOutput is not null)
+            {
+                Internals.ActionAccumulator.AddActions(
+                    new ConnectProperties_Action(
+                        to,
+                        input.ConnectedOutput.Node.Id,
+                        input.PropertyName,
+                        input.ConnectedOutput.PropertyName));
+            }
+        }
+
+        foreach (var output in from.Outputs)
+        {
+            foreach (var connectedInput in output.ConnectedInputs)
+            {
+                Internals.ActionAccumulator.AddActions(
+                    new ConnectProperties_Action(
+                        connectedInput.Node.Id,
+                        to,
+                        connectedInput.PropertyName,
+                        output.PropertyName));
+            }
+        }
     }
 }

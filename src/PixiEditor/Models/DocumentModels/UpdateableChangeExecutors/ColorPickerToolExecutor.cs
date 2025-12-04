@@ -3,6 +3,7 @@ using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
+using PixiEditor.Models.Controllers.InputDevice;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
@@ -36,7 +37,7 @@ internal class ColorPickerToolExecutor : UpdateableChangeExecutor
         return ExecutionState.Success;
     }
 
-    public override void OnPrecisePositionChange(VecD pos)
+    public override void OnPrecisePositionChange(MouseOnCanvasEventArgs args)
     {
         if (!includeReference)
             return;
@@ -44,10 +45,10 @@ internal class ColorPickerToolExecutor : UpdateableChangeExecutor
         string? customOutput = windowHandler?.ActiveWindow is IViewport viewport ? viewport.RenderOutputName : null;
         customOutput = customOutput == "DEFAULT" ? null : customOutput;
 
-        colorsViewModel.PrimaryColor = document.PickColor(pos, scope, includeReference, includeCanvas, document.AnimationHandler.ActiveFrameBindable, document.ReferenceLayerHandler.IsTopMost, customOutput);
+        colorsViewModel.PrimaryColor = document.PickColor(args.Point.PositionOnCanvas, scope, includeReference, includeCanvas, document.AnimationHandler.ActiveFrameBindable, document.ReferenceLayerHandler.IsTopMost, customOutput);
     }
 
-    public override void OnPixelPositionChange(VecI pos)
+    public override void OnPixelPositionChange(VecI pos, MouseOnCanvasEventArgs args)
     {
         string? customOutput = windowHandler?.ActiveWindow is IViewport viewport ? viewport.RenderOutputName : null;
         customOutput = customOutput == "DEFAULT" ? null : customOutput;

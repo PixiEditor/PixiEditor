@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using Avalonia.Input;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Vector;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
@@ -28,7 +29,6 @@ internal class ColorPickerToolViewModel : ToolViewModel, IColorPickerHandler
     public override bool UsesColor => true;
 
     public override string ToolNameLocalizationKey => "COLOR_PICKER_TOOL";
-    public override BrushShape FinalBrushShape => BrushShape.Hidden;
 
     public override string DefaultIcon => PixiPerfectIcons.Picker;
 

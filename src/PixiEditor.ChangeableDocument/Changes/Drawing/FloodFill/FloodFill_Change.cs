@@ -1,8 +1,11 @@
 ﻿using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.Enums;
+using BlendMode = Drawie.Backend.Core.Surfaces.BlendMode;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing.FloodFill;
 
@@ -16,9 +19,10 @@ internal class FloodFill_Change : Change
     private CommittedChunkStorage? chunkStorage = null;
     private int frame;
     private float tolerance;
+    private FloodFillMode fillMode;
 
     [GenerateMakeChangeAction]
-    public FloodFill_Change(Guid memberGuid, VecI pos, Color color, bool referenceAll, float tolerance, bool drawOnMask, int frame)
+    public FloodFill_Change(Guid memberGuid, VecI pos, Color color, bool referenceAll, float tolerance, FloodFillMode fillMode, bool drawOnMask, int frame)
     {
         this.memberGuid = memberGuid;
         this.pos = pos;
@@ -27,6 +31,7 @@ internal class FloodFill_Change : Change
         this.drawOnMask = drawOnMask;
         this.frame = frame;
         this.tolerance = tolerance;
+        this.fillMode = fillMode;
     }
 
     public override bool InitializeAndValidate(Document target)
@@ -48,17 +53,22 @@ internal class FloodFill_Change : Change
         else
             membersToReference.Add(memberGuid);
         bool lockTransparency = target.FindMember(memberGuid) is ImageLayerNode { LockTransparency: true };
-        var floodFilledChunks = FloodFillHelper.FloodFill(membersToReference, target, selection, pos, color, tolerance, frame, lockTransparency);
+        var floodFilledChunks = FloodFillHelper.FloodFill(membersToReference, target, selection, pos, color, tolerance, frame, lockTransparency, fillMode);
         if (floodFilledChunks.Count == 0)
         {
             ignoreInUndo = true;
             return new None();
         }
-
-        foreach (var (chunkPos, chunk) in floodFilledChunks)
+        
+        Paint paint = fillMode switch
         {
-            image.EnqueueDrawTexture(chunkPos * ChunkyImage.FullChunkSize, chunk.Surface, null, false);
-        }
+            FloodFillMode.Overlay => null,  // Default blend mode
+            FloodFillMode.Replace => new Paint() { BlendMode = BlendMode.Src }  // Replace mode
+        };
+        
+        foreach (var (chunkPos, chunk) in floodFilledChunks)
+            image.EnqueueDrawTexture(chunkPos * ChunkyImage.FullChunkSize, chunk.Surface, paint, false);
+        
         var affArea = image.FindAffectedArea();
         chunkStorage = new CommittedChunkStorage(image, affArea.Chunks);
         image.CommitChanges();

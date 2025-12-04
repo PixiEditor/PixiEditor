@@ -26,7 +26,7 @@ public static class BresenhamLineHelper
 
         if (x1 == x2 && y1 == y2)
         {
-            output[index] = new VecF(start);
+            output[index] = start;
             return;
         }
 
@@ -55,7 +55,7 @@ public static class BresenhamLineHelper
             dy = y1 - y2;
         }
 
-        output[index] = new VecF(x, y);
+        output[index] = new VecI(x, y);
         index++;
 
         if (dx > dy)
@@ -78,7 +78,7 @@ public static class BresenhamLineHelper
                     x += xi;
                 }
 
-                output[index] = new VecF(x, y);
+                output[index] = new VecI(x, y);
                 index++;
             }
         }
@@ -102,7 +102,7 @@ public static class BresenhamLineHelper
                     y += yi;
                 }
 
-                output[index] = new VecF(x, y);
+                output[index] = new VecI(x, y);
                 index++;
             }
         }

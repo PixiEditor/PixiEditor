@@ -90,6 +90,10 @@ internal abstract class Toolbar : ObservableObject, IToolbar
     }
 
     public event SettingChange? SettingChanged;
+    public void RemoveSetting(Setting setting)
+    {
+        settings.Remove(setting);
+    }
 
     public virtual void OnLoadedSettings()
     {

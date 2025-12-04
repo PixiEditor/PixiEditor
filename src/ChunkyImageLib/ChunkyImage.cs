@@ -11,6 +11,7 @@ using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Shaders;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
@@ -64,8 +65,10 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
     private readonly object lockObject = new();
     private int commitCounter = 0;
 
-    private RectI cachedPreciseBounds = RectI.Empty;
-    private int lastBoundsCacheHash = -1;
+    private RectI cachedPreciseCommitedBounds = RectI.Empty;
+    private RectI cachedPreciseLatestBounds = RectI.Empty;
+    private int lastCommitedBoundsCacheHash = -1;
+    private int lastLatestBoundsCacheHash = -1;
 
     public const int FullChunkSize = ChunkPool.FullChunkSize;
     private static Paint ClippingPaint { get; } = new Paint() { BlendMode = BlendMode.DstIn };
@@ -200,9 +203,9 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
         {
             ThrowIfDisposed();
 
-            if (lastBoundsCacheHash == GetCacheHash())
+            if (lastCommitedBoundsCacheHash == GetCacheHash())
             {
-                return cachedPreciseBounds;
+                return cachedPreciseCommitedBounds;
             }
 
             var chunkSize = suggestedResolution.PixelSize();
@@ -250,8 +253,120 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
             preciseBounds = (RectI?)preciseBounds?.Scale(suggestedResolution.InvertedMultiplier()).RoundOutwards();
             preciseBounds = preciseBounds?.Intersect(new RectI(preciseBounds.Value.Pos, CommittedSize));
 
-            cachedPreciseBounds = preciseBounds.GetValueOrDefault();
-            lastBoundsCacheHash = GetCacheHash();
+            cachedPreciseCommitedBounds = preciseBounds.GetValueOrDefault();
+            lastCommitedBoundsCacheHash = GetCacheHash();
+
+            return preciseBounds;
+        }
+    }
+
+    public RectI? FindTightLatestBounds(ChunkResolution suggestedResolution = ChunkResolution.Full,
+        bool fallbackToChunkAligned = false)
+    {
+        lock (lockObject)
+        {
+            ThrowIfDisposed();
+
+            if(queuedOperations.Count == 0)
+            {
+                return FindTightCommittedBounds(suggestedResolution, fallbackToChunkAligned);
+            }
+
+            if (lastLatestBoundsCacheHash == GetCacheHash())
+            {
+                return cachedPreciseLatestBounds;
+            }
+
+            var chunkSize = suggestedResolution.PixelSize();
+            var multiplier = suggestedResolution.Multiplier();
+            RectI scaledLatestSize = (RectI)(new RectD(VecI.Zero, LatestSize * multiplier)).RoundOutwards();
+
+            RectI? preciseBounds = null;
+
+            var possibleChunks = new HashSet<VecI>();
+            foreach (var (pos, _) in committedChunks[ChunkResolution.Full])
+                possibleChunks.Add(pos);
+
+            foreach (var (pos, _) in latestChunks[ChunkResolution.Full])
+                possibleChunks.Add(pos);
+
+            foreach (var chunkPos in possibleChunks)
+            {
+                var committedChunk = GetCommittedChunk(chunkPos, suggestedResolution);
+                var latestChunk = GetLatestChunk(chunkPos, suggestedResolution);
+
+                Chunk? chunk;
+                bool isTempChunk = false;
+
+                if (latestChunk != null && committedChunk != null)
+                {
+                    // both exist, need to merge
+                    var tempChunk = Chunk.Create(ProcessingColorSpace, suggestedResolution);
+                    tempChunk.Surface.DrawingSurface.Canvas.DrawSurface(committedChunk.Surface.DrawingSurface, 0, 0,
+                        ReplacingPaint);
+                    blendModePaint.BlendMode = blendMode;
+                    tempChunk.Surface.DrawingSurface.Canvas.DrawSurface(latestChunk.Surface.DrawingSurface, 0, 0,
+                        blendModePaint);
+                    if (lockTransparency)
+                        OperationHelper.ClampAlpha(tempChunk.Surface.DrawingSurface,
+                            committedChunk.Surface.DrawingSurface);
+                    chunk = tempChunk;
+                    isTempChunk = true;
+                }
+                else if (latestChunk != null)
+                {
+                    chunk = latestChunk;
+                }
+                else
+                {
+                    chunk = committedChunk;
+                }
+
+
+                if (chunk != null)
+                {
+                    RectI visibleArea = new RectI(chunkPos * chunkSize, new VecI(chunkSize))
+                        .Intersect(scaledLatestSize).Translate(-chunkPos * chunkSize);
+
+                    RectI? chunkPreciseBounds = chunk.FindPreciseBounds(visibleArea);
+                    if (chunkPreciseBounds is null)
+                        continue;
+                    RectI globalChunkBounds = chunkPreciseBounds.Value.Offset(chunkPos * chunkSize);
+
+                    preciseBounds ??= globalChunkBounds;
+                    preciseBounds = preciseBounds.Value.Union(globalChunkBounds);
+
+                    if (isTempChunk)
+                    {
+                        chunk.Dispose();
+                    }
+                }
+                else
+                {
+                    if (fallbackToChunkAligned)
+                    {
+                        return FindChunkAlignedMostUpToDateBounds();
+                    }
+
+                    RectI visibleArea = new RectI(chunkPos * FullChunkSize, new VecI(FullChunkSize))
+                        .Intersect(new RectI(VecI.Zero, LatestSize)).Translate(-chunkPos * FullChunkSize);
+
+                    RectI? chunkPreciseBounds = chunk.FindPreciseBounds(visibleArea);
+                    if (chunkPreciseBounds is null)
+                        continue;
+                    RectI globalChunkBounds = (RectI)chunkPreciseBounds.Value.Scale(multiplier)
+                        .Offset(chunkPos * chunkSize).RoundOutwards();
+
+                    preciseBounds ??= globalChunkBounds;
+                    preciseBounds = preciseBounds.Value.Union(globalChunkBounds);
+                }
+            }
+
+            preciseBounds = (RectI?)preciseBounds?.Scale(suggestedResolution.InvertedMultiplier()).RoundOutwards();
+            preciseBounds = preciseBounds?.Intersect(new RectI(preciseBounds.Value.Pos, LatestSize));
+
+            cachedPreciseLatestBounds = preciseBounds.GetValueOrDefault();
+            lastLatestBoundsCacheHash = GetCacheHash();
 
             return preciseBounds;
         }
@@ -368,7 +483,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
     /// True if the chunk existed and was drawn, otherwise false
     /// </returns>
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
-    public bool DrawMostUpToDateChunkOn(VecI chunkPos, ChunkResolution resolution, DrawingSurface surface, VecD pos,
+    public bool DrawMostUpToDateChunkOn(VecI chunkPos, ChunkResolution resolution, Canvas surface, VecD pos,
         Paint? paint = null, SamplingOptions? samplingOptions = null)
     {
         lock (lockObject)
@@ -426,7 +541,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
         }
     }
 
-    public bool DrawCachedMostUpToDateChunkOn(VecI chunkPos, ChunkResolution resolution, DrawingSurface surface,
+    public bool DrawCachedMostUpToDateChunkOn(VecI chunkPos, ChunkResolution resolution, Canvas surface,
         VecD pos,
         Paint? paint = null, SamplingOptions? sampling = null)
     {
@@ -522,7 +637,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
     }
 
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
-    public bool DrawCommittedChunkOn(VecI chunkPos, ChunkResolution resolution, DrawingSurface surface, VecD pos,
+    public bool DrawCommittedChunkOn(VecI chunkPos, ChunkResolution resolution, Canvas surface, VecD pos,
         Paint? paint = null, SamplingOptions? samplingOptions = null)
     {
         lock (lockObject)
@@ -807,6 +922,34 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
         }
     }
 
+    /// <param name="customBounds">Bounds used for affected chunks, will be computed from path in O(n) if null is passed</param>
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
+    public void EnqueueDrawPath(VectorPath path, Paintable paintable, float strokeWidth, StrokeCap strokeCap,
+        BlendMode blendMode, PaintStyle style, bool antiAliasing, RectI? customBounds = null)
+    {
+        lock (lockObject)
+        {
+            ThrowIfDisposed();
+            PathOperation operation = new(path, paintable, strokeWidth, strokeCap, blendMode, style, antiAliasing,
+                customBounds);
+            EnqueueOperation(operation);
+        }
+    }
+
+    /// <param name="customBounds">Bounds used for affected chunks, will be computed from path in O(n) if null is passed</param>
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
+    public void EnqueueDrawPath(VectorPath path, Paintable paintable, float strokeWidth, StrokeCap strokeCap,
+        Blender blender, PaintStyle style, bool antiAliasing, RectI? customBounds = null)
+    {
+        lock (lockObject)
+        {
+            ThrowIfDisposed();
+            PathOperation operation = new(path, paintable, strokeWidth, strokeCap, blender, style, antiAliasing,
+                customBounds);
+            EnqueueOperation(operation);
+        }
+    }
+
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public void EnqueueDrawBresenhamLine(VecI from, VecI to, Paintable paintable, BlendMode blendMode)
     {
@@ -858,17 +1001,6 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
         {
             ThrowIfDisposed();
             PixelOperation operation = new(pos, color, blendMode);
-            EnqueueOperation(operation);
-        }
-    }
-
-    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
-    public void EnqueueDrawPixel(VecI pos, PixelProcessor pixelProcessor, BlendMode blendMode)
-    {
-        lock (lockObject)
-        {
-            ThrowIfDisposed();
-            PixelOperation operation = new(pos, pixelProcessor, GetCommittedPixel, blendMode);
             EnqueueOperation(operation);
         }
     }
@@ -1197,6 +1329,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
         lock (lockObject)
         {
             ThrowIfDisposed();
+            using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
             var dict = new Dictionary<VecI, Surface>();
             foreach (var (pos, chunk) in committedChunks[ChunkResolution.Full])
             {
@@ -1205,6 +1338,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
                     var surf = new Surface(chunk.Surface.ImageInfo);
                     surf.DrawingSurface.Canvas.DrawSurface(chunk.Surface.DrawingSurface, 0, 0);
                     dict[pos] = surf;
+                    surf.DrawingSurface.Flush();
                 }
             }
 
@@ -1319,7 +1453,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
         {
             if (mask.CommittedChunkExists(chunkPos))
             {
-                mask.DrawCommittedChunkOn(chunkPos, resolution, intersection.Surface.DrawingSurface, VecI.Zero,
+                mask.DrawCommittedChunkOn(chunkPos, resolution, intersection.Surface.DrawingSurface.Canvas, VecI.Zero,
                     ClippingPaint);
             }
             else
@@ -1368,14 +1502,14 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
             var clip = combinedRasterClips.AsT2;
 
             using var tempChunk = Chunk.Create(ProcessingColorSpace, targetChunk.Resolution);
-            targetChunk.DrawChunkOn(tempChunk.Surface.DrawingSurface, VecI.Zero, ReplacingPaint);
+            targetChunk.DrawChunkOn(tempChunk.Surface.DrawingSurface.Canvas, VecI.Zero, ReplacingPaint);
 
             CallDrawWithClip(chunkOperation, operationAffectedArea.GlobalArea, tempChunk, resolution, chunkPos);
 
-            clip.DrawChunkOn(tempChunk.Surface.DrawingSurface, VecI.Zero, ClippingPaint);
-            clip.DrawChunkOn(targetChunk.Surface.DrawingSurface, VecI.Zero, InverseClippingPaint);
+            clip.DrawChunkOn(tempChunk.Surface.DrawingSurface.Canvas, VecI.Zero, ClippingPaint);
+            clip.DrawChunkOn(targetChunk.Surface.DrawingSurface.Canvas, VecI.Zero, InverseClippingPaint);
 
-            tempChunk.DrawChunkOn(targetChunk.Surface.DrawingSurface, VecI.Zero, AddingPaint);
+            tempChunk.DrawChunkOn(targetChunk.Surface.DrawingSurface.Canvas, VecI.Zero, AddingPaint);
             return false;
         }
 
@@ -1496,7 +1630,8 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
             newChunk.Surface.DrawingSurface.Canvas.Save();
             newChunk.Surface.DrawingSurface.Canvas.Scale((float)resolution.Multiplier());
 
-            newChunk.Surface.DrawingSurface.Canvas.DrawSurface(existingFullResChunk.Surface.DrawingSurface, 0, 0,
+            using var snapshot = existingFullResChunk.Surface.DrawingSurface.Snapshot();
+            newChunk.Surface.DrawingSurface.Canvas.DrawImage(snapshot, 0, 0, SamplingOptions.Bilinear,
                 SmoothReplacingPaint);
             newChunk.Surface.DrawingSurface.Canvas.Restore();
             committedChunks[resolution][chunkPos] = newChunk;
@@ -1608,10 +1743,26 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
 
     public int GetCacheHash()
     {
-        return commitCounter + queuedOperations.Count + operationCounter + activeClips.Count
-               + (int)blendMode + (lockTransparency ? 1 : 0)
-               + (horizontalSymmetryAxis is not null ? (int)(horizontalSymmetryAxis * 100) : 0)
-               + (verticalSymmetryAxis is not null ? (int)(verticalSymmetryAxis * 100) : 0)
-               + (clippingPath is not null ? 1 : 0);
+        HashCode hash = new HashCode();
+        hash.Add(commitCounter);
+        hash.Add(queuedOperations.Count);
+        hash.Add(operationCounter);
+
+        foreach (var queuedOperation in queuedOperations)
+        {
+            hash.Add(queuedOperation.affectedArea.GlobalArea?.GetHashCode() ?? 0);
+            hash.Add(queuedOperation.operation.GetHashCode());
+        }
+
+        hash.Add(activeClips.Count);
+        hash.Add((int)blendMode);
+        hash.Add(lockTransparency);
+        if (horizontalSymmetryAxis is not null)
+            hash.Add((int)(horizontalSymmetryAxis * 100));
+        if (verticalSymmetryAxis is not null)
+            hash.Add((int)(verticalSymmetryAxis * 100));
+        if (clippingPath is not null)
+            hash.Add(1);
+        return hash.ToHashCode();
     }
 }

@@ -22,6 +22,15 @@ public partial class TogglableFlyout : UserControl
         get { return (string)GetValue(IconProperty); }
         set { SetValue(IconProperty, value); }
     }
+
+    public static readonly StyledProperty<bool> IsOpenProperty = AvaloniaProperty.Register<TogglableFlyout, bool>(
+        nameof(IsOpen));
+
+    public bool IsOpen
+    {
+        get => GetValue(IsOpenProperty);
+        set => SetValue(IsOpenProperty, value);
+    }
     
     public TogglableFlyout()
     {

@@ -9,7 +9,14 @@ namespace PixiEditor.ViewModels.Document.Nodes;
 [NodeViewModel("FOLDER_NODE", "STRUCTURE", PixiPerfectIcons.Folder)]
 internal class FolderNodeViewModel : StructureMemberViewModel<FolderNode>, IFolderHandler
 {
+    private bool isOpen;
     public ObservableCollection<IStructureMemberHandler> Children { get; } = new();
+
+    public bool IsOpen
+    {
+        get => isOpen;
+        set => SetProperty(ref isOpen, value);
+    }
 
     public int CountChildrenRecursive()
     {

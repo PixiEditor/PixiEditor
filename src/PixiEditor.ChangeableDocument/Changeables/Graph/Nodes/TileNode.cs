@@ -57,12 +57,12 @@ public class TileNode : RenderNode
         paint.Shader = tileShader;
     }
 
-    protected override void OnPaint(RenderContext context, DrawingSurface surface)
+    protected override void OnPaint(RenderContext context, Canvas surface)
     {
         if (paint == null)
             return;
 
-        surface.Canvas.DrawRect(0, 0, context.RenderOutputSize.X, context.RenderOutputSize.Y, paint);
+        surface.DrawRect(0, 0, context.RenderOutputSize.X, context.RenderOutputSize.Y, paint);
     }
 
     public override Node CreateCopy()

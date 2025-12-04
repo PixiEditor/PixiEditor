@@ -131,6 +131,8 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
     public double CanvasX => ToScreenSpace(VecD.Zero).X;
     public double CanvasY => ToScreenSpace(VecD.Zero).Y;
 
+    public VecD Pan { get; internal set; } = VecD.Zero;
+
     public TransformGroup CanvasTransform => new TransformGroup
     {
         Children =
@@ -319,6 +321,7 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
         FlipY = false;
         Scale = Math.Clamp(1 / scaleFactor, MinScale, MaxScale);
         Center = newSize / 2;
+        Pan = VecD.Zero;
     }
 
     public void ZoomIntoCenter(double delta)

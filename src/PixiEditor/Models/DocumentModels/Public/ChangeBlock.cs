@@ -12,7 +12,7 @@ public class ChangeBlock : IDisposable
     
     public void ExecuteQueuedActions()
     {
-        Accumulator.TryExecuteAccumulatedActions();
+        Accumulator.TryExecuteAccumulatedActionsSync();
     }
     
     public void Dispose()

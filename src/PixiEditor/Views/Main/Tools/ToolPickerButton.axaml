@@ -31,7 +31,12 @@
         <Button.Content>
             <Grid>
                 <TextBlock Classes="pixi-icon" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"
+                           IsVisible="{Binding IsPixiPerfectIcon}"
                            Text="{Binding Path=IconToUse}" />
+                <Image IsVisible="{Binding !IsPixiPerfectIcon}"
+                       Margin="2"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                       Source="{Binding IconToUse, Converter={converters:ImagePathToBitmapConverter}}" />
                 <TextBlock Background="{DynamicResource ThemeBorderLowBrush}"
                            IsVisible="{Binding !CanBeUsedOnActiveLayer}"
                            Classes="pixi-icon" FontSize="12" Text="{DynamicResource icon-plus-square}"

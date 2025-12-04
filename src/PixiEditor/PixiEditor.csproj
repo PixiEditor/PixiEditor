@@ -90,6 +90,7 @@
   <ItemGroup>
     <PackageReference Include="AsyncImageLoader.Avalonia" Version="3.3.0"/>
     <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)"/>
+    <PackageReference Include="Avalonia.AvaloniaEdit" Version="11.3.0" />
     <PackageReference Include="Avalonia.Headless" Version="$(AvaloniaVersion)"/>
     <PackageReference Include="Avalonia.Labs.Lottie" Version="11.3.1" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)"/>
@@ -97,6 +98,7 @@
     <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
     <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)"/>
     <PackageReference Condition="'$(Configuration)' == 'DebugSteam'" Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)"/>
+    <PackageReference Include="AvaloniaEdit.TextMate" Version="11.3.0" />
     <PackageReference Include="ByteSize" Version="2.1.2"/>
     <PackageReference Include="CLSEncoderDecoder" Version="1.0.0"/>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
@@ -106,6 +108,7 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
     <PackageReference Include="Svg.Controls.Skia.Avalonia" Version="11.3.0.3" />
+    <PackageReference Include="TextMateSharp.Grammars" Version="1.0.70" />
   </ItemGroup>
 
   <ItemGroup>
@@ -155,6 +158,17 @@
     <None Include="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Views\Tools\ToolSettings\Settings\BrushSettingView.axaml.cs">
+      <DependentUpon>BrushSettingView.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\Dialogs\InputPopup.axaml.cs">
+      <DependentUpon>InputDialog.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   
 </Project>
