@@ -321,6 +321,8 @@
   "ELLIPSE_TOOL": "Ellipse",
   "ERASER_TOOL": "Eraser",
   "FLOOD_FILL_TOOL": "Flood Fill",
+  "FLOOD_FILL_MODE_LABEL" : "Fill mode",
+  "OVERLAY" : "Overlay",
   "LASSO_TOOL": "Lasso",
   "LINE_TOOL": "Line",
   "MAGIC_WAND_TOOL": "Magic Wand",
