@@ -953,7 +953,6 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         Surface output = Surface.ForDisplay(finalBounds.Size);
 
         VectorPath clipPath = new VectorPath(SelectionPathBindable) { FillType = PathFillType.EvenOdd };
-        //clipPath.Transform(Matrix3X3.CreateTranslation(-bounds.X, -bounds.Y));
         output.DrawingSurface.Canvas.Save();
         output.DrawingSurface.Canvas.Translate(-finalBounds.X, -finalBounds.Y);
         if (!clipPath.IsEmpty)

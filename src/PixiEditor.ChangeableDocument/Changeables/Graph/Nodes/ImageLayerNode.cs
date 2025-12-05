@@ -22,8 +22,8 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     public const int AccuratePreviewMaxSize = 2048;
 
-    public override VecD GetScenePosition(KeyFrameTime time) => layerImage.CommittedSize / 2f;
-    public override VecD GetSceneSize(KeyFrameTime time) => layerImage.CommittedSize;
+    public override VecD GetScenePosition(KeyFrameTime time) => layerImage?.CommittedSize / 2f ?? VecD.Zero;
+    public override VecD GetSceneSize(KeyFrameTime time) => layerImage?.CommittedSize ?? VecD.Zero;
 
     public bool LockTransparency { get; set; }
 
@@ -130,6 +130,12 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         int saved = workingSurface.Save();
 
         var sceneSize = GetSceneSize(ctx.FrameTime);
+        if (sceneSize.X == 0 || sceneSize.Y == 0)
+        {
+            workingSurface.RestoreToCount(saved);
+            return;
+        }
+
         RectI latestSize = new(0, 0, layerImage.LatestSize.X, layerImage.LatestSize.Y);
         var region = ctx.VisibleDocumentRegion ?? latestSize;
 

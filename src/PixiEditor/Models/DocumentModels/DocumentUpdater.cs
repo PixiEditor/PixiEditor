@@ -1069,12 +1069,6 @@ internal class DocumentUpdater
                 info.OriginalFilePath, info.ReferenceId);
         }
 
-        if (info.OriginalFilePath != node.FilePath)
-        {
-            ViewModelMain.Current.DocumentManagerSubViewModel.ReloadDocumentReference(info.ReferenceId,
-                info.OriginalFilePath);
-        }
-
         node.SetOriginalFilePath(info.OriginalFilePath);
         node.SetReferenceId(info.ReferenceId);
         node.UpdateLinkedStatus();

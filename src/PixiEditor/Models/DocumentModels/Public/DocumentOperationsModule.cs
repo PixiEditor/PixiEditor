@@ -189,7 +189,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// Pastes the <paramref name="images"/> as new layers
     /// </summary>
     /// <param name="images">The images to paste</param>
-    public void PasteImagesAsLayers(List<DataImage> images, int frame)
+    public void PasteImagesAsLayers(List<DataImage> images, int frame, bool resizeCanvasIfNeeded = true)
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
@@ -198,14 +198,17 @@ internal class DocumentOperationsModule : IDocumentOperations
 
         var changeBlock = Document.Operations.StartChangeBlock();
 
-        RectI maxSize = new RectI(VecI.Zero, Document.SizeBindable);
-        foreach (var imageWithName in images)
+        if (resizeCanvasIfNeeded)
         {
-            maxSize = maxSize.Union(new RectI(imageWithName.Position, imageWithName.Image.Size));
-        }
+            RectI maxSize = new RectI(VecI.Zero, Document.SizeBindable);
+            foreach (var imageWithName in images)
+            {
+                maxSize = maxSize.Union(new RectI(imageWithName.Position, imageWithName.Image.Size));
+            }
 
-        if (maxSize.Size != Document.SizeBindable)
-            Internals.ActionAccumulator.AddActions(new ResizeCanvas_Action(maxSize.Size, ResizeAnchor.TopLeft));
+            if (maxSize.Size != Document.SizeBindable)
+                Internals.ActionAccumulator.AddActions(new ResizeCanvas_Action(maxSize.Size, ResizeAnchor.TopLeft));
+        }
 
         foreach (var imageWithName in images)
         {

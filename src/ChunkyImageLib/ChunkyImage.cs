@@ -393,6 +393,30 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
         }
     }
 
+    public ChunkyImage CloneFromLatest()
+    {
+        lock (lockObject)
+        {
+            ThrowIfDisposed();
+            ChunkyImage output = new(LatestSize, ProcessingColorSpace);
+            var chunks = FindAllChunks();
+            foreach (var chunk in chunks)
+            {
+                var image = GetLatestChunk(chunk, ChunkResolution.Full);
+                if (image is null)
+                {
+                    image = GetCommittedChunk(chunk, ChunkResolution.Full);
+                    if (image is null)
+                        continue;
+                }
+                output.EnqueueDrawTexture(chunk * FullChunkSize, image.Surface);
+            }
+
+            output.CommitChanges();
+            return output;
+        }
+    }
+
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public Color GetCommittedPixel(VecI posOnImage)
     {
@@ -1736,7 +1760,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
         lock (lockObject)
         {
             ThrowIfDisposed();
-            ChunkyImage clone = CloneFromCommitted();
+            ChunkyImage clone = CloneFromLatest();
             return clone;
         }
     }
