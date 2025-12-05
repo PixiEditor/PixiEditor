@@ -31,7 +31,20 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     private ColorSpace colorSpace;
 
 
-    private ChunkyImage layerImage => keyFrames[0]?.Data as ChunkyImage;
+    private ChunkyImage layerImage
+    {
+        get
+        {
+            if (keyFrames[0]?.Data is ChunkyImage chunkyImage)
+            {
+                return chunkyImage;
+            }
+
+            var newImage = new ChunkyImage(startSize, colorSpace);
+            keyFrames[0].Data = newImage;
+            return newImage;
+        }
+    }
 
     public ImageLayerNode(VecI size, ColorSpace colorSpace)
     {
