@@ -11,6 +11,7 @@ using Avalonia.Input.Platform;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Avalonia.Platform.Storage;
+using Avalonia.Threading;
 using ChunkyImageLib;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.ChangeableDocument.Enums;
@@ -297,6 +298,7 @@ internal static class ClipboardController
         {
             if (await TryPasteNestedDocument(document, manager, data))
             {
+                manager.Owner.ToolsSubViewModel.SetActiveTool<MoveToolViewModel>(false);
                 return true;
             }
         }

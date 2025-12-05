@@ -80,6 +80,19 @@ internal class ActionAccumulator
         }
     }
 
+    public void AddActions(ActionSource actionSource, params IAction[] actions)
+    {
+        foreach (var action in actions)
+        {
+            queuedActions.Add((actionSource, action));
+        }
+
+        if (!isChangeBlockActive)
+        {
+            TryExecuteAccumulatedActions();
+        }
+    }
+
     public void AddActions(ActionSource source, IAction action)
     {
         queuedActions.Add((source, action));
