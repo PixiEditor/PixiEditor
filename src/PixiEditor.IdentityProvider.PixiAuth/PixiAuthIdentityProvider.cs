@@ -54,7 +54,6 @@ public class PixiAuthIdentityProvider : IIdentityProvider
     }
 
 
-
     public async Task RequestLogin(string email)
     {
         if (!isValid) return;
@@ -93,7 +92,7 @@ public class PixiAuthIdentityProvider : IIdentityProvider
             Error(tooManyRequestsException.Message, tooManyRequestsException.TimeLeft);
             LoginTimeout?.Invoke(tooManyRequestsException.TimeLeft);
         }
-        catch(UnauthorizedAccessException unauthorizedAccessException)
+        catch (UnauthorizedAccessException unauthorizedAccessException)
         {
             Error("UNAUTHORIZED_ACCESS", unauthorizedAccessException.Message);
         }
@@ -233,13 +232,19 @@ public class PixiAuthIdentityProvider : IIdentityProvider
     {
         try
         {
+            if (User == null)
+            {
+                return;
+            }
+
             User.Username = await TryFetchUserName(User.EmailHash);
             UsernameUpdated?.Invoke(User.Username);
             var products = await PixiAuthClient.GetOwnedProducts(User.SessionToken);
             if (products != null)
             {
                 User.OwnedProducts = products.Where(x => x is { IsDlc: true, Target: "PixiEditor" })
-                    .Select(x => new ProductData(x.ProductId, x.ProductName) { LatestVersion = x.LatestVersion }).ToList();
+                    .Select(x => new ProductData(x.ProductId, x.ProductName) { LatestVersion = x.LatestVersion })
+                    .ToList();
                 OwnedProductsUpdated?.Invoke(new List<ProductData>(User.OwnedProducts));
             }
         }
@@ -279,7 +284,8 @@ public class PixiAuthIdentityProvider : IIdentityProvider
                 if (products != null)
                 {
                     User.OwnedProducts = products.Where(x => x is { IsDlc: true, Target: "PixiEditor" })
-                        .Select(x => new ProductData(x.ProductId, x.ProductName) { LatestVersion = x.LatestVersion }).ToList();
+                        .Select(x => new ProductData(x.ProductId, x.ProductName) { LatestVersion = x.LatestVersion })
+                        .ToList();
                     OwnedProductsUpdated?.Invoke(new List<ProductData>(User.OwnedProducts));
                 }
 
@@ -294,7 +300,6 @@ public class PixiAuthIdentityProvider : IIdentityProvider
                         UsernameUpdated?.Invoke(User.Username);
                         SaveUserInfo();
                     }
-
                 });
 
                 SaveUserInfo();
