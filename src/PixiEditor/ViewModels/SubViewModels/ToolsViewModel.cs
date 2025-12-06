@@ -196,7 +196,17 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         AllToolSets.Clear();
         AddCustomTools(toolsConfig);
         AddToolSets(toolsConfig.ToolSets);
-        SetActiveToolSet(AllToolSets.First());
+        if (Owner.BrushesSubViewModel.BrushesLoaded)
+        {
+            SetActiveToolSet(AllToolSets.First());
+        }
+        else
+        {
+            Owner.BrushesSubViewModel.OnBrushesLoaded += () =>
+            {
+                SetActiveToolSet(AllToolSets.First());
+            };
+        }
     }
 
     [Command.Internal("PixiEditor.Tools.SetActiveToolSet", AnalyticsTrack = true)]

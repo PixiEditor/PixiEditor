@@ -158,6 +158,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         BrushesSubViewModel = services.GetService<BrushesViewModel>();
 
         ToolsConfig toolSetConfig = Config.GetConfig<ToolsConfig>("ToolSetsConfig");
+
         ToolsSubViewModel?.SetupTools(services, toolSetConfig);
 
         DiscordViewModel = services.GetService<DiscordViewModel>();

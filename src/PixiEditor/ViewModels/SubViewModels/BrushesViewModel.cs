@@ -20,6 +20,8 @@ namespace PixiEditor.ViewModels.SubViewModels;
 internal class BrushesViewModel : SubViewModel<ViewModelMain>
 {
     public BrushLibrary BrushLibrary { get; private set; }
+    public event Action? OnBrushesLoaded;
+    public bool BrushesLoaded { get; private set; } = false;
 
     public BrushesViewModel(ViewModelMain owner) : base(owner)
     {
@@ -83,7 +85,12 @@ internal class BrushesViewModel : SubViewModel<ViewModelMain>
 
     private void LoadBrushLibrary()
     {
+        if (BrushesLoaded)
+            return;
+
         BrushLibrary.LoadBrushes();
+        BrushesLoaded = true;
+        OnBrushesLoaded?.Invoke();
     }
 
     [Command.Internal("PixiEditor.Brushes.Delete", "DELETE_BRUSH")]
