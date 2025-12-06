@@ -1,4 +1,6 @@
-﻿using Drawie.Backend.Core;
+﻿using System.Diagnostics;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.Bridge;
 
 namespace PixiEditor.Models.Serialization.Factories;
 
@@ -25,8 +27,10 @@ public class TextureSerializationFactory : SerializationFactory<byte[], Texture>
         {
             if (SurfaceFactory.TryDeserialize(imgBytes, out Surface surface, serializerData))
             {
+                using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
                 original = new Texture(surface.Size);
                 original.DrawingSurface.Canvas.DrawSurface(surface.DrawingSurface, 0, 0);
+                original.DrawingSurface.Flush();
                 return true;
             }
         }
