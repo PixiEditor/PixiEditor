@@ -20,9 +20,16 @@ internal class EraserToolExecutor : BrushBasedExecutor<IEraserToolHandler>
 {
     protected override void EnqueueDrawActions()
     {
+        var point = GetStabilizedPoint();
+
+        if (handler != null)
+        {
+            handler.LastAppliedPoint = point;
+        }
+
         Color primaryColor = controller.EditorData.PrimaryColor.WithAlpha(0);
         EditorData data = new EditorData(primaryColor, controller.EditorData.SecondaryColor);
-        var action = new LineBasedPen_Action(layerId, controller.LastPixelPosition, (float)ToolSize, antiAliasing,
+        var action = new LineBasedPen_Action(layerId, point, (float)ToolSize, antiAliasing,
             BrushData, drawOnMask,
             document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo, controller.LastKeyboardInfo, data);
 
