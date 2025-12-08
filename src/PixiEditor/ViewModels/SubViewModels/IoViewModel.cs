@@ -69,7 +69,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
 
         keyboardFilter.OnConvertedKeyDown += OnConvertedKeyDown;
         keyboardFilter.OnConvertedKeyUp += OnConvertedKeyUp;
-        
+
         Owner.AttachedToWindow += AttachWindowEvents;
     }
 
@@ -262,17 +262,35 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         }
 
         drawingWithRight = args.Button == MouseButton.Right;
+
+
         activeDocument.EventInlet.OnCanvasLeftMouseButtonDown(args);
         if (args.Handled) return;
 
-        Owner.ToolsSubViewModel.UseToolEventInlet(args.Point.PositionOnCanvas, args.Button);
+        if (Owner.ToolsSubViewModel.NeedsNewLayerForActiveTool())
+        {
+            var activeToolType = Owner.ToolsSubViewModel.ActiveTool.GetType();
+            Owner.DocumentManagerSubViewModel.ActiveDocument.Tools.TryStopActiveTool();
+            Owner.ToolsSubViewModel.CreateLayerIfNeeded();
+            Owner.ToolsSubViewModel.DeselectActiveTool();
+            Owner.DocumentManagerSubViewModel.ActiveDocument.SubscribeLayerReadyToUseOnce(() =>
+            {
+                Owner.ToolsSubViewModel.SetActiveTool(activeToolType, false);
+                Owner.ToolsSubViewModel.UseToolEventInlet(args.Point.PositionOnCanvas, args.Button);
+            });
+        }
+        else
+        {
+            Owner.ToolsSubViewModel.UseToolEventInlet(args.Point.PositionOnCanvas, args.Button);
+        }
 
         if (args.Button == MouseButton.Right)
         {
             HandleRightSwapColor();
         }
 
-        Analytics.SendUseTool(Owner.ToolsSubViewModel.ActiveTool, args.Point.PositionOnCanvas, activeDocument.SizeBindable);
+        Analytics.SendUseTool(Owner.ToolsSubViewModel.ActiveTool, args.Point.PositionOnCanvas,
+            activeDocument.SizeBindable);
     }
 
     private bool HandleRightMouseDown()
@@ -302,7 +320,10 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
                 HandleRightMouseEraseDown(tools);
                 return true;
             }
-            case RightClickMode.SecondaryColor when tools.ActiveTool is BrushBasedToolViewModel { SupportsSecondaryActionOnRightClick: true }:
+            case RightClickMode.SecondaryColor when tools.ActiveTool is BrushBasedToolViewModel
+            {
+                SupportsSecondaryActionOnRightClick: true
+            }:
                 return true;
             case RightClickMode.ContextMenu:
             default:
@@ -401,7 +422,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
             Owner.DocumentManagerSubViewModel.ActiveDocument.EventInlet
                 .OnCanvasLeftMouseButtonUp(args.Point.PositionOnCanvas);
         }
-        
+
         if (button == MouseButton.Right)
         {
             Owner.DocumentManagerSubViewModel.ActiveDocument.EventInlet

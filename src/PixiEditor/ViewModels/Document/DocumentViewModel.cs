@@ -231,6 +231,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
     private bool isDisposed = false;
     private Guid referenceId = Guid.Empty;
+    private Queue<Action> queuedLayerReadyToUseActions = new();
 
     private DocumentViewModel()
     {
@@ -1096,7 +1097,19 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
 // these are intended to only be called from DocumentUpdater
 
-    public void InternalRaiseLayersChanged(LayersChangedEventArgs args) => LayersChanged?.Invoke(this, args);
+    public void InternalRaiseLayersChanged(LayersChangedEventArgs args)
+    {
+        LayersChanged?.Invoke(this, args);
+        if (queuedLayerReadyToUseActions.Count > 0)
+        {
+            foreach (var action in queuedLayerReadyToUseActions)
+            {
+                action();
+            }
+
+            queuedLayerReadyToUseActions.Clear();
+        }
+    }
 
     public void RaiseSizeChanged(DocumentSizeChangedEventArgs args) => SizeChanged?.Invoke(this, args);
 
@@ -1485,5 +1498,10 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
             nodeVm.UpdateLinkedStatus();
         }
+    }
+
+    public void SubscribeLayerReadyToUseOnce(Action action)
+    {
+        queuedLayerReadyToUseActions.Enqueue(action);
     }
 }
