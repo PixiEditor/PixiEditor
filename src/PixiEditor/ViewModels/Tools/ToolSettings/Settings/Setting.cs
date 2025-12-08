@@ -171,12 +171,12 @@ internal abstract class Setting : ObservableObject
         OnPropertyChanged(nameof(IsExposed));
     }
 
-    public void SetDefaultValue(object defaultValue)
+    public void SetDefaultValue(object defaultValue, string toolset)
     {
-        if (!defaultValuesSet.GetValueOrDefault(currentToolset, false))
+        if (!defaultValuesSet.GetValueOrDefault(toolset, false))
         {
-            toolsetValues[currentToolset] = defaultValue;
-            defaultValuesSet[currentToolset] = true;
+            toolsetValues[toolset] = defaultValue;
+            defaultValuesSet[toolset] = true;
             OnPropertyChanged(nameof(Value));
         }
     }

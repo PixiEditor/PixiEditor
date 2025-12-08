@@ -259,10 +259,6 @@ public class BrushEngine : IDisposable
         if (target == null)
         {
             brushData.BrushGraph.Execute(brushNode, context);
-            if (brushNode.VectorShape.Value == null)
-                return;
-
-            using var shape = brushNode.VectorShape.Value.ToPath(true);
             return;
         }
 

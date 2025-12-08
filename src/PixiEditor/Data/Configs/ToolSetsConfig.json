@@ -99,7 +99,8 @@
           "Settings": {
             "AntiAliasing": true,
             "ExposeSpacing": true,
-            "PixelPerfectEnabled": false
+            "PixelPerfectEnabled": false,
+            "DefaultBrush": "Basic"
           }
         },
         "Select",
