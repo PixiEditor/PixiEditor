@@ -28,7 +28,10 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
     public override string ToolNameLocalizationKey => toolName;
     public override string ToolName => toolName ?? base.ToolName;
     public bool IsCustomBrushTool { get; private set; }
+    public override bool UsesColor => true;
+    public override bool IsErasable => true;
     public KeyCombination? DefaultShortcut { get; set; }
+    public bool SupportsSecondaryActionOnRightClick { get; set; }
 
     public VecD LastAppliedPoint
     {
@@ -52,7 +55,7 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
     }
 
     public BrushBasedToolViewModel(BrushViewModel brush, string? tooltip, string? toolName, KeyCombination? defaultShortcut,
-        List<ActionDisplayConfig>? actionDisplays)
+        List<ActionDisplayConfig>? actionDisplays, bool supportsSecondaryActionOnRightClick)
     {
         Cursor = Cursors.PreciseCursor;
         Toolbar = CreateToolbar();
@@ -69,6 +72,7 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
         DefaultShortcut = defaultShortcut;
         IsCustomBrushTool = true;
         this.actionDisplays = ParseActionDisplays(actionDisplays);
+        SupportsSecondaryActionOnRightClick = supportsSecondaryActionOnRightClick;
 
         if (this.actionDisplays is { Count: > 0 })
         {

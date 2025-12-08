@@ -21,6 +21,7 @@ namespace PixiEditor.Models.DocumentModels;
 internal class ChangeExecutionController
 {
     public bool LeftMousePressed { get; private set; }
+    public bool RightMousePressed { get; private set; }
     public ShapeCorners LastTransformState { get; private set; }
     public VecI LastPixelPosition => lastPixelPos;
     public VecD LastPrecisePosition => lastPrecisePos;
@@ -240,7 +241,9 @@ internal class ChangeExecutionController
     {
         //update internal state
         LeftMousePressed = true;
+        RightMousePressed = args.Properties.IsRightButtonPressed;
 
+        lastPointerInfo = ConstructPointerInfo(args.Point.PositionOnCanvas, args);
         if (_queuedExecutor != null && currentSession == null)
         {
             StartExecutor(_queuedExecutor);
@@ -257,6 +260,20 @@ internal class ChangeExecutionController
 
         //call session events
         currentSession?.OnLeftMouseButtonUp(argsPositionOnCanvas);
+    }
+    
+    public void RightMouseButtonDownInlet(MouseOnCanvasEventArgs args)
+    {
+        RightMousePressed = true;
+        LeftMousePressed = args.Properties.IsLeftButtonPressed;
+        lastPointerInfo = ConstructPointerInfo(args.Point.PositionOnCanvas, args);
+        currentSession?.OnRightMouseButtonDown(args);
+    }
+    
+    public void RightMouseButtonUpInlet(VecD argsPositionOnCanvas)
+    {
+        RightMousePressed = false;
+        currentSession?.OnRightMouseButtonUp(argsPositionOnCanvas);
     }
 
     public void TransformChangedInlet(ShapeCorners corners)
@@ -388,6 +405,6 @@ internal class ChangeExecutionController
         }
 
         return new PointerInfo(currentPoint, pressure, args.Point.Properties.Twist,
-            new VecD(args.Point.Properties.XTilt, args.Point.Properties.YTilt), dirNormalized);
+            new VecD(args.Point.Properties.XTilt, args.Point.Properties.YTilt), dirNormalized, LeftMousePressed, RightMousePressed);
     }
 }

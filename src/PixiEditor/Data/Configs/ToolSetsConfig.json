@@ -6,6 +6,7 @@
       "Icon": "icon-sun",
       "ToolTip": "BRIGHTNESS_TOOL_TOOLTIP",
       "DefaultShortcut": "U",
+      "SupportsSecondaryActionOnRightClick": true,
       "ActionDisplays": [
         {
           "ActionDisplay": "BRIGHTNESS_TOOL_ACTION_DISPLAY_DEFAULT"

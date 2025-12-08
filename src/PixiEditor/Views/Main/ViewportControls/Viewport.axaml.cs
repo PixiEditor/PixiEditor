@@ -5,6 +5,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Media;
 using Avalonia.Skia;
 using Avalonia.VisualTree;
 using ChunkyImageLib;
@@ -383,7 +384,8 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         set => SetValue(ViewportRenderOutputProperty, value);
     }
 
-    public static readonly StyledProperty<Func<EditorData>> EditorDataFuncProperty = AvaloniaProperty.Register<Viewport, Func<EditorData>>("EditorDataFunc");
+    public static readonly StyledProperty<Func<EditorData>> EditorDataFuncProperty =
+        AvaloniaProperty.Register<Viewport, Func<EditorData>>("EditorDataFunc");
 
     public ObservableCollection<Overlay> ActiveOverlays { get; } = new();
 
@@ -534,7 +536,8 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     private ViewportInfo GetLocation()
     {
         return new(AngleRadians, Center, RealDimensions,
-            new ViewportData(Scene.CalculateTransformMatrix().ToSKMatrix().ToMatrix3X3(), Scene.Pan, Scene.Scale, FlipX, FlipY),
+            new ViewportData(Scene.CalculateTransformMatrix().ToSKMatrix().ToMatrix3X3(), Scene.Pan, Scene.Scale, FlipX,
+                FlipY),
             Scene.LastPointerInfo,
             Scene.LastKeyboardInfo,
             EditorDataFunc(),
@@ -576,7 +579,8 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         VecD conv = Scene.ToZoomboxSpace(new VecD(pos.X, pos.Y));
         MouseButton mouseButton = e.GetMouseButton(this);
 
-        MouseOnCanvasEventArgs parameter = new(mouseButton, e.Pointer.Type, conv, e.KeyModifiers, 0, e.GetCurrentPoint(this).Properties, Scene.Scale);
+        MouseOnCanvasEventArgs parameter = new(mouseButton, e.Pointer.Type, conv, e.KeyModifiers, 0,
+            e.GetCurrentPoint(this).Properties, Scene.Scale);
 
         var intermediate = e.GetIntermediatePoints(this);
         List<PointerPosition> intermediatePositions = new();
@@ -601,7 +605,8 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
         Point pos = e.GetPosition(Scene);
         VecD conv = Scene.ToZoomboxSpace(new VecD(pos.X, pos.Y));
-        MouseOnCanvasEventArgs parameter = new(e.InitialPressMouseButton, e.Pointer.Type, conv, e.KeyModifiers, 0, e.GetCurrentPoint(this).Properties, Scene.Scale);
+        MouseOnCanvasEventArgs parameter = new(e.InitialPressMouseButton, e.Pointer.Type, conv, e.KeyModifiers, 0,
+            e.GetCurrentPoint(this).Properties, Scene.Scale);
         if (MouseUpCommand.CanExecute(parameter))
             MouseUpCommand.Execute(parameter);
     }
@@ -725,14 +730,16 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         ViewportWindowViewModel vm = ((ViewportWindowViewModel)DataContext);
         var tools = vm.Owner.Owner.ToolsSubViewModel;
 
-        /*
-        var superSpecialBrightnessTool = tools.RightClickMode == RightClickMode.SecondaryColor &&
-                                         tools.ActiveTool is BrightnessToolViewModel;
-        */
+        var superSpecialRightClick = tools is { RightClickMode: RightClickMode.SecondaryColor, ActiveTool: BrushBasedToolViewModel
+            {
+                SupportsSecondaryActionOnRightClick: true
+            }
+        };
+
         var superSpecialColorPicker =
             tools.RightClickMode == RightClickMode.Erase && tools.ActiveTool is ColorPickerToolViewModel;
 
-        if (/*superSpecialBrightnessTool || */superSpecialColorPicker)
+        if (superSpecialRightClick || superSpecialColorPicker)
         {
             return;
         }

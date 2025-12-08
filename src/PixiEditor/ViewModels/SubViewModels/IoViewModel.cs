@@ -247,13 +247,19 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         if (drawingWithRight != null || args.Button is not (MouseButton.Left or MouseButton.Right))
             return;
 
-        if (args.Button == MouseButton.Right && !HandleRightMouseDown())
-            return;
-
         var docManager = Owner.DocumentManagerSubViewModel;
         var activeDocument = docManager.ActiveDocument;
         if (activeDocument == null)
             return;
+
+        if (args.Button == MouseButton.Right)
+        {
+            activeDocument.EventInlet.OnCanvasRightMouseButtonDown(args);
+            if (!HandleRightMouseDown())
+            {
+                return;
+            }
+        }
 
         drawingWithRight = args.Button == MouseButton.Right;
         activeDocument.EventInlet.OnCanvasLeftMouseButtonDown(args);
@@ -296,10 +302,8 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
                 HandleRightMouseEraseDown(tools);
                 return true;
             }
-            /*
-            case RightClickMode.SecondaryColor when tools.ActiveTool is BrightnessToolViewModel:
+            case RightClickMode.SecondaryColor when tools.ActiveTool is BrushBasedToolViewModel { SupportsSecondaryActionOnRightClick: true }:
                 return true;
-            */
             case RightClickMode.ContextMenu:
             default:
                 return false;
@@ -396,6 +400,12 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         {
             Owner.DocumentManagerSubViewModel.ActiveDocument.EventInlet
                 .OnCanvasLeftMouseButtonUp(args.Point.PositionOnCanvas);
+        }
+        
+        if (button == MouseButton.Right)
+        {
+            Owner.DocumentManagerSubViewModel.ActiveDocument.EventInlet
+                .OnCanvasRightMouseButtonUp(args.Point.PositionOnCanvas);
         }
 
         drawingWithRight = null;

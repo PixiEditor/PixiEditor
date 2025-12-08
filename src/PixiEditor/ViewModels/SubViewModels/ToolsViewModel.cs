@@ -119,7 +119,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         }
     }
 
-    public IToolSetHandler ActiveToolSet
+    public IToolSetHandler? ActiveToolSet
     {
         get => _activeToolSet!;
         private set => SetProperty(ref _activeToolSet, value);
@@ -728,7 +728,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
                     var brush = new Brush(uri, "TOOL_CONFIG");
                     KeyCombination? shortcut = TryParseShortcut(toolFromToolset.DefaultShortcut);
                     return new BrushBasedToolViewModel(new BrushViewModel(brush), toolFromToolset.ToolTip, toolFromToolset.ToolName,
-                        shortcut, toolFromToolset.ActionDisplays);
+                        shortcut, toolFromToolset.ActionDisplays, toolFromToolset.SupportsSecondaryActionOnRightClick);
                 }
             }
             catch
@@ -800,7 +800,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     private void UpdateEnabledState()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
-        if (doc is null)
+        if (doc is null || ActiveToolSet is null)
             return;
 
         foreach (var toolHandler in ActiveToolSet.Tools)
