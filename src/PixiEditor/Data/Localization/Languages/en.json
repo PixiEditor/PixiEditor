@@ -1288,5 +1288,7 @@
   "TARGET_BLEND_MODE": "Target",
   "LAST_APPLIED_POINT": "Last Applied Point",
   "VIEWPORT_INFO_NODE": "Viewport Info",
-  "EQUALS_NODE": "Equals"
+  "EQUALS_NODE": "Equals",
+  "IS_LEFT_BUTTON_PRESSED": "Is Left Button Pressed",
+  "IS_RIGHT_BUTTON_PRESSED": "Is Right Button Pressed"
 }

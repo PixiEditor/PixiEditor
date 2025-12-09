@@ -138,7 +138,7 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
         return controller.LastPrecisePosition;
     }
 
-    private VecD GetStabilizedPointTimeBased()
+    protected VecD GetStabilizedPointTimeBased()
     {
         float timeConstant = (float)BrushToolbar.Stabilization / 100f;
         float elapsed = Math.Min((float)(DateTime.Now - lastTime).TotalSeconds, 0.1f);
@@ -150,7 +150,7 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
         return smoothed;
     }
 
-    private VecD GetStabilizedPointCircleRope(double viewportZoom)
+    protected VecD GetStabilizedPointCircleRope(double viewportZoom)
     {
         float radius = (float)BrushToolbar.Stabilization / (float)viewportZoom;
         VecD direction = controller.LastPrecisePosition - lastSmoothed;

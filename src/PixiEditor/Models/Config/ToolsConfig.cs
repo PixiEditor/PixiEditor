@@ -43,6 +43,7 @@ public class ToolsConfig : IMergeable<ToolsConfig>
                         existingTool.DefaultShortcut = string.IsNullOrEmpty(tool.DefaultShortcut)
                             ? existingTool.DefaultShortcut
                             : tool.DefaultShortcut;
+                        existingTool.SupportsSecondaryActionOnRightClick = tool.SupportsSecondaryActionOnRightClick;
                         existingTool.ToolTip = string.IsNullOrEmpty(tool.ToolTip) ? existingTool.ToolTip : tool.ToolTip;
                         if (existingTool.Settings != null && tool.Settings != null)
                         {
@@ -92,6 +93,7 @@ public class ToolsConfig : IMergeable<ToolsConfig>
                                     : tool.DefaultShortcut;
                                 existingTool.ToolTip =
                                     string.IsNullOrEmpty(tool.ToolTip) ? existingTool.ToolTip : tool.ToolTip;
+                                existingTool.SupportsSecondaryActionOnRightClick = tool.SupportsSecondaryActionOnRightClick;
 
                                 if (existingTool.Settings != null && tool.Settings != null)
                                 {
@@ -151,6 +153,7 @@ public class ToolConfig
     public bool IsSimpleTool => Settings == null || Settings.Count == 0;
     public string? Icon { get; set; }
     public List<ActionDisplayConfig>? ActionDisplays { get; set; }
+    public bool SupportsSecondaryActionOnRightClick { get; set; }
 }
 
 public class ActionDisplayConfig
