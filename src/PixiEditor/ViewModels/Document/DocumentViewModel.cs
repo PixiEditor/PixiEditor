@@ -1057,6 +1057,9 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         {
             // it might've been a better idea to implement this function asynchronously
             // via a passthrough action to avoid all the try catches
+            if (SizeBindable.X <= 0 || SizeBindable.Y <= 0)
+                return Colors.Transparent;
+
             if (scope == DocumentScope.Canvas)
             {
                 using Surface

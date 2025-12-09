@@ -834,12 +834,17 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         {
             if (toolHandler is ToolViewModel tool)
             {
-                List<IStructureMemberHandler> selectedLayers = new List<IStructureMemberHandler>
+                List<IStructureMemberHandler> selectedLayers = new List<IStructureMemberHandler>();
+                if (doc.SelectedStructureMember != null)
                 {
-                    doc.SelectedStructureMember
-                };
+                    selectedLayers.Add(doc.SelectedStructureMember);
+                }
 
-                selectedLayers.AddRange(doc.SoftSelectedStructureMembers.Except(selectedLayers));
+                if (doc.SoftSelectedStructureMembers != null)
+                {
+                    selectedLayers.AddRange(doc.SoftSelectedStructureMembers.Except(selectedLayers));
+                }
+
                 tool.SelectedLayersChanged(selectedLayers.ToArray());
             }
         }
