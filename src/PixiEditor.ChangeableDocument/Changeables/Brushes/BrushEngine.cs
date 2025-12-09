@@ -57,20 +57,31 @@ public class BrushEngine : IDisposable
     /// </summary>
     private float GetSmoothedPressure(double targetPressure)
     {
-        if (pointsHistory.Count == 0)
+        if (pointsHistory.Count <= 0)
             return (float)targetPressure;
 
         double sum = 0;
         int count = 0;
 
-        // Iterate backwards through history
         for (int i = pointsHistory.Count - 1; i >= 0 && count < PressureSmoothingWindowSize; i--)
         {
             sum += pointsHistory[i].PointerInfo.Pressure;
             count++;
         }
 
-        // Add the current target to the average so we pull towards the new value
+        double historicalAverage = sum / count;
+
+        // If the new pressure is significantly higher than history,
+        // the user is trying to make a bold stroke. Minimize smoothing.
+        if (targetPressure > historicalAverage)
+        {
+            // "Lerp" towards the target.
+            // 0.8f means: "Use 80% raw pressure, 20% historical average"
+            float attackFactor = 0.8f;
+            return (float)(historicalAverage + (targetPressure - historicalAverage) * attackFactor);
+        }
+
+        // If pressure is steady or dropping, use full smoothing to hide jitter.
         sum += targetPressure;
         count++;
 

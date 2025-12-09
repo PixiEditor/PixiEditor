@@ -569,6 +569,8 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
         if (MouseDownCommand.CanExecute(parameter))
             MouseDownCommand.Execute(parameter);
+
+        e.Handled = true;
     }
 
     private void Image_MouseMove(PointerEventArgs e)
@@ -596,6 +598,8 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
         if (MouseMoveCommand.CanExecute(parameter))
             MouseMoveCommand.Execute(parameter);
+
+        e.Handled = true;
     }
 
     private void Image_MouseUp(object? sender, PointerReleasedEventArgs e)
@@ -609,6 +613,8 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
             e.GetCurrentPoint(this).Properties, Scene.Scale);
         if (MouseUpCommand.CanExecute(parameter))
             MouseUpCommand.Execute(parameter);
+
+        //e.Handled = true;
     }
 
     private void Image_MouseWheel(object? sender, PointerWheelEventArgs e)
