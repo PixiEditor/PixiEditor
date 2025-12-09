@@ -238,12 +238,30 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
             IconOverwrite = icon;
         }
 
+        if (ToolSetSettings.TryGetValue(toolset, out var settings))
+        {
+            foreach (var setting in settings)
+            {
+                if (IsDefaultSetting(setting, out object defaultValue))
+                {
+                    string settingName = setting.Key.Replace("Default", string.Empty);
+                    var foundSetting = TryGetSettingByName(settingName, setting);
+                    if (foundSetting is null)
+                    {
+                        continue;
+                    }
+
+                    foundSetting.SetDefaultValue(defaultValue, toolset.Name);
+                }
+            }
+        }
+
         foreach (var toolbarSetting in toolbarSettings)
         {
             toolbarSetting.SetCurrentToolset(toolset.Name);
         }
 
-        if (!ToolSetSettings.TryGetValue(toolset, out var settings))
+        if (settings is null)
         {
             return;
         }
@@ -263,14 +281,7 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
             }
             else if (IsDefaultSetting(setting, out object defaultValue))
             {
-                string settingName = setting.Key.Replace("Default", string.Empty);
-                var foundSetting = TryGetSettingByName(settingName, setting);
-                if (foundSetting is null)
-                {
-                    continue;
-                }
-
-                foundSetting.SetDefaultValue(defaultValue);
+                continue;
             }
             else
             {

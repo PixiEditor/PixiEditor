@@ -7,6 +7,8 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 [NodeInfo("PointerInfo")]
 public class PointerInfoNode : Node
 {
+    public OutputProperty<bool> IsLeftButtonPressed { get; }
+    public OutputProperty<bool> IsRightButtonPressed { get; }
     public OutputProperty<VecD> PositionOnCanvas { get; }
     public OutputProperty<double> Pressure { get; }
     public OutputProperty<double> Twist { get; }
@@ -17,6 +19,8 @@ public class PointerInfoNode : Node
 
     public PointerInfoNode()
     {
+        IsLeftButtonPressed = CreateOutput<bool>("IsLeftButtonPressed", "IS_LEFT_BUTTON_PRESSED", false);
+        IsRightButtonPressed = CreateOutput<bool>("IsRightButtonPressed", "IS_RIGHT_BUTTON_PRESSED", false);
         PositionOnCanvas = CreateOutput<VecD>("PositionOnCanvas", "POSITION_ON_CANVAS", new VecD(0, 0));
         Pressure = CreateOutput<double>("Pressure", "PRESSURE", 1.0);
         Twist = CreateOutput<double>("Twist", "TWIST", 0.0);
@@ -32,6 +36,8 @@ public class PointerInfoNode : Node
             return;
         }
 
+        IsLeftButtonPressed.Value = context.PointerInfo.IsLeftButtonPressed;
+        IsRightButtonPressed.Value = context.PointerInfo.IsRightButtonPressed;
         PositionOnCanvas.Value = context.PointerInfo.PositionOnCanvas;
         Pressure.Value = context.PointerInfo.Pressure;
         Twist.Value = context.PointerInfo.Twist;

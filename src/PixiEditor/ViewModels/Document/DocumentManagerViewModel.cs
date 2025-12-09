@@ -47,7 +47,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
             if (ViewModelMain.Current.ToolsSubViewModel.ActiveTool == null)
             {
                 var firstTool =
-                    ViewModelMain.Current.ToolsSubViewModel.ActiveToolSet.Tools.FirstOrDefault(x =>
+                    ViewModelMain.Current.ToolsSubViewModel.ActiveToolSet?.Tools.FirstOrDefault(x =>
                         x.CanBeUsedOnActiveLayer);
                 if (firstTool != null)
                 {

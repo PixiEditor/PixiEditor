@@ -248,6 +248,12 @@ internal class DocumentOperationsModule : IDocumentOperations
         return Internals.StructureHelper.CreateNewStructureMember(structureMemberType, name, source);
     }
 
+    public Guid? ForceCreateStructureMember(Type structureMemberType, ActionSource source, string? name = null)
+    {
+        Internals.ChangeController.TryStopActiveExecutor();
+        return Internals.StructureHelper.CreateNewStructureMember(structureMemberType, name, source);
+    }
+
     /// <summary>
     /// Duplicates the member with the <paramref name="guidValue"/>
     /// </summary>

@@ -19,7 +19,7 @@
         <ComboBox VerticalAlignment="Center"
                   MinWidth="85"
                   IsVisible="{Binding !PickerIsIconButtons}"
-                  SelectedIndex="{Binding Value, Mode=TwoWay}"
+                  SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}"
                   ItemsSource="{Binding EnumValues}">
             <ComboBox.ItemContainerTheme>
                 <ControlTheme TargetType="ComboBoxItem" BasedOn="{StaticResource {x:Type ComboBoxItem}}">

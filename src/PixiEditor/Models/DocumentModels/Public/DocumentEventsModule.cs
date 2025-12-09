@@ -42,6 +42,8 @@ internal class DocumentEventsModule
     }
 
     public void OnCanvasLeftMouseButtonUp(VecD argsPositionOnCanvas) => Internals.ChangeController.LeftMouseButtonUpInlet(argsPositionOnCanvas);
+    public void OnCanvasRightMouseButtonDown(MouseOnCanvasEventArgs args) => Internals.ChangeController.RightMouseButtonDownInlet(args);
+    public void OnCanvasRightMouseButtonUp(VecD argsPositionOnCanvas) => Internals.ChangeController.RightMouseButtonUpInlet(argsPositionOnCanvas);
     public void OnOpacitySliderDragStarted() => Internals.ChangeController.OpacitySliderDragStartedInlet();
     public void OnOpacitySliderDragged(float newValue) => Internals.ChangeController.OpacitySliderDraggedInlet(newValue);
     public void OnOpacitySliderDragEnded() => Internals.ChangeController.OpacitySliderDragEndedInlet();

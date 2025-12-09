@@ -819,7 +819,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         Point dir = lastDirCalculationPoint - data.Position;
         VecD vecDir = new VecD(dir.X, dir.Y);
         VecD dirNormalized = vecDir.Length > 0 ? vecDir.Normalize() : lastPointerInfo.MovementDirection;
-        return new PointerInfo(position, pressure, properties.Twist, new VecD(properties.XTilt, properties.YTilt), dirNormalized);
+        return new PointerInfo(position, pressure, properties.Twist, new VecD(properties.XTilt, properties.YTilt), dirNormalized, e.Properties.IsLeftButtonPressed, e.Properties.IsRightButtonPressed);
     }
 
     private static Point Lerp(VecD a, VecD b, float t)

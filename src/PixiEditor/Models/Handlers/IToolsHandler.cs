@@ -38,4 +38,7 @@ internal interface IToolsHandler : IHandler
     public void OnPreUndoInlet();
     public void QuickToolSwitchInlet();
     public void ChangeToolSize(double by);
+    public bool CreateLayerIfNeeded();
+    public bool NeedsNewLayerForActiveTool();
+    public void DeselectActiveTool();
 }

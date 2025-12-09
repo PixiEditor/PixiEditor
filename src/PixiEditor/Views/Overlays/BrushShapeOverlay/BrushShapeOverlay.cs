@@ -183,7 +183,7 @@ internal class BrushShapeOverlay : Overlay
         VecD vecDir = new VecD(dir.X, dir.Y);
         VecD dirNormalized = vecDir.Length > 0 ? vecDir.Normalize() : lastPointerInfo.MovementDirection;
 
-        PointerInfo pointer = new PointerInfo(pos, 1, 0, VecD.Zero, dirNormalized);
+        PointerInfo pointer = new PointerInfo(pos, 1, 0, VecD.Zero, dirNormalized, true, false);
 
         engine.ExecuteBrush(null, BrushData, pos, ActiveFrameTime,
             ColorSpace.CreateSrgb(), SamplingOptions.Default, pointer, new KeyboardInfo(),

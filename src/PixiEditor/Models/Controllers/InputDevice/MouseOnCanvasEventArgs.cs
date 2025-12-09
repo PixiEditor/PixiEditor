@@ -15,6 +15,7 @@ internal class MouseOnCanvasEventArgs : EventArgs
     public int ClickCount { get; set; } = 1;
     public double ViewportScale { get; set; }
     public IReadOnlyList<PointerPosition> IntermediatePoints { get; set; }
+    public PointerPointProperties Properties => Point.Properties;
 
     public MouseOnCanvasEventArgs(MouseButton button, PointerType type, VecD positionOnCanvas, KeyModifiers keyModifiers, int clickCount,
         PointerPointProperties properties, double viewportScale)
