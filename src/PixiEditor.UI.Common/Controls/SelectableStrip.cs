@@ -2,6 +2,7 @@
 using Avalonia.Animation;
 using Avalonia.Animation.Easings;
 using Avalonia.Controls;
+using Avalonia.Controls.Presenters;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Styling;
@@ -86,6 +87,8 @@ public class SelectableStrip : Panel
         {
             Children.Insert(0, _highlight);
         }
+
+        FindSelectedItem();
     }
 
     private static void OnSelectionChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
@@ -108,6 +111,19 @@ public class SelectableStrip : Panel
 
         var pos = control.TranslatePoint(new Point(0, 0), selectableStrip) ?? new Point();
         selectableStrip.HighlightX = pos.X;
+    }
+
+    private void FindSelectedItem()
+    {
+        foreach (var child in Children)
+        {
+            if (child is ContentPresenter presenter && presenter.Child != null && GetIsStripSelected(presenter.Child))
+            {
+                var pos = presenter.Child.TranslatePoint(new Point(0, 0), this) ?? new Point();
+                HighlightX = pos.X;
+                break;
+            }
+        }
     }
 
     protected override Size ArrangeOverride(Size finalSize)
