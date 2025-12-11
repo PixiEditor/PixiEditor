@@ -570,15 +570,15 @@ public class BrushEngine : IDisposable
     {
         if (fitToStrokeSize)
         {
-            VecD scale = new VecD(rect.Size.X / (float)path.TightBounds.Width,
-                rect.Size.Y / (float)path.TightBounds.Height);
+            VecD scale = new VecD(rect.Size.X / (float)vectorShape.GeometryAABB.Width,
+                rect.Size.Y / (float)vectorShape.GeometryAABB.Height);
             if (scale.IsNaNOrInfinity())
             {
                 scale = VecD.Zero;
             }
 
             VecD uniformScale = new VecD(Math.Min(scale.X, scale.Y));
-            VecD center = autoPosition ? rect.Center : vectorShape.TransformedAABB.Center;
+            VecD center = autoPosition ? rect.Center : vectorShape.GeometryAABB.Center;
 
             path.Transform(Matrix3X3.CreateScale((float)uniformScale.X, (float)uniformScale.Y, (float)center.X,
                 (float)center.Y));
