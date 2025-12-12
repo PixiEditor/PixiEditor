@@ -15,6 +15,8 @@ internal class BrushOutputNodeViewModel : NodeViewModel<BrushOutputNode>
         InputPropertyMap[BrushOutputNode.BrushNameProperty].SocketEnabled = false;
         InputPropertyMap[BrushOutputNode.FitToStrokeSizeProperty].SocketEnabled = false;
         InputPropertyMap[BrushOutputNode.UseCustomStampBlenderProperty].ValueChanged += OnValueChanged;
+        InputPropertyMap[BrushOutputNode.ContentProperty].ConnectedOutputChanged += OnContentConnectionChanged;
+        InputPropertyMap[BrushOutputNode.ContentTransformProperty].IsVisible = InputPropertyMap[BrushOutputNode.ContentProperty].ConnectedOutput != null;
         if(InputPropertyMap[BrushOutputNode.CustomStampBlenderCodeProperty] is StringPropertyViewModel codeProperty)
         {
             codeProperty.IsVisible = (bool)InputPropertyMap[BrushOutputNode.UseCustomStampBlenderProperty].Value;
@@ -26,5 +28,11 @@ internal class BrushOutputNodeViewModel : NodeViewModel<BrushOutputNode>
     {
         InputPropertyMap[BrushOutputNode.CustomStampBlenderCodeProperty].IsVisible = (bool)args.NewValue;
         InputPropertyMap[BrushOutputNode.StampBlendModeProperty].IsVisible = !(bool)args.NewValue;
+    }
+
+    private void OnContentConnectionChanged(object? sender, EventArgs eventArgs)
+    {
+        var connection = InputPropertyMap[BrushOutputNode.ContentProperty].ConnectedOutput;
+        InputPropertyMap[BrushOutputNode.ContentTransformProperty].IsVisible = connection != null;
     }
 }
