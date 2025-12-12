@@ -33,7 +33,7 @@
                 Classes="pixi-icon"
                 Content="{DynamicResource icon-plus-square}"
                 Command="{Binding AddVariableCommand, RelativeSource={RelativeSource AncestorType=blackboard:BlackboardView, Mode=FindAncestor}}"
-                CommandParameter="{Binding SelectedItem, ElementName=typeComboBox}"/>
+                CommandParameter="{Binding SelectedVariableOption, RelativeSource={RelativeSource AncestorType=blackboard:BlackboardView, Mode=FindAncestor}}"/>
 
         <Separator Background="{DynamicResource ThemeControlHighBrush}" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,5"/>
 
