@@ -625,7 +625,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
             ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TryStopToolLinkedExecutor();
         }
 
-        ActiveTool.UseTool(canvasPos);
+        ActiveTool?.UseTool(canvasPos);
     }
 
     public void ConvertedKeyDownInlet(FilteredKeyEventArgs args)
