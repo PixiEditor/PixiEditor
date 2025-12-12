@@ -58,6 +58,8 @@ internal abstract class Setting : ObservableObject
     protected bool hasOverwrittenValue;
     protected bool hasOverwrittenExposed;
 
+    private bool mergeChanges;
+
     protected Setting(string name)
     {
         Name = name;
@@ -125,6 +127,20 @@ internal abstract class Setting : ObservableObject
         get => toolsetValues.GetValueOrDefault(currentToolset, null);
         set => toolsetValues[currentToolset] = value;
     }
+
+    public bool MergeChanges
+    {
+        get => mergeChanges;
+        set
+        {
+            if (SetProperty(ref mergeChanges, value) && !value)
+            {
+                MergeChangesEnded?.Invoke();
+            }
+        }
+    }
+
+    public event Action MergeChangesEnded;
 
     public abstract Type GetSettingType();
 

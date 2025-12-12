@@ -6,7 +6,7 @@ using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph.Blackboard;
 
 namespace PixiEditor.ChangeableDocument.Changes.NodeGraph.Blackboard;
 
-internal class SetBlackboardVariable_Change : Change
+internal class SetBlackboardVariable_Change : InterruptableUpdateableChange
 {
     private string variable;
     private object value;
@@ -19,8 +19,19 @@ internal class SetBlackboardVariable_Change : Change
     private string unit;
     private bool isExposed;
 
-    [GenerateMakeChangeAction]
+    [GenerateUpdateableChangeActions]
     public SetBlackboardVariable_Change(string variable, object value, double min, double max, string unit, bool isExposed)
+    {
+        this.variable = variable;
+        this.value = value;
+        this.min = min;
+        this.max = max;
+        this.unit = unit;
+        this.isExposed = isExposed;
+    }
+
+    [UpdateChangeMethod]
+    public void Update(string variable, object value, double min, double max, string unit, bool isExposed)
     {
         this.variable = variable;
         this.value = value;
@@ -80,6 +91,11 @@ internal class SetBlackboardVariable_Change : Change
         out bool ignoreInUndo)
     {
         ignoreInUndo = false;
+        return Apply(target);
+    }
+
+    private OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target)
+    {
         if (target.NodeGraph.Blackboard.GetVariable(variable) == null)
         {
             Type type = value.GetType();
@@ -93,6 +109,11 @@ internal class SetBlackboardVariable_Change : Change
 
         InformBlackboardAccessingNodes(target, variable);
         return new List<IChangeInfo>() { new BlackboardVariable_ChangeInfo(variable, oldVar.Type, value, oldVar.Min ?? double.MinValue, oldVar.Max ?? double.MaxValue, oldVar.Unit), new BlackboardVariableExposed_ChangeInfo(variable, isExposed) };
+    }
+
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> ApplyTemporarily(Document target)
+    {
+        return Apply(target);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)

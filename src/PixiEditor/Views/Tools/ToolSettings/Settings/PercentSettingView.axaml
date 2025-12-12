@@ -15,6 +15,7 @@
                        Size="{Binding Value, Mode=TwoWay, Converter={converters:IntPercentConverter}}"
                        MinSize="{Binding Min, Converter={converters:IntPercentConverter}}"
                        MaxSize="{Binding Max, Converter={converters:IntPercentConverter}}"
+                       DraggingGrabber="{Binding MergeChanges, Mode=OneWayToSource}"
                        Unit="%"
                        Margin="0,0,0,0" 
                         />
