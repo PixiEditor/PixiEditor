@@ -84,8 +84,23 @@ internal class VariableViewModel : ViewModelBase, IVariableHandler
             if (suppressValueChange)
                 return;
 
+            if (SettingView.MergeChanges)
+            {
+                internals.ActionAccumulator.AddActions(
+                    new SetBlackboardVariable_Action(Name, AdjustValueForBlackboard(SettingView.Value), min, max, unit, IsExposedBindable));
+            }
+            else
+            {
+                internals.ActionAccumulator.AddFinishedActions(
+                    new SetBlackboardVariable_Action(Name, AdjustValueForBlackboard(SettingView.Value), min, max, unit, IsExposedBindable),
+                    new EndSetBlackboardVariable_Action());
+            }
+        };
+
+        SettingView.MergeChangesEnded += () =>
+        {
             internals.ActionAccumulator.AddFinishedActions(
-                new SetBlackboardVariable_Action(Name, AdjustValueForBlackboard(SettingView.Value), min, max, unit, IsExposedBindable));
+                new EndSetBlackboardVariable_Action());
         };
 
         RemoveCommand = new RelayCommand(() =>

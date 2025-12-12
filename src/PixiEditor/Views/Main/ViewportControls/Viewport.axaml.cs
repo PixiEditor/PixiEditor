@@ -434,6 +434,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         Scene.ScaleChanged += OnScaleChanged;
     }
 
+
     private void OnScaleChanged(double newScale)
     {
         SnappingViewModel.SnappingController.SnapDistance = SnappingController.DefaultSnapDistance / newScale;
@@ -775,5 +776,10 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
                 ViewportRenderOutput = (string)e.AddedItems[0];
             }
         }
+    }
+
+    private void Scene_OnContextRequested(object? sender, ContextRequestedEventArgs e)
+    {
+        e.Handled = true;
     }
 }

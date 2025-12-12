@@ -89,8 +89,12 @@ public class BrushOutputNode : Node
     public const string UseCustomStampBlenderProperty = "UseCustomStampBlender";
     public const string CustomStampBlenderCodeProperty = "CustomStampBlender";
     public const string StampBlendModeProperty = "StampBlendMode";
+    public const string ContentProperty = "Content";
+    public const string ContentTransformProperty = "Transform";
 
     private VectorPath? previewVectorPath;
+    private bool drawnContentTextureOnce = false;
+    private Matrix3X3 lastTranform = Matrix3X3.Identity;
 
     public BrushOutputNode()
     {
@@ -98,8 +102,8 @@ public class BrushOutputNode : Node
         VectorShape = CreateInput<ShapeVectorData>("VectorShape", "SHAPE", null);
         Stroke = CreateInput<Paintable>("Stroke", "STROKE", null);
         Fill = CreateInput<Paintable>("Fill", "FILL", null);
-        Content = CreateRenderInput("Content", "CONTENT");
-        Transform = CreateInput<Matrix3X3>("Transform", "TRANSFORM", Matrix3X3.Identity);
+        Content = CreateRenderInput(ContentProperty, "CONTENT");
+        Transform = CreateInput<Matrix3X3>(ContentTransformProperty, "CONTENT_TRANSFORM", Matrix3X3.Identity);
         ImageBlendMode = CreateInput<Drawie.Backend.Core.Surfaces.BlendMode>("BlendMode", "BLEND_MODE",
             Drawie.Backend.Core.Surfaces.BlendMode.SrcOver);
         StampBlendMode = CreateInput<Drawie.Backend.Core.Surfaces.BlendMode>(StampBlendModeProperty, "STAMP_BLEND_MODE",
@@ -146,11 +150,17 @@ public class BrushOutputNode : Node
         {
             if (context.RenderOutputSize.LongestAxis > 0)
             {
-                ContentTexture = cache.RequestTexture(0, context.RenderOutputSize, context.ProcessingColorSpace);
-                ContentTexture.DrawingSurface.Canvas.Save();
-                ContentTexture.DrawingSurface.Canvas.SetMatrix(Transform.Value);
-                Content.Value.Paint(context, ContentTexture.DrawingSurface.Canvas);
-                ContentTexture.DrawingSurface.Canvas.Restore();
+                if (!CanReuseStamps.Value || ContentTexture == null || ContentTexture.Size != context.RenderOutputSize ||
+                    !drawnContentTextureOnce || Transform.Value != lastTranform)
+                {
+                    ContentTexture = cache.RequestTexture(0, context.RenderOutputSize, context.ProcessingColorSpace);
+                    ContentTexture.DrawingSurface.Canvas.Save();
+                    ContentTexture.DrawingSurface.Canvas.SetMatrix(Transform.Value);
+                    Content.Value.Paint(context, ContentTexture.DrawingSurface.Canvas);
+                    ContentTexture.DrawingSurface.Canvas.Restore();
+                    drawnContentTextureOnce = true;
+                    lastTranform = Transform.Value;
+                }
             }
         }
 
@@ -177,6 +187,11 @@ public class BrushOutputNode : Node
     {
         base.SerializeAdditionalData(target, additionalData);
         additionalData["PersistentId"] = PersistentId;
+    }
+
+    public void ResetContentTexture()
+    {
+        drawnContentTextureOnce = false;
     }
 
     internal override void DeserializeAdditionalData(IReadOnlyDocument target, IReadOnlyDictionary<string, object> data,

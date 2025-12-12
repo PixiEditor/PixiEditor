@@ -14,6 +14,7 @@
                        Value="{Binding Value, Mode=TwoWay}"
                        Min="{Binding Min}"
                        Max="{Binding Max}"
+                       DraggingGrabber="{Binding MergeChanges, Mode=OneWayToSource}"
                        Decimals="{Binding DecimalPlaces}"
                        Margin="0,0,0,0" 
                        FocusNext="False"

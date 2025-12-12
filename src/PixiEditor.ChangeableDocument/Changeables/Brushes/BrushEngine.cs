@@ -31,6 +31,7 @@ public class BrushEngine : IDisposable
     private int lastAppliedHistoryIndex = -1;
     private VecI lastCachedTexturePaintableSize = VecI.Zero;
     private TexturePaintable? lastCachedTexturePaintable = null;
+    private Matrix3X3 lastCachedTransform = Matrix3X3.Identity;
     private readonly List<RecordedPoint> pointsHistory = new();
 
     private bool drawnOnce = false;
@@ -217,6 +218,7 @@ public class BrushEngine : IDisposable
             lastPos = point;
             drawnOnce = true;
             target?.SetBlendMode(imageBlendMode);
+            brushNode.ResetContentTexture();
         }
 
         float strokeWidth = brushData.StrokeWidth;
@@ -333,10 +335,11 @@ public class BrushEngine : IDisposable
         bool snapToPixels = brushNode.SnapToPixels.Value;
         bool canReuseStamps = brushNode.CanReuseStamps.Value;
         Blender? stampBlender = brushNode.UseCustomStampBlender.Value ? brushNode.LastStampBlender : null;
+        Matrix3X3 transform = brushNode.Transform.Value;
         //Blender? imageBlender = brushNode.UseCustomImageBlender.Value ? brushNode.LastImageBlender : null;
 
         if (PaintBrush(target, autoPosition, vectorShape, rect, fitToStrokeSize, pressure, content, contentTexture,
-                stampBlender, brushNode.StampBlendMode.Value, antiAliasing, fill, stroke, snapToPixels, canReuseStamps))
+                stampBlender, brushNode.StampBlendMode.Value, antiAliasing, fill, stroke, snapToPixels, canReuseStamps, transform))
         {
             lastPos = point;
         }
@@ -345,7 +348,7 @@ public class BrushEngine : IDisposable
     public bool PaintBrush(ChunkyImage target, bool autoPosition, ShapeVectorData vectorShape,
         RectD rect, bool fitToStrokeSize, float pressure, Painter? content,
         Texture? contentTexture, Blender? blender, DrawingApiBlendMode blendMode, bool antiAliasing, Paintable fill, Paintable stroke,
-        bool snapToPixels, bool canReuseStamps)
+        bool snapToPixels, bool canReuseStamps, Matrix3X3 transform)
     {
         var path = vectorShape.ToPath(true);
         if (path == null)
@@ -411,11 +414,12 @@ public class BrushEngine : IDisposable
                 TexturePaintable brushPaintable;
                 if (canReuseStamps)
                 {
-                    if (lastCachedTexturePaintableSize != contentTexture.Size || lastCachedTexturePaintable == null)
+                    if (lastCachedTexturePaintableSize != contentTexture.Size || lastCachedTexturePaintable == null || lastCachedTransform != transform)
                     {
                         lastCachedTexturePaintable?.Dispose();
                         lastCachedTexturePaintable = new TexturePaintable(new Texture(contentTexture), false);
                         lastCachedTexturePaintableSize = contentTexture.Size;
+                        lastCachedTransform = transform;
                     }
 
                     brushPaintable = lastCachedTexturePaintable;
@@ -570,15 +574,15 @@ public class BrushEngine : IDisposable
     {
         if (fitToStrokeSize)
         {
-            VecD scale = new VecD(rect.Size.X / (float)path.TightBounds.Width,
-                rect.Size.Y / (float)path.TightBounds.Height);
+            VecD scale = new VecD(rect.Size.X / (float)vectorShape.GeometryAABB.Width,
+                rect.Size.Y / (float)vectorShape.GeometryAABB.Height);
             if (scale.IsNaNOrInfinity())
             {
                 scale = VecD.Zero;
             }
 
             VecD uniformScale = new VecD(Math.Min(scale.X, scale.Y));
-            VecD center = autoPosition ? rect.Center : vectorShape.TransformedAABB.Center;
+            VecD center = autoPosition ? rect.Center : vectorShape.GeometryAABB.Center;
 
             path.Transform(Matrix3X3.CreateScale((float)uniformScale.X, (float)uniformScale.Y, (float)center.X,
                 (float)center.Y));

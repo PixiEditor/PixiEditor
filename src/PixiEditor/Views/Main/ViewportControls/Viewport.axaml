@@ -277,6 +277,7 @@
             BackgroundBitmap="{Binding BackgroundBitmap, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
             MaxBilinearSamplingSize="{Binding MaxBilinearSamplingSize, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
             PointerPressed="Scene_OnContextMenuOpening"
+            ContextRequested="Scene_OnContextRequested"
             ui1:RenderOptionsBindable.BitmapInterpolationMode="{Binding Scale, Converter={converters:ScaleToBitmapScalingModeConverter}, RelativeSource={RelativeSource Self}}">
             <rendering:Scene.ContextFlyout>
                 <Flyout x:CompileBindings="True" x:DataType="subViewModels:ViewportWindowViewModel"
