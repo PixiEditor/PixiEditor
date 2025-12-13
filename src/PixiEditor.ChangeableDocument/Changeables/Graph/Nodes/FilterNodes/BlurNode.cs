@@ -15,7 +15,7 @@ public class BlurNode : FilterNode
 
     protected override bool ExecuteOnlyOnCacheChange => true;
 
-    protected override CacheTriggerFlags CacheTrigger => CacheTriggerFlags.Inputs | CacheTriggerFlags.RenderSize;
+    protected override CacheTriggerFlags CacheTrigger => CacheTriggerFlags.Inputs | CacheTriggerFlags.RenderSize | CacheTriggerFlags.ChunkResolution;
 
     public BlurNode()
     {

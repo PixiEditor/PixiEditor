@@ -49,6 +49,8 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
     private VecI lastRenderSize = new VecI(0, 0);
 
+    private ChunkResolution lastChunkResolution = ChunkResolution.Full;
+
     public bool IsDisposed => _isDisposed;
     private bool _isDisposed;
 
@@ -97,6 +99,11 @@ public abstract class Node : IReadOnlyNode, IDisposable
             changed |= lastRenderSize != context.RenderOutputSize;
         }
 
+        if (CacheTrigger.HasFlag(CacheTriggerFlags.ChunkResolution))
+        {
+            changed |= lastChunkResolution != context.ChunkResolution;
+        }
+
         if (CacheTrigger.HasFlag(CacheTriggerFlags.Timeline))
         {
             changed |= lastFrameTime.Frame != context.FrameTime.Frame ||
@@ -122,6 +129,8 @@ public abstract class Node : IReadOnlyNode, IDisposable
         lastRenderSize = context.RenderOutputSize;
 
         lastContentCacheHash = GetContentCacheHash();
+
+        lastChunkResolution = context.ChunkResolution;
     }
 
     public void TraverseBackwards(Func<IReadOnlyNode, IInputProperty, bool> action,
