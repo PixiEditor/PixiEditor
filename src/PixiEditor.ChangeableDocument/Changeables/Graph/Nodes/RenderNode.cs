@@ -47,6 +47,9 @@ public abstract class RenderNode : Node, IHighDpiRenderNode
 
     protected virtual void Paint(RenderContext context, Canvas surface)
     {
+        if (surface == null)
+            return;
+
         Canvas target = surface;
         bool useIntermediate = !AllowHighDpiRendering
                                && context.RenderOutputSize is { X: > 0, Y: > 0 }
