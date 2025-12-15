@@ -211,7 +211,7 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
             UpdateBrushNodes();
         }
 
-        if (name is nameof(IBrushToolbar.ToolSize) or nameof(IBrushToolbar.AntiAliasing) or nameof(IBrushToolbar.ForcePressure))
+        if (name is nameof(IBrushToolbar.ToolSize) or nameof(IBrushToolbar.AntiAliasing))
         {
             brushData = BrushToolbar.CreateBrushData();
         }
