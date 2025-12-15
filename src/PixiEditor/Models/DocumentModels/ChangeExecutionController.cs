@@ -245,7 +245,7 @@ internal class ChangeExecutionController
 
         // Some drivers do not report pressure for pointer down events. For example it happens on X11. We set pressure to 0, so Brush Engine does not
         // draw a blob with 0.5 pressure on each start of stroke.
-        lastPointerInfo = ConstructPointerInfo(args.Point.PositionOnCanvas, args) with { Pressure = 0 }; 
+        lastPointerInfo = ConstructPointerInfo(args.Point.PositionOnCanvas, args) with { Pressure = args.PointerType == PointerType.Pen ? 0 : 1 };
         if (_queuedExecutor != null && currentSession == null)
         {
             StartExecutor(_queuedExecutor);

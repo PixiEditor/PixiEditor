@@ -245,7 +245,7 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
 
                 var correspondingExposeNode = cachedExposeNodes?
                     .FirstOrDefault(x => x.Name.Value == output.InternalPropertyName &&
-                                         x.Value.ValueType == output.ValueType);
+                        x.Value.ValueType == output.ValueType || x.Value.Value?.GetType() == output.ValueType);
 
                 if (correspondingExposeNode is null)
                 {
