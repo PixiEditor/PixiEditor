@@ -132,7 +132,7 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
                 continue;
             }
 
-            if(!variable.Value.IsExposed)
+            if (!variable.Value.IsExposed)
                 continue;
 
             AddInputProperty(new InputProperty(this, variable.Key, variable.Key, variable.Value.Value,
@@ -164,10 +164,10 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
                 continue;
 
             bool shouldRemove = document.DocumentInstance.NodeGraph.Blackboard.Variables
-                .All(x => x.Key != input.InternalPropertyName ||
-                          x.Value.Type != input.ValueType) ||
-                              !document.DocumentInstance.NodeGraph.Blackboard.Variables[input.InternalPropertyName]
-                                  .IsExposed;
+                                    .All(x => x.Key != input.InternalPropertyName ||
+                                              x.Value.Type != input.ValueType) ||
+                                !document.DocumentInstance.NodeGraph.Blackboard.Variables[input.InternalPropertyName]
+                                    .IsExposed;
 
             if (shouldRemove)
             {
@@ -302,12 +302,17 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
         if (NestedDocument.Value is null)
             return;
 
-        int saved = workingSurface.SaveLayer(paint);
+        Texture? intermediate = null;
+        var latestSize = new RectI(VecI.Zero, lastDocument.DocumentInstance.Size);
+        intermediate = RequestTexture(1336, latestSize.Size, ColorSpace.CreateSrgb());
 
-        workingSurface.SetMatrix(workingSurface.TotalMatrix.Concat(TransformationMatrix));
-
+        ctx.RenderSurface = intermediate.DrawingSurface.Canvas;
+        ctx.RenderOutputSize = latestSize.Size;
         ExecuteNested(ctx);
 
+        int saved = workingSurface.Save();
+        workingSurface.SetMatrix(workingSurface.TotalMatrix.Concat(TransformationMatrix));
+        workingSurface.DrawSurface(intermediate.DrawingSurface, 0, 0, paint);
         workingSurface.RestoreToCount(saved);
     }
 
