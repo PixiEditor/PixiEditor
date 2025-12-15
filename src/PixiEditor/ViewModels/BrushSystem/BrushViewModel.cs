@@ -181,11 +181,11 @@ internal class BrushViewModel : ViewModelBase
             ColorSpace.CreateSrgb());
 
         var context = new RenderContext(
-            PointPreviewTexture.DrawingSurface.Canvas,
+            pointPreviewTexture.DrawingSurface.Canvas,
             0,
             ChunkResolution.Full,
-            PointPreviewTexture.Size,
-            PointPreviewTexture.Size,
+            pointPreviewTexture.Size,
+            pointPreviewTexture.Size,
             ColorSpace.CreateSrgb(),
             SamplingOptions.Bilinear,
             Brush?.Document.AccessInternalReadOnlyDocument().NodeGraph);
@@ -198,7 +198,7 @@ internal class BrushViewModel : ViewModelBase
         pointImage.DrawMostUpToDateRegionOn(
             new RectI(0, 0, pointImage.CommittedSize.X, pointImage.CommittedSize.Y),
             ChunkResolution.Full,
-            PointPreviewTexture.DrawingSurface.Canvas,
+            pointPreviewTexture.DrawingSurface.Canvas,
             VecI.Zero, null, SamplingOptions.Bilinear);
 
         context.RenderOutputSize = strokeTexture.Size;
@@ -216,7 +216,7 @@ internal class BrushViewModel : ViewModelBase
             VecI.Zero, null, SamplingOptions.Bilinear);
 
         OnPropertyChanged(nameof(DrawingStrokeTexture));
-        OnPropertyChanged(nameof(PointPreviewTexture));
+        OnPropertyChanged(nameof(pointPreviewTexture));
     }
 
     private bool CacheChanged()

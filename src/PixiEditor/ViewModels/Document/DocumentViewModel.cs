@@ -394,8 +394,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             factory.ResourceLocator = resourceLocator;
         }
 
-        AddNodes(builderInstance.Graph);
         AddBlackboard(builderInstance.Graph.Blackboard);
+        AddNodes(builderInstance.Graph);
 
         if (builderInstance.Graph.AllNodes.Count == 0 ||
             builderInstance.Graph.AllNodes.All(x => x.UniqueNodeName != OutputNode.UniqueName))
