@@ -64,34 +64,31 @@ public sealed class ApplyFilterNode : RenderNode, IRenderInput
     {
         _paint.SetFilters(Filter.Value);
 
-        if (!context.ProcessingColorSpace.IsSrgb)
-        {
-            HandleNonSrgbContext(context, outputSurface, processingSurface);
-            return;
-        }
-
-        var layer = processingSurface.SaveLayer(_paint);
-        Background.Value?.Paint(context, processingSurface);
-        processingSurface.RestoreToCount(layer);
+        Render(context, outputSurface, processingSurface);
     }
 
-    private void HandleNonSrgbContext(RenderContext context, Canvas surface, Canvas targetSurface)
+    private void Render(RenderContext context, Canvas surface, Canvas targetSurface)
     {
         using var intermediate = Texture.ForProcessing(surface, context.ProcessingColorSpace);
+        Texture? srgbSurface = null;
 
         Background.Value?.Paint(context, intermediate.DrawingSurface.Canvas);
 
-        using var srgbSurface = Texture.ForProcessing(intermediate.Size, ColorSpace.CreateSrgb());
-
-        srgbSurface.DrawingSurface.Canvas.SaveLayer(_paint);
-        srgbSurface.DrawingSurface.Canvas.DrawSurface(intermediate.DrawingSurface, 0, 0);
-        srgbSurface.DrawingSurface.Canvas.Restore();
+        var surfaceToUse = intermediate.DrawingSurface;
+        if (!context.ProcessingColorSpace.IsSrgb)
+        {
+            srgbSurface = Texture.ForProcessing(intermediate.Size, ColorSpace.CreateSrgb());
+            srgbSurface.DrawingSurface.Canvas.DrawSurface(intermediate.DrawingSurface.Canvas.Surface, 0, 0, _paint);
+            surfaceToUse = srgbSurface.DrawingSurface;
+        }
 
         var saved = targetSurface.Save();
         targetSurface.SetMatrix(Matrix3X3.Identity);
 
-        targetSurface.DrawSurface(srgbSurface.DrawingSurface, 0, 0);
+        targetSurface.DrawSurface(surfaceToUse, 0, 0, context.ProcessingColorSpace.IsSrgb ? _paint : null);
         targetSurface.RestoreToCount(saved);
+
+        srgbSurface?.Dispose();
     }
 
     private Texture? DetermineTargetSurface(RenderContext context, Canvas outputSurface, out Canvas targetSurface)

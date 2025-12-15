@@ -158,9 +158,21 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         workingSurface.Scale((float)ctx.ChunkResolution.InvertedMultiplier());
         var img = GetLayerImageAtFrame(ctx.FrameTime.Frame);
 
+        Texture? intermediate = null;
+        VecD finalDrawPos = topLeft;
         if (saveLayer)
         {
-            workingSurface.SaveLayer(paint);
+            var visibleRegion = ctx.VisibleDocumentRegion ?? latestSize;
+            var multiplier = visibleRegion != latestSize ? 1 : ctx.ChunkResolution.Multiplier();
+            var intersection = visibleRegion.Intersect(latestSize);
+            region = intersection;
+            VecI chunkAwareSize = (VecI)(new VecI(region.Width, region.Height) * multiplier);
+            intermediate = RequestTexture(1336, chunkAwareSize, ColorSpace.CreateSrgb());
+            finalDrawPos = VecD.Zero;
+            if (visibleRegion != latestSize)
+            {
+                topLeft = region.TopLeft - sceneSize / 2;
+            }
         }
 
         if (!ctx.FullRerender)
@@ -168,14 +180,24 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
             img.DrawMostUpToDateRegionOnWithAffected(
                 region,
                 ctx.ChunkResolution,
-                workingSurface, ctx.AffectedArea, topLeft, saveLayer ? null : paint, ctx.DesiredSamplingOptions);
+                saveLayer ? intermediate.DrawingSurface.Canvas : workingSurface, ctx.AffectedArea, finalDrawPos, saveLayer ? null : paint, ctx.DesiredSamplingOptions);
         }
         else
         {
             img.DrawMostUpToDateRegionOn(
                 region,
                 ctx.ChunkResolution,
-                workingSurface, topLeft, saveLayer ? null : paint, ctx.DesiredSamplingOptions);
+                saveLayer ? intermediate.DrawingSurface.Canvas : workingSurface, finalDrawPos, saveLayer ? null : paint, ctx.DesiredSamplingOptions);
+        }
+
+        if (saveLayer && intermediate != null)
+        {
+            int intermediateSaved = workingSurface.Save();
+            workingSurface.Translate(topLeft);
+
+            workingSurface.DrawSurface(intermediate.DrawingSurface, 0, 0, paint);
+
+            workingSurface.RestoreToCount(intermediateSaved);
         }
 
         workingSurface.RestoreToCount(saved);
