@@ -20,7 +20,8 @@ internal class SetBlackboardVariable_Change : InterruptableUpdateableChange
     private bool isExposed;
 
     [GenerateUpdateableChangeActions]
-    public SetBlackboardVariable_Change(string variable, object value, double min, double max, string unit, bool isExposed)
+    public SetBlackboardVariable_Change(string variable, object value, double min, double max, string unit,
+        bool isExposed)
     {
         this.variable = variable;
         this.value = value;
@@ -46,7 +47,7 @@ internal class SetBlackboardVariable_Change : InterruptableUpdateableChange
         if (variable == null)
             return false;
 
-        if(target?.NodeGraph?.Blackboard?.Variables == null || string.IsNullOrEmpty(variable))
+        if (target?.NodeGraph?.Blackboard?.Variables == null || string.IsNullOrEmpty(variable))
             return false;
 
         if (target.NodeGraph.Blackboard.Variables.TryGetValue(variable, out var blackboardVariable) &&
@@ -66,7 +67,7 @@ internal class SetBlackboardVariable_Change : InterruptableUpdateableChange
     {
         if (blackboardVariable?.Type == null || value == null)
             return false;
-        
+
         return value.GetType().IsAssignableTo(blackboardVariable.Type);
     }
 
@@ -79,6 +80,7 @@ internal class SetBlackboardVariable_Change : InterruptableUpdateableChange
                 val = Convert.ChangeType(val, targetType);
                 return true;
             }
+
             return false;
         }
         catch
@@ -101,14 +103,24 @@ internal class SetBlackboardVariable_Change : InterruptableUpdateableChange
             Type type = value.GetType();
             target.NodeGraph.Blackboard.SetVariable(variable, type, value, unit, min, max, isExposed);
             InformBlackboardAccessingNodes(target, variable);
-            return new List<IChangeInfo>() {new BlackboardVariable_ChangeInfo(variable, value.GetType(), value, min, max, unit), new BlackboardVariableExposed_ChangeInfo(variable, isExposed)};
+            return new List<IChangeInfo>()
+            {
+                new BlackboardVariable_ChangeInfo(variable, value?.GetType(), value, min, max, unit),
+                new BlackboardVariableExposed_ChangeInfo(variable, isExposed)
+            };
         }
 
-        var oldVar = target.NodeGraph.Blackboard.Variables[variable];
-        target.NodeGraph.Blackboard.SetVariable(variable, oldVar.Type, value, oldVar.Unit, min, max, isExposed);
+        var oldVar = target.NodeGraph.Blackboard.Variables.GetValueOrDefault(variable);
+
+        target.NodeGraph.Blackboard.SetVariable(variable, oldVar?.Type, value, oldVar?.Unit, min, max, isExposed);
 
         InformBlackboardAccessingNodes(target, variable);
-        return new List<IChangeInfo>() { new BlackboardVariable_ChangeInfo(variable, oldVar.Type, value, oldVar.Min ?? double.MinValue, oldVar.Max ?? double.MaxValue, oldVar.Unit), new BlackboardVariableExposed_ChangeInfo(variable, isExposed) };
+        return new List<IChangeInfo>()
+        {
+            new BlackboardVariable_ChangeInfo(variable, oldVar?.Type, value, oldVar?.Min ?? double.MinValue,
+                oldVar?.Max ?? double.MaxValue, oldVar?.Unit),
+            new BlackboardVariableExposed_ChangeInfo(variable, isExposed)
+        };
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> ApplyTemporarily(Document target)
@@ -125,10 +137,15 @@ internal class SetBlackboardVariable_Change : InterruptableUpdateableChange
             return new BlackboardVariableRemoved_ChangeInfo(variable);
         }
 
-        var currentVar = target.NodeGraph.Blackboard.Variables[variable];
-        target.NodeGraph.Blackboard.SetVariable(variable, currentVar.Type, originalValue!);
+        var currentVar = target.NodeGraph.Blackboard.Variables.GetValueOrDefault(variable);
+        target.NodeGraph.Blackboard.SetVariable(variable, currentVar?.Type, originalValue!);
         InformBlackboardAccessingNodes(target, variable);
-        return new List<IChangeInfo>() {new BlackboardVariable_ChangeInfo(variable, currentVar.Type, currentVar.Value, currentVar.Min ?? double.MinValue, currentVar.Max ?? double.MaxValue, currentVar.Unit), new BlackboardVariableExposed_ChangeInfo(variable, currentVar.IsExposed)};
+        return new List<IChangeInfo>()
+        {
+            new BlackboardVariable_ChangeInfo(variable, currentVar?.Type, currentVar?.Value,
+                currentVar?.Min ?? double.MinValue, currentVar?.Max ?? double.MaxValue, currentVar?.Unit),
+            new BlackboardVariableExposed_ChangeInfo(variable, currentVar?.IsExposed ?? false)
+        };
     }
 
     private void InformBlackboardAccessingNodes(Document target, string variableName)
