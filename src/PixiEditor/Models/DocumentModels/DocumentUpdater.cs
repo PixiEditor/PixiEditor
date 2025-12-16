@@ -701,7 +701,7 @@ internal class DocumentUpdater
 
             if (info.Outputs.FirstOrDefault(x =>
                     x.PropertyName == output.PropertyName
-                    && x.ValueType != output.Value?.GetType()) is
+                    && x.ValueType != output.Value?.GetType() && x.ValueType != output.PropertyType) is
                 { } changedOutput)
             {
                 removedOutputs.Add(output);

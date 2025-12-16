@@ -101,9 +101,13 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
             if (input.Name.Value == Output.InternalPropertyName)
                 continue;
 
-            if (OutputProperties.Any(x =>
-                    x.InternalPropertyName == input.Name.Value))
+            var firstExisting = OutputProperties.FirstOrDefault(x =>
+                x.InternalPropertyName == input.Name.Value);
+            if (firstExisting != null)
+            {
+                firstExisting.Value = input.Value.Value;
                 continue;
+            }
 
             AddOutputProperty(new OutputProperty(this, input.Name.Value, input.Name.Value, input.Value.Value,
                 input.Value.Value?.GetType() ?? typeof(object)));
@@ -244,8 +248,7 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
                     continue;
 
                 var correspondingExposeNode = cachedExposeNodes?
-                    .FirstOrDefault(x => x.Name.Value == output.InternalPropertyName &&
-                                         x.Value.ValueType == output.ValueType);
+                    .FirstOrDefault(x => x.Name.Value == output.InternalPropertyName);
 
                 if (correspondingExposeNode is null)
                 {

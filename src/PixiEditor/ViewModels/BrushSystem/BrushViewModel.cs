@@ -20,6 +20,7 @@ internal class BrushViewModel : ViewModelBase
     private Brush brush;
     private bool isFavourite;
     private ObservableCollection<string> tags;
+    private bool preventTextureGeneration;
 
     public Texture PointPreviewTexture
     {
@@ -160,6 +161,10 @@ internal class BrushViewModel : ViewModelBase
 
     private void GeneratePreviewTextures()
     {
+        if (preventTextureGeneration)
+            return;
+
+        preventTextureGeneration = true;
         BrushOutputNode? brushNode =
             Brush?.Document?.AccessInternalReadOnlyDocument().NodeGraph.LookupNode(Brush.OutputNodeId) as
                 BrushOutputNode;
@@ -216,7 +221,8 @@ internal class BrushViewModel : ViewModelBase
             VecI.Zero, null, SamplingOptions.Bilinear);
 
         OnPropertyChanged(nameof(DrawingStrokeTexture));
-        OnPropertyChanged(nameof(pointPreviewTexture));
+        OnPropertyChanged(nameof(PointPreviewTexture));
+        preventTextureGeneration = false;
     }
 
     private bool CacheChanged()

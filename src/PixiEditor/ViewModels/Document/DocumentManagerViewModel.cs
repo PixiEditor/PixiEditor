@@ -473,10 +473,10 @@ public class DocumentReferenceData : IDisposable, IDocumentReferenceData
                 Watcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName;
                 Watcher.IncludeSubdirectories = false;
 
-                Watcher.Changed += (s, e) =>
+                /*Watcher.Changed += (s, e) =>
                 {
                     DocumentChanged?.Invoke(ReferenceId, e.FullPath);
-                };
+                };*/
 
                 Watcher.Renamed += (s, e) =>
                 {
