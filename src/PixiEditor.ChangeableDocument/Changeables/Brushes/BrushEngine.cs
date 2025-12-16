@@ -33,6 +33,9 @@ public class BrushEngine : IDisposable
     private TexturePaintable? lastCachedTexturePaintable = null;
     private Matrix3X3 lastCachedTransform = Matrix3X3.Identity;
     private readonly List<RecordedPoint> pointsHistory = new();
+    private readonly List<VecD> interpolated = new(128);
+    private Dictionary<Guid, bool> graphUsesSampleInput = new();
+    private Dictionary<Guid, bool> graphUsesFullInput = new();
 
     private bool drawnOnce = false;
     
@@ -123,10 +126,10 @@ public class BrushEngine : IDisposable
 
             if (dist > 0.5)
             {
-                var interpolated = LineHelper.GetInterpolatedPoints(previousPoint.Position,
-                    currentPoint.Position);
+                LineHelper.GetInterpolatedPointsNonAlloc(previousPoint.Position,
+                    currentPoint.Position, interpolated);
                 
-                for (int j = 1; j < interpolated.Length; j++)
+                for (int j = 1; j < interpolated.Count; j++)
                 {
                     var pt = interpolated[j];
                     
@@ -476,24 +479,32 @@ public class BrushEngine : IDisposable
 
     private bool GraphUsesSampleTexture(IReadOnlyNodeGraph graph, IReadOnlyNode brushNode)
     {
-        return GraphUsesInput(graph, brushNode, node => node.TargetSampleTexture.Connections);
+        if (graphUsesSampleInput.TryGetValue(brushNode.Id, out bool uses))
+        {
+            return uses;
+        }
+
+        bool usesInput = GraphUsesInput(graph, brushNode, node => node.TargetSampleTexture.Connections);
+        graphUsesSampleInput[brushNode.Id] = usesInput;
+        return usesInput;
     }
 
     private bool GraphUsesFullTexture(IReadOnlyNodeGraph graph, IReadOnlyNode brushNode)
     {
-        return GraphUsesInput(graph, brushNode, node => node.TargetFullTexture.Connections);
+        if (graphUsesFullInput.TryGetValue(brushNode.Id, out bool uses))
+        {
+            return uses;
+        }
+
+        bool usesInput = GraphUsesInput(graph, brushNode, node => node.TargetFullTexture.Connections);
+        graphUsesFullInput[brushNode.Id] = usesInput;
+        return usesInput;
     }
 
     private bool GraphUsesInput(IReadOnlyNodeGraph graph, IReadOnlyNode brushNode,
         Func<IBrushSampleTextureNode, IReadOnlyCollection<IInputProperty>> getConnections)
     {
-        var sampleTextureNodes = graph.AllNodes.Where(x => x is IBrushSampleTextureNode).ToList();
-        if (sampleTextureNodes.Count == 0)
-        {
-            return false;
-        }
-
-        foreach (var node in sampleTextureNodes)
+        foreach (var node in graph.AllNodes)
         {
             if (node is IBrushSampleTextureNode brushSampleTextureNode)
             {
