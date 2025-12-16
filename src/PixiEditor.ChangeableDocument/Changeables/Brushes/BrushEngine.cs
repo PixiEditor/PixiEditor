@@ -261,7 +261,7 @@ public class BrushEngine : IDisposable
             surfaceUnderRect, fullTexture, brushData.BrushGraph,
             startPos, lastPos)
         {
-            PointerInfo = pointerInfo,
+            PointerInfo = pointerInfo with { PositionOnCanvas = point },
             EditorData = shouldErase
                 ? new EditorData(editorData.PrimaryColor.WithAlpha(255), editorData.SecondaryColor)
                 : editorData,
