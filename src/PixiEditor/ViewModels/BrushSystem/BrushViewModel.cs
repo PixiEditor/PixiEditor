@@ -20,6 +20,7 @@ internal class BrushViewModel : ViewModelBase
     private Brush brush;
     private bool isFavourite;
     private ObservableCollection<string> tags;
+    private bool preventTextureGeneration;
 
     public Texture PointPreviewTexture
     {
@@ -160,6 +161,10 @@ internal class BrushViewModel : ViewModelBase
 
     private void GeneratePreviewTextures()
     {
+        if (preventTextureGeneration)
+            return;
+
+        preventTextureGeneration = true;
         BrushOutputNode? brushNode =
             Brush?.Document?.AccessInternalReadOnlyDocument().NodeGraph.LookupNode(Brush.OutputNodeId) as
                 BrushOutputNode;
@@ -181,11 +186,11 @@ internal class BrushViewModel : ViewModelBase
             ColorSpace.CreateSrgb());
 
         var context = new RenderContext(
-            PointPreviewTexture.DrawingSurface.Canvas,
+            pointPreviewTexture.DrawingSurface.Canvas,
             0,
             ChunkResolution.Full,
-            PointPreviewTexture.Size,
-            PointPreviewTexture.Size,
+            pointPreviewTexture.Size,
+            pointPreviewTexture.Size,
             ColorSpace.CreateSrgb(),
             SamplingOptions.Bilinear,
             Brush?.Document.AccessInternalReadOnlyDocument().NodeGraph);
@@ -198,7 +203,7 @@ internal class BrushViewModel : ViewModelBase
         pointImage.DrawMostUpToDateRegionOn(
             new RectI(0, 0, pointImage.CommittedSize.X, pointImage.CommittedSize.Y),
             ChunkResolution.Full,
-            PointPreviewTexture.DrawingSurface.Canvas,
+            pointPreviewTexture.DrawingSurface.Canvas,
             VecI.Zero, null, SamplingOptions.Bilinear);
 
         context.RenderOutputSize = strokeTexture.Size;
@@ -217,6 +222,7 @@ internal class BrushViewModel : ViewModelBase
 
         OnPropertyChanged(nameof(DrawingStrokeTexture));
         OnPropertyChanged(nameof(PointPreviewTexture));
+        preventTextureGeneration = false;
     }
 
     private bool CacheChanged()

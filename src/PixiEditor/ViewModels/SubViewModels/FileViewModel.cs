@@ -822,6 +822,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             }
 
             document.FullFilePath = finalPath;
+            Owner.DocumentManagerSubViewModel.ReloadDocumentReference(document.ReferenceId, finalPath);
         }
 
         document.MarkAsSaved();

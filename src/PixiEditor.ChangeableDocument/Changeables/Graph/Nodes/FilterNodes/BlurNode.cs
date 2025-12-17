@@ -10,10 +10,12 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 public class BlurNode : FilterNode
 {
     public InputProperty<bool> PreserveAlpha { get; }
-    
+
     public InputProperty<VecD> Radius { get; }
 
     protected override bool ExecuteOnlyOnCacheChange => true;
+
+    protected override CacheTriggerFlags CacheTrigger => CacheTriggerFlags.Inputs | CacheTriggerFlags.RenderSize | CacheTriggerFlags.ChunkResolution;
 
     public BlurNode()
     {
@@ -26,11 +28,15 @@ public class BlurNode : FilterNode
         var sigma = (VecF)(Radius.Value * context.ChunkResolution.Multiplier());
         var preserveAlpha = PreserveAlpha.Value;
 
-        var xFilter = GetGaussianFilter(sigma.X, true, preserveAlpha, null, out float[] xKernel);
-        
+        if (preserveAlpha)
+        {
+            return ImageFilter.CreateBlur(sigma.X, sigma.Y, TileMode.Mirror);
+        }
+
+        var xFilter = GetGaussianFilter(sigma.X, true, null, out float[] xKernel);
         // Reuse xKernel if x == y
         var yKernel = Math.Abs(sigma.Y - sigma.X) < 0.0001f ? xKernel : null;
-        var yFilter = GetGaussianFilter(sigma.Y, false, preserveAlpha, yKernel, out _);
+        var yFilter = GetGaussianFilter(sigma.Y, false, yKernel, out _);
 
         return (xFilter, yFilter) switch
         {
@@ -40,20 +46,21 @@ public class BlurNode : FilterNode
         };
     }
 
-    private static ImageFilter? GetGaussianFilter(float sigma, bool isX, bool preserveAlpha, float[]? kernel, out float[] usedKernel)
+    private static ImageFilter? GetGaussianFilter(float sigma, bool isX, float[]? kernel,
+        out float[] usedKernel)
     {
         usedKernel = null;
         if (sigma < 0.0001f) return null;
-        
+
         kernel ??= GenerateGaussianKernel(sigma);
         usedKernel = kernel;
-        
+
         var size = isX ? new VecI(kernel.Length, 1) : new VecI(1, kernel.Length);
         var offset = isX ? new VecI(kernel.Length / 2, 0) : new VecI(0, kernel.Length / 2);
-        
-        return ImageFilter.CreateMatrixConvolution(size, kernel, 1, 0, offset, TileMode.Repeat, !preserveAlpha);
+
+        return ImageFilter.CreateMatrixConvolution(size, kernel, 1, 0, offset, TileMode.Repeat, true);
     }
-    
+
     public static float[] GenerateGaussianKernel(float sigma)
     {
         int radius = (int)Math.Ceiling(3 * sigma);

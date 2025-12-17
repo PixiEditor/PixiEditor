@@ -41,12 +41,6 @@ internal class BrushToolbar : Toolbar, IBrushToolbar
         set => GetSetting<EnumSettingViewModel<StabilizationMode>>(nameof(StabilizationMode)).Value = value;
     }
 
-    public bool ForcePressure
-    {
-        get => GetSetting<BoolSettingViewModel>(nameof(ForcePressure)).Value;
-        set => GetSetting<BoolSettingViewModel>(nameof(ForcePressure)).Value = value;
-    }
-
     public BrushData CreateBrushData()
     {
         Brush? brush = Brush;
@@ -60,7 +54,6 @@ internal class BrushToolbar : Toolbar, IBrushToolbar
         {
             AntiAliasing = AntiAliasing,
             StrokeWidth = (float)ToolSize,
-            ForcePressure = ForcePressure
         };
 
         pipe.Dispose();
@@ -94,7 +87,6 @@ internal class BrushToolbar : Toolbar, IBrushToolbar
         };
 
         AddSetting(stabilizationSetting);
-        AddSetting(new BoolSettingViewModel(nameof(ForcePressure), "FORCE_PRESSURE_SETTING"));
 
         foreach (var aSetting in Settings)
         {

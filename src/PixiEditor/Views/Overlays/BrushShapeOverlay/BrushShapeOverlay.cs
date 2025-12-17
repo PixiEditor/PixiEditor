@@ -174,6 +174,8 @@ internal class BrushShapeOverlay : Overlay
 
     private void ExecuteBrush(VecD pos)
     {
+        if (engine == null || BrushData.BrushGraph == null) return;
+
         if (VecD.Distance(lastDirCalculationPoint, pos) > 1)
         {
             lastDirCalculationPoint = lastDirCalculationPoint.Lerp(pos, 0.5f);
