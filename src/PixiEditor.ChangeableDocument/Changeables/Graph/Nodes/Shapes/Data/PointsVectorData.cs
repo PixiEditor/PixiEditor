@@ -93,6 +93,11 @@ public class PointsVectorData : ShapeVectorData
         return path;
     }
 
+    public override PathVectorData? ExpandStroke()
+    {
+        throw new NotImplementedException();
+    }
+
     protected bool Equals(PointsVectorData other)
     {
         return base.Equals(other) && (Points.Equals(other.Points) || Points.SequenceEqual(other.Points));
