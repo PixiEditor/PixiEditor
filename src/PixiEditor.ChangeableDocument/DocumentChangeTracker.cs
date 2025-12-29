@@ -15,6 +15,7 @@ public class DocumentChangeTracker : IDisposable
     public IReadOnlyDocument Document => document;
     public bool HasSavedUndo => undoStack.Any();
     public bool HasSavedRedo => redoStack.Any();
+    public bool IsRunning => running;
 
     public Guid? LastChangeGuid
     {

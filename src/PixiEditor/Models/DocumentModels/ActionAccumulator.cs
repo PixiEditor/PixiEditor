@@ -101,7 +101,7 @@ internal class ActionAccumulator
 
     internal async Task TryExecuteAccumulatedActions()
     {
-        if (executing || queuedActions.Count == 0 || document.IsDisposed)
+        if (executing || queuedActions.Count == 0 || document.IsDisposed || internals.Tracker.IsRunning)
             return;
         executing = true;
         try
@@ -226,7 +226,7 @@ internal class ActionAccumulator
 
     internal void TryExecuteAccumulatedActionsSync()
     {
-        if (executing || queuedActions.Count == 0)
+        if (executing || queuedActions.Count == 0 || internals.Tracker.IsRunning || document.IsDisposed)
             return;
         executing = true;
         try
@@ -297,10 +297,20 @@ internal class ActionAccumulator
                     .Select(x => x.Select(r => r.TextureUpdatedAction))
                     .SelectMany(x => x).ToList();
 
-                document.SceneRenderer.RenderSync(internals.State.Viewports, affectedAreas.MainImageArea,
-                    !previewsDisabled && updateDelayed, previewTextures);
-
-                NotifyUpdatedPreviews(updatePreviewActions);
+                try
+                {
+                    document.SceneRenderer.RenderSync(internals.State.Viewports, affectedAreas.MainImageArea,
+                        !previewsDisabled && updateDelayed, previewTextures);
+                }
+                catch (ObjectDisposedException)
+                {
+                    // Document or renderer was disposed during await
+                    return;
+                }
+                finally
+                {
+                    NotifyUpdatedPreviews(updatePreviewActions);
+                }
             }
         }
         catch (Exception e)
