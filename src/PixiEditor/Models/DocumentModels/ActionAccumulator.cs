@@ -180,21 +180,32 @@ internal class ActionAccumulator
 
                 bool immediateRender = affectedAreas.MainImageArea.Chunks.Count > 0;
 
-                if(internals.Tracker.IsDisposed)
+                if (internals.Tracker.IsDisposed)
                     return;
 
-                if (debugRecordRequest)
+                try
                 {
-                    await document.SceneRenderer.RecordRender(internals.State.Viewports, affectedAreas.MainImageArea,
-                        !previewsDisabled && updateDelayed, previewTextures, immediateRender);
+                    if (debugRecordRequest)
+                    {
+                        await document.SceneRenderer.RecordRender(internals.State.Viewports,
+                            affectedAreas.MainImageArea,
+                            !previewsDisabled && updateDelayed, previewTextures, immediateRender);
+                    }
+                    else
+                    {
+                        await document.SceneRenderer.RenderAsync(internals.State.Viewports, affectedAreas.MainImageArea,
+                            !previewsDisabled && updateDelayed, previewTextures, immediateRender);
+                    }
                 }
-                else
+                catch (ObjectDisposedException)
                 {
-                    await document.SceneRenderer.RenderAsync(internals.State.Viewports, affectedAreas.MainImageArea,
-                        !previewsDisabled && updateDelayed, previewTextures, immediateRender);
+                    // Document or renderer was disposed during await
+                    return;
                 }
-
-                NotifyUpdatedPreviews(updatePreviewActions);
+                finally
+                {
+                    NotifyUpdatedPreviews(updatePreviewActions);
+                }
             }
         }
         catch (Exception e)
@@ -213,7 +224,7 @@ internal class ActionAccumulator
         executing = false;
     }
 
-      internal void TryExecuteAccumulatedActionsSync()
+    internal void TryExecuteAccumulatedActionsSync()
     {
         if (executing || queuedActions.Count == 0)
             return;
