@@ -20,7 +20,7 @@ internal class MagicWandToolViewModel : ToolViewModel, IMagicWandToolHandler
     public override LocalizedString Tooltip => new LocalizedString("MAGIC_WAND_TOOL_TOOLTIP", Shortcut);
     private LocalizedString defaultActionDisplay => new LocalizedString("MAGIC_WAND_ACTION_DISPLAY");
     public override string ToolNameLocalizationKey => "MAGIC_WAND_TOOL";
-    public override Type[]? SupportedLayerTypes { get; } = { typeof(IRasterLayerHandler) };
+    public override Type[]? SupportedLayerTypes { get; } = null;
     private SelectionMode KeyModifierSelectionMode = SelectionMode.New;
     public SelectionMode ResultingSelectionMode => KeyModifierSelectionMode != SelectionMode.New ? KeyModifierSelectionMode : SelectMode;
     [Settings.Enum("MODE_LABEL")]
