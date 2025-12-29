@@ -48,7 +48,10 @@ public class PointsVectorData : ShapeVectorData
             canvas.SetMatrix(final);
         }
 
-        canvas.DrawPoints(PointMode.Points, Points.ToVecFArray(), paint);
+        foreach (var point in Points)
+        {
+            canvas.DrawRect((float)point.X, (float)point.Y, 1, 1, paint);
+        }
 
         if (applyTransform)
         {
