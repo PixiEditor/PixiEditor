@@ -1,4 +1,5 @@
-﻿using Avalonia;
+﻿using System.Runtime.InteropServices;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
@@ -867,7 +868,18 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                             if (IPreferences.Current.GetPreference<bool>(PreferencesConstants.OpenDirectoryOnExport,
                                     true))
                             {
-                                IOperatingSystem.Current.OpenFolder(result.finalPath);
+                                try
+                                {
+                                    IOperatingSystem.Current.OpenFolder(result.finalPath);
+                                }
+                                catch (COMException e)
+                                {
+                                    // nothing we can do here
+                                }
+                                catch (Exception e)
+                                {
+                                    CrashHelper.SendExceptionInfo(e);
+                                }
                             }
                         });
                     }
