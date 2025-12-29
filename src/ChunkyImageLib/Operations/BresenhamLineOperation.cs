@@ -52,7 +52,12 @@ internal class BresenhamLineOperation : IMirroredDrawOperation
         surf.Canvas.Save();
         surf.Canvas.Scale((float)targetChunk.Resolution.Multiplier());
         surf.Canvas.Translate(-chunkPos * ChunkyImage.FullChunkSize);
-        surf.Canvas.DrawPoints(PointMode.Points, points, paint);
+        foreach (var point in points)
+        {
+            surf.Canvas.DrawRect(point.X, point.Y, 1, 1, paint);
+        }
+        // Draw Points and Draw Point does not work correctly on GPU surfaces
+        //surf.Canvas.DrawPoints(PointMode.Polygon, points, paint);
         surf.Canvas.Restore();
     }
 

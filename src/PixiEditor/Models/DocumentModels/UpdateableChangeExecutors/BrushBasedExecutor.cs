@@ -222,6 +222,14 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
     */
     }
 
+    public override void OnColorChanged(Color color, bool primary)
+    {
+        if (primary)
+        {
+            this.color = color;
+        }
+    }
+
 
     public override void OnLeftMouseButtonUp(VecD argsPositionOnCanvas)
     {

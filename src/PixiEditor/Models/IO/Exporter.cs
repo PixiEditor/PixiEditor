@@ -63,29 +63,43 @@ internal class Exporter
 
         if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            var file = await desktop.MainWindow.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+            try
             {
-                FileTypeChoices = SupportedFilesHelper.BuildSaveFilter(
-                    FileTypeDialogDataSet.SetKind.Any & ~FileTypeDialogDataSet.SetKind.Video),
-                DefaultExtension = "pixi"
-            });
+                var file = await desktop.MainWindow.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+                {
+                    FileTypeChoices = SupportedFilesHelper.BuildSaveFilter(
+                        FileTypeDialogDataSet.SetKind.Any & ~FileTypeDialogDataSet.SetKind.Video),
+                    DefaultExtension = "pixi"
+                });
 
-            if (file is null)
+                if (file is null)
+                {
+                    result.Result.ResultType = SaveResultType.Cancelled;
+                    return result;
+                }
+
+                var fileType = SupportedFilesHelper.GetSaveFileType(FileTypeDialogDataSet.SetKind.Any, file);
+
+                (SaveResult Result, string finalPath) saveResult =
+                    await TrySaveUsingDataFromDialog(document, file.Path.LocalPath, fileType, exportConfig, job);
+                if (saveResult.Result.ResultType == SaveResultType.Success)
+                {
+                    result.Path = saveResult.finalPath;
+                }
+
+                result.Result = saveResult.Result;
+            }
+            catch (COMException e)
             {
-                result.Result.ResultType = SaveResultType.Cancelled;
+                result.Result = new SaveResult(SaveResultType.CustomError, new LocalizedString("COM_EXCEPTION_ERROR", e.HResult));
                 return result;
             }
-
-            var fileType = SupportedFilesHelper.GetSaveFileType(FileTypeDialogDataSet.SetKind.Any, file);
-
-            (SaveResult Result, string finalPath) saveResult =
-                await TrySaveUsingDataFromDialog(document, file.Path.LocalPath, fileType, exportConfig, job);
-            if (saveResult.Result.ResultType == SaveResultType.Success)
+            catch (Exception e)
             {
-                result.Path = saveResult.finalPath;
+                CrashHelper.SendExceptionInfo(e);
+                result.Result = new SaveResult(SaveResultType.UnknownError, e.Message);
+                return result;
             }
-
-            result.Result = saveResult.Result;
         }
 
         return result;

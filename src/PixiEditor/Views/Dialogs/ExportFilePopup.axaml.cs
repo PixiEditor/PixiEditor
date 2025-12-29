@@ -538,10 +538,7 @@ internal partial class ExportFilePopup : PixiEditorPopup
             {
                 if (string.IsNullOrEmpty(file.Name) == false)
                 {
-                    SaveFormat = SupportedFilesHelper.GetSaveFileType(
-                        SelectedExportIndex == 1
-                            ? FileTypeDialogDataSet.SetKind.Video
-                            : FileTypeDialogDataSet.SetKind.Image | FileTypeDialogDataSet.SetKind.Vector, file);
+                    SaveFormat = SupportedFilesHelper.GetSaveFileType(FileTypeDialogDataSet.SetKind.Any, file);
                     if (SaveFormat == null)
                     {
                         return null;

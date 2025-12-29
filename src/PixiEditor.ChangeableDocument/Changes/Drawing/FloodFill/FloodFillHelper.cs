@@ -34,9 +34,11 @@ public static class FloodFillHelper
             var member = document.FindMemberOrThrow(guid);
             if (member is IReadOnlyFolderNode)
                 return new FloodFillChunkCache(membersToFloodFill, document, frame);
-            if (member is not IReadOnlyImageNode rasterLayer)
-                throw new InvalidOperationException("Member is not a raster layer");
-            return new FloodFillChunkCache(rasterLayer.GetLayerImageAtFrame(frame));
+
+            if (member is IReadOnlyImageNode rasterLayer)
+            {
+                return new FloodFillChunkCache(rasterLayer.GetLayerImageAtFrame(frame));
+            }
         }
 
         return new FloodFillChunkCache(membersToFloodFill, document, frame);
@@ -76,7 +78,7 @@ public static class FloodFillHelper
             // Mixing using actual surfaces is more accurate than using ColorTransformFn
             // mismatch between actual surface color and transformed color here can lead to infinite loops
             using Surface srgbSurface = Surface.ForProcessing(new VecI(1), ColorSpace.CreateSrgb());
-            using Paint srgbPaint = new Paint(){ Color = drawingColor };
+            using Paint srgbPaint = new Paint() { Color = drawingColor };
             srgbSurface.DrawingSurface.Canvas.DrawPixel(0, 0, srgbPaint);
             using var processingSurface = Surface.ForProcessing(VecI.One, document.ProcessingColorSpace);
             processingSurface.DrawingSurface.Canvas.DrawSurface(srgbSurface.DrawingSurface, 0, 0);
@@ -86,7 +88,8 @@ public static class FloodFillHelper
             colorSpaceCorrectedColor = fixedColor;
         }
 
-        if ((colorSpaceCorrectedColor.A == 0 && fillMode == FloodFillMode.Overlay) || (colorToReplace == colorSpaceCorrectedColor && fillMode == FloodFillMode.Replace))
+        if ((colorSpaceCorrectedColor.A == 0 && fillMode == FloodFillMode.Overlay) ||
+            (colorToReplace == colorSpaceCorrectedColor && fillMode == FloodFillMode.Replace))
             return new();
 
         if (colorToReplace.A == 0 && lockTransparency)
@@ -121,7 +124,8 @@ public static class FloodFillHelper
                     // For replace mode, copy original image data to avoid erasing unfilled pixels
                     var originalChunk = cache.GetChunk(chunkPos);
                     originalChunk.Switch(
-                        (Chunk origChunk) => chunk.Surface.DrawingSurface.Canvas.DrawSurface(origChunk.Surface.DrawingSurface, 0, 0),
+                        (Chunk origChunk) =>
+                            chunk.Surface.DrawingSurface.Canvas.DrawSurface(origChunk.Surface.DrawingSurface, 0, 0),
                         (EmptyChunk _) => chunk.Surface.DrawingSurface.Canvas.Clear(Colors.Transparent)
                     );
                 }
@@ -146,8 +150,9 @@ public static class FloodFillHelper
                     if (selection is not null && !selection.IsEmpty)
                     {
                         using VectorPath localSelection = new VectorPath(selection);
-                        localSelection.Transform(Matrix3X3.CreateTranslation(-chunkPos.X * chunkSize, -chunkPos.Y * chunkSize));
-                        
+                        localSelection.Transform(Matrix3X3.CreateTranslation(-chunkPos.X * chunkSize,
+                            -chunkPos.Y * chunkSize));
+
                         drawingChunk.Surface.DrawingSurface.Canvas.ClipPath(localSelection);
                         if (SelectionIntersectsChunk(selection, chunkPos, chunkSize))
                         {
@@ -226,12 +231,13 @@ public static class FloodFillHelper
     {
         var rawPixelRef = referenceChunk.Surface.GetRawPixelPrecise(pos);
         // color should be a fixed color
-        if ((Color)rawPixelRef == (Color)color || (Color)drawingChunk.Surface.GetRawPixelPrecise(pos).Premultiplied() == (Color)color)
+        if ((Color)rawPixelRef == (Color)color ||
+            (Color)drawingChunk.Surface.GetRawPixelPrecise(pos).Premultiplied() == (Color)color)
             return null;
         if (checkFirstPixel && !bounds.IsWithinBounds(rawPixelRef))
             return null;
-        
-        if(!SelectionIntersectsChunk(selection, chunkPos, chunkSize))
+
+        if (!SelectionIntersectsChunk(selection, chunkPos, chunkSize))
             return null;
 
         byte[] pixelStates = new byte[chunkSize * chunkSize];
@@ -321,12 +327,12 @@ public static class FloodFillHelper
             drawingSurface.Canvas.Flush();
         }
     }
-    
+
     private static bool SelectionIntersectsChunk(VectorPath selection, VecI chunkPos, int chunkSize)
     {
         if (selection is null || selection.IsEmpty)
             return true;
-        
+
         RectD chunkBounds = new(chunkPos * chunkSize, new VecI(chunkSize));
         return selection.Bounds.IntersectsWithInclusive(chunkBounds);
     }

@@ -1290,5 +1290,10 @@
   "EQUALS_NODE": "Equals",
   "IS_LEFT_BUTTON_PRESSED": "Is Left Button Pressed",
   "IS_RIGHT_BUTTON_PRESSED": "Is Right Button Pressed",
-  "CONTENT_TRANSFORM": "Content Transform"
+  "CONTENT_TRANSFORM": "Content Transform",
+  "BLENDING": "Blending",
+  "EXPERIMENTAL": "Experimental",
+  "SMUDGE_STRENGTH": "Smudge",
+  "BLUR_STRENGTH": "Blur",
+  "COM_EXCEPTION_ERROR": "Your operating system encountered an error while trying to perform this action. (COM Exception: {0})"
 }
