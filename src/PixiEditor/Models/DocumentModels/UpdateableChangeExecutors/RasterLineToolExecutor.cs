@@ -45,7 +45,7 @@ internal class RasterLineToolExecutor : LineExecutor<ILineToolHandler>
 
     private VecD ToPixelPos(VecD pos)
     {
-        return (VecD)pos;
+        return pos;
     }
 
     protected override IAction EndDraw()
