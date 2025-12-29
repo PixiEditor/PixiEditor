@@ -98,7 +98,6 @@
           "ToolName": "Pen",
           "Settings": {
             "AntiAliasing": true,
-            "ExposeSpacing": true,
             "PixelPerfectEnabled": false,
             "DefaultBrush": "Basic"
           }
@@ -150,8 +149,7 @@
         {
           "ToolName": "Eraser",
           "Settings": {
-            "AntiAliasing": true,
-            "ExposeSpacing": true
+            "AntiAliasing": true
           }
         },
         {
