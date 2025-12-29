@@ -116,13 +116,34 @@ internal class EllipseOperation : IMirroredDrawOperation
                 if (fillPaintable.AnythingVisible || paint.BlendMode != BlendMode.SrcOver)
                 {
                     paint.SetPaintable(fillPaintable);
-                    surf.Canvas.DrawPoints(PointMode.Lines, ellipseFill!, paint);
-                    surf.Canvas.DrawRect(rect, paint);
+                    if (ellipseFill is { Length: > 0 })
+                    {
+                        VecF lastPt = ellipseFill[0];
+                        surf.Canvas.DrawRect(lastPt.X, lastPt.Y, 1, 1, paint);
+                        for (var index = 1; index < ellipseFill.Length; index++)
+                        {
+                            var pt = ellipseFill[index];
+                            VecD roundedLastPt = new(Math.Floor(lastPt.X), Math.Floor(lastPt.Y));
+                            VecD roundedPt = new(Math.Floor(pt.X), Math.Floor(pt.Y));
+                            surf.Canvas.DrawLine(roundedLastPt, roundedPt, paint);
+                            lastPt = pt;
+                        }
+
+                        // DrawPoints don't work well on GPU surfaces
+                        //surf.Canvas.DrawPoints(PointMode.Lines, ellipseFill!, paint);
+                        surf.Canvas.DrawRect(rect, paint);
+                    }
                 }
 
                 paint.SetPaintable(strokeWidth <= 0 ? fillPaintable : strokePaintable);
                 paint.StrokeWidth = 1f;
-                surf.Canvas.DrawPoints(PointMode.Points, ellipse!, paint);
+
+                foreach (var pt in ellipse!)
+                {
+                    surf.Canvas.DrawRect(pt.X, pt.Y, 1, 1, paint);
+                }
+                // DrawPoints don't work well on GPU surfaces
+                //surf.Canvas.DrawPoints(PointMode.Points, ellipse!, paint);
 
                 fillPaintable.Bounds = null;
             }
