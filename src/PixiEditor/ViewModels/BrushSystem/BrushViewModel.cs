@@ -6,6 +6,7 @@ using Drawie.Backend.Core;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
@@ -176,6 +177,7 @@ internal class BrushViewModel : ViewModelBase
 
         pointPreviewTexture =
             Texture.ForDisplay(new VecI(BrushOutputNode.PointPreviewSize, BrushOutputNode.PointPreviewSize));
+
         strokeTexture =
             Texture.ForDisplay(new VecI(BrushOutputNode.StrokePreviewSizeX, BrushOutputNode.StrokePreviewSizeY));
 
@@ -195,16 +197,33 @@ internal class BrushViewModel : ViewModelBase
             SamplingOptions.Bilinear,
             Brush?.Document.AccessInternalReadOnlyDocument().NodeGraph);
 
-        brushNode.DrawPointPreview(pointImage, context,
-            BrushOutputNode.PointPreviewSize,
-            new VecD(BrushOutputNode.PointPreviewSize / 2,
-                BrushOutputNode.PointPreviewSize / 2));
+        if (Brush.Document.AccessInternalReadOnlyDocument().NodeGraph.AllNodes
+                .FirstOrDefault(n => n is OutputNode) is OutputNode { Input.Connection: not null } outputNode)
+        {
+            VecD scaling = new VecD(BrushOutputNode.PointPreviewSize / (float)Brush.Document.SizeBindable.X,
+                (float)BrushOutputNode.PointPreviewSize / Brush.Document.SizeBindable.Y);
 
-        pointImage.DrawMostUpToDateRegionOn(
-            new RectI(0, 0, pointImage.CommittedSize.X, pointImage.CommittedSize.Y),
-            ChunkResolution.Full,
-            pointPreviewTexture.DrawingSurface.Canvas,
-            VecI.Zero, null, SamplingOptions.Bilinear);
+            context.RenderOutputSize = Brush.Document.SizeBindable;
+            context.DocumentSize = Brush.Document.SizeBindable;
+
+            pointPreviewTexture.DrawingSurface.Canvas.Save();
+            pointPreviewTexture.DrawingSurface.Canvas.Scale((float)scaling.X, (float)scaling.Y);
+            Brush.Document.AccessInternalReadOnlyDocument().NodeGraph.Execute(outputNode, context);
+            pointPreviewTexture.DrawingSurface.Canvas.Restore();
+        }
+        else
+        {
+            brushNode.DrawPointPreview(pointImage, context,
+                BrushOutputNode.PointPreviewSize,
+                new VecD(BrushOutputNode.PointPreviewSize / 2,
+                    BrushOutputNode.PointPreviewSize / 2));
+
+            pointImage.DrawMostUpToDateRegionOn(
+                new RectI(0, 0, pointImage.CommittedSize.X, pointImage.CommittedSize.Y),
+                ChunkResolution.Full,
+                pointPreviewTexture.DrawingSurface.Canvas,
+                VecI.Zero, null, SamplingOptions.Bilinear);
+        }
 
         context.RenderOutputSize = strokeTexture.Size;
         context.DocumentSize = strokeTexture.Size;
