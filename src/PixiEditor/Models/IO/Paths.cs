@@ -8,10 +8,10 @@ public static class Paths
     public static string DataResourceUri { get; } = $"avares://{typeof(Paths).Assembly.GetName().Name}/Data/";
 
     public static string DataFullPath { get; } =
-        Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Data");
+        Path.Combine(AppContext.BaseDirectory, "Data");
 
     public static string InstallDirExtensionPackagesPath { get; } =
-        Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Extensions");
+        Path.Combine(AppContext.BaseDirectory, "Extensions");
 
     public static string LocalExtensionPackagesPath { get; } = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
@@ -49,7 +49,7 @@ public static class Paths
         "PixiEditor", "Autosave");
 
     public static string InstallDirectoryPath { get; } =
-        Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) ?? string.Empty;
+        AppContext.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
 
     public static string ParseSpecialPathOrDefault(string path)
     {
