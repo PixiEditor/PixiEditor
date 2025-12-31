@@ -35,6 +35,7 @@
           "ToolName": "Pen",
           "Settings": {
             "ExposePixelPerfectEnabled": true,
+            "DefaultToolSize": 1,
             "Spacing": 0,
             "DefaultBrush": "Pixel Circle",
             "AntiAliasing": false
@@ -69,7 +70,8 @@
         {
           "ToolName": "Eraser",
           "Settings": {
-            "Spacing": 0
+            "Spacing": 0,
+            "DefaultToolSize": 1,
           }
         },
         {
@@ -99,6 +101,7 @@
           "Settings": {
             "AntiAliasing": true,
             "PixelPerfectEnabled": false,
+            "DefaultToolSize": 10,
             "DefaultBrush": "Basic"
           }
         },
@@ -149,7 +152,8 @@
         {
           "ToolName": "Eraser",
           "Settings": {
-            "AntiAliasing": true
+            "AntiAliasing": true,
+            "DefaultToolSize": 10
           }
         },
         {
