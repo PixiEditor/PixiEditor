@@ -178,7 +178,7 @@ internal class ActionAccumulator
                     .Select(x => x.Select(r => r.TextureUpdatedAction))
                     .SelectMany(x => x).ToList();
 
-                bool immediateRender = affectedAreas.MainImageArea.Chunks.Count > 0;
+                bool immediateRender = affectedAreas.MainImageArea.Chunks.Count > 0 && !allPassthrough;
 
                 if (internals.Tracker.IsDisposed)
                     return;

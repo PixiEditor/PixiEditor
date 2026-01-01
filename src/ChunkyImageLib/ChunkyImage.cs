@@ -1554,7 +1554,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
         int count = targetChunk.Surface.DrawingSurface.Canvas.Save();
 
         float scale = (float)resolution.Multiplier();
-        if (clippingPath is not null && !clippingPath.IsEmpty)
+        if (clippingPath is not null && !clippingPath.IsDisposed && !clippingPath.IsEmpty)
         {
             using VectorPath transformedPath = new(clippingPath);
             VecD trans = -chunkPos * FullChunkSize * scale;

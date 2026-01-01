@@ -35,7 +35,7 @@ internal class SceneRenderer
     public IReadOnlyDictionary<Guid, RenderState> LastRenderedStates => lastRenderedStates;
     private Dictionary<Guid, RenderState> lastRenderedStates = new();
     private int lastGraphCacheHash = -1;
-    private KeyFrameTime lastFrameTime;
+    private Dictionary<Guid, KeyFrameTime> lastFrameTimes = new();
     private Dictionary<Guid, bool> lastFramesVisibility = new();
 
     private TextureCache textureCache = new();
@@ -453,9 +453,9 @@ internal class SceneRenderer
             return true;
         }
 
-        if (lastFrameTime.Frame != DocumentViewModel.AnimationHandler.ActiveFrameTime.Frame)
+        if (!lastFrameTimes.TryGetValue(viewportId, out var frameTime) || frameTime.Frame != DocumentViewModel.AnimationHandler.ActiveFrameTime.Frame)
         {
-            lastFrameTime = DocumentViewModel.AnimationHandler.ActiveFrameTime;
+            lastFrameTimes[viewportId] = DocumentViewModel.AnimationHandler.ActiveFrameTime;
             return true;
         }
 

@@ -182,9 +182,18 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
 
     private bool IsConnectedToCustomShaderNode(RenderOutputProperty output)
     {
+        if (output == null)
+            return false;
+
+        if (output.Connections.Count == 0)
+            return false;
+
         foreach (var conn in output.Connections)
         {
             bool isCustomShader = false;
+            if (conn.Node == null)
+                continue;
+
             conn.Node.TraverseForwards(x =>
             {
                 if (x is ICustomShaderNode)

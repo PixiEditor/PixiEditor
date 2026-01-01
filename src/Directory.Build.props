@@ -1,7 +1,7 @@
 <Project>
     <PropertyGroup>
         <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)Custom.ruleset</CodeAnalysisRuleSet>
-		    <AvaloniaVersion>11.3.9-cibuild0004112-alpha</AvaloniaVersion>
+		    <AvaloniaVersion>11.3.9-cibuild0004126-alpha</AvaloniaVersion>
     </PropertyGroup>
   
   <PropertyGroup Condition="$([MSBuild]::IsOsPlatform('Windows')) AND '$(Platform)' == 'x64'">

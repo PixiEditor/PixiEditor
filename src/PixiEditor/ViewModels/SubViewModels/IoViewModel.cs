@@ -20,6 +20,7 @@ using PixiEditor.Models.Input;
 using Drawie.Numerics;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.ViewModels.Document;
+using PixiEditor.ViewModels.Tools;
 using PixiEditor.ViewModels.Tools.Tools;
 using PixiEditor.Views;
 
@@ -31,8 +32,10 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
     private bool hadSharedToolbar;
     private bool? drawingWithRight;
     private bool startedWithEraser;
+    private IToolHandler? preInvertedEraserTool;
 
     private Key? queuedTransientKey;
+    private Command.ToolCommand? eraserToolCommand;
 
     public RelayCommand<MouseOnCanvasEventArgs> MouseMoveCommand { get; set; }
     public RelayCommand<MouseOnCanvasEventArgs> MouseDownCommand { get; set; }
@@ -179,6 +182,28 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         return true;
     }
 
+    private bool HandleTransientKey(Command.ToolCommand tool, bool executeOnlyImmediate)
+    {
+        if (ShortcutController.ShortcutExecutionBlocked)
+        {
+            return false;
+        }
+
+        if (tool is null)
+        {
+            return false;
+        }
+
+        if (!tool.TransientImmediate && executeOnlyImmediate)
+        {
+            return false;
+        }
+
+        Owner.ToolsSubViewModel.SetActiveTool(tool.ToolType, true);
+
+        return true;
+    }
+
     private static Command.ToolCommand? GetTransientTool(Key transientKey)
     {
         Command.ToolCommand? tool = CommandController.Current.Commands
@@ -238,10 +263,43 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
 
     private void OnMouseDown(object? sender, MouseOnCanvasEventArgs args)
     {
-        if (args.Button == MouseButton.Left && queuedTransientKey != null)
+        if (args.Button == MouseButton.Left)
         {
-            HandleTransientKey(queuedTransientKey.Value, false);
-            queuedTransientKey = null;
+            if (queuedTransientKey != null)
+            {
+                HandleTransientKey(queuedTransientKey.Value, false);
+                queuedTransientKey = null;
+            }
+            else if (args is { Properties.IsEraser: true })
+            {
+                eraserToolCommand ??= CommandController.Current.Commands
+                    .OfType<Command.ToolCommand?>()
+                    .FirstOrDefault(x => x != null && x.ToolType == typeof(EraserToolViewModel));
+
+                if (preInvertedEraserTool == null)
+                {
+                    preInvertedEraserTool = Owner.ToolsSubViewModel.ActiveTool;
+                }
+
+                if (eraserToolCommand != null && Owner.ToolsSubViewModel.ActiveTool is not EraserToolViewModel)
+                {
+                    Owner.ToolsSubViewModel.SetActiveTool(eraserToolCommand.ToolType, false);
+                }
+            }
+            else if (preInvertedEraserTool != null)
+            {
+                if (preInvertedEraserTool is EraserToolViewModel)
+                {
+                    preInvertedEraserTool = Owner.ToolsSubViewModel.GetTool<PenToolViewModel>();
+                }
+
+                if (Owner.ToolsSubViewModel.ActiveTool is EraserToolViewModel)
+                {
+                    Owner.ToolsSubViewModel.SetActiveTool(preInvertedEraserTool.GetType(), true);
+                }
+
+                preInvertedEraserTool = null;
+            }
         }
 
         if (drawingWithRight != null || args.Button is not (MouseButton.Left or MouseButton.Right))

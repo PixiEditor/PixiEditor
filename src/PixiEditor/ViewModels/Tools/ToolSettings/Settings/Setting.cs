@@ -1,4 +1,5 @@
-﻿using Avalonia.Controls;
+﻿using System.Diagnostics;
+using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using DiscordRPC;
 using PixiEditor.UI.Common.Localization;
@@ -193,6 +194,18 @@ internal abstract class Setting : ObservableObject
     {
         if (!defaultValuesSet.GetValueOrDefault(toolset, false))
         {
+            if (defaultValue != null && (defaultValue.GetType() != GetSettingType()))
+            {
+                try
+                {
+                    defaultValue = Convert.ChangeType(defaultValue, GetSettingType());
+                }
+                catch
+                {
+                    Debug.WriteLine($"Failed to convert default value of setting {Name} to type {GetSettingType()}");
+                    return;
+                }
+            }
             toolsetValues[toolset] = defaultValue;
             defaultValuesSet[toolset] = true;
             OnPropertyChanged(nameof(Value));
