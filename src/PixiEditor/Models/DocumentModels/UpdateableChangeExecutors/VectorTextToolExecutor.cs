@@ -190,26 +190,33 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
     public override void ForceStop()
     {
         internals.ActionAccumulator.AddFinishedActions(new EndSetShapeGeometry_Action());
-        document.TextOverlayHandler.Hide();
+        document?.TextOverlayHandler?.Hide();
 
-        var previousData =
-            (document.StructureHelper.Find(selectedMember.Id) as IVectorLayerHandler)?
-            .GetShapeData(document.AnimationHandler.ActiveFrameTime) as TextVectorData;
-
-        foreach (var font in fontsToDispose)
+        TextVectorData? previousData = null;
+        if (selectedMember != null && document?.AnimationHandler != null)
         {
-            if (font is { IsDisposed: false })
-            {
-                if(previousData != null && font.Equals(previousData.Font))
-                {
-                    continue;
-                }
-                
-                font.Dispose();
-            }
+            previousData =
+                (document.StructureHelper.Find(selectedMember.Id) as IVectorLayerHandler)?
+                .GetShapeData(document.AnimationHandler.ActiveFrameTime) as TextVectorData;
         }
 
-        fontsToDispose.Clear();
+        if (fontsToDispose != null)
+        {
+            foreach (var font in fontsToDispose)
+            {
+                if (font is { IsDisposed: false })
+                {
+                    if (previousData != null && font.Equals(previousData?.Font))
+                    {
+                        continue;
+                    }
+
+                    font.Dispose();
+                }
+            }
+
+            fontsToDispose.Clear();
+        }
     }
 
     public void OnTextChanged(string text)
