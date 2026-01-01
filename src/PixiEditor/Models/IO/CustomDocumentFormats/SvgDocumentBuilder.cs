@@ -231,6 +231,26 @@ internal class SvgDocumentBuilder : IDocumentBuilder
             imgSurface.Dispose();
         }
 
+        if (finalSurface == null)
+        {
+            if (imgSurface != null)
+            {
+                finalSurface = imgSurface;
+            }
+            else
+            {
+                VecI size = new(
+                    (int)(image.Width.Unit?.PixelsValue ?? 0),
+                    (int)(image.Height.Unit?.PixelsValue ?? 0));
+                if (size.ShortestAxis < 1)
+                {
+                    return lastId;
+                }
+
+                finalSurface = new Surface(size);
+            }
+        }
+
         var graphBuilder = graph.WithImageLayerNode(
             image.Id.Unit?.Value ?? new LocalizedString("NEW_LAYER").Value,
             finalSurface, ColorSpace.CreateSrgb(), out int id);
