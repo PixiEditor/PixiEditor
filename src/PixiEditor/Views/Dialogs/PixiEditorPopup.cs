@@ -25,6 +25,7 @@ public partial class PixiEditorPopup : Window, IPopupWindow
 {
     public static event Action<PixiEditorPopup> PopupLoaded;
     public static event Action<PixiEditorPopup> PopupClosed;
+
     public static readonly StyledProperty<bool> CanMinimizeProperty = AvaloniaProperty.Register<PixiEditorPopup, bool>(
         nameof(CanMinimize), defaultValue: true);
 
@@ -74,11 +75,18 @@ public partial class PixiEditorPopup : Window, IPopupWindow
 #endif
 
         var cliArgs = Environment.GetCommandLineArgs();
-        if (cliArgs != null && cliArgs.Contains("--system-decorations"))
+        if (cliArgs.Contains("--system-decorations"))
         {
             this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default;
             this.ExtendClientAreaToDecorationsHint = false;
             ShowTitleBar = false;
+        }
+
+        if (cliArgs.Contains("--no-decorations"))
+        {
+            this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default;
+            this.ExtendClientAreaToDecorationsHint = true;
+            this.SystemDecorations = SystemDecorations.BorderOnly;
         }
     }
 
@@ -135,7 +143,7 @@ public partial class PixiEditorPopup : Window, IPopupWindow
     {
         Show(MainWindow.Current);
     }
-    
+
     public void ShowStandalone()
     {
         base.Show();
