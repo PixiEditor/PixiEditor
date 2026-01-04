@@ -93,6 +93,15 @@ internal partial class MainWindow : Window
             CrashHelper.SendExceptionInfo(e);
         }
 
+        if (System.OperatingSystem.IsLinux())
+        {
+            SystemDecorations = SystemDecorations.None;
+        }
+        else
+        {
+            SystemDecorations = SystemDecorations.Full;
+        }
+
         var cliArgs = Environment.GetCommandLineArgs();
         if (cliArgs != null)
         {
@@ -100,6 +109,7 @@ internal partial class MainWindow : Window
             {
                 this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default;
                 this.ExtendClientAreaToDecorationsHint = false;
+                this.SystemDecorations = SystemDecorations.Full;
             }
 
             if(cliArgs.Contains("--no-decorations"))

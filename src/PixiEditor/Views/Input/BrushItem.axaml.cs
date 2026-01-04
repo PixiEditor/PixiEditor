@@ -9,6 +9,7 @@ using Avalonia.Threading;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core;
+using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
@@ -102,6 +103,7 @@ internal partial class BrushItem : UserControl
         if (isPreviewingStroke)
             return;
 
+        var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
         BrushOutputNode? brushNode =
             Brush?.Brush?.Document?.AccessInternalReadOnlyDocument().NodeGraph
                 .LookupNode(Brush?.Brush?.OutputNodeId ?? Guid.Empty) as BrushOutputNode;
@@ -137,6 +139,8 @@ internal partial class BrushItem : UserControl
             new VecD(0, BrushOutputNode.YOffsetInPreview)).GetEnumerator();
 
         previewTexture.DrawingSurface.Canvas.Clear();
+        
+        ctx.Dispose();
         previewTimer = DispatcherTimer.Run(() =>
         {
             if ((brushNode != null && previewTexture != null) && (brushNode.IsDisposed || previewTexture.IsDisposed))
@@ -147,8 +151,10 @@ internal partial class BrushItem : UserControl
 
             try
             {
+                var innerCtx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
                 if (!enumerator.MoveNext())
                 {
+                    innerCtx.Dispose();
                     DispatcherTimer.RunOnce(() =>
                     {
                         if (isPreviewingStroke)
@@ -168,6 +174,7 @@ internal partial class BrushItem : UserControl
                     previewTexture.DrawingSurface.Canvas,
                     VecI.Zero, srcOver);
 
+                innerCtx.Dispose();
                 StrokePreviewControl.QueueNextFrame();
             }
             catch

@@ -78,6 +78,7 @@ public partial class PixiEditorPopup : Window, IPopupWindow
         if (cliArgs.Contains("--system-decorations"))
         {
             this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default;
+            this.SystemDecorations = SystemDecorations.Full;
             this.ExtendClientAreaToDecorationsHint = false;
             ShowTitleBar = false;
         }
