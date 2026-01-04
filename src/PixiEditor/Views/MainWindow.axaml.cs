@@ -20,6 +20,7 @@ using PixiEditor.Extensions.Runtime;
 using PixiEditor.Helpers;
 using PixiEditor.Initialization;
 using PixiEditor.Models.AnalyticsAPI;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.ExceptionHandling;
 using PixiEditor.Models.IO;
 using PixiEditor.OperatingSystem;
@@ -90,6 +91,33 @@ internal partial class MainWindow : Window
         catch (Exception e)
         {
             CrashHelper.SendExceptionInfo(e);
+        }
+
+        if (System.OperatingSystem.IsLinux())
+        {
+            SystemDecorations = SystemDecorations.None;
+        }
+        else
+        {
+            SystemDecorations = SystemDecorations.Full;
+        }
+
+        var cliArgs = Environment.GetCommandLineArgs();
+        if (cliArgs != null)
+        {
+            if (cliArgs.Contains("--system-decorations"))
+            {
+                this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default;
+                this.ExtendClientAreaToDecorationsHint = false;
+                this.SystemDecorations = SystemDecorations.Full;
+            }
+
+            if(cliArgs.Contains("--no-decorations"))
+            {
+                this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.NoChrome;
+                this.ExtendClientAreaToDecorationsHint = true;
+                this.SystemDecorations = SystemDecorations.BorderOnly;
+            }
         }
 
         InitializeComponent();

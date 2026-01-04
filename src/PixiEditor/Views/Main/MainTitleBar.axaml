@@ -26,6 +26,7 @@
                 <OnPlatform Default="{x:Null}" Linux="Transparent"/>
             </DockPanel.Background>
             <dialogs:DialogTitleBar
+                HideIfSystemDecorations="True"
                 DockPanel.Dock="Right">
                 <dialogs:DialogTitleBar.AdditionalElement>
                     <StackPanel Margin="5 0" Spacing="5" Orientation="Horizontal"

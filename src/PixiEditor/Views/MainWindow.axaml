@@ -18,15 +18,5 @@
         Initialized="MainWindow_Initialized"
         localization:Translator.UseLanguageFlowDirection="True"
         Title="PixiEditor">
-    <Window.SystemDecorations>
-        <OnPlatform>
-            <OnPlatform.Default>
-                <SystemDecorations>Full</SystemDecorations>
-            </OnPlatform.Default>
-            <OnPlatform.Linux>
-                <SystemDecorations>None</SystemDecorations>
-            </OnPlatform.Linux>
-        </OnPlatform> 
-    </Window.SystemDecorations>
     <views1:MainView />
 </Window>

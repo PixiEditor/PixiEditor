@@ -18,6 +18,15 @@ internal partial class DialogTitleBar : UserControl, ICustomTranslatorElement
     public static readonly StyledProperty<bool> CanFullscreenProperty = AvaloniaProperty.Register<DialogTitleBar, bool>(
         nameof(CanFullscreen), defaultValue: true);
 
+    public static readonly StyledProperty<bool> HideIfSystemDecorationsProperty = AvaloniaProperty.Register<DialogTitleBar, bool>(
+        nameof(HideIfSystemDecorations));
+
+    public bool HideIfSystemDecorations
+    {
+        get => GetValue(HideIfSystemDecorationsProperty);
+        set => SetValue(HideIfSystemDecorationsProperty, value);
+    }
+
     public static readonly StyledProperty<string> TitleKeyProperty =
         AvaloniaProperty.Register<DialogTitleBar, string>(nameof(TitleKey), string.Empty);
 
@@ -68,7 +77,15 @@ internal partial class DialogTitleBar : UserControl, ICustomTranslatorElement
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
     {
         base.OnApplyTemplate(e);
-        captionButtons.Attach(VisualRoot as Window);
+        var parentWindow = VisualRoot as Window;
+        if (!parentWindow.ExtendClientAreaToDecorationsHint && HideIfSystemDecorations)
+        {
+            captionButtons.IsVisible = false;
+        }
+        else
+        {
+            captionButtons.Attach(VisualRoot as Window);
+        }
     }
 
     void ICustomTranslatorElement.SetTranslationBinding(AvaloniaProperty dependencyProperty,

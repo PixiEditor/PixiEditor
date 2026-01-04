@@ -19,7 +19,8 @@
         <!--A hacky way to fix first element not rendering in OpenGL render api--> 
         <visuals:TextureControl Name="OpenGlInitDummy" IsVisible="False"/>
         <DockPanel>
-            <main1:MainTitleBar DockPanel.Dock="Top" DataContext="{Binding MenuBarViewModel}" />
+            <main1:MainTitleBar DockPanel.Dock="Top"
+                                DataContext="{Binding MenuBarViewModel}" />
             <Grid Focusable="True" Name="FocusableGrid">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />

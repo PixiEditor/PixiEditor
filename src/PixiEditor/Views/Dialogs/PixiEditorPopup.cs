@@ -6,6 +6,7 @@ using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Platform;
 using Avalonia.Styling;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
@@ -24,6 +25,7 @@ public partial class PixiEditorPopup : Window, IPopupWindow
 {
     public static event Action<PixiEditorPopup> PopupLoaded;
     public static event Action<PixiEditorPopup> PopupClosed;
+
     public static readonly StyledProperty<bool> CanMinimizeProperty = AvaloniaProperty.Register<PixiEditorPopup, bool>(
         nameof(CanMinimize), defaultValue: true);
 
@@ -71,6 +73,22 @@ public partial class PixiEditorPopup : Window, IPopupWindow
 #if DEBUG
         this.AttachDevTools();
 #endif
+
+        var cliArgs = Environment.GetCommandLineArgs();
+        if (cliArgs.Contains("--system-decorations"))
+        {
+            this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default;
+            this.SystemDecorations = SystemDecorations.Full;
+            this.ExtendClientAreaToDecorationsHint = false;
+            ShowTitleBar = false;
+        }
+
+        if (cliArgs.Contains("--no-decorations"))
+        {
+            this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default;
+            this.ExtendClientAreaToDecorationsHint = true;
+            this.SystemDecorations = SystemDecorations.BorderOnly;
+        }
     }
 
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
@@ -126,7 +144,7 @@ public partial class PixiEditorPopup : Window, IPopupWindow
     {
         Show(MainWindow.Current);
     }
-    
+
     public void ShowStandalone()
     {
         base.Show();
