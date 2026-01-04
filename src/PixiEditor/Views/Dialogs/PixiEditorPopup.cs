@@ -6,6 +6,7 @@ using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Platform;
 using Avalonia.Styling;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
@@ -71,6 +72,14 @@ public partial class PixiEditorPopup : Window, IPopupWindow
 #if DEBUG
         this.AttachDevTools();
 #endif
+
+        var cliArgs = Environment.GetCommandLineArgs();
+        if (cliArgs != null && cliArgs.Contains("--system-decorations"))
+        {
+            this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default;
+            this.ExtendClientAreaToDecorationsHint = false;
+            ShowTitleBar = false;
+        }
     }
 
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
