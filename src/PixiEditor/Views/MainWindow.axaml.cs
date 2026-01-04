@@ -94,10 +94,20 @@ internal partial class MainWindow : Window
         }
 
         var cliArgs = Environment.GetCommandLineArgs();
-        if (cliArgs != null && cliArgs.Contains("--system-decorations"))
+        if (cliArgs != null)
         {
-            this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default;
-            this.ExtendClientAreaToDecorationsHint = false;
+            if (cliArgs.Contains("--system-decorations"))
+            {
+                this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default;
+                this.ExtendClientAreaToDecorationsHint = false;
+            }
+
+            if(cliArgs.Contains("--no-decorations"))
+            {
+                this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.NoChrome;
+                this.ExtendClientAreaToDecorationsHint = true;
+                this.SystemDecorations = SystemDecorations.BorderOnly;
+            }
         }
 
         InitializeComponent();
