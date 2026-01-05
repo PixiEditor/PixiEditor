@@ -109,4 +109,12 @@ public static class PixiEditorSettings
             PreferencesConstants.DisablePreviewsDefault,
             PreferencesConstants.DisablePreviews);
     }
+
+    public static class Appearance
+    {
+        public static SyncedSetting<bool> UseSystemDecorations { get; } = SyncedSetting.NonOwned(
+            PixiEditor,
+            PreferencesConstants.UseSystemWindowDecorationsDefault,
+            PreferencesConstants.UseSystemWindowDecorations);
+    }
 }

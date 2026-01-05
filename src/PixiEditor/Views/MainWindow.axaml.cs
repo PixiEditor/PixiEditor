@@ -16,6 +16,7 @@ using Drawie.Backend.Core.Bridge;
 using PixiDocks.Avalonia.Helpers;
 using PixiEditor.Extensions;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
+using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Extensions.Runtime;
 using PixiEditor.Helpers;
 using PixiEditor.Initialization;
@@ -91,7 +92,50 @@ internal partial class MainWindow : Window
             CrashHelper.SendExceptionInfo(e);
         }
 
+        PixiEditorSettings.Appearance.UseSystemDecorations.ValueChanged += (_, _) => UpdateDecorations();
+
+        UpdateDecorations();
+
         InitializeComponent();
+    }
+
+    private void UpdateDecorations()
+    {
+        var cliArgs = Environment.GetCommandLineArgs();
+        bool isWindows10 = System.OperatingSystem.IsWindowsVersionAtLeast(10)
+                           && !System.OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000);
+        bool userPrefersSystemDecorations = PixiEditorSettings.Appearance.UseSystemDecorations.Value;
+        bool systemDecorations = false;
+        if (cliArgs != null || isWindows10 || userPrefersSystemDecorations)
+        {
+            if (isWindows10 || userPrefersSystemDecorations || cliArgs.Contains("--system-decorations"))
+            {
+                this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default;
+                this.ExtendClientAreaToDecorationsHint = false;
+                this.SystemDecorations = SystemDecorations.Full;
+                systemDecorations = true;
+            }
+        }
+
+        if (!systemDecorations)
+        {
+            this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.SystemChrome;
+            this.ExtendClientAreaToDecorationsHint = true;
+            if (System.OperatingSystem.IsLinux())
+            {
+                SystemDecorations = SystemDecorations.None;
+            }
+            else if (System.OperatingSystem.IsMacOS())
+            {
+                ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default |
+                                              ExtendClientAreaChromeHints.NoChrome |
+                                              ExtendClientAreaChromeHints.OSXThickTitleBar;
+            }
+            else
+            {
+                SystemDecorations = SystemDecorations.Full;
+            }
+        }
     }
 
 

@@ -467,6 +467,25 @@
                             </StackPanel>
                         </controls:FixedSizeStackPanel>
                     </ScrollViewer>
+                     <ScrollViewer>
+                        <ScrollViewer.IsVisible>
+                            <Binding Path="CurrentPage" Converter="{converters:IsEqualConverter}">
+                                <Binding.ConverterParameter>
+                                    <sys:Int32>7</sys:Int32>
+                                </Binding.ConverterParameter>
+                            </Binding>
+                        </ScrollViewer.IsVisible>
+                        <!--Background="{StaticResource AccentColor}"-->
+                        <controls:FixedSizeStackPanel Orientation="Vertical" ChildSize="32"
+                                                      VerticalChildrenAlignment="Center" Margin="12">
+                            <TextBlock ui:Translator.Key="APPEARANCE" Classes="h5" />
+
+                            <CheckBox Classes="leftOffset" Width="200" HorizontalAlignment="Left"
+                                      ui:Translator.Key="USE_SYSTEM_TITLE_BAR"
+                                      IsChecked="{Binding SettingsSubViewModel.Appearance.UseSystemDecorations}" />
+
+                        </controls:FixedSizeStackPanel>
+                    </ScrollViewer>
                 </Grid>
             </Border>
         </DockPanel>
