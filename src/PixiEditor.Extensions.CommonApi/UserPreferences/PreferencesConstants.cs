@@ -56,4 +56,6 @@ public static class PreferencesConstants
     public const string DisablePreviews = "DisablePreviews";
     public const bool DisablePreviewsDefault = false;
     public const string FavouriteBrushes = "FavouriteBrushes";
+    public const string UseSystemWindowDecorations = "UseSystemWindowDecorations";
+    public const bool UseSystemWindowDecorationsDefault = false;
 }
