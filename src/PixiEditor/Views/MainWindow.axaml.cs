@@ -96,9 +96,13 @@ internal partial class MainWindow : Window
 
         PixiEditorSettings.Appearance.UseSystemDecorations.ValueChanged += (_, _) => UpdateDecorations();
 
-        UpdateDecorations();
-
         InitializeComponent();
+    }
+
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+    {
+        base.OnApplyTemplate(e);
+        UpdateDecorations();
     }
 
     private void UpdateDecorations()
