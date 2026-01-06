@@ -81,13 +81,11 @@ public partial class PixiEditorPopup : Window, IPopupWindow
     private void UpdateDecorations()
     {
         var cliArgs = Environment.GetCommandLineArgs();
-        bool isWindows10 = System.OperatingSystem.IsWindowsVersionAtLeast(10)
-                           && !System.OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000);
         bool userPrefersSystemDecorations = PixiEditorSettings.Appearance.UseSystemDecorations.Value;
         bool systemDecorations = false;
-        if (cliArgs != null || isWindows10 || userPrefersSystemDecorations)
+        if (cliArgs != null || userPrefersSystemDecorations)
         {
-            if (isWindows10 || userPrefersSystemDecorations || cliArgs.Contains("--system-decorations"))
+            if (userPrefersSystemDecorations || cliArgs.Contains("--system-decorations"))
             {
                 this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default;
                 this.SystemDecorations = SystemDecorations.Full;
