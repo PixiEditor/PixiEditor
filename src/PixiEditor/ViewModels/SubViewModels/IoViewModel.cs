@@ -214,7 +214,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
 
     private void ProcessShortcutDown(bool isRepeat, Key key, KeyModifiers argsModifiers)
     {
-        if (argsModifiers == KeyModifiers.None && !isRepeat)
+        if (!HoldsShortcutWithModifier(argsModifiers, key) && !isRepeat)
         {
             if (!HandleTransientKey(key, true))
             {
@@ -234,6 +234,18 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         }
 
         Owner.ShortcutController.KeyPressed(isRepeat, key, argsModifiers);
+    }
+
+    private static bool HoldsShortcutWithModifier(KeyModifiers argsModifiers, Key key)
+    {
+        if(argsModifiers == KeyModifiers.None)
+            return false;
+
+        // If key is equal to any modifier key. Multiple modifier keys are considered shortcut with modifiers.
+        if(key is Key.LeftAlt or Key.RightAlt or Key.LeftCtrl or Key.RightCtrl or Key.LeftShift or Key.RightShift or Key.LWin or Key.RWin)
+            return argsModifiers is not (KeyModifiers.Alt or KeyModifiers.Control or KeyModifiers.Shift or KeyModifiers.Meta);
+
+        return true;
     }
 
     private void OnKeyUp(object? sender, FilteredKeyEventArgs args)
