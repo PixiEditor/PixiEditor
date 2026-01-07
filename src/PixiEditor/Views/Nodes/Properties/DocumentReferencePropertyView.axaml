@@ -23,8 +23,9 @@
                 MaxWidth="100"
                 Margin="5, 0, 0, 0">
             <Panel>
-                <TextBlock FontSize="12" localization:Translator.Key="SELECT" IsVisible="{Binding Value.OriginalFilePath, Converter={converters:EmptyStringConverter}}" />
-                <TextBlock TextTrimming="CharacterEllipsis" FontSize="12" Text="{Binding Value.OriginalFilePath, Converter={converters:FilePathToFileNameConverter}}"/>
+                <TextBlock FontSize="12" localization:Translator.Key="SELECT" IsVisible="{Binding OriginalFilePath, Converter={converters:EmptyStringConverter}}" />
+                <TextBlock TextTrimming="CharacterEllipsis" FontSize="12"
+                           Text="{Binding OriginalFilePath, Converter={converters:FilePathToFileNameConverter}}"/>
             </Panel>
         </Button>
     </StackPanel>
