@@ -90,12 +90,15 @@ internal class DocumentViewModelBuilder
     {
         AnimationData = new AnimationDataBuilder();
 
-        if (animationData != null && animationData.KeyFrameGroups.Count > 0)
+        if (animationData != null)
         {
             AnimationData.WithFrameRate(animationData.FrameRate);
             AnimationData.WithOnionFrames(animationData.OnionFrames);
             AnimationData.WithOnionOpacity(animationData.OnionOpacity);
-            BuildKeyFrames(animationData.KeyFrameGroups.ToList(), AnimationData.KeyFrameGroups, documentGraph);
+            if (animationData.KeyFrameGroups.Count > 0)
+            {
+                BuildKeyFrames(animationData.KeyFrameGroups.ToList(), AnimationData.KeyFrameGroups, documentGraph);
+            }
         }
 
         if (animationData?.DefaultEndFrame >= 0)
@@ -277,7 +280,7 @@ internal class DocumentViewModelBuilder
 
 internal class AnimationDataBuilder
 {
-    public int FrameRate { get; set; } = 24;
+    public int FrameRate { get; set; } = 60;
     public List<KeyFrameBuilder> KeyFrameGroups { get; set; } = new List<KeyFrameBuilder>();
     public int OnionFrames { get; set; }
     public double OnionOpacity { get; set; } = 50;
