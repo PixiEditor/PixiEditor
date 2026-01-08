@@ -382,6 +382,14 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
                     (savedSceneScale, savedSceneAngleRadians, savedSceneCenter));
             });
         }
+        else
+        {
+            Dispatcher.UIThread.Post(() =>
+            {
+               CenterViewportTrigger.Execute(this, Document.GetRenderOutputSize(RenderOutputName));
+               firstApply = false;
+            });
+        }
     }
 
     void IDockableSelectionEvents.OnDeselected()

@@ -11,6 +11,7 @@ using PixiEditor.Helpers.UI;
 using PixiEditor.Models.Controllers.InputDevice;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
+using PixiEditor.Models.Handlers;
 using PixiEditor.Views.Overlays.Drawables;
 using PixiEditor.Views.Overlays.Handles;
 using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
@@ -667,7 +668,7 @@ internal class TransformOverlay : Overlay
 
         if (!isRotating && !actuallyMoved && pressedWithinBounds)
         {
-            MouseOnCanvasEventArgs args = new(MouseButton.Left, e.Pointer.Type, e.Point, e.Modifiers, lastClickCount, e.Properties, ZoomScale);
+            MouseOnCanvasEventArgs args = new(MouseButton.Left, e.Pointer.Type, e.Point, e.Modifiers, lastClickCount, e.Properties, ZoomScale, e.Source as IDocument);
             PassthroughPointerPressedCommand?.Execute(args);
             lastClickCount = 0;
         }

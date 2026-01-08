@@ -776,6 +776,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                 : MouseButton.None,
             ClickCount = e is PointerPressedEventArgs pressed ? pressed.ClickCount : 0,
             Properties = e.GetCurrentPoint(this).Properties,
+            Source = Document
         };
     }
 

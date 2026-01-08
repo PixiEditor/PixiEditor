@@ -1,7 +1,6 @@
 ﻿using Avalonia.Input;
-using Drawie.Backend.Core.Numerics;
 using Drawie.Numerics;
-using PixiEditor.Models.Position;
+using PixiEditor.Models.Handlers;
 
 namespace PixiEditor.Models.Controllers.InputDevice;
 
@@ -16,9 +15,10 @@ internal class MouseOnCanvasEventArgs : EventArgs
     public double ViewportScale { get; set; }
     public IReadOnlyList<PointerPosition> IntermediatePoints { get; set; }
     public PointerPointProperties Properties => Point.Properties;
+    public IDocument? TargetDocument { get; set; }
 
     public MouseOnCanvasEventArgs(MouseButton button, PointerType type, VecD positionOnCanvas, KeyModifiers keyModifiers, int clickCount,
-        PointerPointProperties properties, double viewportScale)
+        PointerPointProperties properties, double viewportScale, IDocument? targetDocument)
     {
         Button = button;
         Point = new PointerPosition(positionOnCanvas, properties);
@@ -26,12 +26,13 @@ internal class MouseOnCanvasEventArgs : EventArgs
         ClickCount = clickCount;
         PointerType = type;
         ViewportScale = viewportScale;
+        TargetDocument = targetDocument;
     }
 
     public static MouseOnCanvasEventArgs FromIntermediatePoint(MouseOnCanvasEventArgs args, PointerPosition point)
     {
         return new MouseOnCanvasEventArgs(args.Button, args.PointerType, point.PositionOnCanvas, args.KeyModifiers, args.ClickCount,
-            point.Properties, args.ViewportScale)
+            point.Properties, args.ViewportScale, args.TargetDocument)
         {
             Handled = args.Handled,
         };
