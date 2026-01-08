@@ -31,7 +31,11 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
     public string Index => _index;
 
     public string Id => id;
-    public string Title => Document.IsNestedDocument ? new LocalizedString("NESTED_DOCUMENT") :$"{Document.FileName}{Index}";
+
+    public string Title => Document.IsNestedDocument
+        ? new LocalizedString("NESTED_DOCUMENT")
+        : $"{Document.FileName}{Index}";
+
     public bool CanFloat => true;
     public bool CanClose => true;
 
@@ -194,6 +198,7 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
     private double savedSceneAngleRadians = 0.0;
 
     private bool firstApply = true;
+    private bool centerPending = false;
 
     private TextureControl previewPainterControl;
 
@@ -238,11 +243,6 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
 
         TabCustomizationSettings.Icon = previewPainterControl;
         TabCustomizationSettings.FontStyle = Document.IsNestedDocument ? FontStyle.Italic : FontStyle.Normal;
-        Dispatcher.UIThread.Post(() =>
-        {
-            CenterViewportTrigger.Execute(this, Document.GetRenderOutputSize(RenderOutputName));
-            firstApply = false;
-        });
     }
 
 
@@ -265,6 +265,7 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
                     previewPainterControl.Texture = minSize.Value;
                 }
             }
+
             TabCustomizationSettings.SavedState = GetSaveState(Document);
         }
         else if (e.PropertyName == nameof(DocumentViewModel.AllChangesAutosaved))
@@ -382,13 +383,15 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
                     (savedSceneScale, savedSceneAngleRadians, savedSceneCenter));
             });
         }
-        else
+        else if (!centerPending)
         {
+            centerPending = true;
             Dispatcher.UIThread.Post(() =>
             {
-               CenterViewportTrigger.Execute(this, Document.GetRenderOutputSize(RenderOutputName));
-               firstApply = false;
-            });
+                CenterViewportTrigger.Execute(this, Document.GetRenderOutputSize(RenderOutputName));
+                firstApply = false;
+                centerPending = false;
+            }, DispatcherPriority.Render);
         }
     }
 
