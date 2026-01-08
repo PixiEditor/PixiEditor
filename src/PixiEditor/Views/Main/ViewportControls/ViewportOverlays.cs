@@ -118,7 +118,9 @@ internal class ViewportOverlays
         Binding fadeOutBinding = new()
         {
             Source = ViewModelMain.Current.ToolsSubViewModel,
-            Path = "!ActiveTool.PickFromReferenceLayer",
+            Path = "ActiveTool",
+            Converter = new InvertedPickFromReferenceLayerConverter(),
+            FallbackValue = false,
             Mode = BindingMode.OneWay,
         };
 
