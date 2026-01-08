@@ -185,7 +185,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         return Owner.DocumentManagerSubViewModel.ActiveDocument is { BlockingUpdateableChangeActive: false };
     }
 
-    [Command.Internal("PixiEditor.Layer.ToggleLockTransparency", CanExecute = "PixiEditor.Layer.SelectedMemberIsLayer",
+    [Command.Internal("PixiEditor.Layer.ToggleLockTransparency", CanExecute = "PixiEditor.Layer.SelectedMemberIsTransparencyLockable",
         AnalyticsTrack = true)]
     public void ToggleLockTransparency()
     {
@@ -280,6 +280,15 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     {
         var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
         return member is ILayerHandler;
+    }
+
+
+    [Evaluator.CanExecute("PixiEditor.Layer.SelectedMemberIsTransparencyLockable",
+        nameof(DocumentManagerViewModel.ActiveDocument), nameof(DocumentViewModel.SelectedStructureMember))]
+    public bool SelectedMemberIsTransparencyLockable(object property)
+    {
+        var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
+        return member is ITransparencyLockableMember;
     }
 
     [Evaluator.CanExecute("PixiEditor.Layer.SelectedLayerIsRasterizable",
