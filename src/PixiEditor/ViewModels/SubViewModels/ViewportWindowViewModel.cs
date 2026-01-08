@@ -241,6 +241,7 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
         Dispatcher.UIThread.Post(() =>
         {
             CenterViewportTrigger.Execute(this, Document.GetRenderOutputSize(RenderOutputName));
+            firstApply = false;
         });
     }
 
@@ -389,6 +390,5 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
         savedSceneScale = SceneScale;
         savedSceneCenter = SceneCenter;
         savedSceneAngleRadians = SceneAngleRadians;
-        firstApply = false;
     }
 }

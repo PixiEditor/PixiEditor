@@ -440,7 +440,6 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         InitializeComponent();
 
         builtInOverlays.Init(this);
-        //Scene!.Loaded += OnImageLoaded;
         Scene.SizeChanged += OnMainImageSizeChanged;
         Loaded += OnLoad;
         Unloaded += OnUnload;
@@ -679,11 +678,6 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     private void ZoomZoomboxContent(object? sender, double delta)
     {
         scene.ZoomIntoCenter(delta);
-    }
-
-    private void OnImageLoaded(object sender, EventArgs e)
-    {
-        scene.CenterContent();
     }
 
     private void OnMainImageSizeChanged(object? sender, SizeChangedEventArgs e)
