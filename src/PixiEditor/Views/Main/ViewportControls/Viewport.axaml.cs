@@ -464,6 +464,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     private void OnAttachedToVisualTree(object? sender, VisualTreeAttachmentEventArgs e)
     {
         TextBoxFocusBehavior.FallbackFocusElement.Focus();
+        Scene.CenterContent();
     }
 
     public Scene Scene => scene;
