@@ -37,9 +37,9 @@
                        Margin="2"
                        HorizontalAlignment="Center" VerticalAlignment="Center"
                        Source="{Binding IconToUse, Converter={converters:ImagePathToBitmapConverter}}" />
-                <TextBlock Background="{DynamicResource ThemeBorderLowBrush}"
+                <TextBlock Background="{DynamicResource ThemeBackgroundBrush1}"
                            IsVisible="{Binding !CanBeUsedOnActiveLayer}"
-                           Classes="pixi-icon" FontSize="12" Text="{DynamicResource icon-plus-square}"
+                           Classes="pixi-icon" FontSize="12" Text="{DynamicResource icon-layers}"
                            HorizontalAlignment="Right" VerticalAlignment="Bottom" />
             </Grid>
         </Button.Content>

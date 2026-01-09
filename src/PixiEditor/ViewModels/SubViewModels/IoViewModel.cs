@@ -214,7 +214,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
 
     private void ProcessShortcutDown(bool isRepeat, Key key, KeyModifiers argsModifiers)
     {
-        if (argsModifiers == KeyModifiers.None && !isRepeat)
+        if (!HoldsShortcutWithModifier(argsModifiers, key) && !isRepeat)
         {
             if (!HandleTransientKey(key, true))
             {
@@ -234,6 +234,20 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         }
 
         Owner.ShortcutController.KeyPressed(isRepeat, key, argsModifiers);
+    }
+
+    private static bool HoldsShortcutWithModifier(KeyModifiers argsModifiers, Key key)
+    {
+        if (argsModifiers == KeyModifiers.None)
+            return false;
+
+        // If key is equal to any modifier key. Multiple modifier keys are considered shortcut with modifiers.
+        if (key is Key.LeftAlt or Key.RightAlt or Key.LeftCtrl or Key.RightCtrl or Key.LeftShift or Key.RightShift
+            or Key.LWin or Key.RWin)
+            return argsModifiers is not (KeyModifiers.Alt or KeyModifiers.Control or KeyModifiers.Shift
+                or KeyModifiers.Meta);
+
+        return true;
     }
 
     private void OnKeyUp(object? sender, FilteredKeyEventArgs args)
@@ -306,7 +320,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
             return;
 
         var docManager = Owner.DocumentManagerSubViewModel;
-        var activeDocument = docManager.ActiveDocument;
+        var activeDocument = (args.TargetDocument as DocumentViewModel) ?? docManager.ActiveDocument;
         if (activeDocument == null)
             return;
 
@@ -328,10 +342,10 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         if (Owner.ToolsSubViewModel.NeedsNewLayerForActiveTool())
         {
             var activeToolType = Owner.ToolsSubViewModel.ActiveTool.GetType();
-            Owner.DocumentManagerSubViewModel.ActiveDocument.Tools.TryStopActiveTool();
+            activeDocument.Tools.TryStopActiveTool();
             Owner.ToolsSubViewModel.CreateLayerIfNeeded();
             Owner.ToolsSubViewModel.DeselectActiveTool();
-            Owner.DocumentManagerSubViewModel.ActiveDocument.SubscribeLayerReadyToUseOnce(() =>
+            activeDocument.SubscribeLayerReadyToUseOnce(() =>
             {
                 Owner.ToolsSubViewModel.SetActiveTool(activeToolType, false);
                 Owner.ToolsSubViewModel.UseToolEventInlet(args.Point.PositionOnCanvas, args.Button);
@@ -451,7 +465,8 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
 
     private void OnMouseMove(object? sender, MouseOnCanvasEventArgs args)
     {
-        DocumentViewModel? activeDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        DocumentViewModel? activeDocument = (args.TargetDocument as DocumentViewModel) ??
+                                            Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (activeDocument is null)
             return;
         activeDocument.EventInlet.OnCanvasMouseMove(args);
@@ -467,8 +482,10 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         if (toLeftRightClick && button != MouseButton.Middle)
             return;
 
-        if (Owner.DocumentManagerSubViewModel.ActiveDocument is null)
+        var document = (args.TargetDocument as DocumentViewModel) ?? Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (document is null)
             return;
+
         var tools = Owner.ToolsSubViewModel;
 
         var rightCanUp = (button == MouseButton.Right) &&
@@ -477,13 +494,13 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
 
         if (button == MouseButton.Left || rightCanUp)
         {
-            Owner.DocumentManagerSubViewModel.ActiveDocument.EventInlet
+            document.EventInlet
                 .OnCanvasLeftMouseButtonUp(args.Point.PositionOnCanvas);
         }
 
         if (button == MouseButton.Right)
         {
-            Owner.DocumentManagerSubViewModel.ActiveDocument.EventInlet
+            document.EventInlet
                 .OnCanvasRightMouseButtonUp(args.Point.PositionOnCanvas);
         }
 

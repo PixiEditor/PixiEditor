@@ -158,6 +158,7 @@ internal abstract class Setting : ObservableObject
 
     public void SetCurrentToolset(string toolset)
     {
+        var oldToolset = currentToolset;
         currentToolset = toolset;
         if (toolsetValues.Count <= 1)
         {
@@ -173,8 +174,13 @@ internal abstract class Setting : ObservableObject
             toolsetValues[currentToolset] = toolsetValues.FirstOrDefault().Value;
         }
 
+        var oldValue = toolsetValues.GetValueOrDefault(oldToolset, null);
+
         OnPropertyChanged(nameof(Value));
-        ValueChanged?.Invoke(this, new SettingValueChangedEventArgs<object>(null, Value));
+        if (oldValue != Value)
+        {
+            ValueChanged?.Invoke(this, new SettingValueChangedEventArgs<object>(oldValue, Value));
+        }
     }
 
     protected virtual object AdjustValue(object value)

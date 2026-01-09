@@ -135,6 +135,15 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         AvaloniaProperty.Register<Viewport, Bitmap>(
             nameof(BackgroundBitmap));
 
+    public static readonly StyledProperty<ExecutionTrigger<(double scale, double radians, VecD center)>> ApplyTransformTriggerProperty = AvaloniaProperty.Register<Viewport, ExecutionTrigger<(double scale, double radians, VecD center)>>(
+        nameof(ApplyTransformTrigger));
+
+    public ExecutionTrigger<(double scale, double radians, VecD center)> ApplyTransformTrigger
+    {
+        get => GetValue(ApplyTransformTriggerProperty);
+        set => SetValue(ApplyTransformTriggerProperty, value);
+    }
+
     public Bitmap BackgroundBitmap
     {
         get => GetValue(BackgroundBitmapProperty);
@@ -298,6 +307,33 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         set => SetValue(FlipYProperty, value);
     }
 
+    public static readonly StyledProperty<double> ScaleProperty = AvaloniaProperty.Register<Viewport, double>(
+        nameof(Scale));
+
+    public static readonly StyledProperty<VecD> CenterProperty = AvaloniaProperty.Register<Viewport, VecD>(
+        nameof(Center), new VecD(32, 32));
+
+    public VecD Center
+    {
+        get => GetValue(CenterProperty);
+        set => SetValue(CenterProperty, value);
+    }
+
+    public static readonly StyledProperty<double> AngleRadiansProperty = AvaloniaProperty.Register<Viewport, double>(
+        nameof(AngleRadians));
+
+    public double AngleRadians
+    {
+        get => GetValue(AngleRadiansProperty);
+        set => SetValue(AngleRadiansProperty, value);
+    }
+
+    public double Scale
+    {
+        get => GetValue(ScaleProperty);
+        set => SetValue(ScaleProperty, value);
+    }
+
     public static readonly StyledProperty<bool> HudVisibleProperty = AvaloniaProperty.Register<Viewport, bool>(
         nameof(HudVisible), true);
 
@@ -311,32 +347,6 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     {
         get => GetValue(ChannelsProperty);
         set => SetValue(ChannelsProperty, value);
-    }
-
-    private double angleRadians = 0;
-
-    public double AngleRadians
-    {
-        get => angleRadians;
-        set
-        {
-            angleRadians = value;
-            PropertyChanged?.Invoke(this, new(nameof(AngleRadians)));
-            Document?.Operations.AddOrUpdateViewport(GetLocation());
-        }
-    }
-
-    private VecD center = new(32, 32);
-
-    public VecD Center
-    {
-        get => center;
-        set
-        {
-            center = value;
-            PropertyChanged?.Invoke(this, new(nameof(Center)));
-            Document?.Operations.AddOrUpdateViewport(GetLocation());
-        }
     }
 
     private VecD realDimensions = new(double.MaxValue, double.MaxValue);
@@ -411,6 +421,18 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         ZoomViewportTriggerProperty.Changed.Subscribe(ZoomViewportTriggerChanged);
         CenterViewportTriggerProperty.Changed.Subscribe(CenterViewportTriggerChanged);
         HighResPreviewProperty.Changed.Subscribe(OnHighResPreviewChanged);
+        ApplyTransformTriggerProperty.Changed.Subscribe(OnApplyTransformTriggerChanged);
+        CenterProperty.Changed.Subscribe(e =>
+        {
+            Viewport? viewport = (Viewport)e.Sender;
+            viewport.Document?.Operations.AddOrUpdateViewport(viewport.GetLocation());
+        });
+
+        AngleRadiansProperty.Changed.Subscribe(e =>
+        {
+            Viewport? viewport = (Viewport)e.Sender;
+            viewport.Document?.Operations.AddOrUpdateViewport(viewport.GetLocation());
+        });
     }
 
     public Viewport()
@@ -418,7 +440,6 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         InitializeComponent();
 
         builtInOverlays.Init(this);
-        Scene!.Loaded += OnImageLoaded;
         Scene.SizeChanged += OnMainImageSizeChanged;
         Loaded += OnLoad;
         Unloaded += OnUnload;
@@ -443,6 +464,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     private void OnAttachedToVisualTree(object? sender, VisualTreeAttachmentEventArgs e)
     {
         TextBoxFocusBehavior.FallbackFocusElement.Focus();
+        Scene.CenterContent();
     }
 
     public Scene Scene => scene;
@@ -516,6 +538,22 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         newDoc?.Operations.AddOrUpdateViewport(viewport.GetLocation());
     }
 
+    private static void OnApplyTransformTriggerChanged(AvaloniaPropertyChangedEventArgs<ExecutionTrigger<(double scale, double radians, VecD center)>> e)
+    {
+        Viewport? viewport = (Viewport)e.Sender;
+        if (e.OldValue.Value != null)
+            e.OldValue.Value.Triggered -= viewport.OnApplyTransformTriggered;
+        if (e.NewValue.Value != null)
+            e.NewValue.Value.Triggered += viewport.OnApplyTransformTriggered;
+    }
+
+    private void OnApplyTransformTriggered(object? sender, (double scale, double radians, VecD center) args)
+    {
+        scene.Scale = args.scale;
+        scene.AngleRadians = args.radians;
+        scene.Center = args.center;
+    }
+
     private void OnDocumentSizeChanged(object? sender, DocumentSizeChangedEventArgs documentSizeChangedEventArgs)
     {
         scene.CenterContent(Document.GetRenderOutputSize(ViewportRenderOutput));
@@ -566,7 +604,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         VecD scenePos = Scene.ToZoomboxSpace(new VecD(pos.X, pos.Y));
         MouseOnCanvasEventArgs? parameter =
             new MouseOnCanvasEventArgs(mouseButton, e.Pointer.Type, scenePos, e.KeyModifiers, e.ClickCount,
-                e.GetCurrentPoint(this).Properties, Scene.Scale);
+                e.GetCurrentPoint(this).Properties, Scene.Scale, Document);
 
         if (MouseDownCommand.CanExecute(parameter))
             MouseDownCommand.Execute(parameter);
@@ -583,7 +621,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         MouseButton mouseButton = e.GetMouseButton(this);
 
         MouseOnCanvasEventArgs parameter = new(mouseButton, e.Pointer.Type, conv, e.KeyModifiers, 0,
-            e.GetCurrentPoint(this).Properties, Scene.Scale);
+            e.GetCurrentPoint(this).Properties, Scene.Scale, Document);
 
         var intermediate = e.GetIntermediatePoints(this);
         List<PointerPosition> intermediatePositions = new();
@@ -611,7 +649,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         Point pos = e.GetPosition(Scene);
         VecD conv = Scene.ToZoomboxSpace(new VecD(pos.X, pos.Y));
         MouseOnCanvasEventArgs parameter = new(e.InitialPressMouseButton, e.Pointer.Type, conv, e.KeyModifiers, 0,
-            e.GetCurrentPoint(this).Properties, Scene.Scale);
+            e.GetCurrentPoint(this).Properties, Scene.Scale, Document);
         if (MouseUpCommand.CanExecute(parameter))
             MouseUpCommand.Execute(parameter);
 
@@ -641,11 +679,6 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     private void ZoomZoomboxContent(object? sender, double delta)
     {
         scene.ZoomIntoCenter(delta);
-    }
-
-    private void OnImageLoaded(object sender, EventArgs e)
-    {
-        scene.CenterContent();
     }
 
     private void OnMainImageSizeChanged(object? sender, SizeChangedEventArgs e)
