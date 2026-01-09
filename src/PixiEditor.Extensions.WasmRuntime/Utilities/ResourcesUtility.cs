@@ -26,6 +26,11 @@ public static class ResourcesUtility
     public static byte[] LoadEncryptedResource(WasmExtensionInstance extension, string path)
     {
         string fullPath = ToResourcesFullPath(extension, "Resources/resources.data");
+        if (!File.Exists(fullPath))
+        {
+            throw new FileNotFoundException("The resources.data file was not found.", fullPath);
+        }
+
         byte[] data = File.ReadAllBytes(fullPath);
         using var zipArchive = OpenEncryptedArchive(extension.GetEncryptionKey(), extension.GetEncryptionIV(), data, ZipArchiveMode.Read);
 

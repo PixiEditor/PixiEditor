@@ -5,6 +5,7 @@ using PixiDocks.Avalonia;
 using PixiDocks.Avalonia.Controls;
 using PixiDocks.Core.Docking;
 using PixiDocks.Core.Serialization;
+using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.SubViewModels;
 using PixiEditor.Views.Main;
@@ -44,6 +45,13 @@ internal class LayoutManager
         /*
         ChannelsDockViewModel channelsDockDockViewModel = new(mainViewModel.WindowSubViewModel);
         */
+
+        HostWindow.ForceUseSystemDecorations = PixiEditorSettings.Appearance.UseSystemDecorations.Value;
+
+        PixiEditorSettings.Appearance.UseSystemDecorations.ValueChanged += (_, val) =>
+        {
+            HostWindow.ForceUseSystemDecorations = val;
+        };
 
         RegisterDockable(layersDockViewModel);
         RegisterDockable(colorPickerDockViewModel);

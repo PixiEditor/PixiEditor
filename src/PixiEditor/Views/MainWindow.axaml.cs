@@ -16,6 +16,7 @@ using Drawie.Backend.Core.Bridge;
 using PixiDocks.Avalonia.Helpers;
 using PixiEditor.Extensions;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
+using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Extensions.Runtime;
 using PixiEditor.Helpers;
 using PixiEditor.Initialization;
@@ -93,34 +94,52 @@ internal partial class MainWindow : Window
             CrashHelper.SendExceptionInfo(e);
         }
 
-        if (System.OperatingSystem.IsLinux())
-        {
-            SystemDecorations = SystemDecorations.None;
-        }
-        else
-        {
-            SystemDecorations = SystemDecorations.Full;
-        }
+        PixiEditorSettings.Appearance.UseSystemDecorations.ValueChanged += (_, _) => UpdateDecorations();
 
+        InitializeComponent();
+    }
+
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+    {
+        base.OnApplyTemplate(e);
+        UpdateDecorations();
+    }
+
+    private void UpdateDecorations()
+    {
         var cliArgs = Environment.GetCommandLineArgs();
-        if (cliArgs != null)
+        bool userPrefersSystemDecorations = PixiEditorSettings.Appearance.UseSystemDecorations.Value;
+        bool systemDecorations = false;
+        if (cliArgs != null || userPrefersSystemDecorations)
         {
-            if (cliArgs.Contains("--system-decorations"))
+            if (userPrefersSystemDecorations || cliArgs.Contains("--system-decorations"))
             {
                 this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default;
                 this.ExtendClientAreaToDecorationsHint = false;
                 this.SystemDecorations = SystemDecorations.Full;
-            }
-
-            if(cliArgs.Contains("--no-decorations"))
-            {
-                this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.NoChrome;
-                this.ExtendClientAreaToDecorationsHint = true;
-                this.SystemDecorations = SystemDecorations.BorderOnly;
+                systemDecorations = true;
             }
         }
 
-        InitializeComponent();
+        if (!systemDecorations)
+        {
+            this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.NoChrome;
+            this.ExtendClientAreaToDecorationsHint = true;
+            if (System.OperatingSystem.IsLinux())
+            {
+                SystemDecorations = SystemDecorations.None;
+            }
+            else if (System.OperatingSystem.IsMacOS())
+            {
+                ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default |
+                                              ExtendClientAreaChromeHints.NoChrome |
+                                              ExtendClientAreaChromeHints.OSXThickTitleBar;
+            }
+            else
+            {
+                SystemDecorations = SystemDecorations.Full;
+            }
+        }
     }
 
 

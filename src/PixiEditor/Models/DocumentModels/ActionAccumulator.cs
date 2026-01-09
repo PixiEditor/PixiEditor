@@ -197,9 +197,12 @@ internal class ActionAccumulator
                             !previewsDisabled && updateDelayed, previewTextures, immediateRender);
                     }
                 }
-                catch (ObjectDisposedException)
+                catch (ObjectDisposedException ex)
                 {
                     // Document or renderer was disposed during await
+                    #if DEBUG
+                    Debug.WriteLine($"Rendering aborted due to disposed exception: {ex}");
+                    #endif
                     return;
                 }
                 finally

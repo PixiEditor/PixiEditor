@@ -5,6 +5,7 @@ using Avalonia;
 using Avalonia.Animation;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.LogicalTree;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Rendering;
@@ -363,14 +364,14 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         DrawOverlays(texture, bounds, OverlayRenderSorting.Background);
         try
         {
-            if(Document == null || Document.SceneTextures.TryGetValue(ViewportId, out var tex) == false)
+            if (Document == null || Document.SceneTextures.TryGetValue(ViewportId, out var tex) == false)
                 return;
 
             bool hasSaved = false;
             int saved = -1;
 
             var matrix = CalculateTransformMatrix().ToSKMatrix().ToMatrix3X3();
-            if(!Document.SceneTextures.TryGetValue(ViewportId, out var cachedTexture))
+            if (!Document.SceneTextures.TryGetValue(ViewportId, out var cachedTexture))
                 return;
 
             Matrix3X3 matrixDiff = isFullscreenRender ? Matrix3X3.Identity : SolveMatrixDiff(matrix, cachedTexture);
@@ -391,6 +392,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                 {
                     renderedResolution = SceneRenderer.LastRenderedStates[ViewportId].ChunkResolution;
                 }
+
                 texture.Canvas.SetMatrix(matrixDiff);
                 texture.Canvas.Scale((float)renderedResolution.InvertedMultiplier());
                 hasSaved = true;
@@ -490,7 +492,8 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             OverlayPointerArgs args = ConstructPointerArgs(e);
             foreach (Overlay overlay in AllOverlays)
             {
-                if ((!overlay.IsHitTestVisible || !overlay.TestHit(args.Point)) && !overlay.AlwaysPassPointerEvents) continue;
+                if ((!overlay.IsHitTestVisible || !overlay.TestHit(args.Point)) &&
+                    !overlay.AlwaysPassPointerEvents) continue;
                 overlay.EnterPointer(args);
                 mouseOverOverlays.Add(overlay);
             }
@@ -517,7 +520,8 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                         outputSize = size;
                     }
 
-                    var fullScreenProp = node?.Inputs.FirstOrDefault(x => x.PropertyName == CustomOutputNode.FullViewportRenderPropertyName);
+                    var fullScreenProp = node?.Inputs.FirstOrDefault(x =>
+                        x.PropertyName == CustomOutputNode.FullViewportRenderPropertyName);
                     if (fullScreenProp != null)
                     {
                         isFullscreen = Document.NodeGraph.GetComputedPropertyValue<bool>(fullScreenProp);
@@ -584,7 +588,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                     }
                 }
 
-                if (Cursor.ToString() != finalCursor.ToString())
+                if (Cursor?.ToString() != finalCursor?.ToString())
                     Cursor = finalCursor;
                 e.Handled = args.Handled;
             }
@@ -615,7 +619,8 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                         if (args.Handled) break;
                         if (!overlay.IsVisible) continue;
 
-                        if ((!overlay.IsHitTestVisible || !overlay.TestHit(args.Point)) && !overlay.AlwaysPassPointerEvents) continue;
+                        if ((!overlay.IsHitTestVisible || !overlay.TestHit(args.Point)) &&
+                            !overlay.AlwaysPassPointerEvents) continue;
 
                         overlay.PressPointer(args);
                     }
@@ -681,7 +686,8 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                         if (args.Handled) break;
                         if (!overlay.IsVisible) continue;
 
-                        if ((!overlay.IsHitTestVisible || !overlay.TestHit(args.Point)) && !overlay.AlwaysPassPointerEvents) continue;
+                        if ((!overlay.IsHitTestVisible || !overlay.TestHit(args.Point)) &&
+                            !overlay.AlwaysPassPointerEvents) continue;
 
                         overlay.ReleasePointer(args);
                     }
@@ -770,6 +776,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                 : MouseButton.None,
             ClickCount = e is PointerPressedEventArgs pressed ? pressed.ClickCount : 0,
             Properties = e.GetCurrentPoint(this).Properties,
+            Source = Document
         };
     }
 
@@ -819,7 +826,8 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         Point dir = lastDirCalculationPoint - data.Position;
         VecD vecDir = new VecD(dir.X, dir.Y);
         VecD dirNormalized = vecDir.Length > 0 ? vecDir.Normalize() : lastPointerInfo.MovementDirection;
-        return new PointerInfo(position, pressure, properties.Twist, new VecD(properties.XTilt, properties.YTilt), dirNormalized, e.Properties.IsLeftButtonPressed, e.Properties.IsRightButtonPressed);
+        return new PointerInfo(position, pressure, properties.Twist, new VecD(properties.XTilt, properties.YTilt),
+            dirNormalized, e.Properties.IsLeftButtonPressed, e.Properties.IsRightButtonPressed);
     }
 
     private static Point Lerp(VecD a, VecD b, float t)
@@ -1151,13 +1159,11 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         ContentDimensions = Document.GetRenderOutputSize(RenderOutput);
     }
 
-
     private static void UpdateRenderOutput(Scene scene, AvaloniaPropertyChangedEventArgs e)
     {
-        if (e.NewValue is string newValue)
+        if (e is { NewValue: string newValue, OldValue: not null })
         {
             scene.ContentDimensions = scene.Document.GetRenderOutputSize(newValue);
-            scene.CenterContent();
         }
     }
 

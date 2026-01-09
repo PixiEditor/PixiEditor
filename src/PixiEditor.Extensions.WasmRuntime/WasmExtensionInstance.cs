@@ -75,7 +75,15 @@ public partial class WasmExtensionInstance : Extension
         modules.Add(new EventsModule(this));
         LayoutBuilder = new LayoutBuilder(new ExtensionResourceStorage(this), (ElementMap)Api.Services.GetService(typeof(ElementMap)));
         //SetElementMap();
-        Instance.GetAction("initialize")?.Invoke();
+        try
+        {
+            Instance.GetAction("initialize")?.Invoke();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Exception during extension initialization: " + ex);
+        }
+
         base.OnInitialized();
     }
 

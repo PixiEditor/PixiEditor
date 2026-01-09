@@ -666,35 +666,19 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             return [("DEFAULT", SizeBindable)];
         }
 
-        using var block = Operations.StartChangeBlock();
-        foreach (var node in allExportNodes)
-        {
-            if (node is not CustomOutputNodeViewModel)
-                continue;
-
-            Internals.ActionAccumulator.AddActions(new EvaluateGraph_Action(node.Id,
-                AnimationDataViewModel.ActiveFrameTime));
-
-            Internals.ActionAccumulator.AddActions(
-                new GetComputedPropertyValue_Action(node.Id, CustomOutputNode.OutputNamePropertyName, true),
-                new GetComputedPropertyValue_Action(node.Id, CustomOutputNode.SizePropertyName, true));
-        }
-
-        block.ExecuteQueuedActions();
-
-        var exportNodes = NodeGraph.AllNodes.Where(x => x is CustomOutputNodeViewModel).ToArray();
+        var exportNodes = Internals.Tracker.Document.NodeGraph.AllNodes.Where(x => x is CustomOutputNode).ToArray();
         var exportNames = new List<(string name, VecI origianlSize)>();
         exportNames.Add(("DEFAULT", SizeBindable));
 
         foreach (var node in exportNodes)
         {
-            if (node is not CustomOutputNodeViewModel exportZone)
+            if (node is not CustomOutputNode exportZone)
                 continue;
 
-            var name = exportZone.Inputs.FirstOrDefault(x => x.PropertyName == CustomOutputNode.OutputNamePropertyName);
+            var name = exportZone.InputProperties.FirstOrDefault(x => x.InternalPropertyName == CustomOutputNode.OutputNamePropertyName);
 
 
-            if (name?.ComputedValue is not string finalName)
+            if (name?.Value is not string finalName)
                 continue;
 
             if (string.IsNullOrEmpty(finalName))
@@ -703,8 +687,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             }
 
             VecI originalSize =
-                exportZone.Inputs.FirstOrDefault(x => x.PropertyName == CustomOutputNode.SizePropertyName)
-                    ?.ComputedValue as VecI? ?? SizeBindable;
+                exportZone.InputProperties.FirstOrDefault(x => x.InternalPropertyName == CustomOutputNode.SizePropertyName)
+                    ?.Value as VecI? ?? SizeBindable;
             if (originalSize.ShortestAxis <= 0)
             {
                 originalSize = SizeBindable;
