@@ -99,6 +99,11 @@ public class EllipseVectorData : ShapeVectorData, IReadOnlyEllipseData
         return path;
     }
 
+    public override PathVectorData? ExpandStroke()
+    {
+        throw new NotImplementedException();
+    }
+
     protected bool Equals(EllipseVectorData other)
     {
         return base.Equals(other) && Radius.Equals(other.Radius) && Center.Equals(other.Center);

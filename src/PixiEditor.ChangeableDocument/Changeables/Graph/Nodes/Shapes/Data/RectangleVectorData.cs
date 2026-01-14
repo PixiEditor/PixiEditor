@@ -135,6 +135,11 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
         return path;
     }
 
+    public override PathVectorData? ExpandStroke()
+    {
+        throw new NotImplementedException();
+    }
+
     protected bool Equals(RectangleVectorData other)
     {
         return base.Equals(other) && Center.Equals(other.Center) && Size.Equals(other.Size) &&
