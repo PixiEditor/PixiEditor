@@ -65,23 +65,24 @@ internal class Exporter
         {
             try
             {
-                var file = await desktop.MainWindow.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+                var pickerResult = await desktop.MainWindow.StorageProvider.SaveFilePickerWithResultAsync(new FilePickerSaveOptions
                 {
                     FileTypeChoices = SupportedFilesHelper.BuildSaveFilter(
                         FileTypeDialogDataSet.SetKind.Any & ~FileTypeDialogDataSet.SetKind.Video),
                     DefaultExtension = "pixi"
                 });
 
-                if (file is null)
+                
+                if (pickerResult.File is not { } file || string.IsNullOrEmpty(file.Name))
                 {
                     result.Result.ResultType = SaveResultType.Cancelled;
                     return result;
                 }
-
-                var fileType = SupportedFilesHelper.GetSaveFileType(FileTypeDialogDataSet.SetKind.Any, file);
+                
+                var (fileType, fileName) = SupportedFilesHelper.GetSaveFileTypeAndPath(FileTypeDialogDataSet.SetKind.Any, file, pickerResult.SelectedFileType);
 
                 (SaveResult Result, string finalPath) saveResult =
-                    await TrySaveUsingDataFromDialog(document, file.Path.LocalPath, fileType, exportConfig, job);
+                    await TrySaveUsingDataFromDialog(document, fileName, fileType, exportConfig, job);
                 if (saveResult.Result.ResultType == SaveResultType.Success)
                 {
                     result.Path = saveResult.finalPath;
