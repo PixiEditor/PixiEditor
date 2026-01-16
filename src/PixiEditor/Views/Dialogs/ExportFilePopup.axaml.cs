@@ -519,7 +519,7 @@ internal partial class ExportFilePopup : PixiEditorPopup
         }
         else
         {
-            FilePickerSaveOptions options = new FilePickerSaveOptions
+            var options = new FilePickerSaveOptions
             {
                 Title = new LocalizedString("EXPORT_SAVE_TITLE"),
                 SuggestedFileName = SuggestedName,
@@ -533,22 +533,14 @@ internal partial class ExportFilePopup : PixiEditorPopup
                 ShowOverwritePrompt = true
             };
 
-            IStorageFile file = await GetTopLevel(this).StorageProvider.SaveFilePickerAsync(options);
-            if (file != null)
-            {
-                if (string.IsNullOrEmpty(file.Name) == false)
-                {
-                    SaveFormat = SupportedFilesHelper.GetSaveFileType(FileTypeDialogDataSet.SetKind.Any, file);
-                    if (SaveFormat == null)
-                    {
-                        return null;
-                    }
-
-                    string fileName = SupportedFilesHelper.FixFileExtension(file.Path.LocalPath, SaveFormat);
-
-                    return fileName;
-                }
-            }
+            var pickerResult = await GetTopLevel(this).StorageProvider.SaveFilePickerWithResultAsync(options);
+            
+            if (pickerResult.File is not { } file || string.IsNullOrEmpty(file.Name))
+                return null;
+            
+            (SaveFormat, var fileName) = SupportedFilesHelper.GetSaveFileTypeAndPath(FileTypeDialogDataSet.SetKind.Any, pickerResult.File, pickerResult.SelectedFileType);
+            
+            return SaveFormat == null ? null : fileName;
         }
 
         return null;

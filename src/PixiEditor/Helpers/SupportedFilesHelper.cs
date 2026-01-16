@@ -76,23 +76,42 @@ internal class SupportedFilesHelper
         return filter;
     }
 
-    public static IoFileType GetSaveFileType(FileTypeDialogDataSet.SetKind setKind, IStorageFile file)
+    public static (IoFileType? type, string path) GetSaveFileTypeAndPath(FileTypeDialogDataSet.SetKind setKind, IStorageFile file, FilePickerFileType fileType)
     {
         var allSupportedExtensions = GetAllSupportedFileTypes(setKind);
 
-        if (file is null)
-            return null;
+        var localPath = file.TryGetLocalPath();
 
-        string? localPath = file.TryGetLocalPath();
+        if (localPath is null)
+            // Once we add Android/Browser support, something like ExportFilePopup might need a rework anyways
+            throw new NullReferenceException($"{nameof(GetSaveFileTypeAndPath)}() currently does not support platforms that do not support TryGetLocalPath().");
+        
+        var extension = Path.GetExtension(localPath);
+        var fromProvidedFileType = GetIoFileType(allSupportedExtensions, fileType);
+        
+        if (extension == string.Empty)
+            return FallbackFileType();
 
-        string extension = Path.GetExtension(localPath ?? file.Name);
+        var fromExtensionType = allSupportedExtensions.SingleOrDefault(i => i.CanSave && i.Extensions.Contains(extension, StringComparer.OrdinalIgnoreCase));
 
-        if (string.IsNullOrEmpty(extension))
+        return fromExtensionType is null 
+            ? FallbackFileType()
+            : (fromExtensionType, localPath);
+
+        // Do not use Path.ChangeExtension, use might choose a file like 'interesting.file.name' where we don't want to change the extension from .name
+        (IoFileType type, string path) FallbackFileType() => (fromProvidedFileType, $"{localPath}{fromProvidedFileType.PrimaryExtension}");
+    }
+
+    private static IoFileType? GetIoFileType(List<IoFileType> fromTypes, FilePickerFileType fileType)
+    {
+        foreach (var pattern in fileType.Patterns.Select(x => x.TrimStart('*')))
         {
-            return allSupportedExtensions.First(i => i.CanSave);
+            var foundType = fromTypes.FirstOrDefault(x => x.Extensions.Contains(pattern, StringComparer.OrdinalIgnoreCase));
+            if (foundType != null)
+                return foundType;
         }
-
-        return allSupportedExtensions.Single(i => i.CanSave && i.Extensions.Contains(extension, StringComparer.OrdinalIgnoreCase));
+        
+        return null;
     }
 
     public static List<FilePickerFileType> BuildOpenFilter()
