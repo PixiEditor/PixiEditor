@@ -17,10 +17,12 @@ public struct StyleContext
     public SvgProperty<SvgTransformUnit> Transform { get; }
     public SvgProperty<SvgEnumUnit<SvgStrokeLineCap>> StrokeLineCap { get; }
     public SvgProperty<SvgEnumUnit<SvgStrokeLineJoin>> StrokeLineJoin { get; }
+    public SvgProperty<SvgPreserveAspectRatioUnit> PreserveAspectRatio { get; }
     public SvgProperty<SvgNumericUnit> Opacity { get; }
     public SvgProperty<SvgStyleUnit> InlineStyle { get; set; }
     public VecD ViewboxOrigin { get; set; }
     public VecD ViewboxSize { get; set; }
+    public VecD DocumentSize { get; set; }
     public SvgDefs Defs { get; set; }
 
     public StyleContext()
@@ -35,6 +37,7 @@ public struct StyleContext
         StrokeLineJoin = new("stroke-linejoin");
         Opacity = new("opacity");
         InlineStyle = new("style");
+        PreserveAspectRatio = new("preserve-aspect-ratio");
         Defs = new();
     }
 
@@ -48,12 +51,18 @@ public struct StyleContext
         StrokeLineCap = FallbackToCssStyle(document.StrokeLineCap, document.Style);
         StrokeLineJoin = FallbackToCssStyle(document.StrokeLineJoin, document.Style);
         Opacity = FallbackToCssStyle(document.Opacity, document.Style);
+        PreserveAspectRatio = document.PreserveAspectRatio.Unit.HasValue ?
+            document.PreserveAspectRatio :
+            FallbackToCssStyle(document.PreserveAspectRatio, document.Style, new SvgPreserveAspectRatioUnit(SvgAspectRatio.XMidYMid, SvgMeetOrSlice.Meet));
         ViewboxOrigin = new VecD(
-            document.ViewBox.Unit.HasValue ? -document.ViewBox.Unit.Value.Value.X : 0,
-            document.ViewBox.Unit.HasValue ? -document.ViewBox.Unit.Value.Value.Y : 0);
+            document.ViewBox.Unit.HasValue ? -document.ViewBox.Unit.Value.Value.X : document.X.Unit?.Value ?? 0,
+            document.ViewBox.Unit.HasValue ? -document.ViewBox.Unit.Value.Value.Y : document.Y.Unit?.Value ?? 0);
         ViewboxSize = new VecD(
-            document.ViewBox.Unit.HasValue ? document.ViewBox.Unit.Value.Value.Width : 0,
-            document.ViewBox.Unit.HasValue ? document.ViewBox.Unit.Value.Value.Height : 0);
+            document.ViewBox.Unit.HasValue ? document.ViewBox.Unit.Value.Value.Width : document.Width.Unit?.Value ?? 0,
+            document.ViewBox.Unit.HasValue ? document.ViewBox.Unit.Value.Value.Height : document.Height.Unit?.Value ?? 0);
+        DocumentSize = new VecD(
+            document.Width.Unit?.Value ?? ViewboxSize.X,
+            document.Height.Unit?.Value ?? ViewboxSize.Y);
         InlineStyle = document.Style;
         Defs = document.Defs;
     }
@@ -115,6 +124,23 @@ public struct StyleContext
                 FallbackToCssStyle(opacityElement.Opacity, styleContext.Opacity, styleContext.InlineStyle).Unit;
         }
 
+        if (element is SvgDocument doc)
+        {
+            styleContext.ViewboxOrigin = new VecD(
+                doc.ViewBox.Unit.HasValue ? -doc.ViewBox.Unit.Value.Value.X : styleContext.ViewboxOrigin.X,
+                doc.ViewBox.Unit.HasValue ? -doc.ViewBox.Unit.Value.Value.Y : styleContext.ViewboxOrigin.Y);
+            styleContext.ViewboxSize = new VecD(
+                doc.ViewBox.Unit.HasValue ? doc.ViewBox.Unit.Value.Value.Width : styleContext.ViewboxSize.X,
+                doc.ViewBox.Unit.HasValue ? doc.ViewBox.Unit.Value.Value.Height : styleContext.ViewboxSize.Y);
+
+            styleContext.DocumentSize = new VecD(
+                doc.Width.Unit?.Value ?? styleContext.ViewboxSize.X,
+                doc.Height.Unit?.Value ?? styleContext.ViewboxSize.Y);
+
+            styleContext.PreserveAspectRatio.Unit = doc.PreserveAspectRatio.Unit ?? FallbackToCssStyle(doc.PreserveAspectRatio, styleContext.PreserveAspectRatio, styleContext.InlineStyle,
+                new SvgPreserveAspectRatioUnit(SvgAspectRatio.XMidYMid, SvgMeetOrSlice.Meet)).Unit;
+        }
+
 
         return styleContext;
     }
@@ -164,10 +190,16 @@ public struct StyleContext
 
         styleContext.ViewboxOrigin = ViewboxOrigin;
         styleContext.ViewboxSize = ViewboxSize;
+        styleContext.DocumentSize = DocumentSize;
 
         if (InlineStyle.Unit != null)
         {
             styleContext.InlineStyle.Unit = InlineStyle.Unit;
+        }
+
+        if (PreserveAspectRatio.Unit != null)
+        {
+            styleContext.PreserveAspectRatio.Unit = PreserveAspectRatio.Unit;
         }
 
         styleContext.Defs = Defs;

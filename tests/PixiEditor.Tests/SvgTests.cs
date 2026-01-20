@@ -18,18 +18,18 @@ public class SvgTests
     }
 
     [Theory]
-    [InlineData("<svg viewBox=\"0 0 100 100\"></svg>", 0, 0, 100, 100)]
-    [InlineData("<svg width=\"100\" height=\"100\"></svg>", 0, 0, 100, 100)]
-    [InlineData("<svg x=\"0\" y=\"0\" width=\"100\" height=\"100\"></svg>", 0, 0, 100, 100)]
-    [InlineData("<svg viewBox=\"0 0 100 100\" width=\"50\" height=\"50\"></svg>", 0, 0, 50, 50)]
-    [InlineData("<svg viewBox=\"-50 -50 128 128\" width=\"100\" x=\"1\"></svg>", 1, -50, 100, 128)]
-    public void TestThatSvgBoundsAreParsedCorrectly(string svg, double x, double y, double width, double height)
+    [InlineData("<svg viewBox=\"0 0 100 100\"></svg>", 0d, 0d, 100d, 100d)]
+    [InlineData("<svg width=\"100\" height=\"100\"></svg>", null, null, null, null)]
+    [InlineData("<svg x=\"0\" y=\"0\" width=\"100\" height=\"100\"></svg>", null, null, null, null)]
+    [InlineData("<svg viewBox=\"0 0 100 100\" width=\"50\" height=\"50\"></svg>", 0d, 0d, 100d, 100d)]
+    [InlineData("<svg viewBox=\"-50 -50 128 128\" width=\"100\" x=\"1\"></svg>", -50d, -50d, 128d, 128d)]
+    public void TestThatSvgBoundsAreParsedCorrectly(string svg, double? x, double? y, double? width, double? height)
     {
         SvgDocument document = SvgDocument.Parse(svg);
-        Assert.Equal(x, document.ViewBox.Unit.Value.Value.X);
-        Assert.Equal(y, document.ViewBox.Unit.Value.Value.Y);
-        Assert.Equal(width, document.ViewBox.Unit.Value.Value.Width);
-        Assert.Equal(height, document.ViewBox.Unit.Value.Value.Height);
+        Assert.Equal(x, document.ViewBox.Unit?.Value.X);
+        Assert.Equal(y, document.ViewBox.Unit?.Value.Y);
+        Assert.Equal(width, document.ViewBox.Unit?.Value.Width);
+        Assert.Equal(height, document.ViewBox.Unit?.Value.Height);
     }
 
     [Theory]

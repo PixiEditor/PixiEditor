@@ -44,13 +44,23 @@ internal class SvgDocumentBuilder : IDocumentBuilder
 
     private void Build(DocumentViewModelBuilder builder, SvgDocument document)
     {
+        bool unknownSize = document.Width.Unit == null && document.Height.Unit == null && document.ViewBox.Unit == null;
+        document.Width.Unit ??= new SvgNumericUnit(document.ViewBox.Unit?.Value.Width ?? 1024, "px");
+        document.Height.Unit ??= new SvgNumericUnit(document.ViewBox.Unit?.Value.Height ?? 1024, "px");
+
+        if (document.ViewBox.Unit == null)
+        {
+            document.ViewBox.Unit = new SvgRectUnit(new RectD(0, 0, document.Width.Unit.Value.PixelsValue ?? 1024, document.Height.Unit.Value.PixelsValue ?? 1024));
+        }
+
         StyleContext styleContext = new(document);
 
-        VecI size = new((int)document.ViewBox.Unit.Value.Value.Width, (int)document.ViewBox.Unit.Value.Value.Height);
+        VecI size = new((int)document.Width.Unit.Value.Value, (int)document.Height.Unit.Value.Value);
         if (size.ShortestAxis < 1)
         {
             size = new VecI(1024, 1024);
         }
+
 
         builder.WithSize(size)
             .WithSrgbColorBlending(true) // apparently svgs blend colors in SRGB space
@@ -80,6 +90,11 @@ internal class SvgDocumentBuilder : IDocumentBuilder
 
                 graph.WithOutputNode(lastId, "Output");
             });
+
+        if (unknownSize)
+        {
+            builder.WithFitToContent();
+        }
     }
 
     [return: NotNull]
@@ -166,6 +181,10 @@ internal class SvgDocumentBuilder : IDocumentBuilder
             else if (child is SvgImage image)
             {
                 childId = AddImage(image, childStyle, graph, childId);
+            }
+            else if (child is SvgDocument nestedDocument)
+            {
+                childId = AddNestedDocument(nestedDocument, graph, childId, childStyle);
             }
         }
 
@@ -311,6 +330,97 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         return lastId;
     }
 
+   private Matrix3X3 TransformMatrix(
+    Matrix3X3 matrix,
+    SvgPreserveAspectRatioUnit stylePreserveAspectRatio,
+    VecD size,
+    VecD viewboxSize)
+{
+    if(viewboxSize.X == 0 || viewboxSize.Y == 0)
+    {
+        return matrix;
+    }
+
+    float scaleX = (float)(size.X / viewboxSize.X);
+    float scaleY = (float)(size.Y / viewboxSize.Y);
+
+    float finalScaleX = scaleX;
+    float finalScaleY = scaleY;
+
+    float translateX = 0f;
+    float translateY = 0f;
+
+    if (stylePreserveAspectRatio.Align != SvgAspectRatio.None)
+    {
+        float uniformScale = stylePreserveAspectRatio.MeetOrSlice == SvgMeetOrSlice.Slice
+            ? Math.Max(scaleX, scaleY)
+            : Math.Min(scaleX, scaleY);
+
+        finalScaleX = uniformScale;
+        finalScaleY = uniformScale;
+
+        float scaledWidth  = (float)(viewboxSize.X * uniformScale);
+        float scaledHeight = (float)(viewboxSize.Y * uniformScale);
+
+        float remainingX = (float)size.X - scaledWidth;
+        float remainingY = (float)size.Y - scaledHeight;
+
+        switch (stylePreserveAspectRatio.Align)
+        {
+            case SvgAspectRatio.XMinYMin:
+                translateX = 0;
+                translateY = 0;
+                break;
+
+            case SvgAspectRatio.XMidYMin:
+                translateX = remainingX / 2;
+                translateY = 0;
+                break;
+
+            case SvgAspectRatio.XMaxYMin:
+                translateX = remainingX;
+                translateY = 0;
+                break;
+
+            case SvgAspectRatio.XMinYMid:
+                translateX = 0;
+                translateY = remainingY / 2;
+                break;
+
+            case SvgAspectRatio.XMidYMid:
+                translateX = remainingX / 2;
+                translateY = remainingY / 2;
+                break;
+
+            case SvgAspectRatio.XMaxYMid:
+                translateX = remainingX;
+                translateY = remainingY / 2;
+                break;
+
+            case SvgAspectRatio.XMinYMax:
+                translateX = 0;
+                translateY = remainingY;
+                break;
+
+            case SvgAspectRatio.XMidYMax:
+                translateX = remainingX / 2;
+                translateY = remainingY;
+                break;
+
+            case SvgAspectRatio.XMaxYMax:
+                translateX = remainingX;
+                translateY = remainingY;
+                break;
+        }
+    }
+
+    matrix = matrix.PostConcat(Matrix3X3.CreateScaleTranslation(
+        finalScaleX, finalScaleY,
+        translateX, translateY));
+
+    return matrix;
+}
+
     private byte[] TryReadImage(string svgHref)
     {
         if (string.IsNullOrEmpty(svgHref))
@@ -398,7 +508,7 @@ internal class SvgDocumentBuilder : IDocumentBuilder
             strokeLineJoin = (StrokeJoin)(styleContext.StrokeLineJoin.Unit?.Value ?? SvgStrokeLineJoin.Miter);
         }
 
-        return new PathVectorData(path) { StrokeLineCap = strokeLineCap, StrokeLineJoin = strokeLineJoin, };
+        return new PathVectorData(path) { StrokeLineCap = strokeLineCap, StrokeLineJoin = strokeLineJoin};
     }
 
     private RectangleVectorData AddRect(SvgRectangle element)
@@ -470,7 +580,8 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         bool hasFill = styleContext.Fill.Unit?.Paintable is { AnythingVisible: true };
         bool hasStroke = styleContext.Stroke.Unit?.Paintable is { AnythingVisible: true } ||
                          styleContext.StrokeWidth.Unit is { PixelsValue: > 0 };
-        bool hasTransform = styleContext.Transform.Unit is { MatrixValue.IsIdentity: false };
+        bool hasTransform = styleContext.Transform.Unit is { MatrixValue.IsIdentity: false } ||
+                            styleContext.PreserveAspectRatio.Unit != null;
 
         shapeData.Fill = hasFill;
         if (hasFill)
@@ -478,7 +589,7 @@ internal class SvgDocumentBuilder : IDocumentBuilder
             var target = styleContext.Fill.Unit;
             float opacity = (float)(styleContext.FillOpacity.Unit?.Value ?? 1);
             opacity = Math.Clamp(opacity, 0, 1);
-            shapeData.FillPaintable = target.Value.Paintable;
+            shapeData.FillPaintable = target?.Paintable ?? Colors.Black;
             shapeData.FillPaintable?.ApplyOpacity(opacity);
         }
 
@@ -487,14 +598,19 @@ internal class SvgDocumentBuilder : IDocumentBuilder
             var targetColor = styleContext.Stroke.Unit;
             var targetWidth = styleContext.StrokeWidth.Unit;
 
-            shapeData.Stroke = targetColor?.Paintable ?? Colors.Black;
+            // TODO: Transparent instead of black?
+            shapeData.Stroke = targetColor?.Paintable ?? Colors.Transparent;
             shapeData.StrokeWidth = (float)(targetWidth?.PixelsValue ?? 1);
         }
 
         if (hasTransform)
         {
-            var target = styleContext.Transform.Unit;
-            shapeData.TransformationMatrix = target.Value.MatrixValue;
+            var target = styleContext.Transform.Unit.HasValue ? styleContext.Transform.Unit
+                : new SvgTransformUnit(Matrix3X3.Identity);
+            shapeData.TransformationMatrix = TransformMatrix(target.Value.MatrixValue,
+                styleContext.PreserveAspectRatio.Unit ?? new SvgPreserveAspectRatioUnit(SvgAspectRatio.None, SvgMeetOrSlice.Meet),
+                styleContext.DocumentSize,
+                styleContext.ViewboxSize);
         }
 
         if (styleContext.ViewboxOrigin != VecD.Zero)

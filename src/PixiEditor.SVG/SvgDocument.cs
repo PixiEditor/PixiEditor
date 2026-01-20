@@ -14,9 +14,14 @@ public class SvgDocument : SvgElement, IElementContainer, ITransformable, IFilla
     public string Version { get; set; } = "1.1";
 
     public SvgProperty<SvgRectUnit> ViewBox { get; } = new("viewBox");
+    public SvgProperty<SvgNumericUnit> Width { get; } = new("width");
+    public SvgProperty<SvgNumericUnit> Height { get; } = new("height");
+    public SvgProperty<SvgNumericUnit> X { get; } = new("x");
+    public SvgProperty<SvgNumericUnit> Y { get; } = new("y");
     public SvgProperty<SvgPaintServerUnit> Fill { get; } = new("fill");
     public SvgProperty<SvgPaintServerUnit> Stroke { get; } = new("stroke");
     public SvgProperty<SvgNumericUnit> StrokeWidth { get; } = new("stroke-width");
+    public SvgProperty<SvgPreserveAspectRatioUnit> PreserveAspectRatio { get; } = new("preserveAspectRatio");
 
     public SvgProperty<SvgEnumUnit<SvgStrokeLineCap>> StrokeLineCap { get; } = new("stroke-linecap");
 
@@ -50,6 +55,9 @@ public class SvgDocument : SvgElement, IElementContainer, ITransformable, IFilla
             StrokeLineCap,
             StrokeLineJoin,
             Opacity,
+            PreserveAspectRatio,
+            Width,
+            Height
         };
 
         ParseAttributes(properties, reader, defs); // TODO: merge with Defs?
