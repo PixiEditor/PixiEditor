@@ -2,6 +2,7 @@
 using System.Xml;
 using System.Xml.Linq;
 using PixiEditor.SVG.Elements;
+using PixiEditor.SVG.Enums;
 using PixiEditor.SVG.Exceptions;
 using PixiEditor.SVG.Features;
 using PixiEditor.SVG.Units;
@@ -15,6 +16,7 @@ public class SvgElement(string tagName)
     public string TagName { get; } = tagName;
 
     public SvgProperty<SvgStyleUnit> Style { get; } = new("style");
+    public SvgProperty<SvgEnumUnit<SvgVisibility>> Visibility { get; } = new("visibility");
 
     public XElement ToXml(XNamespace nameSpace, DefStorage defs)
     {
@@ -98,6 +100,11 @@ public class SvgElement(string tagName)
         if (!properties.Contains(Style))
         {
             properties.Insert(0, Style);
+        }
+
+        if(!properties.Contains(Visibility))
+        {
+            properties.Insert(0, Visibility);
         }
 
         do

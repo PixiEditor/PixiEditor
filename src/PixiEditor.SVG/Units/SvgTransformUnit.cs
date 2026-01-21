@@ -94,7 +94,7 @@ public struct SvgTransformUnit : ISvgUnit
         {
             if (float.TryParse(values[0], NumberStyles.Any, CultureInfo.InvariantCulture, out float translateX))
             {
-                float translateY = translateX;
+                float translateY = 0;
                 if (values.Length > 1)
                 {
                     float.TryParse(values[1], NumberStyles.Any, CultureInfo.InvariantCulture, out translateY);

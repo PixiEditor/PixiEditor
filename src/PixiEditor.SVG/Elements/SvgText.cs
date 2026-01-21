@@ -13,6 +13,7 @@ public class SvgText() : SvgPrimitive("text")
     public SvgProperty<SvgStringUnit> FontFamily { get; } = new("font-family");
     public SvgProperty<SvgEnumUnit<SvgFontWeight>> FontWeight { get; } = new("font-weight");
     public SvgProperty<SvgEnumUnit<SvgFontStyle>> FontStyle { get; } = new("font-style");
+    public SvgProperty<SvgEnumUnit<SvgTextAnchor>> TextAnchor { get; } = new("text-anchor");
 
     public override void ParseData(XmlReader reader, SvgDefs defs)
     {
@@ -28,6 +29,7 @@ public class SvgText() : SvgPrimitive("text")
         yield return FontFamily;
         yield return FontWeight;
         yield return FontStyle;
+        yield return TextAnchor;
     }
 
     private string ParseContent(XmlReader reader)
@@ -39,6 +41,10 @@ public class SvgText() : SvgPrimitive("text")
             if (reader.NodeType == XmlNodeType.Text || reader.NodeType == XmlNodeType.CDATA)
             {
                 content = reader.Value;
+            }
+            else if (reader is { NodeType: XmlNodeType.Element, Name: "title" })
+            {
+                reader.Read();
             }
             else if (reader is { NodeType: XmlNodeType.EndElement, Name: "text" })
             {

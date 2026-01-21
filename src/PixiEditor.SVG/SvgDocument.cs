@@ -20,6 +20,7 @@ public class SvgDocument : SvgElement, IElementContainer, ITransformable, IFilla
     public SvgProperty<SvgNumericUnit> Y { get; } = new("y");
     public SvgProperty<SvgPaintServerUnit> Fill { get; } = new("fill");
     public SvgProperty<SvgPaintServerUnit> Stroke { get; } = new("stroke");
+    public SvgProperty<SvgNumericUnit> StrokeOpacity { get; } = new("stroke-opacity");
     public SvgProperty<SvgNumericUnit> StrokeWidth { get; } = new("stroke-width");
     public SvgProperty<SvgPreserveAspectRatioUnit> PreserveAspectRatio { get; } = new("preserveAspectRatio");
 
@@ -49,6 +50,7 @@ public class SvgDocument : SvgElement, IElementContainer, ITransformable, IFilla
             Fill,
             FillOpacity,
             Stroke,
+            StrokeOpacity,
             StrokeWidth,
             Transform,
             ViewBox,

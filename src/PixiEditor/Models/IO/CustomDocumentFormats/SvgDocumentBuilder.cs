@@ -50,7 +50,8 @@ internal class SvgDocumentBuilder : IDocumentBuilder
 
         if (document.ViewBox.Unit == null)
         {
-            document.ViewBox.Unit = new SvgRectUnit(new RectD(0, 0, document.Width.Unit.Value.PixelsValue ?? 1024, document.Height.Unit.Value.PixelsValue ?? 1024));
+            document.ViewBox.Unit = new SvgRectUnit(new RectD(0, 0, document.Width.Unit.Value.PixelsValue ?? 1024,
+                document.Height.Unit.Value.PixelsValue ?? 1024));
         }
 
         StyleContext styleContext = new(document);
@@ -60,7 +61,6 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         {
             size = new VecI(1024, 1024);
         }
-
 
         builder.WithSize(size)
             .WithSrgbColorBlending(true) // apparently svgs blend colors in SRGB space
@@ -138,14 +138,18 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         name = element.Id.Unit?.Value ?? name;
 
         AddCommonShapeData(shapeData, styleContext);
+        var isVisible = element.Visibility.Unit?.Value != SvgVisibility.Hidden &&
+                        element.Visibility.Unit?.Value != SvgVisibility.Collapse;
 
         NodeGraphBuilder.NodeBuilder nBuilder = graph.WithNodeOfType<VectorLayerNode>(out int id)
             .WithName(name)
             .WithInputValues(new Dictionary<string, object>()
             {
-                { StructureNode.OpacityPropertyName, (float)(styleContext.Opacity.Unit?.Value ?? 1f) }
+                { StructureNode.OpacityPropertyName, (float)(styleContext.Opacity.Unit?.Value ?? 1f) },
+                { StructureNode.IsVisiblePropertyName, isVisible }
             })
             .WithAdditionalData(new Dictionary<string, object>() { { "ShapeData", shapeData } });
+
 
         if (lastId != null)
         {
@@ -310,11 +314,11 @@ internal class SvgDocumentBuilder : IDocumentBuilder
             .WithName(nestedDocument.Id.Unit?.Value ?? new LocalizedString("NEW_LAYER"))
             .WithInputValues(new Dictionary<string, object>()
             {
-                { NestedDocumentNode.DocumentPropertyName, new DocumentReference(null, docViewModel.Id, docViewModel.AccessInternalReadOnlyDocument()) }
-            }).WithAdditionalData(new Dictionary<string, object>()
-            {
-                {"TransformationMatrix", matrix }
-            });
+                {
+                    NestedDocumentNode.DocumentPropertyName,
+                    new DocumentReference(null, docViewModel.Id, docViewModel.AccessInternalReadOnlyDocument())
+                }
+            }).WithAdditionalData(new Dictionary<string, object>() { { "TransformationMatrix", matrix } });
 
         if (lastId != null)
         {
@@ -330,96 +334,96 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         return lastId;
     }
 
-   private Matrix3X3 TransformMatrix(
-    Matrix3X3 matrix,
-    SvgPreserveAspectRatioUnit stylePreserveAspectRatio,
-    VecD size,
-    VecD viewboxSize)
-{
-    if(viewboxSize.X == 0 || viewboxSize.Y == 0)
+    private Matrix3X3 TransformMatrix(
+        Matrix3X3 matrix,
+        SvgPreserveAspectRatioUnit stylePreserveAspectRatio,
+        VecD size,
+        VecD viewboxSize)
     {
+        if (viewboxSize.X == 0 || viewboxSize.Y == 0)
+        {
+            return matrix;
+        }
+
+        float scaleX = (float)(size.X / viewboxSize.X);
+        float scaleY = (float)(size.Y / viewboxSize.Y);
+
+        float finalScaleX = scaleX;
+        float finalScaleY = scaleY;
+
+        float translateX = 0f;
+        float translateY = 0f;
+
+        if (stylePreserveAspectRatio.Align != SvgAspectRatio.None)
+        {
+            float uniformScale = stylePreserveAspectRatio.MeetOrSlice == SvgMeetOrSlice.Slice
+                ? Math.Max(scaleX, scaleY)
+                : Math.Min(scaleX, scaleY);
+
+            finalScaleX = uniformScale;
+            finalScaleY = uniformScale;
+
+            float scaledWidth = (float)(viewboxSize.X * uniformScale);
+            float scaledHeight = (float)(viewboxSize.Y * uniformScale);
+
+            float remainingX = (float)size.X - scaledWidth;
+            float remainingY = (float)size.Y - scaledHeight;
+
+            switch (stylePreserveAspectRatio.Align)
+            {
+                case SvgAspectRatio.XMinYMin:
+                    translateX = 0;
+                    translateY = 0;
+                    break;
+
+                case SvgAspectRatio.XMidYMin:
+                    translateX = remainingX / 2;
+                    translateY = 0;
+                    break;
+
+                case SvgAspectRatio.XMaxYMin:
+                    translateX = remainingX;
+                    translateY = 0;
+                    break;
+
+                case SvgAspectRatio.XMinYMid:
+                    translateX = 0;
+                    translateY = remainingY / 2;
+                    break;
+
+                case SvgAspectRatio.XMidYMid:
+                    translateX = remainingX / 2;
+                    translateY = remainingY / 2;
+                    break;
+
+                case SvgAspectRatio.XMaxYMid:
+                    translateX = remainingX;
+                    translateY = remainingY / 2;
+                    break;
+
+                case SvgAspectRatio.XMinYMax:
+                    translateX = 0;
+                    translateY = remainingY;
+                    break;
+
+                case SvgAspectRatio.XMidYMax:
+                    translateX = remainingX / 2;
+                    translateY = remainingY;
+                    break;
+
+                case SvgAspectRatio.XMaxYMax:
+                    translateX = remainingX;
+                    translateY = remainingY;
+                    break;
+            }
+        }
+
+        matrix = matrix.PostConcat(Matrix3X3.CreateScaleTranslation(
+            finalScaleX, finalScaleY,
+            translateX, translateY));
+
         return matrix;
     }
-
-    float scaleX = (float)(size.X / viewboxSize.X);
-    float scaleY = (float)(size.Y / viewboxSize.Y);
-
-    float finalScaleX = scaleX;
-    float finalScaleY = scaleY;
-
-    float translateX = 0f;
-    float translateY = 0f;
-
-    if (stylePreserveAspectRatio.Align != SvgAspectRatio.None)
-    {
-        float uniformScale = stylePreserveAspectRatio.MeetOrSlice == SvgMeetOrSlice.Slice
-            ? Math.Max(scaleX, scaleY)
-            : Math.Min(scaleX, scaleY);
-
-        finalScaleX = uniformScale;
-        finalScaleY = uniformScale;
-
-        float scaledWidth  = (float)(viewboxSize.X * uniformScale);
-        float scaledHeight = (float)(viewboxSize.Y * uniformScale);
-
-        float remainingX = (float)size.X - scaledWidth;
-        float remainingY = (float)size.Y - scaledHeight;
-
-        switch (stylePreserveAspectRatio.Align)
-        {
-            case SvgAspectRatio.XMinYMin:
-                translateX = 0;
-                translateY = 0;
-                break;
-
-            case SvgAspectRatio.XMidYMin:
-                translateX = remainingX / 2;
-                translateY = 0;
-                break;
-
-            case SvgAspectRatio.XMaxYMin:
-                translateX = remainingX;
-                translateY = 0;
-                break;
-
-            case SvgAspectRatio.XMinYMid:
-                translateX = 0;
-                translateY = remainingY / 2;
-                break;
-
-            case SvgAspectRatio.XMidYMid:
-                translateX = remainingX / 2;
-                translateY = remainingY / 2;
-                break;
-
-            case SvgAspectRatio.XMaxYMid:
-                translateX = remainingX;
-                translateY = remainingY / 2;
-                break;
-
-            case SvgAspectRatio.XMinYMax:
-                translateX = 0;
-                translateY = remainingY;
-                break;
-
-            case SvgAspectRatio.XMidYMax:
-                translateX = remainingX / 2;
-                translateY = remainingY;
-                break;
-
-            case SvgAspectRatio.XMaxYMax:
-                translateX = remainingX;
-                translateY = remainingY;
-                break;
-        }
-    }
-
-    matrix = matrix.PostConcat(Matrix3X3.CreateScaleTranslation(
-        finalScaleX, finalScaleY,
-        translateX, translateY));
-
-    return matrix;
-}
 
     private byte[] TryReadImage(string svgHref)
     {
@@ -508,7 +512,7 @@ internal class SvgDocumentBuilder : IDocumentBuilder
             strokeLineJoin = (StrokeJoin)(styleContext.StrokeLineJoin.Unit?.Value ?? SvgStrokeLineJoin.Miter);
         }
 
-        return new PathVectorData(path) { StrokeLineCap = strokeLineCap, StrokeLineJoin = strokeLineJoin};
+        return new PathVectorData(path) { StrokeLineCap = strokeLineCap, StrokeLineJoin = strokeLineJoin };
     }
 
     private RectangleVectorData AddRect(SvgRectangle element)
@@ -525,8 +529,7 @@ internal class SvgDocumentBuilder : IDocumentBuilder
 
         return new RectangleVectorData(
             element.X.Unit?.PixelsValue ?? 0, element.Y.Unit?.PixelsValue ?? 0,
-            width, height)
-            { CornerRadius = cornerRadiusPercent };
+            width, height) { CornerRadius = cornerRadiusPercent };
     }
 
     private TextVectorData AddText(SvgText element)
@@ -545,14 +548,33 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         font.Bold = element.FontWeight.Unit?.Value == SvgFontWeight.Bold;
         font.Italic = element.FontStyle.Unit?.Value == SvgFontStyle.Italic;
 
+        VecD position = new(
+            element.X.Unit?.PixelsValue ?? 0,
+            element.Y.Unit?.PixelsValue ?? 0);
+
+        if (element.TextAnchor.Unit != null)
+        {
+            float anchorX = 0f;
+            switch (element.TextAnchor.Unit.Value.Value)
+            {
+                case SvgTextAnchor.Start:
+                    anchorX = 0f;
+                    break;
+                case SvgTextAnchor.Middle:
+                    anchorX = -0.5f;
+                    break;
+                case SvgTextAnchor.End:
+                    anchorX = -1f;
+                    break;
+            }
+
+            font.MeasureText(element.Text.Unit.Value.Value, out RectD bounds);
+            position.X += bounds.Width * anchorX;
+        }
+
         return new TextVectorData(element.Text.Unit.Value.Value)
         {
-            Position = new VecD(
-                element.X.Unit?.PixelsValue ?? 0,
-                element.Y.Unit?.PixelsValue ?? 0),
-            Font = font,
-            MissingFontFamily = missingFont,
-            MissingFontText = "MISSING_FONT"
+            Position = position, Font = font, MissingFontFamily = missingFont, MissingFontText = "MISSING_FONT",
         };
     }
 
@@ -562,6 +584,7 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         {
             return new PathVectorData(VectorPath.FromPoints(polyline.GetPoints(), false));
         }
+
         if (element is SvgPolygon polygon)
         {
             return new PathVectorData(VectorPath.FromPoints(polygon.GetPoints(), true));
@@ -598,17 +621,21 @@ internal class SvgDocumentBuilder : IDocumentBuilder
             var targetColor = styleContext.Stroke.Unit;
             var targetWidth = styleContext.StrokeWidth.Unit;
 
-            // TODO: Transparent instead of black?
+            float opacity = (float)(styleContext.StrokeOpacity.Unit?.Value ?? 1);
+            opacity = Math.Clamp(opacity, 0, 1);
             shapeData.Stroke = targetColor?.Paintable ?? Colors.Transparent;
             shapeData.StrokeWidth = (float)(targetWidth?.PixelsValue ?? 1);
+            shapeData.Stroke?.ApplyOpacity(opacity);
         }
 
         if (hasTransform)
         {
-            var target = styleContext.Transform.Unit.HasValue ? styleContext.Transform.Unit
+            var target = styleContext.Transform.Unit.HasValue
+                ? styleContext.Transform.Unit
                 : new SvgTransformUnit(Matrix3X3.Identity);
             shapeData.TransformationMatrix = TransformMatrix(target.Value.MatrixValue,
-                styleContext.PreserveAspectRatio.Unit ?? new SvgPreserveAspectRatioUnit(SvgAspectRatio.None, SvgMeetOrSlice.Meet),
+                styleContext.PreserveAspectRatio.Unit ??
+                new SvgPreserveAspectRatioUnit(SvgAspectRatio.None, SvgMeetOrSlice.Meet),
                 styleContext.DocumentSize,
                 styleContext.ViewboxSize);
         }

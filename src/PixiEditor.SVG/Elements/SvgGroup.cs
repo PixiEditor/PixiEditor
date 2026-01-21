@@ -13,6 +13,7 @@ public class SvgGroup()
     public SvgProperty<SvgPaintServerUnit> Fill { get; } = new("fill");
     public SvgProperty<SvgNumericUnit> FillOpacity { get; } = new("fill-opacity");
     public SvgProperty<SvgPaintServerUnit> Stroke { get; } = new("stroke");
+    public SvgProperty<SvgNumericUnit> StrokeOpacity { get; } = new("stroke-opacity");
     public SvgProperty<SvgNumericUnit> StrokeWidth { get; } = new("stroke-width");
     public SvgProperty<SvgEnumUnit<SvgStrokeLineCap>> StrokeLineCap { get; } = new("stroke-linecap");
     public SvgProperty<SvgEnumUnit<SvgStrokeLineJoin>> StrokeLineJoin { get; } = new("stroke-linejoin");
@@ -28,12 +29,13 @@ public class SvgGroup()
             Transform,
             Fill,
             Stroke,
+            StrokeOpacity,
             StrokeWidth,
             StrokeLineCap,
             StrokeLineJoin,
             FillOpacity,
             ClipPath,
-            Opacity
+            Opacity,
         };
 
         ParseAttributes(properties, reader, defs); // TODO: merge with Defs?

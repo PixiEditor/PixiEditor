@@ -11,12 +11,10 @@ public abstract class SvgPrimitive(string tagName) : SvgElement(tagName), ITrans
     public SvgProperty<SvgPaintServerUnit> Fill { get; } = new("fill");
     public SvgProperty<SvgNumericUnit> FillOpacity { get; } = new("fill-opacity");
     public SvgProperty<SvgPaintServerUnit> Stroke { get; } = new("stroke");
+    public SvgProperty<SvgNumericUnit> StrokeOpacity { get; } = new("stroke-opacity");
     public SvgProperty<SvgNumericUnit> StrokeWidth { get; } = new("stroke-width");
-    
     public SvgProperty<SvgEnumUnit<SvgStrokeLineCap>> StrokeLineCap { get; } = new("stroke-linecap");
-    
     public SvgProperty<SvgEnumUnit<SvgStrokeLineJoin>> StrokeLineJoin { get; } = new("stroke-linejoin");
-
     public SvgProperty<SvgNumericUnit> Opacity { get; } = new("opacity");
     public SvgProperty<SvgStringUnit> ClipPath { get; } = new("clip-path");
 
@@ -28,6 +26,7 @@ public abstract class SvgPrimitive(string tagName) : SvgElement(tagName), ITrans
         properties.Add(Fill);
         properties.Add(FillOpacity);
         properties.Add(Stroke);
+        properties.Add(StrokeOpacity);
         properties.Add(StrokeWidth);
         properties.Add(StrokeLineCap);
         properties.Add(StrokeLineJoin);

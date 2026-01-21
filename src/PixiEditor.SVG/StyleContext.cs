@@ -12,6 +12,7 @@ public struct StyleContext
 {
     public SvgProperty<SvgNumericUnit> StrokeWidth { get; }
     public SvgProperty<SvgPaintServerUnit> Stroke { get; }
+    public SvgProperty<SvgNumericUnit> StrokeOpacity { get; }
     public SvgProperty<SvgPaintServerUnit> Fill { get; }
     public SvgProperty<SvgNumericUnit> FillOpacity { get; }
     public SvgProperty<SvgTransformUnit> Transform { get; }
@@ -29,6 +30,7 @@ public struct StyleContext
     {
         StrokeWidth = new("stroke-width");
         Stroke = new("stroke");
+        StrokeOpacity = new("stroke-opacity");
         Fill = new("fill");
         FillOpacity = new("fill-opacity");
         Fill.Unit = SvgPaintServerUnit.FromColor(Colors.Black);
@@ -45,6 +47,7 @@ public struct StyleContext
     {
         StrokeWidth = FallbackToCssStyle(document.StrokeWidth, document.Style);
         Stroke = FallbackToCssStyle(document.Stroke, document.Style);
+        StrokeOpacity = FallbackToCssStyle(document.StrokeOpacity, document.Style);
         Fill = FallbackToCssStyle(document.Fill, document.Style, SvgPaintServerUnit.FromColor(Colors.Black));
         FillOpacity = FallbackToCssStyle(document.FillOpacity, document.Style);
         Transform = FallbackToCssStyle(document.Transform, document.Style, new SvgTransformUnit(Matrix3X3.Identity));
@@ -116,6 +119,9 @@ public struct StyleContext
             styleContext.StrokeLineJoin.Unit =
                 FallbackToCssStyle(strokableElement.StrokeLineJoin, styleContext.StrokeLineJoin,
                     styleContext.InlineStyle).Unit;
+
+            styleContext.StrokeOpacity.Unit =
+                FallbackToCssStyle(strokableElement.StrokeOpacity, styleContext.StrokeOpacity, styleContext.InlineStyle).Unit;
         }
 
         if (element is IOpacity opacityElement)
@@ -155,12 +161,17 @@ public struct StyleContext
 
         if (Stroke.Unit != null)
         {
-            styleContext.Stroke.Unit = Stroke.Unit;
+            styleContext.Stroke.Unit = new SvgPaintServerUnit(Stroke.Unit.Value.Paintable.Clone()) { LinksTo = Stroke.Unit.Value.LinksTo };
+        }
+
+        if (StrokeOpacity.Unit != null)
+        {
+            styleContext.StrokeOpacity.Unit = StrokeOpacity.Unit;
         }
 
         if (Fill.Unit != null)
         {
-            styleContext.Fill.Unit = Fill.Unit;
+            styleContext.Fill.Unit = new SvgPaintServerUnit(Fill.Unit.Value.Paintable.Clone()) { LinksTo = Fill.Unit.Value.LinksTo };
         }
 
         if (FillOpacity.Unit != null)
