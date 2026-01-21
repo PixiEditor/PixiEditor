@@ -19,4 +19,7 @@ public class Product
 
     [JsonPropertyName("latestVersion")]
     public string? LatestVersion { get; set; }
+    
+    [JsonPropertyName("downloadLink")]
+    public string DownloadLink { get; set; }
 }

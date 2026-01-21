@@ -250,7 +250,7 @@ public class PixiAuthClient
 
     public async Task<List<Product>> GetOwnedProducts(string token)
     {
-        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, "/content/getOwnedProducts");
+        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, "v2/content/getOwnedProducts");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         var response = await httpClient.SendAsync(request);
@@ -283,12 +283,11 @@ public class PixiAuthClient
         return [];
     }
 
-    public async Task<Stream> DownloadProduct(string token, string productId)
+    public async Task<Stream> DownloadProduct(string token, string downloadLink)
     {
         HttpRequestMessage request =
-            new HttpRequestMessage(HttpMethod.Get, $"/content/downloadProduct?productId={productId}");
+            new HttpRequestMessage(HttpMethod.Get, downloadLink);
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-        request.Content = JsonContent.Create(productId);
 
         var response = await httpClient.SendAsync(request);
 
