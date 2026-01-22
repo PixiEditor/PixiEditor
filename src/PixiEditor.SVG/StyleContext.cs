@@ -19,6 +19,10 @@ public struct StyleContext
     public SvgProperty<SvgEnumUnit<SvgStrokeLineCap>> StrokeLineCap { get; }
     public SvgProperty<SvgEnumUnit<SvgStrokeLineJoin>> StrokeLineJoin { get; }
     public SvgProperty<SvgPreserveAspectRatioUnit> PreserveAspectRatio { get; }
+    public SvgProperty<SvgNumericUnit> FontSize { get; }
+    public SvgProperty<SvgEnumUnit<SvgFontWeight>> FontWeight { get; }
+    public SvgProperty<SvgEnumUnit<SvgFontStyle>> FontStyle { get; }
+    public SvgProperty<SvgStringUnit> FontFamily { get; }
     public SvgProperty<SvgNumericUnit> Opacity { get; }
     public SvgProperty<SvgStyleUnit> InlineStyle { get; set; }
     public VecD ViewboxOrigin { get; set; }
@@ -40,6 +44,10 @@ public struct StyleContext
         Opacity = new("opacity");
         InlineStyle = new("style");
         PreserveAspectRatio = new("preserve-aspect-ratio");
+        FontSize = new("font-size");
+        FontWeight = new("font-weight");
+        FontStyle = new("font-style");
+        FontFamily = new("font-family");
         Defs = new();
     }
 
@@ -54,6 +62,10 @@ public struct StyleContext
         StrokeLineCap = FallbackToCssStyle(document.StrokeLineCap, document.Style);
         StrokeLineJoin = FallbackToCssStyle(document.StrokeLineJoin, document.Style);
         Opacity = FallbackToCssStyle(document.Opacity, document.Style);
+        FontSize = FallbackToCssStyle(document.FontSize, document.Style);
+        FontWeight = FallbackToCssStyle(document.FontWeight, document.Style);
+        FontStyle = FallbackToCssStyle(document.FontStyle, document.Style);
+        FontFamily = FallbackToCssStyle(document.FontFamily, document.Style);
         PreserveAspectRatio = document.PreserveAspectRatio.Unit.HasValue ?
             document.PreserveAspectRatio :
             FallbackToCssStyle(document.PreserveAspectRatio, document.Style, new SvgPreserveAspectRatioUnit(SvgAspectRatio.XMidYMid, SvgMeetOrSlice.Meet));
@@ -128,6 +140,18 @@ public struct StyleContext
         {
             styleContext.Opacity.Unit =
                 FallbackToCssStyle(opacityElement.Opacity, styleContext.Opacity, styleContext.InlineStyle).Unit;
+        }
+
+        if (element is ITextData textData)
+        {
+            styleContext.FontSize.Unit =
+                FallbackToCssStyle(textData.FontSize, styleContext.FontSize, styleContext.InlineStyle).Unit;
+            styleContext.FontWeight.Unit =
+                FallbackToCssStyle(textData.FontWeight, styleContext.FontWeight, styleContext.InlineStyle).Unit;
+            styleContext.FontStyle.Unit =
+                FallbackToCssStyle(textData.FontStyle, styleContext.FontStyle, styleContext.InlineStyle).Unit;
+            styleContext.FontFamily.Unit =
+                FallbackToCssStyle(textData.FontFamily, styleContext.FontFamily, styleContext.InlineStyle).Unit;
         }
 
         if (element is SvgDocument doc)
@@ -211,6 +235,26 @@ public struct StyleContext
         if (PreserveAspectRatio.Unit != null)
         {
             styleContext.PreserveAspectRatio.Unit = PreserveAspectRatio.Unit;
+        }
+
+        if (FontSize.Unit != null)
+        {
+            styleContext.FontSize.Unit = FontSize.Unit;
+        }
+
+        if (FontWeight.Unit != null)
+        {
+            styleContext.FontWeight.Unit = FontWeight.Unit;
+        }
+
+        if (FontStyle.Unit != null)
+        {
+            styleContext.FontStyle.Unit = FontStyle.Unit;
+        }
+
+        if (FontFamily.Unit != null)
+        {
+            styleContext.FontFamily.Unit = FontFamily.Unit;
         }
 
         styleContext.Defs = Defs;

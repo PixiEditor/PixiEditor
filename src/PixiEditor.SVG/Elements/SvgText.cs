@@ -2,11 +2,12 @@
 using System.Text.RegularExpressions;
 using System.Xml;
 using PixiEditor.SVG.Enums;
+using PixiEditor.SVG.Features;
 using PixiEditor.SVG.Units;
 
 namespace PixiEditor.SVG.Elements;
 
-public class SvgText() : SvgPrimitive("text")
+public class SvgText() : SvgPrimitive("text"), ITextData
 {
     public SvgProperty<SvgStringUnit> Text { get; } = new("");
     public SvgProperty<SvgNumericUnit> X { get; } = new("x");

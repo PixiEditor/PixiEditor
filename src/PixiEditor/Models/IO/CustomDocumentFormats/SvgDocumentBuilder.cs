@@ -126,7 +126,7 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         }
         else if (element is SvgText text)
         {
-            shapeData = AddText(text);
+            shapeData = AddText(text, styleContext);
             name = TextToolViewModel.NewLayerKey;
         }
         else if (element is SvgPolyline or SvgPolygon)
@@ -532,21 +532,21 @@ internal class SvgDocumentBuilder : IDocumentBuilder
             width, height) { CornerRadius = cornerRadiusPercent };
     }
 
-    private TextVectorData AddText(SvgText element)
+    private TextVectorData AddText(SvgText element, StyleContext styleContext)
     {
-        Font font = element.FontFamily.Unit.HasValue
-            ? Font.FromFamilyName(element.FontFamily.Unit.Value.Value)
+        Font font = styleContext.FontFamily.Unit.HasValue
+            ? Font.FromFamilyName(styleContext.FontFamily.Unit.Value.Value)
             : Font.CreateDefault();
         FontFamilyName? missingFont = null;
         if (font == null)
         {
             font = Font.CreateDefault();
-            missingFont = new FontFamilyName(element.FontFamily.Unit.Value.Value);
+            missingFont = new FontFamilyName(styleContext.FontFamily.Unit.Value.Value);
         }
 
-        font.Size = element.FontSize.Unit?.PixelsValue ?? 12;
-        font.Bold = element.FontWeight.Unit?.Value == SvgFontWeight.Bold;
-        font.Italic = element.FontStyle.Unit?.Value == SvgFontStyle.Italic;
+        font.Size = styleContext.FontSize.Unit?.PixelsValue ?? 12;
+        font.Bold = styleContext.FontWeight.Unit?.Value == SvgFontWeight.Bold;
+        font.Italic = styleContext.FontStyle.Unit?.Value == SvgFontStyle.Italic;
 
         VecD position = new(
             element.X.Unit?.PixelsValue ?? 0,
