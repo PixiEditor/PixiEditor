@@ -60,7 +60,7 @@ public class SvgElement(string tagName)
         return element;
     }
 
-    public virtual void ParseData(XmlReader reader, SvgDefs defs)
+    public virtual void ParseAttributes(XmlReader reader, SvgDefs defs)
     {
         // This is supposed to be overriden by child classes
         throw new SvgParsingException($"Element {TagName} does not support parsing");
@@ -102,20 +102,26 @@ public class SvgElement(string tagName)
             properties.Insert(0, Style);
         }
 
-        if(!properties.Contains(Visibility))
+        if (!properties.Contains(Visibility))
         {
             properties.Insert(0, Visibility);
         }
 
-        do
+        if (reader.HasAttributes)
         {
-            SvgProperty matchingProperty = properties.FirstOrDefault(x =>
-                string.Equals(x.SvgFullName, reader.Name, StringComparison.OrdinalIgnoreCase));
-            if (matchingProperty != null)
+            while (reader.MoveToNextAttribute())
             {
-                ParseAttribute(matchingProperty, reader, defs);
+                string name = reader.Name;
+                string value = reader.Value;
+
+                SvgProperty matchingProperty = properties.FirstOrDefault(x =>
+                    string.Equals(x.SvgFullName, reader.Name, StringComparison.OrdinalIgnoreCase));
+                if (matchingProperty != null)
+                {
+                    ParseAttribute(matchingProperty, reader, defs);
+                }
             }
-        } while (reader.MoveToNextAttribute());
+        }
     }
 
     private void ParseAttribute(SvgProperty property, XmlReader reader, SvgDefs defs)
@@ -137,8 +143,13 @@ public class SvgElement(string tagName)
         {
             reader.MoveToContent();
             SvgElement clone = (SvgElement)Activator.CreateInstance(GetType())!;
-            clone.ParseData(reader, new SvgDefs());
+            clone.ParseAttributes(reader, new SvgDefs());
             return clone;
         }
+    }
+
+    public virtual void ParseElement(XmlReader reader, SvgDefs defs)
+    {
+        ParseAttributes(reader, defs);
     }
 }

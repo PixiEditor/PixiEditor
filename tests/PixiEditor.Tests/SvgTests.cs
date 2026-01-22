@@ -225,7 +225,7 @@ public class SvgTests
             writer.Write($"<svg><{element.TagName}/></svg>");
             using XmlReader reader = XmlReader.Create(stream);
             
-            element.ParseData(reader, new SvgDefs());
+            element.ParseElement(reader, new SvgDefs());
         }
     }
 

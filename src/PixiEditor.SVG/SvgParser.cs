@@ -119,10 +119,7 @@ public class SvgParser
         if (wellKnownElements.TryGetValue(reader.LocalName, out Type elementType))
         {
             SvgElement element = (SvgElement)Activator.CreateInstance(elementType);
-            if (reader.MoveToFirstAttribute())
-            {
-                element.ParseData(reader, defs);
-            }
+            element.ParseElement(reader, defs);
 
             return element;
         }

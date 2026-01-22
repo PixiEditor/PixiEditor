@@ -22,7 +22,7 @@ public class SvgGroup()
     public SvgProperty<SvgNumericUnit> Opacity { get; } = new("opacity");
     public SvgDefs Defs { get; } = new();
 
-    public override void ParseData(XmlReader reader, SvgDefs defs)
+    public override void ParseAttributes(XmlReader reader, SvgDefs defs)
     {
         List<SvgProperty> properties = new List<SvgProperty>()
         {

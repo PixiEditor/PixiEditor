@@ -1,4 +1,6 @@
-﻿using System.Xml;
+﻿using System.Text;
+using System.Text.RegularExpressions;
+using System.Xml;
 using PixiEditor.SVG.Enums;
 using PixiEditor.SVG.Units;
 
@@ -15,9 +17,10 @@ public class SvgText() : SvgPrimitive("text")
     public SvgProperty<SvgEnumUnit<SvgFontStyle>> FontStyle { get; } = new("font-style");
     public SvgProperty<SvgEnumUnit<SvgTextAnchor>> TextAnchor { get; } = new("text-anchor");
 
-    public override void ParseData(XmlReader reader, SvgDefs defs)
+    public override void ParseElement(XmlReader reader, SvgDefs defs)
     {
-        base.ParseData(reader, defs);
+        base.ParseElement(reader, defs);
+        reader.MoveToElement();
         Text.Unit = new SvgStringUnit(ParseContent(reader));
     }
 
@@ -34,15 +37,26 @@ public class SvgText() : SvgPrimitive("text")
 
     private string ParseContent(XmlReader reader)
     {
+        if (reader.NodeType != XmlNodeType.Element || reader.Name != "text")
+            return string.Empty;
+
+        if (reader.IsEmptyElement)
+        {
+            return string.Empty;
+        }
+
         string content = string.Empty;
+
         if (reader.NodeType == XmlNodeType.None) return content;
+
         while (reader.Read())
         {
             if (reader.NodeType == XmlNodeType.Text || reader.NodeType == XmlNodeType.CDATA)
             {
-                content = reader.Value;
+                content = reader.Value?.Replace("\r\n", "\n").Replace("\r", "\n") ?? string.Empty;
+                content = Regex.Replace(content, @"[\t\n ]+", " ");
             }
-            else if (reader is { NodeType: XmlNodeType.Element, Name: "title" })
+            else if (reader is { NodeType: XmlNodeType.Element})
             {
                 reader.Read();
             }

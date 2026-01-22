@@ -43,7 +43,7 @@ public class SvgDocument : SvgElement, IElementContainer, ITransformable, IFilla
         ViewBox.Unit = new SvgRectUnit(viewBox);
     }
 
-    public override void ParseData(XmlReader reader, SvgDefs defs)
+    public override void ParseAttributes(XmlReader reader, SvgDefs defs)
     {
         List<SvgProperty> properties = new()
         {

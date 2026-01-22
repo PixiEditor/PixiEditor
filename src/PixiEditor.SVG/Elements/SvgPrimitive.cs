@@ -18,10 +18,10 @@ public abstract class SvgPrimitive(string tagName) : SvgElement(tagName), ITrans
     public SvgProperty<SvgNumericUnit> Opacity { get; } = new("opacity");
     public SvgProperty<SvgStringUnit> ClipPath { get; } = new("clip-path");
 
-    public override void ParseData(XmlReader reader, SvgDefs defs)
+    public override void ParseAttributes(XmlReader reader, SvgDefs defs)
     {
         List<SvgProperty> properties = GetProperties().ToList();
-        
+
         properties.Add(Transform);
         properties.Add(Fill);
         properties.Add(FillOpacity);
