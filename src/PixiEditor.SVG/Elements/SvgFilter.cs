@@ -18,9 +18,9 @@ public class SvgFilter() : SvgElement("filter"), IElementContainer, IImageFilter
         ParseAttributes(properties, reader, defs);
     }
 
-    public ImageFilter? GetImageFilter()
+    public SvgFilterPrimitive? GetImageFilter()
     {
-        ImageFilter? lastFilter = null;
+        SvgFilterPrimitive? lastFilter = null;
         foreach (var child in Children)
         {
             if (child is IImageFilter filter)

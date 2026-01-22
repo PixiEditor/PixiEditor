@@ -1,8 +1,8 @@
-using Drawie.Backend.Core.Surfaces.PaintImpl;
+using PixiEditor.SVG.Elements;
 
 namespace PixiEditor.SVG.Features;
 
 public interface IImageFilter
 {
-    public ImageFilter? GetImageFilter();
+    public SvgFilterPrimitive? GetImageFilter();
 }

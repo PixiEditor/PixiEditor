@@ -18,6 +18,7 @@ using PixiEditor.Models.Dialogs;
 using PixiEditor.Parser.Graph;
 using PixiEditor.SVG;
 using PixiEditor.SVG.Elements;
+using PixiEditor.SVG.Elements.Filters;
 using PixiEditor.SVG.Enums;
 using PixiEditor.SVG.Exceptions;
 using PixiEditor.SVG.Units;
@@ -108,12 +109,12 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         ShapeVectorData shapeData = null;
         if (element is SvgEllipse or SvgCircle)
         {
-            shapeData = AddEllipse(element);
+            shapeData = AddEllipse(element, styleContext);
             name = VectorEllipseToolViewModel.NewLayerKey;
         }
         else if (element is SvgLine line)
         {
-            shapeData = AddLine(line);
+            shapeData = AddLine(line, styleContext);
             name = VectorLineToolViewModel.NewLayerKey;
         }
         else if (element is SvgPath pathElement)
@@ -123,7 +124,7 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         }
         else if (element is SvgRectangle rect)
         {
-            shapeData = AddRect(rect);
+            shapeData = AddRect(rect, styleContext);
             name = VectorRectangleToolViewModel.NewLayerKey;
         }
         else if (element is SvgText text)
@@ -155,42 +156,38 @@ internal class SvgDocumentBuilder : IDocumentBuilder
             .WithAdditionalData(new Dictionary<string, object>() { { "ShapeData", shapeData } });
 
         int? filterNodeId = null;
-        if(hasFilter)
+        if (hasFilter)
         {
             var imageFilter = styleContext.Filter.Unit?.ImageFilter;
-            Type filterToNodeType = MapImageFilterToNodeType(imageFilter);
+            Type filterToNodeType = MapImageFilterToNodeType(imageFilter, out var props);
             graph.WithNodeOfType(filterToNodeType, out int filterId)
                 .WithId(filterId)
-                .WithInputValues(new Dictionary<string, object>()
-                {
-                    { FilterNode.InputPropertyName, new Filter(null, styleContext.Filter.Unit.Value.ImageFilter) }
-                });
+                .WithInputValues(props);
 
 
             filterNodeId = filterId;
         }
 
+        List<PropertyConnection> connections = new();
         if (lastId != null)
         {
-            List<PropertyConnection> connections = new()
+            connections.Add(new PropertyConnection()
             {
-                new PropertyConnection()
-                {
-                    InputPropertyName = connectionName, OutputPropertyName = "Output", OutputNodeId = lastId.Value
-                }
-            };
-
-            if (filterNodeId != null)
-            {
-                connections.Add(new PropertyConnection()
-                {
-                    InputPropertyName = StructureNode.FiltersPropertyName, OutputPropertyName = "Output", OutputNodeId = filterNodeId.Value
-                });
-            }
-
-            nBuilder.WithConnections(connections.ToArray());
+                InputPropertyName = connectionName, OutputPropertyName = "Output", OutputNodeId = lastId.Value
+            });
         }
 
+        if (filterNodeId != null)
+        {
+            connections.Add(new PropertyConnection()
+            {
+                InputPropertyName = StructureNode.FiltersPropertyName,
+                OutputPropertyName = "Output",
+                OutputNodeId = filterNodeId.Value
+            });
+        }
+
+        nBuilder.WithConnections(connections.ToArray());
         lastId = id;
         return lastId;
     }
@@ -485,30 +482,32 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         return [];
     }
 
-    private EllipseVectorData AddEllipse(SvgElement element)
+    private EllipseVectorData AddEllipse(SvgElement element, StyleContext styleContext)
     {
+        RectD viewBox = new RectD(styleContext.ViewboxOrigin, styleContext.ViewboxSize);
         if (element is SvgCircle circle)
         {
             return new EllipseVectorData(
-                new VecD(circle.Cx.Unit?.PixelsValue ?? 0, circle.Cy.Unit?.PixelsValue ?? 0),
-                new VecD(circle.R.Unit?.PixelsValue ?? 0, circle.R.Unit?.PixelsValue ?? 0));
+                new VecD(circle.Cx.Unit?.ToPixels(viewBox) ?? 0, circle.Cy.Unit?.ToPixels(viewBox) ?? 0),
+                new VecD(circle.R.Unit?.ToPixels(viewBox) ?? 0, circle.R.Unit?.ToPixels(viewBox) ?? 0));
         }
 
         if (element is SvgEllipse ellipse)
         {
             return new EllipseVectorData(
-                new VecD(ellipse.Cx.Unit?.PixelsValue ?? 0, ellipse.Cy.Unit?.PixelsValue ?? 0),
-                new VecD(ellipse.Rx.Unit?.PixelsValue ?? 0, ellipse.Ry.Unit?.PixelsValue ?? 0));
+                new VecD(ellipse.Cx.Unit?.ToPixels(viewBox) ?? 0, ellipse.Cy.Unit?.ToPixels(viewBox) ?? 0),
+                new VecD(ellipse.Rx.Unit?.ToPixels(viewBox) ?? 0, ellipse.Ry.Unit?.ToPixels(viewBox) ?? 0));
         }
 
         return null;
     }
 
-    private LineVectorData AddLine(SvgLine element)
+    private LineVectorData AddLine(SvgLine element, StyleContext styleContext)
     {
+        RectD viewBox = new RectD(styleContext.ViewboxOrigin, styleContext.ViewboxSize);
         return new LineVectorData(
-            new VecD(element.X1.Unit?.PixelsValue ?? 0, element.Y1.Unit?.PixelsValue ?? 0),
-            new VecD(element.X2.Unit?.PixelsValue ?? 0, element.Y2.Unit?.PixelsValue ?? 0));
+            new VecD(element.X1.Unit?.ToPixels(viewBox) ?? 0, element.Y1.Unit?.ToPixels(viewBox) ?? 0),
+            new VecD(element.X2.Unit?.ToPixels(viewBox) ?? 0, element.Y2.Unit?.ToPixels(viewBox) ?? 0));
     }
 
     private PathVectorData AddPath(SvgPath element, StyleContext styleContext)
@@ -545,12 +544,13 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         return new PathVectorData(path) { StrokeLineCap = strokeLineCap, StrokeLineJoin = strokeLineJoin };
     }
 
-    private RectangleVectorData AddRect(SvgRectangle element)
+    private RectangleVectorData AddRect(SvgRectangle element, StyleContext styleContext)
     {
-        double rx = element.Rx.Unit?.PixelsValue ?? 0;
-        double ry = element.Ry.Unit?.PixelsValue ?? 0;
-        double width = element.Width.Unit?.PixelsValue ?? 0;
-        double height = element.Height.Unit?.PixelsValue ?? 0;
+        RectD viewBox = new RectD(styleContext.ViewboxOrigin, styleContext.ViewboxSize);
+        double rx = element.Rx.Unit?.ToPixels(viewBox) ?? 0;
+        double ry = element.Ry.Unit?.ToPixels(viewBox) ?? 0;
+        double width = element.Width.Unit?.ToPixels(viewBox) ?? 0;
+        double height = element.Height.Unit?.ToPixels(viewBox) ?? 0;
 
         double shortestAxis = Math.Min(width, height);
 
@@ -558,12 +558,13 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         double cornerRadiusPercent = cornerRadius / (shortestAxis / 2f);
 
         return new RectangleVectorData(
-            element.X.Unit?.PixelsValue ?? 0, element.Y.Unit?.PixelsValue ?? 0,
+            element.X.Unit?.ToPixels(viewBox) ?? 0, element.Y.Unit?.ToPixels(viewBox) ?? 0,
             width, height) { CornerRadius = cornerRadiusPercent };
     }
 
     private TextVectorData AddText(SvgText element, StyleContext styleContext)
     {
+        RectD viewBox = new RectD(styleContext.ViewboxOrigin, styleContext.ViewboxSize);
         Font font = styleContext.FontFamily.Unit.HasValue
             ? Font.FromFamilyName(styleContext.FontFamily.Unit.Value.Value)
             : Font.CreateDefault();
@@ -574,13 +575,13 @@ internal class SvgDocumentBuilder : IDocumentBuilder
             missingFont = new FontFamilyName(styleContext.FontFamily.Unit.Value.Value);
         }
 
-        font.Size = styleContext.FontSize.Unit?.PixelsValue ?? 12;
+        font.Size = styleContext.FontSize.Unit?.ToPixels(viewBox) ?? 12;
         font.Bold = styleContext.FontWeight.Unit?.Value == SvgFontWeight.Bold;
         font.Italic = styleContext.FontStyle.Unit?.Value == SvgFontStyle.Italic;
 
         VecD position = new(
-            element.X.Unit?.PixelsValue ?? 0,
-            element.Y.Unit?.PixelsValue ?? 0);
+            element.X.Unit?.ToPixels(viewBox) ?? 0,
+            element.Y.Unit?.ToPixels(viewBox) ?? 0);
 
         if (element.TextAnchor.Unit != null)
         {
@@ -677,39 +678,36 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         }
     }
 
-    private Type MapImageFilterToNodeType(ImageFilter? filter)
+    private Type MapImageFilterToNodeType(SvgFilterPrimitive? filter, out Dictionary<string, object> inputProperties)
     {
+        inputProperties = new Dictionary<string, object>();
+
         if (filter == null)
         {
             throw new ArgumentNullException(nameof(filter));
         }
 
-        switch (filter.WellKnownType)
+        switch (filter)
         {
-            case ImageFilterType.Unknown:
-                return null;
-            case ImageFilterType.MatrixConvolution:
-                break;
-            case ImageFilterType.Compose:
-                break;
-            case ImageFilterType.BlendMode:
-                break;
-            case ImageFilterType.Blur:
+            case SvgFeDropShadow svgFeDropShadow:
+                inputProperties.Add(ShadowNode.OffsetPropertyName, new VecD(
+                    svgFeDropShadow.Dx.Unit?.PixelsValue ?? 0,
+                    svgFeDropShadow.Dy.Unit?.PixelsValue ?? 0));
+                inputProperties.Add(ShadowNode.SigmaPropertyName, new VecD(
+                    svgFeDropShadow.StdDeviation.Unit?.PixelsValue ?? 0,
+                    svgFeDropShadow.StdDeviation.Unit?.PixelsValue ?? 0));
+                Color floodColor = svgFeDropShadow.FloodColor.Unit?.Color ?? Colors.Black;
+                float floodOpacity = (float)(svgFeDropShadow.FloodOpacity.Unit?.NormalizedValue() ?? 1);
+                floodColor = floodColor.WithAlpha((byte)(floodOpacity * 255));
+                inputProperties.Add(ShadowNode.ColorPropertyName, floodColor);
+                return typeof(ShadowNode);
+            case SvgFeGaussianBlur svgFeGaussianBlur:
+                inputProperties.Add(BlurNode.RadiusPropertyName, new VecD(
+                    svgFeGaussianBlur.StdDeviation.Unit?.PixelsValue ?? 0,
+                    svgFeGaussianBlur.StdDeviation.Unit?.PixelsValue ?? 0));
                 return typeof(BlurNode);
-            case ImageFilterType.DropShadow:
-                break;
-            case ImageFilterType.Shader:
-                break;
-            case ImageFilterType.Image:
-                break;
-            case ImageFilterType.Tile:
-                break;
-            case ImageFilterType.Dilate:
-                break;
-            case ImageFilterType.Merge:
-                break;
             default:
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(filter));
         }
 
         return null;

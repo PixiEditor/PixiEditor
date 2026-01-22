@@ -6,13 +6,12 @@ namespace PixiEditor.SVG.Units;
 
 public struct SvgFilterUnit : ISvgUnit
 {
-    public ImageFilter? ImageFilter { get; set; }
+    public SvgFilterPrimitive? ImageFilter { get; set; } = null;
 
     public SvgLinkUnit? LinksTo { get; set; } = null;
 
-    public SvgFilterUnit(ImageFilter? imageFilter)
+    public SvgFilterUnit()
     {
-        ImageFilter = imageFilter;
     }
 
     public string ToXml(DefStorage defs)
@@ -45,7 +44,7 @@ public struct SvgFilterUnit : ISvgUnit
         }
     }
 
-    private string TrySerialize(ImageFilter imageFilter, DefStorage defs)
+    private string TrySerialize(SvgFilterPrimitive imageFilter, DefStorage defs)
     {
         // TODO: Implement serialization for ImageFilter
         return "";
