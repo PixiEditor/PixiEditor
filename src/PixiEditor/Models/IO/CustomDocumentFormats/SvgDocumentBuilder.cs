@@ -8,8 +8,10 @@ using Drawie.Backend.Core.Text;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables;
+using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Dialogs;
@@ -141,6 +143,8 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         var isVisible = element.Visibility.Unit?.Value != SvgVisibility.Hidden &&
                         element.Visibility.Unit?.Value != SvgVisibility.Collapse;
 
+        bool hasFilter = styleContext.Filter.Unit?.ImageFilter != null;
+
         NodeGraphBuilder.NodeBuilder nBuilder = graph.WithNodeOfType<VectorLayerNode>(out int id)
             .WithName(name)
             .WithInputValues(new Dictionary<string, object>()
@@ -150,15 +154,41 @@ internal class SvgDocumentBuilder : IDocumentBuilder
             })
             .WithAdditionalData(new Dictionary<string, object>() { { "ShapeData", shapeData } });
 
+        int? filterNodeId = null;
+        if(hasFilter)
+        {
+            var imageFilter = styleContext.Filter.Unit?.ImageFilter;
+            Type filterToNodeType = MapImageFilterToNodeType(imageFilter);
+            graph.WithNodeOfType(filterToNodeType, out int filterId)
+                .WithId(filterId)
+                .WithInputValues(new Dictionary<string, object>()
+                {
+                    { FilterNode.InputPropertyName, new Filter(null, styleContext.Filter.Unit.Value.ImageFilter) }
+                });
+
+
+            filterNodeId = filterId;
+        }
 
         if (lastId != null)
         {
-            nBuilder.WithConnections([
+            List<PropertyConnection> connections = new()
+            {
                 new PropertyConnection()
                 {
                     InputPropertyName = connectionName, OutputPropertyName = "Output", OutputNodeId = lastId.Value
                 }
-            ]);
+            };
+
+            if (filterNodeId != null)
+            {
+                connections.Add(new PropertyConnection()
+                {
+                    InputPropertyName = StructureNode.FiltersPropertyName, OutputPropertyName = "Output", OutputNodeId = filterNodeId.Value
+                });
+            }
+
+            nBuilder.WithConnections(connections.ToArray());
         }
 
         lastId = id;
@@ -645,5 +675,43 @@ internal class SvgDocumentBuilder : IDocumentBuilder
             shapeData.TransformationMatrix = shapeData.TransformationMatrix.PostConcat(
                 Matrix3X3.CreateTranslation((float)styleContext.ViewboxOrigin.X, (float)styleContext.ViewboxOrigin.Y));
         }
+    }
+
+    private Type MapImageFilterToNodeType(ImageFilter? filter)
+    {
+        if (filter == null)
+        {
+            throw new ArgumentNullException(nameof(filter));
+        }
+
+        switch (filter.WellKnownType)
+        {
+            case ImageFilterType.Unknown:
+                return null;
+            case ImageFilterType.MatrixConvolution:
+                break;
+            case ImageFilterType.Compose:
+                break;
+            case ImageFilterType.BlendMode:
+                break;
+            case ImageFilterType.Blur:
+                return typeof(BlurNode);
+            case ImageFilterType.DropShadow:
+                break;
+            case ImageFilterType.Shader:
+                break;
+            case ImageFilterType.Image:
+                break;
+            case ImageFilterType.Tile:
+                break;
+            case ImageFilterType.Dilate:
+                break;
+            case ImageFilterType.Merge:
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+
+        return null;
     }
 }

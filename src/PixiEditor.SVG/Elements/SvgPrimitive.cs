@@ -5,7 +5,7 @@ using PixiEditor.SVG.Units;
 
 namespace PixiEditor.SVG.Elements;
 
-public abstract class SvgPrimitive(string tagName) : SvgElement(tagName), ITransformable, IFillable, IStrokable, IOpacity, IClipable
+public abstract class SvgPrimitive(string tagName) : SvgElement(tagName), ITransformable, IFillable, IStrokable, IOpacity, IClipable, IFilterable
 {
     public SvgProperty<SvgTransformUnit> Transform { get; } = new("transform");
     public SvgProperty<SvgPaintServerUnit> Fill { get; } = new("fill");
@@ -17,6 +17,7 @@ public abstract class SvgPrimitive(string tagName) : SvgElement(tagName), ITrans
     public SvgProperty<SvgEnumUnit<SvgStrokeLineJoin>> StrokeLineJoin { get; } = new("stroke-linejoin");
     public SvgProperty<SvgNumericUnit> Opacity { get; } = new("opacity");
     public SvgProperty<SvgStringUnit> ClipPath { get; } = new("clip-path");
+    public SvgProperty<SvgFilterUnit> Filter { get; } = new("filter");
 
     public override void ParseAttributes(XmlReader reader, SvgDefs defs)
     {
@@ -32,6 +33,7 @@ public abstract class SvgPrimitive(string tagName) : SvgElement(tagName), ITrans
         properties.Add(StrokeLineJoin);
         properties.Add(Opacity);
         properties.Add(ClipPath);
+        properties.Add(Filter);
 
         do
         {

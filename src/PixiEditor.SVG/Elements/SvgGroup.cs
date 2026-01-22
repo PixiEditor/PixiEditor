@@ -6,7 +6,7 @@ using PixiEditor.SVG.Units;
 namespace PixiEditor.SVG.Elements;
 
 public class SvgGroup()
-    : SvgElement("g"), ITransformable, IFillable, IStrokable, IOpacity, IElementContainer, IDefsStorage, IClipable, ITextData
+    : SvgElement("g"), ITransformable, IFillable, IStrokable, IOpacity, IElementContainer, IDefsStorage, IClipable, ITextData, IFilterable
 {
     public List<SvgElement> Children { get; } = new();
     public SvgProperty<SvgTransformUnit> Transform { get; } = new("transform");
@@ -23,6 +23,7 @@ public class SvgGroup()
     public SvgProperty<SvgEnumUnit<SvgFontStyle>> FontStyle { get; } = new("font-style");
     public SvgProperty<SvgStringUnit> ClipPath { get; } = new("clip-path");
     public SvgProperty<SvgNumericUnit> Opacity { get; } = new("opacity");
+    public SvgProperty<SvgFilterUnit> Filter { get; } = new("filter");
     public SvgDefs Defs { get; } = new();
 
     public override void ParseAttributes(XmlReader reader, SvgDefs defs)
@@ -42,9 +43,11 @@ public class SvgGroup()
             FontFamily,
             FontSize,
             FontWeight,
-            FontStyle
+            FontStyle,
+            Filter
         };
 
         ParseAttributes(properties, reader, defs); // TODO: merge with Defs?
     }
+
 }

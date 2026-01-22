@@ -25,6 +25,7 @@ public struct StyleContext
     public SvgProperty<SvgStringUnit> FontFamily { get; }
     public SvgProperty<SvgNumericUnit> Opacity { get; }
     public SvgProperty<SvgStyleUnit> InlineStyle { get; set; }
+    public SvgProperty<SvgFilterUnit> Filter { get; }
     public VecD ViewboxOrigin { get; set; }
     public VecD ViewboxSize { get; set; }
     public VecD DocumentSize { get; set; }
@@ -48,6 +49,7 @@ public struct StyleContext
         FontWeight = new("font-weight");
         FontStyle = new("font-style");
         FontFamily = new("font-family");
+        Filter = new("filter");
         Defs = new();
     }
 
@@ -66,6 +68,7 @@ public struct StyleContext
         FontWeight = FallbackToCssStyle(document.FontWeight, document.Style);
         FontStyle = FallbackToCssStyle(document.FontStyle, document.Style);
         FontFamily = FallbackToCssStyle(document.FontFamily, document.Style);
+        Filter = FallbackToCssStyle(document.Filter, document.Style);
         PreserveAspectRatio = document.PreserveAspectRatio.Unit.HasValue ?
             document.PreserveAspectRatio :
             FallbackToCssStyle(document.PreserveAspectRatio, document.Style, new SvgPreserveAspectRatioUnit(SvgAspectRatio.XMidYMid, SvgMeetOrSlice.Meet));
@@ -152,6 +155,12 @@ public struct StyleContext
                 FallbackToCssStyle(textData.FontStyle, styleContext.FontStyle, styleContext.InlineStyle).Unit;
             styleContext.FontFamily.Unit =
                 FallbackToCssStyle(textData.FontFamily, styleContext.FontFamily, styleContext.InlineStyle).Unit;
+        }
+
+        if (element is IFilterable filterableElement)
+        {
+            styleContext.Filter.Unit =
+                FallbackToCssStyle(filterableElement.Filter, styleContext.Filter, styleContext.InlineStyle).Unit;
         }
 
         if (element is SvgDocument doc)

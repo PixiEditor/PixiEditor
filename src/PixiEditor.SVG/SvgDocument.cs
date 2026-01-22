@@ -8,7 +8,7 @@ using PixiEditor.SVG.Units;
 
 namespace PixiEditor.SVG;
 
-public class SvgDocument : SvgElement, IElementContainer, ITransformable, IFillable, IStrokable, IOpacity, IDefsStorage, ITextData
+public class SvgDocument : SvgElement, IElementContainer, ITransformable, IFillable, IStrokable, IOpacity, IDefsStorage, ITextData, IFilterable
 {
     public string RootNamespace { get; set; } = "http://www.w3.org/2000/svg";
     public string Version { get; set; } = "1.1";
@@ -32,6 +32,7 @@ public class SvgDocument : SvgElement, IElementContainer, ITransformable, IFilla
     public SvgProperty<SvgNumericUnit> FontSize { get; } = new("font-size");
     public SvgProperty<SvgEnumUnit<SvgFontWeight>> FontWeight { get; } = new("font-weight");
     public SvgProperty<SvgEnumUnit<SvgFontStyle>> FontStyle { get; } = new("font-style");
+    public SvgProperty<SvgFilterUnit> Filter { get; } = new("filter");
 
     public SvgDefs Defs { get; set; } = new();
     public List<SvgElement> Children { get; } = new();
@@ -67,7 +68,8 @@ public class SvgDocument : SvgElement, IElementContainer, ITransformable, IFilla
             FontFamily,
             FontSize,
             FontWeight,
-            FontStyle
+            FontStyle,
+            Filter
         };
 
         ParseAttributes(properties, reader, defs); // TODO: merge with Defs?
@@ -170,4 +172,5 @@ public class SvgDocument : SvgElement, IElementContainer, ITransformable, IFilla
             root.Add(new XAttribute("stroke-linejoin", StrokeLineJoin.Unit.Value.ToXml(defs)));
         }
     }
+
 }
