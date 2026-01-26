@@ -20,7 +20,7 @@ public class SvgLinearGradient() : SvgElement("linearGradient"), IElementContain
     public SvgProperty<SvgEnumUnit<SvgSpreadMethod>> SpreadMethod { get; } = new("spreadMethod");
     public SvgProperty<SvgEnumUnit<SvgRelativityUnit>> GradientUnits { get; } = new("gradientUnits");
 
-    public override void ParseData(XmlReader reader, SvgDefs defs)
+    public override void ParseAttributes(XmlReader reader, SvgDefs defs)
     {
         List<SvgProperty> properties = GetProperties().ToList();
 
@@ -43,8 +43,13 @@ public class SvgLinearGradient() : SvgElement("linearGradient"), IElementContain
 
     public Paintable GetPaintable()
     {
-        VecD start = new VecD(GetUnit(X1)?.Value ?? 0, GetUnit(Y1)?.Value ?? 0.5);
-        VecD end = new VecD(GetUnit(X2)?.Value ?? 1, GetUnit(Y2)?.Value ?? 0.5);
+        var startUnitX = AdjustForPercent(GetUnit(X1), 0);
+        var endUnitX = AdjustForPercent(GetUnit(X2), 1);
+        var startUnitY = AdjustForPercent(GetUnit(Y1), 0.5);
+        var endUnitY = AdjustForPercent(GetUnit(Y2), 0.5);
+
+        VecD start = new VecD(startUnitX, startUnitY);
+        VecD end = new VecD(endUnitX, endUnitY);
 
         List<GradientStop> gradientStops = new();
         foreach (SvgElement child in Children)
@@ -66,5 +71,16 @@ public class SvgLinearGradient() : SvgElement("linearGradient"), IElementContain
             AbsoluteValues = unit == SvgRelativityUnit.UserSpaceOnUse,
             Transform = transform
         };
+    }
+
+    private double AdjustForPercent(SvgNumericUnit? unit, double defaultValue)
+    {
+        if (unit == null)
+            return defaultValue;
+
+        if (unit.Value.PostFix == "%")
+            return unit.Value.Value / 100.0;
+
+        return unit.Value.Value;
     }
 }

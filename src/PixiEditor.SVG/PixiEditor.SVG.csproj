@@ -11,4 +11,8 @@
       <ProjectReference Include="..\Drawie\src\Drawie.Numerics\Drawie.Numerics.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Filters\" />
+    </ItemGroup>
+
 </Project>

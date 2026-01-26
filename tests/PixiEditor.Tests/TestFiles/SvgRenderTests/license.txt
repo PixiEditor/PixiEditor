@@ -1,0 +1,6 @@
+Assets used for SVG rendering tests are sourced from public domain or open-source repositories. Each asset is accompanied by its respective license information, ensuring compliance with usage rights. Below is a summary of the licenses for the assets used in these tests:
+
+https://godotengine.org/press/
+Godot logos are licensed under Creative Commons Attribution 4.0 International.
+
+https://dev.w3.org/SVG/tools/svgweb/samples/svg-files/

@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using Drawie.Numerics;
 using PixiEditor.SVG.Elements;
 
 namespace PixiEditor.SVG.Units;
@@ -8,6 +9,23 @@ public struct SvgNumericUnit(double value, string postFix) : ISvgUnit
     public string PostFix { get; set; } = postFix;
     public double Value { get; set; } = value;
     public double? PixelsValue => ConvertTo(SvgNumericUnits.Px);
+
+    public double? ToPixels(RectD viewBox)
+    {
+        SvgNumericUnits? numericUnit = SvgNumericUnitsExtensions.TryParseUnit(PostFix);
+        if (numericUnit == null || !numericUnit.Value.IsSizeUnit())
+        {
+            return Value;
+        }
+
+        double? pixelsValue = SvgNumericConverter.ToPixels(Value, numericUnit.Value, viewBox);
+        if (pixelsValue == null)
+        {
+            return null;
+        }
+
+        return pixelsValue.Value;
+    }
 
     public double? ConvertTo(SvgNumericUnits other)
     {
