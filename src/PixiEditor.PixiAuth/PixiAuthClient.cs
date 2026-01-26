@@ -283,11 +283,13 @@ public class PixiAuthClient
         return [];
     }
 
-    public async Task<Stream> DownloadProduct(string token, string downloadLink)
+    public async Task<Stream> DownloadProduct(string token, string productId, string downloadLink)
     {
+        string downloadToken = await GetDownloadToken(token, productId);
+        
         HttpRequestMessage request =
             new HttpRequestMessage(HttpMethod.Get, downloadLink);
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", downloadToken);
 
         var response = await httpClient.SendAsync(request);
 
@@ -310,5 +312,35 @@ public class PixiAuthClient
         }
 
         throw new BadRequestException("DOWNLOAD_FAILED");
+    }
+
+    private async Task<String> GetDownloadToken(string token, string productId)
+    {
+        HttpRequestMessage request =
+            new HttpRequestMessage(HttpMethod.Get, $"content/getDownloadToken?productId={productId}");
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        
+        var response = await httpClient.SendAsync(request);
+
+        if (response.StatusCode >= HttpStatusCode.InternalServerError)
+        {
+            throw new InternalServerErrorException("INTERNAL_SERVER_ERROR");
+        }
+        if (response.StatusCode >= HttpStatusCode.BadRequest)
+        {
+            throw new BadRequestException(await response.Content.ReadAsStringAsync());
+        }
+
+        if (response.StatusCode == HttpStatusCode.OK)
+        {
+            var result = await response.Content.ReadAsStringAsync();
+            JsonDocument? jsonDoc = JsonDocument.Parse(result);
+            if (jsonDoc != null)
+            {
+                return jsonDoc.RootElement.GetProperty("downloadToken").GetString();
+            }
+        }
+
+        throw new BadRequestException("REQUEST_FAILED");
     }
 }

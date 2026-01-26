@@ -32,7 +32,7 @@ public sealed class StandaloneAdditionalContentProvider : IAdditionalContentProv
         try
         {
             var stream =
-                await IdentityProvider.PixiAuthClient.DownloadProduct(IdentityProvider.User.SessionToken, IdentityProvider.User.OwnedProducts.First(x => x.Id.Equals(productId, StringComparison.Ordinal)).DownloadLink);
+                await IdentityProvider.PixiAuthClient.DownloadProduct(IdentityProvider.User.SessionToken, productId, IdentityProvider.User.OwnedProducts.First(x => x.Id.Equals(productId, StringComparison.Ordinal)).DownloadLink);
             if (stream != null)
             {
                 var firstExistingPath =
