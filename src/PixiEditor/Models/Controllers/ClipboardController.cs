@@ -34,6 +34,7 @@ using PixiEditor.Models.Handlers;
 using PixiEditor.Parser;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document;
+using PixiEditor.ViewModels.SubViewModels;
 using PixiEditor.ViewModels.Tools.Tools;
 using Bitmap = Avalonia.Media.Imaging.Bitmap;
 
@@ -377,7 +378,7 @@ internal static class ClipboardController
     {
         try
         {
-            DocumentViewModel importedDoc = manager.Owner.FileSubViewModel.ImportFromPath(path);
+            DocumentViewModel importedDoc = FileViewModel.ImportFromPath(path);
             error = null;
             if (importedDoc == null)
             {
