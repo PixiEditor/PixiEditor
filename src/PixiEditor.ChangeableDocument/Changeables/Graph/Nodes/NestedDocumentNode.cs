@@ -380,7 +380,7 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
         {
             clonedContext.VisibleDocumentRegion =
                 (RectI)new ShapeCorners((RectD)clonedContext.VisibleDocumentRegion.Value)
-                    .WithMatrix(TransformationMatrix.Invert()).AABBBounds;
+                    .WithMatrix(TransformationMatrix.Invert()).AABBBounds.RoundOutwards();
         }
 
         var outputNode = Instance?.NodeGraph.AllNodes.OfType<BrushOutputNode>().FirstOrDefault() ??
