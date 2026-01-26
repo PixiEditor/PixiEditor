@@ -123,7 +123,7 @@ internal partial class MainWindow : Window
 
         if (!systemDecorations)
         {
-            this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.NoChrome;
+            this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default;
             this.ExtendClientAreaToDecorationsHint = true;
             if (System.OperatingSystem.IsLinux())
             {
@@ -188,7 +188,6 @@ internal partial class MainWindow : Window
             PointerMoved += UpdateResizeCursor;
             AddHandler(PointerPressedEvent, Pressed, RoutingStrategies.Tunnel | RoutingStrategies.Bubble);
         }
-
 
         LoadingWindow.Instance?.SafeClose();
         Activate();
