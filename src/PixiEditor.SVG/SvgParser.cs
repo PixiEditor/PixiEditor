@@ -36,10 +36,6 @@ public class SvgParser
 
         SvgDocument root = (SvgDocument)ParseElement(reader, new SvgDefs())!;
 
-        RectD bounds = ParseBounds(reader); // this takes into account viewBox, width, height, x, y
-
-        root.ViewBox.Unit = new SvgRectUnit(bounds);
-
         using var defsReader = document.CreateReader();
         root.Defs = ParseDefs(defsReader);
 
@@ -123,80 +119,11 @@ public class SvgParser
         if (wellKnownElements.TryGetValue(reader.LocalName, out Type elementType))
         {
             SvgElement element = (SvgElement)Activator.CreateInstance(elementType);
-            if (reader.MoveToFirstAttribute())
-            {
-                element.ParseData(reader, defs);
-            }
+            element.ParseElement(reader, defs);
 
             return element;
         }
 
         return null;
-    }
-
-    private RectD ParseBounds(XmlReader reader)
-    {
-        string viewBox = reader.GetAttribute("viewBox");
-        string width = reader.GetAttribute("width");
-        string height = reader.GetAttribute("height");
-        string x = reader.GetAttribute("x");
-        string y = reader.GetAttribute("y");
-
-        if (viewBox == null && width == null && height == null && x == null && y == null)
-        {
-            return new RectD(0, 0, 0, 0);
-        }
-
-        double finalX = 0;
-        double finalY = 0;
-        double finalWidth = 0;
-        double finalHeight = 0;
-
-        if (viewBox != null)
-        {
-            string[] parts = viewBox.Split(' ').Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
-            if (parts.Length == 4)
-            {
-                finalX = double.Parse(parts[0], CultureInfo.InvariantCulture);
-                finalY = double.Parse(parts[1], CultureInfo.InvariantCulture);
-                finalWidth = double.Parse(parts[2], CultureInfo.InvariantCulture);
-                finalHeight = double.Parse(parts[3], CultureInfo.InvariantCulture);
-            }
-        }
-
-        if (x != null)
-        {
-            if (double.TryParse(x, CultureInfo.InvariantCulture, out double xValue))
-            {
-                finalX = xValue;
-            }
-        }
-
-        if (y != null)
-        {
-            if (double.TryParse(y, CultureInfo.InvariantCulture, out double yValue))
-            {
-                finalY = yValue;
-            }
-        }
-
-        if (width != null)
-        {
-            if (double.TryParse(width, CultureInfo.InvariantCulture, out double widthValue))
-            {
-                finalWidth = widthValue;
-            }
-        }
-
-        if (height != null)
-        {
-            if (double.TryParse(height, CultureInfo.InvariantCulture, out double heightValue))
-            {
-                finalHeight = heightValue;
-            }
-        }
-
-
-        return new RectD(finalX, finalY, finalWidth, finalHeight);
     }
 }
