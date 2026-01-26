@@ -1,5 +1,6 @@
 using Avalonia.Headless.XUnit;
 using Drawie.Backend.Core;
+using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
@@ -22,6 +23,12 @@ public class SvgRenderTests : FullPixiEditorTest
     [AvaloniaFact]
     public void TestSvgRenderingWithPngComparison()
     {
+        if (!DrawingBackendApi.Current.IsHardwareAccelerated)
+        {
+            _testOutputHelper.WriteLine("Skipping the test because hardware acceleration is not enabled.");
+            return;
+        }
+        
         // Load svg from /TestFiles/SvgRenderTests/*.svg
         // Load respective png from /TestFiles/SvgRenderTests/*.png
         // Render svg using PixiEditor's rendering engine
