@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -200,13 +201,21 @@ internal static class ClipboardController
             await pngData.AsStream().CopyToAsync(pngStream);
 
             var pngArray = pngStream.ToArray();
-            foreach (var format in ClipboardDataFormats.PngFormats)
+            var formats = ClipboardDataFormats.PngFormats;
+            if (System.OperatingSystem.IsMacOS())
+            {
+                formats = [ClipboardDataFormats.MacOsPngUti];
+            }
+            
+            foreach (var format in formats)
             {
                 if (!((IDataTransfer)data).Contains(format))
                 {
                     data.Add(DataTransferItem.Create(format, pngArray));
                 }
             }
+
+            if (System.OperatingSystem.IsMacOS()) return;
 
             pngStream.Position = 0;
             try
@@ -233,7 +242,7 @@ internal static class ClipboardController
                     return;
                 }
             }
-
+            
             data.SetFileDropList(new[] { TempCopyFilePath });
         }
     }
@@ -577,6 +586,7 @@ internal static class ClipboardController
 
             var paths = (await GetFileDropList(dataObject))?.Select(x => x.Path.LocalPath).ToList();
             string[]? rawPaths = await TryGetRawTextPaths(dataObject);
+            
             if (paths != null && rawPaths != null)
             {
                 paths.AddRange(rawPaths);
@@ -735,7 +745,7 @@ internal static class ClipboardController
             return false;
         }
 
-        return HasData(dataObject, ClipboardDataFormats.PngFormats);
+        return HasData(dataObject, ClipboardDataFormats.PngFormats) || HasData(dataObject, DataFormat.Bitmap);
     }
 
     public static async Task<bool> IsImageInClipboard()
@@ -745,7 +755,7 @@ internal static class ClipboardController
             return false;
 
         bool isImage = IsImageFormat(formats);
-
+        
         if (!isImage)
         {
             string path = await TryFindImageInFiles(formats);
@@ -835,7 +845,7 @@ internal static class ClipboardController
     {
         foreach (var format in formats)
         {
-            if (ClipboardDataFormats.PngFormats.Contains(format))
+            if (ClipboardDataFormats.PngFormats.Contains(format) || format == DataFormat.Bitmap)
             {
                 return true;
             }
@@ -904,6 +914,11 @@ internal static class ClipboardController
                 {
                     return null;
                 }
+            }
+            else if (importedObj.Contains(DataFormat.Bitmap))
+            {
+                var bmp = await importedObj.GetDataAsync(DataFormat.Bitmap);
+                return bmp != null ? SurfaceHelpers.FromBitmap(bmp) : null;
             }
             else
             {
