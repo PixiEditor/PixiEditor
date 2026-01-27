@@ -923,7 +923,7 @@ internal static class ClipboardController
             else if (importedObj.Contains(DataFormat.Bitmap))
             {
                 var bmp = await importedObj.GetDataAsync(DataFormat.Bitmap);
-                return SurfaceHelpers.FromBitmap(bmp);
+                return bmp != null ? SurfaceHelpers.FromBitmap(bmp) : null;
             }
             else
             {
