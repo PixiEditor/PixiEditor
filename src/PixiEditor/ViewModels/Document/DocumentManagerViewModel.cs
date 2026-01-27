@@ -335,7 +335,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
         Dispatcher.UIThread.Post(() =>
         {
             var loaded = Documents.FirstOrDefault(x => x.FullFilePath == fullPath) ??
-                         Owner.FileSubViewModel.ImportFromPath(fullPath);
+                         FileViewModel.ImportFromPath(fullPath);
             foreach (var doc in Documents)
             {
                 if (doc.FullFilePath == fullPath)
@@ -360,7 +360,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
     public void AddDocumentReference(Guid documentId, Guid nodeId, string? originalPath, Guid docReferenceId)
     {
         var existingReference = documentReferences.FirstOrDefault(x =>
-            x.OriginalFilePath == originalPath);
+             (!string.IsNullOrEmpty(originalPath) && x.OriginalFilePath == originalPath) || x.ReferenceId == docReferenceId);
         if (existingReference != null)
         {
             existingReference.AddReferencingNode(documentId, nodeId);

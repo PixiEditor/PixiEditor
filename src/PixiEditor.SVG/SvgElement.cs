@@ -2,6 +2,7 @@
 using System.Xml;
 using System.Xml.Linq;
 using PixiEditor.SVG.Elements;
+using PixiEditor.SVG.Enums;
 using PixiEditor.SVG.Exceptions;
 using PixiEditor.SVG.Features;
 using PixiEditor.SVG.Units;
@@ -15,6 +16,7 @@ public class SvgElement(string tagName)
     public string TagName { get; } = tagName;
 
     public SvgProperty<SvgStyleUnit> Style { get; } = new("style");
+    public SvgProperty<SvgEnumUnit<SvgVisibility>> Visibility { get; } = new("visibility");
 
     public XElement ToXml(XNamespace nameSpace, DefStorage defs)
     {
@@ -58,7 +60,7 @@ public class SvgElement(string tagName)
         return element;
     }
 
-    public virtual void ParseData(XmlReader reader, SvgDefs defs)
+    public virtual void ParseAttributes(XmlReader reader, SvgDefs defs)
     {
         // This is supposed to be overriden by child classes
         throw new SvgParsingException($"Element {TagName} does not support parsing");
@@ -100,15 +102,26 @@ public class SvgElement(string tagName)
             properties.Insert(0, Style);
         }
 
-        do
+        if (!properties.Contains(Visibility))
         {
-            SvgProperty matchingProperty = properties.FirstOrDefault(x =>
-                string.Equals(x.SvgFullName, reader.Name, StringComparison.OrdinalIgnoreCase));
-            if (matchingProperty != null)
+            properties.Insert(0, Visibility);
+        }
+
+        if (reader.HasAttributes)
+        {
+            while (reader.MoveToNextAttribute())
             {
-                ParseAttribute(matchingProperty, reader, defs);
+                string name = reader.Name;
+                string value = reader.Value;
+
+                SvgProperty matchingProperty = properties.FirstOrDefault(x =>
+                    string.Equals(x.SvgFullName, reader.Name, StringComparison.OrdinalIgnoreCase));
+                if (matchingProperty != null)
+                {
+                    ParseAttribute(matchingProperty, reader, defs);
+                }
             }
-        } while (reader.MoveToNextAttribute());
+        }
     }
 
     private void ParseAttribute(SvgProperty property, XmlReader reader, SvgDefs defs)
@@ -130,8 +143,13 @@ public class SvgElement(string tagName)
         {
             reader.MoveToContent();
             SvgElement clone = (SvgElement)Activator.CreateInstance(GetType())!;
-            clone.ParseData(reader, new SvgDefs());
+            clone.ParseAttributes(reader, new SvgDefs());
             return clone;
         }
+    }
+
+    public virtual void ParseElement(XmlReader reader, SvgDefs defs)
+    {
+        ParseAttributes(reader, defs);
     }
 }

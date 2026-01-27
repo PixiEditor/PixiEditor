@@ -5,6 +5,9 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 
 public abstract class FilterNode : Node
 {
+    public const string OutputPropertyName = "Output";
+    public const string InputPropertyName = "Input";
+
     public OutputProperty<Filter> Output { get; }
 
     public InputProperty<Filter?> Input { get; }
@@ -14,8 +17,8 @@ public abstract class FilterNode : Node
 
     public FilterNode()
     {
-        Output = CreateOutput<Filter>(nameof(Output), "FILTERS", null);
-        Input = CreateInput<Filter>(nameof(Input), "PREVIOUS", null);
+        Output = CreateOutput<Filter>(OutputPropertyName, "FILTERS", null);
+        Input = CreateInput<Filter>(InputPropertyName, "PREVIOUS", null);
     }
 
     protected override void OnExecute(RenderContext context)

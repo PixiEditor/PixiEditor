@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
@@ -30,7 +31,6 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
     private string lastTextInClipboard;
     private bool areNodesInClipboard;
     private bool areCelsInClipboard;
-    private bool hasImageInClipboard;
 
     public ClipboardViewModel(ViewModelMain owner)
         : base(owner)
@@ -43,7 +43,6 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         ClipboardController.Initialize(new PixiEditorClipboard(window.Clipboard));
         window.GotFocus += (sender, args) =>
         {
-            QueueHasImageInClipboard();
             QueueCheckCanPasteImage();
             QueueFetchTextFromClipboard();
             QueueCheckNodesInClipboard();
@@ -70,6 +69,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         doc.Operations.DeleteSelectedPixels(doc.AnimationDataViewModel.ActiveFrameBindable, true, lastTransformRect);
     }
 
+    
     [Command.Basic("PixiEditor.Clipboard.PasteAsNewLayer", true, "PASTE_AS_NEW_LAYER", "PASTE_AS_NEW_LAYER_DESCRIPTIVE",
         CanExecute = "PixiEditor.Clipboard.CanPaste", Key = Key.V, Modifiers = KeyModifiers.Control,
         ShortcutContexts = [typeof(ViewportWindowViewModel), typeof(LayersDockViewModel)],
@@ -442,12 +442,6 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         return canPasteImage;
     }
 
-    [Evaluator.CanExecute("PixiEditor.Clipboard.HasImageInClipboard")]
-    public bool HasImageInClipboard()
-    {
-        QueueHasImageInClipboard();
-        return hasImageInClipboard;
-    }
 
     [Evaluator.CanExecute("PixiEditor.Clipboard.CanCopyCels")]
     public bool CanCopyCels()
@@ -580,16 +574,6 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    private void QueueHasImageInClipboard()
-    {
-        QueueClipboardTask("HasImageInClipboard", ClipboardController.IsImageInClipboard, hasImageInClipboard,
-            x =>
-            {
-                hasImageInClipboard = x;
-                CommandController.CanExecuteChanged("PixiEditor.Clipboard.HasImageInClipboard");
-            });
-    }
-
     private void QueueCheckCanPasteImage()
     {
         QueueClipboardTask("CheckCanPasteImage", ClipboardController.IsImageInClipboard, canPasteImage,
@@ -632,7 +616,6 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
 
     private void SetHasImageInClipboard()
     {
-        hasImageInClipboard = true;
         canPasteImage = true;
         areNodesInClipboard = false;
         areCelsInClipboard = false;
@@ -641,7 +624,6 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
 
     private void ClearHasImageInClipboard()
     {
-        hasImageInClipboard = false;
         canPasteImage = false;
         lastTextInClipboard = string.Empty;
     }

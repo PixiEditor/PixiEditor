@@ -5,34 +5,35 @@ using PixiEditor.SVG.Units;
 
 namespace PixiEditor.SVG.Elements;
 
-public abstract class SvgPrimitive(string tagName) : SvgElement(tagName), ITransformable, IFillable, IStrokable, IOpacity, IClipable
+public abstract class SvgPrimitive(string tagName) : SvgElement(tagName), ITransformable, IFillable, IStrokable, IOpacity, IClipable, IFilterable
 {
     public SvgProperty<SvgTransformUnit> Transform { get; } = new("transform");
     public SvgProperty<SvgPaintServerUnit> Fill { get; } = new("fill");
     public SvgProperty<SvgNumericUnit> FillOpacity { get; } = new("fill-opacity");
     public SvgProperty<SvgPaintServerUnit> Stroke { get; } = new("stroke");
+    public SvgProperty<SvgNumericUnit> StrokeOpacity { get; } = new("stroke-opacity");
     public SvgProperty<SvgNumericUnit> StrokeWidth { get; } = new("stroke-width");
-    
     public SvgProperty<SvgEnumUnit<SvgStrokeLineCap>> StrokeLineCap { get; } = new("stroke-linecap");
-    
     public SvgProperty<SvgEnumUnit<SvgStrokeLineJoin>> StrokeLineJoin { get; } = new("stroke-linejoin");
-
     public SvgProperty<SvgNumericUnit> Opacity { get; } = new("opacity");
     public SvgProperty<SvgStringUnit> ClipPath { get; } = new("clip-path");
+    public SvgProperty<SvgFilterUnit> Filter { get; } = new("filter");
 
-    public override void ParseData(XmlReader reader, SvgDefs defs)
+    public override void ParseAttributes(XmlReader reader, SvgDefs defs)
     {
         List<SvgProperty> properties = GetProperties().ToList();
-        
+
         properties.Add(Transform);
         properties.Add(Fill);
         properties.Add(FillOpacity);
         properties.Add(Stroke);
+        properties.Add(StrokeOpacity);
         properties.Add(StrokeWidth);
         properties.Add(StrokeLineCap);
         properties.Add(StrokeLineJoin);
         properties.Add(Opacity);
         properties.Add(ClipPath);
+        properties.Add(Filter);
 
         do
         {

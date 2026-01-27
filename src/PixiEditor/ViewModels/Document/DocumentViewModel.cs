@@ -406,6 +406,11 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
         AddAnimationData(builderInstance.AnimationData, mappedNodeIds, mappedKeyFrameIds);
 
+        if (builderInstance.FitToContent)
+        {
+            acc.AddFinishedActions(new ClipCanvas_Action(0));
+        }
+
         changeBlock.ExecuteQueuedActions();
         changeBlock.Dispose();
 
