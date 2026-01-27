@@ -5,7 +5,7 @@ using ChunkyImageLib.DataHolders;
 
 namespace ChunkyImageLib;
 
-public class MultiResStore<T> : IDictionary<ChunkResolution, T>
+public class MultiResStore<T> : IReadOnlyDictionary<ChunkResolution, T>
 {
     private const int ResolutionCount = 4;
     private readonly T[] items = new T[ResolutionCount];
@@ -35,27 +35,12 @@ public class MultiResStore<T> : IDictionary<ChunkResolution, T>
         {
             return !ContainsKey(key) ? throw new KeyNotFoundException($"Key {key} not found.") : items[GetIndex(key)];
         }
-        set
-        {
-            items[GetIndex(key)] = value;
-            initializedFlags |= key;
-            RebuildCache();
-        }
     }
 
     public int Count => BitOperations.PopCount((uint)initializedFlags);
 
-    public bool IsReadOnly => false;
-
-    public ICollection<ChunkResolution> Keys => keys;
-    public ICollection<T> Values => values;
-
-    public void Add(ChunkResolution key, T value)
-    {
-        if (ContainsKey(key)) throw new ArgumentException("An item with the same key has already been added.");
-        
-        this[key] = value;
-    }
+    public IEnumerable<ChunkResolution> Keys => keys;
+    public IEnumerable<T> Values => values;
 
     public bool ContainsKey(ChunkResolution key)
     {
@@ -63,16 +48,6 @@ public class MultiResStore<T> : IDictionary<ChunkResolution, T>
             throw new ArgumentException($"Can't use a composition of resolutions ({key}) as a key.");
 
         return (initializedFlags & key) == key;
-    }
-
-    public bool Remove(ChunkResolution key)
-    {
-        if (!ContainsKey(key)) return false;
-
-        initializedFlags &= ~key;
-        items[GetIndex(key)] = default!;
-        RebuildCache();
-        return true;
     }
 
     public bool TryGetValue(ChunkResolution key, [MaybeNullWhen(false)] out T value)
@@ -85,13 +60,6 @@ public class MultiResStore<T> : IDictionary<ChunkResolution, T>
 
         value = default;
         return false;
-    }
-
-    public void Clear()
-    {
-        Array.Clear(items, 0, items.Length);
-        initializedFlags = 0;
-        RebuildCache();
     }
 
     public IEnumerator<KeyValuePair<ChunkResolution, T>> GetEnumerator()
@@ -107,24 +75,6 @@ public class MultiResStore<T> : IDictionary<ChunkResolution, T>
     }
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-    void ICollection<KeyValuePair<ChunkResolution, T>>.Add(KeyValuePair<ChunkResolution, T> item) =>
-        Add(item.Key, item.Value);
-
-    bool ICollection<KeyValuePair<ChunkResolution, T>>.Contains(KeyValuePair<ChunkResolution, T> item) =>
-        ContainsKey(item.Key) && EqualityComparer<T>.Default.Equals(this[item.Key], item.Value);
-
-    void ICollection<KeyValuePair<ChunkResolution, T>>.CopyTo(KeyValuePair<ChunkResolution, T>[] array, int arrayIndex)
-    {
-        foreach (var item in this)
-        {
-            array[arrayIndex++] = item;
-        }
-    }
-
-    bool ICollection<KeyValuePair<ChunkResolution, T>>.Remove(KeyValuePair<ChunkResolution, T> item) =>
-        ((ICollection<KeyValuePair<ChunkResolution, T>>)this).Contains(item) &&
-        Remove(item.Key);
 
     private void RebuildCache()
     {
