@@ -514,7 +514,6 @@ internal static class ClipboardController
     public static async Task<bool> TryPasteFromClipboard(DocumentViewModel document, DocumentManagerViewModel manager,
         bool pasteAsNew = false)
     {
-        Debug.WriteLine("PasteFromClipboard");
         var data = await TryGetImportObjects();
         if (data == null)
             return false;
@@ -751,16 +750,12 @@ internal static class ClipboardController
 
     public static async Task<bool> IsImageInClipboard()
     {
-        Debug.WriteLine("Is ImageInClipboard: ");
         var formats = await Clipboard.GetFormatsAsync();
-        Debug.WriteLine("Formats: " + string.Join(',', formats));
         if (formats == null || formats.Count == 0)
             return false;
 
         bool isImage = IsImageFormat(formats);
         
-        Debug.WriteLine("IsImage: " + isImage);
-
         if (!isImage)
         {
             string path = await TryFindImageInFiles(formats);
