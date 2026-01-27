@@ -19,6 +19,8 @@ public class PixiAuthIdentityProvider : IIdentityProvider
     public bool IsLoggedIn => User?.IsLoggedIn ?? false;
     public Uri? EditProfileUrl { get; } = new Uri("https://gravatar.com/connect");
 
+    public int ApiVersion { get; }
+
     public event Action<string, object>? OnError;
     public event Action<List<ProductData>>? OwnedProductsUpdated;
     public event Action<string>? UsernameUpdated;
@@ -29,11 +31,12 @@ public class PixiAuthIdentityProvider : IIdentityProvider
 
     IUser IIdentityProvider.User => User;
 
-    public PixiAuthIdentityProvider(string pixiEditorApiUrl, string? apiKey)
+    public PixiAuthIdentityProvider(string pixiEditorApiUrl, string? apiKey, int apiVersion)
     {
         try
         {
             PixiAuthClient = new PixiAuthClient(pixiEditorApiUrl, apiKey);
+            ApiVersion = apiVersion;
         }
         catch (UriFormatException e)
         {
@@ -239,7 +242,7 @@ public class PixiAuthIdentityProvider : IIdentityProvider
 
             User.Username = await TryFetchUserName(User.EmailHash);
             UsernameUpdated?.Invoke(User.Username);
-            var products = await PixiAuthClient.GetOwnedProducts(User.SessionToken);
+            var products = await PixiAuthClient.GetOwnedProducts(User.SessionToken, ApiVersion);
             if (products != null)
             {
                 User.OwnedProducts = products.Where(x => x is { IsDlc: true, Target: "PixiEditor" })
@@ -280,7 +283,7 @@ public class PixiAuthIdentityProvider : IIdentityProvider
             {
                 User.SessionToken = token;
                 User.SessionExpirationDate = expirationDate;
-                var products = await PixiAuthClient.GetOwnedProducts(User.SessionToken);
+                var products = await PixiAuthClient.GetOwnedProducts(User.SessionToken, ApiVersion);
                 if (products != null)
                 {
                     User.OwnedProducts = products.Where(x => x is { IsDlc: true, Target: "PixiEditor" })

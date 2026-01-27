@@ -187,11 +187,11 @@ internal class ClassicDesktopEntry
         return new PixiEditor.Platform.Steam.SteamPlatform();
 #elif MSIX || MSIX_DEBUG
         return new PixiEditor.Platform.MSStore.MicrosoftStorePlatform(Paths.LocalExtensionPackagesPath, GetApiUrl(),
-            GetApiKey());
+            GetApiKey(), ExtensionRuntimeInfo.ApiVersion);
 #else
         return new PixiEditor.Platform.Standalone.StandalonePlatform(
             [Paths.LocalExtensionPackagesPath, Paths.InstallDirExtensionPackagesPath], GetApiUrl(),
-            GetApiKey()); // The first in the extensionsPath array should be local, because it's the default where extensions are installed. Otherwise, OS access rights may cause issues.
+            GetApiKey(), ExtensionRuntimeInfo.ApiVersion); // The first in the extensionsPath array should be local, because it's the default where extensions are installed. Otherwise, OS access rights may cause issues.
 #endif
     }
 

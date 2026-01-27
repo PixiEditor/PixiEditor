@@ -248,9 +248,9 @@ public class PixiAuthClient
         return false;
     }
 
-    public async Task<List<Product>> GetOwnedProducts(string token)
+    public async Task<List<Product>> GetOwnedProducts(string token, int apiVersion)
     {
-        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, "v2/content/getOwnedProducts");
+        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"v2/content/getOwnedProducts?pixiEditorApiVersion={apiVersion}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         var response = await httpClient.SendAsync(request);
