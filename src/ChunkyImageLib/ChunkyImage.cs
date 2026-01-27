@@ -308,8 +308,8 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
                     tempChunk.Surface.DrawingSurface.Canvas.DrawSurface(latestChunk.Surface.DrawingSurface, 0, 0,
                         blendModePaint);
                     if (lockTransparency)
-                        OperationHelper.ClampAlpha(tempChunk.Surface.DrawingSurface,
-                            committedChunk.Surface.DrawingSurface);
+                        OperationHelper.ClampAlpha(tempChunk.Surface,
+                            committedChunk.Surface);
                     chunk = tempChunk;
                     isTempChunk = true;
                 }
@@ -558,7 +558,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
             tempChunk.Surface.DrawingSurface.Canvas.DrawSurface(latestChunk.AsT2.Surface.DrawingSurface, 0, 0,
                 blendModePaint);
             if (lockTransparency)
-                OperationHelper.ClampAlpha(tempChunk.Surface.DrawingSurface, committedChunk.Surface.DrawingSurface);
+                OperationHelper.ClampAlpha(tempChunk.Surface, committedChunk.Surface);
             tempChunk.DrawChunkOn(surface, pos, paint, samplingOptions);
 
             return true;
@@ -618,7 +618,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
             tempChunk.Surface.DrawingSurface.Canvas.DrawSurface(latestChunk.AsT2.Surface.DrawingSurface, 0, 0,
                 blendModePaint);
             if (lockTransparency)
-                OperationHelper.ClampAlpha(tempChunk.Surface.DrawingSurface, committedChunk.Surface.DrawingSurface);
+                OperationHelper.ClampAlpha(tempChunk.Surface, committedChunk.Surface);
             tempChunk.DrawChunkOn(surface, pos, paint, sampling);
 
             return true;
@@ -1278,8 +1278,8 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
                             ReplacingPaint);
                         maybeCommitted.Surface.DrawingSurface.Canvas.DrawSurface(chunk.Surface.DrawingSurface, 0, 0,
                             blendModePaint);
-                        OperationHelper.ClampAlpha(maybeCommitted.Surface.DrawingSurface,
-                            tempChunk.Surface.DrawingSurface);
+                        OperationHelper.ClampAlpha(maybeCommitted.Surface,
+                            tempChunk.Surface);
                     }
                     else
                     {
@@ -1447,7 +1447,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
                 MaybeGetCommittedChunk(chunkPos, ChunkResolution.Full) is not null)
             {
                 var committed = GetCommittedChunk(chunkPos, resolution);
-                OperationHelper.ClampAlpha(targetChunk!.Surface.DrawingSurface, committed!.Surface.DrawingSurface);
+                OperationHelper.ClampAlpha(targetChunk!.Surface, committed!.Surface);
             }
 
             chunkData.QueueProgress = queuedOperations.Count;

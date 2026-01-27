@@ -113,7 +113,7 @@ public class RenderTests : FullPixiEditorTest
         Assert.True(AllPixelsAreColor(surface, expectedColor));
     }
 
-    private static bool PixelCompare(Surface image, Surface compareTo)
+    public static bool PixelCompare(Surface image, Surface compareTo)
     {
         if (image.Size != compareTo.Size)
         {

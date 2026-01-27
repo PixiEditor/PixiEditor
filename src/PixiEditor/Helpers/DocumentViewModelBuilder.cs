@@ -22,6 +22,7 @@ internal class DocumentViewModelBuilder
     public string SerializerVersion { get; set; }
     public int Width { get; set; }
     public int Height { get; set; }
+    public bool FitToContent { get; set; } = false;
 
     public List<PaletteColor> Swatches { get; set; } = new List<PaletteColor>();
     public List<PaletteColor> Palette { get; set; } = new List<PaletteColor>();
@@ -275,6 +276,11 @@ internal class DocumentViewModelBuilder
     {
         DocumentResources = documentResources;
         return this;
+    }
+
+    public void WithFitToContent()
+    {
+        FitToContent = true;
     }
 }
 

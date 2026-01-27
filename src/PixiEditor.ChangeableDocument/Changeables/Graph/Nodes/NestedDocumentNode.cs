@@ -26,6 +26,8 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
 
     public InputProperty<bool> BilinearSampling { get; }
 
+    public InputProperty<bool> ClipToDocumentBounds { get; }
+
     public OutputProperty<IReadOnlyNodeGraph> Graph { get; }
 
     public Matrix3X3 TransformationMatrix { get; set; } = Matrix3X3.Identity;
@@ -50,6 +52,7 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
         NestedDocument.ConnectionChanged += NestedDocumentOnConnectionChanged;
         BilinearSampling = CreateInput<bool>("BilinearSampling", "BILINEAR_SAMPLING", false);
         Graph = CreateOutput<IReadOnlyNodeGraph>("Graph", "GRAPH", null);
+        ClipToDocumentBounds = CreateInput<bool>("ClipToDocumentBounds", "CLIP_TO_BOUNDS", true);
         AllowHighDpiRendering = true;
 
         builtInOutputs = OutputProperties.Select(x => x.InternalPropertyName).ToArray();
@@ -293,6 +296,11 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
         }
 
         workingSurface.SetMatrix(workingSurface.TotalMatrix.Concat(TransformationMatrix));
+        if (ClipToDocumentBounds.Value)
+        {
+            var docSize = NestedDocument.Value.DocumentInstance.Size;
+            workingSurface.ClipRect(new RectD(VecI.Zero, docSize));
+        }
 
         ExecuteNested(ctx);
 
@@ -315,6 +323,11 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
 
         int saved = workingSurface.Save();
         workingSurface.SetMatrix(workingSurface.TotalMatrix.Concat(TransformationMatrix));
+        if (ClipToDocumentBounds.Value)
+        {
+            var docSize = NestedDocument.Value.DocumentInstance.Size;
+            workingSurface.ClipRect(new RectD(VecI.Zero, docSize));
+        }
         workingSurface.DrawSurface(intermediate.DrawingSurface, 0, 0, paint);
         workingSurface.RestoreToCount(saved);
     }
@@ -367,7 +380,7 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
         {
             clonedContext.VisibleDocumentRegion =
                 (RectI)new ShapeCorners((RectD)clonedContext.VisibleDocumentRegion.Value)
-                    .WithMatrix(TransformationMatrix.Invert()).AABBBounds;
+                    .WithMatrix(TransformationMatrix.Invert()).AABBBounds.RoundOutwards();
         }
 
         var outputNode = Instance?.NodeGraph.AllNodes.OfType<BrushOutputNode>().FirstOrDefault() ??

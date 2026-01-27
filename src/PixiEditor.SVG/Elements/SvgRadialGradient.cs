@@ -21,7 +21,7 @@ public class SvgRadialGradient() : SvgElement("radialGradient"), IElementContain
     public SvgProperty<SvgEnumUnit<SvgSpreadMethod>> SpreadMethod { get; } = new("spreadMethod");
     public SvgProperty<SvgEnumUnit<SvgRelativityUnit>> GradientUnits { get; } = new("gradientUnits");
 
-    public override void ParseData(XmlReader reader, SvgDefs defs)
+    public override void ParseAttributes(XmlReader reader, SvgDefs defs)
     {
         List<SvgProperty> properties = GetProperties().ToList();
 
@@ -45,9 +45,11 @@ public class SvgRadialGradient() : SvgElement("radialGradient"), IElementContain
 
     public Paintable GetPaintable()
     {
-        VecD center = new VecD(GetUnit(Cx)?.Value ?? 0.5, GetUnit(Cy)?.Value ?? 0.5);
+        double cx = AdjustForPercentages(GetUnit(Cx), 0.5);
+        double cy = AdjustForPercentages(GetUnit(Cy), 0.5);
+        double radius = AdjustForPercentages(GetUnit(R), 0.5);
+        VecD center = new VecD(cx, cy);
         //VecD focus = new VecD(Fx.Unit.Value.PixelsValue ?? 0, Fy.Unit.Value.PixelsValue ?? 0);
-        double radius = GetUnit(R)?.Value ?? 0.5;
 
         List<GradientStop> gradientStops = new();
         foreach (SvgElement child in Children)
@@ -73,4 +75,15 @@ public class SvgRadialGradient() : SvgElement("radialGradient"), IElementContain
 
         return radialGradientPaintable;
     }
-}
+
+
+    private double AdjustForPercentages(SvgNumericUnit? unit, double defaultValue)
+    {
+        if (unit == null)
+            return defaultValue;
+
+        if (unit.Value.PostFix == "%")
+            return unit.Value.Value / 100.0;
+
+        return unit.Value.Value;
+    }}

@@ -4,8 +4,9 @@ namespace PixiEditor.Helpers.Constants;
 
 public static class ClipboardDataFormats
 {
+    public static readonly DataFormat<byte[]> MacOsPngUti = DataFormat.CreateBytesPlatformFormat("public.png");
     public static readonly DataFormat<byte[]>[] PngFormats = [
-        DataFormat.CreateBytesPlatformFormat("PNG"), DataFormat.CreateBytesPlatformFormat("image/png"), DataFormat.CreateBytesPlatformFormat("public.png") ];
+        DataFormat.CreateBytesPlatformFormat("PNG"), DataFormat.CreateBytesPlatformFormat("image/png"), MacOsPngUti ];
     public static readonly DataFormat<byte[]> LayerIdList = DataFormat.CreateBytesApplicationFormat("PixiEditor.LayerIdList");
     public static readonly DataFormat<byte[]> PositionFormat = DataFormat.CreateBytesApplicationFormat("PixiEditor.Position");
     public static readonly DataFormat<byte[]> DocumentFormat = DataFormat.CreateBytesApplicationFormat("PixiEditor.Document");

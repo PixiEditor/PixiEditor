@@ -59,7 +59,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     public RecentlyOpenedCollection RecentlyOpened { get; init; }
     public IReadOnlyList<IDocumentBuilder> DocumentBuilders => documentBuilders;
 
-    private List<IDocumentBuilder> documentBuilders;
+    private static List<IDocumentBuilder> documentBuilders;
 
     public FileViewModel(ViewModelMain owner)
         : base(owner)
@@ -225,7 +225,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.File.OpenFileFromClipboard", "OPEN_FILE_FROM_CLIPBOARD",
-        "OPEN_FILE_FROM_CLIPBOARD_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.HasImageInClipboard",
+        "OPEN_FILE_FROM_CLIPBOARD_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.CanPaste",
         Icon = PixiPerfectIcons.PasteAsNewLayer,
         MenuItemPath = "FILE/OPEN_FILE_FROM_CLIPBOARD", MenuItemOrder = 3,
         AnalyticsTrack = true)]
@@ -396,7 +396,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     /// <param name="path">Path to import document from.</param>
     /// <param name="associatePath">Should file path be associated with document.</param>
     /// <returns>Imported DocumentViewModel or null if import failed.</returns>
-    public DocumentViewModel? ImportFromPath(string path, bool associatePath = true)
+    public static DocumentViewModel? ImportFromPath(string path, bool associatePath = true)
     {
         try
         {
@@ -435,7 +435,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         return lazyDoc;
     }
 
-    private bool IsCustomFormat(string path)
+    private static bool IsCustomFormat(string path)
     {
         string extension = Path.GetExtension(path);
         return documentBuilders.Any(x => x.Extensions.Contains(extension, StringComparer.OrdinalIgnoreCase));
@@ -475,7 +475,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         return null;
     }
 
-    private DocumentViewModel? ImportCustomFormat(string path, bool associatePath)
+    private static DocumentViewModel? ImportCustomFormat(string path, bool associatePath)
     {
         IDocumentBuilder builder = documentBuilders.First(x =>
             x.Extensions.Contains(Path.GetExtension(path), StringComparer.OrdinalIgnoreCase));
@@ -590,7 +590,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         return doc;
     }
 
-    private DocumentViewModel ImportRegularImage(string path, bool associatePath)
+    private static DocumentViewModel ImportRegularImage(string path, bool associatePath)
     {
         var image = Importer.ImportImage(path, VecI.NegativeOne);
 
