@@ -10,15 +10,22 @@ public class MultiResStore<T> : IDictionary<ChunkResolution, T>
     private const int ResolutionCount = 4;
     private readonly T[] items = new T[ResolutionCount];
     private ChunkResolution initializedFlags;
+    private ChunkResolution[] keys = [];
+    private T[] values = [];
 
     public static MultiResStore<T> WithFactory(Func<ChunkResolution, T> factory)
     {
         var store = new MultiResStore<T>();
+        
         for (var i = 0; i < ResolutionCount; i++)
         {
             var res = GetResolutionFromIndex(i);
-            store.Add(res, factory(res));
+            
+            store.items[i] = factory(res);
+            store.initializedFlags |= res;
         }
+        
+        store.RebuildCache();
         return store;
     }
 
@@ -32,6 +39,7 @@ public class MultiResStore<T> : IDictionary<ChunkResolution, T>
         {
             items[GetIndex(key)] = value;
             initializedFlags |= key;
+            RebuildCache();
         }
     }
 
@@ -39,8 +47,8 @@ public class MultiResStore<T> : IDictionary<ChunkResolution, T>
 
     public bool IsReadOnly => false;
 
-    public ICollection<ChunkResolution> Keys => this.Select(kvp => kvp.Key).ToArray();
-    public ICollection<T> Values => this.Select(kvp => kvp.Value).ToArray();
+    public ICollection<ChunkResolution> Keys => keys;
+    public ICollection<T> Values => values;
 
     public void Add(ChunkResolution key, T value)
     {
@@ -63,6 +71,7 @@ public class MultiResStore<T> : IDictionary<ChunkResolution, T>
 
         initializedFlags &= ~key;
         items[GetIndex(key)] = default!;
+        RebuildCache();
         return true;
     }
 
@@ -82,6 +91,7 @@ public class MultiResStore<T> : IDictionary<ChunkResolution, T>
     {
         Array.Clear(items, 0, items.Length);
         initializedFlags = 0;
+        RebuildCache();
     }
 
     public IEnumerator<KeyValuePair<ChunkResolution, T>> GetEnumerator()
@@ -115,6 +125,26 @@ public class MultiResStore<T> : IDictionary<ChunkResolution, T>
     bool ICollection<KeyValuePair<ChunkResolution, T>>.Remove(KeyValuePair<ChunkResolution, T> item) =>
         ((ICollection<KeyValuePair<ChunkResolution, T>>)this).Contains(item) &&
         Remove(item.Key);
+
+    private void RebuildCache()
+    {
+        var count = Count;
+        var newKeys = new ChunkResolution[count];
+        var newValues = new T[count];
+        var idx = 0;
+        for (var i = 0; i < ResolutionCount; i++)
+        {
+            var res = GetResolutionFromIndex(i);
+            if ((initializedFlags & res) != 0)
+            {
+                newKeys[idx] = res;
+                newValues[idx] = items[i];
+                idx++;
+            }
+        }
+        keys = newKeys;
+        values = newValues;
+    }
 
     private static int GetIndex(ChunkResolution resolution)
     {
