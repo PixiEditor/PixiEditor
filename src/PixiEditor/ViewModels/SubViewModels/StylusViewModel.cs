@@ -15,48 +15,12 @@ internal class StylusViewModel : SubViewModel<ViewModelMain>
 
     public bool ToolSetByStylus { get; set; }
 
-    /// <summary>
-    /// Gets or sets a value indicating whether touch gestures are enabled even when the MoveViewportTool and ZoomTool are not selected.
-    /// </summary>
-    public bool IsPenModeEnabled
-    {
-        get => isPenModeEnabled;
-        set
-        {
-            if (SetProperty(ref isPenModeEnabled, value))
-            {
-                PixiEditorSettings.Tools.IsPenModeEnabled.Value = value;
-                UpdateUseTouchGesture();
-            }
-        }
-    }
-
-    public bool UseTouchGestures
-    {
-        get => useTouchGestures;
-        set => SetProperty(ref useTouchGestures, value);
-    }
-
     private ToolViewModel PreviousTool { get; set; }
 
     public StylusViewModel(ViewModelMain owner)
         : base(owner)
     {
         isPenModeEnabled = PixiEditorSettings.Tools.IsPenModeEnabled.Value;
-        Owner.ToolsSubViewModel.AddPropertyChangedCallback(nameof(ToolsViewModel.ActiveTool), UpdateUseTouchGesture);
-
-        UpdateUseTouchGesture();
-    }
-
-    [Command.Basic("PixiEditor.Stylus.TogglePenMode", "TOGGLE_PEN_MODE", "TOGGLE_PEN_MODE", Icon = PixiPerfectIcons.Edit, AnalyticsTrack = true)]
-    public void TogglePenMode()
-    {
-        IsPenModeEnabled = !IsPenModeEnabled;
-    }
-
-    private void UpdateUseTouchGesture()
-    {
-        UseTouchGestures = Owner.ToolsSubViewModel.ActiveTool is MoveViewportToolViewModel or ZoomToolViewModel || IsPenModeEnabled;
     }
 
     //TODO: Fix stylus support
