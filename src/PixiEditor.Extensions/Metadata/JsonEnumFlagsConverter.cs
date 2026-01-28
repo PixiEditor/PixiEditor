@@ -7,7 +7,13 @@ public class JsonEnumFlagConverter : JsonConverter
 {
     public override object ReadJson(JsonReader reader,  Type objectType, Object existingValue, JsonSerializer serializer)
     {
-        var flags = JArray.Load(reader)
+        var jArrayLoad = JArray.Load(reader);
+        if (jArrayLoad == null || jArrayLoad.Count == 0)
+        {
+            return Enum.Parse(typeof(ExtensionPermissions), Enum.GetNames(objectType)[0]);
+        }
+        
+        var flags = jArrayLoad
             .Select(f => f.ToString())
             .Aggregate((f1, f2) => $"{f1}, {f2}");
 
