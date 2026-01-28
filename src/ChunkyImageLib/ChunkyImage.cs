@@ -107,17 +107,35 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
 
     private int operationCounter = 0;
 
-    private readonly MultiResStore<Dictionary<VecI, Chunk>> committedChunks;
-    private readonly MultiResStore<Dictionary<VecI, Chunk>> latestChunks;
-    private readonly MultiResStore<Dictionary<VecI, LatestChunkData>> latestChunksData;
+    private readonly Dictionary<ChunkResolution, Dictionary<VecI, Chunk>> committedChunks;
+    private readonly Dictionary<ChunkResolution, Dictionary<VecI, Chunk>> latestChunks;
+    private readonly Dictionary<ChunkResolution, Dictionary<VecI, LatestChunkData>> latestChunksData;
 
     public ChunkyImage(VecI size, ColorSpace colorSpace)
     {
         CommittedSize = size;
         LatestSize = size;
-        committedChunks = MultiResStore<Dictionary<VecI, Chunk>>.WithFactory(_ => new Dictionary<VecI, Chunk>());
-        latestChunks = MultiResStore<Dictionary<VecI, Chunk>>.WithFactory(_ => new Dictionary<VecI, Chunk>());
-        latestChunksData = MultiResStore<Dictionary<VecI, LatestChunkData>>.WithFactory(_ => new Dictionary<VecI, LatestChunkData>());
+        committedChunks = new()
+        {
+            [ChunkResolution.Full] = new(),
+            [ChunkResolution.Half] = new(),
+            [ChunkResolution.Quarter] = new(),
+            [ChunkResolution.Eighth] = new(),
+        };
+        latestChunks = new()
+        {
+            [ChunkResolution.Full] = new(),
+            [ChunkResolution.Half] = new(),
+            [ChunkResolution.Quarter] = new(),
+            [ChunkResolution.Eighth] = new(),
+        };
+        latestChunksData = new()
+        {
+            [ChunkResolution.Full] = new(),
+            [ChunkResolution.Half] = new(),
+            [ChunkResolution.Quarter] = new(),
+            [ChunkResolution.Eighth] = new(),
+        };
 
         ProcessingColorSpace = colorSpace;
     }
