@@ -141,6 +141,7 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
         ctx.RenderSurface = texture.DrawingSurface.Canvas;
         ctx.RenderOutputSize = finalSize;
         ctx.ChunkResolution = ChunkResolution.Full;
+        ctx.VisibleDocumentRegion = null;
 
         Background.Value.Paint(ctx, texture.DrawingSurface.Canvas);
         texture.DrawingSurface.Canvas.RestoreToCount(saved);
