@@ -115,30 +115,21 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
     {
         CommittedSize = size;
         LatestSize = size;
-        committedChunks = new()
-        {
-            [ChunkResolution.Full] = new(),
-            [ChunkResolution.Half] = new(),
-            [ChunkResolution.Quarter] = new(),
-            [ChunkResolution.Eighth] = new(),
-        };
-        latestChunks = new()
-        {
-            [ChunkResolution.Full] = new(),
-            [ChunkResolution.Half] = new(),
-            [ChunkResolution.Quarter] = new(),
-            [ChunkResolution.Eighth] = new(),
-        };
-        latestChunksData = new()
-        {
-            [ChunkResolution.Full] = new(),
-            [ChunkResolution.Half] = new(),
-            [ChunkResolution.Quarter] = new(),
-            [ChunkResolution.Eighth] = new(),
-        };
+        committedChunks = CreateChunkResolutionDictionary<Chunk>();
+        latestChunks = CreateChunkResolutionDictionary<Chunk>();
+        latestChunksData = CreateChunkResolutionDictionary<LatestChunkData>();
 
         ProcessingColorSpace = colorSpace;
     }
+
+    private static Dictionary<ChunkResolution, Dictionary<VecI, T>> CreateChunkResolutionDictionary<T>() =>
+        new()
+        {
+            [ChunkResolution.Full] = new Dictionary<VecI, T>(),
+            [ChunkResolution.Half] = new Dictionary<VecI, T>(),
+            [ChunkResolution.Quarter] = new Dictionary<VecI, T>(),
+            [ChunkResolution.Eighth] = new Dictionary<VecI, T>(),
+        };
 
     public ChunkyImage(Surface image, ColorSpace colorSpace) : this(image.Size, colorSpace)
     {
@@ -153,7 +144,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
         {
             ThrowIfDisposed();
             RectI? rect = null;
-            foreach (var (pos, _) in committedChunks[ChunkResolution.Full])
+            foreach (var pos in committedChunks[ChunkResolution.Full].Keys)
             {
                 RectI chunkBounds = new RectI(pos * FullChunkSize, new VecI(FullChunkSize));
                 rect ??= chunkBounds;
@@ -181,7 +172,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
         {
             ThrowIfDisposed();
             RectI? rect = null;
-            foreach (var (pos, _) in committedChunks[ChunkResolution.Full])
+            foreach (var pos in committedChunks[ChunkResolution.Full].Keys)
             {
                 RectI chunkBounds = new RectI(pos * FullChunkSize, new VecI(FullChunkSize));
                 rect ??= chunkBounds;
@@ -284,10 +275,10 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
             RectI? preciseBounds = null;
 
             var possibleChunks = new HashSet<VecI>();
-            foreach (var (pos, _) in committedChunks[ChunkResolution.Full])
+            foreach (var pos in committedChunks[ChunkResolution.Full].Keys)
                 possibleChunks.Add(pos);
 
-            foreach (var (pos, _) in latestChunks[ChunkResolution.Full])
+            foreach (var pos in latestChunks[ChunkResolution.Full].Keys)
                 possibleChunks.Add(pos);
 
             foreach (var chunkPos in possibleChunks)
@@ -714,10 +705,10 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
     }
 
     private Chunk? MaybeGetLatestChunk(VecI pos, ChunkResolution resolution)
-        => latestChunks[resolution].TryGetValue(pos, out Chunk? value) ? value : null;
+        => latestChunks[resolution].GetValueOrDefault(pos);
 
     private Chunk? MaybeGetCommittedChunk(VecI pos, ChunkResolution resolution)
-        => committedChunks[resolution].TryGetValue(pos, out Chunk? value) ? value : null;
+        => committedChunks[resolution].GetValueOrDefault(pos);
 
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public void AddRasterClip(ChunkyImage clippingMask)
@@ -1154,9 +1145,9 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
             clippingPath = null;
 
             //clear latest chunks
-            foreach (var (_, chunksOfRes) in latestChunks)
+            foreach (var chunksOfRes in latestChunks.Values)
             {
-                foreach (var (_, chunk) in chunksOfRes)
+                foreach (var chunk in chunksOfRes.Values)
                 {
                     chunk.Dispose();
                 }
@@ -1293,9 +1284,9 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
         }
 
         // delete committed low res chunks that weren't updated
-        foreach (var (pos, _) in latestChunks[ChunkResolution.Full])
+        foreach (var pos in latestChunks[ChunkResolution.Full].Keys)
         {
-            foreach (var (resolution, _) in latestChunks)
+            foreach (var resolution in latestChunks.Keys)
             {
                 if (resolution == ChunkResolution.Full)
                     continue;
@@ -1736,17 +1727,17 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
 
     private void DisposeAll()
     {
-        foreach (var (_, chunks) in committedChunks)
+        foreach (var chunks in committedChunks.Values)
         {
-            foreach (var (_, chunk) in chunks)
+            foreach (var chunk in chunks.Values)
             {
                 chunk.Dispose();
             }
         }
 
-        foreach (var (_, chunks) in latestChunks)
+        foreach (var chunks in latestChunks.Values)
         {
-            foreach (var (_, chunk) in chunks)
+            foreach (var chunk in chunks.Values)
             {
                 chunk.Dispose();
             }
