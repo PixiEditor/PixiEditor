@@ -115,30 +115,21 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
     {
         CommittedSize = size;
         LatestSize = size;
-        committedChunks = new()
-        {
-            [ChunkResolution.Full] = new(),
-            [ChunkResolution.Half] = new(),
-            [ChunkResolution.Quarter] = new(),
-            [ChunkResolution.Eighth] = new(),
-        };
-        latestChunks = new()
-        {
-            [ChunkResolution.Full] = new(),
-            [ChunkResolution.Half] = new(),
-            [ChunkResolution.Quarter] = new(),
-            [ChunkResolution.Eighth] = new(),
-        };
-        latestChunksData = new()
-        {
-            [ChunkResolution.Full] = new(),
-            [ChunkResolution.Half] = new(),
-            [ChunkResolution.Quarter] = new(),
-            [ChunkResolution.Eighth] = new(),
-        };
+        committedChunks = CreateChunkResolutionDictionary<Chunk>();
+        latestChunks = CreateChunkResolutionDictionary<Chunk>();
+        latestChunksData = CreateChunkResolutionDictionary<LatestChunkData>();
 
         ProcessingColorSpace = colorSpace;
     }
+
+    private static Dictionary<ChunkResolution, Dictionary<VecI, T>> CreateChunkResolutionDictionary<T>() =>
+        new()
+        {
+            [ChunkResolution.Full] = new Dictionary<VecI, T>(),
+            [ChunkResolution.Half] = new Dictionary<VecI, T>(),
+            [ChunkResolution.Quarter] = new Dictionary<VecI, T>(),
+            [ChunkResolution.Eighth] = new Dictionary<VecI, T>(),
+        };
 
     public ChunkyImage(Surface image, ColorSpace colorSpace) : this(image.Size, colorSpace)
     {
