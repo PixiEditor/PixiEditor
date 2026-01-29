@@ -120,12 +120,12 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
         {
             if (OutputProperties.Any(x =>
                     brushOutput.InputProperties.Any(prop =>
-                        $"{brushOutput.BrushName}_{prop.InternalPropertyName}" == x.InternalPropertyName)))
+                        $"{brushOutput.BrushName.Value}_{prop.InternalPropertyName}" == x.InternalPropertyName)))
                 continue;
 
             foreach (var output in brushOutput.InputProperties)
             {
-                AddOutputProperty(new OutputProperty(this, $"{brushOutput.BrushName}_{output.InternalPropertyName}",
+                AddOutputProperty(new OutputProperty(this, $"{brushOutput.BrushName.Value}_{output.InternalPropertyName}",
                     output.DisplayName,
                     output.Value, output.ValueType));
             }
@@ -155,7 +155,7 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
             bool shouldRemove = cachedExposeNodes.All(x => x.Name.Value != output.InternalPropertyName) &&
                                 brushOutputNodes.All(brushOutput => brushOutput.InputProperties
                                     .All(prop =>
-                                        $"{brushOutput.BrushName}_{prop.InternalPropertyName}" !=
+                                        $"{brushOutput.BrushName.Value}_{prop.InternalPropertyName}" !=
                                         output.InternalPropertyName));
 
             if (shouldRemove)
@@ -258,13 +258,13 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
                     var correspondingBrushNode = brushOutputNodes?
                         .FirstOrDefault(brushOutput => brushOutput.InputProperties
                             .Any(prop =>
-                                $"{brushOutput.BrushName}_{prop.InternalPropertyName}" == output.InternalPropertyName &&
+                                $"{brushOutput.BrushName.Value}_{prop.InternalPropertyName}" == output.InternalPropertyName &&
                                 prop.ValueType == output.ValueType));
                     if (correspondingBrushNode is not null)
                     {
                         var correspondingProp = correspondingBrushNode.InputProperties
                             .First(prop =>
-                                $"{correspondingBrushNode.BrushName}_{prop.InternalPropertyName}" ==
+                                $"{correspondingBrushNode.BrushName.Value}_{prop.InternalPropertyName}" ==
                                 output.InternalPropertyName &&
                                 prop.ValueType == output.ValueType);
                         output.Value = correspondingProp.Value;
