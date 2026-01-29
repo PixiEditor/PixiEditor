@@ -10,6 +10,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
+using PixiEditor.ChangeableDocument.Helpers;
 using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -120,7 +121,11 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
         {
             if (OutputProperties.Any(x =>
                     brushOutput.InputProperties.Any(prop =>
-                        $"{brushOutput.BrushName.Value}_{prop.InternalPropertyName}" == x.InternalPropertyName)))
+                        x.InternalPropertyName.EqualSeparatedStrings(
+                            '_',
+                            StringComparison.Ordinal,
+                            brushOutput.BrushName.Value,
+                            prop.InternalPropertyName))))
                 continue;
 
             foreach (var output in brushOutput.InputProperties)
@@ -155,8 +160,7 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
             bool shouldRemove = cachedExposeNodes.All(x => x.Name.Value != output.InternalPropertyName) &&
                                 brushOutputNodes.All(brushOutput => brushOutput.InputProperties
                                     .All(prop =>
-                                        $"{brushOutput.BrushName.Value}_{prop.InternalPropertyName}" !=
-                                        output.InternalPropertyName));
+                                        output.InternalPropertyName.EqualSeparatedStrings('_', StringComparison.Ordinal, brushOutput.BrushName.Value, prop.InternalPropertyName)));
 
             if (shouldRemove)
             {
@@ -258,14 +262,21 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
                     var correspondingBrushNode = brushOutputNodes?
                         .FirstOrDefault(brushOutput => brushOutput.InputProperties
                             .Any(prop =>
-                                $"{brushOutput.BrushName.Value}_{prop.InternalPropertyName}" == output.InternalPropertyName &&
+                                output.InternalPropertyName.EqualSeparatedStrings(
+                                    '_',
+                                    StringComparison.Ordinal,
+                                    brushOutput.BrushName.Value,
+                                    prop.InternalPropertyName) &&
                                 prop.ValueType == output.ValueType));
                     if (correspondingBrushNode is not null)
                     {
                         var correspondingProp = correspondingBrushNode.InputProperties
                             .First(prop =>
-                                $"{correspondingBrushNode.BrushName.Value}_{prop.InternalPropertyName}" ==
-                                output.InternalPropertyName &&
+                                output.InternalPropertyName.EqualSeparatedStrings(
+                                    '_',
+                                    StringComparison.Ordinal,
+                                    correspondingBrushNode.BrushName.Value,
+                                    prop.InternalPropertyName) &&
                                 prop.ValueType == output.ValueType);
                         output.Value = correspondingProp.Value;
                     }
