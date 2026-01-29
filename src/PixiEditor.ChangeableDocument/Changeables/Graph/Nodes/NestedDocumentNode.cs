@@ -313,21 +313,21 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
         if (NestedDocument.Value is null)
             return;
 
-        Texture? intermediate = null;
+        using Texture intermediate = Texture.ForProcessing(workingSurface, ColorSpace.CreateSrgb());
         var latestSize = new RectI(VecI.Zero, lastDocument.DocumentInstance.Size);
-        intermediate = RequestTexture(1336, latestSize.Size, ColorSpace.CreateSrgb());
+        intermediate.DrawingSurface.Canvas.SetMatrix(intermediate.DrawingSurface.Canvas.TotalMatrix.Concat(TransformationMatrix));
 
         ctx.RenderSurface = intermediate.DrawingSurface.Canvas;
         ctx.RenderOutputSize = latestSize.Size;
         ExecuteNested(ctx);
 
         int saved = workingSurface.Save();
-        workingSurface.SetMatrix(workingSurface.TotalMatrix.Concat(TransformationMatrix));
         if (ClipToDocumentBounds.Value)
         {
             var docSize = NestedDocument.Value.DocumentInstance.Size;
             workingSurface.ClipRect(new RectD(VecI.Zero, docSize));
         }
+        workingSurface.SetMatrix(Matrix3X3.Identity);
         workingSurface.DrawSurface(intermediate.DrawingSurface, 0, 0, paint);
         workingSurface.RestoreToCount(saved);
     }

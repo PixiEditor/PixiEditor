@@ -10,6 +10,7 @@
              xmlns:visuals="clr-namespace:PixiEditor.Views.Visuals"
              xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
              xmlns:controls1="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
+             xmlns:brushSystem="clr-namespace:PixiEditor.ViewModels.BrushSystem"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:ClassModifier="internal"
              x:Class="PixiEditor.Views.Input.BrushPicker">
@@ -191,11 +192,17 @@
                                         </Style>
 
                                         <Style Selector="ContentPresenter > Border.selected TextBlock.subtext">
-                                            <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}" />
+                                            <Setter Property="Foreground"
+                                                    Value="{DynamicResource ThemeForegroundBrush}" />
                                         </Style>
                                     </ItemsControl.Styles>
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <VirtualizingStackPanel />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.DataTemplates>
+                                        <DataTemplate DataType="brushSystem:BrushViewModel">
                                             <Border CornerRadius="4" IsHitTestVisible="True">
                                                 <input:BrushItem PointerPressed="SelectBrushElementPressed"
                                                                  Brush="{Binding .}" />
@@ -238,7 +245,7 @@
                                                 </Border.ContextMenu>
                                             </Border>
                                         </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
+                                    </ItemsControl.DataTemplates>
                                 </ItemsControl>
                                 <ItemsControl
                                     IsVisible="{Binding Path=$parent[input:BrushPicker].IsGridView}"

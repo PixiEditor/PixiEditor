@@ -55,6 +55,7 @@
             <Color x:Key="DoubleSocketColor">#eea55c</Color>
             <Color x:Key="ColorSocketColor">#8cf2dd</Color>
             <Color x:Key="PaintableSocketColor">#48b099</Color>
+            <Color x:Key="GradientPaintableSocketColor">#0dd773</Color>
             <Color x:Key="VecDSocketColor">#c984ca</Color>
             <Color x:Key="Vec3DSocketColor">#597513</Color>
             <Color x:Key="VecISocketColor">#c9b4ca</Color>
@@ -180,6 +181,7 @@
             <SolidColorBrush x:Key="Float1SocketBrush" Color="{StaticResource DoubleSocketColor}" />
             <SolidColorBrush x:Key="ColorSocketBrush" Color="{StaticResource ColorSocketColor}" />
             <SolidColorBrush x:Key="PaintableSocketBrush" Color="{StaticResource PaintableSocketColor}" />
+            <SolidColorBrush x:Key="GradientPaintableSocketBrush" Color="{StaticResource GradientPaintableSocketColor}" />
             <SolidColorBrush x:Key="Half4SocketBrush" Color="{StaticResource ColorSocketColor}" />
             <SolidColorBrush x:Key="VecDSocketBrush" Color="{StaticResource VecDSocketColor}" />
             <SolidColorBrush x:Key="Vec3DSocketBrush" Color="{StaticResource Vec3DSocketColor}" />
