@@ -50,8 +50,8 @@ internal class UpdatePropertyValue_Change : InterruptableUpdateableChange
         var node = target.NodeGraph.Nodes.First(x => x.Id == _nodeId);
         var property = node.GetInputProperty(_propertyName);
 
-        int inputsHash = CalculateInputsHash(node);
-        int outputsHash = CalculateOutputsHash(node);
+        int inputsHash = GraphUtils.CalculateInputsHash(node);
+        int outputsHash = GraphUtils.CalculateOutputsHash(node);
 
         string errors = string.Empty;
         if (!property.Validator.Validate(_value, out errors))
@@ -74,8 +74,8 @@ internal class UpdatePropertyValue_Change : InterruptableUpdateableChange
         List<IChangeInfo> changes = new();
         changes.Add(new PropertyValueUpdated_ChangeInfo(_nodeId, _propertyName, _value) { Errors = errors });
 
-        int newInputsHash = CalculateInputsHash(node);
-        int newOutputsHash = CalculateOutputsHash(node);
+        int newInputsHash = GraphUtils.CalculateInputsHash(node);
+        int newOutputsHash = GraphUtils.CalculateOutputsHash(node);
 
         if (inputsHash != newInputsHash)
         {
@@ -96,8 +96,8 @@ internal class UpdatePropertyValue_Change : InterruptableUpdateableChange
         var node = target.NodeGraph.Nodes.First(x => x.Id == _nodeId);
         var property = node.GetInputProperty(_propertyName);
 
-        int inputsHash = CalculateInputsHash(node);
-        int outputsHash = CalculateOutputsHash(node);
+        int inputsHash = GraphUtils.CalculateInputsHash(node);
+        int outputsHash = GraphUtils.CalculateOutputsHash(node);
 
         string errors = string.Empty;
         if (!property.Validator.Validate(_value, out errors))
@@ -124,8 +124,8 @@ internal class UpdatePropertyValue_Change : InterruptableUpdateableChange
         List<IChangeInfo> changes = new();
         changes.Add(new PropertyValueUpdated_ChangeInfo(_nodeId, _propertyName, _value) { Errors = errors });
 
-        int newInputsHash = CalculateInputsHash(node);
-        int newOutputsHash = CalculateOutputsHash(node);
+        int newInputsHash = GraphUtils.CalculateInputsHash(node);
+        int newOutputsHash = GraphUtils.CalculateOutputsHash(node);
 
         if (inputsHash != newInputsHash)
         {
@@ -145,8 +145,8 @@ internal class UpdatePropertyValue_Change : InterruptableUpdateableChange
         var node = target.NodeGraph.Nodes.First(x => x.Id == _nodeId);
         var property = node.GetInputProperty(_propertyName);
 
-        int inputsHash = CalculateInputsHash(node);
-        int outputsHash = CalculateOutputsHash(node);
+        int inputsHash = GraphUtils.CalculateInputsHash(node);
+        int outputsHash = GraphUtils.CalculateOutputsHash(node);
 
         SetValue(property, previousValue);
 
@@ -154,8 +154,8 @@ internal class UpdatePropertyValue_Change : InterruptableUpdateableChange
 
         changes.Add(new PropertyValueUpdated_ChangeInfo(_nodeId, _propertyName, previousValue));
 
-        int newInputsHash = CalculateInputsHash(node);
-        int newOutputsHash = CalculateOutputsHash(node);
+        int newInputsHash = GraphUtils.CalculateInputsHash(node);
+        int newOutputsHash = GraphUtils.CalculateOutputsHash(node);
 
         if (inputsHash != newInputsHash)
         {
@@ -198,30 +198,6 @@ internal class UpdatePropertyValue_Change : InterruptableUpdateableChange
         }
 
         return property.NonOverridenValue;
-    }
-
-    private static int CalculateInputsHash(Node node)
-    {
-        HashCode hash = new();
-        foreach (var input in node.InputProperties)
-        {
-            hash.Add(input.InternalPropertyName);
-            hash.Add(input.ValueType);
-        }
-
-        return hash.ToHashCode();
-    }
-
-    private static int CalculateOutputsHash(Node node)
-    {
-        HashCode hash = new();
-        foreach (var output in node.OutputProperties)
-        {
-            hash.Add(output.InternalPropertyName);
-            hash.Add(output.ValueType);
-        }
-
-        return hash.ToHashCode();
     }
 
     public override bool IsMergeableWith(Change other)

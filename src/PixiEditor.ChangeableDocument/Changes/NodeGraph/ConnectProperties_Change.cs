@@ -88,6 +88,8 @@ internal class ConnectProperties_Change : Change
         OutputProperty outputProp = outputNode.GetOutputProperty(OutputProperty);
 
         List<IChangeInfo> changes = new();
+        int inputsHash = GraphUtils.CalculateInputsHash(inputNode);
+        int outputsHash = GraphUtils.CalculateOutputsHash(inputNode);
 
         if (inputNode == outputNode && outputProp == null)
         {
@@ -109,6 +111,19 @@ internal class ConnectProperties_Change : Change
 
         ignoreInUndo = false;
 
+        int newInputsHash = GraphUtils.CalculateInputsHash(inputNode);
+        int newOutputsHash = GraphUtils.CalculateOutputsHash(inputNode);
+
+        if (inputsHash != newInputsHash)
+        {
+            changes.Add(NodeInputsChanged_ChangeInfo.FromNode(inputNode));
+        }
+
+        if (outputsHash != newOutputsHash)
+        {
+            changes.Add(NodeOutputsChanged_ChangeInfo.FromNode(inputNode));
+        }
+
         changes.Add(new ConnectProperty_ChangeInfo(outputProp.Node.Id, InputNodeId, outputProp.InternalPropertyName,
             InputProperty));
         
@@ -122,6 +137,9 @@ internal class ConnectProperties_Change : Change
 
         InputProperty inputProp = inputNode.GetInputProperty(InputProperty);
         OutputProperty outputProp = outputNode.GetOutputProperty(OutputProperty);
+
+        int inputsHash = GraphUtils.CalculateInputsHash(inputNode);
+        int outputsHash = GraphUtils.CalculateOutputsHash(inputNode);
 
         List<IChangeInfo> changes = new();
 
@@ -164,6 +182,19 @@ internal class ConnectProperties_Change : Change
                 changes.Add(new ConnectProperty_ChangeInfo(outputProp.Node.Id, originalInput.Node.Id,
                     outputProp.InternalPropertyName, originalInput.InternalPropertyName));
             }
+        }
+
+        int newInputsHash = GraphUtils.CalculateInputsHash(inputNode);
+        int newOutputsHash = GraphUtils.CalculateOutputsHash(inputNode);
+
+        if (inputsHash != newInputsHash)
+        {
+            changes.Add(NodeInputsChanged_ChangeInfo.FromNode(inputNode));
+        }
+
+        if (outputsHash != newOutputsHash)
+        {
+            changes.Add(NodeOutputsChanged_ChangeInfo.FromNode(inputNode));
         }
 
         return changes;

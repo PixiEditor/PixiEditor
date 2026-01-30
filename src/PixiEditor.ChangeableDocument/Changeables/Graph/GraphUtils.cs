@@ -1,4 +1,5 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph;
 
@@ -64,5 +65,29 @@ public static class GraphUtils
         }
 
         return new Queue<IReadOnlyNode>(finalQueue);
+    }
+
+    public static int CalculateInputsHash(Node node)
+    {
+        HashCode hash = new();
+        foreach (var input in node.InputProperties)
+        {
+            hash.Add(input.InternalPropertyName);
+            hash.Add(input.ValueType);
+        }
+
+        return hash.ToHashCode();
+    }
+
+    public static int CalculateOutputsHash(Node node)
+    {
+        HashCode hash = new();
+        foreach (var output in node.OutputProperties)
+        {
+            hash.Add(output.InternalPropertyName);
+            hash.Add(output.ValueType);
+        }
+
+        return hash.ToHashCode();
     }
 }

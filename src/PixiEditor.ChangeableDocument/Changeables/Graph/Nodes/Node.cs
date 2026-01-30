@@ -45,6 +45,8 @@ public abstract class Node : IReadOnlyNode, IDisposable
     protected virtual bool ExecuteOnlyOnCacheChange => false;
     protected virtual CacheTriggerFlags CacheTrigger => CacheTriggerFlags.Inputs;
 
+    private List<SyncedTypeInputProperty> syncedTypeInputProperties = new();
+
     private KeyFrameTime lastFrameTime;
 
     private VecI lastRenderSize = new VecI(0, 0);
@@ -360,6 +362,30 @@ public abstract class Node : IReadOnlyNode, IDisposable
         }
 
         keyFrames.Add(value);
+    }
+
+    protected SyncedTypeInputProperty CreateSyncedTypeInput(string internalName, string displayName,
+        SyncedTypeInputProperty? syncWith)
+    {
+        SyncedTypeInputProperty prop = new SyncedTypeInputProperty(this, internalName, displayName, syncWith);
+        syncedTypeInputProperties.Add(prop);
+        AddInputProperty(prop.InternalProperty);
+        if (syncWith != null)
+        {
+            prop.BeginListeningToConnectionChanges();
+            syncWith.Other = prop;
+            syncWith.BeginListeningToConnectionChanges();
+        }
+
+        prop.BeforeTypeChange += () =>
+        {
+            RemoveInputProperty(prop.InternalProperty);
+        };
+        prop.AfterTypeChange += () =>
+        {
+            AddInputProperty(prop.InternalProperty);
+        };
+        return prop;
     }
 
     protected RenderOutputProperty? CreateRenderOutput(string internalName, string displayName,
