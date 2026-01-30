@@ -1,8 +1,6 @@
 ﻿using System.Diagnostics;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
-using PixiEditor.Helpers;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.UI.Common.Localization;
 
@@ -11,15 +9,18 @@ namespace PixiEditor.Models.Preferences;
 [DebuggerDisplay("{Preferences.Count + LocalPreferences.Count} Preference(s)")]
 internal class PreferencesSettings : IPreferences
 {
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true
+    };
+
     public bool IsLoaded { get; private set; } = false;
 
     public string PathToRoamingUserPreferences { get; private set; } = GetPathToSettings(Environment.SpecialFolder.ApplicationData, "user_preferences.json");
-
     public string PathToLocalPreferences { get; private set; } = GetPathToSettings(Environment.SpecialFolder.LocalApplicationData, "editor_data.json");
 
-    public Dictionary<string, object> Preferences { get; set; } = new Dictionary<string, object>();
-
-    public Dictionary<string, object> LocalPreferences { get; set; } = new Dictionary<string, object>();
+    public Dictionary<string, object> Preferences { get; set; } = new();
+    public Dictionary<string, object> LocalPreferences { get; set; } = new();
 
     public void Init()
     {
@@ -32,25 +33,23 @@ internal class PreferencesSettings : IPreferences
         PathToRoamingUserPreferences = path;
         PathToLocalPreferences = localPath;
 
-        if (IsLoaded == false)
+        if (!IsLoaded)
         {
             Preferences = InitPath(path);
             LocalPreferences = InitPath(localPath);
-
             IsLoaded = true;
         }
     }
 
-    public void UpdatePreference<T>(string name, T value)
+    public void UpdatePreference<T>(string name, T value) => UpdateGeneric(Preferences, name, value);
+    public void UpdateLocalPreference<T>(string name, T value) => UpdateGeneric(LocalPreferences, name, value);
+
+    private void UpdateGeneric<T>(Dictionary<string, object> dict, string name, T value)
     {
         name = TrimPrefix(name);
+        if (!IsLoaded) Init();
 
-        if (IsLoaded == false)
-        {
-            Init();
-        }
-
-        Preferences[name] = value;
+        dict[name] = value;
 
         if (Callbacks.TryGetValue(name, out var callback))
         {
@@ -59,43 +58,17 @@ internal class PreferencesSettings : IPreferences
                 action.Invoke(name, value);
             }
         }
-
-        Save();
-    }
-
-    public void UpdateLocalPreference<T>(string name, T value)
-    {
-        name = TrimPrefix(name);
-
-        if (IsLoaded == false)
-        {
-            Init();
-        }
-
-        LocalPreferences[name] = value;
-
-        if (Callbacks.TryGetValue(name, out var callback))
-        {
-            foreach (var action in callback)
-            {
-                action.Invoke(name, value);
-            }
-        }
-
         Save();
     }
 
     public void Save()
     {
-        if (IsLoaded == false)
-        {
-            Init();
-        }
+        if (!IsLoaded) Init();
 
         try
         {
-            File.WriteAllText(PathToRoamingUserPreferences, JsonConvert.SerializeObject(Preferences));
-            File.WriteAllText(PathToLocalPreferences, JsonConvert.SerializeObject(LocalPreferences));
+            File.WriteAllText(PathToRoamingUserPreferences, JsonSerializer.Serialize(Preferences, JsonOptions));
+            File.WriteAllText(PathToLocalPreferences, JsonSerializer.Serialize(LocalPreferences, JsonOptions));
         }
         catch (Exception ex)
         {
@@ -105,185 +78,109 @@ internal class PreferencesSettings : IPreferences
         }
     }
 
-    public Dictionary<string, List<Action<string, object>>> Callbacks { get; set; } = new Dictionary<string, List<Action<string, object>>>();
+    public Dictionary<string, List<Action<string, object>>> Callbacks { get; set; } = new();
 
+    // ... (AddCallback / RemoveCallback methods remain largely the same, logic doesn't change)
     public void AddCallback(string name, Action<string, object> action)
     {
         name = TrimPrefix(name);
-
-        if (action == null)
-        {
-            throw new ArgumentNullException(nameof(action));
-        }
-
-        if (Callbacks.ContainsKey(name))
-        {
-            Callbacks[name].Add(action);
-            return;
-        }
-
-        Callbacks.Add(name, new List<Action<string, object>>() { action });
+        if (action == null) throw new ArgumentNullException(nameof(action));
+        if (!Callbacks.ContainsKey(name)) Callbacks[name] = new List<Action<string, object>>();
+        Callbacks[name].Add(action);
     }
 
     public void AddCallback<T>(string name, Action<string, T> action)
     {
-        name = TrimPrefix(name);
-
-        if (action == null)
-        {
-            throw new ArgumentNullException(nameof(action));
-        }
-
-        AddCallback(name, new Action<string, object>((n, o) => action(n, (T)o)));
+        if (action == null) throw new ArgumentNullException(nameof(action));
+        AddCallback(name, (n, o) => action(n, (T)o));
     }
 
     public void RemoveCallback(string name, Action<string, object> action)
     {
         name = TrimPrefix(name);
-
-        if (action == null)
-        {
-            throw new ArgumentNullException(nameof(action));
-        }
-
-        if (Callbacks.TryGetValue(name, out var callback))
-        {
-            callback.Remove(action);
-        }
+        if (Callbacks.TryGetValue(name, out var callback)) callback.Remove(action);
     }
 
     public void RemoveCallback<T>(string name, Action<string, T> action)
     {
-        name = TrimPrefix(name);
-
-        if (action == null)
-        {
-            throw new ArgumentNullException(nameof(action));
-        }
-
-        RemoveCallback(name, new Action<string, object>((n, o) => action(n, (T)o)));
+        RemoveCallback(name, (n, o) => action(n, (T)o));
     }
 
 #nullable enable
 
-    public T? GetPreference<T>(string name)
+    public T? GetPreference<T>(string name, T? fallbackValue = default)
     {
-        name = TrimPrefix(name);
-
-        return GetPreference(name, default(T));
+        if (!IsLoaded) Init();
+        return TryGetFromDict(Preferences, name, fallbackValue);
     }
 
-    public T? GetPreference<T>(string name, T? fallbackValue)
+    public T? GetLocalPreference<T>(string name, T? fallbackValue = default)
+    {
+        if (!IsLoaded) Init();
+        return TryGetFromDict(LocalPreferences, name, fallbackValue);
+    }
+
+    private T? TryGetFromDict<T>(Dictionary<string, object> dict, string name, T? fallbackValue)
     {
         name = TrimPrefix(name);
-
-        if (IsLoaded == false)
-        {
-            Init();
-        }
-
         try
         {
-            return GetValue(Preferences, name, fallbackValue);
+            return GetValue(dict, name, fallbackValue);
         }
-        catch (InvalidCastException)
+        catch (Exception) // Catching more broadly for serialization failures
         {
-            Preferences.Remove(name);
+            dict.Remove(name);
             Save();
-
-            return fallbackValue;
-        }
-    }
-
-    public T? GetLocalPreference<T>(string name)
-    {
-        name = TrimPrefix(name);
-
-        return GetLocalPreference(name, default(T));
-    }
-
-    public T? GetLocalPreference<T>(string name, T? fallbackValue)
-    {
-        name = TrimPrefix(name);
-        
-        if (IsLoaded == false)
-        {
-            Init();
-        }
-
-        try
-        {
-            return GetValue(LocalPreferences, name, fallbackValue);
-        }
-        catch (InvalidCastException)
-        {
-            LocalPreferences.Remove(name);
-            Save();
-
             return fallbackValue;
         }
     }
 
     private T? GetValue<T>(Dictionary<string, object> dict, string name, T? fallbackValue)
     {
-        name = TrimPrefix(name);
-        
-        if (!dict.ContainsKey(name)) return fallbackValue;
-        var preference = dict[name];
-        if (typeof(T) == preference.GetType()) return (T)preference;
+        if (!dict.TryGetValue(name, out var preference)) return fallbackValue;
 
-        if (typeof(T).IsEnum)
+        // If it's already the right type (happens for values set during current session)
+        if (preference is T correctlyTypedValue) return correctlyTypedValue;
+
+        // System.Text.Json deserializes 'object' values as JsonElement
+        if (preference is JsonElement element)
         {
-            return (T)Enum.Parse(typeof(T), preference.ToString());
-        }
-        
-        if (preference.GetType() == typeof(JArray))
-        {
-            return ((JArray)preference).ToObject<T>();
+            // This handles Enums, Arrays, Custom Classes, and Primitives
+            return element.Deserialize<T>(JsonOptions);
         }
 
-        return (T)Convert.ChangeType(dict[name], typeof(T));
+        // Fallback for types that might have been changed manually in the dictionary
+        return (T)Convert.ChangeType(preference, typeof(T));
     }
 
 #nullable disable
 
-    private static string GetPathToSettings(Environment.SpecialFolder folder, string fileName)
-    {
-        return Path.Join(
-            Environment.GetFolderPath(folder),
-            "PixiEditor",
-            fileName);
-    }
-
     private static Dictionary<string, object> InitPath(string path)
     {
         string dir = Path.GetDirectoryName(path);
-
-        if (!Directory.Exists(dir))
-        {
-            Directory.CreateDirectory(dir);
-        }
+        if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
 
         if (!File.Exists(path))
         {
-            File.WriteAllText(path, "{\n}");
+            File.WriteAllText(path, "{}");
+            return new Dictionary<string, object>();
         }
-        else
+
+        try
         {
-            string json = File.ReadAllText(path);
-            var dictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
-
-            // dictionary is null if the user deletes the content of the preference file.
-            if (dictionary != null)
-            {
-                return dictionary;
-            }
+            var json = File.ReadAllText(path);
+            return JsonSerializer.Deserialize<Dictionary<string, object>>(json, JsonOptions) 
+                   ?? new Dictionary<string, object>();
         }
-
-        return new Dictionary<string, object>();
+        catch
+        {
+            return new Dictionary<string, object>();
+        }
     }
 
-    private const string Prefix = "PixiEditor:";
+    private static string GetPathToSettings(Environment.SpecialFolder folder, string fileName) =>
+        Path.Combine(Environment.GetFolderPath(folder), "PixiEditor", fileName);
 
-    private string TrimPrefix(string value) => value.StartsWith("PixiEditor:") ? value[Prefix.Length..] : value;
+    private const string Prefix = "PixiEditor:";
+    private string TrimPrefix(string value) => value.StartsWith(Prefix) ? value[Prefix.Length..] : value;
 }

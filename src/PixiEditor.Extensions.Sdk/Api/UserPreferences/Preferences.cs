@@ -43,34 +43,12 @@ public class Preferences : IPreferences
     ///     Gets user preference by name.
     /// </summary>
     /// <param name="name">Name of the preference. You can use "ExtensionUniqueName:PreferenceName" or "PreferenceName" schema. To access PixiEditor's built-in preferences, use "PixiEditor:PreferenceName"</param>
-    /// <typeparam name="T">Type of the preference.</typeparam>
-    /// <returns>Preference value.</returns>
-    public T GetPreference<T>(string name)
-    {
-        return Interop.GetPreference<T>(name, default);
-    }
-
-    /// <summary>
-    ///     Gets user preference by name.
-    /// </summary>
-    /// <param name="name">Name of the preference. You can use "ExtensionUniqueName:PreferenceName" or "PreferenceName" schema. To access PixiEditor's built-in preferences, use "PixiEditor:PreferenceName"</param>
     /// <param name="fallbackValue">Value to return if preference doesn't exist.</param>
     /// <typeparam name="T">Type of the preference.</typeparam>
     /// <returns>Preference value.</returns>
     public T GetPreference<T>(string name, T fallbackValue)
     {
         return Interop.GetPreference(name, fallbackValue);
-    }
-
-    /// <summary>
-    ///     Gets local preference by name. Local preferences are editor data.
-    /// </summary>
-    /// <param name="name">Name of the preference. You can use "ExtensionUniqueName:PreferenceName" or "PreferenceName" schema. To access PixiEditor's built-in preferences, use "PixiEditor:PreferenceName"</param>
-    /// <typeparam name="T">Type of the preference.</typeparam>
-    /// <returns>Preference value.</returns>
-    public T GetLocalPreference<T>(string name)
-    {
-        return Interop.GetLocalPreference<T>(name, default);
     }
 
     /// <summary>
