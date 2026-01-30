@@ -19,6 +19,7 @@ using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Templates.Providers.Parsers;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.IO;
@@ -163,6 +164,15 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
         });
     }
 
+    [Command.Debug("PixiEditor.Debug.LoadLospecFromClipboard", "Paste Lospec URL",
+        "Load Lospec Palette from URL in clipboard")]
+    public async Task LoadLospecFromClipboard()
+    {
+        var url = await ClipboardController.GetTextFromClipboard();
+        
+        await Owner.ColorsSubViewModel.ImportLospecPalette(url);
+    }
+
     [Command.Debug("PixiEditor.Debug.DumpAllCommands", "DUMP_ALL_COMMANDS", "DUMP_ALL_COMMANDS_DESCRIPTIVE",
         AnalyticsTrack = true)]
     public async Task DumpAllCommands()
@@ -218,7 +228,7 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
                             Array.Empty<string>()));
                 }
 
-                await writer.WriteAsync(JsonSerializer.Serialize(keyDefinitions, new JsonSerializerOptions() { WriteIndented = true }));
+                await writer.WriteAsync(JsonSerializer.Serialize(keyDefinitions, JsonOptions.CasesInsensitiveIndented));
                 writer.Close();
                 string file = await File.ReadAllTextAsync(pickedFile.Path.LocalPath);
                 foreach (var command in commands)
