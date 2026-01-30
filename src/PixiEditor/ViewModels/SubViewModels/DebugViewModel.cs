@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -11,7 +12,6 @@ using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.Debug;
 using Drawie.Interop.Avalonia.Core;
 using DrawiEngine;
-using Newtonsoft.Json;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Commands.Attributes.Evaluators;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
@@ -218,7 +218,7 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
                             Array.Empty<string>()));
                 }
 
-                writer.Write(JsonConvert.SerializeObject(keyDefinitions, Formatting.Indented));
+                await writer.WriteAsync(JsonSerializer.Serialize(keyDefinitions, new JsonSerializerOptions() { WriteIndented = true }));
                 writer.Close();
                 string file = await File.ReadAllTextAsync(pickedFile.Path.LocalPath);
                 foreach (var command in commands)
@@ -254,7 +254,7 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
             if (pickedFile != null)
             {
                 string file = await File.ReadAllTextAsync(pickedFile.Path.LocalPath);
-                var keyDefinitions = JsonConvert.DeserializeObject<Dictionary<string, KeyDefinition>>(file);
+                var keyDefinitions = JsonSerializer.Deserialize<Dictionary<string, KeyDefinition>>(file);
                 int emptyKeys = file.Split("\"\":").Length - 1;
                 int unknownCommands = 0;
 
@@ -345,7 +345,7 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
             if (pickedFile != null)
             {
                 Owner.LocalizationProvider.LoadDebugKeys(
-                    JsonConvert.DeserializeObject<Dictionary<string, string>>(
+                    JsonSerializer.Deserialize<Dictionary<string, string>>(
                         await File.ReadAllTextAsync(pickedFile.Path.LocalPath)),
                     false);
             }
