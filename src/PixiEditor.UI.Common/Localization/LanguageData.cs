@@ -1,5 +1,5 @@
 ﻿using System.Globalization;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace PixiEditor.UI.Common.Localization;
 
@@ -23,7 +23,7 @@ public class LanguageData
     [JsonIgnore]
     public DateTimeOffset LastUpdated => LastUpdatedString == null ? DateTimeOffset.MinValue : DateTimeOffset.Parse(LastUpdatedString, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
     
-    [JsonProperty(nameof(LastUpdated))]
+    [JsonPropertyName("LastUpdated")]
     private string LastUpdatedString { get; set; }
 
     [JsonIgnore]

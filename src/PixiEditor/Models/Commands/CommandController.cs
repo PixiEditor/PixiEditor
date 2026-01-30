@@ -2,12 +2,12 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
 using PixiEditor.Exceptions;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
