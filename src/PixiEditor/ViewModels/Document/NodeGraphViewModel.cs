@@ -160,16 +160,17 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
 
     public void RemoveConnection(Guid nodeId, string property)
     {
-        var connection = Connections.FirstOrDefault(x =>
-            x.InputProperty.Node.Id == nodeId && x.InputProperty.PropertyName == property);
-        if (connection != null)
-        {
-            connection.InputProperty.ConnectedOutput = null;
-            connection.OutputProperty.ConnectedInputs.Remove(connection.InputProperty);
-            Connections.Remove(connection);
+        RemoveInput(nodeId, property);
 
-            UpdatesFramesPartOf(connection.InputNode);
-            UpdatesFramesPartOf(connection.OutputNode);
+        var outputConnection = Connections.FirstOrDefault(x =>
+            x.OutputProperty.Node.Id == nodeId && x.OutputProperty.PropertyName == property);
+        if (outputConnection != null)
+        {
+            var connectedInputs = outputConnection.OutputProperty.ConnectedInputs.ToList();
+            foreach (var input in connectedInputs)
+            {
+                RemoveInput(input.Node.Id, input.PropertyName);
+            }
         }
 
         var node = AllNodes.FirstOrDefault(x => x.Id == nodeId);
@@ -183,6 +184,21 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
         }
 
         StructureTree.Update(this);
+    }
+
+    private void RemoveInput(Guid nodeId, string property)
+    {
+        var inputConnection = Connections.FirstOrDefault(x =>
+            x.InputProperty.Node.Id == nodeId && x.InputProperty.PropertyName == property);
+        if (inputConnection != null)
+        {
+            inputConnection.InputProperty.ConnectedOutput = null;
+            inputConnection.OutputProperty.ConnectedInputs.Remove(inputConnection.InputProperty);
+            Connections.Remove(inputConnection);
+
+            UpdatesFramesPartOf(inputConnection.InputNode);
+            UpdatesFramesPartOf(inputConnection.OutputNode);
+        }
     }
 
     public void UpdatesFramesPartOf(INodeHandler node)

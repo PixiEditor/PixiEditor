@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using PixiEditor.ChangeableDocument.Changes.NodeGraph;
 
 namespace PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 
@@ -8,4 +9,5 @@ public record NodePropertyInfo(
     Type ValueType,
     bool IsInput,
     object? InputValue,
-    Guid NodeId);
+    Guid NodeId,
+    IReadOnlyList<string> ConnectedProperties);

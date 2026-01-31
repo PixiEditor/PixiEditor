@@ -45,8 +45,6 @@ public abstract class Node : IReadOnlyNode, IDisposable
     protected virtual bool ExecuteOnlyOnCacheChange => false;
     protected virtual CacheTriggerFlags CacheTrigger => CacheTriggerFlags.Inputs;
 
-    private List<SyncedTypeInputProperty> syncedTypeInputProperties = new();
-
     private KeyFrameTime lastFrameTime;
 
     private VecI lastRenderSize = new VecI(0, 0);
@@ -368,8 +366,8 @@ public abstract class Node : IReadOnlyNode, IDisposable
         SyncedTypeInputProperty? syncWith)
     {
         SyncedTypeInputProperty prop = new SyncedTypeInputProperty(this, internalName, displayName, syncWith);
-        syncedTypeInputProperties.Add(prop);
         AddInputProperty(prop.InternalProperty);
+        int originalIndex = inputs.IndexOf(prop.InternalProperty);
         if (syncWith != null)
         {
             prop.BeginListeningToConnectionChanges();
@@ -383,7 +381,25 @@ public abstract class Node : IReadOnlyNode, IDisposable
         };
         prop.AfterTypeChange += () =>
         {
-            AddInputProperty(prop.InternalProperty);
+            AddInputProperty(prop.InternalProperty, originalIndex);
+        };
+        return prop;
+    }
+
+    protected SyncedTypeOutputProperty CreateSyncedTypeOutput(string internalName, string displayName,
+        SyncedTypeInputProperty? syncWith)
+    {
+        SyncedTypeOutputProperty prop = new SyncedTypeOutputProperty(this, internalName, displayName, syncWith);
+        AddOutputProperty(prop.InternalProperty);
+
+        int originalIndex = outputs.IndexOf(prop.InternalProperty);
+        prop.BeforeTypeChange += () =>
+        {
+            RemoveOutputProperty(prop.InternalProperty);
+        };
+        prop.AfterTypeChange += () =>
+        {
+            AddOutputProperty(prop.InternalProperty, originalIndex);
         };
         return prop;
     }
@@ -470,6 +486,12 @@ public abstract class Node : IReadOnlyNode, IDisposable
         OutputsChanged?.Invoke();
     }
 
+    protected void AddOutputProperty(OutputProperty property, int atIndex)
+    {
+        outputs.Insert(atIndex, property);
+        OutputsChanged?.Invoke();
+    }
+
     protected void AddInputProperty(InputProperty property)
     {
         if (InputProperties.Any(x => x.InternalPropertyName == property.InternalPropertyName))
@@ -479,6 +501,17 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
         property.ConnectionChanged += InvokeConnectionsChanged;
         inputs.Add(property);
+    }
+
+    protected void AddInputProperty(InputProperty property, int atIndex)
+    {
+        if (InputProperties.Any(x => x.InternalPropertyName == property.InternalPropertyName))
+        {
+            throw new InvalidOperationException($"Input with name {property.InternalPropertyName} already exists.");
+        }
+
+        property.ConnectionChanged += InvokeConnectionsChanged;
+        inputs.Insert(atIndex, property);
     }
 
     public virtual void Dispose()

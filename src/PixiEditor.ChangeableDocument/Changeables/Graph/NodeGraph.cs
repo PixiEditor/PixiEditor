@@ -22,8 +22,6 @@ public class NodeGraph : IReadOnlyNodeGraph
 
     private Dictionary<Guid, Node> nodeLookup = new();
 
-    public event Action<NodeOutputsChanged_ChangeInfo>? NodeOutputsChanged;
-
     IReadOnlyCollection<IReadOnlyNode> IReadOnlyNodeGraph.AllNodes => Nodes;
     IReadOnlyNode IReadOnlyNodeGraph.OutputNode => OutputNode;
     IReadOnlyBlackboard IReadOnlyNodeGraph.Blackboard => Blackboard;
@@ -44,7 +42,6 @@ public class NodeGraph : IReadOnlyNodeGraph
 
         node.ConnectionsChanged += ResetCache;
         _nodes.Add(node);
-        node.OutputsChanged += () => NodeOutputsChanged?.Invoke(NodeOutputsChanged_ChangeInfo.FromNode(node));
         nodeLookup[node.Id] = node;
         ResetCache();
     }

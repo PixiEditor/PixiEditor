@@ -50,14 +50,7 @@ internal class DocumentUpdater
     {
         this.doc = doc;
         this.helper = helper;
-        helper.Tracker.Document.NodeGraph.NodeOutputsChanged += Node_OutputsChanged;
     }
-
-    private void Node_OutputsChanged(NodeOutputsChanged_ChangeInfo info)
-    {
-        ProcessOutputsChanged(info);
-    }
-
 
     /// <summary>
     /// Don't call this outside ActionAccumulator

@@ -57,7 +57,7 @@ internal class DeleteNode_Change : Change
         ignoreInUndo = false;
         var node = target.FindNode<Node>(NodeId);
 
-        List<IChangeInfo> changes = NodeOperations.DetachNode(target.NodeGraph, node);
+        List<IChangeInfo> changes = NodeOperations.DetachNode(node);
 
         target.NodeGraph.RemoveNode(node);
 

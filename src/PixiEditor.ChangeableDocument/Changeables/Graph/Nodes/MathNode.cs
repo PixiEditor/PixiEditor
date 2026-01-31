@@ -17,9 +17,6 @@ public class MathNode : Node
 
     public InputProperty<MathNodeMode> Mode { get; }
 
-    public SyncedTypeInputProperty TestSyncedItem1 { get; }
-    public SyncedTypeInputProperty TestSyncedItem2 { get; }
-
     public InputProperty<bool> Clamp { get; }
 
     public FuncInputProperty<Float1> X { get; }
@@ -36,8 +33,6 @@ public class MathNode : Node
         X = CreateFuncInput<Float1>(nameof(X), "X", 0d);
         Y = CreateFuncInput<Float1>(nameof(Y), "Y", 0d);
         Z = CreateFuncInput<Float1>(nameof(Z), "Z", 0d);
-        TestSyncedItem1 = CreateSyncedTypeInput("TestSyncedItem1", "TEST_SYNCED_ITEM_1", null);
-        TestSyncedItem2 = CreateSyncedTypeInput("TestSyncedItem2", "TEST_SYNCED_ITEM_2", TestSyncedItem1);
     }
 
     private Float1 Calculate(FuncContext context)

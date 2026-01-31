@@ -8,17 +8,16 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Utility;
 public class SwitchNode : Node
 {
     public InputProperty<bool> Condition { get; }
-    public InputProperty<object> InputTrue { get; }
-    public InputProperty<object> InputFalse { get; }
-
-    public OutputProperty<object> Output { get; }
+    public SyncedTypeInputProperty InputTrue { get; }
+    public SyncedTypeInputProperty InputFalse { get; }
+    public SyncedTypeOutputProperty Output { get; }
 
     public SwitchNode()
     {
         Condition = CreateInput<bool>("Condition", "CONDITION", false);
-        InputTrue = CreateInput<object>("InputTrue", "ON_TRUE", null);
-        InputFalse = CreateInput<object>("InputFalse", "ON_FALSE", null);
-        Output = CreateOutput<object>("Output", "RESULT", null);
+        InputTrue = CreateSyncedTypeInput("InputTrue", "ON_TRUE", null);
+        InputFalse = CreateSyncedTypeInput("InputFalse", "ON_FALSE", InputTrue);
+        Output = CreateSyncedTypeOutput("Output", "RESULT", InputTrue);
     }
 
     protected override void OnExecute(RenderContext context)

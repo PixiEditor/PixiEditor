@@ -7,6 +7,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Changes.Structure;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changes.NodeGraph;
 
 namespace PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 
@@ -21,11 +22,31 @@ public record CreateNode_ChangeInfo(
 {
 
     public static ImmutableArray<NodePropertyInfo> CreatePropertyInfos(IEnumerable<INodeProperty> properties,
-        bool isInput, Guid guid)
+        bool isInput, Guid node)
     {
         return properties.Select(p => new NodePropertyInfo(p.InternalPropertyName, p.DisplayName, p.ValueType, isInput,
-                GetNonOverridenValue(p), guid))
+                GetNonOverridenValue(p),
+                node,
+                GetConnectedProperties(p)))
             .ToImmutableArray();
+    }
+
+    private static IReadOnlyList<string> GetConnectedProperties(INodeProperty nodeProperty)
+    {
+        List<string> connectedProperties = new();
+        if (nodeProperty is IInputProperty inputProperty && inputProperty.Connection != null)
+        {
+            connectedProperties.Add(inputProperty.Connection.InternalPropertyName);
+        }
+        else if (nodeProperty is IOutputProperty outputProperty)
+        {
+            foreach (var connection in outputProperty.Connections)
+            {
+                connectedProperties.Add(connection.InternalPropertyName);
+            }
+        }
+
+        return connectedProperties;
     }
 
     public static CreateNode_ChangeInfo CreateFromNode(IReadOnlyNode node)

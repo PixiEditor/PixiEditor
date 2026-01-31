@@ -8,6 +8,7 @@ public class SyncedTypeInputProperty
     private InputProperty internalInputProperty;
     public InputProperty InternalProperty => internalInputProperty;
     public SyncedTypeInputProperty Other { get; set; }
+    public object Value => internalInputProperty.Value;
 
     public event Action ConnectionChanged;
     public event Action BeforeTypeChange;
@@ -23,6 +24,7 @@ public class SyncedTypeInputProperty
     internal void BeginListeningToConnectionChanges()
     {
         internalInputProperty.ConnectionChanged += UpdateType;
+        internalInputProperty.ConnectionChanged += InvokeConnectionChanged;
     }
 
     private void UpdateType()
@@ -46,6 +48,7 @@ public class SyncedTypeInputProperty
         {
             BeforeTypeChange?.Invoke();
             internalInputProperty.ConnectionChanged -= UpdateType;
+            internalInputProperty.ConnectionChanged -= InvokeConnectionChanged;
             var connection = internalInputProperty.Connection;
             internalInputProperty.Connection?.DisconnectFrom(internalInputProperty);
             internalInputProperty.Connection = null;
@@ -54,8 +57,14 @@ public class SyncedTypeInputProperty
                 internalInputProperty.NonOverridenValue, newType);
             connection?.ConnectTo(internalInputProperty);
             internalInputProperty.ConnectionChanged += UpdateType;
+            internalInputProperty.ConnectionChanged += InvokeConnectionChanged;
             AfterTypeChange();
             Other?.UpdateType();
         }
+    }
+
+    private void InvokeConnectionChanged()
+    {
+        ConnectionChanged?.Invoke();
     }
 }

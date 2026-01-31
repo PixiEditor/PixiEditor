@@ -57,7 +57,9 @@ internal class DisconnectProperty_Change : Change
             changes.Add(NodeInputsChanged_ChangeInfo.FromNode(node));
 
         if (outputsHash != newOutputsHash)
+        {
             changes.Add(NodeOutputsChanged_ChangeInfo.FromNode(node));
+        }
 
         return changes;
     }
