@@ -8,4 +8,5 @@ internal interface IMagicWandToolHandler : IToolHandler
     public SelectionMode ResultingSelectionMode { get; }
     public DocumentScope DocumentScope { get; }
     public float Tolerance { get; }
+    public FloodMode FloodMode { get; }
 }
