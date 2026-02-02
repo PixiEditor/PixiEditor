@@ -45,4 +45,9 @@ public class NullAdditionalContentProvider : IAdditionalContentProvider
     {
         return false;
     }
+    
+    public async Task<List<AvailableContent>> FetchAvailableExtensions()
+    {
+        return await Task.FromResult<List<AvailableContent>?>(null);
+    }
 }

@@ -313,6 +313,39 @@ public class PixiAuthClient
 
         throw new BadRequestException("DOWNLOAD_FAILED");
     }
+    
+    public async Task<List<AvailableExtension>> GetAvailableExtensions()
+    {
+        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"content/getAvailableExtensions");
+        
+        var response = await httpClient.SendAsync(request);
+
+        if (response.StatusCode >= HttpStatusCode.InternalServerError)
+        {
+            throw new InternalServerErrorException("INTERNAL_SERVER_ERROR");
+        }
+        if (response.StatusCode >= HttpStatusCode.BadRequest)
+        {
+            throw new BadRequestException(await response.Content.ReadAsStringAsync());
+        }
+
+        if (response.StatusCode == HttpStatusCode.OK)
+        {
+            string result = await response.Content.ReadAsStringAsync();
+            try
+            {
+                List<AvailableExtension>? availableExtensions = JsonSerializer.Deserialize<List<AvailableExtension>>(result);
+
+                return availableExtensions ?? new List<AvailableExtension>();
+            }
+            catch (JsonException)
+            {
+                throw new BadRequestException("PARSING_FAILED");
+            }
+        }
+
+        return [];
+    }
 
     private async Task<String> GetDownloadToken(string token, string productId)
     {

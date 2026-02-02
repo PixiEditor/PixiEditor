@@ -5,10 +5,13 @@ using PixiEditor.Extensions;
 using PixiEditor.Extensions.CommonApi.Windowing;
 using PixiEditor.Extensions.Runtime;
 using PixiEditor.Helpers.Extensions;
+using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.ExtensionServices;
 using PixiEditor.UI.Common.Localization;
+using PixiEditor.ViewModels.ExtensionManager;
 using PixiEditor.Views;
 using PixiEditor.Views.Auth;
+using PixiEditor.Views.Dialogs;
 using PixiEditor.Views.Windows;
 
 namespace PixiEditor.ViewModels.SubViewModels;
@@ -16,6 +19,7 @@ namespace PixiEditor.ViewModels.SubViewModels;
 internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
 {
     public ExtensionLoader ExtensionLoader { get; }
+    public ExtensionManagerViewModel ExtensionManager { get; set; }
 
     public ExtensionsViewModel(ViewModelMain owner, ExtensionLoader loader) : base(owner)
     {
@@ -36,6 +40,8 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
         {
             Owner.AttachedToWindow += OwnerOnAttachedToWindow;
         }
+        
+        ExtensionManager = new ExtensionManagerViewModel(Owner.UserViewModel.AdditionalContentProvider);
     }
 
     private void OwnerOnAttachedToWindow(MainWindow obj)
@@ -95,5 +101,14 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
     private void MainWindowLoaded(object? sender, RoutedEventArgs e)
     {
         ExtensionLoader.InvokeMainWindowLoaded();
+    }
+
+    [Command.Basic("PixiEditor.Extensions.OpenExtensionsWindow", "OPEN_EXTENSIONS_WINDOW", "OPEN_EXTENSIONS_WINDOW_DESCRIPTIVE", AnalyticsTrack = true, MenuItemPath = "VIEW/OPEN_EXTENSIONS_WINDOW")]
+    public void OpenExtensionsWindow()
+    {
+        ExtensionsPopup popup = new ExtensionsPopup();
+        popup.DataContext = ExtensionManager;
+        
+        popup.Show();
     }
 }

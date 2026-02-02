@@ -4,6 +4,7 @@ using PixiEditor.IdentityProvider;
 using PixiEditor.IdentityProvider.PixiAuth;
 using PixiEditor.PixiAuth;
 using PixiEditor.PixiAuth.Exceptions;
+using PixiEditor.PixiAuth.Models;
 
 namespace PixiEditor.Platform.Standalone;
 
@@ -119,5 +120,22 @@ public sealed class StandaloneAdditionalContentProvider : IAdditionalContentProv
     public void Error(string error)
     {
         OnError?.Invoke(error, null);
+    }
+    
+    public async Task<List<AvailableContent>> FetchAvailableExtensions()
+    {
+        List<AvailableExtension> availableExtensions =  await IdentityProvider.PixiAuthClient.GetAvailableExtensions();
+        
+        
+        return availableExtensions
+            .Select(x => new AvailableContent
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Description = x.Description,
+                Image = x.Image,
+                Tags = x.Tags
+            })
+            .ToList();
     }
 }

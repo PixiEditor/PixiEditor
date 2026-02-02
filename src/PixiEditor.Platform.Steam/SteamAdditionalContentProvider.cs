@@ -148,4 +148,9 @@ public sealed class SteamAdditionalContentProvider : IAdditionalContentProvider
 
         return SteamApps.BIsDlcInstalled(appId);
     }
+    
+    public async Task<List<AvailableContent>> FetchAvailableExtensions()
+    {
+        return new List<AvailableContent>();
+    }
 }

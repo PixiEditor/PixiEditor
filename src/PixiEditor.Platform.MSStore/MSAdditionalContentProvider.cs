@@ -75,6 +75,11 @@ public sealed class MSAdditionalContentProvider : IAdditionalContentProvider
 
         return IdentityProvider.User.OwnedProducts.Any(x => x.Id.Equals(product, StringComparison.OrdinalIgnoreCase));
     }
+    
+    public async Task<List<AvailableContent>> FetchAvailableExtensions()
+    {
+        return new List<AvailableContent>();
+    }
 
     public bool PlatformHasContent(string product)
     {
