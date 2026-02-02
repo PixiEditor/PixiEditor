@@ -33,7 +33,7 @@ public class FuncContext
 
     public ShaderBuilder Builder { get; set; }
 
-    private Dictionary<IFuncInputProperty, ShaderExpressionVariable> _cachedValues = new();
+    private Dictionary<IInputProperty, ShaderExpressionVariable> _cachedValues = new();
 
     public void ThrowOnMissingContext()
     {
@@ -272,7 +272,7 @@ public class FuncContext
         return val;
     }
 
-    private static bool IsFuncType<T>(FuncInputProperty<T> getFrom)
+    private static bool IsFuncType(InputProperty getFrom)
     {
         return getFrom.Connection.ValueType.IsAssignableTo(typeof(Delegate));
     }
@@ -385,6 +385,39 @@ public class FuncContext
         return val;
     }
 
+
+    public Bool GetValue(FuncInputProperty<Bool> getFrom)
+    {
+        if (HasContext)
+        {
+            if (getFrom.Connection == null || !IsFuncType(getFrom))
+            {
+                bool value = false;
+                if (getFrom?.Value != null)
+                {
+                    value = getFrom.Value(this)?.ConstantValue ?? false;
+                }
+
+                string uniformName = $"bool_{Builder.GetUniqueNameNumber()}";
+                Builder.AddUniform(uniformName, value ? 1 : 0);
+                return new Bool(uniformName) { OverrideExpression = new Expression($"({uniformName} != 0)") };
+            }
+
+            if (_cachedValues.TryGetValue(getFrom, out ShaderExpressionVariable cachedValue))
+            {
+                if (cachedValue is Bool boolVal)
+                {
+                    return boolVal;
+                }
+            }
+        }
+
+        var val = getFrom.Value(this);
+        _cachedValues[getFrom] = val;
+
+        return val;
+    }
+
     public Float3x3 NewFloat3x3(Expression m00, Expression m01, Expression m02,
         Expression m10, Expression m11, Expression m12,
         Expression m20, Expression m21, Expression m22)
@@ -414,5 +447,27 @@ public class FuncContext
         }
 
         return Builder.AssignNewFloat3x3(matrixExpression);
+    }
+
+    public Float1 ConditionalVariable(Bool value, Float1 onTrue, Float1 onFalse)
+    {
+        if (!HasContext)
+        {
+            bool condition = value.ConstantValue;
+            return condition ? onTrue : onFalse;
+        }
+
+        return Builder.ConditionalVariable(value, onTrue, onFalse);
+    }
+
+    public Half4 ConditionalVariable(Bool value, Half4 onTrue, Half4 onFalse)
+    {
+        if (!HasContext)
+        {
+            bool condition = value.ConstantValue;
+            return condition ? onTrue : onFalse;
+        }
+
+        return Builder.ConditionalVariable(value, onTrue, onFalse);
     }
 }

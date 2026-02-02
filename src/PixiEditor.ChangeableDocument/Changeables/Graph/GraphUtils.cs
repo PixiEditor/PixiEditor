@@ -121,7 +121,7 @@ public static class GraphUtils
         return isLoop;
     }
 
-    public static bool CheckTypeCompatibility(IInputProperty input, OutputProperty output)
+    public static bool CheckTypeCompatibility(IInputProperty input, IOutputProperty output)
     {
         if (input.ValueType != output.ValueType)
         {
@@ -192,12 +192,12 @@ public static class GraphUtils
         return false;
     }
 
-    private static bool IsExpressionType(OutputProperty output)
+    private static bool IsExpressionType(IOutputProperty output)
     {
         return output.ValueType.IsAssignableTo(typeof(Delegate));
     }
 
-    private static bool IsExpressionToConstant(OutputProperty output, out object o)
+    private static bool IsExpressionToConstant(IOutputProperty output, out object o)
     {
         if (output.Value is Delegate func && func.Method.ReturnType.IsAssignableTo(typeof(ShaderExpressionVariable)))
         {

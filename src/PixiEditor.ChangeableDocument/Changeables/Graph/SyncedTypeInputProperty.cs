@@ -1,4 +1,11 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+﻿using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Shaders;
+using Drawie.Backend.Core.Shaders.Generation;
+using Drawie.Backend.Core.Shaders.Generation.Expressions;
+using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph;
@@ -9,6 +16,9 @@ public class SyncedTypeInputProperty
     public InputProperty InternalProperty => internalInputProperty;
     public SyncedTypeInputProperty Other { get; set; }
     public object Value => internalInputProperty.Value;
+    public IReadOnlyDictionary<Type, Func<InputProperty>> Handlers => handlers;
+
+    private Dictionary<Type, Func<InputProperty>> handlers = new();
 
     public event Action ConnectionChanged;
     public event Action BeforeTypeChange;
@@ -29,6 +39,11 @@ public class SyncedTypeInputProperty
 
     private void UpdateType()
     {
+        UpdateTypeInternal(false);
+    }
+
+    private void UpdateTypeInternal(bool updatedFromSync)
+    {
         IOutputProperty? target = null;
         if (Other.InternalProperty.Connection != null && internalInputProperty.Connection == null)
         {
@@ -44,7 +59,8 @@ public class SyncedTypeInputProperty
         }
 
         Type newType = target?.ValueType ?? typeof(object);
-        if (internalInputProperty.ValueType != newType)
+        if (internalInputProperty.ValueType != newType && newType != null && handlers.Count > 0 &&
+            handlers.TryGetValue(newType, out Func<InputProperty> handler))
         {
             BeforeTypeChange?.Invoke();
             internalInputProperty.ConnectionChanged -= UpdateType;
@@ -52,16 +68,35 @@ public class SyncedTypeInputProperty
             var connection = internalInputProperty.Connection;
             internalInputProperty.Connection?.DisconnectFrom(internalInputProperty);
             internalInputProperty.Connection = null;
-            internalInputProperty = new InputProperty(internalInputProperty.Node,
-                internalInputProperty.InternalPropertyName, internalInputProperty.DisplayName,
-                internalInputProperty.NonOverridenValue, newType);
-            connection?.ConnectTo(internalInputProperty);
+
+            internalInputProperty = handler();
+
+            if (connection != null && GraphUtils.CheckTypeCompatibility(internalInputProperty, connection))
+            {
+                connection.ConnectTo(internalInputProperty);
+            }
+
             internalInputProperty.ConnectionChanged += UpdateType;
             internalInputProperty.ConnectionChanged += InvokeConnectionChanged;
             AfterTypeChange();
-            Other?.UpdateType();
+            if (!updatedFromSync)
+                Other?.UpdateTypeInternal(true);
         }
     }
+
+    public SyncedTypeInputProperty AddTypeHandler<T>(Func<InputProperty> handler)
+    {
+        handlers[typeof(T)] = handler;
+
+        if (Other != null && !Other.Handlers.ContainsKey(typeof(T)))
+        {
+            throw new InvalidOperationException(
+                $"The corresponding SyncedTypeOutputProperty does not have a handler for type {typeof(T)}");
+        }
+
+        return this;
+    }
+
 
     private void InvokeConnectionChanged()
     {
