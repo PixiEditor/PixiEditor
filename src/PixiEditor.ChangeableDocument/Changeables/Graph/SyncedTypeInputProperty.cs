@@ -19,16 +19,33 @@ public class SyncedTypeInputProperty
     public IReadOnlyDictionary<Type, Func<InputProperty>> Handlers => handlers;
 
     private Dictionary<Type, Func<InputProperty>> handlers = new();
+    private string internalPropertyName { get; }
 
     public event Action ConnectionChanged;
     public event Action BeforeTypeChange;
     public event Action AfterTypeChange;
 
+    private object? pendingValue = null;
+
     public SyncedTypeInputProperty(Node node, string internalPropertyName, string displayName,
         SyncedTypeInputProperty other)
     {
         Other = other;
+        this.internalPropertyName = internalPropertyName;
         internalInputProperty = new InputProperty(node, internalPropertyName, displayName, null, typeof(object));
+        internalInputProperty.NonOverridenValueChanged += NonOverridenChanged;
+    }
+
+    private void NonOverridenChanged(object obj)
+    {
+        if (internalInputProperty.ValueType != typeof(object))
+        {
+            internalInputProperty.NonOverridenValueChanged -= NonOverridenChanged;
+            return;
+        }
+
+        pendingValue = obj;
+        internalInputProperty.NonOverridenValueChanged -= NonOverridenChanged;
     }
 
     internal void BeginListeningToConnectionChanges()
@@ -39,6 +56,8 @@ public class SyncedTypeInputProperty
 
     private void UpdateType()
     {
+        // pending values should be before the first type update
+        internalInputProperty.NonOverridenValueChanged -= NonOverridenChanged;
         UpdateTypeInternal(false);
     }
 
@@ -70,6 +89,17 @@ public class SyncedTypeInputProperty
             internalInputProperty.Connection = null;
 
             internalInputProperty = handler();
+
+            if (pendingValue != null)
+            {
+                GraphUtils.SetNonOverwrittenValue(internalInputProperty, pendingValue);
+            }
+
+            if (internalInputProperty.InternalPropertyName != internalPropertyName)
+            {
+                throw new InvalidOperationException(
+                    $"The handler for type {newType} returned an OutputProperty with an invalid internal name ({internalInputProperty.InternalPropertyName} instead of {internalPropertyName})");
+            }
 
             if (connection != null && GraphUtils.CheckTypeCompatibility(internalInputProperty, connection))
             {

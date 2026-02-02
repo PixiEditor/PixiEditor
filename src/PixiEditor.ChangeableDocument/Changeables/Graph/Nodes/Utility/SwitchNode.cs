@@ -17,7 +17,7 @@ public class SwitchNode : Node
     // TODO: More func handlers
     // TODO: CPU
     // TODO: Connection validation
-    // TODO: Saving doesn't work
+    // TODO: Func Bool socket color
     public SwitchNode()
     {
         Condition = CreateFuncInput("Condition", "CONDITION", new Bool("") { ConstantValue = false });
@@ -47,12 +47,12 @@ public class SwitchNode : Node
 
     private OutputProperty HandleFloat1Output()
     {
-        return new FuncOutputProperty<Float1>(this, "RESULT", "RESULT", HandleConditionalFloat1);
+        return new FuncOutputProperty<Float1>(this, "Output", "RESULT", HandleConditionalFloat1);
     }
 
     private OutputProperty HandleHalf4Output()
     {
-        return new FuncOutputProperty<Half4>(this, "RESULT", "RESULT", HandleConditionalHalf4);
+        return new FuncOutputProperty<Half4>(this, "Output", "RESULT", HandleConditionalHalf4);
     }
 
     private Float1 HandleConditionalFloat1(FuncContext context)
@@ -80,7 +80,6 @@ public class SwitchNode : Node
             context.GetValue(InputTrue.InternalProperty as FuncInputProperty<Half4>),
             context.GetValue(InputFalse.InternalProperty as FuncInputProperty<Half4>));
     }
-
 
     public override Node CreateCopy()
     {

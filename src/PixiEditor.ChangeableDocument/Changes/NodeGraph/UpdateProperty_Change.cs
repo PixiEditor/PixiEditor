@@ -61,11 +61,11 @@ internal class UpdatePropertyValue_Change : InterruptableUpdateableChange
                 _value = property.Validator.GetClosestValidValue(_value);
             }
 
-            _value = SetValue(property, _value);
+            _value = GraphUtils.SetNonOverwrittenValue(property, _value);
         }
         else
         {
-            _value = SetValue(property, _value);
+            _value = GraphUtils.SetNonOverwrittenValue(property, _value);
         }
 
         if(property.Node is BlackboardVariableValueNode blackboardNode)
@@ -112,12 +112,12 @@ internal class UpdatePropertyValue_Change : InterruptableUpdateableChange
                 }
             }
 
-            _value = SetValue(property, _value);
+            _value = GraphUtils.SetNonOverwrittenValue(property, _value);
             ignoreInUndo = false;
         }
         else
         {
-            _value = SetValue(property, _value);
+            _value = GraphUtils.SetNonOverwrittenValue(property, _value);
             ignoreInUndo = false;
         }
 
@@ -148,7 +148,7 @@ internal class UpdatePropertyValue_Change : InterruptableUpdateableChange
         int inputsHash = GraphUtils.CalculateInputsHash(node);
         int outputsHash = GraphUtils.CalculateOutputsHash(node);
 
-        SetValue(property, previousValue);
+        GraphUtils.SetNonOverwrittenValue(property, previousValue);
 
         List<IChangeInfo> changes = new();
 
@@ -168,25 +168,6 @@ internal class UpdatePropertyValue_Change : InterruptableUpdateableChange
         }
 
         return changes;
-    }
-
-    private static object SetValue(InputProperty property, object? value)
-    {
-        if (property is IFuncInputProperty fieldInput)
-        {
-            fieldInput.SetFuncConstantValue(value);
-        }
-        else
-        {
-            if (value is int && property.ValueType.IsEnum)
-            {
-                value = Enum.ToObject(property.ValueType, value);
-            }
-
-            property.NonOverridenValue = value;
-        }
-
-        return value;
     }
 
 

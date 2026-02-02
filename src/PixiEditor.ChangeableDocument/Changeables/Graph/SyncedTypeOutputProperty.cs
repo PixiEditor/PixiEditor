@@ -20,12 +20,14 @@ public class SyncedTypeOutputProperty
     public event Action BeforeTypeChange;
     public event Action AfterTypeChange;
 
+    private string internalPropertyName { get; }
     private Dictionary<Type, Func<OutputProperty>> handlers = new();
 
     public SyncedTypeOutputProperty(Node node, string internalPropertyName, string displayName,
         SyncedTypeInputProperty other)
     {
         Other = other;
+        this.internalPropertyName = internalPropertyName;
         internalOutputProperty = new OutputProperty(node, internalPropertyName, displayName, null, typeof(object));
         Other.AfterTypeChange += UpdateType;
     }
@@ -48,6 +50,11 @@ public class SyncedTypeOutputProperty
             }
 
             internalOutputProperty = handler();
+            if(internalOutputProperty.InternalPropertyName != internalPropertyName)
+            {
+                throw new InvalidOperationException(
+                    $"The handler for type {newType} returned an OutputProperty with an invalid internal name ({internalOutputProperty.InternalPropertyName} instead of {internalPropertyName})");
+            }
 
             if (newType.IsAssignableTo(typeof(Delegate)) &&
                 handlers.TryGetValue(typeof(ShaderExpressionVariable), out var del))

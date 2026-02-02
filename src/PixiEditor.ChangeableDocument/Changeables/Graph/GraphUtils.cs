@@ -121,6 +121,25 @@ public static class GraphUtils
         return isLoop;
     }
 
+    public static object SetNonOverwrittenValue(InputProperty property, object? value)
+    {
+        if (property is IFuncInputProperty fieldInput)
+        {
+            fieldInput.SetFuncConstantValue(value);
+        }
+        else
+        {
+            if (value is int && property.ValueType.IsEnum)
+            {
+                value = Enum.ToObject(property.ValueType, value);
+            }
+
+            property.NonOverridenValue = value;
+        }
+
+        return value;
+    }
+
     public static bool CheckTypeCompatibility(IInputProperty input, IOutputProperty output)
     {
         if (input.ValueType != output.ValueType)
@@ -137,7 +156,7 @@ public static class GraphUtils
                 outputValue = result;
             }
 
-            if(outputValue == null && IsExpressionType(output))
+            if(outputValue == null && (output.ValueType == typeof(object) || IsExpressionType(output)))
             {
                 return true;
             }

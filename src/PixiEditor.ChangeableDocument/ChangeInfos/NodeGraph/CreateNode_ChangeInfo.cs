@@ -31,18 +31,18 @@ public record CreateNode_ChangeInfo(
             .ToImmutableArray();
     }
 
-    private static IReadOnlyList<string> GetConnectedProperties(INodeProperty nodeProperty)
+    private static IReadOnlyList<(Guid, string)> GetConnectedProperties(INodeProperty nodeProperty)
     {
-        List<string> connectedProperties = new();
+        List<(Guid, string)> connectedProperties = new();
         if (nodeProperty is IInputProperty inputProperty && inputProperty.Connection != null)
         {
-            connectedProperties.Add(inputProperty.Connection.InternalPropertyName);
+            connectedProperties.Add((inputProperty.Connection.Node.Id, inputProperty.Connection.InternalPropertyName));
         }
         else if (nodeProperty is IOutputProperty outputProperty)
         {
             foreach (var connection in outputProperty.Connections)
             {
-                connectedProperties.Add(connection.InternalPropertyName);
+                connectedProperties.Add((connection.Node.Id, connection.InternalPropertyName));
             }
         }
 

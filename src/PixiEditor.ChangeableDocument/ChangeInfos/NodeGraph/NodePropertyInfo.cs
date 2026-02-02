@@ -10,4 +10,4 @@ public record NodePropertyInfo(
     bool IsInput,
     object? InputValue,
     Guid NodeId,
-    IReadOnlyList<string> ConnectedProperties);
+    IReadOnlyList<(Guid NodeId, string PropertyName)> ConnectedProperties);
