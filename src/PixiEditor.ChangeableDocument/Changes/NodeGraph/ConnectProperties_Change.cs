@@ -58,7 +58,7 @@ internal class ConnectProperties_Change : Change
             return false;
         }
 
-        bool canConnect = GraphUtils.CheckTypeCompatibility(inputProp, outputProp);
+        bool canConnect = inputProp.CanConnect(outputProp);
 
         if (!canConnect)
         {
@@ -108,6 +108,12 @@ internal class ConnectProperties_Change : Change
         }
 
         inputProp = inputNode.GetInputProperty(InputProperty);
+        if (inputProp.Connection != null)
+        {
+            changes.Add(new ConnectProperty_ChangeInfo(null, inputProp.Connection.Node.Id, null, inputProp.Connection.InternalPropertyName));
+            inputProp.Connection.DisconnectFrom(inputProp);
+            inputProp = inputNode.GetInputProperty(InputProperty);
+        }
         outputProp.ConnectTo(inputProp);
 
         ignoreInUndo = false;

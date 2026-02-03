@@ -67,12 +67,13 @@ public class SyncedTypeOutputProperty
             foreach (var input in connections)
             {
                 if (GraphUtils.IsLoop(input, internalOutputProperty) ||
-                    !GraphUtils.CheckTypeCompatibility(input, internalOutputProperty))
+                    !input.CanConnect(internalOutputProperty))
                 {
                     continue;
                 }
 
-                internalOutputProperty.ConnectTo(input);
+                var newInput = input.Node.GetInputProperty(input.InternalPropertyName);
+                internalOutputProperty.ConnectTo(newInput);
             }
 
             AfterTypeChange();

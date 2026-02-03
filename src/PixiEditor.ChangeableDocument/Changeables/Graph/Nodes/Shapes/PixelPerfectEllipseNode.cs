@@ -41,9 +41,10 @@ public class PixelPerfectEllipseNode : ShapeNode<PathVectorData>
             cachedPath = EllipseHelper.ConstructEllipseOutline(new RectI(VecI.Zero, Size.Value));
         }
 
-        cachedPath.Offset((Center.Value - new VecD(cachedSize.X, cachedSize.Y)) - lastCenter);
+        var path = new VectorPath(cachedPath);
+        path.Offset((Center.Value - new VecD(Size.Value.X / 2.0, Size.Value.Y / 2.0)));
 
-        return new PathVectorData(cachedPath) { Stroke = StrokeColor.Value, FillPaintable = FillColor.Value, StrokeWidth = (float)StrokeWidth.Value };
+        return new PathVectorData(path) { Stroke = StrokeColor.Value, FillPaintable = FillColor.Value, StrokeWidth = (float)StrokeWidth.Value };
     }
 
     public override Node CreateCopy()

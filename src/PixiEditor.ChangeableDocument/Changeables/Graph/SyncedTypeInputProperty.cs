@@ -29,10 +29,7 @@ public class SyncedTypeInputProperty
 
     private object? pendingValue = null;
 
-    private static HashSet<Type> TypesToAlwaysUseForInherited = new()
-    {
-        typeof(ShapeVectorData)
-    };
+    private bool matchToBaseType = false;
 
     public SyncedTypeInputProperty(Node node, string internalPropertyName, string displayName,
         SyncedTypeInputProperty other)
@@ -87,14 +84,19 @@ public class SyncedTypeInputProperty
 
         Type newType = target?.ValueType ?? typeof(object);
 
-        if(newType.IsClass && target != null)
+        if(matchToBaseType && newType.IsClass && InternalProperty.Connection != null)
         {
-            foreach(var type in TypesToAlwaysUseForInherited)
+            if (newType != InternalProperty.Connection.ValueType)
             {
-                if(newType.IsAssignableTo(type) && (handlers.ContainsKey(type) || genericFallbackHandler != null))
+                Type currentType = newType;
+                while (currentType != null && !InternalProperty.Connection.ValueType.IsAssignableTo(currentType))
                 {
-                    newType = type;
-                    break;
+                    currentType = currentType.BaseType;
+                }
+
+                if (currentType != null)
+                {
+                    newType = currentType;
                 }
             }
         }
@@ -122,15 +124,19 @@ public class SyncedTypeInputProperty
                     $"The handler for type {newType} returned an OutputProperty with an invalid internal name ({internalInputProperty.InternalPropertyName} instead of {internalPropertyName})");
             }
 
-            if (connection != null && GraphUtils.CheckTypeCompatibility(internalInputProperty, connection))
+            if (connection != null)
             {
-                connection.ConnectTo(internalInputProperty);
+                connection = connection.Node.GetOutputProperty(connection.InternalPropertyName);
+                if (connection != null && internalInputProperty.CanConnect(connection))
+                {
+                    connection.ConnectTo(internalInputProperty);
+                }
             }
 
             internalInputProperty.ConnectionChanged += UpdateType;
             internalInputProperty.ConnectionChanged += InvokeConnectionChanged;
             AfterTypeChange();
-            if (!updatedFromSync)
+            if (!updatedFromSync || Other.InternalProperty.ValueType != internalInputProperty.ValueType)
                 Other?.UpdateTypeInternal(true);
         }
     }
@@ -154,19 +160,26 @@ public class SyncedTypeInputProperty
         ConnectionChanged?.Invoke();
     }
 
-    public SyncedTypeInputProperty? AllowGenericFallback()
+    public SyncedTypeInputProperty? AllowGenericFallback(bool allowUseCommonAncestorType)
     {
         genericFallbackHandler = delegate(Type type)
         {
             var defaultValue = type.IsValueType ? Activator.CreateInstance(type) : null;
-            return new InputProperty(
+            var prop = new InputProperty(
                 internalInputProperty.Node,
                 internalPropertyName,
                 internalInputProperty.DisplayName,
                 defaultValue,
                 type);
+            if (allowUseCommonAncestorType)
+            {
+                prop.AddCustomCanConnect(_ => true);
+            }
+
+            return prop;
         };
-        
+
+        matchToBaseType = allowUseCommonAncestorType;
         return this;
     }
 }

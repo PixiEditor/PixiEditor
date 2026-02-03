@@ -17,13 +17,12 @@ public class SwitchNode : Node
     public SyncedTypeOutputProperty Output { get; }
 
 
-    // TODO: CPU
     // TODO: Connection validation
     public SwitchNode()
     {
         Condition = CreateFuncInput("Condition", "CONDITION", new Bool("") { ConstantValue = false });
         InputTrue = CreateSyncedTypeInput("InputTrue", "ON_TRUE", null)
-            .AllowGenericFallback();
+            .AllowGenericFallback(true);
         AddTrueFuncInputHandlers(new Float1("") { ConstantValue = 1f });
         AddTrueFuncInputHandlers(new Half4("") { ConstantValue = Colors.Black });
         AddTrueFuncInputHandlers(new Bool("") { ConstantValue = true });
@@ -35,7 +34,7 @@ public class SwitchNode : Node
         AddTrueFuncInputHandlers(new Float3x3("") { ConstantValue = Matrix3X3.Identity });
 
         InputFalse = CreateSyncedTypeInput("InputFalse", "ON_FALSE", InputTrue)
-            .AllowGenericFallback();
+            .AllowGenericFallback(true);
         AddFalseFuncInputHandlers(new Float1("") { ConstantValue = 1f });
         AddFalseFuncInputHandlers(new Half4("") { ConstantValue = Colors.Black });
         AddFalseFuncInputHandlers(new Bool("") { ConstantValue = true });
