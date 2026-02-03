@@ -5,6 +5,8 @@
         xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
         xmlns:extensionManager="clr-namespace:PixiEditor.ViewModels.ExtensionManager"
         xmlns:platform="clr-namespace:PixiEditor.Platform;assembly=PixiEditor.Platform"
+        xmlns:identityProvider="clr-namespace:PixiEditor.IdentityProvider;assembly=PixiEditor.IdentityProvider"
+        xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="PixiEditor.Views.Dialogs.ExtensionsPopup"
         x:DataType="extensionManager:ExtensionManagerViewModel"
@@ -14,13 +16,38 @@
         <extensionManager:ExtensionManagerViewModel />
     </Design.DataContext>
     
-    <ItemsControl ItemsSource="{Binding AvailableExtensions}">
-        <ItemsControl.ItemTemplate>
-            <DataTemplate DataType="platform:AvailableContent">
-                <TextBox Text="{Binding Name}">
-                </TextBox>
-            </DataTemplate>
-        </ItemsControl.ItemTemplate>
-    </ItemsControl>
+    <TabControl>
+        <TabItem localization:Translator.Key="EXTENSIONS_WINDOW_TAB_AVAILABLE">
+            <ItemsControl ItemsSource="{Binding AvailableExtensions}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="platform:AvailableContent">
+                        <TextBox Text="{Binding Name}">
+                        </TextBox>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </TabItem>
+        <TabItem localization:Translator.Key="EXTENSIONS_WINDOW_TAB_OWNED">
+            <ItemsControl ItemsSource="{Binding OwnedExtensions}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="identityProvider:ProductData">
+                        <TextBox Text="{Binding DisplayName}">
+                        </TextBox>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </TabItem>
+        <TabItem localization:Translator.Key="EXTENSIONS_WINDOW_TAB_INSTALLED">
+            <ItemsControl ItemsSource="{Binding InstalledExtensions}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="identityProvider:ProductData">
+                        <TextBox Text="{Binding DisplayName}">
+                        </TextBox>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </TabItem>
+    </TabControl>
+
 
 </dialogs:PixiEditorPopup>

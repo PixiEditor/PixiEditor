@@ -41,7 +41,7 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
             Owner.AttachedToWindow += OwnerOnAttachedToWindow;
         }
         
-        ExtensionManager = new ExtensionManagerViewModel(Owner.UserViewModel.AdditionalContentProvider);
+        ExtensionManager = new ExtensionManagerViewModel(Owner.UserViewModel.AdditionalContentProvider, Owner.UserViewModel.IdentityProvider);
     }
 
     private void OwnerOnAttachedToWindow(MainWindow obj)
