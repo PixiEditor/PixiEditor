@@ -7,6 +7,7 @@ using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph;
 
@@ -19,6 +20,7 @@ public class SyncedTypeInputProperty
     public IReadOnlyDictionary<Type, Func<InputProperty>> Handlers => handlers;
 
     private Dictionary<Type, Func<InputProperty>> handlers = new();
+    private Func<Type, InputProperty>? genericFallbackHandler = null;
     private string internalPropertyName { get; }
 
     public event Action ConnectionChanged;
@@ -27,12 +29,18 @@ public class SyncedTypeInputProperty
 
     private object? pendingValue = null;
 
+    private static HashSet<Type> TypesToAlwaysUseForInherited = new()
+    {
+        typeof(ShapeVectorData)
+    };
+
     public SyncedTypeInputProperty(Node node, string internalPropertyName, string displayName,
         SyncedTypeInputProperty other)
     {
         Other = other;
         this.internalPropertyName = internalPropertyName;
-        internalInputProperty = new InputProperty(node, internalPropertyName, displayName, null, typeof(object));
+        handlers[typeof(object)] = () => new InputProperty(node, internalPropertyName, displayName, null, typeof(object));
+        internalInputProperty = handlers[typeof(object)]();
         internalInputProperty.NonOverridenValueChanged += NonOverridenChanged;
     }
 
@@ -78,8 +86,21 @@ public class SyncedTypeInputProperty
         }
 
         Type newType = target?.ValueType ?? typeof(object);
+
+        if(newType.IsClass && target != null)
+        {
+            foreach(var type in TypesToAlwaysUseForInherited)
+            {
+                if(newType.IsAssignableTo(type) && (handlers.ContainsKey(type) || genericFallbackHandler != null))
+                {
+                    newType = type;
+                    break;
+                }
+            }
+        }
+
         if (internalInputProperty.ValueType != newType && newType != null && handlers.Count > 0 &&
-            handlers.TryGetValue(newType, out Func<InputProperty> handler))
+            (handlers.TryGetValue(newType, out Func<InputProperty> handler) || genericFallbackHandler != null))
         {
             BeforeTypeChange?.Invoke();
             internalInputProperty.ConnectionChanged -= UpdateType;
@@ -88,7 +109,7 @@ public class SyncedTypeInputProperty
             internalInputProperty.Connection?.DisconnectFrom(internalInputProperty);
             internalInputProperty.Connection = null;
 
-            internalInputProperty = handler();
+            internalInputProperty = handler != null ? handler() : genericFallbackHandler(newType);
 
             if (pendingValue != null)
             {
@@ -131,5 +152,21 @@ public class SyncedTypeInputProperty
     private void InvokeConnectionChanged()
     {
         ConnectionChanged?.Invoke();
+    }
+
+    public SyncedTypeInputProperty? AllowGenericFallback()
+    {
+        genericFallbackHandler = delegate(Type type)
+        {
+            var defaultValue = type.IsValueType ? Activator.CreateInstance(type) : null;
+            return new InputProperty(
+                internalInputProperty.Node,
+                internalPropertyName,
+                internalInputProperty.DisplayName,
+                defaultValue,
+                type);
+        };
+        
+        return this;
     }
 }

@@ -22,13 +22,15 @@ public class SyncedTypeOutputProperty
 
     private string internalPropertyName { get; }
     private Dictionary<Type, Func<OutputProperty>> handlers = new();
+    private Func<Type, OutputProperty>? genericFallbackHandler = null;
 
     public SyncedTypeOutputProperty(Node node, string internalPropertyName, string displayName,
         SyncedTypeInputProperty other)
     {
         Other = other;
         this.internalPropertyName = internalPropertyName;
-        internalOutputProperty = new OutputProperty(node, internalPropertyName, displayName, null, typeof(object));
+        handlers[typeof(object)] = () => new OutputProperty(node, internalPropertyName, displayName, null, typeof(object));
+        internalOutputProperty = handlers[typeof(object)]();
         Other.AfterTypeChange += UpdateType;
     }
 
@@ -39,7 +41,7 @@ public class SyncedTypeOutputProperty
 
         Type newType = Other.InternalProperty?.ValueType ?? typeof(object);
         if (internalOutputProperty.ValueType != newType && newType != null && handlers.Count > 0 &&
-            handlers.TryGetValue(newType, out Func<OutputProperty> handler))
+            (handlers.TryGetValue(newType, out Func<OutputProperty> handler) || genericFallbackHandler != null))
         {
             BeforeTypeChange?.Invoke();
             var connections = new List<IInputProperty>(internalOutputProperty.Connections);
@@ -49,7 +51,7 @@ public class SyncedTypeOutputProperty
                 internalOutputProperty.DisconnectFrom(connectionNode);
             }
 
-            internalOutputProperty = handler();
+            internalOutputProperty = handler != null ? handler() : genericFallbackHandler(newType);
             if(internalOutputProperty.InternalPropertyName != internalPropertyName)
             {
                 throw new InvalidOperationException(
@@ -84,6 +86,21 @@ public class SyncedTypeOutputProperty
                 $"The corresponding SyncedTypeInputProperty does not have a handler for type {typeof(T)}");
 
         handlers[typeof(T)] = handleOutput;
+        return this;
+    }
+
+    public SyncedTypeOutputProperty? AllowGenericFallback()
+    {
+        genericFallbackHandler = type =>
+        {
+            var defaultValue = type.IsValueType ? Activator.CreateInstance(type) : null;
+            return new OutputProperty(
+                internalOutputProperty.Node,
+                internalPropertyName,
+                internalOutputProperty.DisplayName,
+                defaultValue,
+                type);
+        };
         return this;
     }
 }

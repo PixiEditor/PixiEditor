@@ -272,6 +272,33 @@ public class FuncContext
         return val;
     }
 
+    public Half3 GetValue(FuncInputProperty<Half3> getFrom)
+    {
+        if (HasContext)
+        {
+            if (getFrom.Connection == null || !IsFuncType(getFrom))
+            {
+                Half3 color = getFrom?.Value != null ? getFrom.Value(this) : new Half3("");
+                color.VariableName = $"color_{Builder.GetUniqueNameNumber()}";
+                Builder.AddUniform(color.VariableName, color?.ConstantValue ?? Vec3D.Zero);
+                return color;
+            }
+
+            if (_cachedValues.TryGetValue(getFrom, out ShaderExpressionVariable cachedValue))
+            {
+                if (cachedValue is Half3 half3)
+                {
+                    return half3;
+                }
+            }
+        }
+
+        var val = getFrom.Value(this);
+        _cachedValues[getFrom] = val;
+
+        return val;
+    }
+
     private static bool IsFuncType(InputProperty getFrom)
     {
         return getFrom.Connection.ValueType.IsAssignableTo(typeof(Delegate));
@@ -385,6 +412,32 @@ public class FuncContext
         return val;
     }
 
+    public Float3 GetValue(FuncInputProperty<Float3> getFrom)
+    {
+        if (HasContext)
+        {
+            if (getFrom.Connection == null || !IsFuncType(getFrom))
+            {
+                Float3 value = getFrom?.Value != null ? getFrom.Value(this) : new Float3("");
+                value.VariableName = $"float3_{Builder.GetUniqueNameNumber()}";
+                Builder.AddUniform(value.VariableName, value?.ConstantValue ?? Vec3D.Zero);
+                return value;
+            }
+
+            if (_cachedValues.TryGetValue(getFrom, out ShaderExpressionVariable cachedValue))
+            {
+                if (cachedValue is Float3 float3)
+                {
+                    return float3;
+                }
+            }
+        }
+
+        var val = getFrom.Value(this);
+        _cachedValues[getFrom] = val;
+
+        return val;
+    }
 
     public Bool GetValue(FuncInputProperty<Bool> getFrom)
     {
@@ -461,6 +514,83 @@ public class FuncContext
     }
 
     public Half4 ConditionalVariable(Bool value, Half4 onTrue, Half4 onFalse)
+    {
+        if (!HasContext)
+        {
+            bool condition = value.ConstantValue;
+            return condition ? onTrue : onFalse;
+        }
+
+        return Builder.ConditionalVariable(value, onTrue, onFalse);
+    }
+
+    public Int1 ConditionalVariable(Bool value, Int1 onTrue, Int1 onFalse)
+    {
+        if (!HasContext)
+        {
+            bool condition = value.ConstantValue;
+            return condition ? onTrue : onFalse;
+        }
+
+        return Builder.ConditionalVariable(value, onTrue, onFalse);
+    }
+
+    public Int2 ConditionalVariable(Bool value, Int2 onTrue, Int2 onFalse)
+    {
+        if (!HasContext)
+        {
+            bool condition = value.ConstantValue;
+            return condition ? onTrue : onFalse;
+        }
+
+        return Builder.ConditionalVariable(value, onTrue, onFalse);
+    }
+
+    public Float2 ConditionalVariable(Bool value, Float2 onTrue, Float2 onFalse)
+    {
+        if (!HasContext)
+        {
+            bool condition = value.ConstantValue;
+            return condition ? onTrue : onFalse;
+        }
+
+        return Builder.ConditionalVariable(value, onTrue, onFalse);
+    }
+
+    public Half3 ConditionalVariable(Bool value, Half3 onTrue, Half3 onFalse)
+    {
+        if (!HasContext)
+        {
+            bool condition = value.ConstantValue;
+            return condition ? onTrue : onFalse;
+        }
+
+        return Builder.ConditionalVariable(value, onTrue, onFalse);
+    }
+
+    public Float3x3 ConditionalVariable(Bool value, Float3x3 onTrue, Float3x3 onFalse)
+    {
+        if (!HasContext)
+        {
+            bool condition = value.ConstantValue;
+            return condition ? onTrue : onFalse;
+        }
+
+        return Builder.ConditionalVariable(value, onTrue, onFalse);
+    }
+
+    public Float3 ConditionalVariable(Bool value, Float3 onTrue, Float3 onFalse)
+    {
+        if (!HasContext)
+        {
+            bool condition = value.ConstantValue;
+            return condition ? onTrue : onFalse;
+        }
+
+        return Builder.ConditionalVariable(value, onTrue, onFalse);
+    }
+
+    public Bool ConditionalVariable(Bool value, Bool onTrue, Bool onFalse)
     {
         if (!HasContext)
         {

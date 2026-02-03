@@ -64,6 +64,7 @@
             <Color x:Key="EllipseDataSocketColor">#a473a5</Color>
             <Color x:Key="LineDataSocketColor">#816382</Color>
             <Color x:Key="RectangleDataSocketColor">#825e8a</Color>
+            <Color x:Key="PathDataSocketColor">#7a325e</Color>
             <Color x:Key="PointsDataSocketColor">#e1d0e1</Color>
             <Color x:Key="TextDataSocketColor">#f2f2f2</Color>
             <Color x:Key="Matrix3X3SocketColor">#ffea4f</Color>
@@ -179,6 +180,7 @@
             <SolidColorBrush x:Key="SingleSocketBrush" Color="{StaticResource FloatSocketColor}" />
             <SolidColorBrush x:Key="DoubleSocketBrush" Color="{StaticResource DoubleSocketColor}" />
             <SolidColorBrush x:Key="Float1SocketBrush" Color="{StaticResource DoubleSocketColor}" />
+            <SolidColorBrush x:Key="BoolSocketBrush" Color="{StaticResource BoolSocketColor}" />
             <SolidColorBrush x:Key="ColorSocketBrush" Color="{StaticResource ColorSocketColor}" />
             <SolidColorBrush x:Key="PaintableSocketBrush" Color="{StaticResource PaintableSocketColor}" />
             <SolidColorBrush x:Key="GradientPaintableSocketBrush" Color="{StaticResource GradientPaintableSocketColor}" />
@@ -209,6 +211,7 @@
             <SolidColorBrush x:Key="EllipseVectorDataSocketBrush" Color="{StaticResource EllipseDataSocketColor}" />
             <SolidColorBrush x:Key="LineVectorDataSocketBrush" Color="{StaticResource LineDataSocketColor}" />
             <SolidColorBrush x:Key="RectangleVectorDataSocketBrush" Color="{StaticResource RectangleDataSocketColor}" />
+            <SolidColorBrush x:Key="PathVectorDataSocketBrush" Color="{StaticResource PathDataSocketColor}" />
             <SolidColorBrush x:Key="PointsVectorDataSocketBrush" Color="{StaticResource PointsDataSocketColor}" />
             <SolidColorBrush x:Key="TextVectorDataSocketBrush" Color="{StaticResource TextDataSocketColor}" />
 
