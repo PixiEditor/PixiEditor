@@ -52,6 +52,8 @@ public abstract class Node : IReadOnlyNode, IDisposable
     private ChunkResolution lastChunkResolution = ChunkResolution.Full;
 
     public bool IsDisposed => _isDisposed;
+    public event Action<Node> PropertiesChanged;
+
     private bool _isDisposed;
 
     private int lastContentCacheHash = -1;
@@ -470,26 +472,32 @@ public abstract class Node : IReadOnlyNode, IDisposable
         if (inputs.Remove(property))
         {
             property.ConnectionChanged -= InvokeConnectionsChanged;
+            PropertiesChanged?.Invoke(this);
         }
     }
 
 
     protected void RemoveOutputProperty(OutputProperty property)
     {
-        outputs.Remove(property);
-        OutputsChanged?.Invoke();
+        if (outputs.Remove(property))
+        {
+            OutputsChanged?.Invoke();
+            PropertiesChanged?.Invoke(this);
+        }
     }
 
     protected void AddOutputProperty(OutputProperty property)
     {
         outputs.Add(property);
         OutputsChanged?.Invoke();
+        PropertiesChanged?.Invoke(this);
     }
 
     protected void AddOutputProperty(OutputProperty property, int atIndex)
     {
         outputs.Insert(atIndex, property);
         OutputsChanged?.Invoke();
+        PropertiesChanged?.Invoke(this);
     }
 
     protected void AddInputProperty(InputProperty property)
@@ -501,6 +509,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
         property.ConnectionChanged += InvokeConnectionsChanged;
         inputs.Add(property);
+        PropertiesChanged?.Invoke(this);
     }
 
     protected void AddInputProperty(InputProperty property, int atIndex)
@@ -512,6 +521,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
         property.ConnectionChanged += InvokeConnectionsChanged;
         inputs.Insert(atIndex, property);
+        PropertiesChanged?.Invoke(this);
     }
 
     public virtual void Dispose()

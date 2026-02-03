@@ -88,8 +88,8 @@ internal class ConnectProperties_Change : Change
         OutputProperty outputProp = outputNode.GetOutputProperty(OutputProperty);
 
         List<IChangeInfo> changes = new();
-        int inputsHash = GraphUtils.CalculateInputsHash(inputNode);
-        int outputsHash = GraphUtils.CalculateOutputsHash(inputNode);
+
+        target.NodeGraph.StartListenToPropertyChanges();
 
         if (inputNode == outputNode && outputProp == null)
         {
@@ -110,10 +110,12 @@ internal class ConnectProperties_Change : Change
         inputProp = inputNode.GetInputProperty(InputProperty);
         if (inputProp.Connection != null)
         {
-            changes.Add(new ConnectProperty_ChangeInfo(null, inputProp.Connection.Node.Id, null, inputProp.Connection.InternalPropertyName));
+            changes.Add(new ConnectProperty_ChangeInfo(null, inputProp.Connection.Node.Id, null,
+                inputProp.Connection.InternalPropertyName));
             inputProp.Connection.DisconnectFrom(inputProp);
             inputProp = inputNode.GetInputProperty(InputProperty);
         }
+
         outputProp.ConnectTo(inputProp);
 
         ignoreInUndo = false;
@@ -121,19 +123,19 @@ internal class ConnectProperties_Change : Change
         int newInputsHash = GraphUtils.CalculateInputsHash(inputNode);
         int newOutputsHash = GraphUtils.CalculateOutputsHash(inputNode);
 
-        if (inputsHash != newInputsHash)
-        {
-            changes.Add(NodeInputsChanged_ChangeInfo.FromNode(inputNode));
-        }
+        List<Guid> nodesWithChangedIO = target.NodeGraph.StopListenToPropertyChanges();
 
-        if (outputsHash != newOutputsHash)
+        foreach (var nodeId in nodesWithChangedIO)
         {
-            changes.Add(NodeOutputsChanged_ChangeInfo.FromNode(inputNode));
+            Node node = target.FindNode(nodeId);
+
+            changes.Add(NodeInputsChanged_ChangeInfo.FromNode(node));
+            changes.Add(NodeOutputsChanged_ChangeInfo.FromNode(node));
         }
 
         changes.Add(new ConnectProperty_ChangeInfo(outputProp.Node.Id, InputNodeId, outputProp.InternalPropertyName,
             InputProperty));
-        
+
         return changes;
     }
 
@@ -159,7 +161,7 @@ internal class ConnectProperties_Change : Change
                 inputProp.Connection.ConnectTo(input);
                 changes.Add(new ConnectProperty_ChangeInfo(inputProp.Connection.Node.Id, input.Node.Id,
                     inputProp.Connection.InternalPropertyName, input.InternalPropertyName));
-                
+
                 outputProp = input.Connection as OutputProperty;
             }
         }

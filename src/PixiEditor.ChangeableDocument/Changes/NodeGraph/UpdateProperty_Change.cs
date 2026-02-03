@@ -50,8 +50,7 @@ internal class UpdatePropertyValue_Change : InterruptableUpdateableChange
         var node = target.NodeGraph.Nodes.First(x => x.Id == _nodeId);
         var property = node.GetInputProperty(_propertyName);
 
-        int inputsHash = GraphUtils.CalculateInputsHash(node);
-        int outputsHash = GraphUtils.CalculateOutputsHash(node);
+        target.NodeGraph.StartListenToPropertyChanges();
 
         string errors = string.Empty;
         if (!property.Validator.Validate(_value, out errors))
@@ -74,17 +73,12 @@ internal class UpdatePropertyValue_Change : InterruptableUpdateableChange
         List<IChangeInfo> changes = new();
         changes.Add(new PropertyValueUpdated_ChangeInfo(_nodeId, _propertyName, _value) { Errors = errors });
 
-        int newInputsHash = GraphUtils.CalculateInputsHash(node);
-        int newOutputsHash = GraphUtils.CalculateOutputsHash(node);
-
-        if (inputsHash != newInputsHash)
+        List<Guid> nodesWithChangedIO = target.NodeGraph.StopListenToPropertyChanges();
+        foreach (var nodeId in nodesWithChangedIO)
         {
-            changes.Add(NodeInputsChanged_ChangeInfo.FromNode(node));
-        }
-
-        if (outputsHash != newOutputsHash)
-        {
-            changes.Add(NodeOutputsChanged_ChangeInfo.FromNode(node));
+            var changedNode = target.FindNode(nodeId);
+            changes.Add(NodeInputsChanged_ChangeInfo.FromNode(changedNode));
+            changes.Add(NodeOutputsChanged_ChangeInfo.FromNode(changedNode));
         }
 
         return changes;
@@ -96,8 +90,7 @@ internal class UpdatePropertyValue_Change : InterruptableUpdateableChange
         var node = target.NodeGraph.Nodes.First(x => x.Id == _nodeId);
         var property = node.GetInputProperty(_propertyName);
 
-        int inputsHash = GraphUtils.CalculateInputsHash(node);
-        int outputsHash = GraphUtils.CalculateOutputsHash(node);
+        target.NodeGraph.StartListenToPropertyChanges();
 
         string errors = string.Empty;
         if (!property.Validator.Validate(_value, out errors))
@@ -124,17 +117,12 @@ internal class UpdatePropertyValue_Change : InterruptableUpdateableChange
         List<IChangeInfo> changes = new();
         changes.Add(new PropertyValueUpdated_ChangeInfo(_nodeId, _propertyName, _value) { Errors = errors });
 
-        int newInputsHash = GraphUtils.CalculateInputsHash(node);
-        int newOutputsHash = GraphUtils.CalculateOutputsHash(node);
-
-        if (inputsHash != newInputsHash)
+        List<Guid> nodesWithChangedIO = target.NodeGraph.StopListenToPropertyChanges();
+        foreach (var nodeId in nodesWithChangedIO)
         {
-            changes.Add(NodeInputsChanged_ChangeInfo.FromNode(node));
-        }
-
-        if (outputsHash != newOutputsHash)
-        {
-            changes.Add(NodeOutputsChanged_ChangeInfo.FromNode(node));
+            var changedNode = target.FindNode(nodeId);
+            changes.Add(NodeInputsChanged_ChangeInfo.FromNode(changedNode));
+            changes.Add(NodeOutputsChanged_ChangeInfo.FromNode(changedNode));
         }
 
         return changes;
@@ -145,8 +133,7 @@ internal class UpdatePropertyValue_Change : InterruptableUpdateableChange
         var node = target.NodeGraph.Nodes.First(x => x.Id == _nodeId);
         var property = node.GetInputProperty(_propertyName);
 
-        int inputsHash = GraphUtils.CalculateInputsHash(node);
-        int outputsHash = GraphUtils.CalculateOutputsHash(node);
+        target.NodeGraph.StartListenToPropertyChanges();
 
         GraphUtils.SetNonOverwrittenValue(property, previousValue);
 
@@ -154,17 +141,12 @@ internal class UpdatePropertyValue_Change : InterruptableUpdateableChange
 
         changes.Add(new PropertyValueUpdated_ChangeInfo(_nodeId, _propertyName, previousValue));
 
-        int newInputsHash = GraphUtils.CalculateInputsHash(node);
-        int newOutputsHash = GraphUtils.CalculateOutputsHash(node);
-
-        if (inputsHash != newInputsHash)
+        List<Guid> nodesWithChangedIO = target.NodeGraph.StopListenToPropertyChanges();
+        foreach (var nodeId in nodesWithChangedIO)
         {
-            changes.Add(NodeInputsChanged_ChangeInfo.FromNode(node));
-        }
-
-        if (outputsHash != newOutputsHash)
-        {
-            changes.Add(NodeOutputsChanged_ChangeInfo.FromNode(node));
+            var changedNode = target.FindNode(nodeId);
+            changes.Add(NodeInputsChanged_ChangeInfo.FromNode(changedNode));
+            changes.Add(NodeOutputsChanged_ChangeInfo.FromNode(changedNode));
         }
 
         return changes;

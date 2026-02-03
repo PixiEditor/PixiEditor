@@ -147,6 +147,9 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
             existingInputConnection.OutputProperty.ConnectedInputs.Remove(existingInputConnection.InputProperty);
         }
 
+        if(connection.InputProperty == null || connection.OutputProperty == null)
+            return;
+
         connection.InputProperty.ConnectedOutput = connection.OutputProperty;
         connection.OutputProperty.ConnectedInputs.Add(connection.InputProperty);
 
