@@ -112,6 +112,7 @@ public class SyncedTypeInputProperty
             internalInputProperty.Connection = null;
 
             internalInputProperty = handler != null ? handler() : genericFallbackHandler(newType);
+            AfterTypeChange();
 
             if (pendingValue != null)
             {
@@ -135,7 +136,6 @@ public class SyncedTypeInputProperty
 
             internalInputProperty.ConnectionChanged += UpdateType;
             internalInputProperty.ConnectionChanged += InvokeConnectionChanged;
-            AfterTypeChange();
             if (!updatedFromSync || Other.InternalProperty.ValueType != internalInputProperty.ValueType)
                 Other?.UpdateTypeInternal(true);
         }

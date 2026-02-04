@@ -58,6 +58,8 @@ public class SyncedTypeOutputProperty
                     $"The handler for type {newType} returned an OutputProperty with an invalid internal name ({internalOutputProperty.InternalPropertyName} instead of {internalPropertyName})");
             }
 
+            AfterTypeChange();
+
             if (newType.IsAssignableTo(typeof(Delegate)) &&
                 handlers.TryGetValue(typeof(ShaderExpressionVariable), out var del))
             {
@@ -76,7 +78,6 @@ public class SyncedTypeOutputProperty
                 internalOutputProperty.ConnectTo(newInput);
             }
 
-            AfterTypeChange();
         }
     }
 
