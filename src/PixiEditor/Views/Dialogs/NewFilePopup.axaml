@@ -21,13 +21,26 @@
                           ChosenHeight="{Binding FileHeight, Mode=TwoWay, ElementName=popup}"
                           ChosenWidth="{Binding FileWidth, Mode=TwoWay, ElementName=popup}"
                           x:Name="sizePicker" />
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,15,0,15" Spacing="10">
+            <Button DockPanel.Dock="Bottom" Margin="0,15,0,15" VerticalAlignment="Center"
+                    IsDefault="True" ui:Translator.Key="CREATE" x:Name="createButton" Focusable="True"
+                    Command="{Binding Path=DataContext.SetResultAndCloseCommand, ElementName=popup}">
+                <Button.CommandParameter>
+                    <system:Boolean>True</system:Boolean>
+                </Button.CommandParameter>
+            </Button>
 
-        <Button DockPanel.Dock="Bottom" Margin="0,15,0,15" HorizontalAlignment="Center"
-                IsDefault="True" ui:Translator.Key="CREATE" x:Name="createButton" Focusable="True"
-                Command="{Binding Path=DataContext.SetResultAndCloseCommand, ElementName=popup}">
-            <Button.CommandParameter>
-                <system:Boolean>True</system:Boolean>
-            </Button.CommandParameter>
-        </Button>
+            <ComboBox ItemsSource="{Binding Presets, ElementName=popup}"
+                    SelectedItem="{Binding SelectedPreset, ElementName=popup}"
+                    PlaceholderText="{ui:Translate Key=PRESETS}"
+                    Width="150"
+                    VerticalAlignment="Center">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Name}" />
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+        </StackPanel>
     </StackPanel>
 </dialogs:PixiEditorPopup>
