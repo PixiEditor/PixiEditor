@@ -57,6 +57,7 @@ internal class DeleteNode_Change : Change
         ignoreInUndo = false;
         var node = target.FindNode<Node>(NodeId);
 
+        target.NodeGraph.StartListenToPropertyChanges();
         List<IChangeInfo> changes = NodeOperations.DetachNode(node);
 
         target.NodeGraph.RemoveNode(node);
@@ -68,7 +69,18 @@ internal class DeleteNode_Change : Change
             target.AnimationData.RemoveKeyFrame(savedKeyFrameGroup.Id);
             changes.Add(new DeleteKeyFrame_ChangeInfo(savedKeyFrameGroup.Id));
         }
-        
+
+        List<Guid> nodesWithChangedIO = target.NodeGraph.StopListenToPropertyChanges();
+
+        foreach (var nodeId in nodesWithChangedIO)
+        {
+            Node n = target.FindNode(nodeId);
+            if(n == node) continue;
+
+            changes.Add(NodeInputsChanged_ChangeInfo.FromNode(n));
+            changes.Add(NodeOutputsChanged_ChangeInfo.FromNode(n));
+        }
+
         node.Dispose();
 
         return changes;
@@ -78,7 +90,7 @@ internal class DeleteNode_Change : Change
     {
         var copy = savedCopy!.Clone();
         copy.Id = NodeId;
-        
+
         if (copy is IPairNode pairNode)
         {
             pairNode.OtherNode = (savedCopy as IPairNode).OtherNode;
@@ -92,11 +104,23 @@ internal class DeleteNode_Change : Change
 
         changes.Add(createChange);
 
+        doc.NodeGraph.StartListenToPropertyChanges();
+
         changes.AddRange(NodeOperations.CreateUpdateInputs(copy));
         changes.AddRange(NodeOperations.ConnectStructureNodeProperties(originalConnections, copy, doc.NodeGraph));
         changes.Add(new NodePosition_ChangeInfo(copy.Id, copy.Position));
 
         RevertKeyFrames(doc, savedKeyFrameGroup, changes);
+
+        List<Guid> nodesWithChangedIO = doc.NodeGraph.StopListenToPropertyChanges();
+        foreach (var nodeId in nodesWithChangedIO)
+        {
+            Node n = doc.FindNode(nodeId);
+            if(n == copy) continue;
+
+            changes.Add(NodeInputsChanged_ChangeInfo.FromNode(n));
+            changes.Add(NodeOutputsChanged_ChangeInfo.FromNode(n));
+        }
 
         return changes;
     }
