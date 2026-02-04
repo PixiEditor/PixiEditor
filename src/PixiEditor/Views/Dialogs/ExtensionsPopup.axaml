@@ -7,10 +7,13 @@
         xmlns:platform="clr-namespace:PixiEditor.Platform;assembly=PixiEditor.Platform"
         xmlns:identityProvider="clr-namespace:PixiEditor.IdentityProvider;assembly=PixiEditor.IdentityProvider"
         xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+        xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+        xmlns:user="clr-namespace:PixiEditor.ViewModels.User"
+        xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="PixiEditor.Views.Dialogs.ExtensionsPopup"
         x:DataType="extensionManager:ExtensionManagerViewModel"
-        Title="ExtensionsPopup">
+        Title="EXTENSIONS_WINDOW_TITLE">
     
     <Design.DataContext>
         <extensionManager:ExtensionManagerViewModel />
@@ -21,18 +24,98 @@
             <ItemsControl ItemsSource="{Binding AvailableExtensions}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="platform:AvailableContent">
-                        <TextBox Text="{Binding Name}">
-                        </TextBox>
+                        <StackPanel Spacing="8" Margin="8">
+                            <TextBlock Text="{Binding Name}" FontSize="18" />
+                            <TextBlock Text="{Binding Description}" FontSize="14" />
+                            <ItemsControl ItemsSource="{Binding Tags}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border
+                                            Margin="0,0,6,6"
+                                            Padding="6,2"
+                                            CornerRadius="4"
+                                            Background="{DynamicResource ThemeBackgroundBrush2}">
+                                        <TextBlock Text="{Binding}" />
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </TabItem>
         <TabItem localization:Translator.Key="EXTENSIONS_WINDOW_TAB_OWNED">
             <ItemsControl ItemsSource="{Binding OwnedExtensions}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Spacing="12" Margin="8" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
-                    <DataTemplate DataType="identityProvider:ProductData">
-                        <TextBox Text="{Binding DisplayName}">
-                        </TextBox>
+                    <DataTemplate DataType="user:OwnedProductViewModel">
+                    <DockPanel>
+                            <TextBlock DockPanel.Dock="Left" HorizontalAlignment="Left" Text="{Binding ProductData.DisplayName}" FontSize="{DynamicResource FontSizeLarge}" />
+                            <Button DockPanel.Dock="Right" HorizontalAlignment="Right"
+                                                    IsVisible="{Binding !RestartRequired}"
+                                                    FontSize="{DynamicResource FontSizeNormal}"
+                                                    Command="{Binding InstallCommand}">
+                                                <Panel Margin="4 0">
+                                                    <TextBlock>
+                                                        <TextBlock.IsVisible>
+                                                            <MultiBinding Converter="{converters:AllTrueConverter}">
+                                                                <Binding Path="IsInstalled" />
+                                                                <Binding Path="!UpdateAvailable" />
+                                                                <Binding Path="!IsInstalling" />
+                                                            </MultiBinding>
+                                                        </TextBlock.IsVisible>
+                                                        <Run Classes="pixi-icon"
+                                                             Text="{DynamicResource icon-checkTick}" />
+                                                        <Run localization:Translator.Key="INSTALLED" />
+                                                    </TextBlock>
+
+                                                    <TextBlock Foreground="{DynamicResource ThemeAccent3Brush}">
+                                                        <TextBlock.IsVisible>
+                                                            <MultiBinding Converter="{converters:AllTrueConverter}">
+                                                                <Binding Path="UpdateAvailable" />
+                                                                <Binding Path="!IsInstalling" />
+                                                            </MultiBinding>
+                                                        </TextBlock.IsVisible>
+                                                        <Run Classes="pixi-icon"
+                                                             Text="{DynamicResource icon-download}" />
+                                                        <Run localization:Translator.Key="UPDATE" />
+                                                    </TextBlock>
+
+                                                    <TextBlock>
+                                                        <TextBlock.IsVisible>
+                                                            <MultiBinding Converter="{converters:AllTrueConverter}">
+                                                                <Binding Path="!IsInstalled" />
+                                                                <Binding Path="!IsInstalling" />
+                                                                <Binding Path="!UpdateAvailable" />
+                                                            </MultiBinding>
+                                                        </TextBlock.IsVisible>
+
+                                                        <Run Classes="pixi-icon" Text="{DynamicResource icon-download}" />
+                                                        <Run localization:Translator.Key="INSTALL" />
+                                                    </TextBlock>
+
+                                                    <TextBlock IsVisible="{Binding IsInstalling}"
+                                                               localization:Translator.Key="INSTALLING" />
+                                                </Panel>
+                            </Button>
+                            <Button DockPanel.Dock="Right" HorizontalAlignment="Right"
+                                    FontSize="{DynamicResource FontSizeNormal}"
+                                    IsVisible="{Binding RestartRequired}"
+                                    localization:Translator.Key="RESTART"
+                                    Background="{DynamicResource ThemeAccentBrush}"
+                                    Command="{xaml:Command Name=PixiEditor.Restart}" />
+                        </DockPanel>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
@@ -40,8 +123,8 @@
         <TabItem localization:Translator.Key="EXTENSIONS_WINDOW_TAB_INSTALLED">
             <ItemsControl ItemsSource="{Binding InstalledExtensions}">
                 <ItemsControl.ItemTemplate>
-                    <DataTemplate DataType="identityProvider:ProductData">
-                        <TextBox Text="{Binding DisplayName}">
+                    <DataTemplate DataType="user:OwnedProductViewModel">
+                        <TextBox Text="{Binding ProductData.DisplayName}">
                         </TextBox>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>

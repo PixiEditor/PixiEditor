@@ -370,18 +370,7 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
             return;
         }
 
-        try
-        {
-            string? extensionPath = await AdditionalContentProvider.InstallContent(productId);
-            if (extensionPath != null)
-            {
-                Owner.ExtensionsSubViewModel.LoadExtensionAdHoc(extensionPath);
-            }
-        }
-        catch (Exception ex)
-        {
-            CrashHelper.SendExceptionInfo(ex);
-        }
+        await Owner.ExtensionsSubViewModel.InstallAndLoadExtension(AdditionalContentProvider,  productId);
     }
 
     private void OnError(string error, object? arg = null)

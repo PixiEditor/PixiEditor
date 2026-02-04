@@ -4,9 +4,11 @@ using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Extensions;
 using PixiEditor.Extensions.CommonApi.Windowing;
 using PixiEditor.Extensions.Runtime;
+using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.ExtensionServices;
+using PixiEditor.Platform;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.ExtensionManager;
 using PixiEditor.Views;
@@ -41,7 +43,7 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
             Owner.AttachedToWindow += OwnerOnAttachedToWindow;
         }
         
-        ExtensionManager = new ExtensionManagerViewModel(Owner.UserViewModel.AdditionalContentProvider, Owner.UserViewModel.IdentityProvider);
+        ExtensionManager = new ExtensionManagerViewModel(this, Owner.UserViewModel.AdditionalContentProvider, Owner.UserViewModel.IdentityProvider);
     }
 
     private void OwnerOnAttachedToWindow(MainWindow obj)
@@ -78,6 +80,22 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
             {
                 loadedExtension.UserReady();
             }
+        }
+    }
+    
+    public async Task InstallAndLoadExtension(IAdditionalContentProvider additionalContentProvider, string productId)
+    {
+        try
+        {
+            string? extensionPath = await additionalContentProvider.InstallContent(productId);
+            if (extensionPath != null)
+            {
+                Owner.ExtensionsSubViewModel.LoadExtensionAdHoc(extensionPath);
+            }
+        }
+        catch (Exception ex)
+        {
+            CrashHelper.SendExceptionInfo(ex);
         }
     }
 
