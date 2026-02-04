@@ -51,6 +51,7 @@ public class RenderTests : FullPixiEditorTest
     [InlineData("GpuSkew")]
     [InlineData("GpuMatrixChain")]
     [InlineData("FuncSwitch")]
+    [InlineData("ContextlessConditional")]
     public void TestThatPixiFilesRenderTheSameResultAsSavedPng(string fileName, string? resultName = null)
     {
         if (!DrawingBackendApi.Current.IsHardwareAccelerated)

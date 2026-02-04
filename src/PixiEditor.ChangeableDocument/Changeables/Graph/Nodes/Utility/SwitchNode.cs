@@ -45,8 +45,7 @@ public class SwitchNode : Node
         AddFalseFuncInputHandlers(new Half3("") { ConstantValue = Vec3D.Zero });
         AddFalseFuncInputHandlers(new Float3x3("") { ConstantValue = Matrix3X3.Identity });
 
-        Output = CreateSyncedTypeOutput("Output", "RESULT", InputTrue).
-            AllowGenericFallback();
+        Output = CreateSyncedTypeOutput("Output", "RESULT", InputTrue).AllowGenericFallback();
         AddOutputFuncHandlers(HandleConditionalFloat1);
         AddOutputFuncHandlers(HandleConditionalHalf4);
         AddOutputFuncHandlers(HandleConditionalBool);
@@ -81,10 +80,10 @@ public class SwitchNode : Node
             }
 
             Output.Value = condition ? InputTrue.Value : InputFalse.Value;
-            if(Output.Value is Delegate del)
+            if (Output.Value is Delegate del)
             {
                 Output.Value = del.DynamicInvoke(FuncContext.NoContext);
-                if(Output.Value is ShaderExpressionVariable expr)
+                if (Output.Value is ShaderExpressionVariable expr)
                 {
                     Output.Value = expr.GetConstant();
                 }
@@ -94,6 +93,13 @@ public class SwitchNode : Node
 
     private Float1 HandleConditionalFloat1(FuncContext context)
     {
+        if (!context.HasContext)
+        {
+            return ((bool)context.GetValue(Condition).GetConstant())
+                ? context.GetValue(InputTrue.InternalProperty as FuncInputProperty<Float1>)
+                : context.GetValue(InputFalse.InternalProperty as FuncInputProperty<Float1>);
+        }
+
         if (!HandleConditional(context, out var value))
         {
             return null;
@@ -106,6 +112,13 @@ public class SwitchNode : Node
 
     private Half4 HandleConditionalHalf4(FuncContext context)
     {
+        if (!context.HasContext)
+        {
+            return ((bool)context.GetValue(Condition).GetConstant())
+                ? context.GetValue(InputTrue.InternalProperty as FuncInputProperty<Half4>)
+                : context.GetValue(InputFalse.InternalProperty as FuncInputProperty<Half4>);
+        }
+
         if (!HandleConditional(context, out var value))
         {
             return null;
@@ -118,6 +131,13 @@ public class SwitchNode : Node
 
     private Int1 HandleConditionalInt1(FuncContext context)
     {
+        if (!context.HasContext)
+        {
+            return ((bool)context.GetValue(Condition).GetConstant())
+                ? context.GetValue(InputTrue.InternalProperty as FuncInputProperty<Int1>)
+                : context.GetValue(InputFalse.InternalProperty as FuncInputProperty<Int1>);
+        }
+
         if (!HandleConditional(context, out var value))
         {
             return null;
@@ -130,6 +150,13 @@ public class SwitchNode : Node
 
     private Int2 HandleConditionalInt2(FuncContext context)
     {
+        if (!context.HasContext)
+        {
+            return ((bool)context.GetValue(Condition).GetConstant())
+                ? context.GetValue(InputTrue.InternalProperty as FuncInputProperty<Int2>)
+                : context.GetValue(InputFalse.InternalProperty as FuncInputProperty<Int2>);
+        }
+
         if (!HandleConditional(context, out var value))
         {
             return null;
@@ -142,6 +169,13 @@ public class SwitchNode : Node
 
     private Float2 HandleConditionalFloat2(FuncContext context)
     {
+        if (!context.HasContext)
+        {
+            return ((bool)context.GetValue(Condition).GetConstant())
+                ? context.GetValue(InputTrue.InternalProperty as FuncInputProperty<Float2>)
+                : context.GetValue(InputFalse.InternalProperty as FuncInputProperty<Float2>);
+        }
+
         if (!HandleConditional(context, out var value))
         {
             return null;
@@ -154,6 +188,13 @@ public class SwitchNode : Node
 
     private Float3 HandleConditionalFloat3(FuncContext context)
     {
+        if (!context.HasContext)
+        {
+            return ((bool)context.GetValue(Condition).GetConstant())
+                ? context.GetValue(InputTrue.InternalProperty as FuncInputProperty<Float3>)
+                : context.GetValue(InputFalse.InternalProperty as FuncInputProperty<Float3>);
+        }
+
         if (!HandleConditional(context, out var value))
         {
             return null;
@@ -166,6 +207,13 @@ public class SwitchNode : Node
 
     private Half3 HandleConditionalHalf3(FuncContext context)
     {
+        if (!context.HasContext)
+        {
+            return ((bool)context.GetValue(Condition).GetConstant())
+                ? context.GetValue(InputTrue.InternalProperty as FuncInputProperty<Half3>)
+                : context.GetValue(InputFalse.InternalProperty as FuncInputProperty<Half3>);
+        }
+
         if (!HandleConditional(context, out var value))
         {
             return null;
@@ -178,6 +226,13 @@ public class SwitchNode : Node
 
     private Float3x3 HandleConditionalFloat3x3(FuncContext context)
     {
+        if (!context.HasContext)
+        {
+            return ((bool)context.GetValue(Condition).GetConstant())
+                ? context.GetValue(InputTrue.InternalProperty as FuncInputProperty<Float3x3>)
+                : context.GetValue(InputFalse.InternalProperty as FuncInputProperty<Float3x3>);
+        }
+
         if (!HandleConditional(context, out var value))
         {
             return null;
@@ -190,6 +245,13 @@ public class SwitchNode : Node
 
     private Bool HandleConditionalBool(FuncContext context)
     {
+        if (!context.HasContext)
+        {
+            return ((bool)context.GetValue(Condition).GetConstant())
+                ? context.GetValue(InputTrue.InternalProperty as FuncInputProperty<Bool>)
+                : context.GetValue(InputFalse.InternalProperty as FuncInputProperty<Bool>);
+        }
+
         if (!HandleConditional(context, out var value))
         {
             return null;
@@ -202,13 +264,14 @@ public class SwitchNode : Node
 
     private bool HandleConditional(FuncContext context, out Bool value)
     {
-        if(!context.HasContext)
+        if (!context.HasContext)
         {
             value = null;
             return false;
         }
-        if(!InputTrue.InternalProperty.ValueType.IsAssignableTo(typeof(Delegate)) ||
-           !InputFalse.InternalProperty.ValueType.IsAssignableTo(typeof(Delegate)))
+
+        if (!InputTrue.InternalProperty.ValueType.IsAssignableTo(typeof(Delegate)) ||
+            !InputFalse.InternalProperty.ValueType.IsAssignableTo(typeof(Delegate)))
         {
             value = null;
             return false;
@@ -226,33 +289,30 @@ public class SwitchNode : Node
     private void AddTrueFuncInputHandlers<TValue>(
         TValue constant)
     {
-        InputTrue.AddTypeHandler<Func<FuncContext, TValue>>(
-            () => new FuncInputProperty<TValue>(
-                this,
-                "InputTrue",
-                "ON_TRUE",
-                constant));
+        InputTrue.AddTypeHandler<Func<FuncContext, TValue>>(() => new FuncInputProperty<TValue>(
+            this,
+            "InputTrue",
+            "ON_TRUE",
+            constant));
     }
 
     private void AddFalseFuncInputHandlers<TValue>(
         TValue constant)
     {
-        InputFalse.AddTypeHandler<Func<FuncContext, TValue>>(
-            () => new FuncInputProperty<TValue>(
-                this,
-                "InputFalse",
-                "ON_FALSE",
-                constant));
+        InputFalse.AddTypeHandler<Func<FuncContext, TValue>>(() => new FuncInputProperty<TValue>(
+            this,
+            "InputFalse",
+            "ON_FALSE",
+            constant));
     }
 
     private void AddOutputFuncHandlers<TValue>(
         Func<FuncContext, TValue> handler)
     {
-        Output.AddTypeHandler<Func<FuncContext, TValue>>(
-            () => new FuncOutputProperty<TValue>(
-                this,
-                "Output",
-                "RESULT",
-                handler));
+        Output.AddTypeHandler<Func<FuncContext, TValue>>(() => new FuncOutputProperty<TValue>(
+            this,
+            "Output",
+            "RESULT",
+            handler));
     }
 }
