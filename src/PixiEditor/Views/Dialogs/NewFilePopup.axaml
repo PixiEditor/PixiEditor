@@ -14,10 +14,16 @@
     Name="popup"
     ui:Translator.Key="CREATE_NEW_IMAGE">
     <StackPanel Background="{DynamicResource ThemeBackgroundBrush}" Focusable="True" Orientation="Vertical" Margin="15,15,15,0">
+    <Separator Margin="10,15,10,0" Height="0" />
+        <Border HorizontalAlignment="Center" Background="{DynamicResource ThemeBackgroundBrush1}"
+            VerticalAlignment="Top" CornerRadius="{DynamicResource ControlCornerRadius}"
+            Margin="0" Padding="0">
+        <StackPanel>
+        <Separator Margin="10,15,10,0" Height="0" />
         <ComboBox ItemsSource="{Binding Presets, ElementName=popup}"
                 SelectedItem="{Binding SelectedPreset, ElementName=popup}"
                 PlaceholderText="{ui:Translate Key=PRESETS}"
-                Width="150"
+                Margin="15,0,15,0"
                 VerticalAlignment="Center">
             <ComboBox.ItemTemplate>
                 <DataTemplate>
@@ -26,13 +32,15 @@
             </ComboBox.ItemTemplate>
         </ComboBox>
 
-        <input:SizePicker HorizontalAlignment="Center" MinWidth="230" Height="125" Margin="15,15,15,0"
+        <input:SizePicker HorizontalAlignment="Center" MinWidth="230" Height="125" Margin="0"
                           PreserveAspectRatio="False"
                           Background="{DynamicResource ThemeBackgroundBrush1}"
                           CornerRadius="{DynamicResource ControlCornerRadius}"
                           ChosenHeight="{Binding FileHeight, Mode=TwoWay, ElementName=popup}"
                           ChosenWidth="{Binding FileWidth, Mode=TwoWay, ElementName=popup}"
                           x:Name="sizePicker" />
+        </StackPanel>
+        </Border>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,15,0,15" Spacing="10">
             <Button DockPanel.Dock="Bottom" Margin="0,15,0,15" VerticalAlignment="Center"
                     IsDefault="True" ui:Translator.Key="CREATE" x:Name="createButton" Focusable="True"
