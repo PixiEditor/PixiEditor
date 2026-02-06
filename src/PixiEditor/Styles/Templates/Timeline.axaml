@@ -55,6 +55,7 @@
                                                 <RowDefinition Height="Auto"/>
                                                 <RowDefinition Height="Auto"/>
                                                 <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
                                             </Grid.RowDefinitions>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto"/>
@@ -76,6 +77,9 @@
                                                 MaxSize="100" Unit="%"
                                                 Size="{Binding OnionOpacity, RelativeSource={RelativeSource TemplatedParent},
                                                     Mode=TwoWay}" />
+                                            <CheckBox Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="3" Margin="0, 5" VerticalAlignment="Center"
+                                                      ui1:Translator.Key="FALLBACK_FRAMES_TO_LAYER_IMAGE"
+                                                      IsChecked="{Binding FallbackFramesToLayerImage, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"/>
                                         </Grid>
                                     </Flyout>
                                 </Button.Flyout>

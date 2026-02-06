@@ -1,4 +1,5 @@
 ﻿using MessagePack;
+using PixiEditor.Helpers;
 using PixiEditor.Parser;
 using PixiEditor.ViewModels.Document;
 
@@ -38,9 +39,7 @@ public abstract class SerializationFactory
 
     protected bool IsFilePreVersion((string serializerName, string serializerVersion) serializerData, Version minSupportedVersion)
     {
-        return serializerData.serializerName == "PixiEditor"
-               && Version.TryParse(serializerData.serializerVersion, out Version version)
-                && version < minSupportedVersion;
+        return SerializationUtil.IsFilePreVersion(serializerData, minSupportedVersion);
     }
 }
 

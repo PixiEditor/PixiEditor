@@ -565,6 +565,12 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                     }
                 }
             }
+
+            // Before 2.1.0.11, the fallback animation to layer image was the only behavior, after the default is to have it off
+            if(data.FallbackAnimationToLayerImage || SerializationUtil.IsFilePreVersion(serializerData, new Version(2, 1, 0, 11)))
+            {
+                acc.AddActions(new SetFallbackAnimationToLayerImage_Action(true));
+            }
         }
 
         bool IsFileWithSrgbColorBlending((string serializerName, string serializerVersion) serializerData,

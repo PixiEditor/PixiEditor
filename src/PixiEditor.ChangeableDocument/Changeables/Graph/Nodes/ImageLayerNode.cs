@@ -24,8 +24,8 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     public override VecD GetScenePosition(KeyFrameTime time) => layerImage?.CommittedSize / 2f ?? VecD.Zero;
     public override VecD GetSceneSize(KeyFrameTime time) => layerImage?.CommittedSize ?? VecD.Zero;
-
     public bool LockTransparency { get; set; }
+    public bool FallbackAnimationToLayerImage { get; set; } = false;
 
     private VecI startSize;
     private ColorSpace colorSpace;
@@ -344,6 +344,11 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         var imageFrame = keyFrames.OrderBy(x => x.StartFrame).LastOrDefault(x => x.IsInFrame(frame.Frame));
         if (imageFrame?.Data is not ChunkyImage)
         {
+            if (FallbackAnimationToLayerImage)
+            {
+                return keyFrames[0];
+            }
+
             return keyFrames.ElementAtOrDefault(1).IsVisible ? null : keyFrames[0];
         }
 
