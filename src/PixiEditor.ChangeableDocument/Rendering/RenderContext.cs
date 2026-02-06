@@ -36,6 +36,17 @@ public class RenderContext
     public Dictionary<Guid, List<PreviewRenderRequest>>? PreviewTextures { get; set; }
     public IReadOnlyNodeGraph Graph { get; set; }
 
+    public static RenderContext Empty { get; } = new RenderContext(
+        null,
+        new KeyFrameTime(),
+        ChunkResolution.Full,
+        new VecI(1, 1),
+        new VecI(1, 1),
+        ColorSpace.CreateSrgb(),
+        SamplingOptions.Default,
+        new NodeGraph());
+
+
     public RenderContext(Canvas renderSurface, KeyFrameTime frameTime, ChunkResolution chunkResolution,
         VecI renderOutputSize, VecI documentSize, ColorSpace processingColorSpace, SamplingOptions desiredSampling, IReadOnlyNodeGraph graph, double opacity = 1)
     {
