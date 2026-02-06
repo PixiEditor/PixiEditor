@@ -3,6 +3,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Rendering.Composition;
 using Avalonia.Threading;
@@ -56,9 +57,19 @@ internal partial class BrushItem : UserControl
     {
         BrushProperty.Changed.AddClassHandler<BrushItem>((x, e) =>
         {
+            if (e.OldValue is BrushViewModel oldBrush)
+            {
+                oldBrush.RenderingPreviewFinished -= x.OnBrushRendered;
+            }
+
             x.StopStrokePreviewLoop();
             var brush = e.NewValue as BrushViewModel;
-            x.DrawingStrokeTexture = brush?.DrawingStrokeTexture;
+            if (brush != null)
+            {
+                x.DrawingStrokeTexture = brush.DrawingStrokeTexture;
+                brush.RenderingPreviewFinished += x.OnBrushRendered;
+            }
+
             x.PseudoClasses.Set(":favourite", brush?.IsFavourite ?? false);
         });
     }
@@ -66,6 +77,14 @@ internal partial class BrushItem : UserControl
     public BrushItem()
     {
         InitializeComponent();
+    }
+
+    private void OnBrushRendered()
+    {
+        if (!isPreviewingStroke)
+        {
+            DrawingStrokeTexture = Brush?.DrawingStrokeTexture;
+        }
     }
 
     protected override void OnPointerEntered(PointerEventArgs e)
@@ -108,7 +127,10 @@ internal partial class BrushItem : UserControl
             Brush?.Brush?.Document?.AccessInternalReadOnlyDocument().NodeGraph
                 .LookupNode(Brush?.Brush?.OutputNodeId ?? Guid.Empty) as BrushOutputNode;
         if (brushNode == null)
+        {
+            ctx.Dispose();
             return;
+        }
 
         if (previewTexture == null ||
             previewTexture.Size.X != BrushOutputNode.StrokePreviewSizeX ||
@@ -139,7 +161,7 @@ internal partial class BrushItem : UserControl
             new VecD(0, BrushOutputNode.YOffsetInPreview)).GetEnumerator();
 
         previewTexture.DrawingSurface.Canvas.Clear();
-        
+
         ctx.Dispose();
         previewTimer = DispatcherTimer.Run(() =>
         {
@@ -204,6 +226,9 @@ internal partial class BrushItem : UserControl
 
     private void StopStrokePreviewLoop()
     {
+        if (!isPreviewingStroke)
+            return;
+
         isPreviewingStroke = false;
         previewTimer?.Dispose();
         if (enumerator is IDisposable disposable)
