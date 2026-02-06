@@ -1,6 +1,9 @@
 ﻿using System.Diagnostics;
 using System.Drawing;
+using System.Globalization;
 using System.Reflection;
+using System.Text.RegularExpressions;
+using Drawie.Backend.Core.Surfaces;
 using FFMpegCore;
 using FFMpegCore.Arguments;
 using FFMpegCore.Enums;
@@ -19,19 +22,12 @@ public class FFMpegRenderer : IAnimationRenderer
     public VecI Size { get; set; }
     public QualityPreset QualityPreset { get; set; } = QualityPreset.VeryHigh;
 
+    public Regex FramerateRegex { get; } = new Regex(@"(\d+(?:\.\d+)?) fps", RegexOptions.Compiled);
+
     public async Task<bool> RenderAsync(List<Image> rawFrames, string outputPath, CancellationToken cancellationToken,
         Action<double>? progressCallback = null)
     {
-        string path = $"ThirdParty/{IOperatingSystem.Current.Name}/ffmpeg";
-
-        string binaryPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), path);
-
-        GlobalFFOptions.Configure(new FFOptions() { BinaryFolder = binaryPath });
-
-        if (IOperatingSystem.Current.IsUnix)
-        {
-            MakeExecutableIfNeeded(binaryPath);
-        }
+        PrepareFFMpeg();
 
         string tempPath = Path.Combine(Path.GetTempPath(), "PixiEditor", "Rendering");
         Directory.CreateDirectory(tempPath);
@@ -84,16 +80,7 @@ public class FFMpegRenderer : IAnimationRenderer
     public bool Render(List<Image> rawFrames, string outputPath, CancellationToken cancellationToken,
         Action<double>? progressCallback)
     {
-        string path = $"ThirdParty/{IOperatingSystem.Current.Name}/ffmpeg";
-
-        string binaryPath = Path.Combine(Path.GetDirectoryName(Environment.ProcessPath), path);
-
-        GlobalFFOptions.Configure(new FFOptions() { BinaryFolder = binaryPath });
-
-        if (IOperatingSystem.Current.IsUnix)
-        {
-            MakeExecutableIfNeeded(binaryPath);
-        }
+        PrepareFFMpeg();
 
         string tempPath = Path.Combine(Path.GetTempPath(), "PixiEditor", "Rendering");
         Directory.CreateDirectory(tempPath);
@@ -140,6 +127,72 @@ public class FFMpegRenderer : IAnimationRenderer
                 File.Delete(paletteTempPath);
                 Directory.Delete(Path.GetDirectoryName(paletteTempPath));
             }
+        }
+    }
+
+    public List<Frame> GetFrames(string inputPath, out double playbackFps)
+    {
+        PrepareFFMpeg();
+
+        using var ms = new MemoryStream();
+        if (!FFMpegArguments.FromFileInput(inputPath)
+                .OutputToPipe(new StreamPipeSink(ms),
+                    options =>
+                        options.WithCustomArgument("-vsync 0")
+                            .WithCustomArgument("-vcodec png")
+                            .ForceFormat("image2pipe"))
+                .ProcessSynchronously())
+        {
+            throw new InvalidOperationException("Failed to extract frames from video");
+        }
+
+        ms.Seek(0, SeekOrigin.Begin);
+        List<Bitmap> frames = PipeUtil.ReadFramesFromPipe(ms);
+
+        playbackFps = ExtractFramerateInfo(inputPath);
+
+        return frames.Select(f => new Frame(f, 1)).ToList();
+    }
+
+    private double ExtractFramerateInfo(string inputPath)
+    {
+        ProcessStartInfo startInfo = new ProcessStartInfo
+        {
+            FileName =
+                Path.Combine(Path.GetDirectoryName(Environment.ProcessPath),
+                    $"ThirdParty/{IOperatingSystem.Current.Name}/ffmpeg/ffmpeg"),
+            Arguments = $"-i \"{inputPath}\"",
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true
+        };
+
+        using Process process = new() { StartInfo = startInfo };
+        process.Start();
+        process.WaitForExit();
+        string info = process.StandardError.ReadToEnd();
+
+        Match match = FramerateRegex.Match(info);
+        if (match.Success && double.TryParse(match.Groups[1].Value, NumberStyles.Any, CultureInfo.InvariantCulture,
+                out double fps))
+        {
+            return fps;
+        }
+
+        return 24;
+    }
+
+    private static void PrepareFFMpeg()
+    {
+        string path = $"ThirdParty/{IOperatingSystem.Current.Name}/ffmpeg";
+
+        string binaryPath = Path.Combine(Path.GetDirectoryName(Environment.ProcessPath), path);
+
+        GlobalFFOptions.Configure(new FFOptions() { BinaryFolder = binaryPath });
+
+        if (IOperatingSystem.Current.IsUnix)
+        {
+            MakeExecutableIfNeeded(binaryPath);
         }
     }
 
