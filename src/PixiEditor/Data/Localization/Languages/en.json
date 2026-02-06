@@ -351,6 +351,7 @@
   "CLOSE": "Close",
   "EXPORT_SIZE_HINT": "If you want to share the image, try {0}% for the best clarity",
   "CREATE": "Create",
+  "PRESETS": "Presets..",
   "BASE_LAYER_NAME": "Base layer",
   "ENABLE_MASK": "Enable mask",
   "SELECTED_AREA_EMPTY": "Selected area is empty",
