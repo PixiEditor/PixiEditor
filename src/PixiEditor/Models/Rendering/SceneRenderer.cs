@@ -79,6 +79,7 @@ internal class SceneRenderer
     {
         using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
         int renderedCount = 0;
+        int graphHash = Document.NodeGraph.GetCacheHash();
         foreach (var viewport in stateViewports)
         {
             if (viewport.Value.Delayed && !updateDelayed)
@@ -89,7 +90,8 @@ internal class SceneRenderer
             if (viewport.Value.RealDimensions.ShortestAxis <= 0 ||
                 Math.Abs(viewport.Value.RealDimensions.LongestAxis - double.MaxValue) < double.Epsilon) continue;
 
-            var rendered = RenderScene(viewport.Value, affectedArea, debugRecord && viewport.Value.IsScene, previewTextures);
+            var rendered = RenderScene(viewport.Value, affectedArea, graphHash, debugRecord && viewport.Value.IsScene,
+                previewTextures);
             if (DocumentViewModel.SceneTextures.TryGetValue(viewport.Key, out var texture) && texture != rendered)
             {
                 texture.Dispose();
@@ -102,12 +104,14 @@ internal class SceneRenderer
 
         if (renderedCount == 0 && previewTextures is { Count: > 0 })
         {
-            RenderOnlyPreviews(affectedArea, previewTextures);
+            RenderOnlyPreviews(affectedArea, previewTextures, graphHash);
         }
+
+        lastGraphCacheHash = Document.NodeGraph.GetCacheHash(); // Update the graph hash after rendering, in case it changed during rendering
     }
 
     private void RenderOnlyPreviews(AffectedArea affectedArea,
-        Dictionary<Guid, List<PreviewRenderRequest>> previewTextures)
+        Dictionary<Guid, List<PreviewRenderRequest>> previewTextures, int graphCacheHash)
     {
         ViewportInfo previewGenerationViewport = new()
         {
@@ -122,11 +126,12 @@ internal class SceneRenderer
             Delayed = false
         };
 
-        var rendered = RenderScene(previewGenerationViewport, affectedArea, false, previewTextures);
+        var rendered = RenderScene(previewGenerationViewport, affectedArea, graphCacheHash, false, previewTextures);
         rendered.Dispose();
     }
 
     public Texture? RenderScene(ViewportInfo viewport, AffectedArea affectedArea,
+        int graphCacheHash,
         bool debugRecord = false,
         Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures = null)
     {
@@ -183,7 +188,10 @@ internal class SceneRenderer
         bool shouldRerender =
             ShouldRerender(renderTargetSize, isFullViewportRender ? Matrix3X3.Identity : targetMatrix, resolution,
                 viewportId, targetOutput, finalGraph,
-                previewTextures, visibleDocumentRegion, oversizeFactor, out bool fullAffectedArea) || debugRecord;
+                previewTextures, visibleDocumentRegion, oversizeFactor, out bool fullAffectedArea, out RenderState renderState) ||
+            debugRecord;
+
+        shouldRerender |= lastGraphCacheHash != graphCacheHash;
 
         if (shouldRerender)
         {
@@ -191,9 +199,12 @@ internal class SceneRenderer
                 ? new AffectedArea(OperationHelper.FindChunksTouchingRectangle(viewport.VisibleDocumentRegion.Value,
                     ChunkyImage.FullChunkSize))
                 : affectedArea;
-            return RenderGraph(renderTargetSize, targetMatrix, viewportId, resolution, samplingOptions, affectedArea,
+            var tex = RenderGraph(renderTargetSize, targetMatrix, viewportId, resolution, samplingOptions, affectedArea,
                 visibleDocumentRegion, targetOutput, viewport.IsScene, oversizeFactor,
                 pointerInfo, keyboardInfo, editorData, viewport.ViewportData, debugRecord, finalGraph, previewTextures);
+
+            lastRenderedStates[viewportId] = renderState;
+            return tex;
         }
 
         var cachedTexture = DocumentViewModel.SceneTextures[viewportId];
@@ -244,7 +255,8 @@ internal class SceneRenderer
             else
             {
                 var bufferedSize = (VecI)(renderTargetSize * oversizeFactor);
-                renderTexture = textureCache.RequestTexture(viewportId.GetHashCode(), bufferedSize, Document.ProcessingColorSpace);
+                renderTexture = textureCache.RequestTexture(viewportId.GetHashCode(), bufferedSize,
+                    Document.ProcessingColorSpace);
 
                 var bufferedMatrix = targetMatrix.PostConcat(Matrix3X3.CreateTranslation(
                     (bufferedSize.X - renderTargetSize.X) / 2.0,
@@ -398,8 +410,21 @@ internal class SceneRenderer
         Guid viewportId,
         string targetOutput,
         IReadOnlyNodeGraph finalGraph, Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures,
-        RectI? visibleDocumentRegion, float oversizeFactor, out bool fullAffectedArea)
+        RectI? visibleDocumentRegion, float oversizeFactor, out bool fullAffectedArea, out RenderState renderState)
     {
+        renderState = new RenderState
+        {
+            ChunkResolution = resolution,
+            HighResRendering = HighResRendering,
+            TargetOutput = targetOutput,
+            OnionFrames = Document.AnimationData.OnionFrames,
+            OnionOpacity = Document.AnimationData.OnionOpacity,
+            OnionSkinning = DocumentViewModel.AnimationHandler.OnionSkinningEnabledBindable,
+            ZoomLevel = matrix.ScaleX,
+            VisibleDocumentRegion =
+                (RectD?)visibleDocumentRegion ?? new RectD(0, 0, Document.Size.X, Document.Size.Y)
+        };
+
         fullAffectedArea = false;
         if (!DocumentViewModel.SceneTextures.TryGetValue(viewportId, out var cachedTexture) ||
             cachedTexture == null ||
@@ -413,33 +438,13 @@ internal class SceneRenderer
             return true;
         }
 
-        var renderState = new RenderState
-        {
-            ChunkResolution = resolution,
-            HighResRendering = HighResRendering,
-            TargetOutput = targetOutput,
-            OnionFrames = Document.AnimationData.OnionFrames,
-            OnionOpacity = Document.AnimationData.OnionOpacity,
-            OnionSkinning = DocumentViewModel.AnimationHandler.OnionSkinningEnabledBindable,
-            GraphCacheHash = finalGraph.GetCacheHash(),
-            ZoomLevel = matrix.ScaleX,
-            VisibleDocumentRegion =
-                (RectD?)visibleDocumentRegion ?? new RectD(0, 0, Document.Size.X, Document.Size.Y)
-        };
-
         if (lastRenderedStates.TryGetValue(viewportId, out var lastState))
         {
             if (lastState.ShouldRerender(renderState))
             {
-                lastRenderedStates[viewportId] = renderState;
                 fullAffectedArea = lastState.ZoomLevel > renderState.ZoomLevel;
                 return true;
             }
-        }
-        else
-        {
-            lastRenderedStates[viewportId] = renderState;
-            return true;
         }
 
         VecI finalSize = SolveRenderOutputSize(targetOutput, finalGraph, Document.Size, targetSize, out _);
@@ -453,7 +458,8 @@ internal class SceneRenderer
             return true;
         }
 
-        if (!lastFrameTimes.TryGetValue(viewportId, out var frameTime) || frameTime.Frame != DocumentViewModel.AnimationHandler.ActiveFrameTime.Frame)
+        if (!lastFrameTimes.TryGetValue(viewportId, out var frameTime) ||
+            frameTime.Frame != DocumentViewModel.AnimationHandler.ActiveFrameTime.Frame)
         {
             lastFrameTimes[viewportId] = DocumentViewModel.AnimationHandler.ActiveFrameTime;
             return true;
@@ -500,7 +506,6 @@ readonly struct RenderState
     public ChunkResolution ChunkResolution { get; init; }
     public bool HighResRendering { get; init; }
     public string TargetOutput { get; init; }
-    public int GraphCacheHash { get; init; }
     public RectD VisibleDocumentRegion { get; init; }
     public double ZoomLevel { get; init; }
     public int OnionFrames { get; init; }
@@ -509,11 +514,11 @@ readonly struct RenderState
 
     public bool ShouldRerender(RenderState other)
     {
-        return !ChunkResolution.Equals(other.ChunkResolution) || HighResRendering != other.HighResRendering ||
-               TargetOutput != other.TargetOutput || GraphCacheHash != other.GraphCacheHash ||
+        return ChunkResolution > other.ChunkResolution || HighResRendering != other.HighResRendering ||
+               TargetOutput != other.TargetOutput ||
                OnionFrames != other.OnionFrames || Math.Abs(OnionOpacity - other.OnionOpacity) > 0.05 ||
                OnionSkinning != other.OnionSkinning ||
-               VisibleRegionChanged(other) || ZoomDiff(other) > 0;
+               VisibleRegionChanged(other) || ZoomDiffRequiresRender(other);
     }
 
     private bool VisibleRegionChanged(RenderState other)
@@ -521,8 +526,15 @@ readonly struct RenderState
         return !other.VisibleDocumentRegion.IsFullyInside(VisibleDocumentRegion);
     }
 
-    private double ZoomDiff(RenderState other)
+    private bool ZoomDiffRequiresRender(RenderState other)
     {
-        return Math.Abs(ZoomLevel - other.ZoomLevel);
+        bool fullyVisible = !VisibleRegionChanged(other);
+        double diff = ZoomLevel - other.ZoomLevel;
+        if (!fullyVisible)
+        {
+            return Math.Abs(diff) > 0;
+        }
+
+        return diff < 0;
     }
 }

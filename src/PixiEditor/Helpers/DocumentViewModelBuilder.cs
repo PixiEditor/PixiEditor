@@ -140,7 +140,7 @@ internal class DocumentViewModelBuilder
         return this;
     }
 
-    private static void BuildKeyFrames(List<KeyFrameGroup> root, List<KeyFrameBuilder> data, NodeGraph documentGraph)
+    private static void BuildKeyFrames(List<KeyFrameGroup> root, List<KeyFrameBuilder> data, NodeGraph? documentGraph)
     {
         foreach (KeyFrameGroup group in root)
         {
@@ -157,7 +157,10 @@ internal class DocumentViewModelBuilder
             data?.Add(builder);
         }
 
-        TryAddMissingKeyFrames(root, data, documentGraph);
+        if (documentGraph != null)
+        {
+            TryAddMissingKeyFrames(root, data, documentGraph);
+        }
     }
 
     private static void TryAddMissingKeyFrames(List<KeyFrameGroup> groups, List<KeyFrameBuilder>? data,

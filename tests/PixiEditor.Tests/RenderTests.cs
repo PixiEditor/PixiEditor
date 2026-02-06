@@ -103,7 +103,7 @@ public class RenderTests : FullPixiEditorTest
             new EditorData(),
             null, "DEFAULT", SamplingOptions.Default, document.SizeBindable, ChunkResolution.Half,
             Guid.NewGuid(), false, false, () => { });
-        using var output = document.SceneRenderer.RenderScene(info, new AffectedArea());
+        using var output = document.SceneRenderer.RenderScene(info, new AffectedArea(), document.NodeGraph.GetHashCode());
 
         Color expectedColor = Colors.Yellow;
 
