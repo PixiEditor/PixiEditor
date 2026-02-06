@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
+using System.Text.Json.Serialization;
 using Avalonia.Media;
-using Newtonsoft.Json;
 using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.Views.Dialogs.Debugging.Localization;
@@ -17,7 +17,7 @@ public class PoeLanguage
 
         public string Code { get; set; }
 
-        [JsonProperty("Updated")]
+        [JsonPropertyName("Updated")]
         public string UpdatedText { get; set; }
 
         [JsonIgnore]
