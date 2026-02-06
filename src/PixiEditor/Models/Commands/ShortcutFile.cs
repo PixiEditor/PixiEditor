@@ -15,7 +15,6 @@ internal class ShortcutFile
         if (!File.Exists(path))
         {
             Directory.CreateDirectory(System.IO.Path.GetDirectoryName(path));
-            File.Create(Path).Dispose();
         }
     }
 
@@ -44,9 +43,10 @@ internal class ShortcutFile
 
     public static ShortcutsTemplate LoadTemplate(string path)
     {
-        var template = JsonSerializer.Deserialize<ShortcutsTemplate>(File.ReadAllText(path));
-        if (template == null) return new ShortcutsTemplate();
-
-        return template;
+        var info = new FileInfo(path);
+        if (!info.Exists || info.Length == 0)
+            return new ShortcutsTemplate();
+        
+        return JsonSerializer.Deserialize<ShortcutsTemplate>(File.ReadAllText(path)) ?? new ShortcutsTemplate();
     }
 }
