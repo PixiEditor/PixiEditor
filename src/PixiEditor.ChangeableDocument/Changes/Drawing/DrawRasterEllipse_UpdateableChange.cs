@@ -44,7 +44,7 @@ internal class DrawRasterEllipse_UpdateableChange : UpdateableChange
 
     public override bool InitializeAndValidate(Document target)
     {
-        return DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask);
+        return DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask, frame);
     }
 
     private AffectedArea UpdateEllipse(Document target, ChunkyImage targetImage)

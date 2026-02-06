@@ -589,6 +589,7 @@ internal class DocumentUpdater
             (DocumentViewModel)doc, helper);
 
         doc.AnimationHandler.AddKeyFrame(vm);
+        doc.InternalRaiseKeyFrameCreated(vm);
     }
 
     private void ProcessDeleteKeyFrame(DeleteKeyFrame_ChangeInfo info)
