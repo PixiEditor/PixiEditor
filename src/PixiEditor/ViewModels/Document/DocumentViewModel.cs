@@ -57,6 +57,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public event EventHandler<DocumentSizeChangedEventArgs>? SizeChanged;
     public event Action ToolSessionFinished;
 
+
     private bool busy = false;
 
 
@@ -232,6 +233,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     private bool isDisposed = false;
     private Guid referenceId = Guid.Empty;
     private Queue<Action> queuedLayerReadyToUseActions = new();
+    private Queue<Action> queuedKeyFrameReadyToUseActions = new();
 
     private DocumentViewModel()
     {
@@ -563,6 +565,12 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                     }
                 }
             }
+
+            // Before 2.1.0.11, the fallback animation to layer image was the only behavior, after the default is to have it off
+            if(data.FallbackAnimationToLayerImage || SerializationUtil.IsFilePreVersion(serializerData, new Version(2, 1, 0, 11)))
+            {
+                acc.AddActions(new SetFallbackAnimationToLayerImage_Action(true));
+            }
         }
 
         bool IsFileWithSrgbColorBlending((string serializerName, string serializerVersion) serializerData,
@@ -658,6 +666,18 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 lastChangeOnAutosave = Guid.NewGuid();
                 OnPropertyChanged(nameof(AllChangesAutosaved));
                 break;
+        }
+    }
+
+    public void InternalRaiseKeyFrameCreated(RasterCelViewModel vm)
+    {
+        if(queuedKeyFrameReadyToUseActions.Count > 0)
+        {
+            while (queuedKeyFrameReadyToUseActions.Count > 0)
+            {
+                var action = queuedKeyFrameReadyToUseActions.Dequeue();
+                action();
+            }
         }
     }
 
@@ -1495,5 +1515,10 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public void SubscribeLayerReadyToUseOnce(Action action)
     {
         queuedLayerReadyToUseActions.Enqueue(action);
+    }
+
+    public void SubscribeKeyFrameReadyToUseOnce(Action action)
+    {
+        queuedKeyFrameReadyToUseActions.Enqueue(action);
     }
 }

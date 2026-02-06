@@ -263,6 +263,9 @@ internal class DocumentUpdater
             case BlackboardVariableExposed_ChangeInfo info:
                 ProcessBlackboardVariableExposedChangeInfo(info);
                 break;
+            case FallbackAnimationToLayerImage_ChangeInfo info:
+                ProcessFallbackAnimationToLayerImage(info);
+                break;
         }
     }
 
@@ -589,6 +592,7 @@ internal class DocumentUpdater
             (DocumentViewModel)doc, helper);
 
         doc.AnimationHandler.AddKeyFrame(vm);
+        doc.InternalRaiseKeyFrameCreated(vm);
     }
 
     private void ProcessDeleteKeyFrame(DeleteKeyFrame_ChangeInfo info)
@@ -1086,5 +1090,10 @@ internal class DocumentUpdater
         {
             varVm.SetIsExposedInternal(info.Value);
         }
+    }
+
+    private void ProcessFallbackAnimationToLayerImage(FallbackAnimationToLayerImage_ChangeInfo info)
+    {
+        doc.AnimationHandler.SetFallbackAnimationToLayerImage(info.Value);
     }
 }

@@ -22,7 +22,7 @@ internal class ClearSelectedArea_Change : Change
 
     public override bool InitializeAndValidate(Document target)
     {
-        return clearArea is { IsEmpty: false } && DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask);
+        return clearArea is { IsEmpty: false } && DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask, frame);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)

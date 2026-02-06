@@ -103,6 +103,15 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
     public static readonly StyledProperty<double> OnionOpacityProperty = AvaloniaProperty.Register<Timeline, double>(
         nameof(OnionOpacity), 50);
 
+    public static readonly StyledProperty<bool> FallbackFramesToLayerImageProperty = AvaloniaProperty.Register<Timeline, bool>(
+        nameof(FallbackFramesToLayerImage));
+
+    public bool FallbackFramesToLayerImage
+    {
+        get => GetValue(FallbackFramesToLayerImageProperty);
+        set => SetValue(FallbackFramesToLayerImageProperty, value);
+    }
+
     public double OnionOpacity
     {
         get => GetValue(OnionOpacityProperty);
@@ -169,6 +178,10 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
         set { SetValue(FpsProperty, value); }
     }
 
+    public IReadOnlyCollection<CelViewModel> SelectedKeyFrames => KeyFrames != null
+        ? KeyFrames.SelectChildrenBy<CelViewModel>(x => x.IsSelected).ToList()
+        : [];
+
     public int EndFrame => KeyFrames?.FrameCount > 0 ? KeyFrames.FrameCount - 1 : DefaultEndFrame;
 
     public ICommand DraggedKeyFrameCommand { get; }
@@ -180,10 +193,6 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
     public ICommand StepEndCommand { get; }
     public ICommand StepForwardCommand { get; }
     public ICommand StepBackCommand { get; }
-
-    public IReadOnlyCollection<CelViewModel> SelectedKeyFrames => KeyFrames != null
-        ? KeyFrames.SelectChildrenBy<CelViewModel>(x => x.IsSelected).ToList()
-        : [];
 
     private ToggleButton? _playToggle;
     private Grid? _contentGrid;

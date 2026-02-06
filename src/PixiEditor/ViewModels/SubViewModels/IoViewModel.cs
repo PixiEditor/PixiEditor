@@ -353,7 +353,23 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         }
         else
         {
-            Owner.ToolsSubViewModel.UseToolEventInlet(args.Point.PositionOnCanvas, args.Button);
+            if (Owner.ToolsSubViewModel.NeedsNewAnimationKeyFrameForActiveTool())
+            {
+                var activeToolType = Owner.ToolsSubViewModel.ActiveTool.GetType();
+                activeDocument.Tools.TryStopActiveTool();
+                Owner.ToolsSubViewModel.DeselectActiveTool();
+                Owner.ToolsSubViewModel.CreateAnimationKeyFrameIfNeeded();
+                Owner.DocumentManagerSubViewModel.ActiveDocument.SubscribeKeyFrameReadyToUseOnce(() =>
+                {
+                    Owner.ToolsSubViewModel.SetActiveTool(activeToolType, false);
+                    Owner.ToolsSubViewModel.UseToolEventInlet(args.Point.PositionOnCanvas, args.Button);
+                });
+
+            }
+            else
+            {
+                Owner.ToolsSubViewModel.UseToolEventInlet(args.Point.PositionOnCanvas, args.Button);
+            }
         }
 
         if (args.Button == MouseButton.Right)

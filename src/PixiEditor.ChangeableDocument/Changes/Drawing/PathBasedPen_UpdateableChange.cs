@@ -38,7 +38,7 @@ internal class PathBasedPen_UpdateableChange : UpdateableChange
 
     public override bool InitializeAndValidate(Document target)
     {
-        if (!DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask))
+        if (!DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask, frame))
             return false;
         var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame);
         image.SetBlendMode(BlendMode.SrcOver);
