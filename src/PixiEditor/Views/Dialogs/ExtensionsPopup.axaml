@@ -20,36 +20,72 @@
     </Design.DataContext>
     
     <TabControl>
-        <TabItem localization:Translator.Key="EXTENSIONS_WINDOW_TAB_AVAILABLE">
-            <ItemsControl ItemsSource="{Binding AvailableExtensions}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate DataType="platform:AvailableContent">
-                        <StackPanel Spacing="8" Margin="8">
-                            <TextBlock Text="{Binding Name}" FontSize="18" />
-                            <TextBlock Text="{Binding Description}" FontSize="14" />
-                            <ItemsControl ItemsSource="{Binding Tags}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <WrapPanel />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border
-                                            Margin="0,0,6,6"
-                                            Padding="6,2"
-                                            CornerRadius="4"
-                                            Background="{DynamicResource ThemeBackgroundBrush2}">
-                                        <TextBlock Text="{Binding}" />
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </StackPanel>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+        <TabItem localization:Translator.Key="EXTENSIONS_WINDOW_TAB_ALL">
+            <ScrollViewer>
+                <ItemsControl ItemsSource="{Binding AvailableExtensions}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border
+                                Background="{DynamicResource ThemeBackgroundColor1}"
+                                CornerRadius="4"
+                                Padding="12"
+                                Width="226"
+                                Margin="12">
+
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/> 
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    
+                                    <Image Grid.Row="0"
+                                           Height="100"
+                                           Stretch="UniformToFill"
+                                           Source="{Binding Image}" />
+                                    
+                                    <StackPanel Margin="0, 16" Grid.Row="1">
+                                        <TextBlock
+                                            Text="PixiEditor"
+                                            Foreground="White"
+                                            Opacity="0.5"
+                                            FontSize="{DynamicResource FontSizeSmall}" />
+                                        
+                                        <TextBlock
+                                            Text="{Binding Name}"
+                                            TextTrimming="CharacterEllipsis"
+                                            FontSize="{DynamicResource FontSizeLarge}"
+                                            FontWeight="Bold"
+                                            Foreground="{DynamicResource ThemeForegroundColor}"/>
+
+                                        <TextBlock
+                                            Text="{Binding Description}"
+                                            TextTrimming="CharacterEllipsis"
+                                            FontSize="{DynamicResource FontSizeNormal}"
+                                            FontWeight="Normal"
+                                            Foreground="{DynamicResource ThemeForegroundColor}"
+                                            TextWrapping="Wrap"
+                                            MaxLines="2"
+                                            />
+                                    </StackPanel>
+
+                                    <TextBlock Grid.Row="2"
+                                               Text="Free"
+                                               Foreground="White"
+                                               FontSize="{DynamicResource FontSizeNormal}"
+                                               FontWeight="Normal" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
         </TabItem>
         <TabItem localization:Translator.Key="EXTENSIONS_WINDOW_TAB_OWNED">
             <ItemsControl ItemsSource="{Binding OwnedExtensions}">

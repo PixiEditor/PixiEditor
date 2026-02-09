@@ -1300,7 +1300,7 @@
   "USE_SYSTEM_TITLE_BAR": "Use system title bar",
   "OPEN_EXTENSIONS_WINDOW": "Open extensions window",
   "OPEN_EXTENSIONS_WINDOW_DESCRIPTIVE": "Open window for managing extensions",
-  "EXTENSIONS_WINDOW_TAB_AVAILABLE": "Available",
+  "EXTENSIONS_WINDOW_TAB_ALL": "All Extensions",
   "EXTENSIONS_WINDOW_TAB_OWNED": "Owned",
   "EXTENSIONS_WINDOW_TAB_INSTALLED": "Installed",
   "EXTENSIONS_WINDOW_TITLE": "Extensions"
