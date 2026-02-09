@@ -31,6 +31,8 @@ public class SyncedTypeInputProperty
 
     private bool matchToBaseType = false;
 
+    private bool shouldWaitForConnectionToSetType = false;
+
     public SyncedTypeInputProperty(Node node, string internalPropertyName, string displayName,
         SyncedTypeInputProperty other)
     {
@@ -39,7 +41,27 @@ public class SyncedTypeInputProperty
         handlers[typeof(object)] = () => new InputProperty(node, internalPropertyName, displayName, null, typeof(object));
         internalInputProperty = handlers[typeof(object)]();
         internalInputProperty.NonOverridenValueChanged += NonOverridenChanged;
+        node.OnSerializeAdditionalData += OnSerializeAdditionalData;
+        node.OnDeserializeAdditionalData += OnDeserializeAdditionalData;
     }
+
+    private void OnSerializeAdditionalData(Dictionary<string, object> data)
+    {
+        bool isUsingTypeOfThisConnection = internalInputProperty.Connection != null && internalInputProperty.Connection.ValueType == internalInputProperty.ValueType;
+        data[internalPropertyName + "_isUsingTypeOfThisConnection"] = isUsingTypeOfThisConnection;
+    }
+
+    private void OnDeserializeAdditionalData(IReadOnlyDictionary<string, object> data, List<IChangeInfo> changeInfos)
+    {
+        if (data.TryGetValue(internalPropertyName + "_isUsingTypeOfThisConnection", out object value))
+        {
+            if (value is false)
+            {
+                shouldWaitForConnectionToSetType = true;
+            }
+        }
+    }
+
 
     private void NonOverridenChanged(object obj)
     {
@@ -68,10 +90,23 @@ public class SyncedTypeInputProperty
 
     private void UpdateTypeInternal(bool updatedFromSync)
     {
+        if (shouldWaitForConnectionToSetType && !updatedFromSync)
+        {
+            return;
+        }
+
         IOutputProperty? target = null;
-        if (Other.InternalProperty.Connection != null && internalInputProperty.Connection == null)
+        if(shouldWaitForConnectionToSetType && Other.InternalProperty.Connection != null)
         {
             target = Other.InternalProperty.Connection;
+        }
+        else if (Other.InternalProperty.Connection != null && internalInputProperty.Connection == null)
+        {
+            target = Other.InternalProperty.Connection;
+        }
+        else if (Other.IsWaitingForTypeChange && internalInputProperty.Connection != null)
+        {
+            target = internalInputProperty.Connection;
         }
         else if (Other.InternalProperty.Connection == null && internalInputProperty.Connection != null)
         {
@@ -89,7 +124,7 @@ public class SyncedTypeInputProperty
             if (newType != InternalProperty.Connection.ValueType)
             {
                 Type currentType = newType;
-                while (currentType != null && !InternalProperty.Connection.ValueType.IsAssignableTo(currentType))
+                while (currentType != null && !InternalProperty.Connection.ValueType.IsAssignableTo(currentType) && !currentType.IsAssignableTo(typeof(Delegate)))
                 {
                     currentType = currentType.BaseType;
                 }
@@ -139,7 +174,14 @@ public class SyncedTypeInputProperty
             if (!updatedFromSync || Other.InternalProperty.ValueType != internalInputProperty.ValueType)
                 Other?.UpdateTypeInternal(true);
         }
+
+        if (updatedFromSync)
+        {
+            shouldWaitForConnectionToSetType = false;
+        }
     }
+
+    public bool IsWaitingForTypeChange => shouldWaitForConnectionToSetType;
 
     public SyncedTypeInputProperty AddTypeHandler<T>(Func<InputProperty> handler)
     {

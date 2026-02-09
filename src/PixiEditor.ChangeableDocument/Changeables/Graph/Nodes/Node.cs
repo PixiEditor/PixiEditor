@@ -52,6 +52,9 @@ public abstract class Node : IReadOnlyNode, IDisposable
     private ChunkResolution lastChunkResolution = ChunkResolution.Full;
 
     public bool IsDisposed => _isDisposed;
+    public event Action<Dictionary<string, object>> OnSerializeAdditionalData;
+    public event Action<IReadOnlyDictionary<string, object>, List<IChangeInfo>> OnDeserializeAdditionalData;
+
     public event Action<Node> PropertiesChanged;
 
     private bool _isDisposed;
@@ -658,11 +661,24 @@ public abstract class Node : IReadOnlyNode, IDisposable
         return GetOutputProperty(outputProperty);
     }
 
-    public virtual void SerializeAdditionalData(IReadOnlyDocument target, Dictionary<string, object> additionalData)
+    public void SerializeAdditionalData(IReadOnlyDocument target, Dictionary<string, object> additionalData)
+    {
+        SerializeAdditionalDataInternal(target, additionalData);
+        OnSerializeAdditionalData?.Invoke(additionalData);
+    }
+
+    public void DeserializeAdditionalData(IReadOnlyDocument target,
+        IReadOnlyDictionary<string, object> data, List<IChangeInfo> infos)
+    {
+        DeserializeAdditionalDataInternal(target, data, infos);
+        OnDeserializeAdditionalData?.Invoke(data, infos);
+    }
+
+    internal virtual void SerializeAdditionalDataInternal(IReadOnlyDocument target, Dictionary<string, object> additionalData)
     {
     }
 
-    internal virtual void DeserializeAdditionalData(IReadOnlyDocument target,
+    internal virtual void DeserializeAdditionalDataInternal(IReadOnlyDocument target,
         IReadOnlyDictionary<string, object> data, List<IChangeInfo> infos)
     {
     }
