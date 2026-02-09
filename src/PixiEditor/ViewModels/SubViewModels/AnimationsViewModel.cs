@@ -128,7 +128,7 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
             return;
         }
 
-        int newFrame = GetFirstEmptyFrame(activeDocument, activeDocument.SelectedStructureMember.Id);
+        int newFrame = activeDocument.AnimationDataViewModel.ActiveFrameBindable + 1;
 
         Guid toCloneFrom = duplicate ? activeDocument.SelectedStructureMember.Id : Guid.Empty;
         int frameToCopyFrom = duplicate ? activeDocument.AnimationDataViewModel.ActiveFrameBindable : -1;
@@ -200,32 +200,6 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
         {
             activeDocument.AnimationDataViewModel.EndKeyFramesStartPos();
         }
-    }
-
-
-    private static int GetFirstEmptyFrame(DocumentViewModel activeDocument, Guid targetLayer)
-    {
-        int active = activeDocument.AnimationDataViewModel.ActiveFrameBindable;
-        if (activeDocument.AnimationDataViewModel.TryFindCels(targetLayer,
-                out CelGroupViewModel groupViewModel))
-        {
-            if (groupViewModel.Children.All(x => !x.IsWithinRange(active)))
-            {
-                return active;
-            }
-
-            for (int i = active + 1; i < groupViewModel.StartFrameBindable + groupViewModel.DurationBindable; i++)
-            {
-                if (groupViewModel.Children.All(x => !x.IsWithinRange(i)))
-                {
-                    return i;
-                }
-            }
-
-            return groupViewModel.StartFrameBindable + groupViewModel.DurationBindable;
-        }
-
-        return active;
     }
 
     [Command.Internal("PixiEditor.Document.StartChangeActiveFrame", CanExecute = "PixiEditor.HasDocument")]
