@@ -23,6 +23,7 @@ internal class ExtensionManagerViewModel : ViewModelBase
         new ObservableCollection<OwnedProductViewModel>();
     
     public AsyncRelayCommand<string> InstallAndLoadExtensionCommand { get; }
+    public AsyncRelayCommand<string> UninstallExtensionCommand { get; }
     
     private ExtensionsViewModel extensionsViewModel;
     private IAdditionalContentProvider contentProvider;
@@ -35,6 +36,7 @@ internal class ExtensionManagerViewModel : ViewModelBase
         this.identityProvider = identityProvider;
         
         InstallAndLoadExtensionCommand = new AsyncRelayCommand<string>(InstallAndLoadExtension, CanInstallAndLoadExtension);
+        UninstallExtensionCommand = new AsyncRelayCommand<string>(UninstallExtension, CanUninstallExtension);
     }
 
     public async Task FetchAvailableExtensions()
@@ -70,7 +72,7 @@ internal class ExtensionManagerViewModel : ViewModelBase
                 }
             }
 
-            OwnedExtensions.Add(new OwnedProductViewModel(extension, isInstalled, installedVersion, InstallAndLoadExtensionCommand,
+            OwnedExtensions.Add(new OwnedProductViewModel(extension, isInstalled, installedVersion, InstallAndLoadExtensionCommand, UninstallExtensionCommand,
                 IsInstalled));
         }
     }
@@ -115,4 +117,18 @@ internal class ExtensionManagerViewModel : ViewModelBase
         await extensionsViewModel.InstallAndLoadExtension(contentProvider,  extensionId);
     }
     
+    public bool CanUninstallExtension(string extensionId)
+    {
+        return IsInstalled(extensionId);
+    }
+    
+    public async Task UninstallExtension(string extensionId)
+    {
+        if (string.IsNullOrEmpty(extensionId))
+        {
+            return;
+        }
+
+        await extensionsViewModel.UninstallExtension(contentProvider,  extensionId);
+    }
 }

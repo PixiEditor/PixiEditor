@@ -153,4 +153,9 @@ public partial class WasmExtensionInstance : Extension
 
         return (T)module;
     }
+    
+    public override void Unload()
+    {
+        Module.Dispose();
+    }
 }

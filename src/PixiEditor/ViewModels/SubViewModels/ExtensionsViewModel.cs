@@ -98,6 +98,11 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
             CrashHelper.SendExceptionInfo(ex);
         }
     }
+    
+    public async Task UninstallExtension(IAdditionalContentProvider additionalContentProvider, string extensionId)
+    {
+        this.ExtensionLoader.UninstallExtension(extensionId);
+    }
 
     private void RegisterCoreWindows(WindowProvider? windowProvider)
     {

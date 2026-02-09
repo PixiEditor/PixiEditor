@@ -45,6 +45,11 @@ public abstract class Extension
         OnMainWindowLoaded();
     }
 
+    public virtual void Unload()
+    {
+        
+    }
+
     /// <summary>
     ///     Called right after the extension is loaded. Not all extensions are initialized at this point. PixiEditor API at this point is not available.
     ///     Use this method to load resources, patch language files, etc.

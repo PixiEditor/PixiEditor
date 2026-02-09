@@ -64,6 +64,8 @@ public class ExtensionLoader
             {
                 LoadExtension(file);
             }
+            
+            DeleteUnloadedExtensions();
         }
     }
 
@@ -168,6 +170,45 @@ public class ExtensionLoader
         catch (Exception ex)
         {
             return null;
+        }
+    }
+    
+    public void UninstallExtension(string extensionId)
+    {
+        var extension = LoadedExtensions.FirstOrDefault(x => Equals(x.Metadata.UniqueName, extensionId));
+        if (extension != null)
+        {
+            extension.Unload();
+        }
+        
+        LoadedExtensions.Remove(extension);
+        
+        foreach (var package in  PackagesPath) 
+        {
+            string fullPackagePath = Path.Combine(package, $"{extensionId}.pixiext");
+            if (File.Exists(fullPackagePath))
+            { 
+                File.Delete(fullPackagePath);
+            }
+        }
+        
+    }
+
+    public void DeleteUnloadedExtensions()
+    {
+        var loadedExtensionNames = new HashSet<string>(
+            LoadedExtensions.Select(e => e.Metadata.UniqueName)
+        );
+        
+        var directories = Directory.GetDirectories(UnpackedExtensionsPath);
+        foreach (var extensionPath in directories)
+        {
+            var extensionName = Path.GetFileName(extensionPath);
+
+            if (!loadedExtensionNames.Contains(extensionName))
+            {
+                Directory.Delete(extensionPath, true);
+            }
         }
     }
 

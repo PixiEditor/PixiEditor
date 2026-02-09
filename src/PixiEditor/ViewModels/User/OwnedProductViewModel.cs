@@ -39,11 +39,19 @@ public class OwnedProductViewModel : ObservableObject
         get => restartRequired;
         set => SetProperty(ref restartRequired, value);
     }
+    
+    private bool isUninstalling;
+    public bool IsUninstalling
+    {
+        get => isUninstalling;
+        set => SetProperty(ref isUninstalling, value);
+    }
 
     public IAsyncRelayCommand InstallCommand { get; }
+    public IAsyncRelayCommand UninstallCommand { get; }
 
     public OwnedProductViewModel(ProductData productData, bool isInstalled, string? installedVersion,
-        IAsyncRelayCommand<string> installContentCommand, Func<string, bool> isInstalledFunc)
+        IAsyncRelayCommand<string> installContentCommand, IAsyncRelayCommand<string> uninstallContentCommand, Func<string, bool> isInstalledFunc)
     {
         ProductData = productData;
         IsInstalled = isInstalled;
@@ -74,5 +82,21 @@ public class OwnedProductViewModel : ObservableObject
                     IsInstalled = isInstalledFunc(ProductData.Id);
                 }
             }, () => !IsInstalled && !IsInstalling || UpdateAvailable);
+        
+        UninstallCommand = new AsyncRelayCommand(
+            async () =>
+            {
+                IsUninstalling = true;
+                RestartRequired = false;
+
+                await uninstallContentCommand.ExecuteAsync(ProductData.Id);
+
+                IsUninstalling = false;
+                IsInstalled = false;
+                UpdateAvailable = false;
+                RestartRequired = true;
+            },
+            () => IsInstalled && !IsInstalling && !IsUninstalling
+        );
     }
 }

@@ -109,6 +109,27 @@
                                                                localization:Translator.Key="INSTALLING" />
                                                 </Panel>
                             </Button>
+                            <Button DockPanel.Dock="Right"
+                                    HorizontalAlignment="Right"
+                                    FontSize="{DynamicResource FontSizeNormal}"
+                                    Background="{DynamicResource ThemeDangerBrush}"
+                                    Command="{Binding UninstallCommand}">
+                                <Button.IsVisible>
+                                    <MultiBinding Converter="{converters:AllTrueConverter}">
+                                        <Binding Path="IsInstalled" />
+                                        <Binding Path="!IsInstalling" />
+                                        <Binding Path="!IsUninstalling" />
+                                        <Binding Path="!RestartRequired" />
+                                    </MultiBinding>
+                                </Button.IsVisible>
+
+                                <Panel Margin="4 0">
+                                    <TextBlock localization:Translator.Key="UNINSTALL" />
+                                    
+                                    <TextBlock IsVisible="{Binding IsUninstalling}"
+                                               localization:Translator.Key="UNINSTALLING" />
+                                </Panel>
+                            </Button>
                             <Button DockPanel.Dock="Right" HorizontalAlignment="Right"
                                     FontSize="{DynamicResource FontSizeNormal}"
                                     IsVisible="{Binding RestartRequired}"

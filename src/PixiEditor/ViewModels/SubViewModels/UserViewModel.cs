@@ -166,7 +166,7 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
                 }
             }
 
-            OwnedProducts.Add(new OwnedProductViewModel(product, isInstalled, installedVersion, InstallContentCommand,
+            OwnedProducts.Add(new OwnedProductViewModel(product, isInstalled, installedVersion, InstallContentCommand, null,
                 IsInstalled));
         }
 
