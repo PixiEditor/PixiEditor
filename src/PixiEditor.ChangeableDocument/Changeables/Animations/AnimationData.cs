@@ -141,4 +141,41 @@ internal class AnimationData : IReadOnlyAnimationData
         result = default;
         return false;
     }
+
+    public KeyFrame TryGetKeyFrameAtFrame(Guid? groupId, int frame)
+    {
+        if (groupId.HasValue)
+        {
+            if (TryFindKeyFrameCallback(groupId.Value, out GroupKeyFrame group))
+            {
+                return group.Children.FirstOrDefault(kf => kf.StartFrame <= frame && kf.StartFrame + kf.Duration > frame);
+            }
+        }
+        else
+        {
+            return keyFrames.FirstOrDefault(kf => kf.StartFrame <= frame && kf.StartFrame + kf.Duration > frame);
+        }
+
+        return null;
+    }
+
+    public KeyFrame TryGetNextKeyFrameAtFrame(Guid groupId, int keyFrameStartFrame)
+    {
+        if (TryFindKeyFrameCallback(groupId, out GroupKeyFrame group))
+        {
+            return group.Children.OrderBy(kf => kf.StartFrame).FirstOrDefault(kf => kf.StartFrame > keyFrameStartFrame);
+        }
+
+        return keyFrames.OrderBy(kf => kf.StartFrame).FirstOrDefault(kf => kf.StartFrame > keyFrameStartFrame);
+    }
+
+    public KeyFrame TryGetPreviousKeyFrameAtFrame(Guid groupId, int keyFrame)
+    {
+        if (TryFindKeyFrameCallback(groupId, out GroupKeyFrame group))
+        {
+            return group.Children.OrderByDescending(kf => kf.StartFrame).FirstOrDefault(kf => kf.StartFrame < keyFrame);
+        }
+
+        return keyFrames.OrderByDescending(kf => kf.StartFrame).FirstOrDefault(kf => kf.StartFrame < keyFrame);
+    }
 }
