@@ -115,11 +115,11 @@
                                     <Image Grid.Row="0"
                                            Height="100"
                                            Stretch="UniformToFill"
-                                           Source="" />
+                                           Source="{Binding ProductData.ImageUrl}" />
                                     
                                     <StackPanel Margin="0, 16" Grid.Row="1">
                                         <TextBlock
-                                            Text="PixiEditor"
+                                            Text="{Binding ProductData.Author}"
                                             Foreground="White"
                                             Opacity="0.5"
                                             FontSize="{DynamicResource FontSizeSmall}" />
@@ -132,7 +132,7 @@
                                             Foreground="{DynamicResource ThemeForegroundColor}"/>
 
                                         <TextBlock
-                                            Text="Description"
+                                            Text="{Binding ProductData.Description}"
                                             TextTrimming="CharacterEllipsis"
                                             FontSize="{DynamicResource FontSizeNormal}"
                                             FontWeight="Normal"

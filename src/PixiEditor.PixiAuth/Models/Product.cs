@@ -10,6 +10,15 @@ public class Product
 
     [JsonPropertyName("productName")]
     public string ProductName { get; set; } = string.Empty;
+    
+    [JsonPropertyName("productDescription")]
+    public string ProductDescription { get; set; } = string.Empty;
+    
+    [JsonPropertyName("author")]
+    public string Author { get; set; } = string.Empty;
+    
+    [JsonPropertyName("imageUrl")]
+    public string ImageUrl { get; set; } = string.Empty;
 
     [JsonPropertyName("isDlc")]
     public bool IsDlc { get; set; }
