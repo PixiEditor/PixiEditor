@@ -183,9 +183,9 @@ public class BrushOutputNode : Node
         RenderPreviews(context.GetPreviewTexturesForNode(Id), context);
     }
 
-    public override void SerializeAdditionalData(IReadOnlyDocument target, Dictionary<string, object> additionalData)
+    internal override void SerializeAdditionalDataInternal(IReadOnlyDocument target, Dictionary<string, object> additionalData)
     {
-        base.SerializeAdditionalData(target, additionalData);
+        base.SerializeAdditionalDataInternal(target, additionalData);
         additionalData["PersistentId"] = PersistentId;
     }
 
@@ -194,10 +194,10 @@ public class BrushOutputNode : Node
         drawnContentTextureOnce = false;
     }
 
-    internal override void DeserializeAdditionalData(IReadOnlyDocument target, IReadOnlyDictionary<string, object> data,
+    internal override void DeserializeAdditionalDataInternal(IReadOnlyDocument target, IReadOnlyDictionary<string, object> data,
         List<IChangeInfo> infos)
     {
-        base.DeserializeAdditionalData(target, data, infos);
+        base.DeserializeAdditionalDataInternal(target, data, infos);
         if (data.TryGetValue("PersistentId", out var persistentIdObj))
         {
             if (persistentIdObj is Guid persistentId)
