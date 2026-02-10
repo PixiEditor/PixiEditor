@@ -133,8 +133,8 @@ public sealed class StandaloneAdditionalContentProvider : IAdditionalContentProv
                 Id = x.Id,
                 Name = x.Name,
                 Description = x.Description,
+                Author = x.Author,
                 Image = x.Image,
-                Tags = x.Tags
             })
             .ToList();
     }

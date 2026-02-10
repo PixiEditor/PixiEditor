@@ -52,7 +52,7 @@
                                     
                                     <StackPanel Margin="0, 16" Grid.Row="1">
                                         <TextBlock
-                                            Text="PixiEditor"
+                                            Text="{Binding Author}"
                                             Foreground="White"
                                             Opacity="0.5"
                                             FontSize="{DynamicResource FontSizeSmall}" />

@@ -13,10 +13,10 @@ public class AvailableExtension
 
     [JsonPropertyName("description")]
     public string Description { get; set; } = string.Empty;
+    
+    [JsonPropertyName("author")]
+    public string Author { get; set; } = string.Empty;
 
     [JsonPropertyName("image")]
     public string Image { get; set; } = string.Empty;
-
-    [JsonPropertyName("tags")]
-    public List<string> Tags { get; set; } = new List<string>();
 }
