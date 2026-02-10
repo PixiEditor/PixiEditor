@@ -21,7 +21,7 @@ public partial class ExtensionsPopup : PixiEditorPopup
         if (DataContext is ExtensionManagerViewModel vm)
         {
             Dispatcher.UIThread.InvokeAsync(async () => await vm.FetchAvailableExtensions());
-            Dispatcher.UIThread.Invoke(() => vm.FetchOwnedExtensions());
+            vm.FetchOwnedExtensions();
         }
     }
 }
