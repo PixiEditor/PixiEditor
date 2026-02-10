@@ -210,10 +210,17 @@
                                             <Button.Content>
                                                 <Panel>
                                                     <ContentControl
+                                                        FontSize="18"
                                                         IsVisible="{Binding !IsUninstalling}"
-                                                        Content="{DynamicResource icon-trash}" />
+                                                        Content="{DynamicResource icon-trash}">
+                                                        
+                                                        <ToolTip.Tip>
+                                                            <TextBlock localization:Translator.Key="EXTENSIONS_WINDOW_UNINSTALL_BUTTON_TOOLTIP" />
+                                                        </ToolTip.Tip>
+                                                    </ContentControl>
 
                                                     <ContentControl
+                                                        FontSize="18"
                                                         IsVisible="{Binding IsUninstalling}"
                                                         Content="{DynamicResource icon-circle}" />
                                                 </Panel>
