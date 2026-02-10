@@ -128,7 +128,12 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
             return;
         }
 
-        int newFrame = activeDocument.AnimationDataViewModel.ActiveFrameBindable + 1;
+        var kfAtFrame = activeDocument.AnimationDataViewModel.AllCels.FirstOrDefault(x =>
+            x.IsWithinRange(activeDocument.AnimationDataViewModel.ActiveFrameBindable));
+
+        int newFrame = kfAtFrame != null
+            ? kfAtFrame.StartFrameBindable + kfAtFrame.DurationBindable - 1
+            : activeDocument.AnimationDataViewModel.ActiveFrameBindable;
 
         Guid toCloneFrom = duplicate ? activeDocument.SelectedStructureMember.Id : Guid.Empty;
         int frameToCopyFrom = duplicate ? activeDocument.AnimationDataViewModel.ActiveFrameBindable : -1;

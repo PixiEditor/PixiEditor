@@ -13,6 +13,8 @@ internal class CreateCel_Change : Change
     private ImageLayerNode? _layer;
     private Guid createdKeyFrameId;
 
+    private Dictionary<Guid, int> originalStartFrames = new Dictionary<Guid, int>();
+
     [GenerateMakeChangeAction]
     public CreateCel_Change(Guid targetLayerGuid, Guid newKeyFrameGuid, int frame,
         int cloneFromFrame = -1,
@@ -47,7 +49,15 @@ internal class CreateCel_Change : Change
             }
         }
 
-        return _frame != 0 && target.TryFindMember(_targetLayerGuid, out _layer);
+        if (_frame == 0 || !target.TryFindMember(_targetLayerGuid, out _layer))
+        {
+            return false;
+        }
+
+        var kfAtFrame = target.AnimationData.TryGetKeyFrameAtFrame(_targetLayerGuid, _frame);
+        _frame = kfAtFrame?.EndFrame + 1 ?? _frame;
+
+        return true;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
@@ -99,11 +109,15 @@ internal class CreateCel_Change : Change
         {
             var celsAfter = rootCelGroup.Children.Where(x => x.StartFrame >= _frame).ToArray();
 
-
             foreach (var cel in celsAfter)
             {
                 if (cel is RasterKeyFrame rasterKeyFrame && rasterKeyFrame.Id != createdKeyFrameId)
                 {
+                    if(!originalStartFrames.ContainsKey(rasterKeyFrame.Id))
+                    {
+                        originalStartFrames.Add(rasterKeyFrame.Id, rasterKeyFrame.StartFrame);
+                    }
+
                     rasterKeyFrame.StartFrame += duration;
                     infos.Add(new KeyFrameLength_ChangeInfo(rasterKeyFrame.Id, rasterKeyFrame.StartFrame,
                         rasterKeyFrame.Duration));
@@ -118,7 +132,6 @@ internal class CreateCel_Change : Change
         infos.Add(new KeyFrameLength_ChangeInfo(createdKeyFrameId, _frame, duration));
         infos.Add(new KeyFrameVisibility_ChangeInfo(_targetLayerGuid, isVisible));
 
-
         return infos;
     }
 
@@ -129,17 +142,15 @@ internal class CreateCel_Change : Change
         target.FindMemberOrThrow<ImageLayerNode>(_targetLayerGuid).RemoveKeyFrame(createdKeyFrameId);
 
         List<IChangeInfo> infos = new();
-        if (rootCelGroup != null)
+        var root = target.AnimationData.KeyFrames.FirstOrDefault(x => x.Id == _layer.Id) as GroupKeyFrame;
+
+        foreach (var kvp in originalStartFrames)
         {
-            var celsAfter = rootCelGroup.Children.Where(x => x.StartFrame > _frame).ToArray();
-            foreach (var cel in celsAfter)
+            if (root?.Children.FirstOrDefault(x => x.Id == kvp.Key) is RasterKeyFrame rasterKeyFrame)
             {
-                if (cel is RasterKeyFrame rasterKeyFrame)
-                {
-                    rasterKeyFrame.StartFrame -= cel.Duration;
-                    infos.Add(new KeyFrameLength_ChangeInfo(rasterKeyFrame.Id, rasterKeyFrame.StartFrame,
-                        rasterKeyFrame.Duration));
-                }
+                rasterKeyFrame.StartFrame = kvp.Value;
+                infos.Add(new KeyFrameLength_ChangeInfo(rasterKeyFrame.Id, rasterKeyFrame.StartFrame,
+                    rasterKeyFrame.Duration));
             }
         }
 
