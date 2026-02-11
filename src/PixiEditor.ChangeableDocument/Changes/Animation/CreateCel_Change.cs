@@ -12,6 +12,7 @@ internal class CreateCel_Change : Change
     private int? cloneFromFrame;
     private ImageLayerNode? _layer;
     private Guid createdKeyFrameId;
+    private bool shiftKeyframesAfter;
 
     private Dictionary<Guid, int> originalStartFrames = new Dictionary<Guid, int>();
 
@@ -25,6 +26,7 @@ internal class CreateCel_Change : Change
         cloneFrom = cloneFromExisting != default ? cloneFromExisting : null;
         createdKeyFrameId = newKeyFrameGuid;
         this.cloneFromFrame = cloneFromFrame < 0 ? null : cloneFromFrame;
+        shiftKeyframesAfter = frame > 0;
     }
 
     public override bool InitializeAndValidate(Document target)
@@ -108,7 +110,7 @@ internal class CreateCel_Change : Change
         if (rootCelGroup != null)
         {
             bool isCelAtFrame = target.AnimationData.TryGetKeyFrameAtFrame(targetNode.Id, _frame) != null;
-            if (isCelAtFrame)
+            if (isCelAtFrame && shiftKeyframesAfter)
             {
                 var celsAfter = rootCelGroup.Children.Where(x => x.EndFrame >= _frame).ToList();
 
