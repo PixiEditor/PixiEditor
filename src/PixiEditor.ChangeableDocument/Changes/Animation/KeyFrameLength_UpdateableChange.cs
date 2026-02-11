@@ -159,7 +159,7 @@ internal class KeyFrameLength_UpdateableChange : UpdateableChange
             originalNeighborDuration = firstKeyFrameToTheLeft.Duration;
         }
 
-        int overlappingFrames = (firstKeyFrameToTheLeft.StartFrame + firstKeyFrameToTheLeft.Duration) - StartFrame;
+        int overlappingFrames = Math.Max((firstKeyFrameToTheLeft.StartFrame + firstKeyFrameToTheLeft.Duration) - StartFrame, 0);
         int newDuration = Math.Max(1, firstKeyFrameToTheLeft.Duration - overlappingFrames);
         newDuration = Math.Min(newDuration, originalNeighborDuration);
         firstKeyFrameToTheLeft.Duration = newDuration;
@@ -181,7 +181,7 @@ internal class KeyFrameLength_UpdateableChange : UpdateableChange
             originalNeighborDuration = firstKeyFrameToTheRight.Duration;
         }
 
-        int overlappingFrames = (StartFrame + Duration) - firstKeyFrameToTheRight.StartFrame;
+        int overlappingFrames = Math.Max((StartFrame + Duration) - firstKeyFrameToTheRight.StartFrame, 0);
         int newDuration = Math.Max(1, firstKeyFrameToTheRight.Duration - overlappingFrames);
         newDuration = Math.Min(newDuration, originalNeighborDuration);
         int durationDifference = newDuration - firstKeyFrameToTheRight.Duration;
