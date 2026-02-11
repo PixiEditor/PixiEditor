@@ -144,7 +144,8 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
             toCloneFrom,
             frameToCopyFrom);
 
-        activeDocument.Operations.SetActiveFrame(newFrame);
+        int newPos = kfAtFrame != null ? kfAtFrame.StartFrameBindable + kfAtFrame.DurationBindable : activeDocument.AnimationDataViewModel.ActiveFrameBindable;
+        activeDocument.Operations.SetActiveFrame(newPos);
 
         Analytics.SendCreateKeyframe(
             newFrame,

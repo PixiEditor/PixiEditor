@@ -107,20 +107,24 @@ internal class CreateCel_Change : Change
         List<IChangeInfo> infos = new();
         if (rootCelGroup != null)
         {
-            var celsAfter = rootCelGroup.Children.Where(x => x.StartFrame >= _frame).ToArray();
-
-            foreach (var cel in celsAfter)
+            bool isCelAtFrame = target.AnimationData.TryGetKeyFrameAtFrame(targetNode.Id, _frame) != null;
+            if (isCelAtFrame)
             {
-                if (cel is RasterKeyFrame rasterKeyFrame && rasterKeyFrame.Id != createdKeyFrameId)
-                {
-                    if(!originalStartFrames.ContainsKey(rasterKeyFrame.Id))
-                    {
-                        originalStartFrames.Add(rasterKeyFrame.Id, rasterKeyFrame.StartFrame);
-                    }
+                var celsAfter = rootCelGroup.Children.Where(x => x.EndFrame >= _frame).ToList();
 
-                    rasterKeyFrame.StartFrame += duration;
-                    infos.Add(new KeyFrameLength_ChangeInfo(rasterKeyFrame.Id, rasterKeyFrame.StartFrame,
-                        rasterKeyFrame.Duration));
+                foreach (var cel in celsAfter)
+                {
+                    if (cel is RasterKeyFrame rasterKeyFrame && rasterKeyFrame.Id != createdKeyFrameId)
+                    {
+                        if (!originalStartFrames.ContainsKey(rasterKeyFrame.Id))
+                        {
+                            originalStartFrames.Add(rasterKeyFrame.Id, rasterKeyFrame.StartFrame);
+                        }
+
+                        rasterKeyFrame.StartFrame += duration;
+                        infos.Add(new KeyFrameLength_ChangeInfo(rasterKeyFrame.Id, rasterKeyFrame.StartFrame,
+                            rasterKeyFrame.Duration));
+                    }
                 }
             }
         }

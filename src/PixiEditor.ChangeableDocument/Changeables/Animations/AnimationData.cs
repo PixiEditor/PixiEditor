@@ -143,7 +143,7 @@ internal class AnimationData : IReadOnlyAnimationData
         return false;
     }
 
-    public KeyFrame TryGetKeyFrameAtFrame(Guid? groupId, int frame)
+    public KeyFrame? TryGetKeyFrameAtFrame(Guid? groupId, int frame)
     {
         if (groupId.HasValue)
         {
