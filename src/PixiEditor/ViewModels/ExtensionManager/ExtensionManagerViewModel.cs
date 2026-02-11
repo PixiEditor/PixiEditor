@@ -49,6 +49,12 @@ internal class ExtensionManagerViewModel : ViewModelBase
     public void FetchOwnedExtensions()
     {
         OwnedExtensions.Clear();
+        
+        if (identityProvider.User == null)
+        {
+            return;
+        }
+        
         var extensions = identityProvider.User.OwnedProducts;
         foreach (ProductData extension in extensions)
         {
