@@ -10,6 +10,7 @@
         xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
         xmlns:user="clr-namespace:PixiEditor.ViewModels.User"
         xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
+        xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="PixiEditor.Views.Dialogs.ExtensionsPopup"
         x:DataType="extensionManager:ExtensionManagerViewModel"
@@ -48,7 +49,7 @@
                                     <Image Grid.Row="0"
                                            Height="100"
                                            Stretch="UniformToFill"
-                                           Source="{Binding Image}" />
+                                           asyncImageLoader:ImageLoader.Source="{Binding Image}" />
                                     
                                     <StackPanel Margin="0, 16" Grid.Row="1">
                                         <TextBlock
@@ -115,7 +116,7 @@
                                     <Image Grid.Row="0"
                                            Height="100"
                                            Stretch="UniformToFill"
-                                           Source="{Binding ProductData.ImageUrl}" />
+                                           asyncImageLoader:ImageLoader.Source="{Binding ProductData.ImageUrl}" />
                                     
                                     <StackPanel Margin="0, 16" Grid.Row="1">
                                         <TextBlock
@@ -143,53 +144,58 @@
                                     </StackPanel>
                                     
                                     <DockPanel Grid.Row="2">
-                                        <Button DockPanel.Dock="Right" HorizontalAlignment="Right"
-                                                        IsVisible="{Binding !RestartRequired}"
-                                                        FontSize="{DynamicResource FontSizeNormal}"
-                                                        Command="{Binding InstallCommand}">
-                                                    <Panel Margin="4 0">
-                                                        <TextBlock>
-                                                            <TextBlock.IsVisible>
-                                                                <MultiBinding Converter="{converters:AllTrueConverter}">
-                                                                    <Binding Path="IsInstalled" />
-                                                                    <Binding Path="!UpdateAvailable" />
-                                                                    <Binding Path="!IsInstalling" />
-                                                                </MultiBinding>
-                                                            </TextBlock.IsVisible>
-                                                            <Run Classes="pixi-icon"
-                                                                 Text="{DynamicResource icon-checkTick}" />
-                                                            <Run localization:Translator.Key="INSTALLED" />
-                                                        </TextBlock>
+                                        <DockPanel DockPanel.Dock="Right"
+                                                   HorizontalAlignment="Right"
+                                                   IsVisible="{Binding !RestartRequired}"
+                                                   Margin="4 0">
+                                            
+                                            <Button Command="{Binding InstallCommand}"
+                                                    FontSize="{DynamicResource FontSizeNormal}">
+                                                <Button.IsVisible>
+                                                    <MultiBinding Converter="{converters:AllTrueConverter}">
+                                                        <Binding Path="!IsInstalled" />
+                                                        <Binding Path="!IsInstalling" />
+                                                    </MultiBinding>
+                                                </Button.IsVisible>
 
-                                                        <TextBlock Foreground="{DynamicResource ThemeAccent3Brush}">
-                                                            <TextBlock.IsVisible>
-                                                                <MultiBinding Converter="{converters:AllTrueConverter}">
-                                                                    <Binding Path="UpdateAvailable" />
-                                                                    <Binding Path="!IsInstalling" />
-                                                                </MultiBinding>
-                                                            </TextBlock.IsVisible>
-                                                            <Run Classes="pixi-icon"
-                                                                 Text="{DynamicResource icon-download}" />
-                                                            <Run localization:Translator.Key="UPDATE" />
-                                                        </TextBlock>
+                                                <TextBlock>
+                                                    <Run Classes="pixi-icon" Text="{DynamicResource icon-download}" />
+                                                    <Run localization:Translator.Key="INSTALL" />
+                                                </TextBlock>
+                                            </Button>
+                                            
+                                            <TextBlock IsVisible="{Binding IsInstalling}" 
+                                                       FontSize="{DynamicResource FontSizeNormal}"
+                                                       localization:Translator.Key="INSTALLING" />
+                                            
+                                            <ToggleSwitch
+                                                OnContent=""
+                                                OffContent=""
+                                                VerticalAlignment="Center">
+                                                <ToggleSwitch.IsVisible>
+                                                    <MultiBinding Converter="{converters:AllTrueConverter}">
+                                                        <Binding Path="IsInstalled" />
+                                                        <Binding Path="!IsInstalling" />
+                                                    </MultiBinding>
+                                                </ToggleSwitch.IsVisible>
+                                            </ToggleSwitch>
+                                            
+                                            <Button Command="{Binding InstallCommand}"
+                                                    FontSize="{DynamicResource FontSizeNormal}">
+                                                <Button.IsVisible>
+                                                    <MultiBinding Converter="{converters:AllTrueConverter}">
+                                                        <Binding Path="UpdateAvailable" />
+                                                        <Binding Path="!IsInstalling" />
+                                                    </MultiBinding>
+                                                </Button.IsVisible>
 
-                                                        <TextBlock>
-                                                            <TextBlock.IsVisible>
-                                                                <MultiBinding Converter="{converters:AllTrueConverter}">
-                                                                    <Binding Path="!IsInstalled" />
-                                                                    <Binding Path="!IsInstalling" />
-                                                                    <Binding Path="!UpdateAvailable" />
-                                                                </MultiBinding>
-                                                            </TextBlock.IsVisible>
+                                                <TextBlock Foreground="{DynamicResource ThemeAccent3Brush}">
+                                                    <Run Classes="pixi-icon" Text="{DynamicResource icon-download}" />
+                                                    <Run localization:Translator.Key="UPDATE" />
+                                                </TextBlock>
+                                            </Button>
 
-                                                            <Run Classes="pixi-icon" Text="{DynamicResource icon-download}" />
-                                                            <Run localization:Translator.Key="INSTALL" />
-                                                        </TextBlock>
-
-                                                        <TextBlock IsVisible="{Binding IsInstalling}"
-                                                                   localization:Translator.Key="INSTALLING" />
-                                                    </Panel>
-                                        </Button>
+                                        </DockPanel>
                                         <Button DockPanel.Dock="Left"
                                                 HorizontalAlignment="Left"
                                                 Background="Transparent"
