@@ -220,6 +220,11 @@ internal class AffectedAreasGatherer
                     AddWholeCanvasToEveryImagePreview(false);
                     AddAllNodesToImagePreviews();
                     break;
+                case FallbackAnimationToLayerImage_ChangeInfo:
+                    AddWholeCanvasToMainImage();
+                    AddWholeCanvasToEveryImagePreview(true);
+                    AddAllNodesToImagePreviews();
+                    break;
             }
         }
     }
