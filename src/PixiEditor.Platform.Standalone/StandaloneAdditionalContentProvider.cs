@@ -135,6 +135,7 @@ public sealed class StandaloneAdditionalContentProvider : IAdditionalContentProv
                 Description = x.Description,
                 Author = x.Author,
                 Image = x.Image,
+                Price =  x.Price,
             })
             .ToList();
     }

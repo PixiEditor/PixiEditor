@@ -11,4 +11,6 @@ public class AvailableContent
     public string Author { get; set; } = string.Empty;
     
     public string Image { get; set; } = string.Empty;
+    
+    public string Price { get; set; } = string.Empty;
 }

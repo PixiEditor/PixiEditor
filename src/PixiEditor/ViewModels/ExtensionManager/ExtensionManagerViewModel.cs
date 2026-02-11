@@ -13,8 +13,8 @@ namespace PixiEditor.ViewModels.ExtensionManager;
 
 internal class ExtensionManagerViewModel : ViewModelBase
 {
-    public ObservableCollection<AvailableContent> AvailableExtensions { get; } =
-        new ObservableCollection<AvailableContent>();
+    public ObservableCollection<AvailableContentViewModel> AvailableExtensions { get; } =
+        new ObservableCollection<AvailableContentViewModel>();
     
     public ObservableCollection<OwnedProductViewModel> OwnedExtensions { get; } =
         new ObservableCollection<OwnedProductViewModel>();
@@ -40,7 +40,10 @@ internal class ExtensionManagerViewModel : ViewModelBase
     {
         AvailableExtensions.Clear();
         var availableExtensions = await contentProvider.FetchAvailableExtensions();
-        AvailableExtensions.AddRange(availableExtensions);
+        foreach (var extension in availableExtensions)
+        {
+            AvailableExtensions.Add(new AvailableContentViewModel(extension, this));
+        }
     }
     
     public void FetchOwnedExtensions()

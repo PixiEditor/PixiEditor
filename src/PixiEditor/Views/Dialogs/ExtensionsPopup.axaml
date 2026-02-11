@@ -49,24 +49,24 @@
                                     <Image Grid.Row="0"
                                            Height="100"
                                            Stretch="UniformToFill"
-                                           asyncImageLoader:ImageLoader.Source="{Binding Image}" />
+                                           asyncImageLoader:ImageLoader.Source="{Binding AvailableContent.Image}" />
                                     
                                     <StackPanel Margin="0, 16" Grid.Row="1">
                                         <TextBlock
-                                            Text="{Binding Author}"
+                                            Text="{Binding AvailableContent.Author}"
                                             Foreground="White"
                                             Opacity="0.5"
                                             FontSize="{DynamicResource FontSizeSmall}" />
                                         
                                         <TextBlock
-                                            Text="{Binding Name}"
+                                            Text="{Binding AvailableContent.Name}"
                                             TextTrimming="CharacterEllipsis"
                                             FontSize="{DynamicResource FontSizeLarge}"
                                             FontWeight="Bold"
                                             Foreground="{DynamicResource ThemeForegroundColor}"/>
 
                                         <TextBlock
-                                            Text="{Binding Description}"
+                                            Text="{Binding AvailableContent.Description}"
                                             TextTrimming="CharacterEllipsis"
                                             FontSize="{DynamicResource FontSizeNormal}"
                                             FontWeight="Normal"
@@ -76,11 +76,22 @@
                                             />
                                     </StackPanel>
 
-                                    <TextBlock Grid.Row="2"
-                                               Text="Free"
+                                    <Panel Grid.Row="2">
+                                    <TextBlock
+                                               Text="{Binding AvailableContent.Price}"
                                                Foreground="White"
                                                FontSize="{DynamicResource FontSizeNormal}"
-                                               FontWeight="Normal" />
+                                               FontWeight="Normal" 
+                                               IsVisible="{Binding !IsOwned}"
+                                               />
+                                    <TextBlock
+                                        localization:Translator.Key="EXTENSIONS_WINDOW_IN_LIBRARY"
+                                        Foreground="White"
+                                        FontSize="{DynamicResource FontSizeNormal}"
+                                        FontWeight="Normal" 
+                                        IsVisible="{Binding IsOwned}"
+                                    />
+                                    </Panel>
                                 </Grid>
                             </Border>
                         </DataTemplate>
