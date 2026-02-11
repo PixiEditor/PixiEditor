@@ -567,7 +567,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             }
 
             // Before 2.1.0.11, the fallback animation to layer image was the only behavior, after the default is to have it off
-            if(data.FallbackAnimationToLayerImage || SerializationUtil.IsFilePreVersion(serializerData, new Version(2, 1, 0, 11)))
+            if (data.FallbackAnimationToLayerImage ||
+                SerializationUtil.IsFilePreVersion(serializerData, new Version(2, 1, 0, 11)))
             {
                 acc.AddActions(new SetFallbackAnimationToLayerImage_Action(true));
             }
@@ -671,13 +672,10 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
     public void InternalRaiseKeyFrameCreated(RasterCelViewModel vm)
     {
-        if(queuedKeyFrameReadyToUseActions.Count > 0)
+        while (queuedKeyFrameReadyToUseActions.Count > 0)
         {
-            while (queuedKeyFrameReadyToUseActions.Count > 0)
-            {
-                var action = queuedKeyFrameReadyToUseActions.Dequeue();
-                action();
-            }
+            var action = queuedKeyFrameReadyToUseActions.Dequeue();
+            action();
         }
     }
 
@@ -700,7 +698,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             if (node is not CustomOutputNode exportZone)
                 continue;
 
-            var name = exportZone.InputProperties.FirstOrDefault(x => x.InternalPropertyName == CustomOutputNode.OutputNamePropertyName);
+            var name = exportZone.InputProperties.FirstOrDefault(x =>
+                x.InternalPropertyName == CustomOutputNode.OutputNamePropertyName);
 
 
             if (name?.Value is not string finalName)
@@ -712,7 +711,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             }
 
             VecI originalSize =
-                exportZone.InputProperties.FirstOrDefault(x => x.InternalPropertyName == CustomOutputNode.SizePropertyName)
+                exportZone.InputProperties
+                    .FirstOrDefault(x => x.InternalPropertyName == CustomOutputNode.SizePropertyName)
                     ?.Value as VecI? ?? SizeBindable;
             if (originalSize.ShortestAxis <= 0)
             {
