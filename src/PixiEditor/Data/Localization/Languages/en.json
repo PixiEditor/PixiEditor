@@ -1302,7 +1302,6 @@
   "OPEN_EXTENSIONS_WINDOW_DESCRIPTIVE": "Open window for managing extensions",
   "EXTENSIONS_WINDOW_TAB_ALL": "All Extensions",
   "EXTENSIONS_WINDOW_TAB_OWNED": "My Library",
-  "EXTENSIONS_WINDOW_TAB_INSTALLED": "Installed",
   "EXTENSIONS_WINDOW_TITLE": "Extensions",
   "EXTENSIONS_WINDOW_UNINSTALL_BUTTON_TOOLTIP": "Uninstall extension"
 }

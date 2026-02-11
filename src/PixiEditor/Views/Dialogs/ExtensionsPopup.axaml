@@ -246,16 +246,6 @@
                 </ItemsControl>
             </ScrollViewer>
         </TabItem>
-        <TabItem localization:Translator.Key="EXTENSIONS_WINDOW_TAB_INSTALLED">
-            <ItemsControl ItemsSource="{Binding InstalledExtensions}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate DataType="user:OwnedProductViewModel">
-                        <TextBox Text="{Binding ProductData.DisplayName}">
-                        </TextBox>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </TabItem>
     </TabControl>
 
 

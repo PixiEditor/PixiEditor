@@ -19,9 +19,6 @@ internal class ExtensionManagerViewModel : ViewModelBase
     public ObservableCollection<OwnedProductViewModel> OwnedExtensions { get; } =
         new ObservableCollection<OwnedProductViewModel>();
     
-    public ObservableCollection<OwnedProductViewModel> InstalledExtensions { get; } =
-        new ObservableCollection<OwnedProductViewModel>();
-    
     public AsyncRelayCommand<string> InstallAndLoadExtensionCommand { get; }
     public AsyncRelayCommand<string> UninstallExtensionCommand { get; }
     
@@ -49,7 +46,6 @@ internal class ExtensionManagerViewModel : ViewModelBase
     public void FetchOwnedExtensions()
     {
         OwnedExtensions.Clear();
-        InstalledExtensions.Clear();
         var extensions = identityProvider.User.OwnedProducts;
         foreach (ProductData extension in extensions)
         {
