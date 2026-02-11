@@ -80,6 +80,8 @@ public class OwnedProductViewModel : ObservableObject
                 else
                 {
                     IsInstalled = isInstalledFunc(ProductData.Id);
+                    
+                    UninstallCommand.NotifyCanExecuteChanged();
                 }
             }, () => !IsInstalled && !IsInstalling || UpdateAvailable);
         
