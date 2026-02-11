@@ -132,25 +132,7 @@ internal class KeyFrameLength_UpdateableChange : UpdateableChange
 
             if (firstKeyFrameToTheRight != null && firstKeyFrameToTheRight.Id != KeyFrameGuid)
             {
-                if (neighborKeyFrameGuid == null)
-                {
-                    neighborKeyFrameGuid = firstKeyFrameToTheRight.Id;
-                    originalNeighborStartFrame = firstKeyFrameToTheRight.StartFrame;
-                    originalNeighborDuration = firstKeyFrameToTheRight.Duration;
-                }
-
-                int overlappingFrames = (StartFrame + Duration) - firstKeyFrameToTheRight.StartFrame;
-                int newDuration = Math.Max(1, firstKeyFrameToTheRight.Duration - overlappingFrames);
-                newDuration = Math.Min(newDuration, originalNeighborDuration);
-                int durationDifference = newDuration - firstKeyFrameToTheRight.Duration;
-                int newStart = firstKeyFrameToTheRight.StartFrame + -durationDifference;
-                firstKeyFrameToTheRight.StartFrame = newStart;
-                firstKeyFrameToTheRight.Duration = newDuration;
-
-                changeInfos.Add(new KeyFrameLength_ChangeInfo(firstKeyFrameToTheRight.Id, newStart,
-                    newDuration));
-
-                finalDuration = Math.Min(finalDuration, firstKeyFrameToTheRight.StartFrame - StartFrame);
+                finalDuration = AdjustToTheRight(changeInfos, firstKeyFrameToTheRight, finalDuration);
             }
         }
         else
@@ -160,26 +142,57 @@ internal class KeyFrameLength_UpdateableChange : UpdateableChange
 
             if (firstKeyFrameToTheLeft != null && firstKeyFrameToTheLeft.Id != KeyFrameGuid)
             {
-                if (neighborKeyFrameGuid == null)
-                {
-                    neighborKeyFrameGuid = firstKeyFrameToTheLeft.Id;
-                    originalNeighborStartFrame = firstKeyFrameToTheLeft.StartFrame;
-                    originalNeighborDuration = firstKeyFrameToTheLeft.Duration;
-                }
-
-                int overlappingFrames = (firstKeyFrameToTheLeft.StartFrame + firstKeyFrameToTheLeft.Duration) - StartFrame;
-                int newDuration = Math.Max(1, firstKeyFrameToTheLeft.Duration - overlappingFrames);
-                newDuration = Math.Min(newDuration, originalNeighborDuration);
-                firstKeyFrameToTheLeft.Duration = newDuration;
-
-                changeInfos.Add(new KeyFrameLength_ChangeInfo(firstKeyFrameToTheLeft.Id,
-                    firstKeyFrameToTheLeft.StartFrame, newDuration));
-
-                finalStartFrame = Math.Max(finalStartFrame, firstKeyFrameToTheLeft.StartFrame + firstKeyFrameToTheLeft.Duration);
-                finalDuration = Math.Min(finalDuration, StartFrame + Duration - finalStartFrame);
+                (finalStartFrame, finalDuration) = AdjustToTheLeft(changeInfos, firstKeyFrameToTheLeft, finalStartFrame, finalDuration);
             }
         }
 
         return (finalStartFrame, finalDuration);
+    }
+
+    private (int finalStartFrame, int finalDuration) AdjustToTheLeft(List<IChangeInfo> changeInfos, KeyFrame firstKeyFrameToTheLeft, int finalStartFrame,
+        int finalDuration)
+    {
+        if (neighborKeyFrameGuid == null)
+        {
+            neighborKeyFrameGuid = firstKeyFrameToTheLeft.Id;
+            originalNeighborStartFrame = firstKeyFrameToTheLeft.StartFrame;
+            originalNeighborDuration = firstKeyFrameToTheLeft.Duration;
+        }
+
+        int overlappingFrames = (firstKeyFrameToTheLeft.StartFrame + firstKeyFrameToTheLeft.Duration) - StartFrame;
+        int newDuration = Math.Max(1, firstKeyFrameToTheLeft.Duration - overlappingFrames);
+        newDuration = Math.Min(newDuration, originalNeighborDuration);
+        firstKeyFrameToTheLeft.Duration = newDuration;
+
+        changeInfos.Add(new KeyFrameLength_ChangeInfo(firstKeyFrameToTheLeft.Id,
+            firstKeyFrameToTheLeft.StartFrame, newDuration));
+
+        finalStartFrame = Math.Max(finalStartFrame, firstKeyFrameToTheLeft.StartFrame + firstKeyFrameToTheLeft.Duration);
+        finalDuration = Math.Min(finalDuration, StartFrame + Duration - finalStartFrame);
+        return (finalStartFrame, finalDuration);
+    }
+
+    private int AdjustToTheRight(List<IChangeInfo> changeInfos, KeyFrame firstKeyFrameToTheRight, int finalDuration)
+    {
+        if (neighborKeyFrameGuid == null)
+        {
+            neighborKeyFrameGuid = firstKeyFrameToTheRight.Id;
+            originalNeighborStartFrame = firstKeyFrameToTheRight.StartFrame;
+            originalNeighborDuration = firstKeyFrameToTheRight.Duration;
+        }
+
+        int overlappingFrames = (StartFrame + Duration) - firstKeyFrameToTheRight.StartFrame;
+        int newDuration = Math.Max(1, firstKeyFrameToTheRight.Duration - overlappingFrames);
+        newDuration = Math.Min(newDuration, originalNeighborDuration);
+        int durationDifference = newDuration - firstKeyFrameToTheRight.Duration;
+        int newStart = firstKeyFrameToTheRight.StartFrame + -durationDifference;
+        firstKeyFrameToTheRight.StartFrame = newStart;
+        firstKeyFrameToTheRight.Duration = newDuration;
+
+        changeInfos.Add(new KeyFrameLength_ChangeInfo(firstKeyFrameToTheRight.Id, newStart,
+            newDuration));
+
+        finalDuration = Math.Min(finalDuration, firstKeyFrameToTheRight.StartFrame - StartFrame);
+        return finalDuration;
     }
 }

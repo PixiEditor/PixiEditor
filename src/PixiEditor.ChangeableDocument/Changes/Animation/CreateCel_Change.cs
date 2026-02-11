@@ -112,11 +112,11 @@ internal class CreateCel_Change : Change
             bool isCelAtFrame = target.AnimationData.TryGetKeyFrameAtFrame(targetNode.Id, _frame) != null;
             if (isCelAtFrame && shiftKeyframesAfter)
             {
-                var celsAfter = rootCelGroup.Children.Where(x => x.EndFrame >= _frame).ToList();
+                var celsAfter = rootCelGroup.Children.OfType<RasterKeyFrame>().Where(x => x.EndFrame >= _frame).ToList();
 
-                foreach (var cel in celsAfter)
+                foreach (var rasterKeyFrame in celsAfter)
                 {
-                    if (cel is RasterKeyFrame rasterKeyFrame && rasterKeyFrame.Id != createdKeyFrameId)
+                    if (rasterKeyFrame.Id != createdKeyFrameId)
                     {
                         if (!originalStartFrames.ContainsKey(rasterKeyFrame.Id))
                         {
