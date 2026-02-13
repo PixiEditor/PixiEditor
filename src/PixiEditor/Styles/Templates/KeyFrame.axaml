@@ -8,6 +8,15 @@
         <Setter Property="ClipToBounds" Value="False" />
         <Setter Property="Height" Value="70" />
         <Setter Property="MinWidth" Value="35" />
+        <Setter Property="Transitions">
+            <Transitions>
+                <DoubleTransition Property="Width" Duration="0:0:0.2">
+                    <DoubleTransition.Easing>
+                        <CubicEaseOut />
+                    </DoubleTransition.Easing>
+                </DoubleTransition>
+            </Transitions>
+        </Setter>
         <Setter Property="Template">
             <ControlTemplate>
                 <Grid>
