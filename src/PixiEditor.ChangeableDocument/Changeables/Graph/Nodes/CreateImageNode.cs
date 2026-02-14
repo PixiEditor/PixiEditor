@@ -77,7 +77,8 @@ public class CreateImageNode : Node
         else
         {
             using Paint paint = new Paint();
-            paint.SetPaintable(Fill.Value);
+            using var fill = Fill.Value.Clone();
+            paint.SetPaintable(fill);
             paint.BlendMode = BlendMode.Src;
             surface.DrawingSurface.Canvas.DrawRect(0, 0, Size.Value.X, Size.Value.Y, paint);
         }

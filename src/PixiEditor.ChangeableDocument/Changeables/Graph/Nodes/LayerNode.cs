@@ -204,7 +204,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
         var targetSurface = workingSurface;
         Texture? tex = null;
         int saved = -1;
-        if (!ctx.ProcessingColorSpace.IsSrgb && useFilters && Filters.Value != null)
+        if (!ctx.ProcessingColorSpace.IsSrgb && ((useFilters && Filters.Value != null) || MustRenderInSrgb(ctx)))
         {
             saved = workingSurface.Save();
 
@@ -233,6 +233,11 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
             workingSurface.RestoreToCount(saved);
             ctx.RenderSurface = workingSurface;
         }
+    }
+
+    protected virtual bool MustRenderInSrgb(SceneObjectRenderContext ctx)
+    {
+        return false;
     }
 
     protected abstract void DrawWithoutFilters(SceneObjectRenderContext ctx, Canvas workingSurface,
