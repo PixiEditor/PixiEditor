@@ -121,6 +121,39 @@ public class LineVectorData : ShapeVectorData, IReadOnlyLineData
         return path;
     }
 
+    public override PathVectorData? ExpandStroke()
+    {
+        if (StrokeWidth <= 0)
+        {
+            return new PathVectorData(ToPath())
+            {
+                Fill = this.Fill,
+                Stroke = this.Stroke,
+                StrokeWidth = this.StrokeWidth,
+                TransformationMatrix = this.TransformationMatrix,
+                FillType = PathFillType.Winding
+            };
+        }
+
+        VectorPath path = new VectorPath();
+
+        ShapeCorners corners = new ShapeCorners(Start, End, StrokeWidth);
+        path.MoveTo((VecF)corners.TopLeft);
+        path.LineTo((VecF)corners.TopRight);
+        path.LineTo((VecF)corners.BottomRight);
+        path.LineTo((VecF)corners.BottomLeft);
+        path.Close();
+
+        return new PathVectorData(path)
+        {
+            Fill = true,
+            Stroke = this.Stroke,
+            StrokeWidth = 0,
+            TransformationMatrix = this.TransformationMatrix,
+            FillType = PathFillType.Winding
+        };
+    }
+
     protected bool Equals(LineVectorData other)
     {
         return base.Equals(other) && Start.Equals(other.Start) && End.Equals(other.End);
