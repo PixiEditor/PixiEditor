@@ -17,7 +17,6 @@
     <ItemGroup>
       <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
       <PackageReference Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)" />
-      <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
       <PackageReference Include="Xaml.Behaviors" Version="11.3.6.5" />
     </ItemGroup>
 </Project>

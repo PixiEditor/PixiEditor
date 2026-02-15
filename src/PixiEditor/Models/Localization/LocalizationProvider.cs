@@ -2,11 +2,12 @@
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using Avalonia.Platform;
-using Newtonsoft.Json;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Extensions;
 using PixiEditor.Extensions.Runtime;
+using PixiEditor.Helpers;
 using PixiEditor.Models.IO;
 using PixiEditor.UI.Common.Localization;
 
@@ -43,18 +44,13 @@ internal class LocalizationProvider : ILocalizationProvider
 
     public void LoadData(string currentLanguageCode = null)
     {
-        JsonSerializer serializer = new();
-
         if (!AssetLoader.Exists(new Uri(LocalizationDataPath)))
         {
             throw new FileNotFoundException("Localization data file not found.", LocalizationDataPath);
         }
 
-        using Stream stream = AssetLoader.Open(new Uri(LocalizationDataPath));
-        LocalizationData = serializer.Deserialize<LocalizationData>(new JsonTextReader(new StreamReader(stream))
-        {
-            Culture = CultureInfo.InvariantCulture, DateTimeZoneHandling = DateTimeZoneHandling.Utc
-        });
+        using var stream = AssetLoader.Open(new Uri(LocalizationDataPath));
+        LocalizationData = JsonSerializer.Deserialize<LocalizationData>(stream, JsonOptions.CasesInsensitive);
 
         if (LocalizationData is null)
         {
@@ -195,7 +191,6 @@ internal class LocalizationProvider : ILocalizationProvider
 
     private IDictionary<string, string> ReadLocaleFile(string localePath)
     {
-        JsonSerializer serializer = new();
         Stream stream = null;
         if (!localePath.StartsWith("avares://"))
         {
@@ -217,7 +212,7 @@ internal class LocalizationProvider : ILocalizationProvider
             stream = AssetLoader.Open(new Uri(localePath));
         }
 
-        var result = serializer.Deserialize<Dictionary<string, string>>(new JsonTextReader(new StreamReader(stream)));
+        var result = JsonSerializer.Deserialize<Dictionary<string, string>>(stream);
         stream.Dispose();
 
         return result;

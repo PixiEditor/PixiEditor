@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using Avalonia.Input;
 using Avalonia.Platform;
+using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.ChangeableDocument;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -674,7 +675,10 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
             return;
 
         document.EventInlet.SettingsChanged(settingName, value);
-        SettingChangedTrigger?.Execute(this, settingName);
+        Dispatcher.UIThread.Post(() =>
+        {
+            SettingChangedTrigger?.Execute(this, settingName);
+        });
     }
 
     private void AddToolSets(List<ToolSet> toolSetConfig)

@@ -248,9 +248,9 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
     public abstract RectD? GetTightBounds(KeyFrameTime frameTime);
     public abstract RectD? GetApproxBounds(KeyFrameTime frameTime);
 
-    public override void SerializeAdditionalData(IReadOnlyDocument target, Dictionary<string, object> additionalData)
+    internal override void SerializeAdditionalDataInternal(IReadOnlyDocument target, Dictionary<string, object> additionalData)
     {
-        base.SerializeAdditionalData(target, additionalData);
+        base.SerializeAdditionalDataInternal(target, additionalData);
         if (EmbeddedMask != null)
         {
             additionalData["embeddedMask"] = EmbeddedMask;
@@ -262,10 +262,10 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         }
     }
 
-    internal override void DeserializeAdditionalData(IReadOnlyDocument target,
+    internal override void DeserializeAdditionalDataInternal(IReadOnlyDocument target,
         IReadOnlyDictionary<string, object> data, List<IChangeInfo> infos)
     {
-        base.DeserializeAdditionalData(target, data, infos);
+        base.DeserializeAdditionalDataInternal(target, data, infos);
 
         bool hasMask = data.ContainsKey("embeddedMask");
         if (hasMask)

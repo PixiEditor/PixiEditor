@@ -22,6 +22,7 @@ public interface IInputProperty : INodeProperty
 {
     public IOutputProperty? Connection { get; set; }
     public object NonOverridenValue { get; set;  }
+    public bool CanConnect(IOutputProperty internalOutputProperty);
 }
 
 public interface IOutputProperty : INodeProperty
