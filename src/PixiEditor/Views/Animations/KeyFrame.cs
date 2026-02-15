@@ -7,6 +7,7 @@ using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
 using Avalonia.Data;
 using Avalonia.Input;
+using Avalonia.Threading;
 using Avalonia.VisualTree;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Converters;
@@ -34,6 +35,44 @@ internal class KeyFrame : TemplatedControl
 
     public static readonly StyledProperty<bool> IsCollapsedProperty = AvaloniaProperty.Register<KeyFrame, bool>(
         nameof(IsCollapsed));
+
+    public static readonly StyledProperty<bool> IsDraggingProperty = AvaloniaProperty.Register<KeyFrame, bool>(
+        nameof(IsDragging));
+
+    public static readonly StyledProperty<double> PrecisePositionProperty = AvaloniaProperty.Register<KeyFrame, double>(
+        nameof(PrecisePosition));
+
+    public static readonly StyledProperty<ICommand> BeginDragCommandProperty =
+        AvaloniaProperty.Register<KeyFrame, ICommand>(
+            nameof(BeginDragCommand));
+
+    public static readonly StyledProperty<ICommand> EndDragCommandProperty =
+        AvaloniaProperty.Register<KeyFrame, ICommand>(
+            nameof(EndDragCommand));
+
+    public ICommand EndDragCommand
+    {
+        get => GetValue(EndDragCommandProperty);
+        set => SetValue(EndDragCommandProperty, value);
+    }
+
+    public ICommand BeginDragCommand
+    {
+        get => GetValue(BeginDragCommandProperty);
+        set => SetValue(BeginDragCommandProperty, value);
+    }
+
+    public double PrecisePosition
+    {
+        get => GetValue(PrecisePositionProperty);
+        set => SetValue(PrecisePositionProperty, value);
+    }
+
+    public bool IsDragging
+    {
+        get => GetValue(IsDraggingProperty);
+        set => SetValue(IsDraggingProperty, value);
+    }
 
     public bool IsCollapsed
     {
@@ -71,9 +110,20 @@ internal class KeyFrame : TemplatedControl
         set { SetValue(SelectLayerCommandProperty, value); }
     }
 
+    public ICommand PreciseDragCommand
+    {
+        get { return (ICommand)GetValue(PreciseDragCommandProperty); }
+        set { SetValue(PreciseDragCommandProperty, value); }
+    }
+
     private InputElement _resizePanelRight;
     private InputElement _resizePanelLeft;
     private Border previewBorder;
+
+    private double initialDragOffset;
+
+    public static readonly StyledProperty<ICommand> PreciseDragCommandProperty =
+        AvaloniaProperty.Register<KeyFrame, ICommand>("PreciseDragCommand");
 
     public static readonly StyledProperty<ICommand> SelectLayerCommandProperty =
         AvaloniaProperty.Register<KeyFrame, ICommand>("SelectLayerCommand");
@@ -113,6 +163,11 @@ internal class KeyFrame : TemplatedControl
         if (e.PropertyName == nameof(CelViewModel.DurationBindable))
         {
             PseudoClasses.Set(":long", celViewModel.DurationBindable > 1);
+        }
+
+        if (e.PropertyName == nameof(CelViewModel.IsDragging))
+        {
+            celViewModel.PrecisePosition = FrameToMousePos(celViewModel.StartFrameBindable);
         }
     }
 
@@ -154,6 +209,8 @@ internal class KeyFrame : TemplatedControl
                     new Binding("StartFrameBindable") { Source = Item },
                     new Binding("Min") { Source = this },
                     new Binding("Scale") { Source = this },
+                    new Binding("IsDragging") { Source = Item },
+                    new Binding("PrecisePosition") { Source = this },
                 }
             };
 
@@ -174,6 +231,34 @@ internal class KeyFrame : TemplatedControl
         e.PreventGestureRecognition();
         e.Pointer.Capture(sender as IInputElement);
         e.Handled = true;
+    }
+
+    protected override void OnPointerMoved(PointerEventArgs e)
+    {
+        if (Item is null || !e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+        {
+            return;
+        }
+
+        if (!IsDragging)
+        {
+            IsDragging = true;
+            e.Pointer.Capture(this);
+            initialDragOffset = e.GetPosition(previewBorder).X - 30;
+            BeginDragCommand.Execute(Item);
+        }
+
+        double x = e.GetPosition(this.FindAncestorOfType<Border>()).X - 30;
+        double delta = x - initialDragOffset - PrecisePosition;
+        PrecisePosition = x - initialDragOffset;
+        PreciseDragCommand.Execute((Item, delta));
+    }
+
+    override protected void OnPointerCaptureLost(PointerCaptureLostEventArgs e)
+    {
+        base.OnPointerCaptureLost(e);
+        IsDragging = false;
+        EndDragCommand.Execute(Item);
     }
 
     private void ResizePanelRightOnPointerMoved(object? sender, PointerEventArgs e)
@@ -218,6 +303,11 @@ internal class KeyFrame : TemplatedControl
     {
         // 30 is a left visual padding on the timeline. TODO: Make it less...hardcoded
         double x = e.GetPosition(this.FindAncestorOfType<Border>()).X - 30;
+        return MousePosToFrame(x, round);
+    }
+
+    private int MousePosToFrame(double x, bool round = true)
+    {
         int frame;
         if (round)
         {
@@ -230,6 +320,11 @@ internal class KeyFrame : TemplatedControl
 
         frame = Math.Max(1, frame);
         return frame;
+    }
+
+    private double FrameToMousePos(int frame)
+    {
+        return (frame - 1) * Scale;
     }
 
     private void UpdateKeyFrame(object? sender, PointerCaptureLostEventArgs e)

@@ -180,6 +180,9 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
     public ICommand StepEndCommand { get; }
     public ICommand StepForwardCommand { get; }
     public ICommand StepBackCommand { get; }
+    public ICommand PreciseDragKeyFrameCommand { get; }
+    public ICommand BeginDragKeyFrameCommand { get; }
+    public ICommand EndDragKeyFrameCommand { get; }
 
     public IReadOnlyCollection<CelViewModel> SelectedKeyFrames => KeyFrames != null
         ? KeyFrames.SelectChildrenBy<CelViewModel>(x => x.IsSelected).ToList()
@@ -200,8 +203,12 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
     private bool shouldShiftSelect = false;
     private CelViewModel clickedCel;
     private bool dragged;
+    private bool draggedKeyFrameWasSelected;
     private Guid[] draggedKeyFrames;
     private int dragStartFrame;
+
+    private List<(int startFrame, int duration)> originalKeyFrameData = new List<(int startFrame, int duration)>();
+    private int originalKeyFrameDataIndex;
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -217,6 +224,9 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
         ClearSelectedKeyFramesCommand = new RelayCommand<CelViewModel>(ClearSelectedKeyFrames);
         DraggedKeyFrameCommand = new RelayCommand<PointerEventArgs>(KeyFramesDragged);
         ReleasedKeyFrameCommand = new RelayCommand<CelViewModel>(KeyFramesReleased);
+        BeginDragKeyFrameCommand = new RelayCommand<CelViewModel>(BeginDragKeyFrames);
+        PreciseDragKeyFrameCommand = new RelayCommand<(CelViewModel source, double delta)>(KeyFramesPreciseDragged);
+        EndDragKeyFrameCommand = new RelayCommand<CelViewModel>(OnEndedPreciseDrag);
 
         StepStartCommand = new RelayCommand(() =>
         {
@@ -272,6 +282,19 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
         });
     }
 
+    private void BeginDragKeyFrames(CelViewModel celViewModel)
+    {
+        SelectKeyFrame(celViewModel, shouldClearNextSelection && !draggedKeyFrameWasSelected);
+
+        foreach (var keyFrame in SelectedKeyFrames)
+        {
+            if (keyFrame != celViewModel)
+            {
+                keyFrame.IsDragging = true;
+            }
+        }
+    }
+
     public void SelectKeyFrame(ICelHandler? keyFrame, bool clearSelection = true)
     {
         if (clearSelection)
@@ -292,7 +315,8 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
             return false;
         }
 
-        Guid[] ids = SelectedKeyFrames.Select(x => x.Id).ToArray();
+        var selected = SelectedKeyFrames;
+        var ids = selected.Select(x => x.Id).ToArray();
 
         draggedKeyFrames = ids;
 
@@ -307,10 +331,25 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
             if (draggedKeyFrames is { Length: > 0 })
             {
                 ChangeKeyFramesLengthCommand?.Execute((draggedKeyFrames.ToArray(), 0, true));
+                foreach (var keyFrame in SelectedKeyFrames)
+                {
+                    keyFrame.IsDragging = false;
+                }
             }
         }
 
         clickedCel = null;
+    }
+
+    private void OnEndedPreciseDrag(CelViewModel source)
+    {
+        foreach (var keyFrame in SelectedKeyFrames)
+        {
+            if (keyFrame != source)
+            {
+                keyFrame.IsDragging = false;
+            }
+        }
     }
 
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
@@ -421,7 +460,16 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
         if (clickedCel == null) return;
 
         int frameUnderMouse = MousePosToFrame(e);
-        int delta = frameUnderMouse - dragStartFrame;
+
+        int precisePositionFrame = MousePosToFrame(clickedCel.PrecisePosition, true);
+        int shiftedFrames = precisePositionFrame - clickedCel.StartFrameBindable;
+        //TODO: Make it work backwards too
+        if (shiftedFrames != 1)
+        {
+            return;
+        }
+
+        int delta = shiftedFrames; //frameUnderMouse - dragStartFrame;
 
         if (delta != 0)
         {
@@ -440,6 +488,22 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
         PropertyChanged(this, new PropertyChangedEventArgs(nameof(EndFrame)));
     }
 
+    private void KeyFramesPreciseDragged((CelViewModel source, double delta) args)
+    {
+        if (clickedCel == null) return;
+
+        var allKeyFrames = SelectedKeyFrames;
+        foreach (var keyFrame in allKeyFrames)
+        {
+            if (keyFrame == args.source)
+            {
+                continue;
+            }
+
+            keyFrame.PrecisePosition += args.delta;
+        }
+    }
+
     private void ClearSelectedKeyFrames(CelViewModel? keyFrame)
     {
         ClearSelectedKeyFrames();
@@ -449,7 +513,7 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
     {
         e.PreventGestureRecognition(); // Prevents digital pen losing capture when dragging
 
-        if(e.GetMouseButton(this) != MouseButton.Left)
+        if (e.GetMouseButton(this) != MouseButton.Left)
         {
             return;
         }
@@ -464,9 +528,19 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
             else if (obj.TemplatedParent is KeyFrame keyFrame) target = keyFrame;
         }
 
+        draggedKeyFrameWasSelected = target is { Item.IsSelected: true };
         e.Pointer.Capture(target);
         clickedCel = target.Item;
         dragStartFrame = MousePosToFrame(e);
+        var group = KeyFrames.FirstOrDefault(x => x.LayerGuid == target.Item.LayerGuid);
+        if (group != null)
+        {
+            originalKeyFrameData = group.Children.Select(x => (x.StartFrameBindable, x.DurationBindable)).ToList();
+            originalKeyFrameDataIndex = originalKeyFrameData.FindIndex(x => x.startFrame <= dragStartFrame &&
+                                                                            x.startFrame + x.duration - 1 >=
+                                                                            dragStartFrame);
+        }
+
         e.Handled = true;
     }
 
@@ -519,7 +593,7 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
         int towardsFrame = MousePosToFrame(e);
 
         double delta = e.Delta.Y == 0 ? e.Delta.X : e.Delta.Y;
-        
+
         if (delta > 0)
         {
             newScale += ticks;
@@ -657,6 +731,11 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
     private int MousePosToFrame(PointerEventArgs e, bool round = true)
     {
         double x = e.GetPosition(_contentGrid).X;
+        return MousePosToFrame(x, round);
+    }
+
+    private int MousePosToFrame(double x, bool round = true)
+    {
         x -= MinLeftOffset;
         int frame;
         if (round)
