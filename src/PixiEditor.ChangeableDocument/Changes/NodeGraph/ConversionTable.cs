@@ -176,7 +176,7 @@ public static class ConversionTable
         if (!argType.IsPrimitive && argType != typeof(string))
         {
             var baseType = arg.GetType().BaseType;
-            while (baseType != null)
+            while (baseType != null && baseType != typeof(object))
             {
                 if (baseType == targetType)
                 {

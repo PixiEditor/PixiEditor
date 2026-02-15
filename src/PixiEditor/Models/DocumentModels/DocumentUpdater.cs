@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Reflection;
 using Avalonia.Threading;
 using ChunkyImageLib;
@@ -50,14 +51,7 @@ internal class DocumentUpdater
     {
         this.doc = doc;
         this.helper = helper;
-        helper.Tracker.Document.NodeGraph.NodeOutputsChanged += Node_OutputsChanged;
     }
-
-    private void Node_OutputsChanged(NodeOutputsChanged_ChangeInfo info)
-    {
-        ProcessOutputsChanged(info);
-    }
-
 
     /// <summary>
     /// Don't call this outside ActionAccumulator
@@ -768,17 +762,33 @@ internal class DocumentUpdater
         bool isInput)
     {
         List<INodePropertyHandler> inputs = new();
-        foreach (var input in source)
+        foreach (var propInfo in source)
         {
-            var prop = NodePropertyViewModel.CreateFromType(input.ValueType, node);
-            prop.DisplayName = input.DisplayName;
-            prop.PropertyName = input.PropertyName;
+            var prop = NodePropertyViewModel.CreateFromType(propInfo.ValueType, node);
+            prop.DisplayName = propInfo.DisplayName;
+            prop.PropertyName = propInfo.PropertyName;
             prop.IsInput = isInput;
-            prop.IsFunc = input.ValueType.IsAssignableTo(typeof(Delegate));
+            prop.IsFunc = propInfo.ValueType.IsAssignableTo(typeof(Delegate));
             prop.InternalSetValue(prop.IsFunc
-                ? (input.InputValue as ShaderExpressionVariable)?.GetConstant()
-                : input.InputValue);
+                ? (propInfo.InputValue as ShaderExpressionVariable)?.GetConstant()
+                : propInfo.InputValue);
             inputs.Add(prop);
+            foreach (var propInfoConnectedProperty in propInfo.ConnectedProperties)
+            {
+                doc.NodeGraphHandler.SetConnection(new NodeConnectionViewModel()
+                {
+                    InputNode = isInput ? node : doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId),
+                    OutputNode = isInput ? doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId) : node,
+                    InputProperty = isInput
+                        ? prop
+                        : doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId)
+                            .FindInputProperty(propInfoConnectedProperty.PropertyName),
+                    OutputProperty = isInput
+                        ? doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId)
+                            .FindOutputProperty(propInfoConnectedProperty.PropertyName)
+                        : prop
+                });
+            }
         }
 
         return inputs;
@@ -873,6 +883,9 @@ internal class DocumentUpdater
     {
         NodeViewModel node = doc.StructureHelper.FindNode<NodeViewModel>(info.NodeId);
         var property = node.FindInputProperty(info.Property);
+
+        if (property == null)
+            return;
 
         property.Errors = info.Errors;
 

@@ -438,17 +438,17 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
             .WithMatrix(TransformationMatrix);
     }
 
-    public override void SerializeAdditionalData(IReadOnlyDocument target, Dictionary<string, object> additionalData)
+    internal override void SerializeAdditionalDataInternal(IReadOnlyDocument target, Dictionary<string, object> additionalData)
     {
-        base.SerializeAdditionalData(target, additionalData);
+        base.SerializeAdditionalDataInternal(target, additionalData);
         additionalData["lastDocument"] = lastDocument;
         additionalData["TransformationMatrix"] = TransformationMatrix;
     }
 
-    internal override void DeserializeAdditionalData(IReadOnlyDocument target, IReadOnlyDictionary<string, object> data,
+    internal override void DeserializeAdditionalDataInternal(IReadOnlyDocument target, IReadOnlyDictionary<string, object> data,
         List<IChangeInfo> infos)
     {
-        base.DeserializeAdditionalData(target, data, infos);
+        base.DeserializeAdditionalDataInternal(target, data, infos);
         if (data.TryGetValue("lastDocument", out var doc) && doc is DocumentReference document)
         {
             DocumentChanged(document); // restore outputs

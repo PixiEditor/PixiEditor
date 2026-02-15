@@ -99,7 +99,7 @@ internal class DuplicateFolder_Change : Change
             foreach (Guid contentGuid in contentDuplicateGuids)
             {
                 Node contentNode = target.FindNodeOrThrow<Node>(contentGuid);
-                changes.AddRange(NodeOperations.DetachNode(target.NodeGraph, contentNode));
+                changes.AddRange(NodeOperations.DetachNode(contentNode));
                 changes.Add(new DeleteNode_ChangeInfo(contentNode.Id));
 
                 target.NodeGraph.RemoveNode(contentNode);
