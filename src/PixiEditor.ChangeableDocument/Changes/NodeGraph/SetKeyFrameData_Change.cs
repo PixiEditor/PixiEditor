@@ -40,7 +40,6 @@ internal class SetKeyFrameData_Change : Change
             x => x.KeyFrameGuid == keyFrameId
                  || IsSpecialRootKeyFrame(x));
 
-
         var newKeyFrame = new KeyFrameData(keyFrameId, startFrame, duration, affectedElement)
         {
             Data = data,
