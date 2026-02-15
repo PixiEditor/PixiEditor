@@ -165,7 +165,7 @@ internal static class ServiceCollectionHelpers
         return collection;
     }
 
-    private static IServiceCollection AddSerializationFactories(this IServiceCollection collection)
+    public static IServiceCollection AddSerializationFactories(this IServiceCollection collection)
     {
         collection
             .AddTransient<SerializationFactory, BrushSerializationFactory>()
