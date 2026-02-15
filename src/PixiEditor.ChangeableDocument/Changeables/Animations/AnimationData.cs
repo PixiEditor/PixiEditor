@@ -10,6 +10,7 @@ internal class AnimationData : IReadOnlyAnimationData
     public int DefaultEndFrame { get; set; } = 24;
     public IReadOnlyList<IReadOnlyKeyFrame> KeyFrames => keyFrames;
     public double OnionOpacity { get; set; } = 50;
+    public bool FallbackAnimationToLayerImage { get; set; }
 
     private List<KeyFrame> keyFrames = new List<KeyFrame>();
     private readonly Document document;

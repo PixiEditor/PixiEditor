@@ -39,7 +39,7 @@ internal class FloodFill_Change : Change
         if (pos.X < 0 || pos.Y < 0 || pos.X >= target.Size.X || pos.Y >= target.Size.Y)
             return false;
 
-        return DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask);
+        return DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask, frame);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)

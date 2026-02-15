@@ -40,5 +40,7 @@ internal interface IToolsHandler : IHandler
     public void ChangeToolSize(double by);
     public bool CreateLayerIfNeeded();
     public bool NeedsNewLayerForActiveTool();
+    public bool NeedsNewAnimationKeyFrameForActiveTool();
     public void DeselectActiveTool();
+    public void CreateAnimationKeyFrameIfNeeded();
 }

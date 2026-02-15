@@ -35,6 +35,7 @@ using PixiEditor.Models.IO;
 using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.BrushSystem;
 using PixiEditor.ViewModels.Document;
+using PixiEditor.ViewModels.Document.Nodes;
 using PixiEditor.ViewModels.Document.Nodes.Brushes;
 using PixiEditor.ViewModels.Tools;
 using PixiEditor.ViewModels.Tools.Tools;
@@ -483,11 +484,75 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         return ActiveTool is not { CanBeUsedOnActiveLayer: true } && ActiveTool?.LayerTypeToCreateOnEmptyUse != null;
     }
 
+    public bool NeedsNewAnimationKeyFrameForActiveTool()
+    {
+        if (!TryGetAnimationGroup(out var animationGroupForLayer))
+        {
+            return false;
+        }
+
+        return animationGroupForLayer.IsVisible && !animationGroupForLayer.IsKeyFrameAt(Owner.DocumentManagerSubViewModel.ActiveDocument
+            .AnimationDataViewModel.ActiveFrameBindable);
+    }
+
+    private bool TryGetAnimationGroup(out ICelGroupHandler? animationGroupForLayer)
+    {
+        var activeDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;
+
+        if (activeDocument is null)
+        {
+            animationGroupForLayer = null;
+            return false;
+        }
+
+        var selectedLayer = Owner.DocumentManagerSubViewModel.ActiveDocument.SelectedStructureMember;
+        if (ActiveTool is not { CanBeUsedOnActiveLayer: true })
+        {
+            animationGroupForLayer = null;
+            return false;
+        }
+
+        if (selectedLayer is not ImageLayerNodeViewModel rasterLayer)
+        {
+            animationGroupForLayer = null;
+            return false;
+        }
+
+        animationGroupForLayer = Owner.DocumentManagerSubViewModel.ActiveDocument?.AnimationDataViewModel.KeyFrames.FirstOrDefault(x =>
+            x.LayerGuid == rasterLayer.Id && x.Id == rasterLayer.Id) as ICelGroupHandler;
+
+        if (animationGroupForLayer is null)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
     public void DeselectActiveTool()
     {
         if (ActiveTool != null)
         {
             SetActiveTool((IToolHandler)null, false, null);
+        }
+    }
+
+    public void CreateAnimationKeyFrameIfNeeded()
+    {
+        var activeDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (activeDocument is null)
+            return;
+
+        var animationGroupForLayer = activeDocument.AnimationDataViewModel.KeyFrames.FirstOrDefault(x =>
+            x.LayerGuid == activeDocument.SelectedStructureMember?.Id && x.Id == activeDocument.SelectedStructureMember?.Id) as ICelGroupHandler;
+
+        if (animationGroupForLayer is null)
+            return;
+
+        if (!animationGroupForLayer.IsKeyFrameAt(Owner.DocumentManagerSubViewModel.ActiveDocument
+                .AnimationDataViewModel.ActiveFrameBindable))
+        {
+            Owner.DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.CreateCel(animationGroupForLayer.Id, Owner.DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.ActiveFrameBindable);
         }
     }
 
