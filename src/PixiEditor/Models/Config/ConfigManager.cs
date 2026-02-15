@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
+using System.Text.Json;
 using Avalonia.Platform;
-using Newtonsoft.Json;
+using PixiEditor.Helpers;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.IO;
 using PixiEditor.Views;
@@ -18,7 +19,7 @@ public class ConfigManager
             {
                 return embeddedConfig.TryMergeWith(GetLocalConfig<T>(configName));
             }
-            catch (JsonReaderException)
+            catch (JsonException)
             {
                 return embeddedConfig;
             }
@@ -34,7 +35,7 @@ public class ConfigManager
         using StreamReader reader = new(file);
 
         string json = reader.ReadToEnd();
-        return JsonConvert.DeserializeObject<T>(json);
+        return JsonSerializer.Deserialize<T>(json, JsonOptions.CasesInsensitive);
     }
 
     private T GetEmbeddedConfig<T>(string configName)
@@ -45,13 +46,13 @@ public class ConfigManager
         using StreamReader reader = new(config);
 
         string json = reader.ReadToEnd();
-        return JsonConvert.DeserializeObject<T>(json);
+        return JsonSerializer.Deserialize<T>(json, JsonOptions.CasesInsensitive);
     }
 
     private void SaveConfig<T>(T config, string configName)
     {
         string path = Path.Combine(Paths.UserConfigPath, $"{configName}.json");
-        string json = JsonConvert.SerializeObject(config, Formatting.Indented);
+        string json = JsonSerializer.Serialize(config, JsonOptions.CasesInsensitiveIndented);
 
         Directory.CreateDirectory(Path.GetDirectoryName(path));
         using FileStream file = File.Open(path, FileMode.Create);

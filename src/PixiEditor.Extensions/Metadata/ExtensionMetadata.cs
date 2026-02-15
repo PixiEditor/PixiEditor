@@ -1,4 +1,5 @@
-﻿using PixiEditor.UI.Common.Localization;
+﻿using System.Text.Json.Serialization;
+using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.Extensions.Metadata;
 
@@ -14,5 +15,6 @@ public class ExtensionMetadata
     public string? License { get; init; }
     public string[]? Categories { get; init; }
     public LocalizationData? Localization { get; init; }
+    [JsonConverter(typeof(JsonEnumFlagConverter<ExtensionPermissions>))]
     public ExtensionPermissions Permissions { get; init; }
 }

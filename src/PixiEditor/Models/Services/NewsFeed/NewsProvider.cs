@@ -2,10 +2,11 @@
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
+using PixiEditor.Helpers;
 using PixiEditor.Platform;
 
 namespace PixiEditor.Models.Services.NewsFeed;
@@ -41,7 +42,7 @@ internal class NewsProvider
         if (response.StatusCode == HttpStatusCode.OK)
         {
             string content = await response.Content.ReadAsStringAsync();
-            var list = JsonConvert.DeserializeObject<List<News>>(content);
+            var list = JsonSerializer.Deserialize<List<News>>(content, JsonOptions.CasesInsensitive);
             output.AddRange(list);
         }
     }

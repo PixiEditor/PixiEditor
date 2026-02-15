@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Text.Json;
 using Avalonia.Platform;
-using Newtonsoft.Json;
 using PixiEditor.Models.IO;
 
 namespace PixiEditor.Models.Commands.Templates.Providers.Parsers;
@@ -61,9 +61,9 @@ public abstract class KeysParser
     private Dictionary<string, KeyDefinition> LoadKeysMap()
     {
         string text = ReadMap();
-        var dict = JsonConvert.DeserializeObject<Dictionary<string, KeyDefinition>>(text);
+        var dict = JsonSerializer.Deserialize<Dictionary<string, KeyDefinition>>(text);
         if (dict == null) throw new Exception("Keys map file is empty.");
-        if (dict.ContainsKey("")) dict.Remove("");
+        dict.Remove("");
         return dict;
     }
 

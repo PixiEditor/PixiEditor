@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 using Avalonia.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Drawie.Backend.Core.Numerics;
@@ -327,6 +328,11 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
             var property = setting.GetType().GetProperty("Value",
                 BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
             return (T)property!.GetValue(setting);
+        }
+
+        if (setting.Value is JsonElement json)
+        {
+            return json.Deserialize<T>();
         }
 
         try
