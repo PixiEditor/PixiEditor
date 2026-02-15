@@ -17,6 +17,7 @@ internal class MagicWandToolExecutor : UpdateableChangeExecutor
     private List<Guid> memberGuids;
     private SelectionMode mode;
     private float tolerance;
+    private FloodMode floodMode;
 
     public override ExecutionState Start()
     {
@@ -27,6 +28,7 @@ internal class MagicWandToolExecutor : UpdateableChangeExecutor
             return ExecutionState.Error;
 
         mode = magicWand.ResultingSelectionMode;
+        floodMode = magicWand.FloodMode;
         memberGuids = members;
         considerAllLayers = magicWand.DocumentScope == DocumentScope.Canvas;
         if (considerAllLayers)
@@ -57,7 +59,14 @@ internal class MagicWandToolExecutor : UpdateableChangeExecutor
 
     private void AddUpdateAction(VecI pos)
     {
-        var action = new MagicWand_Action(memberGuids, pos, mode, tolerance, document!.AnimationHandler.ActiveFrameBindable);
+        var action = new MagicWand_Action(
+            memberGuids,
+            pos,
+            mode,
+            tolerance,
+            document!.AnimationHandler.ActiveFrameBindable,
+            floodMode
+        );
         internals!.ActionAccumulator.AddActions(action);
     }
     private void AddFinishAction()

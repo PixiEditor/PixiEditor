@@ -31,6 +31,9 @@ internal class MagicWandToolViewModel : ToolViewModel, IMagicWandToolHandler
 
     [Settings.Percent("TOLERANCE_LABEL", ExposedByDefault = false)]
     public float Tolerance => GetValue<float>();
+    
+    [Settings.Enum("FLOOD_LABEL")]
+    public FloodMode FloodMode => GetValue<FloodMode>();
 
     public override string DefaultIcon => PixiPerfectIcons.MagicWand;
 

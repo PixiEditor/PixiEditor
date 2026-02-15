@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixiEditor", "PixiEditor.csproj", "{041449C7-C0AC-F332-0997-572EE3A52116}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{041449C7-C0AC-F332-0997-572EE3A52116}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{041449C7-C0AC-F332-0997-572EE3A52116}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{041449C7-C0AC-F332-0997-572EE3A52116}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{041449C7-C0AC-F332-0997-572EE3A52116}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6E089CBE-B0F1-47A5-898E-10B7CF6A6CDE}
+	EndGlobalSection
+EndGlobal
