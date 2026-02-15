@@ -159,8 +159,8 @@ internal class BrushShapeOverlay : Overlay
 
     private void Triggered(object? sender, string s)
     {
-        ExecuteBrush(lastDirCalculationPoint);
-        UpdateBrushShape(lastDirCalculationPoint);
+        ExecuteBrush(lastPoint);
+        UpdateBrushShape(lastPoint);
         Refresh();
     }
 
@@ -168,7 +168,7 @@ internal class BrushShapeOverlay : Overlay
     {
         BrushShapeOverlay overlay = args.Sender as BrushShapeOverlay;
         if (overlay == null) return;
-        overlay.UpdateBrushShape(overlay.lastDirCalculationPoint);
+        overlay.UpdateBrushShape(overlay.lastPoint);
         overlay.Refresh();
     }
 
@@ -228,7 +228,7 @@ internal class BrushShapeOverlay : Overlay
 
     protected override void OnKeyPressed(KeyEventArgs args)
     {
-        UpdateBrushShape(lastDirCalculationPoint);
+        UpdateBrushShape(lastPoint);
         Refresh();
     }
 
