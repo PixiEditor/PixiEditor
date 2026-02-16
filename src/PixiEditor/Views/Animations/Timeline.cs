@@ -207,8 +207,8 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
     private Guid[] draggedKeyFrames;
     private int dragStartFrame;
 
-    private List<(int startFrame, int duration)> originalKeyFrameData = new List<(int startFrame, int duration)>();
-    private int originalKeyFrameDataIndex;
+    private double lastMovementPrecisePosition;
+
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -463,9 +463,15 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
 
         bool movingBackwards = frameUnderMouse < dragStartFrame;
 
-        int precisePositionFrame = MousePosToFrame(clickedCel.PrecisePosition, true);
+        int precisePositionFrame = movingBackwards ? MousePosToFrameCeil(clickedCel.PrecisePosition) : MousePosToFrame(clickedCel.PrecisePosition, true);
         int shiftedFrames = precisePositionFrame - clickedCel.StartFrameBindable;
         if ((shiftedFrames > 0 && movingBackwards) || (shiftedFrames < 0 && !movingBackwards))
+        {
+            return;
+        }
+
+        double movementDelta = clickedCel.PrecisePosition - lastMovementPrecisePosition;
+        if (Math.Abs(movementDelta) < 10)
         {
             return;
         }
@@ -484,6 +490,8 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
             {
                 dragStartFrame += delta;
             }
+
+            lastMovementPrecisePosition = clickedCel.PrecisePosition;
         }
 
         PropertyChanged(this, new PropertyChangedEventArgs(nameof(EndFrame)));
@@ -533,14 +541,6 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
         e.Pointer.Capture(target);
         clickedCel = target.Item;
         dragStartFrame = MousePosToFrame(e);
-        var group = KeyFrames.FirstOrDefault(x => x.LayerGuid == target.Item.LayerGuid);
-        if (group != null)
-        {
-            originalKeyFrameData = group.Children.Select(x => (x.StartFrameBindable, x.DurationBindable)).ToList();
-            originalKeyFrameDataIndex = originalKeyFrameData.FindIndex(x => x.startFrame <= dragStartFrame &&
-                                                                            x.startFrame + x.duration - 1 >=
-                                                                            dragStartFrame);
-        }
 
         e.Handled = true;
     }
@@ -747,6 +747,17 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
         {
             frame = (int)Math.Floor(x / Scale) + 1;
         }
+
+        frame = Math.Max(1, frame);
+        return frame;
+    }
+
+    private int MousePosToFrameCeil(double x)
+    {
+        x -= MinLeftOffset;
+        int frame;
+
+        frame = (int)Math.Ceiling(x / Scale) + 1;
 
         frame = Math.Max(1, frame);
         return frame;
