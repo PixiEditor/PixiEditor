@@ -61,7 +61,8 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
                     BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.SrcOver
                 };
 
-                var tempSurface = TryInitWorkingSurface(context.RenderOutputSize, context.ChunkResolution,
+                // Full because RenderOutputSize should already be in the correct resolution
+                var tempSurface = TryInitWorkingSurface(context.RenderOutputSize, ChunkResolution.Full,
                     context.ProcessingColorSpace, 22);
 
                 var originalSurface = context.RenderSurface;

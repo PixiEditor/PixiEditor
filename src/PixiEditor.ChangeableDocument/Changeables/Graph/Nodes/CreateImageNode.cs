@@ -80,6 +80,7 @@ public class CreateImageNode : Node
             using var fill = Fill.Value.Clone();
             paint.SetPaintable(fill);
             paint.BlendMode = BlendMode.Src;
+            paint.PaintableMatrix = Matrix3X3.CreateScale((float)context.ChunkResolution.Multiplier(), (float)context.ChunkResolution.Multiplier());
             surface.DrawingSurface.Canvas.DrawRect(0, 0, Size.Value.X, Size.Value.Y, paint);
         }
 
