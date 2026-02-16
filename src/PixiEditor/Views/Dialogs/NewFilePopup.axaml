@@ -41,14 +41,12 @@
                           x:Name="sizePicker" />
         </StackPanel>
         </Border>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,15,0,15" Spacing="10">
-            <Button DockPanel.Dock="Bottom" Margin="0,15,0,15" VerticalAlignment="Center"
-                    IsDefault="True" ui:Translator.Key="CREATE" x:Name="createButton" Focusable="True"
-                    Command="{Binding Path=DataContext.SetResultAndCloseCommand, ElementName=popup}">
-                <Button.CommandParameter>
-                    <system:Boolean>True</system:Boolean>
-                </Button.CommandParameter>
-            </Button>
-        </StackPanel>
+        <Button DockPanel.Dock="Bottom" Margin="0,15,0,15" HorizontalAlignment="Center"
+                IsDefault="True" ui:Translator.Key="CREATE" x:Name="createButton" Focusable="True"
+                Command="{Binding Path=DataContext.SetResultAndCloseCommand, ElementName=popup}">
+            <Button.CommandParameter>
+                <system:Boolean>True</system:Boolean>
+            </Button.CommandParameter>
+        </Button>
     </StackPanel>
 </dialogs:PixiEditorPopup>

@@ -8,8 +8,10 @@ using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
 using Drawie.Skia;
 using DrawiEngine;
+using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Changes.NodeGraph;
+using PixiEditor.Helpers;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.Serialization;
 using PixiEditor.Models.Serialization.Factories;
@@ -21,6 +23,27 @@ namespace PixiEditor.Tests;
 
 public class SerializationTests : PixiEditorTest
 {
+    [Fact]
+    public void TestThatAllFactoriesAreInServices()
+    {
+        var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+        var types = assemblies.Where(asm => !asm.FullName.Contains("Steamworks")).SelectMany(x => x.GetTypes())
+            .Where(x => typeof(SerializationFactory).IsAssignableFrom(x) && x is { IsInterface: false, IsAbstract: false });
+        
+        var factoriesInAssemblies = types.ToList();
+
+        var factoriesInActualServices = new ServiceCollection()
+            .AddSerializationFactories()
+            .Select(x => x.ImplementationType)
+            .ToList();
+
+        Assert.All(
+            factoriesInAssemblies,
+            expected => Assert.Contains(
+                factoriesInActualServices,
+                actual => actual == expected));
+    }
+    
     [Fact]
     public void TestThatAllPaintablesHaveFactories()
     {

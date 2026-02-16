@@ -89,7 +89,7 @@ internal class RasterizeMember_Change : Change
             changeInfos.Add(new ConnectProperty_ChangeInfo(conn.connection.Node.Id, imageLayer.Id, conn.connection.InternalPropertyName, conn.inputPropName));
         }
         
-        changeInfos.AddRange(NodeOperations.DetachNode(target.NodeGraph, node));
+        changeInfos.AddRange(NodeOperations.DetachNode(node));
         
         node.Dispose();
         target.NodeGraph.RemoveNode(node);
@@ -107,7 +107,7 @@ internal class RasterizeMember_Change : Change
         Node node = target.FindMember(createdNodeId);
         
         List<IChangeInfo> changeInfos = new();
-        changeInfos.AddRange(NodeOperations.DetachNode(target.NodeGraph, node));
+        changeInfos.AddRange(NodeOperations.DetachNode(node));
         
         node.Dispose();
         target.NodeGraph.RemoveNode(node);
