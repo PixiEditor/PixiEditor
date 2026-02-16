@@ -461,10 +461,11 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
 
         int frameUnderMouse = MousePosToFrame(e);
 
-        int precisePositionFrame = MousePosToFrame(clickedCel.PrecisePosition, true);
+        bool movingBackwards = frameUnderMouse < dragStartFrame;
+
+        int precisePositionFrame = MousePosToFrame(clickedCel.PrecisePosition, !movingBackwards);
         int shiftedFrames = precisePositionFrame - clickedCel.StartFrameBindable;
-        //TODO: Make it work backwards too
-        if (shiftedFrames != 1)
+        if ((shiftedFrames > 0 && movingBackwards) || (shiftedFrames < 0 && !movingBackwards))
         {
             return;
         }
