@@ -134,7 +134,7 @@ internal class KeyFramesStartPos_UpdateableChange : InterruptableUpdateableChang
         int rangeStart = Math.Min(keyFrame.StartFrame, keyFrame.StartFrame + delta);
         int rangeEnd = Math.Max(keyFrame.EndFrame, keyFrame.EndFrame + delta);
         int finalDelta = AdjustNeighbors(target, keyFrame, rangeStart, rangeEnd, delta);
-        int newStartPos = keyFrame.StartFrame + finalDelta;
+        int newStartPos = Math.Max(keyFrame.StartFrame + finalDelta, 1);
         keyFrame.StartFrame = newStartPos;
     }
 

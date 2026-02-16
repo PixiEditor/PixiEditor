@@ -463,14 +463,14 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
 
         bool movingBackwards = frameUnderMouse < dragStartFrame;
 
-        int precisePositionFrame = MousePosToFrame(clickedCel.PrecisePosition, !movingBackwards);
+        int precisePositionFrame = MousePosToFrame(clickedCel.PrecisePosition, true);
         int shiftedFrames = precisePositionFrame - clickedCel.StartFrameBindable;
         if ((shiftedFrames > 0 && movingBackwards) || (shiftedFrames < 0 && !movingBackwards))
         {
             return;
         }
 
-        int delta = shiftedFrames; //frameUnderMouse - dragStartFrame;
+        int delta = shiftedFrames;
 
         if (delta != 0)
         {

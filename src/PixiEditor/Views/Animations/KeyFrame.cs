@@ -133,6 +133,18 @@ internal class KeyFrame : TemplatedControl
         IsSelectedProperty.Changed.Subscribe(IsSelectedChanged);
         IsCollapsedProperty.Changed.Subscribe(IsCollapsedChanged);
         ItemProperty.Changed.Subscribe(ItemChanged);
+        IsDraggingProperty.Changed.Subscribe(IsDraggingChanged);
+    }
+
+    private static void IsDraggingChanged(AvaloniaPropertyChangedEventArgs e)
+    {
+        if (e.Sender is not KeyFrame keyFrame)
+        {
+            return;
+        }
+
+        keyFrame.PseudoClasses.Set(":dragging", keyFrame.IsDragging);
+        (keyFrame.Parent as Visual).ZIndex = keyFrame.IsDragging ? 500 : 0;
     }
 
     private static void ItemChanged(AvaloniaPropertyChangedEventArgs e)

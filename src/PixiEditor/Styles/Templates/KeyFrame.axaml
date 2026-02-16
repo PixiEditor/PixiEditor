@@ -15,6 +15,11 @@
                         <CubicEaseOut />
                     </DoubleTransition.Easing>
                 </DoubleTransition>
+                <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.2">
+                    <TransformOperationsTransition.Easing>
+                        <CubicEaseOut />
+                    </TransformOperationsTransition.Easing>
+                </TransformOperationsTransition>
             </Transitions>
         </Setter>
         <Setter Property="Template">
@@ -100,6 +105,10 @@
 
         <Style Selector="^:disabled">
             <Setter Property="Opacity" Value="0.5" />
+        </Style>
+
+        <Style Selector="^:dragging">
+            <Setter Property="RenderTransform" Value="scale(1.05, 1.05)" />
         </Style>
     </ControlTheme>
 
