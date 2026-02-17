@@ -117,4 +117,10 @@ public static class PixiEditorSettings
             PreferencesConstants.UseSystemWindowDecorationsDefault,
             PreferencesConstants.UseSystemWindowDecorations);
     }
+    
+    public static class Extensions
+    {
+        public static SyncedSetting<IEnumerable<string>> DisabledExtensions { get; } =
+            SyncedSetting.NonOwned<IEnumerable<string>>(PixiEditor, []);
+    }
 }

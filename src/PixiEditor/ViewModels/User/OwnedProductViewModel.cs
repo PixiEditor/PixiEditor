@@ -46,12 +46,20 @@ public class OwnedProductViewModel : ObservableObject
         get => isUninstalling;
         set => SetProperty(ref isUninstalling, value);
     }
+    
+    private bool isEnabled;
+    public bool IsEnabled
+    {
+        get => isEnabled;
+        set => SetProperty(ref isEnabled, value);
+    }
 
     public IAsyncRelayCommand InstallCommand { get; }
     public IAsyncRelayCommand UninstallCommand { get; }
+    public IRelayCommand<bool> ToggleEnabledCommand { get; }
 
     public OwnedProductViewModel(ProductData productData, bool isInstalled, string? installedVersion,
-        IAsyncRelayCommand<string> installContentCommand, IAsyncRelayCommand<string> uninstallContentCommand, Func<string, bool> isInstalledFunc)
+        IAsyncRelayCommand<string> installContentCommand, IAsyncRelayCommand<string> uninstallContentCommand, IRelayCommand<string> enableContentCommand, IRelayCommand<string> disableContentCommand, Func<string, bool> isInstalledFunc)
     {
         ProductData = productData;
         IsInstalled = isInstalled;
@@ -73,6 +81,8 @@ public class OwnedProductViewModel : ObservableObject
                 RestartRequired = false;
                 await installContentCommand.ExecuteAsync(ProductData.Id);
                 IsInstalling = false;
+                
+                IsEnabled = true;
                 if (wasUpdating)
                 {
                     RestartRequired = true;
@@ -99,6 +109,25 @@ public class OwnedProductViewModel : ObservableObject
                 RestartRequired = true;
             },
             () => IsInstalled && !IsInstalling && !IsUninstalling
+        );
+        
+        ToggleEnabledCommand = new RelayCommand<bool>(
+            (isOn) =>
+            {
+                if (isOn)
+                {
+                    IsEnabled = true;
+                    enableContentCommand.Execute(ProductData.Id);
+                }
+                else
+                {
+                    IsEnabled = false;
+                    disableContentCommand.Execute(ProductData.Id);
+                }
+                
+                //RestartRequired = true;
+            },
+            (isOn) => IsInstalled && !IsInstalling && !IsUninstalling
         );
     }
 }

@@ -229,6 +229,9 @@
                                             <ToggleSwitch
                                                 OnContent=""
                                                 OffContent=""
+                                                IsChecked="{Binding IsEnabled, Mode=TwoWay}"
+                                                Command="{Binding ToggleEnabledCommand}"
+                                                CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}"
                                                 VerticalAlignment="Center">
                                                 <ToggleSwitch.IsVisible>
                                                     <MultiBinding Converter="{converters:AllTrueConverter}">

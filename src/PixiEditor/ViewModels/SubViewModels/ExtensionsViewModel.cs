@@ -2,6 +2,7 @@
 using Avalonia.Interactivity;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Extensions;
+using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Extensions.CommonApi.Windowing;
 using PixiEditor.Extensions.Runtime;
 using PixiEditor.Helpers;
@@ -99,9 +100,23 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
         }
     }
     
-    public async Task UninstallExtension(IAdditionalContentProvider additionalContentProvider, string extensionId)
+    public async Task UninstallExtension(string extensionId)
     {
         this.ExtensionLoader.UninstallExtension(extensionId);
+    }
+    
+    public void EnableExtension(string extensionId)
+    {
+        var disabled = PixiEditorSettings.Extensions.DisabledExtensions.Value.ToList();
+        disabled.Remove(extensionId);
+        PixiEditorSettings.Extensions.DisabledExtensions.Value = disabled;
+    }
+    
+    public void DisableExtension(string extensionId)
+    {
+        var disabled = PixiEditorSettings.Extensions.DisabledExtensions.Value.ToList();
+        disabled.Add(extensionId);
+        PixiEditorSettings.Extensions.DisabledExtensions.Value = disabled;
     }
 
     private void RegisterCoreWindows(WindowProvider? windowProvider)
