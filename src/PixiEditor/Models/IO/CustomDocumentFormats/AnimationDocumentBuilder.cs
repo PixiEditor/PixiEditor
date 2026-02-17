@@ -58,10 +58,12 @@ internal class AnimationDocumentBuilder : IDocumentBuilder
         animationData.FrameRate = (int)playbackFps;
         KeyFrameGroup layerGroup = new KeyFrameGroup();
         string layerName = new LocalizedString("BASE_LAYER_NAME");
+        Surface firstFrameSurface = new Surface(size);
+        firstFrameSurface.DrawingSurface.Canvas.DrawBitmap(frames[0].ImageData, 0, 0);
 
         builder.WithSize(size)
             .WithGraph(graph =>
-                graph.WithImageLayerNode(layerName, size, ColorSpace.CreateSrgbLinear(),
+                graph.WithImageLayerNode(layerName, firstFrameSurface, ColorSpace.CreateSrgbLinear(),
                         out int nodeId)
                     .WithOutputNode(nodeId, RenderNode.OutputPropertyName));
 
