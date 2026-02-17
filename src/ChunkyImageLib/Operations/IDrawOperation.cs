@@ -7,6 +7,7 @@ namespace ChunkyImageLib.Operations;
 internal interface IDrawOperation : IOperation
 {
     bool IgnoreEmptyChunks { get; }
+    bool NeedsDrawInSrgb { get; }
     void DrawOnChunk(Chunk targetChunk, VecI chunkPos);
     AffectedArea FindAffectedArea(VecI imageSize);
 }
