@@ -12,12 +12,12 @@ using PixiEditor.Views.Animations;
 
 namespace PixiEditor.Models.IO.CustomDocumentFormats;
 
-internal class GifAnimationDocumentBuilder : IDocumentBuilder
+internal class AnimationDocumentBuilder : IDocumentBuilder
 {
     public IAnimationRenderer Renderer { get; }
-    public IReadOnlyCollection<string> Extensions { get; } = [".gif"];
+    public IReadOnlyCollection<string> Extensions { get; } = [".gif", ".png"];
 
-    public GifAnimationDocumentBuilder(IAnimationRenderer renderer)
+    public AnimationDocumentBuilder(IAnimationRenderer renderer)
     {
         Renderer = renderer;
     }

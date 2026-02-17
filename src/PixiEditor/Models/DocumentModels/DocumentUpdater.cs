@@ -779,19 +779,31 @@ internal class DocumentUpdater
             inputs.Add(prop);
             foreach (var propInfoConnectedProperty in propInfo.ConnectedProperties)
             {
-                doc.NodeGraphHandler.SetConnection(new NodeConnectionViewModel()
+                var inputNode = isInput ? node : doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId);
+                var outputNode = isInput ? doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId) : node;
+                if (inputNode == null || outputNode == null)
                 {
-                    InputNode = isInput ? node : doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId),
-                    OutputNode = isInput ? doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId) : node,
-                    InputProperty = isInput
-                        ? prop
-                        : doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId)
-                            .FindInputProperty(propInfoConnectedProperty.PropertyName),
-                    OutputProperty = isInput
-                        ? doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId)
-                            .FindOutputProperty(propInfoConnectedProperty.PropertyName)
-                        : prop
-                });
+#if DEBUG
+                    Debug.WriteLine(
+                        $"Connection requested for a node that doesn't exist. NodeId: {propInfoConnectedProperty.NodeId}");
+#endif
+                }
+                else
+                {
+                    doc.NodeGraphHandler.SetConnection(new NodeConnectionViewModel()
+                    {
+                        InputNode = isInput ? node : doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId),
+                        OutputNode = isInput ? doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId) : node,
+                        InputProperty = isInput
+                            ? prop
+                            : doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId)
+                                .FindInputProperty(propInfoConnectedProperty.PropertyName),
+                        OutputProperty = isInput
+                            ? doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId)
+                                .FindOutputProperty(propInfoConnectedProperty.PropertyName)
+                            : prop
+                    });
+                }
             }
         }
 
