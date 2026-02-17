@@ -258,7 +258,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
         {
             ThrowIfDisposed();
 
-            if(queuedOperations.Count == 0)
+            if (queuedOperations.Count == 0)
             {
                 return FindTightCommittedBounds(suggestedResolution, fallbackToChunkAligned);
             }
@@ -400,6 +400,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
                     if (image is null)
                         continue;
                 }
+
                 output.EnqueueDrawTexture(chunk * FullChunkSize, image.Surface);
             }
 
@@ -572,6 +573,12 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
                 }
                 else
                 {
+                    if (chunk is null && queuedOperations.Count > 0 && resolution != ChunkResolution.Full &&
+                        MaybeGetLatestChunk(chunkPos, ChunkResolution.Full) != null)
+                    {
+                        chunk = GetLatestChunk(chunkPos, resolution);
+                    }
+
                     latestChunk = chunk is null ? new None() : chunk;
                 }
             }
@@ -831,7 +838,8 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
     /// Surface is NOT THREAD SAFE, so if you pass a Surface here with copyImage == false you must not do anything with that surface anywhere (not even read) until CommitChanges/CancelChanges is called.
     /// </summary>
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
-    public void EnqueueDrawImage(Matrix3X3 transformMatrix, Surface image, SamplingOptions samplingOptions, Paint? paint = null, bool copyImage = true)
+    public void EnqueueDrawImage(Matrix3X3 transformMatrix, Surface image, SamplingOptions samplingOptions,
+        Paint? paint = null, bool copyImage = true)
     {
         lock (lockObject)
         {
