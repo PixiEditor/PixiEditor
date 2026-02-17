@@ -662,6 +662,7 @@ internal partial class DocumentViewModel
         animData.OnionFrames = animationData.OnionFrames;
         animData.OnionOpacity = animationData.OnionOpacity;
         animData.DefaultEndFrame = animationData.DefaultEndFrame;
+        animData.FallbackAnimationToLayerImage = animationData.FallbackAnimationToLayerImage;
         BuildKeyFrames(animationData.KeyFrames, animData, graph, nodeIdMap, keyFrameIds);
 
         return animData;

@@ -124,7 +124,7 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<IoFileType, TtfFileType>()
             .AddSingleton<IoFileType, OtfFileType>()
             // Serialization Factories
-            .AddAssemblyTypesTransient<SerializationFactory>()
+            .AddSerializationFactories()
             // Custom document builders
             .AddSingleton<IDocumentBuilder, SvgDocumentBuilder>()
             .AddSingleton<IDocumentBuilder, FontDocumentBuilder>()
@@ -164,16 +164,40 @@ internal static class ServiceCollectionHelpers
 
         return collection;
     }
-    
-    private static IServiceCollection AddAssemblyTypesTransient<T>(this IServiceCollection collection)
+
+    public static IServiceCollection AddSerializationFactories(this IServiceCollection collection)
     {
-        Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-        IEnumerable<Type> types = assemblies.Where(asm => !asm.FullName.Contains("Steamworks")).SelectMany(x => x.GetTypes())
-            .Where(x => typeof(T).IsAssignableFrom(x) && x is { IsInterface: false, IsAbstract: false });
-        foreach (Type type in types)
-        {
-            collection.AddTransient(typeof(T), type);
-        }
+        collection
+            .AddTransient<SerializationFactory, BrushSerializationFactory>()
+            .AddTransient<SerializationFactory, ChunkyImageSerializationFactory>()
+            .AddTransient<SerializationFactory, ColorMatrixSerializationFactory>()
+            .AddTransient<SerializationFactory, ColorSerializationFactory>()
+            .AddTransient<SerializationFactory, DocumentSerializationFactory>()
+            .AddTransient<SerializationFactory, EllipseSerializationFactory>()
+            .AddTransient<SerializationFactory, FontFamilySerializationFactory>()
+            .AddTransient<SerializationFactory, KernelSerializationFactory>()
+            .AddTransient<SerializationFactory, LineSerializationFactory>()
+            .AddTransient<SerializationFactory, Matrix3X3SerializationFactory>()
+            .AddTransient<SerializationFactory,
+                Models.Serialization.Factories.Paintables.ColorPaintableSerializationFactory>()
+            .AddTransient<SerializationFactory,
+                Models.Serialization.Factories.Paintables.LinearGradientSerializationFactory>()
+            .AddTransient<SerializationFactory,
+                Models.Serialization.Factories.Paintables.RadialGradientSerializationFactory>()
+            .AddTransient<SerializationFactory,
+                Models.Serialization.Factories.Paintables.SweepGradientSerializationFactory>()
+            .AddTransient<SerializationFactory, Models.Serialization.Factories.Paintables.
+                TexturePaintableSerializationFactory>()
+            .AddTransient<SerializationFactory, PointsDataSerializationFactory>()
+            .AddTransient<SerializationFactory, RectangleSerializationFactory>()
+            .AddTransient<SerializationFactory, SurfaceSerializationFactory>()
+            .AddTransient<SerializationFactory, TextSerializationFactory>()
+            .AddTransient<SerializationFactory, TextureSerializationFactory>()
+            .AddTransient<SerializationFactory, VecD3SerializationFactory>()
+            .AddTransient<SerializationFactory, VecD4SerializationFactory>()
+            .AddTransient<SerializationFactory, VecDSerializationFactory>()
+            .AddTransient<SerializationFactory, VecISerializationFactory>()
+            .AddTransient<SerializationFactory, VectorPathSerializationFactory>();
 
         return collection;
     }

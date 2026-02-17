@@ -20,6 +20,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.Parser;
+using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.Models.Handlers;
 
@@ -76,6 +77,7 @@ internal interface IDocument : IHandler, Extensions.CommonApi.Documents.IDocumen
 
     internal void InternalRaiseLayersChanged(LayersChangedEventArgs e);
     internal void InternalMarkSaveState(DocumentMarkType type);
+    internal void InternalRaiseKeyFrameCreated(RasterCelViewModel vm);
     public ICrossDocumentPipe<T> ShareNode<T>(Guid layerId) where T : class, IReadOnlyNode;
     public ICrossDocumentPipe<IReadOnlyNodeGraph> ShareGraph();
     public IReadOnlyDocument AccessInternalReadOnlyDocument();

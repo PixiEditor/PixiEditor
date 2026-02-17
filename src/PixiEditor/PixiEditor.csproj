@@ -106,7 +106,6 @@
     <PackageReference Include="Hardware.Info" Version="101.0.1.1" />
     <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.14.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
     <PackageReference Include="Svg.Controls.Skia.Avalonia" Version="11.3.0.3" />
     <PackageReference Include="TextMateSharp.Grammars" Version="1.0.70" />
   </ItemGroup>

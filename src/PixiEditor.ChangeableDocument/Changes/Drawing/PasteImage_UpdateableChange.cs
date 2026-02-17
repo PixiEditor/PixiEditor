@@ -32,7 +32,7 @@ internal class PasteImage_UpdateableChange : InterruptableUpdateableChange
 
     public override bool InitializeAndValidate(Document target)
     {
-        return DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask);
+        return targetKeyFrameGuid != null ? DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask, targetKeyFrameGuid.Value) : DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask, frame ?? 0);
     }
 
     [UpdateChangeMethod]
