@@ -58,7 +58,7 @@ internal class DrawRasterLine_UpdateableChange : InterruptableUpdateableChange
 
     public override bool InitializeAndValidate(Document target)
     {
-        return DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask);
+        return DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask, frame);
     }
 
     private AffectedArea CommonApply(Document target)

@@ -93,6 +93,7 @@ internal class DocumentViewModelBuilder
 
         if (animationData != null)
         {
+            AnimationData.WithFallbackAnimationToLayerImage(animationData.FallbackAnimationToLayerImage);
             AnimationData.WithFrameRate(animationData.FrameRate);
             AnimationData.WithOnionFrames(animationData.OnionFrames);
             AnimationData.WithOnionOpacity(animationData.OnionOpacity);
@@ -294,6 +295,13 @@ internal class AnimationDataBuilder
     public int OnionFrames { get; set; }
     public double OnionOpacity { get; set; } = 50;
     public int DefaultEndFrame { get; set; } = -1;
+    public bool FallbackAnimationToLayerImage { get; set; }
+
+    public AnimationDataBuilder WithFallbackAnimationToLayerImage(bool enabled)
+    {
+        FallbackAnimationToLayerImage = enabled;
+        return this;
+    }
 
     public AnimationDataBuilder WithFrameRate(int frameRate)
     {

@@ -32,6 +32,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
     private List<ICelHandler> allCels = new List<ICelHandler>();
     private bool onionSkinningEnabled;
     private bool isPlayingBindable;
+    private bool fallbackAnimationToLayerImage;
 
     private int? cachedFirstFrame;
     private int? cachedLastFrame;
@@ -121,6 +122,18 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
                 return;
 
             Internals.ActionAccumulator.AddFinishedActions(new SetDefaultEndFrame_Action(value));
+        }
+    }
+
+    public bool FallbackAnimationToLayerImageBindable
+    {
+        get => fallbackAnimationToLayerImage;
+        set
+        {
+            if (Document.BlockingUpdateableChangeActive)
+                return;
+
+            Internals.ActionAccumulator.AddFinishedActions(new SetFallbackAnimationToLayerImage_Action(value));
         }
     }
 
@@ -262,6 +275,12 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         OnPropertyChanged(nameof(DefaultEndFrameBindable));
         OnPropertyChanged(nameof(LastFrame));
         OnPropertyChanged(nameof(FramesCount));
+    }
+
+    public void SetFallbackAnimationToLayerImage(bool enabled)
+    {
+        fallbackAnimationToLayerImage = enabled;
+        OnPropertyChanged(nameof(FallbackAnimationToLayerImageBindable));
     }
 
     public void SetActiveFrame(int newFrame)

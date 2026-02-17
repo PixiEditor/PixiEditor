@@ -421,6 +421,7 @@ internal class SceneRenderer
             OnionOpacity = Document.AnimationData.OnionOpacity,
             OnionSkinning = DocumentViewModel.AnimationHandler.OnionSkinningEnabledBindable,
             ZoomLevel = matrix.ScaleX,
+            FallbackFramesToLayer = Document.AnimationData.FallbackAnimationToLayerImage,
             VisibleDocumentRegion =
                 (RectD?)visibleDocumentRegion ?? new RectD(0, 0, Document.Size.X, Document.Size.Y)
         };
@@ -511,12 +512,14 @@ readonly struct RenderState
     public int OnionFrames { get; init; }
     public double OnionOpacity { get; init; }
     public bool OnionSkinning { get; init; }
+    public bool FallbackFramesToLayer { get; init; }
 
     public bool ShouldRerender(RenderState other)
     {
         return ChunkResolution > other.ChunkResolution || HighResRendering != other.HighResRendering ||
                TargetOutput != other.TargetOutput ||
                OnionFrames != other.OnionFrames || Math.Abs(OnionOpacity - other.OnionOpacity) > 0.05 ||
+               FallbackFramesToLayer != other.FallbackFramesToLayer ||
                OnionSkinning != other.OnionSkinning ||
                VisibleRegionChanged(other) || ZoomDiffRequiresRender(other);
     }
