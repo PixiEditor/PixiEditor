@@ -22,6 +22,30 @@ internal class ExtensionManagerViewModel : ViewModelBase
     public AsyncRelayCommand<string> InstallAndLoadExtensionCommand { get; }
     public AsyncRelayCommand<string> UninstallExtensionCommand { get; }
     
+    public ObservableCollection<ExtensionsTab> Tabs { get; } =
+        new ObservableCollection<ExtensionsTab>
+        {
+            new ExtensionsTab("All","EXTENSIONS_WINDOW_TAB_ALL"),
+            new ExtensionsTab("Owned", "EXTENSIONS_WINDOW_TAB_OWNED")
+        };
+    
+    private ExtensionsTab selectedTab;
+    public ExtensionsTab SelectedTab
+    {
+        get => selectedTab;
+        set
+        {
+            if (SetProperty(ref selectedTab, value))
+            {
+                OnPropertyChanged(nameof(ShowAllTab));
+                OnPropertyChanged(nameof(ShowOwnedTab));
+            }
+        }
+    }
+    
+    public bool ShowAllTab => SelectedTab != null && SelectedTab.Id == "All";
+    public bool ShowOwnedTab => SelectedTab != null && SelectedTab.Id == "Owned";
+    
     private ExtensionsViewModel extensionsViewModel;
     private IAdditionalContentProvider contentProvider;
     private IIdentityProvider identityProvider;
@@ -34,6 +58,8 @@ internal class ExtensionManagerViewModel : ViewModelBase
         
         InstallAndLoadExtensionCommand = new AsyncRelayCommand<string>(InstallAndLoadExtension, CanInstallAndLoadExtension);
         UninstallExtensionCommand = new AsyncRelayCommand<string>(UninstallExtension, CanUninstallExtension);
+        
+        SelectedTab = Tabs.FirstOrDefault(tab => tab.Id == "All");
     }
 
     public async Task FetchAvailableExtensions()

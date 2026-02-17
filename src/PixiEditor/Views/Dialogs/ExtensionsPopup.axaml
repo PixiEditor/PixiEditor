@@ -11,6 +11,9 @@
         xmlns:user="clr-namespace:PixiEditor.ViewModels.User"
         xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
         xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+        xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
+        xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
+        xmlns:system="clr-namespace:System;assembly=System.Runtime"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="PixiEditor.Views.Dialogs.ExtensionsPopup"
         x:DataType="extensionManager:ExtensionManagerViewModel"
@@ -20,8 +23,52 @@
         <extensionManager:ExtensionManagerViewModel />
     </Design.DataContext>
     
-    <TabControl>
-        <TabItem localization:Translator.Key="EXTENSIONS_WINDOW_TAB_ALL">
+    <StackPanel>
+        <Border BorderThickness="1"
+                CornerRadius="4"
+                BorderBrush="{DynamicResource ThemeBorderMidColor}"
+                Background="{DynamicResource ThemeBackgroundColor}"
+                Margin="12"
+                HorizontalAlignment="Left">
+            <ItemsControl ItemsSource="{Binding Tabs}"
+                          HorizontalAlignment="Left">
+                <ItemsControl.Styles>
+                    <Style Selector="ToggleButton">
+                        <Setter Property="CornerRadius" Value="4" />
+                        <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderMidColor}" />
+                        <Setter Property="Background" Value="Transparent" />
+                    </Style>
+                    <Style Selector="ToggleButton:unchecked">
+                        <Setter Property="BorderThickness" Value="0" />
+                        <Setter Property="Background" Value="Transparent" />
+                    </Style>
+                    <Style Selector="ToggleButton:checked">
+                        <Setter Property="BorderThickness" Value="1" />
+                        <Setter Property="Margin" Value="-1"/>
+                        <Setter Property="Background" Value="Transparent" />
+                    </Style>
+                </ItemsControl.Styles>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <controls:SelectableStrip />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <ToggleButton Padding="4"
+                                      controls:SelectableStrip.IsStripSelected="{Binding RelativeSource={RelativeSource Self}, Path=IsChecked}"
+                                      behaviours:ToggleGroupBehavior.GroupName="ExtensionsTab"
+                                      behaviours:ToggleGroupBehavior.Value="{Binding }"
+                                      behaviours:ToggleGroupBehavior.SelectedValue="{Binding DataContext.SelectedTab, Mode=TwoWay, RelativeSource={RelativeSource FindAncestor, AncestorType=dialogs:ExtensionsPopup}}">
+
+                            <TextBlock FontSize="{DynamicResource FontSizeNormal}"
+                                       localization:Translator.Key="{Binding Name}"/>
+                        </ToggleButton>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Border>
+        <Panel IsVisible="{Binding ShowAllTab}">
             <ScrollViewer>
                 <ItemsControl ItemsSource="{Binding AvailableExtensions}">
                     <ItemsControl.ItemsPanel>
@@ -98,8 +145,8 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
             </ScrollViewer>
-        </TabItem>
-        <TabItem localization:Translator.Key="EXTENSIONS_WINDOW_TAB_OWNED">
+        </Panel>
+        <Panel IsVisible="{Binding ShowOwnedTab}">
             <ScrollViewer>
                 <ItemsControl ItemsSource="{Binding OwnedExtensions}">
                     <ItemsControl.ItemsPanel>
@@ -256,8 +303,8 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
             </ScrollViewer>
-        </TabItem>
-    </TabControl>
+        </Panel>
+    </StackPanel>
 
 
 </dialogs:PixiEditorPopup>
