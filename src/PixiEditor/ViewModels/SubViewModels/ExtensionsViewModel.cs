@@ -9,6 +9,7 @@ using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.ExtensionServices;
+using PixiEditor.Models.IO;
 using PixiEditor.Platform;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.ExtensionManager;
@@ -104,12 +105,21 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
     {
         this.ExtensionLoader.UninstallExtension(extensionId);
     }
+
+    public bool IsLoaded(string extensionId)
+    {
+        return ExtensionLoader.LoadedExtensions.Any(x => x.Metadata.UniqueName == extensionId);
+    }
     
     public void EnableExtension(string extensionId)
     {
         var disabled = PixiEditorSettings.Extensions.DisabledExtensions.Value.ToList();
         disabled.Remove(extensionId);
         PixiEditorSettings.Extensions.DisabledExtensions.Value = disabled;
+        
+        string extensionPath = Path.Combine(Paths.LocalExtensionPackagesPath, $"{extensionId}.pixiext");
+        
+        LoadExtensionAdHoc(extensionPath);
     }
     
     public void DisableExtension(string extensionId)

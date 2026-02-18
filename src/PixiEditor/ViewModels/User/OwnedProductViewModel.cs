@@ -53,16 +53,24 @@ public class OwnedProductViewModel : ObservableObject
         get => isEnabled;
         set => SetProperty(ref isEnabled, value);
     }
+    
+    private bool isLoaded;
+    public bool IsLoaded
+    {
+        get => isLoaded;
+        set => SetProperty(ref isLoaded, value);
+    }
 
     public IAsyncRelayCommand InstallCommand { get; }
     public IAsyncRelayCommand UninstallCommand { get; }
     public IRelayCommand<bool> ToggleEnabledCommand { get; }
 
-    public OwnedProductViewModel(ProductData productData, bool isInstalled, string? installedVersion,
+    public OwnedProductViewModel(ProductData productData, bool isInstalled, string? installedVersion, bool isEnabled, bool isLoaded,
         IAsyncRelayCommand<string> installContentCommand, IAsyncRelayCommand<string> uninstallContentCommand, IRelayCommand<string> enableContentCommand, IRelayCommand<string> disableContentCommand, Func<string, bool> isInstalledFunc)
     {
         ProductData = productData;
         IsInstalled = isInstalled;
+        IsLoaded = isLoaded;
         if (productData.LatestVersion != null && installedVersion != null)
         {
             UpdateAvailable = productData.LatestVersion != installedVersion;
@@ -71,6 +79,8 @@ public class OwnedProductViewModel : ObservableObject
         {
             UpdateAvailable = false;
         }
+        
+        IsEnabled = isEnabled;
 
         InstallCommand = new AsyncRelayCommand(
             async () =>
@@ -81,7 +91,8 @@ public class OwnedProductViewModel : ObservableObject
                 RestartRequired = false;
                 await installContentCommand.ExecuteAsync(ProductData.Id);
                 IsInstalling = false;
-                
+
+                IsLoaded = true;
                 IsEnabled = true;
                 if (wasUpdating)
                 {
@@ -92,6 +103,7 @@ public class OwnedProductViewModel : ObservableObject
                     IsInstalled = isInstalledFunc(ProductData.Id);
                     
                     UninstallCommand.NotifyCanExecuteChanged();
+                    ToggleEnabledCommand.NotifyCanExecuteChanged();
                 }
             }, () => !IsInstalled && !IsInstalling || UpdateAvailable);
         
@@ -118,14 +130,13 @@ public class OwnedProductViewModel : ObservableObject
                 {
                     IsEnabled = true;
                     enableContentCommand.Execute(ProductData.Id);
+                    IsLoaded = true;
                 }
                 else
                 {
                     IsEnabled = false;
                     disableContentCommand.Execute(ProductData.Id);
                 }
-                
-                //RestartRequired = true;
             },
             (isOn) => IsInstalled && !IsInstalling && !IsUninstalling
         );

@@ -299,6 +299,20 @@
                                                 localization:Translator.Key="RESTART"
                                                 Background="{DynamicResource ThemeAccentBrush}"
                                                 Command="{xaml:Command Name=PixiEditor.Restart}" />
+                                        
+                                        <Button DockPanel.Dock="Left" HorizontalAlignment="Left"
+                                                FontSize="{DynamicResource FontSizeNormal}"
+                                                localization:Translator.Key="RESTART"
+                                                Background="{DynamicResource ThemeAccentBrush}"
+                                                Command="{xaml:Command Name=PixiEditor.Restart}" >
+                                            <Button.IsVisible>
+                                                <MultiBinding Converter="{converters:AllTrueConverter}">
+                                                    <Binding Path="IsInstalled" />
+                                                    <Binding Path="IsLoaded" />
+                                                    <Binding Path="!IsEnabled" />
+                                                </MultiBinding>
+                                            </Button.IsVisible>
+                                        </Button>
                                     </DockPanel>
                                 </Grid>
                             </Border>

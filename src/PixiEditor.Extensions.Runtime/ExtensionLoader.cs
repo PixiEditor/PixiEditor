@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 using Newtonsoft.Json;
+using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Extensions.Metadata;
 using PixiEditor.Extensions.WasmRuntime;
 using PixiEditor.Platform;
@@ -60,12 +61,18 @@ public class ExtensionLoader
                 }
             }
 
+            var disabledExtensions = PixiEditorSettings.Extensions.DisabledExtensions.Value.ToList();
+            
             foreach (var file in Directory.GetFiles(packagesPath, "*.pixiext"))
             {
-                LoadExtension(file);
+                string extensionName = Path.GetFileNameWithoutExtension(file);
+                if (!disabledExtensions.Contains(extensionName))
+                {
+                    LoadExtension(file);
+                }
             }
             
-            DeleteUnloadedExtensions();
+            DeleteUninstalledExtensions();
         }
     }
 
@@ -194,18 +201,20 @@ public class ExtensionLoader
         
     }
 
-    public void DeleteUnloadedExtensions()
+    public void DeleteUninstalledExtensions()
     {
         var loadedExtensionNames = new HashSet<string>(
             LoadedExtensions.Select(e => e.Metadata.UniqueName)
         );
+        
+        var disabledExtensions = PixiEditorSettings.Extensions.DisabledExtensions.Value.ToList();
         
         var directories = Directory.GetDirectories(UnpackedExtensionsPath);
         foreach (var extensionPath in directories)
         {
             var extensionName = Path.GetFileName(extensionPath);
 
-            if (!loadedExtensionNames.Contains(extensionName))
+            if (!loadedExtensionNames.Contains(extensionName) &&  !disabledExtensions.Contains(extensionName))
             {
                 Directory.Delete(extensionPath, true);
             }

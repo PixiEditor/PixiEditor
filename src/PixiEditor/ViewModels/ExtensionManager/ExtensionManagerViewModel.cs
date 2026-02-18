@@ -3,6 +3,7 @@ using Avalonia.Threading;
 using AvaloniaEdit.Utils;
 using CommunityToolkit.Mvvm.Input;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
+using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.IdentityProvider;
 using PixiEditor.PixiAuth.Models;
 using PixiEditor.Platform;
@@ -106,8 +107,11 @@ internal class ExtensionManagerViewModel : ViewModelBase
                     IPreferences.Current.UpdateLocalPreference($"product_{extension.Id}_downloaded_at_least_once", true);
                 }
             }
-
-            OwnedExtensions.Add(new OwnedProductViewModel(extension, isInstalled, installedVersion, InstallAndLoadExtensionCommand, UninstallExtensionCommand, EnableExtensionCommand, DisableExtensionCommand, IsInstalled));
+            
+            bool isEnabled = IsEnabled(extension.Id);
+            bool isLoaded = IsLoaded(extension.Id);
+            
+            OwnedExtensions.Add(new OwnedProductViewModel(extension, isInstalled, installedVersion, isEnabled, isLoaded, InstallAndLoadExtensionCommand, UninstallExtensionCommand, EnableExtensionCommand, DisableExtensionCommand, IsInstalled));
         }
     }
     
@@ -168,13 +172,13 @@ internal class ExtensionManagerViewModel : ViewModelBase
     
     private bool IsEnabled(string extensionId)
     {
-        if (contentProvider.IsInstalled(extensionId))
-        {
-            return true;
-        }
-
-        return extensionsViewModel.ExtensionLoader.LoadedExtensions.Any(x =>
-            x.Metadata.UniqueName == extensionId);
+        var disabled = PixiEditorSettings.Extensions.DisabledExtensions.Value.ToList();
+        return !disabled.Contains(extensionId);
+    }
+    
+    private bool IsLoaded(string extensionId)
+    {
+        return extensionsViewModel.IsLoaded(extensionId);
     }
     
     public bool CanEnableExtension(string extensionId)
@@ -188,7 +192,7 @@ internal class ExtensionManagerViewModel : ViewModelBase
         {
             return;
         }
-
+        
         extensionsViewModel.EnableExtension(extensionId);
     }
     

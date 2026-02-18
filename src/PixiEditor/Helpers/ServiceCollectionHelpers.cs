@@ -55,7 +55,6 @@ internal static class ServiceCollectionHelpers
     {
         return collection
             .AddSingleton<ViewModels_ViewModelMain>()
-            .AddSingleton<IPreferences, PreferencesSettings>()
             .AddSingleton<ILocalizationProvider, LocalizationProvider>(x => new LocalizationProvider(extensionLoader))
 
             // View Models
