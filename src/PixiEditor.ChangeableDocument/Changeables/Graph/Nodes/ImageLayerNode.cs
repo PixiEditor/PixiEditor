@@ -178,6 +178,12 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
             var intersection = visibleRegion.Intersect(latestSize);
             region = intersection;
             VecI chunkAwareSize = (VecI)(new VecI(region.Width, region.Height) * multiplier);
+            if(chunkAwareSize.X <= 0 || chunkAwareSize.Y <= 0)
+            {
+                workingSurface.RestoreToCount(saved);
+                return;
+            }
+
             intermediate = RequestTexture(1336, chunkAwareSize, ColorSpace.CreateSrgb());
             finalDrawPos = VecD.Zero;
             if (visibleRegion != latestSize)

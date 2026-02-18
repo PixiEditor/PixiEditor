@@ -315,7 +315,8 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
 
         using Texture intermediate = Texture.ForProcessing(workingSurface, ColorSpace.CreateSrgb());
         var latestSize = new RectI(VecI.Zero, lastDocument.DocumentInstance.Size);
-        intermediate.DrawingSurface.Canvas.SetMatrix(intermediate.DrawingSurface.Canvas.TotalMatrix.Concat(TransformationMatrix));
+        intermediate.DrawingSurface.Canvas.SetMatrix(
+            intermediate.DrawingSurface.Canvas.TotalMatrix.Concat(TransformationMatrix));
 
         ctx.RenderSurface = intermediate.DrawingSurface.Canvas;
         ctx.RenderOutputSize = latestSize.Size;
@@ -327,6 +328,7 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
             var docSize = NestedDocument.Value.DocumentInstance.Size;
             workingSurface.ClipRect(new RectD(VecI.Zero, docSize));
         }
+
         workingSurface.SetMatrix(Matrix3X3.Identity);
         workingSurface.DrawSurface(intermediate.DrawingSurface, 0, 0, paint);
         workingSurface.RestoreToCount(saved);
@@ -373,14 +375,17 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
         clonedContext.Graph = Instance?.NodeGraph;
         clonedContext.DocumentSize = Instance?.Size ?? VecI.Zero;
         clonedContext.ProcessingColorSpace = Instance?.ProcessingColorSpace;
-        clonedContext.RenderOutputSize = clonedContext.DocumentSize;
+        clonedContext.RenderOutputSize =
+            (VecI)(clonedContext.DocumentSize * clonedContext.ChunkResolution.Multiplier());
         clonedContext.DesiredSamplingOptions =
             BilinearSampling.Value ? SamplingOptions.Bilinear : SamplingOptions.Default;
         if (clonedContext.VisibleDocumentRegion.HasValue)
         {
-            clonedContext.VisibleDocumentRegion =
-                (RectI)new ShapeCorners((RectD)clonedContext.VisibleDocumentRegion.Value)
-                    .WithMatrix(TransformationMatrix.Invert()).AABBBounds.RoundOutwards();
+            VecD posInScene = TransformedAABB.TopLeft;
+            var docRect = new RectD(posInScene, Instance.Size);
+            var visibleRect = (RectD)clonedContext.VisibleDocumentRegion.Value;
+            var intersected = docRect.Intersect(visibleRect).Offset(-posInScene);
+            clonedContext.VisibleDocumentRegion = (RectI)new ShapeCorners(intersected).AABBBounds.RoundOutwards();
         }
 
         var outputNode = Instance?.NodeGraph.AllNodes.OfType<BrushOutputNode>().FirstOrDefault() ??
@@ -438,14 +443,16 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
             .WithMatrix(TransformationMatrix);
     }
 
-    internal override void SerializeAdditionalDataInternal(IReadOnlyDocument target, Dictionary<string, object> additionalData)
+    internal override void SerializeAdditionalDataInternal(IReadOnlyDocument target,
+        Dictionary<string, object> additionalData)
     {
         base.SerializeAdditionalDataInternal(target, additionalData);
         additionalData["lastDocument"] = lastDocument;
         additionalData["TransformationMatrix"] = TransformationMatrix;
     }
 
-    internal override void DeserializeAdditionalDataInternal(IReadOnlyDocument target, IReadOnlyDictionary<string, object> data,
+    internal override void DeserializeAdditionalDataInternal(IReadOnlyDocument target,
+        IReadOnlyDictionary<string, object> data,
         List<IChangeInfo> infos)
     {
         base.DeserializeAdditionalDataInternal(target, data, infos);
