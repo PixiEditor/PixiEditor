@@ -381,11 +381,12 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
             BilinearSampling.Value ? SamplingOptions.Bilinear : SamplingOptions.Default;
         if (clonedContext.VisibleDocumentRegion.HasValue)
         {
-            VecD posInScene = TransformedAABB.TopLeft;
-            var docRect = new RectD(posInScene, Instance.Size);
-            var visibleRect = (RectD)clonedContext.VisibleDocumentRegion.Value;
-            var intersected = docRect.Intersect(visibleRect).Offset(-posInScene);
-            clonedContext.VisibleDocumentRegion = (RectI)new ShapeCorners(intersected).AABBBounds.RoundOutwards();
+            var inverted =
+                new ShapeCorners((RectD)clonedContext.VisibleDocumentRegion.Value).WithMatrix(TransformationMatrix
+                    .Invert());
+            RectD docRegion = new RectD(VecI.Zero, Instance?.Size ?? VecI.Zero);
+            RectD intersection = docRegion.Intersect(inverted.AABBBounds);
+            clonedContext.VisibleDocumentRegion = (RectI)intersection.RoundOutwards();
         }
 
         var outputNode = Instance?.NodeGraph.AllNodes.OfType<BrushOutputNode>().FirstOrDefault() ??
