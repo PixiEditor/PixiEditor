@@ -21,4 +21,5 @@ public interface INodePropertyHandler
     public bool SocketEnabled { get; set; }
     public void UpdateComputedValue();
     public void InternalSetComputedValue(object value);
+    internal void InternalSetValue(object isVisible);
 }
