@@ -15,6 +15,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Dialogs;
+using PixiEditor.Parser;
 using PixiEditor.Parser.Graph;
 using PixiEditor.SVG;
 using PixiEditor.SVG.Elements;
@@ -92,6 +93,13 @@ internal class SvgDocumentBuilder : IDocumentBuilder
                 }
 
                 graph.WithOutputNode(lastId, "Output");
+
+                VecD pos = VecD.Zero;
+                foreach (var node in graph.AllNodes)
+                {
+                    node.Position = new Vector2() { X = (float)pos.X, Y = (float)pos.Y };
+                    pos += new VecD(250, 0);
+                }
             });
 
         if (unknownSize)
