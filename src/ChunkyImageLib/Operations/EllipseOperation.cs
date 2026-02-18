@@ -12,6 +12,7 @@ namespace ChunkyImageLib.Operations;
 internal class EllipseOperation : IMirroredDrawOperation
 {
     public bool IgnoreEmptyChunks => false;
+    public bool NeedsDrawInSrgb => strokePaintable is ISrgbPaintable || fillPaintable is ISrgbPaintable;
 
     private readonly RectD location;
     private readonly Paintable strokePaintable;

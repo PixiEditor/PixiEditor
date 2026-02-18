@@ -11,6 +11,7 @@ using Drawie.Backend.Core.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
@@ -254,6 +255,8 @@ internal class SceneRenderer
             }
             else
             {
+                finalSize = (VecI)(finalSize * resolution.Multiplier());
+
                 var bufferedSize = (VecI)(renderTargetSize * oversizeFactor);
                 renderTexture = textureCache.RequestTexture(viewportId.GetHashCode(), bufferedSize,
                     Document.ProcessingColorSpace);
@@ -423,7 +426,8 @@ internal class SceneRenderer
             ZoomLevel = matrix.ScaleX,
             FallbackFramesToLayer = Document.AnimationData.FallbackAnimationToLayerImage,
             VisibleDocumentRegion =
-                (RectD?)visibleDocumentRegion ?? new RectD(0, 0, Document.Size.X, Document.Size.Y)
+                (RectD?)visibleDocumentRegion ?? new RectD(0, 0, Document.Size.X, Document.Size.Y),
+            DocumentColorSpace = Document.ProcessingColorSpace
         };
 
         fullAffectedArea = false;
@@ -512,6 +516,7 @@ readonly struct RenderState
     public int OnionFrames { get; init; }
     public double OnionOpacity { get; init; }
     public bool OnionSkinning { get; init; }
+    public ColorSpace DocumentColorSpace { get; init; }
     public bool FallbackFramesToLayer { get; init; }
 
     public bool ShouldRerender(RenderState other)
@@ -521,7 +526,7 @@ readonly struct RenderState
                OnionFrames != other.OnionFrames || Math.Abs(OnionOpacity - other.OnionOpacity) > 0.05 ||
                FallbackFramesToLayer != other.FallbackFramesToLayer ||
                OnionSkinning != other.OnionSkinning ||
-               VisibleRegionChanged(other) || ZoomDiffRequiresRender(other);
+               VisibleRegionChanged(other) || ZoomDiffRequiresRender(other) || !Equals(DocumentColorSpace, other.DocumentColorSpace);
     }
 
     private bool VisibleRegionChanged(RenderState other)
