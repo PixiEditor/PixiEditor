@@ -128,8 +128,8 @@ internal static class ServiceCollectionHelpers
             // Custom document builders
             .AddSingleton<IDocumentBuilder, SvgDocumentBuilder>()
             .AddSingleton<IDocumentBuilder, FontDocumentBuilder>()
-            .AddSingleton<IDocumentBuilder, GifAnimationDocumentBuilder>(x =>
-                new GifAnimationDocumentBuilder(new FFMpegRenderer()))
+            .AddSingleton<IDocumentBuilder, AnimationDocumentBuilder>(x =>
+                new AnimationDocumentBuilder(new FFMpegRenderer()))
             .AddSingleton<IPalettesProvider, PaletteProvider>()
             .AddSingleton<CommandProvider>()
             .AddSingleton<IDocumentProvider, DocumentProvider>()

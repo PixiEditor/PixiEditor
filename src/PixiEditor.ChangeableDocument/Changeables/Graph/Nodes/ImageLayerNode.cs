@@ -336,7 +336,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     private KeyFrameData? GetFrameWithImage(KeyFrameTime frame)
     {
-        if (keyFrames.Count == 1)
+        if (keyFrames.Count == 1 || frame.Frame == 0)
         {
             return keyFrames[0];
         }
