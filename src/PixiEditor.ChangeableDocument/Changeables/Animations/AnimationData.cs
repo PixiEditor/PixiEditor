@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+﻿using System.Collections;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Animations;
@@ -141,5 +142,76 @@ internal class AnimationData : IReadOnlyAnimationData
 
         result = default;
         return false;
+    }
+
+    public KeyFrame? TryGetKeyFrameAtFrame(Guid? groupId, int frame)
+    {
+        if (groupId.HasValue)
+        {
+            if (TryFindKeyFrameCallback(groupId.Value, out GroupKeyFrame group))
+            {
+                return group.Children.FirstOrDefault(kf => kf.StartFrame <= frame && kf.StartFrame + kf.Duration > frame);
+            }
+        }
+        else
+        {
+            return keyFrames.FirstOrDefault(kf => kf.StartFrame <= frame && kf.StartFrame + kf.Duration > frame);
+        }
+
+        return null;
+    }
+
+    public KeyFrame TryGetNextKeyFrameAtFrame(Guid groupId, int frame, Guid[]? toIgnore = null)
+    {
+        if (TryFindKeyFrameCallback(groupId, out GroupKeyFrame group))
+        {
+            return group.Children.OrderBy(kf => kf.StartFrame).FirstOrDefault(kf => kf.StartFrame > frame && (toIgnore == null || !toIgnore.Contains(kf.Id)));
+        }
+
+        return keyFrames.OrderBy(kf => kf.StartFrame).FirstOrDefault(kf => kf.StartFrame > frame && (toIgnore == null || !toIgnore.Contains(kf.Id)));
+    }
+
+    public KeyFrame TryGetPreviousKeyFrameAtFrame(Guid groupId, int frame, Guid[]? toIgnore = null)
+    {
+        if (TryFindKeyFrameCallback(groupId, out GroupKeyFrame group))
+        {
+            return group.Children.OrderByDescending(kf => kf.StartFrame).FirstOrDefault(kf => kf.StartFrame < frame && (toIgnore == null || !toIgnore.Contains(kf.Id)));
+        }
+
+        return keyFrames.OrderByDescending(kf => kf.StartFrame).FirstOrDefault(kf => kf.StartFrame < frame && (toIgnore == null || !toIgnore.Contains(kf.Id)));
+    }
+
+    public List<KeyFrame> GetKeyFramesForNode(Guid groupId)
+    {
+        if (TryFindKeyFrameCallback(groupId, out GroupKeyFrame group))
+        {
+            return group.Children;
+        }
+
+        return [];
+    }
+
+    public List<KeyFrame> GetPreviousKeyFramesForNode(Guid groupId, Guid targetKeyFrame, int untilInclusive)
+    {
+        var target = TryFindKeyFrameCallback(groupId, out GroupKeyFrame group) ? group.Children.FirstOrDefault(kf => kf.Id == targetKeyFrame) : keyFrames.FirstOrDefault(kf => kf.Id == targetKeyFrame);
+        if (target == null)
+        {
+            return [];
+        }
+
+        var previous = group.Children.Where(kf => kf.StartFrame < target.StartFrame && kf.EndFrame >= untilInclusive).ToList();
+        return previous;
+    }
+
+    public List<KeyFrame> GetNextKeyFramesForNode(Guid groupId, Guid targetKeyFrame, int untilInclusive)
+    {
+        var target = TryFindKeyFrameCallback(groupId, out GroupKeyFrame group) ? group.Children.FirstOrDefault(kf => kf.Id == targetKeyFrame) : keyFrames.FirstOrDefault(kf => kf.Id == targetKeyFrame);
+        if (target == null)
+        {
+            return [];
+        }
+
+        var next = group.Children.Where(kf => kf.EndFrame > target.EndFrame && kf.StartFrame <= untilInclusive).ToList();
+        return next;
     }
 }

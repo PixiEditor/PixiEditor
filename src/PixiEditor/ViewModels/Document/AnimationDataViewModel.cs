@@ -415,6 +415,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         if (TryFindCels(keyFrameId, out CelViewModel keyFrame))
         {
             keyFrame.IsSelected = false;
+            keyFrame.IsDragging = false;
         }
     }
 
@@ -424,6 +425,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         foreach (var frame in selectedFrames)
         {
             frame.IsSelected = false;
+            frame.IsDragging = false;
         }
     }
 
