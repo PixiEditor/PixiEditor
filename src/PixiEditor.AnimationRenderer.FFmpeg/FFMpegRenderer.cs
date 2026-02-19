@@ -245,6 +245,7 @@ public class FFMpegRenderer : IAnimationRenderer
         {
             "gif" => GetGifArguments(args, outputPath, paletteTempPath),
             "mp4" => GetMp4Arguments(args, outputPath),
+            "png" => GetApngArguments(args, outputPath),
             _ => throw new NotSupportedException($"Output format {OutputFormat} is not supported")
         };
     }
@@ -279,6 +280,17 @@ public class FFMpegRenderer : IAnimationRenderer
                     .WithCustomArgument($"-qscale:v {qscale}")
                     .WithVideoCodec("mpeg4")
                     .ForcePixelFormat("yuv420p");
+            });
+    }
+
+    private FFMpegArgumentProcessor GetApngArguments(FFMpegArguments args, string outputPath)
+    {
+        return args
+            .OutputToFile(outputPath, true, options =>
+            {
+                options.WithFramerate(FrameRate)
+                    .WithVideoCodec("apng")
+                    .ForceFormat("apng");
             });
     }
 

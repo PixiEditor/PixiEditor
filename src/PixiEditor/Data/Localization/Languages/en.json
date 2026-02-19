@@ -581,7 +581,7 @@
   "EXPORT_ANIMATION_HEADER": "Animation",
   "EXPORT_SPRITESHEET_HEADER": "Spritesheet",
   "PIXI_FILE": "PixiEditor Files",
-  "PNG_FILE": "PNG Images",
+  "PNG_FILE": "PNG/APNG Images",
   "JPEG_FILE": "JPEG Images",
   "WEBP_FILE": "WebP Images",
   "GIF_FILE": "GIFs",
