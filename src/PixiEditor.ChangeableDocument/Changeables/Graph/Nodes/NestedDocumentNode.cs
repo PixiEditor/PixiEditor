@@ -45,6 +45,8 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
     private BrushOutputNode[]? brushOutputNodes;
     private IReadOnlyNode[] toExecute;
 
+    protected override bool MustRenderInSrgb(SceneObjectRenderContext ctx) => true;
+
     public NestedDocumentNode()
     {
         NestedDocument = CreateInput<DocumentReference>(DocumentPropertyName, "DOCUMENT", null)
