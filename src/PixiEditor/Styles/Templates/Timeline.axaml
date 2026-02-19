@@ -58,24 +58,25 @@
                                                 <RowDefinition Height="Auto"/>
                                             </Grid.RowDefinitions>
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="Auto" />
                                                 <ColumnDefinition Width="*" />
                                             </Grid.ColumnDefinitions>
-                                            <TextBlock Grid.Row="0" Classes="h4" Margin="5" ui1:Translator.Key="SETTINGS" />
+                                            <TextBlock Grid.Row="0" Classes="h4" Margin="5"
+                                                       ui1:Translator.Key="SETTINGS" />
                                             <TextBlock Grid.Column="0" Grid.Row="1" VerticalAlignment="Center"
                                                        ui1:Translator.Key="ONION_FRAMES_COUNT" />
                                             <controls:NumberInput Grid.Column="1" Grid.Row="1" Margin="0, 5"
-                                                HorizontalAlignment="Left" Width="50"
-                                                Min="1" Decimals="0"
-                                                Max="128"
-                                                Value="{Binding OnionFrames, RelativeSource={RelativeSource TemplatedParent},
+                                                                  HorizontalAlignment="Left" Width="50"
+                                                                  Min="1" Decimals="0"
+                                                                  Max="128"
+                                                                  Value="{Binding OnionFrames, RelativeSource={RelativeSource TemplatedParent},
                                                     Mode=TwoWay}" />
                                             <TextBlock Grid.Column="0" Grid.Row="2" VerticalAlignment="Center"
                                                        ui1:Translator.Key="ONION_OPACITY" />
                                             <controls:SizeInput Grid.Column="1" Grid.Row="2"
-                                                HorizontalAlignment="Left" Width="80"
-                                                MaxSize="100" Unit="%"
-                                                Size="{Binding OnionOpacity, RelativeSource={RelativeSource TemplatedParent},
+                                                                HorizontalAlignment="Left" Width="80"
+                                                                MaxSize="100" Unit="%"
+                                                                Size="{Binding OnionOpacity, RelativeSource={RelativeSource TemplatedParent},
                                                     Mode=TwoWay}" />
                                             <CheckBox Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="3" Margin="0, 5" VerticalAlignment="Center"
                                                       ui1:Translator.Key="FALLBACK_FRAMES_TO_LAYER_IMAGE"
@@ -283,7 +284,7 @@
                                         <DataTemplate DataType="document:CelGroupViewModel">
                                             <animations:TimelineGroupHeader Height="70"
                                                                             SelectCommand="{xaml:Command PixiEditor.Layer.SelectActiveMember, UseProvided=True}"
-                                                                            Item="{Binding}"/>
+                                                                            Item="{Binding}" />
                                         </DataTemplate>
                                     </ItemsControl.DataTemplates>
                                     <ItemsControl.Styles>
@@ -320,6 +321,16 @@
                                                         <Setter Property="HorizontalAlignment" Value="Left" />
                                                         <Setter Property="ZIndex"
                                                                 Value="{Binding StartFrameBindable}" />
+                                                        <Setter Property="Transitions">
+                                                            <Transitions>
+                                                                <ThicknessTransition Property="Margin"
+                                                                        Duration="0:0:0.2">
+                                                                    <ThicknessTransition.Easing>
+                                                                        <CubicEaseOut />
+                                                                    </ThicknessTransition.Easing>
+                                                                </ThicknessTransition>
+                                                            </Transitions>
+                                                        </Setter>
                                                     </ControlTheme>
                                                 </ItemsControl.ItemContainerTheme>
                                                 <ItemsControl.ItemsPanel>
@@ -340,6 +351,11 @@
                                                 SelectLayerCommand="{xaml:Command PixiEditor.Layer.SelectActiveMember, UseProvided=True}"
                                                 IsCollapsed="{Binding IsCollapsed}"
                                                 Min="{Binding ElementName=PART_TimelineSlider, Path=Minimum}"
+                                                PrecisePosition="{Binding PrecisePosition, Mode=TwoWay}"
+                                                PreciseDragCommand="{Binding PreciseDragKeyFrameCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=animations:Timeline}}"
+                                                IsDragging="{Binding IsDragging, Mode=TwoWay}"
+                                                BeginDragCommand="{Binding BeginDragKeyFrameCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=animations:Timeline}}"
+                                                EndDragCommand="{Binding EndDragKeyFrameCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=animations:Timeline}, Path=EndDragKeyFrameCommand}"
                                                 Item="{Binding}">
                                                 <animations:KeyFrame.Width>
                                                     <MultiBinding Converter="{converters:DurationToWidthConverter}">
