@@ -8,6 +8,7 @@ using Drawie.Backend.Core.Surfaces;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.IO.FileEncoders;
 using Drawie.Numerics;
+using PixiEditor.AnimationRenderer.FFmpeg;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document;
 
