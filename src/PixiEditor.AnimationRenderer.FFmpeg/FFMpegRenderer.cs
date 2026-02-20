@@ -184,7 +184,7 @@ public class FFMpegRenderer : IAnimationRenderer
 
     private static void PrepareFFMpeg()
     {
-        string path = $"ThirdParty/{IOperatingSystem.Current.Name}/ffmpeg";
+        string path = Path.Combine("ThirdParty", IOperatingSystem.Current.Name, "ffmpeg");
 
         string binaryPath = Path.Combine(Path.GetDirectoryName(Environment.ProcessPath), path);
 

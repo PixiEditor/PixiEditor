@@ -1,4 +1,5 @@
-﻿using Drawie.Backend.Core;
+﻿using System.Drawing;
+using Drawie.Backend.Core;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
@@ -310,26 +311,20 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
         if (NestedDocument.Value is null)
             return;
 
-        var targetSurface = workingSurface;
-        Texture? intermediate = null;
-        int? workingSurfaceSaved = null;
-        if (!Equals(ctx.ProcessingColorSpace, Instance.ProcessingColorSpace))
-        {
-            intermediate = Texture.ForProcessing(workingSurface.Surface, Instance.ProcessingColorSpace);
-            targetSurface = intermediate.DrawingSurface.Canvas;
-            workingSurfaceSaved = workingSurface.Save();
-            workingSurface.SetMatrix(Matrix3X3.Identity);
-        }
-
-        int saved;
+        using var intermediate = Texture.ForProcessing(workingSurface.Surface, Instance.ProcessingColorSpace);
+        int workingSurfaceSaved = 0;
         if (paint.IsOpaqueStandardNonBlendingPaint)
         {
-            saved = targetSurface.Save();
+            workingSurfaceSaved = workingSurface.Save();
         }
         else
         {
-            saved = targetSurface.SaveLayer(paint);
+            workingSurfaceSaved = workingSurface.SaveLayer(paint);
         }
+
+        workingSurface.SetMatrix(Matrix3X3.Identity);
+
+        Canvas targetSurface = intermediate.DrawingSurface.Canvas;
 
         targetSurface.SetMatrix(targetSurface.TotalMatrix.Concat(TransformationMatrix));
         if (ClipToDocumentBounds.Value)
@@ -342,14 +337,20 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
         clonedCtx.RenderSurface = targetSurface;
         ExecuteNested(clonedCtx);
 
-        targetSurface.RestoreToCount(saved);
-
-        if (intermediate != null && workingSurfaceSaved.HasValue)
+        Paint? paintToApply = null;
+        if (!Instance.ProcessingColorSpace.IsSrgb && paint.ColorFilter == null)
         {
-            workingSurface.DrawSurface(intermediate.DrawingSurface, 0, 0, paint);
-            workingSurface.RestoreToCount(workingSurfaceSaved.Value);
-            intermediate.Dispose();
+            // This is a weird hack to make alpha between linear -> srgb not glitch if the nested document does something weird with alpha.
+            // Look at NestedColorSpaceOverlayAlpha.pixi in RenderTests and see what happens when you remove this line.
+            paintToApply = new Paint();
+            paintToApply.ColorFilter = ColorFilter.CreateColorMatrix(ColorMatrix.Identity);
         }
+
+        workingSurface.DrawSurface(intermediate.DrawingSurface, 0, 0, paintToApply);
+        workingSurface.RestoreToCount(workingSurfaceSaved);
+
+        paintToApply?.ColorFilter?.Dispose();
+        paintToApply?.Dispose();
     }
 
 

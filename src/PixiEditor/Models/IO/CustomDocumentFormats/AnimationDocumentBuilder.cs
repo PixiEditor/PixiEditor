@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using ChunkyImageLib;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Surfaces.ImageData;
@@ -28,10 +29,33 @@ internal class AnimationDocumentBuilder : IDocumentBuilder
             throw new InvalidOperationException(
                 $"Unsupported file format. Supported formats are: {string.Join(", ", Extensions)}");
 
-        var frames = Renderer.GetFrames(path, out double playbackFps);
+        List<Frame> frames = null;
+        double playbackFps = 60;
+        try
+        {
+            frames = Renderer.GetFrames(path, out playbackFps);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Failed to load frames from {path}: {ex.Message}");
+        }
 
-        if (frames.Count == 0)
-            throw new InvalidOperationException("No frames were extracted from the video.");
+        if (frames == null || frames.Count == 0)
+        {
+            var surface = Surface.Load(path);
+            builder
+                .WithSize(surface.Size)
+                .WithGraph(x => x
+                    .WithImageLayerNode(
+                        new LocalizedString("IMAGE"),
+                        surface,
+                        ColorSpace.CreateSrgbLinear(),
+                        out int id)
+                    .WithOutputNode(id, "Output")
+                );
+
+            return;
+        }
 
         if (frames.Count == 1)
         {
