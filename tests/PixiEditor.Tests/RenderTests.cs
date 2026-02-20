@@ -57,6 +57,7 @@ public class RenderTests : FullPixiEditorTest
     [InlineData("NestedFilter")]
     [InlineData("NestedColorSpaceOverlayAlphaFilter")]
     [InlineData("NestedVectorWithSepiaFilter")]
+    [InlineData("ToolsetTextTests")]
     public void TestThatPixiFilesRenderTheSameResultAsSavedPng(string fileName, string? resultName = null)
     {
         if (!DrawingBackendApi.Current.IsHardwareAccelerated)
