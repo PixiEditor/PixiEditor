@@ -186,10 +186,12 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
             intermediate = RequestTexture(1336, chunkAwareSize, ColorSpace.CreateSrgb());
             finalDrawPos = VecD.Zero;
-            if (visibleRegion != latestSize)
+            // TODO: Validate that removing below doesn't cause issues. Bugs like partial chunk rendering on scene moves the position of the image.
+            // If you uncomment this, Test file (nested elephant in render tests) will fail for certain zooms
+            /*if (visibleRegion != latestSize)
             {
                 topLeft = region.TopLeft - sceneSize / 2;
-            }
+            }*/
         }
 
         if (!ctx.FullRerender)
