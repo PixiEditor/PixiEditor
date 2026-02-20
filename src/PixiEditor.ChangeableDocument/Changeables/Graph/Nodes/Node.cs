@@ -439,6 +439,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
         property.ConnectionChanged += InvokeConnectionsChanged;
         inputs.Add(property);
+        PropertiesChanged?.Invoke(this);
         return property;
     }
 
@@ -452,6 +453,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
         property.ConnectionChanged += InvokeConnectionsChanged;
         inputs.Add(property);
+        PropertiesChanged?.Invoke(this);
         return property;
     }
 
@@ -460,6 +462,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
     {
         var property = new FuncOutputProperty<T>(this, propName, displayName, defaultFunc);
         outputs.Add(property);
+        PropertiesChanged?.Invoke(this);
         return property;
     }
 
@@ -467,6 +470,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
     {
         var property = new OutputProperty<T>(this, propName, displayName, defaultValue);
         outputs.Add(property);
+        PropertiesChanged?.Invoke(this);
         return property;
     }
 
