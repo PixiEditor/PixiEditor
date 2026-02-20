@@ -4,6 +4,7 @@ using Drawie.Backend.Core.Numerics;
 using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
+
 internal class ApplyLayerMask_Change : Change
 {
     private readonly Guid layerGuid;
@@ -25,18 +26,25 @@ internal class ApplyLayerMask_Change : Change
             return false;
 
         var layerImage = layer.GetLayerImageAtFrame(frame);
+        if (layerImage is null)
+            return false;
+
         savedLayer = new CommittedChunkStorage(layerImage, layerImage.FindCommittedChunks());
         savedMask = new CommittedChunkStorage(layer.EmbeddedMask, layer.EmbeddedMask.FindCommittedChunks());
         return true;
     }
 
-    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
+        out bool ignoreInUndo)
     {
         var layer = target.FindMemberOrThrow<ImageLayerNode>(layerGuid);
         if (layer.EmbeddedMask is null)
             throw new InvalidOperationException("Cannot apply layer mask, no mask");
 
         var layerImage = layer.GetLayerImageAtFrame(frame);
+        if (layerImage is null)
+            throw new InvalidOperationException("Cannot apply layer mask, no layer image at frame");
+
         ChunkyImage newLayerImage = new ChunkyImage(target.Size, target.ProcessingColorSpace);
         newLayerImage.AddRasterClip(layer.EmbeddedMask);
         newLayerImage.EnqueueDrawCommitedChunkyImage(VecI.Zero, layerImage);
@@ -75,7 +83,7 @@ internal class ApplyLayerMask_Change : Change
         layer.EmbeddedMask = newMask;
 
         var layerImage = layer.GetLayerImageAtFrame(frame);
-        
+
         savedLayer.ApplyChunksToImage(layerImage);
         var affectedChunksLayer = layerImage.FindAffectedArea();
         layerImage.CommitChanges();

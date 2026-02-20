@@ -257,6 +257,9 @@ internal class DocumentUpdater
             case BlackboardVariableExposed_ChangeInfo info:
                 ProcessBlackboardVariableExposedChangeInfo(info);
                 break;
+            case FallbackAnimationToLayerImage_ChangeInfo info:
+                ProcessFallbackAnimationToLayerImage(info);
+                break;
         }
     }
 
@@ -353,6 +356,11 @@ internal class DocumentUpdater
     {
         IStructureMemberHandler? member = doc.StructureHelper.FindOrThrow(info.Id);
         member.SetMaskIsVisible(info.IsVisible);
+
+        if (member.InputPropertyMap.TryGetValue(StructureNode.MaskIsVisiblePropertyName, out var propHandler))
+        {
+            propHandler.InternalSetValue(info.IsVisible);
+        }
     }
 
     private void ProcessClipToMemberBelow(StructureMemberClipToMemberBelow_ChangeInfo info)
@@ -392,6 +400,11 @@ internal class DocumentUpdater
     private void ProcessStructureMemberBlendMode(StructureMemberBlendMode_ChangeInfo info)
     {
         IStructureMemberHandler? memberVm = doc.StructureHelper.FindOrThrow(info.Id);
+        if (memberVm.InputPropertyMap.TryGetValue(StructureNode.BlendModePropertyName, out var propHandler))
+        {
+            propHandler.InternalSetValue(info.BlendMode);
+        }
+
         memberVm.SetBlendMode(info.BlendMode);
     }
 
@@ -507,6 +520,11 @@ internal class DocumentUpdater
     {
         IStructureMemberHandler? memberVM = doc.StructureHelper.FindOrThrow(id);
         memberVM.SetIsVisible(isVisible);
+        if (memberVM.InputPropertyMap.TryGetValue(StructureNode.IsVisiblePropertyName, out var propHandler))
+        {
+            propHandler.InternalSetValue(isVisible);
+        }
+
         UpdateMemberSnapping(memberVM);
     }
 
@@ -558,6 +576,11 @@ internal class DocumentUpdater
     private void ProcessUpdateStructureMemberOpacity(StructureMemberOpacity_ChangeInfo info)
     {
         IStructureMemberHandler? memberVM = doc.StructureHelper.FindOrThrow(info.Id);
+        if (memberVM.InputPropertyMap.TryGetValue(StructureNode.OpacityPropertyName, out var propHandler))
+        {
+            propHandler.InternalSetValue(info.Opacity);
+        }
+
         memberVM.SetOpacity(info.Opacity);
     }
 
@@ -583,6 +606,7 @@ internal class DocumentUpdater
             (DocumentViewModel)doc, helper);
 
         doc.AnimationHandler.AddKeyFrame(vm);
+        doc.InternalRaiseKeyFrameCreated(vm);
     }
 
     private void ProcessDeleteKeyFrame(DeleteKeyFrame_ChangeInfo info)
@@ -775,19 +799,31 @@ internal class DocumentUpdater
             inputs.Add(prop);
             foreach (var propInfoConnectedProperty in propInfo.ConnectedProperties)
             {
-                doc.NodeGraphHandler.SetConnection(new NodeConnectionViewModel()
+                var inputNode = isInput ? node : doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId);
+                var outputNode = isInput ? doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId) : node;
+                if (inputNode == null || outputNode == null)
                 {
-                    InputNode = isInput ? node : doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId),
-                    OutputNode = isInput ? doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId) : node,
-                    InputProperty = isInput
-                        ? prop
-                        : doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId)
-                            .FindInputProperty(propInfoConnectedProperty.PropertyName),
-                    OutputProperty = isInput
-                        ? doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId)
-                            .FindOutputProperty(propInfoConnectedProperty.PropertyName)
-                        : prop
-                });
+#if DEBUG
+                    Debug.WriteLine(
+                        $"Connection requested for a node that doesn't exist. NodeId: {propInfoConnectedProperty.NodeId}");
+#endif
+                }
+                else
+                {
+                    doc.NodeGraphHandler.SetConnection(new NodeConnectionViewModel()
+                    {
+                        InputNode = isInput ? node : doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId),
+                        OutputNode = isInput ? doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId) : node,
+                        InputProperty = isInput
+                            ? prop
+                            : doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId)
+                                .FindInputProperty(propInfoConnectedProperty.PropertyName),
+                        OutputProperty = isInput
+                            ? doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId)
+                                .FindOutputProperty(propInfoConnectedProperty.PropertyName)
+                            : prop
+                    });
+                }
             }
         }
 
@@ -1099,5 +1135,10 @@ internal class DocumentUpdater
         {
             varVm.SetIsExposedInternal(info.Value);
         }
+    }
+
+    private void ProcessFallbackAnimationToLayerImage(FallbackAnimationToLayerImage_ChangeInfo info)
+    {
+        doc.AnimationHandler.SetFallbackAnimationToLayerImage(info.Value);
     }
 }

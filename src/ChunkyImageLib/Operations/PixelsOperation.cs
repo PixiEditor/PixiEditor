@@ -2,6 +2,7 @@
 using System.Linq;
 using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
@@ -12,6 +13,8 @@ namespace ChunkyImageLib.Operations;
 internal class PixelsOperation : IMirroredDrawOperation
 {
     public bool IgnoreEmptyChunks => false;
+    public bool NeedsDrawInSrgb => paint?.Paintable is ISrgbPaintable;
+
     private readonly VecF[] pixels;
     private readonly Color color;
     private readonly BlendMode blendMode;

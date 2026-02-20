@@ -8,6 +8,7 @@ using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.ColorSpaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -24,7 +25,7 @@ public class CreateImageNode : Node
     public RenderInputProperty Content { get; }
 
     public InputProperty<Matrix3X3> ContentMatrix { get; }
-
+    public InputProperty<ColorSpaceType> ColorSpace { get; }
 
     public RenderOutputProperty RenderOutput { get; }
 
@@ -40,6 +41,7 @@ public class CreateImageNode : Node
         Fill = CreateInput<Paintable>(nameof(Fill), "FILL", new ColorPaintable(Colors.Transparent));
         Content = CreateRenderInput(nameof(Content), "CONTENT");
         ContentMatrix = CreateInput<Matrix3X3>(nameof(ContentMatrix), "MATRIX", Matrix3X3.Identity);
+        ColorSpace = CreateInput(nameof(ColorSpace), "COLOR_SPACE", ColorSpaceType.Inherit);
         RenderOutput = CreateRenderOutput("RenderOutput", "RENDER_OUTPUT", () => new Painter(OnPaint));
     }
 
@@ -67,7 +69,8 @@ public class CreateImageNode : Node
         }
 
         int id = (Size.Value * context.ChunkResolution.Multiplier()).GetHashCode();
-        var surface = textureCache.RequestTexture(id, (VecI)(Size.Value * context.ChunkResolution.Multiplier()), context.ProcessingColorSpace, false);
+        var colorSpace = ColorSpace.Value == ColorSpaceType.Inherit ? context.ProcessingColorSpace : (ColorSpace.Value == ColorSpaceType.Srgb ? Drawie.Backend.Core.Surfaces.ImageData.ColorSpace.CreateSrgb() : Drawie.Backend.Core.Surfaces.ImageData.ColorSpace.CreateSrgbLinear());
+        var surface = textureCache.RequestTexture(id, (VecI)(Size.Value * context.ChunkResolution.Multiplier()), colorSpace, false);
         surface.DrawingSurface.Canvas.SetMatrix(Matrix3X3.Identity);
 
         if (Fill.Value is ColorPaintable colorPaintable)
@@ -77,8 +80,10 @@ public class CreateImageNode : Node
         else
         {
             using Paint paint = new Paint();
-            paint.SetPaintable(Fill.Value);
+            using var fill = Fill.Value.Clone();
+            paint.SetPaintable(fill);
             paint.BlendMode = BlendMode.Src;
+            paint.PaintableMatrix = Matrix3X3.CreateScale((float)context.ChunkResolution.Multiplier(), (float)context.ChunkResolution.Multiplier());
             surface.DrawingSurface.Canvas.DrawRect(0, 0, Size.Value.X, Size.Value.Y, paint);
         }
 

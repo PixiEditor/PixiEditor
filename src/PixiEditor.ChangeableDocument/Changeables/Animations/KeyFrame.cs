@@ -47,7 +47,7 @@ public abstract class KeyFrame : IReadOnlyKeyFrame
         }
     }
     
-    public int EndFrame => StartFrame + Duration;
+    public int EndFrame => StartFrame + Duration - 1;
     
     public Guid NodeId { get; }
     public Guid Id { get; set; }

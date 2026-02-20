@@ -8,6 +8,14 @@ namespace PixiEditor.Helpers;
 
 public static class SerializationUtil
 {
+    public static bool IsFilePreVersion((string serializerName, string serializerVersion) serializerData,
+        Version minSupportedVersion)
+    {
+        return serializerData.serializerName == "PixiEditor"
+               && Version.TryParse(serializerData.serializerVersion, out Version version)
+               && version < minSupportedVersion;
+    }
+
     public static object SerializeObject(object? value, SerializationConfig config,
         IReadOnlyList<SerializationFactory> allFactories)
     {
@@ -15,12 +23,12 @@ public static class SerializationUtil
         {
             return null;
         }
-        
+
         if (value is Delegate del)
         {
             value = del.DynamicInvoke(FuncContext.NoContext);
             if (value is ShaderExpressionVariable expressionVariable)
-            { 
+            {
                 value = expressionVariable.GetConstant();
             }
         }
@@ -63,14 +71,13 @@ public static class SerializationUtil
                 try
                 {
                     return factory.Deserialize(data is Dictionary<object, object> processableDict
-                    ? ToDictionary(processableDict)
-                    : data, serializerData);
+                        ? ToDictionary(processableDict)
+                        : data, serializerData);
                 }
                 catch (Exception e)
                 {
                     return value;
                 }
-                
             }
         }
 
@@ -79,7 +86,8 @@ public static class SerializationUtil
 
 
     public static Dictionary<string, object> DeserializeDict(Dictionary<string, object> data,
-        SerializationConfig config, List<SerializationFactory> allFactories, (string serializerName, string serializerVersion) serializerData)
+        SerializationConfig config, List<SerializationFactory> allFactories,
+        (string serializerName, string serializerVersion) serializerData)
     {
         var dict = new Dictionary<string, object>();
 

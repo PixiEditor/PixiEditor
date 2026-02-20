@@ -7,6 +7,7 @@ using PixiEditor.ChangeableDocument.ChangeInfos.Vectors;
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
@@ -67,6 +68,11 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
     {
         base.OnExecute(context);
         Matrix.Value = TransformationMatrix;
+    }
+
+    protected override bool MustRenderInSrgb(SceneObjectRenderContext ctx)
+    {
+        return Shape.Value is { FillPaintable: GradientPaintable } or { Stroke: GradientPaintable };
     }
 
     protected override void DrawWithoutFilters(SceneObjectRenderContext ctx, Canvas workingSurface,

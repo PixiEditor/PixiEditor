@@ -581,7 +581,7 @@
   "EXPORT_ANIMATION_HEADER": "Animation",
   "EXPORT_SPRITESHEET_HEADER": "Spritesheet",
   "PIXI_FILE": "PixiEditor Files",
-  "PNG_FILE": "PNG Images",
+  "PNG_FILE": "PNG/APNG Images",
   "JPEG_FILE": "JPEG Images",
   "WEBP_FILE": "WebP Images",
   "GIF_FILE": "GIFs",
@@ -1297,5 +1297,6 @@
   "COM_EXCEPTION_ERROR": "Your operating system encountered an error while trying to perform this action. (COM Exception: {0})",
   "APPEARANCE": "Appearance",
   "USE_SYSTEM_TITLE_BAR": "Use system title bar",
-  "CLIP_TO_BOUNDS": "Clip to bounds"
+  "CLIP_TO_BOUNDS": "Clip to bounds",
+  "FALLBACK_FRAMES_TO_LAYER_IMAGE": "Layer is fallback cel"
 }
