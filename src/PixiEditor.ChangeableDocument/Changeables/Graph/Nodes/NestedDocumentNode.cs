@@ -45,7 +45,7 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
     private BrushOutputNode[]? brushOutputNodes;
     private IReadOnlyNode[] toExecute;
 
-    protected override bool MustRenderInSrgb(SceneObjectRenderContext ctx) => true;
+    protected override bool MustRenderInSrgb(SceneObjectRenderContext ctx) => false;
 
     public NestedDocumentNode()
     {
@@ -284,75 +284,16 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
 
     protected override void DrawWithoutFilters(SceneObjectRenderContext ctx, Canvas workingSurface, Paint paint)
     {
-        if (NestedDocument.Value is null)
-            return;
-
-        int saved;
-        if (paint.IsOpaqueStandardNonBlendingPaint)
-        {
-            saved = workingSurface.Save();
-        }
-        else
-        {
-            saved = workingSurface.SaveLayer(paint);
-        }
-
-        workingSurface.SetMatrix(workingSurface.TotalMatrix.Concat(TransformationMatrix));
-        if (ClipToDocumentBounds.Value)
-        {
-            var docSize = NestedDocument.Value.DocumentInstance.Size;
-            workingSurface.ClipRect(new RectD(VecI.Zero, docSize));
-        }
-
-        ExecuteNested(ctx);
-
-        workingSurface.RestoreToCount(saved);
+        RenderNested(ctx, workingSurface, paint);
     }
-
 
     protected override void DrawWithFilters(SceneObjectRenderContext ctx, Canvas workingSurface, Paint paint)
     {
-        if (NestedDocument.Value is null)
-            return;
-
-        using Texture intermediate = Texture.ForProcessing(workingSurface, ColorSpace.CreateSrgb());
-        var latestSize = new RectI(VecI.Zero, lastDocument.DocumentInstance.Size);
-        intermediate.DrawingSurface.Canvas.SetMatrix(
-            intermediate.DrawingSurface.Canvas.TotalMatrix.Concat(TransformationMatrix));
-
-        ctx.RenderSurface = intermediate.DrawingSurface.Canvas;
-        ctx.RenderOutputSize = latestSize.Size;
-        ExecuteNested(ctx);
-
-        int saved = workingSurface.Save();
-        if (ClipToDocumentBounds.Value)
-        {
-            var docSize = NestedDocument.Value.DocumentInstance.Size;
-            workingSurface.ClipRect(new RectD(VecI.Zero, docSize));
-        }
-
-        workingSurface.SetMatrix(Matrix3X3.Identity);
-        workingSurface.DrawSurface(intermediate.DrawingSurface, 0, 0, paint);
-        workingSurface.RestoreToCount(saved);
+        RenderNested(ctx, workingSurface, paint);
     }
 
     public void Rasterize(Canvas surface, Paint paint, int atFrame)
     {
-        if (NestedDocument.Value is null)
-            return;
-
-        int layer;
-        if (paint is { IsOpaqueStandardNonBlendingPaint: false })
-        {
-            layer = surface.SaveLayer(paint);
-        }
-        else
-        {
-            layer = surface.Save();
-        }
-
-        surface.SetMatrix(surface.TotalMatrix.Concat(TransformationMatrix));
-
         RenderContext context = new(
             surface, atFrame, ChunkResolution.Full,
             surface.DeviceClipBounds.Size,
@@ -361,10 +302,56 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
             BilinearSampling.Value ? SamplingOptions.Bilinear : SamplingOptions.Default,
             Instance.NodeGraph) { FullRerender = true, };
 
-        ExecuteNested(context);
-
-        surface.RestoreToCount(layer);
+        RenderNested(context, surface, paint);
     }
+
+    private void RenderNested(RenderContext ctx, Canvas workingSurface, Paint paint)
+    {
+        if (NestedDocument.Value is null)
+            return;
+
+        var targetSurface = workingSurface;
+        Texture? intermediate = null;
+        int? workingSurfaceSaved = null;
+        if (!Equals(ctx.ProcessingColorSpace, Instance.ProcessingColorSpace))
+        {
+            intermediate = Texture.ForProcessing(workingSurface.Surface, Instance.ProcessingColorSpace);
+            targetSurface = intermediate.DrawingSurface.Canvas;
+            workingSurfaceSaved = workingSurface.Save();
+            workingSurface.SetMatrix(Matrix3X3.Identity);
+        }
+
+        int saved;
+        if (paint.IsOpaqueStandardNonBlendingPaint)
+        {
+            saved = targetSurface.Save();
+        }
+        else
+        {
+            saved = targetSurface.SaveLayer(paint);
+        }
+
+        targetSurface.SetMatrix(targetSurface.TotalMatrix.Concat(TransformationMatrix));
+        if (ClipToDocumentBounds.Value)
+        {
+            var docSize = NestedDocument.Value.DocumentInstance.Size;
+            targetSurface.ClipRect(new RectD(VecI.Zero, docSize));
+        }
+
+        var clonedCtx = ctx.Clone();
+        clonedCtx.RenderSurface = targetSurface;
+        ExecuteNested(clonedCtx);
+
+        targetSurface.RestoreToCount(saved);
+
+        if (intermediate != null && workingSurfaceSaved.HasValue)
+        {
+            workingSurface.DrawSurface(intermediate.DrawingSurface, 0, 0, paint);
+            workingSurface.RestoreToCount(workingSurfaceSaved.Value);
+            intermediate.Dispose();
+        }
+    }
+
 
     private void ExecuteNested(RenderContext ctx)
     {
