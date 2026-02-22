@@ -33,6 +33,7 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
 
     public Matrix3X3 TransformationMatrix { get; set; } = Matrix3X3.Identity;
 
+
     public RectD TransformedAABB => new ShapeCorners(NestedDocument.Value?.DocumentInstance?.Size / 2f ?? VecD.Zero,
             NestedDocument.Value?.DocumentInstance?.Size ?? VecD.Zero)
         .WithMatrix(TransformationMatrix).AABBBounds;

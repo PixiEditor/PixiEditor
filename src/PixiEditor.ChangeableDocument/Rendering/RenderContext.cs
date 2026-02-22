@@ -17,7 +17,7 @@ public class RenderContext
     public int CloneDepth { get; protected init; } = 0;
     public double Opacity { get; set; }
 
-    public KeyFrameTime FrameTime { get; }
+    public KeyFrameTime FrameTime { get; set; }
     public ChunkResolution ChunkResolution { get; set; }
     public RectI? VisibleDocumentRegion { get; set; } = null;
     public SamplingOptions DesiredSamplingOptions { get; set; } = SamplingOptions.Default;
