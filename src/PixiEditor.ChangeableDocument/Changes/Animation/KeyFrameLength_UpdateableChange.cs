@@ -4,7 +4,7 @@ using PixiEditor.ChangeableDocument.ChangeInfos.Animation;
 
 namespace PixiEditor.ChangeableDocument.Changes.Animation;
 
-internal class KeyFrameLength_UpdateableChange : UpdateableChange
+internal class KeyFrameLength_UpdateableChange : InterruptableUpdateableChange
 {
     public Guid KeyFrameGuid { get; }
     public int StartFrame { get; private set; }
