@@ -70,11 +70,16 @@ internal class VariableViewModel : ViewModelBase, IVariableHandler
         DocumentInternalParts internals)
     {
         this.type = type;
+        if (type == typeof(object))
+        {
+            this.type = value?.GetType() ?? typeof(object);
+        }
+
         this.name = name;
         this.value = value;
         this.internals = internals;
 
-        SettingView = CreateSettingFromType(type, unit, min, max);
+        SettingView = CreateSettingFromType(this.type, unit, min, max);
 
         SettingView.Label = name;
         SettingView.Value = value;
