@@ -113,6 +113,12 @@ public static class ConversionTable
             return false;
         }
 
+        if(arg.GetType().IsAssignableTo(targetType))
+        {
+            result = arg;
+            return true;
+        }
+
         if (arg is Delegate func)
         {
             try

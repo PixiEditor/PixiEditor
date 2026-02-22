@@ -59,7 +59,7 @@ public abstract class SerializationFactory<TSerializable, TOriginal> : Serializa
 
         return serialized;
     }
-    
+
     public override object Deserialize(object rawData, (string serializerName, string serializerVersion) serializerData)
     {
         return TryDeserialize(rawData, out TOriginal original, serializerData) ? original : default;

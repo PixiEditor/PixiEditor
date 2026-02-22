@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Serialization;
 using Avalonia.Threading;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
@@ -585,7 +586,8 @@ internal partial class DocumentViewModel
                 Unit = prop.Value.Unit,
                 Min = prop.Value.Min,
                 Max = prop.Value.Max,
-                IsExposed = prop.Value.IsExposed
+                IsExposed = prop.Value.IsExposed,
+                Type = SerializationUtil.GetWellKnownSerializationTypeName(prop.Value.Type, allFactories)
             });
         }
 

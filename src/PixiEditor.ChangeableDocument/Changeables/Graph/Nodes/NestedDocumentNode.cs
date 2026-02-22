@@ -145,6 +145,13 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
             if (!variable.Value.IsExposed)
                 continue;
 
+            var existing = InputProperties.FirstOrDefault(x =>
+                x.InternalPropertyName == variable.Key);
+            if (existing != null) // Existing input with same name but different type
+            {
+                RemoveInputProperty(existing);
+            }
+
             AddInputProperty(new InputProperty(this, variable.Key, variable.Key, variable.Value.Value,
                 variable.Value.Type));
         }

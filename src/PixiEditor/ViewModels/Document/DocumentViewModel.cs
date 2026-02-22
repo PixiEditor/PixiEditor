@@ -442,9 +442,17 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             {
                 object value =
                     SerializationUtil.Deserialize(varBuilder.Value, config, allFactories, serializerData);
+                var wellKnownType = SerializationUtil.GetTypeForWellKnownTypeName(varBuilder.Type, allFactories);
+                if (value == null && wellKnownType != null && wellKnownType.IsValueType)
+                {
+                    value = Activator.CreateInstance(wellKnownType);
+                }
+
                 acc.AddActions(new SetBlackboardVariable_Action(varBuilder.Name, value,
-                    varBuilder.Min ?? double.MinValue,
-                    varBuilder.Max ?? double.MaxValue, varBuilder.Unit, varBuilder.IsExposed));
+                        wellKnownType ?? typeof(object),
+                        varBuilder.Min ?? double.MinValue,
+                        varBuilder.Max ?? double.MaxValue, varBuilder.Unit, varBuilder.IsExposed),
+                    new EndSetBlackboardVariable_Action());
             }
         }
 

@@ -86,13 +86,15 @@ internal class VariableViewModel : ViewModelBase, IVariableHandler
 
             if (SettingView.MergeChanges)
             {
+                var adjustedValue = AdjustValueForBlackboard(SettingView.Value);
                 internals.ActionAccumulator.AddActions(
-                    new SetBlackboardVariable_Action(Name, AdjustValueForBlackboard(SettingView.Value), min, max, unit, IsExposedBindable));
+                    new SetBlackboardVariable_Action(Name, adjustedValue, adjustedValue?.GetType() ?? typeof(object), min, max, unit, IsExposedBindable));
             }
             else
             {
+                var adjustedValue = AdjustValueForBlackboard(SettingView.Value);
                 internals.ActionAccumulator.AddFinishedActions(
-                    new SetBlackboardVariable_Action(Name, AdjustValueForBlackboard(SettingView.Value), min, max, unit, IsExposedBindable),
+                    new SetBlackboardVariable_Action(Name, adjustedValue, adjustedValue?.GetType() ?? typeof(object), min, max, unit, IsExposedBindable),
                     new EndSetBlackboardVariable_Action());
             }
         };
