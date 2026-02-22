@@ -17,6 +17,8 @@ internal class KeyFrameLength_UpdateableChange : UpdateableChange
     private int originalNeighborDuration;
     private Guid? neighborKeyFrameGuid;
 
+    private bool movedOnce;
+
     [GenerateUpdateableChangeActions]
     public KeyFrameLength_UpdateableChange(Guid keyFrameGuid, int startFrame, int duration)
     {
@@ -59,10 +61,16 @@ internal class KeyFrameLength_UpdateableChange : UpdateableChange
     {
         target.AnimationData.TryFindKeyFrame(KeyFrameGuid, out KeyFrame keyFrame);
 
+        if(originalStartFrame == StartFrame && originalDuration == Duration && !movedOnce)
+        {
+            return new None();
+        }
+
         var data = AdjustNeighbors(target, keyFrame, out var changeInfos);
         keyFrame.StartFrame = data.finalStartPos;
         keyFrame.Duration = data.finalDuration;
         changeInfos.Add(new KeyFrameLength_ChangeInfo(KeyFrameGuid, data.finalStartPos, data.finalDuration));
+        movedOnce = true;
 
         return changeInfos;
     }
@@ -123,7 +131,7 @@ internal class KeyFrameLength_UpdateableChange : UpdateableChange
         int finalDuration = Duration;
         int finalStartFrame = StartFrame;
         changeInfos = new List<IChangeInfo>();
-        bool toTheRight = StartFrame + Duration > keyFrame.StartFrame + keyFrame.Duration;
+        bool toTheRight = !(StartFrame < keyFrame.StartFrame);
         if (toTheRight)
         {
             var firstKeyFrameToTheRight =
