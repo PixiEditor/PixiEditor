@@ -1298,5 +1298,8 @@
   "APPEARANCE": "Appearance",
   "USE_SYSTEM_TITLE_BAR": "Use system title bar",
   "CLIP_TO_BOUNDS": "Clip to bounds",
-  "FALLBACK_FRAMES_TO_LAYER_IMAGE": "Layer is fallback cel"
+  "FALLBACK_FRAMES_TO_LAYER_IMAGE": "Layer is fallback cel",
+  "USE_CUSTOM_TIME": "Use custom time",
+  "CUSTOM_ACTIVE_FRAME": "Active frame",
+  "CUSTOM_NORMALIZED_TIME": "Normalized time"
 }

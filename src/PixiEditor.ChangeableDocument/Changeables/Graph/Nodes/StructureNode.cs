@@ -28,6 +28,9 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
     public const string FiltersPropertyName = "Filters";
     public const string FilterlessOutputPropertyName = "FilterlessOutput";
     public const string RawOutputPropertyName = "RawOutput";
+    public const string UseCustomTimeProperty = "UseCustomTime";
+    public const string CustomActiveFrameProperty = "CustomActiveFrame";
+    public const string CustomNormalizedTimeProperty = "CustomNormalizedTime";
 
     public InputProperty<float> Opacity { get; }
     public InputProperty<bool> IsVisible { get; }
@@ -99,9 +102,9 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         CustomMask = CreateRenderInput(MaskPropertyName, "MASK");
         MaskIsVisible = CreateInput<bool>(MaskIsVisiblePropertyName, "MASK_IS_VISIBLE", true);
         Filters = CreateInput<Filter>(FiltersPropertyName, "FILTERS", null);
-        UseCustomTime = CreateInput<bool>("UseCustomTime", "USE_CUSTOM_TIME", false);
-        CustomActiveFrame = CreateInput<int>("CustomActiveFrame", "CUSTOM_ACTIVE_FRAME", 0);
-        CustomNormalizedTime = CreateInput<double>("CustomNormalizedTime", "CUSTOM_NORMALIZED_TIME", 0);
+        UseCustomTime = CreateInput<bool>(UseCustomTimeProperty, "USE_CUSTOM_TIME", false);
+        CustomActiveFrame = CreateInput<int>(CustomActiveFrameProperty, "CUSTOM_ACTIVE_FRAME", 0);
+        CustomNormalizedTime = CreateInput<double>(CustomNormalizedTimeProperty, "CUSTOM_NORMALIZED_TIME", 0);
 
         FilterlessOutput = CreateRenderOutput(FilterlessOutputPropertyName, "WITHOUT_FILTERS",
             () => filterlessPainter, () => Background.Value);
