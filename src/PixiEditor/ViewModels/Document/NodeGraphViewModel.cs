@@ -169,11 +169,8 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
             x.OutputProperty.Node.Id == nodeId && x.OutputProperty.PropertyName == property);
         if (outputConnection != null)
         {
-            var connectedInputs = outputConnection.OutputProperty.ConnectedInputs.ToList();
-            foreach (var input in connectedInputs)
-            {
-                RemoveInput(input.Node.Id, input.PropertyName);
-            }
+            outputConnection.OutputProperty.ConnectedInputs.Remove(outputConnection.InputProperty);
+            Connections.Remove(outputConnection);
         }
 
         var node = AllNodes.FirstOrDefault(x => x.Id == nodeId);
