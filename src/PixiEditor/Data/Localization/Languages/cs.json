@@ -363,7 +363,7 @@
   "HORIZONTAL_LINE_SYMMETRY": "Symetrie vodorovné čáry",
   "VERTICAL_LINE_SYMMETRY": "Symetrie svislých čar",
   "COLOR_PICKER_TITLE": "Kapátko",
-  "COLOR_SLIDERS_TITLE": "Vybírač barev",
+  "COLOR_SLIDERS_TITLE": "Výběr barev",
   "PALETTE_TITLE": "Paleta",
   "SWATCHES_TITLE": "Vzorky",
   "LAYERS_TITLE": "Vrstvy",
@@ -970,7 +970,6 @@
   "SWITCH_TO_NEW_VERSION": "Přepnout",
   "DOWNLOAD_UPDATE": "Stáhnout",
   "CHECKING_FOR_UPDATES": "Kontrola aktualizací...",
-  "PAINT_SHAPE_SETTING": "Tvar štětce",
   "BOOL_OPERATION_NODE": "Logická operace",
   "FIRST_SHAPE": "První tvar",
   "SECOND_SHAPE": "Druhý tvar",
@@ -1094,5 +1093,8 @@
   "DECOMPOSE_MATRIX": "Rozložit Matrix",
   "NORMALIZE_COORDINATES": "Znormalizovat souřadnice",
   "TRANSFORMED_POSITION": "Transformovat pozici",
-  "ACCOUNT_PROVIDER_NOT_AVAILABLE": "Tato verze PixiEditoru nepodporuje účty. Používejte oficiální verzi z pixieditor.net ke spravování vašeho účtu."
+  "ACCOUNT_PROVIDER_NOT_AVAILABLE": "Tato verze PixiEditoru nepodporuje účty. Používejte oficiální verzi z pixieditor.net ke spravování vašeho účtu.",
+  "STEAM_OFFLINE": "Nelze ověřit účet. Služba Steam je offline. Ujistěte se, že klient Steam je aktivní a jste přihlášeni.",
+  "ANGLE_OFFSET": "Posun úhlu",
+  "VARIABLE_NAME": "Jméno proměnné"
 }
