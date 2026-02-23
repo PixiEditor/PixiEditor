@@ -25,6 +25,9 @@ internal class ExtensionManagerViewModel : ViewModelBase
     public RelayCommand<string> EnableExtensionCommand { get; }
     public RelayCommand<string> DisableExtensionCommand { get; }
     
+    public RelayCommand BackToListCommand { get; }
+    public RelayCommand<AvailableContentViewModel> SelectExtensionCommand { get; }
+    
     public ObservableCollection<ExtensionsTab> Tabs { get; } =
         new ObservableCollection<ExtensionsTab>
         {
@@ -49,6 +52,23 @@ internal class ExtensionManagerViewModel : ViewModelBase
     public bool ShowAllTab => SelectedTab != null && SelectedTab.Id == "All";
     public bool ShowOwnedTab => SelectedTab != null && SelectedTab.Id == "Owned";
     
+    private AvailableContentViewModel? selectedAvailableExtension;
+    public AvailableContentViewModel? SelectedAvailableExtension
+    {
+        get => selectedAvailableExtension;
+        set
+        {
+            if (SetProperty(ref selectedAvailableExtension, value))
+            {
+                OnPropertyChanged(nameof(IsDetailsVisible));
+                OnPropertyChanged(nameof(IsListVisible));
+            }
+        }
+    }
+    
+    public bool IsDetailsVisible => SelectedAvailableExtension != null;
+    public bool IsListVisible => SelectedAvailableExtension == null;
+    
     private ExtensionsViewModel extensionsViewModel;
     private IAdditionalContentProvider contentProvider;
     private IIdentityProvider identityProvider;
@@ -63,6 +83,9 @@ internal class ExtensionManagerViewModel : ViewModelBase
         UninstallExtensionCommand = new AsyncRelayCommand<string>(UninstallExtension, CanUninstallExtension);
         EnableExtensionCommand = new RelayCommand<string>(EnableExtension, CanEnableExtension);
         DisableExtensionCommand = new RelayCommand<string>(DisableExtension, CanDisableExtension);
+        
+        BackToListCommand = new RelayCommand(BackToList);
+        SelectExtensionCommand = new RelayCommand<AvailableContentViewModel>(SelectExtension);
         
         SelectedTab = Tabs.FirstOrDefault(tab => tab.Id == "All");
     }
@@ -209,5 +232,15 @@ internal class ExtensionManagerViewModel : ViewModelBase
         }
 
         extensionsViewModel.DisableExtension(extensionId);
+    }
+    
+    private void BackToList()
+    {
+        SelectedAvailableExtension = null;
+    }
+
+    private void SelectExtension(AvailableContentViewModel ext)
+    {
+        SelectedAvailableExtension = ext;
     }
 }

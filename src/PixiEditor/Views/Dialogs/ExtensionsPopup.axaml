@@ -29,7 +29,8 @@
                 BorderBrush="{DynamicResource ThemeBorderMidColor}"
                 Background="{DynamicResource ThemeBackgroundColor}"
                 Margin="12"
-                HorizontalAlignment="Left">
+                HorizontalAlignment="Left"
+                IsVisible="{Binding IsListVisible}">
             <ItemsControl ItemsSource="{Binding Tabs}"
                           HorizontalAlignment="Left">
                 <ItemsControl.Styles>
@@ -69,82 +70,174 @@
             </ItemsControl>
         </Border>
         <Panel IsVisible="{Binding ShowAllTab}">
-            <ScrollViewer>
-                <ItemsControl ItemsSource="{Binding AvailableExtensions}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel Orientation="Horizontal"/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
+            <Panel IsVisible="{Binding IsListVisible}">
+                <ScrollViewer>
+                    <ItemsControl ItemsSource="{Binding AvailableExtensions}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
 
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Border
-                                Background="{DynamicResource ThemeBackgroundColor1}"
-                                CornerRadius="4"
-                                Padding="12"
-                                Width="226"
-                                Margin="12">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button Command="{Binding DataContext.SelectExtensionCommand, RelativeSource={RelativeSource AncestorType=dialogs:ExtensionsPopup}}"
+                                        CommandParameter="{Binding}"
+                                        Background="Transparent"
+                                        BorderThickness="0">
+                                    <Border
+                                        Background="{DynamicResource ThemeBackgroundColor1}"
+                                        CornerRadius="4"
+                                        Padding="12"
+                                        Width="226"
+                                        Margin="12">
 
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/> 
-                                        <RowDefinition Height="*"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-                                    
-                                    <Image Grid.Row="0"
-                                           Height="100"
-                                           Stretch="UniformToFill"
-                                           asyncImageLoader:ImageLoader.Source="{Binding AvailableContent.Image}" />
-                                    
-                                    <StackPanel Margin="0, 16" Grid.Row="1">
-                                        <TextBlock
-                                            Text="{Binding AvailableContent.Author}"
-                                            Foreground="White"
-                                            Opacity="0.5"
-                                            FontSize="{DynamicResource FontSizeSmall}" />
-                                        
-                                        <TextBlock
-                                            Text="{Binding AvailableContent.Name}"
-                                            TextTrimming="CharacterEllipsis"
-                                            FontSize="{DynamicResource FontSizeLarge}"
-                                            FontWeight="Bold"
-                                            Foreground="{DynamicResource ThemeForegroundColor}"/>
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/> 
+                                                <RowDefinition Height="*"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+                                            
+                                            <Image Grid.Row="0"
+                                                   Height="100"
+                                                   Stretch="UniformToFill"
+                                                   asyncImageLoader:ImageLoader.Source="{Binding AvailableContent.Image}" />
+                                            
+                                            <StackPanel Margin="0, 16" Grid.Row="1">
+                                                <TextBlock
+                                                    Text="{Binding AvailableContent.Author}"
+                                                    Foreground="White"
+                                                    Opacity="0.5"
+                                                    FontSize="{DynamicResource FontSizeSmall}" />
+                                                
+                                                <TextBlock
+                                                    Text="{Binding AvailableContent.Name}"
+                                                    TextTrimming="CharacterEllipsis"
+                                                    FontSize="{DynamicResource FontSizeLarge}"
+                                                    FontWeight="Bold"
+                                                    Foreground="{DynamicResource ThemeForegroundColor}"/>
 
-                                        <TextBlock
-                                            Text="{Binding AvailableContent.Description}"
-                                            TextTrimming="CharacterEllipsis"
-                                            FontSize="{DynamicResource FontSizeNormal}"
-                                            FontWeight="Normal"
-                                            Foreground="{DynamicResource ThemeForegroundColor}"
-                                            TextWrapping="Wrap"
-                                            MaxLines="2"
+                                                <TextBlock
+                                                    Text="{Binding AvailableContent.Description}"
+                                                    TextTrimming="CharacterEllipsis"
+                                                    FontSize="{DynamicResource FontSizeNormal}"
+                                                    FontWeight="Normal"
+                                                    Foreground="{DynamicResource ThemeForegroundColor}"
+                                                    TextWrapping="Wrap"
+                                                    MaxLines="2"
+                                                    />
+                                            </StackPanel>
+
+                                            <Panel Grid.Row="2">
+                                            <TextBlock
+                                                       Text="{Binding AvailableContent.Price}"
+                                                       Foreground="White"
+                                                       FontSize="{DynamicResource FontSizeNormal}"
+                                                       FontWeight="Normal" 
+                                                       IsVisible="{Binding !IsOwned}"
+                                                       />
+                                            <TextBlock
+                                                localization:Translator.Key="EXTENSIONS_WINDOW_IN_LIBRARY"
+                                                Foreground="White"
+                                                FontSize="{DynamicResource FontSizeNormal}"
+                                                FontWeight="Normal" 
+                                                IsVisible="{Binding IsOwned}"
                                             />
-                                    </StackPanel>
+                                            </Panel>
+                                        </Grid>
+                                    </Border>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Panel>
+            <Panel IsVisible="{Binding IsDetailsVisible}">
+                <StackPanel Margin="160, 0, 160, 12">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
 
-                                    <Panel Grid.Row="2">
-                                    <TextBlock
-                                               Text="{Binding AvailableContent.Price}"
-                                               Foreground="White"
-                                               FontSize="{DynamicResource FontSizeNormal}"
-                                               FontWeight="Normal" 
-                                               IsVisible="{Binding !IsOwned}"
-                                               />
-                                    <TextBlock
-                                        localization:Translator.Key="EXTENSIONS_WINDOW_IN_LIBRARY"
-                                        Foreground="White"
-                                        FontSize="{DynamicResource FontSizeNormal}"
-                                        FontWeight="Normal" 
-                                        IsVisible="{Binding IsOwned}"
-                                    />
-                                    </Panel>
-                                </Grid>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </ScrollViewer>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0"
+                                Grid.Row="0"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Command="{Binding BackToListCommand}"
+                                HorizontalAlignment="Left"
+                                Padding="0"
+                                Margin="0, 12">
+                            <TextBlock FontSize="{DynamicResource FontSizeNormal}" Opacity="0.5">
+                                <Run Text="&lt; " />
+                                <Run localization:Translator.Key="EXTENSIONS_WINDOW_DETAILS_BACK"/>
+                            </TextBlock>
+                        </Button>
+                        <StackPanel Grid.Column="0" Grid.Row="1">
+                            <TextBlock Text="{Binding SelectedAvailableExtension.AvailableContent.Name}"
+                                       FontSize="{DynamicResource FontSizeLarge}"
+                                       FontWeight="Bold"
+                                       Margin="0, 0, 0, 12"/>
+
+                            <TextBlock Text="{Binding SelectedAvailableExtension.AvailableContent.Description}"
+                                       TextWrapping="Wrap" />
+                        </StackPanel>
+                        
+                        <Border Grid.Column="1"
+                                Grid.Row="1"
+                                BorderThickness="2, 0, 0,0"
+                                Padding="12, 0"
+                                BorderBrush="{DynamicResource ThemeBackgroundColor1}"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Top"
+                                MinHeight="216">
+                            <StackPanel>
+                                <TextBlock localization:Translator.Key="EXTENSIONS_WINDOW_DEVELOPER"
+                                           Opacity="0.5"
+                                           FontSize="{DynamicResource FontSizeSmall}" />
+                                
+                                <TextBlock Text="{Binding SelectedAvailableExtension.AvailableContent.Author}"
+                                           FontSize="{DynamicResource FontSizeNormal}"
+                                           FontWeight="Bold"
+                                           Margin="0, 0, 0, 12"/>
+                                
+                                <TextBlock localization:Translator.Key="EXTENSIONS_WINDOW_PRICE"
+                                           Opacity="0.5"
+                                           FontSize="{DynamicResource FontSizeSmall}" />
+                                
+                                <TextBlock Text="{Binding SelectedAvailableExtension.AvailableContent.Price}"
+                                           IsVisible="{Binding !SelectedAvailableExtension.IsOwned}"
+                                           FontSize="{DynamicResource FontSizeLarge}"
+                                           FontWeight="Bold"
+                                           Margin="0, 0, 0, 12"/>
+                                <TextBlock localization:Translator.Key="EXTENSIONS_WINDOW_IN_LIBRARY"
+                                           IsVisible="{Binding SelectedAvailableExtension.IsOwned}"
+                                           FontSize="{DynamicResource FontSizeLarge}"
+                                           FontWeight="Bold"
+                                           Margin="0, 0, 0 12"/>
+
+                                <Button FontSize="{DynamicResource FontSizeNormal}"
+                                        IsVisible="{Binding !SelectedAvailableExtension.IsOwned}"
+                                        Background="{DynamicResource ThemeAccentBrush}"
+                                        BorderThickness="0"
+                                        Margin="0, 12">
+                                    <TextBlock>
+                                        <Run localization:Translator.Key="EXTENSIONS_WINDOW_PURCHASE_BUTTON" />
+                                        <Run Classes="pixi-icon" Text="{DynamicResource icon-link}" />
+                                    </TextBlock>
+                                </Button>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                    <Image asyncImageLoader:ImageLoader.Source="{Binding SelectedAvailableExtension.AvailableContent.Image}"
+                           Margin="0, 12"/>
+                </StackPanel>
+            </Panel>
         </Panel>
         <Panel IsVisible="{Binding ShowOwnedTab}">
             <ScrollViewer>
