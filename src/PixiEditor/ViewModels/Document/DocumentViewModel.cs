@@ -57,6 +57,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public event EventHandler<DocumentSizeChangedEventArgs>? SizeChanged;
     public event Action ToolSessionFinished;
 
+
     private bool busy = false;
 
 
@@ -232,6 +233,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     private bool isDisposed = false;
     private Guid referenceId = Guid.Empty;
     private Queue<Action> queuedLayerReadyToUseActions = new();
+    private Queue<Action> queuedKeyFrameReadyToUseActions = new();
 
     private DocumentViewModel()
     {
@@ -440,9 +442,17 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             {
                 object value =
                     SerializationUtil.Deserialize(varBuilder.Value, config, allFactories, serializerData);
+                var wellKnownType = SerializationUtil.GetTypeForWellKnownTypeName(varBuilder.Type, allFactories);
+                if (value == null && wellKnownType != null && wellKnownType.IsValueType)
+                {
+                    value = Activator.CreateInstance(wellKnownType);
+                }
+
                 acc.AddActions(new SetBlackboardVariable_Action(varBuilder.Name, value,
-                    varBuilder.Min ?? double.MinValue,
-                    varBuilder.Max ?? double.MaxValue, varBuilder.Unit, varBuilder.IsExposed));
+                        wellKnownType ?? typeof(object),
+                        varBuilder.Min ?? double.MinValue,
+                        varBuilder.Max ?? double.MaxValue, varBuilder.Unit, varBuilder.IsExposed),
+                    new EndSetBlackboardVariable_Action());
             }
         }
 
@@ -563,6 +573,13 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                     }
                 }
             }
+
+            // Before 2.1.0.11, the fallback animation to layer image was the only behavior, after the default is to have it off
+            if (data.FallbackAnimationToLayerImage ||
+                SerializationUtil.IsFilePreVersion(serializerData, new Version(2, 1, 0, 11)))
+            {
+                acc.AddActions(new SetFallbackAnimationToLayerImage_Action(true));
+            }
         }
 
         bool IsFileWithSrgbColorBlending((string serializerName, string serializerVersion) serializerData,
@@ -661,6 +678,15 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         }
     }
 
+    public void InternalRaiseKeyFrameCreated(RasterCelViewModel vm)
+    {
+        while (queuedKeyFrameReadyToUseActions.Count > 0)
+        {
+            var action = queuedKeyFrameReadyToUseActions.Dequeue();
+            action();
+        }
+    }
+
 
     public (string name, VecI originalSize)[] GetAvailableExportOutputs()
     {
@@ -680,7 +706,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             if (node is not CustomOutputNode exportZone)
                 continue;
 
-            var name = exportZone.InputProperties.FirstOrDefault(x => x.InternalPropertyName == CustomOutputNode.OutputNamePropertyName);
+            var name = exportZone.InputProperties.FirstOrDefault(x =>
+                x.InternalPropertyName == CustomOutputNode.OutputNamePropertyName);
 
 
             if (name?.Value is not string finalName)
@@ -692,7 +719,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             }
 
             VecI originalSize =
-                exportZone.InputProperties.FirstOrDefault(x => x.InternalPropertyName == CustomOutputNode.SizePropertyName)
+                exportZone.InputProperties
+                    .FirstOrDefault(x => x.InternalPropertyName == CustomOutputNode.SizePropertyName)
                     ?.Value as VecI? ?? SizeBindable;
             if (originalSize.ShortestAxis <= 0)
             {
@@ -1495,5 +1523,10 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public void SubscribeLayerReadyToUseOnce(Action action)
     {
         queuedLayerReadyToUseActions.Enqueue(action);
+    }
+
+    public void SubscribeKeyFrameReadyToUseOnce(Action action)
+    {
+        queuedKeyFrameReadyToUseActions.Enqueue(action);
     }
 }

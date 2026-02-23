@@ -16,7 +16,7 @@ public class MathNode : Node
     public FuncOutputProperty<Float1> Result { get; }
 
     public InputProperty<MathNodeMode> Mode { get; }
-    
+
     public InputProperty<bool> Clamp { get; }
 
     public FuncInputProperty<Float1> X { get; }

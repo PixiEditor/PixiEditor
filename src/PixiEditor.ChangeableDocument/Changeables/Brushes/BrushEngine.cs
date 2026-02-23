@@ -589,7 +589,7 @@ public class BrushEngine : IDisposable
                 scale = VecD.Zero;
             }
 
-            VecD uniformScale = new VecD(Math.Min(scale.X, scale.Y));
+            VecD uniformScale = new VecD(Math.Min(scale.X, scale.Y) * pressure);
             VecD center = autoPosition ? rect.Center : vectorShape.GeometryAABB.Center;
 
             path.Transform(Matrix3X3.CreateScale((float)uniformScale.X, (float)uniformScale.Y, (float)center.X,
@@ -605,6 +605,12 @@ public class BrushEngine : IDisposable
                     (float)center.Y));
             }
         }
+        else
+        {
+            Matrix3X3 pressureScale = Matrix3X3.CreateScale(pressure, pressure, (float)rect.Center.X,
+                (float)rect.Center.Y);
+            path.Transform(pressureScale);
+        }
 
         if (autoPosition)
         {
@@ -618,11 +624,6 @@ public class BrushEngine : IDisposable
                         Math.Round(path.TightBounds.Pos.Y) - path.TightBounds.Pos.Y));
             }
         }
-
-
-        Matrix3X3 pressureScale = Matrix3X3.CreateScale(pressure, pressure, (float)rect.Center.X,
-            (float)rect.Center.Y);
-        path.Transform(pressureScale);
     }
 
     public void Dispose()

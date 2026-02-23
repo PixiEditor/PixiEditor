@@ -1,6 +1,7 @@
 ﻿using Avalonia.Platform.Storage;
 using PixiEditor.Models.Files;
 using PixiEditor.Models.IO;
+using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.Helpers;
 
@@ -8,9 +9,9 @@ internal class SupportedFilesHelper
 {
     public static string[] AllSupportedExtensions { get; private set; }
     public static string[] PrimaryExtensions { get; private set; }
-    
+
     public static List<IoFileType> FileTypes { get; private set; }
-    
+
     public static void InitFileTypes(IEnumerable<IoFileType> fileTypes)
     {
         FileTypes = fileTypes.ToList();
@@ -55,6 +56,7 @@ internal class SupportedFilesHelper
     {
         return AllSupportedExtensions.Contains(fileExtension, StringComparer.OrdinalIgnoreCase);
     }
+
     public static IoFileType? ParseImageFormat(string extension)
     {
         var allExts = FileTypes;
@@ -64,11 +66,25 @@ internal class SupportedFilesHelper
 
     public static List<IoFileType> GetAllSupportedFileTypes(FileTypeDialogDataSet.SetKind setKind)
     {
-        var allExts = FileTypes.Where(x => setKind.HasFlag(x.SetKind)).ToList();
-        return allExts;
+        if (setKind.HasFlag(FileTypeDialogDataSet.SetKind.Any))
+        {
+            return FileTypes.ToList();
+        }
+
+        var separatedKinds = setKind.GetFlags();
+        List<IoFileType> allExts = new();
+        foreach (var separatedKind in separatedKinds)
+        {
+            if(separatedKind == FileTypeDialogDataSet.SetKind.None) continue;
+
+            allExts.AddRange(FileTypes.Where(i => i.SetKind.HasFlag(separatedKind)));
+        }
+
+        return allExts.Distinct().ToList();
     }
 
-    public static List<FilePickerFileType> BuildSaveFilter(FileTypeDialogDataSet.SetKind setKind = FileTypeDialogDataSet.SetKind.Any)
+    public static List<FilePickerFileType> BuildSaveFilter(
+        FileTypeDialogDataSet.SetKind setKind = FileTypeDialogDataSet.SetKind.Any)
     {
         var allSupportedExtensions = GetAllSupportedFileTypes(setKind).Where(x => x.CanSave).ToList();
         var filter = allSupportedExtensions.Select(i => i.SaveFilter).ToList();
@@ -76,7 +92,8 @@ internal class SupportedFilesHelper
         return filter;
     }
 
-    public static (IoFileType? type, string path) GetSaveFileTypeAndPath(FileTypeDialogDataSet.SetKind setKind, IStorageFile file, FilePickerFileType fileType)
+    public static (IoFileType? type, string path) GetSaveFileTypeAndPath(FileTypeDialogDataSet.SetKind setKind,
+        IStorageFile file, FilePickerFileType fileType)
     {
         var allSupportedExtensions = GetAllSupportedFileTypes(setKind);
 
@@ -84,33 +101,37 @@ internal class SupportedFilesHelper
 
         if (localPath is null)
             // Once we add Android/Browser support, something like ExportFilePopup might need a rework anyways
-            throw new NullReferenceException($"{nameof(GetSaveFileTypeAndPath)}() currently does not support platforms that do not support TryGetLocalPath().");
-        
+            throw new NullReferenceException(
+                $"{nameof(GetSaveFileTypeAndPath)}() currently does not support platforms that do not support TryGetLocalPath().");
+
         var extension = Path.GetExtension(localPath);
         var fromProvidedFileType = GetIoFileType(allSupportedExtensions, fileType);
-        
+
         if (extension == string.Empty)
             return FallbackFileType();
 
-        var fromExtensionType = allSupportedExtensions.SingleOrDefault(i => i.CanSave && i.Extensions.Contains(extension, StringComparer.OrdinalIgnoreCase));
+        var fromExtensionType = allSupportedExtensions.SingleOrDefault(i =>
+            i.CanSave && i.Extensions.Contains(extension, StringComparer.OrdinalIgnoreCase));
 
-        return fromExtensionType is null 
+        return fromExtensionType is null
             ? FallbackFileType()
             : (fromExtensionType, localPath);
 
         // Do not use Path.ChangeExtension, use might choose a file like 'interesting.file.name' where we don't want to change the extension from .name
-        (IoFileType type, string path) FallbackFileType() => (fromProvidedFileType, $"{localPath}{fromProvidedFileType.PrimaryExtension}");
+        (IoFileType type, string path) FallbackFileType() =>
+            (fromProvidedFileType, $"{localPath}{fromProvidedFileType.PrimaryExtension}");
     }
 
     private static IoFileType? GetIoFileType(List<IoFileType> fromTypes, FilePickerFileType fileType)
     {
         foreach (var pattern in fileType.Patterns.Select(x => x.TrimStart('*')))
         {
-            var foundType = fromTypes.FirstOrDefault(x => x.Extensions.Contains(pattern, StringComparer.OrdinalIgnoreCase));
+            var foundType =
+                fromTypes.FirstOrDefault(x => x.Extensions.Contains(pattern, StringComparer.OrdinalIgnoreCase));
             if (foundType != null)
                 return foundType;
         }
-        
+
         return null;
     }
 
@@ -122,6 +143,8 @@ internal class SupportedFilesHelper
 
     public static bool IsRasterFormat(string fileExtension)
     {
-        return FileTypes.Any(i => i.Extensions.Contains(fileExtension, StringComparer.OrdinalIgnoreCase) && i.SetKind == FileTypeDialogDataSet.SetKind.Image);
+        return FileTypes.Any(i =>
+            i.Extensions.Contains(fileExtension, StringComparer.OrdinalIgnoreCase) &&
+            i.SetKind.HasFlag(FileTypeDialogDataSet.SetKind.Image));
     }
 }

@@ -1,4 +1,5 @@
-﻿using Drawie.Backend.Core;
+﻿using System.Drawing;
+using Drawie.Backend.Core;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
@@ -32,6 +33,7 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
 
     public Matrix3X3 TransformationMatrix { get; set; } = Matrix3X3.Identity;
 
+
     public RectD TransformedAABB => new ShapeCorners(NestedDocument.Value?.DocumentInstance?.Size / 2f ?? VecD.Zero,
             NestedDocument.Value?.DocumentInstance?.Size ?? VecD.Zero)
         .WithMatrix(TransformationMatrix).AABBBounds;
@@ -44,6 +46,8 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
     private ExposeValueNode[]? cachedExposeNodes;
     private BrushOutputNode[]? brushOutputNodes;
     private IReadOnlyNode[] toExecute;
+
+    protected override bool MustRenderInSrgb(SceneObjectRenderContext ctx) => false;
 
     public NestedDocumentNode()
     {
@@ -141,6 +145,13 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
 
             if (!variable.Value.IsExposed)
                 continue;
+
+            var existing = InputProperties.FirstOrDefault(x =>
+                x.InternalPropertyName == variable.Key);
+            if (existing != null) // Existing input with same name but different type
+            {
+                RemoveInputProperty(existing);
+            }
 
             AddInputProperty(new InputProperty(this, variable.Key, variable.Key, variable.Value.Value,
                 variable.Value.Type));
@@ -282,73 +293,16 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
 
     protected override void DrawWithoutFilters(SceneObjectRenderContext ctx, Canvas workingSurface, Paint paint)
     {
-        if (NestedDocument.Value is null)
-            return;
-
-        int saved;
-        if (paint.IsOpaqueStandardNonBlendingPaint)
-        {
-            saved = workingSurface.Save();
-        }
-        else
-        {
-            saved = workingSurface.SaveLayer(paint);
-        }
-
-        workingSurface.SetMatrix(workingSurface.TotalMatrix.Concat(TransformationMatrix));
-        if (ClipToDocumentBounds.Value)
-        {
-            var docSize = NestedDocument.Value.DocumentInstance.Size;
-            workingSurface.ClipRect(new RectD(VecI.Zero, docSize));
-        }
-
-        ExecuteNested(ctx);
-
-        workingSurface.RestoreToCount(saved);
+        RenderNested(ctx, workingSurface, paint);
     }
-
 
     protected override void DrawWithFilters(SceneObjectRenderContext ctx, Canvas workingSurface, Paint paint)
     {
-        if (NestedDocument.Value is null)
-            return;
-
-        Texture? intermediate = null;
-        var latestSize = new RectI(VecI.Zero, lastDocument.DocumentInstance.Size);
-        intermediate = RequestTexture(1336, latestSize.Size, ColorSpace.CreateSrgb());
-
-        ctx.RenderSurface = intermediate.DrawingSurface.Canvas;
-        ctx.RenderOutputSize = latestSize.Size;
-        ExecuteNested(ctx);
-
-        int saved = workingSurface.Save();
-        workingSurface.SetMatrix(workingSurface.TotalMatrix.Concat(TransformationMatrix));
-        if (ClipToDocumentBounds.Value)
-        {
-            var docSize = NestedDocument.Value.DocumentInstance.Size;
-            workingSurface.ClipRect(new RectD(VecI.Zero, docSize));
-        }
-        workingSurface.DrawSurface(intermediate.DrawingSurface, 0, 0, paint);
-        workingSurface.RestoreToCount(saved);
+        RenderNested(ctx, workingSurface, paint);
     }
 
     public void Rasterize(Canvas surface, Paint paint, int atFrame)
     {
-        if (NestedDocument.Value is null)
-            return;
-
-        int layer;
-        if (paint is { IsOpaqueStandardNonBlendingPaint: false })
-        {
-            layer = surface.SaveLayer(paint);
-        }
-        else
-        {
-            layer = surface.Save();
-        }
-
-        surface.SetMatrix(surface.TotalMatrix.Concat(TransformationMatrix));
-
         RenderContext context = new(
             surface, atFrame, ChunkResolution.Full,
             surface.DeviceClipBounds.Size,
@@ -357,10 +311,56 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
             BilinearSampling.Value ? SamplingOptions.Bilinear : SamplingOptions.Default,
             Instance.NodeGraph) { FullRerender = true, };
 
-        ExecuteNested(context);
-
-        surface.RestoreToCount(layer);
+        RenderNested(context, surface, paint);
     }
+
+    private void RenderNested(RenderContext ctx, Canvas workingSurface, Paint paint)
+    {
+        if (NestedDocument.Value is null)
+            return;
+
+        using var intermediate = Texture.ForProcessing(workingSurface.Surface, Instance.ProcessingColorSpace);
+        int workingSurfaceSaved = 0;
+        if (paint.IsOpaqueStandardNonBlendingPaint)
+        {
+            workingSurfaceSaved = workingSurface.Save();
+        }
+        else
+        {
+            workingSurfaceSaved = workingSurface.SaveLayer(paint);
+        }
+
+        workingSurface.SetMatrix(Matrix3X3.Identity);
+
+        Canvas targetSurface = intermediate.DrawingSurface.Canvas;
+
+        targetSurface.SetMatrix(targetSurface.TotalMatrix.Concat(TransformationMatrix));
+        if (ClipToDocumentBounds.Value)
+        {
+            var docSize = NestedDocument.Value.DocumentInstance.Size;
+            targetSurface.ClipRect(new RectD(VecI.Zero, docSize));
+        }
+
+        var clonedCtx = ctx.Clone();
+        clonedCtx.RenderSurface = targetSurface;
+        ExecuteNested(clonedCtx);
+
+        Paint? paintToApply = null;
+        if (!Instance.ProcessingColorSpace.IsSrgb && paint.ColorFilter == null)
+        {
+            // This is a weird hack to make alpha between linear -> srgb not glitch if the nested document does something weird with alpha.
+            // Look at NestedColorSpaceOverlayAlpha.pixi in RenderTests and see what happens when you remove this line.
+            paintToApply = new Paint();
+            paintToApply.ColorFilter = ColorFilter.CreateColorMatrix(ColorMatrix.Identity);
+        }
+
+        workingSurface.DrawSurface(intermediate.DrawingSurface, 0, 0, paintToApply);
+        workingSurface.RestoreToCount(workingSurfaceSaved);
+
+        paintToApply?.ColorFilter?.Dispose();
+        paintToApply?.Dispose();
+    }
+
 
     private void ExecuteNested(RenderContext ctx)
     {
@@ -373,14 +373,18 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
         clonedContext.Graph = Instance?.NodeGraph;
         clonedContext.DocumentSize = Instance?.Size ?? VecI.Zero;
         clonedContext.ProcessingColorSpace = Instance?.ProcessingColorSpace;
-        clonedContext.RenderOutputSize = clonedContext.DocumentSize;
+        clonedContext.RenderOutputSize =
+            (VecI)(clonedContext.DocumentSize * clonedContext.ChunkResolution.Multiplier());
         clonedContext.DesiredSamplingOptions =
             BilinearSampling.Value ? SamplingOptions.Bilinear : SamplingOptions.Default;
         if (clonedContext.VisibleDocumentRegion.HasValue)
         {
-            clonedContext.VisibleDocumentRegion =
-                (RectI)new ShapeCorners((RectD)clonedContext.VisibleDocumentRegion.Value)
-                    .WithMatrix(TransformationMatrix.Invert()).AABBBounds.RoundOutwards();
+            var inverted =
+                new ShapeCorners((RectD)clonedContext.VisibleDocumentRegion.Value).WithMatrix(TransformationMatrix
+                    .Invert());
+            RectD docRegion = new RectD(VecI.Zero, Instance?.Size ?? VecI.Zero);
+            RectD intersection = docRegion.Intersect(inverted.AABBBounds);
+            clonedContext.VisibleDocumentRegion = (RectI)intersection.RoundOutwards();
         }
 
         var outputNode = Instance?.NodeGraph.AllNodes.OfType<BrushOutputNode>().FirstOrDefault() ??
@@ -438,17 +442,19 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
             .WithMatrix(TransformationMatrix);
     }
 
-    public override void SerializeAdditionalData(IReadOnlyDocument target, Dictionary<string, object> additionalData)
+    internal override void SerializeAdditionalDataInternal(IReadOnlyDocument target,
+        Dictionary<string, object> additionalData)
     {
-        base.SerializeAdditionalData(target, additionalData);
+        base.SerializeAdditionalDataInternal(target, additionalData);
         additionalData["lastDocument"] = lastDocument;
         additionalData["TransformationMatrix"] = TransformationMatrix;
     }
 
-    internal override void DeserializeAdditionalData(IReadOnlyDocument target, IReadOnlyDictionary<string, object> data,
+    internal override void DeserializeAdditionalDataInternal(IReadOnlyDocument target,
+        IReadOnlyDictionary<string, object> data,
         List<IChangeInfo> infos)
     {
-        base.DeserializeAdditionalData(target, data, infos);
+        base.DeserializeAdditionalDataInternal(target, data, infos);
         if (data.TryGetValue("lastDocument", out var doc) && doc is DocumentReference document)
         {
             DocumentChanged(document); // restore outputs

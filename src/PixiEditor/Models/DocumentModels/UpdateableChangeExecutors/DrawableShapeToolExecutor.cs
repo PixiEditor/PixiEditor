@@ -231,10 +231,18 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
 
         if (CanEditShape(layer))
         {
-            internals!.ActionAccumulator.AddFinishedActions(
-                EndDrawAction(),
-                SettingsChangedAction("FillAndStroke", color),
-                EndDrawAction());
+            if (ApplyEachSettingsChange)
+            {
+                internals!.ActionAccumulator.AddFinishedActions(
+                    EndDrawAction(),
+                    SettingsChangedAction("FillAndStroke", color),
+                    EndDrawAction());
+            }
+            else
+            {
+                internals!.ActionAccumulator.AddFinishedActions(
+                    SettingsChangedAction("FillAndStroke", color));
+            }
         }
     }
 

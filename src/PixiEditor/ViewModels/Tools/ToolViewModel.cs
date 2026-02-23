@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 using Avalonia.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Drawie.Backend.Core.Numerics;
@@ -9,6 +10,7 @@ using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.Input;
 using Drawie.Numerics;
+using PixiEditor.Helpers;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Tools.ToolSettings.Settings;
 using PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
@@ -251,55 +253,70 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
                         continue;
                     }
 
-                    foundSetting.SetDefaultValue(defaultValue, toolset.Name);
+                    if (defaultValue is JsonElement jsonElement)
+                    {
+                        try
+                        {
+                            defaultValue = JsonUtility.TryDeserialize(jsonElement, foundSetting.GetSettingType());
+                        }
+                        catch (JsonException)
+                        {
+#if DEBUG
+                            Debug.WriteLine(
+                                $"Failed to deserialize default value for setting {settingName} in toolset {toolset.Name}");
+#endif
+                        }
+
+                        foundSetting.SetDefaultValue(defaultValue, toolset.Name);
+                    }
                 }
             }
-        }
 
-        foreach (var toolbarSetting in toolbarSettings)
-        {
-            toolbarSetting.SetCurrentToolset(toolset.Name);
-        }
-
-        if (settings is null)
-        {
-            return;
-        }
-
-        foreach (var setting in settings)
-        {
-            if (IsExposeSetting(setting, out bool expose))
+            foreach (var toolbarSetting in toolbarSettings)
             {
-                string settingName = setting.Key.Replace("Expose", string.Empty);
-                var foundSetting = TryGetSettingByName(settingName, setting);
-                if (foundSetting is null)
-                {
-                    continue;
-                }
-
-                foundSetting.SetOverwriteExposed(expose);
+                toolbarSetting.SetCurrentToolset(toolset.Name);
             }
-            else if (IsDefaultSetting(setting, out object defaultValue))
+
+            if (settings is null)
             {
-                continue;
+                return;
             }
-            else
+
+            foreach (var setting in settings)
             {
-                try
+                if (IsExposeSetting(setting, out bool expose))
                 {
-                    var foundSetting = TryGetSettingByName(setting.Key, setting);
+                    string settingName = setting.Key.Replace("Expose", string.Empty);
+                    var foundSetting = TryGetSettingByName(settingName, setting);
                     if (foundSetting is null)
                     {
                         continue;
                     }
 
-                    foundSetting.SetOverwriteValue(setting.Value);
+                    foundSetting.SetOverwriteExposed(expose);
                 }
-                catch (InvalidCastException)
+                else if (IsDefaultSetting(setting, out object defaultValue))
                 {
+                    continue;
+                }
+                else
+                {
+                    try
+                    {
+                        var foundSetting = TryGetSettingByName(setting.Key, setting);
+                        if (foundSetting is null)
+                        {
+                            continue;
+                        }
+
+                        foundSetting.SetOverwriteValue(setting.Value);
+                    }
+                    catch (InvalidCastException)
+                    {
 #if DEBUG
-                    throw;
+                        throw;
 #endif
+                    }
                 }
             }
         }
@@ -327,6 +344,11 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
             var property = setting.GetType().GetProperty("Value",
                 BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
             return (T)property!.GetValue(setting);
+        }
+
+        if (setting.Value is JsonElement json)
+        {
+            return json.Deserialize<T>();
         }
 
         try

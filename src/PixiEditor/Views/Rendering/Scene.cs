@@ -398,9 +398,14 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                 hasSaved = true;
             }
 
-
             texture.Canvas.Save();
             var sampling = CalculateSampling();
+
+            if (matrixDiff.ScaleX < 1)
+            {
+                sampling = SamplingOptions.Bilinear;
+            }
+
             if (sampling == SamplingOptions.Default)
             {
                 texture.Canvas.DrawSurface(target, 0, 0);

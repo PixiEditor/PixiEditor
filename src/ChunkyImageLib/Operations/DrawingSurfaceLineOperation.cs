@@ -10,6 +10,7 @@ namespace ChunkyImageLib.Operations;
 internal class DrawingSurfaceLineOperation : IMirroredDrawOperation
 {
     public bool IgnoreEmptyChunks => false;
+    public bool NeedsDrawInSrgb => paint?.Paintable is ISrgbPaintable;
 
     private Paint paint;
     private readonly VecD from;

@@ -1,6 +1,9 @@
 ﻿using System.Collections;
+using Drawie.Backend.Core.ColorsImpl.Paintables;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using Drawie.Backend.Core.Shaders.Generation;
+using Drawie.Backend.Core.Vector;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Models.Serialization;
 using PixiEditor.Models.Serialization.Factories;
 
@@ -8,6 +11,22 @@ namespace PixiEditor.Helpers;
 
 public static class SerializationUtil
 {
+    public static IReadOnlyDictionary<Type, string> EmptyContentWellKnownTypes =
+        new Dictionary<Type, string>()
+        {
+            { typeof(Painter), "PixiEditor.Painter" },
+            { typeof(Paintable), "PixiEditor.Paintable" },
+            { typeof(VectorPath), "PixiEditor.VectorPath" }
+        };
+
+    public static bool IsFilePreVersion((string serializerName, string serializerVersion) serializerData,
+        Version minSupportedVersion)
+    {
+        return serializerData.serializerName == "PixiEditor"
+               && Version.TryParse(serializerData.serializerVersion, out Version version)
+               && version < minSupportedVersion;
+    }
+
     public static object SerializeObject(object? value, SerializationConfig config,
         IReadOnlyList<SerializationFactory> allFactories)
     {
@@ -15,12 +34,12 @@ public static class SerializationUtil
         {
             return null;
         }
-        
+
         if (value is Delegate del)
         {
             value = del.DynamicInvoke(FuncContext.NoContext);
             if (value is ShaderExpressionVariable expressionVariable)
-            { 
+            {
                 value = expressionVariable.GetConstant();
             }
         }
@@ -46,6 +65,32 @@ public static class SerializationUtil
             $"Type {value.GetType()} is not serializable and appropriate serialization factory was not found.");
     }
 
+    public static string? GetWellKnownSerializationTypeName(Type type, IReadOnlyList<SerializationFactory> allFactories)
+    {
+        var factory = allFactories.FirstOrDefault(x => x.OriginalType == type);
+        if (factory == null)
+        {
+            factory = allFactories.FirstOrDefault(x => type.IsAssignableTo(x.OriginalType));
+        }
+
+        if (factory != null)
+        {
+            return factory.DeserializationId;
+        }
+
+        if (type.IsPrimitive || type == typeof(string))
+        {
+            return type.Name;
+        }
+
+        if (EmptyContentWellKnownTypes.TryGetValue(type, out string? name))
+        {
+            return name;
+        }
+
+        return null;
+    }
+
     public static object Deserialize(object value, SerializationConfig config,
         IReadOnlyList<SerializationFactory> allFactories,
         (string serializerName, string serializerVersion) serializerData)
@@ -63,14 +108,13 @@ public static class SerializationUtil
                 try
                 {
                     return factory.Deserialize(data is Dictionary<object, object> processableDict
-                    ? ToDictionary(processableDict)
-                    : data, serializerData);
+                        ? ToDictionary(processableDict)
+                        : data, serializerData);
                 }
                 catch (Exception e)
                 {
                     return value;
                 }
-                
             }
         }
 
@@ -79,7 +123,8 @@ public static class SerializationUtil
 
 
     public static Dictionary<string, object> DeserializeDict(Dictionary<string, object> data,
-        SerializationConfig config, List<SerializationFactory> allFactories, (string serializerName, string serializerVersion) serializerData)
+        SerializationConfig config, List<SerializationFactory> allFactories,
+        (string serializerName, string serializerVersion) serializerData)
     {
         var dict = new Dictionary<string, object>();
 
@@ -133,5 +178,26 @@ public static class SerializationUtil
         }
 
         return dict;
+    }
+
+    public static Type? GetTypeForWellKnownTypeName(string type, IReadOnlyList<SerializationFactory> allFactories)
+    {
+        var firstEmptyContentType = EmptyContentWellKnownTypes.FirstOrDefault(x => x.Value == type).Key;
+        if (firstEmptyContentType != null)
+            return firstEmptyContentType;
+
+        var factory = allFactories.FirstOrDefault(x => x.DeserializationId == type);
+        if (factory != null)
+        {
+            return factory.OriginalType;
+        }
+
+        Type primitiveType = Type.GetType($"System.{type}", false, true);
+        if (primitiveType != null)
+        {
+            return primitiveType;
+        }
+
+        return null;
     }
 }

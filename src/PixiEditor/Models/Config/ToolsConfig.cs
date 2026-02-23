@@ -1,7 +1,5 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Linq;
-using PixiEditor.Models.Input;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace PixiEditor.Models.Config;
 
@@ -162,55 +160,53 @@ public class ActionDisplayConfig
     public string? Modifiers { get; set; }
 }
 
-public class ToolConverter : JsonConverter
+public class ToolConverter : JsonConverter<List<ToolConfig>>
 {
-    public override bool CanConvert(Type objectType) => objectType == typeof(List<ToolConfig>);
-
-    public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+    public override List<ToolConfig> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        var token = JToken.Load(reader);
+        if (reader.TokenType != JsonTokenType.StartArray)
+            throw new JsonException("Expected start of array for Tools.");
 
-        if (token.Type == JTokenType.Array)
+        var tools = new List<ToolConfig>();
+
+        while (reader.Read())
         {
-            var tools = new List<ToolConfig>();
-
-            foreach (var item in token)
+            switch (reader.TokenType)
             {
-                if (item.Type == JTokenType.String)
+                case JsonTokenType.EndArray:
+                    return tools;
+                case JsonTokenType.String:
+                    tools.Add(new ToolConfig { ToolName = reader.GetString() });
+                    break;
+                case JsonTokenType.StartObject:
                 {
-                    tools.Add(new ToolConfig { ToolName = item.ToString() });
-                }
-                else if (item.Type == JTokenType.Object)
-                {
-                    tools.Add(item.ToObject<ToolConfig>(serializer));
-                }
-                else
-                {
-                    throw new JsonSerializationException("Unexpected token type in Tools array");
-                }
-            }
+                    var tool = JsonSerializer.Deserialize<ToolConfig>(ref reader, options);
+                    if (tool != null)
+                        tools.Add(tool);
 
-            return tools;
+                    break;
+                }
+                default:
+                    throw new JsonException($"Unexpected token type {reader.TokenType} in Tools array.");
+            }
         }
 
-        throw new JsonSerializationException("Expected array for Tools");
+        throw new JsonException("Unexpected end of JSON while reading Tools array.");
     }
 
-    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+    public override void Write(Utf8JsonWriter writer, List<ToolConfig> value, JsonSerializerOptions options)
     {
-        var tools = (List<ToolConfig>)value;
-
         writer.WriteStartArray();
 
-        foreach (var tool in tools)
+        foreach (var tool in value)
         {
             if (tool.IsSimpleTool)
             {
-                writer.WriteValue(tool.ToolName);
+                writer.WriteStringValue(tool.ToolName);
             }
             else
             {
-                serializer.Serialize(writer, tool);
+                JsonSerializer.Serialize(writer, tool, options);
             }
         }
 

@@ -70,11 +70,16 @@ internal class VariableViewModel : ViewModelBase, IVariableHandler
         DocumentInternalParts internals)
     {
         this.type = type;
+        if (type == typeof(object))
+        {
+            this.type = value?.GetType() ?? typeof(object);
+        }
+
         this.name = name;
         this.value = value;
         this.internals = internals;
 
-        SettingView = CreateSettingFromType(type, unit, min, max);
+        SettingView = CreateSettingFromType(this.type, unit, min, max);
 
         SettingView.Label = name;
         SettingView.Value = value;
@@ -86,13 +91,15 @@ internal class VariableViewModel : ViewModelBase, IVariableHandler
 
             if (SettingView.MergeChanges)
             {
+                var adjustedValue = AdjustValueForBlackboard(SettingView.Value);
                 internals.ActionAccumulator.AddActions(
-                    new SetBlackboardVariable_Action(Name, AdjustValueForBlackboard(SettingView.Value), min, max, unit, IsExposedBindable));
+                    new SetBlackboardVariable_Action(Name, adjustedValue, adjustedValue?.GetType() ?? typeof(object), min, max, unit, IsExposedBindable));
             }
             else
             {
+                var adjustedValue = AdjustValueForBlackboard(SettingView.Value);
                 internals.ActionAccumulator.AddFinishedActions(
-                    new SetBlackboardVariable_Action(Name, AdjustValueForBlackboard(SettingView.Value), min, max, unit, IsExposedBindable),
+                    new SetBlackboardVariable_Action(Name, adjustedValue, adjustedValue?.GetType() ?? typeof(object), min, max, unit, IsExposedBindable),
                     new EndSetBlackboardVariable_Action());
             }
         };

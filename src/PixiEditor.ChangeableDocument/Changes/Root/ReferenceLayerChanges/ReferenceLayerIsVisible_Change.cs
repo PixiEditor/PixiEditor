@@ -40,6 +40,6 @@ internal class ReferenceLayerIsVisible_Change : Change
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         target.ReferenceLayer!.IsVisible = oldIsVisible;
-        return new ReferenceLayerIsVisible_ChangeInfo(isVisible);
+        return new ReferenceLayerIsVisible_ChangeInfo(oldIsVisible);
     }
 }

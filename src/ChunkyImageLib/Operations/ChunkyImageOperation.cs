@@ -14,6 +14,7 @@ internal class ChunkyImageOperation : IMirroredDrawOperation
     private readonly bool drawUpToDate;
 
     public bool IgnoreEmptyChunks => false;
+    public bool NeedsDrawInSrgb => false;
 
     public ChunkyImageOperation(ChunkyImage imageToDraw, VecI targetPos, bool mirrorHorizontal, bool mirrorVertical,
         bool drawUpToDate)
