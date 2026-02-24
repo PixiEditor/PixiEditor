@@ -1301,5 +1301,12 @@
   "FALLBACK_FRAMES_TO_LAYER_IMAGE": "Layer is fallback cel",
   "USE_CUSTOM_TIME": "Use custom time",
   "CUSTOM_ACTIVE_FRAME": "Active frame",
-  "CUSTOM_NORMALIZED_TIME": "Normalized time"
+  "CUSTOM_NORMALIZED_TIME": "Normalized time",
+  "GUITAR_PICK": "Guitar Pick",
+  "SIDE_SOFTED_TRIANGLE": "Soft-Sided Triangle",
+  "SPLATS": "Splats",
+  "SOFT": "Soft",
+  "FEATHERED": "Feathered",
+  "ASYMMETRICAL": "Asymmetrical",
+  "ROTATE": "Rotate"
 }

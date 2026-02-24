@@ -362,8 +362,12 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
             using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
             BeforeDocumentClosed?.Invoke(document);
             if (!DocumentManagerSubViewModel.Documents.Remove(document))
+            {
+#if DEBUG
                 throw new InvalidOperationException(
                     "Trying to close a document that's not in the documents collection. Likely, the document wasn't added there after creation by mistake.");
+#endif
+            }
 
             if (DocumentManagerSubViewModel.ActiveDocument == document)
             {

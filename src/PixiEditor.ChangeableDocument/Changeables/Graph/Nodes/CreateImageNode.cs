@@ -119,6 +119,8 @@ public class CreateImageNode : Node
 
     private void RenderPreviews(Texture surface, RenderContext context)
     {
+        if(surface == null) return;
+
         var previews = context.GetPreviewTexturesForNode(Id);
         if (previews is null) return;
         foreach (var request in previews)

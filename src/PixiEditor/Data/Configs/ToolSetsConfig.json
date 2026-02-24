@@ -36,7 +36,6 @@
           "Settings": {
             "ExposePixelPerfectEnabled": true,
             "DefaultToolSize": 1,
-            "Spacing": 0,
             "DefaultBrush": "Pixel Circle",
             "AntiAliasing": false
           }
@@ -44,9 +43,6 @@
         "Select",
         {
           "ToolName": "MagicWand",
-          "Settings": {
-            "Spacing": 0
-          }
         },
         "Lasso",
         {
@@ -70,8 +66,7 @@
         {
           "ToolName": "Eraser",
           "Settings": {
-            "Spacing": 0,
-            "DefaultToolSize": 1,
+            "DefaultToolSize": 1
           }
         },
         {

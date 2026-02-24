@@ -1,4 +1,5 @@
-﻿using System.Windows.Input;
+﻿using System.Text.Json;
+using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data;
@@ -85,16 +86,27 @@ internal sealed class EnumSettingViewModel<TEnum> : Setting<TEnum>
     
     private TEnum GetOverwrittenEnum()
     {
-        int index;
-        if (overwrittenValue is float floatVal)
+        var value = overwrittenValue;
+        if (overwrittenValue is JsonElement jsonElement)
         {
-            index = (int)floatVal;
+            value = jsonElement.ValueKind switch
+            {
+                JsonValueKind.Number when jsonElement.TryGetInt32(out var intVal) => intVal,
+                JsonValueKind.Number when jsonElement.TryGetSingle(out var floatVal) => floatVal,
+                JsonValueKind.String => jsonElement.GetString(),
+            };
         }
-        else if (overwrittenValue is int intVal)
+
+        int index;
+        if (value is float finalFloatVal)
+        {
+            index = (int)finalFloatVal;
+        }
+        else if (value is int intVal)
         {
             index = intVal;
         }
-        else if (overwrittenValue is string stringVal)
+        else if (value is string stringVal)
         {
             return Enum.Parse<TEnum>(stringVal);
         }

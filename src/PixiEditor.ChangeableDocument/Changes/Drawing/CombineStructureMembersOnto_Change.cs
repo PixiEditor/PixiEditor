@@ -197,6 +197,9 @@ internal class CombineStructureMembersOnto_Change : Change
         if (targetLayer is not VectorLayerNode vectorLayer)
             throw new InvalidOperationException("Target layer is not a vector layer");
 
+        if(layersToCombine == null || layersToCombine.Count == 0)
+            return new AffectedArea(new HashSet<VecI>());
+
         ShapeVectorData targetData = vectorLayer.EmbeddedShapeData ?? null;
         VectorPath? targetPath = targetData?.ToPath();
 
@@ -211,6 +214,9 @@ internal class CombineStructureMembersOnto_Change : Change
                 continue;
 
             VectorPath path = vectorNode.EmbeddedShapeData.ToPath();
+
+            if (path == null)
+                continue;
 
             if (targetData == null)
             {

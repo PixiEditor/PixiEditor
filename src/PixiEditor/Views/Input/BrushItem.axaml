@@ -33,9 +33,9 @@
                                            DockPanel.Dock="Left" />
             <TextBlock VerticalAlignment="Center"
                        Width="70"
-                       ToolTip.Tip="{Binding Brush.Name}"
+                       localization:Translator.TooltipKey="{Binding Brush.Name}"
                        TextTrimming="CharacterEllipsis"
-                       Text="{Binding Brush.Name}" />
+                       localization:Translator.Key="{Binding Brush.Name}" />
 
             <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
                 <Button
