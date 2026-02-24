@@ -394,7 +394,7 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
 
         var settingName = settingConfig.Key.Replace("Expose", string.Empty);
 
-        if (settingConfig.Value is bool value)
+        if (settingConfig.Value is bool value || settingConfig.Value is JsonElement { ValueKind: JsonValueKind.True or JsonValueKind.False } jsonElement && (value = jsonElement.GetBoolean()))
         {
             expose = value;
             return true;
