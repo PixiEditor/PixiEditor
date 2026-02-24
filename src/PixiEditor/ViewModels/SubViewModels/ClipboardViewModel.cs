@@ -69,7 +69,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         doc.Operations.DeleteSelectedPixels(doc.AnimationDataViewModel.ActiveFrameBindable, true, lastTransformRect);
     }
 
-    
+
     [Command.Basic("PixiEditor.Clipboard.PasteAsNewLayer", true, "PASTE_AS_NEW_LAYER", "PASTE_AS_NEW_LAYER_DESCRIPTIVE",
         CanExecute = "PixiEditor.Clipboard.CanPaste", Key = Key.V, Modifiers = KeyModifiers.Control,
         ShortcutContexts = [typeof(ViewportWindowViewModel), typeof(LayersDockViewModel)],
@@ -93,31 +93,28 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.Clipboard.PasteReferenceLayer", "PASTE_REFERENCE_LAYER",
         "PASTE_REFERENCE_LAYER_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.CanPaste",
         Icon = PixiPerfectIcons.PasteReferenceLayer, AnalyticsTrack = true)]
-    public void PasteReferenceLayer(DataTransfer data)
+    public void PasteReferenceLayer(IDataTransfer data)
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
 
-        Dispatcher.UIThread.InvokeAsync(async () =>
+        DataImage imageData =
+            (data == null
+                ? ClipboardController.GetImagesFromClipboard().Result
+                : ClipboardController.GetImage(new[] { new ImportedObject(data) }).Result).First();
+        using var surface = imageData.Image;
+
+        var bitmap = imageData.Image.ToWriteableBitmap();
+
+        byte[] pixels = bitmap.ExtractPixels();
+
+        doc.Operations.ImportReferenceLayer(
+            pixels.ToImmutableArray(),
+            imageData.Image.Size);
+
+        if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            DataImage imageData =
-                (data == null
-                    ? await ClipboardController.GetImagesFromClipboard()
-                    : ClipboardController.GetImage(new[] { new ImportedObject(data) }).Result).First();
-            using var surface = imageData.Image;
-
-            var bitmap = imageData.Image.ToWriteableBitmap();
-
-            byte[] pixels = bitmap.ExtractPixels();
-
-            doc.Operations.ImportReferenceLayer(
-                pixels.ToImmutableArray(),
-                imageData.Image.Size);
-
-            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-            {
-                desktop.MainWindow!.Activate();
-            }
-        });
+            desktop.MainWindow!.Activate();
+        }
     }
 
     [Command.Internal("PixiEditor.Clipboard.PasteReferenceLayerFromPath")]
@@ -435,7 +432,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
     {
         if (!Owner.DocumentIsNotNull(null)) return false;
 
-        if (parameter is DataTransfer data)
+        if (parameter is IDataTransfer data)
             return ClipboardController.IsImage(data);
 
         QueueCheckCanPasteImage();

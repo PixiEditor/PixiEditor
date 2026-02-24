@@ -920,6 +920,29 @@ internal static class ClipboardController
                 var bmp = await importedObj.GetDataAsync(DataFormat.Bitmap);
                 return bmp != null ? SurfaceHelpers.FromBitmap(bmp) : null;
             }
+            else if (importedObj.Contains(DataFormat.File))
+            {
+                var files = await importedObj.GetFilesAsync();
+                if (files != null)
+                {
+                    foreach (var file in files)
+                    {
+                        try
+                        {
+                            if (Importer.IsSupportedFile(file.Path.LocalPath))
+                            {
+                                return Surface.Load(file.Path.LocalPath);
+                            }
+                        }
+                        catch (UriFormatException)
+                        {
+                            continue;
+                        }
+                    }
+                }
+
+                return null;
+            }
             else
             {
                 return null;
