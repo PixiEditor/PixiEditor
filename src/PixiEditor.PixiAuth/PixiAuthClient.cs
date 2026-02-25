@@ -376,4 +376,9 @@ public class PixiAuthClient
 
         throw new BadRequestException("REQUEST_FAILED");
     }
+    
+    public string GetCreateCheckoutSessionFromSessionIdUrl(Guid? sessionId, string extensionId)
+    {
+        return $"{httpClient.BaseAddress}content/createCheckoutSessionFromSessionId?sessionId={sessionId}&productId={System.Web.HttpUtility.UrlEncode(extensionId)}";
+    }
 }

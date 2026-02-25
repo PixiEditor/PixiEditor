@@ -221,11 +221,18 @@
                                            FontWeight="Bold"
                                            Margin="0, 0, 0 12"/>
 
-                                <Button FontSize="{DynamicResource FontSizeNormal}"
-                                        IsVisible="{Binding !SelectedAvailableExtension.IsOwned}"
+                                <Button Command="{Binding OpenPurchaseLinkCommand}"
+                                        CommandParameter="{Binding SelectedAvailableExtension.AvailableContent.Id}"
+                                        FontSize="{DynamicResource FontSizeNormal}"
                                         Background="{DynamicResource ThemeAccentBrush}"
                                         BorderThickness="0"
                                         Margin="0, 12">
+                                    <Button.IsVisible>
+                                        <MultiBinding Converter="{converters:AllTrueConverter}">
+                                            <Binding Path="!SelectedAvailableExtension.IsOwned" />
+                                            <Binding Path="IsUserLoggedIn" />
+                                        </MultiBinding>
+                                    </Button.IsVisible>
                                     <TextBlock>
                                         <Run localization:Translator.Key="EXTENSIONS_WINDOW_PURCHASE_BUTTON" />
                                         <Run Classes="pixi-icon" Text="{DynamicResource icon-link}" />

@@ -257,6 +257,31 @@ public class PixiAuthIdentityProvider : IIdentityProvider
             Error("FAIL_LOAD_USER_DATA");
         }
     }
+    
+    public async Task UpdateUserOwnedProducts()
+    {
+        try
+        {
+            if (User == null)
+            {
+                return;
+            }
+            
+            var products = await PixiAuthClient.GetOwnedProducts(User.SessionToken, ApiVersion);
+            if (products != null)
+            {
+                User.OwnedProducts = products.Where(x => x is { IsDlc: true, Target: "PixiEditor" })
+                    .Select(x => new ProductData(x.ProductId, x.ProductName) { LatestVersion = x.LatestVersion, DownloadLink = x.DownloadLink,
+                        Description = x.ProductDescription, Author = x.Author, ImageUrl = x.ImageUrl })
+                    .ToList();
+                OwnedProductsUpdated?.Invoke(new List<ProductData>(User.OwnedProducts));
+            }
+        }
+        catch (Exception e)
+        {
+            Error("FAIL_UPDATE_USER_OWNED_PRODUCTS");
+        }
+    }
 
     public async Task LogoutIfTokenExpired()
     {

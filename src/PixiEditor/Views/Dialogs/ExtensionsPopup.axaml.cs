@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
@@ -13,8 +14,7 @@ public partial class ExtensionsPopup : PixiEditorPopup
     {
         InitializeComponent();
     }
-
-    // TODO: for testing
+    
     protected override void OnLoaded(RoutedEventArgs e)
     {
         base.OnLoaded(e);
@@ -22,6 +22,18 @@ public partial class ExtensionsPopup : PixiEditorPopup
         {
             Dispatcher.UIThread.InvokeAsync(async () => await vm.FetchAvailableExtensions());
             vm.FetchOwnedExtensions();
+        }
+    }
+
+    protected override void OnGotFocus(GotFocusEventArgs e)
+    {
+        base.OnGotFocus(e);
+        if (DataContext is ExtensionManagerViewModel vm)
+        {
+            if (vm.ShouldUpdateUserOwnedProducts)
+            {
+                Dispatcher.UIThread.InvokeAsync(async () => await vm.UpdateUserOwnedProducts());
+            }
         }
     }
 }

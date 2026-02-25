@@ -1,10 +1,14 @@
 ﻿using System.Collections.ObjectModel;
+using System.Text;
 using Avalonia.Threading;
 using AvaloniaEdit.Utils;
 using CommunityToolkit.Mvvm.Input;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.IdentityProvider;
+using PixiEditor.IdentityProvider.PixiAuth;
+using PixiEditor.Models.Commands.XAML;
+using PixiEditor.OperatingSystem;
 using PixiEditor.PixiAuth.Models;
 using PixiEditor.Platform;
 using PixiEditor.ViewModels.SubViewModels;
@@ -27,6 +31,8 @@ internal class ExtensionManagerViewModel : ViewModelBase
     
     public RelayCommand BackToListCommand { get; }
     public RelayCommand<AvailableContentViewModel> SelectExtensionCommand { get; }
+    
+    public AsyncRelayCommand<string> OpenPurchaseLinkCommand { get; }
     
     public ObservableCollection<ExtensionsTab> Tabs { get; } =
         new ObservableCollection<ExtensionsTab>
@@ -73,6 +79,10 @@ internal class ExtensionManagerViewModel : ViewModelBase
     private IAdditionalContentProvider contentProvider;
     private IIdentityProvider identityProvider;
 
+    public bool IsUserLoggedIn => identityProvider.User != null && identityProvider.User.IsLoggedIn;
+    
+    public bool ShouldUpdateUserOwnedProducts = false;
+    
     public ExtensionManagerViewModel(ExtensionsViewModel extensionsViewModel, IAdditionalContentProvider contentProvider, IIdentityProvider identityProvider)
     {
         this.extensionsViewModel = extensionsViewModel;
@@ -87,7 +97,14 @@ internal class ExtensionManagerViewModel : ViewModelBase
         BackToListCommand = new RelayCommand(BackToList);
         SelectExtensionCommand = new RelayCommand<AvailableContentViewModel>(SelectExtension);
         
+        OpenPurchaseLinkCommand = new AsyncRelayCommand<string>(OpenPurchaseLink);
+        
         SelectedTab = Tabs.FirstOrDefault(tab => tab.Id == "All");
+        
+        OnPropertyChanged(nameof(IsUserLoggedIn));
+        identityProvider.OnLoggedIn += _ => UpdateLoginState();
+        identityProvider.LoggedOut += () => UpdateLoginState();
+        identityProvider.OwnedProductsUpdated += _ => UpdateOwnedExtensions();
     }
 
     public async Task FetchAvailableExtensions()
@@ -243,4 +260,58 @@ internal class ExtensionManagerViewModel : ViewModelBase
     {
         SelectedAvailableExtension = ext;
     }
+
+    private async Task OpenPurchaseLink(string extensionId)
+    {
+        if (string.IsNullOrEmpty(extensionId))
+            return;
+
+        if (identityProvider is PixiAuthIdentityProvider pixiAuthIdentityProvider)
+        {
+            if (identityProvider.User is PixiUser pixiUser)
+            {
+                Guid? sessionId = pixiUser.SessionId;
+                string url = pixiAuthIdentityProvider.PixiAuthClient.GetCreateCheckoutSessionFromSessionIdUrl(sessionId, extensionId);
+                IOperatingSystem.Current.OpenUri(url);
+                ShouldUpdateUserOwnedProducts = true;
+            }
+        }
+    }
+
+    public async Task UpdateUserOwnedProducts()
+    {
+        if (identityProvider is PixiAuthIdentityProvider pixiAuthIdentityProvider)
+        {
+            await pixiAuthIdentityProvider.UpdateUserOwnedProducts();
+            ShouldUpdateUserOwnedProducts = false;
+        }
+    }
+    
+    private void UpdateLoginState()
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            OnPropertyChanged(nameof(IsUserLoggedIn));
+
+            if (IsUserLoggedIn)
+            {
+                FetchOwnedExtensions();
+            }
+            else
+            {
+                OwnedExtensions.Clear();
+                SelectedAvailableExtension = null;
+            }
+        });
+    }
+
+    private void UpdateOwnedExtensions()
+    {
+        FetchOwnedExtensions();
+        
+        foreach (var ext in AvailableExtensions)
+        {
+            ext.NotifyIsOwnedChanged();
+        }
+    }    
 }

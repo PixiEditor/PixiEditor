@@ -16,4 +16,9 @@ internal class AvailableContentViewModel : ObservableObject
         AvailableContent = content;
         this.extensionManager = extensionManager;
     }
+    
+    public void NotifyIsOwnedChanged()
+    {
+        OnPropertyChanged(nameof(IsOwned));
+    }
 }
