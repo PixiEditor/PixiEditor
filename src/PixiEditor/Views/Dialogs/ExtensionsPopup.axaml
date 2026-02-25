@@ -326,21 +326,6 @@
                                                        FontSize="{DynamicResource FontSizeNormal}"
                                                        localization:Translator.Key="INSTALLING" />
                                             
-                                            <ToggleSwitch
-                                                OnContent=""
-                                                OffContent=""
-                                                IsChecked="{Binding IsEnabled, Mode=TwoWay}"
-                                                Command="{Binding ToggleEnabledCommand}"
-                                                CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}"
-                                                VerticalAlignment="Center">
-                                                <ToggleSwitch.IsVisible>
-                                                    <MultiBinding Converter="{converters:AllTrueConverter}">
-                                                        <Binding Path="IsInstalled" />
-                                                        <Binding Path="!IsInstalling" />
-                                                    </MultiBinding>
-                                                </ToggleSwitch.IsVisible>
-                                            </ToggleSwitch>
-                                            
                                             <Button Command="{Binding InstallCommand}"
                                                     FontSize="{DynamicResource FontSizeNormal}">
                                                 <Button.IsVisible>
@@ -355,6 +340,21 @@
                                                     <Run localization:Translator.Key="UPDATE" />
                                                 </TextBlock>
                                             </Button>
+                                            
+                                            <ToggleSwitch
+                                                OnContent=""
+                                                OffContent=""
+                                                IsChecked="{Binding IsEnabled, Mode=TwoWay}"
+                                                Command="{Binding ToggleEnabledCommand}"
+                                                CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}"
+                                                VerticalAlignment="Center">
+                                                <ToggleSwitch.IsVisible>
+                                                    <MultiBinding Converter="{converters:AllTrueConverter}">
+                                                        <Binding Path="IsInstalled" />
+                                                        <Binding Path="!IsInstalling" />
+                                                    </MultiBinding>
+                                                </ToggleSwitch.IsVisible>
+                                            </ToggleSwitch>
 
                                         </DockPanel>
                                         <Button DockPanel.Dock="Left"
