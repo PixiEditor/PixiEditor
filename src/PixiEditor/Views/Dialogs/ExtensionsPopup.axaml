@@ -89,8 +89,8 @@
                                         Background="{DynamicResource ThemeBackgroundColor1}"
                                         CornerRadius="4"
                                         Padding="12"
-                                        Width="226"
-                                        Margin="12">
+                                        Width="192"
+                                        Margin="6">
 
                                         <Grid>
                                             <Grid.RowDefinitions>
@@ -126,6 +126,7 @@
                                                     Foreground="{DynamicResource ThemeForegroundColor}"
                                                     TextWrapping="Wrap"
                                                     MaxLines="2"
+                                                    MinHeight="36"
                                                     />
                                             </StackPanel>
 
@@ -261,7 +262,7 @@
                                 Background="{DynamicResource ThemeBackgroundColor1}"
                                 CornerRadius="4"
                                 Padding="12"
-                                Width="226"
+                                Width="192"
                                 Margin="12">
 
                                 <Grid>
@@ -298,6 +299,7 @@
                                             Foreground="{DynamicResource ThemeForegroundColor}"
                                             TextWrapping="Wrap"
                                             MaxLines="2"
+                                            MinHeight="36"
                                             />
                                     </StackPanel>
                                     
