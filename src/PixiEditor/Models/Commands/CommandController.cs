@@ -222,22 +222,35 @@ internal class CommandController
 
             LocalizedString displayName = new("SELECT_TOOL", toolInstance.DisplayName);
 
-            var command = new Command.ToolCommand(toolsHandler)
+            var command = new Command.ToolCommand(toolsHandler, false)
             {
                 InternalName = internalName,
                 DisplayName = displayName,
                 Description = displayName,
                 Icon = toolInstance.DefaultIcon,
                 IconEvaluator = IconEvaluator.Default,
-                TransientKey = toolAttr.Transient,
-                TransientImmediate = toolAttr.TransientImmediate,
                 DefaultShortcut = toolAttr.GetShortcut(),
                 Shortcut = GetShortcut(internalName, toolAttr.GetShortcut(), template),
                 ToolType = type,
             };
 
+            var transientCommand = new Command.ToolCommand(toolsHandler, true)
+            {
+                InternalName = $"{internalName}.Transient",
+                DisplayName = displayName.Value + " " + new LocalizedString("QUICK_USE"),
+                Description = displayName,
+                Icon = toolInstance.DefaultIcon,
+                IconEvaluator = IconEvaluator.Default,
+                DefaultShortcut = toolAttr.TransientShortcut,
+                Shortcut = GetShortcut($"{internalName}.Transient", toolAttr.TransientShortcut, template),
+                ToolType = type,
+                TransientImmediate = toolAttr.TransientImmediate
+            };
+
             Commands.Add(command);
+            Commands.Add(transientCommand);
             AddCommandToCommandsCollection(command, commandGroupsData, commands);
+            AddCommandToCommandsCollection(transientCommand, commandGroupsData, commands, command.InternalName);
         }
 
         var tools = toolsHandler.AllToolSets.SelectMany(x => x.Tools).Distinct().ToList();
@@ -252,7 +265,7 @@ internal class CommandController
 
                 LocalizedString displayName = new("SELECT_TOOL", brushTool.ToolName);
                 string internalName = $"PixiEditor.Tools.Select.{brushTool.ToolName.Replace(" ", string.Empty)}";
-                var command = new Models.Commands.Commands.Command.ToolCommand(toolsHandler)
+                var command = new Models.Commands.Commands.Command.ToolCommand(toolsHandler, false)
                 {
                     DefaultShortcut = brushTool.DefaultShortcut ?? KeyCombination.None,
                     Shortcut = GetShortcut(internalName, brushTool.DefaultShortcut ?? KeyCombination.None, template),
@@ -265,8 +278,24 @@ internal class CommandController
                     Handler = brushTool
                 };
 
+                var transientCommand = new Models.Commands.Commands.Command.ToolCommand(toolsHandler, true)
+                {
+                    DefaultShortcut = KeyCombination.None,
+                    Shortcut = GetShortcut($"{internalName}.Transient", KeyCombination.None, template),
+                    ToolType = brushTool.GetType(),
+                    Icon = brushTool.DefaultIcon,
+                    DisplayName = displayName.Value + " " + new LocalizedString("QUICK_USE"),
+                    InternalName = $"{internalName}.Transient",
+                    IconEvaluator = IconEvaluator.Default,
+                    Description = displayName,
+                    Handler = brushTool,
+                    TransientImmediate = false
+                };
+
                 Commands.Add(command);
+                Commands.Add(transientCommand);
                 AddCommandToCommandsCollection(command, commandGroupsData, commands);
+                AddCommandToCommandsCollection(transientCommand, commandGroupsData, commands, command.InternalName);
             }
         }
     }
@@ -279,9 +308,10 @@ internal class CommandController
 
     private void AddCommandToCommandsCollection(Command command,
         List<Attributes.Commands.Command.GroupAttribute> commandGroupsData,
-        OneToManyDictionary<string, Command> commands)
+        OneToManyDictionary<string, Command> commands, string nameToTestAgainst = null)
     {
-        var group = commandGroupsData.FirstOrDefault(x => command.InternalName.StartsWith(x.InternalName));
+        string fixedName = nameToTestAgainst ?? command.InternalName;
+        var group = commandGroupsData.FirstOrDefault(x => fixedName.StartsWith(x.InternalName));
         if (group == default)
             commands.Add("", command);
         else

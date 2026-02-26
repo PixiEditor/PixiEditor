@@ -361,8 +361,13 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
 
         if (ActiveTool == tool)
         {
+            bool setActionTool = ActiveTool.IsTransient != transient;
             ActiveTool.IsTransient = transient;
-            LastActionTool = ActiveTool;
+            if (setActionTool)
+            {
+                LastActionTool = ActiveTool;
+            }
+
             return;
         }
 
@@ -442,6 +447,23 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
 
         ToolViewModel tool = (ToolViewModel)parameter;
         SetActiveTool(tool, false, source, true);
+    }
+
+    public void SetToolTransient(object parameter)
+    {
+        if (parameter is CommandExecutionContext context)
+        {
+            parameter = context.Parameter;
+        }
+
+        if (parameter is Type type)
+        {
+            SetActiveTool(type, true, null);
+            return;
+        }
+
+        ToolViewModel tool = (ToolViewModel)parameter;
+        SetActiveTool(tool, true, null, true);
     }
 
     [Command.Basic("PixiEditor.Tools.IncreaseSize", 1d, "INCREASE_TOOL_SIZE", "INCREASE_TOOL_SIZE",
