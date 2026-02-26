@@ -268,7 +268,8 @@ internal class CommandController
                 var command = new Models.Commands.Commands.Command.ToolCommand(toolsHandler, false)
                 {
                     DefaultShortcut = brushTool.DefaultShortcut ?? KeyCombination.None,
-                    Shortcut = GetShortcut(internalName, brushTool.DefaultShortcut ?? KeyCombination.None, template),
+                    Shortcut =
+                        GetShortcut(internalName, brushTool.DefaultShortcut ?? KeyCombination.None, template),
                     ToolType = brushTool.GetType(),
                     Icon = brushTool.DefaultIcon,
                     DisplayName = displayName,
@@ -735,6 +736,11 @@ internal class CommandController
 
     public void ResetShortcuts()
     {
+        if (!File.Exists(ShortcutsPath))
+        {
+            return;
+        }
+
         File.Copy(ShortcutsPath, Path.ChangeExtension(ShortcutsPath, ".json.bak"), true);
 
         Commands.ClearShortcuts();
