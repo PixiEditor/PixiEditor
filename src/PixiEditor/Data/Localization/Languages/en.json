@@ -1308,5 +1308,7 @@
   "SOFT": "Soft",
   "FEATHERED": "Feathered",
   "ASYMMETRICAL": "Asymmetrical",
-  "ROTATE": "Rotate"
+  "ROTATE": "Rotate",
+  "RESET_TRANSFORM": "Reset Transform",
+  "RESET_TRANSFORM_DESCRIPTIVE": "Reset the transform of the layer."
 }
