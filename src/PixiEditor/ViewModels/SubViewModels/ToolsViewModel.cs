@@ -25,6 +25,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.UI;
+using PixiEditor.Models;
 using PixiEditor.Models.BrushEngine;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.DocumentModels.Public;

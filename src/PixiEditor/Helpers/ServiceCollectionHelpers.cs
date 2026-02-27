@@ -18,6 +18,8 @@ using PixiEditor.Extensions.CommonApi.Windowing;
 using PixiEditor.Extensions.FlyUI;
 using PixiEditor.Extensions.IO;
 using PixiEditor.Extensions.Runtime;
+using PixiEditor.Models;
+using PixiEditor.Models.AdvisorSystem;
 using PixiEditor.Models.AnalyticsAPI;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Controllers;
@@ -84,6 +86,7 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<DebugViewModel>()
             .AddSingleton<SearchViewModel>()
             .AddSingleton<ISearchHandler, SearchViewModel>(x => x.GetRequiredService<SearchViewModel>())
+            .AddSingleton<IAdvisor, Advisor>()
             .AddSingleton<AdditionalContentViewModel>()
             .AddSingleton<LayoutManager>()
             .AddSingleton<LayoutViewModel>()

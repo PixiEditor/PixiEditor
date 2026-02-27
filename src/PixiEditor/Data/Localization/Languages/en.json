@@ -1308,5 +1308,6 @@
   "SOFT": "Soft",
   "FEATHERED": "Feathered",
   "ASYMMETRICAL": "Asymmetrical",
-  "ROTATE": "Rotate"
+  "ROTATE": "Rotate",
+  "DRAW_NESTED_ADVICE": "This is a nested document layer. To draw on it, you need to rasterize it first or draw on the original document."
 }

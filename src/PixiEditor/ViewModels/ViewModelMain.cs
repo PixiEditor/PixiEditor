@@ -11,6 +11,8 @@ using PixiEditor.ChangeableDocument.Rendering.ContextData;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Collections;
+using PixiEditor.Models;
+using PixiEditor.Models.AdvisorSystem;
 using PixiEditor.Models.AnalyticsAPI;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Config;
@@ -129,6 +131,9 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         Preferences = services.GetRequiredService<IPreferences>();
         Preferences.Init();
 
+        var advisor = services.GetService<IAdvisor>();
+        advisor.Activate();
+
         SupportedFilesHelper.InitFileTypes(services.GetServices<IoFileType>());
 
         CommandController = services.GetService<CommandController>();
@@ -148,6 +153,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         ToolsSubViewModel.SelectedToolChanged += ToolsSubViewModel_SelectedToolChanged;
 
         IoSubViewModel = services.GetService<IoViewModel>();
+
         LayersSubViewModel = services.GetService<LayersViewModel>();
         ClipboardSubViewModel = services.GetService<ClipboardViewModel>();
         UndoSubViewModel = services.GetService<UndoViewModel>();
@@ -194,6 +200,8 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         ExtensionsSubViewModel.Init();  // Must be last
 
         GetEditorData = ConstructEditorData;
+
+        RegisterAdvices();
 
         DocumentManagerSubViewModel.ActiveDocumentChanged += OnActiveDocumentChanged;
         BeforeDocumentClosed += OnBeforeDocumentClosed;
