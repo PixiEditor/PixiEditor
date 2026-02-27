@@ -458,16 +458,29 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
             toolbar.ToolSize = newSize;
     }
 
-    public bool CreateLayerIfNeeded()
+    public bool CreateOrRasterizeLayerIfNeeded()
     {
         bool created = false;
         if (NeedsNewLayerForActiveTool())
         {
+            bool rasterize = Owner.DocumentManagerSubViewModel.ActiveDocument.SelectedStructureMember is NestedDocumentNodeViewModel nested &&
+                             PixiEditorSettings.Tools.AutoRasterizeNestedLayersOnDraw.Value;
+
             using var changeBlock = Owner.DocumentManagerSubViewModel.ActiveDocument.Operations.StartChangeBlock();
-            Guid? createdLayer = Owner.LayersSubViewModel.NewLayer(
-                ActiveTool.LayerTypeToCreateOnEmptyUse,
-                ActionSource.Automated,
-                ActiveTool.DefaultNewLayerName);
+            Guid? createdLayer = null;
+            if (rasterize)
+            {
+                Guid memberId = Owner.DocumentManagerSubViewModel.ActiveDocument.SelectedStructureMember!.Id;
+                createdLayer = Owner.DocumentManagerSubViewModel.ActiveDocument.Operations.Rasterize(memberId, ActionSource.Automated);
+            }
+            else
+            {
+                createdLayer = Owner.LayersSubViewModel.NewLayer(
+                    ActiveTool.LayerTypeToCreateOnEmptyUse,
+                    ActionSource.Automated,
+                    ActiveTool.DefaultNewLayerName);
+            }
+
             if (createdLayer is not null)
             {
                 Owner.DocumentManagerSubViewModel.ActiveDocument.Operations.SetSelectedMember(createdLayer.Value);

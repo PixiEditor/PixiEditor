@@ -321,7 +321,7 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
 
         using var intermediate = Texture.ForProcessing(workingSurface.Surface, Instance.ProcessingColorSpace);
         int workingSurfaceSaved = 0;
-        if (paint.IsOpaqueStandardNonBlendingPaint)
+        if (paint == null || paint.IsOpaqueStandardNonBlendingPaint)
         {
             workingSurfaceSaved = workingSurface.Save();
         }

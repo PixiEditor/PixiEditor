@@ -347,7 +347,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
             LayerNeedsNewLayer?.Invoke();
             var activeToolType = Owner.ToolsSubViewModel.ActiveTool.GetType();
             activeDocument.Tools.TryStopActiveTool();
-            Owner.ToolsSubViewModel.CreateLayerIfNeeded();
+            Owner.ToolsSubViewModel.CreateOrRasterizeLayerIfNeeded();
             Owner.ToolsSubViewModel.DeselectActiveTool();
             activeDocument.SubscribeLayerReadyToUseOnce(() =>
             {

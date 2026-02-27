@@ -184,4 +184,10 @@
     <Style Selector="Border.KeyBorderLast">
         <Setter Property="Margin" Value="0, 3" />
     </Style>
+
+    <Style Selector="Button.AdviceChoiceButton">
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Padding" Value="4 2" />
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+    </Style>
 </Styles>

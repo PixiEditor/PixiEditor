@@ -74,6 +74,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
     public AutosaveViewModel AutosaveViewModel { get; set; }
     public UserViewModel UserViewModel { get; set; }
     public BrushesViewModel BrushesSubViewModel { get; set; }
+    public AdvicesViewModel AdvicesSubViewModel { get; set; }
 
     public IPreferences Preferences { get; set; }
     public ILocalizationProvider LocalizationProvider { get; set; }
@@ -201,7 +202,8 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
 
         GetEditorData = ConstructEditorData;
 
-        RegisterAdvices();
+        AdvicesSubViewModel = services.GetService<AdvicesViewModel>();
+        AdvicesSubViewModel.RegisterAdvices();
 
         DocumentManagerSubViewModel.ActiveDocumentChanged += OnActiveDocumentChanged;
         BeforeDocumentClosed += OnBeforeDocumentClosed;

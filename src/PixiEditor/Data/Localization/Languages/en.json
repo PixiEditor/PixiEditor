@@ -1309,5 +1309,11 @@
   "FEATHERED": "Feathered",
   "ASYMMETRICAL": "Asymmetrical",
   "ROTATE": "Rotate",
-  "DRAW_NESTED_ADVICE": "This is a nested document layer. To draw on it, you need to rasterize it first or draw on the original document."
+  "MUSHY_SAYS": "Mushy says",
+  "MUSHY_ASKS": "Mushy asks",
+  "DRAW_NESTED_ADVICE": "This is a smart layer. To draw on it, rasterize it first or draw on the original document. I created a new layer for you, would you like to me to auto rasterize them next time or always keep as a smart layers?",
+  "AUTO_RASTERIZE": "Always auto rasterize",
+  "AUTO_CREATE_NEW_LAYER": "Always new layer (default)",
+  "AUTO_RASTERIZE_NESTED_ON_DRAW": "Auto rasterize smart layers on draw",
+  "GOT_IT_CHECK_SETTINGS": "Got it. You can change this behavior in the settings anytime. Have fun!"
 }

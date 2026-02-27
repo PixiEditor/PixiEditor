@@ -16,15 +16,18 @@ public class Advisor : IAdvisor
         adviceStorage[adviceName] = advice;
     }
 
-    public void RequestAdvice(string adviceName)
+    public Advice? RequestAdvice(string adviceName)
     {
         if (adviceStorage.TryGetValue(adviceName, out Advice advice))
         {
-            SendAdvice(adviceName, advice);
+            advice.Choices?.Clear();
+            return advice;
         }
+
+        return null;
     }
 
-    private void SendAdvice(string adviceName, Advice advice)
+    public void SendAdvice(string adviceName, Advice advice)
     {
         if (listeners.TryGetValue(adviceName, out IAdviceListener adviceListener))
         {
@@ -60,7 +63,8 @@ public interface IAdvisor
     public void SubscribeToAdvisor(string adviceName, IAdviceListener listener);
     public void Activate();
     public void RegisterAdvice(string adviceName, Advice advice);
-    public void RequestAdvice(string adviceName);
+    public Advice? RequestAdvice(string adviceName);
+    public void SendAdvice(string adviceName, Advice advice);
 }
 
 public interface IAdviceListener
@@ -72,6 +76,9 @@ public class Advice
 {
     public string Name { get; }
     public LocalizedString Content { get; }
+    public List<LocalizedString> Choices { get; private set; }
+    public Action<int>? ChoiceSelected { get; private set; }
+    public Advice? NextAdvice { get; private set; }
     public event Action? UserDismissed;
 
     public Advice(string name, LocalizedString content)
@@ -80,8 +87,31 @@ public class Advice
         Content = content;
     }
 
-    public void Dismiss()
+    public void Dismiss(int? choice = null)
     {
+        if (choice.HasValue && ChoiceSelected != null)
+        {
+            ChoiceSelected.Invoke(choice.Value);
+        }
+
         UserDismissed?.Invoke();
+    }
+
+    public Advice WithChoices(params LocalizedString[] choices)
+    {
+        Choices = choices.ToList();
+        return this;
+    }
+
+    public Advice OnChoiceSelected(Action<int> callback)
+    {
+        ChoiceSelected = callback;
+        return this;
+    }
+
+    public Advice WithFollowUpAdvice(Advice advice)
+    {
+        NextAdvice = advice;
+        return this;
     }
 }
