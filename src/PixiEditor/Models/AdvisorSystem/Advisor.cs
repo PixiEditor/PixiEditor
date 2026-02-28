@@ -72,11 +72,6 @@ public class Advice
 
     public void Dismiss(int? choice = null)
     {
-        if (choice.HasValue && ChoiceSelected != null)
-        {
-            ChoiceSelected.Invoke(choice.Value);
-        }
-
         UserDismissed?.Invoke();
     }
 
@@ -101,6 +96,22 @@ public class Advice
     public Advice WithAutoDismiss(bool autoDismiss)
     {
         AutoDismiss = autoDismiss;
+        NextAdvice?.WithAutoDismiss(autoDismiss);
+
+        return this;
+    }
+
+    public Advice OnDismissed(Action action)
+    {
+        if (NextAdvice != null)
+        {
+            NextAdvice.OnDismissed(action);
+        }
+        else
+        {
+            UserDismissed += action;
+        }
+
         return this;
     }
 }

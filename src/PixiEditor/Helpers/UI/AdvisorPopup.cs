@@ -84,6 +84,11 @@ public class AdvisorPopup : ContentPresenter
                 int capturedIndex = index;
                 choiceButton.Click += (s, e) =>
                 {
+                    if (advice.ChoiceSelected != null)
+                    {
+                        advice.ChoiceSelected(capturedIndex);
+                    }
+
                     NextAdvice(advice, capturedIndex, grid);
                 };
 
@@ -201,6 +206,17 @@ public class AdvisorPopup : ContentPresenter
                 layer = new Canvas() { Name = "AdvisorLayer", IsHitTestVisible = true };
                 var firstPanel = window.GetVisualDescendants().OfType<Panel>().FirstOrDefault();
                 firstPanel?.Children.Add(layer);
+                window.SizeChanged += (s, e) =>
+                {
+                    foreach (var child in layer.Children)
+                    {
+                        if (child is AdvisorPopup popup)
+                        {
+                            popup.SetPosition(window);
+                        }
+                    }
+                };
+
                 if (firstPanel == null) return;
             }
 

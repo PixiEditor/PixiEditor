@@ -28,9 +28,11 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
 
+                    <Panel  Margin="20,0,0,0"
+                    ui:AdvisorSlot.AdviceName="AddEmptyFrame"
+                    ui:AdvisorSlot.Direction="Up"/>
+
                     <Border DockPanel.Dock="Left"
-                            ui:AdvisorSlot.AdviceName="AddEmptyFrame"
-                            ui:AdvisorSlot.Direction="Up"
                             BorderThickness="0 0 1 0"
                             BorderBrush="{DynamicResource ThemeBorderMidBrush}">
                         <DockPanel LastChildFill="False" Margin="5 0">

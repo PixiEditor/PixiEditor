@@ -70,7 +70,11 @@ internal class AdvicesViewModel : SubViewModel<ViewModelMain>
     {
         var advice = Advisor.RequestAdvice("AddEmptyFrame")
             .WithFollowUpAdvice(new Advice("MakeGroupInvisibleForALayer", new LocalizedString("DISABLE_ANIM_LAYER_ADVICE"))
-                .WithAutoDismiss(false));
+                .WithAutoDismiss(false)).OnDismissed(() =>
+                {
+                    IPreferences.Current.UpdateLocalPreference($"Advice{AddEmptyFrame}Dismissed", true);
+                    Owner.AnimationsSubViewModel.OnCreateCel -= CreatedCel;
+                });
         Advisor.SendAdvice(AddEmptyFrame, advice);
     }
 
@@ -80,7 +84,11 @@ internal class AdvicesViewModel : SubViewModel<ViewModelMain>
         {
             var advice = Advisor.RequestAdvice("OpenGraph")
                 .WithFollowUpAdvice(new Advice("OpenGraphFollowUp", new LocalizedString("OPENED_GRAPH_ADVICE_FOLLOW_UP"))
-                    .WithAutoDismiss(false));
+                    .WithAutoDismiss(false)).OnDismissed(() =>
+                    {
+                        IPreferences.Current.UpdateLocalPreference($"Advice{OpenGraph}Dismissed", true);
+                        Owner.LayoutSubViewModel.LayoutManager.DockContext.DockableFocused -= OnFocusedTargetChanged;
+                    });
             Advisor.SendAdvice(OpenGraph, advice);
         }
     }
