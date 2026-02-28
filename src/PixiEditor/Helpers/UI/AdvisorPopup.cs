@@ -137,7 +137,7 @@ public class AdvisorPopup : ContentPresenter
                 {
                     advice.Dismiss();
                     HidePopup(grid);
-                }, TimeSpan.FromSeconds(2));
+                }, TimeSpan.FromSeconds(3));
             }
         });
 

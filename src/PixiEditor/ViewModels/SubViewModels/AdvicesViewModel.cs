@@ -1,7 +1,9 @@
-﻿using PixiEditor.Extensions.CommonApi.UserPreferences;
+﻿using PixiDocks.Core.Docking;
+using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Models.AdvisorSystem;
 using PixiEditor.UI.Common.Localization;
+using PixiEditor.ViewModels.Dock;
 using PixiEditor.ViewModels.Document.Nodes;
 
 namespace PixiEditor.ViewModels.SubViewModels;
@@ -11,6 +13,7 @@ internal class AdvicesViewModel : SubViewModel<ViewModelMain>
     public IAdvisor Advisor { get; }
     const string NeedsNewLayerNestedAdviceKey = "NeedsNewLayerNested";
     const string AddEmptyFrame = "AddEmptyFrame";
+    const string OpenGraph = "OpenGraph";
 
     public AdvicesViewModel(ViewModelMain owner, IAdvisor advisor) : base(owner)
     {
@@ -33,6 +36,14 @@ internal class AdvicesViewModel : SubViewModel<ViewModelMain>
             Advisor.RegisterAdvice(AddEmptyFrame, addEmptyFrameAdvice);
             Owner.AnimationsSubViewModel.OnCreateCel += CreatedCel;
             addEmptyFrameAdvice.UserDismissed += () => Owner.AnimationsSubViewModel.OnCreateCel -= CreatedCel;
+        }
+
+        if (!IPreferences.Current.GetLocalPreference<bool>($"Advice{OpenGraph}Dismissed"))
+        {
+            Advice openedGraphAdvice = new Advice(OpenGraph, new LocalizedString("OPENED_GRAPH_ADVICE"));
+            Advisor.RegisterAdvice(OpenGraph, openedGraphAdvice);
+            Owner.LayoutSubViewModel.LayoutManager.DockContext.DockableFocused += OnFocusedTargetChanged;
+            openedGraphAdvice.UserDismissed += () => Owner.LayoutSubViewModel.LayoutManager.DockContext.DockableFocused -= OnFocusedTargetChanged;
         }
     }
 
@@ -61,5 +72,16 @@ internal class AdvicesViewModel : SubViewModel<ViewModelMain>
             .WithFollowUpAdvice(new Advice("MakeGroupInvisibleForALayer", new LocalizedString("DISABLE_ANIM_LAYER_ADVICE"))
                 .WithAutoDismiss(false));
         Advisor.SendAdvice(AddEmptyFrame, advice);
+    }
+
+    private void OnFocusedTargetChanged(IDockable dockable)
+    {
+        if (dockable.Id == NodeGraphDockViewModel.TabId)
+        {
+            var advice = Advisor.RequestAdvice("OpenGraph")
+                .WithFollowUpAdvice(new Advice("OpenGraphFollowUp", new LocalizedString("OPENED_GRAPH_ADVICE_FOLLOW_UP"))
+                    .WithAutoDismiss(false));
+            Advisor.SendAdvice(OpenGraph, advice);
+        }
     }
 }
