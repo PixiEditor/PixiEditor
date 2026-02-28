@@ -1319,5 +1319,7 @@
   "ADD_EMPTY_FRAME_ADVICE": "You've just created a cel! Once you have at least one cel for a layer, you can just move animation cursor to an empty space and start drawing. I'll add new cels for you.",
   "DISABLE_ANIM_LAYER_ADVICE": "One more thing, if you want to draw on the base layer, click on the eye icon in the timeline, right next to the layer name.",
   "OPENED_GRAPH_ADVICE": "This is the node graph. It may look scary at first, but it's a powerful tool that allows you to create complex effects and animations with simple rules. Don't be afraid to experiment with it!",
-  "OPENED_GRAPH_ADVICE_FOLLOW_UP": "If you're unsure about anything, check out pixiedior.net/docs for more info. There are a lot of helpful guides and explanations there."
+  "OPENED_GRAPH_ADVICE_FOLLOW_UP": "If you're unsure about anything, check out pixiedior.net/docs for more info. There are a lot of helpful guides and explanations there.",
+  "RESET_TRANSFORM": "Reset Transform",
+  "RESET_TRANSFORM_DESCRIPTIVE": "Reset the transform of the layer."
 }
