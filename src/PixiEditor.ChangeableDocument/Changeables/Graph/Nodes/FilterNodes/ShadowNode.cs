@@ -15,6 +15,8 @@ public class ShadowNode : FilterNode
     public InputProperty<VecD> Sigma { get; }
     public InputProperty<Color> Color { get; }
 
+    protected override CacheTriggerFlags CacheTrigger => CacheTriggerFlags.Inputs | CacheTriggerFlags.RenderSize | CacheTriggerFlags.ChunkResolution;
+
     public ShadowNode()
     {
         Offset = CreateInput(OffsetPropertyName, "OFFSET", new VecD(5, 5));
@@ -24,7 +26,8 @@ public class ShadowNode : FilterNode
 
     protected override ImageFilter? GetImageFilter(RenderContext context)
     {
-        return ImageFilter.CreateDropShadow((float)Offset.Value.X, (float)Offset.Value.Y, (float)Sigma.Value.X, (float)Sigma.Value.Y, Color.Value, null);
+        float chunkMod = (float)context.ChunkResolution.Multiplier();
+        return ImageFilter.CreateDropShadow((float)Offset.Value.X * chunkMod, (float)Offset.Value.Y * chunkMod, (float)Sigma.Value.X * chunkMod, (float)Sigma.Value.Y * chunkMod, Color.Value, null);
     }
 
     public override Node CreateCopy()
