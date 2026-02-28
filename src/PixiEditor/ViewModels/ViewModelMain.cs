@@ -11,6 +11,7 @@ using PixiEditor.ChangeableDocument.Rendering.ContextData;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Collections;
+using PixiEditor.Helpers.UI;
 using PixiEditor.Models;
 using PixiEditor.Models.AdvisorSystem;
 using PixiEditor.Models.AnalyticsAPI;
@@ -133,7 +134,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         Preferences.Init();
 
         var advisor = services.GetService<IAdvisor>();
-        advisor.Activate();
+        AdvisorSlot.Current = advisor;
 
         SupportedFilesHelper.InitFileTypes(services.GetServices<IoFileType>());
 

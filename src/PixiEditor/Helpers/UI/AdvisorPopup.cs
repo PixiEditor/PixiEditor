@@ -11,6 +11,7 @@ using Avalonia.Data;
 using Avalonia.Layout;
 using Avalonia.Markup.Xaml.Templates;
 using Avalonia.Media;
+using Avalonia.Rendering;
 using Avalonia.Styling;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
@@ -33,10 +34,14 @@ public class AdvisorPopup : ContentPresenter
     }
 
     public Control Anchor { get; }
+    public ShowDirection Direction { get; }
 
-    public AdvisorPopup(Control anchor)
+    private const double Offset = 10;
+
+    public AdvisorPopup(Control anchor, ShowDirection direction)
     {
         Anchor = anchor;
+        Direction = direction;
     }
 
     private bool isContentCreated = false;
@@ -126,7 +131,7 @@ public class AdvisorPopup : ContentPresenter
                 });
             }
 
-            if (isFollowUp && (advice.Choices == null || advice.Choices.Count == 0))
+            if (isFollowUp && (advice.Choices == null || advice.Choices.Count == 0) && advice.AutoDismiss)
             {
                 DispatcherTimer.RunOnce(() =>
                 {
@@ -140,9 +145,11 @@ public class AdvisorPopup : ContentPresenter
 
         Grid.SetColumn(tbBorder, 1);
 
+        string icon = advice.NextAdvice != null ? PixiPerfectIcons.ArrowRight : PixiPerfectIcons.Exit;
+
         Button closeButton = new Button()
         {
-            Content = PixiPerfectIcons.Exit,
+            Content = icon,
             Classes = { "pixi-icon" },
             HorizontalAlignment = HorizontalAlignment.Right,
             VerticalAlignment = VerticalAlignment.Top,
@@ -158,11 +165,17 @@ public class AdvisorPopup : ContentPresenter
 
         closeButton.Click += (s, e) =>
         {
+            if (advice.NextAdvice != null)
+            {
+                CreateContent(advice.NextAdvice, true);
+                return;
+            }
+
             advice.Dismiss();
             HidePopup(grid);
         };
 
-        grid = new Grid() { ColumnDefinitions = new ColumnDefinitions("Auto,*"), Children = { image, tbBorder } };
+        grid = new Grid() { ColumnDefinitions = new ColumnDefinitions("Auto,*"), Children = { image, tbBorder }, };
 
         if (!isFollowUp)
         {
@@ -190,6 +203,7 @@ public class AdvisorPopup : ContentPresenter
                 firstPanel?.Children.Add(layer);
                 if (firstPanel == null) return;
             }
+
             IsHitTestVisible = true;
 
             if (!isFollowUp)
@@ -228,14 +242,51 @@ public class AdvisorPopup : ContentPresenter
         Dispatcher.UIThread.Post(() =>
         {
             var root = Anchor.GetVisualRoot();
-            var point = Anchor.TranslatePoint(new Point(Anchor.Bounds.X, Anchor.Bounds.Y), root as Visual);
-            if (point.HasValue)
-            {
-                Canvas.SetLeft(this, point.Value.X - Bounds.Width - 10);
-                Canvas.SetTop(this, point.Value.Y);
-            }
+            SetPosition(root);
         }, DispatcherPriority.Render);
         this.IsVisible = true;
+    }
+
+
+    private void SetPosition(IRenderRoot? root)
+    {
+        if (root is not Visual rootVisual)
+            return;
+
+        var anchorTopLeft = Anchor.TranslatePoint(
+            new Point(0, 0),
+            rootVisual);
+
+        if (!anchorTopLeft.HasValue)
+            return;
+
+        var anchorPoint = anchorTopLeft.Value;
+
+        var anchorWidth = Anchor.Bounds.Width;
+        var anchorHeight = Anchor.Bounds.Height;
+
+        switch (Direction)
+        {
+            case ShowDirection.Left:
+                Canvas.SetLeft(this, anchorPoint.X - Bounds.Width - Offset);
+                Canvas.SetTop(this, anchorPoint.Y);
+                break;
+
+            case ShowDirection.Right:
+                Canvas.SetLeft(this, anchorPoint.X + anchorWidth + Offset);
+                Canvas.SetTop(this, anchorPoint.Y);
+                break;
+
+            case ShowDirection.Up:
+                Canvas.SetLeft(this, anchorPoint.X);
+                Canvas.SetTop(this, anchorPoint.Y - Bounds.Height - Offset);
+                break;
+
+            case ShowDirection.Down:
+                Canvas.SetLeft(this, anchorPoint.X);
+                Canvas.SetTop(this, anchorPoint.Y + anchorHeight + Offset);
+                break;
+        }
     }
 
     private void AddMushyAnimation(Image image, CancellationToken ctsToken)

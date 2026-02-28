@@ -39,29 +39,11 @@ public class Advisor : IAdvisor
     {
         listeners[adviceName] = listener;
     }
-
-    public void Activate()
-    {
-        IAdvisor.SetCurrent(this);
-    }
 }
 
 public interface IAdvisor
 {
-    public static IAdvisor Current { get; private set; }
-
-    static void SetCurrent(IAdvisor advisor)
-    {
-        if (Current != null)
-        {
-            throw new InvalidOperationException("An instance of Advisor already exists. Only one instance is allowed.");
-        }
-
-        Current = advisor;
-    }
-
     public void SubscribeToAdvisor(string adviceName, IAdviceListener listener);
-    public void Activate();
     public void RegisterAdvice(string adviceName, Advice advice);
     public Advice? RequestAdvice(string adviceName);
     public void SendAdvice(string adviceName, Advice advice);
@@ -80,6 +62,7 @@ public class Advice
     public Action<int>? ChoiceSelected { get; private set; }
     public Advice? NextAdvice { get; private set; }
     public event Action? UserDismissed;
+    public bool AutoDismiss { get; set; } = true;
 
     public Advice(string name, LocalizedString content)
     {
@@ -112,6 +95,12 @@ public class Advice
     public Advice WithFollowUpAdvice(Advice advice)
     {
         NextAdvice = advice;
+        return this;
+    }
+
+    public Advice WithAutoDismiss(bool autoDismiss)
+    {
+        AutoDismiss = autoDismiss;
         return this;
     }
 }

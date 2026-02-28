@@ -1315,5 +1315,7 @@
   "AUTO_RASTERIZE": "Always auto rasterize",
   "AUTO_CREATE_NEW_LAYER": "Always new layer (default)",
   "AUTO_RASTERIZE_NESTED_ON_DRAW": "Auto rasterize smart layers on draw",
-  "GOT_IT_CHECK_SETTINGS": "Got it. You can change this behavior in the settings anytime. Have fun!"
+  "GOT_IT_CHECK_SETTINGS": "Got it. You can change this behavior in the settings anytime. Have fun!",
+  "ADD_EMPTY_FRAME_ADVICE": "You've just created a cel! Once you have at least one cel for a layer, you can just move animation cursor to an empty space and start drawing. I'll add new cels for you.",
+  "DISABLE_ANIM_LAYER_ADVICE": "One more thing, if you want to draw on the base layer, click on the eye icon in the timeline, right next to the layer name."
 }

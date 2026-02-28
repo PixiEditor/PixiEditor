@@ -8,20 +8,31 @@ namespace PixiEditor.ViewModels.SubViewModels;
 
 internal class AdvicesViewModel : SubViewModel<ViewModelMain>
 {
+    public IAdvisor Advisor { get; }
     const string NeedsNewLayerNestedAdviceKey = "NeedsNewLayerNested";
+    const string AddEmptyFrame = "AddEmptyFrame";
 
-    public AdvicesViewModel(ViewModelMain owner) : base(owner)
+    public AdvicesViewModel(ViewModelMain owner, IAdvisor advisor) : base(owner)
     {
+        Advisor = advisor;
     }
 
     public void RegisterAdvices()
     {
-        Advice advice = new Advice(NeedsNewLayerNestedAdviceKey, new LocalizedString("DRAW_NESTED_ADVICE"));
-        advice.UserDismissed += () => Owner.IoSubViewModel.LayerNeedsNewLayer -= NewLayerNeeded;
         if (!IPreferences.Current.GetLocalPreference<bool>($"Advice{NeedsNewLayerNestedAdviceKey}Dismissed"))
         {
-            IAdvisor.Current.RegisterAdvice(NeedsNewLayerNestedAdviceKey, advice);
+            Advice advice = new Advice(NeedsNewLayerNestedAdviceKey, new LocalizedString("DRAW_NESTED_ADVICE"));
+            advice.UserDismissed += () => Owner.IoSubViewModel.LayerNeedsNewLayer -= NewLayerNeeded;
+            Advisor.RegisterAdvice(NeedsNewLayerNestedAdviceKey, advice);
             Owner.IoSubViewModel.LayerNeedsNewLayer += NewLayerNeeded;
+        }
+
+        if (!IPreferences.Current.GetLocalPreference<bool>($"Advice{AddEmptyFrame}Dismissed"))
+        {
+            Advice addEmptyFrameAdvice = new Advice(AddEmptyFrame, new LocalizedString("ADD_EMPTY_FRAME_ADVICE"));
+            Advisor.RegisterAdvice(AddEmptyFrame, addEmptyFrameAdvice);
+            Owner.AnimationsSubViewModel.OnCreateCel += CreatedCel;
+            addEmptyFrameAdvice.UserDismissed += () => Owner.AnimationsSubViewModel.OnCreateCel -= CreatedCel;
         }
     }
 
@@ -30,7 +41,7 @@ internal class AdvicesViewModel : SubViewModel<ViewModelMain>
         var activeLayer = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
         if (activeLayer is NestedDocumentNodeViewModel)
         {
-            var advice = IAdvisor.Current.RequestAdvice("NeedsNewLayerNested")
+            var advice = Advisor.RequestAdvice("NeedsNewLayerNested")
                 .WithChoices(new LocalizedString("AUTO_RASTERIZE"), new LocalizedString("AUTO_CREATE_NEW_LAYER"))
                 .OnChoiceSelected(choice =>
                 {
@@ -40,7 +51,15 @@ internal class AdvicesViewModel : SubViewModel<ViewModelMain>
                 })
                 .WithFollowUpAdvice(new Advice("GotIt", new LocalizedString("GOT_IT_CHECK_SETTINGS")));
 
-            IAdvisor.Current.SendAdvice(NeedsNewLayerNestedAdviceKey, advice);
+            Advisor.SendAdvice(NeedsNewLayerNestedAdviceKey, advice);
         }
+    }
+
+    private void CreatedCel()
+    {
+        var advice = Advisor.RequestAdvice("AddEmptyFrame")
+            .WithFollowUpAdvice(new Advice("MakeGroupInvisibleForALayer", new LocalizedString("DISABLE_ANIM_LAYER_ADVICE"))
+                .WithAutoDismiss(false));
+        Advisor.SendAdvice(AddEmptyFrame, advice);
     }
 }
