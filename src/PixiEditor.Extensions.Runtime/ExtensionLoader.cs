@@ -12,6 +12,7 @@ namespace PixiEditor.Extensions.Runtime;
 public class ExtensionLoader
 {
     public List<Extension> LoadedExtensions { get; } = new();
+    public List<ExtensionMetadata> UnloadedExtensionsMetadata { get; } = new();
 
     public string[] PackagesPath { get; }
     public string UnpackedExtensionsPath { get; }
@@ -69,6 +70,11 @@ public class ExtensionLoader
                 if (!disabledExtensions.Contains(extensionName))
                 {
                     LoadExtension(file);
+                }
+                else
+                {
+                    var metadata = LoadExtensionMetadata(file);
+                    UnloadedExtensionsMetadata.Add(metadata);
                 }
             }
             
@@ -152,6 +158,27 @@ public class ExtensionLoader
 
     public Extension? LoadExtension(string extension)
     {
+        var extensionJson = GetExtensionJson(extension);
+        if (extensionJson == null)
+        {
+            return null;
+        }
+        
+        return LoadExtensionFromCache(extensionJson);
+    }
+    
+    public ExtensionMetadata? LoadExtensionMetadata(string extension)
+    {
+        var extensionJson = GetExtensionJson(extension);
+        if (extensionJson == null)
+        {
+            return null;
+        }
+        return LoadMetadataFromCache(extensionJson);
+    }
+
+    public string? GetExtensionJson(string extension)
+    {
         var extZip = ZipFile.OpenRead(extension);
         try
         {
@@ -172,7 +199,7 @@ public class ExtensionLoader
                 return null;
             }
 
-            return LoadExtensionFromCache(extensionJson);
+            return extensionJson;
         }
         catch (Exception ex)
         {
@@ -287,10 +314,9 @@ public class ExtensionLoader
 
     private Extension LoadExtensionFromCache(string extension)
     {
-        string json = File.ReadAllText(extension);
         try
         {
-            var metadata = JsonConvert.DeserializeObject<ExtensionMetadata>(json);
+            var metadata = LoadMetadataFromCache(extension);
             string directory = Path.GetDirectoryName(extension);
             ExtensionEntry? entry = GetEntry(directory);
             if (entry is null)
@@ -329,6 +355,21 @@ public class ExtensionLoader
         }
 
         return null;
+    }
+
+    private ExtensionMetadata LoadMetadataFromCache(string extensionJson)
+    {
+        try
+        {
+            string json = File.ReadAllText(extensionJson);
+            var metadata = JsonConvert.DeserializeObject<ExtensionMetadata>(json);
+            
+            return metadata;
+        }
+        catch (Exception ex)
+        {
+            return null;
+        }
     }
 
     private Extension LoadExtensionFrom(ExtensionEntry entry, ExtensionMetadata metadata)

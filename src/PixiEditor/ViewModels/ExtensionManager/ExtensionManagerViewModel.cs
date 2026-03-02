@@ -3,8 +3,10 @@ using System.Text;
 using Avalonia.Threading;
 using AvaloniaEdit.Utils;
 using CommunityToolkit.Mvvm.Input;
+using PixiEditor.Extensions;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
+using PixiEditor.Extensions.Metadata;
 using PixiEditor.IdentityProvider;
 using PixiEditor.IdentityProvider.PixiAuth;
 using PixiEditor.Models.Commands.XAML;
@@ -152,6 +154,36 @@ internal class ExtensionManagerViewModel : ViewModelBase
             bool isLoaded = IsLoaded(extension.Id);
             
             OwnedExtensions.Add(new OwnedProductViewModel(extension, isInstalled, installedVersion, isEnabled, isLoaded, InstallAndLoadExtensionCommand, UninstallExtensionCommand, EnableExtensionCommand, DisableExtensionCommand, IsInstalled));
+        }
+        
+        
+        // Add installed extensions that aren't in user owned products
+        foreach (Extension loadedExtension in extensionsViewModel.ExtensionLoader.LoadedExtensions)
+        {
+            AddToOwnedExtensionsIfMissing(loadedExtension.Metadata);
+        }
+        
+        foreach (ExtensionMetadata unloadedExtensionMetadata in extensionsViewModel.ExtensionLoader.UnloadedExtensionsMetadata)
+        {
+            AddToOwnedExtensionsIfMissing(unloadedExtensionMetadata);
+        }
+    }
+
+    public void AddToOwnedExtensionsIfMissing(ExtensionMetadata extensionMetadata)
+    {
+        bool owned = OwnedExtensions.Any(owned => owned.ProductData.Id == extensionMetadata.UniqueName);
+
+        if (!owned)
+        {
+            ProductData productData = new ProductData(extensionMetadata.UniqueName,extensionMetadata.DisplayName);
+            productData.Author = extensionMetadata.Author.Name;
+            productData.Description = extensionMetadata.Description;
+                
+            bool isInstalled = IsInstalled(extensionMetadata.UniqueName);
+            bool isEnabled = IsEnabled(extensionMetadata.UniqueName);
+            bool isLoaded = IsLoaded(extensionMetadata.UniqueName);
+                
+            OwnedExtensions.Add(new OwnedProductViewModel(productData, isInstalled, extensionMetadata.Version, isEnabled, isLoaded, InstallAndLoadExtensionCommand, UninstallExtensionCommand, EnableExtensionCommand, DisableExtensionCommand, IsInstalled));
         }
     }
     
