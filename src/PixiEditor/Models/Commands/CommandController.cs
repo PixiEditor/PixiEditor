@@ -244,7 +244,8 @@ internal class CommandController
                 DefaultShortcut = toolAttr.TransientShortcut,
                 Shortcut = GetShortcut($"{internalName}.Transient", toolAttr.TransientShortcut, template),
                 ToolType = type,
-                TransientImmediate = toolAttr.TransientImmediate
+                TransientImmediate = toolAttr.TransientImmediate,
+                ShowInSearch = false
             };
 
             Commands.Add(command);
@@ -290,7 +291,8 @@ internal class CommandController
                     IconEvaluator = IconEvaluator.Default,
                     Description = displayName,
                     Handler = brushTool,
-                    TransientImmediate = false
+                    TransientImmediate = false,
+                    ShowInSearch = false
                 };
 
                 Commands.Add(command);
