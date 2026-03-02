@@ -1179,4 +1179,14 @@ internal class DocumentOperationsModule : IDocumentOperations
             }
         }
     }
+
+    public void ResetTransform(Guid member)
+    {
+        if (Internals.ChangeController.IsBlockingChangeActive)
+            return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+
+        Internals.ActionAccumulator.AddFinishedActions(new ResetTransform_Action(member));
+    }
 }

@@ -22,7 +22,7 @@ namespace PixiEditor.ViewModels.Document.Nodes;
 
 [NodeViewModel("NESTED_DOCUMENT", "STRUCTURE", PixiPerfectIcons.File)]
 internal partial class NestedDocumentNodeViewModel :
-    StructureMemberViewModel<ChangeableDocument.Changeables.Graph.Nodes.NestedDocumentNode>, ILayerHandler
+    StructureMemberViewModel<ChangeableDocument.Changeables.Graph.Nodes.NestedDocumentNode>, ILayerHandler, ITransformableMemberHandler
 {
     bool lockTransparency;
     Guid? referenceId = null;
