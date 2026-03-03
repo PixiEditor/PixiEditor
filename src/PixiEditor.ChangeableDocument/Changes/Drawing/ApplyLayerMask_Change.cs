@@ -45,7 +45,7 @@ internal class ApplyLayerMask_Change : Change
         if (layerImage is null)
             throw new InvalidOperationException("Cannot apply layer mask, no layer image at frame");
 
-        ChunkyImage newLayerImage = new ChunkyImage(target.Size, target.ProcessingColorSpace);
+        ChunkyImage newLayerImage = new ChunkyImage(target.Size);
         newLayerImage.AddRasterClip(layer.EmbeddedMask);
         newLayerImage.EnqueueDrawCommitedChunkyImage(VecI.Zero, layerImage);
         newLayerImage.CommitChanges();
@@ -76,7 +76,7 @@ internal class ApplyLayerMask_Change : Change
         if (savedLayer is null || savedMask is null)
             throw new InvalidOperationException("Cannot restore layer mask, no saved data");
 
-        ChunkyImage newMask = new ChunkyImage(target.Size, target.ProcessingColorSpace);
+        ChunkyImage newMask = new ChunkyImage(target.Size);
         savedMask.ApplyChunksToImage(newMask);
         var affectedChunksMask = newMask.FindAffectedArea();
         newMask.CommitChanges();

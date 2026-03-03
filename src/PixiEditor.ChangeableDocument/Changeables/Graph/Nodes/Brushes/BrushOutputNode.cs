@@ -240,7 +240,7 @@ public class BrushOutputNode : Node
     {
         if (previewChunkyImage == null)
         {
-            previewChunkyImage = new ChunkyImage(new VecI(200, 200), context.ProcessingColorSpace);
+            previewChunkyImage = new ChunkyImage(new VecI(200, 200));
         }
 
         RectI rect;
