@@ -122,41 +122,41 @@ internal class ExtensionManagerViewModel : ViewModelBase
     public void FetchOwnedExtensions()
     {
         OwnedExtensions.Clear();
-        
-        if (identityProvider.User == null)
-        {
-            return;
-        }
-        
-        var extensions = identityProvider.User.OwnedProducts;
-        foreach (ProductData extension in extensions)
-        {
-            bool isInstalled = IsInstalled(extension.Id);
 
-            string? installedVersion = null;
-            if (isInstalled)
+        if (identityProvider.User != null)
+        {
+            var extensions = identityProvider.User.OwnedProducts;
+            foreach (ProductData extension in extensions)
             {
-                installedVersion = extensionsViewModel.ExtensionLoader.LoadedExtensions
-                    .FirstOrDefault(x => x.Metadata.UniqueName == extension.Id)?.Metadata.Version;
-            }
-            else
-            {
-                bool extensionDownloadedAtLeastOnce = IPreferences.Current.GetLocalPreference<bool>(
-                    $"product_{extension.Id}_downloaded_at_least_once", false);
-                if (!extensionDownloadedAtLeastOnce)
+                bool isInstalled = IsInstalled(extension.Id);
+
+                string? installedVersion = null;
+                if (isInstalled)
                 {
-                    Dispatcher.UIThread.InvokeAsync(async () => await InstallAndLoadExtension(extension.Id));
-                    IPreferences.Current.UpdateLocalPreference($"product_{extension.Id}_downloaded_at_least_once", true);
+                    installedVersion = extensionsViewModel.ExtensionLoader.LoadedExtensions
+                        .FirstOrDefault(x => x.Metadata.UniqueName == extension.Id)?.Metadata.Version;
                 }
+                else
+                {
+                    bool extensionDownloadedAtLeastOnce = IPreferences.Current.GetLocalPreference<bool>(
+                        $"product_{extension.Id}_downloaded_at_least_once", false);
+                    if (!extensionDownloadedAtLeastOnce)
+                    {
+                        Dispatcher.UIThread.InvokeAsync(async () => await InstallAndLoadExtension(extension.Id));
+                        IPreferences.Current.UpdateLocalPreference($"product_{extension.Id}_downloaded_at_least_once",
+                            true);
+                    }
+                }
+
+                bool isEnabled = IsEnabled(extension.Id);
+                bool isLoaded = IsLoaded(extension.Id);
+
+                OwnedExtensions.Add(new OwnedProductViewModel(extension, isInstalled, installedVersion, isEnabled,
+                    isLoaded, InstallAndLoadExtensionCommand, UninstallExtensionCommand, EnableExtensionCommand,
+                    DisableExtensionCommand, IsInstalled));
             }
-            
-            bool isEnabled = IsEnabled(extension.Id);
-            bool isLoaded = IsLoaded(extension.Id);
-            
-            OwnedExtensions.Add(new OwnedProductViewModel(extension, isInstalled, installedVersion, isEnabled, isLoaded, InstallAndLoadExtensionCommand, UninstallExtensionCommand, EnableExtensionCommand, DisableExtensionCommand, IsInstalled));
         }
-        
-        
+
         // Add installed extensions that aren't in user owned products
         foreach (Extension loadedExtension in extensionsViewModel.ExtensionLoader.LoadedExtensions)
         {
