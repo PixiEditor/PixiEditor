@@ -13,6 +13,7 @@ namespace PixiEditor.Models.Handlers;
 internal interface IToolsHandler : IHandler
 {
     public void SetTool(object parameter);
+    public void SetToolTransient(object parameter);
     public void RestorePreviousTool();
     public IToolHandler ActiveTool { get; }
     public IToolSetHandler ActiveToolSet { get; } 
