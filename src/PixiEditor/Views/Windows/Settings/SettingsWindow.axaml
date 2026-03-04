@@ -191,6 +191,10 @@
                                       IsChecked="{Binding SettingsSubViewModel.Tools.EnableSharedToolbar}"
                                       ui:Translator.Key="ENABLE_SHARED_TOOLBAR" />
 
+                            <CheckBox Classes="leftOffset"
+                                      IsChecked="{Binding SettingsSubViewModel.Tools.AutoRasterizeNestedLayersOnDraw}"
+                                      ui:Translator.Key="AUTO_RASTERIZE_NESTED_ON_DRAW" />
+
                             <TextBlock ui:Translator.Key="Rendering" Classes="h5" />
 
                             <Label Target="primaryToolsetComboBox" ui:Translator.Key="PREFERRED_RENDERER"

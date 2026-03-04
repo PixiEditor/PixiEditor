@@ -33,7 +33,7 @@ public class FloodFillTests : FullPixiEditorTest
 
         var dict = FloodFillHelper.FloodFill([doc.NodeGraph.StructureTree.Members[0].Id],
             doc.AccessInternalReadOnlyDocument(),
-            null, VecI.Zero, color, 0, 0, false, FloodFillMode.Replace);
+            null, VecI.Zero, color, 0, 0, false, FloodFillMode.Replace, true);
 
         Assert.NotNull(dict);
         foreach (var kvp in dict)
@@ -66,13 +66,13 @@ public class FloodFillTests : FullPixiEditorTest
 
         FloodFillHelper.FloodFill([doc.NodeGraph.StructureTree.Members[0].Id], doc.AccessInternalReadOnlyDocument(),
             null, VecI.Zero,
-            Color.FromHsv(0f, 59.3f, 82.6f, alpha), 0, 0, false, FloodFillMode.Replace);
+            Color.FromHsv(0f, 59.3f, 82.6f, alpha), 0, 0, false, FloodFillMode.Replace, true);
 
         var color = Color.FromHsv(0f, 59.3f, 82.6f, alpha);
 
         var dict = FloodFillHelper.FloodFill([doc.NodeGraph.StructureTree.Members[0].Id],
             doc.AccessInternalReadOnlyDocument(),
-            null, VecI.Zero, color, 0, 0, false, FloodFillMode.Replace);
+            null, VecI.Zero, color, 0, 0, false, FloodFillMode.Replace, true);
 
         Assert.NotNull(dict);
         foreach (var kvp in dict)
