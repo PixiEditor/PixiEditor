@@ -32,6 +32,7 @@ using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Input;
 using PixiEditor.Models.IO;
+using PixiEditor.Parser.Old.PixiV4;
 using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.BrushSystem;
 using PixiEditor.ViewModels.Document;
@@ -486,7 +487,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
 
     public bool NeedsNewAnimationKeyFrameForActiveTool()
     {
-        if (!TryGetAnimationGroup(out var animationGroupForLayer))
+        if (!TryGetAnimationGroup(out var animationGroupForLayer) || ActiveTool?.LayerTypeToCreateOnEmptyUse != typeof(ImageLayerNode))
         {
             return false;
         }
