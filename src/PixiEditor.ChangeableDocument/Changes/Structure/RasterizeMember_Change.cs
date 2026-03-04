@@ -13,18 +13,19 @@ namespace PixiEditor.ChangeableDocument.Changes.Structure;
 internal class RasterizeMember_Change : Change
 {
     private Guid memberId;
+    private Guid createdNodeId;
     
     private Node originalNode;
-    private Guid createdNodeId;
 
     private int frame = 0;
 
     private ConnectionsData originalConnections;
     
     [GenerateMakeChangeAction]
-    public RasterizeMember_Change(Guid memberId, int frame)
+    public RasterizeMember_Change(Guid memberId, Guid newMemberId, int frame)
     {
         this.memberId = memberId;
+        this.createdNodeId = newMemberId;
         this.frame = frame;
     }
     
@@ -50,6 +51,7 @@ internal class RasterizeMember_Change : Change
         ImageLayerNode imageLayer = new ImageLayerNode(target.Size, target.ProcessingColorSpace);
         imageLayer.MemberName = node.DisplayName;
         imageLayer.Position = node.Position;
+        imageLayer.Id = createdNodeId;
 
         target.NodeGraph.AddNode(imageLayer);
         
@@ -95,9 +97,7 @@ internal class RasterizeMember_Change : Change
         target.NodeGraph.RemoveNode(node);
         
         changeInfos.Add(new DeleteNode_ChangeInfo(node.Id));
-        
-        createdNodeId = imageLayer.Id;
-        
+
         ignoreInUndo = false;
         return changeInfos;
     }

@@ -324,7 +324,7 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
             return;
 
         int workingSurfaceSaved = 0;
-        if (paint.IsOpaqueStandardNonBlendingPaint)
+        if (paint == null || paint.IsOpaqueStandardNonBlendingPaint)
         {
             workingSurfaceSaved = workingSurface.Save();
         }

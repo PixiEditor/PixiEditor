@@ -17,6 +17,8 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
 {
     private DispatcherTimer _playTimer;
 
+    public event Action OnCreateCel;
+
     public AnimationsViewModel(ViewModelMain owner) : base(owner)
     {
         owner.DocumentManagerSubViewModel.ActiveDocumentChanged += (sender, args) =>
@@ -50,10 +52,14 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
             _playTimer.Stop();
             _playTimer.Tick -= PlayTimerOnTick;
         }
-        
+
         var activeDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;
         _playTimer =
-            new DispatcherTimer(DispatcherPriority.Render) { Interval = TimeSpan.FromMilliseconds(1000f / activeDocument.AnimationDataViewModel.FrameRateBindable) };
+            new DispatcherTimer(DispatcherPriority.Render)
+            {
+                Interval = TimeSpan.FromMilliseconds(
+                    1000f / activeDocument.AnimationDataViewModel.FrameRateBindable)
+            };
         _playTimer.Tick += PlayTimerOnTick;
     }
 
@@ -77,7 +83,8 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
     private void PlayTimerOnTick(object? sender, EventArgs e)
     {
         var activeDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;
-        if (activeDocument.AnimationDataViewModel.ActiveFrameBindable + 1 >= activeDocument.AnimationDataViewModel.LastFrame)
+        if (activeDocument.AnimationDataViewModel.ActiveFrameBindable + 1 >=
+            activeDocument.AnimationDataViewModel.LastFrame)
         {
             activeDocument.AnimationDataViewModel.ActiveFrameBindable = 1;
         }
@@ -144,7 +151,9 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
             toCloneFrom,
             frameToCopyFrom);
 
-        int newPos = kfAtFrame != null ? kfAtFrame.StartFrameBindable + kfAtFrame.DurationBindable : activeDocument.AnimationDataViewModel.ActiveFrameBindable;
+        int newPos = kfAtFrame != null
+            ? kfAtFrame.StartFrameBindable + kfAtFrame.DurationBindable
+            : activeDocument.AnimationDataViewModel.ActiveFrameBindable;
         activeDocument.Operations.SetActiveFrame(newPos);
 
         Analytics.SendCreateKeyframe(
@@ -153,6 +162,8 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
             activeDocument.AnimationDataViewModel.FrameRateBindable,
             activeDocument.AnimationDataViewModel.FramesCount,
             activeDocument.AnimationDataViewModel.AllCels.Count);
+
+        OnCreateCel?.Invoke();
     }
 
     [Command.Basic("PixiEditor.Animation.ToggleOnionSkinning", "TOGGLE_ONION_SKINNING",

@@ -39,7 +39,7 @@ internal interface IToolsHandler : IHandler
     public void OnPreUndoInlet();
     public void QuickToolSwitchInlet();
     public void ChangeToolSize(double by);
-    public bool CreateLayerIfNeeded();
+    public bool CreateOrRasterizeLayerIfNeeded();
     public bool NeedsNewLayerForActiveTool();
     public bool NeedsNewAnimationKeyFrameForActiveTool();
     public void DeselectActiveTool();
