@@ -29,6 +29,7 @@ using PixiEditor.Models;
 using PixiEditor.Models.BrushEngine;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.DocumentModels.Public;
+using PixiEditor.Models.ExtensionServices;
 using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Input;
@@ -141,6 +142,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     public event EventHandler<SelectedToolEventArgs>? SelectedToolChanged;
 
 
+    private IIconLookupProvider iconLookupProvider;
     private bool shiftIsDown;
     private bool ctrlIsDown;
     private bool altIsDown;
@@ -153,13 +155,14 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     private List<ToolConfig> customTools = new();
     private IToolSetHandler? _activeToolSet;
 
-    public ToolsViewModel(ViewModelMain owner)
+    public ToolsViewModel(ViewModelMain owner, IIconLookupProvider iconLookupProvider)
         : base(owner)
     {
         owner.DocumentManagerSubViewModel.ActiveDocumentChanged += ActiveDocumentChanged;
         PixiEditorSettings.Tools.PrimaryToolset.ValueChanged += PrimaryToolsetOnValueChanged;
         SubscribeSettingsValueChanged(PixiEditorSettings.Tools.SelectionTintingEnabled,
             nameof(SelectionTintingEnabled));
+        this.iconLookupProvider = iconLookupProvider;
     }
 
     private void PrimaryToolsetOnValueChanged(Setting<string> setting, string? newPrimaryToolset)
@@ -859,9 +862,11 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
                 {
                     var brush = new Brush(uri, "TOOL_CONFIG");
                     KeyCombination? shortcut = TryParseShortcut(toolFromToolset.DefaultShortcut);
+                    string icon = iconLookupProvider.LookupIcon(toolFromToolset.Icon) ?? PixiPerfectIcons.Placeholder;
+
                     return new BrushBasedToolViewModel(new BrushViewModel(brush), toolFromToolset.ToolTip,
                         toolFromToolset.ToolName,
-                        shortcut, toolFromToolset.ActionDisplays, toolFromToolset.SupportsSecondaryActionOnRightClick);
+                        shortcut, toolFromToolset.ActionDisplays, toolFromToolset.SupportsSecondaryActionOnRightClick) { IconOverwrite = icon };
                 }
             }
             catch
