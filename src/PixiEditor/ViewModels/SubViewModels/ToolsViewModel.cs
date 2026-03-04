@@ -25,6 +25,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.UI;
+using PixiEditor.Models;
 using PixiEditor.Models.BrushEngine;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.DocumentModels.Public;
@@ -362,8 +363,13 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
 
         if (ActiveTool == tool)
         {
+            bool setActionTool = ActiveTool.IsTransient != transient;
             ActiveTool.IsTransient = transient;
-            LastActionTool = ActiveTool;
+            if (setActionTool)
+            {
+                LastActionTool = ActiveTool;
+            }
+
             return;
         }
 
@@ -445,6 +451,23 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         SetActiveTool(tool, false, source, true);
     }
 
+    public void SetToolTransient(object parameter)
+    {
+        if (parameter is CommandExecutionContext context)
+        {
+            parameter = context.Parameter;
+        }
+
+        if (parameter is Type type)
+        {
+            SetActiveTool(type, true, null);
+            return;
+        }
+
+        ToolViewModel tool = (ToolViewModel)parameter;
+        SetActiveTool(tool, true, null, true);
+    }
+
     [Command.Basic("PixiEditor.Tools.IncreaseSize", 1d, "INCREASE_TOOL_SIZE", "INCREASE_TOOL_SIZE",
         CanExecute = "PixiEditor.Tools.CanChangeToolSize", Key = Key.OemCloseBrackets, AnalyticsTrack = true)]
     [Command.Basic("PixiEditor.Tools.DecreaseSize", -1d, "DECREASE_TOOL_SIZE", "DECREASE_TOOL_SIZE",
@@ -458,16 +481,29 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
             toolbar.ToolSize = newSize;
     }
 
-    public bool CreateLayerIfNeeded()
+    public bool CreateOrRasterizeLayerIfNeeded()
     {
         bool created = false;
         if (NeedsNewLayerForActiveTool())
         {
+            bool rasterize = Owner.DocumentManagerSubViewModel.ActiveDocument.SelectedStructureMember is NestedDocumentNodeViewModel nested &&
+                             PixiEditorSettings.Tools.AutoRasterizeNestedLayersOnDraw.Value;
+
             using var changeBlock = Owner.DocumentManagerSubViewModel.ActiveDocument.Operations.StartChangeBlock();
-            Guid? createdLayer = Owner.LayersSubViewModel.NewLayer(
-                ActiveTool.LayerTypeToCreateOnEmptyUse,
-                ActionSource.Automated,
-                ActiveTool.DefaultNewLayerName);
+            Guid? createdLayer = null;
+            if (rasterize)
+            {
+                Guid memberId = Owner.DocumentManagerSubViewModel.ActiveDocument.SelectedStructureMember!.Id;
+                createdLayer = Owner.DocumentManagerSubViewModel.ActiveDocument.Operations.Rasterize(memberId, ActionSource.Automated);
+            }
+            else
+            {
+                createdLayer = Owner.LayersSubViewModel.NewLayer(
+                    ActiveTool.LayerTypeToCreateOnEmptyUse,
+                    ActionSource.Automated,
+                    ActiveTool.DefaultNewLayerName);
+            }
+
             if (createdLayer is not null)
             {
                 Owner.DocumentManagerSubViewModel.ActiveDocument.Operations.SetSelectedMember(createdLayer.Value);

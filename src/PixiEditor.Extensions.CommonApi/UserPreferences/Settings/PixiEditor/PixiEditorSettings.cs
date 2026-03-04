@@ -37,6 +37,8 @@ public static class PixiEditorSettings
 
         public static SyncedSetting<string> PrimaryToolset { get; } =
             SyncedSetting.NonOwned<string>(PixiEditor, "PAINT_TOOLSET");
+
+        public static SyncedSetting<bool> AutoRasterizeNestedLayersOnDraw { get; } = SyncedSetting.NonOwned<bool>(PixiEditor);
     }
 
     public static class File

@@ -316,12 +316,15 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
 
     private void RenderNested(RenderContext ctx, Canvas workingSurface, Paint paint)
     {
-        if (NestedDocument.Value is null)
+        if (NestedDocument.Value is null || NestedDocument.Value.DocumentInstance is null || workingSurface is null || Instance is null)
             return;
 
         using var intermediate = Texture.ForProcessing(workingSurface.Surface, Instance.ProcessingColorSpace);
+        if (intermediate is null)
+            return;
+
         int workingSurfaceSaved = 0;
-        if (paint.IsOpaqueStandardNonBlendingPaint)
+        if (paint == null || paint.IsOpaqueStandardNonBlendingPaint)
         {
             workingSurfaceSaved = workingSurface.Save();
         }
@@ -346,7 +349,7 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
         ExecuteNested(clonedCtx);
 
         Paint? paintToApply = null;
-        if (!Instance.ProcessingColorSpace.IsSrgb && paint.ColorFilter == null)
+        if (!Instance.ProcessingColorSpace.IsSrgb && paint?.ColorFilter == null)
         {
             // This is a weird hack to make alpha between linear -> srgb not glitch if the nested document does something weird with alpha.
             // Look at NestedColorSpaceOverlayAlpha.pixi in RenderTests and see what happens when you remove this line.
