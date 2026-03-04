@@ -1315,5 +1315,6 @@
   "OPEN_DOCUMENT": "Open Document",
   "PROCEDURAL": "Procedural",
   "RESET_TRANSFORM": "Reset Transform",
-  "RESET_TRANSFORM_DESCRIPTIVE": "Reset the transform of the layer."
+  "RESET_TRANSFORM_DESCRIPTIVE": "Reset the transform of the layer.",
+  "CONTIGUOUS_LABEL": "Contiguous"
 }
