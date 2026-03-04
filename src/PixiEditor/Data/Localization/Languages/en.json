@@ -1309,6 +1309,11 @@
   "FEATHERED": "Feathered",
   "ASYMMETRICAL": "Asymmetrical",
   "ROTATE": "Rotate",
+  "QUICK_USE": "(Quick Use)",
+  "OPEN_BRUSHES_FOLDER": "Open Brushes Folder",
+  "AUTOSAVE_TOGGLE": "Toggle Autosave",
+  "OPEN_DOCUMENT": "Open Document",
+  "PROCEDURAL": "Procedural",
   "RESET_TRANSFORM": "Reset Transform",
   "RESET_TRANSFORM_DESCRIPTIVE": "Reset the transform of the layer.",
   "CONTIGUOUS_LABEL": "Contiguous"
