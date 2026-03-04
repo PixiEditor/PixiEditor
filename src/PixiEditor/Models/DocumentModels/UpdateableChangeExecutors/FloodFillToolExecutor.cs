@@ -20,6 +20,7 @@ internal class FloodFillToolExecutor : UpdateableChangeExecutor
     private Color color;
     private float tolerance;
     private FloodFillMode fillMode;
+    private bool contiguous;
 
     public override ExecutionState Start()
     {
@@ -43,15 +44,16 @@ internal class FloodFillToolExecutor : UpdateableChangeExecutor
         var pos = controller!.LastPixelPosition;
         tolerance = fillTool.Tolerance;
         fillMode = fillTool.FillMode;
-        
-        internals!.ActionAccumulator.AddActions(new FloodFill_Action(memberGuid, pos, color, considerAllLayers, tolerance, fillMode, drawOnMask, document!.AnimationHandler.ActiveFrameBindable));
+        contiguous = fillTool.Contiguous;
+
+        internals!.ActionAccumulator.AddActions(new FloodFill_Action(memberGuid, pos, color, considerAllLayers, tolerance, fillMode, drawOnMask, contiguous, document!.AnimationHandler.ActiveFrameBindable));
 
         return ExecutionState.Success;
     }
 
     public override void OnPixelPositionChange(VecI pos, MouseOnCanvasEventArgs args)
     {
-        internals!.ActionAccumulator.AddActions(new FloodFill_Action(memberGuid, pos, color, considerAllLayers, tolerance, fillMode, drawOnMask, document!.AnimationHandler.ActiveFrameBindable));
+        internals!.ActionAccumulator.AddActions(new FloodFill_Action(memberGuid, pos, color, considerAllLayers, tolerance, fillMode, drawOnMask, contiguous, document!.AnimationHandler.ActiveFrameBindable));
     }
 
     public override void OnLeftMouseButtonUp(VecD argsPositionOnCanvas)

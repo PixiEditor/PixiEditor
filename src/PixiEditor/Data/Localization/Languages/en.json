@@ -1320,6 +1320,12 @@
   "DISABLE_ANIM_LAYER_ADVICE": "One more thing, if you want to draw on the base layer, click on the eye icon in the timeline, right next to the layer name.",
   "OPENED_GRAPH_ADVICE": "This is the node graph. It may look scary at first, but it's a powerful tool that allows you to create complex effects and animations with simple rules. Don't be afraid to experiment with it!",
   "OPENED_GRAPH_ADVICE_FOLLOW_UP": "If you're unsure about anything, check out pixiedior.net/docs for more info. There are a lot of helpful guides and explanations there.",
+  "QUICK_USE": "(Quick Use)",
+  "OPEN_BRUSHES_FOLDER": "Open Brushes Folder",
+  "AUTOSAVE_TOGGLE": "Toggle Autosave",
+  "OPEN_DOCUMENT": "Open Document",
+  "PROCEDURAL": "Procedural",
   "RESET_TRANSFORM": "Reset Transform",
-  "RESET_TRANSFORM_DESCRIPTIVE": "Reset the transform of the layer."
+  "RESET_TRANSFORM_DESCRIPTIVE": "Reset the transform of the layer.",
+  "CONTIGUOUS_LABEL": "Contiguous"
 }

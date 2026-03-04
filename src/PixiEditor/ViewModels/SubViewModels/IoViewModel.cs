@@ -211,7 +211,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
     {
         Command.ToolCommand? tool = CommandController.Current.Commands
             .OfType<Command.ToolCommand?>()
-            .FirstOrDefault(x => x != null && x.TransientKey == transientKey);
+            .FirstOrDefault(x => x != null && x.InternalName.EndsWith(".Transient") && x.Shortcut.Key == transientKey);
         return tool;
     }
 
