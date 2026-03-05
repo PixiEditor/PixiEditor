@@ -7,6 +7,7 @@
              xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
              xmlns:overlays="clr-namespace:PixiEditor.Views.Overlays"
              xmlns:blackboard="clr-namespace:PixiEditor.Views.Blackboard"
+             xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="dock:NodeGraphDockViewModel"
              x:Class="PixiEditor.Views.Dock.NodeGraphDockView">
@@ -32,6 +33,11 @@
                 </Border>
             </overlays:TogglableFlyout.Child>
         </overlays:TogglableFlyout>
+        <Panel
+            HorizontalAlignment="Center" VerticalAlignment="Top"
+            ui:AdvisorSlot.AdviceName="OpenGraph"
+            ui:AdvisorSlot.Direction="Down"
+            />
         <nodes:NodeGraphView
             ConnectPropertiesCommand="{xaml:Command PixiEditor.NodeGraph.ConnectProperties, UseProvided=True}"
             CreateNodeCommand="{xaml:Command PixiEditor.NodeGraph.CreateNode, UseProvided=True}"

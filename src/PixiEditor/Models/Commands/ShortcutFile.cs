@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using Newtonsoft.Json;
+﻿using System.Text.Json;
 
 namespace PixiEditor.Models.Commands;
 
@@ -18,7 +15,6 @@ internal class ShortcutFile
         if (!File.Exists(path))
         {
             Directory.CreateDirectory(System.IO.Path.GetDirectoryName(path));
-            File.Create(Path).Dispose();
         }
     }
 
@@ -40,16 +36,17 @@ internal class ShortcutFile
             Shortcuts = shortcuts.ToList(),
         };
 
-        File.WriteAllText(Path, JsonConvert.SerializeObject(template));
+        File.WriteAllText(Path, JsonSerializer.Serialize(template));
     }
 
     public ShortcutsTemplate LoadTemplate() => LoadTemplate(Path);
 
     public static ShortcutsTemplate LoadTemplate(string path)
     {
-        var template = JsonConvert.DeserializeObject<ShortcutsTemplate>(File.ReadAllText(path));
-        if (template == null) return new ShortcutsTemplate();
-
-        return template;
+        var info = new FileInfo(path);
+        if (!info.Exists || info.Length == 0)
+            return new ShortcutsTemplate();
+        
+        return JsonSerializer.Deserialize<ShortcutsTemplate>(File.ReadAllText(path)) ?? new ShortcutsTemplate();
     }
 }

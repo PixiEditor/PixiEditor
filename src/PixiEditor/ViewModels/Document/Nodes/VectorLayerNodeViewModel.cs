@@ -11,7 +11,7 @@ using PixiEditor.ViewModels.Tools.Tools;
 namespace PixiEditor.ViewModels.Document.Nodes;
 
 [NodeViewModel("VECTOR_LAYER", "STRUCTURE", PixiPerfectIcons.VectorPen)]
-internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNode>, IVectorLayerHandler
+internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNode>, IVectorLayerHandler, ITransformableMemberHandler
 {
     private Dictionary<Type, Type> quickToolsMap = new Dictionary<Type, Type>()
     {

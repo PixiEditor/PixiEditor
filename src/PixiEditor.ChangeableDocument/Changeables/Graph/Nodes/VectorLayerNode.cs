@@ -7,6 +7,7 @@ using PixiEditor.ChangeableDocument.ChangeInfos.Vectors;
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
@@ -67,6 +68,11 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
     {
         base.OnExecute(context);
         Matrix.Value = TransformationMatrix;
+    }
+
+    protected override bool MustRenderInSrgb(SceneObjectRenderContext ctx)
+    {
+        return Shape.Value is { FillPaintable: GradientPaintable } or { Stroke: GradientPaintable };
     }
 
     protected override void DrawWithoutFilters(SceneObjectRenderContext ctx, Canvas workingSurface,
@@ -154,16 +160,16 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         return GetTightBounds(frameTime);
     }
 
-    public override void SerializeAdditionalData(IReadOnlyDocument target, Dictionary<string, object> additionalData)
+    internal override void SerializeAdditionalDataInternal(IReadOnlyDocument target, Dictionary<string, object> additionalData)
     {
-        base.SerializeAdditionalData(target, additionalData);
+        base.SerializeAdditionalDataInternal(target, additionalData);
         additionalData["ShapeData"] = EmbeddedShapeData;
     }
 
-    internal override void DeserializeAdditionalData(IReadOnlyDocument target,
+    internal override void DeserializeAdditionalDataInternal(IReadOnlyDocument target,
         IReadOnlyDictionary<string, object> data, List<IChangeInfo> infos)
     {
-        base.DeserializeAdditionalData(target, data, infos);
+        base.DeserializeAdditionalDataInternal(target, data, infos);
         EmbeddedShapeData = data["ShapeData"] as ShapeVectorData;
 
         if (EmbeddedShapeData == null)

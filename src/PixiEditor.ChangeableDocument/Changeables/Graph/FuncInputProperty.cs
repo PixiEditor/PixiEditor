@@ -114,6 +114,9 @@ public class FuncInputProperty<T> : InputProperty<Func<FuncContext, T>>, IFuncIn
             for (int i = 0; i < count; i++)
             {
                 toReturn.OverrideExpressionAt(i, expression);
+
+                if(expression is ShaderExpressionVariable expressionVariable)
+                    toReturn.OverrideConstantValueAt(i, expressionVariable.GetConstant());
             }
         }
         else

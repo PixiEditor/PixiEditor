@@ -11,6 +11,8 @@ namespace ChunkyImageLib.Operations;
 internal class BresenhamLineOperation : IMirroredDrawOperation
 {
     public bool IgnoreEmptyChunks => false;
+    public bool NeedsDrawInSrgb => paintable is ISrgbPaintable;
+
     private readonly VecI from;
     private readonly VecI to;
     private readonly Paintable paintable;

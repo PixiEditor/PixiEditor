@@ -13,6 +13,7 @@ namespace PixiEditor.Models.Handlers;
 internal interface IToolsHandler : IHandler
 {
     public void SetTool(object parameter);
+    public void SetToolTransient(object parameter);
     public void RestorePreviousTool();
     public IToolHandler ActiveTool { get; }
     public IToolSetHandler ActiveToolSet { get; } 
@@ -38,7 +39,9 @@ internal interface IToolsHandler : IHandler
     public void OnPreUndoInlet();
     public void QuickToolSwitchInlet();
     public void ChangeToolSize(double by);
-    public bool CreateLayerIfNeeded();
+    public bool CreateOrRasterizeLayerIfNeeded();
     public bool NeedsNewLayerForActiveTool();
+    public bool NeedsNewAnimationKeyFrameForActiveTool();
     public void DeselectActiveTool();
+    public void CreateAnimationKeyFrameIfNeeded();
 }

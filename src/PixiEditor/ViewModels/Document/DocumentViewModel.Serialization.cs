@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Serialization;
 using Avalonia.Threading;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
@@ -585,7 +586,8 @@ internal partial class DocumentViewModel
                 Unit = prop.Value.Unit,
                 Min = prop.Value.Min,
                 Max = prop.Value.Max,
-                IsExposed = prop.Value.IsExposed
+                IsExposed = prop.Value.IsExposed,
+                Type = SerializationUtil.GetWellKnownSerializationTypeName(prop.Value.Type, allFactories)
             });
         }
 
@@ -662,6 +664,7 @@ internal partial class DocumentViewModel
         animData.OnionFrames = animationData.OnionFrames;
         animData.OnionOpacity = animationData.OnionOpacity;
         animData.DefaultEndFrame = animationData.DefaultEndFrame;
+        animData.FallbackAnimationToLayerImage = animationData.FallbackAnimationToLayerImage;
         BuildKeyFrames(animationData.KeyFrames, animData, graph, nodeIdMap, keyFrameIds);
 
         return animData;

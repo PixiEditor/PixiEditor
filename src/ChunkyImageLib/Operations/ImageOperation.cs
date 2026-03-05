@@ -17,6 +17,7 @@ internal class ImageOperation : IMirroredDrawOperation
     private readonly Paint? customPaint;
 
     public bool IgnoreEmptyChunks => false;
+    public bool NeedsDrawInSrgb => false;
 
     public ImageOperation(VecI pos, Surface image, Paint? paint = null, bool copyImage = true)
     {

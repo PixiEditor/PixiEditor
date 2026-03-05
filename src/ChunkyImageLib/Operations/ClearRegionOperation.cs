@@ -9,6 +9,7 @@ internal class ClearRegionOperation : IMirroredDrawOperation
     private RectI rect;
 
     public bool IgnoreEmptyChunks => true;
+    public bool NeedsDrawInSrgb => false;
 
     public ClearRegionOperation(RectI rect)
     {

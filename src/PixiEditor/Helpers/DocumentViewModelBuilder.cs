@@ -93,6 +93,7 @@ internal class DocumentViewModelBuilder
 
         if (animationData != null)
         {
+            AnimationData.WithFallbackAnimationToLayerImage(animationData.FallbackAnimationToLayerImage);
             AnimationData.WithFrameRate(animationData.FrameRate);
             AnimationData.WithOnionFrames(animationData.OnionFrames);
             AnimationData.WithOnionOpacity(animationData.OnionOpacity);
@@ -140,7 +141,7 @@ internal class DocumentViewModelBuilder
         return this;
     }
 
-    private static void BuildKeyFrames(List<KeyFrameGroup> root, List<KeyFrameBuilder> data, NodeGraph documentGraph)
+    private static void BuildKeyFrames(List<KeyFrameGroup> root, List<KeyFrameBuilder> data, NodeGraph? documentGraph)
     {
         foreach (KeyFrameGroup group in root)
         {
@@ -157,7 +158,10 @@ internal class DocumentViewModelBuilder
             data?.Add(builder);
         }
 
-        TryAddMissingKeyFrames(root, data, documentGraph);
+        if (documentGraph != null)
+        {
+            TryAddMissingKeyFrames(root, data, documentGraph);
+        }
     }
 
     private static void TryAddMissingKeyFrames(List<KeyFrameGroup> groups, List<KeyFrameBuilder>? data,
@@ -291,6 +295,13 @@ internal class AnimationDataBuilder
     public int OnionFrames { get; set; }
     public double OnionOpacity { get; set; } = 50;
     public int DefaultEndFrame { get; set; } = -1;
+    public bool FallbackAnimationToLayerImage { get; set; }
+
+    public AnimationDataBuilder WithFallbackAnimationToLayerImage(bool enabled)
+    {
+        FallbackAnimationToLayerImage = enabled;
+        return this;
+    }
 
     public AnimationDataBuilder WithFrameRate(int frameRate)
     {
@@ -559,13 +570,14 @@ internal class NodeGraphBuilder
     {
         public List<VariableBuilder> Variables { get; set; } = new List<VariableBuilder>();
 
-        public BlackboardBuilder WithVariable(string name, object value, string unit = null, double? min = null,
+        public BlackboardBuilder WithVariable(string name, object value, string type, string unit = null, double? min = null,
             double? max = null, bool isExposed = true)
         {
             Variables.Add(new VariableBuilder
             {
                 Name = name,
                 Value = value,
+                Type = type,
                 Unit = unit,
                 Min = min,
                 Max = max,
@@ -584,5 +596,6 @@ internal class NodeGraphBuilder
         public double? Min { get; set; }
         public double? Max { get; set; }
         public bool IsExposed { get; set; }
+        public string Type { get; set; }
     }
 }

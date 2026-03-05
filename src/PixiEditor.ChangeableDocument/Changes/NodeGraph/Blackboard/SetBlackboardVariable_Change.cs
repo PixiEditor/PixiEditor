@@ -10,6 +10,7 @@ internal class SetBlackboardVariable_Change : InterruptableUpdateableChange
 {
     private string variable;
     private object value;
+    private Type type;
 
     private bool existsInBlackboard;
     private object? originalValue;
@@ -19,12 +20,14 @@ internal class SetBlackboardVariable_Change : InterruptableUpdateableChange
     private string unit;
     private bool isExposed;
 
+
     [GenerateUpdateableChangeActions]
-    public SetBlackboardVariable_Change(string variable, object value, double min, double max, string unit,
+    public SetBlackboardVariable_Change(string variable, object value, Type type, double min, double max, string unit,
         bool isExposed)
     {
         this.variable = variable;
         this.value = value;
+        this.type = type;
         this.min = min;
         this.max = max;
         this.unit = unit;
@@ -52,9 +55,6 @@ internal class SetBlackboardVariable_Change : InterruptableUpdateableChange
 
         if (target.NodeGraph.Blackboard.Variables.TryGetValue(variable, out var blackboardVariable) &&
             !IsTypeAssignable(blackboardVariable) && !TryConvert(blackboardVariable?.Type, ref value))
-            return false;
-
-        if (blackboardVariable == null && value == null)
             return false;
 
         originalValue = blackboardVariable?.Value;
@@ -100,12 +100,11 @@ internal class SetBlackboardVariable_Change : InterruptableUpdateableChange
     {
         if (target.NodeGraph.Blackboard.GetVariable(variable) == null)
         {
-            Type type = value.GetType();
             target.NodeGraph.Blackboard.SetVariable(variable, type, value, unit, min, max, isExposed);
             InformBlackboardAccessingNodes(target, variable);
             return new List<IChangeInfo>()
             {
-                new BlackboardVariable_ChangeInfo(variable, value?.GetType(), value, min, max, unit),
+                new BlackboardVariable_ChangeInfo(variable, type, value, min, max, unit),
                 new BlackboardVariableExposed_ChangeInfo(variable, isExposed)
             };
         }

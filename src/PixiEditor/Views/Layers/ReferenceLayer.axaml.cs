@@ -82,12 +82,12 @@ internal partial class ReferenceLayer : UserControl
 
     private void ReferenceLayer_Drop(object sender, DragEventArgs e)
     {
-        if (!command.Methods.CanExecute(e.Data))
+        if (!command.Methods.CanExecute(e.DataTransfer))
         {
             return;
         }
 
-        command.Methods.Execute(e.Data);
+        command.Methods.Execute(e.DataTransfer);
         e.Handled = true;
     }
 }
