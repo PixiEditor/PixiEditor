@@ -83,8 +83,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
     [Evaluator.CanExecute("PixiEditor.HasDocument", nameof(ActiveDocument))]
     public bool DocumentNotNull() => ActiveDocument != null;
 
-    [Command.Basic("PixiEditor.Document.Open", "OPEN_DOCUMENT", "OPEN_DOCUMENT_DESC",
-        Icon = PixiPerfectIcons.File, AnalyticsTrack = true)]
+    [Command.Internal("PixiEditor.Document.Open", Icon = PixiPerfectIcons.File, AnalyticsTrack = true)]
     public void OpenDocument(string path)
     {
         if (Guid.TryParse(path, out Guid referenceId))
