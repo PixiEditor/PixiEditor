@@ -795,6 +795,7 @@ internal class DocumentUpdater
             prop.PropertyName = propInfo.PropertyName;
             prop.IsInput = isInput;
             prop.IsFunc = propInfo.ValueType.IsAssignableTo(typeof(Delegate));
+            prop.IsArray = propInfo.ValueType.IsArray;
             prop.InternalSetValue(prop.IsFunc
                 ? (propInfo.InputValue as ShaderExpressionVariable)?.GetConstant()
                 : propInfo.InputValue);

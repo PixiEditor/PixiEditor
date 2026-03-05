@@ -19,6 +19,7 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
     private INodeHandler node;
     private bool isInput;
     private bool isFunc;
+    private bool isArray;
     private IBrush socketBrush;
     private string errors = string.Empty;
     private bool mergeChanges = false;
@@ -108,6 +109,12 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
         set => SetProperty(ref isFunc, value);
     }
 
+    public bool IsArray
+    {
+        get => isArray;
+        set => SetProperty(ref isArray, value);
+    }
+
     public bool IsVisible
     {
         get => isVisible;
@@ -185,6 +192,11 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
         if (targetType.IsEnum)
         {
             targetType = typeof(Enum);
+        }
+
+        if (targetType.IsArray)
+        {
+            targetType = targetType.GetElementType();
         }
 
         if (Application.Current.Styles.TryGetResource($"{targetType.Name}SocketBrush", App.Current.ActualThemeVariant,

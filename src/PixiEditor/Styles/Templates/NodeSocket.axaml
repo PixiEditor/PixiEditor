@@ -8,8 +8,16 @@
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <Grid Name="PART_ConnectPort">
                         <Panel Width="20" Height="20" Margin="-5, 0" Background="Transparent"
-                               ToolTip.ShowDelay="0" ToolTip.ShowOnDisabled="True" ToolTip.Tip="{Binding Property.ComputedValue, RelativeSource={RelativeSource TemplatedParent}, Converter={converters:ComputedValueToStringConverter}}"
-                               IsVisible="{Binding !IsFunc, RelativeSource={RelativeSource TemplatedParent}}">
+                               ToolTip.ShowDelay="0" ToolTip.ShowOnDisabled="True" ToolTip.Tip="{Binding Property.ComputedValue, RelativeSource={RelativeSource TemplatedParent}, Converter={converters:ComputedValueToStringConverter}}">
+                            <Panel.IsVisible>
+                                <MultiBinding>
+                                    <MultiBinding.Converter>
+                                        <converters:AllTrueConverter />
+                                    </MultiBinding.Converter>
+                                    <Binding Path="!IsFunc" RelativeSource="{RelativeSource TemplatedParent}" />
+                                    <Binding Path="!IsArray" RelativeSource="{RelativeSource TemplatedParent}" />
+                                </MultiBinding>
+                            </Panel.IsVisible>
                             <Ellipse Width="10" Height="10" RenderTransform="rotate(90deg)"
                                      Fill="{TemplateBinding SocketBrush}" />
                         </Panel>
@@ -21,7 +29,14 @@
                                        Fill="{TemplateBinding SocketBrush}"
                                        RenderTransform="rotate(45deg) scale(0.89)" />
                         </Panel>
-
+                        <Panel Margin="-5, 0" Width="20" Height="20" Background="Transparent"
+                               ToolTip.ShowDelay="0" ToolTip.ShowOnDisabled="True" ToolTip.Tip="{Binding Property.ComputedValue, RelativeSource={RelativeSource TemplatedParent}, Converter={converters:ComputedValueToStringConverter}}"
+                               IsVisible="{Binding IsArray, RelativeSource={RelativeSource TemplatedParent}}">
+                            <Rectangle Width="5" Height="15"
+                                       RenderTransform="translate(-1.5px, 0px)"
+                                       RadiusX="2" RadiusY="2"
+                                       Fill="{TemplateBinding SocketBrush}" />
+                        </Panel>
                     </Grid>
                 </StackPanel>
             </ControlTemplate>

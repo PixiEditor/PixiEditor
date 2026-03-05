@@ -14,6 +14,7 @@
                                            ClipToBounds="False"
                                            Node="{Binding DataContext.Node, RelativeSource={RelativeSource TemplatedParent}}"
                                            SocketBrush="{Binding DataContext.SocketBrush, RelativeSource={RelativeSource TemplatedParent}}"
+                                           IsArray="{Binding DataContext.IsArray, RelativeSource={RelativeSource TemplatedParent}}"
                                            IsFunc="{Binding DataContext.IsFunc, RelativeSource={RelativeSource TemplatedParent}}">
                         <properties:NodeSocket.IsVisible>
                             <MultiBinding>
