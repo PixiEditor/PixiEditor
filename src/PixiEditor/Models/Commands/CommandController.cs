@@ -272,7 +272,7 @@ internal class CommandController
                     Shortcut =
                         GetShortcut(internalName, brushTool.DefaultShortcut ?? KeyCombination.None, template),
                     ToolType = brushTool.GetType(),
-                    Icon = brushTool.DefaultIcon,
+                    Icon = brushTool.IconToUse,
                     DisplayName = displayName,
                     InternalName = internalName,
                     IconEvaluator = IconEvaluator.Default,

@@ -162,6 +162,7 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
         if (ActiveMode != ShapeToolMode.Transform)
             return;
 
+        base.OnTransformChanged(corners);
         var shapeData = ShapeDataFromCorners(corners);
         IAction drawAction = TransformMovedAction(shapeData, corners);
 
