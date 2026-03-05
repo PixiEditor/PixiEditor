@@ -1,13 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Specialized;
-using System.ComponentModel;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Paintables;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Nodes;
 
-namespace PixiEditor.ViewModels.Document.Nodes;
+namespace PixiEditor.ViewModels.Document.Nodes.Paintables;
 
-[NodeViewModel("GRADIENT_NODE", "COLOR", null)]
+[NodeViewModel("GRADIENT_NODE", "COLOR", PixiPerfectIcons.Gradient)]
 internal class GradientNodeViewModel : NodeViewModel<GradientNode>
 {
     public override void OnInitialized()

@@ -102,6 +102,11 @@ public static class ConversionTable
                         new TypeConverter<IBrush, DocumentReference>(b =>
                             new DocumentReference(b.FilePath, b.OutputNodeId, b.Document)))
                 ]
+            },
+            {
+                typeof(ColorPaintable), [
+                    (typeof(GradientPaintable), new TypeConverter<ColorPaintable, GradientPaintable>(c => new LinearGradientPaintable(new VecD(0, 0), new VecD(1, 1), [new GradientStop(c.Color, 0), new GradientStop(c.Color, 1)])))
+                ]
             }
         };
 

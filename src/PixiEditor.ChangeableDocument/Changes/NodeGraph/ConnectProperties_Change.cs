@@ -108,7 +108,7 @@ internal class ConnectProperties_Change : Change
         }
 
         inputProp = inputNode.GetInputProperty(InputProperty);
-        if (inputProp.Connection != null)
+        if (inputProp.Connection != null && inputProp.Connection != outputProp)
         {
             changes.Add(new ConnectProperty_ChangeInfo(null, inputProp.Connection.Node.Id, null,
                 inputProp.Connection.InternalPropertyName));

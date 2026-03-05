@@ -36,6 +36,7 @@
             <system:String x:Key="icon-chevrons-right">&#xE986;</system:String>
             <system:String x:Key="icon-chevrons-up">&#xE987;</system:String>
             <system:String x:Key="icon-circle">&#xE930;</system:String>
+            <system:String x:Key="icon-circle-pile">&#xE9DE;</system:String>
             <system:String x:Key="icon-clock">&#xE931;</system:String>
             <system:String x:Key="icon-closed-grid">&#xE913;</system:String>
             <system:String x:Key="icon-coins">&#xE9C5;</system:String>
@@ -86,6 +87,7 @@
             <system:String x:Key="icon-ghost">&#xE916;</system:String>
             <system:String x:Key="icon-github">&#xE99A;</system:String>
             <system:String x:Key="icon-globe">&#xE94E;</system:String>
+            <system:String x:Key="icon-gradient">&#xE9DD;</system:String>
             <system:String x:Key="icon-grid">&#xE94F;</system:String>
             <system:String x:Key="icon-grid-round">&#xE9D9;</system:String>
             <system:String x:Key="icon-gridlines">&#xE961;</system:String>
@@ -165,6 +167,7 @@
             <system:String x:Key="icon-reset">&#xE9AA;</system:String>
             <system:String x:Key="icon-resize">&#xE96B;</system:String>
             <system:String x:Key="icon-rotate-view">&#xE96C;</system:String>
+            <system:String x:Key="icon-ruler">&#xE9DF;</system:String>
             <system:String x:Key="icon-salad">&#xE9C7;</system:String>
             <system:String x:Key="icon-save">&#xE96E;</system:String>
             <system:String x:Key="icon-scissors">&#xE96F;</system:String>
@@ -207,6 +210,7 @@
             <system:String x:Key="icon-tool">&#xE977;</system:String>
             <system:String x:Key="icon-train">&#xE9C3;</system:String>
             <system:String x:Key="icon-trash">&#xE978;</system:String>
+            <system:String x:Key="icon-triangle-right">&#xE9E0;</system:String>
             <system:String x:Key="icon-twitter">&#xE904;</system:String>
             <system:String x:Key="icon-undo">&#xE979;</system:String>
             <system:String x:Key="icon-unlock">&#xE97A;</system:String>
