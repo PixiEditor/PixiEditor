@@ -150,8 +150,9 @@ public class BrushOutputNode : Node
         {
             if (context.RenderOutputSize.LongestAxis > 0)
             {
-                if (!CanReuseStamps.Value || ContentTexture == null || ContentTexture.Size != context.RenderOutputSize ||
-                    !drawnContentTextureOnce || Transform.Value != lastTranform)
+                if (!CanReuseStamps.Value || ContentTexture == null || ContentTexture.Size != context.RenderOutputSize
+                    || ContentTexture.ColorSpace != context.ProcessingColorSpace
+                    || !drawnContentTextureOnce || Transform.Value != lastTranform)
                 {
                     ContentTexture = cache.RequestTexture(0, context.RenderOutputSize, context.ProcessingColorSpace);
                     ContentTexture.DrawingSurface.Canvas.Save();
