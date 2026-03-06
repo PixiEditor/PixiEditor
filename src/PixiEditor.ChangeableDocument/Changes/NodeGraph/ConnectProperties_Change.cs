@@ -4,6 +4,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using Drawie.Backend.Core.Shaders.Generation;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.NodeGraph;
 
@@ -62,7 +63,9 @@ internal class ConnectProperties_Change : Change
 
         if (!canConnect)
         {
-            return false;
+            bool baseConnectingToArray = inputProp.ValueType.IsArray && outputProp.GetContextlessValueType() == inputProp.ValueType.GetElementType();
+            if(!baseConnectingToArray)
+                return false;
         }
 
         originalConnection =
@@ -90,6 +93,22 @@ internal class ConnectProperties_Change : Change
         List<IChangeInfo> changes = new();
 
         target.NodeGraph.StartListenToPropertyChanges();
+
+        bool isConnectingToArray = inputProp.ValueType.IsArray && outputProp.GetContextlessValueType() == inputProp.ValueType.GetElementType();
+        if (isConnectingToArray)
+        {
+            ArrayConverterNode arrayConverter = new ArrayConverterNode();
+            target.NodeGraph.AddNode(arrayConverter);
+            arrayConverter.Position = inputNode.Position.Lerp(outputNode.Position, 0.5) + new VecD(100, 100);
+            changes.Add(CreateNode_ChangeInfo.CreateFromNode(arrayConverter));
+
+            outputProp.ConnectTo(arrayConverter.First.InternalProperty);
+            changes.Add(new ConnectProperty_ChangeInfo(outputProp.Node.Id, arrayConverter.Id, outputProp.InternalPropertyName,
+                arrayConverter.First.InternalProperty.InternalPropertyName));
+
+            outputProp = arrayConverter.Output.InternalProperty;
+        }
+
 
         if (inputNode == outputNode && outputProp == null)
         {

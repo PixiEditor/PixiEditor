@@ -373,9 +373,9 @@ public abstract class Node : IReadOnlyNode, IDisposable
         SyncedTypeInputProperty prop = new SyncedTypeInputProperty(this, internalName, displayName, syncWith);
         AddInputProperty(prop.InternalProperty);
         int originalIndex = inputs.IndexOf(prop.InternalProperty);
+        prop.BeginListeningToConnectionChanges();
         if (syncWith != null)
         {
-            prop.BeginListeningToConnectionChanges();
             syncWith.Other = prop;
             syncWith.BeginListeningToConnectionChanges();
         }
@@ -678,7 +678,8 @@ public abstract class Node : IReadOnlyNode, IDisposable
         OnDeserializeAdditionalData?.Invoke(data, infos);
     }
 
-    internal virtual void SerializeAdditionalDataInternal(IReadOnlyDocument target, Dictionary<string, object> additionalData)
+    internal virtual void SerializeAdditionalDataInternal(IReadOnlyDocument target,
+        Dictionary<string, object> additionalData)
     {
     }
 

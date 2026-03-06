@@ -161,6 +161,11 @@ public static class GraphUtils
                 return true;
             }
 
+            if(outputValue is Array arr && arr.GetType().GetElementType() == typeof(object))
+            {
+                return true;
+            }
+
             if (IsConstantToExpression(input, out result))
             {
                 return ConversionTable.TryConvert(result, output.ValueType, out _);

@@ -23,7 +23,7 @@ public class SyncedTypeInputProperty
     private Func<Type, InputProperty>? genericFallbackHandler = null;
     private string internalPropertyName { get; }
 
-    public event Action ConnectionChanged;
+    public event Action<SyncedTypeInputProperty> ConnectionChanged;
     public event Action BeforeTypeChange;
     public event Action AfterTypeChange;
 
@@ -32,13 +32,15 @@ public class SyncedTypeInputProperty
     private bool matchToBaseType = false;
 
     private bool shouldWaitForConnectionToSetType = false;
+    private bool isListeningToConnectionChanges = false;
 
     public SyncedTypeInputProperty(Node node, string internalPropertyName, string displayName,
         SyncedTypeInputProperty other)
     {
         Other = other;
         this.internalPropertyName = internalPropertyName;
-        handlers[typeof(object)] = () => new InputProperty(node, internalPropertyName, displayName, null, typeof(object));
+        handlers[typeof(object)] =
+            () => new InputProperty(node, internalPropertyName, displayName, null, typeof(object));
         internalInputProperty = handlers[typeof(object)]();
         internalInputProperty.NonOverridenValueChanged += NonOverridenChanged;
         node.OnSerializeAdditionalData += OnSerializeAdditionalData;
@@ -47,7 +49,9 @@ public class SyncedTypeInputProperty
 
     private void OnSerializeAdditionalData(Dictionary<string, object> data)
     {
-        bool isUsingTypeOfThisConnection = internalInputProperty.Connection != null && internalInputProperty.Connection.ValueType == internalInputProperty.ValueType;
+        bool isUsingTypeOfThisConnection = internalInputProperty.Connection != null &&
+                                           internalInputProperty.Connection.ValueType ==
+                                           internalInputProperty.ValueType;
         data[internalPropertyName + "_isUsingTypeOfThisConnection"] = isUsingTypeOfThisConnection;
     }
 
@@ -77,8 +81,18 @@ public class SyncedTypeInputProperty
 
     internal void BeginListeningToConnectionChanges()
     {
+        if (isListeningToConnectionChanges) return;
+
         internalInputProperty.ConnectionChanged += UpdateType;
         internalInputProperty.ConnectionChanged += InvokeConnectionChanged;
+        isListeningToConnectionChanges = true;
+    }
+
+    public void StopListeningToConnectionChanges()
+    {
+        internalInputProperty.ConnectionChanged -= UpdateType;
+        internalInputProperty.ConnectionChanged -= InvokeConnectionChanged;
+        isListeningToConnectionChanges = false;
     }
 
     private void UpdateType()
@@ -96,7 +110,12 @@ public class SyncedTypeInputProperty
         }
 
         IOutputProperty? target = null;
-        if(shouldWaitForConnectionToSetType && Other.InternalProperty.Connection != null)
+
+        if (Other == null)
+        {
+            target = internalInputProperty.Connection;
+        }
+        else if (shouldWaitForConnectionToSetType && Other.InternalProperty.Connection != null)
         {
             target = Other.InternalProperty.Connection;
         }
@@ -119,12 +138,13 @@ public class SyncedTypeInputProperty
 
         Type newType = target?.ValueType ?? typeof(object);
 
-        if(matchToBaseType && newType.IsClass && InternalProperty.Connection != null)
+        if (matchToBaseType && newType.IsClass && InternalProperty.Connection != null)
         {
             if (newType != InternalProperty.Connection.ValueType)
             {
                 Type currentType = newType;
-                while (currentType != null && !InternalProperty.Connection.ValueType.IsAssignableTo(currentType) && !currentType.IsAssignableTo(typeof(Delegate)))
+                while (currentType != null && !InternalProperty.Connection.ValueType.IsAssignableTo(currentType) &&
+                       !currentType.IsAssignableTo(typeof(Delegate)))
                 {
                     currentType = currentType.BaseType;
                 }
@@ -199,7 +219,7 @@ public class SyncedTypeInputProperty
 
     private void InvokeConnectionChanged()
     {
-        ConnectionChanged?.Invoke();
+        ConnectionChanged?.Invoke(this);
     }
 
     public SyncedTypeInputProperty? AllowGenericFallback(bool allowUseCommonAncestorType)
@@ -222,6 +242,11 @@ public class SyncedTypeInputProperty
         };
 
         matchToBaseType = allowUseCommonAncestorType;
+        if (matchToBaseType && Other != null)
+        {
+            UpdateTypeInternal(false);
+        }
+
         return this;
     }
 }

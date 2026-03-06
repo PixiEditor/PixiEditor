@@ -165,6 +165,12 @@ public class NodeView : TemplatedControl
         set { SetValue(ActiveFrameProperty, value); }
     }
 
+    public bool MiniView
+    {
+        get { return (bool)GetValue(MiniViewProperty); }
+        set { SetValue(MiniViewProperty, value); }
+    }
+
     private bool captured;
 
     public static readonly StyledProperty<int> ActiveFrameProperty =
@@ -174,6 +180,7 @@ public class NodeView : TemplatedControl
 
     private ItemsControl inputsControl;
     private ItemsControl outputsControl;
+    public static readonly StyledProperty<bool> MiniViewProperty = AvaloniaProperty.Register<NodeView, bool>("MiniView");
 
     static NodeView()
     {
