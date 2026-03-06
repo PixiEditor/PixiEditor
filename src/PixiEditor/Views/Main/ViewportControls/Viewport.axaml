@@ -217,6 +217,7 @@
                                 Command="{xaml:Command PixiEditor.Tools.SetActiveToolSet, UseProvided=True}"
                                 CommandParameter="{Binding}"
                                 FontSize="{DynamicResource FontSizeMedium}"
+                                Padding="4, 2"
                                 VerticalAlignment="Center">
                                 <Panel>
                                     <TextBlock IsVisible="{Binding IconIsPixiPerfect}">
