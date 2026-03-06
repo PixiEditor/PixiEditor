@@ -423,7 +423,7 @@ internal class NodeGraphBuilder
                 new KeyFrameData
                 {
                     AffectedElement = ImageLayerNode.ImageLayerKey,
-                    Data = new ChunkyImage(image, colorSpace),
+                    Data = new ChunkyImage(image),
                     Duration = 0,
                     StartFrame = 0,
                     IsVisible = true
@@ -445,7 +445,7 @@ internal class NodeGraphBuilder
                 new KeyFrameData
                 {
                     AffectedElement = ImageLayerNode.ImageLayerKey,
-                    Data = new ChunkyImage(size, colorSpace),
+                    Data = new ChunkyImage(size),
                     Duration = 0,
                     StartFrame = 0,
                     IsVisible = true
