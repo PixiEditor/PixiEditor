@@ -112,7 +112,7 @@ internal class AnimationDocumentBuilder : IDocumentBuilder
             {
                 Id = keyFrames.Count,
                 AffectedElement = ImageLayerNode.ImageLayerKey,
-                Data = new ChunkyImage(surface, ColorSpace.CreateSrgbLinear()),
+                Data = new ChunkyImage(surface),
                 StartFrame = currentFrame,
                 Duration = frame.DurationTicks,
                 IsVisible = true
