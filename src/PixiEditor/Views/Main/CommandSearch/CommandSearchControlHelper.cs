@@ -28,10 +28,11 @@ internal static class CommandSearchControlHelper
         {
             // show all recently opened
             newResults.AddRange(ViewModelMain.Current.FileSubViewModel.RecentlyOpened
-                .Select(file => (SearchResult)new FileSearchResult(file.FilePath)
-                {
-                    SearchTerm = query
-                }));
+                .Select(SearchResult (file) =>
+                    new FileSearchResult(file.FilePath, FileSearchTarget.OpenDocument)
+                    {
+                        SearchTerm = query
+                    }));
             return (newResults, warnings);
         }
 
@@ -111,7 +112,7 @@ internal static class CommandSearchControlHelper
             newResults.AddRange(
                 ViewModelMain.Current.FileSubViewModel.RecentlyOpened
                     .Where(x => x.FilePath.Contains(query))
-                    .Select(file => new FileSearchResult(file.FilePath)
+                    .Select(file => new FileSearchResult(file.FilePath, FileSearchTarget.OpenDocument)
                     {
                         SearchTerm = query, Match = Match(file.FilePath, query)
                     }));
@@ -176,13 +177,18 @@ internal static class CommandSearchControlHelper
         {
             return array
                 .Select(static file => Path.GetFullPath(file))
-                .Select(path => new FileSearchResult(path)
+                .Select(path => new FileSearchResult(path, FileSearchTarget.OpenDocument)
                 {
                     SearchTerm = name, Match = Match($".../{Path.GetFileName(path)}", name ?? "")
                 });
         }
 
-        return array.Length >= 1 ? new[] { new FileSearchResult(array[0]), new FileSearchResult(array[0], true) } : ArraySegment<SearchResult>.Empty;
+        return array.Length >= 1 ? new[]
+        {
+            new FileSearchResult(array[0], FileSearchTarget.OpenDocument),
+            new FileSearchResult(array[0], FileSearchTarget.ReferenceLayer),
+            new FileSearchResult(array[0], FileSearchTarget.NestedDocument)
+        } : ArraySegment<SearchResult>.Empty;
     }
 
     private static bool GetDirectory(string path, out string directory, out string file)

@@ -7,50 +7,57 @@ using Avalonia.Media;
 using Avalonia.Styling;
 using PixiEditor.Views;
 using PixiEditor.Helpers.Converters;
+using PixiEditor.Models.Commands.CommandContext;
+using PixiEditor.Models.Commands.Commands;
+using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.Models.Commands.Search;
 
 internal class FileSearchResult : SearchResult
 {
     private readonly DrawingImage icon;
-    private readonly bool asReferenceLayer;
+    private readonly FileSearchTarget target;
 
     public string FilePath { get; }
 
-    public override string Text => asReferenceLayer ? $"As reference: ...\\{Path.GetFileName(FilePath)}" : $"...\\{Path.GetFileName(FilePath)}";
+    public override string Text
+    {
+        get
+        {
+            var shortenedPath = GetShortenedPath(FilePath);
+
+            return target switch
+            {
+                FileSearchTarget.OpenDocument => shortenedPath,
+                FileSearchTarget.ReferenceLayer => new LocalizedString("OPEN_PATH_AS_REFERENCE_LAYER", shortenedPath),
+                FileSearchTarget.NestedDocument => new LocalizedString("OPEN_PATH_AS_NESTED_DOCUMENT", shortenedPath),
+                _ => throw new IndexOutOfRangeException()
+            };
+        }
+    }
 
     public override AvaloniaObject Description => GetDescription();
 
-    public override bool CanExecute => !asReferenceLayer ||
-                CommandController.Current.Commands["PixiEditor.Clipboard.PasteReferenceLayerFromPath"].Methods.CanExecute(FilePath);
+    public override bool CanExecute => GetCommandFromTarget(target).Methods.CanExecute(FilePath);
 
     public override IImage Icon => icon;
 
-    public FileSearchResult(string path, bool asReferenceLayer = false)
+    public FileSearchResult(string path, FileSearchTarget target)
     {
         FilePath = path;
         var drawing = new GeometryDrawing() { Brush = FileExtensionToColorConverter.GetBrush(FilePath) };
         var geometry = new RectangleGeometry(new Rect(0, 0, 10, 10)) { RadiusX = 2, RadiusY = 2 };
         drawing.Geometry = geometry;
         icon = new DrawingImage(drawing);
-        this.asReferenceLayer = asReferenceLayer;
+        this.target = target;
     }
 
     public override void Execute()
     {
-        if (!asReferenceLayer)
-        {
-            CommandController.Current.Commands["PixiEditor.File.OpenRecent"].Methods.Execute(FilePath);
-        }
-        else
-        {
-            var command = CommandController.Current.Commands["PixiEditor.Clipboard.PasteReferenceLayerFromPath"];
-            if (command.Methods.CanExecute(FilePath))
-            {
-                CommandController.Current.Commands["PixiEditor.Clipboard.PasteReferenceLayerFromPath"].Methods
-                    .Execute(FilePath);
-            }
-        }
+        var command = GetCommandFromTarget(target);
+        var context = new CommandExecutionContext(FilePath, new SearchSourceInfo());
+        
+        command.Execute(context, true);
     }
 
     private TextBlock GetDescription()
@@ -94,5 +101,22 @@ internal class FileSearchResult : SearchResult
 
             return separator;
         }
+    }
+
+    private static Command GetCommandFromTarget(FileSearchTarget target) => target switch
+    {
+        FileSearchTarget.OpenDocument => CommandController.Current.Commands["PixiEditor.File.OpenFromPath"],
+        FileSearchTarget.ReferenceLayer => CommandController.Current.Commands[
+            "PixiEditor.Clipboard.PasteReferenceLayerFromPath"],
+        FileSearchTarget.NestedDocument => CommandController.Current.Commands["PixiEditor.File.PlaceElementFromPath"],
+        _ => throw new IndexOutOfRangeException()
+    };
+
+    private static string GetShortenedPath(string path)
+    {
+        var separatorIndex = path.IndexOfAny(['\\', '/']);
+        var character = separatorIndex == -1 ? Path.DirectorySeparatorChar : path[separatorIndex];
+
+        return $"...{character}{Path.GetFileName(path)}";
     }
 }

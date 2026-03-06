@@ -1327,5 +1327,7 @@
   "PROCEDURAL": "Procedural",
   "RESET_TRANSFORM": "Reset Transform",
   "RESET_TRANSFORM_DESCRIPTIVE": "Reset the transform of the layer.",
-  "CONTIGUOUS_LABEL": "Contiguous"
+  "CONTIGUOUS_LABEL": "Contiguous",
+  "OPEN_PATH_AS_REFERENCE_LAYER": "As reference: {0}",
+  "OPEN_PATH_AS_NESTED_DOCUMENT": "As element: {0}"
 }

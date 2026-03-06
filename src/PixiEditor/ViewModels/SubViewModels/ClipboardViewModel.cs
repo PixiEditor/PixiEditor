@@ -117,7 +117,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    [Command.Internal("PixiEditor.Clipboard.PasteReferenceLayerFromPath")]
+    [Command.Internal("PixiEditor.Clipboard.PasteReferenceLayerFromPath", AnalyticsTrack = true)]
     public void PasteReferenceLayer(string path)
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
