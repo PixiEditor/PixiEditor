@@ -184,19 +184,19 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
         PropertyType = propertyType;
         var targetType = propertyType;
 
-        if (propertyType.IsAssignableTo(typeof(Delegate)))
+        if (targetType.IsArray)
         {
-            targetType = propertyType.GetMethod("Invoke").ReturnType;
+            targetType = targetType.GetElementType();
+        }
+
+        if (targetType.IsAssignableTo(typeof(Delegate)))
+        {
+            targetType = targetType.GetMethod("Invoke").ReturnType;
         }
 
         if (targetType.IsEnum)
         {
             targetType = typeof(Enum);
-        }
-
-        if (targetType.IsArray)
-        {
-            targetType = targetType.GetElementType();
         }
 
         if (Application.Current.Styles.TryGetResource($"{targetType.Name}SocketBrush", App.Current.ActualThemeVariant,

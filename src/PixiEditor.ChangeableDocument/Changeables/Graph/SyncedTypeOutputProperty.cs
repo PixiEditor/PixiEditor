@@ -7,11 +7,33 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph;
 
 public class SyncedTypeOutputProperty
 {
+    private SyncedTypeInputProperty other;
     private OutputProperty internalOutputProperty;
     public OutputProperty InternalProperty => internalOutputProperty;
-    public SyncedTypeInputProperty Other { get; set; }
 
-    public Func<Type, Type>? TypeAdjuster { get; private set; }
+    public SyncedTypeInputProperty Other
+    {
+        get => other;
+        set
+        {
+            if (other != null)
+            {
+                other.AfterTypeChange -= UpdateType;
+            }
+
+            other = value;
+            if (other != null)
+            {
+                Other.AfterTypeChange += UpdateType;
+            }
+        }
+    }
+
+    public Func<Type, Type>? TypeAdjuster
+    {
+        get;
+        private set;
+    }
 
     public object Value
     {
@@ -34,7 +56,6 @@ public class SyncedTypeOutputProperty
         handlers[typeof(object)] =
             () => new OutputProperty(node, internalPropertyName, displayName, null, typeof(object));
         internalOutputProperty = handlers[typeof(object)]();
-        Other.AfterTypeChange += UpdateType;
     }
 
     private void UpdateType()
@@ -118,5 +139,10 @@ public class SyncedTypeOutputProperty
     {
         TypeAdjuster = func;
         return this;
+    }
+
+    public void ForceUpdateType()
+    {
+        UpdateType();
     }
 }

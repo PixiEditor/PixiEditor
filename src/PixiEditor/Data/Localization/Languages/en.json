@@ -1348,5 +1348,6 @@
   "RADIANS": "Radians",
   "DEGREES": "Degrees",
   "DISTANCE": "Distance",
-  "DECOMPOSE_GRADIENT_NODE": "Decompose Gradient"
+  "DECOMPOSE_GRADIENT_NODE": "Decompose Gradient",
+  "ARRAY_CONVERTER": "Array Converter"
 }

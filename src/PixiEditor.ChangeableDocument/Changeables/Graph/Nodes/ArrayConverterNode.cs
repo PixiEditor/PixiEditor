@@ -36,7 +36,7 @@ public class ArrayConverterNode : Node
     {
         if (syncedTypeInputProperty.InternalProperty.Connection != null)
         {
-            if (syncedTypeInputProperty == First && InputProperties.Count > 1) return;
+            if (syncedTypeInputProperty == syncedInputs.FirstOrDefault() && InputProperties.Count > 1) return;
 
             var previousSyncedInput = syncedInputs[^1];
             var input = CreateSyncedTypeInput($"Input {inputsCount}", $"INPUT_{inputsCount}", previousSyncedInput)
@@ -47,19 +47,10 @@ public class ArrayConverterNode : Node
         }
         else
         {
-            if (syncedTypeInputProperty == First)
-            {
-                return;
-            }
-
             RemoveInputProperty(syncedTypeInputProperty.InternalProperty);
             syncedInputs.Remove(syncedTypeInputProperty);
             syncedTypeInputProperty.ConnectionChanged -= OnConnectionChanged;
             syncedTypeInputProperty.StopListeningToConnectionChanges();
-            if (InputProperties.FirstOrDefault() != First.InternalProperty)
-            {
-                MoveInputProperty(First.InternalProperty, 0);
-            }
 
             ResyncInputs();
         }
@@ -67,7 +58,7 @@ public class ArrayConverterNode : Node
 
     protected override void OnExecute(RenderContext context)
     {
-        Type targetType = First.InternalProperty.ValueType;
+        Type targetType = syncedInputs.FirstOrDefault().InternalProperty.ValueType;
         if (First.Value is Delegate del)
         {
             try
@@ -122,7 +113,9 @@ public class ArrayConverterNode : Node
 
     private void ResyncInputs()
     {
-        First.Other = null;
+        var first = syncedInputs.FirstOrDefault();
+        first.Other = null;
+
         for (int i = 1; i < syncedInputs.Count; i++)
         {
             var current = syncedInputs[i];
@@ -134,11 +127,14 @@ public class ArrayConverterNode : Node
                 current.ForceUpdateType();
             }
 
-            if(i == syncedInputs.Count - 1)
+            if (i == syncedInputs.Count - 1)
             {
-                First.Other = current;
-                First.ForceUpdateType();
+                first.Other = current;
+                first.ForceUpdateType();
             }
         }
+
+        Output.Other = first;
+        Output.ForceUpdateType();
     }
 }
