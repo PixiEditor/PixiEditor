@@ -46,6 +46,7 @@
                                     Node="{Binding}"
                                     DisplayName="{Binding NodeNameBindable}"
                                     Icon="{Binding Icon}"
+                                    MiniView="{Binding IsSocketConverterNode}"
                                     CategoryBackgroundBrush="{Binding CategoryBackgroundBrush}"
                                     Inputs="{Binding Inputs}"
                                     ActiveFrame="{Binding ActiveFrame, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"

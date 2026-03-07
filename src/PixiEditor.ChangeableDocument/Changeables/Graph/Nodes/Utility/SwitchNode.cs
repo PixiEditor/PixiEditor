@@ -289,7 +289,7 @@ public class SwitchNode : Node
     private void AddTrueFuncInputHandlers<TValue>(
         TValue constant)
     {
-        InputTrue.AddTypeHandler<Func<FuncContext, TValue>>(() => new FuncInputProperty<TValue>(
+        InputTrue.AddTypeHandler<Func<FuncContext, TValue>>(T => new FuncInputProperty<TValue>(
             this,
             "InputTrue",
             "ON_TRUE",
@@ -299,7 +299,7 @@ public class SwitchNode : Node
     private void AddFalseFuncInputHandlers<TValue>(
         TValue constant)
     {
-        InputFalse.AddTypeHandler<Func<FuncContext, TValue>>(() => new FuncInputProperty<TValue>(
+        InputFalse.AddTypeHandler<Func<FuncContext, TValue>>(T => new FuncInputProperty<TValue>(
             this,
             "InputFalse",
             "ON_FALSE",

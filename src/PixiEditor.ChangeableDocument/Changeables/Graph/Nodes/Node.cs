@@ -367,15 +367,27 @@ public abstract class Node : IReadOnlyNode, IDisposable
         keyFrames.Add(value);
     }
 
-    protected SyncedTypeInputProperty CreateSyncedTypeInput(string internalName, string displayName,
-        SyncedTypeInputProperty? syncWith)
+    protected void MoveInputProperty(InputProperty property, int newIndex)
     {
-        SyncedTypeInputProperty prop = new SyncedTypeInputProperty(this, internalName, displayName, syncWith);
+        if (!inputs.Contains(property))
+        {
+            throw new InvalidOperationException("Input property does not belong to this node.");
+        }
+
+        inputs.Remove(property);
+        inputs.Insert(newIndex, property);
+        PropertiesChanged?.Invoke(this);
+    }
+
+    protected SyncedTypeInputProperty CreateSyncedTypeInput(string internalName, string displayName,
+        SyncedTypeInputProperty? syncWith, Type? defaultType = null)
+    {
+        SyncedTypeInputProperty prop = new SyncedTypeInputProperty(this, internalName, displayName, syncWith, defaultType);
         AddInputProperty(prop.InternalProperty);
         int originalIndex = inputs.IndexOf(prop.InternalProperty);
+        prop.BeginListeningToConnectionChanges();
         if (syncWith != null)
         {
-            prop.BeginListeningToConnectionChanges();
             syncWith.Other = prop;
             syncWith.BeginListeningToConnectionChanges();
         }
@@ -527,7 +539,8 @@ public abstract class Node : IReadOnlyNode, IDisposable
         }
 
         property.ConnectionChanged += InvokeConnectionsChanged;
-        inputs.Insert(atIndex, property);
+        int adjustedIndex = Math.Min(atIndex, inputs.Count);
+        inputs.Insert(adjustedIndex, property);
         PropertiesChanged?.Invoke(this);
     }
 
@@ -678,7 +691,8 @@ public abstract class Node : IReadOnlyNode, IDisposable
         OnDeserializeAdditionalData?.Invoke(data, infos);
     }
 
-    internal virtual void SerializeAdditionalDataInternal(IReadOnlyDocument target, Dictionary<string, object> additionalData)
+    internal virtual void SerializeAdditionalDataInternal(IReadOnlyDocument target,
+        Dictionary<string, object> additionalData)
     {
     }
 

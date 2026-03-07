@@ -32,6 +32,7 @@ public static partial class PixiPerfectIcons
     public const string ChevronsRight = "\uE986";
     public const string ChevronsUp = "\uE987";
     public const string Circle = "\uE930";
+    public const string CirclePile = "\uE9DE";
     public const string Clock = "\uE931";
     public const string ClosedGrid = "\uE913";
     public const string Coins = "\uE9C5";
@@ -82,6 +83,7 @@ public static partial class PixiPerfectIcons
     public const string Ghost = "\uE916";
     public const string Github = "\uE99A";
     public const string Globe = "\uE94E";
+    public const string Gradient = "\uE9DD";
     public const string Grid = "\uE94F";
     public const string GridRound = "\uE9D9";
     public const string Gridlines = "\uE961";
@@ -161,6 +163,7 @@ public static partial class PixiPerfectIcons
     public const string Reset = "\uE9AA";
     public const string Resize = "\uE96B";
     public const string RotateView = "\uE96C";
+    public const string Ruler = "\uE9DF";
     public const string Salad = "\uE9C7";
     public const string Save = "\uE96E";
     public const string Scissors = "\uE96F";
@@ -203,6 +206,7 @@ public static partial class PixiPerfectIcons
     public const string Tool = "\uE977";
     public const string Train = "\uE9C3";
     public const string Trash = "\uE978";
+    public const string TriangleRight = "\uE9E0";
     public const string Twitter = "\uE904";
     public const string Undo = "\uE979";
     public const string Unlock = "\uE97A";

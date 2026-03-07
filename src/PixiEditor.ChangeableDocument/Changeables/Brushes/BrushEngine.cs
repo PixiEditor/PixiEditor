@@ -124,7 +124,8 @@ public class BrushEngine : IDisposable
             var currentPoint = points[i];
             var dist = VecD.Distance(previousPoint.Position, currentPoint.Position);
 
-            if (dist > 0.5)
+            bool interpolatePoints = !brushNode.AlwaysClear.Value;
+            if (dist > 0.5 && interpolatePoints)
             {
                 LineHelper.GetInterpolatedPointsNonAlloc(previousPoint.Position,
                     currentPoint.Position, interpolated);
@@ -331,12 +332,20 @@ public class BrushEngine : IDisposable
         var contentTexture = brushNode.ContentTexture;
         bool antiAliasing = brushData.AntiAliasing;
         var fill = brushNode.Fill.Value;
+        Matrix3X3 fillTransform = brushNode.FillTransform.Value;
+        Matrix3X3 strokeTransform = brushNode.StrokeTransform.Value;
         var stroke = brushNode.Stroke.Value;
         bool snapToPixels = brushNode.SnapToPixels.Value;
         bool canReuseStamps = brushNode.CanReuseStamps.Value;
         Blender? stampBlender = brushNode.UseCustomStampBlender.Value ? brushNode.LastStampBlender : null;
-        Matrix3X3 transform = brushNode.Transform.Value;
+        Matrix3X3 transform = brushNode.ContentTransform.Value;
         //Blender? imageBlender = brushNode.UseCustomImageBlender.Value ? brushNode.LastImageBlender : null;
+
+        if(fill != null)
+            fill.Transform = fillTransform;
+
+        if(stroke != null)
+            stroke.Transform = strokeTransform;
 
         if (PaintBrush(target, autoPosition, vectorShape, rect, fitToStrokeSize, pressure, content, contentTexture,
                 stampBlender, brushNode.StampBlendMode.Value, antiAliasing, fill, stroke, snapToPixels, canReuseStamps, transform))
