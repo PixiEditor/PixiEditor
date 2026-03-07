@@ -144,6 +144,11 @@ public static class GraphUtils
     {
         if (input.ValueType != output.ValueType)
         {
+            if (input.ValueType.IsArray && output.ValueType.IsArray)
+            {
+                return ConversionTable.CanConvertType(input.ValueType.GetElementType(), output.ValueType.GetElementType());
+            }
+
             if (IsCrossExpression(output.Value, input.ValueType))
             {
                 return true;
@@ -156,12 +161,17 @@ public static class GraphUtils
                 outputValue = result;
             }
 
-            if(outputValue == null && (output.ValueType == typeof(object) || IsExpressionType(output)))
+            if(outputValue is Array arr && arr.GetType().GetElementType() == typeof(object))
             {
                 return true;
             }
 
-            if(outputValue is Array arr && arr.GetType().GetElementType() == typeof(object))
+            if(output.ValueType.IsArray && output.ValueType.GetElementType() == typeof(object))
+            {
+                return true;
+            }
+
+            if(outputValue == null && (output.ValueType == typeof(object) || (IsExpressionType(output) && !input.ValueType.IsArray)))
             {
                 return true;
             }

@@ -105,7 +105,10 @@ public static class ConversionTable
             },
             {
                 typeof(ColorPaintable), [
-                    (typeof(GradientPaintable), new TypeConverter<ColorPaintable, GradientPaintable>(c => new LinearGradientPaintable(new VecD(0, 0), new VecD(1, 1), [new GradientStop(c.Color, 0), new GradientStop(c.Color, 1)])))
+                    (typeof(GradientPaintable),
+                        new TypeConverter<ColorPaintable, GradientPaintable>(c =>
+                            new LinearGradientPaintable(new VecD(0, 0), new VecD(1, 1),
+                                [new GradientStop(c.Color, 0), new GradientStop(c.Color, 1)])))
                 ]
             }
         };
@@ -118,7 +121,7 @@ public static class ConversionTable
             return false;
         }
 
-        if(arg.GetType().IsAssignableTo(targetType))
+        if (arg.GetType().IsAssignableTo(targetType))
         {
             result = arg;
             return true;
@@ -144,7 +147,7 @@ public static class ConversionTable
             return true;
         }
 
-        if(targetType.IsArray && arg.GetType().IsArray)
+        if (targetType.IsArray && arg.GetType().IsArray)
         {
             Type targetElementType = targetType.GetElementType()!;
             Type argElementType = arg.GetType().GetElementType()!;
@@ -344,11 +347,6 @@ public static class ConversionTable
             return true;
         }
 
-        if(inputValueType.IsArray && outputValueType.IsArray)
-        {
-            return CanConvertType(inputValueType.GetElementType()!, outputValueType.GetElementType()!);
-        }
-
         if (_conversionTable.TryGetValue(outputValueType, out var converters))
         {
             foreach (var (outType, _) in converters)
@@ -360,7 +358,35 @@ public static class ConversionTable
             }
         }
 
+        Type contextlessInputType = GetContextlessType(inputValueType);
+        Type contextlessOutputType = GetContextlessType(outputValueType);
+
+        if ((contextlessInputType != inputValueType || contextlessOutputType != outputValueType) &&
+            CanConvertType(GetContextlessType(inputValueType), GetContextlessType(outputValueType)))
+        {
+            return true;
+        }
+
         return outputValueType.IsAssignableFrom(inputValueType);
+    }
+
+    private static Type GetContextlessType(Type getElementType)
+    {
+        if (getElementType.IsAssignableTo(typeof(Delegate)))
+        {
+            var invokeMethod = getElementType.GetMethod("Invoke");
+            if (invokeMethod != null)
+            {
+                return invokeMethod.ReturnType;
+            }
+        }
+
+        if (getElementType.IsAssignableTo(typeof(ShaderExpressionVariable)))
+        {
+            return getElementType.BaseType.GetGenericArguments().FirstOrDefault() ?? getElementType;
+        }
+
+        return getElementType;
     }
 }
 

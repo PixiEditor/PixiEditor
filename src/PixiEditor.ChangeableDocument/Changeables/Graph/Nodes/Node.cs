@@ -380,9 +380,9 @@ public abstract class Node : IReadOnlyNode, IDisposable
     }
 
     protected SyncedTypeInputProperty CreateSyncedTypeInput(string internalName, string displayName,
-        SyncedTypeInputProperty? syncWith)
+        SyncedTypeInputProperty? syncWith, Type? defaultType = null)
     {
-        SyncedTypeInputProperty prop = new SyncedTypeInputProperty(this, internalName, displayName, syncWith);
+        SyncedTypeInputProperty prop = new SyncedTypeInputProperty(this, internalName, displayName, syncWith, defaultType);
         AddInputProperty(prop.InternalProperty);
         int originalIndex = inputs.IndexOf(prop.InternalProperty);
         prop.BeginListeningToConnectionChanges();

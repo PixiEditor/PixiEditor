@@ -1349,5 +1349,6 @@
   "DEGREES": "Degrees",
   "DISTANCE": "Distance",
   "DECOMPOSE_GRADIENT_NODE": "Decompose Gradient",
-  "ARRAY_CONVERTER": "Array Converter"
+  "ARRAY_CONVERTER": "Array Converter",
+  "ARRAY_EMPTY": "Empty array of type {0}"
 }

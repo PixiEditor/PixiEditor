@@ -5,6 +5,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using Drawie.Backend.Core.Shaders.Generation;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Arrays;
 
 namespace PixiEditor.ChangeableDocument.Changes.NodeGraph;
 
@@ -63,8 +64,9 @@ internal class ConnectProperties_Change : Change
 
         if (!canConnect)
         {
-            bool baseConnectingToArray = inputProp.ValueType.IsArray && ConversionTable.CanConvertType(outputProp.GetContextlessValueType(), inputProp.ValueType.GetElementType());
-            if(!baseConnectingToArray)
+            bool baseConnectingToArray = inputProp.ValueType.IsArray && outputProp != null && (outputProp.Value == null || ConversionTable.CanConvertType(outputProp.GetContextlessValueType(), inputProp.ValueType.GetElementType()));
+            bool crossArrayConnection = inputProp.ValueType.IsArray && outputProp is { ValueType.IsArray: true } && ConversionTable.CanConvertType(outputProp.GetContextlessValueType().GetElementType(), inputProp.ValueType.GetElementType());
+            if(!baseConnectingToArray && !crossArrayConnection)
                 return false;
         }
 
@@ -94,8 +96,9 @@ internal class ConnectProperties_Change : Change
 
         target.NodeGraph.StartListenToPropertyChanges();
 
-        bool isConnectingToArray = inputProp.ValueType.IsArray && ConversionTable.CanConvertType(outputProp.GetContextlessValueType(), inputProp.ValueType.GetElementType());
-        if (isConnectingToArray)
+        bool isConnectingToArray = inputProp.ValueType.IsArray && outputProp != null && (outputProp.Value == null || ConversionTable.CanConvertType(outputProp.GetContextlessValueType(), inputProp.ValueType.GetElementType()));
+        bool crossArrayConnection = inputProp.ValueType.IsArray && outputProp is { ValueType.IsArray: true } && ConversionTable.CanConvertType(outputProp.GetContextlessValueType().GetElementType(), inputProp.ValueType.GetElementType());
+        if (isConnectingToArray && !crossArrayConnection)
         {
             ArrayConverterNode arrayConverter = new ArrayConverterNode();
             target.NodeGraph.AddNode(arrayConverter);

@@ -36,7 +36,48 @@ public class GradientNode : Node
         StopsCount = CreateInput<int>("StopsCount", "STOPS_COUNT", 2)
             .NonOverridenChanged(_ => RegenerateStops());
 
+        Colors.ConnectionChanged += OnColorsConnected;
+        Offsets.ConnectionChanged += OnOffsetsConnected;
+
         GenerateStops();
+    }
+
+    private void OnColorsConnected()
+    {
+        if (Colors.Connection != null)
+        {
+            foreach (var kvp in ColorStops)
+            {
+                RemoveInputProperty(kvp.Key);
+                RemoveInputProperty(kvp.Value);
+            }
+
+            RemoveInputProperty(StopsCount);
+
+            ColorStops.Clear();
+        }
+        else
+        {
+            RegenerateStops();
+        }
+    }
+
+    private void OnOffsetsConnected()
+    {
+        if (Offsets.Connection != null)
+        {
+            foreach (var kvp in ColorStops)
+            {
+                RemoveInputProperty(kvp.Key);
+                RemoveInputProperty(kvp.Value);
+            }
+
+            ColorStops.Clear();
+        }
+        else
+        {
+            RegenerateStops();
+        }
     }
 
     private void TypeOnConnectionChanged()
@@ -148,6 +189,13 @@ public class GradientNode : Node
 
     private void GenerateStops()
     {
+        if (Colors.Connection != null || Offsets.Connection != null) return;
+
+        if (!InputProperties.Contains(StopsCount))
+        {
+             AddInputProperty(StopsCount);
+        }
+
         int startIndex = ColorStops.Count;
         for (int i = startIndex; i < StopsCount.Value; i++)
         {

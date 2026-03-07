@@ -2,7 +2,7 @@
 using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.ChangeableDocument.Rendering;
 
-namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Arrays;
 
 [NodeInfo("ArrayConverter")]
 public class ArrayConverterNode : Node
@@ -30,6 +30,8 @@ public class ArrayConverterNode : Node
 
                 return t.MakeArrayType();
             });
+
+        Output.ForceUpdateType();
     }
 
     private void OnConnectionChanged(SyncedTypeInputProperty syncedTypeInputProperty)
@@ -58,8 +60,9 @@ public class ArrayConverterNode : Node
 
     protected override void OnExecute(RenderContext context)
     {
-        Type targetType = syncedInputs.FirstOrDefault().InternalProperty.ValueType;
-        if (First.Value is Delegate del)
+        var firstSyncedInput = syncedInputs.FirstOrDefault();
+        Type targetType = firstSyncedInput.InternalProperty.ValueType;
+        if (firstSyncedInput.Value is Delegate del)
         {
             try
             {
