@@ -249,4 +249,9 @@ public class SyncedTypeInputProperty
 
         return this;
     }
+
+    public void ForceUpdateType()
+    {
+        UpdateTypeInternal(false);
+    }
 }

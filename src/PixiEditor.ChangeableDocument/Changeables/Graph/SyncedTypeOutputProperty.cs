@@ -11,6 +11,8 @@ public class SyncedTypeOutputProperty
     public OutputProperty InternalProperty => internalOutputProperty;
     public SyncedTypeInputProperty Other { get; set; }
 
+    public Func<Type, Type>? TypeAdjuster { get; private set; }
+
     public object Value
     {
         get => internalOutputProperty.Value;
@@ -29,7 +31,8 @@ public class SyncedTypeOutputProperty
     {
         Other = other;
         this.internalPropertyName = internalPropertyName;
-        handlers[typeof(object)] = () => new OutputProperty(node, internalPropertyName, displayName, null, typeof(object));
+        handlers[typeof(object)] =
+            () => new OutputProperty(node, internalPropertyName, displayName, null, typeof(object));
         internalOutputProperty = handlers[typeof(object)]();
         Other.AfterTypeChange += UpdateType;
     }
@@ -40,6 +43,12 @@ public class SyncedTypeOutputProperty
             return;
 
         Type newType = Other.InternalProperty?.ValueType ?? typeof(object);
+
+        if (TypeAdjuster != null)
+        {
+            newType = TypeAdjuster(newType);
+        }
+
         if (internalOutputProperty.ValueType != newType && newType != null && handlers.Count > 0 &&
             (handlers.TryGetValue(newType, out Func<OutputProperty> handler) || genericFallbackHandler != null))
         {
@@ -52,7 +61,7 @@ public class SyncedTypeOutputProperty
             }
 
             internalOutputProperty = handler != null ? handler() : genericFallbackHandler(newType);
-            if(internalOutputProperty.InternalPropertyName != internalPropertyName)
+            if (internalOutputProperty.InternalPropertyName != internalPropertyName)
             {
                 throw new InvalidOperationException(
                     $"The handler for type {newType} returned an OutputProperty with an invalid internal name ({internalOutputProperty.InternalPropertyName} instead of {internalPropertyName})");
@@ -77,7 +86,6 @@ public class SyncedTypeOutputProperty
                 var newInput = input.Node.GetInputProperty(input.InternalPropertyName);
                 internalOutputProperty.ConnectTo(newInput);
             }
-
         }
     }
 
@@ -103,6 +111,12 @@ public class SyncedTypeOutputProperty
                 defaultValue,
                 type);
         };
+        return this;
+    }
+
+    public SyncedTypeOutputProperty? WithTypeAdjuster(Func<Type, Type> func)
+    {
+        TypeAdjuster = func;
         return this;
     }
 }

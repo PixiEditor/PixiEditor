@@ -11,35 +11,57 @@ public class ArrayConverterNode : Node
     public SyncedTypeOutputProperty Output { get; }
 
     private int inputsCount = 1;
+    private List<SyncedTypeInputProperty> syncedInputs = new();
 
     public ArrayConverterNode()
     {
         First = CreateSyncedTypeInput("First", "FIRST", null)
             .AllowGenericFallback(true);
+        syncedInputs.Add(First);
         First.ConnectionChanged += OnConnectionChanged;
 
         Output = CreateSyncedTypeOutput("Output", "OUTPUT", First)
-            .AllowGenericFallback();
+            .AllowGenericFallback().WithTypeAdjuster(t =>
+            {
+                if (t.IsArray)
+                {
+                    return t;
+                }
+
+                return t.MakeArrayType();
+            });
     }
 
     private void OnConnectionChanged(SyncedTypeInputProperty syncedTypeInputProperty)
     {
         if (syncedTypeInputProperty.InternalProperty.Connection != null)
         {
-            if(syncedTypeInputProperty == First && InputProperties.Count > 1) return;
+            if (syncedTypeInputProperty == First && InputProperties.Count > 1) return;
 
-            var input = CreateSyncedTypeInput($"Input {inputsCount}", $"INPUT_{inputsCount}", First)
+            var previousSyncedInput = syncedInputs[^1];
+            var input = CreateSyncedTypeInput($"Input {inputsCount}", $"INPUT_{inputsCount}", previousSyncedInput)
                 .AllowGenericFallback(true);
+            syncedInputs.Add(input);
             input.ConnectionChanged += OnConnectionChanged;
             inputsCount++;
         }
         else
         {
-            if (syncedTypeInputProperty == First) return;
+            if (syncedTypeInputProperty == First)
+            {
+                return;
+            }
 
             RemoveInputProperty(syncedTypeInputProperty.InternalProperty);
+            syncedInputs.Remove(syncedTypeInputProperty);
             syncedTypeInputProperty.ConnectionChanged -= OnConnectionChanged;
             syncedTypeInputProperty.StopListeningToConnectionChanges();
+            if (InputProperties.FirstOrDefault() != First.InternalProperty)
+            {
+                MoveInputProperty(First.InternalProperty, 0);
+            }
+
+            ResyncInputs();
         }
     }
 
@@ -62,13 +84,16 @@ public class ArrayConverterNode : Node
                 return;
             }
         }
+
         Array array = Array.CreateInstance(targetType, InputProperties.Count - 1);
 
         for (int i = 0; i < InputProperties.Count - 1; i++)
         {
             var input = InputProperties[i];
             object value = input.Value;
-            if(value is Delegate func)
+            if (value == null) continue;
+
+            if (value is Delegate func && !array.GetType().GetElementType().IsAssignableTo(typeof(Delegate)))
             {
                 try
                 {
@@ -93,5 +118,27 @@ public class ArrayConverterNode : Node
     public override Node CreateCopy()
     {
         return new ArrayConverterNode();
+    }
+
+    private void ResyncInputs()
+    {
+        First.Other = null;
+        for (int i = 1; i < syncedInputs.Count; i++)
+        {
+            var current = syncedInputs[i];
+            var previous = syncedInputs[i - 1];
+
+            if (current.Other != previous)
+            {
+                current.Other = previous;
+                current.ForceUpdateType();
+            }
+
+            if(i == syncedInputs.Count - 1)
+            {
+                First.Other = current;
+                First.ForceUpdateType();
+            }
+        }
     }
 }

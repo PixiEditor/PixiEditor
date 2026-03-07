@@ -144,6 +144,28 @@ public static class ConversionTable
             return true;
         }
 
+        if(targetType.IsArray && arg.GetType().IsArray)
+        {
+            Type targetElementType = targetType.GetElementType()!;
+            Type argElementType = arg.GetType().GetElementType()!;
+            int itemsCount = ((Array)arg).Length;
+            Array targetArray = Array.CreateInstance(targetElementType, itemsCount);
+
+            for (int i = 0; i < itemsCount; i++)
+            {
+                object argElement = ((Array)arg).GetValue(i)!;
+                if (!TryConvert(argElement, targetElementType, out var convertedElement))
+                {
+                    result = null;
+                    return false;
+                }
+
+                targetArray.SetValue(convertedElement, i);
+            }
+
+            result = targetArray;
+            return true;
+        }
 
         if (targetType.IsEnum)
         {
@@ -320,6 +342,11 @@ public static class ConversionTable
         if (inputValueType == outputValueType)
         {
             return true;
+        }
+
+        if(inputValueType.IsArray && outputValueType.IsArray)
+        {
+            return CanConvertType(inputValueType.GetElementType()!, outputValueType.GetElementType()!);
         }
 
         if (_conversionTable.TryGetValue(outputValueType, out var converters))

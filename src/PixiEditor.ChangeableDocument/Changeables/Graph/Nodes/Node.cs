@@ -367,6 +367,18 @@ public abstract class Node : IReadOnlyNode, IDisposable
         keyFrames.Add(value);
     }
 
+    protected void MoveInputProperty(InputProperty property, int newIndex)
+    {
+        if (!inputs.Contains(property))
+        {
+            throw new InvalidOperationException("Input property does not belong to this node.");
+        }
+
+        inputs.Remove(property);
+        inputs.Insert(newIndex, property);
+        PropertiesChanged?.Invoke(this);
+    }
+
     protected SyncedTypeInputProperty CreateSyncedTypeInput(string internalName, string displayName,
         SyncedTypeInputProperty? syncWith)
     {
@@ -527,7 +539,8 @@ public abstract class Node : IReadOnlyNode, IDisposable
         }
 
         property.ConnectionChanged += InvokeConnectionsChanged;
-        inputs.Insert(atIndex, property);
+        int adjustedIndex = Math.Min(atIndex, inputs.Count);
+        inputs.Insert(adjustedIndex, property);
         PropertiesChanged?.Invoke(this);
     }
 

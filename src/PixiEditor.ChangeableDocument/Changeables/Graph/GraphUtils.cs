@@ -218,7 +218,7 @@ public static class GraphUtils
 
     private static bool IsExpressionType(IOutputProperty output)
     {
-        return output.ValueType.IsAssignableTo(typeof(Delegate));
+        return output.ValueType.IsAssignableTo(typeof(Delegate)) || (output.ValueType.IsArray && output.ValueType.GetElementType().IsAssignableTo(typeof(Delegate)));
     }
 
     private static bool IsExpressionToConstant(IOutputProperty output, out object o)
@@ -233,6 +233,21 @@ public static class GraphUtils
                     o = variable.GetConstant();
                 }
 
+                return true;
+            }
+            catch
+            {
+                o = null;
+                return false;
+            }
+        }
+
+        if(output.Value is Array arr && arr.GetType().GetElementType() == typeof(object) && output.ValueType.IsAssignableTo(typeof(Delegate)))
+        {
+            try
+            {
+                var del = (Delegate)output.Value;
+                o = del.DynamicInvoke(FuncContext.NoContext);
                 return true;
             }
             catch

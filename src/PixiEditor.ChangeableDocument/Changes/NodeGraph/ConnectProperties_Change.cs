@@ -63,7 +63,7 @@ internal class ConnectProperties_Change : Change
 
         if (!canConnect)
         {
-            bool baseConnectingToArray = inputProp.ValueType.IsArray && outputProp.GetContextlessValueType() == inputProp.ValueType.GetElementType();
+            bool baseConnectingToArray = inputProp.ValueType.IsArray && ConversionTable.CanConvertType(outputProp.GetContextlessValueType(), inputProp.ValueType.GetElementType());
             if(!baseConnectingToArray)
                 return false;
         }
@@ -94,7 +94,7 @@ internal class ConnectProperties_Change : Change
 
         target.NodeGraph.StartListenToPropertyChanges();
 
-        bool isConnectingToArray = inputProp.ValueType.IsArray && outputProp.GetContextlessValueType() == inputProp.ValueType.GetElementType();
+        bool isConnectingToArray = inputProp.ValueType.IsArray && ConversionTable.CanConvertType(outputProp.GetContextlessValueType(), inputProp.ValueType.GetElementType());
         if (isConnectingToArray)
         {
             ArrayConverterNode arrayConverter = new ArrayConverterNode();
