@@ -3,7 +3,7 @@ using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document.Nodes.Arrays;
 
-[NodeViewModel("ARRAY_ELEMENT", null, null)]
+[NodeViewModel("ARRAY_ELEMENT_NODE", null, null)]
 internal class ArrayElementNodeViewModel : NodeViewModel<ArrayElementNode>
 {
 
