@@ -118,7 +118,7 @@ public class SyncedTypeInputProperty
             handler = compatibleTypes.Select(t => handlers[t]).LastOrDefault();
         }
 
-        if (internalInputProperty.ValueType != newType && newType != null && handlers.Count > 0 && foundHandler != null)
+        if (internalInputProperty.ValueType != newType && newType != null && handlers.Count > 0 && foundHandler)
         {
             BeforeTypeChange?.Invoke();
             internalInputProperty.ConnectionChanged -= InvokeConnectionChanged;
@@ -126,7 +126,7 @@ public class SyncedTypeInputProperty
             internalInputProperty.Connection?.DisconnectFrom(internalInputProperty);
             internalInputProperty.Connection = null;
 
-            internalInputProperty = handler != null ? handler(newType) : genericFallbackHandler(newType);
+            internalInputProperty = handler != null ? handler(newType) : genericFallbackHandler!(newType);
             AfterTypeChange();
 
             if (pendingValue != null)
