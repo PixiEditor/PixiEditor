@@ -1,5 +1,6 @@
 ﻿using Drawie.Backend.Core.Shaders.Generation;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Arrays;
@@ -13,14 +14,17 @@ public class ArrayConverterNode : Node
     private int inputsCount = 1;
     private List<SyncedTypeInputProperty> syncedInputs = new();
 
+    private SyncGroup syncGroup = new();
+
     public ArrayConverterNode()
     {
-        First = CreateSyncedTypeInput("First", "FIRST", null)
+        syncGroup = new();
+        First = CreateSyncedTypeInput("Input 0", "Input 0", syncGroup)
             .AllowGenericFallback(true);
         syncedInputs.Add(First);
         First.ConnectionChanged += OnConnectionChanged;
 
-        Output = CreateSyncedTypeOutput("Output", "OUTPUT", First)
+        Output = CreateSyncedTypeOutput("Output", "OUTPUT", syncGroup)
             .AllowGenericFallback().WithTypeAdjuster(t =>
             {
                 if (t.IsArray)
@@ -31,18 +35,46 @@ public class ArrayConverterNode : Node
                 return t.MakeArrayType();
             });
 
-        Output.ForceUpdateType();
+
+        Output.ForceUpdateType(typeof(object[]));
+    }
+
+    internal override void SerializeAdditionalDataInternal(IReadOnlyDocument target, Dictionary<string, object> additionalData)
+    {
+        string[] inputNames = syncedInputs.Select((input, index) => $"Input {index}").ToArray();
+        additionalData["inputNames"] = inputNames;
+    }
+
+    internal override void DeserializeAdditionalDataInternal(IReadOnlyDocument target, IReadOnlyDictionary<string, object> data, List<IChangeInfo> infos)
+    {
+        if (data.TryGetValue("inputNames", out object inputNamesObj) && inputNamesObj is string[] inputNames)
+        {
+            for (int i = 0; i < inputNames.Length; i++)
+            {
+                string inputName = inputNames[i];
+                if(InputProperties.Any(x => x.InternalPropertyName == inputName))
+                {
+                    continue;
+                }
+
+                var input = CreateSyncedTypeInput(inputNames[i], inputName, syncGroup)
+                    .AllowGenericFallback(true);
+                syncedInputs.Add(input);
+                input.ConnectionChanged += OnConnectionChanged;
+                inputsCount++;
+            }
+        }
     }
 
     private void OnConnectionChanged(SyncedTypeInputProperty syncedTypeInputProperty)
     {
         if (syncedTypeInputProperty.InternalProperty.Connection != null)
         {
-            if (syncedTypeInputProperty == syncedInputs.FirstOrDefault() && InputProperties.Count > 1) return;
+            if (InputProperties.Any(x => x.Connection == null)) return;
 
-            var previousSyncedInput = syncedInputs[^1];
-            var input = CreateSyncedTypeInput($"Input {inputsCount}", $"INPUT_{inputsCount}", previousSyncedInput)
+            var input = CreateSyncedTypeInput($"Input {inputsCount}", $"INPUT_{inputsCount}", syncGroup)
                 .AllowGenericFallback(true);
+
             syncedInputs.Add(input);
             input.ConnectionChanged += OnConnectionChanged;
             inputsCount++;
@@ -51,33 +83,15 @@ public class ArrayConverterNode : Node
         {
             RemoveInputProperty(syncedTypeInputProperty.InternalProperty);
             syncedInputs.Remove(syncedTypeInputProperty);
+            syncGroup.RemoveInput(syncedTypeInputProperty);
             syncedTypeInputProperty.ConnectionChanged -= OnConnectionChanged;
             syncedTypeInputProperty.StopListeningToConnectionChanges();
-
-            ResyncInputs();
         }
     }
 
     protected override void OnExecute(RenderContext context)
     {
-        var firstSyncedInput = syncedInputs.FirstOrDefault();
-        Type targetType = firstSyncedInput.InternalProperty.ValueType;
-        if (firstSyncedInput.Value is Delegate del)
-        {
-            try
-            {
-                var val = del.DynamicInvoke(FuncContext.NoContext);
-                if (val is ShaderExpressionVariable expr)
-                {
-                    val = expr.GetConstant();
-                    targetType = val.GetType();
-                }
-            }
-            catch
-            {
-                return;
-            }
-        }
+        Type targetType = FindCommonBaseType(syncedInputs);
 
         Array array = Array.CreateInstance(targetType, InputProperties.Count - 1);
 
@@ -109,35 +123,47 @@ public class ArrayConverterNode : Node
         Output.Value = array;
     }
 
-    public override Node CreateCopy()
+    private Type FindCommonBaseType(List<SyncedTypeInputProperty> inputs)
     {
-        return new ArrayConverterNode();
-    }
+        if (inputs.Count == 0) return typeof(object);
+        Type? commonBaseType = inputs[0].InternalProperty.ValueType;
 
-    private void ResyncInputs()
-    {
-        var first = syncedInputs.FirstOrDefault();
-        first.Other = null;
-
-        for (int i = 1; i < syncedInputs.Count; i++)
+        for (int i = 1; i < inputs.Count - 1; i++)
         {
-            var current = syncedInputs[i];
-            var previous = syncedInputs[i - 1];
+            Type currentType = inputs[i].InternalProperty.ValueType;
 
-            if (current.Other != previous)
+            if (inputs[i].Value is Delegate del)
             {
-                current.Other = previous;
-                current.ForceUpdateType();
+                try
+                {
+                    var val = del.DynamicInvoke(FuncContext.NoContext);
+                    if (val is ShaderExpressionVariable expr)
+                    {
+                        val = expr.GetConstant();
+                        currentType = val.GetType();
+                    }
+                }
+                catch
+                {
+                }
             }
 
-            if (i == syncedInputs.Count - 1)
+            while (commonBaseType != null && !currentType.IsAssignableTo(commonBaseType))
             {
-                first.Other = current;
-                first.ForceUpdateType();
+                commonBaseType = commonBaseType.BaseType;
+            }
+
+            if (commonBaseType == null)
+            {
+                return typeof(object);
             }
         }
 
-        Output.Other = first;
-        Output.ForceUpdateType();
+        return commonBaseType ?? typeof(object);
+    }
+
+    public override Node CreateCopy()
+    {
+        return new ArrayConverterNode();
     }
 }

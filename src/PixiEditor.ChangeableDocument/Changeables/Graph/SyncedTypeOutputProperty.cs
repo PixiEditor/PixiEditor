@@ -11,24 +11,6 @@ public class SyncedTypeOutputProperty
     private OutputProperty internalOutputProperty;
     public OutputProperty InternalProperty => internalOutputProperty;
 
-    public SyncedTypeInputProperty Other
-    {
-        get => other;
-        set
-        {
-            if (other != null)
-            {
-                other.AfterTypeChange -= UpdateType;
-            }
-
-            other = value;
-            if (other != null)
-            {
-                Other.AfterTypeChange += UpdateType;
-            }
-        }
-    }
-
     public Func<Type, Type>? TypeAdjuster
     {
         get;
@@ -41,6 +23,8 @@ public class SyncedTypeOutputProperty
         set => internalOutputProperty.Value = value;
     }
 
+    public SyncGroup? Group { get; set; }
+
     public event Action BeforeTypeChange;
     public event Action AfterTypeChange;
 
@@ -49,21 +33,18 @@ public class SyncedTypeOutputProperty
     private Func<Type, OutputProperty>? genericFallbackHandler = null;
 
     public SyncedTypeOutputProperty(Node node, string internalPropertyName, string displayName,
-        SyncedTypeInputProperty other)
+        SyncGroup? syncGroup)
     {
-        Other = other;
+        Group = syncGroup;
         this.internalPropertyName = internalPropertyName;
         handlers[typeof(object)] =
             () => new OutputProperty(node, internalPropertyName, displayName, null, typeof(object));
         internalOutputProperty = handlers[typeof(object)]();
     }
 
-    private void UpdateType()
+    private void UpdateType(Type type)
     {
-        if (Other == null)
-            return;
-
-        Type newType = Other.InternalProperty?.ValueType ?? typeof(object);
+        Type newType = type;
 
         if (TypeAdjuster != null)
         {
@@ -112,10 +93,6 @@ public class SyncedTypeOutputProperty
 
     public SyncedTypeOutputProperty? AddTypeHandler<T>(Func<OutputProperty> handleOutput)
     {
-        if (!Other.Handlers.ContainsKey(typeof(T)))
-            throw new InvalidOperationException(
-                $"The corresponding SyncedTypeInputProperty does not have a handler for type {typeof(T)}");
-
         handlers[typeof(T)] = handleOutput;
         return this;
     }
@@ -141,8 +118,8 @@ public class SyncedTypeOutputProperty
         return this;
     }
 
-    public void ForceUpdateType()
+    public void ForceUpdateType(Type newType)
     {
-        UpdateType();
+        UpdateType(newType);
     }
 }

@@ -146,7 +146,9 @@ public static class GraphUtils
         {
             if (input.ValueType.IsArray && output.ValueType.IsArray)
             {
-                return ConversionTable.CanConvertType(input.ValueType.GetElementType(), output.ValueType.GetElementType());
+                var inputElementType = input.ValueType.GetElementType();
+                var outputElementType = output.ValueType.GetElementType();
+                return ConversionTable.CanConvertType(inputElementType, outputElementType) || (output.Value is null or object[] { Length: 0 } && outputElementType == typeof(object));
             }
 
             if (IsCrossExpression(output.Value, input.ValueType))
@@ -166,7 +168,7 @@ public static class GraphUtils
                 return true;
             }
 
-            if(output.ValueType.IsArray && output.ValueType.GetElementType() == typeof(object))
+            if(output.ValueType.IsArray && outputValue == null && output.ValueType.GetElementType() == typeof(object))
             {
                 return true;
             }

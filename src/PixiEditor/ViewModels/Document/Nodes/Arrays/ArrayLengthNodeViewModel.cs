@@ -3,8 +3,8 @@ using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document.Nodes.Arrays;
 
-[NodeViewModel("ARRAY_ELEMENT_NODE", "ARRAYS", PixiPerfectIcons.PackageOpen)]
-internal class ArrayElementNodeViewModel : NodeViewModel<ArrayElementNode>
+[NodeViewModel("ARRAY_LENGTH_NODE", "ARRAYS", PixiPerfectIcons.Tally5)]
+internal class ArrayLengthNodeViewModel : NodeViewModel<ArrayLengthNode>
 {
 
 }

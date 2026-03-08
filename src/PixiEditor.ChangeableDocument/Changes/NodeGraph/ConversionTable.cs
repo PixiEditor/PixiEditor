@@ -28,6 +28,9 @@ public static class ConversionTable
                     (typeof(VecD), new TypeConverter<double, VecD>(DoubleToVecD)),
                     (typeof(VecI), new TypeConverter<double, VecI>(DoubleToVecI)),
                     (typeof(Vec3D), new TypeConverter<double, Vec3D>(d => new Vec3D(d, d, d))),
+                    (typeof(Color), new TypeConverter<double, Color>(d =>
+                        new Color((byte)Math.Clamp(d, 0, 255), (byte)Math.Clamp(d, 0, 255),
+                            (byte)Math.Clamp(d, 0, 255))))
                 ]
             },
             {
@@ -37,6 +40,9 @@ public static class ConversionTable
                     (typeof(VecD), new TypeConverter<float, VecD>(f => new VecD(f, f))),
                     (typeof(VecI), new TypeConverter<float, VecI>(f => new VecI((int)f, (int)f))),
                     (typeof(Vec3D), new TypeConverter<float, Vec3D>(f => new Vec3D(f, f, f))),
+                    (typeof(Color), new TypeConverter<float, Color>(f =>
+                        new Color((byte)Math.Clamp(f, 0, 255), (byte)Math.Clamp(f, 0, 255),
+                            (byte)Math.Clamp(f, 0, 255))))
                 ]
             },
             {
@@ -46,6 +52,9 @@ public static class ConversionTable
                     (typeof(VecI), new TypeConverter<int, VecI>(IntToVecI)),
                     (typeof(VecD), new TypeConverter<int, VecD>(IntToVecD)),
                     (typeof(Vec3D), new TypeConverter<int, Vec3D>(i => new Vec3D(i, i, i))),
+                    (typeof(Color), new TypeConverter<int, Color>(i =>
+                        new Color((byte)Math.Clamp(i, 0, 255), (byte)Math.Clamp(i, 0, 255),
+                            (byte)Math.Clamp(i, 0, 255))))
                 ]
             },
             {
@@ -54,7 +63,10 @@ public static class ConversionTable
                     (typeof(int), new TypeConverter<VecD, int>(VecDToInt)),
                     (typeof(float), new TypeConverter<VecD, float>(v => (float)v.X)),
                     (typeof(VecI), new TypeConverter<VecD, VecI>(VecDToVecI)),
-                    (typeof(Vec3D), new TypeConverter<VecD, Vec3D>(v => new Vec3D(v.X, v.Y, v.Y)))
+                    (typeof(Vec3D), new TypeConverter<VecD, Vec3D>(v => new Vec3D(v.X, v.Y, v.Y))),
+                    (typeof(Color), new TypeConverter<VecD, Color>(v =>
+                        new Color((byte)Math.Clamp(v.X, 0, 255), (byte)Math.Clamp(v.Y, 0, 255),
+                            0)))
                 ]
             },
             {
@@ -63,7 +75,10 @@ public static class ConversionTable
                     (typeof(int), new TypeConverter<VecI, int>(VecIToInt)),
                     (typeof(float), new TypeConverter<VecI, float>(v => v.X)),
                     (typeof(VecD), new TypeConverter<VecI, VecD>(VecIToVecD)),
-                    (typeof(Vec3D), new TypeConverter<VecI, Vec3D>(v => new Vec3D(v.X, v.Y, v.Y)))
+                    (typeof(Vec3D), new TypeConverter<VecI, Vec3D>(v => new Vec3D(v.X, v.Y, v.Y))),
+                    (typeof(Color), new TypeConverter<VecI, Color>(v =>
+                        new Color((byte)Math.Clamp(v.X, 0, 255), (byte)Math.Clamp(v.Y, 0, 255),
+                            0)))
                 ]
             },
             {
@@ -132,7 +147,10 @@ public static class ConversionTable
             try
             {
                 var actualArg = func.DynamicInvoke(FuncContext.NoContext);
-                return TryConvert(actualArg, targetType, out result);
+                if (!TryConvert(actualArg, targetType, out result) && actualArg is ShaderExpressionVariable expr)
+                {
+                    return TryConvert(expr.GetConstant(), targetType, out result);
+                }
             }
             catch
             {
@@ -367,7 +385,7 @@ public static class ConversionTable
             return true;
         }
 
-        return outputValueType.IsAssignableFrom(inputValueType);
+        return outputValueType.IsAssignableTo(inputValueType)/* || (outputValueType == typeof(object))*/;
     }
 
     private static Type GetContextlessType(Type getElementType)

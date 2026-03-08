@@ -20,8 +20,9 @@ public class SwitchNode : Node
     // TODO: Connection validation
     public SwitchNode()
     {
+        var syncGroup = new SyncGroup();
         Condition = CreateFuncInput("Condition", "CONDITION", new Bool("") { ConstantValue = false });
-        InputTrue = CreateSyncedTypeInput("InputTrue", "ON_TRUE", null)
+        InputTrue = CreateSyncedTypeInput("InputTrue", "ON_TRUE", syncGroup)
             .AllowGenericFallback(true);
         AddTrueFuncInputHandlers(new Float1("") { ConstantValue = 1f });
         AddTrueFuncInputHandlers(new Half4("") { ConstantValue = Colors.Black });
@@ -33,7 +34,7 @@ public class SwitchNode : Node
         AddTrueFuncInputHandlers(new Half3("") { ConstantValue = Vec3D.Zero });
         AddTrueFuncInputHandlers(new Float3x3("") { ConstantValue = Matrix3X3.Identity });
 
-        InputFalse = CreateSyncedTypeInput("InputFalse", "ON_FALSE", InputTrue)
+        InputFalse = CreateSyncedTypeInput("InputFalse", "ON_FALSE", syncGroup)
             .AllowGenericFallback(true);
         AddFalseFuncInputHandlers(new Float1("") { ConstantValue = 1f });
         AddFalseFuncInputHandlers(new Half4("") { ConstantValue = Colors.Black });
@@ -45,7 +46,7 @@ public class SwitchNode : Node
         AddFalseFuncInputHandlers(new Half3("") { ConstantValue = Vec3D.Zero });
         AddFalseFuncInputHandlers(new Float3x3("") { ConstantValue = Matrix3X3.Identity });
 
-        Output = CreateSyncedTypeOutput("Output", "RESULT", InputTrue).AllowGenericFallback();
+        Output = CreateSyncedTypeOutput("Output", "RESULT", syncGroup).AllowGenericFallback();
         AddOutputFuncHandlers(HandleConditionalFloat1);
         AddOutputFuncHandlers(HandleConditionalHalf4);
         AddOutputFuncHandlers(HandleConditionalBool);

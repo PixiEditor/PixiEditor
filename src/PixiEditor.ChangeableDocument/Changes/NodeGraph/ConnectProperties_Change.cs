@@ -64,8 +64,8 @@ internal class ConnectProperties_Change : Change
 
         if (!canConnect)
         {
-            bool baseConnectingToArray = inputProp.ValueType.IsArray && outputProp != null && (outputProp.Value == null || ConversionTable.CanConvertType(outputProp.GetContextlessValueType(), inputProp.ValueType.GetElementType()));
-            bool crossArrayConnection = inputProp.ValueType.IsArray && outputProp is { ValueType.IsArray: true } && ConversionTable.CanConvertType(outputProp.GetContextlessValueType().GetElementType(), inputProp.ValueType.GetElementType());
+            bool baseConnectingToArray = inputProp.ValueType.IsArray && outputProp != null && (outputProp.Value == null || ConversionTable.CanConvertType(inputProp.ValueType.GetElementType(), outputProp.GetContextlessValueType()));
+            bool crossArrayConnection = inputProp.ValueType.IsArray && outputProp is { ValueType.IsArray: true } && ConversionTable.CanConvertType(inputProp.ValueType.GetElementType(), outputProp.GetContextlessValueType().GetElementType());
             if(!baseConnectingToArray && !crossArrayConnection)
                 return false;
         }
@@ -96,8 +96,8 @@ internal class ConnectProperties_Change : Change
 
         target.NodeGraph.StartListenToPropertyChanges();
 
-        bool isConnectingToArray = inputProp.ValueType.IsArray && outputProp != null && (outputProp.Value == null || ConversionTable.CanConvertType(outputProp.GetContextlessValueType(), inputProp.ValueType.GetElementType()));
-        bool crossArrayConnection = inputProp.ValueType.IsArray && outputProp is { ValueType.IsArray: true } && ConversionTable.CanConvertType(outputProp.GetContextlessValueType().GetElementType(), inputProp.ValueType.GetElementType());
+        bool isConnectingToArray = inputProp.ValueType.IsArray && outputProp != null && (outputProp.Value == null || ConversionTable.CanConvertType(inputProp.ValueType.GetElementType(), outputProp.GetContextlessValueType()));
+        bool crossArrayConnection = inputProp.ValueType.IsArray && outputProp is { ValueType.IsArray: true } && ConversionTable.CanConvertType(inputProp.ValueType.GetElementType(), outputProp.GetContextlessValueType().GetElementType());
         if (isConnectingToArray && !crossArrayConnection)
         {
             ArrayConverterNode arrayConverter = new ArrayConverterNode();

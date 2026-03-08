@@ -72,6 +72,8 @@ public class GradientNode : Node
                 RemoveInputProperty(kvp.Value);
             }
 
+            RemoveInputProperty(StopsCount);
+
             ColorStops.Clear();
         }
         else

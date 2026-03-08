@@ -12,11 +12,12 @@ public class ArrayElementNode : Node
 
     public ArrayElementNode()
     {
+        SyncGroup syncGroup = new();
         Index = CreateInput<int>("Index", "INDEX", 0)
             .WithRules(x => x.Min(0));
-        Array = CreateSyncedTypeInput("Array", "ARRAY", null, typeof(object[]))
+        Array = CreateSyncedTypeInput("Array", "ARRAY", syncGroup, typeof(object[]))
             .AddTypeHandler<Array>(true);
-        Output = CreateSyncedTypeOutput("Output", "OUTPUT", Array)
+        Output = CreateSyncedTypeOutput("Output", "OUTPUT", syncGroup)
             .AllowGenericFallback().WithTypeAdjuster(t =>
             {
                 if (t.IsArray)

@@ -440,10 +440,23 @@ public class DocumentChangeTracker : IDisposable
             throw new ObjectDisposedException(nameof(DocumentChangeTracker));
         if (running)
             throw new InvalidOperationException("Already currently processing");
-        running = true;
-        var result = await DrawingBackendApi.Current.RenderingDispatcher.InvokeAsync(() => ProcessActionList(actions));
-        running = false;
-        return result;
+        try
+        {
+            running = true;
+            var result =
+                await DrawingBackendApi.Current.RenderingDispatcher.InvokeAsync(() => ProcessActionList(actions));
+            running = false;
+            return result;
+        }
+        catch (Exception e)
+        {
+            Trace.WriteLine($"Exception while processing actions: {e}");
+            return new List<IChangeInfo?>();
+        }
+        finally
+        {
+            running = false;
+        }
     }
 
     public List<IChangeInfo?> ProcessActionsSync(IReadOnlyList<(ActionSource, IAction)> actions)

@@ -1349,7 +1349,11 @@
   "DEGREES": "Degrees",
   "DISTANCE": "Distance",
   "DECOMPOSE_GRADIENT_NODE": "Decompose Gradient",
-  "ARRAY_CONVERTER": "Array Converter",
+  "ARRAY_CONVERTER": "Array",
   "ARRAY_EMPTY": "Empty array of type {0}",
-  "ARRAY_ELEMENT_NODE": "Array Element"
+  "ARRAY_ELEMENT_NODE": "Array Element",
+  "INDEX": "Index",
+  "ARRAY": "Array",
+  "ARRAYS": "Arrays",
+  "ARRAY_LENGTH_NODE": "Array Length"
 }

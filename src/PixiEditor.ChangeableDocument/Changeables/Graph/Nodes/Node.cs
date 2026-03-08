@@ -380,17 +380,12 @@ public abstract class Node : IReadOnlyNode, IDisposable
     }
 
     protected SyncedTypeInputProperty CreateSyncedTypeInput(string internalName, string displayName,
-        SyncedTypeInputProperty? syncWith, Type? defaultType = null)
+        SyncGroup? syncGroup, Type? defaultType = null)
     {
-        SyncedTypeInputProperty prop = new SyncedTypeInputProperty(this, internalName, displayName, syncWith, defaultType);
+        SyncedTypeInputProperty prop = new SyncedTypeInputProperty(this, internalName, displayName, syncGroup, defaultType);
         AddInputProperty(prop.InternalProperty);
         int originalIndex = inputs.IndexOf(prop.InternalProperty);
         prop.BeginListeningToConnectionChanges();
-        if (syncWith != null)
-        {
-            syncWith.Other = prop;
-            syncWith.BeginListeningToConnectionChanges();
-        }
 
         prop.BeforeTypeChange += () =>
         {
@@ -400,13 +395,15 @@ public abstract class Node : IReadOnlyNode, IDisposable
         {
             AddInputProperty(prop.InternalProperty, originalIndex);
         };
+
+        syncGroup?.AddInput(prop);
         return prop;
     }
 
     protected SyncedTypeOutputProperty CreateSyncedTypeOutput(string internalName, string displayName,
-        SyncedTypeInputProperty? syncWith)
+        SyncGroup? syncGroup)
     {
-        SyncedTypeOutputProperty prop = new SyncedTypeOutputProperty(this, internalName, displayName, syncWith);
+        SyncedTypeOutputProperty prop = new SyncedTypeOutputProperty(this, internalName, displayName, syncGroup);
         AddOutputProperty(prop.InternalProperty);
 
         int originalIndex = outputs.IndexOf(prop.InternalProperty);
@@ -418,6 +415,8 @@ public abstract class Node : IReadOnlyNode, IDisposable
         {
             AddOutputProperty(prop.InternalProperty, originalIndex);
         };
+
+        syncGroup?.AddOutput(prop);
         return prop;
     }
 

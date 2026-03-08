@@ -19,6 +19,7 @@
             <system:String x:Key="icon-bold">&#xE9AD;</system:String>
             <system:String x:Key="icon-book">&#xE928;</system:String>
             <system:String x:Key="icon-braces">&#xE9CF;</system:String>
+            <system:String x:Key="icon-brackets">&#xE9E1;</system:String>
             <system:String x:Key="icon-bucket">&#xE929;</system:String>
             <system:String x:Key="icon-camera">&#xE9BD;</system:String>
             <system:String x:Key="icon-canvas-resize">&#xE92A;</system:String>
@@ -147,6 +148,7 @@
             <system:String x:Key="icon-numbers-binary-down">&#xE915;</system:String>
             <system:String x:Key="icon-onion">&#xE9A5;</system:String>
             <system:String x:Key="icon-outline">&#xE9BA;</system:String>
+            <system:String x:Key="icon-package-open">&#xE9E3;</system:String>
             <system:String x:Key="icon-paint-brush">&#xE90A;</system:String>
             <system:String x:Key="icon-paste">&#xE964;</system:String>
             <system:String x:Key="icon-paste-as-new-layer">&#xE998;</system:String>
@@ -200,6 +202,7 @@
             <system:String x:Key="icon-swap">&#xE976;</system:String>
             <system:String x:Key="icon-swatches">&#xE9A2;</system:String>
             <system:String x:Key="icon-take-item">&#xE914;</system:String>
+            <system:String x:Key="icon-tally-5">&#xE9E2;</system:String>
             <system:String x:Key="icon-terminal">&#xE9BB;</system:String>
             <system:String x:Key="icon-text-antialiased">&#xE9AE;</system:String>
             <system:String x:Key="icon-text-pixel">&#xE9B4;</system:String>

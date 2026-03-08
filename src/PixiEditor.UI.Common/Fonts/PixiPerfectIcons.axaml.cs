@@ -15,6 +15,7 @@ public static partial class PixiPerfectIcons
     public const string Bold = "\uE9AD";
     public const string Book = "\uE928";
     public const string Braces = "\uE9CF";
+    public const string Brackets = "\uE9E1";
     public const string Bucket = "\uE929";
     public const string Camera = "\uE9BD";
     public const string CanvasResize = "\uE92A";
@@ -143,6 +144,7 @@ public static partial class PixiPerfectIcons
     public const string NumbersBinaryDown = "\uE915";
     public const string Onion = "\uE9A5";
     public const string Outline = "\uE9BA";
+    public const string PackageOpen = "\uE9E3";
     public const string PaintBrush = "\uE90A";
     public const string Paste = "\uE964";
     public const string PasteAsNewLayer = "\uE998";
@@ -196,6 +198,7 @@ public static partial class PixiPerfectIcons
     public const string Swap = "\uE976";
     public const string Swatches = "\uE9A2";
     public const string TakeItem = "\uE914";
+    public const string Tally5 = "\uE9E2";
     public const string Terminal = "\uE9BB";
     public const string TextAntialiased = "\uE9AE";
     public const string TextPixel = "\uE9B4";

@@ -4,7 +4,7 @@ using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document.Nodes.Arrays;
 
-[NodeViewModel("ARRAY_CONVERTER", null, null)]
+[NodeViewModel("ARRAY_CONVERTER", "ARRAYS", PixiPerfectIcons.Brackets)]
 internal class ArrayConverterNodeViewModel : NodeViewModel<ArrayConverterNode>
 {
     public override bool IsSocketConverterNode => true;

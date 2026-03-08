@@ -41,7 +41,7 @@ internal class ComputedValueToStringConverter : SingleInstanceConverter<Computed
             int count = castedArr.Count();
             if (count > 10)
             {
-                return "[" + string.Join(", ", castedArr.Take(10).Select(x => x.ToString())) + $"]... +{count - 10}";
+                return "[" + string.Join(", ", castedArr.Take(10).Select(Format)) + $"]... +{count - 10}";
             }
 
             if (count == 0)
@@ -49,19 +49,24 @@ internal class ComputedValueToStringConverter : SingleInstanceConverter<Computed
                 return new LocalizedString("ARRAY_EMPTY", castedArr.GetType().GetElementType().Name);
             }
 
-            return "[" + string.Join(", ", castedArr.Select(x => x.ToString())) + "]";
+            return "[" + string.Join(", ", castedArr.Select(Format)) + "]";
         }
 
-        if (value == null)
+        return Format(value) ?? string.Empty;
+    }
+
+    private static string? Format(object x)
+    {
+        if (x == null)
         {
             return "null";
         }
 
-        if(value.ToString() == value.GetType().ToString())
+        if (x.ToString() == x.GetType().ToString())
         {
-            return value.GetType().Name;
+            return x.GetType().Name;
         }
 
-        return value.ToString();
+        return x.ToString();
     }
 }
