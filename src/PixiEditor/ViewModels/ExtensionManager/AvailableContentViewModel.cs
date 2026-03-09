@@ -14,6 +14,26 @@ internal class AvailableContentViewModel : ObservableObject
     public bool AllBundleItemsOwned =>
         IsBundle && AvailableContent.IncludedExtensions.All(id => extensionManager.IsExtensionOwned(id));
     
+    public string CalculatedPrice
+    {
+        get
+        {
+            string currency = "$";
+            if (AvailableContent.IncludedExtensions.Count > 0)
+            {
+                int ownedCount = AvailableContent.IncludedExtensions
+                    .Count(id => extensionManager.IsExtensionOwned(id));
+
+                int price = AvailableContent.Price -
+                    ((AvailableContent.Price / AvailableContent.IncludedExtensions.Count) * ownedCount);
+
+                return $"{price}{currency}";
+            }
+            
+            return $"{AvailableContent.Price}{currency}";
+        }
+    }
+    
     private readonly ExtensionManagerViewModel extensionManager;
 
     public AvailableContentViewModel(AvailableContent content, ExtensionManagerViewModel extensionManager)
@@ -27,5 +47,6 @@ internal class AvailableContentViewModel : ObservableObject
         OnPropertyChanged(nameof(IsOwned));
         OnPropertyChanged(nameof(IsBundle));
         OnPropertyChanged(nameof(AllBundleItemsOwned));
+        OnPropertyChanged(nameof(CalculatedPrice));
     }
 }

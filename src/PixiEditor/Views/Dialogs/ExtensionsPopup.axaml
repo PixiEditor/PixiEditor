@@ -132,7 +132,7 @@
 
                                             <Panel Grid.Row="2">
                                             <TextBlock
-                                                       Text="{Binding AvailableContent.Price}"
+                                                       Text="{Binding CalculatedPrice}"
                                                        Foreground="White"
                                                        FontSize="{DynamicResource FontSizeNormal}"
                                                        FontWeight="Normal">
@@ -228,7 +228,7 @@
                                            Opacity="0.5"
                                            FontSize="{DynamicResource FontSizeSmall}" />
                                 
-                                <TextBlock Text="{Binding SelectedAvailableExtension.AvailableContent.Price}"
+                                <TextBlock Text="{Binding SelectedAvailableExtension.CalculatedPrice}"
                                            IsVisible="{Binding !SelectedAvailableExtension.IsOwned}"
                                            FontSize="{DynamicResource FontSizeLarge}"
                                            FontWeight="Bold"
