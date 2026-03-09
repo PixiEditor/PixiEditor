@@ -23,6 +23,9 @@ public class AvailableExtension
     [JsonPropertyName("price")]
     public int Price { get; set; }
     
+    [JsonPropertyName("currency")]
+    public string Currency { get; set; } = string.Empty;
+    
     [JsonPropertyName("includedExtensions")]
     public List<string> IncludedExtensions { get; set; } = new List<string>();
 }
