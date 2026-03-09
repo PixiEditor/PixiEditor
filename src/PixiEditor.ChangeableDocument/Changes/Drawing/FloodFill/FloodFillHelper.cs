@@ -67,18 +67,11 @@ public static class FloodFillHelper
         VecI initPosOnChunk = startingPos - initChunkPos * chunkSize;
         var chunkAtPos = cache.GetChunk(initChunkPos);
         ColorF colorToReplace = chunkAtPos.Match(
-            (Chunk chunk) => chunk.Surface.GetRawPixelPrecise(initPosOnChunk),
+            (Chunk chunk) => chunk.Surface.GetSrgbPixel(initPosOnChunk),
             static (EmptyChunk _) => Colors.Transparent
         );
 
-        // Mixing using actual surfaces is more accurate than using ColorTransformFn
-        // mismatch between actual surface color and transformed color here can lead to infinite loops
-        using Surface srgbSurface = Surface.ForProcessing(new VecI(1), ColorSpace.CreateSrgb());
-        using Paint srgbPaint = new Paint() { Color = drawingColor };
-        srgbSurface.DrawingSurface.Canvas.DrawPixel(0, 0, srgbPaint);
-        using var processingSurface = Surface.ForProcessing(VecI.One, document.ProcessingColorSpace);
-        processingSurface.DrawingSurface.Canvas.DrawSurface(srgbSurface.DrawingSurface, 0, 0);
-        var fixedColor = processingSurface.GetRawPixelPrecise(VecI.Zero).Premultiplied();
+        var fixedColor = drawingColor;
 
         var uLongColor = fixedColor.ToULong();
         var colorSpaceCorrectedColor = fixedColor;
@@ -132,7 +125,7 @@ public static class FloodFillHelper
 
             if (!drawingChunks.ContainsKey(chunkPos))
             {
-                var chunk = Chunk.Create(document.ProcessingColorSpace);
+                var chunk = Chunk.Create(ColorSpace.CreateSrgb());
 
                 if (fillMode == FloodFillMode.Replace)
                 {
@@ -253,10 +246,10 @@ public static class FloodFillHelper
     {
         if (contiguous)
         {
-            var rawPixelRef = referenceChunk.Surface.GetRawPixelPrecise(pos);
+            var rawPixelRef = referenceChunk.Surface.GetSrgbPixel(pos);
             // color should be a fixed color
-            if ((Color)rawPixelRef == (Color)color ||
-                (Color)drawingChunk.Surface.GetRawPixelPrecise(pos).Premultiplied() == (Color)color)
+            if (rawPixelRef == (Color)color ||
+                drawingChunk.Surface.GetSrgbPixel(pos) == color)
                 return null;
             if (checkFirstPixel && !bounds.IsWithinBounds(rawPixelRef))
                 return null;

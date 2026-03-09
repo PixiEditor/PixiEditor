@@ -3,7 +3,7 @@ using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Rendering;
 
-namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Paintables;
 
 [NodeInfo("Gradient")]
 public class GradientNode : Node
@@ -16,6 +16,8 @@ public class GradientNode : Node
     public InputProperty<double> Radius { get; private set; }
     public InputProperty<double> Angle { get; private set; }
     public InputProperty<int> StopsCount { get; }
+    public InputProperty<Color[]> Colors { get; }
+    public InputProperty<float[]> Offsets { get; }
     public OutputProperty<GradientPaintable> Gradient { get; }
 
     public Dictionary<InputProperty<Color>, InputProperty<float>> ColorStops { get; } = new();
@@ -26,12 +28,99 @@ public class GradientNode : Node
         AbsoluteCoordinates = CreateInput<bool>("AbsoluteCoordinates", "ABSOLUTE_COORDINATES", false);
         Type = CreateInput<GradientType>("Type", "TYPE", GradientType.Linear)
             .NonOverridenChanged(UpdateType);
+        Type.ConnectionChanged += TypeOnConnectionChanged;
         StartPoint = CreateInput<VecD>("StartPoint", "START_POINT", new VecD(0, 0));
         EndPoint = CreateInput<VecD>("EndPoint", "END_POINT", new VecD(1, 0));
+        Colors = CreateInput<Color[]>("Colors", "COLORS", null);
+        Offsets = CreateInput<float[]>("Offsets", "OFFSETS", null);
         StopsCount = CreateInput<int>("StopsCount", "STOPS_COUNT", 2)
             .NonOverridenChanged(_ => RegenerateStops());
 
+        Colors.ConnectionChanged += OnColorsConnected;
+        Offsets.ConnectionChanged += OnOffsetsConnected;
+
         GenerateStops();
+    }
+
+    private void OnColorsConnected()
+    {
+        if (Colors.Connection != null)
+        {
+            foreach (var kvp in ColorStops)
+            {
+                RemoveInputProperty(kvp.Key);
+                RemoveInputProperty(kvp.Value);
+            }
+
+            RemoveInputProperty(StopsCount);
+
+            ColorStops.Clear();
+        }
+        else
+        {
+            RegenerateStops();
+        }
+    }
+
+    private void OnOffsetsConnected()
+    {
+        if (Offsets.Connection != null)
+        {
+            foreach (var kvp in ColorStops)
+            {
+                RemoveInputProperty(kvp.Key);
+                RemoveInputProperty(kvp.Value);
+            }
+
+            RemoveInputProperty(StopsCount);
+
+            ColorStops.Clear();
+        }
+        else
+        {
+            RegenerateStops();
+        }
+    }
+
+    private void TypeOnConnectionChanged()
+    {
+        bool isConnected = Type.Connection != null;
+        if (isConnected)
+        {
+            if (!HasInputProperty(StartPoint.InternalPropertyName))
+            {
+                StartPoint = CreateInput<VecD>("StartPoint", "START_POINT", new VecD(0, 0));
+            }
+
+            if (!HasInputProperty(EndPoint.InternalPropertyName))
+            {
+                EndPoint = CreateInput<VecD>("EndPoint", "END_POINT", new VecD(1, 0));
+            }
+
+            if (!HasInputProperty("CenterPoint"))
+            {
+                CenterPoint = CreateInput<VecD>("CenterPoint", "CENTER_POINT", new VecD(0.5, 0.5));
+            }
+
+            if (!HasInputProperty("Radius"))
+            {
+                Radius = CreateInput<double>("Radius", "RADIUS", 0.5).WithRules(x => x.Min(0d));
+            }
+
+            if (!HasInputProperty("CenterPoint"))
+            {
+                CenterPoint = CreateInput<VecD>("CenterPoint", "CENTER_POINT", new VecD(0.5, 0.5));
+            }
+
+            if (!HasInputProperty("Angle"))
+            {
+                Angle = CreateInput<double>("Angle", "ANGLE", 0);
+            }
+        }
+        else
+        {
+            UpdateType(Type.Value);
+        }
     }
 
     private void UpdateType(GradientType type)
@@ -102,6 +191,13 @@ public class GradientNode : Node
 
     private void GenerateStops()
     {
+        if (Colors.Connection != null || Offsets.Connection != null) return;
+
+        if (!InputProperties.Contains(StopsCount))
+        {
+             AddInputProperty(StopsCount);
+        }
+
         int startIndex = ColorStops.Count;
         for (int i = startIndex; i < StopsCount.Value; i++)
         {
@@ -115,17 +211,39 @@ public class GradientNode : Node
 
     protected override void OnExecute(RenderContext context)
     {
-        var stops = ColorStops.Select(kvp => new GradientStop(kvp.Key.Value, kvp.Value.Value)).ToList();
-        Gradient.Value = GenerateGradient(Type.Value, stops);
+        var finalColorStops = new List<GradientStop>();
+
+        if (Colors.Value != null && Offsets.Value != null && Colors.Value.Length == Offsets.Value.Length)
+        {
+            for (int i = 0; i < Math.Min(Colors.Value.Length, Offsets.Value.Length); i++)
+            {
+                finalColorStops.Add(new GradientStop(Colors.Value[i], Offsets.Value[i]));
+            }
+        }
+        else
+        {
+            finalColorStops = ColorStops.Select(kvp => new GradientStop(kvp.Key.Value, kvp.Value.Value)).ToList();
+        }
+
+        Gradient.Value = GenerateGradient(Type.Value, finalColorStops);
     }
 
     private GradientPaintable GenerateGradient(GradientType type, List<GradientStop> stops)
     {
         return type switch
         {
-            GradientType.Linear => new LinearGradientPaintable(StartPoint.Value, EndPoint.Value, stops) { AbsoluteValues = AbsoluteCoordinates.Value },
-            GradientType.Radial => new RadialGradientPaintable(CenterPoint.Value, Radius.Value, stops) { AbsoluteValues = AbsoluteCoordinates.Value },
-            GradientType.Conical => new SweepGradientPaintable(CenterPoint.Value, Angle.Value, stops) { AbsoluteValues = AbsoluteCoordinates.Value },
+            GradientType.Linear => new LinearGradientPaintable(StartPoint.Value, EndPoint.Value, stops)
+            {
+                AbsoluteValues = AbsoluteCoordinates.Value
+            },
+            GradientType.Radial => new RadialGradientPaintable(CenterPoint.Value, Radius.Value, stops)
+            {
+                AbsoluteValues = AbsoluteCoordinates.Value
+            },
+            GradientType.Conical => new SweepGradientPaintable(CenterPoint.Value, Angle.Value, stops)
+            {
+                AbsoluteValues = AbsoluteCoordinates.Value
+            },
             _ => throw new NotImplementedException("Unknown gradient type")
         };
     }

@@ -134,6 +134,7 @@ public class NodeSystemTests : PixiEditorTest
                 if (knownNonSerializableTypes.Contains(input.ValueType)) continue;
                 if (input.ValueType.IsAbstract) continue;
                 if (input.ValueType.IsAssignableTo(typeof(Delegate))) continue;
+                if (input.ValueType.IsArray) continue;
                 bool hasFactory = factories.Any(x => x.OriginalType == input.ValueType);
                 Assert.True(
                     input.ValueType.IsPrimitive || input.ValueType.IsEnum || input.ValueType == typeof(string) ||

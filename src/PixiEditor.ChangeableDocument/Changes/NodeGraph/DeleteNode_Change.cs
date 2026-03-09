@@ -75,7 +75,7 @@ internal class DeleteNode_Change : Change
         foreach (var nodeId in nodesWithChangedIO)
         {
             Node n = target.FindNode(nodeId);
-            if(n == node) continue;
+            if(n == node || n == null) continue;
 
             changes.Add(NodeInputsChanged_ChangeInfo.FromNode(n));
             changes.Add(NodeOutputsChanged_ChangeInfo.FromNode(n));

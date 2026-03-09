@@ -10,6 +10,7 @@ using PixiEditor.ChangeableDocument.Changeables.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.Models.BrushEngine;
 using PixiEditor.Models.DocumentModels;
+using PixiEditor.Models.ExtensionServices;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Parser.Graph;
 using PixiEditor.ViewModels.BrushSystem;
@@ -81,7 +82,7 @@ internal class VariableViewModel : ViewModelBase, IVariableHandler
 
         SettingView = CreateSettingFromType(this.type, unit, min, max);
 
-        SettingView.Label = name;
+        SettingView.Label = SettingView.HasIcon ? null : name;
         SettingView.Value = value;
 
         SettingView.ValueChanged += (sender, args) =>
