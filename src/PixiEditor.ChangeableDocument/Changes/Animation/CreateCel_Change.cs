@@ -72,7 +72,7 @@ internal class CreateCel_Change : Change
         ImageLayerNode targetNode = target.FindMemberOrThrow<ImageLayerNode>(_targetLayerGuid);
 
         ChunkyImage img = cloneFromImage?.CloneFromCommitted() ??
-                          new ChunkyImage(target.Size, target.ProcessingColorSpace);
+                          new ChunkyImage(target.Size);
 
         var keyFrame =
             new RasterKeyFrame(createdKeyFrameId, targetNode.Id, _frame, target);

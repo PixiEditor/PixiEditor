@@ -199,7 +199,7 @@ public class DocumentRenderer : IDisposable
         using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
         IsBusy = true;
 
-        if (renderTexture == null || renderTexture.Size != renderSize)
+        if (renderTexture == null || renderTexture.Size != renderSize || renderTexture.ColorSpace != Document.ProcessingColorSpace)
         {
             renderTexture?.Dispose();
             renderTexture = Texture.ForProcessing(renderSize, Document.ProcessingColorSpace);

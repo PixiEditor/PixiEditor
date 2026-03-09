@@ -111,7 +111,9 @@ internal class SceneRenderer
             RenderOnlyPreviews(affectedArea, previewTextures, graphHash);
         }
 
-        lastGraphCacheHash = Document.NodeGraph.GetCacheHash(); // Update the graph hash after rendering, in case it changed during rendering
+        lastGraphCacheHash =
+            Document.NodeGraph
+                .GetCacheHash(); // Update the graph hash after rendering, in case it changed during rendering
     }
 
     private void RenderOnlyPreviews(AffectedArea affectedArea,
@@ -192,7 +194,8 @@ internal class SceneRenderer
         bool shouldRerender =
             ShouldRerender(renderTargetSize, isFullViewportRender ? Matrix3X3.Identity : targetMatrix, resolution,
                 viewportId, targetOutput, finalGraph,
-                previewTextures, visibleDocumentRegion, oversizeFactor, out bool fullAffectedArea, out RenderState renderState) ||
+                previewTextures, visibleDocumentRegion, oversizeFactor, isFullViewportRender, viewport.ViewportData, out bool fullAffectedArea,
+                out RenderState renderState) ||
             debugRecord;
 
         shouldRerender |= lastGraphCacheHash != graphCacheHash;
@@ -417,7 +420,9 @@ internal class SceneRenderer
         Guid viewportId,
         string targetOutput,
         IReadOnlyNodeGraph finalGraph, Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures,
-        RectI? visibleDocumentRegion, float oversizeFactor, out bool fullAffectedArea, out RenderState renderState)
+        RectI? visibleDocumentRegion, float oversizeFactor, bool isFullViewportRender,
+        ViewportData viewportViewportData, out bool fullAffectedArea,
+        out RenderState renderState)
     {
         renderState = new RenderState
         {
@@ -431,7 +436,9 @@ internal class SceneRenderer
             FallbackFramesToLayer = Document.AnimationData.FallbackAnimationToLayerImage,
             VisibleDocumentRegion =
                 (RectD?)visibleDocumentRegion ?? new RectD(0, 0, Document.Size.X, Document.Size.Y),
-            DocumentColorSpace = Document.ProcessingColorSpace
+            DocumentColorSpace = Document.ProcessingColorSpace,
+            IsFullViewportRender = isFullViewportRender,
+            ViewportData = viewportViewportData
         };
 
         fullAffectedArea = false;
@@ -503,7 +510,10 @@ internal class SceneRenderer
             if (n is IHighDpiRenderNode { AllowHighDpiRendering: true })
             {
                 highDpiRenderNodePresent = true;
+                return false;
             }
+
+            return true;
         });
 
         return highDpiRenderNodePresent;
@@ -522,6 +532,8 @@ readonly struct RenderState
     public bool OnionSkinning { get; init; }
     public ColorSpace DocumentColorSpace { get; init; }
     public bool FallbackFramesToLayer { get; init; }
+    public bool IsFullViewportRender { get; init; }
+    public ViewportData ViewportData { get; init; }
 
     public bool ShouldRerender(RenderState other)
     {
@@ -530,7 +542,10 @@ readonly struct RenderState
                OnionFrames != other.OnionFrames || Math.Abs(OnionOpacity - other.OnionOpacity) > 0.05 ||
                FallbackFramesToLayer != other.FallbackFramesToLayer ||
                OnionSkinning != other.OnionSkinning ||
-               VisibleRegionChanged(other) || ZoomDiffRequiresRender(other) || !Equals(DocumentColorSpace, other.DocumentColorSpace);
+               IsFullViewportRender != other.IsFullViewportRender ||
+               VisibleRegionChanged(other) || ZoomDiffRequiresRender(other)
+               || (IsFullViewportRender && !ViewportData.Equals(other.ViewportData)) ||
+               !Equals(DocumentColorSpace, other.DocumentColorSpace);
     }
 
     private bool VisibleRegionChanged(RenderState other)

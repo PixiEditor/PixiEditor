@@ -25,6 +25,7 @@ using PixiEditor.Models.IO;
 using PixiEditor.Models.Layers;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+using PixiEditor.Extensions.FlyUI.Elements;
 using PixiEditor.Helpers;
 using PixiEditor.UI.Common.Fonts;
 using PixiEditor.UI.Common.Localization;
@@ -65,6 +66,52 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
             return false;
         return doc.SelectedStructureMember is not null || doc.SoftSelectedStructureMembers.Count > 0;
     }
+
+    [Evaluator.CanExecute("PixiEditor.Layer.HasTransformableMembers",
+        nameof(DocumentManagerViewModel.ActiveDocument),
+        nameof(DocumentManagerViewModel.ActiveDocument.SelectedStructureMember),
+        nameof(DocumentManagerViewModel.ActiveDocument.SoftSelectedStructureMembers))]
+    public bool HasTransformableMembers()
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return false;
+        bool hasMembers = doc.SelectedStructureMember is not null || doc.SoftSelectedStructureMembers.Count > 0;
+        if (!hasMembers)
+            return false;
+
+        var selectedMembers = doc.ExtractSelectedLayers();
+        foreach (var member in selectedMembers)
+        {
+            var handler = doc.StructureHelper.Find(member);
+            if (handler is ITransformableMemberHandler)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    [Evaluator.CanExecute("PixiEditor.Layer.IsMemberTransformable",
+        nameof(DocumentManagerViewModel.ActiveDocument),
+        nameof(DocumentManagerViewModel.ActiveDocument.SelectedStructureMember),
+        nameof(DocumentManagerViewModel.ActiveDocument.SoftSelectedStructureMembers))]
+    public bool IsMemberTransformable(object property)
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return false;
+
+        if(property is Guid memberGuid)
+        {
+            var handler = doc.StructureHelper.Find(memberGuid);
+            return handler is ITransformableMemberHandler;
+        }
+
+        return false;
+    }
+
 
     [Evaluator.CanExecute("PixiEditor.Layer.HasMultipleSelectedMembers",
         nameof(DocumentManagerViewModel.ActiveDocument),
@@ -185,7 +232,8 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         return Owner.DocumentManagerSubViewModel.ActiveDocument is { BlockingUpdateableChangeActive: false };
     }
 
-    [Command.Internal("PixiEditor.Layer.ToggleLockTransparency", CanExecute = "PixiEditor.Layer.SelectedMemberIsTransparencyLockable",
+    [Command.Internal("PixiEditor.Layer.ToggleLockTransparency",
+        CanExecute = "PixiEditor.Layer.SelectedMemberIsTransparencyLockable",
         AnalyticsTrack = true)]
     public void ToggleLockTransparency()
     {
@@ -644,6 +692,39 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         }
 
         return null;
+    }
+
+    [Command.Basic("PixiEditor.Layer.ResetTransformForSelected", "RESET_TRANSFORM", "RESET_TRANSFORM_DESCRIPTIVE",
+        CanExecute = "PixiEditor.Layer.HasTransformableMembers", Icon = PixiPerfectIcons.Reset, AnalyticsTrack = true)]
+    public void ResetTransform()
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return;
+
+        var selectedMembers = doc.ExtractSelectedLayers();
+        if (selectedMembers.Count == 0)
+            return;
+
+        var block = doc.Operations.StartChangeBlock();
+
+        foreach (var member in selectedMembers)
+        {
+            doc.Operations.ResetTransform(member);
+        }
+
+        block.Dispose();
+    }
+
+    [Command.Internal("PixiEditor.Layer.ResetTransformForMember",
+        CanExecute = "PixiEditor.Layer.IsMemberTransformable", AnalyticsTrack = true)]
+    public void ResetTransform(Guid memberGuid)
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return;
+
+        doc.Operations.ResetTransform(memberGuid);
     }
 
     [Command.Basic("PixiEditor.Layer.DeleteReferenceLayer", "DELETE_REFERENCE_LAYER", "DELETE_REFERENCE_LAYER",

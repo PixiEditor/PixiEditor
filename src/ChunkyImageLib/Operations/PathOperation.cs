@@ -19,7 +19,6 @@ internal class PathOperation : IMirroredDrawOperation
     private bool antiAliasing;
 
     public bool IgnoreEmptyChunks => false;
-    public bool NeedsDrawInSrgb => paint?.Paintable is ISrgbPaintable;
 
     public PathOperation(VectorPath path, Color color, float strokeWidth, StrokeCap cap, BlendMode blendMode, RectI? customBounds = null)
     {

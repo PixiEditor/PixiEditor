@@ -15,6 +15,7 @@ public static partial class PixiPerfectIcons
     public const string Bold = "\uE9AD";
     public const string Book = "\uE928";
     public const string Braces = "\uE9CF";
+    public const string Brackets = "\uE9E1";
     public const string Bucket = "\uE929";
     public const string Camera = "\uE9BD";
     public const string CanvasResize = "\uE92A";
@@ -32,6 +33,7 @@ public static partial class PixiPerfectIcons
     public const string ChevronsRight = "\uE986";
     public const string ChevronsUp = "\uE987";
     public const string Circle = "\uE930";
+    public const string CirclePile = "\uE9DE";
     public const string Clock = "\uE931";
     public const string ClosedGrid = "\uE913";
     public const string Coins = "\uE9C5";
@@ -82,6 +84,7 @@ public static partial class PixiPerfectIcons
     public const string Ghost = "\uE916";
     public const string Github = "\uE99A";
     public const string Globe = "\uE94E";
+    public const string Gradient = "\uE9DD";
     public const string Grid = "\uE94F";
     public const string GridRound = "\uE9D9";
     public const string Gridlines = "\uE961";
@@ -141,6 +144,7 @@ public static partial class PixiPerfectIcons
     public const string NumbersBinaryDown = "\uE915";
     public const string Onion = "\uE9A5";
     public const string Outline = "\uE9BA";
+    public const string PackageOpen = "\uE9E3";
     public const string PaintBrush = "\uE90A";
     public const string Paste = "\uE964";
     public const string PasteAsNewLayer = "\uE998";
@@ -161,6 +165,7 @@ public static partial class PixiPerfectIcons
     public const string Reset = "\uE9AA";
     public const string Resize = "\uE96B";
     public const string RotateView = "\uE96C";
+    public const string Ruler = "\uE9DF";
     public const string Salad = "\uE9C7";
     public const string Save = "\uE96E";
     public const string Scissors = "\uE96F";
@@ -193,6 +198,7 @@ public static partial class PixiPerfectIcons
     public const string Swap = "\uE976";
     public const string Swatches = "\uE9A2";
     public const string TakeItem = "\uE914";
+    public const string Tally5 = "\uE9E2";
     public const string Terminal = "\uE9BB";
     public const string TextAntialiased = "\uE9AE";
     public const string TextPixel = "\uE9B4";
@@ -203,6 +209,7 @@ public static partial class PixiPerfectIcons
     public const string Tool = "\uE977";
     public const string Train = "\uE9C3";
     public const string Trash = "\uE978";
+    public const string TriangleRight = "\uE9E0";
     public const string Twitter = "\uE904";
     public const string Undo = "\uE979";
     public const string Unlock = "\uE97A";

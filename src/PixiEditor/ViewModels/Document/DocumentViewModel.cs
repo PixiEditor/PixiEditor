@@ -391,6 +391,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         List<SerializationFactory> allFactories =
             ViewModelMain.Current.Services.GetServices<SerializationFactory>().ToList();
 
+        Version? serializerVersion = Version.TryParse(builderInstance.SerializerVersion, out Version parsedVersion) ? parsedVersion : null;
+
         foreach (var factory in allFactories)
         {
             factory.ResourceLocator = resourceLocator;
@@ -520,6 +522,9 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 {
                     object value =
                         SerializationUtil.Deserialize(propertyValue.Value, config, allFactories, serializerData);
+
+                    value = CompatibilityUtility.UpgradeInputValueToCurrentVersion(value, parsedVersion, serializedNode.UniqueNodeName, propertyValue.Key, serializedNode.InputValues);
+
                     acc.AddActions(new UpdatePropertyValue_Action(guid, propertyValue.Key, value),
                         new EndUpdatePropertyValue_Action());
                 }

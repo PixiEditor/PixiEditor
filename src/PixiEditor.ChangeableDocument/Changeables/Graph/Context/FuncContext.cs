@@ -137,9 +137,9 @@ public class FuncContext
             a is Float1 fourthFloat)
         {
             Half4 constantHalf4 = new Half4("");
-            var hValue = firstFloat.ConstantValue * 360;
-            var sValue = secondFloat.ConstantValue * 100;
-            var vValue = thirdFloat.ConstantValue * 100;
+            var hValue = Math.Clamp(firstFloat.ConstantValue, 0, 360);
+            var sValue = Math.Clamp(secondFloat.ConstantValue, 0, 100);
+            var vValue = Math.Clamp(thirdFloat.ConstantValue, 0, 100);
             byte aByte = fourthFloat.AsConstantColorByte();
             constantHalf4.ConstantValue = Color.FromHsv((float)hValue, (float)sValue, (float)vValue, aByte);
             return constantHalf4;
@@ -154,9 +154,9 @@ public class FuncContext
             a is Float1 fourthFloat)
         {
             Half4 constantHalf4 = new Half4("");
-            var hValue = firstFloat.ConstantValue * 360;
-            var sValue = secondFloat.ConstantValue * 100;
-            var lValue = thirdFloat.ConstantValue * 100;
+            var hValue = Math.Clamp(firstFloat.ConstantValue, 0, 360);
+            var sValue = Math.Clamp(secondFloat.ConstantValue, 0, 100);
+            var lValue = Math.Clamp(thirdFloat.ConstantValue, 0, 100);
             byte aByte = fourthFloat.AsConstantColorByte();
             constantHalf4.ConstantValue = Color.FromHsl((float)hValue, (float)sValue, (float)lValue, aByte);
             return constantHalf4;

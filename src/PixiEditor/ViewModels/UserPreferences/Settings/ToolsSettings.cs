@@ -19,6 +19,13 @@ internal class ToolsSettings : SettingsGroup
     private string primaryToolset =
         GetPreference(PreferencesConstants.PrimaryToolset, PreferencesConstants.PrimaryToolsetDefault);
 
+    private bool autoRasterizeNestedLayersOnDraw = GetPreference(PreferencesConstants.AutoRasterizeNestedLayersOnDraw, PreferencesConstants.AutoRasterizeNestedLayersOnDrawDefault);
+    public bool AutoRasterizeNestedLayersOnDraw
+    {
+        get => autoRasterizeNestedLayersOnDraw;
+        set => RaiseAndUpdatePreference(ref autoRasterizeNestedLayersOnDraw, value);
+    }
+
     public string PrimaryToolset
     {
         get => primaryToolset;

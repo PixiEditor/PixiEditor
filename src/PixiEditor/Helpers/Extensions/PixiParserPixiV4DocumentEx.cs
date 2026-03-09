@@ -102,7 +102,7 @@ internal static class PixiParserPixiV4DocumentEx
             if (folder.Mask is not null)
             {
                 inputValues["MaskIsVisible"] = folder.Mask.Enabled;
-                additionalValues["embeddedMask"] = new ChunkyImage(ConvertToNewMaskFormat(Surface.Load(folder.Mask.ImageBytes), document.Width, document.Height), ColorSpace.CreateSrgb());
+                additionalValues["embeddedMask"] = new ChunkyImage(ConvertToNewMaskFormat(Surface.Load(folder.Mask.ImageBytes), document.Width, document.Height));
             }
 
             PropertyConnection contentConnection = new PropertyConnection()
@@ -143,7 +143,7 @@ internal static class PixiParserPixiV4DocumentEx
             if (layer.Mask is not null)
             {
                 inputValues["MaskIsVisible"] = layer.Mask.Enabled;
-                additionalValues["embeddedMask"] = new ChunkyImage(ConvertToNewMaskFormat(Surface.Load(layer.Mask.ImageBytes), document.Width, document.Height), ColorSpace.CreateSrgb()); 
+                additionalValues["embeddedMask"] = new ChunkyImage(ConvertToNewMaskFormat(Surface.Load(layer.Mask.ImageBytes), document.Width, document.Height));
             }
 
             PropertyConnection connection = new PropertyConnection()
@@ -163,8 +163,8 @@ internal static class PixiParserPixiV4DocumentEx
                     {
                         AffectedElement = ImageLayerNode.ImageLayerKey,
                         Data = layer is { Width: > 0, Height: > 0, ImageBytes.Length: > 0 }
-                            ? new ChunkyImage(Surface.Load(layer.ImageBytes), ColorSpace.CreateSrgb()) :
-                            new ChunkyImage(new VecI(document.Width, document.Height), ColorSpace.CreateSrgb()),
+                            ? new ChunkyImage(Surface.Load(layer.ImageBytes)) :
+                            new ChunkyImage(new VecI(document.Width, document.Height)),
                         Duration = 0,
                         StartFrame = 0,
                         IsVisible = true

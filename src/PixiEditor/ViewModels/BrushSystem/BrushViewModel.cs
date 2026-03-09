@@ -194,11 +194,9 @@ internal class BrushViewModel : ViewModelBase
                 Texture.ForDisplay(new VecI(BrushOutputNode.StrokePreviewSizeX, BrushOutputNode.StrokePreviewSizeY));
 
             var pointImage = new ChunkyImage(
-                new VecI(BrushOutputNode.PointPreviewSize, BrushOutputNode.PointPreviewSize),
-                ColorSpace.CreateSrgb());
+                new VecI(BrushOutputNode.PointPreviewSize, BrushOutputNode.PointPreviewSize));
             var strokeImage = new ChunkyImage(
-                new VecI(BrushOutputNode.StrokePreviewSizeX, BrushOutputNode.StrokePreviewSizeY),
-                ColorSpace.CreateSrgb());
+                new VecI(BrushOutputNode.StrokePreviewSizeX, BrushOutputNode.StrokePreviewSizeY));
 
             var context = new RenderContext(
                 pointPreviewTexture.DrawingSurface.Canvas,

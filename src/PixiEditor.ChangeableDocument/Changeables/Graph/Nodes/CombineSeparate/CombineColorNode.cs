@@ -6,9 +6,16 @@ using Drawie.Backend.Core.Shaders.Generation.Expressions;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 
-[NodeInfo("CombineColor")]
+[NodeInfo(UniqueName)]
 public class CombineColorNode : Node
 {
+    public const string UniqueName = "CombineColor";
+    public const string ModePropertyName = "Mode";
+    public const string V1PropertyName = "R";
+    public const string V2PropertyName = "G";
+    public const string V3PropertyName = "B";
+    public const string APropertyName = "A";
+
     public FuncOutputProperty<Half4> Color { get; }
 
     public InputProperty<CombineSeparateColorMode> Mode { get; }
@@ -35,10 +42,10 @@ public class CombineColorNode : Node
         Color = CreateFuncOutput(nameof(Color), "COLOR", GetColor);
         Mode = CreateInput("Mode", "MODE", CombineSeparateColorMode.RGB);
 
-        V1 = CreateFuncInput<Float1>("R", "R", 0d);
-        V2 = CreateFuncInput<Float1>("G", "G", 0d);
-        V3 = CreateFuncInput<Float1>("B", "B", 0d);
-        A = CreateFuncInput<Float1>("A", "A", 0d);
+        V1 = CreateFuncInput<Float1>(V1PropertyName, "R", 0d);
+        V2 = CreateFuncInput<Float1>(V2PropertyName, "G", 0d);
+        V3 = CreateFuncInput<Float1>(V3PropertyName, "B", 0d);
+        A = CreateFuncInput<Float1>(APropertyName, "A", 0d);
     }
 
     private Half4 GetColor(FuncContext ctx) =>

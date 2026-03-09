@@ -18,6 +18,7 @@ using PixiEditor.Models.Events;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Input;
 using Drawie.Numerics;
+using PixiEditor.Models;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Tools;
@@ -42,6 +43,8 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
     public RelayCommand PreviewMouseMiddleButtonCommand { get; set; }
     public RelayCommand<MouseOnCanvasEventArgs> MouseUpCommand { get; set; }
     public RelayCommand<ScrollOnCanvasEventArgs> MouseWheelCommand { get; set; }
+
+    public event Action? LayerNeedsNewLayer;
 
     private MouseInputFilter mouseFilter = new();
     private KeyboardInputFilter keyboardFilter = new();
@@ -208,7 +211,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
     {
         Command.ToolCommand? tool = CommandController.Current.Commands
             .OfType<Command.ToolCommand?>()
-            .FirstOrDefault(x => x != null && x.TransientKey == transientKey);
+            .FirstOrDefault(x => x != null && x.InternalName.EndsWith(".Transient") && x.Shortcut.Key == transientKey);
         return tool;
     }
 
@@ -341,9 +344,10 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
 
         if (Owner.ToolsSubViewModel.NeedsNewLayerForActiveTool())
         {
+            LayerNeedsNewLayer?.Invoke();
             var activeToolType = Owner.ToolsSubViewModel.ActiveTool.GetType();
             activeDocument.Tools.TryStopActiveTool();
-            Owner.ToolsSubViewModel.CreateLayerIfNeeded();
+            Owner.ToolsSubViewModel.CreateOrRasterizeLayerIfNeeded();
             Owner.ToolsSubViewModel.DeselectActiveTool();
             activeDocument.SubscribeLayerReadyToUseOnce(() =>
             {

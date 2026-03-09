@@ -601,6 +601,8 @@ internal class DocumentUpdater
 
     private void ProcessCreateRasterKeyFrame(CreateRasterKeyFrame_ChangeInfo info)
     {
+        if (info.Frame <= 0) return;
+
         var vm = new RasterCelViewModel(info.TargetLayerGuid, info.Frame, 1,
             info.KeyFrameId,
             (DocumentViewModel)doc, helper);
@@ -793,6 +795,7 @@ internal class DocumentUpdater
             prop.PropertyName = propInfo.PropertyName;
             prop.IsInput = isInput;
             prop.IsFunc = propInfo.ValueType.IsAssignableTo(typeof(Delegate));
+            prop.IsArray = propInfo.ValueType.IsArray;
             prop.InternalSetValue(prop.IsFunc
                 ? (propInfo.InputValue as ShaderExpressionVariable)?.GetConstant()
                 : propInfo.InputValue);

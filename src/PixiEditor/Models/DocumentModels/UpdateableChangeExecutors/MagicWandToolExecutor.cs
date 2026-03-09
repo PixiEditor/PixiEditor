@@ -17,6 +17,7 @@ internal class MagicWandToolExecutor : UpdateableChangeExecutor
     private List<Guid> memberGuids;
     private SelectionMode mode;
     private float tolerance;
+    private bool contiguous;
 
     public override ExecutionState Start()
     {
@@ -33,6 +34,7 @@ internal class MagicWandToolExecutor : UpdateableChangeExecutor
             memberGuids = document!.StructureHelper.GetAllLayers().Select(x => x.Id).ToList();
         var pos = controller!.LastPixelPosition;
         tolerance = (float)magicWand.Tolerance;
+        contiguous = magicWand.Contiguous;
 
         AddUpdateAction(pos);
 
@@ -57,7 +59,7 @@ internal class MagicWandToolExecutor : UpdateableChangeExecutor
 
     private void AddUpdateAction(VecI pos)
     {
-        var action = new MagicWand_Action(memberGuids, pos, mode, tolerance, document!.AnimationHandler.ActiveFrameBindable);
+        var action = new MagicWand_Action(memberGuids, pos, mode, tolerance, document!.AnimationHandler.ActiveFrameBindable, contiguous);
         internals!.ActionAccumulator.AddActions(action);
     }
     private void AddFinishAction()
