@@ -222,7 +222,14 @@ public class ExtensionLoader
             string fullPackagePath = Path.Combine(package, $"{extensionId}.pixiext");
             if (File.Exists(fullPackagePath))
             { 
-                File.Delete(fullPackagePath);
+                try
+                {
+                    File.Delete(fullPackagePath);
+                }
+                catch (IOException ex)
+                {
+                    Console.WriteLine($"Failed to delete file {fullPackagePath}: {ex.Message}");
+                }
             }
         }
         
