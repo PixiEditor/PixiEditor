@@ -229,16 +229,33 @@
                                            FontSize="{DynamicResource FontSizeSmall}" />
                                 
                                 <TextBlock Text="{Binding SelectedAvailableExtension.CalculatedPrice}"
-                                           IsVisible="{Binding !SelectedAvailableExtension.IsOwned}"
                                            FontSize="{DynamicResource FontSizeLarge}"
                                            FontWeight="Bold"
-                                           Margin="0, 0, 0, 12"/>
+                                           Margin="0, 0, 0, 12">
+                                            <TextBlock.IsVisible>
+                                                <MultiBinding Converter="{converters:AllTrueConverter}">
+                                                    <Binding Path="!SelectedAvailableExtension.IsOwned"/>
+                                                    <Binding Path="!SelectedAvailableExtension.AllBundleItemsOwned"/>
+                                                </MultiBinding>
+                                            </TextBlock.IsVisible>
+                                </TextBlock>
                                 <TextBlock localization:Translator.Key="EXTENSIONS_WINDOW_IN_LIBRARY"
-                                           IsVisible="{Binding SelectedAvailableExtension.IsOwned}"
                                            FontSize="{DynamicResource FontSizeLarge}"
                                            FontWeight="Bold"
-                                           Margin="0, 0, 0 12"/>
-
+                                           Margin="0, 0, 0 12">
+                                            <TextBlock.IsVisible>
+                                                <MultiBinding Converter="{converters:AllTrueConverter}">
+                                                    <Binding Path="SelectedAvailableExtension.IsOwned"/>
+                                                    <Binding Path="!SelectedAvailableExtension.IsBundle"/>
+                                                </MultiBinding>
+                                            </TextBlock.IsVisible>
+                                </TextBlock>
+                                <TextBlock localization:Translator.Key="EXTENSIONS_WINDOW_ALL_FROM_BUNDLE_OWNED"
+                                           FontSize="{DynamicResource FontSizeLarge}"
+                                           FontWeight="Bold"
+                                           Margin="0, 0, 0 12"
+                                           IsVisible="{Binding SelectedAvailableExtension.AllBundleItemsOwned}" />
+                                    
                                 <Button Command="{Binding OpenPurchaseLinkCommand}"
                                         CommandParameter="{Binding SelectedAvailableExtension.AvailableContent.Id}"
                                         FontSize="{DynamicResource FontSizeNormal}"
@@ -248,6 +265,7 @@
                                     <Button.IsVisible>
                                         <MultiBinding Converter="{converters:AllTrueConverter}">
                                             <Binding Path="!SelectedAvailableExtension.IsOwned" />
+                                            <Binding Path="!SelectedAvailableExtension.AllBundleItemsOwned" />
                                             <Binding Path="IsUserLoggedIn" />
                                         </MultiBinding>
                                     </Button.IsVisible>
