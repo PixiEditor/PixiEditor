@@ -12,5 +12,7 @@ public class AvailableContent
     
     public string Image { get; set; } = string.Empty;
     
-    public string Price { get; set; } = string.Empty;
+    public int Price { get; set; }
+
+    public List<string> IncludedExtensions = new List<string>();
 }

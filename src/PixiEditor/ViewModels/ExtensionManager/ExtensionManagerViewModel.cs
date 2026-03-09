@@ -23,6 +23,7 @@ internal class ExtensionManagerViewModel : ViewModelBase
     public ObservableCollection<AvailableContentViewModel> AvailableExtensions { get; } =
         new ObservableCollection<AvailableContentViewModel>();
     
+    // TODO: refactor to LibraryExtensions - it's made from owned and custom installed
     public ObservableCollection<OwnedProductViewModel> OwnedExtensions { get; } =
         new ObservableCollection<OwnedProductViewModel>();
     
@@ -187,6 +188,17 @@ internal class ExtensionManagerViewModel : ViewModelBase
         }
     }
     
+    public bool IsExtensionOwned(string productId)
+    {
+        if (identityProvider.User != null)
+        {
+            return identityProvider.User.OwnedProducts
+                .Any(p => p.Id == productId);
+        }
+        
+        return false;
+    }
+    
     public bool CanInstallAndLoadExtension(string extensionId)
     {
         return !IsInstalled(extensionId) || UpdateAvailable(extensionId);
@@ -343,7 +355,7 @@ internal class ExtensionManagerViewModel : ViewModelBase
         
         foreach (var ext in AvailableExtensions)
         {
-            ext.NotifyIsOwnedChanged();
+            ext.NotifyChanged();
         }
     }    
 }

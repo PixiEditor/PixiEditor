@@ -135,15 +135,32 @@
                                                        Text="{Binding AvailableContent.Price}"
                                                        Foreground="White"
                                                        FontSize="{DynamicResource FontSizeNormal}"
-                                                       FontWeight="Normal" 
-                                                       IsVisible="{Binding !IsOwned}"
-                                                       />
+                                                       FontWeight="Normal">
+                                                        <TextBlock.IsVisible>
+                                                            <MultiBinding Converter="{converters:AllTrueConverter}">
+                                                                <Binding Path="!IsOwned"/>
+                                                                <Binding Path="!AllBundleItemsOwned"/>
+                                                            </MultiBinding>
+                                                        </TextBlock.IsVisible>
+                                            </TextBlock>
                                             <TextBlock
                                                 localization:Translator.Key="EXTENSIONS_WINDOW_IN_LIBRARY"
                                                 Foreground="White"
                                                 FontSize="{DynamicResource FontSizeNormal}"
+                                                FontWeight="Normal">
+                                                <TextBlock.IsVisible>
+                                                    <MultiBinding Converter="{converters:AllTrueConverter}">
+                                                        <Binding Path="IsOwned"/>
+                                                        <Binding Path="!IsBundle"/>
+                                                    </MultiBinding>
+                                                </TextBlock.IsVisible>
+                                            </TextBlock>
+                                            <TextBlock
+                                                localization:Translator.Key="EXTENSIONS_WINDOW_ALL_FROM_BUNDLE_OWNED"
+                                                Foreground="White"
+                                                FontSize="{DynamicResource FontSizeNormal}"
                                                 FontWeight="Normal" 
-                                                IsVisible="{Binding IsOwned}"
+                                                IsVisible="{Binding AllBundleItemsOwned}"
                                             />
                                             </Panel>
                                         </Grid>

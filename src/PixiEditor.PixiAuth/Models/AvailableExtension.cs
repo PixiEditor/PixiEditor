@@ -21,6 +21,9 @@ public class AvailableExtension
     public string Image { get; set; } = string.Empty;
     
     [JsonPropertyName("price")]
-    public string Price { get; set; } = string.Empty;
+    public int Price { get; set; }
+    
+    [JsonPropertyName("includedExtensions")]
+    public List<string> IncludedExtensions { get; set; } = new List<string>();
 }
 
