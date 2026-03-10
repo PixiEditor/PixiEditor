@@ -10,6 +10,7 @@ using PixiEditor.Extensions.Metadata;
 using PixiEditor.IdentityProvider;
 using PixiEditor.IdentityProvider.PixiAuth;
 using PixiEditor.Models.Commands.XAML;
+using PixiEditor.Models.ExternalServices;
 using PixiEditor.OperatingSystem;
 using PixiEditor.PixiAuth.Models;
 using PixiEditor.Platform;
@@ -114,9 +115,23 @@ internal class ExtensionManagerViewModel : ViewModelBase
     {
         AvailableExtensions.Clear();
         var availableExtensions = await contentProvider.FetchAvailableExtensions();
+        
+        decimal rate = 1m;
+        if (PixiEditorSettings.Extensions.DisplayedCurrency?.Value == null)
+        {
+            await SetUserCurrencyFromLocation();
+        }
+        
+        string selectedCurrency = PixiEditorSettings.Extensions.DisplayedCurrency.Value;
+        if (selectedCurrency != "PLN")
+        {
+            var fetchedRate = await NbpFetcher.FetchExchangeRate(selectedCurrency);
+            rate = fetchedRate ?? 1m;
+        }
+        
         foreach (var extension in availableExtensions)
         {
-            AvailableExtensions.Add(new AvailableContentViewModel(extension, this));
+            AvailableExtensions.Add(new AvailableContentViewModel(extension, this, rate, selectedCurrency));
         }
     }
     
@@ -330,6 +345,12 @@ internal class ExtensionManagerViewModel : ViewModelBase
             ShouldUpdateUserOwnedProducts = false;
         }
     }
+
+    public async Task SetUserCurrencyFromLocation()
+    {
+        string currency = await GeoFetcher.GetUserCurrency();
+        PixiEditorSettings.Extensions.DisplayedCurrency.Value = currency;
+    }
     
     private void UpdateLoginState()
     {
@@ -357,5 +378,5 @@ internal class ExtensionManagerViewModel : ViewModelBase
         {
             ext.NotifyChanged();
         }
-    }    
+    }
 }

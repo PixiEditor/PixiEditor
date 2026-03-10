@@ -122,5 +122,8 @@ public static class PixiEditorSettings
     {
         public static SyncedSetting<IEnumerable<string>> DisabledExtensions { get; } =
             SyncedSetting.NonOwned<IEnumerable<string>>(PixiEditor, []);
+        
+        public static SyncedSetting<string> DisplayedCurrency { get; } =
+            SyncedSetting.NonOwned<string>(PixiEditor, null);
     }
 }

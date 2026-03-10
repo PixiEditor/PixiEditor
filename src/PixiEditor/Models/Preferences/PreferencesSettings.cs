@@ -230,7 +230,8 @@ internal class PreferencesSettings : IPreferences
         
         if (!dict.ContainsKey(name)) return fallbackValue;
         var preference = dict[name];
-        if (typeof(T) == preference.GetType()) return (T)preference;
+        if (preference == null) return fallbackValue;
+        if (typeof(T) == preference?.GetType()) return (T)preference;
 
         if (typeof(T).IsEnum)
         {
