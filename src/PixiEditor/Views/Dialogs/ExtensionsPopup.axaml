@@ -267,6 +267,7 @@
                                             <Binding Path="!SelectedAvailableExtension.IsOwned" />
                                             <Binding Path="!SelectedAvailableExtension.AllBundleItemsOwned" />
                                             <Binding Path="IsUserLoggedIn" />
+                                            <Binding Path="!SelectedAvailableExtension.IsCountryUnsupported" />
                                         </MultiBinding>
                                     </Button.IsVisible>
                                     <TextBlock>

@@ -29,6 +29,9 @@ internal static class GeoFetcher
                 return "PLN"; // fallback
 
             string countryCode = parts[1];
+            
+            if (UnsupportedCountries.Contains(countryCode))
+                return "UNSUPPORTED";
 
             return CountryToCurrency.TryGetValue(countryCode, out var currency) ? currency : "PLN";
         }

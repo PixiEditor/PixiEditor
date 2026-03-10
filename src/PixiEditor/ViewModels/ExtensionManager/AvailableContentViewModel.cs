@@ -15,10 +15,15 @@ internal class AvailableContentViewModel : ObservableObject
     public bool AllBundleItemsOwned =>
         IsBundle && AvailableContent.IncludedExtensions.All(id => extensionManager.IsExtensionOwned(id));
     
+    public bool IsCountryUnsupported => Currency == "UNSUPPORTED";
+    
     public string CalculatedPrice
     {
         get
         {
+            if (IsCountryUnsupported)
+                return "Unavailable in your country";
+            
             decimal price = AvailableContent.Price;
             
             if (AvailableContent.IncludedExtensions.Count > 0)
@@ -59,5 +64,6 @@ internal class AvailableContentViewModel : ObservableObject
         OnPropertyChanged(nameof(IsBundle));
         OnPropertyChanged(nameof(AllBundleItemsOwned));
         OnPropertyChanged(nameof(CalculatedPrice));
+        OnPropertyChanged(nameof(IsCountryUnsupported));
     }
 }
