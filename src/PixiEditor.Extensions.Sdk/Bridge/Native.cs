@@ -88,6 +88,9 @@ internal static partial class Native
     public static extern string to_resources_full_path(string value);
 
     [MethodImpl(MethodImplOptions.InternalCall)]
+    public static extern IntPtr load_extension_resource(string path);
+
+    [MethodImpl(MethodImplOptions.InternalCall)]
     public static extern IntPtr get_encryption_key();
 
     [MethodImpl(MethodImplOptions.InternalCall)]
