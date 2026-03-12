@@ -28,4 +28,5 @@ internal interface IAnimationHandler : IDisposable
     public void SetOnionFrames(int frames, double opacity);
     public void SetPlayingState(bool play);
     public void SetDefaultEndFrame(int newEndFrame);
+    public void SetFallbackAnimationToLayerImage(bool enabled);
 }

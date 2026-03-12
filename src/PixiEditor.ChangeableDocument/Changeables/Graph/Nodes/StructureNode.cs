@@ -28,6 +28,9 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
     public const string FiltersPropertyName = "Filters";
     public const string FilterlessOutputPropertyName = "FilterlessOutput";
     public const string RawOutputPropertyName = "RawOutput";
+    public const string UseCustomTimeProperty = "UseCustomTime";
+    public const string CustomActiveFrameProperty = "CustomActiveFrame";
+    public const string CustomNormalizedTimeProperty = "CustomNormalizedTime";
 
     public InputProperty<float> Opacity { get; }
     public InputProperty<bool> IsVisible { get; }
@@ -36,6 +39,9 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
     public RenderInputProperty CustomMask { get; }
     public InputProperty<bool> MaskIsVisible { get; }
     public InputProperty<Filter> Filters { get; }
+    public InputProperty<bool> UseCustomTime { get; }
+    public InputProperty<int> CustomActiveFrame { get; }
+    public InputProperty<double> CustomNormalizedTime { get; }
 
     public RenderInputProperty Background { get; }
     public RenderOutputProperty FilterlessOutput { get; }
@@ -96,6 +102,9 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         CustomMask = CreateRenderInput(MaskPropertyName, "MASK");
         MaskIsVisible = CreateInput<bool>(MaskIsVisiblePropertyName, "MASK_IS_VISIBLE", true);
         Filters = CreateInput<Filter>(FiltersPropertyName, "FILTERS", null);
+        UseCustomTime = CreateInput<bool>(UseCustomTimeProperty, "USE_CUSTOM_TIME", false);
+        CustomActiveFrame = CreateInput<int>(CustomActiveFrameProperty, "CUSTOM_ACTIVE_FRAME", 0);
+        CustomNormalizedTime = CreateInput<double>(CustomNormalizedTimeProperty, "CUSTOM_NORMALIZED_TIME", 0);
 
         FilterlessOutput = CreateRenderOutput(FilterlessOutputPropertyName, "WITHOUT_FILTERS",
             () => filterlessPainter, () => Background.Value);
@@ -129,25 +138,25 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         }
     }
 
-    protected override void Paint(RenderContext context, DrawingSurface surface)
+    protected override void Paint(RenderContext context, Canvas surface)
     {
         OnPaint(context, surface);
     }
 
-    protected override void OnPaint(RenderContext context, DrawingSurface renderTarget)
+    protected override void OnPaint(RenderContext context, Canvas renderTarget)
     {
-        if (Output.Connections.Count > 0)
+        if (Output.Connections.Count > 0 && renderTarget != null)
         {
             RenderForOutput(context, renderTarget, Output);
         }
     }
 
-    private void OnFilterlessPaint(RenderContext context, DrawingSurface renderTarget)
+    private void OnFilterlessPaint(RenderContext context, Canvas renderTarget)
     {
         RenderForOutput(context, renderTarget, FilterlessOutput);
     }
 
-    private void OnRawPaint(RenderContext context, DrawingSurface renderTarget)
+    private void OnRawPaint(RenderContext context, Canvas renderTarget)
     {
         RenderForOutput(context, renderTarget, RawOutput);
     }
@@ -155,7 +164,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
     public abstract VecD GetScenePosition(KeyFrameTime frameTime);
     public abstract VecD GetSceneSize(KeyFrameTime frameTime);
 
-    public void RenderForOutput(RenderContext context, DrawingSurface renderTarget, RenderOutputProperty output)
+    public void RenderForOutput(RenderContext context, Canvas renderTarget, RenderOutputProperty output)
     {
         if (IsDisposed)
         {
@@ -163,47 +172,22 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         }
 
         var renderObjectContext = CreateSceneContext(context, renderTarget, output);
+        if(UseCustomTime.Value)
+        {
+            renderObjectContext.FrameTime = new KeyFrameTime(CustomActiveFrame.Value, CustomNormalizedTime.Value);
+        }
 
-        int renderSaved = renderTarget.Canvas.Save();
+        int renderSaved = renderTarget.Save();
         VecD scenePos = GetScenePosition(context.FrameTime);
         VecD sceneSize = GetSceneSize(context.FrameTime);
         //renderTarget.Canvas.ClipRect(new RectD(scenePos - (sceneSize / 2f), sceneSize));
 
-        // Custom shader may modify the actual visible region, so we must force rendering full region
-        if (IsConnectedToCustomShaderNode(output))
-        {
-            renderObjectContext.VisibleDocumentRegion = null;
-        }
-
         Render(renderObjectContext);
 
-        renderTarget?.Canvas.RestoreToCount(renderSaved);
+        renderTarget?.RestoreToCount(renderSaved);
     }
 
-    private bool IsConnectedToCustomShaderNode(RenderOutputProperty output)
-    {
-        foreach (var conn in output.Connections)
-        {
-            bool isCustomShader = false;
-            conn.Node.TraverseForwards(x =>
-            {
-                if (x is ICustomShaderNode)
-                {
-                    isCustomShader = true;
-                    return false;
-                }
-
-                return true;
-            });
-
-            if (isCustomShader)
-                return true;
-        }
-
-        return false;
-    }
-
-    protected SceneObjectRenderContext CreateSceneContext(RenderContext context, DrawingSurface renderTarget,
+    protected SceneObjectRenderContext CreateSceneContext(RenderContext context, Canvas renderTarget,
         RenderOutputProperty output)
     {
         var sceneSize = GetSceneSize(context.FrameTime);
@@ -212,7 +196,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         SceneObjectRenderContext renderObjectContext = new SceneObjectRenderContext(output, renderTarget, localBounds,
             context.FrameTime, context.ChunkResolution, context.RenderOutputSize, context.DocumentSize,
             renderTarget == context.RenderSurface,
-            context.ProcessingColorSpace, context.DesiredSamplingOptions, context.Opacity);
+            context.ProcessingColorSpace, context.DesiredSamplingOptions, context.Graph, context.Opacity);
         renderObjectContext.FullRerender = context.FullRerender;
         renderObjectContext.AffectedArea = context.AffectedArea;
         renderObjectContext.VisibleDocumentRegion = context.VisibleDocumentRegion;
@@ -222,17 +206,17 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
 
     public abstract void Render(SceneObjectRenderContext sceneContext);
 
-    protected void ApplyMaskIfPresent(DrawingSurface surface, RenderContext context, ChunkResolution renderResolution)
+    protected void ApplyMaskIfPresent(Canvas surface, RenderContext context, ChunkResolution renderResolution)
     {
         if (MaskIsVisible.Value)
         {
             if (CustomMask.Value != null)
             {
-                int layer = surface.Canvas.SaveLayer(maskPaint);
-                surface.Canvas.Scale((float)renderResolution.Multiplier());
+                int layer = surface.SaveLayer(maskPaint);
+                surface.Scale((float)renderResolution.Multiplier());
                 CustomMask.Value.Paint(context, surface);
 
-                surface.Canvas.RestoreToCount(layer);
+                surface.RestoreToCount(layer);
             }
             else
             {
@@ -268,7 +252,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         return (MaskIsVisible.Value && (EmbeddedMask != null || CustomMask.Value != null)) || ClipToPreviousMember;
     }
 
-    protected void DrawClipSource(DrawingSurface drawOnto, IClipSource clipSource, SceneObjectRenderContext context)
+    protected void DrawClipSource(Canvas drawOnto, IClipSource clipSource, SceneObjectRenderContext context)
     {
         blendPaint.Color = Colors.White;
         clipSource.DrawClipSource(context, drawOnto);
@@ -277,9 +261,9 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
     public abstract RectD? GetTightBounds(KeyFrameTime frameTime);
     public abstract RectD? GetApproxBounds(KeyFrameTime frameTime);
 
-    public override void SerializeAdditionalData(Dictionary<string, object> additionalData)
+    internal override void SerializeAdditionalDataInternal(IReadOnlyDocument target, Dictionary<string, object> additionalData)
     {
-        base.SerializeAdditionalData(additionalData);
+        base.SerializeAdditionalDataInternal(target, additionalData);
         if (EmbeddedMask != null)
         {
             additionalData["embeddedMask"] = EmbeddedMask;
@@ -291,10 +275,10 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         }
     }
 
-    internal override void DeserializeAdditionalData(IReadOnlyDocument target,
+    internal override void DeserializeAdditionalDataInternal(IReadOnlyDocument target,
         IReadOnlyDictionary<string, object> data, List<IChangeInfo> infos)
     {
-        base.DeserializeAdditionalData(target, data, infos);
+        base.DeserializeAdditionalDataInternal(target, data, infos);
 
         bool hasMask = data.ContainsKey("embeddedMask");
         if (hasMask)
@@ -346,7 +330,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         img.DrawMostUpToDateRegionOn(
             new RectI(0, 0, img.LatestSize.X, img.LatestSize.Y),
             context.ChunkResolution,
-            renderOn, VecI.Zero, maskPreviewPaint, drawPaintOnEmpty: true);
+            renderOn.Canvas, VecI.Zero, maskPreviewPaint, drawPaintOnEmpty: true);
         renderOn.Canvas.RestoreToCount(saved);
     }
 

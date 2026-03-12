@@ -1,10 +1,12 @@
 ﻿using Avalonia.Input;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Vector;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.UI.Common.Fonts;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
@@ -18,7 +20,7 @@ internal class FloodFillToolViewModel : ToolViewModel, IFloodFillToolHandler
     private readonly string defaultActionDisplay = "FLOOD_FILL_TOOL_ACTION_DISPLAY_DEFAULT";
 
     public override string ToolNameLocalizationKey => "FLOOD_FILL_TOOL";
-    public override BrushShape FinalBrushShape => BrushShape.Pixel;
+
     public override Type[]? SupportedLayerTypes { get; } = { typeof(IRasterLayerHandler) };
 
     public override LocalizedString Tooltip => new("FLOOD_FILL_TOOL_TOOLTIP", Shortcut);
@@ -31,6 +33,11 @@ internal class FloodFillToolViewModel : ToolViewModel, IFloodFillToolHandler
 
     [Settings.Percent("TOLERANCE_LABEL", ExposedByDefault = false)]
     public float Tolerance => GetValue<float>();
+    [Settings.Enum("FLOOD_FILL_MODE_LABEL", FloodFillMode.Overlay, ExposedByDefault = false)]
+    public FloodFillMode FillMode => GetValue<FloodFillMode>();
+
+    [Settings.Bool("CONTIGUOUS_LABEL", true, ExposedByDefault = true)]
+    public bool Contiguous => GetValue<bool>();
 
     public override string DefaultIcon => PixiPerfectIcons.Bucket;
 

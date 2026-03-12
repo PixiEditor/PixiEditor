@@ -13,6 +13,7 @@ namespace PixiEditor.Models.Handlers;
 internal interface IToolsHandler : IHandler
 {
     public void SetTool(object parameter);
+    public void SetToolTransient(object parameter);
     public void RestorePreviousTool();
     public IToolHandler ActiveTool { get; }
     public IToolSetHandler ActiveToolSet { get; } 
@@ -21,7 +22,7 @@ internal interface IToolsHandler : IHandler
     public bool EnableSharedToolbar { get; set; }
     public bool SelectionTintingEnabled { get; set; }
     public event EventHandler<SelectedToolEventArgs> SelectedToolChanged;
-    public void SetupTools(IServiceProvider services, ToolSetsConfig toolSetConfig);
+    public void SetupTools(IServiceProvider services, ToolsConfig toolsConfig);
     public void SetupToolsTooltipShortcuts();
     public void SetActiveTool<T>(bool transient) where T : IToolHandler;
     public void SetActiveTool(Type toolType, bool transient);
@@ -38,4 +39,9 @@ internal interface IToolsHandler : IHandler
     public void OnPreUndoInlet();
     public void QuickToolSwitchInlet();
     public void ChangeToolSize(double by);
+    public bool CreateOrRasterizeLayerIfNeeded();
+    public bool NeedsNewLayerForActiveTool();
+    public bool NeedsNewAnimationKeyFrameForActiveTool();
+    public void DeselectActiveTool();
+    public void CreateAnimationKeyFrameIfNeeded();
 }

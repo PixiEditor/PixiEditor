@@ -4,6 +4,8 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using Avalonia.Input;
+using Avalonia.Platform;
+using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.ChangeableDocument;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -19,10 +21,25 @@ using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.Handlers;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
+using PixiEditor.Helpers;
+using PixiEditor.Helpers.UI;
+using PixiEditor.Models;
+using PixiEditor.Models.BrushEngine;
+using PixiEditor.Models.Commands;
+using PixiEditor.Models.DocumentModels.Public;
+using PixiEditor.Models.ExtensionServices;
 using PixiEditor.Models.Handlers.Toolbars;
+using PixiEditor.Models.Handlers.Tools;
+using PixiEditor.Models.Input;
+using PixiEditor.Models.IO;
+using PixiEditor.Parser.Old.PixiV4;
 using PixiEditor.UI.Common.Fonts;
+using PixiEditor.ViewModels.BrushSystem;
 using PixiEditor.ViewModels.Document;
+using PixiEditor.ViewModels.Document.Nodes;
+using PixiEditor.ViewModels.Document.Nodes.Brushes;
 using PixiEditor.ViewModels.Tools;
 using PixiEditor.ViewModels.Tools.Tools;
 using PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
@@ -90,6 +107,11 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         get => ActiveTool?.Toolbar as IToolSizeToolbar;
     }
 
+    public IBrushToolbar? ActiveBrushToolbar
+    {
+        get => ActiveTool?.Toolbar as IBrushToolbar;
+    }
+
     private IToolHandler? activeTool;
 
     public IToolHandler? ActiveTool
@@ -99,14 +121,17 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         {
             SetProperty(ref activeTool, value);
             OnPropertyChanged(nameof(ActiveBasicToolbar));
+            OnPropertyChanged(nameof(ActiveBrushToolbar));
         }
     }
 
-    public IToolSetHandler ActiveToolSet
+    public IToolSetHandler? ActiveToolSet
     {
         get => _activeToolSet!;
         private set => SetProperty(ref _activeToolSet, value);
     }
+
+    public ExecutionTrigger<string> SettingChangedTrigger { get; } = new();
 
     ICollection<IToolSetHandler> IToolsHandler.AllToolSets => AllToolSets;
 
@@ -116,6 +141,8 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
 
     public event EventHandler<SelectedToolEventArgs>? SelectedToolChanged;
 
+
+    private IIconLookupProvider iconLookupProvider;
     private bool shiftIsDown;
     private bool ctrlIsDown;
     private bool altIsDown;
@@ -124,15 +151,18 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     private ToolViewModel _preTransientTool;
 
     private List<IToolHandler> allTools = new();
-    private List<ToolSetConfig> originalToolSets = new();
+    private List<ToolSet> originalToolSets = new();
+    private List<ToolConfig> customTools = new();
     private IToolSetHandler? _activeToolSet;
 
-    public ToolsViewModel(ViewModelMain owner)
+    public ToolsViewModel(ViewModelMain owner, IIconLookupProvider iconLookupProvider)
         : base(owner)
     {
         owner.DocumentManagerSubViewModel.ActiveDocumentChanged += ActiveDocumentChanged;
         PixiEditorSettings.Tools.PrimaryToolset.ValueChanged += PrimaryToolsetOnValueChanged;
-        SubscribeSettingsValueChanged(PixiEditorSettings.Tools.SelectionTintingEnabled, nameof(SelectionTintingEnabled));
+        SubscribeSettingsValueChanged(PixiEditorSettings.Tools.SelectionTintingEnabled,
+            nameof(SelectionTintingEnabled));
+        this.iconLookupProvider = iconLookupProvider;
     }
 
     private void PrimaryToolsetOnValueChanged(Setting<string> setting, string? newPrimaryToolset)
@@ -160,11 +190,11 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         }
     }
 
-    public void SetupTools(IServiceProvider services, ToolSetsConfig toolSetConfig)
+    public void SetupTools(IServiceProvider services, ToolsConfig toolsConfig)
     {
         allTools = services.GetServices<IToolHandler>().ToList();
 
-        ToolSetConfig activeToolSetConfig = toolSetConfig.FirstOrDefault();
+        ToolSet activeToolSetConfig = toolsConfig.ToolSets.FirstOrDefault();
 
         if (activeToolSetConfig is null)
         {
@@ -172,23 +202,41 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         }
 
         AllToolSets.Clear();
-        AddToolSets(toolSetConfig);
-        SetActiveToolSet(AllToolSets.First());
+        AddCustomTools(toolsConfig);
+        AddToolSets(toolsConfig.ToolSets);
+        if (Owner.BrushesSubViewModel.BrushesLoaded)
+        {
+            SetActiveToolSet(AllToolSets.First());
+        }
+        else
+        {
+            Owner.BrushesSubViewModel.OnBrushesLoaded += () =>
+            {
+                SetActiveToolSet(AllToolSets.First());
+            };
+        }
     }
 
     [Command.Internal("PixiEditor.Tools.SetActiveToolSet", AnalyticsTrack = true)]
     public void SetActiveToolSet(IToolSetHandler toolSetHandler)
     {
-        ActiveTool?.OnToolDeselected(false);
         ActiveToolSet = toolSetHandler;
-        if (ActiveTool != null && !ActiveToolSet.Tools.Contains(ActiveTool))
+        if (ActiveTool != null)
         {
-            TrySelectCommonToolInNewToolSet();
+            if (!ActiveToolSet.Tools.Contains(ActiveTool))
+            {
+                TrySelectCommonToolInNewToolSet();
+            }
+            else
+            {
+                SetActiveTool(ActiveTool, false);
+            }
         }
+
         ActiveToolSet.ApplyToolSetSettings();
         UpdateEnabledState();
 
-
+        SelectedToolChanged?.Invoke(this, new SelectedToolEventArgs(LastActionTool, ActiveTool));
         ActiveTool?.OnToolSelected(false);
 
         OnPropertyChanged(nameof(NonSelectedToolSets));
@@ -211,7 +259,8 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         }
     }
 
-    [Command.Basic("PixiEditor.Tools.ToggleSelectionTinting", "TOGGLE_TINTING_SELECTION", "TOGGLE_TINTING_SELECTION_DESCRIPTIVE", AnalyticsTrack = true)]
+    [Command.Basic("PixiEditor.Tools.ToggleSelectionTinting", "TOGGLE_TINTING_SELECTION",
+        "TOGGLE_TINTING_SELECTION_DESCRIPTIVE", AnalyticsTrack = true)]
     public void ToggleTintSelection() => SelectionTintingEnabled = !SelectionTintingEnabled;
 
     public void SetupToolsTooltipShortcuts()
@@ -220,10 +269,21 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         {
             if (tool is ToolViewModel toolVm)
             {
-                var combination = Owner.ShortcutController.GetToolShortcut(tool.GetType());
-                if (combination is not null)
+                if (tool is BrushBasedToolViewModel { IsCustomBrushTool: true })
                 {
-                    toolVm.Shortcut = combination.Value;
+                    var combination = Owner.ShortcutController.GetToolShortcut(tool);
+                    if (combination is not null)
+                    {
+                        toolVm.Shortcut = combination.Value;
+                    }
+                }
+                else
+                {
+                    var combination = Owner.ShortcutController.GetToolShortcut(tool.GetType());
+                    if (combination is not null)
+                    {
+                        toolVm.Shortcut = combination.Value;
+                    }
                 }
             }
         }
@@ -306,8 +366,13 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
 
         if (ActiveTool == tool)
         {
+            bool setActionTool = ActiveTool.IsTransient != transient;
             ActiveTool.IsTransient = transient;
-            LastActionTool = ActiveTool;
+            if (setActionTool)
+            {
+                LastActionTool = ActiveTool;
+            }
+
             return;
         }
 
@@ -330,11 +395,13 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         LastActionTool = ActiveTool;
         ActiveTool = tool;
 
-        ActiveTool.Toolbar.SettingChanged += ToolbarSettingChanged;
-
-        if (shareToolbar)
+        if (ActiveTool != null)
         {
-            ActiveTool.Toolbar.LoadSharedSettings();
+            ActiveTool.Toolbar.SettingChanged += ToolbarSettingChanged;
+            if (shareToolbar)
+            {
+                ActiveTool.Toolbar.LoadSharedSettings();
+            }
         }
 
         if (LastActionTool != ActiveTool)
@@ -342,15 +409,19 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
             SelectedToolChanged?.Invoke(this, new SelectedToolEventArgs(LastActionTool, ActiveTool));
         }
 
-        //update old tool
-        LastActionTool?.KeyChanged(false, false, false, Key.None);
-        //update new tool
-        ActiveTool.KeyChanged(ctrlIsDown, shiftIsDown, altIsDown, lastKey);
-        ActiveTool.OnToolSelected(wasTransient);
 
-        tool.IsActive = true;
-        ActiveTool.IsTransient = transient;
-        SetToolCursor(tool.GetType());
+        LastActionTool?.KeyChanged(false, false, false, Key.None);
+
+        ActiveTool?.KeyChanged(ctrlIsDown, shiftIsDown, altIsDown, lastKey);
+        ActiveTool?.OnToolSelected(wasTransient);
+
+        if (ActiveTool != null)
+        {
+            tool.IsActive = true;
+            ActiveTool.IsTransient = transient;
+            SetToolCursor(tool.GetType());
+        }
+
 
         if (Owner.StylusSubViewModel != null)
         {
@@ -380,7 +451,24 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         }
 
         ToolViewModel tool = (ToolViewModel)parameter;
-        SetActiveTool(tool.GetType(), false, source);
+        SetActiveTool(tool, false, source, true);
+    }
+
+    public void SetToolTransient(object parameter)
+    {
+        if (parameter is CommandExecutionContext context)
+        {
+            parameter = context.Parameter;
+        }
+
+        if (parameter is Type type)
+        {
+            SetActiveTool(type, true, null);
+            return;
+        }
+
+        ToolViewModel tool = (ToolViewModel)parameter;
+        SetActiveTool(tool, true, null, true);
     }
 
     [Command.Basic("PixiEditor.Tools.IncreaseSize", 1d, "INCREASE_TOOL_SIZE", "INCREASE_TOOL_SIZE",
@@ -396,6 +484,118 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
             toolbar.ToolSize = newSize;
     }
 
+    public bool CreateOrRasterizeLayerIfNeeded()
+    {
+        bool created = false;
+        if (NeedsNewLayerForActiveTool())
+        {
+            bool rasterize = Owner.DocumentManagerSubViewModel.ActiveDocument.SelectedStructureMember is NestedDocumentNodeViewModel nested &&
+                             PixiEditorSettings.Tools.AutoRasterizeNestedLayersOnDraw.Value;
+
+            using var changeBlock = Owner.DocumentManagerSubViewModel.ActiveDocument.Operations.StartChangeBlock();
+            Guid? createdLayer = null;
+            if (rasterize)
+            {
+                Guid memberId = Owner.DocumentManagerSubViewModel.ActiveDocument.SelectedStructureMember!.Id;
+                createdLayer = Owner.DocumentManagerSubViewModel.ActiveDocument.Operations.Rasterize(memberId, ActionSource.Automated);
+            }
+            else
+            {
+                createdLayer = Owner.LayersSubViewModel.NewLayer(
+                    ActiveTool.LayerTypeToCreateOnEmptyUse,
+                    ActionSource.Automated,
+                    ActiveTool.DefaultNewLayerName);
+            }
+
+            if (createdLayer is not null)
+            {
+                Owner.DocumentManagerSubViewModel.ActiveDocument.Operations.SetSelectedMember(createdLayer.Value);
+            }
+
+            changeBlock.ExecuteQueuedActions();
+            created = true;
+        }
+
+        return created;
+    }
+
+    public bool NeedsNewLayerForActiveTool()
+    {
+        return ActiveTool is not { CanBeUsedOnActiveLayer: true } && ActiveTool?.LayerTypeToCreateOnEmptyUse != null;
+    }
+
+    public bool NeedsNewAnimationKeyFrameForActiveTool()
+    {
+        if (!TryGetAnimationGroup(out var animationGroupForLayer) || ActiveTool?.LayerTypeToCreateOnEmptyUse != typeof(ImageLayerNode))
+        {
+            return false;
+        }
+
+        return animationGroupForLayer.IsVisible && !animationGroupForLayer.IsKeyFrameAt(Owner.DocumentManagerSubViewModel.ActiveDocument
+            .AnimationDataViewModel.ActiveFrameBindable);
+    }
+
+    private bool TryGetAnimationGroup(out ICelGroupHandler? animationGroupForLayer)
+    {
+        var activeDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;
+
+        if (activeDocument is null)
+        {
+            animationGroupForLayer = null;
+            return false;
+        }
+
+        var selectedLayer = Owner.DocumentManagerSubViewModel.ActiveDocument.SelectedStructureMember;
+        if (ActiveTool is not { CanBeUsedOnActiveLayer: true })
+        {
+            animationGroupForLayer = null;
+            return false;
+        }
+
+        if (selectedLayer is not ImageLayerNodeViewModel rasterLayer)
+        {
+            animationGroupForLayer = null;
+            return false;
+        }
+
+        animationGroupForLayer = Owner.DocumentManagerSubViewModel.ActiveDocument?.AnimationDataViewModel.KeyFrames.FirstOrDefault(x =>
+            x.LayerGuid == rasterLayer.Id && x.Id == rasterLayer.Id) as ICelGroupHandler;
+
+        if (animationGroupForLayer is null)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    public void DeselectActiveTool()
+    {
+        if (ActiveTool != null)
+        {
+            SetActiveTool((IToolHandler)null, false, null);
+        }
+    }
+
+    public void CreateAnimationKeyFrameIfNeeded()
+    {
+        var activeDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (activeDocument is null)
+            return;
+
+        var animationGroupForLayer = activeDocument.AnimationDataViewModel.KeyFrames.FirstOrDefault(x =>
+            x.LayerGuid == activeDocument.SelectedStructureMember?.Id && x.Id == activeDocument.SelectedStructureMember?.Id) as ICelGroupHandler;
+
+        if (animationGroupForLayer is null)
+            return;
+
+        if (!animationGroupForLayer.IsKeyFrameAt(Owner.DocumentManagerSubViewModel.ActiveDocument
+                .AnimationDataViewModel.ActiveFrameBindable))
+        {
+            Owner.DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.CreateCel(animationGroupForLayer.Id, Owner.DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.ActiveFrameBindable);
+        }
+    }
+
     [Evaluator.CanExecute("PixiEditor.Tools.CanChangeToolSize",
         nameof(ActiveTool))]
     public bool CanChangeToolSize() => Owner.ToolsSubViewModel.ActiveTool?.Toolbar is IToolSizeToolbar
@@ -408,11 +608,11 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     {
         if (!typeof(ToolViewModel).IsAssignableFrom(toolType))
             throw new ArgumentException($"'{toolType}' does not inherit from {typeof(ToolViewModel)}");
-        IToolHandler foundTool = ActiveToolSet!.Tools.FirstOrDefault(x => x.GetType().IsAssignableFrom(toolType));
+        IToolHandler foundTool = ActiveToolSet!.Tools.FirstOrDefault(x => x.GetType() == toolType);
         if (foundTool == null)
         {
-            foundTool = allTools.FirstOrDefault(x => x.GetType().IsAssignableFrom(toolType));
-            if(foundTool == null || SimilarToolInActiveToolSetExists(toolType))
+            foundTool = allTools.FirstOrDefault(x => x.GetType() == toolType);
+            if (foundTool == null || SimilarToolInActiveToolSetExists(toolType))
                 return;
 
             var toolset = AllToolSets.FirstOrDefault(x => x.Tools.Contains(foundTool));
@@ -425,6 +625,29 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         SetActiveTool(foundTool, transient, sourceInfo);
     }
 
+    public void SetActiveTool(IToolHandler tool, bool transient, ICommandExecutionSourceInfo sourceInfo,
+        bool switchToolSet)
+    {
+        if (switchToolSet)
+        {
+            IToolHandler foundTool = ActiveToolSet!.Tools.FirstOrDefault(x => x == tool);
+            if (foundTool == null)
+            {
+                foundTool = allTools.FirstOrDefault(x => x == tool);
+                if (foundTool == null)
+                    return;
+
+                var toolset = AllToolSets.FirstOrDefault(x => x.Tools.Contains(foundTool));
+                if (toolset is not null)
+                {
+                    SetActiveToolSet(toolset);
+                }
+            }
+        }
+
+        SetActiveTool(tool, transient, sourceInfo);
+    }
+
     public void RestorePreviousTool()
     {
         if (LastActionTool != null)
@@ -434,6 +657,25 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         else
         {
             SetActiveTool<PenToolViewModel>(false);
+        }
+    }
+
+    private void AddCustomTools(ToolsConfig toolsConfig)
+    {
+        foreach (var toolConfig in toolsConfig.CustomTools)
+        {
+            if (allTools.Any(tool => tool.ToolName == toolConfig.ToolName))
+            {
+                continue;
+            }
+
+            IToolHandler? tool = TryCreateBrushTool(toolConfig);
+            if (tool is not null)
+            {
+                allTools.Add(tool);
+            }
+
+            customTools.Add(toolConfig);
         }
     }
 
@@ -480,32 +722,16 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
 
     public void UseToolEventInlet(VecD canvasPos, MouseButton button)
     {
+        if (ActiveTool is null)
+            return;
+
         ActiveTool.UsedWith = button;
         if (ActiveTool.StopsLinkedToolOnUse)
         {
             ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TryStopToolLinkedExecutor();
         }
 
-        bool waitForChange = false;
-
-        if (ActiveTool is not { CanBeUsedOnActiveLayer: true })
-        {
-            if (ActiveTool.LayerTypeToCreateOnEmptyUse == null) return;
-
-            using var changeBlock = Owner.DocumentManagerSubViewModel.ActiveDocument.Operations.StartChangeBlock();
-            Guid? createdLayer = Owner.LayersSubViewModel.NewLayer(
-                ActiveTool.LayerTypeToCreateOnEmptyUse,
-                ActionSource.Automated,
-                ActiveTool.DefaultNewLayerName);
-            if (createdLayer is not null)
-            {
-                Owner.DocumentManagerSubViewModel.ActiveDocument.Operations.SetSelectedMember(createdLayer.Value);
-            }
-
-            changeBlock.ExecuteQueuedActions();
-        }
-
-        ActiveTool.UseTool(canvasPos);
+        ActiveTool?.UseTool(canvasPos);
     }
 
     public void ConvertedKeyDownInlet(FilteredKeyEventArgs args)
@@ -554,9 +780,13 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
             return;
 
         document.EventInlet.SettingsChanged(settingName, value);
+        Dispatcher.UIThread.Post(() =>
+        {
+            SettingChangedTrigger?.Execute(this, settingName);
+        });
     }
 
-    private void AddToolSets(ToolSetsConfig toolSetConfig)
+    private void AddToolSets(List<ToolSet> toolSetConfig)
     {
         var primaryToolSet = PixiEditorSettings.Tools.PrimaryToolset.Value;
         if (string.IsNullOrEmpty(primaryToolSet))
@@ -570,18 +800,32 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
             .OrderByDescending(toolSet => toolSet.Name == primaryToolSet)
             .ToList();
 
-        foreach (ToolSetConfig toolSet in orderedToolSetConfig)
+        foreach (ToolSet toolSet in orderedToolSetConfig)
         {
             var toolSetViewModel = new ToolSetViewModel(toolSet.Name, toolSet.Icon);
 
             foreach (var toolFromToolset in toolSet.Tools)
             {
                 IToolHandler? tool = allTools.FirstOrDefault(tool => tool.ToolName == toolFromToolset.ToolName);
-                tool.SetToolSetSettings(toolSetViewModel, toolFromToolset.Settings);
-
-                if (!string.IsNullOrEmpty(toolFromToolset.Icon))
+                if (tool == null)
                 {
-                    toolSetViewModel.IconOverwrites[tool] = PixiPerfectIconExtensions.TryGetByName(toolFromToolset.Icon) ?? PixiPerfectIcons.Placeholder;
+                    continue;
+                }
+
+                var toolConfig = toolFromToolset;
+                if (tool is BrushBasedToolViewModel vm && vm.IsCustomBrushTool)
+                {
+                    toolConfig = customTools.FirstOrDefault(t => t.ToolName == toolFromToolset.ToolName) ??
+                                 toolFromToolset;
+                }
+
+                tool.SetToolSetSettings(toolSetViewModel, toolFromToolset.Settings ?? toolConfig.Settings);
+
+                if (!string.IsNullOrEmpty(toolFromToolset.Icon ?? toolConfig.Icon))
+                {
+                    toolSetViewModel.IconOverwrites[tool] =
+                        PixiPerfectIconExtensions.TryGetByName(toolFromToolset.Icon ?? toolConfig.Icon) ??
+                        PixiPerfectIcons.Placeholder;
                 }
 
                 if (tool is null)
@@ -597,6 +841,55 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
             }
 
             AllToolSets.Add(toolSetViewModel);
+        }
+    }
+
+    private IToolHandler? TryCreateBrushTool(ToolConfig toolFromToolset)
+    {
+        if (!string.IsNullOrEmpty(toolFromToolset.Brush))
+        {
+            try
+            {
+                string path = toolFromToolset.Brush;
+                if (!path.StartsWith("avares://") && path.StartsWith("/"))
+                {
+                    path = "avares://PixiEditor/Data" + toolFromToolset.Brush;
+                }
+
+                Uri uri = new(path);
+
+                if (AssetLoader.Exists(uri) || File.Exists(uri.LocalPath))
+                {
+                    var brush = new Brush(uri, "TOOL_CONFIG");
+                    KeyCombination? shortcut = TryParseShortcut(toolFromToolset.DefaultShortcut);
+                    string icon = iconLookupProvider.LookupIcon(toolFromToolset.Icon) ?? PixiPerfectIcons.Placeholder;
+
+                    return new BrushBasedToolViewModel(new BrushViewModel(brush), toolFromToolset.ToolTip,
+                        toolFromToolset.ToolName,
+                        shortcut, toolFromToolset.ActionDisplays, toolFromToolset.SupportsSecondaryActionOnRightClick) { IconOverwrite = icon };
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        return null;
+    }
+
+    private KeyCombination? TryParseShortcut(string? shortcut)
+    {
+        if (string.IsNullOrEmpty(shortcut))
+            return null;
+
+        try
+        {
+            return KeyCombination.TryParse(shortcut);
+        }
+        catch
+        {
+            return null;
         }
     }
 
@@ -645,19 +938,24 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     private void UpdateEnabledState()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
-        if (doc is null)
+        if (doc is null || ActiveToolSet is null)
             return;
 
         foreach (var toolHandler in ActiveToolSet.Tools)
         {
             if (toolHandler is ToolViewModel tool)
             {
-                List<IStructureMemberHandler> selectedLayers = new List<IStructureMemberHandler>
+                List<IStructureMemberHandler> selectedLayers = new List<IStructureMemberHandler>();
+                if (doc.SelectedStructureMember != null)
                 {
-                    doc.SelectedStructureMember
-                };
+                    selectedLayers.Add(doc.SelectedStructureMember);
+                }
 
-                selectedLayers.AddRange(doc.SoftSelectedStructureMembers.Except(selectedLayers));
+                if (doc.SoftSelectedStructureMembers != null)
+                {
+                    selectedLayers.AddRange(doc.SoftSelectedStructureMembers.Except(selectedLayers));
+                }
+
                 tool.SelectedLayersChanged(selectedLayers.ToArray());
             }
         }

@@ -7,6 +7,7 @@ using PixiEditor.ChangeableDocument.ChangeInfos.Vectors;
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
@@ -69,7 +70,12 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         Matrix.Value = TransformationMatrix;
     }
 
-    protected override void DrawWithoutFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
+    protected override bool MustRenderInSrgb(SceneObjectRenderContext ctx)
+    {
+        return Shape.Value is { FillPaintable: GradientPaintable } or { Stroke: GradientPaintable };
+    }
+
+    protected override void DrawWithoutFilters(SceneObjectRenderContext ctx, Canvas workingSurface,
         Paint paint)
     {
         if (RenderableShapeData == null)
@@ -77,17 +83,17 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
             return;
         }
 
-        Rasterize(workingSurface, paint);
+        Rasterize(workingSurface, paint, ctx.FrameTime.Frame);
     }
 
-    protected override void DrawWithFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface, Paint paint)
+    protected override void DrawWithFilters(SceneObjectRenderContext ctx, Canvas workingSurface, Paint paint)
     {
         if (RenderableShapeData == null)
         {
             return;
         }
 
-        Rasterize(workingSurface, paint);
+        Rasterize(workingSurface, paint, ctx.FrameTime.Frame);
     }
 
     protected override bool ShouldRenderPreview(string elementToRenderName)
@@ -136,7 +142,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
             return;
         }
 
-        Rasterize(renderOn, paint);
+        Rasterize(renderOn.Canvas, paint, context.FrameTime.Frame);
     }
 
     public override RectD? GetPreviewBounds(RenderContext ctx, string elementToRenderName)
@@ -154,16 +160,16 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         return GetTightBounds(frameTime);
     }
 
-    public override void SerializeAdditionalData(Dictionary<string, object> additionalData)
+    internal override void SerializeAdditionalDataInternal(IReadOnlyDocument target, Dictionary<string, object> additionalData)
     {
-        base.SerializeAdditionalData(additionalData);
+        base.SerializeAdditionalDataInternal(target, additionalData);
         additionalData["ShapeData"] = EmbeddedShapeData;
     }
 
-    internal override void DeserializeAdditionalData(IReadOnlyDocument target,
+    internal override void DeserializeAdditionalDataInternal(IReadOnlyDocument target,
         IReadOnlyDictionary<string, object> data, List<IChangeInfo> infos)
     {
-        base.DeserializeAdditionalData(target, data, infos);
+        base.DeserializeAdditionalDataInternal(target, data, infos);
         EmbeddedShapeData = data["ShapeData"] as ShapeVectorData;
 
         if (EmbeddedShapeData == null)
@@ -196,24 +202,22 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         return RenderableShapeData?.TransformationCorners ?? new ShapeCorners();
     }
 
-    public void Rasterize(DrawingSurface surface, Paint paint)
+    public void Rasterize(Canvas surface, Paint paint, int frame)
     {
         int layer;
         // TODO: This can be further optimized by passing opacity, blend mode and filters directly to the rasterization method
-        if (paint != null && (paint.Color.A < 255 || paint.ColorFilter != null || paint.ImageFilter != null ||
-                              paint.Shader != null ||
-                              paint.BlendMode != Drawie.Backend.Core.Surfaces.BlendMode.SrcOver))
+        if (paint is { IsOpaqueStandardNonBlendingPaint: false })
         {
-            layer = surface.Canvas.SaveLayer(paint);
+            layer = surface.SaveLayer(paint);
         }
         else
         {
-            layer = surface.Canvas.Save();
+            layer = surface.Save();
         }
 
-        RenderableShapeData?.RasterizeTransformed(surface.Canvas);
+        RenderableShapeData?.RasterizeTransformed(surface);
 
-        surface.Canvas.RestoreToCount(layer);
+        surface.RestoreToCount(layer);
     }
 
     public override Node CreateCopy()

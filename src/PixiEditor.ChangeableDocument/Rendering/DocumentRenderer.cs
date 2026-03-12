@@ -65,8 +65,8 @@ public class DocumentRenderer : IDisposable
         toRenderOn.Canvas.Save();
         toRenderOn.Canvas.SetMatrix(Matrix3X3.Identity);
 
-        RenderContext context = new(renderTexture.DrawingSurface, frame, resolution, Document.Size, Document.Size,
-            Document.ProcessingColorSpace, SamplingOptions.Default);
+        RenderContext context = new(renderTexture.DrawingSurface.Canvas, frame, resolution, Document.Size, Document.Size,
+            Document.ProcessingColorSpace, SamplingOptions.Default, Document.NodeGraph);
         context.FullRerender = true;
         IReadOnlyNodeGraph membersOnlyGraph = ConstructMembersOnlyGraph(layersToCombine, Document.NodeGraph);
         try
@@ -116,11 +116,11 @@ public class DocumentRenderer : IDisposable
         toRenderOn.Canvas.Save();
         toRenderOn.Canvas.SetMatrix(Matrix3X3.Identity);
 
-        RenderContext context = new(renderTexture.DrawingSurface, frameTime, resolution, Document.Size, Document.Size,
-            Document.ProcessingColorSpace, SamplingOptions.Default);
+        RenderContext context = new(renderTexture.DrawingSurface.Canvas, frameTime, resolution, Document.Size, Document.Size,
+            Document.ProcessingColorSpace, SamplingOptions.Default, Document.NodeGraph);
         context.FullRerender = true;
 
-        node.RenderForOutput(context, toRenderOn, null);
+        node.RenderForOutput(context, toRenderOn.Canvas, null);
 
         renderTexture.DrawingSurface.Canvas.Restore();
         toRenderOn.Canvas.Restore();
@@ -199,7 +199,7 @@ public class DocumentRenderer : IDisposable
         using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
         IsBusy = true;
 
-        if (renderTexture == null || renderTexture.Size != renderSize)
+        if (renderTexture == null || renderTexture.Size != renderSize || renderTexture.ColorSpace != Document.ProcessingColorSpace)
         {
             renderTexture?.Dispose();
             renderTexture = Texture.ForProcessing(renderSize, Document.ProcessingColorSpace);
@@ -220,9 +220,9 @@ public class DocumentRenderer : IDisposable
             : Document.NodeGraph;
 
         RenderContext context =
-            new(renderTexture.DrawingSurface, frameTime, ChunkResolution.Full,
+            new(renderTexture.DrawingSurface.Canvas, frameTime, ChunkResolution.Full,
                 SolveRenderOutputSize(customOutput, graph, Document.Size),
-                Document.Size, Document.ProcessingColorSpace, SamplingOptions.Default) { FullRerender = true };
+                Document.Size, Document.ProcessingColorSpace, SamplingOptions.Default, Document.NodeGraph) { FullRerender = true };
 
         if (hasCustomOutput)
         {

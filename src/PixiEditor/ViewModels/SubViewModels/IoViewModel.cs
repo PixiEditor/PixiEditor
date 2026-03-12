@@ -18,8 +18,10 @@ using PixiEditor.Models.Events;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Input;
 using Drawie.Numerics;
+using PixiEditor.Models;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.ViewModels.Document;
+using PixiEditor.ViewModels.Tools;
 using PixiEditor.ViewModels.Tools.Tools;
 using PixiEditor.Views;
 
@@ -31,14 +33,18 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
     private bool hadSharedToolbar;
     private bool? drawingWithRight;
     private bool startedWithEraser;
+    private IToolHandler? preInvertedEraserTool;
 
     private Key? queuedTransientKey;
+    private Command.ToolCommand? eraserToolCommand;
 
     public RelayCommand<MouseOnCanvasEventArgs> MouseMoveCommand { get; set; }
     public RelayCommand<MouseOnCanvasEventArgs> MouseDownCommand { get; set; }
     public RelayCommand PreviewMouseMiddleButtonCommand { get; set; }
     public RelayCommand<MouseOnCanvasEventArgs> MouseUpCommand { get; set; }
     public RelayCommand<ScrollOnCanvasEventArgs> MouseWheelCommand { get; set; }
+
+    public event Action? LayerNeedsNewLayer;
 
     private MouseInputFilter mouseFilter = new();
     private KeyboardInputFilter keyboardFilter = new();
@@ -52,8 +58,12 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         MouseWheelCommand = new RelayCommand<ScrollOnCanvasEventArgs>(mouseFilter.MouseWheelInlet);
         PreviewMouseMiddleButtonCommand = new RelayCommand(OnMiddleMouseButton);
         Owner.LayoutSubViewModel.LayoutManager.WindowFloated += OnLayoutManagerOnWindowFloated;
-        // TODO: Implement mouse capturing
-        //GlobalMouseHook.Instance.OnMouseUp += mouseFilter.MouseUpInlet;
+
+        //var hook = new EventLoopGlobalHook();
+
+        //hook.MouseMoved += (s, args) => mouseFilter.PumpMouseMove(args.Data.X, args.Data.Y);
+
+        //hook.RunAsync();
 
         mouseFilter.OnMouseDown += OnMouseDown;
         mouseFilter.OnMouseMove += OnMouseMove;
@@ -64,10 +74,29 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         keyboardFilter.OnAnyKeyUp += OnKeyUp;
 
         keyboardFilter.OnConvertedKeyDown += OnConvertedKeyDown;
-        keyboardFilter.OnConvertedKeyUp += OnConvertedKeyDown;
-        
+        keyboardFilter.OnConvertedKeyUp += OnConvertedKeyUp;
+
         Owner.AttachedToWindow += AttachWindowEvents;
     }
+
+    /*
+    private MouseOnCanvasEventArgs CreateMoveArgs(SharpHook.MouseHookEventArgs data)
+    {
+        MouseButton btn = data.Data.Button switch
+        {
+            SharpHook.Data.MouseButton.Button1 => MouseButton.Left,
+            SharpHook.Data.MouseButton.Button2 => MouseButton.Right,
+            SharpHook.Data.MouseButton.Button3 => MouseButton.Middle,
+            _ => MouseButton.None
+        };
+
+        return new MouseOnCanvasEventArgs(
+            btn,
+            PointerType.Mouse,
+            new VecD(data.Data.X, data.Data.Y),
+            KeyModifiers.None,
+            data.Data.Clicks, new PointerPointProperties(), 1);
+    }*/
 
     public void AttachWindowEvents(MainWindow mainWindow)
     {
@@ -156,17 +185,39 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         return true;
     }
 
+    private bool HandleTransientKey(Command.ToolCommand tool, bool executeOnlyImmediate)
+    {
+        if (ShortcutController.ShortcutExecutionBlocked)
+        {
+            return false;
+        }
+
+        if (tool is null)
+        {
+            return false;
+        }
+
+        if (!tool.TransientImmediate && executeOnlyImmediate)
+        {
+            return false;
+        }
+
+        Owner.ToolsSubViewModel.SetActiveTool(tool.ToolType, true);
+
+        return true;
+    }
+
     private static Command.ToolCommand? GetTransientTool(Key transientKey)
     {
         Command.ToolCommand? tool = CommandController.Current.Commands
             .OfType<Command.ToolCommand?>()
-            .FirstOrDefault(x => x != null && x.TransientKey == transientKey);
+            .FirstOrDefault(x => x != null && x.InternalName.EndsWith(".Transient") && x.Shortcut.Key == transientKey);
         return tool;
     }
 
     private void ProcessShortcutDown(bool isRepeat, Key key, KeyModifiers argsModifiers)
     {
-        if (argsModifiers == KeyModifiers.None && !isRepeat)
+        if (!HoldsShortcutWithModifier(argsModifiers, key) && !isRepeat)
         {
             if (!HandleTransientKey(key, true))
             {
@@ -186,6 +237,20 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         }
 
         Owner.ShortcutController.KeyPressed(isRepeat, key, argsModifiers);
+    }
+
+    private static bool HoldsShortcutWithModifier(KeyModifiers argsModifiers, Key key)
+    {
+        if (argsModifiers == KeyModifiers.None)
+            return false;
+
+        // If key is equal to any modifier key. Multiple modifier keys are considered shortcut with modifiers.
+        if (key is Key.LeftAlt or Key.RightAlt or Key.LeftCtrl or Key.RightCtrl or Key.LeftShift or Key.RightShift
+            or Key.LWin or Key.RWin)
+            return argsModifiers is not (KeyModifiers.Alt or KeyModifiers.Control or KeyModifiers.Shift
+                or KeyModifiers.Meta);
+
+        return true;
     }
 
     private void OnKeyUp(object? sender, FilteredKeyEventArgs args)
@@ -215,35 +280,105 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
 
     private void OnMouseDown(object? sender, MouseOnCanvasEventArgs args)
     {
-        if (args.Button == MouseButton.Left && queuedTransientKey != null)
+        if (args.Button == MouseButton.Left)
         {
-            HandleTransientKey(queuedTransientKey.Value, false);
-            queuedTransientKey = null;
+            if (queuedTransientKey != null)
+            {
+                HandleTransientKey(queuedTransientKey.Value, false);
+                queuedTransientKey = null;
+            }
+            else if (args is { Properties.IsEraser: true })
+            {
+                eraserToolCommand ??= CommandController.Current.Commands
+                    .OfType<Command.ToolCommand?>()
+                    .FirstOrDefault(x => x != null && x.ToolType == typeof(EraserToolViewModel));
+
+                if (preInvertedEraserTool == null)
+                {
+                    preInvertedEraserTool = Owner.ToolsSubViewModel.ActiveTool;
+                }
+
+                if (eraserToolCommand != null && Owner.ToolsSubViewModel.ActiveTool is not EraserToolViewModel)
+                {
+                    Owner.ToolsSubViewModel.SetActiveTool(eraserToolCommand.ToolType, false);
+                }
+            }
+            else if (preInvertedEraserTool != null)
+            {
+                if (preInvertedEraserTool is EraserToolViewModel)
+                {
+                    preInvertedEraserTool = Owner.ToolsSubViewModel.GetTool<PenToolViewModel>();
+                }
+
+                if (Owner.ToolsSubViewModel.ActiveTool is EraserToolViewModel)
+                {
+                    Owner.ToolsSubViewModel.SetActiveTool(preInvertedEraserTool.GetType(), true);
+                }
+
+                preInvertedEraserTool = null;
+            }
         }
 
         if (drawingWithRight != null || args.Button is not (MouseButton.Left or MouseButton.Right))
             return;
 
-        if (args.Button == MouseButton.Right && !HandleRightMouseDown())
-            return;
-
         var docManager = Owner.DocumentManagerSubViewModel;
-        var activeDocument = docManager.ActiveDocument;
+        var activeDocument = (args.TargetDocument as DocumentViewModel) ?? docManager.ActiveDocument;
         if (activeDocument == null)
             return;
 
+        if (args.Button == MouseButton.Right)
+        {
+            activeDocument.EventInlet.OnCanvasRightMouseButtonDown(args);
+            if (!HandleRightMouseDown())
+            {
+                return;
+            }
+        }
+
         drawingWithRight = args.Button == MouseButton.Right;
+
+
         activeDocument.EventInlet.OnCanvasLeftMouseButtonDown(args);
         if (args.Handled) return;
 
-        Owner.ToolsSubViewModel.UseToolEventInlet(args.PositionOnCanvas, args.Button);
+        if (Owner.ToolsSubViewModel.NeedsNewLayerForActiveTool())
+        {
+            LayerNeedsNewLayer?.Invoke();
+            var activeToolType = Owner.ToolsSubViewModel.ActiveTool.GetType();
+            activeDocument.Tools.TryStopActiveTool();
+            Owner.ToolsSubViewModel.CreateOrRasterizeLayerIfNeeded();
+            Owner.ToolsSubViewModel.DeselectActiveTool();
+            activeDocument.SubscribeLayerReadyToUseOnce(() =>
+            {
+                Owner.ToolsSubViewModel.SetActiveTool(activeToolType, false);
+                Owner.ToolsSubViewModel.UseToolEventInlet(args.Point.PositionOnCanvas, args.Button);
+            });
+        }
+        else if (Owner.ToolsSubViewModel.NeedsNewAnimationKeyFrameForActiveTool())
+        {
+            var activeToolType = Owner.ToolsSubViewModel.ActiveTool.GetType();
+            activeDocument.Tools.TryStopActiveTool();
+            Owner.ToolsSubViewModel.DeselectActiveTool();
+            Owner.ToolsSubViewModel.CreateAnimationKeyFrameIfNeeded();
+            Owner.DocumentManagerSubViewModel.ActiveDocument.SubscribeKeyFrameReadyToUseOnce(() =>
+            {
+                Owner.ToolsSubViewModel.SetActiveTool(activeToolType, false);
+                Owner.ToolsSubViewModel.UseToolEventInlet(args.Point.PositionOnCanvas, args.Button);
+            });
+        }
+        else
+        {
+            Owner.ToolsSubViewModel.UseToolEventInlet(args.Point.PositionOnCanvas, args.Button);
+        }
 
         if (args.Button == MouseButton.Right)
         {
             HandleRightSwapColor();
         }
 
-        Analytics.SendUseTool(Owner.ToolsSubViewModel.ActiveTool, args.PositionOnCanvas, activeDocument.SizeBindable);
+        Analytics.SendUseTool(Owner.ToolsSubViewModel.ActiveTool, args.Point.PositionOnCanvas,
+            activeDocument.SizeBindable);
     }
 
     private bool HandleRightMouseDown()
@@ -273,7 +408,10 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
                 HandleRightMouseEraseDown(tools);
                 return true;
             }
-            case RightClickMode.SecondaryColor when tools.ActiveTool is BrightnessToolViewModel:
+            case RightClickMode.SecondaryColor when tools.ActiveTool is BrushBasedToolViewModel
+            {
+                SupportsSecondaryActionOnRightClick: true
+            }:
                 return true;
             case RightClickMode.ContextMenu:
             default:
@@ -341,12 +479,13 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         Owner.ToolsSubViewModel.SetActiveTool<MoveViewportToolViewModel>(true);
     }
 
-    private void OnMouseMove(object? sender, VecD pos)
+    private void OnMouseMove(object? sender, MouseOnCanvasEventArgs args)
     {
-        DocumentViewModel? activeDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        DocumentViewModel? activeDocument = (args.TargetDocument as DocumentViewModel) ??
+                                            Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (activeDocument is null)
             return;
-        activeDocument.EventInlet.OnCanvasMouseMove(pos);
+        activeDocument.EventInlet.OnCanvasMouseMove(args);
     }
 
     private void OnMouseUp(object? sender, MouseOnCanvasEventArgs args)
@@ -359,8 +498,10 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         if (toLeftRightClick && button != MouseButton.Middle)
             return;
 
-        if (Owner.DocumentManagerSubViewModel.ActiveDocument is null)
+        var document = (args.TargetDocument as DocumentViewModel) ?? Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (document is null)
             return;
+
         var tools = Owner.ToolsSubViewModel;
 
         var rightCanUp = (button == MouseButton.Right) &&
@@ -369,8 +510,14 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
 
         if (button == MouseButton.Left || rightCanUp)
         {
-            Owner.DocumentManagerSubViewModel.ActiveDocument.EventInlet
-                .OnCanvasLeftMouseButtonUp(args.PositionOnCanvas);
+            document.EventInlet
+                .OnCanvasLeftMouseButtonUp(args.Point.PositionOnCanvas);
+        }
+
+        if (button == MouseButton.Right)
+        {
+            document.EventInlet
+                .OnCanvasRightMouseButtonUp(args.Point.PositionOnCanvas);
         }
 
         drawingWithRight = null;

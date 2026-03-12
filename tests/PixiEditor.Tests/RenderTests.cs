@@ -7,7 +7,9 @@ using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Rendering.ContextData;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.Position;
 using Xunit.Abstractions;
@@ -48,6 +50,15 @@ public class RenderTests : FullPixiEditorTest
     [InlineData("GpuScale")]
     [InlineData("GpuSkew")]
     [InlineData("GpuMatrixChain")]
+    [InlineData("FuncSwitch")]
+    [InlineData("ContextlessConditional")]
+    [InlineData("NestedElephants")]
+    [InlineData("NestedColorSpace")]
+    [InlineData("NestedFilter")]
+    [InlineData("NestedColorSpaceOverlayAlphaFilter")]
+    [InlineData("NestedVectorWithSepiaFilter")]
+    [InlineData("ToolsetTextTests")]
+    [InlineData("GradientArrays")]
     public void TestThatPixiFilesRenderTheSameResultAsSavedPng(string fileName, string? resultName = null)
     {
         if (!DrawingBackendApi.Current.IsHardwareAccelerated)
@@ -77,7 +88,31 @@ public class RenderTests : FullPixiEditorTest
 
         Assert.NotNull(toCompareTo);
 
-        Assert.True(PixelCompare(renderedToCompare, toCompareTo));
+        bool matches = PixelCompare(renderedToCompare, toCompareTo);
+        if (!matches)
+        {
+            var tmp = Path.Combine(Paths.TempFilesPath, "RenderTestFailures");
+            Directory.CreateDirectory(tmp);
+            string renderedPath = Path.Combine(tmp, Path.GetFileNameWithoutExtension(pixiFile) + "_rendered.png");
+            string expectedPath = Path.Combine(tmp, Path.GetFileNameWithoutExtension(pixiFile) + "_expected.png");
+            renderedToCompare.SaveTo(renderedPath);
+            toCompareTo.SaveTo(expectedPath);
+
+            using Surface diff = Surface.ForDisplay(document.SizeBindable);
+            diff.DrawingSurface.Canvas.DrawSurface(toCompareTo.DrawingSurface, 0, 0);
+            using var paint = new Paint
+            {
+                BlendMode = BlendMode.DstOut,
+            };
+            diff.DrawingSurface.Canvas.DrawSurface(renderedToCompare.DrawingSurface, 0, 0, paint);
+            string diffPath = Path.Combine(tmp, Path.GetFileNameWithoutExtension(pixiFile) + "_diff.png");
+            diff.SaveTo(diffPath);
+
+            _testOutputHelper.WriteLine($"SVG rendering mismatch for file: {pixiFile}");
+            _testOutputHelper.WriteLine($"Rendered image saved to: {renderedPath}");
+        }
+
+        Assert.True(matches, "Rendered pixi does not match the expected PNG for file: " + pixiFile);
     }
 
     [AvaloniaTheory]
@@ -96,9 +131,13 @@ public class RenderTests : FullPixiEditorTest
             0,
             document.SizeBindable / 2f,
             document.SizeBindable,
-            Matrix3X3.Identity, null, "DEFAULT", SamplingOptions.Default, document.SizeBindable, ChunkResolution.Half,
+            new ViewportData(),
+            new PointerInfo(),
+            new KeyboardInfo(),
+            new EditorData(),
+            null, "DEFAULT", SamplingOptions.Default, document.SizeBindable, ChunkResolution.Half,
             Guid.NewGuid(), false, false, () => { });
-        using var output = document.SceneRenderer.RenderScene(info, new AffectedArea(), null);
+        using var output = document.SceneRenderer.RenderScene(info, new AffectedArea(), document.NodeGraph.GetHashCode());
 
         Color expectedColor = Colors.Yellow;
 
@@ -108,7 +147,7 @@ public class RenderTests : FullPixiEditorTest
         Assert.True(AllPixelsAreColor(surface, expectedColor));
     }
 
-    private static bool PixelCompare(Surface image, Surface compareTo)
+    public static bool PixelCompare(Surface image, Surface compareTo)
     {
         if (image.Size != compareTo.Size)
         {

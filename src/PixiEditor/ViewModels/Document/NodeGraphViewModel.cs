@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using System.Reflection;
 using Avalonia.Input;
 using PixiEditor.Models.Commands.Attributes.Commands;
@@ -13,6 +14,10 @@ using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
+using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph.Blackboard;
+using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
+using PixiEditor.ChangeableDocument.Changes.NodeGraph;
+using PixiEditor.ViewModels.Document.Blackboard;
 using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document;
@@ -34,12 +39,48 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
 
     IReadOnlyDictionary<Guid, INodeHandler> INodeGraphHandler.NodeLookup => NodeLookup;
 
+    public BlackboardViewModel Blackboard { get; }
+
+    IBlackboardHandler INodeGraphHandler.Blackboard => Blackboard;
+
     private DocumentInternalParts Internals { get; }
 
     public NodeGraphViewModel(DocumentViewModel documentViewModel, DocumentInternalParts internals)
     {
         DocumentViewModel = documentViewModel;
         Internals = internals;
+        Blackboard = new BlackboardViewModel(internals);
+    }
+
+    internal void InitFrom(IReadOnlyNodeGraph nodeGraph)
+    {
+        foreach (var node in nodeGraph.AllNodes)
+        {
+            Internals.Updater.ApplyChangeFromChangeInfo(CreateNode_ChangeInfo.CreateFromNode(node));
+            Internals.Updater.ApplyChangeFromChangeInfo(new NodePosition_ChangeInfo(node.Id, node.Position));
+        }
+
+        foreach (var node in nodeGraph.AllNodes)
+        {
+            foreach (var inputProperty in node.InputProperties)
+            {
+                Internals.Updater.ApplyChangeFromChangeInfo(
+                    new ConnectProperty_ChangeInfo(
+                        inputProperty.Connection?.Node.Id,
+                        inputProperty.Node.Id,
+                        inputProperty.Connection?.InternalPropertyName,
+                        inputProperty.InternalPropertyName));
+            }
+        }
+
+        foreach (var var in nodeGraph.Blackboard.Variables)
+        {
+            Internals.Updater.ApplyChangeFromChangeInfo(
+                new BlackboardVariable_ChangeInfo(var.Value.Name, var.Value.Type, var.Value.Value,
+                    var.Value.Min ?? double.MinValue,
+                    var.Value.Max ?? double.MaxValue,
+                    var.Value.Unit));
+        }
     }
 
     public void AddNode(INodeHandler node)
@@ -106,6 +147,9 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
             existingInputConnection.OutputProperty.ConnectedInputs.Remove(existingInputConnection.InputProperty);
         }
 
+        if(connection.InputProperty == null || connection.OutputProperty == null)
+            return;
+
         connection.InputProperty.ConnectedOutput = connection.OutputProperty;
         connection.OutputProperty.ConnectedInputs.Add(connection.InputProperty);
 
@@ -119,16 +163,14 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
 
     public void RemoveConnection(Guid nodeId, string property)
     {
-        var connection = Connections.FirstOrDefault(x =>
-            x.InputProperty.Node.Id == nodeId && x.InputProperty.PropertyName == property);
-        if (connection != null)
-        {
-            connection.InputProperty.ConnectedOutput = null;
-            connection.OutputProperty.ConnectedInputs.Remove(connection.InputProperty);
-            Connections.Remove(connection);
+        RemoveInput(nodeId, property);
 
-            UpdatesFramesPartOf(connection.InputNode);
-            UpdatesFramesPartOf(connection.OutputNode);
+        var outputConnection = Connections.FirstOrDefault(x =>
+            x.OutputProperty.Node.Id == nodeId && x.OutputProperty.PropertyName == property);
+        if (outputConnection != null)
+        {
+            outputConnection.OutputProperty.ConnectedInputs.Remove(outputConnection.InputProperty);
+            Connections.Remove(outputConnection);
         }
 
         var node = AllNodes.FirstOrDefault(x => x.Id == nodeId);
@@ -142,6 +184,21 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
         }
 
         StructureTree.Update(this);
+    }
+
+    private void RemoveInput(Guid nodeId, string property)
+    {
+        var inputConnection = Connections.FirstOrDefault(x =>
+            x.InputProperty.Node.Id == nodeId && x.InputProperty.PropertyName == property);
+        if (inputConnection != null)
+        {
+            inputConnection.InputProperty.ConnectedOutput = null;
+            inputConnection.OutputProperty.ConnectedInputs.Remove(inputConnection.InputProperty);
+            Connections.Remove(inputConnection);
+
+            UpdatesFramesPartOf(inputConnection.InputNode);
+            UpdatesFramesPartOf(inputConnection.OutputNode);
+        }
     }
 
     public void UpdatesFramesPartOf(INodeHandler node)
@@ -311,7 +368,8 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
 
     public void UpdatePropertyValue(INodeHandler node, string property, object? value)
     {
-        Internals.ActionAccumulator.AddFinishedActions(new UpdatePropertyValue_Action(node.Id, property, value), new EndUpdatePropertyValue_Action());
+        Internals.ActionAccumulator.AddFinishedActions(new UpdatePropertyValue_Action(node.Id, property, value),
+            new EndUpdatePropertyValue_Action());
     }
 
     public void BeginUpdatePropertyValue(INodeHandler node, string property, object value)

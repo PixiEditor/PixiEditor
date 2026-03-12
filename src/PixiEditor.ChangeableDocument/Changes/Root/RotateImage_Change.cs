@@ -107,7 +107,7 @@ internal sealed class RotateImage_Change : Change
         img.DrawMostUpToDateRegionOn(
             bounds,
             ChunkResolution.Full,
-            originalSurface.DrawingSurface,
+            originalSurface.DrawingSurface.Canvas,
             VecI.Zero);
 
         using Surface flipped = Surface.ForProcessing(newSize, img.ProcessingColorSpace);

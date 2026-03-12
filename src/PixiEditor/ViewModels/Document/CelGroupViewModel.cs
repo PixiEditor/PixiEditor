@@ -72,6 +72,24 @@ internal class CelGroupViewModel : CelViewModel, ICelGroupHandler
         Document.PropertyChanged += DocumentOnPropertyChanged;
     }
 
+    public bool IsKeyFrameAt(int frame)
+    {
+        foreach (var child in Children)
+        {
+            if (child is ICelGroupHandler group)
+            {
+                if (group.IsKeyFrameAt(frame))
+                    return true;
+            }
+            else if (child.StartFrameBindable <= frame && frame < child.StartFrameBindable + child.DurationBindable)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private void DocumentOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if(e.PropertyName == nameof(IDocument.SelectedStructureMember))

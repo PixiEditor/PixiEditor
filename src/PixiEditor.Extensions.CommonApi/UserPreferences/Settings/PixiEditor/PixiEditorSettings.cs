@@ -37,6 +37,8 @@ public static class PixiEditorSettings
 
         public static SyncedSetting<string> PrimaryToolset { get; } =
             SyncedSetting.NonOwned<string>(PixiEditor, "PAINT_TOOLSET");
+
+        public static SyncedSetting<bool> AutoRasterizeNestedLayersOnDraw { get; } = SyncedSetting.NonOwned<bool>(PixiEditor);
     }
 
     public static class File
@@ -114,5 +116,13 @@ public static class PixiEditorSettings
     {
         public static SyncedSetting<double> UiScaleFactor { get; } = SyncedSetting.NonOwned(PixiEditor,
             1d, PreferencesConstants.UiScaleFactor);
+    }
+    
+    public static class Appearance
+    {
+        public static SyncedSetting<bool> UseSystemDecorations { get; } = SyncedSetting.NonOwned(
+            PixiEditor,
+            PreferencesConstants.UseSystemWindowDecorationsDefault,
+            PreferencesConstants.UseSystemWindowDecorations);
     }
 }

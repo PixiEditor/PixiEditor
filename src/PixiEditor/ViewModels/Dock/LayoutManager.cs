@@ -87,6 +87,13 @@ internal class LayoutManager
         ChannelsDockViewModel channelsDockDockViewModel = new(mainViewModel.WindowSubViewModel);
         */
 
+        HostWindow.ForceUseSystemDecorations = PixiEditorSettings.Appearance.UseSystemDecorations.Value;
+
+        PixiEditorSettings.Appearance.UseSystemDecorations.ValueChanged += (_, val) =>
+        {
+            HostWindow.ForceUseSystemDecorations = val;
+        };
+
         RegisterDockable(layersDockViewModel);
         RegisterDockable(colorPickerDockViewModel);
         RegisterDockable(colorSldersDockViewModel);

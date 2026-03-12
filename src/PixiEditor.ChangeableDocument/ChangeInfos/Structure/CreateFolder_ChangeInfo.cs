@@ -27,7 +27,7 @@ public record class CreateFolder_ChangeInfo : CreateStructureMember_ChangeInfo
     {
     }
 
-    internal static CreateFolder_ChangeInfo FromFolder(FolderNode folder)
+    public static CreateFolder_ChangeInfo FromFolder(FolderNode folder)
     {
         return new CreateFolder_ChangeInfo(
             folder.GetNodeTypeUniqueName(),

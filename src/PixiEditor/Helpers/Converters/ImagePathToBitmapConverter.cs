@@ -20,7 +20,7 @@ internal class ImagePathToBitmapConverter : SingleInstanceConverter<ImagePathToB
 
         try
         {
-            return LoadImageFromRelativePath(path);
+            return LoadImage(path) ?? AvaloniaProperty.UnsetValue;
         }
         catch (FileNotFoundException)
         {
@@ -28,19 +28,39 @@ internal class ImagePathToBitmapConverter : SingleInstanceConverter<ImagePathToB
         }
     }
 
-    public static IImage LoadImageFromRelativePath(string path)
+    public static IImage? LoadImage(string path)
     {
         Uri baseUri = new Uri($"avares://{Assembly.GetExecutingAssembly().GetName().Name}");
-        Uri uri = new(baseUri, path);
-        if (!AssetLoader.Exists(uri))
-            throw new FileNotFoundException($"Could not find asset with path {path}");
-
-        if (path.EndsWith(".svg"))
+        if (Uri.TryCreate(path, UriKind.RelativeOrAbsolute, out _))
         {
-            return new SvgImage() { Source = new SvgSource(baseUri) { Path = path } };
+            bool isAbsolute = Uri.TryCreate(path, UriKind.Absolute, out Uri? absUri);
+            
+            Uri assetsUri = new Uri(baseUri, path);
+            
+            if (AssetLoader.Exists(assetsUri))
+            {
+                if (path.EndsWith(".svg"))
+                {
+                    return new SvgImage() { Source = new SvgSource(baseUri) { Path = path } };
+                }
+
+                return new Bitmap(AssetLoader.Open(assetsUri));
+            }
+
+            if (isAbsolute && File.Exists(absUri!.LocalPath))
+            {
+                if (path.EndsWith(".svg"))
+                {
+                    return new SvgImage() { Source = new SvgSource((Uri?)null) { Path = absUri.LocalPath} };
+                }
+
+                return new Bitmap(File.OpenRead(absUri!.LocalPath));
+            }
+
+           
         }
 
-        return new Bitmap(AssetLoader.Open(uri));
+        return null;
     }
 
     public static Bitmap LoadBitmapFromRelativePath(string path)
@@ -50,15 +70,6 @@ internal class ImagePathToBitmapConverter : SingleInstanceConverter<ImagePathToB
             throw new FileNotFoundException($"Could not find asset with path {path}");
 
         return new Bitmap(AssetLoader.Open(uri));
-    }
-
-    public static Drawie.Backend.Core.Surfaces.Bitmap LoadDrawingApiBitmapFromRelativePath(string path)
-    {
-        Uri uri = new($"avares://{Assembly.GetExecutingAssembly().FullName}{path}");
-        if (!AssetLoader.Exists(uri))
-            throw new FileNotFoundException($"Could not find asset with path {path}");
-
-        return BitmapExtensions.FromStream(AssetLoader.Open(uri));
     }
 
     public static Bitmap? TryLoadBitmapFromRelativePath(string path)

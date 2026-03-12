@@ -16,7 +16,6 @@ public abstract class ShapeNode<T> : Node where T : ShapeVectorData
         Output = CreateOutput<T>("Output", "OUTPUT", null);
     }
     
-    private static readonly Paint rasterizePreviewPaint = new Paint();
 
     protected override void OnExecute(RenderContext context)
     {

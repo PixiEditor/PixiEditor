@@ -166,7 +166,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
             }
         }
 
-        var topMostWithinClick = QueryLayers<IStructureMemberHandler>(args.PositionOnCanvas);
+        var topMostWithinClick = QueryLayers<IStructureMemberHandler>(args.Point.PositionOnCanvas);
 
         var orderedBySize = topMostWithinClick
             .Where(x => x.TightBounds is not null)
@@ -309,6 +309,11 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
     }
 
     public bool IsTransforming => isInProgress;
+
+    public void OnTransformStarted()
+    {
+
+    }
 
     public void OnTransformChanged(ShapeCorners corners)
     {

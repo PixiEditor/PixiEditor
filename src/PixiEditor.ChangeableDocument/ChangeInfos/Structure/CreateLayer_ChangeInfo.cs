@@ -33,7 +33,7 @@ public record class CreateLayer_ChangeInfo : CreateStructureMember_ChangeInfo
 
     public bool LockTransparency { get; }
 
-    internal static CreateLayer_ChangeInfo FromLayer(LayerNode layer)
+    public static CreateLayer_ChangeInfo FromLayer(LayerNode layer)
     {
         return new CreateLayer_ChangeInfo(
             layer.GetNodeTypeUniqueName(),

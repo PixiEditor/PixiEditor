@@ -687,5 +687,10 @@
   "AUTOSAVE_OPEN_FOLDER": "Ouvrir le dossier des sauvegardes automatiques",
   "AUTOSAVE_OPEN_FOLDER_DESCRIPTIVE": "Ouvre le dossier de stockage des sauvegardes automatiques",
   "AUTOSAVE_TOGGLE_DESCRIPTIVE": "Active/désactive la sauvegarde automatique",
-  "TEXT_TOOL_ACTION_DISPLAY": "Cliquez sur le canvas pour ajouter un nouveau texte (glissez en cliquant pour définir la taille). Cliquez sur un texte existant pour le modifier."
+  "TEXT_TOOL_ACTION_DISPLAY": "Cliquez sur le canvas pour ajouter un nouveau texte (glissez en cliquant pour définir la taille). Cliquez sur un texte existant pour le modifier.",
+  "REPLACER_TOOLTIP": "Faites un clic droit sur la couleur de la palette et choisissez « Remplacer » ou déposez-la ici.",
+  "LINEAR_DODGE_BLEND_MODE": "Densité linéaire (Add)",
+  "FORCE_OTHER_FLOW_DIRECTION": "Forcer l’autre sens de flux",
+  "LOCALIZATION_VIEW_TYPE": "Type d'affichage de localisation",
+  "FILE_FORMAT_NOT_ASEPRITE_KEYS": "Le fichier n'est pas un fichier \".aseprite-keys\"."
 }

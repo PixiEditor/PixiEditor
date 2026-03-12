@@ -66,6 +66,11 @@ internal class PasteImageExecutor : UpdateableChangeExecutor, ITransformableExec
 
     public bool IsTransforming => true;
 
+    public void OnTransformStarted()
+    {
+
+    }
+
     public void OnTransformChanged(ShapeCorners corners)
     {
         internals!.ActionAccumulator.AddActions(new PasteImage_Action(image, corners, memberGuid.Value, false,

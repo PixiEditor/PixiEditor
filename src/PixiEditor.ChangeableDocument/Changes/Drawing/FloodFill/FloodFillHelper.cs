@@ -10,6 +10,8 @@ using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Enums;
+using BlendMode = Drawie.Backend.Core.Surfaces.BlendMode;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing.FloodFill;
 
@@ -32,9 +34,11 @@ public static class FloodFillHelper
             var member = document.FindMemberOrThrow(guid);
             if (member is IReadOnlyFolderNode)
                 return new FloodFillChunkCache(membersToFloodFill, document, frame);
-            if (member is not IReadOnlyImageNode rasterLayer)
-                throw new InvalidOperationException("Member is not a raster layer");
-            return new FloodFillChunkCache(rasterLayer.GetLayerImageAtFrame(frame));
+
+            if (member is IReadOnlyImageNode rasterLayer)
+            {
+                return new FloodFillChunkCache(rasterLayer.GetLayerImageAtFrame(frame));
+            }
         }
 
         return new FloodFillChunkCache(membersToFloodFill, document, frame);
@@ -47,7 +51,7 @@ public static class FloodFillHelper
         VecI startingPos,
         Color drawingColor,
         float tolerance,
-        int frame, bool lockTransparency)
+        int frame, bool lockTransparency, FloodFillMode fillMode, bool contiguous)
     {
         if (selection is not null && !selection.Contains(startingPos.X + 0.5f, startingPos.Y + 0.5f))
             return new();
@@ -63,28 +67,17 @@ public static class FloodFillHelper
         VecI initPosOnChunk = startingPos - initChunkPos * chunkSize;
         var chunkAtPos = cache.GetChunk(initChunkPos);
         ColorF colorToReplace = chunkAtPos.Match(
-            (Chunk chunk) => chunk.Surface.GetRawPixelPrecise(initPosOnChunk),
+            (Chunk chunk) => chunk.Surface.GetSrgbPixel(initPosOnChunk),
             static (EmptyChunk _) => Colors.Transparent
         );
 
-        ulong uLongColor = drawingColor.ToULong();
-        ColorF colorSpaceCorrectedColor = drawingColor;
-        if (!document.ProcessingColorSpace.IsSrgb)
-        {
-            // Mixing using actual surfaces is more accurate than using ColorTransformFn
-            // mismatch between actual surface color and transformed color here can lead to infinite loops
-            using Surface srgbSurface = Surface.ForProcessing(new VecI(1), ColorSpace.CreateSrgb());
-            using Paint srgbPaint = new Paint(){ Color = drawingColor };
-            srgbSurface.DrawingSurface.Canvas.DrawPixel(0, 0, srgbPaint);
-            using var processingSurface = Surface.ForProcessing(VecI.One, document.ProcessingColorSpace);
-            processingSurface.DrawingSurface.Canvas.DrawSurface(srgbSurface.DrawingSurface, 0, 0);
-            var fixedColor = processingSurface.GetRawPixelPrecise(VecI.Zero);
+        var fixedColor = drawingColor;
 
-            uLongColor = fixedColor.ToULong();
-            colorSpaceCorrectedColor = fixedColor;
-        }
+        var uLongColor = fixedColor.ToULong();
+        var colorSpaceCorrectedColor = fixedColor;
 
-        if ((colorSpaceCorrectedColor.A == 0) || colorToReplace == colorSpaceCorrectedColor)
+        if ((colorSpaceCorrectedColor.A == 0 && fillMode == FloodFillMode.Overlay) ||
+            (colorToReplace == colorSpaceCorrectedColor && fillMode == FloodFillMode.Replace))
             return new();
 
         if (colorToReplace.A == 0 && lockTransparency)
@@ -104,6 +97,26 @@ public static class FloodFillHelper
         // once the chunk is filled all places where it spills over to neighboring chunks are saved in the stack
         Stack<(VecI chunkPos, VecI posOnChunk)> positionsToFloodFill = new();
         positionsToFloodFill.Push((initChunkPos, initPosOnChunk));
+        if (!contiguous)
+        {
+            // add all chunks within selection bounds
+
+            for (int y = 0; y < imageSizeInChunks.Y; y++)
+            {
+                for (int x = 0; x < imageSizeInChunks.X; x++)
+                {
+                    if (x == initChunkPos.X && y == initChunkPos.Y)
+                        continue;
+
+                    bool intersectsWithSelection = SelectionIntersectsChunk(selection, new VecI(x, y), chunkSize);
+                    if (!intersectsWithSelection)
+                        continue;
+
+                    positionsToFloodFill.Push((new VecI(x, y), VecI.Zero));
+                }
+            }
+        }
+
         int iter = -1;
         while (positionsToFloodFill.Count > 0)
         {
@@ -112,8 +125,23 @@ public static class FloodFillHelper
 
             if (!drawingChunks.ContainsKey(chunkPos))
             {
-                var chunk = Chunk.Create(document.ProcessingColorSpace);
-                chunk.Surface.DrawingSurface.Canvas.Clear(Colors.Transparent);
+                var chunk = Chunk.Create(ColorSpace.CreateSrgb());
+
+                if (fillMode == FloodFillMode.Replace)
+                {
+                    // For replace mode, copy original image data to avoid erasing unfilled pixels
+                    var originalChunk = cache.GetChunk(chunkPos);
+                    originalChunk.Switch(
+                        (Chunk origChunk) =>
+                            chunk.Surface.DrawingSurface.Canvas.DrawSurface(origChunk.Surface.DrawingSurface, 0, 0),
+                        (EmptyChunk _) => chunk.Surface.DrawingSurface.Canvas.Clear(Colors.Transparent)
+                    );
+                }
+                else
+                {
+                    // For overlay mode, start with transparent
+                    chunk.Surface.DrawingSurface.Canvas.Clear(Colors.Transparent);
+                }
 
                 drawingChunks[chunkPos] = chunk;
             }
@@ -130,8 +158,9 @@ public static class FloodFillHelper
                     if (selection is not null && !selection.IsEmpty)
                     {
                         using VectorPath localSelection = new VectorPath(selection);
-                        localSelection.Transform(Matrix3X3.CreateTranslation(-chunkPos.X * chunkSize, -chunkPos.Y * chunkSize));
-                        
+                        localSelection.Transform(Matrix3X3.CreateTranslation(-chunkPos.X * chunkSize,
+                            -chunkPos.Y * chunkSize));
+
                         drawingChunk.Surface.DrawingSurface.Canvas.ClipPath(localSelection);
                         if (SelectionIntersectsChunk(selection, chunkPos, chunkSize))
                         {
@@ -144,16 +173,19 @@ public static class FloodFillHelper
                     }
 
                     drawingChunk.Surface.DrawingSurface.Canvas.RestoreToCount(saved);
-                    for (int i = 0; i < chunkSize; i++)
+                    if (contiguous)
                     {
-                        if (chunkPos.Y > 0)
-                            positionsToFloodFill.Push((new(chunkPos.X, chunkPos.Y - 1), new(i, chunkSize - 1)));
-                        if (chunkPos.Y < imageSizeInChunks.Y - 1)
-                            positionsToFloodFill.Push((new(chunkPos.X, chunkPos.Y + 1), new(i, 0)));
-                        if (chunkPos.X > 0)
-                            positionsToFloodFill.Push((new(chunkPos.X - 1, chunkPos.Y), new(chunkSize - 1, i)));
-                        if (chunkPos.X < imageSizeInChunks.X - 1)
-                            positionsToFloodFill.Push((new(chunkPos.X + 1, chunkPos.Y), new(0, i)));
+                        for (int i = 0; i < chunkSize; i++)
+                        {
+                            if (chunkPos.Y > 0)
+                                positionsToFloodFill.Push((new(chunkPos.X, chunkPos.Y - 1), new(i, chunkSize - 1)));
+                            if (chunkPos.Y < imageSizeInChunks.Y - 1)
+                                positionsToFloodFill.Push((new(chunkPos.X, chunkPos.Y + 1), new(i, 0)));
+                            if (chunkPos.X > 0)
+                                positionsToFloodFill.Push((new(chunkPos.X - 1, chunkPos.Y), new(chunkSize - 1, i)));
+                            if (chunkPos.X < imageSizeInChunks.X - 1)
+                                positionsToFloodFill.Push((new(chunkPos.X + 1, chunkPos.Y), new(0, i)));
+                        }
                     }
 
                     processedEmptyChunks.Add(chunkPos);
@@ -175,20 +207,23 @@ public static class FloodFillHelper
                 colorSpaceCorrectedColor,
                 posOnChunk,
                 colorRange,
-                iter != 0);
+                iter != 0, contiguous);
 
             if (maybeArray is null)
                 continue;
-            for (int i = 0; i < chunkSize; i++)
+            if (contiguous)
             {
-                if (chunkPos.Y > 0 && maybeArray[i] == Visited)
-                    positionsToFloodFill.Push((new(chunkPos.X, chunkPos.Y - 1), new(i, chunkSize - 1)));
-                if (chunkPos.Y < imageSizeInChunks.Y - 1 && maybeArray[chunkSize * (chunkSize - 1) + i] == Visited)
-                    positionsToFloodFill.Push((new(chunkPos.X, chunkPos.Y + 1), new(i, 0)));
-                if (chunkPos.X > 0 && maybeArray[i * chunkSize] == Visited)
-                    positionsToFloodFill.Push((new(chunkPos.X - 1, chunkPos.Y), new(chunkSize - 1, i)));
-                if (chunkPos.X < imageSizeInChunks.X - 1 && maybeArray[i * chunkSize + (chunkSize - 1)] == Visited)
-                    positionsToFloodFill.Push((new(chunkPos.X + 1, chunkPos.Y), new(0, i)));
+                for (int i = 0; i < chunkSize; i++)
+                {
+                    if (chunkPos.Y > 0 && maybeArray[i] == Visited)
+                        positionsToFloodFill.Push((new(chunkPos.X, chunkPos.Y - 1), new(i, chunkSize - 1)));
+                    if (chunkPos.Y < imageSizeInChunks.Y - 1 && maybeArray[chunkSize * (chunkSize - 1) + i] == Visited)
+                        positionsToFloodFill.Push((new(chunkPos.X, chunkPos.Y + 1), new(i, 0)));
+                    if (chunkPos.X > 0 && maybeArray[i * chunkSize] == Visited)
+                        positionsToFloodFill.Push((new(chunkPos.X - 1, chunkPos.Y), new(chunkSize - 1, i)));
+                    if (chunkPos.X < imageSizeInChunks.X - 1 && maybeArray[i * chunkSize + (chunkSize - 1)] == Visited)
+                        positionsToFloodFill.Push((new(chunkPos.X + 1, chunkPos.Y), new(0, i)));
+                }
             }
         }
 
@@ -206,16 +241,21 @@ public static class FloodFillHelper
         ColorF color,
         VecI pos,
         ColorBounds bounds,
-        bool checkFirstPixel)
+        bool checkFirstPixel,
+        bool contiguous)
     {
-        var rawPixelRef = referenceChunk.Surface.GetRawPixelPrecise(pos);
-        // color should be a fixed color
-        if ((Color)rawPixelRef == (Color)color || (Color)drawingChunk.Surface.GetRawPixelPrecise(pos) == (Color)color)
-            return null;
-        if (checkFirstPixel && !bounds.IsWithinBounds(rawPixelRef))
-            return null;
-        
-        if(!SelectionIntersectsChunk(selection, chunkPos, chunkSize))
+        if (contiguous)
+        {
+            var rawPixelRef = referenceChunk.Surface.GetSrgbPixel(pos);
+            // color should be a fixed color
+            if (rawPixelRef == (Color)color ||
+                drawingChunk.Surface.GetSrgbPixel(pos) == color)
+                return null;
+            if (checkFirstPixel && !bounds.IsWithinBounds(rawPixelRef))
+                return null;
+        }
+
+        if (!SelectionIntersectsChunk(selection, chunkPos, chunkSize))
             return null;
 
         byte[] pixelStates = new byte[chunkSize * chunkSize];
@@ -224,11 +264,30 @@ public static class FloodFillHelper
         using var refPixmap = referenceChunk.Surface.PeekPixels();
         Half* refArray = (Half*)refPixmap.GetPixels();
 
-        Surface cpuSurface = Surface.ForProcessing(new VecI(chunkSize), referenceChunk.Surface.ColorSpace);
+        using Surface cpuSurface = Surface.ForProcessing(new VecI(chunkSize), referenceChunk.Surface.ColorSpace);
         cpuSurface.DrawingSurface.Canvas.DrawSurface(drawingChunk.Surface.DrawingSurface, 0, 0);
         using var drawPixmap = cpuSurface.PeekPixels();
         Half* drawArray = (Half*)drawPixmap.GetPixels();
 
+        if (contiguous)
+        {
+            FloodFillContiguous(chunkSize, colorBits, pos, bounds, drawArray, refArray, pixelStates);
+        }
+        else
+        {
+            FloodFillNonContiguous(chunkSize, colorBits, bounds, drawArray, refArray, pixelStates);
+        }
+
+        using Paint replacePaint = new Paint();
+        replacePaint.BlendMode = BlendMode.Src;
+        drawingChunk.Surface.DrawingSurface.Canvas.DrawSurface(cpuSurface.DrawingSurface, 0, 0, replacePaint);
+
+        return pixelStates;
+    }
+
+    private static unsafe void FloodFillContiguous(int chunkSize, ulong colorBits, VecI pos, ColorBounds bounds,
+        Half* drawArray, Half* refArray, byte[] pixelStates)
+    {
         Stack<VecI> toVisit = new();
         toVisit.Push(pos);
 
@@ -253,12 +312,23 @@ public static class FloodFillHelper
                 bounds.IsWithinBounds(refPixel + 4 * chunkSize))
                 toVisit.Push(new(curPos.X, curPos.Y + 1));
         }
+    }
 
-        using Paint replacePaint = new Paint();
-        replacePaint.BlendMode = BlendMode.Src;
-        drawingChunk.Surface.DrawingSurface.Canvas.DrawSurface(cpuSurface.DrawingSurface, 0, 0, replacePaint);
-
-        return pixelStates;
+    private static unsafe void FloodFillNonContiguous(int chunkSize, ulong colorBits, ColorBounds bounds,
+        Half* drawArray, Half* refArray, byte[] pixelStates)
+    {
+        for (int y = 0; y < chunkSize; y++)
+        {
+            for (int x = 0; x < chunkSize; x++)
+            {
+                int pixelOffset = x + y * chunkSize;
+                if (pixelStates[pixelOffset] == InSelection && bounds.IsWithinBounds(refArray + pixelOffset * 4))
+                {
+                    *(ulong*)(drawArray + pixelOffset * 4) = colorBits;
+                    pixelStates[pixelOffset] = Visited;
+                }
+            }
+        }
     }
 
     public static Surface FillSelection(IReadOnlyDocument document, VectorPath selection)
@@ -305,12 +375,12 @@ public static class FloodFillHelper
             drawingSurface.Canvas.Flush();
         }
     }
-    
+
     private static bool SelectionIntersectsChunk(VectorPath selection, VecI chunkPos, int chunkSize)
     {
         if (selection is null || selection.IsEmpty)
             return true;
-        
+
         RectD chunkBounds = new(chunkPos * chunkSize, new VecI(chunkSize));
         return selection.Bounds.IntersectsWithInclusive(chunkBounds);
     }

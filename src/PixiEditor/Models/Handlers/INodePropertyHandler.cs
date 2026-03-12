@@ -18,6 +18,8 @@ public interface INodePropertyHandler
     public event EventHandler ConnectedOutputChanged;
     public INodeHandler Node { get; set; }
     public Type PropertyType { get; }
+    public bool SocketEnabled { get; set; }
     public void UpdateComputedValue();
     public void InternalSetComputedValue(object value);
+    internal void InternalSetValue(object isVisible);
 }

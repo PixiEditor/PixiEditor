@@ -8,4 +8,9 @@ internal class DynamicResourceIconLookupProvider : IIconLookupProvider
     {
         return ResourceLoader.GetResource<string>(iconName);
     }
+
+    public static string? LookupIconUnicode(string iconName)
+    {
+        return ResourceLoader.GetResource<string>(iconName);
+    }
 }

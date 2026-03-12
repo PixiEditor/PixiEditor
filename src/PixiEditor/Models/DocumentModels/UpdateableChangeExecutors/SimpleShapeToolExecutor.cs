@@ -133,19 +133,19 @@ internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor,
         restoreSnapping = DisableSelfSnapping(memberId, document);
     }
 
-    public override void OnPrecisePositionChange(VecD pos)
+    public override void OnPrecisePositionChange(MouseOnCanvasEventArgs args)
     {
         if (ActiveMode == ShapeToolMode.Preview)
         {
-            PrecisePositionChangePreviewMode(pos);
+            PrecisePositionChangePreviewMode(args.Point.PositionOnCanvas);
         }
         else if (ActiveMode == ShapeToolMode.Drawing)
         {
-            PrecisePositionChangeDrawingMode(pos);
+            PrecisePositionChangeDrawingMode(args.Point.PositionOnCanvas);
         }
         else if (ActiveMode == ShapeToolMode.Transform)
         {
-            PrecisePositionChangeTransformMode(pos);
+            PrecisePositionChangeTransformMode(args.Point.PositionOnCanvas);
         }
     }
 
@@ -159,6 +159,17 @@ internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor,
 
     public virtual void OnTransformChanged(ShapeCorners corners)
     {
+    }
+
+    public virtual void OnTransformStarted()
+    {
+        if(restoreSnapping != null)
+        {
+            restoreSnapping.Dispose();
+            restoreSnapping = null;
+        }
+
+        restoreSnapping = DisableSelfSnapping(memberId, document);
     }
 
     public virtual void OnTransformApplied()

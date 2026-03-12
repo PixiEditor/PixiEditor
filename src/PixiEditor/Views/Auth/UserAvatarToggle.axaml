@@ -12,6 +12,7 @@
              xmlns:behaviors="clr-namespace:PixiEditor.UI.Common.Behaviors;assembly=PixiEditor.UI.Common"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:ClassModifier="internal"
+             x:DataType="subViewModels:UserViewModel"
              x:Class="PixiEditor.Views.Auth.UserAvatarToggle">
     <Design.DataContext>
         <subViewModels:UserViewModel />

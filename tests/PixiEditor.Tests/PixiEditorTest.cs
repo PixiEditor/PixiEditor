@@ -1,6 +1,5 @@
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Bridge;
-using Drawie.Interop.Avalonia.Core;
 using Drawie.Numerics;
 using Drawie.RenderApi;
 using Drawie.RenderApi.OpenGL;
@@ -9,7 +8,6 @@ using Drawie.Silk;
 using Drawie.Skia;
 using Drawie.Windowing;
 using DrawiEngine;
-using DrawiEngine.Desktop;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Extensions.Runtime;
 using PixiEditor.Helpers;

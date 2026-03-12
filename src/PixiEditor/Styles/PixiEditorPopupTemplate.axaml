@@ -27,7 +27,7 @@
             <Setter.Value>
                 <OnPlatform>
                     <OnPlatform.Default>
-                        <platform:ExtendClientAreaChromeHints>NoChrome</platform:ExtendClientAreaChromeHints>
+                        <platform:ExtendClientAreaChromeHints>Default</platform:ExtendClientAreaChromeHints>
                     </OnPlatform.Default>
                     <OnPlatform.macOS>
                         <platform:ExtendClientAreaChromeHints>Default,NoChrome,OSXThickTitleBar</platform:ExtendClientAreaChromeHints>

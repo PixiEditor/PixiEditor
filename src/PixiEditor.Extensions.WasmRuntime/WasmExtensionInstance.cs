@@ -33,7 +33,25 @@ public partial class WasmExtensionInstance : Extension
     private List<ApiModule> modules = new();
 
     public override string Location => modulePath;
-    public bool HasEncryptedResources => GetEncryptionKey().Length > 0 && GetEncryptionIV().Length > 0;
+    public bool HasEncryptedResources
+    {
+        get
+        {
+            var key = GetEncryptionKey();
+            var iv = GetEncryptionIV();
+            if (key.Length == 0 || iv.Length == 0)
+            {
+                return false;
+            }
+
+            if(key.All(x => x == 0) || iv.All(x => x == 0))
+            {
+                return false;
+            }
+
+            return true;
+        }
+    }
 
     partial void LinkApiFunctions();
 
@@ -73,9 +91,18 @@ public partial class WasmExtensionInstance : Extension
         modules.Add(new CommandModule(this, Api.Commands,
             (ICommandSupervisor)Api.Services.GetService(typeof(ICommandSupervisor))));
         modules.Add(new EventsModule(this));
+        modules.Add(new ExtensionsModule(this));
         LayoutBuilder = new LayoutBuilder(new ExtensionResourceStorage(this), (ElementMap)Api.Services.GetService(typeof(ElementMap)));
         //SetElementMap();
-        Instance.GetAction("initialize")?.Invoke();
+        try
+        {
+            Instance.GetAction("initialize")?.Invoke();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Exception during extension initialization: " + ex);
+        }
+
         base.OnInitialized();
     }
 
@@ -96,7 +123,7 @@ public partial class WasmExtensionInstance : Extension
         int ptr = Instance.GetFunction("get_encryption_key")?.Invoke() as int? ?? 0;
         if (ptr == 0)
         {
-            throw new InvalidOperationException("Failed to get encryption key.");
+            return [];
         }
 
         return WasmMemoryUtility.GetBytes(ptr, 16);
@@ -107,7 +134,7 @@ public partial class WasmExtensionInstance : Extension
         int ptr = Instance.GetFunction("get_encryption_iv")?.Invoke() as int? ?? 0;
         if (ptr == 0)
         {
-            throw new InvalidOperationException("Failed to get encryption IV.");
+            return [];
         }
 
         return WasmMemoryUtility.GetBytes(ptr, 16);

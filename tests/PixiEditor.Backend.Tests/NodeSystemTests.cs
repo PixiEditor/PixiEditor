@@ -24,7 +24,8 @@ public class NodeSystemTests : PixiEditorTest
     private Type[] knownNonSerializableTypes = new[]
     {
         typeof(Filter),
-        typeof(Painter)
+        typeof(Painter),
+        typeof(Object) // Objects are assumed to be only passed from other node and not serialized directly
     };
 
     public NodeSystemTests(ITestOutputHelper output)
@@ -98,7 +99,7 @@ public class NodeSystemTests : PixiEditorTest
             Assert.NotNull(node);
 
             Dictionary<string, object> data = new Dictionary<string, object>();
-            node.SerializeAdditionalData(data);
+            node.SerializeAdditionalData(target, data);
             Assert.NotNull(data);
         }
     }
@@ -133,6 +134,7 @@ public class NodeSystemTests : PixiEditorTest
                 if (knownNonSerializableTypes.Contains(input.ValueType)) continue;
                 if (input.ValueType.IsAbstract) continue;
                 if (input.ValueType.IsAssignableTo(typeof(Delegate))) continue;
+                if (input.ValueType.IsArray) continue;
                 bool hasFactory = factories.Any(x => x.OriginalType == input.ValueType);
                 Assert.True(
                     input.ValueType.IsPrimitive || input.ValueType.IsEnum || input.ValueType == typeof(string) ||

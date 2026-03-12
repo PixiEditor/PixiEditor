@@ -148,14 +148,13 @@ internal class ExportFileDialog : CustomDialog
             ExportConfig.ExportSize = new VecI(FileWidth, FileHeight);
             ExportConfig.ExportOutput = ExportOutput.Name;
             ExportConfig.ExportFramesToFolder = popup.FolderExport;
-            ExportConfig.AnimationRenderer = ChosenFormat is VideoFileType ? new FFMpegRenderer()
+            ExportConfig.AnimationRenderer = new FFMpegRenderer()
             {
                 Size = new VecI(FileWidth, FileHeight),
                 OutputFormat = ChosenFormat.PrimaryExtension.Replace(".", ""),
                 FrameRate = document.AnimationDataViewModel.FrameRateBindable,
                 QualityPreset = (QualityPreset)popup.AnimationPresetIndex
-            }
-            : null;
+            };
             ExportConfig.ExportAsSpriteSheet = popup.IsSpriteSheetExport;
             ExportConfig.SpriteSheetColumns = popup.SpriteSheetColumns;
             ExportConfig.SpriteSheetRows = popup.SpriteSheetRows;

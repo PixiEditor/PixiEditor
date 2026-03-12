@@ -33,7 +33,7 @@ public class FuncContext
 
     public ShaderBuilder Builder { get; set; }
 
-    private Dictionary<IFuncInputProperty, ShaderExpressionVariable> _cachedValues = new();
+    private Dictionary<IInputProperty, ShaderExpressionVariable> _cachedValues = new();
 
     public void ThrowOnMissingContext()
     {
@@ -92,11 +92,26 @@ public class FuncContext
         if (!HasContext && first is Int1 firstInt && second is Int1 secondInt)
         {
             Int2 constantInt = new Int2("");
-            constantInt.ConstantValue = new VecI(firstInt.ConstantValue, secondInt.ConstantValue);
+            constantInt.ConstantValue = new VecI(GetIntConstant(firstInt), GetIntConstant(secondInt));
             return constantInt;
         }
 
         return Builder.ConstructInt2(first, second);
+    }
+
+    private static int GetIntConstant(Int1 int1)
+    {
+        object constant = int1.GetConstant();
+        return constant switch
+        {
+            int i => i,
+            double d => (int)d,
+            float f => (int)f,
+            long l => (int)l,
+            byte b => b,
+            short s => s,
+            _ => 0
+        };
     }
 
     public Half4 NewHalf4(Expression r, Expression g, Expression b, Expression a)
@@ -122,9 +137,9 @@ public class FuncContext
             a is Float1 fourthFloat)
         {
             Half4 constantHalf4 = new Half4("");
-            var hValue = firstFloat.ConstantValue * 360;
-            var sValue = secondFloat.ConstantValue * 100;
-            var vValue = thirdFloat.ConstantValue * 100;
+            var hValue = Math.Clamp(firstFloat.ConstantValue, 0, 360);
+            var sValue = Math.Clamp(secondFloat.ConstantValue, 0, 100);
+            var vValue = Math.Clamp(thirdFloat.ConstantValue, 0, 100);
             byte aByte = fourthFloat.AsConstantColorByte();
             constantHalf4.ConstantValue = Color.FromHsv((float)hValue, (float)sValue, (float)vValue, aByte);
             return constantHalf4;
@@ -139,9 +154,9 @@ public class FuncContext
             a is Float1 fourthFloat)
         {
             Half4 constantHalf4 = new Half4("");
-            var hValue = firstFloat.ConstantValue * 360;
-            var sValue = secondFloat.ConstantValue * 100;
-            var lValue = thirdFloat.ConstantValue * 100;
+            var hValue = Math.Clamp(firstFloat.ConstantValue, 0, 360);
+            var sValue = Math.Clamp(secondFloat.ConstantValue, 0, 100);
+            var lValue = Math.Clamp(thirdFloat.ConstantValue, 0, 100);
             byte aByte = fourthFloat.AsConstantColorByte();
             constantHalf4.ConstantValue = Color.FromHsl((float)hValue, (float)sValue, (float)lValue, aByte);
             return constantHalf4;
@@ -198,8 +213,14 @@ public class FuncContext
         {
             if (getFrom.Connection == null || !IsFuncType(getFrom))
             {
+                float value = 0;
+                if (getFrom?.Value != null)
+                {
+                    value = (float)getFrom.Value(this).ConstantValue;
+                }
+
                 string uniformName = $"float_{Builder.GetUniqueNameNumber()}";
-                Builder.AddUniform(uniformName, (float)getFrom.Value(this).ConstantValue);
+                Builder.AddUniform(uniformName, value);
                 return new Float1(uniformName);
             }
 
@@ -225,8 +246,14 @@ public class FuncContext
         {
             if (getFrom.Connection == null || !IsFuncType(getFrom))
             {
+                int value = 0;
+                if (getFrom?.Value != null)
+                {
+                    value = getFrom.Value(this)?.ConstantValue ?? 0;
+                }
+
                 string uniformName = $"int_{Builder.GetUniqueNameNumber()}";
-                Builder.AddUniform(uniformName, (int)getFrom.Value(this).ConstantValue);
+                Builder.AddUniform(uniformName, value);
                 return new Int1(uniformName);
             }
 
@@ -245,7 +272,34 @@ public class FuncContext
         return val;
     }
 
-    private static bool IsFuncType<T>(FuncInputProperty<T> getFrom)
+    public Half3 GetValue(FuncInputProperty<Half3> getFrom)
+    {
+        if (HasContext)
+        {
+            if (getFrom.Connection == null || !IsFuncType(getFrom))
+            {
+                Half3 color = getFrom?.Value != null ? getFrom.Value(this) : new Half3("");
+                color.VariableName = $"color_{Builder.GetUniqueNameNumber()}";
+                Builder.AddUniform(color.VariableName, color?.ConstantValue ?? Vec3D.Zero);
+                return color;
+            }
+
+            if (_cachedValues.TryGetValue(getFrom, out ShaderExpressionVariable cachedValue))
+            {
+                if (cachedValue is Half3 half3)
+                {
+                    return half3;
+                }
+            }
+        }
+
+        var val = getFrom.Value(this);
+        _cachedValues[getFrom] = val;
+
+        return val;
+    }
+
+    private static bool IsFuncType(InputProperty getFrom)
     {
         return getFrom.Connection.ValueType.IsAssignableTo(typeof(Delegate));
     }
@@ -256,9 +310,9 @@ public class FuncContext
         {
             if (getFrom.Connection == null || !IsFuncType(getFrom))
             {
-                Half4 color = getFrom.Value(this);
+                Half4 color = getFrom?.Value != null ? getFrom.Value(this) : new Half4("");
                 color.VariableName = $"color_{Builder.GetUniqueNameNumber()}";
-                Builder.AddUniform(color.VariableName, color.ConstantValue);
+                Builder.AddUniform(color.VariableName, color?.ConstantValue ?? Colors.Transparent);
                 return color;
             }
 
@@ -283,9 +337,9 @@ public class FuncContext
         {
             if (getFrom.Connection == null || !IsFuncType(getFrom))
             {
-                Float2 value = getFrom.Value(this);
+                Float2 value = getFrom?.Value != null ? getFrom.Value(this) : new Float2("");
                 value.VariableName = $"float2_{Builder.GetUniqueNameNumber()}";
-                Builder.AddUniform(value.VariableName, value.ConstantValue);
+                Builder.AddUniform(value.VariableName, value?.ConstantValue ?? VecD.Zero);
                 return value;
             }
 
@@ -310,9 +364,9 @@ public class FuncContext
         {
             if (getFrom?.Connection == null || !IsFuncType(getFrom))
             {
-                Int2 value = getFrom.Value(this);
+                Int2 value = getFrom?.Value != null ? getFrom.Value(this) : new Int2("");
                 value.VariableName = $"int2_{Builder.GetUniqueNameNumber()}";
-                Builder.AddUniform(value.VariableName, value.ConstantValue);
+                Builder.AddUniform(value.VariableName, value?.ConstantValue ?? VecI.Zero);
                 return value;
             }
 
@@ -337,9 +391,9 @@ public class FuncContext
         {
             if (getFrom.Connection == null || !IsFuncType(getFrom))
             {
-                Float3x3 value = getFrom.Value(this);
+                Float3x3 value = getFrom?.Value != null ? getFrom.Value(this) : new Float3x3("");
                 value.VariableName = $"float3x3_{Builder.GetUniqueNameNumber()}";
-                Builder.AddUniform(value.VariableName, value.ConstantValue);
+                Builder.AddUniform(value.VariableName, value?.ConstantValue ?? Matrix3X3.Identity);
                 return value;
             }
 
@@ -348,6 +402,65 @@ public class FuncContext
                 if (cachedValue is Float3x3 float3x3)
                 {
                     return float3x3;
+                }
+            }
+        }
+
+        var val = getFrom.Value(this);
+        _cachedValues[getFrom] = val;
+
+        return val;
+    }
+
+    public Float3 GetValue(FuncInputProperty<Float3> getFrom)
+    {
+        if (HasContext)
+        {
+            if (getFrom.Connection == null || !IsFuncType(getFrom))
+            {
+                Float3 value = getFrom?.Value != null ? getFrom.Value(this) : new Float3("");
+                value.VariableName = $"float3_{Builder.GetUniqueNameNumber()}";
+                Builder.AddUniform(value.VariableName, value?.ConstantValue ?? Vec3D.Zero);
+                return value;
+            }
+
+            if (_cachedValues.TryGetValue(getFrom, out ShaderExpressionVariable cachedValue))
+            {
+                if (cachedValue is Float3 float3)
+                {
+                    return float3;
+                }
+            }
+        }
+
+        var val = getFrom.Value(this);
+        _cachedValues[getFrom] = val;
+
+        return val;
+    }
+
+    public Bool GetValue(FuncInputProperty<Bool> getFrom)
+    {
+        if (HasContext)
+        {
+            if (getFrom.Connection == null || !IsFuncType(getFrom))
+            {
+                bool value = false;
+                if (getFrom?.Value != null)
+                {
+                    value = getFrom.Value(this)?.ConstantValue ?? false;
+                }
+
+                string uniformName = $"bool_{Builder.GetUniqueNameNumber()}";
+                Builder.AddUniform(uniformName, value ? 1 : 0);
+                return new Bool(uniformName) { OverrideExpression = new Expression($"({uniformName} != 0)") };
+            }
+
+            if (_cachedValues.TryGetValue(getFrom, out ShaderExpressionVariable cachedValue))
+            {
+                if (cachedValue is Bool boolVal)
+                {
+                    return boolVal;
                 }
             }
         }
@@ -382,10 +495,109 @@ public class FuncContext
         if (!HasContext && matrixExpression is Float3x3 float3x3)
         {
             Float3x3 constantMatrix = new Float3x3("");
-            constantMatrix.ConstantValue = float3x3.ConstantValue;
+            constantMatrix.ConstantValue = float3x3?.ConstantValue ?? Matrix3X3.Identity;
             return constantMatrix;
         }
 
         return Builder.AssignNewFloat3x3(matrixExpression);
+    }
+
+    public Float1 ConditionalVariable(Bool value, Float1 onTrue, Float1 onFalse)
+    {
+        if (!HasContext)
+        {
+            bool condition = value.ConstantValue;
+            return condition ? onTrue : onFalse;
+        }
+
+        return Builder.ConditionalVariable(value, onTrue, onFalse);
+    }
+
+    public Half4 ConditionalVariable(Bool value, Half4 onTrue, Half4 onFalse)
+    {
+        if (!HasContext)
+        {
+            bool condition = value.ConstantValue;
+            return condition ? onTrue : onFalse;
+        }
+
+        return Builder.ConditionalVariable(value, onTrue, onFalse);
+    }
+
+    public Int1 ConditionalVariable(Bool value, Int1 onTrue, Int1 onFalse)
+    {
+        if (!HasContext)
+        {
+            bool condition = value.ConstantValue;
+            return condition ? onTrue : onFalse;
+        }
+
+        return Builder.ConditionalVariable(value, onTrue, onFalse);
+    }
+
+    public Int2 ConditionalVariable(Bool value, Int2 onTrue, Int2 onFalse)
+    {
+        if (!HasContext)
+        {
+            bool condition = value.ConstantValue;
+            return condition ? onTrue : onFalse;
+        }
+
+        return Builder.ConditionalVariable(value, onTrue, onFalse);
+    }
+
+    public Float2 ConditionalVariable(Bool value, Float2 onTrue, Float2 onFalse)
+    {
+        if (!HasContext)
+        {
+            bool condition = value.ConstantValue;
+            return condition ? onTrue : onFalse;
+        }
+
+        return Builder.ConditionalVariable(value, onTrue, onFalse);
+    }
+
+    public Half3 ConditionalVariable(Bool value, Half3 onTrue, Half3 onFalse)
+    {
+        if (!HasContext)
+        {
+            bool condition = value.ConstantValue;
+            return condition ? onTrue : onFalse;
+        }
+
+        return Builder.ConditionalVariable(value, onTrue, onFalse);
+    }
+
+    public Float3x3 ConditionalVariable(Bool value, Float3x3 onTrue, Float3x3 onFalse)
+    {
+        if (!HasContext)
+        {
+            bool condition = value.ConstantValue;
+            return condition ? onTrue : onFalse;
+        }
+
+        return Builder.ConditionalVariable(value, onTrue, onFalse);
+    }
+
+    public Float3 ConditionalVariable(Bool value, Float3 onTrue, Float3 onFalse)
+    {
+        if (!HasContext)
+        {
+            bool condition = value.ConstantValue;
+            return condition ? onTrue : onFalse;
+        }
+
+        return Builder.ConditionalVariable(value, onTrue, onFalse);
+    }
+
+    public Bool ConditionalVariable(Bool value, Bool onTrue, Bool onFalse)
+    {
+        if (!HasContext)
+        {
+            bool condition = value.ConstantValue;
+            return condition ? onTrue : onFalse;
+        }
+
+        return Builder.ConditionalVariable(value, onTrue, onFalse);
     }
 }

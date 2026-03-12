@@ -20,6 +20,7 @@ internal class SettingsViewModel : SubViewModel<SettingsWindowViewModel>
     public PerformanceSettings Performance { get; set; } = new();
     
     public AccessibilitySettings Accessibility { get; set; } = new();
+    public AppearanceSettings Appearance { get; } = new();
 
     public SettingsViewModel(SettingsWindowViewModel owner)
         : base(owner)

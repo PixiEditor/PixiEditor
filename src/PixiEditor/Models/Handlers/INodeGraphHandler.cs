@@ -23,4 +23,5 @@ internal interface INodeGraphHandler
    public void UpdateAvailableRenderOutputs();
    public void RequestUpdateComputedPropertyValue(INodePropertyHandler property);
    public IReadOnlyDictionary<Guid, INodeHandler> NodeLookup { get; }
+   public IBlackboardHandler Blackboard { get; }
 }

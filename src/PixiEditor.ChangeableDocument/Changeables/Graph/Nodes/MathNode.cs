@@ -16,7 +16,7 @@ public class MathNode : Node
     public FuncOutputProperty<Float1> Result { get; }
 
     public InputProperty<MathNodeMode> Mode { get; }
-    
+
     public InputProperty<bool> Clamp { get; }
 
     public FuncInputProperty<Float1> X { get; }
@@ -71,6 +71,10 @@ public class MathNode : Node
                 MathNodeMode.Max => ShaderMath.Max(x, y),
                 MathNodeMode.Step => ShaderMath.Step(x, y),
                 MathNodeMode.SmoothStep => ShaderMath.SmoothStep(x, y, z),
+                MathNodeMode.Asin => ShaderMath.Asin(x),
+                MathNodeMode.Acos => ShaderMath.Acos(x),
+                MathNodeMode.Atan => ShaderMath.Atan(x),
+                MathNodeMode.Atan2 => ShaderMath.Atan2(x, y),
             };
 
             if (Clamp.Value)
@@ -98,7 +102,7 @@ public class MathNode : Node
             MathNodeMode.GreaterThanOrEqual => xConst >= yConst ? 1 : 0,
             MathNodeMode.LessThan => xConst < yConst ? 1 : 0,
             MathNodeMode.LessThanOrEqual => xConst <= yConst ? 1 : 0,
-            MathNodeMode.Compare => Math.Abs(xConst - yConst) < zConst ? 1 : 0,
+            MathNodeMode.Compare => Math.Abs(xConst - yConst) <= zConst ? 1 : 0,
             MathNodeMode.Power => Math.Pow(xConst, yConst),
             MathNodeMode.Logarithm => Math.Log(xConst, yConst),
             MathNodeMode.NaturalLogarithm => Math.Log(xConst),
@@ -115,6 +119,10 @@ public class MathNode : Node
             MathNodeMode.Max => Math.Max(xConst, yConst),
             MathNodeMode.Step => xConst > yConst ? 1 : 0,
             MathNodeMode.SmoothStep => MathEx.SmoothStep(xConst, yConst, zConst),
+            MathNodeMode.Asin => Math.Asin(xConst),
+            MathNodeMode.Acos => Math.Acos(xConst),
+            MathNodeMode.Atan => Math.Atan(xConst),
+            MathNodeMode.Atan2 => Math.Atan2(xConst, yConst),
         };
         
         if (Clamp.Value)

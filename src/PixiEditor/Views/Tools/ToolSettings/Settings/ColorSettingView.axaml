@@ -11,7 +11,9 @@
         <settings:ColorSettingViewModel/>
     </Design.DataContext>
     
-    <input:ToolSettingColorPicker SelectedBrush="{Binding BrushValue, Mode=TwoWay}">
+    <input:ToolSettingColorPicker 
+        EnableGradientsTab="{Binding AllowGradient}"
+        SelectedBrush="{Binding BrushValue, Mode=TwoWay}">
         <Interaction.Behaviors>
             <behaviours:GlobalShortcutFocusBehavior/>
         </Interaction.Behaviors>

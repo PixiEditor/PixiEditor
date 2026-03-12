@@ -2,7 +2,9 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:nodes="clr-namespace:PixiEditor.Views.Nodes"
                     xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
-                    xmlns:behaviors="clr-namespace:PixiEditor.UI.Common.Behaviors;assembly=PixiEditor.UI.Common">
+                    xmlns:behaviors="clr-namespace:PixiEditor.UI.Common.Behaviors;assembly=PixiEditor.UI.Common"
+                    xmlns:overlays="clr-namespace:PixiEditor.Views.Overlays"
+                    xmlns:blackboard="clr-namespace:PixiEditor.Views.Blackboard">
     <ControlTheme TargetType="nodes:NodeGraphView" x:Key="{x:Type nodes:NodeGraphView}">
         <Setter Property="ZoomMode" Value="Move" />
         <Setter Property="Template">
@@ -51,6 +53,7 @@
                                     Node="{Binding}"
                                     DisplayName="{Binding NodeNameBindable}"
                                     Icon="{Binding Icon}"
+                                    MiniView="{Binding IsSocketConverterNode}"
                                     CategoryBackgroundBrush="{Binding CategoryBackgroundBrush}"
                                     Inputs="{Binding Inputs}"
                                     ActiveFrame="{Binding ActiveFrame, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"

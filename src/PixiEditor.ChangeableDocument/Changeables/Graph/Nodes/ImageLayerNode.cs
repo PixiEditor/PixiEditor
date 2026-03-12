@@ -22,23 +22,36 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     public const int AccuratePreviewMaxSize = 2048;
 
-    public override VecD GetScenePosition(KeyFrameTime time) => layerImage.CommittedSize / 2f;
-    public override VecD GetSceneSize(KeyFrameTime time) => layerImage.CommittedSize;
-
+    public override VecD GetScenePosition(KeyFrameTime time) => layerImage?.CommittedSize / 2f ?? VecD.Zero;
+    public override VecD GetSceneSize(KeyFrameTime time) => layerImage?.CommittedSize ?? VecD.Zero;
     public bool LockTransparency { get; set; }
+    public bool FallbackAnimationToLayerImage { get; set; } = false;
 
     private VecI startSize;
     private ColorSpace colorSpace;
 
 
-    private ChunkyImage layerImage => keyFrames[0]?.Data as ChunkyImage;
+    private ChunkyImage layerImage
+    {
+        get
+        {
+            if (keyFrames[0]?.Data is ChunkyImage chunkyImage)
+            {
+                return chunkyImage;
+            }
+
+            var newImage = new ChunkyImage(startSize);
+            keyFrames[0].Data = newImage;
+            return newImage;
+        }
+    }
 
     public ImageLayerNode(VecI size, ColorSpace colorSpace)
     {
         if (keyFrames.Count == 0)
         {
             keyFrames.Add(
-                new KeyFrameData(Guid.NewGuid(), 0, 0, ImageLayerKey) { Data = new ChunkyImage(size, colorSpace) });
+                new KeyFrameData(Guid.NewGuid(), 0, 0, ImageLayerKey) { Data = new ChunkyImage(size) });
         }
 
         this.startSize = size;
@@ -47,12 +60,17 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     public override RectD? GetTightBounds(KeyFrameTime frameTime)
     {
-        return (RectD?)GetLayerImageAtFrame(frameTime.Frame).FindTightLatestBounds();
+        return (RectD?)GetLayerImageAtFrame(frameTime.Frame)?.FindTightLatestBounds();
     }
 
     public override RectD? GetApproxBounds(KeyFrameTime frameTime)
     {
         var layerImage = GetLayerImageAtFrame(frameTime.Frame);
+        if (layerImage == null)
+        {
+            return null;
+        }
+
         return GetApproxBounds(layerImage);
     }
 
@@ -87,61 +105,93 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     }
 
     protected internal override void DrawLayerInScene(SceneObjectRenderContext ctx,
-        DrawingSurface workingSurface,
+        Canvas workingSurface,
         bool useFilters = true)
     {
-        int scaled = workingSurface.Canvas.Save();
+        int scaled = workingSurface.Save();
         float multiplier = (float)ctx.ChunkResolution.InvertedMultiplier();
-        workingSurface.Canvas.Translate(GetScenePosition(ctx.FrameTime));
+        workingSurface.Translate(GetScenePosition(ctx.FrameTime));
 
         base.DrawLayerInScene(ctx, workingSurface, useFilters);
 
-        workingSurface.Canvas.RestoreToCount(scaled);
+        workingSurface.RestoreToCount(scaled);
     }
 
     protected internal override void DrawLayerOnTexture(SceneObjectRenderContext ctx,
-        DrawingSurface workingSurface,
+        Canvas workingSurface,
         ChunkResolution resolution,
         bool useFilters, Paint paint)
     {
-        int scaled = workingSurface.Canvas.Save();
-        workingSurface.Canvas.Translate(GetScenePosition(ctx.FrameTime) * resolution.Multiplier());
-        workingSurface.Canvas.Scale((float)resolution.Multiplier());
+        int scaled = workingSurface.Save();
+        workingSurface.Translate(GetScenePosition(ctx.FrameTime) * resolution.Multiplier());
+        workingSurface.Scale((float)resolution.Multiplier());
 
         DrawLayerOnto(ctx, workingSurface, useFilters, paint);
 
-        workingSurface.Canvas.RestoreToCount(scaled);
+        workingSurface.RestoreToCount(scaled);
     }
 
-    protected override void DrawWithoutFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
+    protected override void DrawWithoutFilters(SceneObjectRenderContext ctx, Canvas workingSurface,
         Paint paint)
     {
         DrawLayer(workingSurface, paint, ctx, false);
     }
 
-    protected override void DrawWithFilters(SceneObjectRenderContext context, DrawingSurface workingSurface,
+    protected override void DrawWithFilters(SceneObjectRenderContext context, Canvas workingSurface,
         Paint paint)
     {
         DrawLayer(workingSurface, paint, context, true);
     }
 
-    private void DrawLayer(DrawingSurface workingSurface, Paint paint, SceneObjectRenderContext ctx, bool saveLayer)
+    private void DrawLayer(Canvas workingSurface, Paint paint, SceneObjectRenderContext ctx, bool saveLayer)
     {
-        int saved = workingSurface.Canvas.Save();
+        int saved = workingSurface.Save();
 
         var sceneSize = GetSceneSize(ctx.FrameTime);
+        if (sceneSize.X == 0 || sceneSize.Y == 0)
+        {
+            workingSurface.RestoreToCount(saved);
+            return;
+        }
+
         RectI latestSize = new(0, 0, layerImage.LatestSize.X, layerImage.LatestSize.Y);
         var region = ctx.VisibleDocumentRegion ?? latestSize;
 
         VecD topLeft = region.TopLeft - sceneSize / 2;
 
         topLeft *= ctx.ChunkResolution.Multiplier();
-        workingSurface.Canvas.Scale((float)ctx.ChunkResolution.InvertedMultiplier());
+        workingSurface.Scale((float)ctx.ChunkResolution.InvertedMultiplier());
         var img = GetLayerImageAtFrame(ctx.FrameTime.Frame);
 
+        if (img is null)
+        {
+            workingSurface.RestoreToCount(saved);
+            return;
+        }
+
+        Texture? intermediate = null;
+        VecD finalDrawPos = topLeft;
         if (saveLayer)
         {
-            workingSurface.Canvas.SaveLayer(paint);
+            var visibleRegion = ctx.VisibleDocumentRegion ?? latestSize;
+            var multiplier = visibleRegion != latestSize ? 1 : ctx.ChunkResolution.Multiplier();
+            var intersection = visibleRegion.Intersect(latestSize);
+            region = intersection;
+            VecI chunkAwareSize = (VecI)(new VecI(region.Width, region.Height) * multiplier);
+            if(chunkAwareSize.X <= 0 || chunkAwareSize.Y <= 0)
+            {
+                workingSurface.RestoreToCount(saved);
+                return;
+            }
+
+            intermediate = RequestTexture(1336, chunkAwareSize, ColorSpace.CreateSrgb());
+            finalDrawPos = VecD.Zero;
+            // TODO: Validate that removing below doesn't cause issues. Bugs like partial chunk rendering on scene moves the position of the image.
+            // If you uncomment this, Test file (nested elephant in render tests) will fail for certain zooms
+            /*if (visibleRegion != latestSize)
+            {
+                topLeft = region.TopLeft - sceneSize / 2;
+            }*/
         }
 
         if (!ctx.FullRerender)
@@ -149,17 +199,29 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
             img.DrawMostUpToDateRegionOnWithAffected(
                 region,
                 ctx.ChunkResolution,
-                workingSurface, ctx.AffectedArea, topLeft, saveLayer ? null : paint, ctx.DesiredSamplingOptions);
+                saveLayer ? intermediate.DrawingSurface.Canvas : workingSurface, ctx.AffectedArea, finalDrawPos,
+                saveLayer ? null : paint, ctx.DesiredSamplingOptions);
         }
         else
         {
             img.DrawMostUpToDateRegionOn(
                 region,
                 ctx.ChunkResolution,
-                workingSurface, topLeft, saveLayer ? null : paint, ctx.DesiredSamplingOptions);
+                saveLayer ? intermediate.DrawingSurface.Canvas : workingSurface, finalDrawPos, saveLayer ? null : paint,
+                ctx.DesiredSamplingOptions);
         }
 
-        workingSurface.Canvas.RestoreToCount(saved);
+        if (saveLayer && intermediate != null)
+        {
+            int intermediateSaved = workingSurface.Save();
+            workingSurface.Translate(topLeft);
+
+            workingSurface.DrawSurface(intermediate.DrawingSurface, 0, 0, paint);
+
+            workingSurface.RestoreToCount(intermediateSaved);
+        }
+
+        workingSurface.RestoreToCount(saved);
     }
 
     public override RectD? GetPreviewBounds(RenderContext context, string elementFor = "")
@@ -275,14 +337,14 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         img.DrawCommittedRegionOn(
             new RectI(0, 0, img.LatestSize.X, img.LatestSize.Y),
             context.ChunkResolution,
-            renderOnto, VecI.Zero, replacePaint, context.DesiredSamplingOptions);
+            renderOnto.Canvas, VecI.Zero, replacePaint, context.DesiredSamplingOptions);
 
         renderOnto.Canvas.RestoreToCount(saved);
     }
 
-    private KeyFrameData GetFrameWithImage(KeyFrameTime frame)
+    private KeyFrameData? GetFrameWithImage(KeyFrameTime frame)
     {
-        if (keyFrames.Count == 1)
+        if (keyFrames.Count == 1 || frame.Frame == 0)
         {
             return keyFrames[0];
         }
@@ -290,7 +352,12 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         var imageFrame = keyFrames.OrderBy(x => x.StartFrame).LastOrDefault(x => x.IsInFrame(frame.Frame));
         if (imageFrame?.Data is not ChunkyImage)
         {
-            return keyFrames[0];
+            if (FallbackAnimationToLayerImage)
+            {
+                return keyFrames[0];
+            }
+
+            return keyFrames.ElementAtOrDefault(1).IsVisible ? null : keyFrames[0];
         }
 
         var frameImage = imageFrame;
@@ -361,9 +428,9 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         }
     }
 
-    public ChunkyImage GetLayerImageAtFrame(int frame)
+    public ChunkyImage? GetLayerImageAtFrame(int frame)
     {
-        return GetFrameWithImage(frame).Data as ChunkyImage;
+        return GetFrameWithImage(frame)?.Data as ChunkyImage;
     }
 
     public ChunkyImage GetLayerImageByKeyFrameGuid(Guid keyFrameGuid)

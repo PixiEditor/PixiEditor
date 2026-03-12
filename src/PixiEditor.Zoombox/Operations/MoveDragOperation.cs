@@ -27,7 +27,9 @@ internal class MoveDragOperation : IDragOperation
     public void Update(PointerEventArgs e)
     {
         var curMousePos = Zoombox.ToVecD(e.GetPosition(parent));
-        parent.Center += parent.ToZoomboxSpace(prevMousePos) - parent.ToZoomboxSpace(curMousePos);
+        var delta = parent.ToZoomboxSpace(prevMousePos) - parent.ToZoomboxSpace(curMousePos);
+        parent.Center += delta;
+        parent.Pan += prevMousePos - curMousePos;
         prevMousePos = curMousePos;
     }
 

@@ -32,6 +32,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
     private List<ICelHandler> allCels = new List<ICelHandler>();
     private bool onionSkinningEnabled;
     private bool isPlayingBindable;
+    private bool fallbackAnimationToLayerImage;
 
     private int? cachedFirstFrame;
     private int? cachedLastFrame;
@@ -124,6 +125,18 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         }
     }
 
+    public bool FallbackAnimationToLayerImageBindable
+    {
+        get => fallbackAnimationToLayerImage;
+        set
+        {
+            if (Document.BlockingUpdateableChangeActive)
+                return;
+
+            Internals.ActionAccumulator.AddFinishedActions(new SetFallbackAnimationToLayerImage_Action(value));
+        }
+    }
+
     public int FirstVisibleFrame => cachedFirstFrame ??= keyFrames.Count > 0 ? keyFrames.Min(x => x.StartFrameBindable) : 1;
 
     public int LastFrame => cachedLastFrame ??= keyFrames.Count > 0
@@ -139,6 +152,41 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         Document = document;
         Internals = internals;
         Document.LayersChanged += (sender, args) => SortByLayers();
+    }
+
+    internal void InitFrom(IReadOnlyAnimationData documentAnimationData)
+    {
+        frameRateBindable = documentAnimationData.FrameRate;
+        onionFrames = documentAnimationData.OnionFrames;
+        onionOpacity = documentAnimationData.OnionOpacity;
+        defaultEndFrameBindable = documentAnimationData.DefaultEndFrame;
+        foreach (var readOnlyKeyFrame in documentAnimationData.KeyFrames)
+        {
+            AddKeyFrameInternal(Document, Internals, readOnlyKeyFrame);
+        }
+    }
+
+    private void AddKeyFrameInternal(DocumentViewModel doc, DocumentInternalParts internals,
+        IReadOnlyKeyFrame readOnlyKeyFrame)
+    {
+        if (readOnlyKeyFrame is IKeyFrameChildrenContainer childrenContainer)
+        {
+            var groupViewModel = new CelGroupViewModel(readOnlyKeyFrame.StartFrame, readOnlyKeyFrame.Duration,
+                readOnlyKeyFrame.NodeId, readOnlyKeyFrame.Id, doc, internals);
+
+            foreach (var child in childrenContainer.Children)
+            {
+                AddKeyFrameInternal(doc, internals, child);
+            }
+
+            AddKeyFrame(groupViewModel);
+        }
+        else
+        {
+            var rasterCel = new RasterCelViewModel(readOnlyKeyFrame.NodeId, readOnlyKeyFrame.StartFrame,
+                readOnlyKeyFrame.Duration, readOnlyKeyFrame.Id, doc, internals);
+            AddKeyFrame(rasterCel);
+        }
     }
 
     public KeyFrameTime ActiveFrameTime => new KeyFrameTime(ActiveFrameBindable, ActiveNormalizedTime);
@@ -227,6 +275,12 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         OnPropertyChanged(nameof(DefaultEndFrameBindable));
         OnPropertyChanged(nameof(LastFrame));
         OnPropertyChanged(nameof(FramesCount));
+    }
+
+    public void SetFallbackAnimationToLayerImage(bool enabled)
+    {
+        fallbackAnimationToLayerImage = enabled;
+        OnPropertyChanged(nameof(FallbackAnimationToLayerImageBindable));
     }
 
     public void SetActiveFrame(int newFrame)
@@ -361,6 +415,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         if (TryFindCels(keyFrameId, out CelViewModel keyFrame))
         {
             keyFrame.IsSelected = false;
+            keyFrame.IsDragging = false;
         }
     }
 
@@ -370,6 +425,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         foreach (var frame in selectedFrames)
         {
             frame.IsSelected = false;
+            frame.IsDragging = false;
         }
     }
 

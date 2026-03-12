@@ -17,5 +17,6 @@
                      Decimals="{Binding DecimalPlaces}"
                      Unit="{Binding Unit}"
                      IsEnabled="{Binding IsEnabled}" FocusNext="False"
+                     DraggingGrabber="{Binding MergeChanges, Mode=OneWayToSource}"
                      Size="{Binding Value, Mode=TwoWay}"/>
 </UserControl>

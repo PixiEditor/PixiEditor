@@ -12,6 +12,7 @@ internal class ApplyMaskOperation : IDrawOperation
     private Paint clippingPaint = new Paint() { BlendMode = BlendMode.DstIn };
 
     public bool IgnoreEmptyChunks => true;
+    public bool NeedsDrawInSrgb => false;
 
     public ApplyMaskOperation(ChunkyImage maskToApply)
     {
@@ -25,7 +26,7 @@ internal class ApplyMaskOperation : IDrawOperation
     
     public void DrawOnChunk(Chunk targetChunk, VecI chunkPos)
     {
-        mask.DrawCommittedChunkOn(chunkPos, targetChunk.Resolution, targetChunk.Surface.DrawingSurface, VecI.Zero, clippingPaint);
+        mask.DrawCommittedChunkOn(chunkPos, targetChunk.Resolution, targetChunk.Surface.DrawingSurface.Canvas, VecI.Zero, clippingPaint);
     }
 
     public void Dispose()

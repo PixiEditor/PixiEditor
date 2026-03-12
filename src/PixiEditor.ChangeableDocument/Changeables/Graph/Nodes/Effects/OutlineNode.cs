@@ -20,6 +20,7 @@ public class OutlineNode : RenderNode, IRenderInput
 
     private Kernel simpleKernel = new Kernel(3, 3, [1, 1, 1, 1, 1, 1, 1, 1, 1]);
     private Kernel pixelPerfectKernel = new Kernel(3, 3, [0, 1, 0, 1, -4, 1, 0, 1, 0]);
+
     private Kernel gaussianKernel = new Kernel(5, 5, [
         1, 4, 6, 4, 1,
         4, 16, 24, 16, 4,
@@ -69,7 +70,7 @@ public class OutlineNode : RenderNode, IRenderInput
         lastType = Type.Value;
     }
 
-    protected override void OnPaint(RenderContext context, DrawingSurface surface)
+    protected override void OnPaint(RenderContext context, Canvas surface)
     {
         if (Background.Value == null)
         {
@@ -85,11 +86,12 @@ public class OutlineNode : RenderNode, IRenderInput
             int saved = temp.DrawingSurface.Canvas.SaveLayer(paint);
 
             var ctx = context.Clone();
-            ctx.ChunkResolution = ChunkResolution.Full;
             bool isAdjusted = context.DocumentSize == context.RenderOutputSize;
-            ctx.RenderOutputSize = isAdjusted ? context.RenderOutputSize : (VecI)(context.RenderOutputSize * context.ChunkResolution.InvertedMultiplier());
+            ctx.RenderOutputSize = isAdjusted
+                ? context.RenderOutputSize
+                : (VecI)(context.RenderOutputSize * context.ChunkResolution.InvertedMultiplier());
 
-            Background.Value.Paint(ctx, temp.DrawingSurface);
+            Background.Value.Paint(ctx, temp.DrawingSurface.Canvas);
 
             temp.DrawingSurface.Canvas.RestoreToCount(saved);
 
@@ -106,11 +108,11 @@ public class OutlineNode : RenderNode, IRenderInput
                 temp.DrawingSurface.Canvas.RestoreToCount(saved);
             }
 
-            saved = surface.Canvas.Save();
-            surface.Canvas.SetMatrix(Matrix3X3.Identity);
-            surface.Canvas.DrawSurface(temp.DrawingSurface, 0, 0);
+            saved = surface.Save();
+            surface.SetMatrix(Matrix3X3.Identity);
+            surface.DrawSurface(temp.DrawingSurface, 0, 0);
 
-            surface.Canvas.RestoreToCount(saved);
+            surface.RestoreToCount(saved);
         }
 
         Background?.Value?.Paint(context, surface);
@@ -118,14 +120,20 @@ public class OutlineNode : RenderNode, IRenderInput
 
     public override RectD? GetPreviewBounds(RenderContext ctx, string elementToRenderName = "")
     {
+        RectD? backgroundBounds = TryGetInputBounds(ctx, elementToRenderName);
+        if (backgroundBounds != null)
+        {
+            return backgroundBounds.Value.Inflate(Thickness.Value * 2);
+        }
+
         return new RectD(0, 0, ctx.DocumentSize.X, ctx.DocumentSize.Y);
     }
 
     public override void RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
     {
         int saved = renderOn.Canvas.Save();
-        renderOn.Canvas.Scale((float)context.ChunkResolution.Multiplier());
-        OnPaint(context, renderOn);
+        //renderOn.Canvas.Scale((float)context.ChunkResolution.Multiplier());
+        OnPaint(context, renderOn.Canvas);
         renderOn.Canvas.RestoreToCount(saved);
     }
 

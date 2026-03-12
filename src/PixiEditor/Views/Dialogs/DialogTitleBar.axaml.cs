@@ -5,6 +5,7 @@ using Avalonia.Controls.Chrome;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Platform;
 using PixiEditor.Extensions.UI;
 using PixiEditor.UI.Common.Localization;
 
@@ -17,6 +18,16 @@ internal partial class DialogTitleBar : UserControl, ICustomTranslatorElement
 
     public static readonly StyledProperty<bool> CanFullscreenProperty = AvaloniaProperty.Register<DialogTitleBar, bool>(
         nameof(CanFullscreen), defaultValue: true);
+
+    public static readonly StyledProperty<bool> HideIfSystemDecorationsProperty =
+        AvaloniaProperty.Register<DialogTitleBar, bool>(
+            nameof(HideIfSystemDecorations));
+
+    public bool HideIfSystemDecorations
+    {
+        get => GetValue(HideIfSystemDecorationsProperty);
+        set => SetValue(HideIfSystemDecorationsProperty, value);
+    }
 
     public static readonly StyledProperty<string> TitleKeyProperty =
         AvaloniaProperty.Register<DialogTitleBar, string>(nameof(TitleKey), string.Empty);
@@ -68,7 +79,40 @@ internal partial class DialogTitleBar : UserControl, ICustomTranslatorElement
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
     {
         base.OnApplyTemplate(e);
-        captionButtons.Attach(VisualRoot as Window);
+        var parentWindow = VisualRoot as Window;
+        if (parentWindow != null)
+        {
+            parentWindow.PropertyChanged += UpdateCaptionButtons;
+        }
+
+        if (!parentWindow.ExtendClientAreaToDecorationsHint && HideIfSystemDecorations)
+        {
+            captionButtons.IsVisible = false;
+        }
+        else
+        {
+            captionButtons.Attach(VisualRoot as Window);
+        }
+    }
+
+    private void UpdateCaptionButtons(object? sender, AvaloniaPropertyChangedEventArgs e)
+    {
+        if (e.Property == Window.ExtendClientAreaToDecorationsHintProperty)
+        {
+            if (sender is Window window)
+            {
+                if (!window.ExtendClientAreaToDecorationsHint && HideIfSystemDecorations)
+                {
+                    captionButtons.IsVisible = false;
+                    captionButtons.Detach();
+                }
+                else
+                {
+                    captionButtons.IsVisible = true;
+                    captionButtons.Attach(window);
+                }
+            }
+        }
     }
 
     void ICustomTranslatorElement.SetTranslationBinding(AvaloniaProperty dependencyProperty,

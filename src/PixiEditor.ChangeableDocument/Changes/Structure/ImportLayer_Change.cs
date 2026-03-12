@@ -120,9 +120,10 @@ internal class ImportLayer_Change : Change
     {
         foreach (var imageData in layerNode.KeyFrames)
         {
-            if (imageData.Data is ChunkyImage img)
+            if (imageData.Data is ChunkyImage img && (img.LatestSize.X < docSize.X || img.LatestSize.Y < docSize.Y))
             {
-                img.EnqueueResize(docSize);
+                VecI size = new VecI(Math.Max(img.LatestSize.X, docSize.X), Math.Max(img.LatestSize.Y, docSize.Y));
+                img.EnqueueResize(size);
                 img.CommitChanges();
             }
         }

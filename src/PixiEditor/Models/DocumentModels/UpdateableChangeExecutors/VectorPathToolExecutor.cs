@@ -119,7 +119,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
         return ExecutionState.Success;
     }
 
-    public override void OnPrecisePositionChange(VecD pos)
+    public override void OnPrecisePositionChange(MouseOnCanvasEventArgs args)
     {
         if (mouseDown)
         {
@@ -127,7 +127,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
         }
 
         VecD mouseSnap =
-            document.SnappingHandler.SnappingController.GetSnapPoint(pos, out string snapXAxis,
+            document.SnappingHandler.SnappingController.GetSnapPoint(args.Point.PositionOnCanvas, out string snapXAxis,
                 out string snapYAxis);
         HighlightSnapping(snapXAxis, snapYAxis);
 

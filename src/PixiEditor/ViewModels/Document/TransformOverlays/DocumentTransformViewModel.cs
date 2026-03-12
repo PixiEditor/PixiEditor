@@ -61,8 +61,9 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
         get => lockRotation;
         set => SetProperty(ref lockRotation, value);
     }
-    
+
     private bool lockShear;
+
     public bool LockShear
     {
         get => lockShear;
@@ -190,16 +191,19 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
                 new RelayCommand<MouseOnCanvasEventArgs>(x => PassthroughPointerPressed?.Invoke(x));
         }
     }
-    
+
     private RelayCommand<(VecD, VecD)>? transformDraggedCommand;
+
     public RelayCommand<(VecD, VecD)> TransformDraggedCommand
     {
-        get => transformDraggedCommand ??= new RelayCommand<(VecD from, VecD to)>(x => TransformDragged?.Invoke(x.from, x.to));
+        get => transformDraggedCommand ??=
+            new RelayCommand<(VecD from, VecD to)>(x => TransformDragged?.Invoke(x.from, x.to));
     }
 
     public event Action<ShapeCorners>? TransformChanged;
     public event Action<VecD, VecD> TransformDragged;
-    public event Action TransformStopped; 
+    public Action<bool> TransformShowStateChanged;
+    public event Action TransformStopped;
 
     private DocumentTransformMode activeTransformMode = DocumentTransformMode.Scale_Rotate_NoShear_NoPerspective;
 
@@ -251,7 +255,7 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
     {
         InternalState = InternalState with { Origin = InternalState.Origin + distance };
         Corners = Corners.AsTranslated(distance);
-        
+
         AddToUndoCommand?.Execute(Corners);
 
         undoStack?.AddState((Corners, InternalState), TransformOverlayStateType.Nudge);
@@ -267,6 +271,7 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
         undoStack = null;
         TransformActive = false;
         ShowTransformControls = false;
+        TransformShowStateChanged?.Invoke(false);
     }
 
     public void ShowTransform(DocumentTransformMode mode, bool coverWholeScreen, ShapeCorners initPos,
@@ -279,7 +284,8 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
         CornerFreedom = TransformCornerFreedom.Scale;
         SideFreedom = TransformSideFreedom.Stretch;
         LockRotation = mode == DocumentTransformMode.Scale_NoRotate_NoShear_NoPerspective;
-        LockShear = mode is DocumentTransformMode.Scale_Rotate_NoShear_NoPerspective or DocumentTransformMode.Scale_NoRotate_NoShear_NoPerspective;
+        LockShear = mode is DocumentTransformMode.Scale_Rotate_NoShear_NoPerspective
+            or DocumentTransformMode.Scale_NoRotate_NoShear_NoPerspective;
         CoverWholeScreen = coverWholeScreen;
         TransformActive = true;
         ShowTransformControls = showApplyButton;
@@ -287,7 +293,7 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
 
         IsSizeBoxEnabled = false;
         ShowHandles = true;
-        
+
         RequestCornersExecutor?.Execute(this, initPos);
 
         if (customAddToUndo is not null)
@@ -301,6 +307,8 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
             undoStack.AddState((Corners, InternalState), TransformOverlayStateType.Initial);
             AddToUndoCommand = null;
         }
+
+        TransformShowStateChanged?.Invoke(true);
     }
 
     public void KeyModifiersInlet(bool isShiftDown, bool isCtrlDown, bool isAltDown)

@@ -78,10 +78,26 @@ internal class KeyboardInputFilter
             key = args.SystemKey;*/
 
         bool isRepeat = keyboardState.TryGetValue(key, out KeyStates state) ? state == KeyStates.Down : false;
+        UpdateModifiers(args.KeyModifiers);
 
         MaybeUpdateKeyState(key, isRepeat, KeyStates.Down, keyboardState, OnAnyKeyDown);
         key = ConvertRightKeys(key);
         MaybeUpdateKeyState(key, isRepeat, KeyStates.Down, converterdKeyboardState, OnConvertedKeyDown);
+    }
+
+    private void UpdateModifiers(KeyModifiers argsKeyModifiers)
+    {
+        KeyStates newState = (argsKeyModifiers & KeyModifiers.Shift) != 0 ? KeyStates.Down : KeyStates.None;
+        MaybeUpdateKeyState(Key.LeftShift, false, newState, converterdKeyboardState, OnConvertedKeyDown);
+
+        newState = (argsKeyModifiers & KeyModifiers.Control) != 0 ? KeyStates.Down : KeyStates.None;
+        MaybeUpdateKeyState(Key.LeftCtrl, false, newState, converterdKeyboardState, OnConvertedKeyDown);
+
+        newState = (argsKeyModifiers & KeyModifiers.Alt) != 0 ? KeyStates.Down : KeyStates.None;
+        MaybeUpdateKeyState(Key.LeftAlt, false, newState, converterdKeyboardState, OnConvertedKeyDown);
+
+        newState = (argsKeyModifiers & KeyModifiers.Meta) != 0 ? KeyStates.Down : KeyStates.None;
+        MaybeUpdateKeyState(Key.LWin, false, newState, converterdKeyboardState, OnConvertedKeyDown);
     }
 
     public void KeyUpInlet(KeyEventArgs args)

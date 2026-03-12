@@ -36,7 +36,7 @@ public class ChunkyImageSerializationFactory : SerializationFactory<byte[], Chun
     {
         SurfaceSerializationFactory surfaceFactory = new();
         surfaceFactory.Config = Config;
-        if (IsFilePreVersion(serializerData, new Version(2, 0, 1, 19)) || serializerData == default)
+        if (IsFilePreVersion(serializerData, new Version(2, 1, 0, 0)) || serializerData == default)
         {
             if (serialized is byte[] imgBytes)
             {
@@ -46,7 +46,7 @@ public class ChunkyImageSerializationFactory : SerializationFactory<byte[], Chun
                     return false;
                 }
 
-                original = new ChunkyImage(surface.Size, Config.ProcessingColorSpace);
+                original = new ChunkyImage(surface.Size);
                 original.EnqueueDrawImage(VecI.Zero, surface);
                 original.CommitChanges();
                 surface.Dispose();
@@ -65,7 +65,7 @@ public class ChunkyImageSerializationFactory : SerializationFactory<byte[], Chun
 
         ByteExtractor byteExtractor = new(bytes);
         VecD size = byteExtractor.GetVecD();
-        original = new ChunkyImage((VecI)size, Config.ProcessingColorSpace);
+        original = new ChunkyImage((VecI)size);
         int chunkCount = byteExtractor.GetInt();
 
         for (int i = 0; i < chunkCount; i++)

@@ -40,6 +40,7 @@
                      FocusNext="{Binding FocusNext, ElementName=uc}"
                      SelectOnMouseClick="{Binding BehaveLikeSmallEmbeddedField, ElementName=uc}"
                      ConfirmOnEnter="{Binding BehaveLikeSmallEmbeddedField, ElementName=uc}"
+                     DraggingGrabber="{Binding DraggingGrabber, ElementName=uc, Mode=TwoWay}"
                      Width="53"/>
             <Grid Grid.Column="1" Background="{Binding BorderBrush, ElementName=border}"
                   d:Background="{DynamicResource ThemeAccentBrush}"/>

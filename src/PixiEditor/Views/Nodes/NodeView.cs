@@ -165,6 +165,12 @@ public class NodeView : TemplatedControl
         set { SetValue(ActiveFrameProperty, value); }
     }
 
+    public bool MiniView
+    {
+        get { return (bool)GetValue(MiniViewProperty); }
+        set { SetValue(MiniViewProperty, value); }
+    }
+
     private bool captured;
 
     public static readonly StyledProperty<int> ActiveFrameProperty =
@@ -174,6 +180,7 @@ public class NodeView : TemplatedControl
 
     private ItemsControl inputsControl;
     private ItemsControl outputsControl;
+    public static readonly StyledProperty<bool> MiniViewProperty = AvaloniaProperty.Register<NodeView, bool>("MiniView");
 
     static NodeView()
     {
@@ -200,6 +207,11 @@ public class NodeView : TemplatedControl
     }
 
     private void ChildrenOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        UpdatePropertyViews();
+    }
+
+    private void UpdatePropertyViews()
     {
         propertyViews = this.GetVisualDescendants().OfType<NodePropertyView>()
             .ToDictionary(x => (INodePropertyHandler)x.DataContext, x => x);
@@ -278,6 +290,11 @@ public class NodeView : TemplatedControl
 
     public NodeSocket GetSocket(INodePropertyHandler property)
     {
+        if (Inputs.Count + Outputs.Count != propertyViews.Count)
+        {
+            UpdatePropertyViews();
+        }
+
         if (propertyViews.TryGetValue(property, out var view))
         {
             if (view is null)

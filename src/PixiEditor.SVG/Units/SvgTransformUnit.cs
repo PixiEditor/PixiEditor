@@ -34,7 +34,9 @@ public struct SvgTransformUnit : ISvgUnit
     {
         if (readerValue.StartsWith("matrix(") && readerValue.EndsWith(")"))
         {
-            string[] values = readerValue[7..^1].Replace(" ", "").Split(",");
+            string[] spaceSplitted = readerValue[7..^1].Split(" ");
+            string[] commaSplitted = readerValue[7..^1].Replace(" ", "").Split(",");
+            string[] values = spaceSplitted.Length == 6 ? spaceSplitted : commaSplitted;
             if (values.Length == 6)
             {
                 if (float.TryParse(values[0], NumberStyles.Any, CultureInfo.InvariantCulture, out float scaleX) &&
@@ -92,7 +94,7 @@ public struct SvgTransformUnit : ISvgUnit
         {
             if (float.TryParse(values[0], NumberStyles.Any, CultureInfo.InvariantCulture, out float translateX))
             {
-                float translateY = translateX;
+                float translateY = 0;
                 if (values.Length > 1)
                 {
                     float.TryParse(values[1], NumberStyles.Any, CultureInfo.InvariantCulture, out translateY);

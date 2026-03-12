@@ -7,6 +7,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
+using Avalonia.Platform;
 using Avalonia.Styling;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
@@ -87,6 +88,49 @@ public partial class PixiEditorPopup : Window, IPopupWindow
 #if DEBUG
         this.AttachDevTools();
 #endif
+        PixiEditorSettings.Appearance.UseSystemDecorations.ValueChanged += (_, _) => UpdateDecorations();
+
+        UpdateDecorations();
+    }
+
+    private void UpdateDecorations()
+    {
+        var cliArgs = Environment.GetCommandLineArgs();
+        bool userPrefersSystemDecorations = PixiEditorSettings.Appearance.UseSystemDecorations.Value;
+        bool systemDecorations = false;
+        if (cliArgs != null || userPrefersSystemDecorations)
+        {
+            if (userPrefersSystemDecorations || cliArgs.Contains("--system-decorations"))
+            {
+                this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default;
+                this.SystemDecorations = SystemDecorations.Full;
+                this.ExtendClientAreaToDecorationsHint = false;
+                ShowTitleBar = false;
+                systemDecorations = true;
+            }
+        }
+
+        if (!systemDecorations)
+        {
+            this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default;
+            this.ExtendClientAreaToDecorationsHint = true;
+            if (System.OperatingSystem.IsLinux())
+            {
+                SystemDecorations = SystemDecorations.None;
+            }
+            else if (System.OperatingSystem.IsMacOS())
+            {
+                ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default |
+                                              ExtendClientAreaChromeHints.NoChrome |
+                                              ExtendClientAreaChromeHints.OSXThickTitleBar;
+            }
+            else
+            {
+                SystemDecorations = SystemDecorations.Full;
+            }
+
+            ShowTitleBar = true;
+        }
     }
 
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)

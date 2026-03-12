@@ -2,15 +2,13 @@
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
-using Newtonsoft.Json;
-using PixiEditor.Extensions.Helpers;
+using System.Text.Json.Serialization;
 using PixiEditor.Helpers.Converters.JsonConverters;
-using PixiEditor.UI.Common.Fonts;
 using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.Models.Services.NewsFeed;
 
-[JsonConverter(typeof(DefaultUnknownEnumConverter), (int)Misc)]
+[JsonConverter(typeof(DefaultUnknownEnumConverter<NewsType>))]
 internal enum NewsType
 {
     [Description(PixiPerfectIcons.Download)]
@@ -22,7 +20,7 @@ internal enum NewsType
     [Description(PixiPerfectIcons.Message)]
     OfficialAnnouncement,
     [Description(PixiPerfectIcons.Info)]
-    Misc
+    Misc = -1
 }
 
 internal record News

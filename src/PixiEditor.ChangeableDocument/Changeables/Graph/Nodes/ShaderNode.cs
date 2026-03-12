@@ -23,6 +23,7 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
     private Shader? lastImageShader;
     private string lastShaderCode;
     private Paint paint;
+    private int lastUniformHash;
 
     private List<Shader> lastCustomImageShaders = new();
 
@@ -34,12 +35,12 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
     private string defaultShaderCode = """
                                        // Below is a list of built-in special uniforms that are automatically added by PixiEditor.
                                        // Any other uniform will be added as a Node input
-                                       
+
                                        uniform vec2 iResolution; // The resolution of current render output. It is usually a document size.
                                        uniform float iNormalizedTime; // The normalized time of the current frame, from 0 to 1.
                                        uniform int iFrame; // The current frame number.
                                        uniform shader iImage; // The Background input of the node, alternatively you can use "Background" uniform.
-                                       
+
                                        half4 main(float2 uv)
                                        {
                                            return half4(1, 1, 1, 1);
@@ -70,8 +71,20 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
         }
         else if (shader != null)
         {
+            HashCode hash = new HashCode();
+
             Uniforms uniforms = GenerateUniforms(context);
-            shader = shader.WithUpdatedUniforms(uniforms);
+            foreach (var uniform in uniforms)
+            {
+                hash.Add(uniform.Value.GetContentHash());
+            }
+
+            int currentHash = hash.ToHashCode();
+            if (currentHash != lastUniformHash)
+            {
+                shader = shader.WithUpdatedUniforms(uniforms);
+                lastUniformHash = currentHash;
+            }
         }
 
         paint.Shader = shader;
@@ -103,7 +116,9 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
         uniforms = new Uniforms();
 
         bool isAdjusted = context.RenderOutputSize == context.DocumentSize;
-        VecI finalSize = isAdjusted ? context.RenderOutputSize : (VecI)(context.RenderOutputSize * context.ChunkResolution.InvertedMultiplier());
+        VecI finalSize = isAdjusted
+            ? context.RenderOutputSize
+            : (VecI)(context.RenderOutputSize * context.ChunkResolution.InvertedMultiplier());
 
         uniforms.Add("iResolution", new Uniform("iResolution", (VecD)finalSize));
         uniforms.Add("iNormalizedTime", new Uniform("iNormalizedTime", (float)context.FrameTime.NormalizedTime));
@@ -123,11 +138,12 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
         //texture.DrawingSurface.Canvas.Scale((float)context.ChunkResolution.Multiplier(), (float)context.ChunkResolution.Multiplier());
 
         var ctx = context.Clone();
-        ctx.RenderSurface = texture.DrawingSurface;
+        ctx.RenderSurface = texture.DrawingSurface.Canvas;
         ctx.RenderOutputSize = finalSize;
         ctx.ChunkResolution = ChunkResolution.Full;
+        ctx.VisibleDocumentRegion = null;
 
-        Background.Value.Paint(ctx, texture.DrawingSurface);
+        Background.Value.Paint(ctx, texture.DrawingSurface.Canvas);
         texture.DrawingSurface.Canvas.RestoreToCount(saved);
 
         var snapshot = texture.DrawingSurface.Snapshot();
@@ -142,15 +158,15 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
         return uniforms;
     }
 
-    protected override void OnPaint(RenderContext context, DrawingSurface surface)
+    protected override void OnPaint(RenderContext context, Canvas surface)
     {
         if (shader == null || paint == null)
         {
-            surface.Canvas.DrawColor(Colors.Magenta, BlendMode.Src);
+            surface.DrawColor(Colors.Magenta, BlendMode.Src);
             return;
         }
 
-        DrawingSurface targetSurface = surface;
+        Canvas targetSurface = surface;
 
         float width = (float)(context.RenderOutputSize.X);
         float height = (float)(context.RenderOutputSize.Y);
@@ -159,7 +175,9 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
         if (context.ChunkResolution != ChunkResolution.Full)
         {
             bool isAdjusted = context.RenderOutputSize == context.DocumentSize;
-            VecI finalSize = isAdjusted ? context.RenderOutputSize : (VecI)(context.RenderOutputSize * context.ChunkResolution.InvertedMultiplier());
+            VecI finalSize = isAdjusted
+                ? context.RenderOutputSize
+                : (VecI)(context.RenderOutputSize * context.ChunkResolution.InvertedMultiplier());
             var intermediateSurface = RequestTexture(51,
                 finalSize,
                 ColorSpace.Value == ColorSpaceType.Inherit
@@ -167,7 +185,7 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
                     : ColorSpace.Value == ColorSpaceType.Srgb
                         ? Drawie.Backend.Core.Surfaces.ImageData.ColorSpace.CreateSrgb()
                         : Drawie.Backend.Core.Surfaces.ImageData.ColorSpace.CreateSrgbLinear());
-            targetSurface = intermediateSurface.DrawingSurface;
+            targetSurface = intermediateSurface.DrawingSurface.Canvas;
             width = (float)(context.RenderOutputSize.X * context.ChunkResolution.InvertedMultiplier());
             height = (float)(context.RenderOutputSize.Y * context.ChunkResolution.InvertedMultiplier());
             scale = true;
@@ -179,29 +197,29 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
                 if (ColorSpace.Value == ColorSpaceType.Srgb && !context.ProcessingColorSpace.IsSrgb)
                 {
                     targetSurface = RequestTexture(51, context.RenderOutputSize,
-                        Drawie.Backend.Core.Surfaces.ImageData.ColorSpace.CreateSrgb()).DrawingSurface;
+                        Drawie.Backend.Core.Surfaces.ImageData.ColorSpace.CreateSrgb()).DrawingSurface.Canvas;
                 }
                 else if (ColorSpace.Value == ColorSpaceType.LinearSrgb && context.ProcessingColorSpace.IsSrgb)
                 {
                     targetSurface = RequestTexture(51, context.RenderOutputSize,
-                        Drawie.Backend.Core.Surfaces.ImageData.ColorSpace.CreateSrgbLinear()).DrawingSurface;
+                        Drawie.Backend.Core.Surfaces.ImageData.ColorSpace.CreateSrgbLinear()).DrawingSurface.Canvas;
                 }
             }
         }
 
-        targetSurface.Canvas.DrawRect(0, 0, width, height, paint);
+        targetSurface.DrawRect(0, 0, width, height, paint);
 
         if (targetSurface != surface)
         {
-            int saved = surface.Canvas.Save();
+            int saved = surface.Save();
             if (scale)
             {
-                surface.Canvas.Scale((float)context.ChunkResolution.Multiplier(),
+                surface.Scale((float)context.ChunkResolution.Multiplier(),
                     (float)context.ChunkResolution.Multiplier());
             }
 
-            surface.Canvas.DrawSurface(targetSurface, 0, 0);
-            surface.Canvas.RestoreToCount(saved);
+            surface.DrawSurface(targetSurface.Surface, 0, 0);
+            surface.RestoreToCount(saved);
         }
     }
 
@@ -209,7 +227,7 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
     {
         int saved = renderOn.Canvas.Save();
         renderOn.Canvas.Scale((float)context.ChunkResolution.InvertedMultiplier());
-        OnPaint(context, renderOn);
+        OnPaint(context, renderOn.Canvas);
         renderOn.Canvas.RestoreToCount(saved);
     }
 
@@ -237,7 +255,7 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
         var uniforms = declarations;
 
         var nonExistingUniforms = uniformInputs.Keys.Where(x => uniforms.All(y => y.Name != x)).ToList();
-        if(nonExistingUniforms.Contains("Background"))
+        if (nonExistingUniforms.Contains("Background"))
         {
             nonExistingUniforms.Remove("Background");
         }

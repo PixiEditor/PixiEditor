@@ -2,12 +2,12 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
 using PixiEditor.Exceptions;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
@@ -19,6 +19,7 @@ using PixiEditor.Models.Commands.Commands;
 using PixiEditor.Models.Commands.Evaluators;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Handlers;
+using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Input;
 using PixiEditor.Models.Structures;
 using PixiEditor.OperatingSystem;
@@ -221,22 +222,84 @@ internal class CommandController
 
             LocalizedString displayName = new("SELECT_TOOL", toolInstance.DisplayName);
 
-            var command = new Command.ToolCommand(toolsHandler)
+            var command = new Command.ToolCommand(toolsHandler, false)
             {
                 InternalName = internalName,
                 DisplayName = displayName,
                 Description = displayName,
                 Icon = toolInstance.DefaultIcon,
                 IconEvaluator = IconEvaluator.Default,
-                TransientKey = toolAttr.Transient,
-                TransientImmediate = toolAttr.TransientImmediate,
                 DefaultShortcut = toolAttr.GetShortcut(),
                 Shortcut = GetShortcut(internalName, toolAttr.GetShortcut(), template),
                 ToolType = type,
             };
 
+            var transientCommand = new Command.ToolCommand(toolsHandler, true)
+            {
+                InternalName = $"{internalName}.Transient",
+                DisplayName = displayName.Value + " " + new LocalizedString("QUICK_USE"),
+                Description = displayName,
+                Icon = toolInstance.DefaultIcon,
+                IconEvaluator = IconEvaluator.Default,
+                DefaultShortcut = toolAttr.TransientShortcut,
+                Shortcut = GetShortcut($"{internalName}.Transient", toolAttr.TransientShortcut, template),
+                ToolType = type,
+                TransientImmediate = toolAttr.TransientImmediate,
+                ShowInSearch = false
+            };
+
             Commands.Add(command);
+            Commands.Add(transientCommand);
             AddCommandToCommandsCollection(command, commandGroupsData, commands);
+            AddCommandToCommandsCollection(transientCommand, commandGroupsData, commands, command.InternalName);
+        }
+
+        var tools = toolsHandler.AllToolSets.SelectMany(x => x.Tools).Distinct().ToList();
+        foreach (var toolHandler in tools)
+        {
+            if (toolHandler is IBrushToolHandler brushTool)
+            {
+                if (!brushTool.IsCustomBrushTool)
+                {
+                    continue;
+                }
+
+                LocalizedString displayName = new("SELECT_TOOL", brushTool.ToolName);
+                string internalName = $"PixiEditor.Tools.Select.{brushTool.ToolName.Replace(" ", string.Empty)}";
+                var command = new Models.Commands.Commands.Command.ToolCommand(toolsHandler, false)
+                {
+                    DefaultShortcut = brushTool.DefaultShortcut ?? KeyCombination.None,
+                    Shortcut =
+                        GetShortcut(internalName, brushTool.DefaultShortcut ?? KeyCombination.None, template),
+                    ToolType = brushTool.GetType(),
+                    Icon = brushTool.IconToUse,
+                    DisplayName = displayName,
+                    InternalName = internalName,
+                    IconEvaluator = IconEvaluator.Default,
+                    Description = displayName,
+                    Handler = brushTool
+                };
+
+                var transientCommand = new Models.Commands.Commands.Command.ToolCommand(toolsHandler, true)
+                {
+                    DefaultShortcut = KeyCombination.None,
+                    Shortcut = GetShortcut($"{internalName}.Transient", KeyCombination.None, template),
+                    ToolType = brushTool.GetType(),
+                    Icon = brushTool.DefaultIcon,
+                    DisplayName = displayName.Value + " " + new LocalizedString("QUICK_USE"),
+                    InternalName = $"{internalName}.Transient",
+                    IconEvaluator = IconEvaluator.Default,
+                    Description = displayName,
+                    Handler = brushTool,
+                    TransientImmediate = false,
+                    ShowInSearch = false
+                };
+
+                Commands.Add(command);
+                Commands.Add(transientCommand);
+                AddCommandToCommandsCollection(command, commandGroupsData, commands);
+                AddCommandToCommandsCollection(transientCommand, commandGroupsData, commands, command.InternalName);
+            }
         }
     }
 
@@ -248,9 +311,10 @@ internal class CommandController
 
     private void AddCommandToCommandsCollection(Command command,
         List<Attributes.Commands.Command.GroupAttribute> commandGroupsData,
-        OneToManyDictionary<string, Command> commands)
+        OneToManyDictionary<string, Command> commands, string nameToTestAgainst = null)
     {
-        var group = commandGroupsData.FirstOrDefault(x => command.InternalName.StartsWith(x.InternalName));
+        string fixedName = nameToTestAgainst ?? command.InternalName;
+        var group = commandGroupsData.FirstOrDefault(x => fixedName.StartsWith(x.InternalName));
         if (group == default)
             commands.Add("", command);
         else
@@ -674,6 +738,11 @@ internal class CommandController
 
     public void ResetShortcuts()
     {
+        if (!File.Exists(ShortcutsPath))
+        {
+            return;
+        }
+
         File.Copy(ShortcutsPath, Path.ChangeExtension(ShortcutsPath, ".json.bak"), true);
 
         Commands.ClearShortcuts();

@@ -56,4 +56,11 @@ public static class PreferencesConstants
     public const string DisablePreviews = "DisablePreviews";
     public const bool DisablePreviewsDefault = false;
     public const string UiScaleFactor = "UiScaleFactor";
+    public const string FavouriteBrushes = "FavouriteBrushes";
+    public const string UseSystemWindowDecorations = "UseSystemWindowDecorations";
+    public const string AutoRasterizeNestedLayersOnDraw = "AutoRasterizeNestedLayersOnDraw";
+    public const bool AutoRasterizeNestedLayersOnDrawDefault = false;
+
+    public static bool UseSystemWindowDecorationsDefault = System.OperatingSystem.IsWindowsVersionAtLeast(10)
+                                                           && !System.OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000); // True for Windows 10 and false for others, due to the offset rendering bug
 }

@@ -10,6 +10,7 @@ internal class ClearPathOperation : IMirroredDrawOperation
     private RectI pathTightBounds;
 
     public bool IgnoreEmptyChunks => true;
+    public bool NeedsDrawInSrgb => false;
 
     public ClearPathOperation(VectorPath path, RectI? pathTightBounds = null)
     {

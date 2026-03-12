@@ -14,28 +14,14 @@ public class ExtensionResourceStorage : IResourceStorage
 
     public Stream GetResourceStream(string resourcePath)
     {
-        if (Extension.GetEncryptionKey()?.Length == 0 || Extension.GetEncryptionIV()?.Length == 0)
-        {
-            return File.OpenRead(ResourcesUtility.ToResourcesFullPath(Extension, resourcePath));
-        }
-
-        byte[] data = ResourcesUtility.LoadEncryptedResource(Extension, resourcePath);
-        return new MemoryStream(data);
+        return new MemoryStream(ResourcesUtility.LoadResource(Extension, resourcePath));
     }
 
     public bool Exists(string path)
     {
         try
         {
-            string fullPath = ResourcesUtility.ToResourcesFullPath(Extension, path);
-            if(Extension.HasEncryptedResources)
-            {
-                return ResourcesUtility.HasEncryptedResource(Extension, path);
-            }
-            else
-            {
-                return File.Exists(fullPath);
-            }
+            return ResourcesUtility.ResourceExists(Extension, path);
         }
         catch (Exception)
         {

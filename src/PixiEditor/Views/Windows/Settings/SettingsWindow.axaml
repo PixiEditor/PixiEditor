@@ -11,7 +11,6 @@
     xmlns:vm="clr-namespace:PixiEditor.ViewModels"
     xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
     xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
-    xmlns:i="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
     xmlns:markupExtensions="clr-namespace:PixiEditor.Helpers.MarkupExtensions"
     xmlns:preferences="clr-namespace:PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;assembly=PixiEditor.Extensions.CommonApi"
     xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
@@ -193,6 +192,10 @@
                                       IsChecked="{Binding SettingsSubViewModel.Tools.EnableSharedToolbar}"
                                       ui:Translator.Key="ENABLE_SHARED_TOOLBAR" />
 
+                            <CheckBox Classes="leftOffset"
+                                      IsChecked="{Binding SettingsSubViewModel.Tools.AutoRasterizeNestedLayersOnDraw}"
+                                      ui:Translator.Key="AUTO_RASTERIZE_NESTED_ON_DRAW" />
+
                             <TextBlock ui:Translator.Key="Rendering" Classes="h5" />
 
                             <Label Target="primaryToolsetComboBox" ui:Translator.Key="PREFERRED_RENDERER"
@@ -307,9 +310,9 @@
                         <TextBox Grid.Row="1"
                                  Text="{Binding SearchTerm, Mode=TwoWay}">
                             <!--Styles="{StaticResource DarkTextBoxStyle}"-->
-                            <i:Interaction.Behaviors>
+                            <Interaction.Behaviors>
                                 <behaviours:GlobalShortcutFocusBehavior />
-                            </i:Interaction.Behaviors>
+                            </Interaction.Behaviors>
                         </TextBox>
 
                         <settings:ShortcutsBinder Grid.Row="2" />
@@ -493,8 +496,27 @@
                                            VerticalAlignment="Center"/>
                                 
                             </StackPanel>
-                            
+
+                            </controls:FixedSizeStackPanel>
+                            </ScrollViewer>
+
+                             <ScrollViewer>
+                        <ScrollViewer.IsVisible>
+                            <Binding Path="CurrentPage" Converter="{converters:IsEqualConverter}">
+                                <Binding.ConverterParameter>
+                                    <sys:Int32>8</sys:Int32>
+                                </Binding.ConverterParameter>
+                            </Binding>
+                        </ScrollViewer.IsVisible>
                             <TextBlock ui:Translator.Key="UI_SCALE_EXEMPTS_SETTINGS" Classes="leftOffset subtext" />
+                        <!--Background="{StaticResource AccentColor}"-->
+                        <controls:FixedSizeStackPanel Orientation="Vertical" ChildSize="32"
+                                                      VerticalChildrenAlignment="Center" Margin="12">
+                            <TextBlock ui:Translator.Key="APPEARANCE" Classes="h5" />
+
+                            <CheckBox Classes="leftOffset" Width="200" HorizontalAlignment="Left"
+                                      ui:Translator.Key="USE_SYSTEM_TITLE_BAR"
+                                      IsChecked="{Binding SettingsSubViewModel.Appearance.UseSystemDecorations}" />
 
                         </controls:FixedSizeStackPanel>
                     </ScrollViewer>

@@ -62,10 +62,10 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
                 paint.ImageFilter = Filters.Value?.ImageFilter;
             }
 
-            int saved = sceneContext.RenderSurface.Canvas.SaveLayer(paint);
+            int saved = sceneContext.RenderSurface.SaveLayer(paint);
             Content.Value?.Paint(sceneContext, sceneContext.RenderSurface);
 
-            sceneContext.RenderSurface.Canvas.RestoreToCount(saved);
+            sceneContext.RenderSurface.RestoreToCount(saved);
             return;
         }
 
@@ -90,20 +90,20 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
         VecI size = sceneContext.RenderSurface.DeviceClipBounds.Size + sceneContext.RenderSurface.DeviceClipBounds.Pos;
         var outputWorkingSurface = RequestTexture(0, size, sceneContext.ProcessingColorSpace, true);
         outputWorkingSurface.DrawingSurface.Canvas.Save();
-        outputWorkingSurface.DrawingSurface.Canvas.SetMatrix(sceneContext.RenderSurface.Canvas.TotalMatrix);
+        outputWorkingSurface.DrawingSurface.Canvas.SetMatrix(sceneContext.RenderSurface.TotalMatrix);
 
-        int saved = sceneContext.RenderSurface.Canvas.Save();
-        sceneContext.RenderSurface.Canvas.SetMatrix(Matrix3X3.Identity);
+        int saved = sceneContext.RenderSurface.Save();
+        sceneContext.RenderSurface.SetMatrix(Matrix3X3.Identity);
 
         blendPaint.ImageFilter = null;
         blendPaint.ColorFilter = null;
 
-        Content.Value?.Paint(sceneContext, outputWorkingSurface.DrawingSurface);
+        Content.Value?.Paint(sceneContext, outputWorkingSurface.DrawingSurface.Canvas);
 
         int saved2 = outputWorkingSurface.DrawingSurface.Canvas.Save();
         outputWorkingSurface.DrawingSurface.Canvas.Scale((float)sceneContext.ChunkResolution.InvertedMultiplier());
 
-        ApplyMaskIfPresent(outputWorkingSurface.DrawingSurface, sceneContext, sceneContext.ChunkResolution);
+        ApplyMaskIfPresent(outputWorkingSurface.DrawingSurface.Canvas, sceneContext, sceneContext.ChunkResolution);
 
         outputWorkingSurface.DrawingSurface.Canvas.RestoreToCount(saved2);
 
@@ -116,7 +116,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
             outputWorkingSurface.DrawingSurface.Canvas.SetMatrix(Matrix3X3.Identity);
             if (Background.Connection.Node is IClipSource clipSource && ClipToPreviousMember)
             {
-                DrawClipSource(tempSurface.DrawingSurface, clipSource, sceneContext);
+                DrawClipSource(tempSurface.DrawingSurface.Canvas, clipSource, sceneContext);
             }
 
             ApplyRasterClip(outputWorkingSurface.DrawingSurface, tempSurface.DrawingSurface);
@@ -125,9 +125,9 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
         AdjustPaint(useFilters);
 
         blendPaint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
-        sceneContext.RenderSurface.Canvas.DrawSurface(outputWorkingSurface.DrawingSurface, 0, 0, blendPaint);
+        sceneContext.RenderSurface.DrawSurface(outputWorkingSurface.DrawingSurface, 0, 0, blendPaint);
 
-        sceneContext.RenderSurface.Canvas.RestoreToCount(saved);
+        sceneContext.RenderSurface.RestoreToCount(saved);
         outputWorkingSurface.DrawingSurface.Canvas.Restore();
     }
 
@@ -148,120 +148,75 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
 
     public override RectD? GetTightBounds(KeyFrameTime frameTime)
     {
-        RectD? bounds = null;
-        if (!IsVisible.Value)
+        if (!IsVisible.Value || Content.Connection == null)
             return null;
+        
+        RectD? bounds = null;
 
-        if (Content.Connection != null)
-        {
-            Content.Connection.Node.TraverseBackwards(
-                (n, input) =>
-                {
-                    if (n is StructureNode { IsVisible.Value: true } structureNode)
-                    {
-                        RectD? childBounds = structureNode.GetTightBounds(frameTime);
-                        if (childBounds != null)
-                        {
-                            if (bounds == null)
-                            {
-                                bounds = childBounds;
-                            }
-                            else
-                            {
-                                bounds = bounds.Value.Union(childBounds.Value);
-                            }
-                        }
-                    }
-
+        Content.Connection.Node.TraverseBackwards(
+            (n, _) =>
+            {
+                if (n is not StructureNode { IsVisible.Value: true } structureNode ||
+                    n is IReadOnlyFolderNode)
                     return true;
-                }, FilterInvisibleFolders);
 
-            return bounds ?? RectD.Empty;
-        }
+                var childBounds = structureNode.GetTightBounds(frameTime);
+                if (childBounds != null)
+                    bounds = bounds?.Union(childBounds.Value) ?? childBounds;
 
-        return null;
+                return true;
+            });
+
+        return bounds ?? RectD.Empty;
     }
 
     public override ShapeCorners GetTransformationCorners(KeyFrameTime frameTime)
     {
-        RectD? bounds = null;
-        if (!IsVisible.Value)
+        if (!IsVisible.Value || Content.Connection == null)
             return new ShapeCorners();
 
-        if (Content.Connection != null)
-        {
-            Content.Connection.Node.TraverseBackwards(
-                (n, input) =>
-                {
-                    if (n is StructureNode { IsVisible.Value: true } structureNode)
-                    {
-                        ShapeCorners childBounds = structureNode.GetTransformationCorners(frameTime);
-                        if (childBounds != default)
-                        {
-                            if (bounds == null)
-                            {
-                                bounds = childBounds.AABBBounds;
-                            }
-                            else
-                            {
-                                bounds = bounds.Value.Union(childBounds.AABBBounds);
-                            }
-                        }
-                    }
-
+        RectD? bounds = null;
+        
+        Content.Connection.Node.TraverseBackwards(
+            (n, _) =>
+            {
+                if (n is not StructureNode { IsVisible.Value: true } structureNode ||
+                    n is IReadOnlyFolderNode)
                     return true;
-                }, FilterInvisibleFolders);
 
-            return bounds != null ? new ShapeCorners(bounds.Value) : new ShapeCorners();
-        }
+                var childBounds = structureNode.GetTransformationCorners(frameTime);
+                if (childBounds != default)
+                    bounds = bounds?.Union(childBounds.AABBBounds) ?? childBounds.AABBBounds;
 
-        return new ShapeCorners();
+                return true;
+            });
+
+        return bounds != null ? new ShapeCorners(bounds.Value) : new ShapeCorners();
     }
 
     public override RectD? GetApproxBounds(KeyFrameTime frameTime)
     {
         RectD? bounds = null;
-        if (Content.Connection != null)
-        {
-            Content.Connection.Node.TraverseBackwards(
-                (n, input) =>
-                {
-                    if (n is StructureNode { IsVisible.Value: true } structureNode)
-                    {
-                        RectD? childBounds = structureNode.GetApproxBounds(frameTime);
-                        if (childBounds != null)
-                        {
-                            if (bounds == null)
-                            {
-                                bounds = childBounds;
-                            }
-                            else
-                            {
-                                bounds = bounds.Value.Union(childBounds.Value);
-                            }
-                        }
-                    }
+        if (Content.Connection == null)
+            return null;
 
-                    return true;
-                }, FilterInvisibleFolders);
-
-            return bounds ?? RectD.Empty;
-        }
-
-        return null;
-    }
-
-    private bool FilterInvisibleFolders(IInputProperty input)
-    {
-        if (input is
+        Content.Connection.Node.TraverseBackwards(
+            (n, _) =>
             {
-                Node: IReadOnlyFolderNode folderNode, InternalPropertyName: FolderNode.ContentInternalName
-            })
-        {
-            return folderNode.IsVisible.Value;
-        }
+                if (n is not StructureNode { IsVisible.Value: true, Opacity.Value: > 0 } structureNode ||
+                    n is IReadOnlyFolderNode)
+                    return true;
 
-        return true;
+                var childBounds = structureNode.GetApproxBounds(frameTime);
+                if (childBounds != null)
+                {
+                    bounds = bounds?.Union(childBounds.Value) ?? childBounds;
+                }
+
+                return true;
+            });
+
+        return bounds ?? RectD.Empty;
     }
 
     public HashSet<Guid> GetLayerNodeGuids()
@@ -313,7 +268,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
         }
     }
 
-    void IClipSource.DrawClipSource(SceneObjectRenderContext context, DrawingSurface drawOnto)
+    void IClipSource.DrawClipSource(SceneObjectRenderContext context, Canvas drawOnto)
     {
         if (Content.Connection != null)
         {
@@ -328,5 +283,24 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
                 }
             }
         }
+    }
+
+    public IReadOnlyStructureNode[] GetChildrenNodes()
+    {
+        List<IReadOnlyStructureNode> children = new();
+        if (Content.Connection != null)
+        {
+            Content.Connection.Node.TraverseBackwards((n) =>
+            {
+                if (n is IReadOnlyStructureNode structureNode)
+                {
+                    children.Add(structureNode);
+                }
+
+                return true;
+            });
+        }
+
+        return children.ToArray();
     }
 }

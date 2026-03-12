@@ -45,6 +45,7 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
     }
     public IReadOnlyDictionary<string, INodePropertyHandler> InputPropertyMap => inputPropertyMap;
     public IReadOnlyDictionary<string, INodePropertyHandler> OutputPropertyMap => outputPropertyMap;
+    public virtual bool IsSocketConverterNode { get; } = false;
 
     private Dictionary<string, INodePropertyHandler> inputPropertyMap = new Dictionary<string, INodePropertyHandler>();
 

@@ -15,6 +15,7 @@ public class DocumentChangeTracker : IDisposable
     public IReadOnlyDocument Document => document;
     public bool HasSavedUndo => undoStack.Any();
     public bool HasSavedRedo => redoStack.Any();
+    public bool IsRunning => running;
 
     public Guid? LastChangeGuid
     {
@@ -28,6 +29,8 @@ public class DocumentChangeTracker : IDisposable
             return list.changes[^1].ChangeGuid;
         }
     }
+
+    public bool IsDisposed => disposed;
 
     private UpdateableChange? activeUpdateableChange = null;
     private List<(ActionSource source, Change change)>? activePacket = null;
@@ -82,6 +85,13 @@ public class DocumentChangeTracker : IDisposable
     public DocumentChangeTracker()
     {
         document = new Document();
+    }
+
+    public DocumentChangeTracker(IReadOnlyDocument doc)
+    {
+        if(doc is not Document actDoc)
+            throw new ArgumentException("Document must be of type Document", nameof(doc));
+        document = actDoc;
     }
 
     private void AddToUndo(Change change, ActionSource source)
@@ -430,10 +440,23 @@ public class DocumentChangeTracker : IDisposable
             throw new ObjectDisposedException(nameof(DocumentChangeTracker));
         if (running)
             throw new InvalidOperationException("Already currently processing");
-        running = true;
-        var result = await DrawingBackendApi.Current.RenderingDispatcher.InvokeAsync(() => ProcessActionList(actions));
-        running = false;
-        return result;
+        try
+        {
+            running = true;
+            var result =
+                await DrawingBackendApi.Current.RenderingDispatcher.InvokeAsync(() => ProcessActionList(actions));
+            running = false;
+            return result;
+        }
+        catch (Exception e)
+        {
+            Trace.WriteLine($"Exception while processing actions: {e}");
+            return new List<IChangeInfo?>();
+        }
+        finally
+        {
+            running = false;
+        }
     }
 
     public List<IChangeInfo?> ProcessActionsSync(IReadOnlyList<(ActionSource, IAction)> actions)

@@ -16,6 +16,7 @@ internal class ReplaceColorOperation : IDrawOperation
     private readonly ulong newColorBits;
 
     public bool IgnoreEmptyChunks => true;
+    public bool NeedsDrawInSrgb => false;
 
     public ReplaceColorOperation(Color oldColor, Color newColor)
     {
