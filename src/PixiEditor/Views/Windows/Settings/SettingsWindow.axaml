@@ -20,6 +20,7 @@
     mc:Ignorable="d"
     x:Class="PixiEditor.Views.Windows.Settings.SettingsWindow"
     Name="window"
+    CanScale="False"
     d:DesignWidth="780" d:DesignHeight="688"
     Width="780" Height="688"
     MinWidth="665" MinHeight="500"

@@ -109,4 +109,10 @@ public static class PixiEditorSettings
             PreferencesConstants.DisablePreviewsDefault,
             PreferencesConstants.DisablePreviews);
     }
+
+    public static class Accessibility
+    {
+        public static SyncedSetting<double> UiScaleFactor { get; } = SyncedSetting.NonOwned(PixiEditor,
+            1d, PreferencesConstants.UiScaleFactor);
+    }
 }

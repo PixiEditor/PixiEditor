@@ -1,10 +1,17 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Media;
+using Avalonia.Threading;
+using Avalonia.VisualTree;
 using PixiDocks.Avalonia;
 using PixiDocks.Avalonia.Controls;
 using PixiDocks.Core.Docking;
 using PixiDocks.Core.Serialization;
+using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
+using PixiEditor.UI.Common.Behaviors;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.SubViewModels;
 using PixiEditor.Views.Main;
@@ -17,15 +24,50 @@ internal class LayoutManager
 
     public LayoutTree ActiveLayout { get; set; }
 
-    public DockContext DockContext { get; set; } = new DockContext();
+    public DockContext DockContext { get; set; }
 
     public IReadOnlyCollection<IDockableContent> RegisteredDockables => registeredDockables;
     public event Action<HostWindow> WindowFloated;
 
+    private double Scaling => scaling;
+
+    private double scaling = 1;
+
     private readonly List<IDockableContent> registeredDockables = new();
+
+    private List<HostWindow> floatedWindows = new();
 
     public LayoutManager()
     {
+        PixiEditorSettings.Accessibility.UiScaleFactor.ValueChanged += (setting, value) =>
+        {
+            scaling = value;
+            foreach (var window in floatedWindows)
+            {
+                UpdateHostWindowScaling(window);
+            }
+        };
+
+        scaling = PixiEditorSettings.Accessibility.UiScaleFactor.Value;
+
+        DockContext = new DockContext()
+        {
+            HostWindowFactory = () =>
+            {
+                var hostWindow = new HostWindow();
+                UpdateHostWindowScaling(hostWindow);
+                return hostWindow;
+            }
+        };
+    }
+
+    private void UpdateHostWindowScaling(HostWindow hostWindow)
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            LayoutTransformControl transformControl = hostWindow.FindDescendantOfType<LayoutTransformControl>();
+            transformControl.LayoutTransform = new ScaleTransform(Scaling, Scaling);
+        });
     }
 
     public void InitLayout(ViewModelMain mainViewModel)
@@ -111,7 +153,36 @@ internal class LayoutManager
         ActiveLayout = DefaultLayout;
         ActiveLayout.SetContext(DockContext);
 
-        DockContext.WindowFloated += WindowFloated;
+        DockContext.WindowFloated += (window) =>
+        {
+            if (!floatedWindows.Contains(window))
+            {
+                floatedWindows.Add(window);
+            }
+
+            window.Closed += WindowOnClosed;
+
+            WindowFloated?.Invoke(window);
+        };
+
+
+        PixiEditorSettings.Accessibility.UiScaleFactor.ValueChanged += (s, value) =>
+        {
+            LayoutTransformScalerBehavior.SetGlobalScaling(value);
+            ColorPicker.Behaviors.LayoutTransformScalerBehavior.SetGlobalScaling(value);
+        };
+
+        LayoutTransformScalerBehavior.SetGlobalScaling(PixiEditorSettings.Accessibility.UiScaleFactor.Value);
+        ColorPicker.Behaviors.LayoutTransformScalerBehavior.SetGlobalScaling(PixiEditorSettings.Accessibility
+            .UiScaleFactor.Value);
+    }
+
+    private void WindowOnClosed(object? sender, EventArgs e)
+    {
+        if (sender is HostWindow hostWindow)
+        {
+            floatedWindows.Remove(hostWindow);
+        }
     }
 
     private IDockable? TryCreateDockable(string name)

@@ -13,6 +13,7 @@
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              xmlns:auth="clr-namespace:PixiEditor.Views.Auth"
              xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
+             xmlns:behaviors="clr-namespace:PixiEditor.UI.Common.Behaviors;assembly=PixiEditor.UI.Common"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="menu:MenuBarViewModel"
              x:Class="PixiEditor.Views.Main.MainTitleBar">
@@ -23,7 +24,7 @@
         <Panel Background="{DynamicResource ThemeBackgroundBrush1}" IsHitTestVisible="False" />
         <DockPanel>
             <DockPanel.Background>
-                <OnPlatform Default="{x:Null}" Linux="Transparent"/>
+                <OnPlatform Default="{x:Null}" Linux="Transparent" />
             </DockPanel.Background>
             <dialogs:DialogTitleBar
                 DockPanel.Dock="Right">
@@ -66,24 +67,29 @@
                     <ToggleButton.Flyout>
                         <Flyout Placement="BottomEdgeAlignedLeft" FlyoutPresenterClasses="arrow">
                             <Flyout.Content>
-                                <StackPanel Spacing="5" Margin="5">
-                                    <TextBlock Text="PixiEditor" Classes="h3" />
-                                    <TextBlock Text="{Binding UpdateViewModel.VersionText}" />
-                                    <TextBlock IsVisible="{Binding UpdateViewModel.SelfUpdatingAvailable}"
-                                               Text="{Binding UpdateViewModel.UpdateStateString}" />
-                                    <Button ui:Translator.Key="DOWNLOAD_UPDATE"
-                                            Background="{DynamicResource ThemeAccentBrush}"
-                                            Command="{Binding UpdateViewModel.DownloadCommand}"
-                                            IsVisible="{Binding UpdateViewModel.IsUpdateAvailable}" />
-                                    <ProgressBar IsVisible="{Binding UpdateViewModel.IsDownloading}"
-                                                 ShowProgressText="True"
-                                                 Value="{Binding UpdateViewModel.CurrentProgress}"
-                                                 Maximum="100" Minimum="0" />
-                                    <Button ui:Translator.Key="SWITCH_TO_NEW_VERSION"
-                                            Background="{DynamicResource ThemeAccentBrush}"
-                                            Command="{Binding UpdateViewModel.InstallCommand}"
-                                            IsVisible="{Binding UpdateViewModel.UpdateReadyToInstall}" />
-                                </StackPanel>
+                                <LayoutTransformControl>
+                                    <Interaction.Behaviors>
+                                        <behaviors:LayoutTransformScalerBehavior/>
+                                    </Interaction.Behaviors>
+                                    <StackPanel Spacing="5" Margin="5">
+                                        <TextBlock Text="PixiEditor" Classes="h3" />
+                                        <TextBlock Text="{Binding UpdateViewModel.VersionText}" />
+                                        <TextBlock IsVisible="{Binding UpdateViewModel.SelfUpdatingAvailable}"
+                                                   Text="{Binding UpdateViewModel.UpdateStateString}" />
+                                        <Button ui:Translator.Key="DOWNLOAD_UPDATE"
+                                                Background="{DynamicResource ThemeAccentBrush}"
+                                                Command="{Binding UpdateViewModel.DownloadCommand}"
+                                                IsVisible="{Binding UpdateViewModel.IsUpdateAvailable}" />
+                                        <ProgressBar IsVisible="{Binding UpdateViewModel.IsDownloading}"
+                                                     ShowProgressText="True"
+                                                     Value="{Binding UpdateViewModel.CurrentProgress}"
+                                                     Maximum="100" Minimum="0" />
+                                        <Button ui:Translator.Key="SWITCH_TO_NEW_VERSION"
+                                                Background="{DynamicResource ThemeAccentBrush}"
+                                                Command="{Binding UpdateViewModel.InstallCommand}"
+                                                IsVisible="{Binding UpdateViewModel.UpdateReadyToInstall}" />
+                                    </StackPanel>
+                                </LayoutTransformControl>
                             </Flyout.Content>
                         </Flyout>
                     </ToggleButton.Flyout>
