@@ -18,6 +18,7 @@ using PixiEditor.Extensions.CommonApi.Windowing;
 using PixiEditor.Extensions.FlyUI;
 using PixiEditor.Extensions.IO;
 using PixiEditor.Extensions.Runtime;
+using PixiEditor.Extensions.WasmRuntime;
 using PixiEditor.Models;
 using PixiEditor.Models.AdvisorSystem;
 using PixiEditor.Models.AnalyticsAPI;
@@ -249,5 +250,6 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<ILogger, ConsoleLogger>()
             .AddSingleton<IVisualTreeProvider, VisualTreeProvider>()
             .AddSingleton<IUserDataProvider, UserDataProvider>()
+            .AddSingleton<IExtensionListProvider>(x => loader)
             .AddSingleton<IFileSystemProvider, FileSystemProvider>();
 }

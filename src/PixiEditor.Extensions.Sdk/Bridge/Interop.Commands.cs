@@ -7,7 +7,7 @@ namespace PixiEditor.Extensions.Sdk.Bridge;
 
 internal static partial class Interop
 {
-    public static event Action<string> CommandInvoked;
+    public static event Action<string, object> CommandInvoked;
     public static void RegisterCommand(CommandMetadata command)
     {
         using MemoryStream stream = new();
@@ -16,9 +16,25 @@ internal static partial class Interop
         Native.register_command(InteropUtility.ByteArrayToIntPtr(bytes), bytes.Length);
     }
 
-    internal static void OnCommandInvoked(string uniqueName)
+    public static void RegisterCommandStrParam(CommandMetadata command)
     {
-        CommandInvoked?.Invoke(uniqueName);
+        using MemoryStream stream = new();
+        Serializer.Serialize(stream, command);
+        byte[] bytes = stream.ToArray();
+        Native.register_command_str_param(InteropUtility.ByteArrayToIntPtr(bytes), bytes.Length);
+    }
+
+    public static void RegisterCommandBytesParam(CommandMetadata command)
+    {
+        using MemoryStream stream = new();
+        Serializer.Serialize(stream, command);
+        byte[] bytes = stream.ToArray();
+        Native.register_command_bytes_param(InteropUtility.ByteArrayToIntPtr(bytes), bytes.Length);
+    }
+
+    internal static void OnCommandInvoked(string uniqueName, object parameter)
+    {
+        CommandInvoked?.Invoke(uniqueName, parameter);
     }
 
     public static void InvokeCommandGeneric(string commandName, object? parameter)

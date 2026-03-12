@@ -9,14 +9,12 @@ using PixiEditor.Platform;
 
 namespace PixiEditor.Extensions.Runtime;
 
-public class ExtensionLoader
+public class ExtensionLoader : IExtensionListProvider
 {
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNameCaseInsensitive = true
-    };
-    
-    public List<Extension> LoadedExtensions { get; } = new();
+    private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
+
+    public IReadOnlyCollection<Extension> LoadedExtensions => loaded;
+    private List<Extension> loaded = new List<Extension>();
 
     public string[] PackagesPath { get; }
     public string UnpackedExtensionsPath { get; }
@@ -173,6 +171,9 @@ public class ExtensionLoader
         }
         catch (Exception ex)
         {
+#if DEBUG
+            throw;
+#endif
             return null;
         }
     }
@@ -197,7 +198,7 @@ public class ExtensionLoader
         }
 
         using var stream = metadataEntry.Open();
-        
+
         return JsonSerializer.Deserialize<ExtensionMetadata>(stream, JsonOptions);
     }
 
@@ -289,7 +290,7 @@ public class ExtensionLoader
     {
         var extension = LoadExtensionEntry(entry, metadata);
         extension.Load();
-        LoadedExtensions.Add(extension);
+        loaded.Add(extension);
         loadedExtensions.Add(metadata.UniqueName);
         ExtensionLoaded?.Invoke(metadata.UniqueName);
         return extension;
