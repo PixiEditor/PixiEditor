@@ -2,6 +2,7 @@
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
+using PixiEditor.Extensions.WasmRuntime.Utilities;
 using PixiEditor.Models.BrushEngine;
 using PixiEditor.Models.Config;
 using PixiEditor.Models.Handlers;
@@ -32,6 +33,8 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
     public override bool IsErasable => true;
     public KeyCombination? DefaultShortcut { get; set; }
     public bool SupportsSecondaryActionOnRightClick { get; set; }
+    public override string DefaultIcon => defaultIcon;
+
 
     public VecD LastAppliedPoint
     {
@@ -43,6 +46,7 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
 
     private string? toolName;
     private string toolTipKey;
+    private string defaultIcon;
 
     private List<ParsedActionDisplayConfig>? actionDisplays;
 
@@ -55,7 +59,7 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
     }
 
     public BrushBasedToolViewModel(BrushViewModel brush, string? tooltip, string? toolName, KeyCombination? defaultShortcut,
-        List<ActionDisplayConfig>? actionDisplays, bool supportsSecondaryActionOnRightClick)
+        List<ActionDisplayConfig>? actionDisplays, bool supportsSecondaryActionOnRightClick, string icon = PixiPerfectIcons.Placeholder)
     {
         Cursor = Cursors.PreciseCursor;
         Toolbar = CreateToolbar();
@@ -71,6 +75,7 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
         toolTipKey = tooltip ?? toolName ?? brush.Name;
         DefaultShortcut = defaultShortcut;
         IsCustomBrushTool = true;
+        defaultIcon = icon;
         this.actionDisplays = ParseActionDisplays(actionDisplays);
         SupportsSecondaryActionOnRightClick = supportsSecondaryActionOnRightClick;
 

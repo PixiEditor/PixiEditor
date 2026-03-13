@@ -11,6 +11,7 @@ using PixiEditor.Extensions.CommonApi.IO;
 using PixiEditor.Extensions.CommonApi.Logging;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Extensions.CommonApi.Palettes.Parsers;
+using PixiEditor.Extensions.CommonApi.Tools;
 using PixiEditor.Extensions.CommonApi.Ui;
 using PixiEditor.Extensions.CommonApi.User;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
@@ -250,6 +251,7 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<ILogger, ConsoleLogger>()
             .AddSingleton<IVisualTreeProvider, VisualTreeProvider>()
             .AddSingleton<IUserDataProvider, UserDataProvider>()
+            .AddSingleton<IToolsProvider, ToolsProvider>()
             .AddSingleton<IExtensionListProvider>(x => loader)
             .AddSingleton<IFileSystemProvider, FileSystemProvider>();
 }

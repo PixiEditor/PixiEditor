@@ -1,0 +1,10 @@
+syntax = "proto3";
+package PixiEditor.Tools;
+
+option csharp_namespace = "PixiEditor.Extensions.CommonApi.Tools";
+
+message ActionDisplayConfig
+{
+  string Text = 1;
+  int32 Modifiers = 2;
+}

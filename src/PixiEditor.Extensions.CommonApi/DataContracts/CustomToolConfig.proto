@@ -1,0 +1,17 @@
+syntax = "proto3";
+package PixiEditor.Tools;
+
+import "Shortcut.proto";
+import "ActionDisplayConfig.proto";
+
+option csharp_namespace = "PixiEditor.Extensions.CommonApi.Tools";
+
+message CustomToolConfig
+{
+    string Name = 1;
+    string Icon = 2;
+    string ToolTip = 3;
+    Shortcut DefaultShortcut = 4;
+    bool SupportsSecondaryActionOnRightClick = 5;
+    repeated ActionDisplayConfig ActionsDisplayConfigs = 6;
+}
