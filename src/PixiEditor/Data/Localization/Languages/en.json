@@ -1358,5 +1358,6 @@
   "INDEX": "Index",
   "ARRAY": "Array",
   "ARRAYS": "Arrays",
-  "ARRAY_LENGTH_NODE": "Array Length"
+  "ARRAY_LENGTH_NODE": "Array Length",
+  "TARGET_SAMPLE_TEXTURE_POS": "Sample Position"
 }
