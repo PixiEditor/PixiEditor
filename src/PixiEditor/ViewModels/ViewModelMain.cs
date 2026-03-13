@@ -25,6 +25,7 @@ using PixiEditor.Models.ExtensionServices;
 using PixiEditor.Models.Files;
 using PixiEditor.Models.Handlers;
 using PixiEditor.OperatingSystem;
+using PixiEditor.UI.Common.Behaviors;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Document.Nodes;

@@ -275,6 +275,7 @@ internal partial class SettingsWindowViewModel : ViewModelBase
             new("EXPORT"),
             new SettingsPage("SCENE"),
             new("PERFORMANCE"),
+            new("ACCESSIBILITY"),
             new ("APPEARANCE")
         };
 
