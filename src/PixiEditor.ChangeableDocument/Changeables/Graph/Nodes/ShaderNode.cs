@@ -414,7 +414,7 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
             }
             else if (input.Value.valueType == UniformValueType.Shader)
             {
-                if (value is Texture texture)
+                if (value is Texture texture && !texture.IsDisposed)
                 {
                     var snapshot = texture.DrawingSurface.Snapshot();
                     Shader snapshotShader = snapshot.ToShader();
