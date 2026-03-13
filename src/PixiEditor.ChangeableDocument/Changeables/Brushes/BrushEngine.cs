@@ -560,6 +560,9 @@ public class BrushEngine : IDisposable
 
     public VectorPath? EvaluateShape(VecD point, BrushData brushData, BrushOutputNode brushNode)
     {
+        if (brushNode == null)
+            return null;
+
         var vectorShape = brushNode.VectorShape.Value;
         if (vectorShape == null)
         {
