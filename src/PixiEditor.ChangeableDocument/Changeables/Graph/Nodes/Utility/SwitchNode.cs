@@ -63,7 +63,7 @@ public class SwitchNode : Node
         if (!Output.InternalProperty.ValueType.IsAssignableTo(typeof(Delegate)))
         {
             bool condition = false;
-            var val = Condition.Value.Invoke(FuncContext.NoContext).GetConstant();
+            var val = Condition.Value?.Invoke(FuncContext.NoContext).GetConstant();
             if (val is bool b)
             {
                 condition = b;

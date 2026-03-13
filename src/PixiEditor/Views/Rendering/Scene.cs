@@ -374,6 +374,9 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             if (!Document.SceneTextures.TryGetValue(ViewportId, out var cachedTexture))
                 return;
 
+            if (cachedTexture.IsDisposed)
+                return;
+
             Matrix3X3 matrixDiff = isFullscreenRender ? Matrix3X3.Identity : SolveMatrixDiff(matrix, cachedTexture);
             var target = cachedTexture.DrawingSurface;
 
