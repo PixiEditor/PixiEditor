@@ -1,4 +1,5 @@
 ﻿using PixiEditor.Extensions.CommonApi.Tools;
+using PixiEditor.Extensions.CommonApi.Utilities;
 using ProtoBuf;
 
 namespace PixiEditor.Extensions.WasmRuntime.Api.Tools;
@@ -18,6 +19,8 @@ internal class ToolsApi : ApiGroupHandler
     [ApiFunction("add_tool_to_toolset")]
     public void AddToolToToolset(string toolName, string toolsetName, int atIndex)
     {
-        Api.Tools.AddToolToToolset(toolName, toolsetName, atIndex);
+        string prefixedName = PrefixedNameUtility.ToPixiEditorRelativePreferenceName(Extension.Metadata.UniqueName, toolName);
+        string prefixedToolsetName = PrefixedNameUtility.ToPixiEditorRelativePreferenceName(Extension.Metadata.UniqueName, toolsetName);
+        Api.Tools.AddToolToToolset(prefixedName, prefixedToolsetName, atIndex);
     }
 }

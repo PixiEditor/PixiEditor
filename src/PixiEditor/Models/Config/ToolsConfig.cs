@@ -92,6 +92,7 @@ public class ToolsConfig : IMergeable<ToolsConfig>
                                 existingTool.ToolTip =
                                     string.IsNullOrEmpty(tool.ToolTip) ? existingTool.ToolTip : tool.ToolTip;
                                 existingTool.SupportsSecondaryActionOnRightClick = tool.SupportsSecondaryActionOnRightClick;
+                                existingTool.CommonToolType = string.IsNullOrEmpty(tool.CommonToolType) ? existingTool.CommonToolType : tool.CommonToolType;
 
                                 if (existingTool.Settings != null && tool.Settings != null)
                                 {
@@ -152,6 +153,7 @@ public class ToolConfig
     public string? Icon { get; set; }
     public List<ActionDisplayConfig>? ActionDisplays { get; set; }
     public bool SupportsSecondaryActionOnRightClick { get; set; }
+    public string CommonToolType { get; set; }
 }
 
 public class ActionDisplayConfig

@@ -14,4 +14,5 @@ message CustomToolConfig
     Shortcut DefaultShortcut = 4;
     bool SupportsSecondaryActionOnRightClick = 5;
     repeated ActionDisplayConfig ActionsDisplayConfigs = 6;
+    string CommonToolType = 7;
 }

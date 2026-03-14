@@ -42,6 +42,8 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
         set => SetProperty(ref lastPoint, value);
     }
 
+    public string CommonToolType { get; set; }
+
     [Settings.Inherited] public double ToolSize => GetValue<double>();
 
     private string? toolName;

@@ -37,6 +37,9 @@ namespace PixiEditor.Extensions.CommonApi.Tools
         [global::ProtoBuf.ProtoMember(6)]
         public global::System.Collections.Generic.List<ActionDisplayConfig> ActionsDisplayConfigs { get; } = new global::System.Collections.Generic.List<ActionDisplayConfig>();
 
+        [global::ProtoBuf.ProtoMember(7)]
+        [global::System.ComponentModel.DefaultValue("")]
+        public string CommonToolType { get; set; } = "";
     }
 
 }

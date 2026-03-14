@@ -254,11 +254,31 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     {
         var commonTool = ActiveToolSet.Tools.FirstOrDefault(tool =>
         {
-            var attr = tool.GetType().GetCustomAttribute<Command.ToolAttribute>();
-            if (attr is null) return false;
+            string commonToolType = null;
+            if (tool is IBrushToolHandler brushToolHandler && brushToolHandler.IsCustomBrushTool)
+            {
+                commonToolType = brushToolHandler.CommonToolType;
+            }
+            else
+            {
+                var attr = tool.GetType().GetCustomAttribute<Command.ToolAttribute>();
+                if (attr is null) return false;
+            }
 
-            return ActiveTool?.GetType().GetCustomAttribute<Command.ToolAttribute>()?.CommonToolType ==
-                   attr.CommonToolType;
+            string activeToolType = null;
+
+            if (ActiveTool is IBrushToolHandler activeBrushToolHandler && activeBrushToolHandler.IsCustomBrushTool)
+            {
+                activeToolType = activeBrushToolHandler.CommonToolType;
+            }
+            else
+            {
+                var attr = ActiveTool.GetType().GetCustomAttribute<Command.ToolAttribute>();
+                if (attr is null) return false;
+                activeToolType = attr.CommonToolType;
+            }
+
+            return commonToolType != null && activeToolType != null && commonToolType == activeToolType;
         });
 
         if (commonTool is not null)
@@ -685,6 +705,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
             }).ToList(),
             SupportsSecondaryActionOnRightClick = config.SupportsSecondaryActionOnRightClick,
             DefaultShortcut = config.DefaultShortcut.ToString(),
+            CommonToolType = config.CommonToolType
         };
 
         if (allTools.Any(tool => tool.ToolName == toolConfig.ToolName))
@@ -923,7 +944,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
                     return new BrushBasedToolViewModel(new BrushViewModel(brush), toolFromToolset.ToolTip,
                         toolFromToolset.ToolName,
                         shortcut, toolFromToolset.ActionDisplays, toolFromToolset.SupportsSecondaryActionOnRightClick,
-                        icon);
+                        icon) { CommonToolType = toolFromToolset.CommonToolType };
                 }
             }
             catch
