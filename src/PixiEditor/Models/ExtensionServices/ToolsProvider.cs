@@ -23,7 +23,7 @@ internal class ToolsProvider : IToolsProvider
             config is PixiEditorExtensionToolConfig extConfig ? extConfig.Extension.Metadata.DisplayName : "EXTENSION");
     }
 
-    public void AddToolToToolset(string toolName, string toolsetName)
+    public void AddToolToToolset(string toolName, string toolsetName, int atIndex)
     {
         var tool = ToolsViewModel.AllTools.FirstOrDefault(x => x.ToolName == toolName);
         if (tool == null)
@@ -38,6 +38,6 @@ internal class ToolsProvider : IToolsProvider
             ToolsViewModel.AllToolSets.Add(foundToolset);
         }
 
-        foundToolset.Tools.Add(tool);
+        foundToolset.Tools.Insert(atIndex, tool);
     }
 }

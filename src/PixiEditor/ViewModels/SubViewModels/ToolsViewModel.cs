@@ -604,6 +604,8 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         }
     }
 
+    public event Action<IToolHandler> CustomToolAdded;
+
     [Evaluator.CanExecute("PixiEditor.Tools.CanChangeToolSize",
         nameof(ActiveTool))]
     public bool CanChangeToolSize() => Owner.ToolsSubViewModel.ActiveTool?.Toolbar is IToolSizeToolbar
@@ -700,6 +702,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
 
             allTools.Add(tool);
             customTools.Add(toolConfig);
+            CustomToolAdded?.Invoke(tool);
         }
     }
 

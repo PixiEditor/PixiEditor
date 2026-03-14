@@ -8,5 +8,5 @@ internal static partial class Native
     public static extern void register_brush_tool(IntPtr pixiFileBytes, int pixiBytesLength, IntPtr toolConfigBytes, int configBytesLength);
 
     [MethodImpl(MethodImplOptions.InternalCall)]
-    public static extern void add_tool_to_toolset(string toolName, string toolsetName);
+    public static extern void add_tool_to_toolset(string toolName, string toolsetName, int atIndex);
 }

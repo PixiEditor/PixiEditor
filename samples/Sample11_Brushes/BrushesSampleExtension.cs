@@ -35,6 +35,6 @@ public class BrushesSampleExtension : PixiEditorExtension
                 },
         }));
 
-        Api.ToolsProvider.AddToolToToolset("Doggo", "PIXEL_ART_TOOLSET");
+        Api.ToolsProvider.AddToolToToolset("Doggo", "PIXEL_ART_TOOLSET", 3);
     }
 }

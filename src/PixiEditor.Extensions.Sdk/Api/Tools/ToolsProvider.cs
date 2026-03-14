@@ -10,8 +10,8 @@ public class ToolsProvider : IToolsProvider
         Interop.RegisterBrushTool(pixiFileBytes, config.Config);
     }
 
-    public void AddToolToToolset(string toolName, string toolsetName)
+    public void AddToolToToolset(string toolName, string toolsetName, int atIndex)
     {
-        Native.add_tool_to_toolset(toolName, toolsetName);
+        Native.add_tool_to_toolset(toolName, toolsetName, atIndex);
     }
 }

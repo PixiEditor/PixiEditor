@@ -44,4 +44,5 @@ internal interface IToolsHandler : IHandler
     public bool NeedsNewAnimationKeyFrameForActiveTool();
     public void DeselectActiveTool();
     public void CreateAnimationKeyFrameIfNeeded();
+    public event Action<IToolHandler> CustomToolAdded;
 }

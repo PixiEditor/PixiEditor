@@ -16,8 +16,8 @@ internal class ToolsApi : ApiGroupHandler
     }
 
     [ApiFunction("add_tool_to_toolset")]
-    public void AddToolToToolset(string toolName, string toolsetName)
+    public void AddToolToToolset(string toolName, string toolsetName, int atIndex)
     {
-        Api.Tools.AddToolToToolset(toolName, toolsetName);
+        Api.Tools.AddToolToToolset(toolName, toolsetName, atIndex);
     }
 }
