@@ -1,5 +1,5 @@
 syntax = "proto3";
-package PixiEditor.Commands;
+package PixiEditor;
 
 option csharp_namespace = "PixiEditor.Extensions.CommonApi.Commands";
 
