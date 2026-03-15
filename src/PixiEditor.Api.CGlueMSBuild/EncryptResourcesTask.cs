@@ -1,6 +1,5 @@
 using EncryptTools;
 using Microsoft.Build.Framework;
-using ResourceEncryptor;
 using Task = Microsoft.Build.Utilities.Task;
 
 namespace PixiEditor.Api.CGlueMSBuild;
