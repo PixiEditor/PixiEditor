@@ -170,9 +170,16 @@ public abstract class LayoutElement : ILayoutElement<Control>, INotifyPropertyCh
             return;
         }
 
-        foreach (ElementEventHandler eventHandler in _events[eventName])
+        try
         {
-            eventHandler.Invoke(args);
+            foreach (ElementEventHandler eventHandler in _events[eventName])
+            {
+                eventHandler.Invoke(args);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Exception while raising event '{eventName}': {ex}");
         }
     }
 
