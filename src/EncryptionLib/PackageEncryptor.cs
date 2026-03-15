@@ -1,7 +1,9 @@
+using System;
+using System.IO;
 using System.IO.Compression;
 using System.Security.Cryptography;
 
-namespace PixiEditor.Api.CGlueMSBuild;
+namespace EncryptTools;
 
 public static class PackageEncryptor
 {
@@ -15,7 +17,7 @@ public static class PackageEncryptor
             return true;
         }
 
-        string path = Path.Combine(intermediateOutputPath, "resources.zip");
+        var path = Path.Combine(intermediateOutputPath, "resources.zip");
 
         if (File.Exists(path))
         {
@@ -24,13 +26,17 @@ public static class PackageEncryptor
 
         ZipFile.CreateFromDirectory(resourcesPath, path,
             CompressionLevel.Fastest, false);
-        byte[] data = File.ReadAllBytes(Path.Combine(intermediateOutputPath, "resources.zip"));
-        byte[] encryptionKey = new byte[128 / 8];
-        byte[] iv = new byte[128 / 8];
+        var data = File.ReadAllBytes(Path.Combine(intermediateOutputPath, "resources.zip"));
+        var encryptionKey = new byte[128 / 8];
+        var iv = new byte[128 / 8];
         if (keyBase64 == string.Empty)
         {
             RandomNumberGenerator.Create().GetBytes(encryptionKey);
             keyBase64 = Convert.ToBase64String(encryptionKey);
+        }
+        else
+        {
+            encryptionKey = Convert.FromBase64String(keyBase64);
         }
 
         if (ivBase64 == string.Empty)
@@ -38,8 +44,12 @@ public static class PackageEncryptor
             RandomNumberGenerator.Create().GetBytes(iv);
             ivBase64 = Convert.ToBase64String(iv);
         }
+        else
+        {
+            iv = Convert.FromBase64String(ivBase64);
+        }
 
-        byte[] encryptedData = Encrypt(data, encryptionKey, iv);
+        var encryptedData = Encrypt(data, encryptionKey, iv);
         File.WriteAllBytes(Path.Combine(outputPath, "resources.data"), encryptedData);
 
         return true;

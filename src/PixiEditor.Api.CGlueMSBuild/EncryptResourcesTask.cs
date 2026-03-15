@@ -1,10 +1,11 @@
-using System.IO.Compression;
-using System.Security.Cryptography;
+using EncryptTools;
 using Microsoft.Build.Framework;
+using ResourceEncryptor;
+using Task = Microsoft.Build.Utilities.Task;
 
 namespace PixiEditor.Api.CGlueMSBuild;
 
-public class EncryptResourcesTask : Microsoft.Build.Utilities.Task
+public class EncryptResourcesTask : Task
 {
     [Required] public string ResourcesPath { get; set; }
 
@@ -26,11 +27,12 @@ public class EncryptResourcesTask : Microsoft.Build.Utilities.Task
 
         try
         {
-            string encryptionKey = "";
-            string baseIv = "";
-            if (PackageEncryptor.EncryptResources(ResourcesPath, IntermediateOutputPath, OutputPath, ref encryptionKey, ref baseIv))
+            var encryptionKey = "";
+            var baseIv = "";
+            if (PackageEncryptor.EncryptResources(ResourcesPath, IntermediateOutputPath, OutputPath, ref encryptionKey,
+                    ref baseIv))
             {
-                EncryptionKey  = baseIv;
+                EncryptionKey = baseIv;
                 EncryptionIv = baseIv;
 
                 return true;
