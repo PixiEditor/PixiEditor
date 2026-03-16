@@ -141,7 +141,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
     {
         if (IOperatingSystem.Current.IsLinux)
         {
-            string exeDir = Path.GetDirectoryName(Environment.ProcessPath);
+            string exeDir = Path.GetDirectoryName(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location));
             if (File.Exists(Path.Combine(exeDir, "no-updates")))
             {
                 UpdateState = UpdateState.UnableToCheck;
@@ -396,7 +396,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
 
     private static bool InstallDirReadOnly()
     {
-        string installDir = Path.GetDirectoryName(Environment.ProcessPath);
+        string installDir = Path.GetDirectoryName(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location));
         DirectoryInfo dirInfo = new DirectoryInfo(installDir);
         return dirInfo.Attributes.HasFlag(FileAttributes.ReadOnly);
     }

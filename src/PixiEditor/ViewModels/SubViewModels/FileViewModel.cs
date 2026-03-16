@@ -923,6 +923,15 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             case SaveResultType.Cancelled:
                 break;
             case SaveResultType.UnknownError:
+                try
+                {
+                    File.AppendAllText(Path.Combine(Paths.TempFilesPath, "ErrorLog.txt"), result.ErrorMessage);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Error while writing to ErrorLog.txt: " + e.Message);
+                }
+
                 NoticeDialog.Show("UNKNOWN_ERROR_SAVING", "ERROR");
                 break;
         }
