@@ -34,6 +34,8 @@ public class CreateImageNode : Node
     protected override bool ExecuteOnlyOnCacheChange => true;
     protected override CacheTriggerFlags CacheTrigger => CacheTriggerFlags.Inputs;
 
+    private ChunkResolution renderedChunkResolution;
+
     public CreateImageNode()
     {
         Output = CreateOutput<Texture>(nameof(Output), "IMAGE", null);
@@ -63,6 +65,7 @@ public class CreateImageNode : Node
     private Texture? Render(RenderContext context)
     {
         var size = (VecI)(Size.Value * context.ChunkResolution.Multiplier());
+        renderedChunkResolution = context.ChunkResolution;
         if (size.X <= 0 || size.Y <= 0)
         {
             return null;
@@ -111,7 +114,7 @@ public class CreateImageNode : Node
         if (Output.Value == null || Output.Value.IsDisposed) return;
 
         int saved = surface.Save();
-        surface.Scale((float)context.ChunkResolution.InvertedMultiplier());
+        surface.Scale((float)renderedChunkResolution.InvertedMultiplier());
         surface.DrawSurface(Output.Value.DrawingSurface, 0, 0);
 
         surface.RestoreToCount(saved);

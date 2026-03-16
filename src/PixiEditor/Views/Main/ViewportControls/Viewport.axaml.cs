@@ -695,7 +695,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         scene.CenterContent(Document.GetRenderOutputSize(ViewportRenderOutput));
     }
 
-    private RectI? CalculateVisibleRegion()
+    private RectD? CalculateVisibleRegion()
     {
         if (Document is null) return null;
         VecD viewportDimensions = scene.RealDimensions;
@@ -718,7 +718,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         double maxY = Math.Max(Math.Max(topLeft.Y, topRight.Y), Math.Max(bottomLeft.Y, bottomRight.Y));
         RectD visibleRect = new(minX, minY, maxX - minX, maxY - minY);
         visibleRect = visibleRect.Intersect(new RectD(0, 0, docSize.X, docSize.Y));
-        return (RectI)visibleRect.RoundOutwards();
+        return visibleRect;
     }
 
     private static void CenterViewportTriggerChanged(AvaloniaPropertyChangedEventArgs<ExecutionTrigger<VecI>> e)

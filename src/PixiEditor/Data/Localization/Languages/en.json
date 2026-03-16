@@ -1360,5 +1360,6 @@
   "ARRAYS": "Arrays",
   "ARRAY_LENGTH_NODE": "Array Length",
   "TARGET_SAMPLE_TEXTURE_POS": "Sample Position",
-  "EXTENSION": "Extension"
+  "EXTENSION": "Extension",
+  "GRADIENT_TOOL_TOOLTIP": "Create and edit gradients ({0})."
 }

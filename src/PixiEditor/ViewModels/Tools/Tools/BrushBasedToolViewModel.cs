@@ -153,7 +153,7 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
 
     private void OnSettingChanged(string name, object value)
     {
-        if (value is BrushViewModel || name == nameof(BrushToolbar.Brush))
+        if (name == nameof(BrushToolbar.Brush))
         {
             AddBrushShapeSettings();
         }

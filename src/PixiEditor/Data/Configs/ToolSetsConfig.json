@@ -79,7 +79,9 @@
         {
           "ToolName": "Eraser",
           "Settings": {
-            "DefaultToolSize": 1
+            "DefaultToolSize": 1,
+            "DefaultBrush": "Pixel Circle",
+            "AntiAliasing": false
           }
         },
         {
