@@ -240,7 +240,7 @@ public class ExtensionLoader : IExtensionListProvider
         return extensionWriteTime > unpackedWriteTime;
     }
 
-    private Extension LoadExtensionFromCache(string extension)
+    private Extension? LoadExtensionFromCache(string extension)
     {
         string json = File.ReadAllText(extension);
         try
@@ -289,6 +289,11 @@ public class ExtensionLoader : IExtensionListProvider
     private Extension LoadExtensionFrom(ExtensionEntry entry, ExtensionMetadata metadata)
     {
         var extension = LoadExtensionEntry(entry, metadata);
+        if (extension is null)
+        {
+            return null;
+        }
+
         extension.Load();
         loaded.Add(extension);
         loadedExtensions.Add(metadata.UniqueName);
@@ -359,9 +364,14 @@ public class ExtensionLoader : IExtensionListProvider
         return IPlatform.Current.AdditionalContentProvider?.IsInstalled(fixedUniqueName) ?? false;
     }
 
-    private Extension LoadExtensionEntry(ExtensionEntry entry, ExtensionMetadata metadata)
+    private Extension? LoadExtensionEntry(ExtensionEntry entry, ExtensionMetadata metadata)
     {
         Extension extension = entry.CreateExtension();
+        if (extension is null)
+        {
+            return null;
+        }
+
         extension.ProvideMetadata(metadata);
         return extension;
     }

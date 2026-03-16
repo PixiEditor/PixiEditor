@@ -1359,5 +1359,6 @@
   "ARRAY": "Array",
   "ARRAYS": "Arrays",
   "ARRAY_LENGTH_NODE": "Array Length",
-  "TARGET_SAMPLE_TEXTURE_POS": "Sample Position"
+  "TARGET_SAMPLE_TEXTURE_POS": "Sample Position",
+  "EXTENSION": "Extension"
 }

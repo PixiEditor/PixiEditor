@@ -9,7 +9,7 @@ internal class ToolSetViewModel : PixiObservableObject, IToolSetHandler
 {
     public string Name { get; }
     public string Icon { get; }
-    ICollection<IToolHandler> IToolSetHandler.Tools => Tools;
+    IList<IToolHandler> IToolSetHandler.Tools => Tools;
     IReadOnlyDictionary<IToolHandler, string> IToolSetHandler.IconOverwrites => IconOverwrites;
     public bool IconIsPixiPerfect => !Uri.TryCreate(Icon, UriKind.Absolute, out _);
 

@@ -23,6 +23,16 @@ public static class PixiPerfectIconExtensions
         return new IconImage(unicode, pixiPerfectFontFamily, size, Colors.White);
     }
 
+    public static bool IsIcon(string unicode)
+    {
+        if (string.IsNullOrEmpty(unicode)) return false;
+
+        // Check if the unicode is in the Private Use Area (PUA) of Unicode, which is where custom icons are usually placed.
+        // The PUA ranges from U+E000 to U+F8FF.
+        int codePoint = char.ConvertToUtf32(unicode, 0);
+        return codePoint is >= 0xE000 and <= 0xF8FF;
+    }
+
     public static IImage ToIcon(string unicode, double size, double rotation)
     {
         if (string.IsNullOrEmpty(unicode)) return null;
@@ -44,4 +54,5 @@ public static class PixiPerfectIconExtensions
 
         return icon;
     }
+
 }

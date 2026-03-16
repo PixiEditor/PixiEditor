@@ -18,3 +18,16 @@ public enum CrossAxisAlignment
     Stretch,
     //Baseline // Not implemented
 }
+
+public enum Axis
+{
+    Horizontal,
+    Vertical
+}
+
+public enum ItemAlignment
+{
+    Start,
+    Center,
+    End,
+}

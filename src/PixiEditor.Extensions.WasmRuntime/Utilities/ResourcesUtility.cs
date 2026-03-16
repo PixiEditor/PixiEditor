@@ -53,6 +53,12 @@ public static class ResourcesUtility
         {
             var allExtensions = requestingExtension.GetModule<ExtensionsModule>().LoadedExtensions;
             resourceExtension = allExtensions.FirstOrDefault(ext => ext.Metadata.UniqueName == splitted[0]);
+            if (resourceExtension == null)
+            {
+                requestingExtension.Api.Logger.LogError($"Extension '{requestingExtension.Metadata.UniqueName}' attempted to access resource '{path}', but no extension with unique name '{splitted[0]}' was found.");
+                return false;
+            }
+
             accessCheck = resourceExtension != requestingExtension;
         }
 
