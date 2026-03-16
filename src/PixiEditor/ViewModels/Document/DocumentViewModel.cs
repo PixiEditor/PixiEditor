@@ -263,6 +263,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         NodeGraph.StructureTree.Update(NodeGraph);
 
         ReferenceId = referenceId;
+
+        Internals.ActionAccumulator.AddFinishedActions(new RefreshPreviews_PassthroughAction());
     }
 
     private void InitializeViewModel()
