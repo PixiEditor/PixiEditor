@@ -132,8 +132,10 @@ internal class ConnectProperties_Change : Change
         inputProp = inputNode.GetInputProperty(InputProperty);
         if (inputProp.Connection != null && inputProp.Connection != outputProp)
         {
-            changes.Add(new ConnectProperty_ChangeInfo(null, inputProp.Connection.Node.Id, null,
-                inputProp.Connection.InternalPropertyName));
+            // TODO: If there's an issue with connecting and disconnecting (most likely with arrays and dynamic inputs)
+            // Uncomment this and check, but it introduces a bug where frontend disconnects all inputs for a given output, so it's not a proper fix!
+            /*changes.Add(new ConnectProperty_ChangeInfo(null, inputProp.Connection.Node.Id, null,
+                inputProp.Connection.InternalPropertyName));*/
             inputProp.Connection.DisconnectFrom(inputProp);
             inputProp = inputNode.GetInputProperty(InputProperty);
         }
