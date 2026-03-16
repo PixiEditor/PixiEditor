@@ -26,6 +26,7 @@ public class CreateImageNode : Node
 
     public InputProperty<Matrix3X3> ContentMatrix { get; }
     public InputProperty<ColorSpaceType> ColorSpace { get; }
+    public InputProperty<bool> DisallowAutoScaling { get; }
 
     public RenderOutputProperty RenderOutput { get; }
 
@@ -44,6 +45,7 @@ public class CreateImageNode : Node
         Content = CreateRenderInput(nameof(Content), "CONTENT");
         ContentMatrix = CreateInput<Matrix3X3>(nameof(ContentMatrix), "MATRIX", Matrix3X3.Identity);
         ColorSpace = CreateInput(nameof(ColorSpace), "COLOR_SPACE", ColorSpaceType.Inherit);
+        DisallowAutoScaling = CreateInput(nameof(DisallowAutoScaling), "DISALLOW_AUTO_SCALING", false);
         RenderOutput = CreateRenderOutput("RenderOutput", "RENDER_OUTPUT", () => new Painter(OnPaint));
     }
 
@@ -66,7 +68,7 @@ public class CreateImageNode : Node
     {
         var size = Size.Value;
         float multiplier = 1;
-        if (size.X > 128 && size.Y > 128)
+        if (!DisallowAutoScaling.Value)
         {
             multiplier = (float)context.ChunkResolution.Multiplier();
             size = (VecI)(Size.Value * multiplier);
