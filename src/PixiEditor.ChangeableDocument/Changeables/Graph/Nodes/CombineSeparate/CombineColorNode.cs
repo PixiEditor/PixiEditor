@@ -113,7 +113,9 @@ public class CombineColorNode : Node
     {
         var uniformVar = ctx.Builder.Uniforms.FirstOrDefault(x => x.Key == uniform.VariableName);
         ctx.Builder.Uniforms.Remove(uniform.VariableName);
-        ctx.Builder.AddUniform(uniform.VariableName, uniformVar.Value.FloatValue / adjustBy);
+
+        string uniformName = $"float_{ctx.Builder.GetUniqueNameNumber()}";
+        ctx.Builder.AddUniform(uniformName, uniformVar.Value.FloatValue / adjustBy);
     }
 
     protected override void OnExecute(RenderContext context)
