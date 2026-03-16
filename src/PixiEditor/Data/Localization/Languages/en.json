@@ -1361,5 +1361,6 @@
   "ARRAY_LENGTH_NODE": "Array Length",
   "TARGET_SAMPLE_TEXTURE_POS": "Sample Position",
   "EXTENSION": "Extension",
-  "GRADIENT_TOOL_TOOLTIP": "Create and edit gradients ({0})."
+  "GRADIENT_TOOL_TOOLTIP": "Create and edit gradients ({0}).",
+  "DISALLOW_AUTO_SCALING": "Disallow auto scaling"
 }
