@@ -615,6 +615,11 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
         for (var i = 0; i < clone.inputs.Count; i++)
         {
+            if(i >= inputs.Count)
+            {
+                break;
+            }
+
             var toClone = inputs[i];
             object value = CloneValue(toClone.NonOverridenValue, clone.inputs[i]);
             clone.inputs[i].NonOverridenValue = value;
