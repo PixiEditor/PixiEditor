@@ -112,10 +112,13 @@ public class CombineColorNode : Node
     private static void AdjustConstValue(FuncContext ctx, Float1 uniform, float adjustBy)
     {
         var uniformVar = ctx.Builder.Uniforms.FirstOrDefault(x => x.Key == uniform.VariableName);
-        ctx.Builder.Uniforms.Remove(uniform.VariableName);
+        if (string.IsNullOrEmpty(uniformVar.Key))
+        {
+            return;
+        }
 
-        string uniformName = $"float_{ctx.Builder.GetUniqueNameNumber()}";
-        ctx.Builder.AddUniform(uniformName, uniformVar.Value.FloatValue / adjustBy);
+        ctx.Builder.Uniforms.Remove(uniform.VariableName);
+        ctx.Builder.AddUniform(uniform.VariableName, uniformVar.Value.FloatValue / adjustBy);
     }
 
     protected override void OnExecute(RenderContext context)

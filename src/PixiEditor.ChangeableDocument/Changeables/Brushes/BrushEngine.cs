@@ -392,6 +392,11 @@ public class BrushEngine : IDisposable
 
         if (paintable is { AnythingVisible: true })
         {
+            if (paintable is TexturePaintable texturePaintable)
+            {
+                texturePaintable.SamplingOptions = antiAliasing ? SamplingOptions.Bilinear : SamplingOptions.Default;
+            }
+
             if (blender != null)
             {
                 target.EnqueueDrawPath(path, paintable, vectorShape.StrokeWidth,
@@ -441,6 +446,8 @@ public class BrushEngine : IDisposable
                 {
                     brushPaintable = new TexturePaintable(new Texture(contentTexture), true);
                 }
+
+                brushPaintable.SamplingOptions = antiAliasing ? SamplingOptions.Bilinear : SamplingOptions.Default;
 
                 if (blender != null)
                 {
