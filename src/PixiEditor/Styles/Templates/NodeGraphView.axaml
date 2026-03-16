@@ -2,6 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:nodes="clr-namespace:PixiEditor.Views.Nodes"
                     xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+                    xmlns:behaviors="clr-namespace:PixiEditor.UI.Common.Behaviors;assembly=PixiEditor.UI.Common"
                     xmlns:overlays="clr-namespace:PixiEditor.Views.Overlays"
                     xmlns:blackboard="clr-namespace:PixiEditor.Views.Blackboard">
     <ControlTheme TargetType="nodes:NodeGraphView" x:Key="{x:Type nodes:NodeGraphView}">
@@ -15,10 +16,16 @@
                                Fill="{DynamicResource SelectionFillBrush}" Opacity="1" />
                     <Grid.ContextFlyout>
                         <Flyout Placement="Pointer">
-                            <nodes:NodePicker
-                                AllNodeTypeInfos="{Binding AllNodeTypeInfos, RelativeSource={RelativeSource TemplatedParent}}"
-                                SearchQuery="{Binding SearchQuery, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
-                                SelectNodeCommand="{Binding CreateNodeFromContextCommand, RelativeSource={RelativeSource TemplatedParent}}" />
+                            <LayoutTransformControl>
+                                <Interaction.Behaviors>
+                                    <behaviors:LayoutTransformScalerBehavior/>
+                                </Interaction.Behaviors>
+
+                                <nodes:NodePicker
+                                    AllNodeTypeInfos="{Binding AllNodeTypeInfos, RelativeSource={RelativeSource TemplatedParent}}"
+                                    SearchQuery="{Binding SearchQuery, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                                    SelectNodeCommand="{Binding CreateNodeFromContextCommand, RelativeSource={RelativeSource TemplatedParent}}" />
+                            </LayoutTransformControl>
                         </Flyout>
                     </Grid.ContextFlyout>
                     <ItemsControl ZIndex="1" ClipToBounds="False"

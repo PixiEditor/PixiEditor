@@ -1166,6 +1166,9 @@
   "LEVELS": "Levels",
   "RGB_POSTERIZATION_MODE": "RGB",
   "LUMINANCE_POSTERIZATION_MODE": "Luminance",
+  "ACCESSIBILITY": "Accessibility",
+  "UI_SCALE": "UI Scale",
+  "UI_SCALE_EXEMPTS_SETTINGS": "Setting windows are intentionally not affected by UI Scaling.",
   "ALIGNMENT": "Alignment",
   "STRETCHING": "Stretching",
   "STRETCH_TO_FIT_PATTERN_STRETCHING": "Stretch to fit",
@@ -1355,5 +1358,9 @@
   "INDEX": "Index",
   "ARRAY": "Array",
   "ARRAYS": "Arrays",
-  "ARRAY_LENGTH_NODE": "Array Length"
+  "ARRAY_LENGTH_NODE": "Array Length",
+  "TARGET_SAMPLE_TEXTURE_POS": "Sample Position",
+  "EXTENSION": "Extension",
+  "GRADIENT_TOOL_TOOLTIP": "Create and edit gradients ({0}).",
+  "DISALLOW_AUTO_SCALING": "Disallow auto scaling"
 }

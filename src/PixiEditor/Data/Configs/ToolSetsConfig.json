@@ -23,6 +23,7 @@
       "Icon": "icon-gradient",
       "ToolTip": "GRADIENT_TOOL_TOOLTIP",
       "DefaultShortcut": "Shift+G",
+      "CommonToolType": "Gradient",
       "ActionDisplays": [
         {
           "ActionDisplay": "GRADIENT_TOOL_ACTION_DISPLAY_DEFAULT"
@@ -78,7 +79,9 @@
         {
           "ToolName": "Eraser",
           "Settings": {
-            "DefaultToolSize": 1
+            "DefaultToolSize": 1,
+            "DefaultBrush": "Pixel Circle",
+            "AntiAliasing": false
           }
         },
         {

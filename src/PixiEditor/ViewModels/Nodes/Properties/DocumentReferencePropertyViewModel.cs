@@ -26,10 +26,17 @@ internal class DocumentReferencePropertyViewModel : NodePropertyViewModel<Docume
     public string? OriginalFilePath
     {
         get => originalFilePath;
-        set => SetProperty(ref originalFilePath, value);
+        set
+        {
+            if (SetProperty(ref originalFilePath, value))
+            {
+                OnPropertyChanged(nameof(HasOriginalPath));
+            }
+        }
     }
 
     public ICommand PickGraphFileCommand { get; }
+    public bool HasOriginalPath => !string.IsNullOrEmpty(OriginalFilePath);
 
     public DocumentReferencePropertyViewModel(NodeViewModel node, Type valueType) : base(node, valueType)
     {

@@ -9,14 +9,12 @@ using PixiEditor.Platform;
 
 namespace PixiEditor.Extensions.Runtime;
 
-public class ExtensionLoader
+public class ExtensionLoader : IExtensionListProvider
 {
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNameCaseInsensitive = true
-    };
-    
-    public List<Extension> LoadedExtensions { get; } = new();
+    private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
+
+    public IReadOnlyCollection<Extension> LoadedExtensions => loaded;
+    private List<Extension> loaded = new List<Extension>();
 
     public string[] PackagesPath { get; }
     public string UnpackedExtensionsPath { get; }
@@ -173,6 +171,9 @@ public class ExtensionLoader
         }
         catch (Exception ex)
         {
+#if DEBUG
+            throw;
+#endif
             return null;
         }
     }
@@ -197,7 +198,7 @@ public class ExtensionLoader
         }
 
         using var stream = metadataEntry.Open();
-        
+
         return JsonSerializer.Deserialize<ExtensionMetadata>(stream, JsonOptions);
     }
 
@@ -239,7 +240,7 @@ public class ExtensionLoader
         return extensionWriteTime > unpackedWriteTime;
     }
 
-    private Extension LoadExtensionFromCache(string extension)
+    private Extension? LoadExtensionFromCache(string extension)
     {
         string json = File.ReadAllText(extension);
         try
@@ -288,8 +289,13 @@ public class ExtensionLoader
     private Extension LoadExtensionFrom(ExtensionEntry entry, ExtensionMetadata metadata)
     {
         var extension = LoadExtensionEntry(entry, metadata);
+        if (extension is null)
+        {
+            return null;
+        }
+
         extension.Load();
-        LoadedExtensions.Add(extension);
+        loaded.Add(extension);
         loadedExtensions.Add(metadata.UniqueName);
         ExtensionLoaded?.Invoke(metadata.UniqueName);
         return extension;
@@ -358,9 +364,14 @@ public class ExtensionLoader
         return IPlatform.Current.AdditionalContentProvider?.IsInstalled(fixedUniqueName) ?? false;
     }
 
-    private Extension LoadExtensionEntry(ExtensionEntry entry, ExtensionMetadata metadata)
+    private Extension? LoadExtensionEntry(ExtensionEntry entry, ExtensionMetadata metadata)
     {
         Extension extension = entry.CreateExtension();
+        if (extension is null)
+        {
+            return null;
+        }
+
         extension.ProvideMetadata(metadata);
         return extension;
     }

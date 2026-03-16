@@ -17,4 +17,6 @@ public class ExtensionMetadata
     public LocalizationData? Localization { get; init; }
     [JsonConverter(typeof(JsonEnumFlagConverter<ExtensionPermissions>))]
     public ExtensionPermissions Permissions { get; init; }
+    public bool PublicResources { get; init; }
+    public List<string> AllowReadResourcesBy { get; init; }
 }

@@ -156,7 +156,7 @@ internal class SceneRenderer
         Guid viewportId = viewport.Id;
         ChunkResolution resolution = viewport.Resolution;
         SamplingOptions samplingOptions = viewport.Sampling;
-        RectI? visibleDocumentRegion = viewport.VisibleDocumentRegion;
+        RectD? visibleDocumentRegion = viewport.VisibleDocumentRegion;
         PointerInfo pointerInfo = viewport.PointerInfo;
         KeyboardInfo keyboardInfo = viewport.KeyboardInfo;
         EditorData editorData = viewport.EditorData;
@@ -184,9 +184,9 @@ internal class SceneRenderer
 
         float oversizeFactor = 1;
         if (visibleDocumentRegion != null && viewport.IsScene &&
-            visibleDocumentRegion.Value != new RectI(0, 0, Document.Size.X, Document.Size.Y))
+            (RectI)visibleDocumentRegion.Value.RoundOutwards() != new RectI(0, 0, Document.Size.X, Document.Size.Y))
         {
-            visibleDocumentRegion = (RectI)visibleDocumentRegion.Value.Scale(OversizeFactor,
+            visibleDocumentRegion = visibleDocumentRegion.Value.Scale(OversizeFactor,
                 visibleDocumentRegion.Value.Center);
             oversizeFactor = OversizeFactor;
         }
@@ -194,7 +194,7 @@ internal class SceneRenderer
         bool shouldRerender =
             ShouldRerender(renderTargetSize, isFullViewportRender ? Matrix3X3.Identity : targetMatrix, resolution,
                 viewportId, targetOutput, finalGraph,
-                previewTextures, visibleDocumentRegion, oversizeFactor, isFullViewportRender, viewport.ViewportData, out bool fullAffectedArea,
+                previewTextures, viewport.VisibleDocumentRegion, oversizeFactor, isFullViewportRender, viewport.ViewportData, out bool fullAffectedArea,
                 out RenderState renderState) ||
             debugRecord;
 
@@ -204,7 +204,7 @@ internal class SceneRenderer
         if (shouldRerender)
         {
             affectedArea = fullAffectedArea && viewport.VisibleDocumentRegion.HasValue
-                ? new AffectedArea(OperationHelper.FindChunksTouchingRectangle(viewport.VisibleDocumentRegion.Value,
+                ? new AffectedArea(OperationHelper.FindChunksTouchingRectangle((RectI)viewport.VisibleDocumentRegion.Value.RoundOutwards(),
                     ChunkyImage.FullChunkSize))
                 : affectedArea;
             var tex = RenderGraph(renderTargetSize, targetMatrix, viewportId, resolution, samplingOptions, affectedArea,
@@ -223,7 +223,7 @@ internal class SceneRenderer
         ChunkResolution resolution,
         SamplingOptions samplingOptions,
         AffectedArea area,
-        RectI? visibleDocumentRegion,
+        RectD? visibleDocumentRegion,
         string? targetOutput,
         bool canRenderOnionSkinning,
         float oversizeFactor,
@@ -420,7 +420,7 @@ internal class SceneRenderer
         Guid viewportId,
         string targetOutput,
         IReadOnlyNodeGraph finalGraph, Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures,
-        RectI? visibleDocumentRegion, float oversizeFactor, bool isFullViewportRender,
+        RectD? visibleDocumentRegion, float oversizeFactor, bool isFullViewportRender,
         ViewportData viewportViewportData, out bool fullAffectedArea,
         out RenderState renderState)
     {
@@ -435,7 +435,7 @@ internal class SceneRenderer
             ZoomLevel = matrix.ScaleX,
             FallbackFramesToLayer = Document.AnimationData.FallbackAnimationToLayerImage,
             VisibleDocumentRegion =
-                (RectD?)visibleDocumentRegion ?? new RectD(0, 0, Document.Size.X, Document.Size.Y),
+                visibleDocumentRegion ?? new RectD(0, 0, Document.Size.X, Document.Size.Y),
             DocumentColorSpace = Document.ProcessingColorSpace,
             IsFullViewportRender = isFullViewportRender,
             ViewportData = viewportViewportData

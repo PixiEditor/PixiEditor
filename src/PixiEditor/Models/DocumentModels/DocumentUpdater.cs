@@ -479,14 +479,6 @@ internal class DocumentUpdater
         }
         */
 
-        if (doc.SelectedStructureMember is not null)
-        {
-            doc.SelectedStructureMember.Selection = StructureMemberSelectionType.None;
-        }
-
-        doc.SetSelectedMember(memberVM);
-        memberVM.Selection = StructureMemberSelectionType.Hard;
-
         doc.InternalRaiseLayersChanged(new LayersChangedEventArgs(info.Id, LayerAction.Add));
     }
 

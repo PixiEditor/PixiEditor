@@ -37,6 +37,7 @@ using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
 using PixiEditor.Models.IO;
+using PixiEditor.Models.Layers;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Skia;
 using PixiEditor.UI.Common.Localization;
@@ -262,6 +263,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         NodeGraph.StructureTree.Update(NodeGraph);
 
         ReferenceId = referenceId;
+
+        Internals.ActionAccumulator.AddFinishedActions(new RefreshPreviews_PassthroughAction());
     }
 
     private void InitializeViewModel()
@@ -407,6 +410,16 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             Guid outputNodeGuid = Guid.NewGuid();
             acc.AddActions(new CreateNode_Action(typeof(OutputNode), outputNodeGuid, Guid.Empty));
         }
+
+        acc.AddActions(new InvokeAction_PassthroughAction(() =>
+        {
+            var firstMember = viewModel.NodeGraph.StructureTree.Members.FirstOrDefault();
+            if (firstMember != null)
+            {
+                viewModel.SetSelectedMember(firstMember);
+                firstMember.Selection = StructureMemberSelectionType.Hard;
+            }
+        }));
 
         AddAnimationData(builderInstance.AnimationData, mappedNodeIds, mappedKeyFrameIds);
 
