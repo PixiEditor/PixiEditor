@@ -63,7 +63,15 @@ public class CombineColorNode : Node
         var b = ctx.GetValue(V3);
         var a = ctx.GetValue(A);
 
-        return ctx.NewHalf4(r, g, b, a); 
+        if (ctx.HasContext)
+        {
+            AdjustConstValue(ctx, r, 255f);
+            AdjustConstValue(ctx, g, 255f);
+            AdjustConstValue(ctx, b, 255f);
+            AdjustConstValue(ctx, a, 255f);
+        }
+
+        return ctx.NewHalf4(r, g, b, a);
     }
 
     private Half4 GetHsv(FuncContext ctx)
@@ -73,17 +81,39 @@ public class CombineColorNode : Node
         var v = ctx.GetValue(V3);
         var a = ctx.GetValue(A);
 
+        if (ctx.HasContext)
+        {
+            AdjustConstValue(ctx, h, 360f);
+            AdjustConstValue(ctx, s, 100f);
+            AdjustConstValue(ctx, v, 100f);
+            AdjustConstValue(ctx, a, 255f);
+        }
+
         return ctx.HsvaToRgba(h, s, v, a);
     }
-    
+
     private Half4 GetHsl(FuncContext ctx)
     {
         var h = ctx.GetValue(V1);
         var s = ctx.GetValue(V2);
         var l = ctx.GetValue(V3);
         var a = ctx.GetValue(A);
+        if (ctx.HasContext)
+        {
+            AdjustConstValue(ctx, h, 360f);
+            AdjustConstValue(ctx, s, 100f);
+            AdjustConstValue(ctx, l, 100f);
+            AdjustConstValue(ctx, a, 255f);
+        }
 
         return ctx.HslaToRgba(h, s, l, a);
+    }
+
+    private static void AdjustConstValue(FuncContext ctx, Float1 uniform, float adjustBy)
+    {
+        var uniformVar = ctx.Builder.Uniforms.FirstOrDefault(x => x.Key == uniform.VariableName);
+        ctx.Builder.Uniforms.Remove(uniform.VariableName);
+        ctx.Builder.AddUniform(uniform.VariableName, uniformVar.Value.FloatValue / adjustBy);
     }
 
     protected override void OnExecute(RenderContext context)
