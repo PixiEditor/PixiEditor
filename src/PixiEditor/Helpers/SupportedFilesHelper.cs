@@ -80,6 +80,12 @@ internal class SupportedFilesHelper
             allExts.AddRange(FileTypes.Where(i => i.SetKind.HasFlag(separatedKind)));
         }
 
+        // Places GIF as a default option for a video
+        if (setKind == FileTypeDialogDataSet.SetKind.Video)
+        {
+           return allExts.Distinct().OrderBy(x => x.SetKind.GetFlags().Count()).ToList();
+        }
+
         return allExts.Distinct().ToList();
     }
 
