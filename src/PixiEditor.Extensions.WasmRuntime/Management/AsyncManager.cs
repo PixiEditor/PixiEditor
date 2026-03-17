@@ -2,7 +2,7 @@
 
 namespace PixiEditor.Extensions.WasmRuntime.Management;
 
-internal delegate void AsyncCallCompleted(int asyncHandle, int resultValue); 
+internal delegate void AsyncCallCompleted(int asyncHandle, byte[] resultValue);
 internal delegate void AsyncCallFaulted(int asyncHandle, string exceptionMessage); 
 internal class AsyncCallsManager 
 {
@@ -11,7 +11,7 @@ internal class AsyncCallsManager
     public event AsyncCallCompleted OnAsyncCallCompleted;
     public event AsyncCallFaulted OnAsyncCallFaulted;
     
-    public int AddAsyncCall(AsyncCall<int> task)
+    public int AddAsyncCall<T>(AsyncCall<T> task, Func<T, byte[]> byteConverter)
     {
         int asyncHandle = GetNextAsyncHandle();
         task.ContinueWith(t =>
@@ -22,7 +22,7 @@ internal class AsyncCallsManager
             }
             else
             {
-                OnAsyncCallCompleted?.Invoke(asyncHandle, t.Result);
+                OnAsyncCallCompleted?.Invoke(asyncHandle, byteConverter(t.Result));
             }
 
             RemoveAsyncCall(asyncHandle);

@@ -33,6 +33,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample11_Brushes", "Sample1
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixiEditor.Extensions.CommonApi", "..\src\PixiEditor.Extensions.CommonApi\PixiEditor.Extensions.CommonApi.csproj", "{7A41AE84-F8BB-45F0-8BD5-E755E1EA606D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample12_Network", "Sample12_Network\Sample12_Network.csproj", "{7604B4AF-FC37-4902-8757-F8CBCB69E4FC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -98,6 +100,10 @@ Global
 		{7A41AE84-F8BB-45F0-8BD5-E755E1EA606D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7A41AE84-F8BB-45F0-8BD5-E755E1EA606D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7A41AE84-F8BB-45F0-8BD5-E755E1EA606D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7604B4AF-FC37-4902-8757-F8CBCB69E4FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7604B4AF-FC37-4902-8757-F8CBCB69E4FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7604B4AF-FC37-4902-8757-F8CBCB69E4FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7604B4AF-FC37-4902-8757-F8CBCB69E4FC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{FD9B4C32-4D2E-410E-BC6B-787779BEB6E2} = {7CC35BC4-829F-4EF4-8EB6-E1D46206E7DC}

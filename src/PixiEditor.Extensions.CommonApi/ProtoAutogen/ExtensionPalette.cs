@@ -21,7 +21,7 @@ namespace PixiEditor.Extensions.CommonApi.Palettes
         public string Name { get; set; } = "";
 
         [global::ProtoBuf.ProtoMember(2)]
-        public global::System.Collections.Generic.List<PaletteColor> Colors { get; } = new global::System.Collections.Generic.List<PaletteColor>();
+        public global::System.Collections.Generic.List<PaletteColor> Colors { get; set; } = new global::System.Collections.Generic.List<PaletteColor>();
 
         [global::ProtoBuf.ProtoMember(3)]
         public bool IsFavourite { get; set; }
