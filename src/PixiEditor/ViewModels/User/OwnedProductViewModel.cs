@@ -60,13 +60,23 @@ public class OwnedProductViewModel : ObservableObject
         get => isLoaded;
         set => SetProperty(ref isLoaded, value);
     }
+    
+    private bool canBeEnabled;
+    public bool CanBeEnabled
+    {
+        get => canBeEnabled;
+        set => SetProperty(ref canBeEnabled, value);
+    }
 
     public IAsyncRelayCommand InstallCommand { get; }
     public IAsyncRelayCommand UninstallCommand { get; }
     public IRelayCommand<bool> ToggleEnabledCommand { get; }
 
-    public OwnedProductViewModel(ProductData productData, bool isInstalled, string? installedVersion, bool isEnabled, bool isLoaded,
-        IAsyncRelayCommand<string> installContentCommand, IAsyncRelayCommand<string> uninstallContentCommand, IRelayCommand<string> enableContentCommand, IRelayCommand<string> disableContentCommand, Func<string, bool> isInstalledFunc)
+    public OwnedProductViewModel(ProductData productData, bool isInstalled, string? installedVersion, bool isEnabled,
+        bool isLoaded,
+        IAsyncRelayCommand<string> installContentCommand, IAsyncRelayCommand<string> uninstallContentCommand,
+        IRelayCommand<string> enableContentCommand, IRelayCommand<string> disableContentCommand,
+        Func<string, bool> isInstalledFunc, Func<string, bool> areDependenciesLoadedFunc)
     {
         ProductData = productData;
         IsInstalled = isInstalled;
@@ -79,8 +89,9 @@ public class OwnedProductViewModel : ObservableObject
         {
             UpdateAvailable = false;
         }
-        
+
         IsEnabled = isEnabled;
+        CanBeEnabled = areDependenciesLoadedFunc(ProductData.Id);
 
         InstallCommand = new AsyncRelayCommand(
             async () =>
@@ -101,12 +112,12 @@ public class OwnedProductViewModel : ObservableObject
                 else
                 {
                     IsInstalled = isInstalledFunc(ProductData.Id);
-                    
+
                     UninstallCommand.NotifyCanExecuteChanged();
                     ToggleEnabledCommand.NotifyCanExecuteChanged();
                 }
             }, () => !IsInstalled && !IsInstalling || UpdateAvailable);
-        
+
         UninstallCommand = new AsyncRelayCommand(
             async () =>
             {
@@ -122,23 +133,27 @@ public class OwnedProductViewModel : ObservableObject
             },
             () => IsInstalled && !IsInstalling && !IsUninstalling
         );
-        
+
         ToggleEnabledCommand = new RelayCommand<bool>(
-            (isOn) =>
-            {
-                if (isOn)
+                (isOn) =>
                 {
-                    IsEnabled = true;
-                    enableContentCommand.Execute(ProductData.Id);
-                    IsLoaded = true;
-                }
-                else
-                {
-                    IsEnabled = false;
-                    disableContentCommand.Execute(ProductData.Id);
-                }
-            },
-            (isOn) => IsInstalled && !IsInstalling && !IsUninstalling
-        );
+                    if (isOn)
+                    {
+                        CanBeEnabled = areDependenciesLoadedFunc(ProductData.Id);
+                        if (CanBeEnabled)
+                        {
+                            IsEnabled = true;
+                            enableContentCommand.Execute(ProductData.Id);
+                            IsLoaded = true;
+                        }
+                    }
+                    else
+                    {
+                        IsEnabled = false;
+                        disableContentCommand.Execute(ProductData.Id);
+                    }
+                },
+                (isOn) => IsInstalled && !IsInstalling && !IsUninstalling
+            );
     }
 }

@@ -167,7 +167,7 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
             }
 
             OwnedProducts.Add(new OwnedProductViewModel(product, isInstalled, installedVersion, true, true, InstallContentCommand, null, null, null,
-                IsInstalled));
+                IsInstalled, null));
         }
 
         NotifyProperties();

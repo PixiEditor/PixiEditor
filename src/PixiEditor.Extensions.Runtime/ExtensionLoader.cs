@@ -1,6 +1,7 @@
 ﻿using System.IO.Compression;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using Avalonia.Input;
 using Newtonsoft.Json;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Extensions.Metadata;
@@ -33,6 +34,57 @@ public class ExtensionLoader
 
     public void LoadExtensions()
     {
+        UpdateExtensions();
+        List<DiscoveredExtension> discoveredExtensions = DiscoverExtensions();
+        List<DiscoveredExtension> sortedExtensions = ExtensionDependencyResolver.ResolveDependencies(discoveredExtensions);
+
+        foreach (var ext in sortedExtensions)
+        {
+            if (ext.Disabled)
+            {
+                UnloadedExtensionsMetadata.Add(ext.Metadata);
+            }
+            else
+            {
+                LoadExtension(ext.PackagePath);
+            }
+        }
+
+        DeleteUninstalledExtensions();
+    }
+    
+    private List<DiscoveredExtension> DiscoverExtensions()
+    {
+        var discoveredExtensions = new List<DiscoveredExtension>();
+        var disabled = PixiEditorSettings.Extensions.DisabledExtensions.Value.ToList();
+
+        foreach (var packagesPath in PackagesPath)
+        {
+            if (!Directory.Exists(packagesPath))
+                continue;
+
+            foreach (var file in Directory.GetFiles(packagesPath, "*.pixiext"))
+            {
+                var json = GetExtensionJson(file);
+                if (json == null)
+                    continue;
+
+                var metadata = LoadMetadataFromCache(json);
+
+                discoveredExtensions.Add(new DiscoveredExtension
+                {
+                    Metadata = metadata,
+                    PackagePath = file,
+                    Disabled = disabled.Contains(metadata.UniqueName)
+                });
+            }
+        }
+
+        return discoveredExtensions;
+    }
+
+    private void UpdateExtensions()
+    {
         foreach (var packagesPath in PackagesPath)
         {
             if (!Directory.Exists(packagesPath))
@@ -61,24 +113,6 @@ public class ExtensionLoader
                     // File is in use, ignore
                 }
             }
-
-            var disabledExtensions = PixiEditorSettings.Extensions.DisabledExtensions.Value.ToList();
-            
-            foreach (var file in Directory.GetFiles(packagesPath, "*.pixiext"))
-            {
-                string extensionName = Path.GetFileNameWithoutExtension(file);
-                if (!disabledExtensions.Contains(extensionName))
-                {
-                    LoadExtension(file);
-                }
-                else
-                {
-                    var metadata = LoadExtensionMetadata(file);
-                    UnloadedExtensionsMetadata.Add(metadata);
-                }
-            }
-            
-            DeleteUninstalledExtensions();
         }
     }
 

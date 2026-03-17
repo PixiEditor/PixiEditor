@@ -390,9 +390,17 @@
                                                     <MultiBinding Converter="{converters:AllTrueConverter}">
                                                         <Binding Path="IsInstalled" />
                                                         <Binding Path="!IsInstalling" />
+                                                        <Binding Path="CanBeEnabled" />
                                                     </MultiBinding>
                                                 </ToggleSwitch.IsVisible>
                                             </ToggleSwitch>
+                                            <TextBlock Foreground="{DynamicResource ThemeAccentBrush}"
+                                                       IsVisible="{Binding !CanBeEnabled}">
+                                                <Run Classes="pixi-icon" Text="{DynamicResource icon-folder}" />
+                                                <ToolTip.Tip>
+                                                    <TextBlock localization:Translator.Key="EXTENSIONS_WINDOW_DEPENDENCIES_MISSING_TOOLTIP" />
+                                                </ToolTip.Tip>
+                                            </TextBlock>
 
                                         </DockPanel>
                                         <Button DockPanel.Dock="Left"

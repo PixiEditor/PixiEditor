@@ -164,12 +164,12 @@ internal class ExtensionManagerViewModel : ViewModelBase
                     }
                 }
 
-                bool isEnabled = IsEnabled(extension.Id);
+                bool isEnabled = IsLoaded(extension.Id);
                 bool isLoaded = IsLoaded(extension.Id);
 
                 OwnedExtensions.Add(new OwnedProductViewModel(extension, isInstalled, installedVersion, isEnabled,
                     isLoaded, InstallAndLoadExtensionCommand, UninstallExtensionCommand, EnableExtensionCommand,
-                    DisableExtensionCommand, IsInstalled));
+                    DisableExtensionCommand, IsInstalled, AreDependenciesLoaded));
             }
         }
 
@@ -196,10 +196,10 @@ internal class ExtensionManagerViewModel : ViewModelBase
             productData.Description = extensionMetadata.Description;
                 
             bool isInstalled = IsInstalled(extensionMetadata.UniqueName);
-            bool isEnabled = IsEnabled(extensionMetadata.UniqueName);
+            bool isEnabled = IsLoaded(extensionMetadata.UniqueName);
             bool isLoaded = IsLoaded(extensionMetadata.UniqueName);
                 
-            OwnedExtensions.Add(new OwnedProductViewModel(productData, isInstalled, extensionMetadata.Version, isEnabled, isLoaded, InstallAndLoadExtensionCommand, UninstallExtensionCommand, EnableExtensionCommand, DisableExtensionCommand, IsInstalled));
+            OwnedExtensions.Add(new OwnedProductViewModel(productData, isInstalled, extensionMetadata.Version, isEnabled, isLoaded, InstallAndLoadExtensionCommand, UninstallExtensionCommand, EnableExtensionCommand, DisableExtensionCommand, IsInstalled, AreDependenciesLoaded));
         }
     }
     
@@ -269,20 +269,45 @@ internal class ExtensionManagerViewModel : ViewModelBase
         await extensionsViewModel.UninstallExtension(extensionId);
     }
     
-    private bool IsEnabled(string extensionId)
-    {
-        var disabled = PixiEditorSettings.Extensions.DisabledExtensions.Value.ToList();
-        return !disabled.Contains(extensionId);
-    }
-    
     private bool IsLoaded(string extensionId)
     {
         return extensionsViewModel.IsLoaded(extensionId);
     }
     
+    private bool AreDependenciesLoaded(string extensionId)
+    {
+        var extensionMetadata = extensionsViewModel.ExtensionLoader.UnloadedExtensionsMetadata
+            .FirstOrDefault(e => e.UniqueName == extensionId);
+        
+        if (extensionMetadata == null)
+        {
+            extensionMetadata = extensionsViewModel.ExtensionLoader.LoadedExtensions
+                .Select(e => e.Metadata)
+                .FirstOrDefault(e => e.UniqueName == extensionId);
+        }
+
+        if (extensionMetadata == null)
+            return false;
+
+        var dependencies = extensionMetadata.Dependencies;
+        if (dependencies.Count == 0)
+            return true;
+
+        foreach (var depId in dependencies)
+        {
+            bool depInstalled = IsInstalled(depId);
+            bool depLoaded = IsLoaded(depId);
+
+            if (!depInstalled || !depLoaded)
+                return false;
+        }
+
+        return true;
+    }
+    
     public bool CanEnableExtension(string extensionId)
     {
-        return IsInstalled(extensionId);
+        return IsInstalled(extensionId) && AreDependenciesLoaded(extensionId);
     }
     
     public void EnableExtension(string extensionId)
