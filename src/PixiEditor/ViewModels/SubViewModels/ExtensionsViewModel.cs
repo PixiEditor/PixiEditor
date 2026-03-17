@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Extensions;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Extensions.CommonApi.Windowing;
+using PixiEditor.Extensions.Metadata;
 using PixiEditor.Extensions.Runtime;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
@@ -85,20 +86,71 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
         }
     }
     
-    public async Task InstallAndLoadExtension(IAdditionalContentProvider additionalContentProvider, string productId)
+    public async Task<List<string>> InstallAndLoadExtensionWithDependencies(IAdditionalContentProvider additionalContentProvider, string productId)
     {
         try
         {
-            string? extensionPath = await additionalContentProvider.InstallContent(productId);
-            if (extensionPath != null)
+            List<DiscoveredExtension> installedExtensions = new List<DiscoveredExtension>();
+            
+            await InstallRecursive(additionalContentProvider, productId, installedExtensions);
+            
+            List<DiscoveredExtension> sortedInstalledExtensions =
+                ExtensionDependencyResolver.ResolveDependencies(installedExtensions);
+            
+            foreach (var ext in sortedInstalledExtensions)
             {
-                Owner.ExtensionsSubViewModel.LoadExtensionAdHoc(extensionPath);
+                if (!ext.Disabled)
+                {
+                    Owner.ExtensionsSubViewModel.LoadExtensionAdHoc(ext.PackagePath);
+                }
+                else
+                {
+                    ExtensionLoader.UnloadedExtensionsMetadata.Add(ext.Metadata);
+                }
             }
+            return installedExtensions
+                .Select(x => x.Metadata.UniqueName)
+                .ToList();
         }
         catch (Exception ex)
         {
             CrashHelper.SendExceptionInfo(ex);
+            return new List<string>();
         }
+    }
+    
+    private async Task InstallRecursive(
+        IAdditionalContentProvider provider,
+        string extensionId,
+        List<DiscoveredExtension> installedExtensions)
+    {
+        if (provider.IsInstalled(extensionId))
+            return;
+
+        string? extensionPath = await provider.InstallContent(extensionId);
+
+        if (extensionPath == null)
+        {
+            // Skip if user doesn't own
+            return;
+        }
+        
+        var metadata = ExtensionLoader.LoadExtensionMetadata(extensionPath);
+
+        if (metadata != null)
+        {
+            foreach (var dep in metadata.Dependencies)
+            {
+                await InstallRecursive(provider, dep, installedExtensions);
+            }
+        }
+        
+        installedExtensions.Add(new DiscoveredExtension
+        {
+            Metadata = metadata,
+            Disabled = false,
+            PackagePath = extensionPath
+        });
     }
     
     public async Task UninstallExtension(string extensionId)

@@ -167,7 +167,7 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
             }
 
             OwnedProducts.Add(new OwnedProductViewModel(product, isInstalled, installedVersion, true, true, InstallContentCommand, null, null, null,
-                IsInstalled, null));
+                IsInstalled, (s => true)));
         }
 
         NotifyProperties();
@@ -370,7 +370,7 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
             return;
         }
 
-        await Owner.ExtensionsSubViewModel.InstallAndLoadExtension(AdditionalContentProvider,  productId);
+        await Owner.ExtensionsSubViewModel.InstallAndLoadExtensionWithDependencies(AdditionalContentProvider,  productId);
     }
 
     private void OnError(string error, object? arg = null)

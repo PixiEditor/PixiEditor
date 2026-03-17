@@ -250,8 +250,9 @@ internal class ExtensionManagerViewModel : ViewModelBase
         {
             return;
         }
-
-        await extensionsViewModel.InstallAndLoadExtension(contentProvider,  extensionId);
+        
+        List<string> installedExtensionsIds = await extensionsViewModel.InstallAndLoadExtensionWithDependencies(contentProvider,  extensionId);
+        await RefreshInstalledExtensions(installedExtensionsIds);
     }
     
     public bool CanUninstallExtension(string extensionId)
@@ -402,6 +403,27 @@ internal class ExtensionManagerViewModel : ViewModelBase
         foreach (var ext in AvailableExtensions)
         {
             ext.NotifyChanged();
+        }
+    }
+    
+    public async Task RefreshInstalledExtensions(List<string> installedExtensionIds)
+    {
+        var userDisabled = PixiEditorSettings.Extensions.DisabledExtensions.Value.ToList();
+        foreach (var extId in installedExtensionIds)
+        {
+            var owned = OwnedExtensions.FirstOrDefault(x => x.ProductData.Id == extId);
+            if (owned != null)
+            {
+                owned.IsInstalled = IsInstalled(extId);
+                owned.IsLoaded = IsLoaded(extId);
+                owned.IsEnabled = IsLoaded(extId) && !userDisabled.Contains(extId);
+                
+                owned.CanBeEnabled = AreDependenciesLoaded(extId);
+                
+                owned.InstallCommand.NotifyCanExecuteChanged();
+                owned.UninstallCommand.NotifyCanExecuteChanged();
+                owned.ToggleEnabledCommand.NotifyCanExecuteChanged();
+            }
         }
     }
 }

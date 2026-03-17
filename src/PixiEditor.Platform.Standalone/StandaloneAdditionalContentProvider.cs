@@ -32,6 +32,14 @@ public sealed class StandaloneAdditionalContentProvider : IAdditionalContentProv
 
         try
         {
+            var ownedProduct = IdentityProvider.User.OwnedProducts
+                .FirstOrDefault(x => x.Id == productId);
+
+            if (ownedProduct == null)
+            {
+                return null;
+            }
+            
             var stream =
                 await IdentityProvider.PixiAuthClient.DownloadProduct(IdentityProvider.User.SessionToken, productId, IdentityProvider.User.OwnedProducts.First(x => x.Id.Equals(productId, StringComparison.Ordinal)).DownloadLink);
             if (stream != null)

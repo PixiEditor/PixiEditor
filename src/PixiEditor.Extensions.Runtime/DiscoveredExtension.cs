@@ -2,7 +2,7 @@
 
 namespace PixiEditor.Extensions.Runtime;
 
-internal class DiscoveredExtension
+public class DiscoveredExtension
 {
     public ExtensionMetadata Metadata { get; init; }
     public string PackagePath { get; init; }

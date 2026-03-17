@@ -2,7 +2,7 @@
 
 namespace PixiEditor.Extensions.Runtime;
 
-internal static class ExtensionDependencyResolver
+public static class ExtensionDependencyResolver
 {
     /// <summary>
     /// Returns all discovered extensions in dependency order.
