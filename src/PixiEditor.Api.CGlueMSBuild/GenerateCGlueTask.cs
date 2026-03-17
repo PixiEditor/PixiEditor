@@ -24,6 +24,9 @@ public class GenerateCGlueTask : Task
     [Required]
     public string InteropCFilePath { get; set; } = default!;
 
+    [Required]
+    public int ApiVersion { get; set; } = 1;
+
     public string EncryptionKey { get; set; } = string.Empty;
 
     public string EncryptionIv { get; set; } = string.Empty;
@@ -55,7 +58,7 @@ public class GenerateCGlueTask : Task
                 }
             }
 
-            var generator = new CApiGenerator(File.ReadAllText(InteropCFilePath), EncryptionKey, EncryptionIv,
+            var generator = new CApiGenerator(File.ReadAllText(InteropCFilePath), EncryptionKey, EncryptionIv, ApiVersion,
                 message => Log.LogMessage(MessageImportance.High, message));
 
             var directory = Path.GetDirectoryName(AssemblyPath)!;

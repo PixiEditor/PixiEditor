@@ -7,18 +7,20 @@ namespace PixiEditor.Api.CGlueMSBuild;
 
 public class CApiGenerator
 {
-    private static readonly string[] excluded = new[] { "get_encryption_key", "get_encryption_iv" };
+    private static readonly string[] excluded = new[] { "get_encryption_key", "get_encryption_iv", "get_api_version" };
     private string InteropCContent { get; }
     private Action<string> Log { get; }
     public string? ResourcesEncryptionKey { get; set; }
     public string? ResourcesEncryptionIv { get; set; }
+    public int ApiVersion { get; set; }
 
-    public CApiGenerator(string interopCContent, string? resourcesEncryptionKey, string? resourcesEncryptionIv, Action<string> log)
+    public CApiGenerator(string interopCContent, string? resourcesEncryptionKey, string? resourcesEncryptionIv, int apiVersion, Action<string> log)
     {
         InteropCContent = interopCContent;
         Log = log;
         ResourcesEncryptionKey = resourcesEncryptionKey;
         ResourcesEncryptionIv = resourcesEncryptionIv;
+        ApiVersion = apiVersion;
     }
 
     public string Generate(AssemblyDefinition assembly, string directory)
@@ -44,6 +46,9 @@ public class CApiGenerator
         sb.AppendLine(GenerateAttachImportedFunctions(importedMethods));
 
         string final = InteropCContent;
+
+        final = final.Replace("api_version = 1;", $"api_version = {ApiVersion};");
+
         if (!string.IsNullOrEmpty(ResourcesEncryptionKey) && !string.IsNullOrEmpty(ResourcesEncryptionIv))
         {
             byte[] keyBytes = Convert.FromBase64String(ResourcesEncryptionKey);
