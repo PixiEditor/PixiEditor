@@ -31,7 +31,7 @@ public class EncryptResourcesTask : Task
             if (PackageEncryptor.EncryptResources(ResourcesPath, IntermediateOutputPath, OutputPath, ref encryptionKey,
                     ref baseIv))
             {
-                EncryptionKey = baseIv;
+                EncryptionKey = encryptionKey;
                 EncryptionIv = baseIv;
 
                 return true;
