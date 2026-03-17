@@ -12,9 +12,9 @@ public class CApiGenerator
     private Action<string> Log { get; }
     public string? ResourcesEncryptionKey { get; set; }
     public string? ResourcesEncryptionIv { get; set; }
-    public int ApiVersion { get; set; }
+    public string ApiVersion { get; set; }
 
-    public CApiGenerator(string interopCContent, string? resourcesEncryptionKey, string? resourcesEncryptionIv, int apiVersion, Action<string> log)
+    public CApiGenerator(string interopCContent, string? resourcesEncryptionKey, string? resourcesEncryptionIv, string apiVersion, Action<string> log)
     {
         InteropCContent = interopCContent;
         Log = log;
@@ -54,7 +54,7 @@ public class CApiGenerator
             byte[] keyBytes = Convert.FromBase64String(ResourcesEncryptionKey);
             byte[] ivBytes = Convert.FromBase64String(ResourcesEncryptionIv);
 
-            final = InteropCContent.Replace("static const uint8_t key[16] = { };",
+            final = final.Replace("static const uint8_t key[16] = { };",
                 $"static const uint8_t key[16] = {{ {string.Join(", ", keyBytes.Select(b => b.ToString()))} }};");
 
             final = final.Replace("static const uint8_t iv[16] = { };",

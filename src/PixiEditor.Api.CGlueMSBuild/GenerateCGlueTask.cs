@@ -25,7 +25,7 @@ public class GenerateCGlueTask : Task
     public string InteropCFilePath { get; set; } = default!;
 
     [Required]
-    public int ApiVersion { get; set; } = 1;
+    public string ApiVersion { get; set; } = "1";
 
     public string EncryptionKey { get; set; } = string.Empty;
 
