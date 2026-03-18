@@ -17,8 +17,8 @@ public class AvailableExtension
     [JsonPropertyName("author")]
     public string Author { get; set; } = string.Empty;
 
-    [JsonPropertyName("image")]
-    public string Image { get; set; } = string.Empty;
+    [JsonPropertyName("imageUrl")]
+    public string ImageUrl { get; set; } = string.Empty;
     
     [JsonPropertyName("price")]
     public int Price { get; set; }

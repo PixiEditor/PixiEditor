@@ -142,7 +142,7 @@ public sealed class StandaloneAdditionalContentProvider : IAdditionalContentProv
                 Name = x.Name,
                 Description = x.Description,
                 Author = x.Author,
-                Image = x.Image,
+                ImageUrl = x.ImageUrl,
                 Price =  x.Price,
                 Currency = x.Currency,
                 IncludedExtensions = x.IncludedExtensions
