@@ -26,6 +26,7 @@ public class CreateImageNode : Node
 
     public InputProperty<Matrix3X3> ContentMatrix { get; }
     public InputProperty<ColorSpaceType> ColorSpace { get; }
+    public InputProperty<bool> DisallowAutoScaling { get; }
 
     public RenderOutputProperty RenderOutput { get; }
 
@@ -33,6 +34,8 @@ public class CreateImageNode : Node
 
     protected override bool ExecuteOnlyOnCacheChange => true;
     protected override CacheTriggerFlags CacheTrigger => CacheTriggerFlags.Inputs;
+
+    private float renderedOnMultiplier;
 
     public CreateImageNode()
     {
@@ -42,6 +45,7 @@ public class CreateImageNode : Node
         Content = CreateRenderInput(nameof(Content), "CONTENT");
         ContentMatrix = CreateInput<Matrix3X3>(nameof(ContentMatrix), "MATRIX", Matrix3X3.Identity);
         ColorSpace = CreateInput(nameof(ColorSpace), "COLOR_SPACE", ColorSpaceType.Inherit);
+        DisallowAutoScaling = CreateInput(nameof(DisallowAutoScaling), "DISALLOW_AUTO_SCALING", false);
         RenderOutput = CreateRenderOutput("RenderOutput", "RENDER_OUTPUT", () => new Painter(OnPaint));
     }
 
@@ -62,15 +66,23 @@ public class CreateImageNode : Node
 
     private Texture? Render(RenderContext context)
     {
-        var size = (VecI)(Size.Value * context.ChunkResolution.Multiplier());
+        var size = Size.Value;
+        float multiplier = 1;
+        if (!DisallowAutoScaling.Value)
+        {
+            multiplier = (float)context.ChunkResolution.Multiplier();
+            size = (VecI)(Size.Value * multiplier);
+        }
+
+        renderedOnMultiplier = multiplier;
         if (size.X <= 0 || size.Y <= 0)
         {
             return null;
         }
 
-        int id = (Size.Value * context.ChunkResolution.Multiplier()).GetHashCode();
+        int id = size.GetHashCode();
         var colorSpace = ColorSpace.Value == ColorSpaceType.Inherit ? context.ProcessingColorSpace : (ColorSpace.Value == ColorSpaceType.Srgb ? Drawie.Backend.Core.Surfaces.ImageData.ColorSpace.CreateSrgb() : Drawie.Backend.Core.Surfaces.ImageData.ColorSpace.CreateSrgbLinear());
-        var surface = textureCache.RequestTexture(id, (VecI)(Size.Value * context.ChunkResolution.Multiplier()), colorSpace, false);
+        var surface = textureCache.RequestTexture(id, size, colorSpace, false);
         surface.DrawingSurface.Canvas.SetMatrix(Matrix3X3.Identity);
 
         if (Fill.Value is ColorPaintable colorPaintable)
@@ -83,7 +95,7 @@ public class CreateImageNode : Node
             using var fill = Fill.Value.Clone();
             paint.SetPaintable(fill);
             paint.BlendMode = BlendMode.Src;
-            paint.PaintableMatrix = Matrix3X3.CreateScale((float)context.ChunkResolution.Multiplier(), (float)context.ChunkResolution.Multiplier());
+            paint.PaintableMatrix = Matrix3X3.CreateScale(multiplier, multiplier);
             surface.DrawingSurface.Canvas.DrawRect(0, 0, Size.Value.X, Size.Value.Y, paint);
         }
 
@@ -93,12 +105,14 @@ public class CreateImageNode : Node
         ctx.RenderSurface = surface.DrawingSurface.Canvas;
         ctx.RenderOutputSize = surface.Size;
         ctx.VisibleDocumentRegion = null;
-
-        float chunkMultiplier = (float)context.ChunkResolution.Multiplier();
+        if (size == Size.Value)
+        {
+            ctx.ChunkResolution = ChunkResolution.Full;
+        }
 
         surface.DrawingSurface.Canvas.SetMatrix(
             surface.DrawingSurface.Canvas.TotalMatrix.Concat(
-                Matrix3X3.CreateScale(chunkMultiplier, chunkMultiplier).Concat(ContentMatrix.Value)));
+                Matrix3X3.CreateScale(multiplier, multiplier).Concat(ContentMatrix.Value)));
 
         Content.Value?.Paint(ctx, surface.DrawingSurface.Canvas);
 
@@ -111,7 +125,7 @@ public class CreateImageNode : Node
         if (Output.Value == null || Output.Value.IsDisposed) return;
 
         int saved = surface.Save();
-        surface.Scale((float)context.ChunkResolution.InvertedMultiplier());
+        surface.Scale(1f / renderedOnMultiplier, 1f / renderedOnMultiplier);
         surface.DrawSurface(Output.Value.DrawingSurface, 0, 0);
 
         surface.RestoreToCount(saved);

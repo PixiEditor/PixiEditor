@@ -19,7 +19,7 @@ public class RenderContext
 
     public KeyFrameTime FrameTime { get; set; }
     public ChunkResolution ChunkResolution { get; set; }
-    public RectI? VisibleDocumentRegion { get; set; } = null;
+    public RectD? VisibleDocumentRegion { get; set; } = null;
     public SamplingOptions DesiredSamplingOptions { get; set; } = SamplingOptions.Default;
     public VecI RenderOutputSize { get; set; }
 

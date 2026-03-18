@@ -387,7 +387,7 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
                     .Invert());
             RectD docRegion = new RectD(VecI.Zero, Instance?.Size ?? VecI.Zero);
             RectD intersection = docRegion.Intersect(inverted.AABBBounds);
-            clonedContext.VisibleDocumentRegion = (RectI)intersection.RoundOutwards();
+            clonedContext.VisibleDocumentRegion = intersection;
         }
 
         var outputNode = Instance?.NodeGraph.AllNodes.OfType<BrushOutputNode>().FirstOrDefault() ??
