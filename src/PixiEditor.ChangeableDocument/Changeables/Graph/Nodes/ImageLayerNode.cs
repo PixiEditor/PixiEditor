@@ -155,7 +155,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         }
 
         RectI latestSize = new(0, 0, layerImage.LatestSize.X, layerImage.LatestSize.Y);
-        var region = ctx.VisibleDocumentRegion ?? latestSize;
+        var region = (RectI?)ctx.VisibleDocumentRegion?.RoundOutwards() ?? latestSize;
 
         VecD topLeft = region.TopLeft - sceneSize / 2;
 
@@ -173,7 +173,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         VecD finalDrawPos = topLeft;
         if (saveLayer)
         {
-            var visibleRegion = ctx.VisibleDocumentRegion ?? latestSize;
+            var visibleRegion = (RectI?)ctx.VisibleDocumentRegion?.RoundOutwards() ?? latestSize;
             var multiplier = visibleRegion != latestSize ? 1 : ctx.ChunkResolution.Multiplier();
             var intersection = visibleRegion.Intersect(latestSize);
             region = intersection;

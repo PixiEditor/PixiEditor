@@ -705,7 +705,7 @@ internal partial class DocumentViewModel
         Dictionary<Guid, int> idMap, Dictionary<Guid, int> keyFrameIds)
     {
         IReadOnlyChunkyImage image = rasterKeyFrame.GetTargetImage(graph.AllNodes);
-        var bounds = image.FindChunkAlignedMostUpToDateBounds();
+        var bounds = image?.FindChunkAlignedMostUpToDateBounds();
 
         DrawingSurface surface = null;
 

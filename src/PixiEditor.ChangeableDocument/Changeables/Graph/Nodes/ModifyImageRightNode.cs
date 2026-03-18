@@ -107,7 +107,7 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
             drawingPaint?.Shader?.Dispose();
             drawingPaint.Shader = builder.BuildShader();
         }
-        else
+        else if (drawingPaint.Shader != null)
         {
             drawingPaint.Shader = drawingPaint.Shader.WithUpdatedUniforms(builder.Uniforms);
         }
