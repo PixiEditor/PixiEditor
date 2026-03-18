@@ -94,18 +94,49 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
             
             await InstallRecursive(additionalContentProvider, productId, installedExtensions);
             
+            List<DiscoveredExtension> prevInstalledExtensions = new List<DiscoveredExtension>();
+            foreach (var loaded in ExtensionLoader.LoadedExtensions)
+            {
+                if (!installedExtensions.Any(x => x.Metadata.UniqueName == loaded.Metadata.UniqueName))
+                {
+                    prevInstalledExtensions.Add(new DiscoveredExtension
+                    {
+                        Metadata = loaded.Metadata,
+                        Disabled = !IsLoaded(loaded.Metadata.UniqueName),
+                        PackagePath = null,
+                    });
+                }
+            }
+            foreach (var unloaded in ExtensionLoader.UnloadedExtensionsMetadata)
+            {
+                if (!installedExtensions.Any(x => x.Metadata.UniqueName == unloaded.UniqueName))
+                {
+                    prevInstalledExtensions.Add(new DiscoveredExtension
+                    {
+                        Metadata = unloaded,
+                        Disabled = !IsLoaded(unloaded.UniqueName),
+                        PackagePath = null,
+                    });
+                }
+            }
+            
             List<DiscoveredExtension> sortedInstalledExtensions =
-                ExtensionDependencyResolver.ResolveDependencies(installedExtensions);
+                ExtensionDependencyResolver.ResolveDependencies(installedExtensions.Concat(prevInstalledExtensions).ToList());
             
             foreach (var ext in sortedInstalledExtensions)
             {
-                if (!ext.Disabled)
+                // Only load newly installed extensions
+                if (installedExtensions.Any(x => x.Metadata.UniqueName == ext.Metadata.UniqueName))
                 {
-                    Owner.ExtensionsSubViewModel.LoadExtensionAdHoc(ext.PackagePath);
-                }
-                else
-                {
-                    ExtensionLoader.UnloadedExtensionsMetadata.Add(ext.Metadata);
+                    if (!ext.Disabled)
+                    {
+                        Owner.ExtensionsSubViewModel.LoadExtensionAdHoc(ext.PackagePath);
+
+                    }
+                    else
+                    {
+                        ExtensionLoader.UnloadedExtensionsMetadata.Add(ext.Metadata);
+                    }
                 }
             }
             return installedExtensions

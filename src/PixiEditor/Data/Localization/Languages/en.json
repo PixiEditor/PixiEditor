@@ -1310,5 +1310,7 @@
   "EXTENSIONS_WINDOW_DEVELOPER": "Developer",
   "EXTENSIONS_WINDOW_PRICE": "Price",
   "EXTENSIONS_WINDOW_PURCHASE_BUTTON": "Purchase",
-  "EXTENSIONS_WINDOW_DEPENDENCIES_MISSING_TOOLTIP": "Dependencies missing"
+  "EXTENSIONS_WINDOW_DEPENDENCIES_MISSING_TOOLTIP": "Dependencies missing",
+  "EXTENSIONS_WINDOW_DISABLE_CONFIRMATION_TITLE": "Do you want to disable this extension?",
+  "EXTENSIONS_WINDOW_DISABLE_CONFIRMATION_MESSAGE": "{0} extension(s) depend on this. Are you sure you want to proceed?"
 }

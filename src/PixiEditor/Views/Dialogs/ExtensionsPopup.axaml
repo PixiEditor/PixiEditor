@@ -17,7 +17,7 @@
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="PixiEditor.Views.Dialogs.ExtensionsPopup"
         x:DataType="extensionManager:ExtensionManagerViewModel"
-        Title="EXTENSIONS_WINDOW_TITLE">
+        localization:Translator.Key="EXTENSIONS_WINDOW_TITLE">
     
     <Design.DataContext>
         <extensionManager:ExtensionManagerViewModel />

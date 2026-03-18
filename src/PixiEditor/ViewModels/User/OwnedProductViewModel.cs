@@ -2,6 +2,9 @@ using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PixiEditor.IdentityProvider;
+using PixiEditor.Models.Dialogs;
+using PixiEditor.UI.Common.Localization;
+using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.ViewModels.User;
 
@@ -70,13 +73,13 @@ public class OwnedProductViewModel : ObservableObject
 
     public IAsyncRelayCommand InstallCommand { get; }
     public IAsyncRelayCommand UninstallCommand { get; }
-    public IRelayCommand<bool> ToggleEnabledCommand { get; }
+    public IAsyncRelayCommand ToggleEnabledCommand { get; }
 
     public OwnedProductViewModel(ProductData productData, bool isInstalled, string? installedVersion, bool isEnabled,
         bool isLoaded,
         IAsyncRelayCommand<string> installContentCommand, IAsyncRelayCommand<string> uninstallContentCommand,
         IRelayCommand<string> enableContentCommand, IRelayCommand<string> disableContentCommand,
-        Func<string, bool> isInstalledFunc, Func<string, bool> areDependenciesLoadedFunc)
+        Func<string, bool> isInstalledFunc, Func<string, bool> areDependenciesLoadedFunc, Func<string, int> countLoadedDependenciesFunc)
     {
         ProductData = productData;
         IsInstalled = isInstalled;
@@ -134,8 +137,8 @@ public class OwnedProductViewModel : ObservableObject
             () => IsInstalled && !IsInstalling && !IsUninstalling
         );
 
-        ToggleEnabledCommand = new RelayCommand<bool>(
-                (isOn) =>
+        ToggleEnabledCommand = new AsyncRelayCommand<bool>(
+                async (isOn) =>
                 {
                     if (isOn)
                     {
@@ -149,6 +152,18 @@ public class OwnedProductViewModel : ObservableObject
                     }
                     else
                     {
+                        int dependentCount = countLoadedDependenciesFunc(ProductData.Id);
+                        if (dependentCount > 0)
+                        {
+                            string message = $"EXTENSIONS_WINDOW_DISABLE_CONFIRMATION_MESSAGE {dependentCount}";
+                            var result = await ConfirmationDialog.Show(new LocalizedString("EXTENSIONS_WINDOW_DISABLE_CONFIRMATION_MESSAGE", dependentCount), "EXTENSIONS_WINDOW_DISABLE_CONFIRMATION_TITLE");
+
+                            if (result != ConfirmationType.Yes)
+                            {
+                                IsEnabled = true;
+                                return;
+                            }
+                        }
                         IsEnabled = false;
                         disableContentCommand.Execute(ProductData.Id);
                     }

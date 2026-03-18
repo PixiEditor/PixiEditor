@@ -169,7 +169,7 @@ internal class ExtensionManagerViewModel : ViewModelBase
 
                 OwnedExtensions.Add(new OwnedProductViewModel(extension, isInstalled, installedVersion, isEnabled,
                     isLoaded, InstallAndLoadExtensionCommand, UninstallExtensionCommand, EnableExtensionCommand,
-                    DisableExtensionCommand, IsInstalled, AreDependenciesLoaded));
+                    DisableExtensionCommand, IsInstalled, AreDependenciesLoaded, CountLoadedDependencies));
             }
         }
 
@@ -199,7 +199,7 @@ internal class ExtensionManagerViewModel : ViewModelBase
             bool isEnabled = IsLoaded(extensionMetadata.UniqueName);
             bool isLoaded = IsLoaded(extensionMetadata.UniqueName);
                 
-            OwnedExtensions.Add(new OwnedProductViewModel(productData, isInstalled, extensionMetadata.Version, isEnabled, isLoaded, InstallAndLoadExtensionCommand, UninstallExtensionCommand, EnableExtensionCommand, DisableExtensionCommand, IsInstalled, AreDependenciesLoaded));
+            OwnedExtensions.Add(new OwnedProductViewModel(productData, isInstalled, extensionMetadata.Version, isEnabled, isLoaded, InstallAndLoadExtensionCommand, UninstallExtensionCommand, EnableExtensionCommand, DisableExtensionCommand, IsInstalled, AreDependenciesLoaded, CountLoadedDependencies));
         }
     }
     
@@ -252,7 +252,8 @@ internal class ExtensionManagerViewModel : ViewModelBase
         }
         
         List<string> installedExtensionsIds = await extensionsViewModel.InstallAndLoadExtensionWithDependencies(contentProvider,  extensionId);
-        await RefreshInstalledExtensions(installedExtensionsIds);
+        await RefreshInstalledExtensions(installedExtensionsIds); 
+        RefreshDependenciesState();
     }
     
     public bool CanUninstallExtension(string extensionId)
@@ -319,6 +320,7 @@ internal class ExtensionManagerViewModel : ViewModelBase
         }
         
         extensionsViewModel.EnableExtension(extensionId);
+        RefreshDependenciesState();
     }
     
     public bool CanDisableExtension(string extensionId)
@@ -425,5 +427,39 @@ internal class ExtensionManagerViewModel : ViewModelBase
                 owned.ToggleEnabledCommand.NotifyCanExecuteChanged();
             }
         }
+    }
+    
+    public void RefreshDependenciesState()
+    {
+        foreach (var ext in OwnedExtensions)
+        {
+            ext.CanBeEnabled = AreDependenciesLoaded(ext.ProductData.Id);
+            
+            ext.ToggleEnabledCommand.NotifyCanExecuteChanged();
+        }
+    }
+
+    public int CountLoadedDependencies(string extensionId)
+    {
+        var extensionMetadata = extensionsViewModel.ExtensionLoader.UnloadedExtensionsMetadata
+            .FirstOrDefault(e => e.UniqueName == extensionId);
+        
+        if (extensionMetadata == null)
+        {
+            extensionMetadata = extensionsViewModel.ExtensionLoader.LoadedExtensions
+                .Select(e => e.Metadata)
+                .FirstOrDefault(e => e.UniqueName == extensionId);
+        }
+
+        int result = 0;
+        foreach (var dep in extensionMetadata.Dependencies)
+        {
+            if (IsLoaded(dep))
+            {
+                result += 1;
+            }
+        }
+
+        return result;
     }
 }
