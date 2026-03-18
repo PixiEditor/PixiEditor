@@ -71,6 +71,8 @@ internal class BrushLibrary
         {
             try
             {
+                if (brushes.Any(x => x.Value.FilePath == e.FullPath)) return;
+                
                 var doc = Importer.ImportDocument(e.FullPath, false);
 
                 var brush = LoadBrush(e.FullPath, doc, "LOCAL");
