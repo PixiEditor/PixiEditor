@@ -1,4 +1,5 @@
-﻿using Avalonia;
+﻿using System.Linq;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
@@ -139,7 +140,7 @@ internal partial class FolderControl : UserControl
         if (placement is StructureMemberPlacement.Below or StructureMemberPlacement.BelowOutsideFolder
             or StructureMemberPlacement.Inside)
         {
-            droppedGuids = droppedGuids.Reverse().ToArray();
+            Array.Reverse(droppedGuids);
         }
 
         using var block = document.Operations.StartChangeBlock();

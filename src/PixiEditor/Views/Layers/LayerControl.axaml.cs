@@ -1,4 +1,5 @@
-﻿using System.Windows.Input;
+﻿using System.Linq;
+using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -178,7 +179,7 @@ internal partial class LayerControl : UserControl
 
         if (placement is StructureMemberPlacement.Below or StructureMemberPlacement.BelowOutsideFolder)
         {
-            droppedMemberGuids = droppedMemberGuids.Reverse().ToArray();
+            Array.Reverse(droppedMemberGuids);
         }
 
         var document = Layer.Document;
