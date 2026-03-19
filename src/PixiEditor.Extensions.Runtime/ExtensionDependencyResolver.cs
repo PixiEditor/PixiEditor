@@ -43,7 +43,7 @@ public static class ExtensionDependencyResolver
 
         visiting.Add(ext.Metadata.UniqueName);
 
-        foreach (var dep in ext.Metadata.Dependencies ?? [])
+        foreach (var dep in ext.Metadata.DependsOn ?? [])
         {
             if (!map.TryGetValue(dep, out var dependency))
             {

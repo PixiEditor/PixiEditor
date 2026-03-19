@@ -21,6 +21,10 @@ internal class AvailableContentViewModel : ObservableObject
     {
         get
         {
+            if (AvailableContent.Price == 0)
+            {
+                return "FREE";
+            }
             if (IsCountryUnsupported)
                 return "Unavailable in your country";
             
@@ -38,10 +42,8 @@ internal class AvailableContentViewModel : ObservableObject
             {
                 return $"{((price / Rate) * 1.04m):0.00} {Currency}";
             }
-            else
-            {
-                return $"{price:0.00} {Currency}";
-            }
+
+            return $"{price:0.00} {Currency}";
         }
     }
     
@@ -49,6 +51,7 @@ internal class AvailableContentViewModel : ObservableObject
     
     private decimal Rate { get; }
     private string Currency { get; }
+    public bool IsFree => AvailableContent.Price == 0;
 
     public AvailableContentViewModel(AvailableContent content, ExtensionManagerViewModel extensionManager, decimal rate, string currency)
     {

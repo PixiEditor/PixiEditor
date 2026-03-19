@@ -170,7 +170,7 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
 
         if (metadata != null)
         {
-            foreach (var dep in metadata.Dependencies)
+            foreach (var dep in metadata.DependsOn)
             {
                 await InstallRecursive(provider, dep, installedExtensions);
             }

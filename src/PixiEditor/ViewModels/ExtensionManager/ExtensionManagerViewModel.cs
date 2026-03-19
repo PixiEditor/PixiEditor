@@ -12,8 +12,10 @@ using PixiEditor.IdentityProvider.PixiAuth;
 using PixiEditor.Models.Commands.XAML;
 using PixiEditor.Models.ExternalServices;
 using PixiEditor.OperatingSystem;
+using PixiEditor.PixiAuth.Exceptions;
 using PixiEditor.PixiAuth.Models;
 using PixiEditor.Platform;
+using PixiEditor.Platform.Standalone;
 using PixiEditor.ViewModels.SubViewModels;
 using PixiEditor.ViewModels.User;
 
@@ -23,29 +25,31 @@ internal class ExtensionManagerViewModel : ViewModelBase
 {
     public ObservableCollection<AvailableContentViewModel> AvailableExtensions { get; } =
         new ObservableCollection<AvailableContentViewModel>();
-    
+
     // TODO: refactor to LibraryExtensions - it's made from owned and custom installed
     public ObservableCollection<OwnedProductViewModel> OwnedExtensions { get; } =
         new ObservableCollection<OwnedProductViewModel>();
-    
+
+    public AsyncRelayCommand<string> AddToLibraryCommand { get; }
     public AsyncRelayCommand<string> InstallAndLoadExtensionCommand { get; }
     public AsyncRelayCommand<string> UninstallExtensionCommand { get; }
     public RelayCommand<string> EnableExtensionCommand { get; }
     public RelayCommand<string> DisableExtensionCommand { get; }
-    
+
     public RelayCommand BackToListCommand { get; }
     public RelayCommand<AvailableContentViewModel> SelectExtensionCommand { get; }
-    
+
     public AsyncRelayCommand<string> OpenPurchaseLinkCommand { get; }
-    
+
     public ObservableCollection<ExtensionsTab> Tabs { get; } =
         new ObservableCollection<ExtensionsTab>
         {
-            new ExtensionsTab("All","EXTENSIONS_WINDOW_TAB_ALL"),
+            new ExtensionsTab("All", "EXTENSIONS_WINDOW_TAB_ALL"),
             new ExtensionsTab("Owned", "EXTENSIONS_WINDOW_TAB_OWNED")
         };
-    
+
     private ExtensionsTab selectedTab;
+
     public ExtensionsTab SelectedTab
     {
         get => selectedTab;
@@ -58,11 +62,12 @@ internal class ExtensionManagerViewModel : ViewModelBase
             }
         }
     }
-    
+
     public bool ShowAllTab => SelectedTab != null && SelectedTab.Id == "All";
     public bool ShowOwnedTab => SelectedTab != null && SelectedTab.Id == "Owned";
-    
+
     private AvailableContentViewModel? selectedAvailableExtension;
+
     public AvailableContentViewModel? SelectedAvailableExtension
     {
         get => selectedAvailableExtension;
@@ -75,39 +80,57 @@ internal class ExtensionManagerViewModel : ViewModelBase
             }
         }
     }
-    
+
+    public string ErrorMessage
+    {
+        get => errorMessage;
+        set => SetProperty(ref errorMessage, value);
+    }
+
     public bool IsDetailsVisible => SelectedAvailableExtension != null;
     public bool IsListVisible => SelectedAvailableExtension == null;
-    
+
     private ExtensionsViewModel extensionsViewModel;
     private IAdditionalContentProvider contentProvider;
     private IIdentityProvider identityProvider;
 
+    private string errorMessage;
+
     public bool IsUserLoggedIn => identityProvider.User != null && identityProvider.User.IsLoggedIn;
-    
+
     public bool ShouldUpdateUserOwnedProducts = false;
-    
-    public ExtensionManagerViewModel(ExtensionsViewModel extensionsViewModel, IAdditionalContentProvider contentProvider, IIdentityProvider identityProvider)
+
+    public ExtensionManagerViewModel(ExtensionsViewModel extensionsViewModel,
+        IAdditionalContentProvider contentProvider, IIdentityProvider identityProvider)
     {
         this.extensionsViewModel = extensionsViewModel;
         this.contentProvider = contentProvider;
         this.identityProvider = identityProvider;
-        
-        InstallAndLoadExtensionCommand = new AsyncRelayCommand<string>(InstallAndLoadExtension, CanInstallAndLoadExtension);
+
+        InstallAndLoadExtensionCommand =
+            new AsyncRelayCommand<string>(InstallAndLoadExtension, CanInstallAndLoadExtension);
         UninstallExtensionCommand = new AsyncRelayCommand<string>(UninstallExtension, CanUninstallExtension);
         EnableExtensionCommand = new RelayCommand<string>(EnableExtension, CanEnableExtension);
         DisableExtensionCommand = new RelayCommand<string>(DisableExtension, CanDisableExtension);
-        
+        AddToLibraryCommand = new AsyncRelayCommand<string>(AddToLibrary, CanAddToLibrary);
+
         BackToListCommand = new RelayCommand(BackToList);
         SelectExtensionCommand = new RelayCommand<AvailableContentViewModel>(SelectExtension);
-        
+
         OpenPurchaseLinkCommand = new AsyncRelayCommand<string>(OpenPurchaseLink);
-        
+
         SelectedTab = Tabs.FirstOrDefault(tab => tab.Id == "All");
-        
+
         OnPropertyChanged(nameof(IsUserLoggedIn));
-        identityProvider.OnLoggedIn += _ => UpdateLoginState();
-        identityProvider.LoggedOut += () => UpdateLoginState();
+        identityProvider.OnLoggedIn += _ =>
+        {
+            Dispatcher.UIThread.InvokeAsync(async () => await (identityProvider as PixiAuthIdentityProvider)?.RefreshOwnedProducts());
+            UpdateOwnedStates();
+        };
+        identityProvider.LoggedOut += () =>
+        {
+            UpdateOwnedStates();
+        };
         identityProvider.OwnedProductsUpdated += _ => UpdateOwnedExtensions();
     }
 
@@ -115,26 +138,26 @@ internal class ExtensionManagerViewModel : ViewModelBase
     {
         AvailableExtensions.Clear();
         var availableExtensions = await contentProvider.FetchAvailableExtensions();
-        
+
         decimal rate = 1m;
         if (PixiEditorSettings.Extensions.DisplayedCurrency?.Value == null)
         {
             await SetUserCurrencyFromLocation();
         }
-        
+
         string selectedCurrency = PixiEditorSettings.Extensions.DisplayedCurrency.Value;
         if (selectedCurrency != "PLN")
         {
             var fetchedRate = await NbpFetcher.FetchExchangeRate(selectedCurrency);
             rate = fetchedRate ?? 1m;
         }
-        
+
         foreach (var extension in availableExtensions)
         {
             AvailableExtensions.Add(new AvailableContentViewModel(extension, this, rate, selectedCurrency));
         }
     }
-    
+
     public void FetchOwnedExtensions()
     {
         OwnedExtensions.Clear();
@@ -178,8 +201,9 @@ internal class ExtensionManagerViewModel : ViewModelBase
         {
             AddToOwnedExtensionsIfMissing(loadedExtension.Metadata);
         }
-        
-        foreach (ExtensionMetadata unloadedExtensionMetadata in extensionsViewModel.ExtensionLoader.UnloadedExtensionsMetadata)
+
+        foreach (ExtensionMetadata unloadedExtensionMetadata in extensionsViewModel.ExtensionLoader
+                     .UnloadedExtensionsMetadata)
         {
             AddToOwnedExtensionsIfMissing(unloadedExtensionMetadata);
         }
@@ -191,18 +215,20 @@ internal class ExtensionManagerViewModel : ViewModelBase
 
         if (!owned)
         {
-            ProductData productData = new ProductData(extensionMetadata.UniqueName,extensionMetadata.DisplayName);
+            ProductData productData = new ProductData(extensionMetadata.UniqueName, extensionMetadata.DisplayName);
             productData.Author = extensionMetadata.Author.Name;
             productData.Description = extensionMetadata.Description;
-                
+
             bool isInstalled = IsInstalled(extensionMetadata.UniqueName);
             bool isEnabled = IsLoaded(extensionMetadata.UniqueName);
             bool isLoaded = IsLoaded(extensionMetadata.UniqueName);
-                
-            OwnedExtensions.Add(new OwnedProductViewModel(productData, isInstalled, extensionMetadata.Version, isEnabled, isLoaded, InstallAndLoadExtensionCommand, UninstallExtensionCommand, EnableExtensionCommand, DisableExtensionCommand, IsInstalled, AreDependenciesLoaded, CountLoadedDependencies));
+
+            OwnedExtensions.Add(new OwnedProductViewModel(productData, isInstalled, extensionMetadata.Version,
+                isEnabled, isLoaded, InstallAndLoadExtensionCommand, UninstallExtensionCommand, EnableExtensionCommand,
+                DisableExtensionCommand, IsInstalled, AreDependenciesLoaded, CountLoadedDependencies));
         }
     }
-    
+
     public bool IsExtensionOwned(string productId)
     {
         if (identityProvider.User != null)
@@ -210,15 +236,15 @@ internal class ExtensionManagerViewModel : ViewModelBase
             return identityProvider.User.OwnedProducts
                 .Any(p => p.Id == productId);
         }
-        
+
         return false;
     }
-    
+
     public bool CanInstallAndLoadExtension(string extensionId)
     {
         return !IsInstalled(extensionId) || UpdateAvailable(extensionId);
     }
-    
+
     private bool UpdateAvailable(string extensionId)
     {
         ProductData product = identityProvider.User.OwnedProducts
@@ -232,7 +258,7 @@ internal class ExtensionManagerViewModel : ViewModelBase
         return extensionsViewModel.ExtensionLoader.LoadedExtensions
             .FirstOrDefault(x => x.Metadata.UniqueName == extensionId)?.Metadata.Version != product.LatestVersion;
     }
-    
+
     private bool IsInstalled(string extensionId)
     {
         if (contentProvider.IsInstalled(extensionId))
@@ -243,24 +269,25 @@ internal class ExtensionManagerViewModel : ViewModelBase
         return extensionsViewModel.ExtensionLoader.LoadedExtensions.Any(x =>
             x.Metadata.UniqueName == extensionId);
     }
-    
+
     public async Task InstallAndLoadExtension(string extensionId)
     {
         if (string.IsNullOrEmpty(extensionId))
         {
             return;
         }
-        
-        List<string> installedExtensionsIds = await extensionsViewModel.InstallAndLoadExtensionWithDependencies(contentProvider,  extensionId);
-        await RefreshInstalledExtensions(installedExtensionsIds); 
+
+        List<string> installedExtensionsIds =
+            await extensionsViewModel.InstallAndLoadExtensionWithDependencies(contentProvider, extensionId);
+        await RefreshInstalledExtensions(installedExtensionsIds);
         RefreshDependenciesState();
     }
-    
+
     public bool CanUninstallExtension(string extensionId)
     {
         return IsInstalled(extensionId);
     }
-    
+
     public async Task UninstallExtension(string extensionId)
     {
         if (string.IsNullOrEmpty(extensionId))
@@ -270,17 +297,59 @@ internal class ExtensionManagerViewModel : ViewModelBase
 
         await extensionsViewModel.UninstallExtension(extensionId);
     }
-    
+
+    public async Task AddToLibrary(string extensionId)
+    {
+        if (string.IsNullOrEmpty(extensionId))
+        {
+            return;
+        }
+
+        try
+        {
+            var provider = (identityProvider as PixiAuthIdentityProvider);
+            if (provider == null)
+            {
+                ErrorMessage = "Identity Provider is not available. Are you using an official PixiEditor build?";
+                return;
+            }
+
+            if (!provider.IsLoggedIn)
+            {
+                ErrorMessage = "LOGIN_REQUIRED";
+                return;
+            }
+
+            await provider.PixiAuthClient.AddProductToLibrary(extensionId, provider.User.SessionToken);
+            await provider.RefreshOwnedProducts();
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+    }
+
     private bool IsLoaded(string extensionId)
     {
         return extensionsViewModel.IsLoaded(extensionId);
     }
-    
+
+    private bool CanAddToLibrary(string extensionId)
+    {
+        return !IsExtensionOwned(extensionId) && IsFree(extensionId);
+    }
+
+    private bool IsFree(string extensionId)
+    {
+        var extension = AvailableExtensions.FirstOrDefault(e => e.AvailableContent.Id == extensionId);
+        return extension is { IsFree: true };
+    }
+
     private bool AreDependenciesLoaded(string extensionId)
     {
         var extensionMetadata = extensionsViewModel.ExtensionLoader.UnloadedExtensionsMetadata
             .FirstOrDefault(e => e.UniqueName == extensionId);
-        
+
         if (extensionMetadata == null)
         {
             extensionMetadata = extensionsViewModel.ExtensionLoader.LoadedExtensions
@@ -291,7 +360,7 @@ internal class ExtensionManagerViewModel : ViewModelBase
         if (extensionMetadata == null)
             return false;
 
-        var dependencies = extensionMetadata.Dependencies;
+        var dependencies = extensionMetadata.DependsOn;
         if (dependencies.Count == 0)
             return true;
 
@@ -306,28 +375,28 @@ internal class ExtensionManagerViewModel : ViewModelBase
 
         return true;
     }
-    
+
     public bool CanEnableExtension(string extensionId)
     {
         return IsInstalled(extensionId) && AreDependenciesLoaded(extensionId);
     }
-    
+
     public void EnableExtension(string extensionId)
     {
         if (string.IsNullOrEmpty(extensionId))
         {
             return;
         }
-        
+
         extensionsViewModel.EnableExtension(extensionId);
         RefreshDependenciesState();
     }
-    
+
     public bool CanDisableExtension(string extensionId)
     {
         return IsInstalled(extensionId);
     }
-    
+
     public void DisableExtension(string extensionId)
     {
         if (string.IsNullOrEmpty(extensionId))
@@ -337,7 +406,7 @@ internal class ExtensionManagerViewModel : ViewModelBase
 
         extensionsViewModel.DisableExtension(extensionId);
     }
-    
+
     private void BackToList()
     {
         SelectedAvailableExtension = null;
@@ -358,7 +427,9 @@ internal class ExtensionManagerViewModel : ViewModelBase
             if (identityProvider.User is PixiUser pixiUser)
             {
                 Guid? sessionId = pixiUser.SessionId;
-                string url = pixiAuthIdentityProvider.PixiAuthClient.GetCreateCheckoutSessionFromSessionIdUrl(sessionId, extensionId);
+                string url =
+                    pixiAuthIdentityProvider.PixiAuthClient.GetCreateCheckoutSessionFromSessionIdUrl(sessionId,
+                        extensionId);
                 IOperatingSystem.Current.OpenUri(url);
                 ShouldUpdateUserOwnedProducts = true;
             }
@@ -379,8 +450,8 @@ internal class ExtensionManagerViewModel : ViewModelBase
         string currency = await GeoFetcher.GetUserCurrency();
         PixiEditorSettings.Extensions.DisplayedCurrency.Value = currency;
     }
-    
-    private void UpdateLoginState()
+
+    private void UpdateOwnedStates()
     {
         Dispatcher.UIThread.Post(() =>
         {
@@ -395,19 +466,24 @@ internal class ExtensionManagerViewModel : ViewModelBase
                 OwnedExtensions.Clear();
                 SelectedAvailableExtension = null;
             }
+
+            foreach (var ext in AvailableExtensions)
+            {
+                ext.NotifyChanged();
+            }
         });
     }
 
     private void UpdateOwnedExtensions()
     {
         FetchOwnedExtensions();
-        
+
         foreach (var ext in AvailableExtensions)
         {
             ext.NotifyChanged();
         }
     }
-    
+
     public async Task RefreshInstalledExtensions(List<string> installedExtensionIds)
     {
         var userDisabled = PixiEditorSettings.Extensions.DisabledExtensions.Value.ToList();
@@ -419,22 +495,22 @@ internal class ExtensionManagerViewModel : ViewModelBase
                 owned.IsInstalled = IsInstalled(extId);
                 owned.IsLoaded = IsLoaded(extId);
                 owned.IsEnabled = IsLoaded(extId) && !userDisabled.Contains(extId);
-                
+
                 owned.CanBeEnabled = AreDependenciesLoaded(extId);
-                
+
                 owned.InstallCommand.NotifyCanExecuteChanged();
                 owned.UninstallCommand.NotifyCanExecuteChanged();
                 owned.ToggleEnabledCommand.NotifyCanExecuteChanged();
             }
         }
     }
-    
+
     public void RefreshDependenciesState()
     {
         foreach (var ext in OwnedExtensions)
         {
             ext.CanBeEnabled = AreDependenciesLoaded(ext.ProductData.Id);
-            
+
             ext.ToggleEnabledCommand.NotifyCanExecuteChanged();
         }
     }
@@ -443,7 +519,7 @@ internal class ExtensionManagerViewModel : ViewModelBase
     {
         var extensionMetadata = extensionsViewModel.ExtensionLoader.UnloadedExtensionsMetadata
             .FirstOrDefault(e => e.UniqueName == extensionId);
-        
+
         if (extensionMetadata == null)
         {
             extensionMetadata = extensionsViewModel.ExtensionLoader.LoadedExtensions
@@ -452,7 +528,7 @@ internal class ExtensionManagerViewModel : ViewModelBase
         }
 
         int result = 0;
-        foreach (var dep in extensionMetadata.Dependencies)
+        foreach (var dep in extensionMetadata.DependsOn)
         {
             if (IsLoaded(dep))
             {

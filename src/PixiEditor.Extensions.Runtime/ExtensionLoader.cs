@@ -1,11 +1,7 @@
 ﻿using System.IO.Compression;
 using System.Reflection;
-using System.Runtime.InteropServices;
-using Avalonia.Input;
-using Newtonsoft.Json;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using PixiEditor.Extensions.Metadata;
 using PixiEditor.Extensions.WasmRuntime;
 using PixiEditor.Platform;
@@ -75,6 +71,12 @@ public class ExtensionLoader : IExtensionListProvider
                     continue;
 
                 var metadata = LoadMetadataFromCache(json);
+
+                if (discoveredExtensions.Any(x => x.Metadata.UniqueName == metadata.UniqueName))
+                {
+                    Console.WriteLine($"Duplicate extension {metadata.UniqueName} in {file}, skipping.");
+                    continue;
+                }
 
                 discoveredExtensions.Add(new DiscoveredExtension
                 {
@@ -257,7 +259,7 @@ public class ExtensionLoader : IExtensionListProvider
             extension.Unload();
         }
         
-        LoadedExtensions.Remove(extension);
+        loaded.Remove(extension);
         
         foreach (var package in  PackagesPath) 
         {
@@ -409,7 +411,7 @@ public class ExtensionLoader : IExtensionListProvider
         try
         {
             string json = File.ReadAllText(extensionJson);
-            var metadata = JsonConvert.DeserializeObject<ExtensionMetadata>(json);
+            var metadata = JsonSerializer.Deserialize<ExtensionMetadata>(json, JsonOptions);
             
             return metadata;
         }

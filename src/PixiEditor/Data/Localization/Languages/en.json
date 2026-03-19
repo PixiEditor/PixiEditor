@@ -1017,7 +1017,7 @@
   "GRAPH_STATE_UNABLE_TO_CREATE_MEMBER": "Current Node Graph setup disallows creation of a new layer next to the selected one.",
   "PRIMARY_TOOLSET": "Primary Toolset",
   "OPEN_ONBOARDING_WINDOW": "Open onboarding window",
-  "USER_NOT_FOUND": "Please enter the email you used to purchase the Founder's Edition.",
+  "USER_NOT_FOUND_INFO": "User not found",
   "SESSION_NOT_VALID": "Session is not valid, please log in again",
   "SESSION_NOT_FOUND": "Session not found, try logging in again",
   "INTERNAL_SERVER_ERROR": "There was an internal server error. Please try again later.",
@@ -1056,7 +1056,6 @@
   "FOUNDERS_BUNDLE_SUBTEXT": "Support PixiEditor and boost your productivity!",
   "BECOME_A_FOUNDER": "Become a Founder",
   "LOGIN": "Login",
-  "NOT_FOUNDER_YET": "Not a Founder yet?",
   "ERROR_GRAPH": "Graph setup produced an error. Fix it in the node graph",
   "COLOR_MATRIX_FILTER_NODE": "Color Matrix Filter",
   "WORKSPACE": "Workspace",
@@ -1377,5 +1376,15 @@
   "TARGET_SAMPLE_TEXTURE_POS": "Sample Position",
   "EXTENSION": "Extension",
   "GRADIENT_TOOL_TOOLTIP": "Create and edit gradients ({0}).",
-  "DISALLOW_AUTO_SCALING": "Disallow auto scaling"
+  "DISALLOW_AUTO_SCALING": "Disallow auto scaling",
+  "AGREE_TERMS": "I agree to the",
+  "TERMS_OF_SERVICE": "Terms of Service",
+  "AND": "and",
+  "AGREEMENT_TO_TERMS_REQUIRED": "You must agree to the Terms of Service to proceed.",
+  "REGISTER": "Register",
+  "REGISTER_INSTEAD": "Don't have an account? Register instead",
+  "LOGIN_INSTEAD": "Already have an account? Login instead",
+  "FREE": "Free",
+  "ADD_TO_LIBRARY": "Add to Library",
+  "LOGIN_REQUIRED": "You need to be logged in to perform this action."
 }

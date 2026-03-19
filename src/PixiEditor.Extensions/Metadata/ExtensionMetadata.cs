@@ -8,7 +8,7 @@ public class ExtensionMetadata
     public string UniqueName { get; init; }
     public string DisplayName { get; init; }
     public string Description { get; init; }
-    public List<string> Dependencies { get; set; } = new();
+    public List<string> DependsOn { get; set; } = new();
     public Author? Author { get; init; }
     public Author? Publisher { get; init; }
     public Author[]? Contributors { get; init; }
