@@ -62,7 +62,10 @@ public class TileNode : RenderNode
         if (paint == null)
             return;
 
+        int saved = surface.Save();
+        surface.Scale((float)context.ChunkResolution.InvertedMultiplier());
         surface.DrawRect(0, 0, context.RenderOutputSize.X, context.RenderOutputSize.Y, paint);
+        surface.RestoreToCount(saved);
     }
 
     public override Node CreateCopy()

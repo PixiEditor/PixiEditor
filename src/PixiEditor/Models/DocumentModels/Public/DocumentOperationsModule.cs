@@ -954,14 +954,27 @@ internal class DocumentOperationsModule : IDocumentOperations
             new SetSelection_Action(inverse.Op(selection, VectorPathOp.Difference)));
     }
 
-    public void Rasterize(Guid memberId)
+    public Guid? Rasterize(Guid memberId, ActionSource source = ActionSource.User)
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
-            return;
+            return null;
 
         Internals.ChangeController.TryStopActiveExecutor();
 
-        Internals.ActionAccumulator.AddFinishedActions(new RasterizeMember_Action(memberId, Document.AnimationHandler.ActiveFrameBindable));
+        Guid newGuid = Guid.NewGuid();
+        if (source == ActionSource.Automated)
+        {
+            Internals.ActionAccumulator.AddActions(source,
+                new RasterizeMember_Action(memberId, newGuid, Document.AnimationHandler.ActiveFrameBindable));
+        }
+        else
+        {
+            Internals.ActionAccumulator.AddFinishedActions(new RasterizeMember_Action(memberId,
+                newGuid,
+                Document.AnimationHandler.ActiveFrameBindable));
+        }
+
+        return newGuid;
     }
 
     public void InvokeCustomAction(Action action, bool stopActiveExecutor = true)
@@ -1103,7 +1116,8 @@ internal class DocumentOperationsModule : IDocumentOperations
 
         Internals.ChangeController.TryStopActiveExecutor();
 
-        Internals.ActionAccumulator.AddFinishedActions(new UpdatePropertyValue_Action(guid, propertyName, value), new EndUpdatePropertyValue_Action());
+        Internals.ActionAccumulator.AddFinishedActions(new UpdatePropertyValue_Action(guid, propertyName, value),
+            new EndUpdatePropertyValue_Action());
     }
 
     public void RecordFrame()
@@ -1140,7 +1154,11 @@ internal class DocumentOperationsModule : IDocumentOperations
                 return;
             }
 
-            Internals.ActionAccumulator.AddActions(new UpdatePropertyValue_Action(nestedDocId.Value, NestedDocumentNode.DocumentPropertyName, new DocumentReference(null, referenceId, embedded.AccessInternalReadOnlyDocument())), new EndUpdatePropertyValue_Action());
+            Internals.ActionAccumulator.AddActions(
+                new UpdatePropertyValue_Action(nestedDocId.Value, NestedDocumentNode.DocumentPropertyName,
+                    new DocumentReference(null, referenceId, embedded.AccessInternalReadOnlyDocument())),
+                new EndUpdatePropertyValue_Action());
+            embedded.Operations.SetFrameRate(Document.AnimationHandler.FrameRateBindable);
             MoveStructureMember(nestedDocId.Value, memberId, StructureMemberPlacement.Above);
             if (nestedDocId.HasValue)
             {
@@ -1149,6 +1167,16 @@ internal class DocumentOperationsModule : IDocumentOperations
 
             DeleteStructureMember(memberId);
         });
+    }
+
+    public void SetFrameRate(int newFrameRate)
+    {
+        if (Internals.ChangeController.IsBlockingChangeActive)
+            return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+
+        Internals.ActionAccumulator.AddFinishedActions(new SetFrameRate_Action(newFrameRate));
     }
 
     private void ReconnectProperties(IStructureMemberHandler from, Guid to)
@@ -1178,5 +1206,15 @@ internal class DocumentOperationsModule : IDocumentOperations
                         output.PropertyName));
             }
         }
+    }
+
+    public void ResetTransform(Guid member)
+    {
+        if (Internals.ChangeController.IsBlockingChangeActive)
+            return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+
+        Internals.ActionAccumulator.AddFinishedActions(new ResetTransform_Action(member));
     }
 }

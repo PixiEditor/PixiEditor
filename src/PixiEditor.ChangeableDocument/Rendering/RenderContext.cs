@@ -17,9 +17,9 @@ public class RenderContext
     public int CloneDepth { get; protected init; } = 0;
     public double Opacity { get; set; }
 
-    public KeyFrameTime FrameTime { get; }
+    public KeyFrameTime FrameTime { get; set; }
     public ChunkResolution ChunkResolution { get; set; }
-    public RectI? VisibleDocumentRegion { get; set; } = null;
+    public RectD? VisibleDocumentRegion { get; set; } = null;
     public SamplingOptions DesiredSamplingOptions { get; set; } = SamplingOptions.Default;
     public VecI RenderOutputSize { get; set; }
 
@@ -35,6 +35,17 @@ public class RenderContext
     public AffectedArea AffectedArea { get; set; }
     public Dictionary<Guid, List<PreviewRenderRequest>>? PreviewTextures { get; set; }
     public IReadOnlyNodeGraph Graph { get; set; }
+
+    public static RenderContext Empty { get; } = new RenderContext(
+        null,
+        new KeyFrameTime(),
+        ChunkResolution.Full,
+        new VecI(1, 1),
+        new VecI(1, 1),
+        ColorSpace.CreateSrgb(),
+        SamplingOptions.Default,
+        new NodeGraph());
+
 
     public RenderContext(Canvas renderSurface, KeyFrameTime frameTime, ChunkResolution chunkResolution,
         VecI renderOutputSize, VecI documentSize, ColorSpace processingColorSpace, SamplingOptions desiredSampling, IReadOnlyNodeGraph graph, double opacity = 1)

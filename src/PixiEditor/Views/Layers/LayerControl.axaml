@@ -234,6 +234,9 @@
                           Command="{Binding $parent[UserControl].Layer.RelinkWithDialogCommand}" />
                 <MenuItem ui:Translator.Key="TO_SMART_LAYER" Command="{xaml:Command PixiEditor.Layer.CreateNestedFromLayer, UseProvided=True}"
                           CommandParameter="{Binding $parent[UserControl].Layer.Id}" />
+                <Separator />
+                <MenuItem ui:Translator.Key="RESET_TRANSFORM" Command="{xaml:Command PixiEditor.Layer.ResetTransformForMember, UseProvided=True}"
+                          CommandParameter="{Binding $parent[UserControl].Layer.Id}" />
             </ContextMenu>
         </Border.ContextMenu>
     </Border>

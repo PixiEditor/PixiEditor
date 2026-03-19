@@ -4,16 +4,21 @@ using System.Runtime.InteropServices;
 using Avalonia.Input;
 using Newtonsoft.Json;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using PixiEditor.Extensions.Metadata;
 using PixiEditor.Extensions.WasmRuntime;
 using PixiEditor.Platform;
 
 namespace PixiEditor.Extensions.Runtime;
 
-public class ExtensionLoader
+public class ExtensionLoader : IExtensionListProvider
 {
-    public List<Extension> LoadedExtensions { get; } = new();
     public List<ExtensionMetadata> UnloadedExtensionsMetadata { get; } = new();
+    private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
+
+    public IReadOnlyCollection<Extension> LoadedExtensions => loaded;
+    private List<Extension> loaded = new List<Extension>();
 
     public string[] PackagesPath { get; }
     public string UnpackedExtensionsPath { get; }
@@ -237,6 +242,9 @@ public class ExtensionLoader
         }
         catch (Exception ex)
         {
+#if DEBUG
+            throw;
+#endif
             return null;
         }
     }
@@ -309,10 +317,8 @@ public class ExtensionLoader
         }
 
         using var stream = metadataEntry.Open();
-        using var sr = new StreamReader(stream);
-        using var jsonTextReader = new JsonTextReader(sr);
-        var serializer = new JsonSerializer();
-        return serializer.Deserialize<ExtensionMetadata>(jsonTextReader);
+
+        return JsonSerializer.Deserialize<ExtensionMetadata>(stream, JsonOptions);
     }
 
     private bool IsDifferentThanCached(ExtensionMetadata metadata, string extension)
@@ -324,7 +330,7 @@ public class ExtensionLoader
         }
 
         string json = File.ReadAllText(extensionJson);
-        ExtensionMetadata? cachedMetadata = JsonConvert.DeserializeObject<ExtensionMetadata>(json);
+        ExtensionMetadata? cachedMetadata = JsonSerializer.Deserialize<ExtensionMetadata>(json, JsonOptions);
 
         if (cachedMetadata is null)
         {
@@ -353,7 +359,7 @@ public class ExtensionLoader
         return extensionWriteTime > unpackedWriteTime;
     }
 
-    private Extension LoadExtensionFromCache(string extension)
+    private Extension? LoadExtensionFromCache(string extension)
     {
         try
         {
@@ -416,8 +422,13 @@ public class ExtensionLoader
     private Extension LoadExtensionFrom(ExtensionEntry entry, ExtensionMetadata metadata)
     {
         var extension = LoadExtensionEntry(entry, metadata);
+        if (extension is null)
+        {
+            return null;
+        }
+
         extension.Load();
-        LoadedExtensions.Add(extension);
+        loaded.Add(extension);
         loadedExtensions.Add(metadata.UniqueName);
         ExtensionLoaded?.Invoke(metadata.UniqueName);
         return extension;
@@ -486,9 +497,14 @@ public class ExtensionLoader
         return IPlatform.Current.AdditionalContentProvider?.IsInstalled(fixedUniqueName) ?? false;
     }
 
-    private Extension LoadExtensionEntry(ExtensionEntry entry, ExtensionMetadata metadata)
+    private Extension? LoadExtensionEntry(ExtensionEntry entry, ExtensionMetadata metadata)
     {
         Extension extension = entry.CreateExtension();
+        if (extension is null)
+        {
+            return null;
+        }
+
         extension.ProvideMetadata(metadata);
         return extension;
     }

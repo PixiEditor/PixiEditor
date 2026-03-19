@@ -52,6 +52,11 @@ public abstract class Node : IReadOnlyNode, IDisposable
     private ChunkResolution lastChunkResolution = ChunkResolution.Full;
 
     public bool IsDisposed => _isDisposed;
+    public event Action<Dictionary<string, object>> OnSerializeAdditionalData;
+    public event Action<IReadOnlyDictionary<string, object>, List<IChangeInfo>> OnDeserializeAdditionalData;
+
+    public event Action<Node> PropertiesChanged;
+
     private bool _isDisposed;
 
     private int lastContentCacheHash = -1;
@@ -362,6 +367,59 @@ public abstract class Node : IReadOnlyNode, IDisposable
         keyFrames.Add(value);
     }
 
+    protected void MoveInputProperty(InputProperty property, int newIndex)
+    {
+        if (!inputs.Contains(property))
+        {
+            throw new InvalidOperationException("Input property does not belong to this node.");
+        }
+
+        inputs.Remove(property);
+        inputs.Insert(newIndex, property);
+        PropertiesChanged?.Invoke(this);
+    }
+
+    protected SyncedTypeInputProperty CreateSyncedTypeInput(string internalName, string displayName,
+        SyncGroup? syncGroup, Type? defaultType = null)
+    {
+        SyncedTypeInputProperty prop = new SyncedTypeInputProperty(this, internalName, displayName, syncGroup, defaultType);
+        AddInputProperty(prop.InternalProperty);
+        int originalIndex = inputs.IndexOf(prop.InternalProperty);
+        prop.BeginListeningToConnectionChanges();
+
+        prop.BeforeTypeChange += () =>
+        {
+            RemoveInputProperty(prop.InternalProperty);
+        };
+        prop.AfterTypeChange += () =>
+        {
+            AddInputProperty(prop.InternalProperty, originalIndex);
+        };
+
+        syncGroup?.AddInput(prop);
+        return prop;
+    }
+
+    protected SyncedTypeOutputProperty CreateSyncedTypeOutput(string internalName, string displayName,
+        SyncGroup? syncGroup)
+    {
+        SyncedTypeOutputProperty prop = new SyncedTypeOutputProperty(this, internalName, displayName, syncGroup);
+        AddOutputProperty(prop.InternalProperty);
+
+        int originalIndex = outputs.IndexOf(prop.InternalProperty);
+        prop.BeforeTypeChange += () =>
+        {
+            RemoveOutputProperty(prop.InternalProperty);
+        };
+        prop.AfterTypeChange += () =>
+        {
+            AddOutputProperty(prop.InternalProperty, originalIndex);
+        };
+
+        syncGroup?.AddOutput(prop);
+        return prop;
+    }
+
     protected RenderOutputProperty? CreateRenderOutput(string internalName, string displayName,
         Func<Painter?>? nextInChain, Func<Painter?>? previous = null)
     {
@@ -392,6 +450,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
         property.ConnectionChanged += InvokeConnectionsChanged;
         inputs.Add(property);
+        PropertiesChanged?.Invoke(this);
         return property;
     }
 
@@ -405,6 +464,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
         property.ConnectionChanged += InvokeConnectionsChanged;
         inputs.Add(property);
+        PropertiesChanged?.Invoke(this);
         return property;
     }
 
@@ -413,6 +473,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
     {
         var property = new FuncOutputProperty<T>(this, propName, displayName, defaultFunc);
         outputs.Add(property);
+        PropertiesChanged?.Invoke(this);
         return property;
     }
 
@@ -420,6 +481,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
     {
         var property = new OutputProperty<T>(this, propName, displayName, defaultValue);
         outputs.Add(property);
+        PropertiesChanged?.Invoke(this);
         return property;
     }
 
@@ -428,20 +490,32 @@ public abstract class Node : IReadOnlyNode, IDisposable
         if (inputs.Remove(property))
         {
             property.ConnectionChanged -= InvokeConnectionsChanged;
+            PropertiesChanged?.Invoke(this);
         }
     }
 
 
     protected void RemoveOutputProperty(OutputProperty property)
     {
-        outputs.Remove(property);
-        OutputsChanged?.Invoke();
+        if (outputs.Remove(property))
+        {
+            OutputsChanged?.Invoke();
+            PropertiesChanged?.Invoke(this);
+        }
     }
 
     protected void AddOutputProperty(OutputProperty property)
     {
         outputs.Add(property);
         OutputsChanged?.Invoke();
+        PropertiesChanged?.Invoke(this);
+    }
+
+    protected void AddOutputProperty(OutputProperty property, int atIndex)
+    {
+        outputs.Insert(atIndex, property);
+        OutputsChanged?.Invoke();
+        PropertiesChanged?.Invoke(this);
     }
 
     protected void AddInputProperty(InputProperty property)
@@ -453,6 +527,20 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
         property.ConnectionChanged += InvokeConnectionsChanged;
         inputs.Add(property);
+        PropertiesChanged?.Invoke(this);
+    }
+
+    protected void AddInputProperty(InputProperty property, int atIndex)
+    {
+        if (InputProperties.Any(x => x.InternalPropertyName == property.InternalPropertyName))
+        {
+            throw new InvalidOperationException($"Input with name {property.InternalPropertyName} already exists.");
+        }
+
+        property.ConnectionChanged += InvokeConnectionsChanged;
+        int adjustedIndex = Math.Min(atIndex, inputs.Count);
+        inputs.Insert(adjustedIndex, property);
+        PropertiesChanged?.Invoke(this);
     }
 
     public virtual void Dispose()
@@ -527,6 +615,11 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
         for (var i = 0; i < clone.inputs.Count; i++)
         {
+            if(i >= inputs.Count)
+            {
+                break;
+            }
+
             var toClone = inputs[i];
             object value = CloneValue(toClone.NonOverridenValue, clone.inputs[i]);
             clone.inputs[i].NonOverridenValue = value;
@@ -589,11 +682,25 @@ public abstract class Node : IReadOnlyNode, IDisposable
         return GetOutputProperty(outputProperty);
     }
 
-    public virtual void SerializeAdditionalData(IReadOnlyDocument target, Dictionary<string, object> additionalData)
+    public void SerializeAdditionalData(IReadOnlyDocument target, Dictionary<string, object> additionalData)
+    {
+        SerializeAdditionalDataInternal(target, additionalData);
+        OnSerializeAdditionalData?.Invoke(additionalData);
+    }
+
+    public void DeserializeAdditionalData(IReadOnlyDocument target,
+        IReadOnlyDictionary<string, object> data, List<IChangeInfo> infos)
+    {
+        DeserializeAdditionalDataInternal(target, data, infos);
+        OnDeserializeAdditionalData?.Invoke(data, infos);
+    }
+
+    internal virtual void SerializeAdditionalDataInternal(IReadOnlyDocument target,
+        Dictionary<string, object> additionalData)
     {
     }
 
-    internal virtual void DeserializeAdditionalData(IReadOnlyDocument target,
+    internal virtual void DeserializeAdditionalDataInternal(IReadOnlyDocument target,
         IReadOnlyDictionary<string, object> data, List<IChangeInfo> infos)
     {
     }

@@ -6,6 +6,7 @@ internal interface IAnimationHandler : IDisposable
 {
     public IReadOnlyCollection<ICelHandler> KeyFrames { get; }
     public int ActiveFrameBindable { get; set; }
+    public int FrameRateBindable { get; set; }
     public KeyFrameTime ActiveFrameTime { get; }
     public bool OnionSkinningEnabledBindable { get; set; }
     public int OnionFramesBindable { get; set; }
@@ -28,4 +29,5 @@ internal interface IAnimationHandler : IDisposable
     public void SetOnionFrames(int frames, double opacity);
     public void SetPlayingState(bool play);
     public void SetDefaultEndFrame(int newEndFrame);
+    public void SetFallbackAnimationToLayerImage(bool enabled);
 }

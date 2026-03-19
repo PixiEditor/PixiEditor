@@ -22,13 +22,12 @@ public class NodeGraph : IReadOnlyNodeGraph
 
     private Dictionary<Guid, Node> nodeLookup = new();
 
-    public event Action<NodeOutputsChanged_ChangeInfo>? NodeOutputsChanged;
-
     IReadOnlyCollection<IReadOnlyNode> IReadOnlyNodeGraph.AllNodes => Nodes;
     IReadOnlyNode IReadOnlyNodeGraph.OutputNode => OutputNode;
     IReadOnlyBlackboard IReadOnlyNodeGraph.Blackboard => Blackboard;
 
     bool isExecuting = false;
+    private HashSet<Guid> currentlyListeningToPropertyChanges = new();
 
     public IReadOnlyNode LookupNode(Guid guid)
     {
@@ -43,8 +42,8 @@ public class NodeGraph : IReadOnlyNodeGraph
         }
 
         node.ConnectionsChanged += ResetCache;
+        node.PropertiesChanged += OnNodePropertiesChanged;
         _nodes.Add(node);
-        node.OutputsChanged += () => NodeOutputsChanged?.Invoke(NodeOutputsChanged_ChangeInfo.FromNode(node));
         nodeLookup[node.Id] = node;
         ResetCache();
     }
@@ -57,9 +56,18 @@ public class NodeGraph : IReadOnlyNodeGraph
         }
 
         node.ConnectionsChanged -= ResetCache;
+        node.PropertiesChanged -= OnNodePropertiesChanged;
         _nodes.Remove(node);
         nodeLookup.Remove(node.Id);
         ResetCache();
+    }
+
+    private void OnNodePropertiesChanged(Node node)
+    {
+        if (currentlyListeningToPropertyChanges != null)
+        {
+            currentlyListeningToPropertyChanges.Add(node.Id);
+        }
     }
 
     public Node? FindNode(Guid guid)
@@ -170,6 +178,11 @@ public class NodeGraph : IReadOnlyNodeGraph
         return TryTraverse(OutputNode, action);
     }
 
+    public bool TryTraverse(Func<IReadOnlyNode, bool> action)
+    {
+        return TryTraverse(OutputNode, action);
+    }
+
     public bool TryTraverse(IReadOnlyNode end, Action<IReadOnlyNode> action)
     {
         if (end == null) return false;
@@ -179,6 +192,21 @@ public class NodeGraph : IReadOnlyNodeGraph
         foreach (var node in queue)
         {
             action(node);
+        }
+
+        return true;
+    }
+
+    public bool TryTraverse(IReadOnlyNode end, Func<IReadOnlyNode, bool> action)
+    {
+        if (end == null) return false;
+
+        var queue = CalculateExecutionQueueInternal(end);
+
+        foreach (var node in queue)
+        {
+            if (!action(node))
+                break;
         }
 
         return true;
@@ -282,5 +310,17 @@ public class NodeGraph : IReadOnlyNodeGraph
         }
 
         return hash.ToHashCode();
+    }
+
+    public void StartListenToPropertyChanges()
+    {
+        currentlyListeningToPropertyChanges = new HashSet<Guid>();
+    }
+
+    public List<Guid> StopListenToPropertyChanges()
+    {
+        var changes = currentlyListeningToPropertyChanges.ToList();
+        currentlyListeningToPropertyChanges = null;
+        return changes;
     }
 }

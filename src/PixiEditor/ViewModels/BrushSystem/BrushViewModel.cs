@@ -17,6 +17,8 @@ namespace PixiEditor.ViewModels.BrushSystem;
 
 internal class BrushViewModel : ViewModelBase
 {
+    public event Action RenderingPreviewFinished;
+
     private Texture pointPreviewTexture;
     private Texture strokeTexture;
     private Brush brush;
@@ -102,10 +104,7 @@ internal class BrushViewModel : ViewModelBase
         get { return brush; }
         set
         {
-            if (SetProperty(ref brush, value))
-            {
-                GeneratePreviewTextures();
-            }
+            SetProperty(ref brush, value);
         }
     }
 
@@ -152,6 +151,7 @@ internal class BrushViewModel : ViewModelBase
     }
 
     private int lastTextureCache;
+    private bool generatedOnce = false;
 
     public BrushViewModel(Brush brush)
     {
@@ -159,6 +159,14 @@ internal class BrushViewModel : ViewModelBase
         lastTextureCache = 0;
         isFavourite = IPreferences.Current.GetPreference<List<Guid>>(PreferencesConstants.FavouriteBrushes)
             ?.Contains(Brush.PersistentId) ?? false;
+    }
+
+    public void TryGeneratePreviewTextures()
+    {
+        if (CacheChanged() || !generatedOnce)
+        {
+            GeneratePreviewTextures();
+        }
     }
 
     private void GeneratePreviewTextures()
@@ -186,11 +194,9 @@ internal class BrushViewModel : ViewModelBase
                 Texture.ForDisplay(new VecI(BrushOutputNode.StrokePreviewSizeX, BrushOutputNode.StrokePreviewSizeY));
 
             var pointImage = new ChunkyImage(
-                new VecI(BrushOutputNode.PointPreviewSize, BrushOutputNode.PointPreviewSize),
-                ColorSpace.CreateSrgb());
+                new VecI(BrushOutputNode.PointPreviewSize, BrushOutputNode.PointPreviewSize));
             var strokeImage = new ChunkyImage(
-                new VecI(BrushOutputNode.StrokePreviewSizeX, BrushOutputNode.StrokePreviewSizeY),
-                ColorSpace.CreateSrgb());
+                new VecI(BrushOutputNode.StrokePreviewSizeX, BrushOutputNode.StrokePreviewSizeY));
 
             var context = new RenderContext(
                 pointPreviewTexture.DrawingSurface.Canvas,
@@ -247,6 +253,8 @@ internal class BrushViewModel : ViewModelBase
             OnPropertyChanged(nameof(DrawingStrokeTexture));
             OnPropertyChanged(nameof(PointPreviewTexture));
             preventTextureGeneration = false;
+            generatedOnce = true;
+            RenderingPreviewFinished?.Invoke();
         });
     }
 

@@ -83,8 +83,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
     [Evaluator.CanExecute("PixiEditor.HasDocument", nameof(ActiveDocument))]
     public bool DocumentNotNull() => ActiveDocument != null;
 
-    [Command.Basic("PixiEditor.Document.Open", "OPEN_DOCUMENT", "OPEN_DOCUMENT_DESC",
-        Icon = PixiPerfectIcons.File, AnalyticsTrack = true)]
+    [Command.Internal("PixiEditor.Document.Open", Icon = PixiPerfectIcons.File, AnalyticsTrack = true)]
     public void OpenDocument(string path)
     {
         if (Guid.TryParse(path, out Guid referenceId))
@@ -335,7 +334,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
         Dispatcher.UIThread.Post(() =>
         {
             var loaded = Documents.FirstOrDefault(x => x.FullFilePath == fullPath) ??
-                         Owner.FileSubViewModel.ImportFromPath(fullPath);
+                         FileViewModel.ImportFromPath(fullPath);
             foreach (var doc in Documents)
             {
                 if (doc.FullFilePath == fullPath)
@@ -360,7 +359,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
     public void AddDocumentReference(Guid documentId, Guid nodeId, string? originalPath, Guid docReferenceId)
     {
         var existingReference = documentReferences.FirstOrDefault(x =>
-            x.OriginalFilePath == originalPath);
+             (!string.IsNullOrEmpty(originalPath) && x.OriginalFilePath == originalPath) || x.ReferenceId == docReferenceId);
         if (existingReference != null)
         {
             existingReference.AddReferencingNode(documentId, nodeId);

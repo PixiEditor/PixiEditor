@@ -374,6 +374,9 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             if (!Document.SceneTextures.TryGetValue(ViewportId, out var cachedTexture))
                 return;
 
+            if (cachedTexture.IsDisposed)
+                return;
+
             Matrix3X3 matrixDiff = isFullscreenRender ? Matrix3X3.Identity : SolveMatrixDiff(matrix, cachedTexture);
             var target = cachedTexture.DrawingSurface;
 
@@ -398,9 +401,14 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                 hasSaved = true;
             }
 
-
             texture.Canvas.Save();
             var sampling = CalculateSampling();
+
+            if (matrixDiff.ScaleX < 1)
+            {
+                sampling = SamplingOptions.Bilinear;
+            }
+
             if (sampling == SamplingOptions.Default)
             {
                 texture.Canvas.DrawSurface(target, 0, 0);

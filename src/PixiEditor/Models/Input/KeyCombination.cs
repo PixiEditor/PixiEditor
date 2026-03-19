@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using Avalonia.Input;
 using PixiEditor.Extensions.Helpers;
 using PixiEditor.Helpers;
@@ -17,6 +18,7 @@ public record struct KeyCombination(Key Key, KeyModifiers Modifiers)
 
     public KeyGesture ToKeyGesture() => new(Key, Modifiers);
 
+    [JsonIgnore]
     public KeyGesture Gesture => ToKeyGesture();
 
     public static KeyCombination TryParse(string s)

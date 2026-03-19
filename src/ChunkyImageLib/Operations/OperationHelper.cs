@@ -57,6 +57,8 @@ public static class OperationHelper
                 *offset = (*(ushort*)(&newR)) | ((long)*(ushort*)(&newG)) << 16 | ((long)*(ushort*)(&newB)) << 32 | ((long)*(ushort*)(refAlpha)) << 48;
             }
         }
+
+        toModify.MarkPixelsChanged();
     }
 
     private static unsafe void ClampAlphaWithClippingRect(IPixelsMap toModify, IPixelsMap toGetAlphaFrom, RectI clippingRect)
@@ -95,6 +97,8 @@ public static class OperationHelper
                 }
             }
         }
+
+        toModify.MarkPixelsChanged();
     }
 
     public static ShapeCorners ConvertForResolution(ShapeCorners corners, ChunkResolution resolution)

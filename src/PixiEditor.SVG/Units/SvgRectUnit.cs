@@ -1,4 +1,5 @@
-﻿using Drawie.Numerics;
+﻿using System.Globalization;
+using Drawie.Numerics;
 using PixiEditor.SVG.Elements;
 
 namespace PixiEditor.SVG.Units;
@@ -29,7 +30,7 @@ public struct SvgRectUnit(RectD rect) : ISvgUnit
         
         double TryParseOrZero(string value)
         {
-            return double.TryParse(value, out double result) ? result : 0;
+            return double.TryParse(value, CultureInfo.InvariantCulture, out double result) ? result : 0;
         }
     }
 }

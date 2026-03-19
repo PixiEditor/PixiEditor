@@ -6,6 +6,7 @@ using PixiEditor.Models.BrushEngine;
 using PixiEditor.Models.IO;
 using PixiEditor.Parser;
 using PixiEditor.ViewModels.Document;
+using PixiEditor.ViewModels.SubViewModels;
 
 namespace PixiEditor.Models.Serialization.Factories;
 
@@ -46,7 +47,7 @@ internal class DocumentSerializationFactory : SerializationFactory<byte[], Docum
 
             if (File.Exists(originalFilePath))
             {
-                var doc = Importer.ImportDocument(originalFilePath);
+                var doc = FileViewModel.ImportFromPath(originalFilePath);
                 ResourceLocator.RegisterInstance(handle, doc);
                 original = new DocumentReference(originalFilePath, refIdGuid, doc.AccessInternalReadOnlyDocument().Clone());
                 return true;

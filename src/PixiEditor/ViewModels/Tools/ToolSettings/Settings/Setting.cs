@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Text.Json;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using DiscordRPC;
@@ -21,7 +22,21 @@ internal abstract class Setting<T> : Setting
     {
         get
         {
-            var adjusted = AdjustValue(base.Value);
+            var raw = base.Value;
+            if (base.Value is JsonElement jsonElement)
+            {
+                try
+                {
+                    raw = jsonElement.Deserialize<T>();
+                }
+                catch
+                {
+                    Debug.WriteLine($"Failed to deserialize setting {Name} value from JSON.");
+                    return default;
+                }
+            }
+
+            var adjusted = AdjustValue(raw);
             if (adjusted != null && adjusted is not T)
             {
                 return default;
@@ -204,7 +219,12 @@ internal abstract class Setting : ObservableObject
             {
                 try
                 {
-                    defaultValue = Convert.ChangeType(defaultValue, GetSettingType());
+                    var adjusted = AdjustValue(defaultValue);
+
+                    if (adjusted.GetType() != GetSettingType())
+                    {
+                        defaultValue = Convert.ChangeType(defaultValue, GetSettingType());
+                    }
                 }
                 catch
                 {

@@ -1,4 +1,5 @@
 ﻿using Avalonia.Input;
+using PixiEditor.Models.Input;
 
 namespace PixiEditor.Models.Commands.Attributes.Commands;
 
@@ -7,6 +8,7 @@ internal partial class Command
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
     internal class ToolAttribute : CommandAttribute
     {
+        public KeyCombination TransientShortcut => new(Transient, KeyModifiers.None);
         public Key Transient { get; set; }
         public bool TransientImmediate { get; set; } = false;
 

@@ -9,8 +9,8 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 [NodeInfo("BlurFilter")]
 public class BlurNode : FilterNode
 {
+    public const string RadiusPropertyName = "Radius";
     public InputProperty<bool> PreserveAlpha { get; }
-
     public InputProperty<VecD> Radius { get; }
 
     protected override bool ExecuteOnlyOnCacheChange => true;
@@ -20,7 +20,7 @@ public class BlurNode : FilterNode
     public BlurNode()
     {
         PreserveAlpha = CreateInput("PreserveAlpha", "PRESERVE_ALPHA", true);
-        Radius = CreateInput("Radius", "RADIUS", new VecD(1, 1)).WithRules(x => x.Min(new VecD(0, 0)));
+        Radius = CreateInput(RadiusPropertyName, "RADIUS", new VecD(1, 1)).WithRules(x => x.Min(new VecD(0, 0)));
     }
 
     protected override ImageFilter? GetImageFilter(RenderContext context)

@@ -56,7 +56,9 @@ public class BrushOutputNode : Node
     public InputProperty<Drawie.Backend.Core.Surfaces.BlendMode> ImageBlendMode { get; }
     public InputProperty<bool> UseCustomStampBlender { get; }
     public InputProperty<string> CustomStampBlenderCode { get; }
-    public InputProperty<Matrix3X3> Transform { get; }
+    public InputProperty<Matrix3X3> StrokeTransform { get; }
+    public InputProperty<Matrix3X3> FillTransform { get; }
+    public InputProperty<Matrix3X3> ContentTransform { get; }
     public InputProperty<float> Pressure { get; }
     public InputProperty<float> Spacing { get; }
     public InputProperty<bool> FitToStrokeSize { get; }
@@ -101,9 +103,11 @@ public class BrushOutputNode : Node
         BrushName = CreateInput<string>(BrushNameProperty, "NAME", "Unnamed");
         VectorShape = CreateInput<ShapeVectorData>("VectorShape", "SHAPE", null);
         Stroke = CreateInput<Paintable>("Stroke", "STROKE", null);
+        StrokeTransform = CreateInput<Matrix3X3>("StrokeTransform", "STROKE_TRANSFORM", Matrix3X3.Identity);
         Fill = CreateInput<Paintable>("Fill", "FILL", null);
+        FillTransform = CreateInput<Matrix3X3>("FillTransform", "FILL_TRANSFORM", Matrix3X3.Identity);
         Content = CreateRenderInput(ContentProperty, "CONTENT");
-        Transform = CreateInput<Matrix3X3>(ContentTransformProperty, "CONTENT_TRANSFORM", Matrix3X3.Identity);
+        ContentTransform = CreateInput<Matrix3X3>(ContentTransformProperty, "CONTENT_TRANSFORM", Matrix3X3.Identity);
         ImageBlendMode = CreateInput<Drawie.Backend.Core.Surfaces.BlendMode>("BlendMode", "BLEND_MODE",
             Drawie.Backend.Core.Surfaces.BlendMode.SrcOver);
         StampBlendMode = CreateInput<Drawie.Backend.Core.Surfaces.BlendMode>(StampBlendModeProperty, "STAMP_BLEND_MODE",
@@ -150,16 +154,17 @@ public class BrushOutputNode : Node
         {
             if (context.RenderOutputSize.LongestAxis > 0)
             {
-                if (!CanReuseStamps.Value || ContentTexture == null || ContentTexture.Size != context.RenderOutputSize ||
-                    !drawnContentTextureOnce || Transform.Value != lastTranform)
+                if (!CanReuseStamps.Value || ContentTexture == null || ContentTexture.Size != context.RenderOutputSize
+                    || ContentTexture.ColorSpace != context.ProcessingColorSpace
+                    || !drawnContentTextureOnce || ContentTransform.Value != lastTranform)
                 {
                     ContentTexture = cache.RequestTexture(0, context.RenderOutputSize, context.ProcessingColorSpace);
                     ContentTexture.DrawingSurface.Canvas.Save();
-                    ContentTexture.DrawingSurface.Canvas.SetMatrix(Transform.Value);
+                    ContentTexture.DrawingSurface.Canvas.SetMatrix(ContentTransform.Value);
                     Content.Value.Paint(context, ContentTexture.DrawingSurface.Canvas);
                     ContentTexture.DrawingSurface.Canvas.Restore();
                     drawnContentTextureOnce = true;
-                    lastTranform = Transform.Value;
+                    lastTranform = ContentTransform.Value;
                 }
             }
         }
@@ -183,9 +188,9 @@ public class BrushOutputNode : Node
         RenderPreviews(context.GetPreviewTexturesForNode(Id), context);
     }
 
-    public override void SerializeAdditionalData(IReadOnlyDocument target, Dictionary<string, object> additionalData)
+    internal override void SerializeAdditionalDataInternal(IReadOnlyDocument target, Dictionary<string, object> additionalData)
     {
-        base.SerializeAdditionalData(target, additionalData);
+        base.SerializeAdditionalDataInternal(target, additionalData);
         additionalData["PersistentId"] = PersistentId;
     }
 
@@ -194,10 +199,10 @@ public class BrushOutputNode : Node
         drawnContentTextureOnce = false;
     }
 
-    internal override void DeserializeAdditionalData(IReadOnlyDocument target, IReadOnlyDictionary<string, object> data,
+    internal override void DeserializeAdditionalDataInternal(IReadOnlyDocument target, IReadOnlyDictionary<string, object> data,
         List<IChangeInfo> infos)
     {
-        base.DeserializeAdditionalData(target, data, infos);
+        base.DeserializeAdditionalDataInternal(target, data, infos);
         if (data.TryGetValue("PersistentId", out var persistentIdObj))
         {
             if (persistentIdObj is Guid persistentId)
@@ -240,7 +245,7 @@ public class BrushOutputNode : Node
     {
         if (previewChunkyImage == null)
         {
-            previewChunkyImage = new ChunkyImage(new VecI(200, 200), context.ProcessingColorSpace);
+            previewChunkyImage = new ChunkyImage(new VecI(200, 200));
         }
 
         RectI rect;

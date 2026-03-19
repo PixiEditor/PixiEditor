@@ -60,17 +60,17 @@ public abstract class RenderNode : Node, IHighDpiRenderNode
             Texture intermediate =
                 textureCache.RequestTexture(-6451, context.RenderOutputSize, context.ProcessingColorSpace);
             target = intermediate.DrawingSurface.Canvas;
+
+            if (!RendersInAbsoluteCoordinates)
+                target.Scale((float)context.ChunkResolution.Multiplier());
         }
 
         OnPaint(context, target);
 
         if (useIntermediate)
         {
-            if (RendersInAbsoluteCoordinates)
-            {
-                surface.Save();
-                surface.Scale((float)context.ChunkResolution.InvertedMultiplier());
-            }
+            surface.Save();
+            surface.Scale((float)context.ChunkResolution.InvertedMultiplier());
 
             if (context.DesiredSamplingOptions != SamplingOptions.Default)
             {
@@ -154,16 +154,41 @@ public abstract class RenderNode : Node, IHighDpiRenderNode
         return textureCache.RequestTexture(id, size, processingCs, clear);
     }
 
-    public override void SerializeAdditionalData(IReadOnlyDocument target, Dictionary<string, object> additionalData)
+    protected RectD? TryGetInputBounds(RenderContext ctx, string elementToRenderName)
     {
-        base.SerializeAdditionalData(target, additionalData);
+        if (this is IRenderInput renderInput)
+        {
+            return TryGetInputBounds(ctx, elementToRenderName, renderInput.Background);
+        }
+
+        return null;
+    }
+
+    private RectD? TryGetInputBounds(RenderContext ctx, string elementToRenderName, RenderInputProperty input)
+    {
+        if (input == null)
+            return null;
+
+        if (input.Connection?.Node is StructureNode structureNode)
+        {
+            return structureNode.GetPreviewBounds(ctx, elementToRenderName);
+        }
+
+        return null;
+    }
+
+    internal override void SerializeAdditionalDataInternal(IReadOnlyDocument target,
+        Dictionary<string, object> additionalData)
+    {
+        base.SerializeAdditionalDataInternal(target, additionalData);
         additionalData["AllowHighDpiRendering"] = AllowHighDpiRendering;
     }
 
-    internal override void DeserializeAdditionalData(IReadOnlyDocument target, IReadOnlyDictionary<string, object> data,
+    internal override void DeserializeAdditionalDataInternal(IReadOnlyDocument target,
+        IReadOnlyDictionary<string, object> data,
         List<IChangeInfo> infos)
     {
-        base.DeserializeAdditionalData(target, data, infos);
+        base.DeserializeAdditionalDataInternal(target, data, infos);
 
         if (data.TryGetValue("AllowHighDpiRendering", out var value))
             AllowHighDpiRendering = (bool)value;

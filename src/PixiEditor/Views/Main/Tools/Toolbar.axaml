@@ -39,16 +39,6 @@
                     ui:Translator.TooltipKey="REDO">
                     <TextBlock Text="{DynamicResource icon-redo}" FontSize="20" />
                 </Button>
-                <ToggleButton
-                    Width="30"
-                    BorderThickness="0"
-                    ui:Translator.TooltipKey="PEN_MODE"
-                    Focusable="False"
-                    Classes="pixi-icon"
-                    Content="{DynamicResource icon-edit}"
-                    FontSize="20"
-                    IsChecked="{Binding StylusSubViewModel.IsPenModeEnabled}">
-                </ToggleButton>
                 <Grid Margin="5,5,10,5" Background="{DynamicResource ThemeBackgroundBrush2}" Width="5"
                       IsVisible="{Binding ElementName=CollapseButton, Path=!IsChecked}" />
                 <Label CornerRadius="5" Background="{DynamicResource ThemeBackgroundBrush2}" Padding="5" FontSize="12"

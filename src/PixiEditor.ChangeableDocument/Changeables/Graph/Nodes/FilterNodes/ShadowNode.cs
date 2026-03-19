@@ -8,15 +8,18 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 [NodeInfo("Shadow")]
 public class ShadowNode : FilterNode
 {
+    public const string OffsetPropertyName = "Offset";
+    public const string SigmaPropertyName = "Radius";
+    public const string ColorPropertyName = "Color";
     public InputProperty<VecD> Offset { get; }
     public InputProperty<VecD> Sigma { get; }
     public InputProperty<Color> Color { get; }
 
     public ShadowNode()
     {
-        Offset = CreateInput("Offset", "OFFSET", new VecD(5, 5));
-        Sigma = CreateInput("Radius", "RADIUS", new VecD(5, 5));
-        Color = CreateInput("Color", "COLOR", Colors.Black);
+        Offset = CreateInput(OffsetPropertyName, "OFFSET", new VecD(5, 5));
+        Sigma = CreateInput(SigmaPropertyName, "RADIUS", new VecD(5, 5));
+        Color = CreateInput(ColorPropertyName, "COLOR", Colors.Black);
     }
 
     protected override ImageFilter? GetImageFilter(RenderContext context)

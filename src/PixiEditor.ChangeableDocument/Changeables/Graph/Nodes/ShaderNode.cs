@@ -133,27 +133,32 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
             return uniforms;
         }
 
-        Texture texture = RequestTexture(50, finalSize, context.ProcessingColorSpace);
-        int saved = texture.DrawingSurface.Canvas.Save();
-        //texture.DrawingSurface.Canvas.Scale((float)context.ChunkResolution.Multiplier(), (float)context.ChunkResolution.Multiplier());
+        if (finalSize is { X: > 0, Y: > 0 })
+        {
+            Texture texture = RequestTexture(50, finalSize, context.ProcessingColorSpace);
+            int saved = texture.DrawingSurface.Canvas.Save();
+            //texture.DrawingSurface.Canvas.Scale((float)context.ChunkResolution.Multiplier(), (float)context.ChunkResolution.Multiplier());
 
-        var ctx = context.Clone();
-        ctx.RenderSurface = texture.DrawingSurface.Canvas;
-        ctx.RenderOutputSize = finalSize;
-        ctx.ChunkResolution = ChunkResolution.Full;
+            var ctx = context.Clone();
+            ctx.RenderSurface = texture.DrawingSurface.Canvas;
+            ctx.RenderOutputSize = finalSize;
+            ctx.ChunkResolution = ChunkResolution.Full;
+            ctx.VisibleDocumentRegion = null;
 
-        Background.Value.Paint(ctx, texture.DrawingSurface.Canvas);
-        texture.DrawingSurface.Canvas.RestoreToCount(saved);
+            Background.Value.Paint(ctx, texture.DrawingSurface.Canvas);
+            texture.DrawingSurface.Canvas.RestoreToCount(saved);
 
-        var snapshot = texture.DrawingSurface.Snapshot();
-        lastImageShader?.Dispose();
-        lastImageShader = snapshot.ToShader();
+            var snapshot = texture.DrawingSurface.Snapshot();
+            lastImageShader?.Dispose();
+            lastImageShader = snapshot.ToShader();
 
-        uniforms.Add("iImage", new Uniform("iImage", lastImageShader));
-        uniforms.Add("Background", new Uniform("Background", lastImageShader));
+            uniforms.Add("iImage", new Uniform("iImage", lastImageShader));
+            uniforms.Add("Background", new Uniform("Background", lastImageShader));
 
-        snapshot.Dispose();
-        //texture.Dispose();
+            snapshot.Dispose();
+            //texture.Dispose();
+        }
+
         return uniforms;
     }
 
@@ -413,7 +418,7 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
             }
             else if (input.Value.valueType == UniformValueType.Shader)
             {
-                if (value is Texture texture)
+                if (value is Texture texture && !texture.IsDisposed)
                 {
                     var snapshot = texture.DrawingSurface.Snapshot();
                     Shader snapshotShader = snapshot.ToShader();

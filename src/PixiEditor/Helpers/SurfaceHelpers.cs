@@ -1,4 +1,5 @@
-﻿using Avalonia.Media.Imaging;
+﻿using System.Diagnostics;
+using Avalonia.Media.Imaging;
 using ChunkyImageLib;
 using PixiEditor.Helpers.Extensions;
 using Drawie.Backend.Core;
@@ -20,7 +21,6 @@ public static class SurfaceHelpers
         if (original.PixelSize.Width <= 0 || original.PixelSize.Height <= 0)
             throw new ArgumentException("Surface dimensions must be non-zero");
 
-        int stride = (original.PixelSize.Width * original.Format.Value.BitsPerPixel + 7) / 8;
         byte[] pixels = original.ExtractPixels();
 
         Surface surface = new Surface(new VecI(original.PixelSize.Width, original.PixelSize.Height));

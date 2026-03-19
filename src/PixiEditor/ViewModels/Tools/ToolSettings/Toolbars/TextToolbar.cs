@@ -20,7 +20,24 @@ internal class TextToolbar : FillableShapeToolbar, ITextToolbar
             int index = Array.IndexOf(FontLibrary.AllFonts, value);
             if (index == -1)
             {
-                index = 0;
+                try
+                {
+                    using Font font = Font.FromFontFamily(value);
+                    if(font != null && FontLibrary.TryAddCustomFont(value))
+                    {
+                        index = Array.IndexOf(FontLibrary.AllFonts, value);
+                    }
+
+                    if (index == -1)
+                    {
+                        index = 0;
+                    }
+                }
+                catch
+                {
+                    index = 0;
+                }
+
             }
 
             GetSetting<FontFamilySettingViewModel>(nameof(FontFamily)).FontIndex = index;

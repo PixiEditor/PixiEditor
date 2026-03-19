@@ -6,6 +6,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
+using Avalonia.Media;
 using Avalonia.OpenGL;
 using Avalonia.Platform;
 using Avalonia.Rendering.Composition;
@@ -123,7 +124,7 @@ internal partial class MainWindow : Window
 
         if (!systemDecorations)
         {
-            this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.NoChrome;
+            this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default;
             this.ExtendClientAreaToDecorationsHint = true;
             if (System.OperatingSystem.IsLinux())
             {
@@ -179,7 +180,14 @@ internal partial class MainWindow : Window
     protected override void OnLoaded(RoutedEventArgs e)
     {
         base.OnLoaded(e);
-
+        
+        ApplyUiScale();
+        
+        preferences.AddCallback("UiScaleFactor", (_, args) =>
+        {
+            Dispatcher.UIThread.Post(ApplyUiScale);
+        });
+        
         titleBar = this.FindDescendantOfType<MainTitleBar>(true);
         if (System.OperatingSystem.IsLinux())
         {
@@ -188,8 +196,7 @@ internal partial class MainWindow : Window
             PointerMoved += UpdateResizeCursor;
             AddHandler(PointerPressedEvent, Pressed, RoutingStrategies.Tunnel | RoutingStrategies.Bubble);
         }
-
-
+        
         LoadingWindow.Instance?.SafeClose();
         Activate();
         StartupPerformance.ReportToInteractivity();
@@ -260,4 +267,12 @@ internal partial class MainWindow : Window
             CrashHelper.SaveCrashInfo((Exception)e.ExceptionObject, DataContext.DocumentManagerSubViewModel.Documents);
         };
     }
+
+    private void ApplyUiScale()
+    {
+        double scale = preferences.GetPreference("UiScaleFactor", 1.0);
+
+        PrimaryScaleControl.LayoutTransform = new ScaleTransform(scale, scale);
+    }
+    
 }

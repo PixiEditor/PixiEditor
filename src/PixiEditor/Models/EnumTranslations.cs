@@ -11,6 +11,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Effects;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Image;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Matrix;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Paintables;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.Tools;

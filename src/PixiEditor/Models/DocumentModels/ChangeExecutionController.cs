@@ -43,6 +43,7 @@ internal class ChangeExecutionController
     private VecD lastDirCalculationPoint;
     private PointerInfo lastPointerInfo;
     private KeyboardInfo lastKeyboardInfo;
+    private bool isTransforming;
     private ViewModelMain viewModelMain;
 
     private bool shiftPressed;
@@ -116,6 +117,7 @@ internal class ChangeExecutionController
 
     private bool StartExecutor(UpdateableChangeExecutor brandNewExecutor)
     {
+        isTransforming = false;
         if (brandNewExecutor.Start() == ExecutionState.Success)
         {
             currentSession = brandNewExecutor;
@@ -282,6 +284,12 @@ internal class ChangeExecutionController
     {
         if (currentSession is ITransformableExecutor transformableExecutor)
         {
+            if (!isTransforming)
+            {
+                transformableExecutor.OnTransformStarted();
+                isTransforming = true;
+            }
+
             LastTransformState = corners;
             transformableExecutor.OnTransformChanged(corners);
         }
@@ -300,6 +308,7 @@ internal class ChangeExecutionController
         if (currentSession is ITransformStoppedEvent transformStoppedEvent)
         {
             transformStoppedEvent.OnTransformStopped();
+            isTransforming = false;
         }
     }
 

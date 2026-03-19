@@ -12,6 +12,9 @@ public class TextureCache : IDisposable
 
     public Texture RequestTexture(int id, VecI size, ColorSpace processingCs, bool clear = true)
     {
+        if (size.X <= 0 || size.Y <= 0)
+            throw new ArgumentException("Size must be positive", nameof(size));
+
         if (_managedTextures.TryGetValue(id, out var texture))
         {
             if (texture.Size != size || texture.IsDisposed || !texture.ColorSpace.Equals(processingCs))

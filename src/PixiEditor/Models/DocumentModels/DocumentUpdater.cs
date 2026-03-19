@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Reflection;
 using Avalonia.Threading;
 using ChunkyImageLib;
@@ -50,14 +51,7 @@ internal class DocumentUpdater
     {
         this.doc = doc;
         this.helper = helper;
-        helper.Tracker.Document.NodeGraph.NodeOutputsChanged += Node_OutputsChanged;
     }
-
-    private void Node_OutputsChanged(NodeOutputsChanged_ChangeInfo info)
-    {
-        ProcessOutputsChanged(info);
-    }
-
 
     /// <summary>
     /// Don't call this outside ActionAccumulator
@@ -263,6 +257,9 @@ internal class DocumentUpdater
             case BlackboardVariableExposed_ChangeInfo info:
                 ProcessBlackboardVariableExposedChangeInfo(info);
                 break;
+            case FallbackAnimationToLayerImage_ChangeInfo info:
+                ProcessFallbackAnimationToLayerImage(info);
+                break;
         }
     }
 
@@ -359,6 +356,11 @@ internal class DocumentUpdater
     {
         IStructureMemberHandler? member = doc.StructureHelper.FindOrThrow(info.Id);
         member.SetMaskIsVisible(info.IsVisible);
+
+        if (member.InputPropertyMap.TryGetValue(StructureNode.MaskIsVisiblePropertyName, out var propHandler))
+        {
+            propHandler.InternalSetValue(info.IsVisible);
+        }
     }
 
     private void ProcessClipToMemberBelow(StructureMemberClipToMemberBelow_ChangeInfo info)
@@ -398,6 +400,11 @@ internal class DocumentUpdater
     private void ProcessStructureMemberBlendMode(StructureMemberBlendMode_ChangeInfo info)
     {
         IStructureMemberHandler? memberVm = doc.StructureHelper.FindOrThrow(info.Id);
+        if (memberVm.InputPropertyMap.TryGetValue(StructureNode.BlendModePropertyName, out var propHandler))
+        {
+            propHandler.InternalSetValue(info.BlendMode);
+        }
+
         memberVm.SetBlendMode(info.BlendMode);
     }
 
@@ -472,14 +479,6 @@ internal class DocumentUpdater
         }
         */
 
-        if (doc.SelectedStructureMember is not null)
-        {
-            doc.SelectedStructureMember.Selection = StructureMemberSelectionType.None;
-        }
-
-        doc.SetSelectedMember(memberVM);
-        memberVM.Selection = StructureMemberSelectionType.Hard;
-
         doc.InternalRaiseLayersChanged(new LayersChangedEventArgs(info.Id, LayerAction.Add));
     }
 
@@ -513,6 +512,11 @@ internal class DocumentUpdater
     {
         IStructureMemberHandler? memberVM = doc.StructureHelper.FindOrThrow(id);
         memberVM.SetIsVisible(isVisible);
+        if (memberVM.InputPropertyMap.TryGetValue(StructureNode.IsVisiblePropertyName, out var propHandler))
+        {
+            propHandler.InternalSetValue(isVisible);
+        }
+
         UpdateMemberSnapping(memberVM);
     }
 
@@ -564,6 +568,11 @@ internal class DocumentUpdater
     private void ProcessUpdateStructureMemberOpacity(StructureMemberOpacity_ChangeInfo info)
     {
         IStructureMemberHandler? memberVM = doc.StructureHelper.FindOrThrow(info.Id);
+        if (memberVM.InputPropertyMap.TryGetValue(StructureNode.OpacityPropertyName, out var propHandler))
+        {
+            propHandler.InternalSetValue(info.Opacity);
+        }
+
         memberVM.SetOpacity(info.Opacity);
     }
 
@@ -584,11 +593,14 @@ internal class DocumentUpdater
 
     private void ProcessCreateRasterKeyFrame(CreateRasterKeyFrame_ChangeInfo info)
     {
+        if (info.Frame <= 0) return;
+
         var vm = new RasterCelViewModel(info.TargetLayerGuid, info.Frame, 1,
             info.KeyFrameId,
             (DocumentViewModel)doc, helper);
 
         doc.AnimationHandler.AddKeyFrame(vm);
+        doc.InternalRaiseKeyFrameCreated(vm);
     }
 
     private void ProcessDeleteKeyFrame(DeleteKeyFrame_ChangeInfo info)
@@ -768,17 +780,46 @@ internal class DocumentUpdater
         bool isInput)
     {
         List<INodePropertyHandler> inputs = new();
-        foreach (var input in source)
+        foreach (var propInfo in source)
         {
-            var prop = NodePropertyViewModel.CreateFromType(input.ValueType, node);
-            prop.DisplayName = input.DisplayName;
-            prop.PropertyName = input.PropertyName;
+            var prop = NodePropertyViewModel.CreateFromType(propInfo.ValueType, node);
+            prop.DisplayName = propInfo.DisplayName;
+            prop.PropertyName = propInfo.PropertyName;
             prop.IsInput = isInput;
-            prop.IsFunc = input.ValueType.IsAssignableTo(typeof(Delegate));
+            prop.IsFunc = propInfo.ValueType.IsAssignableTo(typeof(Delegate));
+            prop.IsArray = propInfo.ValueType.IsArray;
             prop.InternalSetValue(prop.IsFunc
-                ? (input.InputValue as ShaderExpressionVariable)?.GetConstant()
-                : input.InputValue);
+                ? (propInfo.InputValue as ShaderExpressionVariable)?.GetConstant()
+                : propInfo.InputValue);
             inputs.Add(prop);
+            foreach (var propInfoConnectedProperty in propInfo.ConnectedProperties)
+            {
+                var inputNode = isInput ? node : doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId);
+                var outputNode = isInput ? doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId) : node;
+                if (inputNode == null || outputNode == null)
+                {
+#if DEBUG
+                    Debug.WriteLine(
+                        $"Connection requested for a node that doesn't exist. NodeId: {propInfoConnectedProperty.NodeId}");
+#endif
+                }
+                else
+                {
+                    doc.NodeGraphHandler.SetConnection(new NodeConnectionViewModel()
+                    {
+                        InputNode = isInput ? node : doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId),
+                        OutputNode = isInput ? doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId) : node,
+                        InputProperty = isInput
+                            ? prop
+                            : doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId)
+                                .FindInputProperty(propInfoConnectedProperty.PropertyName),
+                        OutputProperty = isInput
+                            ? doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId)
+                                .FindOutputProperty(propInfoConnectedProperty.PropertyName)
+                            : prop
+                    });
+                }
+            }
         }
 
         return inputs;
@@ -873,6 +914,9 @@ internal class DocumentUpdater
     {
         NodeViewModel node = doc.StructureHelper.FindNode<NodeViewModel>(info.NodeId);
         var property = node.FindInputProperty(info.Property);
+
+        if (property == null)
+            return;
 
         property.Errors = info.Errors;
 
@@ -1086,5 +1130,10 @@ internal class DocumentUpdater
         {
             varVm.SetIsExposedInternal(info.Value);
         }
+    }
+
+    private void ProcessFallbackAnimationToLayerImage(FallbackAnimationToLayerImage_ChangeInfo info)
+    {
+        doc.AnimationHandler.SetFallbackAnimationToLayerImage(info.Value);
     }
 }

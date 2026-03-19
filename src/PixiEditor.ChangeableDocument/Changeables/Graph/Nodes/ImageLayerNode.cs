@@ -24,8 +24,8 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     public override VecD GetScenePosition(KeyFrameTime time) => layerImage?.CommittedSize / 2f ?? VecD.Zero;
     public override VecD GetSceneSize(KeyFrameTime time) => layerImage?.CommittedSize ?? VecD.Zero;
-
     public bool LockTransparency { get; set; }
+    public bool FallbackAnimationToLayerImage { get; set; } = false;
 
     private VecI startSize;
     private ColorSpace colorSpace;
@@ -40,7 +40,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
                 return chunkyImage;
             }
 
-            var newImage = new ChunkyImage(startSize, colorSpace);
+            var newImage = new ChunkyImage(startSize);
             keyFrames[0].Data = newImage;
             return newImage;
         }
@@ -51,7 +51,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         if (keyFrames.Count == 0)
         {
             keyFrames.Add(
-                new KeyFrameData(Guid.NewGuid(), 0, 0, ImageLayerKey) { Data = new ChunkyImage(size, colorSpace) });
+                new KeyFrameData(Guid.NewGuid(), 0, 0, ImageLayerKey) { Data = new ChunkyImage(size) });
         }
 
         this.startSize = size;
@@ -60,12 +60,17 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     public override RectD? GetTightBounds(KeyFrameTime frameTime)
     {
-        return (RectD?)GetLayerImageAtFrame(frameTime.Frame).FindTightLatestBounds();
+        return (RectD?)GetLayerImageAtFrame(frameTime.Frame)?.FindTightLatestBounds();
     }
 
     public override RectD? GetApproxBounds(KeyFrameTime frameTime)
     {
         var layerImage = GetLayerImageAtFrame(frameTime.Frame);
+        if (layerImage == null)
+        {
+            return null;
+        }
+
         return GetApproxBounds(layerImage);
     }
 
@@ -150,7 +155,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         }
 
         RectI latestSize = new(0, 0, layerImage.LatestSize.X, layerImage.LatestSize.Y);
-        var region = ctx.VisibleDocumentRegion ?? latestSize;
+        var region = (RectI?)ctx.VisibleDocumentRegion?.RoundOutwards() ?? latestSize;
 
         VecD topLeft = region.TopLeft - sceneSize / 2;
 
@@ -158,21 +163,35 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         workingSurface.Scale((float)ctx.ChunkResolution.InvertedMultiplier());
         var img = GetLayerImageAtFrame(ctx.FrameTime.Frame);
 
+        if (img is null)
+        {
+            workingSurface.RestoreToCount(saved);
+            return;
+        }
+
         Texture? intermediate = null;
         VecD finalDrawPos = topLeft;
         if (saveLayer)
         {
-            var visibleRegion = ctx.VisibleDocumentRegion ?? latestSize;
+            var visibleRegion = (RectI?)ctx.VisibleDocumentRegion?.RoundOutwards() ?? latestSize;
             var multiplier = visibleRegion != latestSize ? 1 : ctx.ChunkResolution.Multiplier();
             var intersection = visibleRegion.Intersect(latestSize);
             region = intersection;
             VecI chunkAwareSize = (VecI)(new VecI(region.Width, region.Height) * multiplier);
+            if(chunkAwareSize.X <= 0 || chunkAwareSize.Y <= 0)
+            {
+                workingSurface.RestoreToCount(saved);
+                return;
+            }
+
             intermediate = RequestTexture(1336, chunkAwareSize, ColorSpace.CreateSrgb());
             finalDrawPos = VecD.Zero;
-            if (visibleRegion != latestSize)
+            // TODO: Validate that removing below doesn't cause issues. Bugs like partial chunk rendering on scene moves the position of the image.
+            // If you uncomment this, Test file (nested elephant in render tests) will fail for certain zooms
+            /*if (visibleRegion != latestSize)
             {
                 topLeft = region.TopLeft - sceneSize / 2;
-            }
+            }*/
         }
 
         if (!ctx.FullRerender)
@@ -180,14 +199,16 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
             img.DrawMostUpToDateRegionOnWithAffected(
                 region,
                 ctx.ChunkResolution,
-                saveLayer ? intermediate.DrawingSurface.Canvas : workingSurface, ctx.AffectedArea, finalDrawPos, saveLayer ? null : paint, ctx.DesiredSamplingOptions);
+                saveLayer ? intermediate.DrawingSurface.Canvas : workingSurface, ctx.AffectedArea, finalDrawPos,
+                saveLayer ? null : paint, ctx.DesiredSamplingOptions);
         }
         else
         {
             img.DrawMostUpToDateRegionOn(
                 region,
                 ctx.ChunkResolution,
-                saveLayer ? intermediate.DrawingSurface.Canvas : workingSurface, finalDrawPos, saveLayer ? null : paint, ctx.DesiredSamplingOptions);
+                saveLayer ? intermediate.DrawingSurface.Canvas : workingSurface, finalDrawPos, saveLayer ? null : paint,
+                ctx.DesiredSamplingOptions);
         }
 
         if (saveLayer && intermediate != null)
@@ -321,9 +342,9 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         renderOnto.Canvas.RestoreToCount(saved);
     }
 
-    private KeyFrameData GetFrameWithImage(KeyFrameTime frame)
+    private KeyFrameData? GetFrameWithImage(KeyFrameTime frame)
     {
-        if (keyFrames.Count == 1)
+        if (keyFrames.Count == 1 || frame.Frame == 0)
         {
             return keyFrames[0];
         }
@@ -331,7 +352,12 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         var imageFrame = keyFrames.OrderBy(x => x.StartFrame).LastOrDefault(x => x.IsInFrame(frame.Frame));
         if (imageFrame?.Data is not ChunkyImage)
         {
-            return keyFrames[0];
+            if (FallbackAnimationToLayerImage)
+            {
+                return keyFrames[0];
+            }
+
+            return keyFrames.ElementAtOrDefault(1).IsVisible ? null : keyFrames[0];
         }
 
         var frameImage = imageFrame;
@@ -402,9 +428,9 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         }
     }
 
-    public ChunkyImage GetLayerImageAtFrame(int frame)
+    public ChunkyImage? GetLayerImageAtFrame(int frame)
     {
-        return GetFrameWithImage(frame).Data as ChunkyImage;
+        return GetFrameWithImage(frame)?.Data as ChunkyImage;
     }
 
     public ChunkyImage GetLayerImageByKeyFrameGuid(Guid keyFrameGuid)

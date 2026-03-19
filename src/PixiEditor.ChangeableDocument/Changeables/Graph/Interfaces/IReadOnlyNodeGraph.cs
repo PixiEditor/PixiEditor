@@ -15,11 +15,11 @@ public interface IReadOnlyNodeGraph : ICacheable, IDisposable
     public void AddNode(IReadOnlyNode node);
     public void RemoveNode(IReadOnlyNode node);
     public bool TryTraverse(Action<IReadOnlyNode> action);
+    public bool TryTraverse(Func<IReadOnlyNode, bool> action);
     public bool TryTraverse(IReadOnlyNode end, Action<IReadOnlyNode> action);
     public void Execute(RenderContext context);
     public void Execute(IReadOnlyNode end, RenderContext context);
     Queue<IReadOnlyNode> CalculateExecutionQueue(IReadOnlyNode endNode);
     public IReadOnlyNodeGraph Clone();
-    public event Action<NodeOutputsChanged_ChangeInfo> NodeOutputsChanged;
     public void Execute(IEnumerable<IReadOnlyNode> nodes, RenderContext context);
 }
