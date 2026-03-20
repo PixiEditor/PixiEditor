@@ -37,34 +37,39 @@ public class OwnedProductViewModel : ObservableObject
     }
 
     private bool restartRequired;
+
     public bool RestartRequired
     {
         get => restartRequired;
         set => SetProperty(ref restartRequired, value);
     }
-    
+
     private bool isUninstalling;
+
     public bool IsUninstalling
     {
         get => isUninstalling;
         set => SetProperty(ref isUninstalling, value);
     }
-    
+
     private bool isEnabled;
+
     public bool IsEnabled
     {
         get => isEnabled;
         set => SetProperty(ref isEnabled, value);
     }
-    
+
     private bool isLoaded;
+
     public bool IsLoaded
     {
         get => isLoaded;
         set => SetProperty(ref isLoaded, value);
     }
-    
+
     private bool canBeEnabled;
+
     public bool CanBeEnabled
     {
         get => canBeEnabled;
@@ -79,7 +84,8 @@ public class OwnedProductViewModel : ObservableObject
         bool isLoaded,
         IAsyncRelayCommand<string> installContentCommand, IAsyncRelayCommand<string> uninstallContentCommand,
         IRelayCommand<string> enableContentCommand, IRelayCommand<string> disableContentCommand,
-        Func<string, bool> isInstalledFunc, Func<string, bool> areDependenciesReachableFunc, Func<string, int> countLoadedDependenciesFunc)
+        Func<string, bool> isInstalledFunc, Func<string, bool> areDependenciesReachableFunc,
+        Func<string, int> countLoadedDependenciesFunc)
     {
         ProductData = productData;
         IsInstalled = isInstalled;
@@ -128,6 +134,32 @@ public class OwnedProductViewModel : ObservableObject
                 RestartRequired = false;
                 bool wasEnabled = IsEnabled;
 
+                int dependentCount = countLoadedDependenciesFunc(ProductData.Id);
+                if (dependentCount > 0)
+                {
+                    var result = await ConfirmationDialog.Show(
+                        new LocalizedString("EXTENSIONS_WINDOW_DISABLE_CONFIRMATION_MESSAGE", dependentCount),
+                        "EXTENSIONS_WINDOW_UNINSTALL_CONFIRMATION_TITLE");
+
+                    if (result != ConfirmationType.Yes)
+                    {
+                        IsUninstalling = false;
+                        return;
+                    }
+                }
+                else
+                {
+                    var result = await ConfirmationDialog.Show(
+                        new LocalizedString("EXTENSIONS_WINDOW_UNINSTALL_CONFIRMATION_MESSAGE"),
+                        "EXTENSIONS_WINDOW_UNINSTALL_CONFIRMATION_TITLE");
+
+                    if (result != ConfirmationType.Yes)
+                    {
+                        IsUninstalling = false;
+                        return;
+                    }
+                }
+
                 await uninstallContentCommand.ExecuteAsync(ProductData.Id);
 
                 IsUninstalling = false;
@@ -141,36 +173,39 @@ public class OwnedProductViewModel : ObservableObject
         );
 
         ToggleEnabledCommand = new AsyncRelayCommand<bool>(
-                async (isOn) =>
+            async (isOn) =>
+            {
+                if (isOn)
                 {
-                    if (isOn)
+                    CanBeEnabled = areDependenciesReachableFunc(ProductData.Id);
+                    if (CanBeEnabled)
                     {
-                        CanBeEnabled = areDependenciesReachableFunc(ProductData.Id);
-                        if (CanBeEnabled)
+                        IsEnabled = true;
+                        enableContentCommand.Execute(ProductData.Id);
+                        IsLoaded = true;
+                    }
+                }
+                else
+                {
+                    int dependentCount = countLoadedDependenciesFunc(ProductData.Id);
+                    if (dependentCount > 0)
+                    {
+                        var result = await ConfirmationDialog.Show(
+                            new LocalizedString("EXTENSIONS_WINDOW_DISABLE_CONFIRMATION_MESSAGE", dependentCount),
+                            "EXTENSIONS_WINDOW_DISABLE_CONFIRMATION_TITLE");
+
+                        if (result != ConfirmationType.Yes)
                         {
                             IsEnabled = true;
-                            enableContentCommand.Execute(ProductData.Id);
-                            IsLoaded = true;
+                            return;
                         }
                     }
-                    else
-                    {
-                        int dependentCount = countLoadedDependenciesFunc(ProductData.Id);
-                        if (dependentCount > 0)
-                        {
-                            var result = await ConfirmationDialog.Show(new LocalizedString("EXTENSIONS_WINDOW_DISABLE_CONFIRMATION_MESSAGE", dependentCount), "EXTENSIONS_WINDOW_DISABLE_CONFIRMATION_TITLE");
 
-                            if (result != ConfirmationType.Yes)
-                            {
-                                IsEnabled = true;
-                                return;
-                            }
-                        }
-                        IsEnabled = false;
-                        disableContentCommand.Execute(ProductData.Id);
-                    }
-                },
-                (isOn) => IsInstalled && !IsInstalling && !IsUninstalling
-            );
+                    IsEnabled = false;
+                    disableContentCommand.Execute(ProductData.Id);
+                }
+            },
+            (isOn) => IsInstalled && !IsInstalling && !IsUninstalling
+        );
     }
 }

@@ -14,8 +14,11 @@
                          xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
                          xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
                          xmlns:system="clr-namespace:System;assembly=System.Runtime"
+                         xmlns:avalonia="clr-namespace:LiveMarkdown.Avalonia;assembly=LiveMarkdown.Avalonia"
+                         xmlns:commands="clr-namespace:PixiEditor.Models.Commands.Attributes.Commands"
                          mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
                          x:Class="PixiEditor.Views.Dialogs.ExtensionsPopup"
+                         Height="680" Width="1300"
                          x:DataType="extensionManager:ExtensionManagerViewModel"
                          localization:Translator.Key="EXTENSIONS_WINDOW_TITLE">
 
@@ -23,7 +26,11 @@
         <extensionManager:ExtensionManagerViewModel />
     </Design.DataContext>
 
-    <StackPanel>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
         <Border BorderThickness="1"
                 CornerRadius="4"
                 BorderBrush="{DynamicResource ThemeBorderMidColor}"
@@ -69,7 +76,7 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </Border>
-        <Panel IsVisible="{Binding ShowAllTab}">
+        <Panel Grid.Row="1" IsVisible="{Binding ShowAllTab}">
             <Panel IsVisible="{Binding IsListVisible}">
                 <ScrollViewer>
                     <ItemsControl ItemsSource="{Binding AvailableExtensions}">
@@ -102,8 +109,8 @@
 
                                             <Image Grid.Row="0"
                                                    Height="100"
-                                                   Stretch="UniformToFill"
-                                                   asyncImageLoader:ImageLoader.Source="{Binding AvailableContent.Image}" />
+                                                   Stretch="Uniform"
+                                                   asyncImageLoader:ImageLoader.Source="{Binding AvailableContent.ImageUrl}" />
 
                                             <StackPanel Margin="0, 16" Grid.Row="1">
                                                 <TextBlock
@@ -135,7 +142,7 @@
                                                     localization:Translator.Key="{Binding PriceText}"
                                                     Foreground="{DynamicResource ThemeForegroundBrush}"
                                                     FontSize="{DynamicResource FontSizeNormal}"
-                                                    FontWeight="Normal"/>
+                                                    FontWeight="Normal" />
                                             </Panel>
                                         </Grid>
                                     </Border>
@@ -145,150 +152,159 @@
                     </ItemsControl>
                 </ScrollViewer>
             </Panel>
-            <Panel IsVisible="{Binding IsDetailsVisible}">
-                <StackPanel Margin="160, 0, 160, 12">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
+            <Grid IsVisible="{Binding IsDetailsVisible}" Margin="160, 0, 160, 12">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
 
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <Button Grid.Column="0"
-                                Grid.Row="0"
-                                Background="Transparent"
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0"
+                        Grid.Row="0"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Command="{Binding BackToListCommand}"
+                        HorizontalAlignment="Left"
+                        Padding="0"
+                        Margin="0, 12">
+                    <TextBlock FontSize="{DynamicResource FontSizeNormal}" Opacity="0.5">
+                        <Run Text="&lt; " />
+                        <Run localization:Translator.Key="EXTENSIONS_WINDOW_DETAILS_BACK" />
+                    </TextBlock>
+                </Button>
+                <ScrollViewer Grid.Column="0" Grid.Row="1">
+                    <StackPanel>
+                        <TextBlock Text="{Binding SelectedAvailableExtension.AvailableContent.Name}"
+                                   FontWeight="Bold"
+                                   Classes="h1"
+                                   Margin="0, 0, 0, 12" />
+
+                        <TextBlock Text="{Binding SelectedAvailableExtension.AvailableContent.Description}"
+                                   TextWrapping="Wrap" />
+                        <Separator/>
+                        <avalonia:MarkdownRenderer
+                            Margin="0, 12, 0, 0"
+                            LinkCommand="{Binding LinkClickCommand}"
+                            MarkdownBuilder="{Binding SelectedAvailableExtension.MarkdownBody}">
+                            <avalonia:MarkdownRenderer.Styles>
+                                <Style Selector="StackPanel">
+                                    <Setter Property="Spacing" Value="12" />
+                                </Style>
+                            </avalonia:MarkdownRenderer.Styles>
+                        </avalonia:MarkdownRenderer>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <Border Grid.Column="1"
+                        Grid.Row="1"
+                        BorderThickness="2, 0, 0,0"
+                        Padding="12, 0"
+                        BorderBrush="{DynamicResource ThemeBackgroundColor1}"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Top"
+                        MinHeight="216">
+                    <StackPanel>
+                        <TextBlock localization:Translator.Key="EXTENSIONS_WINDOW_DEVELOPER"
+                                   Opacity="0.5"
+                                   />
+
+                        <TextBlock Text="{Binding SelectedAvailableExtension.AvailableContent.Author}"
+                                   FontWeight="Bold"
+                                   FontSize="{DynamicResource FontSizeLarge}"
+                                   Margin="0, 0, 0, 12" />
+
+                        <TextBlock localization:Translator.Key="EXTENSIONS_WINDOW_PRICE"
+                                   Opacity="0.5"
+                                    />
+
+                        <TextBlock
+                            localization:Translator.Key="{Binding SelectedAvailableExtension.CalculatedPrice}"
+                            FontSize="{DynamicResource FontSizeLarge}"
+                            FontWeight="Bold"
+                            Margin="0, 0, 0, 12">
+                            <TextBlock.IsVisible>
+                                <MultiBinding Converter="{converters:AllTrueConverter}">
+                                    <Binding Path="!SelectedAvailableExtension.IsOwned" />
+                                    <Binding Path="!SelectedAvailableExtension.AllBundleItemsOwned" />
+                                </MultiBinding>
+                            </TextBlock.IsVisible>
+                        </TextBlock>
+                        <TextBlock localization:Translator.Key="EXTENSIONS_WINDOW_IN_LIBRARY"
+                                   FontSize="{DynamicResource FontSizeLarge}"
+                                   FontWeight="Bold"
+                                   Margin="0, 0, 0 12">
+                            <TextBlock.IsVisible>
+                                <MultiBinding Converter="{converters:AllTrueConverter}">
+                                    <Binding Path="SelectedAvailableExtension.IsOwned" />
+                                    <Binding Path="!SelectedAvailableExtension.IsBundle" />
+                                </MultiBinding>
+                            </TextBlock.IsVisible>
+                        </TextBlock>
+                        <TextBlock localization:Translator.Key="EXTENSIONS_WINDOW_ALL_FROM_BUNDLE_OWNED"
+                                   FontSize="{DynamicResource FontSizeLarge}"
+                                   FontWeight="Bold"
+                                   Margin="0, 0, 0 12"
+                                   IsVisible="{Binding SelectedAvailableExtension.AllBundleItemsOwned}" />
+
+                        <Button Command="{Binding OpenPurchaseLinkCommand}"
+                                CommandParameter="{Binding SelectedAvailableExtension.AvailableContent.Id}"
+                                FontSize="{DynamicResource FontSizeNormal}"
+                                Background="{DynamicResource ThemeAccentBrush}"
                                 BorderThickness="0"
-                                Command="{Binding BackToListCommand}"
-                                HorizontalAlignment="Left"
-                                Padding="0"
                                 Margin="0, 12">
-                            <TextBlock FontSize="{DynamicResource FontSizeNormal}" Opacity="0.5">
-                                <Run Text="&lt; " />
-                                <Run localization:Translator.Key="EXTENSIONS_WINDOW_DETAILS_BACK" />
+                            <Button.IsVisible>
+                                <MultiBinding Converter="{converters:AllTrueConverter}">
+                                    <Binding Path="!SelectedAvailableExtension.IsOwned" />
+                                    <Binding Path="!SelectedAvailableExtension.AllBundleItemsOwned" />
+                                    <Binding Path="IsUserLoggedIn" />
+                                    <Binding Path="!SelectedAvailableExtension.IsCountryUnsupported" />
+                                    <Binding Path="!SelectedAvailableExtension.IsFree" />
+                                </MultiBinding>
+                            </Button.IsVisible>
+                            <TextBlock>
+                                <Run localization:Translator.Key="EXTENSIONS_WINDOW_PURCHASE_BUTTON" />
+                                <Run Classes="pixi-icon" Text="{DynamicResource icon-link}" />
                             </TextBlock>
                         </Button>
-                        <StackPanel Grid.Column="0" Grid.Row="1">
-                            <TextBlock Text="{Binding SelectedAvailableExtension.AvailableContent.Name}"
-                                       FontSize="{DynamicResource FontSizeLarge}"
-                                       FontWeight="Bold"
-                                       Margin="0, 0, 0, 12" />
+                        <Button Command="{Binding AddToLibraryCommand}"
+                                CommandParameter="{Binding SelectedAvailableExtension.AvailableContent.Id}"
+                                FontSize="{DynamicResource FontSizeNormal}"
+                                Background="{DynamicResource ThemeAccentBrush}"
+                                BorderThickness="0"
+                                localization:Translator.Key="ADD_TO_LIBRARY"
+                                Margin="0, 12">
+                            <Button.IsVisible>
+                                <MultiBinding Converter="{converters:AllTrueConverter}">
+                                    <Binding Path="!SelectedAvailableExtension.IsOwned" />
+                                    <Binding Path="!SelectedAvailableExtension.AllBundleItemsOwned" />
+                                    <Binding Path="IsUserLoggedIn" />
+                                    <Binding Path="SelectedAvailableExtension.IsFree" />
+                                </MultiBinding>
+                            </Button.IsVisible>
+                        </Button>
+                        <Button localization:Translator.Key="LOGIN"
+                                Command="{xaml:Command Name=PixiEditor.Window.OpenAccountWindow}">
+                            <Button.IsVisible>
+                                <MultiBinding Converter="{converters:AllTrueConverter}">
+                                    <Binding Path="!IsUserLoggedIn" />
+                                </MultiBinding>
+                            </Button.IsVisible>
+                        </Button>
+                        <TextBlock
+                            Foreground="{DynamicResource ErrorOnDarkBrush}"
+                            localization:Translator.Key="{Binding ErrorMessage}" />
 
-                            <TextBlock Text="{Binding SelectedAvailableExtension.AvailableContent.Description}"
-                                       TextWrapping="Wrap" />
-                        </StackPanel>
-
-                        <Border Grid.Column="1"
-                                Grid.Row="1"
-                                BorderThickness="2, 0, 0,0"
-                                Padding="12, 0"
-                                BorderBrush="{DynamicResource ThemeBackgroundColor1}"
-                                HorizontalAlignment="Right"
-                                VerticalAlignment="Top"
-                                MinHeight="216">
-                            <StackPanel>
-                                <TextBlock localization:Translator.Key="EXTENSIONS_WINDOW_DEVELOPER"
-                                           Opacity="0.5"
-                                           FontSize="{DynamicResource FontSizeSmall}" />
-
-                                <TextBlock Text="{Binding SelectedAvailableExtension.AvailableContent.Author}"
-                                           FontSize="{DynamicResource FontSizeNormal}"
-                                           FontWeight="Bold"
-                                           Margin="0, 0, 0, 12" />
-
-                                <TextBlock localization:Translator.Key="EXTENSIONS_WINDOW_PRICE"
-                                           Opacity="0.5"
-                                           FontSize="{DynamicResource FontSizeSmall}" />
-
-                                <TextBlock
-                                    localization:Translator.Key="{Binding SelectedAvailableExtension.CalculatedPrice}"
-                                    FontSize="{DynamicResource FontSizeLarge}"
-                                    FontWeight="Bold"
-                                    Margin="0, 0, 0, 12">
-                                    <TextBlock.IsVisible>
-                                        <MultiBinding Converter="{converters:AllTrueConverter}">
-                                            <Binding Path="!SelectedAvailableExtension.IsOwned" />
-                                            <Binding Path="!SelectedAvailableExtension.AllBundleItemsOwned" />
-                                        </MultiBinding>
-                                    </TextBlock.IsVisible>
-                                </TextBlock>
-                                <TextBlock localization:Translator.Key="EXTENSIONS_WINDOW_IN_LIBRARY"
-                                           FontSize="{DynamicResource FontSizeLarge}"
-                                           FontWeight="Bold"
-                                           Margin="0, 0, 0 12">
-                                    <TextBlock.IsVisible>
-                                        <MultiBinding Converter="{converters:AllTrueConverter}">
-                                            <Binding Path="SelectedAvailableExtension.IsOwned" />
-                                            <Binding Path="!SelectedAvailableExtension.IsBundle" />
-                                        </MultiBinding>
-                                    </TextBlock.IsVisible>
-                                </TextBlock>
-                                <TextBlock localization:Translator.Key="EXTENSIONS_WINDOW_ALL_FROM_BUNDLE_OWNED"
-                                           FontSize="{DynamicResource FontSizeLarge}"
-                                           FontWeight="Bold"
-                                           Margin="0, 0, 0 12"
-                                           IsVisible="{Binding SelectedAvailableExtension.AllBundleItemsOwned}" />
-
-                                <Button Command="{Binding OpenPurchaseLinkCommand}"
-                                        CommandParameter="{Binding SelectedAvailableExtension.AvailableContent.Id}"
-                                        FontSize="{DynamicResource FontSizeNormal}"
-                                        Background="{DynamicResource ThemeAccentBrush}"
-                                        BorderThickness="0"
-                                        Margin="0, 12">
-                                    <Button.IsVisible>
-                                        <MultiBinding Converter="{converters:AllTrueConverter}">
-                                            <Binding Path="!SelectedAvailableExtension.IsOwned" />
-                                            <Binding Path="!SelectedAvailableExtension.AllBundleItemsOwned" />
-                                            <Binding Path="IsUserLoggedIn" />
-                                            <Binding Path="!SelectedAvailableExtension.IsCountryUnsupported" />
-                                            <Binding Path="!SelectedAvailableExtension.IsFree" />
-                                        </MultiBinding>
-                                    </Button.IsVisible>
-                                    <TextBlock>
-                                        <Run localization:Translator.Key="EXTENSIONS_WINDOW_PURCHASE_BUTTON" />
-                                        <Run Classes="pixi-icon" Text="{DynamicResource icon-link}" />
-                                    </TextBlock>
-                                </Button>
-                                <Button Command="{Binding AddToLibraryCommand}"
-                                        CommandParameter="{Binding SelectedAvailableExtension.AvailableContent.Id}"
-                                        FontSize="{DynamicResource FontSizeNormal}"
-                                        Background="{DynamicResource ThemeAccentBrush}"
-                                        BorderThickness="0"
-                                        localization:Translator.Key="ADD_TO_LIBRARY"
-                                        Margin="0, 12">
-                                    <Button.IsVisible>
-                                        <MultiBinding Converter="{converters:AllTrueConverter}">
-                                            <Binding Path="!SelectedAvailableExtension.IsOwned" />
-                                            <Binding Path="!SelectedAvailableExtension.AllBundleItemsOwned" />
-                                            <Binding Path="IsUserLoggedIn" />
-                                            <Binding Path="SelectedAvailableExtension.IsFree" />
-                                        </MultiBinding>
-                                    </Button.IsVisible>
-                                </Button>
-                                <Button localization:Translator.Key="LOGIN"
-                                        Command="{xaml:Command Name=PixiEditor.Window.OpenAccountWindow}">
-                                    <Button.IsVisible>
-                                        <MultiBinding Converter="{converters:AllTrueConverter}">
-                                            <Binding Path="!IsUserLoggedIn" />
-                                        </MultiBinding>
-                                    </Button.IsVisible>
-                                </Button>
-                                <TextBlock
-                                    Foreground="{DynamicResource ErrorOnDarkBrush}"
-                                    localization:Translator.Key="{Binding ErrorMessage}" />
-
-                            </StackPanel>
-                        </Border>
-                    </Grid>
-                    <Image
-                        asyncImageLoader:ImageLoader.Source="{Binding SelectedAvailableExtension.AvailableContent.Image}"
-                        Margin="0, 12" />
-                </StackPanel>
-            </Panel>
+                    </StackPanel>
+                </Border>
+            </Grid>
+            <Image
+                asyncImageLoader:ImageLoader.Source="{Binding SelectedAvailableExtension.AvailableContent.Image}"
+                Margin="0, 12" />
         </Panel>
-        <Panel IsVisible="{Binding ShowOwnedTab}">
+        <Panel Grid.Row="1" IsVisible="{Binding ShowOwnedTab}">
             <ScrollViewer>
                 <ItemsControl ItemsSource="{Binding OwnedExtensions}">
                     <ItemsControl.ItemsPanel>
@@ -321,7 +337,7 @@
                                     <StackPanel Margin="0, 16" Grid.Row="1">
                                         <TextBlock
                                             Text="{Binding ProductData.Author}"
-                                            Foreground="White"
+                                            Foreground="{DynamicResource ThemeForegroundColor}"
                                             Opacity="0.5"
                                             FontSize="{DynamicResource FontSizeSmall}" />
 
@@ -479,7 +495,5 @@
                 </ItemsControl>
             </ScrollViewer>
         </Panel>
-    </StackPanel>
-
-
+    </Grid>
 </dialogs:PixiEditorPopup>

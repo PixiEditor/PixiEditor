@@ -3,6 +3,7 @@ using System.Text;
 using Avalonia.Threading;
 using AvaloniaEdit.Utils;
 using CommunityToolkit.Mvvm.Input;
+using LiveMarkdown.Avalonia;
 using PixiEditor.Extensions;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
@@ -97,6 +98,7 @@ internal class ExtensionManagerViewModel : ViewModelBase
     private string errorMessage;
 
     public bool IsUserLoggedIn => identityProvider.User != null && identityProvider.User.IsLoggedIn;
+    public RelayCommand<LinkClickedEventArgs> LinkClickCommand { get; }
 
     public bool ShouldUpdateUserOwnedProducts = false;
 
@@ -113,6 +115,13 @@ internal class ExtensionManagerViewModel : ViewModelBase
         EnableExtensionCommand = new AsyncRelayCommand<string>(EnableExtension, CanEnableExtension);
         DisableExtensionCommand = new RelayCommand<string>(DisableExtension, CanDisableExtension);
         AddToLibraryCommand = new AsyncRelayCommand<string>(AddToLibrary, CanAddToLibrary);
+        LinkClickCommand = new RelayCommand<LinkClickedEventArgs>(args =>
+        {
+            if (args.HRef != null)
+            {
+                IOperatingSystem.Current.OpenUri(args.HRef.AbsoluteUri);
+            }
+        });
 
         BackToListCommand = new RelayCommand(BackToList);
         SelectExtensionCommand = new RelayCommand<AvailableContentViewModel>(SelectExtension);
@@ -163,7 +172,7 @@ internal class ExtensionManagerViewModel : ViewModelBase
     {
         OwnedExtensions.Clear();
 
-        if (identityProvider.User != null)
+        if (identityProvider.User != null && identityProvider.User.OwnedProducts != null)
         {
             var extensions = identityProvider.User.OwnedProducts;
             foreach (ProductData extension in extensions)
@@ -188,7 +197,8 @@ internal class ExtensionManagerViewModel : ViewModelBase
                     }
                 }
 
-                bool isEnabled = IsLoaded(extension.Id) && !PixiEditorSettings.Extensions.DisabledExtensions.Value.Contains(extension.Id);
+                bool isEnabled = IsLoaded(extension.Id) &&
+                                 !PixiEditorSettings.Extensions.DisabledExtensions.Value.Contains(extension.Id);
                 bool isLoaded = IsLoaded(extension.Id);
 
                 OwnedExtensions.Add(new OwnedProductViewModel(extension, isInstalled, installedVersion, isEnabled,
@@ -234,7 +244,7 @@ internal class ExtensionManagerViewModel : ViewModelBase
 
     public bool IsExtensionOwned(string productId)
     {
-        if (identityProvider.User != null)
+        if (identityProvider.User != null && identityProvider.User.OwnedProducts != null)
         {
             return identityProvider.User.OwnedProducts
                 .Any(p => p.Id == productId);
@@ -515,7 +525,8 @@ internal class ExtensionManagerViewModel : ViewModelBase
             ext.ToggleEnabledCommand.NotifyCanExecuteChanged();
         }
 
-        RefreshInstalledExtensions(extensionsViewModel.ExtensionLoader.LoadedExtensions.Select(x => x.Metadata.UniqueName).ToList());
+        RefreshInstalledExtensions(extensionsViewModel.ExtensionLoader.LoadedExtensions
+            .Select(x => x.Metadata.UniqueName).ToList());
     }
 
     public int CountLoadedDependencies(string extensionId)

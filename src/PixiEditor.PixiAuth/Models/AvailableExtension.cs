@@ -28,5 +28,8 @@ public class AvailableExtension
     
     [JsonPropertyName("includedExtensions")]
     public List<string> IncludedExtensions { get; set; } = new List<string>();
+
+    [JsonPropertyName("body")]
+    public string Body { get; set; }
 }
 

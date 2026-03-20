@@ -1386,5 +1386,7 @@
   "LOGIN_INSTEAD": "Already have an account? Login instead",
   "FREE": "Free",
   "ADD_TO_LIBRARY": "Add to Library",
-  "LOGIN_REQUIRED": "You need to be logged in to perform this action."
+  "LOGIN_REQUIRED": "You need to be logged in to perform this action.",
+  "EXTENSIONS_WINDOW_UNINSTALL_CONFIRMATION_MESSAGE": "Are you sure you want to uninstall this extension? Extension file on your disk will be permanently deleted and this action cannot be undone.",
+  "EXTENSIONS_WINDOW_UNINSTALL_CONFIRMATION_TITLE": "Uninstall Extension?"
 }
