@@ -65,7 +65,7 @@ internal class OptionsDialog<T> : CustomDialog, IEnumerable<T>
         popup.Topmost = topmost;
         await popup.ShowDialog(OwnerWindow);
 
-        Result = (T?)popup.Result;
+        Result ??= (T?)popup.Result;
         if (Result != null)
         {
             _results[Result]?.Invoke(Result);
