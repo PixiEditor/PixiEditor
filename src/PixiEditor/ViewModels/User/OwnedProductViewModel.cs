@@ -79,7 +79,7 @@ public class OwnedProductViewModel : ObservableObject
         bool isLoaded,
         IAsyncRelayCommand<string> installContentCommand, IAsyncRelayCommand<string> uninstallContentCommand,
         IRelayCommand<string> enableContentCommand, IRelayCommand<string> disableContentCommand,
-        Func<string, bool> isInstalledFunc, Func<string, bool> areDependenciesLoadedFunc, Func<string, int> countLoadedDependenciesFunc)
+        Func<string, bool> isInstalledFunc, Func<string, bool> areDependenciesReachableFunc, Func<string, int> countLoadedDependenciesFunc)
     {
         ProductData = productData;
         IsInstalled = isInstalled;
@@ -94,7 +94,7 @@ public class OwnedProductViewModel : ObservableObject
         }
 
         IsEnabled = isEnabled;
-        CanBeEnabled = areDependenciesLoadedFunc(ProductData.Id);
+        CanBeEnabled = areDependenciesReachableFunc(ProductData.Id);
 
         InstallCommand = new AsyncRelayCommand(
             async () =>
@@ -126,13 +126,16 @@ public class OwnedProductViewModel : ObservableObject
             {
                 IsUninstalling = true;
                 RestartRequired = false;
+                bool wasEnabled = IsEnabled;
 
                 await uninstallContentCommand.ExecuteAsync(ProductData.Id);
 
                 IsUninstalling = false;
                 IsInstalled = false;
                 UpdateAvailable = false;
-                RestartRequired = true;
+                RestartRequired = wasEnabled;
+                InstallCommand.NotifyCanExecuteChanged();
+                ToggleEnabledCommand.NotifyCanExecuteChanged();
             },
             () => IsInstalled && !IsInstalling && !IsUninstalling
         );
@@ -142,7 +145,7 @@ public class OwnedProductViewModel : ObservableObject
                 {
                     if (isOn)
                     {
-                        CanBeEnabled = areDependenciesLoadedFunc(ProductData.Id);
+                        CanBeEnabled = areDependenciesReachableFunc(ProductData.Id);
                         if (CanBeEnabled)
                         {
                             IsEnabled = true;
@@ -155,7 +158,6 @@ public class OwnedProductViewModel : ObservableObject
                         int dependentCount = countLoadedDependenciesFunc(ProductData.Id);
                         if (dependentCount > 0)
                         {
-                            string message = $"EXTENSIONS_WINDOW_DISABLE_CONFIRMATION_MESSAGE {dependentCount}";
                             var result = await ConfirmationDialog.Show(new LocalizedString("EXTENSIONS_WINDOW_DISABLE_CONFIRMATION_MESSAGE", dependentCount), "EXTENSIONS_WINDOW_DISABLE_CONFIRMATION_TITLE");
 
                             if (result != ConfirmationType.Yes)

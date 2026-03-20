@@ -64,6 +64,47 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
         }
     }
 
+    public async Task<List<string>> LoadExtensionWithDependenciesAdHoc(string extensionPath, IAdditionalContentProvider additionalContentProvider)
+    {
+        var metadata = ExtensionLoader.LoadExtensionMetadata(extensionPath);
+        if (metadata is null)
+        {
+            return [];
+        }
+
+        List<DiscoveredExtension> discoveredExtensions = ExtensionLoader.UnloadedExtensionsMetadata
+            .Select(x => new DiscoveredExtension { Metadata = x.metadata, Disabled = true, PackagePath = x.path })
+            .ToList();
+
+        discoveredExtensions.AddRange(ExtensionManager.OwnedExtensions
+            .Where(x => !x.IsInstalled)
+            .Select(x => new DiscoveredExtension
+            {
+                Metadata = new ExtensionMetadata() { UniqueName = x.ProductData.Id },
+                Disabled = true,
+                PackagePath = null
+            }));
+
+        var ordered = ExtensionDependencyResolver.ResolveDependencies(discoveredExtensions, metadata.UniqueName);
+
+        List<string> loadedExtensions = new List<string>();
+        foreach (var ext in ordered)
+        {
+            if (ext.PackagePath == null)
+            {
+                var installed = await InstallAndLoadExtensionWithDependencies(additionalContentProvider, ext.Metadata.UniqueName);
+                loadedExtensions.AddRange(installed);
+            }
+            else if (ext.Disabled)
+            {
+                LoadExtensionAdHoc(ext.PackagePath);
+                loadedExtensions.Add(ext.Metadata.UniqueName);
+            }
+        }
+
+        return loadedExtensions.Distinct().ToList();
+    }
+
     public void LoadExtensionAdHoc(string extension)
     {
         if (extension.EndsWith(".pixiext"))
@@ -101,7 +142,7 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
             List<DiscoveredExtension> prevInstalledExtensions = new List<DiscoveredExtension>();
             foreach (var loaded in ExtensionLoader.LoadedExtensions)
             {
-                if (!installedExtensions.Any(x => x.Metadata.UniqueName == loaded.Metadata.UniqueName))
+                if (installedExtensions.All(x => x.Metadata.UniqueName != loaded.Metadata.UniqueName))
                 {
                     prevInstalledExtensions.Add(new DiscoveredExtension
                     {
@@ -114,11 +155,13 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
 
             foreach (var unloaded in ExtensionLoader.UnloadedExtensionsMetadata)
             {
-                if (!installedExtensions.Any(x => x.Metadata.UniqueName == unloaded.UniqueName))
+                if (!installedExtensions.Any(x => x.Metadata.UniqueName == unloaded.metadata.UniqueName))
                 {
                     prevInstalledExtensions.Add(new DiscoveredExtension
                     {
-                        Metadata = unloaded, Disabled = !IsLoaded(unloaded.UniqueName), PackagePath = null,
+                        Metadata = unloaded.metadata,
+                        Disabled = !IsLoaded(unloaded.metadata.UniqueName),
+                        PackagePath = unloaded.path
                     });
                 }
             }
@@ -138,7 +181,7 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
                     }
                     else
                     {
-                        ExtensionLoader.UnloadedExtensionsMetadata.Add(ext.Metadata);
+                        ExtensionLoader.UnloadedExtensionsMetadata.Add((ext.Metadata, ext.PackagePath));
                     }
                 }
             }
@@ -164,7 +207,8 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
 
         if (!provider.IsContentOwned(extensionId))
         {
-            var ext = ExtensionManager.AvailableExtensions.FirstOrDefault(x => x.AvailableContent.Id == extensionId);
+            var ext = ExtensionManager.AvailableExtensions.FirstOrDefault(x =>
+                x.AvailableContent.Id == extensionId);
             if (ext.IsFree)
             {
                 await ExtensionManager.AddToLibrary(extensionId);
@@ -205,15 +249,28 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
         return ExtensionLoader.LoadedExtensions.Any(x => x.Metadata.UniqueName == extensionId);
     }
 
-    public void EnableExtension(string extensionId)
+    public async Task EnableExtension(string extensionId, IAdditionalContentProvider additionalContentProvider)
     {
         var disabled = PixiEditorSettings.Extensions.DisabledExtensions.Value.ToList();
-        disabled.Remove(extensionId);
+
+        var allPossiblePaths = ExtensionLoader.PackagesPath;
+
+        string? extensionPathRoot = allPossiblePaths.FirstOrDefault(x =>
+        {
+            string pathToTest = Path.Combine(x, $"{extensionId}.pixiext");
+            return File.Exists(pathToTest);
+        });
+
+        string extensionPath = Path.Combine(extensionPathRoot, $"{extensionId}.pixiext");
+
+        var loaded = await LoadExtensionWithDependenciesAdHoc(extensionPath, additionalContentProvider);
+
+        foreach (var ext in loaded)
+        {
+            disabled.RemoveAll(x => x == ext);
+        }
+
         PixiEditorSettings.Extensions.DisabledExtensions.Value = disabled;
-
-        string extensionPath = Path.Combine(Paths.LocalExtensionPackagesPath, $"{extensionId}.pixiext");
-
-        LoadExtensionAdHoc(extensionPath);
     }
 
     public void DisableExtension(string extensionId)

@@ -4,6 +4,25 @@ namespace PixiEditor.Extensions.Runtime;
 
 public static class ExtensionDependencyResolver
 {
+    public static List<DiscoveredExtension> ResolveDependencies(List<DiscoveredExtension> discoveredExtensions,
+        string forExtension)
+    {
+        var map = discoveredExtensions.ToDictionary(e => e.Metadata.UniqueName);
+        var result = new List<DiscoveredExtension>();
+
+        var visited = new HashSet<string>();
+        var visiting = new HashSet<string>();
+
+        if (!map.TryGetValue(forExtension, out var root))
+        {
+            // Extension not found
+            return result;
+        }
+
+        Visit(root, map, visited, visiting, result);
+
+        return result;
+    }
     /// <summary>
     /// Returns all discovered extensions in dependency order.
     /// Disabled extensions remain in the list, with Disabled = true.

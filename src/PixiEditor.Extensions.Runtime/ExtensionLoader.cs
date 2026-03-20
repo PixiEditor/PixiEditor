@@ -10,7 +10,7 @@ namespace PixiEditor.Extensions.Runtime;
 
 public class ExtensionLoader : IExtensionListProvider
 {
-    public List<ExtensionMetadata> UnloadedExtensionsMetadata { get; } = new();
+    public List<(ExtensionMetadata metadata, string path)> UnloadedExtensionsMetadata { get; } = new();
     private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
 
     public IReadOnlyCollection<Extension> LoadedExtensions => loaded;
@@ -43,7 +43,7 @@ public class ExtensionLoader : IExtensionListProvider
         {
             if (ext.Disabled)
             {
-                UnloadedExtensionsMetadata.Add(ext.Metadata);
+                UnloadedExtensionsMetadata.Add((ext.Metadata, ext.PackagePath));
             }
             else
             {
@@ -208,9 +208,9 @@ public class ExtensionLoader : IExtensionListProvider
         return LoadExtensionFromCache(extensionJson);
     }
     
-    public ExtensionMetadata? LoadExtensionMetadata(string extension)
+    public ExtensionMetadata? LoadExtensionMetadata(string extensionPath)
     {
-        var extensionJson = GetExtensionJson(extension);
+        var extensionJson = GetExtensionJson(extensionPath);
         if (extensionJson == null)
         {
             return null;
@@ -260,8 +260,8 @@ public class ExtensionLoader : IExtensionListProvider
         }
         
         loaded.Remove(extension);
-        
-        foreach (var package in  PackagesPath) 
+
+        foreach (var package in  PackagesPath)
         {
             string fullPackagePath = Path.Combine(package, $"{extensionId}.pixiext");
             if (File.Exists(fullPackagePath))
