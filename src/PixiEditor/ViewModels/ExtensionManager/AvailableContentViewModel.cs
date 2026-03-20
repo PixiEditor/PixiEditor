@@ -16,6 +16,12 @@ internal class AvailableContentViewModel : ObservableObject
         IsBundle && AvailableContent.IncludedExtensions.All(id => extensionManager.IsExtensionOwned(id));
     
     public bool IsCountryUnsupported => Currency == "UNSUPPORTED";
+
+    public string PriceText => IsOwned
+        ? "EXTENSIONS_WINDOW_IN_LIBRARY"
+        : (
+            AllBundleItemsOwned ? "EXTENSIONS_WINDOW_ALL_FROM_BUNDLE_OWNED" : CalculatedPrice
+        );
     
     public string CalculatedPrice
     {
@@ -67,6 +73,7 @@ internal class AvailableContentViewModel : ObservableObject
         OnPropertyChanged(nameof(IsBundle));
         OnPropertyChanged(nameof(AllBundleItemsOwned));
         OnPropertyChanged(nameof(CalculatedPrice));
+        OnPropertyChanged(nameof(PriceText));
         OnPropertyChanged(nameof(IsCountryUnsupported));
     }
 }

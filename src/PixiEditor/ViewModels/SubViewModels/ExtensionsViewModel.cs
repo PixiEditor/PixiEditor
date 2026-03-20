@@ -8,10 +8,12 @@ using PixiEditor.Extensions.Metadata;
 using PixiEditor.Extensions.Runtime;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
+using PixiEditor.IdentityProvider.PixiAuth;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.ExtensionServices;
 using PixiEditor.Models.IO;
 using PixiEditor.Platform;
+using PixiEditor.Platform.Standalone;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.ExtensionManager;
 using PixiEditor.Views;
@@ -45,8 +47,9 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
         {
             Owner.AttachedToWindow += OwnerOnAttachedToWindow;
         }
-        
-        ExtensionManager = new ExtensionManagerViewModel(this, Owner.UserViewModel.AdditionalContentProvider, Owner.UserViewModel.IdentityProvider);
+
+        ExtensionManager = new ExtensionManagerViewModel(this, Owner.UserViewModel.AdditionalContentProvider,
+            Owner.UserViewModel.IdentityProvider);
     }
 
     private void OwnerOnAttachedToWindow(MainWindow obj)
@@ -85,15 +88,16 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
             }
         }
     }
-    
-    public async Task<List<string>> InstallAndLoadExtensionWithDependencies(IAdditionalContentProvider additionalContentProvider, string productId)
+
+    public async Task<List<string>> InstallAndLoadExtensionWithDependencies(
+        IAdditionalContentProvider additionalContentProvider, string productId)
     {
         try
         {
             List<DiscoveredExtension> installedExtensions = new List<DiscoveredExtension>();
-            
+
             await InstallRecursive(additionalContentProvider, productId, installedExtensions);
-            
+
             List<DiscoveredExtension> prevInstalledExtensions = new List<DiscoveredExtension>();
             foreach (var loaded in ExtensionLoader.LoadedExtensions)
             {
@@ -107,22 +111,22 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
                     });
                 }
             }
+
             foreach (var unloaded in ExtensionLoader.UnloadedExtensionsMetadata)
             {
                 if (!installedExtensions.Any(x => x.Metadata.UniqueName == unloaded.UniqueName))
                 {
                     prevInstalledExtensions.Add(new DiscoveredExtension
                     {
-                        Metadata = unloaded,
-                        Disabled = !IsLoaded(unloaded.UniqueName),
-                        PackagePath = null,
+                        Metadata = unloaded, Disabled = !IsLoaded(unloaded.UniqueName), PackagePath = null,
                     });
                 }
             }
-            
+
             List<DiscoveredExtension> sortedInstalledExtensions =
-                ExtensionDependencyResolver.ResolveDependencies(installedExtensions.Concat(prevInstalledExtensions).ToList());
-            
+                ExtensionDependencyResolver.ResolveDependencies(installedExtensions.Concat(prevInstalledExtensions)
+                    .ToList());
+
             foreach (var ext in sortedInstalledExtensions)
             {
                 // Only load newly installed extensions
@@ -131,7 +135,6 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
                     if (!ext.Disabled)
                     {
                         Owner.ExtensionsSubViewModel.LoadExtensionAdHoc(ext.PackagePath);
-
                     }
                     else
                     {
@@ -139,6 +142,7 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
                     }
                 }
             }
+
             return installedExtensions
                 .Select(x => x.Metadata.UniqueName)
                 .ToList();
@@ -149,7 +153,7 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
             return new List<string>();
         }
     }
-    
+
     private async Task InstallRecursive(
         IAdditionalContentProvider provider,
         string extensionId,
@@ -158,6 +162,15 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
         if (provider.IsInstalled(extensionId))
             return;
 
+        if (!provider.IsContentOwned(extensionId))
+        {
+            var ext = ExtensionManager.AvailableExtensions.FirstOrDefault(x => x.AvailableContent.Id == extensionId);
+            if (ext.IsFree)
+            {
+                await ExtensionManager.AddToLibrary(extensionId);
+            }
+        }
+
         string? extensionPath = await provider.InstallContent(extensionId);
 
         if (extensionPath == null)
@@ -165,7 +178,7 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
             // Skip if user doesn't own
             return;
         }
-        
+
         var metadata = ExtensionLoader.LoadExtensionMetadata(extensionPath);
 
         if (metadata != null)
@@ -175,15 +188,13 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
                 await InstallRecursive(provider, dep, installedExtensions);
             }
         }
-        
+
         installedExtensions.Add(new DiscoveredExtension
         {
-            Metadata = metadata,
-            Disabled = false,
-            PackagePath = extensionPath
+            Metadata = metadata, Disabled = false, PackagePath = extensionPath
         });
     }
-    
+
     public async Task UninstallExtension(string extensionId)
     {
         this.ExtensionLoader.UninstallExtension(extensionId);
@@ -193,18 +204,18 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
     {
         return ExtensionLoader.LoadedExtensions.Any(x => x.Metadata.UniqueName == extensionId);
     }
-    
+
     public void EnableExtension(string extensionId)
     {
         var disabled = PixiEditorSettings.Extensions.DisabledExtensions.Value.ToList();
         disabled.Remove(extensionId);
         PixiEditorSettings.Extensions.DisabledExtensions.Value = disabled;
-        
+
         string extensionPath = Path.Combine(Paths.LocalExtensionPackagesPath, $"{extensionId}.pixiext");
-        
+
         LoadExtensionAdHoc(extensionPath);
     }
-    
+
     public void DisableExtension(string extensionId)
     {
         var disabled = PixiEditorSettings.Extensions.DisabledExtensions.Value.ToList();
@@ -234,12 +245,13 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
         ExtensionLoader.InvokeMainWindowLoaded();
     }
 
-    [Command.Basic("PixiEditor.Extensions.OpenExtensionsWindow", "OPEN_EXTENSIONS_WINDOW", "OPEN_EXTENSIONS_WINDOW_DESCRIPTIVE", AnalyticsTrack = true, MenuItemPath = "VIEW/OPEN_EXTENSIONS_WINDOW")]
+    [Command.Basic("PixiEditor.Extensions.OpenExtensionsWindow", "OPEN_EXTENSIONS_WINDOW",
+        "OPEN_EXTENSIONS_WINDOW_DESCRIPTIVE", AnalyticsTrack = true, MenuItemPath = "VIEW/OPEN_EXTENSIONS_WINDOW")]
     public void OpenExtensionsWindow()
     {
         ExtensionsPopup popup = new ExtensionsPopup();
         popup.DataContext = ExtensionManager;
-        
+
         popup.Show();
     }
 }
