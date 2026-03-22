@@ -39,6 +39,7 @@ internal class ExtensionManagerViewModel : ViewModelBase
 
     public RelayCommand BackToListCommand { get; }
     public RelayCommand<AvailableContentViewModel> SelectExtensionCommand { get; }
+    public RelayCommand<OwnedProductViewModel> SelectOwnedExtensionCommand { get; }
 
     public AsyncRelayCommand<string> OpenPurchaseLinkCommand { get; }
 
@@ -125,6 +126,28 @@ internal class ExtensionManagerViewModel : ViewModelBase
 
         BackToListCommand = new RelayCommand(BackToList);
         SelectExtensionCommand = new RelayCommand<AvailableContentViewModel>(SelectExtension);
+        SelectOwnedExtensionCommand = new RelayCommand<OwnedProductViewModel>(ext =>
+        {
+            var availableExt = AvailableExtensions.FirstOrDefault(e => e.AvailableContent.Id == ext.ProductData.Id);
+            if (availableExt != null)
+            {
+                SelectExtension(availableExt);
+            }
+            else
+            {
+                var created = new AvailableContentViewModel(new AvailableContent
+                {
+                    Id = ext.ProductData.Id,
+                    Name = ext.ProductData.DisplayName,
+                    Description = ext.ProductData.Description,
+                    Author = ext.ProductData.Author,
+                    HideAddToLibrary = true,
+                    Body = ext.ProductData.Description
+                }, this, 1m, "PLN");
+
+                SelectExtension(created);
+            }
+        });
 
         OpenPurchaseLinkCommand = new AsyncRelayCommand<string>(OpenPurchaseLink);
 
