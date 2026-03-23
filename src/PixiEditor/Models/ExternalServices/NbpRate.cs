@@ -4,5 +4,5 @@ public class NbpRate
 {
     public string No { get; set; }
     public DateTime EffectiveDate { get; set; }
-    public decimal Mid { get; set; }
+    public double Mid { get; set; }
 }

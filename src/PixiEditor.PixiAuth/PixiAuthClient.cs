@@ -320,9 +320,10 @@ public class PixiAuthClient
 
     public async Task<List<AvailableExtension>> GetAvailableExtensions()
     {
-        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"content/getAvailableExtensions");
+        using HttpClient cdnClient = new HttpClient();
+        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"https://cdn.pixilabs.eu/items.json");
 
-        var response = await httpClient.SendAsync(request);
+        var response = await cdnClient.SendAsync(request);
 
         if (response.StatusCode >= HttpStatusCode.InternalServerError)
         {
@@ -339,8 +340,13 @@ public class PixiAuthClient
             string result = await response.Content.ReadAsStringAsync();
             try
             {
+                var caseInsensitiveOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web)
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+
                 List<AvailableExtension>? availableExtensions =
-                    JsonSerializer.Deserialize<List<AvailableExtension>>(result);
+                    JsonSerializer.Deserialize<List<AvailableExtension>>(result, caseInsensitiveOptions);
 
                 return availableExtensions ?? new List<AvailableExtension>();
             }

@@ -133,5 +133,14 @@ public static class PixiEditorSettings
         
         public static SyncedSetting<string> DisplayedCurrency { get; } =
             SyncedSetting.NonOwned<string>(PixiEditor, null);
+
+        public static LocalSetting<DateTime> LastFetchedAvailableExtensionsDate { get; } =
+            LocalSetting.NonOwned<DateTime>(PixiEditor, DateTime.MinValue);
+
+        public static LocalSetting<DateTime> LastFetchedExchangeRateDate { get; } =
+            LocalSetting.NonOwned<DateTime>(PixiEditor, DateTime.MinValue);
+
+        public static LocalSetting<double> LastFetchedExchangeRate { get; } =
+            LocalSetting.NonOwned<double>(PixiEditor, 0);
     }
 }
