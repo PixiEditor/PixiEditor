@@ -7,7 +7,10 @@ using LiveMarkdown.Avalonia;
 using PixiEditor.Extensions;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
+using PixiEditor.Extensions.IO;
 using PixiEditor.Extensions.Metadata;
+using PixiEditor.Extensions.WasmRuntime;
+using PixiEditor.Extensions.WasmRuntime.Utilities;
 using PixiEditor.IdentityProvider;
 using PixiEditor.IdentityProvider.PixiAuth;
 using PixiEditor.Models.Commands.XAML;
@@ -235,17 +238,17 @@ internal class ExtensionManagerViewModel : ViewModelBase
         // Add installed extensions that aren't in user owned products
         foreach (Extension loadedExtension in extensionsViewModel.ExtensionLoader.LoadedExtensions)
         {
-            AddToOwnedExtensionsIfMissing(loadedExtension.Metadata);
+            AddToOwnedExtensionsIfMissing(loadedExtension.Metadata, new ExtensionResourceStorage(loadedExtension as WasmExtensionInstance));
         }
 
         foreach (var unloadedExtensionMetadata in extensionsViewModel.ExtensionLoader
                      .UnloadedExtensionsMetadata)
         {
-            AddToOwnedExtensionsIfMissing(unloadedExtensionMetadata.metadata);
+            AddToOwnedExtensionsIfMissing(unloadedExtensionMetadata.metadata, null);
         }
     }
 
-    public void AddToOwnedExtensionsIfMissing(ExtensionMetadata extensionMetadata)
+    public void AddToOwnedExtensionsIfMissing(ExtensionMetadata extensionMetadata, IResourceStorage? storage)
     {
         bool owned = OwnedExtensions.Any(owned => owned.ProductData.Id == extensionMetadata.UniqueName);
 
@@ -254,6 +257,7 @@ internal class ExtensionManagerViewModel : ViewModelBase
             ProductData productData = new ProductData(extensionMetadata.UniqueName, extensionMetadata.DisplayName);
             productData.Author = extensionMetadata.Author.Name;
             productData.Description = extensionMetadata.Description;
+            productData.ImageUrl = extensionMetadata.Image;
 
             bool isInstalled = IsInstalled(extensionMetadata.UniqueName);
             bool isEnabled = IsLoaded(extensionMetadata.UniqueName);
@@ -261,9 +265,11 @@ internal class ExtensionManagerViewModel : ViewModelBase
 
             OwnedExtensions.Add(new OwnedProductViewModel(productData, isInstalled, extensionMetadata.Version,
                 isEnabled, isLoaded, InstallAndLoadExtensionCommand, UninstallExtensionCommand, EnableExtensionCommand,
-                DisableExtensionCommand, IsInstalled, AreDependenciesReachable, CountLoadedDependencies));
+                DisableExtensionCommand, IsInstalled, AreDependenciesReachable, CountLoadedDependencies, storage)
+            );
         }
     }
+
 
     public bool IsExtensionOwned(string productId)
     {
@@ -332,6 +338,10 @@ internal class ExtensionManagerViewModel : ViewModelBase
         }
 
         await extensionsViewModel.UninstallExtension(extensionId);
+        if (!IsUserLoggedIn)
+        {
+            OwnedExtensions.Remove(OwnedExtensions.FirstOrDefault(e => e.ProductData.Id == extensionId));
+        }
     }
 
     public async Task AddToLibrary(string extensionId)

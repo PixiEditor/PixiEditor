@@ -330,8 +330,8 @@
 
                                         <Image Grid.Row="0"
                                                Height="100"
-                                               Stretch="UniformToFill"
-                                               asyncImageLoader:ImageLoader.Source="{Binding ProductData.ImageUrl}" />
+                                               Stretch="Uniform"
+                                               Source="{Binding ImageSource}" />
 
                                         <StackPanel Background="Transparent" Margin="0, 16" Grid.Row="1" Cursor="Hand">
                                             <Interaction.Behaviors>
@@ -375,6 +375,7 @@
                                                         <MultiBinding Converter="{converters:AllTrueConverter}">
                                                             <Binding Path="!IsInstalled" />
                                                             <Binding Path="!IsInstalling" />
+                                                            <Binding Path="DataContext.IsUserLoggedIn" RelativeSource="{RelativeSource AncestorType=dialogs:ExtensionsPopup}" />
                                                         </MultiBinding>
                                                     </Button.IsVisible>
 
@@ -472,7 +473,6 @@
                                                 </Button.Content>
                                             </Button>
                                             <Button DockPanel.Dock="Left" HorizontalAlignment="Left"
-                                                    FontSize="{DynamicResource FontSizeNormal}"
                                                     IsVisible="{Binding RestartRequired}"
                                                     localization:Translator.Key="RESTART"
                                                     Background="{DynamicResource ThemeAccentBrush}"
@@ -480,6 +480,7 @@
 
                                             <Button DockPanel.Dock="Left" HorizontalAlignment="Left"
                                                     FontSize="{DynamicResource FontSizeNormal}"
+                                                    VerticalAlignment="Center" Margin="10, 0"
                                                     localization:Translator.Key="RESTART"
                                                     Background="{DynamicResource ThemeAccentBrush}"
                                                     Command="{xaml:Command Name=PixiEditor.Restart}">

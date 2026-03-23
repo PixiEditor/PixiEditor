@@ -1,6 +1,11 @@
 using System.Windows.Input;
+using AsyncImageLoader;
+using Avalonia.Media;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using PixiEditor.Extensions.FlyUI.Converters;
+using PixiEditor.Extensions.IO;
 using PixiEditor.IdentityProvider;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.UI.Common.Localization;
@@ -10,6 +15,17 @@ namespace PixiEditor.ViewModels.User;
 
 public class OwnedProductViewModel : ObservableObject
 {
+    private IResourceStorage? storage;
+
+    public IResourceStorage? ResourceStorage
+    {
+        get => storage;
+        set
+        {
+            storage = value;
+            UpdateImageSource();
+        }
+    }
     public ProductData ProductData { get; }
 
     private bool isInstalled;
@@ -80,16 +96,19 @@ public class OwnedProductViewModel : ObservableObject
     public IAsyncRelayCommand UninstallCommand { get; }
     public IAsyncRelayCommand ToggleEnabledCommand { get; }
 
+    public IImage? ImageSource { get; set; }
+
     public OwnedProductViewModel(ProductData productData, bool isInstalled, string? installedVersion, bool isEnabled,
         bool isLoaded,
         IAsyncRelayCommand<string> installContentCommand, IAsyncRelayCommand<string> uninstallContentCommand,
         IRelayCommand<string> enableContentCommand, IRelayCommand<string> disableContentCommand,
         Func<string, bool> isInstalledFunc, Func<string, bool> areDependenciesReachableFunc,
-        Func<string, int> countLoadedDependenciesFunc)
+        Func<string, int> countLoadedDependenciesFunc, IResourceStorage? storage = null)
     {
         ProductData = productData;
         IsInstalled = isInstalled;
         IsLoaded = isLoaded;
+        this.storage = storage;
         if (productData.LatestVersion != null && installedVersion != null)
         {
             UpdateAvailable = productData.LatestVersion != installedVersion;
@@ -207,5 +226,32 @@ public class OwnedProductViewModel : ObservableObject
             },
             (isOn) => IsInstalled && !IsInstalling && !IsUninstalling
         );
+
+        UpdateImageSource();
+    }
+
+    private void UpdateImageSource()
+    {
+        ImageSource = ResourceStorage != null && ProductData.ImageUrl != null
+            ? PathToImgSourceConverter.GetImageFromPath(ProductData.ImageUrl, ResourceStorage) : null;
+
+        OnPropertyChanged(nameof(ImageSource));
+        if (ResourceStorage == null)
+        {
+            Task.Run(async () =>
+            {
+                return await ImageLoader.AsyncImageLoader.ProvideImageAsync(ProductData.ImageUrl);
+            }).ContinueWith(t =>
+            {
+                if (t.IsCompletedSuccessfully)
+                {
+                    Dispatcher.UIThread.Post(() =>
+                    {
+                        ImageSource = t.Result;
+                        OnPropertyChanged(nameof(ImageSource));
+                    });
+                }
+            });
+        }
     }
 }
