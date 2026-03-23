@@ -16,6 +16,7 @@
                          xmlns:system="clr-namespace:System;assembly=System.Runtime"
                          xmlns:avalonia="clr-namespace:LiveMarkdown.Avalonia;assembly=LiveMarkdown.Avalonia"
                          xmlns:commands="clr-namespace:PixiEditor.Models.Commands.Attributes.Commands"
+                         xmlns:indicators="clr-namespace:PixiEditor.Views.Indicators"
                          mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
                          x:Class="PixiEditor.Views.Dialogs.ExtensionsPopup"
                          Height="680" Width="1300"
@@ -170,7 +171,7 @@
                             </Button>
                             <TextBlock
                                 Foreground="{DynamicResource ErrorOnDarkBrush}"
-                                localization:Translator.Key="{Binding ErrorMessage}" />
+                                localization:Translator.Key="{Binding DetailsErrorMessage}" />
                         </StackPanel>
 
                     </StackPanel>
@@ -227,8 +228,20 @@
                 </ItemsControl>
             </Border>
             <Panel Grid.Row="1" IsVisible="{Binding ShowAllTab}">
-                <Panel IsVisible="{Binding IsListVisible}">
-                    <ScrollViewer>
+                <indicators:LoadingIndicator
+                    IsVisible="{Binding IsAvailableFetching}"
+                    HorizontalAlignment="Center" VerticalAlignment="Center"
+                    ZIndex="10"
+                    Height="150" Width="150" />
+                <Panel IsVisible="{Binding !IsAvailableFetching}">
+                    <TextBlock
+                        Foreground="{DynamicResource ErrorOnDarkBrush}"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        FontSize="{DynamicResource FontSizeLarge}"
+                        localization:Translator.Key="{Binding AvailableErrorMessage}" />
+                    
+                    <ScrollViewer IsVisible="{Binding IsListVisible}">
                         <ItemsControl ItemsSource="{Binding AvailableExtensions}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>

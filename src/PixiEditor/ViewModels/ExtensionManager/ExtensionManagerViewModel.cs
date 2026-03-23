@@ -86,10 +86,22 @@ internal class ExtensionManagerViewModel : ViewModelBase
         }
     }
 
-    public string ErrorMessage
+    public string DetailsErrorMessage
     {
-        get => errorMessage;
-        set => SetProperty(ref errorMessage, value);
+        get => detailsErrorMessage;
+        set => SetProperty(ref detailsErrorMessage, value);
+    }
+    
+    public string AvailableErrorMessage
+    {
+        get => availableErrorMessage;
+        set => SetProperty(ref availableErrorMessage, value);
+    }
+    
+    public bool IsAvailableFetching
+    {
+        get => isAvailableFetching;
+        set => SetProperty(ref isAvailableFetching, value);
     }
 
     public bool IsDetailsVisible => SelectedAvailableExtension != null;
@@ -99,7 +111,9 @@ internal class ExtensionManagerViewModel : ViewModelBase
     private IAdditionalContentProvider contentProvider;
     private IIdentityProvider identityProvider;
 
-    private string errorMessage;
+    private string detailsErrorMessage;
+    private string availableErrorMessage;
+    private bool isAvailableFetching;
 
     public bool IsUserLoggedIn => identityProvider.User != null && identityProvider.User.IsLoggedIn;
     public RelayCommand<LinkClickedEventArgs> LinkClickCommand { get; }
@@ -172,25 +186,38 @@ internal class ExtensionManagerViewModel : ViewModelBase
 
     public async Task FetchAvailableExtensions()
     {
-        AvailableExtensions.Clear();
-        var availableExtensions = await contentProvider.FetchAvailableExtensions();
-
-        decimal rate = 1m;
-        if (PixiEditorSettings.Extensions.DisplayedCurrency?.Value == null)
+        try
         {
-            await SetUserCurrencyFromLocation();
+            IsAvailableFetching = true;
+            AvailableErrorMessage = "";
+            AvailableExtensions.Clear();
+            var availableExtensions = await contentProvider.FetchAvailableExtensions();
+
+            decimal rate = 1m;
+            if (PixiEditorSettings.Extensions.DisplayedCurrency?.Value == null)
+            {
+                await SetUserCurrencyFromLocation();
+            }
+
+            string selectedCurrency = PixiEditorSettings.Extensions.DisplayedCurrency.Value;
+            if (selectedCurrency != "PLN")
+            {
+                var fetchedRate = await NbpFetcher.FetchExchangeRate(selectedCurrency);
+                rate = fetchedRate ?? 1m;
+            }
+
+            foreach (var extension in availableExtensions)
+            {
+                AvailableExtensions.Add(new AvailableContentViewModel(extension, this, rate, selectedCurrency));
+            }
         }
-
-        string selectedCurrency = PixiEditorSettings.Extensions.DisplayedCurrency.Value;
-        if (selectedCurrency != "PLN")
+        catch (Exception ex)
         {
-            var fetchedRate = await NbpFetcher.FetchExchangeRate(selectedCurrency);
-            rate = fetchedRate ?? 1m;
+            AvailableErrorMessage = "EXTENSIONS_WINDOW_FETCH_AVAILABLE_ERROR";
         }
-
-        foreach (var extension in availableExtensions)
+        finally
         {
-            AvailableExtensions.Add(new AvailableContentViewModel(extension, this, rate, selectedCurrency));
+            IsAvailableFetching = false;
         }
     }
 
@@ -356,13 +383,13 @@ internal class ExtensionManagerViewModel : ViewModelBase
             var provider = (identityProvider as PixiAuthIdentityProvider);
             if (provider == null)
             {
-                ErrorMessage = "Identity Provider is not available. Are you using an official PixiEditor build?";
+                DetailsErrorMessage = "Identity Provider is not available. Are you using an official PixiEditor build?";
                 return;
             }
 
             if (!provider.IsLoggedIn)
             {
-                ErrorMessage = "LOGIN_REQUIRED";
+                DetailsErrorMessage = "LOGIN_REQUIRED";
                 return;
             }
 
@@ -371,7 +398,7 @@ internal class ExtensionManagerViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
-            ErrorMessage = ex.Message;
+            DetailsErrorMessage = ex.Message;
         }
     }
 
