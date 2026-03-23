@@ -9,7 +9,7 @@ internal static class NbpFetcher
 {
     public const string NbpApiUrl = "https://api.nbp.pl/api/exchangerates/rates/A";
     
-    public static async Task<decimal?> FetchExchangeRate(string currency)
+    public static async Task<double?> FetchExchangeRate(string currency)
     {
         try
         {
@@ -28,7 +28,6 @@ internal static class NbpFetcher
         }
         catch (HttpRequestException)
         {
-            NoticeDialog.Show("FAILED_DOWNLOAD_RATE", "ERROR");
             return null;
         }
 

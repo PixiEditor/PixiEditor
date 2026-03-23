@@ -132,8 +132,7 @@ public sealed class StandaloneAdditionalContentProvider : IAdditionalContentProv
     
     public async Task<List<AvailableContent>> FetchAvailableExtensions()
     {
-        List<AvailableExtension> availableExtensions =  await IdentityProvider.PixiAuthClient.GetAvailableExtensions();
-        
+        List<AvailableExtension> availableExtensions = await IdentityProvider.PixiAuthClient.GetAvailableExtensions();
         
         return availableExtensions
             .Select(x => new AvailableContent

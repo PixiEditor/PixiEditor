@@ -37,7 +37,7 @@ internal class AvailableContentViewModel : ObservableObject
             if (IsCountryUnsupported)
                 return "Unavailable in your country";
 
-            decimal price = AvailableContent.Price;
+            double price = AvailableContent.Price;
 
             if (AvailableContent.IncludedExtensions.Count > 0)
             {
@@ -49,7 +49,7 @@ internal class AvailableContentViewModel : ObservableObject
 
             if (Currency != "PLN")
             {
-                return $"{((price / Rate) * 1.04m):0.00} {Currency}";
+                return $"{((price / Rate) * 1.04):0.00} {Currency}";
             }
 
             return $"{price:0.00} {Currency}";
@@ -58,12 +58,12 @@ internal class AvailableContentViewModel : ObservableObject
 
     private readonly ExtensionManagerViewModel extensionManager;
 
-    private decimal Rate { get; }
+    private double Rate { get; }
     private string Currency { get; }
     public bool IsFree => AvailableContent.Price == 0;
     public ObservableStringBuilder MarkdownBody { get; } = new ObservableStringBuilder();
 
-    public AvailableContentViewModel(AvailableContent content, ExtensionManagerViewModel extensionManager, decimal rate,
+    public AvailableContentViewModel(AvailableContent content, ExtensionManagerViewModel extensionManager, double rate,
         string currency)
     {
         AvailableContent = content;

@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Text;
 using Avalonia.Threading;
 using AvaloniaEdit.Utils;
@@ -15,6 +16,7 @@ using PixiEditor.IdentityProvider;
 using PixiEditor.IdentityProvider.PixiAuth;
 using PixiEditor.Models.Commands.XAML;
 using PixiEditor.Models.ExternalServices;
+using PixiEditor.Models.IO;
 using PixiEditor.OperatingSystem;
 using PixiEditor.PixiAuth.Exceptions;
 using PixiEditor.PixiAuth.Models;
@@ -86,22 +88,10 @@ internal class ExtensionManagerViewModel : ViewModelBase
         }
     }
 
-    public string DetailsErrorMessage
+    public string ErrorMessage
     {
-        get => detailsErrorMessage;
-        set => SetProperty(ref detailsErrorMessage, value);
-    }
-    
-    public string AvailableErrorMessage
-    {
-        get => availableErrorMessage;
-        set => SetProperty(ref availableErrorMessage, value);
-    }
-    
-    public bool IsAvailableFetching
-    {
-        get => isAvailableFetching;
-        set => SetProperty(ref isAvailableFetching, value);
+        get => errorMessage;
+        set => SetProperty(ref errorMessage, value);
     }
 
     public bool IsDetailsVisible => SelectedAvailableExtension != null;
@@ -111,9 +101,7 @@ internal class ExtensionManagerViewModel : ViewModelBase
     private IAdditionalContentProvider contentProvider;
     private IIdentityProvider identityProvider;
 
-    private string detailsErrorMessage;
-    private string availableErrorMessage;
-    private bool isAvailableFetching;
+    private string errorMessage;
 
     public bool IsUserLoggedIn => identityProvider.User != null && identityProvider.User.IsLoggedIn;
     public RelayCommand<LinkClickedEventArgs> LinkClickCommand { get; }
@@ -152,15 +140,16 @@ internal class ExtensionManagerViewModel : ViewModelBase
             }
             else
             {
-                var created = new AvailableContentViewModel(new AvailableContent
-                {
-                    Id = ext.ProductData.Id,
-                    Name = ext.ProductData.DisplayName,
-                    Description = ext.ProductData.Description,
-                    Author = ext.ProductData.Author,
-                    HideAddToLibrary = true,
-                    Body = ext.ProductData.Description
-                }, this, 1m, "PLN");
+                var created = new AvailableContentViewModel(
+                    new AvailableContent
+                    {
+                        Id = ext.ProductData.Id,
+                        Name = ext.ProductData.DisplayName,
+                        Description = ext.ProductData.Description,
+                        Author = ext.ProductData.Author,
+                        HideAddToLibrary = true,
+                        Body = ext.ProductData.Description
+                    }, this, 1, "PLN");
 
                 SelectExtension(created);
             }
@@ -186,38 +175,59 @@ internal class ExtensionManagerViewModel : ViewModelBase
 
     public async Task FetchAvailableExtensions()
     {
+        AvailableExtensions.Clear();
+        List<AvailableContent> availableExtensions = new List<AvailableContent>();
         try
         {
-            IsAvailableFetching = true;
-            AvailableErrorMessage = "";
-            AvailableExtensions.Clear();
-            var availableExtensions = await contentProvider.FetchAvailableExtensions();
-
-            decimal rate = 1m;
-            if (PixiEditorSettings.Extensions.DisplayedCurrency?.Value == null)
+            if (PixiEditorSettings.Extensions.LastFetchedAvailableExtensionsDate.Value.AddHours(24) > DateTime.Now)
             {
-                await SetUserCurrencyFromLocation();
+                try
+                {
+                    availableExtensions.AddRange(LoadCachedAvailableExtensions());
+                }
+                catch (Exception)
+                {
+                    availableExtensions.AddRange(await contentProvider.FetchAvailableExtensions());
+                }
             }
-
-            string selectedCurrency = PixiEditorSettings.Extensions.DisplayedCurrency.Value;
-            if (selectedCurrency != "PLN")
+            else
             {
-                var fetchedRate = await NbpFetcher.FetchExchangeRate(selectedCurrency);
-                rate = fetchedRate ?? 1m;
-            }
-
-            foreach (var extension in availableExtensions)
-            {
-                AvailableExtensions.Add(new AvailableContentViewModel(extension, this, rate, selectedCurrency));
+                availableExtensions.AddRange(await contentProvider.FetchAvailableExtensions());
             }
         }
         catch (Exception ex)
         {
-            AvailableErrorMessage = "EXTENSIONS_WINDOW_FETCH_AVAILABLE_ERROR";
+            ErrorMessage = "FAILED_FETCH_EXTENSIONS";
+            return;
         }
-        finally
+
+        SaveAvailableExtensionsToCache(availableExtensions);
+        double rate = 1;
+        if (PixiEditorSettings.Extensions.DisplayedCurrency?.Value == null)
         {
-            IsAvailableFetching = false;
+            await SetUserCurrencyFromLocation();
+        }
+
+        string selectedCurrency = PixiEditorSettings.Extensions.DisplayedCurrency.Value;
+        if (selectedCurrency != "PLN")
+        {
+            DateTime lastFetchedExchangeRateDate = PixiEditorSettings.Extensions.LastFetchedExchangeRateDate.Value;
+            if (lastFetchedExchangeRateDate.AddHours(24) > DateTime.Now)
+            {
+                rate = PixiEditorSettings.Extensions.LastFetchedExchangeRate.Value;
+            }
+            else
+            {
+                var fetchedRate = await NbpFetcher.FetchExchangeRate(selectedCurrency);
+                rate = fetchedRate ?? 1d;
+                PixiEditorSettings.Extensions.LastFetchedExchangeRate.Value = rate;
+                PixiEditorSettings.Extensions.LastFetchedExchangeRateDate.Value = DateTime.Now;
+            }
+        }
+
+        foreach (var extension in availableExtensions)
+        {
+            AvailableExtensions.Add(new AvailableContentViewModel(extension, this, rate, selectedCurrency));
         }
     }
 
@@ -265,7 +275,8 @@ internal class ExtensionManagerViewModel : ViewModelBase
         // Add installed extensions that aren't in user owned products
         foreach (Extension loadedExtension in extensionsViewModel.ExtensionLoader.LoadedExtensions)
         {
-            AddToOwnedExtensionsIfMissing(loadedExtension.Metadata, new ExtensionResourceStorage(loadedExtension as WasmExtensionInstance));
+            AddToOwnedExtensionsIfMissing(loadedExtension.Metadata,
+                new ExtensionResourceStorage(loadedExtension as WasmExtensionInstance));
         }
 
         foreach (var unloadedExtensionMetadata in extensionsViewModel.ExtensionLoader
@@ -383,13 +394,13 @@ internal class ExtensionManagerViewModel : ViewModelBase
             var provider = (identityProvider as PixiAuthIdentityProvider);
             if (provider == null)
             {
-                DetailsErrorMessage = "Identity Provider is not available. Are you using an official PixiEditor build?";
+                ErrorMessage = "Identity Provider is not available. Are you using an official PixiEditor build?";
                 return;
             }
 
             if (!provider.IsLoggedIn)
             {
-                DetailsErrorMessage = "LOGIN_REQUIRED";
+                ErrorMessage = "LOGIN_REQUIRED";
                 return;
             }
 
@@ -398,7 +409,7 @@ internal class ExtensionManagerViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
-            DetailsErrorMessage = ex.Message;
+            ErrorMessage = ex.Message;
         }
     }
 
@@ -601,5 +612,36 @@ internal class ExtensionManagerViewModel : ViewModelBase
         }
 
         return count;
+    }
+
+    private List<AvailableContent> LoadCachedAvailableExtensions()
+    {
+        string cachePath = Path.Combine(Paths.TempFilesPath, "available_extensions_cache.json");
+        if (File.Exists(cachePath))
+        {
+            string json = File.ReadAllText(cachePath);
+            var cachedExtensions = System.Text.Json.JsonSerializer.Deserialize<List<AvailableContent>>(json);
+            if (cachedExtensions != null)
+            {
+                return cachedExtensions;
+            }
+        }
+
+        return new List<AvailableContent>();
+    }
+
+    private void SaveAvailableExtensionsToCache(List<AvailableContent> availableExtensions)
+    {
+        string cachePath = Path.Combine(Paths.TempFilesPath, "available_extensions_cache.json");
+        try
+        {
+            string json = System.Text.Json.JsonSerializer.Serialize(availableExtensions);
+            File.WriteAllText(cachePath, json);
+            PixiEditorSettings.Extensions.LastFetchedAvailableExtensionsDate.Value = DateTime.Now;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine("Failed to save available extensions to cache: " + ex.Message);
+        }
     }
 }
