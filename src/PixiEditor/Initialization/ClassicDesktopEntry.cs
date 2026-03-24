@@ -190,7 +190,7 @@ internal class ClassicDesktopEntry
     private IPlatform GetActivePlatform()
     {
 #if STEAM || DEV_STEAM
-        return new PixiEditor.Platform.Steam.SteamPlatform();
+        return new PixiEditor.Platform.Steam.SteamPlatform([Paths.LocalExtensionPackagesPath, Paths.InstallDirExtensionPackagesPath]);
 #elif MSIX || MSIX_DEBUG
         return new PixiEditor.Platform.MSStore.MicrosoftStorePlatform(Paths.LocalExtensionPackagesPath, GetApiUrl(),
             GetApiKey(), ExtensionRuntimeInfo.ApiVersion);

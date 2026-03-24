@@ -29,6 +29,11 @@ internal class AvailableContentViewModel : ObservableObject
     {
         get
         {
+            if (UnavailableOnSteam)
+            {
+                return "";
+            }
+            
             if (AvailableContent.Price == 0)
             {
                 return "FREE";
@@ -62,9 +67,10 @@ internal class AvailableContentViewModel : ObservableObject
     private string Currency { get; }
     public bool IsFree => AvailableContent.Price == 0;
     public ObservableStringBuilder MarkdownBody { get; } = new ObservableStringBuilder();
+    public bool UnavailableOnSteam { get; }
 
     public AvailableContentViewModel(AvailableContent content, ExtensionManagerViewModel extensionManager, double rate,
-        string currency)
+        string currency, bool unavailableOnSteam)
     {
         AvailableContent = content;
         this.extensionManager = extensionManager;
@@ -78,6 +84,8 @@ internal class AvailableContentViewModel : ObservableObject
         {
             MarkdownBody.Append(content.Body);
         }
+        
+        UnavailableOnSteam = unavailableOnSteam;
     }
 
     private void FetchContentFromUri(Uri bodyUri)

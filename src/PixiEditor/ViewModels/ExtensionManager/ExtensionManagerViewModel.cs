@@ -21,7 +21,6 @@ using PixiEditor.OperatingSystem;
 using PixiEditor.PixiAuth.Exceptions;
 using PixiEditor.PixiAuth.Models;
 using PixiEditor.Platform;
-using PixiEditor.Platform.Standalone;
 using PixiEditor.ViewModels.SubViewModels;
 using PixiEditor.ViewModels.User;
 
@@ -112,22 +111,25 @@ internal class ExtensionManagerViewModel : ViewModelBase
     private ExtensionsViewModel extensionsViewModel;
     private IAdditionalContentProvider contentProvider;
     private IIdentityProvider identityProvider;
+    private IPlatform platform;
 
     private string detailsErrorMessage;
     private string availableErrorMessage;
     private bool isAvailableFetching;
 
     public bool IsUserLoggedIn => identityProvider.User != null && identityProvider.User.IsLoggedIn;
+    public bool IsPlatformSteam => platform.Id == "steam";
     public RelayCommand<LinkClickedEventArgs> LinkClickCommand { get; }
 
     public bool ShouldUpdateUserOwnedProducts = false;
 
     public ExtensionManagerViewModel(ExtensionsViewModel extensionsViewModel,
-        IAdditionalContentProvider contentProvider, IIdentityProvider identityProvider)
+        IAdditionalContentProvider contentProvider, IIdentityProvider identityProvider, IPlatform platform)
     {
         this.extensionsViewModel = extensionsViewModel;
         this.contentProvider = contentProvider;
         this.identityProvider = identityProvider;
+        this.platform = platform;
 
         InstallAndLoadExtensionCommand =
             new AsyncRelayCommand<string>(InstallAndLoadExtension, CanInstallAndLoadExtension);
@@ -163,12 +165,12 @@ internal class ExtensionManagerViewModel : ViewModelBase
                         Author = ext.ProductData.Author,
                         HideAddToLibrary = true,
                         Body = ext.ProductData.Description
-                    }, this, 1, "PLN");
+                    }, this, 1, "PLN", false);
 
                 SelectExtension(created);
             }
         });
-
+        
         OpenPurchaseLinkCommand = new AsyncRelayCommand<string>(OpenPurchaseLink);
 
         SelectedTab = Tabs.FirstOrDefault(tab => tab.Id == "All");
@@ -247,7 +249,7 @@ internal class ExtensionManagerViewModel : ViewModelBase
 
         foreach (var extension in availableExtensions)
         {
-            AvailableExtensions.Add(new AvailableContentViewModel(extension, this, rate, selectedCurrency));
+            AvailableExtensions.Add(new AvailableContentViewModel(extension, this, rate, selectedCurrency, IsPlatformSteam));
         }
     }
 

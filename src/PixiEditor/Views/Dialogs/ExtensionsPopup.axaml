@@ -92,7 +92,23 @@
                                    FontSize="{DynamicResource FontSizeLarge}"
                                    Margin="0, 0, 0, 12" />
 
-                        <StackPanel IsVisible="{Binding !SelectedAvailableExtension.AvailableContent.HideAddToLibrary}">
+                        
+                        <TextBlock localization:Translator.Key="EXTENSIONS_WINDOW_STEAM_PURCHASE_UNAVAILABLE"
+                                   FontSize="{DynamicResource FontSizeSmall}"
+                                   IsVisible="{Binding SelectedAvailableExtension.UnavailableOnSteam}"
+                                   TextWrapping="Wrap"
+                                   MaxWidth="150"
+                                   Margin="0, 0, 0, 12">
+                        </TextBlock>
+                        
+                        <StackPanel>
+                            <StackPanel.IsVisible>
+                                <MultiBinding Converter="{converters:AllTrueConverter}">
+                                    <Binding Path="!SelectedAvailableExtension.AvailableContent.HideAddToLibrary" />
+                                    <Binding Path="!SelectedAvailableExtension.UnavailableOnSteam" />
+                                </MultiBinding>
+                            </StackPanel.IsVisible>
+                            
                             <TextBlock localization:Translator.Key="EXTENSIONS_WINDOW_PRICE"
                                        Opacity="0.5" />
 

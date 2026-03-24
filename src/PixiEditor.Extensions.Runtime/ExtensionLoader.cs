@@ -473,11 +473,6 @@ public class ExtensionLoader : IExtensionListProvider
             {
                 throw new ForbiddenUniqueNameExtension();
             }*/
-
-            if (!IsAdditionalContentInstalled(metadata.UniqueName))
-            {
-                return false;
-            }
         }
         // TODO: Validate if unique name is unique
 

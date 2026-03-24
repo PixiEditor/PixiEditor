@@ -13,7 +13,6 @@ using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.ExtensionServices;
 using PixiEditor.Models.IO;
 using PixiEditor.Platform;
-using PixiEditor.Platform.Standalone;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.ExtensionManager;
 using PixiEditor.Views;
@@ -48,8 +47,10 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
             Owner.AttachedToWindow += OwnerOnAttachedToWindow;
         }
 
+        var platform = Owner.Services.GetService<IPlatform>();
+        
         ExtensionManager = new ExtensionManagerViewModel(this, Owner.UserViewModel.AdditionalContentProvider,
-            Owner.UserViewModel.IdentityProvider);
+            Owner.UserViewModel.IdentityProvider, platform);
     }
 
     private void OwnerOnAttachedToWindow(MainWindow obj)
