@@ -28,6 +28,7 @@ namespace PixiEditor.ViewModels.SubViewModels;
 [Commands_Command.Group("PixiEditor.Window", "WINDOWS")]
 internal class WindowViewModel : SubViewModel<ViewModelMain>, IWindowHandler
 {
+    private ExtensionsPopup? extensionsPopup;
     private CommandController commandController;
     public RelayCommand<string> ShowAvalonDockWindowCommand { get; set; }
     public ObservableCollection<ViewportWindowViewModel> Viewports { get; } = new();
@@ -303,6 +304,24 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>, IWindowHandler
 
         popup.Show();
         return popup;
+    }
+
+    [Command.Basic("PixiEditor.Window.OpenExtensionsWindow", "OPEN_EXTENSIONS_WINDOW",
+        "OPEN_EXTENSIONS_WINDOW_DESCRIPTIVE", Icon = PixiPerfectIcons.Blocks,
+        AnalyticsTrack = true, MenuItemPath = "VIEW/OPEN_EXTENSIONS_WINDOW")]
+    public void OpenExtensionsWindow()
+    {
+        if (extensionsPopup is not null)
+        {
+            extensionsPopup.Activate();
+            return;
+        }
+
+        extensionsPopup ??= new ExtensionsPopup();
+        extensionsPopup.DataContext = Owner.ExtensionsSubViewModel.ExtensionManager;
+        extensionsPopup.Closed += (s, e) => extensionsPopup = null;
+
+        extensionsPopup.Show();
     }
 
     /// <summary>

@@ -12,6 +12,7 @@ public static partial class PixiPerfectIcons
     public const string ArrowRight = "\uE926";
     public const string ArrowUp = "\uE927";
     public const string ArrowUpDown = "\uE9DA";
+    public const string Blocks = "\uE9E4";
     public const string Bold = "\uE9AD";
     public const string Book = "\uE928";
     public const string Braces = "\uE9CF";
