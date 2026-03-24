@@ -36,8 +36,8 @@
                 </Grid.RowDefinitions>
 
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="0.75*" />
+                    <ColumnDefinition Width="0.25*" />
                 </Grid.ColumnDefinitions>
                 <Button Grid.Column="0"
                         Grid.Row="0"
@@ -95,7 +95,6 @@
                         <StackPanel IsVisible="{Binding !SelectedAvailableExtension.AvailableContent.HideAddToLibrary}">
                             <TextBlock localization:Translator.Key="EXTENSIONS_WINDOW_PRICE"
                                        Opacity="0.5" />
-
                             <TextBlock
                                 localization:Translator.Key="{Binding SelectedAvailableExtension.CalculatedPrice}"
                                 FontSize="{DynamicResource FontSizeLarge}"
@@ -108,6 +107,7 @@
                                     </MultiBinding>
                                 </TextBlock.IsVisible>
                             </TextBlock>
+
                             <TextBlock localization:Translator.Key="EXTENSIONS_WINDOW_IN_LIBRARY"
                                        FontSize="{DynamicResource FontSizeLarge}"
                                        FontWeight="Bold"
@@ -145,6 +145,19 @@
                                     <Run Classes="pixi-icon" Text="{DynamicResource icon-link}" />
                                 </TextBlock>
                             </Button>
+
+                            <TextBlock localization:Translator.Key="EXTENSIONS_WINDOW_PRICE_INACCURACY_INFO"
+                                       Classes="subtext">
+                                <TextBlock.IsVisible>
+                                    <MultiBinding Converter="{converters:AllTrueConverter}">
+                                        <Binding Path="!SelectedAvailableExtension.IsOwned" />
+                                        <Binding Path="!SelectedAvailableExtension.AllBundleItemsOwned" />
+                                        <Binding Path="!SelectedAvailableExtension.IsFree" />
+                                        <Binding Path="!SelectedAvailableExtension.IsCountryUnsupported" />
+                                    </MultiBinding>
+                                </TextBlock.IsVisible>
+                            </TextBlock>
+
                             <Button Command="{Binding AddToLibraryCommand}"
                                     CommandParameter="{Binding SelectedAvailableExtension.AvailableContent.Id}"
                                     FontSize="{DynamicResource FontSizeNormal}"
@@ -217,6 +230,7 @@
                             <ToggleButton Padding="4"
                                           controls:SelectableStrip.IsStripSelected="{Binding RelativeSource={RelativeSource Self}, Path=IsChecked}"
                                           behaviours:ToggleGroupBehavior.GroupName="ExtensionsTab"
+                                          BorderThickness="0"
                                           behaviours:ToggleGroupBehavior.Value="{Binding }"
                                           behaviours:ToggleGroupBehavior.SelectedValue="{Binding DataContext.SelectedTab, Mode=TwoWay, RelativeSource={RelativeSource FindAncestor, AncestorType=dialogs:ExtensionsPopup}}">
 
@@ -240,7 +254,7 @@
                         VerticalAlignment="Center"
                         FontSize="{DynamicResource FontSizeLarge}"
                         localization:Translator.Key="{Binding AvailableErrorMessage}" />
-                    
+
                     <ScrollViewer IsVisible="{Binding IsListVisible}">
                         <ItemsControl ItemsSource="{Binding AvailableExtensions}">
                             <ItemsControl.ItemsPanel>
@@ -272,8 +286,9 @@
 
                                                 <Panel>
                                                     <TextBlock Classes="pixi-icon" HorizontalAlignment="Center"
-                                                               Text="{DynamicResource icon-blocks}" FontSize="64" Opacity="0.25"
-                                                               IsVisible="{Binding AvailableContent.ImageUrl, Converter={converters:EmptyStringConverter}}"/>
+                                                               Text="{DynamicResource icon-blocks}" FontSize="64"
+                                                               Opacity="0.25"
+                                                               IsVisible="{Binding AvailableContent.ImageUrl, Converter={converters:EmptyStringConverter}}" />
                                                     <Image
                                                         Height="100"
                                                         Stretch="Uniform"
@@ -342,51 +357,64 @@
                                     <Grid>
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto" />
-                                            <RowDefinition Height="*" />
                                             <RowDefinition Height="Auto" />
                                         </Grid.RowDefinitions>
 
-                                                <Panel>
-                                                    <TextBlock Classes="pixi-icon" HorizontalAlignment="Center"
-                                                               Text="{DynamicResource icon-blocks}" FontSize="64" Opacity="0.25"
-                                                               IsVisible="{Binding ImageSource, Converter={converters:NullToVisibilityConverter}}"/>
-                                                    <Image
-                                                        Height="100"
-                                                        Stretch="Uniform"
-                                                        Source="{Binding ImageSource}" />
-                                                </Panel>
-
-                                        <StackPanel Background="Transparent" Margin="0, 16" Grid.Row="1" Cursor="Hand">
+                                        <Grid Cursor="Hand" Background="Transparent">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="*" />
+                                                <RowDefinition Height="Auto" />
+                                            </Grid.RowDefinitions>
                                             <Interaction.Behaviors>
                                                 <ExecuteCommandOnPointerPressedBehavior
                                                     Command="{Binding DataContext.SelectOwnedExtensionCommand, RelativeSource={RelativeSource AncestorType=dialogs:ExtensionsPopup}}"
                                                     CommandParameter="{Binding}" />
                                             </Interaction.Behaviors>
-                                            <TextBlock
-                                                Text="{Binding ProductData.Author}"
-                                                Foreground="{DynamicResource ThemeForegroundColor}"
-                                                Opacity="0.5"
-                                                FontSize="{DynamicResource FontSizeSmall}" />
+                                            <Panel>
+                                                <TextBlock Classes="pixi-icon" HorizontalAlignment="Center"
+                                                           Text="{DynamicResource icon-blocks}" FontSize="64"
+                                                           Opacity="0.25"
+                                                           IsVisible="{Binding ImageSource, Converter={converters:NullToVisibilityConverter}}" />
+                                                <Image
+                                                    Height="100"
+                                                    Stretch="Uniform"
+                                                    Source="{Binding ImageSource}">
+                                                </Image>
+                                            </Panel>
 
-                                            <TextBlock
-                                                Text="{Binding ProductData.DisplayName}"
-                                                TextTrimming="CharacterEllipsis"
-                                                FontSize="{DynamicResource FontSizeLarge}"
-                                                FontWeight="Bold"
-                                                Foreground="{DynamicResource ThemeForegroundColor}" />
+                                            <StackPanel Background="Transparent" Margin="0, 16" Grid.Row="1"
+                                                        Cursor="Hand">
+                                                <Interaction.Behaviors>
+                                                    <ExecuteCommandOnPointerPressedBehavior
+                                                        Command="{Binding DataContext.SelectOwnedExtensionCommand, RelativeSource={RelativeSource AncestorType=dialogs:ExtensionsPopup}}"
+                                                        CommandParameter="{Binding}" />
+                                                </Interaction.Behaviors>
+                                                <TextBlock
+                                                    Text="{Binding ProductData.Author}"
+                                                    Foreground="{DynamicResource ThemeForegroundColor}"
+                                                    Opacity="0.5"
+                                                    FontSize="{DynamicResource FontSizeSmall}" />
 
-                                            <TextBlock
-                                                Text="{Binding ProductData.Description}"
-                                                TextTrimming="CharacterEllipsis"
-                                                FontSize="{DynamicResource FontSizeNormal}"
-                                                FontWeight="Normal"
-                                                Foreground="{DynamicResource ThemeForegroundColor}"
-                                                TextWrapping="Wrap"
-                                                MaxLines="2"
-                                                MinHeight="36" />
-                                        </StackPanel>
+                                                <TextBlock
+                                                    Text="{Binding ProductData.DisplayName}"
+                                                    TextTrimming="CharacterEllipsis"
+                                                    FontSize="{DynamicResource FontSizeLarge}"
+                                                    FontWeight="Bold"
+                                                    Foreground="{DynamicResource ThemeForegroundColor}" />
 
-                                        <DockPanel Grid.Row="2">
+                                                <TextBlock
+                                                    Text="{Binding ProductData.Description}"
+                                                    TextTrimming="CharacterEllipsis"
+                                                    FontSize="{DynamicResource FontSizeNormal}"
+                                                    FontWeight="Normal"
+                                                    Foreground="{DynamicResource ThemeForegroundColor}"
+                                                    TextWrapping="Wrap"
+                                                    MaxLines="2"
+                                                    MinHeight="36" />
+                                            </StackPanel>
+                                        </Grid>
+
+                                        <DockPanel Grid.Row="1">
                                             <DockPanel DockPanel.Dock="Right"
                                                        HorizontalAlignment="Right"
                                                        IsVisible="{Binding !RestartRequired}"

@@ -1391,5 +1391,6 @@
   "EXTENSIONS_WINDOW_UNINSTALL_CONFIRMATION_TITLE": "Uninstall Extension?",
   "FAILED_FETCH_EXTENSIONS": "Failed to fetch extensions: {0}",
   "GET_FROM_EXTENSIONS": "Get more tools from the Extension Library",
-  "VIEW_LIBRARY": "View Library"
+  "VIEW_LIBRARY": "View Library",
+  "EXTENSIONS_WINDOW_PRICE_INACCURACY_INFO": "Price in the checkout may differ due to taxes and currency conversion applied by the payment provider."
 }
