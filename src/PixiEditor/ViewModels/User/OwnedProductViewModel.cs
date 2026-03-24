@@ -201,8 +201,11 @@ public class OwnedProductViewModel : ObservableObject
                     if (CanBeEnabled)
                     {
                         IsEnabled = true;
-                        enableContentCommand.Execute(ProductData.Id);
-                        IsLoaded = true;
+                        if (!IsLoaded)
+                        {
+                            enableContentCommand.Execute(ProductData.Id);
+                            IsLoaded = true;
+                        }
                     }
                 }
                 else
