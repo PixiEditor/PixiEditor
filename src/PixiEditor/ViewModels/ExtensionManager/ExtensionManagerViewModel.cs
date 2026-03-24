@@ -179,7 +179,7 @@ internal class ExtensionManagerViewModel : ViewModelBase
         List<AvailableContent> availableExtensions = new List<AvailableContent>();
         try
         {
-            if (PixiEditorSettings.Extensions.LastFetchedAvailableExtensionsDate.Value.AddHours(24) > DateTime.Now)
+            /*if (PixiEditorSettings.Extensions.LastFetchedAvailableExtensionsDate.Value.AddHours(24) > DateTime.Now)
             {
                 try
                 {
@@ -190,7 +190,7 @@ internal class ExtensionManagerViewModel : ViewModelBase
                     availableExtensions.AddRange(await contentProvider.FetchAvailableExtensions());
                 }
             }
-            else
+            else*/
             {
                 availableExtensions.AddRange(await contentProvider.FetchAvailableExtensions());
             }

@@ -8,6 +8,7 @@ using PixiEditor.Extensions.FlyUI.Converters;
 using PixiEditor.Extensions.IO;
 using PixiEditor.IdentityProvider;
 using PixiEditor.Models.Dialogs;
+using PixiEditor.UI.Common.Fonts;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.Views.Dialogs;
 
@@ -232,6 +233,11 @@ public class OwnedProductViewModel : ObservableObject
 
     private void UpdateImageSource()
     {
+        if (string.IsNullOrEmpty(ProductData.ImageUrl))
+        {
+            return;
+        }
+
         ImageSource = ResourceStorage != null && ProductData.ImageUrl != null
             ? PathToImgSourceConverter.GetImageFromPath(ProductData.ImageUrl, ResourceStorage) : null;
 

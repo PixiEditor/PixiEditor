@@ -16,6 +16,7 @@
             <system:String x:Key="icon-arrow-right">&#xE926;</system:String>
             <system:String x:Key="icon-arrow-up">&#xE927;</system:String>
             <system:String x:Key="icon-arrow-up-down">&#xE9DA;</system:String>
+            <system:String x:Key="icon-blocks">&#xE9E4;</system:String>
             <system:String x:Key="icon-bold">&#xE9AD;</system:String>
             <system:String x:Key="icon-book">&#xE928;</system:String>
             <system:String x:Key="icon-braces">&#xE9CF;</system:String>

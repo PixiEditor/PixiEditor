@@ -301,14 +301,4 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
     {
         ExtensionLoader.InvokeMainWindowLoaded();
     }
-
-    [Command.Basic("PixiEditor.Extensions.OpenExtensionsWindow", "OPEN_EXTENSIONS_WINDOW",
-        "OPEN_EXTENSIONS_WINDOW_DESCRIPTIVE", AnalyticsTrack = true, MenuItemPath = "VIEW/OPEN_EXTENSIONS_WINDOW")]
-    public void OpenExtensionsWindow()
-    {
-        ExtensionsPopup popup = new ExtensionsPopup();
-        popup.DataContext = ExtensionManager;
-
-        popup.Show();
-    }
 }

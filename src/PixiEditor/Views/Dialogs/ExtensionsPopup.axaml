@@ -257,10 +257,15 @@
                                                     <RowDefinition Height="Auto" />
                                                 </Grid.RowDefinitions>
 
-                                                <Image Grid.Row="0"
-                                                       Height="100"
-                                                       Stretch="Uniform"
-                                                       asyncImageLoader:ImageLoader.Source="{Binding AvailableContent.ImageUrl}" />
+                                                <Panel>
+                                                    <TextBlock Classes="pixi-icon" HorizontalAlignment="Center"
+                                                               Text="{DynamicResource icon-blocks}" FontSize="64" Opacity="0.25"
+                                                               IsVisible="{Binding AvailableContent.ImageUrl, Converter={converters:EmptyStringConverter}}"/>
+                                                    <Image
+                                                        Height="100"
+                                                        Stretch="Uniform"
+                                                        asyncImageLoader:ImageLoader.Source="{Binding AvailableContent.ImageUrl}" />
+                                                </Panel>
 
                                                 <StackPanel Margin="0, 16" Grid.Row="1">
                                                     <TextBlock
@@ -328,10 +333,15 @@
                                             <RowDefinition Height="Auto" />
                                         </Grid.RowDefinitions>
 
-                                        <Image Grid.Row="0"
-                                               Height="100"
-                                               Stretch="Uniform"
-                                               Source="{Binding ImageSource}" />
+                                                <Panel>
+                                                    <TextBlock Classes="pixi-icon" HorizontalAlignment="Center"
+                                                               Text="{DynamicResource icon-blocks}" FontSize="64" Opacity="0.25"
+                                                               IsVisible="{Binding ImageSource, Converter={converters:NullToVisibilityConverter}}"/>
+                                                    <Image
+                                                        Height="100"
+                                                        Stretch="Uniform"
+                                                        Source="{Binding ImageSource}" />
+                                                </Panel>
 
                                         <StackPanel Background="Transparent" Margin="0, 16" Grid.Row="1" Cursor="Hand">
                                             <Interaction.Behaviors>
@@ -375,7 +385,8 @@
                                                         <MultiBinding Converter="{converters:AllTrueConverter}">
                                                             <Binding Path="!IsInstalled" />
                                                             <Binding Path="!IsInstalling" />
-                                                            <Binding Path="DataContext.IsUserLoggedIn" RelativeSource="{RelativeSource AncestorType=dialogs:ExtensionsPopup}" />
+                                                            <Binding Path="DataContext.IsUserLoggedIn"
+                                                                     RelativeSource="{RelativeSource AncestorType=dialogs:ExtensionsPopup}" />
                                                         </MultiBinding>
                                                     </Button.IsVisible>
 
