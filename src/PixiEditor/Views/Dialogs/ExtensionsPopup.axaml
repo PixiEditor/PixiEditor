@@ -95,7 +95,7 @@
                         
                         <TextBlock localization:Translator.Key="EXTENSIONS_WINDOW_STEAM_PURCHASE_UNAVAILABLE"
                                    FontSize="{DynamicResource FontSizeSmall}"
-                                   IsVisible="{Binding SelectedAvailableExtension.UnavailableOnSteam}"
+                                   IsVisible="{Binding SelectedAvailableExtension.IsPurchaseUnavailableOnSteam}"
                                    TextWrapping="Wrap"
                                    MaxWidth="150"
                                    Margin="0, 0, 0, 12">
@@ -105,7 +105,7 @@
                             <StackPanel.IsVisible>
                                 <MultiBinding Converter="{converters:AllTrueConverter}">
                                     <Binding Path="!SelectedAvailableExtension.AvailableContent.HideAddToLibrary" />
-                                    <Binding Path="!SelectedAvailableExtension.UnavailableOnSteam" />
+                                    <Binding Path="!SelectedAvailableExtension.IsPurchaseUnavailableOnSteam" />
                                 </MultiBinding>
                             </StackPanel.IsVisible>
                             
