@@ -17,6 +17,7 @@
                          xmlns:avalonia="clr-namespace:LiveMarkdown.Avalonia;assembly=LiveMarkdown.Avalonia"
                          xmlns:commands="clr-namespace:PixiEditor.Models.Commands.Attributes.Commands"
                          xmlns:indicators="clr-namespace:PixiEditor.Views.Indicators"
+                         xmlns:visuals="clr-namespace:PixiEditor.Views.Visuals"
                          mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
                          x:Class="PixiEditor.Views.Dialogs.ExtensionsPopup"
                          Height="680" Width="1300"
@@ -61,6 +62,28 @@
 
                         <TextBlock Text="{Binding SelectedAvailableExtension.AvailableContent.Description}"
                                    TextWrapping="Wrap" />
+                        <Panel>
+                            <Carousel Name="Carousel"
+                                      ItemsSource="{Binding SelectedAvailableExtension.AvailableContent.VideoUrls}">
+                                <Carousel.ItemTemplate>
+                                    <DataTemplate>
+                                        <visuals:VideoView
+                                            Margin="24"
+                                            VideoHeight="1080" VideoWidth="1920" Source="{Binding}" />
+                                    </DataTemplate>
+                                </Carousel.ItemTemplate>
+                            </Carousel>
+                            <Button Name="left" VerticalAlignment="Center"
+                                    Command="{Binding ElementName=Carousel, Path=Previous}"
+                                    HorizontalAlignment="Left" Margin="10, 0" Content="Back"/>
+                            <Button Name="right" VerticalAlignment="Center"
+                                    Command="{Binding ElementName=Carousel, Path=Next}"
+                                    HorizontalAlignment="Right" Margin="10, 0">
+                                <Path Name="rightArrow"
+                                      Data="M4,11V13H16L10.5,18.5L11.92,19.92L19.84,12L11.92,4.08L10.5,5.5L16,11H4Z"
+                                      Fill="{DynamicResource ThemeForegroundBrush}" />
+                            </Button>
+                        </Panel>
                         <Separator />
                         <avalonia:MarkdownRenderer
                             Margin="0, 12, 0, 0"
@@ -92,7 +115,7 @@
                                    FontSize="{DynamicResource FontSizeLarge}"
                                    Margin="0, 0, 0, 12" />
 
-                        
+
                         <TextBlock localization:Translator.Key="EXTENSIONS_WINDOW_STEAM_PURCHASE_UNAVAILABLE"
                                    FontSize="{DynamicResource FontSizeSmall}"
                                    IsVisible="{Binding SelectedAvailableExtension.UnavailableOnSteam}"
@@ -100,7 +123,7 @@
                                    MaxWidth="150"
                                    Margin="0, 0, 0, 12">
                         </TextBlock>
-                        
+
                         <StackPanel>
                             <StackPanel.IsVisible>
                                 <MultiBinding Converter="{converters:AllTrueConverter}">
@@ -108,7 +131,7 @@
                                     <Binding Path="!SelectedAvailableExtension.UnavailableOnSteam" />
                                 </MultiBinding>
                             </StackPanel.IsVisible>
-                            
+
                             <TextBlock localization:Translator.Key="EXTENSIONS_WINDOW_PRICE"
                                        Opacity="0.5" />
                             <TextBlock

@@ -92,13 +92,13 @@ internal class ExtensionManagerViewModel : ViewModelBase
         get => detailsErrorMessage;
         set => SetProperty(ref detailsErrorMessage, value);
     }
-    
+
     public string AvailableErrorMessage
     {
         get => availableErrorMessage;
         set => SetProperty(ref availableErrorMessage, value);
     }
-    
+
     public bool IsAvailableFetching
     {
         get => isAvailableFetching;
@@ -170,7 +170,7 @@ internal class ExtensionManagerViewModel : ViewModelBase
                 SelectExtension(created);
             }
         });
-        
+
         OpenPurchaseLinkCommand = new AsyncRelayCommand<string>(OpenPurchaseLink);
 
         SelectedTab = Tabs.FirstOrDefault(tab => tab.Id == "All");
@@ -222,6 +222,12 @@ internal class ExtensionManagerViewModel : ViewModelBase
         {
             IsAvailableFetching = false;
         }
+        foreach (var cachedExtension in availableExtensions)
+        {
+            cachedExtension.VideoUrls =
+                cachedExtension.VideoUrls?.Append("https://pixieditor.net/videos/feb-2026-status/advisor.webm")
+                    .ToArray() ?? ["https://pixieditor.net/videos/feb-2026-status/advisor.webm"];
+        }
 
         SaveAvailableExtensionsToCache(availableExtensions);
         double rate = 1;
@@ -249,7 +255,8 @@ internal class ExtensionManagerViewModel : ViewModelBase
 
         foreach (var extension in availableExtensions)
         {
-            AvailableExtensions.Add(new AvailableContentViewModel(extension, this, rate, selectedCurrency, IsPlatformSteam));
+            AvailableExtensions.Add(new AvailableContentViewModel(extension, this, rate, selectedCurrency,
+                IsPlatformSteam));
         }
     }
 
