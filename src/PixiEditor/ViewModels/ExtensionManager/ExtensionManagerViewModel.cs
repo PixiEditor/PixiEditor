@@ -257,7 +257,7 @@ internal class ExtensionManagerViewModel : ViewModelBase
     {
         OwnedExtensions.Clear();
 
-        if (identityProvider.User != null && identityProvider.User.OwnedProducts != null)
+        if (identityProvider.User != null && identityProvider.User.OwnedProducts != null && !IsPlatformSteam)
         {
             var extensions = identityProvider.User.OwnedProducts;
             foreach (ProductData extension in extensions)
