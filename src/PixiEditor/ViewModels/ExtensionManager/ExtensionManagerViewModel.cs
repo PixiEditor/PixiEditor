@@ -249,7 +249,7 @@ internal class ExtensionManagerViewModel : ViewModelBase
 
         foreach (var extension in availableExtensions)
         {
-            AvailableExtensions.Add(new AvailableContentViewModel(extension, this, rate, selectedCurrency, IsPlatformSteam));
+            AvailableExtensions.Add(new AvailableContentViewModel(extension, this, rate, selectedCurrency, (IsPlatformSteam && !IsExtensionOwned(extension.Id))));
         }
     }
 
@@ -333,13 +333,7 @@ internal class ExtensionManagerViewModel : ViewModelBase
 
     public bool IsExtensionOwned(string productId)
     {
-        if (identityProvider.User != null && identityProvider.User.OwnedProducts != null)
-        {
-            return identityProvider.User.OwnedProducts
-                .Any(p => p.Id == productId);
-        }
-
-        return false;
+        return contentProvider.IsContentOwned(productId);
     }
 
     public bool CanInstallAndLoadExtension(string extensionId)
