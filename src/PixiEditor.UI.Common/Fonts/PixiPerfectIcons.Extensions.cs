@@ -7,7 +7,7 @@ namespace PixiEditor.UI.Common.Fonts;
 
 public static class PixiPerfectIconExtensions
 {
-    private static readonly FontFamily pixiPerfectFontFamily =
+    public static readonly FontFamily PixiPerfectFontFamily =
         new("avares://PixiEditor.UI.Common/Fonts/PixiPerfect.ttf#pixiperfect");
 
 
@@ -20,7 +20,7 @@ public static class PixiPerfectIconExtensions
     {
         if (string.IsNullOrEmpty(unicode)) return null;
 
-        return new IconImage(unicode, pixiPerfectFontFamily, size, Colors.White);
+        return new IconImage(unicode, PixiPerfectFontFamily, size, Colors.White);
     }
 
     public static bool IsIcon(string unicode)
@@ -37,7 +37,7 @@ public static class PixiPerfectIconExtensions
     {
         if (string.IsNullOrEmpty(unicode)) return null;
 
-        return new IconImage(unicode, pixiPerfectFontFamily, size, Colors.White, rotation);
+        return new IconImage(unicode, PixiPerfectFontFamily, size, Colors.White, rotation);
     }
 
     public static string? TryGetByName(string? icon)

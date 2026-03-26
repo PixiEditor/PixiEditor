@@ -1,10 +1,10 @@
-﻿using System.Reflection;
+﻿using System.Globalization;
+using System.Reflection;
 using Avalonia.Input;
 using Avalonia.Platform;
-using Drawie.Numerics;
-using PixiEditor.Helpers;
 using PixiEditor.Models.IO;
 using PixiEditor.OperatingSystem;
+using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.Views.Visuals;
 
@@ -35,15 +35,65 @@ public class VideoView : Control
     public static readonly StyledProperty<int> VideoHeightProperty =
         AvaloniaProperty.Register<VideoView, int>(nameof(VideoHeight), 360);
 
+    public static readonly StyledProperty<bool> AutoPlayProperty = AvaloniaProperty.Register<VideoView, bool>(
+        nameof(AutoPlay), false);
+
+    public static readonly StyledProperty<bool> IsPlayingProperty =
+        AvaloniaProperty.Register<VideoView, bool>("IsPlaying");
+
+
+    public bool AutoPlay
+    {
+        get => GetValue(AutoPlayProperty);
+        set => SetValue(AutoPlayProperty, value);
+    }
+
     public string? Source { get => GetValue(SourceProperty); set => SetValue(SourceProperty, value); }
     public int VideoWidth { get => GetValue(VideoWidthProperty); set => SetValue(VideoWidthProperty, value); }
     public int VideoHeight { get => GetValue(VideoHeightProperty); set => SetValue(VideoHeightProperty, value); }
+
+    public static readonly StyledProperty<bool> IsDownloadingProperty = AvaloniaProperty.Register<VideoView, bool>(
+        nameof(IsDownloading));
+
+    public bool IsDownloading
+    {
+        get => GetValue(IsDownloadingProperty);
+        private set => SetValue(IsDownloadingProperty, value);
+    }
+
+    public bool IsPlaying
+    {
+        get { return (bool)GetValue(IsPlayingProperty); }
+        set { SetValue(IsPlayingProperty, value); }
+    }
+
 
     private Stopwatch? _playbackClock;
     private double currentTime;
     private readonly double fps = 60.0;
     private bool isPaused;
     private string? downloadedTempFile;
+    private CancellationTokenSource? _downloadCts;
+    private bool ignorePlayChange = false;
+    private bool isPlayQueued = false;
+
+    static VideoView()
+    {
+        IsPlayingProperty.Changed.AddClassHandler<VideoView>((x, e) =>
+        {
+            if (x.ignorePlayChange)
+                return;
+
+            if (e.NewValue is true)
+            {
+                x.Play();
+            }
+            else if (e.NewValue is false)
+            {
+                x.Pause();
+            }
+        });
+    }
 
     public VideoView()
     {
@@ -51,16 +101,22 @@ public class VideoView : Control
         {
             if (!string.IsNullOrWhiteSpace(path))
             {
+                bool autoPlay = AutoPlay;
                 Task.Run(async () =>
                 {
                     try
                     {
-                        downloadedTempFile = await DownloadToTempFile(path, CancellationToken.None);
-                        Dispatcher.UIThread.Post(Play);
+                        _downloadCts?.Cancel();
+                        _downloadCts = new CancellationTokenSource();
+                        downloadedTempFile = await DownloadToTempFile(path, _downloadCts.Token);
+                        if (autoPlay || isPlayQueued)
+                        {
+                            Dispatcher.UIThread.Post(Play);
+                        }
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        return;
+                        Console.WriteLine($"Failed to load video: {ex.Message}");
                     }
                 });
             }
@@ -69,12 +125,16 @@ public class VideoView : Control
 
     public void Stop()
     {
+        ignorePlayChange = true;
         _cts?.Dispose();
+        _cts = null;
         _process?.Kill(true);
         _process?.Dispose();
         _process = null;
         _playbackClock?.Stop();
         currentTime = 0;
+        IsPlaying = false;
+        ignorePlayChange = false;
     }
 
     public void Pause()
@@ -82,11 +142,15 @@ public class VideoView : Control
         if (isPaused)
             return;
 
+        ignorePlayChange = true;
         isPaused = true;
+        IsPlaying = false;
+        ignorePlayChange = false;
 
         try
         {
             _cts?.Cancel();
+
             _process?.Kill(true);
         }
         catch { }
@@ -104,14 +168,7 @@ public class VideoView : Control
 
     protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
     {
-        if (downloadedTempFile != null)
-        {
-            Stop();
-            try { File.Delete(downloadedTempFile); }
-            catch { }
-
-            downloadedTempFile = null;
-        }
+        Stop();
     }
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)
@@ -204,10 +261,18 @@ public class VideoView : Control
 
     public async void Play()
     {
-        if (Source == null || downloadedTempFile == null)
+        if (Source == null)
             return;
 
+        if (downloadedTempFile == null)
+        {
+            isPlayQueued = true;
+            return;
+        }
+
+        ignorePlayChange = true;
         _cts?.Dispose();
+        _cts = null;
         _process?.Kill(true);
 
         _cts = new CancellationTokenSource();
@@ -232,7 +297,10 @@ public class VideoView : Control
         try
         {
             if (ct.IsCancellationRequested)
+            {
+                ignorePlayChange = false;
                 return;
+            }
 
             _process = StartFFmpeg(downloadedTempFile, currentTime);
 
@@ -250,6 +318,10 @@ public class VideoView : Control
             int videoHeight = VideoHeight;
 
             _ = Task.Run(() => DecodeLoop(ct, videoWidth, videoHeight), ct);
+
+            IsPlaying = true;
+            isPlayQueued = false;
+            ignorePlayChange = false;
         }
         catch (OperationCanceledException)
         {
@@ -258,7 +330,7 @@ public class VideoView : Control
 
     private async Task<string> DownloadToTempFile(string url, CancellationToken ct)
     {
-        var vidoesPath = Path.Combine(Paths.TempFilesPath, "videos");
+        var vidoesPath = Path.Combine(Paths.TempSessionFilesPath, "videos");
         if (!Directory.Exists(vidoesPath))
         {
             Directory.CreateDirectory(vidoesPath);
@@ -266,6 +338,7 @@ public class VideoView : Control
 
         var tempPath = Path.Combine(vidoesPath, $"videoview_{Guid.NewGuid()}.mp4");
 
+        Dispatcher.UIThread.Post(() => IsDownloading = true);
         using var http = new HttpClient();
         using var response = await http.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, ct);
         response.EnsureSuccessStatusCode();
@@ -274,6 +347,8 @@ public class VideoView : Control
         await using var output = new FileStream(tempPath, FileMode.Create, FileAccess.Write, FileShare.Read);
 
         await input.CopyToAsync(output, ct);
+
+        Dispatcher.UIThread.Post(() => IsDownloading = false);
 
         return tempPath;
     }
@@ -285,13 +360,19 @@ public class VideoView : Control
         {
             context.DrawImage(_bitmap, new Rect(0, 0, VideoWidth, VideoHeight), new Rect(Bounds.Size));
         }
+
+        if (isPaused)
+        {
+            context.DrawText(new FormattedText(PixiPerfectIcons.Pause, CultureInfo.InvariantCulture,
+                FlowDirection.LeftToRight, new Typeface(PixiPerfectIconExtensions.PixiPerfectFontFamily), 48, Brushes.White), new Point(Bounds.Width / 2 - 12, Bounds.Height / 2 - 12));
+        }
     }
 
     private void EndOfStreamReached()
     {
         Dispatcher.UIThread.Post(() =>
         {
-            if (!_cts.IsCancellationRequested && !isPaused)
+            if ((_cts == null || !_cts.IsCancellationRequested) && !isPaused)
             {
                 Stop();
                 Play();
@@ -299,6 +380,7 @@ public class VideoView : Control
             else
             {
                 _cts?.Dispose();
+                _cts = null;
                 _process?.Kill(true);
                 _process?.Dispose();
                 _process = null;

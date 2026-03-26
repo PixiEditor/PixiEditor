@@ -24,6 +24,7 @@ using PixiEditor.Models.DocumentModels.Autosave;
 using PixiEditor.Models.ExtensionServices;
 using PixiEditor.Models.Files;
 using PixiEditor.Models.Handlers;
+using PixiEditor.Models.IO;
 using PixiEditor.OperatingSystem;
 using PixiEditor.UI.Common.Behaviors;
 using PixiEditor.UI.Common.Localization;
@@ -418,10 +419,27 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
                     await analytics.StopAsync();
                 }
 
+                ClearSessionCache();
                 OnClose?.Invoke();
                 shutdown();
             }
         });
+    }
+
+    private void ClearSessionCache()
+    {
+        string cachePath = Paths.TempSessionFilesPath;
+        if (Directory.Exists(cachePath))
+        {
+            try
+            {
+                Directory.Delete(cachePath, true);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to clear session cache: {ex.Message}");
+            }
+        }
     }
 
     public EditorData ConstructEditorData()

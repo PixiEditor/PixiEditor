@@ -37,8 +37,8 @@
                 </Grid.RowDefinitions>
 
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="0.75*" />
-                    <ColumnDefinition Width="0.25*" />
+                    <ColumnDefinition Width="0.8*" />
+                    <ColumnDefinition Width="0.2*" />
                 </Grid.ColumnDefinitions>
                 <Button Grid.Column="0"
                         Grid.Row="0"
@@ -62,26 +62,75 @@
 
                         <TextBlock Text="{Binding SelectedAvailableExtension.AvailableContent.Description}"
                                    TextWrapping="Wrap" />
-                        <Panel>
+                        <Panel Margin="0, 0, 12, 0">
                             <Carousel Name="Carousel"
+                                      IsVisible="{Binding IsDetailsVisible}"
                                       ItemsSource="{Binding SelectedAvailableExtension.AvailableContent.VideoUrls}">
                                 <Carousel.ItemTemplate>
                                     <DataTemplate>
-                                        <visuals:VideoView
-                                            Margin="24"
-                                            VideoHeight="1080" VideoWidth="1920" Source="{Binding}" />
+                                        <Border BorderBrush="{DynamicResource ThemeBorderMidBrush}" BorderThickness="1" Margin="32" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource ThemeBackgroundBrush1}">
+                                            <Panel>
+                                                <visuals:VideoView
+                                                    Name="video"
+                                                    VideoHeight="1080" VideoWidth="1920" Source="{Binding}">
+                                                    <visuals:VideoView.IsPlaying>
+                                                        <MultiBinding
+                                                            Converter="{converters:CarouselItemIsSelectedConverter}">
+                                                            <Binding Path="." />
+                                                            <Binding Path="SelectedItem" ElementName="Carousel" />
+                                                        </MultiBinding>
+                                                    </visuals:VideoView.IsPlaying>
+                                                </visuals:VideoView>
+                                                <indicators:LoadingIndicator Height="50"
+                                                                             IsVisible="{Binding ElementName=video, Path=IsDownloading}"
+                                                                             HorizontalAlignment="Center"
+                                                                             VerticalAlignment="Center"
+                                                                             ZIndex="10" />
+                                            </Panel>
+                                        </Border>
                                     </DataTemplate>
                                 </Carousel.ItemTemplate>
                             </Carousel>
-                            <Button Name="left" VerticalAlignment="Center"
+                            <Button VerticalAlignment="Center"
                                     Command="{Binding ElementName=Carousel, Path=Previous}"
-                                    HorizontalAlignment="Left" Margin="10, 0" Content="Back"/>
-                            <Button Name="right" VerticalAlignment="Center"
+                                    Classes="pixi-icon"
+                                    Padding="2"
+                                    Background="{DynamicResource ThemeBackgroundBrush1}"
+                                    BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                                    BorderThickness="1"
+                                    HorizontalAlignment="Left" Margin="0, 0"
+                                    Content="{DynamicResource icon-chevron-left}">
+                                <Button.IsVisible>
+                                    <MultiBinding
+                                        Converter="{converters:GreaterThanConverter}">
+                                        <MultiBinding.ConverterParameter>
+                                            <system:Int32>0</system:Int32>
+                                        </MultiBinding.ConverterParameter>
+                                        <Binding
+                                            ElementName="Carousel" Path="SelectedIndex" />
+                                    </MultiBinding>
+                                </Button.IsVisible>
+                            </Button>
+                            <Button VerticalAlignment="Center"
                                     Command="{Binding ElementName=Carousel, Path=Next}"
-                                    HorizontalAlignment="Right" Margin="10, 0">
-                                <Path Name="rightArrow"
-                                      Data="M4,11V13H16L10.5,18.5L11.92,19.92L19.84,12L11.92,4.08L10.5,5.5L16,11H4Z"
-                                      Fill="{DynamicResource ThemeForegroundBrush}" />
+                                    Classes="pixi-icon"
+                                    Background="{DynamicResource ThemeBackgroundBrush1}"
+                                    BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                                    BorderThickness="1"
+                                    Padding="2"
+                                    HorizontalAlignment="Right" Margin="0, 0"
+                                    Content="{DynamicResource icon-chevron-right}">
+                                <Button.IsVisible>
+                                    <MultiBinding Converter="{converters:LessThanConverter}">
+                                        <Binding
+                                            ElementName="Carousel" Path="SelectedIndex" />
+                                        <Binding
+                                            Path="SelectedAvailableExtension.AvailableContent.VideoUrls.Length" />
+                                        <MultiBinding.ConverterParameter>
+                                            <system:Int32>-1</system:Int32>
+                                        </MultiBinding.ConverterParameter>
+                                    </MultiBinding>
+                                </Button.IsVisible>
                             </Button>
                         </Panel>
                         <Separator />

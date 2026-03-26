@@ -222,12 +222,6 @@ internal class ExtensionManagerViewModel : ViewModelBase
         {
             IsAvailableFetching = false;
         }
-        foreach (var cachedExtension in availableExtensions)
-        {
-            cachedExtension.VideoUrls =
-                cachedExtension.VideoUrls?.Append("https://pixieditor.net/videos/feb-2026-status/advisor.webm")
-                    .ToArray() ?? ["https://pixieditor.net/videos/feb-2026-status/advisor.webm"];
-        }
 
         SaveAvailableExtensionsToCache(availableExtensions);
         double rate = 1;
