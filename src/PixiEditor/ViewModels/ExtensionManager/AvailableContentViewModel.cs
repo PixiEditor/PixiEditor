@@ -29,7 +29,7 @@ internal class AvailableContentViewModel : ObservableObject
     {
         get
         {
-            if (UnavailableOnSteam)
+            if (IsPurchaseUnavailableOnSteam)
             {
                 return "";
             }
@@ -67,10 +67,10 @@ internal class AvailableContentViewModel : ObservableObject
     private string Currency { get; }
     public bool IsFree => AvailableContent.Price == 0;
     public ObservableStringBuilder MarkdownBody { get; } = new ObservableStringBuilder();
-    public bool UnavailableOnSteam { get; }
+    public bool IsPurchaseUnavailableOnSteam { get; }
 
     public AvailableContentViewModel(AvailableContent content, ExtensionManagerViewModel extensionManager, double rate,
-        string currency, bool unavailableOnSteam)
+        string currency, bool isPurchaseUnavailableOnSteam)
     {
         AvailableContent = content;
         this.extensionManager = extensionManager;
@@ -85,7 +85,7 @@ internal class AvailableContentViewModel : ObservableObject
             MarkdownBody.Append(content.Body);
         }
         
-        UnavailableOnSteam = unavailableOnSteam;
+        IsPurchaseUnavailableOnSteam = isPurchaseUnavailableOnSteam;
     }
 
     private void FetchContentFromUri(Uri bodyUri)
