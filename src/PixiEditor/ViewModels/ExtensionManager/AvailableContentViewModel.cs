@@ -12,7 +12,7 @@ internal class AvailableContentViewModel : ObservableObject
 
     public bool IsOwned => extensionManager.IsExtensionOwned(AvailableContent.Id);
 
-    public bool IsBundle => AvailableContent.IncludedExtensions.Count > 0;
+    public bool IsBundle => AvailableContent.IsBundle;
 
     public bool AllBundleItemsOwned =>
         IsBundle && AvailableContent.IncludedExtensions.All(id => extensionManager.IsExtensionOwned(id));
@@ -40,7 +40,7 @@ internal class AvailableContentViewModel : ObservableObject
             }
 
             if (IsCountryUnsupported)
-                return "Unavailable in your country";
+                return "UNAVAILABLE_IN_YOUR_COUNTRY";
 
             double price = AvailableContent.Price;
 

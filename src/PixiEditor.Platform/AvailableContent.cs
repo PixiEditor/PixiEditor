@@ -12,5 +12,7 @@ public class AvailableContent
     public int Price { get; set; }
     public string Currency { get; set; } = string.Empty;
     public bool HideAddToLibrary { get; set; }
+    public bool IsBundle { get; set; }
+
     public List<string> IncludedExtensions = new List<string>();
 }

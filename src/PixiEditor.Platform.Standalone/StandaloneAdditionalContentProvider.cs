@@ -146,7 +146,8 @@ public sealed class StandaloneAdditionalContentProvider : IAdditionalContentProv
                 VideoUrls = x.VideoUrls,
                 Price =  x.Price,
                 Currency = x.Currency,
-                IncludedExtensions = x.IncludedExtensions
+                IncludedExtensions = x.IncludedExtensions,
+                IsBundle = x.IsBundle,
             })
             .ToList();
     }

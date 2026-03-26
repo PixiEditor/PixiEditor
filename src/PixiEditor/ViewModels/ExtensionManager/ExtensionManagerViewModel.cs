@@ -164,6 +164,7 @@ internal class ExtensionManagerViewModel : ViewModelBase
                         Description = ext.ProductData.Description,
                         Author = ext.ProductData.Author,
                         HideAddToLibrary = true,
+                        IsBundle = ext.ProductData.IsBundle,
                         Body = ext.ProductData.Description
                     }, this, 1, "PLN", false);
 

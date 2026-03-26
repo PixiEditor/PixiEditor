@@ -34,5 +34,8 @@ public class AvailableExtension
 
     [JsonPropertyName("videoUrls")]
     public string[] VideoUrls { get; set; }
+
+    [JsonPropertyName("isBundle")]
+    public bool IsBundle { get; set; }
 }
 

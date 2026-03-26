@@ -110,23 +110,30 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
     {
         if (extension.EndsWith(".pixiext"))
         {
-            var loadedExtension = ExtensionLoader.LoadExtension(extension);
-            if (loadedExtension is null)
+            try
             {
-                return;
-            }
+                var loadedExtension = ExtensionLoader.LoadExtension(extension);
+                if (loadedExtension is null)
+                {
+                    return;
+                }
 
-            ILocalizationProvider.Current.LoadExtensionData(loadedExtension.Metadata.Localization?.Languages,
-                loadedExtension.Location);
-            loadedExtension.Initialize(new ExtensionServices(Owner.Services));
-            if (Owner.AttachedWindow != null && Owner.AttachedWindow.IsLoaded)
-            {
-                loadedExtension.MainWindowLoaded();
-            }
+                ILocalizationProvider.Current.LoadExtensionData(loadedExtension.Metadata.Localization?.Languages,
+                    loadedExtension.Location);
+                loadedExtension.Initialize(new ExtensionServices(Owner.Services));
+                if (Owner.AttachedWindow != null && Owner.AttachedWindow.IsLoaded)
+                {
+                    loadedExtension.MainWindowLoaded();
+                }
 
-            if (Owner.IsUserReady)
+                if (Owner.IsUserReady)
+                {
+                    loadedExtension.UserReady();
+                }
+            }
+            catch (Exception ex)
             {
-                loadedExtension.UserReady();
+                Console.WriteLine($"Failed to load extension from {extension}: {ex}");
             }
         }
     }

@@ -9,6 +9,7 @@ public record ProductData
     public string ImageUrl { get; set; }
     public string? LatestVersion { get; set; }
     public string DownloadLink { get; set; }
+    public bool IsBundle { get; set; }
 
     public ProductData(string id, string displayName)
     {

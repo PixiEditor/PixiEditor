@@ -38,6 +38,7 @@ public class ExtensionLoader : IExtensionListProvider
         UpdateExtensions();
         List<DiscoveredExtension> discoveredExtensions = DiscoverExtensions();
         List<DiscoveredExtension> sortedExtensions = ExtensionDependencyResolver.ResolveDependencies(discoveredExtensions);
+        List<string> installAttempted = new List<string>();
 
         foreach (var ext in sortedExtensions)
         {
@@ -47,11 +48,16 @@ public class ExtensionLoader : IExtensionListProvider
             }
             else
             {
-                LoadExtension(ext.PackagePath);
+                installAttempted.Add(ext.PackagePath);
+                var loaded = LoadExtension(ext.PackagePath);
+                if (loaded == null)
+                {
+                    UnloadedExtensionsMetadata.Add((ext.Metadata, ext.PackagePath));
+                }
             }
         }
 
-        DeleteUninstalledExtensions();
+        DeleteUninstalledExtensions(installAttempted);
     }
     
     private List<DiscoveredExtension> DiscoverExtensions()
@@ -279,7 +285,7 @@ public class ExtensionLoader : IExtensionListProvider
         
     }
 
-    public void DeleteUninstalledExtensions()
+    public void DeleteUninstalledExtensions(List<string> installAttempted)
     {
         var loadedExtensionNames = new HashSet<string>(
             LoadedExtensions.Select(e => e.Metadata.UniqueName)
@@ -292,9 +298,16 @@ public class ExtensionLoader : IExtensionListProvider
         {
             var extensionName = Path.GetFileName(extensionPath);
 
-            if (!loadedExtensionNames.Contains(extensionName) &&  !disabledExtensions.Contains(extensionName))
+            if (!loadedExtensionNames.Contains(extensionName) && !disabledExtensions.Contains(extensionName) && installAttempted.All(x => x != extensionPath))
             {
-                Directory.Delete(extensionPath, true);
+                try
+                {
+                    Directory.Delete(extensionPath, true);
+                }
+                catch (IOException ex)
+                {
+                    Console.WriteLine($"Failed to delete directory {extensionPath}: {ex.Message}");
+                }
             }
         }
     }

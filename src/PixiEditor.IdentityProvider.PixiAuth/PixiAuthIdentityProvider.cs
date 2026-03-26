@@ -329,7 +329,7 @@ public class PixiAuthIdentityProvider : IIdentityProvider
                         DownloadLink = x.DownloadLink,
                         Description = x.ProductDescription,
                         Author = x.Author,
-                        ImageUrl = x.ImageUrl
+                        ImageUrl = x.ImageUrl,
                     })
                     .ToList();
                 OwnedProductsUpdated?.Invoke(new List<ProductData>(User.OwnedProducts));
