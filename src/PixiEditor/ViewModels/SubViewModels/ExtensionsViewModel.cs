@@ -67,7 +67,7 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
 
     public async Task<List<string>> LoadExtensionWithDependenciesAdHoc(string extensionPath, IAdditionalContentProvider additionalContentProvider)
     {
-        var metadata = ExtensionLoader.LoadExtensionMetadata(extensionPath);
+        var metadata = ExtensionLoader.ReadExtensionMetadata(extensionPath);
         if (metadata is null)
         {
             return [];
@@ -145,7 +145,7 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
         {
             List<DiscoveredExtension> installedExtensions = new List<DiscoveredExtension>();
 
-            await InstallRecursive(additionalContentProvider, productId, installedExtensions);
+            await InstallRecursive(additionalContentProvider, productId, installedExtensions, true);
 
             List<DiscoveredExtension> prevInstalledExtensions = new List<DiscoveredExtension>();
             foreach (var loaded in ExtensionLoader.LoadedExtensions)
@@ -205,12 +205,11 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    private async Task InstallRecursive(
-        IAdditionalContentProvider provider,
+    private async Task InstallRecursive(IAdditionalContentProvider provider,
         string extensionId,
-        List<DiscoveredExtension> installedExtensions)
+        List<DiscoveredExtension> installedExtensions, bool force)
     {
-        if (provider.IsInstalled(extensionId))
+        if (provider.IsInstalled(extensionId) && !force)
             return;
 
         if (!provider.IsContentOwned(extensionId))
@@ -231,13 +230,13 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
             return;
         }
 
-        var metadata = ExtensionLoader.LoadExtensionMetadata(extensionPath);
+        var metadata = ExtensionLoader.ReadExtensionMetadata(extensionPath);
 
         if (metadata != null)
         {
             foreach (var dep in metadata.DependsOn)
             {
-                await InstallRecursive(provider, dep, installedExtensions);
+                await InstallRecursive(provider, dep, installedExtensions, false);
             }
         }
 

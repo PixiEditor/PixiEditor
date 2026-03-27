@@ -250,7 +250,8 @@ internal class ExtensionManagerViewModel : ViewModelBase
 
         foreach (var extension in availableExtensions)
         {
-            AvailableExtensions.Add(new AvailableContentViewModel(extension, this, rate, selectedCurrency, (IsPlatformSteam && !IsExtensionOwned(extension.Id))));
+            AvailableExtensions.Add(new AvailableContentViewModel(extension, this, rate, selectedCurrency,
+                (IsPlatformSteam && !IsExtensionOwned(extension.Id))));
         }
     }
 

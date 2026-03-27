@@ -13,6 +13,5 @@ public class AvailableContent
     public string Currency { get; set; } = string.Empty;
     public bool HideAddToLibrary { get; set; }
     public bool IsBundle { get; set; }
-
-    public List<string> IncludedExtensions = new List<string>();
+    public List<string> IncludedExtensions { get; set; } = new List<string>();
 }

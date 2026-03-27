@@ -37,7 +37,8 @@ public class ExtensionLoader : IExtensionListProvider
     {
         UpdateExtensions();
         List<DiscoveredExtension> discoveredExtensions = DiscoverExtensions();
-        List<DiscoveredExtension> sortedExtensions = ExtensionDependencyResolver.ResolveDependencies(discoveredExtensions);
+        List<DiscoveredExtension> sortedExtensions =
+            ExtensionDependencyResolver.ResolveDependencies(discoveredExtensions);
         List<string> installAttempted = new List<string>();
 
         foreach (var ext in sortedExtensions)
@@ -59,7 +60,7 @@ public class ExtensionLoader : IExtensionListProvider
 
         DeleteUninstalledExtensions(installAttempted);
     }
-    
+
     private List<DiscoveredExtension> DiscoverExtensions()
     {
         var discoveredExtensions = new List<DiscoveredExtension>();
@@ -72,7 +73,7 @@ public class ExtensionLoader : IExtensionListProvider
 
             foreach (var file in Directory.GetFiles(packagesPath, "*.pixiext"))
             {
-                var json = GetExtensionJson(file);
+                var json = UnpackExtensionJson(file);
                 if (json == null)
                     continue;
 
@@ -86,9 +87,7 @@ public class ExtensionLoader : IExtensionListProvider
 
                 discoveredExtensions.Add(new DiscoveredExtension
                 {
-                    Metadata = metadata,
-                    PackagePath = file,
-                    Disabled = disabled.Contains(metadata.UniqueName)
+                    Metadata = metadata, PackagePath = file, Disabled = disabled.Contains(metadata.UniqueName)
                 });
             }
         }
@@ -205,26 +204,44 @@ public class ExtensionLoader : IExtensionListProvider
 
     public Extension? LoadExtension(string extension)
     {
-        var extensionJson = GetExtensionJson(extension);
+        var extensionJson = UnpackExtensionJson(extension);
         if (extensionJson == null)
         {
             return null;
         }
-        
+
         return LoadExtensionFromCache(extensionJson);
     }
-    
-    public ExtensionMetadata? LoadExtensionMetadata(string extensionPath)
+
+    public ExtensionMetadata? ReadExtensionMetadata(string extensionPath)
     {
-        var extensionJson = GetExtensionJson(extensionPath);
+        var extZip = ZipFile.OpenRead(extensionPath);
+        try
+        {
+            ExtensionMetadata metadata = ExtractMetadata(extZip);
+            return metadata;
+        }
+        catch (Exception ex)
+        {
+#if DEBUG
+            throw;
+#endif
+            return null;
+        }
+    }
+
+    public ExtensionMetadata? UnpackExtensionMetadata(string extensionPath)
+    {
+        var extensionJson = UnpackExtensionJson(extensionPath);
         if (extensionJson == null)
         {
             return null;
         }
+
         return LoadMetadataFromCache(extensionJson);
     }
 
-    public string? GetExtensionJson(string extension)
+    public string? UnpackExtensionJson(string extension)
     {
         var extZip = ZipFile.OpenRead(extension);
         try
@@ -256,7 +273,7 @@ public class ExtensionLoader : IExtensionListProvider
             return null;
         }
     }
-    
+
     public void UninstallExtension(string extensionId)
     {
         var extension = LoadedExtensions.FirstOrDefault(x => Equals(x.Metadata.UniqueName, extensionId));
@@ -264,14 +281,14 @@ public class ExtensionLoader : IExtensionListProvider
         {
             extension.Unload();
         }
-        
+
         loaded.Remove(extension);
 
-        foreach (var package in  PackagesPath)
+        foreach (var package in PackagesPath)
         {
             string fullPackagePath = Path.Combine(package, $"{extensionId}.pixiext");
             if (File.Exists(fullPackagePath))
-            { 
+            {
                 try
                 {
                     File.Delete(fullPackagePath);
@@ -282,7 +299,6 @@ public class ExtensionLoader : IExtensionListProvider
                 }
             }
         }
-        
     }
 
     public void DeleteUninstalledExtensions(List<string> installAttempted)
@@ -290,15 +306,16 @@ public class ExtensionLoader : IExtensionListProvider
         var loadedExtensionNames = new HashSet<string>(
             LoadedExtensions.Select(e => e.Metadata.UniqueName)
         );
-        
+
         var disabledExtensions = PixiEditorSettings.Extensions.DisabledExtensions.Value.ToList();
-        
+
         var directories = Directory.GetDirectories(UnpackedExtensionsPath);
         foreach (var extensionPath in directories)
         {
             var extensionName = Path.GetFileName(extensionPath);
 
-            if (!loadedExtensionNames.Contains(extensionName) && !disabledExtensions.Contains(extensionName) && installAttempted.All(x => x != extensionPath))
+            if (!loadedExtensionNames.Contains(extensionName) && !disabledExtensions.Contains(extensionName) &&
+                installAttempted.All(x => x != extensionPath))
             {
                 try
                 {
@@ -425,7 +442,7 @@ public class ExtensionLoader : IExtensionListProvider
         {
             string json = File.ReadAllText(extensionJson);
             var metadata = JsonSerializer.Deserialize<ExtensionMetadata>(json, JsonOptions);
-            
+
             return metadata;
         }
         catch (Exception ex)
