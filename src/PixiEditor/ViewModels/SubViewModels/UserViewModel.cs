@@ -108,6 +108,7 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
     }
 
     private bool registerMode;
+
     public bool RegisterMode
     {
         get => registerMode;
@@ -125,7 +126,7 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
 
     private IDisposable? timerCancelable;
 
-        public static string FoundersBundleLink =>
+    public static string FoundersBundleLink =>
 #if STEAM
         "https://store.steampowered.com/app/2435860/PixiEditor__Supporter_Pack/";
 #else
@@ -171,14 +172,35 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
 
     private void IdentityProviderOnOwnedProductsUpdated(List<ProductData> products)
     {
-        OwnedProducts.Clear();
         if (products == null)
         {
             return;
         }
 
+        List<ProductData> newProducts = new List<ProductData>();
 
         foreach (ProductData product in products)
+        {
+            if (OwnedProducts.Any(x => x.ProductData.Id == product.Id))
+            {
+                continue;
+            }
+
+            newProducts.Add(product);
+        }
+
+        for (int i = OwnedProducts.Count - 1; i >= 0; i--)
+        {
+            OwnedProductViewModel ownedProduct = OwnedProducts[i];
+            if (products.Any(x => x.Id == ownedProduct.ProductData.Id))
+            {
+                continue;
+            }
+
+            OwnedProducts.RemoveAt(i);
+        }
+
+        foreach (var product in newProducts)
         {
             bool isInstalled = IsInstalled(product.Id);
 

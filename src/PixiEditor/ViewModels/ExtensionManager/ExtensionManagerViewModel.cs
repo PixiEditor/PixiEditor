@@ -257,13 +257,41 @@ internal class ExtensionManagerViewModel : ViewModelBase
 
     public void FetchOwnedExtensions()
     {
-        OwnedExtensions.Clear();
+        List<OwnedProductViewModel> toRemove = new List<OwnedProductViewModel>();
+        List<string> existing = new List<string>();
 
         if (identityProvider.User != null && identityProvider.User.OwnedProducts != null && !IsPlatformSteam)
         {
             var extensions = identityProvider.User.OwnedProducts;
+
+            foreach (var owned in OwnedExtensions)
+            {
+                if (extensions.All(e => e.Id != owned.ProductData.Id))
+                {
+                    toRemove.Add(owned);
+                }
+            }
+
+            foreach (var ext in extensions)
+            {
+                if (OwnedExtensions.Any(owned => owned.ProductData.Id == ext.Id))
+                {
+                    existing.Add(ext.Id);
+                }
+            }
+
+            foreach (var owned in toRemove)
+            {
+                OwnedExtensions.Remove(owned);
+            }
+
             foreach (ProductData extension in extensions)
             {
+                if (existing.Contains(extension.Id))
+                {
+                    continue;
+                }
+
                 bool isInstalled = IsInstalled(extension.Id);
 
                 string? installedVersion = null;
