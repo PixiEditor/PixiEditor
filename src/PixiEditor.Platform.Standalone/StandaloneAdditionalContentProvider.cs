@@ -132,6 +132,11 @@ public sealed class StandaloneAdditionalContentProvider : IAdditionalContentProv
     
     public async Task<List<AvailableContent>> FetchAvailableExtensions()
     {
+        if (IdentityProvider.PixiAuthClient == null)
+        {
+            throw new Exception("No PixiAuth client has been configured. Are you running an official build?");
+        }
+        
         List<AvailableExtension> availableExtensions = await IdentityProvider.PixiAuthClient.GetAvailableExtensions();
         
         return availableExtensions

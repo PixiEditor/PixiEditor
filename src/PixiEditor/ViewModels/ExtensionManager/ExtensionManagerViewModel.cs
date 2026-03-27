@@ -21,6 +21,7 @@ using PixiEditor.OperatingSystem;
 using PixiEditor.PixiAuth.Exceptions;
 using PixiEditor.PixiAuth.Models;
 using PixiEditor.Platform;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.SubViewModels;
 using PixiEditor.ViewModels.User;
 
@@ -216,7 +217,7 @@ internal class ExtensionManagerViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
-            AvailableErrorMessage = "FAILED_FETCH_EXTENSIONS";
+            AvailableErrorMessage = new LocalizedString("FAILED_FETCH_EXTENSIONS", ex.Message);
             return;
         }
         finally
