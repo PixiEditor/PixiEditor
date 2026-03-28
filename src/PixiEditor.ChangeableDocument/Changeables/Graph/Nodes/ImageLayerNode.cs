@@ -160,7 +160,6 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         VecD topLeft = region.TopLeft - sceneSize / 2;
 
         topLeft *= ctx.ChunkResolution.Multiplier();
-        workingSurface.Scale((float)ctx.ChunkResolution.InvertedMultiplier());
         var img = GetLayerImageAtFrame(ctx.FrameTime.Frame);
 
         if (img is null)
@@ -186,12 +185,11 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
             intermediate = RequestTexture(1336, chunkAwareSize, ColorSpace.CreateSrgb());
             finalDrawPos = VecD.Zero;
-            // TODO: Validate that removing below doesn't cause issues. Bugs like partial chunk rendering on scene moves the position of the image.
-            // If you uncomment this, Test file (nested elephant in render tests) will fail for certain zooms
-            /*if (visibleRegion != latestSize)
-            {
-                topLeft = region.TopLeft - sceneSize / 2;
-            }*/
+            topLeft = region.TopLeft - sceneSize / 2;
+        }
+        else
+        {
+            workingSurface.Scale((float)ctx.ChunkResolution.InvertedMultiplier());
         }
 
         if (!ctx.FullRerender)
@@ -214,8 +212,9 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         if (saveLayer && intermediate != null)
         {
             int intermediateSaved = workingSurface.Save();
-            workingSurface.Translate(topLeft);
 
+            workingSurface.Translate(topLeft);
+            workingSurface.Scale((float)ctx.ChunkResolution.InvertedMultiplier());
             workingSurface.DrawSurface(intermediate.DrawingSurface, 0, 0, paint);
 
             workingSurface.RestoreToCount(intermediateSaved);
