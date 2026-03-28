@@ -12,11 +12,13 @@ public class CustomOutputNode : Node, IRenderInput
     public const string IsDefaultExportPropertyName = "IsDefaultExport";
     public const string SizePropertyName = "Size";
     public const string FullViewportRenderPropertyName = "FullViewportRender";
+    public const string RenderOverlaysPropertyName = "RenderOverlays";
     public RenderInputProperty Input { get; }
     public InputProperty<string> OutputName { get; }
     public InputProperty<bool> IsDefaultExport { get; }
     public InputProperty<VecI> Size { get; }
     public InputProperty<bool> FullViewportRender { get; }
+    public InputProperty<bool> RenderOverlays { get; }
 
     public CustomOutputNode()
     {
@@ -27,6 +29,7 @@ public class CustomOutputNode : Node, IRenderInput
         IsDefaultExport = CreateInput(IsDefaultExportPropertyName, "IS_DEFAULT_EXPORT", false);
         Size = CreateInput(SizePropertyName, "SIZE", VecI.Zero);
         FullViewportRender = CreateInput(FullViewportRenderPropertyName, "FULL_VIEWPORT_RENDER", false);
+        RenderOverlays = CreateInput(RenderOverlaysPropertyName, "RENDER_OVERLAYS", true);
     }
 
     public override Node CreateCopy()

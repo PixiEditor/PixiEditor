@@ -347,20 +347,24 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         texture.Canvas.Save();
         var matrix = CalculateTransformMatrix();
 
-        VecI outputSize = FindOutputSize(out var isFullscreen);
+        VecI outputSize = FindOutputSize(out var isFullscreen, out bool renderOverlays);
 
         texture.Canvas.SetMatrix(isFullscreen ? Matrix3X3.Identity : matrix.ToSKMatrix().ToMatrix3X3());
 
         RectD dirtyBounds = new RectD(0, 0, outputSize.X, outputSize.Y);
-        RenderScene(texture, dirtyBounds, isFullscreen);
+        RenderScene(texture, dirtyBounds, isFullscreen, renderOverlays);
 
         texture.Canvas.Restore();
     }
 
-    private void RenderScene(DrawingSurface texture, RectD bounds, bool isFullscreenRender)
+    private void RenderScene(DrawingSurface texture, RectD bounds, bool isFullscreenRender, bool renderOverlays)
     {
         var renderOutput = RenderOutput == "DEFAULT" ? null : RenderOutput;
-        DrawCheckerboard(texture, bounds);
+        if (renderOverlays)
+        {
+            DrawCheckerboard(texture, bounds);
+        }
+
         DrawOverlays(texture, bounds, OverlayRenderSorting.Background);
         try
         {
@@ -436,7 +440,10 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                 TextAlign.Center, defaultSizedFont, paint);
         }
 
-        DrawOverlays(texture, bounds, OverlayRenderSorting.Foreground);
+        if (renderOverlays)
+        {
+            DrawOverlays(texture, bounds, OverlayRenderSorting.Foreground);
+        }
     }
 
     private void DrawCheckerboard(DrawingSurface surface, RectD dirtyBounds)
@@ -510,10 +517,11 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         }
     }
 
-    private VecI FindOutputSize(out bool isFullscreen)
+    private VecI FindOutputSize(out bool isFullscreen, out bool renderOverlays)
     {
         VecI outputSize = Document.SizeBindable;
         isFullscreen = false;
+        renderOverlays = true;
 
         if (!string.IsNullOrEmpty(RenderOutput))
         {
@@ -534,6 +542,13 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                     {
                         isFullscreen = Document.NodeGraph.GetComputedPropertyValue<bool>(fullScreenProp);
                     }
+                }
+
+                var renderOverlaysProp = node?.Inputs.FirstOrDefault(x =>
+                    x.PropertyName == CustomOutputNode.RenderOverlaysPropertyName);
+                if (renderOverlaysProp != null)
+                {
+                    renderOverlays = Document.NodeGraph.GetComputedPropertyValue<bool>(renderOverlaysProp);
                 }
             }
         }
