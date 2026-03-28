@@ -1394,5 +1394,7 @@
   "GET_FROM_EXTENSIONS": "Get more tools from the Extension Library",
   "VIEW_LIBRARY": "View Library",
   "EXTENSIONS_WINDOW_PRICE_INACCURACY_INFO": "Price in the checkout may differ due to taxes and currency conversion applied by the payment provider.",
-  "UNAVAILABLE_IN_YOUR_COUNTRY": "Unavailable in your country"
+  "UNAVAILABLE_IN_YOUR_COUNTRY": "Unavailable in your country",
+  "WELCOME_TO_EXTENSIONS_BETA": "Welcome to the Extension Browser Beta!",
+  "CLICK_HERE_TO_READ_MORE": "Click here to read more about it."
 }
