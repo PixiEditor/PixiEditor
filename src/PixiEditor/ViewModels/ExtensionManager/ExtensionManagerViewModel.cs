@@ -565,6 +565,19 @@ internal class ExtensionManagerViewModel : ViewModelBase
         }
     }
 
+    private bool AnyUpdatesAvailable()
+    {
+        foreach (var owned in OwnedExtensions)
+        {
+            if (owned.UpdateAvailable)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public async Task UpdateUserOwnedProducts()
     {
         if (identityProvider is PixiAuthIdentityProvider pixiAuthIdentityProvider)
@@ -632,6 +645,8 @@ internal class ExtensionManagerViewModel : ViewModelBase
                 owned.ToggleEnabledCommand.NotifyCanExecuteChanged();
             }
         }
+
+        Tabs[1].ShowStatusIndicator = AnyUpdatesAvailable();
     }
 
     public void RefreshDependenciesState()

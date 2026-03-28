@@ -68,7 +68,7 @@
                     <Flyout>
                         <LayoutTransformControl>
                             <Interaction.Behaviors>
-                                <behaviors:LayoutTransformScalerBehavior/>
+                                <behaviors:LayoutTransformScalerBehavior />
                             </Interaction.Behaviors>
 
                             <StackPanel Width="250" IsVisible="{Binding IsLoggedIn}" Margin="15" Orientation="Vertical">
@@ -85,9 +85,22 @@
                                     <Run Text="{Binding Username}" />
                                 </TextBlock>
 
-                                <Button ui:Translator.Key="VIEW_LIBRARY"
-                                        IsVisible="{Binding !!User}"
-                                        Command="{xaml:Command Name=PixiEditor.Window.OpenExtensionsWindow}" />
+                                <Panel>
+                                    <Button ui:Translator.Key="VIEW_LIBRARY"
+                                            IsVisible="{Binding !!User}"
+                                            Command="{xaml:Command Name=PixiEditor.Window.OpenExtensionsWindow}" />
+                                    <Ellipse IsVisible="{Binding AnyUpdateAvailable}"
+                                             IsHitTestVisible="False"
+                                             ClipToBounds="False"
+                                             Classes="pulse"
+                                             Width="12" Height="12"
+                                             HorizontalAlignment="Right"
+                                             VerticalAlignment="Top"
+                                             StrokeThickness="2"
+                                             Stroke="{DynamicResource ThemeBackgroundBrush}"
+                                             Fill="{DynamicResource ThemeAccent3Brush}">
+                                    </Ellipse>
+                                </Panel>
 
                                 <Button Margin="0, 12, 0, 0"
                                         Content="{ui:Translate Key=LOGOUT}"

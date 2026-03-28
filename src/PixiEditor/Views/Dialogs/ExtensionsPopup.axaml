@@ -68,7 +68,9 @@
                                       ItemsSource="{Binding SelectedAvailableExtension.AvailableContent.VideoUrls}">
                                 <Carousel.ItemTemplate>
                                     <DataTemplate>
-                                        <Border BorderBrush="{DynamicResource ThemeBorderMidBrush}" BorderThickness="1" Margin="32" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource ThemeBackgroundBrush1}">
+                                        <Border BorderBrush="{DynamicResource ThemeBorderMidBrush}" BorderThickness="1"
+                                                Margin="32" CornerRadius="{DynamicResource ControlCornerRadius}"
+                                                Background="{DynamicResource ThemeBackgroundBrush1}">
                                             <Panel>
                                                 <visuals:VideoView
                                                     Name="video"
@@ -291,6 +293,7 @@
                     Margin="12"
                     HorizontalAlignment="Left">
                 <ItemsControl ItemsSource="{Binding Tabs}"
+                              ClipToBounds="False"
                               HorizontalAlignment="Left">
                     <ItemsControl.Styles>
                         <Style Selector="ToggleButton">
@@ -316,14 +319,27 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <ToggleButton Padding="4"
+                                          ClipToBounds="False"
                                           controls:SelectableStrip.IsStripSelected="{Binding RelativeSource={RelativeSource Self}, Path=IsChecked}"
                                           behaviours:ToggleGroupBehavior.GroupName="ExtensionsTab"
                                           BorderThickness="0"
                                           behaviours:ToggleGroupBehavior.Value="{Binding }"
                                           behaviours:ToggleGroupBehavior.SelectedValue="{Binding DataContext.SelectedTab, Mode=TwoWay, RelativeSource={RelativeSource FindAncestor, AncestorType=dialogs:ExtensionsPopup}}">
-
-                                <TextBlock FontSize="{DynamicResource FontSizeNormal}"
-                                           localization:Translator.Key="{Binding Name}" />
+                                <Panel ClipToBounds="False">
+                                    <TextBlock FontSize="{DynamicResource FontSizeNormal}"
+                                               localization:Translator.Key="{Binding Name}" />
+                                    <Ellipse IsVisible="{Binding ShowStatusIndicator}"
+                                             IsHitTestVisible="False"
+                                             ClipToBounds="False"
+                                             Classes="pulse"
+                                             Margin="-8"
+                                             Width="12" Height="12"
+                                             HorizontalAlignment="Right"
+                                             VerticalAlignment="Top"
+                                             StrokeThickness="2"
+                                             Stroke="{DynamicResource ThemeBackgroundBrush}"
+                                             Fill="{DynamicResource ThemeAccent3Brush}" />
+                                </Panel>
                             </ToggleButton>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
@@ -530,6 +546,8 @@
                                                            localization:Translator.Key="INSTALLING" />
 
                                                 <Button Command="{Binding InstallCommand}"
+                                                        VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                        Margin="0, 0, 12, 0"
                                                         FontSize="{DynamicResource FontSizeNormal}">
                                                     <Button.IsVisible>
                                                         <MultiBinding Converter="{converters:AllTrueConverter}">

@@ -93,6 +93,8 @@ public class VideoView : Control
                 x.Pause();
             }
         });
+
+        AffectsRender<VideoView>(SourceProperty, VideoWidthProperty, VideoHeightProperty, IsPlayingProperty);
     }
 
     public VideoView()
