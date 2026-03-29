@@ -66,16 +66,25 @@
                         <Panel Margin="0, 0, 12, 0">
                             <Carousel Name="Carousel"
                                       IsVisible="{Binding IsDetailsVisible}"
-                                      ItemsSource="{Binding SelectedAvailableExtension.AvailableContent.VideoUrls}">
-                                <Carousel.ItemTemplate>
-                                    <DataTemplate>
+                                      ItemsSource="{Binding SelectedAvailableExtension.ShowcaseItems}">
+                                <Carousel.DataTemplates>
+                                     <DataTemplate x:DataType="extensionManager:ImageShowcaseItem">
+                                        <Border BorderBrush="{DynamicResource ThemeBorderMidBrush}" BorderThickness="1"
+                                                Margin="32" CornerRadius="{DynamicResource ControlCornerRadius}"
+                                                Background="{DynamicResource ThemeBackgroundBrush1}">
+                                            <Image Stretch="Uniform"
+                                                   asyncImageLoader:ImageLoader.Source="{Binding ImageUrl}">
+                                            </Image>
+                                        </Border>
+                                    </DataTemplate>
+                                    <DataTemplate x:DataType="extensionManager:VideoShowcaseItem">
                                         <Border BorderBrush="{DynamicResource ThemeBorderMidBrush}" BorderThickness="1"
                                                 Margin="32" CornerRadius="{DynamicResource ControlCornerRadius}"
                                                 Background="{DynamicResource ThemeBackgroundBrush1}">
                                             <Panel>
                                                 <visuals:VideoView
                                                     Name="video"
-                                                    VideoHeight="1080" VideoWidth="1920" Source="{Binding}">
+                                                    VideoHeight="1080" VideoWidth="1920" Source="{Binding VideoUrl}">
                                                     <visuals:VideoView.IsPlaying>
                                                         <MultiBinding
                                                             Converter="{converters:CarouselItemIsSelectedConverter}">
@@ -92,7 +101,7 @@
                                             </Panel>
                                         </Border>
                                     </DataTemplate>
-                                </Carousel.ItemTemplate>
+                                </Carousel.DataTemplates>
                             </Carousel>
                             <Button VerticalAlignment="Center"
                                     Command="{Binding ElementName=Carousel, Path=Previous}"
@@ -128,7 +137,7 @@
                                         <Binding
                                             ElementName="Carousel" Path="SelectedIndex" />
                                         <Binding
-                                            Path="SelectedAvailableExtension.AvailableContent.VideoUrls.Length" />
+                                            Path="SelectedAvailableExtension.AvailableContent.ShowcaseUrls.Length" />
                                         <MultiBinding.ConverterParameter>
                                             <system:Int32>-1</system:Int32>
                                         </MultiBinding.ConverterParameter>

@@ -148,7 +148,7 @@ public sealed class StandaloneAdditionalContentProvider : IAdditionalContentProv
                 Author = x.Author,
                 Body = x.Body,
                 ImageUrl = x.ImageUrl,
-                VideoUrls = x.VideoUrls,
+                ShowcaseUrls = x.ShowcaseUrls,
                 Price =  x.Price,
                 Currency = x.Currency,
                 IncludedExtensions = x.IncludedExtensions,

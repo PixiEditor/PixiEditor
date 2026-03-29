@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Collections.ObjectModel;
+using System.Globalization;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using LiveMarkdown.Avalonia;
@@ -68,6 +69,7 @@ internal class AvailableContentViewModel : ObservableObject
     public bool IsFree => AvailableContent.Price == 0;
     public ObservableStringBuilder MarkdownBody { get; } = new ObservableStringBuilder();
     public bool IsPurchaseUnavailableOnSteam { get; }
+    public ObservableCollection<ShowcaseItem> ShowcaseItems { get; } = new ObservableCollection<ShowcaseItem>();
 
     public AvailableContentViewModel(AvailableContent content, ExtensionManagerViewModel extensionManager, double rate,
         string currency, bool isPurchaseUnavailableOnSteam)
@@ -86,6 +88,25 @@ internal class AvailableContentViewModel : ObservableObject
         }
         
         IsPurchaseUnavailableOnSteam = isPurchaseUnavailableOnSteam;
+        if (content.ShowcaseUrls != null)
+        {
+            foreach (var showcaseItem in content.ShowcaseUrls)
+            {
+                if (Uri.TryCreate(showcaseItem, UriKind.Absolute, out Uri showcaseUri))
+                {
+                    bool isVideo = showcaseUri.AbsolutePath.EndsWith(".mp4", StringComparison.OrdinalIgnoreCase) ||
+                                   showcaseUri.AbsolutePath.EndsWith(".webm", StringComparison.OrdinalIgnoreCase);
+                    if (isVideo)
+                    {
+                        ShowcaseItems.Add(new VideoShowcaseItem(showcaseItem));
+                    }
+                    else
+                    {
+                        ShowcaseItems.Add(new ImageShowcaseItem(showcaseItem));
+                    }
+                }
+            }
+        }
     }
 
     private void FetchContentFromUri(Uri bodyUri)
