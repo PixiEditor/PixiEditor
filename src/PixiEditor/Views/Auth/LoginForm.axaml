@@ -20,16 +20,21 @@
             <TextBox Text="{Binding CurrentEmail, Mode=TwoWay}" Watermark="{ui:Translate Key=ENTER_EMAIL}" Name="Email"
                      IsVisible="{Binding !IsLoggedIn}" />
 
-            <StackPanel
-                IsVisible="{Binding RegisterMode}"
-                Orientation="Horizontal" Spacing="5">
-                <CheckBox VerticalAlignment="Center" IsChecked="{Binding AgreementChecked, Mode=TwoWay}" />
-                <TextBlock Text="{ui:Translate Key=AGREE_TERMS}" />
-                <TextBlock ui1:Hyperlink.Url="https://pixieditor.net/docs/terms-of-service"
-                           ui:Translator.Key="TERMS_OF_SERVICE" />
-                <TextBlock ui:Translator.Key="AND" />
-                <TextBlock ui1:Hyperlink.Url="https://pixieditor.net/docs/privacy-policy"
-                           ui:Translator.Key="PRIVACY_POLICY" />
+            <StackPanel Spacing="5" Orientation="Vertical" IsVisible="{Binding RegisterMode}">
+                <StackPanel
+                    Orientation="Horizontal" Spacing="5">
+                    <CheckBox VerticalAlignment="Center" IsChecked="{Binding AgreementChecked, Mode=TwoWay}" />
+                    <TextBlock Text="{ui:Translate Key=AGREE_TERMS}" />
+                    <TextBlock ui1:Hyperlink.Url="https://pixieditor.net/docs/terms-of-service"
+                               ui:Translator.Key="TERMS_OF_SERVICE" />
+                    <TextBlock ui:Translator.Key="AND" />
+                    <TextBlock ui1:Hyperlink.Url="https://pixieditor.net/docs/privacy-policy"
+                               ui:Translator.Key="PRIVACY_POLICY" />
+                </StackPanel>
+
+                <CheckBox VerticalAlignment="Center" IsChecked="{Binding SignInToNewsletterChecked, Mode=TwoWay}"
+                          ui:Translator.Key="SIGN_IN_TO_NEWSLETTER"/>
+
             </StackPanel>
 
             <Panel IsVisible="{Binding !RegisterMode}">
@@ -69,7 +74,7 @@
                 <Button.IsVisible>
                     <MultiBinding Converter="{converters:AllTrueConverter}">
                         <Binding Path="WaitingForActivation" />
-                        <Binding Path="!RegisterMode"/>
+                        <Binding Path="!RegisterMode" />
                         <Binding Path="EmailEqualsLastSentMail" />
                     </MultiBinding>
                 </Button.IsVisible>
@@ -108,7 +113,7 @@
 
             <ToggleButton ui:Translator.Key="{Binding ActiveModeKey}"
                           Background="Transparent" BorderThickness="0"
-                          
+
                           IsChecked="{Binding RegisterMode, Mode=TwoWay}" />
         </StackPanel>
         <DockPanel LastChildFill="True"

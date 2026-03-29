@@ -396,7 +396,7 @@ public class PixiAuthClient
             $"{httpClient.BaseAddress}content/createCheckoutSessionFromSessionId?sessionId={sessionId}&productId={System.Web.HttpUtility.UrlEncode(extensionId)}";
     }
 
-    public async Task Register(string email, bool agreedToTerms)
+    public async Task Register(string email, bool signInToNewsletter, bool agreedToTerms)
     {
         if (!agreedToTerms)
         {
@@ -404,7 +404,7 @@ public class PixiAuthClient
         }
 
         var response = await httpClient.PostAsJsonAsync("/users/register",
-            new { Email = email, AgreedToTerms = agreedToTerms });
+            new { Email = email, AgreedToTerms = agreedToTerms, SignInToNewsletter = signInToNewsletter });
 
         if (response.IsSuccessStatusCode)
         {

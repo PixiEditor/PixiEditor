@@ -107,6 +107,19 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         }
     }
 
+    private bool signInToNewsletterChecked;
+    public bool SignInToNewsletterChecked
+    {
+        get => signInToNewsletterChecked;
+        set
+        {
+            if (SetProperty(ref signInToNewsletterChecked, value))
+            {
+                NotifyProperties();
+            }
+        }
+    }
+
     private bool registerMode;
 
     public bool RegisterMode
@@ -273,7 +286,7 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
             try
             {
                 lastSentHash = EmailUtility.GetEmailHash(email);
-                await pixiAuthIdentityProvider.Register(email, AgreementChecked);
+                await pixiAuthIdentityProvider.Register(email, SignInToNewsletterChecked, AgreementChecked);
                 RegisterMode = false;
                 AgreementChecked = false;
             }

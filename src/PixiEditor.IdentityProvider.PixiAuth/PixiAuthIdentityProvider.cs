@@ -105,13 +105,13 @@ public class PixiAuthIdentityProvider : IIdentityProvider
         }
     }
 
-    public async Task Register(string email, bool agreementChecked)
+    public async Task Register(string email, bool signInToNewsletter, bool agreementChecked)
     {
         if (!isValid) return;
 
         try
         {
-            await PixiAuthClient.Register(email, agreementChecked);
+            await PixiAuthClient.Register(email, signInToNewsletter, agreementChecked);
             await RequestLogin(email);
         }
         catch (PixiAuthException authException)
