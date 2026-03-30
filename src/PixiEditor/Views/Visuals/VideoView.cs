@@ -2,6 +2,8 @@
 using System.Reflection;
 using Avalonia.Input;
 using Avalonia.Platform;
+using PixiEditor.AnimationRenderer.FFmpeg;
+using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.IO;
 using PixiEditor.OperatingSystem;
 using PixiEditor.UI.Common.Fonts;
@@ -76,7 +78,7 @@ public class VideoView : Control
     private CancellationTokenSource? _downloadCts;
     private bool ignorePlayChange = false;
     private bool isPlayQueued = false;
-    private bool _failedStartFfmpeg;
+    private bool failedStartFfmpeg;
 
     static VideoView()
     {
@@ -194,14 +196,13 @@ public class VideoView : Control
                       + "-fflags +genpts "
                       + $"-i \"{path}\" " + $"-vf scale={VideoWidth}:{VideoHeight},fps={fps} "
                       + "-f rawvideo -pix_fmt rgba -";
+        FFMpegRenderer.PrepareFFMpeg();
+
         var process = new Process
         {
             StartInfo = new ProcessStartInfo
             {
-                FileName = "ffmpeg" + IOperatingSystem.Current.ExecutableExtension,
-                WorkingDirectory =
-                    Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "ThirdParty",
-                        IOperatingSystem.Current.Name, "ffmpeg"),
+                FileName = FFMpegCore.GlobalFFOptions.GetFFMpegBinaryPath(),
                 Arguments = args,
                 RedirectStandardOutput = true,
                 UseShellExecute = false,
@@ -311,11 +312,11 @@ public class VideoView : Control
             }
             catch (Exception ex)
             {
-                _failedStartFfmpeg = true;
+                failedStartFfmpeg = true;
                 return;
             }
 
-            _failedStartFfmpeg = false;
+            failedStartFfmpeg = false;
             var associatedProcess = _process;
             _process.WaitForExitAsync(ct).ContinueWith(x =>
             {
@@ -368,7 +369,7 @@ public class VideoView : Control
     public override void Render(DrawingContext context)
     {
         base.Render(context);
-        if (_failedStartFfmpeg)
+        if (failedStartFfmpeg)
         {
             context.DrawText(new FormattedText("Failed rendering the video", CultureInfo.InvariantCulture,
                 FlowDirection.LeftToRight, Typeface.Default, 16, Brushes.White), new Point(Bounds.Width / 2 - 12 - 80, Bounds.Height / 2 - 12));
