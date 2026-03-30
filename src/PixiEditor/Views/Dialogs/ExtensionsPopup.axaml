@@ -247,6 +247,7 @@
                             </Button>
 
                             <TextBlock localization:Translator.Key="EXTENSIONS_WINDOW_PRICE_INACCURACY_INFO"
+                                       Margin="0, 0, 0, 12"
                                        Classes="subtext">
                                 <TextBlock.IsVisible>
                                     <MultiBinding Converter="{converters:AllTrueConverter}">
