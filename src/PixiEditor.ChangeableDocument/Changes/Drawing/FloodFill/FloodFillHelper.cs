@@ -281,6 +281,7 @@ public static class FloodFillHelper
         using Paint replacePaint = new Paint();
         replacePaint.BlendMode = BlendMode.Src;
         drawingChunk.Surface.DrawingSurface.Canvas.DrawSurface(cpuSurface.DrawingSurface, 0, 0, replacePaint);
+        drawingChunk.Surface.DrawingSurface.Canvas.Flush();
 
         return pixelStates;
     }

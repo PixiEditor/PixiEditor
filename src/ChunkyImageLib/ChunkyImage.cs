@@ -606,16 +606,17 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
                 if (latestChunk.IsT2)
                 {
                     var originalBlendMode = paint?.BlendMode ?? BlendMode.SrcOver;
-                    if(paint != null && BlendModeNeedsSource())
+                    if (paint != null && BlendModeNeedsSource())
                     {
                         paint.BlendMode = blendMode;
                     }
 
                     latestChunk.AsT2.DrawChunkOn(surface, pos, paint, sampling);
-                    if(paint != null)
+                    if (paint != null)
                     {
                         paint.BlendMode = originalBlendMode;
                     }
+
                     return true;
                 }
 
@@ -1152,6 +1153,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public void CancelChanges()
     {
+        using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
         lock (lockObject)
         {
             ThrowIfDisposed();
@@ -1613,6 +1615,19 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
         }
     }
 
+#if DEBUG
+
+    public void SaveCommitedToDesktop()
+    {
+        using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
+        var surface = Surface.ForDisplay(new VecI(LatestSize.X, LatestSize.Y));
+
+        this.DrawCommittedRegionOn(new RectI(VecI.Zero, LatestSize), ChunkResolution.Full, surface.DrawingSurface.Canvas, VecI.Zero, ReplacingPaint);
+
+        surface.SaveToDesktop();
+    }
+
+#endif
     private HashSet<VecI> FindAllChunksOutsideBounds(VecI size)
     {
         var chunks = FindAllChunks();

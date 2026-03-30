@@ -1,4 +1,5 @@
 ﻿using ChunkyImageLib.DataHolders;
+using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Numerics;
@@ -24,6 +25,7 @@ public static class OperationHelper
     /// </summary>
     public static unsafe void ClampAlpha(IPixelsMap toModify, IPixelsMap toGetAlphaFrom, RectI? clippingRect = null)
     {
+        using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
         if (clippingRect is not null)
         {
             ClampAlphaWithClippingRect(toModify, toGetAlphaFrom, (RectI)clippingRect);
