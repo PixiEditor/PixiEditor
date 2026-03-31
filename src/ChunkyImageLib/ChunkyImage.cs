@@ -560,7 +560,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
 
     private bool BlendModeNeedsSource()
     {
-        return blendMode is BlendMode.Src or BlendMode.DstIn or BlendMode.DstOut;
+        return blendMode is BlendMode.DstIn or BlendMode.DstOut;
     }
 
     public bool DrawCachedMostUpToDateChunkOn(VecI chunkPos, ChunkResolution resolution, Canvas surface,
