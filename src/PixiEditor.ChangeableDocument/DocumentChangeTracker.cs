@@ -284,12 +284,14 @@ public class DocumentChangeTracker : IDisposable
             return string.IsNullOrEmpty(failedMessage) ? new None() : new ChangeError_Info(failedMessage);
         }
 
-        var info = change.Apply(document, true, out ignoreInUndo);
-
-        info.Switch(
-            static (None _) => { },
-            (IChangeInfo changeInfo) => changeInfos.Add(changeInfo),
-            (List<IChangeInfo> infos) => changeInfos.AddRange(infos));
+        using (DrawingBackendApi.Current.RenderingDispatcher.EnsureContext())
+        {
+            var info = change.Apply(document, true, out ignoreInUndo);
+            info.Switch(
+                static (None _) => { },
+                (IChangeInfo changeInfo) => changeInfos.Add(changeInfo),
+                (List<IChangeInfo> infos) => changeInfos.AddRange(infos));
+        }
 
         if (!ignoreInUndo)
             AddToUndo(change, source);
