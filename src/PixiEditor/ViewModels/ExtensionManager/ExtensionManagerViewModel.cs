@@ -476,8 +476,9 @@ internal class ExtensionManagerViewModel : ViewModelBase
         return extension is { IsFree: true };
     }
 
-    private bool AreDependenciesReachable(string extensionId)
+    private (bool allReachable, string[] nonReachable) AreDependenciesReachable(string extensionId)
     {
+        List<string> nonReachable = new List<string>();
         var extensionMetadata = extensionsViewModel.ExtensionLoader.LoadedExtensions
             .FirstOrDefault(x => x.Metadata.UniqueName == extensionId)?.Metadata;
 
@@ -487,9 +488,10 @@ internal class ExtensionManagerViewModel : ViewModelBase
                 .FirstOrDefault(x => x.metadata.UniqueName == extensionId).metadata;
             if (extensionMetadata == null)
             {
-                return false;
+                return (false, Array.Empty<string>());
             }
         }
+        
 
         foreach (var dep in extensionMetadata.DependsOn)
         {
@@ -498,17 +500,17 @@ internal class ExtensionManagerViewModel : ViewModelBase
                 var availableDep = OwnedExtensions.FirstOrDefault(e => e.ProductData.Id == dep);
                 if (availableDep == null)
                 {
-                    return false;
+                    nonReachable.Add(dep);
                 }
             }
         }
 
-        return true;
+        return (nonReachable.Count == 0, nonReachable.ToArray());
     }
 
     public bool CanEnableExtension(string extensionId)
     {
-        return IsInstalled(extensionId) && AreDependenciesReachable(extensionId);
+        return IsInstalled(extensionId) && AreDependenciesReachable(extensionId).allReachable;
     }
 
     public async Task EnableExtension(string extensionId)
@@ -639,7 +641,9 @@ internal class ExtensionManagerViewModel : ViewModelBase
                 owned.IsLoaded = IsLoaded(extId);
                 owned.IsEnabled = IsLoaded(extId) && !userDisabled.Contains(extId);
 
-                owned.CanBeEnabled = AreDependenciesReachable(extId);
+                var deps = AreDependenciesReachable(extId);
+                owned.CanBeEnabled = deps.allReachable;
+                owned.MissingDeps = deps.nonReachable;
 
                 owned.InstallCommand.NotifyCanExecuteChanged();
                 owned.UninstallCommand.NotifyCanExecuteChanged();
@@ -654,7 +658,9 @@ internal class ExtensionManagerViewModel : ViewModelBase
     {
         foreach (var ext in OwnedExtensions)
         {
-            ext.CanBeEnabled = AreDependenciesReachable(ext.ProductData.Id);
+            var deps = AreDependenciesReachable(ext.ProductData.Id);
+            ext.CanBeEnabled = deps.allReachable;
+            ext.MissingDeps = deps.nonReachable;
             ext.ToggleEnabledCommand.NotifyCanExecuteChanged();
         }
 

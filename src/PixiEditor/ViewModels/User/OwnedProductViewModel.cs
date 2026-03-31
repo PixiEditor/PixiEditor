@@ -98,12 +98,16 @@ public class OwnedProductViewModel : ObservableObject
     public IAsyncRelayCommand ToggleEnabledCommand { get; }
 
     public IImage? ImageSource { get; set; }
+    public LocalizedString DependenciesMissingText => new LocalizedString("EXTENSIONS_WINDOW_DEPENDENCIES_MISSING_TOOLTIP", MissingDeps != null ? string.Join("\n- ", MissingDeps) : string.Empty);
+
+    public string[]? MissingDeps { get; set; }
+
 
     public OwnedProductViewModel(ProductData productData, bool isInstalled, string? installedVersion, bool isEnabled,
         bool isLoaded,
         IAsyncRelayCommand<string> installContentCommand, IAsyncRelayCommand<string> uninstallContentCommand,
         IRelayCommand<string> enableContentCommand, IRelayCommand<string> disableContentCommand,
-        Func<string, bool> isInstalledFunc, Func<string, bool> areDependenciesReachableFunc,
+        Func<string, bool> isInstalledFunc, Func<string, (bool, string[])> areDependenciesReachableFunc,
         Func<string, int> countLoadedDependenciesFunc, IResourceStorage? storage = null)
     {
         ProductData = productData;
@@ -120,7 +124,9 @@ public class OwnedProductViewModel : ObservableObject
         }
 
         IsEnabled = isEnabled;
-        CanBeEnabled = areDependenciesReachableFunc(ProductData.Id);
+        var deps = areDependenciesReachableFunc(ProductData.Id);
+        CanBeEnabled = deps.Item1;
+        MissingDeps = deps.Item2;
 
         InstallCommand = new AsyncRelayCommand(
             async () =>
@@ -197,7 +203,10 @@ public class OwnedProductViewModel : ObservableObject
             {
                 if (isOn)
                 {
-                    CanBeEnabled = areDependenciesReachableFunc(ProductData.Id);
+                    var deps = areDependenciesReachableFunc(ProductData.Id);
+                    CanBeEnabled = deps.Item1;
+                    MissingDeps = deps.Item2;
+                    
                     if (CanBeEnabled)
                     {
                         IsEnabled = true;

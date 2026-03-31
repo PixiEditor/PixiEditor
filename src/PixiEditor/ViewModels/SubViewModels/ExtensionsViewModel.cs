@@ -1,4 +1,6 @@
-﻿using Avalonia;
+﻿using System.Collections.Concurrent;
+using System.Diagnostics;
+using Avalonia;
 using Avalonia.Interactivity;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Extensions;
@@ -26,6 +28,9 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
 {
     public ExtensionLoader ExtensionLoader { get; }
     public ExtensionManagerViewModel ExtensionManager { get; set; }
+    
+    private ConcurrentQueue<string> installQueue = new ConcurrentQueue<string>();
+    private TaskCompletionSource<string>? installTask = null;
 
     public ExtensionsViewModel(ViewModelMain owner, ExtensionLoader loader) : base(owner)
     {
@@ -143,9 +148,33 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
     {
         try
         {
+            if (installTask != null)
+            {
+                installQueue.Enqueue(productId);
+                while (installQueue.Count > 0)
+                {
+                    await installTask.Task;
+                    if (!installQueue.TryPeek(out string next) || next == productId)
+                    {
+                        break;
+                    }
+                }
+
+                lock (installTask)
+                {
+                    installTask = new TaskCompletionSource<string>();
+                    installQueue.TryDequeue(out _);
+                }
+            }
+            else
+            {
+                installTask = new TaskCompletionSource<string>();
+            }
+            
+
             List<DiscoveredExtension> installedExtensions = new List<DiscoveredExtension>();
 
-            await InstallRecursive(additionalContentProvider, productId, installedExtensions, true);
+            await InstallRecursive(additionalContentProvider, productId, installedExtensions, false);
 
             List<DiscoveredExtension> prevInstalledExtensions = new List<DiscoveredExtension>();
             foreach (var loaded in ExtensionLoader.LoadedExtensions)
@@ -203,6 +232,10 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
             CrashHelper.SendExceptionInfo(ex);
             return new List<string>();
         }
+        finally
+        {
+            installTask?.TrySetResult(null);
+        }
     }
 
     private async Task InstallRecursive(IAdditionalContentProvider provider,
@@ -211,9 +244,14 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
     {
         if (provider.IsInstalled(extensionId) && !force)
             return;
-
+        
         if (!provider.IsContentOwned(extensionId))
         {
+            if (ExtensionManager.AvailableExtensions == null || ExtensionManager.AvailableExtensions.Count == 0)
+            {
+                await ExtensionManager.FetchAvailableExtensions();
+            }
+            
             var ext = ExtensionManager.AvailableExtensions.FirstOrDefault(x =>
                 x.AvailableContent.Id == extensionId);
             if (ext.IsFree)

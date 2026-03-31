@@ -604,7 +604,7 @@
                                                     <Run Classes="pixi-icon" Text="{DynamicResource icon-folder}" />
                                                     <ToolTip.Tip>
                                                         <TextBlock
-                                                            localization:Translator.Key="EXTENSIONS_WINDOW_DEPENDENCIES_MISSING_TOOLTIP" />
+                                                            localization:Translator.LocalizedString="{Binding DependenciesMissingText}" />
                                                     </ToolTip.Tip>
                                                     <ToggleSwitch.IsVisible>
                                                         <MultiBinding Converter="{converters:AllTrueConverter}">
