@@ -236,7 +236,7 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
 
             OwnedProducts.Add(new OwnedProductViewModel(product, isInstalled, installedVersion, true, true,
                 InstallContentCommand, null, null, null,
-                IsInstalled, (s => (true, Array.Empty<string>())), (s => 0)));
+                null, IsInstalled, (s => (true, Array.Empty<string>())), (s => 0)));
         }
 
         NotifyProperties();
@@ -466,7 +466,7 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         }
 
         await Owner.ExtensionsSubViewModel.InstallAndLoadExtensionWithDependencies(AdditionalContentProvider,
-            productId);
+            productId, false);
     }
 
     private void OnError(string error, object? arg = null)

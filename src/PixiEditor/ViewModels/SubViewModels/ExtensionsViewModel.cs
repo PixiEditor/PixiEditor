@@ -98,7 +98,7 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
         {
             if (ext.PackagePath == null)
             {
-                var installed = await InstallAndLoadExtensionWithDependencies(additionalContentProvider, ext.Metadata.UniqueName);
+                var installed = await InstallAndLoadExtensionWithDependencies(additionalContentProvider, ext.Metadata.UniqueName, false);
                 loadedExtensions.AddRange(installed);
             }
             else if (ext.Disabled)
@@ -144,7 +144,7 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
     }
 
     public async Task<List<string>> InstallAndLoadExtensionWithDependencies(
-        IAdditionalContentProvider additionalContentProvider, string productId)
+        IAdditionalContentProvider additionalContentProvider, string productId, bool force)
     {
         try
         {
@@ -174,7 +174,7 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
 
             List<DiscoveredExtension> installedExtensions = new List<DiscoveredExtension>();
 
-            await InstallRecursive(additionalContentProvider, productId, installedExtensions, false);
+            await InstallRecursive(additionalContentProvider, productId, installedExtensions, force);
 
             List<DiscoveredExtension> prevInstalledExtensions = new List<DiscoveredExtension>();
             foreach (var loaded in ExtensionLoader.LoadedExtensions)

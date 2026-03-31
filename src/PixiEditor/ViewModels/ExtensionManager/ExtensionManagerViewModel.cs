@@ -41,6 +41,7 @@ internal class ExtensionManagerViewModel : ViewModelBase
     public AsyncRelayCommand<string> UninstallExtensionCommand { get; }
     public AsyncRelayCommand<string> EnableExtensionCommand { get; }
     public RelayCommand<string> DisableExtensionCommand { get; }
+    public AsyncRelayCommand<string> UpdateExtensionCommand { get; }
 
     public RelayCommand BackToListCommand { get; }
     public RelayCommand<AvailableContentViewModel> SelectExtensionCommand { get; }
@@ -137,6 +138,7 @@ internal class ExtensionManagerViewModel : ViewModelBase
         UninstallExtensionCommand = new AsyncRelayCommand<string>(UninstallExtension, CanUninstallExtension);
         EnableExtensionCommand = new AsyncRelayCommand<string>(EnableExtension, CanEnableExtension);
         DisableExtensionCommand = new RelayCommand<string>(DisableExtension, CanDisableExtension);
+        UpdateExtensionCommand = new AsyncRelayCommand<string>(UpdateExtension, CanUpdateExtension);
         AddToLibraryCommand = new AsyncRelayCommand<string>(AddToLibrary, CanAddToLibrary);
         LinkClickCommand = new RelayCommand<LinkClickedEventArgs>(args =>
         {
@@ -189,6 +191,11 @@ internal class ExtensionManagerViewModel : ViewModelBase
             UpdateOwnedStates();
         };
         identityProvider.OwnedProductsUpdated += _ => UpdateOwnedExtensions();
+    }
+
+    private bool CanUpdateExtension(string? id)
+    {
+        return UpdateAvailable(id);
     }
 
     public async Task FetchAvailableExtensions()
@@ -319,7 +326,7 @@ internal class ExtensionManagerViewModel : ViewModelBase
 
                 OwnedExtensions.Add(new OwnedProductViewModel(extension, isInstalled, installedVersion, isEnabled,
                     isLoaded, InstallAndLoadExtensionCommand, UninstallExtensionCommand, EnableExtensionCommand,
-                    DisableExtensionCommand, IsInstalled, AreDependenciesReachable, CountLoadedDependencies));
+                    DisableExtensionCommand, UpdateExtensionCommand, IsInstalled, AreDependenciesReachable, CountLoadedDependencies));
             }
 
             RefreshDependenciesState();
@@ -356,7 +363,7 @@ internal class ExtensionManagerViewModel : ViewModelBase
 
             OwnedExtensions.Add(new OwnedProductViewModel(productData, isInstalled, extensionMetadata.Version,
                 isEnabled, isLoaded, InstallAndLoadExtensionCommand, UninstallExtensionCommand, EnableExtensionCommand,
-                DisableExtensionCommand, IsInstalled, AreDependenciesReachable, CountLoadedDependencies, storage)
+                DisableExtensionCommand, UpdateExtensionCommand, IsInstalled, AreDependenciesReachable, CountLoadedDependencies, storage)
             );
         }
     }
@@ -369,7 +376,7 @@ internal class ExtensionManagerViewModel : ViewModelBase
 
     public bool CanInstallAndLoadExtension(string extensionId)
     {
-        return !IsInstalled(extensionId) || UpdateAvailable(extensionId);
+        return !IsInstalled(extensionId);
     }
 
     private bool UpdateAvailable(string extensionId)
@@ -405,7 +412,20 @@ internal class ExtensionManagerViewModel : ViewModelBase
         }
 
         List<string> installedExtensionsIds =
-            await extensionsViewModel.InstallAndLoadExtensionWithDependencies(contentProvider, extensionId);
+            await extensionsViewModel.InstallAndLoadExtensionWithDependencies(contentProvider, extensionId, false);
+        RefreshInstalledExtensions(installedExtensionsIds);
+        RefreshDependenciesState();
+    }
+
+    public async Task UpdateExtension(string extensionId)
+    {
+        if (string.IsNullOrEmpty(extensionId))
+        {
+            return;
+        }
+
+        List<string> installedExtensionsIds =
+            await extensionsViewModel.InstallAndLoadExtensionWithDependencies(contentProvider, extensionId, true);
         RefreshInstalledExtensions(installedExtensionsIds);
         RefreshDependenciesState();
     }

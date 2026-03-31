@@ -27,6 +27,7 @@ public class OwnedProductViewModel : ObservableObject
             UpdateImageSource();
         }
     }
+
     public ProductData ProductData { get; }
 
     private bool isInstalled;
@@ -94,11 +95,15 @@ public class OwnedProductViewModel : ObservableObject
     }
 
     public IAsyncRelayCommand InstallCommand { get; }
+    public IAsyncRelayCommand UpdateCommand { get; }
     public IAsyncRelayCommand UninstallCommand { get; }
     public IAsyncRelayCommand ToggleEnabledCommand { get; }
 
     public IImage? ImageSource { get; set; }
-    public LocalizedString DependenciesMissingText => new LocalizedString("EXTENSIONS_WINDOW_DEPENDENCIES_MISSING_TOOLTIP", MissingDeps != null ? string.Join("\n- ", MissingDeps) : string.Empty);
+
+    public LocalizedString DependenciesMissingText => new LocalizedString(
+        "EXTENSIONS_WINDOW_DEPENDENCIES_MISSING_TOOLTIP",
+        MissingDeps != null ? string.Join("\n- ", MissingDeps) : string.Empty);
 
     public string[]? MissingDeps { get; set; }
 
@@ -107,6 +112,7 @@ public class OwnedProductViewModel : ObservableObject
         bool isLoaded,
         IAsyncRelayCommand<string> installContentCommand, IAsyncRelayCommand<string> uninstallContentCommand,
         IRelayCommand<string> enableContentCommand, IRelayCommand<string> disableContentCommand,
+        IAsyncRelayCommand<string> updateContentCommand,
         Func<string, bool> isInstalledFunc, Func<string, (bool, string[])> areDependenciesReachableFunc,
         Func<string, int> countLoadedDependenciesFunc, IResourceStorage? storage = null)
     {
@@ -132,26 +138,32 @@ public class OwnedProductViewModel : ObservableObject
             async () =>
             {
                 IsInstalling = true;
-                bool wasUpdating = UpdateAvailable;
-                UpdateAvailable = false;
                 RestartRequired = false;
                 await installContentCommand.ExecuteAsync(ProductData.Id);
                 IsInstalling = false;
 
                 IsLoaded = true;
                 IsEnabled = true;
-                if (wasUpdating)
-                {
-                    RestartRequired = true;
-                }
-                else
-                {
-                    IsInstalled = isInstalledFunc(ProductData.Id);
 
-                    UninstallCommand.NotifyCanExecuteChanged();
-                    ToggleEnabledCommand.NotifyCanExecuteChanged();
-                }
-            }, () => !IsInstalled && !IsInstalling || UpdateAvailable);
+                IsInstalled = isInstalledFunc(ProductData.Id);
+
+                UninstallCommand.NotifyCanExecuteChanged();
+                ToggleEnabledCommand.NotifyCanExecuteChanged();
+            }, () => !IsInstalled && !IsInstalling);
+
+        UpdateCommand = new AsyncRelayCommand(
+            async () =>
+            {
+                IsInstalling = true;
+                UpdateAvailable = false;
+                RestartRequired = false;
+                await updateContentCommand.ExecuteAsync(ProductData.Id);
+                IsInstalling = false;
+
+                IsLoaded = true;
+                IsEnabled = true;
+                RestartRequired = true;
+            }, () => UpdateAvailable);
 
         UninstallCommand = new AsyncRelayCommand(
             async () =>
@@ -206,7 +218,7 @@ public class OwnedProductViewModel : ObservableObject
                     var deps = areDependenciesReachableFunc(ProductData.Id);
                     CanBeEnabled = deps.Item1;
                     MissingDeps = deps.Item2;
-                    
+
                     if (CanBeEnabled)
                     {
                         IsEnabled = true;
@@ -251,7 +263,8 @@ public class OwnedProductViewModel : ObservableObject
         }
 
         ImageSource = ResourceStorage != null && ProductData.ImageUrl != null
-            ? PathToImgSourceConverter.GetImageFromPath(ProductData.ImageUrl, ResourceStorage) : null;
+            ? PathToImgSourceConverter.GetImageFromPath(ProductData.ImageUrl, ResourceStorage)
+            : null;
 
         OnPropertyChanged(nameof(ImageSource));
         if (ResourceStorage == null)

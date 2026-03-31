@@ -568,7 +568,7 @@
                                                            FontSize="{DynamicResource FontSizeNormal}"
                                                            localization:Translator.Key="INSTALLING" />
 
-                                                <Button Command="{Binding InstallCommand}"
+                                                <Button Command="{Binding UpdateCommand}"
                                                         VerticalAlignment="Center" HorizontalAlignment="Center"
                                                         Margin="0, 0, 12, 0"
                                                         FontSize="{DynamicResource FontSizeNormal}">
