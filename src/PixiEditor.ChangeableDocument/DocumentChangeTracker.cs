@@ -43,6 +43,7 @@ public class DocumentChangeTracker : IDisposable
         if (running)
             throw new InvalidOperationException("Something is currently being processed");
 
+        using var _ = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
         if (activeUpdateableChange != null)
         {
             try
@@ -89,7 +90,7 @@ public class DocumentChangeTracker : IDisposable
 
     public DocumentChangeTracker(IReadOnlyDocument doc)
     {
-        if(doc is not Document actDoc)
+        if (doc is not Document actDoc)
             throw new ArgumentException("Document must be of type Document", nameof(doc));
         document = actDoc;
     }
@@ -284,14 +285,11 @@ public class DocumentChangeTracker : IDisposable
             return string.IsNullOrEmpty(failedMessage) ? new None() : new ChangeError_Info(failedMessage);
         }
 
-        using (DrawingBackendApi.Current.RenderingDispatcher.EnsureContext())
-        {
-            var info = change.Apply(document, true, out ignoreInUndo);
-            info.Switch(
-                static (None _) => { },
-                (IChangeInfo changeInfo) => changeInfos.Add(changeInfo),
-                (List<IChangeInfo> infos) => changeInfos.AddRange(infos));
-        }
+        var info = change.Apply(document, true, out ignoreInUndo);
+        info.Switch(
+            static (None _) => { },
+            (IChangeInfo changeInfo) => changeInfos.Add(changeInfo),
+            (List<IChangeInfo> infos) => changeInfos.AddRange(infos));
 
         if (!ignoreInUndo)
             AddToUndo(change, source);
@@ -470,6 +468,7 @@ public class DocumentChangeTracker : IDisposable
         running = true;
         try
         {
+            using var _ = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
             var result = ProcessActionList(actions);
             return result;
         }
