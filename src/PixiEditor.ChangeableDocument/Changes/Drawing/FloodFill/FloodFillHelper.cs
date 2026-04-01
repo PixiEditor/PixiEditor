@@ -62,6 +62,7 @@ public static class FloodFillHelper
 
         FloodFillChunkCache cache = CreateCache(membersToFloodFill, document, frame);
 
+        List<Chunk> usedChunks = new();
         VecI initChunkPos = OperationHelper.GetChunkPos(startingPos, chunkSize);
         VecI imageSizeInChunks = (VecI)(document.Size / (double)chunkSize).Ceiling();
         VecI initPosOnChunk = startingPos - initChunkPos * chunkSize;
@@ -71,6 +72,9 @@ public static class FloodFillHelper
             static (EmptyChunk _) => Colors.Transparent
         );
 
+        if(chunkAtPos.IsT0)
+            usedChunks.Add(chunkAtPos.AsT0);
+
         var fixedColor = drawingColor;
 
         var uLongColor = fixedColor.ToULong();
@@ -78,10 +82,14 @@ public static class FloodFillHelper
 
         if ((colorSpaceCorrectedColor.A == 0 && fillMode == FloodFillMode.Overlay) ||
             (colorToReplace == colorSpaceCorrectedColor && fillMode == FloodFillMode.Replace))
+        {
+            cache.Dispose();
             return new();
+        }
 
         if (colorToReplace.A == 0 && lockTransparency)
         {
+            cache.Dispose();
             return new();
         }
 
@@ -126,6 +134,7 @@ public static class FloodFillHelper
             if (!drawingChunks.ContainsKey(chunkPos))
             {
                 var chunk = Chunk.Create(ColorSpace.CreateSrgb());
+                usedChunks.Add(chunk);
 
                 if (fillMode == FloodFillMode.Replace)
                 {
@@ -196,6 +205,7 @@ public static class FloodFillHelper
 
             // use regular flood fill for chunks that have something in them
             var reallyReferenceChunk = referenceChunk.AsT0;
+            usedChunks.Add(reallyReferenceChunk);
             var maybeArray = FloodFillChunk(
                 reallyReferenceChunk,
                 drawingChunk,
@@ -225,6 +235,18 @@ public static class FloodFillHelper
                         positionsToFloodFill.Push((new(chunkPos.X + 1, chunkPos.Y), new(0, i)));
                 }
             }
+        }
+
+        foreach (var usedChunk in usedChunks)
+        {
+            if(!drawingChunks.ContainsValue(usedChunk))
+                usedChunk.Dispose();
+        }
+
+        foreach (var cacheAcquiredChunk in cache.AcquiredChunks)
+        {
+            if (!drawingChunks.ContainsKey(cacheAcquiredChunk.Key))
+                cacheAcquiredChunk.Value.AsT0?.Dispose();
         }
 
         return drawingChunks;

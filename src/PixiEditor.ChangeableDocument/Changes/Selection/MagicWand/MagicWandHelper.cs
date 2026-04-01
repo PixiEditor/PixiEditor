@@ -129,7 +129,7 @@ internal class MagicWandHelper
         tolerance = Math.Clamp(tolerance, 0, 1);
 
         int chunkSize = ChunkResolution.Full.PixelSize();
-        FloodFillChunkCache cache =
+        using FloodFillChunkCache cache =
             FloodFillHelper.CreateCache(membersToFloodFill, document, frame);
 
         VecI initChunkPos = OperationHelper.GetChunkPos(startingPos, chunkSize);
@@ -297,7 +297,7 @@ internal class MagicWandHelper
 
         int chunkSize = ChunkResolution.Full.PixelSize();
 
-        FloodFillChunkCache cache = FloodFillHelper.CreateCache(membersToFloodFill, document, frame);
+        using FloodFillChunkCache cache = FloodFillHelper.CreateCache(membersToFloodFill, document, frame);
 
         VecI initChunkPos = OperationHelper.GetChunkPos(startingPos, chunkSize);
         VecI imageSizeInChunks = (VecI)(document.Size / (double)chunkSize).Ceiling();

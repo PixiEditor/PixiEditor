@@ -13,7 +13,7 @@ public class TextureSerializationFactory : SerializationFactory<byte[], Texture>
         SurfaceFactory.Config = Config;
         SurfaceFactory.ResourceLocator = ResourceLocator;
 
-        Surface surface = new Surface(original.Size);
+        using Surface surface = new Surface(original.Size);
         surface.DrawingSurface.Canvas.DrawSurface(original.DrawingSurface, 0, 0);
         return SurfaceFactory.Serialize(surface);
     }
@@ -31,6 +31,7 @@ public class TextureSerializationFactory : SerializationFactory<byte[], Texture>
                 original = new Texture(surface.Size);
                 original.DrawingSurface.Canvas.DrawSurface(surface.DrawingSurface, 0, 0);
                 original.DrawingSurface.Flush();
+                surface.Dispose();
                 return true;
             }
         }

@@ -12,6 +12,7 @@ namespace PixiEditor.ChangeableDocument.Changes.Drawing.FloodFill;
 
 internal class FloodFillChunkCache : IDisposable
 {
+    public IReadOnlyDictionary<VecI, OneOf<Chunk, EmptyChunk>> AcquiredChunks => acquiredChunks;
     private Paint ReplacingPaint { get; } = new Paint() { BlendMode = BlendMode.Src };
 
     private readonly HashSet<Guid>? membersToRender;

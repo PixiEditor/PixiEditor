@@ -215,6 +215,7 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>, IWindowHandler
         var viewports = Viewports.Where(vp => vp.Document == document).ToArray();
         foreach (ViewportWindowViewModel viewport in viewports)
         {
+            viewport.Dispose();
             Viewports.Remove(viewport);
             ViewportClosed?.Invoke(viewport);
         }

@@ -372,28 +372,30 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
 
         if (result != ConfirmationType.Canceled)
         {
-            using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
-            BeforeDocumentClosed?.Invoke(document);
-            if (!DocumentManagerSubViewModel.Documents.Remove(document))
+            DrawingBackendApi.Current.RenderingDispatcher.Invoke(() =>
             {
+                BeforeDocumentClosed?.Invoke(document);
+                if (!DocumentManagerSubViewModel.Documents.Remove(document))
+                {
 #if DEBUG
-                throw new InvalidOperationException(
-                    "Trying to close a document that's not in the documents collection. Likely, the document wasn't added there after creation by mistake.");
+                    throw new InvalidOperationException(
+                        "Trying to close a document that's not in the documents collection. Likely, the document wasn't added there after creation by mistake.");
 #endif
-            }
+                }
 
-            if (DocumentManagerSubViewModel.ActiveDocument == document)
-            {
-                if (DocumentManagerSubViewModel.Documents.Count > 0)
-                    WindowSubViewModel.MakeDocumentViewportActive(DocumentManagerSubViewModel.Documents.Last());
-                else
-                    WindowSubViewModel.MakeDocumentViewportActive((DocumentViewModel)null);
-            }
+                if (DocumentManagerSubViewModel.ActiveDocument == document)
+                {
+                    if (DocumentManagerSubViewModel.Documents.Count > 0)
+                        WindowSubViewModel.MakeDocumentViewportActive(DocumentManagerSubViewModel.Documents.Last());
+                    else
+                        WindowSubViewModel.MakeDocumentViewportActive((DocumentViewModel)null);
+                }
 
-            WindowSubViewModel.CloseViewportsForDocument(document);
-            document.Dispose();
-            document.AutosaveViewModel.OnDocumentClosed();
-            DocumentManagerSubViewModel.RemoveDocumentReferences(document.Id, document.NodeGraph.AllNodes.Where(x => x is NestedDocumentNodeViewModel).Select(x => x.Id));
+                WindowSubViewModel.CloseViewportsForDocument(document);
+                document.Dispose();
+                document.AutosaveViewModel.OnDocumentClosed();
+                DocumentManagerSubViewModel.RemoveDocumentReferences(document.Id, document.NodeGraph.AllNodes.Where(x => x is NestedDocumentNodeViewModel).Select(x => x.Id));
+            });
 
             return true;
         }

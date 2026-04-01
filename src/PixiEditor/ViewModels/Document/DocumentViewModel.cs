@@ -1463,6 +1463,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             isDisposed = true;
             NodeGraph.Dispose();
             Renderer.Dispose();
+            SceneRenderer.Dispose();
             foreach (var texture in SceneTextures)
             {
                 texture.Value?.Dispose();
