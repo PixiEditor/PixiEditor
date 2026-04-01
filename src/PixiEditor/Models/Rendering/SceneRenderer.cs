@@ -101,17 +101,6 @@ internal class SceneRenderer : IDisposable
                 texture.Dispose();
             }
 
-            if (previewTextures != null)
-            {
-                foreach (var previewTexture in previewTextures)
-                {
-                    foreach (var request in previewTexture.Value)
-                    {
-                        request.Texture.Dispose();
-                    }
-                }
-            }
-
             DocumentViewModel.SceneTextures[viewport.Key] = rendered;
 
             viewport.Value.InvalidateVisual();
