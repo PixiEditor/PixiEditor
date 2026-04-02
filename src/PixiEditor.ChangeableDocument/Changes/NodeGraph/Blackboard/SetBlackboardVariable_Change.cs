@@ -65,6 +65,9 @@ internal class SetBlackboardVariable_Change : InterruptableUpdateableChange
 
     private bool IsTypeAssignable(Variable blackboardVariable)
     {
+        if(value == null && blackboardVariable?.Type is { IsValueType: false })
+            return true;
+
         if (blackboardVariable?.Type == null || value == null)
             return false;
 
