@@ -30,7 +30,7 @@ internal class AvailableContentViewModel : ObservableObject
     {
         get
         {
-            if (IsPurchaseUnavailableOnSteam)
+            if (IsUnavailable)
             {
                 return "";
             }
@@ -79,11 +79,13 @@ internal class AvailableContentViewModel : ObservableObject
     private string Currency { get; }
     public bool IsFree => AvailableContent.Price == 0 && !IsBundle;
     public ObservableStringBuilder MarkdownBody { get; } = new ObservableStringBuilder();
-    public bool IsPurchaseUnavailableOnSteam { get; }
+    public bool IsUnavailable { get; }
     public ObservableCollection<ShowcaseItem> ShowcaseItems { get; } = new ObservableCollection<ShowcaseItem>();
 
+    private HttpClient httpClient = new HttpClient() { Timeout = TimeSpan.FromSeconds(15) };
+
     public AvailableContentViewModel(AvailableContent content, ExtensionManagerViewModel extensionManager, double rate,
-        string currency, bool isPurchaseUnavailableOnSteam)
+        string currency, bool isUnavailable)
     {
         AvailableContent = content;
         this.extensionManager = extensionManager;
@@ -98,7 +100,8 @@ internal class AvailableContentViewModel : ObservableObject
             MarkdownBody.Append(content.Body);
         }
 
-        IsPurchaseUnavailableOnSteam = isPurchaseUnavailableOnSteam;
+        // Uncomment on 2.1 release
+        IsUnavailable = true; //isUnavailable;
         if (content.ShowcaseUrls != null)
         {
             foreach (var showcaseItem in content.ShowcaseUrls)
@@ -126,8 +129,6 @@ internal class AvailableContentViewModel : ObservableObject
         {
             try
             {
-                using HttpClient httpClient = new HttpClient();
-                httpClient.Timeout = TimeSpan.FromSeconds(15);
                 string markdown = await httpClient.GetStringAsync(bodyUri);
                 Dispatcher.UIThread.Post(() => MarkdownBody.Append(markdown));
             }

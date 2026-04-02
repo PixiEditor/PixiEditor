@@ -154,6 +154,9 @@
                                 <Style Selector="StackPanel">
                                     <Setter Property="Spacing" Value="12" />
                                 </Style>
+                                <Style Selector="avalonia|MarkdownTextBlock">
+                                    <Setter Property="FontFamily" Value="{DynamicResource Inter}" />
+                                </Style>
                             </avalonia:MarkdownRenderer.Styles>
                         </avalonia:MarkdownRenderer>
                     </StackPanel>
@@ -177,19 +180,23 @@
                                    Margin="0, 0, 0, 12" />
 
 
-                        <TextBlock localization:Translator.Key="EXTENSIONS_WINDOW_STEAM_PURCHASE_UNAVAILABLE"
-                                   FontSize="{DynamicResource FontSizeSmall}"
-                                   IsVisible="{Binding SelectedAvailableExtension.IsPurchaseUnavailableOnSteam}"
+                        <!--TODO: Uncomment on 2.1 release-->
+                        <!--<TextBlock localization:Translator.Key="EXTENSIONS_WINDOW_STEAM_PURCHASE_UNAVAILABLE"
+                                   IsVisible="{Binding SelectedAvailableExtension.IsUnavailable}"
                                    TextWrapping="Wrap"
                                    MaxWidth="150"
-                                   Margin="0, 0, 0, 12">
+                                   Margin="0, 0, 0, 12">-->
+                            <TextBlock localization:Translator.Key="EXTENSIONS_WINDOW_COMING_SOON"
+                                       TextWrapping="Wrap"
+                                       MaxWidth="150"
+                                       Margin="0, 0, 0, 12">
                         </TextBlock>
 
                         <StackPanel>
                             <StackPanel.IsVisible>
                                 <MultiBinding Converter="{converters:AllTrueConverter}">
                                     <Binding Path="!SelectedAvailableExtension.AvailableContent.HideAddToLibrary" />
-                                    <Binding Path="!SelectedAvailableExtension.IsPurchaseUnavailableOnSteam" />
+                                    <Binding Path="!SelectedAvailableExtension.IsUnavailable" />
                                 </MultiBinding>
                             </StackPanel.IsVisible>
 
