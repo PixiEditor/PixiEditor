@@ -37,5 +37,8 @@ public class AvailableExtension
 
     [JsonPropertyName("isBundle")]
     public bool IsBundle { get; set; }
+
+    [JsonPropertyName("percentageDiscount")]
+    public int PercentageDiscount { get; set; }
 }
 

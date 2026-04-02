@@ -34,8 +34,8 @@ internal class AvailableContentViewModel : ObservableObject
             {
                 return "";
             }
-            
-            if (AvailableContent.Price == 0)
+
+            if (AvailableContent.Price == 0 && !IsBundle)
             {
                 return "FREE";
             }
@@ -45,12 +45,23 @@ internal class AvailableContentViewModel : ObservableObject
 
             double price = AvailableContent.Price;
 
-            if (AvailableContent.IncludedExtensions.Count > 0)
+            if (AvailableContent.IsBundle)
             {
-                int ownedCount = AvailableContent.IncludedExtensions
-                    .Count(id => extensionManager.IsExtensionOwned(id));
+                price = 0;
+                foreach (var ext in AvailableContent.IncludedExtensions)
+                {
+                    if (!extensionManager.IsExtensionOwned(ext))
+                    {
+                        var extInfo =
+                            extensionManager.AvailableExtensions.FirstOrDefault(e => e.AvailableContent.Id == ext);
+                        if (extInfo != null)
+                        {
+                            price += extInfo.AvailableContent.Price;
+                        }
+                    }
+                }
 
-                price = (price - ((price / AvailableContent.IncludedExtensions.Count) * ownedCount));
+                price = price * (1 - AvailableContent.PercentageDiscount / 100.0);
             }
 
             if (Currency != "PLN")
@@ -66,7 +77,7 @@ internal class AvailableContentViewModel : ObservableObject
 
     private double Rate { get; }
     private string Currency { get; }
-    public bool IsFree => AvailableContent.Price == 0;
+    public bool IsFree => AvailableContent.Price == 0 && !IsBundle;
     public ObservableStringBuilder MarkdownBody { get; } = new ObservableStringBuilder();
     public bool IsPurchaseUnavailableOnSteam { get; }
     public ObservableCollection<ShowcaseItem> ShowcaseItems { get; } = new ObservableCollection<ShowcaseItem>();
@@ -86,7 +97,7 @@ internal class AvailableContentViewModel : ObservableObject
         {
             MarkdownBody.Append(content.Body);
         }
-        
+
         IsPurchaseUnavailableOnSteam = isPurchaseUnavailableOnSteam;
         if (content.ShowcaseUrls != null)
         {

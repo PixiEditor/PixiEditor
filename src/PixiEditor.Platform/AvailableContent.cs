@@ -11,6 +11,7 @@ public class AvailableContent
     public string[] ShowcaseUrls { get; set; }
     public int Price { get; set; }
     public string Currency { get; set; } = string.Empty;
+    public int PercentageDiscount { get; set; }
     public bool HideAddToLibrary { get; set; }
     public bool IsBundle { get; set; }
     public List<string> IncludedExtensions { get; set; } = new List<string>();
