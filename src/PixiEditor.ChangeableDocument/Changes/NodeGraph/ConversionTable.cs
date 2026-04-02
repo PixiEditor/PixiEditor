@@ -123,7 +123,8 @@ public static class ConversionTable
                     (typeof(GradientPaintable),
                         new TypeConverter<ColorPaintable, GradientPaintable>(c =>
                             new LinearGradientPaintable(new VecD(0, 0), new VecD(1, 1),
-                                [new GradientStop(c.Color, 0), new GradientStop(c.Color, 1)])))
+                                [new GradientStop(c.Color, 0), new GradientStop(c.Color, 1)]))),
+                    (typeof(Color), new TypeConverter<ColorPaintable, Color>(c => c.Color))
                 ]
             }
         };

@@ -148,11 +148,6 @@ internal class VariableViewModel : ViewModelBase, IVariableHandler
             return new SolidColorBrush(color.ToOpaqueMediaColor());
         }
 
-        if (value is Paintable paintable)
-        {
-            return paintable.ToBrush();
-        }
-
         return value;
     }
 
