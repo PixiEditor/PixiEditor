@@ -155,7 +155,7 @@
                                     <Setter Property="Spacing" Value="12" />
                                 </Style>
                                 <Style Selector="avalonia|MarkdownTextBlock">
-                                    <Setter Property="FontFamily" Value="{DynamicResource Inter}" />
+                                    <Setter Property="LineSpacing" Value="8" />
                                 </Style>
                             </avalonia:MarkdownRenderer.Styles>
                         </avalonia:MarkdownRenderer>
