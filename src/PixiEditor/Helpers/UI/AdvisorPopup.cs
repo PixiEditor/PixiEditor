@@ -192,11 +192,14 @@ public class AdvisorPopup : ContentPresenter
             grid.Children.Add(closeButton);
         }
 
-        Content = grid;
-
         var topLevel = TopLevel.GetTopLevel(Anchor);
         if (topLevel is not Window window)
             return;
+
+        var transform = window.GetVisualDescendants().OfType<LayoutTransformControl>().FirstOrDefault()
+            ?.LayoutTransform;
+
+        Content = new LayoutTransformControl() { Child = grid, LayoutTransform = transform, UseRenderTransform = true };
 
         try
         {
@@ -205,6 +208,7 @@ public class AdvisorPopup : ContentPresenter
             {
                 layer = new Canvas() { Name = "AdvisorLayer", IsHitTestVisible = true };
                 var firstPanel = window.GetVisualDescendants().OfType<Panel>().FirstOrDefault();
+                LayoutTransformControl? parentScaler = firstPanel?.GetVisualParent<LayoutTransformControl>();
                 firstPanel?.Children.Add(layer);
                 window.SizeChanged += (s, e) =>
                 {
@@ -212,7 +216,7 @@ public class AdvisorPopup : ContentPresenter
                     {
                         if (child is AdvisorPopup popup)
                         {
-                            popup.SetPosition(window);
+                            popup.SetPosition(window, parentScaler?.LayoutTransform);
                         }
                     }
                 };
@@ -258,13 +262,20 @@ public class AdvisorPopup : ContentPresenter
         Dispatcher.UIThread.Post(() =>
         {
             var root = Anchor.GetVisualRoot();
-            SetPosition(root);
+            if (root is not Visual rootVisual)
+            {
+                return;
+            }
+
+            var parentScalerLayoutTransform = rootVisual.GetVisualParent<LayoutTransformControl>()?.LayoutTransform;
+
+            SetPosition(root, parentScalerLayoutTransform);
         }, DispatcherPriority.Render);
         this.IsVisible = true;
     }
 
 
-    private void SetPosition(IRenderRoot? root)
+    private void SetPosition(IRenderRoot? root, ITransform? parentScalerLayoutTransform)
     {
         if (root is not Visual rootVisual)
             return;
@@ -272,6 +283,11 @@ public class AdvisorPopup : ContentPresenter
         var anchorTopLeft = Anchor.TranslatePoint(
             new Point(0, 0),
             rootVisual);
+
+        if (parentScalerLayoutTransform != null)
+        {
+            anchorTopLeft = parentScalerLayoutTransform.Value.Transform(anchorTopLeft.Value);
+        }
 
         if (!anchorTopLeft.HasValue)
             return;
