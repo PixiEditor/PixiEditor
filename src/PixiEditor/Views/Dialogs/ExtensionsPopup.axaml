@@ -551,8 +551,7 @@
                                         <DockPanel Grid.Row="1">
                                             <DockPanel DockPanel.Dock="Right"
                                                        HorizontalAlignment="Right"
-                                                       IsVisible="{Binding !RestartRequired}"
-                                                       Margin="4 0">
+                                                       IsVisible="{Binding !RestartRequired}">
 
                                                 <Button Command="{Binding InstallCommand}"
                                                         FontSize="{DynamicResource FontSizeNormal}">
@@ -593,8 +592,6 @@
                                                 </Button>
 
                                                 <ToggleSwitch
-                                                    OnContent=""
-                                                    OffContent=""
                                                     IsChecked="{Binding IsEnabled, Mode=TwoWay}"
                                                     Command="{Binding ToggleEnabledCommand}"
                                                     CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}"
