@@ -11,6 +11,7 @@ using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
 
 namespace PixiEditor.ChangeableDocument.Changeables;
 
@@ -497,5 +498,26 @@ internal class Document : IChangeable, IReadOnlyDocument
     object ICloneable.Clone()
     {
         return Clone();
+    }
+
+    public VecI GetRenderOutputSize(string renderOutputName)
+    {
+        CustomOutputNode[] outputs = NodeGraph.Nodes.OfType<CustomOutputNode>().ToArray();
+        foreach (var output in outputs)
+        {
+            if (output.OutputName.Value == renderOutputName)
+            {
+                if (output.FullViewportRender.Value)
+                {
+                    return Size;
+                }
+
+                var size = output.Size.Value;
+                if (size is { X: > 0, Y: > 0 })
+                    return size;
+            }
+        }
+
+        return Size;
     }
 }

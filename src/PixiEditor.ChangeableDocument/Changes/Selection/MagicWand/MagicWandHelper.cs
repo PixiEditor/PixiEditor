@@ -120,17 +120,19 @@ internal class MagicWandHelper
         HashSet<Guid> membersToFloodFill,
         double tolerance,
         IReadOnlyDocument document,
+        string renderOutput,
         int frame)
     {
+        var renderSize = document.GetRenderOutputSize(renderOutput);
         if (startingPos.X < 0 || startingPos.Y < 0 ||
-            startingPos.X >= document.Size.X || startingPos.Y >= document.Size.Y)
+            startingPos.X >= renderSize.X || startingPos.Y >= renderSize.Y)
             return new VectorPath();
 
         tolerance = Math.Clamp(tolerance, 0, 1);
 
         int chunkSize = ChunkResolution.Full.PixelSize();
         using FloodFillChunkCache cache =
-            FloodFillHelper.CreateCache(membersToFloodFill, document, frame);
+            FloodFillHelper.CreateCache(membersToFloodFill, document, frame, renderOutput);
 
         VecI initChunkPos = OperationHelper.GetChunkPos(startingPos, chunkSize);
         VecI initPosOnChunk = startingPos - initChunkPos * chunkSize;
@@ -142,16 +144,23 @@ internal class MagicWandHelper
 
         ColorBounds colorRange = new(baseColor, tolerance);
 
-        return FloodFillNonContiguous(document, chunkSize, cache, colorRange);
+        var selection = FloodFillNonContiguous(renderSize, chunkSize, cache, colorRange);
+        using VectorPath bounds = new VectorPath();
+        bounds.AddRect(new RectD(VecD.Zero, renderSize));
+        var tmp = selection;
+        selection = selection.Op(bounds, VectorPathOp.Intersect);
+        tmp.Dispose();
+
+        return selection;
     }
 
     private static VectorPath FloodFillNonContiguous(
-        IReadOnlyDocument document,
+        VecI size,
         int chunkSize,
         FloodFillChunkCache cache,
         ColorBounds bounds)
     {
-        VecI imageSize = document.Size;
+        VecI imageSize = size;
         VecI chunkGridSize = (VecI)(imageSize / (double)chunkSize).Ceiling();
 
         Lines lines = new();
@@ -172,6 +181,7 @@ internal class MagicWandHelper
                     {
                         AddLinesForEmptyChunk(lines, chunkPos, imageSize, chunkSize);
                     }
+
                     continue;
                 }
 
@@ -283,24 +293,26 @@ internal class MagicWandHelper
     }
 
     public static VectorPath DoMagicWandFloodFill(VecI startingPos, HashSet<Guid> membersToFloodFill,
-        double tolerance,
+        double tolerance, string renderOutput,
         IReadOnlyDocument document, int frame, bool contiguous)
     {
-        if (startingPos.X < 0 || startingPos.Y < 0 || startingPos.X >= document.Size.X ||
-            startingPos.Y >= document.Size.Y)
+        var renderSize = document.GetRenderOutputSize(renderOutput);
+        if (startingPos.X < 0 || startingPos.Y < 0 || startingPos.X >= renderSize.X ||
+            startingPos.Y >= renderSize.Y)
             return new VectorPath();
 
-        if(!contiguous)
-            return DoMagicWandFloodFillNonContiguous(startingPos, membersToFloodFill, tolerance, document, frame);
+        if (!contiguous)
+            return DoMagicWandFloodFillNonContiguous(startingPos, membersToFloodFill, tolerance, document, renderOutput,
+                frame);
 
         tolerance = Math.Clamp(tolerance, 0, 1);
 
         int chunkSize = ChunkResolution.Full.PixelSize();
 
-        using FloodFillChunkCache cache = FloodFillHelper.CreateCache(membersToFloodFill, document, frame);
+        using FloodFillChunkCache
+            cache = FloodFillHelper.CreateCache(membersToFloodFill, document, frame, renderOutput);
 
         VecI initChunkPos = OperationHelper.GetChunkPos(startingPos, chunkSize);
-        VecI imageSizeInChunks = (VecI)(document.Size / (double)chunkSize).Ceiling();
         VecI initPosOnChunk = startingPos - initChunkPos * chunkSize;
 
         ColorF colorToReplace = cache.GetChunk(initChunkPos).Match(
@@ -310,16 +322,17 @@ internal class MagicWandHelper
 
         ColorBounds colorRange = new(colorToReplace, tolerance);
 
-        var fillPath = FloodFill(document, chunkSize, initChunkPos, initPosOnChunk, cache, colorToReplace, colorRange);
+        var fillPath = FloodFill(renderSize, chunkSize, initChunkPos, initPosOnChunk, cache, colorToReplace,
+            colorRange);
         return fillPath;
     }
 
-    private static VectorPath FloodFill(IReadOnlyDocument document, int chunkSize, VecI initChunkPos, VecI initPosOnChunk,
+    private static VectorPath FloodFill(VecI size, int chunkSize, VecI initChunkPos, VecI initPosOnChunk,
         FloodFillChunkCache cache, ColorF colorToReplace, ColorBounds colorRange)
     {
         HashSet<VecI> processedEmptyChunks = new();
 
-        UnvisitedStack positionsToFloodFill = new(chunkSize, document.Size);
+        UnvisitedStack positionsToFloodFill = new(chunkSize, size);
 
         Lines lines = new();
         VectorPath selection = new();
@@ -339,7 +352,7 @@ internal class MagicWandHelper
             {
                 if (colorToReplace.A == 0 && !processedEmptyChunks.Contains(chunkPos))
                 {
-                    AddLinesForEmptyChunk(lines, chunkPos, document.Size, chunkSize);
+                    AddLinesForEmptyChunk(lines, chunkPos, size, chunkSize);
                     positionsToFloodFill.PushAll(chunkPos);
                     processedEmptyChunks.Add(chunkPos);
                 }
@@ -355,7 +368,7 @@ internal class MagicWandHelper
                 reallyReferenceChunk,
                 chunkSize,
                 chunkPos * chunkSize,
-                document.Size,
+                size,
                 posOnChunk,
                 colorRange, lines);
 

@@ -54,10 +54,14 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>, IWindowHandler
             if (activeWindow is ViewportWindowViewModel viewport)
             {
                 Owner.LayoutSubViewModel.LayoutManager.ShowViewport(viewport);
+                LastActiveViewport = viewport;
+                OnPropertyChanged(nameof(LastActiveViewport));
                 ActiveViewportChanged?.Invoke(this, viewport);
             }
         }
     }
+
+    public ViewportWindowViewModel LastActiveViewport { get; private set; }
 
     public WindowViewModel(ViewModelMain owner, CommandController commandController)
         : base(owner)
@@ -192,6 +196,11 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>, IWindowHandler
         }
 
         Viewports.Remove(viewport);
+        if(LastActiveViewport == viewport)
+        {
+            LastActiveViewport = null;
+            OnPropertyChanged(nameof(LastActiveViewport));
+        }
 
         foreach (var sibling in viewports)
         {
