@@ -293,7 +293,7 @@ public class PixiAuthIdentityProvider : IIdentityProvider
             return;
         }
 
-        var products = await PixiAuthClient.GetOwnedProducts(User.SessionToken, ApiVersion);
+        var products = await PixiAuthClient.GetUserLibrary(User.SessionToken, ApiVersion);
         if (products != null)
         {
             User.OwnedProducts = products.Where(x => x is { IsDlc: true, Target: "PixiEditor" })
@@ -319,7 +319,7 @@ public class PixiAuthIdentityProvider : IIdentityProvider
                 return;
             }
 
-            var products = await PixiAuthClient.GetOwnedProducts(User.SessionToken, ApiVersion);
+            var products = await PixiAuthClient.GetUserLibrary(User.SessionToken, ApiVersion);
             if (products != null)
             {
                 User.OwnedProducts = products.Where(x => x is { IsDlc: true, Target: "PixiEditor" })
@@ -367,7 +367,7 @@ public class PixiAuthIdentityProvider : IIdentityProvider
             {
                 User.SessionToken = token;
                 User.SessionExpirationDate = expirationDate;
-                var products = await PixiAuthClient.GetOwnedProducts(User.SessionToken, ApiVersion);
+                var products = await PixiAuthClient.GetUserLibrary(User.SessionToken, ApiVersion);
                 if (products != null)
                 {
                     User.OwnedProducts = products.Where(x => x is { IsDlc: true, Target: "PixiEditor" })

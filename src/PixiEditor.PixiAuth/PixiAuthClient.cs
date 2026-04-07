@@ -249,7 +249,7 @@ public class PixiAuthClient
         return false;
     }
 
-    public async Task<List<Product>> GetOwnedProducts(string token, int apiVersion)
+    public async Task<List<Product>> GetUserLibrary(string token, int apiVersion)
     {
         HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get,
             $"v2/content/getOwnedProducts?pixiEditorApiVersion={apiVersion}");
