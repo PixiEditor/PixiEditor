@@ -180,17 +180,20 @@ internal class ExtensionManagerViewModel : ViewModelBase
         SelectedTab = Tabs.FirstOrDefault(tab => tab.Id == "All");
 
         OnPropertyChanged(nameof(IsUserLoggedIn));
-        identityProvider.OnLoggedIn += _ =>
+        if (identityProvider != null)
         {
-            Dispatcher.UIThread.InvokeAsync(async () =>
-                await (identityProvider as PixiAuthIdentityProvider)?.RefreshOwnedProducts());
-            UpdateOwnedStates();
-        };
-        identityProvider.LoggedOut += () =>
-        {
-            UpdateOwnedStates();
-        };
-        identityProvider.OwnedProductsUpdated += _ => UpdateOwnedExtensions();
+            identityProvider.OnLoggedIn += _ =>
+            {
+                Dispatcher.UIThread.InvokeAsync(async () =>
+                    await (identityProvider as PixiAuthIdentityProvider)?.RefreshOwnedProducts());
+                UpdateOwnedStates();
+            };
+            identityProvider.LoggedOut += () =>
+            {
+                UpdateOwnedStates();
+            };
+            identityProvider.OwnedProductsUpdated += _ => UpdateOwnedExtensions();
+        }
     }
 
     private bool CanUpdateExtension(string? id)
