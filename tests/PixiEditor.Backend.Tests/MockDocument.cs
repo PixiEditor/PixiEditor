@@ -107,6 +107,11 @@ public class MockDocument : IReadOnlyDocument
         throw new NotImplementedException();
     }
 
+    public VecI GetRenderOutputSize(string renderOutput)
+    {
+        return Size;
+    }
+
     public object Clone()
     {
         throw new NotImplementedException();

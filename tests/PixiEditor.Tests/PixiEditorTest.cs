@@ -9,11 +9,13 @@ using Drawie.Skia;
 using Drawie.Windowing;
 using DrawiEngine;
 using Microsoft.Extensions.DependencyInjection;
+using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Extensions.Runtime;
 using PixiEditor.Helpers;
 using PixiEditor.IdentityProvider;
 using PixiEditor.Linux;
 using PixiEditor.MacOs;
+using PixiEditor.Models.Preferences;
 using PixiEditor.OperatingSystem;
 using PixiEditor.Platform;
 using PixiEditor.ViewModels;
@@ -98,10 +100,13 @@ public class FullPixiEditorTest : PixiEditorTest
             IPlatform.RegisterPlatform(new TestPlatform());
         }
 
+        PreferencesSettings settings = new PreferencesSettings();
+
         var services = new ServiceCollection()
             .AddPlatform()
             .AddPixiEditor(loader)
             .AddExtensionServices(loader)
+            .AddSingleton<IPreferences, PreferencesSettings>(x => settings)
             .BuildServiceProvider();
 
         var vm = services.GetRequiredService<ViewModelMain>();
