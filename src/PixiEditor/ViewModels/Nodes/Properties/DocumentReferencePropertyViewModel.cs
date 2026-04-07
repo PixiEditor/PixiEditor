@@ -16,6 +16,7 @@ using PixiEditor.Models.Handlers;
 using PixiEditor.Models.IO;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Document.Blackboard;
+using PixiEditor.ViewModels.SubViewModels;
 using PixiEditor.ViewModels.Tools.ToolSettings.Settings;
 
 namespace PixiEditor.ViewModels.Nodes.Properties;
@@ -58,7 +59,7 @@ internal class DocumentReferencePropertyViewModel : NodePropertyViewModel<Docume
 
     private async Task OnPickGraphFile()
     {
-        var any = new FileTypeDialogDataSet(FileTypeDialogDataSet.SetKind.Pixi).GetFormattedTypes(false);
+        var any = new FileTypeDialogDataSet(FileTypeDialogDataSet.SetKind.Any).GetFormattedTypes(true);
 
         if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
@@ -68,7 +69,7 @@ internal class DocumentReferencePropertyViewModel : NodePropertyViewModel<Docume
             if (dialog.Count == 0 || !Importer.IsSupportedFile(dialog[0].Path.LocalPath))
                 return;
 
-            var doc = Importer.ImportDocument(dialog[0].Path.LocalPath);
+            var doc = FileViewModel.ImportFromPath(dialog[0].Path.LocalPath);
             doc.Operations.InvokeCustomAction(() =>
             {
                 Value = new DocumentReference(doc.FullFilePath, doc.Id, doc.AccessInternalReadOnlyDocument());

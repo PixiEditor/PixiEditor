@@ -6,6 +6,7 @@ using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Text;
 using PixiEditor.ChangeableDocument.Actions.Generated;
+using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.Changeables.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.Helpers.Extensions;
@@ -14,6 +15,7 @@ using PixiEditor.Models.ExtensionServices;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Parser.Graph;
 using PixiEditor.ViewModels.BrushSystem;
+using PixiEditor.ViewModels.Nodes.Properties;
 using PixiEditor.ViewModels.Tools.Tools;
 using PixiEditor.ViewModels.Tools.ToolSettings.Settings;
 using PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
@@ -193,6 +195,11 @@ internal class VariableViewModel : ViewModelBase, IVariableHandler
         if (type.IsAssignableTo(typeof(Brush)))
         {
             return new BrushSettingViewModel("Variable", "Variable");
+        }
+
+        if (type.IsAssignableTo(typeof(DocumentReference)))
+        {
+            return new DocumentReferenceSettingViewModel("Variable");
         }
 
         if (type == typeof(Paintable))
