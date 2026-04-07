@@ -180,6 +180,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     private double sceneOpacity = 1;
 
     private Paint checkerPaint;
+    private double lastCheckerScale;
 
     private CompositionSurfaceVisual surfaceVisual;
     private Compositor compositor;
@@ -290,17 +291,53 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     protected override async void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
     {
         using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
+
         framebuffer?.Dispose();
         framebuffer = null;
 
         if (initialized)
         {
-            surface.Dispose();
+            var toDispose = surface;
+            surface = null;
+            Dispatcher.UIThread.Post(() =>
+            {
+                toDispose?.Dispose();
+            });
+
             await FreeGraphicsResources();
+            checkerPaint?.Shader?.Dispose();
+            checkerPaint?.Dispose();
+            checkerPaint = null;
         }
 
         initialized = false;
         base.OnDetachedFromVisualTree(e);
+    }
+
+    protected override async void OnDetachedFromLogicalTree(LogicalTreeAttachmentEventArgs e)
+    {
+        using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
+
+        framebuffer?.Dispose();
+        framebuffer = null;
+
+        if (initialized)
+        {
+            var toDispose = surface;
+            surface = null;
+            Dispatcher.UIThread.Post(() =>
+            {
+                toDispose?.Dispose();
+            });
+
+            await FreeGraphicsResources();
+            checkerPaint?.Shader?.Dispose();
+            checkerPaint?.Dispose();
+            checkerPaint = null;
+        }
+
+        initialized = false;
+        base.OnDetachedFromLogicalTree(e);
     }
 
     private async void InitializeComposition()
@@ -347,20 +384,24 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         texture.Canvas.Save();
         var matrix = CalculateTransformMatrix();
 
-        VecI outputSize = FindOutputSize(out var isFullscreen);
+        VecI outputSize = FindOutputSize(out var isFullscreen, out bool renderOverlays);
 
         texture.Canvas.SetMatrix(isFullscreen ? Matrix3X3.Identity : matrix.ToSKMatrix().ToMatrix3X3());
 
         RectD dirtyBounds = new RectD(0, 0, outputSize.X, outputSize.Y);
-        RenderScene(texture, dirtyBounds, isFullscreen);
+        RenderScene(texture, dirtyBounds, isFullscreen, renderOverlays);
 
         texture.Canvas.Restore();
     }
 
-    private void RenderScene(DrawingSurface texture, RectD bounds, bool isFullscreenRender)
+    private void RenderScene(DrawingSurface texture, RectD bounds, bool isFullscreenRender, bool renderOverlays)
     {
         var renderOutput = RenderOutput == "DEFAULT" ? null : RenderOutput;
-        DrawCheckerboard(texture, bounds);
+        if (renderOverlays)
+        {
+            DrawCheckerboard(texture, bounds);
+        }
+
         DrawOverlays(texture, bounds, OverlayRenderSorting.Background);
         try
         {
@@ -436,7 +477,10 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                 TextAlign.Center, defaultSizedFont, paint);
         }
 
-        DrawOverlays(texture, bounds, OverlayRenderSorting.Foreground);
+        if (renderOverlays)
+        {
+            DrawOverlays(texture, bounds, OverlayRenderSorting.Foreground);
+        }
     }
 
     private void DrawCheckerboard(DrawingSurface surface, RectD dirtyBounds)
@@ -448,16 +492,19 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             ? new VecD(ZoomToViewportConverter.ZoomToViewport(16, Scale) * 0.5f)
             : new VecD(CustomBackgroundScaleX, CustomBackgroundScaleY);
         checkerScale = new VecD(Math.Max(0.5, checkerScale.X), Math.Max(0.5, checkerScale.Y));
-        checkerPaint?.Shader?.Dispose();
-        checkerPaint?.Dispose();
-        checkerPaint = new Paint
+        if (Math.Abs(lastCheckerScale - checkerScale.X) > 0.01 || checkerPaint == null)
         {
-            Shader = Shader.CreateBitmap(
-                BackgroundBitmap,
-                TileMode.Repeat, TileMode.Repeat,
-                Matrix3X3.CreateScale((float)checkerScale.X, (float)checkerScale.Y)),
-            FilterQuality = FilterQuality.None
-        };
+            checkerPaint?.Shader?.Dispose();
+            checkerPaint?.Dispose();
+            checkerPaint = new Paint
+            {
+                Shader = Shader.CreateBitmap(
+                    BackgroundBitmap,
+                    TileMode.Repeat, TileMode.Repeat,
+                    Matrix3X3.CreateScale((float)checkerScale.X, (float)checkerScale.Y)),
+                FilterQuality = FilterQuality.None
+            };
+        }
 
         surface.Canvas.DrawRect(operationSurfaceRectToRender, checkerPaint);
     }
@@ -510,10 +557,11 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         }
     }
 
-    private VecI FindOutputSize(out bool isFullscreen)
+    private VecI FindOutputSize(out bool isFullscreen, out bool renderOverlays)
     {
         VecI outputSize = Document.SizeBindable;
         isFullscreen = false;
+        renderOverlays = true;
 
         if (!string.IsNullOrEmpty(RenderOutput))
         {
@@ -534,6 +582,13 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                     {
                         isFullscreen = Document.NodeGraph.GetComputedPropertyValue<bool>(fullScreenProp);
                     }
+                }
+
+                var renderOverlaysProp = node?.Inputs.FirstOrDefault(x =>
+                    x.PropertyName == CustomOutputNode.RenderOverlaysPropertyName);
+                if (renderOverlaysProp != null)
+                {
+                    renderOverlays = Document.NodeGraph.GetComputedPropertyValue<bool>(renderOverlaysProp);
                 }
             }
         }

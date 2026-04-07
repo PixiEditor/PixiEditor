@@ -11,12 +11,14 @@ internal class SelectEllipse_UpdateableChange : UpdateableChange
     private VectorPath? documentConstraint;
     private readonly SelectionMode mode;
     private VectorPath? originalPath;
+    private string renderOutput;
 
     [GenerateUpdateableChangeActions]
-    public SelectEllipse_UpdateableChange(RectI borders, SelectionMode mode)
+    public SelectEllipse_UpdateableChange(RectI borders, SelectionMode mode, string renderOutput)
     {
         this.borders = borders;
         this.mode = mode;
+        this.renderOutput = renderOutput;
     }
 
     [UpdateChangeMethod]
@@ -29,7 +31,14 @@ internal class SelectEllipse_UpdateableChange : UpdateableChange
     {
         originalPath = new VectorPath(target.Selection.SelectionPath);
         documentConstraint = new VectorPath();
-        documentConstraint.AddRect((RectD)new RectI(VecI.Zero, target.Size));
+        VecI targetSize = target.Size;
+
+        if (!string.IsNullOrEmpty(renderOutput))
+        {
+            targetSize = target.GetRenderOutputSize(renderOutput);
+        }
+
+        documentConstraint.AddRect((RectD)new RectI(VecI.Zero, targetSize));
         return true;
     }
 

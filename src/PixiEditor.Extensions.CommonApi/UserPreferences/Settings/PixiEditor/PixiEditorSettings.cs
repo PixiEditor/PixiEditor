@@ -125,4 +125,22 @@ public static class PixiEditorSettings
             PreferencesConstants.UseSystemWindowDecorationsDefault,
             PreferencesConstants.UseSystemWindowDecorations);
     }
+    
+    public static class Extensions
+    {
+        public static SyncedSetting<IEnumerable<string>> DisabledExtensions { get; } =
+            SyncedSetting.NonOwned<IEnumerable<string>>(PixiEditor, []);
+        
+        public static SyncedSetting<string> DisplayedCurrency { get; } =
+            SyncedSetting.NonOwned<string>(PixiEditor, null);
+
+        public static LocalSetting<DateTime> LastFetchedAvailableExtensionsDate { get; } =
+            LocalSetting.NonOwned<DateTime>(PixiEditor, DateTime.MinValue);
+
+        public static LocalSetting<DateTime> LastFetchedExchangeRateDate { get; } =
+            LocalSetting.NonOwned<DateTime>(PixiEditor, DateTime.MinValue);
+
+        public static LocalSetting<double> LastFetchedExchangeRate { get; } =
+            LocalSetting.NonOwned<double>(PixiEditor, 0);
+    }
 }

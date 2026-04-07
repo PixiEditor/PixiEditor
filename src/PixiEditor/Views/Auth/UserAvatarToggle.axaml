@@ -68,7 +68,7 @@
                     <Flyout>
                         <LayoutTransformControl>
                             <Interaction.Behaviors>
-                                <behaviors:LayoutTransformScalerBehavior/>
+                                <behaviors:LayoutTransformScalerBehavior />
                             </Interaction.Behaviors>
 
                             <StackPanel Width="250" IsVisible="{Binding IsLoggedIn}" Margin="15" Orientation="Vertical">
@@ -85,78 +85,24 @@
                                     <Run Text="{Binding Username}" />
                                 </TextBlock>
 
-                                <TextBlock Text="{ui:Translate Key=OWNED_PRODUCTS}" FontWeight="Bold" />
-                                <ItemsControl IsVisible="{Binding !!User}" ItemsSource="{Binding OwnedProducts}">
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <StackPanel Spacing="12" />
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <DockPanel>
-                                                <TextBlock DockPanel.Dock="Left" HorizontalAlignment="Left"
-                                                           Text="{Binding ProductData.DisplayName}" />
-                                                <Button DockPanel.Dock="Right" HorizontalAlignment="Right"
-                                                        IsVisible="{Binding !RestartRequired}"
-                                                        FontSize="{DynamicResource FontSizeNormal}"
-                                                        Command="{Binding InstallCommand}">
-                                                    <Panel Margin="4 0">
-                                                        <TextBlock>
-                                                            <TextBlock.IsVisible>
-                                                                <MultiBinding Converter="{converters:AllTrueConverter}">
-                                                                    <Binding Path="IsInstalled" />
-                                                                    <Binding Path="!UpdateAvailable" />
-                                                                    <Binding Path="!IsInstalling" />
-                                                                </MultiBinding>
-                                                            </TextBlock.IsVisible>
-                                                            <Run Classes="pixi-icon"
-                                                                 Text="{DynamicResource icon-checkTick}" />
-                                                            <Run ui:Translator.Key="INSTALLED" />
-                                                        </TextBlock>
+                                <Panel>
+                                    <Button ui:Translator.Key="VIEW_LIBRARY"
+                                            IsVisible="{Binding !!User}"
+                                            Command="{xaml:Command Name=PixiEditor.Window.OpenExtensionsWindow}" />
+                                    <Ellipse IsVisible="{Binding AnyUpdateAvailable}"
+                                             IsHitTestVisible="False"
+                                             ClipToBounds="False"
+                                             Classes="pulse"
+                                             Width="12" Height="12"
+                                             HorizontalAlignment="Right"
+                                             VerticalAlignment="Top"
+                                             StrokeThickness="2"
+                                             Stroke="{DynamicResource ThemeBackgroundBrush}"
+                                             Fill="{DynamicResource ThemeAccent3Brush}">
+                                    </Ellipse>
+                                </Panel>
 
-                                                        <TextBlock Foreground="{DynamicResource ThemeAccent3Brush}">
-                                                            <TextBlock.IsVisible>
-                                                                <MultiBinding Converter="{converters:AllTrueConverter}">
-                                                                    <Binding Path="UpdateAvailable" />
-                                                                    <Binding Path="!IsInstalling" />
-                                                                </MultiBinding>
-                                                            </TextBlock.IsVisible>
-                                                            <Run Classes="pixi-icon"
-                                                                 Text="{DynamicResource icon-download}" />
-                                                            <Run ui:Translator.Key="UPDATE" />
-                                                        </TextBlock>
-
-                                                        <TextBlock>
-                                                            <TextBlock.IsVisible>
-                                                                <MultiBinding Converter="{converters:AllTrueConverter}">
-                                                                    <Binding Path="!IsInstalled" />
-                                                                    <Binding Path="!IsInstalling" />
-                                                                    <Binding Path="!UpdateAvailable" />
-                                                                </MultiBinding>
-                                                            </TextBlock.IsVisible>
-
-                                                            <Run Classes="pixi-icon"
-                                                                 Text="{DynamicResource icon-download}" />
-                                                            <Run ui:Translator.Key="INSTALL" />
-                                                        </TextBlock>
-
-                                                        <TextBlock IsVisible="{Binding IsInstalling}"
-                                                                   ui:Translator.Key="INSTALLING" />
-                                                    </Panel>
-                                                </Button>
-                                                <Button DockPanel.Dock="Right" HorizontalAlignment="Right"
-                                                        FontSize="{DynamicResource FontSizeNormal}"
-                                                        IsVisible="{Binding RestartRequired}"
-                                                        ui:Translator.Key="RESTART"
-                                                        Background="{DynamicResource ThemeAccentBrush}"
-                                                        Command="{xaml:Command Name=PixiEditor.Restart}" />
-                                            </DockPanel>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-
-                                <Button Margin="0, 24, 0, 0"
+                                <Button Margin="0, 12, 0, 0"
                                         Content="{ui:Translate Key=LOGOUT}"
                                         IsVisible="{Binding IdentityProvider.AllowsLogout}"
                                         Command="{Binding LogoutCommand}" />

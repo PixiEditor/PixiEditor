@@ -28,6 +28,7 @@ namespace PixiEditor.ViewModels.SubViewModels;
 [Commands_Command.Group("PixiEditor.Window", "WINDOWS")]
 internal class WindowViewModel : SubViewModel<ViewModelMain>, IWindowHandler
 {
+    private ExtensionsPopup? extensionsPopup;
     private CommandController commandController;
     public RelayCommand<string> ShowAvalonDockWindowCommand { get; set; }
     public ObservableCollection<ViewportWindowViewModel> Viewports { get; } = new();
@@ -53,10 +54,14 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>, IWindowHandler
             if (activeWindow is ViewportWindowViewModel viewport)
             {
                 Owner.LayoutSubViewModel.LayoutManager.ShowViewport(viewport);
+                LastActiveViewport = viewport;
+                OnPropertyChanged(nameof(LastActiveViewport));
                 ActiveViewportChanged?.Invoke(this, viewport);
             }
         }
     }
+
+    public ViewportWindowViewModel LastActiveViewport { get; private set; }
 
     public WindowViewModel(ViewModelMain owner, CommandController commandController)
         : base(owner)
@@ -191,6 +196,11 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>, IWindowHandler
         }
 
         Viewports.Remove(viewport);
+        if(LastActiveViewport == viewport)
+        {
+            LastActiveViewport = null;
+            OnPropertyChanged(nameof(LastActiveViewport));
+        }
 
         foreach (var sibling in viewports)
         {
@@ -214,6 +224,7 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>, IWindowHandler
         var viewports = Viewports.Where(vp => vp.Document == document).ToArray();
         foreach (ViewportWindowViewModel viewport in viewports)
         {
+            viewport.Dispose();
             Viewports.Remove(viewport);
             ViewportClosed?.Invoke(viewport);
         }
@@ -303,6 +314,24 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>, IWindowHandler
 
         popup.Show();
         return popup;
+    }
+
+    [Command.Basic("PixiEditor.Window.OpenExtensionsWindow", "OPEN_EXTENSIONS_WINDOW",
+        "OPEN_EXTENSIONS_WINDOW_DESCRIPTIVE", Icon = PixiPerfectIcons.Blocks,
+        AnalyticsTrack = true, MenuItemPath = "VIEW/OPEN_EXTENSIONS_WINDOW")]
+    public void OpenExtensionsWindow()
+    {
+        if (extensionsPopup is not null)
+        {
+            extensionsPopup.Activate();
+            return;
+        }
+
+        extensionsPopup ??= new ExtensionsPopup();
+        extensionsPopup.DataContext = Owner.ExtensionsSubViewModel.ExtensionManager;
+        extensionsPopup.Closed += (s, e) => extensionsPopup = null;
+
+        extensionsPopup.Show();
     }
 
     /// <summary>

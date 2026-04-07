@@ -30,3 +30,10 @@ public enum Axis
     Horizontal,
     Vertical
 }
+
+public enum ScrollDirection
+{
+    Horizontal,
+    Vertical,
+    Both
+}

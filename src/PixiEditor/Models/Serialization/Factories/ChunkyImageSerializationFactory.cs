@@ -26,6 +26,7 @@ public class ChunkyImageSerializationFactory : SerializationFactory<byte[], Chun
             byte[] serialized = surfaceFactory.Serialize(chunk.Value);
             builder.AddInt(serialized.Length);
             builder.AddByteArray(serialized);
+            chunk.Value.Dispose();
         }
 
         return builder.Build();

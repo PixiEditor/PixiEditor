@@ -412,6 +412,14 @@ internal class NodeGraphBuilder
         return this;
     }
 
+    /// <summary>
+    ///     Adds an ImageLayerNode with a single keyframe containing the provided image. The image will be disposed after being added to the node.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="image"></param>
+    /// <param name="colorSpace"></param>
+    /// <param name="id"></param>
+    /// <returns></returns>
     public NodeGraphBuilder WithImageLayerNode(string name, Surface image, ColorSpace colorSpace, out int id)
     {
         this.WithNodeOfType(typeof(ImageLayerNode))
@@ -430,6 +438,7 @@ internal class NodeGraphBuilder
                 }
             ]);
 
+        image.Dispose();
         id = AllNodes.Count;
         return this;
     }

@@ -77,6 +77,12 @@ public partial class WasmExtensionInstance : Extension
         WasmMemoryUtility = new WasmMemoryUtility(Instance);
     }
 
+    protected override int GetApiVersion()
+    {
+        int version = Instance.GetFunction("get_api_version")?.Invoke() as int? ?? 1;
+        return version;
+    }
+
     protected override void OnLoaded()
     {
         Instance.GetAction("load")?.Invoke();
@@ -171,5 +177,10 @@ public partial class WasmExtensionInstance : Extension
         }
 
         return (T)module;
+    }
+    
+    public override void Unload()
+    {
+        Module.Dispose();
     }
 }

@@ -110,4 +110,5 @@ public interface IReadOnlyDocument : IDisposable, ICloneable
     public ICrossDocumentPipe<IReadOnlyNodeGraph> CreateGraphPipe();
     public IReadOnlyDocument Clone(bool preserveDocumentId = false);
     public IReadOnlyStructureNode[] GetStructureTreeInOrder();
+    public VecI GetRenderOutputSize(string renderOutput);
 }

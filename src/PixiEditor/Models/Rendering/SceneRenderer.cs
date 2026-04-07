@@ -1,6 +1,6 @@
 ﻿using Avalonia.Input;
 using ChunkyImageLib.DataHolders;
-﻿using Avalonia.Threading;
+using Avalonia.Threading;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
@@ -25,7 +25,7 @@ using PixiEditor.Models.Position;
 
 namespace PixiEditor.Models.Rendering;
 
-internal class SceneRenderer
+internal class SceneRenderer : IDisposable
 {
     public const double ZoomDiffToRerender = 20;
     public const float OversizeFactor = 1.25f;
@@ -41,6 +41,8 @@ internal class SceneRenderer
     private HashSet<Guid> lastRenderedViewports = new();
 
     private TextureCache textureCache = new();
+
+    private bool isDisposed = false;
 
     public SceneRenderer(IReadOnlyDocument trackerDocument, IDocument documentViewModel)
     {
@@ -100,6 +102,7 @@ internal class SceneRenderer
             }
 
             DocumentViewModel.SceneTextures[viewport.Key] = rendered;
+
             viewport.Value.InvalidateVisual();
             renderedCount++;
         }
@@ -194,7 +197,8 @@ internal class SceneRenderer
         bool shouldRerender =
             ShouldRerender(renderTargetSize, isFullViewportRender ? Matrix3X3.Identity : targetMatrix, resolution,
                 viewportId, targetOutput, finalGraph,
-                previewTextures, viewport.VisibleDocumentRegion, oversizeFactor, isFullViewportRender, viewport.ViewportData, out bool fullAffectedArea,
+                previewTextures, viewport.VisibleDocumentRegion, oversizeFactor, isFullViewportRender,
+                viewport.ViewportData, out bool fullAffectedArea,
                 out RenderState renderState) ||
             debugRecord;
 
@@ -204,7 +208,8 @@ internal class SceneRenderer
         if (shouldRerender)
         {
             affectedArea = fullAffectedArea && viewport.VisibleDocumentRegion.HasValue
-                ? new AffectedArea(OperationHelper.FindChunksTouchingRectangle((RectI)viewport.VisibleDocumentRegion.Value.RoundOutwards(),
+                ? new AffectedArea(OperationHelper.FindChunksTouchingRectangle(
+                    (RectI)viewport.VisibleDocumentRegion.Value.RoundOutwards(),
                     ChunkyImage.FullChunkSize))
                 : affectedArea;
             var tex = RenderGraph(renderTargetSize, targetMatrix, viewportId, resolution, samplingOptions, affectedArea,
@@ -237,6 +242,8 @@ internal class SceneRenderer
         DrawingSurface renderTarget = null;
         Texture? renderTexture = null;
         int restoreCanvasTo;
+
+        if (isDisposed) return null;
 
         VecI finalSize = SolveRenderOutputSize(targetOutput, finalGraph, Document.Size, renderTargetSize,
             out bool isFullViewportRender);
@@ -517,6 +524,12 @@ internal class SceneRenderer
         });
 
         return highDpiRenderNodePresent;
+    }
+
+    public void Dispose()
+    {
+        isDisposed = true;
+        textureCache.Dispose();
     }
 }
 

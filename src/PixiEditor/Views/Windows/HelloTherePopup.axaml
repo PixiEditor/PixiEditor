@@ -82,18 +82,24 @@
                                     ui:Translator.TooltipKey="NEW_FROM_CLIPBOARD" />
                         </StackPanel>
 
-                        <UniformGrid Width="320"
-                                     Margin="10,0,0,0"
-                                     HorizontalAlignment="Left"
-                                     ColumnSpacing="20"
-                                     Columns="{Binding ElementName=ExampleFilesGrid, Path=Children.Count}"
-                                     Name="ExampleFilesGrid">
-                            <Button
+                        <StackPanel Orientation="Horizontal" Margin="10,0,0,0">
+                            <UniformGrid Width="320"
+                                         HorizontalAlignment="Left"
+                                         ColumnSpacing="20"
+                                         Columns="{Binding ElementName=ExampleFilesGrid, Path=Children.Count}"
+                                         Name="ExampleFilesGrid">
+                                <Button
                                     Background="{DynamicResource ThemeAccentBrush2}"
                                     ui:Translator.Key="EXAMPLE_FILES"
                                     Command="{Binding SetShowAllBetaExamplesCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}"
                                     CommandParameter="{x:True}" />
-                        </UniformGrid>
+                            </UniformGrid>
+                            <Button Classes="pixi-icon" Content="{DynamicResource icon-blocks}"
+                                    Command="{xaml:Command Name=PixiEditor.Window.OpenExtensionsWindow}"
+                                    Margin="10, 0, 0, 0"
+                                    ui:Translator.TooltipKey="OPEN_EXTENSIONS_WINDOW" />
+                        </StackPanel>
+
                     </StackPanel>
 
                     <StackPanel Grid.Row="2" HorizontalAlignment="Center">
@@ -232,7 +238,7 @@
                                                                         <Setter Property="MinWidth" Value="25" />
                                                                         <Setter Property="MinHeight" Value="25" />
                                                                         <Setter Property="Background"
-                                                                            Value="Transparent" />
+                                                                                Value="Transparent" />
                                                                     </Style>
                                                                     <Style Selector="Button:hover">
                                                                         <Setter Property="Background" Value="#70FFFFFF" />
