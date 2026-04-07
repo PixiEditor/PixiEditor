@@ -1,6 +1,6 @@
 ﻿using Avalonia.Input;
 using ChunkyImageLib.DataHolders;
-﻿using Avalonia.Threading;
+using Avalonia.Threading;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
@@ -25,7 +25,7 @@ using PixiEditor.Models.Position;
 
 namespace PixiEditor.Models.Rendering;
 
-internal class SceneRenderer
+internal class SceneRenderer : IDisposable
 {
     public const double ZoomDiffToRerender = 20;
     public const float OversizeFactor = 1.25f;
@@ -41,6 +41,8 @@ internal class SceneRenderer
     private HashSet<Guid> lastRenderedViewports = new();
 
     private TextureCache textureCache = new();
+
+    private bool isDisposed = false;
 
     public SceneRenderer(IReadOnlyDocument trackerDocument, IDocument documentViewModel)
     {
@@ -100,6 +102,7 @@ internal class SceneRenderer
             }
 
             DocumentViewModel.SceneTextures[viewport.Key] = rendered;
+
             viewport.Value.InvalidateVisual();
             renderedCount++;
         }
@@ -111,7 +114,9 @@ internal class SceneRenderer
             RenderOnlyPreviews(affectedArea, previewTextures, graphHash);
         }
 
-        lastGraphCacheHash = Document.NodeGraph.GetCacheHash(); // Update the graph hash after rendering, in case it changed during rendering
+        lastGraphCacheHash =
+            Document.NodeGraph
+                .GetCacheHash(); // Update the graph hash after rendering, in case it changed during rendering
     }
 
     private void RenderOnlyPreviews(AffectedArea affectedArea,
@@ -154,7 +159,7 @@ internal class SceneRenderer
         Guid viewportId = viewport.Id;
         ChunkResolution resolution = viewport.Resolution;
         SamplingOptions samplingOptions = viewport.Sampling;
-        RectI? visibleDocumentRegion = viewport.VisibleDocumentRegion;
+        RectD? visibleDocumentRegion = viewport.VisibleDocumentRegion;
         PointerInfo pointerInfo = viewport.PointerInfo;
         KeyboardInfo keyboardInfo = viewport.KeyboardInfo;
         EditorData editorData = viewport.EditorData;
@@ -182,9 +187,9 @@ internal class SceneRenderer
 
         float oversizeFactor = 1;
         if (visibleDocumentRegion != null && viewport.IsScene &&
-            visibleDocumentRegion.Value != new RectI(0, 0, Document.Size.X, Document.Size.Y))
+            (RectI)visibleDocumentRegion.Value.RoundOutwards() != new RectI(0, 0, Document.Size.X, Document.Size.Y))
         {
-            visibleDocumentRegion = (RectI)visibleDocumentRegion.Value.Scale(OversizeFactor,
+            visibleDocumentRegion = visibleDocumentRegion.Value.Scale(OversizeFactor,
                 visibleDocumentRegion.Value.Center);
             oversizeFactor = OversizeFactor;
         }
@@ -192,7 +197,9 @@ internal class SceneRenderer
         bool shouldRerender =
             ShouldRerender(renderTargetSize, isFullViewportRender ? Matrix3X3.Identity : targetMatrix, resolution,
                 viewportId, targetOutput, finalGraph,
-                previewTextures, visibleDocumentRegion, oversizeFactor, out bool fullAffectedArea, out RenderState renderState) ||
+                previewTextures, viewport.VisibleDocumentRegion, oversizeFactor, isFullViewportRender,
+                viewport.ViewportData, out bool fullAffectedArea,
+                out RenderState renderState) ||
             debugRecord;
 
         shouldRerender |= lastGraphCacheHash != graphCacheHash;
@@ -201,7 +208,8 @@ internal class SceneRenderer
         if (shouldRerender)
         {
             affectedArea = fullAffectedArea && viewport.VisibleDocumentRegion.HasValue
-                ? new AffectedArea(OperationHelper.FindChunksTouchingRectangle(viewport.VisibleDocumentRegion.Value,
+                ? new AffectedArea(OperationHelper.FindChunksTouchingRectangle(
+                    (RectI)viewport.VisibleDocumentRegion.Value.RoundOutwards(),
                     ChunkyImage.FullChunkSize))
                 : affectedArea;
             var tex = RenderGraph(renderTargetSize, targetMatrix, viewportId, resolution, samplingOptions, affectedArea,
@@ -220,7 +228,7 @@ internal class SceneRenderer
         ChunkResolution resolution,
         SamplingOptions samplingOptions,
         AffectedArea area,
-        RectI? visibleDocumentRegion,
+        RectD? visibleDocumentRegion,
         string? targetOutput,
         bool canRenderOnionSkinning,
         float oversizeFactor,
@@ -234,6 +242,8 @@ internal class SceneRenderer
         DrawingSurface renderTarget = null;
         Texture? renderTexture = null;
         int restoreCanvasTo;
+
+        if (isDisposed) return null;
 
         VecI finalSize = SolveRenderOutputSize(targetOutput, finalGraph, Document.Size, renderTargetSize,
             out bool isFullViewportRender);
@@ -417,7 +427,9 @@ internal class SceneRenderer
         Guid viewportId,
         string targetOutput,
         IReadOnlyNodeGraph finalGraph, Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures,
-        RectI? visibleDocumentRegion, float oversizeFactor, out bool fullAffectedArea, out RenderState renderState)
+        RectD? visibleDocumentRegion, float oversizeFactor, bool isFullViewportRender,
+        ViewportData viewportViewportData, out bool fullAffectedArea,
+        out RenderState renderState)
     {
         renderState = new RenderState
         {
@@ -430,8 +442,10 @@ internal class SceneRenderer
             ZoomLevel = matrix.ScaleX,
             FallbackFramesToLayer = Document.AnimationData.FallbackAnimationToLayerImage,
             VisibleDocumentRegion =
-                (RectD?)visibleDocumentRegion ?? new RectD(0, 0, Document.Size.X, Document.Size.Y),
-            DocumentColorSpace = Document.ProcessingColorSpace
+                visibleDocumentRegion ?? new RectD(0, 0, Document.Size.X, Document.Size.Y),
+            DocumentColorSpace = Document.ProcessingColorSpace,
+            IsFullViewportRender = isFullViewportRender,
+            ViewportData = viewportViewportData
         };
 
         fullAffectedArea = false;
@@ -503,10 +517,19 @@ internal class SceneRenderer
             if (n is IHighDpiRenderNode { AllowHighDpiRendering: true })
             {
                 highDpiRenderNodePresent = true;
+                return false;
             }
+
+            return true;
         });
 
         return highDpiRenderNodePresent;
+    }
+
+    public void Dispose()
+    {
+        isDisposed = true;
+        textureCache.Dispose();
     }
 }
 
@@ -522,6 +545,8 @@ readonly struct RenderState
     public bool OnionSkinning { get; init; }
     public ColorSpace DocumentColorSpace { get; init; }
     public bool FallbackFramesToLayer { get; init; }
+    public bool IsFullViewportRender { get; init; }
+    public ViewportData ViewportData { get; init; }
 
     public bool ShouldRerender(RenderState other)
     {
@@ -530,7 +555,10 @@ readonly struct RenderState
                OnionFrames != other.OnionFrames || Math.Abs(OnionOpacity - other.OnionOpacity) > 0.05 ||
                FallbackFramesToLayer != other.FallbackFramesToLayer ||
                OnionSkinning != other.OnionSkinning ||
-               VisibleRegionChanged(other) || ZoomDiffRequiresRender(other) || !Equals(DocumentColorSpace, other.DocumentColorSpace);
+               IsFullViewportRender != other.IsFullViewportRender ||
+               VisibleRegionChanged(other) || ZoomDiffRequiresRender(other)
+               || (IsFullViewportRender && !ViewportData.Equals(other.ViewportData)) ||
+               !Equals(DocumentColorSpace, other.DocumentColorSpace);
     }
 
     private bool VisibleRegionChanged(RenderState other)

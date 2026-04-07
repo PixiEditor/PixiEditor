@@ -13,7 +13,6 @@ internal class RectangleOperation : IMirroredDrawOperation
     public ShapeData Data { get; }
 
     public bool IgnoreEmptyChunks => false;
-    public bool NeedsDrawInSrgb => Data.Stroke is ISrgbPaintable || Data.FillPaintable is ISrgbPaintable;
 
     private Paint paint = new();
 

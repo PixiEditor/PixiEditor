@@ -9,6 +9,7 @@
     ".NETStandard,Version=v2.0/": {
       "PixiEditor.Api.CGlueMSBuild/1.0.0": {
         "dependencies": {
+          "EncryptionLib": "1.0.0",
           "Microsoft.Build.Utilities.Core": "17.14.28",
           "Mono.Cecil": "0.11.6",
           "NETStandard.Library": "2.0.3"
@@ -123,6 +124,14 @@
         "dependencies": {
           "System.Memory": "4.6.0",
           "System.Runtime.CompilerServices.Unsafe": "6.1.0"
+        }
+      },
+      "EncryptionLib/1.0.0": {
+        "runtime": {
+          "EncryptionLib.dll": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       }
     }
@@ -258,6 +267,11 @@
       "sha512": "sha512-GxJTSFPQpoVd0vQRgq8hwesicxgZoHTbYMvR/UMM4IzhkHMT+ebZE11c2C1gUyxz55zWtGCWktMTHvmgLzob9g==",
       "path": "system.text.encoding.codepages/9.0.0",
       "hashPath": "system.text.encoding.codepages.9.0.0.nupkg.sha512"
+    },
+    "EncryptionLib/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
     }
   }
 }

@@ -12,7 +12,8 @@
                     xmlns:ui1="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
                     xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
                     xmlns:behaviors="clr-namespace:PixiEditor.UI.Common.Behaviors;assembly=PixiEditor.UI.Common"
-                    xmlns:viewModels="clr-namespace:PixiEditor.ViewModels">
+                    xmlns:viewModels="clr-namespace:PixiEditor.ViewModels"
+                    xmlns:ui="clr-namespace:PixiEditor.Helpers.UI">
     <ControlTheme TargetType="animations:Timeline" x:Key="{x:Type animations:Timeline}">
         <Setter Property="Template">
             <ControlTemplate>
@@ -27,7 +28,12 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
 
-                    <Border DockPanel.Dock="Left" BorderThickness="0 0 1 0"
+                    <Panel  Margin="20,0,0,0"
+                    ui:AdvisorSlot.AdviceName="AddEmptyFrame"
+                    ui:AdvisorSlot.Direction="Up"/>
+
+                    <Border DockPanel.Dock="Left"
+                            BorderThickness="0 0 1 0"
                             BorderBrush="{DynamicResource ThemeBorderMidBrush}">
                         <DockPanel LastChildFill="False" Margin="5 0">
                             <controls:SizeInput Unit="FPS"

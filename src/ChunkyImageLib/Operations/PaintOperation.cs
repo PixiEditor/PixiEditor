@@ -20,7 +20,6 @@ public class PaintOperation : IDrawOperation
     }
 
     public bool IgnoreEmptyChunks => false;
-    public bool NeedsDrawInSrgb => paint?.Paintable is ISrgbPaintable;
 
     public void DrawOnChunk(Chunk targetChunk, VecI chunkPos)
     {

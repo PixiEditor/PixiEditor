@@ -159,7 +159,7 @@ public class FFMpegRenderer : IAnimationRenderer
         ProcessStartInfo startInfo = new ProcessStartInfo
         {
             FileName =
-                Path.Combine(Path.GetDirectoryName(Environment.ProcessPath),
+                Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) ,
                     $"ThirdParty/{IOperatingSystem.Current.Name}/ffmpeg/ffmpeg"),
             Arguments = $"-i \"{inputPath}\"",
             RedirectStandardError = true,
@@ -182,11 +182,11 @@ public class FFMpegRenderer : IAnimationRenderer
         return 24;
     }
 
-    private static void PrepareFFMpeg()
+    public static void PrepareFFMpeg()
     {
         string path = Path.Combine("ThirdParty", IOperatingSystem.Current.Name, "ffmpeg");
 
-        string binaryPath = Path.Combine(Path.GetDirectoryName(Environment.ProcessPath), path);
+        string binaryPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), path);
 
         GlobalFFOptions.Configure(new FFOptions() { BinaryFolder = binaryPath });
 
@@ -202,7 +202,7 @@ public class FFMpegRenderer : IAnimationRenderer
 
         if (!File.Exists(filePath))
         {
-            throw new FileNotFoundException("FFmpeg binary not found");
+            throw new FileNotFoundException("FFmpeg binary not found at: " + filePath);
         }
 
         try

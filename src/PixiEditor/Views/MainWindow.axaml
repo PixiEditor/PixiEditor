@@ -18,5 +18,7 @@
         Initialized="MainWindow_Initialized"
         localization:Translator.UseLanguageFlowDirection="True"
         Title="PixiEditor">
-    <views1:MainView />
+    <LayoutTransformControl x:Name="PrimaryScaleControl">
+        <views1:MainView />
+    </LayoutTransformControl>
 </Window>

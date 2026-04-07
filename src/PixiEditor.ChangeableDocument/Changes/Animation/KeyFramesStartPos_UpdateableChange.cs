@@ -93,7 +93,13 @@ internal class KeyFramesStartPos_UpdateableChange : InterruptableUpdateableChang
         ResetKeyFramesToOriginal(target);
 
         bool backwards = Delta < 0;
-        var keyFramesInOrder = !backwards ? sortedKeyFrames.AsEnumerable().Reverse() : sortedKeyFrames;
+        var keyFramesInOrder = !backwards ? sortedKeyFrames?.AsEnumerable().Reverse() : sortedKeyFrames;
+        if (keyFramesInOrder is null)
+        {
+            ignoreInUndo = false;
+            return changes;
+        }
+
         foreach (var guid in keyFramesInOrder)
         {
             for (int i = 0; i < Math.Abs(Delta); i++)
@@ -103,10 +109,13 @@ internal class KeyFramesStartPos_UpdateableChange : InterruptableUpdateableChang
             }
         }
 
-        foreach (var keyFrame in originalStartFrames)
+        if (originalStartFrames != null)
         {
-            target.AnimationData.TryFindKeyFrame(keyFrame.Key, out KeyFrame kf);
-            changes.Add(new KeyFrameLength_ChangeInfo(keyFrame.Key, kf.StartFrame, kf.Duration));
+            foreach (var keyFrame in originalStartFrames)
+            {
+                target.AnimationData.TryFindKeyFrame(keyFrame.Key, out KeyFrame kf);
+                changes.Add(new KeyFrameLength_ChangeInfo(keyFrame.Key, kf.StartFrame, kf.Duration));
+            }
         }
 
         ignoreInUndo = false;

@@ -30,7 +30,7 @@ public static class SerializationUtil
     public static object SerializeObject(object? value, SerializationConfig config,
         IReadOnlyList<SerializationFactory> allFactories)
     {
-        if (value is null)
+        if (value is null || EmptyContentWellKnownTypes.ContainsKey(value.GetType()))
         {
             return null;
         }

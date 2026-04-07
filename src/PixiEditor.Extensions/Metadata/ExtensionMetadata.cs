@@ -8,6 +8,8 @@ public class ExtensionMetadata
     public string UniqueName { get; init; }
     public string DisplayName { get; init; }
     public string Description { get; init; }
+    public string Image { get; init; }
+    public List<string> DependsOn { get; set; } = new();
     public Author? Author { get; init; }
     public Author? Publisher { get; init; }
     public Author[]? Contributors { get; init; }
@@ -17,4 +19,6 @@ public class ExtensionMetadata
     public LocalizationData? Localization { get; init; }
     [JsonConverter(typeof(JsonEnumFlagConverter<ExtensionPermissions>))]
     public ExtensionPermissions Permissions { get; init; }
+    public bool PublicResources { get; init; }
+    public List<string> AllowReadResourcesBy { get; init; }
 }

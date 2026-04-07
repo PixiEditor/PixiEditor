@@ -15,6 +15,7 @@ public interface IReadOnlyNodeGraph : ICacheable, IDisposable
     public void AddNode(IReadOnlyNode node);
     public void RemoveNode(IReadOnlyNode node);
     public bool TryTraverse(Action<IReadOnlyNode> action);
+    public bool TryTraverse(Func<IReadOnlyNode, bool> action);
     public bool TryTraverse(IReadOnlyNode end, Action<IReadOnlyNode> action);
     public void Execute(RenderContext context);
     public void Execute(IReadOnlyNode end, RenderContext context);

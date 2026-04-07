@@ -310,6 +310,11 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
 
     public bool IsTransforming => isInProgress;
 
+    public void OnTransformStarted()
+    {
+
+    }
+
     public void OnTransformChanged(ShapeCorners corners)
     {
         DoTransform(corners);

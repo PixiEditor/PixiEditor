@@ -16,6 +16,19 @@
           "ActionDisplay": "BRIGHTNESS_TOOL_ACTION_DISPLAY_CTRL"
         }
       ]
+    },
+    {
+      "ToolName": "Gradient",
+      "Brush": "/BrushTools/Gradient.pixi",
+      "Icon": "icon-gradient",
+      "ToolTip": "GRADIENT_TOOL_TOOLTIP",
+      "DefaultShortcut": "Shift+G",
+      "CommonToolType": "Gradient",
+      "ActionDisplays": [
+        {
+          "ActionDisplay": "GRADIENT_TOOL_ACTION_DISPLAY_DEFAULT"
+        }
+      ]
     }
   ],
   "ToolSets": [
@@ -42,7 +55,7 @@
         },
         "Select",
         {
-          "ToolName": "MagicWand",
+          "ToolName": "MagicWand"
         },
         "Lasso",
         {
@@ -66,7 +79,9 @@
         {
           "ToolName": "Eraser",
           "Settings": {
-            "DefaultToolSize": 1
+            "DefaultToolSize": 1,
+            "DefaultBrush": "Pixel Circle",
+            "AntiAliasing": false
           }
         },
         {
@@ -114,6 +129,9 @@
             "ExposeTolerance": true,
             "ExposeFillMode": true
           }
+        },
+        {
+          "ToolName": "Gradient"
         },
         {
           "ToolName": "RasterLine",

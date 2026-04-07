@@ -1,21 +1,27 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
+using Avalonia.Media;
 using CommunityToolkit.Mvvm.Input;
 using Drawie.Backend.Core;
-using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Text;
 using PixiEditor.ChangeableDocument.Actions.Generated;
+using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.Changeables.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
-using PixiEditor.Models.BrushEngine;
+using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.DocumentModels;
+using PixiEditor.Models.ExtensionServices;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Parser.Graph;
 using PixiEditor.ViewModels.BrushSystem;
+using PixiEditor.ViewModels.Nodes.Properties;
 using PixiEditor.ViewModels.Tools.Tools;
 using PixiEditor.ViewModels.Tools.ToolSettings.Settings;
 using PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
+using Brush = PixiEditor.Models.BrushEngine.Brush;
+using Color = Drawie.Backend.Core.ColorsImpl.Color;
+using IBrush = Avalonia.Media.IBrush;
 
 namespace PixiEditor.ViewModels.Document.Blackboard;
 
@@ -81,8 +87,8 @@ internal class VariableViewModel : ViewModelBase, IVariableHandler
 
         SettingView = CreateSettingFromType(this.type, unit, min, max);
 
-        SettingView.Label = name;
-        SettingView.Value = value;
+        SettingView.Label = SettingView.HasIcon ? null : name;
+        SettingView.Value = AdjustValueForSetting(value);
 
         SettingView.ValueChanged += (sender, args) =>
         {
@@ -117,9 +123,34 @@ internal class VariableViewModel : ViewModelBase, IVariableHandler
         });
     }
 
-    protected virtual object AdjustValueForBlackboard(object value)
+    protected object AdjustValueForBlackboard(object value)
     {
+        if (value is IBrush avaloniaBrush)
+        {
+            if(avaloniaBrush is SolidColorBrush solidColorBrush && Type == typeof(Color))
+            {
+                return solidColorBrush.Color.ToColor();
+            }
+
+            return avaloniaBrush.ToPaintable();
+        }
+
         return value is BrushViewModel brushVm ? brushVm.Brush : value;
+    }
+
+    protected object AdjustValueForSetting(object value)
+    {
+        if (value is Brush brush)
+        {
+            return new BrushViewModel(brush);
+        }
+
+        if (value is Color color)
+        {
+            return new SolidColorBrush(color.ToOpaqueMediaColor());
+        }
+
+        return value;
     }
 
     private Setting CreateSettingFromType(Type type, string? unit, double min, double max)
@@ -166,6 +197,11 @@ internal class VariableViewModel : ViewModelBase, IVariableHandler
             return new BrushSettingViewModel("Variable", "Variable");
         }
 
+        if (type.IsAssignableTo(typeof(DocumentReference)))
+        {
+            return new DocumentReferenceSettingViewModel("Variable");
+        }
+
         if (type == typeof(Paintable))
         {
             return new PaintableSettingViewModel("Variable", "Variable");
@@ -196,12 +232,7 @@ internal class VariableViewModel : ViewModelBase, IVariableHandler
 
     public void SetValueInternal(object newValue)
     {
-        if(SettingView is BrushSettingViewModel brushSetting && newValue is Brush brush)
-        {
-            newValue = new BrushViewModel(brush);
-        }
-
-        this.value = newValue;
+        this.value = AdjustValueForSetting(newValue);
         suppressValueChange = true;
 
         SettingView.Value = value;

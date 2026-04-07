@@ -10,12 +10,14 @@ internal class SelectRectangle_UpdateableChange : UpdateableChange
     private VectorPath? originalPath;
     private RectI rect;
     private readonly SelectionMode mode;
+    private readonly string renderOutput;
 
     [GenerateUpdateableChangeActions]
-    public SelectRectangle_UpdateableChange(RectI rect, SelectionMode mode)
+    public SelectRectangle_UpdateableChange(RectI rect, SelectionMode mode, string renderOutput)
     {
         this.rect = rect;
         this.mode = mode;
+        this.renderOutput = renderOutput;
     }
     public override bool InitializeAndValidate(Document target)
     {
@@ -34,7 +36,13 @@ internal class SelectRectangle_UpdateableChange : UpdateableChange
         using var rectPath = new VectorPath() { FillType = PathFillType.EvenOdd };
         if (!rect.IsZeroArea)
         {
-            var constrained = rect.Intersect(new RectI(VecI.Zero, target.Size));
+            VecI targetSize = target.Size;
+            if (!string.IsNullOrEmpty(renderOutput))
+            {
+                targetSize = target.GetRenderOutputSize(renderOutput);
+            }
+
+            var constrained = rect.Intersect(new RectI(VecI.Zero, targetSize));
             rectPath.MoveTo(constrained.TopLeft);
             rectPath.LineTo(constrained.TopRight);
             rectPath.LineTo(constrained.BottomRight);

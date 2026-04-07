@@ -20,9 +20,10 @@ internal class FloodFill_Change : Change
     private int frame;
     private float tolerance;
     private FloodFillMode fillMode;
+    private bool contiguous;
 
     [GenerateMakeChangeAction]
-    public FloodFill_Change(Guid memberGuid, VecI pos, Color color, bool referenceAll, float tolerance, FloodFillMode fillMode, bool drawOnMask, int frame)
+    public FloodFill_Change(Guid memberGuid, VecI pos, Color color, bool referenceAll, float tolerance, FloodFillMode fillMode, bool drawOnMask, bool contiguous, int frame)
     {
         this.memberGuid = memberGuid;
         this.pos = pos;
@@ -32,6 +33,7 @@ internal class FloodFill_Change : Change
         this.frame = frame;
         this.tolerance = tolerance;
         this.fillMode = fillMode;
+        this.contiguous = contiguous;
     }
 
     public override bool InitializeAndValidate(Document target)
@@ -53,7 +55,7 @@ internal class FloodFill_Change : Change
         else
             membersToReference.Add(memberGuid);
         bool lockTransparency = target.FindMember(memberGuid) is ImageLayerNode { LockTransparency: true };
-        var floodFilledChunks = FloodFillHelper.FloodFill(membersToReference, target, selection, pos, color, tolerance, frame, lockTransparency, fillMode);
+        var floodFilledChunks = FloodFillHelper.FloodFill(membersToReference, target, selection, pos, color, tolerance, frame, lockTransparency, fillMode, contiguous, null);
         if (floodFilledChunks.Count == 0)
         {
             ignoreInUndo = true;

@@ -30,6 +30,7 @@ using PixiEditor.Models.Serialization;
 using PixiEditor.Models.Serialization.Factories;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
+using PixiEditor.Models.BrushEngine;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Collections;
 using PixiEditor.Parser.Graph;
@@ -579,6 +580,12 @@ internal partial class DocumentViewModel
 
         foreach (var prop in blackboard.Variables)
         {
+            if (prop.Value.Value is Brush br && br.Document.AccessInternalReadOnlyDocument().Blackboard == blackboard)
+            {
+                // Prevent stack overflow
+                 continue;
+            }
+
             variables.Add(new Variable()
             {
                 Name = prop.Value.Name,
@@ -705,7 +712,7 @@ internal partial class DocumentViewModel
         Dictionary<Guid, int> idMap, Dictionary<Guid, int> keyFrameIds)
     {
         IReadOnlyChunkyImage image = rasterKeyFrame.GetTargetImage(graph.AllNodes);
-        var bounds = image.FindChunkAlignedMostUpToDateBounds();
+        var bounds = image?.FindChunkAlignedMostUpToDateBounds();
 
         DrawingSurface surface = null;
 

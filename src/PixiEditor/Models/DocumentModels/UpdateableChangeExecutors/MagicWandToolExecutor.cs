@@ -7,20 +7,24 @@ using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
+using PixiEditor.ViewModels.SubViewModels;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
 internal class MagicWandToolExecutor : UpdateableChangeExecutor
 {
-    private bool considerAllLayers;
+    private bool considerRenderOutput;
     private bool drawOnMask;
     private List<Guid> memberGuids;
     private SelectionMode mode;
     private float tolerance;
+    private bool contiguous;
+    private string renderOutput;
 
     public override ExecutionState Start()
     {
         var magicWand = GetHandler<IMagicWandToolHandler>();
+        renderOutput = GetHandler<WindowViewModel>().LastActiveViewport?.RenderOutputName ?? string.Empty;
         var members = document!.ExtractSelectedLayers(true).ToList();
 
         if (magicWand is null || members.Count == 0)
@@ -28,11 +32,13 @@ internal class MagicWandToolExecutor : UpdateableChangeExecutor
 
         mode = magicWand.ResultingSelectionMode;
         memberGuids = members;
-        considerAllLayers = magicWand.DocumentScope == DocumentScope.Canvas;
-        if (considerAllLayers)
-            memberGuids = document!.StructureHelper.GetAllLayers().Select(x => x.Id).ToList();
+        considerRenderOutput = magicWand.DocumentScope == DocumentScope.Canvas;
+        if (considerRenderOutput)
+            memberGuids = null;
+
         var pos = controller!.LastPixelPosition;
         tolerance = (float)magicWand.Tolerance;
+        contiguous = magicWand.Contiguous;
 
         AddUpdateAction(pos);
 
@@ -57,7 +63,7 @@ internal class MagicWandToolExecutor : UpdateableChangeExecutor
 
     private void AddUpdateAction(VecI pos)
     {
-        var action = new MagicWand_Action(memberGuids, pos, mode, tolerance, document!.AnimationHandler.ActiveFrameBindable);
+        var action = new MagicWand_Action(memberGuids, pos, mode, tolerance, document!.AnimationHandler.ActiveFrameBindable, contiguous, renderOutput);
         internals!.ActionAccumulator.AddActions(action);
     }
     private void AddFinishAction()

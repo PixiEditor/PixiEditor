@@ -7,6 +7,7 @@
              xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
              xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
              xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+             xmlns:ui1="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="subViewModels:UserViewModel"
              x:Class="PixiEditor.Views.Auth.LoginForm">
@@ -15,62 +16,56 @@
     </Design.DataContext>
 
     <Panel>
-        <Panel.Resources>
-            <LinearGradientBrush
-                StartPoint="0%, 84%"
-                EndPoint="100%, 34%"
-                x:Key="FoundersGradientBrush">
-                <GradientStops>
-                    <GradientStop Offset="0" Color="#832ED7" />
-                    <GradientStop Offset="0.24" Color="#9D42F8" />
-                    <GradientStop Offset="0.48" Color="#DCB8FF" />
-                    <GradientStop Offset="0.72" Color="#AB56FF" />
-                    <GradientStop Offset="0.96" Color="#762BC0" />
-                </GradientStops>
-            </LinearGradientBrush>
-            <LinearGradientBrush
-                StartPoint="0%, 84%"
-                EndPoint="100%, 34%"
-                x:Key="FoundersGradientBrushShifted">
-                <GradientStops>
-                    <GradientStop Offset="0" Color="#832ED7" />
-                    <GradientStop Offset="0.25" Color="#DCB8FF" />
-                    <GradientStop Offset="0.75" Color="#DCB8FF" />
-                    <GradientStop Offset="1" Color="#762BC0" />
-                </GradientStops>
-            </LinearGradientBrush>
-        </Panel.Resources>
-        <Panel.Styles>
-            <Style Selector="Button.foundersButton">
-                <Setter Property="BorderBrush" Value="{StaticResource FoundersGradientBrush}" />
-                <Setter Property="Foreground" Value="{StaticResource FoundersGradientBrush}" />
-                <Setter Property="Transitions">
-                    <Transitions>
-                        <BrushTransition Property="BorderBrush" Delay="0" Duration="0:0:0.2" Easing="SineEaseOut" />
-                        <BrushTransition Property="Foreground" Delay="0" Duration="0:0:0.2" Easing="SineEaseOut" />
-                    </Transitions>
-                </Setter>
-            </Style>
-            <Style Selector="Button.foundersButton:pointerover">
-                <Setter Property="BorderBrush" Value="{StaticResource FoundersGradientBrushShifted}" />
-                <Setter Property="Foreground" Value="{StaticResource FoundersGradientBrushShifted}" />
-            </Style>
-        </Panel.Styles>
         <StackPanel IsVisible="{Binding !IsLoggedIn}" Name="RootPanel" VerticalAlignment="Top" Spacing="12">
             <TextBox Text="{Binding CurrentEmail, Mode=TwoWay}" Watermark="{ui:Translate Key=ENTER_EMAIL}" Name="Email"
                      IsVisible="{Binding !IsLoggedIn}" />
-            <Button Name="LoginButton"
+
+            <StackPanel Spacing="5" Orientation="Vertical" IsVisible="{Binding RegisterMode}">
+                <StackPanel
+                    Orientation="Horizontal" Spacing="5">
+                    <CheckBox VerticalAlignment="Center" IsChecked="{Binding AgreementChecked, Mode=TwoWay}" />
+                    <TextBlock Text="{ui:Translate Key=AGREE_TERMS}" />
+                    <TextBlock ui1:Hyperlink.Url="https://pixieditor.net/docs/terms-of-service"
+                               ui:Translator.Key="TERMS_OF_SERVICE" />
+                    <TextBlock ui:Translator.Key="AND" />
+                    <TextBlock ui1:Hyperlink.Url="https://pixieditor.net/docs/privacy-policy"
+                               ui:Translator.Key="PRIVACY_POLICY" />
+                </StackPanel>
+
+                <CheckBox VerticalAlignment="Center" IsChecked="{Binding SignInToNewsletterChecked, Mode=TwoWay}"
+                          ui:Translator.Key="SIGN_IN_TO_NEWSLETTER"/>
+
+            </StackPanel>
+
+            <Panel IsVisible="{Binding !RegisterMode}">
+                <Button Name="LoginButton"
+                        IsDefault="True"
+                        Command="{Binding RequestLoginCommand}"
+                        CommandParameter="{Binding ElementName=Email, Path=Text}">
+                    <Button.IsVisible>
+                        <MultiBinding Converter="{converters:OneTrueConverter}">
+                            <Binding Path="NotLoggedIn" />
+                            <Binding Path="!EmailEqualsLastSentMail" />
+                        </MultiBinding>
+                    </Button.IsVisible>
+                    <TextBlock>
+                        <Run ui:Translator.Key="LOGIN_LINK" />
+                        <Run Text="{Binding TimeToEndTimeoutString}" />
+                    </TextBlock>
+                </Button>
+            </Panel>
+            <Button Name="RegisterButton"
                     IsDefault="True"
-                    Command="{Binding RequestLoginCommand}"
+                    Command="{Binding RegisterCommand}"
                     CommandParameter="{Binding ElementName=Email, Path=Text}">
                 <Button.IsVisible>
-                    <MultiBinding Converter="{converters:OneTrueConverter}">
-                        <Binding Path="NotLoggedIn" />
-                        <Binding Path="!EmailEqualsLastSentMail" />
+                    <MultiBinding Converter="{converters:AllTrueConverter}">
+                        <Binding Path="!IsLoggedIn" />
+                        <Binding Path="RegisterMode" />
                     </MultiBinding>
                 </Button.IsVisible>
                 <TextBlock>
-                    <Run ui:Translator.Key="LOGIN_LINK" />
+                    <Run ui:Translator.Key="REGISTER" />
                     <Run Text="{Binding TimeToEndTimeoutString}" />
                 </TextBlock>
             </Button>
@@ -79,6 +74,7 @@
                 <Button.IsVisible>
                     <MultiBinding Converter="{converters:AllTrueConverter}">
                         <Binding Path="WaitingForActivation" />
+                        <Binding Path="!RegisterMode" />
                         <Binding Path="EmailEqualsLastSentMail" />
                     </MultiBinding>
                 </Button.IsVisible>
@@ -115,14 +111,10 @@
                 <Run ui:Translator.LocalizedString="{Binding LastError}" />
             </TextBlock>
 
-            <Separator />
-            <TextBlock HorizontalAlignment="Center" Classes="subtext" ui:Translator.Key="NOT_FOUNDER_YET" />
-            <Button ui:Translator.Key="BECOME_A_FOUNDER" Background="Transparent"
-                    Command="{xaml:Command Name=PixiEditor.Links.OpenHyperlink, UseProvided=True}"
-                    CommandParameter="{Binding FoundersBundleLink}"
-                    HorizontalAlignment="Center"
-                    Classes="foundersButton"
-                    Padding="8, 4" />
+            <ToggleButton ui:Translator.Key="{Binding ActiveModeKey}"
+                          Background="Transparent" BorderThickness="0"
+
+                          IsChecked="{Binding RegisterMode, Mode=TwoWay}" />
         </StackPanel>
         <DockPanel LastChildFill="True"
                    Name="LoggedInPanel"

@@ -11,6 +11,7 @@ using PixiEditor.Extensions.CommonApi.IO;
 using PixiEditor.Extensions.CommonApi.Logging;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Extensions.CommonApi.Palettes.Parsers;
+using PixiEditor.Extensions.CommonApi.Tools;
 using PixiEditor.Extensions.CommonApi.Ui;
 using PixiEditor.Extensions.CommonApi.User;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
@@ -18,6 +19,9 @@ using PixiEditor.Extensions.CommonApi.Windowing;
 using PixiEditor.Extensions.FlyUI;
 using PixiEditor.Extensions.IO;
 using PixiEditor.Extensions.Runtime;
+using PixiEditor.Extensions.WasmRuntime;
+using PixiEditor.Models;
+using PixiEditor.Models.AdvisorSystem;
 using PixiEditor.Models.AnalyticsAPI;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Controllers;
@@ -55,7 +59,6 @@ internal static class ServiceCollectionHelpers
     {
         return collection
             .AddSingleton<ViewModels_ViewModelMain>()
-            .AddSingleton<IPreferences, PreferencesSettings>()
             .AddSingleton<ILocalizationProvider, LocalizationProvider>(x => new LocalizationProvider(extensionLoader))
 
             // View Models
@@ -77,6 +80,7 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<AutosaveViewModel>()
             .AddSingleton<UserViewModel>()
             .AddSingleton<BrushesViewModel>()
+            .AddSingleton<AdvicesViewModel>()
             .AddSingleton<IColorsHandler, ColorsViewModel>(x => x.GetRequiredService<ColorsViewModel>())
             .AddSingleton<IWindowHandler, WindowViewModel>(x => x.GetRequiredService<WindowViewModel>())
             .AddSingleton<RegistryViewModel>()
@@ -84,6 +88,7 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<DebugViewModel>()
             .AddSingleton<SearchViewModel>()
             .AddSingleton<ISearchHandler, SearchViewModel>(x => x.GetRequiredService<SearchViewModel>())
+            .AddSingleton<IAdvisor, Advisor>()
             .AddSingleton<AdditionalContentViewModel>()
             .AddSingleton<LayoutManager>()
             .AddSingleton<LayoutViewModel>()
@@ -245,5 +250,7 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<ILogger, ConsoleLogger>()
             .AddSingleton<IVisualTreeProvider, VisualTreeProvider>()
             .AddSingleton<IUserDataProvider, UserDataProvider>()
+            .AddSingleton<IToolsProvider, ToolsProvider>()
+            .AddSingleton<IExtensionListProvider>(x => loader)
             .AddSingleton<IFileSystemProvider, FileSystemProvider>();
 }

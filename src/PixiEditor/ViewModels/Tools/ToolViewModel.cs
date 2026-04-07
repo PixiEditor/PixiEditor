@@ -10,7 +10,9 @@ using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.Input;
 using Drawie.Numerics;
+using PixiEditor.Extensions.WasmRuntime.Utilities;
 using PixiEditor.Helpers;
+using PixiEditor.UI.Common.Fonts;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Tools.ToolSettings.Settings;
 using PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
@@ -31,6 +33,8 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
     public virtual LocalizedString DisplayName => new LocalizedString(ToolNameLocalizationKey);
 
     public virtual string DefaultIcon => PixiPerfectIcons.Placeholder;
+
+    public ExtensionResourceStorage? ResourceStorage { get; set; }
 
     public VectorPath? FinalBrushShape
     {
@@ -107,7 +111,7 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
     public IToolbar Toolbar { get; set; } = new EmptyToolbar();
 
     public Dictionary<IToolSetHandler, Dictionary<string, object>> ToolSetSettings { get; } = new();
-    public bool IsPixiPerfectIcon => !Uri.TryCreate(IconToUse, UriKind.Absolute, out _);
+    public bool IsPixiPerfectIcon => PixiPerfectIconExtensions.IsIcon(IconToUse);
 
     internal ToolViewModel()
     {

@@ -43,6 +43,76 @@ internal class CommandApi : ApiGroupHandler
         }
     }
 
+    [ApiFunction("register_command_str_param")]
+    internal void RegisterCommandString(Span<byte> commandMetadata)
+    {
+        CommandModule commandModule = Extension.GetModule<CommandModule>();
+
+        using MemoryStream stream = new();
+        stream.Write(commandMetadata);
+        stream.Seek(0, SeekOrigin.Begin);
+        CommandMetadata metadata = Serializer.Deserialize<CommandMetadata>(stream);
+
+        string originalName = metadata.UniqueName;
+
+        void InvokeCommandInvoked(string param)
+        {
+            commandModule.InvokeCommandInvoked(originalName, param);
+        }
+
+        try
+        {
+            string prefixed =
+                PrefixedNameUtility.ToCommandUniqueName(Extension.Metadata.UniqueName, metadata.UniqueName, false);
+            metadata.UniqueName = prefixed;
+
+            string localizedDisplayKey = LocalizedString.FirstValidKey($"{Extension.Metadata.UniqueName}:{metadata.DisplayName}", metadata.DisplayName);
+            metadata.DisplayName = localizedDisplayKey;
+            string localizedDescriptionKey = LocalizedString.FirstValidKey($"{Extension.Metadata.UniqueName}:{metadata.Description}", metadata.Description);
+            metadata.Description = localizedDescriptionKey;
+            Api.Commands.RegisterCommand(metadata, InvokeCommandInvoked);
+        }
+        catch (ArgumentException ex)
+        {
+            Api.Logger.LogError(ex.Message);
+        }
+    }
+
+    [ApiFunction("register_command_bytes_param")]
+    internal void RegisterCommandBytes(Span<byte> commandMetadata)
+    {
+        CommandModule commandModule = Extension.GetModule<CommandModule>();
+
+        using MemoryStream stream = new();
+        stream.Write(commandMetadata);
+        stream.Seek(0, SeekOrigin.Begin);
+        CommandMetadata metadata = Serializer.Deserialize<CommandMetadata>(stream);
+
+        string originalName = metadata.UniqueName;
+
+        void InvokeCommandInvoked(byte[] param)
+        {
+            commandModule.InvokeCommandInvoked(originalName, param);
+        }
+
+        try
+        {
+            string prefixed =
+                PrefixedNameUtility.ToCommandUniqueName(Extension.Metadata.UniqueName, metadata.UniqueName, false);
+            metadata.UniqueName = prefixed;
+
+            string localizedDisplayKey = LocalizedString.FirstValidKey($"{Extension.Metadata.UniqueName}:{metadata.DisplayName}", metadata.DisplayName);
+            metadata.DisplayName = localizedDisplayKey;
+            string localizedDescriptionKey = LocalizedString.FirstValidKey($"{Extension.Metadata.UniqueName}:{metadata.Description}", metadata.Description);
+            metadata.Description = localizedDescriptionKey;
+            Api.Commands.RegisterCommand(metadata, InvokeCommandInvoked);
+        }
+        catch (ArgumentException ex)
+        {
+            Api.Logger.LogError(ex.Message);
+        }
+    }
+
     [ApiFunction("command_exists")]
     internal bool CommandExists(string commandName)
     {

@@ -43,6 +43,7 @@ public class DocumentChangeTracker : IDisposable
         if (running)
             throw new InvalidOperationException("Something is currently being processed");
 
+        using var _ = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
         if (activeUpdateableChange != null)
         {
             try
@@ -89,7 +90,7 @@ public class DocumentChangeTracker : IDisposable
 
     public DocumentChangeTracker(IReadOnlyDocument doc)
     {
-        if(doc is not Document actDoc)
+        if (doc is not Document actDoc)
             throw new ArgumentException("Document must be of type Document", nameof(doc));
         document = actDoc;
     }
@@ -285,7 +286,6 @@ public class DocumentChangeTracker : IDisposable
         }
 
         var info = change.Apply(document, true, out ignoreInUndo);
-
         info.Switch(
             static (None _) => { },
             (IChangeInfo changeInfo) => changeInfos.Add(changeInfo),
@@ -440,10 +440,23 @@ public class DocumentChangeTracker : IDisposable
             throw new ObjectDisposedException(nameof(DocumentChangeTracker));
         if (running)
             throw new InvalidOperationException("Already currently processing");
-        running = true;
-        var result = await DrawingBackendApi.Current.RenderingDispatcher.InvokeAsync(() => ProcessActionList(actions));
-        running = false;
-        return result;
+        try
+        {
+            running = true;
+            var result =
+                await DrawingBackendApi.Current.RenderingDispatcher.InvokeAsync(() => ProcessActionList(actions));
+            running = false;
+            return result;
+        }
+        catch (Exception e)
+        {
+            Trace.WriteLine($"Exception while processing actions: {e}");
+            return new List<IChangeInfo?>();
+        }
+        finally
+        {
+            running = false;
+        }
     }
 
     public List<IChangeInfo?> ProcessActionsSync(IReadOnlyList<(ActionSource, IAction)> actions)
@@ -455,6 +468,7 @@ public class DocumentChangeTracker : IDisposable
         running = true;
         try
         {
+            using var _ = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
             var result = ProcessActionList(actions);
             return result;
         }

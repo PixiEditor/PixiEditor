@@ -241,6 +241,7 @@ internal class AffectedAreasGatherer
             {
                 AddToImagePreviews(info.Id);
                 AddToNodePreviews(info.Id);
+                AddAllKeyFrames();
             }
         }
         else

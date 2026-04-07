@@ -147,8 +147,7 @@ internal partial class BrushItem : UserControl
         {
             previewImage?.Dispose();
             previewImage =
-                new ChunkyImage(new VecI(BrushOutputNode.StrokePreviewSizeX, BrushOutputNode.StrokePreviewSizeY),
-                    ColorSpace.CreateSrgb());
+                new ChunkyImage(new VecI(BrushOutputNode.StrokePreviewSizeX, BrushOutputNode.StrokePreviewSizeY));
         }
 
         DrawingStrokeTexture = previewTexture;
