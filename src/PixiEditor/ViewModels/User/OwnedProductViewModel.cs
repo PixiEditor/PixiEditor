@@ -1,12 +1,33 @@
 using System.Windows.Input;
+using AsyncImageLoader;
+using Avalonia.Media;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using PixiEditor.Extensions.FlyUI.Converters;
+using PixiEditor.Extensions.IO;
 using PixiEditor.IdentityProvider;
+using PixiEditor.Models.Dialogs;
+using PixiEditor.UI.Common.Fonts;
+using PixiEditor.UI.Common.Localization;
+using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.ViewModels.User;
 
 public class OwnedProductViewModel : ObservableObject
 {
+    private IResourceStorage? storage;
+
+    public IResourceStorage? ResourceStorage
+    {
+        get => storage;
+        set
+        {
+            storage = value;
+            UpdateImageSource();
+        }
+    }
+
     public ProductData ProductData { get; }
 
     private bool isInstalled;
@@ -34,19 +55,71 @@ public class OwnedProductViewModel : ObservableObject
     }
 
     private bool restartRequired;
+
     public bool RestartRequired
     {
         get => restartRequired;
         set => SetProperty(ref restartRequired, value);
     }
 
-    public IAsyncRelayCommand InstallCommand { get; }
+    private bool isUninstalling;
 
-    public OwnedProductViewModel(ProductData productData, bool isInstalled, string? installedVersion,
-        IAsyncRelayCommand<string> installContentCommand, Func<string, bool> isInstalledFunc)
+    public bool IsUninstalling
+    {
+        get => isUninstalling;
+        set => SetProperty(ref isUninstalling, value);
+    }
+
+    private bool isEnabled;
+
+    public bool IsEnabled
+    {
+        get => isEnabled;
+        set => SetProperty(ref isEnabled, value);
+    }
+
+    private bool isLoaded;
+
+    public bool IsLoaded
+    {
+        get => isLoaded;
+        set => SetProperty(ref isLoaded, value);
+    }
+
+    private bool canBeEnabled;
+
+    public bool CanBeEnabled
+    {
+        get => canBeEnabled;
+        set => SetProperty(ref canBeEnabled, value);
+    }
+
+    public IAsyncRelayCommand InstallCommand { get; }
+    public IAsyncRelayCommand UpdateCommand { get; }
+    public IAsyncRelayCommand UninstallCommand { get; }
+    public IAsyncRelayCommand ToggleEnabledCommand { get; }
+
+    public IImage? ImageSource { get; set; }
+
+    public LocalizedString DependenciesMissingText => new LocalizedString(
+        "EXTENSIONS_WINDOW_DEPENDENCIES_MISSING_TOOLTIP",
+        MissingDeps != null ? string.Join("\n- ", MissingDeps) : string.Empty);
+
+    public string[]? MissingDeps { get; set; }
+
+
+    public OwnedProductViewModel(ProductData productData, bool isInstalled, string? installedVersion, bool isEnabled,
+        bool isLoaded,
+        IAsyncRelayCommand<string> installContentCommand, IAsyncRelayCommand<string> uninstallContentCommand,
+        IRelayCommand<string> enableContentCommand, IRelayCommand<string> disableContentCommand,
+        IAsyncRelayCommand<string> updateContentCommand,
+        Func<string, bool> isInstalledFunc, Func<string, (bool, string[])> areDependenciesReachableFunc,
+        Func<string, int> countLoadedDependenciesFunc, IResourceStorage? storage = null)
     {
         ProductData = productData;
         IsInstalled = isInstalled;
+        IsLoaded = isLoaded;
+        this.storage = storage;
         if (productData.LatestVersion != null && installedVersion != null)
         {
             UpdateAvailable = productData.LatestVersion != installedVersion;
@@ -56,23 +129,160 @@ public class OwnedProductViewModel : ObservableObject
             UpdateAvailable = false;
         }
 
+        IsEnabled = isEnabled;
+        var deps = areDependenciesReachableFunc(ProductData.Id);
+        CanBeEnabled = deps.Item1;
+        MissingDeps = deps.Item2;
+
         InstallCommand = new AsyncRelayCommand(
             async () =>
             {
                 IsInstalling = true;
-                bool wasUpdating = UpdateAvailable;
-                UpdateAvailable = false;
                 RestartRequired = false;
                 await installContentCommand.ExecuteAsync(ProductData.Id);
                 IsInstalling = false;
-                if (wasUpdating)
+
+                IsLoaded = true;
+                IsEnabled = true;
+
+                IsInstalled = isInstalledFunc(ProductData.Id);
+
+                UninstallCommand.NotifyCanExecuteChanged();
+                ToggleEnabledCommand.NotifyCanExecuteChanged();
+            }, () => !IsInstalled && !IsInstalling);
+
+        UpdateCommand = new AsyncRelayCommand(
+            async () =>
+            {
+                IsInstalling = true;
+                UpdateAvailable = false;
+                RestartRequired = false;
+                await updateContentCommand.ExecuteAsync(ProductData.Id);
+                IsInstalling = false;
+
+                IsLoaded = true;
+                IsEnabled = true;
+                RestartRequired = true;
+            }, () => UpdateAvailable);
+
+        UninstallCommand = new AsyncRelayCommand(
+            async () =>
+            {
+                IsUninstalling = true;
+                RestartRequired = false;
+                bool wasEnabled = IsEnabled;
+
+                int dependentCount = countLoadedDependenciesFunc(ProductData.Id);
+                if (dependentCount > 0)
                 {
-                    RestartRequired = true;
+                    var result = await ConfirmationDialog.Show(
+                        new LocalizedString("EXTENSIONS_WINDOW_DISABLE_CONFIRMATION_MESSAGE", dependentCount),
+                        "EXTENSIONS_WINDOW_UNINSTALL_CONFIRMATION_TITLE");
+
+                    if (result != ConfirmationType.Yes)
+                    {
+                        IsUninstalling = false;
+                        return;
+                    }
                 }
                 else
                 {
-                    IsInstalled = isInstalledFunc(ProductData.Id);
+                    var result = await ConfirmationDialog.Show(
+                        new LocalizedString("EXTENSIONS_WINDOW_UNINSTALL_CONFIRMATION_MESSAGE"),
+                        "EXTENSIONS_WINDOW_UNINSTALL_CONFIRMATION_TITLE");
+
+                    if (result != ConfirmationType.Yes)
+                    {
+                        IsUninstalling = false;
+                        return;
+                    }
                 }
-            }, () => !IsInstalled && !IsInstalling || UpdateAvailable);
+
+                await uninstallContentCommand.ExecuteAsync(ProductData.Id);
+
+                IsUninstalling = false;
+                IsInstalled = false;
+                UpdateAvailable = false;
+                RestartRequired = wasEnabled;
+                InstallCommand.NotifyCanExecuteChanged();
+                ToggleEnabledCommand.NotifyCanExecuteChanged();
+            },
+            () => IsInstalled && !IsInstalling && !IsUninstalling
+        );
+
+        ToggleEnabledCommand = new AsyncRelayCommand<bool>(
+            async (isOn) =>
+            {
+                if (isOn)
+                {
+                    var deps = areDependenciesReachableFunc(ProductData.Id);
+                    CanBeEnabled = deps.Item1;
+                    MissingDeps = deps.Item2;
+
+                    if (CanBeEnabled)
+                    {
+                        IsEnabled = true;
+                        if (!IsLoaded)
+                        {
+                            enableContentCommand.Execute(ProductData.Id);
+                            IsLoaded = true;
+                        }
+                    }
+                }
+                else
+                {
+                    int dependentCount = countLoadedDependenciesFunc(ProductData.Id);
+                    if (dependentCount > 0)
+                    {
+                        var result = await ConfirmationDialog.Show(
+                            new LocalizedString("EXTENSIONS_WINDOW_DISABLE_CONFIRMATION_MESSAGE", dependentCount),
+                            "EXTENSIONS_WINDOW_DISABLE_CONFIRMATION_TITLE");
+
+                        if (result != ConfirmationType.Yes)
+                        {
+                            IsEnabled = true;
+                            return;
+                        }
+                    }
+
+                    IsEnabled = false;
+                    disableContentCommand.Execute(ProductData.Id);
+                }
+            },
+            (isOn) => IsInstalled && !IsInstalling && !IsUninstalling
+        );
+
+        UpdateImageSource();
+    }
+
+    private void UpdateImageSource()
+    {
+        if (string.IsNullOrEmpty(ProductData.ImageUrl))
+        {
+            return;
+        }
+
+        ImageSource = ResourceStorage != null && ProductData.ImageUrl != null
+            ? PathToImgSourceConverter.GetImageFromPath(ProductData.ImageUrl, ResourceStorage)
+            : null;
+
+        OnPropertyChanged(nameof(ImageSource));
+        if (ResourceStorage == null)
+        {
+            Task.Run(async () =>
+            {
+                return await ImageLoader.AsyncImageLoader.ProvideImageAsync(ProductData.ImageUrl);
+            }).ContinueWith(t =>
+            {
+                if (t.IsCompletedSuccessfully)
+                {
+                    Dispatcher.UIThread.Post(() =>
+                    {
+                        ImageSource = t.Result;
+                        OnPropertyChanged(nameof(ImageSource));
+                    });
+                }
+            });
+        }
     }
 }

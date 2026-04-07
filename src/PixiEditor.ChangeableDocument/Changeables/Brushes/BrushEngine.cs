@@ -362,7 +362,7 @@ public class BrushEngine : IDisposable
         Paintable stroke,
         bool snapToPixels, bool canReuseStamps, Matrix3X3 transform)
     {
-        var path = vectorShape.ToPath(true);
+        using var path = vectorShape.ToPath(true);
         if (path == null)
         {
             return false;

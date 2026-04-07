@@ -236,6 +236,7 @@ internal class BrushShapeOverlay : Overlay
     {
         if (BrushData.BrushGraph == null) return;
 
+        BrushShape?.Dispose();
         BrushShape = engine.EvaluateShape(pos, BrushData);
     }
 

@@ -154,7 +154,9 @@ internal static class ClipboardController
 
         DataTransfer data = new DataTransfer();
 
-        RectD copyArea = new RectD(VecD.Zero, document.SizeBindable);
+        var renderOutputSize = document.GetRenderOutputSize(output);
+
+        RectD copyArea = new RectD(VecD.Zero, renderOutputSize);
 
         if (!document.SelectionPathBindable.IsEmpty)
         {

@@ -26,14 +26,14 @@ public static class FloodFillHelper
     private static readonly VecI Right = new VecI(1, 0);
 
     internal static FloodFillChunkCache CreateCache(HashSet<Guid> membersToFloodFill, IReadOnlyDocument document,
-        int frame)
+        int frame, string renderOutput)
     {
-        if (membersToFloodFill.Count == 1)
+        if (membersToFloodFill?.Count == 1)
         {
             Guid guid = membersToFloodFill.First();
             var member = document.FindMemberOrThrow(guid);
             if (member is IReadOnlyFolderNode)
-                return new FloodFillChunkCache(membersToFloodFill, document, frame);
+                return new FloodFillChunkCache(membersToFloodFill, document, renderOutput, frame);
 
             if (member is IReadOnlyImageNode rasterLayer)
             {
@@ -41,7 +41,7 @@ public static class FloodFillHelper
             }
         }
 
-        return new FloodFillChunkCache(membersToFloodFill, document, frame);
+        return new FloodFillChunkCache(membersToFloodFill, document, renderOutput, frame);
     }
 
     public static Dictionary<VecI, Chunk> FloodFill(
@@ -51,17 +51,23 @@ public static class FloodFillHelper
         VecI startingPos,
         Color drawingColor,
         float tolerance,
-        int frame, bool lockTransparency, FloodFillMode fillMode, bool contiguous)
+        int frame, bool lockTransparency, FloodFillMode fillMode, bool contiguous, string renderOutput)
     {
         if (selection is not null && !selection.Contains(startingPos.X + 0.5f, startingPos.Y + 0.5f))
             return new();
 
         int chunkSize = ChunkResolution.Full.PixelSize();
+        VecI targetSize = document.Size;
+        if(!string.IsNullOrEmpty(renderOutput))
+        {
+            targetSize = document.GetRenderOutputSize(renderOutput);
+        }
 
         using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
 
-        FloodFillChunkCache cache = CreateCache(membersToFloodFill, document, frame);
+        FloodFillChunkCache cache = CreateCache(membersToFloodFill, document, frame, renderOutput);
 
+        List<Chunk> usedChunks = new();
         VecI initChunkPos = OperationHelper.GetChunkPos(startingPos, chunkSize);
         VecI imageSizeInChunks = (VecI)(document.Size / (double)chunkSize).Ceiling();
         VecI initPosOnChunk = startingPos - initChunkPos * chunkSize;
@@ -71,6 +77,9 @@ public static class FloodFillHelper
             static (EmptyChunk _) => Colors.Transparent
         );
 
+        if(chunkAtPos.IsT0)
+            usedChunks.Add(chunkAtPos.AsT0);
+
         var fixedColor = drawingColor;
 
         var uLongColor = fixedColor.ToULong();
@@ -78,14 +87,18 @@ public static class FloodFillHelper
 
         if ((colorSpaceCorrectedColor.A == 0 && fillMode == FloodFillMode.Overlay) ||
             (colorToReplace == colorSpaceCorrectedColor && fillMode == FloodFillMode.Replace))
-            return new();
-
-        if (colorToReplace.A == 0 && lockTransparency)
         {
+            cache.Dispose();
             return new();
         }
 
-        RectI globalSelectionBounds = (RectI?)selection?.TightBounds ?? new RectI(VecI.Zero, document.Size);
+        if (colorToReplace.A == 0 && lockTransparency)
+        {
+            cache.Dispose();
+            return new();
+        }
+
+        RectI globalSelectionBounds = (RectI?)selection?.TightBounds ?? new RectI(VecI.Zero, targetSize);
 
         // Pre-multiplies the color and convert it to floats. Since floats are imprecise, a range is used.
         // Used for faster pixel checking
@@ -126,6 +139,7 @@ public static class FloodFillHelper
             if (!drawingChunks.ContainsKey(chunkPos))
             {
                 var chunk = Chunk.Create(ColorSpace.CreateSrgb());
+                usedChunks.Add(chunk);
 
                 if (fillMode == FloodFillMode.Replace)
                 {
@@ -196,6 +210,7 @@ public static class FloodFillHelper
 
             // use regular flood fill for chunks that have something in them
             var reallyReferenceChunk = referenceChunk.AsT0;
+            usedChunks.Add(reallyReferenceChunk);
             var maybeArray = FloodFillChunk(
                 reallyReferenceChunk,
                 drawingChunk,
@@ -225,6 +240,18 @@ public static class FloodFillHelper
                         positionsToFloodFill.Push((new(chunkPos.X + 1, chunkPos.Y), new(0, i)));
                 }
             }
+        }
+
+        foreach (var usedChunk in usedChunks)
+        {
+            if(!drawingChunks.ContainsValue(usedChunk))
+                usedChunk.Dispose();
+        }
+
+        foreach (var cacheAcquiredChunk in cache.AcquiredChunks)
+        {
+            if (!drawingChunks.ContainsKey(cacheAcquiredChunk.Key))
+                cacheAcquiredChunk.Value.AsT0?.Dispose();
         }
 
         return drawingChunks;
@@ -281,6 +308,7 @@ public static class FloodFillHelper
         using Paint replacePaint = new Paint();
         replacePaint.BlendMode = BlendMode.Src;
         drawingChunk.Surface.DrawingSurface.Canvas.DrawSurface(cpuSurface.DrawingSurface, 0, 0, replacePaint);
+        drawingChunk.Surface.DrawingSurface.Canvas.Flush();
 
         return pixelStates;
     }

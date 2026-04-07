@@ -182,7 +182,7 @@ public class FFMpegRenderer : IAnimationRenderer
         return 24;
     }
 
-    private static void PrepareFFMpeg()
+    public static void PrepareFFMpeg()
     {
         string path = Path.Combine("ThirdParty", IOperatingSystem.Current.Name, "ffmpeg");
 
