@@ -162,6 +162,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     private List<ToolSet> originalToolSets = new();
     private List<ToolConfig> customTools = new();
     private IToolSetHandler? _activeToolSet;
+    private (IToolHandler tool, bool transient, ICommandExecutionSourceInfo? sourceInfo) queuedToolChange;
 
     public ToolsViewModel(ViewModelMain owner, IIconLookupProvider iconLookupProvider)
         : base(owner)
@@ -390,7 +391,14 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
 
     public void SetActiveTool(IToolHandler tool, bool transient, ICommandExecutionSourceInfo? sourceInfo)
     {
-        if (Owner.DocumentManagerSubViewModel.ActiveDocument is { PointerDragChangeInProgress: true }) return;
+        if (Owner.DocumentManagerSubViewModel.ActiveDocument is { PointerDragChangeInProgress: true })
+        {
+            if (ActiveTool != null && ActiveTool.IsTransient)
+            {
+                queuedToolChange = (tool, transient, sourceInfo);
+            }
+            return;
+        }
 
         if (ActiveTool == tool)
         {
@@ -625,6 +633,14 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     }
 
     public event Action<IToolHandler> CustomToolAdded;
+    public void ActivateQueuedTool()
+    {
+        if (queuedToolChange.tool != null)
+        {
+            SetActiveTool(queuedToolChange.tool, queuedToolChange.transient, queuedToolChange.sourceInfo);
+            queuedToolChange = (null, false, null);
+        }
+    }
 
     [Evaluator.CanExecute("PixiEditor.Tools.CanChangeToolSize",
         nameof(ActiveTool))]
