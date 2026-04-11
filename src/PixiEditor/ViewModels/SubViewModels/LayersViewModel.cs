@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -103,7 +104,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         if (doc is null)
             return false;
 
-        if(property is Guid memberGuid)
+        if (property is Guid memberGuid)
         {
             var handler = doc.StructureHelper.Find(memberGuid);
             return handler is ITransformableMemberHandler;
@@ -680,15 +681,23 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         var imagesFilter = new FileTypeDialogDataSet(FileTypeDialogDataSet.SetKind.Image).GetFormattedTypes(true);
         if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            var filePicker = await desktop.MainWindow.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions()
+            try
             {
-                Title = new LocalizedString("REFERENCE_LAYER_PATH"), FileTypeFilter = imagesFilter,
-            });
+                var filePicker = await desktop.MainWindow.StorageProvider.OpenFilePickerAsync(
+                    new FilePickerOpenOptions()
+                    {
+                        Title = new LocalizedString("REFERENCE_LAYER_PATH"), FileTypeFilter = imagesFilter,
+                    });
 
-            if (filePicker is null || filePicker.Count == 0)
-                return null;
+                if (filePicker is null || filePicker.Count == 0)
+                    return null;
 
-            return filePicker[0].Path.LocalPath;
+                return filePicker[0].Path.LocalPath;
+            }
+            catch (COMException e)
+            {
+                NoticeDialog.Show(title: "ERROR", message: new LocalizedString("COM_EXCEPTION_ERROR", e.Message));
+            }
         }
 
         return null;
