@@ -374,7 +374,7 @@
                         <controls:FixedSizeStackPanel Orientation="Vertical" ChildSize="32"
                                                       VerticalChildrenAlignment="Center" Margin="12">
                             <TextBlock ui:Translator.Key="EXPORT" Classes="h5" />
-                            <CheckBox Classes="leftOffset" Width="200" HorizontalAlignment="Left"
+                            <CheckBox Classes="leftOffset" HorizontalAlignment="Left"
                                       ui:Translator.Key="OPEN_DIRECTORY_ON_EXPORT"
                                       IsChecked="{Binding SettingsSubViewModel.File.OpenDirectoryOnExport}" />
                         </controls:FixedSizeStackPanel>
