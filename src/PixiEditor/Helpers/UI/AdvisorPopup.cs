@@ -270,8 +270,14 @@ public class AdvisorPopup : ContentPresenter
             var parentScalerLayoutTransform = rootVisual.GetVisualParent<LayoutTransformControl>()?.LayoutTransform;
 
             SetPosition(root, parentScalerLayoutTransform);
+            Anchor.DetachedFromVisualTree += AnchorOnDetachedFromVisualTree;
         }, DispatcherPriority.Render);
         this.IsVisible = true;
+    }
+
+    private void AnchorOnDetachedFromVisualTree(object? sender, VisualTreeAttachmentEventArgs e)
+    {
+        this.IsVisible = false;
     }
 
 
@@ -437,6 +443,11 @@ public class AdvisorPopup : ContentPresenter
                 new Setter(ScaleTransform.ScaleXProperty, 0d), new Setter(ScaleTransform.ScaleYProperty, 0d)
             }
         });
+
+        if (Anchor != null)
+        {
+            Anchor.DetachedFromVisualTree -= AnchorOnDetachedFromVisualTree;
+        }
 
         _ = animation.RunAsync(control).ContinueWith(t =>
         {
