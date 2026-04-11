@@ -32,7 +32,7 @@
                                            Texture="{Binding $parent[input:BrushItem].Brush.PointPreviewTexture}"
                                            DockPanel.Dock="Left" />
             <TextBlock VerticalAlignment="Center"
-                       Width="70"
+                       Width="110"
                        localization:Translator.TooltipKey="{Binding Brush.Name}"
                        TextTrimming="CharacterEllipsis"
                        localization:Translator.Key="{Binding Brush.Name}" />
@@ -54,7 +54,7 @@
                 Height="50" Width="100"
                 SamplingOptions="Bilinear"
                 Name="StrokePreviewControl"
-                Margin="0, 0, 5, 0"
+                Margin="0, 0, 70, 0"
                 Texture="{Binding $parent[input:BrushItem].DrawingStrokeTexture}"
                 DockPanel.Dock="Left" />
         </DockPanel>

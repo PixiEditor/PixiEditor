@@ -194,7 +194,7 @@ internal class BrushShapeOverlay : Overlay
 
     protected override void OnOverlayPointerMoved(OverlayPointerArgs args)
     {
-        isMouseDown = args.Properties.IsLeftButtonPressed;
+        isMouseDown = args.Properties.IsLeftButtonPressed || args.Properties.IsRightButtonPressed;
         if (!args.Properties.IsLeftButtonPressed && BrushData.BrushGraph != null)
         {
             ExecuteBrush(args.Point);
@@ -223,7 +223,7 @@ internal class BrushShapeOverlay : Overlay
 
     protected override void OnOverlayPointerEntered(OverlayPointerArgs args)
     {
-        isMouseDown = args.Properties.IsLeftButtonPressed;
+        isMouseDown = args.Properties.IsLeftButtonPressed || args.Properties.IsRightButtonPressed;
     }
 
     protected override void OnKeyPressed(KeyEventArgs args)

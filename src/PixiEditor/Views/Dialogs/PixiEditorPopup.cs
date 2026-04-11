@@ -192,6 +192,16 @@ public partial class PixiEditorPopup : Window, IPopupWindow
             {
                 transformControl.LayoutTransform = new ScaleTransform(scale, scale);
             }
+
+            // Ugly fix for black bars in some cases when UI scaling is custom
+            Dispatcher.UIThread.Post(() =>
+            {
+                Width += 1;
+                Dispatcher.UIThread.Post(() =>
+                {
+                    Width -= 1;
+                });
+            });
         });
     }
 
