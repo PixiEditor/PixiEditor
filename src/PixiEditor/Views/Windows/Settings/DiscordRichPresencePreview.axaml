@@ -40,7 +40,7 @@
                             <TextBlock Foreground="White" FontWeight="DemiBold" FontSize="22">PixiBot</TextBlock>
                             <TextBlock Foreground="White" FontWeight="DemiBold" FontSize="22">#8523</TextBlock>
                             <Border CornerRadius="3" BorderThickness="1" Background="#5865f2" Margin="5,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Foreground="White" FontSize="10" Margin="4,2,4,2" FontWeight="Medium" localization:Translator.Key="BOT"/>
+                                <TextBlock Foreground="White" FontSize="10" Margin="4,2,4,2" FontWeight="Medium" localization:Translator.Key="DISCORD_BOT"/>
                             </Border>
                         </StackPanel>
                         <Grid Margin="0,5">
