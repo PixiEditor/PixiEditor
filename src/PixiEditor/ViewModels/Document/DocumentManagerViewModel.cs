@@ -261,7 +261,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
             }
             else
             {
-                doc.Operations.ResizeImage(new(dialog.Width, dialog.Height), ResamplingMethod.NearestNeighbor);
+                doc.Operations.ResizeImage(new(dialog.Width, dialog.Height), dialog.SelectedSamplingMethod);
             }
         }
     }
