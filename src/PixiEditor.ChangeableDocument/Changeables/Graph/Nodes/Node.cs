@@ -576,13 +576,15 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
     public void DisconnectAll()
     {
-        foreach (var input in inputs)
+        for (var index = 0; index < inputs.Count; index++)
         {
+            var input = inputs[index];
             input.Connection?.DisconnectFrom(input);
         }
 
-        foreach (var output in outputs)
+        for (var index = 0; index < outputs.Count; index++)
         {
+            var output = outputs[index];
             var connections = output.Connections.ToArray();
             for (var i = 0; i < connections.Length; i++)
             {
