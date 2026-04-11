@@ -393,7 +393,7 @@
 
                             <TextBlock ui:Translator.Key="BACKGROUND" Classes="h5" />
 
-                            <CheckBox Classes="leftOffset" Width="200" HorizontalAlignment="Left"
+                            <CheckBox Classes="leftOffset" HorizontalAlignment="Left"
                                       ui:Translator.Key="AUTO_SCALE_BACKGROUND"
                                       IsChecked="{Binding SettingsSubViewModel.Scene.AutoScaleBackground}" />
 
@@ -428,7 +428,7 @@
 
                             <TextBlock ui:Translator.Key="SELECTION" Classes="h5" />
 
-                            <CheckBox Classes="leftOffset" Width="200" HorizontalAlignment="Left"
+                            <CheckBox Classes="leftOffset" HorizontalAlignment="Left"
                                       ui:Translator.Key="TINT_SELECTION"
                                       IsChecked="{Binding SettingsSubViewModel.Scene.SelectionTintingEnabled}" />
 
@@ -447,7 +447,7 @@
                                                       VerticalChildrenAlignment="Center" Margin="12">
                             <TextBlock ui:Translator.Key="PERFORMANCE" Classes="h5" />
 
-                            <CheckBox Classes="leftOffset" Width="200" HorizontalAlignment="Left"
+                            <CheckBox Classes="leftOffset" HorizontalAlignment="Left"
                                       ui:Translator.Key="DISABLE_PREVIEWS"
                                       IsChecked="{Binding SettingsSubViewModel.Performance.DisablePreviews}" />
 
@@ -514,7 +514,7 @@
                                                       VerticalChildrenAlignment="Center" Margin="12">
                             <TextBlock ui:Translator.Key="APPEARANCE" Classes="h5" />
 
-                            <CheckBox Classes="leftOffset" Width="200" HorizontalAlignment="Left"
+                            <CheckBox Classes="leftOffset" HorizontalAlignment="Left"
                                       ui:Translator.Key="USE_SYSTEM_TITLE_BAR"
                                       IsChecked="{Binding SettingsSubViewModel.Appearance.UseSystemDecorations}" />
 

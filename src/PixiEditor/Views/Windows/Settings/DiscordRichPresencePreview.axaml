@@ -4,6 +4,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+    xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
     mc:Ignorable="d"
     d:DesignWidth="300"
     x:Class="PixiEditor.Views.Windows.Settings.DiscordRichPresencePreview"
@@ -39,25 +40,25 @@
                             <TextBlock Foreground="White" FontWeight="DemiBold" FontSize="22">PixiBot</TextBlock>
                             <TextBlock Foreground="White" FontWeight="DemiBold" FontSize="22">#8523</TextBlock>
                             <Border CornerRadius="3" BorderThickness="1" Background="#5865f2" Margin="5,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Foreground="White" FontSize="10" Margin="4,2,4,2" FontWeight="Medium">BOT</TextBlock>
+                                <TextBlock Foreground="White" FontSize="10" Margin="4,2,4,2" FontWeight="Medium" localization:Translator.Key="BOT"/>
                             </Border>
                         </StackPanel>
                         <Grid Margin="0,5">
                             <StackPanel Orientation="Vertical">
                                 <Grid Margin="0,15" Background="#262729" Height="2"/>
-                                <TextBlock FontWeight="Bold" FontSize="12" Foreground="White" Margin="0,0,0,10" Text="ABOUT ME"/>
-                                <TextBlock Foreground="White" Text="Use me to display your .pixi files in Discord. &#10;Start by sending a file in any appropriate channel" />
+                                <TextBlock FontWeight="Bold" FontSize="12" Foreground="White" Margin="0,0,0,10" localization:Translator.Key="ABOUT_ME"/>
+                                <TextBlock Foreground="White" localization:Translator.Key="DISCORD_DESCRIPTION" />
                             </StackPanel>
                         </Grid>
                         <Grid Margin="0,5">
                             <StackPanel Orientation="Vertical">
-                                <TextBlock FontWeight="Bold" Foreground="White" Margin="0,0,0,10" Text="DISCORD MEMBER SINCE"/>
-                                <TextBlock Foreground="White" Text="Oct 29, 2020" />
+                                <TextBlock FontWeight="Bold" Foreground="White" Margin="0,0,0,10" localization:Translator.Key="DISCORD_MEMBER_SINCE"/>
+                                <TextBlock Foreground="White" localization:Translator.Key="DISCORD_DATE"/>
                             </StackPanel>
                         </Grid>
                         <Grid IsVisible="{Binding #uc.IsPlaying}" Margin="0,5, 0, 0">
                             <StackPanel Orientation="Vertical">
-                                <TextBlock FontWeight="Bold" FontSize="12" Foreground="White" Margin="0,0,0,10" Text="PLAYING A GAME"/>
+                                <TextBlock FontWeight="Bold" FontSize="12" Foreground="White" Margin="0,0,0,10" localization:Translator.Key="PLAYING_A_GAME"/>
                                 <StackPanel Orientation="Horizontal">
                                     <Svg Path="/Images/PixiEditorLogo.svg" Height="60" Width="60"/>
                                     <StackPanel Margin="15,0,0,0" VerticalAlignment="Center">
@@ -68,7 +69,7 @@
                                         <TextBlock Foreground="White" FontSize="12" 
                                                    Text="{Binding ElementName=uc, Path=State}" 
                                                    IsVisible="{Binding #uc.State, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
-                                        <TextBlock Foreground="White" FontSize="12" Text="00:00 elapsed"/>
+                                        <TextBlock Foreground="White" FontSize="12" localization:Translator.Key="DISCORD_ELAPSED"/>
                                     </StackPanel>
                                 </StackPanel>
                             </StackPanel>
