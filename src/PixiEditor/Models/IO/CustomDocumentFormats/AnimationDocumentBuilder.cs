@@ -54,7 +54,6 @@ internal class AnimationDocumentBuilder : IDocumentBuilder
                     .WithOutputNode(id, "Output")
                 );
 
-            DisposeFrames(frames);
             return;
         }
 
@@ -137,6 +136,9 @@ internal class AnimationDocumentBuilder : IDocumentBuilder
 
     private static void DisposeFrames(List<Frame> frames)
     {
+        if (frames == null)
+            return;
+
         foreach (var frame in frames)
         {
             frame.ImageData.Dispose();
