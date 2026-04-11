@@ -331,7 +331,7 @@
                     <Button Margin="6,8,0,0" HorizontalAlignment="Left"
                             Command="{Binding SetShowAllBetaExamplesCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}"
                             CommandParameter="{x:False}"
-                            Content="Go back" HorizontalContentAlignment="Left" />
+                            ui:Translator.Key="GO_BACK" HorizontalContentAlignment="Left" />
 
                     <TextBlock ui:Translator.Key="EXAMPLE_FILES" Margin="0,-9,0,5" HorizontalAlignment="Center"
                                TextAlignment="Center" FontSize="22" FontWeight="Bold" />

@@ -23,7 +23,7 @@ public class MergeNode : RenderNode
 
     public MergeNode()
     {
-        BlendMode = CreateInput("BlendMode", "BlendMode", Enums.BlendMode.Normal);
+        BlendMode = CreateInput("BlendMode", "BLEND_MODE", Enums.BlendMode.Normal);
         Top = CreateRenderInput("Top", "TOP");
         Bottom = CreateRenderInput("Bottom", "BOTTOM");
     }

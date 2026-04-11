@@ -1399,5 +1399,17 @@
   "CLICK_HERE_TO_READ_MORE": "Click here to read more about it.",
   "RENDER_OVERLAYS": "Render Overlays",
   "SIGN_IN_TO_NEWSLETTER": "Sign in to our newsletter",
-  "EXTENSIONS_WINDOW_COMING_SOON": "Coming soon!"
+  "EXTENSIONS_WINDOW_COMING_SOON": "Coming soon!",
+  "GO_BACK": "Go back",
+  "DISCORD_DESCRIPTION": "You look gorgeous today!",
+  "ABOUT_ME": "ABOUT ME",
+  "DISCORD_MEMBER_SINCE": "Discord member since",
+  "PLAYING_A_GAME": "PLAYING A GAME",
+  "DISCORD_ELAPSED": "00:00 elapsed",
+  "DISCORD_DATE": "Oct 29, 2026",
+  "DISCORD_BOT": "BOT",
+  "RESAMPLE_METHOD": "Resampling Method",
+  "NEAREST_NEIGHBOR_RESAMPLING_METHOD": "Nearest Neighbor",
+  "BILINEAR_RESAMPLING_METHOD": "Bilinear",
+  "BICUBIC_RESAMPLING_METHOD": "Bicubic"
 }

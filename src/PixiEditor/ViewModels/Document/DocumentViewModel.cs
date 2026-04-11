@@ -462,6 +462,10 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 {
                     value = Activator.CreateInstance(wellKnownType);
                 }
+                else if (value != null && wellKnownType == null)
+                {
+                    wellKnownType = value.GetType();
+                }
 
                 acc.AddActions(new SetBlackboardVariable_Action(varBuilder.Name, value,
                         wellKnownType ?? typeof(object),

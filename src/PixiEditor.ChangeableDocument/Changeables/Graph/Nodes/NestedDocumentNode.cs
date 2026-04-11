@@ -92,16 +92,16 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
         brushOutputNodes = document.DocumentInstance.NodeGraph.AllNodes
             .OfType<BrushOutputNode>().ToArray();
 
-        toExecute = cachedExposeNodes.Concat<IReadOnlyNode>(brushOutputNodes).Concat([Instance?.NodeGraph.OutputNode])
+        toExecute = cachedExposeNodes.Concat<IReadOnlyNode>(brushOutputNodes).Concat([document.DocumentInstance?.NodeGraph.OutputNode])
             .ToArray();
 
-        Instance?.NodeGraph.Execute(cachedExposeNodes.Concat<IReadOnlyNode>(brushOutputNodes), new RenderContext(null,
+        document.DocumentInstance?.NodeGraph.Execute(cachedExposeNodes.Concat<IReadOnlyNode>(brushOutputNodes), new RenderContext(null,
             0,
             ChunkResolution.Full,
-            Instance.Size, Instance.Size,
-            Instance.ProcessingColorSpace,
+            document.DocumentInstance.Size, document.DocumentInstance.Size,
+            document.DocumentInstance.ProcessingColorSpace,
             SamplingOptions.Default,
-            Instance.NodeGraph) { FullRerender = true });
+            document.DocumentInstance.NodeGraph) { FullRerender = true });
 
         foreach (var input in cachedExposeNodes)
         {

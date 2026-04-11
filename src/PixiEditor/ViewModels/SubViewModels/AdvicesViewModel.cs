@@ -53,14 +53,14 @@ internal class AdvicesViewModel : SubViewModel<ViewModelMain>
         if (activeLayer is NestedDocumentNodeViewModel)
         {
             var advice = Advisor.RequestAdvice("NeedsNewLayerNested")
-                .WithChoices(new LocalizedString("AUTO_RASTERIZE"), new LocalizedString("AUTO_CREATE_NEW_LAYER"))
+                .WithChoices("AUTO_RASTERIZE", "AUTO_CREATE_NEW_LAYER")
                 .OnChoiceSelected(choice =>
                 {
                     PixiEditorSettings.Tools.AutoRasterizeNestedLayersOnDraw.Value = choice == 0;
                     IPreferences.Current.UpdateLocalPreference($"Advice{NeedsNewLayerNestedAdviceKey}Dismissed", true);
                     Owner.IoSubViewModel.LayerNeedsNewLayer -= NewLayerNeeded;
                 })
-                .WithFollowUpAdvice(new Advice("GotIt", new LocalizedString("GOT_IT_CHECK_SETTINGS")));
+                .WithFollowUpAdvice(new Advice("GotIt", "GOT_IT_CHECK_SETTINGS"));
 
             Advisor.SendAdvice(NeedsNewLayerNestedAdviceKey, advice);
         }
@@ -69,7 +69,7 @@ internal class AdvicesViewModel : SubViewModel<ViewModelMain>
     private void CreatedCel()
     {
         var advice = Advisor.RequestAdvice("AddEmptyFrame")
-            .WithFollowUpAdvice(new Advice("MakeGroupInvisibleForALayer", new LocalizedString("DISABLE_ANIM_LAYER_ADVICE"))
+            .WithFollowUpAdvice(new Advice("MakeGroupInvisibleForALayer", "DISABLE_ANIM_LAYER_ADVICE")
                 .WithAutoDismiss(false)).OnDismissed(() =>
                 {
                     IPreferences.Current.UpdateLocalPreference($"Advice{AddEmptyFrame}Dismissed", true);
@@ -83,7 +83,7 @@ internal class AdvicesViewModel : SubViewModel<ViewModelMain>
         if (dockable.Id == NodeGraphDockViewModel.TabId)
         {
             var advice = Advisor.RequestAdvice("OpenGraph")
-                .WithFollowUpAdvice(new Advice("OpenGraphFollowUp", new LocalizedString("OPENED_GRAPH_ADVICE_FOLLOW_UP"))
+                .WithFollowUpAdvice(new Advice("OpenGraphFollowUp","OPENED_GRAPH_ADVICE_FOLLOW_UP")
                     .WithAutoDismiss(false)).OnDismissed(() =>
                     {
                         IPreferences.Current.UpdateLocalPreference($"Advice{OpenGraph}Dismissed", true);
