@@ -67,6 +67,7 @@ public static partial class PixiPerfectIcons
     public const string DuplicateImage = "\uE907";
     public const string Edit = "\uE942";
     public const string EllipsisVertical = "\uE9DB";
+    public const string Equal = "\uE9E6";
     public const string Eraser = "\uE96D";
     public const string EthernetPort = "\uE9D5";
     public const string Exit = "\uE943";
@@ -169,6 +170,7 @@ public static partial class PixiPerfectIcons
     public const string Ruler = "\uE9DF";
     public const string Salad = "\uE9C7";
     public const string Save = "\uE96E";
+    public const string ScanSearch = "\uE9E5";
     public const string Scissors = "\uE96F";
     public const string Search = "\uE996";
     public const string SelectAll = "\uE970";
