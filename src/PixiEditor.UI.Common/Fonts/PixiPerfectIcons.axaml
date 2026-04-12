@@ -71,6 +71,7 @@
             <system:String x:Key="icon-duplicate-image">&#xE907;</system:String>
             <system:String x:Key="icon-edit">&#xE942;</system:String>
             <system:String x:Key="icon-ellipsis-vertical">&#xE9DB;</system:String>
+            <system:String x:Key="icon-equal">&#xE9E6;</system:String>
             <system:String x:Key="icon-eraser">&#xE96D;</system:String>
             <system:String x:Key="icon-ethernet-port">&#xE9D5;</system:String>
             <system:String x:Key="icon-exit">&#xE943;</system:String>
@@ -173,6 +174,7 @@
             <system:String x:Key="icon-ruler">&#xE9DF;</system:String>
             <system:String x:Key="icon-salad">&#xE9C7;</system:String>
             <system:String x:Key="icon-save">&#xE96E;</system:String>
+            <system:String x:Key="icon-scan-search">&#xE9E5;</system:String>
             <system:String x:Key="icon-scissors">&#xE96F;</system:String>
             <system:String x:Key="icon-search">&#xE996;</system:String>
             <system:String x:Key="icon-select-all">&#xE970;</system:String>
