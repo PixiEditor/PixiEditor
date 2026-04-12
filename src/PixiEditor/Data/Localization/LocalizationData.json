@@ -13,14 +13,14 @@
       "code": "pl",
       "localeFileName": "pl.json",
       "iconFileName": "pl.png",
-      "lastUpdated": "2025-10-02 10:09:12"
+      "lastUpdated": "2026-04-11 12:45:25"
     },
     {
       "name": "Deutsch",
       "code": "de",
       "localeFileName": "de.json",
       "iconFileName": "de.png",
-      "lastUpdated": "2026-02-06 21:17:15"
+      "lastUpdated": "2026-02-24 22:09:09"
     },
     {
       "name": "Español",
@@ -42,14 +42,14 @@
       "code": "ru",
       "localeFileName": "ru.json",
       "iconFileName": "ru.png",
-      "lastUpdated": "2025-07-28 08:51:44"
+      "lastUpdated": "2026-03-22 17:18:05"
     },
     {
       "name": "Українська",
       "code": "uk",
       "localeFileName": "uk.json",
       "iconFileName": "uk.png",
-      "lastUpdated": "2025-12-15 18:44:22"
+      "lastUpdated": "2026-04-08 22:31:43"
     },
     {
       "name": "عربي",
@@ -57,14 +57,14 @@
       "localeFileName": "ar.json",
       "iconFileName": "ar.png",
       "rightToLeft": true,
-      "lastUpdated": "2025-10-03 04:43:28"
+      "lastUpdated": "2026-04-10 13:42:52"
     },
     {
       "name": "Čeština",
       "code": "cs",
       "localeFileName": "cs.json",
       "iconFileName": "cs.png",
-      "lastUpdated": "2025-12-28 01:05:21"
+      "lastUpdated": "2026-04-11 11:28:03"
     },
     {
       "name": "Português (Brasil)",
@@ -92,21 +92,21 @@
       "code": "fr",
       "localeFileName": "fr.json",
       "iconFileName": "fr.png",
-      "lastUpdated": "2025-12-02 20:52:11"
+      "lastUpdated": "2026-04-10 14:20:11"
     },
     {
       "name": "Italiano",
       "code": "it",
       "localeFileName": "it.json",
       "iconFileName": "it.png",
-      "lastUpdated": "2026-02-15 14:26:09"
+      "lastUpdated": "2026-04-12 00:30:20"
     },
     {
       "name": "Indonesia",
       "code": "id",
       "localeFileName": "id.json",
       "iconFileName": "id.png",
-      "lastUpdated": "2025-08-08 10:04:52"
+      "lastUpdated": "2026-04-11 10:54:19"
     }
   ]
 }

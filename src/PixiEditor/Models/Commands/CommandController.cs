@@ -9,6 +9,7 @@ using Avalonia.Media;
 using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Exceptions;
+using PixiEditor.Extensions.CommonApi.Utilities;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.AnalyticsAPI;
@@ -278,7 +279,7 @@ internal class CommandController
             return;
         }
 
-        LocalizedString displayName = new("SELECT_TOOL", brushTool.ToolName);
+        LocalizedString displayName = new("SELECT_TOOL", new LocalizedString(brushTool.ToolName));
         string internalName = $"PixiEditor.Tools.Select.{brushTool.ToolName.Replace(" ", string.Empty)}";
         var command = new Models.Commands.Commands.Command.ToolCommand(toolsHandler, false)
         {

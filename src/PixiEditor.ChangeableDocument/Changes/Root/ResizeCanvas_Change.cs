@@ -3,6 +3,7 @@ using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using PixiEditor.ChangeableDocument.Enums;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
 namespace PixiEditor.ChangeableDocument.Changes.Root;
 
@@ -54,8 +55,12 @@ internal class ResizeCanvas_Change : ResizeBasedChangeBase
                     Resize(img, id, newSize, offset, deletedChunks);
                 });
             }
-
-            // TODO: Check if adding support for different Layer types is necessary
+            else if (member is ITransformableObject transformableObject)
+            {
+                originalTransformations[member.Id] = transformableObject.TransformationMatrix;
+                Matrix3X3 offsetMatrix = Matrix3X3.CreateTranslation(offset.X, offset.Y);
+                transformableObject.TransformationMatrix = offsetMatrix.Concat(transformableObject.TransformationMatrix);
+            }
 
             if (member.EmbeddedMask is null)
                 return;

@@ -3,5 +3,5 @@ using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document.Nodes.Workspace;
 
-[NodeViewModel("VIEWPORT_INFO_NODE", "WORKSPACE", null)]
+[NodeViewModel("VIEWPORT_INFO_NODE", "WORKSPACE", PixiPerfectIcons.ScanSearch)]
 internal class ViewportInfoNodeViewModel : NodeViewModel<ViewportInfoNode>;

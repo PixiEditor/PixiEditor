@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
@@ -390,6 +391,8 @@ internal partial class BrushPicker : UserControl
 
 public enum BrushSorting
 {
+    [Description("DEFAULT")]
     Default = 0,
+    [Description("ALPHABETICAL")]
     Alphabetical,
 }
