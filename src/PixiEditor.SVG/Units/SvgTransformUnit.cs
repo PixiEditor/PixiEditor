@@ -36,7 +36,7 @@ public struct SvgTransformUnit : ISvgUnit
         {
             string[] spaceSplitted = readerValue[7..^1].Split(" ");
             string[] commaSplitted = readerValue[7..^1].Replace(" ", "").Split(",");
-            string[] values = spaceSplitted.Length == 6 ? spaceSplitted : commaSplitted;
+            string[] values = commaSplitted.Length == 6 ? commaSplitted : spaceSplitted;
             if (values.Length == 6)
             {
                 if (float.TryParse(values[0], NumberStyles.Any, CultureInfo.InvariantCulture, out float scaleX) &&
