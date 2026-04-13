@@ -121,7 +121,7 @@ internal partial class DocumentViewModel
         float resizeFactorY = (float)exportSize.Y / document.Size.Y;
         VecD resizeFactor = new VecD(resizeFactorX, resizeFactorY);
 
-        var root = document.GetStructureTreeInOrder().Where(x => x.IsVisible.Value).Reverse().ToList();
+        var root = document.GetStructureTreeInOrder().Where(x => x.IsVisible.Value).ToList();
 
         AddElements(document, root, svgDocument, atTime, exportSize, resizeFactor, vectorExportConfig,
             svgDocument.Defs);
