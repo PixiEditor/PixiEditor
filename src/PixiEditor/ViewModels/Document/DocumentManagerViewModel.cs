@@ -167,7 +167,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
 
     [Command.Basic("PixiEditor.Document.ToggleVerticalSymmetryAxis", "TOGGLE_VERT_SYMMETRY_AXIS",
         "TOGGLE_VERT_SYMMETRY_AXIS", CanExecute = "PixiEditor.HasDocument",
-        Icon = PixiPerfectIcons.YSymmetry, AnalyticsTrack = true)]
+        Icon = PixiPerfectIcons.XSymmetry, AnalyticsTrack = true)]
     public void ToggleVerticalSymmetryAxis()
     {
         if (ActiveDocument is null)
@@ -177,7 +177,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
 
     [Command.Basic("PixiEditor.Document.ToggleHorizontalSymmetryAxis", "TOGGLE_HOR_SYMMETRY_AXIS",
         "TOGGLE_HOR_SYMMETRY_AXIS", CanExecute = "PixiEditor.HasDocument",
-        Icon = PixiPerfectIcons.XSymmetry, AnalyticsTrack = true)]
+        Icon = PixiPerfectIcons.YSymmetry, AnalyticsTrack = true)]
     public void ToggleHorizontalSymmetryAxis()
     {
         if (ActiveDocument is null)
