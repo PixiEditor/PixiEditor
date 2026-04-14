@@ -26,7 +26,7 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
     public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(ImageLayerNode);
 
     public override LocalizedString Tooltip => new LocalizedString(toolTipKey, Shortcut);
-    public override string ToolNameLocalizationKey => toolName;
+    public override string ToolNameLocalizationKey { get; }
     public override string ToolName => toolName ?? base.ToolName;
     public bool IsCustomBrushTool { get; private set; }
     public override bool UsesColor => true;
@@ -60,7 +60,7 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
         (Toolbar as Toolbar).SettingChanged += OnSettingChanged;
     }
 
-    public BrushBasedToolViewModel(BrushViewModel brush, string? tooltip, string? toolName, KeyCombination? defaultShortcut,
+    public BrushBasedToolViewModel(BrushViewModel brush, string? tooltip, string? toolName, string displayName, KeyCombination? defaultShortcut,
         List<ActionDisplayConfig>? actionDisplays, bool supportsSecondaryActionOnRightClick, string icon = PixiPerfectIcons.Placeholder)
     {
         Cursor = Cursors.PreciseCursor;
@@ -78,6 +78,7 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
         DefaultShortcut = defaultShortcut;
         IsCustomBrushTool = true;
         defaultIcon = icon;
+        ToolNameLocalizationKey = string.IsNullOrEmpty(displayName) ? toolName : displayName;
         this.actionDisplays = ParseActionDisplays(actionDisplays);
         SupportsSecondaryActionOnRightClick = supportsSecondaryActionOnRightClick;
 

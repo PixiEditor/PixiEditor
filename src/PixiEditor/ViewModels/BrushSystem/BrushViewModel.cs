@@ -12,6 +12,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Models.BrushEngine;
+using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.ViewModels.BrushSystem;
 
@@ -56,7 +57,7 @@ internal class BrushViewModel : ViewModelBase
 
     public string Name
     {
-        get => Brush?.Name ?? "Unnamed Brush";
+        get => Brush?.Name ?? new LocalizedString("UNNAMED_BRUSH");
     }
 
     public ObservableCollection<string> Tags

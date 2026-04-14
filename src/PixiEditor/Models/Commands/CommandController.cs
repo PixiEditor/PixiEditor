@@ -279,7 +279,7 @@ internal class CommandController
             return;
         }
 
-        LocalizedString displayName = new("SELECT_TOOL", new LocalizedString(brushTool.ToolName));
+        LocalizedString displayName = new("SELECT_TOOL", brushTool.DisplayName);
         string internalName = $"PixiEditor.Tools.Select.{brushTool.ToolName.Replace(" ", string.Empty)}";
         var command = new Models.Commands.Commands.Command.ToolCommand(toolsHandler, false)
         {

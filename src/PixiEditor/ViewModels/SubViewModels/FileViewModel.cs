@@ -160,24 +160,10 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             {
                 preferences.UpdateLocalPreference("OnboardingV2Shown", true);
 
-                if (IPlatform.Current?.IdentityProvider != null &&
-                    IPlatform.Current.IdentityProvider.ProviderName == "PixiAuth")
+                Owner.WindowSubViewModel.OpenOnboardingWindow().Closed += (_, _) =>
                 {
-                    Owner.WindowSubViewModel.OpenAccountWindow(true).Closed += (sender, eventArgs) =>
-                    {
-                        Owner.WindowSubViewModel.OpenOnboardingWindow().Closed += (_, _) =>
-                        {
-                            Owner.InvokeUserReadyEvent();
-                        };
-                    };
-                }
-                else
-                {
-                    Owner.WindowSubViewModel.OpenOnboardingWindow().Closed += (_, _) =>
-                    {
-                        Owner.InvokeUserReadyEvent();
-                    };
-                }
+                    Owner.InvokeUserReadyEvent();
+                };
             }
             else if (preferences!.GetPreference("ShowStartupWindow", true))
             {

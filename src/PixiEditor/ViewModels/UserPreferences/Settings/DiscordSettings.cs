@@ -1,4 +1,6 @@
-﻿namespace PixiEditor.ViewModels.UserPreferences.Settings;
+﻿using PixiEditor.UI.Common.Localization;
+
+namespace PixiEditor.ViewModels.UserPreferences.Settings;
 
 internal class DiscordSettings : SettingsGroup
 {
@@ -79,7 +81,7 @@ internal class DiscordSettings : SettingsGroup
 
             if (ShowLayerCount)
             {
-                state += $"2 Layers";
+                state += new LocalizedString($"DISCORD_LAYERS_COUNT");
             }
 
             return state;
