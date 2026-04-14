@@ -254,7 +254,7 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
             
             var ext = ExtensionManager.AvailableExtensions.FirstOrDefault(x =>
                 x.AvailableContent.Id == extensionId);
-            if (ext.IsFree)
+            if (ext is { IsFree: true })
             {
                 await ExtensionManager.AddToLibrary(extensionId);
             }
