@@ -248,7 +248,7 @@
                                                                 <Button
                                                                     Command="{Binding DataContext.OpenInExplorerCommand, RelativeSource={RelativeSource AncestorType=panels:AlignableWrapPanel}}"
                                                                     CommandParameter="{Binding FilePath}"
-                                                                    ToolTip.Tip="OPEN_IN_FILE_EXPLORER">
+                                                                    ui:Translator.TooltipKey="OPEN_IN_FILE_EXPLORER">
                                                                     <TextBlock Text="&#xEC50;"
                                                                                FontFamily="Segoe MDL2 Assets"
                                                                                TextAlignment="Center" FontSize="18" />
@@ -256,7 +256,7 @@
                                                                 <Button
                                                                     Command="{xaml:Command Name=PixiEditor.File.RemoveRecent, UseProvided=True}"
                                                                     CommandParameter="{Binding FilePath}"
-                                                                    ToolTip.Tip="Remove from list">
+                                                                    ui:Translator.TooltipKey="REMOVE_FROM_LIST">
                                                                     <TextBlock Text=""
                                                                                FontFamily="{DynamicResource Feather}"
                                                                                TextAlignment="Center" FontSize="20" />

@@ -1425,5 +1425,17 @@
   "BLENDING_BRUSH_INSIDE": "Blending Brush (Inside)",
   "TEXTURE_BRUSH": "Texture Painter",
   "UNNAMED_BRUSH": "Unnamed Brush",
-  "OPEN_IN_FILE_EXPLORER": "Open in File Explorer"
+  "OPEN_IN_FILE_EXPLORER": "Open in File Explorer",
+  "BACKUP_USR_PREFS": "Backup User Preferences",
+  "BACKUP_EDITOR_DATA": "Backup Editor Data",
+  "BACKUP_SHORTCUT_FILE": "Backup Shortcuts File",
+  "LOAD_USR_PREFS_BACKUP": "Load User Preferences Backup",
+  "LOAD_EDITOR_DATA_BACKUP": "Load Editor Data Backup",
+  "LOAD_SHORTCUT_FILE_BACKUP": "Load Shortcuts File Backup",
+  "DEBUG_DOWNLOAD_UPDATE": "Download Update (Debug)",
+  "DEBUG_INSTALL_UPDATE": "Install Update (Debug)",
+  "DEBUG_INSTALL_UPDATE_DESC":"(DEBUG) Install update zip file without checking for updates",
+  "DEBUG_DOWNLOAD_UPDATE_DESC": "(DEBUG) Download update file",
+  "REMOVE_FROM_LIST": "Remove from list",
+  "STEAM": "Steam"
 }
