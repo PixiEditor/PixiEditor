@@ -17,7 +17,8 @@
                          xmlns:windows="clr-namespace:PixiEditor.Views.Windows"
                          xmlns:ui1="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
                          mc:Ignorable="d"
-                         Title="Hello there!" Height="680" Width="982" MinHeight="500" MinWidth="600">
+                         ui:Translator.Key="HELLO_THERE_POPUP"
+                         Height="680" Width="982" MinHeight="500" MinWidth="600">
 
     <Window.Styles>
         <Style Selector="TextBlock">
@@ -247,7 +248,7 @@
                                                                 <Button
                                                                     Command="{Binding DataContext.OpenInExplorerCommand, RelativeSource={RelativeSource AncestorType=panels:AlignableWrapPanel}}"
                                                                     CommandParameter="{Binding FilePath}"
-                                                                    ToolTip.Tip="Open in File Explorer">
+                                                                    ToolTip.Tip="OPEN_IN_FILE_EXPLORER">
                                                                     <TextBlock Text="&#xEC50;"
                                                                                FontFamily="Segoe MDL2 Assets"
                                                                                TextAlignment="Center" FontSize="18" />

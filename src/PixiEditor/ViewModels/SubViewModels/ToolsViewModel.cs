@@ -958,7 +958,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
                     string icon = iconLookupProvider.LookupIcon(toolFromToolset.Icon) ?? toolFromToolset.Icon;
 
                     return new BrushBasedToolViewModel(new BrushViewModel(brush), toolFromToolset.ToolTip,
-                        toolFromToolset.ToolName,
+                        toolFromToolset.ToolName, toolFromToolset.DisplayName,
                         shortcut, toolFromToolset.ActionDisplays, toolFromToolset.SupportsSecondaryActionOnRightClick,
                         icon) { CommonToolType = toolFromToolset.CommonToolType };
                 }

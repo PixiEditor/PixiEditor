@@ -2,6 +2,7 @@
   "CustomTools": [
     {
       "ToolName": "Brightness",
+      "DisplayName": "BRIGHTNESS_TOOL",
       "Brush": "/BrushTools/Brightness.pixi",
       "Icon": "icon-sun",
       "ToolTip": "BRIGHTNESS_TOOL_TOOLTIP",
@@ -19,6 +20,7 @@
     },
     {
       "ToolName": "Gradient",
+      "DisplayName": "GRADIENT_TOOL",
       "Brush": "/BrushTools/Gradient.pixi",
       "Icon": "icon-gradient",
       "ToolTip": "GRADIENT_TOOL_TOOLTIP",
@@ -49,7 +51,7 @@
           "Settings": {
             "ExposePixelPerfectEnabled": true,
             "DefaultToolSize": 1,
-            "DefaultBrush": "Pixel Circle",
+            "DefaultBrush": "PIXEL_CIRCLE",
             "AntiAliasing": false
           }
         },
@@ -80,7 +82,7 @@
           "ToolName": "Eraser",
           "Settings": {
             "DefaultToolSize": 1,
-            "DefaultBrush": "Pixel Circle",
+            "DefaultBrush": "PIXEL_CIRCLE",
             "AntiAliasing": false
           }
         },
@@ -112,7 +114,7 @@
             "AntiAliasing": true,
             "PixelPerfectEnabled": false,
             "DefaultToolSize": 10,
-            "DefaultBrush": "Basic"
+            "DefaultBrush": "BASIC"
           }
         },
         "Select",

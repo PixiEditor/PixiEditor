@@ -47,13 +47,6 @@ internal class NodeGraphManagerViewModel : SubViewModel<ViewModelMain>
         Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.RemoveNodes(selectedNodes);
     }
 
-    // TODO: Remove this
-    [Command.Debug("PixiEditor.NodeGraph.CreateNodeFrameAroundEverything", "Create node frame", "Create node frame", AnalyticsTrack = true)]
-    public void CreateNodeFrameAroundEverything()
-    {
-        Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.CreateNodeFrameAroundEverything();
-    }
-
     [Command.Internal("PixiEditor.NodeGraph.CreateNode")]
     public void CreateNode((Type nodeType, VecD pos) data)
     {

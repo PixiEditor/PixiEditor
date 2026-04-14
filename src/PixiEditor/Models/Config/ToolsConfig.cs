@@ -145,6 +145,7 @@ public class ToolSet
 public class ToolConfig
 {
     public string ToolName { get; set; }
+    public string DisplayName  { get; set; }
     public string? Brush { get; set; }
     public string? ToolTip { get; set; }
     public string? DefaultShortcut { get; set; }

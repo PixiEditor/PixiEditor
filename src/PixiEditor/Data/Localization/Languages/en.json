@@ -1408,8 +1408,22 @@
   "DISCORD_ELAPSED": "00:00 elapsed",
   "DISCORD_DATE": "Oct 29, 2026",
   "DISCORD_BOT": "BOT",
+  "DISCORD_LAYERS_COUNT": "2 Layers",
   "RESAMPLE_METHOD": "Resampling Method",
   "NEAREST_NEIGHBOR_RESAMPLING_METHOD": "Nearest Neighbor",
   "BILINEAR_RESAMPLING_METHOD": "Bilinear",
-  "BICUBIC_RESAMPLING_METHOD": "Bicubic"
+  "BICUBIC_RESAMPLING_METHOD": "Bicubic",
+  "HELLO_THERE_POPUP": "Hello there!",
+  "GRADIENT_TOOL": "Gradient",
+  "GRADIENT_TOOL_ACTION_DISPLAY_DEFAULT": "Click and drag on the canvas to create a gradient.",
+  "COUNT": "Count",
+  "BASIC_OPACITY_FLOW": "Basic Opacity Flow",
+  "CLAWS": "Claws",
+  "PIXEL_CIRCLE": "Pixel Circle",
+  "PIXEL_SQUARE": "Pixel Square",
+  "BLENDING_BRUSH": "Blending Brush",
+  "BLENDING_BRUSH_INSIDE": "Blending Brush (Inside)",
+  "TEXTURE_BRUSH": "Texture Painter",
+  "UNNAMED_BRUSH": "Unnamed Brush",
+  "OPEN_IN_FILE_EXPLORER": "Open in File Explorer"
 }
