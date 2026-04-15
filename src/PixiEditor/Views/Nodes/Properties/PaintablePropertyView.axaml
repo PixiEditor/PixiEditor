@@ -7,6 +7,7 @@
                              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
                              xmlns:input="clr-namespace:PixiEditor.Views.Input"
                              xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker.AvaloniaUI"
+                             xmlns:viewModels="clr-namespace:PixiEditor.ViewModels"
                              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
                              x:Class="PixiEditor.Views.Nodes.Properties.PaintablePropertyView">
     <Grid HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
@@ -15,6 +16,8 @@
             EnableGradientsTab="{Binding EnableGradients}"
             PointerPressed="InputElement_OnPointerPressed"
             Width="40" Height="20"
+            UseHintColor="True"
+            HintColorState="{Binding Path=PrimaryColorState, Source={viewModels:MainVM ColorsSVM}}"
             IsVisible="{Binding ShowInputField}"
             SelectedBrush="{Binding Value, Mode=TwoWay}" />
     </Grid>

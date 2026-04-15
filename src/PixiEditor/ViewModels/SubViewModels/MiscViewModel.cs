@@ -2,6 +2,7 @@
 using System.Reflection;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
+using LiveMarkdown.Avalonia;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Helpers;
 using PixiEditor.Initialization;
@@ -53,6 +54,15 @@ internal class MiscViewModel : SubViewModel<ViewModelMain>
         {
             CrashHelper.SendExceptionInfo(e);
             NoticeDialog.Show(title: "Error", message: $"Couldn't open the address {uri} in your default browser");
+        }
+    }
+
+    [Command.Internal("PixiEditor.Links.OpenMdHyperlink")]
+    public static void OpenMdHyperlink(LinkClickedEventArgs args)
+    {
+        if (args.HRef != null)
+        {
+            OpenUri(args.HRef.AbsoluteUri);
         }
     }
 

@@ -27,6 +27,7 @@ internal sealed class EnumSettingViewModel<TEnum> : Setting<TEnum>
         {
             if (SetProperty(ref selectedIndex, value))
             {
+                base.Value = Value; // Update the base Value to trigger any bindings or logic that depends on it.
                 OnPropertyChanged(nameof(Value));
             }
         }

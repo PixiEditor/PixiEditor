@@ -10,8 +10,8 @@ namespace PixiEditor.ViewModels.Tools.ToolSettings.Settings;
 
 internal sealed class DocumentReferenceSettingViewModel : Setting<DocumentReference>
 {
+    public bool HasValue => Value != null;
     public AsyncRelayCommand<DocumentReference> PickDocumentCommand { get; }
-    public bool HasOriginalFilePath => !string.IsNullOrEmpty(Value.OriginalFilePath);
 
     public DocumentReferenceSettingViewModel(string name) : base(name)
     {
@@ -33,8 +33,13 @@ internal sealed class DocumentReferenceSettingViewModel : Setting<DocumentRefere
             var doc = FileViewModel.ImportFromPath(dialog[0].Path.LocalPath);
             doc.Operations.InvokeCustomAction(() =>
             {
-                Value = new DocumentReference(doc.FullFilePath, doc.Id, doc.AccessInternalReadOnlyDocument());
-                OnPropertyChanged(nameof(HasOriginalFilePath));
+                // Do not set original file path for setting, document references should be a snapshots
+                Value = new DocumentReference(null, doc.Id, doc.AccessInternalReadOnlyDocument())
+                {
+                    DisplayName = System.IO.Path.GetFileNameWithoutExtension(dialog[0].Path.LocalPath)
+                };
+
+                OnPropertyChanged(nameof(HasValue));
             });
         }
     }

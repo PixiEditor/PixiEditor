@@ -153,7 +153,7 @@ public class ArrayConverterNode : Node
                 commonBaseType = commonBaseType.BaseType;
             }
 
-            if (commonBaseType == null)
+            if (commonBaseType == null || commonBaseType == typeof(ValueType))
             {
                 return typeof(object);
             }
