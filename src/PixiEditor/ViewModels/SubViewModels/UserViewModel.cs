@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
+using LiveMarkdown.Avalonia;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Helpers;
 using PixiEditor.IdentityProvider;
@@ -136,6 +137,12 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
     }
 
     public string ActiveModeKey => !RegisterMode ? "REGISTER_INSTEAD" : "LOGIN_INSTEAD";
+
+    public ObservableStringBuilder AgreementText { get; } =
+        new ObservableStringBuilder().Append(
+            new LocalizedString("REGISTER_AGREEMENT",
+                "https://pixieditor.net/docs/terms-of-service",
+                "https://pixieditor.net/docs/privacy-policy"));
 
     private IDisposable? timerCancelable;
 

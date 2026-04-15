@@ -6,6 +6,8 @@ using Drawie.Backend.Core.ColorsImpl;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Commands.Search;
+using PixiEditor.OperatingSystem;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels;
 using CommandSearchResult = PixiEditor.Models.Commands.Search.CommandSearchResult;
 using Search_CommandSearchResult = PixiEditor.Models.Commands.Search.CommandSearchResult;
@@ -77,7 +79,7 @@ internal static class CommandSearchControlHelper
                 });
                 newResults.Add(ColorSearchResult.PastePalette(color, query));
             },
-            (Error _) => warnings.Add("Invalid color"),
+            (Error _) => warnings.Add(new LocalizedString("SEARCH_WARNING_INVALID_COLOR")),
             static (None _) => { }
             );
 
@@ -148,7 +150,7 @@ internal static class CommandSearchControlHelper
             }
             else
             {
-                warnings.Add("Save current document to browse files");
+                warnings.Add(new LocalizedString("SEARCH_WARNING_SAVE_DOCUMENT"));
             }
         }
         
@@ -161,7 +163,8 @@ internal static class CommandSearchControlHelper
 
         if (!files.Any())
         {
-            warnings.Add($"Directory '{Path.GetFullPath(filePath).TrimEnd(Path.DirectorySeparatorChar)}' does not have any files.");
+            LocalizedString warning = new LocalizedString("SEARCH_WARNING_NO_FILES_IN_DIRECTORY", Path.GetFullPath(filePath).TrimEnd(Path.DirectorySeparatorChar));
+            warnings.Add(warning);
             return Enumerable.Empty<SearchResult>();
         }
 
@@ -194,7 +197,8 @@ internal static class CommandSearchControlHelper
             return true;
         }
 
-        directory = Path.GetDirectoryName(path) ?? @"C:\";
+        string operatingSystemStart = IOperatingSystem.Current.IsWindows ? @"C:\" : "/";
+        directory = Path.GetDirectoryName(path) ?? operatingSystemStart;
         file = Path.GetFileName(path);
 
         return Directory.Exists(directory);
