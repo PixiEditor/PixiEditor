@@ -71,6 +71,11 @@ public class SyncGroup
             }
         }
 
+        if (commonBaseType == typeof(ValueType))
+        {
+            return typeof(object);
+        }
+
         return commonBaseType ?? typeof(object);
     }
 
