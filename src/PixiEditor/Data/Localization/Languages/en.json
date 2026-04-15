@@ -1455,5 +1455,8 @@
   "COLOR_PICKER_START_X": "Start X:",
   "COLOR_PICKER_START_Y": "Start Y:",
   "COLOR_PICKER_END_X": "End X:",
-  "COLOR_PICKER_END_Y": "End Y:"
+  "COLOR_PICKER_END_Y": "End Y:",
+  "SEARCH_WARNING_INVALID_COLOR": "Invalid color",
+  "SEARCH_WARNING_SAVE_DOCUMENT": "Save current document to browse files",
+  "SEARCH_WARNING_NO_FILES_IN_DIRECTORY": "Directory '{0}' does not have any files."
 }

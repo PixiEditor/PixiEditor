@@ -116,15 +116,6 @@
                             <TextBlock Name="lengthTb" VerticalAlignment="Center" FontSize="14"
                                        IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=
                             !!KeyFrames.Count}">
-                                <TextBlock.ContextFlyout>
-                                    <Flyout Placement="Top">
-                                        <StackPanel>
-                                            <TextBlock Classes="h4" Margin="5"
-                                                       ui1:Translator.Key="CHANGE_KEYFRAMES_LENGTH" />
-
-                                        </StackPanel>
-                                    </Flyout>
-                                </TextBlock.ContextFlyout>
                                 <Run>
                                     <Run.Text>
                                         <MultiBinding>
