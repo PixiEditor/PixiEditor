@@ -10,7 +10,10 @@ using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 
@@ -125,6 +128,11 @@ public static class ConversionTable
                             new LinearGradientPaintable(new VecD(0, 0), new VecD(1, 1),
                                 [new GradientStop(c.Color, 0), new GradientStop(c.Color, 1)]))),
                     (typeof(Color), new TypeConverter<ColorPaintable, Color>(c => c.Color))
+                ]
+            },
+            {
+                typeof(IReadOnlyShapeVectorData), [
+                    (typeof(PathVectorData), new TypeConverter<IReadOnlyShapeVectorData, PathVectorData>(d => d != null ? new PathVectorData(d.ToPath()) : null))
                 ]
             }
         };
