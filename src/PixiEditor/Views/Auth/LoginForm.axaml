@@ -39,7 +39,8 @@
                                 <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundSecondaryBrush}" />
 
                                 <Style Selector="^:clicked">
-                                    <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundSecondaryBrush}" />
+                                    <Setter Property="Foreground"
+                                            Value="{DynamicResource ThemeForegroundSecondaryBrush}" />
                                 </Style>
                             </Style>
                         </avalonia:MarkdownRenderer.Styles>
@@ -47,7 +48,7 @@
                 </StackPanel>
 
                 <CheckBox VerticalAlignment="Center" IsChecked="{Binding SignInToNewsletterChecked, Mode=TwoWay}"
-                          ui:Translator.Key="SIGN_IN_TO_NEWSLETTER"/>
+                          ui:Translator.Key="SIGN_IN_TO_NEWSLETTER" />
 
             </StackPanel>
 
@@ -98,15 +99,17 @@
             </Button>
 
             <Panel IsVisible="{Binding LastError, Converter={converters:NullToVisibilityConverter}}">
-                <TextBlock Classes="subtext" Text="{ui:Translate Key=LOGIN_LINK_INFO}"
-                           FontSize="{DynamicResource FontSizeNormal}">
-                    <TextBlock.IsVisible>
-                        <MultiBinding Converter="{converters:OneTrueConverter}">
-                            <Binding Path="NotLoggedIn" />
-                            <Binding Path="!EmailEqualsLastSentMail" />
-                        </MultiBinding>
-                    </TextBlock.IsVisible>
-                </TextBlock>
+                <Panel IsVisible="{Binding !RegisterMode}">
+                    <TextBlock Classes="subtext" Text="{ui:Translate Key=LOGIN_LINK_INFO}"
+                               FontSize="{DynamicResource FontSizeNormal}">
+                        <TextBlock.IsVisible>
+                            <MultiBinding Converter="{converters:OneTrueConverter}">
+                                <Binding Path="NotLoggedIn" />
+                                <Binding Path="!EmailEqualsLastSentMail" />
+                            </MultiBinding>
+                        </TextBlock.IsVisible>
+                    </TextBlock>
+                </Panel>
                 <TextBlock Text="✓" Foreground="{DynamicResource ThemeAccent2Brush}"
                            FontSize="{DynamicResource FontSizeNormal}">
                     <TextBlock.IsVisible>
