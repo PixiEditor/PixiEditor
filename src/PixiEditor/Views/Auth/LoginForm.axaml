@@ -8,6 +8,7 @@
              xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
              xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
              xmlns:ui1="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+             xmlns:avalonia="clr-namespace:LiveMarkdown.Avalonia;assembly=LiveMarkdown.Avalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="subViewModels:UserViewModel"
              x:Class="PixiEditor.Views.Auth.LoginForm">
@@ -24,12 +25,25 @@
                 <StackPanel
                     Orientation="Horizontal" Spacing="5">
                     <CheckBox VerticalAlignment="Center" IsChecked="{Binding AgreementChecked, Mode=TwoWay}" />
-                    <TextBlock Text="{ui:Translate Key=AGREE_TERMS}" />
-                    <TextBlock ui1:Hyperlink.Url="https://pixieditor.net/docs/terms-of-service"
-                               ui:Translator.Key="TERMS_OF_SERVICE" />
-                    <TextBlock ui:Translator.Key="AND" />
-                    <TextBlock ui1:Hyperlink.Url="https://pixieditor.net/docs/privacy-policy"
-                               ui:Translator.Key="PRIVACY_POLICY" />
+                    <avalonia:MarkdownRenderer Width="250"
+                                               LinkCommand="{xaml:Command Name=PixiEditor.Links.OpenMdHyperlink, UseProvided=True}"
+                                               MarkdownBuilder="{Binding AgreementText}">
+                        <avalonia:MarkdownRenderer.Styles>
+                            <Style Selector="StackPanel">
+                                <Setter Property="VerticalAlignment" Value="Center" />
+                            </Style>
+                            <Style Selector="avalonia|MarkdownTextBlock">
+                                <Setter Property="FontSize" Value="{DynamicResource FontSizeNormal}" />
+                            </Style>
+                            <Style Selector="avalonia|Link">
+                                <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundSecondaryBrush}" />
+
+                                <Style Selector="^:clicked">
+                                    <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundSecondaryBrush}" />
+                                </Style>
+                            </Style>
+                        </avalonia:MarkdownRenderer.Styles>
+                    </avalonia:MarkdownRenderer>
                 </StackPanel>
 
                 <CheckBox VerticalAlignment="Center" IsChecked="{Binding SignInToNewsletterChecked, Mode=TwoWay}"
