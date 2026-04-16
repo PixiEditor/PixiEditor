@@ -96,7 +96,20 @@ public class SwitchNode : Node
     {
         if (!context.HasContext)
         {
-            return ((bool)context.GetValue(Condition).GetConstant())
+            var constant = context.GetValue(Condition).GetConstant();
+            if (constant is not bool aBool)
+            {
+                try
+                {
+                    aBool = Convert.ToBoolean(constant);
+                }
+                catch
+                {
+                    aBool = false;
+                }
+            }
+
+            return aBool
                 ? context.GetValue(InputTrue.InternalProperty as FuncInputProperty<Float1>)
                 : context.GetValue(InputFalse.InternalProperty as FuncInputProperty<Float1>);
         }
