@@ -59,7 +59,7 @@ internal class DiscordSettings : SettingsGroup
     {
         get
         {
-            return ShowDocumentName ? $"Editing coolPixelArt.pixi" : "Editing an image";
+            return ShowDocumentName ? new LocalizedString("DISCORD_EDITING_DOCUMENT") : new LocalizedString("DISCORD_EDITING_IMG");
         }
     }
 

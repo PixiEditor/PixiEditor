@@ -1406,6 +1406,8 @@
   "DISCORD_DATE": "Oct 29, 2026",
   "DISCORD_BOT": "BOT",
   "DISCORD_LAYERS_COUNT": "2 Layers",
+  "DISCORD_EDITING_DOCUMENT": "Editing coolPixelArt.pixi",
+  "DISCORD_EDITING_IMG": "Editing an image",
   "RESAMPLE_METHOD": "Resampling Method",
   "NEAREST_NEIGHBOR_RESAMPLING_METHOD": "Nearest Neighbor",
   "BILINEAR_RESAMPLING_METHOD": "Bilinear",
@@ -1457,5 +1459,6 @@
   "SEARCH_WARNING_SAVE_DOCUMENT": "Save current document to browse files",
   "SEARCH_WARNING_NO_FILES_IN_DIRECTORY": "Directory '{0}' does not have any files.",
   "REGISTER_AGREEMENT": "I have read the [Terms of Service]({0}) and [Privacy Policy]({1}) and accept their provisions.",
-  "EXTENSIONS_WINDOW_SHOWCASE_OPEN_IN_BROWSER": "Open in browser"
+  "EXTENSIONS_WINDOW_SHOWCASE_OPEN_IN_BROWSER": "Open in browser",
+  "SELECT_DOCUMENT_BUTTON": "Select"
 }
