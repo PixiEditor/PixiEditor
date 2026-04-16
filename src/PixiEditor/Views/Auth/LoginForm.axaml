@@ -30,18 +30,11 @@
                                                MarkdownBuilder="{Binding AgreementText}">
                         <avalonia:MarkdownRenderer.Styles>
                             <Style Selector="StackPanel">
-                                <Setter Property="VerticalAlignment" Value="Center" />
+                                <Setter Property="VerticalAlignment" Value="Top" />
                             </Style>
                             <Style Selector="avalonia|MarkdownTextBlock">
                                 <Setter Property="FontSize" Value="{DynamicResource FontSizeNormal}" />
-                            </Style>
-                            <Style Selector="avalonia|Link">
-                                <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundSecondaryBrush}" />
-
-                                <Style Selector="^:clicked">
-                                    <Setter Property="Foreground"
-                                            Value="{DynamicResource ThemeForegroundSecondaryBrush}" />
-                                </Style>
+                                <Setter Property="FontFamily" Value="$Default"/>
                             </Style>
                         </avalonia:MarkdownRenderer.Styles>
                     </avalonia:MarkdownRenderer>
