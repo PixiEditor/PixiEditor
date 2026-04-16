@@ -339,8 +339,10 @@ internal static class ClipboardController
                 manager.Owner.ToolsSubViewModel.SetActiveTool<MoveToolViewModel>(false);
 
                 var resizeIfNeeded = images.Count > 1;
-                
-                if (!resizeIfNeeded && images.Any(i => i.Image.Size.CompareTo(document.SizeBindable) < 0))
+
+                var img = images.First();
+                var test = img.Image.Size.CompareTo(document.SizeBindable) < 0;
+                if (!resizeIfNeeded && images.Any(i => document.SizeBindable.CompareTo(i.Image.Size) < 0))
                 {
                     var userResp =
                         await ConfirmationDialog.Show("OVERSIZED_INSERTION_MESSAGE", "OVERSIZED_INSERTION_TITLE");
