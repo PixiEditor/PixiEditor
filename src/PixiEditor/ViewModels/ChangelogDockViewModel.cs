@@ -13,7 +13,7 @@ namespace PixiEditor.ViewModels;
 public class ChangelogDockViewModel : ViewModelBase, IDockableContent
 {
     public string Id { get; } = Guid.NewGuid().ToString();
-    public string Title { get; }
+    public string Title => new LocalizedString("CHANGELOG_TITLE", Version);
     public bool CanFloat { get; }  = true;
     public bool CanClose { get; }   = true;
 
@@ -21,11 +21,13 @@ public class ChangelogDockViewModel : ViewModelBase, IDockableContent
         new TabCustomizationSettings() { ShowCloseButton = true,
             Icon = ImagePathToBitmapConverter.LoadImage("/Images/PixiEditorLogoGrayscale.svg") };
 
+    public string Version { get; set; }
+
     public ObservableStringBuilder Changelog { get; } = new ObservableStringBuilder();
 
     public ChangelogDockViewModel(string version, string changelog)
     {
-        Title = new LocalizedString("CHANGELOG_TITLE", version);
+        Version = version;
         Changelog.Append(changelog);
     }
 }

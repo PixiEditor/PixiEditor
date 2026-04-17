@@ -13,7 +13,8 @@ internal class ChangelogViewModel : SubViewModel<ViewModelMain>
 
     private void OwnerOnOnUserReady()
     {
-        string lastSeen = IPreferences.Current.GetLocalPreference<string>("LastSeenChangelogVersion");
+        string lastSeen =
+            IPreferences.Current.GetLocalPreference<string>(PreferencesConstants.LastSeenChangelogVersion);
 
         if(Version.TryParse(lastSeen, out Version lastSeenVersion))
         {
@@ -49,13 +50,12 @@ internal class ChangelogViewModel : SubViewModel<ViewModelMain>
                 }
             }
 
-            IPreferences.Current.UpdateLocalPreference("LastSeenChangelogVersion", CurrentVersion().ToString());
+            IPreferences.Current.UpdateLocalPreference(PreferencesConstants.LastSeenChangelogVersion, CurrentVersion().ToString());
             Owner.LayoutSubViewModel.LayoutManager.AddViewport(new ChangelogDockViewModel(changelogVersion.Trim(), changelog));
         }
         catch (Exception ex)
         {
-            // Log the error, but don't crash the app if the changelog can't be loaded
-            Console.WriteLine($"Failed to load changelog: {ex}");
+            CrashHelper.SendExceptionInfo(ex);
         }
     }
 
