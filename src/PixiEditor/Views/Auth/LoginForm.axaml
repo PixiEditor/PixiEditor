@@ -17,12 +17,12 @@
     </Design.DataContext>
 
     <Panel>
-        <DockPanel LastChildFill="True" IsVisible="{Binding !IsLoggedIn}" Name="RootPanel">
+        <DockPanel LastChildFill="True" IsVisible="{Binding !IsLoggedIn}">
             <ToggleButton ui:Translator.Key="{Binding ActiveModeKey}"
                           DockPanel.Dock="Bottom"
                           Background="Transparent" BorderThickness="0"
                           IsChecked="{Binding RegisterMode, Mode=TwoWay}" />
-            <StackPanel VerticalAlignment="Center" Spacing="12">
+            <StackPanel VerticalAlignment="Center" Spacing="12" Name="RootPanel">
                 <TextBox Text="{Binding CurrentEmail, Mode=TwoWay}" Watermark="{ui:Translate Key=ENTER_EMAIL}"
                          Name="Email"
                          IsVisible="{Binding !IsLoggedIn}" />
@@ -30,8 +30,8 @@
                 <StackPanel Spacing="5" Orientation="Vertical" IsVisible="{Binding RegisterMode}">
                     <StackPanel
                         Orientation="Horizontal" Spacing="5">
-                        <CheckBox VerticalAlignment="Center" IsChecked="{Binding AgreementChecked, Mode=TwoWay}" />
-                        <avalonia:MarkdownRenderer Width="250"
+                        <CheckBox VerticalAlignment="Top" IsChecked="{Binding AgreementChecked, Mode=TwoWay}" />
+                        <avalonia:MarkdownRenderer Width="570" VerticalAlignment="Bottom"
                                                    LinkCommand="{xaml:Command Name=PixiEditor.Links.OpenMdHyperlink, UseProvided=True}"
                                                    MarkdownBuilder="{Binding AgreementText}">
                             <avalonia:MarkdownRenderer.Styles>
@@ -39,15 +39,30 @@
                                     <Setter Property="VerticalAlignment" Value="Top" />
                                 </Style>
                                 <Style Selector="avalonia|MarkdownTextBlock">
-                                    <Setter Property="FontSize" Value="{DynamicResource FontSizeNormal}" />
+                                    <Setter Property="FontSize" Value="12" />
                                     <Setter Property="FontFamily" Value="$Default" />
                                 </Style>
                             </avalonia:MarkdownRenderer.Styles>
                         </avalonia:MarkdownRenderer>
                     </StackPanel>
 
-                    <CheckBox VerticalAlignment="Center" IsChecked="{Binding SignInToNewsletterChecked, Mode=TwoWay}"
-                              ui:Translator.Key="SIGN_IN_TO_NEWSLETTER" />
+                    <StackPanel
+                        Orientation="Horizontal" Spacing="5">
+                        <CheckBox VerticalAlignment="Top" IsChecked="{Binding SignInToNewsletterChecked, Mode=TwoWay}" />
+                        <avalonia:MarkdownRenderer Width="570" VerticalAlignment="Bottom"
+                                                   LinkCommand="{xaml:Command Name=PixiEditor.Links.OpenMdHyperlink, UseProvided=True}"
+                                                   MarkdownBuilder="{Binding NewsletterAgreementText}">
+                            <avalonia:MarkdownRenderer.Styles>
+                                <Style Selector="StackPanel">
+                                    <Setter Property="VerticalAlignment" Value="Top" />
+                                </Style>
+                                <Style Selector="avalonia|MarkdownTextBlock">
+                                    <Setter Property="FontSize" Value="12" />
+                                    <Setter Property="FontFamily" Value="$Default" />
+                                </Style>
+                            </avalonia:MarkdownRenderer.Styles>
+                        </avalonia:MarkdownRenderer>
+                    </StackPanel>
 
                 </StackPanel>
 
@@ -118,7 +133,7 @@
                             </MultiBinding>
                         </TextBlock.IsVisible>
                         <Run />
-                        <TextBlock ui:Translator.Key="EMAIL_SENT" />
+                        <TextBlock Margin="0, 0, 0, -4" ui:Translator.Key="EMAIL_SENT" />
                     </TextBlock>
                 </Panel>
                 <TextBlock Text="✕" IsVisible="{Binding !!LastError}" TextWrapping="Wrap"

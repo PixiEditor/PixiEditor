@@ -19,6 +19,11 @@
                 Margin="40"
                 LinkCommand="{xaml:Command Name=PixiEditor.Links.OpenMdHyperlink, UseProvided=True}"
                 MarkdownBuilder="{Binding Changelog}">
+                <avalonia:MarkdownRenderer.Styles>
+                    <Style Selector="avalonia|MarkdownTextBlock">
+                        <Setter Property="FontSize" Value="{DynamicResource FontSizeLarge}" />
+                    </Style>
+                </avalonia:MarkdownRenderer.Styles>
             </avalonia:MarkdownRenderer>
         </Panel>
     </ScrollViewer>

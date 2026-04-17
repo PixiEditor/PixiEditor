@@ -1,5 +1,7 @@
 # 2.1.0.20
 
+Date: `18.04.2026`
+
 ## Brush Engine
 
 ![image|426x459](https://forum.pixieditor.net/uploads/default/original/1X/99c6ffa98ee02800272cbe3d3b8a6998f6d63a15.png)
@@ -8,17 +10,27 @@ Likely, the most awaited of features, you can now create your own Brushes with P
 
 Use the new Brush Picker within Pen Tool to select, duplicate and edit brushes.
 
-**Remember, brushes behave differently within Pixel Art and Painting toolset!**
+Along the Brush Engine, full drawing tablet support has been added. For Windows, both Ink and WinTab APIs are supported.
+
+Check out the [documentation](https://pixieditor.net/docs/usage/brushes/getting-started) to learn how to create your own brushes.
+
+**Brushes behave differently within Pixel Art and Painting toolset!**
 
 ## Extension Browser Beta
 
 ![image|690x405](https://pixieditor.net/_astro/wsp.Cx8QtmYt_ZOD8MR.webp)
 
-### Precise paint engine
+You can now browse and install extensions! [Learn more about the beta](https://forum.pixieditor.net/t/extension-browser-beta/567)
+
+In short:
+- This is a Phase 1, so the amount of extensions is very limited and only developed by Pixi Labs,
+- Phase 1 is focused on preparing the system for community extensions and funding the further phases
+
+## Precise paint engine
 
 PixiEditor now uses precise paint engine. Previously all brush stamps were rounded to pixels, starting from version 2.1, you can paint with sub-pixel precision. Snapped pixels are still an option per-brush.
 
-### Stabilizers
+## Stabilizers
 
 ![image|189x46](https://forum.pixieditor.net/uploads/default/original/1X/5b1504b3664667695667ea672891808ac281f86c.png)
 
@@ -32,7 +44,7 @@ We've added 2 stabilizers: Distance based and Time based. They are available wit
 
 ![image|365x139](https://forum.pixieditor.net/uploads/default/original/1X/19300fb77f3efbb47675eb08620b5d9908ac8555.png)
 
-PixiEditor now support smart layers. You can use other .pixi files within your document, embed .svg files directly as layers and more.
+PixiEditor now supports smart layers. You can use other .pixi files within your document, embed .svg files directly as layers and more.
 
 PixiEditor's advanced Node Graph allows to expose values to parent document, if they are embedded as a nested document (smart layer). Additionally, with new Blackboard feature, you can define inputs to your smart layers.
 
@@ -53,17 +65,16 @@ Blackboard is our solution for multiple, important things:
 - It defines Brush settings, that are exposed in Pen tool settings when brush is picked
 - It allows for defining inputs for graphs. Inputs are a gateway to pass data between parent document and embedded one. If you prefer programming comparision, you can think of a nested graph as a function and inputs as function parameters.
 
+## Improved animation timeline
+
+This is something many of you requested. We’ve overhauled the timeline and workflow of the animation system. This is the very first [community proposal](https://forum.pixieditor.net/t/timeline-improvements/540) coming to life.
+
 ## New Renderer
 
-As a response to a few important issues, I've decided to rewrite a lot of core rendering components. There are plenty of new optimizations and characteristics. A few issues, that the new renderer is trying to solve:
+As a response to a few important issues, We rewrote a lot of core rendering components. There are plenty of new optimizations and characteristics. A few issues, that the new renderer is trying to solve:
 
-- Bad/inaccurate previews
 - Bad performance when running some animations
 - Better responsiveness of the app
-
-The core idea behind new renderer is to decouple UI controls from actual graph rendering. I am aiming to make it truly asynchronous on a separate thread, but it's a very challenging problem, so at the moment, rendering is pseudoasynchronous. It means, that rendering is still running on the main thread, but it's scheduled on background priority when possible.
-
-Please report any issues rendering.
 
 ## New Nodes
 
@@ -81,6 +92,9 @@ Please report any issues rendering.
 - Nested Document: Smart Layer node. Allows for picking any document file.
 - Pointer Info: Info about current pointer, such as pressure, position on canvas and more.
 - Keyboard Info: Information about keyboard state, currently bools about modifier keys.
+- Array: Create an array out of items
+- Array Element: Get an element from array by index
+- Array Length: Get length of an array
 
 ## New Sockets
 
@@ -92,57 +106,13 @@ You may notice new colorful inputs in the graph, they mean that any type can be 
 
 You can now create your own toolsets and tools based on Brushes.
 
-Go to `%localappdata/PixiEditor/Configs` and create a file called `ToolSetsConfig.json`. Now, the contents of the file may look like this:
-
-```json
-{
-  "CustomTools": [
-    {
-      "ToolName": "Gradient",
-      "Brush": "path/to/brush/GradientBrush.pixi",
-      "Icon": "path/to/icon.png",
-      "ToolTip": "Allows for drawing gradients",
-      "DefaultShortcut": "G",
-      "ActionDisplays": [
-        {
-          "ActionDisplay": "Click and drag to create a gradient"
-        },
-        {
-          "Modifiers": "Ctrl",
-          "ActionDisplay": "Click and drag to create an inverted gradient."
-        }
-      ]
-    }
-  ],
-  "ToolSets": [
-    {
-      "Name": "Toolset",
-      "Icon": "icon-noise",
-      "Tools": [
-        "Gradient"
-      ]
-    },
-    {
-      "Name": "PAINT_TOOLSET",
-      "Icon": "icon-paint-brush",
-      "Tools": [
-        {
-          "ToolName": "MoveViewport",
-          "Icon": "path/to/new/icon.png"
-        }
-      ]
-    }
-  ]
-}
-```
-
-For icons, you can use .png, .svg or `icon-name` to use PixiEditor's built-in icons. All glyphs can be found [here](https://github.com/PixiEditor/PixiEditor/blob/master/src/PixiEditor.UI.Common/Fonts/PixiPerfectIcons.axaml).
-
-You can overwrite built-in toolsets settings and icons. It is not possible to remove any existing items.
+Check out [the documentation](https://pixieditor.net/docs/usage/brushes/brush-tools) to learn how.
 
 ## Other enhancements
 
-- Importing images now embed them as smart layers by default. To edit them, you need to rasterize them.
+- Importing images now embed them as smart layers by default.
+- Added Mushy advisor to various parts of the app, to help you understand how to use them.
 - Improved string editor. Now it supports syntax highlighting for shaders, search and replace and more.
 - Improved stability of OpenGL render api
-- Clipboard now should work much better and more stable.
+- Clipboard should now work much better and more stable.
+- Tons of other smaller improvements, features and bug fixes, that you can check out in the [full changelog](https://forum.pixieditor.net/t/pixieditor-2-1-0-20/578)
