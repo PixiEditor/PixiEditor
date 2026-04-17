@@ -33,7 +33,6 @@ internal class PathOperation : IMirroredDrawOperation
     public PathOperation(VectorPath path, Color color, float strokeWidth, StrokeCap cap, Blender blender, RectI? customBounds = null)
     {
         this.path = new VectorPath(path);
-        blender?.LockDispose(this);
         paint = new() { Color = color, Style = PaintStyle.Stroke, StrokeWidth = strokeWidth, StrokeCap = cap, Blender = blender };
 
         RectI floatBounds = customBounds ?? (RectI)(path.TightBounds).RoundOutwards();
@@ -57,7 +56,6 @@ internal class PathOperation : IMirroredDrawOperation
     {
         this.antiAliasing = antiAliasing;
         this.path = new VectorPath(path);
-        blender?.LockDispose(this);
         paint = new() { Paintable = paintable, Style = style, StrokeWidth = strokeWidth, StrokeCap = cap, Blender = blender };
 
         RectI floatBounds = customBounds ?? (RectI)(path.Bounds).RoundOutwards();
@@ -125,7 +123,6 @@ internal class PathOperation : IMirroredDrawOperation
     public void Dispose()
     {
         path.Dispose();
-        paint?.Blender?.UnLockDispose(this);
         paint.Dispose();
     }
 }
