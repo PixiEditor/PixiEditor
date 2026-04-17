@@ -17,115 +17,117 @@
     </Design.DataContext>
 
     <Panel>
-        <StackPanel IsVisible="{Binding !IsLoggedIn}" Name="RootPanel" VerticalAlignment="Top" Spacing="12">
-            <TextBox Text="{Binding CurrentEmail, Mode=TwoWay}" Watermark="{ui:Translate Key=ENTER_EMAIL}" Name="Email"
-                     IsVisible="{Binding !IsLoggedIn}" />
+        <DockPanel LastChildFill="True" IsVisible="{Binding !IsLoggedIn}" Name="RootPanel">
+            <ToggleButton ui:Translator.Key="{Binding ActiveModeKey}"
+                          DockPanel.Dock="Bottom"
+                          Background="Transparent" BorderThickness="0"
+                          IsChecked="{Binding RegisterMode, Mode=TwoWay}" />
+            <StackPanel VerticalAlignment="Center" Spacing="12">
+                <TextBox Text="{Binding CurrentEmail, Mode=TwoWay}" Watermark="{ui:Translate Key=ENTER_EMAIL}"
+                         Name="Email"
+                         IsVisible="{Binding !IsLoggedIn}" />
 
-            <StackPanel Spacing="5" Orientation="Vertical" IsVisible="{Binding RegisterMode}">
-                <StackPanel
-                    Orientation="Horizontal" Spacing="5">
-                    <CheckBox VerticalAlignment="Center" IsChecked="{Binding AgreementChecked, Mode=TwoWay}" />
-                    <avalonia:MarkdownRenderer Width="250"
-                                               LinkCommand="{xaml:Command Name=PixiEditor.Links.OpenMdHyperlink, UseProvided=True}"
-                                               MarkdownBuilder="{Binding AgreementText}">
-                        <avalonia:MarkdownRenderer.Styles>
-                            <Style Selector="StackPanel">
-                                <Setter Property="VerticalAlignment" Value="Top" />
-                            </Style>
-                            <Style Selector="avalonia|MarkdownTextBlock">
-                                <Setter Property="FontSize" Value="{DynamicResource FontSizeNormal}" />
-                                <Setter Property="FontFamily" Value="$Default"/>
-                            </Style>
-                        </avalonia:MarkdownRenderer.Styles>
-                    </avalonia:MarkdownRenderer>
+                <StackPanel Spacing="5" Orientation="Vertical" IsVisible="{Binding RegisterMode}">
+                    <StackPanel
+                        Orientation="Horizontal" Spacing="5">
+                        <CheckBox VerticalAlignment="Center" IsChecked="{Binding AgreementChecked, Mode=TwoWay}" />
+                        <avalonia:MarkdownRenderer Width="250"
+                                                   LinkCommand="{xaml:Command Name=PixiEditor.Links.OpenMdHyperlink, UseProvided=True}"
+                                                   MarkdownBuilder="{Binding AgreementText}">
+                            <avalonia:MarkdownRenderer.Styles>
+                                <Style Selector="StackPanel">
+                                    <Setter Property="VerticalAlignment" Value="Top" />
+                                </Style>
+                                <Style Selector="avalonia|MarkdownTextBlock">
+                                    <Setter Property="FontSize" Value="{DynamicResource FontSizeNormal}" />
+                                    <Setter Property="FontFamily" Value="$Default" />
+                                </Style>
+                            </avalonia:MarkdownRenderer.Styles>
+                        </avalonia:MarkdownRenderer>
+                    </StackPanel>
+
+                    <CheckBox VerticalAlignment="Center" IsChecked="{Binding SignInToNewsletterChecked, Mode=TwoWay}"
+                              ui:Translator.Key="SIGN_IN_TO_NEWSLETTER" />
+
                 </StackPanel>
 
-                <CheckBox VerticalAlignment="Center" IsChecked="{Binding SignInToNewsletterChecked, Mode=TwoWay}"
-                          ui:Translator.Key="SIGN_IN_TO_NEWSLETTER" />
-
-            </StackPanel>
-
-            <Panel IsVisible="{Binding !RegisterMode}">
-                <Button Name="LoginButton"
-                        IsDefault="True"
-                        Command="{Binding RequestLoginCommand}"
-                        CommandParameter="{Binding ElementName=Email, Path=Text}">
-                    <Button.IsVisible>
-                        <MultiBinding Converter="{converters:OneTrueConverter}">
-                            <Binding Path="NotLoggedIn" />
-                            <Binding Path="!EmailEqualsLastSentMail" />
-                        </MultiBinding>
-                    </Button.IsVisible>
-                    <TextBlock>
-                        <Run ui:Translator.Key="LOGIN_LINK" />
-                        <Run Text="{Binding TimeToEndTimeoutString}" />
-                    </TextBlock>
-                </Button>
-            </Panel>
-            <Button Name="RegisterButton"
-                    IsDefault="True"
-                    Command="{Binding RegisterCommand}"
-                    CommandParameter="{Binding ElementName=Email, Path=Text}">
-                <Button.IsVisible>
-                    <MultiBinding Converter="{converters:AllTrueConverter}">
-                        <Binding Path="!IsLoggedIn" />
-                        <Binding Path="RegisterMode" />
-                    </MultiBinding>
-                </Button.IsVisible>
-                <TextBlock>
-                    <Run ui:Translator.Key="REGISTER" />
-                    <Run Text="{Binding TimeToEndTimeoutString}" />
-                </TextBlock>
-            </Button>
-            <Button Command="{Binding Path=ResendActivationCommand}"
-                    CommandParameter="{Binding ElementName=Email, Path=Text}">
-                <Button.IsVisible>
-                    <MultiBinding Converter="{converters:AllTrueConverter}">
-                        <Binding Path="WaitingForActivation" />
-                        <Binding Path="!RegisterMode" />
-                        <Binding Path="EmailEqualsLastSentMail" />
-                    </MultiBinding>
-                </Button.IsVisible>
-                <TextBlock ui:Translator.Key="RESEND_ACTIVATION">
-                    <TextBlock Text="{Binding TimeToEndTimeoutString}" />
-                </TextBlock>
-            </Button>
-
-            <Panel IsVisible="{Binding LastError, Converter={converters:NullToVisibilityConverter}}">
                 <Panel IsVisible="{Binding !RegisterMode}">
-                    <TextBlock Classes="subtext" Text="{ui:Translate Key=LOGIN_LINK_INFO}"
-                               FontSize="{DynamicResource FontSizeNormal}">
-                        <TextBlock.IsVisible>
+                    <Button Name="LoginButton"
+                            IsDefault="True"
+                            Command="{Binding RequestLoginCommand}"
+                            CommandParameter="{Binding ElementName=Email, Path=Text}">
+                        <Button.IsVisible>
                             <MultiBinding Converter="{converters:OneTrueConverter}">
                                 <Binding Path="NotLoggedIn" />
                                 <Binding Path="!EmailEqualsLastSentMail" />
                             </MultiBinding>
-                        </TextBlock.IsVisible>
-                    </TextBlock>
+                        </Button.IsVisible>
+                        <TextBlock>
+                            <Run ui:Translator.Key="LOGIN_LINK" />
+                            <Run Text="{Binding TimeToEndTimeoutString}" />
+                        </TextBlock>
+                    </Button>
                 </Panel>
-                <TextBlock Text="✓" Foreground="{DynamicResource ThemeAccent2Brush}"
-                           FontSize="{DynamicResource FontSizeNormal}">
-                    <TextBlock.IsVisible>
+                <Button Name="RegisterButton"
+                        IsDefault="True"
+                        Command="{Binding RegisterCommand}"
+                        CommandParameter="{Binding ElementName=Email, Path=Text}">
+                    <Button.IsVisible>
+                        <MultiBinding Converter="{converters:AllTrueConverter}">
+                            <Binding Path="!IsLoggedIn" />
+                            <Binding Path="RegisterMode" />
+                        </MultiBinding>
+                    </Button.IsVisible>
+                    <TextBlock>
+                        <Run ui:Translator.Key="REGISTER" />
+                        <Run Text="{Binding TimeToEndTimeoutString}" />
+                    </TextBlock>
+                </Button>
+                <Button Command="{Binding Path=ResendActivationCommand}"
+                        CommandParameter="{Binding ElementName=Email, Path=Text}">
+                    <Button.IsVisible>
                         <MultiBinding Converter="{converters:AllTrueConverter}">
                             <Binding Path="WaitingForActivation" />
+                            <Binding Path="!RegisterMode" />
                             <Binding Path="EmailEqualsLastSentMail" />
                         </MultiBinding>
-                    </TextBlock.IsVisible>
-                    <Run />
-                    <TextBlock ui:Translator.Key="EMAIL_SENT" />
+                    </Button.IsVisible>
+                    <TextBlock ui:Translator.Key="RESEND_ACTIVATION">
+                        <TextBlock Text="{Binding TimeToEndTimeoutString}" />
+                    </TextBlock>
+                </Button>
+
+                <Panel IsVisible="{Binding LastError, Converter={converters:NullToVisibilityConverter}}">
+                    <Panel IsVisible="{Binding !RegisterMode}">
+                        <TextBlock Classes="subtext" Text="{ui:Translate Key=LOGIN_LINK_INFO}"
+                                   FontSize="{DynamicResource FontSizeNormal}">
+                            <TextBlock.IsVisible>
+                                <MultiBinding Converter="{converters:OneTrueConverter}">
+                                    <Binding Path="NotLoggedIn" />
+                                    <Binding Path="!EmailEqualsLastSentMail" />
+                                </MultiBinding>
+                            </TextBlock.IsVisible>
+                        </TextBlock>
+                    </Panel>
+                    <TextBlock Text="✓" Foreground="{DynamicResource ThemeAccent2Brush}"
+                               FontSize="{DynamicResource FontSizeNormal}">
+                        <TextBlock.IsVisible>
+                            <MultiBinding Converter="{converters:AllTrueConverter}">
+                                <Binding Path="WaitingForActivation" />
+                                <Binding Path="EmailEqualsLastSentMail" />
+                            </MultiBinding>
+                        </TextBlock.IsVisible>
+                        <Run />
+                        <TextBlock ui:Translator.Key="EMAIL_SENT" />
+                    </TextBlock>
+                </Panel>
+                <TextBlock Text="✕" IsVisible="{Binding !!LastError}" TextWrapping="Wrap"
+                           Foreground="{DynamicResource ErrorOnDarkBrush}">
+                    <Run Text="" />
+                    <Run ui:Translator.LocalizedString="{Binding LastError}" />
                 </TextBlock>
-            </Panel>
-            <TextBlock Text="✕" IsVisible="{Binding !!LastError}" TextWrapping="Wrap"
-                       Foreground="{DynamicResource ErrorOnDarkBrush}">
-                <Run Text="" />
-                <Run ui:Translator.LocalizedString="{Binding LastError}" />
-            </TextBlock>
-
-            <ToggleButton ui:Translator.Key="{Binding ActiveModeKey}"
-                          Background="Transparent" BorderThickness="0"
-
-                          IsChecked="{Binding RegisterMode, Mode=TwoWay}" />
-        </StackPanel>
+            </StackPanel>
+        </DockPanel>
         <DockPanel LastChildFill="True"
                    Name="LoggedInPanel"
                    IsVisible="{Binding IsLoggedIn}" Margin="5">

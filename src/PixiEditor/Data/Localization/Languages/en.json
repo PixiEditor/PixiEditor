@@ -1314,7 +1314,7 @@
   "EXTENSIONS_WINDOW_DEPENDENCIES_MISSING_TOOLTIP": "Dependencies missing: {0}",
   "EXTENSIONS_WINDOW_DISABLE_CONFIRMATION_TITLE": "Do you want to disable this extension?",
   "EXTENSIONS_WINDOW_DISABLE_CONFIRMATION_MESSAGE": "{0} extension(s) depend on this. Are you sure you want to proceed?",
-  "EXTENSIONS_WINDOW_STEAM_PURCHASE_UNAVAILABLE": "The Steam version doesn’t support purchasing extensions. To buy and use them, please use the standalone version of PixiEditor",
+  "EXTENSIONS_WINDOW_STEAM_PURCHASE_UNAVAILABLE": "The Steam version doesn’t support purchasing extensions. To buy them, please use the standalone version of PixiEditor",
   "CLIP_TO_BOUNDS": "Clip to bounds",
   "FALLBACK_FRAMES_TO_LAYER_IMAGE": "Layer is fallback cel",
   "USE_CUSTOM_TIME": "Use custom time",

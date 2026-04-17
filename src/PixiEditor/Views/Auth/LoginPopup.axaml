@@ -20,7 +20,6 @@
 
     <Panel>
         <auth:LoginForm
-            VerticalAlignment="Center"
             IsVisible="{Binding DataContext.IdentityProvider.IsValid, RelativeSource={RelativeSource AncestorType=auth:LoginPopup, Mode=FindAncestor}}"
             Margin="15" DataContext="{Binding}" />
         <TextBlock IsVisible="{Binding !DataContext.IdentityProvider.IsValid, RelativeSource={RelativeSource AncestorType=auth:LoginPopup, Mode=FindAncestor}}"
