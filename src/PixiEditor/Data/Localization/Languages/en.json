@@ -1460,5 +1460,6 @@
   "SEARCH_WARNING_NO_FILES_IN_DIRECTORY": "Directory '{0}' does not have any files.",
   "REGISTER_AGREEMENT": "I have read the [Terms of Service]({0}) and [Privacy Policy]({1}) and accept their provisions.",
   "EXTENSIONS_WINDOW_SHOWCASE_OPEN_IN_BROWSER": "Open in browser",
-  "SELECT_DOCUMENT_BUTTON": "Select"
+  "SELECT_DOCUMENT_BUTTON": "Select",
+  "CHANGELOG_TITLE": "Release Notes {0}"
 }

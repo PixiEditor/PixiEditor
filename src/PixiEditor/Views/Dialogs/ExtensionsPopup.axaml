@@ -164,14 +164,6 @@
                             Margin="0, 12, 0, 0"
                             LinkCommand="{Binding LinkClickCommand}"
                             MarkdownBuilder="{Binding SelectedAvailableExtension.MarkdownBody}">
-                            <avalonia:MarkdownRenderer.Styles>
-                                <Style Selector="StackPanel">
-                                    <Setter Property="Spacing" Value="12" />
-                                </Style>
-                                <Style Selector="avalonia|MarkdownTextBlock">
-                                    <Setter Property="LineSpacing" Value="8" />
-                                </Style>
-                            </avalonia:MarkdownRenderer.Styles>
                         </avalonia:MarkdownRenderer>
                     </StackPanel>
                 </ScrollViewer>
