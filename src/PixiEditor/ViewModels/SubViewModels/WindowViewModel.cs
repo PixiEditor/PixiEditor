@@ -334,6 +334,30 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>, IWindowHandler
         extensionsPopup.Show();
     }
 
+
+    [Command.Internal("PixiEditor.Window.OpenLibraryWindow")]
+    public void OpenLibraryWindow()
+    {
+        if (extensionsPopup is not null)
+        {
+            Owner.ExtensionsSubViewModel.ExtensionManager.SelectedAvailableExtension = null;
+            Owner.ExtensionsSubViewModel.ExtensionManager.SelectedTab =
+                Owner.ExtensionsSubViewModel.ExtensionManager.LibraryTab;
+            extensionsPopup.Activate();
+            return;
+        }
+
+        extensionsPopup ??= new ExtensionsPopup();
+        Owner.ExtensionsSubViewModel.ExtensionManager.SelectedAvailableExtension = null;
+        extensionsPopup.DataContext = Owner.ExtensionsSubViewModel.ExtensionManager;
+        Owner.ExtensionsSubViewModel.ExtensionManager.SelectedTab =
+            Owner.ExtensionsSubViewModel.ExtensionManager.LibraryTab;
+
+        extensionsPopup.Closed += (s, e) => extensionsPopup = null;
+
+        extensionsPopup.Show();
+    }
+
     /// <summary>
     /// Used to save the WindowState before toggling to FullScreen-Mode.
     /// </summary>

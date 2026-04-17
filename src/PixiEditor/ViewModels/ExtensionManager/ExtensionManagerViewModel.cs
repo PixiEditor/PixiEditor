@@ -122,6 +122,7 @@ internal class ExtensionManagerViewModel : ViewModelBase
     public bool IsUserLoggedIn => identityProvider.User != null && identityProvider.User.IsLoggedIn;
     public bool IsPlatformSteam => platform.Id == "steam";
     public RelayCommand<LinkClickedEventArgs> LinkClickCommand { get; }
+    public ExtensionsTab LibraryTab => Tabs.FirstOrDefault(tab => tab.Id == "Owned");
 
     public bool ShouldUpdateUserOwnedProducts = false;
 
