@@ -389,7 +389,7 @@
   "DEFAULT": "Domyślnie",
   "ALPHABETICAL": "Alfabetycznie",
   "COLOR_COUNT": "Ilość kolorów",
-  "ANY": "Obojętnie",
+  "ANY": "Dowolny",
   "MAX": "Maksymalnie",
   "MIN": "Minimalnie",
   "EXACT": "Dokładnie",
@@ -1395,8 +1395,6 @@
   "WELCOME_TO_EXTENSIONS_BETA": "Witamy w wersji beta przeglądarki rozszerzeń!",
   "CLICK_HERE_TO_READ_MORE": "Kliknij tutaj aby dowiedzieć się więcej.",
   "RENDER_OVERLAYS": "Renderuj nakładki",
-  "SIGN_IN_TO_NEWSLETTER": "Zaloguj się do naszego newslettera",
-  "EXTENSIONS_WINDOW_COMING_SOON": "Dostępne wkrótce!",
   "GO_BACK": "Wróć",
   "DISCORD_DESCRIPTION": "Wyglądasz dzisiaj olśniewająco!",
   "ABOUT_ME": "O mnie",
@@ -1456,5 +1454,14 @@
   "SEARCH_WARNING_INVALID_COLOR": "Niepoprawny kolor",
   "SEARCH_WARNING_SAVE_DOCUMENT": "Zapisz aktualny dokument aby przeglądać pliki",
   "SEARCH_WARNING_NO_FILES_IN_DIRECTORY": "Folder '{0}' nie zawiera żadnych plików.",
-  "REGISTER_AGREEMENT": "Zapoznałem się z [Warunkami korzystania z usługi]({0}) oraz [Polityką prywatności]({1}) i akceptuję ich postanowienia."
+  "REGISTER_AGREEMENT": "Zapoznałem się z [Warunkami korzystania z usługi]({0}) oraz [Polityką prywatności]({1}) i akceptuję ich postanowienia.",
+  "EXTENSIONS_WINDOW_SHOWCASE_OPEN_IN_BROWSER": "Otwórz w przeglądarce",
+  "DISCORD_EDITING_DOCUMENT": "Edytuje superPixelArt.pixi",
+  "DISCORD_EDITING_IMG": "Edytuje obraz",
+  "SELECT_DOCUMENT_BUTTON": "Wybierz",
+  "SIGN_IN_TO_NEWSLETTER_TEXT": "Zgadzam się otrzymywać komercyjne i marketingowe informacje o nowych produktach i promocjach od Pixi Labs Sp. z o.o., na podany przeze mnie adres email. Przeczytałem [Regulamin Newslettera]({0}) i [Politykę Prywatności]({1}) i akceptuje ich postanowienia.",
+  "CHANGELOG_TITLE": "Informacje o aktualizacji {0}",
+  "OPEN_RELEASE_NOTES": "Otwórz informacje o aktualizacji",
+  "OPEN_RELEASE_NOTES_DESC": "Otwórz informacje o ostatniej aktualizacji",
+  "ONBOARDING_WINDOW_TITLE": "Wprowadzenie"
 }

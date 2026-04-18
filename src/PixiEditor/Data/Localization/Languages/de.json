@@ -1208,6 +1208,5 @@
   "EXTENSIONS_WINDOW_UNINSTALL_CONFIRMATION_TITLE": "Erweiterung deinstallieren?",
   "FAILED_FETCH_EXTENSIONS": "Fehler beim Laden der Erweiterung: {0}",
   "VIEW_LIBRARY": "Bibliothek ansehen",
-  "UNAVAILABLE_IN_YOUR_COUNTRY": "In deinem Land nicht verfügbar",
-  "EXTENSIONS_WINDOW_COMING_SOON": "Bald verfügbar!"
+  "UNAVAILABLE_IN_YOUR_COUNTRY": "In deinem Land nicht verfügbar"
 }
