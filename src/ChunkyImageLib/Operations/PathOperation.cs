@@ -71,7 +71,12 @@ internal class PathOperation : IMirroredDrawOperation
         surf.Canvas.Scale((float)targetChunk.Resolution.Multiplier());
         surf.Canvas.Translate(-chunkPos * ChunkyImage.FullChunkSize);
         var oldMtx = paint.Paintable.Transform;
-        paint.Paintable.Transform = paintableMatrix ?? Matrix3X3.Identity;
+        var final = paintableMatrix;
+        if(oldMtx != null)
+        {
+            final = oldMtx.Value.PostConcat(final ?? Matrix3X3.Identity);
+        }
+        paint.Paintable.Transform = final ?? Matrix3X3.Identity;
         surf.Canvas.DrawPath(path, paint);
         paint.Paintable.Transform = oldMtx;
         surf.Canvas.Restore();
