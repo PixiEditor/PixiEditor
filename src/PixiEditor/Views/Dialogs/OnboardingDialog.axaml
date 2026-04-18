@@ -17,7 +17,7 @@
         CanResize="False"
         SystemDecorations="Full"
         d:DataContext="{x:Type userPreferences:OnboardingViewModel}"
-        Title="Onboarding" Width="600" Height="345">
+        ui:Translator.Key="ONBOARDING_WINDOW_TITLE" Width="600" Height="345">
     <Design.DataContext>
         <userPreferences:OnboardingViewModel />
     </Design.DataContext>

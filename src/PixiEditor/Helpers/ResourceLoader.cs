@@ -4,6 +4,7 @@ using Avalonia.Platform;
 using Avalonia.Styling;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using PixiEditor.Helpers.Extensions;
+using PixiEditor.Models.IO;
 
 namespace PixiEditor.Helpers;
 
@@ -47,5 +48,13 @@ public static class ResourceLoader
         }
 
         return null;
+    }
+
+    public static string ReadEmbeddedFile(string path)
+    {
+        string fullPath = Path.Combine(Paths.InternalResourceDataPath, path);
+        using Stream stream = AssetLoader.Open(new Uri(fullPath));
+        using StreamReader reader = new(stream);
+        return reader.ReadToEnd();
     }
 }

@@ -16,7 +16,7 @@
             MaxWidth="100"
             Margin="5, 0, 0, 0">
         <Panel>
-            <TextBlock FontSize="12" localization:Translator.Key="SELECT" IsVisible="{Binding !HasValue}" />
+            <TextBlock FontSize="12" localization:Translator.Key="SELECT_DOCUMENT_BUTTON" IsVisible="{Binding !HasValue}" />
             <TextBlock TextTrimming="CharacterEllipsis" FontSize="12"
                        IsVisible="{Binding HasValue}"
                        localization:Translator.Key="{Binding Value.DisplayName, Converter={converters:FilePathToFileNameConverter}}" />

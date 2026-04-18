@@ -15,6 +15,7 @@ internal class PathOperation : IMirroredDrawOperation
 
     private readonly Paint paint;
     private readonly RectI bounds;
+    private readonly Matrix3X3? paintableMatrix;
 
     private bool antiAliasing;
 
@@ -39,23 +40,26 @@ internal class PathOperation : IMirroredDrawOperation
     }
 
     public PathOperation(VectorPath path, Paintable paintable, float strokeWidth, StrokeCap cap, BlendMode blendMode,
-        PaintStyle style, bool antiAliasing, RectI? customBounds = null)
+        PaintStyle style, bool antiAliasing, RectI? customBounds = null, Matrix3X3? paintableMatrix = null)
     {
         this.antiAliasing = antiAliasing;
         this.path = new VectorPath(path);
+        this.paintableMatrix = paintableMatrix ??  Matrix3X3.Identity;
         paint = new() { Paintable = paintable, Style = style, StrokeWidth = strokeWidth, StrokeCap = cap, BlendMode = blendMode };
 
         RectI floatBounds = customBounds ?? (RectI)(path.Bounds).RoundOutwards();
         bounds = floatBounds.Inflate((int)Math.Ceiling(strokeWidth) + 1);
     }
 
-    public PathOperation(VectorPath path, Paintable paintable, float strokeWidth, StrokeCap cap, Blender blender, PaintStyle style, bool antiAliasing, RectI? customBounds)
+    public PathOperation(VectorPath path, Paintable paintable, float strokeWidth, StrokeCap cap, Blender blender,
+        PaintStyle style, bool antiAliasing, RectI? customBounds, Matrix3X3? paintableMatrix = null)
     {
         this.antiAliasing = antiAliasing;
         this.path = new VectorPath(path);
         paint = new() { Paintable = paintable, Style = style, StrokeWidth = strokeWidth, StrokeCap = cap, Blender = blender };
 
         RectI floatBounds = customBounds ?? (RectI)(path.Bounds).RoundOutwards();
+        this.paintableMatrix = paintableMatrix ?? Matrix3X3.Identity;
         bounds = floatBounds.Inflate((int)Math.Ceiling(strokeWidth) + 1);
     }
 
@@ -66,7 +70,15 @@ internal class PathOperation : IMirroredDrawOperation
         surf.Canvas.Save();
         surf.Canvas.Scale((float)targetChunk.Resolution.Multiplier());
         surf.Canvas.Translate(-chunkPos * ChunkyImage.FullChunkSize);
+        var oldMtx = paint.Paintable.Transform;
+        var final = paintableMatrix;
+        if(oldMtx != null)
+        {
+            final = oldMtx.Value.PostConcat(final ?? Matrix3X3.Identity);
+        }
+        paint.Paintable.Transform = final ?? Matrix3X3.Identity;
         surf.Canvas.DrawPath(path, paint);
+        paint.Paintable.Transform = oldMtx;
         surf.Canvas.Restore();
     }
 
@@ -88,15 +100,21 @@ internal class PathOperation : IMirroredDrawOperation
             newBounds = (RectI)newBounds.ReflectY((double)horAxisY).Round();
         if (paint.Paintable != null)
         {
-            if( paint.Blender != null)
+            VecD center = paint.Paintable.LocalBounds.Center;
+            if (paint.Paintable is GradientPaintable)
             {
-                return new PathOperation(copy, paint.Paintable, paint.StrokeWidth, paint.StrokeCap, paint.Blender, paint.Style, antiAliasing, newBounds);
+                center = newBounds.Center;
             }
-            else
+
+            Matrix3X3 localPaintableMatrix =
+                Matrix3X3.CreateScale(verAxisX is not null ? -1 : 1, horAxisY is not null ? -1 : 1, (float)center.X, (float)center.Y);
+            if(paint.Blender != null)
             {
-                return new PathOperation(copy, paint.Paintable, paint.StrokeWidth, paint.StrokeCap, paint.BlendMode,
-                    paint.Style, antiAliasing, newBounds);
+                return new PathOperation(copy, paint.Paintable, paint.StrokeWidth, paint.StrokeCap, paint.Blender, paint.Style, antiAliasing, newBounds, localPaintableMatrix);
             }
+
+            return new PathOperation(copy, paint.Paintable, paint.StrokeWidth, paint.StrokeCap, paint.BlendMode,
+                paint.Style, antiAliasing, newBounds, localPaintableMatrix);
         }
 
         if (paint.Blender != null)

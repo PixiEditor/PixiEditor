@@ -178,6 +178,9 @@ public class VideoView : Control
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)
     {
+        if (!e.GetCurrentPoint(this).Properties.IsLeftButtonPressed) return;
+        if (IsDownloading) return;
+
         base.OnPointerPressed(e);
         if (isPaused)
         {
@@ -372,9 +375,11 @@ public class VideoView : Control
         if (failedStartFfmpeg)
         {
             context.DrawText(new FormattedText("Failed rendering the video", CultureInfo.InvariantCulture,
-                FlowDirection.LeftToRight, Typeface.Default, 16, Brushes.White), new Point(Bounds.Width / 2 - 12 - 80, Bounds.Height / 2 - 12));
+                    FlowDirection.LeftToRight, Typeface.Default, 16, Brushes.White),
+                new Point(Bounds.Width / 2 - 12 - 80, Bounds.Height / 2 - 12));
             return;
         }
+
         if (_bitmap != null)
         {
             context.DrawImage(_bitmap, new Rect(0, 0, VideoWidth, VideoHeight), new Rect(Bounds.Size));
@@ -383,7 +388,8 @@ public class VideoView : Control
         if (isPaused)
         {
             context.DrawText(new FormattedText(PixiPerfectIcons.Pause, CultureInfo.InvariantCulture,
-                FlowDirection.LeftToRight, new Typeface(PixiPerfectIconExtensions.PixiPerfectFontFamily), 48, Brushes.White), new Point(Bounds.Width / 2 - 12, Bounds.Height / 2 - 12));
+                FlowDirection.LeftToRight, new Typeface(PixiPerfectIconExtensions.PixiPerfectFontFamily), 48,
+                Brushes.White), new Point(Bounds.Width / 2 - 12, Bounds.Height / 2 - 12));
         }
     }
 

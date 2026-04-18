@@ -174,10 +174,10 @@ internal static class ClipboardController
             return;
         }
 
-        using Surface documentSurface = new Surface(document.SizeBindable);
+        using Surface documentSurface = new Surface(renderOutputSize);
 
         document.Renderer.RenderDocument(documentSurface.DrawingSurface,
-            document.AnimationDataViewModel.ActiveFrameTime, document.SizeBindable, output);
+            document.AnimationDataViewModel.ActiveFrameTime, renderOutputSize, output);
 
         Surface surfaceToCopy = new Surface((VecI)copyArea.Size.Ceiling());
         using Paint paint = new Paint();

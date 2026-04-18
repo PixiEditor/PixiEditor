@@ -1,0 +1,30 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:PixiEditor.ViewModels"
+             xmlns:avalonia="clr-namespace:LiveMarkdown.Avalonia;assembly=LiveMarkdown.Avalonia"
+             xmlns:commands="clr-namespace:PixiEditor.Models.Commands.Attributes.Commands"
+             xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="viewModels:ChangelogDockViewModel"
+             x:Class="PixiEditor.Views.Dock.ChangelogDockView">
+    <Design.DataContext>
+        <viewModels:ChangelogDockViewModel />
+    </Design.DataContext>
+
+    <ScrollViewer>
+        <Panel MaxWidth="900" HorizontalAlignment="Center">
+            <avalonia:MarkdownRenderer
+                Margin="40"
+                LinkCommand="{xaml:Command Name=PixiEditor.Links.OpenMdHyperlink, UseProvided=True}"
+                MarkdownBuilder="{Binding Changelog}">
+                <avalonia:MarkdownRenderer.Styles>
+                    <Style Selector="avalonia|MarkdownTextBlock">
+                        <Setter Property="FontSize" Value="{DynamicResource FontSizeLarge}" />
+                    </Style>
+                </avalonia:MarkdownRenderer.Styles>
+            </avalonia:MarkdownRenderer>
+        </Panel>
+    </ScrollViewer>
+</UserControl>

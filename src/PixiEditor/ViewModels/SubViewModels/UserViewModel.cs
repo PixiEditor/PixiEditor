@@ -144,6 +144,11 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
                 "https://pixieditor.net/docs/terms-of-service",
                 "https://pixieditor.net/docs/privacy-policy"));
 
+    public ObservableStringBuilder NewsletterAgreementText { get; } = new ObservableStringBuilder().Append(
+    new LocalizedString("SIGN_IN_TO_NEWSLETTER_TEXT",
+        "https://pixieditor.net/docs/newsletter-regulations",
+        "https://pixieditor.net/docs/privacy-policy"));
+
     private IDisposable? timerCancelable;
 
     public static string FoundersBundleLink =>
