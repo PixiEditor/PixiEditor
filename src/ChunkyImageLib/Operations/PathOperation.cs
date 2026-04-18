@@ -108,7 +108,7 @@ internal class PathOperation : IMirroredDrawOperation
 
             Matrix3X3 localPaintableMatrix =
                 Matrix3X3.CreateScale(verAxisX is not null ? -1 : 1, horAxisY is not null ? -1 : 1, (float)center.X, (float)center.Y);
-            if( paint.Blender != null)
+            if(paint.Blender != null)
             {
                 return new PathOperation(copy, paint.Paintable, paint.StrokeWidth, paint.StrokeCap, paint.Blender, paint.Style, antiAliasing, newBounds, localPaintableMatrix);
             }

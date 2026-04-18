@@ -97,6 +97,8 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
         }
     }
 
+    public double? HorizontalSymmetry => horizontalSymmetryAxis;
+    public double? VerticalSymmetry => verticalSymmetryAxis;
     private readonly List<(IOperation operation, AffectedArea affectedArea)> queuedOperations = new();
     private readonly List<ChunkyImage> activeClips = new();
     private BlendMode blendMode = BlendMode.Src;
@@ -986,6 +988,42 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
             ThrowIfDisposed();
             PathOperation operation = new(path, paintable, strokeWidth, strokeCap, blender, style, antiAliasing,
                 customBounds);
+            EnqueueOperation(operation);
+        }
+    }
+
+    /// <param name="path"></param>
+    /// <param name="paintable"></param>
+    /// <param name="strokeWidth"></param>
+    /// <param name="strokeCap"></param>
+    /// <param name="blender"></param>
+    /// <param name="style"></param>
+    /// <param name="antiAliasing"></param>
+    /// <param name="customBounds">Bounds used for affected chunks, will be computed from path in O(n) if null is passed</param>
+    /// <param name="paintTransform"></param>
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
+    public void EnqueueNonMirroredDrawPath(VectorPath path, Paintable paintable, float strokeWidth, StrokeCap strokeCap,
+        Blender blender, PaintStyle style, bool antiAliasing, RectI? customBounds = null, Matrix3X3? paintTransform = null)
+    {
+        lock (lockObject)
+        {
+            ThrowIfDisposed();
+            NonMirroredPathOperation operation = new(path, paintable, strokeWidth, strokeCap, blender, style, antiAliasing,
+                customBounds, paintTransform);
+            EnqueueOperation(operation);
+        }
+    }
+
+    /// <param name="customBounds">Bounds used for affected chunks, will be computed from path in O(n) if null is passed</param>
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
+    public void EnqueueNonMirroredDrawPath(VectorPath path, Paintable paintable, float strokeWidth, StrokeCap strokeCap,
+        BlendMode blendMode, PaintStyle style, bool antiAliasing, RectI? customBounds = null, Matrix3X3? paintTransform = null)
+    {
+        lock (lockObject)
+        {
+            ThrowIfDisposed();
+            NonMirroredPathOperation operation = new(path, paintable, strokeWidth, strokeCap, blendMode, style, antiAliasing,
+                customBounds, paintTransform);
             EnqueueOperation(operation);
         }
     }
