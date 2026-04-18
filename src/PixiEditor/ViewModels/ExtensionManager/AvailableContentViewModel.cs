@@ -100,8 +100,7 @@ internal class AvailableContentViewModel : ObservableObject
             MarkdownBody.Append(content.Body);
         }
 
-        // Uncomment on 2.1 release
-        IsUnavailable = true; //isUnavailable;
+        IsUnavailable = isUnavailable;
         if (content.ShowcaseUrls != null)
         {
             foreach (var showcaseItem in content.ShowcaseUrls)

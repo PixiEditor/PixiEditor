@@ -88,7 +88,7 @@
                                 <Panel>
                                     <Button ui:Translator.Key="VIEW_LIBRARY"
                                             IsVisible="{Binding !!User}"
-                                            Command="{xaml:Command Name=PixiEditor.Window.OpenExtensionsWindow}" />
+                                            Command="{xaml:Command Name=PixiEditor.Window.OpenLibraryWindow}" />
                                     <Ellipse IsVisible="{Binding AnyUpdateAvailable}"
                                              IsHitTestVisible="False"
                                              ClipToBounds="False"

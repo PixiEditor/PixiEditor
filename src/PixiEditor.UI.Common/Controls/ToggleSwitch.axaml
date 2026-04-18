@@ -99,7 +99,7 @@
                          Width="10" Height="10" />
 
                 <Ellipse x:Name="SwitchKnobOff"
-                         Fill="{DynamicResource ThemeBorderMidColor}"
+                         Fill="{DynamicResource ThemeForegroundBrush}"
                          Width="10" Height="10" />
               </Grid>
             </Canvas>
@@ -114,12 +114,12 @@
 
     <!-- PointerOverState -->
     <Style Selector="^:pointerover /template/ Border#OuterBorder">
-      <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderHighBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderHighColor}" />
       <Setter Property="Background" Value="Transparent" />
     </Style>
 
     <Style Selector="^:pointerover /template/ Ellipse#SwitchKnobOff">
-      <Setter Property="Fill" Value="{DynamicResource ThemeBorderHighColor}" />
+      <Setter Property="Fill" Value="{DynamicResource ThemeForegroundBrush}" />
     </Style>
 
     <Style Selector="^:pointerover /template/ Ellipse#SwitchKnobOn">

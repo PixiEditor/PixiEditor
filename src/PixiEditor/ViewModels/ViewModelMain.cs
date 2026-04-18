@@ -78,6 +78,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
     public UserViewModel UserViewModel { get; set; }
     public BrushesViewModel BrushesSubViewModel { get; set; }
     public AdvicesViewModel AdvicesSubViewModel { get; set; }
+    public ChangelogViewModel ChangelogSubViewModel { get; set; }
 
     public IPreferences Preferences { get; set; }
     public ILocalizationProvider LocalizationProvider { get; set; }
@@ -174,6 +175,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         DiscordViewModel = services.GetService<DiscordViewModel>();
         UpdateSubViewModel = services.GetService<UpdateViewModel>();
         DebugSubViewModel = services.GetService<DebugViewModel>();
+        ChangelogSubViewModel = services.GetService<ChangelogViewModel>();
 
         StylusSubViewModel = services.GetService<StylusViewModel>();
         RegistrySubViewModel = services.GetService<RegistryViewModel>();
