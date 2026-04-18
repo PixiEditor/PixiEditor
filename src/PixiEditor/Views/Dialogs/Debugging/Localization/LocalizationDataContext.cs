@@ -5,14 +5,14 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
+using PixiEditor.Helpers;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.OperatingSystem;
 using PixiEditor.UI.Common.Localization;
@@ -213,7 +213,7 @@ internal class LocalizationDataContext : PixiObservableObject
                 });
             }
             
-            await File.WriteAllTextAsync(path, JsonConvert.SerializeObject(languageData.Output, Formatting.Indented));
+            await File.WriteAllTextAsync(path, JsonSerializer.Serialize(languageData.Output, JsonOptions.CasesInsensitiveIndented));
         }
         catch (Exception e)
         {
@@ -326,10 +326,10 @@ internal class LocalizationDataContext : PixiObservableObject
             return result.As<PoeLanguage[]>();
         }
 
-        var projects = (JArray)result.Output["result"]["projects"];
+        var projects = result.Output.RootElement.GetProperty("result").GetProperty("projects").EnumerateArray();
 
         // Check if user is part of project
-        if (!projects.Any(x => x["id"].Value<int>() == ProjectId))
+        if (projects.All(x => x.GetProperty("id").GetInt32() != ProjectId))
         {
             return Error("LOGGED_IN_NO_PROJECT_ACCESS");
         }
@@ -343,7 +343,11 @@ internal class LocalizationDataContext : PixiObservableObject
             return result.As<PoeLanguage[]>();
         }
 
-        var languages = result.Output["result"]["languages"].ToObject<PoeLanguage[]>();
+        var languages = result.Output.RootElement.GetProperty("result")
+            .GetProperty("languages")
+            .EnumerateArray()
+            .Select(x => x.Deserialize<PoeLanguage>(JsonOptions.CasesInsensitive))
+            .ToArray();
 
         return Result.Success(new LocalizedString("LOGGED_IN"), languages);
 
@@ -370,7 +374,7 @@ internal class LocalizationDataContext : PixiObservableObject
             return result.As<Dictionary<string, string>>();
         }
 
-        response = await client.GetAsync(result.Output["result"]["url"].Value<string>());
+        response = await client.GetAsync(result.Output.RootElement.GetProperty("result").GetProperty("url").GetString());
 
         // Failed with an HTTP error code, according to API docs this should not be possible
         if (!response.IsSuccessStatusCode)
@@ -379,7 +383,7 @@ internal class LocalizationDataContext : PixiObservableObject
         }
 
         string responseJson = await response.Content.ReadAsStringAsync();
-        var keys = JsonConvert.DeserializeObject<Dictionary<string, string>>(responseJson);
+        var keys = JsonSerializer.Deserialize<Dictionary<string, string>>(responseJson);
 
         return Result.Success("SYNCED_SUCCESSFULLY", keys);
 
@@ -387,7 +391,7 @@ internal class LocalizationDataContext : PixiObservableObject
             Result.Error<Dictionary<string, string>>(message);
     }
 
-    private static async Task<Result<JObject>> ParseResponseAsync(HttpResponseMessage response)
+    private static async Task<Result<JsonDocument>> ParseResponseAsync(HttpResponseMessage response)
     {
         // Failed with an HTTP error code, according to API docs this should not be possible
         if (!response.IsSuccessStatusCode)
@@ -396,21 +400,21 @@ internal class LocalizationDataContext : PixiObservableObject
         }
 
         string jsonResponse = await response.Content.ReadAsStringAsync();
-        var root = JObject.Parse(jsonResponse);
+        var root = JsonDocument.Parse(jsonResponse);
 
-        var rsp = root["response"];
-        string rspCode = rsp["code"].Value<string>();
+        var rsp = root.RootElement.GetProperty("response");
+        string rspCode = rsp.GetProperty("code").GetString();
 
         // Failed with an error code from the POEditor API, alongside a message
         if (rspCode != "200")
         {
-            return Error("POE_EDITOR_ERROR", rspCode, rsp["message"].Value<string>());
+            return Error("POE_EDITOR_ERROR", rspCode, rsp.GetProperty("message").GetString());
         }
 
         return Result.Success(root);
 
-        Result<JObject> Error(string key, params object[] param) =>
-            Result.Error<JObject>(new LocalizedString(key, param));
+        Result<JsonDocument> Error(string key, params object[] param) =>
+            Result.Error<JsonDocument>(new LocalizedString(key, param));
     }
 
     private static Task<HttpResponseMessage> PostAsync(HttpClient client, string requestUri, string apiKey,

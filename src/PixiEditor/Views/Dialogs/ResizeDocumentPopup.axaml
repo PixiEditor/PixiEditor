@@ -7,6 +7,7 @@
                              xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
                              xmlns:input="clr-namespace:PixiEditor.Views.Input"
                              xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
+                             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
                              mc:Ignorable="d" Name="window"
                              ui:Translator.Key="RESIZE_IMAGE"
                              CanResize="False"
@@ -15,6 +16,18 @@
     <DockPanel Focusable="True">
         <Button DockPanel.Dock="Bottom" HorizontalAlignment="Center" Margin="15"
                 ui:Translator.Key="RESIZE" Click="Button_Click" IsDefault="True" />
+
+        <StackPanel Margin="0, 20, 0, 0" Orientation="Horizontal" DockPanel.Dock="Bottom" Spacing="8" HorizontalAlignment="Center">
+            <TextBlock ui:Translator.Key="RESAMPLE_METHOD" VerticalAlignment="Center"  />
+            <ComboBox Width="125" ItemsSource="{Binding ElementName=window, Path=AllSamplingOptions}" SelectedItem="{Binding Sampling, Mode=TwoWay, ElementName=window}"
+                      HorizontalAlignment="Center">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock ui:Translator.Key="{Binding Converter={converters:EnumToLocalizedStringConverter}}" />
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+        </StackPanel>
 
         <input:SizePicker HorizontalAlignment="Center" Width="240" Height="180" Margin="0,30,0,0"
                           x:Name="sizePicker"
@@ -26,6 +39,5 @@
                           ChosenPercentageSize="{Binding NewPercentageSize, Mode=TwoWay, ElementName=window}"
                           SelectedUnit="{Binding NewSelectedUnit, Mode=TwoWay, ElementName=window}"
                           IsSizeUnitSelectionVisible="True" />
-
     </DockPanel>
 </dialogs:ResizeDocumentPopup>

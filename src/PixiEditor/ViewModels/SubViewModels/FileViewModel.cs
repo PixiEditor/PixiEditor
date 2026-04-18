@@ -1,4 +1,5 @@
-﻿using Avalonia;
+﻿using System.Runtime.InteropServices;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
@@ -19,6 +20,8 @@ using PixiEditor.Models.IO;
 using PixiEditor.Models.UserData;
 using Drawie.Numerics;
 using Microsoft.Extensions.DependencyInjection;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.Extensions.CommonApi.Documents;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Models.DocumentModels.Autosave;
@@ -33,6 +36,7 @@ using PixiEditor.ViewModels.Document;
 using PixiEditor.Views;
 using PixiEditor.Views.Dialogs;
 using PixiEditor.Views.Windows;
+using Wasmtime;
 
 namespace PixiEditor.ViewModels.SubViewModels;
 
@@ -55,7 +59,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     public RecentlyOpenedCollection RecentlyOpened { get; init; }
     public IReadOnlyList<IDocumentBuilder> DocumentBuilders => documentBuilders;
 
-    private List<IDocumentBuilder> documentBuilders;
+    private static List<IDocumentBuilder> documentBuilders;
 
     public FileViewModel(ViewModelMain owner)
         : base(owner)
@@ -156,24 +160,10 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             {
                 preferences.UpdateLocalPreference("OnboardingV2Shown", true);
 
-                if (IPlatform.Current?.IdentityProvider != null &&
-                    IPlatform.Current.IdentityProvider.ProviderName == "PixiAuth")
+                Owner.WindowSubViewModel.OpenOnboardingWindow().Closed += (_, _) =>
                 {
-                    Owner.WindowSubViewModel.OpenAccountWindow(true).Closed += (sender, eventArgs) =>
-                    {
-                        Owner.WindowSubViewModel.OpenOnboardingWindow().Closed += (_, _) =>
-                        {
-                            Owner.InvokeUserReadyEvent();
-                        };
-                    };
-                }
-                else
-                {
-                    Owner.WindowSubViewModel.OpenOnboardingWindow().Closed += (_, _) =>
-                    {
-                        Owner.InvokeUserReadyEvent();
-                    };
-                }
+                    Owner.InvokeUserReadyEvent();
+                };
             }
             else if (preferences!.GetPreference("ShowStartupWindow", true))
             {
@@ -221,9 +211,9 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.File.OpenFileFromClipboard", "OPEN_FILE_FROM_CLIPBOARD",
-        "OPEN_FILE_FROM_CLIPBOARD_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.HasImageInClipboard",
+        "OPEN_FILE_FROM_CLIPBOARD_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.CanPaste",
         Icon = PixiPerfectIcons.PasteAsNewLayer,
-        MenuItemPath = "FILE/OPEN_FILE_FROM_CLIPBOARD", MenuItemOrder = 2,
+        MenuItemPath = "FILE/OPEN_FILE_FROM_CLIPBOARD", MenuItemOrder = 3,
         AnalyticsTrack = true)]
     public void OpenFromClipboard()
     {
@@ -244,12 +234,44 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         });
     }
 
+    [Command.Basic("PixiEditor.File.PlaceElement", "PLACE_ELEMENT", "PLACE_ELEMENT_DESCRIPTIVE",
+        Key = Key.M, Modifiers = KeyModifiers.Control | KeyModifiers.Shift,
+        MenuItemPath = "FILE/PLACE_ELEMENT", MenuItemOrder = 2, Icon = PixiPerfectIcons.FilePlus,
+        AnalyticsTrack = true)]
+    public void PlaceElement()
+    {
+        Dispatcher.UIThread.InvokeAsync(async () =>
+        {
+            var filter = SupportedFilesHelper.BuildOpenFilter();
+
+            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                var dialog = await desktop.MainWindow.StorageProvider.OpenFilePickerAsync(
+                    new FilePickerOpenOptions { FileTypeFilter = filter });
+
+                if (dialog.Count == 0 || !Importer.IsSupportedFile(dialog[0].Path.LocalPath))
+                    return;
+
+                var manager = Owner.DocumentManagerSubViewModel;
+                if (manager.ActiveDocument is null)
+                    return;
+
+                if (!ClipboardController.TryPlaceNestedDocument(manager.ActiveDocument, manager,
+                        dialog[0].Path.LocalPath, out string? error))
+                {
+                    NoticeDialog.Show(new LocalizedString("FAILED_TO_PLACE_ELEMENT", error), "ERROR");
+                }
+            }
+        });
+    }
+
     private bool MakeExistingDocumentActiveIfOpened(string path)
     {
         foreach (DocumentViewModel document in Owner.DocumentManagerSubViewModel.Documents)
         {
             if (document.FullFilePath is not null &&
-                System.IO.Path.GetFullPath(document.FullFilePath) == System.IO.Path.GetFullPath(path))
+                path is not null &&
+                System.IO.Path.GetFullPath(document.FullFilePath) == Path.GetFullPath(path))
             {
                 Owner.WindowSubViewModel.MakeDocumentViewportActive(document);
                 return true;
@@ -259,11 +281,72 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         return false;
     }
 
+    public void OpenDocumentReference(Guid referenceId)
+    {
+        if (Guid.Empty == referenceId)
+            return;
+
+        foreach (DocumentViewModel document in Owner.DocumentManagerSubViewModel.Documents)
+        {
+            if (document.ReferenceId == referenceId)
+            {
+                Owner.WindowSubViewModel.MakeDocumentViewportActive(document);
+                return;
+            }
+        }
+
+        foreach (var nestedDocument in Owner.DocumentManagerSubViewModel.DocumentReferences)
+        {
+            if (nestedDocument.ReferenceId == referenceId)
+            {
+                IReadOnlyDocument nestedDoc = null;
+                foreach (var referenceData in nestedDocument.ReferencingNodes)
+                {
+                    nestedDoc = TryGetNestedDocument(referenceData.Key, referenceData.Value);
+                    if (nestedDoc != null)
+                        break;
+                }
+
+                if (nestedDoc != null)
+                {
+                    DocumentViewModel vm = new DocumentViewModel(nestedDoc.Clone(true), referenceId);
+                    AddDocumentViewModelToTheSystem(vm);
+                }
+
+                return;
+            }
+        }
+    }
+
+    private IReadOnlyDocument? TryGetNestedDocument(Guid documentId, HashSet<Guid> nodeIds)
+    {
+        foreach (var document in Owner.DocumentManagerSubViewModel.Documents)
+        {
+            if (document.Id == documentId)
+            {
+                foreach (var nodeId in nodeIds)
+                {
+                    var node = document.AccessInternalReadOnlyDocument().FindNode(nodeId) as NestedDocumentNode;
+                    var nestedDoc = node?.NestedDocument.Value?.DocumentInstance;
+                    if (nestedDoc != null)
+                    {
+                        return nestedDoc;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
     /// <summary>
     /// Tries to open the passed file if it isn't already open
     /// </summary>
     public DocumentViewModel OpenFromPath(string path, bool associatePath = true)
     {
+        if (path == null)
+            return null;
+
         if (MakeExistingDocumentActiveIfOpened(path))
             return null;
 
@@ -293,6 +376,40 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         return null;
     }
 
+    /// <summary>
+    ///     Tries to import a Document from the passed file path without adding it to the system.
+    /// </summary>
+    /// <param name="path">Path to import document from.</param>
+    /// <param name="associatePath">Should file path be associated with document.</param>
+    /// <returns>Imported DocumentViewModel or null if import failed.</returns>
+    public static DocumentViewModel? ImportFromPath(string path, bool associatePath = true)
+    {
+        try
+        {
+            if (path.EndsWith(".pixi"))
+            {
+                return Importer.ImportDocument(path, associatePath);
+            }
+
+            if (IsCustomFormat(path))
+            {
+                return ImportCustomFormat(path, associatePath);
+            }
+
+            return ImportRegularImage(path, associatePath);
+        }
+        catch (RecoverableException ex)
+        {
+            NoticeDialog.Show(ex.DisplayMessage, "ERROR");
+        }
+        catch (OldFileFormatException)
+        {
+            NoticeDialog.Show("OLD_FILE_FORMAT_DESCRIPTION", "OLD_FILE_FORMAT");
+        }
+
+        return null;
+    }
+
     public LazyDocumentViewModel OpenFromPathLazy(string path, bool associatePath = true)
     {
         if (MakeExistingDocumentActiveIfOpened(path))
@@ -304,7 +421,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         return lazyDoc;
     }
 
-    private bool IsCustomFormat(string path)
+    private static bool IsCustomFormat(string path)
     {
         string extension = Path.GetExtension(path);
         return documentBuilders.Any(x => x.Extensions.Contains(extension, StringComparer.OrdinalIgnoreCase));
@@ -337,6 +454,36 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         catch (Exception ex)
         {
             NoticeDialog.Show("FAILED_TO_OPEN_FILE", "ERROR");
+            Console.WriteLine(ex);
+            CrashHelper.SendExceptionInfo(ex);
+        }
+
+        return null;
+    }
+
+    private static DocumentViewModel? ImportCustomFormat(string path, bool associatePath)
+    {
+        IDocumentBuilder builder = documentBuilders.First(x =>
+            x.Extensions.Contains(Path.GetExtension(path), StringComparer.OrdinalIgnoreCase));
+
+        if (!File.Exists(path))
+        {
+            return null;
+        }
+
+        try
+        {
+            DocumentViewModel document = DocumentViewModel.Build(docBuilder => builder.Build(docBuilder, path));
+
+            if (associatePath)
+            {
+                document.FullFilePath = path;
+            }
+
+            return document;
+        }
+        catch (Exception ex)
+        {
             Console.WriteLine(ex);
             CrashHelper.SendExceptionInfo(ex);
         }
@@ -411,6 +558,45 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         }
 
         AddRecentlyOpened(path);
+
+        var fileExtension = Path.GetExtension(path);
+        var fileType = SupportedFilesHelper.ParseImageFormat(fileExtension);
+
+        if (fileType != null)
+        {
+            var fileSize = new FileInfo(path).Length;
+            Analytics.SendOpenFile(fileType, fileSize, doc.SizeBindable);
+        }
+        else
+        {
+            CrashHelper.SendExceptionInfo(new InvalidFileTypeException(default,
+                $"Invalid file type '{fileExtension}'"));
+        }
+
+        return doc;
+    }
+
+    private static DocumentViewModel ImportRegularImage(string path, bool associatePath)
+    {
+        var image = Importer.ImportImage(path, VecI.NegativeOne);
+
+        if (image == null) return null;
+
+        var doc = DocumentViewModel.Build(b => b
+            .WithSize(image.Size)
+            .WithGraph(x => x
+                .WithImageLayerNode(
+                    new LocalizedString("IMAGE"),
+                    image,
+                    ColorSpace.CreateSrgbLinear(),
+                    out int id)
+                .WithOutputNode(id, "Output")
+            ));
+
+        if (associatePath)
+        {
+            doc.FullFilePath = path;
+        }
 
         var fileExtension = Path.GetExtension(path);
         var fileType = SupportedFilesHelper.ParseImageFormat(fileExtension);
@@ -549,7 +735,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
     private void AddDocumentViewModelToTheSystem(DocumentViewModel doc)
     {
-        Owner.DocumentManagerSubViewModel.Documents.Add(doc);
+        Owner.DocumentManagerSubViewModel.Add(doc);
         Owner.WindowSubViewModel.CreateNewViewport(doc);
         Owner.WindowSubViewModel.MakeDocumentViewportActive(doc);
     }
@@ -570,36 +756,62 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
     public async Task<bool> SaveDocument(DocumentViewModel document, bool asNew)
     {
-        string finalPath = null;
-        if (asNew || string.IsNullOrEmpty(document.FullFilePath))
+        if (document.IsNestedDocument)
         {
-            ExportConfig config = new ExportConfig(document.SizeBindable);
-            var result = await Exporter.TrySaveWithDialog(document, config, null);
-            if (result.Result.ResultType == SaveResultType.Cancelled)
-                return false;
-            if (result.Result.ResultType != SaveResultType.Success)
+            if (asNew)
             {
-                ShowSaveError(result.Result);
-                return false;
+                ExportConfig config = new ExportConfig(document.SizeBindable);
+                var result = await Exporter.TrySaveWithDialog(document, config, null);
+                if (result.Result.ResultType == SaveResultType.Cancelled)
+                    return false;
+                if (result.Result.ResultType != SaveResultType.Success)
+                {
+                    ShowSaveError(result.Result);
+                    return false;
+                }
+
+                document.FullFilePath = result.Path;
+                document.ReferenceId = Guid.Empty;
+                AddRecentlyOpened(result.Path);
             }
 
-            finalPath = result.Path;
-            AddRecentlyOpened(result.Path);
+            Owner.DocumentManagerSubViewModel.ReloadReference(document);
         }
         else
         {
-            ExportConfig config = new ExportConfig(document.SizeBindable);
-            var result = await Exporter.TrySaveAsync(document, document.FullFilePath, config, null);
-            if (result.ResultType != SaveResultType.Success)
+            string finalPath = null;
+            if (asNew || (string.IsNullOrEmpty(document.FullFilePath)))
             {
-                ShowSaveError(result);
-                return false;
+                ExportConfig config = new ExportConfig(document.SizeBindable);
+                var result = await Exporter.TrySaveWithDialog(document, config, null);
+                if (result.Result.ResultType == SaveResultType.Cancelled)
+                    return false;
+                if (result.Result.ResultType != SaveResultType.Success)
+                {
+                    ShowSaveError(result.Result);
+                    return false;
+                }
+
+                finalPath = result.Path;
+                AddRecentlyOpened(result.Path);
+            }
+            else
+            {
+                ExportConfig config = new ExportConfig(document.SizeBindable);
+                var result = await Exporter.TrySaveAsync(document, document.FullFilePath, config, null);
+                if (result.ResultType != SaveResultType.Success)
+                {
+                    ShowSaveError(result);
+                    return false;
+                }
+
+                finalPath = document.FullFilePath;
             }
 
-            finalPath = document.FullFilePath;
+            document.FullFilePath = finalPath;
+            Owner.DocumentManagerSubViewModel.ReloadDocumentReference(document.ReferenceId, finalPath);
         }
 
-        document.FullFilePath = finalPath;
         document.MarkAsSaved();
         return true;
     }
@@ -642,7 +854,18 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                             if (IPreferences.Current.GetPreference<bool>(PreferencesConstants.OpenDirectoryOnExport,
                                     true))
                             {
-                                IOperatingSystem.Current.OpenFolder(result.finalPath);
+                                try
+                                {
+                                    IOperatingSystem.Current.OpenFolder(result.finalPath);
+                                }
+                                catch (COMException e)
+                                {
+                                    // nothing we can do here
+                                }
+                                catch (Exception e)
+                                {
+                                    CrashHelper.SendExceptionInfo(e);
+                                }
                             }
                         });
                     }
@@ -686,6 +909,15 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             case SaveResultType.Cancelled:
                 break;
             case SaveResultType.UnknownError:
+                try
+                {
+                    File.AppendAllText(Path.Combine(Paths.TempFilesPath, "ErrorLog.txt"), result.ErrorMessage);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Error while writing to ErrorLog.txt: " + e.Message);
+                }
+
                 NoticeDialog.Show("UNKNOWN_ERROR_SAVING", "ERROR");
                 break;
         }

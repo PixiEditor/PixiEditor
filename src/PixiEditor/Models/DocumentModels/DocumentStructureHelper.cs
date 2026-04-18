@@ -5,6 +5,7 @@ using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.Models.DocumentModels.Public;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Layers;
 using PixiEditor.UI.Common.Localization;
@@ -42,19 +43,30 @@ internal class DocumentStructureHelper
 
     public Guid CreateNewStructureMember(StructureMemberType type, string? name = null, bool finish = true)
     {
+        Type nodeType = type switch
+        {
+            StructureMemberType.ImageLayer => typeof(ImageLayerNode),
+            StructureMemberType.Folder => typeof(FolderNode),
+            StructureMemberType.Document => typeof(NestedDocumentNode),
+            _ => throw new ArgumentException($"Unknown structure member type: {type}")
+        };
+
+        string defaultName = type == StructureMemberType.Folder
+            ? new LocalizedString("NEW_FOLDER")
+            : new LocalizedString("NEW_LAYER");
+
         IStructureMemberHandler? member = doc.SelectedStructureMember;
         if (member is null)
         {
             Guid guid = Guid.NewGuid();
+
             //put member on top
             internals.ActionAccumulator.AddActions(new CreateStructureMember_Action(
                 doc.NodeGraphHandler.OutputNode.Id,
-                guid, type == StructureMemberType.Layer ? typeof(ImageLayerNode) : typeof(FolderNode)));
-            name ??= GetUniqueName(
-                type == StructureMemberType.Layer
-                    ? new LocalizedString("NEW_LAYER")
-                    : new LocalizedString("NEW_FOLDER"), doc.NodeGraphHandler.OutputNode);
+                guid, nodeType));
+            name ??= GetUniqueName(defaultName, doc.NodeGraphHandler.OutputNode);
             internals.ActionAccumulator.AddActions(new StructureMemberName_Action(guid, name));
+            QueueSelectMember(guid);
             if (finish)
                 internals.ActionAccumulator.AddFinishedActions();
             return guid;
@@ -64,13 +76,11 @@ internal class DocumentStructureHelper
         {
             Guid guid = Guid.NewGuid();
             //put member inside folder on top
-            Type nodeType = type == StructureMemberType.Layer ? typeof(ImageLayerNode) : typeof(FolderNode);
+
             internals.ActionAccumulator.AddActions(new CreateStructureMember_Action(folder.Id, guid, nodeType));
-            name ??= GetUniqueName(
-                type == StructureMemberType.Layer
-                    ? new LocalizedString("NEW_LAYER")
-                    : new LocalizedString("NEW_FOLDER"), folder);
+            name ??= GetUniqueName(defaultName, folder);
             internals.ActionAccumulator.AddActions(new StructureMemberName_Action(guid, name));
+            QueueSelectMember(guid);
             if (finish)
                 internals.ActionAccumulator.AddFinishedActions();
             return guid;
@@ -84,20 +94,34 @@ internal class DocumentStructureHelper
             if (parent is null)
                 parent = doc.NodeGraphHandler.OutputNode;
 
-            Type nodeType = type == StructureMemberType.Layer ? typeof(ImageLayerNode) : typeof(FolderNode);
-
             internals.ActionAccumulator.AddActions(new CreateStructureMember_Action(parent.Id, guid, nodeType));
-            name ??= GetUniqueName(
-                type == StructureMemberType.Layer
-                    ? new LocalizedString("NEW_LAYER")
-                    : new LocalizedString("NEW_FOLDER"), parent);
+            name ??= GetUniqueName(defaultName, parent);
             internals.ActionAccumulator.AddActions(new StructureMemberName_Action(guid, name));
+            QueueSelectMember(guid);
             if (finish)
                 internals.ActionAccumulator.AddFinishedActions();
             return guid;
         }
 
         throw new ArgumentException($"Unknown member type: {type}");
+    }
+
+    private void QueueSelectMember(Guid guid)
+    {
+        internals.ActionAccumulator.AddActions(ActionSource.Automated, new InvokeAction_PassthroughAction(() =>
+        {
+            if (doc.SelectedStructureMember is not null)
+            {
+                doc.SelectedStructureMember.Selection = StructureMemberSelectionType.None;
+            }
+
+            var memberVM = doc.StructureHelper.Find(guid);
+            if (memberVM != null)
+            {
+                doc.SetSelectedMember(memberVM);
+                memberVM.Selection = StructureMemberSelectionType.Hard;
+            }
+        }));
     }
 
     public Guid? CreateNewStructureMember(Type structureMemberType, string? name, ActionSource source)
@@ -119,6 +143,7 @@ internal class DocumentStructureHelper
                 ? new LocalizedString("NEW_LAYER")
                 : new LocalizedString("NEW_FOLDER"), parent);
         internals.ActionAccumulator.AddActions(source, new StructureMemberName_Action(guid, name));
+
         if (source == ActionSource.User)
             internals.ActionAccumulator.AddFinishedActions();
         return guid;

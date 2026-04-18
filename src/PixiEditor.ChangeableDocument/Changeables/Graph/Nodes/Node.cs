@@ -12,6 +12,7 @@ using Drawie.Backend.Core.Shaders;
 using Drawie.Backend.Core.Shaders.Generation;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
@@ -28,6 +29,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
     public IReadOnlyList<OutputProperty> OutputProperties => outputs;
     public IReadOnlyList<KeyFrameData> KeyFrames => keyFrames;
     public event Action ConnectionsChanged;
+    public event Action OutputsChanged;
 
     IReadOnlyList<IInputProperty> IReadOnlyNode.InputProperties => inputs;
     IReadOnlyList<IOutputProperty> IReadOnlyNode.OutputProperties => outputs;
@@ -47,7 +49,14 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
     private VecI lastRenderSize = new VecI(0, 0);
 
-    protected internal bool IsDisposed => _isDisposed;
+    private ChunkResolution lastChunkResolution = ChunkResolution.Full;
+
+    public bool IsDisposed => _isDisposed;
+    public event Action<Dictionary<string, object>> OnSerializeAdditionalData;
+    public event Action<IReadOnlyDictionary<string, object>, List<IChangeInfo>> OnDeserializeAdditionalData;
+
+    public event Action<Node> PropertiesChanged;
+
     private bool _isDisposed;
 
     private int lastContentCacheHash = -1;
@@ -83,11 +92,21 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
     protected virtual bool CacheChanged(RenderContext context)
     {
-        bool changed = lastRenderSize != context.RenderOutputSize;
+        bool changed = false;
 
         if (CacheTrigger.HasFlag(CacheTriggerFlags.Inputs))
         {
             changed |= inputs.Any(x => x.CacheChanged);
+        }
+
+        if (CacheTrigger.HasFlag(CacheTriggerFlags.RenderSize))
+        {
+            changed |= lastRenderSize != context.RenderOutputSize;
+        }
+
+        if (CacheTrigger.HasFlag(CacheTriggerFlags.ChunkResolution))
+        {
+            changed |= lastChunkResolution != context.ChunkResolution;
         }
 
         if (CacheTrigger.HasFlag(CacheTriggerFlags.Timeline))
@@ -115,9 +134,12 @@ public abstract class Node : IReadOnlyNode, IDisposable
         lastRenderSize = context.RenderOutputSize;
 
         lastContentCacheHash = GetContentCacheHash();
+
+        lastChunkResolution = context.ChunkResolution;
     }
 
-    public void TraverseBackwards(Func<IReadOnlyNode, IInputProperty, bool> action, Func<IInputProperty, bool>? branchCondition = null)
+    public void TraverseBackwards(Func<IReadOnlyNode, IInputProperty, bool> action,
+        Func<IInputProperty, bool>? branchCondition = null)
     {
         var visited = new HashSet<IReadOnlyNode>();
         var queueNodes = new Queue<(IReadOnlyNode, IInputProperty)>();
@@ -143,6 +165,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
                 {
                     continue;
                 }
+
                 if (inputProperty.Connection != null)
                 {
                     queueNodes.Enqueue((inputProperty.Connection.Node, inputProperty));
@@ -344,6 +367,59 @@ public abstract class Node : IReadOnlyNode, IDisposable
         keyFrames.Add(value);
     }
 
+    protected void MoveInputProperty(InputProperty property, int newIndex)
+    {
+        if (!inputs.Contains(property))
+        {
+            throw new InvalidOperationException("Input property does not belong to this node.");
+        }
+
+        inputs.Remove(property);
+        inputs.Insert(newIndex, property);
+        PropertiesChanged?.Invoke(this);
+    }
+
+    protected SyncedTypeInputProperty CreateSyncedTypeInput(string internalName, string displayName,
+        SyncGroup? syncGroup, Type? defaultType = null)
+    {
+        SyncedTypeInputProperty prop = new SyncedTypeInputProperty(this, internalName, displayName, syncGroup, defaultType);
+        AddInputProperty(prop.InternalProperty);
+        int originalIndex = inputs.IndexOf(prop.InternalProperty);
+        prop.BeginListeningToConnectionChanges();
+
+        prop.BeforeTypeChange += () =>
+        {
+            RemoveInputProperty(prop.InternalProperty);
+        };
+        prop.AfterTypeChange += () =>
+        {
+            AddInputProperty(prop.InternalProperty, originalIndex);
+        };
+
+        syncGroup?.AddInput(prop);
+        return prop;
+    }
+
+    protected SyncedTypeOutputProperty CreateSyncedTypeOutput(string internalName, string displayName,
+        SyncGroup? syncGroup)
+    {
+        SyncedTypeOutputProperty prop = new SyncedTypeOutputProperty(this, internalName, displayName, syncGroup);
+        AddOutputProperty(prop.InternalProperty);
+
+        int originalIndex = outputs.IndexOf(prop.InternalProperty);
+        prop.BeforeTypeChange += () =>
+        {
+            RemoveOutputProperty(prop.InternalProperty);
+        };
+        prop.AfterTypeChange += () =>
+        {
+            AddOutputProperty(prop.InternalProperty, originalIndex);
+        };
+
+        syncGroup?.AddOutput(prop);
+        return prop;
+    }
+
     protected RenderOutputProperty? CreateRenderOutput(string internalName, string displayName,
         Func<Painter?>? nextInChain, Func<Painter?>? previous = null)
     {
@@ -374,6 +450,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
         property.ConnectionChanged += InvokeConnectionsChanged;
         inputs.Add(property);
+        PropertiesChanged?.Invoke(this);
         return property;
     }
 
@@ -387,6 +464,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
         property.ConnectionChanged += InvokeConnectionsChanged;
         inputs.Add(property);
+        PropertiesChanged?.Invoke(this);
         return property;
     }
 
@@ -395,6 +473,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
     {
         var property = new FuncOutputProperty<T>(this, propName, displayName, defaultFunc);
         outputs.Add(property);
+        PropertiesChanged?.Invoke(this);
         return property;
     }
 
@@ -402,6 +481,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
     {
         var property = new OutputProperty<T>(this, propName, displayName, defaultValue);
         outputs.Add(property);
+        PropertiesChanged?.Invoke(this);
         return property;
     }
 
@@ -410,12 +490,32 @@ public abstract class Node : IReadOnlyNode, IDisposable
         if (inputs.Remove(property))
         {
             property.ConnectionChanged -= InvokeConnectionsChanged;
+            PropertiesChanged?.Invoke(this);
+        }
+    }
+
+
+    protected void RemoveOutputProperty(OutputProperty property)
+    {
+        if (outputs.Remove(property))
+        {
+            OutputsChanged?.Invoke();
+            PropertiesChanged?.Invoke(this);
         }
     }
 
     protected void AddOutputProperty(OutputProperty property)
     {
         outputs.Add(property);
+        OutputsChanged?.Invoke();
+        PropertiesChanged?.Invoke(this);
+    }
+
+    protected void AddOutputProperty(OutputProperty property, int atIndex)
+    {
+        outputs.Insert(atIndex, property);
+        OutputsChanged?.Invoke();
+        PropertiesChanged?.Invoke(this);
     }
 
     protected void AddInputProperty(InputProperty property)
@@ -427,6 +527,20 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
         property.ConnectionChanged += InvokeConnectionsChanged;
         inputs.Add(property);
+        PropertiesChanged?.Invoke(this);
+    }
+
+    protected void AddInputProperty(InputProperty property, int atIndex)
+    {
+        if (InputProperties.Any(x => x.InternalPropertyName == property.InternalPropertyName))
+        {
+            throw new InvalidOperationException($"Input with name {property.InternalPropertyName} already exists.");
+        }
+
+        property.ConnectionChanged += InvokeConnectionsChanged;
+        int adjustedIndex = Math.Min(atIndex, inputs.Count);
+        inputs.Insert(adjustedIndex, property);
+        PropertiesChanged?.Invoke(this);
     }
 
     public virtual void Dispose()
@@ -462,13 +576,15 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
     public void DisconnectAll()
     {
-        foreach (var input in inputs)
+        for (var index = 0; index < inputs.Count; index++)
         {
+            var input = inputs[index];
             input.Connection?.DisconnectFrom(input);
         }
 
-        foreach (var output in outputs)
+        for (var index = 0; index < outputs.Count; index++)
         {
+            var output = outputs[index];
             var connections = output.Connections.ToArray();
             for (var i = 0; i < connections.Length; i++)
             {
@@ -501,6 +617,11 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
         for (var i = 0; i < clone.inputs.Count; i++)
         {
+            if(i >= inputs.Count)
+            {
+                break;
+            }
+
             var toClone = inputs[i];
             object value = CloneValue(toClone.NonOverridenValue, clone.inputs[i]);
             clone.inputs[i].NonOverridenValue = value;
@@ -563,11 +684,25 @@ public abstract class Node : IReadOnlyNode, IDisposable
         return GetOutputProperty(outputProperty);
     }
 
-    public virtual void SerializeAdditionalData(Dictionary<string, object> additionalData)
+    public void SerializeAdditionalData(IReadOnlyDocument target, Dictionary<string, object> additionalData)
+    {
+        SerializeAdditionalDataInternal(target, additionalData);
+        OnSerializeAdditionalData?.Invoke(additionalData);
+    }
+
+    public void DeserializeAdditionalData(IReadOnlyDocument target,
+        IReadOnlyDictionary<string, object> data, List<IChangeInfo> infos)
+    {
+        DeserializeAdditionalDataInternal(target, data, infos);
+        OnDeserializeAdditionalData?.Invoke(data, infos);
+    }
+
+    internal virtual void SerializeAdditionalDataInternal(IReadOnlyDocument target,
+        Dictionary<string, object> additionalData)
     {
     }
 
-    internal virtual void DeserializeAdditionalData(IReadOnlyDocument target,
+    internal virtual void DeserializeAdditionalDataInternal(IReadOnlyDocument target,
         IReadOnlyDictionary<string, object> data, List<IChangeInfo> infos)
     {
     }
@@ -613,6 +748,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
         hash.Add(GetType());
         hash.Add(DisplayName);
         hash.Add(Position);
+
         foreach (var input in inputs)
         {
             hash.Add(input.GetCacheHash());

@@ -9,7 +9,7 @@ public class SvgStop() : SvgElement("stop")
     public SvgProperty<SvgNumericUnit> Offset { get; } = new("offset");
     public SvgProperty<SvgNumericUnit> StopOpacity { get; } = new("stop-opacity");
 
-    public override void ParseData(XmlReader reader, SvgDefs defs)
+    public override void ParseAttributes(XmlReader reader, SvgDefs defs)
     {
         List<SvgProperty> properties = GetProperties().ToList();
 

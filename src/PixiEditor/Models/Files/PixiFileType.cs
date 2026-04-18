@@ -38,6 +38,7 @@ internal class PixiFileType : IoFileType
         catch (Exception e)
         {
             CrashHelper.SendExceptionInfo(e);
+            Console.WriteLine("Failed to save document: " + e.Message + Environment.NewLine + e.StackTrace);
             return new SaveResult(SaveResultType.UnknownError);
         }
 

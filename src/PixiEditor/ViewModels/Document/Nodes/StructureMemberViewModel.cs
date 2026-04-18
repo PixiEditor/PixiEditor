@@ -21,6 +21,25 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
     {
     }
 
+    public override void OnInitialized()
+    {
+        var activeFrameProp = InputPropertyMap[StructureNode.CustomActiveFrameProperty];
+        var activeNormalizedFrameProp = InputPropertyMap[StructureNode.CustomNormalizedTimeProperty];
+        activeFrameProp.IsVisible = false;
+        activeNormalizedFrameProp.IsVisible = false;
+
+        if (InputPropertyMap.TryGetValue(StructureNode.UseCustomTimeProperty, out var useCustomTimeProp))
+        {
+            activeFrameProp.IsVisible = useCustomTimeProp.Value is true;
+            activeNormalizedFrameProp.IsVisible = useCustomTimeProp.Value is true;
+            useCustomTimeProp.ValueChanged += (s, e) =>
+            {
+                activeFrameProp.IsVisible = useCustomTimeProp.Value is true;
+                activeNormalizedFrameProp.IsVisible = useCustomTimeProp.Value is true;
+            };
+        }
+    }
+
     private bool isVisible;
 
     public void SetIsVisible(bool isVisible)
@@ -74,6 +93,21 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
     {
         this.maskIsVisible = maskIsVisible;
         OnPropertyChanged(nameof(MaskIsVisibleBindable));
+    }
+
+    private TexturePreview? maskPreview;
+    private TexturePreview? preview;
+
+    public TexturePreview? Preview
+    {
+        get => preview;
+        set => SetProperty(ref preview, value);
+    }
+
+    public TexturePreview? MaskPreview
+    {
+        get => maskPreview;
+        set => SetProperty(ref maskPreview, value);
     }
 
     public bool MaskIsVisibleBindable
@@ -167,30 +201,13 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
         set => SetProperty(ref selection, value);
     }
 
-    private PreviewPainter? previewSurface;
-    private PreviewPainter? _maskPreviewPainter;
-
-    public PreviewPainter? PreviewPainter
-    {
-        get => previewSurface;
-        set => SetProperty(ref previewSurface, value);
-    }
-
-    public PreviewPainter? MaskPreviewPainter
-    {
-        get => _maskPreviewPainter;
-        set => SetProperty(ref _maskPreviewPainter, value);
-    }
-
     IDocument IStructureMemberHandler.Document => Document;
 
     public override void Dispose()
     {
         base.Dispose();
-        PreviewPainter?.Dispose();
-        MaskPreviewPainter?.Dispose();
-        PreviewPainter = null;
-        MaskPreviewPainter = null;
+        Preview?.Preview?.Dispose();
+        MaskPreview?.Preview?.Dispose();
     }
 }
 

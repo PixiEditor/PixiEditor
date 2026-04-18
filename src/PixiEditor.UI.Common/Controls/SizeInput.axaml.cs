@@ -9,6 +9,8 @@ namespace PixiEditor.UI.Common.Controls;
 /// </summary>
 public partial class SizeInput : UserControl
 {
+    public static readonly StyledProperty<bool> DraggingGrabberProperty = AvaloniaProperty.Register<SizeInput, bool>("DraggingGrabber");
+
     public static readonly StyledProperty<double> SizeProperty =
         AvaloniaProperty.Register<SizeInput, double>(nameof(Size), defaultValue: 1);
 
@@ -113,6 +115,12 @@ public partial class SizeInput : UserControl
     {
         get => (string)GetValue(UnitProperty);
         set => SetValue(UnitProperty, value);
+    }
+
+    public bool DraggingGrabber
+    {
+        get { return (bool)GetValue(DraggingGrabberProperty); }
+        set { SetValue(DraggingGrabberProperty, value); }
     }
 
     private void Border_MouseWheel(object? sender, PointerWheelEventArgs e)

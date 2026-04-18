@@ -2,6 +2,7 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
 using Avalonia.Input;
+using PixiEditor.UI.Common.Extensions;
 
 namespace PixiEditor.UI.Common.Controls;
 

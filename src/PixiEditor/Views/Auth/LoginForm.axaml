@@ -7,122 +7,142 @@
              xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
              xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
              xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+             xmlns:ui1="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+             xmlns:avalonia="clr-namespace:LiveMarkdown.Avalonia;assembly=LiveMarkdown.Avalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="subViewModels:UserViewModel"
              x:Class="PixiEditor.Views.Auth.LoginForm">
     <Design.DataContext>
         <subViewModels:UserViewModel />
     </Design.DataContext>
 
     <Panel>
-        <Panel.Resources>
-            <LinearGradientBrush
-                StartPoint="0%, 84%"
-                EndPoint="100%, 34%"
-                x:Key="FoundersGradientBrush">
-                <GradientStops>
-                    <GradientStop Offset="0" Color="#832ED7" />
-                    <GradientStop Offset="0.24" Color="#9D42F8" />
-                    <GradientStop Offset="0.48" Color="#DCB8FF" />
-                    <GradientStop Offset="0.72" Color="#AB56FF" />
-                    <GradientStop Offset="0.96" Color="#762BC0" />
-                </GradientStops>
-            </LinearGradientBrush>
-            <LinearGradientBrush
-                StartPoint="0%, 84%"
-                EndPoint="100%, 34%"
-                x:Key="FoundersGradientBrushShifted">
-                <GradientStops>
-                    <GradientStop Offset="0" Color="#832ED7" />
-                    <GradientStop Offset="0.25" Color="#DCB8FF" />
-                    <GradientStop Offset="0.75" Color="#DCB8FF" />
-                    <GradientStop Offset="1" Color="#762BC0" />
-                </GradientStops>
-            </LinearGradientBrush>
-        </Panel.Resources>
-        <Panel.Styles>
-            <Style Selector="Button.foundersButton">
-                <Setter Property="BorderBrush" Value="{StaticResource FoundersGradientBrush}" />
-                <Setter Property="Foreground" Value="{StaticResource FoundersGradientBrush}" />
-                <Setter Property="Transitions">
-                    <Transitions>
-                        <BrushTransition Property="BorderBrush" Delay="0" Duration="0:0:0.2" Easing="SineEaseOut" />
-                        <BrushTransition Property="Foreground" Delay="0" Duration="0:0:0.2" Easing="SineEaseOut" />
-                    </Transitions>
-                </Setter>
-            </Style>
-            <Style Selector="Button.foundersButton:pointerover">
-                <Setter Property="BorderBrush" Value="{StaticResource FoundersGradientBrushShifted}" />
-                <Setter Property="Foreground" Value="{StaticResource FoundersGradientBrushShifted}" />
-            </Style>
-        </Panel.Styles>
-        <StackPanel IsVisible="{Binding !IsLoggedIn}" Name="RootPanel" VerticalAlignment="Top" Spacing="12">
-            <TextBox Text="{Binding CurrentEmail, Mode=TwoWay}" Watermark="{ui:Translate Key=ENTER_EMAIL}" Name="Email"
-                     IsVisible="{Binding !IsLoggedIn}" />
-            <Button Name="LoginButton"
-                    IsDefault="True"
-                    Command="{Binding RequestLoginCommand}"
-                    CommandParameter="{Binding ElementName=Email, Path=Text}">
-                <Button.IsVisible>
-                    <MultiBinding Converter="{converters:OneTrueConverter}">
-                        <Binding Path="NotLoggedIn" />
-                        <Binding Path="!EmailEqualsLastSentMail" />
-                    </MultiBinding>
-                </Button.IsVisible>
-                <TextBlock>
-                    <Run ui:Translator.Key="LOGIN_LINK" />
-                    <Run Text="{Binding TimeToEndTimeoutString}" />
-                </TextBlock>
-            </Button>
-            <Button Command="{Binding Path=ResendActivationCommand}"
-                    CommandParameter="{Binding ElementName=Email, Path=Text}">
-                <Button.IsVisible>
-                    <MultiBinding Converter="{converters:AllTrueConverter}">
-                        <Binding Path="WaitingForActivation" />
-                        <Binding Path="EmailEqualsLastSentMail" />
-                    </MultiBinding>
-                </Button.IsVisible>
-                <TextBlock ui:Translator.Key="RESEND_ACTIVATION">
-                    <TextBlock Text="{Binding TimeToEndTimeoutString}" />
-                </TextBlock>
-            </Button>
+        <DockPanel LastChildFill="True" IsVisible="{Binding !IsLoggedIn}">
+            <ToggleButton ui:Translator.Key="{Binding ActiveModeKey}"
+                          DockPanel.Dock="Bottom"
+                          Background="Transparent" BorderThickness="0"
+                          IsChecked="{Binding RegisterMode, Mode=TwoWay}" />
+            <StackPanel VerticalAlignment="Center" Spacing="12" Name="RootPanel">
+                <TextBox Text="{Binding CurrentEmail, Mode=TwoWay}" Watermark="{ui:Translate Key=ENTER_EMAIL}"
+                         Name="Email"
+                         IsVisible="{Binding !IsLoggedIn}" />
 
-            <Panel IsVisible="{Binding LastError, Converter={converters:NullToVisibilityConverter}}">
-                <TextBlock Classes="subtext" Text="{ui:Translate Key=LOGIN_LINK_INFO}"
-                           FontSize="{DynamicResource FontSizeNormal}">
-                    <TextBlock.IsVisible>
-                        <MultiBinding Converter="{converters:OneTrueConverter}">
-                            <Binding Path="NotLoggedIn" />
-                            <Binding Path="!EmailEqualsLastSentMail" />
+                <StackPanel Spacing="5" Orientation="Vertical" IsVisible="{Binding RegisterMode}">
+                    <StackPanel
+                        Orientation="Horizontal" Spacing="5">
+                        <CheckBox VerticalAlignment="Top" IsChecked="{Binding AgreementChecked, Mode=TwoWay}" />
+                        <avalonia:MarkdownRenderer Width="570" VerticalAlignment="Bottom"
+                                                   LinkCommand="{xaml:Command Name=PixiEditor.Links.OpenMdHyperlink, UseProvided=True}"
+                                                   MarkdownBuilder="{Binding AgreementText}">
+                            <avalonia:MarkdownRenderer.Styles>
+                                <Style Selector="StackPanel">
+                                    <Setter Property="VerticalAlignment" Value="Top" />
+                                </Style>
+                                <Style Selector="avalonia|MarkdownTextBlock">
+                                    <Setter Property="FontSize" Value="12" />
+                                    <Setter Property="FontFamily" Value="$Default" />
+                                </Style>
+                            </avalonia:MarkdownRenderer.Styles>
+                        </avalonia:MarkdownRenderer>
+                    </StackPanel>
+
+                    <StackPanel
+                        Orientation="Horizontal" Spacing="5">
+                        <CheckBox VerticalAlignment="Top" IsChecked="{Binding SignInToNewsletterChecked, Mode=TwoWay}" />
+                        <avalonia:MarkdownRenderer Width="570" VerticalAlignment="Bottom"
+                                                   LinkCommand="{xaml:Command Name=PixiEditor.Links.OpenMdHyperlink, UseProvided=True}"
+                                                   MarkdownBuilder="{Binding NewsletterAgreementText}">
+                            <avalonia:MarkdownRenderer.Styles>
+                                <Style Selector="StackPanel">
+                                    <Setter Property="VerticalAlignment" Value="Top" />
+                                </Style>
+                                <Style Selector="avalonia|MarkdownTextBlock">
+                                    <Setter Property="FontSize" Value="12" />
+                                    <Setter Property="FontFamily" Value="$Default" />
+                                </Style>
+                            </avalonia:MarkdownRenderer.Styles>
+                        </avalonia:MarkdownRenderer>
+                    </StackPanel>
+
+                </StackPanel>
+
+                <Panel IsVisible="{Binding !RegisterMode}">
+                    <Button Name="LoginButton"
+                            IsDefault="True"
+                            Command="{Binding RequestLoginCommand}"
+                            CommandParameter="{Binding ElementName=Email, Path=Text}">
+                        <Button.IsVisible>
+                            <MultiBinding Converter="{converters:OneTrueConverter}">
+                                <Binding Path="NotLoggedIn" />
+                                <Binding Path="!EmailEqualsLastSentMail" />
+                            </MultiBinding>
+                        </Button.IsVisible>
+                        <TextBlock>
+                            <Run ui:Translator.Key="LOGIN_LINK" />
+                            <Run Text="{Binding TimeToEndTimeoutString}" />
+                        </TextBlock>
+                    </Button>
+                </Panel>
+                <Button Name="RegisterButton"
+                        IsDefault="True"
+                        Command="{Binding RegisterCommand}"
+                        CommandParameter="{Binding ElementName=Email, Path=Text}">
+                    <Button.IsVisible>
+                        <MultiBinding Converter="{converters:AllTrueConverter}">
+                            <Binding Path="!IsLoggedIn" />
+                            <Binding Path="RegisterMode" />
                         </MultiBinding>
-                    </TextBlock.IsVisible>
-                </TextBlock>
-                <TextBlock Text="✓" Foreground="{DynamicResource ThemeAccent2Brush}"
-                           FontSize="{DynamicResource FontSizeNormal}">
-                    <TextBlock.IsVisible>
+                    </Button.IsVisible>
+                    <TextBlock>
+                        <Run ui:Translator.Key="REGISTER" />
+                        <Run Text="{Binding TimeToEndTimeoutString}" />
+                    </TextBlock>
+                </Button>
+                <Button Command="{Binding Path=ResendActivationCommand}"
+                        CommandParameter="{Binding ElementName=Email, Path=Text}">
+                    <Button.IsVisible>
                         <MultiBinding Converter="{converters:AllTrueConverter}">
                             <Binding Path="WaitingForActivation" />
+                            <Binding Path="!RegisterMode" />
                             <Binding Path="EmailEqualsLastSentMail" />
                         </MultiBinding>
-                    </TextBlock.IsVisible>
-                    <Run />
-                    <TextBlock ui:Translator.Key="EMAIL_SENT" />
-                </TextBlock>
-            </Panel>
-            <TextBlock Text="✕" IsVisible="{Binding !!LastError}" TextWrapping="Wrap"
-                       Foreground="{DynamicResource ErrorOnDarkBrush}">
-                <Run Text="" />
-                <Run ui:Translator.LocalizedString="{Binding LastError}" />
-            </TextBlock>
+                    </Button.IsVisible>
+                    <TextBlock ui:Translator.Key="RESEND_ACTIVATION">
+                        <TextBlock Text="{Binding TimeToEndTimeoutString}" />
+                    </TextBlock>
+                </Button>
 
-            <Separator />
-            <TextBlock HorizontalAlignment="Center" Classes="subtext" ui:Translator.Key="NOT_FOUNDER_YET" />
-            <Button ui:Translator.Key="BECOME_A_FOUNDER" Background="Transparent"
-                    Command="{xaml:Command Name=PixiEditor.Links.OpenHyperlink, UseProvided=True}"
-                    CommandParameter="{Binding FoundersBundleLink}"
-                    HorizontalAlignment="Center"
-                    Classes="foundersButton"
-                    Padding="8, 4" />
-        </StackPanel>
+                <Panel IsVisible="{Binding LastError, Converter={converters:NullToVisibilityConverter}}">
+                    <Panel IsVisible="{Binding !RegisterMode}">
+                        <TextBlock Classes="subtext" Text="{ui:Translate Key=LOGIN_LINK_INFO}"
+                                   FontSize="{DynamicResource FontSizeNormal}">
+                            <TextBlock.IsVisible>
+                                <MultiBinding Converter="{converters:OneTrueConverter}">
+                                    <Binding Path="NotLoggedIn" />
+                                    <Binding Path="!EmailEqualsLastSentMail" />
+                                </MultiBinding>
+                            </TextBlock.IsVisible>
+                        </TextBlock>
+                    </Panel>
+                    <TextBlock Text="✓" Foreground="{DynamicResource ThemeAccent2Brush}"
+                               FontSize="{DynamicResource FontSizeNormal}">
+                        <TextBlock.IsVisible>
+                            <MultiBinding Converter="{converters:AllTrueConverter}">
+                                <Binding Path="WaitingForActivation" />
+                                <Binding Path="EmailEqualsLastSentMail" />
+                            </MultiBinding>
+                        </TextBlock.IsVisible>
+                        <Run />
+                        <TextBlock Margin="0, 0, 0, -4" ui:Translator.Key="EMAIL_SENT" />
+                    </TextBlock>
+                </Panel>
+                <TextBlock Text="✕" IsVisible="{Binding !!LastError}" TextWrapping="Wrap"
+                           Foreground="{DynamicResource ErrorOnDarkBrush}">
+                    <Run Text="" />
+                    <Run ui:Translator.LocalizedString="{Binding LastError}" />
+                </TextBlock>
+            </StackPanel>
+        </DockPanel>
         <DockPanel LastChildFill="True"
                    Name="LoggedInPanel"
                    IsVisible="{Binding IsLoggedIn}" Margin="5">

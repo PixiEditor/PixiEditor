@@ -26,6 +26,7 @@
             <viewportControls:FixedViewport
                 Delayed="True"
                 x:Name="viewport"
+                MaxBilinearSampleSize="{Binding ElementName=uc, Path=MaxBilinearSamplingSize}"
                 RenderInDocSize="{Binding ElementName=highDpiButton, Path=IsChecked}"
                 Document="{Binding Document, ElementName=uc}"
                 Background="{Binding ActiveItem.Value, ElementName=backgroundButton}" />

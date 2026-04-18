@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
@@ -182,7 +183,7 @@ internal partial class LayersManager : UserControl
         }
 
         // Imported object doesn't do any async operations so .Result is safe to use here.
-        if (ClipboardController.TryPaste(ActiveDocument, ManagerViewModel, new[] { new ImportedObject((IDataObject)e.Data) }, true).Result)
+        if (ClipboardController.TryPaste(ActiveDocument, ManagerViewModel, new[] { new ImportedObject(e.DataTransfer) }, true).Result)
         {
             e.Handled = true;
         }
@@ -199,7 +200,7 @@ internal partial class LayersManager : UserControl
 
         if (member == null)
         {
-            if (!ClipboardController.IsImage((IDataObject)e.Data))
+            if (!ClipboardController.IsImage(e.DataTransfer))
             {
                 return;
             }

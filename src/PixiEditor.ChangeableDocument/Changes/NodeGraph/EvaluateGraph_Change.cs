@@ -33,8 +33,8 @@ internal class EvaluateGraph_Change : Change
 
         using Texture renderTexture = Texture.ForProcessing(target.Size, target.ProcessingColorSpace);
         RenderContext context =
-            new(renderTexture.DrawingSurface, frameTime, ChunkResolution.Full, target.Size, target.Size,
-                target.ProcessingColorSpace, SamplingOptions.Default) { FullRerender = true };
+            new(renderTexture.DrawingSurface.Canvas, frameTime, ChunkResolution.Full, target.Size, target.Size,
+                target.ProcessingColorSpace, SamplingOptions.Default, target.NodeGraph) { FullRerender = true };
         foreach (var nodeToEvaluate in queue)
         {
             nodeToEvaluate.Execute(context);

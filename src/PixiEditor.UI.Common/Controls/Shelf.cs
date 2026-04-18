@@ -5,6 +5,7 @@ using Avalonia.Controls.Metadata;
 using Avalonia.Interactivity;
 using Avalonia.Rendering.Composition;
 using Avalonia.Threading;
+using PixiEditor.UI.Common.Extensions;
 using PixiEditor.UI.Common.Tweening;
 
 namespace PixiEditor.UI.Common.Controls;

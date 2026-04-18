@@ -2,6 +2,7 @@
 using Drawie.Backend.Core.Numerics;
 using PixiEditor.Models.Handlers.Toolbars;
 using Drawie.Numerics;
+using PixiEditor.Models.Input;
 using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.Models.Handlers;
@@ -13,6 +14,7 @@ internal interface IToolHandler : IHandler
     public string ToolName => GetType().Name.Replace("Tool", string.Empty).Replace("ViewModel", string.Empty);
     public string ToolNameLocalizationKey { get; }
     public string DefaultIcon => $"icon-{ToolName.ToLower()}";
+    public string IconToUse => DefaultIcon;
     public Type[]? SupportedLayerTypes { get; }
 
     public bool HideHighlight { get; }

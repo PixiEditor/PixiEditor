@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
+using Avalonia.Media;
 using Avalonia.Threading;
 using Drawie.Backend.Core;
-using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using PixiDocks.Core.Docking;
@@ -13,24 +13,29 @@ using PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Handlers;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Dock;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.Views.Visuals;
+using Color = Drawie.Backend.Core.ColorsImpl.Color;
 
 namespace PixiEditor.ViewModels.SubViewModels;
 #nullable enable
 internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockableContent, IDockableCloseEvents,
-    IDockableSelectionEvents, IViewport
+    IDockableSelectionEvents, IViewport, IDisposable
 {
     public DocumentViewModel Document { get; }
     public ExecutionTrigger<VecI> CenterViewportTrigger { get; } = new ExecutionTrigger<VecI>();
     public ExecutionTrigger<double> ZoomViewportTrigger { get; } = new ExecutionTrigger<double>();
 
-
     public string Index => _index;
 
     public string Id => id;
-    public string Title => $"{Document.FileName}{Index}";
+
+    public string Title => Document.IsNestedDocument
+        ? new LocalizedString("NESTED_DOCUMENT")
+        : $"{Document.FileName}{Index}";
+
     public bool CanFloat => true;
     public bool CanClose => true;
 
@@ -73,8 +78,13 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
         get => renderOutputName;
         set
         {
+            var old = renderOutputName;
             renderOutputName = value;
-            OnPropertyChanged(nameof(RenderOutputName));
+            if (old != value)
+            {
+                OnPropertyChanged(nameof(RenderOutputName));
+                CenterViewportTrigger?.Execute(this, Document.GetRenderOutputSize(value));
+            }
         }
     }
 
@@ -146,7 +156,51 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
         }
     }
 
-    private PreviewPainterControl previewPainterControl;
+    public double SceneScale
+    {
+        get => sceneScale;
+        set
+        {
+            sceneScale = value;
+            OnPropertyChanged(nameof(SceneScale));
+        }
+    }
+
+    public VecD SceneCenter
+    {
+        get => sceneCenter;
+        set
+        {
+            sceneCenter = value;
+            OnPropertyChanged(nameof(SceneCenter));
+        }
+    }
+
+    public double SceneAngleRadians
+    {
+        get => sceneAngleRadians;
+        set
+        {
+            sceneAngleRadians = value;
+            OnPropertyChanged(nameof(SceneAngleRadians));
+        }
+    }
+
+    public ExecutionTrigger<(double scale, double radians, VecD center)> ApplyTransformTrigger { get; } =
+        new ExecutionTrigger<(double scale, double radians, VecD center)>();
+
+    private double sceneScale = 1.0;
+    private VecD sceneCenter = new VecD(0, 0);
+    private double sceneAngleRadians = 0.0;
+
+    private double savedSceneScale = 1.0;
+    private VecD savedSceneCenter = new VecD(0, 0);
+    private double savedSceneAngleRadians = 0.0;
+
+    private bool firstApply = true;
+    private bool centerPending = false;
+
+    private TextureControl previewPainterControl;
 
     public void IndexChanged()
     {
@@ -175,12 +229,21 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
         PixiEditorSettings.Scene.PrimaryBackgroundColor.ValueChanged += UpdateBackgroundBitmap;
         PixiEditorSettings.Scene.SecondaryBackgroundColor.ValueChanged += UpdateBackgroundBitmap;
 
-        previewPainterControl = new PreviewPainterControl(
-            Document.MiniPreviewPainter,
-            Document.AnimationDataViewModel.ActiveFrameTime.Frame);
-        TabCustomizationSettings.Icon = previewPainterControl;
-    }
+        previewPainterControl = new TextureControl();
+        var nonZoomed = Document.SceneTextures.Where(x =>
+            x.Value is { DrawingSurface.Canvas.TotalMatrix: { TransX: 0, TransY: 0, SkewX: 0, SkewY: 0 } }).ToArray();
+        if (nonZoomed.Length > 0)
+        {
+            var minSize = nonZoomed.MinBy(x => x.Value.Size);
+            if (minSize.Value != null)
+            {
+                previewPainterControl.Texture = minSize.Value;
+            }
+        }
 
+        TabCustomizationSettings.Icon = previewPainterControl;
+        TabCustomizationSettings.FontStyle = Document.IsNestedDocument ? FontStyle.Italic : FontStyle.Normal;
+    }
 
     private void DocumentOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
@@ -188,18 +251,30 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
         {
             OnPropertyChanged(nameof(Title));
         }
-        else if (e.PropertyName == nameof(DocumentViewModel.MiniPreviewPainter))
-        {
-            previewPainterControl.PreviewPainter = Document.MiniPreviewPainter;
-            previewPainterControl.FrameToRender = Document.AnimationDataViewModel.ActiveFrameTime.Frame;
-        }
         else if (e.PropertyName == nameof(DocumentViewModel.AllChangesSaved))
         {
+            var nonZoomed = Document.SceneTextures.Where(x =>
+                    x.Value is { DrawingSurface.Canvas.TotalMatrix: { TransX: 0, TransY: 0, SkewX: 0, SkewY: 0 } })
+                .ToArray();
+            if (nonZoomed.Length > 0)
+            {
+                var minSize = nonZoomed.MinBy(x => x.Value.Size);
+                if (minSize.Value != null)
+                {
+                    previewPainterControl.Texture = minSize.Value;
+                }
+            }
+
             TabCustomizationSettings.SavedState = GetSaveState(Document);
         }
         else if (e.PropertyName == nameof(DocumentViewModel.AllChangesAutosaved))
         {
             TabCustomizationSettings.SavedState = GetSaveState(Document);
+        }
+        else if (e.PropertyName == nameof(DocumentViewModel.IsNestedDocument))
+        {
+            TabCustomizationSettings.FontStyle = Document.IsNestedDocument ? FontStyle.Italic : FontStyle.Normal;
+            OnPropertyChanged(nameof(Title));
         }
     }
 
@@ -254,7 +329,7 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
 
     public VecI GetRenderOutputSize()
     {
-       return Document.GetRenderOutputSize(RenderOutputName);
+        return Document.GetRenderOutputSize(RenderOutputName);
     }
 
     private void UpdateBackgroundBitmap(Setting<string> setting, string newValue)
@@ -270,7 +345,7 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
         Color primary = Color.FromHex(primaryHex);
         Color secondary = Color.FromHex(secondaryHex);
 
-        Surface surface = Surface.ForDisplay(new VecI(2, 2));
+        using Surface surface = Surface.ForDisplay(new VecI(2, 2));
         surface.DrawingSurface.Canvas.Clear(primary);
         using Paint secondaryPaint = new Paint { Color = secondary, Style = PaintStyle.Fill };
         surface.DrawingSurface.Canvas.DrawRect(1, 0, 1, 1, secondaryPaint);
@@ -299,10 +374,36 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
     {
         Owner.ActiveWindow = this;
         Owner.Owner.ShortcutController.OverwriteContext(this.GetType());
+        if (!firstApply)
+        {
+            Dispatcher.UIThread.Post(() =>
+            {
+                ApplyTransformTrigger.Execute(this,
+                    (savedSceneScale, savedSceneAngleRadians, savedSceneCenter));
+            });
+        }
+        else if (!centerPending)
+        {
+            centerPending = true;
+            Dispatcher.UIThread.Post(() =>
+            {
+                CenterViewportTrigger.Execute(this, Document.GetRenderOutputSize(RenderOutputName));
+                firstApply = false;
+                centerPending = false;
+            }, DispatcherPriority.Render);
+        }
     }
 
     void IDockableSelectionEvents.OnDeselected()
     {
         Owner.Owner.ShortcutController.ClearContext(GetType());
+        savedSceneScale = SceneScale;
+        savedSceneCenter = SceneCenter;
+        savedSceneAngleRadians = SceneAngleRadians;
+    }
+
+    public void Dispose()
+    {
+        BackgroundBitmap?.Dispose();
     }
 }

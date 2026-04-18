@@ -12,8 +12,10 @@ namespace PixiEditor.ChangeableDocument.Changes.Drawing.FloodFill;
 
 internal class FloodFillChunkCache : IDisposable
 {
+    public IReadOnlyDictionary<VecI, OneOf<Chunk, EmptyChunk>> AcquiredChunks => acquiredChunks;
     private Paint ReplacingPaint { get; } = new Paint() { BlendMode = BlendMode.Src };
 
+    private readonly string renderOutput;
     private readonly HashSet<Guid>? membersToRender;
     private readonly IReadOnlyDocument? document;
     private readonly IReadOnlyChunkyImage? image;
@@ -21,7 +23,7 @@ internal class FloodFillChunkCache : IDisposable
 
     private readonly Dictionary<VecI, OneOf<Chunk, EmptyChunk>> acquiredChunks = new();
     
-    private ColorSpace processingColorSpace = ColorSpace.CreateSrgbLinear();
+    private ColorSpace processingColorSpace;
 
     public FloodFillChunkCache(IReadOnlyChunkyImage image)
     {
@@ -29,12 +31,13 @@ internal class FloodFillChunkCache : IDisposable
         this.processingColorSpace = image.ProcessingColorSpace;
     }
 
-    public FloodFillChunkCache(HashSet<Guid> membersToRender, IReadOnlyDocument document, int frame)
+    public FloodFillChunkCache(HashSet<Guid> membersToRender, IReadOnlyDocument document, string renderOutput, int frame)
     {
         this.membersToRender = membersToRender;
         this.document = document;
         this.frame = frame;
         processingColorSpace = document.ProcessingColorSpace;
+        this.renderOutput = renderOutput;
     }
 
     public bool ChunkExistsInStorage(VecI pos)
@@ -53,7 +56,7 @@ internal class FloodFillChunkCache : IDisposable
         // need to get the chunk by merging multiple members
         if (image is null)
         {
-            if (document is null || membersToRender is null)
+            if (document is null)
                 throw new InvalidOperationException();
             Chunk chunk = Chunk.Create(processingColorSpace);
             chunk.Surface.DrawingSurface.Canvas.Save();
@@ -61,9 +64,16 @@ internal class FloodFillChunkCache : IDisposable
             VecI chunkPos = pos * ChunkyImage.FullChunkSize;
             
             chunk.Surface.DrawingSurface.Canvas.Translate(-chunkPos.X, -chunkPos.Y);
-            
-            document.Renderer.RenderLayers(chunk.Surface.DrawingSurface, membersToRender, frame, ChunkResolution.Full, chunk.Surface.Size);
-            
+
+            if (membersToRender == null)
+            {
+                document.Renderer.RenderDocument(chunk.Surface.DrawingSurface, frame, chunk.Surface.Size, renderOutput);
+            }
+            else
+            {
+                document.Renderer.RenderLayers(chunk.Surface.DrawingSurface, membersToRender, frame, ChunkResolution.Full, chunk.Surface.Size);
+            }
+
             chunk.Surface.DrawingSurface.Canvas.Restore();
             
             acquiredChunks[pos] = chunk;
@@ -75,7 +85,7 @@ internal class FloodFillChunkCache : IDisposable
             return new EmptyChunk();
         Chunk chunkOnImage = Chunk.Create(processingColorSpace, ChunkResolution.Full);
 
-        if (!image.DrawMostUpToDateChunkOn(pos, ChunkResolution.Full, chunkOnImage.Surface.DrawingSurface, VecI.Zero, ReplacingPaint))
+        if (!image.DrawMostUpToDateChunkOn(pos, ChunkResolution.Full, chunkOnImage.Surface.DrawingSurface.Canvas, VecI.Zero, ReplacingPaint))
         {
             chunkOnImage.Dispose();
             acquiredChunks[pos] = new EmptyChunk();

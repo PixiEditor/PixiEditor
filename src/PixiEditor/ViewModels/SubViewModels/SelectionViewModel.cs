@@ -26,7 +26,11 @@ internal class SelectionViewModel : SubViewModel<ViewModelMain>
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is null)
             return;
-        doc.Operations.SelectAll();
+
+        var activeViewport = Owner.WindowSubViewModel.LastActiveViewport.RenderOutputName;
+        var size = Owner.WindowSubViewModel.LastActiveViewport.GetRenderOutputSize();
+
+        doc.Operations.Select(new RectI(0, 0, size.X, size.Y), activeViewport, SelectionMode.Add);
     }
 
     [Command.Basic("PixiEditor.Selection.Clear", "CLEAR_SELECTION", "CLEAR_SELECTION", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.D, Modifiers = KeyModifiers.Control,

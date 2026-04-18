@@ -5,6 +5,7 @@ using Avalonia;
 using Avalonia.Animation;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.LogicalTree;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Rendering;
@@ -30,6 +31,8 @@ using PixiEditor.Models.Rendering;
 using Drawie.Numerics;
 using Drawie.Skia;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
+using PixiEditor.ChangeableDocument.Rendering.ContextData;
+using PixiEditor.Common;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Document.Nodes.Workspace;
@@ -70,6 +73,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     public static readonly StyledProperty<bool> AutoBackgroundScaleProperty = AvaloniaProperty.Register<Scene, bool>(
         nameof(AutoBackgroundScale), true);
+
 
     public bool AutoBackgroundScale
     {
@@ -157,6 +161,18 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         set => SetValue(MaxBilinearSamplingSizeProperty, value);
     }
 
+    public static readonly StyledProperty<Guid> ViewportIdProperty = AvaloniaProperty.Register<Scene, Guid>(
+        nameof(ViewportId));
+
+    public Guid ViewportId
+    {
+        get => GetValue(ViewportIdProperty);
+        set => SetValue(ViewportIdProperty, value);
+    }
+
+    public PointerInfo LastPointerInfo => lastPointerInfo;
+    public KeyboardInfo LastKeyboardInfo => lastKeyboardInfo;
+
     private Overlay? capturedOverlay;
 
     private List<Overlay> mouseOverOverlays = new();
@@ -164,6 +180,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     private double sceneOpacity = 1;
 
     private Paint checkerPaint;
+    private double lastCheckerScale;
 
     private CompositionSurfaceVisual surfaceVisual;
     private Compositor compositor;
@@ -182,7 +199,16 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     private PixelSize lastSize = PixelSize.Empty;
     private Cursor lastCursor;
-    private VecD lastMousePosition;
+    private VecD lastMousePositionOnCanvas;
+    private Point lastDirCalculationPoint;
+
+    private PointerInfo lastPointerInfo;
+    private KeyboardInfo lastKeyboardInfo;
+
+    private bool isCtrlPressed;
+    private bool isShiftPressed;
+    private bool isAltPressed;
+    private bool isMetaPressed;
 
     public static readonly StyledProperty<string> RenderOutputProperty =
         AvaloniaProperty.Register<Scene, string>("RenderOutput");
@@ -239,8 +265,11 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         };
     }
 
-    private SamplingOptions CalculateSampling()
+    internal SamplingOptions CalculateSampling()
     {
+        if (Document == null)
+            return SamplingOptions.Default;
+
         if (Document.SizeBindable.LongestAxis > MaxBilinearSamplingSize)
         {
             return SamplingOptions.Default;
@@ -261,17 +290,54 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     protected override async void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
     {
+        using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
+
         framebuffer?.Dispose();
         framebuffer = null;
 
         if (initialized)
         {
-            surface.Dispose();
+            var toDispose = surface;
+            surface = null;
+            Dispatcher.UIThread.Post(() =>
+            {
+                toDispose?.Dispose();
+            });
+
             await FreeGraphicsResources();
+            checkerPaint?.Shader?.Dispose();
+            checkerPaint?.Dispose();
+            checkerPaint = null;
         }
 
         initialized = false;
         base.OnDetachedFromVisualTree(e);
+    }
+
+    protected override async void OnDetachedFromLogicalTree(LogicalTreeAttachmentEventArgs e)
+    {
+        using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
+
+        framebuffer?.Dispose();
+        framebuffer = null;
+
+        if (initialized)
+        {
+            var toDispose = surface;
+            surface = null;
+            Dispatcher.UIThread.Post(() =>
+            {
+                toDispose?.Dispose();
+            });
+
+            await FreeGraphicsResources();
+            checkerPaint?.Shader?.Dispose();
+            checkerPaint?.Dispose();
+            checkerPaint = null;
+        }
+
+        initialized = false;
+        base.OnDetachedFromLogicalTree(e);
     }
 
     private async void InitializeComposition()
@@ -311,46 +377,110 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         QueueNextFrame();
     }
 
-    public void Draw(DrawingSurface renderTexture)
+    public void Draw(DrawingSurface texture)
     {
         if (Document == null || SceneRenderer == null) return;
 
-        renderTexture.Canvas.Save();
+        texture.Canvas.Save();
         var matrix = CalculateTransformMatrix();
 
-        renderTexture.Canvas.SetMatrix(matrix.ToSKMatrix().ToMatrix3X3());
+        VecI outputSize = FindOutputSize(out var isFullscreen, out bool renderOverlays);
 
-        VecI outputSize = FindOutputSize();
+        texture.Canvas.SetMatrix(isFullscreen ? Matrix3X3.Identity : matrix.ToSKMatrix().ToMatrix3X3());
 
         RectD dirtyBounds = new RectD(0, 0, outputSize.X, outputSize.Y);
-        RenderScene(dirtyBounds);
+        RenderScene(texture, dirtyBounds, isFullscreen, renderOverlays);
 
-        renderTexture.Canvas.Restore();
+        texture.Canvas.Restore();
     }
 
-    private void RenderScene(RectD bounds)
+    private void RenderScene(DrawingSurface texture, RectD bounds, bool isFullscreenRender, bool renderOverlays)
     {
         var renderOutput = RenderOutput == "DEFAULT" ? null : RenderOutput;
-        DrawCheckerboard(renderTexture.DrawingSurface, bounds);
-        DrawOverlays(renderTexture.DrawingSurface, bounds, OverlayRenderSorting.Background);
+        if (renderOverlays)
+        {
+            DrawCheckerboard(texture, bounds);
+        }
+
+        DrawOverlays(texture, bounds, OverlayRenderSorting.Background);
         try
         {
-            SceneRenderer.RenderScene(renderTexture.DrawingSurface, CalculateResolution(), CalculateSampling(),
-                renderOutput);
+            if (Document == null || Document.SceneTextures.TryGetValue(ViewportId, out var tex) == false)
+                return;
+
+            bool hasSaved = false;
+            int saved = -1;
+
+            var matrix = CalculateTransformMatrix().ToSKMatrix().ToMatrix3X3();
+            if (!Document.SceneTextures.TryGetValue(ViewportId, out var cachedTexture))
+                return;
+
+            if (cachedTexture.IsDisposed)
+                return;
+
+            Matrix3X3 matrixDiff = isFullscreenRender ? Matrix3X3.Identity : SolveMatrixDiff(matrix, cachedTexture);
+            var target = cachedTexture.DrawingSurface;
+
+            if (tex.Size == (VecI)RealDimensions || tex.Size == (VecI)(RealDimensions * SceneRenderer.OversizeFactor))
+            {
+                saved = texture.Canvas.Save();
+                texture.Canvas.ClipRect(bounds);
+                texture.Canvas.SetMatrix(matrixDiff);
+                hasSaved = true;
+            }
+            else
+            {
+                saved = texture.Canvas.Save();
+                ChunkResolution renderedResolution = ChunkResolution.Full;
+                if (SceneRenderer != null && SceneRenderer.LastRenderedStates.ContainsKey(ViewportId))
+                {
+                    renderedResolution = SceneRenderer.LastRenderedStates[ViewportId].ChunkResolution;
+                }
+
+                texture.Canvas.SetMatrix(matrixDiff);
+                texture.Canvas.Scale((float)renderedResolution.InvertedMultiplier());
+                hasSaved = true;
+            }
+
+            texture.Canvas.Save();
+            var sampling = CalculateSampling();
+
+            if (matrixDiff.ScaleX < 1)
+            {
+                sampling = SamplingOptions.Bilinear;
+            }
+
+            if (sampling == SamplingOptions.Default)
+            {
+                texture.Canvas.DrawSurface(target, 0, 0);
+            }
+            else
+            {
+                using var snapshot = target.Snapshot();
+                texture.Canvas.DrawImage(snapshot, 0, 0, sampling);
+            }
+
+            if (hasSaved)
+            {
+                texture.Canvas.RestoreToCount(saved);
+            }
         }
         catch (Exception e)
         {
-            renderTexture.DrawingSurface.Canvas.Clear();
+            texture.Canvas.Clear();
             using Paint paint = new Paint { Color = Colors.White, IsAntiAliased = true };
 
             using Font defaultSizedFont = Font.CreateDefault();
             defaultSizedFont.Size = 24;
 
-            renderTexture.DrawingSurface.Canvas.DrawText(new LocalizedString("ERROR_GRAPH"), renderTexture.Size / 2f,
+            texture.Canvas.DrawText(new LocalizedString("ERROR_GRAPH"), renderTexture.Size / 2f,
                 TextAlign.Center, defaultSizedFont, paint);
         }
 
-        DrawOverlays(renderTexture.DrawingSurface, bounds, OverlayRenderSorting.Foreground);
+        if (renderOverlays)
+        {
+            DrawOverlays(texture, bounds, OverlayRenderSorting.Foreground);
+        }
     }
 
     private void DrawCheckerboard(DrawingSurface surface, RectD dirtyBounds)
@@ -362,16 +492,19 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             ? new VecD(ZoomToViewportConverter.ZoomToViewport(16, Scale) * 0.5f)
             : new VecD(CustomBackgroundScaleX, CustomBackgroundScaleY);
         checkerScale = new VecD(Math.Max(0.5, checkerScale.X), Math.Max(0.5, checkerScale.Y));
-        checkerPaint?.Shader?.Dispose();
-        checkerPaint?.Dispose();
-        checkerPaint = new Paint
+        if (Math.Abs(lastCheckerScale - checkerScale.X) > 0.01 || checkerPaint == null)
         {
-            Shader = Shader.CreateBitmap(
-                BackgroundBitmap,
-                TileMode.Repeat, TileMode.Repeat,
-                Matrix3X3.CreateScale((float)checkerScale.X, (float)checkerScale.Y)),
-            FilterQuality = FilterQuality.None
-        };
+            checkerPaint?.Shader?.Dispose();
+            checkerPaint?.Dispose();
+            checkerPaint = new Paint
+            {
+                Shader = Shader.CreateBitmap(
+                    BackgroundBitmap,
+                    TileMode.Repeat, TileMode.Repeat,
+                    Matrix3X3.CreateScale((float)checkerScale.X, (float)checkerScale.Y)),
+                FilterQuality = FilterQuality.None
+            };
+        }
 
         surface.Canvas.DrawRect(operationSurfaceRectToRender, checkerPaint);
     }
@@ -389,7 +522,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                         continue;
                     }
 
-                    overlay.PointerPosition = lastMousePosition;
+                    overlay.PointerPosition = lastMousePositionOnCanvas;
 
                     overlay.ZoomScale = Scale;
 
@@ -408,12 +541,14 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     protected override void OnPointerEntered(PointerEventArgs e)
     {
         base.OnPointerEntered(e);
+        lastPointerInfo = ConstructPointerInfo(e);
         if (AllOverlays != null)
         {
             OverlayPointerArgs args = ConstructPointerArgs(e);
             foreach (Overlay overlay in AllOverlays)
             {
-                if (!overlay.IsVisible || mouseOverOverlays.Contains(overlay) || !overlay.TestHit(args.Point)) continue;
+                if ((!overlay.IsHitTestVisible || !overlay.TestHit(args.Point)) &&
+                    !overlay.AlwaysPassPointerEvents) continue;
                 overlay.EnterPointer(args);
                 mouseOverOverlays.Add(overlay);
             }
@@ -422,9 +557,11 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         }
     }
 
-    private VecI FindOutputSize()
+    private VecI FindOutputSize(out bool isFullscreen, out bool renderOverlays)
     {
         VecI outputSize = Document.SizeBindable;
+        isFullscreen = false;
+        renderOverlays = true;
 
         if (!string.IsNullOrEmpty(RenderOutput))
         {
@@ -438,22 +575,37 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                     {
                         outputSize = size;
                     }
+
+                    var fullScreenProp = node?.Inputs.FirstOrDefault(x =>
+                        x.PropertyName == CustomOutputNode.FullViewportRenderPropertyName);
+                    if (fullScreenProp != null)
+                    {
+                        isFullscreen = Document.NodeGraph.GetComputedPropertyValue<bool>(fullScreenProp);
+                    }
+                }
+
+                var renderOverlaysProp = node?.Inputs.FirstOrDefault(x =>
+                    x.PropertyName == CustomOutputNode.RenderOverlaysPropertyName);
+                if (renderOverlaysProp != null)
+                {
+                    renderOverlays = Document.NodeGraph.GetComputedPropertyValue<bool>(renderOverlaysProp);
                 }
             }
         }
 
-        return outputSize;
+        return isFullscreen ? new VecI((int)Bounds.Size.Width, (int)Bounds.Size.Height) : outputSize;
     }
 
     protected override void OnPointerMoved(PointerEventArgs e)
     {
+        lastPointerInfo = ConstructPointerInfo(e);
         base.OnPointerMoved(e);
         try
         {
             if (AllOverlays != null)
             {
                 OverlayPointerArgs args = ConstructPointerArgs(e);
-                lastMousePosition = args.Point;
+                lastMousePositionOnCanvas = args.Point;
 
                 Cursor finalCursor = DefaultCursor;
 
@@ -499,7 +651,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                     }
                 }
 
-                if (Cursor.ToString() != finalCursor.ToString())
+                if (Cursor?.ToString() != finalCursor?.ToString())
                     Cursor = finalCursor;
                 e.Handled = args.Handled;
             }
@@ -515,6 +667,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         base.OnPointerPressed(e);
         try
         {
+            lastPointerInfo = ConstructPointerInfo(e);
             if (AllOverlays != null)
             {
                 OverlayPointerArgs args = ConstructPointerArgs(e);
@@ -529,7 +682,8 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                         if (args.Handled) break;
                         if (!overlay.IsVisible) continue;
 
-                        if (!overlay.IsHitTestVisible || !overlay.TestHit(args.Point)) continue;
+                        if ((!overlay.IsHitTestVisible || !overlay.TestHit(args.Point)) &&
+                            !overlay.AlwaysPassPointerEvents) continue;
 
                         overlay.PressPointer(args);
                     }
@@ -549,6 +703,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         base.OnPointerExited(e);
         try
         {
+            lastPointerInfo = ConstructPointerInfo(e);
             if (AllOverlays != null)
             {
                 OverlayPointerArgs args = ConstructPointerArgs(e);
@@ -577,6 +732,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         base.OnPointerExited(e);
         try
         {
+            lastPointerInfo = ConstructPointerInfo(e);
             if (AllOverlays != null)
             {
                 OverlayPointerArgs args = ConstructPointerArgs(e);
@@ -593,7 +749,8 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                         if (args.Handled) break;
                         if (!overlay.IsVisible) continue;
 
-                        if (!overlay.IsHitTestVisible || !overlay.TestHit(args.Point)) continue;
+                        if ((!overlay.IsHitTestVisible || !overlay.TestHit(args.Point)) &&
+                            !overlay.AlwaysPassPointerEvents) continue;
 
                         overlay.ReleasePointer(args);
                     }
@@ -611,6 +768,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         base.OnKeyDown(e);
         try
         {
+            UpdateKeyboardInfo(e, true);
             if (AllOverlays != null)
             {
                 foreach (Overlay overlay in AllOverlays)
@@ -632,6 +790,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         base.OnKeyUp(e);
         try
         {
+            UpdateKeyboardInfo(e, false);
             if (AllOverlays != null)
             {
                 foreach (Overlay overlay in AllOverlays)
@@ -679,7 +838,64 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                 ? released.InitialPressMouseButton
                 : MouseButton.None,
             ClickCount = e is PointerPressedEventArgs pressed ? pressed.ClickCount : 0,
+            Properties = e.GetCurrentPoint(this).Properties,
+            Source = Document
         };
+    }
+
+    private void UpdateKeyboardInfo(KeyEventArgs e, bool isKeyDown)
+    {
+        if (e.Key is Key.LeftCtrl or Key.RightCtrl)
+        {
+            isCtrlPressed = isKeyDown;
+        }
+
+        if (e.Key is Key.LeftShift or Key.RightShift)
+        {
+            isShiftPressed = isKeyDown;
+        }
+
+        if (e.Key is Key.LeftAlt or Key.RightAlt)
+        {
+            isAltPressed = isKeyDown;
+        }
+
+        if (e.Key is Key.LWin or Key.RWin)
+        {
+            isMetaPressed = isKeyDown;
+        }
+
+        lastKeyboardInfo = new KeyboardInfo(isCtrlPressed, isShiftPressed, isAltPressed, isMetaPressed);
+    }
+
+    private PointerInfo ConstructPointerInfo(PointerEventArgs e)
+    {
+        var data = e.GetCurrentPoint(this);
+        VecD lastPoint = new VecD(lastDirCalculationPoint.X, lastDirCalculationPoint.Y);
+        VecD currentPoint = new VecD(data.Position.X, data.Position.Y);
+        if (VecD.Distance(lastPoint, currentPoint) > 1)
+        {
+            lastDirCalculationPoint = Lerp(lastPoint, currentPoint, 0.5f);
+        }
+
+        var properties = data.Properties;
+        float pressure = properties.Pressure;
+        if (e.Pointer.Type != PointerType.Pen)
+        {
+            pressure = pressure > 0 ? 1 : 0;
+        }
+
+        VecD position = ToCanvasSpace(data.Position);
+        Point dir = lastDirCalculationPoint - data.Position;
+        VecD vecDir = new VecD(dir.X, dir.Y);
+        VecD dirNormalized = vecDir.Length > 0 ? vecDir.Normalize() : lastPointerInfo.MovementDirection;
+        return new PointerInfo(position, pressure, properties.Twist, new VecD(properties.XTilt, properties.YTilt),
+            dirNormalized, e.Properties.IsLeftButtonPressed, e.Properties.IsRightButtonPressed);
+    }
+
+    private static Point Lerp(VecD a, VecD b, float t)
+    {
+        return new Point(a.X + (b.X - a.X) * t, a.Y + (b.Y - a.Y) * t);
     }
 
     private void FocusOverlay()
@@ -734,7 +950,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         return new VecD(transformed.X, transformed.Y);
     }
 
-    private Matrix CalculateTransformMatrix()
+    internal Matrix CalculateTransformMatrix()
     {
         Matrix transform = Matrix.Identity;
         transform = transform.Append(Matrix.CreateRotation((float)AngleRadians));
@@ -742,12 +958,6 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         transform = transform.Append(Matrix.CreateScale((float)Scale, (float)Scale));
         transform = transform.Append(Matrix.CreateTranslation(CanvasPos.X, CanvasPos.Y));
         return transform;
-    }
-
-    private float CalculateResolutionScale()
-    {
-        var resolution = CalculateResolution();
-        return (float)resolution.InvertedMultiplier();
     }
 
     private void CaptureOverlay(Overlay? overlay, IPointer pointer)
@@ -844,6 +1054,16 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         base.OnPropertyChanged(change);
     }
 
+
+    private Matrix3X3 SolveMatrixDiff(Matrix3X3 matrix, Texture cachedTexture)
+    {
+        Matrix3X3 old = cachedTexture.DrawingSurface.Canvas.TotalMatrix;
+        Matrix3X3 current = matrix;
+
+        Matrix3X3 solveMatrixDiff = current.Concat(old.Invert());
+        return solveMatrixDiff;
+    }
+
     private async Task<(bool success, string info)> DoInitialize(Compositor compositor,
         CompositionDrawingSurface surface)
     {
@@ -885,6 +1105,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     protected async Task FreeGraphicsResources()
     {
+        using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
         renderTexture?.Dispose();
         renderTexture = null;
 
@@ -1001,13 +1222,11 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         ContentDimensions = Document.GetRenderOutputSize(RenderOutput);
     }
 
-
     private static void UpdateRenderOutput(Scene scene, AvaloniaPropertyChangedEventArgs e)
     {
-        if (e.NewValue is string newValue)
+        if (e is { NewValue: string newValue, OldValue: not null })
         {
             scene.ContentDimensions = scene.Document.GetRenderOutputSize(newValue);
-            scene.CenterContent();
         }
     }
 

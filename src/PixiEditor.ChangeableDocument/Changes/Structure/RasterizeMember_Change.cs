@@ -13,16 +13,20 @@ namespace PixiEditor.ChangeableDocument.Changes.Structure;
 internal class RasterizeMember_Change : Change
 {
     private Guid memberId;
-    
-    private Node originalNode;
     private Guid createdNodeId;
     
+    private Node originalNode;
+
+    private int frame = 0;
+
     private ConnectionsData originalConnections;
     
     [GenerateMakeChangeAction]
-    public RasterizeMember_Change(Guid memberId)
+    public RasterizeMember_Change(Guid memberId, Guid newMemberId, int frame)
     {
         this.memberId = memberId;
+        this.createdNodeId = newMemberId;
+        this.frame = frame;
     }
     
     public override bool InitializeAndValidate(Document target)
@@ -47,11 +51,12 @@ internal class RasterizeMember_Change : Change
         ImageLayerNode imageLayer = new ImageLayerNode(target.Size, target.ProcessingColorSpace);
         imageLayer.MemberName = node.DisplayName;
         imageLayer.Position = node.Position;
+        imageLayer.Id = createdNodeId;
 
         target.NodeGraph.AddNode(imageLayer);
         
         using Surface surface = Surface.ForProcessing(target.Size, target.ProcessingColorSpace);
-        rasterizable.Rasterize(surface.DrawingSurface, null);
+        rasterizable.Rasterize(surface.DrawingSurface.Canvas, null, frame);
         
         var image = imageLayer.GetLayerImageAtFrame(0);
         image.EnqueueDrawImage(VecI.Zero, surface);
@@ -86,15 +91,13 @@ internal class RasterizeMember_Change : Change
             changeInfos.Add(new ConnectProperty_ChangeInfo(conn.connection.Node.Id, imageLayer.Id, conn.connection.InternalPropertyName, conn.inputPropName));
         }
         
-        changeInfos.AddRange(NodeOperations.DetachNode(target.NodeGraph, node));
+        changeInfos.AddRange(NodeOperations.DetachNode(node));
         
         node.Dispose();
         target.NodeGraph.RemoveNode(node);
         
         changeInfos.Add(new DeleteNode_ChangeInfo(node.Id));
-        
-        createdNodeId = imageLayer.Id;
-        
+
         ignoreInUndo = false;
         return changeInfos;
     }
@@ -104,7 +107,7 @@ internal class RasterizeMember_Change : Change
         Node node = target.FindMember(createdNodeId);
         
         List<IChangeInfo> changeInfos = new();
-        changeInfos.AddRange(NodeOperations.DetachNode(target.NodeGraph, node));
+        changeInfos.AddRange(NodeOperations.DetachNode(node));
         
         node.Dispose();
         target.NodeGraph.RemoveNode(node);

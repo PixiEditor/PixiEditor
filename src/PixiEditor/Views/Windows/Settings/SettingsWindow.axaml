@@ -11,7 +11,6 @@
     xmlns:vm="clr-namespace:PixiEditor.ViewModels"
     xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
     xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
-    xmlns:i="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
     xmlns:markupExtensions="clr-namespace:PixiEditor.Helpers.MarkupExtensions"
     xmlns:preferences="clr-namespace:PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;assembly=PixiEditor.Extensions.CommonApi"
     xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
@@ -20,6 +19,7 @@
     mc:Ignorable="d"
     x:Class="PixiEditor.Views.Windows.Settings.SettingsWindow"
     Name="window"
+    CanScale="False"
     d:DesignWidth="780" d:DesignHeight="688"
     Width="780" Height="688"
     MinWidth="665" MinHeight="500"
@@ -192,6 +192,10 @@
                                       IsChecked="{Binding SettingsSubViewModel.Tools.EnableSharedToolbar}"
                                       ui:Translator.Key="ENABLE_SHARED_TOOLBAR" />
 
+                            <CheckBox Classes="leftOffset"
+                                      IsChecked="{Binding SettingsSubViewModel.Tools.AutoRasterizeNestedLayersOnDraw}"
+                                      ui:Translator.Key="AUTO_RASTERIZE_NESTED_ON_DRAW" />
+
                             <TextBlock ui:Translator.Key="Rendering" Classes="h5" />
 
                             <Label Target="primaryToolsetComboBox" ui:Translator.Key="PREFERRED_RENDERER"
@@ -306,9 +310,9 @@
                         <TextBox Grid.Row="1"
                                  Text="{Binding SearchTerm, Mode=TwoWay}">
                             <!--Styles="{StaticResource DarkTextBoxStyle}"-->
-                            <i:Interaction.Behaviors>
+                            <Interaction.Behaviors>
                                 <behaviours:GlobalShortcutFocusBehavior />
-                            </i:Interaction.Behaviors>
+                            </Interaction.Behaviors>
                         </TextBox>
 
                         <settings:ShortcutsBinder Grid.Row="2" />
@@ -370,7 +374,7 @@
                         <controls:FixedSizeStackPanel Orientation="Vertical" ChildSize="32"
                                                       VerticalChildrenAlignment="Center" Margin="12">
                             <TextBlock ui:Translator.Key="EXPORT" Classes="h5" />
-                            <CheckBox Classes="leftOffset" Width="200" HorizontalAlignment="Left"
+                            <CheckBox Classes="leftOffset" HorizontalAlignment="Left"
                                       ui:Translator.Key="OPEN_DIRECTORY_ON_EXPORT"
                                       IsChecked="{Binding SettingsSubViewModel.File.OpenDirectoryOnExport}" />
                         </controls:FixedSizeStackPanel>
@@ -389,7 +393,7 @@
 
                             <TextBlock ui:Translator.Key="BACKGROUND" Classes="h5" />
 
-                            <CheckBox Classes="leftOffset" Width="200" HorizontalAlignment="Left"
+                            <CheckBox Classes="leftOffset" HorizontalAlignment="Left"
                                       ui:Translator.Key="AUTO_SCALE_BACKGROUND"
                                       IsChecked="{Binding SettingsSubViewModel.Scene.AutoScaleBackground}" />
 
@@ -421,10 +425,10 @@
                                 d:Content="Reset"
                                 Background="{DynamicResource ThemeAccentBrush}"
                                 ui:Translator.Key="RESET" />
-                            
+
                             <TextBlock ui:Translator.Key="SELECTION" Classes="h5" />
 
-                            <CheckBox Classes="leftOffset" Width="200" HorizontalAlignment="Left"
+                            <CheckBox Classes="leftOffset" HorizontalAlignment="Left"
                                       ui:Translator.Key="TINT_SELECTION"
                                       IsChecked="{Binding SettingsSubViewModel.Scene.SelectionTintingEnabled}" />
 
@@ -443,7 +447,7 @@
                                                       VerticalChildrenAlignment="Center" Margin="12">
                             <TextBlock ui:Translator.Key="PERFORMANCE" Classes="h5" />
 
-                            <CheckBox Classes="leftOffset" Width="200" HorizontalAlignment="Left"
+                            <CheckBox Classes="leftOffset" HorizontalAlignment="Left"
                                       ui:Translator.Key="DISABLE_PREVIEWS"
                                       IsChecked="{Binding SettingsSubViewModel.Performance.DisablePreviews}" />
 
@@ -461,17 +465,47 @@
                                            VerticalAlignment="Center"
                                            ToolTip.ShowDelay="0">
                                     <ToolTip.Tip>
-                                        <TextBlock TextWrapping="Wrap" MaxWidth="200" ui:Translator.Key="MAX_BILINEAR_CANVAS_SIZE_DESC" />
+                                        <TextBlock TextWrapping="Wrap" MaxWidth="200"
+                                                   ui:Translator.Key="MAX_BILINEAR_CANVAS_SIZE_DESC" />
                                     </ToolTip.Tip>
                                 </TextBlock>
                             </StackPanel>
                         </controls:FixedSizeStackPanel>
                     </ScrollViewer>
-                     <ScrollViewer>
+                    <ScrollViewer>
                         <ScrollViewer.IsVisible>
                             <Binding Path="CurrentPage" Converter="{converters:IsEqualConverter}">
                                 <Binding.ConverterParameter>
                                     <sys:Int32>7</sys:Int32>
+                                </Binding.ConverterParameter>
+                            </Binding>
+                        </ScrollViewer.IsVisible>
+
+                        <controls:FixedSizeStackPanel Orientation="Vertical" ChildSize="32"
+                                                      VerticalChildrenAlignment="Center" Margin="12">
+                            <TextBlock ui:Translator.Key="UI_SCALE" Classes="h5" />
+
+                            <StackPanel Orientation="Horizontal" Spacing="10" Classes="leftOffset">
+                                <Slider Width="200"
+                                        Minimum="0.5" Maximum="2.5"
+                                        TickFrequency="0.05"
+                                        IsSnapToTickEnabled="True"
+                                        Value="{Binding SettingsSubViewModel.Accessibility.UiScaleFactor, Mode=TwoWay}" />
+
+                                <TextBlock Text="{Binding SettingsSubViewModel.Accessibility.UiScaleFactorPreview}"
+                                           VerticalAlignment="Center" />
+
+                            </StackPanel>
+
+                            <TextBlock ui:Translator.Key="UI_SCALE_EXEMPTS_SETTINGS" Classes="leftOffset subtext" />
+                        </controls:FixedSizeStackPanel>
+                    </ScrollViewer>
+
+                    <ScrollViewer>
+                        <ScrollViewer.IsVisible>
+                            <Binding Path="CurrentPage" Converter="{converters:IsEqualConverter}">
+                                <Binding.ConverterParameter>
+                                    <sys:Int32>8</sys:Int32>
                                 </Binding.ConverterParameter>
                             </Binding>
                         </ScrollViewer.IsVisible>
@@ -480,7 +514,7 @@
                                                       VerticalChildrenAlignment="Center" Margin="12">
                             <TextBlock ui:Translator.Key="APPEARANCE" Classes="h5" />
 
-                            <CheckBox Classes="leftOffset" Width="200" HorizontalAlignment="Left"
+                            <CheckBox Classes="leftOffset" HorizontalAlignment="Left"
                                       ui:Translator.Key="USE_SYSTEM_TITLE_BAR"
                                       IsChecked="{Binding SettingsSubViewModel.Appearance.UseSystemDecorations}" />
 

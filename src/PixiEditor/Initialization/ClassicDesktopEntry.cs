@@ -5,14 +5,17 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using Avalonia.Xaml.Interactivity;
+using Drawie.Backend.Core.Bridge;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Extensions;
+using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Extensions.Runtime;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Behaviours;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.ExceptionHandling;
 using PixiEditor.Models.IO;
+using PixiEditor.Models.Preferences;
 using PixiEditor.OperatingSystem;
 using PixiEditor.Platform;
 using PixiEditor.UI.Common.Controls;
@@ -117,9 +120,25 @@ internal class ClassicDesktopEntry
 
         var extensionLoader = InitApp(safeMode);
         ViewModels_ViewModelMain viewModel = Services.GetRequiredService<ViewModels_ViewModelMain>();
-        viewModel.Setup(Services);
+        if (!DrawingBackendApi.HasBackend)
+        {
+            DrawingBackendApi.OnBackendInitialized += () =>
+            {
+                Load(viewModel, extensionLoader);
+            };
+        }
+        else
+        {
+            Load(viewModel, extensionLoader);
+        }
+    }
 
+    private void Load(ViewModels_ViewModelMain viewModel, ExtensionLoader extensionLoader)
+    {
+        viewModel.Setup(Services);
+        
         desktop.MainWindow = new MainWindow(extensionLoader);
+        
         desktop.MainWindow.Show();
     }
 
@@ -146,6 +165,9 @@ internal class ClassicDesktopEntry
             Directory.CreateDirectory(Paths.LocalExtensionPackagesPath);
         }
 
+        PreferencesSettings settings = new PreferencesSettings();
+        settings.Init();
+        
         ExtensionLoader extensionLoader = new ExtensionLoader(
             [Paths.InstallDirExtensionPackagesPath, Paths.LocalExtensionPackagesPath], Paths.UnpackedExtensionsPath);
         if (!safeMode)
@@ -157,6 +179,7 @@ internal class ClassicDesktopEntry
             .AddPlatform()
             .AddPixiEditor(extensionLoader)
             .AddExtensionServices(extensionLoader)
+            .AddSingleton<IPreferences, PreferencesSettings>(x => settings)
             .BuildServiceProvider();
 
         extensionLoader.Services = new ExtensionServices(Services);
@@ -167,13 +190,14 @@ internal class ClassicDesktopEntry
     private IPlatform GetActivePlatform()
     {
 #if STEAM || DEV_STEAM
-        return new PixiEditor.Platform.Steam.SteamPlatform();
+        return new PixiEditor.Platform.Steam.SteamPlatform([Paths.LocalExtensionPackagesPath, Paths.InstallDirExtensionPackagesPath]);
 #elif MSIX || MSIX_DEBUG
         return new PixiEditor.Platform.MSStore.MicrosoftStorePlatform(Paths.LocalExtensionPackagesPath, GetApiUrl(),
-            GetApiKey());
+            GetApiKey(), ExtensionRuntimeInfo.ApiVersion);
 #else
-        return new PixiEditor.Platform.Standalone.StandalonePlatform([Paths.LocalExtensionPackagesPath, Paths.InstallDirExtensionPackagesPath], GetApiUrl(),
-            GetApiKey()); // The first in the extensionsPath array should be local, because it's the default where extensions are installed. Otherwise, OS access rights may cause issues.
+        return new PixiEditor.Platform.Standalone.StandalonePlatform(
+            [Paths.LocalExtensionPackagesPath, Paths.InstallDirExtensionPackagesPath], GetApiUrl(),
+            GetApiKey(), ExtensionRuntimeInfo.ApiVersion); // The first in the extensionsPath array should be local, because it's the default where extensions are installed. Otherwise, OS access rights may cause issues.
 #endif
     }
 

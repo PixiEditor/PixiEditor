@@ -2,6 +2,7 @@
 using System.Linq;
 using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
@@ -12,6 +13,7 @@ namespace ChunkyImageLib.Operations;
 internal class PixelsOperation : IMirroredDrawOperation
 {
     public bool IgnoreEmptyChunks => false;
+
     private readonly VecF[] pixels;
     private readonly Color color;
     private readonly BlendMode blendMode;
@@ -34,7 +36,12 @@ internal class PixelsOperation : IMirroredDrawOperation
         surf.Canvas.Save();
         surf.Canvas.Scale((float)targetChunk.Resolution.Multiplier());
         surf.Canvas.Translate(-chunkPos * ChunkyImage.FullChunkSize);
-        surf.Canvas.DrawPoints(PointMode.Points, pixels, paint);
+        //surf.Canvas.DrawPoints(PointMode.Points, pixels, paint);
+        // Drawing points with GPU chunks doesn't work well, that's why we draw rects instead
+        foreach (var pixel in pixels)
+        {
+            surf.Canvas.DrawRect(new RectD((VecD)pixel, new VecD(1)), paint);
+        }
         surf.Canvas.Restore();
     }
 

@@ -5,6 +5,8 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Media;
+using Avalonia.Skia;
 using Avalonia.VisualTree;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
@@ -20,6 +22,8 @@ using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Position;
 using Drawie.Numerics;
+using Drawie.Skia;
+using PixiEditor.ChangeableDocument.Rendering.ContextData;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.UI.Common.Behaviors;
 using PixiEditor.ViewModels.Document;
@@ -119,14 +123,26 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     public static readonly StyledProperty<bool> AutoBackgroundScaleProperty = AvaloniaProperty.Register<Viewport, bool>(
         nameof(AutoBackgroundScale), true);
 
-    public static readonly StyledProperty<double> CustomBackgroundScaleXProperty = AvaloniaProperty.Register<Viewport, double>(
-        nameof(CustomBackgroundScaleX));
+    public static readonly StyledProperty<double> CustomBackgroundScaleXProperty =
+        AvaloniaProperty.Register<Viewport, double>(
+            nameof(CustomBackgroundScaleX));
 
-    public static readonly StyledProperty<double> CustomBackgroundScaleYProperty = AvaloniaProperty.Register<Viewport, double>(
-        nameof(CustomBackgroundScaleY));
+    public static readonly StyledProperty<double> CustomBackgroundScaleYProperty =
+        AvaloniaProperty.Register<Viewport, double>(
+            nameof(CustomBackgroundScaleY));
 
-    public static readonly StyledProperty<Bitmap> BackgroundBitmapProperty = AvaloniaProperty.Register<Viewport, Bitmap>(
-        nameof(BackgroundBitmap));
+    public static readonly StyledProperty<Bitmap> BackgroundBitmapProperty =
+        AvaloniaProperty.Register<Viewport, Bitmap>(
+            nameof(BackgroundBitmap));
+
+    public static readonly StyledProperty<ExecutionTrigger<(double scale, double radians, VecD center)>> ApplyTransformTriggerProperty = AvaloniaProperty.Register<Viewport, ExecutionTrigger<(double scale, double radians, VecD center)>>(
+        nameof(ApplyTransformTrigger));
+
+    public ExecutionTrigger<(double scale, double radians, VecD center)> ApplyTransformTrigger
+    {
+        get => GetValue(ApplyTransformTriggerProperty);
+        set => SetValue(ApplyTransformTriggerProperty, value);
+    }
 
     public Bitmap BackgroundBitmap
     {
@@ -139,6 +155,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         get => GetValue(CustomBackgroundScaleYProperty);
         set => SetValue(CustomBackgroundScaleYProperty, value);
     }
+
     public double CustomBackgroundScaleX
     {
         get => GetValue(CustomBackgroundScaleXProperty);
@@ -290,6 +307,33 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         set => SetValue(FlipYProperty, value);
     }
 
+    public static readonly StyledProperty<double> ScaleProperty = AvaloniaProperty.Register<Viewport, double>(
+        nameof(Scale));
+
+    public static readonly StyledProperty<VecD> CenterProperty = AvaloniaProperty.Register<Viewport, VecD>(
+        nameof(Center), new VecD(32, 32));
+
+    public VecD Center
+    {
+        get => GetValue(CenterProperty);
+        set => SetValue(CenterProperty, value);
+    }
+
+    public static readonly StyledProperty<double> AngleRadiansProperty = AvaloniaProperty.Register<Viewport, double>(
+        nameof(AngleRadians));
+
+    public double AngleRadians
+    {
+        get => GetValue(AngleRadiansProperty);
+        set => SetValue(AngleRadiansProperty, value);
+    }
+
+    public double Scale
+    {
+        get => GetValue(ScaleProperty);
+        set => SetValue(ScaleProperty, value);
+    }
+
     public static readonly StyledProperty<bool> HudVisibleProperty = AvaloniaProperty.Register<Viewport, bool>(
         nameof(HudVisible), true);
 
@@ -303,32 +347,6 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     {
         get => GetValue(ChannelsProperty);
         set => SetValue(ChannelsProperty, value);
-    }
-
-    private double angleRadians = 0;
-
-    public double AngleRadians
-    {
-        get => angleRadians;
-        set
-        {
-            angleRadians = value;
-            PropertyChanged?.Invoke(this, new(nameof(AngleRadians)));
-            Document?.Operations.AddOrUpdateViewport(GetLocation());
-        }
-    }
-
-    private VecD center = new(32, 32);
-
-    public VecD Center
-    {
-        get => center;
-        set
-        {
-            center = value;
-            PropertyChanged?.Invoke(this, new(nameof(Center)));
-            Document?.Operations.AddOrUpdateViewport(GetLocation());
-        }
     }
 
     private VecD realDimensions = new(double.MaxValue, double.MaxValue);
@@ -376,12 +394,16 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         set => SetValue(ViewportRenderOutputProperty, value);
     }
 
+    public static readonly StyledProperty<Func<EditorData>> EditorDataFuncProperty =
+        AvaloniaProperty.Register<Viewport, Func<EditorData>>("EditorDataFunc");
+
     public ObservableCollection<Overlay> ActiveOverlays { get; } = new();
 
     public Guid GuidValue { get; } = Guid.NewGuid();
 
     private MouseUpdateController? mouseUpdateController;
     private ViewportOverlays builtInOverlays = new();
+
     public static readonly StyledProperty<int> MaxBilinearSamplingSizeProperty
         = AvaloniaProperty.Register<Viewport, int>("MaxBilinearSamplingSize", 4096);
 
@@ -391,9 +413,26 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     static Viewport()
     {
         DocumentProperty.Changed.Subscribe(OnDocumentChange);
+        ViewportRenderOutputProperty.Changed.Subscribe(e =>
+        {
+            Viewport? viewport = (Viewport)e.Sender;
+            viewport.Document?.Operations.AddOrUpdateViewport(viewport.GetLocation());
+        });
         ZoomViewportTriggerProperty.Changed.Subscribe(ZoomViewportTriggerChanged);
         CenterViewportTriggerProperty.Changed.Subscribe(CenterViewportTriggerChanged);
         HighResPreviewProperty.Changed.Subscribe(OnHighResPreviewChanged);
+        ApplyTransformTriggerProperty.Changed.Subscribe(OnApplyTransformTriggerChanged);
+        CenterProperty.Changed.Subscribe(e =>
+        {
+            Viewport? viewport = (Viewport)e.Sender;
+            viewport.Document?.Operations.AddOrUpdateViewport(viewport.GetLocation());
+        });
+
+        AngleRadiansProperty.Changed.Subscribe(e =>
+        {
+            Viewport? viewport = (Viewport)e.Sender;
+            viewport.Document?.Operations.AddOrUpdateViewport(viewport.GetLocation());
+        });
     }
 
     public Viewport()
@@ -401,7 +440,6 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         InitializeComponent();
 
         builtInOverlays.Init(this);
-        Scene!.Loaded += OnImageLoaded;
         Scene.SizeChanged += OnMainImageSizeChanged;
         Loaded += OnLoad;
         Unloaded += OnUnload;
@@ -417,6 +455,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         Scene.ScaleChanged += OnScaleChanged;
     }
 
+
     private void OnScaleChanged(double newScale)
     {
         SnappingViewModel.SnappingController.SnapDistance = SnappingController.DefaultSnapDistance / newScale;
@@ -425,6 +464,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     private void OnAttachedToVisualTree(object? sender, VisualTreeAttachmentEventArgs e)
     {
         TextBoxFocusBehavior.FallbackFocusElement.Focus();
+        Scene.CenterContent();
     }
 
     public Scene Scene => scene;
@@ -451,6 +491,12 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     {
         get { return (int)GetValue(MaxBilinearSamplingSizeProperty); }
         set { SetValue(MaxBilinearSamplingSizeProperty, value); }
+    }
+
+    public Func<EditorData> EditorDataFunc
+    {
+        get { return (Func<EditorData>)GetValue(EditorDataFuncProperty); }
+        set { SetValue(EditorDataFuncProperty, value); }
     }
 
     private void ForceRefreshFinalImage()
@@ -492,6 +538,22 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         newDoc?.Operations.AddOrUpdateViewport(viewport.GetLocation());
     }
 
+    private static void OnApplyTransformTriggerChanged(AvaloniaPropertyChangedEventArgs<ExecutionTrigger<(double scale, double radians, VecD center)>> e)
+    {
+        Viewport? viewport = (Viewport)e.Sender;
+        if (e.OldValue.Value != null)
+            e.OldValue.Value.Triggered -= viewport.OnApplyTransformTriggered;
+        if (e.NewValue.Value != null)
+            e.NewValue.Value.Triggered += viewport.OnApplyTransformTriggered;
+    }
+
+    private void OnApplyTransformTriggered(object? sender, (double scale, double radians, VecD center) args)
+    {
+        scene.Scale = args.scale;
+        scene.AngleRadians = args.radians;
+        scene.Center = args.center;
+    }
+
     private void OnDocumentSizeChanged(object? sender, DocumentSizeChangedEventArgs documentSizeChangedEventArgs)
     {
         scene.CenterContent(Document.GetRenderOutputSize(ViewportRenderOutput));
@@ -512,8 +574,15 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     private ViewportInfo GetLocation()
     {
-        return new(AngleRadians, Center, RealDimensions, Dimensions, CalculateResolution(), GuidValue, Delayed,
-            ForceRefreshFinalImage);
+        return new(AngleRadians, Center, RealDimensions,
+            new ViewportData(Scene.CalculateTransformMatrix().ToSKMatrix().ToMatrix3X3(), Scene.Pan, Scene.Scale, FlipX,
+                FlipY),
+            Scene.LastPointerInfo,
+            Scene.LastKeyboardInfo,
+            EditorDataFunc(),
+            CalculateVisibleRegion(),
+            ViewportRenderOutput, Scene.CalculateSampling(), Dimensions, CalculateResolution(), GuidValue, Delayed,
+            true, ForceRefreshFinalImage);
     }
 
     private void Image_MouseDown(object? sender, PointerPressedEventArgs e)
@@ -534,10 +603,13 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         var pos = e.GetPosition(Scene);
         VecD scenePos = Scene.ToZoomboxSpace(new VecD(pos.X, pos.Y));
         MouseOnCanvasEventArgs? parameter =
-            new MouseOnCanvasEventArgs(mouseButton, scenePos, e.KeyModifiers, e.ClickCount);
+            new MouseOnCanvasEventArgs(mouseButton, e.Pointer.Type, scenePos, e.KeyModifiers, e.ClickCount,
+                e.GetCurrentPoint(this).Properties, Scene.Scale, Document);
 
         if (MouseDownCommand.CanExecute(parameter))
             MouseDownCommand.Execute(parameter);
+
+        e.Handled = true;
     }
 
     private void Image_MouseMove(PointerEventArgs e)
@@ -546,13 +618,27 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
             return;
         Point pos = e.GetPosition(Scene);
         VecD conv = Scene.ToZoomboxSpace(new VecD(pos.X, pos.Y));
-
         MouseButton mouseButton = e.GetMouseButton(this);
 
-        MouseOnCanvasEventArgs parameter = new(mouseButton, conv, e.KeyModifiers, 0);
+        MouseOnCanvasEventArgs parameter = new(mouseButton, e.Pointer.Type, conv, e.KeyModifiers, 0,
+            e.GetCurrentPoint(this).Properties, Scene.Scale, Document);
+
+        var intermediate = e.GetIntermediatePoints(this);
+        List<PointerPosition> intermediatePositions = new();
+        for (var i = 0; i < intermediate.Count; i++)
+        {
+            var point = intermediate[i];
+            Point interPos = point.Position;
+            VecD interConv = Scene.ToZoomboxSpace(new VecD(interPos.X, interPos.Y));
+            intermediatePositions.Add(new PointerPosition(interConv, point.Properties));
+        }
+
+        parameter.IntermediatePoints = intermediatePositions;
 
         if (MouseMoveCommand.CanExecute(parameter))
             MouseMoveCommand.Execute(parameter);
+
+        e.Handled = true;
     }
 
     private void Image_MouseUp(object? sender, PointerReleasedEventArgs e)
@@ -562,9 +648,12 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
         Point pos = e.GetPosition(Scene);
         VecD conv = Scene.ToZoomboxSpace(new VecD(pos.X, pos.Y));
-        MouseOnCanvasEventArgs parameter = new(e.InitialPressMouseButton, conv, e.KeyModifiers, 0);
+        MouseOnCanvasEventArgs parameter = new(e.InitialPressMouseButton, e.Pointer.Type, conv, e.KeyModifiers, 0,
+            e.GetCurrentPoint(this).Properties, Scene.Scale, Document);
         if (MouseUpCommand.CanExecute(parameter))
             MouseUpCommand.Execute(parameter);
+
+        //e.Handled = true;
     }
 
     private void Image_MouseWheel(object? sender, PointerWheelEventArgs e)
@@ -592,11 +681,6 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         scene.ZoomIntoCenter(delta);
     }
 
-    private void OnImageLoaded(object sender, EventArgs e)
-    {
-        scene.CenterContent();
-    }
-
     private void OnMainImageSizeChanged(object? sender, SizeChangedEventArgs e)
     {
         if (scene.Dimensions is { X: 0, Y: 0 }) return;
@@ -609,6 +693,32 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     {
         scene.AngleRadians = 0;
         scene.CenterContent(Document.GetRenderOutputSize(ViewportRenderOutput));
+    }
+
+    private RectD? CalculateVisibleRegion()
+    {
+        if (Document is null) return null;
+        VecD viewportDimensions = scene.RealDimensions;
+        var transform = scene.CanvasTransform.Value.ToSKMatrix().ToMatrix3X3();
+        var docSize = Document.GetRenderOutputSize(ViewportRenderOutput);
+        if (docSize.X == 0 || docSize.Y == 0) return null;
+
+        VecD topLeft = new(0, 0);
+        VecD topRight = new(viewportDimensions.X, 0);
+        VecD bottomLeft = new(0, viewportDimensions.Y);
+        VecD bottomRight = new(viewportDimensions.X, viewportDimensions.Y);
+        topLeft = transform.Invert().MapPoint(topLeft);
+        topRight = transform.Invert().MapPoint(topRight);
+        bottomLeft = transform.Invert().MapPoint(bottomLeft);
+        bottomRight = transform.Invert().MapPoint(bottomRight);
+
+        double minX = Math.Min(Math.Min(topLeft.X, topRight.X), Math.Min(bottomLeft.X, bottomRight.X));
+        double maxX = Math.Max(Math.Max(topLeft.X, topRight.X), Math.Max(bottomLeft.X, bottomRight.X));
+        double minY = Math.Min(Math.Min(topLeft.Y, topRight.Y), Math.Min(bottomLeft.Y, bottomRight.Y));
+        double maxY = Math.Max(Math.Max(topLeft.Y, topRight.Y), Math.Max(bottomLeft.Y, bottomRight.Y));
+        RectD visibleRect = new(minX, minY, maxX - minX, maxY - minY);
+        visibleRect = visibleRect.Intersect(new RectD(0, 0, docSize.X, docSize.Y));
+        return visibleRect;
     }
 
     private static void CenterViewportTriggerChanged(AvaloniaPropertyChangedEventArgs<ExecutionTrigger<VecI>> e)
@@ -640,7 +750,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     private static void OnHighResPreviewChanged(AvaloniaPropertyChangedEventArgs<bool> e)
     {
         Viewport? viewport = (Viewport)e.Sender;
-        viewport.ForceRefreshFinalImage();
+        viewport.Document?.Operations.AddOrUpdateViewport(viewport.GetLocation());
     }
 
     private void MenuItem_OnClick(object? sender, PointerReleasedEventArgs e)
@@ -660,12 +770,16 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         ViewportWindowViewModel vm = ((ViewportWindowViewModel)DataContext);
         var tools = vm.Owner.Owner.ToolsSubViewModel;
 
-        var superSpecialBrightnessTool = tools.RightClickMode == RightClickMode.SecondaryColor &&
-                                         tools.ActiveTool is BrightnessToolViewModel;
+        var superSpecialRightClick = tools is { RightClickMode: RightClickMode.SecondaryColor, ActiveTool: BrushBasedToolViewModel
+            {
+                SupportsSecondaryActionOnRightClick: true
+            }
+        };
+
         var superSpecialColorPicker =
             tools.RightClickMode == RightClickMode.Erase && tools.ActiveTool is ColorPickerToolViewModel;
 
-        if (superSpecialBrightnessTool || superSpecialColorPicker)
+        if (superSpecialRightClick || superSpecialColorPicker)
         {
             return;
         }
@@ -695,5 +809,10 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
                 ViewportRenderOutput = (string)e.AddedItems[0];
             }
         }
+    }
+
+    private void Scene_OnContextRequested(object? sender, ContextRequestedEventArgs e)
+    {
+        e.Handled = true;
     }
 }

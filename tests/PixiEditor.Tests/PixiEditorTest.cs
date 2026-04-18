@@ -1,15 +1,21 @@
+using Drawie.Backend.Core;
 using Drawie.Backend.Core.Bridge;
 using Drawie.Numerics;
+using Drawie.RenderApi;
+using Drawie.RenderApi.OpenGL;
+using Drawie.RenderApi.Vulkan;
+using Drawie.Silk;
 using Drawie.Skia;
 using Drawie.Windowing;
 using DrawiEngine;
-using DrawiEngine.Desktop;
 using Microsoft.Extensions.DependencyInjection;
+using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Extensions.Runtime;
 using PixiEditor.Helpers;
 using PixiEditor.IdentityProvider;
 using PixiEditor.Linux;
 using PixiEditor.MacOs;
+using PixiEditor.Models.Preferences;
 using PixiEditor.OperatingSystem;
 using PixiEditor.Platform;
 using PixiEditor.ViewModels;
@@ -28,7 +34,15 @@ public class PixiEditorTest
 
         try
         {
-            var engine = DesktopDrawingEngine.CreateDefaultDesktop();
+            IRenderApi renderApi = new VulkanRenderApi();
+
+            if (System.OperatingSystem.IsMacOS())
+            {
+                renderApi = new OpenGlRenderApi();
+            }
+
+            var engine = new DrawingEngine(renderApi, new GlfwWindowingPlatform(renderApi), new SkiaDrawingBackend(),
+                new TestsRenderingDispatcher());
             var app = new TestingApp();
             Console.WriteLine("Running DrawieEngine with configuration:");
             Console.WriteLine($"\t- RenderApi: {engine.RenderApi}");
@@ -47,7 +61,7 @@ public class PixiEditorTest
         catch (Exception ex)
         {
             if (!DrawingBackendApi.HasBackend)
-                DrawingBackendApi.SetupBackend(new SkiaDrawingBackend(), new DrawieRenderingDispatcher());
+                DrawingBackendApi.SetupBackend(new SkiaDrawingBackend(), new TestsRenderingDispatcher());
         }
     }
 }
@@ -86,12 +100,14 @@ public class FullPixiEditorTest : PixiEditorTest
             IPlatform.RegisterPlatform(new TestPlatform());
         }
 
+        PreferencesSettings settings = new PreferencesSettings();
+
         var services = new ServiceCollection()
             .AddPlatform()
             .AddPixiEditor(loader)
             .AddExtensionServices(loader)
+            .AddSingleton<IPreferences, PreferencesSettings>(x => settings)
             .BuildServiceProvider();
-
 
         var vm = services.GetRequiredService<ViewModelMain>();
         vm.Setup(services);
@@ -112,7 +128,7 @@ public class FullPixiEditorTest : PixiEditorTest
         }
 
         public IAdditionalContentProvider? AdditionalContentProvider { get; } = new NullAdditionalContentProvider();
-        public IIdentityProvider? IdentityProvider { get; } 
+        public IIdentityProvider? IdentityProvider { get; }
     }
 }
 
@@ -129,5 +145,37 @@ public class TestingApp : DrawieApp
     protected override void OnInitialize()
     {
         window.IsVisible = false;
+    }
+}
+
+class TestsRenderingDispatcher : IRenderingDispatcher
+{
+    public Action<Action> Invoke { get; } = action => action();
+
+    public Task<TResult> InvokeAsync<TResult>(Func<TResult> function)
+    {
+        return Task.FromResult(function());
+    }
+
+    public Task<TResult> InvokeInBackgroundAsync<TResult>(Func<TResult> function)
+    {
+        return Task.FromResult(function());
+    }
+
+    public Task InvokeInBackgroundAsync(Action function)
+    {
+        function();
+        return Task.CompletedTask;
+    }
+
+    public Task InvokeAsync(Action function)
+    {
+        function();
+        return Task.CompletedTask;
+    }
+
+    public IDisposable EnsureContext()
+    {
+        return new EmptyDisposable();
     }
 }

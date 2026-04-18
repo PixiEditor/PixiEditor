@@ -1,8 +1,10 @@
 ﻿using ChunkyImageLib.DataHolders;
+using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
 
 namespace ChunkyImageLib.Operations;
@@ -16,6 +18,7 @@ internal class ReplaceColorOperation : IDrawOperation
     private readonly ulong newColorBits;
 
     public bool IgnoreEmptyChunks => true;
+    public bool NeedsDrawInSrgb => false;
 
     public ReplaceColorOperation(Color oldColor, Color newColor)
     {
@@ -47,7 +50,9 @@ internal class ReplaceColorOperation : IDrawOperation
         VecI imageSize = chunk.PixelSize;
         int rowsPerThread = imageSize.Y / maxThreads;
 
-        using Pixmap pixmap = chunk.Surface.DrawingSurface.PeekPixels();
+        using Surface cpuSurface = Surface.ForProcessing(chunk.PixelSize, chunk.Surface.ColorSpace);
+        cpuSurface.DrawingSurface.Canvas.DrawSurface(chunk.Surface.DrawingSurface, 0, 0);
+        using Pixmap pixmap = cpuSurface.PeekPixels();
         IntPtr pixels = pixmap.GetPixels();
 
         Half* endOffset = (Half*)(pixels + pixmap.BytesSize);
@@ -58,6 +63,11 @@ internal class ReplaceColorOperation : IDrawOperation
                 *(ulong*)i = newColorBits;
             }
         }
+
+        using Paint replacePaint = new Paint();
+        replacePaint.BlendMode = BlendMode.Src;
+        chunk.Surface.DrawingSurface.Canvas.DrawSurface(cpuSurface.DrawingSurface, 0, 0, replacePaint);
+        chunk.Surface.DrawingSurface.Canvas.Flush();
     }
 
     public AffectedArea FindAffectedArea(VecI imageSize)

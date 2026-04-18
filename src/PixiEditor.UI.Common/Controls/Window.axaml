@@ -13,7 +13,7 @@
             <Setter.Value>
                 <OnPlatform>
                     <OnPlatform.Default>
-                        <platform:ExtendClientAreaChromeHints>NoChrome</platform:ExtendClientAreaChromeHints>
+                        <platform:ExtendClientAreaChromeHints>SystemChrome</platform:ExtendClientAreaChromeHints>
                     </OnPlatform.Default>
                     <OnPlatform.macOS>
                         <platform:ExtendClientAreaChromeHints>Default,NoChrome,OSXThickTitleBar</platform:ExtendClientAreaChromeHints>
@@ -33,9 +33,6 @@
                     <Panel Margin="{TemplateBinding WindowDecorationMargin}"
                            Background="Transparent" />
                     <VisualLayerManager>
-                        <VisualLayerManager.ChromeOverlayLayer>
-                            <TitleBar />
-                        </VisualLayerManager.ChromeOverlayLayer>
                         <ContentPresenter Name="PART_ContentPresenter"
                                           Margin="{TemplateBinding Padding}"
                                           HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
@@ -47,18 +44,7 @@
             </ControlTemplate>
         </Setter>
         <Style Selector="^Window[WindowState=Maximized] /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Padding">
-                <Setter.Value>
-                    <OnPlatform>
-                        <OnPlatform.Default>
-                            <Thickness>8</Thickness>
-                        </OnPlatform.Default>
-                        <OnPlatform.macOS>
-                            <Thickness>0</Thickness>
-                        </OnPlatform.macOS>
-                    </OnPlatform>
-                </Setter.Value>
-            </Setter>
+            <Setter Property="Padding" Value="0"/>
         </Style>
     </ControlTheme>
 </ResourceDictionary>

@@ -32,4 +32,5 @@ internal class FilteredKeyEventArgs : EventArgs
     public bool IsShiftDown => (Modifiers & KeyModifiers.Shift) != 0;
     public bool IsCtrlDown => (Modifiers & KeyModifiers.Control) != 0;
     public bool IsAltDown => (Modifiers & KeyModifiers.Alt) != 0;
+    public bool IsMetaDown => (Modifiers & KeyModifiers.Meta) != 0;
 }

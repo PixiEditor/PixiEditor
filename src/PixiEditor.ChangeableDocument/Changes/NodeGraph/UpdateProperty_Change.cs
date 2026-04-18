@@ -50,8 +50,7 @@ internal class UpdatePropertyValue_Change : InterruptableUpdateableChange
         var node = target.NodeGraph.Nodes.First(x => x.Id == _nodeId);
         var property = node.GetInputProperty(_propertyName);
 
-        int inputsHash = CalculateInputsHash(node);
-        int outputsHash = CalculateOutputsHash(node);
+        target.NodeGraph.StartListenToPropertyChanges();
 
         string errors = string.Empty;
         if (!property.Validator.Validate(_value, out errors))
@@ -61,27 +60,25 @@ internal class UpdatePropertyValue_Change : InterruptableUpdateableChange
                 _value = property.Validator.GetClosestValidValue(_value);
             }
 
-            _value = SetValue(property, _value);
+            _value = GraphUtils.SetNonOverwrittenValue(property, _value);
         }
         else
         {
-            _value = SetValue(property, _value);
+            _value = GraphUtils.SetNonOverwrittenValue(property, _value);
         }
+
+        if(property.Node is BlackboardVariableValueNode blackboardNode)
+            blackboardNode.UpdateValuesFromBlackboard(target.NodeGraph.Blackboard);
 
         List<IChangeInfo> changes = new();
         changes.Add(new PropertyValueUpdated_ChangeInfo(_nodeId, _propertyName, _value) { Errors = errors });
 
-        int newInputsHash = CalculateInputsHash(node);
-        int newOutputsHash = CalculateOutputsHash(node);
-
-        if (inputsHash != newInputsHash)
+        List<Guid> nodesWithChangedIO = target.NodeGraph.StopListenToPropertyChanges();
+        foreach (var nodeId in nodesWithChangedIO)
         {
-            changes.Add(NodeInputsChanged_ChangeInfo.FromNode(node));
-        }
-
-        if (outputsHash != newOutputsHash)
-        {
-            changes.Add(NodeOutputsChanged_ChangeInfo.FromNode(node));
+            var changedNode = target.FindNode(nodeId);
+            changes.Add(NodeInputsChanged_ChangeInfo.FromNode(changedNode));
+            changes.Add(NodeOutputsChanged_ChangeInfo.FromNode(changedNode));
         }
 
         return changes;
@@ -93,8 +90,7 @@ internal class UpdatePropertyValue_Change : InterruptableUpdateableChange
         var node = target.NodeGraph.Nodes.First(x => x.Id == _nodeId);
         var property = node.GetInputProperty(_propertyName);
 
-        int inputsHash = CalculateInputsHash(node);
-        int outputsHash = CalculateOutputsHash(node);
+        target.NodeGraph.StartListenToPropertyChanges();
 
         string errors = string.Empty;
         if (!property.Validator.Validate(_value, out errors))
@@ -105,32 +101,28 @@ internal class UpdatePropertyValue_Change : InterruptableUpdateableChange
                 if (_value == previousValue)
                 {
                     ignoreInUndo = true;
+                    return new None();
                 }
             }
 
-            _value = SetValue(property, _value);
+            _value = GraphUtils.SetNonOverwrittenValue(property, _value);
             ignoreInUndo = false;
         }
         else
         {
-            _value = SetValue(property, _value);
+            _value = GraphUtils.SetNonOverwrittenValue(property, _value);
             ignoreInUndo = false;
         }
 
         List<IChangeInfo> changes = new();
         changes.Add(new PropertyValueUpdated_ChangeInfo(_nodeId, _propertyName, _value) { Errors = errors });
 
-        int newInputsHash = CalculateInputsHash(node);
-        int newOutputsHash = CalculateOutputsHash(node);
-
-        if (inputsHash != newInputsHash)
+        List<Guid> nodesWithChangedIO = target.NodeGraph.StopListenToPropertyChanges();
+        foreach (var nodeId in nodesWithChangedIO)
         {
-            changes.Add(NodeInputsChanged_ChangeInfo.FromNode(node));
-        }
-
-        if (outputsHash != newOutputsHash)
-        {
-            changes.Add(NodeOutputsChanged_ChangeInfo.FromNode(node));
+            var changedNode = target.FindNode(nodeId);
+            changes.Add(NodeInputsChanged_ChangeInfo.FromNode(changedNode));
+            changes.Add(NodeOutputsChanged_ChangeInfo.FromNode(changedNode));
         }
 
         return changes;
@@ -141,48 +133,23 @@ internal class UpdatePropertyValue_Change : InterruptableUpdateableChange
         var node = target.NodeGraph.Nodes.First(x => x.Id == _nodeId);
         var property = node.GetInputProperty(_propertyName);
 
-        int inputsHash = CalculateInputsHash(node);
-        int outputsHash = CalculateOutputsHash(node);
+        target.NodeGraph.StartListenToPropertyChanges();
 
-        SetValue(property, previousValue);
+        GraphUtils.SetNonOverwrittenValue(property, previousValue);
 
         List<IChangeInfo> changes = new();
 
         changes.Add(new PropertyValueUpdated_ChangeInfo(_nodeId, _propertyName, previousValue));
 
-        int newInputsHash = CalculateInputsHash(node);
-        int newOutputsHash = CalculateOutputsHash(node);
-
-        if (inputsHash != newInputsHash)
+        List<Guid> nodesWithChangedIO = target.NodeGraph.StopListenToPropertyChanges();
+        foreach (var nodeId in nodesWithChangedIO)
         {
-            changes.Add(NodeInputsChanged_ChangeInfo.FromNode(node));
-        }
-
-        if (outputsHash != newOutputsHash)
-        {
-            changes.Add(NodeOutputsChanged_ChangeInfo.FromNode(node));
+            var changedNode = target.FindNode(nodeId);
+            changes.Add(NodeInputsChanged_ChangeInfo.FromNode(changedNode));
+            changes.Add(NodeOutputsChanged_ChangeInfo.FromNode(changedNode));
         }
 
         return changes;
-    }
-
-    private static object SetValue(InputProperty property, object? value)
-    {
-        if (property is IFuncInputProperty fieldInput)
-        {
-            fieldInput.SetFuncConstantValue(value);
-        }
-        else
-        {
-            if (value is int && property.ValueType.IsEnum)
-            {
-                value = Enum.ToObject(property.ValueType, value);
-            }
-
-            property.NonOverridenValue = value;
-        }
-
-        return value;
     }
 
 
@@ -196,33 +163,17 @@ internal class UpdatePropertyValue_Change : InterruptableUpdateableChange
         return property.NonOverridenValue;
     }
 
-    private static int CalculateInputsHash(Node node)
-    {
-        HashCode hash = new();
-        foreach (var input in node.InputProperties)
-        {
-            hash.Add(input.InternalPropertyName);
-            hash.Add(input.ValueType);
-        }
-
-        return hash.ToHashCode();
-    }
-
-    private static int CalculateOutputsHash(Node node)
-    {
-        HashCode hash = new();
-        foreach (var output in node.OutputProperties)
-        {
-            hash.Add(output.InternalPropertyName);
-            hash.Add(output.ValueType);
-        }
-
-        return hash.ToHashCode();
-    }
-
     public override bool IsMergeableWith(Change other)
     {
         return other is UpdatePropertyValue_Change change && change._nodeId == _nodeId &&
                change._propertyName == _propertyName && _value == change._value;
+    }
+
+    public override void Dispose()
+    {
+        if(previousValue is IDisposable disposable)
+        {
+            disposable.Dispose();
+        }
     }
 }

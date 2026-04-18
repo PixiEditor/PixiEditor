@@ -94,7 +94,6 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             }
             catch (InvalidOperationException) // Native font likely disposed
             {
-                
             }
 
             onPath = textData.Path;
@@ -125,12 +124,13 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
     public override void OnLeftMouseButtonDown(MouseOnCanvasEventArgs args)
     {
-        var topMostWithinClick = QueryLayers<IVectorLayerHandler>(args.PositionOnCanvas);
+        var topMostWithinClick = QueryLayers<IVectorLayerHandler>(args.Point.PositionOnCanvas);
 
-        clickPos = args.PositionOnCanvas;
+        clickPos = args.Point.PositionOnCanvas;
         var firstLayer = topMostWithinClick.FirstOrDefault();
         args.Handled = firstLayer != null;
-        if (firstLayer is not IVectorLayerHandler layerHandler || layerHandler.GetShapeData(document.AnimationHandler.ActiveFrameTime) is not TextVectorData)
+        if (firstLayer is not IVectorLayerHandler layerHandler ||
+            layerHandler.GetShapeData(document.AnimationHandler.ActiveFrameTime) is not TextVectorData)
         {
             args.Handled = false;
             if (document.TextOverlayHandler.IsActive)
@@ -152,23 +152,25 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
                         toolbar.Spacing);
                 }
 
-                document.TextOverlayHandler.SetCursorPosition(args.PositionOnCanvas);
+                document.TextOverlayHandler.SetCursorPosition(args.Point.PositionOnCanvas);
             }, false);
     }
 
-    public override void OnPrecisePositionChange(VecD pos)
+    public override void OnPrecisePositionChange(MouseOnCanvasEventArgs args)
     {
-        if (document.TextOverlayHandler.IsActive && internals.ChangeController.LeftMousePressed && string.IsNullOrEmpty(lastText))
+        if (document.TextOverlayHandler.IsActive && internals.ChangeController.LeftMousePressed &&
+            string.IsNullOrEmpty(lastText))
         {
-            double distance = Math.Abs(clickPos.Y - pos.Y);
+            double distance = Math.Abs(clickPos.Y - args.Point.PositionOnCanvas.Y);
             if (!wasDrawingSize && distance < 10) return;
             wasDrawingSize = true;
-            position = new VecD(position.X, pos.Y);
+            position = new VecD(position.X, args.Point.PositionOnCanvas.Y);
             document.TextOverlayHandler.Position = position;
             document.TextOverlayHandler.PreviewSize = true;
             var textData = ConstructTextData(lastText);
             toolbar.FontSize = distance * RichText.PtToPx;
-            internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(selectedMember.Id, textData, VectorShapeChangeType.GeometryData));
+            internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(selectedMember.Id, textData,
+                VectorShapeChangeType.GeometryData));
         }
     }
 
@@ -188,17 +190,33 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
     public override void ForceStop()
     {
         internals.ActionAccumulator.AddFinishedActions(new EndSetShapeGeometry_Action());
-        document.TextOverlayHandler.Hide();
+        document?.TextOverlayHandler?.Hide();
 
-        foreach (var font in fontsToDispose)
+        TextVectorData? previousData = null;
+        if (selectedMember != null && document?.AnimationHandler != null)
         {
-            if (font != null && !font.IsDisposed)
-            {
-                font.Dispose();
-            }
+            previousData =
+                (document.StructureHelper.Find(selectedMember.Id) as IVectorLayerHandler)?
+                .GetShapeData(document.AnimationHandler.ActiveFrameTime) as TextVectorData;
         }
 
-        fontsToDispose.Clear();
+        if (fontsToDispose != null)
+        {
+            foreach (var font in fontsToDispose)
+            {
+                if (font is { IsDisposed: false })
+                {
+                    if (previousData != null && font.Equals(previousData?.Font))
+                    {
+                        continue;
+                    }
+
+                    font.Dispose();
+                }
+            }
+
+            fontsToDispose.Clear();
+        }
     }
 
     public void OnTextChanged(string text)
@@ -234,14 +252,18 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
                 cachedFont = toolbar.ConstructFont();
             }
 
-            if (document.TextOverlayHandler.Font != null)
-            {
-                document.TextOverlayHandler.Font.Size = toolbar.FontSize;
-            }
-
             cachedFont.Size = toolbar.FontSize;
             cachedFont.Bold = toolbar.Bold;
             cachedFont.Italic = toolbar.Italic;
+
+            if (document.TextOverlayHandler.Font is { IsDisposed: false })
+            {
+                document.TextOverlayHandler.Font.Size = toolbar.FontSize;
+            }
+            else
+            {
+                document.TextOverlayHandler.Font = cachedFont;
+            }
         }
 
         VectorShapeChangeType changeType = name switch

@@ -141,7 +141,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
     {
         if (IOperatingSystem.Current.IsLinux)
         {
-            string exeDir = Path.GetDirectoryName(Environment.ProcessPath);
+            string exeDir = Path.GetDirectoryName(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location));
             if (File.Exists(Path.Combine(exeDir, "no-updates")))
             {
                 UpdateState = UpdateState.UnableToCheck;
@@ -293,16 +293,16 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
         Install(true);
     }
 
-    [Command.Debug("PixiEditor.Update.DebugInstall", "Debug Install Update",
-        "(DEBUG) Install update zip file without checking for updates")]
+    [Command.Debug("PixiEditor.Update.DebugInstall", "DEBUG_INSTALL_UPDATE",
+        "DEBUG_INSTALL_UPDATE_DESC")]
     public void DebugInstall()
     {
         UpdateChecker.SetLatestReleaseInfo(new ReleaseInfo(true) { TagName = "2.2.2.2" });
         Install(true);
     }
 
-    [Command.Debug("PixiEditor.Update.DebugDownload", "Debug Download Update",
-        "(DEBUG) Download update file")]
+    [Command.Debug("PixiEditor.Update.DebugDownload", "DEBUG_DOWNLOAD_UPDATE",
+        "DEBUG_DOWNLOAD_UPDATE_DESC")]
     public void DebugDownload()
     {
         Dispatcher.UIThread.InvokeAsync(async () =>
@@ -396,7 +396,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
 
     private static bool InstallDirReadOnly()
     {
-        string installDir = Path.GetDirectoryName(Environment.ProcessPath);
+        string installDir = Path.GetDirectoryName(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location));
         DirectoryInfo dirInfo = new DirectoryInfo(installDir);
         return dirInfo.Attributes.HasFlag(FileAttributes.ReadOnly);
     }

@@ -47,10 +47,12 @@ internal abstract class UpdateableChangeExecutor
 
     public abstract ExecutionState Start();
     public abstract void ForceStop();
-    public virtual void OnPixelPositionChange(VecI pos) { }
-    public virtual void OnPrecisePositionChange(VecD pos) { }
+    public virtual void OnPixelPositionChange(VecI pos, MouseOnCanvasEventArgs args) { }
+    public virtual void OnPrecisePositionChange(MouseOnCanvasEventArgs args) { }
     public virtual void OnLeftMouseButtonDown(MouseOnCanvasEventArgs args) { }
     public virtual void OnLeftMouseButtonUp(VecD pos) { }
+    public virtual void OnRightMouseButtonDown(MouseOnCanvasEventArgs args) { }
+    public virtual void OnRightMouseButtonUp(VecD pos) { }
     public virtual void OnOpacitySliderDragStarted() { }
     public virtual void OnOpacitySliderDragged(float newValue) { }
     public virtual void OnOpacitySliderDragEnded() { }

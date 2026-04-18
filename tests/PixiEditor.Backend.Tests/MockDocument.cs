@@ -1,5 +1,6 @@
 ﻿using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
@@ -74,6 +75,7 @@ public class MockDocument : IReadOnlyDocument
 
     public IReadOnlyReferenceLayer? ReferenceLayer { get; }
     public DocumentRenderer Renderer { get; }
+    public IReadOnlyBlackboard Blackboard { get; }
     public ColorSpace ProcessingColorSpace { get; }
     public void InitProcessingColorSpace(ColorSpace processingColorSpace)
     {
@@ -86,6 +88,31 @@ public class MockDocument : IReadOnlyDocument
     }
 
     public ICrossDocumentPipe<T> CreateNodePipe<T>(Guid layerId) where T : class, IReadOnlyNode
+    {
+        throw new NotImplementedException();
+    }
+
+    public ICrossDocumentPipe<IReadOnlyNodeGraph> CreateGraphPipe()
+    {
+        throw new NotImplementedException();
+    }
+
+    public IReadOnlyDocument Clone(bool preserveDocumentId = false)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IReadOnlyStructureNode[] GetStructureTreeInOrder()
+    {
+        throw new NotImplementedException();
+    }
+
+    public VecI GetRenderOutputSize(string renderOutput)
+    {
+        return Size;
+    }
+
+    public object Clone()
     {
         throw new NotImplementedException();
     }

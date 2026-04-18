@@ -1,0 +1,54 @@
+﻿using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+using PixiEditor.ChangeableDocument.Rendering;
+
+namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+
+[NodeInfo("BlackboardVariableValue")]
+public class BlackboardVariableValueNode : Node
+{
+    public const string NameProperty = "VariableName";
+    public InputProperty<string> VariableName { get; }
+    public OutputProperty<object> Value { get; }
+
+    public BlackboardVariableValueNode()
+    {
+        VariableName = CreateInput(NameProperty, "VARIABLE_NAME", string.Empty);
+        Value = CreateOutput<object>("Value", "VALUE", null);
+    }
+
+    protected override void OnExecute(RenderContext context)
+    {
+        var variable = context.Graph?.Blackboard.GetVariable(VariableName.Value);
+        Value.Value = variable?.Value;
+    }
+
+    public void UpdateValuesFromBlackboard(IReadOnlyBlackboard nodeGraphBlackboard)
+    {
+        var variable = nodeGraphBlackboard.GetVariable(VariableName.Value);
+        if (variable != null)
+        {
+            Value.Value = variable.Value;
+            NotifyOutputs();
+        }
+        else
+        {
+            Value.Value = null;
+        }
+    }
+
+    private void NotifyOutputs()
+    {
+        foreach (var prop in Value.Connections)
+        {
+            if (prop.Node is IInputDependentOutputs dependentOutputsNode)
+            {
+                dependentOutputsNode.UpdateOutputs();
+            }
+        }
+    }
+
+    public override Node CreateCopy()
+    {
+        return new BlackboardVariableValueNode();
+    }
+}

@@ -12,5 +12,6 @@
         <dock:DocumentPreviewDockViewModel/>
     </Design.DataContext>
     <main:DocumentPreview Document="{Binding DocumentManagerSubViewModel.ActiveDocument}"
+                          MaxBilinearSamplingSize="{Binding DocumentManagerSubViewModel.Owner.ViewportSubViewModel.MaxBilinearSampleSize}"
                      PrimaryColor="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay, Converter={converters:GenericColorToMediaColorConverter}}"/>
 </UserControl>

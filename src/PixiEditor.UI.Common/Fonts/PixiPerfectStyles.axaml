@@ -4,6 +4,7 @@
     <Styles.Resources>
         <ResourceDictionary>
             <FontFamily x:Key="PixiPerfectIcons">avares://PixiEditor.UI.Common/Fonts/PixiPerfect.ttf#pixiperfect</FontFamily>
+            <FontFamily x:Key="Montserrat">avares://PixiEditor.UI.Common/Fonts/Montserrat#Montserrat</FontFamily>
         </ResourceDictionary>
     </Styles.Resources>
 
@@ -46,5 +47,9 @@
 
     <Style Selector="ToggleButton.pixi-icon:checked">
         <Setter Property="Background" Value="{DynamicResource ThemeControlHighBrush}" />
+    </Style>
+
+    <Style Selector="MenuItem.pixi-icon">
+        <Setter Property="FontFamily" Value="{DynamicResource PixiPerfectIcons}" />
     </Style>
 </Styles>

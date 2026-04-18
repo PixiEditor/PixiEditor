@@ -38,6 +38,7 @@ internal class CreateNode_Change : Change
             id = Guid.NewGuid();
 
         Node node = NodeOperations.CreateNode(nodeType, target);
+
         if (pairId.HasValue && node is IPairNode pairNode)
         {
             pairNode.OtherNode = pairId.Value;
@@ -45,6 +46,8 @@ internal class CreateNode_Change : Change
 
         node.Position = new VecD(0, 0);
         node.Id = id;
+
+        node.Execute(RenderContext.Empty);
 
         target.NodeGraph.AddNode(node);
         ignoreInUndo = false;

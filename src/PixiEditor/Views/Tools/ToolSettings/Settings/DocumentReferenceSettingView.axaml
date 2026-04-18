@@ -1,0 +1,25 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:settings="clr-namespace:PixiEditor.ViewModels.Tools.ToolSettings.Settings"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+             xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="PixiEditor.Views.Tools.ToolSettings.Settings.DocumentReferenceSettingView">
+    <Design.DataContext>
+        <settings:DocumentReferenceSettingViewModel />
+    </Design.DataContext>
+
+    <Button Command="{Binding PickDocumentCommand}"
+            MaxWidth="100"
+            Margin="5, 0, 0, 0">
+        <Panel>
+            <TextBlock FontSize="12" localization:Translator.Key="SELECT_DOCUMENT_BUTTON" IsVisible="{Binding !HasValue}" />
+            <TextBlock TextTrimming="CharacterEllipsis" FontSize="12"
+                       IsVisible="{Binding HasValue}"
+                       localization:Translator.Key="{Binding Value.DisplayName, Converter={converters:FilePathToFileNameConverter}}" />
+        </Panel>
+    </Button>
+</UserControl>

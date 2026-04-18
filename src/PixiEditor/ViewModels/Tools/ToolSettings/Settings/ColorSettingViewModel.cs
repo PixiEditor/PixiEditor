@@ -1,10 +1,12 @@
 ﻿using Avalonia.Media;
+using Drawie.Backend.Core.ColorsImpl.Paintables;
+using PixiEditor.Helpers.Extensions;
 
 namespace PixiEditor.ViewModels.Tools.ToolSettings.Settings;
 
 internal sealed class ColorSettingViewModel : Setting<IBrush>
 {
-
+    private bool allowGradient = true;
     public IBrush BrushValue
     {
         get => base.Value;
@@ -22,6 +24,12 @@ internal sealed class ColorSettingViewModel : Setting<IBrush>
                 gradientBrush.GradientStops.CollectionChanged += GradientStops_CollectionChanged;
             }
         }
+    }
+
+    public bool AllowGradient
+    {
+        get => allowGradient;
+        set => SetProperty(ref allowGradient, value);
     }
 
     public ColorSettingViewModel(string name, string label = "") : this(name, Brushes.White, label)

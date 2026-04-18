@@ -2,13 +2,14 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
 using PixiEditor.Exceptions;
+using PixiEditor.Extensions.CommonApi.Utilities;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.AnalyticsAPI;
@@ -19,6 +20,7 @@ using PixiEditor.Models.Commands.Commands;
 using PixiEditor.Models.Commands.Evaluators;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Handlers;
+using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Input;
 using PixiEditor.Models.Structures;
 using PixiEditor.OperatingSystem;
@@ -160,22 +162,21 @@ internal class CommandController
             }
 
             LocalizedString groupDisplayName = groupData.DisplayName;
-            CommandGroups.Add(new CommandGroup(groupDisplayName, storedCommands)
+            CommandGroups.Add(new CommandGroup(groupInternalName, groupDisplayName, storedCommands)
             {
                 IsVisibleProperty = groupData.IsVisibleMenuProperty
             });
         }
 
-        CommandGroups.Add(new CommandGroup("MISC", miscList));
+        CommandGroups.Add(new CommandGroup("", "MISC", miscList));
 
         Commands.CommandAdded += CommandsOnCommandAdded;
     }
 
     private void CommandsOnCommandAdded(object? sender, Command e)
     {
-        var group = CommandGroups.Last();
-
-        group.AddCommand(e);
+        var matchingGroup = CommandGroups.FirstOrDefault(x => e.InternalName.StartsWith(x.InternalNameGroup)) ?? CommandGroups.Last();
+        matchingGroup.AddCommand(e);
     }
 
     public static void ListenForCanExecuteChanged(Command command)
@@ -206,6 +207,13 @@ internal class CommandController
         ShortcutsTemplate template)
     {
         IToolsHandler toolsHandler = serviceProvider.GetService<IToolsHandler>();
+        toolsHandler.CustomToolAdded += (tool) =>
+        {
+            if (tool is IBrushToolHandler brushTool)
+            {
+                AddBrushTool(commandGroupsData, commands, template, brushTool, toolsHandler);
+            }
+        };
         foreach (var toolInstance in serviceProvider.GetServices<IToolHandler>())
         {
             var type = toolInstance.GetType();
@@ -221,23 +229,91 @@ internal class CommandController
 
             LocalizedString displayName = new("SELECT_TOOL", toolInstance.DisplayName);
 
-            var command = new Command.ToolCommand(toolsHandler)
+            var command = new Command.ToolCommand(toolsHandler, false)
             {
                 InternalName = internalName,
                 DisplayName = displayName,
                 Description = displayName,
                 Icon = toolInstance.DefaultIcon,
                 IconEvaluator = IconEvaluator.Default,
-                TransientKey = toolAttr.Transient,
-                TransientImmediate = toolAttr.TransientImmediate,
                 DefaultShortcut = toolAttr.GetShortcut(),
                 Shortcut = GetShortcut(internalName, toolAttr.GetShortcut(), template),
                 ToolType = type,
             };
 
+            var transientCommand = new Command.ToolCommand(toolsHandler, true)
+            {
+                InternalName = $"{internalName}.Transient",
+                DisplayName = displayName.Value + " " + new LocalizedString("QUICK_USE"),
+                Description = displayName,
+                Icon = toolInstance.DefaultIcon,
+                IconEvaluator = IconEvaluator.Default,
+                DefaultShortcut = toolAttr.TransientShortcut,
+                Shortcut = GetShortcut($"{internalName}.Transient", toolAttr.TransientShortcut, template),
+                ToolType = type,
+                TransientImmediate = toolAttr.TransientImmediate,
+                ShowInSearch = false
+            };
+
             Commands.Add(command);
+            Commands.Add(transientCommand);
             AddCommandToCommandsCollection(command, commandGroupsData, commands);
+            AddCommandToCommandsCollection(transientCommand, commandGroupsData, commands, command.InternalName);
         }
+
+        var tools = toolsHandler.AllToolSets.SelectMany(x => x.Tools).Distinct().ToList();
+        foreach (var toolHandler in tools)
+        {
+            if (toolHandler is IBrushToolHandler brushTool)
+            {
+                AddBrushTool(commandGroupsData, commands, template, brushTool, toolsHandler);
+            }
+        }
+    }
+
+    private void AddBrushTool(List<CommandAttribute.GroupAttribute> commandGroupsData, OneToManyDictionary<string, Command> commands, ShortcutsTemplate template,
+        IBrushToolHandler brushTool, IToolsHandler toolsHandler)
+    {
+        if (!brushTool.IsCustomBrushTool)
+        {
+            return;
+        }
+
+        LocalizedString displayName = new("SELECT_TOOL", brushTool.DisplayName);
+        string internalName = $"PixiEditor.Tools.Select.{brushTool.ToolName.Replace(" ", string.Empty)}";
+        var command = new Models.Commands.Commands.Command.ToolCommand(toolsHandler, false)
+        {
+            DefaultShortcut = brushTool.DefaultShortcut ?? KeyCombination.None,
+            Shortcut =
+                GetShortcut(internalName, brushTool.DefaultShortcut ?? KeyCombination.None, template),
+            ToolType = brushTool.GetType(),
+            Icon = brushTool.IconToUse,
+            DisplayName = displayName,
+            InternalName = internalName,
+            IconEvaluator = IconEvaluator.Default,
+            Description = displayName,
+            Handler = brushTool
+        };
+
+        var transientCommand = new Models.Commands.Commands.Command.ToolCommand(toolsHandler, true)
+        {
+            DefaultShortcut = KeyCombination.None,
+            Shortcut = GetShortcut($"{internalName}.Transient", KeyCombination.None, template),
+            ToolType = brushTool.GetType(),
+            Icon = brushTool.DefaultIcon,
+            DisplayName = displayName.Value + " " + new LocalizedString("QUICK_USE"),
+            InternalName = $"{internalName}.Transient",
+            IconEvaluator = IconEvaluator.Default,
+            Description = displayName,
+            Handler = brushTool,
+            TransientImmediate = false,
+            ShowInSearch = false
+        };
+
+        Commands.Add(command);
+        Commands.Add(transientCommand);
+        AddCommandToCommandsCollection(command, commandGroupsData, commands);
+        AddCommandToCommandsCollection(transientCommand, commandGroupsData, commands, command.InternalName);
     }
 
     private KeyCombination GetShortcut(string internalName, KeyCombination defaultShortcut,
@@ -248,9 +324,10 @@ internal class CommandController
 
     private void AddCommandToCommandsCollection(Command command,
         List<Attributes.Commands.Command.GroupAttribute> commandGroupsData,
-        OneToManyDictionary<string, Command> commands)
+        OneToManyDictionary<string, Command> commands, string nameToTestAgainst = null)
     {
-        var group = commandGroupsData.FirstOrDefault(x => command.InternalName.StartsWith(x.InternalName));
+        string fixedName = nameToTestAgainst ?? command.InternalName;
+        var group = commandGroupsData.FirstOrDefault(x => fixedName.StartsWith(x.InternalName));
         if (group == default)
             commands.Add("", command);
         else
@@ -674,6 +751,11 @@ internal class CommandController
 
     public void ResetShortcuts()
     {
+        if (!File.Exists(ShortcutsPath))
+        {
+            return;
+        }
+
         File.Copy(ShortcutsPath, Path.ChangeExtension(ShortcutsPath, ".json.bak"), true);
 
         Commands.ClearShortcuts();

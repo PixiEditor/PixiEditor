@@ -108,7 +108,7 @@ internal class ImportFolder_Change : Change
             foreach (var content in clonedContentNodes)
             {
                 Node contentNode = target.FindNodeOrThrow<Node>(content.Id);
-                changes.AddRange(NodeOperations.DetachNode(target.NodeGraph, contentNode));
+                changes.AddRange(NodeOperations.DetachNode(contentNode));
                 changes.Add(new DeleteNode_ChangeInfo(contentNode.Id));
 
                 target.NodeGraph.RemoveNode(contentNode);
@@ -188,7 +188,7 @@ internal class ImportFolder_Change : Change
     {
         foreach (var imageData in layerNode.KeyFrames)
         {
-            if (imageData.Data is ChunkyImage img)
+            if (imageData.Data is ChunkyImage img && (img.LatestSize.X < docSize.X || img.LatestSize.Y < docSize.Y))
             {
                 img.EnqueueResize(docSize);
                 img.CommitChanges();

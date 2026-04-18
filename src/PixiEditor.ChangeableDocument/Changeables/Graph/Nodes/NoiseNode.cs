@@ -65,7 +65,7 @@ public class NoiseNode : RenderNode
         AngleOffset = CreateInput(nameof(AngleOffset), "ANGLE_OFFSET", 0d);
     }
 
-    protected override void OnPaint(RenderContext context, DrawingSurface target)
+    protected override void OnPaint(RenderContext context, Canvas target)
     {
         if (Math.Abs(previousScale - Scale.Value) > 0.000001
             || previousSeed != Seed.Value
@@ -109,37 +109,31 @@ public class NoiseNode : RenderNode
         RenderNoise(target);
     }
 
-    private void RenderNoise(DrawingSurface workingSurface)
+    private void RenderNoise(Canvas workingSurface)
     {
-        int saved = workingSurface.Canvas.Save();
-        workingSurface.Canvas.Translate(-(float)Offset.Value.X, -(float)Offset.Value.Y);
-        workingSurface.Canvas.DrawPaint(paint);
-        workingSurface.Canvas.RestoreToCount(saved);
+        int saved = workingSurface.Save();
+        workingSurface.Translate(-(float)Offset.Value.X, -(float)Offset.Value.Y);
+        workingSurface.DrawPaint(paint);
+        workingSurface.RestoreToCount(saved);
     }
 
-    public override RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
-    {
-        return new RectD(0, 0, 128, 128); 
-    }
-
-    public override bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
+    public override void RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
     {
         var shader = SelectShader();
         if (shader == null)
         {
-            return false;
+            return;
         }
 
         if (paint.Shader != voronoiShader)
         {
             paint?.Shader?.Dispose();
         }
+
         paint.Shader = shader;
         paint.ColorFilter = grayscaleFilter;
         
-        RenderNoise(renderOn);
-
-        return true;
+        RenderNoise(renderOn.Canvas);
     }
 
     private Shader SelectShader()

@@ -69,6 +69,8 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
         }
     }
 
+    public bool AlwaysPassPointerEvents { get; set; }
+
     private readonly Dictionary<AvaloniaProperty, OverlayTransition> activeTransitions = new();
 
     private DispatcherTimer? transitionTimer;

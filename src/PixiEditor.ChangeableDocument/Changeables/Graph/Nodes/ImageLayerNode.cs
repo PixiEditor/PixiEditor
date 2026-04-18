@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+﻿using System.Diagnostics;
+using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Helpers;
@@ -21,24 +22,36 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     public const int AccuratePreviewMaxSize = 2048;
 
-    public override VecD GetScenePosition(KeyFrameTime time) => layerImage.CommittedSize / 2f;
-    public override VecD GetSceneSize(KeyFrameTime time) => layerImage.CommittedSize;
-
+    public override VecD GetScenePosition(KeyFrameTime time) => layerImage?.CommittedSize / 2f ?? VecD.Zero;
+    public override VecD GetSceneSize(KeyFrameTime time) => layerImage?.CommittedSize ?? VecD.Zero;
     public bool LockTransparency { get; set; }
+    public bool FallbackAnimationToLayerImage { get; set; } = false;
 
     private VecI startSize;
     private ColorSpace colorSpace;
-    private ChunkyImage layerImage => keyFrames[0]?.Data as ChunkyImage;
 
-    private Texture fullResrenderedSurface;
-    private int renderedSurfaceFrame = -1;
+
+    private ChunkyImage layerImage
+    {
+        get
+        {
+            if (keyFrames[0]?.Data is ChunkyImage chunkyImage)
+            {
+                return chunkyImage;
+            }
+
+            var newImage = new ChunkyImage(startSize);
+            keyFrames[0].Data = newImage;
+            return newImage;
+        }
+    }
 
     public ImageLayerNode(VecI size, ColorSpace colorSpace)
     {
         if (keyFrames.Count == 0)
         {
             keyFrames.Add(
-                new KeyFrameData(Guid.NewGuid(), 0, 0, ImageLayerKey) { Data = new ChunkyImage(size, colorSpace) });
+                new KeyFrameData(Guid.NewGuid(), 0, 0, ImageLayerKey) { Data = new ChunkyImage(size) });
         }
 
         this.startSize = size;
@@ -47,12 +60,17 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     public override RectD? GetTightBounds(KeyFrameTime frameTime)
     {
-        return (RectD?)GetLayerImageAtFrame(frameTime.Frame).FindTightLatestBounds();
+        return (RectD?)GetLayerImageAtFrame(frameTime.Frame)?.FindTightLatestBounds();
     }
 
     public override RectD? GetApproxBounds(KeyFrameTime frameTime)
     {
         var layerImage = GetLayerImageAtFrame(frameTime.Frame);
+        if (layerImage == null)
+        {
+            return null;
+        }
+
         return GetApproxBounds(layerImage);
     }
 
@@ -87,78 +105,125 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     }
 
     protected internal override void DrawLayerInScene(SceneObjectRenderContext ctx,
-        DrawingSurface workingSurface,
+        Canvas workingSurface,
         bool useFilters = true)
     {
-        int scaled = workingSurface.Canvas.Save();
+        int scaled = workingSurface.Save();
         float multiplier = (float)ctx.ChunkResolution.InvertedMultiplier();
-        workingSurface.Canvas.Translate(GetScenePosition(ctx.FrameTime));
+        workingSurface.Translate(GetScenePosition(ctx.FrameTime));
 
         base.DrawLayerInScene(ctx, workingSurface, useFilters);
 
-        workingSurface.Canvas.RestoreToCount(scaled);
+        workingSurface.RestoreToCount(scaled);
     }
 
     protected internal override void DrawLayerOnTexture(SceneObjectRenderContext ctx,
-        DrawingSurface workingSurface,
+        Canvas workingSurface,
         ChunkResolution resolution,
         bool useFilters, Paint paint)
     {
-        int scaled = workingSurface.Canvas.Save();
-        workingSurface.Canvas.Translate(GetScenePosition(ctx.FrameTime) * resolution.Multiplier());
-        workingSurface.Canvas.Scale((float)resolution.Multiplier());
+        int scaled = workingSurface.Save();
+        workingSurface.Translate(GetScenePosition(ctx.FrameTime) * resolution.Multiplier());
+        workingSurface.Scale((float)resolution.Multiplier());
 
         DrawLayerOnto(ctx, workingSurface, useFilters, paint);
 
-        workingSurface.Canvas.RestoreToCount(scaled);
+        workingSurface.RestoreToCount(scaled);
     }
 
-    protected override void DrawWithoutFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
+    protected override void DrawWithoutFilters(SceneObjectRenderContext ctx, Canvas workingSurface,
         Paint paint)
     {
-        DrawLayer(workingSurface, paint, ctx);
+        DrawLayer(workingSurface, paint, ctx, false);
     }
 
-    protected override void DrawWithFilters(SceneObjectRenderContext context, DrawingSurface workingSurface,
+    protected override void DrawWithFilters(SceneObjectRenderContext context, Canvas workingSurface,
         Paint paint)
     {
-        DrawLayer(workingSurface, paint, context);
+        DrawLayer(workingSurface, paint, context, true);
     }
 
-    private void DrawLayer(DrawingSurface workingSurface, Paint paint, SceneObjectRenderContext ctx)
+    private void DrawLayer(Canvas workingSurface, Paint paint, SceneObjectRenderContext ctx, bool saveLayer)
     {
-        int saved = workingSurface.Canvas.Save();
+        int saved = workingSurface.Save();
 
         var sceneSize = GetSceneSize(ctx.FrameTime);
-        VecD topLeft = sceneSize / 2f;
-
-        if (renderedSurfaceFrame == null || ctx.FullRerender || ctx.FrameTime.Frame != renderedSurfaceFrame)
+        if (sceneSize.X == 0 || sceneSize.Y == 0)
         {
-            GetLayerImageAtFrame(ctx.FrameTime.Frame).DrawMostUpToDateRegionOn(
-                new RectI(0, 0, layerImage.LatestSize.X, layerImage.LatestSize.Y),
-                ChunkResolution.Full,
-                workingSurface, -topLeft, paint);
+            workingSurface.RestoreToCount(saved);
+            return;
+        }
+
+        RectI latestSize = new(0, 0, layerImage.LatestSize.X, layerImage.LatestSize.Y);
+        var region = (RectI?)ctx.VisibleDocumentRegion?.RoundOutwards() ?? latestSize;
+
+        VecD topLeft = region.TopLeft - sceneSize / 2;
+
+        topLeft *= ctx.ChunkResolution.Multiplier();
+        var img = GetLayerImageAtFrame(ctx.FrameTime.Frame);
+
+        if (img is null)
+        {
+            workingSurface.RestoreToCount(saved);
+            return;
+        }
+
+        Texture? intermediate = null;
+        VecD finalDrawPos = topLeft;
+        if (saveLayer)
+        {
+            var visibleRegion = (RectI?)ctx.VisibleDocumentRegion?.RoundOutwards() ?? latestSize;
+            var multiplier = visibleRegion != latestSize ? 1 : ctx.ChunkResolution.Multiplier();
+            var intersection = visibleRegion.Intersect(latestSize);
+            region = intersection;
+            VecI chunkAwareSize = (VecI)(new VecI(region.Width, region.Height) * multiplier);
+            if(chunkAwareSize.X <= 0 || chunkAwareSize.Y <= 0)
+            {
+                workingSurface.RestoreToCount(saved);
+                return;
+            }
+
+            intermediate = RequestTexture(1336, chunkAwareSize, ColorSpace.CreateSrgb());
+            finalDrawPos = VecD.Zero;
+            topLeft = region.TopLeft - sceneSize / 2;
         }
         else
         {
-            if (ctx.DesiredSamplingOptions == SamplingOptions.Default)
-            {
-                workingSurface.Canvas.DrawSurface(
-                    fullResrenderedSurface.DrawingSurface, -(float)topLeft.X, -(float)topLeft.Y, paint);
-            }
-            else
-            {
-                using var snapshot = fullResrenderedSurface.DrawingSurface.Snapshot();
-                workingSurface.Canvas.DrawImage(snapshot, -(float)topLeft.X, -(float)topLeft.Y,
-                    ctx.DesiredSamplingOptions,
-                    paint);
-            }
+            workingSurface.Scale((float)ctx.ChunkResolution.InvertedMultiplier());
         }
 
-        workingSurface.Canvas.RestoreToCount(saved);
+        if (!ctx.FullRerender)
+        {
+            img.DrawMostUpToDateRegionOnWithAffected(
+                region,
+                ctx.ChunkResolution,
+                saveLayer ? intermediate.DrawingSurface.Canvas : workingSurface, ctx.AffectedArea, finalDrawPos,
+                saveLayer ? null : paint, ctx.DesiredSamplingOptions);
+        }
+        else
+        {
+            img.DrawMostUpToDateRegionOn(
+                region,
+                ctx.ChunkResolution,
+                saveLayer ? intermediate.DrawingSurface.Canvas : workingSurface, finalDrawPos, saveLayer ? null : paint,
+                ctx.DesiredSamplingOptions);
+        }
+
+        if (saveLayer && intermediate != null)
+        {
+            int intermediateSaved = workingSurface.Save();
+
+            workingSurface.Translate(topLeft);
+            workingSurface.Scale((float)ctx.ChunkResolution.InvertedMultiplier());
+            workingSurface.DrawSurface(intermediate.DrawingSurface, 0, 0, paint);
+
+            workingSurface.RestoreToCount(intermediateSaved);
+        }
+
+        workingSurface.RestoreToCount(saved);
     }
 
-    public override RectD? GetPreviewBounds(int frame, string elementFor = "")
+    public override RectD? GetPreviewBounds(RenderContext context, string elementFor = "")
     {
         if (IsDisposed)
         {
@@ -167,11 +232,16 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
         if (elementFor == nameof(EmbeddedMask))
         {
-            return base.GetPreviewBounds(frame, elementFor);
+            return base.GetPreviewBounds(context, elementFor);
         }
 
         if (Guid.TryParse(elementFor, out Guid guid))
         {
+            if (guid == Id)
+            {
+                return new RectD(0, 0, layerImage.CommittedSize.X, layerImage.CommittedSize.Y);
+            }
+
             var keyFrame = keyFrames.FirstOrDefault(x => x.KeyFrameGuid == guid);
 
             if (keyFrame != null)
@@ -182,19 +252,13 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
                     return null;
                 }
 
-                RectI? bounds = (RectI?)GetApproxBounds(kf);
-                if (bounds.HasValue)
-                {
-                    return new RectD(bounds.Value.X, bounds.Value.Y,
-                        Math.Min(bounds.Value.Width, kf.CommittedSize.X),
-                        Math.Min(bounds.Value.Height, kf.CommittedSize.Y));
-                }
+                return new RectD(0, 0, kf.CommittedSize.X, kf.CommittedSize.Y);
             }
         }
 
         try
         {
-            var kf = GetLayerImageAtFrame(frame);
+            var kf = GetLayerImageAtFrame(context.FrameTime.Frame);
             if (kf == null)
             {
                 return null;
@@ -216,8 +280,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         }
     }
 
-    public override bool RenderPreview(DrawingSurface renderOnto, RenderContext context,
-        string elementToRenderName)
+    protected override bool ShouldRenderPreview(string elementToRenderName)
     {
         if (IsDisposed)
         {
@@ -226,12 +289,28 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
         if (elementToRenderName == nameof(EmbeddedMask))
         {
-            return base.RenderPreview(renderOnto, context, elementToRenderName);
+            return base.ShouldRenderPreview(elementToRenderName);
+        }
+
+        return true;
+    }
+
+    public override void RenderPreview(DrawingSurface renderOnto, RenderContext context,
+        string elementToRenderName)
+    {
+        if (IsDisposed)
+        {
+            return;
+        }
+
+        if (elementToRenderName == nameof(EmbeddedMask))
+        {
+            base.RenderPreview(renderOnto, context, elementToRenderName);
+            return;
         }
 
         var img = GetLayerImageAtFrame(context.FrameTime.Frame);
 
-        int cacheFrame = context.FrameTime.Frame;
         if (Guid.TryParse(elementToRenderName, out Guid guid))
         {
             var keyFrame = keyFrames.FirstOrDefault(x => x.KeyFrameGuid == guid);
@@ -239,51 +318,32 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
             if (keyFrame != null)
             {
                 img = GetLayerImageByKeyFrameGuid(keyFrame.KeyFrameGuid);
-                cacheFrame = keyFrame.StartFrame;
             }
             else if (guid == Id)
             {
                 img = GetLayerImageAtFrame(0);
-                cacheFrame = 0;
             }
         }
 
         if (img is null)
         {
-            return false;
+            return;
         }
 
-        if (renderedSurfaceFrame == cacheFrame)
-        {
-            int saved = renderOnto.Canvas.Save();
-            renderOnto.Canvas.Scale((float)context.ChunkResolution.Multiplier());
-            if (context.DesiredSamplingOptions == SamplingOptions.Default)
-            {
-                renderOnto.Canvas.DrawSurface(
-                    fullResrenderedSurface.DrawingSurface, 0, 0, blendPaint);
-            }
-            else
-            {
-                using var snapshot = fullResrenderedSurface.DrawingSurface.Snapshot();
-                renderOnto.Canvas.DrawImage(snapshot, 0, 0, context.DesiredSamplingOptions, blendPaint);
-            }
+        int saved = renderOnto.Canvas.Save();
+        renderOnto.Canvas.Scale((float)context.ChunkResolution.InvertedMultiplier());
 
-            renderOnto.Canvas.RestoreToCount(saved);
-        }
-        else
-        {
-            img.DrawMostUpToDateRegionOn(
-                new RectI(0, 0, img.LatestSize.X, img.LatestSize.Y),
-                context.ChunkResolution,
-                renderOnto, VecI.Zero, blendPaint, context.DesiredSamplingOptions);
-        }
+        img.DrawCommittedRegionOn(
+            new RectI(0, 0, img.LatestSize.X, img.LatestSize.Y),
+            context.ChunkResolution,
+            renderOnto.Canvas, VecI.Zero, replacePaint, context.DesiredSamplingOptions);
 
-        return true;
+        renderOnto.Canvas.RestoreToCount(saved);
     }
 
-    private KeyFrameData GetFrameWithImage(KeyFrameTime frame)
+    private KeyFrameData? GetFrameWithImage(KeyFrameTime frame)
     {
-        if (keyFrames.Count == 1)
+        if (keyFrames.Count == 1 || frame.Frame == 0)
         {
             return keyFrames[0];
         }
@@ -291,7 +351,12 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         var imageFrame = keyFrames.OrderBy(x => x.StartFrame).LastOrDefault(x => x.IsInFrame(frame.Frame));
         if (imageFrame?.Data is not ChunkyImage)
         {
-            return keyFrames[0];
+            if (FallbackAnimationToLayerImage)
+            {
+                return keyFrames[0];
+            }
+
+            return keyFrames.ElementAtOrDefault(1).IsVisible ? null : keyFrames[0];
         }
 
         var frameImage = imageFrame;
@@ -330,12 +395,6 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         return image;
     }
 
-    public override void Dispose()
-    {
-        base.Dispose();
-        fullResrenderedSurface?.Dispose();
-    }
-
     IReadOnlyChunkyImage IReadOnlyImageNode.GetLayerImageAtFrame(int frame) => GetLayerImageAtFrame(frame);
 
     IReadOnlyChunkyImage IReadOnlyImageNode.GetLayerImageByKeyFrameGuid(Guid keyFrameGuid) =>
@@ -345,17 +404,6 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         SetLayerImageAtFrame(frame, (ChunkyImage)newLayerImage);
 
     void IReadOnlyImageNode.ForEveryFrame(Action<IReadOnlyChunkyImage> action) => ForEveryFrame(action);
-
-    public override void RenderChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime,
-        ColorSpace processColorSpace)
-    {
-        base.RenderChunk(chunkPos, resolution, frameTime, processColorSpace);
-
-        var img = GetLayerImageAtFrame(frameTime.Frame);
-
-        RenderChunkyImageChunk(chunkPos, resolution, img, 85, processColorSpace, ref fullResrenderedSurface);
-        renderedSurfaceFrame = frameTime.Frame;
-    }
 
     public void ForEveryFrame(Action<ChunkyImage> action)
     {
@@ -379,9 +427,9 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         }
     }
 
-    public ChunkyImage GetLayerImageAtFrame(int frame)
+    public ChunkyImage? GetLayerImageAtFrame(int frame)
     {
-        return GetFrameWithImage(frame).Data as ChunkyImage;
+        return GetFrameWithImage(frame)?.Data as ChunkyImage;
     }
 
     public ChunkyImage GetLayerImageByKeyFrameGuid(Guid keyFrameGuid)

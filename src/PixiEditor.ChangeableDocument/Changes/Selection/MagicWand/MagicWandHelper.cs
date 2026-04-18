@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using ChunkyImageLib.Operations;
+using Drawie.Backend.Core.Bridge;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Changes.Drawing.FloodFill;
 using Drawie.Backend.Core.ColorsImpl;
@@ -8,6 +9,7 @@ using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Selection.MagicWand;
+
 internal class MagicWandHelper
 {
     private static readonly VecI Up = new VecI(0, -1);
@@ -38,6 +40,7 @@ internal class MagicWandHelper
                 // separated into a function to prevent stackalloc stackoverflow
                 PushArrayIteration(i);
             }
+
             void PushArrayIteration(int i)
             {
                 Span<(VecI, VecI, VecI)> options = stackalloc (VecI, VecI, VecI)[]
@@ -72,20 +75,24 @@ internal class MagicWandHelper
                 // separated into a function to prevent stackalloc stackoverflow
                 PushArrayIteration(i);
             }
+
             void PushArrayIteration(int i)
             {
                 Span<(int, VecI, VecI, VecI)> options = stackalloc (int, VecI, VecI, VecI)[]
                 {
                     (i, new(chunkPos.X, chunkPos.Y - 1), new(i, chunkSize - 1), new(i, 0)), // Top
-                    (chunkSize * (chunkSize - 1) + i, new(chunkPos.X, chunkPos.Y + 1), new(i, 0), new(i, chunkSize - 1)), // Bottom
+                    (chunkSize * (chunkSize - 1) + i, new(chunkPos.X, chunkPos.Y + 1), new(i, 0),
+                        new(i, chunkSize - 1)), // Bottom
                     (i * chunkSize, new(chunkPos.X - 1, chunkPos.Y), new(chunkSize - 1, i), new(0, i)), // Left
-                    (i * chunkSize + (chunkSize - 1), new(chunkPos.X + 1, chunkPos.Y), new(0, i), new(chunkSize - 1, i)) // Right
+                    (i * chunkSize + (chunkSize - 1), new(chunkPos.X + 1, chunkPos.Y), new(0, i),
+                        new(chunkSize - 1, i)) // Right
                 };
 
                 foreach (var (refIndex, otherChunkPos, otherPosInChunk, refPos) in options)
                 {
                     VecI otherGlobal = otherChunkPos * chunkSize + otherPosInChunk;
-                    if (!visitedArray[refIndex] || otherGlobal.X < 0 || otherGlobal.Y < 0 || otherGlobal.X >= imageSize.X || otherGlobal.Y >= imageSize.Y)
+                    if (!visitedArray[refIndex] || otherGlobal.X < 0 || otherGlobal.Y < 0 ||
+                        otherGlobal.X >= imageSize.X || otherGlobal.Y >= imageSize.Y)
                         continue;
                     certainlyVisited.Add(chunkOffset + refPos);
                     likelyUnvisited.Push((otherChunkPos, otherPosInChunk));
@@ -103,27 +110,210 @@ internal class MagicWandHelper
                     continue;
                 return (chunkPos, posOnChunk);
             }
+
             return null;
         }
     }
 
-    public static VectorPath DoMagicWandFloodFill(VecI startingPos, HashSet<Guid> membersToFloodFill,
+    public static VectorPath DoMagicWandFloodFillNonContiguous(
+        VecI startingPos,
+        HashSet<Guid> membersToFloodFill,
         double tolerance,
-        IReadOnlyDocument document, int frame)
+        IReadOnlyDocument document,
+        string renderOutput,
+        int frame)
     {
-        if (startingPos.X < 0 || startingPos.Y < 0 || startingPos.X >= document.Size.X || startingPos.Y >= document.Size.Y)
+        var renderSize = document.GetRenderOutputSize(renderOutput);
+        if (startingPos.X < 0 || startingPos.Y < 0 ||
+            startingPos.X >= renderSize.X || startingPos.Y >= renderSize.Y)
             return new VectorPath();
-        
+
+        tolerance = Math.Clamp(tolerance, 0, 1);
+
+        int chunkSize = ChunkResolution.Full.PixelSize();
+        using FloodFillChunkCache cache =
+            FloodFillHelper.CreateCache(membersToFloodFill, document, frame, renderOutput);
+
+        VecI initChunkPos = OperationHelper.GetChunkPos(startingPos, chunkSize);
+        VecI initPosOnChunk = startingPos - initChunkPos * chunkSize;
+
+        ColorF baseColor = cache.GetChunk(initChunkPos).Match(
+            (Chunk chunk) => chunk.Surface.GetRawPixelPrecise(initPosOnChunk),
+            static (EmptyChunk _) => Colors.Transparent
+        );
+
+        ColorBounds colorRange = new(baseColor, tolerance);
+
+        var selection = FloodFillNonContiguous(renderSize, chunkSize, cache, colorRange);
+        using VectorPath bounds = new VectorPath();
+        bounds.AddRect(new RectD(VecD.Zero, renderSize));
+        var tmp = selection;
+        selection = selection.Op(bounds, VectorPathOp.Intersect);
+        tmp.Dispose();
+
+        return selection;
+    }
+
+    private static VectorPath FloodFillNonContiguous(
+        VecI size,
+        int chunkSize,
+        FloodFillChunkCache cache,
+        ColorBounds bounds)
+    {
+        VecI imageSize = size;
+        VecI chunkGridSize = (VecI)(imageSize / (double)chunkSize).Ceiling();
+
+        Lines lines = new();
+
+        // Track visited per chunk
+        Dictionary<VecI, bool[]> visitedPerChunk = new();
+
+        for (int cy = 0; cy < chunkGridSize.Y; cy++)
+        {
+            for (int cx = 0; cx < chunkGridSize.X; cx++)
+            {
+                VecI chunkPos = new(cx, cy);
+                var chunkRef = cache.GetChunk(chunkPos);
+
+                if (chunkRef.IsT1)
+                {
+                    if (bounds.LowerA <= 0)
+                    {
+                        AddLinesForEmptyChunk(lines, chunkPos, imageSize, chunkSize);
+                    }
+
+                    continue;
+                }
+
+                var chunk = chunkRef.AsT0;
+
+                if (!visitedPerChunk.TryGetValue(chunkPos, out var visited))
+                {
+                    visited = new bool[chunkSize * chunkSize];
+                    visitedPerChunk[chunkPos] = visited;
+                }
+
+                ProcessChunkNonContiguous(
+                    chunk,
+                    chunkPos,
+                    chunkSize,
+                    imageSize,
+                    bounds,
+                    lines,
+                    visited);
+            }
+        }
+
+        return lines.Count > 0 ? BuildContour(lines) : new VectorPath();
+    }
+
+    private static unsafe void ProcessChunkNonContiguous(
+        Chunk chunk,
+        VecI chunkPos,
+        int chunkSize,
+        VecI documentSize,
+        ColorBounds bounds,
+        Lines lines,
+        bool[] visited)
+    {
+        using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
+        using var refPixmap = chunk.Surface.PeekPixels();
+
+        Half* refArray = (Half*)refPixmap.GetPixels();
+        VecI chunkOffset = chunkPos * chunkSize;
+
+        for (int y = 0; y < chunkSize; y++)
+        {
+            for (int x = 0; x < chunkSize; x++)
+            {
+                int offset = x + y * chunkSize;
+                if (visited[offset])
+                    continue;
+
+                Half* pixel = refArray + offset * 4;
+
+                if (!bounds.IsWithinBounds(pixel))
+                    continue;
+
+                FloodFillRegion(
+                    chunkSize,
+                    chunkOffset,
+                    documentSize,
+                    bounds,
+                    lines,
+                    refArray,
+                    visited,
+                    new VecI(x, y));
+            }
+        }
+    }
+
+    private static unsafe void FloodFillRegion(
+        int chunkSize,
+        VecI chunkOffset,
+        VecI documentSize,
+        ColorBounds bounds,
+        Lines lines,
+        Half* refArray,
+        bool[] visited,
+        VecI start)
+    {
+        Stack<VecI> stack = new();
+        stack.Push(start);
+
+        while (stack.Count > 0)
+        {
+            VecI pos = stack.Pop();
+            int offset = pos.X + pos.Y * chunkSize;
+
+            if (visited[offset])
+                continue;
+
+            Half* pixel = refArray + offset * 4;
+            if (!bounds.IsWithinBounds(pixel))
+                continue;
+
+            visited[offset] = true;
+
+            VecI global = pos + chunkOffset;
+
+            AddFillContourLines(
+                chunkSize,
+                chunkOffset,
+                bounds,
+                lines,
+                pos,
+                visited,
+                offset,
+                pixel,
+                stack,
+                global,
+                documentSize);
+        }
+    }
+
+    public static VectorPath DoMagicWandFloodFill(VecI startingPos, HashSet<Guid> membersToFloodFill,
+        double tolerance, string renderOutput,
+        IReadOnlyDocument document, int frame, bool contiguous)
+    {
+        var renderSize = document.GetRenderOutputSize(renderOutput);
+        if (startingPos.X < 0 || startingPos.Y < 0 || startingPos.X >= renderSize.X ||
+            startingPos.Y >= renderSize.Y)
+            return new VectorPath();
+
+        if (!contiguous)
+            return DoMagicWandFloodFillNonContiguous(startingPos, membersToFloodFill, tolerance, document, renderOutput,
+                frame);
+
         tolerance = Math.Clamp(tolerance, 0, 1);
 
         int chunkSize = ChunkResolution.Full.PixelSize();
 
-        FloodFillChunkCache cache = FloodFillHelper.CreateCache(membersToFloodFill, document, frame);
+        using FloodFillChunkCache
+            cache = FloodFillHelper.CreateCache(membersToFloodFill, document, frame, renderOutput);
 
         VecI initChunkPos = OperationHelper.GetChunkPos(startingPos, chunkSize);
-        VecI imageSizeInChunks = (VecI)(document.Size / (double)chunkSize).Ceiling();
         VecI initPosOnChunk = startingPos - initChunkPos * chunkSize;
-
 
         ColorF colorToReplace = cache.GetChunk(initChunkPos).Match(
             (Chunk chunk) => chunk.Surface.GetRawPixelPrecise(initPosOnChunk),
@@ -132,14 +322,23 @@ internal class MagicWandHelper
 
         ColorBounds colorRange = new(colorToReplace, tolerance);
 
+        var fillPath = FloodFill(renderSize, chunkSize, initChunkPos, initPosOnChunk, cache, colorToReplace,
+            colorRange);
+        return fillPath;
+    }
+
+    private static VectorPath FloodFill(VecI size, int chunkSize, VecI initChunkPos, VecI initPosOnChunk,
+        FloodFillChunkCache cache, ColorF colorToReplace, ColorBounds colorRange)
+    {
         HashSet<VecI> processedEmptyChunks = new();
 
-        UnvisitedStack positionsToFloodFill = new(chunkSize, document.Size);
+        UnvisitedStack positionsToFloodFill = new(chunkSize, size);
 
         Lines lines = new();
         VectorPath selection = new();
 
         positionsToFloodFill.Push(initChunkPos, initPosOnChunk);
+
         while (true)
         {
             (VecI initChunkPos, VecI initPosOnChunk)? popped = positionsToFloodFill.PopUnvisited();
@@ -153,10 +352,11 @@ internal class MagicWandHelper
             {
                 if (colorToReplace.A == 0 && !processedEmptyChunks.Contains(chunkPos))
                 {
-                    AddLinesForEmptyChunk(lines, chunkPos, document.Size, chunkSize);
+                    AddLinesForEmptyChunk(lines, chunkPos, size, chunkSize);
                     positionsToFloodFill.PushAll(chunkPos);
                     processedEmptyChunks.Add(chunkPos);
                 }
+
                 continue;
             }
 
@@ -164,12 +364,11 @@ internal class MagicWandHelper
             var reallyReferenceChunk = referenceChunk.AsT0;
 
             VecI globalPos = chunkPos * chunkSize + posOnChunk;
-            //visualizer.CurrentContext = $"FloodFill_{chunkPos}";
             var maybeArray = AddLinesForChunkViaFloodFill(
                 reallyReferenceChunk,
                 chunkSize,
                 chunkPos * chunkSize,
-                document.Size,
+                size,
                 posOnChunk,
                 colorRange, lines);
 
@@ -182,8 +381,6 @@ internal class MagicWandHelper
         {
             selection = BuildContour(lines);
         }
-
-        //visualizer.GenerateVisualization(document.Size.X, document.Size.Y, 500, 500);
 
         return selection;
     }
@@ -216,7 +413,8 @@ internal class MagicWandHelper
         Line? current = firstLine;
         while (current is not null)
         {
-            (previous, current) = ((Line)current, allLines.RemoveLineAt(current.Value.End, current.Value.NormalizedDirection));
+            (previous, current) = ((Line)current,
+                allLines.RemoveLineAt(current.Value.End, current.Value.NormalizedDirection));
         }
 
         return previous.End;
@@ -249,14 +447,14 @@ internal class MagicWandHelper
         return selection;
     }
 
-    private static unsafe bool[]? AddLinesForChunkViaFloodFill(
-        Chunk referenceChunk,
+    private static unsafe bool[]? AddLinesForChunkViaFloodFill(Chunk referenceChunk,
         int chunkSize,
         VecI chunkOffset,
         VecI documentSize,
         VecI pos,
         ColorBounds bounds, Lines lines)
     {
+        using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
         if (!bounds.IsWithinBounds(referenceChunk.Surface.GetRawPixelPrecise(pos)))
         {
             return null;
@@ -264,7 +462,7 @@ internal class MagicWandHelper
 
         bool[] pixelVisitedStates = new bool[chunkSize * chunkSize];
 
-        using var refPixmap = referenceChunk.Surface.DrawingSurface.PeekPixels();
+        using var refPixmap = referenceChunk.Surface.PeekPixels();
         Half* refArray = (Half*)refPixmap.GetPixels();
 
         Stack<VecI> toVisit = new();
@@ -286,22 +484,59 @@ internal class MagicWandHelper
 
             pixelVisitedStates[pixelOffset] = true;
 
-            //visualizer.CurrentContext = "AddFillContourLines";
-            AddFillContourLines(chunkSize, chunkOffset, bounds, lines, curPos, pixelVisitedStates, pixelOffset, refPixel, toVisit, globalPos, documentSize);
+            AddFillContourLines(chunkSize, chunkOffset, bounds, lines, curPos, pixelVisitedStates, pixelOffset,
+                refPixel, toVisit, globalPos, documentSize);
+        }
+
+        return pixelVisitedStates;
+    }
+
+    private static unsafe bool[]? AddLinesForChunk(Chunk referenceChunk,
+        int chunkSize,
+        VecI chunkOffset,
+        VecI documentSize,
+        ColorBounds bounds, Lines lines)
+    {
+        using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
+        using var refPixmap = referenceChunk.Surface.PeekPixels();
+        Half* refArray = (Half*)refPixmap.GetPixels();
+
+        bool[] pixelVisitedStates = new bool[chunkSize * chunkSize];
+
+        for (int y = 0; y < chunkSize; y++)
+        {
+            for (int x = 0; x < chunkSize; x++)
+            {
+                VecI curPos = new VecI(x, y);
+                int pixelOffset = curPos.X + curPos.Y * chunkSize;
+                VecI globalPos = curPos + chunkOffset;
+                Half* refPixel = refArray + pixelOffset * 4;
+
+                if (bounds.IsWithinBounds(refPixel))
+                    continue;
+
+                if (pixelVisitedStates[pixelOffset])
+                    continue;
+
+                pixelVisitedStates[pixelOffset] = true;
+
+                AddFillContourLines(chunkSize, chunkOffset, bounds, lines, curPos, pixelVisitedStates, pixelOffset,
+                    refPixel, null!, globalPos, documentSize);
+            }
         }
 
         return pixelVisitedStates;
     }
 
     private static unsafe void AddFillContourLines(int chunkSize, VecI chunkOffset, ColorBounds bounds, Lines lines,
-        VecI curPos, bool[] pixelStates, int pixelOffset, Half* refPixel, Stack<VecI> toVisit, VecI globalPos,
+        VecI curPos, bool[] pixelStates, int pixelOffset, Half* refPixel, Stack<VecI>? toVisit, VecI globalPos,
         VecI documentSize)
     {
         // Left pixel
         bool leftEdgePresent = curPos.X == 0 || globalPos.X == 0 || !bounds.IsWithinBounds(refPixel - 4);
         if (!leftEdgePresent && !pixelStates[pixelOffset - 1])
         {
-            toVisit.Push(new(curPos.X - 1, curPos.Y));
+            toVisit?.Push(new(curPos.X - 1, curPos.Y));
         }
         else if (leftEdgePresent)
         {
@@ -311,10 +546,11 @@ internal class MagicWandHelper
         }
 
         // Right pixel
-        bool rightEdgePresent = globalPos.X == documentSize.X - 1 || curPos.X == chunkSize - 1 || !bounds.IsWithinBounds(refPixel + 4);
+        bool rightEdgePresent = globalPos.X == documentSize.X - 1 || curPos.X == chunkSize - 1 ||
+                                !bounds.IsWithinBounds(refPixel + 4);
         if (!rightEdgePresent && !pixelStates[pixelOffset + 1])
         {
-            toVisit.Push(new(curPos.X + 1, curPos.Y));
+            toVisit?.Push(new(curPos.X + 1, curPos.Y));
         }
         else if (rightEdgePresent)
         {
@@ -327,7 +563,7 @@ internal class MagicWandHelper
         bool topEdgePresent = curPos.Y == 0 || globalPos.Y == 0 || !bounds.IsWithinBounds(refPixel - 4 * chunkSize);
         if (!topEdgePresent && !pixelStates[pixelOffset - chunkSize])
         {
-            toVisit.Push(new(curPos.X, curPos.Y - 1));
+            toVisit?.Push(new(curPos.X, curPos.Y - 1));
         }
         else if (topEdgePresent)
         {
@@ -337,10 +573,11 @@ internal class MagicWandHelper
         }
 
         //Bottom pixel
-        bool bottomEdgePresent = globalPos.Y == documentSize.Y - 1 || curPos.Y == chunkSize - 1 || !bounds.IsWithinBounds(refPixel + 4 * chunkSize);
+        bool bottomEdgePresent = globalPos.Y == documentSize.Y - 1 || curPos.Y == chunkSize - 1 ||
+                                 !bounds.IsWithinBounds(refPixel + 4 * chunkSize);
         if (!bottomEdgePresent && !pixelStates[pixelOffset + chunkSize])
         {
-            toVisit.Push(new(curPos.X, curPos.Y + 1));
+            toVisit?.Push(new(curPos.X, curPos.Y + 1));
         }
         else if (bottomEdgePresent)
         {
@@ -354,7 +591,8 @@ internal class MagicWandHelper
     {
         public bool Equals(Line other)
         {
-            return Start.Equals(other.Start) && End.Equals(other.End) && NormalizedDirection.Equals(other.NormalizedDirection);
+            return Start.Equals(other.Start) && End.Equals(other.End) &&
+                   NormalizedDirection.Equals(other.NormalizedDirection);
         }
 
         public override bool Equals(object? obj)
@@ -392,8 +630,8 @@ internal class MagicWandHelper
         {
             string dir = (NormalizedDirection.X, NormalizedDirection.Y) switch
             {
-                ( > 0, _) => "Right",
-                ( < 0, _) => "Left",
+                (> 0, _) => "Right",
+                (< 0, _) => "Left",
                 (_, < 0) => "Up",
                 (_, > 0) => "Down",
                 _ => "Weird dir"
@@ -404,7 +642,8 @@ internal class MagicWandHelper
 
     internal class Lines : IEnumerable<Line>
     {
-        private Dictionary<VecI, Dictionary<VecI, Line>> LineDicts { get; set; } = new Dictionary<VecI, Dictionary<VecI, Line>>();
+        private Dictionary<VecI, Dictionary<VecI, Line>> LineDicts { get; set; } =
+            new Dictionary<VecI, Dictionary<VecI, Line>>();
 
         public int Count => LineDicts.Aggregate(0, (acc, cur) => acc += cur.Value.Count);
 
@@ -423,6 +662,7 @@ internal class MagicWandHelper
                 if (lineDict.Remove(start, out Line value))
                     return value;
             }
+
             return null;
         }
 
@@ -443,6 +683,7 @@ internal class MagicWandHelper
                 lineDict.Remove(result.Key);
                 return result.Value;
             }
+
             return null;
         }
 

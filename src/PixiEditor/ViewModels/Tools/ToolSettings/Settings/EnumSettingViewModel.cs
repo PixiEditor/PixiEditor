@@ -1,15 +1,20 @@
-﻿using Avalonia;
+﻿using System.Text.Json;
+using System.Windows.Input;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Layout;
+using CommunityToolkit.Mvvm.Input;
 using PixiEditor.Extensions.Helpers;
 using PixiEditor.Extensions.UI;
+using PixiEditor.Helpers.Decorators;
 
 namespace PixiEditor.ViewModels.Tools.ToolSettings.Settings;
 
-internal sealed class EnumSettingViewModel<TEnum> : Setting<TEnum, ComboBox>
+internal sealed class EnumSettingViewModel<TEnum> : Setting<TEnum>
     where TEnum : struct, Enum
 {
+    private EnumSettingPickerType pickerType = EnumSettingPickerType.ComboBox;
     private int selectedIndex;
 
     /// <summary>
@@ -22,6 +27,7 @@ internal sealed class EnumSettingViewModel<TEnum> : Setting<TEnum, ComboBox>
         {
             if (SetProperty(ref selectedIndex, value))
             {
+                base.Value = Value; // Update the base Value to trigger any bindings or logic that depends on it.
                 OnPropertyChanged(nameof(Value));
             }
         }
@@ -49,13 +55,28 @@ internal sealed class EnumSettingViewModel<TEnum> : Setting<TEnum, ComboBox>
             base.Value = value;
         }
     }
+
+    public EnumSettingPickerType PickerType
+    {
+        get => pickerType;
+        set
+        {
+            SetProperty(ref pickerType, value);
+            OnPropertyChanged(nameof(PickerIsIconButtons));
+        }
+    }
+
+    public bool PickerIsIconButtons => PickerType == EnumSettingPickerType.IconButtons;
     
     public TEnum[] EnumValues { get; } = Enum.GetValues<TEnum>();
+
+    public ICommand ChangeValueCommand { get; }
 
     public EnumSettingViewModel(string name, string label)
         : base(name)
     {
         Label = label;
+        ChangeValueCommand = new RelayCommand<TEnum>(val => Value = val);
     }
 
     public EnumSettingViewModel(string name, string label, TEnum defaultValue)
@@ -66,16 +87,27 @@ internal sealed class EnumSettingViewModel<TEnum> : Setting<TEnum, ComboBox>
     
     private TEnum GetOverwrittenEnum()
     {
-        int index;
-        if (overwrittenValue is float floatVal)
+        var value = overwrittenValue;
+        if (overwrittenValue is JsonElement jsonElement)
         {
-            index = (int)floatVal;
+            value = jsonElement.ValueKind switch
+            {
+                JsonValueKind.Number when jsonElement.TryGetInt32(out var intVal) => intVal,
+                JsonValueKind.Number when jsonElement.TryGetSingle(out var floatVal) => floatVal,
+                JsonValueKind.String => jsonElement.GetString(),
+            };
         }
-        else if (overwrittenValue is int intVal)
+
+        int index;
+        if (value is float finalFloatVal)
+        {
+            index = (int)finalFloatVal;
+        }
+        else if (value is int intVal)
         {
             index = intVal;
         }
-        else if (overwrittenValue is string stringVal)
+        else if (value is string stringVal)
         {
             return Enum.Parse<TEnum>(stringVal);
         }
@@ -86,4 +118,10 @@ internal sealed class EnumSettingViewModel<TEnum> : Setting<TEnum, ComboBox>
 
         return Enum.GetValues<TEnum>()[index];
     }
+}
+
+public enum EnumSettingPickerType
+{
+    ComboBox,
+    IconButtons
 }

@@ -1,6 +1,7 @@
 ﻿using Avalonia.Input;
 using PixiEditor.ChangeableDocument.Enums;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Vector;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Position;
@@ -57,7 +58,7 @@ internal class SelectToolViewModel : ToolViewModel, ISelectToolHandler
     [Settings.Enum("SHAPE_LABEL")]
     public SelectionShape SelectShape => GetValue<SelectionShape>();
 
-    public override BrushShape FinalBrushShape => BrushShape.Pixel;
+    //TODO: was Pixel
     public override Type[]? SupportedLayerTypes { get; } = null;
 
     public override LocalizedString Tooltip => new LocalizedString("SELECT_TOOL_TOOLTIP", Shortcut);

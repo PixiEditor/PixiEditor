@@ -37,6 +37,8 @@ public static class PixiEditorSettings
 
         public static SyncedSetting<string> PrimaryToolset { get; } =
             SyncedSetting.NonOwned<string>(PixiEditor, "PAINT_TOOLSET");
+
+        public static SyncedSetting<bool> AutoRasterizeNestedLayersOnDraw { get; } = SyncedSetting.NonOwned<bool>(PixiEditor);
     }
 
     public static class File
@@ -110,11 +112,35 @@ public static class PixiEditorSettings
             PreferencesConstants.DisablePreviews);
     }
 
+    public static class Accessibility
+    {
+        public static SyncedSetting<double> UiScaleFactor { get; } = SyncedSetting.NonOwned(PixiEditor,
+            1d, PreferencesConstants.UiScaleFactor);
+    }
+    
     public static class Appearance
     {
         public static SyncedSetting<bool> UseSystemDecorations { get; } = SyncedSetting.NonOwned(
             PixiEditor,
             PreferencesConstants.UseSystemWindowDecorationsDefault,
             PreferencesConstants.UseSystemWindowDecorations);
+    }
+    
+    public static class Extensions
+    {
+        public static SyncedSetting<IEnumerable<string>> DisabledExtensions { get; } =
+            SyncedSetting.NonOwned<IEnumerable<string>>(PixiEditor, []);
+        
+        public static SyncedSetting<string> DisplayedCurrency { get; } =
+            SyncedSetting.NonOwned<string>(PixiEditor, null);
+
+        public static LocalSetting<DateTime> LastFetchedAvailableExtensionsDate { get; } =
+            LocalSetting.NonOwned<DateTime>(PixiEditor, DateTime.MinValue);
+
+        public static LocalSetting<DateTime> LastFetchedExchangeRateDate { get; } =
+            LocalSetting.NonOwned<DateTime>(PixiEditor, DateTime.MinValue);
+
+        public static LocalSetting<double> LastFetchedExchangeRate { get; } =
+            LocalSetting.NonOwned<double>(PixiEditor, 0);
     }
 }

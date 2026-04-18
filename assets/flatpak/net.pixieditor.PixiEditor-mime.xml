@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+SPDX-License-Identifier: GPL-3.0-or-later
+-->
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+
+  <!-- Native Pixi format -->
+  <mime-type type="application/x-pixi">
+    <comment>Pixi Project File</comment>
+    <generic-icon name="application-x-pixi"/>
+    <glob pattern="*.pixi"/>
+  </mime-type>
+</mime-info>
+

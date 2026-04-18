@@ -29,6 +29,10 @@ public static class Paths
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
         "PixiEditor", "Palettes");
 
+    public static string PathToBrushesFolder { get; } = Path.Join(
+        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+        "PixiEditor", "Brushes");
+
     public static string InternalResourceDataPath { get; } =
         $"avares://{Assembly.GetExecutingAssembly().GetName().Name}/Data";
 
@@ -36,6 +40,10 @@ public static class Paths
 
     public static string TempFilesPath { get; } = Path.Combine(Path.GetTempPath(), "PixiEditor");
     public static string TempResourcesPath { get; } = Path.Combine(Path.GetTempPath(), "PixiEditor", "Resources");
+    /// <summary>
+    ///     Path to %temp%/PixiEditor/SessionCache, it is cleared every time PixiEditor is closing
+    /// </summary>
+    public static string TempSessionFilesPath { get; }  = Path.Combine(Path.GetTempPath(), "PixiEditor", "SessionCache");
 
     /// <summary>
     /// Path to %temp%/PixiEditor/Autosave
@@ -46,6 +54,7 @@ public static class Paths
 
     public static string InstallDirectoryPath { get; } =
         Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) ?? string.Empty;
+
 
     public static string ParseSpecialPathOrDefault(string path)
     {

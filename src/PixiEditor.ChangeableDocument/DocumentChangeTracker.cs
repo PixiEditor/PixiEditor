@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using Drawie.Backend.Core.Bridge;
 using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
@@ -14,6 +15,7 @@ public class DocumentChangeTracker : IDisposable
     public IReadOnlyDocument Document => document;
     public bool HasSavedUndo => undoStack.Any();
     public bool HasSavedRedo => redoStack.Any();
+    public bool IsRunning => running;
 
     public Guid? LastChangeGuid
     {
@@ -28,6 +30,8 @@ public class DocumentChangeTracker : IDisposable
         }
     }
 
+    public bool IsDisposed => disposed;
+
     private UpdateableChange? activeUpdateableChange = null;
     private List<(ActionSource source, Change change)>? activePacket = null;
 
@@ -39,6 +43,7 @@ public class DocumentChangeTracker : IDisposable
         if (running)
             throw new InvalidOperationException("Something is currently being processed");
 
+        using var _ = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
         if (activeUpdateableChange != null)
         {
             try
@@ -81,6 +86,13 @@ public class DocumentChangeTracker : IDisposable
     public DocumentChangeTracker()
     {
         document = new Document();
+    }
+
+    public DocumentChangeTracker(IReadOnlyDocument doc)
+    {
+        if (doc is not Document actDoc)
+            throw new ArgumentException("Document must be of type Document", nameof(doc));
+        document = actDoc;
     }
 
     private void AddToUndo(Change change, ActionSource source)
@@ -274,7 +286,6 @@ public class DocumentChangeTracker : IDisposable
         }
 
         var info = change.Apply(document, true, out ignoreInUndo);
-
         info.Switch(
             static (None _) => { },
             (IChangeInfo changeInfo) => changeInfos.Add(changeInfo),
@@ -429,10 +440,23 @@ public class DocumentChangeTracker : IDisposable
             throw new ObjectDisposedException(nameof(DocumentChangeTracker));
         if (running)
             throw new InvalidOperationException("Already currently processing");
-        running = true;
-        var result = await Task.Run(() => ProcessActionList(actions)).ConfigureAwait(true);
-        running = false;
-        return result;
+        try
+        {
+            running = true;
+            var result =
+                await DrawingBackendApi.Current.RenderingDispatcher.InvokeAsync(() => ProcessActionList(actions));
+            running = false;
+            return result;
+        }
+        catch (Exception e)
+        {
+            Trace.WriteLine($"Exception while processing actions: {e}");
+            return new List<IChangeInfo?>();
+        }
+        finally
+        {
+            running = false;
+        }
     }
 
     public List<IChangeInfo?> ProcessActionsSync(IReadOnlyList<(ActionSource, IAction)> actions)
@@ -444,6 +468,7 @@ public class DocumentChangeTracker : IDisposable
         running = true;
         try
         {
+            using var _ = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
             var result = ProcessActionList(actions);
             return result;
         }

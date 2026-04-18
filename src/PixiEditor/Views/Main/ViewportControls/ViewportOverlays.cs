@@ -6,6 +6,7 @@ using Avalonia.Input;
 using PixiEditor.Views.Visuals;
 using PixiEditor.Helpers.Converters;
 using PixiEditor.Models.Commands.XAML;
+using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.ViewModels;
 using PixiEditor.ViewModels.Document.TransformOverlays;
 using PixiEditor.Views.Overlays;
@@ -117,7 +118,9 @@ internal class ViewportOverlays
         Binding fadeOutBinding = new()
         {
             Source = ViewModelMain.Current.ToolsSubViewModel,
-            Path = "!ActiveTool.PickFromReferenceLayer",
+            Path = "ActiveTool",
+            Converter = new InvertedPickFromReferenceLayerConverter(),
+            FallbackValue = false,
             Mode = BindingMode.OneWay,
         };
 
@@ -456,14 +459,17 @@ internal class ViewportOverlays
             Source = Viewport, Path = "IsOverCanvas", Mode = BindingMode.OneWay
         };
 
-        Binding brushSizeBinding = new()
+        Binding brushDataBinding = new()
         {
-            Source = ViewModelMain.Current.ToolsSubViewModel, Path = "ActiveBasicToolbar.ToolSize", Mode = BindingMode.OneWay
+            Source = ViewModelMain.Current.ToolsSubViewModel, Path = "ActiveBrushToolbar.LastBrushData", Mode = BindingMode.OneWay
         };
 
-        Binding brushShapeBinding = new()
+        Binding isBrushToolActiveBinding = new()
         {
-            Source = ViewModelMain.Current.ToolsSubViewModel, Path = "ActiveTool.FinalBrushShape", Mode = BindingMode.OneWay
+            Source = ViewModelMain.Current,
+            Path = "ToolsSubViewModel.ActiveTool",
+            Converter = new InlineConverter(obj => obj is IBrushToolHandler),
+            Mode = BindingMode.OneWay
         };
 
         MultiBinding isVisibleMultiBinding = new()
@@ -473,13 +479,53 @@ internal class ViewportOverlays
             Bindings = new List<IBinding>()
             {
                 isTransformingBinding,
-                isOverCanvasBinding
+                isOverCanvasBinding,
+                isBrushToolActiveBinding
             }
         };
 
+        Binding activeFrameTimeBidning = new()
+        {
+            Source = ViewModelMain.Current.DocumentManagerSubViewModel, Path = "ActiveDocument.AnimationDataViewModel.ActiveFrameTime", Mode = BindingMode.OneWay
+        };
+
+        Binding editorDataBinding = new()
+        {
+            Source = ViewModelMain.Current, Path = "GetEditorData", Mode = BindingMode.OneWay
+        };
+
+        Binding stabilizationModeBinding = new()
+        {
+            Source = ViewModelMain.Current.ToolsSubViewModel, Path = "ActiveBrushToolbar.StabilizationMode", Mode = BindingMode.OneWay
+        };
+
+        Binding stabilizationBinding = new()
+        {
+            Source = ViewModelMain.Current.ToolsSubViewModel, Path = "ActiveBrushToolbar.Stabilization", Mode = BindingMode.OneWay
+        };
+
+        Binding lastAppliedPointBinding = new()
+        {
+            Source = ViewModelMain.Current.ToolsSubViewModel,
+            Path = "ActiveTool.LastAppliedPoint",
+            Mode = BindingMode.OneWay
+        };
+
+        Binding settingChangedTrigger = new()
+        {
+            Source = ViewModelMain.Current.ToolsSubViewModel,
+            Path = "SettingChangedTrigger",
+            Mode = BindingMode.OneWay
+        };
+
         brushShapeOverlay.Bind(Visual.IsVisibleProperty, isVisibleMultiBinding);
-        brushShapeOverlay.Bind(BrushShapeOverlay.BrushSizeProperty, brushSizeBinding);
-        brushShapeOverlay.Bind(BrushShapeOverlay.BrushShapeProperty, brushShapeBinding);
+        brushShapeOverlay.Bind(BrushShapeOverlay.BrushDataProperty, brushDataBinding);
+        brushShapeOverlay.Bind(BrushShapeOverlay.ActiveFrameTimeProperty, activeFrameTimeBidning);
+        brushShapeOverlay.Bind(BrushShapeOverlay.EditorDataProperty, editorDataBinding);
+        brushShapeOverlay.Bind(BrushShapeOverlay.StabilizationModeProperty, stabilizationModeBinding);
+        brushShapeOverlay.Bind(BrushShapeOverlay.StabilizationProperty, stabilizationBinding);
+        brushShapeOverlay.Bind(BrushShapeOverlay.LastAppliedPointProperty, lastAppliedPointBinding);
+        brushShapeOverlay.Bind(BrushShapeOverlay.BrushSettingChangedTriggerProperty, settingChangedTrigger);
     }
 
     private void BindTextOverlay()

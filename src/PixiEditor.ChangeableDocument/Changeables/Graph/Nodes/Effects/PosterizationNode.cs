@@ -92,7 +92,7 @@ public class PosterizationNode : RenderNode, IRenderInput
         shader = Shader.Create(shaderCode, uniforms, out _);
     }
     
-    protected override void OnPaint(RenderContext context, DrawingSurface surface)
+    protected override void OnPaint(RenderContext context, Canvas surface)
     {
         if (Background.Value == null)
         {
@@ -117,7 +117,7 @@ public class PosterizationNode : RenderNode, IRenderInput
         }
         
         using Texture temp = Texture.ForProcessing(surface, colorSpace);
-        Background.Value.Paint(context, temp.DrawingSurface);
+        Background.Value.Paint(context, temp.DrawingSurface.Canvas);
         var snapshot = temp.DrawingSurface.Snapshot();
         
         lastImageShader?.Dispose();
@@ -136,21 +136,10 @@ public class PosterizationNode : RenderNode, IRenderInput
         temp.DrawingSurface.Canvas.DrawRect(0, 0, context.RenderOutputSize.X, context.RenderOutputSize.Y, paint);
         temp.DrawingSurface.Canvas.RestoreToCount(savedTemp);
         
-        var saved = surface.Canvas.Save();
-        surface.Canvas.SetMatrix(Matrix3X3.Identity);
-        surface.Canvas.DrawSurface(temp.DrawingSurface, 0, 0);
-        surface.Canvas.RestoreToCount(saved);
-    }
-    
-    public override RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
-    {
-        return new RectD(0, 0, lastDocumentSize.X, lastDocumentSize.Y);
-    }
-
-    public override bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
-    {
-        OnPaint(context, renderOn);
-        return true;
+        var saved = surface.Save();
+        surface.SetMatrix(Matrix3X3.Identity);
+        surface.DrawSurface(temp.DrawingSurface, 0, 0);
+        surface.RestoreToCount(saved);
     }
 
     public override Node CreateCopy()

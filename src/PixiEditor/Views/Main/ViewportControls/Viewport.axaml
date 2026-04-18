@@ -184,12 +184,22 @@
                         BorderThickness="1"
                         Background="{DynamicResource ThemeBackgroundBrush2}"
                         CornerRadius="{DynamicResource ControlCornerRadius}">
-                    <TextBlock>
-                        <Run Classes="pixi-icon"
-                             Text="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet.Icon}" />
-                        <Run
-                            ui:Translator.Key="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet.Name}" />
-                    </TextBlock>
+                    <Panel>
+                        <TextBlock IsVisible="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet.IconIsPixiPerfect}">
+                            <Run Classes="pixi-icon"
+                                 Text="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet.Icon}" />
+                            <Run
+                                ui:Translator.Key="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet.Name}" />
+                        </TextBlock>
+                        <StackPanel Orientation="Horizontal" Spacing="5"
+                                    IsVisible="{Binding Source={viewModels:MainVM}, Path=!ToolsSubViewModel.ActiveToolSet.IconIsPixiPerfect}">
+                            <Image
+                                Width="16" Height="16"
+                                Source="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet.Icon, Converter={converters:ImagePathToBitmapConverter}}" />
+                            <TextBlock
+                                ui:Translator.Key="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet.Name}" />
+                        </StackPanel>
+                    </Panel>
                 </Border>
                 <ItemsControl
                     Name="otherToolSets"
@@ -207,11 +217,19 @@
                                 Command="{xaml:Command PixiEditor.Tools.SetActiveToolSet, UseProvided=True}"
                                 CommandParameter="{Binding}"
                                 FontSize="{DynamicResource FontSizeMedium}"
+                                Padding="4, 2"
                                 VerticalAlignment="Center">
-                                <TextBlock>
-                                    <Run Classes="pixi-icon" Text="{Binding Icon}" />
-                                    <Run ui:Translator.Key="{Binding Name}" />
-                                </TextBlock>
+                                <Panel>
+                                    <TextBlock IsVisible="{Binding IconIsPixiPerfect}">
+                                        <Run Classes="pixi-icon" Text="{Binding Icon}" />
+                                        <Run ui:Translator.Key="{Binding Name}" />
+                                    </TextBlock>
+                                    <StackPanel Orientation="Horizontal" Spacing="5" IsVisible="{Binding !IconIsPixiPerfect}">
+                                        <Image
+                                            Source="{Binding Icon, Converter={converters:ImagePathToBitmapConverter}}"/>
+                                        <TextBlock ui:Translator.Key="{Binding Name}" />
+                                    </StackPanel>
+                                </Panel>
                             </Button>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
@@ -243,6 +261,7 @@
             UseTouchGestures="{Binding UseTouchGestures, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
             Center="{Binding Center, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWayToSource}"
             AngleRadians="{Binding AngleRadians, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWayToSource}"
+            Scale="{Binding Scale, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWayToSource}"
             RealDimensions="{Binding RealDimensions, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWayToSource}"
             Dimensions="{Binding Dimensions, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWayToSource}"
             ZoomMode="{Binding ZoomMode, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
@@ -253,12 +272,14 @@
             FadeOut="{Binding Source={viewModels:ToolVM ColorPickerToolViewModel}, Path=PickOnlyFromReferenceLayer, Mode=OneWay}"
             DefaultCursor="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ToolCursor, Mode=OneWay}"
             RenderOutput="{Binding ViewportRenderOutput, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
+            ViewportId="{Binding GuidValue, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
             AutoBackgroundScale="{Binding AutoBackgroundScale, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
             CustomBackgroundScaleX="{Binding CustomBackgroundScaleX, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
             CustomBackgroundScaleY="{Binding CustomBackgroundScaleY, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
             BackgroundBitmap="{Binding BackgroundBitmap, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
             MaxBilinearSamplingSize="{Binding MaxBilinearSamplingSize, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
             PointerPressed="Scene_OnContextMenuOpening"
+            ContextRequested="Scene_OnContextRequested"
             ui1:RenderOptionsBindable.BitmapInterpolationMode="{Binding Scale, Converter={converters:ScaleToBitmapScalingModeConverter}, RelativeSource={RelativeSource Self}}">
             <rendering:Scene.ContextFlyout>
                 <Flyout x:CompileBindings="True" x:DataType="subViewModels:ViewportWindowViewModel"

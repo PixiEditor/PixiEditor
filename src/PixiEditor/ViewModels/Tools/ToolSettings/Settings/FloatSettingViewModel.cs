@@ -9,6 +9,7 @@ internal sealed class FloatSettingViewModel : Setting<float>
 {
     private float min = float.NegativeInfinity;
     private float max = float.PositiveInfinity;
+    private int decimalPlaces = 2;
     
     public FloatSettingViewModel(
         string name,
@@ -39,6 +40,15 @@ internal sealed class FloatSettingViewModel : Setting<float>
         set
         {
             SetProperty(ref max, value);
+        }
+    }
+
+    public int DecimalPlaces
+    {
+        get => decimalPlaces;
+        set
+        {
+            SetProperty(ref decimalPlaces, value);
         }
     }
 }

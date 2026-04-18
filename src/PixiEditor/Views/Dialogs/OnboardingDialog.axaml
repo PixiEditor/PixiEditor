@@ -12,11 +12,12 @@
         xmlns:ui1="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="PixiEditor.Views.Dialogs.OnboardingDialog"
+        x:DataType="userPreferences:OnboardingViewModel"
         ShowInTaskbar="False"
         CanResize="False"
-        SystemDecorations="BorderOnly"
+        SystemDecorations="Full"
         d:DataContext="{x:Type userPreferences:OnboardingViewModel}"
-        Title="Onboarding" Width="600" Height="345">
+        ui:Translator.Key="ONBOARDING_WINDOW_TITLE" Width="600" Height="345">
     <Design.DataContext>
         <userPreferences:OnboardingViewModel />
     </Design.DataContext>

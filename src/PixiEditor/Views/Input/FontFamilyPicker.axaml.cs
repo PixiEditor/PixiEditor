@@ -61,6 +61,7 @@ public partial class FontFamilyPicker : UserControl
                 sender.FontIndex = newIndex;
                 if (newIndex < 0 || newIndex >= sender.Fonts.Count)
                 {
+                    sender.FontIndex = sender.Fonts.IndexOf(sender.SelectedFontFamily);
                     return;
                 }
 
@@ -76,6 +77,7 @@ public partial class FontFamilyPicker : UserControl
         Fonts = new ObservableCollection<FontFamilyName>(FontLibrary.AllFonts);
         FontLibrary.FontAdded += (font) => Fonts.Add(font);
         SelectedFontFamily = Fonts[0];
+        FontIndex = 0;
     }
 
     private async Task UploadFont()

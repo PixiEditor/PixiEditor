@@ -1,6 +1,9 @@
 ﻿using System.Diagnostics;
 using System.Drawing;
+using System.Globalization;
 using System.Reflection;
+using System.Text.RegularExpressions;
+using Drawie.Backend.Core.Surfaces;
 using FFMpegCore;
 using FFMpegCore.Arguments;
 using FFMpegCore.Enums;
@@ -19,21 +22,17 @@ public class FFMpegRenderer : IAnimationRenderer
     public VecI Size { get; set; }
     public QualityPreset QualityPreset { get; set; } = QualityPreset.VeryHigh;
 
+    public Regex FramerateRegex { get; } = new Regex(@"(\d+(?:\.\d+)?) fps", RegexOptions.Compiled);
+
     public async Task<bool> RenderAsync(List<Image> rawFrames, string outputPath, CancellationToken cancellationToken,
         Action<double>? progressCallback = null)
     {
-        string path = $"ThirdParty/{IOperatingSystem.Current.Name}/ffmpeg";
+        PrepareFFMpeg();
 
-        string binaryPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), path);
+        string tempPath = Path.Combine(Path.GetTempPath(), "PixiEditor", "Rendering");
+        Directory.CreateDirectory(tempPath);
 
-        GlobalFFOptions.Configure(new FFOptions() { BinaryFolder = binaryPath });
-
-        if (IOperatingSystem.Current.IsUnix)
-        {
-            MakeExecutableIfNeeded(binaryPath);
-        }
-
-        string paletteTempPath = Path.Combine(Path.GetDirectoryName(outputPath), "RenderTemp", "palette.png");
+        string paletteTempPath = Path.Combine(tempPath, "palette.png");
 
         try
         {
@@ -45,12 +44,6 @@ public class FFMpegRenderer : IAnimationRenderer
             }
 
             RawVideoPipeSource streamPipeSource = new(frames) { FrameRate = FrameRate, };
-
-
-            if (!Directory.Exists(Path.GetDirectoryName(paletteTempPath)))
-            {
-                Directory.CreateDirectory(Path.GetDirectoryName(paletteTempPath));
-            }
 
             if (RequiresPaletteGeneration())
             {
@@ -87,18 +80,12 @@ public class FFMpegRenderer : IAnimationRenderer
     public bool Render(List<Image> rawFrames, string outputPath, CancellationToken cancellationToken,
         Action<double>? progressCallback)
     {
-        string path = $"ThirdParty/{IOperatingSystem.Current.Name}/ffmpeg";
+        PrepareFFMpeg();
 
-        string binaryPath = Path.Combine(Path.GetDirectoryName(Environment.ProcessPath), path);
+        string tempPath = Path.Combine(Path.GetTempPath(), "PixiEditor", "Rendering");
+        Directory.CreateDirectory(tempPath);
 
-        GlobalFFOptions.Configure(new FFOptions() { BinaryFolder = binaryPath });
-
-        if (IOperatingSystem.Current.IsUnix)
-        {
-            MakeExecutableIfNeeded(binaryPath);
-        }
-
-        string paletteTempPath = Path.Combine(Path.GetDirectoryName(outputPath), "RenderTemp", "palette.png");
+        string paletteTempPath = Path.Combine(tempPath, "palette.png");
 
         try
         {
@@ -110,12 +97,6 @@ public class FFMpegRenderer : IAnimationRenderer
             }
 
             RawVideoPipeSource streamPipeSource = new(frames) { FrameRate = FrameRate, };
-
-
-            if (!Directory.Exists(Path.GetDirectoryName(paletteTempPath)))
-            {
-                Directory.CreateDirectory(Path.GetDirectoryName(paletteTempPath));
-            }
 
             if (RequiresPaletteGeneration())
             {
@@ -149,13 +130,79 @@ public class FFMpegRenderer : IAnimationRenderer
         }
     }
 
+    public List<Frame> GetFrames(string inputPath, out double playbackFps)
+    {
+        PrepareFFMpeg();
+
+        using var ms = new MemoryStream();
+        if (!FFMpegArguments.FromFileInput(inputPath)
+                .OutputToPipe(new StreamPipeSink(ms),
+                    options =>
+                        options.WithCustomArgument("-vsync 0")
+                            .WithCustomArgument("-vcodec png")
+                            .ForceFormat("image2pipe"))
+                .ProcessSynchronously())
+        {
+            throw new InvalidOperationException("Failed to extract frames from video");
+        }
+
+        ms.Seek(0, SeekOrigin.Begin);
+        List<Bitmap> frames = PipeUtil.ReadFramesFromPipe(ms);
+
+        playbackFps = ExtractFramerateInfo(inputPath);
+
+        return frames.Select(f => new Frame(f, 1)).ToList();
+    }
+
+    private double ExtractFramerateInfo(string inputPath)
+    {
+        ProcessStartInfo startInfo = new ProcessStartInfo
+        {
+            FileName =
+                Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) ,
+                    $"ThirdParty/{IOperatingSystem.Current.Name}/ffmpeg/ffmpeg"),
+            Arguments = $"-i \"{inputPath}\"",
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true
+        };
+
+        using Process process = new() { StartInfo = startInfo };
+        process.Start();
+        process.WaitForExit();
+        string info = process.StandardError.ReadToEnd();
+
+        Match match = FramerateRegex.Match(info);
+        if (match.Success && double.TryParse(match.Groups[1].Value, NumberStyles.Any, CultureInfo.InvariantCulture,
+                out double fps))
+        {
+            return fps;
+        }
+
+        return 24;
+    }
+
+    public static void PrepareFFMpeg()
+    {
+        string path = Path.Combine("ThirdParty", IOperatingSystem.Current.Name, "ffmpeg");
+
+        string binaryPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), path);
+
+        GlobalFFOptions.Configure(new FFOptions() { BinaryFolder = binaryPath });
+
+        if (IOperatingSystem.Current.IsUnix)
+        {
+            MakeExecutableIfNeeded(binaryPath);
+        }
+    }
+
     private static void MakeExecutableIfNeeded(string binaryPath)
     {
         string filePath = Path.Combine(binaryPath, "ffmpeg");
 
         if (!File.Exists(filePath))
         {
-            throw new FileNotFoundException("FFmpeg binary not found");
+            throw new FileNotFoundException("FFmpeg binary not found at: " + filePath);
         }
 
         try
@@ -198,6 +245,7 @@ public class FFMpegRenderer : IAnimationRenderer
         {
             "gif" => GetGifArguments(args, outputPath, paletteTempPath),
             "mp4" => GetMp4Arguments(args, outputPath),
+            "png" => GetApngArguments(args, outputPath),
             _ => throw new NotSupportedException($"Output format {OutputFormat} is not supported")
         };
     }
@@ -232,6 +280,17 @@ public class FFMpegRenderer : IAnimationRenderer
                     .WithCustomArgument($"-qscale:v {qscale}")
                     .WithVideoCodec("mpeg4")
                     .ForcePixelFormat("yuv420p");
+            });
+    }
+
+    private FFMpegArgumentProcessor GetApngArguments(FFMpegArguments args, string outputPath)
+    {
+        return args
+            .OutputToFile(outputPath, true, options =>
+            {
+                options.WithFramerate(FrameRate)
+                    .WithVideoCodec("apng")
+                    .ForceFormat("apng");
             });
     }
 

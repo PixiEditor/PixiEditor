@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -11,7 +12,6 @@ using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.Debug;
 using Drawie.Interop.Avalonia.Core;
 using DrawiEngine;
-using Newtonsoft.Json;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Commands.Attributes.Evaluators;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
@@ -19,7 +19,9 @@ using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Templates.Providers.Parsers;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Dialogs;
+using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.IO;
 using PixiEditor.OperatingSystem;
 using PixiEditor.UI.Common.Fonts;
@@ -131,6 +133,13 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
         OpenFolder(path);
     }
 
+    [Command.Debug("PixiEditor.Debug.RecordGraphRender", "RECORD_GRAPH_RENDER", "RECORD_GRAPH_RENDER",
+        AnalyticsTrack = true)]
+    public void RecordGraphRender()
+    {
+        Owner.DocumentManagerSubViewModel.ActiveDocument.Operations.RecordFrame();
+    }
+
     [Command.Debug("PixiEditor.Debug.DumpGPUDiagnostics", "DUMP_GPU_DIAGNOSTICS", "DUMP_GPU_DIAGNOSTICS",
         AnalyticsTrack = true)]
     public async Task DumpGpuDiagnostics()
@@ -153,6 +162,15 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
                 IOperatingSystem.Current.OpenFolder(pickedFile.Path.LocalPath);
             }
         });
+    }
+
+    [Command.Debug("PixiEditor.Debug.LoadLospecFromClipboard", "Paste Lospec URL",
+        "Load Lospec Palette from URL in clipboard")]
+    public async Task LoadLospecFromClipboard()
+    {
+        var url = await ClipboardController.GetTextFromClipboard();
+        
+        await Owner.ColorsSubViewModel.ImportLospecPalette(url);
     }
 
     [Command.Debug("PixiEditor.Debug.DumpAllCommands", "DUMP_ALL_COMMANDS", "DUMP_ALL_COMMANDS_DESCRIPTIVE",
@@ -210,7 +228,7 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
                             Array.Empty<string>()));
                 }
 
-                writer.Write(JsonConvert.SerializeObject(keyDefinitions, Formatting.Indented));
+                await writer.WriteAsync(JsonSerializer.Serialize(keyDefinitions, JsonOptions.CasesInsensitiveIndented));
                 writer.Close();
                 string file = await File.ReadAllTextAsync(pickedFile.Path.LocalPath);
                 foreach (var command in commands)
@@ -246,7 +264,7 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
             if (pickedFile != null)
             {
                 string file = await File.ReadAllTextAsync(pickedFile.Path.LocalPath);
-                var keyDefinitions = JsonConvert.DeserializeObject<Dictionary<string, KeyDefinition>>(file);
+                var keyDefinitions = JsonSerializer.Deserialize<Dictionary<string, KeyDefinition>>(file);
                 int emptyKeys = file.Split("\"\":").Length - 1;
                 int unknownCommands = 0;
 
@@ -337,7 +355,7 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
             if (pickedFile != null)
             {
                 Owner.LocalizationProvider.LoadDebugKeys(
-                    JsonConvert.DeserializeObject<Dictionary<string, string>>(
+                    JsonSerializer.Deserialize<Dictionary<string, string>>(
                         await File.ReadAllTextAsync(pickedFile.Path.LocalPath)),
                     false);
             }

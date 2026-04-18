@@ -1,4 +1,5 @@
 ﻿using ChunkyImageLib.DataHolders;
+using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
 
@@ -19,6 +20,7 @@ public class PaintOperation : IDrawOperation
     }
 
     public bool IgnoreEmptyChunks => false;
+
     public void DrawOnChunk(Chunk targetChunk, VecI chunkPos)
     {
         targetChunk.Surface.DrawingSurface.Canvas.DrawPaint(paint);

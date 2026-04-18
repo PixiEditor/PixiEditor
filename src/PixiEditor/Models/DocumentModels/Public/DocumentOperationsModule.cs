@@ -8,6 +8,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Enums;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Vector;
 using PixiEditor.Extensions.CommonApi.Palettes;
@@ -20,7 +21,10 @@ using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.Helpers;
+using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.Models.DocumentModels.Public;
@@ -44,12 +48,15 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// <summary>
     /// Creates a new selection with the size of the document
     /// </summary>
-    public void SelectAll() => Select(new RectI(VecI.Zero, Document.SizeBindable), SelectionMode.Add);
+    public void SelectAll(string renderOutput)
+    {
+        Select(new RectI(VecI.Zero, Document.SizeBindable), null, SelectionMode.Add);
+    }
 
     /// <summary>
     /// Creates a new selection with the size of the document
     /// </summary>
-    public void Select(RectI rect, SelectionMode mode = SelectionMode.New)
+    public void Select(RectI rect, string renderOutput, SelectionMode mode = SelectionMode.New)
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
@@ -57,7 +64,7 @@ internal class DocumentOperationsModule : IDocumentOperations
         Internals.ChangeController.TryStopActiveExecutor();
 
         Internals.ActionAccumulator.AddFinishedActions(
-            new SelectRectangle_Action(rect, mode),
+            new SelectRectangle_Action(rect, mode, renderOutput),
             new EndSelectRectangle_Action());
     }
 
@@ -185,7 +192,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// Pastes the <paramref name="images"/> as new layers
     /// </summary>
     /// <param name="images">The images to paste</param>
-    public void PasteImagesAsLayers(List<DataImage> images, int frame)
+    public void PasteImagesAsLayers(List<DataImage> images, int frame, bool resizeCanvasIfNeeded = true)
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
@@ -194,18 +201,21 @@ internal class DocumentOperationsModule : IDocumentOperations
 
         var changeBlock = Document.Operations.StartChangeBlock();
 
-        RectI maxSize = new RectI(VecI.Zero, Document.SizeBindable);
-        foreach (var imageWithName in images)
+        if (resizeCanvasIfNeeded)
         {
-            maxSize = maxSize.Union(new RectI(imageWithName.Position, imageWithName.Image.Size));
+            RectI maxSize = new RectI(VecI.Zero, Document.SizeBindable);
+            foreach (var imageWithName in images)
+            {
+                maxSize = maxSize.Union(new RectI(imageWithName.Position, imageWithName.Image.Size));
+            }
+
+            if (maxSize.Size != Document.SizeBindable)
+                Internals.ActionAccumulator.AddActions(new ResizeCanvas_Action(maxSize.Size, ResizeAnchor.TopLeft));
         }
 
-        if (maxSize.Size != Document.SizeBindable)
-            Internals.ActionAccumulator.AddActions(new ResizeCanvas_Action(maxSize.Size, ResizeAnchor.TopLeft));
-
         foreach (var imageWithName in images)
         {
-            var layerGuid = Internals.StructureHelper.CreateNewStructureMember(StructureMemberType.Layer,
+            var layerGuid = Internals.StructureHelper.CreateNewStructureMember(StructureMemberType.ImageLayer,
                 Path.GetFileName(imageWithName.Name));
             DrawImage(imageWithName.Image,
                 new ShapeCorners(new RectD(imageWithName.Position, imageWithName.Image.Size)),
@@ -238,6 +248,12 @@ internal class DocumentOperationsModule : IDocumentOperations
 
         Internals.ChangeController.TryStopActiveExecutor();
 
+        return Internals.StructureHelper.CreateNewStructureMember(structureMemberType, name, source);
+    }
+
+    public Guid? ForceCreateStructureMember(Type structureMemberType, ActionSource source, string? name = null)
+    {
+        Internals.ChangeController.TryStopActiveExecutor();
         return Internals.StructureHelper.CreateNewStructureMember(structureMemberType, name, source);
     }
 
@@ -941,14 +957,27 @@ internal class DocumentOperationsModule : IDocumentOperations
             new SetSelection_Action(inverse.Op(selection, VectorPathOp.Difference)));
     }
 
-    public void Rasterize(Guid memberId)
+    public Guid? Rasterize(Guid memberId, ActionSource source = ActionSource.User)
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
-            return;
+            return null;
 
         Internals.ChangeController.TryStopActiveExecutor();
 
-        Internals.ActionAccumulator.AddFinishedActions(new RasterizeMember_Action(memberId));
+        Guid newGuid = Guid.NewGuid();
+        if (source == ActionSource.Automated)
+        {
+            Internals.ActionAccumulator.AddActions(source,
+                new RasterizeMember_Action(memberId, newGuid, Document.AnimationHandler.ActiveFrameBindable));
+        }
+        else
+        {
+            Internals.ActionAccumulator.AddFinishedActions(new RasterizeMember_Action(memberId,
+                newGuid,
+                Document.AnimationHandler.ActiveFrameBindable));
+        }
+
+        return newGuid;
     }
 
     public void InvokeCustomAction(Action action, bool stopActiveExecutor = true)
@@ -1065,11 +1094,130 @@ internal class DocumentOperationsModule : IDocumentOperations
             new ExtractSelectedText_Action(memberId, startIndex, endIndex, extractEachCharacter));
     }
 
+    public void UnlinkNestedDocument(Guid id)
+    {
+        if (Internals.ChangeController.IsBlockingChangeActive)
+            return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+
+        Internals.ActionAccumulator.AddFinishedActions(new UnlinkNestedDocument_Action(id));
+    }
+
     public void TryStopActiveExecutor()
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
 
         Internals.ChangeController.TryStopActiveExecutor();
+    }
+
+    public void SetNodeInputPropertyValue(Guid guid, string propertyName, object value)
+    {
+        if (Internals.ChangeController.IsBlockingChangeActive)
+            return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+
+        Internals.ActionAccumulator.AddFinishedActions(new UpdatePropertyValue_Action(guid, propertyName, value),
+            new EndUpdatePropertyValue_Action());
+    }
+
+    public void RecordFrame()
+    {
+        Internals.ActionAccumulator.AddFinishedActions(new DebugRecordFrame_PassthroughAction());
+    }
+
+    public void CreateNestedDocumentFromMember(Guid memberId)
+    {
+        if (Internals.ChangeController.IsBlockingChangeActive)
+            return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+
+
+        var member = Document.StructureHelper.FindNode<IStructureMemberHandler>(memberId);
+        if (member is null)
+        {
+            return;
+        }
+
+        Guid referenceId = Guid.NewGuid();
+        var embedded = DocumentViewModel.Build(builder =>
+            builder.WithSize(Document.SizeBindable).WithGraph(graph => graph.WithOutputNode(null, null)));
+        embedded.Operations.ImportMember(memberId, Document);
+        embedded.Operations.InvokeCustomAction(() =>
+        {
+            using var block = StartChangeBlock();
+            Guid? nestedDocId = CreateStructureMember(StructureMemberType.Document, member.NodeNameBindable);
+
+            if (nestedDocId is null)
+            {
+                embedded.Dispose();
+                return;
+            }
+
+            Internals.ActionAccumulator.AddActions(
+                new UpdatePropertyValue_Action(nestedDocId.Value, NestedDocumentNode.DocumentPropertyName,
+                    new DocumentReference(null, referenceId, embedded.AccessInternalReadOnlyDocument())),
+                new EndUpdatePropertyValue_Action());
+            embedded.Operations.SetFrameRate(Document.AnimationHandler.FrameRateBindable);
+            MoveStructureMember(nestedDocId.Value, memberId, StructureMemberPlacement.Above);
+            if (nestedDocId.HasValue)
+            {
+                ReconnectProperties(member, nestedDocId.Value);
+            }
+
+            DeleteStructureMember(memberId);
+        });
+    }
+
+    public void SetFrameRate(int newFrameRate)
+    {
+        if (Internals.ChangeController.IsBlockingChangeActive)
+            return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+
+        Internals.ActionAccumulator.AddFinishedActions(new SetFrameRate_Action(newFrameRate));
+    }
+
+    private void ReconnectProperties(IStructureMemberHandler from, Guid to)
+    {
+        foreach (var input in from.Inputs)
+        {
+            if (input.ConnectedOutput is not null)
+            {
+                Internals.ActionAccumulator.AddActions(
+                    new ConnectProperties_Action(
+                        to,
+                        input.ConnectedOutput.Node.Id,
+                        input.PropertyName,
+                        input.ConnectedOutput.PropertyName));
+            }
+        }
+
+        foreach (var output in from.Outputs)
+        {
+            foreach (var connectedInput in output.ConnectedInputs)
+            {
+                Internals.ActionAccumulator.AddActions(
+                    new ConnectProperties_Action(
+                        connectedInput.Node.Id,
+                        to,
+                        connectedInput.PropertyName,
+                        output.PropertyName));
+            }
+        }
+    }
+
+    public void ResetTransform(Guid member)
+    {
+        if (Internals.ChangeController.IsBlockingChangeActive)
+            return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+
+        Internals.ActionAccumulator.AddFinishedActions(new ResetTransform_Action(member));
     }
 }

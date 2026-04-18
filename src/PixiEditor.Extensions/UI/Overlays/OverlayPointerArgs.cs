@@ -12,4 +12,6 @@ public class OverlayPointerArgs
     public IOverlayPointer Pointer { get; set; }
     public bool Handled { get; set; }
     public int ClickCount { get; set; }
+    public PointerPointProperties Properties { get; set; }
+    public object? Source { get; set; }
 }

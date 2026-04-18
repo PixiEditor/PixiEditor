@@ -47,6 +47,8 @@ internal class ResizeDocumentDialog : CustomDialog
         }
     }
 
+    public ResamplingMethod SelectedSamplingMethod { get; set; } = ResamplingMethod.NearestNeighbor;
+
     public override async Task<bool> ShowDialog()
     {
         return OpenResizeCanvas ? await ShowResizeCanvasDialog() : await ShowResizeDocumentCanvas();
@@ -71,6 +73,10 @@ internal class ResizeDocumentDialog : CustomDialog
             if (popup is ResizeCanvasPopup resizeCanvas)
             {
                 ResizeAnchor = resizeCanvas.SelectedAnchorPoint;
+            }
+            if(popup is ResizeDocumentPopup resizeDocument)
+            {
+                SelectedSamplingMethod = resizeDocument.Sampling;
             }
 
             return true;

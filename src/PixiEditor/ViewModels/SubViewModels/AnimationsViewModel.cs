@@ -17,6 +17,8 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
 {
     private DispatcherTimer _playTimer;
 
+    public event Action OnCreateCel;
+
     public AnimationsViewModel(ViewModelMain owner) : base(owner)
     {
         owner.DocumentManagerSubViewModel.ActiveDocumentChanged += (sender, args) =>
@@ -50,10 +52,14 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
             _playTimer.Stop();
             _playTimer.Tick -= PlayTimerOnTick;
         }
-        
+
         var activeDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;
         _playTimer =
-            new DispatcherTimer(DispatcherPriority.Render) { Interval = TimeSpan.FromMilliseconds(1000f / activeDocument.AnimationDataViewModel.FrameRateBindable) };
+            new DispatcherTimer(DispatcherPriority.Render)
+            {
+                Interval = TimeSpan.FromMilliseconds(
+                    1000f / activeDocument.AnimationDataViewModel.FrameRateBindable)
+            };
         _playTimer.Tick += PlayTimerOnTick;
     }
 
@@ -77,7 +83,8 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
     private void PlayTimerOnTick(object? sender, EventArgs e)
     {
         var activeDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;
-        if (activeDocument.AnimationDataViewModel.ActiveFrameBindable + 1 >= activeDocument.AnimationDataViewModel.LastFrame)
+        if (activeDocument.AnimationDataViewModel.ActiveFrameBindable + 1 >=
+            activeDocument.AnimationDataViewModel.LastFrame)
         {
             activeDocument.AnimationDataViewModel.ActiveFrameBindable = 1;
         }
@@ -128,18 +135,28 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
             return;
         }
 
-        int newFrame = GetFirstEmptyFrame(activeDocument, activeDocument.SelectedStructureMember.Id);
+        var kfAtFrame = activeDocument.AnimationDataViewModel.AllCels.FirstOrDefault(x =>
+            x.IsWithinRange(activeDocument.AnimationDataViewModel.ActiveFrameBindable));
+
+        int newFrame = kfAtFrame != null
+            ? kfAtFrame.StartFrameBindable + kfAtFrame.DurationBindable - 1
+            : activeDocument.AnimationDataViewModel.ActiveFrameBindable;
 
         Guid toCloneFrom = duplicate ? activeDocument.SelectedStructureMember.Id : Guid.Empty;
         int frameToCopyFrom = duplicate ? activeDocument.AnimationDataViewModel.ActiveFrameBindable : -1;
 
-        activeDocument.AnimationDataViewModel.CreateCel(
+        Guid? created = activeDocument.AnimationDataViewModel.CreateCel(
             activeDocument.SelectedStructureMember.Id,
             newFrame,
             toCloneFrom,
             frameToCopyFrom);
 
-        activeDocument.Operations.SetActiveFrame(newFrame);
+        if (created == null) return;
+
+        int newPos = kfAtFrame != null
+            ? kfAtFrame.StartFrameBindable + kfAtFrame.DurationBindable
+            : activeDocument.AnimationDataViewModel.ActiveFrameBindable;
+        activeDocument.Operations.SetActiveFrame(newPos);
 
         Analytics.SendCreateKeyframe(
             newFrame,
@@ -147,6 +164,8 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
             activeDocument.AnimationDataViewModel.FrameRateBindable,
             activeDocument.AnimationDataViewModel.FramesCount,
             activeDocument.AnimationDataViewModel.AllCels.Count);
+
+        OnCreateCel?.Invoke();
     }
 
     [Command.Basic("PixiEditor.Animation.ToggleOnionSkinning", "TOGGLE_ONION_SKINNING",
@@ -200,32 +219,6 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
         {
             activeDocument.AnimationDataViewModel.EndKeyFramesStartPos();
         }
-    }
-
-
-    private static int GetFirstEmptyFrame(DocumentViewModel activeDocument, Guid targetLayer)
-    {
-        int active = activeDocument.AnimationDataViewModel.ActiveFrameBindable;
-        if (activeDocument.AnimationDataViewModel.TryFindCels(targetLayer,
-                out CelGroupViewModel groupViewModel))
-        {
-            if (groupViewModel.Children.All(x => !x.IsWithinRange(active)))
-            {
-                return active;
-            }
-
-            for (int i = active + 1; i < groupViewModel.StartFrameBindable + groupViewModel.DurationBindable; i++)
-            {
-                if (groupViewModel.Children.All(x => !x.IsWithinRange(i)))
-                {
-                    return i;
-                }
-            }
-
-            return groupViewModel.StartFrameBindable + groupViewModel.DurationBindable;
-        }
-
-        return active;
     }
 
     [Command.Internal("PixiEditor.Document.StartChangeActiveFrame", CanExecute = "PixiEditor.HasDocument")]

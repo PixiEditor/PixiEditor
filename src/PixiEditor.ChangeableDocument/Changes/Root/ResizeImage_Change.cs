@@ -40,13 +40,12 @@ internal class ResizeImage_Change : Change
         return true;
     }
 
-    private static FilterQuality ToFilterQuality(ResamplingMethod method, bool downscaling) =>
-        (method, downscaling) switch
+    private static SamplingOptions ToSamplingOptions(ResamplingMethod method) =>
+        (method) switch
         {
-            (ResamplingMethod.NearestNeighbor, _) => FilterQuality.None,
-            (ResamplingMethod.Bilinear, true) => FilterQuality.Medium,
-            (ResamplingMethod.Bilinear, false) => FilterQuality.Low,
-            (ResamplingMethod.Bicubic, _) => FilterQuality.High,
+            (ResamplingMethod.NearestNeighbor) => SamplingOptions.Default,
+            (ResamplingMethod.Bilinear) => SamplingOptions.Bilinear,
+            (ResamplingMethod.Bicubic) => SamplingOptions.Bicubic,
             _ => throw new ArgumentOutOfRangeException(),
         };
 
@@ -56,17 +55,18 @@ internal class ResizeImage_Change : Change
         image.DrawMostUpToDateRegionOn(
             new(VecI.Zero, originalSize),
             ChunkResolution.Full,
-            originalSurface.DrawingSurface,
+            originalSurface.DrawingSurface.Canvas,
             VecI.Zero);
 
-        bool downscaling = newSize.LengthSquared < originalSize.LengthSquared;
-        FilterQuality quality = ToFilterQuality(method, downscaling);
-        using Paint paint = new() { FilterQuality = quality, BlendMode = BlendMode.Src, };
+        SamplingOptions quality = ToSamplingOptions(method);
+
+        using Paint paint = new() {BlendMode = BlendMode.Src };
 
         using Surface newSurface = Surface.ForProcessing(newSize, image.ProcessingColorSpace);
         newSurface.DrawingSurface.Canvas.Save();
         newSurface.DrawingSurface.Canvas.Scale(newSize.X / (float)originalSize.X, newSize.Y / (float)originalSize.Y);
-        newSurface.DrawingSurface.Canvas.DrawSurface(originalSurface.DrawingSurface, 0, 0, paint);
+        using var snapshot = originalSurface.DrawingSurface.Snapshot();
+        newSurface.DrawingSurface.Canvas.DrawImage(snapshot, 0, 0, quality, paint);
         newSurface.DrawingSurface.Canvas.Restore();
 
         image.EnqueueResize(newSize);

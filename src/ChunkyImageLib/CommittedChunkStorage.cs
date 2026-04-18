@@ -17,7 +17,7 @@ public class CommittedChunkStorage : IDisposable
         foreach (var chunkPos in committedChunksToSave)
         {
             Chunk copy = Chunk.Create(image.ProcessingColorSpace);
-            if (!image.DrawCommittedChunkOn(chunkPos, ChunkResolution.Full, copy.Surface.DrawingSurface, VecI.Zero, ReplacingPaint))
+            if (!image.DrawCommittedChunkOn(chunkPos, ChunkResolution.Full, copy.Surface.DrawingSurface.Canvas, VecI.Zero, ReplacingPaint))
             {
                 copy.Dispose();
                 savedChunks.Add((chunkPos, null));
@@ -36,7 +36,7 @@ public class CommittedChunkStorage : IDisposable
             if (chunk is null)
                 image.EnqueueClearRegion(new(pos * ChunkPool.FullChunkSize, new(ChunkPool.FullChunkSize, ChunkPool.FullChunkSize)));
             else
-                image.EnqueueDrawImage(pos * ChunkPool.FullChunkSize, chunk.Surface, ReplacingPaint);
+                image.EnqueueDrawTexture(pos * ChunkPool.FullChunkSize, chunk.Surface, ReplacingPaint);
         }
     }
 

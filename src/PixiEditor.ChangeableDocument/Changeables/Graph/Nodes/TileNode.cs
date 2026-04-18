@@ -57,27 +57,19 @@ public class TileNode : RenderNode
         paint.Shader = tileShader;
     }
 
-    protected override void OnPaint(RenderContext context, DrawingSurface surface)
+    protected override void OnPaint(RenderContext context, Canvas surface)
     {
         if (paint == null)
             return;
 
-        surface.Canvas.DrawRect(0, 0, context.RenderOutputSize.X, context.RenderOutputSize.Y, paint);
+        int saved = surface.Save();
+        surface.Scale((float)context.ChunkResolution.InvertedMultiplier());
+        surface.DrawRect(0, 0, context.RenderOutputSize.X, context.RenderOutputSize.Y, paint);
+        surface.RestoreToCount(saved);
     }
 
     public override Node CreateCopy()
     {
         return new TileNode();
     }
-
-    public override RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
-    {
-        return null;
-    }
-
-    public override bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
-    {
-        return false;
-    }
-
 }

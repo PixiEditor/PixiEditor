@@ -3,7 +3,7 @@
                     xmlns:nodes="clr-namespace:PixiEditor.Views.Nodes"
                     xmlns:visuals="clr-namespace:PixiEditor.Views.Visuals"
                     xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
-                    >
+                    xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters">
     <ControlTheme TargetType="nodes:NodeView" x:Key="{x:Type nodes:NodeView}">
         <Setter Property="Background" Value="{DynamicResource ThemeControlMidBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderMidBrush}" />
@@ -18,6 +18,7 @@
                         BorderThickness="{TemplateBinding BorderThickness}"
                         CornerRadius="{TemplateBinding CornerRadius}"
                         MinWidth="200"
+                        Classes.miniView="{TemplateBinding MiniView}"
                         Margin="{TemplateBinding Margin}"
                         Name="RootBorder">
                     <Border.Effect>
@@ -37,7 +38,7 @@
                                 <Run BaselineAlignment="Center" ui:Translator.Key="{TemplateBinding DisplayName}" />
                             </TextBlock>
                         </Border>
-                        <Border Grid.Row="1" Background="{DynamicResource ThemeControlMidBrush}">
+                        <Border Grid.Row="1" Background="{DynamicResource ThemeControlMidBrush}" CornerRadius="4">
                             <StackPanel>
                                 <ItemsControl Name="PART_Outputs" ItemsSource="{TemplateBinding Outputs}"
                                               ClipToBounds="False">
@@ -47,7 +48,8 @@
                                         </ControlTheme>
                                     </ItemsControl.ItemContainerTheme>
                                 </ItemsControl>
-                                <ItemsControl Name="PART_Inputs" ItemsSource="{TemplateBinding Inputs}" ClipToBounds="False">
+                                <ItemsControl Name="PART_Inputs" ItemsSource="{TemplateBinding Inputs}"
+                                              ClipToBounds="False">
                                     <ItemsControl.ItemContainerTheme>
                                         <ControlTheme TargetType="ContentPresenter">
                                             <Setter Property="DataContext" Value="." />
@@ -56,18 +58,27 @@
                                 </ItemsControl>
                             </StackPanel>
                         </Border>
-                        <Border IsVisible="{Binding CanRenderPreview, RelativeSource={RelativeSource TemplatedParent}, FallbackValue=False}"
-                                CornerRadius="0, 0, 4.5, 4.5" Grid.Row="2" ClipToBounds="True">
-                            <Panel RenderOptions.BitmapInterpolationMode="None" Width="200" Height="200">
+                        <Border
+                            CornerRadius="0, 0, 4.5, 4.5" Grid.Row="2" ClipToBounds="True">
+                            <Border.IsVisible>
+                                <MultiBinding Converter="{converters:ResultPreviewIsPresentConverter}">
+                                    <Binding Path="ResultPreview"
+                                             RelativeSource="{RelativeSource TemplatedParent}" />
+                                    <Binding Path="ResultPreview.Preview"
+                                             RelativeSource="{RelativeSource TemplatedParent}" />
+                                </MultiBinding>
+                            </Border.IsVisible>
+                            <Panel RenderOptions.BitmapInterpolationMode="None" Width="200" Height="200" IsVisible="{Binding !MiniView, RelativeSource={RelativeSource TemplatedParent}}">
                                 <Panel.Background>
                                     <ImageBrush Source="/Images/CheckerTile.png"
                                                 TileMode="Tile" DestinationRect="0, 0, 25, 25" />
                                 </Panel.Background>
-                                <visuals:PreviewPainterControl
-                                    PreviewPainter="{TemplateBinding ResultPreview}"
-                                    FrameToRender="{TemplateBinding ActiveFrame}"
+                                <visuals:PreviewTextureControl
+                                    Width="200"
+                                    Height="200"
+                                    TexturePreview="{TemplateBinding ResultPreview}"
                                     RenderOptions.BitmapInterpolationMode="None">
-                                </visuals:PreviewPainterControl>
+                                </visuals:PreviewTextureControl>
                             </Panel>
                         </Border>
                     </Grid>
@@ -77,6 +88,10 @@
 
         <Style Selector="^:selected /template/ Border#RootBorder">
             <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccent2Brush}" />
+        </Style>
+
+        <Style Selector="^ /template/ Border.miniView">
+            <Setter Property="MinWidth" Value="20" />
         </Style>
     </ControlTheme>
 </ResourceDictionary>
