@@ -372,6 +372,16 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         {
             NoticeDialog.Show("OLD_FILE_FORMAT_DESCRIPTION", "OLD_FILE_FORMAT");
         }
+        catch(IOException ex)
+        {
+            NoticeDialog.Show(new LocalizedString("EXCEPTION_ERROR", ex.Message), "IO_ERROR");
+            CrashHelper.SendExceptionInfo(ex);
+        }
+        catch (Exception ex)
+        {
+            NoticeDialog.Show(new LocalizedString("EXCEPTION_ERROR", ex.Message), "ERROR");
+            CrashHelper.SendExceptionInfo(ex);
+        }
 
         return null;
     }

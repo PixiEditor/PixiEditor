@@ -89,7 +89,14 @@ internal partial class BrushItem : UserControl
 
     protected override void OnPointerEntered(PointerEventArgs e)
     {
-        StartStrokePreviewLoop();
+        try
+        {
+            StartStrokePreviewLoop();
+        }
+        catch
+        {
+            StopStrokePreviewLoop();
+        }
     }
 
     public void ToggleFavorite()
@@ -125,7 +132,7 @@ internal partial class BrushItem : UserControl
         var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
         BrushOutputNode? brushNode =
             Brush?.Brush?.Document?.AccessInternalReadOnlyDocument().NodeGraph
-                .LookupNode(Brush?.Brush?.OutputNodeId ?? Guid.Empty) as BrushOutputNode;
+                .TryLookupNode(Brush?.Brush?.OutputNodeId ?? Guid.Empty) as BrushOutputNode;
         if (brushNode == null)
         {
             ctx.Dispose();
