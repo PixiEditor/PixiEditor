@@ -218,6 +218,7 @@ internal class TextOverlay : Overlay
     protected override void OnRenderOverlay(Canvas context, RectD canvasBounds)
     {
         if (!IsEditing) return;
+        if (Font != null && Font.IsDisposed) return;
 
         int saved = context.Save();
 
