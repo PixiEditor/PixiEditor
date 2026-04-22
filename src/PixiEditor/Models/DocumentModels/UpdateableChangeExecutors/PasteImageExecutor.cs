@@ -16,6 +16,7 @@ internal class PasteImageExecutor : UpdateableChangeExecutor, ITransformableExec
     private readonly VecI pos;
     private bool drawOnMask;
     private Guid? memberGuid;
+    private IDisposable? restoreSnapping;
 
     public override bool BlocksOtherActions => false;
 
@@ -60,6 +61,10 @@ internal class PasteImageExecutor : UpdateableChangeExecutor, ITransformableExec
                 document.AnimationHandler.ActiveFrameBindable, default));
         document.TransformHandler.ShowTransform(DocumentTransformMode.Scale_Rotate_Shear_Perspective, true, corners,
             true);
+        document.Operations.InvokeCustomAction(() =>
+        {
+            restoreSnapping = SimpleShapeToolExecutor.DisableSelfSnapping(memberGuid.Value, document);
+        });
 
         return ExecutionState.Success;
     }
@@ -97,12 +102,14 @@ internal class PasteImageExecutor : UpdateableChangeExecutor, ITransformableExec
         internals!.ActionAccumulator.AddFinishedActions(new EndPasteImage_Action());
         document!.TransformHandler.HideTransform();
         onEnded!.Invoke(this);
+        restoreSnapping?.Dispose();
     }
 
     public override void ForceStop()
     {
         document!.TransformHandler.HideTransform();
         internals!.ActionAccumulator.AddFinishedActions(new EndPasteImage_Action());
+        restoreSnapping?.Dispose();
     }
 
     public bool IsFeatureEnabled<T>()
