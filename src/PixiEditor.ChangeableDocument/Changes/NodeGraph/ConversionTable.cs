@@ -190,7 +190,15 @@ public static class ConversionTable
                     return false;
                 }
 
-                targetArray.SetValue(convertedElement, i);
+                try
+                {
+                    targetArray.SetValue(convertedElement, i);
+                }
+                catch
+                {
+                    result = null;
+                    return false;
+                }
             }
 
             result = targetArray;
