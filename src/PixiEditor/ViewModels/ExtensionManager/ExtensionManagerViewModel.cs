@@ -210,7 +210,7 @@ internal class ExtensionManagerViewModel : ViewModelBase
         {
             IsAvailableFetching = true;
             AvailableErrorMessage = "";
-            if (PixiEditorSettings.Extensions.LastFetchedAvailableExtensionsDate.Value.AddHours(24) > DateTime.Now)
+            if (PixiEditorSettings.Extensions.LastFetchedAvailableExtensionsDate.Value.AddHours(24) > DateTime.Now && File.Exists(Path.Combine(Paths.LocalPath, "available_extensions_cache.json")))
             {
                 try
                 {
@@ -708,7 +708,7 @@ internal class ExtensionManagerViewModel : ViewModelBase
 
     private List<AvailableContent> LoadCachedAvailableExtensions()
     {
-        string cachePath = Path.Combine(Paths.TempFilesPath, "available_extensions_cache.json");
+        string cachePath = Path.Combine(Paths.LocalPath, "available_extensions_cache.json");
         if (File.Exists(cachePath))
         {
             string json = File.ReadAllText(cachePath);
@@ -724,7 +724,7 @@ internal class ExtensionManagerViewModel : ViewModelBase
 
     private void SaveAvailableExtensionsToCache(List<AvailableContent> availableExtensions)
     {
-        string cachePath = Path.Combine(Paths.TempFilesPath, "available_extensions_cache.json");
+        string cachePath = Path.Combine(Paths.LocalPath, "available_extensions_cache.json");
         try
         {
             string json = System.Text.Json.JsonSerializer.Serialize(availableExtensions);
