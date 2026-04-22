@@ -253,6 +253,7 @@ public class BrushEngine : IDisposable
             lastPos = point;
             drawnOnce = true;
             target?.SetBlendMode(imageBlendMode);
+            target?.SetOpacity(brushNode.Opacity.Value);
             brushNode.ResetContentTexture();
         }
 
