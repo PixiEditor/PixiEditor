@@ -130,10 +130,15 @@ internal class SupportedFilesHelper
 
     private static IoFileType? GetIoFileType(List<IoFileType> fromTypes, FilePickerFileType fileType)
     {
+        if (fileType?.Patterns == null || fromTypes == null)
+        {
+            return null;
+        }
+
         foreach (var pattern in fileType.Patterns.Select(x => x.TrimStart('*')))
         {
             var foundType =
-                fromTypes.FirstOrDefault(x => x.Extensions.Contains(pattern, StringComparer.OrdinalIgnoreCase));
+                fromTypes.FirstOrDefault(x => x != null && x.Extensions.Contains(pattern, StringComparer.OrdinalIgnoreCase));
             if (foundType != null)
                 return foundType;
         }

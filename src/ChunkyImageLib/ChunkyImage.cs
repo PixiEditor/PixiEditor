@@ -778,6 +778,18 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
         }
     }
 
+    public void SetOpacity(double opacity)
+    {
+        lock (lockObject)
+        {
+            ThrowIfDisposed();
+            if (queuedOperations.Count > 0)
+                throw new InvalidOperationException(
+                    "This function can only be executed when there are no queued operations");
+            blendModePaint.Color = blendModePaint.Color.WithAlpha((byte)(opacity * 255));
+        }
+    }
+
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public void SetHorizontalAxisOfSymmetry(double position)
     {

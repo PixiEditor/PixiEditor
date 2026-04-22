@@ -54,6 +54,7 @@ public class BrushOutputNode : Node
     public RenderInputProperty Content { get; }
     public InputProperty<Drawie.Backend.Core.Surfaces.BlendMode> StampBlendMode { get; }
     public InputProperty<Drawie.Backend.Core.Surfaces.BlendMode> ImageBlendMode { get; }
+    public InputProperty<double> Opacity { get; set; }
     public InputProperty<bool> UseCustomStampBlender { get; }
     public InputProperty<string> CustomStampBlenderCode { get; }
     public InputProperty<Matrix3X3> StrokeTransform { get; }
@@ -112,6 +113,8 @@ public class BrushOutputNode : Node
             Drawie.Backend.Core.Surfaces.BlendMode.SrcOver);
         StampBlendMode = CreateInput<Drawie.Backend.Core.Surfaces.BlendMode>(StampBlendModeProperty, "STAMP_BLEND_MODE",
             Drawie.Backend.Core.Surfaces.BlendMode.SrcOver);
+
+        Opacity = CreateInput<double>("Opacity", "OPACITY", 1);
 
         UseCustomStampBlender = CreateInput<bool>(UseCustomStampBlenderProperty, "USE_CUSTOM_STAMP_BLENDER", false);
 
