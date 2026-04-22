@@ -11,6 +11,7 @@ public interface IReadOnlyNodeGraph : ICacheable, IDisposable
     public IReadOnlyBlackboard Blackboard { get; }
     public IReadOnlyCollection<IReadOnlyNode> AllNodes { get; }
     public IReadOnlyNode LookupNode(Guid guid);
+    public IReadOnlyNode? TryLookupNode(Guid guid);
     public IReadOnlyNode OutputNode { get; }
     public void AddNode(IReadOnlyNode node);
     public void RemoveNode(IReadOnlyNode node);

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright 2025 Krzysztof Krysiński -->
+<!-- Copyright 2026 Krzysztof Krysiński -->
 <component type="desktop-application">
   <id>net.pixieditor.PixiEditor</id>
   
@@ -37,10 +37,16 @@
   <content_rating type="oars-1.1" />
 
   <releases>
+    <release version="2.1.0.21" date="2026-04-19">
+      <url type="details">https://forum.pixieditor.net/t/pixieditor-2-1-0-20/578/1</url>
+      <description>
+        <p>Brush Engine, Smart Layers, Blackboard, reworked animation timeline and much more.</p>
+      </description>
+    </release>
     <release version="2.0.1.16" date="2025-10-06">
       <url type="details">https://forum.pixieditor.net/t/changelog-2-0-1-16/461</url>
       <description>
-        <p>Posterize and Text Nodes, transforming improvements and new languagesW</p>
+        <p>Posterize and Text Nodes, transforming improvements and new languages</p>
       </description>      
     </release>
     <release version="2.0.1.14" date="2025-09-10">

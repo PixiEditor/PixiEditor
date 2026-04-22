@@ -34,6 +34,11 @@ public class NodeGraph : IReadOnlyNodeGraph
         return nodeLookup[guid];
     }
 
+    public IReadOnlyNode? TryLookupNode(Guid guid)
+    {
+        return nodeLookup.GetValueOrDefault(guid);
+    }
+
     public void AddNode(Node node)
     {
         if (Nodes.Contains(node))
