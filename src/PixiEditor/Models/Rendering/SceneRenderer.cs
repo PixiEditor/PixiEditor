@@ -155,6 +155,11 @@ internal class SceneRenderer : IDisposable
 
         VecI renderTargetSize = (VecI)viewport.RealDimensions;
 
+        if (renderTargetSize.ShortestAxis <= 0)
+        {
+            return null;
+        }
+
         Matrix3X3 targetMatrix = viewport.ViewportData.Transform;
         Guid viewportId = viewport.Id;
         ChunkResolution resolution = viewport.Resolution;

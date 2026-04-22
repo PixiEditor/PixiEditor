@@ -101,7 +101,7 @@ public class BrushEngine : IDisposable
             return;
         }
 
-        if (brushData.BrushGraph.LookupNode(brushData.TargetBrushNodeId) is not BrushOutputNode brushNode)
+        if (brushData.BrushGraph.TryLookupNode(brushData.TargetBrushNodeId) is not BrushOutputNode brushNode)
         {
             return;
         }

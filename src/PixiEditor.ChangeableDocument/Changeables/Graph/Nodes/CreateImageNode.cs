@@ -134,7 +134,7 @@ public class CreateImageNode : Node
 
     private void OnPaint(RenderContext context, Canvas surface)
     {
-        if (Output.Value == null || Output.Value.IsDisposed) return;
+        if (Output.Value == null || Output.Value.IsDisposed || surface == null) return;
 
         int saved = surface.Save();
         surface.Scale(1f / renderedOnMultiplier, 1f / renderedOnMultiplier);
