@@ -98,7 +98,6 @@ public partial class BetaExampleButton : UserControl
         CloseCommand.Execute(null);
 
         ViewModelMain.Current.FileSubViewModel.OpenFromPixiBytes(bytes);
-        ViewModelMain.Current.DocumentManagerSubViewModel.Documents[^1].Operations.UseSrgbProcessing();
         ViewModelMain.Current.DocumentManagerSubViewModel.Documents[^1].Operations.ClearUndo();
         Analytics.SendOpenExample(FileName);
     }

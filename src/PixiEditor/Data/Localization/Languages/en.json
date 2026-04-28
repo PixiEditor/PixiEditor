@@ -669,7 +669,7 @@
   "WITHOUT_FILTERS": "Without filters",
   "RAW_LAYER_OUTPUT": "Raw",
   "EXAMPLE_FILES": "Example Files",
-  "PROCEDURAL_GENERATION": "Procedural Animation",
+  "PROCEDURAL_GENERATION": "Procedural Generation",
   "POND_EXAMPLE": "Pond",
   "TREE_EXAMPLE": "Windy Tree",
   "OUTLINE_EXAMPLE": "Automatic Outline",
@@ -1465,5 +1465,14 @@
   "CHANGELOG_TITLE": "Release Notes {0}",
   "OPEN_RELEASE_NOTES": "Open Release Notes",
   "OPEN_RELEASE_NOTES_DESC": "Open last release notes",
-  "ONBOARDING_WINDOW_TITLE": "Onboarding"
+  "ONBOARDING_WINDOW_TITLE": "Onboarding",
+  "TRAIN_EXAMPLE": "Train",
+  "TEXT_ANIM_EXAMPLE": "Text Animation",
+  "SPINNER_EXAMPLE": "Spinner",
+  "PATH_FOLLOWER_EXAMPLE": "Path Follower",
+  "SEAMLESS_NOISE_EXAMPLE": "Seamless Noise",
+  "LIQUID_GLASS_EXAMPLE": "Liquid Glass",
+  "INTRO_EXAMPLE": "Intro",
+  "FIRE_PIXEL_EXAMPLE": "Pixel Fire",
+  "FOAM_BRUSH": "Foam"
 }
