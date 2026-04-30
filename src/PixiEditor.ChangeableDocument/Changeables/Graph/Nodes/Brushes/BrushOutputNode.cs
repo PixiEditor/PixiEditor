@@ -32,11 +32,11 @@ public class BrushOutputNode : Node
     public const int StrokePreviewSizeX = 200;
     public const int StrokePreviewSizeY = 50;
 
-    public const string DefaultBlenderCode = @"
-    vec4 main(vec4 src, vec4 dst) {
-    	return src + (1 - src.a) * dst;
-    }
-";
+    public const string DefaultBlenderCode = """
+                                                 vec4 main(vec4 src, vec4 dst) {
+                                                 	return src + (1 - src.a) * dst;
+                                                 }
+                                             """;
 
     private string? lastStampBlenderCode = "";
     private string? lastImageBlenderCode = "";
@@ -65,6 +65,7 @@ public class BrushOutputNode : Node
     public InputProperty<bool> FitToStrokeSize { get; }
     public InputProperty<bool> AutoPosition { get; }
     public InputProperty<bool> AllowSampleStacking { get; }
+    public InputProperty<double> TargetOversample { get; }
     public InputProperty<bool> AlwaysClear { get; }
     public InputProperty<bool> SnapToPixels { get; }
 
@@ -128,6 +129,7 @@ public class BrushOutputNode : Node
         FitToStrokeSize = CreateInput<bool>(FitToStrokeSizeProperty, "FIT_TO_STROKE_SIZE", true);
         AutoPosition = CreateInput<bool>("AutoPosition", "AUTO_POSITION", true);
         AllowSampleStacking = CreateInput<bool>("AllowSampleStacking", "ALLOW_SAMPLE_STACKING", false);
+        TargetOversample = CreateInput<double>("TargetOversample", "TARGET_OVERSAMPLE", 0).WithRules(x => x.Min(0d));
         AlwaysClear = CreateInput<bool>("AlwaysClear", "ALWAYS_CLEAR", false);
         SnapToPixels = CreateInput<bool>("SnapToPixels", "SNAP_TO_PIXELS", false);
         Tags = CreateInput<string>("Tags", "TAGS", "");

@@ -31,6 +31,30 @@
           "ActionDisplay": "GRADIENT_TOOL_ACTION_DISPLAY_DEFAULT"
         }
       ]
+    },
+    {
+      "ToolName": "Blur",
+      "DisplayName": "BLUR_TOOL",
+      "Brush": "/BrushTools/Blur.pixi",
+      "Icon": "icon-blur",
+      "ToolTip": "BLUR_TOOL_TOOLTIP",
+      "ActionDisplays": [
+        {
+          "ActionDisplay": "BLUR_TOOL_ACTION_DISPLAY_DEFAULT"
+        }
+      ]
+    },
+    {
+      "ToolName": "Sharpen",
+      "DisplayName": "SHARPEN_TOOL",
+      "Brush": "/BrushTools/Sharpen.pixi",
+      "Icon": "icon-sharpen",
+      "ToolTip": "SHARPEN_TOOL_TOOLTIP",
+      "ActionDisplays": [
+        {
+          "ActionDisplay": "SHARPEN_TOOL_ACTION_DISPLAY_DEFAULT"
+        }
+      ]
     }
   ],
   "ToolSets": [
@@ -206,6 +230,27 @@
         },
         "ColorPicker",
         "Zoom"
+      ]
+    },
+    {
+      "Name": "ADJUSTMENTS_TOOLSET",
+      "Icon": "",
+      "Tools": [
+        "MoveViewport",
+        "RotateViewport",
+        {
+          "ToolName": "Blur",
+          "Settings": {
+            "DefaultToolSize": 20
+          }
+        },
+        {
+          "ToolName": "Sharpen",
+          "Settings": {
+            "DefaultToolSize": 20
+          }
+        },
+        "Brightness"
       ]
     }
   ]

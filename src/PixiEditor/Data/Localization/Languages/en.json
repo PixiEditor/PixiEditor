@@ -1476,5 +1476,12 @@
   "FIRE_PIXEL_EXAMPLE": "Pixel Fire",
   "FOAM_BRUSH": "Foam",
   "EXPORT_CATEGORY": "Export",
-  "FOLLOW_SYSTEM_LANG": "Follow system"
+  "FOLLOW_SYSTEM_LANG": "Follow system",
+  "TARGET_OVERSAMPLE": "Target Oversample",
+  "BLUR_TOOL": "Blur",
+  "BLUR_TOOL_TOOLTIP": "Blur parts of your image ({0}).",
+  "BLUR_TOOL_ACTION_DISPLAY": "Click and drag on the canvas to blur.",
+  "SHARPEN_TOOL": "Sharpen",
+  "SHARPEN_TOOL_TOOLTIP": "Sharpen parts of your image ({0}).",
+  "SHARPEN_TOOL_ACTION_DISPLAY": "Click and drag on the canvas to sharpen."
 }
