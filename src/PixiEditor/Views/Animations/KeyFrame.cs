@@ -270,7 +270,7 @@ internal class KeyFrame : TemplatedControl
     {
         base.OnPointerCaptureLost(e);
         IsDragging = false;
-        EndDragCommand.Execute(Item);
+        EndDragCommand?.Execute(Item);
     }
 
     private void ResizePanelRightOnPointerMoved(object? sender, PointerEventArgs e)

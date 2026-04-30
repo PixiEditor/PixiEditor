@@ -112,6 +112,11 @@ public class MockDocument : IReadOnlyDocument
         return Size;
     }
 
+    public bool TryFindNode(Guid nodeId, out IReadOnlyNode? node)
+    {
+        throw new NotImplementedException();
+    }
+
     public object Clone()
     {
         throw new NotImplementedException();

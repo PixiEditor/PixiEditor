@@ -65,7 +65,7 @@ internal class PasteImage_UpdateableChange : InterruptableUpdateableChange
         }
         else
         {
-            targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame.Value);
+            targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame ?? 0);
         }
         
         var chunks = DrawImage(target, targetImage);
@@ -86,7 +86,7 @@ internal class PasteImage_UpdateableChange : InterruptableUpdateableChange
         }
         else
         {
-            targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame.Value);
+            targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame ?? 0);
         }
         return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, DrawImage(target, targetImage), drawOnMask);
     }
@@ -100,7 +100,7 @@ internal class PasteImage_UpdateableChange : InterruptableUpdateableChange
         }
         else
         {
-            chunks = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, memberGuid, drawOnMask, frame.Value, ref savedChunks);
+            chunks = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, memberGuid, drawOnMask, frame ?? 0, ref savedChunks);
         }
         
         return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, chunks, drawOnMask);

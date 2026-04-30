@@ -50,13 +50,12 @@ public class RotateNode : Matrix3X3BaseNode
 
         Matrix3X3 rotationContextlessMatrix = RotationType.Value switch
         {
-            Nodes.Matrix.RotationType.Degrees => Matrix3X3.CreateRotationDegrees(
-                (float)(angle.GetConstant() as double? ?? 0.0), (float)(center.X.GetConstant() as double? ?? 0),
-                (float)(center.Y.GetConstant() as double? ?? 0)),
             Nodes.Matrix.RotationType.Radians => Matrix3X3.CreateRotation(
                 (float)(angle.GetConstant() as double? ?? 0.0), (float)(center.X.GetConstant() as double? ?? 0),
                 (float)(center.Y.GetConstant() as double? ?? 0)),
-            _ => throw new ArgumentOutOfRangeException()
+            _ => Matrix3X3.CreateRotationDegrees(
+                (float)(angle.GetConstant() as double? ?? 0.0), (float)(center.X.GetConstant() as double? ?? 0),
+                (float)(center.Y.GetConstant() as double? ?? 0)),
         };
 
         return new Float3x3("") { ConstantValue = input.ConstantValue.PostConcat(rotationContextlessMatrix) };

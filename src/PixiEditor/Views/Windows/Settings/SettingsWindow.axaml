@@ -82,7 +82,7 @@
                                                 Margin="3, 0"
                                                 VerticalAlignment="Center"
                                                 Source="{Binding IconFullPath, Converter={converters:ImagePathToBitmapConverter}}" />
-                                            <TextBlock VerticalAlignment="Center" Text="{Binding Name}" />
+                                            <TextBlock VerticalAlignment="Center" ui:Translator.Key="{Binding Name}" />
                                         </StackPanel>
                                     </DataTemplate>
                                 </ComboBox.ItemTemplate>
@@ -373,7 +373,7 @@
                         <!--Background="{StaticResource AccentColor}"-->
                         <controls:FixedSizeStackPanel Orientation="Vertical" ChildSize="32"
                                                       VerticalChildrenAlignment="Center" Margin="12">
-                            <TextBlock ui:Translator.Key="EXPORT" Classes="h5" />
+                            <TextBlock ui:Translator.Key="EXPORT_CATEGORY" Classes="h5" />
                             <CheckBox Classes="leftOffset" HorizontalAlignment="Left"
                                       ui:Translator.Key="OPEN_DIRECTORY_ON_EXPORT"
                                       IsChecked="{Binding SettingsSubViewModel.File.OpenDirectoryOnExport}" />

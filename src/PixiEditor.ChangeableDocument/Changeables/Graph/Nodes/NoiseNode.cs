@@ -21,7 +21,7 @@ public class NoiseNode : RenderNode
     private VoronoiFeature previousVoronoiFeature = Nodes.VoronoiFeature.F1;
     private double previousRandomness = double.NaN;
     private double previousAngleOffset = double.NaN;
-    
+
     private Shader voronoiShader;
 
     private Paint paint = new();
@@ -30,19 +30,19 @@ public class NoiseNode : RenderNode
         ColorMatrix.MapAlphaToRedGreenBlue + ColorMatrix.OpaqueAlphaOffset);
 
     public InputProperty<NoiseType> NoiseType { get; }
-    
+
     public InputProperty<VecD> Offset { get; }
-    
+
     public InputProperty<double> Scale { get; }
 
     public InputProperty<int> Octaves { get; }
 
     public InputProperty<double> Seed { get; }
-    
+
     public InputProperty<VoronoiFeature> VoronoiFeature { get; }
-    
+
     public InputProperty<double> Randomness { get; }
-    
+
     public InputProperty<double> AngleOffset { get; }
 
     public NoiseNode()
@@ -50,18 +50,18 @@ public class NoiseNode : RenderNode
         NoiseType = CreateInput(nameof(NoiseType), "NOISE_TYPE", Nodes.NoiseType.FractalPerlin);
 
         Offset = CreateInput(nameof(Offset), "OFFSET", new VecD(0d, 0d));
-        
+
         Scale = CreateInput(nameof(Scale), "SCALE", 10d).WithRules(v => v.Min(0.1));
         Octaves = CreateInput(nameof(Octaves), "OCTAVES", 1)
             .WithRules(validator => validator.Min(1));
 
         Seed = CreateInput(nameof(Seed), "SEED", 0d);
-        
+
         VoronoiFeature = CreateInput(nameof(VoronoiFeature), "VORONOI_FEATURE", Nodes.VoronoiFeature.F1);
-        
+
         Randomness = CreateInput(nameof(Randomness), "RANDOMNESS", 1d)
             .WithRules(v => v.Min(0d).Max(1d));
-        
+
         AngleOffset = CreateInput(nameof(AngleOffset), "ANGLE_OFFSET", 0d);
     }
 
@@ -92,11 +92,12 @@ public class NoiseNode : RenderNode
             {
                 paint?.Shader?.Dispose();
             }
+
             paint.Shader = shader;
 
             // Define a grayscale color filter to apply to the image
             paint.ColorFilter = grayscaleFilter;
-            
+
             previousScale = Scale.Value;
             previousSeed = Seed.Value;
             previousOctaves = Octaves.Value;
@@ -132,30 +133,33 @@ public class NoiseNode : RenderNode
 
         paint.Shader = shader;
         paint.ColorFilter = grayscaleFilter;
-        
+
         RenderNoise(renderOn.Canvas);
     }
 
     private Shader SelectShader()
     {
+        var freq = (float)(1d / Scale.Value);
+        freq = Math.Max(freq, 0.000001f);
+
         int octaves = Math.Max(1, Octaves.Value);
         Shader shader = NoiseType.Value switch
         {
             Nodes.NoiseType.TurbulencePerlin => Shader.CreatePerlinNoiseTurbulence(
-                (float)(1d / Scale.Value),
-                (float)(1d / Scale.Value), octaves, (float)Seed.Value),
+                freq, freq, octaves, (float)Seed.Value),
             Nodes.NoiseType.FractalPerlin => Shader.CreatePerlinFractalNoise(
-                (float)(1d / Scale.Value),
-                (float)(1d / Scale.Value),
+                freq, freq,
                 octaves, (float)Seed.Value),
-            Nodes.NoiseType.Voronoi => GetVoronoiShader((float)(1d / (Scale.Value)), octaves, (float)Seed.Value, (int)VoronoiFeature.Value, (float)Randomness.Value, (float)AngleOffset.Value),
+            Nodes.NoiseType.Voronoi => GetVoronoiShader(freq, octaves, (float)Seed.Value,
+                (int)VoronoiFeature.Value, (float)Randomness.Value, (float)AngleOffset.Value),
             _ => null
         };
 
         return shader;
     }
 
-    private Shader GetVoronoiShader(float frequency, int octaves, float seed, int feature, float randomness, float angleOffset)
+    private Shader GetVoronoiShader(float frequency, int octaves, float seed, int feature, float randomness,
+        float angleOffset)
     {
         string voronoiShaderCode = """
                                    uniform float iSeed;
@@ -164,18 +168,18 @@ public class NoiseNode : RenderNode
                                    uniform float iRandomness;
                                    uniform int iFeature;
                                    uniform float iAngleOffset;
-                                   
+
                                    const int MAX_OCTAVES = 8;
                                    const float LARGE_NUMBER = 1e9;
                                    const float FEATURE_SEED_SCALE = 10.0;
                                    const float PI = 3.14159265;
-                                   
+
                                    float hashPoint(float2 p, float seed) {
                                        p = fract(p * float2(0.3183099, 0.3678794) + seed);
                                        p += dot(p, p.yx + 19.19);
                                        return fract(p.x * p.y);
                                    }
-                                   
+
                                    float2 getFeaturePoint(float2 cell, float seed, float randomness, float angleOffset) {
                                        float2 randomCellOffset = float2(
                                            hashPoint(cell, seed),
@@ -195,12 +199,12 @@ public class NoiseNode : RenderNode
                                        
                                        return featurePoint;
                                    }
-                                   
+
                                    float2 getVoronoiDistances(float2 pos, float seed) {
                                        float2 cell = floor(pos);
                                        float minDist = LARGE_NUMBER;
                                        float secondMinDist = LARGE_NUMBER;
-                                   
+
                                        for (int y = -1; y <= 1; y++) {
                                            for (int x = -1; x <= 1; x++) {
                                                float2 neighborCell = cell + float2(float(x), float(y));
@@ -218,15 +222,15 @@ public class NoiseNode : RenderNode
                                        }
                                        return float2(minDist, secondMinDist);
                                    }
-                                   
+
                                    half4 main(float2 uv) {
                                        float noiseSum = 0.0;
                                        float amplitude = 1.0;
                                        float amplitudeSum = 0.0;
-                                   
+
                                        for (int octave = 0; octave < MAX_OCTAVES; octave++) {
                                            if (octave >= iOctaves) break;
-                                   
+
                                            float freq = iFrequency * exp2(float(octave));
                                            float2 samplePos = uv * freq;
                                            
@@ -244,16 +248,16 @@ public class NoiseNode : RenderNode
                                            else if (iFeature == 2) {
                                                dist = f2 - f1;
                                            }
-                                   
+
                                            noiseSum += dist * amplitude;
                                            amplitudeSum += amplitude;
                                            amplitude *= 0.5;
                                        }
-                                   
+
                                        return half4(noiseSum / amplitudeSum);
                                    }
                                    """;
-        
+
         Uniforms uniforms = new Uniforms();
         uniforms.Add("iSeed", new Uniform("iSeed", seed));
         uniforms.Add("iFrequency", new Uniform("iFrequency", frequency));
@@ -270,7 +274,7 @@ public class NoiseNode : RenderNode
         {
             voronoiShader = voronoiShader.WithUpdatedUniforms(uniforms);
         }
-        
+
         return voronoiShader;
     }
 

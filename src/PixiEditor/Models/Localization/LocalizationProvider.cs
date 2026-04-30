@@ -26,7 +26,7 @@ internal class LocalizationProvider : ILocalizationProvider
 
     public LanguageData SelectedLanguage { get; private set; }
 
-    public LanguageData FollowSystem { get; } = new() { Name = "Follow system", Code = "system" };
+    public LanguageData FollowSystem { get; } = new() { Name = "FOLLOW_SYSTEM_LANG", Code = "system" };
 
     public event Action<Language> OnLanguageChanged;
 

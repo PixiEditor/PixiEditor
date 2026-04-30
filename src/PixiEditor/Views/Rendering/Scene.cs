@@ -445,7 +445,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             texture.Canvas.Save();
             var sampling = CalculateSampling();
 
-            if (matrixDiff.ScaleX < 1)
+            if (Math.Abs(matrixDiff.ScaleX) < 1)
             {
                 sampling = SamplingOptions.Bilinear;
             }

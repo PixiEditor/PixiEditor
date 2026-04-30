@@ -11,6 +11,14 @@ internal class ToolVM : MarkupExtension
 
     public override object ProvideValue(IServiceProvider serviceProvider)
     {
-        return (ViewModelMain.Current?.ToolsSubViewModel.ActiveToolSet?.Tools).FirstOrDefault(tool => tool.GetType().Name == TypeName);
+        if (ViewModelMain.Current?.ToolsSubViewModel?.ActiveToolSet?.Tools == null)
+            return null;
+
+        if (string.IsNullOrEmpty(TypeName))
+        {
+            return null;
+        }
+
+        return (ViewModelMain.Current?.ToolsSubViewModel.ActiveToolSet?.Tools).Where(x => x != null).FirstOrDefault(tool => tool?.GetType()?.Name == TypeName);
     }
 }

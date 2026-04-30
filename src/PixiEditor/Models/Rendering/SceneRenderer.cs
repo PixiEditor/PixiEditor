@@ -83,6 +83,11 @@ internal class SceneRenderer : IDisposable
     {
         using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
         int renderedCount = 0;
+        if (Document?.NodeGraph == null)
+        {
+            return;
+        }
+
         int graphHash = Document.NodeGraph.GetCacheHash();
         foreach (var viewport in stateViewports)
         {

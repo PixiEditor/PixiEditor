@@ -226,7 +226,7 @@ public class BrushEngine : IDisposable
         ColorSpace cs,
         SamplingOptions samplingOptions, PointerInfo pointerInfo, KeyboardInfo keyboardInfo, EditorData editorData)
     {
-        var brushNode = brushData.BrushGraph?.LookupNode(brushData.TargetBrushNodeId) as BrushOutputNode;
+        var brushNode = brushData.BrushGraph?.TryLookupNode(brushData.TargetBrushNodeId) as BrushOutputNode;
         if (brushNode == null)
         {
             return;

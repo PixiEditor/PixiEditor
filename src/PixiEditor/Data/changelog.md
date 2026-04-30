@@ -1,3 +1,12 @@
+# 2.1.0.23
+
+Date: `29.04.2026`
+
+- Added new "Foam" brush,
+- Added a lot of new sample files
+- Improved Basic and Claws brushes opacity handling
+- Bunch of crash fixes
+
 # 2.1.0.20
 
 Date: `18.04.2026`

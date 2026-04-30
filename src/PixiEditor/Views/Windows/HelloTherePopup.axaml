@@ -354,6 +354,22 @@
                                                        CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
                             <windows:BetaExampleButton FileName="Outline.pixi" DisplayName="OUTLINE_EXAMPLE"
                                                        CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
+                            <windows:BetaExampleButton FileName="Train.pixi" DisplayName="TRAIN_EXAMPLE"
+                                                       CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
+                            <windows:BetaExampleButton FileName="TextAnimation.pixi" DisplayName="TEXT_ANIM_EXAMPLE"
+                                                       CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
+                            <windows:BetaExampleButton FileName="Spinner.pixi" DisplayName="SPINNER_EXAMPLE"
+                                                       CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
+                            <windows:BetaExampleButton FileName="PathFollower.pixi" DisplayName="PATH_FOLLOWER_EXAMPLE"
+                                                       CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
+                            <windows:BetaExampleButton FileName="SeamlessNoise.pixi" DisplayName="SEAMLESS_NOISE_EXAMPLE"
+                                                       CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
+                            <windows:BetaExampleButton FileName="LiquidGlass.pixi" DisplayName="LIQUID_GLASS_EXAMPLE"
+                                                       CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
+                            <windows:BetaExampleButton FileName="Intro.pixi" DisplayName="INTRO_EXAMPLE"
+                                                       CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
+                            <windows:BetaExampleButton FileName="FirePixel.pixi" DisplayName="FIRE_PIXEL_EXAMPLE"
+                                                       CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
                         </panels:AlignableWrapPanel>
                     </ScrollViewer>
 

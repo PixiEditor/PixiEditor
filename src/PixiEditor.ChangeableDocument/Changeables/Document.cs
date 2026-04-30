@@ -323,6 +323,13 @@ internal class Document : IChangeable, IReadOnlyDocument
     }
 
     IReadOnlyNode IReadOnlyDocument.FindNode(Guid guid) => FindNodeOrThrow<Node>(guid);
+    bool IReadOnlyDocument.TryFindNode(Guid guid, out IReadOnlyNode? node)
+    {
+         bool found = TryFindNode<Node>(guid, out var foundNode);
+         node = foundNode;
+         return found;
+    }
+
 
     public T? FindNode<T>(Guid guid) where T : Node
     {

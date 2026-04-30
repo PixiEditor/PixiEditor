@@ -326,11 +326,13 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             {
                 foreach (var nodeId in nodeIds)
                 {
-                    var node = document.AccessInternalReadOnlyDocument().FindNode(nodeId) as NestedDocumentNode;
-                    var nestedDoc = node?.NestedDocument.Value?.DocumentInstance;
-                    if (nestedDoc != null)
+                    if (document.AccessInternalReadOnlyDocument().TryFindNode(nodeId, out var foundNode) && foundNode is NestedDocumentNode node)
                     {
-                        return nestedDoc;
+                        var nestedDoc = node?.NestedDocument.Value?.DocumentInstance;
+                        if (nestedDoc != null)
+                        {
+                            return nestedDoc;
+                        }
                     }
                 }
             }

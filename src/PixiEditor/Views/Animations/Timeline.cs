@@ -239,7 +239,7 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
 
         StepStartCommand = new RelayCommand(() =>
         {
-            var keyFramesWithinActiveFrame = KeyFrames.Where(x => x.IsVisible
+            var keyFramesWithinActiveFrame = KeyFrames.Where(x => x is { IsVisible: true }
                                                                   && x.StartFrameBindable < ActiveFrame)
                 .SelectMany(x => x.Children).ToList();
             if (keyFramesWithinActiveFrame.Count > 0)
@@ -259,7 +259,7 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
 
         StepEndCommand = new RelayCommand(() =>
         {
-            var keyFramesWithinActiveFrame = KeyFrames.Where(x => x.IsVisible
+            var keyFramesWithinActiveFrame = KeyFrames.Where(x => x is { IsVisible: true }
                                                                   && x.StartFrameBindable + x.DurationBindable - 1 >
                                                                   ActiveFrame).SelectMany(x => x.Children).ToList();
             if (keyFramesWithinActiveFrame.Count > 0)
