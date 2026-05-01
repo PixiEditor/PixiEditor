@@ -55,6 +55,18 @@
           "ActionDisplay": "SHARPEN_TOOL_ACTION_DISPLAY_DEFAULT"
         }
       ]
+    },
+    {
+      "ToolName": "Smudge",
+      "DisplayName": "SMUDGE_TOOL",
+      "Brush": "/BrushTools/Smudge.pixi",
+      "Icon": "icon-smudge",
+      "ToolTip": "SMUDGE_TOOL_TOOLTIP",
+      "ActionDisplays": [
+        {
+          "ActionDisplay": "SMUDGE_TOOL_ACTION_DISPLAY_DEFAULT"
+        }
+        ]
     }
   ],
   "ToolSets": [
@@ -246,6 +258,12 @@
         },
         {
           "ToolName": "Sharpen",
+          "Settings": {
+            "DefaultToolSize": 20
+          }
+        },
+        {
+          "ToolName": "Smudge",
           "Settings": {
             "DefaultToolSize": 20
           }

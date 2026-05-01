@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Avalonia.Input;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Rendering.ContextData;
 using Point = Avalonia.Point;
 
 namespace PixiEditor.Models.Controllers.InputDevice;
@@ -59,15 +60,15 @@ internal class MouseInputFilter
 
     public void DeactivatedInlet(object? sender, EventArgs e)
     {
-        MouseOnCanvasEventArgs argsLeft = new(MouseButton.Left, PointerType.Mouse, VecD.Zero, KeyModifiers.None, 0,
+        MouseOnCanvasEventArgs argsLeft = new(MouseButton.Left, PointerType.Mouse, new PointerInfo(), KeyModifiers.None, 0,
             PointerPointProperties.None, 1, null);
         MouseUpInlet(argsLeft);
 
-        MouseOnCanvasEventArgs argsMiddle = new(MouseButton.Middle, PointerType.Mouse, VecD.Zero, KeyModifiers.None, 0,
+        MouseOnCanvasEventArgs argsMiddle = new(MouseButton.Middle, PointerType.Mouse, new PointerInfo(), KeyModifiers.None, 0,
             PointerPointProperties.None, 1, null);
         MouseUpInlet(argsMiddle);
 
-        MouseOnCanvasEventArgs argsRight = new(MouseButton.Right, PointerType.Mouse, VecD.Zero, KeyModifiers.None, 0,
+        MouseOnCanvasEventArgs argsRight = new(MouseButton.Right, PointerType.Mouse, new PointerInfo(), KeyModifiers.None, 0,
             PointerPointProperties.None, 1, null);
         MouseUpInlet(argsRight);
     }

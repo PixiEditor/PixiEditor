@@ -276,7 +276,7 @@ public class BrushOutputNode : Node
             previewEngine.ExecuteBrush(previewChunkyImage,
                 new BrushData(context.Graph, Id) { StrokeWidth = size, AntiAliasing = true },
                 (VecI)pos, context.FrameTime, context.ProcessingColorSpace, context.DesiredSamplingOptions,
-                new PointerInfo(pos, 1, 0, VecD.Zero, new VecD(0, 1), true, false),
+                new PointerInfo(pos, 1, 0, VecD.Zero, new VecD(0, 1), 1, true, false),
                 new KeyboardInfo(),
                 new EditorData(Colors.White, Colors.Black));
         }
@@ -309,7 +309,7 @@ public class BrushOutputNode : Node
             pos = vec4D.XY;
             pos = new VecD(pos.X, pos.Y + maxSize / 2f) + shift;
 
-            points.Add(new RecordedPoint((VecI)pos, new PointerInfo(pos, pressure, 0, VecD.Zero, vec4D.ZW, true, false),
+            points.Add(new RecordedPoint((VecI)pos, new PointerInfo(pos, pressure, 0, VecD.Zero, vec4D.ZW, 1, true, false),
                 new KeyboardInfo(), new EditorData(Colors.White, Colors.Black)));
 
             previewEngine.ExecuteBrush(target,
@@ -341,7 +341,7 @@ public class BrushOutputNode : Node
             var vec4D = previewVectorPath.GetPositionAndTangentAtDistance(offset, false);
             pos = vec4D.XY;
             pos = new VecD(pos.X, pos.Y + maxSize / 2f) + shift;
-            points.Add(new RecordedPoint((VecI)pos, new PointerInfo(pos, pressure, 0, VecD.Zero, vec4D.ZW, true, false),
+            points.Add(new RecordedPoint((VecI)pos, new PointerInfo(pos, pressure, 0, VecD.Zero, vec4D.ZW, 1, true, false),
                 new KeyboardInfo(), new EditorData(Colors.White, Colors.Black)));
 
             previewEngine.ExecuteBrush(target,
@@ -358,7 +358,7 @@ public class BrushOutputNode : Node
         previewEngine.ExecuteBrush(img,
             new BrushData(context.Graph, Id) { StrokeWidth = size, AntiAliasing = true },
             pos, context.FrameTime, context.ProcessingColorSpace, context.DesiredSamplingOptions,
-            new PointerInfo(pos, 1, 0, VecD.Zero, new VecD(0, 1), true, false),
+            new PointerInfo(pos, 1, 0, VecD.Zero, new VecD(0, 1), 1, true, false),
             new KeyboardInfo(),
             new EditorData(Colors.White, Colors.Black));
     }

@@ -203,6 +203,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     private Point lastDirCalculationPoint;
 
     private PointerInfo lastPointerInfo;
+    private DateTime lastPointerInfoTime;
     private KeyboardInfo lastKeyboardInfo;
 
     private bool isCtrlPressed;
@@ -542,6 +543,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     {
         base.OnPointerEntered(e);
         lastPointerInfo = ConstructPointerInfo(e);
+        lastPointerInfoTime = DateTime.Now;
         if (AllOverlays != null)
         {
             OverlayPointerArgs args = ConstructPointerArgs(e);
@@ -599,6 +601,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     protected override void OnPointerMoved(PointerEventArgs e)
     {
         lastPointerInfo = ConstructPointerInfo(e);
+        lastPointerInfoTime = DateTime.Now;
         base.OnPointerMoved(e);
         try
         {
@@ -668,6 +671,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         try
         {
             lastPointerInfo = ConstructPointerInfo(e);
+            lastPointerInfoTime = DateTime.Now;
             if (AllOverlays != null)
             {
                 OverlayPointerArgs args = ConstructPointerArgs(e);
@@ -704,6 +708,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         try
         {
             lastPointerInfo = ConstructPointerInfo(e);
+            lastPointerInfoTime = DateTime.Now;
             if (AllOverlays != null)
             {
                 OverlayPointerArgs args = ConstructPointerArgs(e);
@@ -733,6 +738,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         try
         {
             lastPointerInfo = ConstructPointerInfo(e);
+            lastPointerInfoTime = DateTime.Now;
             if (AllOverlays != null)
             {
                 OverlayPointerArgs args = ConstructPointerArgs(e);
@@ -889,8 +895,14 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         Point dir = lastDirCalculationPoint - data.Position;
         VecD vecDir = new VecD(dir.X, dir.Y);
         VecD dirNormalized = vecDir.Length > 0 ? vecDir.Normalize() : lastPointerInfo.MovementDirection;
+        VecD delta = position - lastPointerInfo.PositionOnCanvas;
+        double dt = (DateTime.Now - lastPointerInfoTime).TotalSeconds;
+
+        float rawVelocity = dt > 0.0001 ? (float)(delta.Length / dt) : 0f;
+        float velocity = lastPointerInfo.Velocity * 0.8f + rawVelocity * 0.2f;
+        velocity = Math.Min(velocity, 5000);
         return new PointerInfo(position, pressure, properties.Twist, new VecD(properties.XTilt, properties.YTilt),
-            dirNormalized, e.Properties.IsLeftButtonPressed, e.Properties.IsRightButtonPressed);
+            dirNormalized, velocity, e.Properties.IsLeftButtonPressed, e.Properties.IsRightButtonPressed);
     }
 
     private static Point Lerp(VecD a, VecD b, float t)
