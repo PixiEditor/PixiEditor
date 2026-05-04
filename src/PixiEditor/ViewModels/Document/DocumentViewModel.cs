@@ -1061,6 +1061,15 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         return Colors.Transparent;
     }
 
+    public Surface? TakeFullCanvasSnapshot(int frame)
+    {
+        if (SizeBindable.X <= 0 || SizeBindable.Y <= 0)
+            return null;
+        var surface = new Surface(SizeBindable);
+        Renderer.RenderDocument(surface.DrawingSurface, frame, SizeBindable, null);
+        return surface;
+    }
+
     public Color? PickColorFromReferenceLayer(VecD pos)
     {
         Texture? bitmap = ReferenceLayerViewModel.ReferenceTexture;
