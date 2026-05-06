@@ -3,15 +3,12 @@ using System.Windows.Input;
 using Avalonia;
 using Avalonia.Data;
 using Avalonia.Input;
-using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Numerics;
 using PixiEditor.Views.Visuals;
 using PixiEditor.Helpers.Converters;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Commands.XAML;
-using PixiEditor.Models.Controllers;
-using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using PixiEditor.ViewModels;
@@ -45,11 +42,6 @@ internal class ViewportOverlays
     private VectorPathOverlay vectorPathOverlay;
     private TextOverlay textOverlay;
     private ColorPickerPreviewOverlay colorPickerPreviewOverlay;
-
-    private Surface? _canvasSnapshot;
-    private bool _snapshotInvalid = true;
-    private DocumentViewModel? _snapshotSubscribedDocument;
-    private int _snapshotFrame = -1;
 
     public void Init(Viewport viewport)
     {
@@ -113,50 +105,6 @@ internal class ViewportOverlays
         colorPickerPreviewOverlay = new ColorPickerPreviewOverlay();
         BindColorPickerPreviewOverlay();
         Viewport.ActiveOverlays.Add(colorPickerPreviewOverlay);
-
-        ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocumentChanged += (_, e) =>
-            SubscribeToSnapshotDocument(e.NewDocument);
-
-        ViewModelMain.Current.ToolsSubViewModel.SelectedToolChanged += (_, _) =>
-            InvalidateCanvasSnapshot();
-    }
-
-    private void InvalidateCanvasSnapshot() => _snapshotInvalid = true;
-
-    private void SubscribeToSnapshotDocument(DocumentViewModel? doc)
-    {
-        if (_snapshotSubscribedDocument != null)
-        {
-            _snapshotSubscribedDocument.LayersChanged -= OnSnapshotDocumentLayersChanged;
-            _snapshotSubscribedDocument.SizeChanged -= OnSnapshotDocumentSizeChanged;
-        }
-        _snapshotSubscribedDocument = doc;
-        if (doc != null)
-        {
-            doc.LayersChanged += OnSnapshotDocumentLayersChanged;
-            doc.SizeChanged += OnSnapshotDocumentSizeChanged;
-        }
-        InvalidateCanvasSnapshot();
-    }
-
-    private void OnSnapshotDocumentLayersChanged(object? sender, LayersChangedEventArgs e) =>
-        InvalidateCanvasSnapshot();
-
-    private void OnSnapshotDocumentSizeChanged(object? sender, DocumentSizeChangedEventArgs e) =>
-        InvalidateCanvasSnapshot();
-
-    private void RefreshSnapshotIfStale(DocumentViewModel doc, int frame)
-    {
-        if (!_snapshotInvalid && _canvasSnapshot != null && _snapshotFrame == frame && _snapshotSubscribedDocument == doc)
-            return;
-
-        _canvasSnapshot?.Dispose();
-        _canvasSnapshot = doc.TakeFullCanvasSnapshot(frame);
-        _snapshotInvalid = false;
-        _snapshotFrame = frame;
-
-        if (_snapshotSubscribedDocument != doc)
-            SubscribeToSnapshotDocument(doc);
     }
 
     private void BindReferenceLayerOverlay()
@@ -798,31 +746,35 @@ internal class ViewportOverlays
 
             bool includeRef = tool.PickFromReferenceLayer && doc.ReferenceLayerViewModel.ReferenceTexture is not null;
             bool referenceTopmost = doc.ReferenceLayerViewModel.IsTopMost;
-            int frame = doc.AnimationDataViewModel.ActiveFrameBindable;
 
-            if (tool.PickFromCanvas && tool.Mode == DocumentScope.Canvas)
+            if (tool.PickFromCanvas && tool.Mode == DocumentScope.Canvas
+                && doc.SceneTextures.TryGetValue(Viewport.GuidValue, out var sceneTexture)
+                && sceneTexture is { IsDisposed: false })
             {
-                RefreshSnapshotIfStale(doc, frame);
-                if (_canvasSnapshot != null)
-                {
-                    Color canvasColor = _canvasSnapshot.GetSrgbPixel((VecI)pos);
-                    if (!includeRef) return canvasColor;
+                var textureMatrix = sceneTexture.DrawingSurface.Canvas.TotalMatrix;
+                VecD texturePixel = textureMatrix.MapPoint(pos);
+                VecI pixelPos = new VecI(
+                    Math.Clamp((int)texturePixel.X, 0, sceneTexture.Size.X - 1),
+                    Math.Clamp((int)texturePixel.Y, 0, sceneTexture.Size.Y - 1));
+                Color canvasColor = sceneTexture.GetSrgbPixel(pixelPos);
 
-                    Color? refColor = doc.PickColorFromReferenceLayer(pos);
-                    if (refColor is not { } referenceColor) return canvasColor;
+                if (!includeRef) return canvasColor;
 
-                    if (!referenceTopmost)
-                        return ColorHelpers.BlendColors(referenceColor, canvasColor);
+                Color? refColor = doc.PickColorFromReferenceLayer(pos);
+                if (refColor is not { } referenceColor) return canvasColor;
 
-                    byte refAlpha = canvasColor.A == 0
-                        ? referenceColor.A
-                        : (byte)(referenceColor.A * ReferenceLayerViewModel.TopMostOpacity);
-                    return ColorHelpers.BlendColors(canvasColor,
-                        new Color(referenceColor.R, referenceColor.G, referenceColor.B, refAlpha));
-                }
+                if (!referenceTopmost)
+                    return ColorHelpers.BlendColors(referenceColor, canvasColor);
+
+                byte refAlpha = canvasColor.A == 0
+                    ? referenceColor.A
+                    : (byte)(referenceColor.A * ReferenceLayerViewModel.TopMostOpacity);
+                return ColorHelpers.BlendColors(canvasColor,
+                    new Color(referenceColor.R, referenceColor.G, referenceColor.B, refAlpha));
             }
 
-            return doc.PickColor(pos, tool.Mode, includeRef, tool.PickFromCanvas, frame, referenceTopmost);
+            return doc.PickColor(pos, tool.Mode, includeRef, tool.PickFromCanvas,
+                doc.AnimationDataViewModel.ActiveFrameBindable, referenceTopmost);
         };
     }
 }
