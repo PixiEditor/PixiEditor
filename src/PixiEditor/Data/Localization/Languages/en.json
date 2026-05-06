@@ -1478,5 +1478,6 @@
   "EXPORT_CATEGORY": "Export",
   "FOLLOW_SYSTEM_LANG": "Follow system",
   "CONFIRM_OVERWRITE_QUESTION": "This document is saved as a '{0}' file. Do you want to overwrite it?",
-  "CONFIRM_OVERWRITE_TITLE": "Confirm overwrite"
+  "CONFIRM_OVERWRITE_TITLE": "Confirm overwrite",
+  "MISSING_LAYER_NODE_ERROR": "Missing Layer Node"
 }

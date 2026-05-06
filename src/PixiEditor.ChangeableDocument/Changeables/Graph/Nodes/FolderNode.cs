@@ -88,6 +88,11 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
     private void RenderFolderContent(SceneObjectRenderContext sceneContext, bool useFilters)
     {
         VecI size = sceneContext.RenderSurface.DeviceClipBounds.Size + sceneContext.RenderSurface.DeviceClipBounds.Pos;
+        if (size.X <= 0 || size.Y <= 0)
+        {
+            return;
+        }
+
         var outputWorkingSurface = RequestTexture(0, size, sceneContext.ProcessingColorSpace, true);
         outputWorkingSurface.DrawingSurface.Canvas.Save();
         outputWorkingSurface.DrawingSurface.Canvas.SetMatrix(sceneContext.RenderSurface.TotalMatrix);
@@ -150,22 +155,21 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
     {
         if (!IsVisible.Value || Content.Connection == null)
             return null;
-        
+
         RectD? bounds = null;
 
-        Content.Connection.Node.TraverseBackwards(
-            (n, _) =>
-            {
-                if (n is not StructureNode { IsVisible.Value: true } structureNode ||
-                    n is IReadOnlyFolderNode)
-                    return true;
-
-                var childBounds = structureNode.GetTightBounds(frameTime);
-                if (childBounds != null)
-                    bounds = bounds?.Union(childBounds.Value) ?? childBounds;
-
+        Content.Connection.Node.TraverseBackwards((n, _) =>
+        {
+            if (n is not StructureNode { IsVisible.Value: true } structureNode ||
+                n is IReadOnlyFolderNode)
                 return true;
-            });
+
+            var childBounds = structureNode.GetTightBounds(frameTime);
+            if (childBounds != null)
+                bounds = bounds?.Union(childBounds.Value) ?? childBounds;
+
+            return true;
+        });
 
         return bounds ?? RectD.Empty;
     }
@@ -176,20 +180,19 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
             return new ShapeCorners();
 
         RectD? bounds = null;
-        
-        Content.Connection.Node.TraverseBackwards(
-            (n, _) =>
-            {
-                if (n is not StructureNode { IsVisible.Value: true } structureNode ||
-                    n is IReadOnlyFolderNode)
-                    return true;
 
-                var childBounds = structureNode.GetTransformationCorners(frameTime);
-                if (childBounds != default)
-                    bounds = bounds?.Union(childBounds.AABBBounds) ?? childBounds.AABBBounds;
-
+        Content.Connection.Node.TraverseBackwards((n, _) =>
+        {
+            if (n is not StructureNode { IsVisible.Value: true } structureNode ||
+                n is IReadOnlyFolderNode)
                 return true;
-            });
+
+            var childBounds = structureNode.GetTransformationCorners(frameTime);
+            if (childBounds != default)
+                bounds = bounds?.Union(childBounds.AABBBounds) ?? childBounds.AABBBounds;
+
+            return true;
+        });
 
         return bounds != null ? new ShapeCorners(bounds.Value) : new ShapeCorners();
     }
@@ -200,21 +203,20 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
         if (Content.Connection == null)
             return null;
 
-        Content.Connection.Node.TraverseBackwards(
-            (n, _) =>
-            {
-                if (n is not StructureNode { IsVisible.Value: true, Opacity.Value: > 0 } structureNode ||
-                    n is IReadOnlyFolderNode)
-                    return true;
-
-                var childBounds = structureNode.GetApproxBounds(frameTime);
-                if (childBounds != null)
-                {
-                    bounds = bounds?.Union(childBounds.Value) ?? childBounds;
-                }
-
+        Content.Connection.Node.TraverseBackwards((n, _) =>
+        {
+            if (n is not StructureNode { IsVisible.Value: true, Opacity.Value: > 0 } structureNode ||
+                n is IReadOnlyFolderNode)
                 return true;
-            });
+
+            var childBounds = structureNode.GetApproxBounds(frameTime);
+            if (childBounds != null)
+            {
+                bounds = bounds?.Union(childBounds.Value) ?? childBounds;
+            }
+
+            return true;
+        });
 
         return bounds ?? RectD.Empty;
     }
