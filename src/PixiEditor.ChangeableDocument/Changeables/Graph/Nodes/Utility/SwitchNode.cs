@@ -203,21 +203,21 @@ public class SwitchNode : Node
                 {
                     aBool = false;
                 }
-
-                return aBool
-                    ? context.GetValue(InputTrue.InternalProperty as FuncInputProperty<Int2>)
-                    : context.GetValue(InputFalse.InternalProperty as FuncInputProperty<Int2>);
             }
 
-            if (!HandleConditional(context, out var value))
-            {
-                return null;
-            }
-
-            return context.ConditionalVariable(value,
-                context.GetValue(InputTrue.InternalProperty as FuncInputProperty<Int2>),
-                context.GetValue(InputFalse.InternalProperty as FuncInputProperty<Int2>));
+            return aBool
+                ? context.GetValue(InputTrue.InternalProperty as FuncInputProperty<Int2>)
+                : context.GetValue(InputFalse.InternalProperty as FuncInputProperty<Int2>);
         }
+
+        if (!HandleConditional(context, out var value))
+        {
+            return null;
+        }
+
+        return context.ConditionalVariable(value,
+            context.GetValue(InputTrue.InternalProperty as FuncInputProperty<Int2>),
+            context.GetValue(InputFalse.InternalProperty as FuncInputProperty<Int2>));
     }
 
     private Float2 HandleConditionalFloat2(FuncContext context)
@@ -235,22 +235,23 @@ public class SwitchNode : Node
                 {
                     aBool = false;
                 }
-
-                return aBool
-                    ? context.GetValue(InputTrue.InternalProperty as FuncInputProperty<Float2>)
-                    : context.GetValue(InputFalse.InternalProperty as FuncInputProperty<Float2>);
             }
 
-            if (!HandleConditional(context, out var value))
-            {
-                return null;
-            }
-
-            return context.ConditionalVariable(value,
-                context.GetValue(InputTrue.InternalProperty as FuncInputProperty<Float2>),
-                context.GetValue(InputFalse.InternalProperty as FuncInputProperty<Float2>));
+            return aBool
+                ? context.GetValue(InputTrue.InternalProperty as FuncInputProperty<Float2>)
+                : context.GetValue(InputFalse.InternalProperty as FuncInputProperty<Float2>);
         }
+
+        if (!HandleConditional(context, out var value))
+        {
+            return null;
+        }
+
+        return context.ConditionalVariable(value,
+            context.GetValue(InputTrue.InternalProperty as FuncInputProperty<Float2>),
+            context.GetValue(InputFalse.InternalProperty as FuncInputProperty<Float2>));
     }
+
 
     private Float3 HandleConditionalFloat3(FuncContext context)
     {
