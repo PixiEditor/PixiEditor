@@ -59,30 +59,37 @@ internal class ColorPickerPreviewOverlay : Overlay
         textPaint.Color = ThemeResources.ForegroundColor;
     }
 
-    private VecI _lastSampledPixel = new VecI(int.MinValue, int.MinValue);
-
     private string _cachedHexText = "#000000";
     private float _cachedTextWidth = 0;
     private float _cachedPopupWidth = 0;
 
+    protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+    {
+        base.OnPropertyChanged(change);
+        if (change.Property == IsVisibleProperty && change.GetNewValue<bool>() && ColorSampler != null)
+        {
+            SampleAndCache(PointerPosition);
+            Refresh();
+        }
+    }
+
     protected override void OnOverlayPointerMoved(OverlayPointerArgs args)
     {
-        var pixelPos = new VecI((int)Math.Floor(args.Point.X), (int)Math.Floor(args.Point.Y));
-
-        if (ColorSampler != null && pixelPos != _lastSampledPixel)
-        {
-            _lastSampledPixel = pixelPos;
-            HoveredColor = ColorSampler(args.Point);
-
-            _cachedHexText = HoveredColor.A == 255
-                ? $"#{HoveredColor.R:X2}{HoveredColor.G:X2}{HoveredColor.B:X2}"
-                : $"#{HoveredColor.R:X2}{HoveredColor.G:X2}{HoveredColor.B:X2}{HoveredColor.A:X2}";
-
-            _cachedTextWidth = (float)font.MeasureText(_cachedHexText);
-            _cachedPopupWidth = ColorPreviewSize + Padding * 3 + _cachedTextWidth;
-        }
-
+        if (ColorSampler != null)
+            SampleAndCache(args.Point);
         Refresh();
+    }
+
+    private void SampleAndCache(VecD point)
+    {
+        HoveredColor = ColorSampler!(point);
+
+        _cachedHexText = HoveredColor.A == 255
+            ? $"#{HoveredColor.R:X2}{HoveredColor.G:X2}{HoveredColor.B:X2}"
+            : $"#{HoveredColor.R:X2}{HoveredColor.G:X2}{HoveredColor.B:X2}{HoveredColor.A:X2}";
+
+        _cachedTextWidth = (float)font.MeasureText(_cachedHexText);
+        _cachedPopupWidth = ColorPreviewSize + Padding * 3 + _cachedTextWidth;
     }
 
     public override bool TestHit(VecD point) => false;

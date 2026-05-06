@@ -517,12 +517,12 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             {
                 try
                 {
+                    overlay.PointerPosition = lastMousePositionOnCanvas;
+
                     if (!overlay.IsVisible || overlay.OverlayRenderSorting != sorting)
                     {
                         continue;
                     }
-
-                    overlay.PointerPosition = lastMousePositionOnCanvas;
 
                     overlay.ZoomScale = Scale;
 
