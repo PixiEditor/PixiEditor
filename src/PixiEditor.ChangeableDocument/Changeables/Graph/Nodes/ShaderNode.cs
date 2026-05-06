@@ -235,6 +235,11 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
         renderOn.Canvas.RestoreToCount(saved);
     }
 
+    public override RectD? GetPreviewBounds(RenderContext ctx, string elementToRenderName)
+    {
+        return new RectD(0, 0, ctx.DocumentSize.X, ctx.DocumentSize.Y);
+    }
+
     public override Node CreateCopy()
     {
         return new ShaderNode();
