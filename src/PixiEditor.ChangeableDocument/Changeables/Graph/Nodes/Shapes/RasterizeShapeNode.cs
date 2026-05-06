@@ -36,7 +36,12 @@ public class RasterizeShapeNode : RenderNode
 
     public override RectD? GetPreviewBounds(RenderContext ctx, string elementToRenderName = "")
     {
-        return Data.Value is TextVectorData textVectorData ? textVectorData.Path?.Bounds.Scale(1.1, textVectorData.Path.Bounds.Center) ?? textVectorData.TransformedAABB : Data?.Value?.TransformedAABB;
+        if (Data.Value is TextVectorData { Path: not null } textVectorData)
+        {
+            return textVectorData.Path.Bounds.Scale(1.1, textVectorData.Path.Bounds.Center);
+        }
+
+        return Data?.Value?.TransformedAABB;
     }
 
     protected override bool ShouldRenderPreview(string elementToRenderName)

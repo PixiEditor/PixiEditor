@@ -45,11 +45,7 @@ public class OutputNode : Node, IRenderInput
             int saved = preview.Texture.DrawingSurface.Canvas.Save();
             preview.Texture.DrawingSurface.Canvas.Clear();
 
-            RectD? bounds = new RectD(VecD.Zero, context.DocumentSize); //TryGetInputBounds(context, preview.ElementToRender, Input);
-            if (bounds == null)
-            {
-                bounds = new RectD(0, 0, context.RenderOutputSize.X, context.RenderOutputSize.Y);
-            }
+            RectD? bounds = new RectD(VecD.Zero, context.DocumentSize);
 
             VecD scaling = PreviewUtility.CalculateUniformScaling(bounds.Value.Size, preview.Texture.Size);
             VecD offset = PreviewUtility.CalculateCenteringOffset(bounds.Value.Size, preview.Texture.Size, scaling);
@@ -64,19 +60,6 @@ public class OutputNode : Node, IRenderInput
             Input.Value?.Paint(adjusted, adjusted.RenderSurface);
             preview.Texture.DrawingSurface.Canvas.RestoreToCount(saved);
         }
-    }
-
-    private RectD? TryGetInputBounds(RenderContext ctx, string elementToRenderName, RenderInputProperty input)
-    {
-        if (input == null)
-            return null;
-
-        if (input.Connection?.Node is RenderNode renderNode)
-        {
-            return renderNode.GetPreviewBounds(ctx, elementToRenderName);
-        }
-
-        return null;
     }
 
     RenderInputProperty IRenderInput.Background => Input;

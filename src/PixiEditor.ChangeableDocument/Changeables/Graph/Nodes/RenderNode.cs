@@ -166,9 +166,9 @@ public abstract class RenderNode : Node, IHighDpiRenderNode
         if (input == null)
             return null;
 
-        if (input.Connection?.Node is RenderNode structureNode)
+        if (input.Connection?.Node is RenderNode renderNode)
         {
-            return structureNode.GetPreviewBounds(ctx, elementToRenderName);
+            return renderNode.GetPreviewBounds(ctx, elementToRenderName);
         }
 
         return null;
