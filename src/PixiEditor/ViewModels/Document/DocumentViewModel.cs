@@ -1516,7 +1516,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         foreach (var node in nestedNodes)
         {
             if (node.InputPropertyMap[NestedDocumentNode.DocumentPropertyName].Value is not DocumentReference docRef ||
-                ((docRef.ReferenceId == Guid.Empty || docRef.ReferenceId != referenceId) && docRef.OriginalFilePath != newDoc.FullFilePath))
+                ((docRef.ReferenceId == Guid.Empty || docRef.ReferenceId != referenceId) && (string.IsNullOrEmpty(docRef.OriginalFilePath) || docRef.OriginalFilePath != newDoc.FullFilePath)))
                 continue;
 
             Internals.ActionAccumulator.AddActions(new UpdatePropertyValue_Action(node.Id,
