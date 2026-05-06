@@ -1345,11 +1345,8 @@
   "RESET_TRANSFORM": "Reset Transform",
   "RESET_TRANSFORM_DESCRIPTIVE": "Reset the transform of the layer.",
   "CONTIGUOUS_LABEL": "Contiguous",
-<<<<<<< 2026-02-04-search-improvements
   "OPEN_PATH_AS_REFERENCE_LAYER": "As reference: {0}",
-  "OPEN_PATH_AS_NESTED_DOCUMENT": "As element: {0}"
-}
-=======
+  "OPEN_PATH_AS_NESTED_DOCUMENT": "As element: {0}",
   "DENSITY": "Density",
   "IMPORT_BRUSH_DESCRIPTIVE": "Import brush from .pixi file.",
   "OPEN_BRUSHES_FOLDER_DESCRIPTIVE": "Open the folder where custom brushes are stored.",
@@ -1486,4 +1483,3 @@
   "CONFIRM_OVERWRITE_TITLE": "Confirm overwrite",
   "MISSING_LAYER_NODE_ERROR": "Missing Layer Node"
 }
->>>>>>> master
