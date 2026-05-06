@@ -45,6 +45,36 @@ public class ShaderTests
     }
 
     [Fact]
+    public void TestThatFindUniformTypeWithShortNamesIsParsedCorrectly()
+    {
+        string sksl = """
+                      // Below is a list of built-in special uniforms that are automatically added by PixiEditor.
+                      // Any other uniform will be added as a Node input
+                      
+                      uniform vec2 iResolution; // The resolution of current render output. It is usually a document size.
+                      uniform float iNormalizedTime; // The normalized time of the current frame, from 0 to 1.
+                      uniform int iFrame; // The current frame number.
+                      uniform shader iImage; // The Background input of the node, alternatively you can use "Background" uniform.
+                      uniform float r;
+                      uniform float g;
+                      uniform float b;
+                      
+                      half4 main(float2 uv)
+                      {
+                          return half4(r, g, b, 1);
+                      }
+                      """;
+
+        UniformValueType? rValueType = SkiaShaderImplementation.FindUniformType(sksl, "r");
+        UniformValueType? gValueType = SkiaShaderImplementation.FindUniformType(sksl, "g");
+        UniformValueType? bValueType = SkiaShaderImplementation.FindUniformType(sksl, "b");
+
+        Assert.Equal(UniformValueType.Float, rValueType);
+        Assert.Equal(UniformValueType.Float, gValueType);
+        Assert.Equal(UniformValueType.Float, bValueType);
+    }
+
+    [Fact]
     public void TestThatFindUniformTypeFindsUniformsInTheMiddle()
     {
         string sksl = """

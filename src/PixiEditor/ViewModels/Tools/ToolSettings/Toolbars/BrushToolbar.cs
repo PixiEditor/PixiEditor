@@ -75,10 +75,7 @@ internal class BrushToolbar : Toolbar, IBrushToolbar
         OnPropertyChanged(nameof(AntiAliasing));
         OnPropertyChanged(nameof(Stabilization));
         OnPropertyChanged(nameof(StabilizationMode));
-        if (LastBrushData.BrushGraph == null)
-        {
-            LastBrushData = CreateBrushData();
-        }
+        LastBrushData = CreateBrushData();
 
         OnPropertyChanged(nameof(LastBrushData));
     }
