@@ -2,6 +2,7 @@
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 internal class PasteImage_UpdateableChange : InterruptableUpdateableChange
@@ -70,7 +71,7 @@ internal class PasteImage_UpdateableChange : InterruptableUpdateableChange
         
         var chunks = DrawImage(target, targetImage);
         savedChunks?.Dispose();
-        savedChunks = new(targetImage, targetImage.FindAffectedArea().Chunks);
+        savedChunks = new(targetImage, targetImage.FindAffectedArea().Chunks ?? new HashSet<VecI>());
         targetImage.CommitChanges();
         hasEnqueudImage = false;
         ignoreInUndo = false;
