@@ -37,24 +37,46 @@ public class OutputNode : Node, IRenderInput
 
         var previews = context.GetPreviewTexturesForNode(Id);
         if (previews is null) return;
-        foreach (var request in previews)
+        foreach (var preview in previews)
         {
-            var texture = request.Texture;
-            if (texture is null) continue;
+            if (preview.Texture == null)
+                continue;
 
-            int saved = texture.DrawingSurface.Canvas.Save();
+            int saved = preview.Texture.DrawingSurface.Canvas.Save();
+            preview.Texture.DrawingSurface.Canvas.Clear();
 
-            VecD scaling = PreviewUtility.CalculateUniformScaling(context.DocumentSize, texture.Size);
-            VecD offset = PreviewUtility.CalculateCenteringOffset(context.DocumentSize, texture.Size, scaling);
-            texture.DrawingSurface.Canvas.Translate((float)offset.X, (float)offset.Y);
-            texture.DrawingSurface.Canvas.Scale((float)scaling.X, (float)scaling.Y);
-            var previewCtx =
-                PreviewUtility.CreatePreviewContext(context, scaling, context.RenderOutputSize, texture.Size);
+            RectD? bounds = new RectD(VecD.Zero, context.DocumentSize); //TryGetInputBounds(context, preview.ElementToRender, Input);
+            if (bounds == null)
+            {
+                bounds = new RectD(0, 0, context.RenderOutputSize.X, context.RenderOutputSize.Y);
+            }
 
-            texture.DrawingSurface.Canvas.Clear();
-            Input.Value?.Paint(previewCtx, texture.DrawingSurface.Canvas);
-            texture.DrawingSurface.Canvas.RestoreToCount(saved);
+            VecD scaling = PreviewUtility.CalculateUniformScaling(bounds.Value.Size, preview.Texture.Size);
+            VecD offset = PreviewUtility.CalculateCenteringOffset(bounds.Value.Size, preview.Texture.Size, scaling);
+            RenderContext adjusted =
+                PreviewUtility.CreatePreviewContext(context, scaling, bounds.Value.Size, preview.Texture.Size);
+
+            preview.Texture.DrawingSurface.Canvas.Translate((float)offset.X, (float)offset.Y);
+            preview.Texture.DrawingSurface.Canvas.Scale((float)scaling.X, (float)scaling.Y);
+            preview.Texture.DrawingSurface.Canvas.Translate((float)-bounds.Value.X, (float)-bounds.Value.Y);
+
+            adjusted.RenderSurface = preview.Texture.DrawingSurface.Canvas;
+            Input.Value?.Paint(adjusted, adjusted.RenderSurface);
+            preview.Texture.DrawingSurface.Canvas.RestoreToCount(saved);
         }
+    }
+
+    private RectD? TryGetInputBounds(RenderContext ctx, string elementToRenderName, RenderInputProperty input)
+    {
+        if (input == null)
+            return null;
+
+        if (input.Connection?.Node is RenderNode renderNode)
+        {
+            return renderNode.GetPreviewBounds(ctx, elementToRenderName);
+        }
+
+        return null;
     }
 
     RenderInputProperty IRenderInput.Background => Input;
