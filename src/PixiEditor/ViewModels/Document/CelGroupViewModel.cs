@@ -61,13 +61,17 @@ internal class CelGroupViewModel : CelViewModel, ICelGroupHandler
         : base(startFrame, duration, layerGuid, id, doc, internalParts)
     {
         Children.CollectionChanged += ChildrenOnCollectionChanged;
-        Document.StructureHelper.Find(LayerGuid).PropertyChanged += (sender, args) =>
+        var layer = Document.NodeGraph.NodeLookup.TryGetValue(LayerGuid, out var node) ? node : null;
+        if (layer != null)
         {
-            if (args.PropertyName == nameof(IStructureMemberHandler.NodeNameBindable))
+            layer.PropertyChanged += (sender, args) =>
             {
-                OnPropertyChanged(nameof(LayerName));
-            }
-        };
+                if (args.PropertyName == nameof(IStructureMemberHandler.NodeNameBindable))
+                {
+                    OnPropertyChanged(nameof(LayerName));
+                }
+            };
+        }
 
         Document.PropertyChanged += DocumentOnPropertyChanged;
     }
