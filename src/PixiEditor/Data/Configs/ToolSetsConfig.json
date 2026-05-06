@@ -89,7 +89,9 @@
         {
           "ToolName": "Brightness",
           "Settings": {
-            "AntiAliasing": false
+            "AntiAliasing": false,
+            "DefaultToolSize": 1,
+            "DefaultBRUSH_SETTING": "PIXEL_CIRCLE"
           }
         },
         "ColorPicker",
@@ -174,7 +176,9 @@
         {
           "ToolName": "Brightness",
           "Settings": {
-            "AntiAliasing": true
+            "AntiAliasing": true,
+            "DefaultToolSize": 10,
+            "DefaultBRUSH_SETTING": "BASIC"
           }
         },
         "ColorPicker",
