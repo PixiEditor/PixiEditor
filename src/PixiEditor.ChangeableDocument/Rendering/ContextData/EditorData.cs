@@ -2,7 +2,7 @@
 
 namespace PixiEditor.ChangeableDocument.Rendering.ContextData;
 
-public struct EditorData
+public record struct EditorData
 {
     public Color PrimaryColor { get; }
     public Color SecondaryColor { get; }

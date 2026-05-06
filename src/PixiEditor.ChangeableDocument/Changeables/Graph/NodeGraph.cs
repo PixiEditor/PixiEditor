@@ -34,6 +34,11 @@ public class NodeGraph : IReadOnlyNodeGraph
         return nodeLookup[guid];
     }
 
+    public IReadOnlyNode? TryLookupNode(Guid guid)
+    {
+        return nodeLookup.GetValueOrDefault(guid);
+    }
+
     public void AddNode(Node node)
     {
         if (Nodes.Contains(node))
@@ -178,6 +183,11 @@ public class NodeGraph : IReadOnlyNodeGraph
         return TryTraverse(OutputNode, action);
     }
 
+    public bool TryTraverse(Func<IReadOnlyNode, bool> action)
+    {
+        return TryTraverse(OutputNode, action);
+    }
+
     public bool TryTraverse(IReadOnlyNode end, Action<IReadOnlyNode> action)
     {
         if (end == null) return false;
@@ -187,6 +197,21 @@ public class NodeGraph : IReadOnlyNodeGraph
         foreach (var node in queue)
         {
             action(node);
+        }
+
+        return true;
+    }
+
+    public bool TryTraverse(IReadOnlyNode end, Func<IReadOnlyNode, bool> action)
+    {
+        if (end == null) return false;
+
+        var queue = CalculateExecutionQueueInternal(end);
+
+        foreach (var node in queue)
+        {
+            if (!action(node))
+                break;
         }
 
         return true;

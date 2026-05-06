@@ -2,6 +2,7 @@
   "CustomTools": [
     {
       "ToolName": "Brightness",
+      "DisplayName": "BRIGHTNESS_TOOL",
       "Brush": "/BrushTools/Brightness.pixi",
       "Icon": "icon-sun",
       "ToolTip": "BRIGHTNESS_TOOL_TOOLTIP",
@@ -14,6 +15,20 @@
         {
           "Modifiers": "Ctrl",
           "ActionDisplay": "BRIGHTNESS_TOOL_ACTION_DISPLAY_CTRL"
+        }
+      ]
+    },
+    {
+      "ToolName": "Gradient",
+      "DisplayName": "GRADIENT_TOOL",
+      "Brush": "/BrushTools/Gradient.pixi",
+      "Icon": "icon-gradient",
+      "ToolTip": "GRADIENT_TOOL_TOOLTIP",
+      "DefaultShortcut": "Shift+G",
+      "CommonToolType": "Gradient",
+      "ActionDisplays": [
+        {
+          "ActionDisplay": "GRADIENT_TOOL_ACTION_DISPLAY_DEFAULT"
         }
       ]
     }
@@ -36,13 +51,13 @@
           "Settings": {
             "ExposePixelPerfectEnabled": true,
             "DefaultToolSize": 1,
-            "DefaultBrush": "Pixel Circle",
+            "DefaultBrush": "PIXEL_CIRCLE",
             "AntiAliasing": false
           }
         },
         "Select",
         {
-          "ToolName": "MagicWand",
+          "ToolName": "MagicWand"
         },
         "Lasso",
         {
@@ -66,13 +81,17 @@
         {
           "ToolName": "Eraser",
           "Settings": {
-            "DefaultToolSize": 1
+            "DefaultToolSize": 1,
+            "DefaultBrush": "PIXEL_CIRCLE",
+            "AntiAliasing": false
           }
         },
         {
           "ToolName": "Brightness",
           "Settings": {
-            "AntiAliasing": false
+            "AntiAliasing": false,
+            "DefaultToolSize": 1,
+            "DefaultBRUSH_SETTING": "PIXEL_CIRCLE"
           }
         },
         "ColorPicker",
@@ -97,7 +116,7 @@
             "AntiAliasing": true,
             "PixelPerfectEnabled": false,
             "DefaultToolSize": 10,
-            "DefaultBrush": "Basic"
+            "DefaultBrush": "BASIC"
           }
         },
         "Select",
@@ -114,6 +133,9 @@
             "ExposeTolerance": true,
             "ExposeFillMode": true
           }
+        },
+        {
+          "ToolName": "Gradient"
         },
         {
           "ToolName": "RasterLine",
@@ -154,7 +176,9 @@
         {
           "ToolName": "Brightness",
           "Settings": {
-            "AntiAliasing": true
+            "AntiAliasing": true,
+            "DefaultToolSize": 10,
+            "DefaultBRUSH_SETTING": "BASIC"
           }
         },
         "ColorPicker",

@@ -13,7 +13,6 @@ namespace ChunkyImageLib.Operations;
 internal class PixelsOperation : IMirroredDrawOperation
 {
     public bool IgnoreEmptyChunks => false;
-    public bool NeedsDrawInSrgb => paint?.Paintable is ISrgbPaintable;
 
     private readonly VecF[] pixels;
     private readonly Color color;

@@ -20,11 +20,11 @@ public class MathNode : Node
     public InputProperty<bool> Clamp { get; }
 
     public FuncInputProperty<Float1> X { get; }
-    
+
     public FuncInputProperty<Float1> Y { get; }
-    
+
     public FuncInputProperty<Float1> Z { get; }
-    
+
     public MathNode()
     {
         Result = CreateFuncOutput<Float1>(nameof(Result), "RESULT", Calculate);
@@ -71,6 +71,10 @@ public class MathNode : Node
                 MathNodeMode.Max => ShaderMath.Max(x, y),
                 MathNodeMode.Step => ShaderMath.Step(x, y),
                 MathNodeMode.SmoothStep => ShaderMath.SmoothStep(x, y, z),
+                MathNodeMode.Asin => ShaderMath.Asin(x),
+                MathNodeMode.Acos => ShaderMath.Acos(x),
+                MathNodeMode.Atan => ShaderMath.Atan(x),
+                MathNodeMode.Atan2 => ShaderMath.Atan2(x, y),
             };
 
             if (Clamp.Value)
@@ -81,10 +85,29 @@ public class MathNode : Node
             return context.NewFloat1(result);
         }
 
-        var xConst = (double)x.GetConstant();
-        var yConst = (double)y.GetConstant();
-        var zConst = (double)z.GetConstant();
-        
+        var xConstRaw = x.GetConstant();
+        var yConstRaw = y.GetConstant();
+        var zConstRaw = z.GetConstant();
+
+        double xConst = xConstRaw is double xD ? xD : 0;
+        double yConst = yConstRaw is double yD ? yD : 0;
+        double zConst = zConstRaw is double zD ? zD : 0;
+
+        if (xConstRaw is not double)
+        {
+            xConst = Convert.ToDouble(xConstRaw);
+        }
+
+        if (yConstRaw is not double)
+        {
+            yConst = Convert.ToDouble(yConstRaw);
+        }
+
+        if (zConstRaw is not double)
+        {
+            zConst = Convert.ToDouble(zConstRaw);
+        }
+
         var constValue = Mode.Value switch
         {
             MathNodeMode.Add => xConst + yConst,
@@ -115,13 +138,17 @@ public class MathNode : Node
             MathNodeMode.Max => Math.Max(xConst, yConst),
             MathNodeMode.Step => xConst > yConst ? 1 : 0,
             MathNodeMode.SmoothStep => MathEx.SmoothStep(xConst, yConst, zConst),
+            MathNodeMode.Asin => Math.Asin(xConst),
+            MathNodeMode.Acos => Math.Acos(xConst),
+            MathNodeMode.Atan => Math.Atan(xConst),
+            MathNodeMode.Atan2 => Math.Atan2(xConst, yConst),
         };
-        
+
         if (Clamp.Value)
         {
             constValue = Math.Clamp(constValue, 0, 1);
         }
-            
+
         return new Float1(string.Empty) { ConstantValue = constValue };
     }
 

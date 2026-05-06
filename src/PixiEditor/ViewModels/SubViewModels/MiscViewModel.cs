@@ -2,11 +2,15 @@
 using System.Reflection;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
+using LiveMarkdown.Avalonia;
+using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Helpers;
 using PixiEditor.Initialization;
+using PixiEditor.Models.Commands;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.OperatingSystem;
+using PixiEditor.UI.Common.Behaviors;
 using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.ViewModels.SubViewModels;
@@ -20,7 +24,8 @@ internal class MiscViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Internal("PixiEditor.Links.OpenHyperlink")]
-    [Command.Basic("PixiEditor.Links.OpenDocumentation", "https://pixieditor.net/docs/", "DOCUMENTATION", "OPEN_DOCUMENTATION", Icon = PixiPerfectIcons.Globe,
+    [Command.Basic("PixiEditor.Links.OpenDocumentation", "https://pixieditor.net/docs/", "DOCUMENTATION",
+        "OPEN_DOCUMENTATION", Icon = PixiPerfectIcons.Globe,
         MenuItemPath = "HELP/DOCUMENTATION", MenuItemOrder = 0, AnalyticsTrack = true)]
     [Command.Basic("PixiEditor.Links.OpenWebsite", "https://pixieditor.net", "WEBSITE", "OPEN_WEBSITE",
         Icon = PixiPerfectIcons.Globe,
@@ -28,7 +33,8 @@ internal class MiscViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.Links.OpenRepository", "https://github.com/PixiEditor/PixiEditor", "REPOSITORY",
         "OPEN_REPOSITORY", Icon = PixiPerfectIcons.Globe,
         MenuItemPath = "HELP/REPOSITORY", MenuItemOrder = 2, AnalyticsTrack = true)]
-    [Command.Basic("PixiEditor.Links.OpenLicense", "{BaseDir}/LICENSE", "LICENSE", "OPEN_LICENSE", Icon = PixiPerfectIcons.Folder,
+    [Command.Basic("PixiEditor.Links.OpenLicense", "{BaseDir}/LICENSE", "LICENSE", "OPEN_LICENSE",
+        Icon = PixiPerfectIcons.Folder,
         MenuItemPath = "HELP/LICENSE", MenuItemOrder = 3, AnalyticsTrack = true)]
     [Command.Basic("PixiEditor.Links.OpenOtherLicenses", "{BaseDir}/Third Party Licenses", "THIRD_PARTY_LICENSES",
         "OPEN_THIRD_PARTY_LICENSES", Icon = PixiPerfectIcons.Folder,
@@ -49,6 +55,15 @@ internal class MiscViewModel : SubViewModel<ViewModelMain>
         {
             CrashHelper.SendExceptionInfo(e);
             NoticeDialog.Show(title: "Error", message: $"Couldn't open the address {uri} in your default browser");
+        }
+    }
+
+    [Command.Internal("PixiEditor.Links.OpenMdHyperlink")]
+    public static void OpenMdHyperlink(LinkClickedEventArgs args)
+    {
+        if (args.HRef != null)
+        {
+            OpenUri(args.HRef.AbsoluteUri);
         }
     }
 

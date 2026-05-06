@@ -34,7 +34,7 @@ public sealed class MSAdditionalContentProvider : IAdditionalContentProvider
         try
         {
             var stream =
-                await IdentityProvider.PixiAuthClient.DownloadProduct(IdentityProvider.User.SessionToken, productId);
+                await IdentityProvider.PixiAuthClient.DownloadProduct(IdentityProvider.User.SessionToken, productId, IdentityProvider.User.OwnedProducts.First(x => x.Id.Equals(productId, StringComparison.Ordinal)).DownloadLink);
             if (stream != null)
             {
                 var filePath = Path.Combine(ExtensionsPath, $"{productId}.pixiext");
@@ -74,6 +74,11 @@ public sealed class MSAdditionalContentProvider : IAdditionalContentProvider
         }
 
         return IdentityProvider.User.OwnedProducts.Any(x => x.Id.Equals(product, StringComparison.OrdinalIgnoreCase));
+    }
+    
+    public async Task<List<AvailableContent>> FetchAvailableExtensions()
+    {
+        return new List<AvailableContent>();
     }
 
     public bool PlatformHasContent(string product)

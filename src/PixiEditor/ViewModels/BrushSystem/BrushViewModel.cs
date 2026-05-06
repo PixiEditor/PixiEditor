@@ -12,6 +12,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Models.BrushEngine;
+using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.ViewModels.BrushSystem;
 
@@ -56,7 +57,7 @@ internal class BrushViewModel : ViewModelBase
 
     public string Name
     {
-        get => Brush?.Name ?? "Unnamed Brush";
+        get => Brush?.Name ?? new LocalizedString("UNNAMED_BRUSH");
     }
 
     public ObservableCollection<string> Tags
@@ -194,11 +195,9 @@ internal class BrushViewModel : ViewModelBase
                 Texture.ForDisplay(new VecI(BrushOutputNode.StrokePreviewSizeX, BrushOutputNode.StrokePreviewSizeY));
 
             var pointImage = new ChunkyImage(
-                new VecI(BrushOutputNode.PointPreviewSize, BrushOutputNode.PointPreviewSize),
-                ColorSpace.CreateSrgb());
+                new VecI(BrushOutputNode.PointPreviewSize, BrushOutputNode.PointPreviewSize));
             var strokeImage = new ChunkyImage(
-                new VecI(BrushOutputNode.StrokePreviewSizeX, BrushOutputNode.StrokePreviewSizeY),
-                ColorSpace.CreateSrgb());
+                new VecI(BrushOutputNode.StrokePreviewSizeX, BrushOutputNode.StrokePreviewSizeY));
 
             var context = new RenderContext(
                 pointPreviewTexture.DrawingSurface.Canvas,

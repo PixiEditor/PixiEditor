@@ -4,6 +4,8 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using Drawie.Backend.Core.Shaders.Generation;
+using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Arrays;
 
 namespace PixiEditor.ChangeableDocument.Changes.NodeGraph;
 
@@ -62,7 +64,10 @@ internal class ConnectProperties_Change : Change
 
         if (!canConnect)
         {
-            return false;
+            bool baseConnectingToArray = inputProp.ValueType.IsArray && outputProp != null && (outputProp.Value == null || ConversionTable.CanConvertType(inputProp.ValueType.GetElementType(), outputProp.GetContextlessValueType()));
+            bool crossArrayConnection = inputProp.ValueType.IsArray && outputProp is { ValueType.IsArray: true } && ConversionTable.CanConvertType(inputProp.ValueType.GetElementType(), outputProp.GetContextlessValueType().GetElementType());
+            if(!baseConnectingToArray && !crossArrayConnection)
+                return false;
         }
 
         originalConnection =
@@ -91,6 +96,23 @@ internal class ConnectProperties_Change : Change
 
         target.NodeGraph.StartListenToPropertyChanges();
 
+        bool isConnectingToArray = inputProp.ValueType.IsArray && outputProp != null && (outputProp.Value == null || ConversionTable.CanConvertType(inputProp.ValueType.GetElementType(), outputProp.GetContextlessValueType()));
+        bool crossArrayConnection = inputProp.ValueType.IsArray && outputProp is { ValueType.IsArray: true } && ConversionTable.CanConvertType(inputProp.ValueType.GetElementType(), outputProp.GetContextlessValueType().GetElementType());
+        if (isConnectingToArray && !crossArrayConnection)
+        {
+            ArrayConverterNode arrayConverter = new ArrayConverterNode();
+            target.NodeGraph.AddNode(arrayConverter);
+            arrayConverter.Position = inputNode.Position.Lerp(outputNode.Position, 0.5) + new VecD(100, 100);
+            changes.Add(CreateNode_ChangeInfo.CreateFromNode(arrayConverter));
+
+            outputProp.ConnectTo(arrayConverter.First.InternalProperty);
+            changes.Add(new ConnectProperty_ChangeInfo(outputProp.Node.Id, arrayConverter.Id, outputProp.InternalPropertyName,
+                arrayConverter.First.InternalProperty.InternalPropertyName));
+
+            outputProp = arrayConverter.Output.InternalProperty;
+        }
+
+
         if (inputNode == outputNode && outputProp == null)
         {
             var input = inputNode.GetInputProperty(OutputProperty);
@@ -108,10 +130,12 @@ internal class ConnectProperties_Change : Change
         }
 
         inputProp = inputNode.GetInputProperty(InputProperty);
-        if (inputProp.Connection != null)
+        if (inputProp.Connection != null && inputProp.Connection != outputProp)
         {
-            changes.Add(new ConnectProperty_ChangeInfo(null, inputProp.Connection.Node.Id, null,
-                inputProp.Connection.InternalPropertyName));
+            // TODO: If there's an issue with connecting and disconnecting (most likely with arrays and dynamic inputs)
+            // Uncomment this and check, but it introduces a bug where frontend disconnects all inputs for a given output, so it's not a proper fix!
+            /*changes.Add(new ConnectProperty_ChangeInfo(null, inputProp.Connection.Node.Id, null,
+                inputProp.Connection.InternalPropertyName));*/
             inputProp.Connection.DisconnectFrom(inputProp);
             inputProp = inputNode.GetInputProperty(InputProperty);
         }

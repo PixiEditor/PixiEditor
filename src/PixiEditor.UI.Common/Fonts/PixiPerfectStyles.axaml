@@ -4,6 +4,7 @@
     <Styles.Resources>
         <ResourceDictionary>
             <FontFamily x:Key="PixiPerfectIcons">avares://PixiEditor.UI.Common/Fonts/PixiPerfect.ttf#pixiperfect</FontFamily>
+            <FontFamily x:Key="Montserrat">avares://PixiEditor.UI.Common/Fonts/Montserrat#Montserrat</FontFamily>
         </ResourceDictionary>
     </Styles.Resources>
 

@@ -1,0 +1,690 @@
+﻿<dialogs:PixiEditorPopup xmlns="https://github.com/avaloniaui"
+                         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                         xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
+                         xmlns:extensionManager="clr-namespace:PixiEditor.ViewModels.ExtensionManager"
+                         xmlns:platform="clr-namespace:PixiEditor.Platform;assembly=PixiEditor.Platform"
+                         xmlns:identityProvider="clr-namespace:PixiEditor.IdentityProvider;assembly=PixiEditor.IdentityProvider"
+                         xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+                         xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+                         xmlns:user="clr-namespace:PixiEditor.ViewModels.User"
+                         xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
+                         xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+                         xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
+                         xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
+                         xmlns:system="clr-namespace:System;assembly=System.Runtime"
+                         xmlns:avalonia="clr-namespace:LiveMarkdown.Avalonia;assembly=LiveMarkdown.Avalonia"
+                         xmlns:commands="clr-namespace:PixiEditor.Models.Commands.Attributes.Commands"
+                         xmlns:indicators="clr-namespace:PixiEditor.Views.Indicators"
+                         xmlns:visuals="clr-namespace:PixiEditor.Views.Visuals"
+                         xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+                         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+                         x:Class="PixiEditor.Views.Dialogs.ExtensionsPopup"
+                         Height="680" Width="1300"
+                         x:DataType="extensionManager:ExtensionManagerViewModel"
+                         localization:Translator.Key="EXTENSIONS_WINDOW_TITLE">
+
+    <Design.DataContext>
+        <extensionManager:ExtensionManagerViewModel />
+    </Design.DataContext>
+
+    <Panel>
+        <Panel ZIndex="2" Background="{DynamicResource ThemeBackgroundBrush}" IsVisible="{Binding IsDetailsVisible}">
+            <Grid Margin="24">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="0.8*" />
+                    <ColumnDefinition Width="0.2*" />
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0"
+                        Grid.Row="0"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Command="{Binding BackToListCommand}"
+                        HorizontalAlignment="Left"
+                        Padding="0"
+                        Margin="0, 12">
+                    <TextBlock FontSize="{DynamicResource FontSizeNormal}" Opacity="0.5">
+                        <Run Text="&lt; " />
+                        <Run localization:Translator.Key="EXTENSIONS_WINDOW_DETAILS_BACK" />
+                    </TextBlock>
+                </Button>
+                <ScrollViewer Grid.Column="0" Grid.Row="1">
+                    <StackPanel>
+                        <TextBlock Text="{Binding SelectedAvailableExtension.AvailableContent.Name}"
+                                   FontWeight="Bold"
+                                   Classes="h1"
+                                   Margin="0, 0, 0, 12" />
+
+                        <TextBlock Text="{Binding SelectedAvailableExtension.AvailableContent.Description}"
+                                   TextWrapping="Wrap" />
+                        <Panel Margin="0, 0, 12, 0">
+                            <Carousel Name="Carousel"
+                                      IsVisible="{Binding IsDetailsVisible}"
+                                      ItemsSource="{Binding SelectedAvailableExtension.ShowcaseItems}">
+                                <Carousel.DataTemplates>
+                                    <DataTemplate x:DataType="extensionManager:ImageShowcaseItem">
+                                        <Border BorderBrush="{DynamicResource ThemeBorderMidBrush}" BorderThickness="1"
+                                                Margin="32" CornerRadius="{DynamicResource ControlCornerRadius}"
+                                                Background="{DynamicResource ThemeBackgroundBrush1}">
+                                            <visuals:AspectRatioPanel AspectHeight="1080" AspectWidth="1920">
+                                                <Image Stretch="Uniform"
+                                                       Cursor="Hand"
+                                                       asyncImageLoader:ImageLoader.Source="{Binding ImageUrl}">
+                                                    <Interaction.Behaviors>
+                                                        <ExecuteCommandOnPointerPressedBehavior
+                                                            Command="{xaml:Command Name=PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="{Binding ImageUrl}"/>
+                                                    </Interaction.Behaviors>
+                                                </Image>
+                                            </visuals:AspectRatioPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                    <DataTemplate x:DataType="extensionManager:VideoShowcaseItem">
+                                        <Border BorderBrush="{DynamicResource ThemeBorderMidBrush}" BorderThickness="1"
+                                                Margin="32" CornerRadius="{DynamicResource ControlCornerRadius}"
+                                                Background="{DynamicResource ThemeBackgroundBrush1}">
+                                            <Panel>
+                                                <visuals:VideoView
+                                                    Name="video"
+                                                    VideoHeight="1080" VideoWidth="1920" Source="{Binding VideoUrl}">
+                                                    <visuals:VideoView.IsPlaying>
+                                                        <MultiBinding
+                                                            Converter="{converters:CarouselItemIsSelectedConverter}">
+                                                            <Binding Path="." />
+                                                            <Binding Path="SelectedItem" ElementName="Carousel" />
+                                                        </MultiBinding>
+                                                    </visuals:VideoView.IsPlaying>
+                                                    <visuals:VideoView.ContextMenu>
+                                                        <ContextMenu>
+                                                            <MenuItem localization:Translator.Key="EXTENSIONS_WINDOW_SHOWCASE_OPEN_IN_BROWSER"
+                                                                      Command="{xaml:Command Name=PixiEditor.Links.OpenHyperlink, UseProvided=True}"
+                                                                      CommandParameter="{Binding VideoUrl}" />
+                                                        </ContextMenu>
+                                                    </visuals:VideoView.ContextMenu>
+                                                </visuals:VideoView>
+                                                <indicators:LoadingIndicator Height="50"
+                                                                             IsVisible="{Binding ElementName=video, Path=IsDownloading}"
+                                                                             HorizontalAlignment="Center"
+                                                                             VerticalAlignment="Center"
+                                                                             ZIndex="10" />
+                                            </Panel>
+                                        </Border>
+                                    </DataTemplate>
+                                </Carousel.DataTemplates>
+                            </Carousel>
+                            <Button VerticalAlignment="Center"
+                                    Command="{Binding ElementName=Carousel, Path=Previous}"
+                                    Classes="pixi-icon"
+                                    Padding="2"
+                                    Background="{DynamicResource ThemeBackgroundBrush1}"
+                                    BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                                    BorderThickness="1"
+                                    HorizontalAlignment="Left" Margin="0, 0"
+                                    Content="{DynamicResource icon-chevron-left}">
+                                <Button.IsVisible>
+                                    <MultiBinding
+                                        Converter="{converters:GreaterThanConverter}">
+                                        <MultiBinding.ConverterParameter>
+                                            <system:Int32>0</system:Int32>
+                                        </MultiBinding.ConverterParameter>
+                                        <Binding
+                                            ElementName="Carousel" Path="SelectedIndex" />
+                                    </MultiBinding>
+                                </Button.IsVisible>
+                            </Button>
+                            <Button VerticalAlignment="Center"
+                                    Command="{Binding ElementName=Carousel, Path=Next}"
+                                    Classes="pixi-icon"
+                                    Background="{DynamicResource ThemeBackgroundBrush1}"
+                                    BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                                    BorderThickness="1"
+                                    Padding="2"
+                                    HorizontalAlignment="Right" Margin="0, 0"
+                                    Content="{DynamicResource icon-chevron-right}">
+                                <Button.IsVisible>
+                                    <MultiBinding Converter="{converters:LessThanConverter}">
+                                        <Binding
+                                            ElementName="Carousel" Path="SelectedIndex" />
+                                        <Binding
+                                            Path="SelectedAvailableExtension.AvailableContent.ShowcaseUrls.Length" />
+                                        <MultiBinding.ConverterParameter>
+                                            <system:Int32>-1</system:Int32>
+                                        </MultiBinding.ConverterParameter>
+                                    </MultiBinding>
+                                </Button.IsVisible>
+                            </Button>
+                        </Panel>
+                        <Separator />
+                        <avalonia:MarkdownRenderer
+                            Margin="0, 12, 0, 0"
+                            LinkCommand="{Binding LinkClickCommand}"
+                            MarkdownBuilder="{Binding SelectedAvailableExtension.MarkdownBody}">
+                        </avalonia:MarkdownRenderer>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <Border Grid.Column="1"
+                        Grid.Row="1"
+                        BorderThickness="2, 0, 0,0"
+                        Padding="16, 0"
+                        BorderBrush="{DynamicResource ThemeBackgroundColor1}"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Top"
+                        MinHeight="216">
+                    <StackPanel>
+                        <TextBlock localization:Translator.Key="EXTENSIONS_WINDOW_DEVELOPER"
+                                   Opacity="0.5" />
+
+                        <TextBlock Text="{Binding SelectedAvailableExtension.AvailableContent.Author}"
+                                   FontWeight="Bold"
+                                   FontSize="{DynamicResource FontSizeLarge}"
+                                   Margin="0, 0, 0, 12" />
+
+
+                        <TextBlock localization:Translator.Key="EXTENSIONS_WINDOW_STEAM_PURCHASE_UNAVAILABLE"
+                                   IsVisible="{Binding SelectedAvailableExtension.IsUnavailable}"
+                                   TextWrapping="Wrap"
+                                   MaxWidth="150"
+                                   Margin="0, 0, 0, 12"/>
+
+                        <StackPanel>
+                            <StackPanel.IsVisible>
+                                <MultiBinding Converter="{converters:AllTrueConverter}">
+                                    <Binding Path="!SelectedAvailableExtension.AvailableContent.HideAddToLibrary" />
+                                    <Binding Path="!SelectedAvailableExtension.IsUnavailable" />
+                                </MultiBinding>
+                            </StackPanel.IsVisible>
+
+                            <TextBlock localization:Translator.Key="EXTENSIONS_WINDOW_PRICE"
+                                       Opacity="0.5" />
+                            <TextBlock
+                                localization:Translator.Key="{Binding SelectedAvailableExtension.CalculatedPrice}"
+                                FontSize="{DynamicResource FontSizeLarge}"
+                                FontWeight="Bold"
+                                Margin="0, 0, 0, 12">
+                                <TextBlock.IsVisible>
+                                    <MultiBinding Converter="{converters:AllTrueConverter}">
+                                        <Binding Path="!SelectedAvailableExtension.IsOwned" />
+                                        <Binding Path="!SelectedAvailableExtension.AllBundleItemsOwned" />
+                                    </MultiBinding>
+                                </TextBlock.IsVisible>
+                            </TextBlock>
+
+                            <TextBlock localization:Translator.Key="EXTENSIONS_WINDOW_IN_LIBRARY"
+                                       FontSize="{DynamicResource FontSizeLarge}"
+                                       FontWeight="Bold"
+                                       Margin="0, 0, 0 12">
+                                <TextBlock.IsVisible>
+                                    <MultiBinding Converter="{converters:AllTrueConverter}">
+                                        <Binding Path="SelectedAvailableExtension.IsOwned" />
+                                        <Binding Path="!SelectedAvailableExtension.IsBundle" />
+                                    </MultiBinding>
+                                </TextBlock.IsVisible>
+                            </TextBlock>
+                            <TextBlock localization:Translator.Key="EXTENSIONS_WINDOW_ALL_FROM_BUNDLE_OWNED"
+                                       FontSize="{DynamicResource FontSizeLarge}"
+                                       FontWeight="Bold"
+                                       Margin="0, 0, 0 12"
+                                       IsVisible="{Binding SelectedAvailableExtension.AllBundleItemsOwned}" />
+
+                            <Button Command="{Binding OpenPurchaseLinkCommand}"
+                                    CommandParameter="{Binding SelectedAvailableExtension.AvailableContent.Id}"
+                                    FontSize="{DynamicResource FontSizeNormal}"
+                                    Background="{DynamicResource ThemeAccentBrush}"
+                                    BorderThickness="0"
+                                    Margin="0, 12">
+                                <Button.IsVisible>
+                                    <MultiBinding Converter="{converters:AllTrueConverter}">
+                                        <Binding Path="!SelectedAvailableExtension.IsOwned" />
+                                        <Binding Path="!SelectedAvailableExtension.AllBundleItemsOwned" />
+                                        <Binding Path="IsUserLoggedIn" />
+                                        <Binding Path="!SelectedAvailableExtension.IsCountryUnsupported" />
+                                        <Binding Path="!SelectedAvailableExtension.IsFree" />
+                                    </MultiBinding>
+                                </Button.IsVisible>
+                                <TextBlock>
+                                    <Run localization:Translator.Key="EXTENSIONS_WINDOW_PURCHASE_BUTTON" />
+                                    <Run Classes="pixi-icon" Text="{DynamicResource icon-link}" />
+                                </TextBlock>
+                            </Button>
+
+                            <TextBlock localization:Translator.Key="EXTENSIONS_WINDOW_PRICE_INACCURACY_INFO"
+                                       Margin="0, 0, 0, 12"
+                                       Classes="subtext">
+                                <TextBlock.IsVisible>
+                                    <MultiBinding Converter="{converters:AllTrueConverter}">
+                                        <Binding Path="!SelectedAvailableExtension.IsOwned" />
+                                        <Binding Path="!SelectedAvailableExtension.AllBundleItemsOwned" />
+                                        <Binding Path="!SelectedAvailableExtension.IsFree" />
+                                        <Binding Path="!SelectedAvailableExtension.IsCountryUnsupported" />
+                                    </MultiBinding>
+                                </TextBlock.IsVisible>
+                            </TextBlock>
+
+                            <Button Command="{Binding AddToLibraryCommand}"
+                                    CommandParameter="{Binding SelectedAvailableExtension.AvailableContent.Id}"
+                                    FontSize="{DynamicResource FontSizeNormal}"
+                                    Background="{DynamicResource ThemeAccentBrush}"
+                                    BorderThickness="0"
+                                    localization:Translator.Key="ADD_TO_LIBRARY"
+                                    Margin="0, 12">
+                                <Button.IsVisible>
+                                    <MultiBinding Converter="{converters:AllTrueConverter}">
+                                        <Binding Path="!SelectedAvailableExtension.IsOwned" />
+                                        <Binding Path="!SelectedAvailableExtension.AllBundleItemsOwned" />
+                                        <Binding Path="IsUserLoggedIn" />
+                                        <Binding Path="SelectedAvailableExtension.IsFree" />
+                                    </MultiBinding>
+                                </Button.IsVisible>
+                            </Button>
+                            <Button localization:Translator.Key="LOGIN"
+                                    Command="{xaml:Command Name=PixiEditor.Window.OpenAccountWindow}">
+                                <Button.IsVisible>
+                                    <MultiBinding Converter="{converters:AllTrueConverter}">
+                                        <Binding Path="!IsUserLoggedIn" />
+                                    </MultiBinding>
+                                </Button.IsVisible>
+                            </Button>
+                            <TextBlock
+                                Foreground="{DynamicResource ErrorOnDarkBrush}"
+                                localization:Translator.Key="{Binding DetailsErrorMessage}" />
+                        </StackPanel>
+
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Panel>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Border BorderThickness="0, 1">
+                <Panel HorizontalAlignment="Stretch" Background="{DynamicResource ThemeBorderLowBrush}">
+                    <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center" Margin="0 8">
+                        <TextBlock>
+                            <Run FontWeight="Bold" localization:Translator.Key="WELCOME_TO_EXTENSIONS_BETA" />
+                        </TextBlock>
+                        <TextBlock ui:Hyperlink.Url="https://forum.pixieditor.net/t/extension-browser-beta/567"
+                                   localization:Translator.Key="CLICK_HERE_TO_READ_MORE" />
+                    </StackPanel>
+                </Panel>
+            </Border>
+            <Border Grid.Row="1" BorderThickness="1"
+                    CornerRadius="4"
+                    BorderBrush="{DynamicResource ThemeBorderMidColor}"
+                    Background="{DynamicResource ThemeBackgroundColor}"
+                    Margin="12"
+                    HorizontalAlignment="Left">
+                <ItemsControl ItemsSource="{Binding Tabs}"
+                              ClipToBounds="False"
+                              HorizontalAlignment="Left">
+                    <ItemsControl.Styles>
+                        <Style Selector="ToggleButton">
+                            <Setter Property="CornerRadius" Value="4" />
+                            <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderMidColor}" />
+                            <Setter Property="Background" Value="Transparent" />
+                        </Style>
+                        <Style Selector="ToggleButton:unchecked">
+                            <Setter Property="BorderThickness" Value="0" />
+                            <Setter Property="Background" Value="Transparent" />
+                        </Style>
+                        <Style Selector="ToggleButton:checked">
+                            <Setter Property="BorderThickness" Value="1" />
+                            <Setter Property="Margin" Value="-1" />
+                            <Setter Property="Background" Value="Transparent" />
+                        </Style>
+                    </ItemsControl.Styles>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <controls:SelectableStrip />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <ToggleButton Padding="12 4"
+                                          ClipToBounds="False"
+                                          controls:SelectableStrip.IsStripSelected="{Binding RelativeSource={RelativeSource Self}, Path=IsChecked}"
+                                          behaviours:ToggleGroupBehavior.GroupName="ExtensionsTab"
+                                          BorderThickness="0"
+                                          behaviours:ToggleGroupBehavior.Value="{Binding }"
+                                          behaviours:ToggleGroupBehavior.SelectedValue="{Binding DataContext.SelectedTab, Mode=TwoWay, RelativeSource={RelativeSource FindAncestor, AncestorType=dialogs:ExtensionsPopup}}">
+                                <Panel ClipToBounds="False">
+                                    <TextBlock FontSize="{DynamicResource FontSizeNormal}"
+                                               localization:Translator.Key="{Binding Name}" />
+                                    <Ellipse IsVisible="{Binding ShowStatusIndicator}"
+                                             IsHitTestVisible="False"
+                                             ClipToBounds="False"
+                                             Classes="pulse"
+                                             Margin="-8"
+                                             Width="12" Height="12"
+                                             HorizontalAlignment="Right"
+                                             VerticalAlignment="Top"
+                                             StrokeThickness="2"
+                                             Stroke="{DynamicResource ThemeBackgroundBrush}"
+                                             Fill="{DynamicResource ThemeAccent3Brush}" />
+                                </Panel>
+                            </ToggleButton>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Border>
+            <Panel Grid.Row="2" IsVisible="{Binding ShowAllTab}">
+                <indicators:LoadingIndicator
+                    IsVisible="{Binding IsAvailableFetching}"
+                    HorizontalAlignment="Center" VerticalAlignment="Center"
+                    ZIndex="10"
+                    Height="150" Width="150" />
+                <Panel IsVisible="{Binding !IsAvailableFetching}">
+                    <TextBlock
+                        Foreground="{DynamicResource ErrorOnDarkBrush}"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        FontSize="{DynamicResource FontSizeLarge}"
+                        localization:Translator.Key="{Binding AvailableErrorMessage}" />
+
+                    <ScrollViewer IsVisible="{Binding IsListVisible}">
+                        <ItemsControl ItemsSource="{Binding AvailableExtensions}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel Orientation="Horizontal" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button
+                                        Command="{Binding DataContext.SelectExtensionCommand, RelativeSource={RelativeSource AncestorType=dialogs:ExtensionsPopup}}"
+                                        CommandParameter="{Binding}"
+                                        Background="Transparent"
+                                        BorderThickness="0">
+                                        <Border
+                                            Background="{DynamicResource ThemeBackgroundColor1}"
+                                            CornerRadius="4"
+                                            Padding="12"
+                                            Width="192"
+                                            Margin="6">
+
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="*" />
+                                                    <RowDefinition Height="Auto" />
+                                                </Grid.RowDefinitions>
+
+                                                <Panel>
+                                                    <TextBlock Classes="pixi-icon" HorizontalAlignment="Center"
+                                                               Text="{DynamicResource icon-blocks}" FontSize="64"
+                                                               Opacity="0.25"
+                                                               IsVisible="{Binding AvailableContent.ImageUrl, Converter={converters:EmptyStringConverter}}" />
+                                                    <Image
+                                                        Height="100"
+                                                        Stretch="Uniform"
+                                                        asyncImageLoader:ImageLoader.Source="{Binding AvailableContent.ImageUrl}" />
+                                                </Panel>
+
+                                                <StackPanel Margin="0, 16" Grid.Row="1">
+                                                    <TextBlock
+                                                        Text="{Binding AvailableContent.Author}"
+                                                        Foreground="{DynamicResource ThemeForegroundColor}"
+                                                        Opacity="0.5"
+                                                        FontSize="{DynamicResource FontSizeSmall}" />
+
+                                                    <TextBlock
+                                                        Text="{Binding AvailableContent.Name}"
+                                                        TextTrimming="CharacterEllipsis"
+                                                        FontSize="{DynamicResource FontSizeLarge}"
+                                                        FontWeight="Bold"
+                                                        Foreground="{DynamicResource ThemeForegroundColor}" />
+
+                                                    <TextBlock
+                                                        Text="{Binding AvailableContent.Description}"
+                                                        TextTrimming="CharacterEllipsis"
+                                                        FontSize="{DynamicResource FontSizeNormal}"
+                                                        FontWeight="Normal"
+                                                        Foreground="{DynamicResource ThemeForegroundColor}"
+                                                        TextWrapping="Wrap"
+                                                        MaxLines="2"
+                                                        MinHeight="36" />
+                                                </StackPanel>
+
+                                                <Panel Grid.Row="2">
+                                                    <TextBlock
+                                                        localization:Translator.Key="{Binding PriceText}"
+                                                        Foreground="{DynamicResource ThemeForegroundBrush}"
+                                                        FontSize="{DynamicResource FontSizeNormal}"
+                                                        FontWeight="Normal" />
+                                                </Panel>
+                                            </Grid>
+                                        </Border>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Panel>
+            </Panel>
+            <Panel Grid.Row="2" IsVisible="{Binding ShowOwnedTab}">
+                <ScrollViewer>
+                    <ItemsControl ItemsSource="{Binding OwnedExtensions}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="user:OwnedProductViewModel">
+                                <Border
+                                    Background="{DynamicResource ThemeBackgroundColor1}"
+                                    CornerRadius="4"
+                                    Padding="12"
+                                    Width="192"
+                                    Margin="12">
+
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+
+                                        <Grid Cursor="Hand" Background="Transparent">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="*" />
+                                                <RowDefinition Height="Auto" />
+                                            </Grid.RowDefinitions>
+                                            <Interaction.Behaviors>
+                                                <ExecuteCommandOnPointerPressedBehavior
+                                                    Command="{Binding DataContext.SelectOwnedExtensionCommand, RelativeSource={RelativeSource AncestorType=dialogs:ExtensionsPopup}}"
+                                                    CommandParameter="{Binding}" />
+                                            </Interaction.Behaviors>
+                                            <Panel>
+                                                <TextBlock Classes="pixi-icon" HorizontalAlignment="Center"
+                                                           Text="{DynamicResource icon-blocks}" FontSize="64"
+                                                           Opacity="0.25"
+                                                           IsVisible="{Binding ImageSource, Converter={converters:NullToVisibilityConverter}}" />
+                                                <Image
+                                                    Height="100"
+                                                    Stretch="Uniform"
+                                                    Source="{Binding ImageSource}">
+                                                </Image>
+                                            </Panel>
+
+                                            <StackPanel Background="Transparent" Margin="0, 16" Grid.Row="1"
+                                                        Cursor="Hand">
+                                                <Interaction.Behaviors>
+                                                    <ExecuteCommandOnPointerPressedBehavior
+                                                        Command="{Binding DataContext.SelectOwnedExtensionCommand, RelativeSource={RelativeSource AncestorType=dialogs:ExtensionsPopup}}"
+                                                        CommandParameter="{Binding}" />
+                                                </Interaction.Behaviors>
+                                                <TextBlock
+                                                    Text="{Binding ProductData.Author}"
+                                                    Foreground="{DynamicResource ThemeForegroundColor}"
+                                                    Opacity="0.5"
+                                                    FontSize="{DynamicResource FontSizeSmall}" />
+
+                                                <TextBlock
+                                                    Text="{Binding ProductData.DisplayName}"
+                                                    TextTrimming="CharacterEllipsis"
+                                                    FontSize="{DynamicResource FontSizeLarge}"
+                                                    FontWeight="Bold"
+                                                    Foreground="{DynamicResource ThemeForegroundColor}" />
+
+                                                <TextBlock
+                                                    Text="{Binding ProductData.Description}"
+                                                    TextTrimming="CharacterEllipsis"
+                                                    FontSize="{DynamicResource FontSizeNormal}"
+                                                    FontWeight="Normal"
+                                                    Foreground="{DynamicResource ThemeForegroundColor}"
+                                                    TextWrapping="Wrap"
+                                                    MaxLines="2"
+                                                    MinHeight="36" />
+                                            </StackPanel>
+                                        </Grid>
+
+                                        <DockPanel Grid.Row="1">
+                                            <DockPanel DockPanel.Dock="Right"
+                                                       HorizontalAlignment="Right"
+                                                       IsVisible="{Binding !RestartRequired}">
+
+                                                <Button Command="{Binding InstallCommand}"
+                                                        FontSize="{DynamicResource FontSizeNormal}">
+                                                    <Button.IsVisible>
+                                                        <MultiBinding Converter="{converters:AllTrueConverter}">
+                                                            <Binding Path="!IsInstalled" />
+                                                            <Binding Path="!IsInstalling" />
+                                                            <Binding Path="DataContext.IsUserLoggedIn"
+                                                                     RelativeSource="{RelativeSource AncestorType=dialogs:ExtensionsPopup}" />
+                                                        </MultiBinding>
+                                                    </Button.IsVisible>
+
+                                                    <TextBlock>
+                                                        <Run Classes="pixi-icon" Text="{DynamicResource icon-download}" />
+                                                        <Run localization:Translator.Key="INSTALL" />
+                                                    </TextBlock>
+                                                </Button>
+
+                                                <TextBlock IsVisible="{Binding IsInstalling}"
+                                                           FontSize="{DynamicResource FontSizeNormal}"
+                                                           localization:Translator.Key="INSTALLING" />
+
+                                                <Button Command="{Binding UpdateCommand}"
+                                                        VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                        Margin="0, 0, 12, 0"
+                                                        FontSize="{DynamicResource FontSizeNormal}">
+                                                    <Button.IsVisible>
+                                                        <MultiBinding Converter="{converters:AllTrueConverter}">
+                                                            <Binding Path="UpdateAvailable" />
+                                                            <Binding Path="!IsInstalling" />
+                                                        </MultiBinding>
+                                                    </Button.IsVisible>
+
+                                                    <TextBlock Foreground="{DynamicResource ThemeAccent3Brush}">
+                                                        <Run Classes="pixi-icon" Text="{DynamicResource icon-download}" />
+                                                        <Run localization:Translator.Key="UPDATE" />
+                                                    </TextBlock>
+                                                </Button>
+
+                                                <ToggleSwitch
+                                                    IsChecked="{Binding IsEnabled, Mode=TwoWay}"
+                                                    Command="{Binding ToggleEnabledCommand}"
+                                                    CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}"
+                                                    VerticalAlignment="Center">
+                                                    <ToggleSwitch.IsVisible>
+                                                        <MultiBinding Converter="{converters:AllTrueConverter}">
+                                                            <Binding Path="IsInstalled" />
+                                                            <Binding Path="!IsInstalling" />
+                                                            <Binding Path="CanBeEnabled" />
+                                                        </MultiBinding>
+                                                    </ToggleSwitch.IsVisible>
+                                                </ToggleSwitch>
+                                                <TextBlock Foreground="{DynamicResource ThemeAccentBrush}">
+                                                    <Run Classes="pixi-icon" Text="{DynamicResource icon-folder}" />
+                                                    <ToolTip.Tip>
+                                                        <TextBlock
+                                                            localization:Translator.LocalizedString="{Binding DependenciesMissingText}" />
+                                                    </ToolTip.Tip>
+                                                    <ToggleSwitch.IsVisible>
+                                                        <MultiBinding Converter="{converters:AllTrueConverter}">
+                                                            <Binding Path="IsInstalled" />
+                                                            <Binding Path="!IsInstalling" />
+                                                            <Binding Path="!CanBeEnabled" />
+                                                        </MultiBinding>
+                                                    </ToggleSwitch.IsVisible>
+                                                </TextBlock>
+
+                                            </DockPanel>
+                                            <Button DockPanel.Dock="Left"
+                                                    HorizontalAlignment="Left"
+                                                    Background="Transparent"
+                                                    BorderBrush="Transparent"
+                                                    Classes="pixi-icon"
+                                                    BorderThickness="0"
+                                                    FontSize="{DynamicResource FontSizeNormal}"
+                                                    Command="{Binding UninstallCommand}">
+                                                <Button.IsVisible>
+                                                    <MultiBinding Converter="{converters:AllTrueConverter}">
+                                                        <Binding Path="IsInstalled" />
+                                                        <Binding Path="!IsInstalling" />
+                                                        <Binding Path="!IsUninstalling" />
+                                                        <Binding Path="!RestartRequired" />
+                                                    </MultiBinding>
+                                                </Button.IsVisible>
+
+                                                <Button.Content>
+                                                    <Panel>
+                                                        <ContentControl
+                                                            FontSize="18"
+                                                            IsVisible="{Binding !IsUninstalling}"
+                                                            Content="{DynamicResource icon-trash}">
+
+                                                            <ToolTip.Tip>
+                                                                <TextBlock
+                                                                    localization:Translator.Key="EXTENSIONS_WINDOW_UNINSTALL_BUTTON_TOOLTIP" />
+                                                            </ToolTip.Tip>
+                                                        </ContentControl>
+
+                                                        <ContentControl
+                                                            FontSize="18"
+                                                            IsVisible="{Binding IsUninstalling}"
+                                                            Content="{DynamicResource icon-circle}" />
+                                                    </Panel>
+                                                </Button.Content>
+                                            </Button>
+                                            <Button DockPanel.Dock="Left" HorizontalAlignment="Left"
+                                                    IsVisible="{Binding RestartRequired}"
+                                                    localization:Translator.Key="RESTART"
+                                                    Background="{DynamicResource ThemeAccentBrush}"
+                                                    Command="{xaml:Command Name=PixiEditor.Restart}" />
+
+                                            <Button DockPanel.Dock="Left" HorizontalAlignment="Left"
+                                                    FontSize="{DynamicResource FontSizeNormal}"
+                                                    VerticalAlignment="Center" Margin="10, 0"
+                                                    localization:Translator.Key="RESTART"
+                                                    Background="{DynamicResource ThemeAccentBrush}"
+                                                    Command="{xaml:Command Name=PixiEditor.Restart}">
+                                                <Button.IsVisible>
+                                                    <MultiBinding Converter="{converters:AllTrueConverter}">
+                                                        <Binding Path="IsInstalled" />
+                                                        <Binding Path="IsLoaded" />
+                                                        <Binding Path="!IsEnabled" />
+                                                    </MultiBinding>
+                                                </Button.IsVisible>
+                                            </Button>
+                                        </DockPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Panel>
+        </Grid>
+    </Panel>
+</dialogs:PixiEditorPopup>

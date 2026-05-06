@@ -788,6 +788,10 @@ internal class NodeGraphView : Zoombox.Zoombox
             NodeGraph.Connections.Add(_hiddenConnection);
             _hiddenConnection = null;
         }
+        else if(connection.Item1 != null && connection.Item2 == null)
+        {
+            return;
+        }
 
         if (ConnectPropertiesCommand != null && ConnectPropertiesCommand.CanExecute(connection))
         {

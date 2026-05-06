@@ -7,6 +7,8 @@
              xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
              xmlns:system="clr-namespace:System;assembly=System.Runtime"
              xmlns:viewModels="clr-namespace:PixiEditor.ViewModels"
+             xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
+             xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              ClipToBounds="False"
              x:Class="PixiEditor.Views.Main.Tools.ToolsPicker" Name="picker">
@@ -18,20 +20,26 @@
         Padding="0, 5"
         BorderThickness="{DynamicResource ThemeBorderThickness}"
         Background="{DynamicResource ThemeBackgroundBrush1}">
-        <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-            <ItemsControl ItemsSource="{Binding ElementName=picker, Path=ToolSet.Tools}" Padding="0 2">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate DataType="tools:ToolViewModel">
-                        <tools1:ToolPickerButton DataContext="{Binding}"
-                                                 IsSelected="{Binding IsActive}" />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <StackPanel Orientation="Vertical" />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-            </ItemsControl>
-        </ScrollViewer>
+        <StackPanel>
+            <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding ElementName=picker, Path=ToolSet.Tools}" Padding="0 2">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="tools:ToolViewModel">
+                            <tools1:ToolPickerButton DataContext="{Binding}"
+                                                     IsSelected="{Binding IsActive}" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Vertical" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </ScrollViewer>
+            <Button Classes="pixi-icon" Content="{DynamicResource icon-blocks}"
+                    Padding="0, 0, 0, 5"
+                    localization:Translator.TooltipKey="GET_FROM_EXTENSIONS"
+                    Command="{xaml:Command Name=PixiEditor.Window.OpenExtensionsWindow}"/>
+        </StackPanel>
     </Border>
 </UserControl>

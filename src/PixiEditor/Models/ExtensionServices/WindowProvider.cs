@@ -62,7 +62,9 @@ public class WindowProvider : IWindowProvider
 
     public IPopupWindow CreatePopupWindow(string title, object body)
     {
-        return new PopupWindow(new PixiEditorPopup { Title = title, Content = body });
+        var popup = new PixiEditorPopup { Content = body };
+        Translator.SetKey(popup, title);
+        return new PopupWindow(popup);
     }
 
     public IPopupWindow GetWindow(BuiltInWindowType type)

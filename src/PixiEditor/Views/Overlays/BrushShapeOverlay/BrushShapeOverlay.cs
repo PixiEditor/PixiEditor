@@ -174,27 +174,34 @@ internal class BrushShapeOverlay : Overlay
 
     private void ExecuteBrush(VecD pos)
     {
-        if (engine == null || BrushData.BrushGraph == null) return;
-
-        if (VecD.Distance(lastDirCalculationPoint, pos) > 1)
+        try
         {
-            lastDirCalculationPoint = lastDirCalculationPoint.Lerp(pos, 0.5f);
+            if (engine == null || BrushData.BrushGraph == null) return;
+
+            if (VecD.Distance(lastDirCalculationPoint, pos) > 1)
+            {
+                lastDirCalculationPoint = lastDirCalculationPoint.Lerp(pos, 0.5f);
+            }
+
+            VecD dir = lastDirCalculationPoint - pos;
+            VecD vecDir = new VecD(dir.X, dir.Y);
+            VecD dirNormalized = vecDir.Length > 0 ? vecDir.Normalize() : lastPointerInfo.MovementDirection;
+
+            PointerInfo pointer = new PointerInfo(pos, 1, 0, VecD.Zero, dirNormalized, true, false);
+
+            engine.ExecuteBrush(null, BrushData, pos, ActiveFrameTime,
+                ColorSpace.CreateSrgb(), SamplingOptions.Default, pointer, new KeyboardInfo(),
+                EditorData?.Invoke() ?? new EditorData(Colors.White, Colors.Black));
         }
-
-        VecD dir = lastDirCalculationPoint - pos;
-        VecD vecDir = new VecD(dir.X, dir.Y);
-        VecD dirNormalized = vecDir.Length > 0 ? vecDir.Normalize() : lastPointerInfo.MovementDirection;
-
-        PointerInfo pointer = new PointerInfo(pos, 1, 0, VecD.Zero, dirNormalized, true, false);
-
-        engine.ExecuteBrush(null, BrushData, pos, ActiveFrameTime,
-            ColorSpace.CreateSrgb(), SamplingOptions.Default, pointer, new KeyboardInfo(),
-            EditorData?.Invoke() ?? new EditorData(Colors.White, Colors.Black));
+        catch (Exception ex)
+        {
+            CrashHelper.SendExceptionInfo(ex);
+        }
     }
 
     protected override void OnOverlayPointerMoved(OverlayPointerArgs args)
     {
-        isMouseDown = args.Properties.IsLeftButtonPressed;
+        isMouseDown = args.Properties.IsLeftButtonPressed || args.Properties.IsRightButtonPressed;
         if (!args.Properties.IsLeftButtonPressed && BrushData.BrushGraph != null)
         {
             ExecuteBrush(args.Point);
@@ -223,7 +230,7 @@ internal class BrushShapeOverlay : Overlay
 
     protected override void OnOverlayPointerEntered(OverlayPointerArgs args)
     {
-        isMouseDown = args.Properties.IsLeftButtonPressed;
+        isMouseDown = args.Properties.IsLeftButtonPressed || args.Properties.IsRightButtonPressed;
     }
 
     protected override void OnKeyPressed(KeyEventArgs args)
@@ -236,7 +243,15 @@ internal class BrushShapeOverlay : Overlay
     {
         if (BrushData.BrushGraph == null) return;
 
-        BrushShape = engine.EvaluateShape(pos, BrushData);
+        try
+        {
+            BrushShape?.Dispose();
+            BrushShape = engine.EvaluateShape(pos, BrushData);
+        }
+        catch (Exception ex)
+        {
+            CrashHelper.SendExceptionInfo(ex);
+        }
     }
 
     protected override void OnRenderOverlay(Canvas context, RectD canvasBounds) => Render(context);

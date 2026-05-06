@@ -27,7 +27,12 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
     public TransformState InternalState
     {
         get => internalState;
-        set => SetProperty(ref internalState, value);
+        set
+        {
+            if(double.IsNaN(value.Origin.X) || double.IsNaN(value.Origin.Y) || double.IsNaN(value.ProportionalAngle1) || double.IsNaN(value.ProportionalAngle2))
+                return;
+            SetProperty(ref internalState, value);
+        }
     }
 
     private TransformCornerFreedom cornerFreedom;

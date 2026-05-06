@@ -96,7 +96,7 @@
                                 <Border
                                     CornerRadius="0 0 5 5"
                                     BorderThickness="1" BorderBrush="{DynamicResource ThemeBorderMidBrush}"
-                                    IsVisible="{Binding Errors, Converter={converters:NotEmptyStringConverter}}"
+                                    IsVisible="{TemplateBinding Errors, Converter={converters:NotEmptyStringConverter}}"
                                     Background="{DynamicResource ThemeBackgroundBrush}" Grid.Row="1">
                                     <ScrollViewer Name="PART_ErrorScrollViewer"
                                                   HorizontalScrollBarVisibility="Disabled"

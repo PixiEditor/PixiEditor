@@ -145,11 +145,13 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
         Guid toCloneFrom = duplicate ? activeDocument.SelectedStructureMember.Id : Guid.Empty;
         int frameToCopyFrom = duplicate ? activeDocument.AnimationDataViewModel.ActiveFrameBindable : -1;
 
-        activeDocument.AnimationDataViewModel.CreateCel(
+        Guid? created = activeDocument.AnimationDataViewModel.CreateCel(
             activeDocument.SelectedStructureMember.Id,
             newFrame,
             toCloneFrom,
             frameToCopyFrom);
+
+        if (created == null) return;
 
         int newPos = kfAtFrame != null
             ? kfAtFrame.StartFrameBindable + kfAtFrame.DurationBindable

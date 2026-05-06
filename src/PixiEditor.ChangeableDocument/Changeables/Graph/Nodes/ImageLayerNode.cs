@@ -40,7 +40,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
                 return chunkyImage;
             }
 
-            var newImage = new ChunkyImage(startSize, colorSpace);
+            var newImage = new ChunkyImage(startSize);
             keyFrames[0].Data = newImage;
             return newImage;
         }
@@ -51,7 +51,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         if (keyFrames.Count == 0)
         {
             keyFrames.Add(
-                new KeyFrameData(Guid.NewGuid(), 0, 0, ImageLayerKey) { Data = new ChunkyImage(size, colorSpace) });
+                new KeyFrameData(Guid.NewGuid(), 0, 0, ImageLayerKey) { Data = new ChunkyImage(size) });
         }
 
         this.startSize = size;
@@ -155,12 +155,11 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         }
 
         RectI latestSize = new(0, 0, layerImage.LatestSize.X, layerImage.LatestSize.Y);
-        var region = ctx.VisibleDocumentRegion ?? latestSize;
+        var region = (RectI?)ctx.VisibleDocumentRegion?.RoundOutwards() ?? latestSize;
 
         VecD topLeft = region.TopLeft - sceneSize / 2;
 
         topLeft *= ctx.ChunkResolution.Multiplier();
-        workingSurface.Scale((float)ctx.ChunkResolution.InvertedMultiplier());
         var img = GetLayerImageAtFrame(ctx.FrameTime.Frame);
 
         if (img is null)
@@ -173,7 +172,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         VecD finalDrawPos = topLeft;
         if (saveLayer)
         {
-            var visibleRegion = ctx.VisibleDocumentRegion ?? latestSize;
+            var visibleRegion = (RectI?)ctx.VisibleDocumentRegion?.RoundOutwards() ?? latestSize;
             var multiplier = visibleRegion != latestSize ? 1 : ctx.ChunkResolution.Multiplier();
             var intersection = visibleRegion.Intersect(latestSize);
             region = intersection;
@@ -186,12 +185,11 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
             intermediate = RequestTexture(1336, chunkAwareSize, ColorSpace.CreateSrgb());
             finalDrawPos = VecD.Zero;
-            // TODO: Validate that removing below doesn't cause issues. Bugs like partial chunk rendering on scene moves the position of the image.
-            // If you uncomment this, Test file (nested elephant in render tests) will fail for certain zooms
-            /*if (visibleRegion != latestSize)
-            {
-                topLeft = region.TopLeft - sceneSize / 2;
-            }*/
+            topLeft = region.TopLeft - sceneSize / 2;
+        }
+        else
+        {
+            workingSurface.Scale((float)ctx.ChunkResolution.InvertedMultiplier());
         }
 
         if (!ctx.FullRerender)
@@ -214,8 +212,9 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         if (saveLayer && intermediate != null)
         {
             int intermediateSaved = workingSurface.Save();
-            workingSurface.Translate(topLeft);
 
+            workingSurface.Translate(topLeft);
+            workingSurface.Scale((float)ctx.ChunkResolution.InvertedMultiplier());
             workingSurface.DrawSurface(intermediate.DrawingSurface, 0, 0, paint);
 
             workingSurface.RestoreToCount(intermediateSaved);

@@ -24,7 +24,9 @@ using PixiEditor.Models.DocumentModels.Autosave;
 using PixiEditor.Models.ExtensionServices;
 using PixiEditor.Models.Files;
 using PixiEditor.Models.Handlers;
+using PixiEditor.Models.IO;
 using PixiEditor.OperatingSystem;
+using PixiEditor.UI.Common.Behaviors;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Document.Nodes;
@@ -76,6 +78,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
     public UserViewModel UserViewModel { get; set; }
     public BrushesViewModel BrushesSubViewModel { get; set; }
     public AdvicesViewModel AdvicesSubViewModel { get; set; }
+    public ChangelogViewModel ChangelogSubViewModel { get; set; }
 
     public IPreferences Preferences { get; set; }
     public ILocalizationProvider LocalizationProvider { get; set; }
@@ -172,6 +175,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         DiscordViewModel = services.GetService<DiscordViewModel>();
         UpdateSubViewModel = services.GetService<UpdateViewModel>();
         DebugSubViewModel = services.GetService<DebugViewModel>();
+        ChangelogSubViewModel = services.GetService<ChangelogViewModel>();
 
         StylusSubViewModel = services.GetService<StylusViewModel>();
         RegistrySubViewModel = services.GetService<RegistryViewModel>();
@@ -370,28 +374,30 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
 
         if (result != ConfirmationType.Canceled)
         {
-            using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
-            BeforeDocumentClosed?.Invoke(document);
-            if (!DocumentManagerSubViewModel.Documents.Remove(document))
+            DrawingBackendApi.Current.RenderingDispatcher.Invoke(() =>
             {
+                BeforeDocumentClosed?.Invoke(document);
+                if (!DocumentManagerSubViewModel.Documents.Remove(document))
+                {
 #if DEBUG
-                throw new InvalidOperationException(
-                    "Trying to close a document that's not in the documents collection. Likely, the document wasn't added there after creation by mistake.");
+                    throw new InvalidOperationException(
+                        "Trying to close a document that's not in the documents collection. Likely, the document wasn't added there after creation by mistake.");
 #endif
-            }
+                }
 
-            if (DocumentManagerSubViewModel.ActiveDocument == document)
-            {
-                if (DocumentManagerSubViewModel.Documents.Count > 0)
-                    WindowSubViewModel.MakeDocumentViewportActive(DocumentManagerSubViewModel.Documents.Last());
-                else
-                    WindowSubViewModel.MakeDocumentViewportActive((DocumentViewModel)null);
-            }
+                if (DocumentManagerSubViewModel.ActiveDocument == document)
+                {
+                    if (DocumentManagerSubViewModel.Documents.Count > 0)
+                        WindowSubViewModel.MakeDocumentViewportActive(DocumentManagerSubViewModel.Documents.Last());
+                    else
+                        WindowSubViewModel.MakeDocumentViewportActive((DocumentViewModel)null);
+                }
 
-            WindowSubViewModel.CloseViewportsForDocument(document);
-            document.Dispose();
-            document.AutosaveViewModel.OnDocumentClosed();
-            DocumentManagerSubViewModel.RemoveDocumentReferences(document.Id, document.NodeGraph.AllNodes.Where(x => x is NestedDocumentNodeViewModel).Select(x => x.Id));
+                WindowSubViewModel.CloseViewportsForDocument(document);
+                document.Dispose();
+                document.AutosaveViewModel.OnDocumentClosed();
+                DocumentManagerSubViewModel.RemoveDocumentReferences(document.Id, document.NodeGraph.AllNodes.Where(x => x is NestedDocumentNodeViewModel).Select(x => x.Id));
+            });
 
             return true;
         }
@@ -417,10 +423,27 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
                     await analytics.StopAsync();
                 }
 
+                ClearSessionCache();
                 OnClose?.Invoke();
                 shutdown();
             }
         });
+    }
+
+    private void ClearSessionCache()
+    {
+        string cachePath = Paths.TempSessionFilesPath;
+        if (Directory.Exists(cachePath))
+        {
+            try
+            {
+                Directory.Delete(cachePath, true);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to clear session cache: {ex.Message}");
+            }
+        }
     }
 
     public EditorData ConstructEditorData()

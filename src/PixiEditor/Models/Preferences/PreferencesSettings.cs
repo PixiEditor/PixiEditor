@@ -137,7 +137,12 @@ internal class PreferencesSettings : IPreferences
 
     private T? GetValue<T>(Dictionary<string, object> dict, string name, T? fallbackValue)
     {
-        if (!dict.TryGetValue(name, out var preference)) return fallbackValue;
+        name = TrimPrefix(name);
+        
+        if (!dict.ContainsKey(name)) return fallbackValue;
+        var preference = dict[name];
+        if (preference == null) return fallbackValue;
+        if (typeof(T) == preference?.GetType()) return (T)preference;
 
         // If it's already the right type (happens for values set during current session)
         if (preference is T correctlyTypedValue) return correctlyTypedValue;

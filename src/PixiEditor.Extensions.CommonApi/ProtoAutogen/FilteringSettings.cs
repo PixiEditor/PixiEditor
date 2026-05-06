@@ -30,7 +30,7 @@ namespace PixiEditor.Extensions.CommonApi.Palettes
         public bool ShowOnlyFavourites { get; set; }
 
         [global::ProtoBuf.ProtoMember(5)]
-        public global::System.Collections.Generic.List<string> Favourites { get; set; } = new global::System.Collections.Generic.List<string>();
+        public global::System.Collections.Generic.List<string> Favourites { get; } = new global::System.Collections.Generic.List<string>();
 
     }
 

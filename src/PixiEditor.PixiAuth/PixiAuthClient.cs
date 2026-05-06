@@ -226,6 +226,7 @@ public class PixiAuthClient
         {
             throw new InternalServerErrorException("INTERNAL_SERVER_ERROR");
         }
+
         if (response.StatusCode >= HttpStatusCode.BadRequest)
         {
             throw new BadRequestException(await response.Content.ReadAsStringAsync());
@@ -248,9 +249,10 @@ public class PixiAuthClient
         return false;
     }
 
-    public async Task<List<Product>> GetOwnedProducts(string token)
+    public async Task<List<Product>> GetUserLibrary(string token, int apiVersion)
     {
-        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, "/content/getOwnedProducts");
+        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get,
+            $"v2/content/getOwnedProducts?pixiEditorApiVersion={apiVersion}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         var response = await httpClient.SendAsync(request);
@@ -259,6 +261,7 @@ public class PixiAuthClient
         {
             throw new InternalServerErrorException("INTERNAL_SERVER_ERROR");
         }
+
         if (response.StatusCode >= HttpStatusCode.BadRequest)
         {
             throw new BadRequestException(await response.Content.ReadAsStringAsync());
@@ -283,12 +286,13 @@ public class PixiAuthClient
         return [];
     }
 
-    public async Task<Stream> DownloadProduct(string token, string productId)
+    public async Task<Stream> DownloadProduct(string token, string productId, string downloadLink)
     {
+        string downloadToken = await GetDownloadToken(token, productId);
+
         HttpRequestMessage request =
-            new HttpRequestMessage(HttpMethod.Get, $"/content/downloadProduct?productId={productId}");
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-        request.Content = JsonContent.Create(productId);
+            new HttpRequestMessage(HttpMethod.Get, downloadLink);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", downloadToken);
 
         var response = await httpClient.SendAsync(request);
 
@@ -296,6 +300,7 @@ public class PixiAuthClient
         {
             throw new InternalServerErrorException("INTERNAL_SERVER_ERROR");
         }
+
         if (response.StatusCode >= HttpStatusCode.BadRequest)
         {
             throw new BadRequestException(await response.Content.ReadAsStringAsync());
@@ -311,5 +316,157 @@ public class PixiAuthClient
         }
 
         throw new BadRequestException("DOWNLOAD_FAILED");
+    }
+
+    public async Task<List<AvailableExtension>> GetAvailableExtensions()
+    {
+        using HttpClient cdnClient = new HttpClient();
+        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"https://cdn.pixilabs.eu/items.json");
+
+        var response = await cdnClient.SendAsync(request);
+
+        if (response.StatusCode >= HttpStatusCode.InternalServerError)
+        {
+            throw new InternalServerErrorException("INTERNAL_SERVER_ERROR");
+        }
+
+        if (response.StatusCode >= HttpStatusCode.BadRequest)
+        {
+            throw new BadRequestException(await response.Content.ReadAsStringAsync());
+        }
+
+        if (response.StatusCode == HttpStatusCode.OK)
+        {
+            string result = await response.Content.ReadAsStringAsync();
+            try
+            {
+                var caseInsensitiveOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web)
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+
+                List<AvailableExtension>? availableExtensions =
+                    JsonSerializer.Deserialize<List<AvailableExtension>>(result, caseInsensitiveOptions);
+
+                return availableExtensions ?? new List<AvailableExtension>();
+            }
+            catch (JsonException)
+            {
+                throw new BadRequestException("PARSING_FAILED");
+            }
+        }
+
+        return [];
+    }
+
+    private async Task<String> GetDownloadToken(string token, string productId)
+    {
+        HttpRequestMessage request =
+            new HttpRequestMessage(HttpMethod.Get, $"content/getDownloadToken?productId={productId}");
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        var response = await httpClient.SendAsync(request);
+
+        if (response.StatusCode >= HttpStatusCode.InternalServerError)
+        {
+            throw new InternalServerErrorException("INTERNAL_SERVER_ERROR");
+        }
+
+        if (response.StatusCode >= HttpStatusCode.BadRequest)
+        {
+            throw new BadRequestException(await response.Content.ReadAsStringAsync());
+        }
+
+        if (response.StatusCode == HttpStatusCode.OK)
+        {
+            var result = await response.Content.ReadAsStringAsync();
+            JsonDocument? jsonDoc = JsonDocument.Parse(result);
+            if (jsonDoc != null)
+            {
+                return jsonDoc.RootElement.GetProperty("downloadToken").GetString();
+            }
+        }
+
+        throw new BadRequestException("REQUEST_FAILED");
+    }
+
+    public string GetCreateCheckoutSessionFromSessionIdUrl(Guid? sessionId, string extensionId)
+    {
+        return
+            $"{httpClient.BaseAddress}content/createCheckoutSessionFromSessionId?sessionId={sessionId}&productId={System.Web.HttpUtility.UrlEncode(extensionId)}";
+    }
+
+    public async Task Register(string email, bool signInToNewsletter, bool agreedToTerms)
+    {
+        if (!agreedToTerms)
+        {
+            throw new BadRequestException("AGREEMENT_TO_TERMS_REQUIRED");
+        }
+
+        var response = await httpClient.PostAsJsonAsync("/users/register",
+            new { Email = email, AgreedToTerms = agreedToTerms, SignInToNewsletter = signInToNewsletter });
+
+        if (response.IsSuccessStatusCode)
+        {
+            return;
+        }
+        else if (response.StatusCode >= HttpStatusCode.InternalServerError)
+        {
+            throw new InternalServerErrorException("INTERNAL_SERVER_ERROR");
+        }
+        else if (response.StatusCode == HttpStatusCode.TooManyRequests)
+        {
+            if (response.Headers.TryGetValues("Retry-After", out var values))
+            {
+                if (int.TryParse(values.FirstOrDefault(), out int retryAfter))
+                {
+                    throw new TooManyRequestsException("TOO_MANY_REQUESTS", retryAfter / 1000d);
+                }
+            }
+        }
+        else if (response.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            throw new UnauthorizedAccessException("UNAUTHORIZED");
+        }
+        else if (response.StatusCode == HttpStatusCode.Forbidden)
+        {
+            throw new ForbiddenException("FORBIDDEN");
+        }
+        else if (response.StatusCode >= HttpStatusCode.BadRequest)
+        {
+            throw new BadRequestException(await response.Content.ReadAsStringAsync());
+        }
+    }
+
+    public async Task AddProductToLibrary(string extensionId, string token)
+    {
+        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post,
+            $"/content/addToLibrary?productId={extensionId}");
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        var response = await httpClient.SendAsync(request);
+
+        if (response.StatusCode >= HttpStatusCode.InternalServerError)
+        {
+            throw new InternalServerErrorException("INTERNAL_SERVER_ERROR");
+        }
+
+        if (response.StatusCode >= HttpStatusCode.BadRequest)
+        {
+            string err = await response.Content.ReadAsStringAsync();
+            if (string.IsNullOrEmpty(err))
+            {
+                err = response.ReasonPhrase;
+            }
+
+            throw new BadRequestException(err);
+        }
+
+        if (response.StatusCode == HttpStatusCode.OK)
+        {
+            return;
+        }
+
+        throw new BadRequestException("REQUEST_FAILED");
     }
 }

@@ -196,6 +196,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
     {
         if (!Document.BlockingUpdateableChangeActive)
         {
+            Internals.ChangeController.TryStopActiveExecutor();
             Guid newCelGuid = Guid.NewGuid();
             Internals.ActionAccumulator.AddFinishedActions(new CreateCel_Action(targetLayerGuid,
                 newCelGuid, Math.Max(1, frame),
@@ -210,6 +211,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
     {
         if (!Document.BlockingUpdateableChangeActive)
         {
+            Internals.ChangeController.TryStopActiveExecutor();
             for (var i = 0; i < keyFrameIds.Count; i++)
             {
                 var id = keyFrameIds[i];

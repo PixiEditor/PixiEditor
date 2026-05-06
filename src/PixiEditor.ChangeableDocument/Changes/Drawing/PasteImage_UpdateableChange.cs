@@ -2,6 +2,7 @@
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 internal class PasteImage_UpdateableChange : InterruptableUpdateableChange
@@ -65,12 +66,12 @@ internal class PasteImage_UpdateableChange : InterruptableUpdateableChange
         }
         else
         {
-            targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame.Value);
+            targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame ?? 0);
         }
         
         var chunks = DrawImage(target, targetImage);
         savedChunks?.Dispose();
-        savedChunks = new(targetImage, targetImage.FindAffectedArea().Chunks);
+        savedChunks = new(targetImage, targetImage.FindAffectedArea().Chunks ?? new HashSet<VecI>());
         targetImage.CommitChanges();
         hasEnqueudImage = false;
         ignoreInUndo = false;
@@ -86,7 +87,7 @@ internal class PasteImage_UpdateableChange : InterruptableUpdateableChange
         }
         else
         {
-            targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame.Value);
+            targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame ?? 0);
         }
         return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, DrawImage(target, targetImage), drawOnMask);
     }
@@ -100,7 +101,7 @@ internal class PasteImage_UpdateableChange : InterruptableUpdateableChange
         }
         else
         {
-            chunks = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, memberGuid, drawOnMask, frame.Value, ref savedChunks);
+            chunks = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, memberGuid, drawOnMask, frame ?? 0, ref savedChunks);
         }
         
         return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, chunks, drawOnMask);

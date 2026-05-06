@@ -37,6 +37,7 @@ using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.SubViewModels;
 using PixiEditor.ViewModels.Tools.Tools;
+using PixiEditor.Views.Dialogs;
 using Bitmap = Avalonia.Media.Imaging.Bitmap;
 
 namespace PixiEditor.Models.Controllers;
@@ -154,7 +155,9 @@ internal static class ClipboardController
 
         DataTransfer data = new DataTransfer();
 
-        RectD copyArea = new RectD(VecD.Zero, document.SizeBindable);
+        var renderOutputSize = document.GetRenderOutputSize(output);
+
+        RectD copyArea = new RectD(VecD.Zero, renderOutputSize);
 
         if (!document.SelectionPathBindable.IsEmpty)
         {
@@ -171,10 +174,10 @@ internal static class ClipboardController
             return;
         }
 
-        using Surface documentSurface = new Surface(document.SizeBindable);
+        using Surface documentSurface = new Surface(renderOutputSize);
 
         document.Renderer.RenderDocument(documentSurface.DrawingSurface,
-            document.AnimationDataViewModel.ActiveFrameTime, document.SizeBindable, output);
+            document.AnimationDataViewModel.ActiveFrameTime, renderOutputSize, output);
 
         Surface surfaceToCopy = new Surface((VecI)copyArea.Size.Ceiling());
         using Paint paint = new Paint();
@@ -334,7 +337,18 @@ internal static class ClipboardController
             else
             {
                 manager.Owner.ToolsSubViewModel.SetActiveTool<MoveToolViewModel>(false);
-                document.Operations.PasteImagesAsLayers(images, document.AnimationDataViewModel.ActiveFrameBindable, images.Count > 1);
+
+                var resizeIfNeeded = images.Count > 1;
+                
+                if (!resizeIfNeeded && images.Any(i => document.SizeBindable.CompareTo(i.Image.Size) < 0))
+                {
+                    var userResp =
+                        await ConfirmationDialog.Show("OVERSIZED_INSERTION_MESSAGE", "OVERSIZED_INSERTION_TITLE");
+                    if (userResp == ConfirmationType.Canceled) { return false; }
+                    resizeIfNeeded = userResp == ConfirmationType.Yes;
+                }
+                
+                document.Operations.PasteImagesAsLayers(images, document.AnimationDataViewModel.ActiveFrameBindable, resizeIfNeeded);
             }
         }
 

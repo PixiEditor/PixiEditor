@@ -23,7 +23,7 @@ public class PreferencesSampleExtension : PixiEditorExtension
         Api.Preferences.AddCallback<bool>("TestBool", (name, value) => Api.Logger.Log($"Test bool changed to {value}!"));
         
         // Internally this preference will have name "yourCompany.Samples.Preferences:HelloCount".
-        int helloCount = Api.Preferences.GetPreference<int>("HelloCount");
+        int helloCount = Api.Preferences.GetPreference<int>("HelloCount", 0);
 
         Api.Preferences.UpdatePreference("HelloCount", helloCount + 1);
         
@@ -40,6 +40,6 @@ public class PreferencesSampleExtension : PixiEditorExtension
             "This is overwritten value of preference that is built-in in PixiEditor.");
 
         // You don't need any special permission for reading any kind of preference.
-        Api.Logger.Log(Api.Preferences.GetLocalPreference<string>("PixiEditor:OverwrittenPixiEditorPreference"));
+        Api.Logger.Log(Api.Preferences.GetLocalPreference<string>("PixiEditor:OverwrittenPixiEditorPreference", ""));
     }
 }

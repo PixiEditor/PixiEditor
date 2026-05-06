@@ -11,6 +11,7 @@ using PixiEditor.Extensions.CommonApi.IO;
 using PixiEditor.Extensions.CommonApi.Logging;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Extensions.CommonApi.Palettes.Parsers;
+using PixiEditor.Extensions.CommonApi.Tools;
 using PixiEditor.Extensions.CommonApi.Ui;
 using PixiEditor.Extensions.CommonApi.User;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
@@ -18,6 +19,7 @@ using PixiEditor.Extensions.CommonApi.Windowing;
 using PixiEditor.Extensions.FlyUI;
 using PixiEditor.Extensions.IO;
 using PixiEditor.Extensions.Runtime;
+using PixiEditor.Extensions.WasmRuntime;
 using PixiEditor.Models;
 using PixiEditor.Models.AdvisorSystem;
 using PixiEditor.Models.AnalyticsAPI;
@@ -57,7 +59,6 @@ internal static class ServiceCollectionHelpers
     {
         return collection
             .AddSingleton<ViewModels_ViewModelMain>()
-            .AddSingleton<IPreferences, PreferencesSettings>()
             .AddSingleton<ILocalizationProvider, LocalizationProvider>(x => new LocalizationProvider(extensionLoader))
 
             // View Models
@@ -80,6 +81,7 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<UserViewModel>()
             .AddSingleton<BrushesViewModel>()
             .AddSingleton<AdvicesViewModel>()
+            .AddSingleton<ChangelogViewModel>()
             .AddSingleton<IColorsHandler, ColorsViewModel>(x => x.GetRequiredService<ColorsViewModel>())
             .AddSingleton<IWindowHandler, WindowViewModel>(x => x.GetRequiredService<WindowViewModel>())
             .AddSingleton<RegistryViewModel>()
@@ -249,5 +251,7 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<ILogger, ConsoleLogger>()
             .AddSingleton<IVisualTreeProvider, VisualTreeProvider>()
             .AddSingleton<IUserDataProvider, UserDataProvider>()
+            .AddSingleton<IToolsProvider, ToolsProvider>()
+            .AddSingleton<IExtensionListProvider>(x => loader)
             .AddSingleton<IFileSystemProvider, FileSystemProvider>();
 }

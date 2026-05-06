@@ -5,6 +5,7 @@ using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Interfaces;
 
@@ -110,4 +111,6 @@ public interface IReadOnlyDocument : IDisposable, ICloneable
     public ICrossDocumentPipe<IReadOnlyNodeGraph> CreateGraphPipe();
     public IReadOnlyDocument Clone(bool preserveDocumentId = false);
     public IReadOnlyStructureNode[] GetStructureTreeInOrder();
+    public VecI GetRenderOutputSize(string renderOutput);
+    public bool TryFindNode(Guid nodeId, out IReadOnlyNode? node);
 }

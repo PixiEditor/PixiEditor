@@ -45,34 +45,36 @@
         <Setter Property="localization:Translator.UseLanguageFlowDirection" Value="True"></Setter>
         <Setter Property="Template">
             <ControlTemplate>
-                <VisualLayerManager>
-                    <Panel Name="PART_ResizePanel">
-                        <DockPanel>
-                            <controls:DialogTitleBar
-                                Name="PART_TitleBar"
-                                IsVisible="{TemplateBinding ShowTitleBar}"
-                                DockPanel.Dock="Top" 
-                                CloseCommand="{TemplateBinding CloseCommand}"
-                                CanMinimize="{TemplateBinding CanMinimize}"
-                                CanFullscreen="{TemplateBinding CanResize}"
-                                TitleKey="{TemplateBinding Title}" />
-                            <Grid Background="{DynamicResource ThemeBackgroundBrush}" Focusable="True">
-                                <Interaction.Behaviors>
-                                    <behaviours:ClearFocusOnClickBehavior />
-                                </Interaction.Behaviors>
+                <LayoutTransformControl>
+                    <VisualLayerManager>
+                        <Panel Name="PART_ResizePanel">
+                            <DockPanel>
+                                <controls:DialogTitleBar
+                                    Name="PART_TitleBar"
+                                    IsVisible="{TemplateBinding ShowTitleBar}"
+                                    DockPanel.Dock="Top"
+                                    CloseCommand="{TemplateBinding CloseCommand}"
+                                    CanMinimize="{TemplateBinding CanMinimize}"
+                                    CanFullscreen="{TemplateBinding CanResize}"
+                                    TitleKey="{TemplateBinding Title}" />
+                                <Grid Background="{DynamicResource ThemeBackgroundBrush}" Focusable="True">
+                                    <Interaction.Behaviors>
+                                        <behaviours:ClearFocusOnClickBehavior />
+                                    </Interaction.Behaviors>
 
-                                <!--TODO: FocusAdorner seems not to work-->
-                                <ContentPresenter DockPanel.Dock="Bottom"
-                                                  Name="PART_ContentPresenter"
-                                                  Margin="{TemplateBinding Padding}"
-                                                  HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                                  VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
-                                                  Content="{TemplateBinding Content}"
-                                                  ContentTemplate="{TemplateBinding ContentTemplate}" />
-                            </Grid>
-                        </DockPanel>
-                    </Panel>
-                </VisualLayerManager>
+                                    <!--TODO: FocusAdorner seems not to work-->
+                                    <ContentPresenter DockPanel.Dock="Bottom"
+                                                      Name="PART_ContentPresenter"
+                                                      Margin="{TemplateBinding Padding}"
+                                                      HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                      VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                      Content="{TemplateBinding Content}"
+                                                      ContentTemplate="{TemplateBinding ContentTemplate}" />
+                                </Grid>
+                            </DockPanel>
+                        </Panel>
+                    </VisualLayerManager>
+                </LayoutTransformControl>
             </ControlTemplate>
         </Setter>
 

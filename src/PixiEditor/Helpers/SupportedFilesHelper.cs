@@ -80,6 +80,12 @@ internal class SupportedFilesHelper
             allExts.AddRange(FileTypes.Where(i => i.SetKind.HasFlag(separatedKind)));
         }
 
+        // Places GIF as a default option for a video
+        if (setKind == FileTypeDialogDataSet.SetKind.Video)
+        {
+           return allExts.Distinct().OrderBy(x => x.SetKind.GetFlags().Count()).ToList();
+        }
+
         return allExts.Distinct().ToList();
     }
 
@@ -124,10 +130,15 @@ internal class SupportedFilesHelper
 
     private static IoFileType? GetIoFileType(List<IoFileType> fromTypes, FilePickerFileType fileType)
     {
+        if (fileType?.Patterns == null || fromTypes == null)
+        {
+            return null;
+        }
+
         foreach (var pattern in fileType.Patterns.Select(x => x.TrimStart('*')))
         {
             var foundType =
-                fromTypes.FirstOrDefault(x => x.Extensions.Contains(pattern, StringComparer.OrdinalIgnoreCase));
+                fromTypes.FirstOrDefault(x => x != null && x.Extensions.Contains(pattern, StringComparer.OrdinalIgnoreCase));
             if (foundType != null)
                 return foundType;
         }

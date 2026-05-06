@@ -8,6 +8,15 @@ public class SteamPlatform : IPlatform
 {
     public string Id { get; } = "steam";
     public string Name => "Steam";
+    
+    public IAdditionalContentProvider? AdditionalContentProvider { get; }
+    public IIdentityProvider? IdentityProvider { get; }
+    
+    public SteamPlatform(string[] extensionsPaths)
+    {
+        IdentityProvider = new SteamIdentityProvider();
+        AdditionalContentProvider = new SteamAdditionalContentProvider(extensionsPaths);
+    }
 
     public bool PerformHandshake()
     {
@@ -32,7 +41,4 @@ public class SteamPlatform : IPlatform
     {
         SteamAPI.RunCallbacks();
     }
-
-    public IAdditionalContentProvider? AdditionalContentProvider { get; } = new SteamAdditionalContentProvider();
-    public IIdentityProvider? IdentityProvider { get; } = new SteamIdentityProvider();
 }

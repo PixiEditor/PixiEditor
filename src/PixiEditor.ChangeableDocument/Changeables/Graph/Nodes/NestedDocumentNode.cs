@@ -92,16 +92,16 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
         brushOutputNodes = document.DocumentInstance.NodeGraph.AllNodes
             .OfType<BrushOutputNode>().ToArray();
 
-        toExecute = cachedExposeNodes.Concat<IReadOnlyNode>(brushOutputNodes).Concat([Instance?.NodeGraph.OutputNode])
+        toExecute = cachedExposeNodes.Concat<IReadOnlyNode>(brushOutputNodes).Concat([document.DocumentInstance?.NodeGraph.OutputNode])
             .ToArray();
 
-        Instance?.NodeGraph.Execute(cachedExposeNodes.Concat<IReadOnlyNode>(brushOutputNodes), new RenderContext(null,
+        document.DocumentInstance?.NodeGraph.Execute(cachedExposeNodes.Concat<IReadOnlyNode>(brushOutputNodes), new RenderContext(null,
             0,
             ChunkResolution.Full,
-            Instance.Size, Instance.Size,
-            Instance.ProcessingColorSpace,
+            document.DocumentInstance.Size, document.DocumentInstance.Size,
+            document.DocumentInstance.ProcessingColorSpace,
             SamplingOptions.Default,
-            Instance.NodeGraph) { FullRerender = true });
+            document.DocumentInstance.NodeGraph) { FullRerender = true });
 
         foreach (var input in cachedExposeNodes)
         {
@@ -316,7 +316,7 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
 
     private void RenderNested(RenderContext ctx, Canvas workingSurface, Paint paint)
     {
-        if (NestedDocument.Value is null || NestedDocument.Value.DocumentInstance is null || workingSurface is null || Instance is null)
+        if (NestedDocument.Value?.DocumentInstance is null || workingSurface is null || Instance is null)
             return;
 
         using var intermediate = Texture.ForProcessing(workingSurface.Surface, Instance.ProcessingColorSpace);
@@ -387,7 +387,7 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
                     .Invert());
             RectD docRegion = new RectD(VecI.Zero, Instance?.Size ?? VecI.Zero);
             RectD intersection = docRegion.Intersect(inverted.AABBBounds);
-            clonedContext.VisibleDocumentRegion = (RectI)intersection.RoundOutwards();
+            clonedContext.VisibleDocumentRegion = intersection;
         }
 
         var outputNode = Instance?.NodeGraph.AllNodes.OfType<BrushOutputNode>().FirstOrDefault() ??

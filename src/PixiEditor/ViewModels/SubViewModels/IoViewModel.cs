@@ -555,6 +555,8 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
                 HandleRightMouseEraseUp(tools);
                 break;
         }
+
+        Owner.ToolsSubViewModel.ActivateQueuedTool();
     }
 
     private void HandleMouseWheel(object sender, ScrollOnCanvasEventArgs args)

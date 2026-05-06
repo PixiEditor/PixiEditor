@@ -52,7 +52,7 @@ internal class ChangeProcessingColorSpace_Change : Change
                 {
                     if (keyFrame.Data is ChunkyImage chunkyImage)
                     {
-                        ChunkyImage img = new ChunkyImage(chunkyImage.LatestSize, newColorSpace);
+                        ChunkyImage img = new ChunkyImage(chunkyImage.LatestSize);
                         img.EnqueueDrawCommitedChunkyImage(VecI.Zero, chunkyImage);
                         img.CommitChanges();
 

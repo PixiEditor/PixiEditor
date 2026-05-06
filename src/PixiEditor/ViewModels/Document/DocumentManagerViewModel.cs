@@ -83,8 +83,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
     [Evaluator.CanExecute("PixiEditor.HasDocument", nameof(ActiveDocument))]
     public bool DocumentNotNull() => ActiveDocument != null;
 
-    [Command.Basic("PixiEditor.Document.Open", "OPEN_DOCUMENT", "OPEN_DOCUMENT_DESC",
-        Icon = PixiPerfectIcons.File, AnalyticsTrack = true)]
+    [Command.Internal("PixiEditor.Document.Open", Icon = PixiPerfectIcons.File, AnalyticsTrack = true)]
     public void OpenDocument(string path)
     {
         if (Guid.TryParse(path, out Guid referenceId))
@@ -168,7 +167,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
 
     [Command.Basic("PixiEditor.Document.ToggleVerticalSymmetryAxis", "TOGGLE_VERT_SYMMETRY_AXIS",
         "TOGGLE_VERT_SYMMETRY_AXIS", CanExecute = "PixiEditor.HasDocument",
-        Icon = PixiPerfectIcons.YSymmetry, AnalyticsTrack = true)]
+        Icon = PixiPerfectIcons.XSymmetry, AnalyticsTrack = true)]
     public void ToggleVerticalSymmetryAxis()
     {
         if (ActiveDocument is null)
@@ -178,7 +177,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
 
     [Command.Basic("PixiEditor.Document.ToggleHorizontalSymmetryAxis", "TOGGLE_HOR_SYMMETRY_AXIS",
         "TOGGLE_HOR_SYMMETRY_AXIS", CanExecute = "PixiEditor.HasDocument",
-        Icon = PixiPerfectIcons.XSymmetry, AnalyticsTrack = true)]
+        Icon = PixiPerfectIcons.YSymmetry, AnalyticsTrack = true)]
     public void ToggleHorizontalSymmetryAxis()
     {
         if (ActiveDocument is null)
@@ -262,7 +261,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
             }
             else
             {
-                doc.Operations.ResizeImage(new(dialog.Width, dialog.Height), ResamplingMethod.NearestNeighbor);
+                doc.Operations.ResizeImage(new(dialog.Width, dialog.Height), dialog.SelectedSamplingMethod);
             }
         }
     }

@@ -56,7 +56,8 @@ public class FuncContext
         SamplePosition = Builder.ConstructFloat2(OriginalPosition.X, OriginalPosition.Y);
     }
 
-    public Half4 SampleSurface(DrawingSurface surface, Expression pos, ColorSampleMode sampleMode, bool normalizedCoordinates)
+    public Half4 SampleSurface(DrawingSurface surface, Expression pos, ColorSampleMode sampleMode,
+        bool normalizedCoordinates)
     {
         SurfaceSampler texName = Builder.AddOrGetSurface(surface, sampleMode);
         return Builder.Sample(texName, pos, normalizedCoordinates);
@@ -234,7 +235,11 @@ public class FuncContext
         }
 
 
-        var val = getFrom.Value(this);
+        var val = getFrom?.Value?.Invoke(this);
+        if (val == null)
+        {
+            val = new Float1("");
+        }
         _cachedValues[getFrom] = val;
 
         return val;
@@ -266,7 +271,12 @@ public class FuncContext
             }
         }
 
-        var val = getFrom.Value(this);
+        var val = getFrom?.Value?.Invoke(this);
+        if (val == null)
+        {
+            val = new Int1("");
+        }
+
         _cachedValues[getFrom] = val;
 
         return val;
@@ -293,7 +303,12 @@ public class FuncContext
             }
         }
 
-        var val = getFrom.Value(this);
+        var val = getFrom?.Value?.Invoke(this);
+        if (val == null)
+        {
+            val = new Half3("");
+        }
+
         _cachedValues[getFrom] = val;
 
         return val;
@@ -325,7 +340,12 @@ public class FuncContext
             }
         }
 
-        var val = getFrom.Value(this);
+        var val = getFrom?.Value?.Invoke(this);
+        if (val == null)
+        {
+            val = new Half4("");
+        }
+
         _cachedValues[getFrom] = val;
 
         return val;
@@ -352,7 +372,12 @@ public class FuncContext
             }
         }
 
-        var val = getFrom.Value(this);
+        var val = getFrom?.Value?.Invoke(this);
+        if (val == null)
+        {
+            val = new Float2("");
+        }
+
         _cachedValues[getFrom] = val;
 
         return val;
@@ -379,7 +404,12 @@ public class FuncContext
             }
         }
 
-        var val = getFrom.Value(this);
+        var val = getFrom?.Value?.Invoke(this);
+        if (val == null)
+        {
+            val = new Int2("");
+        }
+
         _cachedValues[getFrom] = val;
 
         return val;
@@ -406,7 +436,12 @@ public class FuncContext
             }
         }
 
-        var val = getFrom.Value(this);
+        var val = getFrom?.Value?.Invoke(this);
+        if (val == null)
+        {
+            val = new Float3x3("");
+        }
+
         _cachedValues[getFrom] = val;
 
         return val;
@@ -433,7 +468,12 @@ public class FuncContext
             }
         }
 
-        var val = getFrom.Value(this);
+        var val = getFrom?.Value?.Invoke(this);
+        if (val == null)
+        {
+            val = new Float3("");
+        }
+
         _cachedValues[getFrom] = val;
 
         return val;
@@ -465,7 +505,12 @@ public class FuncContext
             }
         }
 
-        var val = getFrom.Value(this);
+        var val = getFrom?.Value?.Invoke(this);
+        if (val == null)
+        {
+            val = new Bool("");
+        }
+
         _cachedValues[getFrom] = val;
 
         return val;

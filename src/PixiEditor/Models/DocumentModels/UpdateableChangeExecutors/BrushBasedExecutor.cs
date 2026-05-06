@@ -92,15 +92,25 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
 
         if (controller.LeftMousePressed)
         {
-            EnqueueDrawActions();
+            EnqueueDrawActions(false);
         }
 
         return ExecutionState.Success;
     }
 
-    protected virtual void EnqueueDrawActions()
+    protected virtual void EnqueueDrawActions(bool createLine)
     {
         var point = GetStabilizedPoint();
+
+        if (createLine)
+        {
+            IAction? actionStart = new LineBasedPen_Action(layerId, handler.LastAppliedPoint, (float)ToolSize,
+                antiAliasing, BrushData, drawOnMask,
+                document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo, controller.LastKeyboardInfo,
+                controller.EditorData);
+
+            internals!.ActionAccumulator.AddActions(actionStart);
+        }
 
         if (handler != null)
         {
@@ -182,7 +192,7 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
     public override void OnLeftMouseButtonDown(MouseOnCanvasEventArgs args)
     {
         base.OnLeftMouseButtonDown(args);
-        EnqueueDrawActions();
+        EnqueueDrawActions(args.KeyModifiers.HasFlag(KeyModifiers.Shift));
     }
 
     public override void OnPrecisePositionChange(MouseOnCanvasEventArgs args)
@@ -191,7 +201,7 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
         if (controller.LeftMousePressed)
         {
             lastViewportZoom = args.ViewportScale;
-            EnqueueDrawActions();
+            EnqueueDrawActions(false);
         }
     }
 

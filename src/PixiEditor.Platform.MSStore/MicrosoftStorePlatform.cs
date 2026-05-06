@@ -5,9 +5,9 @@ namespace PixiEditor.Platform.MSStore;
 
 public sealed class MicrosoftStorePlatform : IPlatform
 {
-    public MicrosoftStorePlatform(string extensionsPath, string apiUrl, string? apiKey)
+    public MicrosoftStorePlatform(string extensionsPath, string apiUrl, string? apiKey, int  apiVersion)
     {
-        var provider = new PixiAuthIdentityProvider(apiUrl, apiKey);
+        var provider = new PixiAuthIdentityProvider(apiUrl, apiKey, apiVersion);
         IdentityProvider = provider;
         AdditionalContentProvider = new MSAdditionalContentProvider(extensionsPath, provider);
     }

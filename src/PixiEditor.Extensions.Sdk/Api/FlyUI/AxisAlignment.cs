@@ -17,3 +17,23 @@ public enum CrossAxisAlignment
     End,
     Stretch,
 }
+
+public enum ItemAlignment
+{
+    Start,
+    Center,
+    End
+}
+
+public enum Axis
+{
+    Horizontal,
+    Vertical
+}
+
+public enum ScrollDirection
+{
+    Horizontal,
+    Vertical,
+    Both
+}

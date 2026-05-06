@@ -4,18 +4,17 @@ using Newtonsoft.Json;
 namespace PixiEditor.Extensions.MSPackageBuilder;
 
 /// <summary>
-///   Class that is used to create .pixiext packages. 
+///     Class that is used to create .pixiext packages.
 /// </summary>
 public static class PackageBuilder
 {
     private static readonly ElementToInclude[] ElementsToInclude = new[]
     {
         new ElementToInclude("extension.json", true), new ElementToInclude("AppBundle/*.wasm", true),
-        new ElementToInclude("Localization/", false),
-        new ElementToInclude("Resources/", false),
+        new ElementToInclude("Localization/", false), new ElementToInclude("Resources/", false)
     };
 
-    private static readonly string[] FilesToExclude = new[] { "dotnet.wasm", };
+    private static readonly string[] FilesToExclude = new[] { "dotnet.wasm" };
 
     public static void Build(string buildResultDirectory, string targetDirectory, bool encryptedResources)
     {
@@ -29,7 +28,7 @@ public static class PackageBuilder
             Directory.CreateDirectory(targetDirectory);
         }
 
-        string targetTmpDirectory = Path.Combine(targetDirectory, "tmp");
+        var targetTmpDirectory = Path.Combine(targetDirectory, "tmp");
         if (Directory.Exists(targetTmpDirectory))
         {
             Directory.Delete(targetTmpDirectory, true);
@@ -41,19 +40,19 @@ public static class PackageBuilder
         {
             throw new InvalidOperationException("Build result directory and target directory cannot be the same.");
         }
-        
-        SimplifiedExtensionMetadata metadata =
+
+        var metadata =
             JsonConvert.DeserializeObject<SimplifiedExtensionMetadata>(
                 File.ReadAllText(Path.Combine(buildResultDirectory, "extension.json")));
 
         var elementsToInclude = new List<ElementToInclude>(ElementsToInclude);
-        if(encryptedResources)
+        if (encryptedResources)
         {
             elementsToInclude.Add(new ElementToInclude("resources.data", true) { TargetDirectory = "Resources" });
             elementsToInclude.RemoveAll(x => x.Path == "Resources/");
         }
 
-        foreach (ElementToInclude element in elementsToInclude)
+        foreach (var element in elementsToInclude)
         {
             if (!string.IsNullOrEmpty(element.TargetDirectory))
             {
@@ -63,7 +62,7 @@ public static class PackageBuilder
                 }
             }
 
-            string finalDir = string.IsNullOrEmpty(element.TargetDirectory)
+            var finalDir = string.IsNullOrEmpty(element.TargetDirectory)
                 ? targetTmpDirectory
                 : Path.Combine(targetTmpDirectory, element.TargetDirectory);
 
@@ -77,7 +76,7 @@ public static class PackageBuilder
             }
         }
 
-        string packagePath = Path.Combine(targetDirectory, $"{metadata.UniqueName}.pixiext");
+        var packagePath = Path.Combine(targetDirectory, $"{metadata.UniqueName}.pixiext");
         if (File.Exists(packagePath))
         {
             File.Delete(packagePath);
@@ -91,7 +90,7 @@ public static class PackageBuilder
     private static void CopyFile(string elementPath, string buildResultDirectory, string targetDirectory,
         bool elementIsRequired)
     {
-        string[] files = Directory.GetFiles(buildResultDirectory, elementPath);
+        var files = Directory.GetFiles(buildResultDirectory, elementPath);
         if (files.Length == 0)
         {
             if (elementIsRequired)
@@ -102,7 +101,7 @@ public static class PackageBuilder
             return;
         }
 
-        foreach (string file in files)
+        foreach (var file in files)
         {
             if (FilesToExclude.Contains(Path.GetFileName(file)))
             {
@@ -116,7 +115,7 @@ public static class PackageBuilder
     private static void CopyDirectory(string elementPath, string buildResultDirectory, string targetDirectory,
         bool elementIsRequired, SimplifiedExtensionMetadata metadata)
     {
-        string directoryPath = Path.Combine(buildResultDirectory, elementPath);
+        var directoryPath = Path.Combine(buildResultDirectory, elementPath);
         if (!Directory.Exists(directoryPath))
         {
             if (elementIsRequired)
@@ -128,74 +127,75 @@ public static class PackageBuilder
             return;
         }
 
-        string targetDir = Path.Combine(targetDirectory, elementPath);
+        var targetDir = Path.Combine(targetDirectory, elementPath);
         Directory.CreateDirectory(targetDir);
         var files = Directory.GetFiles(directoryPath);
         var directories = Directory.GetDirectories(directoryPath);
-        foreach (string file in files)
+        foreach (var file in files)
         {
-            string destination = Path.Combine(targetDir, Path.GetFileName(file));
-            if(FileIsLocale(elementPath))
+            var destination = Path.Combine(targetDir, Path.GetFileName(file));
+            if (FileIsLocale(elementPath))
             {
                 WriteLocale(file, destination, metadata.UniqueName);
                 continue;
             }
-            
+
             File.Copy(file, destination, true);
         }
-        
-        foreach (string directory in directories)
+
+        foreach (var directory in directories)
         {
-            CopyDirectory(Path.Combine(elementPath, new DirectoryInfo(directory).Name), buildResultDirectory, targetDirectory, elementIsRequired, metadata);
+            CopyDirectory(Path.Combine(elementPath, new DirectoryInfo(directory).Name), buildResultDirectory,
+                targetDirectory, elementIsRequired, metadata);
         }
     }
 
     private static void WriteLocale(string file, string destination, string metadataUniqueName)
     {
-        Dictionary<string, string> dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(file));
+        var dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(file));
         Dictionary<string, string> newDict = new();
-        foreach (KeyValuePair<string, string> pair in dict)
+        foreach (var pair in dict)
         {
             if (pair.Key.Contains(":"))
             {
                 continue;
             }
-            
+
             newDict.Add($"{metadataUniqueName}:{pair.Key}", pair.Value);
         }
-        
+
         File.WriteAllText(destination, JsonConvert.SerializeObject(newDict));
     }
-    
-    
+
+
     private static bool FileIsLocale(string elementPath)
     {
         return elementPath.EndsWith("Localization/");
     }
 }
 
-record ElementToInclude
+internal record ElementToInclude
 {
-    public string Path { get; set; }
-    public string? TargetDirectory { get; set; }
-    public bool IsRequired { get; set; }
-
-    public ElementToIncludeType Type => Path.EndsWith("/") ? ElementToIncludeType.Directory : ElementToIncludeType.File;
-
     public ElementToInclude(string path, bool isRequired)
     {
         Path = path;
         IsRequired = isRequired;
     }
+
+    public string Path { get; set; }
+    public string? TargetDirectory { get; set; }
+    public bool IsRequired { get; set; }
+
+    public ElementToIncludeType Type => Path.EndsWith("/") ? ElementToIncludeType.Directory : ElementToIncludeType.File;
 }
 
-enum ElementToIncludeType
+internal enum ElementToIncludeType
 {
     File,
     Directory
 }
 
-class SimplifiedExtensionMetadata
+internal class SimplifiedExtensionMetadata
 {
     public string UniqueName { get; set; }
 }

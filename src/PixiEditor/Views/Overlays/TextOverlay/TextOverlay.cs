@@ -218,6 +218,7 @@ internal class TextOverlay : Overlay
     protected override void OnRenderOverlay(Canvas context, RectD canvasBounds)
     {
         if (!IsEditing) return;
+        if (Font != null && Font.IsDisposed) return;
 
         int saved = context.Save();
 
@@ -487,7 +488,7 @@ internal class TextOverlay : Overlay
         var key = args.Key;
         var keyModifiers = args.KeyModifiers;
 
-        if (IsRegisteredExternalShortcut(key, keyModifiers))
+        if (IsRegisteredExternalShortcut(key, keyModifiers) && keyModifiers != KeyModifiers.None)
         {
             ShortcutController.UnblockShortcutExecution(nameof(TextOverlay));
             canInsertText = false;

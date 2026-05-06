@@ -7,15 +7,23 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph;
 
 public class SyncedTypeOutputProperty
 {
+    private SyncedTypeInputProperty other;
     private OutputProperty internalOutputProperty;
     public OutputProperty InternalProperty => internalOutputProperty;
-    public SyncedTypeInputProperty Other { get; set; }
+
+    public Func<Type, Type>? TypeAdjuster
+    {
+        get;
+        private set;
+    }
 
     public object Value
     {
         get => internalOutputProperty.Value;
         set => internalOutputProperty.Value = value;
     }
+
+    public SyncGroup? Group { get; set; }
 
     public event Action BeforeTypeChange;
     public event Action AfterTypeChange;
@@ -25,21 +33,24 @@ public class SyncedTypeOutputProperty
     private Func<Type, OutputProperty>? genericFallbackHandler = null;
 
     public SyncedTypeOutputProperty(Node node, string internalPropertyName, string displayName,
-        SyncedTypeInputProperty other)
+        SyncGroup? syncGroup)
     {
-        Other = other;
+        Group = syncGroup;
         this.internalPropertyName = internalPropertyName;
-        handlers[typeof(object)] = () => new OutputProperty(node, internalPropertyName, displayName, null, typeof(object));
+        handlers[typeof(object)] =
+            () => new OutputProperty(node, internalPropertyName, displayName, null, typeof(object));
         internalOutputProperty = handlers[typeof(object)]();
-        Other.AfterTypeChange += UpdateType;
     }
 
-    private void UpdateType()
+    private void UpdateType(Type type)
     {
-        if (Other == null)
-            return;
+        Type newType = type;
 
-        Type newType = Other.InternalProperty?.ValueType ?? typeof(object);
+        if (TypeAdjuster != null)
+        {
+            newType = TypeAdjuster(newType);
+        }
+
         if (internalOutputProperty.ValueType != newType && newType != null && handlers.Count > 0 &&
             (handlers.TryGetValue(newType, out Func<OutputProperty> handler) || genericFallbackHandler != null))
         {
@@ -52,7 +63,7 @@ public class SyncedTypeOutputProperty
             }
 
             internalOutputProperty = handler != null ? handler() : genericFallbackHandler(newType);
-            if(internalOutputProperty.InternalPropertyName != internalPropertyName)
+            if (internalOutputProperty.InternalPropertyName != internalPropertyName)
             {
                 throw new InvalidOperationException(
                     $"The handler for type {newType} returned an OutputProperty with an invalid internal name ({internalOutputProperty.InternalPropertyName} instead of {internalPropertyName})");
@@ -77,16 +88,11 @@ public class SyncedTypeOutputProperty
                 var newInput = input.Node.GetInputProperty(input.InternalPropertyName);
                 internalOutputProperty.ConnectTo(newInput);
             }
-
         }
     }
 
     public SyncedTypeOutputProperty? AddTypeHandler<T>(Func<OutputProperty> handleOutput)
     {
-        if (!Other.Handlers.ContainsKey(typeof(T)))
-            throw new InvalidOperationException(
-                $"The corresponding SyncedTypeInputProperty does not have a handler for type {typeof(T)}");
-
         handlers[typeof(T)] = handleOutput;
         return this;
     }
@@ -104,5 +110,16 @@ public class SyncedTypeOutputProperty
                 type);
         };
         return this;
+    }
+
+    public SyncedTypeOutputProperty? WithTypeAdjuster(Func<Type, Type> func)
+    {
+        TypeAdjuster = func;
+        return this;
+    }
+
+    public void ForceUpdateType(Type newType)
+    {
+        UpdateType(newType);
     }
 }

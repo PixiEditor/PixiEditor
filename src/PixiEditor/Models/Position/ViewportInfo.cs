@@ -17,7 +17,7 @@ internal readonly record struct ViewportInfo(
     PointerInfo PointerInfo,
     KeyboardInfo KeyboardInfo,
     EditorData EditorData,
-    RectI? VisibleDocumentRegion,
+    RectD? VisibleDocumentRegion,
     string RenderOutput,
     SamplingOptions Sampling,
     VecD Dimensions,

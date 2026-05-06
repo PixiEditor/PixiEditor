@@ -15,31 +15,43 @@ public class SyncedTypeInputProperty
 {
     private InputProperty internalInputProperty;
     public InputProperty InternalProperty => internalInputProperty;
-    public SyncedTypeInputProperty Other { get; set; }
+    public SyncGroup? Group { get; set; }
     public object Value => internalInputProperty.Value;
-    public IReadOnlyDictionary<Type, Func<InputProperty>> Handlers => handlers;
+    public IReadOnlyDictionary<Type, Func<Type, InputProperty>> Handlers => handlers;
 
-    private Dictionary<Type, Func<InputProperty>> handlers = new();
+    private Dictionary<Type, Func<Type, InputProperty>> handlers = new();
     private Func<Type, InputProperty>? genericFallbackHandler = null;
     private string internalPropertyName { get; }
 
-    public event Action ConnectionChanged;
+    public event Action<SyncedTypeInputProperty> ConnectionChanged;
     public event Action BeforeTypeChange;
     public event Action AfterTypeChange;
 
+    public Func<Type, Type>? TypeAdjuster
+    {
+        get;
+        private set;
+    }
+
     private object? pendingValue = null;
 
-    private bool matchToBaseType = false;
+    public bool MatchToBaseType { get; set; } = false;
 
     private bool shouldWaitForConnectionToSetType = false;
+    private bool isListeningToConnectionChanges = false;
+
+    private Type defaultTypeNonNull;
 
     public SyncedTypeInputProperty(Node node, string internalPropertyName, string displayName,
-        SyncedTypeInputProperty other)
+        SyncGroup? group, Type? defaultType = null)
     {
-        Other = other;
+        Group = group;
         this.internalPropertyName = internalPropertyName;
-        handlers[typeof(object)] = () => new InputProperty(node, internalPropertyName, displayName, null, typeof(object));
-        internalInputProperty = handlers[typeof(object)]();
+        defaultTypeNonNull = defaultType ?? typeof(object);
+        object? defaultValue = defaultTypeNonNull.IsValueType ? Activator.CreateInstance(defaultTypeNonNull) : null;
+        handlers[defaultTypeNonNull] =
+            t => new InputProperty(node, internalPropertyName, displayName, defaultValue, defaultTypeNonNull);
+        internalInputProperty = handlers[defaultTypeNonNull](defaultTypeNonNull);
         internalInputProperty.NonOverridenValueChanged += NonOverridenChanged;
         node.OnSerializeAdditionalData += OnSerializeAdditionalData;
         node.OnDeserializeAdditionalData += OnDeserializeAdditionalData;
@@ -47,7 +59,9 @@ public class SyncedTypeInputProperty
 
     private void OnSerializeAdditionalData(Dictionary<string, object> data)
     {
-        bool isUsingTypeOfThisConnection = internalInputProperty.Connection != null && internalInputProperty.Connection.ValueType == internalInputProperty.ValueType;
+        bool isUsingTypeOfThisConnection = internalInputProperty.Connection != null &&
+                                           internalInputProperty.Connection.ValueType ==
+                                           internalInputProperty.ValueType;
         data[internalPropertyName + "_isUsingTypeOfThisConnection"] = isUsingTypeOfThisConnection;
     }
 
@@ -77,76 +91,42 @@ public class SyncedTypeInputProperty
 
     internal void BeginListeningToConnectionChanges()
     {
-        internalInputProperty.ConnectionChanged += UpdateType;
+        if (isListeningToConnectionChanges) return;
+
         internalInputProperty.ConnectionChanged += InvokeConnectionChanged;
+        isListeningToConnectionChanges = true;
     }
 
-    private void UpdateType()
+    public void StopListeningToConnectionChanges()
     {
-        // pending values should be before the first type update
-        internalInputProperty.NonOverridenValueChanged -= NonOverridenChanged;
-        UpdateTypeInternal(false);
+        internalInputProperty.ConnectionChanged -= InvokeConnectionChanged;
+        isListeningToConnectionChanges = false;
     }
 
-    private void UpdateTypeInternal(bool updatedFromSync)
+    private void UpdateTypeInternal(Type newType)
     {
-        if (shouldWaitForConnectionToSetType && !updatedFromSync)
+        if (TypeAdjuster != null)
         {
-            return;
+            newType = TypeAdjuster(newType);
         }
 
-        IOutputProperty? target = null;
-        if(shouldWaitForConnectionToSetType && Other.InternalProperty.Connection != null)
+        var foundHandler = handlers.TryGetValue(newType, out Func<Type, InputProperty> handler) ||
+                           genericFallbackHandler != null;
+        if (!foundHandler)
         {
-            target = Other.InternalProperty.Connection;
-        }
-        else if (Other.InternalProperty.Connection != null && internalInputProperty.Connection == null)
-        {
-            target = Other.InternalProperty.Connection;
-        }
-        else if (Other.IsWaitingForTypeChange && internalInputProperty.Connection != null)
-        {
-            target = internalInputProperty.Connection;
-        }
-        else if (Other.InternalProperty.Connection == null && internalInputProperty.Connection != null)
-        {
-            target = internalInputProperty.Connection;
-        }
-        else if (Other.InternalProperty.Connection != null && internalInputProperty.Connection != null)
-        {
-            target = Other.InternalProperty.Connection;
+            var compatibleTypes = handlers.Keys.Where(t => t.IsAssignableFrom(newType)).ToList();
+            handler = compatibleTypes.Select(t => handlers[t]).LastOrDefault();
         }
 
-        Type newType = target?.ValueType ?? typeof(object);
-
-        if(matchToBaseType && newType.IsClass && InternalProperty.Connection != null)
-        {
-            if (newType != InternalProperty.Connection.ValueType)
-            {
-                Type currentType = newType;
-                while (currentType != null && !InternalProperty.Connection.ValueType.IsAssignableTo(currentType) && !currentType.IsAssignableTo(typeof(Delegate)))
-                {
-                    currentType = currentType.BaseType;
-                }
-
-                if (currentType != null)
-                {
-                    newType = currentType;
-                }
-            }
-        }
-
-        if (internalInputProperty.ValueType != newType && newType != null && handlers.Count > 0 &&
-            (handlers.TryGetValue(newType, out Func<InputProperty> handler) || genericFallbackHandler != null))
+        if (internalInputProperty.ValueType != newType && newType != null && handlers.Count > 0 && foundHandler)
         {
             BeforeTypeChange?.Invoke();
-            internalInputProperty.ConnectionChanged -= UpdateType;
             internalInputProperty.ConnectionChanged -= InvokeConnectionChanged;
             var connection = internalInputProperty.Connection;
             internalInputProperty.Connection?.DisconnectFrom(internalInputProperty);
             internalInputProperty.Connection = null;
 
-            internalInputProperty = handler != null ? handler() : genericFallbackHandler(newType);
+            internalInputProperty = handler != null ? handler(newType) : genericFallbackHandler!(newType);
             AfterTypeChange();
 
             if (pendingValue != null)
@@ -169,37 +149,43 @@ public class SyncedTypeInputProperty
                 }
             }
 
-            internalInputProperty.ConnectionChanged += UpdateType;
             internalInputProperty.ConnectionChanged += InvokeConnectionChanged;
-            if (!updatedFromSync || Other.InternalProperty.ValueType != internalInputProperty.ValueType)
-                Other?.UpdateTypeInternal(true);
-        }
-
-        if (updatedFromSync)
-        {
-            shouldWaitForConnectionToSetType = false;
         }
     }
 
-    public bool IsWaitingForTypeChange => shouldWaitForConnectionToSetType;
-
-    public SyncedTypeInputProperty AddTypeHandler<T>(Func<InputProperty> handler)
+    public SyncedTypeInputProperty AddTypeHandler<T>(Func<Type, InputProperty> handler)
     {
         handlers[typeof(T)] = handler;
-
-        if (Other != null && !Other.Handlers.ContainsKey(typeof(T)))
-        {
-            throw new InvalidOperationException(
-                $"The corresponding SyncedTypeOutputProperty does not have a handler for type {typeof(T)}");
-        }
-
         return this;
+    }
+
+    public SyncedTypeInputProperty AddTypeHandler<T>(bool allowInheritedTypes = false)
+    {
+        return AddTypeHandler<T>(t =>
+        {
+            Type targetType = typeof(T);
+            if (allowInheritedTypes && t.IsAssignableTo(typeof(T)))
+            {
+                targetType = t;
+            }
+
+            var input = new InputProperty(
+                internalInputProperty.Node,
+                internalPropertyName,
+                internalInputProperty.DisplayName,
+                targetType.IsValueType ? Activator.CreateInstance(targetType) : null,
+                targetType);
+
+            input.AddCustomCanConnect(output => output.ValueType.IsAssignableTo(typeof(T)));
+
+            return input;
+        });
     }
 
 
     private void InvokeConnectionChanged()
     {
-        ConnectionChanged?.Invoke();
+        ConnectionChanged?.Invoke(this);
     }
 
     public SyncedTypeInputProperty? AllowGenericFallback(bool allowUseCommonAncestorType)
@@ -221,7 +207,23 @@ public class SyncedTypeInputProperty
             return prop;
         };
 
-        matchToBaseType = allowUseCommonAncestorType;
+        MatchToBaseType = allowUseCommonAncestorType;
+        if (MatchToBaseType && Group != null)
+        {
+            Group.UpdateTypes();
+        }
+
         return this;
+    }
+
+    public SyncedTypeInputProperty? WithTypeAdjuster(Func<Type, Type> func)
+    {
+        TypeAdjuster = func;
+        return this;
+    }
+
+    public void ForceUpdateType(Type type)
+    {
+        UpdateTypeInternal(type);
     }
 }

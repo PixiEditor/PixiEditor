@@ -60,6 +60,14 @@ public enum MathNodeMode
     Step,
     [Description("SMOOTH_STEP")]
     SmoothStep,
+    [Description("ASIN")]
+    Asin,
+    [Description("ACOS")]
+    Acos,
+    [Description("ATAN")]
+    Atan,
+    [Description("ATAN2")]
+    Atan2,
 }
 
 public static class MathNodeModeExtensions
@@ -74,7 +82,10 @@ public static class MathNodeModeExtensions
         mode != MathNodeMode.Floor &&
         mode != MathNodeMode.Ceil &&
         mode != MathNodeMode.Round &&
-        mode != MathNodeMode.NaturalLogarithm;
+        mode != MathNodeMode.NaturalLogarithm &&
+        mode != MathNodeMode.Atan &&
+        mode != MathNodeMode.Asin &&
+        mode != MathNodeMode.Acos;
 
 
     public static bool UsesZValue(this MathNodeMode mode) =>

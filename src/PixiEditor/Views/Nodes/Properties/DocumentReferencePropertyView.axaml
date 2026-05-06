@@ -21,10 +21,12 @@
                    localization:Translator.Key="{Binding DisplayName}" />
         <Button Command="{Binding PickGraphFileCommand}"
                 MaxWidth="100"
+                IsVisible="{Binding ShowInputField}"
                 Margin="5, 0, 0, 0">
             <Panel>
-                <TextBlock FontSize="12" localization:Translator.Key="SELECT" IsVisible="{Binding OriginalFilePath, Converter={converters:EmptyStringConverter}}" />
+                <TextBlock FontSize="12" localization:Translator.Key="SELECT" IsVisible="{Binding !HasOriginalPath}" />
                 <TextBlock TextTrimming="CharacterEllipsis" FontSize="12"
+                           IsVisible="{Binding HasOriginalPath}"
                            Text="{Binding OriginalFilePath, Converter={converters:FilePathToFileNameConverter}}"/>
             </Panel>
         </Button>

@@ -273,7 +273,13 @@ internal class CombineStructureMembersOnto_Change : Change
             throw new InvalidOperationException("Target layer is not a raster layer");
 
         var toDrawOnImage = ((ImageLayerNode)targetLayer).GetLayerImageAtFrame(frame);
+        if (toDrawOnImage is null)
+            throw new InvalidOperationException("Layer image not found");
+
         toDrawOnImage.EnqueueClear();
+
+        if(target.Size.X <= 0 || target.Size.Y <= 0)
+            return new AffectedArea(new HashSet<VecI>());
 
         Texture tempTexture = Texture.ForProcessing(target.Size, target.ProcessingColorSpace);
 

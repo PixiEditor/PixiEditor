@@ -55,7 +55,7 @@ internal class FloodFill_Change : Change
         else
             membersToReference.Add(memberGuid);
         bool lockTransparency = target.FindMember(memberGuid) is ImageLayerNode { LockTransparency: true };
-        var floodFilledChunks = FloodFillHelper.FloodFill(membersToReference, target, selection, pos, color, tolerance, frame, lockTransparency, fillMode, contiguous);
+        var floodFilledChunks = FloodFillHelper.FloodFill(membersToReference, target, selection, pos, color, tolerance, frame, lockTransparency, fillMode, contiguous, null);
         if (floodFilledChunks.Count == 0)
         {
             ignoreInUndo = true;

@@ -61,7 +61,6 @@ internal class AnimationDocumentBuilder : IDocumentBuilder
         {
             var surface = new Surface(frames[0].ImageData.Size);
             surface.DrawingSurface.Canvas.DrawBitmap(frames[0].ImageData, 0, 0);
-            frames[0].ImageData.Dispose();
             builder
                 .WithSize(surface.Size)
                 .WithGraph(x => x
@@ -73,6 +72,7 @@ internal class AnimationDocumentBuilder : IDocumentBuilder
                     .WithOutputNode(id, "Output")
                 );
 
+            DisposeFrames(frames);
             return;
         }
 
@@ -93,7 +93,10 @@ internal class AnimationDocumentBuilder : IDocumentBuilder
 
         var layerNode = builder.Graph.AllNodes.FirstOrDefault(x => x.Name == layerName);
         if (layerNode == null)
+        {
+            DisposeFrames(frames);
             throw new InvalidOperationException("Failed to find the created layer node.");
+        }
 
         layerGroup.NodeId = layerNode.Id;
 
@@ -112,7 +115,7 @@ internal class AnimationDocumentBuilder : IDocumentBuilder
             {
                 Id = keyFrames.Count,
                 AffectedElement = ImageLayerNode.ImageLayerKey,
-                Data = new ChunkyImage(surface, ColorSpace.CreateSrgbLinear()),
+                Data = new ChunkyImage(surface),
                 StartFrame = currentFrame,
                 Duration = frame.DurationTicks,
                 IsVisible = true
@@ -127,5 +130,18 @@ internal class AnimationDocumentBuilder : IDocumentBuilder
 
         animationData.KeyFrameGroups = new List<KeyFrameGroup> { layerGroup };
         builder.WithAnimationData(animationData, null);
+
+        DisposeFrames(frames);
+    }
+
+    private static void DisposeFrames(List<Frame> frames)
+    {
+        if (frames == null)
+            return;
+
+        foreach (var frame in frames)
+        {
+            frame.ImageData.Dispose();
+        }
     }
 }

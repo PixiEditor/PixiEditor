@@ -20,8 +20,9 @@ public class SwitchNode : Node
     // TODO: Connection validation
     public SwitchNode()
     {
+        var syncGroup = new SyncGroup();
         Condition = CreateFuncInput("Condition", "CONDITION", new Bool("") { ConstantValue = false });
-        InputTrue = CreateSyncedTypeInput("InputTrue", "ON_TRUE", null)
+        InputTrue = CreateSyncedTypeInput("InputTrue", "ON_TRUE", syncGroup)
             .AllowGenericFallback(true);
         AddTrueFuncInputHandlers(new Float1("") { ConstantValue = 1f });
         AddTrueFuncInputHandlers(new Half4("") { ConstantValue = Colors.Black });
@@ -33,7 +34,7 @@ public class SwitchNode : Node
         AddTrueFuncInputHandlers(new Half3("") { ConstantValue = Vec3D.Zero });
         AddTrueFuncInputHandlers(new Float3x3("") { ConstantValue = Matrix3X3.Identity });
 
-        InputFalse = CreateSyncedTypeInput("InputFalse", "ON_FALSE", InputTrue)
+        InputFalse = CreateSyncedTypeInput("InputFalse", "ON_FALSE", syncGroup)
             .AllowGenericFallback(true);
         AddFalseFuncInputHandlers(new Float1("") { ConstantValue = 1f });
         AddFalseFuncInputHandlers(new Half4("") { ConstantValue = Colors.Black });
@@ -45,7 +46,7 @@ public class SwitchNode : Node
         AddFalseFuncInputHandlers(new Half3("") { ConstantValue = Vec3D.Zero });
         AddFalseFuncInputHandlers(new Float3x3("") { ConstantValue = Matrix3X3.Identity });
 
-        Output = CreateSyncedTypeOutput("Output", "RESULT", InputTrue).AllowGenericFallback();
+        Output = CreateSyncedTypeOutput("Output", "RESULT", syncGroup).AllowGenericFallback();
         AddOutputFuncHandlers(HandleConditionalFloat1);
         AddOutputFuncHandlers(HandleConditionalHalf4);
         AddOutputFuncHandlers(HandleConditionalBool);
@@ -62,7 +63,7 @@ public class SwitchNode : Node
         if (!Output.InternalProperty.ValueType.IsAssignableTo(typeof(Delegate)))
         {
             bool condition = false;
-            var val = Condition.Value.Invoke(FuncContext.NoContext).GetConstant();
+            var val = Condition.Value?.Invoke(FuncContext.NoContext).GetConstant();
             if (val is bool b)
             {
                 condition = b;
@@ -95,7 +96,20 @@ public class SwitchNode : Node
     {
         if (!context.HasContext)
         {
-            return ((bool)context.GetValue(Condition).GetConstant())
+            var constant = context.GetValue(Condition).GetConstant();
+            if (constant is not bool aBool)
+            {
+                try
+                {
+                    aBool = Convert.ToBoolean(constant);
+                }
+                catch
+                {
+                    aBool = false;
+                }
+            }
+
+            return aBool
                 ? context.GetValue(InputTrue.InternalProperty as FuncInputProperty<Float1>)
                 : context.GetValue(InputFalse.InternalProperty as FuncInputProperty<Float1>);
         }
@@ -114,7 +128,20 @@ public class SwitchNode : Node
     {
         if (!context.HasContext)
         {
-            return ((bool)context.GetValue(Condition).GetConstant())
+            var constant = context.GetValue(Condition).GetConstant();
+            if (constant is not bool aBool)
+            {
+                try
+                {
+                    aBool = Convert.ToBoolean(constant);
+                }
+                catch
+                {
+                    aBool = false;
+                }
+            }
+
+            return aBool
                 ? context.GetValue(InputTrue.InternalProperty as FuncInputProperty<Half4>)
                 : context.GetValue(InputFalse.InternalProperty as FuncInputProperty<Half4>);
         }
@@ -133,7 +160,20 @@ public class SwitchNode : Node
     {
         if (!context.HasContext)
         {
-            return ((bool)context.GetValue(Condition).GetConstant())
+            var constant = context.GetValue(Condition).GetConstant();
+            if (constant is not bool aBool)
+            {
+                try
+                {
+                    aBool = Convert.ToBoolean(constant);
+                }
+                catch
+                {
+                    aBool = false;
+                }
+            }
+
+            return aBool
                 ? context.GetValue(InputTrue.InternalProperty as FuncInputProperty<Int1>)
                 : context.GetValue(InputFalse.InternalProperty as FuncInputProperty<Int1>);
         }
@@ -152,7 +192,20 @@ public class SwitchNode : Node
     {
         if (!context.HasContext)
         {
-            return ((bool)context.GetValue(Condition).GetConstant())
+            var constant = context.GetValue(Condition).GetConstant();
+            if (constant is not bool aBool)
+            {
+                try
+                {
+                    aBool = Convert.ToBoolean(constant);
+                }
+                catch
+                {
+                    aBool = false;
+                }
+            }
+
+            return aBool
                 ? context.GetValue(InputTrue.InternalProperty as FuncInputProperty<Int2>)
                 : context.GetValue(InputFalse.InternalProperty as FuncInputProperty<Int2>);
         }
@@ -171,7 +224,20 @@ public class SwitchNode : Node
     {
         if (!context.HasContext)
         {
-            return ((bool)context.GetValue(Condition).GetConstant())
+            var constant = context.GetValue(Condition).GetConstant();
+            if (constant is not bool aBool)
+            {
+                try
+                {
+                    aBool = Convert.ToBoolean(constant);
+                }
+                catch
+                {
+                    aBool = false;
+                }
+            }
+
+            return aBool
                 ? context.GetValue(InputTrue.InternalProperty as FuncInputProperty<Float2>)
                 : context.GetValue(InputFalse.InternalProperty as FuncInputProperty<Float2>);
         }
@@ -186,11 +252,25 @@ public class SwitchNode : Node
             context.GetValue(InputFalse.InternalProperty as FuncInputProperty<Float2>));
     }
 
+
     private Float3 HandleConditionalFloat3(FuncContext context)
     {
         if (!context.HasContext)
         {
-            return ((bool)context.GetValue(Condition).GetConstant())
+            var constant = context.GetValue(Condition).GetConstant();
+            if (constant is not bool aBool)
+            {
+                try
+                {
+                    aBool = Convert.ToBoolean(constant);
+                }
+                catch
+                {
+                    aBool = false;
+                }
+            }
+
+            return aBool
                 ? context.GetValue(InputTrue.InternalProperty as FuncInputProperty<Float3>)
                 : context.GetValue(InputFalse.InternalProperty as FuncInputProperty<Float3>);
         }
@@ -209,7 +289,20 @@ public class SwitchNode : Node
     {
         if (!context.HasContext)
         {
-            return ((bool)context.GetValue(Condition).GetConstant())
+            var constant = context.GetValue(Condition).GetConstant();
+            if (constant is not bool aBool)
+            {
+                try
+                {
+                    aBool = Convert.ToBoolean(constant);
+                }
+                catch
+                {
+                    aBool = false;
+                }
+            }
+
+            return aBool
                 ? context.GetValue(InputTrue.InternalProperty as FuncInputProperty<Half3>)
                 : context.GetValue(InputFalse.InternalProperty as FuncInputProperty<Half3>);
         }
@@ -228,7 +321,20 @@ public class SwitchNode : Node
     {
         if (!context.HasContext)
         {
-            return ((bool)context.GetValue(Condition).GetConstant())
+            var constant = context.GetValue(Condition).GetConstant();
+            if (constant is not bool aBool)
+            {
+                try
+                {
+                    aBool = Convert.ToBoolean(constant);
+                }
+                catch
+                {
+                    aBool = false;
+                }
+            }
+
+            return aBool
                 ? context.GetValue(InputTrue.InternalProperty as FuncInputProperty<Float3x3>)
                 : context.GetValue(InputFalse.InternalProperty as FuncInputProperty<Float3x3>);
         }
@@ -247,7 +353,20 @@ public class SwitchNode : Node
     {
         if (!context.HasContext)
         {
-            return ((bool)context.GetValue(Condition).GetConstant())
+            var constant = context.GetValue(Condition).GetConstant();
+            if (constant is not bool aBool)
+            {
+                try
+                {
+                    aBool = Convert.ToBoolean(constant);
+                }
+                catch
+                {
+                    aBool = false;
+                }
+            }
+
+            return aBool
                 ? context.GetValue(InputTrue.InternalProperty as FuncInputProperty<Bool>)
                 : context.GetValue(InputFalse.InternalProperty as FuncInputProperty<Bool>);
         }
@@ -289,7 +408,7 @@ public class SwitchNode : Node
     private void AddTrueFuncInputHandlers<TValue>(
         TValue constant)
     {
-        InputTrue.AddTypeHandler<Func<FuncContext, TValue>>(() => new FuncInputProperty<TValue>(
+        InputTrue.AddTypeHandler<Func<FuncContext, TValue>>(T => new FuncInputProperty<TValue>(
             this,
             "InputTrue",
             "ON_TRUE",
@@ -299,7 +418,7 @@ public class SwitchNode : Node
     private void AddFalseFuncInputHandlers<TValue>(
         TValue constant)
     {
-        InputFalse.AddTypeHandler<Func<FuncContext, TValue>>(() => new FuncInputProperty<TValue>(
+        InputFalse.AddTypeHandler<Func<FuncContext, TValue>>(T => new FuncInputProperty<TValue>(
             this,
             "InputFalse",
             "ON_FALSE",

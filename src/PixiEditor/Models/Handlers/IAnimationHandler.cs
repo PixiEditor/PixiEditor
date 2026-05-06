@@ -6,6 +6,7 @@ internal interface IAnimationHandler : IDisposable
 {
     public IReadOnlyCollection<ICelHandler> KeyFrames { get; }
     public int ActiveFrameBindable { get; set; }
+    public int FrameRateBindable { get; set; }
     public KeyFrameTime ActiveFrameTime { get; }
     public bool OnionSkinningEnabledBindable { get; set; }
     public int OnionFramesBindable { get; set; }

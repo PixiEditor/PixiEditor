@@ -16,20 +16,22 @@ public class BrushRenderContext : RenderContext
     public Texture TargetFullTexture { get; }
     public VecD StartPoint { get; }
     public VecD LastAppliedPoint { get; }
+    public VecD TargetSampleTexturePos { get; }
 
-    public BrushRenderContext(Canvas renderSurface, KeyFrameTime frameTime, ChunkResolution chunkResolution, VecI renderOutputSize, VecI documentSize, ColorSpace processingColorSpace, SamplingOptions desiredSampling, BrushData brushData, Texture? targetSampledTexture, Texture? targetFullTexture, IReadOnlyNodeGraph graph, VecD startPoint, VecD lastAppliedPoint, double opacity = 1) : base(renderSurface, frameTime, chunkResolution, renderOutputSize, documentSize, processingColorSpace, desiredSampling, graph, opacity)
+    public BrushRenderContext(Canvas renderSurface, KeyFrameTime frameTime, ChunkResolution chunkResolution, VecI renderOutputSize, VecI documentSize, ColorSpace processingColorSpace, SamplingOptions desiredSampling, BrushData brushData, Texture? targetSampledTexture, VecD targetSampleTexturePos, Texture? targetFullTexture, IReadOnlyNodeGraph graph, VecD startPoint, VecD lastAppliedPoint, double opacity = 1) : base(renderSurface, frameTime, chunkResolution, renderOutputSize, documentSize, processingColorSpace, desiredSampling, graph, opacity)
     {
         BrushData = brushData;
         StartPoint = startPoint;
         LastAppliedPoint = lastAppliedPoint;
         TargetSampledTexture = targetSampledTexture;
         TargetFullTexture = targetFullTexture;
+        TargetSampleTexturePos = targetSampleTexturePos;
     }
 
     public override RenderContext Clone()
     {
         return new BrushRenderContext(RenderSurface, FrameTime, ChunkResolution, RenderOutputSize, DocumentSize,
-            ProcessingColorSpace, DesiredSamplingOptions, BrushData, TargetSampledTexture, TargetFullTexture, Graph,
+            ProcessingColorSpace, DesiredSamplingOptions, BrushData, TargetSampledTexture, TargetSampleTexturePos, TargetFullTexture, Graph,
             StartPoint, LastAppliedPoint, Opacity)
         {
             VisibleDocumentRegion = VisibleDocumentRegion,

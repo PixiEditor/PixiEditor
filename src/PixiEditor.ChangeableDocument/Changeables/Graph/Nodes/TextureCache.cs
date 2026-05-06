@@ -8,10 +8,19 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 public class TextureCache : IDisposable
 {
+    private bool isDisposed = false;
     private Dictionary<int, Texture> _managedTextures = new();
 
     public Texture RequestTexture(int id, VecI size, ColorSpace processingCs, bool clear = true)
     {
+        if (isDisposed)
+        {
+            throw new ObjectDisposedException(nameof(TextureCache));
+        }
+
+        if (size.X <= 0 || size.Y <= 0)
+            throw new ArgumentException("Size must be positive", nameof(size));
+
         if (_managedTextures.TryGetValue(id, out var texture))
         {
             if (texture.Size != size || texture.IsDisposed || !texture.ColorSpace.Equals(processingCs))
@@ -50,6 +59,7 @@ public class TextureCache : IDisposable
 
     public void Dispose()
     {
+        isDisposed = true;
         foreach (var texture in _managedTextures)
         {
             texture.Value.Dispose();

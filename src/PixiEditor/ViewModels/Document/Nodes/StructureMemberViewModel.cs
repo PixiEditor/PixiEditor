@@ -202,6 +202,13 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
     }
 
     IDocument IStructureMemberHandler.Document => Document;
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        Preview?.Preview?.Dispose();
+        MaskPreview?.Preview?.Dispose();
+    }
 }
 
 public static class StructureMemberViewModel

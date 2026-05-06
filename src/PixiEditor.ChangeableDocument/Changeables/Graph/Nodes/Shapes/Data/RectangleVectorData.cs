@@ -64,14 +64,14 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
         using Paint paint = new Paint();
         paint.IsAntiAliased = true;
 
-        if (Fill && FillPaintable.AnythingVisible)
+        if (Fill && FillPaintable is { AnythingVisible: true })
         {
             paint.SetPaintable(FillPaintable);
             paint.Style = PaintStyle.Fill;
             DrawRect(canvas, paint);
         }
 
-        if (StrokeWidth > 0 && Stroke.AnythingVisible)
+        if (StrokeWidth > 0 && Stroke is { AnythingVisible: true })
         {
             paint.SetPaintable(Stroke);
             paint.Style = PaintStyle.Stroke;

@@ -37,6 +37,7 @@ using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
 using PixiEditor.Models.IO;
+using PixiEditor.Models.Layers;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Skia;
 using PixiEditor.UI.Common.Localization;
@@ -262,6 +263,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         NodeGraph.StructureTree.Update(NodeGraph);
 
         ReferenceId = referenceId;
+
+        Internals.ActionAccumulator.AddFinishedActions(new RefreshPreviews_PassthroughAction());
     }
 
     private void InitializeViewModel()
@@ -408,6 +411,16 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             acc.AddActions(new CreateNode_Action(typeof(OutputNode), outputNodeGuid, Guid.Empty));
         }
 
+        acc.AddActions(new InvokeAction_PassthroughAction(() =>
+        {
+            var firstMember = viewModel.NodeGraph.StructureTree.Members.FirstOrDefault();
+            if (firstMember != null)
+            {
+                viewModel.SetSelectedMember(firstMember);
+                firstMember.Selection = StructureMemberSelectionType.Hard;
+            }
+        }));
+
         AddAnimationData(builderInstance.AnimationData, mappedNodeIds, mappedKeyFrameIds);
 
         if (builderInstance.FitToContent)
@@ -448,6 +461,10 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 if (value == null && wellKnownType != null && wellKnownType.IsValueType)
                 {
                     value = Activator.CreateInstance(wellKnownType);
+                }
+                else if (value != null && wellKnownType == null)
+                {
+                    wellKnownType = value.GetType();
                 }
 
                 acc.AddActions(new SetBlackboardVariable_Action(varBuilder.Name, value,
@@ -1450,6 +1467,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             isDisposed = true;
             NodeGraph.Dispose();
             Renderer.Dispose();
+            SceneRenderer.Dispose();
             foreach (var texture in SceneTextures)
             {
                 texture.Value?.Dispose();
@@ -1498,7 +1516,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         foreach (var node in nestedNodes)
         {
             if (node.InputPropertyMap[NestedDocumentNode.DocumentPropertyName].Value is not DocumentReference docRef ||
-                (docRef.ReferenceId != referenceId && docRef.OriginalFilePath != newDoc.FullFilePath))
+                ((docRef.ReferenceId == Guid.Empty || docRef.ReferenceId != referenceId) && (string.IsNullOrEmpty(docRef.OriginalFilePath) || docRef.OriginalFilePath != newDoc.FullFilePath)))
                 continue;
 
             Internals.ActionAccumulator.AddActions(new UpdatePropertyValue_Action(node.Id,

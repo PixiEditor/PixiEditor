@@ -69,4 +69,14 @@ public static class PrefixedNameUtility
 
         return $"{extensionUniqueName}:{commandUniqueName}";
     }
+
+    public static string ToPixiEditorRelativeResourcePath(string metadataUniqueName, string relativePath)
+    {
+        if (relativePath.StartsWith("/"))
+        {
+            relativePath = $"{metadataUniqueName}://{relativePath}";
+        }
+
+        return relativePath;
+    }
 }
