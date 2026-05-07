@@ -1243,6 +1243,7 @@
   "PIXEL_PERFECT": "Pixel Perfect",
   "ESSENTIALS": "Essentials",
   "UNTAGGED": "Untagged",
+  "TOOL": "Tool",
   "ERROR_IMPORTING_BRUSH_TITLE": "Error importing brush",
   "ERROR_IMPORTING_BRUSH_MESSAGE": "An error occurred while importing the brush: {0}",
   "TAGS": "Tags",
@@ -1479,5 +1480,10 @@
   "FOLLOW_SYSTEM_LANG": "Follow system",
   "CONFIRM_OVERWRITE_QUESTION": "This document is saved as a '{0}' file. Do you want to overwrite it?",
   "CONFIRM_OVERWRITE_TITLE": "Confirm overwrite",
-  "MISSING_LAYER_NODE_ERROR": "Missing Layer Node"
+  "MISSING_LAYER_NODE_ERROR": "Missing Layer Node",
+  "RAINBOW_BRUSH": "Rainbow Brush",
+  "PERIOD": "Period (Seconds)",
+  "SATURATION": "Saturation",
+  "RATIO": "Brush Aspect Ratio",
+  "FIND_AND_REPLACE": "Find and Replace"
 }
