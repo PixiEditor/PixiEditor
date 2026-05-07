@@ -1423,6 +1423,7 @@
   "BLENDING_BRUSH_INSIDE": "Blending Brush (Inside)",
   "TEXTURE_BRUSH": "Texture Painter",
   "UNNAMED_BRUSH": "Unnamed Brush",
+  "PIPE_MAKER_BRUSH": "Pipe Maker Brush",
   "OPEN_IN_FILE_EXPLORER": "Open in File Explorer",
   "BACKUP_USR_PREFS": "Backup User Preferences",
   "BACKUP_EDITOR_DATA": "Backup Editor Data",
@@ -1479,5 +1480,7 @@
   "FOLLOW_SYSTEM_LANG": "Follow system",
   "CONFIRM_OVERWRITE_QUESTION": "This document is saved as a '{0}' file. Do you want to overwrite it?",
   "CONFIRM_OVERWRITE_TITLE": "Confirm overwrite",
-  "MISSING_LAYER_NODE_ERROR": "Missing Layer Node"
+  "MISSING_LAYER_NODE_ERROR": "Missing Layer Node",
+  "SHADOW_COLOR": "Shadow Color",
+  "SHADOW_ANGLE": "Shadow Angle"
 }
