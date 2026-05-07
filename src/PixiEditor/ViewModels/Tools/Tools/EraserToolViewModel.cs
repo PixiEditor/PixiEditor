@@ -38,5 +38,9 @@ internal class EraserToolViewModel : BrushBasedToolViewModel, IEraserToolHandler
     protected override void SwitchToTool()
     {
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseEraserTool();
+        if (!createdBrushSettings)
+        {
+            AddBrushShapeSettings();
+        }
     }
 }

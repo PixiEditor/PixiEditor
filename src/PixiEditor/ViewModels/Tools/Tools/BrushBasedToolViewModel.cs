@@ -50,6 +50,8 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
     private string toolTipKey;
     private string defaultIcon;
 
+    protected bool createdBrushSettings;
+
     private List<ParsedActionDisplayConfig>? actionDisplays;
 
     public BrushBasedToolViewModel()
@@ -100,6 +102,10 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
     protected virtual void SwitchToTool()
     {
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseBrushBasedTool(this);
+        if(!createdBrushSettings)
+        {
+            AddBrushShapeSettings();
+        }
     }
 
     public override void UseTool(VecD pos)
@@ -166,7 +172,7 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
         OnToolSelected(false);
     }
 
-    private void AddBrushShapeSettings()
+    protected void AddBrushShapeSettings()
     {
         foreach (var setting in brushShapeSettings)
         {
@@ -183,10 +189,21 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
         {
             if (blackboardVariable is VariableViewModel { IsExposedBindable: true } varVm)
             {
-                Toolbar.AddSetting(varVm.SettingView);
-                brushShapeSettings.Add(varVm.SettingView);
+                var settingView = varVm.SettingView;
+                foreach (var dynamicDefaultSetting in dynamicDefaultSettings)
+                {
+                    if (dynamicDefaultSetting.Value.TryGetValue(varVm.Name, out var defaultValue))
+                    {
+                        SetDefaultValue(dynamicDefaultSetting.Key, defaultValue, varVm.SettingView, varVm.Name);
+                    }
+                }
+
+                Toolbar.AddSetting(settingView);
+                brushShapeSettings.Add(settingView);
             }
         }
+
+        createdBrushSettings = true;
     }
 
     protected override void OnDeselecting(bool transient)
