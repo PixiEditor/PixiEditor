@@ -225,7 +225,7 @@
                                         Margin="3, 0"
                                         VerticalAlignment="Center"
                                         Source="{Binding IconFullPath, Converter={converters:ImagePathToBitmapConverter}}" />
-                                    <TextBlock VerticalAlignment="Center" Text="{Binding Name}" />
+                                    <TextBlock VerticalAlignment="Center" ui:Translator.Key="{Binding Name}" />
                                 </StackPanel>
                             </DataTemplate>
                         </ComboBox.ItemTemplate>

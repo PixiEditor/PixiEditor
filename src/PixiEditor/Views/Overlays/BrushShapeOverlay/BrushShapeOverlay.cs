@@ -119,7 +119,8 @@ internal class BrushShapeOverlay : Overlay
     private VecD lastDirCalculationPoint;
     private float lastSize;
     private bool isMouseDown;
-    private PointerInfo lastPointerInfo;
+    private DateTime lastPointerInfoTime;
+    private float lastVelocity;
 
     private ChangeableDocument.Changeables.Brushes.BrushEngine engine = new();
 
@@ -185,13 +186,20 @@ internal class BrushShapeOverlay : Overlay
 
             VecD dir = lastDirCalculationPoint - pos;
             VecD vecDir = new VecD(dir.X, dir.Y);
-            VecD dirNormalized = vecDir.Length > 0 ? vecDir.Normalize() : lastPointerInfo.MovementDirection;
+            VecD dirNormalized = vecDir.Length > 0 ? vecDir.Normalize() : VecD.Zero;
+            VecD delta = pos - lastPoint;
+            double dt = (DateTime.Now - lastPointerInfoTime).TotalSeconds;
 
-            PointerInfo pointer = new PointerInfo(pos, 1, 0, VecD.Zero, dirNormalized, true, false);
+            float rawVelocity = dt > 0.0001 ? (float)(delta.Length / dt) : 0f;
+            float velocity = lastVelocity * 0.8f + rawVelocity * 0.2f;
+
+            PointerInfo pointer = new PointerInfo(pos, 1, 0, VecD.Zero, dirNormalized, velocity, true, false);
 
             engine.ExecuteBrush(null, BrushData, pos, ActiveFrameTime,
                 ColorSpace.CreateSrgb(), SamplingOptions.Default, pointer, new KeyboardInfo(),
                 EditorData?.Invoke() ?? new EditorData(Colors.White, Colors.Black));
+
+            lastVelocity = velocity;
         }
         catch (Exception ex)
         {
@@ -209,6 +217,7 @@ internal class BrushShapeOverlay : Overlay
 
         UpdateBrushShape(args.Point);
         lastPoint = args.Point;
+        lastPointerInfoTime = DateTime.Now;
 
         Refresh();
     }

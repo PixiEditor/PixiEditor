@@ -202,6 +202,7 @@
             <SolidColorBrush x:Key="FontFamilyNameSocketBrush" Color="{StaticResource FontFamilyNameSocketColor}" />
 
             <SolidColorBrush x:Key="FoundersPurpleBrush" Color="{StaticResource FoundersPurpleColor}" />
+            <SolidColorBrush x:Key="FoundersPurpleLowBrush" Opacity="0.1" Color="{StaticResource FoundersPurpleColor}" />
 
             <ConicGradientBrush x:Key="ShapeVectorDataSocketBrush"
                                 GradientStops="{StaticResource ShapeDataSocketGradient}" />

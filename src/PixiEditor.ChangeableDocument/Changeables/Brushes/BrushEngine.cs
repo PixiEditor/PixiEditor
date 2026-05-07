@@ -278,7 +278,7 @@ public class BrushEngine : IDisposable
 
         if (requiresSampleTexture && rect is { Width: > 0, Height: > 0 } && target != null)
         {
-            RectI targetRect = (RectI)rect.RoundOutwards();
+            RectI targetRect = (RectI)rect.RoundOutwards().Inflate(brushNode.TargetOversample.Value);
             surfaceUnderRect = UpdateSurfaceUnderRect(target, targetRect, colorSpace,
                 brushNode.AllowSampleStacking.Value);
         }
@@ -323,10 +323,10 @@ public class BrushEngine : IDisposable
             if (shape.Bounds is { Width: > 0, Height: > 0 })
             {
                 context.TargetSampledTexture?.Dispose();
-                surfaceUnderRect = UpdateSurfaceUnderRect(target, (RectI)shape.TightBounds.RoundOutwards(), colorSpace,
+                surfaceUnderRect = UpdateSurfaceUnderRect(target, (RectI)shape.TightBounds.Round().Inflate(brushNode.TargetOversample.Value), colorSpace,
                     brushNode.AllowSampleStacking.Value);
                 context.TargetSampledTexture = surfaceUnderRect;
-                context.RenderOutputSize = ((RectI)shape.TightBounds.RoundOutwards()).Size;
+                context.RenderOutputSize = ((RectI)shape.TightBounds.Round()).Size;
             }
         }
 

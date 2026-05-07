@@ -1026,10 +1026,39 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     /// <param name="includeCanvas">Should the color be picked from the canvas</param>
     /// <param name="referenceTopmost">Is the reference layer topmost. (Only affects the result is includeReference and includeCanvas are set.)</param>
     public Color PickColor(VecD pos, DocumentScope scope, bool includeReference, bool includeCanvas, int frame,
-        bool referenceTopmost = false, string? customOutput = null)
+        bool referenceTopmost = false, string? customOutput = null, Guid? viewportId = null)
     {
         if (scope == DocumentScope.SingleLayer && includeReference && includeCanvas)
             includeReference = false;
+
+        // Fast path for Canvas scope: sample from the cached scene texture instead of re-rendering
+        if (scope == DocumentScope.Canvas && includeCanvas && viewportId.HasValue
+            && SceneTextures.TryGetValue(viewportId.Value, out var sceneTexture)
+            && sceneTexture is { IsDisposed: false })
+        {
+            var textureMatrix = sceneTexture.DrawingSurface.Canvas.TotalMatrix;
+            VecD texturePixel = textureMatrix.MapPoint(pos);
+            VecI pixelPos = new VecI(
+                Math.Clamp((int)texturePixel.X, 0, sceneTexture.Size.X - 1),
+                Math.Clamp((int)texturePixel.Y, 0, sceneTexture.Size.Y - 1));
+            Color canvasColor = sceneTexture.GetSrgbPixel(pixelPos);
+
+            if (!includeReference)
+                return canvasColor;
+
+            Color? potentialReferenceColor = PickColorFromReferenceLayer(pos);
+            if (potentialReferenceColor is not { } referenceColor)
+                return canvasColor;
+
+            if (!referenceTopmost)
+                return ColorHelpers.BlendColors(referenceColor, canvasColor);
+
+            byte referenceAlpha = canvasColor.A == 0
+                ? referenceColor.A
+                : (byte)(referenceColor.A * ReferenceLayerViewModel.TopMostOpacity);
+            referenceColor = new Color(referenceColor.R, referenceColor.G, referenceColor.B, referenceAlpha);
+            return ColorHelpers.BlendColors(canvasColor, referenceColor);
+        }
 
         if (includeCanvas && includeReference)
         {
