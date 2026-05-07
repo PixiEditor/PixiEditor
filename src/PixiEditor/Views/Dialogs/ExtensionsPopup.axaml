@@ -19,6 +19,7 @@
                          xmlns:indicators="clr-namespace:PixiEditor.Views.Indicators"
                          xmlns:visuals="clr-namespace:PixiEditor.Views.Visuals"
                          xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+                         xmlns:extensions="clr-namespace:PixiEditor.Views.Extensions"
                          mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
                          x:Class="PixiEditor.Views.Dialogs.ExtensionsPopup"
                          Height="680" Width="1300"
@@ -29,7 +30,7 @@
         <extensionManager:ExtensionManagerViewModel />
     </Design.DataContext>
 
-    <Panel>
+    <Panel HorizontalAlignment="Center">
         <Panel ZIndex="2" Background="{DynamicResource ThemeBackgroundBrush}" IsVisible="{Binding IsDetailsVisible}">
             <Grid Margin="24">
                 <Grid.RowDefinitions>
@@ -305,17 +306,6 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <Border BorderThickness="0, 1">
-                <Panel HorizontalAlignment="Stretch" Background="{DynamicResource ThemeBorderLowBrush}">
-                    <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center" Margin="0 8">
-                        <TextBlock>
-                            <Run FontWeight="Bold" localization:Translator.Key="WELCOME_TO_EXTENSIONS_BETA" />
-                        </TextBlock>
-                        <TextBlock ui:Hyperlink.Url="https://forum.pixieditor.net/t/extension-browser-beta/567"
-                                   localization:Translator.Key="CLICK_HERE_TO_READ_MORE" />
-                    </StackPanel>
-                </Panel>
-            </Border>
             <Border Grid.Row="1" BorderThickness="1"
                     CornerRadius="4"
                     BorderBrush="{DynamicResource ThemeBorderMidColor}"
@@ -393,77 +383,13 @@
                         <ItemsControl ItemsSource="{Binding AvailableExtensions}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <WrapPanel Orientation="Horizontal" />
+                                    <WrapPanel Orientation="Horizontal"  />
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
 
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Button
-                                        Command="{Binding DataContext.SelectExtensionCommand, RelativeSource={RelativeSource AncestorType=dialogs:ExtensionsPopup}}"
-                                        CommandParameter="{Binding}"
-                                        Background="Transparent"
-                                        BorderThickness="0">
-                                        <Border
-                                            Background="{DynamicResource ThemeBackgroundColor1}"
-                                            CornerRadius="4"
-                                            Padding="12"
-                                            Width="192"
-                                            Margin="6">
-
-                                            <Grid>
-                                                <Grid.RowDefinitions>
-                                                    <RowDefinition Height="Auto" />
-                                                    <RowDefinition Height="*" />
-                                                    <RowDefinition Height="Auto" />
-                                                </Grid.RowDefinitions>
-
-                                                <Panel>
-                                                    <TextBlock Classes="pixi-icon" HorizontalAlignment="Center"
-                                                               Text="{DynamicResource icon-blocks}" FontSize="64"
-                                                               Opacity="0.25"
-                                                               IsVisible="{Binding AvailableContent.ImageUrl, Converter={converters:EmptyStringConverter}}" />
-                                                    <Image
-                                                        Height="100"
-                                                        Stretch="Uniform"
-                                                        asyncImageLoader:ImageLoader.Source="{Binding AvailableContent.ImageUrl}" />
-                                                </Panel>
-
-                                                <StackPanel Margin="0, 16" Grid.Row="1">
-                                                    <TextBlock
-                                                        Text="{Binding AvailableContent.Author}"
-                                                        Foreground="{DynamicResource ThemeForegroundColor}"
-                                                        Opacity="0.5"
-                                                        FontSize="{DynamicResource FontSizeSmall}" />
-
-                                                    <TextBlock
-                                                        Text="{Binding AvailableContent.Name}"
-                                                        TextTrimming="CharacterEllipsis"
-                                                        FontSize="{DynamicResource FontSizeLarge}"
-                                                        FontWeight="Bold"
-                                                        Foreground="{DynamicResource ThemeForegroundColor}" />
-
-                                                    <TextBlock
-                                                        Text="{Binding AvailableContent.Description}"
-                                                        TextTrimming="CharacterEllipsis"
-                                                        FontSize="{DynamicResource FontSizeNormal}"
-                                                        FontWeight="Normal"
-                                                        Foreground="{DynamicResource ThemeForegroundColor}"
-                                                        TextWrapping="Wrap"
-                                                        MaxLines="2"
-                                                        MinHeight="36" />
-                                                </StackPanel>
-
-                                                <Panel Grid.Row="2">
-                                                    <TextBlock
-                                                        localization:Translator.Key="{Binding PriceText}"
-                                                        Foreground="{DynamicResource ThemeForegroundBrush}"
-                                                        FontSize="{DynamicResource FontSizeNormal}"
-                                                        FontWeight="Normal" />
-                                                </Panel>
-                                            </Grid>
-                                        </Border>
-                                    </Button>
+                                   <extensions:AvailableExtensionCard SelectExtensionCommand="{Binding DataContext.SelectExtensionCommand, RelativeSource={RelativeSource AncestorType=dialogs:ExtensionsPopup}}"/>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>

@@ -1,0 +1,82 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:extensionManager="clr-namespace:PixiEditor.ViewModels.ExtensionManager"
+             xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
+             xmlns:extensions="clr-namespace:PixiEditor.Views.Extensions"
+             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="extensionManager:AvailableContentViewModel"
+             x:Class="PixiEditor.Views.Extensions.AvailableExtensionCard">
+    <Design.DataContext>
+        <extensionManager:AvailableContentViewModel/>
+    </Design.DataContext>
+    <Button
+        Command="{Binding SelectExtensionCommand, RelativeSource={RelativeSource AncestorType=extensions:AvailableExtensionCard}}"
+        CommandParameter="{Binding}"
+        Background="Transparent"
+        BorderThickness="0">
+        <Border
+            Background="{DynamicResource ThemeBackgroundColor1}"
+            CornerRadius="4"
+            Padding="12"
+            Width="192"
+            Margin="6">
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Panel>
+                    <TextBlock Classes="pixi-icon" HorizontalAlignment="Center"
+                               Text="{DynamicResource icon-blocks}" FontSize="64"
+                               Opacity="0.25"
+                               IsVisible="{Binding AvailableContent.ImageUrl, Converter={converters:EmptyStringConverter}}" />
+                    <Image
+                        Height="100"
+                        Stretch="Uniform"
+                        asyncImageLoader:ImageLoader.Source="{Binding AvailableContent.ImageUrl}" />
+                </Panel>
+
+                <StackPanel Margin="0, 16" Grid.Row="1">
+                    <TextBlock
+                        Text="{Binding AvailableContent.Author}"
+                        Foreground="{DynamicResource ThemeForegroundColor}"
+                        Opacity="0.5"
+                        FontSize="{DynamicResource FontSizeSmall}" />
+
+                    <TextBlock
+                        Text="{Binding AvailableContent.Name}"
+                        TextTrimming="CharacterEllipsis"
+                        FontSize="{DynamicResource FontSizeLarge}"
+                        FontWeight="Bold"
+                        Foreground="{DynamicResource ThemeForegroundColor}" />
+
+                    <TextBlock
+                        Text="{Binding AvailableContent.Description}"
+                        TextTrimming="CharacterEllipsis"
+                        FontSize="{DynamicResource FontSizeNormal}"
+                        FontWeight="Normal"
+                        Foreground="{DynamicResource ThemeForegroundColor}"
+                        TextWrapping="Wrap"
+                        MaxLines="2"
+                        MinHeight="36" />
+                </StackPanel>
+
+                <Panel Grid.Row="2">
+                    <TextBlock
+                        localization:Translator.Key="{Binding PriceText}"
+                        Foreground="{DynamicResource ThemeForegroundBrush}"
+                        FontSize="{DynamicResource FontSizeNormal}"
+                        FontWeight="Normal" />
+                </Panel>
+            </Grid>
+        </Border>
+    </Button>
+</UserControl>
