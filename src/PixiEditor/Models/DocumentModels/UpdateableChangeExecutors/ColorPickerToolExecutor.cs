@@ -26,7 +26,7 @@ internal class ColorPickerToolExecutor : UpdateableChangeExecutor
             return ExecutionState.Error;
 
         scope = tool.Mode;
-        includeReference = tool.PickFromReferenceLayer && document!.ReferenceLayerHandler.ReferenceTexture is not null;
+        includeReference = tool.PickFromReferenceLayer && document!.ReferenceLayerHandler.ReferenceTexture is not null && document!.ReferenceLayerHandler.IsVisible;
         includeCanvas = tool.PickFromCanvas;
 
         windowHandler = GetHandler<IWindowHandler>();

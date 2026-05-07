@@ -744,7 +744,7 @@ internal class ViewportOverlays
             var tool = ViewModelMain.Current.ToolsSubViewModel.ActiveTool as IColorPickerHandler;
             if (tool is null) return default;
 
-            bool includeRef = tool.PickFromReferenceLayer && doc.ReferenceLayerViewModel.ReferenceTexture is not null;
+            bool includeRef = tool.PickFromReferenceLayer && doc.ReferenceLayerViewModel.ReferenceTexture is not null && doc.ReferenceLayerViewModel.IsVisibleBindable;
             bool referenceTopmost = doc.ReferenceLayerViewModel.IsTopMost;
 
             if (tool.PickFromCanvas && tool.Mode == DocumentScope.Canvas
