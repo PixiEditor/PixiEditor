@@ -2,6 +2,7 @@ public static partial class PixiPerfectIcons
 {
     public const string AddReference = "\uE920";
     public const string AddToMask = "\uE921";
+    public const string Adjust = "\uE9E7";
     public const string AlignLeft = "\uE9B1";
     public const string AlignRight = "\uE9B5";
     public const string AlignStretch = "\uE9B0";
@@ -13,6 +14,7 @@ public static partial class PixiPerfectIcons
     public const string ArrowUp = "\uE927";
     public const string ArrowUpDown = "\uE9DA";
     public const string Blocks = "\uE9E4";
+    public const string Blur = "\uE9E8";
     public const string Bold = "\uE9AD";
     public const string Book = "\uE928";
     public const string Braces = "\uE9CF";
@@ -71,6 +73,7 @@ public static partial class PixiPerfectIcons
     public const string Eraser = "\uE96D";
     public const string EthernetPort = "\uE9D5";
     public const string Exit = "\uE943";
+    public const string Extensions = "\uE9E9";
     public const string Eye = "\uE945";
     public const string EyeOff = "\uE944";
     public const string File = "\uE949";
@@ -176,12 +179,15 @@ public static partial class PixiPerfectIcons
     public const string SelectAll = "\uE970";
     public const string SeparateVector = "\uE91C";
     public const string Settings = "\uE971";
+    public const string Sharpen = "\uE9EC";
     public const string Shredder = "\uE9CA";
     public const string Shuffle = "\uE992";
     public const string Slice = "\uE9CC";
     public const string Sliders = "\uE972";
+    public const string Smudge = "\uE9EB";
     public const string Snapping = "\uE9A7";
     public const string SplineChart = "\uE9BE";
+    public const string Sponge = "\uE9EA";
     public const string Spray = "\uE90E";
     public const string Square = "\uE973";
     public const string Stamp = "\uE9CD";

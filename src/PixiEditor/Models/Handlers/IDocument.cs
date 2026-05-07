@@ -69,7 +69,7 @@ internal interface IDocument : IHandler, Extensions.CommonApi.Documents.IDocumen
     public void SetSize(VecI infoSize);
 
     public Color PickColor(VecD controllerLastPrecisePosition, DocumentScope scope, bool includeReference,
-        bool includeCanvas, int frame, bool isTopMost, string? customOutput);
+        bool includeCanvas, int frame, bool isTopMost, string? customOutput, Guid? viewportId = null);
 
     public HashSet<Guid> ExtractSelectedLayers(bool includeFoldersWithMask = false);
     public List<Guid> GetSelectedMembersInOrder(bool includeNested = false);

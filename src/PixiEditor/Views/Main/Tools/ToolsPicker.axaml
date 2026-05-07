@@ -12,15 +12,15 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              ClipToBounds="False"
              x:Class="PixiEditor.Views.Main.Tools.ToolsPicker" Name="picker">
-    <Border
-        ClipToBounds="True"
-        Cursor="Arrow" Width="48"
-        BorderBrush="{DynamicResource ThemeBorderMidBrush}"
-        CornerRadius="{DynamicResource ControlCornerRadius}"
-        Padding="0, 5"
-        BorderThickness="{DynamicResource ThemeBorderThickness}"
-        Background="{DynamicResource ThemeBackgroundBrush1}">
-        <StackPanel>
+    <StackPanel>
+        <Border
+            ClipToBounds="True"
+            Cursor="Arrow" Width="48"
+            BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+            CornerRadius="{DynamicResource ControlCornerRadius}"
+            Padding="0, 5"
+            BorderThickness="{DynamicResource ThemeBorderThickness}"
+            Background="{DynamicResource ThemeBackgroundBrush1}">
             <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                 <ItemsControl ItemsSource="{Binding ElementName=picker, Path=ToolSet.Tools}" Padding="0 2">
                     <ItemsControl.ItemTemplate>
@@ -36,10 +36,16 @@
                     </ItemsControl.ItemsPanel>
                 </ItemsControl>
             </ScrollViewer>
-            <Button Classes="pixi-icon" Content="{DynamicResource icon-blocks}"
-                    Padding="0, 0, 0, 5"
+        </Border>
+
+        <Border CornerRadius="7" Margin="0, 7, 0, 0" Background="{DynamicResource FoundersPurpleLowBrush}">
+            <Button Classes="pixi-icon" Content="{DynamicResource icon-extensions}"
+                    Foreground="{DynamicResource FoundersPurpleBrush}"
+                    Width="46"
+                    Height="46"
                     localization:Translator.TooltipKey="GET_FROM_EXTENSIONS"
-                    Command="{xaml:Command Name=PixiEditor.Window.OpenExtensionsWindow}"/>
-        </StackPanel>
-    </Border>
+                    Command="{xaml:Command Name=PixiEditor.Window.OpenExtensionsWindow}" />
+        </Border>
+    </StackPanel>
+
 </UserControl>
