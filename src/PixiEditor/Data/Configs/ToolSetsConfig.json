@@ -246,7 +246,7 @@
     },
     {
       "Name": "ADJUSTMENTS_TOOLSET",
-      "Icon": "",
+      "Icon": "icon-adjust",
       "Tools": [
         "MoveViewport",
         "RotateViewport",
