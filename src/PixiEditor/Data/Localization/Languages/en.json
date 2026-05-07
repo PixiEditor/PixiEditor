@@ -1488,5 +1488,8 @@
   "ADJUSTMENTS_TOOLSET": "Adjustments",
   "SMUDGE_TOOL": "Smudge",
   "SMUDGE_TOOL_TOOLTIP": "Smudge parts of your image ({0}).",
-  "SMUDGE_TOOL_ACTION_DISPLAY": "Click and drag on the canvas to smudge. Pointer velocity will affect the strength of the smudge."
+  "SMUDGE_TOOL_ACTION_DISPLAY": "Click and drag on the canvas to smudge. Pointer velocity will affect the strength of the smudge.",
+  "CONFIRM_OVERWRITE_QUESTION": "This document is saved as a '{0}' file. Do you want to overwrite it?",
+  "CONFIRM_OVERWRITE_TITLE": "Confirm overwrite",
+  "MISSING_LAYER_NODE_ERROR": "Missing Layer Node"
 }

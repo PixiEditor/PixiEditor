@@ -43,6 +43,7 @@ namespace PixiEditor.ViewModels.SubViewModels;
 [Command.Group("PixiEditor.File", "FILE")]
 internal class FileViewModel : SubViewModel<ViewModelMain>
 {
+    private HashSet<string> confirmedOverwritePaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
     public static long LazyFileThreshold = 2 * 1024 * 1024; // 2MB
     private bool hasRecent;
 
@@ -782,6 +783,11 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                     return false;
                 }
 
+                if(string.IsNullOrEmpty(result.Path))
+                {
+                    return false;
+                }
+
                 document.FullFilePath = result.Path;
                 document.ReferenceId = Guid.Empty;
                 AddRecentlyOpened(result.Path);
@@ -798,9 +804,15 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                 var result = await Exporter.TrySaveWithDialog(document, config, null);
                 if (result.Result.ResultType == SaveResultType.Cancelled)
                     return false;
+
                 if (result.Result.ResultType != SaveResultType.Success)
                 {
                     ShowSaveError(result.Result);
+                    return false;
+                }
+
+                if(string.IsNullOrEmpty(result.Path))
+                {
                     return false;
                 }
 
@@ -810,6 +822,41 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             else
             {
                 ExportConfig config = new ExportConfig(document.SizeBindable);
+                if (!string.Equals(Path.GetExtension(document.FullFilePath), ".pixi", StringComparison.OrdinalIgnoreCase) && !confirmedOverwritePaths.Contains(document.FullFilePath))
+                {
+                    var overwrite = await ConfirmationDialog.Show(new LocalizedString("CONFIRM_OVERWRITE_QUESTION", Path.GetExtension(document.FullFilePath)), "CONFIRM_OVERWRITE_TITLE");
+                    if (overwrite == ConfirmationType.Canceled)
+                    {
+                        return false;
+                    }
+
+                    if (overwrite == ConfirmationType.No)
+                    {
+                        var dialogResult = await Exporter.TrySaveWithDialog(document, config, null);
+                        if (dialogResult.Result.ResultType == SaveResultType.Cancelled)
+                            return false;
+
+                        if (dialogResult.Result.ResultType != SaveResultType.Success)
+                        {
+                            ShowSaveError(dialogResult.Result);
+                            return false;
+                        }
+
+                        if (string.IsNullOrEmpty(dialogResult.Path))
+                        {
+                            return false;
+                        }
+
+                        finalPath = dialogResult.Path;
+                        AddRecentlyOpened(dialogResult.Path);
+
+                        document.FullFilePath = finalPath;
+                        Owner.DocumentManagerSubViewModel.ReloadDocumentReference(document.ReferenceId, finalPath);
+                        document.MarkAsSaved();
+                        return true;
+                    }
+                }
+
                 var result = await Exporter.TrySaveAsync(document, document.FullFilePath, config, null);
                 if (result.ResultType != SaveResultType.Success)
                 {
@@ -818,6 +865,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                 }
 
                 finalPath = document.FullFilePath;
+                confirmedOverwritePaths.Add(finalPath);
             }
 
             document.FullFilePath = finalPath;

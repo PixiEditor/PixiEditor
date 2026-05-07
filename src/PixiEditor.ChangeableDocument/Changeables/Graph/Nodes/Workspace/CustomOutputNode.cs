@@ -78,7 +78,7 @@ public class CustomOutputNode : Node, IRenderInput
             int saved = preview.Texture.DrawingSurface.Canvas.Save();
             preview.Texture.DrawingSurface.Canvas.Clear();
 
-            var bounds = new RectD(0, 0, ctx.RenderOutputSize.X, ctx.RenderOutputSize.Y);
+            var bounds = new RectD(0, 0, Size.Value.X, Size.Value.Y);
 
             VecD scaling = PreviewUtility.CalculateUniformScaling(bounds.Size, preview.Texture.Size);
             VecD offset = PreviewUtility.CalculateCenteringOffset(bounds.Size, preview.Texture.Size, scaling);

@@ -794,8 +794,12 @@ internal class DocumentUpdater
             inputs.Add(prop);
             foreach (var propInfoConnectedProperty in propInfo.ConnectedProperties)
             {
-                var inputNode = isInput ? node : doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId);
-                var outputNode = isInput ? doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId) : node;
+                var inputNode = isInput
+                    ? node
+                    : doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId);
+                var outputNode = isInput
+                    ? doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId)
+                    : node;
                 if (inputNode == null || outputNode == null)
                 {
 #if DEBUG
@@ -807,8 +811,14 @@ internal class DocumentUpdater
                 {
                     doc.NodeGraphHandler.SetConnection(new NodeConnectionViewModel()
                     {
-                        InputNode = isInput ? node : doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId),
-                        OutputNode = isInput ? doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId) : node,
+                        InputNode =
+                            isInput
+                                ? node
+                                : doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId),
+                        OutputNode =
+                            isInput
+                                ? doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId)
+                                : node,
                         InputProperty = isInput
                             ? prop
                             : doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId)
@@ -913,7 +923,8 @@ internal class DocumentUpdater
     private void ProcessNodePropertyValueUpdated(PropertyValueUpdated_ChangeInfo info)
     {
         NodeViewModel node = doc.StructureHelper.FindNode<NodeViewModel>(info.NodeId);
-        var property = node.FindInputProperty(info.Property);
+
+        var property = node?.FindInputProperty(info.Property);
 
         if (property == null)
             return;
@@ -986,7 +997,7 @@ internal class DocumentUpdater
     private void ProcessNodeName(NodeName_ChangeInfo info)
     {
         NodeViewModel node = doc.StructureHelper.FindNode<NodeViewModel>(info.NodeId);
-        node.SetName(info.NewName);
+        node?.SetName(info.NewName);
     }
 
     private void ProcessFrameRate(FrameRate_ChangeInfo info)

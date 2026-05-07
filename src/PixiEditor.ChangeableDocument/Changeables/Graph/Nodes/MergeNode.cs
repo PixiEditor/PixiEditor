@@ -75,6 +75,17 @@ public class MergeNode : RenderNode
         return Top.Value != null || Bottom.Value != null;
     }
 
+    public override RectD? GetPreviewBounds(RenderContext ctx, string elementToRenderName)
+    {
+        var topBounds = TryGetInputBounds(ctx, elementToRenderName, Top);
+        var bottomBounds = TryGetInputBounds(ctx, elementToRenderName, Bottom);
+
+        if (topBounds == null) return bottomBounds;
+        if (bottomBounds == null) return topBounds;
+
+        return topBounds.Value.Union(bottomBounds.Value);
+    }
+
     public override void RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
     {
         if (Top.Value == null && Bottom.Value == null)

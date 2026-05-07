@@ -488,7 +488,7 @@ internal class TextOverlay : Overlay
         var key = args.Key;
         var keyModifiers = args.KeyModifiers;
 
-        if (IsRegisteredExternalShortcut(key, keyModifiers))
+        if (IsRegisteredExternalShortcut(key, keyModifiers) && keyModifiers != KeyModifiers.None)
         {
             ShortcutController.UnblockShortcutExecution(nameof(TextOverlay));
             canInsertText = false;
