@@ -22,7 +22,8 @@
                          xmlns:extensions="clr-namespace:PixiEditor.Views.Extensions"
                          mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
                          x:Class="PixiEditor.Views.Dialogs.ExtensionsPopup"
-                         Height="680" Width="1300"
+                         Height="680" Width="1000"
+                         Name="extensionsPopup"
                          x:DataType="extensionManager:ExtensionManagerViewModel"
                          localization:Translator.Key="EXTENSIONS_WINDOW_TITLE">
 
@@ -79,7 +80,8 @@
                                                        asyncImageLoader:ImageLoader.Source="{Binding ImageUrl}">
                                                     <Interaction.Behaviors>
                                                         <ExecuteCommandOnPointerPressedBehavior
-                                                            Command="{xaml:Command Name=PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="{Binding ImageUrl}"/>
+                                                            Command="{xaml:Command Name=PixiEditor.Links.OpenHyperlink, UseProvided=True}"
+                                                            CommandParameter="{Binding ImageUrl}" />
                                                     </Interaction.Behaviors>
                                                 </Image>
                                             </visuals:AspectRatioPanel>
@@ -102,9 +104,10 @@
                                                     </visuals:VideoView.IsPlaying>
                                                     <visuals:VideoView.ContextMenu>
                                                         <ContextMenu>
-                                                            <MenuItem localization:Translator.Key="EXTENSIONS_WINDOW_SHOWCASE_OPEN_IN_BROWSER"
-                                                                      Command="{xaml:Command Name=PixiEditor.Links.OpenHyperlink, UseProvided=True}"
-                                                                      CommandParameter="{Binding VideoUrl}" />
+                                                            <MenuItem
+                                                                localization:Translator.Key="EXTENSIONS_WINDOW_SHOWCASE_OPEN_IN_BROWSER"
+                                                                Command="{xaml:Command Name=PixiEditor.Links.OpenHyperlink, UseProvided=True}"
+                                                                CommandParameter="{Binding VideoUrl}" />
                                                         </ContextMenu>
                                                     </visuals:VideoView.ContextMenu>
                                                 </visuals:VideoView>
@@ -191,7 +194,7 @@
                                    IsVisible="{Binding SelectedAvailableExtension.IsUnavailable}"
                                    TextWrapping="Wrap"
                                    MaxWidth="150"
-                                   Margin="0, 0, 0, 12"/>
+                                   Margin="0, 0, 0, 12" />
 
                         <StackPanel>
                             <StackPanel.IsVisible>
@@ -380,19 +383,48 @@
                         localization:Translator.Key="{Binding AvailableErrorMessage}" />
 
                     <ScrollViewer IsVisible="{Binding IsListVisible}">
-                        <ItemsControl ItemsSource="{Binding AvailableExtensions}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <WrapPanel Orientation="Horizontal"  />
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
+                        <StackPanel Margin="24" Spacing="24">
+                            <extensions:HighlightedExtensionCard
+                                SelectCommand="{Binding DataContext.SelectExtensionCommand, RelativeSource={RelativeSource AncestorType=dialogs:ExtensionsPopup, Mode=FindAncestor}}"
+                                DataContext="{Binding FirstHighlightedExtension}"/>
+                            <TextBlock localization:Translator.Key="FEATURED_EXTENSIONS_TITLE" Classes="h4" FontWeight="Bold"/>
+                            <ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto">
+                                <ItemsControl ItemsSource="{Binding FeaturedExtensions}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel Spacing="12" Orientation="Horizontal" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <extensions:AvailableExtensionCard
+                                                SelectExtensionCommand="{Binding DataContext.SelectExtensionCommand,
+                                                RelativeSource={RelativeSource AncestorType=dialogs:ExtensionsPopup}}" />
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                            <extensions:HighlightedExtensionCard
+                                IsVisible="{Binding !!DataContext.SecondHighlightedExtension, RelativeSource={RelativeSource AncestorType=dialogs:ExtensionsPopup}}"
+                                SelectCommand="{Binding DataContext.SelectExtensionCommand, RelativeSource={RelativeSource AncestorType=dialogs:ExtensionsPopup, Mode=FindAncestor}}"
+                                DataContext="{Binding SecondHighlightedExtension}"/>
+                            <TextBlock localization:Translator.Key="ALL_EXTENSIONS_TITLE" Classes="h4" FontWeight="Bold"/>
+                            <ItemsControl ItemsSource="{Binding AvailableExtensions}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel ItemSpacing="12" LineSpacing="12" Orientation="Horizontal" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
 
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                   <extensions:AvailableExtensionCard SelectExtensionCommand="{Binding DataContext.SelectExtensionCommand, RelativeSource={RelativeSource AncestorType=dialogs:ExtensionsPopup}}"/>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <extensions:AvailableExtensionCard
+                                            SelectExtensionCommand="{Binding DataContext.SelectExtensionCommand,
+                                                RelativeSource={RelativeSource AncestorType=dialogs:ExtensionsPopup}}" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
                     </ScrollViewer>
                 </Panel>
             </Panel>

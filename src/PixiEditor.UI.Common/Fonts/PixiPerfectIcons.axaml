@@ -87,9 +87,11 @@
             <system:String x:Key="icon-file-plus">&#xE947;</system:String>
             <system:String x:Key="icon-file-text">&#xE948;</system:String>
             <system:String x:Key="icon-file180">&#xE94B;</system:String>
+            <system:String x:Key="icon-flame">&#xE9EE;</system:String>
             <system:String x:Key="icon-folder">&#xE94D;</system:String>
             <system:String x:Key="icon-folder-plus">&#xE94C;</system:String>
             <system:String x:Key="icon-fullscreen">&#xE9AC;</system:String>
+            <system:String x:Key="icon-gamepad">&#xE9ED;</system:String>
             <system:String x:Key="icon-ghost">&#xE916;</system:String>
             <system:String x:Key="icon-github">&#xE99A;</system:String>
             <system:String x:Key="icon-globe">&#xE94E;</system:String>

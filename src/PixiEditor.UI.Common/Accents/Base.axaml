@@ -140,6 +140,7 @@
             <SolidColorBrush x:Key="ThemeAccentHighBrush" Color="{StaticResource AccentHighColor}" />
             <SolidColorBrush x:Key="ThemeAccent2Brush" Color="{StaticResource ThemeAccent2Color}" />
             <SolidColorBrush x:Key="ThemeAccent2TranslucentBrush" Color="{StaticResource ThemeAccent2TranslucentColor}" />
+            <SolidColorBrush x:Key="ThemeAccent2LowBrush" Color="{StaticResource ThemeAccent2Color}" Opacity="0.1" />
             <SolidColorBrush x:Key="ThemeAccent3Brush" Color="{StaticResource ThemeAccent3Color}" />
 
             <SolidColorBrush x:Key="ThemeForegroundBrush" Color="{StaticResource ThemeForegroundColor}" />

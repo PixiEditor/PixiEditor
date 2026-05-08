@@ -10,46 +10,79 @@
              xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="extensionManager:AvailableContentViewModel"
+             Name="Root"
              x:Class="PixiEditor.Views.Extensions.AvailableExtensionCard">
     <Design.DataContext>
-        <extensionManager:AvailableContentViewModel/>
+        <extensionManager:AvailableContentViewModel />
     </Design.DataContext>
+
+    <UserControl.Styles>
+        <Style Selector="Button#RootButton:pointerover Border#cardBorder">
+            <Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush2}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderHighBrush}" />
+        </Style>
+    </UserControl.Styles>
+
     <Button
-        Command="{Binding SelectExtensionCommand, RelativeSource={RelativeSource AncestorType=extensions:AvailableExtensionCard}}"
+        Command="{Binding SelectExtensionCommand, ElementName=Root}"
         CommandParameter="{Binding}"
+        Name="RootButton"
         Background="Transparent"
-        BorderThickness="0">
+        BorderThickness="0"
+        Padding="0">
+
         <Border
-            Background="{DynamicResource ThemeBackgroundColor1}"
-            CornerRadius="4"
-            Padding="12"
+            Classes="card-border"
+            Name="cardBorder"
+            Background="{DynamicResource ThemeBackgroundBrush1}"
+            CornerRadius="{DynamicResource ControlCornerRadius}"
             Width="192"
-            Margin="6">
+            Height="210"
+            BorderThickness="1"
+            BorderBrush="Transparent"
+            ClipToBounds="True">
 
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
+            <Grid RowDefinitions="Auto,*,Auto">
+                <Panel Margin="12" Grid.Row="0">
+                    <TextBlock
+                        Classes="pixi-icon"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Text="{DynamicResource icon-blocks}"
+                        FontSize="52"
+                        Opacity="0.2"
+                        IsVisible="{Binding AvailableContent.ImageUrl, Converter={converters:EmptyStringConverter}}" />
 
-                <Panel>
-                    <TextBlock Classes="pixi-icon" HorizontalAlignment="Center"
-                               Text="{DynamicResource icon-blocks}" FontSize="64"
-                               Opacity="0.25"
-                               IsVisible="{Binding AvailableContent.ImageUrl, Converter={converters:EmptyStringConverter}}" />
-                    <Image
-                        Height="100"
-                        Stretch="Uniform"
-                        asyncImageLoader:ImageLoader.Source="{Binding AvailableContent.ImageUrl}" />
+                    <Border Height="60" Width="60" Padding="10"
+                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                            HorizontalAlignment="Left"
+                            Background="{DynamicResource ThemeBackgroundBrush}">
+                        <Image
+                            Stretch="Uniform"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Center"
+                            asyncImageLoader:ImageLoader.Source="{Binding AvailableContent.ImageUrl}" />
+                    </Border>
+
+                    <Border
+                        x:Name="NewChip"
+                        Background="{DynamicResource ThemeAccent2LowBrush}"
+                        CornerRadius="4"
+                        Padding="6,2"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Top"
+                        IsVisible="{Binding IsNew}">
+                        <TextBlock
+                            localization:Translator.Key="NEW_ITEM"
+                            FontSize="{DynamicResource FontSizeSmall}"
+                            Foreground="{DynamicResource ThemeAccent2Brush}" />
+                    </Border>
                 </Panel>
 
-                <StackPanel Margin="0, 16" Grid.Row="1">
-                    <TextBlock
-                        Text="{Binding AvailableContent.Author}"
-                        Foreground="{DynamicResource ThemeForegroundColor}"
-                        Opacity="0.5"
-                        FontSize="{DynamicResource FontSizeSmall}" />
+                <StackPanel
+                    Grid.Row="1"
+                    Margin="12,0,12,6"
+                    Spacing="2">
 
                     <TextBlock
                         Text="{Binding AvailableContent.Name}"
@@ -64,18 +97,25 @@
                         FontSize="{DynamicResource FontSizeNormal}"
                         FontWeight="Normal"
                         Foreground="{DynamicResource ThemeForegroundColor}"
+                        Opacity="0.6"
                         TextWrapping="Wrap"
                         MaxLines="2"
                         MinHeight="36" />
                 </StackPanel>
 
-                <Panel Grid.Row="2">
+                <Border
+                    Grid.Row="2"
+                    Margin="12,0,12,12"
+                    Background="{DynamicResource ThemeBackgroundBrush2}"
+                    CornerRadius="{DynamicResource ControlCornerRadius}"
+                    Padding="6,3"
+                    HorizontalAlignment="Left">
                     <TextBlock
                         localization:Translator.Key="{Binding PriceText}"
-                        Foreground="{DynamicResource ThemeForegroundBrush}"
+                        Foreground="{DynamicResource ThemeForegroundSecondaryBrush}"
                         FontSize="{DynamicResource FontSizeNormal}"
                         FontWeight="Normal" />
-                </Panel>
+                </Border>
             </Grid>
         </Border>
     </Button>

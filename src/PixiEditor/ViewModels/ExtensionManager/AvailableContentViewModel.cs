@@ -10,10 +10,13 @@ namespace PixiEditor.ViewModels.ExtensionManager;
 internal class AvailableContentViewModel : ObservableObject
 {
     public AvailableContent AvailableContent { get; }
+    public HighlightData? HighlightData { get; set; }
 
     public bool IsOwned => extensionManager.IsExtensionOwned(AvailableContent.Id);
 
     public bool IsBundle => AvailableContent.IsBundle;
+
+    public bool IsNew => true;
 
     public bool AllBundleItemsOwned =>
         IsBundle && AvailableContent.IncludedExtensions.All(id => extensionManager.IsExtensionOwned(id));

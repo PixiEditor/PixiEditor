@@ -1337,7 +1337,7 @@
   "ADD_EMPTY_FRAME_ADVICE": "You've just created a cel! Once you have at least one cel for a layer, you can just move animation cursor to an empty space and start drawing. I'll add new cels for you.",
   "DISABLE_ANIM_LAYER_ADVICE": "One more thing, if you want to draw on the base layer, click on the eye icon in the timeline, right next to the layer name.",
   "OPENED_GRAPH_ADVICE": "This is the node graph. It may look scary at first, but it's a powerful tool that allows you to create complex effects and animations with simple rules. Don't be afraid to experiment with it!",
-  "OPENED_GRAPH_ADVICE_FOLLOW_UP": "If you're unsure about anything, check out pixiedior.net/docs for more info. There are a lot of helpful guides and explanations there.",
+  "OPENED_GRAPH_ADVICE_FOLLOW_UP": "If you're unsure about anything, check out pixieditor.net/docs for more info. There are a lot of helpful guides and explanations there.",
   "QUICK_USE": "(Quick Use)",
   "OPEN_BRUSHES_FOLDER": "Open Brushes Folder",
   "AUTOSAVE_TOGGLE": "Toggle Autosave",
@@ -1492,5 +1492,8 @@
   "CONFIRM_OVERWRITE_QUESTION": "This document is saved as a '{0}' file. Do you want to overwrite it?",
   "CONFIRM_OVERWRITE_TITLE": "Confirm overwrite",
   "MISSING_LAYER_NODE_ERROR": "Missing Layer Node",
-  "COMPUTED_SAMPLE_SIZE": "Sample Size"
+  "COMPUTED_SAMPLE_SIZE": "Sample Size",
+  "NEW_ITEM": "NEW",
+  "FEATURED_EXTENSIONS_TITLE": "Featured Extensions",
+  "ALL_EXTENSIONS_TITLE": "All Extensions"
 }

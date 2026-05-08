@@ -153,8 +153,34 @@ public sealed class StandaloneAdditionalContentProvider : IAdditionalContentProv
                 Currency = x.Currency,
                 IncludedExtensions = x.IncludedExtensions,
                 IsBundle = x.IsBundle,
-                PercentageDiscount = x.PercentageDiscount,
+                PercentageDiscount = x.PercentageDiscount
             })
             .ToList();
+    }
+
+    public async Task<ExtensionsLayout> FetchExtensionsLayout()
+    {
+        if (IdentityProvider.PixiAuthClient == null)
+        {
+            throw new Exception("No PixiAuth client has been configured. Are you running an official build?");
+        }
+
+        var itemsLayout = await IdentityProvider.PixiAuthClient.GetExtensionsLayout();
+        return new ExtensionsLayout()
+        {
+            HighlightedExtensions = itemsLayout.HighlightedExtensions.Select(x =>
+                new HighlightData()
+                {
+                    Header = x.Header,
+                    Description = x.Description,
+                    TaglineIcon = x.TaglineIcon,
+                    Color = x.Color,
+                    DealText = x.DealText,
+                    ExtensionId = x.ExtensionId,
+                    HeaderTaglineText = x.HeaderTaglineText,
+                    HighlightImageUrl = x.HighlightImageUrl
+                }).ToList(),
+            FeaturedExtensionIds = itemsLayout.FeaturedExtensionIds
+        };
     }
 }
