@@ -34,7 +34,7 @@ internal class AvailableContentViewModel : ObservableObject
 
     public bool IsBundle => AvailableContent.IsBundle;
 
-    public bool IsNew => true;
+    public bool IsNew => DateTime.Now - AvailableContent.ReleaseDate < TimeSpan.FromDays(14);
 
     public bool AllBundleItemsOwned =>
         IsBundle && AvailableContent.IncludedExtensions.All(id => extensionManager.IsExtensionOwned(id));

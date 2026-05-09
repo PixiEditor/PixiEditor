@@ -47,6 +47,8 @@ public class AvailableExtension
     [JsonPropertyName("highlightData")]
     public ExtensionHighlightData? HighlightData { get; set; }
 
+    [JsonPropertyName("releaseDate")]
+    public DateTime ReleaseDate { get; set; }
 }
 
 [Serializable]

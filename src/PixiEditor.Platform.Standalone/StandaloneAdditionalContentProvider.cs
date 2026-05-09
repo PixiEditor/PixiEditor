@@ -153,7 +153,8 @@ public sealed class StandaloneAdditionalContentProvider : IAdditionalContentProv
                 Currency = x.Currency,
                 IncludedExtensions = x.IncludedExtensions,
                 IsBundle = x.IsBundle,
-                PercentageDiscount = x.PercentageDiscount
+                PercentageDiscount = x.PercentageDiscount,
+                ReleaseDate = x.ReleaseDate,
             })
             .ToList();
     }
