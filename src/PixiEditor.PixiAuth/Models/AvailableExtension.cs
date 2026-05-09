@@ -41,12 +41,6 @@ public class AvailableExtension
     [JsonPropertyName("percentageDiscount")]
     public int PercentageDiscount { get; set; }
 
-    [JsonPropertyName("isHighlighted")]
-    public bool IsHighlighted { get; set; }
-
-    [JsonPropertyName("highlightData")]
-    public ExtensionHighlightData? HighlightData { get; set; }
-
     [JsonPropertyName("releaseDate")]
     public DateTime ReleaseDate { get; set; }
 }

@@ -427,8 +427,11 @@
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
-                            <TextBlock Classes="subtext" HorizontalAlignment="Center"
-                                       localization:Translator.Key="EXTENSIONS_INFO" />
+                            <StackPanel Orientation="Horizontal" Spacing="4" HorizontalAlignment="Center">
+                                <TextBlock Classes="subtext" HorizontalAlignment="Center"
+                                           localization:Translator.Key="EXTENSIONS_INFO" />
+                                <TextBlock localization:Translator.Key="CLICK_HERE_TO_READ_MORE" ui:Hyperlink.Url="https://forum.pixieditor.net/t/extension-browser-beta/567"/>
+                            </StackPanel>
                         </StackPanel>
                     </ScrollViewer>
                 </Panel>

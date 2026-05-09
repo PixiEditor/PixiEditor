@@ -1392,7 +1392,6 @@
   "VIEW_LIBRARY": "View Library",
   "EXTENSIONS_WINDOW_PRICE_INACCURACY_INFO": "Price in the checkout may differ due to taxes and currency conversion applied by the payment provider.",
   "UNAVAILABLE_IN_YOUR_COUNTRY": "Unavailable in your country",
-  "WELCOME_TO_EXTENSIONS_BETA": "Welcome to the Extension Browser Beta!",
   "CLICK_HERE_TO_READ_MORE": "Click here to read more about it.",
   "RENDER_OVERLAYS": "Render Overlays",
   "SIGN_IN_TO_NEWSLETTER_TEXT": "I agree to receive commercial and marketing information about new products and promotions offered by Pixi Labs Sp. z o.o., to the e-mail address provided by me. In addition. I have read the [Newsletter Regulations]({0}) and [Privacy Policy]({1}) and accept their provisions.",
