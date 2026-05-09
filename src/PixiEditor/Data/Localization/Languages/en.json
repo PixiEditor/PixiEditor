@@ -1495,5 +1495,6 @@
   "COMPUTED_SAMPLE_SIZE": "Sample Size",
   "NEW_ITEM": "NEW",
   "FEATURED_EXTENSIONS_TITLE": "Featured Extensions",
-  "ALL_EXTENSIONS_TITLE": "All Extensions"
+  "ALL_EXTENSIONS_TITLE": "All Extensions",
+  "EXTENSIONS_INFO": "PixiEditor is 100% community funded, by purchasing extensions you directly support the development."
 }

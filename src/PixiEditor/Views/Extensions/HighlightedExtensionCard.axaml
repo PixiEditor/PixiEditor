@@ -7,6 +7,7 @@
              xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
              xmlns:extensions="clr-namespace:PixiEditor.Views.Extensions"
              xmlns:converters="clr-namespace:PixiEditor.Extensions.FlyUI.Converters;assembly=PixiEditor.Extensions"
+             xmlns:avalonia="clr-namespace:LiveMarkdown.Avalonia;assembly=LiveMarkdown.Avalonia"
              mc:Ignorable="d"
              d:DesignWidth="1400"
              d:DesignHeight="320"
@@ -18,6 +19,10 @@
     </Design.DataContext>
 
     <UserControl.Styles>
+        <Style Selector="Border#RootBorder">
+            <Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush1}"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+        </Style>
         <Style Selector="Border#RootBorder:pointerover">
             <Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush2}"/>
             <Setter Property="BorderBrush" Value="{Binding HighlightData.Color}"/>
@@ -25,12 +30,10 @@
     </UserControl.Styles>
 
     <Border
-        Background="{DynamicResource ThemeBackgroundBrush1}"
         CornerRadius="{DynamicResource ControlCornerRadius}"
         Padding="20"
         Cursor="Hand"
         BorderThickness="1"
-        BorderBrush="Transparent"
         Name="RootBorder"
         ClipToBounds="True">
         <Interaction.Behaviors>
@@ -43,6 +46,14 @@
             <StackPanel Grid.Column="0"
                         Spacing="12"
                         VerticalAlignment="Center">
+                <StackPanel.Styles>
+                    <Style Selector="avalonia|MarkdownTextBlock">
+                        <Setter Property="FontFamily" Value="$Default"/>
+                        <Setter Property="Foreground" Value="{Binding HighlightData.Color}"/>
+                        <Setter Property="FontSize" Value="12"/>
+                        <Setter Property="Margin" Value="0, 0, 0, -6"/>
+                    </Style>
+                </StackPanel.Styles>
 
                 <StackPanel Orientation="Horizontal"
                             Spacing="4">
@@ -53,11 +64,9 @@
                                Foreground="{Binding HighlightData.Color}"
                                FontSize="12"
                                Text="{Binding HighlightData.TaglineIcon, Converter={StaticResource IconLookupConverter}}" />
-                    <TextBlock
-                        Text="{Binding HighlightData.HeaderTaglineText}"
-                        FontSize="12"
-                        Foreground="{Binding HighlightData.Color}"
-                        FontWeight="Medium" />
+                    <avalonia:MarkdownRenderer
+                        MarkdownBuilder="{Binding HeadlineMarkdownBuilder}"
+                        IsHitTestVisible="False"/>
                 </StackPanel>
 
                 <TextBlock
@@ -73,7 +82,7 @@
 
                 <StackPanel Orientation="Horizontal"
                             Margin="0, 24, 0, 0"
-                            Spacing="16">
+                            Spacing="12">
 
                         <Panel HorizontalAlignment="Left">
                             <Border CornerRadius="{DynamicResource ControlCornerRadius}" Background="{Binding HighlightData.Color}" Opacity="0.1"/>
@@ -85,11 +94,10 @@
                                 FontWeight="Normal" />
                         </Panel>
 
-                    <TextBlock
-                        Text="{Binding HighlightData.DealText}"
-                        FontSize="12"
-                        Foreground="{Binding HighlightData.Color}"
-                        VerticalAlignment="Center" />
+                    <avalonia:MarkdownRenderer
+                        VerticalAlignment="Center"
+                        MarkdownBuilder="{Binding DealTextMarkdownBuilder}"
+                        IsHitTestVisible="False"/>
                 </StackPanel>
             </StackPanel>
             <Image Grid.Column="1"

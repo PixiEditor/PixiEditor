@@ -17,7 +17,11 @@
     </Design.DataContext>
 
     <UserControl.Styles>
-        <Style Selector="Button#RootButton:pointerover Border#cardBorder">
+        <Style Selector="Border.card-border">
+            <Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush1}" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+        </Style>
+        <Style Selector="Border.card-border:pointerover">
             <Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush2}" />
             <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderHighBrush}" />
         </Style>
@@ -34,12 +38,10 @@
         <Border
             Classes="card-border"
             Name="cardBorder"
-            Background="{DynamicResource ThemeBackgroundBrush1}"
             CornerRadius="{DynamicResource ControlCornerRadius}"
             Width="192"
             Height="210"
             BorderThickness="1"
-            BorderBrush="Transparent"
             ClipToBounds="True">
 
             <Grid RowDefinitions="Auto,*,Auto">
