@@ -7,7 +7,7 @@ namespace PixiEditor.Views.Extensions;
 
 public partial class HighlightedExtensionCard : UserControl
 {
-    public static readonly StyledProperty<ICommand> SelectCommandProperty = AvaloniaProperty.Register<AvailableExtensionCard, ICommand>(
+    public static readonly StyledProperty<ICommand> SelectCommandProperty = AvaloniaProperty.Register<HighlightedExtensionCard, ICommand>(
         nameof(SelectCommand));
 
     public ICommand SelectCommand

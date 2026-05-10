@@ -635,7 +635,6 @@ internal class ExtensionManagerViewModel : ViewModelBase
         var layout = await contentProvider.FetchExtensionsLayout();
         if (layout != null)
         {
-            PixiEditorSettings.Extensions.LastFetchedExtensionsLayoutDate.Value = DateTime.Now;
             string cachePath = Path.Combine(Paths.LocalPath, "extensions_layout_cache.json");
             try
             {

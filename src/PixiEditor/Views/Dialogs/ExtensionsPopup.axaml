@@ -385,6 +385,7 @@
                     <ScrollViewer IsVisible="{Binding IsListVisible}">
                         <StackPanel Margin="24" Spacing="24">
                             <extensions:HighlightedExtensionCard
+                                IsVisible="{Binding !!DataContext.FirstHighlightedExtension, RelativeSource={RelativeSource AncestorType=dialogs:ExtensionsPopup}}"
                                 SelectCommand="{Binding DataContext.SelectExtensionCommand, RelativeSource={RelativeSource AncestorType=dialogs:ExtensionsPopup, Mode=FindAncestor}}"
                                 DataContext="{Binding FirstHighlightedExtension}" />
                             <TextBlock localization:Translator.Key="FEATURED_EXTENSIONS_TITLE" Classes="h4"
