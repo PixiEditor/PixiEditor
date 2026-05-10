@@ -50,4 +50,9 @@ public class NullAdditionalContentProvider : IAdditionalContentProvider
     {
         return await Task.FromResult<List<AvailableContent>?>(null);
     }
+
+    public Task<ExtensionsLayout> FetchExtensionsLayout()
+    {
+        return Task.FromResult<ExtensionsLayout?>(null);
+    }
 }
