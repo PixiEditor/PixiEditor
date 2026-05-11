@@ -19,7 +19,7 @@
   "AUTOMATIC_UPDATES": "Automatic Updates",
   "CHECK_FOR_UPDATES": "Check updates on startup",
   "UPDATE_STREAM": "Update stream",
-  "UPDATE_CHANNEL_HELP_TOOLTIP": "Update channels can only be changed in standalone version (downloaded from https://pixieditor.net).\nSteam and Microsoft Store versions handle updates separately.",
+  "UPDATE_CHANNEL_HELP_TOOLTIP": "Update channels can only be changed in standalone version (downloaded from https://pixieditor.net).\nSome platforms handle updates separately.",
   "DEBUG": "Debug",
   "ENABLE_DEBUG_MODE": "Enable Debug mode",
   "OPEN_CRASH_REPORTS_DIR": "Open crash reports directory",
@@ -1314,7 +1314,7 @@
   "EXTENSIONS_WINDOW_DEPENDENCIES_MISSING_TOOLTIP": "Dependencies missing: {0}",
   "EXTENSIONS_WINDOW_DISABLE_CONFIRMATION_TITLE": "Do you want to disable this extension?",
   "EXTENSIONS_WINDOW_DISABLE_CONFIRMATION_MESSAGE": "{0} extension(s) depend on this. Are you sure you want to proceed?",
-  "EXTENSIONS_WINDOW_STEAM_PURCHASE_UNAVAILABLE": "The Steam version doesn’t support purchasing extensions. To buy them, please use the standalone version of PixiEditor",
+  "EXTENSIONS_WINDOW_STEAM_PURCHASE_UNAVAILABLE": "The Steam version doesn’t support extensions yet. To buy them, please use the standalone version of PixiEditor",
   "CLIP_TO_BOUNDS": "Clip to bounds",
   "FALLBACK_FRAMES_TO_LAYER_IMAGE": "Layer is fallback cel",
   "USE_CUSTOM_TIME": "Use custom time",
@@ -1498,5 +1498,6 @@
   "EXTENSIONS_INFO": "PixiEditor is 100% community funded, by purchasing extensions you directly support the development.",
   "SMUDGE_TOOL_ACTION_DISPLAY_DEFAULT": "Click and drag on the canvas to smudge.",
   "BLUR_TOOL_ACTION_DISPLAY_DEFAULT": "Click and drag on the canvas to blur.",
-  "SHARPEN_TOOL_ACTION_DISPLAY_DEFAULT": "Click and drag on the canvas to sharpen."
+  "SHARPEN_TOOL_ACTION_DISPLAY_DEFAULT": "Click and drag on the canvas to sharpen.",
+  "EXTENSIONS_WINDOW_STEAM_UNAVAILABLE": "The Steam version of PixiEditor does not support Extension Library yet. Please use the standalone version to access it."
 }

@@ -51,7 +51,19 @@
                         <Setter Property="FontFamily" Value="$Default"/>
                         <Setter Property="Foreground" Value="{Binding HighlightData.Color}"/>
                         <Setter Property="FontSize" Value="12"/>
-                        <Setter Property="Margin" Value="0, 0, 0, -6"/>
+                        <Setter Property="Margin">
+                            <OnPlatform>
+                                <OnPlatform.Default>
+                                    <Thickness>0, 0, 0, -6</Thickness>
+                                </OnPlatform.Default>
+                                <OnPlatform.macOS>
+                                    <Thickness>0, 0, 0, -12</Thickness>
+                                </OnPlatform.macOS>
+                            </OnPlatform>
+                        </Setter>
+                    </Style>
+                    <Style Selector="avalonia|MarkdownRenderer StackPanel">
+                        <Setter Property="VerticalAlignment" Value="Center"/>
                     </Style>
                 </StackPanel.Styles>
 

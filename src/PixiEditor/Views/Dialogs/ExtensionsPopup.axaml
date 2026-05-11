@@ -368,6 +368,13 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
             </Border>
+            <Panel HorizontalAlignment="Center" Grid.Row="2" IsVisible="{Binding IsPlatformSteam}">
+                <TextBlock
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    FontSize="{DynamicResource FontSizeLarge}"
+                    localization:Translator.Key="EXTENSIONS_WINDOW_STEAM_UNAVAILABLE" />
+            </Panel>
             <Panel HorizontalAlignment="Center" Grid.Row="2" IsVisible="{Binding ShowAllTab}">
                 <indicators:LoadingIndicator
                     IsVisible="{Binding IsAvailableFetching}"

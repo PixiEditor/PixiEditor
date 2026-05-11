@@ -1,6 +1,6 @@
-# 2.1.1.1
+# 2.1.1.2
 
-Date: `10.05.2026`
+Date: `12.05.2026`
 
 ## New things
 
@@ -11,6 +11,7 @@ Date: `10.05.2026`
 - Added "Place Element" to file paths in the command search (by [CPK](https://github.com/CPKreu))
 - Added Oversample input in Brush Output Node,
 - Added Sample Size output to Stroke Info Node
+- [ABI] Added an option to pass config to custom tools
 
 ## Improvements
 
@@ -28,4 +29,5 @@ Date: `10.05.2026`
 - Fixed brush shape overlay not updating in some cases
 - Fixed an issue with brush settings resetting on tool change and not synchronizing properly
 - Fixed invalid previews for some nodes
+- Fixed a crash when trying to open .svg file as reference layer
 - As always, fixed various crashes
