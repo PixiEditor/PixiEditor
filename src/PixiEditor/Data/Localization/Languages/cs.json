@@ -1392,7 +1392,6 @@
   "VIEW_LIBRARY": "Zobrazit knihovnu",
   "EXTENSIONS_WINDOW_PRICE_INACCURACY_INFO": "Cena při platbě se může lišit z důvodů zdanění a převody měny poskytovatelem platebních služeb.",
   "UNAVAILABLE_IN_YOUR_COUNTRY": "Ve vaší zemi není k dispozici",
-  "WELCOME_TO_EXTENSIONS_BETA": "Vítej v beta verzi Prohlížeče rozšíření!",
   "CLICK_HERE_TO_READ_MORE": "Klikni zde pro přečtení si víc o tom.",
   "RENDER_OVERLAYS": "Renderovat překrytí",
   "GO_BACK": "Jít zpět",
@@ -1463,5 +1462,6 @@
   "CHANGELOG_TITLE": "Poznámky k verzi {0}",
   "OPEN_RELEASE_NOTES": "Otevřít poznámky k verzím",
   "OPEN_RELEASE_NOTES_DESC": "Otevřít poslední poznámky k verzi",
-  "ONBOARDING_WINDOW_TITLE": "Úvod"
+  "ONBOARDING_WINDOW_TITLE": "Úvod",
+  "EXPORT_CATEGORY": "Exportovat"
 }
