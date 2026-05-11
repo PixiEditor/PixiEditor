@@ -55,9 +55,7 @@ internal class AsepriteDocumentBuilder : IDocumentBuilder
         SetSwatches(builder, palette);
 
         bool hasAnimation = aseFile.Frames.Count > 1;
-
-        Debug.WriteLine($"[AsepriteImport] Frames: {aseFile.Frames.Count}, Layers: {layers.Count}, HasAnimation: {hasAnimation}");
-
+        
         if (layers.Count == 0)
         {
             BuildSingleLayerDocument(builder, aseFile, palette);
@@ -89,7 +87,7 @@ internal class AsepriteDocumentBuilder : IDocumentBuilder
             graph.WithImageLayerNode(
                 new LocalizedString("IMAGE"),
                 surface,
-                ColorSpace.CreateSrgbLinear(),
+                ColorSpace.CreateSrgb(),
                 out int id);
             graph.WithOutputNode(id, RenderNode.OutputPropertyName);
         });
@@ -118,7 +116,7 @@ internal class AsepriteDocumentBuilder : IDocumentBuilder
                 graph.WithImageLayerNode(
                     layerName,
                     layerSurface,
-                    ColorSpace.CreateSrgbLinear(),
+                    ColorSpace.CreateSrgb(),
                     out int nodeId);
 
                 var nodeBuilder = graph.AllNodes[^1];
@@ -129,7 +127,7 @@ internal class AsepriteDocumentBuilder : IDocumentBuilder
                     { StructureNode.BlendModePropertyName, MapBlendMode(layer.BlendMode) }
                 });
                 nodeBuilder.WithPosition(currentPosition);
-                currentPosition.X += 500;
+                currentPosition.X += 250;
                 // Connect to previous layer's output
                 if (previousNodeId != null)
                 {
@@ -232,11 +230,7 @@ internal class AsepriteDocumentBuilder : IDocumentBuilder
 
         animationData.DefaultEndFrame = Math.Max(1, imageLayers.Count > 0 ? 
             aseFile.Frames.Sum(f => Math.Max(1, (int)Math.Round((f.FrameDuration > 0 ? f.FrameDuration : 100) / (1000.0 / animationData.FrameRate)))) : 1);
-
-        Debug.WriteLine($"[AsepriteImport] AnimationData: FrameRate={animationData.FrameRate}, Groups={animationData.KeyFrameGroups.Count}, DefaultEndFrame={animationData.DefaultEndFrame}");
-        foreach (var g in animationData.KeyFrameGroups)
-            Debug.WriteLine($"[AsepriteImport]   Group NodeId={g.NodeId}, Children={g.Children.Count}");
-
+        
         builder.WithAnimationData(animationData, null);
     }
 
