@@ -122,6 +122,7 @@
             <Color x:Key="SnapPointPreviewColor">#68abdf</Color>
 
             <Color x:Key="FoundersPurpleColor">#cba3ff</Color>
+            <Color x:Key="FoundersPurpleColorLow">#35313a</Color>
 
             <Color x:Key="AutosaveDotColor">white</Color>
             <Color x:Key="UnsavedDotColor">white</Color>
@@ -203,7 +204,7 @@
             <SolidColorBrush x:Key="FontFamilyNameSocketBrush" Color="{StaticResource FontFamilyNameSocketColor}" />
 
             <SolidColorBrush x:Key="FoundersPurpleBrush" Color="{StaticResource FoundersPurpleColor}" />
-            <SolidColorBrush x:Key="FoundersPurpleLowBrush" Opacity="0.1" Color="{StaticResource FoundersPurpleColor}" />
+            <SolidColorBrush x:Key="FoundersPurpleLowBrush" Color="{StaticResource FoundersPurpleColorLow}" />
 
             <ConicGradientBrush x:Key="ShapeVectorDataSocketBrush"
                                 GradientStops="{StaticResource ShapeDataSocketGradient}" />
