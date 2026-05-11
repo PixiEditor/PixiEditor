@@ -11,7 +11,7 @@ internal static partial class Native
     public static extern void add_tool_to_toolset(string toolName, string toolsetName, int atIndex);
 
     [MethodImpl(MethodImplOptions.InternalCall)]
-    public static void add_tool_to_toolset_with_config(string toolName, string toolsetName, int atIndex,
+    public static extern void add_tool_to_toolset_with_config(string toolName, string toolsetName, int atIndex,
         string configJson);
 
 }
