@@ -1,0 +1,124 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:extensionManager="clr-namespace:PixiEditor.ViewModels.ExtensionManager"
+             xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
+             xmlns:extensions="clr-namespace:PixiEditor.Views.Extensions"
+             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="extensionManager:AvailableContentViewModel"
+             Name="Root"
+             x:Class="PixiEditor.Views.Extensions.AvailableExtensionCard">
+    <Design.DataContext>
+        <extensionManager:AvailableContentViewModel />
+    </Design.DataContext>
+
+    <UserControl.Styles>
+        <Style Selector="Border.card-border">
+            <Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush1}" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+        </Style>
+        <Style Selector="Border.card-border:pointerover">
+            <Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush2}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderHighBrush}" />
+        </Style>
+    </UserControl.Styles>
+
+    <Button
+        Command="{Binding SelectExtensionCommand, ElementName=Root}"
+        CommandParameter="{Binding}"
+        Name="RootButton"
+        Background="Transparent"
+        BorderThickness="0"
+        Padding="0">
+
+        <Border
+            Classes="card-border"
+            Name="cardBorder"
+            CornerRadius="{DynamicResource ControlCornerRadius}"
+            Width="192"
+            Height="210"
+            BorderThickness="1"
+            ClipToBounds="True">
+
+            <Grid RowDefinitions="Auto,*,Auto">
+                <Panel Margin="12" Grid.Row="0">
+                    <TextBlock
+                        Classes="pixi-icon"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Text="{DynamicResource icon-blocks}"
+                        FontSize="52"
+                        Opacity="0.2"
+                        IsVisible="{Binding AvailableContent.ImageUrl, Converter={converters:EmptyStringConverter}}" />
+
+                    <Border Height="60" Width="60" Padding="10"
+                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                            HorizontalAlignment="Left"
+                            Background="{DynamicResource ThemeBackgroundBrush}">
+                        <Image
+                            Stretch="Uniform"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Center"
+                            asyncImageLoader:ImageLoader.Source="{Binding AvailableContent.ImageUrl}" />
+                    </Border>
+
+                    <Border
+                        x:Name="NewChip"
+                        Background="{DynamicResource ThemeAccent2LowBrush}"
+                        CornerRadius="4"
+                        Padding="6,2"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Top"
+                        IsVisible="{Binding IsNew}">
+                        <TextBlock
+                            localization:Translator.Key="NEW_ITEM"
+                            FontSize="{DynamicResource FontSizeSmall}"
+                            Foreground="{DynamicResource ThemeAccent2Brush}" />
+                    </Border>
+                </Panel>
+
+                <StackPanel
+                    Grid.Row="1"
+                    Margin="12,0,12,6"
+                    Spacing="2">
+
+                    <TextBlock
+                        Text="{Binding AvailableContent.Name}"
+                        TextTrimming="CharacterEllipsis"
+                        FontSize="{DynamicResource FontSizeLarge}"
+                        FontWeight="Bold"
+                        Foreground="{DynamicResource ThemeForegroundColor}" />
+
+                    <TextBlock
+                        Text="{Binding AvailableContent.Description}"
+                        TextTrimming="CharacterEllipsis"
+                        FontSize="{DynamicResource FontSizeNormal}"
+                        FontWeight="Normal"
+                        Foreground="{DynamicResource ThemeForegroundColor}"
+                        Opacity="0.6"
+                        TextWrapping="Wrap"
+                        MaxLines="2"
+                        MinHeight="36" />
+                </StackPanel>
+
+                <Border
+                    Grid.Row="2"
+                    Margin="12,0,12,12"
+                    Background="{DynamicResource ThemeBackgroundBrush2}"
+                    CornerRadius="{DynamicResource ControlCornerRadius}"
+                    Padding="6,3"
+                    HorizontalAlignment="Left">
+                    <TextBlock
+                        localization:Translator.Key="{Binding PriceText}"
+                        Foreground="{DynamicResource ThemeForegroundSecondaryBrush}"
+                        FontSize="{DynamicResource FontSizeNormal}"
+                        FontWeight="Normal" />
+                </Border>
+            </Grid>
+        </Border>
+    </Button>
+</UserControl>

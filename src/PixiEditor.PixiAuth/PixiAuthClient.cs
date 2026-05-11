@@ -9,6 +9,7 @@ namespace PixiEditor.PixiAuth;
 
 public class PixiAuthClient
 {
+    private static readonly HttpClient CdnClient = new();
     private HttpClient httpClient;
 
 
@@ -320,10 +321,9 @@ public class PixiAuthClient
 
     public async Task<List<AvailableExtension>> GetAvailableExtensions()
     {
-        using HttpClient cdnClient = new HttpClient();
         HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"https://cdn.pixilabs.eu/items.json");
 
-        var response = await cdnClient.SendAsync(request);
+        var response = await CdnClient.SendAsync(request);
 
         if (response.StatusCode >= HttpStatusCode.InternalServerError)
         {
@@ -468,5 +468,45 @@ public class PixiAuthClient
         }
 
         throw new BadRequestException("REQUEST_FAILED");
+    }
+
+    public async Task<ExtensionItemsLayout> GetExtensionsLayout()
+    {
+        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"https://cdn.pixilabs.eu/items-layout.json");
+
+        var response = await CdnClient.SendAsync(request);
+
+        if (response.StatusCode >= HttpStatusCode.InternalServerError)
+        {
+            throw new InternalServerErrorException("INTERNAL_SERVER_ERROR");
+        }
+
+        if (response.StatusCode >= HttpStatusCode.BadRequest)
+        {
+            throw new BadRequestException(await response.Content.ReadAsStringAsync());
+        }
+
+        if (response.StatusCode == HttpStatusCode.OK)
+        {
+            string result = await response.Content.ReadAsStringAsync();
+            try
+            {
+                var caseInsensitiveOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web)
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+
+                ExtensionItemsLayout? layout =
+                    JsonSerializer.Deserialize<ExtensionItemsLayout>(result, caseInsensitiveOptions);
+
+                return layout ?? new ExtensionItemsLayout();
+            }
+            catch (JsonException)
+            {
+                throw new BadRequestException("PARSING_FAILED");
+            }
+        }
+
+        return new ExtensionItemsLayout();
     }
 }

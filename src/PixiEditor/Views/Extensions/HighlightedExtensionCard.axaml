@@ -1,0 +1,111 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:extensionManager="clr-namespace:PixiEditor.ViewModels.ExtensionManager"
+             xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+             xmlns:extensions="clr-namespace:PixiEditor.Views.Extensions"
+             xmlns:converters="clr-namespace:PixiEditor.Extensions.FlyUI.Converters;assembly=PixiEditor.Extensions"
+             xmlns:avalonia="clr-namespace:LiveMarkdown.Avalonia;assembly=LiveMarkdown.Avalonia"
+             mc:Ignorable="d"
+             d:DesignWidth="1400"
+             d:DesignHeight="320"
+             x:DataType="extensionManager:AvailableContentViewModel"
+             Name="Root"
+             x:Class="PixiEditor.Views.Extensions.HighlightedExtensionCard">
+    <Design.DataContext>
+        <extensionManager:AvailableContentViewModel />
+    </Design.DataContext>
+
+    <UserControl.Styles>
+        <Style Selector="Border#RootBorder">
+            <Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush1}"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+        </Style>
+        <Style Selector="Border#RootBorder:pointerover">
+            <Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush2}"/>
+            <Setter Property="BorderBrush" Value="{Binding HighlightData.Color}"/>
+        </Style>
+    </UserControl.Styles>
+
+    <Border
+        CornerRadius="{DynamicResource ControlCornerRadius}"
+        Padding="20"
+        Cursor="Hand"
+        BorderThickness="1"
+        Name="RootBorder"
+        ClipToBounds="True">
+        <Interaction.Behaviors>
+            <EventTriggerBehavior EventName="PointerPressed">
+                <InvokeCommandAction Command="{Binding SelectCommand, ElementName=Root}" CommandParameter="{Binding}" />
+            </EventTriggerBehavior>
+        </Interaction.Behaviors>
+
+        <Grid ColumnDefinitions="0.4*,0.6*">
+            <StackPanel Grid.Column="0"
+                        Spacing="12"
+                        VerticalAlignment="Center">
+                <StackPanel.Styles>
+                    <Style Selector="avalonia|MarkdownTextBlock">
+                        <Setter Property="FontFamily" Value="$Default"/>
+                        <Setter Property="Foreground" Value="{Binding HighlightData.Color}"/>
+                        <Setter Property="FontSize" Value="12"/>
+                        <Setter Property="Margin" Value="0, 0, 0, -6"/>
+                    </Style>
+                </StackPanel.Styles>
+
+                <StackPanel Orientation="Horizontal"
+                            Spacing="4">
+                    <StackPanel.Resources>
+                        <converters:IconLookupConverter x:Key="IconLookupConverter"/>
+                    </StackPanel.Resources>
+                    <TextBlock Classes="pixi-icon"
+                               Foreground="{Binding HighlightData.Color}"
+                               FontSize="12"
+                               Text="{Binding HighlightData.TaglineIcon, Converter={StaticResource IconLookupConverter}}" />
+                    <avalonia:MarkdownRenderer
+                        MarkdownBuilder="{Binding HeadlineMarkdownBuilder}"
+                        IsHitTestVisible="False"/>
+                </StackPanel>
+
+                <TextBlock
+                    Text="{Binding HighlightData.Header}"
+                    FontSize="24"
+                    FontWeight="Bold" />
+
+                <TextBlock
+                    Text="{Binding HighlightData.Description}"
+                    FontSize="12"
+                    Foreground="{DynamicResource ThemeForegroundSecondaryBrush}"
+                    TextWrapping="Wrap" />
+
+                <StackPanel Orientation="Horizontal"
+                            Margin="0, 24, 0, 0"
+                            Spacing="12">
+
+                        <Panel HorizontalAlignment="Left">
+                            <Border CornerRadius="{DynamicResource ControlCornerRadius}" Background="{Binding HighlightData.Color}" Opacity="0.1"/>
+                            <TextBlock
+                                Margin="6,3"
+                                localization:Translator.Key="{Binding PriceText}"
+                                Foreground="{Binding HighlightData.Color}"
+                                FontSize="{DynamicResource FontSizeNormal}"
+                                FontWeight="Normal" />
+                        </Panel>
+
+                    <avalonia:MarkdownRenderer
+                        VerticalAlignment="Center"
+                        MarkdownBuilder="{Binding DealTextMarkdownBuilder}"
+                        IsHitTestVisible="False"/>
+                </StackPanel>
+            </StackPanel>
+            <Image Grid.Column="1"
+                   Stretch="Uniform"
+                   Margin="20,0,0,0"
+                   asyncImageLoader:ImageLoader.Source="{Binding HighlightData.HighlightImageUrl}"
+                   HorizontalAlignment="Right"
+                   VerticalAlignment="Center" />
+        </Grid>
+    </Border>
+</UserControl>

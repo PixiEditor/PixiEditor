@@ -137,7 +137,7 @@ internal class OnboardingViewModel : PixiObservableObject
                 },
                 SelectShortcutCommand) { IsSelected = true });
         ToolSets = new ObservableCollection<SelectionCard<IToolSetHandler>>(
-            ViewModelMain.Current.ToolsSubViewModel.AllToolSets.Select(x =>
+            ViewModelMain.Current.ToolsSubViewModel.AllToolSets.Take(3).Select(x =>
                 new SelectionCard<IToolSetHandler>(x, SelectToolsetCommand)));
 
         var firstToolSet = ToolSets.FirstOrDefault();
