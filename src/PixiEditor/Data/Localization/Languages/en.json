@@ -1052,9 +1052,6 @@
   "AUTOSAVE_OPEN_FOLDER": "Open autosave folder",
   "AUTOSAVE_OPEN_FOLDER_DESCRIPTIVE": "Open the folder where autosaves are stored",
   "AUTOSAVE_TOGGLE_DESCRIPTIVE": "Enable/disable autosave",
-  "FOUNDERS_BUNDLE": "Founder's Bundle",
-  "FOUNDERS_BUNDLE_SUBTEXT": "Support PixiEditor and boost your productivity!",
-  "BECOME_A_FOUNDER": "Become a Founder",
   "LOGIN": "Login",
   "ERROR_GRAPH": "Graph setup produced an error. Fix it in the node graph",
   "COLOR_MATRIX_FILTER_NODE": "Color Matrix Filter",
@@ -1499,5 +1496,7 @@
   "SMUDGE_TOOL_ACTION_DISPLAY_DEFAULT": "Click and drag on the canvas to smudge.",
   "BLUR_TOOL_ACTION_DISPLAY_DEFAULT": "Click and drag on the canvas to blur.",
   "SHARPEN_TOOL_ACTION_DISPLAY_DEFAULT": "Click and drag on the canvas to sharpen.",
-  "EXTENSIONS_WINDOW_STEAM_UNAVAILABLE": "The Steam version of PixiEditor does not support Extension Library yet. Please use the standalone version to access it."
+  "EXTENSIONS_WINDOW_STEAM_UNAVAILABLE": "The Steam version of PixiEditor does not support Extension Library yet. Please use the standalone version to access it.",
+  "WARNING_VERSION_INCOMPATIBLE": "This extension may not be compatible with your version of PixiEditor.",
+  "EXTENSIONS_ONBOARDING_TITLE": "Featured Extensions"
 }

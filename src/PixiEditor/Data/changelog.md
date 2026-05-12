@@ -1,4 +1,4 @@
-# 2.1.1.2
+# 2.1.1.3
 
 Date: `12.05.2026`
 
@@ -20,6 +20,7 @@ Date: `12.05.2026`
 - Improved the UI of extensions button in the tools picker
 - Added a button in the top menu bar for easier access to the Extension Browser
 - Changed the icons of the extensions buttons
+- Replaced Founder's Pack onboarding step with featured extensions
 
 ## Fixes
 
@@ -30,4 +31,5 @@ Date: `12.05.2026`
 - Fixed an issue with brush settings resetting on tool change and not synchronizing properly
 - Fixed invalid previews for some nodes
 - Fixed a crash when trying to open .svg file as reference layer
+- Fixed non-scrollable tools picker
 - As always, fixed various crashes

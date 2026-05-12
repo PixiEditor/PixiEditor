@@ -155,6 +155,11 @@ public sealed class StandaloneAdditionalContentProvider : IAdditionalContentProv
                 IsBundle = x.IsBundle,
                 PercentageDiscount = x.PercentageDiscount,
                 ReleaseDate = x.ReleaseDate,
+                Versions = x.Versions.Select(v => new ExtensionVersion()
+                {
+                    Version = v.Version,
+                    PixiEditorApiVersion = v.PixiEditorApiVersion
+                }).ToList()
             })
             .ToList();
     }

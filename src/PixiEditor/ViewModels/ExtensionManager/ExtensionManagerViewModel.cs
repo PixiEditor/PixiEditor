@@ -10,6 +10,7 @@ using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Extensions.IO;
 using PixiEditor.Extensions.Metadata;
+using PixiEditor.Extensions.Runtime;
 using PixiEditor.Extensions.WasmRuntime;
 using PixiEditor.Extensions.WasmRuntime.Utilities;
 using PixiEditor.IdentityProvider;
@@ -179,7 +180,15 @@ internal class ExtensionManagerViewModel : ViewModelBase
                         Author = ext.ProductData.Author,
                         HideAddToLibrary = true,
                         IsBundle = ext.ProductData.IsBundle,
-                        Body = ext.ProductData.Description
+                        Body = ext.ProductData.Description,
+                        Versions = ext.ProductData?.LatestVersion != null ? new List<ExtensionVersion>()
+                        {
+                            new ExtensionVersion()
+                            {
+                                Version = ext.ProductData.LatestVersion,
+                                PixiEditorApiVersion = ExtensionRuntimeInfo.ApiVersion // TODO: This is not a true value, it would have to call extension to get the real api version
+                            }
+                        } : new List<ExtensionVersion>()
                     }, this, 1, "PLN", false);
 
                 SelectExtension(created);

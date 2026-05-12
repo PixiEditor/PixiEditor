@@ -16,4 +16,11 @@ public class AvailableContent
     public bool IsBundle { get; set; }
     public List<string> IncludedExtensions { get; set; } = new List<string>();
     public DateTime ReleaseDate { get; set; }
+    public List<ExtensionVersion> Versions { get; set; } = new List<ExtensionVersion>();
+}
+
+public class ExtensionVersion
+{
+    public string Version { get; set; } = string.Empty;
+    public int PixiEditorApiVersion { get; set; }
 }

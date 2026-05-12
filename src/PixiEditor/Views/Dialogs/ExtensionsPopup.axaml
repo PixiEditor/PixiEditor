@@ -295,6 +295,11 @@
                                 </Button.IsVisible>
                             </Button>
                             <TextBlock
+                                Foreground="{DynamicResource WarningOnDarkBrush}"
+                                IsVisible="{Binding !SelectedAvailableExtension.HasCompatibleVersion}"
+                                TextWrapping="Wrap"
+                                localization:Translator.Key="WARNING_VERSION_INCOMPATIBLE" />
+                            <TextBlock
                                 Foreground="{DynamicResource ErrorOnDarkBrush}"
                                 localization:Translator.Key="{Binding DetailsErrorMessage}" />
                         </StackPanel>
@@ -395,16 +400,42 @@
                                 IsVisible="{Binding !!DataContext.FirstHighlightedExtension, RelativeSource={RelativeSource AncestorType=dialogs:ExtensionsPopup}}"
                                 SelectCommand="{Binding DataContext.SelectExtensionCommand, RelativeSource={RelativeSource AncestorType=dialogs:ExtensionsPopup, Mode=FindAncestor}}"
                                 DataContext="{Binding FirstHighlightedExtension}" />
-                            <TextBlock localization:Translator.Key="FEATURED_EXTENSIONS_TITLE" Classes="h4"
-                                       FontWeight="Bold" />
-                            <ScrollViewer VerticalScrollBarVisibility="Disabled"
-                                          HorizontalScrollBarVisibility="Auto">
-                                <ItemsControl ItemsSource="{Binding FeaturedExtensions}">
+                            <StackPanel Spacing="8">
+                                <TextBlock localization:Translator.Key="FEATURED_EXTENSIONS_TITLE" Classes="h4"
+                                           FontWeight="Bold" />
+                                <ScrollViewer VerticalScrollBarVisibility="Disabled"
+                                              Padding="0, 0, 0, 4"
+                                              HorizontalScrollBarVisibility="Auto">
+                                    <ItemsControl ItemsSource="{Binding FeaturedExtensions}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel Spacing="12" Orientation="Horizontal" />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <extensions:AvailableExtensionCard
+                                                    SelectExtensionCommand="{Binding DataContext.SelectExtensionCommand,
+                                                RelativeSource={RelativeSource AncestorType=dialogs:ExtensionsPopup}}" />
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+                            </StackPanel>
+                            <extensions:HighlightedExtensionCard
+                                IsVisible="{Binding !!DataContext.SecondHighlightedExtension, RelativeSource={RelativeSource AncestorType=dialogs:ExtensionsPopup}}"
+                                SelectCommand="{Binding DataContext.SelectExtensionCommand, RelativeSource={RelativeSource AncestorType=dialogs:ExtensionsPopup, Mode=FindAncestor}}"
+                                DataContext="{Binding SecondHighlightedExtension}" />
+                            <StackPanel Spacing="8">
+                                <TextBlock localization:Translator.Key="ALL_EXTENSIONS_TITLE" Classes="h4"
+                                           FontWeight="Bold" />
+                                <ItemsControl ItemsSource="{Binding AvailableExtensions}">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
-                                            <StackPanel Spacing="12" Orientation="Horizontal" />
+                                            <WrapPanel ItemSpacing="12" LineSpacing="12" Orientation="Horizontal" />
                                         </ItemsPanelTemplate>
                                     </ItemsControl.ItemsPanel>
+
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <extensions:AvailableExtensionCard
@@ -413,33 +444,13 @@
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
-                            </ScrollViewer>
-                            <extensions:HighlightedExtensionCard
-                                IsVisible="{Binding !!DataContext.SecondHighlightedExtension, RelativeSource={RelativeSource AncestorType=dialogs:ExtensionsPopup}}"
-                                SelectCommand="{Binding DataContext.SelectExtensionCommand, RelativeSource={RelativeSource AncestorType=dialogs:ExtensionsPopup, Mode=FindAncestor}}"
-                                DataContext="{Binding SecondHighlightedExtension}" />
-                            <TextBlock localization:Translator.Key="ALL_EXTENSIONS_TITLE" Classes="h4"
-                                       FontWeight="Bold" />
-                            <ItemsControl ItemsSource="{Binding AvailableExtensions}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <WrapPanel ItemSpacing="12" LineSpacing="12" Orientation="Horizontal" />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <extensions:AvailableExtensionCard
-                                            SelectExtensionCommand="{Binding DataContext.SelectExtensionCommand,
-                                                RelativeSource={RelativeSource AncestorType=dialogs:ExtensionsPopup}}" />
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                            <StackPanel Orientation="Horizontal" Spacing="4" HorizontalAlignment="Center">
-                                <TextBlock Classes="subtext" HorizontalAlignment="Center"
-                                           localization:Translator.Key="EXTENSIONS_INFO" />
-                                <TextBlock localization:Translator.Key="CLICK_HERE_TO_READ_MORE" ui:Hyperlink.Url="https://forum.pixieditor.net/t/extension-browser-beta/567"/>
                             </StackPanel>
+                                <TextBlock Classes="subtext" HorizontalAlignment="Center"
+                                           localization:Translator.Key="EXTENSIONS_INFO">
+                                    <TextBlock localization:Translator.Key="CLICK_HERE_TO_READ_MORE"
+                                               Margin="4, 0, 0, -3"
+                                               ui:Hyperlink.Url="https://forum.pixieditor.net/t/extension-browser-beta/567" />
+                                </TextBlock>
                         </StackPanel>
                     </ScrollViewer>
                 </Panel>
@@ -523,7 +534,7 @@
                                                 </StackPanel>
                                             </Grid>
 
-                                            <DockPanel Grid.Row="1">
+                                            <DockPanel Grid.Row="1" Height="30">
                                                 <DockPanel DockPanel.Dock="Right"
                                                            HorizontalAlignment="Right"
                                                            IsVisible="{Binding !RestartRequired}">
