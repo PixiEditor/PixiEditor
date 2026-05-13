@@ -1303,7 +1303,7 @@
   "UI_SCALE_EXEMPTS_SETTINGS": "Le impostazioni sono intenzionalmente non influenzate da questa impostazione.",
   "OPEN_EXTENSIONS_WINDOW": "Apri finestra estensioni",
   "OPEN_EXTENSIONS_WINDOW_DESCRIPTIVE": "Apri la finestra per gestire le estensioni",
-  "EXTENSIONS_WINDOW_TAB_ALL": "Tutte le estensioni",
+  "EXTENSIONS_WINDOW_TAB_ALL": "Esplora",
   "EXTENSIONS_WINDOW_TAB_OWNED": "Libreria",
   "EXTENSIONS_WINDOW_TITLE": "Estensioni",
   "EXTENSIONS_WINDOW_UNINSTALL_BUTTON_TOOLTIP": "Disinstalla estensione",
@@ -1316,7 +1316,7 @@
   "EXTENSIONS_WINDOW_DEPENDENCIES_MISSING_TOOLTIP": "Dipendenze mancanti: {0}",
   "EXTENSIONS_WINDOW_DISABLE_CONFIRMATION_TITLE": "Vuoi disabilitare questa estensione?",
   "EXTENSIONS_WINDOW_DISABLE_CONFIRMATION_MESSAGE": "{0} estensione/i dipendono da questa. Vuoi procedere?",
-  "EXTENSIONS_WINDOW_STEAM_PURCHASE_UNAVAILABLE": "La versione Steam non supporta l'acquisto di estensioni. Per usarle, usa la versione autonoma di PixiEditor",
+  "EXTENSIONS_WINDOW_STEAM_PURCHASE_UNAVAILABLE": "La versione Steam non supporta le estensioni. Per acquistarle, usa la versione autonoma di PixiEditor",
   "GUITAR_PICK": "Plettro",
   "SIDE_SOFTED_TRIANGLE": "Triangolo soffice",
   "SPLATS": "Schizzi",
@@ -1495,5 +1495,8 @@
   "BLUR_TOOL_ACTION_DISPLAY_DEFAULT": "Clicca e trascina sulla tela per sfocare.",
   "SHARPEN_TOOL_ACTION_DISPLAY_DEFAULT": "Clicca e trascina sulla tela per nitidire.",
   "OPEN_PATH_AS_REFERENCE_LAYER": "Come riferimento: {0}",
-  "OPEN_PATH_AS_NESTED_DOCUMENT": "Come elemento: {0}"
+  "OPEN_PATH_AS_NESTED_DOCUMENT": "Come elemento: {0}",
+  "EXTENSIONS_WINDOW_STEAM_UNAVAILABLE": "La versione Steam di PixiEditor non supporta la Libreria Estensioni. Usa la versione autonoma per accederci.",
+  "WARNING_VERSION_INCOMPATIBLE": "Questa estensione potrebbe non essere compatibile con questa versione di PixiEditor.",
+  "EXTENSIONS_ONBOARDING_TITLE": "In primo piano"
 }
