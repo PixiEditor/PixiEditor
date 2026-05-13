@@ -1496,5 +1496,7 @@
   "EXTENSIONS_INFO": "PixiEditor è finanziato interamente dalla community. Acquistando estensioni supporti direttamente lo sviluppo.",
   "SMUDGE_TOOL_ACTION_DISPLAY_DEFAULT": "Clicca e trascina sulla tela per sfumare.",
   "BLUR_TOOL_ACTION_DISPLAY_DEFAULT": "Clicca e trascina sulla tela per sfocare.",
-  "SHARPEN_TOOL_ACTION_DISPLAY_DEFAULT": "Clicca e trascina sulla tela per nitidire."
+  "SHARPEN_TOOL_ACTION_DISPLAY_DEFAULT": "Clicca e trascina sulla tela per nitidire.",
+  "OPEN_PATH_AS_REFERENCE_LAYER": "Come riferimento: {0}",
+  "OPEN_PATH_AS_NESTED_DOCUMENT": "Come elemento: {0}"
 }
