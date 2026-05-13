@@ -148,13 +148,15 @@ internal class Importer : ObservableObject
 
     public static Surface GetPreviewSurface(string path)
     {
-        if (!IsSupportedFile(path))
+        var fileExtension = Path.GetExtension(path).ToLower();
+        
+        if (!IsSupportedFile(path) || fileExtension == ".svg")
         {
             throw new InvalidFileTypeException(new LocalizedString("FILE_EXTENSION_NOT_SUPPORTED",
-                Path.GetExtension(path)));
+                fileExtension));
         }
 
-        if (Path.GetExtension(path) != ".pixi")
+        if (fileExtension != ".pixi")
             return Surface.Load(path);
 
         using var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read);

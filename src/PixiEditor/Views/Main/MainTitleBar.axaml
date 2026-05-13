@@ -30,9 +30,16 @@
                 HideIfSystemDecorations="True"
                 DockPanel.Dock="Right">
                 <dialogs:DialogTitleBar.AdditionalElement>
-                    <StackPanel Margin="5 0" Spacing="5" Orientation="Horizontal"
+                    <StackPanel Margin="5 0" Spacing="8" Orientation="Horizontal"
                                 Name="MainBarAdditionalElementPanel"
                                 DataContext="{Binding Path=DataContext, RelativeSource={RelativeSource FindAncestor, AncestorType=main:MainTitleBar}}">
+                        <Border Width="24" Height="24" CornerRadius="4" Background="{DynamicResource FoundersPurpleLowBrush}">
+                            <Button Classes="pixi-icon"
+                                    Foreground="{DynamicResource FoundersPurpleBrush}"
+                                    FontSize="18"
+                                    Content="{DynamicResource icon-extensions}"
+                                    Command="{xaml:Command Name=PixiEditor.Window.OpenExtensionsWindow}" />
+                        </Border>
                         <auth:UserAvatarToggle Width="26" Height="26" DataContext="{Binding Path=UserViewModel}" />
                     </StackPanel>
                 </dialogs:DialogTitleBar.AdditionalElement>
@@ -70,7 +77,7 @@
                             <Flyout.Content>
                                 <LayoutTransformControl>
                                     <Interaction.Behaviors>
-                                        <behaviors:LayoutTransformScalerBehavior/>
+                                        <behaviors:LayoutTransformScalerBehavior />
                                     </Interaction.Behaviors>
                                     <StackPanel Spacing="5" Margin="5">
                                         <TextBlock Text="PixiEditor" Classes="h3" />

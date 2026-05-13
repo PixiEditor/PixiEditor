@@ -32,6 +32,7 @@
 
             <Color x:Key="ErrorColor">#B00020</Color>
             <Color x:Key="ErrorOnDarkColor">#FF4267</Color>
+            <Color x:Key="WarningOnDarkColor">#ffcc00</Color>
 
             <Color x:Key="GlyphColor">#444</Color>
             <Color x:Key="GlyphBackground">White</Color>
@@ -122,6 +123,7 @@
             <Color x:Key="SnapPointPreviewColor">#68abdf</Color>
 
             <Color x:Key="FoundersPurpleColor">#cba3ff</Color>
+            <Color x:Key="FoundersPurpleColorLow">#35313a</Color>
 
             <Color x:Key="AutosaveDotColor">white</Color>
             <Color x:Key="UnsavedDotColor">white</Color>
@@ -140,6 +142,7 @@
             <SolidColorBrush x:Key="ThemeAccentHighBrush" Color="{StaticResource AccentHighColor}" />
             <SolidColorBrush x:Key="ThemeAccent2Brush" Color="{StaticResource ThemeAccent2Color}" />
             <SolidColorBrush x:Key="ThemeAccent2TranslucentBrush" Color="{StaticResource ThemeAccent2TranslucentColor}" />
+            <SolidColorBrush x:Key="ThemeAccent2LowBrush" Color="{StaticResource ThemeAccent2Color}" Opacity="0.1" />
             <SolidColorBrush x:Key="ThemeAccent3Brush" Color="{StaticResource ThemeAccent3Color}" />
 
             <SolidColorBrush x:Key="ThemeForegroundBrush" Color="{StaticResource ThemeForegroundColor}" />
@@ -161,6 +164,7 @@
 
             <SolidColorBrush x:Key="ErrorBrush" Color="{StaticResource ErrorColor}" />
             <SolidColorBrush x:Key="ErrorOnDarkBrush" Color="{StaticResource ErrorOnDarkColor}" />
+            <SolidColorBrush x:Key="WarningOnDarkBrush" Color="{StaticResource WarningOnDarkColor}" />
             <SolidColorBrush x:Key="GlyphBrush" Color="{StaticResource GlyphColor}" />
             <SolidColorBrush x:Key="ThumbBrush" Color="{StaticResource ThumbColor}" />
 
@@ -202,6 +206,7 @@
             <SolidColorBrush x:Key="FontFamilyNameSocketBrush" Color="{StaticResource FontFamilyNameSocketColor}" />
 
             <SolidColorBrush x:Key="FoundersPurpleBrush" Color="{StaticResource FoundersPurpleColor}" />
+            <SolidColorBrush x:Key="FoundersPurpleLowBrush" Color="{StaticResource FoundersPurpleColorLow}" />
 
             <ConicGradientBrush x:Key="ShapeVectorDataSocketBrush"
                                 GradientStops="{StaticResource ShapeDataSocketGradient}" />

@@ -31,6 +31,9 @@ internal class VariableViewModel : ViewModelBase, IVariableHandler
     private object value;
     private string name;
     private bool isExposed = true;
+    private string? unit;
+    private double min;
+    private double max;
 
     public Type Type
     {
@@ -84,37 +87,11 @@ internal class VariableViewModel : ViewModelBase, IVariableHandler
         this.name = name;
         this.value = value;
         this.internals = internals;
+        this.unit = unit;
+        this.min = min;
+        this.max = max;
 
-        SettingView = CreateSettingFromType(this.type, unit, min, max);
-
-        SettingView.Label = SettingView.HasIcon ? null : name;
-        SettingView.Value = AdjustValueForSetting(value);
-
-        SettingView.ValueChanged += (sender, args) =>
-        {
-            if (suppressValueChange)
-                return;
-
-            if (SettingView.MergeChanges)
-            {
-                var adjustedValue = AdjustValueForBlackboard(SettingView.Value);
-                internals.ActionAccumulator.AddActions(
-                    new SetBlackboardVariable_Action(Name, adjustedValue, adjustedValue?.GetType() ?? typeof(object), min, max, unit, IsExposedBindable));
-            }
-            else
-            {
-                var adjustedValue = AdjustValueForBlackboard(SettingView.Value);
-                internals.ActionAccumulator.AddFinishedActions(
-                    new SetBlackboardVariable_Action(Name, adjustedValue, adjustedValue?.GetType() ?? typeof(object), min, max, unit, IsExposedBindable),
-                    new EndSetBlackboardVariable_Action());
-            }
-        };
-
-        SettingView.MergeChangesEnded += () =>
-        {
-            internals.ActionAccumulator.AddFinishedActions(
-                new EndSetBlackboardVariable_Action());
-        };
+        SettingView = CreateSettingView(name, value, unit, min, max, internals);
 
         RemoveCommand = new RelayCommand(() =>
         {
@@ -123,11 +100,50 @@ internal class VariableViewModel : ViewModelBase, IVariableHandler
         });
     }
 
+    private Setting CreateSettingView(string name, object? value, string? unit, double min, double max,
+        DocumentInternalParts internals)
+    {
+        var view = CreateSettingFromType(this.type, unit, min, max, name);
+
+        view.Label = view.HasIcon ? null : name;
+        view.Value = AdjustValueForSetting(value);
+
+        view.ValueChanged += (sender, args) =>
+        {
+            if (suppressValueChange)
+                return;
+
+            if (view.MergeChanges)
+            {
+                var adjustedValue = AdjustValueForBlackboard(view.Value);
+                internals.ActionAccumulator.AddActions(
+                    new SetBlackboardVariable_Action(Name, adjustedValue, adjustedValue?.GetType() ?? typeof(object),
+                        min, max, unit, IsExposedBindable));
+            }
+            else
+            {
+                var adjustedValue = AdjustValueForBlackboard(view.Value);
+                internals.ActionAccumulator.AddFinishedActions(
+                    new SetBlackboardVariable_Action(Name, adjustedValue, adjustedValue?.GetType() ?? typeof(object),
+                        min, max, unit, IsExposedBindable),
+                    new EndSetBlackboardVariable_Action());
+            }
+        };
+
+        view.MergeChangesEnded += () =>
+        {
+            internals.ActionAccumulator.AddFinishedActions(
+                new EndSetBlackboardVariable_Action());
+        };
+
+        return view;
+    }
+
     protected object AdjustValueForBlackboard(object value)
     {
         if (value is IBrush avaloniaBrush)
         {
-            if(avaloniaBrush is SolidColorBrush solidColorBrush && Type == typeof(Color))
+            if (avaloniaBrush is SolidColorBrush solidColorBrush && Type == typeof(Color))
             {
                 return solidColorBrush.Color.ToColor();
             }
@@ -153,14 +169,14 @@ internal class VariableViewModel : ViewModelBase, IVariableHandler
         return value;
     }
 
-    private Setting CreateSettingFromType(Type type, string? unit, double min, double max)
+    private Setting CreateSettingFromType(Type type, string? unit, double min, double max, string name)
     {
         min = double.IsNaN(min) ? double.MinValue : min;
         max = double.IsNaN(max) ? double.MaxValue : max;
 
         if (type == typeof(bool))
         {
-            return new BoolSettingViewModel("Variable", false, "Variable");
+            return new BoolSettingViewModel(name, false, name);
         }
 
         if (type == typeof(int))
@@ -170,64 +186,58 @@ internal class VariableViewModel : ViewModelBase, IVariableHandler
 
             if (unit == null)
             {
-                return new FloatSettingViewModel("Variable", 0, "Variable")
-                {
-                    DecimalPlaces = 0, Min = intMin, Max = intMax
-                };
+                return new FloatSettingViewModel(name, 0, name) { DecimalPlaces = 0, Min = intMin, Max = intMax };
             }
 
-            return new SizeSettingViewModel("Variable", "Variable")
-            {
-                DecimalPlaces = 0, Min = min, Max = max, Unit = unit
-            };
+            return new SizeSettingViewModel(name, name) { DecimalPlaces = 0, Min = min, Max = max, Unit = unit };
         }
 
         if (type == typeof(double) || type == typeof(float))
         {
             if (unit == null)
             {
-                return new FloatSettingViewModel("Variable", 0, "Variable") { Min = (float)min, Max = (float)max };
+                return new FloatSettingViewModel(name, 0, name) { Min = (float)min, Max = (float)max };
             }
 
-            return new SizeSettingViewModel("Variable", "Variable") { Min = min, Max = max, Unit = unit };
+            return new SizeSettingViewModel(name, name) { Min = min, Max = max, Unit = unit };
         }
 
         if (type.IsAssignableTo(typeof(Brush)))
         {
-            return new BrushSettingViewModel("Variable", "Variable");
+            return new BrushSettingViewModel(name, name);
         }
 
         if (type.IsAssignableTo(typeof(DocumentReference)))
         {
-            return new DocumentReferenceSettingViewModel("Variable");
+            return new DocumentReferenceSettingViewModel(name);
         }
 
         if (type == typeof(Paintable))
         {
-            return new PaintableSettingViewModel("Variable", "Variable");
+            return new PaintableSettingViewModel(name, name);
         }
-        
+
         if (type == typeof(Color))
         {
-            return new ColorSettingViewModel("Variable", "Variable") { AllowGradient = false };
+            return new ColorSettingViewModel(name, name) { AllowGradient = false };
         }
 
         if (type.IsAssignableTo(typeof(Texture)))
         {
-            return new TextureSettingViewModel("Variable", "Variable");
+            return new TextureSettingViewModel(name, name);
         }
 
-        if(type == typeof(string))
+        if (type == typeof(string))
         {
-            return new StringSettingViewModel("Variable", "Variable");
+            return new StringSettingViewModel(name, name);
         }
 
         if (type == (typeof(FontFamilyName)))
         {
-            return new FontFamilySettingViewModel("Variable", "Variable");
+            return new FontFamilySettingViewModel(name, name);
         }
 
-        return new GenericSettingViewModel("Variable");
+        return new GenericSettingViewModel(name);
     }
 
     public void SetValueInternal(object newValue)

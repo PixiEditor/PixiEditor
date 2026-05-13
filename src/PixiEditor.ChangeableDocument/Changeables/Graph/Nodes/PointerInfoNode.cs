@@ -14,6 +14,7 @@ public class PointerInfoNode : Node
     public OutputProperty<double> Twist { get; }
     public OutputProperty<VecD> Tilt { get; }
     public OutputProperty<VecD> MovementDirection { get; }
+    public OutputProperty<double> Velocity { get; }
     public OutputProperty<double> Rotation { get; }
     // TODO: Add velocity
 
@@ -26,6 +27,7 @@ public class PointerInfoNode : Node
         Twist = CreateOutput<double>("Twist", "TWIST", 0.0);
         Tilt = CreateOutput<VecD>("Tilt", "TILT", new VecD(0, 0));
         MovementDirection = CreateOutput<VecD>("MovementDirection", "MOVEMENT_DIRECTION", new VecD(0, 0));
+        Velocity = CreateOutput<double>("Velocity", "VELOCITY", 0.0);
         Rotation = CreateOutput<double>("Rotation", "ROTATION", 0.0);
     }
 
@@ -44,6 +46,7 @@ public class PointerInfoNode : Node
         Tilt.Value = context.PointerInfo.Tilt;
         MovementDirection.Value = context.PointerInfo.MovementDirection;
         Rotation.Value = context.PointerInfo.Rotation;
+        Velocity.Value = context.PointerInfo.Velocity;
     }
 
     public override Node CreateCopy()

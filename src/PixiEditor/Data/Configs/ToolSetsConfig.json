@@ -31,6 +31,42 @@
           "ActionDisplay": "GRADIENT_TOOL_ACTION_DISPLAY_DEFAULT"
         }
       ]
+    },
+    {
+      "ToolName": "Blur",
+      "DisplayName": "BLUR_TOOL",
+      "Brush": "/BrushTools/Blur.pixi",
+      "Icon": "icon-blur",
+      "ToolTip": "BLUR_TOOL_TOOLTIP",
+      "ActionDisplays": [
+        {
+          "ActionDisplay": "BLUR_TOOL_ACTION_DISPLAY_DEFAULT"
+        }
+      ]
+    },
+    {
+      "ToolName": "Sharpen",
+      "DisplayName": "SHARPEN_TOOL",
+      "Brush": "/BrushTools/Sharpen.pixi",
+      "Icon": "icon-sharpen",
+      "ToolTip": "SHARPEN_TOOL_TOOLTIP",
+      "ActionDisplays": [
+        {
+          "ActionDisplay": "SHARPEN_TOOL_ACTION_DISPLAY_DEFAULT"
+        }
+      ]
+    },
+    {
+      "ToolName": "Smudge",
+      "DisplayName": "SMUDGE_TOOL",
+      "Brush": "/BrushTools/Smudge.pixi",
+      "Icon": "icon-smudge",
+      "ToolTip": "SMUDGE_TOOL_TOOLTIP",
+      "ActionDisplays": [
+        {
+          "ActionDisplay": "SMUDGE_TOOL_ACTION_DISPLAY_DEFAULT"
+        }
+        ]
     }
   ],
   "ToolSets": [
@@ -89,7 +125,9 @@
         {
           "ToolName": "Brightness",
           "Settings": {
-            "AntiAliasing": false
+            "AntiAliasing": false,
+            "DefaultToolSize": 1,
+            "DefaultBRUSH_SETTING": "PIXEL_CIRCLE"
           }
         },
         "ColorPicker",
@@ -174,7 +212,9 @@
         {
           "ToolName": "Brightness",
           "Settings": {
-            "AntiAliasing": true
+            "AntiAliasing": true,
+            "DefaultToolSize": 10,
+            "DefaultBRUSH_SETTING": "BASIC"
           }
         },
         "ColorPicker",
@@ -205,6 +245,34 @@
           }
         },
         "ColorPicker",
+        "Zoom"
+      ]
+    },
+    {
+      "Name": "ADJUSTMENTS_TOOLSET",
+      "Icon": "icon-adjust",
+      "Tools": [
+        "MoveViewport",
+        "RotateViewport",
+        {
+          "ToolName": "Blur",
+          "Settings": {
+            "DefaultToolSize": 20
+          }
+        },
+        {
+          "ToolName": "Sharpen",
+          "Settings": {
+            "DefaultToolSize": 20
+          }
+        },
+        {
+          "ToolName": "Smudge",
+          "Settings": {
+            "DefaultToolSize": 20
+          }
+        },
+        "Brightness",
         "Zoom"
       ]
     }

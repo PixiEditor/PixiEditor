@@ -55,7 +55,7 @@ internal static class DrawingChangeHelper
             throw new InvalidOperationException("Trying to draw on a non-raster layer member");
         }
 
-        return layer.GetLayerImageByKeyFrameGuid(targetKeyFrameGuid);
+        return layer.GetLayerImageByKeyFrameGuid(targetKeyFrameGuid) ?? throw new InvalidOperationException("Trying to draw on a frame that doesn't exist");
     }
 
     public static ChunkyImage? GetTargetImageOrThrow(Document target, Guid memberGuid, bool drawOnMask, int frame)

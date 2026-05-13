@@ -32,11 +32,11 @@ public class BrushOutputNode : Node
     public const int StrokePreviewSizeX = 200;
     public const int StrokePreviewSizeY = 50;
 
-    public const string DefaultBlenderCode = @"
-    vec4 main(vec4 src, vec4 dst) {
-    	return src + (1 - src.a) * dst;
-    }
-";
+    public const string DefaultBlenderCode = """
+                                                 vec4 main(vec4 src, vec4 dst) {
+                                                 	return src + (1 - src.a) * dst;
+                                                 }
+                                             """;
 
     private string? lastStampBlenderCode = "";
     private string? lastImageBlenderCode = "";
@@ -65,6 +65,7 @@ public class BrushOutputNode : Node
     public InputProperty<bool> FitToStrokeSize { get; }
     public InputProperty<bool> AutoPosition { get; }
     public InputProperty<bool> AllowSampleStacking { get; }
+    public InputProperty<double> TargetOversample { get; }
     public InputProperty<bool> AlwaysClear { get; }
     public InputProperty<bool> SnapToPixels { get; }
 
@@ -128,6 +129,7 @@ public class BrushOutputNode : Node
         FitToStrokeSize = CreateInput<bool>(FitToStrokeSizeProperty, "FIT_TO_STROKE_SIZE", true);
         AutoPosition = CreateInput<bool>("AutoPosition", "AUTO_POSITION", true);
         AllowSampleStacking = CreateInput<bool>("AllowSampleStacking", "ALLOW_SAMPLE_STACKING", false);
+        TargetOversample = CreateInput<double>("TargetOversample", "TARGET_OVERSAMPLE", 0).WithRules(x => x.Min(0d));
         AlwaysClear = CreateInput<bool>("AlwaysClear", "ALWAYS_CLEAR", false);
         SnapToPixels = CreateInput<bool>("SnapToPixels", "SNAP_TO_PIXELS", false);
         Tags = CreateInput<string>("Tags", "TAGS", "");
@@ -161,6 +163,11 @@ public class BrushOutputNode : Node
                     || ContentTexture.ColorSpace != context.ProcessingColorSpace
                     || !drawnContentTextureOnce || ContentTransform.Value != lastTranform)
                 {
+                    if(context.RenderOutputSize.ShortestAxis <= 0)
+                    {
+                        return;
+                    }
+
                     ContentTexture = cache.RequestTexture(0, context.RenderOutputSize, context.ProcessingColorSpace);
                     ContentTexture.DrawingSurface.Canvas.Save();
                     ContentTexture.DrawingSurface.Canvas.SetMatrix(ContentTransform.Value);
@@ -274,7 +281,7 @@ public class BrushOutputNode : Node
             previewEngine.ExecuteBrush(previewChunkyImage,
                 new BrushData(context.Graph, Id) { StrokeWidth = size, AntiAliasing = true },
                 (VecI)pos, context.FrameTime, context.ProcessingColorSpace, context.DesiredSamplingOptions,
-                new PointerInfo(pos, 1, 0, VecD.Zero, new VecD(0, 1), true, false),
+                new PointerInfo(pos, 1, 0, VecD.Zero, new VecD(0, 1), 1, true, false),
                 new KeyboardInfo(),
                 new EditorData(Colors.White, Colors.Black));
         }
@@ -307,7 +314,7 @@ public class BrushOutputNode : Node
             pos = vec4D.XY;
             pos = new VecD(pos.X, pos.Y + maxSize / 2f) + shift;
 
-            points.Add(new RecordedPoint((VecI)pos, new PointerInfo(pos, pressure, 0, VecD.Zero, vec4D.ZW, true, false),
+            points.Add(new RecordedPoint((VecI)pos, new PointerInfo(pos, pressure, 0, VecD.Zero, vec4D.ZW, 1, true, false),
                 new KeyboardInfo(), new EditorData(Colors.White, Colors.Black)));
 
             previewEngine.ExecuteBrush(target,
@@ -339,7 +346,7 @@ public class BrushOutputNode : Node
             var vec4D = previewVectorPath.GetPositionAndTangentAtDistance(offset, false);
             pos = vec4D.XY;
             pos = new VecD(pos.X, pos.Y + maxSize / 2f) + shift;
-            points.Add(new RecordedPoint((VecI)pos, new PointerInfo(pos, pressure, 0, VecD.Zero, vec4D.ZW, true, false),
+            points.Add(new RecordedPoint((VecI)pos, new PointerInfo(pos, pressure, 0, VecD.Zero, vec4D.ZW, 1, true, false),
                 new KeyboardInfo(), new EditorData(Colors.White, Colors.Black)));
 
             previewEngine.ExecuteBrush(target,
@@ -356,7 +363,7 @@ public class BrushOutputNode : Node
         previewEngine.ExecuteBrush(img,
             new BrushData(context.Graph, Id) { StrokeWidth = size, AntiAliasing = true },
             pos, context.FrameTime, context.ProcessingColorSpace, context.DesiredSamplingOptions,
-            new PointerInfo(pos, 1, 0, VecD.Zero, new VecD(0, 1), true, false),
+            new PointerInfo(pos, 1, 0, VecD.Zero, new VecD(0, 1), 1, true, false),
             new KeyboardInfo(),
             new EditorData(Colors.White, Colors.Black));
     }
