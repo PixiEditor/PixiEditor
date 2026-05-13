@@ -225,6 +225,8 @@ internal class ExtensionManagerViewModel : ViewModelBase
     {
         AvailableExtensions.Clear();
         FeaturedExtensions.Clear();
+
+        if (IsPlatformSteam) return;
         List<AvailableContent> availableExtensions = new List<AvailableContent>();
         try
         {
@@ -259,7 +261,6 @@ internal class ExtensionManagerViewModel : ViewModelBase
             IsAvailableFetching = false;
         }
 
-        SaveAvailableExtensionsToCache(availableExtensions);
         double rate = 1;
         if (PixiEditorSettings.Extensions.DisplayedCurrency?.Value == null)
         {
