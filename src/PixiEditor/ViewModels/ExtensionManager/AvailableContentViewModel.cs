@@ -3,17 +3,39 @@ using System.Globalization;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using LiveMarkdown.Avalonia;
+using PixiEditor.Extensions.Runtime;
 using PixiEditor.Platform;
 
 namespace PixiEditor.ViewModels.ExtensionManager;
 
 internal class AvailableContentViewModel : ObservableObject
 {
+    private HighlightData? data;
     public AvailableContent AvailableContent { get; }
+
+    public HighlightData? HighlightData
+    {
+        get => data;
+        set
+        {
+            if (SetProperty(ref data, value))
+            {
+                HeadlineMarkdownBuilder.Clear();
+                DealTextMarkdownBuilder.Clear();
+                if (data != null)
+                {
+                    HeadlineMarkdownBuilder.Append(data.HeaderTaglineText);
+                    DealTextMarkdownBuilder.Append(data.DealText);
+                }
+            }
+        }
+    }
 
     public bool IsOwned => extensionManager.IsExtensionOwned(AvailableContent.Id);
 
     public bool IsBundle => AvailableContent.IsBundle;
+
+    public bool IsNew => DateTime.Now - AvailableContent.ReleaseDate < TimeSpan.FromDays(14);
 
     public bool AllBundleItemsOwned =>
         IsBundle && AvailableContent.IncludedExtensions.All(id => extensionManager.IsExtensionOwned(id));
@@ -81,6 +103,9 @@ internal class AvailableContentViewModel : ObservableObject
     public ObservableStringBuilder MarkdownBody { get; } = new ObservableStringBuilder();
     public bool IsUnavailable { get; }
     public ObservableCollection<ShowcaseItem> ShowcaseItems { get; } = new ObservableCollection<ShowcaseItem>();
+    public ObservableStringBuilder HeadlineMarkdownBuilder { get; } = new ObservableStringBuilder();
+    public ObservableStringBuilder DealTextMarkdownBuilder { get; } = new ObservableStringBuilder();
+    public bool HasCompatibleVersion => AvailableContent?.Versions == null || AvailableContent?.Versions.Count == 0 || AvailableContent?.Versions?.Any(v => v != null && v.PixiEditorApiVersion <= ExtensionRuntimeInfo.ApiVersion) == true;
 
     private HttpClient httpClient = new HttpClient() { Timeout = TimeSpan.FromSeconds(15) };
 

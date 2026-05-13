@@ -3,6 +3,6 @@
     <DebugType>embedded</DebugType>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <GenerateExtensionPackage>true</GenerateExtensionPackage>
-    <PixiEditorApiVersion>2</PixiEditorApiVersion>
+    <PixiEditorApiVersion>3</PixiEditorApiVersion>
   </PropertyGroup>
 </Project>

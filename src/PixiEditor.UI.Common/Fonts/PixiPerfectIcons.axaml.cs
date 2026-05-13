@@ -83,9 +83,11 @@ public static partial class PixiPerfectIcons
     public const string FilePlus = "\uE947";
     public const string FileText = "\uE948";
     public const string File180 = "\uE94B";
+    public const string Flame = "\uE9EE";
     public const string Folder = "\uE94D";
     public const string FolderPlus = "\uE94C";
     public const string Fullscreen = "\uE9AC";
+    public const string Gamepad = "\uE9ED";
     public const string Ghost = "\uE916";
     public const string Github = "\uE99A";
     public const string Globe = "\uE94E";

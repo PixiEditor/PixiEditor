@@ -741,5 +741,8 @@
   "REVERSE_DIFFERENCE_VECTOR_PATH_OP": "Différence inversée",
   "EVALUATE_PATH_NODE": "Évaluer le chemin",
   "VECTOR_PATH": "Chemin vectoriel",
-  "TRANSFORM_ACTION_DISPLAY_SCALE_ROTATE_SHEAR_PERSPECTIVE": "Glissez les poignées pour redimensionner. Maintenez Ctrl et glissez une poignée pour redimensionner à partir du centre. Maintenez Maj pour redimensionner proportionnellement. Maintenez Alt et glissez une poignée latérale pour cisailler. Glissez les poignées extérieures pour pivoter."
+  "TRANSFORM_ACTION_DISPLAY_SCALE_ROTATE_SHEAR_PERSPECTIVE": "Glissez les poignées pour redimensionner. Maintenez Ctrl et glissez une poignée pour redimensionner à partir du centre. Maintenez Maj pour redimensionner proportionnellement. Maintenez Alt et glissez une poignée latérale pour cisailler. Glissez les poignées extérieures pour pivoter.",
+  "RAW_COLOR_SAMPLE_MODE": "Brut",
+  "CHANGELOG_TITLE": "Notes de mise à jour {0}",
+  "OPEN_RELEASE_NOTES": "Ouvrir les notes de mise à jour"
 }

@@ -1,0 +1,17 @@
+name: Changelog Check
+
+on:
+  pull_request:
+    branches: [ "development", "release" ]
+
+jobs:
+  check-changelog-is-added:
+    name: "Check if Changelog for version is added"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Check if Changelog for version matches
+        run: python "${{ github.workspace }}/.github/workflows/changelog/check-changelog.py"
