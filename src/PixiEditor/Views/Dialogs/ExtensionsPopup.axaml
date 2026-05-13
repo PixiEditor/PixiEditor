@@ -373,14 +373,27 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
             </Border>
-            <Panel HorizontalAlignment="Center" Grid.Row="2" IsVisible="{Binding IsPlatformSteam}">
+            <Panel Grid.Row="2" HorizontalAlignment="Center">
+                <Panel.IsVisible>
+                    <MultiBinding Converter="{converters:AllTrueConverter}">
+                        <Binding Path="IsPlatformSteam" />
+                        <Binding Path="ShowAllTab" />
+                    </MultiBinding>
+                </Panel.IsVisible>
                 <TextBlock
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
                     FontSize="{DynamicResource FontSizeLarge}"
-                    localization:Translator.Key="EXTENSIONS_WINDOW_STEAM_UNAVAILABLE" />
+                    localization:Translator.Key="EXTENSIONS_WINDOW_STEAM_UNAVAILABLE">
+                </TextBlock>
             </Panel>
-            <Panel HorizontalAlignment="Center" Grid.Row="2" IsVisible="{Binding ShowAllTab}">
+            <Panel HorizontalAlignment="Center" Grid.Row="2">
+                <Panel.IsVisible>
+                    <MultiBinding Converter="{converters:AllTrueConverter}">
+                        <Binding Path="!IsPlatformSteam" />
+                        <Binding Path="ShowAllTab" />
+                    </MultiBinding>
+                </Panel.IsVisible>
                 <indicators:LoadingIndicator
                     IsVisible="{Binding IsAvailableFetching}"
                     HorizontalAlignment="Center" VerticalAlignment="Center"
@@ -445,11 +458,11 @@
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
                             </StackPanel>
-                                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap">
-                                    <TextBlock Classes="subtext" localization:Translator.Key="EXTENSIONS_INFO"/>
-                                    <TextBlock localization:Translator.Key="CLICK_HERE_TO_READ_MORE"
-                                               ui:Hyperlink.Url="https://forum.pixieditor.net/t/extension-browser-beta/567" />
-                                </TextBlock>
+                            <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap">
+                                <TextBlock Classes="subtext" localization:Translator.Key="EXTENSIONS_INFO" />
+                                <TextBlock localization:Translator.Key="CLICK_HERE_TO_READ_MORE"
+                                           ui:Hyperlink.Url="https://forum.pixieditor.net/t/extension-browser-beta/567" />
+                            </TextBlock>
                         </StackPanel>
                     </ScrollViewer>
                 </Panel>

@@ -75,7 +75,7 @@ internal class ExtensionManagerViewModel : ViewModelBase
         }
     }
 
-    public bool ShowAllTab => SelectedTab != null && SelectedTab.Id == "All" && !IsPlatformSteam;
+    public bool ShowAllTab => SelectedTab != null && SelectedTab.Id == "All";
     public bool ShowOwnedTab => SelectedTab != null && SelectedTab.Id == "Owned";
 
     private AvailableContentViewModel? selectedAvailableExtension;
