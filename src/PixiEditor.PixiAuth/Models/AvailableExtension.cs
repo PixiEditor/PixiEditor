@@ -43,6 +43,8 @@ public class AvailableExtension
 
     [JsonPropertyName("releaseDate")]
     public DateTime ReleaseDate { get; set; }
+
+    public List<ExtVersion> Versions { get; set; } = new List<ExtVersion>();
 }
 
 [Serializable]
@@ -68,5 +70,15 @@ public class ExtensionHighlightData
 
     [JsonPropertyName("taglineIcon")]
     public string TaglineIcon { get; set; }
+}
+
+[Serializable]
+public class ExtVersion
+{
+    [JsonPropertyName("version")]
+    public string Version { get; set; } = string.Empty;
+
+    [JsonPropertyName("pixiEditorApiVersion")]
+    public int PixiEditorApiVersion { get; set; }
 }
 
