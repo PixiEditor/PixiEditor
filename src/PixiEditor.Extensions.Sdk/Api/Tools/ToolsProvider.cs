@@ -14,4 +14,9 @@ public class ToolsProvider : IToolsProvider
     {
         Native.add_tool_to_toolset(toolName, toolsetName, atIndex);
     }
+
+    public void AddToolToToolset(string toolName, string toolsetName, int atIndex, string configJson)
+    {
+        Native.add_tool_to_toolset_with_config(toolName, toolsetName, atIndex, configJson);
+    }
 }

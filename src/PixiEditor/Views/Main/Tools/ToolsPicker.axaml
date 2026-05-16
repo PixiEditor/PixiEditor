@@ -6,22 +6,21 @@
              xmlns:tools1="clr-namespace:PixiEditor.Views.Main.Tools"
              xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
              xmlns:system="clr-namespace:System;assembly=System.Runtime"
-             xmlns:viewModels="clr-namespace:PixiEditor.ViewModels"
              xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
              xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              ClipToBounds="False"
              x:Class="PixiEditor.Views.Main.Tools.ToolsPicker" Name="picker">
-    <StackPanel>
-        <Border
-            ClipToBounds="True"
-            Cursor="Arrow" Width="48"
-            BorderBrush="{DynamicResource ThemeBorderMidBrush}"
-            CornerRadius="{DynamicResource ControlCornerRadius}"
-            Padding="0, 5"
-            BorderThickness="{DynamicResource ThemeBorderThickness}"
-            Background="{DynamicResource ThemeBackgroundBrush1}">
-            <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="0, 0, 0, 15">
+            <Border
+                ClipToBounds="True"
+                Cursor="Arrow" Width="48"
+                BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                CornerRadius="{DynamicResource ControlCornerRadius}"
+                Padding="0, 5"
+                BorderThickness="{DynamicResource ThemeBorderThickness}"
+                Background="{DynamicResource ThemeBackgroundBrush1}">
                 <ItemsControl ItemsSource="{Binding ElementName=picker, Path=ToolSet.Tools}" Padding="0 2">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate DataType="tools:ToolViewModel">
@@ -35,17 +34,15 @@
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                 </ItemsControl>
-            </ScrollViewer>
-        </Border>
-
-        <Border CornerRadius="7" Margin="0, 7, 0, 0" Background="{DynamicResource FoundersPurpleLowBrush}">
-            <Button Classes="pixi-icon" Content="{DynamicResource icon-extensions}"
-                    Foreground="{DynamicResource FoundersPurpleBrush}"
-                    Width="46"
-                    Height="46"
-                    localization:Translator.TooltipKey="GET_FROM_EXTENSIONS"
-                    Command="{xaml:Command Name=PixiEditor.Window.OpenExtensionsWindow}" />
-        </Border>
-    </StackPanel>
-
+            </Border>
+            <Border CornerRadius="7" Margin="0, 7, 0, 0" Background="{DynamicResource FoundersPurpleLowBrush}">
+                <Button Classes="pixi-icon" Content="{DynamicResource icon-extensions}"
+                        Foreground="{DynamicResource FoundersPurpleBrush}"
+                        Width="46"
+                        Height="46"
+                        localization:Translator.TooltipKey="GET_FROM_EXTENSIONS"
+                        Command="{xaml:Command Name=PixiEditor.Window.OpenExtensionsWindow}" />
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
 </UserControl>

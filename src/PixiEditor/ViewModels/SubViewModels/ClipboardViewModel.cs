@@ -6,6 +6,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Threading;
+using Drawie.Backend.Core;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Clipboard;
@@ -16,6 +17,7 @@ using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.IO;
 using Drawie.Numerics;
+using PixiEditor.Exceptions;
 using PixiEditor.Models.Commands;
 using PixiEditor.ViewModels.Dock;
 using PixiEditor.ViewModels.Document;
@@ -103,6 +105,9 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
                 : ClipboardController.GetImage(new[] { new ImportedObject(data) }).Result).FirstOrDefault();
         using var surface = imageData.Image;
 
+        if (surface is null)
+            return;
+
         var bitmap = imageData.Image.ToWriteableBitmap();
 
         byte[] pixels = bitmap.ExtractPixels();
@@ -117,7 +122,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    [Command.Internal("PixiEditor.Clipboard.PasteReferenceLayerFromPath")]
+    [Command.Internal("PixiEditor.Clipboard.PasteReferenceLayerFromPath", CanExecute = "PixiEditor.Clipboard.PasteReferenceLayerFromPath", AnalyticsTrack = true)]
     public void PasteReferenceLayer(string path)
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -125,8 +130,17 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         if (doc is null)
             return;
 
-        // TODO: Exception handling would probably be good
-        var bitmap = Importer.GetPreviewSurface(path);
+        Surface bitmap;
+
+        try
+        {
+            bitmap = Importer.GetPreviewSurface(path);
+        }
+        catch (InvalidFileTypeException e)
+        {
+            CrashHelper.SendExceptionInfo(e);
+            return;
+        }
 
         if (bitmap is null)
             return;
@@ -139,6 +153,14 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         doc.Operations.ImportReferenceLayer(
             pixels.ToImmutableArray(),
             new VecI(bitmap.Size.X, bitmap.Size.Y));
+    }
+
+    [Evaluator.CanExecute("PixiEditor.Clipboard.PasteReferenceLayerFromPath")]
+    public bool CanPasteReferenceLayer(string path)
+    {
+        var extension = Path.GetExtension(path).ToLower();
+
+        return SupportedFilesHelper.IsSupported(path) && extension != ".svg";
     }
 
     [Command.Basic("PixiEditor.Clipboard.PasteColor", false, "PASTE_COLOR", "PASTE_COLOR_DESCRIPTIVE",
