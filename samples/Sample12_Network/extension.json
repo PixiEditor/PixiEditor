@@ -1,0 +1,30 @@
+{
+  "displayName": "Sample Extension - Network",
+  "uniqueName": "yourCompany.Samples.Network",
+  "description": "Sample Brushes extension for PixiEditor",
+  "version": "1.0.0",
+  "author": {
+    "name": "PixiEditor",
+    "email": "info@pixieditor.net",
+    "website": "https://pixieditor.net"
+  },
+  "publisher": {
+    "name": "PixiEditor",
+    "email": "info@pixieditor.net",
+    "website": "https://pixieditor.net"
+  },
+  "contributors": [
+    {
+      "name": "flabbet",
+      "email": "some@mail.com",
+      "website": "https://github.com/flabbet"
+    }
+  ],
+  "permissions": [
+    "Network"
+  ],
+  "license": "MIT",
+  "categories": [
+    "Extension"
+  ]
+}
