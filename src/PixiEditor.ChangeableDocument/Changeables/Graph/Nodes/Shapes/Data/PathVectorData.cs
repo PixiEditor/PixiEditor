@@ -157,6 +157,11 @@ public class PathVectorData : ShapeVectorData, IReadOnlyPathData
         return newPath;
     }
 
+    public override PathVectorData? ExpandStroke()
+    {
+        throw new NotImplementedException();
+    }
+
     protected bool Equals(PathVectorData other)
     {
         return base.Equals(other) && Path.Equals(other.Path) && StrokeLineCap == other.StrokeLineCap &&

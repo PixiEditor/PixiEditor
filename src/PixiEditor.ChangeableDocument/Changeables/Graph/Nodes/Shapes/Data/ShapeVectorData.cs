@@ -81,6 +81,7 @@ public abstract class ShapeVectorData : ICacheable, ICloneable, IReadOnlyShapeVe
     }
 
     public abstract VectorPath ToPath(bool transformed = false);
+    public abstract PathVectorData? ExpandStroke();
 
     protected bool Equals(ShapeVectorData other)
     {
