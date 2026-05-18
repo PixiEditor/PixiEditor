@@ -1488,7 +1488,6 @@
   "CONFIRM_OVERWRITE_QUESTION": "This document is saved as a '{0}' file. Do you want to overwrite it?",
   "CONFIRM_OVERWRITE_TITLE": "Confirm overwrite",
   "MISSING_LAYER_NODE_ERROR": "Missing Layer Node",
-  "COMPUTED_SAMPLE_SIZE": "Sample Size",
   "NEW_ITEM": "NEW",
   "FEATURED_EXTENSIONS_TITLE": "Featured Extensions",
   "ALL_EXTENSIONS_TITLE": "All Extensions",
@@ -1498,5 +1497,7 @@
   "SHARPEN_TOOL_ACTION_DISPLAY_DEFAULT": "Click and drag on the canvas to sharpen.",
   "EXTENSIONS_WINDOW_STEAM_UNAVAILABLE": "The Steam version of PixiEditor does not support Extension Library yet. Please use the standalone version to access it.",
   "WARNING_VERSION_INCOMPATIBLE": "This extension may not be compatible with your version of PixiEditor.",
-  "EXTENSIONS_ONBOARDING_TITLE": "Featured Extensions"
+  "EXTENSIONS_ONBOARDING_TITLE": "Featured Extensions",
+  "GRADIENT_END_COLOR": "Gradient End Color",
+  "GRADIENT_HARDNESS": "Gradient Hardness"
 }
