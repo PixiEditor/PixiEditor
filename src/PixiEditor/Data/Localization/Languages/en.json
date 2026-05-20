@@ -1497,6 +1497,8 @@
   "BLUR_TOOL_ACTION_DISPLAY_DEFAULT": "Click and drag on the canvas to blur.",
   "SHARPEN_TOOL_ACTION_DISPLAY_DEFAULT": "Click and drag on the canvas to sharpen.",
   "EXTENSIONS_WINDOW_STEAM_UNAVAILABLE": "The Steam version of PixiEditor does not support Extension Library yet. Please use the standalone version to access it.",
+  "ACRYLIC": "Acrylic",
+  "STRANDS_BRUSH": "Strands",
   "WARNING_VERSION_INCOMPATIBLE": "This extension may not be compatible with your version of PixiEditor.",
   "EXTENSIONS_ONBOARDING_TITLE": "Featured Extensions"
 }
