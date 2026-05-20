@@ -1055,9 +1055,6 @@
   "INSTALLED": "Встановлено",
   "ACCOUNT_PROVIDER_INFO": "Обліковий запис належить",
   "UPDATE": "Оновлення",
-  "FOUNDERS_BUNDLE": "Набір засновника",
-  "FOUNDERS_BUNDLE_SUBTEXT": "Підтримуйте PixiEditor та підвищуйте свою продуктивність!",
-  "BECOME_A_FOUNDER": "Стати засновником",
   "LOGIN": "Увійти",
   "ANIMATION_QUALITY_PRESET": "Шаблон якості",
   "VERY_LOW_QUALITY_PRESET": "Дуже низько",
@@ -1496,5 +1493,10 @@
   "EXTENSIONS_INFO": "PixiEditor на 100% фінансується спільнотою. Купуючи розширення, ви безпосередньо підтримуєте розробку.",
   "SMUDGE_TOOL_ACTION_DISPLAY_DEFAULT": "Клацніть і перетягніть на полотно, щоб розмазати.",
   "BLUR_TOOL_ACTION_DISPLAY_DEFAULT": "Клацніть і перетягніть на полотно, щоб розмити.",
-  "SHARPEN_TOOL_ACTION_DISPLAY_DEFAULT": "Клацніть і перетягніть на полотно, щоб збільшити різкість."
+  "SHARPEN_TOOL_ACTION_DISPLAY_DEFAULT": "Клацніть і перетягніть на полотно, щоб збільшити різкість.",
+  "OPEN_PATH_AS_REFERENCE_LAYER": "Як шар-посилання: {0}",
+  "OPEN_PATH_AS_NESTED_DOCUMENT": "Як елемент:  {0}",
+  "EXTENSIONS_WINDOW_STEAM_UNAVAILABLE": "Версія PixiEditor для Steam поки що не підтримує бібліотеку розширень. Будь ласка, використовуйте окрему версію для доступу до неї.",
+  "WARNING_VERSION_INCOMPATIBLE": "Це розширення може бути несумісним з вашою версією PixiEditor.",
+  "EXTENSIONS_ONBOARDING_TITLE": "Рекомендовані розширення"
 }

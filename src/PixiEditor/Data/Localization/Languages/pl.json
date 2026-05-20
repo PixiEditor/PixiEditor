@@ -1055,9 +1055,6 @@
   "INSTALLED": "Zainstalowano",
   "ACCOUNT_PROVIDER_INFO": "Konto zarządzane przez",
   "UPDATE": "Aktualizuj",
-  "FOUNDERS_BUNDLE": "Pakiet Fundatorski",
-  "FOUNDERS_BUNDLE_SUBTEXT": "Wspieraj PixiEditora i przyśpiesz swoją pracę!",
-  "BECOME_A_FOUNDER": "Zostań Fundatorem",
   "LOGIN": "Zaloguj",
   "ANIMATION_QUALITY_PRESET": "Jakość",
   "VERY_LOW_QUALITY_PRESET": "Bardzo niska",
@@ -1498,5 +1495,8 @@
   "BLUR_TOOL_ACTION_DISPLAY_DEFAULT": "Naciśnij i przeciągnij aby rozmyć.",
   "SHARPEN_TOOL_ACTION_DISPLAY_DEFAULT": "Naciśnij i przeciągnij aby wyostrzyć.",
   "OPEN_PATH_AS_REFERENCE_LAYER": "Jako warstwa referencyjna: {0}",
-  "OPEN_PATH_AS_NESTED_DOCUMENT": "Jako element: {0}"
+  "OPEN_PATH_AS_NESTED_DOCUMENT": "Jako element: {0}",
+  "EXTENSIONS_WINDOW_STEAM_UNAVAILABLE": "Wersja Steam PixiEditora jeszcze nie wspiera biblioteki rozszerzeń. Użyj samodzielnej wersji aby uzyskać dostęp.",
+  "WARNING_VERSION_INCOMPATIBLE": "To rozszerzenie może być niekompatybilne z Twoją wersją PixiEditora.",
+  "EXTENSIONS_ONBOARDING_TITLE": "Wyróżnione Rozszerzenia"
 }

@@ -3,6 +3,7 @@ using System.Globalization;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using LiveMarkdown.Avalonia;
+using PixiEditor.Extensions.Runtime;
 using PixiEditor.Platform;
 
 namespace PixiEditor.ViewModels.ExtensionManager;
@@ -104,6 +105,7 @@ internal class AvailableContentViewModel : ObservableObject
     public ObservableCollection<ShowcaseItem> ShowcaseItems { get; } = new ObservableCollection<ShowcaseItem>();
     public ObservableStringBuilder HeadlineMarkdownBuilder { get; } = new ObservableStringBuilder();
     public ObservableStringBuilder DealTextMarkdownBuilder { get; } = new ObservableStringBuilder();
+    public bool HasCompatibleVersion => AvailableContent?.Versions == null || AvailableContent?.Versions.Count == 0 || AvailableContent?.Versions?.Any(v => v != null && v.PixiEditorApiVersion <= ExtensionRuntimeInfo.ApiVersion) == true;
 
     private HttpClient httpClient = new HttpClient() { Timeout = TimeSpan.FromSeconds(15) };
 

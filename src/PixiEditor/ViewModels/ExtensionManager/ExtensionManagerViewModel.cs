@@ -10,6 +10,7 @@ using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Extensions.IO;
 using PixiEditor.Extensions.Metadata;
+using PixiEditor.Extensions.Runtime;
 using PixiEditor.Extensions.WasmRuntime;
 using PixiEditor.Extensions.WasmRuntime.Utilities;
 using PixiEditor.IdentityProvider;
@@ -74,7 +75,7 @@ internal class ExtensionManagerViewModel : ViewModelBase
         }
     }
 
-    public bool ShowAllTab => SelectedTab != null && SelectedTab.Id == "All" && !IsPlatformSteam;
+    public bool ShowAllTab => SelectedTab != null && SelectedTab.Id == "All";
     public bool ShowOwnedTab => SelectedTab != null && SelectedTab.Id == "Owned";
 
     private AvailableContentViewModel? selectedAvailableExtension;
@@ -179,7 +180,15 @@ internal class ExtensionManagerViewModel : ViewModelBase
                         Author = ext.ProductData.Author,
                         HideAddToLibrary = true,
                         IsBundle = ext.ProductData.IsBundle,
-                        Body = ext.ProductData.Description
+                        Body = ext.ProductData.Description,
+                        Versions = ext.ProductData?.LatestVersion != null ? new List<ExtensionVersion>()
+                        {
+                            new ExtensionVersion()
+                            {
+                                Version = ext.ProductData.LatestVersion,
+                                PixiEditorApiVersion = ExtensionRuntimeInfo.ApiVersion // TODO: This is not a true value, it would have to call extension to get the real api version
+                            }
+                        } : new List<ExtensionVersion>()
                     }, this, 1, "PLN", false);
 
                 SelectExtension(created);
@@ -216,6 +225,8 @@ internal class ExtensionManagerViewModel : ViewModelBase
     {
         AvailableExtensions.Clear();
         FeaturedExtensions.Clear();
+
+        if (IsPlatformSteam) return;
         List<AvailableContent> availableExtensions = new List<AvailableContent>();
         try
         {
@@ -250,7 +261,6 @@ internal class ExtensionManagerViewModel : ViewModelBase
             IsAvailableFetching = false;
         }
 
-        SaveAvailableExtensionsToCache(availableExtensions);
         double rate = 1;
         if (PixiEditorSettings.Extensions.DisplayedCurrency?.Value == null)
         {

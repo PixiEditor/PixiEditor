@@ -1544,7 +1544,10 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         using var changeBlock = Operations.StartChangeBlock();
         foreach (var node in nestedNodes)
         {
-            if (node.InputPropertyMap[NestedDocumentNode.DocumentPropertyName].Value is not DocumentReference docRef ||
+            if(node == null || !node.InputPropertyMap.TryGetValue(NestedDocumentNode.DocumentPropertyName, out var value))
+                continue;
+
+            if (value.Value is not DocumentReference docRef ||
                 ((docRef.ReferenceId == Guid.Empty || docRef.ReferenceId != referenceId) && (string.IsNullOrEmpty(docRef.OriginalFilePath) || docRef.OriginalFilePath != newDoc.FullFilePath)))
                 continue;
 

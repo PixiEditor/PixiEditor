@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
 using Avalonia.Threading;
+using AvaloniaEdit.Utils;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Drawie.Numerics;
@@ -10,14 +11,16 @@ using PixiEditor.Models.Commands.Templates;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Platform;
 using PixiEditor.UI.Common.Localization;
+using PixiEditor.ViewModels.ExtensionManager;
 using PixiEditor.ViewModels.SubViewModels;
 using PixiEditor.ViewModels.UserPreferences.Settings;
 using PixiEditor.Views.Shortcuts;
 
 namespace PixiEditor.ViewModels.UserPreferences;
 
-internal class OnboardingViewModel : PixiObservableObject
+internal partial class OnboardingViewModel : PixiObservableObject
 {
+    private bool extensionsFetching = true;
     private int page;
     private FormStep formStep;
 
@@ -53,7 +56,7 @@ internal class OnboardingViewModel : PixiObservableObject
         new FormStep { Title = new LocalizedString("ONB_SELECT_PRIMARY_TOOLSET"), Step = 1 },
         new FormStep { Title = new LocalizedString("ONB_SHORTCUTS"), Step = 2 },
         new FormStep { Title = new LocalizedString("ONB_ANALYTICS"), Step = 3 },
-        new FormStep { Title = new LocalizedString("FOUNDERS_BUNDLE"), Step = 4 }
+        new FormStep { Title = new LocalizedString("EXTENSIONS_ONBOARDING_TITLE"), Step = 4 }
     };
 
     public RelayCommand NextFormStepCommand { get; }
@@ -70,8 +73,8 @@ internal class OnboardingViewModel : PixiObservableObject
 
     public RelayCommand<IToolSetHandler> SelectToolsetCommand { get; }
 
-    public string FoundersBundleLink => UserViewModel.FoundersBundleLink;
-    public bool ShowLoginButton => !(IPlatform.Current?.IdentityProvider?.IsLoggedIn) ?? true;
+    public ObservableCollection<AvailableContentViewModel> SuggestedExtensions { get; } =
+        new ObservableCollection<AvailableContentViewModel>();
 
     Dictionary<string, VecI> DefaultNewFileSizes = new()
     {
@@ -80,18 +83,16 @@ internal class OnboardingViewModel : PixiObservableObject
         { "VECTOR_TOOLSET", new VecI(512, 512) }
     };
 
+    private bool ExtensionsFetching
+    {
+        get => extensionsFetching;
+        set => SetProperty(ref extensionsFetching, value);
+    }
+
     public OnboardingViewModel()
     {
         NextFormStepCommand = new RelayCommand(NextFormStep, CanNextFormStep);
         PreviousFormStepCommand = new RelayCommand(PreviousFormStep, CanPreviousFormStep);
-
-        bool showFoundersBundle = ViewModelMain.Current.UserViewModel.OwnedProducts
-            .All(x => x.ProductData.Id != "2435860" && x.ProductData.Id != "PixiEditor.FoundersPack");
-
-        if (!showFoundersBundle)
-        {
-            AllFormSteps.RemoveAt(AllFormSteps.Count - 1);
-        }
 
         SelectToolsetCommand = new RelayCommand<IToolSetHandler>(x =>
         {
@@ -145,6 +146,37 @@ internal class OnboardingViewModel : PixiObservableObject
         {
             firstToolSet.IsSelected = true;
         }
+
+        if (string.Equals(IPlatform.Current.Id, "steam", StringComparison.CurrentCultureIgnoreCase))
+        {
+            AllFormSteps.RemoveAt(4);
+        }
+        else
+        {
+            ExtensionsFetching = true;
+            Task.Run(async () =>
+            {
+                var extViewModel = ViewModelMain.Current.ExtensionsSubViewModel.ExtensionManager;
+                await extViewModel.FetchAvailableExtensions();
+                var suggestedExtensions = extViewModel.FeaturedExtensions;
+                Dispatcher.UIThread.Post(() =>
+                {
+                    foreach (var content in suggestedExtensions.Take(3))
+                    {
+                        SuggestedExtensions.Add(content);
+                    }
+
+                    ExtensionsFetching = false;
+                });
+            });
+        }
+    }
+
+    [RelayCommand]
+    public void SelectExtension(AvailableContentViewModel ext)
+    {
+        ViewModelMain.Current.ExtensionsSubViewModel.ExtensionManager.SelectedAvailableExtension = ext;
+        ViewModelMain.Current.WindowSubViewModel.OpenExtensionsWindow();
     }
 
     public void NextFormStep()
@@ -201,8 +233,8 @@ internal class OnboardingViewModel : PixiObservableObject
                     Dispatcher.UIThread.InvokeAsync(async () => await product.InstallCommand.ExecuteAsync(null));
                 }
             }
-
         }
+
         ViewModelMain.Current.WindowSubViewModel.OpenHelloThereWindow();
     }
 }
