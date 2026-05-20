@@ -1240,6 +1240,7 @@
   "PIXEL_PERFECT": "Pixel Perfect",
   "ESSENTIALS": "Essentials",
   "UNTAGGED": "Untagged",
+  "TOOL": "Tool",
   "ERROR_IMPORTING_BRUSH_TITLE": "Error importing brush",
   "ERROR_IMPORTING_BRUSH_MESSAGE": "An error occurred while importing the brush: {0}",
   "TAGS": "Tags",
@@ -1488,6 +1489,10 @@
   "CONFIRM_OVERWRITE_QUESTION": "This document is saved as a '{0}' file. Do you want to overwrite it?",
   "CONFIRM_OVERWRITE_TITLE": "Confirm overwrite",
   "MISSING_LAYER_NODE_ERROR": "Missing Layer Node",
+  "RAINBOW_BRUSH": "Rainbow Brush",
+  "PERIOD": "Period (Seconds)",
+  "SATURATION": "Saturation",
+  "RATIO": "Brush Aspect Ratio",
   "COMPUTED_SAMPLE_SIZE": "Sample Size",
   "NEW_ITEM": "NEW",
   "FEATURED_EXTENSIONS_TITLE": "Featured Extensions",
@@ -1500,5 +1505,6 @@
   "ACRYLIC": "Acrylic",
   "STRANDS_BRUSH": "Strands",
   "WARNING_VERSION_INCOMPATIBLE": "This extension may not be compatible with your version of PixiEditor.",
-  "EXTENSIONS_ONBOARDING_TITLE": "Featured Extensions"
+  "EXTENSIONS_ONBOARDING_TITLE": "Featured Extensions",
+  "GAME_OF_LIFE_EXAMPLE": "Game of Life"
 }
