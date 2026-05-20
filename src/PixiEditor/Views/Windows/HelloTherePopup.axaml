@@ -370,6 +370,8 @@
                                                        CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
                             <windows:BetaExampleButton FileName="FirePixel.pixi" DisplayName="FIRE_PIXEL_EXAMPLE"
                                                        CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
+                            <windows:BetaExampleButton FileName="GameOfLife.pixi" DisplayName="GAME_OF_LIFE_EXAMPLE"
+                                                       CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
                         </panels:AlignableWrapPanel>
                     </ScrollViewer>
 
