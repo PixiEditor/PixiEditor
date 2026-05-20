@@ -146,7 +146,8 @@ public class NoiseNode : RenderNode
     {
         int saved = workingSurface.Save();
         workingSurface.Translate(-(float)Offset.Value.X, -(float)Offset.Value.Y);
-        workingSurface.DrawPaint(paint);
+        // workingSurface.DrawPaint(paint);
+        workingSurface.DrawRect(workingSurface.LocalClipBounds, paint);
         workingSurface.RestoreToCount(saved);
     }
 
@@ -431,7 +432,9 @@ public class NoiseNode : RenderNode
 
         if (valueShader == null)
         {
-            valueShader = Shader.Create(valueShaderCode, uniforms, out _);
+            valueShader = Shader.Create(valueShaderCode, uniforms, out var errors);
+            if (!string.IsNullOrEmpty(errors))
+                Console.WriteLine(errors);
         }
         else
         {
@@ -625,7 +628,9 @@ public class NoiseNode : RenderNode
 
         if (perlinShader == null)
         {
-            perlinShader = Shader.Create(perlinShaderCode, uniforms, out _);
+            perlinShader = Shader.Create(perlinShaderCode, uniforms, out var errors);
+            if (!string.IsNullOrEmpty(errors))
+                Console.WriteLine(errors);
         }
         else
         {
@@ -834,7 +839,9 @@ public class NoiseNode : RenderNode
 
         if (simplexGradientShader == null)
         {
-            simplexGradientShader = Shader.Create(simplexGradientShaderCode, uniforms, out _);
+            simplexGradientShader = Shader.Create(simplexGradientShaderCode, uniforms, out var errors);
+            if (!string.IsNullOrEmpty(errors))
+                Console.WriteLine(errors);
         }
         else
         {
@@ -855,6 +862,7 @@ public class NoiseNode : RenderNode
                                               uniform float iPersistence;
                                               uniform int iDimensions;
                                               uniform float iZ;
+                                              uniform float2 iResolution;
                                               
                                               const float squaresToTriangles = (3-sqrt(3))/6.;
                                               const float trianglesToSquares = (sqrt(3)-1)/2.;
@@ -996,7 +1004,9 @@ public class NoiseNode : RenderNode
 
         if (simplexValueShader == null)
         {
-            simplexValueShader = Shader.Create(simplexValueShaderCode, uniforms, out _);
+            simplexValueShader = Shader.Create(simplexValueShaderCode, uniforms, out var errors);
+            if (!string.IsNullOrEmpty(errors))
+                Console.WriteLine(errors);
         }
         else
         {
@@ -1124,7 +1134,9 @@ public class NoiseNode : RenderNode
 
         if (voronoiShader == null)
         {
-            voronoiShader = Shader.Create(voronoiShaderCode, uniforms, out _);
+            voronoiShader = Shader.Create(voronoiShaderCode, uniforms, out var errors);
+            if (!string.IsNullOrEmpty(errors))
+                Console.WriteLine(errors);
         }
         else
         {
