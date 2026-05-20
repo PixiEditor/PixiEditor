@@ -146,6 +146,7 @@ public class NoiseNode : RenderNode
     {
         int saved = workingSurface.Save();
         workingSurface.Translate(-(float)Offset.Value.X, -(float)Offset.Value.Y);
+        workingSurface.Translate(-(float)Offset.Value.X, -(float)Offset.Value.Y);
         // workingSurface.DrawPaint(paint);
         workingSurface.DrawRect(workingSurface.LocalClipBounds, paint);
         workingSurface.RestoreToCount(saved);
@@ -1090,13 +1091,12 @@ public class NoiseNode : RenderNode
                                        float noiseSum = 0.0;
                                        float amplitude = 1.0;
                                        float amplitudeSum = 0.0;
-                                       float frequency = iResolution.x/iFrequency;
-
+                                       float frequency = iFrequency;
                                        for (int octave = 0; octave < MAX_OCTAVES; octave++) {
                                            if (octave >= iOctaves) break;
 
                                            //float freq = iFrequency * exp2(float(octave));
-                                           float2 samplePos = uv * freq;
+                                           float2 samplePos = uv * frequency;
                                            
                                            float dist = 0.0;
                                            float2 distances = getVoronoiDistances(samplePos, iSeed + float(octave) * FEATURE_SEED_SCALE);
