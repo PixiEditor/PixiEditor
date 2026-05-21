@@ -253,17 +253,22 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                 if (dialog.Count == 0 || !Importer.IsSupportedFile(dialog[0].Path.LocalPath))
                     return;
 
-                var manager = Owner.DocumentManagerSubViewModel;
-                if (manager.ActiveDocument is null)
-                    return;
-
-                if (!ClipboardController.TryPlaceNestedDocument(manager.ActiveDocument, manager,
-                        dialog[0].Path.LocalPath, out string? error))
-                {
-                    NoticeDialog.Show(new LocalizedString("FAILED_TO_PLACE_ELEMENT", error), "ERROR");
-                }
+                PlaceElement(dialog[0].Path.LocalPath);
             }
         });
+    }
+
+    [Command.Internal("PixiEditor.File.PlaceElementFromPath", CanExecute = "PixiEditor.Layer.CanCreateNewMember", AnalyticsTrack = true)]
+    public void PlaceElement(string path)
+    {
+        var manager = Owner.DocumentManagerSubViewModel;
+        if (manager.ActiveDocument is null)
+            return;
+
+        if (!ClipboardController.TryPlaceNestedDocument(manager.ActiveDocument, manager, path, out string? error))
+        {
+            NoticeDialog.Show(new LocalizedString("FAILED_TO_PLACE_ELEMENT", error), "ERROR");
+        }
     }
 
     private bool MakeExistingDocumentActiveIfOpened(string path)
@@ -341,11 +346,14 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
         return null;
     }
+    
+    [Command.Internal("PixiEditor.File.OpenFromPath", AnalyticsTrack = true)]
+    public DocumentViewModel OpenFromPath(string path) => OpenFromPath(path, true);
 
     /// <summary>
     /// Tries to open the passed file if it isn't already open
     /// </summary>
-    public DocumentViewModel OpenFromPath(string path, bool associatePath = true)
+    public DocumentViewModel OpenFromPath(string path, bool associatePath)
     {
         if (path == null)
             return null;

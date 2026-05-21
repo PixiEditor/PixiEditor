@@ -145,4 +145,9 @@ public sealed class SteamAdditionalContentProvider : IAdditionalContentProvider
     {
         return new List<AvailableContent>();
     }
+
+    public Task<ExtensionsLayout> FetchExtensionsLayout()
+    {
+        return Task.FromResult<ExtensionsLayout?>(null);
+    }
 }

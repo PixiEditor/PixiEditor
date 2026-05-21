@@ -317,7 +317,7 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>, IWindowHandler
     }
 
     [Command.Basic("PixiEditor.Window.OpenExtensionsWindow", "OPEN_EXTENSIONS_WINDOW",
-        "OPEN_EXTENSIONS_WINDOW_DESCRIPTIVE", Icon = PixiPerfectIcons.Blocks,
+        "OPEN_EXTENSIONS_WINDOW_DESCRIPTIVE", Icon = PixiPerfectIcons.Extensions,
         AnalyticsTrack = true, MenuItemPath = "VIEW/OPEN_EXTENSIONS_WINDOW")]
     public void OpenExtensionsWindow()
     {

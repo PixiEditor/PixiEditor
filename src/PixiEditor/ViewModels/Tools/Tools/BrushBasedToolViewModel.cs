@@ -74,6 +74,7 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
 
         brushSetting.Value = brush;
         brushSetting.IsExposed = false;
+        brushSetting.IsProtected = true;
 
         this.toolName = toolName ?? brush.Name;
         toolTipKey = tooltip ?? toolName ?? brush.Name;

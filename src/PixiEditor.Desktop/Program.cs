@@ -65,7 +65,6 @@ public class Program
             .WithDrawie()
 #if DEBUG
             .LogToTrace(LogEventLevel.Verbose, "Vulkan")
-            .WithDeveloperTools()
 #endif
             .LogToTrace();
     }
