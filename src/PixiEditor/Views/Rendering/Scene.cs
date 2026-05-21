@@ -37,6 +37,7 @@ using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Document.Nodes.Workspace;
 using PixiEditor.Views.Overlays;
+using PixiEditor.Views.Overlays.BrushShapeOverlay;
 using PixiEditor.Views.Overlays.Pointers;
 using PixiEditor.Views.Visuals;
 using Bitmap = Drawie.Backend.Core.Surfaces.Bitmap;
@@ -151,6 +152,9 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         get { return (string)GetValue(RenderOutputProperty); }
         set { SetValue(RenderOutputProperty, value); }
     }
+
+    private BrushShapeOverlay? brushShapeOverlay;
+    public BrushShapeOverlay BrushOverlay => brushShapeOverlay ??= AllOverlays?.FirstOrDefault(x => x is BrushShapeOverlay) as BrushShapeOverlay;
 
     public static readonly StyledProperty<int> MaxBilinearSamplingSizeProperty = AvaloniaProperty.Register<Scene, int>(
         nameof(MaxBilinearSamplingSize), 4096);
@@ -385,25 +389,25 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         texture.Canvas.Save();
         var matrix = CalculateTransformMatrix();
 
-        VecI outputSize = FindOutputSize(out var isFullscreen, out bool renderOverlays);
+        VecI outputSize = FindOutputSize(out var isFullscreen, out bool renderOverlays, out bool renderBrushOverlay);
 
         texture.Canvas.SetMatrix(isFullscreen ? Matrix3X3.Identity : matrix.ToSKMatrix().ToMatrix3X3());
 
         RectD dirtyBounds = new RectD(0, 0, outputSize.X, outputSize.Y);
-        RenderScene(texture, dirtyBounds, isFullscreen, renderOverlays);
+        RenderScene(texture, dirtyBounds, isFullscreen, renderOverlays, renderBrushOverlay);
 
         texture.Canvas.Restore();
     }
 
-    private void RenderScene(DrawingSurface texture, RectD bounds, bool isFullscreenRender, bool renderOverlays)
+    private void RenderScene(DrawingSurface texture, RectD bounds, bool isFullscreenRender, bool renderOverlays,
+        bool renderBrushOverlay)
     {
-        var renderOutput = RenderOutput == "DEFAULT" ? null : RenderOutput;
+        DrawCheckerboard(texture, bounds);
         if (renderOverlays)
         {
-            DrawCheckerboard(texture, bounds);
+            DrawOverlays(texture, bounds, OverlayRenderSorting.Background);
         }
 
-        DrawOverlays(texture, bounds, OverlayRenderSorting.Background);
         try
         {
             if (Document == null || Document.SceneTextures.TryGetValue(ViewportId, out var tex) == false)
@@ -482,6 +486,13 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         {
             DrawOverlays(texture, bounds, OverlayRenderSorting.Foreground);
         }
+        else if (renderBrushOverlay)
+        {
+            int saved = texture.Canvas.Save();
+            texture.Canvas.SetMatrix(CalculateTransformMatrix().ToSKMatrix().ToMatrix3X3());
+            DrawOverlay(texture, bounds, OverlayRenderSorting.Foreground, BrushOverlay);
+            texture.Canvas.RestoreToCount(saved);
+        }
     }
 
     private void DrawCheckerboard(DrawingSurface surface, RectD dirtyBounds)
@@ -516,26 +527,32 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         {
             foreach (Overlay overlay in AllOverlays)
             {
-                try
-                {
-                    overlay.PointerPosition = lastMousePositionOnCanvas;
-
-                    if (!overlay.IsVisible || overlay.OverlayRenderSorting != sorting)
-                    {
-                        continue;
-                    }
-
-                    overlay.ZoomScale = Scale;
-
-                    if (!overlay.CanRender()) continue;
-
-                    overlay.RenderOverlay(renderSurface.Canvas, dirtyBounds);
-                }
-                catch (Exception ex)
-                {
-                    CrashHelper.SendExceptionInfo(ex);
-                }
+                DrawOverlay(renderSurface, dirtyBounds, sorting, overlay);
             }
+        }
+    }
+
+    private void DrawOverlay(DrawingSurface renderSurface, RectD dirtyBounds, OverlayRenderSorting sorting,
+        Overlay overlay)
+    {
+        try
+        {
+            overlay.PointerPosition = lastMousePositionOnCanvas;
+
+            if (!overlay.IsVisible || overlay.OverlayRenderSorting != sorting)
+            {
+                return;
+            }
+
+            overlay.ZoomScale = Scale;
+
+            if (!overlay.CanRender()) return;
+
+            overlay.RenderOverlay(renderSurface.Canvas, dirtyBounds);
+        }
+        catch (Exception ex)
+        {
+            CrashHelper.SendExceptionInfo(ex);
         }
     }
 
@@ -559,11 +576,12 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         }
     }
 
-    private VecI FindOutputSize(out bool isFullscreen, out bool renderOverlays)
+    private VecI FindOutputSize(out bool isFullscreen, out bool renderOverlays, out bool renderBrushOverlay)
     {
         VecI outputSize = Document.SizeBindable;
         isFullscreen = false;
         renderOverlays = true;
+        renderBrushOverlay = true;
 
         if (!string.IsNullOrEmpty(RenderOutput))
         {
@@ -591,6 +609,13 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                 if (renderOverlaysProp != null)
                 {
                     renderOverlays = Document.NodeGraph.GetComputedPropertyValue<bool>(renderOverlaysProp);
+                }
+
+                var renderBrushOverlayProp = node?.Inputs.FirstOrDefault(x =>
+                    x.PropertyName == CustomOutputNode.RenderBrushOverlayPropertyName);
+                if (renderBrushOverlayProp != null)
+                {
+                    renderBrushOverlay = Document.NodeGraph.GetComputedPropertyValue<bool>(renderBrushOverlayProp);
                 }
             }
         }

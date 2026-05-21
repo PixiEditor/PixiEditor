@@ -14,13 +14,14 @@ internal class MouseOnCanvasEventArgs : EventArgs
     public PointerInfo Info { get; }
     public bool Handled { get; set; }
     public int ClickCount { get; set; } = 1;
-    public double ViewportScale { get; set; }
+    public string? ViewportName { get; set; }
     public IReadOnlyList<PointerPosition> IntermediatePoints { get; set; }
     public PointerPointProperties Properties => Point.Properties;
     public IDocument? TargetDocument { get; set; }
+    public ViewportData ViewportData { get; set; }
 
     public MouseOnCanvasEventArgs(MouseButton button, PointerType type, PointerInfo info, KeyModifiers keyModifiers, int clickCount,
-        PointerPointProperties properties, double viewportScale, IDocument? targetDocument)
+        PointerPointProperties properties, ViewportData data, IDocument? targetDocument, string? viewportName)
     {
         Button = button;
         Info = info;
@@ -28,8 +29,9 @@ internal class MouseOnCanvasEventArgs : EventArgs
         KeyModifiers = keyModifiers;
         ClickCount = clickCount;
         PointerType = type;
-        ViewportScale = viewportScale;
+        ViewportData = data;
         TargetDocument = targetDocument;
+        ViewportName = viewportName;
     }
 
     public static MouseOnCanvasEventArgs FromIntermediatePoint(MouseOnCanvasEventArgs args, PointerPosition point)
@@ -40,7 +42,7 @@ internal class MouseOnCanvasEventArgs : EventArgs
         };
 
         return new MouseOnCanvasEventArgs(args.Button, args.PointerType, pointerInfo, args.KeyModifiers, args.ClickCount,
-            point.Properties, args.ViewportScale, args.TargetDocument)
+            point.Properties, args.ViewportData, args.TargetDocument, args.ViewportName)
         {
             Handled = args.Handled,
         };

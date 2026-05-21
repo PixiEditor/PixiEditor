@@ -283,7 +283,7 @@ public class BrushOutputNode : Node
                 (VecI)pos, context.FrameTime, context.ProcessingColorSpace, context.DesiredSamplingOptions,
                 new PointerInfo(pos, 1, 0, VecD.Zero, new VecD(0, 1), 1, true, false),
                 new KeyboardInfo(),
-                new EditorData(Colors.White, Colors.Black));
+                new EditorData(Colors.White, Colors.Black), new ViewportData());
         }
         previewChunkyImage.CommitChanges();
 
@@ -320,7 +320,7 @@ public class BrushOutputNode : Node
             previewEngine.ExecuteBrush(target,
                 new BrushData(context.Graph, Id) { StrokeWidth = maxSize, AntiAliasing = true }, points,
                 context.FrameTime,
-                context.ProcessingColorSpace, context.DesiredSamplingOptions);
+                context.ProcessingColorSpace, context.DesiredSamplingOptions, new ViewportData());
             offset += 1;
         }
     }
@@ -351,7 +351,7 @@ public class BrushOutputNode : Node
 
             previewEngine.ExecuteBrush(target,
                 new BrushData(context.Graph, Id) { StrokeWidth = maxSize, AntiAliasing = true },
-                points, context.FrameTime, context.ProcessingColorSpace, context.DesiredSamplingOptions);
+                points, context.FrameTime, context.ProcessingColorSpace, context.DesiredSamplingOptions, new ViewportData());
             offset += 1;
             yield return offset;
         }
@@ -365,7 +365,7 @@ public class BrushOutputNode : Node
             pos, context.FrameTime, context.ProcessingColorSpace, context.DesiredSamplingOptions,
             new PointerInfo(pos, 1, 0, VecD.Zero, new VecD(0, 1), 1, true, false),
             new KeyboardInfo(),
-            new EditorData(Colors.White, Colors.Black));
+            new EditorData(Colors.White, Colors.Black), new ViewportData());
     }
 
     public override Node CreateCopy()

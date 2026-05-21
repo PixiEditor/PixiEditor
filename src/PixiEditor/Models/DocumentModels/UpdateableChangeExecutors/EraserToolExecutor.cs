@@ -28,7 +28,7 @@ internal class EraserToolExecutor : BrushBasedExecutor<IEraserToolHandler>
             IAction? actionStart = new LineBasedPen_Action(layerId, handler.LastAppliedPoint, (float)ToolSize,
                 antiAliasing, BrushData, drawOnMask,
                 document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo, controller.LastKeyboardInfo,
-                data);
+                data, controller.LastViewportData, controller.LastActiveCustomOutput);
 
             internals!.ActionAccumulator.AddActions(actionStart);
         }
@@ -41,7 +41,7 @@ internal class EraserToolExecutor : BrushBasedExecutor<IEraserToolHandler>
         var action = new LineBasedPen_Action(layerId, point, (float)ToolSize, antiAliasing,
             BrushData, drawOnMask,
             document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo, controller.LastKeyboardInfo,
-            data);
+            data, controller.LastViewportData, controller.LastActiveCustomOutput);
 
         internals!.ActionAccumulator.AddActions(action);
     }

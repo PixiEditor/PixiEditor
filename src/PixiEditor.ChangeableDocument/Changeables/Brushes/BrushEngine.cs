@@ -16,6 +16,8 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
+using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.ChangeableDocument.Rendering.ContextData;
 using DrawingApiBlendMode = Drawie.Backend.Core.Surfaces.BlendMode;
 
@@ -94,7 +96,7 @@ public class BrushEngine : IDisposable
 
     public void ExecuteBrush(ChunkyImage target, BrushData brushData, List<RecordedPoint> points,
         KeyFrameTime frameTime,
-        ColorSpace cs, SamplingOptions samplingOptions)
+        ColorSpace cs, SamplingOptions samplingOptions, ViewportData viewportData, Matrix3X3? inputTransformer = null)
     {
         if (brushData.BrushGraph == null)
         {
@@ -122,6 +124,15 @@ public class BrushEngine : IDisposable
             }
 
             var currentPoint = points[i];
+
+            if(inputTransformer != null && inputTransformer != Matrix3X3.Identity)
+            {
+                previousPoint = new RecordedPoint(inputTransformer.Value.MapPoint(previousPoint.Position),
+                    previousPoint.PointerInfo, previousPoint.KeyboardInfo, previousPoint.EditorData);
+                currentPoint = new RecordedPoint(inputTransformer.Value.MapPoint(currentPoint.Position),
+                    currentPoint.PointerInfo, currentPoint.KeyboardInfo, currentPoint.EditorData);
+            }
+
             var dist = VecD.Distance(previousPoint.Position, currentPoint.Position);
 
             bool interpolatePoints = !brushNode.AlwaysClear.Value;
@@ -180,7 +191,7 @@ public class BrushEngine : IDisposable
             ExecuteVectorShapeBrush(target, brushNode, brushData, point.Position, frameTime, cs, samplingOptions,
                 point.PointerInfo,
                 point.KeyboardInfo,
-                point.EditorData, false, false);
+                point.EditorData, false, false, viewportData);
 
             var originalHorizontalSymmetry = target?.HorizontalSymmetry;
             var originalVerticalSymmetry = target?.VerticalSymmetry;
@@ -191,7 +202,7 @@ public class BrushEngine : IDisposable
                     new VecD(2 * originalVerticalSymmetry.Value - point.Position.X, point.Position.Y);
                 ExecuteVectorShapeBrush(target, brushNode, brushData, reflectedPoint, frameTime, cs, samplingOptions,
                     point.PointerInfo with { PositionOnCanvas = reflectedPoint }, point.KeyboardInfo, point.EditorData,
-                    true, false);
+                    true, false, viewportData);
             }
 
             if (originalHorizontalSymmetry != null)
@@ -200,7 +211,7 @@ public class BrushEngine : IDisposable
 
                 ExecuteVectorShapeBrush(target, brushNode, brushData, reflectedPoint, frameTime, cs, samplingOptions,
                     point.PointerInfo with { PositionOnCanvas = reflectedPoint }, point.KeyboardInfo, point.EditorData,
-                    false, true);
+                    false, true, viewportData);
             }
 
             if (originalVerticalSymmetry != null && originalHorizontalSymmetry != null)
@@ -209,7 +220,7 @@ public class BrushEngine : IDisposable
                     2 * originalHorizontalSymmetry.Value - point.Position.Y);
                 ExecuteVectorShapeBrush(target, brushNode, brushData, reflectedPoint, frameTime, cs, samplingOptions,
                     point.PointerInfo with { PositionOnCanvas = reflectedPoint }, point.KeyboardInfo, point.EditorData,
-                    true, true);
+                    true, true, viewportData);
             }
 
             spacingPressure = brushNode.Pressure.Value;
@@ -224,7 +235,7 @@ public class BrushEngine : IDisposable
 
     public void ExecuteBrush(ChunkyImage? target, BrushData brushData, VecD point, KeyFrameTime frameTime,
         ColorSpace cs,
-        SamplingOptions samplingOptions, PointerInfo pointerInfo, KeyboardInfo keyboardInfo, EditorData editorData)
+        SamplingOptions samplingOptions, PointerInfo pointerInfo, KeyboardInfo keyboardInfo, EditorData editorData, ViewportData viewportData)
     {
         var brushNode = brushData.BrushGraph?.TryLookupNode(brushData.TargetBrushNodeId) as BrushOutputNode;
         if (brushNode == null)
@@ -234,18 +245,19 @@ public class BrushEngine : IDisposable
 
         ExecuteVectorShapeBrush(target, brushNode, brushData, point, frameTime, cs, samplingOptions, pointerInfo,
             keyboardInfo,
-            editorData, false, false);
+            editorData, false, false, viewportData);
     }
 
     private void ExecuteVectorShapeBrush(ChunkyImage? target, BrushOutputNode brushNode, BrushData brushData,
         VecD point,
         KeyFrameTime frameTime,
         ColorSpace colorSpace, SamplingOptions samplingOptions,
-        PointerInfo pointerInfo, KeyboardInfo keyboardInfo, EditorData editorData, bool flipX, bool flipY)
+        PointerInfo pointerInfo, KeyboardInfo keyboardInfo, EditorData editorData, bool flipX, bool flipY, ViewportData viewportData)
     {
         bool shouldErase = editorData.PrimaryColor.A == 0;
 
         var imageBlendMode = shouldErase ? DrawingApiBlendMode.DstOut : brushNode.ImageBlendMode.Value;
+
 
         if (!drawnOnce)
         {
@@ -302,7 +314,8 @@ public class BrushEngine : IDisposable
             EditorData = shouldErase
                 ? new EditorData(editorData.PrimaryColor.WithAlpha(255), editorData.SecondaryColor)
                 : editorData,
-            KeyboardInfo = keyboardInfo
+            KeyboardInfo = keyboardInfo,
+            ViewportData = viewportData
         };
 
         // Evaluate shape without painting if no target
@@ -339,15 +352,15 @@ public class BrushEngine : IDisposable
             };
 
             var previousBrushNode = previous.AllNodes.FirstOrDefault(x => x is BrushOutputNode) as BrushOutputNode;
-            PaintBrush(target, data, point, previousBrushNode, context, rect, flipX, flipY);
+            PaintBrush(target, data, point, previousBrushNode, context, rect, flipX, flipY, viewportData);
             previous = previousBrushNode?.Previous.Value;
         }
 
-        PaintBrush(target, brushData, point, brushNode, context, rect, flipX, flipY);
+        PaintBrush(target, brushData, point, brushNode, context, rect, flipX, flipY, viewportData);
     }
 
     private void PaintBrush(ChunkyImage target, BrushData brushData, VecD point, BrushOutputNode brushNode,
-        BrushRenderContext context, RectD rect, bool flipX, bool flipY)
+        BrushRenderContext context, RectD rect, bool flipX, bool flipY, ViewportData viewport)
     {
         brushData.BrushGraph.Execute(brushNode, context);
 
@@ -381,7 +394,7 @@ public class BrushEngine : IDisposable
 
         if (PaintBrush(target, autoPosition, vectorShape, rect, fitToStrokeSize, pressure, content, contentTexture,
                 stampBlender, brushNode.StampBlendMode.Value, antiAliasing, fill, stroke, snapToPixels, canReuseStamps,
-                transform, flipX, flipY))
+                transform, flipX, flipY, viewport))
         {
             lastPos = point;
         }
@@ -391,7 +404,7 @@ public class BrushEngine : IDisposable
         RectD rect, bool fitToStrokeSize, float pressure, Painter? content,
         Texture? contentTexture, Blender? blender, DrawingApiBlendMode blendMode, bool antiAliasing, Paintable fill,
         Paintable stroke,
-        bool snapToPixels, bool canReuseStamps, Matrix3X3 transform, bool flipX, bool flipY)
+        bool snapToPixels, bool canReuseStamps, Matrix3X3 transform, bool flipX, bool flipY, ViewportData data)
     {
         using var path = vectorShape.ToPath(true);
         if (path == null)

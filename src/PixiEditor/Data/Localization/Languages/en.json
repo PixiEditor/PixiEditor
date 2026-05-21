@@ -1506,5 +1506,10 @@
   "STRANDS_BRUSH": "Strands",
   "WARNING_VERSION_INCOMPATIBLE": "This extension may not be compatible with your version of PixiEditor.",
   "EXTENSIONS_ONBOARDING_TITLE": "Featured Extensions",
-  "GAME_OF_LIFE_EXAMPLE": "Game of Life"
+  "GAME_OF_LIFE_EXAMPLE": "Game of Life",
+  "INPUT_TRANSFORM": "Input Transform",
+  "MULTIPLY_MATRIX_NODE": "Multiply Matrix",
+  "INVERT_MATRIX_NODE": "Invert Matrix",
+  "FIRST_INPUT": "First",
+  "SECOND_INPUT": "Second"
 }

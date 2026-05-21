@@ -107,7 +107,7 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
             IAction? actionStart = new LineBasedPen_Action(layerId, handler.LastAppliedPoint, (float)ToolSize,
                 antiAliasing, BrushData, drawOnMask,
                 document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo, controller.LastKeyboardInfo,
-                controller.EditorData);
+                controller.EditorData, controller.LastViewportData, controller.LastActiveCustomOutput);
 
             internals!.ActionAccumulator.AddActions(actionStart);
         }
@@ -120,7 +120,7 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
         IAction? action = new LineBasedPen_Action(layerId, point, (float)ToolSize,
             antiAliasing, BrushData, drawOnMask,
             document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo, controller.LastKeyboardInfo,
-            controller.EditorData);
+            controller.EditorData, controller.LastViewportData, controller.LastActiveCustomOutput);
 
         internals!.ActionAccumulator.AddActions(action);
     }
@@ -200,7 +200,7 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
         base.OnPrecisePositionChange(args);
         if (controller.LeftMousePressed)
         {
-            lastViewportZoom = args.ViewportScale;
+            lastViewportZoom = args.ViewportData.Zoom;
             EnqueueDrawActions(false);
         }
     }

@@ -133,7 +133,7 @@ public class MathNode : Node
             MathNodeMode.Floor => Math.Floor(xConst),
             MathNodeMode.Ceil => Math.Ceiling(xConst),
             MathNodeMode.Round => Math.Round(xConst),
-            MathNodeMode.Modulo => xConst % yConst,
+            MathNodeMode.Modulo => (xConst % yConst + yConst) % yConst,
             MathNodeMode.Min => Math.Min(xConst, yConst),
             MathNodeMode.Max => Math.Max(xConst, yConst),
             MathNodeMode.Step => xConst > yConst ? 1 : 0,

@@ -411,6 +411,8 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     public static readonly StyledProperty<bool> SnappingEnabledProperty =
         AvaloniaProperty.Register<Viewport, bool>("SnappingEnabled");
 
+    public ViewportData ViewportData => GetViewportData();
+
     static Viewport()
     {
         DocumentProperty.Changed.Subscribe(OnDocumentChange);
@@ -427,12 +429,28 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         {
             Viewport? viewport = (Viewport)e.Sender;
             viewport.Document?.Operations.AddOrUpdateViewport(viewport.GetLocation());
+            viewport.PropertyChanged?.Invoke(viewport, new(nameof(ViewportData)));
         });
 
         AngleRadiansProperty.Changed.Subscribe(e =>
         {
             Viewport? viewport = (Viewport)e.Sender;
             viewport.Document?.Operations.AddOrUpdateViewport(viewport.GetLocation());
+            viewport.PropertyChanged?.Invoke(viewport, new(nameof(ViewportData)));
+        });
+
+        FlipXProperty.Changed.Subscribe(e =>
+        {
+            Viewport? viewport = (Viewport)e.Sender;
+            viewport.Document?.Operations.AddOrUpdateViewport(viewport.GetLocation());
+            viewport.PropertyChanged?.Invoke(viewport, new(nameof(ViewportData)));
+        });
+
+        FlipYProperty.Changed.Subscribe(e =>
+        {
+            Viewport? viewport = (Viewport)e.Sender;
+            viewport.Document?.Operations.AddOrUpdateViewport(viewport.GetLocation());
+            viewport.PropertyChanged?.Invoke(viewport, new(nameof(ViewportData)));
         });
     }
 
@@ -583,14 +601,19 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     private ViewportInfo GetLocation()
     {
         return new(AngleRadians, Center, RealDimensions,
-            new ViewportData(Scene.CalculateTransformMatrix().ToSKMatrix().ToMatrix3X3(), Scene.Pan, Scene.Scale, FlipX,
-                FlipY),
+            GetViewportData(),
             Scene.LastPointerInfo,
             Scene.LastKeyboardInfo,
             EditorDataFunc(),
             CalculateVisibleRegion(),
             ViewportRenderOutput, Scene.CalculateSampling(), Dimensions, CalculateResolution(), GuidValue, Delayed,
             true, ForceRefreshFinalImage);
+    }
+
+    private ViewportData GetViewportData()
+    {
+        return new ViewportData(Scene.CalculateTransformMatrix().ToSKMatrix().ToMatrix3X3(), Scene.Pan, Scene.Scale, FlipX,
+            FlipY);
     }
 
     private void Image_MouseDown(object? sender, PointerPressedEventArgs e)
@@ -610,7 +633,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
         MouseOnCanvasEventArgs? parameter =
             new MouseOnCanvasEventArgs(mouseButton, e.Pointer.Type, Scene.LastPointerInfo, e.KeyModifiers, e.ClickCount,
-                e.GetCurrentPoint(this).Properties, Scene.Scale, Document);
+                e.GetCurrentPoint(this).Properties, GetViewportData(), Document, Scene.RenderOutput);
 
         if (MouseDownCommand.CanExecute(parameter))
             MouseDownCommand.Execute(parameter);
@@ -625,7 +648,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         MouseButton mouseButton = e.GetMouseButton(this);
 
         MouseOnCanvasEventArgs parameter = new(mouseButton, e.Pointer.Type, scene.LastPointerInfo, e.KeyModifiers, 0,
-            e.GetCurrentPoint(this).Properties, Scene.Scale, Document);
+            e.GetCurrentPoint(this).Properties, GetViewportData(), Document, Scene.RenderOutput);
 
         var intermediate = e.GetIntermediatePoints(this);
         List<PointerPosition> intermediatePositions = new();
@@ -651,7 +674,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
             return;
 
         MouseOnCanvasEventArgs parameter = new(e.InitialPressMouseButton, e.Pointer.Type, scene.LastPointerInfo, e.KeyModifiers, 0,
-            e.GetCurrentPoint(this).Properties, Scene.Scale, Document);
+            e.GetCurrentPoint(this).Properties, GetViewportData(), Document, Scene.RenderOutput);
         if (MouseUpCommand.CanExecute(parameter))
             MouseUpCommand.Execute(parameter);
 
@@ -730,6 +753,8 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
             e.OldValue.Value.Triggered -= viewport.CenterZoomboxContent;
         if (e.NewValue.Value != null)
             e.NewValue.Value.Triggered += viewport.CenterZoomboxContent;
+
+        viewport.PropertyChanged?.Invoke(viewport, new(nameof(ViewportData)));
     }
 
     private static void ZoomViewportTriggerChanged(AvaloniaPropertyChangedEventArgs<ExecutionTrigger<double>> e)
@@ -739,6 +764,8 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
             e.OldValue.Value.Triggered -= viewport.ZoomZoomboxContent;
         if (e.NewValue.Value != null)
             e.NewValue.Value.Triggered += viewport.ZoomZoomboxContent;
+
+        viewport.PropertyChanged?.Invoke(viewport, new(nameof(ViewportData)));
     }
 
     private void HandleMiddleMouse(bool isMiddle)

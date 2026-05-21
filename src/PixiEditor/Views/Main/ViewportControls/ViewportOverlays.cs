@@ -466,6 +466,20 @@ internal class ViewportOverlays
             Mode = BindingMode.OneWay
         };
 
+        Binding activeOutputNameBinding = new()
+        {
+            Source = Viewport,
+            Path = "ViewportRenderOutput",
+            Mode = BindingMode.OneWay
+        };
+
+        Binding viewportDataBinding = new()
+        {
+            Source = Viewport,
+            Path = "ViewportData",
+            Mode = BindingMode.OneWay
+        };
+
         transformOverlay.Bind(Visual.IsVisibleProperty, isVisibleBinding);
         transformOverlay.Bind(TransformOverlay.ActionCompletedProperty, actionCompletedBinding);
         transformOverlay.Bind(TransformOverlay.SnappingControllerProperty, snappingBinding);
@@ -485,6 +499,8 @@ internal class ViewportOverlays
         transformOverlay.Bind(TransformOverlay.CanAlignToPixelsProperty, canAlignToPixelsBinding);
         transformOverlay.Bind(TransformOverlay.LockShearProperty, lockShearBinding);
         transformOverlay.Bind(TransformOverlay.TransformDraggedCommandProperty, transformDraggedBinding);
+        transformOverlay.Bind(TransformOverlay.ViewportOutputNameProperty, activeOutputNameBinding);
+        transformOverlay.Bind(TransformOverlay.ViewportDataProperty, viewportDataBinding);
     }
 
     private void BindVectorPathOverlay()
@@ -612,6 +628,20 @@ internal class ViewportOverlays
             Mode = BindingMode.OneWay
         };
 
+        Binding activeViewportBinding = new()
+        {
+            Source = Viewport,
+            Path = "ViewportRenderOutput",
+            Mode = BindingMode.OneWay
+        };
+
+        Binding viewportDataBinding = new()
+        {
+            Source = Viewport,
+            Path = "ViewportData",
+            Mode = BindingMode.OneWay
+        };
+
         brushShapeOverlay.Bind(Visual.IsVisibleProperty, isVisibleMultiBinding);
         brushShapeOverlay.Bind(BrushShapeOverlay.BrushDataProperty, brushDataBinding);
         brushShapeOverlay.Bind(BrushShapeOverlay.ActiveFrameTimeProperty, activeFrameTimeBidning);
@@ -620,6 +650,8 @@ internal class ViewportOverlays
         brushShapeOverlay.Bind(BrushShapeOverlay.StabilizationProperty, stabilizationBinding);
         brushShapeOverlay.Bind(BrushShapeOverlay.LastAppliedPointProperty, lastAppliedPointBinding);
         brushShapeOverlay.Bind(BrushShapeOverlay.BrushSettingChangedTriggerProperty, settingChangedTrigger);
+        brushShapeOverlay.Bind(BrushShapeOverlay.ActiveViewportOutputProperty, activeViewportBinding);
+        brushShapeOverlay.Bind(BrushShapeOverlay.ViewportDataProperty, viewportDataBinding);
     }
 
     private void BindTextOverlay()
