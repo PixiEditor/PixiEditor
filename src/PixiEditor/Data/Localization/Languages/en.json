@@ -1507,6 +1507,8 @@
   "WARNING_VERSION_INCOMPATIBLE": "This extension may not be compatible with your version of PixiEditor.",
   "EXTENSIONS_ONBOARDING_TITLE": "Featured Extensions",
   "GAME_OF_LIFE_EXAMPLE": "Game of Life",
+  "STICKYNOTE_NODE": "Sticky Note",
+  "FIND_AND_REPLACE": "Find and Replace",
   "COMMENT_NODE":  "Comment",
   "COMMENT_WINDOW_COLOR": "Box Color"
 }
