@@ -33,14 +33,16 @@
                     <StackPanel Margin="5 0" Spacing="8" Orientation="Horizontal"
                                 Name="MainBarAdditionalElementPanel"
                                 DataContext="{Binding Path=DataContext, RelativeSource={RelativeSource FindAncestor, AncestorType=main:MainTitleBar}}">
-                        <Border Width="24" Height="24" CornerRadius="4" Background="{DynamicResource FoundersPurpleLowBrush}">
+                        <Border Width="26" Height="26" CornerRadius="6" Background="{DynamicResource FoundersPurpleLowBrush}">
                             <Button Classes="pixi-icon"
+                                    Width="26"
+                                    Height="26"
                                     Foreground="{DynamicResource FoundersPurpleBrush}"
                                     FontSize="18"
                                     Content="{DynamicResource icon-extensions}"
                                     Command="{xaml:Command Name=PixiEditor.Window.OpenExtensionsWindow}" />
                         </Border>
-                        <auth:UserAvatarToggle Width="32" Height="32" DataContext="{Binding Path=UserViewModel}" />
+                        <auth:UserAvatarToggle Width="26" Height="26" DataContext="{Binding Path=UserViewModel}" />
                     </StackPanel>
                 </dialogs:DialogTitleBar.AdditionalElement>
             </dialogs:DialogTitleBar>
@@ -174,7 +176,7 @@
                            VerticalAlignment="Center"
                            ItemsSource="{Binding MenuEntries}"
                            Background="Transparent" />
-                <Border DockPanel.Dock="Left" Height="30" Width="150"
+                <Border DockPanel.Dock="Left" Height="25" Width="150"
                         Background="{DynamicResource ThemeBackgroundBrush}"
                         CornerRadius="5" BorderThickness="1"
                         Margin="10,0,0,0"
@@ -207,7 +209,7 @@
                 ActiveFrame="{Binding ActiveDocument.AnimationDataViewModel.ActiveFrameBindable, Source={viewModels:MainVM DocumentManagerSVM}, Mode=TwoWay}"
                 FramesCount="{Binding ActiveDocument.AnimationDataViewModel.FramesCount, Source={viewModels:MainVM DocumentManagerSVM}}"
                 IsPlaying="{Binding ActiveDocument.AnimationDataViewModel.IsPlayingBindable, Source={viewModels:MainVM DocumentManagerSVM}, Mode=TwoWay}"
-                Margin="0 4" />
+                Margin="0" />
         </DockPanel>
     </Panel>
 </UserControl>
