@@ -25,7 +25,7 @@ public class CommentNode : Node
 
     protected override void OnExecute(RenderContext context)
     {
-        Console.WriteLine("Comment!");
+        
     }
 
     public override Node CreateCopy()
