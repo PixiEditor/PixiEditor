@@ -749,6 +749,7 @@ internal class DocumentUpdater
         viewModel.Metadata = info.Metadata;
 
         AddZoneIfNeeded(info, viewModel);
+        AddCommentZoneIfNeeded(info, viewModel);
         LinkNestedDocumentIfNeeded(info);
 
         viewModel.OnInitialized();
@@ -773,6 +774,20 @@ internal class DocumentUpdater
                         node.Metadata.PairNodeGuid.Value);
                 }
             }
+        }
+    }
+
+    private void AddCommentZoneIfNeeded(CreateNode_ChangeInfo info, NodeViewModel node)
+    {
+        if (node is not CommentNodeViewModel) return;
+
+        bool exists = doc.NodeGraphHandler.Frames
+            .OfType<CommentZoneViewModel>()
+            .Any(z => z.Comment == node);
+
+        if (!exists)
+        {
+            doc.NodeGraphHandler.AddCommentZone(Guid.NewGuid(), "PixiEditor.CommentZone", node.Id);
         }
     }
 
@@ -844,6 +859,14 @@ internal class DocumentUpdater
                 if (zone.Nodes.Any(x => x.Id == info.Id))
                 {
                     doc.NodeGraphHandler.RemoveFrame(zone.Id);
+                    break;
+                }
+            }
+            else if (frame is CommentZoneViewModel commentZone)
+            {
+                if (commentZone.Comment.Id == info.Id)
+                {
+                    doc.NodeGraphHandler.RemoveFrame(commentZone.Id);
                     break;
                 }
             }

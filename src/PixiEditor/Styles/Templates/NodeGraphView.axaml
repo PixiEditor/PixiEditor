@@ -124,6 +124,7 @@
                                     ClipToBounds="False">
                                     <nodes:NodeFrameView.Background>
                                         <MultiBinding Converter="{converters:UnsetSkipMultiConverter}">
+                                            <Binding Path="BackgroundBrush" />
                                             <Binding Path="InternalName"
                                                      Converter="{converters:NodeInternalNameToStyleConverter}"
                                                      ConverterParameter="BackgroundBrush" />
@@ -132,6 +133,7 @@
                                     </nodes:NodeFrameView.Background>
                                     <nodes:NodeFrameView.BorderBrush>
                                         <MultiBinding Converter="{converters:UnsetSkipMultiConverter}">
+                                            <Binding Path="BorderBrush" />
                                             <Binding Path="InternalName"
                                                      Converter="{converters:NodeInternalNameToStyleConverter}"
                                                      ConverterParameter="BorderBrush" />

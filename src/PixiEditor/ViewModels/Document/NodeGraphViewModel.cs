@@ -128,6 +128,15 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
         Frames.Add(zone);
     }
 
+    public void AddCommentZone(Guid frameId, string internalName, Guid nodeId)
+    {
+        var comment = AllNodes.First(x => x.Id == nodeId);
+
+        var zone = new CommentZoneViewModel(frameId, internalName, comment);
+
+        Frames.Add(zone);
+    }
+
     public void RemoveFrame(Guid guid)
     {
         var frame = Frames.FirstOrDefault(x => x.Id == guid);
