@@ -4,6 +4,8 @@ namespace PixiEditor.Models.Handlers.Toolbars;
 
 internal interface ITextToolbar : IFillableShapeToolbar
 {
+    public event Action<FontFamilyName?> PreviewFontFamilyChanged;
+
     public double FontSize { get; set; }
     public FontFamilyName FontFamily { get; set; }
     public double Spacing { get; set; }

@@ -242,7 +242,23 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
             }
         }
 
-        ActiveToolSet.ApplyToolSetSettings();
+        if (ActiveTool != null)
+        {
+            ActiveTool.Toolbar.SettingChanged -= ToolbarSettingChanged;
+        }
+
+        try
+        {
+            ActiveToolSet.ApplyToolSetSettings();
+        }
+        finally
+        {
+            if (ActiveTool != null)
+            {
+                ActiveTool.Toolbar.SettingChanged += ToolbarSettingChanged;
+            }
+        }
+
         UpdateEnabledState();
 
         SelectedToolChanged?.Invoke(this, new SelectedToolEventArgs(LastActionTool, ActiveTool));

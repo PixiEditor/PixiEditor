@@ -204,12 +204,18 @@
                     </Grid>
                 </Border>
             </StackPanel>
-            <main:MiniAnimationPlayer
-                Name="MiniPlayer"
-                ActiveFrame="{Binding ActiveDocument.AnimationDataViewModel.ActiveFrameBindable, Source={viewModels:MainVM DocumentManagerSVM}, Mode=TwoWay}"
-                FramesCount="{Binding ActiveDocument.AnimationDataViewModel.FramesCount, Source={viewModels:MainVM DocumentManagerSVM}}"
-                IsPlaying="{Binding ActiveDocument.AnimationDataViewModel.IsPlayingBindable, Source={viewModels:MainVM DocumentManagerSVM}, Mode=TwoWay}"
-                Margin="0" />
         </DockPanel>
+        <main:MiniAnimationPlayer
+            Name="MiniPlayer"
+            ActiveFrame="{Binding ActiveDocument.AnimationDataViewModel.ActiveFrameBindable, Source={viewModels:MainVM DocumentManagerSVM}, Mode=TwoWay}"
+            FramesCount="{Binding ActiveDocument.AnimationDataViewModel.FramesCount, Source={viewModels:MainVM DocumentManagerSVM}}"
+            IsPlaying="{Binding ActiveDocument.AnimationDataViewModel.IsPlayingBindable, Source={viewModels:MainVM DocumentManagerSVM}, Mode=TwoWay}"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Margin="0">
+            <main:MiniAnimationPlayer.RenderTransform>
+                <TranslateTransform X="37.5" />
+            </main:MiniAnimationPlayer.RenderTransform>
+        </main:MiniAnimationPlayer>
     </Panel>
 </UserControl>

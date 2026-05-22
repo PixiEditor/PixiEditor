@@ -31,4 +31,31 @@ public partial class Toolbar : UserControl
             }
         });
     }
+
+    private void ToolSetDropdownFlyout_OnOpened(object? sender, EventArgs e)
+    {
+        SetToolSetDropdownOpen(true);
+    }
+
+    private void ToolSetDropdownFlyout_OnClosed(object? sender, EventArgs e)
+    {
+        SetToolSetDropdownOpen(false);
+    }
+
+    private void SetToolSetDropdownOpen(bool isOpen)
+    {
+        const string openClass = "open";
+
+        if (isOpen)
+        {
+            if (!ToolSetDropdownButton.Classes.Contains(openClass))
+            {
+                ToolSetDropdownButton.Classes.Add(openClass);
+            }
+
+            return;
+        }
+
+        ToolSetDropdownButton.Classes.Remove(openClass);
+    }
 }

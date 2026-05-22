@@ -46,6 +46,12 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
     {
         this.isVisible = isVisible;
         OnPropertyChanged(nameof(IsVisibleBindable));
+        NotifyStructuralVisibilityChanged();
+
+        if (this is FolderNodeViewModel folder)
+        {
+            folder.NotifyDescendantsStructuralVisibilityChanged();
+        }
     }
 
     public bool IsVisibleBindable
@@ -87,6 +93,11 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
 
             return visible;
         }
+    }
+
+    public void NotifyStructuralVisibilityChanged()
+    {
+        OnPropertyChanged(nameof(IsVisibleStructurally));
     }
 
     public void SetMaskIsVisible(bool maskIsVisible)

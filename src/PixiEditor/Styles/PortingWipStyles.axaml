@@ -36,7 +36,10 @@
             <Setter.Value>
                 <ControlTemplate>
                     <Border Cursor="Hand" Background="{TemplateBinding Background}">
-                        <TextBlock Text="{TemplateBinding Content}" FontSize="16" Classes="pixi-icon" />
+                        <TextBlock Text="{TemplateBinding Content}"
+                                   Foreground="{TemplateBinding Foreground}"
+                                   FontSize="16"
+                                   Classes="pixi-icon" />
                     </Border>
                 </ControlTemplate>
             </Setter.Value>

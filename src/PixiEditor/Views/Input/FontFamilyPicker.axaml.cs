@@ -1,8 +1,9 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Input;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.Input;
 using Drawie.Backend.Core.Text;
@@ -38,12 +39,21 @@ public partial class FontFamilyPicker : UserControl
     }
 
     public static readonly StyledProperty<int> FontIndexProperty = AvaloniaProperty.Register<FontFamilyPicker, int>(
-        nameof(FontIndex));
+        nameof(FontIndex), defaultBindingMode: Avalonia.Data.BindingMode.TwoWay);
+
+    public static readonly StyledProperty<int> PreviewFontIndexProperty = AvaloniaProperty.Register<FontFamilyPicker, int>(
+        nameof(PreviewFontIndex), -1, defaultBindingMode: Avalonia.Data.BindingMode.TwoWay);
 
     public int FontIndex
     {
         get => GetValue(FontIndexProperty);
         set => SetValue(FontIndexProperty, value);
+    }
+
+    public int PreviewFontIndex
+    {
+        get => GetValue(PreviewFontIndexProperty);
+        set => SetValue(PreviewFontIndexProperty, value);
     }
 
     public ICommand UploadFontCommand
@@ -58,7 +68,11 @@ public partial class FontFamilyPicker : UserControl
         {
             if (e.NewValue is int newIndex)
             {
-                sender.FontIndex = newIndex;
+                if (sender.Fonts is null || sender.Fonts.Count == 0)
+                {
+                    return;
+                }
+
                 if (newIndex < 0 || newIndex >= sender.Fonts.Count)
                 {
                     sender.FontIndex = sender.Fonts.IndexOf(sender.SelectedFontFamily);
@@ -107,5 +121,35 @@ public partial class FontFamilyPicker : UserControl
 
             FontIndex = Fonts.IndexOf(familyName);
         }
+    }
+
+    private void FontList_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (sender is not ListBox listBox || listBox.SelectedIndex < 0)
+        {
+            return;
+        }
+
+        FontDropDown.Flyout?.Hide();
+    }
+
+    private void FontItem_OnPointerEntered(object? sender, PointerEventArgs e)
+    {
+        if (sender is not Control { DataContext: FontFamilyName fontFamily })
+        {
+            return;
+        }
+
+        PreviewFontIndex = Fonts.IndexOf(fontFamily);
+    }
+
+    private void FontList_OnPointerExited(object? sender, PointerEventArgs e)
+    {
+        PreviewFontIndex = -1;
+    }
+
+    private void FontFlyout_OnClosed(object? sender, EventArgs e)
+    {
+        PreviewFontIndex = -1;
     }
 }

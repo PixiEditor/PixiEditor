@@ -10,13 +10,47 @@
              xmlns:handlers="clr-namespace:PixiEditor.Models.Handlers"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.Views.Main.Tools.Toolbar">
+    <UserControl.Resources>
+        <SolidColorBrush x:Key="DropdownItemHoverBrush" Color="#626262" />
+    </UserControl.Resources>
     <UserControl.Styles>
         <Style Selector="Button.ToolSetDropdownItem">
             <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="CornerRadius" Value="5" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="MinHeight" Value="27" />
+            <Setter Property="Padding" Value="8, 5" />
         </Style>
         <Style Selector="Button.ToolSetDropdownItem:pointerover /template/ ContentPresenter">
-            <Setter Property="Background" Value="{DynamicResource ThemeControlHighBrush}" />
-            <Setter Property="CornerRadius" Value="6" />
+            <Setter Property="Background" Value="{StaticResource DropdownItemHoverBrush}" />
+            <Setter Property="CornerRadius" Value="5" />
+        </Style>
+        <Style Selector="FlyoutPresenter.ToolSetDropdownFlyout">
+            <Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush2}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderHighBrush}" />
+            <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
+            <Setter Property="Padding" Value="4" />
+        </Style>
+        <Style Selector="Button.ToolSetDropdownButton">
+            <Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush2}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderHighBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
+        </Style>
+        <Style Selector="Button.ToolSetDropdownButton:pointerover">
+            <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightBrush}" />
+        </Style>
+        <Style Selector="Button.ToolSetDropdownButton.open">
+            <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightBrush}" />
+        </Style>
+        <Style Selector="Button.ToolSetDropdownButton:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightBrush}" />
+            <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
+        </Style>
+        <Style Selector="Button.ToolSetDropdownButton.open /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightBrush}" />
+            <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
         </Style>
     </UserControl.Styles>
     <Border CornerRadius="{DynamicResource ControlCornerRadius}"
@@ -50,15 +84,12 @@
                     <TextBlock Text="{DynamicResource icon-redo}" FontSize="20" />
                 </Button>
                 <Button Name="ToolSetDropdownButton"
+                        Classes="ToolSetDropdownButton"
                         VerticalAlignment="Center"
                         Height="25"
                         Padding="6, 0"
                         Margin="0, 0, 5, 0"
-                        FontSize="12"
-                        Background="{DynamicResource ThemeBackgroundBrush2}"
-                        BorderBrush="{DynamicResource ThemeBorderHighBrush}"
-                        BorderThickness="1"
-                        CornerRadius="{DynamicResource ControlCornerRadius}">
+                        FontSize="12">
                     <Button.Content>
                         <Panel>
                             <StackPanel Orientation="Horizontal" Spacing="5"
@@ -90,8 +121,13 @@
                         </Panel>
                     </Button.Content>
                     <Button.Flyout>
-                        <Flyout Placement="Bottom" ShowMode="Standard">
-                            <ItemsControl ItemsSource="{Binding ToolsSubViewModel.AllToolSets}">
+                        <Flyout Placement="Bottom"
+                                FlyoutPresenterClasses="ToolSetDropdownFlyout"
+                                ShowMode="Standard"
+                                Opened="ToolSetDropdownFlyout_OnOpened"
+                                Closed="ToolSetDropdownFlyout_OnClosed">
+                            <ItemsControl MinWidth="135"
+                                          ItemsSource="{Binding ToolsSubViewModel.AllToolSets}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
                                         <StackPanel Orientation="Vertical" Spacing="2" />
@@ -102,9 +138,7 @@
                                         <Button Classes="ToolSetDropdownItem"
                                                 HorizontalAlignment="Stretch"
                                                 HorizontalContentAlignment="Left"
-                                                Padding="6, 4"
                                                 FontSize="12"
-                                                BorderThickness="0"
                                                 Tag="{Binding}"
                                                 Click="ToolSetItem_OnClick">
                                             <Panel>
