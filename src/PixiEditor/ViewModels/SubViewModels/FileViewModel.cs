@@ -3,6 +3,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
+using Avalonia.Media;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using Drawie.Backend.Core;
@@ -22,6 +23,7 @@ using Drawie.Numerics;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Extensions.CommonApi.Documents;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Models.DocumentModels.Autosave;
@@ -725,16 +727,43 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         NewFileDialog newFile = new NewFileDialog(mainWindow);
         if (await newFile.ShowDialog())
         {
-            NewDocument(b => b
-                .WithSize(newFile.Width, newFile.Height)
-                .WithGraph(x => x
-                    .WithImageLayerNode(
-                        new LocalizedString("BASE_LAYER_NAME"),
-                        new VecI(newFile.Width, newFile.Height),
-                        ColorSpace.CreateSrgbLinear(),
-                        out int id)
-                    .WithOutputNode(id, "Output")
-                ));
+            VecI size = new(newFile.Width, newFile.Height);
+            DocumentViewModel doc;
+
+            if (newFile.UseCustomBackground && newFile.BackgroundBrush is ISolidColorBrush solidBrush)
+            {
+                var bgColor = new Drawie.Backend.Core.ColorsImpl.Color(
+                    solidBrush.Color.R, solidBrush.Color.G, solidBrush.Color.B, solidBrush.Color.A);
+
+                Surface bgSurface = Surface.ForProcessing(size, ColorSpace.CreateSrgbLinear());
+                bgSurface.DrawingSurface.Canvas.Clear(bgColor);
+
+                doc = NewDocument(b => b
+                    .WithSize(newFile.Width, newFile.Height)
+                    .WithGraph(x => x
+                        .WithImageLayerNode(
+                            new LocalizedString("BACKGROUND_LAYER_NAME"),
+                            bgSurface,
+                            ColorSpace.CreateSrgbLinear(),
+                            out int id)
+                        .WithOutputNode(id, "Output")
+                    ));
+
+                doc.Operations.CreateStructureMember(StructureMemberType.ImageLayer);
+            }
+            else
+            {
+                doc = NewDocument(b => b
+                    .WithSize(newFile.Width, newFile.Height)
+                    .WithGraph(x => x
+                        .WithImageLayerNode(
+                            new LocalizedString("BASE_LAYER_NAME"),
+                            size,
+                            ColorSpace.CreateSrgbLinear(),
+                            out int id)
+                        .WithOutputNode(id, "Output")
+                    ));
+            }
 
             Analytics.SendCreateDocument(newFile.Width, newFile.Height);
         }

@@ -127,7 +127,7 @@
                                 Opened="ToolSetDropdownFlyout_OnOpened"
                                 Closed="ToolSetDropdownFlyout_OnClosed">
                             <ItemsControl MinWidth="135"
-                                          ItemsSource="{Binding ToolsSubViewModel.AllToolSets}">
+                                          ItemsSource="{Binding ToolsSubViewModel.NonSelectedToolSets}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
                                         <StackPanel Orientation="Vertical" Spacing="2" />

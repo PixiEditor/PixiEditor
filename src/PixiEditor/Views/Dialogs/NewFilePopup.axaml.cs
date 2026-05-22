@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Avalonia.Layout;
+using Avalonia.Media;
+using PixiEditor.Views.Input;
 
 namespace PixiEditor.Views.Dialogs;
 
@@ -22,6 +26,15 @@ internal partial class NewFilePopup : PixiEditorPopup
 
     public static readonly StyledProperty<SizePreset?> SelectedPresetProperty =
         AvaloniaProperty.Register<NewFilePopup, SizePreset?>(nameof(SelectedPreset));
+
+    public static readonly StyledProperty<bool> UseCustomBackgroundProperty =
+        AvaloniaProperty.Register<NewFilePopup, bool>(nameof(UseCustomBackground));
+
+    public static readonly StyledProperty<IBrush> BackgroundBrushProperty =
+        AvaloniaProperty.Register<NewFilePopup, IBrush>(
+            nameof(BackgroundBrush),
+            defaultValue: Brushes.White,
+            defaultBindingMode: Avalonia.Data.BindingMode.TwoWay);
 
     // Actual presets
     public List<SizePreset> Presets { get; } = new()
@@ -56,6 +69,107 @@ internal partial class NewFilePopup : PixiEditorPopup
     {
         MinWidth = Width;
         sizePicker.FocusWidthPicker();
+        BackgroundBrush = Brushes.White;
+    }
+
+    private Window? _bgColorWindow;
+
+    private async void BgSwatch_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (_bgColorWindow is { IsVisible: true })
+        {
+            _bgColorWindow.Activate();
+            return;
+        }
+
+        IBrush originalBrush = BackgroundBrush ?? Brushes.White;
+
+        var picker = new SmallColorPicker
+        {
+            Width = 240,
+            Height = 380,
+            EnableGradientsTab = false,
+            SelectedBrush = originalBrush
+        };
+
+        var subscription = picker.GetObservable(SmallColorPicker.SelectedBrushProperty).Subscribe(brush =>
+        {
+            if (brush is not null)
+            {
+                BackgroundBrush = brush;
+            }
+        });
+
+        var okButton = new Button
+        {
+            Content = "OK",
+            IsDefault = true,
+            MinWidth = 70,
+            HorizontalAlignment = HorizontalAlignment.Center
+        };
+        var cancelButton = new Button
+        {
+            Content = "Cancel",
+            IsCancel = true,
+            MinWidth = 70,
+            HorizontalAlignment = HorizontalAlignment.Center
+        };
+
+        bool confirmed = false;
+        okButton.Click += (_, _) =>
+        {
+            confirmed = true;
+            _bgColorWindow?.Close();
+        };
+        cancelButton.Click += (_, _) =>
+        {
+            confirmed = false;
+            _bgColorWindow?.Close();
+        };
+
+        var buttonRow = new StackPanel
+        {
+            Orientation = Orientation.Horizontal,
+            Spacing = 10,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            Margin = new Thickness(0, 10, 0, 0)
+        };
+        buttonRow.Children.Add(cancelButton);
+        buttonRow.Children.Add(okButton);
+
+        var layout = new DockPanel { LastChildFill = true };
+        DockPanel.SetDock(buttonRow, global::Avalonia.Controls.Dock.Bottom);
+        layout.Children.Add(buttonRow);
+        layout.Children.Add(picker);
+
+        _bgColorWindow = new Window
+        {
+            Title = "Background color",
+            Width = 260,
+            Height = 460,
+            CanResize = false,
+            ShowInTaskbar = false,
+            SystemDecorations = SystemDecorations.Full,
+            WindowStartupLocation = WindowStartupLocation.CenterOwner,
+            Background = this.Background,
+            Content = new Border
+            {
+                Padding = new Thickness(10),
+                Child = layout
+            }
+        };
+
+        _bgColorWindow.Closed += (_, _) =>
+        {
+            subscription.Dispose();
+            if (!confirmed)
+            {
+                BackgroundBrush = originalBrush;
+            }
+            _bgColorWindow = null;
+        };
+
+        await _bgColorWindow.ShowDialog(this);
     }
 
     private static void OnPresetChanged(AvaloniaPropertyChangedEventArgs e)
@@ -100,5 +214,17 @@ internal partial class NewFilePopup : PixiEditorPopup
     {
         get => GetValue(SelectedPresetProperty);
         set => SetValue(SelectedPresetProperty, value);
+    }
+
+    public bool UseCustomBackground
+    {
+        get => GetValue(UseCustomBackgroundProperty);
+        set => SetValue(UseCustomBackgroundProperty, value);
+    }
+
+    public IBrush BackgroundBrush
+    {
+        get => GetValue(BackgroundBrushProperty);
+        set => SetValue(BackgroundBrushProperty, value);
     }
 }
