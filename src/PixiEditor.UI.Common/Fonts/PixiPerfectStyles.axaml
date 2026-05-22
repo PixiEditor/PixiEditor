@@ -5,6 +5,7 @@
         <ResourceDictionary>
             <FontFamily x:Key="PixiPerfectIcons">avares://PixiEditor.UI.Common/Fonts/PixiPerfect.ttf#pixiperfect</FontFamily>
             <FontFamily x:Key="Montserrat">avares://PixiEditor.UI.Common/Fonts/Montserrat#Montserrat</FontFamily>
+            <FontFamily x:Key="InterTight">avares://PixiEditor.UI.Common/Fonts/InterTight#Inter Tight</FontFamily>
         </ResourceDictionary>
     </Styles.Resources>
 
