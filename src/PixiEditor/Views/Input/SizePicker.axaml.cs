@@ -31,6 +31,9 @@ internal partial class SizePicker : UserControl
     public static readonly StyledProperty<bool> IsSizeUnitSelectionVisibleProperty =
         AvaloniaProperty.Register<SizePicker, bool>(nameof(IsSizeUnitSelectionVisible), false);
 
+    public static readonly StyledProperty<bool> ShowSwapDimensionsButtonProperty =
+        AvaloniaProperty.Register<SizePicker, bool>(nameof(ShowSwapDimensionsButton));
+
     private System.Drawing.Size? initSize = null;
 
     public bool EditingEnabled
@@ -69,6 +72,12 @@ internal partial class SizePicker : UserControl
         set => SetValue(IsSizeUnitSelectionVisibleProperty, value);
     }
 
+    public bool ShowSwapDimensionsButton
+    {
+        get => GetValue(ShowSwapDimensionsButtonProperty);
+        set => SetValue(ShowSwapDimensionsButtonProperty, value);
+    }
+
     public bool PreserveAspectRatio
     {
         get => GetValue(PreserveAspectRatioProperty);
@@ -79,6 +88,7 @@ internal partial class SizePicker : UserControl
     public RelayCommand WidthLostFocusCommand { get; private set; }
     public RelayCommand HeightLostFocusCommand { get; private set; }
     public RelayCommand PercentageLostFocusCommand { get; private set; }
+    public RelayCommand SwapDimensionsCommand { get; private set; }
 
     public SizePicker()
     {
@@ -86,6 +96,7 @@ internal partial class SizePicker : UserControl
         WidthLostFocusCommand = new(WidthLostFocus);
         HeightLostFocusCommand = new(HeightLostFocus);
         PercentageLostFocusCommand = new(PercentageLostFocus);
+        SwapDimensionsCommand = new(SwapDimensions);
 
         InitializeComponent();
 
@@ -107,6 +118,11 @@ internal partial class SizePicker : UserControl
 
     private void WidthLostFocus() => OnSizeUpdate(true);
     private void HeightLostFocus() => OnSizeUpdate(false);
+
+    private void SwapDimensions()
+    {
+        (ChosenWidth, ChosenHeight) = (ChosenHeight, ChosenWidth);
+    }
 
     public void PercentageLostFocus()
     {

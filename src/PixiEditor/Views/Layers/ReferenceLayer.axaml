@@ -31,19 +31,19 @@
         </Interaction.Behaviors>
         <DockPanel Background="Transparent">
             <controls:Shelf ControlToCollapse="{Binding RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}">
-                <Grid Height="40" x:Name="mainDockPanel">
+                <Grid Height="32" x:Name="mainDockPanel">
                     <Grid
                         IsVisible="{Binding Document.ReferenceLayerViewModel.ReferenceTexture, ElementName=uc, Converter={converters:NullToVisibilityConverter}}"
                         Panel.ZIndex="5">
                         <Grid Cursor="Hand" IsVisible="{Binding ElementName=visibilityCheckbox, Path=!IsChecked}"
                               Background="Transparent">
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" DockPanel.Dock="Left">
-                                <TextBlock Margin="5 0 5 0" VerticalAlignment="Center" FontSize="24" Text="{DynamicResource icon-add-reference}" Classes="pixi-icon"
+                                <TextBlock Margin="5 0 5 0" VerticalAlignment="Center" FontSize="18" Text="{DynamicResource icon-add-reference}" Classes="pixi-icon"
                                        IsVisible="{Binding Document.ReferenceLayerViewModel.ReferenceTexture, ElementName=uc, Converter={converters:NullToVisibilityConverter}}" />
 
                                 <TextBlock IsEnabled="{Binding ElementName=uc, Path=IsEnabled}"
                                            Margin="0 0 5 0" Foreground="{DynamicResource ThemeForegroundBrush}"
-                                           FontSize="15" VerticalAlignment="Center"
+                                           FontSize="14" VerticalAlignment="Center"
                                            ui:Translator.Key="ADD_REFERENCE_LAYER" />
                             </StackPanel>
                             <Interaction.Behaviors>
@@ -55,7 +55,7 @@
                         </Grid>
                     </Grid>
 
-                    <DockPanel Grid.Row="0" VerticalAlignment="Center" Height="40"
+                    <DockPanel Grid.Row="0" VerticalAlignment="Center" Height="32"
                                IsVisible="{Binding Document.ReferenceLayerViewModel.ReferenceTexture, ElementName=uc, Converter={converters:NotNullToVisibilityConverter}}">
                         <Grid Height="16" Name="layerVisibilityCheckboxGrid" DockPanel.Dock="Left" Margin="10,0,5,0">
                             <CheckBox
@@ -70,7 +70,7 @@
                                 Classes="pixi-icon"
                                 ToolTip.Tip="{Binding Document.ReferenceLayerViewModel.IsTopMost, ElementName=uc, Converter={converters:BoolToValueConverter FalseValue='localized:PUT_REFERENCE_LAYER_ABOVE', TrueValue='localized:PUT_REFERENCE_LAYER_BELOW'}}"
                                 RenderOptions.BitmapInterpolationMode="HighQuality"
-                                Width="24" Height="24" HorizontalAlignment="Right"/>
+                                Width="24" Height="24" FontSize="18" HorizontalAlignment="Right"/>
                         <Border
                             HorizontalAlignment="Left" DockPanel.Dock="Left"
                             Width="30" Height="30"
@@ -88,7 +88,7 @@
                                 RenderOptions.BitmapInterpolationMode="HighQuality"
                                 Margin="3,0,5,0"
                                 Content="{DynamicResource icon-trash}"
-                                Width="24" Height="24" HorizontalAlignment="Right"/>
+                                Width="24" Height="24" FontSize="18" HorizontalAlignment="Right"/>
                         <Button Cursor="Hand" DockPanel.Dock="Right"
                                 Command="{cmds:Command PixiEditor.Layer.ResetReferenceLayerPosition}"
                                 Classes="pixi-icon"
@@ -96,17 +96,17 @@
                                 Margin="2, 0, 0, 0"
                                 ui:Translator.TooltipKey="RESET_REFERENCE_LAYER_POS"
                                 RenderOptions.BitmapInterpolationMode="HighQuality"
-                                Width="24" Height="24" HorizontalAlignment="Right"/>
+                                Width="24" Height="24" FontSize="18" HorizontalAlignment="Right"/>
                         <Button Cursor="Hand" DockPanel.Dock="Right"
                                 Command="{cmds:Command PixiEditor.Layer.TransformReferenceLayer}"
                                 Classes="pixi-icon"
                                 Content="{DynamicResource icon-crop}"
                                 ui:Translator.TooltipKey="TRANSFORM_REFERENCE_LAYER"
                                 RenderOptions.BitmapInterpolationMode="HighQuality"
-                                Width="24" Height="24" HorizontalAlignment="Right"/>
+                                Width="24" Height="24" FontSize="18" HorizontalAlignment="Right"/>
                         <TextBlock IsEnabled="{Binding ElementName=uc, Path=IsEnabled}" HorizontalAlignment="Center"
                                    Margin="0 0 5 0" Foreground="White"
-                                   FontSize="15" VerticalAlignment="Center" ui:Translator.Key="REFERENCE" />
+                                   FontSize="14" VerticalAlignment="Center" ui:Translator.Key="REFERENCE" />
                     </DockPanel>
                 </Grid>
             </controls:Shelf>

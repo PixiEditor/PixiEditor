@@ -34,6 +34,7 @@
 
         <input:SizePicker HorizontalAlignment="Center" MinWidth="230" Height="125" Margin="0"
                           PreserveAspectRatio="False"
+                          ShowSwapDimensionsButton="True"
                           Background="{DynamicResource ThemeBackgroundBrush1}"
                           CornerRadius="{DynamicResource ControlCornerRadius}"
                           ChosenHeight="{Binding FileHeight, Mode=TwoWay, ElementName=popup}"

@@ -50,11 +50,17 @@
                 </Style.Animations>
             </Style>
         </Grid.Styles>
-        <Border ClipToBounds="True" IsVisible="{Binding IsLoggedIn}" CornerRadius="25">
-            <Button Name="UserAvatarButton" Padding="0"
-                    BorderThickness="0" Classes="pixi-icon">
+        <Border IsVisible="{Binding IsLoggedIn}">
+            <Button Name="UserAvatarButton" Padding="2"
+                    BorderThickness="0" Classes="pixi-icon"
+                    Width="32" Height="32"
+                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                    HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                    CornerRadius="6">
                 <Button.Content>
-                    <Image asyncImageLoader:ImageLoader.Source="{Binding AvatarUrl}" />
+                    <Border ClipToBounds="True" CornerRadius="14" Width="28" Height="28">
+                        <Image asyncImageLoader:ImageLoader.Source="{Binding AvatarUrl}" />
+                    </Border>
                 </Button.Content>
                 <Button.Styles>
                     <Style Selector="FlyoutPresenter">
@@ -133,6 +139,12 @@
         </Ellipse>
         <Button IsVisible="{Binding !IsLoggedIn}"
                 Classes="pixi-icon"
+                Width="32" Height="32"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                CornerRadius="6"
+                FontSize="18"
+                HorizontalContentAlignment="Center"
+                VerticalContentAlignment="Center"
                 Content="{DynamicResource icon-user}"
                 Command="{xaml:Command Name=PixiEditor.Window.OpenAccountWindow}" />
     </Grid>

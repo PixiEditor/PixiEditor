@@ -40,7 +40,7 @@
                                     Content="{DynamicResource icon-extensions}"
                                     Command="{xaml:Command Name=PixiEditor.Window.OpenExtensionsWindow}" />
                         </Border>
-                        <auth:UserAvatarToggle Width="26" Height="26" DataContext="{Binding Path=UserViewModel}" />
+                        <auth:UserAvatarToggle Width="32" Height="32" DataContext="{Binding Path=UserViewModel}" />
                     </StackPanel>
                 </dialogs:DialogTitleBar.AdditionalElement>
             </dialogs:DialogTitleBar>
@@ -174,7 +174,7 @@
                            VerticalAlignment="Center"
                            ItemsSource="{Binding MenuEntries}"
                            Background="Transparent" />
-                <Border DockPanel.Dock="Left" Height="25" Width="150"
+                <Border DockPanel.Dock="Left" Height="30" Width="150"
                         Background="{DynamicResource ThemeBackgroundBrush}"
                         CornerRadius="5" BorderThickness="1"
                         Margin="10,0,0,0"
