@@ -40,7 +40,7 @@
                                 </Style>
                                 <Style Selector="avalonia|MarkdownTextBlock">
                                     <Setter Property="FontSize" Value="12" />
-                                    <Setter Property="FontFamily" Value="$Default" />
+                                    <Setter Property="FontFamily" Value="{DynamicResource ContentControlThemeFontFamily}" />
                                 </Style>
                             </avalonia:MarkdownRenderer.Styles>
                         </avalonia:MarkdownRenderer>
@@ -58,7 +58,7 @@
                                 </Style>
                                 <Style Selector="avalonia|MarkdownTextBlock">
                                     <Setter Property="FontSize" Value="12" />
-                                    <Setter Property="FontFamily" Value="$Default" />
+                                    <Setter Property="FontFamily" Value="{DynamicResource ContentControlThemeFontFamily}" />
                                 </Style>
                             </avalonia:MarkdownRenderer.Styles>
                         </avalonia:MarkdownRenderer>

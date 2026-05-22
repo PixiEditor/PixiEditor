@@ -4,8 +4,8 @@
     <Styles.Resources>
         <ResourceDictionary>
             <FontFamily x:Key="PixiPerfectIcons">avares://PixiEditor.UI.Common/Fonts/PixiPerfect.ttf#pixiperfect</FontFamily>
-            <FontFamily x:Key="Montserrat">avares://PixiEditor.UI.Common/Fonts/Montserrat#Montserrat</FontFamily>
             <FontFamily x:Key="InterTight">avares://PixiEditor.UI.Common/Fonts/InterTight#Inter Tight</FontFamily>
+            <StaticResource x:Key="ContentControlThemeFontFamily" ResourceKey="InterTight" />
         </ResourceDictionary>
     </Styles.Resources>
 
@@ -26,14 +26,19 @@
         <Setter Property="FontFamily" Value="{DynamicResource PixiPerfectIcons}" />
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="FontSize" Value="24" />
+        <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}" />
         <Setter Property="Padding" Value="0" />
+        <Setter Property="Width" Value="32" />
+        <Setter Property="Height" Value="32" />
+        <Setter Property="CornerRadius" Value="6" />
         <Setter Property="HorizontalContentAlignment" Value="Center" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="BorderThickness" Value="0" />
     </Style>
 
-    <Style Selector="Button.pixi-icon:pointerover">
-        <Setter Property="Background" Value="Transparent" />
+    <Style Selector="Button.pixi-icon:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource ThemeControlHighBrush}" />
+        <Setter Property="CornerRadius" Value="6" />
     </Style>
 
     <Style Selector="ToggleButton.pixi-icon">
@@ -41,13 +46,23 @@
         <Setter Property="BorderThickness" Value="0" />
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="FontSize" Value="24" />
+        <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}" />
         <Setter Property="Padding" Value="0" />
+        <Setter Property="Width" Value="32" />
+        <Setter Property="Height" Value="32" />
+        <Setter Property="CornerRadius" Value="6" />
         <Setter Property="HorizontalContentAlignment" Value="Center" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
     </Style>
 
-    <Style Selector="ToggleButton.pixi-icon:checked">
+    <Style Selector="ToggleButton.pixi-icon:pointerover /template/ ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource ThemeControlHighBrush}" />
+        <Setter Property="CornerRadius" Value="6" />
+    </Style>
+
+    <Style Selector="ToggleButton.pixi-icon:checked /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource ThemeControlHighBrush}" />
+        <Setter Property="CornerRadius" Value="6" />
     </Style>
 
     <Style Selector="MenuItem.pixi-icon">

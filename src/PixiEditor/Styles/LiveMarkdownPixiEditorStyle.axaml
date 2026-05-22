@@ -5,7 +5,7 @@
     <Style Selector="avalonia|MarkdownTextBlock">
         <Setter Property="LineSpacing" Value="8" />
         <Setter Property="SelectionBrush" Value="{DynamicResource ThemeAccent3Brush}" />
-        <Setter Property="FontFamily" Value="{DynamicResource Montserrat}"/>
+        <Setter Property="FontFamily" Value="{DynamicResource ContentControlThemeFontFamily}"/>
     </Style>
 
 

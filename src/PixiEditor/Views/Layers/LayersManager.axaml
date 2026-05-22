@@ -33,7 +33,7 @@
                 <Button
                     Command="{xaml:Command PixiEditor.Layer.NewLayer}"
                     DockPanel.Dock="Left"
-                    Height="24" Width="24" Cursor="Hand" uiExt:Translator.TooltipKey="NEW_LAYER"
+                    Height="24" Width="24" FontSize="18" Cursor="Hand" uiExt:Translator.TooltipKey="NEW_LAYER"
                     HorizontalAlignment="Stretch" Margin="0,0,5,0"
                     Classes="pixi-icon"
                     Focusable="False"
@@ -41,7 +41,7 @@
                     FlowDirection="LeftToRight" />
                 <Button
                     Command="{xaml:Command PixiEditor.Layer.NewFolder}"
-                    Height="24" Width="24" uiExt:Translator.TooltipKey="NEW_FOLDER" Cursor="Hand"
+                    Height="24" Width="24" FontSize="18" uiExt:Translator.TooltipKey="NEW_FOLDER" Cursor="Hand"
                     DockPanel.Dock="Left"
                     HorizontalAlignment="Stretch" Margin="0,0,5,0"
                     Classes="pixi-icon"
@@ -49,7 +49,7 @@
                     Content="{DynamicResource icon-folder-plus}"
                     FlowDirection="LeftToRight" />
                 <Button
-                    Command="{xaml:Command PixiEditor.Layer.DeleteAllSelected}" Height="24" Width="24"
+                    Command="{xaml:Command PixiEditor.Layer.DeleteAllSelected}" Height="24" Width="24" FontSize="18"
                     uiExt:Translator.TooltipKey="LAYER_DELETE_ALL_SELECTED"
                     Cursor="Hand"
                     HorizontalAlignment="Stretch" Margin="0,0,5,0"
@@ -59,7 +59,7 @@
                     Content="{DynamicResource icon-trash}"
                     FlowDirection="LeftToRight" />
                 <Button
-                    Command="{xaml:Command PixiEditor.Layer.MergeWithBelow}" Height="24" Width="24"
+                    Command="{xaml:Command PixiEditor.Layer.MergeWithBelow}" Height="24" Width="24" FontSize="18"
                     uiExt:Translator.TooltipKey="MERGE_WITH_BELOW" Cursor="Hand"
                     DockPanel.Dock="Right"
                     HorizontalAlignment="Stretch" Margin="5,0,0,0"
@@ -68,7 +68,7 @@
                     Content="{DynamicResource icon-merge}"
                     FlowDirection="LeftToRight" />
                 <Button
-                    Height="24" Width="24" uiExt:Translator.TooltipKey="CREATE_MASK" Cursor="Hand"
+                    Height="24" Width="24" FontSize="18" uiExt:Translator.TooltipKey="CREATE_MASK" Cursor="Hand"
                     DockPanel.Dock="Right"
                     HorizontalAlignment="Stretch" Margin="5,0,0,0"
                     Classes="pixi-icon"
@@ -77,7 +77,7 @@
                     Command="{xaml:Command PixiEditor.Layer.CreateMask}"
                     FlowDirection="LeftToRight" />
                 <Button
-                    Height="24" Width="24" uiExt:Translator.TooltipKey="LOCK_TRANSPARENCY" Cursor="Hand"
+                    Height="24" Width="24" FontSize="18" uiExt:Translator.TooltipKey="LOCK_TRANSPARENCY" Cursor="Hand"
                     DockPanel.Dock="Right"
                     HorizontalAlignment="Stretch" Margin="5,0,0,0"
                     Classes="pixi-icon"

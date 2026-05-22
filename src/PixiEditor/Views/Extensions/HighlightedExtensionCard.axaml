@@ -48,7 +48,7 @@
                         VerticalAlignment="Center">
                 <StackPanel.Styles>
                     <Style Selector="avalonia|MarkdownTextBlock">
-                        <Setter Property="FontFamily" Value="$Default"/>
+                        <Setter Property="FontFamily" Value="{DynamicResource ContentControlThemeFontFamily}"/>
                         <Setter Property="Foreground" Value="{Binding HighlightData.Color}"/>
                         <Setter Property="FontSize" Value="12"/>
                         <Setter Property="Margin">

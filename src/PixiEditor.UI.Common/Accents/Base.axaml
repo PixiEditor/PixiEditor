@@ -301,7 +301,6 @@
     </ResourceDictionary.ThemeDictionaries>
 
 
-    <FontFamily x:Key="ContentControlThemeFontFamily">avares://PixiEditor.UI.Common/Fonts/InterTight#Inter Tight</FontFamily>
     <SolidColorBrush x:Key="RefreshVisualizerBackground">Pink</SolidColorBrush>
     <SolidColorBrush x:Key="RefreshVisualizerForeground">White</SolidColorBrush>
 
