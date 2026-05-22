@@ -5,6 +5,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.Views.Input;
 
 namespace PixiEditor.Views.Dialogs;
@@ -102,18 +103,19 @@ internal partial class NewFilePopup : PixiEditorPopup
 
         var okButton = new Button
         {
-            Content = "OK",
             IsDefault = true,
             MinWidth = 70,
             HorizontalAlignment = HorizontalAlignment.Center
         };
+        Translator.SetKey(okButton, "OK");
+
         var cancelButton = new Button
         {
-            Content = "Cancel",
             IsCancel = true,
             MinWidth = 70,
             HorizontalAlignment = HorizontalAlignment.Center
         };
+        Translator.SetKey(cancelButton, "CANCEL");
 
         bool confirmed = false;
         okButton.Click += (_, _) =>
@@ -144,7 +146,6 @@ internal partial class NewFilePopup : PixiEditorPopup
 
         _bgColorWindow = new Window
         {
-            Title = "Background color",
             Width = 260,
             Height = 460,
             CanResize = false,
@@ -158,6 +159,7 @@ internal partial class NewFilePopup : PixiEditorPopup
                 Child = layout
             }
         };
+        Translator.SetKey(_bgColorWindow, "BACKGROUND_COLOR");
 
         _bgColorWindow.Closed += (_, _) =>
         {

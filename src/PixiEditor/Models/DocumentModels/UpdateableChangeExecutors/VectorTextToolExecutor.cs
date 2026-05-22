@@ -36,6 +36,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
     private Font? previewFont;
     private bool isRestoringFromLayer;
     private bool isStopped;
+    private bool isPreviewFontSubscribed;
 
     private VecD clickPos;
     private bool wasDrawingSize;
@@ -60,13 +61,12 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             return ExecutionState.Error;
         }
 
-        toolbar.PreviewFontFamilyChanged += OnPreviewFontFamilyChanged;
-
         selectedMember = document.SelectedStructureMember;
 
         if (selectedMember is not IVectorLayerHandler layerHandler)
         {
             isListeningForValidLayer = true;
+            SubscribePreviewFontChanges();
             return ExecutionState.Success;
         }
 
@@ -132,6 +132,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             return ExecutionState.Error;
         }
 
+        SubscribePreviewFontChanges();
         return ExecutionState.Success;
     }
 
@@ -202,12 +203,11 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
     public override void ForceStop()
     {
+        RestoreSelectedFontAfterPreview();
+
         isStopped = true;
 
-        if (toolbar != null)
-        {
-            toolbar.PreviewFontFamilyChanged -= OnPreviewFontFamilyChanged;
-        }
+        UnsubscribePreviewFontChanges();
 
         RetirePreviewFont();
 
@@ -427,19 +427,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
         if (!fontFamily.HasValue)
         {
-            if (previewFont == null)
-            {
-                return;
-            }
-
-            RetirePreviewFont();
-
-            if (cachedFont == null || cachedFont.IsDisposed)
-            {
-                cachedFont = toolbar.ConstructFont();
-            }
-
-            ApplyPreviewFont(cachedFont);
+            RestoreSelectedFontAfterPreview();
             return;
         }
 
@@ -472,6 +460,32 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             new SetLowDpiRendering_Action(selectedMember.Id, toolbar.ForceLowDpiRendering));
     }
 
+    private void RestoreSelectedFontAfterPreview()
+    {
+        if (previewFont == null)
+        {
+            return;
+        }
+
+        RetirePreviewFont();
+
+        if (cachedFont == null || cachedFont.IsDisposed || cachedFont.Family.Name != toolbar.FontFamily.Name)
+        {
+            if (cachedFont is { IsDisposed: false })
+            {
+                fontsToDispose.Add(cachedFont);
+            }
+
+            cachedFont = toolbar.ConstructFont();
+        }
+
+        cachedFont.Size = toolbar.FontSize;
+        cachedFont.Bold = toolbar.Bold;
+        cachedFont.Italic = toolbar.Italic;
+
+        ApplyPreviewFont(cachedFont);
+    }
+
     private void RetirePreviewFont()
     {
         if (previewFont is { IsDisposed: false })
@@ -480,6 +494,28 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         }
 
         previewFont = null;
+    }
+
+    private void SubscribePreviewFontChanges()
+    {
+        if (isPreviewFontSubscribed)
+        {
+            return;
+        }
+
+        toolbar.PreviewFontFamilyChanged += OnPreviewFontFamilyChanged;
+        isPreviewFontSubscribed = true;
+    }
+
+    private void UnsubscribePreviewFontChanges()
+    {
+        if (!isPreviewFontSubscribed || toolbar == null)
+        {
+            return;
+        }
+
+        toolbar.PreviewFontFamilyChanged -= OnPreviewFontFamilyChanged;
+        isPreviewFontSubscribed = false;
     }
 
     bool IExecutorFeature.IsFeatureEnabled<T>()

@@ -23,7 +23,6 @@ using Drawie.Numerics;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
-using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Extensions.CommonApi.Documents;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Models.DocumentModels.Autosave;
@@ -31,6 +30,7 @@ using PixiEditor.Models.ExceptionHandling;
 using PixiEditor.Models.IO.CustomDocumentFormats;
 using PixiEditor.OperatingSystem;
 using PixiEditor.Parser;
+using PixiEditor.Parser.Graph;
 using PixiEditor.Platform;
 using PixiEditor.UI.Common.Fonts;
 using PixiEditor.UI.Common.Localization;
@@ -728,7 +728,6 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         if (await newFile.ShowDialog())
         {
             VecI size = new(newFile.Width, newFile.Height);
-            DocumentViewModel doc;
 
             if (newFile.UseCustomBackground && newFile.BackgroundBrush is ISolidColorBrush solidBrush)
             {
@@ -738,22 +737,39 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                 Surface bgSurface = Surface.ForProcessing(size, ColorSpace.CreateSrgbLinear());
                 bgSurface.DrawingSurface.Canvas.Clear(bgColor);
 
-                doc = NewDocument(b => b
+                NewDocument(b => b
                     .WithSize(newFile.Width, newFile.Height)
-                    .WithGraph(x => x
-                        .WithImageLayerNode(
+                    .WithGraph(x =>
+                    {
+                        x.WithImageLayerNode(
                             new LocalizedString("BACKGROUND_LAYER_NAME"),
                             bgSurface,
                             ColorSpace.CreateSrgbLinear(),
-                            out int id)
-                        .WithOutputNode(id, "Output")
-                    ));
+                            out int backgroundLayerId);
 
-                doc.Operations.CreateStructureMember(StructureMemberType.ImageLayer);
+                        x.WithImageLayerNode(
+                            new LocalizedString("NEW_LAYER"),
+                            size,
+                            ColorSpace.CreateSrgbLinear(),
+                            out int editLayerId);
+
+                        x.AllNodes[^1].WithConnections(
+                        [
+                            new PropertyConnection
+                            {
+                                InputPropertyName = "Background",
+                                OutputPropertyName = "Output",
+                                OutputNodeId = backgroundLayerId
+                            }
+                        ]);
+
+                        x.WithOutputNode(editLayerId, "Output");
+                    }));
+
             }
             else
             {
-                doc = NewDocument(b => b
+                NewDocument(b => b
                     .WithSize(newFile.Width, newFile.Height)
                     .WithGraph(x => x
                         .WithImageLayerNode(

@@ -139,7 +139,8 @@
                                                 HorizontalAlignment="Stretch"
                                                 HorizontalContentAlignment="Left"
                                                 FontSize="12"
-                                                Tag="{Binding}"
+                                                Command="{cmds:Command PixiEditor.Tools.SetActiveToolSet, UseProvided=True}"
+                                                CommandParameter="{Binding}"
                                                 Click="ToolSetItem_OnClick">
                                             <Panel>
                                                 <StackPanel Orientation="Horizontal" Spacing="5"

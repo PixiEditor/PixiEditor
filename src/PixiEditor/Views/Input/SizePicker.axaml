@@ -124,7 +124,7 @@
                             Content="{DynamicResource icon-rotate-view}"
                             Command="{Binding ElementName=uc, Path=SwapDimensionsCommand}"
                             IsVisible="{Binding ElementName=uc, Path=ShowSwapDimensionsButton}"
-                            ToolTip.Tip="Swap width and height" />
+                            ui:Translator.TooltipKey="SWAP" />
                     <controls:SizeInput Grid.Column="2"
                                  x:Name="HeightPicker"
                                  IsEnabled="{Binding EditingEnabled, ElementName=uc}"

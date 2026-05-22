@@ -7,7 +7,6 @@
     xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
     xmlns:input="clr-namespace:PixiEditor.Views.Input"
     xmlns:system="clr-namespace:System;assembly=System.Runtime"
-    xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker.AvaloniaUI"
     Width="300" Height="250"
     SizeToContent="Height"
     CanResize="False"
