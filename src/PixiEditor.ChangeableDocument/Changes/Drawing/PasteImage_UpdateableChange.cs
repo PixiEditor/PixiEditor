@@ -68,6 +68,12 @@ internal class PasteImage_UpdateableChange : InterruptableUpdateableChange
         {
             targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame ?? 0);
         }
+
+        if(targetImage == null)
+        {
+            ignoreInUndo = true;
+            return new None();
+        }
         
         var chunks = DrawImage(target, targetImage);
         savedChunks?.Dispose();
@@ -89,6 +95,10 @@ internal class PasteImage_UpdateableChange : InterruptableUpdateableChange
         {
             targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame ?? 0);
         }
+
+        if(targetImage == null)
+            return new None();
+
         return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, DrawImage(target, targetImage), drawOnMask);
     }
 
