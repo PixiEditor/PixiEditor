@@ -1,5 +1,3 @@
-using PixiEditor.ChangeableDocument.Changeables.Animations;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
@@ -16,6 +14,6 @@ public class StickynoteNode : Node
 
     protected override void OnExecute(RenderContext context)
     {
-        Console.WriteLine("hi");
+        
     }
 }

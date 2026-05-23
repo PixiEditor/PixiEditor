@@ -2,9 +2,9 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document.Nodes;
-[NodeViewModel("STICKYNOTE_NODE", null, "icon-file-text")]
+[NodeViewModel("CONCATENATION_NODE", null, "icon-merge")]
 
-internal class StickynoteNodeViewModel : NodeViewModel<StickynoteNode>
+internal class ConcatenationNodeViewModel : NodeViewModel<ConcatenationNode>
 {
 
 }
