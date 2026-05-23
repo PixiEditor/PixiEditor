@@ -3,7 +3,7 @@ using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document.Nodes;
 
-[NodeViewModel("COMMENT_NODE", null, null)]
+[NodeViewModel("COMMENT_NODE", null, "icon-message")]
 internal class CommentNodeViewModel : NodeViewModel<CommentNode>
 {
 

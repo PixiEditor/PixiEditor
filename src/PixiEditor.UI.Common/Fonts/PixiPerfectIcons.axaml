@@ -173,6 +173,7 @@
             <system:String x:Key="icon-rectangle-selection">&#xE968;</system:String>
             <system:String x:Key="icon-reddit">&#xE905;</system:String>
             <system:String x:Key="icon-redo">&#xE969;</system:String>
+            <system:String x:Key="icon-replace">&#xE9EF;</system:String>
             <system:String x:Key="icon-reset">&#xE9AA;</system:String>
             <system:String x:Key="icon-resize">&#xE96B;</system:String>
             <system:String x:Key="icon-rotate-view">&#xE96C;</system:String>

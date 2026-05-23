@@ -1508,7 +1508,9 @@
   "EXTENSIONS_ONBOARDING_TITLE": "Featured Extensions",
   "GAME_OF_LIFE_EXAMPLE": "Game of Life",
   "STICKYNOTE_NODE": "Sticky Note",
-  "FIND_AND_REPLACE": "Find and Replace",
+  "FIND_AND_REPLACE_TOOL": "Find and Replace",
+  "FIND_AND_REPLACE_TOOL_TOOLTIP": "Pixels of primary color will be replaced with secondary color. Tolerance adjusts color detection threshold.",
+  "FIND_AND_REPLACE_TOOL_ACTION_DISPLAY_DEFAULT": "Click on the canvas to replace.",
   "COMMENT_NODE":  "Comment",
   "COMMENT_WINDOW_COLOR": "Box Color"
 }
