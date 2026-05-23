@@ -20,6 +20,43 @@
         <Setter Property="BorderThickness" Value="0"/>
     </Style>
 
+    <Style Selector="Button.OverlayButton:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource ThemeControlHighBrush}" />
+        <Setter Property="CornerRadius" Value="6" />
+    </Style>
+
+    <Style Selector="ToggleButton.OverlayButton:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource ThemeControlHighBrush}" />
+        <Setter Property="CornerRadius" Value="6" />
+    </Style>
+
+    <Style Selector="ToggleButton.OverlayButton.pixi-icon:checked /template/ ContentPresenter">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="{DynamicResource SelectedToolBorderBrush}" />
+        <Setter Property="BorderThickness" Value="2" />
+        <Setter Property="CornerRadius" Value="6" />
+    </Style>
+
+    <Style Selector="ToggleButton.OverlayButton.pixi-icon:checked:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource ThemeControlHighBrush}" />
+    </Style>
+
+    <Style Selector="ToggleButton.OverlayToggleButton:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource ThemeControlHighBrush}" />
+        <Setter Property="CornerRadius" Value="6" />
+    </Style>
+
+    <Style Selector="ToggleButton.OverlayToggleButton.pixi-icon:checked /template/ ContentPresenter">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="{DynamicResource SelectedToolBorderBrush}" />
+        <Setter Property="BorderThickness" Value="2" />
+        <Setter Property="CornerRadius" Value="6" />
+    </Style>
+
+    <Style Selector="ToggleButton.OverlayToggleButton.pixi-icon:checked:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource ThemeControlHighBrush}" />
+    </Style>
+
     <Style Selector="Button.ImageButtonStyle">
         <Setter Property="Template">
             <ControlTemplate>
