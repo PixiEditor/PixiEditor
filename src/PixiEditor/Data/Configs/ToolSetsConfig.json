@@ -75,9 +75,21 @@
       "Icon": "icon-replace",
       "ToolTip": "FIND_AND_REPLACE_TOOL_TOOLTIP",
       "ActionDisplays": [
-      {
-        "ActionDisplay": "FIND_AND_REPLACE_TOOL_ACTION_DISPLAY_DEFAULT"
-      }
+        {
+          "ActionDisplay": "FIND_AND_REPLACE_TOOL_ACTION_DISPLAY_DEFAULT"
+        }
+      ]
+    },
+    {
+      "ToolName": "SwapColor",
+      "DisplayName": "SWAP_COLOR_TOOL",
+      "Brush": "/BrushTools/SwapColor.pixi",
+      "Icon": "icon-swap",
+      "ToolTip": "SWAP_COLOR_TOOL_TOOLTIP",
+      "ActionDisplays": [
+        {
+          "ActionDisplay": "SWAP_COLOR_TOOL_ACTION_DISPLAY_DEFAULT"
+        }
       ]
     }
   ],
@@ -286,6 +298,7 @@
         },
         "Brightness",
         "FindAndReplace",
+        "SwapColor",
         "Zoom"
       ]
     }
