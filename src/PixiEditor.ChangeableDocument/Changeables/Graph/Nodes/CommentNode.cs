@@ -25,7 +25,7 @@ public class CommentNode : Node
         CommentName = CreateInput(NamePropertyName, "NAME", "");
         CommentText = CreateInput(TextPropertyName, "TEXT", "");
         Size = CreateInput(SizePropertyName, "SIZE", new VecI(100, 100)).WithRules(v => v.Min(VecI.One));
-        Offset = CreateInput(OffsetPropertyName, "OFFSET", new VecI(32, 132));
+        Offset = CreateInput(OffsetPropertyName, "OFFSET", new VecI(32, 250));
         Color = CreateInput<Color>(ColorPropertyName, "COMMENT_WINDOW_COLOR", Colors.Gray);
     }
 
