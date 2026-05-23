@@ -9,10 +9,12 @@
              x:Class="PixiEditor.Views.Main.MiniAnimationPlayer" Width="150">
     <StackPanel Orientation="Horizontal" Spacing="5">
         <Border Background="{DynamicResource ThemeBackgroundBrush}"
+                Height="25"
                 BorderBrush="{DynamicResource ThemeBorderMidBrush}"
                 BorderThickness="1"
                 CornerRadius="{DynamicResource ControlCornerRadius}">
             <Grid
+                Height="25"
                 Width="75"
                 DataContext="{Binding RelativeSource={RelativeSource AncestorType=main:MiniAnimationPlayer, Mode=FindAncestor}}">
                 <Slider Minimum="1"
@@ -61,7 +63,7 @@
                         </ControlTemplate>
                     </Slider.Template>
                 </Slider>
-                <ToggleButton Width="24" Foreground="{DynamicResource SelectedHandleBrush}"
+                <ToggleButton Width="24" Height="24" Foreground="{DynamicResource SelectedHandleBrush}"
                               VerticalAlignment="Center"
                               HorizontalAlignment="Center"
                               ui:Translator.TooltipKey="TOGGLE_PLAY"

@@ -36,7 +36,10 @@
             <Setter.Value>
                 <ControlTemplate>
                     <Border Cursor="Hand" Background="{TemplateBinding Background}">
-                        <TextBlock Text="{TemplateBinding Content}" FontSize="16" Classes="pixi-icon" />
+                        <TextBlock Text="{TemplateBinding Content}"
+                                   Foreground="{TemplateBinding Foreground}"
+                                   FontSize="16"
+                                   Classes="pixi-icon" />
                     </Border>
                 </ControlTemplate>
             </Setter.Value>
@@ -54,13 +57,23 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate>
-                    <Border Cursor="Hand" Background="{TemplateBinding Background}">
+                    <Border Name="PlayButtonBorder"
+                            Cursor="Hand"
+                            CornerRadius="6"
+                            Width="{TemplateBinding Width}"
+                            Height="{TemplateBinding Width}"
+                            Background="{TemplateBinding Background}">
                         <TextBlock Text="{TemplateBinding Content}" FontSize="{TemplateBinding Width}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"
                                    Classes="pixi-icon" />
                     </Border>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+    </Style>
+
+    <Style Selector="ToggleButton.PlayButton:pointerover /template/ Border#PlayButtonBorder">
+        <Setter Property="Background" Value="{DynamicResource ThemeAccent2LowBrush}" />
     </Style>
 
     <Style Selector="ToggleButton.PlayButton:checked">
