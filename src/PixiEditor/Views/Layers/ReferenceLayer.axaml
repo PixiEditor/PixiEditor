@@ -22,6 +22,12 @@
         <Style Selector=":topmost Button#topmostBtn">
             <Setter Property="Content" Value="{DynamicResource icon-layers-bottom}"/>
         </Style>
+        <Style Selector="Grid#addRefArea">
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+        <Style Selector="controls|Shelf#referenceShelf.noRef:pointerover">
+            <Setter Property="Background" Value="{DynamicResource ThemeControlHighBrush}" />
+        </Style>
     </UserControl.Styles>
     <Border BorderThickness="0 2 0 0" MinWidth="60"
             Name="DragBorder"
@@ -30,29 +36,27 @@
             <behaviours:ClearFocusOnClickBehavior />
         </Interaction.Behaviors>
         <DockPanel Background="Transparent">
-            <controls:Shelf ControlToCollapse="{Binding RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}">
+            <controls:Shelf x:Name="referenceShelf"
+                            Classes.noRef="{Binding Document.ReferenceLayerViewModel.ReferenceTexture, ElementName=uc, Converter={converters:NullToVisibilityConverter}}"
+                            ControlToCollapse="{Binding RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}">
                 <Grid Height="40" x:Name="mainDockPanel">
-                    <Grid
-                        IsVisible="{Binding Document.ReferenceLayerViewModel.ReferenceTexture, ElementName=uc, Converter={converters:NullToVisibilityConverter}}"
-                        Panel.ZIndex="5">
-                        <Grid Cursor="Hand" IsVisible="{Binding ElementName=visibilityCheckbox, Path=!IsChecked}"
-                              Background="Transparent">
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" DockPanel.Dock="Left">
-                                <TextBlock Margin="5 0 5 0" VerticalAlignment="Center" FontSize="24" Text="{DynamicResource icon-add-reference}" Classes="pixi-icon"
-                                       IsVisible="{Binding Document.ReferenceLayerViewModel.ReferenceTexture, ElementName=uc, Converter={converters:NullToVisibilityConverter}}" />
-
-                                <TextBlock IsEnabled="{Binding ElementName=uc, Path=IsEnabled}"
-                                           Margin="0 0 5 0" Foreground="{DynamicResource ThemeForegroundBrush}"
-                                           FontSize="15" VerticalAlignment="Center"
-                                           ui:Translator.Key="ADD_REFERENCE_LAYER" />
-                            </StackPanel>
-                            <Interaction.Behaviors>
-                                <EventTriggerBehavior EventName="PointerReleased">
-                                    <InvokeCommandAction Command="{cmds:Command PixiEditor.Layer.ImportReferenceLayer}"
-                                                         PassEventArgsToCommand="True" />
-                                </EventTriggerBehavior>
-                            </Interaction.Behaviors>
-                        </Grid>
+                    <Grid x:Name="addRefArea"
+                          IsVisible="{Binding Document.ReferenceLayerViewModel.ReferenceTexture, ElementName=uc, Converter={converters:NullToVisibilityConverter}}"
+                          ZIndex="5"
+                          Cursor="Hand">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock Margin="5 0 5 0" VerticalAlignment="Center" FontSize="24" Text="{DynamicResource icon-add-reference}" Classes="pixi-icon" />
+                            <TextBlock IsEnabled="{Binding ElementName=uc, Path=IsEnabled}"
+                                       Margin="0 0 5 0" Foreground="{DynamicResource ThemeForegroundBrush}"
+                                       FontSize="15" VerticalAlignment="Center"
+                                       ui:Translator.Key="ADD_REFERENCE_LAYER" />
+                        </StackPanel>
+                        <Interaction.Behaviors>
+                            <EventTriggerBehavior EventName="PointerReleased">
+                                <InvokeCommandAction Command="{cmds:Command PixiEditor.Layer.ImportReferenceLayer}"
+                                                     PassEventArgsToCommand="True" />
+                            </EventTriggerBehavior>
+                        </Interaction.Behaviors>
                     </Grid>
 
                     <DockPanel Grid.Row="0" VerticalAlignment="Center" Height="40"
