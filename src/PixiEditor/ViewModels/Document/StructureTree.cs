@@ -117,14 +117,9 @@ internal class StructureTree
     {
         member.NotifyStructuralVisibilityChanged();
 
-        if (member is not IFolderHandler folder)
+        if (member is IFolderHandler folder)
         {
-            return;
-        }
-
-        foreach (var child in folder.Children)
-        {
-            NotifyStructuralVisibilityChanged(child);
+            folder.NotifyDescendantsStructuralVisibilityChanged();
         }
     }
 }

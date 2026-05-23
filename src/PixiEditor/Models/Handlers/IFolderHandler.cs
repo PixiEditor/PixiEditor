@@ -5,4 +5,5 @@ namespace PixiEditor.Models.Handlers;
 internal interface IFolderHandler : IStructureMemberHandler
 {
     internal ObservableCollection<IStructureMemberHandler> Children { get; }
+    void NotifyDescendantsStructuralVisibilityChanged();
 }

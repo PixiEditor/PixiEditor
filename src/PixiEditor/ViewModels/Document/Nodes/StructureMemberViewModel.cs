@@ -48,7 +48,7 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
         OnPropertyChanged(nameof(IsVisibleBindable));
         NotifyStructuralVisibilityChanged();
 
-        if (this is FolderNodeViewModel folder)
+        if (this is IFolderHandler folder)
         {
             folder.NotifyDescendantsStructuralVisibilityChanged();
         }

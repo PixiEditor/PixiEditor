@@ -93,7 +93,7 @@ internal class FolderNodeViewModel : StructureMemberViewModel<FolderNode>, IFold
         {
             child.NotifyStructuralVisibilityChanged();
 
-            if (child is FolderNodeViewModel folder)
+            if (child is IFolderHandler folder)
             {
                 folder.NotifyDescendantsStructuralVisibilityChanged();
             }
