@@ -71,14 +71,14 @@
 
             </Grid>
         </Border>
-        <Button Classes="pixi-icon" FontSize="20" Content="{DynamicResource icon-timeline}"
+        <Button Classes="pixi-icon" Width="24" Height="24" FontSize="20" Content="{DynamicResource icon-timeline}"
                 Command="{xaml:Command UseProvided=True, Name=PixiEditor.Window.ShowDockWindow}"
-                CommandParameter="Timeline" 
+                CommandParameter="Timeline"
                 ui:Translator.TooltipKey="OPEN_TIMELINE"
                 />
-        <Button Classes="pixi-icon" FontSize="20" Content="{DynamicResource icon-nodes}"
+        <Button Classes="pixi-icon" Width="24" Height="24" FontSize="20" Content="{DynamicResource icon-nodes}"
                 Command="{xaml:Command UseProvided=True, Name=PixiEditor.Window.ShowDockWindow}"
-                CommandParameter="NodeGraph" 
+                CommandParameter="NodeGraph"
                 ui:Translator.TooltipKey="OPEN_NODE_GRAPH"
                 />
     </StackPanel>
