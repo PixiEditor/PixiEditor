@@ -4,7 +4,7 @@ namespace PixiEditor.Helpers;
 
 internal class AutosaveHelper
 {
-    static string legacyAutosavePath = Path.Join(Path.GetTempPath(), "PixiEditor", "Autosave");
+    static readonly string LegacyAutosavesPath = Path.Join(Path.GetTempPath(), "PixiEditor", "Autosave");
 
     public static Guid? GetAutosaveGuid(string? path)
     {
@@ -19,9 +19,10 @@ internal class AutosaveHelper
     {
 
         string path = Path.Join(Paths.PathToUnsavedFilesFolder, $"autosave-{guid}.pixi");
+        // TODO: This is pretty much temporary, once enough time passes, no check for legacy autosave should be needed.
         if (!File.Exists(path))
         {
-            return Path.Join(legacyAutosavePath, $"autosave-{guid}.zip");
+            return Path.Join(LegacyAutosavesPath, $"autosave-{guid}.pixi");
         }
 
         return path;
