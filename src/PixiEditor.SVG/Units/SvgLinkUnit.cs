@@ -12,6 +12,12 @@ public struct SvgLinkUnit : ISvgUnit
 
     public void ValuesFromXml(string readerValue, SvgDefs defs)
     {
+        if(readerValue == null)
+        {
+            ObjectReference = null;
+            return;
+        }
+
         if (readerValue.StartsWith("url(#") && readerValue.EndsWith(')'))
         {
             ObjectReference = readerValue[5..^1];
