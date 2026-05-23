@@ -1,6 +1,7 @@
 ﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:nodes="clr-namespace:PixiEditor.Views.Nodes"
+                    xmlns:nodeVms="clr-namespace:PixiEditor.ViewModels.Nodes"
                     xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
                     xmlns:behaviors="clr-namespace:PixiEditor.UI.Common.Behaviors;assembly=PixiEditor.UI.Common"
                     xmlns:overlays="clr-namespace:PixiEditor.Views.Overlays"
@@ -117,14 +118,25 @@
                                 </Canvas>
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
+                        <ItemsControl.DataTemplates>
+                            <DataTemplate DataType="{x:Type nodeVms:CommentZoneViewModel}">
+                                <nodes:CommentZoneView
+                                    Geometry="{Binding Geometry}"
+                                    ClipToBounds="False">
+                                    <nodes:CommentZoneView.Background>
+                                        <Binding Path="BackgroundBrush" />
+                                    </nodes:CommentZoneView.Background>
+                                    <nodes:CommentZoneView.BorderBrush>
+                                        <Binding Path="BorderBrush" />
+                                    </nodes:CommentZoneView.BorderBrush>
+                                </nodes:CommentZoneView>
+                            </DataTemplate>
+                            <DataTemplate DataType="{x:Type nodeVms:NodeFrameViewModelBase}">
                                 <nodes:NodeFrameView
                                     Geometry="{Binding Geometry}"
                                     ClipToBounds="False">
                                     <nodes:NodeFrameView.Background>
                                         <MultiBinding Converter="{converters:UnsetSkipMultiConverter}">
-                                            <Binding Path="BackgroundBrush" />
                                             <Binding Path="InternalName"
                                                      Converter="{converters:NodeInternalNameToStyleConverter}"
                                                      ConverterParameter="BackgroundBrush" />
@@ -133,7 +145,6 @@
                                     </nodes:NodeFrameView.Background>
                                     <nodes:NodeFrameView.BorderBrush>
                                         <MultiBinding Converter="{converters:UnsetSkipMultiConverter}">
-                                            <Binding Path="BorderBrush" />
                                             <Binding Path="InternalName"
                                                      Converter="{converters:NodeInternalNameToStyleConverter}"
                                                      ConverterParameter="BorderBrush" />
@@ -142,7 +153,7 @@
                                     </nodes:NodeFrameView.BorderBrush>
                                 </nodes:NodeFrameView>
                             </DataTemplate>
-                        </ItemsControl.ItemTemplate>
+                        </ItemsControl.DataTemplates>
                     </ItemsControl>
                 </Grid>
             </ControlTemplate>

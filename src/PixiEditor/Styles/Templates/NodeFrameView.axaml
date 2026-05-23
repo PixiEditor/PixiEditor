@@ -15,4 +15,16 @@
             </Setter.Value>
         </Setter>
     </ControlTheme>
+    <ControlTheme TargetType="nodes:CommentZoneView" x:Key="{x:Type nodes:CommentZoneView}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Path Data="{Binding Geometry, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:CommentZoneView}}"
+                          Fill="{TemplateBinding Background}"
+                          Stroke="{TemplateBinding BorderBrush}"
+                          StrokeThickness="2" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </ControlTheme>
 </ResourceDictionary>

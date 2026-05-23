@@ -8,6 +8,12 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 [NodeInfo("Comment")]
 public class CommentNode : Node
 {
+    public const string NamePropertyName = "Name";
+    public const string TextPropertyName = "Text";
+    public const string SizePropertyName = "Size";
+    public const string OffsetPropertyName = "Offset";
+    public const string ColorPropertyName = "Color";
+
     public InputProperty<string> CommentName { get; }
     public InputProperty<string> CommentText { get; }
     public InputProperty<VecI> Size { get; }
@@ -16,11 +22,11 @@ public class CommentNode : Node
 
     public CommentNode()
     {
-        CommentName = CreateInput("Name", "NAME", "");
-        CommentText = CreateInput("Text", "TEXT", "");
-        Size = CreateInput("Size", "SIZE", new VecI(100, 100)).WithRules(v => v.Min(VecI.One));
-        Offset = CreateInput("Offset", "OFFSET", new VecI(32, 132));
-        Color = CreateInput<Color>("Color", "COMMENT_WINDOW_COLOR", Colors.Gray);
+        CommentName = CreateInput(NamePropertyName, "NAME", "");
+        CommentText = CreateInput(TextPropertyName, "TEXT", "");
+        Size = CreateInput(SizePropertyName, "SIZE", new VecI(100, 100)).WithRules(v => v.Min(VecI.One));
+        Offset = CreateInput(OffsetPropertyName, "OFFSET", new VecI(32, 132));
+        Color = CreateInput<Color>(ColorPropertyName, "COMMENT_WINDOW_COLOR", Colors.Gray);
     }
 
     protected override void OnExecute(RenderContext context)
