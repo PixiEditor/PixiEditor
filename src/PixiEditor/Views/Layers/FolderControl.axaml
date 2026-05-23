@@ -19,6 +19,11 @@
              d:DesignHeight="35"
              d:DesignWidth="250"
              x:Name="folderControl">
+    <UserControl.Resources>
+        <converters:BoolToBrushConverter x:Key="FolderVisibilityForegroundConverter"
+                                         FalseBrush="{StaticResource ThemeForegroundLowBrush}"
+                                         TrueBrush="{StaticResource ThemeForegroundBrush}" />
+    </UserControl.Resources>
     <Border BorderThickness="0 0 0 0.5" BorderBrush="Gray" MinWidth="60" Focusable="True"
             Tag="{Binding ElementName=folderControl}">
         <Border.Background>
@@ -52,88 +57,135 @@
                 <CheckBox Classes="ImageCheckBox" VerticalAlignment="Center"
                           IsThreeState="False" HorizontalAlignment="Center"
                           IsChecked="{Binding Path=Folder.IsVisibleBindable, ElementName=folderControl, Mode=TwoWay}"
-                          Grid.Column="0" Height="16" />
+                          Grid.Column="0" Height="16">
+                    <CheckBox.Foreground>
+                        <MultiBinding Converter="{StaticResource FolderVisibilityForegroundConverter}">
+                            <Binding ElementName="folderControl" Path="Folder.IsVisibleStructurally" />
+                        </MultiBinding>
+                    </CheckBox.Foreground>
+                </CheckBox>
 
-                <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Left">
-                    <Rectangle
-                        Width="{Binding Path=(helpers:TreeViewItemHelper.Indent).Value, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ItemsPresenter}}"
-                        Fill="Transparent" StrokeThickness="0" />
-                    <Border
-                        IsVisible="{Binding Folder.ClipToMemberBelowEnabledBindable, ElementName=folderControl}"
-                        Background="{DynamicResource ThemeAccentBrush}" Width="3" Margin="1,1,2,1" CornerRadius="1" />
-                    <StackPanel Grid.Row="1" Orientation="Horizontal" Grid.Column="0" HorizontalAlignment="Left">
-                        <Border Width="32" Height="32" BorderThickness="1" BorderBrush="Black"
-                                RenderOptions.BitmapInterpolationMode="None">
-                            <Border.Background>
-                                <ImageBrush Source="/Images/CheckerTile.png" TileMode="Tile">
-                                    <ImageBrush.Transform>
-                                        <ScaleTransform ScaleX="0.4" ScaleY="0.4" />
-                                    </ImageBrush.Transform>
-                                </ImageBrush>
-                            </Border.Background>
-                            <visuals:PreviewTextureControl
-                                TexturePreview="{Binding Folder.Preview, ElementName=folderControl}"
-                                ClipToBounds="True"
-                                Width="30" Height="30" RenderOptions.BitmapInterpolationMode="None" />
-                        </Border>
+                <Grid Grid.Column="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Horizontal" Grid.Column="0" HorizontalAlignment="Left">
+                        <Rectangle
+                            Width="{Binding Path=(helpers:TreeViewItemHelper.Indent).Value, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ItemsPresenter}}"
+                            Fill="Transparent" StrokeThickness="0" />
                         <Border
-                            Width="32" Height="32"
-                            BorderThickness="1"
-                            Margin="3,0,0,0"
-                            RenderOptions.BitmapInterpolationMode="None"
-                            IsVisible="{Binding Folder.HasMaskBindable, ElementName=folderControl}"
-                            BorderBrush="White">
-                            <Border.Background>
-                                <ImageBrush Source="/Images/CheckerTile.png" TileMode="Tile">
-                                    <ImageBrush.Transform>
-                                        <ScaleTransform ScaleX="0.4" ScaleY="0.4" />
-                                    </ImageBrush.Transform>
-                                </ImageBrush>
-                            </Border.Background>
-                            <Grid IsHitTestVisible="False">
+                            IsVisible="{Binding Folder.ClipToMemberBelowEnabledBindable, ElementName=folderControl}"
+                            Background="{DynamicResource ThemeAccentBrush}" Width="3" Margin="1,1,2,1" CornerRadius="1" />
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" Grid.Column="0" HorizontalAlignment="Left">
+                            <Border Width="32" Height="32" BorderThickness="1" BorderBrush="Black"
+                                    RenderOptions.BitmapInterpolationMode="None">
+                                <Border.Background>
+                                    <ImageBrush Source="/Images/CheckerTile.png" TileMode="Tile">
+                                        <ImageBrush.Transform>
+                                            <ScaleTransform ScaleX="0.4" ScaleY="0.4" />
+                                        </ImageBrush.Transform>
+                                    </ImageBrush>
+                                </Border.Background>
                                 <visuals:PreviewTextureControl
-                                    TexturePreview="{Binding Folder.MaskPreview, ElementName=folderControl}"
-                                    Width="30" Height="30"
+                                    TexturePreview="{Binding Folder.Preview, ElementName=folderControl}"
                                     ClipToBounds="True"
-                                    RenderOptions.BitmapInterpolationMode="None" IsHitTestVisible="False" />
-                                <Path
-                                    Data="M 2 0 L 10 8 L 18 0 L 20 2 L 12 10 L 20 18 L 18 20 L 10 12 L 2 20 L 0 18 L 8 10 L 0 2 Z"
-                                    Fill="{DynamicResource ThemeAccentBrush}" HorizontalAlignment="Center"
+                                    Width="30" Height="30" RenderOptions.BitmapInterpolationMode="None" />
+                            </Border>
+                            <Border
+                                Width="32" Height="32"
+                                BorderThickness="1"
+                                Margin="3,0,0,0"
+                                RenderOptions.BitmapInterpolationMode="None"
+                                IsVisible="{Binding Folder.HasMaskBindable, ElementName=folderControl}"
+                                BorderBrush="White">
+                                <Border.Background>
+                                    <ImageBrush Source="/Images/CheckerTile.png" TileMode="Tile">
+                                        <ImageBrush.Transform>
+                                            <ScaleTransform ScaleX="0.4" ScaleY="0.4" />
+                                        </ImageBrush.Transform>
+                                    </ImageBrush>
+                                </Border.Background>
+                                <Grid IsHitTestVisible="False">
+                                    <visuals:PreviewTextureControl
+                                        TexturePreview="{Binding Folder.MaskPreview, ElementName=folderControl}"
+                                        Width="30" Height="30"
+                                        ClipToBounds="True"
+                                        RenderOptions.BitmapInterpolationMode="None" IsHitTestVisible="False" />
+                                    <Path
+                                        Data="M 2 0 L 10 8 L 18 0 L 20 2 L 12 10 L 20 18 L 18 20 L 10 12 L 2 20 L 0 18 L 8 10 L 0 2 Z"
+                                        Fill="{DynamicResource ThemeAccentBrush}" HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        IsVisible="{Binding !Folder.MaskIsVisibleBindable, ElementName=folderControl}" />
+                                </Grid>
+                            </Border>
+                            <StackPanel Orientation="Vertical" Margin="3,0,5,0">
+                                <input:EditableTextBlock
+                                    x:Name="editableTextBlock"
+                                    d:Text="New Folder" FontSize="14"
                                     VerticalAlignment="Center"
-                                    IsVisible="{Binding !Folder.MaskIsVisibleBindable, ElementName=folderControl}" />
-                            </Grid>
-                        </Border>
-                        <StackPanel Orientation="Vertical" Margin="3,0,5,0">
-                            <input:EditableTextBlock
-                                x:Name="editableTextBlock"
-                                d:Text="New Folder" FontSize="14"
-                                VerticalAlignment="Center"
-                                Text="{Binding Folder.NodeNameBindable, ElementName=folderControl, Mode=TwoWay}" />
-                            <!--Don't change above Text to Translator.Key, it will break renaming-->
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock d:Text="100" Foreground="White" FontSize="11">
-                                    <TextBlock.Text>
-                                        <Binding ElementName="folderControl" Path="Folder.OpacityBindable"
-                                                 Converter="{converters:MultiplyConverter}" StringFormat="N0">
-                                            <Binding.ConverterParameter>
-                                                <sys:Double>100.0</sys:Double>
-                                            </Binding.ConverterParameter>
-                                        </Binding>
-                                    </TextBlock.Text>
-                                </TextBlock>
-                                <TextBlock Foreground="White" FontSize="11">%</TextBlock>
-                                <TextBlock
-                                    Margin="5,0,0,0"
-                                    d:Text="Normal"
-                                    Foreground="White"
-                                    FontSize="11"
-                                    Text="{Binding Folder.BlendModeBindable, ElementName=folderControl, Converter={converters:BlendModeToStringConverter}}" />
+                                    Text="{Binding Folder.NodeNameBindable, ElementName=folderControl, Mode=TwoWay}">
+                                    <input:EditableTextBlock.Foreground>
+                                        <MultiBinding Converter="{StaticResource FolderVisibilityForegroundConverter}">
+                                            <Binding ElementName="folderControl" Path="Folder.IsVisibleStructurally" />
+                                        </MultiBinding>
+                                    </input:EditableTextBlock.Foreground>
+                                </input:EditableTextBlock>
+                                <!--Don't change above Text to Translator.Key, it will break renaming-->
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock d:Text="100" FontSize="11">
+                                        <TextBlock.Foreground>
+                                            <MultiBinding Converter="{StaticResource FolderVisibilityForegroundConverter}">
+                                                <Binding ElementName="folderControl" Path="Folder.IsVisibleStructurally" />
+                                            </MultiBinding>
+                                        </TextBlock.Foreground>
+                                        <TextBlock.Text>
+                                            <Binding ElementName="folderControl" Path="Folder.OpacityBindable"
+                                                     Converter="{converters:MultiplyConverter}" StringFormat="N0">
+                                                <Binding.ConverterParameter>
+                                                    <sys:Double>100.0</sys:Double>
+                                                </Binding.ConverterParameter>
+                                            </Binding>
+                                        </TextBlock.Text>
+                                    </TextBlock>
+                                    <TextBlock FontSize="11">
+                                        <TextBlock.Foreground>
+                                            <MultiBinding Converter="{StaticResource FolderVisibilityForegroundConverter}">
+                                                <Binding ElementName="folderControl" Path="Folder.IsVisibleStructurally" />
+                                            </MultiBinding>
+                                        </TextBlock.Foreground>
+                                        %
+                                    </TextBlock>
+                                    <TextBlock
+                                        Margin="5,0,0,0"
+                                        d:Text="Normal"
+                                        FontSize="11"
+                                        Text="{Binding Folder.BlendModeBindable, ElementName=folderControl, Converter={converters:BlendModeToStringConverter}}">
+                                        <TextBlock.Foreground>
+                                            <MultiBinding Converter="{StaticResource FolderVisibilityForegroundConverter}">
+                                                <Binding ElementName="folderControl" Path="Folder.IsVisibleStructurally" />
+                                            </MultiBinding>
+                                        </TextBlock.Foreground>
+                                    </TextBlock>
+                                </StackPanel>
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
-                    <TextBlock Text="{DynamicResource icon-folder}" Classes="pixi-icon" FontSize="20" Margin="0,0,10,0"
-                               HorizontalAlignment="Right" />
-                </StackPanel>
+                    <TextBlock Grid.Column="1"
+                               Text="{DynamicResource icon-folder}"
+                               Classes="pixi-icon"
+                               FontSize="15"
+                               Width="18"
+                               Margin="6,0,6,0"
+                               HorizontalAlignment="Right"
+                               VerticalAlignment="Center">
+                        <TextBlock.Foreground>
+                            <MultiBinding Converter="{StaticResource FolderVisibilityForegroundConverter}">
+                                <Binding ElementName="folderControl" Path="Folder.IsVisibleStructurally" />
+                            </MultiBinding>
+                        </TextBlock.Foreground>
+                    </TextBlock>
+                </Grid>
             </Grid>
             <Grid
                 Grid.Row="2"

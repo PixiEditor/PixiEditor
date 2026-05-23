@@ -91,6 +91,7 @@ internal class StructureTree
             int clampIndex = Math.Clamp(relativeIndex, 0, root.Count);
             root.Insert(clampIndex, member);
             _memberMap.Add(member, root);
+            NotifyStructuralVisibilityChanged(member);
             return;
         }
 
@@ -101,6 +102,7 @@ internal class StructureTree
             int clampIndex = Math.Clamp(relativeIndex, 0, root.Count);
             root.Insert(clampIndex, member);
             _memberMap[member] = root;
+            NotifyStructuralVisibilityChanged(member);
         }
 
         bool existsAtIndex = root.Count > relativeIndex && root[relativeIndex] == member;
@@ -108,6 +110,21 @@ internal class StructureTree
         {
             int clampedIndex = Math.Clamp(relativeIndex, 0, root.Count - 1);
             root.Move(root.IndexOf(member), clampedIndex);
+        }
+    }
+
+    private static void NotifyStructuralVisibilityChanged(IStructureMemberHandler member)
+    {
+        member.NotifyStructuralVisibilityChanged();
+
+        if (member is not IFolderHandler folder)
+        {
+            return;
+        }
+
+        foreach (var child in folder.Children)
+        {
+            NotifyStructuralVisibilityChanged(child);
         }
     }
 }
