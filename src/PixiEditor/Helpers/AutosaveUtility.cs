@@ -4,6 +4,8 @@ namespace PixiEditor.Helpers;
 
 internal class AutosaveHelper
 {
+    static string legacyAutosavePath = Path.Join(Path.GetTempPath(), "PixiEditor", "Autosave");
+
     public static Guid? GetAutosaveGuid(string? path)
     {
         if (path is null)
@@ -15,6 +17,13 @@ internal class AutosaveHelper
 
     public static string GetAutosavePath(Guid guid)
     {
-        return Path.Join(Paths.PathToUnsavedFilesFolder, $"autosave-{guid}.pixi");
+
+        string path = Path.Join(Paths.PathToUnsavedFilesFolder, $"autosave-{guid}.pixi");
+        if (!File.Exists(path))
+        {
+            return Path.Join(legacyAutosavePath, $"autosave-{guid}.zip");
+        }
+
+        return path;
     }
 }
