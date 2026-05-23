@@ -4,7 +4,7 @@ using PixiEditor.ViewModels.Nodes;
 namespace PixiEditor.ViewModels.Document.Nodes;
 [NodeViewModel("STICKYNOTE_NODE", null, PixiPerfectIcons.FileText)]
 
-internal class StickynoteNodeViewModel : NodeViewModel<StickynoteNode>
+internal class StickyNoteNodeViewModel : NodeViewModel<StickyNoteNode>
 {
 
 }

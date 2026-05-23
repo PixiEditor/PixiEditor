@@ -8,7 +8,6 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 [NodeInfo("Comment")]
 public class CommentNode : Node
 {
-    public const string NamePropertyName = "Name";
     public const string TextPropertyName = "Text";
     public const string SizePropertyName = "Size";
     public const string OffsetPropertyName = "Offset";
@@ -22,7 +21,6 @@ public class CommentNode : Node
 
     public CommentNode()
     {
-        CommentName = CreateInput(NamePropertyName, "NAME", "");
         CommentText = CreateInput(TextPropertyName, "TEXT", "");
         Size = CreateInput(SizePropertyName, "SIZE", new VecI(100, 100)).WithRules(v => v.Min(VecI.One));
         Offset = CreateInput(OffsetPropertyName, "OFFSET", new VecI(32, 250));

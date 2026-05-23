@@ -1,16 +1,16 @@
-using PixiEditor.ChangeableDocument.Rendering;
+﻿using PixiEditor.ChangeableDocument.Rendering;
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
-[NodeInfo("Stickynote")]
-public class StickynoteNode : Node
+[NodeInfo("StickyNote")]
+public class StickyNoteNode : Node
 {
     public InputProperty<string> Text { get; }
 
-    public StickynoteNode()
+    public StickyNoteNode()
     {
         Text = CreateInput("Text", "TEXT_LABEL", "");
     }
-    public override Node CreateCopy() => new StickynoteNode();
+    public override Node CreateCopy() => new StickyNoteNode();
 
     protected override void OnExecute(RenderContext context)
     {

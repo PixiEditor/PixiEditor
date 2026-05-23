@@ -1509,14 +1509,14 @@
   "GAME_OF_LIFE_EXAMPLE": "Game of Life",
   "STICKYNOTE_NODE": "Sticky Note",
   "FIND_AND_REPLACE_TOOL": "Find and Replace",
-  "FIND_AND_REPLACE_TOOL_TOOLTIP": "Pixels of primary color will be replaced with secondary color. Tolerance adjusts color detection threshold.",
-  "FIND_AND_REPLACE_TOOL_ACTION_DISPLAY_DEFAULT": "Click on the canvas to replace colors.",
+  "FIND_AND_REPLACE_TOOL_TOOLTIP": "Pixels of primary color will be replaced with secondary color.",
+  "FIND_AND_REPLACE_TOOL_ACTION_DISPLAY_DEFAULT": "Click on the canvas to replace colors. Tolerance adjusts color detection threshold.",
   "COMMENT_NODE": "Comment",
   "COMMENT_WINDOW_COLOR": "Box Color",
-  "SATURATION_TOGGLE": "Saturation Mode",
-  "BRIGHTNESS_TOGGLE": "Brightness Mode",
-  "SINGLE_COLOR": "Single Color Mode",
+  "SATURATION_TOGGLE": "Replace Saturation",
+  "BRIGHTNESS_TOGGLE": "Replace Brightness",
+  "SINGLE_COLOR": "Replace Single Color",
   "SWAP_COLOR_TOOL": "Swap Color",
-  "SWAP_COLOR_TOOL_TOOLTIP": "Changes the colors of the affected area to match Primary Color. Use the checkboxes to preserve different color attributes. Single Color mode swaps only the color you click on. Hardness 100 should be used with low Tolerance.",
-  "SWAP_COLOR_TOOL_ACTION_DISPLAY_DEFAULT": "Click on the canvas to swap colors."
+  "SWAP_COLOR_TOOL_TOOLTIP": "Changes the colors of the affected area to match Primary Color.",
+  "SWAP_COLOR_TOOL_ACTION_DISPLAY_DEFAULT": "Click on the canvas to swap colors. Replace Single Color swaps only pixels of the color you clicked first. Hardness 100 should be used with low Tolerance."
 }
