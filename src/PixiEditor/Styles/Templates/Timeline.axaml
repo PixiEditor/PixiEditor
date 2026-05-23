@@ -106,7 +106,7 @@
                                     ui1:Translator.TooltipKey="STEP_BACK"
                                     Command="{Binding StepBackCommand, RelativeSource={RelativeSource TemplatedParent}}"
                                     Content="{DynamicResource icon-step-back}" />
-                            <ToggleButton Margin="0, 5" Width="24" HorizontalAlignment="Center" Classes="PlayButton"
+                            <ToggleButton Width="32" HorizontalAlignment="Center" Classes="PlayButton timeline"
                                           Name="PART_PlayToggle"
                                           IsChecked="{Binding IsPlaying, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" />
                             <Button Classes="pixi-icon"

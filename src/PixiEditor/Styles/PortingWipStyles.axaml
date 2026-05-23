@@ -54,6 +54,7 @@
         <Setter Property="Content" Value="{DynamicResource icon-play}" />
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Foreground" Value="{DynamicResource ThemeAccent2Brush}"/>
+        <Setter Property="FontSize" Value="24" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate>
@@ -63,7 +64,7 @@
                             Width="{TemplateBinding Width}"
                             Height="{TemplateBinding Width}"
                             Background="{TemplateBinding Background}">
-                        <TextBlock Text="{TemplateBinding Content}" FontSize="{TemplateBinding Width}"
+                        <TextBlock Text="{TemplateBinding Content}" FontSize="{TemplateBinding FontSize}"
                                    HorizontalAlignment="Center" VerticalAlignment="Center"
                                    Classes="pixi-icon" />
                     </Border>
@@ -74,6 +75,10 @@
 
     <Style Selector="ToggleButton.PlayButton:pointerover /template/ Border#PlayButtonBorder">
         <Setter Property="Background" Value="{DynamicResource ThemeAccent2LowBrush}" />
+    </Style>
+
+    <Style Selector="ToggleButton.PlayButton.timeline:pointerover /template/ Border#PlayButtonBorder">
+        <Setter Property="Background" Value="{DynamicResource ThemeControlHighBrush}" />
     </Style>
 
     <Style Selector="ToggleButton.PlayButton:checked">
