@@ -1,0 +1,34 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:nodes="clr-namespace:PixiEditor.Views.Nodes"
+                    xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker.AvaloniaUI">
+    <ControlTheme TargetType="nodes:CommentNodeView" x:Key="{x:Type nodes:CommentNodeView}">
+        <Setter Property="Template">
+            <ControlTemplate>
+                <DockPanel>
+                    <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto">
+                        <TextBox Grid.Column="0"
+                                 AcceptsReturn="True"
+                                 TextWrapping="Wrap"
+                                 Watermark="write comment here"
+                                 Text="{Binding Text, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" />
+                        <colorPicker:PortableColorPicker Name="PART_ColorPicker"
+                                                         Grid.Column="1"
+                                                         VerticalAlignment="Top"
+                                                         Width="40" Height="20"
+                                                         EnableGradientsTab="false" />
+                    </Grid>
+                    <Border Name="PART_Rectangle"
+                            BorderThickness="1"
+                            Width="{Binding BoxSize.X, RelativeSource={RelativeSource TemplatedParent}}"
+                            Height="{Binding BoxSize.Y, RelativeSource={RelativeSource TemplatedParent}}"
+                            HorizontalAlignment="Left" />
+                </DockPanel>
+            </ControlTemplate>
+        </Setter>
+
+        <Style Selector="^:selected /template/ Border#PART_Rectangle">
+            <Setter Property="BorderThickness" Value="2" />
+        </Style>
+    </ControlTheme>
+</ResourceDictionary>

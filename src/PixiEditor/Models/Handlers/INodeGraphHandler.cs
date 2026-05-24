@@ -16,7 +16,6 @@ internal interface INodeGraphHandler
    public void RemoveNode(Guid nodeId);
    public void AddFrame(Guid frameId, IEnumerable<Guid> nodeIds);
    public void AddZone(Guid frameId, string internalName, Guid startId, Guid endId);
-    public void AddCommentZone(Guid frameId, string internalName, Guid nodeId);
    public void RemoveFrame(Guid frameId);
    public void SetConnection(NodeConnectionViewModel connection);
    public void RemoveConnection(Guid nodeId, string property);
