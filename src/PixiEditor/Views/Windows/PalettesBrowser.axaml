@@ -48,6 +48,14 @@
                             <Setter Property="ui:Translator.TooltipKey" Value="ASCENDING" />
                             <Setter Property="Content" Value="{DynamicResource icon-chevrons-up}" />
                         </Style>
+                        <Style Selector="ToggleButton:pointerover /template/ ContentPresenter">
+                            <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightBrush}" />
+                            <Setter Property="CornerRadius" Value="6" />
+                        </Style>
+                        <Style Selector="ToggleButton:checked:pointerover /template/ ContentPresenter">
+                            <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightBrush}" />
+                            <Setter Property="CornerRadius" Value="6" />
+                        </Style>
                     </ToggleButton.Styles>
                 </ToggleButton>
                 <Label Margin="10 0 0 0" ui:Translator.Key="NAME" VerticalAlignment="Center" />
@@ -80,20 +88,18 @@
                         Margin="0 0 10 0">
                 <Button ui:Translator.TooltipKey="ADD_FROM_CURRENT_PALETTE"
                         Command="{Binding ElementName=palettesBrowser, Path=AddFromPaletteCommand}"
-                        Cursor="Hand" Margin="10 0" Width="24" Height="24" Classes="pixi-icon"
+                        Cursor="Hand" Margin="10 0" Classes="pixi-icon"
                         Content="{DynamicResource icon-plus-square}" />
-                <Button Cursor="Hand" Click="OpenFolder_OnClick" Width="24" Height="24"
+                <Button Cursor="Hand" Click="OpenFolder_OnClick" 
                         ui:Translator.TooltipKey="OPEN_PALETTES_DIR_TOOLTIP"
                         Classes="pixi-icon" Content="{DynamicResource icon-folder}" />
                 <Button HorizontalAlignment="Right" Margin="10 0 0 0"
                         ui:Translator.TooltipKey="BROWSE_ON_LOSPEC_TOOLTIP"
-                        Width="24" Height="24"
                         Click="BrowseOnLospec_OnClick"
                         CommandParameter="https://lospec.com/palette-list" Classes="pixi-icon"
                         Content="{DynamicResource icon-globe}" />
                 <Button HorizontalAlignment="Right" Margin="10 0 0 0"
                         ui:Translator.TooltipKey="IMPORT_FROM_FILE_TOOLTIP"
-                        Width="24" Height="24"
                         Click="ImportFromFile_OnClick" Classes="pixi-icon"
                         Content="{DynamicResource icon-hard-drive}" />
             </StackPanel>
