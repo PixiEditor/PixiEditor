@@ -1511,5 +1511,6 @@
   "MULTIPLY_MATRIX_NODE": "Multiply Matrix",
   "INVERT_MATRIX_NODE": "Invert Matrix",
   "FIRST_INPUT": "First",
-  "SECOND_INPUT": "Second"
+  "SECOND_INPUT": "Second",
+  "RENDER_BRUSH_OVERLAY": "Render Brush Overlay"
 }
