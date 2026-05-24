@@ -9,6 +9,8 @@ namespace PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
 
 internal class TextToolbar : FillableShapeToolbar, ITextToolbar
 {
+    public event Action<FontFamilyName?> PreviewFontFamilyChanged;
+
     public FontFamilyName FontFamily
     {
         get
@@ -106,7 +108,9 @@ internal class TextToolbar : FillableShapeToolbar, ITextToolbar
 
     public TextToolbar()
     {
-        AddSetting(new FontFamilySettingViewModel(nameof(FontFamily), ""));
+        var fontFamilySetting = new FontFamilySettingViewModel(nameof(FontFamily), "");
+        fontFamilySetting.PreviewFontFamilyChanged += fontFamily => PreviewFontFamilyChanged?.Invoke(fontFamily);
+        AddSetting(fontFamilySetting);
         FontFamily = FontLibrary.DefaultFontFamily;
         
         var sizeSetting =

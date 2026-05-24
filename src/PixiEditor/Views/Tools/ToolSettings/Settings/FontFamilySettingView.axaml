@@ -16,5 +16,6 @@
     </Design.DataContext>
 
     <input:FontFamilyPicker FontIndex="{Binding FontIndex, Mode=TwoWay}"
+                                 PreviewFontIndex="{Binding PreviewFontIndex, Mode=TwoWay}"
                                  Fonts="{Binding Fonts, Mode=OneWayToSource}"/>
 </UserControl>
