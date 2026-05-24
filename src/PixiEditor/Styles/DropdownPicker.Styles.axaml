@@ -1,15 +1,18 @@
 <Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <Style Selector="Button.dropdown-picker-button">
+    <!-- ===== Trigger button (Button + DropDownButton) ===== -->
+    <Style Selector=":is(Button).dropdown-picker-button">
         <Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush2}" />
         <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderHighBrush}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
     </Style>
-    <Style Selector="Button.dropdown-picker-button:pointerover">
+    <Style Selector=":is(Button).dropdown-picker-button:pointerover">
         <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightBrush}" />
     </Style>
+
+    <!-- Button: keep highlighted while flyout is open (driven by .open class from code-behind) -->
     <Style Selector="Button.dropdown-picker-button.open">
         <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightBrush}" />
     </Style>
@@ -22,6 +25,15 @@
         <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
     </Style>
 
+    <!-- DropDownButton: override its RootBorder background for the same hover/pressed feel -->
+    <Style Selector="DropDownButton.dropdown-picker-button:pointerover /template/ Border#RootBorder">
+        <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightBrush}" />
+    </Style>
+    <Style Selector="DropDownButton.dropdown-picker-button:pressed /template/ Border#RootBorder">
+        <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightBrush}" />
+    </Style>
+
+    <!-- ===== Click-style items (Button) — used by ItemsControl pickers ===== -->
     <Style Selector="Button.dropdown-picker-item">
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderThickness" Value="0" />
@@ -35,6 +47,26 @@
         <Setter Property="CornerRadius" Value="5" />
     </Style>
 
+    <!-- ===== Selection-style items (ListBox / ListBoxItem) — used by ListBox pickers ===== -->
+    <Style Selector="ListBox.dropdown-picker-list">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="0" />
+    </Style>
+    <Style Selector="ListBox.dropdown-picker-list ListBoxItem">
+        <Setter Property="CornerRadius" Value="5" />
+        <Setter Property="Height" Value="28" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="Padding" Value="8 0" />
+    </Style>
+    <Style Selector="ListBox.dropdown-picker-list ListBoxItem:pointerover /template/ Border">
+        <Setter Property="Background" Value="{DynamicResource ThemeControlHigherHighlightBrush}" />
+    </Style>
+    <Style Selector="ListBox.dropdown-picker-list ListBoxItem:selected /template/ Border">
+        <Setter Property="Background" Value="{DynamicResource ThemeControlHighBrush}" />
+    </Style>
+
+    <!-- ===== Flyout presenter ===== -->
     <Style Selector="FlyoutPresenter.dropdown-picker-flyout">
         <Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush2}" />
         <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderHighBrush}" />

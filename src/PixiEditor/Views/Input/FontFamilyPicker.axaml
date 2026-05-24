@@ -6,54 +6,16 @@
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.Views.Input.FontFamilyPicker">
-    <UserControl.Resources>
-        <SolidColorBrush x:Key="DropdownItemHoverBrush" Color="#626262" />
-    </UserControl.Resources>
-    <UserControl.Styles>
-        <Style Selector="FlyoutPresenter.FontFamilyPickerFlyout">
-            <Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush2}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderHighBrush}" />
-            <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
-            <Setter Property="Padding" Value="4" />
-        </Style>
-        <Style Selector="DropDownButton.FontFamilyPickerButton:pointerover /template/ Border#RootBorder">
-            <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightBrush}" />
-        </Style>
-        <Style Selector="DropDownButton.FontFamilyPickerButton:pressed /template/ Border#RootBorder">
-            <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightBrush}" />
-        </Style>
-        <Style Selector="ListBox.FontFamilyPickerList">
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Padding" Value="0" />
-        </Style>
-        <Style Selector="ListBox.FontFamilyPickerList ListBoxItem">
-            <Setter Property="CornerRadius" Value="5" />
-            <Setter Property="Height" Value="28" />
-            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-            <Setter Property="Padding" Value="8, 0" />
-        </Style>
-        <Style Selector="ListBox.FontFamilyPickerList ListBoxItem:pointerover /template/ Border">
-            <Setter Property="Background" Value="{StaticResource DropdownItemHoverBrush}" />
-        </Style>
-        <Style Selector="ListBox.FontFamilyPickerList ListBoxItem:selected /template/ Border">
-            <Setter Property="Background" Value="{DynamicResource ThemeControlHighBrush}" />
-        </Style>
-    </UserControl.Styles>
     <StackPanel Orientation="Horizontal" Spacing="5" DataContext="{Binding RelativeSource={RelativeSource AncestorType=UserControl}}">
         <Button Classes="pixi-icon" FontSize="16"
                 ui:Translator.TooltipKey="CUSTOM_FONT"
                 Command="{Binding UploadFontCommand}" Content="{DynamicResource icon-upload}" />
         <DropDownButton x:Name="FontDropDown"
-                        Classes="FontFamilyPickerButton"
+                        Classes="dropdown-picker-button"
                         Width="150"
                         Height="25"
-                        Padding="8,0"
-                        Focusable="False"
-                        Background="{DynamicResource ThemeBackgroundBrush2}"
-                        BorderBrush="{DynamicResource ThemeBorderHighBrush}"
-                        BorderThickness="1"
-                        CornerRadius="{DynamicResource ControlCornerRadius}">
+                        Padding="8 0"
+                        Focusable="False">
             <DropDownButton.Content>
                 <TextBlock Text="{Binding SelectedFontFamily.Name}"
                            TextTrimming="CharacterEllipsis"
@@ -61,11 +23,11 @@
             </DropDownButton.Content>
             <DropDownButton.Flyout>
                 <Flyout Placement="BottomEdgeAlignedLeft"
-                        FlyoutPresenterClasses="FontFamilyPickerFlyout"
+                        FlyoutPresenterClasses="dropdown-picker-flyout"
                         ShowMode="Standard"
                         Closed="FontFlyout_OnClosed">
                     <ListBox x:Name="FontList"
-                             Classes="FontFamilyPickerList"
+                             Classes="dropdown-picker-list"
                              Width="190"
                              MaxHeight="280"
                              ItemsSource="{Binding Fonts}"
