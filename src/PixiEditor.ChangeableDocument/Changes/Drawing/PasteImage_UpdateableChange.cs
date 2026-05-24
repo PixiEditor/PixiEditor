@@ -59,7 +59,7 @@ internal class PasteImage_UpdateableChange : InterruptableUpdateableChange
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
-        ChunkyImage targetImage;
+        ChunkyImage? targetImage;
         if (targetKeyFrameGuid.HasValue && targetKeyFrameGuid != Guid.Empty)
         {
             targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, targetKeyFrameGuid.Value);
