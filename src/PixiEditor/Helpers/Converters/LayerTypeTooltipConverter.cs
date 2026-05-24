@@ -3,6 +3,7 @@ using Avalonia;
 using PixiEditor.Models.Handlers;
 using PixiEditor.UI.Common.Converters;
 using PixiEditor.UI.Common.Localization;
+using PixiEditor.ViewModels.Document.Nodes;
 
 namespace PixiEditor.Helpers.Converters;
 
@@ -14,7 +15,7 @@ internal class LayerTypeTooltipConverter : MarkupConverter
         {
             IVectorLayerHandler => new LocalizedString("VECTOR_LAYER"),
             IRasterLayerHandler => new LocalizedString("RASTER_LAYER"),
-            ILayerHandler => new LocalizedString("NESTED_DOCUMENT"),
+            NestedDocumentNodeViewModel => new LocalizedString("NESTED_DOCUMENT"),
             _ => AvaloniaProperty.UnsetValue
         };
     }
