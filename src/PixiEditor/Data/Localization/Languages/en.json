@@ -1512,5 +1512,8 @@
   "INVERT_MATRIX_NODE": "Invert Matrix",
   "FIRST_INPUT": "First",
   "SECOND_INPUT": "Second",
-  "RENDER_BRUSH_OVERLAY": "Render Brush Overlay"
+  "RENDER_BRUSH_OVERLAY": "Render Brush Overlay",
+  "STAMP_MODE": "Stamp Mode",
+  "SINGLE_BRUSH_STAMP_MODE": "Single",
+  "PER_SUB_SHAPE_BRUSH_STAMP_MODE": "Per Sub-shape"
 }

@@ -49,6 +49,7 @@ public class BrushOutputNode : Node
 
     public InputProperty<string> BrushName { get; }
     public InputProperty<ShapeVectorData> VectorShape { get; }
+    public InputProperty<BrushStampMode> StampMode { get; }
     public InputProperty<Paintable> Stroke { get; }
     public InputProperty<Paintable> Fill { get; }
     public RenderInputProperty Content { get; }
@@ -104,6 +105,7 @@ public class BrushOutputNode : Node
     {
         BrushName = CreateInput<string>(BrushNameProperty, "NAME", "Unnamed");
         VectorShape = CreateInput<ShapeVectorData>("VectorShape", "SHAPE", null);
+        StampMode = CreateInput<BrushStampMode>("StampMode", "STAMP_MODE", BrushStampMode.Single);
         Stroke = CreateInput<Paintable>("Stroke", "STROKE", null);
         StrokeTransform = CreateInput<Matrix3X3>("StrokeTransform", "STROKE_TRANSFORM", Matrix3X3.Identity);
         Fill = CreateInput<Paintable>("Fill", "FILL", null);
@@ -384,4 +386,10 @@ public class BrushOutputNode : Node
         cache.Dispose();
         base.Dispose();
     }
+}
+
+public enum BrushStampMode
+{
+    Single,
+    PerSubShape
 }

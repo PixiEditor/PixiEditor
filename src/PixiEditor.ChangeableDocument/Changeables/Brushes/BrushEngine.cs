@@ -352,15 +352,15 @@ public class BrushEngine : IDisposable
             };
 
             var previousBrushNode = previous.AllNodes.FirstOrDefault(x => x is BrushOutputNode) as BrushOutputNode;
-            PaintBrush(target, data, point, previousBrushNode, context, rect, flipX, flipY, viewportData);
+            PaintBrush(target, data, point, previousBrushNode, context, rect, flipX, flipY);
             previous = previousBrushNode?.Previous.Value;
         }
 
-        PaintBrush(target, brushData, point, brushNode, context, rect, flipX, flipY, viewportData);
+        PaintBrush(target, brushData, point, brushNode, context, rect, flipX, flipY);
     }
 
     private void PaintBrush(ChunkyImage target, BrushData brushData, VecD point, BrushOutputNode brushNode,
-        BrushRenderContext context, RectD rect, bool flipX, bool flipY, ViewportData viewport)
+        BrushRenderContext context, RectD rect, bool flipX, bool flipY)
     {
         brushData.BrushGraph.Execute(brushNode, context);
 
@@ -384,6 +384,7 @@ public class BrushEngine : IDisposable
         bool canReuseStamps = brushNode.CanReuseStamps.Value;
         Blender? stampBlender = brushNode.UseCustomStampBlender.Value ? brushNode.LastStampBlender : null;
         Matrix3X3 transform = brushNode.ContentTransform.Value;
+        var stampMode = brushNode.StampMode.Value;
         //Blender? imageBlender = brushNode.UseCustomImageBlender.Value ? brushNode.LastImageBlender : null;
 
         if (fill != null)
@@ -394,7 +395,7 @@ public class BrushEngine : IDisposable
 
         if (PaintBrush(target, autoPosition, vectorShape, rect, fitToStrokeSize, pressure, content, contentTexture,
                 stampBlender, brushNode.StampBlendMode.Value, antiAliasing, fill, stroke, snapToPixels, canReuseStamps,
-                transform, flipX, flipY, viewport))
+                transform, flipX, flipY, stampMode))
         {
             lastPos = point;
         }
@@ -404,7 +405,7 @@ public class BrushEngine : IDisposable
         RectD rect, bool fitToStrokeSize, float pressure, Painter? content,
         Texture? contentTexture, Blender? blender, DrawingApiBlendMode blendMode, bool antiAliasing, Paintable fill,
         Paintable stroke,
-        bool snapToPixels, bool canReuseStamps, Matrix3X3 transform, bool flipX, bool flipY, ViewportData data)
+        bool snapToPixels, bool canReuseStamps, Matrix3X3 transform, bool flipX, bool flipY, BrushStampMode stampMode)
     {
         using var path = vectorShape.ToPath(true);
         if (path == null)
@@ -424,6 +425,42 @@ public class BrushEngine : IDisposable
 
         EvaluateShape(autoPosition, path, vectorShape, rect, snapToPixels, fitToStrokeSize, pressure);
 
+        if (stampMode == BrushStampMode.PerSubShape)
+        {
+            EditableVectorPath editableVectorPath = new EditableVectorPath(path);
+
+            var subShapes = editableVectorPath.SubShapes;
+
+            foreach (var subShape in subShapes)
+            {
+                using var subPath = subShape.ToPath();
+                if (subPath == null)
+                {
+                    continue;
+                }
+
+                var subRect = subPath.TightBounds;
+                if (subRect.Width <= 0 || subRect.Height <= 0)
+                {
+                    continue;
+                }
+
+                PaintStamp(target, vectorShape, subRect, content, contentTexture, blender, blendMode, antiAliasing,
+                    fill, stroke, canReuseStamps, transform, flipX, flipY, subPath);
+            }
+        }
+        else
+        {
+            PaintStamp(target, vectorShape, rect, content, contentTexture, blender, blendMode, antiAliasing, fill, stroke, canReuseStamps, transform, flipX, flipY, path);
+        }
+
+        return true;
+    }
+
+    private void PaintStamp(ChunkyImage target, ShapeVectorData vectorShape, RectD rect, Painter? content,
+        Texture? contentTexture, Blender? blender, DrawingApiBlendMode blendMode, bool antiAliasing, Paintable fill,
+        Paintable stroke, bool canReuseStamps, Matrix3X3 transform, bool flipX, bool flipY, VectorPath path)
+    {
         StrokeCap strokeCap = StrokeCap.Butt;
         PaintStyle strokeStyle = PaintStyle.Fill;
 
@@ -457,7 +494,7 @@ public class BrushEngine : IDisposable
             }
             else if(paintable is GradientPaintable)
             {
-               paintableCenter = rect.Center;
+                paintableCenter = rect.Center;
             }
 
             if (flipX)
@@ -534,8 +571,6 @@ public class BrushEngine : IDisposable
                 }
             }
         }
-
-        return true;
     }
 
     private Texture UpdateFullTexture(ChunkyImage target, ColorSpace colorSpace, bool sampleLatest)
