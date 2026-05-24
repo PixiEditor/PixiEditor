@@ -1,0 +1,44 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Style Selector="Button.dropdown-picker-button">
+        <Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush2}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderHighBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
+    </Style>
+    <Style Selector="Button.dropdown-picker-button:pointerover">
+        <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightBrush}" />
+    </Style>
+    <Style Selector="Button.dropdown-picker-button.open">
+        <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightBrush}" />
+    </Style>
+    <Style Selector="Button.dropdown-picker-button:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightBrush}" />
+        <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
+    </Style>
+    <Style Selector="Button.dropdown-picker-button.open /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightBrush}" />
+        <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
+    </Style>
+
+    <Style Selector="Button.dropdown-picker-item">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="CornerRadius" Value="5" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="MinHeight" Value="27" />
+        <Setter Property="Padding" Value="8 5" />
+    </Style>
+    <Style Selector="Button.dropdown-picker-item:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource ThemeControlHigherHighlightBrush}" />
+        <Setter Property="CornerRadius" Value="5" />
+    </Style>
+
+    <Style Selector="FlyoutPresenter.dropdown-picker-flyout">
+        <Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush2}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderHighBrush}" />
+        <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
+        <Setter Property="Padding" Value="4" />
+    </Style>
+</Styles>
