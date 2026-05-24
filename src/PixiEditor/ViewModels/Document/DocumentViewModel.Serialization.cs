@@ -537,9 +537,14 @@ internal partial class DocumentViewModel
             {
                 if (inputProp.Connection != null)
                 {
+                    if (!nodeIdMap.TryGetValue(inputProp.Connection.Node.Id, out var outputNodeId))
+                    {
+                        continue;
+                    }
+
                     connections.Add(new PropertyConnection()
                     {
-                        OutputNodeId = nodeIdMap[inputProp.Connection.Node.Id],
+                        OutputNodeId = outputNodeId,
                         OutputPropertyName = inputProp.Connection.InternalPropertyName,
                         InputPropertyName = inputProp.InternalPropertyName
                     });
