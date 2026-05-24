@@ -88,17 +88,17 @@
                         Margin="0 0 10 0">
                 <Button ui:Translator.TooltipKey="ADD_FROM_CURRENT_PALETTE"
                         Command="{Binding ElementName=palettesBrowser, Path=AddFromPaletteCommand}"
-                        Cursor="Hand" Margin="10 0" Classes="pixi-icon"
+                        Cursor="Hand" Margin="10 0 2.5 0" Classes="pixi-icon"
                         Content="{DynamicResource icon-plus-square}" />
-                <Button Cursor="Hand" Click="OpenFolder_OnClick" 
+                <Button Cursor="Hand" Click="OpenFolder_OnClick" Margin="2.5 0"
                         ui:Translator.TooltipKey="OPEN_PALETTES_DIR_TOOLTIP"
                         Classes="pixi-icon" Content="{DynamicResource icon-folder}" />
-                <Button HorizontalAlignment="Right" Margin="10 0 0 0"
+                <Button HorizontalAlignment="Right" Margin="2.5 0"
                         ui:Translator.TooltipKey="BROWSE_ON_LOSPEC_TOOLTIP"
                         Click="BrowseOnLospec_OnClick"
                         CommandParameter="https://lospec.com/palette-list" Classes="pixi-icon"
                         Content="{DynamicResource icon-globe}" />
-                <Button HorizontalAlignment="Right" Margin="10 0 0 0"
+                <Button HorizontalAlignment="Right" Margin="2.5 0 0 0"
                         ui:Translator.TooltipKey="IMPORT_FROM_FILE_TOOLTIP"
                         Click="ImportFromFile_OnClick" Classes="pixi-icon"
                         Content="{DynamicResource icon-hard-drive}" />
