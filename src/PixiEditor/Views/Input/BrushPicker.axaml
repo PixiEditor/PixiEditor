@@ -58,9 +58,12 @@
 
                             <TextBox Watermark="{localization:Translate Key=SEARCH}"
                                      Name="SearchBox"
+                                     VerticalContentAlignment="Center"
                                      Text="{Binding $parent[input:BrushPicker].SearchText}">
                                 <TextBox.InnerLeftContent>
                                     <TextBlock Classes="pixi-icon" Text="{DynamicResource icon-search}"
+                                               FontSize="14"
+                                               VerticalAlignment="Center"
                                                Margin="0, 0, 5, 0" />
                                 </TextBox.InnerLeftContent>
                             </TextBox>
