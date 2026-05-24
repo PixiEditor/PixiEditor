@@ -11,48 +11,22 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.Views.Main.Tools.Toolbar">
     <UserControl.Resources>
-        <SolidColorBrush x:Key="DropdownItemHoverBrush" Color="#626262" />
+        <DataTemplate x:Key="ToolSetIconLabelTemplate" x:DataType="handlers:IToolSetHandler">
+            <StackPanel Orientation="Horizontal" Spacing="5">
+                <TextBlock VerticalAlignment="Center"
+                           Classes="pixi-icon"
+                           FontSize="14"
+                           Text="{Binding Icon}"
+                           IsVisible="{Binding IconIsPixiPerfect}" />
+                <Image Width="14" Height="14"
+                       Source="{Binding Icon, Converter={converters:ImagePathToBitmapConverter}}"
+                       IsVisible="{Binding !IconIsPixiPerfect}" />
+                <TextBlock VerticalAlignment="Center"
+                           FontSize="12"
+                           ui:Translator.Key="{Binding Name}" />
+            </StackPanel>
+        </DataTemplate>
     </UserControl.Resources>
-    <UserControl.Styles>
-        <Style Selector="Button.ToolSetDropdownItem">
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="CornerRadius" Value="5" />
-            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-            <Setter Property="MinHeight" Value="27" />
-            <Setter Property="Padding" Value="8, 5" />
-        </Style>
-        <Style Selector="Button.ToolSetDropdownItem:pointerover /template/ ContentPresenter">
-            <Setter Property="Background" Value="{StaticResource DropdownItemHoverBrush}" />
-            <Setter Property="CornerRadius" Value="5" />
-        </Style>
-        <Style Selector="FlyoutPresenter.ToolSetDropdownFlyout">
-            <Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush2}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderHighBrush}" />
-            <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
-            <Setter Property="Padding" Value="4" />
-        </Style>
-        <Style Selector="Button.ToolSetDropdownButton">
-            <Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush2}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderHighBrush}" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
-        </Style>
-        <Style Selector="Button.ToolSetDropdownButton:pointerover">
-            <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightBrush}" />
-        </Style>
-        <Style Selector="Button.ToolSetDropdownButton.open">
-            <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightBrush}" />
-        </Style>
-        <Style Selector="Button.ToolSetDropdownButton:pointerover /template/ ContentPresenter">
-            <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightBrush}" />
-            <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
-        </Style>
-        <Style Selector="Button.ToolSetDropdownButton.open /template/ ContentPresenter">
-            <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightBrush}" />
-            <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
-        </Style>
-    </UserControl.Styles>
     <Border CornerRadius="{DynamicResource ControlCornerRadius}"
             BorderBrush="{DynamicResource ThemeBorderMidBrush}"
             BorderThickness="{DynamicResource ThemeBorderThickness}"
@@ -79,50 +53,29 @@
                     Command="{cmds:Command PixiEditor.Undo.Redo}"
                     Width="36" Height="36"
                     Classes="pixi-icon"
-                    Margin="0, 0, 5, 0"
+                    Margin="0 0 5 0"
                     ui:Translator.TooltipKey="REDO">
                     <TextBlock Text="{DynamicResource icon-redo}" FontSize="20" />
                 </Button>
                 <Button Name="ToolSetDropdownButton"
-                        Classes="ToolSetDropdownButton"
+                        Classes="dropdown-picker-button"
                         VerticalAlignment="Center"
                         Height="25"
-                        Padding="6, 0"
-                        Margin="0, 0, 5, 0"
+                        Padding="6 0"
+                        Margin="0 0 5 0"
                         FontSize="12">
-                    <Button.Content>
-                        <Panel>
-                            <StackPanel Orientation="Horizontal" Spacing="5"
-                                        IsVisible="{Binding ToolsSubViewModel.ActiveToolSet.IconIsPixiPerfect}">
-                                <TextBlock VerticalAlignment="Center"
-                                           Classes="pixi-icon"
-                                           FontSize="14"
-                                           Text="{Binding ToolsSubViewModel.ActiveToolSet.Icon}" />
-                                <TextBlock VerticalAlignment="Center"
-                                           FontSize="12"
-                                           ui:Translator.Key="{Binding ToolsSubViewModel.ActiveToolSet.Name}" />
-                                <TextBlock VerticalAlignment="Center"
-                                           Classes="pixi-icon"
-                                           FontSize="14"
-                                           Text="{DynamicResource icon-chevron-down}" />
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" Spacing="5"
-                                        IsVisible="{Binding !ToolsSubViewModel.ActiveToolSet.IconIsPixiPerfect}">
-                                <Image Width="14" Height="14"
-                                       Source="{Binding ToolsSubViewModel.ActiveToolSet.Icon, Converter={converters:ImagePathToBitmapConverter}}" />
-                                <TextBlock VerticalAlignment="Center"
-                                           FontSize="12"
-                                           ui:Translator.Key="{Binding ToolsSubViewModel.ActiveToolSet.Name}" />
-                                <TextBlock VerticalAlignment="Center"
-                                           Classes="pixi-icon"
-                                           FontSize="14"
-                                           Text="{DynamicResource icon-chevron-down}" />
-                            </StackPanel>
-                        </Panel>
-                    </Button.Content>
+                    <StackPanel Orientation="Horizontal" Spacing="5"
+                                DataContext="{Binding ToolsSubViewModel.ActiveToolSet}">
+                        <ContentControl Content="{Binding}"
+                                        ContentTemplate="{StaticResource ToolSetIconLabelTemplate}" />
+                        <TextBlock VerticalAlignment="Center"
+                                   Classes="pixi-icon"
+                                   FontSize="14"
+                                   Text="{DynamicResource icon-chevron-down}" />
+                    </StackPanel>
                     <Button.Flyout>
                         <Flyout Placement="Bottom"
-                                FlyoutPresenterClasses="ToolSetDropdownFlyout"
+                                FlyoutPresenterClasses="dropdown-picker-flyout"
                                 ShowMode="Standard"
                                 Opened="ToolSetDropdownFlyout_OnOpened"
                                 Closed="ToolSetDropdownFlyout_OnClosed">
@@ -135,77 +88,51 @@
                                 </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate x:DataType="{x:Type handlers:IToolSetHandler}">
-                                        <Button Classes="ToolSetDropdownItem"
+                                        <Button Classes="dropdown-picker-item"
                                                 HorizontalAlignment="Stretch"
                                                 HorizontalContentAlignment="Left"
                                                 FontSize="12"
                                                 Command="{cmds:Command PixiEditor.Tools.SetActiveToolSet, UseProvided=True}"
                                                 CommandParameter="{Binding}"
-                                                Click="ToolSetItem_OnClick">
-                                            <Panel>
-                                                <StackPanel Orientation="Horizontal" Spacing="5"
-                                                            IsVisible="{Binding IconIsPixiPerfect}">
-                                                    <TextBlock VerticalAlignment="Center"
-                                                               Classes="pixi-icon"
-                                                               FontSize="14"
-                                                               Text="{Binding Icon}" />
-                                                    <TextBlock VerticalAlignment="Center"
-                                                               FontSize="12"
-                                                               ui:Translator.Key="{Binding Name}" />
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Spacing="5"
-                                                            IsVisible="{Binding !IconIsPixiPerfect}">
-                                                    <Image Width="14" Height="14"
-                                                           Source="{Binding Icon, Converter={converters:ImagePathToBitmapConverter}}" />
-                                                    <TextBlock VerticalAlignment="Center"
-                                                               FontSize="12"
-                                                               ui:Translator.Key="{Binding Name}" />
-                                                </StackPanel>
-                                            </Panel>
-                                        </Button>
+                                                Click="ToolSetItem_OnClick"
+                                                Content="{Binding}"
+                                                ContentTemplate="{StaticResource ToolSetIconLabelTemplate}" />
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
                         </Flyout>
                     </Button.Flyout>
                 </Button>
-                <Grid Margin="5,5,10,5" Background="{DynamicResource ThemeBackgroundBrush2}" Width="5">
-                    <Grid.IsVisible>
+                <StackPanel Orientation="Horizontal">
+                    <StackPanel.IsVisible>
                         <MultiBinding Converter="{converters:AllTrueConverter}">
                             <Binding ElementName="CollapseButton" Path="!IsChecked" />
                             <Binding Path="ToolsSubViewModel.ActiveTool"
                                      Converter="{x:Static ObjectConverters.IsNotNull}" />
                         </MultiBinding>
-                    </Grid.IsVisible>
-                </Grid>
-                <Label CornerRadius="5" Background="{DynamicResource ThemeBackgroundBrush2}"
-                       Padding="8, 0" FontSize="12"
-                       Height="25"
-                       VerticalAlignment="Center"
-                       VerticalContentAlignment="Center"
-                       ui:Translator.Key="{Binding ToolsSubViewModel.ActiveTool.DisplayName.Key}"
-                       ui:Translator.TooltipLocalizedString="{Binding ToolsSubViewModel.ActiveTool.ActionDisplay}">
-                    <Label.IsVisible>
-                        <MultiBinding Converter="{converters:AllTrueConverter}">
-                            <Binding ElementName="CollapseButton" Path="!IsChecked" />
-                            <Binding Path="ToolsSubViewModel.ActiveTool"
-                                     Converter="{x:Static ObjectConverters.IsNotNull}" />
-                        </MultiBinding>
-                    </Label.IsVisible>
-                </Label>
+                    </StackPanel.IsVisible>
+                    <Grid Margin="5 5 10 5" Background="{DynamicResource ThemeBackgroundBrush2}" Width="5" />
+                    <Label CornerRadius="5" Background="{DynamicResource ThemeBackgroundBrush2}"
+                           Padding="8 0" FontSize="12"
+                           Height="25"
+                           VerticalAlignment="Center"
+                           VerticalContentAlignment="Center"
+                           ui:Translator.Key="{Binding ToolsSubViewModel.ActiveTool.DisplayName.Key}"
+                           ui:Translator.TooltipLocalizedString="{Binding ToolsSubViewModel.ActiveTool.ActionDisplay}" />
+                </StackPanel>
             </StackPanel>
             <ItemsControl VerticalAlignment="Center" Grid.Column="1"
                           IsVisible="{Binding ElementName=CollapseButton, Path=!IsChecked}"
                           ItemsSource="{Binding ToolsSubViewModel.ActiveTool.Toolbar.Settings}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <WrapPanel Orientation="Horizontal" Margin="0, 0, 0, 0" />
+                        <WrapPanel Orientation="Horizontal" Margin="0 0 0 0" />
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="settings:Setting">
                         <StackPanel IsVisible="{Binding IsExposed}" Orientation="Horizontal"
-                                    VerticalAlignment="Center" Margin="5,0,5,0">
+                                    VerticalAlignment="Center" Margin="5 0 5 0">
                             <Label
                                 IsVisible="{Binding IsBuiltInLabelVisible}" VerticalAlignment="Center"
                                 FontSize="12"

@@ -242,9 +242,10 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
             }
         }
 
-        if (ActiveTool != null)
+        var suppressedToolbar = ActiveTool?.Toolbar;
+        if (suppressedToolbar != null)
         {
-            ActiveTool.Toolbar.SettingChanged -= ToolbarSettingChanged;
+            suppressedToolbar.SettingChanged -= ToolbarSettingChanged;
         }
 
         try
@@ -253,9 +254,9 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         }
         finally
         {
-            if (ActiveTool != null)
+            if (suppressedToolbar != null)
             {
-                ActiveTool.Toolbar.SettingChanged += ToolbarSettingChanged;
+                suppressedToolbar.SettingChanged += ToolbarSettingChanged;
             }
         }
 
