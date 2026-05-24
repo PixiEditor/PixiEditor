@@ -40,6 +40,10 @@
         <Setter Property="CornerRadius" Value="6" />
     </Style>
 
+    <Style Selector="Button.pixi-icon[Width=24][Height=24]">
+        <Setter Property="FontSize" Value="18" />
+    </Style>
+
     <Style Selector="ToggleButton.pixi-icon">
         <Setter Property="FontFamily" Value="{DynamicResource PixiPerfectIcons}" />
         <Setter Property="BorderThickness" Value="0" />
@@ -62,6 +66,10 @@
     <Style Selector="ToggleButton.pixi-icon:checked /template/ ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource ThemeControlHighBrush}" />
         <Setter Property="CornerRadius" Value="6" />
+    </Style>
+
+    <Style Selector="ToggleButton.pixi-icon[Width=24][Height=24]">
+        <Setter Property="FontSize" Value="18" />
     </Style>
 
     <Style Selector="MenuItem.pixi-icon">
