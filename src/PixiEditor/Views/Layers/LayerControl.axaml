@@ -25,6 +25,7 @@
                                          FalseBrush="{StaticResource ThemeForegroundLowBrush}"
                                          TrueBrush="{StaticResource ThemeForegroundBrush}" />
         <converters:LayerTypeIconConverter x:Key="LayerTypeIconConverter" />
+        <converters:LayerTypeTooltipConverter x:Key="LayerTypeTooltipConverter" />
     </UserControl.Resources>
     <Border BorderThickness="0 0 0 0.5" BorderBrush="Gray" MinWidth="60" Focusable="True"
             Tag="{Binding ElementName=uc}">
@@ -220,7 +221,8 @@
                                Margin="6,0,6,0"
                                HorizontalAlignment="Right"
                                VerticalAlignment="Center"
-                               Text="{Binding Layer, ElementName=uc, Converter={StaticResource LayerTypeIconConverter}}">
+                               Text="{Binding Layer, ElementName=uc, Converter={StaticResource LayerTypeIconConverter}}"
+                               ui:Translator.TooltipLocalizedString="{Binding Layer, ElementName=uc, Converter={StaticResource LayerTypeTooltipConverter}}">
                         <TextBlock.Foreground>
                             <MultiBinding Converter="{StaticResource LayerVisibilityForegroundConverter}">
                                 <Binding ElementName="uc" Path="Layer.IsVisibleStructurally" />

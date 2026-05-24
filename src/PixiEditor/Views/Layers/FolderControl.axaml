@@ -178,7 +178,8 @@
                                Width="18"
                                Margin="6,0,6,0"
                                HorizontalAlignment="Right"
-                               VerticalAlignment="Center">
+                               VerticalAlignment="Center"
+                               ui:Translator.TooltipKey="FOLDER_LAYER">
                         <TextBlock.Foreground>
                             <MultiBinding Converter="{StaticResource FolderVisibilityForegroundConverter}">
                                 <Binding ElementName="folderControl" Path="Folder.IsVisibleStructurally" />
