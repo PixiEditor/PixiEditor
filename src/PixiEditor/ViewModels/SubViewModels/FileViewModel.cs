@@ -3,6 +3,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
+using Avalonia.Media;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using Drawie.Backend.Core;
@@ -29,6 +30,7 @@ using PixiEditor.Models.ExceptionHandling;
 using PixiEditor.Models.IO.CustomDocumentFormats;
 using PixiEditor.OperatingSystem;
 using PixiEditor.Parser;
+using PixiEditor.Parser.Graph;
 using PixiEditor.Platform;
 using PixiEditor.UI.Common.Fonts;
 using PixiEditor.UI.Common.Localization;
@@ -725,16 +727,59 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         NewFileDialog newFile = new NewFileDialog(mainWindow);
         if (await newFile.ShowDialog())
         {
-            NewDocument(b => b
-                .WithSize(newFile.Width, newFile.Height)
-                .WithGraph(x => x
-                    .WithImageLayerNode(
-                        new LocalizedString("BASE_LAYER_NAME"),
-                        new VecI(newFile.Width, newFile.Height),
-                        ColorSpace.CreateSrgbLinear(),
-                        out int id)
-                    .WithOutputNode(id, "Output")
-                ));
+            VecI size = new(newFile.Width, newFile.Height);
+
+            if (newFile.UseCustomBackground && newFile.BackgroundBrush is ISolidColorBrush solidBrush)
+            {
+                var bgColor = new Drawie.Backend.Core.ColorsImpl.Color(
+                    solidBrush.Color.R, solidBrush.Color.G, solidBrush.Color.B, solidBrush.Color.A);
+
+                Surface bgSurface = Surface.ForProcessing(size, ColorSpace.CreateSrgbLinear());
+                bgSurface.DrawingSurface.Canvas.Clear(bgColor);
+
+                NewDocument(b => b
+                    .WithSize(newFile.Width, newFile.Height)
+                    .WithGraph(x =>
+                    {
+                        x.WithImageLayerNode(
+                            new LocalizedString("BACKGROUND_LAYER_NAME"),
+                            bgSurface,
+                            ColorSpace.CreateSrgbLinear(),
+                            out int backgroundLayerId);
+
+                        x.WithImageLayerNode(
+                            new LocalizedString("NEW_LAYER"),
+                            size,
+                            ColorSpace.CreateSrgbLinear(),
+                            out int editLayerId);
+
+                        x.AllNodes[^1].WithConnections(
+                        [
+                            new PropertyConnection
+                            {
+                                InputPropertyName = "Background",
+                                OutputPropertyName = "Output",
+                                OutputNodeId = backgroundLayerId
+                            }
+                        ]);
+
+                        x.WithOutputNode(editLayerId, "Output");
+                    }));
+
+            }
+            else
+            {
+                NewDocument(b => b
+                    .WithSize(newFile.Width, newFile.Height)
+                    .WithGraph(x => x
+                        .WithImageLayerNode(
+                            new LocalizedString("BASE_LAYER_NAME"),
+                            size,
+                            ColorSpace.CreateSrgbLinear(),
+                            out int id)
+                        .WithOutputNode(id, "Output")
+                    ));
+            }
 
             Analytics.SendCreateDocument(newFile.Width, newFile.Height);
         }

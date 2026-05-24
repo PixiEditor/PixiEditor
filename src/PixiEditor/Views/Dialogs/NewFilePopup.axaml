@@ -34,11 +34,30 @@
 
         <input:SizePicker HorizontalAlignment="Center" MinWidth="230" Height="125" Margin="0"
                           PreserveAspectRatio="False"
+                          ShowSwapDimensionsButton="True"
                           Background="{DynamicResource ThemeBackgroundBrush1}"
                           CornerRadius="{DynamicResource ControlCornerRadius}"
                           ChosenHeight="{Binding FileHeight, Mode=TwoWay, ElementName=popup}"
                           ChosenWidth="{Binding FileWidth, Mode=TwoWay, ElementName=popup}"
                           x:Name="sizePicker" />
+
+        <StackPanel Orientation="Horizontal" Margin="18,-10,15,10" Spacing="8" VerticalAlignment="Center">
+            <CheckBox Name="customBgCheck"
+                      Foreground="White"
+                      VerticalAlignment="Center"
+                      VerticalContentAlignment="Center"
+                      IsChecked="{Binding UseCustomBackground, Mode=TwoWay, ElementName=popup}"
+                      ui:Translator.Key="BACKGROUND_COLOR" />
+            <Button x:Name="bgSwatch"
+                    Width="40" Height="20"
+                    Padding="0"
+                    BorderThickness="1"
+                    BorderBrush="Black"
+                    CornerRadius="{DynamicResource ColorPickerControlRadius}"
+                    Background="{Binding BackgroundBrush, Mode=OneWay, ElementName=popup}"
+                    IsVisible="{Binding IsChecked, ElementName=customBgCheck}"
+                    Click="BgSwatch_OnClick" />
+        </StackPanel>
         </StackPanel>
         </Border>
         <Button DockPanel.Dock="Bottom" Margin="0,15,0,15" HorizontalAlignment="Center"
