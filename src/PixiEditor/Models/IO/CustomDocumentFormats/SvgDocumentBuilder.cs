@@ -526,6 +526,11 @@ internal class SvgDocumentBuilder : IDocumentBuilder
             path = VectorPath.FromSvgPath(element.PathData.Unit.Value.Value);
         }
 
+        if (path == null)
+        {
+            return new PathVectorData(new VectorPath());
+        }
+
         if (element.FillRule.Unit != null)
         {
             path.FillType = element.FillRule.Unit.Value.Value switch

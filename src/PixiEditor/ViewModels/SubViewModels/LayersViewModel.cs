@@ -454,6 +454,9 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         if (parent.Children.Count == 0)
             return;
         int curIndex = parent.Children.IndexOf(path[0]);
+        if (curIndex < 0)
+            return;
+
         if (upwards)
         {
             if (curIndex == parent.Children.Count - 1)
