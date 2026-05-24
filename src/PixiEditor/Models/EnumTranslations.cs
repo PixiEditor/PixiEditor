@@ -6,6 +6,7 @@ using PixiEditor.AnimationRenderer.Core;
 using PixiEditor.ChangeableDocument.Changeables.Graph.ColorSpaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Animable;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Effects;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
@@ -173,3 +174,6 @@ using DrawingBlendMode = Drawie.Backend.Core.Surfaces.BlendMode;
 [assembly: LocalizeEnum<ResamplingMethod>(ResamplingMethod.NearestNeighbor, "NEAREST_NEIGHBOR_RESAMPLING_METHOD")]
 [assembly: LocalizeEnum<ResamplingMethod>(ResamplingMethod.Bilinear, "BILINEAR_RESAMPLING_METHOD")]
 [assembly: LocalizeEnum<ResamplingMethod>(ResamplingMethod.Bicubic, "BICUBIC_RESAMPLING_METHOD")]
+
+[assembly: LocalizeEnum<BrushStampMode>(BrushStampMode.Single, "SINGLE_BRUSH_STAMP_MODE")]
+[assembly: LocalizeEnum<BrushStampMode>(BrushStampMode.PerSubShape, "PER_SUB_SHAPE_BRUSH_STAMP_MODE")]

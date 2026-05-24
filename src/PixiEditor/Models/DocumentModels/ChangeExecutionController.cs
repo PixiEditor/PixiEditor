@@ -33,6 +33,9 @@ internal class ChangeExecutionController
     public event Action ToolSessionFinished;
 
     public IDocument Document => document;
+    public string? LastActiveCustomOutput { get; private set; }
+    public ViewportData LastViewportData { get; private set; }
+
     private readonly IDocument document;
     private readonly IServiceProvider services;
     private readonly DocumentInternalParts internals;
@@ -182,6 +185,8 @@ internal class ChangeExecutionController
 
     public void MouseMoveInlet(MouseOnCanvasEventArgs args)
     {
+        LastActiveCustomOutput = args.ViewportName;
+        LastViewportData = args.ViewportData;
         if (args.IntermediatePoints != null)
         {
             foreach (var point in args.IntermediatePoints)
@@ -240,6 +245,7 @@ internal class ChangeExecutionController
     {
         //update internal state
         LeftMousePressed = true;
+        LastActiveCustomOutput = args.ViewportName;
         RightMousePressed = args.Properties.IsRightButtonPressed;
 
         lastPrecisePos = args.Point.PositionOnCanvas;
@@ -268,6 +274,7 @@ internal class ChangeExecutionController
     public void RightMouseButtonDownInlet(MouseOnCanvasEventArgs args)
     {
         RightMousePressed = true;
+        LastActiveCustomOutput = args.ViewportName;
         LeftMousePressed = args.Properties.IsLeftButtonPressed;
         lastPrecisePos  = args.Point.PositionOnCanvas;
         lastPointerInfo = args.Info;

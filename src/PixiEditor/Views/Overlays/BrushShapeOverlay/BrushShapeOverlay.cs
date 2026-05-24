@@ -95,6 +95,24 @@ internal class BrushShapeOverlay : Overlay
         set => SetValue(BrushSettingChangedTriggerProperty, value);
     }
 
+    public static readonly StyledProperty<string?> ActiveViewportOutputProperty = AvaloniaProperty.Register<BrushShapeOverlay, string?>(
+        nameof(ActiveViewportOutput));
+
+    public static readonly StyledProperty<ViewportData> ViewportDataProperty = AvaloniaProperty.Register<BrushShapeOverlay, ViewportData>(
+        nameof(ViewportData));
+
+    public ViewportData ViewportData
+    {
+        get => GetValue(ViewportDataProperty);
+        set => SetValue(ViewportDataProperty, value);
+    }
+
+    public string? ActiveViewportOutput
+    {
+        get => GetValue(ActiveViewportOutputProperty);
+        set => SetValue(ActiveViewportOutputProperty, value);
+    }
+
     public BrushData BrushData
     {
         get => GetValue(BrushDataProperty);
@@ -196,8 +214,8 @@ internal class BrushShapeOverlay : Overlay
             PointerInfo pointer = new PointerInfo(pos, 1, 0, VecD.Zero, dirNormalized, velocity, true, false);
 
             engine.ExecuteBrush(null, BrushData, pos, ActiveFrameTime,
-                ColorSpace.CreateSrgb(), SamplingOptions.Default, pointer, new KeyboardInfo(),
-                EditorData?.Invoke() ?? new EditorData(Colors.White, Colors.Black));
+                ColorSpace.CreateSrgb(), SamplingOptions.Default, pointer, new KeyboardInfo(), //todo keyboard,
+                EditorData?.Invoke() ?? new EditorData(Colors.White, Colors.Black), ViewportData);
 
             lastVelocity = velocity;
         }

@@ -193,6 +193,24 @@ internal class TransformOverlay : Overlay
         set => SetValue(TransformDraggedCommandProperty, value);
     }
 
+    public static readonly StyledProperty<string?> ViewportOutputNameProperty = AvaloniaProperty.Register<TransformOverlay, string?>(
+        nameof(ViewportOutputName));
+
+    public string? ViewportOutputName
+    {
+        get => GetValue(ViewportOutputNameProperty);
+        set => SetValue(ViewportOutputNameProperty, value);
+    }
+
+    public static readonly StyledProperty<ViewportData> ViewportDataProperty = AvaloniaProperty.Register<TransformOverlay, ViewportData>(
+        nameof(ViewportData));
+
+    public ViewportData ViewportData
+    {
+        get => GetValue(ViewportDataProperty);
+        set => SetValue(ViewportDataProperty, value);
+    }
+
     static TransformOverlay()
     {
         AffectsRender<TransformOverlay>(CornersProperty, ZoomScaleProperty, SideFreedomProperty, CornerFreedomProperty,
@@ -670,7 +688,8 @@ internal class TransformOverlay : Overlay
         if (!isRotating && !actuallyMoved && pressedWithinBounds)
         {
             PointerInfo info = new PointerInfo() { PositionOnCanvas = e.Point };
-            MouseOnCanvasEventArgs args = new(MouseButton.Left, e.Pointer.Type, info, e.Modifiers, lastClickCount, e.Properties, ZoomScale, e.Source as IDocument);
+            MouseOnCanvasEventArgs args = new(MouseButton.Left, e.Pointer.Type, info, e.Modifiers, lastClickCount,
+                e.Properties, ViewportData, e.Source as IDocument, ViewportOutputName);
             PassthroughPointerPressedCommand?.Execute(args);
             lastClickCount = 0;
         }

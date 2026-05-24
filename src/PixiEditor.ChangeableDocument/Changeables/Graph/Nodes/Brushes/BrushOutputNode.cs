@@ -49,6 +49,7 @@ public class BrushOutputNode : Node
 
     public InputProperty<string> BrushName { get; }
     public InputProperty<ShapeVectorData> VectorShape { get; }
+    public InputProperty<BrushStampMode> StampMode { get; }
     public InputProperty<Paintable> Stroke { get; }
     public InputProperty<Paintable> Fill { get; }
     public RenderInputProperty Content { get; }
@@ -104,6 +105,7 @@ public class BrushOutputNode : Node
     {
         BrushName = CreateInput<string>(BrushNameProperty, "NAME", "Unnamed");
         VectorShape = CreateInput<ShapeVectorData>("VectorShape", "SHAPE", null);
+        StampMode = CreateInput<BrushStampMode>("StampMode", "STAMP_MODE", BrushStampMode.Single);
         Stroke = CreateInput<Paintable>("Stroke", "STROKE", null);
         StrokeTransform = CreateInput<Matrix3X3>("StrokeTransform", "STROKE_TRANSFORM", Matrix3X3.Identity);
         Fill = CreateInput<Paintable>("Fill", "FILL", null);
@@ -283,7 +285,7 @@ public class BrushOutputNode : Node
                 (VecI)pos, context.FrameTime, context.ProcessingColorSpace, context.DesiredSamplingOptions,
                 new PointerInfo(pos, 1, 0, VecD.Zero, new VecD(0, 1), 1, true, false),
                 new KeyboardInfo(),
-                new EditorData(Colors.White, Colors.Black));
+                new EditorData(Colors.White, Colors.Black), new ViewportData());
         }
         previewChunkyImage.CommitChanges();
 
@@ -320,7 +322,7 @@ public class BrushOutputNode : Node
             previewEngine.ExecuteBrush(target,
                 new BrushData(context.Graph, Id) { StrokeWidth = maxSize, AntiAliasing = true }, points,
                 context.FrameTime,
-                context.ProcessingColorSpace, context.DesiredSamplingOptions);
+                context.ProcessingColorSpace, context.DesiredSamplingOptions, new ViewportData());
             offset += 1;
         }
     }
@@ -351,7 +353,7 @@ public class BrushOutputNode : Node
 
             previewEngine.ExecuteBrush(target,
                 new BrushData(context.Graph, Id) { StrokeWidth = maxSize, AntiAliasing = true },
-                points, context.FrameTime, context.ProcessingColorSpace, context.DesiredSamplingOptions);
+                points, context.FrameTime, context.ProcessingColorSpace, context.DesiredSamplingOptions, new ViewportData());
             offset += 1;
             yield return offset;
         }
@@ -365,7 +367,7 @@ public class BrushOutputNode : Node
             pos, context.FrameTime, context.ProcessingColorSpace, context.DesiredSamplingOptions,
             new PointerInfo(pos, 1, 0, VecD.Zero, new VecD(0, 1), 1, true, false),
             new KeyboardInfo(),
-            new EditorData(Colors.White, Colors.Black));
+            new EditorData(Colors.White, Colors.Black), new ViewportData());
     }
 
     public override Node CreateCopy()
@@ -384,4 +386,10 @@ public class BrushOutputNode : Node
         cache.Dispose();
         base.Dispose();
     }
+}
+
+public enum BrushStampMode
+{
+    Single,
+    PerSubShape
 }

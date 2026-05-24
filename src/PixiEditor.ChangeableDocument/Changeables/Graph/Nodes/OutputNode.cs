@@ -1,7 +1,9 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+﻿using System.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core;
+using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Numerics;
 
@@ -12,15 +14,16 @@ public class OutputNode : Node, IRenderInput
 {
     public const string UniqueName = "PixiEditor.Output";
     public const string InputPropertyName = "Background";
+    public const string InputTransformPropertyName = "InputTransform";
 
     public RenderInputProperty Input { get; }
-
-    private VecI? lastDocumentSize;
+    public InputProperty<Matrix3X3> InputTransform { get; }
 
     public OutputNode()
     {
         Input = new RenderInputProperty(this, InputPropertyName, "BACKGROUND", null);
         AddInputProperty(Input);
+        InputTransform = CreateInput(InputTransformPropertyName, "INPUT_TRANSFORM", Matrix3X3.Identity);
     }
 
     public override Node CreateCopy()
@@ -33,7 +36,6 @@ public class OutputNode : Node, IRenderInput
         if (!string.IsNullOrEmpty(context.TargetOutput)) return;
 
         Input.Value?.Paint(context, context.RenderSurface);
-        lastDocumentSize = context.DocumentSize;
 
         var previews = context.GetPreviewTexturesForNode(Id);
         if (previews is null) return;

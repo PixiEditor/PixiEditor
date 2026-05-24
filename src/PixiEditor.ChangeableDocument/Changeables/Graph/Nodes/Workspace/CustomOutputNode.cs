@@ -1,4 +1,5 @@
-﻿using Drawie.Backend.Core.Surfaces;
+﻿using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
@@ -13,12 +14,16 @@ public class CustomOutputNode : Node, IRenderInput
     public const string SizePropertyName = "Size";
     public const string FullViewportRenderPropertyName = "FullViewportRender";
     public const string RenderOverlaysPropertyName = "RenderOverlays";
+    public const string RenderBrushOverlayPropertyName = "RenderBrushOverlay";
+
     public RenderInputProperty Input { get; }
     public InputProperty<string> OutputName { get; }
     public InputProperty<bool> IsDefaultExport { get; }
     public InputProperty<VecI> Size { get; }
     public InputProperty<bool> FullViewportRender { get; }
     public InputProperty<bool> RenderOverlays { get; }
+    public InputProperty<bool> RenderBrushOverlay { get; }
+    public InputProperty<Matrix3X3> InputTransform { get; }
 
     public CustomOutputNode()
     {
@@ -30,6 +35,8 @@ public class CustomOutputNode : Node, IRenderInput
         Size = CreateInput(SizePropertyName, "SIZE", VecI.Zero);
         FullViewportRender = CreateInput(FullViewportRenderPropertyName, "FULL_VIEWPORT_RENDER", false);
         RenderOverlays = CreateInput(RenderOverlaysPropertyName, "RENDER_OVERLAYS", true);
+        RenderBrushOverlay = CreateInput(RenderBrushOverlayPropertyName, "RENDER_BRUSH_OVERLAY", true);
+        InputTransform = CreateInput<Matrix3X3>("InputTransform", "INPUT_TRANSFORM", Matrix3X3.Identity);
     }
 
     public override Node CreateCopy()
