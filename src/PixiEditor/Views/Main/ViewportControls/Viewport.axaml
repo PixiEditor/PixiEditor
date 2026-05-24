@@ -169,82 +169,11 @@
             ZIndex="100" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="10, 10, 10, -95">
             <Grid.RowDefinitions>
                 <RowDefinition MinHeight="40" MaxHeight="120" />
-                <RowDefinition Height="30" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <tools:Toolbar
                 DataContext="{Binding Source={viewModels:MainVM}, Path=.}" />
-            <StackPanel Margin="0, 5, 0, 0" Grid.Row="1" Orientation="Horizontal" Name="toolsetsPanel">
-                <Border ClipToBounds="False"
-                        HorizontalAlignment="Left"
-                        Padding="5 0"
-                        Name="activeToolSetChip"
-                        Height="25"
-                        BorderBrush="{DynamicResource ThemeBorderHighBrush}"
-                        BorderThickness="1"
-                        Background="{DynamicResource ThemeBackgroundBrush2}"
-                        CornerRadius="{DynamicResource ControlCornerRadius}">
-                    <Panel>
-                        <TextBlock IsVisible="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet.IconIsPixiPerfect}">
-                            <Run Classes="pixi-icon"
-                                 Text="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet.Icon}" />
-                            <Run
-                                ui:Translator.Key="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet.Name}" />
-                        </TextBlock>
-                        <StackPanel Orientation="Horizontal" Spacing="5"
-                                    IsVisible="{Binding Source={viewModels:MainVM}, Path=!ToolsSubViewModel.ActiveToolSet.IconIsPixiPerfect}">
-                            <Image
-                                Width="16" Height="16"
-                                Source="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet.Icon, Converter={converters:ImagePathToBitmapConverter}}" />
-                            <TextBlock
-                                ui:Translator.Key="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet.Name}" />
-                        </StackPanel>
-                    </Panel>
-                </Border>
-                <ItemsControl
-                    Name="otherToolSets"
-                    Background="Transparent"
-                    ItemsSource="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.NonSelectedToolSets, Mode=OneWay}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Margin="5, 0, 0, 0" Spacing="5"
-                                        Orientation="Horizontal" />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate x:DataType="{x:Type handlers:IToolSetHandler}">
-                            <Button
-                                Command="{xaml:Command PixiEditor.Tools.SetActiveToolSet, UseProvided=True}"
-                                CommandParameter="{Binding}"
-                                FontSize="{DynamicResource FontSizeMedium}"
-                                Padding="4, 2"
-                                VerticalAlignment="Center">
-                                <Panel>
-                                    <TextBlock IsVisible="{Binding IconIsPixiPerfect}">
-                                        <Run Classes="pixi-icon" Text="{Binding Icon}" />
-                                        <Run ui:Translator.Key="{Binding Name}" />
-                                    </TextBlock>
-                                    <StackPanel Orientation="Horizontal" Spacing="5" IsVisible="{Binding !IconIsPixiPerfect}">
-                                        <Image
-                                            Source="{Binding Icon, Converter={converters:ImagePathToBitmapConverter}}"/>
-                                        <TextBlock ui:Translator.Key="{Binding Name}" />
-                                    </StackPanel>
-                                </Panel>
-                            </Button>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                    <ItemsControl.IsVisible>
-                        <MultiBinding Converter="{converters:AnyTrueConverter}">
-                            <MultiBinding.Bindings>
-                                <Binding Path="IsPointerOver" ElementName="toolsPicker" />
-                                <Binding Path="IsPointerOver" ElementName="activeToolSetChip" />
-                                <Binding Path="IsPointerOver" ElementName="otherToolSets" />
-                            </MultiBinding.Bindings>
-                        </MultiBinding>
-                    </ItemsControl.IsVisible>
-                </ItemsControl>
-            </StackPanel>
-            <tools:ToolsPicker Grid.Row="2" IsHitTestVisible="True"
+            <tools:ToolsPicker Grid.Row="1" IsHitTestVisible="True"
                                Name="toolsPicker"
                                Padding="0, 5, 0, 0"
                                Background="Transparent"
