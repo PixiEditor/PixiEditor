@@ -51,14 +51,14 @@
             </Style>
         </Grid.Styles>
         <Border IsVisible="{Binding IsLoggedIn}">
-            <Button Name="UserAvatarButton" Padding="1"
+            <Button Name="UserAvatarButton" Padding="3"
                     BorderThickness="0" Classes="pixi-icon"
                     Width="24" Height="24"
                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                     HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
                     CornerRadius="6">
                 <Button.Content>
-                    <Border ClipToBounds="True" CornerRadius="11" Width="22" Height="22">
+                    <Border ClipToBounds="True" CornerRadius="9" Width="18" Height="18">
                         <Image asyncImageLoader:ImageLoader.Source="{Binding AvatarUrl}" />
                     </Border>
                 </Button.Content>
@@ -139,7 +139,7 @@
         </Ellipse>
         <Button IsVisible="{Binding !IsLoggedIn}"
                 Classes="pixi-icon"
-                Width="24" Height="24"
+                Width="24" Height="24" FontSize="18"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 CornerRadius="6"
                 HorizontalContentAlignment="Center"

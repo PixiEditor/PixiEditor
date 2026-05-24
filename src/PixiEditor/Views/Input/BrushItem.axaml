@@ -44,7 +44,7 @@
                     Command="{Binding ToggleFavorite}"
                     localization:Translator.TooltipKey="ADD_TO_FAVORITES">
                     <Button.Styles>
-                        <Style Selector="Button:pointerover">
+                        <Style Selector="Button:pointerover /template/ ContentPresenter">
                             <Setter Property="Background" Value="Orange" />
                         </Style>
                     </Button.Styles>

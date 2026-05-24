@@ -106,8 +106,11 @@
                                         localization:Translator.TooltipKey="IMPORT_BRUSH"
                                         Content="{DynamicResource icon-upload}" />
                                 <Button Classes="pixi-icon"
-                                        Width="14"
-                                        FontSize="24"
+                                        Width="20"
+                                        FontSize="18"
+                                        Padding="0"
+                                        HorizontalContentAlignment="Center"
+                                        VerticalContentAlignment="Center"
                                         localization:Translator.TooltipKey="MORE_OPTIONS"
                                         Content="{DynamicResource icon-ellipsis-vertical}">
                                     <Interaction.Behaviors>
