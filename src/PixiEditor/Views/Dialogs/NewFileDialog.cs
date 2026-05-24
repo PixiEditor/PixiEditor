@@ -1,9 +1,10 @@
 ﻿using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Media;
-using PixiEditor.Models;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
+using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Dialogs;
+using BackendColor = Drawie.Backend.Core.ColorsImpl.Color;
 
 namespace PixiEditor.Views.Dialogs;
 
@@ -25,9 +26,7 @@ internal class NewFileDialog : CustomDialog
         set => SetProperty(ref height, value);
     }
 
-    public bool UseCustomBackground { get; private set; }
-
-    public IBrush BackgroundBrush { get; private set; } = Brushes.White;
+    public BackendColor? BackgroundColor { get; private set; }
 
     public NewFileDialog(Window owner) : base(owner)
     {
@@ -46,8 +45,9 @@ internal class NewFileDialog : CustomDialog
 
         Height = popup.FileHeight;
         Width = popup.FileWidth;
-        UseCustomBackground = popup.UseCustomBackground;
-        BackgroundBrush = popup.BackgroundBrush;
+        BackgroundColor = popup.UseCustomBackground && popup.BackgroundBrush is ISolidColorBrush solidBrush
+            ? solidBrush.Color.ToColor()
+            : null;
 
         return result;
     }

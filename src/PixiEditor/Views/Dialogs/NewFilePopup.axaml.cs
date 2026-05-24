@@ -54,7 +54,7 @@ internal partial class NewFilePopup : PixiEditorPopup
     static NewFilePopup()
     {
         SelectedPresetProperty.Changed.Subscribe(OnPresetChanged);
-        
+
         FileWidthProperty.Changed.Subscribe(OnDimensionsChanged);
         FileHeightProperty.Changed.Subscribe(OnDimensionsChanged);
     }
@@ -70,7 +70,6 @@ internal partial class NewFilePopup : PixiEditorPopup
     {
         MinWidth = Width;
         sizePicker.FocusWidthPicker();
-        BackgroundBrush = Brushes.White;
     }
 
     private Window? _bgColorWindow;

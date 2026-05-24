@@ -3,7 +3,6 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
-using Avalonia.Media;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using Drawie.Backend.Core;
@@ -729,11 +728,8 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         {
             VecI size = new(newFile.Width, newFile.Height);
 
-            if (newFile.UseCustomBackground && newFile.BackgroundBrush is ISolidColorBrush solidBrush)
+            if (newFile.BackgroundColor is { } bgColor)
             {
-                var bgColor = new Drawie.Backend.Core.ColorsImpl.Color(
-                    solidBrush.Color.R, solidBrush.Color.G, solidBrush.Color.B, solidBrush.Color.A);
-
                 Surface bgSurface = Surface.ForProcessing(size, ColorSpace.CreateSrgbLinear());
                 bgSurface.DrawingSurface.Canvas.Clear(bgColor);
 
