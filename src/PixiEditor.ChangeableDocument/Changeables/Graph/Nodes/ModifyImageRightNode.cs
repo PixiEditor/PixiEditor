@@ -90,7 +90,7 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
 
         if (Color.Connection != null)
         {
-            builder.ReturnVar(Color?.Value?.Invoke(context) ?? new Half4(""){ ConstantValue = Colors.Transparent}, false);
+            builder.ReturnVar(Color?.Value?.Invoke(context) ?? new Half4("") { ConstantValue = Colors.Transparent.ToVec4D() }, false);
         }
         else
         {

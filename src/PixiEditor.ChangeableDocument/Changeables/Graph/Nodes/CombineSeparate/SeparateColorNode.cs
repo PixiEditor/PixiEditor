@@ -4,6 +4,7 @@ using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Shaders.Generation.Expressions;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 
@@ -40,7 +41,7 @@ public class SeparateColorNode : Node
         V3 = CreateFuncOutput<Float1>("B", "B", ctx => GetColor(ctx).B);
         A = CreateFuncOutput<Float1>("A", "A", ctx => GetColor(ctx).A);
         Mode = CreateInput("Mode", "MODE", CombineSeparateColorMode.RGB);
-        Color = CreateFuncInput<Half4>(nameof(Color), "COLOR", new Color());
+        Color = CreateFuncInput<Half4>(nameof(Color), "COLOR", new Half4(Vec4D.Zero));
     }
 
     protected override void OnExecute(RenderContext context)

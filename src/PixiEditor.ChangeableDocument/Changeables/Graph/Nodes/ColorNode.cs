@@ -1,5 +1,6 @@
 ﻿using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Shaders.Generation.Expressions;
+using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -12,7 +13,7 @@ public class ColorNode : Node
     
     public ColorNode()
     {
-        InputColor = CreateFuncInput<Half4>("InputColor", "COLOR", Colors.White);
+        InputColor = CreateFuncInput<Half4>("InputColor", "COLOR", new Half4(new Vec4D(1)));
         Color = CreateFuncOutput<Half4>("OutputColor", "COLOR", ctx => ctx.GetValue(InputColor));
     }
     
