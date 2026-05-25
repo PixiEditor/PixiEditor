@@ -4,7 +4,7 @@
         xmlns:system="clr-namespace:System;assembly=System.Runtime">
 
     <Styles.Resources>
-        <Color x:Key="SelectedToolBorderColor">#fff</Color>
+        <Color x:Key="SelectedToolBorderColor">#888</Color>
         <CornerRadius x:Key="SelectedToolCornerRadius">5</CornerRadius>
         <SolidColorBrush x:Key="SelectedToolBorderBrush" Color="{StaticResource SelectedToolBorderColor}"/>
     </Styles.Resources>
