@@ -1506,5 +1506,6 @@
   "STRANDS_BRUSH": "Strands",
   "WARNING_VERSION_INCOMPATIBLE": "This extension may not be compatible with your version of PixiEditor.",
   "EXTENSIONS_ONBOARDING_TITLE": "Featured Extensions",
-  "GAME_OF_LIFE_EXAMPLE": "Game of Life"
+  "GAME_OF_LIFE_EXAMPLE": "Game of Life",
+  "COLOR_RAMP_NODE":  "Color Ramp Node"
 }
