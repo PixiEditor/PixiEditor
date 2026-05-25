@@ -62,7 +62,6 @@
                                      Text="{Binding $parent[input:BrushPicker].SearchText}">
                                 <TextBox.InnerLeftContent>
                                     <TextBlock Classes="pixi-icon" Text="{DynamicResource icon-search}"
-                                               FontSize="14"
                                                VerticalAlignment="Center"
                                                Margin="0, 0, 5, 0" />
                                 </TextBox.InnerLeftContent>
@@ -96,24 +95,24 @@
                                 </StackPanel.Styles>
                                 <ToggleButton Classes="pixi-icon"
                                               Name="SortButton"
-                                              FontSize="24"
+                                              Width="24" Height="24"
                                               localization:Translator.TooltipKey="SORTING"
                                               Content="{DynamicResource icon-arrow-up-down}" />
                                 <ToggleButton Classes="pixi-icon"
                                               Name="ViewModeListButton"
+                                              Width="24" Height="24"
                                               localization:Translator.TooltipKey="TOGGLE_VIEW_MODE"
                                               IsChecked="{Binding $parent[input:BrushPicker].IsGridView,Mode=TwoWay}" />
                                 <Button Classes="pixi-icon"
                                         Command="{xaml:Command PixiEditor.Brushes.Import}"
-                                        FontSize="24"
+                                        Width="24" Height="24"
                                         localization:Translator.TooltipKey="IMPORT_BRUSH"
                                         Content="{DynamicResource icon-upload}" />
                                 <Button Classes="pixi-icon"
-                                        Width="20"
-                                        FontSize="18"
-                                        Padding="0"
+                                        Width="18" Height="24"
                                         HorizontalContentAlignment="Center"
                                         VerticalContentAlignment="Center"
+                                        FontSize="18"
                                         localization:Translator.TooltipKey="MORE_OPTIONS"
                                         Content="{DynamicResource icon-ellipsis-vertical}">
                                     <Interaction.Behaviors>
