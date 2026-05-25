@@ -1518,6 +1518,5 @@
   "SINGLE_COLOR": "Replace Single Color",
   "SWAP_COLOR_TOOL": "Swap Color",
   "SWAP_COLOR_TOOL_TOOLTIP": "Changes the colors of the affected area to match Primary Color.",
-  "SWAP_COLOR_TOOL_ACTION_DISPLAY_DEFAULT": "Click on the canvas to swap colors. Replace Single Color swaps only pixels of the color you clicked first. Hardness 100 should be used with low Tolerance.",
-  "BLENDING_PAINT":  "Blending Paint"
+  "SWAP_COLOR_TOOL_ACTION_DISPLAY_DEFAULT": "Click on the canvas to swap colors. Replace Single Color swaps only pixels of the color you clicked first. Hardness 100 should be used with low Tolerance."
 }
