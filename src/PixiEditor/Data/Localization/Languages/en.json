@@ -1509,5 +1509,6 @@
   "GRADIENT_END_COLOR": "Gradient End Color",
   "GRADIENT_HARDNESS": "Gradient Hardness",
   "GAME_OF_LIFE_EXAMPLE": "Game of Life",
-  "BLENDING_PAINT": "Blending Paint"
+  "BLENDING_PAINT": "Blending Paint",
+  "GRADIENT_BRUSH": "Gradient Brush"
 }
