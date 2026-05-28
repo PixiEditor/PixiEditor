@@ -21,6 +21,8 @@ internal class VectorMathNodeViewModel : NodeViewModel<VectorMathNode>
     
     private NodePropertyViewModel Z { get; set; }
     private NodePropertyViewModel S { get; set; }
+    private NodePropertyViewModel ResultVecD { get; set; }
+    private NodePropertyViewModel ResultDouble { get; set; }
 
     public override void OnInitialized()
     {
@@ -29,6 +31,9 @@ internal class VectorMathNodeViewModel : NodeViewModel<VectorMathNode>
         Y = FindInputProperty("Y");
         Z = FindInputProperty("Z");
         S = FindInputProperty("S");
+
+        ResultVecD = FindOutputProperty("Result");
+        ResultDouble = FindOutputProperty("ResultFloat1");
         
         Mode.ValueChanged += (_, _) => ModeChanged();
         ModeChanged();
@@ -43,6 +48,9 @@ internal class VectorMathNodeViewModel : NodeViewModel<VectorMathNode>
         Y.IsVisible = mode.UsesYValue();
         Z.IsVisible = mode.UsesZValue();
         S.IsVisible = mode.UsesSValue();
+
+        ResultVecD.IsVisible = mode.ProducesVector();
+        ResultDouble.IsVisible = mode.ProducesDouble();
 
         var (x, y, z) = mode.GetNaming();
 

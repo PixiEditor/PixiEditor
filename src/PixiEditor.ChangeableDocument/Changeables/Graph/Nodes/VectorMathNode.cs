@@ -16,6 +16,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 public class VectorMathNode : Node
 {
     // TODO: TEST ALL!!
+    public FuncOutputProperty<Float1> ResultFloat1 { get; }
     public FuncOutputProperty<Float2> Result { get; }
 
     public InputProperty<VectorMathMode> Mode { get; }
@@ -29,6 +30,7 @@ public class VectorMathNode : Node
 
     public VectorMathNode()
     {
+        ResultFloat1 = CreateFuncOutput<Float1>(nameof(ResultFloat1), "RESULT", CalculateF1);
         Result = CreateFuncOutput<Float2>(nameof(Result), "RESULT", Calculate);
         Mode = CreateInput(nameof(Mode), "MATH_MODE", VectorMathMode.Add);
         X = CreateFuncInput<Float2>(nameof(X), "X", VecD.Zero);
@@ -197,6 +199,52 @@ public class VectorMathNode : Node
         return new Float2(string.Empty) { ConstantValue = constValue };
     }
 
+    private Float1 CalculateF1(FuncContext context)
+    {
+        var (x, y, _, _) = GetValues(context);
+
+        if (context.HasContext)
+        {
+            Expression? result = Mode.Value switch
+            {
+                VectorMathMode.Dot => ShaderMath.Dot(x, y),
+                VectorMathMode.Distance => ShaderMath.Distance(x, y),
+                VectorMathMode.Length => ShaderMath.Length(x),
+                _ => null
+            };
+
+            return context.NewFloat1(result ?? new Float1(""){ ConstantValue = 0d });
+        }
+
+        var xConstRaw = x.GetConstant();
+        var yConstRaw = y.GetConstant();
+
+        VecD xConst = xConstRaw is VecD xV ? xV : VecD.Zero;
+        VecD yConst = yConstRaw is VecD yV ? yV : VecD.Zero;
+
+        xConst = TryCast(xConstRaw, xConst);
+        yConst = TryCast(yConstRaw, yConst);
+
+        double constValue;
+        switch (Mode.Value)
+        {
+            case VectorMathMode.Dot:
+                constValue = xConst.X * yConst.X + xConst.Y * yConst.Y;
+                break;
+            case VectorMathMode.Distance:
+                constValue = Math.Sqrt(Math.Pow(xConst.X - yConst.X, 2) + Math.Pow(xConst.Y - yConst.Y, 2));
+                break;
+            case VectorMathMode.Length:
+                constValue = Math.Sqrt(xConst.X * xConst.X + xConst.Y * xConst.Y);
+                break;
+            default:
+                constValue = 0d;
+                break;
+        }
+
+        return new Float1(string.Empty) { ConstantValue = constValue };
+    }
+
     private static VecD TryCast(object raw, VecD aConst)
     {
         if (raw is not VecD)
@@ -330,7 +378,9 @@ public static class VectorMathModeExtensions
         mode != VectorMathMode.Round &&
         mode != VectorMathMode.Length &&
         mode != VectorMathMode.Normalize &&
-        mode != VectorMathMode.Sign;
+        mode != VectorMathMode.Sign &&
+        mode != VectorMathMode.Power &&
+        mode != VectorMathMode.Scale;
 
 
     public static bool UsesZValue(this VectorMathMode mode) =>
@@ -344,4 +394,11 @@ public static class VectorMathModeExtensions
     {
         _ => ("X", "Y", "Z")
     };
+
+    public static bool ProducesVector(this VectorMathMode mode) =>
+        mode != VectorMathMode.Dot &&
+        mode != VectorMathMode.Distance &&
+        mode != VectorMathMode.Length;
+
+        public static bool ProducesDouble(this VectorMathMode mode) => !mode.ProducesVector();
 }
