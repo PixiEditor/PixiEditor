@@ -493,10 +493,14 @@ internal class ExtensionManagerViewModel : ViewModelBase
         }
 
         await extensionsViewModel.UninstallExtension(extensionId);
+
         if (!IsUserLoggedIn)
         {
             OwnedExtensions.Remove(OwnedExtensions.FirstOrDefault(e => e.ProductData.Id == extensionId));
         }
+
+        IPreferences.Current.UpdateLocalPreference(
+            $"product_{extensionId}_downloaded_at_least_once", true);
     }
 
     public async Task AddToLibrary(string extensionId)
