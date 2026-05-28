@@ -1240,7 +1240,6 @@
   "PIXEL_PERFECT": "Popolne slikovne pike",
   "ESSENTIALS": "Osnove",
   "UNTAGGED": "Neznačeno",
-  "TOOL": "Orodje",
   "ERROR_IMPORTING_BRUSH_TITLE": "Napaka pri uvozu čopiča",
   "ERROR_IMPORTING_BRUSH_MESSAGE": "Med uvozom čopiča je prišlo do napake: {0}",
   "TAGS": "Značke",
@@ -1489,10 +1488,6 @@
   "CONFIRM_OVERWRITE_QUESTION": "Ta dokument je shranjen kot datoteka '{0}'. Ali ga želite prepisati?",
   "CONFIRM_OVERWRITE_TITLE": "Potrdi prepis",
   "MISSING_LAYER_NODE_ERROR": "Manjkajoče vozlišče plasti",
-  "RAINBOW_BRUSH": "Mavrični čopič",
-  "PERIOD": "Obdobje (sekunde)",
-  "SATURATION": "Nasičenost",
-  "RATIO": "Razmerje stranic čopiča",
   "COMPUTED_SAMPLE_SIZE": "Velikost vzorca",
   "NEW_ITEM": "NOVO",
   "FEATURED_EXTENSIONS_TITLE": "Predstavljene razširitve",
@@ -1502,9 +1497,6 @@
   "BLUR_TOOL_ACTION_DISPLAY_DEFAULT": "Kliknite in povlecite po platnu za zameglitev.",
   "SHARPEN_TOOL_ACTION_DISPLAY_DEFAULT": "Kliknite in povlecite po platnu za ostrenje.",
   "EXTENSIONS_WINDOW_STEAM_UNAVAILABLE": "Steam različica PixiEditorja še ne podpira knjižnice razširitev. Za dostop do nje uporabite samostojno različico.",
-  "ACRYLIC": "Akril",
-  "STRANDS_BRUSH": "Prameni",
   "WARNING_VERSION_INCOMPATIBLE": "Ta razširitev morda ni združljiva z vašo različico PixiEditorja.",
-  "EXTENSIONS_ONBOARDING_TITLE": "Predstavljene razširitve",
-  "GAME_OF_LIFE_EXAMPLE": "Igra življenja"
+  "EXTENSIONS_ONBOARDING_TITLE": "Predstavljene razširitve"
 }
