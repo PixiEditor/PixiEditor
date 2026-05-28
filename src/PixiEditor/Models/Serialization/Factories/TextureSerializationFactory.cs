@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Bridge;
+using PixiEditor.Helpers;
 
 namespace PixiEditor.Models.Serialization.Factories;
 
@@ -14,7 +15,11 @@ public class TextureSerializationFactory : SerializationFactory<byte[], Texture>
         SurfaceFactory.ResourceLocator = ResourceLocator;
 
         using Surface surface = new Surface(original.Size);
-        surface.DrawingSurface.Canvas.DrawSurface(original.DrawingSurface, 0, 0);
+        if (!original.IsDisposed)
+        {
+            surface.DrawingSurface.Canvas.DrawSurface(original.DrawingSurface, 0, 0);
+        }
+
         return SurfaceFactory.Serialize(surface);
     }
 

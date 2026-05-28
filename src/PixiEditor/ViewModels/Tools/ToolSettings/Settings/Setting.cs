@@ -185,6 +185,8 @@ internal abstract class Setting : ObservableObject
         }
     }
 
+    public bool IsProtected { get; set; }
+
     public event Action MergeChangesEnded;
 
     public abstract Type GetSettingType();

@@ -75,7 +75,7 @@ internal class ExtensionManagerViewModel : ViewModelBase
         }
     }
 
-    public bool ShowAllTab => SelectedTab != null && SelectedTab.Id == "All" && !IsPlatformSteam;
+    public bool ShowAllTab => SelectedTab != null && SelectedTab.Id == "All";
     public bool ShowOwnedTab => SelectedTab != null && SelectedTab.Id == "Owned";
 
     private AvailableContentViewModel? selectedAvailableExtension;
@@ -225,6 +225,8 @@ internal class ExtensionManagerViewModel : ViewModelBase
     {
         AvailableExtensions.Clear();
         FeaturedExtensions.Clear();
+
+        if (IsPlatformSteam) return;
         List<AvailableContent> availableExtensions = new List<AvailableContent>();
         try
         {
@@ -259,7 +261,6 @@ internal class ExtensionManagerViewModel : ViewModelBase
             IsAvailableFetching = false;
         }
 
-        SaveAvailableExtensionsToCache(availableExtensions);
         double rate = 1;
         if (PixiEditorSettings.Extensions.DisplayedCurrency?.Value == null)
         {
@@ -492,10 +493,14 @@ internal class ExtensionManagerViewModel : ViewModelBase
         }
 
         await extensionsViewModel.UninstallExtension(extensionId);
+
         if (!IsUserLoggedIn)
         {
             OwnedExtensions.Remove(OwnedExtensions.FirstOrDefault(e => e.ProductData.Id == extensionId));
         }
+
+        IPreferences.Current.UpdateLocalPreference(
+            $"product_{extensionId}_downloaded_at_least_once", true);
     }
 
     public async Task AddToLibrary(string extensionId)

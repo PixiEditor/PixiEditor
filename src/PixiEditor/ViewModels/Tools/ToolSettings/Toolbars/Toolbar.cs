@@ -25,7 +25,7 @@ internal abstract class Toolbar : ObservableObject, IToolbar
                 SettingChanged?.Invoke(setting.Name, setting.Value);
             }
         };
-        
+
         settings.Add(setting);
     }
 
@@ -47,7 +47,8 @@ internal abstract class Toolbar : ObservableObject, IToolbar
     public T GetSetting<T>(string name)
         where T : Setting
     {
-        Setting setting = Settings.FirstOrDefault(currentSetting => string.Equals(currentSetting.Name, name, StringComparison.CurrentCultureIgnoreCase));
+        Setting setting = Settings.FirstOrDefault(currentSetting =>
+            string.Equals(currentSetting.Name, name, StringComparison.CurrentCultureIgnoreCase));
 
         if (setting is not T convertedSetting)
         {
@@ -64,9 +65,13 @@ internal abstract class Toolbar : ObservableObject, IToolbar
     {
         for (int i = 0; i < Settings.Count; i++)
         {
-            if (SharedSettings.Any(x => x.Name == Settings[i].Name))
+            if (Settings[i].IsProtected)
+                continue;
+
+            var first = SharedSettings.FirstOrDefault(x => x.Name == Settings[i].Name);
+            if (first is { IsProtected: false })
             {
-                SharedSettings.First(x => x.Name == Settings[i].Name).UserValue = Settings[i].UserValue;
+                first.UserValue = Settings[i].UserValue;
             }
             else
             {
@@ -82,9 +87,10 @@ internal abstract class Toolbar : ObservableObject, IToolbar
     {
         for (int i = 0; i < SharedSettings.Count; i++)
         {
-            if (Settings.Any(x => x.Name == SharedSettings[i].Name))
+            var first = Settings.FirstOrDefault(x => x.Name == SharedSettings[i].Name);
+            if (first != null && !first.IsProtected)
             {
-                Settings.First(x => x.Name == SharedSettings[i].Name).UserValue = SharedSettings[i].UserValue;
+                first.UserValue = SharedSettings[i].UserValue;
             }
         }
 
@@ -92,6 +98,7 @@ internal abstract class Toolbar : ObservableObject, IToolbar
     }
 
     public event SettingChange? SettingChanged;
+
     public void RemoveSetting(Setting setting)
     {
         settings.Remove(setting);
