@@ -15,7 +15,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 [NodeInfo("ColorRampNode")]
 public class ColorRampNode : Node
 {
-    public InputProperty<Texture> Fac { get; }
+    public RenderInputProperty Fac { get; }
     public InputProperty<Paintable> Gradient { get; }
     public InputProperty<ColorSpaceType> ColorSpace { get; }
     public OutputProperty<Texture> Image { get; }
@@ -39,7 +39,7 @@ public class ColorRampNode : Node
 
     public ColorRampNode()
     {
-        Fac = CreateInput<Texture>("Fac", "FAC", null);
+        Fac = CreateRenderInput("Fac", "FAC");
         Gradient = CreateInput<Paintable>("Gradient", "GRADIENT", new ColorPaintable(Colors.Transparent));
         ColorSpace = CreateInput("ColorSpace", "COLOR_SPACE", ColorSpaceType.Inherit);
 
@@ -68,14 +68,19 @@ public class ColorRampNode : Node
         Color[] colors = finalColorStops.Select(x => x.Color).ToArray();
         float[] offsets = finalColorStops.Select(x => (float)x.Offset).ToArray();
 
-        VecI size = Fac.Value.Size;
+        VecI size = context.RenderOutputSize;
+        if (size.X <= 0 || size.Y <= 0) { return; }
+
         var colorSpace = ColorSpace.Value == ColorSpaceType.Inherit
             ? context.ProcessingColorSpace
             : (ColorSpace.Value == ColorSpaceType.Srgb
                 ? Drawie.Backend.Core.Surfaces.ImageData.ColorSpace.CreateSrgb()
                 : Drawie.Backend.Core.Surfaces.ImageData.ColorSpace.CreateSrgbLinear());
 
-        using var snapshot = Fac.Value.DrawingSurface.Snapshot();
+        using var source = Texture.ForProcessing(size, colorSpace);
+        Fac.Value.Paint(context, source.DrawingSurface.Canvas);
+
+        using var snapshot = source.DrawingSurface.Snapshot();
         using Shader imageShader = snapshot.ToShader();
         using Shader gradientShader = Shader.CreateLinearGradient(VecD.Zero, new VecD(1, 0), colors, offsets, Matrix3X3.Identity);
 
