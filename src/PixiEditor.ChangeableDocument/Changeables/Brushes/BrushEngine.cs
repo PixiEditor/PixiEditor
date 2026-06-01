@@ -289,7 +289,7 @@ public class BrushEngine : IDisposable
         }
 
         BrushRenderContext context = new BrushRenderContext(
-            texture?.DrawingSurface?.Canvas, frameTime, ChunkResolution.Full,
+            texture?.DrawingSurface.Canvas, frameTime, ChunkResolution.Full,
             brushNode.FitToStrokeSize.NonOverridenValue
                 ? ((RectI)rect.RoundOutwards()).Size
                 : target?.CommittedSize ?? VecI.Zero,
@@ -495,7 +495,7 @@ public class BrushEngine : IDisposable
                         lastCachedTransform != transform)
                     {
                         lastCachedTexturePaintable?.Dispose();
-                        lastCachedTexturePaintable = new TexturePaintable(contentTexture, false);
+                        lastCachedTexturePaintable = new TexturePaintable(new Texture(contentTexture), false);
                         lastCachedTexturePaintableSize = contentTexture.Size;
                         lastCachedTransform = transform;
                     }
