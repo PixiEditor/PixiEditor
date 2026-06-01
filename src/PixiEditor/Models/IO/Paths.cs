@@ -50,10 +50,10 @@ public static class Paths
     public static string TempSessionFilesPath { get; }  = Path.Combine(Path.GetTempPath(), "PixiEditor", "SessionCache");
 
     /// <summary>
-    /// Path to %temp%/PixiEditor/Autosave
+    /// Path to %localappdata%/PixiEditor/Autosave
     /// </summary>
     public static string PathToUnsavedFilesFolder { get; } = Path.Join(
-        Path.GetTempPath(),
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "PixiEditor", "Autosave");
 
     public static string InstallDirectoryPath { get; } =

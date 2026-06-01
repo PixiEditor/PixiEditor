@@ -75,6 +75,7 @@ public class MathNode : Node
                 MathNodeMode.Acos => ShaderMath.Acos(x),
                 MathNodeMode.Atan => ShaderMath.Atan(x),
                 MathNodeMode.Atan2 => ShaderMath.Atan2(x, y),
+                _ => ShaderMath.Add(x, y)
             };
 
             if (Clamp.Value)
@@ -142,6 +143,7 @@ public class MathNode : Node
             MathNodeMode.Acos => Math.Acos(xConst),
             MathNodeMode.Atan => Math.Atan(xConst),
             MathNodeMode.Atan2 => Math.Atan2(xConst, yConst),
+            _ => xConst + yConst
         };
 
         if (Clamp.Value)
