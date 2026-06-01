@@ -495,7 +495,7 @@ public class BrushEngine : IDisposable
                         lastCachedTransform != transform)
                     {
                         lastCachedTexturePaintable?.Dispose();
-                        lastCachedTexturePaintable = new TexturePaintable(contentTexture, false);
+                        lastCachedTexturePaintable = new TexturePaintable(new Texture(contentTexture), false);
                         lastCachedTexturePaintableSize = contentTexture.Size;
                         lastCachedTransform = transform;
                     }
