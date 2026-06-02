@@ -7,5 +7,5 @@ using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document.Nodes;
 
-[NodeViewModel("COLOR_RAMP_NODE", "IMAGE", PixiPerfectIcons.Gradient)]
+[NodeViewModel("COLOR_RAMP_NODE", "IMAGE", null)]
 internal class ColorRampNodeViewModel : NodeViewModel<ColorRampNode>;

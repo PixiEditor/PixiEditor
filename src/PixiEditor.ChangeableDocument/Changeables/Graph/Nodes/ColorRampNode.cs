@@ -1,4 +1,4 @@
-using Drawie.Backend.Core;
+﻿using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
@@ -8,19 +8,17 @@ using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.ColorSpaces;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 [NodeInfo("ColorRampNode")]
-public class ColorRampNode : Node
+public class ColorRampNode : RenderNode, IRenderInput
 {
-    public RenderInputProperty Fac { get; }
+    public RenderInputProperty Background { get; }
     public InputProperty<Paintable> Gradient { get; }
     public InputProperty<ColorSpaceType> ColorSpace { get; }
-    public OutputProperty<Texture> Image { get; }
-
-    private TextureCache textureCache = new();
 
     protected override bool ExecuteOnlyOnCacheChange => true;
     protected override CacheTriggerFlags CacheTrigger => CacheTriggerFlags.Inputs;
@@ -39,16 +37,16 @@ public class ColorRampNode : Node
 
     public ColorRampNode()
     {
-        Fac = CreateRenderInput("Fac", "FAC");
+        Background = CreateRenderInput("Fac", "COLOR_RAMP_FACTOR");
         Gradient = CreateInput<Paintable>("Gradient", "GRADIENT", new ColorPaintable(Colors.Transparent));
         ColorSpace = CreateInput("ColorSpace", "COLOR_SPACE", ColorSpaceType.Inherit);
 
-        Image = CreateOutput<Texture>("Image", "IMAGE", null);
+        Output.FirstInChain = null;
     }
 
-    protected override void OnExecute(RenderContext context)
+    protected override void OnPaint(RenderContext context, Canvas surface)
     {
-        if (context == null || Fac.Value == null) { return; }
+        if (context == null || Background.Value == null) { return; }
 
         var finalColorStops = new List<GradientStop>();
         if (Gradient.Value is GradientPaintable gradient)
@@ -78,32 +76,33 @@ public class ColorRampNode : Node
                 : Drawie.Backend.Core.Surfaces.ImageData.ColorSpace.CreateSrgbLinear());
 
         using var source = Texture.ForProcessing(size, colorSpace);
-        Fac.Value.Paint(context, source.DrawingSurface.Canvas);
+        Background.Value.Paint(context, source.DrawingSurface.Canvas);
 
         using var snapshot = source.DrawingSurface.Snapshot();
         using Shader imageShader = snapshot.ToShader();
         using Shader gradientShader = Shader.CreateLinearGradient(VecD.Zero, new VecD(1, 0), colors, offsets, Matrix3X3.Identity);
 
-        Texture texture = textureCache.RequestTexture(0, size, colorSpace);
         Uniforms uniforms = new Uniforms();
         uniforms.Add("iImage", new Uniform("iImage", imageShader));
         uniforms.Add("iGradient", new Uniform("iGradient", gradientShader));
         using Shader shader = Shader.Create(shaderCode, uniforms, out _);
         using Paint paint = new() { BlendMode = BlendMode.Src };
         paint.Shader = shader;
-        texture.DrawingSurface.Canvas.DrawRect(0, 0, size.X, size.Y, paint);
 
-        Image.Value = texture;
+        Texture texture = RequestTexture(0, size, colorSpace);
+        int savedTexture = texture.DrawingSurface.Canvas.Save();
+        texture.DrawingSurface.Canvas.SetMatrix(Matrix3X3.Identity);
+        texture.DrawingSurface.Canvas.DrawRect(0, 0, size.X, size.Y, paint);
+        texture.DrawingSurface.Canvas.RestoreToCount(savedTexture);
+
+        int saved = surface.Save();
+        surface.SetMatrix(Matrix3X3.Identity);
+        surface.DrawSurface(texture.DrawingSurface, 0, 0);
+        surface.RestoreToCount(saved);
     }
 
     public override Node CreateCopy()
     {
         return new ColorRampNode();
-    }
-
-    public override void Dispose()
-    {
-        base.Dispose();
-        textureCache.Dispose();
     }
 }
