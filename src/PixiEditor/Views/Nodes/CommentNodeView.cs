@@ -20,7 +20,8 @@ namespace PixiEditor.Views.Nodes;
 public class CommentNodeView : NodeView
 {
     private const double EdgeMargin = 10.0;
-    private const int MinSize = 1;
+    private const int MinWidth = 160;
+    private const int MinHeight = 28;
 
     private enum ResizeMode { None, Right, Bottom, BottomRight }
 
@@ -32,6 +33,10 @@ public class CommentNodeView : NodeView
         AvaloniaProperty.Register<CommentNodeView, VecI>(
             nameof(BoxSize), defaultBindingMode: BindingMode.TwoWay);
 
+    public static readonly StyledProperty<IBrush> ForegroundBrushProperty =
+        AvaloniaProperty.Register<CommentNodeView, IBrush>(
+            nameof(ForegroundBrush), Brushes.Black);
+
     public string Text
     {
         get => GetValue(TextProperty);
@@ -42,6 +47,12 @@ public class CommentNodeView : NodeView
     {
         get => GetValue(BoxSizeProperty);
         set => SetValue(BoxSizeProperty, value);
+    }
+
+    public IBrush ForegroundBrush
+    {
+        get => GetValue(ForegroundBrushProperty);
+        set => SetValue(ForegroundBrushProperty, value);
     }
 
     private Border? rectBorder;
@@ -121,6 +132,7 @@ public class CommentNodeView : NodeView
         var avalonia = drawie.ToColor();
         if (fillBrush != null) fillBrush.Color = avalonia;
         if (strokeBrush != null) strokeBrush.Color = avalonia;
+        ForegroundBrush = ContrastForeground(avalonia);
 
         if (picker != null)
         {
@@ -262,10 +274,10 @@ public class CommentNodeView : NodeView
         int newHeight = dragInitialSize.Y;
 
         if (dragMode is ResizeMode.Right or ResizeMode.BottomRight)
-            newWidth = Math.Max(MinSize, (int)Math.Round(dragInitialSize.X + delta.X));
+            newWidth = Math.Max(MinWidth, (int)Math.Round(dragInitialSize.X + delta.X));
 
         if (dragMode is ResizeMode.Bottom or ResizeMode.BottomRight)
-            newHeight = Math.Max(MinSize, (int)Math.Round(dragInitialSize.Y + delta.Y));
+            newHeight = Math.Max(MinHeight, (int)Math.Round(dragInitialSize.Y + delta.Y));
 
         BoxSize = new VecI(newWidth, newHeight);
     }
@@ -295,4 +307,10 @@ public class CommentNodeView : NodeView
         ResizeMode.BottomRight => StandardCursorType.TopLeftCorner,
         _ => StandardCursorType.Arrow
     };
+
+    private static IBrush ContrastForeground(Color bg)
+    {
+        double lum = (0.299 * bg.R + 0.587 * bg.G + 0.114 * bg.B) / 255.0;
+        return lum > 0.5 ? Brushes.Black : Brushes.White;
+    }
 }

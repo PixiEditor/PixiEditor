@@ -54,8 +54,8 @@
                                 <nodes:StickyNoteNodeView
                                     Node="{Binding}"
                                     IsSelected="{Binding IsNodeSelected}"
-                                    Title="{Binding InputPropertyMap[Title].Value, Mode=TwoWay}"
                                     Text="{Binding InputPropertyMap[Text].Value, Mode=TwoWay}"
+                                    BoxSize="{Binding InputPropertyMap[Size].Value, Mode=TwoWay}"
                                     SelectNodeCommand="{Binding SelectNodeCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
                                     StartDragCommand="{Binding StartDraggingCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
                                     DragCommand="{Binding DraggedCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"

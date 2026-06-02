@@ -1,47 +1,53 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:nodes="clr-namespace:PixiEditor.Views.Nodes">
+                    xmlns:nodes="clr-namespace:PixiEditor.Views.Nodes"
+                    xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker.AvaloniaUI">
     <ControlTheme TargetType="nodes:StickyNoteNodeView" x:Key="{x:Type nodes:StickyNoteNodeView}">
-        <Setter Property="Background" Value="#FFEB99" />
-        <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderMidBrush}" />
-        <Setter Property="BorderThickness" Value="1" />
         <Setter Property="Template">
             <ControlTemplate>
-                <Border Name="RootBorder"
-                        Background="{TemplateBinding Background}"
-                        BorderBrush="{TemplateBinding BorderBrush}"
-                        BorderThickness="{TemplateBinding BorderThickness}"
-                        Width="240" Height="180">
-                    <Grid Margin="6">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
-                        <Grid Grid.Row="0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <TextBox Grid.Column="0"
-                                     Text="{Binding Title, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" />
-                            <Polygon Grid.Column="1"
-                                     Points="0,0 18,0 18,18"
-                                     Fill="#7A5C00"
-                                     Cursor="SizeAll"
-                                     Margin="4,0,0,0" />
-                        </Grid>
-                        <TextBox Grid.Row="1"
+                <Border Name="PART_Rectangle"
+                        BorderThickness="1"
+                        MinWidth="160" MinHeight="28"
+                        Width="{Binding BoxSize.X, RelativeSource={RelativeSource TemplatedParent}}"
+                        Height="{Binding BoxSize.Y, RelativeSource={RelativeSource TemplatedParent}}"
+                        HorizontalAlignment="Left">
+                    <Grid>
+                        <TextBox Name="PART_TextBox"
                                  AcceptsReturn="True"
                                  TextWrapping="Wrap"
-                                 Margin="0,4,0,0"
+                                 TextAlignment="Left"
+                                 HorizontalAlignment="Stretch"
+                                 VerticalAlignment="Stretch"
+                                 VerticalContentAlignment="Top"
+                                 Background="Transparent"
+                                 BorderThickness="0"
+                                 Margin="6,4"
+				 Watermark="Type here..."
+                                 IsHitTestVisible="False"
+                                 Foreground="{Binding ForegroundBrush, RelativeSource={RelativeSource TemplatedParent}}"
                                  Text="{Binding Text, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" />
+                        <colorPicker:PortableColorPicker Name="PART_ColorPicker"
+                                                         IsVisible="False"
+                                                         HorizontalAlignment="Right"
+                                                         VerticalAlignment="Bottom"
+                                                         Margin="4"
+                                                         Width="40" Height="20"
+                                                         EnableGradientsTab="false" />
                     </Grid>
                 </Border>
             </ControlTemplate>
         </Setter>
 
-        <Style Selector="^:selected /template/ Border#RootBorder">
-            <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccent2Brush}" />
+        <Style Selector="^:selected /template/ Border#PART_Rectangle">
+            <Setter Property="BorderThickness" Value="2" />
+        </Style>
+
+        <Style Selector="^:selected /template/ colorPicker|PortableColorPicker#PART_ColorPicker">
+            <Setter Property="IsVisible" Value="True" />
+        </Style>
+
+        <Style Selector="^:focus-within /template/ colorPicker|PortableColorPicker#PART_ColorPicker">
+            <Setter Property="IsVisible" Value="True" />
         </Style>
     </ControlTheme>
 </ResourceDictionary>
