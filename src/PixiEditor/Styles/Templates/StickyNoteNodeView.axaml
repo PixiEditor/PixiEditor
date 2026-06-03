@@ -7,23 +7,24 @@
             <ControlTemplate>
                 <Border Name="PART_Rectangle"
                         BorderThickness="1"
-                        MinWidth="160" MinHeight="28"
+                        MinWidth="160" MinHeight="40"
                         Width="{Binding BoxSize.X, RelativeSource={RelativeSource TemplatedParent}}"
                         Height="{Binding BoxSize.Y, RelativeSource={RelativeSource TemplatedParent}}"
                         HorizontalAlignment="Left">
+                    <Border.Effect>
+                        <DropShadowEffect Color="Black" OffsetX="3" OffsetY="3" BlurRadius="8" Opacity="0.35" />
+                    </Border.Effect>
                     <Grid>
                         <TextBox Name="PART_TextBox"
                                  AcceptsReturn="True"
                                  TextWrapping="Wrap"
                                  TextAlignment="Left"
-                                 HorizontalAlignment="Stretch"
-                                 VerticalAlignment="Stretch"
-                                 VerticalContentAlignment="Top"
+                                 HorizontalAlignment="Left"
+                                 VerticalAlignment="Top"
                                  Background="Transparent"
                                  BorderThickness="0"
                                  Margin="6,4"
-				 Watermark="Type here..."
-                                 IsHitTestVisible="False"
+                                 Watermark="Type here..."
                                  Foreground="{Binding ForegroundBrush, RelativeSource={RelativeSource TemplatedParent}}"
                                  Text="{Binding Text, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" />
                         <colorPicker:PortableColorPicker Name="PART_ColorPicker"

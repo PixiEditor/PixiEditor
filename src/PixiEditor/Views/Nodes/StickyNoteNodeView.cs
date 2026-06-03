@@ -24,7 +24,7 @@ public class StickyNoteNodeView : NodeView
 {
     private const double EdgeMargin = 10.0;
     private const int MinWidth = 160;
-    private const int MinHeight = 28;
+    private const int MinHeight = 40;
 
     private enum ResizeMode { None, Right, Bottom, BottomRight }
 
@@ -59,7 +59,6 @@ public class StickyNoteNodeView : NodeView
     }
 
     private Border? _rectBorder;
-    private TextBox? _textBox;
     private PortableColorPicker? _picker;
     private SolidColorBrush? _fillBrush;
     private SolidColorBrush? _strokeBrush;
@@ -79,11 +78,6 @@ public class StickyNoteNodeView : NodeView
         NodeProperty.Changed.Subscribe(OnNodeChanged);
     }
 
-    public StickyNoteNodeView()
-    {
-        DoubleTapped += OnDoubleTapped;
-    }
-
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
     {
         base.OnAttachedToVisualTree(e);
@@ -94,7 +88,6 @@ public class StickyNoteNodeView : NodeView
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
     {
         _rectBorder = e.NameScope.Find<Border>("PART_Rectangle");
-        _textBox = e.NameScope.Find<TextBox>("PART_TextBox");
         _picker = e.NameScope.Find<PortableColorPicker>("PART_ColorPicker");
 
         if (_rectBorder != null)
@@ -105,26 +98,10 @@ public class StickyNoteNodeView : NodeView
             _rectBorder.BorderBrush = _strokeBrush;
         }
 
-        if (_textBox != null)
-            _textBox.LostFocus += OnTextBoxLostFocus;
-
         if (_picker != null)
             _picker.PropertyChanged += OnPickerPropertyChanged;
 
         UpdateColorsFromHandler();
-    }
-
-    private void OnDoubleTapped(object? sender, TappedEventArgs e)
-    {
-        if (_textBox == null) return;
-        _textBox.IsHitTestVisible = true;
-        _textBox.Focus();
-        e.Handled = true;
-    }
-
-    private void OnTextBoxLostFocus(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
-    {
-        if (_textBox != null) _textBox.IsHitTestVisible = false;
     }
 
     private static void OnNodeChanged(AvaloniaPropertyChangedEventArgs e)

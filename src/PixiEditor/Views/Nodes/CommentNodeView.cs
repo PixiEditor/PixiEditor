@@ -21,7 +21,7 @@ public class CommentNodeView : NodeView
 {
     private const double EdgeMargin = 10.0;
     private const int MinWidth = 160;
-    private const int MinHeight = 28;
+    private const int MinHeight = 40;
 
     private enum ResizeMode { None, Right, Bottom, BottomRight }
 
