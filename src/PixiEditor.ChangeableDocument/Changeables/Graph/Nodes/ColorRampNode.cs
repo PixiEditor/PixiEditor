@@ -38,7 +38,8 @@ public class ColorRampNode : RenderNode, IRenderInput
     public ColorRampNode()
     {
         Background = CreateRenderInput("Fac", "COLOR_RAMP_FACTOR");
-        Gradient = CreateInput<Paintable>("Gradient", "GRADIENT", new ColorPaintable(Colors.Transparent));
+        Gradient = CreateInput<Paintable>("Gradient", "GRADIENT", new LinearGradientPaintable(VecD.Zero, new VecD(1, 0),
+            [new GradientStop(Colors.White, 0), new GradientStop(Colors.Black, 1)]));
         ColorSpace = CreateInput("ColorSpace", "COLOR_SPACE", ColorSpaceType.Inherit);
 
         Output.FirstInChain = null;
