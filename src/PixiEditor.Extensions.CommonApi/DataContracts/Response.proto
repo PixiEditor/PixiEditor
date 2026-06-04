@@ -1,0 +1,12 @@
+syntax = "proto3";
+package PixiEditor.Network;
+
+option csharp_namespace = "PixiEditor.Extensions.CommonApi.Network";
+
+message Response
+{
+    int32 StatusCode = 1;
+    bytes Body = 2;
+    map<string, string> Headers = 3;
+    string Url = 4;
+}
