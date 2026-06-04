@@ -182,6 +182,11 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
         return path;
     }
 
+    public override PathVectorData? ExpandStroke()
+    {
+        throw new NotImplementedException();
+    }
+
     public override void RasterizeGeometry(Canvas canvas)
     {
         Rasterize(canvas, false);
