@@ -169,6 +169,7 @@ public static partial class PixiPerfectIcons
     public const string RectangleSelection = "\uE968";
     public const string Reddit = "\uE905";
     public const string Redo = "\uE969";
+    public const string Replace = "\uE9EF";
     public const string Reset = "\uE9AA";
     public const string Resize = "\uE96B";
     public const string RotateView = "\uE96C";
