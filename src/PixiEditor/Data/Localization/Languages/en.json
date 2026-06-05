@@ -1507,5 +1507,14 @@
   "WARNING_VERSION_INCOMPATIBLE": "This extension may not be compatible with your version of PixiEditor.",
   "EXTENSIONS_ONBOARDING_TITLE": "Featured Extensions",
   "GAME_OF_LIFE_EXAMPLE": "Game of Life",
-  "BLENDING_PAINT": "Blending Paint"
+  "BLENDING_PAINT": "Blending Paint",
+  "MATH_MULTIPLY_ADD": "Multiply Add",
+  "MATH_DOT": "Dot Product",
+  "MATH_SCALE": "Scale",
+  "MATH_NORMALIZE": "Normalize",
+  "MATH_SIGN": "Sign",
+  "MATH_WRAP": "Wrap",
+  "MATH_SNAP": "Snap",
+  "MATH_CROSS": "Cross Product",
+  "VECTOR_MATH_NODE": "Vector Math"
 }

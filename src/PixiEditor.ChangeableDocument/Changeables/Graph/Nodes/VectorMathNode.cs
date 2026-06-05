@@ -15,7 +15,6 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 [NodeInfo("VectorMath")]
 public class VectorMathNode : Node
 {
-    // TODO: TEST ALL!!
     public FuncOutputProperty<Float1> ResultFloat1 { get; }
     public FuncOutputProperty<Float2> Result { get; }
 
@@ -65,15 +64,12 @@ public class VectorMathNode : Node
                 VectorMathMode.Min => ShaderMath.Min(x, y),
                 VectorMathMode.Max => ShaderMath.Max(x, y),
                 VectorMathMode.MultiplyAdd => ShaderMath.MultiplyAdd(x, y, z),
-                VectorMathMode.Dot => ShaderMath.Dot(x, y),
-                VectorMathMode.Distance => ShaderMath.Distance(x, y),
-                VectorMathMode.Length => ShaderMath.Length(x),
                 VectorMathMode.Scale => ShaderMath.Scale(x, s),
                 VectorMathMode.Normalize => ShaderMath.Normalize(x),
                 VectorMathMode.Sign => ShaderMath.Sign(x),
                 VectorMathMode.Wrap => ShaderMath.Wrap(x, y, z),
                 VectorMathMode.Snap => ShaderMath.Snap(x, y),
-                _ => ShaderMath.Add(x, y)
+                _ => context.NewFloat2(new Float1(""), new Float1(""))
             };
 
             return context.NewFloat2(result);
@@ -133,7 +129,7 @@ public class VectorMathNode : Node
                 constValue = new VecD(Math.Tan(xConst.X), Math.Tan(xConst.Y));
                 break;
             case VectorMathMode.Power:
-                constValue = new VecD(Math.Pow(xConst.X, sConst), Math.Pow(xConst.Y, sConst));
+                constValue = new VecD(Math.Pow(xConst.X, yConst.X), Math.Pow(xConst.Y, yConst.Y));
                 break;
             case VectorMathMode.Fraction:
                 constValue = new VecD(xConst.X - Math.Floor(xConst.X), xConst.Y - Math.Floor(xConst.Y));
@@ -208,6 +204,7 @@ public class VectorMathNode : Node
             Expression? result = Mode.Value switch
             {
                 VectorMathMode.Dot => ShaderMath.Dot(x, y),
+                VectorMathMode.Cross => ShaderMath.Cross(x, y),
                 VectorMathMode.Distance => ShaderMath.Distance(x, y),
                 VectorMathMode.Length => ShaderMath.Length(x),
                 _ => null
@@ -323,6 +320,8 @@ public enum VectorMathMode
     MultiplyAdd,
     [Description("MATH_DOT")]
     Dot,
+    [Description("MATH_CROSS")]
+    Cross,
     [Description("DISTANCE")]
     Distance,
     [Description("LENGTH")]
@@ -333,7 +332,7 @@ public enum VectorMathMode
     Normalize,
     [Description("ABSOLUTE")]
     Absolute,
-    [Description("POWER")]
+    [Description("MATH_POWER")]
     Power,
     [Description("MATH_SIGN")]
     Sign,
@@ -364,6 +363,7 @@ public enum VectorMathMode
     [Description("NEGATE")]
     Negate
 }
+
 public static class VectorMathModeExtensions
 {
     public static bool UsesYValue(this VectorMathMode mode) =>
@@ -379,7 +379,6 @@ public static class VectorMathModeExtensions
         mode != VectorMathMode.Length &&
         mode != VectorMathMode.Normalize &&
         mode != VectorMathMode.Sign &&
-        mode != VectorMathMode.Power &&
         mode != VectorMathMode.Scale;
 
 
@@ -388,7 +387,7 @@ public static class VectorMathModeExtensions
             VectorMathMode.Wrap;
 
     public static bool UsesSValue(this VectorMathMode mode) =>
-        mode is VectorMathMode.Power or VectorMathMode.Scale;
+        mode is VectorMathMode.Scale;
 
     public static (string x, string y, string z) GetNaming(this VectorMathMode mode) => mode switch
     {
@@ -398,7 +397,8 @@ public static class VectorMathModeExtensions
     public static bool ProducesVector(this VectorMathMode mode) =>
         mode != VectorMathMode.Dot &&
         mode != VectorMathMode.Distance &&
-        mode != VectorMathMode.Length;
+        mode != VectorMathMode.Length &&
+        mode != VectorMathMode.Cross;
 
         public static bool ProducesDouble(this VectorMathMode mode) => !mode.ProducesVector();
 }
