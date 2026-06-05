@@ -12,6 +12,10 @@ internal class NoiseNodeViewModel : NodeViewModel<NoiseNode>
     private GenericEnumPropertyViewModel VoronoiFeature { get; set; }
     private NodePropertyViewModel Randomness { get; set; }
     private NodePropertyViewModel AngleOffset { get; set; }
+    private NodePropertyViewModel Lacunarity { get; set; }
+    private NodePropertyViewModel Persistence { get; set; }
+    private NodePropertyViewModel Dimensions { get; set; }
+    private NodePropertyViewModel Z { get; set; }
 
     public override void OnInitialized()
     {
@@ -20,7 +24,13 @@ internal class NoiseNodeViewModel : NodeViewModel<NoiseNode>
         Randomness = FindInputProperty("Randomness");
         AngleOffset = FindInputProperty("AngleOffset");
 
+        Lacunarity = FindInputProperty("Lacunarity");
+        Persistence = FindInputProperty("Persistence");
+        Dimensions = FindInputProperty("Dimensions");
+        Z = FindInputProperty("Z");
+
         Type.ValueChanged += (_, _) => UpdateInputVisibility();
+        Dimensions.ValueChanged += (_, _) => UpdateInputVisibility();
         UpdateInputVisibility();
     }
 
@@ -28,9 +38,20 @@ internal class NoiseNodeViewModel : NodeViewModel<NoiseNode>
     {
         if (Type.Value is not NoiseType type)
             return;
-        
+
         Randomness.IsVisible = type == NoiseType.Voronoi;
         VoronoiFeature.IsVisible = type == NoiseType.Voronoi;
         AngleOffset.IsVisible = type == NoiseType.Voronoi;
+        Lacunarity.IsVisible = type is NoiseType.FractalValue or NoiseType.Voronoi or NoiseType.FractalPerlin2
+            or NoiseType.FractalVoronoi or NoiseType.FractalSimplexValue or NoiseType.FractalSimplexGradient;
+        Persistence.IsVisible = type is NoiseType.FractalValue or NoiseType.Voronoi or NoiseType.FractalPerlin2
+            or NoiseType.FractalVoronoi or NoiseType.FractalSimplexValue or NoiseType.FractalSimplexGradient;
+        Dimensions.IsVisible = type is NoiseType.FractalValue or NoiseType.FractalPerlin2
+            or NoiseType.FractalVoronoi or NoiseType.FractalSimplexValue or NoiseType.FractalSimplexGradient;
+        if (Dimensions.Value is not int d)
+            return;
+        Z.IsVisible = type is NoiseType.FractalValue or NoiseType.FractalPerlin2
+            or NoiseType.FractalVoronoi or NoiseType.FractalSimplexValue or NoiseType.FractalSimplexGradient
+                      && d == 3;
     }
 }
