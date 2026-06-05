@@ -75,6 +75,18 @@ public class FuncContext
         return Builder.ConstructFloat2(x, y);
     }
 
+    public Float2 NewFloat2(Expression assignment)
+    {
+        if (!HasContext && assignment is Float2 float2)
+        {
+            Float2 constantFloat = new Float2("");
+            constantFloat.ConstantValue = float2.ConstantValue;
+            return constantFloat;
+        }
+
+        return Builder.AssignNewFloat2(assignment);
+    }
+
     public Float1 NewFloat1(Expression result)
     {
         if (!HasContext && result is Float1 float1)
