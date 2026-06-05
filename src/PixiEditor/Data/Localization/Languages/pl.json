@@ -1498,5 +1498,14 @@
   "OPEN_PATH_AS_NESTED_DOCUMENT": "Jako element: {0}",
   "EXTENSIONS_WINDOW_STEAM_UNAVAILABLE": "Wersja Steam PixiEditora jeszcze nie wspiera biblioteki rozszerzeń. Użyj samodzielnej wersji aby uzyskać dostęp.",
   "WARNING_VERSION_INCOMPATIBLE": "To rozszerzenie może być niekompatybilne z Twoją wersją PixiEditora.",
-  "EXTENSIONS_ONBOARDING_TITLE": "Wyróżnione Rozszerzenia"
+  "EXTENSIONS_ONBOARDING_TITLE": "Wyróżnione Rozszerzenia",
+  "TOOL": "Narzędzie",
+  "RAINBOW_BRUSH": "Tęcza",
+  "PERIOD": "Okres (sekundy)",
+  "SATURATION": "Nasycenie",
+  "RATIO": "Proporcja Pędzla",
+  "ACRYLIC": "Akrylowy",
+  "STRANDS_BRUSH": "Pasemka",
+  "GAME_OF_LIFE_EXAMPLE": "Gra w życie",
+  "BLENDING_PAINT": "Pędzel mieszający"
 }

@@ -1,0 +1,52 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:nodes="clr-namespace:PixiEditor.Views.Nodes"
+                    xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker.AvaloniaUI">
+    <ControlTheme TargetType="nodes:CommentNodeView" x:Key="{x:Type nodes:CommentNodeView}">
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Name="PART_Rectangle"
+                        BorderThickness="1"
+                        CornerRadius="6"
+                        MinWidth="160" MinHeight="40"
+                        Width="{Binding BoxSize.X, RelativeSource={RelativeSource TemplatedParent}}"
+                        Height="{Binding BoxSize.Y, RelativeSource={RelativeSource TemplatedParent}}"
+                        HorizontalAlignment="Left">
+                    <Grid>
+                        <TextBox AcceptsReturn="True"
+                                 TextWrapping="Wrap"
+                                 TextAlignment="Center"
+                                 HorizontalAlignment="Stretch"
+                                 VerticalAlignment="Top"
+                                 Background="Transparent"
+                                 BorderThickness="0"
+                                 FontWeight="Bold"
+                                 Margin="6,4"
+                                 Foreground="{Binding ForegroundBrush, RelativeSource={RelativeSource TemplatedParent}}"
+                                 Watermark="Type here..."
+                                 Text="{Binding Text, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" />
+                        <colorPicker:PortableColorPicker Name="PART_ColorPicker"
+                                                         IsVisible="False"
+                                                         HorizontalAlignment="Right"
+                                                         VerticalAlignment="Bottom"
+                                                         Margin="4"
+                                                         Width="40" Height="20"
+                                                         EnableGradientsTab="false" />
+                    </Grid>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+
+        <Style Selector="^:selected /template/ Border#PART_Rectangle">
+            <Setter Property="BorderThickness" Value="2" />
+        </Style>
+
+        <Style Selector="^:selected /template/ colorPicker|PortableColorPicker#PART_ColorPicker">
+            <Setter Property="IsVisible" Value="True" />
+        </Style>
+
+        <Style Selector="^:focus-within /template/ colorPicker|PortableColorPicker#PART_ColorPicker">
+            <Setter Property="IsVisible" Value="True" />
+        </Style>
+    </ControlTheme>
+</ResourceDictionary>
