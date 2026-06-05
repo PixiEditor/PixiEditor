@@ -39,7 +39,7 @@
                 <ColumnDefinition Width="120" />
             </Grid.ColumnDefinitions>
             <TextBlock Text="API Key" Margin="0,0,5,0" />
-            <TextBox Grid.Column="1" TextChanged="ApiKeyChanged" VerticalContentAlignment="Center"
+            <TextBox Grid.Column="1" TextChanged="ApiKeyChanged" PasswordChar="•" VerticalContentAlignment="Center"
                      Text="{Binding ApiKey}" />
             <Button Margin="5,0,0,0" Grid.Column="2"
                     Content="Log in"
