@@ -776,7 +776,7 @@ internal class DocumentUpdater
         }
     }
 
-    private List<INodePropertyHandler> CreateProperties(ImmutableArray<NodePropertyInfo> source, NodeViewModel node,
+private List<INodePropertyHandler> CreateProperties(ImmutableArray<NodePropertyInfo> source, NodeViewModel node,
         bool isInput)
     {
         List<INodePropertyHandler> inputs = new();

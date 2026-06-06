@@ -16,6 +16,8 @@
                 <MergeResourceInclude Source="avares://PixiEditor/Styles/Templates/NodeFrameView.axaml"/>
                 <MergeResourceInclude Source="avares://PixiEditor/Styles/Templates/NodeGraphView.axaml"/>
                 <MergeResourceInclude Source="avares://PixiEditor/Styles/Templates/NodeView.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor/Styles/Templates/StickyNoteNodeView.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor/Styles/Templates/CommentNodeView.axaml"/>
                 <MergeResourceInclude Source="avares://PixiEditor/Styles/Templates/NodeSocket.axaml"/>
                 <MergeResourceInclude Source="avares://PixiEditor/Styles/Templates/ConnectionView.axaml"/>
                 <MergeResourceInclude Source="avares://PixiEditor/Styles/Templates/NodePicker.axaml"/>
