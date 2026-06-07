@@ -46,7 +46,7 @@ public class LerpColorNode : Node // TODO: ILerpable as inputs?
             _ => throw new InvalidOperationException("Unsupported constant type for time.")
         };
 
-        Vec4D result = constFrom.Lerp(constTo, dTime);
+        Vec4D result = constFrom.Lerp(constTo, dTime).Clamp(0, 1);
         return new Half4("") { ConstantValue = result };
     }
 
