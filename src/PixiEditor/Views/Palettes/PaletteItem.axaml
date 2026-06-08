@@ -20,6 +20,14 @@
         <Style Selector="palettes|PaletteItem:favourite Button#FavouriteButton">
             <Setter Property="Content" Value="{DynamicResource icon-star-filled}" />
         </Style>
+        <Style Selector="palettes|PaletteItem Button#renameButton">
+            <Setter Property="Opacity" Value="0" />
+            <Setter Property="IsHitTestVisible" Value="False" />
+        </Style>
+        <Style Selector="palettes|PaletteItem:pointerover Button#renameButton">
+            <Setter Property="Opacity" Value="1" />
+            <Setter Property="IsHitTestVisible" Value="True" />
+        </Style>
     </UserControl.Styles>
     <Grid Background="{DynamicResource ThemeBackgroundBrush}">
         <Grid.ColumnDefinitions>
@@ -33,13 +41,15 @@
         <StackPanel Orientation="Vertical" Grid.RowSpan="2" Grid.ColumnSpan="2">
             <Separator Background="{DynamicResource ThemeBackgroundBrush1}" />
             <DockPanel>
-                <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
                     <input:EditableTextBlock x:Name="titleTextBlock" OnSubmit="EditableTextBlock_OnSubmit"
                                              Text="{Binding Palette.Name, ElementName=paletteItem, Mode=TwoWay}"
+                                             VerticalAlignment="Center"
                                              FontSize="20" MaxChars="50" />
-                    <Button IsVisible="{Binding ElementName=paletteItem, Path=IsPointerOver}"
+                    <Button Name="renameButton"
                             Click="RenameButton_Click"
-                            Cursor="Hand" FontSize="20" Classes="pixi-icon"
+                            Cursor="Hand" Width="28" Height="28" Padding="2" FontSize="18"
+                            Classes="pixi-icon"
                             Content="{DynamicResource icon-edit}" Margin="5 0 0 0" />
                 </StackPanel>
                 <decorators:Chip Margin="0 5 5 0"
@@ -48,7 +58,7 @@
             </DockPanel>
             <TextBlock Margin="0 5 0 0" />
         </StackPanel>
-        <ItemsControl Margin="0 -20 0 10" Grid.Row="1" Grid.Column="0"
+        <ItemsControl Margin="0 -15 0 10" Grid.Row="1" Grid.Column="0"
                       ItemsSource="{Binding ElementName=paletteItem, Path=Palette.Colors}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -65,13 +75,13 @@
                     VerticalAlignment="Center">
             <Button
                 ui:Translator.TooltipKey="USE_IN_CURRENT_IMAGE" Cursor="Hand"
-                Margin="0 3 0 0" Padding="2" Width="28" Height="28"
+                Margin="0 3 0 0" Padding="2" Width="28" Height="28" FontSize="18"
                 CommandParameter="{Binding ElementName=paletteItem, Path=Palette.Colors}"
                 Classes="pixi-icon"
                 Content="{DynamicResource icon-check}"
                 Command="{Binding ImportPaletteCommand, ElementName=paletteItem}">
                 <Button.Styles>
-                    <Style Selector="Button:pointerover">
+                    <Style Selector="Button:pointerover /template/ ContentPresenter">
                         <Setter Property="Background" Value="SeaGreen" />
                     </Style>
                 </Button.Styles>
@@ -79,22 +89,22 @@
             <Button
                 Command="{Binding ElementName=paletteItem, Path=ToggleFavouriteCommand}"
                 CommandParameter="{Binding ElementName=paletteItem, Path=Palette}"
-                Name="FavouriteButton" Width="28" Height="28"
+                Name="FavouriteButton" Width="28" Height="28" FontSize="18"
                 Classes="pixi-icon" Padding="2"
                 ui:Translator.TooltipKey="ADD_TO_FAVORITES">
                 <Button.Styles>
-                    <Style Selector="Button:pointerover">
+                    <Style Selector="Button:pointerover /template/ ContentPresenter">
                         <Setter Property="Background" Value="Orange" />
                     </Style>
                 </Button.Styles>
             </Button>
             <Button Name="deleteButton" Command="{Binding DeletePaletteCommand, ElementName=paletteItem}"
                     CommandParameter="{Binding ElementName=paletteItem, Path=Palette}"
-                    Classes="pixi-icon" Width="28" Height="28"
+                    Classes="pixi-icon" Width="28" Height="28" FontSize="18"
                     Content="{DynamicResource icon-trash}"
                     ui:Translator.TooltipKey="DELETE" Padding="2" Margin="0" Cursor="Hand">
                 <Button.Styles>
-                    <Style Selector="Button:pointerover">
+                    <Style Selector="Button:pointerover /template/ ContentPresenter">
                         <Setter Property="Background" Value="Red" />
                     </Style>
                 </Button.Styles>

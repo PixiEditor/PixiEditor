@@ -44,16 +44,16 @@
                             <Button
                                 Classes="pixi-icon" Click="BrowsePalettes_Click"
                                 Content="{DynamicResource icon-database}"
-                                Cursor="Hand" Height="24" Width="24" ui:Translator.TooltipKey="BROWSE_PALETTES" />
+                                Cursor="Hand" Height="24" Width="24" FontSize="18" ui:Translator.TooltipKey="BROWSE_PALETTES" />
                             <Button Classes="pixi-icon"
-                                    Cursor="Hand" Height="24" Width="24" ui:Translator.TooltipKey="LOAD_PALETTE"
+                                    Cursor="Hand" Height="24" Width="24" FontSize="18" ui:Translator.TooltipKey="LOAD_PALETTE"
                                     Content="{DynamicResource icon-hard-drive}"
                                     Click="ImportPalette_OnClick" />
-                            <Button Height="24" Width="24" Classes="pixi-icon"
+                            <Button Height="24" Width="24" FontSize="18" Classes="pixi-icon"
                                     Content="{DynamicResource icon-save}"
                                     IsEnabled="{Binding ElementName=paletteControl, Path=Colors.Count}"
                                     Cursor="Hand" ui:Translator.TooltipKey="SAVE_PALETTE" Click="SavePalette_OnClick" />
-                            <Button Height="24" Width="24" Classes="pixi-icon"
+                            <Button Height="24" Width="24" FontSize="18" Classes="pixi-icon"
                                     Content="{DynamicResource icon-trash}"
                                     IsEnabled="{Binding ElementName=paletteControl, Path=Colors.Count}"
                                     Cursor="Hand" ui:Translator.TooltipKey="DISCARD_PALETTE"

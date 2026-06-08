@@ -25,14 +25,23 @@
         <Setter Property="FontFamily" Value="{DynamicResource PixiPerfectIcons}" />
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="FontSize" Value="24" />
+        <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}" />
         <Setter Property="Padding" Value="0" />
+        <Setter Property="Width" Value="32" />
+        <Setter Property="Height" Value="32" />
+        <Setter Property="CornerRadius" Value="6" />
         <Setter Property="HorizontalContentAlignment" Value="Center" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="BorderThickness" Value="0" />
     </Style>
 
-    <Style Selector="Button.pixi-icon:pointerover">
-        <Setter Property="Background" Value="Transparent" />
+    <Style Selector="Button.pixi-icon:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource ThemeControlHighBrush}" />
+        <Setter Property="CornerRadius" Value="6" />
+    </Style>
+
+    <Style Selector="Button.pixi-icon[Width=24][Height=24]">
+        <Setter Property="FontSize" Value="18" />
     </Style>
 
     <Style Selector="ToggleButton.pixi-icon">
@@ -40,13 +49,27 @@
         <Setter Property="BorderThickness" Value="0" />
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="FontSize" Value="24" />
+        <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}" />
         <Setter Property="Padding" Value="0" />
+        <Setter Property="Width" Value="32" />
+        <Setter Property="Height" Value="32" />
+        <Setter Property="CornerRadius" Value="6" />
         <Setter Property="HorizontalContentAlignment" Value="Center" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
     </Style>
 
-    <Style Selector="ToggleButton.pixi-icon:checked">
+    <Style Selector="ToggleButton.pixi-icon:pointerover /template/ ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource ThemeControlHighBrush}" />
+        <Setter Property="CornerRadius" Value="6" />
+    </Style>
+
+    <Style Selector="ToggleButton.pixi-icon:checked /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource ThemeControlHighBrush}" />
+        <Setter Property="CornerRadius" Value="6" />
+    </Style>
+
+    <Style Selector="ToggleButton.pixi-icon[Width=24][Height=24]">
+        <Setter Property="FontSize" Value="18" />
     </Style>
 
     <Style Selector="MenuItem.pixi-icon">

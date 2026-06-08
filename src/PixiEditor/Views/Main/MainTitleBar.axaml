@@ -33,14 +33,15 @@
                     <StackPanel Margin="5 0" Spacing="8" Orientation="Horizontal"
                                 Name="MainBarAdditionalElementPanel"
                                 DataContext="{Binding Path=DataContext, RelativeSource={RelativeSource FindAncestor, AncestorType=main:MainTitleBar}}">
-                        <Border Width="24" Height="24" CornerRadius="4" Background="{DynamicResource FoundersPurpleLowBrush}">
+                        <Border Width="24" Height="24" CornerRadius="6" Background="{DynamicResource FoundersPurpleLowBrush}">
                             <Button Classes="pixi-icon"
-                                    Foreground="{DynamicResource FoundersPurpleBrush}"
+                                    Width="24" Height="24"
                                     FontSize="18"
+                                    Foreground="{DynamicResource FoundersPurpleBrush}"
                                     Content="{DynamicResource icon-extensions}"
                                     Command="{xaml:Command Name=PixiEditor.Window.OpenExtensionsWindow}" />
                         </Border>
-                        <auth:UserAvatarToggle Width="26" Height="26" DataContext="{Binding Path=UserViewModel}" />
+                        <auth:UserAvatarToggle Width="24" Height="24" DataContext="{Binding Path=UserViewModel}" />
                     </StackPanel>
                 </dialogs:DialogTitleBar.AdditionalElement>
             </dialogs:DialogTitleBar>

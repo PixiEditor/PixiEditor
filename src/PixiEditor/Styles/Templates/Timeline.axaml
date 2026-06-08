@@ -41,19 +41,23 @@
                                                 Size="{Binding Fps, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" />
 
                             <Button Classes="pixi-icon" DockPanel.Dock="Right"
-                                    Content="{DynamicResource icon-settings}"
                                     ui1:Translator.TooltipKey="SETTINGS">
-                                <Button.Styles>
-                                    <Style Selector="Button:pointerover">
-                                        <Setter Property="RenderTransform" Value="rotate(45deg)" />
-                                    </Style>
-                                </Button.Styles>
-                                <Button.Transitions>
-                                    <Transitions>
-                                        <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.3"
-                                                                       Easing="SineEaseInOut" />
-                                    </Transitions>
-                                </Button.Transitions>
+                                <TextBlock Classes="pixi-icon"
+                                           Text="{DynamicResource icon-settings}"
+                                           FontSize="24"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <TextBlock.Styles>
+                                        <Style Selector="Button:pointerover TextBlock">
+                                            <Setter Property="RenderTransform" Value="rotate(45deg)" />
+                                        </Style>
+                                    </TextBlock.Styles>
+                                    <TextBlock.Transitions>
+                                        <Transitions>
+                                            <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.3"
+                                                                           Easing="SineEaseInOut" />
+                                        </Transitions>
+                                    </TextBlock.Transitions>
+                                </TextBlock>
                                 <Button.Flyout>
                                     <Flyout Placement="Top">
                                         <Grid>
@@ -102,7 +106,7 @@
                                     ui1:Translator.TooltipKey="STEP_BACK"
                                     Command="{Binding StepBackCommand, RelativeSource={RelativeSource TemplatedParent}}"
                                     Content="{DynamicResource icon-step-back}" />
-                            <ToggleButton Margin="0, 5" Width="24" HorizontalAlignment="Center" Classes="PlayButton"
+                            <ToggleButton Width="32" HorizontalAlignment="Center" Classes="PlayButton timeline"
                                           Name="PART_PlayToggle"
                                           IsChecked="{Binding IsPlaying, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" />
                             <Button Classes="pixi-icon"
