@@ -4,5 +4,5 @@ using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document.Nodes;
 
-[NodeViewModel("DECOMPOSE_PALETTE_NODE", "COLOR", PixiPerfectIcons.CirclePile)]
-internal class DecomposePaletteNodeViewModel : NodeViewModel<DecomposePaletteNode>;
+[NodeViewModel("PALETTE_NODE", "COLOR", PixiPerfectIcons.ColorPalette)]
+internal class PaletteNodeViewModel : NodeViewModel<PaletteNode>;

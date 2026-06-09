@@ -74,6 +74,7 @@
             <Color x:Key="EnumSocketColor">#a6aeba</Color>
             <Color x:Key="BrushSocketColor">#DA3434</Color>
             <Color x:Key="FontFamilyNameSocketColor">#c7cfdc</Color>
+            <Color x:Key="PaletteSocketColor">#e84fb0</Color>
 
             <GradientStops x:Key="ShapeDataSocketGradient">
                 <GradientStop Offset="0" Color="{StaticResource EllipseDataSocketColor}" />
@@ -204,6 +205,7 @@
             <SolidColorBrush x:Key="EnumSocketBrush" Color="{StaticResource EnumSocketColor}" />
             <SolidColorBrush x:Key="BrushSocketBrush" Color="{StaticResource BrushSocketColor}" />
             <SolidColorBrush x:Key="FontFamilyNameSocketBrush" Color="{StaticResource FontFamilyNameSocketColor}" />
+            <SolidColorBrush x:Key="PaletteSocketBrush" Color="{StaticResource PaletteSocketColor}" />
 
             <SolidColorBrush x:Key="FoundersPurpleBrush" Color="{StaticResource FoundersPurpleColor}" />
             <SolidColorBrush x:Key="FoundersPurpleLowBrush" Color="{StaticResource FoundersPurpleColorLow}" />

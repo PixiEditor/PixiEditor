@@ -14,6 +14,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Palettes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 
@@ -93,6 +94,11 @@ public static class ConversionTable
                     (typeof(double), new TypeConverter<Color, double>(c => c.R)),
                     (typeof(int), new TypeConverter<Color, int>(c => c.R)),
                     (typeof(float), new TypeConverter<Color, float>(c => c.R)),
+                ]
+            },
+            {
+                typeof(Color[]), [
+                    (typeof(Palette), new TypeConverter<Color[], Palette>(c => new Palette(c)))
                 ]
             },
             {
