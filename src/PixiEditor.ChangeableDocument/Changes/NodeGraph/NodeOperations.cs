@@ -180,21 +180,45 @@ public static class NodeOperations
         List<IChangeInfo> changes = new();
         Dictionary<Guid, VecD> originalPositionDict = new();
 
-        member.Position = new VecD(appendedTo.Position.X - 250, appendedTo.Position.Y);
-
+        const double nodeWidth = 205;
+        const double nodeWidthWithMargin = nodeWidth + 45;
+        
+        member.Position = new VecD(appendedTo.Position.X - nodeWidthWithMargin, appendedTo.Position.Y);
         changes.Add(new NodePosition_ChangeInfo(member.Id, member.Position));
 
-        previouslyConnected?.TraverseBackwards((aNode, previousNode, _) =>
+        previouslyConnected?.TraverseBackwards((leftNode, rightNode, _) =>
         {
-            if (aNode is Node toMove)
+            if (leftNode is not Node toMove)
+                return true;
+
+            bool rightNodeWasBehindFromTheStart;
+            if (rightNode is not null)
+            {
+                bool rightOriginalPositionExists = originalPositionDict.TryGetValue(rightNode.Id, out VecD rightOriginalPosition);
+                bool rightNodeWasMoved = originalPositionDict.ContainsKey(rightNode.Id);
+                if (!rightNodeWasMoved)
+                    return true;
+                
+                rightNodeWasBehindFromTheStart = 
+                    rightOriginalPositionExists && 
+                    rightOriginalPosition.X < leftNode.Position.X + nodeWidth;                
+            }
+            else
+            {
+                rightNodeWasBehindFromTheStart = appendedTo.Position.X < leftNode.Position.X + nodeWidth;
+            }
+            
+            if (rightNodeWasBehindFromTheStart)
+                return true;
+            
+            double rightNodeX = rightNode?.Position.X ?? member.Position.X;
+            if (rightNodeX < leftNode.Position.X + nodeWidthWithMargin)
             {
                 originalPositionDict.Add(toMove.Id, toMove.Position);
-                var y = toMove.Position.Y;
-                toMove.Position = (previousNode?.Position ?? member.Position) - new VecD(250, 0);
-                toMove.Position = new VecD(toMove.Position.X, y);
+                toMove.Position = new VecD(rightNodeX - nodeWidthWithMargin, toMove.Position.Y);
                 changes.Add(new NodePosition_ChangeInfo(toMove.Id, toMove.Position));
             }
-
+            
             return true;
         });
 
