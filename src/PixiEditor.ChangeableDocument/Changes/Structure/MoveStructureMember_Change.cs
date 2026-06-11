@@ -98,8 +98,10 @@ internal class MoveStructureMember_Change : Change
 
         if (!isMovingBelow)
         {
+            VecD sourceOriginalPosition = sourceNode.Position;
             changes.AddRange(NodeOperations.AdjustPositionsAfterAppend(sourceNode, inputProperty.Node,
                 previouslyConnected?.Node as Node, out originalPositions));
+            originalPositions.Add(sourceNode.Id, sourceOriginalPosition);
         }
 
         if (targetNode is FolderNode)
