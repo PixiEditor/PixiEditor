@@ -18,6 +18,11 @@ public static class NodeOperations
 {
     private static Dictionary<Type, INodeFactory> allFactories;
     private static Dictionary<string, Type> nodeMap;
+    
+    private const double nodeWidth = 205;
+    private const double nodeAutoArrangeXMargin = 45;
+    private const double nodeClosenessThresholdX = 80;
+    private const double nodeClosenessThresholdY = nodeWidth * 2;
 
     static NodeOperations()
     {
@@ -101,7 +106,7 @@ public static class NodeOperations
 
         List<IChangeInfo> changes = AppendMember(parentInput, toAddOutput, toAddInput, memberId);
 
-        var adjustedPositions = AdjustPositionsAfterAppend(toAppend, parent,
+        var adjustedPositions = PushNodesBackAfterInsertingNodeBetweenTwoOthers(toAppend, parent,
             parentInput.Connection?.Node as Node ?? null, out originalPositions);
 
         changes.AddRange(adjustedPositions);
@@ -174,48 +179,58 @@ public static class NodeOperations
         return changes;
     }
 
-    public static List<IChangeInfo> AdjustPositionsAfterAppend(Node member, Node appendedTo, Node? previouslyConnected,
-        out Dictionary<Guid, VecD> originalPositions)
+    /// <summary>
+    /// Positions <paramref name="insertedNode"/> to be behind <paramref name="nodeAfterInserted"/>.
+    /// Pushes back <paramref name="nodeBeforeInserted"/> and its ancestors to free up space for the <paramref name="insertedNode"/>
+    /// </summary>
+    /// <param name="insertedNode">The node that was inserted between two other nodes</param>
+    /// <param name="nodeAfterInserted">The node that comes after the newly inserted node</param>
+    /// <param name="nodeBeforeInserted">The node that comes before the newly inserted node</param>
+    /// <param name="originalPositions">The positions of <paramref name="nodeBeforeInserted"/> and its ancestors before adjustment</param>
+    /// <returns></returns>
+    public static List<IChangeInfo> PushNodesBackAfterInsertingNodeBetweenTwoOthers(Node insertedNode, 
+        Node nodeAfterInserted, Node? nodeBeforeInserted, out Dictionary<Guid, VecD> originalPositions)
     {
         List<IChangeInfo> changes = new();
         Dictionary<Guid, VecD> originalPositionDict = new();
-
-        const double nodeWidth = 205;
-        const double nodeWidthWithMargin = nodeWidth + 45;
         
-        member.Position = new VecD(appendedTo.Position.X - nodeWidthWithMargin, appendedTo.Position.Y);
-        changes.Add(new NodePosition_ChangeInfo(member.Id, member.Position));
+        insertedNode.Position = new VecD(nodeAfterInserted.Position.X - nodeWidth - nodeAutoArrangeXMargin, nodeAfterInserted.Position.Y);
+        changes.Add(new NodePosition_ChangeInfo(insertedNode.Id, insertedNode.Position));
 
-        previouslyConnected?.TraverseBackwards((leftNode, rightNode, _) =>
+        if (nodeBeforeInserted is null || !AreNodePositionsAlignedAndInOrder(nodeBeforeInserted.Position, nodeAfterInserted.Position))
         {
-            if (leftNode is not Node toMove)
-                return true;
+            // the two nodes we've inserted between weren't aligned anyway,
+            // so no point in positioning anything apart from the inserted one 
+            originalPositions = originalPositionDict;
+            return changes;
+        }
 
-            bool rightNodeWasBehindFromTheStart;
-            if (rightNode is not null)
+        // position previous node and its ancestors, but only the ancestors that are actually aligned,
+        // and only as many as needed to free up enough space
+        nodeBeforeInserted.TraverseBackwards((leftNode, rightNode, _) =>
+        {
+            Node toMove = leftNode as Node;
+
+            if (leftNode != nodeBeforeInserted)
             {
-                bool rightOriginalPositionExists = originalPositionDict.TryGetValue(rightNode.Id, out VecD rightOriginalPosition);
-                bool rightNodeWasMoved = originalPositionDict.ContainsKey(rightNode.Id);
-                if (!rightNodeWasMoved)
+                bool rightOriginalPositionExists =
+                    originalPositionDict.TryGetValue(rightNode.Id, out VecD rightOriginalPosition);
+                bool rightNodeWasRepositioned = originalPositionDict.ContainsKey(rightNode.Id);
+                if (!rightNodeWasRepositioned)
                     return true;
-                
-                rightNodeWasBehindFromTheStart = 
-                    rightOriginalPositionExists && 
-                    rightOriginalPosition.X < leftNode.Position.X + nodeWidth;                
-            }
-            else
-            {
-                rightNodeWasBehindFromTheStart = appendedTo.Position.X < leftNode.Position.X + nodeWidth;
+
+                bool areNodesTooFarAway =
+                    rightOriginalPositionExists &&
+                    !AreNodePositionsAlignedAndInOrder(leftNode.Position, rightOriginalPosition);
+                if (areNodesTooFarAway)
+                    return true;                
             }
             
-            if (rightNodeWasBehindFromTheStart)
-                return true;
-            
-            double rightNodeX = rightNode?.Position.X ?? member.Position.X;
-            if (rightNodeX < leftNode.Position.X + nodeWidthWithMargin)
+            double rightNodeX = leftNode == nodeBeforeInserted ? insertedNode.Position.X : rightNode.Position.X;
+            if (leftNode.Position.X + (nodeWidth + nodeAutoArrangeXMargin) > rightNodeX)
             {
                 originalPositionDict.Add(toMove.Id, toMove.Position);
-                toMove.Position = new VecD(rightNodeX - nodeWidthWithMargin, toMove.Position.Y);
+                toMove.Position = new VecD(rightNodeX - (nodeWidth + nodeAutoArrangeXMargin), leftNode.Position.Y);
                 changes.Add(new NodePosition_ChangeInfo(toMove.Id, toMove.Position));
             }
             
@@ -225,38 +240,69 @@ public static class NodeOperations
         originalPositions = originalPositionDict;
         return changes;
     }
-
-    public static List<IChangeInfo> AdjustPositionsBeforeAppend(Node member, Node appendedTo,
-        out Dictionary<Guid, VecD> originalPositions)
+    
+    /// <summary>
+    /// Checks if nodes are more or less arranged in a way that looks like [LeftNode]------>[RightNode].
+    /// Returns false if nodes are too far apart vertically or if they aren't positioned going from left to right 
+    /// </summary>
+    /// <returns></returns>
+    private static bool AreNodePositionsAlignedAndInOrder(VecD leftNodePos, VecD rightNodePos)
     {
+        if (Math.Abs(leftNodePos.Y - rightNodePos.Y) > nodeClosenessThresholdY)
+            return false;
+
+        if (leftNodePos.X + nodeWidth > rightNodePos.X)
+            return false;
+        
+        return true;
+    }
+    
+    /// <summary>
+    /// Consider a graph [A]->[B]->[C]. When [B] is removed, free horizontal space will remain between [A] and [C].
+    /// This method moves [A] (and it's nearby ancestors) forward to take up the free space.
+    /// It is assumed that [B] is already detached when this method was called
+    /// </summary>
+    /// <param name="precedingNode"></param>
+    /// <param name="followingNode"></param>
+    /// <param name="originalPositions">Positions of [A] and its ancestors before adjustment</param>
+    /// <returns></returns>
+    public static List<IChangeInfo> CollapseFreeSpaceAfterRemovingNode(Node precedingNode, Node followingNode, out Dictionary<Guid, VecD> originalPositions)
+    {
+        if (!AreNodePositionsAlignedAndInOrder(precedingNode.Position, followingNode.Position) ||
+            precedingNode.Position.X + nodeWidth * 2 + nodeClosenessThresholdX * 2 < followingNode.Position.X)
+        {
+            // the two nodes were never close anyway, doesn't make sense to move them closer
+            originalPositions = new();
+            return new();
+        }
+        
         List<IChangeInfo> changes = new();
         Dictionary<Guid, VecD> originalPositionDict = new();
 
-        member.TraverseBackwards((aNode, previousNode, _) =>
+        precedingNode.TraverseBackwards((leftNode, rightNode, _) =>
         {
-            if (aNode is Node toMove)
-            {
-                originalPositionDict.Add(toMove.Id, toMove.Position);
-                var y = toMove.Position.Y;
-                VecD pos = member.Position + new VecD(250, 0);
-                if (previousNode != null)
-                {
-                    pos = previousNode.Position - new VecD(250, 0);
-                }
+            Node toMove = leftNode as Node;
 
-                toMove.Position = pos;
-                toMove.Position = new VecD(toMove.Position.X, y);
-                changes.Add(new NodePosition_ChangeInfo(toMove.Id, toMove.Position));
-
-                if (aNode == appendedTo) return false;
+            if (leftNode != precedingNode) {
+                if (!originalPositionDict.TryGetValue(rightNode.Id, out VecD rightOriginalPosition))
+                    return true;
+                
+                bool areClose = AreNodePositionsAlignedAndInOrder(leftNode.Position, rightOriginalPosition) &&
+                                (rightOriginalPosition.X - leftNode.Position.X) < (nodeClosenessThresholdX + nodeWidth);
+                if (!areClose)
+                    return true;
             }
 
+            originalPositionDict.Add(toMove.Id, toMove.Position);
+            double newX = leftNode == precedingNode ? 
+                (followingNode.Position.X - nodeWidth - nodeAutoArrangeXMargin) : 
+                (rightNode.Position.X - nodeWidth - nodeAutoArrangeXMargin); 
+            toMove.Position = new VecD(newX, toMove.Position.Y);
+            changes.Add(new NodePosition_ChangeInfo(toMove.Id, toMove.Position));
+            
             return true;
         });
-
-        member.Position = new VecD(appendedTo.Position.X - 250, appendedTo.Position.Y);
-        changes.Add(new NodePosition_ChangeInfo(member.Id, member.Position));
-
+        
         originalPositions = originalPositionDict;
         return changes;
     }

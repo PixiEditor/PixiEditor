@@ -48,61 +48,55 @@ internal class MoveStructureMember_Change : Change
         return true;
     }
 
-    private static List<IChangeInfo> Move(Document document, Guid sourceNodeGuid, Guid targetNodeGuid,
+    private static List<IChangeInfo> Move(Document document, Guid nodeBeingMovedGuid, Guid targetNodeGuid,
         bool putInsideFolder, out Dictionary<Guid, VecD> originalPositions)
     {
-        var sourceNode = document.FindMember(sourceNodeGuid);
+        var nodeBeingMoved = document.FindMember(nodeBeingMovedGuid);
         var targetNode = document.FindNode(targetNodeGuid);
         originalPositions = null;
-        if (sourceNode is null || targetNode is not IRenderInput backgroundInput)
+        if (nodeBeingMoved is null || targetNode is not IRenderInput targetBackgroundInput)
             return [];
 
         List<IChangeInfo> changes = new();
-
-        Guid oldBackgroundId = sourceNode.Background.Node.Id;
-
-        InputProperty<Painter?> inputProperty = backgroundInput.Background;
+        
+        InputProperty<Painter?> targetInputProperty = targetBackgroundInput.Background;
 
         if (targetNode is FolderNode folder && putInsideFolder)
         {
-            inputProperty = folder.Content;
+            targetInputProperty = folder.Content;
         }
 
-        MoveStructureMember_ChangeInfo changeInfo = new(sourceNodeGuid, oldBackgroundId, targetNodeGuid);
+        var previouslyConnected = targetInputProperty.Connection;
 
-        var previouslyConnected = inputProperty.Connection;
+        Node? oldInputConnectionNode = nodeBeingMoved.Background.Connection?.Node as Node;
+        Node oldOutputConnectionNode = nodeBeingMoved.Output.Connections.First().Node as Node;
+        bool hadMultipleOutputs = nodeBeingMoved.Output.Connections.Count > 1;
+        
+        MoveStructureMember_ChangeInfo changeInfo = new(nodeBeingMovedGuid, oldOutputConnectionNode.Id, targetNodeGuid);
 
-        bool isMovingBelow = false;
+        changes.AddRange(NodeOperations.DetachStructureNode(nodeBeingMoved));
+        changes.AddRange(NodeOperations.AppendMember(targetInputProperty, nodeBeingMoved.Output,
+            nodeBeingMoved.Background,
+            nodeBeingMoved.Id));
 
-        inputProperty.Node.TraverseForwards(x =>
+        originalPositions = new();
+        if (!hadMultipleOutputs && oldInputConnectionNode is not null)
         {
-            if (x.Id == sourceNodeGuid)
+            changes.AddRange(NodeOperations.CollapseFreeSpaceAfterRemovingNode(oldInputConnectionNode, oldOutputConnectionNode, out var tempOriginalPositions));
+            foreach (var (key, value) in tempOriginalPositions)
             {
-                isMovingBelow = true;
-                return false;
+                originalPositions.TryAdd(key, value);
             }
-
-            return true;
-        });
-
-        if (isMovingBelow)
-        {
-            changes.AddRange(
-                NodeOperations.AdjustPositionsBeforeAppend(sourceNode, inputProperty.Node, out originalPositions));
         }
 
-        changes.AddRange(NodeOperations.DetachStructureNode(sourceNode));
-        changes.AddRange(NodeOperations.AppendMember(inputProperty, sourceNode.Output,
-            sourceNode.Background,
-            sourceNode.Id));
-
-        if (!isMovingBelow)
+        VecD sourceOriginalPosition = nodeBeingMoved.Position;
+        changes.AddRange(NodeOperations.PushNodesBackAfterInsertingNodeBetweenTwoOthers(nodeBeingMoved, targetInputProperty.Node,
+            previouslyConnected?.Node as Node, out var tempOriginalPositions2));
+        foreach (var (key, value) in tempOriginalPositions2)
         {
-            VecD sourceOriginalPosition = sourceNode.Position;
-            changes.AddRange(NodeOperations.AdjustPositionsAfterAppend(sourceNode, inputProperty.Node,
-                previouslyConnected?.Node as Node, out originalPositions));
-            originalPositions.Add(sourceNode.Id, sourceOriginalPosition);
+            originalPositions.TryAdd(key, value);
         }
+        originalPositions.Add(nodeBeingMoved.Id, sourceOriginalPosition);
 
         if (targetNode is FolderNode)
         {
