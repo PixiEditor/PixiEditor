@@ -66,8 +66,6 @@ internal class MoveStructureMember_Change : Change
             targetInputProperty = folder.Content;
         }
 
-        var previouslyConnected = targetInputProperty.Connection;
-
         Node? oldInputConnectionNode = nodeBeingMoved.Background.Connection?.Node as Node;
         Node oldOutputConnectionNode = nodeBeingMoved.Output.Connections.First().Node as Node;
         bool hadMultipleOutputs = nodeBeingMoved.Output.Connections.Count > 1;
@@ -89,20 +87,20 @@ internal class MoveStructureMember_Change : Change
             }
         }
 
+        double verticalOffset = 0;
+        if (targetNode is FolderNode && putInsideFolder)
+            verticalOffset = 280;
+        else if (targetNode is FolderNode)
+            verticalOffset = -280;
+        
         VecD sourceOriginalPosition = nodeBeingMoved.Position;
         changes.AddRange(NodeOperations.PushNodesBackAfterInsertingNodeBetweenTwoOthers(nodeBeingMoved, targetInputProperty.Node,
-            previouslyConnected?.Node as Node, out var tempOriginalPositions2));
+            nodeBeingMoved.Background.Connection?.Node as Node, out var tempOriginalPositions2, verticalOffset));
         foreach (var (key, value) in tempOriginalPositions2)
         {
             originalPositions.TryAdd(key, value);
         }
-        originalPositions.Add(nodeBeingMoved.Id, sourceOriginalPosition);
-
-        if (targetNode is FolderNode)
-        {
-            changes.AddRange(AdjustPutIntoFolderPositions(targetNode, originalPositions));
-        }
-
+        originalPositions[nodeBeingMoved.Id] = sourceOriginalPosition;
         changes.Add(changeInfo);
 
         return changes;
@@ -129,56 +127,6 @@ internal class MoveStructureMember_Change : Change
         changes.AddRange(NodeOperations.RevertPositions(originalPositions, target));
 
         changes.Add(changeInfo);
-
-        return changes;
-    }
-
-    private static List<IChangeInfo> AdjustPutIntoFolderPositions(Node targetNode,
-        Dictionary<Guid, VecD> originalPositions)
-    {
-        List<IChangeInfo> changes = new();
-
-        if (targetNode is FolderNode folder)
-        {
-            folder.Content.Connection?.Node.TraverseBackwards(contentNode =>
-            {
-                if (contentNode is Node node)
-                {
-                    if (!originalPositions.ContainsKey(node.Id))
-                    {
-                        originalPositions[node.Id] = node.Position;
-                    }
-
-                    node.Position = new VecD(node.Position.X, folder.Position.Y + 250);
-                    changes.Add(new NodePosition_ChangeInfo(node.Id, node.Position));
-                }
-
-                return true;
-            });
-
-            folder.Background.Connection?.Node.TraverseBackwards(bgNode =>
-            {
-                if (bgNode is Node node)
-                {
-                    if (!originalPositions.ContainsKey(node.Id))
-                    {
-                        originalPositions[node.Id] = node.Position;
-                    }
-
-                    double pos = folder.Position.Y;
-
-                    if (folder.Content.Connection != null)
-                    {
-                        pos -= 250;
-                    }
-
-                    node.Position = new VecD(node.Position.X, pos);
-                    changes.Add(new NodePosition_ChangeInfo(node.Id, node.Position));
-                }
-
-                return true;
-            });
-        }
 
         return changes;
     }

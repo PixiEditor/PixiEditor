@@ -179,6 +179,7 @@ public static class NodeOperations
         return changes;
     }
 
+    
     /// <summary>
     /// Positions <paramref name="insertedNode"/> to be behind <paramref name="nodeAfterInserted"/>.
     /// Pushes back <paramref name="nodeBeforeInserted"/> and its ancestors to free up space for the <paramref name="insertedNode"/>
@@ -189,12 +190,13 @@ public static class NodeOperations
     /// <param name="originalPositions">The positions of <paramref name="nodeBeforeInserted"/> and its ancestors before adjustment</param>
     /// <returns></returns>
     public static List<IChangeInfo> PushNodesBackAfterInsertingNodeBetweenTwoOthers(Node insertedNode, 
-        Node nodeAfterInserted, Node? nodeBeforeInserted, out Dictionary<Guid, VecD> originalPositions)
+        Node nodeAfterInserted, Node? nodeBeforeInserted, out Dictionary<Guid, VecD> originalPositions, double verticalOffset = 0)
     {
         List<IChangeInfo> changes = new();
         Dictionary<Guid, VecD> originalPositionDict = new();
         
-        insertedNode.Position = new VecD(nodeAfterInserted.Position.X - nodeWidth - nodeAutoArrangeXMargin, nodeAfterInserted.Position.Y);
+        insertedNode.Position = 
+            new VecD(nodeAfterInserted.Position.X - nodeWidth - nodeAutoArrangeXMargin, nodeAfterInserted.Position.Y + verticalOffset);
         changes.Add(new NodePosition_ChangeInfo(insertedNode.Id, insertedNode.Position));
 
         if (nodeBeforeInserted is null || !AreNodePositionsAlignedAndInOrder(nodeBeforeInserted.Position, nodeAfterInserted.Position))
