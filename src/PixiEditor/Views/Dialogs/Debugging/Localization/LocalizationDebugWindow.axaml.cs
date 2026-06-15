@@ -22,7 +22,7 @@ public partial class LocalizationDebugWindow : PixiEditorPopup
         }
 
         dataContext.LoggedIn = false;
-        dataContext.StatusMessage = "NOT_LOGGED_IN"; // TODO: For some reason it was NOT_LOGGED_IN
+        dataContext.StatusMessage = "Not logged in";
     }
 }
 
