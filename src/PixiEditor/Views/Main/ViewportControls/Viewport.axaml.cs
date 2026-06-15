@@ -696,6 +696,20 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         scene.AngleRadians = 0;
         scene.CenterContent(Document.GetRenderOutputSize(ViewportRenderOutput));
     }
+    
+    private void RecenterHorizontalSymmetryClicked(object? sender, RoutedEventArgs e)
+    {
+        double centerX = (double)Document.Width / 2;
+        Document.SetVerticalSymmetryAxisX(centerX);
+    }
+    
+    private void RecenterVerticalSymmetryClicked(object? sender, RoutedEventArgs e)
+    {
+        double centerY = (double)Document.Height/ 2;
+        Document.SetHorizontalSymmetryAxisY(centerY);
+    }
+
+    
 
     private RectD? CalculateVisibleRegion()
     {
@@ -817,4 +831,5 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     {
         e.Handled = true;
     }
+
 }
