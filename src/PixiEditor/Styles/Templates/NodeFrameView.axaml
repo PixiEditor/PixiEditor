@@ -1,8 +1,6 @@
 ﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:nodes="clr-namespace:PixiEditor.Views.Nodes"
-                    xmlns:visuals="clr-namespace:PixiEditor.Views.Visuals"
-                    xmlns:input="clr-namespace:PixiEditor.Views.Input">
+                    xmlns:nodes="clr-namespace:PixiEditor.Views.Nodes">
     <ControlTheme TargetType="nodes:NodeFrameView" x:Key="{x:Type nodes:NodeFrameView}">
         <Setter Property="Template">
             <Setter.Value>
