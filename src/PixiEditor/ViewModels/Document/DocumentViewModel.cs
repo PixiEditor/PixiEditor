@@ -1189,7 +1189,15 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         this.verticalSymmetryAxisEnabled = verticalSymmetryAxisEnabled;
         OnPropertyChanged(nameof(VerticalSymmetryAxisEnabledBindable));
     }
+    
+    public void SetSymmetryAxisPositionFromUser(SymmetryAxisDirection direction, double position)
+    {
+        Internals.ActionAccumulator.AddActions(
+            new SymmetryAxisPosition_Action(direction, position));
 
+        Internals.ActionAccumulator.AddFinishedActions(
+            new EndSymmetryAxisPosition_Action());
+    }
     public void SetHorizontalSymmetryAxisEnabled(bool horizontalSymmetryAxisEnabled)
     {
         this.horizontalSymmetryAxisEnabled = horizontalSymmetryAxisEnabled;
