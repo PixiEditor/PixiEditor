@@ -1,5 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
 using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
@@ -97,6 +98,19 @@ public class EllipseVectorData : ShapeVectorData, IReadOnlyEllipseData
         }
 
         return path;
+    }
+
+    public override PathVectorData? ExpandStroke()
+    {
+        using VectorPath path = new VectorPath();
+        using VectorPath fill = new VectorPath();
+
+        // TODO: Keep the fill if paintables are the same 
+        path.AddOval(RectD.FromCenterAndSize(Center, (Radius * 2) + new VecD(StrokeWidth)));
+        fill.AddOval(RectD.FromCenterAndSize(Center, Radius * 2));
+        var result = path.Op(fill, VectorPathOp.Difference);
+
+        return new PathVectorData(result) { Fill = true, FillPaintable = Stroke };
     }
 
     protected bool Equals(EllipseVectorData other)
