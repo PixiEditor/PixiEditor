@@ -23,5 +23,9 @@
         EnableGradientsTab="False"
         EnableRecentBrushes="False"
         UseHintColor="False">
+        <Interaction.Behaviors>
+            <ExecuteCommandOnPointerCaptureLostBehavior Command="{Binding ColorsSubViewModel.StoppedChangingColorCommand}"/>
+            <ExecuteCommandOnPointerReleasedBehavior Command="{Binding ColorsSubViewModel.StoppedChangingColorCommand}"/>
+        </Interaction.Behaviors>
     </input:SmallColorPicker>
 </UserControl>

@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
@@ -18,6 +19,8 @@ using PixiEditor.Models.Commands.Attributes.Evaluators;
 using PixiEditor.Models.Commands.Search;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Dialogs;
+using PixiEditor.Models.DocumentModels.Public;
+using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.Models.ExtensionServices;
 using PixiEditor.Models.ExternalServices;
 using PixiEditor.Models.Handlers;
@@ -58,6 +61,8 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>, IColorsHandler
     private ColorState primaryColorState;
     private LocalPalettesFetcher _localPaletteFetcher;
 
+    private ChangeBlock activeChangeBlock;
+
     public ColorState PrimaryColorState
     {
         get => primaryColorState;
@@ -94,6 +99,8 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>, IColorsHandler
         }
     }
 
+    public ICommand StoppedChangingColorCommand { get; }
+
     public ColorsViewModel(ViewModelMain owner)
         : base(owner)
     {
@@ -102,6 +109,10 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>, IColorsHandler
 
         ImportPaletteCommand = new AsyncRelayCommand<List<PaletteColor>>(ImportPalette, CanImportPalette);
         Owner.OnStartupEvent += OwnerOnStartupEvent;
+        StoppedChangingColorCommand = new RelayCommand(() =>
+        {
+            EndQuickColorChange();
+        });
     }
 
     [Evaluator.CanExecute("PixiEditor.Colors.CanReplaceColors", nameof(DocumentManagerViewModel.ActiveDocument))]
@@ -450,11 +461,38 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>, IColorsHandler
 
         if (e.PropertyName == nameof(PrimaryColor))
         {
+            if (!doc.IsChangeFeatureActive<IQuickColorLayerExecutor>() && !doc.BlockingUpdateableChangeActive)
+            {
+                BeginQuickColorChange();
+            }
+
             doc.EventInlet.PrimaryColorChanged(PrimaryColor);
         }
         else if (e.PropertyName == nameof(SecondaryColor))
         {
             doc.EventInlet.SecondaryColorChanged(SecondaryColor);
+        }
+    }
+
+    private void BeginQuickColorChange()
+    {
+        var document = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (document is null) return;
+
+        var layers = document.SelectedMembers;
+        if (layers.Count == 0) return;
+
+        document.Operations.QuickChangeLayerColor(layers.ToArray(), PrimaryColor);
+    }
+
+    private void EndQuickColorChange()
+    {
+        var document = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (document is null) return;
+        if (document.IsChangeFeatureActive<IQuickColorLayerExecutor>())
+        {
+            var feature = document.TryGetExecutorFeature<IQuickColorLayerExecutor>();
+            feature?.EndQuickColorChange();
         }
     }
 }

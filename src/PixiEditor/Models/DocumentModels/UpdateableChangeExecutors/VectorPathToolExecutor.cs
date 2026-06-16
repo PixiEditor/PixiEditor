@@ -27,7 +27,7 @@ using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
-internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorFeature
+internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorFeature, IQuickColorLayerExecutor
 {
     private IStructureMemberHandler member;
     private VectorPath startingPath;
@@ -258,7 +258,12 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
         Type feature = typeof(T);
         return feature == typeof(IMidChangeUndoableExecutor)
                || feature == typeof(ITransformableExecutor)
-               || feature == typeof(IPathExecutorFeature);
+               || feature == typeof(IPathExecutorFeature)
+               || (feature == typeof(IQuickColorLayerExecutor) && document.PathOverlayHandler.IsActive);
+    }
+
+    void IQuickColorLayerExecutor.EndQuickColorChange()
+    {
     }
 
     protected void HighlightSnapping(string? snapX, string? snapY)
