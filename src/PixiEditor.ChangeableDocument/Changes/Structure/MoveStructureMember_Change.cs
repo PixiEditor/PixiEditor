@@ -80,6 +80,20 @@ internal class MoveStructureMember_Change : Change
                     return true;
                 });
 
+                if (!traversesBackToSource)
+                {
+                    potentialInputProperty.Connection?.Node.TraverseForwards((x, prop) =>
+                    {
+                        if (x.Id == sourceNodeGuid)
+                        {
+                            traversesBackToSource = true;
+                            return false;
+                        }
+
+                        return true;
+                    });
+                }
+
                 if (traversesBackToSource)
                 {
                     inputProperty = potentialInputProperty as InputProperty<Painter?>;
@@ -94,7 +108,7 @@ internal class MoveStructureMember_Change : Change
             }
         }
 
-        if(inputProperty is null || inputProperty.Connection?.Node == sourceNode) return [];
+        if(inputProperty is null || (inputProperty.Connection?.Node == sourceNode && !putInsideFolder)) return [];
 
         if (targetNode is FolderNode folder && putInsideFolder)
         {
