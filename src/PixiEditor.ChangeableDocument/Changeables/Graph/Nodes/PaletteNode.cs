@@ -1,5 +1,4 @@
-﻿using Drawie.Backend.Core.ColorsImpl;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Palettes;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Palettes;
 using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -7,17 +6,17 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 [NodeInfo("Palette")]
 public class PaletteNode : Node
 {
-    public InputProperty<Color[]> Colors { get; }
+    public InputProperty<Palette> Colors { get; }
     public OutputProperty<Palette> Output { get; }
 
     public PaletteNode()
     {
-        Colors = CreateInput<Color[]>("Colors", "COLORS", null);
+        Colors = CreateInput<Palette>("Colors", "COLORS", Palette.empty);
         Output = CreateOutput<Palette>("Output", "OUTPUT", null);
     }
     protected override void OnExecute(RenderContext context)
     {
-        Output.Value = new Palette(Colors.Value);
+        Output.Value = Colors.Value ?? Palette.empty;
     }
 
     public override Node CreateCopy()

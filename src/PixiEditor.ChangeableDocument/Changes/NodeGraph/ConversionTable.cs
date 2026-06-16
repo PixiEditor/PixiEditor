@@ -250,6 +250,25 @@ public static class ConversionTable
             }
         }
 
+        if (arg is Array && !targetType.IsArray)
+        {
+            foreach (var (sourceType, sourceConverters) in _conversionTable)
+            {
+                if (!sourceType.IsArray) continue;
+
+                foreach (var (outType, converter) in sourceConverters)
+                {
+                    if (outType != targetType) continue;
+
+                    if (TryConvert(arg, sourceType, out var normalizedArray))
+                    {
+                        result = converter.Convert(normalizedArray);
+                        return true;
+                    }
+                }
+            }
+        }
+
         if (!argType.IsPrimitive && argType != typeof(string))
         {
             var baseType = arg.GetType().BaseType;

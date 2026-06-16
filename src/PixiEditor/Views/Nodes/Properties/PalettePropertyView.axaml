@@ -1,0 +1,47 @@
+<properties:NodePropertyView xmlns="https://github.com/avaloniaui"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                             xmlns:properties="clr-namespace:PixiEditor.Views.Nodes.Properties"
+                             xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+                             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+                             xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker.AvaloniaUI"
+                             xmlns:properties1="clr-namespace:PixiEditor.ViewModels.Nodes.Properties"
+                             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+                             x:Class="PixiEditor.Views.Nodes.Properties.PalettePropertyView">
+    <Design.DataContext>
+        <properties1:PalettePropertyViewModel />
+    </Design.DataContext>
+
+    <StackPanel Margin="0,2">
+        <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,2">
+            <TextBlock ui:Translator.TooltipKey="{Binding DisplayName}" ui:Translator.Key="{Binding DisplayName}"
+                       VerticalAlignment="Center" />
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <Button Content="+" Width="35" Padding="0" Command="{Binding AddColorCommand}" />
+                <Button Content="..." Width="35" Padding="0" Click="ImportFromFile_OnClick"
+                        ui:Translator.TooltipKey="IMPORT_PALETTE_FROM_FILE" />
+            </StackPanel>
+        </Grid>
+
+        <ItemsControl ItemsSource="{Binding Swatches}" Margin="0,1">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal" Margin="1">
+                        <colorPicker:PortableColorPicker
+                            EnableGradientsTab="false"
+                            PointerPressed="InputElement_OnPointerPressed"
+                            Width="24" Height="20"
+                            SelectedColor="{Binding Color, Mode=TwoWay, Converter={converters:GenericColorToMediaColorConverter}}" />
+                        <Button Content="×" Width="16" Padding="0" Command="{Binding RemoveCommand}" />
+                    </StackPanel>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </StackPanel>
+</properties:NodePropertyView>
