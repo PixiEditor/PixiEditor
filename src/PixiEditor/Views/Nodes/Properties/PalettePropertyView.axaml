@@ -34,7 +34,7 @@
         <ItemsControl ItemsSource="{Binding Swatches}" Margin="0,1">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <WrapPanel />
+                    <UniformGrid Columns="5" />
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
