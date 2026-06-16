@@ -62,33 +62,36 @@ internal class MoveStructureMember_Change : Change
         Guid oldBackgroundId = sourceNode.Background.Node.Id;
 
         var potentialInputProperties = targetNode.InputProperties.Where(x => x.ValueType == typeof(Painter)).ToArray();
-        InputProperty<Painter?> inputProperty = null;
-        foreach (var potentialInputProperty in potentialInputProperties)
+        InputProperty<Painter?> inputProperty = targetNode is IRenderInput renderInput ? renderInput.Background : null;
+        if (inputProperty == null)
         {
-            bool traversesBackToSource = false;
-
-            potentialInputProperty.Connection?.Node.TraverseBackwards((x, prop) =>
+            foreach (var potentialInputProperty in potentialInputProperties)
             {
-                if (x.Id == sourceNodeGuid)
+                bool traversesBackToSource = false;
+
+                potentialInputProperty.Connection?.Node.TraverseBackwards((x, prop) =>
                 {
-                    traversesBackToSource = true;
-                    return false;
+                    if (x.Id == sourceNodeGuid)
+                    {
+                        traversesBackToSource = true;
+                        return false;
+                    }
+
+                    return true;
+                });
+
+                if (traversesBackToSource)
+                {
+                    inputProperty = potentialInputProperty as InputProperty<Painter?>;
+                    break;
                 }
-
-                return true;
-            });
-
-            if (traversesBackToSource)
-            {
-                inputProperty = potentialInputProperty as InputProperty<Painter?>;
-                break;
             }
-        }
 
-        var firstPotential = potentialInputProperties.FirstOrDefault();
-        if (inputProperty == null && firstPotential?.Connection == null)
-        {
-            inputProperty = firstPotential as InputProperty<Painter?>;
+            var firstPotential = potentialInputProperties.FirstOrDefault();
+            if (inputProperty == null && firstPotential?.Connection == null)
+            {
+                inputProperty = firstPotential as InputProperty<Painter?>;
+            }
         }
 
         if(inputProperty is null || inputProperty.Connection?.Node == sourceNode) return [];
