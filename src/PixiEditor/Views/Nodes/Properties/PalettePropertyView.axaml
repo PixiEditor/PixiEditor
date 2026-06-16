@@ -18,9 +18,16 @@
             <TextBlock ui:Translator.TooltipKey="{Binding DisplayName}" ui:Translator.Key="{Binding DisplayName}"
                        VerticalAlignment="Center" />
             <StackPanel Grid.Column="1" Orientation="Horizontal">
-                <Button Content="+" Width="35" Padding="0" Command="{Binding AddColorCommand}" />
-                <Button Content="..." Width="35" Padding="0" Click="ImportFromFile_OnClick"
+                <Button Content="+" Width="35" Padding="0" Command="{Binding AddColorCommand}"
+                        ui:Translator.TooltipKey="ADD_COLOR" />
+                <Button Width="35" Padding="0" Click="ImportFromFile_OnClick"
+                        FontFamily="{DynamicResource PixiPerfectIcons}"
+                        Content="{DynamicResource icon-hard-drive}"
                         ui:Translator.TooltipKey="IMPORT_PALETTE_FROM_FILE" />
+                <Button Width="35" Padding="0" Click="ImportFromDock_OnClick"
+                        FontFamily="{DynamicResource PixiPerfectIcons}"
+                        Content="{DynamicResource icon-color-palette}"
+                        ui:Translator.TooltipKey="IMPORT_PALETTE_FROM_DOCUMENT" />
             </StackPanel>
         </Grid>
 

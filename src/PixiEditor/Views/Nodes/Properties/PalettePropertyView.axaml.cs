@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -46,5 +46,17 @@ public partial class PalettePropertyView : NodePropertyView
 
             vm.ImportColors(data.Colors.Select(c => c.ToColor()));
         });
+    }
+
+    private void ImportFromDock_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not PalettePropertyViewModel vm)
+            return;
+
+        var palette = ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Palette;
+        if (palette is null || palette.Count == 0)
+            return;
+
+        vm.ImportColors(palette.Select(c => c.ToColor()));
     }
 }
