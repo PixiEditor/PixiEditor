@@ -64,7 +64,7 @@ internal class PalettePropertyViewModel : NodePropertyViewModel<Palette>
 
     private List<Color> CurrentColors()
     {
-        return Value != null ? Value.ToList() : new List<Color>();
+        return Value?.ToList() ?? new List<Color>();
     }
 
     public void ImportColors(IEnumerable<Color> colors)

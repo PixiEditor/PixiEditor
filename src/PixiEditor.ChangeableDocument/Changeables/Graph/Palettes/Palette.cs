@@ -19,7 +19,7 @@ public class Palette : IReadOnlyList<Color>, IEquatable<Palette>
 
     public Palette(Color[] colors)
     {
-        this.colors = colors != null ? (Color[])(colors.Clone()) : Array.Empty<Color>();
+        this.colors = (Color[])(colors?.Clone()) ?? Array.Empty<Color>();
     }
 
     public Palette CreateCopy() => new Palette(colors);

@@ -17,14 +17,7 @@ public class DecomposePaletteNode : Node
     }
     protected override void OnExecute(RenderContext context)
     {
-        if (Palette.Value != null)
-        {
-            Output.Value = Palette.Value.ToArray();
-        }
-        else
-        {
-            Output.Value = null;
-        }
+        Output.Value = Palette.Value?.ToArray() ?? Array.Empty<Color>();
     }
 
     public override Node CreateCopy()
