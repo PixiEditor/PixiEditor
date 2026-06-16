@@ -18,6 +18,7 @@
                         BorderThickness="{TemplateBinding BorderThickness}"
                         CornerRadius="{TemplateBinding CornerRadius}"
                         MinWidth="200"
+                        Classes.miniView="{TemplateBinding MiniView}"
                         Margin="{TemplateBinding Margin}"
                         Name="RootBorder">
                     <Border.Effect>
@@ -37,7 +38,7 @@
                                 <Run BaselineAlignment="Center" ui:Translator.Key="{TemplateBinding DisplayName}" />
                             </TextBlock>
                         </Border>
-                        <Border Grid.Row="1" Background="{DynamicResource ThemeControlMidBrush}">
+                        <Border Grid.Row="1" Background="{DynamicResource ThemeControlMidBrush}" CornerRadius="4">
                             <StackPanel>
                                 <ItemsControl Name="PART_Outputs" ItemsSource="{TemplateBinding Outputs}"
                                               ClipToBounds="False">
@@ -67,7 +68,7 @@
                                              RelativeSource="{RelativeSource TemplatedParent}" />
                                 </MultiBinding>
                             </Border.IsVisible>
-                            <Panel RenderOptions.BitmapInterpolationMode="None" Width="200" Height="200">
+                            <Panel RenderOptions.BitmapInterpolationMode="None" Width="200" Height="200" IsVisible="{Binding !MiniView, RelativeSource={RelativeSource TemplatedParent}}">
                                 <Panel.Background>
                                     <ImageBrush Source="/Images/CheckerTile.png"
                                                 TileMode="Tile" DestinationRect="0, 0, 25, 25" />
@@ -87,6 +88,10 @@
 
         <Style Selector="^:selected /template/ Border#RootBorder">
             <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccent2Brush}" />
+        </Style>
+
+        <Style Selector="^ /template/ Border.miniView">
+            <Setter Property="MinWidth" Value="20" />
         </Style>
     </ControlTheme>
 </ResourceDictionary>

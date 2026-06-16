@@ -1,5 +1,6 @@
 ﻿using Drawie.Backend.Core;
 using Drawie.Backend.Core.Surfaces.ImageData;
+using Drawie.Numerics;
 using PixiEditor.Models.IO;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document;
@@ -13,6 +14,18 @@ internal abstract class VideoFileType : IoFileType
     public override async Task<SaveResult> TrySaveAsync(string pathWithExtension, DocumentViewModel document,
         ExportConfig config, ExportJob? job)
     {
+        return await SaveVideoAsync(pathWithExtension, document, config, job, false);
+    }
+
+    public override SaveResult TrySave(string pathWithExtension, DocumentViewModel document, ExportConfig config,
+        ExportJob? job)
+    {
+        return SaveVideo(pathWithExtension, document, config, job, false);
+    }
+
+    internal static SaveResult SaveVideo(string pathWithExtension, DocumentViewModel document, ExportConfig config,
+        ExportJob? job, bool unpremultiply)
+    {
         if (config.AnimationRenderer is null)
             return new SaveResult(SaveResultType.CustomError, new LocalizedString("ERR_NO_RENDERER"));
 
@@ -25,16 +38,42 @@ internal abstract class VideoFileType : IoFileType
 
         document.RenderFrames(frames, surface =>
         {
-            job?.CancellationTokenSource.Token.ThrowIfCancellationRequested();
-            frameRendered++;
-            job?.Report(((double)frameRendered / totalFrames) / 2,
-                new LocalizedString("RENDERING_FRAME", frameRendered, totalFrames));
-            if (config.ExportSize != surface.Size)
-            {
-                return surface.ResizeNearestNeighbor(config.ExportSize);
-            }
+            return ProcessFrame(config, job, unpremultiply, totalFrames, surface, ref frameRendered);
+        }, config.ExportOutput);
 
-            return surface;
+        job?.Report(0.5, new LocalizedString("RENDERING_VIDEO"));
+        CancellationToken token = job?.CancellationTokenSource.Token ?? CancellationToken.None;
+        var result = config.AnimationRenderer.Render(frames, pathWithExtension, token, progress =>
+        {
+            job?.Report((progress / 100f) * 0.5f + 0.5, new LocalizedString("RENDERING_VIDEO"));
+        });
+
+        job?.Report(1, new LocalizedString("FINISHED"));
+
+        foreach (var frame in frames)
+        {
+            frame.Dispose();
+        }
+
+        return result ? new SaveResult(SaveResultType.Success) : new SaveResult(SaveResultType.CustomError, new LocalizedString("ERR_RENDERING_FAILED"));
+    }
+
+    internal static async Task<SaveResult> SaveVideoAsync(string pathWithExtension, DocumentViewModel document, ExportConfig config,
+        ExportJob? job, bool unpremultiply)
+    {
+        if (config.AnimationRenderer is null)
+            return new SaveResult(SaveResultType.CustomError, new LocalizedString("ERR_NO_RENDERER"));
+
+        List<Image> frames = new();
+
+        job?.Report(0, new LocalizedString("WARMING_UP"));
+
+        int frameRendered = 0;
+        int totalFrames = document.AnimationDataViewModel.GetLastVisibleFrame() - 1;
+
+        document.RenderFrames(frames, surface =>
+        {
+            return ProcessFrame(config, job, unpremultiply, totalFrames, surface, ref frameRendered);
         }, config.ExportOutput);
 
         job?.Report(0.5, new LocalizedString("RENDERING_VIDEO"));
@@ -54,47 +93,30 @@ internal abstract class VideoFileType : IoFileType
         return result ? new SaveResult(SaveResultType.Success) : new SaveResult(SaveResultType.CustomError, new LocalizedString("ERR_RENDERING_FAILED"));
     }
 
-    public override SaveResult TrySave(string pathWithExtension, DocumentViewModel document, ExportConfig config,
-        ExportJob? job)
+    private static Surface ProcessFrame(ExportConfig config, ExportJob? job, bool unpremultiply, int totalFrames,
+        Surface surface, ref int frameRendered)
     {
-        if (config.AnimationRenderer is null)
-            return new SaveResult(SaveResultType.CustomError, new LocalizedString("ERR_NO_RENDERER"));
+        job?.CancellationTokenSource.Token.ThrowIfCancellationRequested();
+        frameRendered++;
+        job?.Report(((double)frameRendered / totalFrames) / 2,
+            new LocalizedString("RENDERING_FRAME", frameRendered, totalFrames));
 
-        List<Image> frames = new();
-
-        job?.Report(0, new LocalizedString("WARMING_UP"));
-
-        int frameRendered = 0;
-        int totalFrames = document.AnimationDataViewModel.GetLastVisibleFrame() - 1;
-
-        document.RenderFrames(frames, surface =>
+        var targetSurface = surface;
+        if (unpremultiply && surface.ImageInfo.AlphaType != AlphaType.Unpremul)
         {
-            job?.CancellationTokenSource.Token.ThrowIfCancellationRequested();
-            frameRendered++;
-            job?.Report(((double)frameRendered / totalFrames) / 2,
-                new LocalizedString("RENDERING_FRAME", frameRendered, totalFrames));
-            if (config.ExportSize != surface.Size)
-            {
-                return surface.ResizeNearestNeighbor(config.ExportSize);
-            }
-
-            return surface;
-        }, config.ExportOutput);
-
-        job?.Report(0.5, new LocalizedString("RENDERING_VIDEO"));
-        CancellationToken token = job?.CancellationTokenSource.Token ?? CancellationToken.None;
-        var result = config.AnimationRenderer.Render(frames, pathWithExtension, token, progress =>
-        {
-            job?.Report((progress / 100f) * 0.5f + 0.5, new LocalizedString("RENDERING_VIDEO"));
-        });
-
-        job?.Report(1, new LocalizedString("FINISHED"));
-
-        foreach (var frame in frames)
-        {
-            frame.Dispose();
+            targetSurface = new Surface(new ImageInfo(surface.Size.X, surface.Size.Y, surface.ImageInfo.ColorType, AlphaType.Unpremul));
+            targetSurface.DrawingSurface.Canvas.DrawSurface(surface.DrawingSurface, 0, 0);
         }
 
-        return result ? new SaveResult(SaveResultType.Success) : new SaveResult(SaveResultType.CustomError, new LocalizedString("ERR_RENDERING_FAILED"));
+        if (config.ExportSize != targetSurface.Size)
+        {
+            var resized = targetSurface.ResizeNearestNeighbor(config.ExportSize);
+            if(targetSurface != surface)
+                targetSurface.Dispose();
+
+            return resized;
+        }
+
+        return targetSurface;
     }
 }

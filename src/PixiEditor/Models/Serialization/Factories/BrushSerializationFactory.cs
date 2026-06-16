@@ -9,6 +9,7 @@ namespace PixiEditor.Models.Serialization.Factories;
 internal class BrushSerializationFactory : SerializationFactory<byte[], Brush>
 {
     public override string DeserializationId { get; } = "PixiEditor.Brush";
+
     public override byte[] Serialize(Brush original)
     {
         ByteBuilder builder = new ByteBuilder();

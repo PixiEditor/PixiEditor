@@ -4,7 +4,7 @@ namespace ChunkyImageLib.Operations;
 
 public static class LineHelper
 {
-    public static VecD[] GetInterpolatedPoints(VecD start, VecD end)
+    public static void GetInterpolatedPointsNonAlloc(VecD start, VecD end, List<VecD> outputList)
     {
         VecD delta = end - start;
         double longest = Math.Max(Math.Abs(delta.X), Math.Abs(delta.Y));
@@ -12,13 +12,11 @@ public static class LineHelper
         // ensure at least 2 points and cap excessive lengths
         int count = Math.Clamp((int)Math.Ceiling(longest) + 1, 2, 100000);
 
-        VecD[] output = new VecD[count];
+        outputList.Clear();
         for (int i = 0; i < count; i++)
         {
             double t = (double)i / (count - 1);
-            output[i] = start + delta * t;
+            outputList.Add(start + delta * t);
         }
-
-        return output;
     }
 }

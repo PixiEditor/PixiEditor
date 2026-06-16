@@ -1,0 +1,125 @@
+﻿using Drawie.Backend.Core.Shaders.Generation;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+
+namespace PixiEditor.ChangeableDocument.Changeables.Graph;
+
+public class SyncedTypeOutputProperty
+{
+    private SyncedTypeInputProperty other;
+    private OutputProperty internalOutputProperty;
+    public OutputProperty InternalProperty => internalOutputProperty;
+
+    public Func<Type, Type>? TypeAdjuster
+    {
+        get;
+        private set;
+    }
+
+    public object Value
+    {
+        get => internalOutputProperty.Value;
+        set => internalOutputProperty.Value = value;
+    }
+
+    public SyncGroup? Group { get; set; }
+
+    public event Action BeforeTypeChange;
+    public event Action AfterTypeChange;
+
+    private string internalPropertyName { get; }
+    private Dictionary<Type, Func<OutputProperty>> handlers = new();
+    private Func<Type, OutputProperty>? genericFallbackHandler = null;
+
+    public SyncedTypeOutputProperty(Node node, string internalPropertyName, string displayName,
+        SyncGroup? syncGroup)
+    {
+        Group = syncGroup;
+        this.internalPropertyName = internalPropertyName;
+        handlers[typeof(object)] =
+            () => new OutputProperty(node, internalPropertyName, displayName, null, typeof(object));
+        internalOutputProperty = handlers[typeof(object)]();
+    }
+
+    private void UpdateType(Type type)
+    {
+        Type newType = type;
+
+        if (TypeAdjuster != null)
+        {
+            newType = TypeAdjuster(newType);
+        }
+
+        if (internalOutputProperty.ValueType != newType && newType != null && handlers.Count > 0 &&
+            (handlers.TryGetValue(newType, out Func<OutputProperty> handler) || genericFallbackHandler != null))
+        {
+            BeforeTypeChange?.Invoke();
+            var connections = new List<IInputProperty>(internalOutputProperty.Connections);
+            for (int i = internalOutputProperty.Connections.Count - 1; i >= 0; i--)
+            {
+                var connectionNode = internalOutputProperty.Connections.ElementAt(i);
+                internalOutputProperty.DisconnectFrom(connectionNode);
+            }
+
+            internalOutputProperty = handler != null ? handler() : genericFallbackHandler(newType);
+            if (internalOutputProperty.InternalPropertyName != internalPropertyName)
+            {
+                throw new InvalidOperationException(
+                    $"The handler for type {newType} returned an OutputProperty with an invalid internal name ({internalOutputProperty.InternalPropertyName} instead of {internalPropertyName})");
+            }
+
+            AfterTypeChange();
+
+            if (newType.IsAssignableTo(typeof(Delegate)) &&
+                handlers.TryGetValue(typeof(ShaderExpressionVariable), out var del))
+            {
+                internalOutputProperty.Value = del;
+            }
+
+            foreach (var input in connections)
+            {
+                if (GraphUtils.IsLoop(input, internalOutputProperty) ||
+                    !input.CanConnect(internalOutputProperty))
+                {
+                    continue;
+                }
+
+                var newInput = input.Node.GetInputProperty(input.InternalPropertyName);
+                internalOutputProperty.ConnectTo(newInput);
+            }
+        }
+    }
+
+    public SyncedTypeOutputProperty? AddTypeHandler<T>(Func<OutputProperty> handleOutput)
+    {
+        handlers[typeof(T)] = handleOutput;
+        return this;
+    }
+
+    public SyncedTypeOutputProperty? AllowGenericFallback()
+    {
+        genericFallbackHandler = type =>
+        {
+            var defaultValue = type.IsValueType ? Activator.CreateInstance(type) : null;
+            return new OutputProperty(
+                internalOutputProperty.Node,
+                internalPropertyName,
+                internalOutputProperty.DisplayName,
+                defaultValue,
+                type);
+        };
+        return this;
+    }
+
+    public SyncedTypeOutputProperty? WithTypeAdjuster(Func<Type, Type> func)
+    {
+        TypeAdjuster = func;
+        return this;
+    }
+
+    public void ForceUpdateType(Type newType)
+    {
+        UpdateType(newType);
+    }
+}

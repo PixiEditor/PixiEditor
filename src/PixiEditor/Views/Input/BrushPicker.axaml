@@ -10,6 +10,7 @@
              xmlns:visuals="clr-namespace:PixiEditor.Views.Visuals"
              xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
              xmlns:controls1="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
+             xmlns:brushSystem="clr-namespace:PixiEditor.ViewModels.BrushSystem"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:ClassModifier="internal"
              x:Class="PixiEditor.Views.Input.BrushPicker">
@@ -136,7 +137,11 @@
                                     SelectedIndex="{Binding $parent[input:BrushPicker].SelectedSortingIndex,
                                                          Mode=TwoWay}"
                                     ItemsSource="{Binding $parent[input:BrushPicker].SortingOptions}">
-
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock localization:Translator.Key="{Binding Converter={converters:EnumToLocalizedStringConverter}}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
                                 </ComboBox>
                             </StackPanel>
 
@@ -191,11 +196,17 @@
                                         </Style>
 
                                         <Style Selector="ContentPresenter > Border.selected TextBlock.subtext">
-                                            <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}" />
+                                            <Setter Property="Foreground"
+                                                    Value="{DynamicResource ThemeForegroundBrush}" />
                                         </Style>
                                     </ItemsControl.Styles>
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <VirtualizingStackPanel />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.DataTemplates>
+                                        <DataTemplate DataType="brushSystem:BrushViewModel">
                                             <Border CornerRadius="4" IsHitTestVisible="True">
                                                 <input:BrushItem PointerPressed="SelectBrushElementPressed"
                                                                  Brush="{Binding .}" />
@@ -238,7 +249,7 @@
                                                 </Border.ContextMenu>
                                             </Border>
                                         </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
+                                    </ItemsControl.DataTemplates>
                                 </ItemsControl>
                                 <ItemsControl
                                     IsVisible="{Binding Path=$parent[input:BrushPicker].IsGridView}"
@@ -273,7 +284,7 @@
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <Border Cursor="Hand" CornerRadius="4"
-                                                    ToolTip.Tip="{Binding Name}"
+                                                    localization:Translator.TooltipKey="{Binding Name}"
                                                     PointerPressed="SelectBrushElementPressed"
                                                     IsHitTestVisible="True">
                                                 <visuals:TextureControl

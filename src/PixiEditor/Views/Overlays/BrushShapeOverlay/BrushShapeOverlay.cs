@@ -119,7 +119,8 @@ internal class BrushShapeOverlay : Overlay
     private VecD lastDirCalculationPoint;
     private float lastSize;
     private bool isMouseDown;
-    private PointerInfo lastPointerInfo;
+    private DateTime lastPointerInfoTime;
+    private float lastVelocity;
 
     private ChangeableDocument.Changeables.Brushes.BrushEngine engine = new();
 
@@ -159,8 +160,8 @@ internal class BrushShapeOverlay : Overlay
 
     private void Triggered(object? sender, string s)
     {
-        ExecuteBrush(lastDirCalculationPoint);
-        UpdateBrushShape(lastDirCalculationPoint);
+        ExecuteBrush(lastPoint);
+        UpdateBrushShape(lastPoint);
         Refresh();
     }
 
@@ -168,33 +169,47 @@ internal class BrushShapeOverlay : Overlay
     {
         BrushShapeOverlay overlay = args.Sender as BrushShapeOverlay;
         if (overlay == null) return;
-        overlay.UpdateBrushShape(overlay.lastDirCalculationPoint);
+        overlay.UpdateBrushShape(overlay.lastPoint);
         overlay.Refresh();
     }
 
     private void ExecuteBrush(VecD pos)
     {
-        if (engine == null || BrushData.BrushGraph == null) return;
-
-        if (VecD.Distance(lastDirCalculationPoint, pos) > 1)
+        try
         {
-            lastDirCalculationPoint = lastDirCalculationPoint.Lerp(pos, 0.5f);
+            if (engine == null || BrushData.BrushGraph == null) return;
+
+            if (VecD.Distance(lastDirCalculationPoint, pos) > 1)
+            {
+                lastDirCalculationPoint = lastDirCalculationPoint.Lerp(pos, 0.5f);
+            }
+
+            VecD dir = lastDirCalculationPoint - pos;
+            VecD vecDir = new VecD(dir.X, dir.Y);
+            VecD dirNormalized = vecDir.Length > 0 ? vecDir.Normalize() : VecD.Zero;
+            VecD delta = pos - lastPoint;
+            double dt = (DateTime.Now - lastPointerInfoTime).TotalSeconds;
+
+            float rawVelocity = dt > 0.0001 ? (float)(delta.Length / dt) : 0f;
+            float velocity = lastVelocity * 0.8f + rawVelocity * 0.2f;
+
+            PointerInfo pointer = new PointerInfo(pos, 1, 0, VecD.Zero, dirNormalized, velocity, true, false);
+
+            engine.ExecuteBrush(null, BrushData, pos, ActiveFrameTime,
+                ColorSpace.CreateSrgb(), SamplingOptions.Default, pointer, new KeyboardInfo(),
+                EditorData?.Invoke() ?? new EditorData(Colors.White, Colors.Black));
+
+            lastVelocity = velocity;
         }
-
-        VecD dir = lastDirCalculationPoint - pos;
-        VecD vecDir = new VecD(dir.X, dir.Y);
-        VecD dirNormalized = vecDir.Length > 0 ? vecDir.Normalize() : lastPointerInfo.MovementDirection;
-
-        PointerInfo pointer = new PointerInfo(pos, 1, 0, VecD.Zero, dirNormalized, true, false);
-
-        engine.ExecuteBrush(null, BrushData, pos, ActiveFrameTime,
-            ColorSpace.CreateSrgb(), SamplingOptions.Default, pointer, new KeyboardInfo(),
-            EditorData?.Invoke() ?? new EditorData(Colors.White, Colors.Black));
+        catch (Exception ex)
+        {
+            CrashHelper.SendExceptionInfo(ex);
+        }
     }
 
     protected override void OnOverlayPointerMoved(OverlayPointerArgs args)
     {
-        isMouseDown = args.Properties.IsLeftButtonPressed;
+        isMouseDown = args.Properties.IsLeftButtonPressed || args.Properties.IsRightButtonPressed;
         if (!args.Properties.IsLeftButtonPressed && BrushData.BrushGraph != null)
         {
             ExecuteBrush(args.Point);
@@ -202,6 +217,7 @@ internal class BrushShapeOverlay : Overlay
 
         UpdateBrushShape(args.Point);
         lastPoint = args.Point;
+        lastPointerInfoTime = DateTime.Now;
 
         Refresh();
     }
@@ -223,12 +239,12 @@ internal class BrushShapeOverlay : Overlay
 
     protected override void OnOverlayPointerEntered(OverlayPointerArgs args)
     {
-        isMouseDown = args.Properties.IsLeftButtonPressed;
+        isMouseDown = args.Properties.IsLeftButtonPressed || args.Properties.IsRightButtonPressed;
     }
 
     protected override void OnKeyPressed(KeyEventArgs args)
     {
-        UpdateBrushShape(lastDirCalculationPoint);
+        UpdateBrushShape(lastPoint);
         Refresh();
     }
 
@@ -236,7 +252,15 @@ internal class BrushShapeOverlay : Overlay
     {
         if (BrushData.BrushGraph == null) return;
 
-        BrushShape = engine.EvaluateShape(pos, BrushData);
+        try
+        {
+            BrushShape?.Dispose();
+            BrushShape = engine.EvaluateShape(pos, BrushData);
+        }
+        catch (Exception ex)
+        {
+            CrashHelper.SendExceptionInfo(ex);
+        }
     }
 
     protected override void OnRenderOverlay(Canvas context, RectD canvasBounds) => Render(context);

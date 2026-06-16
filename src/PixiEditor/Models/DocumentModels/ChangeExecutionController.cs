@@ -39,10 +39,9 @@ internal class ChangeExecutionController
 
     private VecI lastPixelPos;
     private VecD lastPrecisePos;
-    private PointerInfo pointerInfo;
-    private VecD lastDirCalculationPoint;
     private PointerInfo lastPointerInfo;
     private KeyboardInfo lastKeyboardInfo;
+    private bool isTransforming;
     private ViewModelMain viewModelMain;
 
     private bool shiftPressed;
@@ -116,6 +115,7 @@ internal class ChangeExecutionController
 
     private bool StartExecutor(UpdateableChangeExecutor brandNewExecutor)
     {
+        isTransforming = false;
         if (brandNewExecutor.Start() == ExecutionState.Success)
         {
             currentSession = brandNewExecutor;
@@ -206,9 +206,8 @@ internal class ChangeExecutionController
             pixelPosChanged = true;
         }
 
+        lastPointerInfo = args.Info;
         lastPrecisePos = newCanvasPos;
-
-        lastPointerInfo = ConstructPointerInfo(newCanvasPos, args);
 
         //call session events
         if (currentSession is not null)
@@ -243,9 +242,11 @@ internal class ChangeExecutionController
         LeftMousePressed = true;
         RightMousePressed = args.Properties.IsRightButtonPressed;
 
+        lastPrecisePos = args.Point.PositionOnCanvas;
+
         // Some drivers do not report pressure for pointer down events. For example it happens on X11. We set pressure to 0, so Brush Engine does not
         // draw a blob with 0.5 pressure on each start of stroke.
-        lastPointerInfo = ConstructPointerInfo(args.Point.PositionOnCanvas, args) with { Pressure = 0 }; 
+        lastPointerInfo = args.Info with { Pressure = args.PointerType == PointerType.Pen ? 0 : 1 };
         if (_queuedExecutor != null && currentSession == null)
         {
             StartExecutor(_queuedExecutor);
@@ -268,7 +269,8 @@ internal class ChangeExecutionController
     {
         RightMousePressed = true;
         LeftMousePressed = args.Properties.IsLeftButtonPressed;
-        lastPointerInfo = ConstructPointerInfo(args.Point.PositionOnCanvas, args);
+        lastPrecisePos  = args.Point.PositionOnCanvas;
+        lastPointerInfo = args.Info;
         currentSession?.OnRightMouseButtonDown(args);
     }
     
@@ -282,6 +284,12 @@ internal class ChangeExecutionController
     {
         if (currentSession is ITransformableExecutor transformableExecutor)
         {
+            if (!isTransforming)
+            {
+                transformableExecutor.OnTransformStarted();
+                isTransforming = true;
+            }
+
             LastTransformState = corners;
             transformableExecutor.OnTransformChanged(corners);
         }
@@ -300,6 +308,7 @@ internal class ChangeExecutionController
         if (currentSession is ITransformStoppedEvent transformStoppedEvent)
         {
             transformStoppedEvent.OnTransformStopped();
+            isTransforming = false;
         }
     }
 
@@ -387,26 +396,5 @@ internal class ChangeExecutionController
     private KeyboardInfo UpdateKeyboardInfo(bool ctrl, bool shift, bool alt, bool meta)
     {
         return new KeyboardInfo(ctrl, shift, alt, meta);
-    }
-
-    private PointerInfo ConstructPointerInfo(VecD currentPoint, MouseOnCanvasEventArgs args)
-    {
-        if (VecD.Distance(lastDirCalculationPoint, currentPoint) > 1)
-        {
-            lastDirCalculationPoint = lastDirCalculationPoint.Lerp(currentPoint, 0.5f);
-        }
-
-        VecD dir = lastDirCalculationPoint - currentPoint;
-        VecD vecDir = new VecD(dir.X, dir.Y);
-        VecD dirNormalized = vecDir.Length > 0 ? vecDir.Normalize() : lastPointerInfo.MovementDirection;
-
-        float pressure = args.Point.Properties.Pressure;
-        if (args.PointerType == PointerType.Mouse)
-        {
-            pressure = args.Point.Properties.Pressure > 0 ? 1 : 0;
-        }
-
-        return new PointerInfo(currentPoint, pressure, args.Point.Properties.Twist,
-            new VecD(args.Point.Properties.XTilt, args.Point.Properties.YTilt), dirNormalized, LeftMousePressed, RightMousePressed);
     }
 }

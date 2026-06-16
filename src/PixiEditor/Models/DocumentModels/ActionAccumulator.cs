@@ -101,7 +101,7 @@ internal class ActionAccumulator
 
     internal async Task TryExecuteAccumulatedActions()
     {
-        if (executing || queuedActions.Count == 0 || document.IsDisposed)
+        if (executing || queuedActions.Count == 0 || document.IsDisposed || internals.Tracker.IsRunning)
             return;
         executing = true;
         try
@@ -178,23 +178,37 @@ internal class ActionAccumulator
                     .Select(x => x.Select(r => r.TextureUpdatedAction))
                     .SelectMany(x => x).ToList();
 
-                bool immediateRender = affectedAreas.MainImageArea.Chunks.Count > 0;
+                bool immediateRender = affectedAreas.MainImageArea.Chunks.Count > 0 && !allPassthrough;
 
-                if(internals.Tracker.IsDisposed)
+                if (internals.Tracker.IsDisposed)
                     return;
 
-                if (debugRecordRequest)
+                try
                 {
-                    await document.SceneRenderer.RecordRender(internals.State.Viewports, affectedAreas.MainImageArea,
-                        !previewsDisabled && updateDelayed, previewTextures, immediateRender);
+                    if (debugRecordRequest)
+                    {
+                        await document.SceneRenderer.RecordRender(internals.State.Viewports,
+                            affectedAreas.MainImageArea,
+                            !previewsDisabled && updateDelayed, previewTextures, immediateRender);
+                    }
+                    else
+                    {
+                        await document.SceneRenderer.RenderAsync(internals.State.Viewports, affectedAreas.MainImageArea,
+                            !previewsDisabled && updateDelayed, previewTextures, immediateRender);
+                    }
                 }
-                else
+                catch (ObjectDisposedException ex)
                 {
-                    await document.SceneRenderer.RenderAsync(internals.State.Viewports, affectedAreas.MainImageArea,
-                        !previewsDisabled && updateDelayed, previewTextures, immediateRender);
+                    // Document or renderer was disposed during await
+                    #if DEBUG
+                    Debug.WriteLine($"Rendering aborted due to disposed exception: {ex}");
+                    #endif
+                    return;
                 }
-
-                NotifyUpdatedPreviews(updatePreviewActions);
+                finally
+                {
+                    NotifyUpdatedPreviews(updatePreviewActions);
+                }
             }
         }
         catch (Exception e)
@@ -213,9 +227,9 @@ internal class ActionAccumulator
         executing = false;
     }
 
-      internal void TryExecuteAccumulatedActionsSync()
+    internal void TryExecuteAccumulatedActionsSync()
     {
-        if (executing || queuedActions.Count == 0)
+        if (executing || queuedActions.Count == 0 || internals.Tracker.IsRunning || document.IsDisposed)
             return;
         executing = true;
         try
@@ -277,7 +291,7 @@ internal class ActionAccumulator
                             affectedAreas.ChangedMembers,
                             affectedAreas.ChangedMasks,
                             affectedAreas.ChangedNodes, affectedAreas.ChangedKeyFrames,
-                            affectedAreas.IgnoreAnimationPreviews,
+                            affectedAreas.IgnoreAnimationPreviews && !refreshPreviewsRequest,
                             undoBoundaryPassed || refreshPreviewsRequest || refreshPreviewRequest);
                     }
                 }
@@ -286,10 +300,20 @@ internal class ActionAccumulator
                     .Select(x => x.Select(r => r.TextureUpdatedAction))
                     .SelectMany(x => x).ToList();
 
-                document.SceneRenderer.RenderSync(internals.State.Viewports, affectedAreas.MainImageArea,
-                    !previewsDisabled && updateDelayed, previewTextures);
-
-                NotifyUpdatedPreviews(updatePreviewActions);
+                try
+                {
+                    document.SceneRenderer.RenderSync(internals.State.Viewports, affectedAreas.MainImageArea,
+                        !previewsDisabled && updateDelayed, previewTextures);
+                }
+                catch (ObjectDisposedException)
+                {
+                    // Document or renderer was disposed during await
+                    return;
+                }
+                finally
+                {
+                    NotifyUpdatedPreviews(updatePreviewActions);
+                }
             }
         }
         catch (Exception e)

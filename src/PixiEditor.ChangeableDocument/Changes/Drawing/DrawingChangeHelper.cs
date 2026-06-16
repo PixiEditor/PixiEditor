@@ -55,10 +55,10 @@ internal static class DrawingChangeHelper
             throw new InvalidOperationException("Trying to draw on a non-raster layer member");
         }
 
-        return layer.GetLayerImageByKeyFrameGuid(targetKeyFrameGuid);
+        return layer.GetLayerImageByKeyFrameGuid(targetKeyFrameGuid) ?? throw new InvalidOperationException("Trying to draw on a frame that doesn't exist");
     }
 
-    public static ChunkyImage GetTargetImageOrThrow(Document target, Guid memberGuid, bool drawOnMask, int frame)
+    public static ChunkyImage? GetTargetImageOrThrow(Document target, Guid memberGuid, bool drawOnMask, int frame)
     {
         // TODO: Figure out if this should work only for raster layers or should rasterize any
         var member = target.FindMemberOrThrow(memberGuid);
@@ -99,11 +99,16 @@ internal static class DrawingChangeHelper
             targetImage.SetVerticalAxisOfSymmetry(target.VerticalSymmetryAxisX);
     }
 
-    public static bool IsValidForDrawing(Document target, Guid memberGuid, bool drawOnMask)
+    public static bool IsValidForDrawing(Document target, Guid memberGuid, bool drawOnMask, int frame)
     {
         if (!target.TryFindMember(memberGuid, out var member))
         {
             return false;
+        }
+
+        if (!drawOnMask && member is ImageLayerNode layerNode)
+        {
+            return layerNode.GetLayerImageAtFrame(frame) is not null;
         }
 
         return drawOnMask switch
@@ -123,4 +128,26 @@ internal static class DrawingChangeHelper
             false => new LayerImageArea_ChangeInfo(memberGuid, affectedArea),
             true => new MaskArea_ChangeInfo(memberGuid, affectedArea),
         };
+
+    public static bool IsValidForDrawing(Document target, Guid memberGuid, bool drawOnMask, Guid targetKeyFrameGuid)
+    {
+        if (!target.TryFindMember(memberGuid, out var member))
+        {
+            return false;
+        }
+
+        if (!drawOnMask && member is ImageLayerNode layerNode)
+        {
+            return layerNode.GetLayerImageByKeyFrameGuid(targetKeyFrameGuid) is not null;
+        }
+
+        return drawOnMask switch
+        {
+            // If it should draw on the mask, the mask can't be null
+            true when member.EmbeddedMask is null => false,
+            // If it should not draw on the mask, the member can't be a folder
+            false when member is not ImageLayerNode => false,
+            _ => true
+        };
+    }
 }

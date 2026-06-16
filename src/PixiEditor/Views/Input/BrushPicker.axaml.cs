@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
@@ -108,6 +109,16 @@ internal partial class BrushPicker : UserControl
     {
         BrushesProperty.Changed.AddClassHandler<BrushPicker>((x, e) =>
         {
+            if (e.OldValue is ObservableCollection<BrushViewModel> oldCollection)
+            {
+                oldCollection.CollectionChanged -= x.BrushCollectionChanged;
+            }
+
+            if (e.NewValue is ObservableCollection<BrushViewModel> newCollection)
+            {
+                newCollection.CollectionChanged += x.BrushCollectionChanged;
+            }
+
             if (x.SelectedBrush == null && x?.Brushes?.Count > 0)
             {
                 x.SelectedBrush = x.Brushes[0];
@@ -154,6 +165,27 @@ internal partial class BrushPicker : UserControl
         SelectCategoriesListBox.SelectAll();
 
         IPreferences.Current.AddCallback(PreferencesConstants.FavouriteBrushes, OnFaviouritesChanged);
+    }
+
+    private void BrushCollectionChanged(object? sender,
+        System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+    {
+        UpdateTags();
+        UpdateResults();
+        if (e.NewItems != null)
+        {
+            foreach (BrushViewModel item in e.NewItems)
+            {
+                if (FilteredBrushes != null)
+                {
+                    int index = FilteredBrushes.IndexOf(item);
+                    if (index >= 0)
+                    {
+                        FilteredBrushes.Move(index, 0);
+                    }
+                }
+            }
+        }
     }
 
     private void UpdateOptions()
@@ -359,6 +391,8 @@ internal partial class BrushPicker : UserControl
 
 public enum BrushSorting
 {
+    [Description("DEFAULT")]
     Default = 0,
+    [Description("ALPHABETICAL")]
     Alphabetical,
 }

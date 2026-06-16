@@ -21,6 +21,25 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
     {
     }
 
+    public override void OnInitialized()
+    {
+        var activeFrameProp = InputPropertyMap[StructureNode.CustomActiveFrameProperty];
+        var activeNormalizedFrameProp = InputPropertyMap[StructureNode.CustomNormalizedTimeProperty];
+        activeFrameProp.IsVisible = false;
+        activeNormalizedFrameProp.IsVisible = false;
+
+        if (InputPropertyMap.TryGetValue(StructureNode.UseCustomTimeProperty, out var useCustomTimeProp))
+        {
+            activeFrameProp.IsVisible = useCustomTimeProp.Value is true;
+            activeNormalizedFrameProp.IsVisible = useCustomTimeProp.Value is true;
+            useCustomTimeProp.ValueChanged += (s, e) =>
+            {
+                activeFrameProp.IsVisible = useCustomTimeProp.Value is true;
+                activeNormalizedFrameProp.IsVisible = useCustomTimeProp.Value is true;
+            };
+        }
+    }
+
     private bool isVisible;
 
     public void SetIsVisible(bool isVisible)
@@ -183,6 +202,13 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
     }
 
     IDocument IStructureMemberHandler.Document => Document;
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        Preview?.Preview?.Dispose();
+        MaskPreview?.Preview?.Dispose();
+    }
 }
 
 public static class StructureMemberViewModel

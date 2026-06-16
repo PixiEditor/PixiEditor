@@ -61,7 +61,8 @@ public interface IPreferences
     /// <typeparam name="T">The <see cref="Type"/> of the setting</typeparam>
     /// <param name="name">The name of the setting</param>
     /// <returns>The setting or the default of <typeparamref name="T"/> if it has not been set yet</returns>
-    public T? GetPreference<T>(string name);
+    public T? GetPreference<T>(string name) =>
+        GetPreference<T>(name, default);
 
     /// <summary>
     /// Reads the user preference that is called <paramref name="name"/>, if the setting does not exist the default of <paramref name="fallbackValue"/> will be used
@@ -77,7 +78,8 @@ public interface IPreferences
     /// <typeparam name="T">The <see cref="Type"/> of the setting</typeparam>
     /// <param name="name">The name of the setting</param>
     /// <returns>The editor setting or the default of <typeparamref name="T"/> if it has not been set yet</returns>
-    public T? GetLocalPreference<T>(string name);
+    public T? GetLocalPreference<T>(string name) =>
+        GetLocalPreference<T>(name, default);
 
     /// <summary>
     /// Reads the editor setting that is called <paramref name="name"/>, if the setting does not exist the <paramref name="fallbackValue"/> will be used

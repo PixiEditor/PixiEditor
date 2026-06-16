@@ -88,6 +88,11 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
     private void RenderFolderContent(SceneObjectRenderContext sceneContext, bool useFilters)
     {
         VecI size = sceneContext.RenderSurface.DeviceClipBounds.Size + sceneContext.RenderSurface.DeviceClipBounds.Pos;
+        if (size.X <= 0 || size.Y <= 0)
+        {
+            return;
+        }
+
         var outputWorkingSurface = RequestTexture(0, size, sceneContext.ProcessingColorSpace, true);
         outputWorkingSurface.DrawingSurface.Canvas.Save();
         outputWorkingSurface.DrawingSurface.Canvas.SetMatrix(sceneContext.RenderSurface.TotalMatrix);
@@ -148,120 +153,72 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
 
     public override RectD? GetTightBounds(KeyFrameTime frameTime)
     {
-        RectD? bounds = null;
-        if (!IsVisible.Value)
+        if (!IsVisible.Value || Content.Connection == null)
             return null;
 
-        if (Content.Connection != null)
+        RectD? bounds = null;
+
+        Content.Connection.Node.TraverseBackwards((n, _) =>
         {
-            Content.Connection.Node.TraverseBackwards(
-                (n, input) =>
-                {
-                    if (n is StructureNode { IsVisible.Value: true } structureNode)
-                    {
-                        RectD? childBounds = structureNode.GetTightBounds(frameTime);
-                        if (childBounds != null)
-                        {
-                            if (bounds == null)
-                            {
-                                bounds = childBounds;
-                            }
-                            else
-                            {
-                                bounds = bounds.Value.Union(childBounds.Value);
-                            }
-                        }
-                    }
+            if (n is not StructureNode { IsVisible.Value: true } structureNode ||
+                n is IReadOnlyFolderNode)
+                return true;
 
-                    return true;
-                }, FilterInvisibleFolders);
+            var childBounds = structureNode.GetTightBounds(frameTime);
+            if (childBounds != null)
+                bounds = bounds?.Union(childBounds.Value) ?? childBounds;
 
-            return bounds ?? RectD.Empty;
-        }
+            return true;
+        });
 
-        return null;
+        return bounds ?? RectD.Empty;
     }
 
     public override ShapeCorners GetTransformationCorners(KeyFrameTime frameTime)
     {
-        RectD? bounds = null;
-        if (!IsVisible.Value)
+        if (!IsVisible.Value || Content.Connection == null)
             return new ShapeCorners();
 
-        if (Content.Connection != null)
+        RectD? bounds = null;
+
+        Content.Connection.Node.TraverseBackwards((n, _) =>
         {
-            Content.Connection.Node.TraverseBackwards(
-                (n, input) =>
-                {
-                    if (n is StructureNode { IsVisible.Value: true } structureNode)
-                    {
-                        ShapeCorners childBounds = structureNode.GetTransformationCorners(frameTime);
-                        if (childBounds != default)
-                        {
-                            if (bounds == null)
-                            {
-                                bounds = childBounds.AABBBounds;
-                            }
-                            else
-                            {
-                                bounds = bounds.Value.Union(childBounds.AABBBounds);
-                            }
-                        }
-                    }
+            if (n is not StructureNode { IsVisible.Value: true } structureNode ||
+                n is IReadOnlyFolderNode)
+                return true;
 
-                    return true;
-                }, FilterInvisibleFolders);
+            var childBounds = structureNode.GetTransformationCorners(frameTime);
+            if (childBounds != default)
+                bounds = bounds?.Union(childBounds.AABBBounds) ?? childBounds.AABBBounds;
 
-            return bounds != null ? new ShapeCorners(bounds.Value) : new ShapeCorners();
-        }
+            return true;
+        });
 
-        return new ShapeCorners();
+        return bounds != null ? new ShapeCorners(bounds.Value) : new ShapeCorners();
     }
 
     public override RectD? GetApproxBounds(KeyFrameTime frameTime)
     {
         RectD? bounds = null;
-        if (Content.Connection != null)
+        if (Content.Connection == null)
+            return null;
+
+        Content.Connection.Node.TraverseBackwards((n, _) =>
         {
-            Content.Connection.Node.TraverseBackwards(
-                (n, input) =>
-                {
-                    if (n is StructureNode { IsVisible.Value: true } structureNode)
-                    {
-                        RectD? childBounds = structureNode.GetApproxBounds(frameTime);
-                        if (childBounds != null)
-                        {
-                            if (bounds == null)
-                            {
-                                bounds = childBounds;
-                            }
-                            else
-                            {
-                                bounds = bounds.Value.Union(childBounds.Value);
-                            }
-                        }
-                    }
+            if (n is not StructureNode { IsVisible.Value: true, Opacity.Value: > 0 } structureNode ||
+                n is IReadOnlyFolderNode)
+                return true;
 
-                    return true;
-                }, FilterInvisibleFolders);
-
-            return bounds ?? RectD.Empty;
-        }
-
-        return null;
-    }
-
-    private bool FilterInvisibleFolders(IInputProperty input)
-    {
-        if (input is
+            var childBounds = structureNode.GetApproxBounds(frameTime);
+            if (childBounds != null)
             {
-                Node: IReadOnlyFolderNode folderNode, InternalPropertyName: FolderNode.ContentInternalName
-            })
-        {
-            return folderNode.IsVisible.Value;
-        }
+                bounds = bounds?.Union(childBounds.Value) ?? childBounds;
+            }
 
-        return true;
+            return true;
+        });
+
+        return bounds ?? RectD.Empty;
     }
 
     public HashSet<Guid> GetLayerNodeGuids()

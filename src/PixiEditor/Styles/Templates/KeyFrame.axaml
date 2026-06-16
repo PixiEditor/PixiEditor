@@ -8,6 +8,20 @@
         <Setter Property="ClipToBounds" Value="False" />
         <Setter Property="Height" Value="70" />
         <Setter Property="MinWidth" Value="35" />
+        <Setter Property="Transitions">
+            <Transitions>
+                <DoubleTransition Property="Width" Duration="0:0:0.2">
+                    <DoubleTransition.Easing>
+                        <CubicEaseOut />
+                    </DoubleTransition.Easing>
+                </DoubleTransition>
+                <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.2">
+                    <TransformOperationsTransition.Easing>
+                        <CubicEaseOut />
+                    </TransformOperationsTransition.Easing>
+                </TransformOperationsTransition>
+            </Transitions>
+        </Setter>
         <Setter Property="Template">
             <ControlTemplate>
                 <Grid>
@@ -16,6 +30,7 @@
                             BorderBrush="{DynamicResource ThemeBorderMidBrush}" BorderThickness="1">
                         <Grid>
                             <Panel HorizontalAlignment="Right" Name="PART_ResizePanelRight" Width="15"
+                                   Margin="0, 0, -10, 0"
                                    Cursor="SizeWestEast" Background="Transparent" ZIndex="1" />
                             <Panel Margin="-35, 0, 0, 0" HorizontalAlignment="Left" Name="PART_ResizePanelLeft"
                                    Width="15" Cursor="SizeWestEast" Background="Transparent" ZIndex="1" />
@@ -23,23 +38,26 @@
                     </Border>
 
                     <Border IsVisible="{Binding !IsCollapsed, RelativeSource={RelativeSource TemplatedParent}}"
-                            CornerRadius="{DynamicResource ControlCornerRadius}" Width="60" Height="60"
-                            Margin="-30, 0, 0, 0"
+                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                            Margin="-30, 5, 0, 5"
                             ClipToBounds="True"
-                            BorderThickness="1" VerticalAlignment="Center" IsHitTestVisible="True" Name="PreviewBorder"
-                            HorizontalAlignment="Left" BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                            BorderThickness="1" IsHitTestVisible="True" Name="PreviewBorder"
+                            BorderBrush="{DynamicResource ThemeBorderMidBrush}"
                             RenderOptions.BitmapInterpolationMode="None">
                         <Border.Background>
-                            <ImageBrush Source="/Images/CheckerTile.png" TileMode="Tile">
+                            <ImageBrush Source="/Images/CheckerTile.png" TileMode="Tile" DestinationRect="0, 0, 48, 48">
                                 <ImageBrush.Transform>
                                     <ScaleTransform ScaleX="0.4" ScaleY="0.4" />
                                 </ImageBrush.Transform>
                             </ImageBrush>
                         </Border.Background>
                         <visuals:PreviewTextureControl
+                            TileModeX="Repeat"
+                            TileModeY="Decal"
+                            SourceHeight="60"
+                            SourceWidth="62"
                             TexturePreview="{Binding Item.PreviewTexture, RelativeSource={RelativeSource TemplatedParent}}"
-                            Width="60" Height="60" RenderOptions.BitmapInterpolationMode="None">
-                        </visuals:PreviewTextureControl>
+                            RenderOptions.BitmapInterpolationMode="None" />
                     </Border>
                 </Grid>
             </ControlTemplate>
@@ -47,14 +65,22 @@
 
         <Style Selector="^:collapsed">
             <Setter Property="Height" Value="30" />
-            <Setter Property="MinWidth" Value="5" />
+            <Setter Property="MinWidth" Value="30" />
+        </Style>
+
+        <Style Selector="^:collapsed /template/ Border#PreviewBorder">
+            <Setter Property="Margin" Value="-15, 0, 0, 0" />
         </Style>
 
         <Style Selector="^:collapsed /template/ Panel#PART_ResizePanelLeft">
             <Setter Property="Margin" Value="0" />
         </Style>
         <Style Selector="^:collapsed /template/ Border#MainBorder">
-            <Setter Property="Margin" Value="0 5" />
+            <Setter Property="Margin" Value="-30 5 0 5" />
+        </Style>
+
+        <Style Selector="^:collapsed:long /template/ Border#MainBorder">
+            <Setter Property="Margin" Value="0, 5" />
         </Style>
 
         <Style Selector="^:selected /template/ Border#MainBorder">
@@ -65,8 +91,24 @@
             <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccent2Color}" />
         </Style>
 
+        <Style Selector="^:long /template/ Border#PreviewBorder">
+            <Setter Property="Margin" Value="-30, 5, -30, 5" />
+        </Style>
+
+        <Style Selector="^:long /template/ Panel#PART_ResizePanelRight">
+            <Setter Property="Margin" Value="0, 0, -35, 0" />
+        </Style>
+
+        <Style Selector="^:collapsed:long /template/ Panel#PART_ResizePanelRight">
+            <Setter Property="Margin" Value="0, 0, -15, 0" />
+        </Style>
+
         <Style Selector="^:disabled">
             <Setter Property="Opacity" Value="0.5" />
+        </Style>
+
+        <Style Selector="^:dragging">
+            <Setter Property="RenderTransform" Value="scale(1.05, 1.05)" />
         </Style>
     </ControlTheme>
 

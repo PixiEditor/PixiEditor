@@ -10,6 +10,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Exceptions;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Dialogs;
+using PixiEditor.Models.DocumentModels.Public;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.IO;
 using PixiEditor.UI.Common.Localization;
@@ -21,7 +22,7 @@ namespace PixiEditor.ViewModels.Document.Nodes;
 
 [NodeViewModel("NESTED_DOCUMENT", "STRUCTURE", PixiPerfectIcons.File)]
 internal partial class NestedDocumentNodeViewModel :
-    StructureMemberViewModel<ChangeableDocument.Changeables.Graph.Nodes.NestedDocumentNode>, ILayerHandler
+    StructureMemberViewModel<ChangeableDocument.Changeables.Graph.Nodes.NestedDocumentNode>, ILayerHandler, ITransformableMemberHandler
 {
     bool lockTransparency;
     Guid? referenceId = null;
@@ -99,7 +100,10 @@ internal partial class NestedDocumentNodeViewModel :
                     fullSelectedPath = await RelinkFolder(desktop);
                 }
 
-                Internals.ActionAccumulator.AddFinishedActions(new ChangeDocumentReferenceFilePath_Action(Id, fullSelectedPath));
+                Internals.ActionAccumulator.AddFinishedActions(new ChangeDocumentReferenceFilePath_Action(Id, fullSelectedPath), new InvokeAction_PassthroughAction(() =>
+                {
+                    ViewModelMain.Current.DocumentManagerSubViewModel.ReloadDocumentReference(Id, fullSelectedPath);
+                }));
             }
         }
         catch (Exception e)

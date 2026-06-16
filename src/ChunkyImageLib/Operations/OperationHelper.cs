@@ -1,4 +1,5 @@
 ﻿using ChunkyImageLib.DataHolders;
+using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Numerics;
@@ -24,6 +25,7 @@ public static class OperationHelper
     /// </summary>
     public static unsafe void ClampAlpha(IPixelsMap toModify, IPixelsMap toGetAlphaFrom, RectI? clippingRect = null)
     {
+        using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
         if (clippingRect is not null)
         {
             ClampAlphaWithClippingRect(toModify, toGetAlphaFrom, (RectI)clippingRect);
@@ -57,6 +59,8 @@ public static class OperationHelper
                 *offset = (*(ushort*)(&newR)) | ((long)*(ushort*)(&newG)) << 16 | ((long)*(ushort*)(&newB)) << 32 | ((long)*(ushort*)(refAlpha)) << 48;
             }
         }
+
+        toModify.MarkPixelsChanged();
     }
 
     private static unsafe void ClampAlphaWithClippingRect(IPixelsMap toModify, IPixelsMap toGetAlphaFrom, RectI clippingRect)
@@ -95,6 +99,8 @@ public static class OperationHelper
                 }
             }
         }
+
+        toModify.MarkPixelsChanged();
     }
 
     public static ShapeCorners ConvertForResolution(ShapeCorners corners, ChunkResolution resolution)

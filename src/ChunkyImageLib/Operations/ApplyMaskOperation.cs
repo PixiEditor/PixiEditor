@@ -12,6 +12,7 @@ internal class ApplyMaskOperation : IDrawOperation
     private Paint clippingPaint = new Paint() { BlendMode = BlendMode.DstIn };
 
     public bool IgnoreEmptyChunks => true;
+    public bool NeedsDrawInSrgb => false;
 
     public ApplyMaskOperation(ChunkyImage maskToApply)
     {

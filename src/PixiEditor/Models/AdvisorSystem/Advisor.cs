@@ -1,0 +1,117 @@
+﻿using PixiEditor.UI.Common.Localization;
+
+namespace PixiEditor.Models.AdvisorSystem;
+
+public class Advisor : IAdvisor
+{
+    private Dictionary<string, Advice> adviceStorage = new Dictionary<string, Advice>();
+    private Dictionary<string, IAdviceListener> listeners = new Dictionary<string, IAdviceListener>();
+
+    public Advisor()
+    {
+    }
+
+    public void RegisterAdvice(string adviceName, Advice advice)
+    {
+        adviceStorage[adviceName] = advice;
+    }
+
+    public Advice? RequestAdvice(string adviceName)
+    {
+        if (adviceStorage.TryGetValue(adviceName, out Advice advice))
+        {
+            advice.Choices?.Clear();
+            return advice;
+        }
+
+        return null;
+    }
+
+    public void SendAdvice(string adviceName, Advice advice)
+    {
+        if (listeners.TryGetValue(adviceName, out IAdviceListener adviceListener))
+        {
+            adviceListener.OnAdviceReceived(advice);
+        }
+    }
+
+    public void SubscribeToAdvisor(string adviceName, IAdviceListener listener)
+    {
+        listeners[adviceName] = listener;
+    }
+}
+
+public interface IAdvisor
+{
+    public void SubscribeToAdvisor(string adviceName, IAdviceListener listener);
+    public void RegisterAdvice(string adviceName, Advice advice);
+    public Advice? RequestAdvice(string adviceName);
+    public void SendAdvice(string adviceName, Advice advice);
+}
+
+public interface IAdviceListener
+{
+    public void OnAdviceReceived(Advice advice);
+}
+
+public class Advice
+{
+    public string Name { get; }
+    public LocalizedString Content { get; }
+    public List<LocalizedString> Choices { get; private set; }
+    public Action<int>? ChoiceSelected { get; private set; }
+    public Advice? NextAdvice { get; private set; }
+    public event Action? UserDismissed;
+    public bool AutoDismiss { get; set; } = true;
+
+    public Advice(string name, LocalizedString content)
+    {
+        Name = name;
+        Content = content;
+    }
+
+    public void Dismiss(int? choice = null)
+    {
+        UserDismissed?.Invoke();
+    }
+
+    public Advice WithChoices(params LocalizedString[] choices)
+    {
+        Choices = choices.ToList();
+        return this;
+    }
+
+    public Advice OnChoiceSelected(Action<int> callback)
+    {
+        ChoiceSelected = callback;
+        return this;
+    }
+
+    public Advice WithFollowUpAdvice(Advice advice)
+    {
+        NextAdvice = advice;
+        return this;
+    }
+
+    public Advice WithAutoDismiss(bool autoDismiss)
+    {
+        AutoDismiss = autoDismiss;
+        NextAdvice?.WithAutoDismiss(autoDismiss);
+
+        return this;
+    }
+
+    public Advice OnDismissed(Action action)
+    {
+        if (NextAdvice != null)
+        {
+            NextAdvice.OnDismissed(action);
+        }
+        else
+        {
+            UserDismissed += action;
+        }
+
+        return this;
+    }
+}

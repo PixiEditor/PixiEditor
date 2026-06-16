@@ -4,6 +4,11 @@ namespace PixiEditor.Extensions.Sdk.Api.Resources;
 
 public static class Resources
 {
+    public static string ToResourcesFullPath(string path)
+    {
+        return Native.to_resources_full_path(path);
+    }
+
     public static byte[] ReadAllBytes(string path)
     {
         var bytes = Interop.LoadResource(path);

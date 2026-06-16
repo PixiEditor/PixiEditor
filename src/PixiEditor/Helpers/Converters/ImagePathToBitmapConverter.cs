@@ -41,7 +41,7 @@ internal class ImagePathToBitmapConverter : SingleInstanceConverter<ImagePathToB
             {
                 if (path.EndsWith(".svg"))
                 {
-                    return new SvgImage() { Source = new SvgSource(baseUri) { Path = path } };
+                    return new SvgImage() { Source = new SvgSource(baseUri) { Path = path} };
                 }
 
                 return new Bitmap(AssetLoader.Open(assetsUri));

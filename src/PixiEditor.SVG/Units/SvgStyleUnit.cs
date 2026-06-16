@@ -31,7 +31,8 @@ public struct SvgStyleUnit : ISvgUnit
                 string[] keyValue = property.Split(':');
                 if (keyValue.Length == 2)
                 {
-                    inlineDefinedProperties.Add(keyValue[0].Trim(), keyValue[1].Trim());
+                    string trimmedKey = keyValue[0].Trim();
+                    inlineDefinedProperties[trimmedKey] = keyValue[1].Trim();
                 }
             }
         }

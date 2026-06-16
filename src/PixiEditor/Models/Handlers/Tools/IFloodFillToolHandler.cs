@@ -7,4 +7,5 @@ internal interface IFloodFillToolHandler : IToolHandler
     public bool ConsiderAllLayers { get; }
     public float Tolerance { get; }
     FloodFillMode FillMode { get; }
+    public bool Contiguous { get; }
 }

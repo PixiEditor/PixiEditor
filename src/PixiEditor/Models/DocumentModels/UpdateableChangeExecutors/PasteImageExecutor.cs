@@ -7,6 +7,9 @@ using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Actions;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ViewModels.Document.Nodes;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable
@@ -16,6 +19,7 @@ internal class PasteImageExecutor : UpdateableChangeExecutor, ITransformableExec
     private readonly VecI pos;
     private bool drawOnMask;
     private Guid? memberGuid;
+    private IDisposable? restoreSnapping;
 
     public override bool BlocksOtherActions => false;
 
@@ -54,17 +58,37 @@ internal class PasteImageExecutor : UpdateableChangeExecutor, ITransformableExec
         }
 
         ShapeCorners corners = new(new RectD(pos, image.Size));
-        internals!.ActionAccumulator.AddActions(
-            new ClearSelection_Action(),
+        List<IAction> actions = new();
+        if (NeedsCel())
+        {
+            actions.Add(new CreateCel_Action(memberGuid.Value, Guid.NewGuid(),
+                document.AnimationHandler.ActiveFrameBindable, -1, Guid.Empty));
+        }
+
+        actions.Add(
+            new ClearSelection_Action());
+        actions.Add(
             new PasteImage_Action(image, corners, memberGuid.Value, false, drawOnMask,
                 document.AnimationHandler.ActiveFrameBindable, default));
+
+        internals!.ActionAccumulator.AddActions(actions.ToArray());
+
         document.TransformHandler.ShowTransform(DocumentTransformMode.Scale_Rotate_Shear_Perspective, true, corners,
             true);
+        document.Operations.InvokeCustomAction(() =>
+        {
+            restoreSnapping = SimpleShapeToolExecutor.DisableSelfSnapping(memberGuid.Value, document);
+        });
 
         return ExecutionState.Success;
     }
 
     public bool IsTransforming => true;
+
+    public void OnTransformStarted()
+    {
+
+    }
 
     public void OnTransformChanged(ShapeCorners corners)
     {
@@ -92,12 +116,55 @@ internal class PasteImageExecutor : UpdateableChangeExecutor, ITransformableExec
         internals!.ActionAccumulator.AddFinishedActions(new EndPasteImage_Action());
         document!.TransformHandler.HideTransform();
         onEnded!.Invoke(this);
+        restoreSnapping?.Dispose();
     }
 
     public override void ForceStop()
     {
         document!.TransformHandler.HideTransform();
         internals!.ActionAccumulator.AddFinishedActions(new EndPasteImage_Action());
+        restoreSnapping?.Dispose();
+    }
+
+    private bool NeedsCel()
+    {
+        if (!TryGetAnimationGroup(out var animationGroupForLayer))
+        {
+            return false;
+        }
+
+        return animationGroupForLayer.IsVisible && !animationGroupForLayer.IsKeyFrameAt(document
+            .AnimationHandler.ActiveFrameBindable);
+    }
+
+    private bool TryGetAnimationGroup(out ICelGroupHandler? animationGroupForLayer)
+    {
+        var activeDocument = document;
+
+        if (activeDocument is null)
+        {
+            animationGroupForLayer = null;
+            return false;
+        }
+
+        var selectedLayer = document.NodeGraphHandler.NodeLookup.GetValueOrDefault(memberGuid!.Value) as ILayerHandler;
+
+        if (selectedLayer is not ImageLayerNodeViewModel rasterLayer)
+        {
+            animationGroupForLayer = null;
+            return false;
+        }
+
+        animationGroupForLayer = document.AnimationHandler.KeyFrames
+            .FirstOrDefault(x =>
+                x.LayerGuid == rasterLayer.Id && x.Id == rasterLayer.Id) as ICelGroupHandler;
+
+        if (animationGroupForLayer is null)
+        {
+            return false;
+        }
+
+        return true;
     }
 
     public bool IsFeatureEnabled<T>()

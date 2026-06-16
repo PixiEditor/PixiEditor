@@ -6,6 +6,8 @@ using Drawie.Backend.Core.ColorsImpl;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Commands.Search;
+using PixiEditor.OperatingSystem;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels;
 using CommandSearchResult = PixiEditor.Models.Commands.Search.CommandSearchResult;
 using Search_CommandSearchResult = PixiEditor.Models.Commands.Search.CommandSearchResult;
@@ -28,10 +30,11 @@ internal static class CommandSearchControlHelper
         {
             // show all recently opened
             newResults.AddRange(ViewModelMain.Current.FileSubViewModel.RecentlyOpened
-                .Select(file => (SearchResult)new FileSearchResult(file.FilePath)
-                {
-                    SearchTerm = query
-                }));
+                .Select(SearchResult (file) =>
+                    new FileSearchResult(file.FilePath, FileSearchTarget.OpenDocument)
+                    {
+                        SearchTerm = query
+                    }));
             return (newResults, warnings);
         }
 
@@ -61,7 +64,7 @@ internal static class CommandSearchControlHelper
                 .SelectMany(x => x.Value);
 
             newResults.AddRange(menuCommands
-                .Where(x => index == -1 || x.DisplayName.Value.Replace(" ", "").Contains(additional, StringComparison.OrdinalIgnoreCase))
+                .Where(x => x.ShowInSearch && (index == -1 || x.DisplayName.Value.Replace(" ", "").Contains(additional, StringComparison.OrdinalIgnoreCase)))
                 .Select(command => new Search_CommandSearchResult(command) { SearchTerm = searchTerm }));
 
             return (newResults, warnings);
@@ -77,13 +80,14 @@ internal static class CommandSearchControlHelper
                 });
                 newResults.Add(ColorSearchResult.PastePalette(color, query));
             },
-            (Error _) => warnings.Add("Invalid color"),
+            (Error _) => warnings.Add(new LocalizedString("SEARCH_WARNING_INVALID_COLOR")),
             static (None _) => { }
             );
 
         // add matching commands
         newResults.AddRange(
             controller.Commands
+                .Where(x => x.ShowInSearch)
                 .Where(x => x.Description.Value.Replace(" ", "").Contains(query.Replace(" ", ""), StringComparison.OrdinalIgnoreCase))
                 .Where(static x => ViewModelMain.Current.DebugSubViewModel.UseDebug ? true : !x.IsDebug)
                 .OrderByDescending(x => x.Description.Value.Contains($" {query} ", StringComparison.OrdinalIgnoreCase))
@@ -110,7 +114,7 @@ internal static class CommandSearchControlHelper
             newResults.AddRange(
                 ViewModelMain.Current.FileSubViewModel.RecentlyOpened
                     .Where(x => x.FilePath.Contains(query))
-                    .Select(file => new FileSearchResult(file.FilePath)
+                    .Select(file => new FileSearchResult(file.FilePath, FileSearchTarget.OpenDocument)
                     {
                         SearchTerm = query, Match = Match(file.FilePath, query)
                     }));
@@ -147,7 +151,7 @@ internal static class CommandSearchControlHelper
             }
             else
             {
-                warnings.Add("Save current document to browse files");
+                warnings.Add(new LocalizedString("SEARCH_WARNING_SAVE_DOCUMENT"));
             }
         }
         
@@ -160,7 +164,8 @@ internal static class CommandSearchControlHelper
 
         if (!files.Any())
         {
-            warnings.Add($"Directory '{Path.GetFullPath(filePath).TrimEnd(Path.DirectorySeparatorChar)}' does not have any files.");
+            LocalizedString warning = new LocalizedString("SEARCH_WARNING_NO_FILES_IN_DIRECTORY", Path.GetFullPath(filePath).TrimEnd(Path.DirectorySeparatorChar));
+            warnings.Add(warning);
             return Enumerable.Empty<SearchResult>();
         }
 
@@ -175,13 +180,18 @@ internal static class CommandSearchControlHelper
         {
             return array
                 .Select(static file => Path.GetFullPath(file))
-                .Select(path => new FileSearchResult(path)
+                .Select(path => new FileSearchResult(path, FileSearchTarget.OpenDocument)
                 {
                     SearchTerm = name, Match = Match($".../{Path.GetFileName(path)}", name ?? "")
                 });
         }
 
-        return array.Length >= 1 ? new[] { new FileSearchResult(array[0]), new FileSearchResult(array[0], true) } : ArraySegment<SearchResult>.Empty;
+        return array.Length >= 1 ? new[]
+        {
+            new FileSearchResult(array[0], FileSearchTarget.OpenDocument),
+            new FileSearchResult(array[0], FileSearchTarget.ReferenceLayer),
+            new FileSearchResult(array[0], FileSearchTarget.NestedDocument)
+        } : ArraySegment<SearchResult>.Empty;
     }
 
     private static bool GetDirectory(string path, out string directory, out string file)
@@ -193,7 +203,8 @@ internal static class CommandSearchControlHelper
             return true;
         }
 
-        directory = Path.GetDirectoryName(path) ?? @"C:\";
+        string operatingSystemStart = IOperatingSystem.Current.IsWindows ? @"C:\" : "/";
+        directory = Path.GetDirectoryName(path) ?? operatingSystemStart;
         file = Path.GetFileName(path);
 
         return Directory.Exists(directory);

@@ -33,4 +33,5 @@ public interface INodeHandler : INotifyPropertyChanged, IDisposable
     public HashSet<NodeFrameViewModelBase> Frames { get; }
     public IReadOnlyDictionary<string, INodePropertyHandler> InputPropertyMap { get; }
     public IReadOnlyDictionary<string, INodePropertyHandler> OutputPropertyMap { get; }
+    public bool IsSocketConverterNode { get; }
 }

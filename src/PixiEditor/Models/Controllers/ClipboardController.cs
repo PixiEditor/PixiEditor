@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -34,7 +35,9 @@ using PixiEditor.Models.Handlers;
 using PixiEditor.Parser;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document;
+using PixiEditor.ViewModels.SubViewModels;
 using PixiEditor.ViewModels.Tools.Tools;
+using PixiEditor.Views.Dialogs;
 using Bitmap = Avalonia.Media.Imaging.Bitmap;
 
 namespace PixiEditor.Models.Controllers;
@@ -152,7 +155,9 @@ internal static class ClipboardController
 
         DataTransfer data = new DataTransfer();
 
-        RectD copyArea = new RectD(VecD.Zero, document.SizeBindable);
+        var renderOutputSize = document.GetRenderOutputSize(output);
+
+        RectD copyArea = new RectD(VecD.Zero, renderOutputSize);
 
         if (!document.SelectionPathBindable.IsEmpty)
         {
@@ -169,10 +174,10 @@ internal static class ClipboardController
             return;
         }
 
-        using Surface documentSurface = new Surface(document.SizeBindable);
+        using Surface documentSurface = new Surface(renderOutputSize);
 
         document.Renderer.RenderDocument(documentSurface.DrawingSurface,
-            document.AnimationDataViewModel.ActiveFrameTime, document.SizeBindable, output);
+            document.AnimationDataViewModel.ActiveFrameTime, renderOutputSize, output);
 
         Surface surfaceToCopy = new Surface((VecI)copyArea.Size.Ceiling());
         using Paint paint = new Paint();
@@ -199,13 +204,21 @@ internal static class ClipboardController
             await pngData.AsStream().CopyToAsync(pngStream);
 
             var pngArray = pngStream.ToArray();
-            foreach (var format in ClipboardDataFormats.PngFormats)
+            var formats = ClipboardDataFormats.PngFormats;
+            if (System.OperatingSystem.IsMacOS())
+            {
+                formats = [ClipboardDataFormats.MacOsPngUti];
+            }
+            
+            foreach (var format in formats)
             {
                 if (!((IDataTransfer)data).Contains(format))
                 {
                     data.Add(DataTransferItem.Create(format, pngArray));
                 }
             }
+
+            if (System.OperatingSystem.IsMacOS()) return;
 
             pngStream.Position = 0;
             try
@@ -232,7 +245,7 @@ internal static class ClipboardController
                     return;
                 }
             }
-
+            
             data.SetFileDropList(new[] { TempCopyFilePath });
         }
     }
@@ -324,7 +337,18 @@ internal static class ClipboardController
             else
             {
                 manager.Owner.ToolsSubViewModel.SetActiveTool<MoveToolViewModel>(false);
-                document.Operations.PasteImagesAsLayers(images, document.AnimationDataViewModel.ActiveFrameBindable, images.Count > 1);
+
+                var resizeIfNeeded = images.Count > 1;
+                
+                if (!resizeIfNeeded && images.Any(i => document.SizeBindable.CompareTo(i.Image.Size) < 0))
+                {
+                    var userResp =
+                        await ConfirmationDialog.Show("OVERSIZED_INSERTION_MESSAGE", "OVERSIZED_INSERTION_TITLE");
+                    if (userResp == ConfirmationType.Canceled) { return false; }
+                    resizeIfNeeded = userResp == ConfirmationType.Yes;
+                }
+                
+                document.Operations.PasteImagesAsLayers(images, document.AnimationDataViewModel.ActiveFrameBindable, resizeIfNeeded);
             }
         }
 
@@ -377,7 +401,7 @@ internal static class ClipboardController
     {
         try
         {
-            DocumentViewModel importedDoc = manager.Owner.FileSubViewModel.ImportFromPath(path);
+            DocumentViewModel importedDoc = FileViewModel.ImportFromPath(path);
             error = null;
             if (importedDoc == null)
             {
@@ -576,6 +600,7 @@ internal static class ClipboardController
 
             var paths = (await GetFileDropList(dataObject))?.Select(x => x.Path.LocalPath).ToList();
             string[]? rawPaths = await TryGetRawTextPaths(dataObject);
+            
             if (paths != null && rawPaths != null)
             {
                 paths.AddRange(rawPaths);
@@ -734,7 +759,7 @@ internal static class ClipboardController
             return false;
         }
 
-        return HasData(dataObject, ClipboardDataFormats.PngFormats);
+        return HasData(dataObject, ClipboardDataFormats.PngFormats) || HasData(dataObject, DataFormat.Bitmap);
     }
 
     public static async Task<bool> IsImageInClipboard()
@@ -744,7 +769,7 @@ internal static class ClipboardController
             return false;
 
         bool isImage = IsImageFormat(formats);
-
+        
         if (!isImage)
         {
             string path = await TryFindImageInFiles(formats);
@@ -834,7 +859,7 @@ internal static class ClipboardController
     {
         foreach (var format in formats)
         {
-            if (ClipboardDataFormats.PngFormats.Contains(format))
+            if (ClipboardDataFormats.PngFormats.Contains(format) || format == DataFormat.Bitmap)
             {
                 return true;
             }
@@ -903,6 +928,34 @@ internal static class ClipboardController
                 {
                     return null;
                 }
+            }
+            else if (importedObj.Contains(DataFormat.Bitmap))
+            {
+                var bmp = await importedObj.GetDataAsync(DataFormat.Bitmap);
+                return bmp != null ? SurfaceHelpers.FromBitmap(bmp) : null;
+            }
+            else if (importedObj.Contains(DataFormat.File))
+            {
+                var files = await importedObj.GetFilesAsync();
+                if (files != null)
+                {
+                    foreach (var file in files)
+                    {
+                        try
+                        {
+                            if (Importer.IsSupportedFile(file.Path.LocalPath))
+                            {
+                                return Surface.Load(file.Path.LocalPath);
+                            }
+                        }
+                        catch (UriFormatException)
+                        {
+                            continue;
+                        }
+                    }
+                }
+
+                return null;
             }
             else
             {

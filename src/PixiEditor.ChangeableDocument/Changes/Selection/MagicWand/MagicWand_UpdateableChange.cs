@@ -15,9 +15,11 @@ internal class MagicWand_UpdateableChange : UpdateableChange
     private readonly SelectionMode mode;
     private int frame;
     private double tolerance;
+    private bool contiguous;
+    private string renderOutput;
 
     [GenerateUpdateableChangeActions]
-    public MagicWand_UpdateableChange(List<Guid> memberGuids, VecI point, SelectionMode mode, double tolerance, int frame)
+    public MagicWand_UpdateableChange(List<Guid> memberGuids, VecI point, SelectionMode mode, double tolerance, int frame, bool contiguous, string renderOutput)
     {
         path.MoveTo(point);
         this.mode = mode;
@@ -25,6 +27,8 @@ internal class MagicWand_UpdateableChange : UpdateableChange
         this.point = point;
         this.frame = frame;
         this.tolerance = tolerance;
+        this.contiguous = contiguous;
+        this.renderOutput = renderOutput;
     }
 
     public override bool InitializeAndValidate(Document target)
@@ -52,15 +56,19 @@ internal class MagicWand_UpdateableChange : UpdateableChange
 
     private Selection_ChangeInfo CommonApply(Document target)
     {
-        HashSet<Guid> membersToReference = new();
+        HashSet<Guid> membersToReference = null;
 
-        target.ForEveryReadonlyMember(member =>
+        if (memberGuids != null)
         {
-            if (memberGuids.Contains(member.Id))
-                membersToReference.Add(member.Id);
-        });
+            membersToReference = new HashSet<Guid>();
+            target.ForEveryReadonlyMember(member =>
+            {
+                if (memberGuids.Contains(member.Id))
+                    membersToReference.Add(member.Id);
+            });
+        }
 
-        path = MagicWandHelper.DoMagicWandFloodFill(point, membersToReference, tolerance, target, frame);
+        path = MagicWandHelper.DoMagicWandFloodFill(point, membersToReference, tolerance, renderOutput, target, frame, contiguous);
 
         var toDispose = target.Selection.SelectionPath;
         if (mode == SelectionMode.New)

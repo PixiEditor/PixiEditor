@@ -136,14 +136,18 @@
                 IsVisible="{Binding Path=DataContext.ActiveDocument, ElementName=layersManager, Converter={converters1:NotNullToVisibilityConverter}}"
                 Background="{DynamicResource ThemeBackgroundBrush}"
                 Grid.Row="3" VerticalAlignment="Bottom" />
+            <Panel ui1:AdvisorSlot.AdviceName="NeedsNewLayerNested"/>
             <TreeView DockPanel.Dock="Top" Name="treeView" BorderThickness="0"
-                      AutoScrollToSelectedItem="True"
+                      AutoScrollToSelectedItem="False"
                           ItemsSource="{Binding DataContext.ActiveDocument.NodeGraph.StructureTree.Members, ElementName=layersManager}">
                 <TreeView.Styles>
                     <Style Selector="TreeViewItem">
                         <Setter Property="IsExpanded" Value="{Binding (nodes:FolderNodeViewModel).IsOpen, Mode=TwoWay}"></Setter>
                     </Style>
                 </TreeView.Styles>
+                <Interaction.Behaviors>
+                    <behaviours:StructureMemberTreeViewSelectionBehavior StructureTree="{Binding DataContext.ActiveDocument.NodeGraph.StructureTree, ElementName=layersManager}" />
+                </Interaction.Behaviors>
                 <TreeView.ItemsPanel>
                     <ItemsPanelTemplate>
                         <StackPanel />
@@ -160,7 +164,7 @@
                             Folder="{Binding}"
                             Manager="{Binding ElementName=layersManager}"
                             PointerPressed="FolderControl_MouseDown"
-                            PointerReleased="FolderControl_MouseUp" />
+                            PointerReleased="FolderControl_MouseUp"/>
                     </TreeDataTemplate>
                     <DataTemplate DataType="{x:Type handlers:ILayerHandler}">
                         <layers:LayerControl

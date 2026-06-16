@@ -8,4 +8,7 @@ public interface IAdditionalContentProvider
 
     public event Action<string, object> OnError;
     public bool IsInstalled(string productId);
+
+    public Task<List<AvailableContent>> FetchAvailableExtensions();
+    public Task<ExtensionsLayout> FetchExtensionsLayout();
 }

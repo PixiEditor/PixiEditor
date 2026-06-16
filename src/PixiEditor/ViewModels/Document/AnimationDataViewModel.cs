@@ -32,6 +32,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
     private List<ICelHandler> allCels = new List<ICelHandler>();
     private bool onionSkinningEnabled;
     private bool isPlayingBindable;
+    private bool fallbackAnimationToLayerImage;
 
     private int? cachedFirstFrame;
     private int? cachedLastFrame;
@@ -124,6 +125,18 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         }
     }
 
+    public bool FallbackAnimationToLayerImageBindable
+    {
+        get => fallbackAnimationToLayerImage;
+        set
+        {
+            if (Document.BlockingUpdateableChangeActive)
+                return;
+
+            Internals.ActionAccumulator.AddFinishedActions(new SetFallbackAnimationToLayerImage_Action(value));
+        }
+    }
+
     public int FirstVisibleFrame => cachedFirstFrame ??= keyFrames.Count > 0 ? keyFrames.Min(x => x.StartFrameBindable) : 1;
 
     public int LastFrame => cachedLastFrame ??= keyFrames.Count > 0
@@ -183,6 +196,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
     {
         if (!Document.BlockingUpdateableChangeActive)
         {
+            Internals.ChangeController.TryStopActiveExecutor();
             Guid newCelGuid = Guid.NewGuid();
             Internals.ActionAccumulator.AddFinishedActions(new CreateCel_Action(targetLayerGuid,
                 newCelGuid, Math.Max(1, frame),
@@ -197,6 +211,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
     {
         if (!Document.BlockingUpdateableChangeActive)
         {
+            Internals.ChangeController.TryStopActiveExecutor();
             for (var i = 0; i < keyFrameIds.Count; i++)
             {
                 var id = keyFrameIds[i];
@@ -262,6 +277,12 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         OnPropertyChanged(nameof(DefaultEndFrameBindable));
         OnPropertyChanged(nameof(LastFrame));
         OnPropertyChanged(nameof(FramesCount));
+    }
+
+    public void SetFallbackAnimationToLayerImage(bool enabled)
+    {
+        fallbackAnimationToLayerImage = enabled;
+        OnPropertyChanged(nameof(FallbackAnimationToLayerImageBindable));
     }
 
     public void SetActiveFrame(int newFrame)
@@ -396,6 +417,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         if (TryFindCels(keyFrameId, out CelViewModel keyFrame))
         {
             keyFrame.IsSelected = false;
+            keyFrame.IsDragging = false;
         }
     }
 
@@ -405,6 +427,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         foreach (var frame in selectedFrames)
         {
             frame.IsSelected = false;
+            frame.IsDragging = false;
         }
     }
 

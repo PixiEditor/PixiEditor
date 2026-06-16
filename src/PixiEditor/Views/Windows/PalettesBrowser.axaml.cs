@@ -251,7 +251,8 @@ internal partial class PalettesBrowser : PixiEditorPopup, IPopupWindow
 
     private void OnFavouritePalettesChanged(Setting<IEnumerable<string>> setting, IEnumerable<string> value)
     {
-        Filtering.Favourites = PixiEditorSettings.Palettes.FavouritePalettes.AsList();
+        Filtering.Favourites.Clear();
+        Filtering.Favourites.AddRange(PixiEditorSettings.Palettes.FavouritePalettes.AsList());
     }
 
     public static PalettesBrowser Open()

@@ -2,6 +2,7 @@
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core;
+using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Shaders.Generation;
 using Drawie.Backend.Core.Shaders.Generation.Expressions;
@@ -67,7 +68,7 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
         ShaderBuilder builder = new(size.Value, startNode.NormalizeCoordinates.Value);
         FuncContext context = new(renderContext, builder);
 
-        if (Coordinate.Connection != null)
+        if (Coordinate is { Connection: not null, Value: not null })
         {
             var coordinate = Coordinate.Value(context);
             if (string.IsNullOrEmpty(coordinate.VariableName))
@@ -89,7 +90,7 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
 
         if (Color.Connection != null)
         {
-            builder.ReturnVar(Color.Value(context), false);
+            builder.ReturnVar(Color?.Value?.Invoke(context) ?? new Half4(""){ ConstantValue = Colors.Transparent}, false);
         }
         else
         {
@@ -106,7 +107,7 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
             drawingPaint?.Shader?.Dispose();
             drawingPaint.Shader = builder.BuildShader();
         }
-        else
+        else if (drawingPaint.Shader != null)
         {
             drawingPaint.Shader = drawingPaint.Shader.WithUpdatedUniforms(builder.Uniforms);
         }

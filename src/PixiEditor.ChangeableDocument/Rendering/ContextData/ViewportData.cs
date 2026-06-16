@@ -3,7 +3,7 @@ using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Rendering.ContextData;
 
-public struct ViewportData
+public record struct ViewportData
 {
     public Matrix3X3 Transform { get; set; } = Matrix3X3.Identity;
     public VecD Translation { get; set; }

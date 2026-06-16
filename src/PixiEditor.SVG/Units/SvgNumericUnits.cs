@@ -1,4 +1,6 @@
-﻿namespace PixiEditor.SVG.Units;
+﻿using Drawie.Numerics;
+
+namespace PixiEditor.SVG.Units;
 
 public enum SvgNumericUnits
 {
@@ -61,6 +63,18 @@ public static class SvgNumericConverter
             SvgNumericUnits.Pc => pixelsValue / 16,
             _ => null,
         };
+    }
+
+    public static double? ToPixels(double value, SvgNumericUnits numericUnit, RectD viewBox)
+    {
+        if (!numericUnit.IsSizeUnit()) return null;
+
+        if (numericUnit == SvgNumericUnits.Percent)
+        {
+            return value / 100.0 * Math.Min(viewBox.Width, viewBox.Height);
+        }
+
+        return ToPixels(value, numericUnit);
     }
 }
 

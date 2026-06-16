@@ -29,15 +29,22 @@ internal static class PixelFormatHelper
     {
         if (format == PixelFormats.Rgba64)
         {
-            alphaType = AlphaType.Unpremul;
+            alphaType = AlphaType.Premul;
             colorType = ColorType.Rgba16161616;
             return true;
         }
 
         if (format == PixelFormats.Bgra8888)
         {
-            alphaType = AlphaType.Unpremul;
+            alphaType = AlphaType.Premul;
             colorType = ColorType.Bgra8888;
+            return true;
+        }
+
+        if (format == PixelFormats.Rgba8888)
+        {
+            alphaType = AlphaType.Premul;
+            colorType = ColorType.Rgba8888;
             return true;
         }
 

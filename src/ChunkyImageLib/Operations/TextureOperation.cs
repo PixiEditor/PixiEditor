@@ -16,6 +16,7 @@ internal class TextureOperation : IMirroredDrawOperation
     private readonly Paint? customPaint;
 
     public bool IgnoreEmptyChunks => false;
+    public bool NeedsDrawInSrgb => false;
 
     public TextureOperation(VecI pos, Texture image, Paint? paint = null, bool copyImage = true)
     {

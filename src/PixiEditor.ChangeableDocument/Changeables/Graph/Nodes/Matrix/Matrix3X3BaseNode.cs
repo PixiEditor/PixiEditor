@@ -64,7 +64,7 @@ public abstract class Matrix3X3BaseNode : RenderNode, IRenderInput
         if (clonedCtx.VisibleDocumentRegion.HasValue)
         {
             clonedCtx.VisibleDocumentRegion =
-                (RectI)constant.Invert().TransformRect((RectD)clonedCtx.VisibleDocumentRegion.Value);
+                constant.Invert().TransformRect(clonedCtx.VisibleDocumentRegion.Value);
         }
 
         if (!surface.LocalClipBounds.IsZeroOrNegativeArea)

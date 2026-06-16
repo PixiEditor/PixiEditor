@@ -35,8 +35,23 @@ internal class BrushSettingViewModel : Setting<BrushViewModel>
         {
             Dispatcher.UIThread.Post(() =>
             {
-                viewModels =
-                    new ObservableCollection<BrushViewModel>(Library.Brushes.Values.Select(b => new BrushViewModel(b)));
+                List<BrushViewModel> existingVMs = viewModels.ToList();
+                foreach (var vm in existingVMs)
+                {
+                    if (Library.Brushes.Values.All(b => b.OutputNodeId != vm.Brush.OutputNodeId))
+                    {
+                        viewModels.Remove(vm);
+                    }
+                }
+
+                foreach (var brush in Library.Brushes.Values)
+                {
+                    if (existingVMs.All(vm => vm.Brush.OutputNodeId != brush.OutputNodeId))
+                    {
+                        viewModels.Add(new BrushViewModel(brush));
+                    }
+                }
+
                 OnPropertyChanged(nameof(AllBrushes));
             });
         };

@@ -2,6 +2,7 @@
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
+using PixiEditor.Extensions.WasmRuntime.Utilities;
 using PixiEditor.Models.BrushEngine;
 using PixiEditor.Models.Config;
 using PixiEditor.Models.Handlers;
@@ -25,13 +26,15 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
     public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(ImageLayerNode);
 
     public override LocalizedString Tooltip => new LocalizedString(toolTipKey, Shortcut);
-    public override string ToolNameLocalizationKey => toolName;
+    public override string ToolNameLocalizationKey { get; }
     public override string ToolName => toolName ?? base.ToolName;
     public bool IsCustomBrushTool { get; private set; }
     public override bool UsesColor => true;
     public override bool IsErasable => true;
     public KeyCombination? DefaultShortcut { get; set; }
     public bool SupportsSecondaryActionOnRightClick { get; set; }
+    public override string DefaultIcon => defaultIcon;
+
 
     public VecD LastAppliedPoint
     {
@@ -39,10 +42,15 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
         set => SetProperty(ref lastPoint, value);
     }
 
+    public string CommonToolType { get; set; }
+
     [Settings.Inherited] public double ToolSize => GetValue<double>();
 
     private string? toolName;
     private string toolTipKey;
+    private string defaultIcon;
+
+    protected bool createdBrushSettings;
 
     private List<ParsedActionDisplayConfig>? actionDisplays;
 
@@ -54,8 +62,8 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
         (Toolbar as Toolbar).SettingChanged += OnSettingChanged;
     }
 
-    public BrushBasedToolViewModel(BrushViewModel brush, string? tooltip, string? toolName, KeyCombination? defaultShortcut,
-        List<ActionDisplayConfig>? actionDisplays, bool supportsSecondaryActionOnRightClick)
+    public BrushBasedToolViewModel(BrushViewModel brush, string? tooltip, string? toolName, string displayName, KeyCombination? defaultShortcut,
+        List<ActionDisplayConfig>? actionDisplays, bool supportsSecondaryActionOnRightClick, string icon = PixiPerfectIcons.Placeholder)
     {
         Cursor = Cursors.PreciseCursor;
         Toolbar = CreateToolbar();
@@ -66,11 +74,14 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
 
         brushSetting.Value = brush;
         brushSetting.IsExposed = false;
+        brushSetting.IsProtected = true;
 
         this.toolName = toolName ?? brush.Name;
         toolTipKey = tooltip ?? toolName ?? brush.Name;
         DefaultShortcut = defaultShortcut;
         IsCustomBrushTool = true;
+        defaultIcon = icon;
+        ToolNameLocalizationKey = string.IsNullOrEmpty(displayName) ? toolName : displayName;
         this.actionDisplays = ParseActionDisplays(actionDisplays);
         SupportsSecondaryActionOnRightClick = supportsSecondaryActionOnRightClick;
 
@@ -92,6 +103,10 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
     protected virtual void SwitchToTool()
     {
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseBrushBasedTool(this);
+        if(!createdBrushSettings)
+        {
+            AddBrushShapeSettings();
+        }
     }
 
     public override void UseTool(VecD pos)
@@ -146,7 +161,7 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
 
     private void OnSettingChanged(string name, object value)
     {
-        if (value is BrushViewModel || name == nameof(BrushToolbar.Brush))
+        if (name == nameof(BrushToolbar.Brush))
         {
             AddBrushShapeSettings();
         }
@@ -158,7 +173,7 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
         OnToolSelected(false);
     }
 
-    private void AddBrushShapeSettings()
+    protected void AddBrushShapeSettings()
     {
         foreach (var setting in brushShapeSettings)
         {
@@ -175,10 +190,21 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
         {
             if (blackboardVariable is VariableViewModel { IsExposedBindable: true } varVm)
             {
-                Toolbar.AddSetting(varVm.SettingView);
-                brushShapeSettings.Add(varVm.SettingView);
+                var settingView = varVm.SettingView;
+                foreach (var dynamicDefaultSetting in dynamicDefaultSettings)
+                {
+                    if (dynamicDefaultSetting.Value.TryGetValue(varVm.Name, out var defaultValue))
+                    {
+                        SetDefaultValue(dynamicDefaultSetting.Key, defaultValue, varVm.SettingView, varVm.Name);
+                    }
+                }
+
+                Toolbar.AddSetting(settingView);
+                brushShapeSettings.Add(settingView);
             }
         }
+
+        createdBrushSettings = true;
     }
 
     protected override void OnDeselecting(bool transient)

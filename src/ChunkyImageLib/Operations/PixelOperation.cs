@@ -10,6 +10,8 @@ namespace ChunkyImageLib.Operations;
 internal class PixelOperation : IMirroredDrawOperation
 {
     public bool IgnoreEmptyChunks => false;
+    public bool NeedsDrawInSrgb => false;
+
     private readonly VecI pixel;
     private readonly Color color;
     private readonly BlendMode blendMode;

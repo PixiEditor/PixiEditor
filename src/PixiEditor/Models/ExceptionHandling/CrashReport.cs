@@ -3,7 +3,7 @@ using System.Globalization;
 using System.IO.Compression;
 using System.Reflection;
 using System.Text;
-using Newtonsoft.Json;
+using System.Text.Json;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Helpers;
@@ -497,7 +497,7 @@ internal class CrashReport : IDisposable
                 using var reader = new StreamReader(stream);
                 string json = reader.ReadToEnd();
 
-                return JsonConvert.DeserializeObject<CrashedSessionInfo>(json);
+                return JsonSerializer.Deserialize<CrashedSessionInfo>(json);
             }
             catch
             {
@@ -587,9 +587,9 @@ internal class CrashReport : IDisposable
             using Stream jsonStream = archive.CreateEntry("DocumentInfo.json").Open();
             using StreamWriter writer = new StreamWriter(jsonStream);
 
-            string originalPathsJson = JsonConvert.SerializeObject(
+            string originalPathsJson = JsonSerializer.Serialize(
                 new CrashedSessionInfo(AnalyticsPeriodicReporter.Instance?.SessionId ?? Guid.Empty, originalPaths),
-                Formatting.Indented);
+                JsonOptions.CasesInsensitiveIndented);
             writer.Write(originalPathsJson);
         }
     }

@@ -14,7 +14,7 @@
     <DockPanel LastChildFill="True"
         HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
         <TextBlock ui:Translator.TooltipKey="{Binding DisplayName}" VerticalAlignment="Center" ui:Translator.Key="{Binding DisplayName}" />
-        <input:FontFamilyPicker Margin="5 0"
+        <input:FontFamilyPicker Margin="5 0" PointerPressed="InputElement_OnPointerPressed"
            FontIndex="{Binding FontFamilyIndex, Mode=TwoWay}"
                           IsVisible="{Binding ShowInputField}">
             <Interaction.Behaviors>

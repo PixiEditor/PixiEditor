@@ -2,6 +2,7 @@
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 internal class PasteImage_UpdateableChange : InterruptableUpdateableChange
@@ -32,7 +33,7 @@ internal class PasteImage_UpdateableChange : InterruptableUpdateableChange
 
     public override bool InitializeAndValidate(Document target)
     {
-        return DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask);
+        return targetKeyFrameGuid != null ? DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask, targetKeyFrameGuid.Value) : DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask, frame ?? 0);
     }
 
     [UpdateChangeMethod]
@@ -58,19 +59,25 @@ internal class PasteImage_UpdateableChange : InterruptableUpdateableChange
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
-        ChunkyImage targetImage;
+        ChunkyImage? targetImage;
         if (targetKeyFrameGuid.HasValue && targetKeyFrameGuid != Guid.Empty)
         {
             targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, targetKeyFrameGuid.Value);
         }
         else
         {
-            targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame.Value);
+            targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame ?? 0);
+        }
+
+        if(targetImage == null)
+        {
+            ignoreInUndo = true;
+            return new None();
         }
         
         var chunks = DrawImage(target, targetImage);
         savedChunks?.Dispose();
-        savedChunks = new(targetImage, targetImage.FindAffectedArea().Chunks);
+        savedChunks = new(targetImage, targetImage.FindAffectedArea().Chunks ?? new HashSet<VecI>());
         targetImage.CommitChanges();
         hasEnqueudImage = false;
         ignoreInUndo = false;
@@ -86,8 +93,12 @@ internal class PasteImage_UpdateableChange : InterruptableUpdateableChange
         }
         else
         {
-            targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame.Value);
+            targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame ?? 0);
         }
+
+        if(targetImage == null)
+            return new None();
+
         return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, DrawImage(target, targetImage), drawOnMask);
     }
 
@@ -100,7 +111,7 @@ internal class PasteImage_UpdateableChange : InterruptableUpdateableChange
         }
         else
         {
-            chunks = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, memberGuid, drawOnMask, frame.Value, ref savedChunks);
+            chunks = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, memberGuid, drawOnMask, frame ?? 0, ref savedChunks);
         }
         
         return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, chunks, drawOnMask);

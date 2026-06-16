@@ -21,7 +21,7 @@ internal class DrawRasterRectangle_UpdateableChange : UpdateableChange
 
     public override bool InitializeAndValidate(Document target)
     {
-        return DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask);
+        return DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask, frame);
     }
 
     [UpdateChangeMethod]

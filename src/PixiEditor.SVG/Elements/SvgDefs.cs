@@ -12,7 +12,7 @@ public class SvgDefs() : SvgElement("defs"), IElementContainer
         return TryFindElement(Children, id, out element);
     }
 
-    public override void ParseData(XmlReader reader, SvgDefs defs)
+    public override void ParseAttributes(XmlReader reader, SvgDefs defs)
     {
 
     }

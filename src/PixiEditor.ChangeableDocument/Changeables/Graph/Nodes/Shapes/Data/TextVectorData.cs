@@ -199,6 +199,11 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
 
     private void Rasterize(Canvas canvas, bool applyTransform)
     {
+        if (Font.IsDisposed)
+        {
+            return;
+        }
+        
         int num = 0;
         if (applyTransform)
         {

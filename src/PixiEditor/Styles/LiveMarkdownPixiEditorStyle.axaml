@@ -1,0 +1,32 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:avalonia="clr-namespace:LiveMarkdown.Avalonia;assembly=LiveMarkdown.Avalonia">
+
+    <Style Selector="avalonia|MarkdownTextBlock">
+        <Setter Property="LineSpacing" Value="8" />
+        <Setter Property="SelectionBrush" Value="{DynamicResource ThemeAccent3Brush}" />
+        <Setter Property="FontFamily" Value="{DynamicResource Montserrat}"/>
+    </Style>
+
+
+    <Style Selector="avalonia|MarkdownRenderer > StackPanel">
+        <Setter Property="Background" Value="Transparent"/>
+    </Style>
+
+    <Style Selector="avalonia|MarkdownRenderer InlineUIContainer.Code Border">
+        <Setter Property="RenderTransform" Value="translate(0, 4px)" />
+    </Style>
+
+    <Style Selector="avalonia|MarkdownRenderer InlineUIContainer.Code avalonia|MarkdownTextBlock">
+        <Setter Property="Margin" Value="0, 0, 0, -8" />
+    </Style>
+
+    <Style Selector="avalonia|Link">
+        <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundSecondaryBrush}" />
+
+        <Style Selector="^:clicked">
+            <Setter Property="Foreground"
+                    Value="{DynamicResource ThemeForegroundSecondaryBrush}" />
+        </Style>
+    </Style>
+</Styles>

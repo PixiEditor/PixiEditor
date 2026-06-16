@@ -26,12 +26,15 @@ internal class CommandGroup : ObservableObject
 
     public string? IsVisibleProperty { get; set; }
 
+    public string InternalNameGroup { get; set; }
+
     public IReadOnlyList<Command> Commands => commands;
 
     public IReadOnlyList<Command> VisibleCommands => visibleCommands;
 
-    public CommandGroup(LocalizedString displayName, IEnumerable<Command> commands)
+    public CommandGroup(string internalNameGroup, LocalizedString displayName, IEnumerable<Command> commands)
     {
+        InternalNameGroup = internalNameGroup;
         DisplayName = displayName;
         this.commands = commands.ToList();
         visibleCommands = commands.Where(x => !string.IsNullOrEmpty(x.DisplayName.Value)).ToList();

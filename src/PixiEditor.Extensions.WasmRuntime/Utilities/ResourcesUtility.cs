@@ -1,11 +1,95 @@
 using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
+using PixiEditor.Extensions.WasmRuntime.Api.Modules;
 
 namespace PixiEditor.Extensions.WasmRuntime.Utilities;
 
 public static class ResourcesUtility
 {
+    public static byte[] LoadResource(WasmExtensionInstance requestingExtension, string path)
+    {
+        string[] splitted = path.Split("://");
+        bool accessCheck = false;
+        WasmExtensionInstance resourceExtension = requestingExtension;
+
+        if (splitted.Length == 2)
+        {
+            var allExtensions = requestingExtension.GetModule<ExtensionsModule>().LoadedExtensions;
+            resourceExtension = allExtensions.FirstOrDefault(ext => ext.Metadata.UniqueName == splitted[0]);
+            accessCheck = resourceExtension != requestingExtension;
+        }
+
+        if (accessCheck && !CanReadResources(requestingExtension, resourceExtension))
+        {
+            resourceExtension.Api.Logger.LogError($"Extension '{requestingExtension.Metadata.UniqueName}' attempted to access resource '{path}' from extension '{resourceExtension.Metadata.UniqueName}', but extension doesn't allow reading its resources by this extension.");
+            return [];
+        }
+
+        path = splitted.LastOrDefault();
+
+        if (resourceExtension is { HasEncryptedResources: true })
+        {
+            return LoadEncryptedResource(resourceExtension, path);
+        }
+
+        string fullPath = ToResourcesFullPath(resourceExtension, path);
+        if (!File.Exists(fullPath))
+        {
+            resourceExtension.Api.Logger.LogError($"Resource '{path}' not found for extension '{resourceExtension.Metadata.UniqueName}'. Attempted full path: '{fullPath}'.");
+            return [];
+        }
+
+        return File.ReadAllBytes(fullPath);
+    }
+
+    public static bool ResourceExists(WasmExtensionInstance requestingExtension, string path)
+    {
+        string[] splitted = path.Split("://");
+        bool accessCheck = false;
+        WasmExtensionInstance resourceExtension = requestingExtension;
+
+        if (splitted.Length == 2)
+        {
+            var allExtensions = requestingExtension.GetModule<ExtensionsModule>().LoadedExtensions;
+            resourceExtension = allExtensions.FirstOrDefault(ext => ext.Metadata.UniqueName == splitted[0]);
+            if (resourceExtension == null)
+            {
+                requestingExtension.Api.Logger.LogError($"Extension '{requestingExtension.Metadata.UniqueName}' attempted to access resource '{path}', but no extension with unique name '{splitted[0]}' was found.");
+                return false;
+            }
+
+            accessCheck = resourceExtension != requestingExtension;
+        }
+
+        if (accessCheck && !CanReadResources(requestingExtension, resourceExtension))
+        {
+            resourceExtension.Api.Logger.LogError($"Extension '{requestingExtension.Metadata.UniqueName}' attempted to access resource '{path}' from extension '{resourceExtension.Metadata.UniqueName}', but extension doesn't allow reading its resources by this extension.");
+            return false;
+        }
+
+        path = splitted.LastOrDefault();
+
+        if (resourceExtension is { HasEncryptedResources: true })
+        {
+            return HasEncryptedResource(resourceExtension, path);
+        }
+
+        string fullPath = ToResourcesFullPath(resourceExtension, path);
+
+        return File.Exists(fullPath);
+    }
+
+    private static bool CanReadResources(Extension requesting, Extension resource)
+    {
+        if(resource.Metadata.AllowReadResourcesBy != null && resource.Metadata.AllowReadResourcesBy.Contains(requesting.Metadata.UniqueName))
+        {
+            return true;
+        }
+
+        return resource.Metadata.PublicResources;
+    }
+
     public static string ToResourcesFullPath(Extension extension, string path)
     {
         string resourcesPath = Path.Combine(Path.GetDirectoryName(extension.Location), "Resources");
@@ -26,6 +110,11 @@ public static class ResourcesUtility
     public static byte[] LoadEncryptedResource(WasmExtensionInstance extension, string path)
     {
         string fullPath = ToResourcesFullPath(extension, "Resources/resources.data");
+        if (!File.Exists(fullPath))
+        {
+            throw new FileNotFoundException("The resources.data file was not found.", fullPath);
+        }
+
         byte[] data = File.ReadAllBytes(fullPath);
         using var zipArchive = OpenEncryptedArchive(extension.GetEncryptionKey(), extension.GetEncryptionIV(), data, ZipArchiveMode.Read);
 

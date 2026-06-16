@@ -11,6 +11,22 @@ public partial class Shortcut
         Key = (int)key;
         Modifiers = (int)modifiers;
     }
+
+    override public string ToString()
+    {
+        KeyModifiers[] modifiers = (KeyModifiers[])Enum.GetValues(typeof(KeyModifiers));
+        string result = "";
+        foreach (var modifier in modifiers)
+        {
+            if ((Modifiers & (int)modifier) != 0)
+            {
+                result += modifier.ToString() + "+";
+            }
+        }
+
+        result += ((Key)Key).ToString();
+        return result;
+    }
 }
 
 [Flags]

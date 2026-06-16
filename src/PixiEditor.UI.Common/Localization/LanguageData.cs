@@ -1,5 +1,5 @@
 ﻿using System.Globalization;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace PixiEditor.UI.Common.Localization;
 
@@ -21,10 +21,13 @@ public class LanguageData
     public bool RightToLeft { get; set; }
     
     [JsonIgnore]
-    public DateTimeOffset LastUpdated => LastUpdatedString == null ? DateTimeOffset.MinValue : DateTimeOffset.Parse(LastUpdatedString, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
+    public DateTimeOffset LastUpdatedLocalTime => LastUpdatedUTC.ToLocalTime();    
     
-    [JsonProperty(nameof(LastUpdated))]
-    private string LastUpdatedString { get; set; }
+    [JsonIgnore]
+    public DateTimeOffset LastUpdatedUTC => LastUpdatedString == null ? DateTimeOffset.MinValue : DateTimeOffset.Parse(LastUpdatedString, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
+    
+    [JsonPropertyName("LastUpdated")]
+    public string? LastUpdatedString { get; set; }
 
     [JsonIgnore]
     public string? CustomLocaleAssemblyPath { get; set; }

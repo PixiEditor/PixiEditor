@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using CommunityToolkit.Mvvm.ComponentModel;
 using PixiDocks.Core.Docking;
+using PixiEditor.ViewModels;
 using PixiEditor.ViewModels.Dock;
 using PixiEditor.ViewModels.Nodes.Properties;
 using PixiEditor.ViewModels.SubViewModels;
@@ -22,7 +23,8 @@ public class ViewLocator : IDataTemplate
         [typeof(LazyViewportWindowViewModel)] = typeof(LazyDocumentTemplate),
         [typeof(LayersDockViewModel)] = typeof(LayersManager),
         [typeof(SinglePropertyViewModel)] = typeof(DoublePropertyView),
-        [typeof(PaintableSettingViewModel)] = typeof(ColorSettingView)
+        [typeof(PaintableSettingViewModel)] = typeof(ColorSettingView),
+        [typeof(ChangelogDockViewModel)] = typeof(ChangelogDockView),
     };
 
     public Control Build(object? data)

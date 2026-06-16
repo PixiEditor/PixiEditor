@@ -21,7 +21,6 @@ internal class FloodFillToolViewModel : ToolViewModel, IFloodFillToolHandler
 
     public override string ToolNameLocalizationKey => "FLOOD_FILL_TOOL";
 
-    //TODO: Brush Shape was Pixel
     public override Type[]? SupportedLayerTypes { get; } = { typeof(IRasterLayerHandler) };
 
     public override LocalizedString Tooltip => new("FLOOD_FILL_TOOL_TOOLTIP", Shortcut);
@@ -36,6 +35,9 @@ internal class FloodFillToolViewModel : ToolViewModel, IFloodFillToolHandler
     public float Tolerance => GetValue<float>();
     [Settings.Enum("FLOOD_FILL_MODE_LABEL", FloodFillMode.Overlay, ExposedByDefault = false)]
     public FloodFillMode FillMode => GetValue<FloodFillMode>();
+
+    [Settings.Bool("CONTIGUOUS_LABEL", true, ExposedByDefault = true)]
+    public bool Contiguous => GetValue<bool>();
 
     public override string DefaultIcon => PixiPerfectIcons.Bucket;
 

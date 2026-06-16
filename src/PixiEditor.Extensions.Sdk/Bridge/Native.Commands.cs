@@ -4,10 +4,16 @@ namespace PixiEditor.Extensions.Sdk.Bridge;
 
 internal static partial class Native
 {
-    public static event Action<string> CommandInvoked;
+    public static event Action<string, object> CommandInvoked;
 
     [MethodImpl(MethodImplOptions.InternalCall)]
     internal static extern void register_command(IntPtr metadataPtr, int length);
+
+    [MethodImpl(MethodImplOptions.InternalCall)]
+    internal static extern void register_command_str_param(IntPtr metadataPtr, int length);
+
+    [MethodImpl(MethodImplOptions.InternalCall)]
+    internal static extern void register_command_bytes_param(IntPtr metadataPtr, int length);
 
     [MethodImpl(MethodImplOptions.InternalCall)]
     public static extern void invoke_command(string commandName);
@@ -18,7 +24,13 @@ internal static partial class Native
     [ApiExport("command_invoked")]
     internal static void OnCommandInvoked(string uniqueName)
     {
-        CommandInvoked?.Invoke(uniqueName);
+        CommandInvoked?.Invoke(uniqueName, null);
+    }
+
+    [ApiExport("command_invoked_str_param")]
+    internal static void OnCommandInvokedStr(string uniqueName, string parameter)
+    {
+        CommandInvoked?.Invoke(uniqueName, parameter);
     }
 
     [MethodImpl(MethodImplOptions.InternalCall)]

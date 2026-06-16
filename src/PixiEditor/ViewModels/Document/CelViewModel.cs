@@ -15,6 +15,8 @@ internal abstract class CelViewModel : ObservableObject, ICelHandler
     private bool isVisibleBindable = true;
     private bool isSelected;
     private bool isCollapsed;
+    private bool isDragging;
+    private double precisePosition;
     private TexturePreview? previewTexture;
 
     public TexturePreview? PreviewTexture
@@ -29,12 +31,23 @@ internal abstract class CelViewModel : ObservableObject, ICelHandler
         set => SetProperty(ref isCollapsed, value);
     }
 
+    public bool IsDragging
+    {
+        get => isDragging;
+        set => SetProperty(ref isDragging, value);
+    }
+
     public DocumentViewModel Document { get; }
 
     protected DocumentInternalParts Internals { get; }
 
     IDocument ICelHandler.Document => Document;
 
+    public double PrecisePosition
+    {
+        get => precisePosition;
+        set => SetProperty(ref precisePosition, value);
+    }
 
     public virtual int StartFrameBindable
     {

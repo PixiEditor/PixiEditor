@@ -3,23 +3,29 @@ using System.Collections.Specialized;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core;
+using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Models.BrushEngine;
+using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.ViewModels.BrushSystem;
 
 internal class BrushViewModel : ViewModelBase
 {
+    public event Action RenderingPreviewFinished;
+
     private Texture pointPreviewTexture;
     private Texture strokeTexture;
     private Brush brush;
     private bool isFavourite;
     private ObservableCollection<string> tags;
+    private bool preventTextureGeneration;
 
     public Texture PointPreviewTexture
     {
@@ -51,7 +57,7 @@ internal class BrushViewModel : ViewModelBase
 
     public string Name
     {
-        get => Brush?.Name ?? "Unnamed Brush";
+        get => Brush?.Name ?? new LocalizedString("UNNAMED_BRUSH");
     }
 
     public ObservableCollection<string> Tags
@@ -99,10 +105,7 @@ internal class BrushViewModel : ViewModelBase
         get { return brush; }
         set
         {
-            if (SetProperty(ref brush, value))
-            {
-                GeneratePreviewTextures();
-            }
+            SetProperty(ref brush, value);
         }
     }
 
@@ -125,7 +128,7 @@ internal class BrushViewModel : ViewModelBase
 
     public bool IsReadOnly
     {
-       get => Brush?.IsReadOnly ?? false;
+        get => Brush?.IsReadOnly ?? false;
     }
 
     public string Source => Brush?.Source ?? "";
@@ -149,6 +152,7 @@ internal class BrushViewModel : ViewModelBase
     }
 
     private int lastTextureCache;
+    private bool generatedOnce = false;
 
     public BrushViewModel(Brush brush)
     {
@@ -158,65 +162,101 @@ internal class BrushViewModel : ViewModelBase
             ?.Contains(Brush.PersistentId) ?? false;
     }
 
+    public void TryGeneratePreviewTextures()
+    {
+        if (CacheChanged() || !generatedOnce)
+        {
+            GeneratePreviewTextures();
+        }
+    }
+
     private void GeneratePreviewTextures()
     {
-        BrushOutputNode? brushNode =
-            Brush?.Document?.AccessInternalReadOnlyDocument().NodeGraph.LookupNode(Brush.OutputNodeId) as
-                BrushOutputNode;
-        if (brushNode == null)
+        if (preventTextureGeneration)
             return;
 
-        pointPreviewTexture?.Dispose();
-        strokeTexture?.Dispose();
+        preventTextureGeneration = true;
 
-        pointPreviewTexture =
-            Texture.ForDisplay(new VecI(BrushOutputNode.PointPreviewSize, BrushOutputNode.PointPreviewSize));
-        strokeTexture =
-            Texture.ForDisplay(new VecI(BrushOutputNode.StrokePreviewSizeX, BrushOutputNode.StrokePreviewSizeY));
+        DrawingBackendApi.Current.RenderingDispatcher.InvokeInBackgroundAsync(() =>
+        {
+            BrushOutputNode? brushNode =
+                Brush?.Document?.AccessInternalReadOnlyDocument().NodeGraph.LookupNode(Brush.OutputNodeId) as
+                    BrushOutputNode;
+            if (brushNode == null)
+                return;
 
-        var pointImage = new ChunkyImage(new VecI(BrushOutputNode.PointPreviewSize, BrushOutputNode.PointPreviewSize),
-            ColorSpace.CreateSrgb());
-        var strokeImage = new ChunkyImage(
-            new VecI(BrushOutputNode.StrokePreviewSizeX, BrushOutputNode.StrokePreviewSizeY),
-            ColorSpace.CreateSrgb());
+            pointPreviewTexture?.Dispose();
+            strokeTexture?.Dispose();
 
-        var context = new RenderContext(
-            pointPreviewTexture.DrawingSurface.Canvas,
-            0,
-            ChunkResolution.Full,
-            pointPreviewTexture.Size,
-            pointPreviewTexture.Size,
-            ColorSpace.CreateSrgb(),
-            SamplingOptions.Bilinear,
-            Brush?.Document.AccessInternalReadOnlyDocument().NodeGraph);
+            pointPreviewTexture =
+                Texture.ForDisplay(new VecI(BrushOutputNode.PointPreviewSize, BrushOutputNode.PointPreviewSize));
 
-        brushNode.DrawPointPreview(pointImage, context,
-            BrushOutputNode.PointPreviewSize,
-            new VecD(BrushOutputNode.PointPreviewSize / 2,
-                BrushOutputNode.PointPreviewSize / 2));
+            strokeTexture =
+                Texture.ForDisplay(new VecI(BrushOutputNode.StrokePreviewSizeX, BrushOutputNode.StrokePreviewSizeY));
 
-        pointImage.DrawMostUpToDateRegionOn(
-            new RectI(0, 0, pointImage.CommittedSize.X, pointImage.CommittedSize.Y),
-            ChunkResolution.Full,
-            pointPreviewTexture.DrawingSurface.Canvas,
-            VecI.Zero, null, SamplingOptions.Bilinear);
+            var pointImage = new ChunkyImage(
+                new VecI(BrushOutputNode.PointPreviewSize, BrushOutputNode.PointPreviewSize));
+            var strokeImage = new ChunkyImage(
+                new VecI(BrushOutputNode.StrokePreviewSizeX, BrushOutputNode.StrokePreviewSizeY));
 
-        context.RenderOutputSize = strokeTexture.Size;
-        context.DocumentSize = strokeTexture.Size;
-        context.RenderSurface = strokeTexture.DrawingSurface.Canvas;
+            var context = new RenderContext(
+                pointPreviewTexture.DrawingSurface.Canvas,
+                0,
+                ChunkResolution.Full,
+                pointPreviewTexture.Size,
+                pointPreviewTexture.Size,
+                ColorSpace.CreateSrgb(),
+                SamplingOptions.Bilinear,
+                Brush?.Document.AccessInternalReadOnlyDocument().NodeGraph);
 
-        brushNode.DrawStrokePreview(strokeImage, context,
-            BrushOutputNode.StrokePreviewSizeY / 2,
-            new VecD(0, BrushOutputNode.YOffsetInPreview));
+            if (Brush.Document.AccessInternalReadOnlyDocument().NodeGraph.AllNodes
+                    .FirstOrDefault(n => n is OutputNode) is OutputNode { Input.Connection: not null } outputNode)
+            {
+                VecD scaling = new VecD(BrushOutputNode.PointPreviewSize / (float)Brush.Document.SizeBindable.X,
+                    (float)BrushOutputNode.PointPreviewSize / Brush.Document.SizeBindable.Y);
 
-        strokeImage.DrawMostUpToDateRegionOn(
-            new RectI(0, 0, strokeImage.CommittedSize.X, strokeImage.CommittedSize.Y),
-            ChunkResolution.Full,
-            strokeTexture.DrawingSurface.Canvas,
-            VecI.Zero, null, SamplingOptions.Bilinear);
+                context.RenderOutputSize = Brush.Document.SizeBindable;
+                context.DocumentSize = Brush.Document.SizeBindable;
 
-        OnPropertyChanged(nameof(DrawingStrokeTexture));
-        OnPropertyChanged(nameof(pointPreviewTexture));
+                pointPreviewTexture.DrawingSurface.Canvas.Save();
+                pointPreviewTexture.DrawingSurface.Canvas.Scale((float)scaling.X, (float)scaling.Y);
+                Brush.Document.AccessInternalReadOnlyDocument().NodeGraph.Execute(outputNode, context);
+                pointPreviewTexture.DrawingSurface.Canvas.Restore();
+            }
+            else
+            {
+                brushNode.DrawPointPreview(pointImage, context,
+                    BrushOutputNode.PointPreviewSize,
+                    new VecD(BrushOutputNode.PointPreviewSize / 2,
+                        BrushOutputNode.PointPreviewSize / 2));
+
+                pointImage.DrawMostUpToDateRegionOn(
+                    new RectI(0, 0, pointImage.CommittedSize.X, pointImage.CommittedSize.Y),
+                    ChunkResolution.Full,
+                    pointPreviewTexture.DrawingSurface.Canvas,
+                    VecI.Zero, null, SamplingOptions.Bilinear);
+            }
+
+            context.RenderOutputSize = strokeTexture.Size;
+            context.DocumentSize = strokeTexture.Size;
+            context.RenderSurface = strokeTexture.DrawingSurface.Canvas;
+
+            brushNode.DrawStrokePreview(strokeImage, context,
+                BrushOutputNode.StrokePreviewSizeY / 2,
+                new VecD(0, BrushOutputNode.YOffsetInPreview));
+
+            strokeImage.DrawMostUpToDateRegionOn(
+                new RectI(0, 0, strokeImage.CommittedSize.X, strokeImage.CommittedSize.Y),
+                ChunkResolution.Full,
+                strokeTexture.DrawingSurface.Canvas,
+                VecI.Zero, null, SamplingOptions.Bilinear);
+
+            OnPropertyChanged(nameof(DrawingStrokeTexture));
+            OnPropertyChanged(nameof(PointPreviewTexture));
+            preventTextureGeneration = false;
+            generatedOnce = true;
+            RenderingPreviewFinished?.Invoke();
+        });
     }
 
     private bool CacheChanged()

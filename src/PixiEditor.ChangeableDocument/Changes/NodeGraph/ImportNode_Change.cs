@@ -67,7 +67,7 @@ internal class ImportNode_Change : Change
 
         List<IChangeInfo> changes = new();
 
-        changes.AddRange(NodeOperations.DetachNode(target.NodeGraph, node));
+        changes.AddRange(NodeOperations.DetachNode(node));
         changes.Add(new DeleteNode_ChangeInfo(node.Id));
 
         if (connectionsData is not null)

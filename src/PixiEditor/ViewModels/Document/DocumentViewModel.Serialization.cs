@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Serialization;
 using Avalonia.Threading;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
@@ -29,6 +30,7 @@ using PixiEditor.Models.Serialization;
 using PixiEditor.Models.Serialization.Factories;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
+using PixiEditor.Models.BrushEngine;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Collections;
 using PixiEditor.Parser.Graph;
@@ -119,7 +121,7 @@ internal partial class DocumentViewModel
         float resizeFactorY = (float)exportSize.Y / document.Size.Y;
         VecD resizeFactor = new VecD(resizeFactorX, resizeFactorY);
 
-        var root = document.GetStructureTreeInOrder().Where(x => x.IsVisible.Value).Reverse().ToList();
+        var root = document.GetStructureTreeInOrder().Where(x => x.IsVisible.Value).ToList();
 
         AddElements(document, root, svgDocument, atTime, exportSize, resizeFactor, vectorExportConfig,
             svgDocument.Defs);
@@ -535,9 +537,14 @@ internal partial class DocumentViewModel
             {
                 if (inputProp.Connection != null)
                 {
+                    if (!nodeIdMap.TryGetValue(inputProp.Connection.Node.Id, out var outputNodeId))
+                    {
+                        continue;
+                    }
+
                     connections.Add(new PropertyConnection()
                     {
-                        OutputNodeId = nodeIdMap[inputProp.Connection.Node.Id],
+                        OutputNodeId = outputNodeId,
                         OutputPropertyName = inputProp.Connection.InternalPropertyName,
                         InputPropertyName = inputProp.InternalPropertyName
                     });
@@ -578,6 +585,12 @@ internal partial class DocumentViewModel
 
         foreach (var prop in blackboard.Variables)
         {
+            if (prop.Value.Value is Brush br && br.Document.AccessInternalReadOnlyDocument().Blackboard == blackboard)
+            {
+                // Prevent stack overflow
+                 continue;
+            }
+
             variables.Add(new Variable()
             {
                 Name = prop.Value.Name,
@@ -585,7 +598,8 @@ internal partial class DocumentViewModel
                 Unit = prop.Value.Unit,
                 Min = prop.Value.Min,
                 Max = prop.Value.Max,
-                IsExposed = prop.Value.IsExposed
+                IsExposed = prop.Value.IsExposed,
+                Type = SerializationUtil.GetWellKnownSerializationTypeName(prop.Value.Type, allFactories)
             });
         }
 
@@ -662,6 +676,7 @@ internal partial class DocumentViewModel
         animData.OnionFrames = animationData.OnionFrames;
         animData.OnionOpacity = animationData.OnionOpacity;
         animData.DefaultEndFrame = animationData.DefaultEndFrame;
+        animData.FallbackAnimationToLayerImage = animationData.FallbackAnimationToLayerImage;
         BuildKeyFrames(animationData.KeyFrames, animData, graph, nodeIdMap, keyFrameIds);
 
         return animData;
@@ -702,7 +717,7 @@ internal partial class DocumentViewModel
         Dictionary<Guid, int> idMap, Dictionary<Guid, int> keyFrameIds)
     {
         IReadOnlyChunkyImage image = rasterKeyFrame.GetTargetImage(graph.AllNodes);
-        var bounds = image.FindChunkAlignedMostUpToDateBounds();
+        var bounds = image?.FindChunkAlignedMostUpToDateBounds();
 
         DrawingSurface surface = null;
 

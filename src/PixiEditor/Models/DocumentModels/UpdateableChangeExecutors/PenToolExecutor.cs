@@ -41,9 +41,19 @@ internal class PenToolExecutor : BrushBasedExecutor<IPenToolHandler>
         return ExecutionState.Success;
     }
 
-    protected override void EnqueueDrawActions()
+    protected override void EnqueueDrawActions(bool createLine)
     {
         var point = GetStabilizedPoint();
+        if (createLine)
+        {
+            IAction? actionStart = new LineBasedPen_Action(layerId, handler.LastAppliedPoint, (float)ToolSize,
+                antiAliasing, BrushData, drawOnMask,
+                document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo, controller.LastKeyboardInfo,
+                controller.EditorData);
+
+            internals!.ActionAccumulator.AddActions(actionStart);
+        }
+
         if (handler != null)
         {
             handler.LastAppliedPoint = point;

@@ -1,6 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
+using Avalonia.Input;
 using Avalonia.Markup.Xaml;
 
 namespace PixiEditor.Views.Nodes.Properties;
@@ -12,8 +13,8 @@ public partial class FontFamilyNamePropertyView : NodePropertyView
         InitializeComponent();
     }
 
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+    private void InputElement_OnPointerPressed(object? sender, PointerPressedEventArgs e)
     {
-        base.OnApplyTemplate(e);
+        e.Handled = true;
     }
 }

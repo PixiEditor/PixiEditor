@@ -1,6 +1,9 @@
 ﻿using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Models.Handlers;
+using PixiEditor.Models.Layers;
 using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.Nodes;
 
@@ -16,6 +19,54 @@ internal class FolderNodeViewModel : StructureMemberViewModel<FolderNode>, IFold
     {
         get => isOpen;
         set => SetProperty(ref isOpen, value);
+    }
+
+    public FolderNodeViewModel()
+    {
+        Children.CollectionChanged += ChildrenOnCollectionChanged;
+    }
+
+    private void ChildrenOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        if(e.OldItems != null)
+        {
+            foreach (IStructureMemberHandler oldItem in e.OldItems)
+            {
+                if (oldItem is INotifyPropertyChanged notifyPropertyChanged)
+                {
+                    notifyPropertyChanged.PropertyChanged -= ChildOnPropertyChanged;
+                }
+            }
+        }
+
+        if(e.NewItems != null)
+        {
+            foreach (IStructureMemberHandler newItem in e.NewItems)
+            {
+                if (newItem is INotifyPropertyChanged notifyPropertyChanged)
+                {
+                    notifyPropertyChanged.PropertyChanged += ChildOnPropertyChanged;
+                }
+            }
+        }
+    }
+
+    private void ChildOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(IStructureMemberHandler.Selection))
+        {
+            if (sender is IStructureMemberHandler { Selection: StructureMemberSelectionType.Hard })
+            {
+                IsOpen = true;
+            }
+        }
+        else if (e.PropertyName == nameof(IsOpen))
+        {
+            if (sender is FolderNodeViewModel folder && folder.IsOpen)
+            {
+                IsOpen = true;
+            }
+        }
     }
 
     public int CountChildrenRecursive()

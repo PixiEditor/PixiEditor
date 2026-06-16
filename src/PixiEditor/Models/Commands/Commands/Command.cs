@@ -51,6 +51,8 @@ internal abstract partial class Command : PixiObservableObject
     public CommandPermissions InvokePermissions { get; init; } = CommandPermissions.Owner;
     public string[]? ExplicitPermissions { get; init; }
 
+    public bool ShowInSearch { get; set; } = true;
+
     public event ShortcutChangedEventHandler ShortcutChanged;
     public event Action CanExecuteChanged;
 

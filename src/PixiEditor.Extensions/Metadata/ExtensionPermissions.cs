@@ -1,7 +1,9 @@
-﻿namespace PixiEditor.Extensions.Metadata;
+﻿using System.Text.Json.Serialization;
+
+namespace PixiEditor.Extensions.Metadata;
 
 [Flags]
-[Newtonsoft.Json.JsonConverter(typeof(JsonEnumFlagConverter))]
+[JsonConverter(typeof(JsonEnumFlagConverter<ExtensionPermissions>))]
 public enum ExtensionPermissions
 {
     None = 0,

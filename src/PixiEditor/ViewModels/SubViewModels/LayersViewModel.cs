@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -25,6 +26,7 @@ using PixiEditor.Models.IO;
 using PixiEditor.Models.Layers;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+using PixiEditor.Extensions.FlyUI.Elements;
 using PixiEditor.Helpers;
 using PixiEditor.UI.Common.Fonts;
 using PixiEditor.UI.Common.Localization;
@@ -65,6 +67,52 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
             return false;
         return doc.SelectedStructureMember is not null || doc.SoftSelectedStructureMembers.Count > 0;
     }
+
+    [Evaluator.CanExecute("PixiEditor.Layer.HasTransformableMembers",
+        nameof(DocumentManagerViewModel.ActiveDocument),
+        nameof(DocumentManagerViewModel.ActiveDocument.SelectedStructureMember),
+        nameof(DocumentManagerViewModel.ActiveDocument.SoftSelectedStructureMembers))]
+    public bool HasTransformableMembers()
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return false;
+        bool hasMembers = doc.SelectedStructureMember is not null || doc.SoftSelectedStructureMembers.Count > 0;
+        if (!hasMembers)
+            return false;
+
+        var selectedMembers = doc.ExtractSelectedLayers();
+        foreach (var member in selectedMembers)
+        {
+            var handler = doc.StructureHelper.Find(member);
+            if (handler is ITransformableMemberHandler)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    [Evaluator.CanExecute("PixiEditor.Layer.IsMemberTransformable",
+        nameof(DocumentManagerViewModel.ActiveDocument),
+        nameof(DocumentManagerViewModel.ActiveDocument.SelectedStructureMember),
+        nameof(DocumentManagerViewModel.ActiveDocument.SoftSelectedStructureMembers))]
+    public bool IsMemberTransformable(object property)
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return false;
+
+        if (property is Guid memberGuid)
+        {
+            var handler = doc.StructureHelper.Find(memberGuid);
+            return handler is ITransformableMemberHandler;
+        }
+
+        return false;
+    }
+
 
     [Evaluator.CanExecute("PixiEditor.Layer.HasMultipleSelectedMembers",
         nameof(DocumentManagerViewModel.ActiveDocument),
@@ -185,7 +233,8 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         return Owner.DocumentManagerSubViewModel.ActiveDocument is { BlockingUpdateableChangeActive: false };
     }
 
-    [Command.Internal("PixiEditor.Layer.ToggleLockTransparency", CanExecute = "PixiEditor.Layer.SelectedMemberIsLayer",
+    [Command.Internal("PixiEditor.Layer.ToggleLockTransparency",
+        CanExecute = "PixiEditor.Layer.SelectedMemberIsTransparencyLockable",
         AnalyticsTrack = true)]
     public void ToggleLockTransparency()
     {
@@ -280,6 +329,15 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     {
         var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
         return member is ILayerHandler;
+    }
+
+
+    [Evaluator.CanExecute("PixiEditor.Layer.SelectedMemberIsTransparencyLockable",
+        nameof(DocumentManagerViewModel.ActiveDocument), nameof(DocumentViewModel.SelectedStructureMember))]
+    public bool SelectedMemberIsTransparencyLockable(object property)
+    {
+        var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
+        return member is ITransparencyLockableMember;
     }
 
     [Evaluator.CanExecute("PixiEditor.Layer.SelectedLayerIsRasterizable",
@@ -396,6 +454,9 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         if (parent.Children.Count == 0)
             return;
         int curIndex = parent.Children.IndexOf(path[0]);
+        if (curIndex < 0)
+            return;
+
         if (upwards)
         {
             if (curIndex == parent.Children.Count - 1)
@@ -623,18 +684,59 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         var imagesFilter = new FileTypeDialogDataSet(FileTypeDialogDataSet.SetKind.Image).GetFormattedTypes(true);
         if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            var filePicker = await desktop.MainWindow.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions()
+            try
             {
-                Title = new LocalizedString("REFERENCE_LAYER_PATH"), FileTypeFilter = imagesFilter,
-            });
+                var filePicker = await desktop.MainWindow.StorageProvider.OpenFilePickerAsync(
+                    new FilePickerOpenOptions()
+                    {
+                        Title = new LocalizedString("REFERENCE_LAYER_PATH"), FileTypeFilter = imagesFilter,
+                    });
 
-            if (filePicker is null || filePicker.Count == 0)
-                return null;
+                if (filePicker is null || filePicker.Count == 0)
+                    return null;
 
-            return filePicker[0].Path.LocalPath;
+                return filePicker[0].Path.LocalPath;
+            }
+            catch (COMException e)
+            {
+                NoticeDialog.Show(title: "ERROR", message: new LocalizedString("COM_EXCEPTION_ERROR", e.Message));
+            }
         }
 
         return null;
+    }
+
+    [Command.Basic("PixiEditor.Layer.ResetTransformForSelected", "RESET_TRANSFORM", "RESET_TRANSFORM_DESCRIPTIVE",
+        CanExecute = "PixiEditor.Layer.HasTransformableMembers", Icon = PixiPerfectIcons.Reset, AnalyticsTrack = true)]
+    public void ResetTransform()
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return;
+
+        var selectedMembers = doc.ExtractSelectedLayers();
+        if (selectedMembers.Count == 0)
+            return;
+
+        var block = doc.Operations.StartChangeBlock();
+
+        foreach (var member in selectedMembers)
+        {
+            doc.Operations.ResetTransform(member);
+        }
+
+        block.Dispose();
+    }
+
+    [Command.Internal("PixiEditor.Layer.ResetTransformForMember",
+        CanExecute = "PixiEditor.Layer.IsMemberTransformable", AnalyticsTrack = true)]
+    public void ResetTransform(Guid memberGuid)
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return;
+
+        doc.Operations.ResetTransform(memberGuid);
     }
 
     [Command.Basic("PixiEditor.Layer.DeleteReferenceLayer", "DELETE_REFERENCE_LAYER", "DELETE_REFERENCE_LAYER",

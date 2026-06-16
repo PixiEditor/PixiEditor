@@ -5,6 +5,7 @@ using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.Models.DocumentModels.Public;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Layers;
 using PixiEditor.UI.Common.Localization;
@@ -65,6 +66,7 @@ internal class DocumentStructureHelper
                 guid, nodeType));
             name ??= GetUniqueName(defaultName, doc.NodeGraphHandler.OutputNode);
             internals.ActionAccumulator.AddActions(new StructureMemberName_Action(guid, name));
+            QueueSelectMember(guid);
             if (finish)
                 internals.ActionAccumulator.AddFinishedActions();
             return guid;
@@ -78,6 +80,7 @@ internal class DocumentStructureHelper
             internals.ActionAccumulator.AddActions(new CreateStructureMember_Action(folder.Id, guid, nodeType));
             name ??= GetUniqueName(defaultName, folder);
             internals.ActionAccumulator.AddActions(new StructureMemberName_Action(guid, name));
+            QueueSelectMember(guid);
             if (finish)
                 internals.ActionAccumulator.AddFinishedActions();
             return guid;
@@ -94,12 +97,31 @@ internal class DocumentStructureHelper
             internals.ActionAccumulator.AddActions(new CreateStructureMember_Action(parent.Id, guid, nodeType));
             name ??= GetUniqueName(defaultName, parent);
             internals.ActionAccumulator.AddActions(new StructureMemberName_Action(guid, name));
+            QueueSelectMember(guid);
             if (finish)
                 internals.ActionAccumulator.AddFinishedActions();
             return guid;
         }
 
         throw new ArgumentException($"Unknown member type: {type}");
+    }
+
+    private void QueueSelectMember(Guid guid)
+    {
+        internals.ActionAccumulator.AddActions(ActionSource.Automated, new InvokeAction_PassthroughAction(() =>
+        {
+            if (doc.SelectedStructureMember is not null)
+            {
+                doc.SelectedStructureMember.Selection = StructureMemberSelectionType.None;
+            }
+
+            var memberVM = doc.StructureHelper.Find(guid);
+            if (memberVM != null)
+            {
+                doc.SetSelectedMember(memberVM);
+                memberVM.Selection = StructureMemberSelectionType.Hard;
+            }
+        }));
     }
 
     public Guid? CreateNewStructureMember(Type structureMemberType, string? name, ActionSource source)
@@ -121,6 +143,7 @@ internal class DocumentStructureHelper
                 ? new LocalizedString("NEW_LAYER")
                 : new LocalizedString("NEW_FOLDER"), parent);
         internals.ActionAccumulator.AddActions(source, new StructureMemberName_Action(guid, name));
+
         if (source == ActionSource.User)
             internals.ActionAccumulator.AddFinishedActions();
         return guid;

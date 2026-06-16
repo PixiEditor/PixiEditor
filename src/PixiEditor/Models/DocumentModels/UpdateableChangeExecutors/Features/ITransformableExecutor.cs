@@ -8,6 +8,7 @@ namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 public interface ITransformableExecutor : IExecutorFeature
 {
     public bool IsTransforming { get; }
+    public void OnTransformStarted();
     public void OnTransformChanged(ShapeCorners corners); 
     public void OnTransformApplied();
     public void OnLineOverlayMoved(VecD start, VecD end);

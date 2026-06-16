@@ -2,6 +2,7 @@
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph.Blackboard;
 
 namespace PixiEditor.ChangeableDocument.Changes.NodeGraph.Blackboard;
@@ -10,6 +11,7 @@ internal class SetBlackboardVariable_Change : InterruptableUpdateableChange
 {
     private string variable;
     private object value;
+    private Type type;
 
     private bool existsInBlackboard;
     private object? originalValue;
@@ -19,11 +21,14 @@ internal class SetBlackboardVariable_Change : InterruptableUpdateableChange
     private string unit;
     private bool isExposed;
 
+
     [GenerateUpdateableChangeActions]
-    public SetBlackboardVariable_Change(string variable, object value, double min, double max, string unit, bool isExposed)
+    public SetBlackboardVariable_Change(string variable, object value, Type type, double min, double max, string unit,
+        bool isExposed)
     {
         this.variable = variable;
         this.value = value;
+        this.type = type;
         this.min = min;
         this.max = max;
         this.unit = unit;
@@ -46,14 +51,11 @@ internal class SetBlackboardVariable_Change : InterruptableUpdateableChange
         if (variable == null)
             return false;
 
-        if(target?.NodeGraph?.Blackboard?.Variables == null || string.IsNullOrEmpty(variable))
+        if (target?.NodeGraph?.Blackboard?.Variables == null || string.IsNullOrEmpty(variable))
             return false;
 
         if (target.NodeGraph.Blackboard.Variables.TryGetValue(variable, out var blackboardVariable) &&
             !IsTypeAssignable(blackboardVariable) && !TryConvert(blackboardVariable?.Type, ref value))
-            return false;
-
-        if (blackboardVariable == null && value == null)
             return false;
 
         originalValue = blackboardVariable?.Value;
@@ -64,9 +66,12 @@ internal class SetBlackboardVariable_Change : InterruptableUpdateableChange
 
     private bool IsTypeAssignable(Variable blackboardVariable)
     {
+        if (value == null && blackboardVariable?.Type is { IsValueType: false })
+            return true;
+
         if (blackboardVariable?.Type == null || value == null)
             return false;
-        
+
         return value.GetType().IsAssignableTo(blackboardVariable.Type);
     }
 
@@ -79,6 +84,7 @@ internal class SetBlackboardVariable_Change : InterruptableUpdateableChange
                 val = Convert.ChangeType(val, targetType);
                 return true;
             }
+
             return false;
         }
         catch
@@ -96,19 +102,53 @@ internal class SetBlackboardVariable_Change : InterruptableUpdateableChange
 
     private OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target)
     {
+        target.NodeGraph.StartListenToPropertyChanges();
         if (target.NodeGraph.Blackboard.GetVariable(variable) == null)
         {
-            Type type = value.GetType();
             target.NodeGraph.Blackboard.SetVariable(variable, type, value, unit, min, max, isExposed);
             InformBlackboardAccessingNodes(target, variable);
-            return new List<IChangeInfo>() {new BlackboardVariable_ChangeInfo(variable, value.GetType(), value, min, max, unit), new BlackboardVariableExposed_ChangeInfo(variable, isExposed)};
+            var changed = target.NodeGraph.StopListenToPropertyChanges();
+            var changes = new List<IChangeInfo>()
+            {
+                new BlackboardVariable_ChangeInfo(variable, type, value, min, max, unit),
+                new BlackboardVariableExposed_ChangeInfo(variable, isExposed)
+            };
+
+            foreach (var nodeId in changed)
+            {
+                Node n = target.FindNode(nodeId);
+
+                changes.Add(NodeInputsChanged_ChangeInfo.FromNode(n));
+                changes.Add(NodeOutputsChanged_ChangeInfo.FromNode(n));
+            }
+
+            return changes;
         }
 
-        var oldVar = target.NodeGraph.Blackboard.Variables[variable];
-        target.NodeGraph.Blackboard.SetVariable(variable, oldVar.Type, value, oldVar.Unit, min, max, isExposed);
+        var oldVar = target.NodeGraph.Blackboard.Variables.GetValueOrDefault(variable);
+
+        target.NodeGraph.Blackboard.SetVariable(variable, oldVar?.Type, value, oldVar?.Unit, min, max, isExposed);
 
         InformBlackboardAccessingNodes(target, variable);
-        return new List<IChangeInfo>() { new BlackboardVariable_ChangeInfo(variable, oldVar.Type, value, oldVar.Min ?? double.MinValue, oldVar.Max ?? double.MaxValue, oldVar.Unit), new BlackboardVariableExposed_ChangeInfo(variable, isExposed) };
+
+        var changedIo = target.NodeGraph.StopListenToPropertyChanges();
+
+        var toReturn = new List<IChangeInfo>()
+        {
+            new BlackboardVariable_ChangeInfo(variable, oldVar?.Type, value, oldVar?.Min ?? double.MinValue,
+                oldVar?.Max ?? double.MaxValue, oldVar?.Unit),
+            new BlackboardVariableExposed_ChangeInfo(variable, isExposed)
+        };
+
+        foreach (var nodeId in changedIo)
+        {
+            Node n = target.FindNode(nodeId);
+
+            toReturn.Add(NodeInputsChanged_ChangeInfo.FromNode(n));
+            toReturn.Add(NodeOutputsChanged_ChangeInfo.FromNode(n));
+        }
+
+        return toReturn;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> ApplyTemporarily(Document target)
@@ -118,17 +158,49 @@ internal class SetBlackboardVariable_Change : InterruptableUpdateableChange
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
+        target.NodeGraph.StartListenToPropertyChanges();
         if (!existsInBlackboard)
         {
             target.NodeGraph.Blackboard.RemoveVariable(variable);
+            var changed = target.NodeGraph.StopListenToPropertyChanges();
             InformBlackboardAccessingNodes(target, variable);
-            return new BlackboardVariableRemoved_ChangeInfo(variable);
+            var changes = new List<IChangeInfo>()
+            {
+                new BlackboardVariableRemoved_ChangeInfo(variable)
+            };
+
+            foreach (var nodeId in changed)
+            {
+                Node n = target.FindNode(nodeId);
+
+                changes.Add(NodeInputsChanged_ChangeInfo.FromNode(n));
+                changes.Add(NodeOutputsChanged_ChangeInfo.FromNode(n));
+            }
+
+            return changes;
         }
 
-        var currentVar = target.NodeGraph.Blackboard.Variables[variable];
-        target.NodeGraph.Blackboard.SetVariable(variable, currentVar.Type, originalValue!);
+        var currentVar = target.NodeGraph.Blackboard.Variables.GetValueOrDefault(variable);
+        target.NodeGraph.Blackboard.SetVariable(variable, currentVar?.Type, originalValue!);
         InformBlackboardAccessingNodes(target, variable);
-        return new List<IChangeInfo>() {new BlackboardVariable_ChangeInfo(variable, currentVar.Type, currentVar.Value, currentVar.Min ?? double.MinValue, currentVar.Max ?? double.MaxValue, currentVar.Unit), new BlackboardVariableExposed_ChangeInfo(variable, currentVar.IsExposed)};
+        var changedIo = target.NodeGraph.StopListenToPropertyChanges();
+
+        var toReturn = new List<IChangeInfo>()
+        {
+            new BlackboardVariable_ChangeInfo(variable, currentVar?.Type, currentVar?.Value,
+                currentVar?.Min ?? double.MinValue, currentVar?.Max ?? double.MaxValue, currentVar?.Unit),
+            new BlackboardVariableExposed_ChangeInfo(variable, currentVar?.IsExposed ?? false)
+        };
+
+        foreach (var nodeId in changedIo)
+        {
+            Node n = target.FindNode(nodeId);
+
+            toReturn.Add(NodeInputsChanged_ChangeInfo.FromNode(n));
+            toReturn.Add(NodeOutputsChanged_ChangeInfo.FromNode(n));
+        }
+
+        return toReturn;
     }
 
     private void InformBlackboardAccessingNodes(Document target, string variableName)

@@ -47,6 +47,8 @@ internal class CreateNode_Change : Change
         node.Position = new VecD(0, 0);
         node.Id = id;
 
+        node.Execute(RenderContext.Empty);
+
         target.NodeGraph.AddNode(node);
         ignoreInUndo = false;
 

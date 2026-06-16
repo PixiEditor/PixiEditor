@@ -20,6 +20,10 @@
 
     <viewportControls:Viewport
         x:Name="Viewport"
+        ApplyTransformTrigger="{Binding ApplyTransformTrigger}"
+        AngleRadians="{Binding SceneAngleRadians, Mode=OneWayToSource}"
+        Center="{Binding SceneCenter, Mode=OneWayToSource}"
+        Scale="{Binding SceneScale, Mode=OneWayToSource}"
         CenterViewportTrigger="{Binding CenterViewportTrigger}"
         ZoomViewportTrigger="{Binding ZoomViewportTrigger}"
         MouseDownCommand="{Binding Path=IoSubViewModel.MouseDownCommand, Source={viewModels1:MainVM}}"

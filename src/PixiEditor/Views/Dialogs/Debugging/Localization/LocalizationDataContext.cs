@@ -5,14 +5,15 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Avalonia;
+using Avalonia.Media;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
+using PixiEditor.Helpers;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.OperatingSystem;
 using PixiEditor.UI.Common.Localization;
@@ -28,9 +29,11 @@ internal class LocalizationDataContext : PixiObservableObject
     private Dispatcher dispatcher;
     private string apiKey;
     private bool loggedIn;
-    private LocalizedString statusMessage = "NOT_LOGGED_IN";
+    private LocalizedString statusMessage = "Not logged in";
     private PoeLanguage selectedLanguage;
-
+    private bool previouslySelectedLanguageRTL = false;
+    public IReadOnlyDictionary<string, string>? previouslySelectedLanguageKeys = null;
+    
     public DebugViewModel DebugViewModel { get; } = ViewModelMain.Current.DebugSubViewModel;
 
     public string ApiKey
@@ -58,44 +61,63 @@ internal class LocalizationDataContext : PixiObservableObject
         set => SetProperty(ref statusMessage, value);
     }
 
-    public PoeLanguage SelectedLanguage
+    public PoeLanguage? SelectedLanguage
     {
         get => selectedLanguage;
         set
         {
             if (SetProperty(ref selectedLanguage, value))
             {
-                ApplyLanguageCommand.NotifyCanExecuteChanged();
+                DownloadApplyLanguageCommand.NotifyCanExecuteChanged();
             }
         }
+    }
+
+    public IReadOnlyDictionary<string, string>? PreviouslySelectedLanguageKeys
+    {
+        get => previouslySelectedLanguageKeys;
+        private set => SetProperty(ref previouslySelectedLanguageKeys, value);
     }
 
     public ObservableCollection<PoeLanguage> LanguageCodes { get; } = new();
 
     public RelayCommand LoadApiKeyCommand { get; }
 
-    public RelayCommand ApplyLanguageCommand { get; }
-
-    public AsyncRelayCommand CopySelectedUpdatedCommand { get; }
+    public RelayCommand DownloadApplyLanguageCommand { get; }
     
-    public RelayCommand UpdateSourceCommand { get; }
+    public RelayCommand QuickSwitchToPreviousLanguageCommand { get; }
+
+    public AsyncRelayCommand CopySelectedPOEditorUpdatedDateCommand { get; }
+    
+    public AsyncRelayCommand CopySelectedBuiltinUpdatedDateCommand { get; }
+    
+    public RelayCommand UpdateLanguageJsonInSourceCodeCommand { get; }
 
     public LocalizationDataContext()
     {
         dispatcher = Dispatcher.UIThread;
         apiKey = PixiEditorSettings.Debug.PoEditorApiKey.Value;
         LoadApiKeyCommand = new RelayCommand(LoadApiKey, () => !string.IsNullOrWhiteSpace(apiKey));
-        ApplyLanguageCommand =
-            new RelayCommand(ApplyLanguage, () => loggedIn && SelectedLanguage != null);
-        CopySelectedUpdatedCommand = new AsyncRelayCommand(CopySelectedAsync);
-        UpdateSourceCommand = new RelayCommand(UpdateSource);
+        DownloadApplyLanguageCommand =
+            new RelayCommand(DownloadApplyLanguage, () => loggedIn && SelectedLanguage != null);
+        CopySelectedPOEditorUpdatedDateCommand = new AsyncRelayCommand(CopySelectedPOEditorUpdatedDateAsync);
+        CopySelectedBuiltinUpdatedDateCommand = new AsyncRelayCommand(CopySelectedBuiltinUpdatedDateAsync);
+        UpdateLanguageJsonInSourceCodeCommand = new RelayCommand(UpdateLanguageJsonInSourceCode);
+        QuickSwitchToPreviousLanguageCommand = new RelayCommand(QuickSwitchToPreviousLanguage);
     }
 
-    private async Task CopySelectedAsync()
+    private async Task CopySelectedBuiltinUpdatedDateAsync()
     {
         await Application.Current.ForDesktopMainWindowAsync(async x =>
             await x.Clipboard.SetTextAsync(
-                SelectedLanguage.UpdatedUTC.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)));
+                SelectedLanguage.BuiltinEquivalent.LastUpdatedUTC.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)));
+    }
+    
+    private async Task CopySelectedPOEditorUpdatedDateAsync()
+    {
+        await Application.Current.ForDesktopMainWindowAsync(async x =>
+            await x.Clipboard.SetTextAsync(
+                SelectedLanguage.LastUpdatedUTC.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)));
     }
 
     private void LoadApiKey()
@@ -122,9 +144,9 @@ internal class LocalizationDataContext : PixiObservableObject
                                  .OrderByDescending(x =>
                                      CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == x.Code ||
                                      CultureInfo.InstalledUICulture.TwoLetterISOLanguageName == x.Code)
-                                 .ThenByDescending(x => x.UpdatedUTC))
+                                 .ThenByDescending(x => x.LastUpdatedUTC))
                     {
-                        language.LocalEquivalent = ILocalizationProvider.Current.LocalizationData.Languages
+                        language.BuiltinEquivalent = ILocalizationProvider.Current.LocalizationData.Languages
                             .OrderByDescending(x => language.Code == x.Code)
                             .FirstOrDefault(x => language.Code.StartsWith(x.Code));
 
@@ -140,13 +162,36 @@ internal class LocalizationDataContext : PixiObservableObject
         });
     }
 
-    private void ApplyLanguage()
+    private void QuickSwitchToPreviousLanguage()
+    {
+        if (PreviouslySelectedLanguageKeys == null) 
+            return;
+        
+        var switchingTo = PreviouslySelectedLanguageKeys.ToDictionary();
+        bool switchingToRTL = previouslySelectedLanguageRTL;
+        
+        PreviouslySelectedLanguageKeys = DebugViewModel.Owner.LocalizationProvider.CurrentLanguage.Locale;
+        previouslySelectedLanguageRTL = DebugViewModel.Owner.LocalizationProvider.CurrentLanguage.FlowDirection == FlowDirection.RightToLeft;
+
+        dispatcher.Invoke(() =>
+        {
+            DebugViewModel.Owner.LocalizationProvider.LoadDebugKeys(switchingTo,
+                switchingToRTL);
+        });
+    }
+
+    private void DownloadApplyLanguage()
     {
         Task.Run(async () =>
         {
             try
             {
                 var result = await DownloadLanguage(ApiKey, SelectedLanguage.Code);
+                if (result.IsSuccess) 
+                {
+                    PreviouslySelectedLanguageKeys = DebugViewModel.Owner.LocalizationProvider.CurrentLanguage.Locale;
+                    previouslySelectedLanguageRTL = DebugViewModel.Owner.LocalizationProvider.CurrentLanguage.FlowDirection == FlowDirection.RightToLeft;
+                }
 
                 dispatcher.Invoke(() =>
                 {
@@ -162,9 +207,9 @@ internal class LocalizationDataContext : PixiObservableObject
         });
     }
 
-    private void UpdateSource()
+    private void UpdateLanguageJsonInSourceCode()
     {
-        if (!GetProjectRoot(out var localizationRoot))
+        if (!GetPixiEditorProjectRoot(out var localizationRoot))
         {
             return;
         }
@@ -173,7 +218,7 @@ internal class LocalizationDataContext : PixiObservableObject
 
         if (!File.Exists(dataPath))
         {
-            NoticeDialog.Show("LOCALIZATION_DATA_NOT_FOUND", "ERROR");
+            NoticeDialog.Show("Localization data path not found", "ERROR");
         }
 
         string code = SelectedLanguage.Code;
@@ -190,12 +235,13 @@ internal class LocalizationDataContext : PixiObservableObject
     {
         // Fetch latest data to make sure data is up to date
         var languages = await CheckProjectByIdAsync(apiKey);
-
+        
+        string downloadFailedErrorMessage = "Downloading language failed.\nAPI Key might have been overused.";
         if (!languages.IsSuccess)
         {
             dispatcher.Invoke(() =>
             {
-                NoticeDialog.Show(new LocalizedString("DOWNLOADING_LANGUAGE_FAILED", languages.Message), "ERROR");
+                NoticeDialog.Show(downloadFailedErrorMessage + "Error:" + languages.Message, "ERROR");
             });
         }
 
@@ -209,25 +255,25 @@ internal class LocalizationDataContext : PixiObservableObject
             {
                 dispatcher.Invoke(() =>
                 {
-                    NoticeDialog.Show(new LocalizedString("DOWNLOADING_LANGUAGE_FAILED", languageData.Message), "ERROR");
+                    NoticeDialog.Show(downloadFailedErrorMessage + "Error:" + languages.Message, "ERROR");
                 });
             }
             
-            await File.WriteAllTextAsync(path, JsonConvert.SerializeObject(languageData.Output, Formatting.Indented));
+            await File.WriteAllTextAsync(path, JsonSerializer.Serialize(languageData.Output, JsonOptions.CasesInsensitiveIndented));
         }
         catch (Exception e)
         {
             dispatcher.Invoke(() =>
             {
-                NoticeDialog.Show(new LocalizedString("DOWNLOADING_LANGUAGE_FAILED", e), "ERROR");
+                NoticeDialog.Show("Downloading language failed.\nAPI Key might have been overused.", "ERROR");
             });
         }
 
         dispatcher.Invoke(() =>
         {
-            Application.Current.ForDesktopMainWindow(x => x.Clipboard.SetTextAsync(language.UpdatedUTC.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)));
+            Application.Current.ForDesktopMainWindow(x => x.Clipboard.SetTextAsync(language.LastUpdatedUTC.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)));
             
-            var dialog = new OptionsDialog<string>("SUCCESS", new LocalizedString("OPEN_LOCALIZATION_DATA"), MainWindow.Current);
+            var dialog = new OptionsDialog<string>("SUCCESS", "Do you want to open the LocalizationData.json?\nThe updated date has been put in the clipboard.\nNote that changes wont be applied until a restart", MainWindow.Current);
             dialog["VS Code"] = _ => IOperatingSystem.Current.ProcessUtility.ShellExecute($"vscode://file/{dataPath}");
             dialog[new LocalizedString("DEFAULT")] = _ => IOperatingSystem.Current.ProcessUtility.ShellExecute(dataPath);
             dialog[new LocalizedString("CANCEL")] = null;
@@ -272,18 +318,18 @@ internal class LocalizationDataContext : PixiObservableObject
             return true;
         }
 
-        NoticeDialog.Show(new LocalizedString("LANGUAGE_FILE_NOT_FOUND", $"{Path.GetFileName(file)} or {Path.GetFileName(file2)}"), "ERROR");
+        NoticeDialog.Show($"Language file not found.\\nLooking for {Path.GetFileName(file)} or {Path.GetFileName(file2)}", "ERROR");
         return false;
     }
 
-    private static bool GetProjectRoot([NotNullWhen(true)] out string? root)
+    private static bool GetPixiEditorProjectRoot([NotNullWhen(true)] out string? root)
     {
-        const string fileName = "PixiEditor.csproj";
+        const string solutionFileName = "PixiEditor.sln";
         root = Directory.GetCurrentDirectory();
 
         while (root != null)
         {
-            string[] files = Directory.GetFiles(root, fileName, SearchOption.TopDirectoryOnly);
+            string[] files = Directory.GetFiles(root, solutionFileName, SearchOption.TopDirectoryOnly);
 
             if (files.Length > 0)
             {
@@ -297,15 +343,22 @@ internal class LocalizationDataContext : PixiObservableObject
 
         if (!Directory.Exists(root))
         {
-            NoticeDialog.Show("PROJECT_ROOT_NOT_FOUND", "ERROR");
+            NoticeDialog.Show($"PixiEditor solution root not found.\nLooking for {solutionFileName}", "ERROR");
             return false;
+        }
+        
+        root = Path.Combine(root, "PixiEditor");
+        const string projectFileName = "PixiEditor.csproj";
+        if (!File.Exists(Path.Combine(root, projectFileName)))
+        {
+            NoticeDialog.Show($"PixiEditor project root not found.\nLooking for {projectFileName}", "ERROR");
         }
         
         root = Path.Combine(root, "Data", "Localization");
         
         if (!Directory.Exists(root))
         {
-            NoticeDialog.Show("LOCALIZATION_FOLDER_NOT_FOUND", "ERROR");
+            NoticeDialog.Show("Localization folder not found.\nLooking for /Data/Localization", "ERROR");
             return false;
         }
 
@@ -326,12 +379,12 @@ internal class LocalizationDataContext : PixiObservableObject
             return result.As<PoeLanguage[]>();
         }
 
-        var projects = (JArray)result.Output["result"]["projects"];
+        var projects = result.Output.RootElement.GetProperty("result").GetProperty("projects").EnumerateArray();
 
         // Check if user is part of project
-        if (!projects.Any(x => x["id"].Value<int>() == ProjectId))
+        if (projects.All(x => x.GetProperty("id").GetInt32() != ProjectId))
         {
-            return Error("LOGGED_IN_NO_PROJECT_ACCESS");
+            return Error("The given API key does not allow access to the PixiEditor project on POEditor");
         }
 
         response = await PostAsync(client, "https://api.poeditor.com/v2/languages/list", key,
@@ -343,9 +396,13 @@ internal class LocalizationDataContext : PixiObservableObject
             return result.As<PoeLanguage[]>();
         }
 
-        var languages = result.Output["result"]["languages"].ToObject<PoeLanguage[]>();
+        var languages = result.Output.RootElement.GetProperty("result")
+            .GetProperty("languages")
+            .EnumerateArray()
+            .Select(x => x.Deserialize<PoeLanguage>(JsonOptions.CasesInsensitive))
+            .ToArray();
 
-        return Result.Success(new LocalizedString("LOGGED_IN"), languages);
+        return Result.Success("Logged in", languages);
 
         Result<PoeLanguage[]> Error(LocalizedString message) => Result.Error<PoeLanguage[]>(message);
     }
@@ -370,47 +427,47 @@ internal class LocalizationDataContext : PixiObservableObject
             return result.As<Dictionary<string, string>>();
         }
 
-        response = await client.GetAsync(result.Output["result"]["url"].Value<string>());
+        response = await client.GetAsync(result.Output.RootElement.GetProperty("result").GetProperty("url").GetString());
 
         // Failed with an HTTP error code, according to API docs this should not be possible
         if (!response.IsSuccessStatusCode)
         {
-            return Error(new LocalizedString("HTTP_ERROR_MESSAGE", (int)response.StatusCode, response.StatusCode));
+            return Error($"HTTP Error: {(int)response.StatusCode} {response.StatusCode}");
         }
 
         string responseJson = await response.Content.ReadAsStringAsync();
-        var keys = JsonConvert.DeserializeObject<Dictionary<string, string>>(responseJson);
+        var keys = JsonSerializer.Deserialize<Dictionary<string, string>>(responseJson);
 
-        return Result.Success("SYNCED_SUCCESSFULLY", keys);
+        return Result.Success("Synced successfully", keys);
 
         Result<Dictionary<string, string>> Error(LocalizedString message) =>
             Result.Error<Dictionary<string, string>>(message);
     }
 
-    private static async Task<Result<JObject>> ParseResponseAsync(HttpResponseMessage response)
+    private static async Task<Result<JsonDocument>> ParseResponseAsync(HttpResponseMessage response)
     {
         // Failed with an HTTP error code, according to API docs this should not be possible
         if (!response.IsSuccessStatusCode)
         {
-            return Error("HTTP_ERROR_MESSAGE", (int)response.StatusCode, response.StatusCode);
+            return Error($"HTTP Error: {(int)response.StatusCode} {response.StatusCode}");
         }
 
         string jsonResponse = await response.Content.ReadAsStringAsync();
-        var root = JObject.Parse(jsonResponse);
+        var root = JsonDocument.Parse(jsonResponse);
 
-        var rsp = root["response"];
-        string rspCode = rsp["code"].Value<string>();
+        var rsp = root.RootElement.GetProperty("response");
+        string rspCode = rsp.GetProperty("code").GetString();
 
         // Failed with an error code from the POEditor API, alongside a message
         if (rspCode != "200")
         {
-            return Error("POE_EDITOR_ERROR", rspCode, rsp["message"].Value<string>());
+            return Error($"POEditor Error: {rspCode} {rsp.GetProperty("message").GetString()}");
         }
 
         return Result.Success(root);
 
-        Result<JObject> Error(string key, params object[] param) =>
-            Result.Error<JObject>(new LocalizedString(key, param));
+        Result<JsonDocument> Error(string key, params object[] param) =>
+            Result.Error<JsonDocument>(new LocalizedString(key, param));
     }
 
     private static Task<HttpResponseMessage> PostAsync(HttpClient client, string requestUri, string apiKey,

@@ -6,6 +6,7 @@ using PixiEditor.Models.BrushEngine;
 using PixiEditor.Models.IO;
 using PixiEditor.Parser;
 using PixiEditor.ViewModels.Document;
+using PixiEditor.ViewModels.SubViewModels;
 
 namespace PixiEditor.Models.Serialization.Factories;
 
@@ -23,6 +24,7 @@ internal class DocumentSerializationFactory : SerializationFactory<byte[], Docum
         writer.WriteString(originalFilePath ?? string.Empty);
         writer.WriteString(original.ReferenceId.ToString());
         writer.WriteInt(handle);
+        writer.WriteString(original.DisplayName);
         return writer.ToArray();
     }
 
@@ -36,19 +38,28 @@ internal class DocumentSerializationFactory : SerializationFactory<byte[], Docum
             string referenceId = reader.ReadString();
             Guid refIdGuid = Guid.Parse(referenceId);
             int handle = reader.ReadInt();
+            string displayName = "UNNAMED";
+            if (!IsFilePreVersion(serializerData, new Version(2, 1, 0, 19)))
+            {
+                displayName = reader.ReadString();
+            }
 
             if (ResourceLocator.ContainsInstance(handle))
             {
                 var existing = ResourceLocator.GetInstance<DocumentViewModel>(handle);
-                original = new DocumentReference(originalFilePath, refIdGuid, existing.AccessInternalReadOnlyDocument().Clone());
+                original = new DocumentReference(originalFilePath, refIdGuid, existing.AccessInternalReadOnlyDocument().Clone())
+                {
+                    DisplayName = displayName
+                };
                 return true;
             }
 
             if (File.Exists(originalFilePath))
             {
-                var doc = Importer.ImportDocument(originalFilePath);
+                var doc = FileViewModel.ImportFromPath(originalFilePath);
                 ResourceLocator.RegisterInstance(handle, doc);
-                original = new DocumentReference(originalFilePath, refIdGuid, doc.AccessInternalReadOnlyDocument().Clone());
+                original = new DocumentReference(originalFilePath, refIdGuid,
+                    doc.AccessInternalReadOnlyDocument().Clone()) { DisplayName = displayName };
                 return true;
             }
 
@@ -63,7 +74,8 @@ internal class DocumentSerializationFactory : SerializationFactory<byte[], Docum
                 return false;
             }
 
-            original = new DocumentReference(originalFilePath == string.Empty ? null : originalFilePath, refIdGuid, data.AccessInternalReadOnlyDocument());
+            original = new DocumentReference(originalFilePath == string.Empty ? null : originalFilePath, refIdGuid,
+                data.AccessInternalReadOnlyDocument()) { DisplayName = displayName };
             return true;
         }
 

@@ -11,7 +11,7 @@ public class SvgClipPath() : SvgElement("clipPath"), IElementContainer
 
     public SvgProperty<SvgEnumUnit<SvgRelativityUnit>> ClipPathUnits { get; } = new("clipPathUnits");
 
-    public override void ParseData(XmlReader reader, SvgDefs defs)
+    public override void ParseAttributes(XmlReader reader, SvgDefs defs)
     {
         List<SvgProperty> properties = new List<SvgProperty>() { ClipPathUnits };
         ParseAttributes(properties, reader, defs);

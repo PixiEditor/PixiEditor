@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 100 100">
+  <a xlink:href="http://www.tbray.org/ongoing/When/200x/2004/01/11/PostelPilgrim">
+  <path d="M10,15c10,10,10,0,40,0c30,0,30,10,40,0q-10,30-40,30q-30,0-40-30" stroke="black" fill="red"/>
+  <ellipse stroke="black" fill="white" cx="50" cy="40" rx="22" ry="35"/>
+  <circle cx="50" cy="40" r="5" stroke="black" fill="red"/>
+  <circle cx="48" cy="38" r="1" fill="white"/>
+  <path d="M35,45C40,75,60,75,65,45Q50,60,35,45Z" stroke="red" stroke-width="2" stroke-linejoin="round"/>
+  <circle cx="40" cy="30" r="2"/>
+  <circle cx="60" cy="30" r="2"/>
+  <path d="M35,30q5-10,10,0q-5-30-10,0" stroke="black" fill="none"/>
+  <path d="M55,30q5-10,10,0q-5-30-10,0" stroke="black" fill="none"/>
+  </a>
+</svg>

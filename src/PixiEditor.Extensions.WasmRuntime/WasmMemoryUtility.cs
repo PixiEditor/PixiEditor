@@ -15,8 +15,8 @@ public class WasmMemoryUtility
     {
         this.instance = instance;
         memory = instance.GetMemory("memory");
-        malloc = instance.GetFunction<int, int>("malloc");
-        free = instance.GetAction<int>("free");
+        malloc = instance.GetFunction<int, int>("malloc") ?? instance.GetFunction<int, int>("_malloc") ?? throw new Exception("malloc function not found in WASM module.");
+        free = instance.GetAction<int>("free")  ?? instance.GetAction<int>("_free")  ?? throw new Exception("free function not found in WASM module.");
     }
 
     public string GetString(int offset, int length)

@@ -32,6 +32,7 @@
 
             <Color x:Key="ErrorColor">#B00020</Color>
             <Color x:Key="ErrorOnDarkColor">#FF4267</Color>
+            <Color x:Key="WarningOnDarkColor">#ffcc00</Color>
 
             <Color x:Key="GlyphColor">#444</Color>
             <Color x:Key="GlyphBackground">White</Color>
@@ -55,6 +56,7 @@
             <Color x:Key="DoubleSocketColor">#eea55c</Color>
             <Color x:Key="ColorSocketColor">#8cf2dd</Color>
             <Color x:Key="PaintableSocketColor">#48b099</Color>
+            <Color x:Key="GradientPaintableSocketColor">#0dd773</Color>
             <Color x:Key="VecDSocketColor">#c984ca</Color>
             <Color x:Key="Vec3DSocketColor">#597513</Color>
             <Color x:Key="VecISocketColor">#c9b4ca</Color>
@@ -63,6 +65,7 @@
             <Color x:Key="EllipseDataSocketColor">#a473a5</Color>
             <Color x:Key="LineDataSocketColor">#816382</Color>
             <Color x:Key="RectangleDataSocketColor">#825e8a</Color>
+            <Color x:Key="PathDataSocketColor">#7a325e</Color>
             <Color x:Key="PointsDataSocketColor">#e1d0e1</Color>
             <Color x:Key="TextDataSocketColor">#f2f2f2</Color>
             <Color x:Key="Matrix3X3SocketColor">#ffea4f</Color>
@@ -70,6 +73,7 @@
             <Color x:Key="IReadOnlyNodeGraphColor">#E86A9E</Color>
             <Color x:Key="EnumSocketColor">#a6aeba</Color>
             <Color x:Key="BrushSocketColor">#DA3434</Color>
+            <Color x:Key="FontFamilyNameSocketColor">#c7cfdc</Color>
 
             <GradientStops x:Key="ShapeDataSocketGradient">
                 <GradientStop Offset="0" Color="{StaticResource EllipseDataSocketColor}" />
@@ -119,6 +123,7 @@
             <Color x:Key="SnapPointPreviewColor">#68abdf</Color>
 
             <Color x:Key="FoundersPurpleColor">#cba3ff</Color>
+            <Color x:Key="FoundersPurpleColorLow">#35313a</Color>
 
             <Color x:Key="AutosaveDotColor">white</Color>
             <Color x:Key="UnsavedDotColor">white</Color>
@@ -137,6 +142,7 @@
             <SolidColorBrush x:Key="ThemeAccentHighBrush" Color="{StaticResource AccentHighColor}" />
             <SolidColorBrush x:Key="ThemeAccent2Brush" Color="{StaticResource ThemeAccent2Color}" />
             <SolidColorBrush x:Key="ThemeAccent2TranslucentBrush" Color="{StaticResource ThemeAccent2TranslucentColor}" />
+            <SolidColorBrush x:Key="ThemeAccent2LowBrush" Color="{StaticResource ThemeAccent2Color}" Opacity="0.1" />
             <SolidColorBrush x:Key="ThemeAccent3Brush" Color="{StaticResource ThemeAccent3Color}" />
 
             <SolidColorBrush x:Key="ThemeForegroundBrush" Color="{StaticResource ThemeForegroundColor}" />
@@ -158,6 +164,7 @@
 
             <SolidColorBrush x:Key="ErrorBrush" Color="{StaticResource ErrorColor}" />
             <SolidColorBrush x:Key="ErrorOnDarkBrush" Color="{StaticResource ErrorOnDarkColor}" />
+            <SolidColorBrush x:Key="WarningOnDarkBrush" Color="{StaticResource WarningOnDarkColor}" />
             <SolidColorBrush x:Key="GlyphBrush" Color="{StaticResource GlyphColor}" />
             <SolidColorBrush x:Key="ThumbBrush" Color="{StaticResource ThumbColor}" />
 
@@ -177,8 +184,10 @@
             <SolidColorBrush x:Key="SingleSocketBrush" Color="{StaticResource FloatSocketColor}" />
             <SolidColorBrush x:Key="DoubleSocketBrush" Color="{StaticResource DoubleSocketColor}" />
             <SolidColorBrush x:Key="Float1SocketBrush" Color="{StaticResource DoubleSocketColor}" />
+            <SolidColorBrush x:Key="BoolSocketBrush" Color="{StaticResource BoolSocketColor}" />
             <SolidColorBrush x:Key="ColorSocketBrush" Color="{StaticResource ColorSocketColor}" />
             <SolidColorBrush x:Key="PaintableSocketBrush" Color="{StaticResource PaintableSocketColor}" />
+            <SolidColorBrush x:Key="GradientPaintableSocketBrush" Color="{StaticResource GradientPaintableSocketColor}" />
             <SolidColorBrush x:Key="Half4SocketBrush" Color="{StaticResource ColorSocketColor}" />
             <SolidColorBrush x:Key="VecDSocketBrush" Color="{StaticResource VecDSocketColor}" />
             <SolidColorBrush x:Key="Vec3DSocketBrush" Color="{StaticResource Vec3DSocketColor}" />
@@ -194,8 +203,10 @@
             <SolidColorBrush x:Key="IReadOnlyNodeGraphSocketBrush" Color="{StaticResource IReadOnlyNodeGraphColor}" />
             <SolidColorBrush x:Key="EnumSocketBrush" Color="{StaticResource EnumSocketColor}" />
             <SolidColorBrush x:Key="BrushSocketBrush" Color="{StaticResource BrushSocketColor}" />
+            <SolidColorBrush x:Key="FontFamilyNameSocketBrush" Color="{StaticResource FontFamilyNameSocketColor}" />
 
             <SolidColorBrush x:Key="FoundersPurpleBrush" Color="{StaticResource FoundersPurpleColor}" />
+            <SolidColorBrush x:Key="FoundersPurpleLowBrush" Color="{StaticResource FoundersPurpleColorLow}" />
 
             <ConicGradientBrush x:Key="ShapeVectorDataSocketBrush"
                                 GradientStops="{StaticResource ShapeDataSocketGradient}" />
@@ -205,6 +216,7 @@
             <SolidColorBrush x:Key="EllipseVectorDataSocketBrush" Color="{StaticResource EllipseDataSocketColor}" />
             <SolidColorBrush x:Key="LineVectorDataSocketBrush" Color="{StaticResource LineDataSocketColor}" />
             <SolidColorBrush x:Key="RectangleVectorDataSocketBrush" Color="{StaticResource RectangleDataSocketColor}" />
+            <SolidColorBrush x:Key="PathVectorDataSocketBrush" Color="{StaticResource PathDataSocketColor}" />
             <SolidColorBrush x:Key="PointsVectorDataSocketBrush" Color="{StaticResource PointsDataSocketColor}" />
             <SolidColorBrush x:Key="TextVectorDataSocketBrush" Color="{StaticResource TextDataSocketColor}" />
 

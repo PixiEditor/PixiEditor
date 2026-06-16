@@ -162,6 +162,7 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
         if (ActiveMode != ShapeToolMode.Transform)
             return;
 
+        base.OnTransformChanged(corners);
         var shapeData = ShapeDataFromCorners(corners);
         IAction drawAction = TransformMovedAction(shapeData, corners);
 
@@ -231,10 +232,18 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
 
         if (CanEditShape(layer))
         {
-            internals!.ActionAccumulator.AddFinishedActions(
-                EndDrawAction(),
-                SettingsChangedAction("FillAndStroke", color),
-                EndDrawAction());
+            if (ApplyEachSettingsChange)
+            {
+                internals!.ActionAccumulator.AddFinishedActions(
+                    EndDrawAction(),
+                    SettingsChangedAction("FillAndStroke", color),
+                    EndDrawAction());
+            }
+            else
+            {
+                internals!.ActionAccumulator.AddFinishedActions(
+                    SettingsChangedAction("FillAndStroke", color));
+            }
         }
     }
 

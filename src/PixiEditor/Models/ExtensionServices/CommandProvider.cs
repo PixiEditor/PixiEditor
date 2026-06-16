@@ -18,6 +18,7 @@ public class CommandProvider : ICommandProvider
     {
         _iconLookupProvider = iconLookupProvider;
     }
+
     public void RegisterCommand(CommandMetadata command, Action execute, Func<bool>? canExecute = null)
     {
         CanExecuteEvaluator evaluator = CanExecuteEvaluator.AlwaysTrue;
@@ -37,6 +38,72 @@ public class CommandProvider : ICommandProvider
         Command.BasicCommand basicCommand = new Command.BasicCommand(_ => execute(), evaluator)
         {
             InternalName = command.UniqueName,
+            MenuItemPath = command.MenuItemPath,
+            Icon = LookupIcon(command.Icon),
+            DisplayName = command.DisplayName,
+            Description = command.Description,
+            MenuItemOrder = command.Order,
+            DefaultShortcut = shortcut,
+            InvokePermissions = (CommandPermissions)command.InvokePermissions,
+            ExplicitPermissions = command.ExplicitlyAllowedExtensions?.Split(';'),
+            IconEvaluator = IconEvaluator.Default
+        };
+
+        CommandController.Current.AddManagedCommand(basicCommand);
+    }
+
+    public void RegisterCommand(CommandMetadata command, Action<string> execute, Func<string, bool>? canExecute = null)
+    {
+        CanExecuteEvaluator evaluator = CanExecuteEvaluator.AlwaysTrue;
+
+        if (canExecute != null)
+        {
+            evaluator = new CanExecuteEvaluator
+            {
+                Evaluate = p => canExecute(p as string),
+                Name = $"{command.UniqueName}._canExecute"
+            };
+
+            CommandController.Current.CanExecuteEvaluators[evaluator.Name] = evaluator;
+        }
+
+        var shortcut = ToKeyCombination(command.Shortcut);
+        Command.BasicCommand basicCommand = new Command.BasicCommand(p => execute(p is CommandExecutionContext ctx ? ctx.Parameter as string : p as string), evaluator)
+        {
+            InternalName = $"{command.UniqueName}",
+            MenuItemPath = command.MenuItemPath,
+            Icon = LookupIcon(command.Icon),
+            DisplayName = command.DisplayName,
+            Description = command.Description,
+            MenuItemOrder = command.Order,
+            DefaultShortcut = shortcut,
+            InvokePermissions = (CommandPermissions)command.InvokePermissions,
+            ExplicitPermissions = command.ExplicitlyAllowedExtensions?.Split(';'),
+            IconEvaluator = IconEvaluator.Default
+        };
+
+        CommandController.Current.AddManagedCommand(basicCommand);
+    }
+
+    public void RegisterCommand(CommandMetadata command, Action<byte[]> execute, Func<byte[], bool>? canExecute = null)
+    {
+        CanExecuteEvaluator evaluator = CanExecuteEvaluator.AlwaysTrue;
+
+        if (canExecute != null)
+        {
+            evaluator = new CanExecuteEvaluator
+            {
+                Evaluate = p => canExecute(p as byte[]),
+                Name = $"{command.UniqueName}._canExecute"
+            };
+
+            CommandController.Current.CanExecuteEvaluators[evaluator.Name] = evaluator;
+        }
+
+        var shortcut = ToKeyCombination(command.Shortcut);
+        Command.BasicCommand basicCommand = new Command.BasicCommand(p => execute(p is CommandExecutionContext ctx ? ctx.Parameter as byte[] : p as byte[]), evaluator)
+        {
+            InternalName = $"{command.UniqueName}",
             MenuItemPath = command.MenuItemPath,
             Icon = LookupIcon(command.Icon),
             DisplayName = command.DisplayName,

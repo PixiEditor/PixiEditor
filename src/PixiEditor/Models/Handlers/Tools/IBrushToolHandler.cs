@@ -9,4 +9,5 @@ internal interface IBrushToolHandler : IToolHandler
     public bool IsCustomBrushTool { get; }
     KeyCombination? DefaultShortcut { get; }
     public VecD LastAppliedPoint { get; set; }
+    public string CommonToolType { get; }
 }

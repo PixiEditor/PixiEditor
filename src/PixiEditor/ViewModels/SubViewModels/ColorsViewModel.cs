@@ -210,6 +210,7 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>, IColorsHandler
             }
             else
             {
+                browser.IsFetching = false;
                 await browser.UpdatePaletteList();
             }
         }

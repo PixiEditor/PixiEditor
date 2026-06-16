@@ -6,12 +6,17 @@ using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Media;
+using Avalonia.Platform;
 using Avalonia.Styling;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using CommunityToolkit.Mvvm.Input;
 using PixiDocks.Avalonia.Helpers;
 using PixiEditor.Extensions.CommonApi;
 using PixiEditor.Extensions.CommonApi.Async;
+using PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
+using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Extensions.CommonApi.Windowing;
 using PixiEditor.Extensions.UI;
 using PixiEditor.ViewModels;
@@ -24,6 +29,7 @@ public partial class PixiEditorPopup : Window, IPopupWindow
 {
     public static event Action<PixiEditorPopup> PopupLoaded;
     public static event Action<PixiEditorPopup> PopupClosed;
+
     public static readonly StyledProperty<bool> CanMinimizeProperty = AvaloniaProperty.Register<PixiEditorPopup, bool>(
         nameof(CanMinimize), defaultValue: true);
 
@@ -36,6 +42,15 @@ public partial class PixiEditorPopup : Window, IPopupWindow
 
     public static readonly StyledProperty<bool> ShowTitleBarProperty = AvaloniaProperty.Register<PixiEditorPopup, bool>(
         nameof(ShowTitleBar), defaultValue: true);
+
+    public static readonly StyledProperty<bool> CanScaleProperty = AvaloniaProperty.Register<PixiEditorPopup, bool>(
+        nameof(CanScale), true);
+
+    public bool CanScale
+    {
+        get => GetValue(CanScaleProperty);
+        set => SetValue(CanScaleProperty, value);
+    }
 
     public bool ShowTitleBar
     {
@@ -63,6 +78,8 @@ public partial class PixiEditorPopup : Window, IPopupWindow
 
     private Panel resizePanel;
 
+    private double originalWidth, originalHeight, originalMaxWidth, originalMaxHeight;
+
     protected override Type StyleKeyOverride => typeof(PixiEditorPopup);
 
     public PixiEditorPopup()
@@ -71,6 +88,49 @@ public partial class PixiEditorPopup : Window, IPopupWindow
 #if DEBUG
         this.AttachDevTools();
 #endif
+        PixiEditorSettings.Appearance.UseSystemDecorations.ValueChanged += (_, _) => UpdateDecorations();
+
+        UpdateDecorations();
+    }
+
+    private void UpdateDecorations()
+    {
+        var cliArgs = Environment.GetCommandLineArgs();
+        bool userPrefersSystemDecorations = PixiEditorSettings.Appearance.UseSystemDecorations.Value;
+        bool systemDecorations = false;
+        if (cliArgs != null || userPrefersSystemDecorations)
+        {
+            if (userPrefersSystemDecorations || cliArgs.Contains("--system-decorations"))
+            {
+                this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default;
+                this.SystemDecorations = SystemDecorations.Full;
+                this.ExtendClientAreaToDecorationsHint = false;
+                ShowTitleBar = false;
+                systemDecorations = true;
+            }
+        }
+
+        if (!systemDecorations)
+        {
+            this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default;
+            this.ExtendClientAreaToDecorationsHint = true;
+            if (System.OperatingSystem.IsLinux())
+            {
+                SystemDecorations = SystemDecorations.None;
+            }
+            else if (System.OperatingSystem.IsMacOS())
+            {
+                ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default |
+                                              ExtendClientAreaChromeHints.NoChrome |
+                                              ExtendClientAreaChromeHints.OSXThickTitleBar;
+            }
+            else
+            {
+                SystemDecorations = SystemDecorations.Full;
+            }
+
+            ShowTitleBar = true;
+        }
     }
 
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
@@ -86,6 +146,63 @@ public partial class PixiEditorPopup : Window, IPopupWindow
                 RoutingStrategies.Tunnel | RoutingStrategies.Bubble);
             resizePanel.PointerMoved += OnResizePanelMoved;
         }
+
+        PixiEditorSettings.Accessibility.UiScaleFactor.ValueChanged += UiScaleFactorOnValueChanged;
+        UpdateScaling(PixiEditorSettings.Accessibility.UiScaleFactor.Value);
+    }
+
+    private void UiScaleFactorOnValueChanged(Setting<double> setting, double newValue)
+    {
+        UpdateScaling(newValue);
+    }
+
+    private void UpdateScaling(double newValue)
+    {
+        if (!CanScale) return;
+
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (Width > 0)
+            {
+                if (originalWidth == 0) originalWidth = Width;
+                Width = originalWidth * newValue;
+            }
+
+            if (Height > 0)
+            {
+                if (originalHeight == 0) originalHeight = Height;
+                Height = originalHeight * newValue;
+            }
+
+            if (MaxHeight > 0)
+            {
+                if (originalMaxHeight == 0) originalMaxHeight = MaxHeight;
+                MaxHeight = originalMaxHeight * newValue;
+            }
+
+            if (MaxWidth > 0)
+            {
+                if (originalMaxWidth == 0) originalMaxWidth = MaxWidth;
+                MaxWidth = originalMaxWidth * newValue;
+            }
+
+            var scale = newValue;
+            LayoutTransformControl transformControl = this.FindDescendantOfType<LayoutTransformControl>();
+            if (transformControl != null)
+            {
+                transformControl.LayoutTransform = new ScaleTransform(scale, scale);
+            }
+
+            // Ugly fix for black bars in some cases when UI scaling is custom
+            Dispatcher.UIThread.Post(() =>
+            {
+                Width += 1;
+                Dispatcher.UIThread.Post(() =>
+                {
+                    Width -= 1;
+                });
+            });
+        });
     }
 
     private void OnTitleBarPressed(object? sender, PointerPressedEventArgs e)
@@ -126,7 +243,7 @@ public partial class PixiEditorPopup : Window, IPopupWindow
     {
         Show(MainWindow.Current);
     }
-    
+
     public void ShowStandalone()
     {
         base.Show();

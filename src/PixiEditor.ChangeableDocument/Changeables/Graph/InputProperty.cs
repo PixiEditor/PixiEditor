@@ -21,6 +21,8 @@ public class InputProperty : IInputProperty
     public string InternalPropertyName { get; }
     public string DisplayName { get; }
 
+    private Func<IOutputProperty, bool>? customCanConnect;
+
     public object? Value
     {
         get
@@ -173,6 +175,16 @@ public class InputProperty : IInputProperty
         }
     }
 
+    public bool CanConnect(IOutputProperty output)
+    {
+        if (customCanConnect != null)
+        {
+            return customCanConnect(output);
+        }
+
+        return GraphUtils.CheckTypeCompatibility(this, output);
+    }
+
     protected virtual void NonOverridenValueSet(object value)
     {
     }
@@ -247,6 +259,23 @@ public class InputProperty : IInputProperty
 
         hash.Add(Connection?.GetCacheHash() ?? 0);
         return hash.ToHashCode();
+    }
+
+    public void AddCustomCanConnect(Func<IOutputProperty, bool> func, bool mergeWithPrevious = true)
+    {
+        if (customCanConnect == null)
+        {
+            customCanConnect = func;
+        }
+        else if (mergeWithPrevious)
+        {
+            var previous = customCanConnect;
+            customCanConnect = output => previous(output) && func(output);
+        }
+        else
+        {
+            customCanConnect = func;
+        }
     }
 }
 

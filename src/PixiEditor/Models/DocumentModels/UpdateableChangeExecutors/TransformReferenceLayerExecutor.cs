@@ -22,6 +22,11 @@ internal class TransformReferenceLayerExecutor : UpdateableChangeExecutor, ITran
 
     public bool IsTransforming => true;
 
+    public void OnTransformStarted()
+    {
+
+    }
+
     public void OnTransformChanged(ShapeCorners corners)
     {
         internals!.ActionAccumulator.AddActions(new TransformReferenceLayer_Action(corners));

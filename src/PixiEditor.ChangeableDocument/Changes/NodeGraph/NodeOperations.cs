@@ -345,7 +345,7 @@ public static class NodeOperations
         return changes;
     }
 
-    public static List<IChangeInfo> DetachNode(Changeables.Graph.NodeGraph target, Node? node)
+    public static List<IChangeInfo> DetachNode(Node? node)
     {
         List<IChangeInfo> changes = new();
         if (node == null)
@@ -353,8 +353,9 @@ public static class NodeOperations
             return changes;
         }
 
-        foreach (var input in node.InputProperties)
+        for (var i = 0; i < node.InputProperties.Count; i++)
         {
+            var input = node.InputProperties[i];
             if (input.Connection == null)
             {
                 continue;
@@ -362,6 +363,7 @@ public static class NodeOperations
 
             input.Connection.DisconnectFrom(input);
             changes.Add(new ConnectProperty_ChangeInfo(null, node.Id, null, input.InternalPropertyName));
+            i--;
         }
 
         foreach (var output in node.OutputProperties)

@@ -9,7 +9,17 @@
                              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
                              x:Class="PixiEditor.Views.Nodes.Properties.BooleanPropertyView">
     <StackPanel Orientation="Horizontal" HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
-        <CheckBox localization:Translator.Key="{Binding DisplayName}" Margin="0,0,4,0" IsVisible="{Binding ShowInputField}" IsChecked="{Binding Value}"/>
+        <CheckBox Margin="0,0,4,0" IsVisible="{Binding ShowInputField}"
+                  MaxWidth="195"
+                  localization:Translator.TooltipKey="{Binding DisplayName}"
+                  localization:Translator.Key="{Binding DisplayName}"
+                  IsChecked="{Binding Value}">
+            <CheckBox.ContentTemplate>
+                <DataTemplate>
+                    <TextBlock TextTrimming="CharacterEllipsis" Text="{Binding}" Margin="0,0,4,0" />
+                </DataTemplate>
+            </CheckBox.ContentTemplate>
+        </CheckBox>
         <TextBlock localization:Translator.Key="{Binding DisplayName}" Margin="0,0,4,0" IsVisible="{Binding !ShowInputField}" />
     </StackPanel>
 </properties:NodePropertyView>

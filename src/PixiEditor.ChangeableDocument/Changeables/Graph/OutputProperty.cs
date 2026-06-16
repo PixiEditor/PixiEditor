@@ -1,4 +1,6 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+﻿using Drawie.Backend.Core.Shaders.Generation;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Common;
 
@@ -42,13 +44,15 @@ public class OutputProperty : IOutputProperty
 
     public void ConnectTo(IInputProperty property)
     {
+        if (property == null) return;
+
         if (Connections.Contains(property)) return;
 
         if (property.Connection != null)
         {
             property.Connection.DisconnectFrom(property);
         }
-        
+
         _connections.Add(property);
         property.Connection = this;
         Connected?.Invoke(property, this);
@@ -76,6 +80,29 @@ public class OutputProperty : IOutputProperty
 
         return 0;
     }
+
+    public Type? GetContextlessValueType()
+    {
+        if(Value is Delegate del)
+        {
+            try
+            {
+                var val = del.DynamicInvoke(FuncContext.NoContext);
+                if (val is ShaderExpressionVariable expr)
+                {
+                    val = expr.GetConstant();
+                }
+
+                return val?.GetType();
+            }
+            catch
+            {
+                return ValueType;
+            }
+        }
+
+        return ValueType;
+    }
 }
 
 public class OutputProperty<T> : OutputProperty, INodeProperty<T>
@@ -86,7 +113,8 @@ public class OutputProperty<T> : OutputProperty, INodeProperty<T>
         set => base.Value = value;
     }
 
-    internal OutputProperty(Node node, string internalName, string displayName, T defaultValue) : base(node, internalName, displayName, defaultValue, typeof(T))
+    internal OutputProperty(Node node, string internalName, string displayName, T defaultValue) : base(node,
+        internalName, displayName, defaultValue, typeof(T))
     {
     }
 }

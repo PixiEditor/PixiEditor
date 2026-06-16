@@ -1,4 +1,5 @@
-﻿using PixiEditor.Extensions.WasmRuntime.Utilities;
+﻿using PixiEditor.Extensions.WasmRuntime.Api.Modules;
+using PixiEditor.Extensions.WasmRuntime.Utilities;
 
 namespace PixiEditor.Extensions.WasmRuntime.Api;
 
@@ -9,6 +10,13 @@ internal class ResourcesApi : ApiGroupHandler
     {
         string fullPath = ResourcesUtility.ToResourcesFullPath(Extension, path);
         return fullPath;
+    }
+
+    [ApiFunction("load_extension_resource")]
+    public byte[] LoadExtensionResource(string path)
+    {
+        var toReturn = ResourcesUtility.LoadResource(Extension, path);
+        return toReturn;
     }
 
     [ApiFunction("load_encrypted_resource")]

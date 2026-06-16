@@ -11,6 +11,9 @@ using PixiEditor.ChangeableDocument.Rendering.ContextData;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Collections;
+using PixiEditor.Helpers.UI;
+using PixiEditor.Models;
+using PixiEditor.Models.AdvisorSystem;
 using PixiEditor.Models.AnalyticsAPI;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Config;
@@ -21,7 +24,9 @@ using PixiEditor.Models.DocumentModels.Autosave;
 using PixiEditor.Models.ExtensionServices;
 using PixiEditor.Models.Files;
 using PixiEditor.Models.Handlers;
+using PixiEditor.Models.IO;
 using PixiEditor.OperatingSystem;
+using PixiEditor.UI.Common.Behaviors;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Document.Nodes;
@@ -72,6 +77,8 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
     public AutosaveViewModel AutosaveViewModel { get; set; }
     public UserViewModel UserViewModel { get; set; }
     public BrushesViewModel BrushesSubViewModel { get; set; }
+    public AdvicesViewModel AdvicesSubViewModel { get; set; }
+    public ChangelogViewModel ChangelogSubViewModel { get; set; }
 
     public IPreferences Preferences { get; set; }
     public ILocalizationProvider LocalizationProvider { get; set; }
@@ -129,6 +136,9 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         Preferences = services.GetRequiredService<IPreferences>();
         Preferences.Init();
 
+        var advisor = services.GetService<IAdvisor>();
+        AdvisorSlot.Current = advisor;
+
         SupportedFilesHelper.InitFileTypes(services.GetServices<IoFileType>());
 
         CommandController = services.GetService<CommandController>();
@@ -148,6 +158,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         ToolsSubViewModel.SelectedToolChanged += ToolsSubViewModel_SelectedToolChanged;
 
         IoSubViewModel = services.GetService<IoViewModel>();
+
         LayersSubViewModel = services.GetService<LayersViewModel>();
         ClipboardSubViewModel = services.GetService<ClipboardViewModel>();
         UndoSubViewModel = services.GetService<UndoViewModel>();
@@ -164,6 +175,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         DiscordViewModel = services.GetService<DiscordViewModel>();
         UpdateSubViewModel = services.GetService<UpdateViewModel>();
         DebugSubViewModel = services.GetService<DebugViewModel>();
+        ChangelogSubViewModel = services.GetService<ChangelogViewModel>();
 
         StylusSubViewModel = services.GetService<StylusViewModel>();
         RegistrySubViewModel = services.GetService<RegistryViewModel>();
@@ -194,6 +206,9 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         ExtensionsSubViewModel.Init();  // Must be last
 
         GetEditorData = ConstructEditorData;
+
+        AdvicesSubViewModel = services.GetService<AdvicesViewModel>();
+        AdvicesSubViewModel.RegisterAdvices();
 
         DocumentManagerSubViewModel.ActiveDocumentChanged += OnActiveDocumentChanged;
         BeforeDocumentClosed += OnBeforeDocumentClosed;
@@ -359,24 +374,30 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
 
         if (result != ConfirmationType.Canceled)
         {
-            using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
-            BeforeDocumentClosed?.Invoke(document);
-            if (!DocumentManagerSubViewModel.Documents.Remove(document))
-                throw new InvalidOperationException(
-                    "Trying to close a document that's not in the documents collection. Likely, the document wasn't added there after creation by mistake.");
-
-            if (DocumentManagerSubViewModel.ActiveDocument == document)
+            DrawingBackendApi.Current.RenderingDispatcher.Invoke(() =>
             {
-                if (DocumentManagerSubViewModel.Documents.Count > 0)
-                    WindowSubViewModel.MakeDocumentViewportActive(DocumentManagerSubViewModel.Documents.Last());
-                else
-                    WindowSubViewModel.MakeDocumentViewportActive((DocumentViewModel)null);
-            }
+                BeforeDocumentClosed?.Invoke(document);
+                if (!DocumentManagerSubViewModel.Documents.Remove(document))
+                {
+#if DEBUG
+                    throw new InvalidOperationException(
+                        "Trying to close a document that's not in the documents collection. Likely, the document wasn't added there after creation by mistake.");
+#endif
+                }
 
-            WindowSubViewModel.CloseViewportsForDocument(document);
-            document.Dispose();
-            document.AutosaveViewModel.OnDocumentClosed();
-            DocumentManagerSubViewModel.RemoveDocumentReferences(document.Id, document.NodeGraph.AllNodes.Where(x => x is NestedDocumentNodeViewModel).Select(x => x.Id));
+                if (DocumentManagerSubViewModel.ActiveDocument == document)
+                {
+                    if (DocumentManagerSubViewModel.Documents.Count > 0)
+                        WindowSubViewModel.MakeDocumentViewportActive(DocumentManagerSubViewModel.Documents.Last());
+                    else
+                        WindowSubViewModel.MakeDocumentViewportActive((DocumentViewModel)null);
+                }
+
+                WindowSubViewModel.CloseViewportsForDocument(document);
+                document.Dispose();
+                document.AutosaveViewModel.OnDocumentClosed();
+                DocumentManagerSubViewModel.RemoveDocumentReferences(document.Id, document.NodeGraph.AllNodes.Where(x => x is NestedDocumentNodeViewModel).Select(x => x.Id));
+            });
 
             return true;
         }
@@ -402,10 +423,27 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
                     await analytics.StopAsync();
                 }
 
+                ClearSessionCache();
                 OnClose?.Invoke();
                 shutdown();
             }
         });
+    }
+
+    private void ClearSessionCache()
+    {
+        string cachePath = Paths.TempSessionFilesPath;
+        if (Directory.Exists(cachePath))
+        {
+            try
+            {
+                Directory.Delete(cachePath, true);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to clear session cache: {ex.Message}");
+            }
+        }
     }
 
     public EditorData ConstructEditorData()

@@ -21,6 +21,10 @@ public static class Paths
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "PixiEditor", "Configs");
 
+    public static string LocalPath { get; } = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        "PixiEditor");
+
     public static string UnpackedExtensionsPath { get; } = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "PixiEditor", "Extensions", "Unpacked");
@@ -40,16 +44,21 @@ public static class Paths
 
     public static string TempFilesPath { get; } = Path.Combine(Path.GetTempPath(), "PixiEditor");
     public static string TempResourcesPath { get; } = Path.Combine(Path.GetTempPath(), "PixiEditor", "Resources");
+    /// <summary>
+    ///     Path to %temp%/PixiEditor/SessionCache, it is cleared every time PixiEditor is closing
+    /// </summary>
+    public static string TempSessionFilesPath { get; }  = Path.Combine(Path.GetTempPath(), "PixiEditor", "SessionCache");
 
     /// <summary>
-    /// Path to %temp%/PixiEditor/Autosave
+    /// Path to %localappdata%/PixiEditor/Autosave
     /// </summary>
     public static string PathToUnsavedFilesFolder { get; } = Path.Join(
-        Path.GetTempPath(),
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "PixiEditor", "Autosave");
 
     public static string InstallDirectoryPath { get; } =
         Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) ?? string.Empty;
+
 
     public static string ParseSpecialPathOrDefault(string path)
     {

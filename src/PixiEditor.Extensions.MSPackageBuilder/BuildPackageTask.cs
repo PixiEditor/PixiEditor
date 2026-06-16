@@ -1,15 +1,13 @@
-﻿using System.Diagnostics;
-using Microsoft.Build.Framework;
+﻿using Microsoft.Build.Framework;
+using Task = Microsoft.Build.Utilities.Task;
 
 namespace PixiEditor.Extensions.MSPackageBuilder;
 
-public class BuildPackageTask : Microsoft.Build.Utilities.Task
+public class BuildPackageTask : Task
 {
-    [Required]
-    public string BuildResultDirectory { get; set; } = default!;
-    
-    [Required]
-    public string TargetDirectory { get; set; } = default!;
+    [Required] public string BuildResultDirectory { get; set; } = default!;
+
+    [Required] public string TargetDirectory { get; set; } = default!;
 
     public string EncryptionKey { get; set; }
 

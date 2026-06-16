@@ -2,6 +2,7 @@
   "CustomTools": [
     {
       "ToolName": "Brightness",
+      "DisplayName": "BRIGHTNESS_TOOL",
       "Brush": "/BrushTools/Brightness.pixi",
       "Icon": "icon-sun",
       "ToolTip": "BRIGHTNESS_TOOL_TOOLTIP",
@@ -14,6 +15,80 @@
         {
           "Modifiers": "Ctrl",
           "ActionDisplay": "BRIGHTNESS_TOOL_ACTION_DISPLAY_CTRL"
+        }
+      ]
+    },
+    {
+      "ToolName": "Gradient",
+      "DisplayName": "GRADIENT_TOOL",
+      "Brush": "/BrushTools/Gradient.pixi",
+      "Icon": "icon-gradient",
+      "ToolTip": "GRADIENT_TOOL_TOOLTIP",
+      "DefaultShortcut": "Shift+G",
+      "CommonToolType": "Gradient",
+      "ActionDisplays": [
+        {
+          "ActionDisplay": "GRADIENT_TOOL_ACTION_DISPLAY_DEFAULT"
+        }
+      ]
+    },
+    {
+      "ToolName": "Blur",
+      "DisplayName": "BLUR_TOOL",
+      "Brush": "/BrushTools/Blur.pixi",
+      "Icon": "icon-blur",
+      "ToolTip": "BLUR_TOOL_TOOLTIP",
+      "ActionDisplays": [
+        {
+          "ActionDisplay": "BLUR_TOOL_ACTION_DISPLAY_DEFAULT"
+        }
+      ]
+    },
+    {
+      "ToolName": "Sharpen",
+      "DisplayName": "SHARPEN_TOOL",
+      "Brush": "/BrushTools/Sharpen.pixi",
+      "Icon": "icon-sharpen",
+      "ToolTip": "SHARPEN_TOOL_TOOLTIP",
+      "ActionDisplays": [
+        {
+          "ActionDisplay": "SHARPEN_TOOL_ACTION_DISPLAY_DEFAULT"
+        }
+      ]
+    },
+    {
+      "ToolName": "Smudge",
+      "DisplayName": "SMUDGE_TOOL",
+      "Brush": "/BrushTools/Smudge.pixi",
+      "Icon": "icon-smudge",
+      "ToolTip": "SMUDGE_TOOL_TOOLTIP",
+      "ActionDisplays": [
+        {
+          "ActionDisplay": "SMUDGE_TOOL_ACTION_DISPLAY_DEFAULT"
+        }
+        ]
+    },
+    {
+      "ToolName": "FindAndReplace",
+      "DisplayName": "FIND_AND_REPLACE_TOOL",
+      "Brush": "/BrushTools/FindAndReplace.pixi",
+      "Icon": "icon-replace",
+      "ToolTip": "FIND_AND_REPLACE_TOOL_TOOLTIP",
+      "ActionDisplays": [
+        {
+          "ActionDisplay": "FIND_AND_REPLACE_TOOL_ACTION_DISPLAY_DEFAULT"
+        }
+      ]
+    },
+    {
+      "ToolName": "SwapColor",
+      "DisplayName": "SWAP_COLOR_TOOL",
+      "Brush": "/BrushTools/SwapColor.pixi",
+      "Icon": "icon-swap",
+      "ToolTip": "SWAP_COLOR_TOOL_TOOLTIP",
+      "ActionDisplays": [
+        {
+          "ActionDisplay": "SWAP_COLOR_TOOL_ACTION_DISPLAY_DEFAULT"
         }
       ]
     }
@@ -35,17 +110,14 @@
           "ToolName": "Pen",
           "Settings": {
             "ExposePixelPerfectEnabled": true,
-            "Spacing": 0,
-            "DefaultBrush": "Pixel Circle",
+            "DefaultToolSize": 1,
+            "DefaultBrush": "PIXEL_CIRCLE",
             "AntiAliasing": false
           }
         },
         "Select",
         {
-          "ToolName": "MagicWand",
-          "Settings": {
-            "Spacing": 0
-          }
+          "ToolName": "MagicWand"
         },
         "Lasso",
         {
@@ -69,13 +141,17 @@
         {
           "ToolName": "Eraser",
           "Settings": {
-            "Spacing": 0
+            "DefaultToolSize": 1,
+            "DefaultBrush": "PIXEL_CIRCLE",
+            "AntiAliasing": false
           }
         },
         {
           "ToolName": "Brightness",
           "Settings": {
-            "AntiAliasing": false
+            "AntiAliasing": false,
+            "DefaultToolSize": 1,
+            "DefaultBRUSH_SETTING": "PIXEL_CIRCLE"
           }
         },
         "ColorPicker",
@@ -98,9 +174,9 @@
           "ToolName": "Pen",
           "Settings": {
             "AntiAliasing": true,
-            "ExposeSpacing": true,
             "PixelPerfectEnabled": false,
-            "DefaultBrush": "Basic"
+            "DefaultToolSize": 10,
+            "DefaultBrush": "BASIC"
           }
         },
         "Select",
@@ -117,6 +193,9 @@
             "ExposeTolerance": true,
             "ExposeFillMode": true
           }
+        },
+        {
+          "ToolName": "Gradient"
         },
         {
           "ToolName": "RasterLine",
@@ -151,13 +230,15 @@
           "ToolName": "Eraser",
           "Settings": {
             "AntiAliasing": true,
-            "ExposeSpacing": true
+            "DefaultToolSize": 10
           }
         },
         {
           "ToolName": "Brightness",
           "Settings": {
-            "AntiAliasing": true
+            "AntiAliasing": true,
+            "DefaultToolSize": 10,
+            "DefaultBRUSH_SETTING": "BASIC"
           }
         },
         "ColorPicker",
@@ -188,6 +269,36 @@
           }
         },
         "ColorPicker",
+        "Zoom"
+      ]
+    },
+    {
+      "Name": "ADJUSTMENTS_TOOLSET",
+      "Icon": "icon-adjust",
+      "Tools": [
+        "MoveViewport",
+        "RotateViewport",
+        {
+          "ToolName": "Blur",
+          "Settings": {
+            "DefaultToolSize": 20
+          }
+        },
+        {
+          "ToolName": "Sharpen",
+          "Settings": {
+            "DefaultToolSize": 20
+          }
+        },
+        {
+          "ToolName": "Smudge",
+          "Settings": {
+            "DefaultToolSize": 20
+          }
+        },
+        "Brightness",
+        "FindAndReplace",
+        "SwapColor",
         "Zoom"
       ]
     }

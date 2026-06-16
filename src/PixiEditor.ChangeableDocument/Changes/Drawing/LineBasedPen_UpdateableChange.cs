@@ -72,7 +72,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
 
     public override bool InitializeAndValidate(Document target)
     {
-        if (!DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask))
+        if (!DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask, frame))
             return false;
         if (strokeWidth < 0.1)
             return false;
@@ -92,7 +92,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         {
             brushData = new BrushData(brushData.BrushGraph, brushData.TargetBrushNodeId)
             {
-                StrokeWidth = strokeWidth, AntiAliasing = antiAliasing, ForcePressure = brushData.ForcePressure
+                StrokeWidth = strokeWidth, AntiAliasing = antiAliasing
             };
         }
     }

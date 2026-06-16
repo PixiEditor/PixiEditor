@@ -23,7 +23,7 @@ public class MergeNode : RenderNode
 
     public MergeNode()
     {
-        BlendMode = CreateInput("BlendMode", "BlendMode", Enums.BlendMode.Normal);
+        BlendMode = CreateInput("BlendMode", "BLEND_MODE", Enums.BlendMode.Normal);
         Top = CreateRenderInput("Top", "TOP");
         Bottom = CreateRenderInput("Bottom", "BOTTOM");
     }
@@ -73,6 +73,17 @@ public class MergeNode : RenderNode
     protected override bool ShouldRenderPreview(string elementToRenderName)
     {
         return Top.Value != null || Bottom.Value != null;
+    }
+
+    public override RectD? GetPreviewBounds(RenderContext ctx, string elementToRenderName)
+    {
+        var topBounds = TryGetInputBounds(ctx, elementToRenderName, Top);
+        var bottomBounds = TryGetInputBounds(ctx, elementToRenderName, Bottom);
+
+        if (topBounds == null) return bottomBounds;
+        if (bottomBounds == null) return topBounds;
+
+        return topBounds.Value.Union(bottomBounds.Value);
     }
 
     public override void RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)

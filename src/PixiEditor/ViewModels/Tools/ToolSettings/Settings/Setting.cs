@@ -1,4 +1,6 @@
-﻿using Avalonia.Controls;
+﻿using System.Diagnostics;
+using System.Text.Json;
+using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using DiscordRPC;
 using PixiEditor.UI.Common.Localization;
@@ -20,7 +22,21 @@ internal abstract class Setting<T> : Setting
     {
         get
         {
-            var adjusted = AdjustValue(base.Value);
+            var raw = base.Value;
+            if (base.Value is JsonElement jsonElement)
+            {
+                try
+                {
+                    raw = jsonElement.Deserialize<T>();
+                }
+                catch
+                {
+                    Debug.WriteLine($"Failed to deserialize setting {Name} value from JSON.");
+                    return default;
+                }
+            }
+
+            var adjusted = AdjustValue(raw);
             if (adjusted != null && adjusted is not T)
             {
                 return default;
@@ -59,6 +75,7 @@ internal abstract class Setting : ObservableObject
     protected bool hasOverwrittenExposed;
 
     private bool mergeChanges;
+    private Dictionary<JsonElement, object> deserializedJsonCache = new Dictionary<JsonElement, object>();
 
     protected Setting(string name)
     {
@@ -69,7 +86,35 @@ internal abstract class Setting : ObservableObject
 
     public object Value
     {
-        get => hasOverwrittenValue ? overwrittenValue : toolsetValues.GetValueOrDefault(currentToolset, null);
+        get
+        {
+            var raw = hasOverwrittenValue ? overwrittenValue : toolsetValues.GetValueOrDefault(currentToolset, null);
+            if (raw == null)
+            {
+                return null;
+            }
+
+            if (raw is JsonElement jsonElement && deserializedJsonCache.TryGetValue(jsonElement, out object cached))
+            {
+                return AdjustValue(cached);
+            }
+
+            if (raw is JsonElement newJsonElement)
+            {
+                try
+                {
+                    raw = newJsonElement.Deserialize(GetSettingType());
+                    deserializedJsonCache[newJsonElement] = raw;
+                }
+                catch
+                {
+                    Debug.WriteLine($"Failed to deserialize setting {Name} value from JSON.");
+                    return null;
+                }
+            }
+
+            return AdjustValue(raw);
+        }
         set
         {
             var old = toolsetValues.GetValueOrDefault(currentToolset, null);
@@ -140,6 +185,8 @@ internal abstract class Setting : ObservableObject
         }
     }
 
+    public bool IsProtected { get; set; }
+
     public event Action MergeChangesEnded;
 
     public abstract Type GetSettingType();
@@ -157,6 +204,7 @@ internal abstract class Setting : ObservableObject
 
     public void SetCurrentToolset(string toolset)
     {
+        var oldToolset = currentToolset;
         currentToolset = toolset;
         if (toolsetValues.Count <= 1)
         {
@@ -172,8 +220,13 @@ internal abstract class Setting : ObservableObject
             toolsetValues[currentToolset] = toolsetValues.FirstOrDefault().Value;
         }
 
+        var oldValue = toolsetValues.GetValueOrDefault(oldToolset, null);
+
         OnPropertyChanged(nameof(Value));
-        ValueChanged?.Invoke(this, new SettingValueChangedEventArgs<object>(null, Value));
+        if (oldValue != Value)
+        {
+            ValueChanged?.Invoke(this, new SettingValueChangedEventArgs<object>(oldValue, Value));
+        }
     }
 
     protected virtual object AdjustValue(object value)
@@ -193,6 +246,23 @@ internal abstract class Setting : ObservableObject
     {
         if (!defaultValuesSet.GetValueOrDefault(toolset, false))
         {
+            if (defaultValue != null && (defaultValue.GetType() != GetSettingType()))
+            {
+                try
+                {
+                    var adjusted = AdjustValue(defaultValue);
+
+                    if (adjusted.GetType() != GetSettingType())
+                    {
+                        defaultValue = Convert.ChangeType(defaultValue, GetSettingType());
+                    }
+                }
+                catch
+                {
+                    Debug.WriteLine($"Failed to convert default value of setting {Name} to type {GetSettingType()}");
+                    return;
+                }
+            }
             toolsetValues[toolset] = defaultValue;
             defaultValuesSet[toolset] = true;
             OnPropertyChanged(nameof(Value));

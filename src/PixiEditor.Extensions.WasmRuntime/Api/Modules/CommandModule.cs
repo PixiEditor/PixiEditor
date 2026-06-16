@@ -25,10 +25,27 @@ internal class CommandModule : ApiModule
         action?.Invoke(pathPtr);
     }
 
+    internal void InvokeCommandInvoked(string uniqueName, string parameter)
+    {
+        var action = Extension.Instance.GetAction<int, int>("command_invoked_str_param");
+
+        var pathPtr = Extension.WasmMemoryUtility.WriteString(uniqueName);
+        var paramPtr = Extension.WasmMemoryUtility.WriteString(parameter);
+        action?.Invoke(pathPtr, paramPtr);
+    }
+
+    internal void InvokeCommandInvoked(string uniqueName, Span<byte> parameter)
+    {
+        var action = Extension.Instance.GetAction<int, int>("command_invoked_generic_param");
+
+        var pathPtr = Extension.WasmMemoryUtility.WriteString(uniqueName);
+        var paramPtr = Extension.WasmMemoryUtility.WriteSpan(parameter);
+        action?.Invoke(pathPtr, paramPtr);
+    }
+
     public void InvokeCommandGeneric(string commandName, object? parameter)
     {
         string prefixedName = PrefixedNameUtility.ToCommandUniqueName(Extension.Metadata.UniqueName, commandName, true);
-
         if (!CommandProvider.CommandExists(prefixedName))
         {
             return;
@@ -36,7 +53,7 @@ internal class CommandModule : ApiModule
 
         if (CommandSupervisor.ValidateCommandPermissions(prefixedName, Extension))
         {
-            CommandProvider.InvokeCommand(commandName, parameter);
+            CommandProvider.InvokeCommand(prefixedName, parameter);
         }
         else
         {

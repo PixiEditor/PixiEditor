@@ -6,6 +6,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
+using Avalonia.Media;
 using Avalonia.OpenGL;
 using Avalonia.Platform;
 using Avalonia.Rendering.Composition;
@@ -16,10 +17,12 @@ using Drawie.Backend.Core.Bridge;
 using PixiDocks.Avalonia.Helpers;
 using PixiEditor.Extensions;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
+using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Extensions.Runtime;
 using PixiEditor.Helpers;
 using PixiEditor.Initialization;
 using PixiEditor.Models.AnalyticsAPI;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.ExceptionHandling;
 using PixiEditor.Models.IO;
 using PixiEditor.OperatingSystem;
@@ -65,20 +68,21 @@ internal partial class MainWindow : Window
         StartupPerformance.ReportToMainWindow();
 
         (Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime).MainWindow = this;
-        
+
         extLoader = extensionLoader;
-        
-        AsyncImageLoader.ImageLoader.AsyncImageLoader = IOperatingSystem.Current.IsLinux ? new BaseWebImageLoader() :
-            new DiskCachedWebImageLoader(Path.Combine(Paths.TempFilesPath, "ImageCache"));
+
+        AsyncImageLoader.ImageLoader.AsyncImageLoader = IOperatingSystem.Current.IsLinux
+            ? new BaseWebImageLoader()
+            : new DiskCachedWebImageLoader(Path.Combine(Paths.TempFilesPath, "ImageCache"));
 
         services = ClassicDesktopEntry.Active.Services;
-        
+
         preferences = services.GetRequiredService<IPreferences>();
         platform = services.GetRequiredService<IPlatform>();
         DataContext = services.GetRequiredService<ViewModels_ViewModelMain>();
 
         DataContext.AttachToWindow(this);
-        
+
         StartupPerformance.ReportToMainViewModel();
 
         try
@@ -91,7 +95,52 @@ internal partial class MainWindow : Window
             CrashHelper.SendExceptionInfo(e);
         }
 
+        PixiEditorSettings.Appearance.UseSystemDecorations.ValueChanged += (_, _) => UpdateDecorations();
+
         InitializeComponent();
+    }
+
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+    {
+        base.OnApplyTemplate(e);
+        UpdateDecorations();
+    }
+
+    private void UpdateDecorations()
+    {
+        var cliArgs = Environment.GetCommandLineArgs();
+        bool userPrefersSystemDecorations = PixiEditorSettings.Appearance.UseSystemDecorations.Value;
+        bool systemDecorations = false;
+        if (cliArgs != null || userPrefersSystemDecorations)
+        {
+            if (userPrefersSystemDecorations || cliArgs.Contains("--system-decorations"))
+            {
+                this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default;
+                this.ExtendClientAreaToDecorationsHint = false;
+                this.SystemDecorations = SystemDecorations.Full;
+                systemDecorations = true;
+            }
+        }
+
+        if (!systemDecorations)
+        {
+            this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default;
+            this.ExtendClientAreaToDecorationsHint = true;
+            if (System.OperatingSystem.IsLinux())
+            {
+                SystemDecorations = SystemDecorations.None;
+            }
+            else if (System.OperatingSystem.IsMacOS())
+            {
+                ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default |
+                                              ExtendClientAreaChromeHints.NoChrome |
+                                              ExtendClientAreaChromeHints.OSXThickTitleBar;
+            }
+            else
+            {
+                SystemDecorations = SystemDecorations.Full;
+            }
+        }
     }
 
 
@@ -132,16 +181,22 @@ internal partial class MainWindow : Window
     {
         base.OnLoaded(e);
         
+        ApplyUiScale();
+        
+        preferences.AddCallback("UiScaleFactor", (_, args) =>
+        {
+            Dispatcher.UIThread.Post(ApplyUiScale);
+        });
+        
         titleBar = this.FindDescendantOfType<MainTitleBar>(true);
         if (System.OperatingSystem.IsLinux())
         {
             titleBar.PointerPressed += OnTitleBarPressed;
-            
+
             PointerMoved += UpdateResizeCursor;
             AddHandler(PointerPressedEvent, Pressed, RoutingStrategies.Tunnel | RoutingStrategies.Bubble);
         }
         
-
         LoadingWindow.Instance?.SafeClose();
         Activate();
         StartupPerformance.ReportToInteractivity();
@@ -150,11 +205,11 @@ internal partial class MainWindow : Window
 
     private void UpdateResizeCursor(object? sender, PointerEventArgs e)
     {
-        if(WindowState != WindowState.Normal)
+        if (WindowState != WindowState.Normal)
         {
             return;
         }
-        
+
         Cursor = new Cursor(WindowUtility.SetResizeCursor(e, this, new Thickness(8)));
     }
 
@@ -163,8 +218,8 @@ internal partial class MainWindow : Window
         if (WindowState == WindowState.Normal && e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
         {
             var direction = WindowUtility.GetResizeDirection(e.GetPosition(this), this, new Thickness(8));
-            if(direction == null) return;
-            
+            if (direction == null) return;
+
             BeginResizeDrag(direction.Value, e);
         }
     }
@@ -175,7 +230,7 @@ internal partial class MainWindow : Window
         bool sourceIsMenuItem = e.Source is Control ctrl && ctrl.GetLogicalParent() is MenuItem;
         if (withinTitleBar && !sourceIsMenuItem && e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
         {
-            if(e.ClickCount == 2)
+            if (e.ClickCount == 2)
             {
                 WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
             }
@@ -192,16 +247,13 @@ internal partial class MainWindow : Window
         if (!DataContext.UserWantsToClose)
         {
             e.Cancel = true;
-            Task.Run(async () =>
+            Dispatcher.UIThread.InvokeAsync(async () =>
             {
-                await Dispatcher.UIThread.InvokeAsync(async () =>
+                await DataContext.CloseWindowCommand.ExecuteAsync(null);
+                if (DataContext.UserWantsToClose)
                 {
-                    await DataContext.CloseWindowCommand.ExecuteAsync(null);
-                    if (DataContext.UserWantsToClose)
-                    {
-                        Close();
-                    }
-                });
+                    Close();
+                }
             });
         }
 
@@ -215,4 +267,12 @@ internal partial class MainWindow : Window
             CrashHelper.SaveCrashInfo((Exception)e.ExceptionObject, DataContext.DocumentManagerSubViewModel.Documents);
         };
     }
+
+    private void ApplyUiScale()
+    {
+        double scale = preferences.GetPreference("UiScaleFactor", 1.0);
+
+        PrimaryScaleControl.LayoutTransform = new ScaleTransform(scale, scale);
+    }
+    
 }

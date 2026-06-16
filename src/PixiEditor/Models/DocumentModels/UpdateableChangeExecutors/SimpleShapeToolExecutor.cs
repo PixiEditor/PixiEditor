@@ -161,6 +161,17 @@ internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor,
     {
     }
 
+    public virtual void OnTransformStarted()
+    {
+        if(restoreSnapping != null)
+        {
+            restoreSnapping.Dispose();
+            restoreSnapping = null;
+        }
+
+        restoreSnapping = DisableSelfSnapping(memberId, document);
+    }
+
     public virtual void OnTransformApplied()
     {
         ActiveMode = ShapeToolMode.Preview;
