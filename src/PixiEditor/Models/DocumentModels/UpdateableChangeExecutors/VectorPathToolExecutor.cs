@@ -37,6 +37,8 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
     private bool isValidPathLayer;
     private IDisposable restoreSnapping;
 
+    private bool preventSettingsChange;
+
     public override ExecutorType Type => ExecutorType.ToolLinked;
 
     public bool StopExecutionOnNormalUndo => false;
@@ -175,13 +177,17 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
     {
         if (primary && toolbar.SyncWithPrimaryColor)
         {
+            preventSettingsChange = true;
             toolbar.StrokeBrush = new SolidColorBrush(color.ToColor());
             toolbar.FillBrush = new SolidColorBrush(color.ToColor());
+            preventSettingsChange = false;
+            OnSettingsChanged("FillAndStroke", null);
         }
     }
 
     public override void OnSettingsChanged(string name, object value)
     {
+        if (preventSettingsChange) return;
         if (document.PathOverlayHandler.IsActive)
         {
             VectorShapeChangeType changeType = name switch
@@ -191,6 +197,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
                 nameof(IShapeToolbar.StrokeBrush) => VectorShapeChangeType.Stroke,
                 nameof(IShapeToolbar.ToolSize) => VectorShapeChangeType.Stroke,
                 nameof(IShapeToolbar.AntiAliasing) => VectorShapeChangeType.OtherVisuals,
+                "FillAndStroke" => VectorShapeChangeType.Fill | VectorShapeChangeType.Stroke,
                 _ => VectorShapeChangeType.All
             };
 
