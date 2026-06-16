@@ -85,14 +85,14 @@
                                           Classes="OverlayButton pixi-icon"
                                           BorderBrush="{DynamicResource ThemeBorderMidBrush}"
                                           Content="{DynamicResource icon-circle}"
-                                          IsChecked="{Binding HighResPreview, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
+                                          IsChecked="{Binding HighResPreview, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
                                           Cursor="Hand" />
                             <ToggleButton Width="32" Height="32"
                                           ui:Translator.TooltipKey="LOW_RES_PREVIEW"
                                           Classes="OverlayButton pixi-icon"
                                           BorderBrush="{DynamicResource ThemeBorderMidBrush}"
                                           Content="{DynamicResource icon-lowres-circle}"
-                                          IsChecked="{Binding !HighResPreview, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
+                                          IsChecked="{Binding !HighResPreview, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
                                           Cursor="Hand" />
                         </StackPanel>
                         <Separator />
@@ -101,28 +101,31 @@
                                           Classes="OverlayToggleButton pixi-icon"
                                           IsChecked="{Binding Document.VerticalSymmetryAxisEnabledBindable, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
                                           Content="{DynamicResource icon-x-symmetry}"
-                                          Cursor="Hand">
-                                <ToggleButton.ContextMenu>
-                                    <ContextMenu>
-                                        <MenuItem ui:Translator.Key="RECENTER_HORIZONTAL_SYMMETRY"
-                                                  PointerReleased="RecenterHorizontalSymmetryClicked"/>
-                                    </ContextMenu>                                    
-                                </ToggleButton.ContextMenu>
-                            </ToggleButton>
+                                          Cursor="Hand" />
                             <ToggleButton Width="32" Height="32"
                                           ui:Translator.TooltipKey="TOGGLE_VERTICAL_SYMMETRY"
                                           Classes="OverlayToggleButton pixi-icon"
                                           IsChecked="{Binding Document.HorizontalSymmetryAxisEnabledBindable, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
                                           Content="{DynamicResource icon-y-symmetry}"
-                                          Cursor="Hand" >
-                                
-                                <ToggleButton.ContextMenu>
-                                    <ContextMenu>
-                                        <MenuItem ui:Translator.Key="RECENTER_VERTICAL_SYMMETRY"
-                                                  PointerReleased="RecenterVerticalSymmetryClicked"/>
-                                    </ContextMenu>                                    
-                                </ToggleButton.ContextMenu>
-                            </ToggleButton>
+                                          Cursor="Hand" />
+                        </StackPanel>
+                        <Separator />
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
+                            <Button Width="32" Height="32" ui:Translator.TooltipKey="RECENTER_HORIZONTAL_SYMMETRY"
+                                          Classes="OverlayButton pixi-icon"
+                                          BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                                          Content="{DynamicResource icon-recenter-x-symmetry}"
+                                          IsEnabled="{Binding Document.VerticalSymmetryAxisEnabledBindable, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
+                                          Click="RecenterHorizontalSymmetryClicked"
+                                          Cursor="Hand" />
+                            <Button Width="32" Height="32"
+                                          ui:Translator.TooltipKey="RECENTER_VERTICAL_SYMMETRY"
+                                          Classes="OverlayButton pixi-icon"
+                                          BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                                          Content="{DynamicResource icon-recenter-y-symmetry}"
+                                          IsEnabled="{Binding Document.HorizontalSymmetryAxisEnabledBindable, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
+                                          Click="RecenterVerticalSymmetryClicked"
+                                          Cursor="Hand" />
                         </StackPanel>
                         <Separator />
                         <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Spacing="10">
