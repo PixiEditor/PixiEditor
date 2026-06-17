@@ -81,6 +81,10 @@ public abstract class ShapeVectorData : ICacheable, ICloneable, IReadOnlyShapeVe
     }
 
     public abstract VectorPath ToPath(bool transformed = false);
+    ShapeVectorData IReadOnlyShapeVectorData.Clone()
+    {
+        return (ShapeVectorData)Clone();
+    }
 
     protected bool Equals(ShapeVectorData other)
     {

@@ -28,7 +28,7 @@ namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 ///         - Transform -> Drawing (when user clicks outside of shape transform bounds)
 /// </summary>
 internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor,
-    ITransformableExecutor, IMidChangeUndoableExecutor, IDelayedColorSwapFeature
+    ITransformableExecutor, IMidChangeUndoableExecutor, IDelayedColorSwapFeature, IQuickColorLayerExecutor
 {
     private ShapeToolMode activeMode;
 
@@ -290,7 +290,17 @@ internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor,
             return true;
         }
 
+        if (t == typeof(IQuickColorLayerExecutor))
+        {
+            return IsTransforming;
+        }
+
         return false;
+    }
+
+    public void EndQuickColorChange()
+    {
+
     }
 }
 

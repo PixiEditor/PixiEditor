@@ -175,6 +175,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     private readonly HashSet<IStructureMemberHandler> softSelectedStructureMembers = new();
 
     public bool BlockingUpdateableChangeActive => Internals.ChangeController.IsBlockingChangeActive;
+    public bool UpdateableChangeActive => Internals.ChangeController.IsChangeActive;
 
     public bool IsChangeFeatureActive<T>() where T : IExecutorFeature =>
         Internals.ChangeController.IsChangeOfTypeActive<T>();
