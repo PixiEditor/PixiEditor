@@ -17,8 +17,9 @@ public class BrushRenderContext : RenderContext
     public VecD StartPoint { get; }
     public VecD LastAppliedPoint { get; }
     public VecD TargetSampleTexturePos { get; }
+    public bool DryRun { get; set; } = false;
 
-    public BrushRenderContext(Canvas renderSurface, KeyFrameTime frameTime, ChunkResolution chunkResolution, VecI renderOutputSize, VecI documentSize, ColorSpace processingColorSpace, SamplingOptions desiredSampling, BrushData brushData, Texture? targetSampledTexture, VecD targetSampleTexturePos, Texture? targetFullTexture, IReadOnlyNodeGraph graph, VecD startPoint, VecD lastAppliedPoint, double opacity = 1) : base(renderSurface, frameTime, chunkResolution, renderOutputSize, documentSize, processingColorSpace, desiredSampling, graph, opacity)
+    public BrushRenderContext(Canvas? renderSurface, KeyFrameTime frameTime, ChunkResolution chunkResolution, VecI renderOutputSize, VecI documentSize, ColorSpace processingColorSpace, SamplingOptions desiredSampling, BrushData brushData, Texture? targetSampledTexture, VecD targetSampleTexturePos, Texture? targetFullTexture, IReadOnlyNodeGraph graph, VecD startPoint, VecD lastAppliedPoint, int graphCacheId, double opacity = 1) : base(renderSurface, frameTime, chunkResolution, renderOutputSize, documentSize, processingColorSpace, desiredSampling, graph, opacity)
     {
         BrushData = brushData;
         StartPoint = startPoint;
@@ -26,13 +27,14 @@ public class BrushRenderContext : RenderContext
         TargetSampledTexture = targetSampledTexture;
         TargetFullTexture = targetFullTexture;
         TargetSampleTexturePos = targetSampleTexturePos;
+        GraphCacheId = graphCacheId;
     }
 
     public override RenderContext Clone()
     {
         return new BrushRenderContext(RenderSurface, FrameTime, ChunkResolution, RenderOutputSize, DocumentSize,
             ProcessingColorSpace, DesiredSamplingOptions, BrushData, TargetSampledTexture, TargetSampleTexturePos, TargetFullTexture, Graph,
-            StartPoint, LastAppliedPoint, Opacity)
+            StartPoint, LastAppliedPoint, GraphCacheId, Opacity)
         {
             VisibleDocumentRegion = VisibleDocumentRegion,
             AffectedArea = AffectedArea,
