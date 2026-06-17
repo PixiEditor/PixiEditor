@@ -22,6 +22,12 @@
         ColorState="{Binding ColorsSubViewModel.PrimaryColorState, Mode=TwoWay}"
         EnableGradientsTab="False"
         EnableRecentBrushes="False"
+        Name="Picker"
         UseHintColor="False">
+        <Interaction.Behaviors>
+            <ExecuteCommandOnPointerPressedBehavior MarkAsHandled="False" EventRoutingStrategy="Tunnel" Command="{Binding ColorsSubViewModel.StartedChangingColorCommand}"/>
+            <ExecuteCommandOnPointerCaptureLostBehavior Command="{Binding ColorsSubViewModel.StoppedChangingColorCommand}"/>
+            <ExecuteCommandOnPointerReleasedBehavior Command="{Binding ColorsSubViewModel.StoppedChangingColorCommand}"/>
+        </Interaction.Behaviors>
     </input:SmallColorPicker>
 </UserControl>
