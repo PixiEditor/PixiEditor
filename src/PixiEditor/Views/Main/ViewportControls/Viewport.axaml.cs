@@ -10,29 +10,29 @@ using Avalonia.Skia;
 using Avalonia.VisualTree;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
-using PixiEditor.Helpers;
-using PixiEditor.ViewModels;
-using PixiEditor.Views.Visuals;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
+using Drawie.Numerics;
+using Drawie.Skia;
+using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.ChangeableDocument.Rendering.ContextData;
+using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
+using PixiEditor.Helpers;
 using PixiEditor.Helpers.Behaviours;
 using PixiEditor.Helpers.UI;
 using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Position;
-using Drawie.Numerics;
-using Drawie.Skia;
-using PixiEditor.ChangeableDocument.Enums;
-using PixiEditor.ChangeableDocument.Rendering.ContextData;
-using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.UI.Common.Behaviors;
+using PixiEditor.ViewModels;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.SubViewModels;
 using PixiEditor.ViewModels.Tools.Tools;
 using PixiEditor.Views.Overlays;
 using PixiEditor.Views.Rendering;
+using PixiEditor.Views.Visuals;
 using PixiEditor.Zoombox;
 using Point = Avalonia.Point;
 
@@ -697,7 +697,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         scene.AngleRadians = 0;
         scene.CenterContent(Document.GetRenderOutputSize(ViewportRenderOutput));
     }
-    
+
     private void RecenterHorizontalSymmetryClicked(object? sender, RoutedEventArgs e)
     {
         if (Document is null)
@@ -792,7 +792,9 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         ViewportWindowViewModel vm = ((ViewportWindowViewModel)DataContext);
         var tools = vm.Owner.Owner.ToolsSubViewModel;
 
-        var superSpecialRightClick = tools is { RightClickMode: RightClickMode.SecondaryColor, ActiveTool: BrushBasedToolViewModel
+        var superSpecialRightClick = tools is
+        {
+            RightClickMode: RightClickMode.SecondaryColor, ActiveTool: BrushBasedToolViewModel
             {
                 SupportsSecondaryActionOnRightClick: true
             }

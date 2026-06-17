@@ -166,8 +166,8 @@ public static partial class PixiPerfectIcons
     public const string PlusSquare = "\uE967";
     public const string PointsCrossed = "\uE918";
     public const string PutImage = "\uE908";
-    public const string RecenterXSymmetry = "\uE9F0";
-    public const string RecenterYSymmetry = "\uE9F1";
+    public const string RecenterXSymmetry = "\uE9F1";
+    public const string RecenterYSymmetry = "\uE9F0";
     public const string RectangleSelection = "\uE968";
     public const string Reddit = "\uE905";
     public const string Redo = "\uE969";
