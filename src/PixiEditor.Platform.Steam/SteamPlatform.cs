@@ -35,7 +35,6 @@ public class SteamPlatform : IPlatform
             {
                 var paths = new List<string>(steamProvider.ExtensionsPaths);
                 SteamApps.GetAppInstallDir(AppId, out string path, 4096);
-                Console.WriteLine($"Steam app installation directory: {path}");
                 if (path != null)
                 {
                     paths.Add(Path.Combine(path, "Extensions"));
