@@ -17,7 +17,7 @@
         <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,2">
             <TextBlock ui:Translator.TooltipKey="{Binding DisplayName}" ui:Translator.Key="{Binding DisplayName}"
                        VerticalAlignment="Center" />
-            <StackPanel Grid.Column="1" Orientation="Horizontal">
+            <StackPanel Grid.Column="1" Orientation="Horizontal" IsVisible="{Binding ShowInputField}">
                 <Button Content="+" Width="35" Padding="0" Command="{Binding AddColorCommand}"
                         ui:Translator.TooltipKey="ADD_COLOR" />
                 <Button Width="35" Padding="0" Click="ImportFromFile_OnClick"
@@ -45,7 +45,8 @@
                             PointerPressed="InputElement_OnPointerPressed"
                             Width="24" Height="20"
                             SelectedColor="{Binding Color, Mode=TwoWay, Converter={converters:GenericColorToMediaColorConverter}}" />
-                        <Button Content="×" Width="16" Padding="0" Command="{Binding RemoveCommand}" />
+                        <Button Content="×" Width="16" Padding="0" Command="{Binding RemoveCommand}"
+                                IsVisible="{Binding $parent[ItemsControl].DataContext.ShowInputField}" />
                     </StackPanel>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
