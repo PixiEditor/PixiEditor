@@ -35,7 +35,10 @@ internal class QuickChangeLayerColorsExecutor : UpdateableChangeExecutor, IQuick
 
     public override void OnColorChanged(Color color, bool primary)
     {
-        EnqueueColorChange(color);
+        if (primary)
+        {
+            EnqueueColorChange(color);
+        }
     }
 
     public override void ForceStop()

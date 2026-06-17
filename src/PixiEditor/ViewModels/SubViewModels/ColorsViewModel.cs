@@ -61,8 +61,6 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>, IColorsHandler
     private ColorState primaryColorState;
     private LocalPalettesFetcher _localPaletteFetcher;
 
-    private ChangeBlock activeChangeBlock;
-
     public ColorState PrimaryColorState
     {
         get => primaryColorState;
@@ -100,6 +98,7 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>, IColorsHandler
     }
 
     public ICommand StoppedChangingColorCommand { get; }
+    public ICommand StartedChangingColorCommand { get; }
 
     public ColorsViewModel(ViewModelMain owner)
         : base(owner)
@@ -112,6 +111,17 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>, IColorsHandler
         StoppedChangingColorCommand = new RelayCommand(() =>
         {
             EndQuickColorChange();
+        });
+        
+        StartedChangingColorCommand = new RelayCommand(() =>
+        {
+            var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+            if (doc == null) return;
+            
+            if (!doc.IsChangeFeatureActive<IQuickColorLayerExecutor>() && !doc.BlockingUpdateableChangeActive)
+            {
+                BeginQuickColorChange();
+            }
         });
     }
 
@@ -461,11 +471,6 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>, IColorsHandler
 
         if (e.PropertyName == nameof(PrimaryColor))
         {
-            if (!doc.IsChangeFeatureActive<IQuickColorLayerExecutor>() && !doc.BlockingUpdateableChangeActive)
-            {
-                BeginQuickColorChange();
-            }
-
             doc.EventInlet.PrimaryColorChanged(PrimaryColor);
         }
         else if (e.PropertyName == nameof(SecondaryColor))
