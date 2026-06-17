@@ -6,7 +6,7 @@ namespace PixiEditor.Platform.Steam;
 
 public class SteamPlatform : IPlatform
 {
-    public static AppId_t AppId = new AppId_t(2435860);
+    public static readonly AppId_t AppId = new AppId_t(2435860);
     
     public string Id { get; } = "steam";
     public string Name => "Steam";
@@ -14,7 +14,7 @@ public class SteamPlatform : IPlatform
     public IAdditionalContentProvider? AdditionalContentProvider => steamProvider;
     public IIdentityProvider? IdentityProvider { get; }
 
-    private SteamAdditionalContentProvider steamProvider;
+    private readonly SteamAdditionalContentProvider steamProvider;
     
     public SteamPlatform(string[] extensionsPaths)
     {
@@ -35,7 +35,7 @@ public class SteamPlatform : IPlatform
             {
                 var paths = new List<string>(steamProvider.ExtensionsPaths);
                 SteamApps.GetAppInstallDir(AppId, out string path, 4096);
-                if (path != null)
+                if (!string.IsNullOrEmpty(path))
                 {
                     paths.Add(Path.Combine(path, "Extensions"));
                     steamProvider.ExtensionsPaths = paths.ToArray();
