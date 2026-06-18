@@ -12,6 +12,7 @@ using PixiEditor.Models.Input;
 using Drawie.Numerics;
 using PixiEditor.Extensions.WasmRuntime.Utilities;
 using PixiEditor.Helpers;
+using PixiEditor.Models.Layers;
 using PixiEditor.UI.Common.Fonts;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Tools.ToolSettings.Settings;
@@ -123,7 +124,7 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
 
     internal void SelectedLayersChanged(IStructureMemberHandler[] layers)
     {
-        if (layers.Length is > 1 or 0)
+        if (layers.Length == 0)
         {
             CanBeUsedOnActiveLayer = SupportedLayerTypes == null;
             if (IsActive)
@@ -134,7 +135,7 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
             return;
         }
 
-        var layer = layers[0];
+        var layer = layers.FirstOrDefault(x => x.Selection == StructureMemberSelectionType.Hard, layers[0]);
 
         if (IsActive)
         {
@@ -146,6 +147,7 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
             CanBeUsedOnActiveLayer = true;
             return;
         }
+
 
         foreach (var type in SupportedLayerTypes)
         {

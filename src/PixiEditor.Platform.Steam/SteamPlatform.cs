@@ -31,17 +31,6 @@ public class SteamPlatform : IPlatform
             Console.WriteLine($"Steam API initialized: {initialized}");
             if (!initialized) return false;
 
-            if (OperatingSystem.IsMacOS())
-            {
-                var paths = new List<string>(steamProvider.ExtensionsPaths);
-                SteamApps.GetAppInstallDir(AppId, out string path, 4096);
-                if (!string.IsNullOrEmpty(path))
-                {
-                    paths.Add(Path.Combine(path, "Extensions"));
-                    steamProvider.ExtensionsPaths = paths.ToArray();
-                }
-            }
-
             IdentityProvider?.Initialize();
             return true;
         }

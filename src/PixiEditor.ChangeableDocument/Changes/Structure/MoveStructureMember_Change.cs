@@ -54,14 +54,61 @@ internal class MoveStructureMember_Change : Change
         var sourceNode = document.FindMember(sourceNodeGuid);
         var targetNode = document.FindNode(targetNodeGuid);
         originalPositions = null;
-        if (sourceNode is null || targetNode is not IRenderInput backgroundInput)
+        if (sourceNode is null)
             return [];
 
         List<IChangeInfo> changes = new();
 
         Guid oldBackgroundId = sourceNode.Background.Node.Id;
 
-        InputProperty<Painter?> inputProperty = backgroundInput.Background;
+        var potentialInputProperties = targetNode.InputProperties.Where(x => x.ValueType == typeof(Painter)).ToArray();
+        InputProperty<Painter?> inputProperty = targetNode is IRenderInput renderInput ? renderInput.Background : null;
+        if (inputProperty == null)
+        {
+            foreach (var potentialInputProperty in potentialInputProperties)
+            {
+                bool traversesBackToSource = false;
+
+                potentialInputProperty.Connection?.Node.TraverseBackwards((x, prop) =>
+                {
+                    if (x.Id == sourceNodeGuid)
+                    {
+                        traversesBackToSource = true;
+                        return false;
+                    }
+
+                    return true;
+                });
+
+                if (!traversesBackToSource)
+                {
+                    potentialInputProperty.Connection?.Node.TraverseForwards((x, prop) =>
+                    {
+                        if (x.Id == sourceNodeGuid)
+                        {
+                            traversesBackToSource = true;
+                            return false;
+                        }
+
+                        return true;
+                    });
+                }
+
+                if (traversesBackToSource)
+                {
+                    inputProperty = potentialInputProperty as InputProperty<Painter?>;
+                    break;
+                }
+            }
+
+            var firstPotential = potentialInputProperties.FirstOrDefault();
+            if (inputProperty == null && firstPotential?.Connection == null)
+            {
+                inputProperty = firstPotential as InputProperty<Painter?>;
+            }
+        }
+
+        if(inputProperty is null || (inputProperty.Connection?.Node == sourceNode && !putInsideFolder)) return [];
 
         if (targetNode is FolderNode folder && putInsideFolder)
         {
