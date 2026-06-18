@@ -44,8 +44,6 @@ public class CommentNodeView : ResizableNodeView
     private INodePropertyHandler? colorHandler;
     private bool updatingPicker;
 
-    private ResizeMode currentHoverMode;
-
     static CommentNodeView()
     {
         NodeProperty.Changed.AddClassHandler<CommentNodeView>((view, e) =>
