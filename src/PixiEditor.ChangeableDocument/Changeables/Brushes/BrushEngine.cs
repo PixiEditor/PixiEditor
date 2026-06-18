@@ -23,6 +23,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Brushes;
 
 public class BrushEngine : IDisposable
 {
+    private static int nextRenderId = 0;
     private TextureCache cache = new();
     private VecD lastPos;
     private VecD startPos;
@@ -43,6 +44,11 @@ public class BrushEngine : IDisposable
     // Higher = smoother but more "laggy" pressure response.
     // 10 points is roughly 10 pixels of stroke history.
     public int PressureSmoothingWindowSize { get; set; } = 10;
+
+    public BrushEngine()
+    {
+        nextRenderId += 2;
+    }
 
     public void ResetState()
     {
@@ -278,7 +284,7 @@ public class BrushEngine : IDisposable
 
         if (requiresSampleTexture && rect is { Width: > 0, Height: > 0 } && target != null)
         {
-            RectI targetRect = (RectI)rect.RoundOutwards().Inflate(brushNode.TargetOversample.Value);
+            RectI targetRect = (RectI)rect.Round().Inflate(brushNode.TargetOversample.Value);
             surfaceUnderRect = UpdateSurfaceUnderRect(target, targetRect, colorSpace,
                 brushNode.AllowSampleStacking.Value);
         }
@@ -296,13 +302,14 @@ public class BrushEngine : IDisposable
             target?.CommittedSize ?? VecI.Zero,
             colorSpace, samplingOptions, brushData,
             surfaceUnderRect, rect.TopLeft, fullTexture, brushData.BrushGraph,
-            startPos, lastPos)
+            startPos, lastPos, nextRenderId)
         {
             PointerInfo = pointerInfo with { PositionOnCanvas = point },
             EditorData = shouldErase
                 ? new EditorData(editorData.PrimaryColor.WithAlpha(255), editorData.SecondaryColor)
                 : editorData,
-            KeyboardInfo = keyboardInfo
+            KeyboardInfo = keyboardInfo,
+            DryRun = true
         };
 
         // Evaluate shape without painting if no target
@@ -322,11 +329,12 @@ public class BrushEngine : IDisposable
 
             if (shape.Bounds is { Width: > 0, Height: > 0 })
             {
-                context.TargetSampledTexture?.Dispose();
+                //context.TargetSampledTexture?.Dispose();
                 surfaceUnderRect = UpdateSurfaceUnderRect(target, (RectI)shape.TightBounds.Round().Inflate(brushNode.TargetOversample.Value), colorSpace,
                     brushNode.AllowSampleStacking.Value);
                 context.TargetSampledTexture = surfaceUnderRect;
                 context.RenderOutputSize = ((RectI)shape.TightBounds.Round()).Size;
+                context.GraphCacheId = nextRenderId + 1;
             }
         }
 
@@ -349,6 +357,7 @@ public class BrushEngine : IDisposable
     private void PaintBrush(ChunkyImage target, BrushData brushData, VecD point, BrushOutputNode brushNode,
         BrushRenderContext context, RectD rect, bool flipX, bool flipY)
     {
+        context.DryRun = false;
         brushData.BrushGraph.Execute(brushNode, context);
 
         var vectorShape = brushNode.VectorShape.Value;

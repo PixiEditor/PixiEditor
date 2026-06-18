@@ -146,6 +146,7 @@
             <system:String x:Key="icon-minus">&#xE9D8;</system:String>
             <system:String x:Key="icon-mirror-horizontal">&#xE97F;</system:String>
             <system:String x:Key="icon-mirror-vertical">&#xE97C;</system:String>
+            <system:String x:Key="icon-mountain-snow">&#xE9F2;</system:String>
             <system:String x:Key="icon-mouse">&#xE9D1;</system:String>
             <system:String x:Key="icon-mouse-pointer">&#xE960;</system:String>
             <system:String x:Key="icon-move-view">&#xE962;</system:String>

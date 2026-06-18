@@ -142,6 +142,7 @@ public static partial class PixiPerfectIcons
     public const string Minus = "\uE9D8";
     public const string MirrorHorizontal = "\uE97F";
     public const string MirrorVertical = "\uE97C";
+    public const string MountainSnow = "\uE9F2";
     public const string Mouse = "\uE9D1";
     public const string MousePointer = "\uE960";
     public const string MoveView = "\uE962";
