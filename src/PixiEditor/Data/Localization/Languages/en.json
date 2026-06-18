@@ -1508,5 +1508,6 @@
   "SWAP_COLOR_TOOL_TOOLTIP": "Changes the colors of the affected area to match Primary Color.",
   "SWAP_COLOR_TOOL_ACTION_DISPLAY_DEFAULT": "Click on the canvas to swap colors. Replace Single Color swaps only pixels of the color you clicked first. Hardness 100 should be used with low Tolerance.",
   "COLOR_RAMP_NODE": "Color Ramp Node",
-  "COLOR_RAMP_FACTOR": "Factor"
+  "COLOR_RAMP_FACTOR": "Factor",
+  "TEXTBOX_TYPE_WATERMARK": "Type here..."
 }
