@@ -28,12 +28,13 @@ public abstract class ResizableNodeView : NodeView
     protected SolidColorBrush? fillBrush;
     protected SolidColorBrush? strokeBrush;
 
+    public double FillOpacity { get; set; } = 1;
 
     private VecD _dragInitialPosition;
 
 
     public static readonly StyledProperty<VecI> BoxSizeProperty =
-        AvaloniaProperty.Register<StickyNoteNodeView, VecI>(
+        AvaloniaProperty.Register<ResizableNodeView, VecI>(
             nameof(BoxSize), defaultBindingMode: BindingMode.TwoWay);
 
     public VecI BoxSize
@@ -62,13 +63,14 @@ public abstract class ResizableNodeView : NodeView
 
         if (_rectBorder != null)
         {
-            fillBrush = new SolidColorBrush();
+            fillBrush = new SolidColorBrush() { Opacity = FillOpacity };
             strokeBrush = new SolidColorBrush();
             _rectBorder.Background = fillBrush;
             _rectBorder.BorderBrush = strokeBrush;
         }
 
     }
+
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)
     {

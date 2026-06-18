@@ -19,7 +19,7 @@ public class CommentNode : Node
     {
         CommentText = CreateInput(TextPropertyName, "TEXT", "");
         Size = CreateInput(SizePropertyName, "SIZE", new VecI(200, 120)).WithRules(v => v.Min(VecI.One));
-        Color = CreateInput<Color>(ColorPropertyName, "COMMENT_WINDOW_COLOR", Colors.LightGray);
+        Color = CreateInput<Color>(ColorPropertyName, "COMMENT_WINDOW_COLOR", Colors.Gray);
     }
 
     protected override void OnExecute(RenderContext context)

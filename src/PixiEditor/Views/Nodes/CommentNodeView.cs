@@ -52,6 +52,11 @@ public class CommentNodeView : ResizableNodeView
             view.OnNodeChanged(e.OldValue as INodeHandler, e.NewValue as INodeHandler));
     }
 
+    public CommentNodeView()
+    {
+        FillOpacity = 0.5;
+    }
+
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
     {
         base.OnAttachedToVisualTree(e);
