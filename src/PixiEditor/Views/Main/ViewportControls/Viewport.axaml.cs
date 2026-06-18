@@ -717,7 +717,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
             SymmetryAxisDirection.Horizontal,
             (double)Document.Height / 2);
     }
-
+    
     private RectD? CalculateVisibleRegion()
     {
         if (Document is null) return null;
