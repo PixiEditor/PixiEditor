@@ -10,6 +10,7 @@
             <ControlTemplate>
                 <Border Name="PART_Rectangle"
                         BorderThickness="1"
+                        UseLayoutRounding="True"
                         MinWidth="160" MinHeight="40"
                         Width="{Binding BoxSize.X, RelativeSource={RelativeSource TemplatedParent}}"
                         Height="{Binding BoxSize.Y, RelativeSource={RelativeSource TemplatedParent}}"
@@ -17,16 +18,16 @@
                     <Border.Effect>
                         <DropShadowEffect Color="Black" OffsetX="3" OffsetY="3" BlurRadius="8" Opacity="0.35" />
                     </Border.Effect>
-                    <Grid>
+                    <Panel>
                         <TextBox Name="PART_TextBox"
                                  AcceptsReturn="True"
                                  TextWrapping="Wrap"
                                  TextAlignment="Left"
-                                 HorizontalAlignment="Left"
+                                 HorizontalAlignment="Stretch"
                                  VerticalAlignment="Top"
                                  Background="Transparent"
                                  BorderThickness="0"
-                                 Margin="6,4"
+                                 Margin="6,4, 0, 0"
                                  Watermark="{localization:Translate Key=TEXTBOX_TYPE_WATERMARK}"
                                  Foreground="{Binding ForegroundBrush, RelativeSource={RelativeSource TemplatedParent}}"
                                  Text="{Binding Text, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
@@ -41,7 +42,7 @@
                                                          Margin="4"
                                                          Width="40" Height="20"
                                                          EnableGradientsTab="false" />
-                    </Grid>
+                    </Panel>
                 </Border>
             </ControlTemplate>
         </Setter>
