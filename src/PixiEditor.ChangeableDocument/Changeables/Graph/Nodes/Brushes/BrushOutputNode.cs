@@ -163,12 +163,12 @@ public class BrushOutputNode : Node
                     || ContentTexture.ColorSpace != context.ProcessingColorSpace
                     || !drawnContentTextureOnce || ContentTransform.Value != lastTranform)
                 {
-                    if(context.RenderOutputSize.ShortestAxis <= 0)
+                    if(context.RenderOutputSize.ShortestAxis <= 0 || context is not BrushRenderContext brushContext || brushContext.DryRun)
                     {
                         return;
                     }
 
-                    ContentTexture = cache.RequestTexture(0, context.RenderOutputSize, context.ProcessingColorSpace);
+                    ContentTexture = cache.RequestTexture(context.GraphCacheId, context.RenderOutputSize, context.ProcessingColorSpace);
                     ContentTexture.DrawingSurface.Canvas.Save();
                     ContentTexture.DrawingSurface.Canvas.SetMatrix(ContentTransform.Value);
                     Content.Value.Paint(context, ContentTexture.DrawingSurface.Canvas);
