@@ -27,7 +27,7 @@
                                  VerticalAlignment="Top"
                                  Background="Transparent"
                                  BorderThickness="0"
-                                 Margin="6,4, 0, 0"
+                                 Margin="6,4"
                                  Watermark="{localization:Translate Key=TEXTBOX_TYPE_WATERMARK}"
                                  Foreground="{Binding ForegroundBrush, RelativeSource={RelativeSource TemplatedParent}}"
                                  Text="{Binding Text, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
