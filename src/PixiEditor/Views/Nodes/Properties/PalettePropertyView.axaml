@@ -13,11 +13,12 @@
         <properties1:PalettePropertyViewModel />
     </Design.DataContext>
 
-    <StackPanel Margin="0,2">
+    <StackPanel Margin="0,2"
+                HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
         <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,2">
             <TextBlock ui:Translator.TooltipKey="{Binding DisplayName}" ui:Translator.Key="{Binding DisplayName}"
                        VerticalAlignment="Center" />
-            <StackPanel Grid.Column="1" Orientation="Horizontal" IsVisible="{Binding ShowInputField}">
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4" IsVisible="{Binding ShowInputField}">
                 <Button Content="+" Width="35" Padding="0" Command="{Binding AddColorCommand}"
                         ui:Translator.TooltipKey="ADD_COLOR" />
                 <Button Width="35" Padding="0" Click="ImportFromFile_OnClick"
@@ -31,7 +32,7 @@
             </StackPanel>
         </Grid>
 
-        <ItemsControl ItemsSource="{Binding Swatches}" Margin="0,1">
+        <ItemsControl ItemsSource="{Binding Swatches}" Margin="0,1" IsVisible="{Binding ShowInputField}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <UniformGrid Columns="5" />
@@ -45,8 +46,10 @@
                             PointerPressed="InputElement_OnPointerPressed"
                             Width="24" Height="20"
                             SelectedColor="{Binding Color, Mode=TwoWay, Converter={converters:GenericColorToMediaColorConverter}}" />
-                        <Button Content="×" Width="16" Padding="0" Command="{Binding RemoveCommand}"
-                                IsVisible="{Binding $parent[ItemsControl].DataContext.ShowInputField}" />
+                        <Button Content="×" Width="16" Height="20" Padding="0"
+                                VerticalAlignment="Center"
+                                HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                                Command="{Binding RemoveCommand}" />
                     </StackPanel>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
