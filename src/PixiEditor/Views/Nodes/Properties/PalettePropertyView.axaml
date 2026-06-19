@@ -1,0 +1,61 @@
+<properties:NodePropertyView xmlns="https://github.com/avaloniaui"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                             xmlns:properties="clr-namespace:PixiEditor.Views.Nodes.Properties"
+                             xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+                             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+                             xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker.AvaloniaUI"
+                             xmlns:properties1="clr-namespace:PixiEditor.ViewModels.Nodes.Properties"
+                             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+                             x:Class="PixiEditor.Views.Nodes.Properties.PalettePropertyView">
+    <Design.DataContext>
+        <properties1:PalettePropertyViewModel />
+    </Design.DataContext>
+
+    <StackPanel Margin="0,2"
+                HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
+        <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,2">
+            <TextBlock ui:Translator.TooltipKey="{Binding DisplayName}" ui:Translator.Key="{Binding DisplayName}"
+                       VerticalAlignment="Center" />
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4" IsVisible="{Binding ShowInputField}">
+                <Button Content="+" Width="35" Padding="0" Command="{Binding AddColorCommand}"
+                        ui:Translator.TooltipKey="ADD_COLOR" />
+                <Button Width="35" Padding="0" Click="BrowsePalettes_OnClick"
+                        FontFamily="{DynamicResource PixiPerfectIcons}"
+                        Content="{DynamicResource icon-database}"
+                        ui:Translator.TooltipKey="BROWSE_PALETTES" />
+                <Button Width="35" Padding="0" Click="ImportFromDock_OnClick"
+                        FontFamily="{DynamicResource PixiPerfectIcons}"
+                        Content="{DynamicResource icon-color-palette}"
+                        ui:Translator.TooltipKey="IMPORT_PALETTE_FROM_DOCUMENT" />
+            </StackPanel>
+        </Grid>
+
+        <ItemsControl ItemsSource="{Binding Swatches}" Margin="0,1" IsVisible="{Binding ShowInputField}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid Columns="5" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal" Margin="1">
+                        <colorPicker:PortableColorPicker
+                            EnableGradientsTab="false"
+                            PointerPressed="InputElement_OnPointerPressed"
+                            Width="24" Height="20"
+                            SelectedColor="{Binding Color, Mode=TwoWay, Converter={converters:GenericColorToMediaColorConverter}}" />
+                        <Button Width="16" Height="20" Padding="0"
+                                VerticalAlignment="Center"
+                                FontFamily="{DynamicResource PixiPerfectIcons}"
+                                FontSize="10"
+                                Content="{DynamicResource icon-exit}"
+                                HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                                Command="{Binding RemoveCommand}" />
+                    </StackPanel>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </StackPanel>
+</properties:NodePropertyView>
