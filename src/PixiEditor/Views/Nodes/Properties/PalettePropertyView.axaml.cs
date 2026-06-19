@@ -1,14 +1,15 @@
-﻿using System.Linq;
-using Avalonia;
+using System.Collections.Generic;
+using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
-using Avalonia.Platform.Storage;
-using PixiEditor.Helpers;
+using CommunityToolkit.Mvvm.Input;
+using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.ViewModels;
 using PixiEditor.ViewModels.Nodes.Properties;
+using PixiEditor.Views.Windows;
 
 namespace PixiEditor.Views.Nodes.Properties;
 
@@ -24,28 +25,22 @@ public partial class PalettePropertyView : NodePropertyView
         e.Handled = true;
     }
 
-    private async void ImportFromFile_OnClick(object? sender, RoutedEventArgs e)
+    private async void BrowsePalettes_OnClick(object? sender, RoutedEventArgs e)
     {
         if (DataContext is not PalettePropertyViewModel vm)
             return;
 
-        await Application.Current.ForDesktopMainWindowAsync(async window =>
+        var browser = PalettesBrowser.Open();
+        browser.UsePaletteTooltipKey = "USE_PALETTE";
+        browser.ImportPaletteCommand = new RelayCommand<List<PaletteColor>>(colors =>
         {
-            var provider = ViewModelMain.Current.ColorsSubViewModel.PaletteProvider;
-            var files = await window.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions()
-            {
-                FileTypeFilter = PaletteHelpers.GetFilter(provider.AvailableParsers, true),
-            });
-
-            if (files is null || files.Count == 0)
+            if (colors is null)
                 return;
 
-            var data = await PaletteHelpers.GetValidParser(provider.AvailableParsers, files[0].Path.LocalPath);
-            if (data is null)
-                return;
-
-            vm.ImportColors(data.Colors.Select(c => c.ToColor()));
+            vm.ImportColors(colors.Select(c => c.ToColor()));
         });
+
+        await browser.UpdatePaletteList();
     }
 
     private void ImportFromDock_OnClick(object? sender, RoutedEventArgs e)

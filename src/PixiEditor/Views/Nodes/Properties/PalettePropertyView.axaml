@@ -21,10 +21,10 @@
             <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4" IsVisible="{Binding ShowInputField}">
                 <Button Content="+" Width="35" Padding="0" Command="{Binding AddColorCommand}"
                         ui:Translator.TooltipKey="ADD_COLOR" />
-                <Button Width="35" Padding="0" Click="ImportFromFile_OnClick"
+                <Button Width="35" Padding="0" Click="BrowsePalettes_OnClick"
                         FontFamily="{DynamicResource PixiPerfectIcons}"
-                        Content="{DynamicResource icon-hard-drive}"
-                        ui:Translator.TooltipKey="IMPORT_PALETTE_FROM_FILE" />
+                        Content="{DynamicResource icon-database}"
+                        ui:Translator.TooltipKey="BROWSE_PALETTES" />
                 <Button Width="35" Padding="0" Click="ImportFromDock_OnClick"
                         FontFamily="{DynamicResource PixiPerfectIcons}"
                         Content="{DynamicResource icon-color-palette}"
