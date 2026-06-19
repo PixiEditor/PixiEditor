@@ -46,8 +46,11 @@
                             PointerPressed="InputElement_OnPointerPressed"
                             Width="24" Height="20"
                             SelectedColor="{Binding Color, Mode=TwoWay, Converter={converters:GenericColorToMediaColorConverter}}" />
-                        <Button Content="×" Width="16" Height="20" Padding="0"
+                        <Button Width="16" Height="20" Padding="0"
                                 VerticalAlignment="Center"
+                                FontFamily="{DynamicResource PixiPerfectIcons}"
+                                FontSize="10"
+                                Content="{DynamicResource icon-exit}"
                                 HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
                                 Command="{Binding RemoveCommand}" />
                     </StackPanel>
