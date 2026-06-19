@@ -46,7 +46,7 @@
                             PointerPressed="InputElement_OnPointerPressed"
                             Width="24" Height="20"
                             SelectedColor="{Binding Color, Mode=TwoWay, Converter={converters:GenericColorToMediaColorConverter}}" />
-                        <Button Content="×" Width="16" Height="20" Padding="0"
+                        <Button Content="×" Width="16" Height="20" Padding="0,0,0,4"
                                 VerticalAlignment="Center"
                                 HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
                                 Command="{Binding RemoveCommand}" />
