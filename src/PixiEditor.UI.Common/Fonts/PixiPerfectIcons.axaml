@@ -146,6 +146,7 @@
             <system:String x:Key="icon-minus">&#xE9D8;</system:String>
             <system:String x:Key="icon-mirror-horizontal">&#xE97F;</system:String>
             <system:String x:Key="icon-mirror-vertical">&#xE97C;</system:String>
+            <system:String x:Key="icon-mountain-snow">&#xE9F2;</system:String>
             <system:String x:Key="icon-mouse">&#xE9D1;</system:String>
             <system:String x:Key="icon-mouse-pointer">&#xE960;</system:String>
             <system:String x:Key="icon-move-view">&#xE962;</system:String>
@@ -170,6 +171,8 @@
             <system:String x:Key="icon-plus-square">&#xE967;</system:String>
             <system:String x:Key="icon-points-crossed">&#xE918;</system:String>
             <system:String x:Key="icon-put-image">&#xE908;</system:String>
+            <system:String x:Key="icon-recenter-x-symmetry">&#xE9F1;</system:String>
+            <system:String x:Key="icon-recenter-y-symmetry">&#xE9F0;</system:String>
             <system:String x:Key="icon-rectangle-selection">&#xE968;</system:String>
             <system:String x:Key="icon-reddit">&#xE905;</system:String>
             <system:String x:Key="icon-redo">&#xE969;</system:String>

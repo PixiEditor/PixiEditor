@@ -21,7 +21,7 @@ using Color = Drawie.Backend.Core.ColorsImpl.Color;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
-internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEvents, IQuickToolSwitchable
+internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEvents, IQuickToolSwitchable, IQuickColorLayerExecutor
 {
     private ITextToolHandler textHandler;
     private ITextToolbar toolbar;
@@ -388,6 +388,11 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
     bool IExecutorFeature.IsFeatureEnabled<T>()
     {
-        return typeof(T) == typeof(ITextOverlayEvents) || typeof(T) == typeof(IQuickToolSwitchable);
+        return typeof(T) == typeof(ITextOverlayEvents) || typeof(T) == typeof(IQuickToolSwitchable) || (typeof(T) == typeof(IQuickColorLayerExecutor) && document.TextOverlayHandler.IsActive);
+    }
+
+    public void EndQuickColorChange()
+    {
+        
     }
 }
