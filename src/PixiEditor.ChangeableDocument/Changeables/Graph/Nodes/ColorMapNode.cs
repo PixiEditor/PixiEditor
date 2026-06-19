@@ -22,14 +22,14 @@ public class ColorMapNode : RenderNode, IRenderInput
     protected override bool ExecuteOnlyOnCacheChange => true;
     protected override CacheTriggerFlags CacheTrigger => CacheTriggerFlags.Inputs;
 
-    private const int MaxPaletteColors = 256;
-
     private Shader? shader;
     private Shader? imageShader;
     private Shader? paletteShader;
     private Paint paint;
 
     private string shaderCode = """
+                                #version 300
+
                                 uniform shader iImage;
                                 uniform shader iPalette;
                                 uniform int paletteCount;
@@ -39,8 +39,7 @@ public class ColorMapNode : RenderNode, IRenderInput
                                     half3 c = src.rgb;
                                     half3 best = iPalette.eval(float2(0.5, 0.5)).rgb;
                                     half bestD = dot(c - best, c - best);
-                                    for (int i = 1; i < 256; i++) {
-                                        if (i >= paletteCount) { break; }
+                                    for (int i = 1; i < paletteCount; i++) {
                                         half3 cand = iPalette.eval(float2(float(i) + 0.5, 0.5)).rgb;
                                         half d = dot(c - cand, c - cand);
                                         if (d < bestD) { bestD = d; best = cand; }
@@ -88,7 +87,7 @@ public class ColorMapNode : RenderNode, IRenderInput
         Background.Value.Paint(backgroundContext, source.DrawingSurface.Canvas);
 
         Palette palette = Palette.Value;
-        int count = palette != null ? Math.Min(palette.Count, MaxPaletteColors) : 0;
+        int count = palette != null ? palette.Count : 0;
 
         Texture target = RequestTexture(0, finalSize, colorSpace);
 
