@@ -10,16 +10,48 @@
         <Button Classes="pixi-icon" FontSize="16"
                 ui:Translator.TooltipKey="CUSTOM_FONT"
                 Command="{Binding UploadFontCommand}" Content="{DynamicResource icon-upload}" />
-        <ComboBox VerticalAlignment="Center"
-                  MinWidth="85"
-                  ItemsSource="{Binding Fonts}"
-                  SelectedIndex="{Binding FontIndex, Mode=TwoWay}">
-            <ComboBox.ItemTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding Name}"
-                               FontFamily="{Binding Converter={converters:FontFamilyNameToAvaloniaFontFamily}}" />
-                </DataTemplate>
-            </ComboBox.ItemTemplate>
-        </ComboBox>
+        <DropDownButton x:Name="FontDropDown"
+                        Classes="dropdown-picker-button"
+                        Width="150"
+                        Height="25"
+                        Padding="8 0"
+                        Focusable="False">
+            <DropDownButton.Content>
+                <TextBlock Text="{Binding SelectedFontFamily.Name}"
+                           TextTrimming="CharacterEllipsis"
+                           FontFamily="{Binding SelectedFontFamily, Converter={converters:FontFamilyNameToAvaloniaFontFamily}}" />
+            </DropDownButton.Content>
+            <DropDownButton.Flyout>
+                <Flyout Placement="BottomEdgeAlignedLeft"
+                        FlyoutPresenterClasses="dropdown-picker-flyout"
+                        ShowMode="Standard"
+                        Closed="FontFlyout_OnClosed">
+                    <ListBox x:Name="FontList"
+                             Classes="dropdown-picker-list"
+                             Width="190"
+                             MaxHeight="280"
+                             ItemsSource="{Binding Fonts}"
+                             SelectedIndex="{Binding FontIndex, Mode=TwoWay}"
+                             SelectionChanged="FontList_OnSelectionChanged"
+                             PointerExited="FontList_OnPointerExited"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="Transparent"
+                                        PointerEntered="FontItem_OnPointerEntered"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Stretch">
+                                    <TextBlock Text="{Binding Name}"
+                                               FontFamily="{Binding Converter={converters:FontFamilyNameToAvaloniaFontFamily}}"
+                                               VerticalAlignment="Center"
+                                               TextTrimming="CharacterEllipsis" />
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Flyout>
+            </DropDownButton.Flyout>
+        </DropDownButton>
     </StackPanel>
 </UserControl>
