@@ -23,9 +23,19 @@
             Width="44" Height="34"
             ui:Translator.TooltipLocalizedString="{Binding Tooltip}"
             Background="{DynamicResource ThemeBackgroundBrush1}">
+        <Button.Styles>
+            <Style Selector="Border#HoverBorder">
+                <Setter Property="Background" Value="Transparent" />
+            </Style>
+            <Style Selector="Button:pointerover Border#HoverBorder">
+                <Setter Property="Background" Value="{DynamicResource ThemeControlHighBrush}" />
+            </Style>
+        </Button.Styles>
         <Button.Template>
             <ControlTemplate>
-                <Border Height="34" Width="34"
+                <Border Name="HoverBorder"
+                        Height="34" Width="34"
+                        CornerRadius="6"
                         Background="{DynamicResource ThemeBackgroundBrush1}">
                     <ContentPresenter Content="{TemplateBinding Content}" />
                 </Border>

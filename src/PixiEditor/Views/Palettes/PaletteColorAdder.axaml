@@ -16,12 +16,12 @@
             UseHintColor="True" HintColor="{Binding ElementName=paletteColorAdder, Path=HintColor}"
             Width="50" Focusable="False"
             ShowAlpha="False"/>
-        <Button Name="AddButton" Width="24" Height="24" 
+        <Button Name="AddButton" Width="24" Height="24" FontSize="18"
                 Classes="pixi-icon"
                 Content="{DynamicResource icon-plus-square}"
                 ui:Translator.TooltipKey="ADD_COLOR_TO_PALETTE"
                 Cursor="Hand" Click="Button_Click"/>
-        <Button Name="AddFromSwatches" Width="24" Height="24" 
+        <Button Name="AddFromSwatches" Width="24" Height="24" FontSize="18"
                 Classes="pixi-icon"
                 ui:Translator.TooltipKey="ADD_FROM_SWATCHES"
                 Cursor="Hand" Click="AddFromSwatches_OnClick"

@@ -21,7 +21,7 @@
             <ColumnDefinition
                 Width="*" />
             <ColumnDefinition
-                Width="290" />
+                Width="Auto" />
         </Grid.ColumnDefinitions>
         <!--<visuals:ColorsPreviewer/>-->
         <colorPicker:ColorDisplay
@@ -37,7 +37,6 @@
             <TextBlock
                 ui:Translator.LocalizedString="{Binding DataContext.ActiveActionDisplay, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
                 Foreground="{DynamicResource ThemeForegroundBrush}"
-                FontSize="15"
                 Margin="10,0,0,0"
                 VerticalAlignment="Center" />
             <StackPanel
@@ -47,21 +46,18 @@
                 VerticalAlignment="Center">
                 <TextBlock
                     Text="{Binding DataContext.DocumentManagerSubViewModel.ActiveDocument.CoordinatesString, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
-                    Foreground="{DynamicResource ThemeForegroundBrush}"
-                    FontSize="16" />
+                    Foreground="{DynamicResource ThemeForegroundBrush}"  />
             </StackPanel>
         </DockPanel>
         <StackPanel
-            Margin="10,0,0,0"
+            Margin="10,0,10,0"
             VerticalAlignment="Center"
             Grid.Column="2"
             Orientation="Horizontal">
             <TextBlock
                 VerticalAlignment="Center"
-                Padding="10, 0"
                 HorizontalAlignment="Right"
                 Foreground="{DynamicResource ThemeForegroundBrush}"
-                FontSize="14"
                 ui:Translator.LocalizedString="{Binding DataContext.UpdateSubViewModel.VersionText, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}" />
         </StackPanel>
     </Grid>

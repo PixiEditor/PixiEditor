@@ -20,6 +20,43 @@
         <Setter Property="BorderThickness" Value="0"/>
     </Style>
 
+    <Style Selector="Button.OverlayButton:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource ThemeControlHighBrush}" />
+        <Setter Property="CornerRadius" Value="6" />
+    </Style>
+
+    <Style Selector="ToggleButton.OverlayButton:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource ThemeControlHighBrush}" />
+        <Setter Property="CornerRadius" Value="6" />
+    </Style>
+
+    <Style Selector="ToggleButton.OverlayButton.pixi-icon:checked /template/ ContentPresenter">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="{DynamicResource SelectedToolBorderBrush}" />
+        <Setter Property="BorderThickness" Value="2" />
+        <Setter Property="CornerRadius" Value="6" />
+    </Style>
+
+    <Style Selector="ToggleButton.OverlayButton.pixi-icon:checked:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource ThemeControlHighBrush}" />
+    </Style>
+
+    <Style Selector="ToggleButton.OverlayToggleButton:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource ThemeControlHighBrush}" />
+        <Setter Property="CornerRadius" Value="6" />
+    </Style>
+
+    <Style Selector="ToggleButton.OverlayToggleButton.pixi-icon:checked /template/ ContentPresenter">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="{DynamicResource SelectedToolBorderBrush}" />
+        <Setter Property="BorderThickness" Value="2" />
+        <Setter Property="CornerRadius" Value="6" />
+    </Style>
+
+    <Style Selector="ToggleButton.OverlayToggleButton.pixi-icon:checked:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource ThemeControlHighBrush}" />
+    </Style>
+
     <Style Selector="Button.ImageButtonStyle">
         <Setter Property="Template">
             <ControlTemplate>
@@ -36,7 +73,10 @@
             <Setter.Value>
                 <ControlTemplate>
                     <Border Cursor="Hand" Background="{TemplateBinding Background}">
-                        <TextBlock Text="{TemplateBinding Content}" FontSize="16" Classes="pixi-icon" />
+                        <TextBlock Text="{TemplateBinding Content}"
+                                   Foreground="{TemplateBinding Foreground}"
+                                   FontSize="16"
+                                   Classes="pixi-icon" />
                     </Border>
                 </ControlTemplate>
             </Setter.Value>
@@ -51,16 +91,31 @@
         <Setter Property="Content" Value="{DynamicResource icon-play}" />
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Foreground" Value="{DynamicResource ThemeAccent2Brush}"/>
+        <Setter Property="FontSize" Value="24" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate>
-                    <Border Cursor="Hand" Background="{TemplateBinding Background}">
-                        <TextBlock Text="{TemplateBinding Content}" FontSize="{TemplateBinding Width}"
+                    <Border Name="PlayButtonBorder"
+                            Cursor="Hand"
+                            CornerRadius="6"
+                            Width="{TemplateBinding Width}"
+                            Height="{TemplateBinding Width}"
+                            Background="{TemplateBinding Background}">
+                        <TextBlock Text="{TemplateBinding Content}" FontSize="{TemplateBinding FontSize}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"
                                    Classes="pixi-icon" />
                     </Border>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+    </Style>
+
+    <Style Selector="ToggleButton.PlayButton:pointerover /template/ Border#PlayButtonBorder">
+        <Setter Property="Background" Value="{DynamicResource ThemeAccent2LowBrush}" />
+    </Style>
+
+    <Style Selector="ToggleButton.PlayButton.timeline:pointerover /template/ Border#PlayButtonBorder">
+        <Setter Property="Background" Value="{DynamicResource ThemeControlHighBrush}" />
     </Style>
 
     <Style Selector="ToggleButton.PlayButton:checked">

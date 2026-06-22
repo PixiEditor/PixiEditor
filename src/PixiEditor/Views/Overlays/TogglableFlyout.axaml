@@ -8,11 +8,23 @@
              d:DesignHeight="380" d:DesignWidth="200" Name="togglableFlyout">
     <Border Background="Transparent">
         <StackPanel Orientation="Vertical">
-            <Border HorizontalAlignment="{Binding ElementName=togglableFlyout, Path=HorizontalAlignment}" Background="{DynamicResource ThemeBackgroundBrush1}"
+            <Border HorizontalAlignment="{Binding ElementName=togglableFlyout, Path=HorizontalAlignment}"
                     CornerRadius="{DynamicResource ControlCornerRadius}"
                     BorderBrush="{DynamicResource ThemeBorderMidBrush}"
                     BorderThickness="{DynamicResource ThemeBorderThickness}" Padding="5"
-                    x:Name="btnBorder">
+                    x:Name="btnBorder"
+                    Classes.checked="{Binding IsChecked, ElementName=toggleButton}">
+                <Border.Styles>
+                    <Style Selector="Border#btnBorder">
+                        <Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush1}" />
+                    </Style>
+                    <Style Selector="Border#btnBorder:pointerover">
+                        <Setter Property="Background" Value="{DynamicResource ThemeControlHighBrush}" />
+                    </Style>
+                    <Style Selector="Border#btnBorder.checked">
+                        <Setter Property="Background" Value="{DynamicResource ThemeControlHighBrush}" />
+                    </Style>
+                </Border.Styles>
                 <ToggleButton Padding="0" Margin="0"
                               IsChecked="{Binding IsOpen, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=UserControl}}"
                               x:Name="toggleButton" BorderThickness="0"

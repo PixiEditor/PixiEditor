@@ -52,6 +52,10 @@
                         <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
                         <Setter Property="Background" Value="Transparent" />
                     </Style>
+                    <Style Selector="ToggleButton:pointerover /template/ ContentPresenter">
+                        <Setter Property="Background" Value="{DynamicResource ThemeControlHighBrush}" />
+                        <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
+                    </Style>
                 </ItemsControl.Styles>
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
