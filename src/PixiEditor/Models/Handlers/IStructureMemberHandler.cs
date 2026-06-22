@@ -33,5 +33,6 @@ internal interface IStructureMemberHandler : INodeHandler
     public void SetOpacity(float infoOpacity);
     public void SetIsVisible(bool infoIsVisible);
     public void SetName(string infoName);
+    public void NotifyStructuralVisibilityChanged();
     event PropertyChangedEventHandler PropertyChanged;
 }
