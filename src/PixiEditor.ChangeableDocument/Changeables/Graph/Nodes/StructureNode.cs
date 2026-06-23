@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+﻿using System.Diagnostics;
+using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.ChangeInfos.Properties;

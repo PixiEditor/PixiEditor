@@ -1,8 +1,6 @@
-﻿using System.Collections.Generic;
+﻿namespace PixiEditor.Common;
 
-namespace PixiEditor.Helpers.Extensions;
-
-internal static class DictionaryHelper
+public static class DictionaryEx
 {
     public static void AddRangeOverride<TKey, TValue>(
         this IDictionary<TKey, TValue> dict,
@@ -20,10 +18,7 @@ internal static class DictionaryHelper
     {
         foreach (KeyValuePair<TKey, TValue> item in dictToAdd)
         {
-            if (!dict.ContainsKey(item.Key))
-            {
-                dict.Add(item.Key, item.Value);
-            }
+            dict.TryAdd(item.Key, item.Value);
         }
     }
 }
