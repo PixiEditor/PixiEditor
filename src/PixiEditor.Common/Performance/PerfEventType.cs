@@ -4,9 +4,6 @@ public enum PerfEventType
 {
     ViewModelMainSetup,
     MainWindowConstructor,
-    DrawieInitialization,
-    DrawieStartup,
-    DrawieStartup_DrawingEngine,
     HelloTherePopupConstructor,
     CommandControllerInit,
     LayoutManagerInitLayout,
