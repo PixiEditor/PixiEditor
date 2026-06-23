@@ -2,9 +2,9 @@
 using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
-using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Changes.NodeGraph;
+using PixiEditor.Common;
 
 namespace PixiEditor.ChangeableDocument.Changes.Structure;
 
@@ -150,26 +150,27 @@ internal class MoveStructureMember_Change : Change
         if (!hadMultipleOutputs && oldInputConnectionNode is not null)
         {
             changes.AddRange(NodeOperations.CollapseFreeSpaceAfterRemovingNode(oldInputConnectionNode, oldOutputConnectionNode, out var tempOriginalPositions));
-            foreach (var (key, value) in tempOriginalPositions)
-            {
-                originalPositions.TryAdd(key, value);
-            }
+            originalPositions.AddRangeNewOnly(tempOriginalPositions);
         }
 
         double verticalOffset = 0;
         if (targetDescendantNode is FolderNode && putInsideFolder)
-            verticalOffset = 280;
-        else if (targetDescendantNode is FolderNode)
-            verticalOffset = -280;
+            verticalOffset = 550;
         
         VecD sourceOriginalPosition = nodeBeingMoved.Position;
         changes.AddRange(NodeOperations.PushNodesBackAfterInsertingNodeBetweenTwoOthers(nodeBeingMoved, inputProperty.Node,
             nodeBeingMoved.Background.Connection?.Node as Node, out var tempOriginalPositions2, verticalOffset));
-        foreach (var (key, value) in tempOriginalPositions2)
-        {
-            originalPositions.TryAdd(key, value);
-        }
+        originalPositions.AddRangeNewOnly(tempOriginalPositions2);
         originalPositions[nodeBeingMoved.Id] = sourceOriginalPosition;
+
+        if (nodeBeingMoved is FolderNode folderNode)
+        {
+            changes.AddRange(NodeOperations.MoveFolderContentAfterFolderMovement(folderNode, sourceOriginalPosition,
+                out var tempOriginalPositions3));
+            originalPositions.AddRangeNewOnly(tempOriginalPositions3);
+            originalPositions[nodeBeingMoved.Id] = sourceOriginalPosition;
+        }
+        
         changes.Add(changeInfo);
 
         return changes;

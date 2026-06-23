@@ -22,7 +22,7 @@ public static class NodeOperations
     private const double nodeWidth = 205;
     private const double nodeAutoArrangeXMargin = 45;
     private const double nodeClosenessThresholdX = 80;
-    private const double nodeClosenessThresholdY = nodeWidth * 2;
+    private const double nodeClosenessThresholdY = 560;
 
     static NodeOperations()
     {
@@ -179,6 +179,47 @@ public static class NodeOperations
         return changes;
     }
 
+    private static List<Node> FindWellAlignedAncestors(Node node)
+    {
+        List<Node> closelyAttachedAncestors = new();
+        closelyAttachedAncestors.Add(node);
+        node.TraverseBackwards((leftNode, rightNode, _) =>
+        {
+            if (leftNode == node)
+                return true;
+
+            if (!closelyAttachedAncestors.Contains(rightNode))
+                return true;
+
+            if (AreNodePositionsWellAligned(leftNode.Position, rightNode.Position))
+                closelyAttachedAncestors.Add(leftNode as Node);
+            return true;
+        });
+        return closelyAttachedAncestors;
+    }
+
+    public static List<IChangeInfo> MoveFolderContentAfterFolderMovement(FolderNode folder, VecD oldFolderPosition, 
+        out Dictionary<Guid, VecD> originalPositions)
+    {
+        originalPositions = new();
+        if (folder.Content.Connection == null)
+            return new();
+        
+        if (!AreNodePositionsWellAligned(folder.Content.Connection.Node.Position, oldFolderPosition))
+            return new();
+        
+        List<IChangeInfo> changes = new();
+        VecD delta = folder.Position - oldFolderPosition;
+        List<Node> nodesToMove = FindWellAlignedAncestors(folder.Content.Connection.Node as Node);
+        foreach (var node in nodesToMove)
+        {
+            originalPositions.Add(node.Id, node.Position);
+            node.Position += delta;
+            changes.Add(new NodePosition_ChangeInfo(node.Id, node.Position));
+        }
+
+        return changes;
+    } 
     
     /// <summary>
     /// Positions <paramref name="insertedNode"/> to be behind <paramref name="nodeAfterInserted"/>.
@@ -199,7 +240,7 @@ public static class NodeOperations
             new VecD(nodeAfterInserted.Position.X - nodeWidth - nodeAutoArrangeXMargin, nodeAfterInserted.Position.Y + verticalOffset);
         changes.Add(new NodePosition_ChangeInfo(insertedNode.Id, insertedNode.Position));
 
-        if (nodeBeforeInserted is null || !AreNodePositionsAlignedAndInOrder(nodeBeforeInserted.Position, nodeAfterInserted.Position))
+        if (nodeBeforeInserted is null || !AreNodePositionsWellAligned(nodeBeforeInserted.Position, nodeAfterInserted.Position))
         {
             // the two nodes we've inserted between weren't aligned anyway,
             // so no point in positioning anything apart from the inserted one 
@@ -223,7 +264,7 @@ public static class NodeOperations
 
                 bool areNodesTooFarAway =
                     rightOriginalPositionExists &&
-                    !AreNodePositionsAlignedAndInOrder(leftNode.Position, rightOriginalPosition);
+                    !AreNodePositionsWellAligned(leftNode.Position, rightOriginalPosition);
                 if (areNodesTooFarAway)
                     return true;                
             }
@@ -248,7 +289,7 @@ public static class NodeOperations
     /// Returns false if nodes are too far apart vertically or if they aren't positioned going from left to right 
     /// </summary>
     /// <returns></returns>
-    private static bool AreNodePositionsAlignedAndInOrder(VecD leftNodePos, VecD rightNodePos)
+    private static bool AreNodePositionsWellAligned(VecD leftNodePos, VecD rightNodePos)
     {
         if (Math.Abs(leftNodePos.Y - rightNodePos.Y) > nodeClosenessThresholdY)
             return false;
@@ -270,7 +311,7 @@ public static class NodeOperations
     /// <returns></returns>
     public static List<IChangeInfo> CollapseFreeSpaceAfterRemovingNode(Node precedingNode, Node followingNode, out Dictionary<Guid, VecD> originalPositions)
     {
-        if (!AreNodePositionsAlignedAndInOrder(precedingNode.Position, followingNode.Position) ||
+        if (!AreNodePositionsWellAligned(precedingNode.Position, followingNode.Position) ||
             precedingNode.Position.X + nodeWidth * 2 + nodeClosenessThresholdX * 2 < followingNode.Position.X)
         {
             // the two nodes were never close anyway, doesn't make sense to move them closer
@@ -289,7 +330,7 @@ public static class NodeOperations
                 if (!originalPositionDict.TryGetValue(rightNode.Id, out VecD rightOriginalPosition))
                     return true;
                 
-                bool areClose = AreNodePositionsAlignedAndInOrder(leftNode.Position, rightOriginalPosition) &&
+                bool areClose = AreNodePositionsWellAligned(leftNode.Position, rightOriginalPosition) &&
                                 (rightOriginalPosition.X - leftNode.Position.X) < (nodeClosenessThresholdX + nodeWidth);
                 if (!areClose)
                     return true;
