@@ -1,7 +1,9 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:nodes="clr-namespace:PixiEditor.Views.Nodes"
-                    xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker.AvaloniaUI">
+                    xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker.AvaloniaUI"
+                    xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
+                    xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common">
     <ControlTheme TargetType="nodes:CommentNodeView" x:Key="{x:Type nodes:CommentNodeView}">
         <Setter Property="Template">
             <ControlTemplate>
@@ -23,8 +25,12 @@
                                  FontWeight="Bold"
                                  Margin="6,4"
                                  Foreground="{Binding ForegroundBrush, RelativeSource={RelativeSource TemplatedParent}}"
-                                 Watermark="Type here..."
-                                 Text="{Binding Text, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" />
+                                 Watermark="{localization:Translate Key=TEXTBOX_TYPE_WATERMARK}"
+                                 Text="{Binding Text, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
+                            <Interaction.Behaviors>
+                                <behaviours:GlobalShortcutFocusBehavior/>
+                            </Interaction.Behaviors>
+                        </TextBox>
                         <colorPicker:PortableColorPicker Name="PART_ColorPicker"
                                                          IsVisible="False"
                                                          HorizontalAlignment="Right"
