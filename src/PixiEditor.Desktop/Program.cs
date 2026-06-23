@@ -4,6 +4,7 @@ using Avalonia;
 using Avalonia.Logging;
 using Drawie.Interop.Avalonia;
 using Drawie.Interop.VulkanAvalonia;
+using PixiEditor.Common.Performance;
 using PixiEditor.Helpers;
 
 namespace PixiEditor.Desktop;
@@ -20,6 +21,9 @@ public class Program
     // Avalonia configuration, don't remove; also used by visual designer.
     public static AppBuilder BuildAvaloniaApp()
     {
+        PerfLogger.RecordStartup();
+        using PerfMeasure _ = new(PerfEventType.ProgramBuildAvaloniaApp);
+        
         bool openGlPreferred = false;
         try
         {

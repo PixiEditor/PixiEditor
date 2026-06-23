@@ -16,17 +16,34 @@ internal class SettingsGroup : PixiObservableObject
     {
         return IPreferences.Current.GetPreference(name, fallbackValue);
     }
+    
+    protected static T? GetLocalPreference<T>(string name, T? fallbackValue)
+    {
+        return IPreferences.Current.GetLocalPreference(name, fallbackValue);
+    }
 
     protected void RaiseAndUpdatePreference<T>(string name, T value)
     {
         OnPropertyChanged(name);
         IPreferences.Current.UpdatePreference(name, value);
     }
+    
+    protected void RaiseAndUpdateLocalPreference<T>(string name, T value)
+    {
+        OnPropertyChanged(name);
+        IPreferences.Current.UpdateLocalPreference(name, value);
+    }
 
     protected void RaiseAndUpdatePreference<T>(ref T backingStore, T value, [CallerMemberName] string name = "")
     {
         SetProperty(ref backingStore, value, propertyName: name);
         IPreferences.Current.UpdatePreference(name, value);
+    }
+    
+    protected void RaiseAndUpdateLocalPreference<T>(ref T backingStore, T value, [CallerMemberName] string name = "")
+    {
+        SetProperty(ref backingStore, value, propertyName: name);
+        IPreferences.Current.UpdateLocalPreference(name, value);
     }
     
     protected void RaiseAndUpdatePreference<T>(Setting<T> settingStore, T value, [CallerMemberName] string name = "")

@@ -1,6 +1,4 @@
 ﻿using System.ComponentModel;
-using System.Linq;
-using System.Threading.Tasks;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
@@ -8,11 +6,11 @@ using Drawie.Backend.Core.Bridge;
 using Microsoft.Extensions.DependencyInjection;
 using Drawie.Backend.Core.ColorsImpl;
 using PixiEditor.ChangeableDocument.Rendering.ContextData;
+using PixiEditor.Common.Performance;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Collections;
 using PixiEditor.Helpers.UI;
-using PixiEditor.Models;
 using PixiEditor.Models.AdvisorSystem;
 using PixiEditor.Models.AnalyticsAPI;
 using PixiEditor.Models.Commands;
@@ -21,16 +19,12 @@ using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.DocumentModels.Autosave;
-using PixiEditor.Models.ExtensionServices;
 using PixiEditor.Models.Files;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.IO;
-using PixiEditor.OperatingSystem;
-using PixiEditor.UI.Common.Behaviors;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Document.Nodes;
-using PixiEditor.ViewModels.Document.Nodes.Brushes;
 using PixiEditor.ViewModels.Menu;
 using PixiEditor.ViewModels.SubViewModels;
 using PixiEditor.ViewModels.SubViewModels.AdditionalContent;
@@ -129,13 +123,15 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
 
     public void Setup(IServiceProvider services)
     {
+        using PerfMeasure _ = new(PerfEventType.ViewModelMainSetup);
+        
         Services = services;
 
         Config = new ConfigManager();
 
         Preferences = services.GetRequiredService<IPreferences>();
         Preferences.Init();
-
+        
         var advisor = services.GetService<IAdvisor>();
         AdvisorSlot.Current = advisor;
 

@@ -1,30 +1,22 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
+﻿using System.Diagnostics;
 using System.Reflection;
 using System.Text.Json;
-using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
-using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.Debug;
 using Drawie.Interop.Avalonia.Core;
-using DrawiEngine;
-using PixiEditor.Helpers.Extensions;
-using PixiEditor.Models.Commands.Attributes.Evaluators;
+using PixiEditor.Common.Performance;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Helpers;
+using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Templates.Providers.Parsers;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Dialogs;
-using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.IO;
 using PixiEditor.OperatingSystem;
-using PixiEditor.UI.Common.Fonts;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.Views;
 using PixiEditor.Views.Dialogs.Debugging;
@@ -86,6 +78,10 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
         SetDebug();
         PixiEditorSettings.Debug.IsDebugModeEnabled.ValueChanged += UpdateDebugMode;
         UpdateDebugMode(null, PixiEditorSettings.Debug.IsDebugModeEnabled.Value);
+        
+        PerfLogger.Initialize(PixiEditorSettings.Debug.PerformanceLoggingEnabled.Value, 
+            $"Version: {VersionHelpers.GetCurrentAssemblyVersion()}",
+            Path.Combine(Paths.PathToPerformanceLogs, $"perflog-{DateTime.Now:yyyy-MM-dd_HH-mm-ss_fff}.txt"));
     }
 
     public static void OpenFolder(string path)

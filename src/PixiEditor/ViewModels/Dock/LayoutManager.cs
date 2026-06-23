@@ -10,6 +10,7 @@ using PixiDocks.Avalonia;
 using PixiDocks.Avalonia.Controls;
 using PixiDocks.Core.Docking;
 using PixiDocks.Core.Serialization;
+using PixiEditor.Common.Performance;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.UI.Common.Behaviors;
 using PixiEditor.ViewModels.Document;
@@ -72,6 +73,8 @@ internal class LayoutManager
 
     public void InitLayout(ViewModelMain mainViewModel)
     {
+        using PerfMeasure _ = new(PerfEventType.LayoutManagerInitLayout);
+        
         LayersDockViewModel layersDockViewModel = new(mainViewModel.DocumentManagerSubViewModel);
         ColorPickerDockViewModel colorPickerDockViewModel = new(mainViewModel.ColorsSubViewModel);
         ColorSlidersDockViewModel colorSldersDockViewModel = new(mainViewModel.ColorsSubViewModel);

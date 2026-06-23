@@ -22,6 +22,9 @@ public static class PixiEditorSettings
         public static SyncedSetting<bool> IsDebugModeEnabled { get; } = SyncedSetting.NonOwned<bool>(PixiEditor);
 
         public static LocalSetting<string> PoEditorApiKey { get; } = new($"{PixiEditor}:POEditor_API_Key");
+        
+        public static LocalSetting<bool> PerformanceLoggingEnabled { get; } = LocalSetting.NonOwned(PixiEditor,
+            PreferencesConstants.PerformanceLoggingEnabledDefault, PreferencesConstants.PerformanceLoggingEnabled);
     }
 
     public static class Tools

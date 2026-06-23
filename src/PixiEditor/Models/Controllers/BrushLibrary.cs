@@ -2,6 +2,7 @@
 using Avalonia.Threading;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
+using PixiEditor.Common.Performance;
 using PixiEditor.Helpers;
 using PixiEditor.Models.BrushEngine;
 using PixiEditor.Models.IO;
@@ -180,6 +181,7 @@ internal class BrushLibrary
 
     public void LoadBrushes()
     {
+        using PerfMeasure _ = new(PerfEventType.BrushLibraryLoadBrushes);
         LoadBuiltIn();
         LoadBrushesFromPath(pathToBrushes);
 

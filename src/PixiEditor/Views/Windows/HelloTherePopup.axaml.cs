@@ -6,6 +6,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
+using PixiEditor.Common.Performance;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Helpers;
@@ -121,6 +122,7 @@ internal partial class HelloTherePopup : PixiEditorPopup
 
     public HelloTherePopup(FileViewModel fileViewModel)
     {
+        using PerfMeasure _ = new PerfMeasure(PerfEventType.HelloTherePopupConstructor);
         DataContext = this;
         FileViewModel = fileViewModel;
 
