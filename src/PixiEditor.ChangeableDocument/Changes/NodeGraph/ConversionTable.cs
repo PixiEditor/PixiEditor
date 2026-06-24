@@ -98,7 +98,8 @@ public static class ConversionTable
             },
             {
                 typeof(Vec4D), [
-                    (typeof(Paintable), new TypeConverter<Vec4D, Paintable>(c => new ColorPaintable(Color.FromVec4D(c))))
+                    (typeof(Paintable), new TypeConverter<Vec4D, Paintable>(c => new ColorPaintable(Color.FromVec4D(c)))),
+                    (typeof(Color), new TypeConverter<Vec4D, Color>(Color.FromVec4D))
                 ]
             },
             {
