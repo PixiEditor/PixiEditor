@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
+using PixiEditor.Common.Performance;
 
 namespace PixiEditor.Views.Windows.Settings;
 
@@ -7,6 +8,7 @@ public partial class DiscordRichPresencePreview : UserControl
 {
     public DiscordRichPresencePreview()
     {
+        using PerfMeasure _ = new PerfMeasure(PerfEventType.DiscordRichPresencePreview_Constructor);
         InitializeComponent();
     }
     

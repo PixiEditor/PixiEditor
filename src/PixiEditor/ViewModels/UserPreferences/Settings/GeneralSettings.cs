@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Linq;
 using Drawie.Backend.Core.Bridge;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
+using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.IO;
@@ -33,6 +34,15 @@ internal class GeneralSettings : SettingsGroup
     {
         get => isDebugModeEnabled;
         set => RaiseAndUpdatePreference(ref isDebugModeEnabled, value);
+    }
+    
+    private bool performanceLoggingEnabled = 
+        GetLocalPreference(PreferencesConstants.PerformanceLoggingEnabled, PreferencesConstants.PerformanceLoggingEnabledDefault);
+
+    public bool PerformanceLoggingEnabled
+    {
+        get => performanceLoggingEnabled;
+        set => RaiseAndUpdateLocalPreference(ref performanceLoggingEnabled, value);
     }
 
     public List<LanguageData>? AvailableLanguages

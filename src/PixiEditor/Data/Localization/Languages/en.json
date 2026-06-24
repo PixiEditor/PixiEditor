@@ -22,6 +22,7 @@
   "UPDATE_CHANNEL_HELP_TOOLTIP": "Update channels can only be changed in standalone version (downloaded from https://pixieditor.net).\nSome platforms handle updates separately.",
   "DEBUG": "Debug",
   "ENABLE_DEBUG_MODE": "Enable Debug mode",
+  "ENABLE_PERFORMANCE_LOGGING": "Enable Performance Logging",
   "OPEN_CRASH_REPORTS_DIR": "Open crash reports directory",
   "DISCORD_RICH_PRESENCE": "Rich Presence",
   "ENABLED": "Enabled",

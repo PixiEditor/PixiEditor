@@ -22,6 +22,7 @@ using PixiEditor.Models.Events;
 using PixiEditor.Models.Handlers;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
+using PixiEditor.Common.Performance;
 using PixiEditor.Extensions.CommonApi.Tools;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
 using PixiEditor.Extensions.WasmRuntime;
@@ -201,6 +202,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
 
     public void SetupTools(IServiceProvider services, ToolsConfig toolsConfig)
     {
+        using PerfMeasure _ = new PerfMeasure(PerfEventType.ToolsViewModel_SetupTools);
         allTools = services.GetServices<IToolHandler>().ToList();
 
         ToolSet activeToolSetConfig = toolsConfig.ToolSets.FirstOrDefault();

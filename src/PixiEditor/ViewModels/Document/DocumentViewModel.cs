@@ -36,6 +36,7 @@ using PixiEditor.Models.Tools;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
+using PixiEditor.Common.Performance;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.Layers;
 using PixiEditor.Parser;
@@ -338,6 +339,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     /// <returns>The created document</returns>
     public static DocumentViewModel Build(Action<DocumentViewModelBuilder> builder)
     {
+        using PerfMeasure _ = new PerfMeasure(PerfEventType.DocumentViewModel_Build);
         var builderInstance = new DocumentViewModelBuilder();
         builder(builderInstance);
 

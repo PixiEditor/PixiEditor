@@ -224,6 +224,9 @@
                             <CheckBox Classes="leftOffset"
                                       IsChecked="{Binding SettingsSubViewModel.General.IsDebugModeEnabled}"
                                       ui:Translator.Key="ENABLE_DEBUG_MODE" d:Content="Enable Debug Mode" />
+                            <CheckBox Classes="leftOffset"
+                                      IsChecked="{Binding SettingsSubViewModel.General.PerformanceLoggingEnabled}"
+                                      ui:Translator.Key="ENABLE_PERFORMANCE_LOGGING" d:Content="Enable Performance Logging" />
 
                             <TextBlock ui:Translator.Key="MISC" />
 

@@ -7,6 +7,7 @@ using Avalonia.Threading;
 using Avalonia.Xaml.Interactivity;
 using Drawie.Backend.Core.Bridge;
 using Microsoft.Extensions.DependencyInjection;
+using PixiEditor.Common.Performance;
 using PixiEditor.Extensions;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Extensions.Runtime;
@@ -80,6 +81,8 @@ internal class ClassicDesktopEntry
 
     private void Start(object? sender, ControlledApplicationLifetimeStartupEventArgs e)
     {
+        using PerfMeasure _ = new(PerfEventType.ClassicDesktopEntry_Start);
+
         StartupArgs.Args = e.Args.ToList();
         string arguments = string.Join(' ', e.Args);
 
