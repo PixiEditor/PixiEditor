@@ -122,7 +122,7 @@ internal partial class HelloTherePopup : PixiEditorPopup
 
     public HelloTherePopup(FileViewModel fileViewModel)
     {
-        using PerfMeasure _ = new PerfMeasure(PerfEventType.HelloTherePopupConstructor);
+        using PerfMeasure _ = new PerfMeasure(PerfEventType.HelloTherePopup_Constructor);
         DataContext = this;
         FileViewModel = fileViewModel;
 

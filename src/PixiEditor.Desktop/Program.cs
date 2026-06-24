@@ -22,7 +22,7 @@ public class Program
     public static AppBuilder BuildAvaloniaApp()
     {
         PerfLogger.RecordStartup();
-        using PerfMeasure _ = new(PerfEventType.ProgramBuildAvaloniaApp);
+        using PerfMeasure _ = new(PerfEventType.Program_BuildAvaloniaApp);
         
         bool openGlPreferred = false;
         try

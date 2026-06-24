@@ -26,7 +26,7 @@ internal class BrushesViewModel : SubViewModel<ViewModelMain>
 
     public BrushesViewModel(ViewModelMain owner) : base(owner)
     {
-        using PerfMeasure _ = new(PerfEventType.BrushesViewModelConstructor);
+        using PerfMeasure _ = new(PerfEventType.BrushesViewModel_Constructor);
         
         if (!Directory.Exists(Paths.PathToBrushesFolder))
         {

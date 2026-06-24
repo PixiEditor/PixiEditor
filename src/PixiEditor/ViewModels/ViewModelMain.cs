@@ -123,7 +123,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
 
     public void Setup(IServiceProvider services)
     {
-        using PerfMeasure _ = new(PerfEventType.ViewModelMainSetup);
+        using PerfMeasure _ = new(PerfEventType.ViewModelMain_Setup);
         
         Services = services;
 

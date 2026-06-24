@@ -129,7 +129,7 @@ internal class CommandController
 
     public void Init(IServiceProvider serviceProvider)
     {
-        using PerfMeasure _ = new(PerfEventType.CommandControllerInit);
+        using PerfMeasure _ = new(PerfEventType.CommandController_Init);
 
         try
         {

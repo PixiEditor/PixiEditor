@@ -1,4 +1,5 @@
 ﻿using Avalonia.Platform.Storage;
+using PixiEditor.Common.Performance;
 using PixiEditor.Models.Files;
 using PixiEditor.Models.IO;
 using PixiEditor.UI.Common.Localization;
@@ -14,6 +15,7 @@ internal class SupportedFilesHelper
 
     public static void InitFileTypes(IEnumerable<IoFileType> fileTypes)
     {
+        using PerfMeasure _ = new PerfMeasure(PerfEventType.SupportedFilesHelper_InitFileTypes);
         FileTypes = fileTypes.ToList();
 
         AllSupportedExtensions = FileTypes.SelectMany(i => i.Extensions).ToArray();

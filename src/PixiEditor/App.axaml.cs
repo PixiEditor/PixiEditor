@@ -10,7 +10,7 @@ public partial class App : Application
 {
     public override void Initialize()
     {
-        using PerfMeasure _ = new(PerfEventType.AppInitialize);
+        using PerfMeasure _ = new(PerfEventType.App_Initialize);
         AvaloniaXamlLoader.Load(this);
     }
 

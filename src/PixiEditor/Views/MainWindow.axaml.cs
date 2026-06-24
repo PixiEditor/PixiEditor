@@ -66,7 +66,7 @@ internal partial class MainWindow : Window
 
     public MainWindow(ExtensionLoader extensionLoader, Guid? analyticsSessionId = null)
     {
-        using PerfMeasure _ = new PerfMeasure(PerfEventType.MainWindowConstructor);
+        using PerfMeasure _ = new PerfMeasure(PerfEventType.MainWindow_Constructor);
         StartupPerformance.ReportToMainWindow();
 
         (Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime).MainWindow = this;
@@ -99,7 +99,10 @@ internal partial class MainWindow : Window
 
         PixiEditorSettings.Appearance.UseSystemDecorations.ValueChanged += (_, _) => UpdateDecorations();
 
-        InitializeComponent();
+        using (PerfMeasure __ = new PerfMeasure(PerfEventType.MainWindow_InitializeComponent))
+        {
+            InitializeComponent();
+        }
     }
 
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)

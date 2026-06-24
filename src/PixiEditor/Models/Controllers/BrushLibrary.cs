@@ -181,7 +181,7 @@ internal class BrushLibrary
 
     public void LoadBrushes()
     {
-        using PerfMeasure _ = new(PerfEventType.BrushLibraryLoadBrushes);
+        using PerfMeasure _ = new(PerfEventType.BrushLibrary_LoadBrushes);
         LoadBuiltIn();
         LoadBrushesFromPath(pathToBrushes);
 

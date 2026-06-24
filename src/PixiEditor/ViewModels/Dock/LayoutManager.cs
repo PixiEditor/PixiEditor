@@ -73,7 +73,7 @@ internal class LayoutManager
 
     public void InitLayout(ViewModelMain mainViewModel)
     {
-        using PerfMeasure _ = new(PerfEventType.LayoutManagerInitLayout);
+        using PerfMeasure _ = new(PerfEventType.LayoutManager_InitLayout);
         
         LayersDockViewModel layersDockViewModel = new(mainViewModel.DocumentManagerSubViewModel);
         ColorPickerDockViewModel colorPickerDockViewModel = new(mainViewModel.ColorsSubViewModel);

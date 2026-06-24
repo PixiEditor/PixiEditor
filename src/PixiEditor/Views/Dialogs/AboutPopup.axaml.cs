@@ -1,4 +1,5 @@
-﻿using PixiEditor.Helpers;
+﻿using PixiEditor.Common.Performance;
+using PixiEditor.Helpers;
 using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.Views.Dialogs;
@@ -21,6 +22,7 @@ public partial class AboutPopup : PixiEditorPopup
     }
     public AboutPopup()
     {
+        using PerfMeasure _ = new PerfMeasure(PerfEventType.AboutPopup_Constructor);
         InitializeComponent();
     }
 }

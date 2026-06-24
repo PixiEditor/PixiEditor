@@ -81,7 +81,7 @@ internal class ClassicDesktopEntry
 
     private void Start(object? sender, ControlledApplicationLifetimeStartupEventArgs e)
     {
-        using PerfMeasure _ = new(PerfEventType.ClassicDesktopEntryStart);
+        using PerfMeasure _ = new(PerfEventType.ClassicDesktopEntry_Start);
 
         StartupArgs.Args = e.Args.ToList();
         string arguments = string.Join(' ', e.Args);
