@@ -48,12 +48,13 @@ public class StrokeInfoNode : Node, IBrushSampleTextureNode
         StartPoint.Value = brushRenderContext.StartPoint;
         LastAppliedPoint.Value = brushRenderContext.LastAppliedPoint;
         LatestSampleTexutrePos.Value = brushRenderContext.LatestSampleTexturePos;
+        TargetSampleTexturePos.Value = brushRenderContext.LatestSampleTexturePos;
         StartingSampleTexturePos.Value = brushRenderContext.StartingSampleTexturePos;
 
         if (TargetSampleTexture.Connections.Count > 0)
         {
-            TargetSampleTexture.Value = brushRenderContext.LatestSampledTexture ?? brushRenderContext.StartingSampleTexture;
-            ComputedSampleSize.Value = (brushRenderContext.LatestSampledTexture?.Size ?? brushRenderContext.StartingSampleTexture?.Size) ?? VecI.Zero;
+            TargetSampleTexture.Value = brushRenderContext.TargetSampleTexture;
+            ComputedSampleSize.Value = brushRenderContext.TargetSampleTexture?.Size ?? VecI.Zero;
         }
 
         if (StartingSampleTexture.Connections.Count > 0)

@@ -23,6 +23,11 @@ namespace PixiEditor.ChangeableDocument.Changeables.Brushes;
 
 public class BrushEngine : IDisposable
 {
+    private const int TargetStampCacheId = 0;
+    private const int LatestStampCacheId = 1;
+    private const int StartingStampCacheId = 2;
+    private const int FullTextureCacheId = 3;
+
     private static int nextRenderId = 0;
     private TextureCache cache = new();
     private VecD lastPos;
@@ -298,6 +303,7 @@ public class BrushEngine : IDisposable
             n => n.TargetFullTexture.Connections, graphUsesTargetFullInput);
 
         Texture? latestSampleUnderRect = null;
+        Texture? targetSampleUnderRect = null;
         Texture? latestFullTexture = null;
 
         if (brushNode.AlwaysClear.Value)
@@ -311,7 +317,12 @@ public class BrushEngine : IDisposable
             RectI targetRect = (RectI)rect.Round().Inflate(brushNode.TargetOversample.Value);
             if (requiresLatestSampleTexture)
             {
-                latestSampleUnderRect = UpdateSurfaceUnderRect(target, targetRect, colorSpace, true);
+                latestSampleUnderRect = UpdateSurfaceUnderRect(LatestStampCacheId, target, targetRect, colorSpace, true);
+                targetSampleUnderRect = latestSampleUnderRect;
+            }
+            else if (requiresTargetSampleTexture)
+            {
+                targetSampleUnderRect = UpdateSurfaceUnderRect(TargetStampCacheId, target, targetRect, colorSpace, false);
             }
         }
 
@@ -321,7 +332,7 @@ public class BrushEngine : IDisposable
             requiresStartingSampleTexture |= requiresTargetSampleTexture && !brushNode.AllowSampleStacking.Value;
             if (requiresStartingSampleTexture)
             {
-                startingSampleTexture = UpdateSurfaceUnderRect(target, startingRectI, colorSpace, false);
+                startingSampleTexture = UpdateSurfaceUnderRect(StartingStampCacheId, target, startingRectI, colorSpace, false);
             }
         }
 
@@ -347,7 +358,7 @@ public class BrushEngine : IDisposable
                 : target?.CommittedSize ?? VecI.Zero,
             target?.CommittedSize ?? VecI.Zero,
             colorSpace, samplingOptions, brushData,
-            latestSampleUnderRect, rect.TopLeft, startingSampleTexture, startingRect.TopLeft, startingFullTexture, latestFullTexture, brushData.BrushGraph,
+            targetSampleUnderRect, latestSampleUnderRect, rect.TopLeft, startingSampleTexture, startingRect.TopLeft, startingFullTexture, latestFullTexture, brushData.BrushGraph,
             startPos, lastPos, nextRenderId)
         {
             PointerInfo = pointerInfo with { PositionOnCanvas = point },
@@ -366,10 +377,11 @@ public class BrushEngine : IDisposable
             latestSampleUnderRect?.Dispose();
             startingFullTexture?.Dispose();
             startingSampleTexture?.Dispose();
+            targetSampleUnderRect?.Dispose();
             return;
         }
 
-        if (requiresLatestSampleTexture && brushNode.VectorShape.Value != null)
+        if ((requiresLatestSampleTexture || requiresTargetSampleTexture) && brushNode.VectorShape.Value != null)
         {
             brushData.BrushGraph.Execute(brushNode, context);
 
@@ -380,9 +392,20 @@ public class BrushEngine : IDisposable
             if (shape.Bounds is { Width: > 0, Height: > 0 })
             {
                 //context.TargetSampledTexture?.Dispose();
-                latestSampleUnderRect = UpdateSurfaceUnderRect(target,
-                    (RectI)shape.TightBounds.Round().Inflate(brushNode.TargetOversample.Value), colorSpace,
+                RectI size = (RectI)shape.TightBounds.Round().Inflate(brushNode.TargetOversample.Value);
+                targetSampleUnderRect = UpdateSurfaceUnderRect(TargetStampCacheId, target,
+                    size, colorSpace,
                     brushNode.AllowSampleStacking.Value);
+                context.TargetSampleTexture = targetSampleUnderRect;
+                if (!brushNode.AllowSampleStacking.Value && requiresLatestSampleTexture)
+                {
+                    latestSampleUnderRect = UpdateSurfaceUnderRect(LatestStampCacheId, target, size, colorSpace, true);
+                }
+                else
+                {
+                    latestSampleUnderRect = targetSampleUnderRect;
+                }
+
                 context.LatestSampledTexture = latestSampleUnderRect;
                 context.RenderOutputSize = ((RectI)shape.TightBounds.Round()).Size;
                 context.GraphCacheId = nextRenderId + 1;
@@ -406,6 +429,7 @@ public class BrushEngine : IDisposable
 
         latestFullTexture?.Dispose();
         latestSampleUnderRect?.Dispose();
+        targetSampleUnderRect?.Dispose();
     }
 
     private void PaintBrush(ChunkyImage target, BrushData brushData, VecD point, BrushOutputNode brushNode,
@@ -592,7 +616,7 @@ public class BrushEngine : IDisposable
 
     private Texture UpdateFullTexture(ChunkyImage target, ColorSpace colorSpace, bool sampleLatest)
     {
-        var texture = cache.RequestTexture(1, target.LatestSize, colorSpace);
+        var texture = cache.RequestTexture(FullTextureCacheId, target.LatestSize, colorSpace);
         if (!sampleLatest)
         {
             target.DrawCommittedRegionOn(new RectI(VecI.Zero, target.LatestSize), ChunkResolution.Full,
@@ -605,9 +629,10 @@ public class BrushEngine : IDisposable
         return texture;
     }
 
-    private Texture UpdateSurfaceUnderRect(ChunkyImage target, RectI rect, ColorSpace colorSpace, bool sampleLatest)
+
+    private Texture UpdateSurfaceUnderRect(int cacheId, ChunkyImage target, RectI rect, ColorSpace colorSpace, bool sampleLatest)
     {
-        var surfaceUnderRect = cache.RequestTexture(0, rect.Size, colorSpace);
+        var surfaceUnderRect = cache.RequestTexture(cacheId, rect.Size, colorSpace);
 
         if (sampleLatest)
         {
