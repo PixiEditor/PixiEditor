@@ -373,11 +373,6 @@ public class BrushEngine : IDisposable
         if (target == null)
         {
             brushData.BrushGraph.Execute(brushNode, context);
-            latestFullTexture?.Dispose();
-            latestSampleUnderRect?.Dispose();
-            startingFullTexture?.Dispose();
-            startingSampleTexture?.Dispose();
-            targetSampleUnderRect?.Dispose();
             return;
         }
 
@@ -426,10 +421,6 @@ public class BrushEngine : IDisposable
         }
 
         PaintBrush(target, brushData, point, brushNode, context, rect, flipX, flipY);
-
-        latestFullTexture?.Dispose();
-        latestSampleUnderRect?.Dispose();
-        targetSampleUnderRect?.Dispose();
     }
 
     private void PaintBrush(ChunkyImage target, BrushData brushData, VecD point, BrushOutputNode brushNode,
