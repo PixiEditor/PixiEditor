@@ -12,9 +12,15 @@ public class StrokeInfoNode : Node, IBrushSampleTextureNode
     public OutputProperty<VecI> ComputedSampleSize { get; }
     public OutputProperty<VecD> StartPoint { get; }
     public OutputProperty<VecD> LastAppliedPoint { get; }
+    public OutputProperty<Texture> LatestSampleTexture { get; }
+    public OutputProperty<VecD> LatestSampleTexutrePos { get; }
+    public OutputProperty<Texture> StartingSampleTexture { get; }
     public OutputProperty<Texture> TargetSampleTexture { get; }
     public OutputProperty<VecD> TargetSampleTexturePos { get; }
+    public OutputProperty<VecD> StartingSampleTexturePos { get; }
     public OutputProperty<Texture> TargetFullTexture { get; }
+    public OutputProperty<Texture> LatestFullTexture { get; }
+    public OutputProperty<Texture> StartingFullTexture { get; }
 
     public StrokeInfoNode()
     {
@@ -24,7 +30,13 @@ public class StrokeInfoNode : Node, IBrushSampleTextureNode
         LastAppliedPoint = CreateOutput<VecD>("LastAppliedPoint", "LAST_APPLIED_POINT", VecD.Zero);
         TargetSampleTexture = CreateOutput<Texture>("TargetSampleTexture", "TARGET_SAMPLE_TEXTURE", null);
         TargetSampleTexturePos = CreateOutput<VecD>("TargetSampleTexturePos", "TARGET_SAMPLE_TEXTURE_POS", VecD.Zero);
+        StartingSampleTexture = CreateOutput<Texture>("StartingSampleTexture", "STARTING_SAMPLE_TEXTURE", null);
+        StartingSampleTexturePos = CreateOutput<VecD>("StartingSampleTexturePos", "STARTING_SAMPLE_TEXTURE_POS", VecD.Zero);
+        LatestSampleTexture = CreateOutput<Texture>("LatestSampleTexture", "LATEST_SAMPLE_TEXTURE", null);
+        LatestSampleTexutrePos = CreateOutput<VecD>("LatestSampleTexturePos", "LATEST_SAMPLE_TEXTURE_POS", VecD.Zero);
         TargetFullTexture = CreateOutput<Texture>("TargetFullTexture", "TARGET_FULL_TEXTURE", null);
+        StartingFullTexture = CreateOutput<Texture>("StartingFullTexture", "STARTING_FULL_TEXTURE", null);
+        LatestFullTexture = CreateOutput<Texture>("LatestFullTexture", "LATEST_FULL_TEXTURE", null);
     }
 
     protected override void OnExecute(RenderContext context)
@@ -35,18 +47,38 @@ public class StrokeInfoNode : Node, IBrushSampleTextureNode
         StrokeWidth.Value = brushRenderContext.BrushData.StrokeWidth;
         StartPoint.Value = brushRenderContext.StartPoint;
         LastAppliedPoint.Value = brushRenderContext.LastAppliedPoint;
-        TargetSampleTexturePos.Value = brushRenderContext.TargetSampleTexturePos;
+        LatestSampleTexutrePos.Value = brushRenderContext.LatestSampleTexturePos;
+        StartingSampleTexturePos.Value = brushRenderContext.StartingSampleTexturePos;
 
         if (TargetSampleTexture.Connections.Count > 0)
         {
-            TargetSampleTexture.Value = brushRenderContext.TargetSampledTexture;
-            ComputedSampleSize.Value = brushRenderContext.TargetSampledTexture?.Size ?? VecI.Zero;
+            TargetSampleTexture.Value = brushRenderContext.LatestSampledTexture ?? brushRenderContext.StartingSampleTexture;
+            ComputedSampleSize.Value = (brushRenderContext.LatestSampledTexture?.Size ?? brushRenderContext.StartingSampleTexture?.Size) ?? VecI.Zero;
         }
 
+        if (StartingSampleTexture.Connections.Count > 0)
+        {
+            StartingSampleTexture.Value = brushRenderContext.StartingSampleTexture;
+        }
+
+        if (LatestSampleTexture.Connections.Count > 0)
+        {
+            LatestSampleTexture.Value = brushRenderContext.LatestSampledTexture;
+        }
 
         if (TargetFullTexture.Connections.Count > 0)
         {
-            TargetFullTexture.Value = brushRenderContext.TargetFullTexture;
+            TargetFullTexture.Value = brushRenderContext.LatestFullTexture ?? brushRenderContext.StartingFullTexture;
+        }
+
+        if (StartingFullTexture.Connections.Count > 0)
+        {
+            StartingFullTexture.Value = brushRenderContext.StartingFullTexture;
+        }
+
+        if (LatestFullTexture.Connections.Count > 0)
+        {
+            LatestFullTexture.Value = brushRenderContext.LatestFullTexture;
         }
     }
 
