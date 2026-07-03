@@ -42,6 +42,9 @@ public class BrushEngine : IDisposable
     private Dictionary<Guid, bool> graphUsesLatestFullInput = new();
     private Dictionary<Guid, bool> graphUsesStartingFullInput = new();
 
+    Texture? startingSampleTexture = null;
+    Texture? startingFullTexture = null;
+
     private bool drawnOnce = false;
 
     // Configuration: How many previous points to average.
@@ -263,6 +266,7 @@ public class BrushEngine : IDisposable
             startPos = point;
             lastPos = point;
             drawnOnce = true;
+            ResetStartingTextures();
             target?.SetBlendMode(imageBlendMode);
             target?.SetOpacity(brushNode.Opacity.Value);
             brushNode.ResetContentTexture();
@@ -293,12 +297,8 @@ public class BrushEngine : IDisposable
         bool requiresTargetFullTexture = GraphUsesConnections(brushData.BrushGraph, brushNode,
             n => n.TargetFullTexture.Connections, graphUsesTargetFullInput);
 
-        // TODO: Dispose and also handle texture variable which is null
         Texture? latestSampleUnderRect = null;
-        Texture? startingSampleTexture = null;
         Texture? latestFullTexture = null;
-        Texture? startingFullTexture = null;
-        Texture texture = null;
 
         if (brushNode.AlwaysClear.Value)
         {
@@ -315,7 +315,7 @@ public class BrushEngine : IDisposable
             }
         }
 
-        if (target != null && startingRect is { Width: > 0, Height: > 0 })
+        if (target != null && startingRect is { Width: > 0, Height: > 0 } && startingFullTexture == null)
         {
             RectI startingRectI = (RectI)startingRect.Round().Inflate(brushNode.TargetOversample.Value);
             requiresStartingSampleTexture |= requiresTargetSampleTexture && !brushNode.AllowSampleStacking.Value;
@@ -334,14 +334,14 @@ public class BrushEngine : IDisposable
             }
 
             requiresStartingFullTexture |= requiresTargetFullTexture && !brushNode.AllowSampleStacking.Value;
-            if (requiresStartingFullTexture)
+            if (requiresStartingFullTexture && startingFullTexture == null)
             {
                 startingFullTexture = UpdateFullTexture(target, colorSpace, false);
             }
         }
 
         BrushRenderContext context = new BrushRenderContext(
-            texture?.DrawingSurface?.Canvas, frameTime, ChunkResolution.Full,
+            null, frameTime, ChunkResolution.Full,
             brushNode.FitToStrokeSize.NonOverridenValue
                 ? ((RectI)rect.RoundOutwards()).Size
                 : target?.CommittedSize ?? VecI.Zero,
@@ -362,6 +362,10 @@ public class BrushEngine : IDisposable
         if (target == null)
         {
             brushData.BrushGraph.Execute(brushNode, context);
+            latestFullTexture?.Dispose();
+            latestSampleUnderRect?.Dispose();
+            startingFullTexture?.Dispose();
+            startingSampleTexture?.Dispose();
             return;
         }
 
@@ -399,6 +403,9 @@ public class BrushEngine : IDisposable
         }
 
         PaintBrush(target, brushData, point, brushNode, context, rect, flipX, flipY);
+
+        latestFullTexture?.Dispose();
+        latestSampleUnderRect?.Dispose();
     }
 
     private void PaintBrush(ChunkyImage target, BrushData brushData, VecD point, BrushOutputNode brushNode,
@@ -757,10 +764,18 @@ public class BrushEngine : IDisposable
             }
         }
     }
+    private void ResetStartingTextures()
+    {
+        startingFullTexture?.Dispose();
+        startingFullTexture = null;
+        startingSampleTexture?.Dispose();
+        startingSampleTexture = null;
+    }
 
     public void Dispose()
     {
         cache.Dispose();
         lastCachedTexturePaintable?.Dispose();
+        ResetStartingTextures();
     }
 }
