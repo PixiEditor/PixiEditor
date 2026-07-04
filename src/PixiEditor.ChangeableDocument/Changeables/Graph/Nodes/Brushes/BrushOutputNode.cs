@@ -68,6 +68,7 @@ public class BrushOutputNode : Node
     public InputProperty<double> TargetOversample { get; }
     public InputProperty<bool> AlwaysClear { get; }
     public InputProperty<bool> SnapToPixels { get; }
+    public RenderInputProperty AdditionalData { get; }
 
     public InputProperty<string> Tags { get; }
 
@@ -77,10 +78,11 @@ public class BrushOutputNode : Node
     public InputProperty<IReadOnlyNodeGraph> Previous { get; }
 
     internal Texture ContentTexture;
+    internal Texture? AdditionalDataTexture;
 
     private TextureCache cache = new();
 
-    private ChunkyImage? previewChunkyImage;
+    private LayerImage? previewChunkyImage;
     private BrushEngine previewEngine = new BrushEngine() { PressureSmoothingWindowSize = 0 };
 
     protected override bool ExecuteOnlyOnCacheChange => true;
@@ -98,6 +100,7 @@ public class BrushOutputNode : Node
 
     private VectorPath? previewVectorPath;
     private bool drawnContentTextureOnce = false;
+    private bool drawnAdditionalContentTextureOnce = false;
     private Matrix3X3 lastTranform = Matrix3X3.Identity;
 
     public BrushOutputNode()
@@ -133,6 +136,7 @@ public class BrushOutputNode : Node
         AlwaysClear = CreateInput<bool>("AlwaysClear", "ALWAYS_CLEAR", false);
         SnapToPixels = CreateInput<bool>("SnapToPixels", "SNAP_TO_PIXELS", false);
         Tags = CreateInput<string>("Tags", "TAGS", "");
+        AdditionalData = CreateRenderInput("AdditionalData", "ADDITIONAL_DATA");
         Previous = CreateInput<IReadOnlyNodeGraph>("Previous", "PREVIOUS", null);
     }
 
@@ -175,6 +179,30 @@ public class BrushOutputNode : Node
                     ContentTexture.DrawingSurface.Canvas.Restore();
                     drawnContentTextureOnce = true;
                     lastTranform = ContentTransform.Value;
+                }
+            }
+        }
+
+        if (AdditionalData.Value != null)
+        {
+            if (context.RenderOutputSize.LongestAxis > 0)
+            {
+                if (!CanReuseStamps.Value || AdditionalDataTexture == null || AdditionalDataTexture.Size != context.RenderOutputSize
+                    || AdditionalDataTexture.ColorSpace != context.ProcessingColorSpace
+                    || !drawnAdditionalContentTextureOnce)
+                {
+                    if(context.RenderOutputSize.ShortestAxis <= 0 || context is not BrushRenderContext brushContext || brushContext.DryRun)
+                    {
+                        return;
+                    }
+
+                    AdditionalDataTexture = cache.RequestTexture(context.GraphCacheId + 1, context.RenderOutputSize, context.ProcessingColorSpace);
+                    AdditionalDataTexture.DrawingSurface.Canvas.Save();
+                    //AdditionalDataTexture.DrawingSurface.Canvas.SetMatrix(AdditionalDataTransform.Value);
+                    AdditionalData.Value.Paint(context, AdditionalDataTexture.DrawingSurface.Canvas);
+                    AdditionalDataTexture.DrawingSurface.Canvas.Restore();
+                    drawnAdditionalContentTextureOnce = true;
+                    //lastAdditionalDataTransform = AdditionalDataTransform.Value;
                 }
             }
         }
@@ -255,13 +283,13 @@ public class BrushOutputNode : Node
     {
         if (previewChunkyImage == null)
         {
-            previewChunkyImage = new ChunkyImage(new VecI(200, 200));
+            previewChunkyImage = new LayerImage(new VecI(200, 200));
         }
 
         RectI rect;
 
-        previewChunkyImage.EnqueueClear();
-        previewChunkyImage.CommitChanges();
+        previewChunkyImage?.Main.EnqueueClear();
+        previewChunkyImage?.Main.CommitChanges();
 
         int maxSize = 50;
         float offset = 0;
@@ -285,16 +313,16 @@ public class BrushOutputNode : Node
                 new KeyboardInfo(),
                 new EditorData(Colors.White, Colors.Black));
         }
-        previewChunkyImage.CommitChanges();
+        previewChunkyImage?.Main.CommitChanges();
 
         DrawStrokePreview(previewChunkyImage, context, maxSize);
 
-        previewChunkyImage.CommitChanges();
-        previewChunkyImage.DrawCommittedChunkOn(
+        previewChunkyImage?.Main.CommitChanges();
+        previewChunkyImage?.Main.DrawCommittedChunkOn(
             VecI.Zero, ChunkResolution.Full, surface.Canvas, VecD.Zero);
     }
 
-    public void DrawStrokePreview(ChunkyImage target, RenderContext context, int maxSize, VecD shift = default)
+    public void DrawStrokePreview(LayerImage target, RenderContext context, int maxSize, VecD shift = default)
     {
         if (previewVectorPath == null)
         {
@@ -307,9 +335,9 @@ public class BrushOutputNode : Node
         List<RecordedPoint> points = new();
         previewEngine.ResetState();
 
-        while (offset <= target.CommittedSize.X)
+        while (offset <= target?.Main.CommittedSize.X)
         {
-            pressure = (float)Math.Sin((offset / target.CommittedSize.X) * Math.PI);
+            pressure = (float)Math.Sin((offset / target.Main.CommittedSize.X) * Math.PI);
             var vec4D = previewVectorPath.GetPositionAndTangentAtDistance(offset, false);
             pos = vec4D.XY;
             pos = new VecD(pos.X, pos.Y + maxSize / 2f) + shift;
@@ -325,7 +353,7 @@ public class BrushOutputNode : Node
         }
     }
 
-    public IEnumerable<float> DrawStrokePreviewEnumerable(ChunkyImage target, RenderContext context, int maxSize,
+    public IEnumerable<float> DrawStrokePreviewEnumerable(LayerImage target, RenderContext context, int maxSize,
         VecD shift = default)
     {
         if (previewVectorPath == null)
@@ -340,9 +368,9 @@ public class BrushOutputNode : Node
         VecD pos;
         previewEngine.ResetState();
 
-        while (offset <= target.CommittedSize.X)
+        while (offset <= target?.Main.CommittedSize.X)
         {
-            pressure = (float)Math.Sin((offset / target.CommittedSize.X) * Math.PI);
+            pressure = (float)Math.Sin((offset / target.Main.CommittedSize.X) * Math.PI);
             var vec4D = previewVectorPath.GetPositionAndTangentAtDistance(offset, false);
             pos = vec4D.XY;
             pos = new VecD(pos.X, pos.Y + maxSize / 2f) + shift;
@@ -357,7 +385,7 @@ public class BrushOutputNode : Node
         }
     }
 
-    public void DrawPointPreview(ChunkyImage img, RenderContext context, int size, VecD pos)
+    public void DrawPointPreview(LayerImage img, RenderContext context, int size, VecD pos)
     {
         previewEngine.ResetState();
         previewEngine.ExecuteBrush(img,

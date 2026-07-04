@@ -28,7 +28,7 @@ internal class RasterKeyFrame : KeyFrame, IReadOnlyRasterKeyFrame
         IReadOnlyNode owner = allNodes.First(x => x.Id == NodeId);
         if(owner is ImageLayerNode imageLayer)
         {
-            return imageLayer.GetLayerImageByKeyFrameGuid(Id);
+            return imageLayer.GetLayerImageByKeyFrameGuid(Id).Main;
         }
 
         throw new InvalidOperationException("Node is not an image layer");

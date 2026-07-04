@@ -30,7 +30,7 @@ internal sealed class ApplyMask_Change : Change
         out bool ignoreInUndo)
     {
         var layer = target.FindMemberOrThrow<ImageLayerNode>(structureMemberGuid)!;
-        var layerImage = layer.GetLayerImageAtFrame(frame);
+        var layerImage = layer.GetLayerImageAtFrame(frame)?.Main;
         layerImage.EnqueueApplyMask(layer.EmbeddedMask);
         ignoreInUndo = false;
         var layerInfo = new LayerImageArea_ChangeInfo(structureMemberGuid, layerImage.FindAffectedArea());

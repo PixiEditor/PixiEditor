@@ -166,7 +166,7 @@ internal class CombineStructureMembersOnto_Change : Change
                 if (layerImage is null)
                     continue;
 
-                chunksToCombine.UnionWith(layerImage.FindAllChunks());
+                chunksToCombine.UnionWith(layerImage.Main.FindAllChunks());
             }
             else
             {
@@ -278,7 +278,7 @@ internal class CombineStructureMembersOnto_Change : Change
             return new AffectedArea(new HashSet<VecI>());
         }
 
-        toDrawOnImage.EnqueueClear();
+        toDrawOnImage.Main.EnqueueClear();
 
         if (target.Size.X <= 0 || target.Size.Y <= 0)
             return new AffectedArea(new HashSet<VecI>());
@@ -293,11 +293,11 @@ internal class CombineStructureMembersOnto_Change : Change
             renderer.RenderLayers(tempTexture.DrawingSurface, layersToCombine, frame, ChunkResolution.Full,
                 target.Size);
 
-            toDrawOnImage.EnqueueDrawTexture(VecI.Zero, tempTexture);
+            toDrawOnImage.Main.EnqueueDrawTexture(VecI.Zero, tempTexture);
 
-            affArea = toDrawOnImage.FindAffectedArea();
-            originalChunks.Add(frame, new CommittedChunkStorage(toDrawOnImage, affArea.Chunks));
-            toDrawOnImage.CommitChanges();
+            affArea = toDrawOnImage.Main.FindAffectedArea();
+            originalChunks.Add(frame, new CommittedChunkStorage(toDrawOnImage.Main, affArea.Chunks));
+            toDrawOnImage.Main.CommitChanges();
 
             tempTexture.Dispose();
         });
@@ -401,16 +401,16 @@ internal class CombineStructureMembersOnto_Change : Change
             return new LayerImageArea_ChangeInfo(targetLayerGuid, new AffectedArea(new HashSet<VecI>()));
         }
 
-        toDrawOnImage.EnqueueClear();
+        toDrawOnImage.Main.EnqueueClear();
 
         CommittedChunkStorage? storedChunks = originalChunks[frame];
 
         var affectedArea =
             DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(
-                targetLayer.GetLayerImageAtFrame(frame),
+                targetLayer.GetLayerImageAtFrame(frame)?.Main,
                 ref storedChunks);
 
-        toDrawOnImage.CommitChanges();
+        toDrawOnImage.Main.CommitChanges();
         return new LayerImageArea_ChangeInfo(targetLayerGuid, affectedArea);
     }
 

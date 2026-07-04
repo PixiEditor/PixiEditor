@@ -93,10 +93,10 @@ internal class ResizeImage_Change : Change
             {
                 layer.ForEveryFrame((img, id) =>
                 {
-                    ScaleChunkyImage(img);
-                    var affected = img.FindAffectedArea();
-                    savedChunks[id] = new CommittedChunkStorage(img, affected.Chunks);
-                    img.CommitChanges();
+                    ScaleChunkyImage(img?.Main);
+                    var affected = img?.Main.FindAffectedArea();
+                    savedChunks[id] = new CommittedChunkStorage(img?.Main, affected.Value.Chunks);
+                    img?.Main.CommitChanges();
                 });
             }
             else if (member is IScalable scalableLayer)
@@ -129,10 +129,10 @@ internal class ResizeImage_Change : Change
             {
                 layer.ForEveryFrame((layerImage, id) =>
                 {
-                    layerImage.EnqueueResize(originalSize);
-                    layerImage.EnqueueClear();
-                    savedChunks[id].ApplyChunksToImage(layerImage);
-                    layerImage.CommitChanges();
+                    layerImage?.Main.EnqueueResize(originalSize);
+                    layerImage?.Main.EnqueueClear();
+                    savedChunks[id].ApplyChunksToImage(layerImage.Main);
+                    layerImage?.Main.CommitChanges();
                 });
             }
             else if (member is IScalable scalableLayer)

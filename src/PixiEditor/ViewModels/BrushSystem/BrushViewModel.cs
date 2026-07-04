@@ -7,6 +7,7 @@ using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.ChangeableDocument.Rendering;
@@ -225,7 +226,7 @@ internal class BrushViewModel : ViewModelBase
             }
             else
             {
-                brushNode.DrawPointPreview(pointImage, context,
+                brushNode.DrawPointPreview(new LayerImage(pointImage), context,
                     BrushOutputNode.PointPreviewSize,
                     new VecD(BrushOutputNode.PointPreviewSize / 2,
                         BrushOutputNode.PointPreviewSize / 2));
@@ -241,7 +242,7 @@ internal class BrushViewModel : ViewModelBase
             context.DocumentSize = strokeTexture.Size;
             context.RenderSurface = strokeTexture.DrawingSurface.Canvas;
 
-            brushNode.DrawStrokePreview(strokeImage, context,
+            brushNode.DrawStrokePreview(new LayerImage(strokeImage), context,
                 BrushOutputNode.StrokePreviewSizeY / 2,
                 new VecD(0, BrushOutputNode.YOffsetInPreview));
 

@@ -84,7 +84,7 @@ internal class CenterContent_Change : Change
             {
                 var chunks = ShiftLayerHelper.DrawShiftedLayer(target, layerGuid, false, shift, frame);
                 changes.Add(new LayerImageArea_ChangeInfo(layerGuid, chunks));
-                var image = imageLayerNode.GetLayerImageAtFrame(frame);
+                var image = imageLayerNode.GetLayerImageAtFrame(frame)?.Main;
                 originalLayerChunks[layerGuid] = new CommittedChunkStorage(image, image.FindAffectedArea().Chunks);
                 image.CommitChanges();
             }
@@ -110,7 +110,7 @@ internal class CenterContent_Change : Change
 
             if (layerNode is ImageLayerNode imageNode)
             {
-                var image = imageNode.GetLayerImageAtFrame(frame);
+                var image = imageNode.GetLayerImageAtFrame(frame)?.Main;
                 CommittedChunkStorage? originalChunks = originalLayerChunks?[layerGuid];
                 var affected = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(image, ref originalChunks);
                 changes.Add(new LayerImageArea_ChangeInfo(layerGuid, affected));

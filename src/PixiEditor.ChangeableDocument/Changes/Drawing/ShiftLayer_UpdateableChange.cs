@@ -54,7 +54,7 @@ internal class ShiftLayer_UpdateableChange : Change
             if (layer is ImageLayerNode)
             {
                 var area = ShiftLayerHelper.DrawShiftedLayer(target, layerGuid, false, (VecI)delta, frame);
-                var image = target.FindMemberOrThrow<ImageLayerNode>(layerGuid).GetLayerImageAtFrame(frame);
+                var image = target.FindMemberOrThrow<ImageLayerNode>(layerGuid).GetLayerImageAtFrame(frame)?.Main;
 
                 changes.Add(new LayerImageArea_ChangeInfo(layerGuid, area));
 
@@ -84,7 +84,7 @@ internal class ShiftLayer_UpdateableChange : Change
 
             if (layer is ImageLayerNode)
             {
-                var image = target.FindMemberOrThrow<ImageLayerNode>(layerGuid).GetLayerImageAtFrame(frame);
+                var image = target.FindMemberOrThrow<ImageLayerNode>(layerGuid).GetLayerImageAtFrame(frame)?.Main;
                 CommittedChunkStorage? originalChunks = originalLayerChunks[layerGuid];
                 var affected = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(image, ref originalChunks);
                 changes.Add(new LayerImageArea_ChangeInfo(layerGuid, affected));

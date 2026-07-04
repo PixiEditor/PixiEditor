@@ -167,12 +167,12 @@ internal sealed class RotateImage_Change : Change
                 {
                     if (frame != null)
                     {
-                        Resize(layer.GetLayerImageAtFrame(frame.Value), layer.Id, deletedChunks, changes);
+                        Resize(layer.GetLayerImageAtFrame(frame.Value).Main, layer.Id, deletedChunks, changes);
                     }
                     else
                     {
                         var img = layer.GetLayerImageAtFrame(0);
-                        Resize(img, layer.Id, deletedChunks, changes);
+                        Resize(img.Main, layer.Id, deletedChunks, changes);
                     }
                 }
                 else if (member is ITransformableObject transformableObject)
@@ -224,13 +224,13 @@ internal sealed class RotateImage_Change : Change
             {
                 if (frame != null)
                 {
-                    Resize(layer.GetLayerImageAtFrame(frame.Value), layer.Id, deletedChunks, null);
+                    Resize(layer.GetLayerImageAtFrame(frame.Value).Main, layer.Id, deletedChunks, null);
                 }
                 else
                 {
                     layer.ForEveryFrame((img, id) =>
                     {
-                        Resize(img, id, deletedChunks, null);
+                        Resize(img.Main, id, deletedChunks, null);
                     });
                 }
             }
@@ -325,7 +325,7 @@ internal sealed class RotateImage_Change : Change
                 {
                     layer.ForEveryFrame((img, id) =>
                     {
-                        RevertFrame(img, id, revertChanges);
+                        RevertFrame(img.Main, id, revertChanges);
                     });
                 }
             }
@@ -367,7 +367,7 @@ internal sealed class RotateImage_Change : Change
 
     private void RevertFrame(ImageLayerNode layer, int targetFrame, List<IChangeInfo> revertChanges)
     {
-        RevertFrame(layer.GetLayerImageAtFrame(targetFrame), layer.Id, revertChanges);
+        RevertFrame(layer.GetLayerImageAtFrame(targetFrame).Main, layer.Id, revertChanges);
     }
 
     private void RevertFrame(ChunkyImage img, Guid id, List<IChangeInfo> revertChanges)

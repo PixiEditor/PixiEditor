@@ -15,6 +15,9 @@ public class StrokeInfoNode : Node, IBrushSampleTextureNode
     public OutputProperty<Texture> TargetSampleTexture { get; }
     public OutputProperty<VecD> TargetSampleTexturePos { get; }
     public OutputProperty<Texture> TargetFullTexture { get; }
+    public OutputProperty<Texture> AdditionalFullTexture { get; }
+
+    private TextureCache cache = new TextureCache();
 
     public StrokeInfoNode()
     {
@@ -25,6 +28,7 @@ public class StrokeInfoNode : Node, IBrushSampleTextureNode
         TargetSampleTexture = CreateOutput<Texture>("TargetSampleTexture", "TARGET_SAMPLE_TEXTURE", null);
         TargetSampleTexturePos = CreateOutput<VecD>("TargetSampleTexturePos", "TARGET_SAMPLE_TEXTURE_POS", VecD.Zero);
         TargetFullTexture = CreateOutput<Texture>("TargetFullTexture", "TARGET_FULL_TEXTURE", null);
+        AdditionalFullTexture = CreateOutput<Texture>("AdditionalFullTexture", "ADDITIONAL_FULL_TEXTURE", null);
     }
 
     protected override void OnExecute(RenderContext context)
@@ -43,15 +47,32 @@ public class StrokeInfoNode : Node, IBrushSampleTextureNode
             ComputedSampleSize.Value = brushRenderContext.TargetSampledTexture?.Size ?? VecI.Zero;
         }
 
-
         if (TargetFullTexture.Connections.Count > 0)
         {
             TargetFullTexture.Value = brushRenderContext.TargetFullTexture;
+        }
+
+        if (AdditionalFullTexture.Connections.Count > 0 && brushRenderContext.Target.Additional?.Count > 0)
+        {
+            Texture tex = cache.RequestTexture(brushRenderContext.GraphCacheId, brushRenderContext.DocumentSize,
+                brushRenderContext.Target.Main.ProcessingColorSpace);
+            brushRenderContext.Target.Additional[0].DrawMostUpToDateRegionOn(
+                new RectI(VecI.Zero, brushRenderContext.DocumentSize),
+                ChunkResolution.Full,
+                tex.DrawingSurface.Canvas,
+                VecI.Zero);
+            AdditionalFullTexture.Value = tex;
         }
     }
 
     public override Node CreateCopy()
     {
         return new StrokeInfoNode();
+    }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        cache.Dispose();
     }
 }

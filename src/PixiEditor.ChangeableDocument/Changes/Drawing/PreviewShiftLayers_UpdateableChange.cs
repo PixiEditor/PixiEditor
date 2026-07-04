@@ -158,7 +158,7 @@ internal class PreviewShiftLayers_UpdateableChange : InterruptableUpdateableChan
 
             if (layer is ImageLayerNode imgLayer)
             {
-                var image = imgLayer.GetLayerImageAtFrame(frame);
+                var image = imgLayer.GetLayerImageAtFrame(frame).Main;
                 var affected = image.FindAffectedArea();
                 image.CancelChanges();
                 image.SetClippingPath(null);

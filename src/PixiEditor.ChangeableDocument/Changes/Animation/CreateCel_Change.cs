@@ -71,7 +71,7 @@ internal class CreateCel_Change : Change
 
         ImageLayerNode targetNode = target.FindMemberOrThrow<ImageLayerNode>(_targetLayerGuid);
 
-        ChunkyImage img = cloneFromImage?.CloneFromCommitted() ??
+        ChunkyImage img = cloneFromImage?.Main.CloneFromCommitted() ??
                           new ChunkyImage(target.Size);
 
         var keyFrame =

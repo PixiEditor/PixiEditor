@@ -52,7 +52,7 @@ internal class ResizeCanvas_Change : ResizeBasedChangeBase
             {
                 layer.ForEveryFrame((img, id) =>
                 {
-                    Resize(img, id, newSize, offset, deletedChunks);
+                    Resize(img?.Main, id, newSize, offset, deletedChunks);
                 });
             }
             else if (member is ITransformableObject transformableObject)

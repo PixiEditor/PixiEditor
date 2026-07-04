@@ -25,7 +25,7 @@ internal class ApplyLayerMask_Change : Change
         if (!target.TryFindMember<ImageLayerNode>(layerGuid, out var layer) || layer.EmbeddedMask is null)
             return false;
 
-        var layerImage = layer.GetLayerImageAtFrame(frame);
+        var layerImage = layer.GetLayerImageAtFrame(frame)?.Main;
         if (layerImage is null)
             return false;
 
@@ -41,14 +41,14 @@ internal class ApplyLayerMask_Change : Change
         if (layer.EmbeddedMask is null)
             throw new InvalidOperationException("Cannot apply layer mask, no mask");
 
-        var layerImage = layer.GetLayerImageAtFrame(frame);
+        var layerImage = layer.GetLayerImageAtFrame(frame)?.Main;
         if (layerImage is null)
             throw new InvalidOperationException("Cannot apply layer mask, no layer image at frame");
 
-        ChunkyImage newLayerImage = new ChunkyImage(target.Size);
-        newLayerImage.AddRasterClip(layer.EmbeddedMask);
-        newLayerImage.EnqueueDrawCommitedChunkyImage(VecI.Zero, layerImage);
-        newLayerImage.CommitChanges();
+        LayerImage newLayerImage = new LayerImage(target.Size);
+        newLayerImage.Main.AddRasterClip(layer.EmbeddedMask);
+        newLayerImage.Main.EnqueueDrawCommitedChunkyImage(VecI.Zero, layerImage);
+        newLayerImage.Main.CommitChanges();
 
         var affectedChunks = layerImage.FindAllChunks();
         // use a temp value to ensure that LayerImage always stays in a valid state
@@ -82,7 +82,7 @@ internal class ApplyLayerMask_Change : Change
         newMask.CommitChanges();
         layer.EmbeddedMask = newMask;
 
-        var layerImage = layer.GetLayerImageAtFrame(frame);
+        var layerImage = layer.GetLayerImageAtFrame(frame)?.Main;
 
         savedLayer.ApplyChunksToImage(layerImage);
         var affectedChunksLayer = layerImage.FindAffectedArea();

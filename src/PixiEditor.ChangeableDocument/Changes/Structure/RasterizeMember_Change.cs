@@ -58,7 +58,7 @@ internal class RasterizeMember_Change : Change
         using Surface surface = Surface.ForProcessing(target.Size, target.ProcessingColorSpace);
         rasterizable.Rasterize(surface.DrawingSurface.Canvas, null, frame);
         
-        var image = imageLayer.GetLayerImageAtFrame(0);
+        var image = imageLayer.GetLayerImageAtFrame(0)?.Main;
         image.EnqueueDrawImage(VecI.Zero, surface);
         image.CommitChanges();
 

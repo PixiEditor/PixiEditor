@@ -42,7 +42,7 @@ internal class Crop_Change : ResizeBasedChangeBase
             {
                 layer.ForEveryFrame((frame, id) =>
                 {
-                    Resize(frame, id, rect.Size, rect.Pos * -1, deletedChunks);
+                    Resize(frame?.Main, id, rect.Size, rect.Pos * -1, deletedChunks);
                 });
             }
             else if (member is ITransformableObject transformable)

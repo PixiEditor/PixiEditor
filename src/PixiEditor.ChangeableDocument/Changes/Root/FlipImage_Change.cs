@@ -106,7 +106,7 @@ internal sealed class FlipImage_Change : Change
             {
                 if (member is ImageLayerNode layer)
                 {
-                    var image = layer.GetLayerImageAtFrame(frame);
+                    var image = layer.GetLayerImageAtFrame(frame)?.Main;
                     FlipImage(image);
                     changes.Add(
                         new LayerImageArea_ChangeInfo(member.Id, image.FindAffectedArea()));

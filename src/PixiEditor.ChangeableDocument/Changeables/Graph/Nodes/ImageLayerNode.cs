@@ -22,8 +22,8 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     public const int AccuratePreviewMaxSize = 2048;
 
-    public override VecD GetScenePosition(KeyFrameTime time) => layerImage?.CommittedSize / 2f ?? VecD.Zero;
-    public override VecD GetSceneSize(KeyFrameTime time) => layerImage?.CommittedSize ?? VecD.Zero;
+    public override VecD GetScenePosition(KeyFrameTime time) => layerImage?.Main.CommittedSize / 2f ?? VecD.Zero;
+    public override VecD GetSceneSize(KeyFrameTime time) => layerImage?.Main.CommittedSize ?? VecD.Zero;
     public bool LockTransparency { get; set; }
     public bool FallbackAnimationToLayerImage { get; set; } = false;
 
@@ -31,16 +31,16 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     private ColorSpace colorSpace;
 
 
-    private ChunkyImage layerImage
+    private LayerImage layerImage
     {
         get
         {
-            if (keyFrames[0]?.Data is ChunkyImage chunkyImage)
+            if (keyFrames[0]?.Data is LayerImage img)
             {
-                return chunkyImage;
+                return img;
             }
 
-            var newImage = new ChunkyImage(startSize);
+            var newImage = new LayerImage(startSize);
             keyFrames[0].Data = newImage;
             return newImage;
         }
@@ -51,7 +51,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         if (keyFrames.Count == 0)
         {
             keyFrames.Add(
-                new KeyFrameData(Guid.NewGuid(), 0, 0, ImageLayerKey) { Data = new ChunkyImage(size) });
+                new KeyFrameData(Guid.NewGuid(), 0, 0, ImageLayerKey) { Data = new LayerImage(size) });
         }
 
         this.startSize = size;
@@ -60,7 +60,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     public override RectD? GetTightBounds(KeyFrameTime frameTime)
     {
-        return (RectD?)GetLayerImageAtFrame(frameTime.Frame)?.FindTightLatestBounds();
+        return (RectD?)GetLayerImageAtFrame(frameTime.Frame)?.Main.FindTightLatestBounds();
     }
 
     public override RectD? GetApproxBounds(KeyFrameTime frameTime)
@@ -74,11 +74,11 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         return GetApproxBounds(layerImage);
     }
 
-    private static RectD? GetApproxBounds(ChunkyImage layerImage)
+    private static RectD? GetApproxBounds(LayerImage layerImage)
     {
-        if (layerImage.CommittedSize.LongestAxis <= AccuratePreviewMaxSize)
+        if (layerImage.Main.CommittedSize.LongestAxis <= AccuratePreviewMaxSize)
         {
-            ChunkResolution resolution = layerImage.CommittedSize.LongestAxis switch
+            ChunkResolution resolution = layerImage.Main.CommittedSize.LongestAxis switch
             {
                 <= 256 => ChunkResolution.Full,
                 <= 512 => ChunkResolution.Half,
@@ -89,18 +89,18 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
             // Half is efficient enough to be used even for full res chunks
             bool fallbackToChunkAligned = (int)resolution > 2;
 
-            return (RectD?)layerImage.FindTightCommittedBounds(resolution, fallbackToChunkAligned);
+            return (RectD?)layerImage.Main.FindTightCommittedBounds(resolution, fallbackToChunkAligned);
         }
 
-        var chunkAlignedBounds = layerImage.FindChunkAlignedCommittedBounds();
+        var chunkAlignedBounds = layerImage.Main.FindChunkAlignedCommittedBounds();
         if (chunkAlignedBounds == null)
         {
             return null;
         }
 
         RectD size = new RectD(chunkAlignedBounds.Value.X, chunkAlignedBounds.Value.Y,
-            Math.Min(chunkAlignedBounds.Value.Width, layerImage.LatestSize.X),
-            Math.Min(chunkAlignedBounds.Value.Height, layerImage.LatestSize.Y));
+            Math.Min(chunkAlignedBounds.Value.Width, layerImage.Main.LatestSize.X),
+            Math.Min(chunkAlignedBounds.Value.Height, layerImage.Main.LatestSize.Y));
         return size;
     }
 
@@ -154,7 +154,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
             return;
         }
 
-        RectI latestSize = new(0, 0, layerImage.LatestSize.X, layerImage.LatestSize.Y);
+        RectI latestSize = new(0, 0, layerImage.Main.LatestSize.X, layerImage.Main.LatestSize.Y);
         var region = (RectI?)ctx.VisibleDocumentRegion?.RoundOutwards() ?? latestSize;
 
         VecD topLeft = region.TopLeft - sceneSize / 2;
@@ -194,7 +194,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
         if (!ctx.FullRerender)
         {
-            img.DrawMostUpToDateRegionOnWithAffected(
+            img.Main.DrawMostUpToDateRegionOnWithAffected(
                 region,
                 ctx.ChunkResolution,
                 saveLayer ? intermediate.DrawingSurface.Canvas : workingSurface, ctx.AffectedArea, finalDrawPos,
@@ -202,7 +202,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         }
         else
         {
-            img.DrawMostUpToDateRegionOn(
+            img.Main.DrawMostUpToDateRegionOn(
                 region,
                 ctx.ChunkResolution,
                 saveLayer ? intermediate.DrawingSurface.Canvas : workingSurface, finalDrawPos, saveLayer ? null : paint,
@@ -239,7 +239,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         {
             if (guid == Id)
             {
-                return new RectD(0, 0, layerImage.CommittedSize.X, layerImage.CommittedSize.Y);
+                return new RectD(0, 0, layerImage.Main.CommittedSize.X, layerImage.Main.CommittedSize.Y);
             }
 
             var keyFrame = keyFrames.FirstOrDefault(x => x.KeyFrameGuid == guid);
@@ -252,7 +252,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
                     return null;
                 }
 
-                return new RectD(0, 0, kf.CommittedSize.X, kf.CommittedSize.Y);
+                return new RectD(0, 0, kf.Main.CommittedSize.X, kf.Main.CommittedSize.Y);
             }
         }
 
@@ -268,8 +268,8 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
             if (bounds.HasValue)
             {
                 return new RectD(bounds.Value.X, bounds.Value.Y,
-                    Math.Min(bounds.Value.Width, kf.CommittedSize.X),
-                    Math.Min(bounds.Value.Height, kf.CommittedSize.Y));
+                    Math.Min(bounds.Value.Width, kf.Main.CommittedSize.X),
+                    Math.Min(bounds.Value.Height, kf.Main.CommittedSize.Y));
             }
 
             return null;
@@ -333,8 +333,8 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         int saved = renderOnto.Canvas.Save();
         renderOnto.Canvas.Scale((float)context.ChunkResolution.InvertedMultiplier());
 
-        img.DrawCommittedRegionOn(
-            new RectI(0, 0, img.LatestSize.X, img.LatestSize.Y),
+        img.Main.DrawCommittedRegionOn(
+            new RectI(0, 0, img.Main.LatestSize.X, img.Main.LatestSize.Y),
             context.ChunkResolution,
             renderOnto.Canvas, VecI.Zero, replacePaint, context.DesiredSamplingOptions);
 
@@ -349,7 +349,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         }
 
         var imageFrame = keyFrames.OrderBy(x => x.StartFrame).LastOrDefault(x => x.IsInFrame(frame.Frame));
-        if (imageFrame?.Data is not ChunkyImage)
+        if (imageFrame?.Data is not LayerImage)
         {
             if (FallbackAnimationToLayerImage)
             {
@@ -395,60 +395,58 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         return image;
     }
 
-    IReadOnlyChunkyImage IReadOnlyImageNode.GetLayerImageAtFrame(int frame) => GetLayerImageAtFrame(frame);
+    IReadOnlyChunkyImage IReadOnlyImageNode.GetLayerImageAtFrame(int frame) => GetLayerImageAtFrame(frame)?.Main;
 
     IReadOnlyChunkyImage IReadOnlyImageNode.GetLayerImageByKeyFrameGuid(Guid keyFrameGuid) =>
-        GetLayerImageByKeyFrameGuid(keyFrameGuid);
+        GetLayerImageByKeyFrameGuid(keyFrameGuid)?.Main;
 
     void IReadOnlyImageNode.SetLayerImageAtFrame(int frame, IReadOnlyChunkyImage newLayerImage) =>
-        SetLayerImageAtFrame(frame, (ChunkyImage)newLayerImage);
+        SetLayerImageAtFrame(frame, new LayerImage((ChunkyImage)newLayerImage));
 
-    void IReadOnlyImageNode.ForEveryFrame(Action<IReadOnlyChunkyImage> action) => ForEveryFrame(action);
-
-    public void ForEveryFrame(Action<ChunkyImage> action)
+    public void ForEveryFrame(Action<LayerImage> action)
     {
         foreach (var frame in keyFrames)
         {
-            if (frame.Data is ChunkyImage imageFrame)
+            if (frame.Data is LayerImage imageFrame)
             {
                 action(imageFrame);
             }
         }
     }
 
-    public void ForEveryFrame(Action<ChunkyImage, Guid> action)
+    public void ForEveryFrame(Action<LayerImage, Guid> action)
     {
         foreach (var frame in keyFrames)
         {
-            if (frame.Data is ChunkyImage imageFrame)
+            if (frame.Data is LayerImage imageFrame)
             {
                 action(imageFrame, frame.KeyFrameGuid);
             }
         }
     }
 
-    public ChunkyImage? GetLayerImageAtFrame(int frame)
+    public LayerImage? GetLayerImageAtFrame(int frame)
     {
-        return GetFrameWithImage(frame)?.Data as ChunkyImage;
+        return GetFrameWithImage(frame)?.Data as LayerImage;
     }
 
-    public ChunkyImage GetLayerImageByKeyFrameGuid(Guid keyFrameGuid)
+    public LayerImage GetLayerImageByKeyFrameGuid(Guid keyFrameGuid)
     {
         foreach (var keyFrame in keyFrames)
         {
             if (keyFrame.KeyFrameGuid == keyFrameGuid)
             {
-                return keyFrame.Data as ChunkyImage;
+                return keyFrame.Data as LayerImage;
             }
         }
 
         return layerImage;
     }
 
-    public void SetLayerImageAtFrame(int frame, ChunkyImage newLayerImage)
+    public void SetLayerImageAtFrame(int frame, LayerImage newLayerImage)
     {
         var existingFrame = keyFrames.FirstOrDefault(x => x.IsInFrame(frame));
-        if (existingFrame is not null && existingFrame.Data is ChunkyImage)
+        if (existingFrame is not null && existingFrame.Data is LayerImage)
         {
             existingFrame.Dispose();
             existingFrame.Data = newLayerImage;
