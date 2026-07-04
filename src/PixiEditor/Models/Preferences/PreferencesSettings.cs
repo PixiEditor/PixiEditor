@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Text.Json;
+using PixiEditor.Common.Performance;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.UI.Common.Localization;
@@ -35,6 +36,7 @@ internal class PreferencesSettings : IPreferences
 
         if (!IsLoaded)
         {
+            using PerfMeasure _ = new(PerfEventType.PreferencesSettings_InitPaths);
             Preferences = InitPath(path);
             LocalPreferences = InitPath(localPath);
             IsLoaded = true;
@@ -174,8 +176,10 @@ internal class PreferencesSettings : IPreferences
         try
         {
             var json = File.ReadAllText(path);
-            return JsonSerializer.Deserialize<Dictionary<string, object>>(json, JsonOptions) 
-                   ?? new Dictionary<string, object>();
+            using (PerfMeasure _ = new(PerfEventType.PreferencesSettings_JsonDeserialize)) {
+                return JsonSerializer.Deserialize<Dictionary<string, object>>(json, JsonOptions) 
+                       ?? new Dictionary<string, object>();
+            }
         }
         catch
         {

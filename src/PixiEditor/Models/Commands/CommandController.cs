@@ -8,6 +8,7 @@ using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
+using PixiEditor.Common.Performance;
 using PixiEditor.Exceptions;
 using PixiEditor.Extensions.CommonApi.Utilities;
 using PixiEditor.Helpers;
@@ -128,6 +129,8 @@ internal class CommandController
 
     public void Init(IServiceProvider serviceProvider)
     {
+        using PerfMeasure _ = new(PerfEventType.CommandController_Init);
+
         try
         {
             lastTemplate = shortcutFile.LoadTemplate();

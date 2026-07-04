@@ -1,5 +1,6 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Input;
+using PixiEditor.Common.Performance;
 using PixiEditor.ViewModels.UserPreferences;
 
 namespace PixiEditor.Views.Dialogs;
@@ -8,6 +9,7 @@ public partial class OnboardingDialog : Window
 {
     public OnboardingDialog()
     {
+        using PerfMeasure _ = new PerfMeasure(PerfEventType.OnboardingDialog_Constructor);
         InitializeComponent();
     }
 

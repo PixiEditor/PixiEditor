@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using PixiEditor.Common.Performance;
 using PixiEditor.OperatingSystem;
 using PixiEditor.ViewModels.Menu;
 
@@ -15,6 +16,7 @@ public partial class MainTitleBar : UserControl
     private Panel logoPanel;
     public MainTitleBar()
     {
+        using PerfMeasure _ = new PerfMeasure(PerfEventType.MainTitleBar_Constructor);
         InitializeComponent();
     }
 

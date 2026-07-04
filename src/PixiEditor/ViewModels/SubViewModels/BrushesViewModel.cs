@@ -2,6 +2,7 @@
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
+using PixiEditor.Common.Performance;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.BrushEngine;
@@ -25,6 +26,8 @@ internal class BrushesViewModel : SubViewModel<ViewModelMain>
 
     public BrushesViewModel(ViewModelMain owner) : base(owner)
     {
+        using PerfMeasure _ = new(PerfEventType.BrushesViewModel_Constructor);
+        
         if (!Directory.Exists(Paths.PathToBrushesFolder))
         {
             Directory.CreateDirectory(Paths.PathToBrushesFolder);

@@ -32,6 +32,10 @@ public static class Paths
     public static string PathToPalettesFolder { get; } = Path.Join(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
         "PixiEditor", "Palettes");
+    
+    public static string PathToPerformanceLogs { get; } = Path.Join(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        "PixiEditor", "PerformanceLogs");
 
     public static string PathToBrushesFolder { get; } = Path.Join(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
