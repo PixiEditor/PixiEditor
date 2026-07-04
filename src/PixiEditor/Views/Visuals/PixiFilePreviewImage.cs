@@ -143,7 +143,7 @@ internal class PixiFilePreviewImage : TextureControl
 
         var newSize = new VecI((int)(surface.Size.X * factor), (int)(surface.Size.Y * factor));
 
-        var scaledBitmap = surface.Resize(newSize, FilterQuality.High);
+        var scaledBitmap = surface.Resize(newSize, Drawie.Backend.Core.Surfaces.SamplingOptions.Bilinear);
 
         surface.Dispose();
         return scaledBitmap;

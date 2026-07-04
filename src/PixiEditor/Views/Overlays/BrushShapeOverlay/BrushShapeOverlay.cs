@@ -175,6 +175,7 @@ internal class BrushShapeOverlay : Overlay
 
     private void ExecuteBrush(VecD pos)
     {
+        return;
         try
         {
             if (engine == null || BrushData.BrushGraph == null) return;
@@ -250,6 +251,7 @@ internal class BrushShapeOverlay : Overlay
 
     private void UpdateBrushShape(VecD pos)
     {
+        return;
         if (BrushData.BrushGraph == null) return;
 
         try
@@ -267,6 +269,7 @@ internal class BrushShapeOverlay : Overlay
 
     public void Render(Canvas targetCanvas)
     {
+        return;
         if (BrushShape != null)
         {
             paint.IsAntiAliased = true;
