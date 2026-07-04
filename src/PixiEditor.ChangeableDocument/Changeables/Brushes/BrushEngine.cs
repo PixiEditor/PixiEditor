@@ -27,6 +27,7 @@ public class BrushEngine : IDisposable
     private const int LatestStampCacheId = 1;
     private const int StartingStampCacheId = 2;
     private const int FullTextureCacheId = 3;
+    private const int FullTextureLatestCacheId = 4;
 
     private static int nextRenderId = 0;
     private TextureCache cache = new();
@@ -318,7 +319,14 @@ public class BrushEngine : IDisposable
             if (requiresLatestSampleTexture)
             {
                 latestSampleUnderRect = UpdateSurfaceUnderRect(LatestStampCacheId, target, targetRect, colorSpace, true);
-                targetSampleUnderRect = latestSampleUnderRect;
+                if (!brushNode.AllowSampleStacking.Value && requiresTargetSampleTexture)
+                {
+                    targetSampleUnderRect = UpdateSurfaceUnderRect(TargetStampCacheId, target, targetRect, colorSpace, false);
+                }
+                else
+                {
+                    targetSampleUnderRect = latestSampleUnderRect;
+                }
             }
             else if (requiresTargetSampleTexture)
             {
@@ -326,7 +334,7 @@ public class BrushEngine : IDisposable
             }
         }
 
-        if (target != null && startingRect is { Width: > 0, Height: > 0 } && startingFullTexture == null)
+        if (target != null && startingRect is { Width: > 0, Height: > 0 } && startingSampleTexture == null)
         {
             RectI startingRectI = (RectI)startingRect.Round().Inflate(brushNode.TargetOversample.Value);
             requiresStartingSampleTexture |= requiresTargetSampleTexture && !brushNode.AllowSampleStacking.Value;
@@ -607,15 +615,16 @@ public class BrushEngine : IDisposable
 
     private Texture UpdateFullTexture(ChunkyImage target, ColorSpace colorSpace, bool sampleLatest)
     {
-        var texture = cache.RequestTexture(FullTextureCacheId, target.LatestSize, colorSpace);
+        var size = sampleLatest ? target.LatestSize : target.CommittedSize;
+        var texture = cache.RequestTexture(sampleLatest ? FullTextureLatestCacheId : FullTextureCacheId, size, colorSpace);
         if (!sampleLatest)
         {
-            target.DrawCommittedRegionOn(new RectI(VecI.Zero, target.LatestSize), ChunkResolution.Full,
+            target.DrawCommittedRegionOn(new RectI(VecI.Zero, size), ChunkResolution.Full,
                 texture.DrawingSurface.Canvas, VecI.Zero);
             return texture;
         }
 
-        target.DrawMostUpToDateRegionOn(new RectI(VecI.Zero, target.LatestSize), ChunkResolution.Full,
+        target.DrawMostUpToDateRegionOn(new RectI(VecI.Zero, size), ChunkResolution.Full,
             texture.DrawingSurface.Canvas, VecI.Zero);
         return texture;
     }
