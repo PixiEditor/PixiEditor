@@ -16,7 +16,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
-[DebuggerDisplay("Type = {GetType().Name}; DiplayName = {DisplayName}")]
+[DebuggerDisplay("Type = {GetType().Name}; DisplayName = {DisplayName}")]
 public abstract class Node : IReadOnlyNode, IDisposable
 {
     private string displayName;
