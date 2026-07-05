@@ -176,6 +176,7 @@ internal static class ServiceCollectionHelpers
         collection
             .AddTransient<SerializationFactory, BrushSerializationFactory>()
             .AddTransient<SerializationFactory, ChunkyImageSerializationFactory>()
+            .AddTransient<SerializationFactory, LayerImageSerializationFactory>()
             .AddTransient<SerializationFactory, ColorMatrixSerializationFactory>()
             .AddTransient<SerializationFactory, ColorSerializationFactory>()
             .AddTransient<SerializationFactory, DocumentSerializationFactory>()

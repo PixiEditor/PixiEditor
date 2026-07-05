@@ -15,6 +15,7 @@ public class StrokeInfoNode : Node, IBrushSampleTextureNode
     public OutputProperty<Texture> TargetSampleTexture { get; }
     public OutputProperty<VecD> TargetSampleTexturePos { get; }
     public OutputProperty<Texture> TargetFullTexture { get; }
+    public OutputProperty<Texture> AdditionalSampleTexture { get; }
     public OutputProperty<Texture> AdditionalFullTexture { get; }
 
     private TextureCache cache = new TextureCache();
@@ -28,6 +29,7 @@ public class StrokeInfoNode : Node, IBrushSampleTextureNode
         TargetSampleTexture = CreateOutput<Texture>("TargetSampleTexture", "TARGET_SAMPLE_TEXTURE", null);
         TargetSampleTexturePos = CreateOutput<VecD>("TargetSampleTexturePos", "TARGET_SAMPLE_TEXTURE_POS", VecD.Zero);
         TargetFullTexture = CreateOutput<Texture>("TargetFullTexture", "TARGET_FULL_TEXTURE", null);
+        AdditionalSampleTexture = CreateOutput<Texture>("AdditionalSampleTexture", "ADDITIONAL_SAMPLE_TEXTURE", null);
         AdditionalFullTexture = CreateOutput<Texture>("AdditionalFullTexture", "ADDITIONAL_FULL_TEXTURE", null);
     }
 
@@ -52,7 +54,7 @@ public class StrokeInfoNode : Node, IBrushSampleTextureNode
             TargetFullTexture.Value = brushRenderContext.TargetFullTexture;
         }
 
-        if (AdditionalFullTexture.Connections.Count > 0 && brushRenderContext.Target.Additional?.Count > 0)
+        if (AdditionalFullTexture.Connections.Count > 0 && brushRenderContext.Target?.Additional?.Count > 0)
         {
             Texture tex = cache.RequestTexture(brushRenderContext.GraphCacheId, brushRenderContext.DocumentSize,
                 brushRenderContext.Target.Main.ProcessingColorSpace);
@@ -62,6 +64,18 @@ public class StrokeInfoNode : Node, IBrushSampleTextureNode
                 tex.DrawingSurface.Canvas,
                 VecI.Zero);
             AdditionalFullTexture.Value = tex;
+        }
+
+        if (AdditionalSampleTexture.Connections.Count > 0 && brushRenderContext.Target?.Additional?.Count > 0)
+        {
+            Texture tex = cache.RequestTexture(brushRenderContext.GraphCacheId + 1, brushRenderContext.TargetSampledTexture?.Size ?? VecI.Zero,
+                brushRenderContext.Target.Main.ProcessingColorSpace);
+            brushRenderContext.Target.Additional[0].DrawMostUpToDateRegionOn(
+                new RectI((VecI)brushRenderContext.TargetSampleTexturePos, brushRenderContext.TargetSampledTexture?.Size ?? VecI.Zero),
+                ChunkResolution.Full,
+                tex.DrawingSurface.Canvas,
+                VecI.Zero);
+            AdditionalSampleTexture.Value = tex;
         }
     }
 
