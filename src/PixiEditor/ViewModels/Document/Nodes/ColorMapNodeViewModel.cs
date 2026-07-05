@@ -4,5 +4,5 @@ using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document.Nodes;
 
-[NodeViewModel("COLOR_MAP_NODE", "IMAGE", null)]
+[NodeViewModel("COLOR_MAP_NODE", "IMAGE", PixiPerfectIcons.Map)]
 internal class ColorMapNodeViewModel : NodeViewModel<ColorMapNode>;

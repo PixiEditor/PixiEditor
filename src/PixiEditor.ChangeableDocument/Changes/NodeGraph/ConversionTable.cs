@@ -267,6 +267,9 @@ public static class ConversionTable
                     }
                 }
             }
+
+            result = null;
+            return false;
         }
 
         if (!argType.IsPrimitive && argType != typeof(string))

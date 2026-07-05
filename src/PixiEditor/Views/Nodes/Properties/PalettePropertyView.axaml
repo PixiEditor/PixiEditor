@@ -19,8 +19,11 @@
             <TextBlock ui:Translator.TooltipKey="{Binding DisplayName}" ui:Translator.Key="{Binding DisplayName}"
                        VerticalAlignment="Center" />
             <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4" IsVisible="{Binding ShowInputField}">
-                <Button Content="+" Width="35" Padding="0" Command="{Binding AddColorCommand}"
-                        ui:Translator.TooltipKey="ADD_COLOR" />
+                <Button Width="35" Height="24" Padding="0" VerticalAlignment="Center"
+                        Command="{Binding AddColorCommand}" ui:Translator.TooltipKey="ADD_COLOR">
+                    <TextBlock Text="+" HorizontalAlignment="Center" VerticalAlignment="Center"
+                               Margin="0,-2,0,0" />
+                </Button>
                 <Button Width="35" Padding="0" Click="BrowsePalettes_OnClick"
                         FontFamily="{DynamicResource PixiPerfectIcons}"
                         Content="{DynamicResource icon-database}"
@@ -40,7 +43,7 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <StackPanel Orientation="Horizontal" Margin="1">
+                    <StackPanel Orientation="Horizontal" Spacing="2" Margin="1">
                         <colorPicker:PortableColorPicker
                             EnableGradientsTab="false"
                             PointerPressed="InputElement_OnPointerPressed"
