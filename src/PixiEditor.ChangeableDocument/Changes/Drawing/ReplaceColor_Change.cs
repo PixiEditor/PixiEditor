@@ -35,7 +35,10 @@ internal class ReplaceColor_Change : Change
             if (member is not ImageLayerNode layer)
                 return;
             //TODO: Add support for replacing in different Layer types
-            var layerImage = layer.GetLayerImageAtFrame(frame);
+            var layerImage = layer.GetLayerImageAtFrame(frame)?.Main;
+            if (layerImage is null)
+                return;
+
             layerImage.EnqueueReplaceColor(oldColor, newColor);
             var affArea = layerImage.FindAffectedArea();
             CommittedChunkStorage storage = new(layerImage, affArea.Chunks);
@@ -57,7 +60,7 @@ internal class ReplaceColor_Change : Change
             if (member is not ImageLayerNode layer)
                 return;
             CommittedChunkStorage? storage = savedChunks[member.Id];
-            var affArea = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(layer.GetLayerImageAtFrame(frame), ref storage);
+            var affArea = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(layer.GetLayerImageAtFrame(frame)?.Main, ref storage);
             infos.Add(new LayerImageArea_ChangeInfo(layer.Id, affArea));
         });
         savedChunks = null;

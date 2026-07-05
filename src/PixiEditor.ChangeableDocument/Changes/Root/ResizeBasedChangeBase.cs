@@ -54,10 +54,10 @@ internal abstract class ResizeBasedChangeBase : Change
             {
                 layer.ForEveryFrame((img, id) =>
                 {
-                    img.EnqueueResize(_originalSize);
+                    img?.Main.EnqueueResize(_originalSize);
                     foreach (var stored in deletedChunks[id])
-                        stored.ApplyChunksToImage(img);
-                    img.CommitChanges();
+                        stored.ApplyChunksToImage(img?.Main);
+                    img?.Main.CommitChanges();
                 });
             }
             else if (member is ITransformableObject transformableObject)

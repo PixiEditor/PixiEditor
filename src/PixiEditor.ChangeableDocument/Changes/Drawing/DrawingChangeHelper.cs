@@ -55,10 +55,15 @@ internal static class DrawingChangeHelper
             throw new InvalidOperationException("Trying to draw on a non-raster layer member");
         }
 
-        return layer.GetLayerImageByKeyFrameGuid(targetKeyFrameGuid) ?? throw new InvalidOperationException("Trying to draw on a frame that doesn't exist");
+        return layer.GetLayerImageByKeyFrameGuid(targetKeyFrameGuid)?.Main ?? throw new InvalidOperationException("Trying to draw on a frame that doesn't exist");
     }
 
     public static ChunkyImage? GetTargetImageOrThrow(Document target, Guid memberGuid, bool drawOnMask, int frame)
+    {
+        return GetTargetLayerImageOrThrow(target, memberGuid, drawOnMask, frame)?.Main;
+    }
+
+    public static LayerImage? GetTargetLayerImageOrThrow(Document target, Guid memberGuid, bool drawOnMask, int frame)
     {
         // TODO: Figure out if this should work only for raster layers or should rasterize any
         var member = target.FindMemberOrThrow(memberGuid);
@@ -67,7 +72,7 @@ internal static class DrawingChangeHelper
         {
             if (member.EmbeddedMask is null)
                 throw new InvalidOperationException("Trying to draw on a mask that doesn't exist");
-            return member.EmbeddedMask;
+            return new LayerImage(member.EmbeddedMask);
         }
 
         if (member is FolderNode)

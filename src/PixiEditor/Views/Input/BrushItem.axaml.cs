@@ -16,6 +16,7 @@ using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.ChangeableDocument.Rendering.ContextData;
@@ -162,7 +163,7 @@ internal partial class BrushItem : UserControl
         previewTexture.DrawingSurface.Canvas.Clear();
         previewImage.EnqueueClear();
         previewImage.CommitChanges();
-        enumerator = brushNode.DrawStrokePreviewEnumerable(previewImage, CreateContext(),
+        enumerator = brushNode.DrawStrokePreviewEnumerable(new LayerImage(previewImage), CreateContext(),
             BrushOutputNode.StrokePreviewSizeY / 2,
             new VecD(0, BrushOutputNode.YOffsetInPreview)).GetEnumerator();
 

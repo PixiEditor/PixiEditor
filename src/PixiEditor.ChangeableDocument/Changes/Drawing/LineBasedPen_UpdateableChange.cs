@@ -99,9 +99,9 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> ApplyTemporarily(Document target)
     {
-        var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame);
+        var image = DrawingChangeHelper.GetTargetLayerImageOrThrow(target, memberGuid, drawOnMask, frame);
 
-        int opCount = image.QueueLength;
+        int opCount = image.Main.QueueLength;
 
         brushData.AntiAliasing = antiAliasing;
         brushData.StrokeWidth = strokeWidth;
@@ -109,14 +109,14 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         // TODO: Sampling options?
         engine.ExecuteBrush(image, brushData, points, frame, target.ProcessingColorSpace, SamplingOptions.Default);
 
-        var affChunks = image.FindAffectedArea(opCount);
+        var affChunks = image.Main.FindAffectedArea(opCount);
 
         var changeInfo = DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affChunks, drawOnMask);
 
         return changeInfo;
     }
 
-    private void FastforwardEnqueueDrawLines(ChunkyImage targetImage, KeyFrameTime frameTime)
+    private void FastforwardEnqueueDrawLines(LayerImage targetImage, KeyFrameTime frameTime)
     {
         brushData.AntiAliasing = antiAliasing;
         brushData.StrokeWidth = strokeWidth;
@@ -124,13 +124,13 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
 
         if (points.Count == 1)
         {
-            engine.ExecuteBrush(targetImage, brushData, points[0].Position, frameTime, targetImage.ProcessingColorSpace,
+            engine.ExecuteBrush(targetImage, brushData, points[0].Position, frameTime, targetImage.Main.ProcessingColorSpace,
                 SamplingOptions.Default, pointerInfo, keyboardInfo, editorData);
 
             return;
         }
 
-        engine.ExecuteBrush(targetImage, brushData, points, frameTime, targetImage.ProcessingColorSpace,
+        engine.ExecuteBrush(targetImage, brushData, points, frameTime, targetImage.Main.ProcessingColorSpace,
             SamplingOptions.Default);
     }
 
@@ -139,13 +139,13 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     {
         if (storedChunks is not null)
             throw new InvalidOperationException("Trying to save chunks while there are saved chunks already");
-        var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame);
+        var image = DrawingChangeHelper.GetTargetLayerImageOrThrow(target, memberGuid, drawOnMask, frame);
 
         ignoreInUndo = false;
         if (firstApply)
         {
-            var affArea = image.FindAffectedArea();
-            storedChunks = new CommittedChunkStorage(image, affArea.Chunks);
+            var affArea = image.Main.FindAffectedArea();
+            storedChunks = new CommittedChunkStorage(image.Main, affArea.Chunks);
             image.CommitChanges();
 
             var change = DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affArea, drawOnMask).AsT1;
@@ -153,11 +153,11 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         }
         else
         {
-            DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, image, memberGuid, drawOnMask);
+            DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, image.Main, memberGuid, drawOnMask);
 
             FastforwardEnqueueDrawLines(image, frame);
-            var affArea = image.FindAffectedArea();
-            storedChunks = new CommittedChunkStorage(image, affArea.Chunks);
+            var affArea = image.Main.FindAffectedArea();
+            storedChunks = new CommittedChunkStorage(image.Main, affArea.Chunks);
             image.CommitChanges();
 
             IChangeInfo info = DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affArea, drawOnMask).AsT1;

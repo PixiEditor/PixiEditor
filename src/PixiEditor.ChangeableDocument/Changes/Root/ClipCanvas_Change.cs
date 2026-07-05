@@ -54,7 +54,7 @@ internal class ClipCanvas_Change : ResizeBasedChangeBase
             {
                 layer.ForEveryFrame((img, id) =>
                 {
-                    Resize(img, id, size, -(VecI)newBounds.Pos, deletedChunks);
+                    Resize(img?.Main, id, size, -(VecI)newBounds.Pos, deletedChunks);
                 });
             }
             else if (member is ITransformableObject transformableObject)

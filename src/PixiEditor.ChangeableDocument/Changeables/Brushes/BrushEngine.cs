@@ -32,6 +32,7 @@ public class BrushEngine : IDisposable
     private int lastAppliedHistoryIndex = -1;
     private VecI lastCachedTexturePaintableSize = VecI.Zero;
     private TexturePaintable? lastCachedTexturePaintable = null;
+    private TexturePaintable? lastCachedAdditionalTexturePaintable = null;
     private Matrix3X3 lastCachedTransform = Matrix3X3.Identity;
     private readonly List<RecordedPoint> pointsHistory = new();
     private readonly List<VecD> interpolated = new(128);
@@ -98,7 +99,7 @@ public class BrushEngine : IDisposable
         return (float)(sum / count);
     }
 
-    public void ExecuteBrush(ChunkyImage target, BrushData brushData, List<RecordedPoint> points,
+    public void ExecuteBrush(LayerImage target, BrushData brushData, List<RecordedPoint> points,
         KeyFrameTime frameTime,
         ColorSpace cs, SamplingOptions samplingOptions)
     {
@@ -188,8 +189,8 @@ public class BrushEngine : IDisposable
                 point.KeyboardInfo,
                 point.EditorData, false, false);
 
-            var originalHorizontalSymmetry = target?.HorizontalSymmetry;
-            var originalVerticalSymmetry = target?.VerticalSymmetry;
+            var originalHorizontalSymmetry = target?.Main.HorizontalSymmetry;
+            var originalVerticalSymmetry = target?.Main.VerticalSymmetry;
 
             if (originalVerticalSymmetry != null)
             {
@@ -202,7 +203,8 @@ public class BrushEngine : IDisposable
 
             if (originalHorizontalSymmetry != null)
             {
-                VecD reflectedPoint = new VecD(point.Position.X, 2 * originalHorizontalSymmetry.Value - point.Position.Y);
+                VecD reflectedPoint =
+                    new VecD(point.Position.X, 2 * originalHorizontalSymmetry.Value - point.Position.Y);
 
                 ExecuteVectorShapeBrush(target, brushNode, brushData, reflectedPoint, frameTime, cs, samplingOptions,
                     point.PointerInfo with { PositionOnCanvas = reflectedPoint }, point.KeyboardInfo, point.EditorData,
@@ -228,7 +230,7 @@ public class BrushEngine : IDisposable
     }
 
 
-    public void ExecuteBrush(ChunkyImage? target, BrushData brushData, VecD point, KeyFrameTime frameTime,
+    public void ExecuteBrush(LayerImage? target, BrushData brushData, VecD point, KeyFrameTime frameTime,
         ColorSpace cs,
         SamplingOptions samplingOptions, PointerInfo pointerInfo, KeyboardInfo keyboardInfo, EditorData editorData)
     {
@@ -243,7 +245,7 @@ public class BrushEngine : IDisposable
             editorData, false, false);
     }
 
-    private void ExecuteVectorShapeBrush(ChunkyImage? target, BrushOutputNode brushNode, BrushData brushData,
+    private void ExecuteVectorShapeBrush(LayerImage? target, BrushOutputNode brushNode, BrushData brushData,
         VecD point,
         KeyFrameTime frameTime,
         ColorSpace colorSpace, SamplingOptions samplingOptions,
@@ -258,8 +260,8 @@ public class BrushEngine : IDisposable
             startPos = point;
             lastPos = point;
             drawnOnce = true;
-            target?.SetBlendMode(imageBlendMode);
-            target?.SetOpacity(brushNode.Opacity.Value);
+            target?.Main.SetBlendMode(imageBlendMode);
+            target?.Main.SetOpacity(brushNode.Opacity.Value);
             brushNode.ResetContentTexture();
         }
 
@@ -279,29 +281,29 @@ public class BrushEngine : IDisposable
 
         if (brushNode.AlwaysClear.Value)
         {
-            target?.EnqueueClear();
+            target?.Main.EnqueueClear();
         }
 
         if (requiresSampleTexture && rect is { Width: > 0, Height: > 0 } && target != null)
         {
             RectI targetRect = (RectI)rect.Round().Inflate(brushNode.TargetOversample.Value);
-            surfaceUnderRect = UpdateSurfaceUnderRect(target, targetRect, colorSpace,
+            surfaceUnderRect = UpdateSurfaceUnderRect(target.Main, targetRect, colorSpace,
                 brushNode.AllowSampleStacking.Value);
         }
 
         if (requiresFullTexture && target != null)
         {
-            fullTexture = UpdateFullTexture(target, colorSpace, brushNode.AllowSampleStacking.Value);
+            fullTexture = UpdateFullTexture(target.Main, colorSpace, brushNode.AllowSampleStacking.Value);
         }
 
         BrushRenderContext context = new BrushRenderContext(
             texture?.DrawingSurface?.Canvas, frameTime, ChunkResolution.Full,
             brushNode.FitToStrokeSize.NonOverridenValue
                 ? ((RectI)rect.RoundOutwards()).Size
-                : target?.CommittedSize ?? VecI.Zero,
-            target?.CommittedSize ?? VecI.Zero,
+                : target?.Main.CommittedSize ?? VecI.Zero,
+            target?.Main.CommittedSize ?? VecI.Zero,
             colorSpace, samplingOptions, brushData,
-            surfaceUnderRect, rect.TopLeft, fullTexture, brushData.BrushGraph,
+            surfaceUnderRect, rect.TopLeft, fullTexture, target, brushData.BrushGraph,
             startPos, lastPos, nextRenderId)
         {
             PointerInfo = pointerInfo with { PositionOnCanvas = point },
@@ -330,7 +332,8 @@ public class BrushEngine : IDisposable
             if (shape.Bounds is { Width: > 0, Height: > 0 })
             {
                 //context.TargetSampledTexture?.Dispose();
-                surfaceUnderRect = UpdateSurfaceUnderRect(target, (RectI)shape.TightBounds.Round().Inflate(brushNode.TargetOversample.Value), colorSpace,
+                surfaceUnderRect = UpdateSurfaceUnderRect(target.Main,
+                    (RectI)shape.TightBounds.Round().Inflate(brushNode.TargetOversample.Value), colorSpace,
                     brushNode.AllowSampleStacking.Value);
                 context.TargetSampledTexture = surfaceUnderRect;
                 context.RenderOutputSize = ((RectI)shape.TightBounds.Round()).Size;
@@ -354,7 +357,7 @@ public class BrushEngine : IDisposable
         PaintBrush(target, brushData, point, brushNode, context, rect, flipX, flipY);
     }
 
-    private void PaintBrush(ChunkyImage target, BrushData brushData, VecD point, BrushOutputNode brushNode,
+    private void PaintBrush(LayerImage target, BrushData brushData, VecD point, BrushOutputNode brushNode,
         BrushRenderContext context, RectD rect, bool flipX, bool flipY)
     {
         context.DryRun = false;
@@ -371,6 +374,7 @@ public class BrushEngine : IDisposable
         float pressure = brushNode.Pressure.Value;
         var content = brushNode.Content.Value;
         var contentTexture = brushNode.ContentTexture;
+        var additionalContentTexture = brushNode.AdditionalDataTexture;
         bool antiAliasing = brushData.AntiAliasing;
         var fill = brushNode.Fill.Value;
         Matrix3X3 fillTransform = brushNode.FillTransform.Value;
@@ -389,16 +393,18 @@ public class BrushEngine : IDisposable
             stroke.Transform = strokeTransform;
 
         if (PaintBrush(target, autoPosition, vectorShape, rect, fitToStrokeSize, pressure, content, contentTexture,
-                stampBlender, brushNode.StampBlendMode.Value, antiAliasing, fill, stroke, snapToPixels, canReuseStamps,
+                additionalContentTexture, stampBlender, brushNode.StampBlendMode.Value, antiAliasing, fill, stroke,
+                snapToPixels, canReuseStamps,
                 transform, flipX, flipY))
         {
             lastPos = point;
         }
     }
 
-    public bool PaintBrush(ChunkyImage target, bool autoPosition, ShapeVectorData vectorShape,
+    public bool PaintBrush(LayerImage target, bool autoPosition, ShapeVectorData vectorShape,
         RectD rect, bool fitToStrokeSize, float pressure, Painter? content,
-        Texture? contentTexture, Blender? blender, DrawingApiBlendMode blendMode, bool antiAliasing, Paintable fill,
+        Texture? contentTexture, Texture? additionalContentTexture, Blender? blender, DrawingApiBlendMode blendMode,
+        bool antiAliasing, Paintable fill,
         Paintable stroke,
         bool snapToPixels, bool canReuseStamps, Matrix3X3 transform, bool flipX, bool flipY)
     {
@@ -451,9 +457,9 @@ public class BrushEngine : IDisposable
 
                 paintableCenter = texturePaintable.LocalBounds.Center;
             }
-            else if(paintable is GradientPaintable)
+            else if (paintable is GradientPaintable)
             {
-               paintableCenter = rect.Center;
+                paintableCenter = rect.Center;
             }
 
             if (flipX)
@@ -463,17 +469,19 @@ public class BrushEngine : IDisposable
 
             if (flipY)
             {
-                paintTransform = paintTransform.PostConcat(Matrix3X3.CreateScale(1, -1, (float)paintableCenter.X, (float)paintableCenter.Y));
+                paintTransform =
+                    paintTransform.PostConcat(Matrix3X3.CreateScale(1, -1, (float)paintableCenter.X,
+                        (float)paintableCenter.Y));
             }
 
             if (blender != null)
             {
-                target.EnqueueNonMirroredDrawPath(path, paintable, vectorShape.StrokeWidth,
+                target.Main.EnqueueNonMirroredDrawPath(path, paintable, vectorShape.StrokeWidth,
                     strokeCap, blender, strokeStyle, antiAliasing, null, paintTransform);
             }
             else
             {
-                target.EnqueueNonMirroredDrawPath(path, paintable, vectorShape.StrokeWidth,
+                target.Main.EnqueueNonMirroredDrawPath(path, paintable, vectorShape.StrokeWidth,
                     strokeCap, blendMode, strokeStyle, antiAliasing, null, paintTransform);
             }
         }
@@ -483,12 +491,12 @@ public class BrushEngine : IDisposable
             strokeStyle = PaintStyle.Stroke;
             if (blender != null)
             {
-                target.EnqueueNonMirroredDrawPath(path, stroke, vectorShape.StrokeWidth,
+                target.Main.EnqueueNonMirroredDrawPath(path, stroke, vectorShape.StrokeWidth,
                     strokeCap, blender, strokeStyle, antiAliasing, null, paintTransform);
             }
             else
             {
-                target.EnqueueNonMirroredDrawPath(path, stroke, vectorShape.StrokeWidth,
+                target.Main.EnqueueNonMirroredDrawPath(path, stroke, vectorShape.StrokeWidth,
                     strokeCap, blendMode, strokeStyle, antiAliasing, null, paintTransform);
             }
         }
@@ -520,15 +528,49 @@ public class BrushEngine : IDisposable
 
                 if (blender != null)
                 {
-                    target.EnqueueNonMirroredDrawPath(path, brushPaintable, vectorShape.StrokeWidth,
+                    target.Main.EnqueueNonMirroredDrawPath(path, brushPaintable, vectorShape.StrokeWidth,
                         StrokeCap.Butt, blender, PaintStyle.Fill, antiAliasing, null, paintTransform);
                 }
                 else
                 {
-                    target.EnqueueNonMirroredDrawPath(path, brushPaintable, vectorShape.StrokeWidth,
+                    target.Main.EnqueueNonMirroredDrawPath(path, brushPaintable, vectorShape.StrokeWidth,
                         StrokeCap.Butt, blendMode, PaintStyle.Fill, antiAliasing, null, paintTransform);
                 }
             }
+        }
+
+        if (additionalContentTexture != null)
+        {
+            TexturePaintable additionalBrushPaintable;
+            if (canReuseStamps)
+            {
+                if (lastCachedAdditionalTexturePaintable == null ||
+                    lastCachedTexturePaintableSize != additionalContentTexture.Size ||
+                    lastCachedTransform != transform)
+                {
+                    lastCachedAdditionalTexturePaintable?.Dispose();
+                    lastCachedAdditionalTexturePaintable =
+                        new TexturePaintable(new Texture(additionalContentTexture), false);
+                    lastCachedTexturePaintableSize = additionalContentTexture.Size;
+                    lastCachedTransform = transform;
+                }
+
+                additionalBrushPaintable = lastCachedAdditionalTexturePaintable;
+            }
+            else
+            {
+                additionalBrushPaintable = new TexturePaintable(new Texture(additionalContentTexture), true);
+            }
+
+            additionalBrushPaintable.SamplingOptions =
+                antiAliasing ? SamplingOptions.Bilinear : SamplingOptions.Default;
+
+            if (target.Additional == null || target.Additional.Count == 0)
+            {
+                target.CreateAdditionalDataLayer();
+            }
+            target.Additional[0].EnqueueNonMirroredDrawPath(path, additionalBrushPaintable, vectorShape.StrokeWidth,
+                StrokeCap.Butt, blendMode, PaintStyle.Fill, antiAliasing, null, paintTransform);
         }
 
         return true;

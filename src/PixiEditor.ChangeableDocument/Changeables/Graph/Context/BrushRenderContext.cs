@@ -14,12 +14,13 @@ public class BrushRenderContext : RenderContext
     public BrushData BrushData { get; }
     public Texture TargetSampledTexture { get; set; }
     public Texture TargetFullTexture { get; }
+    public LayerImage Target { get; }
     public VecD StartPoint { get; }
     public VecD LastAppliedPoint { get; }
     public VecD TargetSampleTexturePos { get; }
     public bool DryRun { get; set; } = false;
 
-    public BrushRenderContext(Canvas? renderSurface, KeyFrameTime frameTime, ChunkResolution chunkResolution, VecI renderOutputSize, VecI documentSize, ColorSpace processingColorSpace, SamplingOptions desiredSampling, BrushData brushData, Texture? targetSampledTexture, VecD targetSampleTexturePos, Texture? targetFullTexture, IReadOnlyNodeGraph graph, VecD startPoint, VecD lastAppliedPoint, int graphCacheId, double opacity = 1) : base(renderSurface, frameTime, chunkResolution, renderOutputSize, documentSize, processingColorSpace, desiredSampling, graph, opacity)
+    public BrushRenderContext(Canvas? renderSurface, KeyFrameTime frameTime, ChunkResolution chunkResolution, VecI renderOutputSize, VecI documentSize, ColorSpace processingColorSpace, SamplingOptions desiredSampling, BrushData brushData, Texture? targetSampledTexture, VecD targetSampleTexturePos, Texture? targetFullTexture, LayerImage target, IReadOnlyNodeGraph graph, VecD startPoint, VecD lastAppliedPoint, int graphCacheId, double opacity = 1) : base(renderSurface, frameTime, chunkResolution, renderOutputSize, documentSize, processingColorSpace, desiredSampling, graph, opacity)
     {
         BrushData = brushData;
         StartPoint = startPoint;
@@ -27,13 +28,14 @@ public class BrushRenderContext : RenderContext
         TargetSampledTexture = targetSampledTexture;
         TargetFullTexture = targetFullTexture;
         TargetSampleTexturePos = targetSampleTexturePos;
+        Target = target;
         GraphCacheId = graphCacheId;
     }
 
     public override RenderContext Clone()
     {
         return new BrushRenderContext(RenderSurface, FrameTime, ChunkResolution, RenderOutputSize, DocumentSize,
-            ProcessingColorSpace, DesiredSamplingOptions, BrushData, TargetSampledTexture, TargetSampleTexturePos, TargetFullTexture, Graph,
+            ProcessingColorSpace, DesiredSamplingOptions, BrushData, TargetSampledTexture, TargetSampleTexturePos, TargetFullTexture, Target, Graph,
             StartPoint, LastAppliedPoint, GraphCacheId, Opacity)
         {
             VisibleDocumentRegion = VisibleDocumentRegion,
