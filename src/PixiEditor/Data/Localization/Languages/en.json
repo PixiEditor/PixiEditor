@@ -1509,5 +1509,10 @@
   "SWAP_COLOR_TOOL_ACTION_DISPLAY_DEFAULT": "Click on the canvas to swap colors. Lock on Target Color swaps only pixels similar to the color you clicked first.",
   "COLOR_RAMP_NODE": "Color Ramp",
   "COLOR_RAMP_FACTOR": "Factor",
-  "TEXTBOX_TYPE_WATERMARK": "Type here..."
+  "TEXTBOX_TYPE_WATERMARK": "Type here...",
+  "STARTING_SAMPLE_TEXTURE": "Starting Sample Texture",
+  "STARTING_SAMPLE_TEXTURE_POS": "Starting Sample Position",
+  "LATEST_SAMPLE_TEXTURE": "Latest Sample Texture",
+  "STARTING_FULL_TEXTURE": "Starting Full Texture",
+  "LATEST_FULL_TEXTURE": "Latest Full Texture"
 }
