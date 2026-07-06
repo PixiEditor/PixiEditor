@@ -23,6 +23,12 @@ namespace PixiEditor.ChangeableDocument.Changeables.Brushes;
 
 public class BrushEngine : IDisposable
 {
+    private const int TargetStampCacheId = 0;
+    private const int LatestStampCacheId = 1;
+    private const int StartingStampCacheId = 2;
+    private const int FullTextureCacheId = 3;
+    private const int FullTextureLatestCacheId = 4;
+
     private static int nextRenderId = 0;
     private TextureCache cache = new();
     private VecD lastPos;
@@ -35,8 +41,15 @@ public class BrushEngine : IDisposable
     private Matrix3X3 lastCachedTransform = Matrix3X3.Identity;
     private readonly List<RecordedPoint> pointsHistory = new();
     private readonly List<VecD> interpolated = new(128);
-    private Dictionary<Guid, bool> graphUsesSampleInput = new();
-    private Dictionary<Guid, bool> graphUsesFullInput = new();
+    private Dictionary<Guid, bool> graphUsesTargetSampleInput = new();
+    private Dictionary<Guid, bool> graphUsesLatestSampleInput = new();
+    private Dictionary<Guid, bool> graphUsesStartingSampleInput = new();
+    private Dictionary<Guid, bool> graphUsesTargetFullInput = new();
+    private Dictionary<Guid, bool> graphUsesLatestFullInput = new();
+    private Dictionary<Guid, bool> graphUsesStartingFullInput = new();
+
+    Texture? startingSampleTexture = null;
+    Texture? startingFullTexture = null;
 
     private bool drawnOnce = false;
 
@@ -202,7 +215,8 @@ public class BrushEngine : IDisposable
 
             if (originalHorizontalSymmetry != null)
             {
-                VecD reflectedPoint = new VecD(point.Position.X, 2 * originalHorizontalSymmetry.Value - point.Position.Y);
+                VecD reflectedPoint =
+                    new VecD(point.Position.X, 2 * originalHorizontalSymmetry.Value - point.Position.Y);
 
                 ExecuteVectorShapeBrush(target, brushNode, brushData, reflectedPoint, frameTime, cs, samplingOptions,
                     point.PointerInfo with { PositionOnCanvas = reflectedPoint }, point.KeyboardInfo, point.EditorData,
@@ -258,50 +272,101 @@ public class BrushEngine : IDisposable
             startPos = point;
             lastPos = point;
             drawnOnce = true;
+            ResetStartingTextures();
             target?.SetBlendMode(imageBlendMode);
             target?.SetOpacity(brushNode.Opacity.Value);
             brushNode.ResetContentTexture();
         }
 
         float strokeWidth = brushData.StrokeWidth;
+        var startingRect =new RectD(startPos - new VecD((strokeWidth / 2f)), new VecD(strokeWidth));
         var rect = new RectD(point - new VecD((strokeWidth / 2f)), new VecD(strokeWidth));
         if (brushNode.SnapToPixels.Value)
         {
             VecI vecIpoint = (VecI)point;
             rect = (RectD)new RectI(vecIpoint - new VecI((int)(strokeWidth / 2f)), new VecI((int)strokeWidth));
+
+            VecI vecIStartPoint = (VecI)startPos;
+            startingRect = (RectD)new RectI(vecIStartPoint - new VecI((int)(strokeWidth / 2f)), new VecI((int)strokeWidth));
         }
 
-        bool requiresSampleTexture = GraphUsesSampleTexture(brushData.BrushGraph, brushNode);
-        bool requiresFullTexture = GraphUsesFullTexture(brushData.BrushGraph, brushNode);
-        Texture? surfaceUnderRect = null;
-        Texture? fullTexture = null;
-        Texture texture = null;
+        bool requiresLatestSampleTexture = GraphUsesConnections(brushData.BrushGraph, brushNode,
+            n => n.LatestSampleTexture.Connections, graphUsesLatestSampleInput);
+        bool requiresLatestFullTexture = GraphUsesConnections(brushData.BrushGraph, brushNode,
+            n => n.LatestFullTexture.Connections, graphUsesLatestFullInput);
+        bool requiresStartingSampleTexture = GraphUsesConnections(brushData.BrushGraph, brushNode,
+            n => n.StartingSampleTexture.Connections, graphUsesStartingSampleInput);
+        bool requiresStartingFullTexture = GraphUsesConnections(brushData.BrushGraph, brushNode,
+            n => n.StartingFullTexture.Connections, graphUsesStartingFullInput);
+        bool requiresTargetSampleTexture = GraphUsesConnections(brushData.BrushGraph, brushNode,
+            n => n.TargetSampleTexture.Connections, graphUsesTargetSampleInput);
+        bool requiresTargetFullTexture = GraphUsesConnections(brushData.BrushGraph, brushNode,
+            n => n.TargetFullTexture.Connections, graphUsesTargetFullInput);
+
+        Texture? latestSampleUnderRect = null;
+        Texture? targetSampleUnderRect = null;
+        Texture? latestFullTexture = null;
 
         if (brushNode.AlwaysClear.Value)
         {
             target?.EnqueueClear();
         }
 
-        if (requiresSampleTexture && rect is { Width: > 0, Height: > 0 } && target != null)
+        if (rect is { Width: > 0, Height: > 0 } && target != null)
         {
+            requiresLatestSampleTexture |= requiresTargetSampleTexture && brushNode.AllowSampleStacking.Value;
             RectI targetRect = (RectI)rect.Round().Inflate(brushNode.TargetOversample.Value);
-            surfaceUnderRect = UpdateSurfaceUnderRect(target, targetRect, colorSpace,
-                brushNode.AllowSampleStacking.Value);
+            if (requiresLatestSampleTexture)
+            {
+                latestSampleUnderRect = UpdateSurfaceUnderRect(LatestStampCacheId, target, targetRect, colorSpace, true);
+                if (!brushNode.AllowSampleStacking.Value && requiresTargetSampleTexture)
+                {
+                    targetSampleUnderRect = UpdateSurfaceUnderRect(TargetStampCacheId, target, targetRect, colorSpace, false);
+                }
+                else
+                {
+                    targetSampleUnderRect = latestSampleUnderRect;
+                }
+            }
+            else if (requiresTargetSampleTexture)
+            {
+                targetSampleUnderRect = UpdateSurfaceUnderRect(TargetStampCacheId, target, targetRect, colorSpace, false);
+            }
         }
 
-        if (requiresFullTexture && target != null)
+        if (target != null && startingRect is { Width: > 0, Height: > 0 } && startingSampleTexture == null)
         {
-            fullTexture = UpdateFullTexture(target, colorSpace, brushNode.AllowSampleStacking.Value);
+            RectI startingRectI = (RectI)startingRect.Round().Inflate(brushNode.TargetOversample.Value);
+            requiresStartingSampleTexture |= requiresTargetSampleTexture && !brushNode.AllowSampleStacking.Value;
+            if (requiresStartingSampleTexture)
+            {
+                startingSampleTexture = UpdateSurfaceUnderRect(StartingStampCacheId, target, startingRectI, colorSpace, false);
+            }
+        }
+
+        if (target != null)
+        {
+            requiresLatestFullTexture |= requiresTargetFullTexture && brushNode.AllowSampleStacking.Value;
+            if (requiresLatestFullTexture)
+            {
+                latestFullTexture = UpdateFullTexture(target, colorSpace, true);
+            }
+
+            requiresStartingFullTexture |= requiresTargetFullTexture && !brushNode.AllowSampleStacking.Value;
+            if (requiresStartingFullTexture && startingFullTexture == null)
+            {
+                startingFullTexture = UpdateFullTexture(target, colorSpace, false);
+            }
         }
 
         BrushRenderContext context = new BrushRenderContext(
-            texture?.DrawingSurface?.Canvas, frameTime, ChunkResolution.Full,
+            null, frameTime, ChunkResolution.Full,
             brushNode.FitToStrokeSize.NonOverridenValue
                 ? ((RectI)rect.RoundOutwards()).Size
                 : target?.CommittedSize ?? VecI.Zero,
             target?.CommittedSize ?? VecI.Zero,
             colorSpace, samplingOptions, brushData,
-            surfaceUnderRect, rect.TopLeft, fullTexture, brushData.BrushGraph,
+            targetSampleUnderRect, latestSampleUnderRect, rect.TopLeft, startingSampleTexture, startingRect.TopLeft, startingFullTexture, latestFullTexture, brushData.BrushGraph,
             startPos, lastPos, nextRenderId)
         {
             PointerInfo = pointerInfo with { PositionOnCanvas = point },
@@ -319,7 +384,7 @@ public class BrushEngine : IDisposable
             return;
         }
 
-        if (requiresSampleTexture && brushNode.VectorShape.Value != null)
+        if ((requiresLatestSampleTexture || requiresTargetSampleTexture) && brushNode.VectorShape.Value != null)
         {
             brushData.BrushGraph.Execute(brushNode, context);
 
@@ -330,9 +395,21 @@ public class BrushEngine : IDisposable
             if (shape.Bounds is { Width: > 0, Height: > 0 })
             {
                 //context.TargetSampledTexture?.Dispose();
-                surfaceUnderRect = UpdateSurfaceUnderRect(target, (RectI)shape.TightBounds.Round().Inflate(brushNode.TargetOversample.Value), colorSpace,
+                RectI size = (RectI)shape.TightBounds.Round().Inflate(brushNode.TargetOversample.Value);
+                targetSampleUnderRect = UpdateSurfaceUnderRect(TargetStampCacheId, target,
+                    size, colorSpace,
                     brushNode.AllowSampleStacking.Value);
-                context.TargetSampledTexture = surfaceUnderRect;
+                context.TargetSampleTexture = targetSampleUnderRect;
+                if (!brushNode.AllowSampleStacking.Value && requiresLatestSampleTexture)
+                {
+                    latestSampleUnderRect = UpdateSurfaceUnderRect(LatestStampCacheId, target, size, colorSpace, true);
+                }
+                else
+                {
+                    latestSampleUnderRect = targetSampleUnderRect;
+                }
+
+                context.LatestSampledTexture = latestSampleUnderRect;
                 context.RenderOutputSize = ((RectI)shape.TightBounds.Round()).Size;
                 context.GraphCacheId = nextRenderId + 1;
             }
@@ -451,9 +528,9 @@ public class BrushEngine : IDisposable
 
                 paintableCenter = texturePaintable.LocalBounds.Center;
             }
-            else if(paintable is GradientPaintable)
+            else if (paintable is GradientPaintable)
             {
-               paintableCenter = rect.Center;
+                paintableCenter = rect.Center;
             }
 
             if (flipX)
@@ -463,7 +540,9 @@ public class BrushEngine : IDisposable
 
             if (flipY)
             {
-                paintTransform = paintTransform.PostConcat(Matrix3X3.CreateScale(1, -1, (float)paintableCenter.X, (float)paintableCenter.Y));
+                paintTransform =
+                    paintTransform.PostConcat(Matrix3X3.CreateScale(1, -1, (float)paintableCenter.X,
+                        (float)paintableCenter.Y));
             }
 
             if (blender != null)
@@ -536,22 +615,24 @@ public class BrushEngine : IDisposable
 
     private Texture UpdateFullTexture(ChunkyImage target, ColorSpace colorSpace, bool sampleLatest)
     {
-        var texture = cache.RequestTexture(1, target.LatestSize, colorSpace);
+        var size = sampleLatest ? target.LatestSize : target.CommittedSize;
+        var texture = cache.RequestTexture(sampleLatest ? FullTextureLatestCacheId : FullTextureCacheId, size, colorSpace);
         if (!sampleLatest)
         {
-            target.DrawCommittedRegionOn(new RectI(VecI.Zero, target.LatestSize), ChunkResolution.Full,
+            target.DrawCommittedRegionOn(new RectI(VecI.Zero, size), ChunkResolution.Full,
                 texture.DrawingSurface.Canvas, VecI.Zero);
             return texture;
         }
 
-        target.DrawMostUpToDateRegionOn(new RectI(VecI.Zero, target.LatestSize), ChunkResolution.Full,
+        target.DrawMostUpToDateRegionOn(new RectI(VecI.Zero, size), ChunkResolution.Full,
             texture.DrawingSurface.Canvas, VecI.Zero);
         return texture;
     }
 
-    private Texture UpdateSurfaceUnderRect(ChunkyImage target, RectI rect, ColorSpace colorSpace, bool sampleLatest)
+
+    private Texture UpdateSurfaceUnderRect(int cacheId, ChunkyImage target, RectI rect, ColorSpace colorSpace, bool sampleLatest)
     {
-        var surfaceUnderRect = cache.RequestTexture(0, rect.Size, colorSpace);
+        var surfaceUnderRect = cache.RequestTexture(cacheId, rect.Size, colorSpace);
 
         if (sampleLatest)
         {
@@ -566,27 +647,18 @@ public class BrushEngine : IDisposable
         return surfaceUnderRect;
     }
 
-    private bool GraphUsesSampleTexture(IReadOnlyNodeGraph graph, IReadOnlyNode brushNode)
+    private bool GraphUsesConnections(IReadOnlyNodeGraph graph, IReadOnlyNode brushNode,
+        Func<IBrushSampleTextureNode, IReadOnlyCollection<IInputProperty>> getConnections, Dictionary<Guid, bool> cache)
     {
-        if (graphUsesSampleInput.TryGetValue(brushNode.Id, out bool uses))
+        if (cache.TryGetValue(brushNode.Id, out bool uses))
         {
             return uses;
         }
 
-        bool usesInput = GraphUsesInput(graph, brushNode, node => node.TargetSampleTexture.Connections);
-        graphUsesSampleInput[brushNode.Id] = usesInput;
-        return usesInput;
-    }
+        bool usesInput = GraphUsesInput(graph, brushNode, getConnections);
 
-    private bool GraphUsesFullTexture(IReadOnlyNodeGraph graph, IReadOnlyNode brushNode)
-    {
-        if (graphUsesFullInput.TryGetValue(brushNode.Id, out bool uses))
-        {
-            return uses;
-        }
+        cache[brushNode.Id] = usesInput;
 
-        bool usesInput = GraphUsesInput(graph, brushNode, node => node.TargetFullTexture.Connections);
-        graphUsesFullInput[brushNode.Id] = usesInput;
         return usesInput;
     }
 
@@ -717,10 +789,16 @@ public class BrushEngine : IDisposable
             }
         }
     }
+    private void ResetStartingTextures()
+    {
+        startingFullTexture = null;
+        startingSampleTexture = null;
+    }
 
     public void Dispose()
     {
         cache.Dispose();
         lastCachedTexturePaintable?.Dispose();
+        ResetStartingTextures();
     }
 }
