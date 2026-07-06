@@ -1511,11 +1511,16 @@
   "COMMENT_WINDOW_COLOR": "Box Color",
   "SATURATION_TOGGLE": "Replace Saturation",
   "BRIGHTNESS_TOGGLE": "Replace Brightness",
-  "SINGLE_COLOR": "Replace Single Color",
+  "LOCK_ON_TARGET_COLOR": "Lock on Target Color",
   "SWAP_COLOR_TOOL": "Swap Color",
   "SWAP_COLOR_TOOL_TOOLTIP": "Changes the colors of the affected area to match Primary Color.",
-  "SWAP_COLOR_TOOL_ACTION_DISPLAY_DEFAULT": "Click on the canvas to swap colors. Replace Single Color swaps only pixels of the color you clicked first. Hardness 100 should be used with low Tolerance.",
+  "SWAP_COLOR_TOOL_ACTION_DISPLAY_DEFAULT": "Click on the canvas to swap colors. Lock on Target Color swaps only pixels similar to the color you clicked first.",
   "COLOR_RAMP_NODE": "Color Ramp",
   "COLOR_RAMP_FACTOR": "Factor",
-  "TEXTBOX_TYPE_WATERMARK": "Type here..."
+  "TEXTBOX_TYPE_WATERMARK": "Type here...",
+  "STARTING_SAMPLE_TEXTURE": "Starting Sample Texture",
+  "STARTING_SAMPLE_TEXTURE_POS": "Starting Sample Position",
+  "LATEST_SAMPLE_TEXTURE": "Latest Sample Texture",
+  "STARTING_FULL_TEXTURE": "Starting Full Texture",
+  "LATEST_FULL_TEXTURE": "Latest Full Texture"
 }
