@@ -51,7 +51,6 @@ public class StrokeInfoNode : Node, IBrushSampleTextureNode
         if (TargetSampleTexture.Connections.Count > 0)
         {
             TargetSampleTexture.Value = brushRenderContext.TargetSampleTexture;
-            ComputedSampleSize.Value = brushRenderContext.TargetSampleTexture?.Size ?? VecI.Zero;
         }
 
         if (StartingSampleTexture.Connections.Count > 0)
@@ -78,6 +77,8 @@ public class StrokeInfoNode : Node, IBrushSampleTextureNode
         {
             LatestFullTexture.Value = brushRenderContext.LatestFullTexture;
         }
+
+        ComputedSampleSize.Value = brushRenderContext.TargetSampleTexture?.Size ?? VecI.Zero;
     }
 
     public override Node CreateCopy()

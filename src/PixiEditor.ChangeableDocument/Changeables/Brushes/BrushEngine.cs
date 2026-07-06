@@ -791,9 +791,7 @@ public class BrushEngine : IDisposable
     }
     private void ResetStartingTextures()
     {
-        startingFullTexture?.Dispose();
         startingFullTexture = null;
-        startingSampleTexture?.Dispose();
         startingSampleTexture = null;
     }
 
