@@ -8,7 +8,7 @@ public class Palette : IReadOnlyList<Color>, IEquatable<Palette>
     private readonly Color[] colors;
 
     public static Palette empty { get; } = new Palette(Array.Empty<Color>());
-    public IReadOnlyList<Color> Colors => colors;
+    public IReadOnlyList<Color> Colors => Array.AsReadOnly(colors);
     public int Count => colors.Length;
     public Color this[int index] => colors[index];
 
