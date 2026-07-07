@@ -1514,5 +1514,6 @@
   "STARTING_SAMPLE_TEXTURE_POS": "Starting Sample Position",
   "LATEST_SAMPLE_TEXTURE": "Latest Sample Texture",
   "STARTING_FULL_TEXTURE": "Starting Full Texture",
-  "LATEST_FULL_TEXTURE": "Latest Full Texture"
+  "LATEST_FULL_TEXTURE": "Latest Full Texture",
+  "STAMP_NUMBER": "Stamp"
 }

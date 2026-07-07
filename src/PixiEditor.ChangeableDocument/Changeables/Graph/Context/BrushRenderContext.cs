@@ -22,12 +22,14 @@ public class BrushRenderContext : RenderContext
     public VecD LatestSampleTexturePos { get; }
     public VecD StartingSampleTexturePos { get; }
     public bool DryRun { get; set; } = false;
+    public int Stamp { get; set; }
 
-    public BrushRenderContext(Canvas? renderSurface, KeyFrameTime frameTime, ChunkResolution chunkResolution, VecI renderOutputSize, VecI documentSize, ColorSpace processingColorSpace, SamplingOptions desiredSampling, BrushData brushData, Texture? targetSampleTexture, Texture? latestSampledTexture, VecD latestSampleTexturePos, Texture? startingSampleTexture, VecD startingSampleTexturePos, Texture? targetStartingFullTexture, Texture? latestFullTexture, IReadOnlyNodeGraph graph, VecD startPoint, VecD lastAppliedPoint, int graphCacheId, double opacity = 1) : base(renderSurface, frameTime, chunkResolution, renderOutputSize, documentSize, processingColorSpace, desiredSampling, graph, opacity)
+    public BrushRenderContext(Canvas? renderSurface, KeyFrameTime frameTime, ChunkResolution chunkResolution, VecI renderOutputSize, VecI documentSize, ColorSpace processingColorSpace, SamplingOptions desiredSampling, BrushData brushData, Texture? targetSampleTexture, Texture? latestSampledTexture, VecD latestSampleTexturePos, Texture? startingSampleTexture, VecD startingSampleTexturePos, Texture? targetStartingFullTexture, Texture? latestFullTexture, IReadOnlyNodeGraph graph, VecD startPoint, VecD lastAppliedPoint, int stamp, int graphCacheId, double opacity = 1) : base(renderSurface, frameTime, chunkResolution, renderOutputSize, documentSize, processingColorSpace, desiredSampling, graph, opacity)
     {
         BrushData = brushData;
         StartPoint = startPoint;
         LastAppliedPoint = lastAppliedPoint;
+        Stamp = stamp;
         TargetSampleTexture = targetSampleTexture;
         LatestSampledTexture = latestSampledTexture;
         LatestSampleTexturePos = latestSampleTexturePos;
@@ -42,7 +44,7 @@ public class BrushRenderContext : RenderContext
     {
         return new BrushRenderContext(RenderSurface, FrameTime, ChunkResolution, RenderOutputSize, DocumentSize,
             ProcessingColorSpace, DesiredSamplingOptions, BrushData, TargetSampleTexture, LatestSampledTexture, LatestSampleTexturePos, StartingSampleTexture, StartingSampleTexturePos, StartingFullTexture, LatestFullTexture, Graph,
-            StartPoint, LastAppliedPoint, GraphCacheId, Opacity)
+            StartPoint, LastAppliedPoint, Stamp, GraphCacheId, Opacity)
         {
             VisibleDocumentRegion = VisibleDocumentRegion,
             AffectedArea = AffectedArea,
