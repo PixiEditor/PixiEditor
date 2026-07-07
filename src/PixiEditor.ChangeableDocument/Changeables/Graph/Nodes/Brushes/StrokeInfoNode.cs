@@ -10,6 +10,7 @@ public class StrokeInfoNode : Node, IBrushSampleTextureNode
 {
     public OutputProperty<float> StrokeWidth { get; }
     public OutputProperty<VecI> ComputedSampleSize { get; }
+    public OutputProperty<int> Stamp { get; }
     public OutputProperty<VecD> StartPoint { get; }
     public OutputProperty<VecD> LastAppliedPoint { get; }
     public OutputProperty<Texture> LatestSampleTexture { get; }
@@ -24,6 +25,7 @@ public class StrokeInfoNode : Node, IBrushSampleTextureNode
     public StrokeInfoNode()
     {
         StrokeWidth = CreateOutput<float>("StrokeWidth", "STROKE_WIDTH", 1f);
+        Stamp = CreateOutput<int>("Stamp", "STAMP_NUMBER", 1);
         ComputedSampleSize = CreateOutput<VecI>("ComputedSampleSize", "COMPUTED_SAMPLE_SIZE", VecI.Zero);
         StartPoint = CreateOutput<VecD>("StartPoint", "START_POINT", VecD.Zero);
         LastAppliedPoint = CreateOutput<VecD>("LastAppliedPoint", "LAST_APPLIED_POINT", VecD.Zero);
@@ -43,6 +45,7 @@ public class StrokeInfoNode : Node, IBrushSampleTextureNode
             return;
 
         StrokeWidth.Value = brushRenderContext.BrushData.StrokeWidth;
+        Stamp.Value = brushRenderContext.Stamp;
         StartPoint.Value = brushRenderContext.StartPoint;
         LastAppliedPoint.Value = brushRenderContext.LastAppliedPoint;
         TargetSampleTexturePos.Value = brushRenderContext.LatestSampleTexturePos;
