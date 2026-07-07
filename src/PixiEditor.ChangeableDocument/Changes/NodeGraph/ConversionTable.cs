@@ -14,6 +14,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Palettes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 
@@ -93,6 +94,11 @@ public static class ConversionTable
                     (typeof(double), new TypeConverter<Color, double>(c => c.R)),
                     (typeof(int), new TypeConverter<Color, int>(c => c.R)),
                     (typeof(float), new TypeConverter<Color, float>(c => c.R)),
+                ]
+            },
+            {
+                typeof(Color[]), [
+                    (typeof(Palette), new TypeConverter<Color[], Palette>(c => new Palette(c)))
                 ]
             },
             {
@@ -242,6 +248,28 @@ public static class ConversionTable
                     return true;
                 }
             }
+        }
+
+        if (arg is Array && !targetType.IsArray)
+        {
+            foreach (var (sourceType, sourceConverters) in _conversionTable)
+            {
+                if (!sourceType.IsArray) continue;
+
+                foreach (var (outType, converter) in sourceConverters)
+                {
+                    if (outType != targetType) continue;
+
+                    if (TryConvert(arg, sourceType, out var normalizedArray))
+                    {
+                        result = converter.Convert(normalizedArray);
+                        return true;
+                    }
+                }
+            }
+
+            result = null;
+            return false;
         }
 
         if (!argType.IsPrimitive && argType != typeof(string))

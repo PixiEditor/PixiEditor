@@ -65,6 +65,15 @@ internal partial class PalettesBrowser : PixiEditorPopup, IPopupWindow
     public static readonly StyledProperty<ICommand> ImportPaletteCommandProperty =
         AvaloniaProperty.Register<PalettesBrowser, ICommand>(nameof(ImportPaletteCommand));
 
+    public string UsePaletteTooltipKey
+    {
+        get => (string)GetValue(UsePaletteTooltipKeyProperty);
+        set => SetValue(UsePaletteTooltipKeyProperty, value);
+    }
+
+    public static readonly StyledProperty<string> UsePaletteTooltipKeyProperty =
+        AvaloniaProperty.Register<PalettesBrowser, string>(nameof(UsePaletteTooltipKey), "USE_IN_CURRENT_IMAGE");
+
     public static readonly StyledProperty<ICommand> DeletePaletteCommandProperty =
         AvaloniaProperty.Register<PalettesBrowser, ICommand>(nameof(DeletePaletteCommand));
 

@@ -203,7 +203,8 @@ internal static class ServiceCollectionHelpers
             .AddTransient<SerializationFactory, VecD4SerializationFactory>()
             .AddTransient<SerializationFactory, VecDSerializationFactory>()
             .AddTransient<SerializationFactory, VecISerializationFactory>()
-            .AddTransient<SerializationFactory, VectorPathSerializationFactory>();
+            .AddTransient<SerializationFactory, VectorPathSerializationFactory>()
+            .AddTransient<SerializationFactory, PaletteSerializationFactory>();
 
         return collection;
     }

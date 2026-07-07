@@ -64,7 +64,7 @@
         <StackPanel Spacing="2" Orientation="Horizontal" Grid.Row="0" Grid.RowSpan="2" Grid.Column="1"
                     VerticalAlignment="Center">
             <Button
-                ui:Translator.TooltipKey="USE_IN_CURRENT_IMAGE" Cursor="Hand"
+                ui:Translator.TooltipKey="{Binding UseTooltipKey, ElementName=paletteItem}" Cursor="Hand"
                 Margin="0 3 0 0" Padding="2" Width="28" Height="28"
                 CommandParameter="{Binding ElementName=paletteItem, Path=Palette.Colors}"
                 Classes="pixi-icon"
