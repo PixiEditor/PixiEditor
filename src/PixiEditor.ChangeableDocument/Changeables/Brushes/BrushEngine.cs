@@ -30,6 +30,7 @@ public class BrushEngine : IDisposable
     private const int FullTextureLatestCacheId = 4;
 
     private static int nextRenderId = 0;
+    private int stamps = 0;
     private TextureCache cache = new();
     private VecD lastPos;
     private VecD startPos;
@@ -72,6 +73,7 @@ public class BrushEngine : IDisposable
         startPos = VecD.Zero;
         drawnOnce = false;
         pointsHistory.Clear();
+        stamps = 0;
     }
 
     /// <summary>
@@ -272,6 +274,7 @@ public class BrushEngine : IDisposable
             startPos = point;
             lastPos = point;
             drawnOnce = true;
+            stamps = 0;
             ResetStartingTextures();
             target?.SetBlendMode(imageBlendMode);
             target?.SetOpacity(brushNode.Opacity.Value);
@@ -367,7 +370,7 @@ public class BrushEngine : IDisposable
             target?.CommittedSize ?? VecI.Zero,
             colorSpace, samplingOptions, brushData,
             targetSampleUnderRect, latestSampleUnderRect, rect.TopLeft, startingSampleTexture, startingRect.TopLeft, startingFullTexture, latestFullTexture, brushData.BrushGraph,
-            startPos, lastPos, nextRenderId)
+            startPos, lastPos, stamps, nextRenderId)
         {
             PointerInfo = pointerInfo with { PositionOnCanvas = point },
             EditorData = shouldErase
@@ -470,6 +473,7 @@ public class BrushEngine : IDisposable
                 transform, flipX, flipY))
         {
             lastPos = point;
+            stamps++;
         }
     }
 
