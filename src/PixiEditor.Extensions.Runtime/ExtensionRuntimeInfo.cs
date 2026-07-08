@@ -2,5 +2,5 @@
 
 public static class ExtensionRuntimeInfo
 {
-    public const int ApiVersion = 3;
+    public const int ApiVersion = 4;
 }
