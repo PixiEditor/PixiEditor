@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.AnimationRenderer.Core;
 using PixiEditor.AnimationRenderer.FFmpeg;
 using PixiEditor.Extensions.Commands;
+using PixiEditor.Extensions.CommonApi.Brushes;
 using PixiEditor.Extensions.CommonApi.Commands;
 using PixiEditor.Extensions.CommonApi.IO;
 using PixiEditor.Extensions.CommonApi.Logging;
@@ -253,6 +254,7 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<IVisualTreeProvider, VisualTreeProvider>()
             .AddSingleton<IUserDataProvider, UserDataProvider>()
             .AddSingleton<IToolsProvider, ToolsProvider>()
+            .AddSingleton<IBrushProvider, BrushesProvider>(x => new BrushesProvider(x.GetRequiredService<BrushesViewModel>().BrushLibrary))
             .AddSingleton<IExtensionListProvider>(x => loader)
             .AddSingleton<IFileSystemProvider, FileSystemProvider>();
 }
