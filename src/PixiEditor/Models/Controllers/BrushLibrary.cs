@@ -199,6 +199,7 @@ internal class BrushLibrary
             {
                 var doc = Importer.ImportDocument(brushData, null);
                 Brush brush = LoadBrush($"External:{dataSource.Name}", doc, dataSource.Name);
+                brush.IsReadOnly = true;
                 brushes.Add(brush.OutputNodeId, brush);
             }
             catch (Exception ex)
