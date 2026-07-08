@@ -46,6 +46,7 @@ internal class BrushLibrary
         externalBrushes.Add(dataSource);
 
         LoadExternalBrushes(dataSource);
+        BrushesChanged?.Invoke();
     }
 
     private void LoadBuiltIn()

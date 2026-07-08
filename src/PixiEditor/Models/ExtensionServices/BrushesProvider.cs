@@ -5,15 +5,15 @@ namespace PixiEditor.Models.ExtensionServices;
 
 internal class BrushesProvider : IBrushProvider
 {
-    public BrushLibrary library;
+    private BrushLibrary brushLibrary;
 
     public BrushesProvider(BrushLibrary library)
     {
-        this.library = library;
+        this.brushLibrary = library;
     }
 
     public void RegisterBrushDataSource(IBrushDataSource dataSource)
     {
-        library.RegisterExternalBrushes(dataSource);
+        brushLibrary.RegisterExternalBrushes(dataSource);
     }
 }

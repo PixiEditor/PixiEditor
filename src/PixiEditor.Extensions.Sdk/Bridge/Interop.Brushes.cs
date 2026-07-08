@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using PixiEditor.Extensions.CommonApi.Brushes;
 using PixiEditor.Extensions.CommonApi.Utilities;
 using PixiEditor.Extensions.Sdk.Api.Brushes;
@@ -17,8 +18,9 @@ internal static partial class Interop
         }
 
         ByteWriter writer = new();
-        writer.WriteInt(dataSource.GetBrushes().Count);
-        foreach (var brush in dataSource.GetBrushes())
+        var brushes = dataSource.GetBrushes();
+        writer.WriteInt(brushes.Count);
+        foreach (var brush in brushes)
         {
             writer.WriteInt(brush.Length);
             writer.WriteBytes(brush);
@@ -28,5 +30,6 @@ internal static partial class Interop
         IntPtr arr = InteropUtility.ByteArrayToIntPtr(array);
         int handle = Native.register_brush_data_source(dataSource.Name, arr, array.Length);
         brushesDataSources[handle] = dataSource;
+        Marshal.FreeHGlobal(arr);
     }
 }

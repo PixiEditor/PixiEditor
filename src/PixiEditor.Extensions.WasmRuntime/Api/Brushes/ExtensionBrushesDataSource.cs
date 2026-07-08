@@ -30,6 +30,6 @@ public class ExtensionBrushesDataSource : IBrushDataSource
 
     public IReadOnlyCollection<byte[]> GetBrushes()
     {
-        return brushes;
+        return brushes.AsReadOnly();
     }
 }
