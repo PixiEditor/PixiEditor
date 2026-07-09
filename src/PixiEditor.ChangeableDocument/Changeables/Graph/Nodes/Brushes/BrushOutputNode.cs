@@ -1,24 +1,18 @@
-﻿using System.Collections;
-using Drawie.Backend.Core;
+﻿using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Shaders;
 using Drawie.Backend.Core.Surfaces;
-using Drawie.Backend.Core.Surfaces.ImageData;
-using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
-using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
-using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.ChangeableDocument.Rendering.ContextData;
-using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 
@@ -68,6 +62,7 @@ public class BrushOutputNode : Node
     public InputProperty<double> TargetOversample { get; }
     public InputProperty<bool> AlwaysClear { get; }
     public InputProperty<bool> SnapToPixels { get; }
+    public RenderInputProperty StampStateBuffer { get; }
 
     public InputProperty<string> Tags { get; }
 
@@ -77,8 +72,10 @@ public class BrushOutputNode : Node
     public InputProperty<IReadOnlyNodeGraph> Previous { get; }
 
     internal Texture ContentTexture;
+    internal Texture StateBuffer;
 
     private TextureCache cache = new();
+    private TextureCache stateBufferCache = new();
 
     private ChunkyImage? previewChunkyImage;
     private BrushEngine previewEngine = new BrushEngine() { PressureSmoothingWindowSize = 0 };
@@ -132,6 +129,7 @@ public class BrushOutputNode : Node
         TargetOversample = CreateInput<double>("TargetOversample", "TARGET_OVERSAMPLE", 0).WithRules(x => x.Min(0d));
         AlwaysClear = CreateInput<bool>("AlwaysClear", "ALWAYS_CLEAR", false);
         SnapToPixels = CreateInput<bool>("SnapToPixels", "SNAP_TO_PIXELS", false);
+        StampStateBuffer = CreateRenderInput("StampStateBuffer", "STAMP_STATE_BUFFER");
         Tags = CreateInput<string>("Tags", "TAGS", "");
         Previous = CreateInput<IReadOnlyNodeGraph>("Previous", "PREVIOUS", null);
     }
@@ -141,9 +139,9 @@ public class BrushOutputNode : Node
         if (value is string code)
         {
             Blender? blender = Blender.CreateFromString(code, out string? error);
-            if (blender != null)
+            if (string.IsNullOrEmpty(error))
             {
-                blender.Dispose();
+                blender?.Dispose();
                 return new ValidatorResult(true, null);
             }
 
@@ -184,7 +182,20 @@ public class BrushOutputNode : Node
             if (CustomStampBlenderCode.Value != lastStampBlenderCode || cachedStampBlender == null)
             {
                 cachedStampBlender?.Dispose();
-                cachedStampBlender = Blender.CreateFromString(CustomStampBlenderCode.Value, out _);
+                if(StateBuffer != null)
+                {
+                    Uniforms uniforms = new Uniforms();
+                    using var snapshot = StateBuffer.DrawingSurface.Snapshot();
+                    using var shader = snapshot.ToShader();
+                    uniforms.Add("StateBuffer", new Uniform("StateBuffer", shader));
+                    cachedStampBlender = Blender.CreateFromString(CustomStampBlenderCode.Value, uniforms, out _);
+                }
+
+                if(StateBuffer == null)
+                {
+                    cachedStampBlender = Blender.CreateFromString(CustomStampBlenderCode.Value, out _);
+                }
+
                 lastStampBlenderCode = CustomStampBlenderCode.Value;
             }
         }
@@ -193,6 +204,14 @@ public class BrushOutputNode : Node
             cachedStampBlender?.Dispose();
             cachedStampBlender = null;
             lastStampBlenderCode = "";
+        }
+
+        if (StampStateBuffer.Value != null)
+        {
+            StateBuffer = stateBufferCache.RequestTexture(context.GraphCacheId, context.RenderOutputSize, context.ProcessingColorSpace);
+            StateBuffer.DrawingSurface.Canvas.Save();
+            StampStateBuffer.Value.Paint(context, StateBuffer.DrawingSurface.Canvas);
+            StateBuffer.DrawingSurface.Canvas.Restore();
         }
 
         RenderPreviews(context.GetPreviewTexturesForNode(Id), context);
@@ -382,6 +401,7 @@ public class BrushOutputNode : Node
         previewVectorPath?.Dispose();
         previewVectorPath = null;
         cache.Dispose();
+        stateBufferCache.Dispose();
         base.Dispose();
     }
 }

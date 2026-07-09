@@ -1,4 +1,5 @@
 ﻿using Drawie.Backend.Core;
+using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.ChangeableDocument.Rendering;
@@ -21,6 +22,10 @@ public class StrokeInfoNode : Node, IBrushSampleTextureNode
     public OutputProperty<Texture> TargetFullTexture { get; }
     public OutputProperty<Texture> LatestFullTexture { get; }
     public OutputProperty<Texture> StartingFullTexture { get; }
+    public OutputProperty<Texture> SampleStateBuffer { get; }
+    public OutputProperty<Texture> FullStateBuffer { get; }
+
+    private TextureCache cache;
 
     public StrokeInfoNode()
     {
@@ -33,10 +38,16 @@ public class StrokeInfoNode : Node, IBrushSampleTextureNode
         LatestSampleTexture = CreateOutput<Texture>("LatestSampleTexture", "LATEST_SAMPLE_TEXTURE", null);
         TargetSampleTexturePos = CreateOutput<VecD>("TargetSampleTexturePos", "TARGET_SAMPLE_TEXTURE_POS", VecD.Zero);
         StartingSampleTexture = CreateOutput<Texture>("StartingSampleTexture", "STARTING_SAMPLE_TEXTURE", null);
-        StartingSampleTexturePos = CreateOutput<VecD>("StartingSampleTexturePos", "STARTING_SAMPLE_TEXTURE_POS", VecD.Zero);
+        StartingSampleTexturePos =
+            CreateOutput<VecD>("StartingSampleTexturePos", "STARTING_SAMPLE_TEXTURE_POS", VecD.Zero);
         TargetFullTexture = CreateOutput<Texture>("TargetFullTexture", "TARGET_FULL_TEXTURE", null);
         LatestFullTexture = CreateOutput<Texture>("LatestFullTexture", "LATEST_FULL_TEXTURE", null);
         StartingFullTexture = CreateOutput<Texture>("StartingFullTexture", "STARTING_FULL_TEXTURE", null);
+
+        SampleStateBuffer = CreateOutput<Texture>("SampleStateBuffer", "SAMPLE_STATE_BUFFER", null);
+        FullStateBuffer = CreateOutput<Texture>("FullStateBuffer", "FULL_STATE_BUFFER", null);
+
+        cache = new TextureCache();
     }
 
     protected override void OnExecute(RenderContext context)
@@ -82,10 +93,36 @@ public class StrokeInfoNode : Node, IBrushSampleTextureNode
         }
 
         ComputedSampleSize.Value = brushRenderContext.TargetSampleTexture?.Size ?? VecI.Zero;
+
+        if (SampleStateBuffer.Connections.Count > 0 && brushRenderContext.StateBuffer != null)
+        {
+            SampleStateBuffer.Value = UpdateTextureUnderRect("SampleStateBuffer", brushRenderContext.StateBuffer, new RectI((VecI)brushRenderContext.LatestSampleTexturePos, brushRenderContext.TargetSampleTexture.Size), brushRenderContext.ProcessingColorSpace);
+        }
+
+        if (FullStateBuffer.Connections.Count > 0)
+        {
+            FullStateBuffer.Value = UpdateTextureUnderRect("FullStateBuffer", brushRenderContext.StateBuffer, new RectI(VecI.Zero, brushRenderContext.StateBuffer.LatestSize), brushRenderContext.ProcessingColorSpace);
+        }
+    }
+
+    private Texture UpdateTextureUnderRect(string cacheId, ChunkyImage target, RectI rect, ColorSpace colorSpace)
+    {
+        var surfaceUnderRect = cache.RequestTexture(cacheId, rect.Size, colorSpace);
+
+        target.DrawMostUpToDateRegionOn(rect, ChunkResolution.Full, surfaceUnderRect.DrawingSurface.Canvas,
+            VecI.Zero);
+
+        return surfaceUnderRect;
     }
 
     public override Node CreateCopy()
     {
         return new StrokeInfoNode();
+    }
+
+    public override void Dispose()
+    {
+        cache.Dispose();
+        base.Dispose();
     }
 }

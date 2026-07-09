@@ -48,9 +48,12 @@ public class BrushEngine : IDisposable
     private Dictionary<Guid, bool> graphUsesTargetFullInput = new();
     private Dictionary<Guid, bool> graphUsesLatestFullInput = new();
     private Dictionary<Guid, bool> graphUsesStartingFullInput = new();
+    private Dictionary<Guid, bool> graphUsesStateBuffer = new();
 
     Texture? startingSampleTexture = null;
     Texture? startingFullTexture = null;
+
+    private ChunkyImage? stampStateBuffer;
 
     private bool drawnOnce = false;
 
@@ -73,6 +76,7 @@ public class BrushEngine : IDisposable
         startPos = VecD.Zero;
         drawnOnce = false;
         pointsHistory.Clear();
+        ResetAdditionalBuffer();
         stamps = 0;
     }
 
@@ -276,6 +280,7 @@ public class BrushEngine : IDisposable
             drawnOnce = true;
             stamps = 0;
             ResetStartingTextures();
+            ResetAdditionalBuffer();
             target?.SetBlendMode(imageBlendMode);
             target?.SetOpacity(brushNode.Opacity.Value);
             brushNode.ResetContentTexture();
@@ -305,6 +310,16 @@ public class BrushEngine : IDisposable
             n => n.TargetSampleTexture.Connections, graphUsesTargetSampleInput);
         bool requiresTargetFullTexture = GraphUsesConnections(brushData.BrushGraph, brushNode,
             n => n.TargetFullTexture.Connections, graphUsesTargetFullInput);
+        bool requiresStateBuffer = GraphUsesConnections(brushData.BrushGraph, brushNode,
+            n => n.SampleStateBuffer.Connections.Concat(n.FullStateBuffer.Connections).ToArray(), graphUsesStateBuffer);
+
+        if (requiresStateBuffer && target != null)
+        {
+            if (stampStateBuffer == null)
+            {
+                stampStateBuffer = new ChunkyImage(target.CommittedSize);
+            }
+        }
 
         Texture? latestSampleUnderRect = null;
         Texture? targetSampleUnderRect = null;
@@ -313,6 +328,7 @@ public class BrushEngine : IDisposable
         if (brushNode.AlwaysClear.Value)
         {
             target?.EnqueueClear();
+            stampStateBuffer?.EnqueueClear();
         }
 
         if (rect is { Width: > 0, Height: > 0 } && target != null)
@@ -369,7 +385,7 @@ public class BrushEngine : IDisposable
                 : target?.CommittedSize ?? VecI.Zero,
             target?.CommittedSize ?? VecI.Zero,
             colorSpace, samplingOptions, brushData,
-            targetSampleUnderRect, latestSampleUnderRect, rect.TopLeft, startingSampleTexture, startingRect.TopLeft, startingFullTexture, latestFullTexture, brushData.BrushGraph,
+            targetSampleUnderRect, latestSampleUnderRect, rect.TopLeft, startingSampleTexture, startingRect.TopLeft, startingFullTexture, latestFullTexture, target != null ? stampStateBuffer : null, brushData.BrushGraph,
             startPos, lastPos, stamps, nextRenderId)
         {
             PointerInfo = pointerInfo with { PositionOnCanvas = point },
@@ -460,6 +476,7 @@ public class BrushEngine : IDisposable
         bool canReuseStamps = brushNode.CanReuseStamps.Value;
         Blender? stampBlender = brushNode.UseCustomStampBlender.Value ? brushNode.LastStampBlender : null;
         Matrix3X3 transform = brushNode.ContentTransform.Value;
+        Texture? stateBuffer = brushNode.StateBuffer;
         //Blender? imageBlender = brushNode.UseCustomImageBlender.Value ? brushNode.LastImageBlender : null;
 
         if (fill != null)
@@ -469,7 +486,7 @@ public class BrushEngine : IDisposable
             stroke.Transform = strokeTransform;
 
         if (PaintBrush(target, autoPosition, vectorShape, rect, fitToStrokeSize, pressure, content, contentTexture,
-                stampBlender, brushNode.StampBlendMode.Value, antiAliasing, fill, stroke, snapToPixels, canReuseStamps,
+                stateBuffer, stampBlender, brushNode.StampBlendMode.Value, antiAliasing, fill, stroke, snapToPixels, canReuseStamps,
                 transform, flipX, flipY))
         {
             lastPos = point;
@@ -479,7 +496,7 @@ public class BrushEngine : IDisposable
 
     public bool PaintBrush(ChunkyImage target, bool autoPosition, ShapeVectorData vectorShape,
         RectD rect, bool fitToStrokeSize, float pressure, Painter? content,
-        Texture? contentTexture, Blender? blender, DrawingApiBlendMode blendMode, bool antiAliasing, Paintable fill,
+        Texture? contentTexture, Texture? stateBuffer, Blender? blender, DrawingApiBlendMode blendMode, bool antiAliasing, Paintable fill,
         Paintable stroke,
         bool snapToPixels, bool canReuseStamps, Matrix3X3 transform, bool flipX, bool flipY)
     {
@@ -612,6 +629,13 @@ public class BrushEngine : IDisposable
                         StrokeCap.Butt, blendMode, PaintStyle.Fill, antiAliasing, null, paintTransform);
                 }
             }
+        }
+
+        if(stateBuffer != null)
+        {
+            TexturePaintable brushPaintable = new TexturePaintable(new Texture(stateBuffer), true);
+            stampStateBuffer.EnqueueNonMirroredDrawPath(path, brushPaintable, vectorShape.StrokeWidth,
+                strokeCap, BlendMode.SrcOver, PaintStyle.Fill, antiAliasing, null, paintTransform);
         }
 
         return true;
@@ -799,10 +823,17 @@ public class BrushEngine : IDisposable
         startingSampleTexture = null;
     }
 
+    private void ResetAdditionalBuffer()
+    {
+        stampStateBuffer?.Dispose();
+        stampStateBuffer = null;
+    }
+
     public void Dispose()
     {
         cache.Dispose();
         lastCachedTexturePaintable?.Dispose();
         ResetStartingTextures();
+        ResetAdditionalBuffer();
     }
 }

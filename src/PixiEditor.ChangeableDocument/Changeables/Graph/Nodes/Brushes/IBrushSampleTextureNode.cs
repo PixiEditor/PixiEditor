@@ -10,4 +10,6 @@ public interface IBrushSampleTextureNode
     public OutputProperty<Texture> TargetFullTexture { get; }
     public OutputProperty<Texture> LatestFullTexture { get; }
     public OutputProperty<Texture> StartingFullTexture { get; }
+    public OutputProperty<Texture> SampleStateBuffer { get; }
+    public OutputProperty<Texture> FullStateBuffer { get; }
 }

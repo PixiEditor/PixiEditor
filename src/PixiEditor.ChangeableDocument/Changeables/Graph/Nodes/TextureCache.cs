@@ -1,4 +1,5 @@
-﻿using Drawie.Backend.Core;
+﻿using System.Text;
+using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces.ImageData;
@@ -10,6 +11,11 @@ public class TextureCache : IDisposable
 {
     private bool isDisposed = false;
     private Dictionary<int, Texture> _managedTextures = new();
+
+    public Texture RequestTexture(string id, VecI size, ColorSpace processingCs, bool clear = true)
+    {
+       return RequestTexture(StringToInt(id), size, processingCs, clear);
+    }
 
     public Texture RequestTexture(int id, VecI size, ColorSpace processingCs, bool clear = true)
     {
@@ -63,6 +69,22 @@ public class TextureCache : IDisposable
         foreach (var texture in _managedTextures)
         {
             texture.Value.Dispose();
+        }
+    }
+
+    private int StringToInt(string text)
+    {
+        unchecked
+        {
+            uint hash = 2166136261;
+
+            foreach (byte b in Encoding.UTF8.GetBytes(text))
+            {
+                hash ^= b;
+                hash *= 16777619;
+            }
+
+            return (int)hash;
         }
     }
 }
