@@ -953,12 +953,12 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
         }
     }
 
-    public void EnqueueApplyMask(ChunkyImage mask)
+    public void EnqueueApplyMask(ChunkyImage mask, bool latest = false)
     {
         lock (lockObject)
         {
             ThrowIfDisposed();
-            ApplyMaskOperation operation = new(mask);
+            ApplyMaskOperation operation = new(mask, latest);
             EnqueueOperation(operation);
         }
     }

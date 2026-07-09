@@ -51,6 +51,7 @@ public class BrushEngine : IDisposable
 
     Texture? startingSampleTexture = null;
     Texture? startingFullTexture = null;
+    private ChunkyImage? accumulationBuffer;
 
     private bool drawnOnce = false;
 
@@ -73,6 +74,8 @@ public class BrushEngine : IDisposable
         startPos = VecD.Zero;
         drawnOnce = false;
         pointsHistory.Clear();
+        accumulationBuffer?.Dispose();
+        accumulationBuffer = null;
         stamps = 0;
     }
 
@@ -195,6 +198,7 @@ public class BrushEngine : IDisposable
             var point = pointsHistory[i];
 
             float spacingPixels = (strokeWidth * spacingPressure) * spacing;
+
             if (VecD.Distance(lastPos, point.Position) < spacingPixels)
                 continue;
 
@@ -241,6 +245,10 @@ public class BrushEngine : IDisposable
 
         lastPressure = pointsHistory.Count > 0 ? pointsHistory[^1].PointerInfo.Pressure : 1.0;
         lastAppliedHistoryIndex = pointsHistory.Count - 1;
+
+        //accumulationBuffer?.CommitChanges();
+        target?.EnqueueClear();
+        target?.EnqueueDrawUpToDateChunkyImage(VecI.Zero, accumulationBuffer);
     }
 
 
@@ -276,13 +284,28 @@ public class BrushEngine : IDisposable
             drawnOnce = true;
             stamps = 0;
             ResetStartingTextures();
+
+            if (target != null)
+            {
+                accumulationBuffer?.Dispose();
+                accumulationBuffer = new ChunkyImage(target.CommittedSize);
+            }
+
+            /*
+            if (accumulationBuffer != null)
+            {
+                target?.AddRasterClip(accumulationBuffer);
+            }
+            */
+
             target?.SetBlendMode(imageBlendMode);
             target?.SetOpacity(brushNode.Opacity.Value);
+
             brushNode.ResetContentTexture();
         }
 
         float strokeWidth = brushData.StrokeWidth;
-        var startingRect =new RectD(startPos - new VecD((strokeWidth / 2f)), new VecD(strokeWidth));
+        var startingRect = new RectD(startPos - new VecD((strokeWidth / 2f)), new VecD(strokeWidth));
         var rect = new RectD(point - new VecD((strokeWidth / 2f)), new VecD(strokeWidth));
         if (brushNode.SnapToPixels.Value)
         {
@@ -290,7 +313,8 @@ public class BrushEngine : IDisposable
             rect = (RectD)new RectI(vecIpoint - new VecI((int)(strokeWidth / 2f)), new VecI((int)strokeWidth));
 
             VecI vecIStartPoint = (VecI)startPos;
-            startingRect = (RectD)new RectI(vecIStartPoint - new VecI((int)(strokeWidth / 2f)), new VecI((int)strokeWidth));
+            startingRect = (RectD)new RectI(vecIStartPoint - new VecI((int)(strokeWidth / 2f)),
+                new VecI((int)strokeWidth));
         }
 
         bool requiresLatestSampleTexture = GraphUsesConnections(brushData.BrushGraph, brushNode,
@@ -321,10 +345,12 @@ public class BrushEngine : IDisposable
             RectI targetRect = (RectI)rect.Round().Inflate(brushNode.TargetOversample.Value);
             if (requiresLatestSampleTexture)
             {
-                latestSampleUnderRect = UpdateSurfaceUnderRect(LatestStampCacheId, target, targetRect, colorSpace, true);
+                latestSampleUnderRect =
+                    UpdateSurfaceUnderRect(LatestStampCacheId, target, targetRect, colorSpace, true);
                 if (!brushNode.AllowSampleStacking.Value && requiresTargetSampleTexture)
                 {
-                    targetSampleUnderRect = UpdateSurfaceUnderRect(TargetStampCacheId, target, targetRect, colorSpace, false);
+                    targetSampleUnderRect =
+                        UpdateSurfaceUnderRect(TargetStampCacheId, target, targetRect, colorSpace, false);
                 }
                 else
                 {
@@ -333,7 +359,8 @@ public class BrushEngine : IDisposable
             }
             else if (requiresTargetSampleTexture)
             {
-                targetSampleUnderRect = UpdateSurfaceUnderRect(TargetStampCacheId, target, targetRect, colorSpace, false);
+                targetSampleUnderRect =
+                    UpdateSurfaceUnderRect(TargetStampCacheId, target, targetRect, colorSpace, false);
             }
         }
 
@@ -343,7 +370,8 @@ public class BrushEngine : IDisposable
             requiresStartingSampleTexture |= requiresTargetSampleTexture && !brushNode.AllowSampleStacking.Value;
             if (requiresStartingSampleTexture)
             {
-                startingSampleTexture = UpdateSurfaceUnderRect(StartingStampCacheId, target, startingRectI, colorSpace, false);
+                startingSampleTexture =
+                    UpdateSurfaceUnderRect(StartingStampCacheId, target, startingRectI, colorSpace, false);
             }
         }
 
@@ -369,7 +397,8 @@ public class BrushEngine : IDisposable
                 : target?.CommittedSize ?? VecI.Zero,
             target?.CommittedSize ?? VecI.Zero,
             colorSpace, samplingOptions, brushData,
-            targetSampleUnderRect, latestSampleUnderRect, rect.TopLeft, startingSampleTexture, startingRect.TopLeft, startingFullTexture, latestFullTexture, brushData.BrushGraph,
+            targetSampleUnderRect, latestSampleUnderRect, rect.TopLeft, startingSampleTexture, startingRect.TopLeft,
+            startingFullTexture, latestFullTexture, brushData.BrushGraph,
             startPos, lastPos, stamps, nextRenderId)
         {
             PointerInfo = pointerInfo with { PositionOnCanvas = point },
@@ -427,11 +456,11 @@ public class BrushEngine : IDisposable
             };
 
             var previousBrushNode = previous.AllNodes.FirstOrDefault(x => x is BrushOutputNode) as BrushOutputNode;
-            PaintBrush(target, data, point, previousBrushNode, context, rect, flipX, flipY);
+            PaintBrush(accumulationBuffer, data, point, previousBrushNode, context, rect, flipX, flipY);
             previous = previousBrushNode?.Previous.Value;
         }
 
-        PaintBrush(target, brushData, point, brushNode, context, rect, flipX, flipY);
+        PaintBrush(accumulationBuffer, brushData, point, brushNode, context, rect, flipX, flipY);
     }
 
     private void PaintBrush(ChunkyImage target, BrushData brushData, VecD point, BrushOutputNode brushNode,
@@ -556,7 +585,9 @@ public class BrushEngine : IDisposable
             }
             else
             {
-                target.EnqueueNonMirroredDrawPath(path, paintable, vectorShape.StrokeWidth,
+                var paintableOp = paintable.Clone();
+                paintableOp.ApplyOpacity(0.2);
+                target.EnqueueNonMirroredDrawPath(path, paintableOp, vectorShape.StrokeWidth,
                     strokeCap, blendMode, strokeStyle, antiAliasing, null, paintTransform);
             }
         }
@@ -620,7 +651,8 @@ public class BrushEngine : IDisposable
     private Texture UpdateFullTexture(ChunkyImage target, ColorSpace colorSpace, bool sampleLatest)
     {
         var size = sampleLatest ? target.LatestSize : target.CommittedSize;
-        var texture = cache.RequestTexture(sampleLatest ? FullTextureLatestCacheId : FullTextureCacheId, size, colorSpace);
+        var texture = cache.RequestTexture(sampleLatest ? FullTextureLatestCacheId : FullTextureCacheId, size,
+            colorSpace);
         if (!sampleLatest)
         {
             target.DrawCommittedRegionOn(new RectI(VecI.Zero, size), ChunkResolution.Full,
@@ -634,7 +666,8 @@ public class BrushEngine : IDisposable
     }
 
 
-    private Texture UpdateSurfaceUnderRect(int cacheId, ChunkyImage target, RectI rect, ColorSpace colorSpace, bool sampleLatest)
+    private Texture UpdateSurfaceUnderRect(int cacheId, ChunkyImage target, RectI rect, ColorSpace colorSpace,
+        bool sampleLatest)
     {
         var surfaceUnderRect = cache.RequestTexture(cacheId, rect.Size, colorSpace);
 
@@ -793,6 +826,7 @@ public class BrushEngine : IDisposable
             }
         }
     }
+
     private void ResetStartingTextures()
     {
         startingFullTexture = null;

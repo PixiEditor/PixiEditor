@@ -12,21 +12,32 @@ internal class ApplyMaskOperation : IDrawOperation
     private Paint clippingPaint = new Paint() { BlendMode = BlendMode.DstIn };
 
     public bool IgnoreEmptyChunks => true;
-    public bool NeedsDrawInSrgb => false;
 
-    public ApplyMaskOperation(ChunkyImage maskToApply)
+    public bool Latest { get; }
+
+    public ApplyMaskOperation(ChunkyImage maskToApply, bool latest)
     {
         mask = maskToApply;
+        Latest = latest;
     }
 
     public AffectedArea FindAffectedArea(VecI imageSize)
     {
-        return new AffectedArea(mask.FindCommittedChunks());
+        return Latest ? mask.FindAffectedArea() : new AffectedArea(mask.FindCommittedChunks());
     }
     
     public void DrawOnChunk(Chunk targetChunk, VecI chunkPos)
     {
-        mask.DrawCommittedChunkOn(chunkPos, targetChunk.Resolution, targetChunk.Surface.DrawingSurface.Canvas, VecI.Zero, clippingPaint);
+        if (Latest)
+        {
+            mask.DrawMostUpToDateChunkOn(chunkPos, targetChunk.Resolution, targetChunk.Surface.DrawingSurface.Canvas,
+                VecI.Zero, clippingPaint);
+        }
+        else
+        {
+            mask.DrawCommittedChunkOn(chunkPos, targetChunk.Resolution, targetChunk.Surface.DrawingSurface.Canvas,
+                VecI.Zero, clippingPaint);
+        }
     }
 
     public void Dispose()
