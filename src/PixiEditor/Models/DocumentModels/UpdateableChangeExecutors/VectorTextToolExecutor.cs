@@ -33,6 +33,10 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
     private Font? cachedFont;
     private bool isListeningForValidLayer;
     private VectorPath? onPath;
+    private Font? previewFont;
+    private bool isRestoringFromLayer;
+    private bool isStopped;
+    private bool isPreviewFontSubscribed;
 
     private VecD clickPos;
     private bool wasDrawingSize;
@@ -62,6 +66,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         if (selectedMember is not IVectorLayerHandler layerHandler)
         {
             isListeningForValidLayer = true;
+            SubscribePreviewFontChanges();
             return ExecutionState.Success;
         }
 
@@ -80,20 +85,28 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             document.TextOverlayHandler.Show(textData.Text, textData.Position, textData.Font,
                 textData.TransformationMatrix, textData.Spacing);
 
-            toolbar.Fill = textData.Fill;
-            toolbar.FillBrush = textData.FillPaintable.ToBrush();
-            toolbar.StrokeBrush = textData.Stroke.ToBrush();
-            toolbar.ToolSize = textData.StrokeWidth;
+            isRestoringFromLayer = true;
             try
             {
-                toolbar.FontFamily = textData.Font.Family;
-                toolbar.FontSize = textData.Font.Size;
-                toolbar.Spacing = textData.Spacing ?? textData.Font.Size;
-                toolbar.Bold = textData.Font.Bold;
-                toolbar.Italic = textData.Font.Italic;
+                toolbar.Fill = textData.Fill;
+                toolbar.FillBrush = textData.FillPaintable.ToBrush();
+                toolbar.StrokeBrush = textData.Stroke.ToBrush();
+                toolbar.ToolSize = textData.StrokeWidth;
+                try
+                {
+                    toolbar.FontFamily = textData.Font.Family;
+                    toolbar.FontSize = textData.Font.Size;
+                    toolbar.Spacing = textData.Spacing ?? textData.Font.Size;
+                    toolbar.Bold = textData.Font.Bold;
+                    toolbar.Italic = textData.Font.Italic;
+                }
+                catch (InvalidOperationException) // Native font likely disposed
+                {
+                }
             }
-            catch (InvalidOperationException) // Native font likely disposed
+            finally
             {
+                isRestoringFromLayer = false;
             }
 
             onPath = textData.Path;
@@ -119,6 +132,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             return ExecutionState.Error;
         }
 
+        SubscribePreviewFontChanges();
         return ExecutionState.Success;
     }
 
@@ -189,6 +203,14 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
     public override void ForceStop()
     {
+        RestoreSelectedFontAfterPreview();
+
+        isStopped = true;
+
+        UnsubscribePreviewFontChanges();
+
+        RetirePreviewFont();
+
         internals.ActionAccumulator.AddFinishedActions(new EndSetShapeGeometry_Action());
         document?.TextOverlayHandler?.Hide();
 
@@ -221,6 +243,8 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
     public void OnTextChanged(string text)
     {
+        if (isStopped) return;
+
         var constructedText = ConstructTextData(text);
         internals.ActionAccumulator.AddFinishedActions(
             new SetShapeGeometry_Action(selectedMember.Id, constructedText, VectorShapeChangeType.GeometryData),
@@ -232,22 +256,29 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
     public override void OnSettingsChanged(string name, object value)
     {
+        if (isStopped) return;
         if (!document.TextOverlayHandler.IsActive) return;
 
-        if (isListeningForValidLayer)
+        if (isListeningForValidLayer || isRestoringFromLayer)
         {
             return;
         }
 
         if (name == nameof(ITextToolbar.FontFamily))
         {
-            fontsToDispose.Add(cachedFont);
+            RetirePreviewFont();
+            if (cachedFont != null)
+            {
+                fontsToDispose.Add(cachedFont);
+            }
+
             cachedFont = toolbar.ConstructFont();
             document.TextOverlayHandler.Font = cachedFont;
         }
         else
         {
-            if (cachedFont == null)
+            RetirePreviewFont();
+            if (cachedFont == null || cachedFont.IsDisposed)
             {
                 cachedFont = toolbar.ConstructFont();
             }
@@ -285,15 +316,15 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         FontEdging previousEdging = constructedText.Font.Edging;
         bool previousAntiAlias = constructedText.AntiAlias;
         bool previousSubpixel = constructedText.Font.SubPixel;
+        bool equals = false;
 
-        if (previousData != null)
+        if (previousData?.Font is { IsDisposed: false })
         {
             constructedText.AntiAlias = previousData.AntiAlias;
             constructedText.Font.Edging = previousData.Font.Edging;
             constructedText.Font.SubPixel = previousData.Font.SubPixel;
+            equals = constructedText.Equals(previousData);
         }
-
-        bool equals = constructedText.Equals(previousData);
 
         constructedText.AntiAlias = previousAntiAlias;
         constructedText.Font.Edging = previousEdging;
@@ -353,9 +384,9 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
     private TextVectorData ConstructTextData(string text)
     {
-        if (cachedFont == null || cachedFont.Family.Name != toolbar.FontFamily.Name)
+        if (cachedFont == null || cachedFont.IsDisposed || cachedFont.Family.Name != toolbar.FontFamily.Name)
         {
-            Font toDispose = cachedFont;
+            Font? toDispose = cachedFont;
             Dispatcher.UIThread.Post(() =>
             {
                 toDispose?.Dispose();
@@ -384,6 +415,107 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             Path = onPath,
             // TODO: MaxWidth = toolbar.MaxWidth
         };
+    }
+
+    private void OnPreviewFontFamilyChanged(FontFamilyName? fontFamily)
+    {
+        if (isStopped) return;
+        if (!document.TextOverlayHandler.IsActive || isListeningForValidLayer)
+        {
+            return;
+        }
+
+        if (!fontFamily.HasValue)
+        {
+            RestoreSelectedFontAfterPreview();
+            return;
+        }
+
+        if (previewFont is { IsDisposed: false } && previewFont.Family.Name == fontFamily.Value.Name)
+        {
+            return;
+        }
+
+        RetirePreviewFont();
+
+        previewFont = Font.FromFontFamily(fontFamily.Value) ?? Font.CreateDefault();
+        previewFont.Size = toolbar.FontSize;
+        previewFont.Edging = toolbar.AntiAliasing ? FontEdging.AntiAlias : FontEdging.Alias;
+        previewFont.Bold = toolbar.Bold;
+        previewFont.Italic = toolbar.Italic;
+
+        ApplyPreviewFont(previewFont);
+    }
+
+    private void ApplyPreviewFont(Font fontToUse)
+    {
+        document.TextOverlayHandler.Font = null;
+        document.TextOverlayHandler.Font = fontToUse;
+
+        var constructedText = ConstructTextData(lastText);
+        constructedText.Font = fontToUse;
+
+        internals.ActionAccumulator.AddActions(
+            new SetShapeGeometry_Action(selectedMember.Id, constructedText, VectorShapeChangeType.OtherVisuals),
+            new SetLowDpiRendering_Action(selectedMember.Id, toolbar.ForceLowDpiRendering));
+    }
+
+    private void RestoreSelectedFontAfterPreview()
+    {
+        if (previewFont == null)
+        {
+            return;
+        }
+
+        RetirePreviewFont();
+
+        if (cachedFont == null || cachedFont.IsDisposed || cachedFont.Family.Name != toolbar.FontFamily.Name)
+        {
+            if (cachedFont is { IsDisposed: false })
+            {
+                fontsToDispose.Add(cachedFont);
+            }
+
+            cachedFont = toolbar.ConstructFont();
+        }
+
+        cachedFont.Size = toolbar.FontSize;
+        cachedFont.Bold = toolbar.Bold;
+        cachedFont.Italic = toolbar.Italic;
+
+        ApplyPreviewFont(cachedFont);
+    }
+
+    private void RetirePreviewFont()
+    {
+        if (previewFont is { IsDisposed: false })
+        {
+            fontsToDispose.Add(previewFont);
+        }
+
+        previewFont = null;
+    }
+
+    private void SubscribePreviewFontChanges()
+    {
+        if (isPreviewFontSubscribed)
+        {
+            return;
+        }
+
+        toolbar.PreviewFontFamilyChanged += OnPreviewFontFamilyChanged;
+        isPreviewFontSubscribed = true;
+    }
+
+    private void UnsubscribePreviewFontChanges()
+    {
+        if (!isPreviewFontSubscribed || toolbar == null)
+        {
+            return;
+        }
+
+        toolbar.PreviewFontFamilyChanged -= OnPreviewFontFamilyChanged;
+        isPreviewFontSubscribed = false;
     }
 
     bool IExecutorFeature.IsFeatureEnabled<T>()
