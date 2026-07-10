@@ -86,4 +86,17 @@ internal class FolderNodeViewModel : StructureMemberViewModel<FolderNode>, IFold
 
         return count;
     }
+
+    public void NotifyDescendantsStructuralVisibilityChanged()
+    {
+        foreach (var child in Children)
+        {
+            child.NotifyStructuralVisibilityChanged();
+
+            if (child is IFolderHandler folder)
+            {
+                folder.NotifyDescendantsStructuralVisibilityChanged();
+            }
+        }
+    }
 }

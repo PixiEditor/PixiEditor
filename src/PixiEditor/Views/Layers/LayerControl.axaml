@@ -21,6 +21,11 @@
     <UserControl.Resources>
         <converters:BoolToBrushConverter x:Key="LayerBorderConverter" FalseBrush="White" TrueBrush="Black" />
         <converters:BoolToBrushConverter x:Key="MaskBorderConverter" FalseBrush="Black" TrueBrush="White" />
+        <converters:BoolToBrushConverter x:Key="LayerVisibilityForegroundConverter"
+                                         FalseBrush="{StaticResource ThemeForegroundLowBrush}"
+                                         TrueBrush="{StaticResource ThemeForegroundBrush}" />
+        <converters:LayerTypeIconConverter x:Key="LayerTypeIconConverter" />
+        <converters:LayerTypeTooltipConverter x:Key="LayerTypeTooltipConverter" />
     </UserControl.Resources>
     <Border BorderThickness="0 0 0 0.5" BorderBrush="Gray" MinWidth="60" Focusable="True"
             Tag="{Binding ElementName=uc}">
@@ -55,98 +60,132 @@
                 <CheckBox Classes="ImageCheckBox" VerticalAlignment="Center"
                           IsThreeState="False" HorizontalAlignment="Center"
                           IsChecked="{Binding Path=Layer.IsVisibleBindable, ElementName=uc, Mode=TwoWay}"
-                          Grid.Column="0" Height="16" />
-                <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Left">
-                    <Rectangle
-                        Width="{Binding Path=(helpers:TreeViewItemHelper.Indent).Value, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ItemsPresenter}}"
-                        Fill="Transparent" StrokeThickness="0" />
-                    <Border
-                        IsVisible="{Binding Layer.ClipToMemberBelowEnabledBindable, ElementName=uc}"
-                        Background="{DynamicResource ThemeAccentBrush}" Width="3" Margin="1,1,2,1" CornerRadius="1" />
-                    <Border
-                        Width="32" Height="32"
-                        BorderThickness="1"
-                        RenderOptions.BitmapInterpolationMode="None"
-                        PointerPressed="LayerMouseDown">
-                        <Border.Background>
-                            <ImageBrush Source="/Images/CheckerTile.png" TileMode="Tile">
-                                <ImageBrush.Transform>
-                                    <ScaleTransform ScaleX="0.4" ScaleY="0.4" />
-                                </ImageBrush.Transform>
-                            </ImageBrush>
-                        </Border.Background>
-                        <Border.BorderBrush>
-                            <MultiBinding Converter="{StaticResource LayerBorderConverter}">
-                                <Binding ElementName="uc" Path="Layer.ShouldDrawOnMask" />
-                                <Binding ElementName="uc" Path="Layer.HasMaskBindable" />
-                            </MultiBinding>
-                        </Border.BorderBrush>
-                        <visuals:PreviewTextureControl
-                            ClipToBounds="True"
-                            TexturePreview="{Binding Layer.Preview, ElementName=uc}"
-                            Width="30" Height="30"
-                            RenderOptions.BitmapInterpolationMode="None" IsHitTestVisible="False" />
-                    </Border>
-                    <Border
-                        Width="32" Height="32"
-                        BorderThickness="1"
-                        Margin="3,0,0,0"
-                        RenderOptions.BitmapInterpolationMode="None"
-                        IsVisible="{Binding Layer.HasMaskBindable, ElementName=uc}"
-                        PointerPressed="MaskMouseDown">
-                        <Border.Background>
-                            <ImageBrush Source="/Images/CheckerTile.png" TileMode="Tile">
-                                <ImageBrush.Transform>
-                                    <ScaleTransform ScaleX="0.4" ScaleY="0.4" />
-                                </ImageBrush.Transform>
-                            </ImageBrush>
-                        </Border.Background>
-                        <Border.BorderBrush>
-                            <MultiBinding Converter="{StaticResource MaskBorderConverter}">
-                                <Binding ElementName="uc" Path="Layer.ShouldDrawOnMask" />
-                            </MultiBinding>
-                        </Border.BorderBrush>
-                        <Grid IsHitTestVisible="False">
+                          Grid.Column="0" Height="16">
+                    <CheckBox.Foreground>
+                        <MultiBinding Converter="{StaticResource LayerVisibilityForegroundConverter}">
+                            <Binding ElementName="uc" Path="Layer.IsVisibleStructurally" />
+                        </MultiBinding>
+                    </CheckBox.Foreground>
+                </CheckBox>
+                <Grid Grid.Column="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Horizontal" Grid.Column="0" HorizontalAlignment="Left">
+                        <Rectangle
+                            Width="{Binding Path=(helpers:TreeViewItemHelper.Indent).Value, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ItemsPresenter}}"
+                            Fill="Transparent" StrokeThickness="0" />
+                        <Border
+                            IsVisible="{Binding Layer.ClipToMemberBelowEnabledBindable, ElementName=uc}"
+                            Background="{DynamicResource ThemeAccentBrush}" Width="3" Margin="1,1,2,1" CornerRadius="1" />
+                        <Border
+                            Width="32" Height="32"
+                            BorderThickness="1"
+                            RenderOptions.BitmapInterpolationMode="None"
+                            PointerPressed="LayerMouseDown">
+                            <Border.Background>
+                                <ImageBrush Source="/Images/CheckerTile.png" TileMode="Tile">
+                                    <ImageBrush.Transform>
+                                        <ScaleTransform ScaleX="0.4" ScaleY="0.4" />
+                                    </ImageBrush.Transform>
+                                </ImageBrush>
+                            </Border.Background>
+                            <Border.BorderBrush>
+                                <MultiBinding Converter="{StaticResource LayerBorderConverter}">
+                                    <Binding ElementName="uc" Path="Layer.ShouldDrawOnMask" />
+                                    <Binding ElementName="uc" Path="Layer.HasMaskBindable" />
+                                </MultiBinding>
+                            </Border.BorderBrush>
                             <visuals:PreviewTextureControl
-                                TexturePreview="{Binding Layer.MaskPreview, ElementName=uc}"
-                                Width="30" Height="30"
                                 ClipToBounds="True"
+                                TexturePreview="{Binding Layer.Preview, ElementName=uc}"
+                                Width="30" Height="30"
                                 RenderOptions.BitmapInterpolationMode="None" IsHitTestVisible="False" />
-                            <Path
-                                Data="M 2 0 L 10 8 L 18 0 L 20 2 L 12 10 L 20 18 L 18 20 L 10 12 L 2 20 L 0 18 L 8 10 L 0 2 Z"
-                                Fill="{DynamicResource ThemeAccentBrush}" HorizontalAlignment="Center"
+                        </Border>
+                        <Border
+                            Width="32" Height="32"
+                            BorderThickness="1"
+                            Margin="3,0,0,0"
+                            RenderOptions.BitmapInterpolationMode="None"
+                            IsVisible="{Binding Layer.HasMaskBindable, ElementName=uc}"
+                            PointerPressed="MaskMouseDown">
+                            <Border.Background>
+                                <ImageBrush Source="/Images/CheckerTile.png" TileMode="Tile">
+                                    <ImageBrush.Transform>
+                                        <ScaleTransform ScaleX="0.4" ScaleY="0.4" />
+                                    </ImageBrush.Transform>
+                                </ImageBrush>
+                            </Border.Background>
+                            <Border.BorderBrush>
+                                <MultiBinding Converter="{StaticResource MaskBorderConverter}">
+                                    <Binding ElementName="uc" Path="Layer.ShouldDrawOnMask" />
+                                </MultiBinding>
+                            </Border.BorderBrush>
+                            <Grid IsHitTestVisible="False">
+                                <visuals:PreviewTextureControl
+                                    TexturePreview="{Binding Layer.MaskPreview, ElementName=uc}"
+                                    Width="30" Height="30"
+                                    ClipToBounds="True"
+                                    RenderOptions.BitmapInterpolationMode="None" IsHitTestVisible="False" />
+                                <Path
+                                    Data="M 2 0 L 10 8 L 18 0 L 20 2 L 12 10 L 20 18 L 18 20 L 10 12 L 2 20 L 0 18 L 8 10 L 0 2 Z"
+                                    Fill="{DynamicResource ThemeAccentBrush}" HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    IsVisible="{Binding !Layer.MaskIsVisibleBindable, ElementName=uc}" />
+                            </Grid>
+                        </Border>
+                        <StackPanel Margin="3,0,5,0">
+                            <input:EditableTextBlock
+                                x:Name="editableTextBlock"
                                 VerticalAlignment="Center"
-                                IsVisible="{Binding !Layer.MaskIsVisibleBindable, ElementName=uc}" />
-                        </Grid>
-                    </Border>
-                    <StackPanel Margin="3,0,5,0">
-                        <input:EditableTextBlock
-                            x:Name="editableTextBlock"
-                            VerticalAlignment="Center"
-                            d:Text="New Layer" FontSize="14"
-                            Text="{Binding Layer.NodeNameBindable, ElementName=uc, Mode=TwoWay}" />
-                        <!--Don't change above Text to Translator.Key, it will break renaming-->
+                                d:Text="New Layer" FontSize="14"
+                                Text="{Binding Layer.NodeNameBindable, ElementName=uc, Mode=TwoWay}">
+                                <input:EditableTextBlock.Foreground>
+                                    <MultiBinding Converter="{StaticResource LayerVisibilityForegroundConverter}">
+                                        <Binding ElementName="uc" Path="Layer.IsVisibleStructurally" />
+                                    </MultiBinding>
+                                </input:EditableTextBlock.Foreground>
+                            </input:EditableTextBlock>
+                            <!--Don't change above Text to Translator.Key, it will break renaming-->
 
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock d:Text="100" Foreground="White" FontSize="11">
-                                <TextBlock.Text>
-                                    <Binding ElementName="uc" Path="Layer.OpacityBindable"
-                                             Converter="{converters:MultiplyConverter}" StringFormat="N0">
-                                        <Binding.ConverterParameter>
-                                            <sys:Double>100.0</sys:Double>
-                                        </Binding.ConverterParameter>
-                                    </Binding>
-                                </TextBlock.Text>
-                            </TextBlock>
-                            <TextBlock Foreground="White" FontSize="11">%</TextBlock>
-                            <TextBlock FontSize="11"
-                                       Margin="5,0,0,0"
-                                       d:Text="Normal"
-                                       Foreground="White"
-                                       Text="{Binding Layer.BlendModeBindable, ElementName=uc, Converter={converters:BlendModeToStringConverter}}" />
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock d:Text="100" FontSize="11">
+                                    <TextBlock.Foreground>
+                                        <MultiBinding Converter="{StaticResource LayerVisibilityForegroundConverter}">
+                                            <Binding ElementName="uc" Path="Layer.IsVisibleStructurally" />
+                                        </MultiBinding>
+                                    </TextBlock.Foreground>
+                                    <TextBlock.Text>
+                                        <Binding ElementName="uc" Path="Layer.OpacityBindable"
+                                                 Converter="{converters:MultiplyConverter}" StringFormat="N0">
+                                            <Binding.ConverterParameter>
+                                                <sys:Double>100.0</sys:Double>
+                                            </Binding.ConverterParameter>
+                                        </Binding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                                <TextBlock FontSize="11">
+                                    <TextBlock.Foreground>
+                                        <MultiBinding Converter="{StaticResource LayerVisibilityForegroundConverter}">
+                                            <Binding ElementName="uc" Path="Layer.IsVisibleStructurally" />
+                                        </MultiBinding>
+                                    </TextBlock.Foreground>
+                                    %
+                                </TextBlock>
+                                <TextBlock FontSize="11"
+                                           Margin="5,0,0,0"
+                                           d:Text="Normal"
+                                           Text="{Binding Layer.BlendModeBindable, ElementName=uc, Converter={converters:BlendModeToStringConverter}}">
+                                    <TextBlock.Foreground>
+                                        <MultiBinding Converter="{StaticResource LayerVisibilityForegroundConverter}">
+                                            <Binding ElementName="uc" Path="Layer.IsVisibleStructurally" />
+                                        </MultiBinding>
+                                    </TextBlock.Foreground>
+                                </TextBlock>
+                            </StackPanel>
                         </StackPanel>
-                    </StackPanel>
-                    <WrapPanel Orientation="Horizontal" Margin="0,3,3,3">
+                        <WrapPanel Orientation="Horizontal" Margin="0,3,3,3">
                         <Button Content="{DynamicResource icon-link}"
                                 IsVisible="{Binding Layer.IsLinked, ElementName=uc, FallbackValue=False}"
                                 Classes="pixi-icon" FontSize="14" Margin="0,0,10,0"
@@ -173,8 +212,24 @@
                             Text="{DynamicResource icon-alpha-lock}" FontSize="14" Width="14" Height="14"
                             Classes="pixi-icon"
                             IsVisible="{Binding Layer.LockTransparencyBindable, ElementName=uc}" />
-                    </WrapPanel>
-                </StackPanel>
+                        </WrapPanel>
+                    </StackPanel>
+                    <TextBlock Grid.Column="1"
+                               Classes="pixi-icon"
+                               FontSize="14"
+                               Width="18"
+                               Margin="6,0,6,0"
+                               HorizontalAlignment="Right"
+                               VerticalAlignment="Center"
+                               Text="{Binding Layer, ElementName=uc, Converter={StaticResource LayerTypeIconConverter}}"
+                               ui:Translator.TooltipLocalizedString="{Binding Layer, ElementName=uc, Converter={StaticResource LayerTypeTooltipConverter}}">
+                        <TextBlock.Foreground>
+                            <MultiBinding Converter="{StaticResource LayerVisibilityForegroundConverter}">
+                                <Binding ElementName="uc" Path="Layer.IsVisibleStructurally" />
+                            </MultiBinding>
+                        </TextBlock.Foreground>
+                    </TextBlock>
+                </Grid>
                 <Grid Margin="0, 0, 0, -2.5"
                       VerticalAlignment="Bottom"
                       Height="10" Grid.Row="2" Grid.Column="0"
