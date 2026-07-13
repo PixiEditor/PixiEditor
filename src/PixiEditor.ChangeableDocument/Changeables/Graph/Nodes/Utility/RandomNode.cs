@@ -22,6 +22,8 @@ public class RandomNode : Node
     private int lastSeed;
 
     private float lastInputTriggerValue;
+    private float lastMin;
+    private float lastMax;
 
     public RandomNode()
     {
@@ -45,13 +47,18 @@ public class RandomNode : Node
             lastSeed = Seed.Value;
         }
 
-        if (Trigger.Value == RandomTrigger.OnInputChanged && Math.Abs(InputTrigger.Value - lastInputTriggerValue) < float.Epsilon)
+        if (Trigger.Value == RandomTrigger.OnInputChanged
+            && Math.Abs(InputTrigger.Value - lastInputTriggerValue) < float.Epsilon
+            && Math.Abs(Min.Value - lastMin) < float.Epsilon
+            && Math.Abs(Max.Value - lastMax) < float.Epsilon)
         {
             return;
         }
 
         Result.Value = (float)(Min.Value + random.NextDouble() * (Max.Value - Min.Value));
         lastInputTriggerValue = InputTrigger.Value;
+        lastMin = Min.Value;
+        lastMax = Max.Value;
     }
 
     public override Node CreateCopy()
