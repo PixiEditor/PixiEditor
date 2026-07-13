@@ -113,6 +113,39 @@ public class BrushEngine : IDisposable
         return (float)(sum / count);
     }
 
+    private float GetSmoothedVelocity(double targetVelocity)
+    {
+        if (pointsHistory.Count <= 0)
+            return (float)targetVelocity;
+
+        double sum = 0;
+        int count = 0;
+
+        for (int i = pointsHistory.Count - 1; i >= 0 && count < PressureSmoothingWindowSize; i--)
+        {
+            sum += pointsHistory[i].PointerInfo.Velocity;
+            count++;
+        }
+
+        double historicalAverage = sum / count;
+
+        // If the new velocity is significantly higher than history,
+        // the user is trying to make a bold stroke. Minimize smoothing.
+        if (targetVelocity > historicalAverage)
+        {
+            // "Lerp" towards the target.
+            // 0.8f means: "Use 80% raw velocity, 20% historical average"
+            float attackFactor = 0.8f;
+            return (float)(historicalAverage + (targetVelocity - historicalAverage) * attackFactor);
+        }
+
+        // If velocity is steady or dropping, use full smoothing to hide jitter.
+        sum += targetVelocity;
+        count++;
+
+        return (float)(sum / count);
+    }
+
     public void ExecuteBrush(ChunkyImage target, BrushData brushData, List<RecordedPoint> points,
         KeyFrameTime frameTime,
         ColorSpace cs, SamplingOptions samplingOptions)
@@ -162,10 +195,15 @@ public class BrushEngine : IDisposable
                                                   (currentPoint.PointerInfo.Pressure -
                                                    previousPoint.PointerInfo.Pressure) * ratio;
 
+                    double linearTargetVelocity = previousPoint.PointerInfo.Velocity +
+                                                    (currentPoint.PointerInfo.Velocity -
+                                                     previousPoint.PointerInfo.Velocity) * ratio;
+
                     float smoothedPressure = GetSmoothedPressure(linearTargetPressure);
+                    float smoothedVelocity = GetSmoothedVelocity(linearTargetVelocity);
 
                     pointsHistory.Add(new RecordedPoint(pt,
-                        currentPoint.PointerInfo with { Pressure = smoothedPressure },
+                        currentPoint.PointerInfo with { Pressure = smoothedPressure, Velocity = smoothedVelocity},
                         currentPoint.KeyboardInfo,
                         currentPoint.EditorData));
                 }
@@ -173,9 +211,10 @@ public class BrushEngine : IDisposable
             else
             {
                 float smoothedPressure = GetSmoothedPressure(currentPoint.PointerInfo.Pressure);
+                float smoothedVelocity = GetSmoothedVelocity(currentPoint.PointerInfo.Velocity);
 
                 pointsHistory.Add(new RecordedPoint(currentPoint.Position,
-                    currentPoint.PointerInfo with { Pressure = smoothedPressure },
+                    currentPoint.PointerInfo with { Pressure = smoothedPressure , Velocity = smoothedVelocity },
                     currentPoint.KeyboardInfo,
                     currentPoint.EditorData));
             }
