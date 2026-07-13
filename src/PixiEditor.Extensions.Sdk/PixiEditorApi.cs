@@ -1,4 +1,7 @@
-﻿using PixiEditor.Extensions.CommonApi.Windowing;
+﻿using System.Runtime.CompilerServices;
+
+using System.Runtime.CompilerServices;
+using PixiEditor.Extensions.CommonApi.Windowing;
 using PixiEditor.Extensions.Sdk.Api;
 using PixiEditor.Extensions.Sdk.Api.Brushes;
 using PixiEditor.Extensions.Sdk.Api.Commands;
@@ -11,6 +14,7 @@ using PixiEditor.Extensions.Sdk.Api.UserData;
 using PixiEditor.Extensions.Sdk.Api.UserPreferences;
 using PixiEditor.Extensions.Sdk.Api.Window;
 
+[assembly: InternalsVisibleTo("PixiEditor.Extensions.Sdk.Tests")]
 namespace PixiEditor.Extensions.Sdk;
 
 public class PixiEditorApi

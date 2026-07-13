@@ -11,7 +11,7 @@ public abstract class LayoutElement : ILayoutElement<ControlDefinition>
 
     internal bool ImmediateEventPropagation { get; set; } = false;
 
-    private List<string> BuildQueuedEvents = new List<string>();
+    internal List<string> BuildQueuedEvents = new List<string>();
     public int UniqueId { get; set; }
 
     public event ElementEventHandler PointerEnter
