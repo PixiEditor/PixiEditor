@@ -1525,5 +1525,10 @@
   "LATEST_SAMPLE_TEXTURE": "Latest Sample Texture",
   "STARTING_FULL_TEXTURE": "Starting Full Texture",
   "LATEST_FULL_TEXTURE": "Latest Full Texture",
-  "STAMP_NUMBER": "Stamp"
+  "STAMP_NUMBER": "Stamp",
+  "RANDOM_NODE": "Random",
+  "ON_EXECUTE_RANDOM_TRIGGER": "On Execute",
+  "ON_INPUT_CHANGED_RANDOM_TRIGGER": "Input Change",
+  "RANDOM_TRIGGER_MODE": "Trigger Mode",
+  "RANDOM_INPUT_TRIGGER_VALUE": "Trigger Input"
 }
