@@ -196,14 +196,14 @@ public class BrushEngine : IDisposable
                                                    previousPoint.PointerInfo.Pressure) * ratio;
 
                     double linearTargetVelocity = previousPoint.PointerInfo.Velocity +
-                                                    (currentPoint.PointerInfo.Velocity -
-                                                     previousPoint.PointerInfo.Velocity) * ratio;
+                                                  (currentPoint.PointerInfo.Velocity -
+                                                   previousPoint.PointerInfo.Velocity) * ratio;
 
                     float smoothedPressure = GetSmoothedPressure(linearTargetPressure);
                     float smoothedVelocity = GetSmoothedVelocity(linearTargetVelocity);
 
                     pointsHistory.Add(new RecordedPoint(pt,
-                        currentPoint.PointerInfo with { Pressure = smoothedPressure, Velocity = smoothedVelocity},
+                        currentPoint.PointerInfo with { Pressure = smoothedPressure, Velocity = smoothedVelocity },
                         currentPoint.KeyboardInfo,
                         currentPoint.EditorData));
                 }
@@ -214,7 +214,7 @@ public class BrushEngine : IDisposable
                 float smoothedVelocity = GetSmoothedVelocity(currentPoint.PointerInfo.Velocity);
 
                 pointsHistory.Add(new RecordedPoint(currentPoint.Position,
-                    currentPoint.PointerInfo with { Pressure = smoothedPressure , Velocity = smoothedVelocity },
+                    currentPoint.PointerInfo with { Pressure = smoothedPressure, Velocity = smoothedVelocity },
                     currentPoint.KeyboardInfo,
                     currentPoint.EditorData));
             }
@@ -226,7 +226,9 @@ public class BrushEngine : IDisposable
         float spacing = brushNode.Spacing.Value / 100f;
         int startingIndex = Math.Max(lastAppliedHistoryIndex, 0);
 
-        float spacingPressure = pointsHistory.Count < startingIndex + 1 ? (float)lastPressure : EvaluatePressure(brushNode, brushData, pointsHistory[startingIndex], frameTime, cs, samplingOptions);
+        float spacingPressure = pointsHistory.Count < startingIndex + 1
+            ? (float)lastPressure
+            : EvaluatePressure(brushNode, brushData, pointsHistory[startingIndex], frameTime, cs, samplingOptions);
 
         for (int i = Math.Max(lastAppliedHistoryIndex, 0); i < pointsHistory.Count; i++)
         {
@@ -274,6 +276,7 @@ public class BrushEngine : IDisposable
 
             spacingPressure = brushNode.Pressure.Value;
 
+            stamps++;
             lastPos = point.Position;
         }
 
@@ -342,7 +345,8 @@ public class BrushEngine : IDisposable
             rect = (RectD)new RectI(vecIpoint - new VecI((int)(strokeWidth / 2f)), new VecI((int)strokeWidth));
 
             VecI vecIStartPoint = (VecI)startPos;
-            startingRect = (RectD)new RectI(vecIStartPoint - new VecI((int)(strokeWidth / 2f)), new VecI((int)strokeWidth));
+            startingRect = (RectD)new RectI(vecIStartPoint - new VecI((int)(strokeWidth / 2f)),
+                new VecI((int)strokeWidth));
         }
 
         bool requiresLatestSampleTexture = GraphUsesConnections(brushData.BrushGraph, brushNode,
@@ -373,10 +377,12 @@ public class BrushEngine : IDisposable
             RectI targetRect = (RectI)rect.Round().Inflate(brushNode.TargetOversample.Value);
             if (requiresLatestSampleTexture)
             {
-                latestSampleUnderRect = UpdateSurfaceUnderRect(LatestStampCacheId, target, targetRect, colorSpace, true);
+                latestSampleUnderRect =
+                    UpdateSurfaceUnderRect(LatestStampCacheId, target, targetRect, colorSpace, true);
                 if (!brushNode.AllowSampleStacking.Value && requiresTargetSampleTexture)
                 {
-                    targetSampleUnderRect = UpdateSurfaceUnderRect(TargetStampCacheId, target, targetRect, colorSpace, false);
+                    targetSampleUnderRect =
+                        UpdateSurfaceUnderRect(TargetStampCacheId, target, targetRect, colorSpace, false);
                 }
                 else
                 {
@@ -385,7 +391,8 @@ public class BrushEngine : IDisposable
             }
             else if (requiresTargetSampleTexture)
             {
-                targetSampleUnderRect = UpdateSurfaceUnderRect(TargetStampCacheId, target, targetRect, colorSpace, false);
+                targetSampleUnderRect =
+                    UpdateSurfaceUnderRect(TargetStampCacheId, target, targetRect, colorSpace, false);
             }
         }
 
@@ -395,7 +402,8 @@ public class BrushEngine : IDisposable
             requiresStartingSampleTexture |= requiresTargetSampleTexture && !brushNode.AllowSampleStacking.Value;
             if (requiresStartingSampleTexture)
             {
-                startingSampleTexture = UpdateSurfaceUnderRect(StartingStampCacheId, target, startingRectI, colorSpace, false);
+                startingSampleTexture =
+                    UpdateSurfaceUnderRect(StartingStampCacheId, target, startingRectI, colorSpace, false);
             }
         }
 
@@ -421,7 +429,8 @@ public class BrushEngine : IDisposable
                 : target?.CommittedSize ?? VecI.Zero,
             target?.CommittedSize ?? VecI.Zero,
             colorSpace, samplingOptions, brushData,
-            targetSampleUnderRect, latestSampleUnderRect, rect.TopLeft, startingSampleTexture, startingRect.TopLeft, startingFullTexture, latestFullTexture, brushData.BrushGraph,
+            targetSampleUnderRect, latestSampleUnderRect, rect.TopLeft, startingSampleTexture, startingRect.TopLeft,
+            startingFullTexture, latestFullTexture, brushData.BrushGraph,
             startPos, lastPos, stamps, nextRenderId)
         {
             PointerInfo = pointerInfo with { PositionOnCanvas = point },
@@ -525,7 +534,6 @@ public class BrushEngine : IDisposable
                 transform, flipX, flipY))
         {
             lastPos = point;
-            stamps++;
         }
     }
 
@@ -672,7 +680,8 @@ public class BrushEngine : IDisposable
     private Texture UpdateFullTexture(ChunkyImage target, ColorSpace colorSpace, bool sampleLatest)
     {
         var size = sampleLatest ? target.LatestSize : target.CommittedSize;
-        var texture = cache.RequestTexture(sampleLatest ? FullTextureLatestCacheId : FullTextureCacheId, size, colorSpace);
+        var texture = cache.RequestTexture(sampleLatest ? FullTextureLatestCacheId : FullTextureCacheId, size,
+            colorSpace);
         if (!sampleLatest)
         {
             target.DrawCommittedRegionOn(new RectI(VecI.Zero, size), ChunkResolution.Full,
@@ -686,7 +695,8 @@ public class BrushEngine : IDisposable
     }
 
 
-    private Texture UpdateSurfaceUnderRect(int cacheId, ChunkyImage target, RectI rect, ColorSpace colorSpace, bool sampleLatest)
+    private Texture UpdateSurfaceUnderRect(int cacheId, ChunkyImage target, RectI rect, ColorSpace colorSpace,
+        bool sampleLatest)
     {
         var surfaceUnderRect = cache.RequestTexture(cacheId, rect.Size, colorSpace);
 
@@ -845,6 +855,7 @@ public class BrushEngine : IDisposable
             }
         }
     }
+
     private void ResetStartingTextures()
     {
         startingFullTexture = null;
