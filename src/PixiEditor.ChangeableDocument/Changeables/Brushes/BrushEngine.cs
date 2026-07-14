@@ -225,9 +225,8 @@ public class BrushEngine : IDisposable
         float strokeWidth = brushData.StrokeWidth;
         float spacing = brushNode.Spacing.Value / 100f;
         int startingIndex = Math.Max(lastAppliedHistoryIndex, 0);
-        float spacingPressure = pointsHistory.Count < startingIndex + 1
-            ? (float)lastPressure
-            : pointsHistory[startingIndex].PointerInfo.Pressure;
+
+        float spacingPressure = pointsHistory.Count < startingIndex + 1 ? (float)lastPressure : EvaluatePressure(brushNode, brushData, pointsHistory[startingIndex], frameTime, cs, samplingOptions);
 
         for (int i = Math.Max(lastAppliedHistoryIndex, 0); i < pointsHistory.Count; i++)
         {
@@ -282,20 +281,34 @@ public class BrushEngine : IDisposable
         lastAppliedHistoryIndex = pointsHistory.Count - 1;
     }
 
+    private float EvaluatePressure(BrushOutputNode brushNode, BrushData data, RecordedPoint point,
+        KeyFrameTime frameTime, ColorSpace cs, SamplingOptions samplingOptions)
+    {
+        if (brushNode.Pressure.Connection != null)
+        {
+            var node = ExecuteBrush(null, data, point.Position, frameTime, cs, samplingOptions, point.PointerInfo,
+                point.KeyboardInfo, point.EditorData);
+            return node?.Pressure.Value ?? 1.0f;
+        }
 
-    public void ExecuteBrush(ChunkyImage? target, BrushData brushData, VecD point, KeyFrameTime frameTime,
+        return brushNode?.Pressure.NonOverridenValue ?? 1;
+    }
+
+
+    public BrushOutputNode ExecuteBrush(ChunkyImage? target, BrushData brushData, VecD point, KeyFrameTime frameTime,
         ColorSpace cs,
         SamplingOptions samplingOptions, PointerInfo pointerInfo, KeyboardInfo keyboardInfo, EditorData editorData)
     {
         var brushNode = brushData.BrushGraph?.TryLookupNode(brushData.TargetBrushNodeId) as BrushOutputNode;
         if (brushNode == null)
         {
-            return;
+            return brushNode;
         }
 
         ExecuteVectorShapeBrush(target, brushNode, brushData, point, frameTime, cs, samplingOptions, pointerInfo,
             keyboardInfo,
             editorData, false, false);
+        return brushNode;
     }
 
     private void ExecuteVectorShapeBrush(ChunkyImage? target, BrushOutputNode brushNode, BrushData brushData,
