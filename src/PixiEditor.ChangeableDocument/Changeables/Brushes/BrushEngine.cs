@@ -321,7 +321,7 @@ public class BrushEngine : IDisposable
 
         var imageBlendMode = shouldErase ? DrawingApiBlendMode.DstOut : brushNode.ImageBlendMode.Value;
 
-        if (!drawnOnce)
+        if (!drawnOnce && target != null)
         {
             startPos = point;
             lastPos = point;
@@ -334,7 +334,7 @@ public class BrushEngine : IDisposable
         }
 
         float strokeWidth = brushData.StrokeWidth;
-        var startingRect =new RectD(startPos - new VecD((strokeWidth / 2f)), new VecD(strokeWidth));
+        var startingRect = new RectD(startPos - new VecD((strokeWidth / 2f)), new VecD(strokeWidth));
         var rect = new RectD(point - new VecD((strokeWidth / 2f)), new VecD(strokeWidth));
         if (brushNode.SnapToPixels.Value)
         {
