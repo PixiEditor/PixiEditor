@@ -324,7 +324,7 @@ public class BrushEngine : IDisposable
 
         var imageBlendMode = shouldErase ? DrawingApiBlendMode.DstOut : brushNode.ImageBlendMode.Value;
 
-        if (!drawnOnce && target != null)
+        if (!drawnOnce)
         {
             startPos = point;
             lastPos = point;
