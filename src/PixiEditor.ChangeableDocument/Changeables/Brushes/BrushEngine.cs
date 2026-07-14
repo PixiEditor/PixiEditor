@@ -82,7 +82,7 @@ public class BrushEngine : IDisposable
     /// </summary>
     private float GetSmoothedPressure(double targetPressure)
     {
-        if (pointsHistory.Count <= 0)
+        if (pointsHistory.Count <= 0 || PressureSmoothingWindowSize <= 0)
             return (float)targetPressure;
 
         double sum = 0;
@@ -115,7 +115,7 @@ public class BrushEngine : IDisposable
 
     private float GetSmoothedVelocity(double targetVelocity)
     {
-        if (pointsHistory.Count <= 0)
+        if (pointsHistory.Count <= 0 || PressureSmoothingWindowSize <= 0)
             return (float)targetVelocity;
 
         double sum = 0;
