@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -173,8 +174,9 @@ internal class ClassicDesktopEntry
         {
             extensionPaths = extensionPaths.Concat([Path.Combine(Paths.MacOsDotAppDir, "Extensions")]).ToArray();
         }
-        
+
         ExtensionLoader extensionLoader = new ExtensionLoader(
+            new PixiEditorHost(),
             extensionPaths, Paths.UnpackedExtensionsPath);
         if (!safeMode)
         {

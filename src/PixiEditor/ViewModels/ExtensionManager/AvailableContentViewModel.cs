@@ -1,8 +1,10 @@
 ﻿using System.Collections.ObjectModel;
 using System.Globalization;
+using System.Reflection;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using LiveMarkdown.Avalonia;
+using PixiEditor.Extensions;
 using PixiEditor.Extensions.Runtime;
 using PixiEditor.Platform;
 
@@ -105,7 +107,41 @@ internal class AvailableContentViewModel : ObservableObject
     public ObservableCollection<ShowcaseItem> ShowcaseItems { get; } = new ObservableCollection<ShowcaseItem>();
     public ObservableStringBuilder HeadlineMarkdownBuilder { get; } = new ObservableStringBuilder();
     public ObservableStringBuilder DealTextMarkdownBuilder { get; } = new ObservableStringBuilder();
-    public bool HasCompatibleVersion => AvailableContent?.Versions == null || AvailableContent?.Versions.Count == 0 || AvailableContent?.Versions?.Any(v => v != null && v.PixiEditorApiVersion <= ExtensionRuntimeInfo.ApiVersion) == true;
+    public bool HasCompatibleVersion => ExtensionApiVersionCompatible() && HostVersionCompatible();
+
+    private bool ExtensionApiVersionCompatible()
+    {
+        return AvailableContent?.Versions == null || AvailableContent?.Versions.Count == 0 || AvailableContent?.Versions?.Any(v => v is
+        {
+            PixiEditorApiVersion: <= ExtensionRuntimeInfo.ApiVersion
+        }) == true;
+    }
+
+    private bool HostVersionCompatible()
+    {
+        Version pixiEditorVersion = extensionManager.ExtensionsViewModel.ExtensionLoader.Host.Version;
+        bool hostOfNameFound = false;
+
+        foreach (var version in AvailableContent.Versions)
+        {
+            if(version.CompatibleHostVersions == null || version.CompatibleHostVersions.Count == 0) return true;
+
+            foreach (var hostVersion in version.CompatibleHostVersions)
+            {
+                if (hostVersion.HostName.Equals(extensionManager.ExtensionsViewModel.ExtensionLoader.Host.HostName, StringComparison.OrdinalIgnoreCase))
+                {
+                    hostOfNameFound = true;
+                    if ((hostVersion.MinVersion == null || pixiEditorVersion >= hostVersion.MinVersion) &&
+                        (hostVersion.MaxVersion == null || pixiEditorVersion <= hostVersion.MaxVersion))
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return !hostOfNameFound;
+    }
 
     private HttpClient httpClient = new HttpClient() { Timeout = TimeSpan.FromSeconds(15) };
 

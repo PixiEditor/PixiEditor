@@ -23,4 +23,12 @@ public class ExtensionVersion
 {
     public string Version { get; set; } = string.Empty;
     public int PixiEditorApiVersion { get; set; }
+    public List<HostVersion>? CompatibleHostVersions { get; set; } = new List<HostVersion>();
+}
+
+public class HostVersion
+{
+    public string HostName { get; set; } = string.Empty;
+    public Version? MinVersion { get; set; }
+    public Version? MaxVersion { get; set; }
 }

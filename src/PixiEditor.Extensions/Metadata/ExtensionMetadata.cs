@@ -21,4 +21,5 @@ public class ExtensionMetadata
     public ExtensionPermissions Permissions { get; init; }
     public bool PublicResources { get; init; }
     public List<string> AllowReadResourcesBy { get; init; }
+    public List<HostVersion> CompatibleHostVersions { get; init; }
 }
