@@ -20,6 +20,8 @@ public class PixiAuthIdentityProvider : IIdentityProvider
     public Uri? EditProfileUrl { get; } = new Uri("https://gravatar.com/connect");
 
     public int ApiVersion { get; }
+    public string HostName { get; }
+    public Version HostVersion { get; }
 
     public event Action<string, object>? OnError;
     public event Action<List<ProductData>>? OwnedProductsUpdated;
@@ -31,12 +33,14 @@ public class PixiAuthIdentityProvider : IIdentityProvider
 
     IUser IIdentityProvider.User => User;
 
-    public PixiAuthIdentityProvider(string pixiEditorApiUrl, string? apiKey, int apiVersion)
+    public PixiAuthIdentityProvider(string pixiEditorApiUrl, string? apiKey, int apiVersion, string hostName, Version hostVersion)
     {
         try
         {
             PixiAuthClient = new PixiAuthClient(pixiEditorApiUrl, apiKey);
             ApiVersion = apiVersion;
+            HostName = hostName;
+            HostVersion = hostVersion;
         }
         catch (UriFormatException e)
         {
@@ -293,7 +297,7 @@ public class PixiAuthIdentityProvider : IIdentityProvider
             return;
         }
 
-        var products = await PixiAuthClient.GetUserLibrary(User.SessionToken, ApiVersion);
+        var products = await PixiAuthClient.GetUserLibrary(User.SessionToken, ApiVersion, HostName, HostVersion);
         if (products != null)
         {
             User.OwnedProducts = products.Where(x => x is { IsDlc: true, Target: "PixiEditor" })
@@ -319,7 +323,7 @@ public class PixiAuthIdentityProvider : IIdentityProvider
                 return;
             }
 
-            var products = await PixiAuthClient.GetUserLibrary(User.SessionToken, ApiVersion);
+            var products = await PixiAuthClient.GetUserLibrary(User.SessionToken, ApiVersion, HostName, HostVersion);
             if (products != null)
             {
                 User.OwnedProducts = products.Where(x => x is { IsDlc: true, Target: "PixiEditor" })
@@ -367,7 +371,7 @@ public class PixiAuthIdentityProvider : IIdentityProvider
             {
                 User.SessionToken = token;
                 User.SessionExpirationDate = expirationDate;
-                var products = await PixiAuthClient.GetUserLibrary(User.SessionToken, ApiVersion);
+                var products = await PixiAuthClient.GetUserLibrary(User.SessionToken, ApiVersion, HostName, HostVersion);
                 if (products != null)
                 {
                     User.OwnedProducts = products.Where(x => x is { IsDlc: true, Target: "PixiEditor" })
