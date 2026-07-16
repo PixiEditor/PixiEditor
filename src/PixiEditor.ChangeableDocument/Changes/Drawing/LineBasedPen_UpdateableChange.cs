@@ -102,12 +102,18 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame);
 
         int opCount = image.QueueLength;
+        int cancelCounter = image.CancelCounter;
 
         brushData.AntiAliasing = antiAliasing;
         brushData.StrokeWidth = strokeWidth;
 
         // TODO: Sampling options?
         engine.ExecuteBrush(image, brushData, points, frame, target.ProcessingColorSpace, SamplingOptions.Default);
+
+        if (image.CancelCounter != cancelCounter)
+        {
+            opCount = 0;
+        }
 
         var affChunks = image.FindAffectedArea(opCount);
 
