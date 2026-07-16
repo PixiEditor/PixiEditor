@@ -64,6 +64,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
     private bool disposed = false;
     private readonly object lockObject = new();
     private int commitCounter = 0;
+    private int cancelCounter = 0;
 
     private RectI cachedPreciseCommitedBounds = RectI.Empty;
     private RectI cachedPreciseLatestBounds = RectI.Empty;
@@ -84,6 +85,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
     public ColorSpace ProcessingColorSpace { get; }
 
     public int CommitCounter => commitCounter;
+    public int CancelCounter => cancelCounter;
 
     public VecI CommittedSize { get; private set; }
     public VecI LatestSize { get; private set; }
@@ -1239,6 +1241,8 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
                 chunks.Clear();
                 latestChunksData[res].Clear();
             }
+
+            cancelCounter++;
         }
     }
 
@@ -1864,6 +1868,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
     {
         HashCode hash = new HashCode();
         hash.Add(commitCounter);
+        hash.Add(cancelCounter);
         hash.Add(queuedOperations.Count);
         hash.Add(operationCounter);
 

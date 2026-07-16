@@ -368,7 +368,7 @@ public class BrushEngine : IDisposable
 
         if (brushNode.AlwaysClear.Value)
         {
-            target?.EnqueueClear();
+            target?.CancelChanges();
         }
 
         if (rect is { Width: > 0, Height: > 0 } && target != null)
