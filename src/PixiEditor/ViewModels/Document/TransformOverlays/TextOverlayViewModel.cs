@@ -94,12 +94,13 @@ internal class TextOverlayViewModel : ObservableObject, ITextOverlayHandler
     {
         VecD mapped = Matrix.Invert().MapPoint(closestToPosition);
         RichText richText = new(Text);
-        if (Font == null)
+
+        using var nativeFont = Font.ToFont();
+        if (nativeFont == null)
         {
             return;
         }
 
-        using var nativeFont = Font.ToFont();
         var positions = richText.GetGlyphPositions(nativeFont);
         if (positions == null || positions.Length == 0)
         {

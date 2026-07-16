@@ -323,7 +323,8 @@ internal class TextOverlay : Overlay
     {
         VecD mapped = Matrix.Invert().MapPoint(point);
         using var nativeFont = Font.ToFont();
-        return richText != null && richText.MeasureBounds(nativeFont).Offset(Position).Inflate(2).ContainsInclusive(mapped);
+        return richText != null &&
+               richText.MeasureBounds(nativeFont).Offset(Position).Inflate(2).ContainsInclusive(mapped);
     }
 
     protected override void OnOverlayPointerPressed(OverlayPointerArgs args)
@@ -684,10 +685,10 @@ internal class TextOverlay : Overlay
 
     private void UpdateGlyphs()
     {
-        if (Font == null) return;
-
         richText = new(Text);
         using var nativeFont = Font.ToFont();
+        if (nativeFont == null) return;
+
         richText.Spacing = Spacing;
         glyphPositions = richText.GetGlyphPositions(nativeFont);
         glyphWidths = richText.GetGlyphWidths(nativeFont);

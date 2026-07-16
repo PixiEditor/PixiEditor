@@ -247,32 +247,16 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
         var constructedText = ConstructTextData(lastText);
         var layer = document.StructureHelper.Find(selectedMember.Id);
-        TextVectorData previousData =
-            (layer as IVectorLayerHandler).GetShapeData(document.AnimationHandler.ActiveFrameTime) as TextVectorData;
         FontEdging previousEdging = constructedText.Font.Edging;
         bool previousAntiAlias = constructedText.AntiAlias;
         bool previousSubpixel = constructedText.Font.SubPixel;
 
-        if (previousData != null)
-        {
-            constructedText.AntiAlias = previousData.AntiAlias;
-            constructedText.Font = constructedText.Font with
-            {
-                Edging = previousData.Font.Edging, SubPixel = previousData.Font.SubPixel
-            };
-        }
-
-        bool equals = constructedText.Equals(previousData);
-
         constructedText.AntiAlias = previousAntiAlias;
         constructedText.Font = constructedText.Font with { Edging = previousEdging, SubPixel = previousSubpixel };
 
-        if (!equals)
-        {
-            internals.ActionAccumulator.AddActions(
-                new SetShapeGeometry_Action(selectedMember.Id, constructedText, changeType),
-                new SetLowDpiRendering_Action(selectedMember.Id, toolbar.ForceLowDpiRendering));
-        }
+        internals.ActionAccumulator.AddActions(
+            new SetShapeGeometry_Action(selectedMember.Id, constructedText, changeType),
+            new SetLowDpiRendering_Action(selectedMember.Id, toolbar.ForceLowDpiRendering));
 
         document.TextOverlayHandler.Font = default; // Forces refreshing glyphs
         document.TextOverlayHandler.Font = constructedText.Font;

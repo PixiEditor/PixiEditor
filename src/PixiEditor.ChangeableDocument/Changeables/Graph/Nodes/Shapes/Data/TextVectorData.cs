@@ -154,12 +154,13 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
         }
 
         using Paint paint = new Paint() { IsAntiAliased = AntiAlias };
-        using var nativeFont = Font.ToFont();
+        using var nativeFont = Font.ToFont(false);
 
         if (nativeFont == null)
         {
+            using var missingInfoFont = FontData.CreateDefault().ToFont(false);
             paint.SetPaintable(Fill ? FillPaintable : Stroke);
-            canvas.DrawText($"{MissingFontText}: " + Font.Family.Name, Position, nativeFont, paint);
+            canvas.DrawText($"{MissingFontText}: " + Font.Family.Name, Position, missingInfoFont, paint);
         }
         else
         {

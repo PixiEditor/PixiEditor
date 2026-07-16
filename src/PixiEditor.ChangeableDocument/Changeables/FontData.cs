@@ -34,6 +34,10 @@ public record struct FontData
             if (defaultFallback)
             {
                 font = Font.FromFontFamily(new FontFamilyName("$Default"));
+                if (font == null)
+                {
+                    return null;
+                }
             }
             else
             {
