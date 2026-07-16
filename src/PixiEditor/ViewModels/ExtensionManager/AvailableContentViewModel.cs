@@ -1,10 +1,7 @@
 ﻿using System.Collections.ObjectModel;
-using System.Globalization;
-using System.Reflection;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using LiveMarkdown.Avalonia;
-using PixiEditor.Extensions;
 using PixiEditor.Extensions.Runtime;
 using PixiEditor.Platform;
 
@@ -119,6 +116,8 @@ internal class AvailableContentViewModel : ObservableObject
 
     private bool HostVersionCompatible()
     {
+        if(AvailableContent?.Versions == null || AvailableContent.Versions.Count == 0) return true;
+
         Version pixiEditorVersion = extensionManager.ExtensionsViewModel.ExtensionLoader.Host.Version;
         bool hostOfNameFound = false;
 

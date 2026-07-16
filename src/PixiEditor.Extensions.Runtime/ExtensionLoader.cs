@@ -26,7 +26,7 @@ public class ExtensionLoader : IExtensionListProvider
     private WasmRuntime.WasmRuntime _wasmRuntime = new WasmRuntime.WasmRuntime();
     private HashSet<string> loadedExtensions = new HashSet<string>();
 
-    public IHost Host { get; set; }
+    public IHost Host { get; }
 
     public ExtensionLoader(IHost host, string[] packagesPaths, string unpackedExtensionsPath)
     {
@@ -496,7 +496,7 @@ public class ExtensionLoader : IExtensionListProvider
         {
             if (string.IsNullOrEmpty(metadata.UniqueName))
             {
-                throw new MissingMetadataException("Description");
+                throw new MissingMetadataException("UniqueName");
             }
 
             string fixedUniqueName = metadata.UniqueName.ToLower().Trim();
