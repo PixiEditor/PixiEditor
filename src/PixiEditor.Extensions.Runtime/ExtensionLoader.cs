@@ -5,6 +5,7 @@ using System.Text.Json;
 using PixiEditor.Extensions.Metadata;
 using PixiEditor.Extensions.WasmRuntime;
 using PixiEditor.Platform;
+using HostVersion = PixiEditor.Extensions.Metadata.HostVersion;
 
 namespace PixiEditor.Extensions.Runtime;
 
@@ -25,9 +26,11 @@ public class ExtensionLoader : IExtensionListProvider
     private WasmRuntime.WasmRuntime _wasmRuntime = new WasmRuntime.WasmRuntime();
     private HashSet<string> loadedExtensions = new HashSet<string>();
 
+    public IHost Host { get; }
 
-    public ExtensionLoader(string[] packagesPaths, string unpackedExtensionsPath)
+    public ExtensionLoader(IHost host, string[] packagesPaths, string unpackedExtensionsPath)
     {
+        Host = host;
         PackagesPath = packagesPaths;
         UnpackedExtensionsPath = unpackedExtensionsPath;
         ValidateExtensionFolder();
@@ -489,31 +492,84 @@ public class ExtensionLoader : IExtensionListProvider
 
     private bool ValidateMetadata(ExtensionMetadata metadata, ExtensionEntry assembly)
     {
-        if (string.IsNullOrEmpty(metadata.UniqueName))
+        try
         {
-            throw new MissingMetadataException("Description");
-        }
-
-        string fixedUniqueName = metadata.UniqueName.ToLower().Trim();
-
-        if (fixedUniqueName.StartsWith("pixieditor".Trim(), StringComparison.OrdinalIgnoreCase))
-        {
-            // Validate within extension store
-            /*if (!IsOfficialAssemblyLegit(fixedUniqueName, assembly))
+            if (string.IsNullOrEmpty(metadata.UniqueName))
             {
-                throw new ForbiddenUniqueNameExtension();
-            }*/
-        }
-        // TODO: Validate if unique name is unique
+                throw new MissingMetadataException("UniqueName");
+            }
 
-        if (string.IsNullOrEmpty(metadata.DisplayName))
+            string fixedUniqueName = metadata.UniqueName.ToLower().Trim();
+
+            if (fixedUniqueName.StartsWith("pixieditor".Trim(), StringComparison.OrdinalIgnoreCase))
+            {
+                // Validate within extension store
+                /*if (!IsOfficialAssemblyLegit(fixedUniqueName, assembly))
+                {
+                    throw new ForbiddenUniqueNameExtension();
+                }*/
+            }
+            // TODO: Validate if unique name is unique
+
+            if (string.IsNullOrEmpty(metadata.DisplayName))
+            {
+                throw new MissingMetadataException("DisplayName");
+            }
+
+            if (string.IsNullOrEmpty(metadata.Version))
+            {
+                throw new MissingMetadataException("Version");
+            }
+
+            if (!IsHostVersionCompatible(metadata.CompatibleHostVersions, out (Version Version, bool Max)? failed))
+            {
+                throw new IncompatibleHostVersionException(failed.Value.Version, failed.Value.Max);
+            }
+
+            return true;
+        }
+        catch (ExtensionException ex)
         {
-            throw new MissingMetadataException("DisplayName");
+            Console.WriteLine($"Extension {metadata.UniqueName} failed validation: {ex.DisplayMessage.Value}");
+            return false;
+        }
+    }
+
+    private bool IsHostVersionCompatible(List<HostVersion>? metadataMinHostVersions,
+        out (Version Version, bool Max)? failedResult)
+    {
+        Version currentHostVersion = Host.Version;
+        failedResult = null;
+
+        if (metadataMinHostVersions == null || metadataMinHostVersions.Count == 0)
+        {
+            return true;
         }
 
-        if (string.IsNullOrEmpty(metadata.Version))
+        foreach (var hostVersion in metadataMinHostVersions)
         {
-            throw new MissingMetadataException("Version");
+            if (hostVersion.HostName.Equals(Host.HostName, StringComparison.OrdinalIgnoreCase))
+            {
+                if (hostVersion.MinVersion != null && currentHostVersion < hostVersion.MinVersion)
+                {
+                    failedResult = (hostVersion.MinVersion, false);
+                    continue;
+                }
+
+                if (hostVersion.MaxVersion != null && currentHostVersion > hostVersion.MaxVersion)
+                {
+                    failedResult = (hostVersion.MaxVersion, true);
+                    continue;
+                }
+
+                failedResult = null;
+                break;
+            }
+        }
+
+        if (failedResult != null)
+        {
+            return false;
         }
 
         return true;
