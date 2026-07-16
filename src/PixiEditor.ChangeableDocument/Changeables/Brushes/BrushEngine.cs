@@ -238,6 +238,11 @@ public class BrushEngine : IDisposable
             if (VecD.Distance(lastPos, point.Position) < spacingPixels)
                 continue;
 
+            if (brushNode.AlwaysClear.Value)
+            {
+                target?.DiscardChanges();
+            }
+
             ExecuteVectorShapeBrush(target, brushNode, brushData, point.Position, frameTime, cs, samplingOptions,
                 point.PointerInfo,
                 point.KeyboardInfo,
@@ -308,6 +313,11 @@ public class BrushEngine : IDisposable
             return brushNode;
         }
 
+        if (brushNode.AlwaysClear.Value)
+        {
+            target?.DiscardChanges();
+        }
+
         ExecuteVectorShapeBrush(target, brushNode, brushData, point, frameTime, cs, samplingOptions, pointerInfo,
             keyboardInfo,
             editorData, false, false);
@@ -328,12 +338,12 @@ public class BrushEngine : IDisposable
         {
             startPos = point;
             lastPos = point;
-            drawnOnce = true;
             stamps = 0;
-            ResetStartingTextures();
             target?.SetBlendMode(imageBlendMode);
             target?.SetOpacity(brushNode.Opacity.Value);
+            ResetStartingTextures();
             brushNode.ResetContentTexture();
+            drawnOnce = true;
         }
 
         float strokeWidth = brushData.StrokeWidth;
@@ -365,11 +375,6 @@ public class BrushEngine : IDisposable
         Texture? latestSampleUnderRect = null;
         Texture? targetSampleUnderRect = null;
         Texture? latestFullTexture = null;
-
-        if (brushNode.AlwaysClear.Value)
-        {
-            target?.EnqueueClear();
-        }
 
         if (rect is { Width: > 0, Height: > 0 } && target != null)
         {
