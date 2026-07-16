@@ -46,14 +46,8 @@ public class TextNode : ShapeNode<TextVectorData>
         lastFontFamily = fontFamily;
         lastFontSize = fontSize;
 
-        Font font = Font.FromFontFamily(fontFamily);
-        if(font == null)
-        {
-            font = Font.CreateDefault();
-        }
-        
-        font.Size = fontSize;
-        
+        FontData font = FontData.CreateDefault() with { Family = fontFamily, Size = fontSize };
+
         cachedData = new TextVectorData()
         {
             Text = text,

@@ -24,7 +24,6 @@ public abstract class ShapeVectorData : ICacheable, ICloneable, IReadOnlyShapeVe
         set
         {
             strokeWidth = value;
-            OnStrokeWidthChanged();
         }
     }
     

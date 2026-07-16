@@ -8,6 +8,7 @@ using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Text;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.Extensions.UI.Overlays;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.UI;
@@ -39,10 +40,10 @@ internal class TextOverlay : Overlay
         set => SetValue(PositionProperty, value);
     }
 
-    public static readonly StyledProperty<Font> FontProperty = AvaloniaProperty.Register<TextOverlay, Font>(
+    public static readonly StyledProperty<FontData> FontProperty = AvaloniaProperty.Register<TextOverlay, FontData>(
         nameof(Font));
 
-    public Font Font
+    public FontData Font
     {
         get => GetValue(FontProperty);
         set => SetValue(FontProperty, value);
@@ -218,7 +219,6 @@ internal class TextOverlay : Overlay
     protected override void OnRenderOverlay(Canvas context, RectD canvasBounds)
     {
         if (!IsEditing) return;
-        if (Font != null && Font.IsDisposed) return;
 
         int saved = context.Save();
 
@@ -267,7 +267,8 @@ internal class TextOverlay : Overlay
 
     private void RenderSampleText(Canvas context)
     {
-        context.DrawText("A", new VecD(Position.X, Position.Y), Font, sampleTextPaint);
+        using var sampleFont = Font.ToFont();
+        context.DrawText("A", new VecD(Position.X, Position.Y), sampleFont, sampleTextPaint);
     }
 
     private void RenderSelection(Canvas context)
@@ -282,6 +283,7 @@ internal class TextOverlay : Overlay
         RectD? currentLineBounds = null;
         int lastLine = lineStart;
         int saved = context.SaveLayer(opacityPaint);
+        using var nativeFont = Font.ToFont();
 
         for (int i = begin; i <= end; i++)
         {
@@ -301,7 +303,7 @@ internal class TextOverlay : Overlay
 
             double x = glyphPositions[i].X;
             double width = glyphWidths[i];
-            VecD lineOffset = richText.GetLineOffset(line, Font);
+            VecD lineOffset = richText.GetLineOffset(line, nativeFont);
             RectD selectionBounds =
                 new RectD(new VecD(x, -Font.Size + lineOffset.Y), new VecD(width, Font.Size * 1.25f)).Offset(Position);
             if (currentLineBounds == null)
@@ -320,7 +322,8 @@ internal class TextOverlay : Overlay
     public override bool TestHit(VecD point)
     {
         VecD mapped = Matrix.Invert().MapPoint(point);
-        return richText != null && richText.MeasureBounds(Font).Offset(Position).Inflate(2).ContainsInclusive(mapped);
+        using var nativeFont = Font.ToFont();
+        return richText != null && richText.MeasureBounds(nativeFont).Offset(Position).Inflate(2).ContainsInclusive(mapped);
     }
 
     protected override void OnOverlayPointerPressed(OverlayPointerArgs args)
@@ -465,7 +468,8 @@ internal class TextOverlay : Overlay
     private int GetClosestCharacterIndex(VecD point)
     {
         VecD mapped = Matrix.Invert().MapPoint(point);
-        var positions = richText.GetGlyphPositions(Font);
+        using var nativeFont = Font.ToFont();
+        var positions = richText.GetGlyphPositions(nativeFont);
         int indexOfClosest = positions.Select((pos, index) => (pos, index))
             .OrderBy(pos => ((pos.pos + Position - new VecD(0, Font.Size / 2f)) - mapped).LengthSquared)
             .First().index;
@@ -680,12 +684,13 @@ internal class TextOverlay : Overlay
 
     private void UpdateGlyphs()
     {
-        if (Font == null || Font.IsDisposed) return;
+        if (Font == null) return;
 
         richText = new(Text);
+        using var nativeFont = Font.ToFont();
         richText.Spacing = Spacing;
-        glyphPositions = richText.GetGlyphPositions(Font);
-        glyphWidths = richText.GetGlyphWidths(Font);
+        glyphPositions = richText.GetGlyphPositions(nativeFont);
+        glyphWidths = richText.GetGlyphWidths(nativeFont);
     }
 
     private void AdjustShortcutsForOS()
@@ -770,7 +775,7 @@ internal class TextOverlay : Overlay
         sender.UpdateGlyphs();
     }
 
-    private static void FontChanged(AvaloniaPropertyChangedEventArgs<Font> args)
+    private static void FontChanged(AvaloniaPropertyChangedEventArgs<FontData> args)
     {
         TextOverlay sender = args.Sender as TextOverlay;
         sender.UpdateGlyphs();
