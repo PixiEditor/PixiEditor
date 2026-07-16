@@ -1246,6 +1246,42 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
         }
     }
 
+    /// Discards all enqueued operations (and active clips) but preserves blend mode, symmetry axes and lock transparency
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
+    public void DiscardChanges()
+    {
+        using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
+        lock (lockObject)
+        {
+            ThrowIfDisposed();
+            //clear queued operations
+            foreach (var operation in queuedOperations)
+                operation.operation.Dispose();
+            queuedOperations.Clear();
+
+            //clear additional state
+            activeClips.Clear();
+
+            //clear latest chunks
+            foreach (var chunksOfRes in latestChunks.Values)
+            {
+                foreach (var chunk in chunksOfRes.Values)
+                {
+                    chunk.Dispose();
+                }
+            }
+
+            LatestSize = CommittedSize;
+            foreach (var (res, chunks) in latestChunks)
+            {
+                chunks.Clear();
+                latestChunksData[res].Clear();
+            }
+
+            cancelCounter++;
+        }
+    }
+
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public void CommitChanges()
     {
