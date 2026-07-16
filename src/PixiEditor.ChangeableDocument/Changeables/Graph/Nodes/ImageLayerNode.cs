@@ -177,7 +177,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
             var intersection = visibleRegion.Intersect(latestSize);
             region = intersection;
             VecI chunkAwareSize = (VecI)(new VecI(region.Width, region.Height) * multiplier);
-            if(chunkAwareSize.X <= 0 || chunkAwareSize.Y <= 0)
+            if (chunkAwareSize.X <= 0 || chunkAwareSize.Y <= 0)
             {
                 workingSurface.RestoreToCount(saved);
                 return;
@@ -194,11 +194,21 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
         if (!ctx.FullRerender)
         {
-            img.DrawMostUpToDateRegionOnWithAffected(
-                region,
-                ctx.ChunkResolution,
-                saveLayer ? intermediate.DrawingSurface.Canvas : workingSurface, ctx.AffectedArea, finalDrawPos,
-                saveLayer ? null : paint, ctx.DesiredSamplingOptions);
+            if (ctx.IterativeRender && ctx.AffectedArea.Chunks != null)
+            {
+                img.DrawMostUpToDateAffectedArea(
+                    ctx.ChunkResolution,
+                    saveLayer ? intermediate.DrawingSurface.Canvas : workingSurface, ctx.AffectedArea, finalDrawPos,
+                    saveLayer ? null : paint, ctx.DesiredSamplingOptions);
+            }
+            else
+            {
+                img.DrawMostUpToDateRegionOnWithAffected(
+                    region,
+                    ctx.ChunkResolution,
+                    saveLayer ? intermediate.DrawingSurface.Canvas : workingSurface, ctx.AffectedArea, finalDrawPos,
+                    saveLayer ? null : paint, ctx.DesiredSamplingOptions);
+            }
         }
         else
         {

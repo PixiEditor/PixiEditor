@@ -209,8 +209,10 @@ internal class SceneRenderer : IDisposable
                 viewportId, targetOutput, finalGraph,
                 previewTextures, viewport.VisibleDocumentRegion, oversizeFactor, isFullViewportRender,
                 viewport.ViewportData, out bool fullAffectedArea,
-                out RenderState renderState) ||
+                out RenderState renderState, out bool partialRenderAllowed) ||
             debugRecord;
+
+        partialRenderAllowed &= !isFullViewportRender && viewport.IsScene;
 
         shouldRerender |= lastGraphCacheHash != graphCacheHash;
         shouldRerender |= !lastRenderedViewports.Contains(viewportId);
@@ -224,7 +226,7 @@ internal class SceneRenderer : IDisposable
                 : affectedArea;
             var tex = RenderGraph(renderTargetSize, targetMatrix, viewportId, resolution, samplingOptions, affectedArea,
                 visibleDocumentRegion, targetOutput, viewport.IsScene, oversizeFactor,
-                pointerInfo, keyboardInfo, editorData, viewport.ViewportData, debugRecord, finalGraph, previewTextures);
+                pointerInfo, keyboardInfo, editorData, viewport.ViewportData, debugRecord, finalGraph, previewTextures, partialRenderAllowed);
 
             lastRenderedStates[viewportId] = renderState;
             return tex;
@@ -247,7 +249,8 @@ internal class SceneRenderer : IDisposable
         EditorData editorData,
         ViewportData viewportData,
         bool debugRecord,
-        IReadOnlyNodeGraph finalGraph, Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures)
+        IReadOnlyNodeGraph finalGraph, Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures,
+        bool partialRenderAllowed)
     {
         DrawingSurface renderTarget = null;
         Texture? renderTexture = null;
@@ -283,7 +286,7 @@ internal class SceneRenderer : IDisposable
 
                 var bufferedSize = (VecI)(renderTargetSize * oversizeFactor);
                 renderTexture = textureCache.RequestTexture(viewportId.GetHashCode(), bufferedSize,
-                    Document.ProcessingColorSpace);
+                    Document.ProcessingColorSpace, !partialRenderAllowed);
 
                 var bufferedMatrix = targetMatrix.PostConcat(Matrix3X3.CreateTranslation(
                     (bufferedSize.X - renderTargetSize.X) / 2.0,
@@ -331,6 +334,7 @@ internal class SceneRenderer : IDisposable
         context.VisibleDocumentRegion = visibleDocumentRegion;
         context.PreviewTextures = previewTextures;
         context.ViewportData = viewportData;
+        context.IterativeRender = partialRenderAllowed;
         if (debugRecord)
         {
             using DrawingRecorder recorder = new DrawingRecorder();
@@ -439,7 +443,7 @@ internal class SceneRenderer : IDisposable
         IReadOnlyNodeGraph finalGraph, Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures,
         RectD? visibleDocumentRegion, float oversizeFactor, bool isFullViewportRender,
         ViewportData viewportViewportData, out bool fullAffectedArea,
-        out RenderState renderState)
+        out RenderState renderState, out bool partialRenderAllowed)
     {
         renderState = new RenderState
         {
@@ -459,14 +463,10 @@ internal class SceneRenderer : IDisposable
         };
 
         fullAffectedArea = false;
+        partialRenderAllowed = false;
         if (!DocumentViewModel.SceneTextures.TryGetValue(viewportId, out var cachedTexture) ||
             cachedTexture == null ||
             cachedTexture.IsDisposed)
-        {
-            return true;
-        }
-
-        if (previewTextures is { Count: > 0 })
         {
             return true;
         }
@@ -475,9 +475,17 @@ internal class SceneRenderer : IDisposable
         {
             if (lastState.ShouldRerender(renderState))
             {
+                partialRenderAllowed = lastState.VisibleDocumentRegion == renderState.VisibleDocumentRegion && !isFullViewportRender;
                 fullAffectedArea = lastState.ZoomLevel > renderState.ZoomLevel;
                 return true;
             }
+        }
+
+        partialRenderAllowed = lastState.VisibleDocumentRegion == renderState.VisibleDocumentRegion;
+
+        if (previewTextures is { Count: > 0 })
+        {
+            return true;
         }
 
         VecI finalSize = SolveRenderOutputSize(targetOutput, finalGraph, Document.Size, targetSize, out _);

@@ -34,6 +34,8 @@ public class SceneObjectRenderContext : RenderContext
             PointerInfo = PointerInfo,
             ViewportData = ViewportData,
             CloneDepth = CloneDepth + 1,
+            IterativeRender = IterativeRender,
+            GraphCacheId = GraphCacheId
         };
     }
 }

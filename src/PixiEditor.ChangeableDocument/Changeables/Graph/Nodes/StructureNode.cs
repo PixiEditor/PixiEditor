@@ -200,6 +200,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
             context.ProcessingColorSpace, context.DesiredSamplingOptions, context.Graph, context.Opacity);
         renderObjectContext.FullRerender = context.FullRerender;
         renderObjectContext.AffectedArea = context.AffectedArea;
+        renderObjectContext.IterativeRender = context.IterativeRender;
         renderObjectContext.VisibleDocumentRegion = context.VisibleDocumentRegion;
         renderObjectContext.PreviewTextures = context.PreviewTextures;
         return renderObjectContext;

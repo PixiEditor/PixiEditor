@@ -35,6 +35,7 @@ public class RenderContext
     public AffectedArea AffectedArea { get; set; }
     public Dictionary<Guid, List<PreviewRenderRequest>>? PreviewTextures { get; set; }
     public IReadOnlyNodeGraph Graph { get; set; }
+    public bool IterativeRender { get; set; }
     public int GraphCacheId { get; set; } = 0;
 
     public static RenderContext Empty { get; } = new RenderContext(

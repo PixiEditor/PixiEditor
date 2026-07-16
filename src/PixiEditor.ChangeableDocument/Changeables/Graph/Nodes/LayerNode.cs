@@ -58,24 +58,33 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
                 using var targetPaint = new Paint
                 {
                     Color = new Color(255, 255, 255, 255),
-                    BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.SrcOver
+                    BlendMode = context.IterativeRender ? Drawie.Backend.Core.Surfaces.BlendMode.Src : Drawie.Backend.Core.Surfaces.BlendMode.SrcOver
                 };
 
-                // Full because RenderOutputSize should already be in the correct resolution
-                var tempSurface = TryInitWorkingSurface(context.RenderOutputSize, ChunkResolution.Full,
-                    context.ProcessingColorSpace, 22);
+                if (!context.IterativeRender)
+                {
+                    // Full because RenderOutputSize should already be in the correct resolution
+                    var tempSurface = TryInitWorkingSurface(context.RenderOutputSize, ChunkResolution.Full,
+                        context.ProcessingColorSpace, 22);
 
-                var originalSurface = context.RenderSurface;
-                context.RenderSurface = tempSurface.DrawingSurface.Canvas;
+                    var originalSurface = context.RenderSurface;
+                    context.RenderSurface = tempSurface.DrawingSurface.Canvas;
 
-                DrawLayerOnTexture(context, tempSurface.DrawingSurface.Canvas, context.ChunkResolution, useFilters,
-                    targetPaint);
+                    DrawLayerOnTexture(context, tempSurface.DrawingSurface.Canvas, context.ChunkResolution, useFilters,
+                        targetPaint);
 
-                context.RenderSurface = originalSurface;
+                    context.RenderSurface = originalSurface;
 
-                blendPaint.SetFilters(null);
-                DrawWithResolution(tempSurface.DrawingSurface, renderOnto, context.ChunkResolution,
-                    context.DesiredSamplingOptions);
+                    blendPaint.SetFilters(null);
+                    DrawWithResolution(tempSurface.DrawingSurface, renderOnto, context.ChunkResolution,
+                        context.DesiredSamplingOptions, false);
+                }
+                else
+                {
+                    DrawLayerOnTexture(context, context.RenderSurface, ChunkResolution.Full, useFilters,
+                        targetPaint);
+                    blendPaint.SetFilters(null);
+                }
             }
 
             return;
@@ -150,7 +159,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
         }
 
         DrawWithResolution(outputWorkingSurface.DrawingSurface, renderOnto, adjustedResolution,
-            context.DesiredSamplingOptions);
+            context.DesiredSamplingOptions, context.IterativeRender);
 
         renderOnto.RestoreToCount(saved);
         outputWorkingSurface.DrawingSurface.Canvas.Restore();
@@ -170,20 +179,22 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
     }
 
     private void DrawWithResolution(DrawingSurface source, Canvas target, ChunkResolution resolution,
-        SamplingOptions sampling)
+        SamplingOptions sampling, bool iterativeRender)
     {
         int scaled = target.Save();
         float multiplier = (float)resolution.InvertedMultiplier();
         target.Scale(multiplier, multiplier);
 
+        var targetPaint = iterativeRender ? replacePaint : blendPaint;
+
         if (sampling == SamplingOptions.Default)
         {
-            target.DrawSurface(source, 0, 0, blendPaint);
+            target.DrawSurface(source, 0, 0, targetPaint);
         }
         else
         {
             using var snapshot = source.Snapshot();
-            target.DrawImage(snapshot, 0, 0, sampling, blendPaint);
+            target.DrawImage(snapshot, 0, 0, sampling, targetPaint);
         }
 
         target.RestoreToCount(scaled);
