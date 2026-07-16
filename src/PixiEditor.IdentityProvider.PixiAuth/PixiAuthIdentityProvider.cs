@@ -307,7 +307,9 @@ public class PixiAuthIdentityProvider : IIdentityProvider
                     DownloadLink = x.DownloadLink,
                     Description = x.ProductDescription,
                     Author = x.Author,
-                    ImageUrl = x.ImageUrl
+                    ImageUrl = x.ImageUrl,
+                    MinHostVersion = x.MinHostVersion,
+                    MaxHostVersion = x.MaxHostVersion,
                 })
                 .ToList();
             OwnedProductsUpdated?.Invoke(new List<ProductData>(User.OwnedProducts));
@@ -334,6 +336,8 @@ public class PixiAuthIdentityProvider : IIdentityProvider
                         Description = x.ProductDescription,
                         Author = x.Author,
                         ImageUrl = x.ImageUrl,
+                        MinHostVersion = x.MinHostVersion,
+                        MaxHostVersion = x.MaxHostVersion,
                     })
                     .ToList();
                 OwnedProductsUpdated?.Invoke(new List<ProductData>(User.OwnedProducts));
@@ -381,7 +385,9 @@ public class PixiAuthIdentityProvider : IIdentityProvider
                             DownloadLink = x.DownloadLink,
                             Description = x.ProductDescription,
                             Author = x.Author,
-                            ImageUrl = x.ImageUrl
+                            ImageUrl = x.ImageUrl,
+                            MinHostVersion = x.MinHostVersion,
+                            MaxHostVersion = x.MaxHostVersion,
                         })
                         .ToList();
                     OwnedProductsUpdated?.Invoke(new List<ProductData>(User.OwnedProducts));

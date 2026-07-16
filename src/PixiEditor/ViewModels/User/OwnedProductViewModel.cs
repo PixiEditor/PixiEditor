@@ -149,7 +149,7 @@ public class OwnedProductViewModel : ObservableObject
 
                 UninstallCommand.NotifyCanExecuteChanged();
                 ToggleEnabledCommand.NotifyCanExecuteChanged();
-            }, () => !IsInstalled && !IsInstalling);
+            }, () => !IsInstalled && !IsInstalling && IsCompatible);
 
         UpdateCommand = new AsyncRelayCommand(
             async () =>
@@ -252,8 +252,11 @@ public class OwnedProductViewModel : ObservableObject
             (isOn) => IsInstalled && !IsInstalling && !IsUninstalling
         );
 
-        UpdateImageSource();
+        Dispatcher.UIThread.Post(UpdateImageSource);
     }
+
+    private bool IsCompatible => !(string.IsNullOrEmpty(ProductData.LatestVersion) && (ProductData.MinHostVersion != null || ProductData.MaxHostVersion != null));
+    public string IncompatibilityTooltipKey => IsCompatible ? null : new LocalizedString("EXTENSIONS_WINDOW_INCOMPATIBLE_EXTENSION_TOOLTIP", ProductData.MinHostVersion ?? new LocalizedString("UNSPECIFIED_VERSION_OLDER"), ProductData.MaxHostVersion ?? new LocalizedString("UNSPECIFIED_VERSION_NEWER"));
 
     private void UpdateImageSource()
     {

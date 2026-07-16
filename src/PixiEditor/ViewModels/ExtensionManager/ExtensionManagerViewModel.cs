@@ -434,6 +434,19 @@ internal class ExtensionManagerViewModel : ViewModelBase
         return !IsInstalled(extensionId);
     }
 
+    private bool IsCompatible(string extensionId)
+    {
+        ProductData product = identityProvider.User.OwnedProducts
+            .FirstOrDefault(x => x.Id == extensionId);
+
+        if (product == null)
+        {
+            return false;
+        }
+
+        return !string.IsNullOrEmpty(product.LatestVersion);
+    }
+
     private bool UpdateAvailable(string extensionId)
     {
         ProductData product = identityProvider.User.OwnedProducts
