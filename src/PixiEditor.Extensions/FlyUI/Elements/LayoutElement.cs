@@ -102,6 +102,7 @@ public abstract class LayoutElement : ILayoutElement<Control>, INotifyPropertyCh
         }
 
         _events[eventName].Add(eventHandler);
+        OnAddEvent(eventName);
     }
 
     public void AddEvent<T>(string eventName, ElementEventHandler<T> eventHandler) where T : ElementEventArgs<T>
@@ -184,6 +185,8 @@ public abstract class LayoutElement : ILayoutElement<Control>, INotifyPropertyCh
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
+
+    protected virtual void OnAddEvent(string eventName) { }
 
     protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {

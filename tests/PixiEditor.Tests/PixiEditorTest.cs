@@ -9,6 +9,7 @@ using Drawie.Skia;
 using Drawie.Windowing;
 using DrawiEngine;
 using Microsoft.Extensions.DependencyInjection;
+using PixiEditor.Extensions;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Extensions.Runtime;
 using PixiEditor.Helpers;
@@ -70,7 +71,7 @@ public class FullPixiEditorTest : PixiEditorTest
 {
     public FullPixiEditorTest()
     {
-        ExtensionLoader loader = new ExtensionLoader(["TestExtensions"], "TestExtensions/Unpacked");
+        ExtensionLoader loader = new ExtensionLoader(new PixiEditorHost(), ["TestExtensions"], "TestExtensions/Unpacked");
 
         if (IOperatingSystem.Current == null)
         {

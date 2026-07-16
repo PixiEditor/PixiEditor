@@ -36,7 +36,7 @@ internal class AutosaveDocumentViewModel : ObservableObject
     private DocumentAutosaver? autosaver;
     private DocumentViewModel Document { get; }
     private Guid autosaveFileGuid = Guid.NewGuid();
-    public string AutosavePath => AutosaveHelper.GetAutosavePath(autosaveFileGuid);
+    public string AutosavePath => AutosaveHelper.GetNewAutosavePath(autosaveFileGuid);
 
     public string LastAutosavedPath { get; set; }
 

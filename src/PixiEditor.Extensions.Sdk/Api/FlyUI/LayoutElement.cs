@@ -1,5 +1,6 @@
 ﻿using PixiEditor.Extensions.CommonApi.FlyUI;
 using PixiEditor.Extensions.CommonApi.FlyUI.Events;
+using PixiEditor.Extensions.Sdk.Bridge;
 
 namespace PixiEditor.Extensions.Sdk.Api.FlyUI;
 
@@ -8,7 +9,9 @@ public abstract class LayoutElement : ILayoutElement<ControlDefinition>
     private Dictionary<string, List<ElementEventHandler>> _events;
     private Dictionary<(string, Delegate), ElementEventHandler> _wrappedHandlers = new();
 
-    public List<string> BuildQueuedEvents = new List<string>();
+    internal bool ImmediateEventPropagation { get; set; } = false;
+
+    internal List<string> BuildQueuedEvents = new List<string>();
     public int UniqueId { get; set; }
 
     public event ElementEventHandler PointerEnter
@@ -74,6 +77,11 @@ public abstract class LayoutElement : ILayoutElement<ControlDefinition>
 
         _events[eventName].Add(eventHandler);
         BuildQueuedEvents.Add(eventName);
+
+        if (ImmediateEventPropagation)
+        {
+            Interop.SubscribeToEvents(BuildNative());
+        }
     }
 
     public void AddEvent<T>(string eventName, ElementEventHandler<T> eventHandler) where T : ElementEventArgs<T>
@@ -93,6 +101,11 @@ public abstract class LayoutElement : ILayoutElement<ControlDefinition>
         _wrappedHandlers.Add((eventName, eventHandler), wrapped);
         _events[eventName].Add(wrapped);
         BuildQueuedEvents.Add(eventName);
+
+        if (ImmediateEventPropagation)
+        {
+            Interop.SubscribeToEvents(BuildNative());
+        }
     }
 
     public void RemoveEvent(string eventName, ElementEventHandler eventHandler)
