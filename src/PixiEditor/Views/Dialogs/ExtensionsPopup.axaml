@@ -556,7 +556,7 @@
                                                                IsVisible="{Binding !IsCompatible}"
                                                                ToolTip.ShowDelay="0"
                                                                FontSize="16" Margin="0, 0, 4, 0"
-                                                               localization:Translator.TooltipKey="{Binding IncompatibilityTooltipKey}"
+                                                               localization:Translator.TooltipLocalizedString="{Binding IncompatibilityTooltipKey}"
                                                                Text="{DynamicResource icon-triangle-alert}" />
 
                                                     <Button Command="{Binding InstallCommand}"

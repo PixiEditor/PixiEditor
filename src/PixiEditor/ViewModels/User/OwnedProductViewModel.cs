@@ -255,8 +255,8 @@ public class OwnedProductViewModel : ObservableObject
         Dispatcher.UIThread.Post(UpdateImageSource);
     }
 
-    private bool IsCompatible => !(string.IsNullOrEmpty(ProductData.LatestVersion) && (ProductData.MinHostVersion != null || ProductData.MaxHostVersion != null));
-    public string IncompatibilityTooltipKey => IsCompatible ? null : new LocalizedString("EXTENSIONS_WINDOW_INCOMPATIBLE_EXTENSION_TOOLTIP", ProductData.MinHostVersion ?? new LocalizedString("UNSPECIFIED_VERSION_OLDER"), ProductData.MaxHostVersion ?? new LocalizedString("UNSPECIFIED_VERSION_NEWER"));
+    public bool IsCompatible => !(string.IsNullOrEmpty(ProductData.LatestVersion) && (ProductData.MinHostVersion != null || ProductData.MaxHostVersion != null));
+    public LocalizedString IncompatibilityTooltipKey => IsCompatible ? null : new LocalizedString("EXTENSIONS_WINDOW_INCOMPATIBLE_EXTENSION_TOOLTIP", ProductData.MinHostVersion ?? new LocalizedString("UNSPECIFIED_VERSION_OLDER"), ProductData.MaxHostVersion ?? new LocalizedString("UNSPECIFIED_VERSION_NEWER"));
 
     private void UpdateImageSource()
     {
