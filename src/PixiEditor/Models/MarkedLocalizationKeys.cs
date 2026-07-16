@@ -20,3 +20,5 @@
 [assembly:LocalizedKey("TAB_SPLIT_LEFT", "Used inside the PixiDocks")]
 [assembly:LocalizedKey("TAB_SPLIT_RIGHT", "Used inside the PixiDocks")]
 [assembly:LocalizedKey("TAB_SPLIT_UP", "Used inside the PixiDocks")]
+[assembly:LocalizedKey("ERROR_INCOMPATIBLE_MAX_HOST_VERSION", "Exception message in extension loader")]
+[assembly:LocalizedKey("ERROR_INCOMPATIBLE_MIN_HOST_VERSION", "Exception message in extension loader")]

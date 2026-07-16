@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -142,12 +143,12 @@ internal class ClassicDesktopEntry
         desktop.MainWindow.Show();
     }
 
-    private void InitPlatform()
+    private void InitPlatform(PixiEditorHost host)
     {
         if (IPlatform.Current != null)
             return;
 
-        var platform = GetActivePlatform();
+        var platform = GetActivePlatform(host);
         IPlatform.RegisterPlatform(platform);
         platform.PerformHandshake();
     }
@@ -156,7 +157,8 @@ internal class ClassicDesktopEntry
     {
         LoadingWindow.ShowInNewThread();
 
-        InitPlatform();
+        var host = new PixiEditorHost();
+        InitPlatform(host);
 
         NumberInput.AttachGlobalBehaviors += AttachGlobalShortcutBehavior;
 
@@ -173,8 +175,9 @@ internal class ClassicDesktopEntry
         {
             extensionPaths = extensionPaths.Concat([Path.Combine(Paths.MacOsDotAppDir, "Extensions")]).ToArray();
         }
-        
+
         ExtensionLoader extensionLoader = new ExtensionLoader(
+            host,
             extensionPaths, Paths.UnpackedExtensionsPath);
         if (!safeMode)
         {
@@ -193,7 +196,7 @@ internal class ClassicDesktopEntry
         return extensionLoader;
     }
 
-    private IPlatform GetActivePlatform()
+    private IPlatform GetActivePlatform(PixiEditorHost host)
     {
 #if STEAM || DEV_STEAM
         var paths = new string[]{Paths.LocalExtensionPackagesPath, Paths.InstallDirExtensionPackagesPath};
@@ -205,11 +208,11 @@ internal class ClassicDesktopEntry
         return new PixiEditor.Platform.Steam.SteamPlatform(paths);
 #elif MSIX || MSIX_DEBUG
         return new PixiEditor.Platform.MSStore.MicrosoftStorePlatform(Paths.LocalExtensionPackagesPath, GetApiUrl(),
-            GetApiKey(), ExtensionRuntimeInfo.ApiVersion);
+            GetApiKey(), ExtensionRuntimeInfo.ApiVersion, host.HostName, host.Version);
 #else
         return new PixiEditor.Platform.Standalone.StandalonePlatform(
             [Paths.LocalExtensionPackagesPath, Paths.InstallDirExtensionPackagesPath], GetApiUrl(),
-            GetApiKey(), ExtensionRuntimeInfo.ApiVersion); // The first in the extensionsPath array should be local, because it's the default where extensions are installed. Otherwise, OS access rights may cause issues.
+            GetApiKey(), ExtensionRuntimeInfo.ApiVersion, host.HostName, host.Version); // The first in the extensionsPath array should be local, because it's the default where extensions are installed. Otherwise, OS access rights may cause issues.
 #endif
     }
 

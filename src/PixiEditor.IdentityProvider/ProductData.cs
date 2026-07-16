@@ -10,6 +10,8 @@ public record ProductData
     public string? LatestVersion { get; set; }
     public string DownloadLink { get; set; }
     public bool IsBundle { get; set; }
+    public string? MinHostVersion { get; set; }
+    public string? MaxHostVersion { get; set; }
 
     public ProductData(string id, string displayName)
     {
