@@ -1379,7 +1379,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             }
             else if (member is IFolderHandler childFolder)
             {
-                if (includeFoldersWithMask && childFolder.HasMaskBindable && !list.Contains(childFolder.Id))
+                if ((!childFolder.HasMaskBindable || (includeFoldersWithMask && childFolder.HasMaskBindable)))
                     list.Add(childFolder.Id);
 
                 ExtractSelectedLayers(childFolder, list, includeFoldersWithMask);
