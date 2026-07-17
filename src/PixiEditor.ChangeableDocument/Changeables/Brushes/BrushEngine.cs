@@ -339,11 +339,14 @@ public class BrushEngine : IDisposable
             startPos = point;
             lastPos = point;
             stamps = 0;
-            target?.SetBlendMode(imageBlendMode);
-            target?.SetOpacity(brushNode.Opacity.Value);
-            ResetStartingTextures();
-            brushNode.ResetContentTexture();
-            drawnOnce = true;
+            if (target != null)
+            {
+                target.SetBlendMode(imageBlendMode);
+                target.SetOpacity(brushNode.Opacity.Value);
+                ResetStartingTextures();
+                brushNode.ResetContentTexture();
+                drawnOnce = true;
+            }
         }
 
         float strokeWidth = brushData.StrokeWidth;
