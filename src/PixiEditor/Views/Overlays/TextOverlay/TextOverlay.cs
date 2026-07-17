@@ -41,7 +41,7 @@ internal class TextOverlay : Overlay
     }
 
     public static readonly StyledProperty<FontData> FontProperty = AvaloniaProperty.Register<TextOverlay, FontData>(
-        nameof(Font));
+        nameof(Font), FontData.CreateDefault());
 
     public FontData Font
     {
@@ -268,6 +268,7 @@ internal class TextOverlay : Overlay
     private void RenderSampleText(Canvas context)
     {
         using var sampleFont = Font.ToFont();
+        if (sampleFont == null) return;
         context.DrawText("A", new VecD(Position.X, Position.Y), sampleFont, sampleTextPaint);
     }
 
@@ -284,6 +285,8 @@ internal class TextOverlay : Overlay
         int lastLine = lineStart;
         int saved = context.SaveLayer(opacityPaint);
         using var nativeFont = Font.ToFont();
+
+        if (nativeFont == null) return;
 
         for (int i = begin; i <= end; i++)
         {
@@ -323,6 +326,8 @@ internal class TextOverlay : Overlay
     {
         VecD mapped = Matrix.Invert().MapPoint(point);
         using var nativeFont = Font.ToFont();
+        if (nativeFont == null) return false;
+
         return richText != null &&
                richText.MeasureBounds(nativeFont).Offset(Position).Inflate(2).ContainsInclusive(mapped);
     }
@@ -470,6 +475,8 @@ internal class TextOverlay : Overlay
     {
         VecD mapped = Matrix.Invert().MapPoint(point);
         using var nativeFont = Font.ToFont();
+        if (nativeFont == null) return 0;
+
         var positions = richText.GetGlyphPositions(nativeFont);
         int indexOfClosest = positions.Select((pos, index) => (pos, index))
             .OrderBy(pos => ((pos.pos + Position - new VecD(0, Font.Size / 2f)) - mapped).LengthSquared)

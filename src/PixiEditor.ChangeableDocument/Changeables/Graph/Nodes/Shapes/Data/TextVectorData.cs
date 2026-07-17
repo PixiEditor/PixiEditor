@@ -14,7 +14,6 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
 {
     private string text;
     private double? spacing = null;
-    private double strokeWidth = 1;
     private FontData font;
     private VectorPath? path;
 
