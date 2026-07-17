@@ -158,7 +158,13 @@ public sealed class StandaloneAdditionalContentProvider : IAdditionalContentProv
                 Versions = x.Versions.Select(v => new ExtensionVersion()
                 {
                     Version = v.Version,
-                    PixiEditorApiVersion = v.PixiEditorApiVersion
+                    PixiEditorApiVersion = v.PixiEditorApiVersion,
+                    CompatibleHostVersions = v.CompatibleHostVersions.Select(hv => new HostVersion()
+                    {
+                        HostName = hv.HostName,
+                        MinVersion = hv.MinVersion,
+                        MaxVersion = hv.MaxVersion
+                    }).ToList()
                 }).ToList()
             })
             .ToList();

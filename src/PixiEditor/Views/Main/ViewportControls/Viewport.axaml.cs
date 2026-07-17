@@ -24,6 +24,7 @@ using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Position;
 using Drawie.Numerics;
 using Drawie.Skia;
+using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.ChangeableDocument.Rendering.ContextData;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.UI.Common.Behaviors;
@@ -696,7 +697,27 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         scene.AngleRadians = 0;
         scene.CenterContent(Document.GetRenderOutputSize(ViewportRenderOutput));
     }
+    
+    private void RecenterHorizontalSymmetryClicked(object? sender, RoutedEventArgs e)
+    {
+        if (Document is null)
+            return;
 
+        Document.SetSymmetryAxisPositionFromUser(
+            SymmetryAxisDirection.Vertical,
+            (double)Document.Width / 2);
+    }
+
+    private void RecenterVerticalSymmetryClicked(object? sender, RoutedEventArgs e)
+    {
+        if (Document is null)
+            return;
+
+        Document.SetSymmetryAxisPositionFromUser(
+            SymmetryAxisDirection.Horizontal,
+            (double)Document.Height / 2);
+    }
+    
     private RectD? CalculateVisibleRegion()
     {
         if (Document is null) return null;

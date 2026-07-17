@@ -2,9 +2,9 @@
 using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
-using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Changes.NodeGraph;
+using PixiEditor.Common;
 
 namespace PixiEditor.ChangeableDocument.Changes.Structure;
 
@@ -48,65 +48,129 @@ internal class MoveStructureMember_Change : Change
         return true;
     }
 
-    private static List<IChangeInfo> Move(Document document, Guid sourceNodeGuid, Guid targetNodeGuid,
+    /// <summary>
+    /// Looks through all the painter inputs of <paramref name="targetDescendantNode"/>
+    /// and selects the best one for the moved node to be attached to
+    /// </summary>
+    /// <param name="nodeBeingMovedGuid"></param>
+    /// <param name="targetDescendantNode">The node that will come right after nodeBeingMoved after the move occurs</param>
+    /// <returns></returns>
+    private static InputProperty<Painter?>? FindInsertionLocation(Guid nodeBeingMovedGuid, Node targetDescendantNode)
+    {
+        var potentialInputProperties = targetDescendantNode.InputProperties.Where(x => x.ValueType == typeof(Painter)).ToArray();
+        InputProperty<Painter?> inputProperty = targetDescendantNode is IRenderInput renderInput ? renderInput.Background : null;
+        if (inputProperty != null)
+            return inputProperty;
+        
+        foreach (var potentialInputProperty in potentialInputProperties)
+        {
+            var targetAncestorNode = potentialInputProperty.Connection?.Node;
+            bool traversesToNodeBeingMoved = false;
+            
+            targetAncestorNode?.TraverseBackwards((x, prop) =>
+            {
+                if (x.Id == nodeBeingMovedGuid)
+                {
+                    traversesToNodeBeingMoved = true;
+                    return false;
+                }
+
+                return true;
+            });
+
+            if (!traversesToNodeBeingMoved)
+            {
+                targetAncestorNode?.TraverseForwards((x, prop) =>
+                {
+                    if (x.Id == nodeBeingMovedGuid)
+                    {
+                        traversesToNodeBeingMoved = true;
+                        return false;
+                    }
+
+                    return true;
+                });
+            }
+
+            if (traversesToNodeBeingMoved)
+            {
+                inputProperty = potentialInputProperty as InputProperty<Painter?>;
+                break;
+            }
+        }
+
+        if (inputProperty != null)
+            return inputProperty;
+
+        var firstPotential = potentialInputProperties.FirstOrDefault();
+        if (firstPotential?.Connection == null)
+            return firstPotential as InputProperty<Painter?>;
+        
+        return null;
+    }
+
+    private static List<IChangeInfo> Move(Document document, Guid nodeBeingMovedGuid, Guid targetDescendantNodeGuid,
         bool putInsideFolder, out Dictionary<Guid, VecD> originalPositions)
     {
-        var sourceNode = document.FindMember(sourceNodeGuid);
-        var targetNode = document.FindNode(targetNodeGuid);
+        var nodeBeingMoved = document.FindMember(nodeBeingMovedGuid);
+        var targetDescendantNode = document.FindNode(targetDescendantNodeGuid);
         originalPositions = null;
-        if (sourceNode is null || targetNode is not IRenderInput backgroundInput)
+
+        if (nodeBeingMoved is null)
             return [];
 
-        List<IChangeInfo> changes = new();
-
-        Guid oldBackgroundId = sourceNode.Background.Node.Id;
-
-        InputProperty<Painter?> inputProperty = backgroundInput.Background;
-
-        if (targetNode is FolderNode folder && putInsideFolder)
+        InputProperty<Painter?> inputProperty;
+        if (targetDescendantNode is FolderNode folder && putInsideFolder)
         {
             inputProperty = folder.Content;
         }
-
-        MoveStructureMember_ChangeInfo changeInfo = new(sourceNodeGuid, oldBackgroundId, targetNodeGuid);
-
-        var previouslyConnected = inputProperty.Connection;
-
-        bool isMovingBelow = false;
-
-        inputProperty.Node.TraverseForwards(x =>
+        else
         {
-            if (x.Id == sourceNodeGuid)
-            {
-                isMovingBelow = true;
-                return false;
-            }
+            inputProperty = FindInsertionLocation(nodeBeingMovedGuid, targetDescendantNode);
 
-            return true;
-        });
-
-        if (isMovingBelow)
-        {
-            changes.AddRange(
-                NodeOperations.AdjustPositionsBeforeAppend(sourceNode, inputProperty.Node, out originalPositions));
+            if (inputProperty is null || (inputProperty.Connection?.Node == nodeBeingMoved && !putInsideFolder))
+                return [];
         }
 
-        changes.AddRange(NodeOperations.DetachStructureNode(sourceNode));
-        changes.AddRange(NodeOperations.AppendMember(inputProperty, sourceNode.Output,
-            sourceNode.Background,
-            sourceNode.Id));
 
-        if (!isMovingBelow)
+        Node? oldInputConnectionNode = nodeBeingMoved.Background.Connection?.Node as Node;
+        Node oldOutputConnectionNode = nodeBeingMoved.Output.Connections.First().Node as Node;
+        bool hadMultipleOutputs = nodeBeingMoved.Output.Connections.Count > 1;
+        
+        MoveStructureMember_ChangeInfo changeInfo = 
+            new(nodeBeingMovedGuid, oldOutputConnectionNode.Id, targetDescendantNodeGuid);
+
+        List<IChangeInfo> changes = new();
+        changes.AddRange(NodeOperations.DetachStructureNode(nodeBeingMoved));
+        changes.AddRange(NodeOperations.AppendMember(inputProperty, nodeBeingMoved.Output,
+            nodeBeingMoved.Background,
+            nodeBeingMoved.Id));
+
+        originalPositions = new();
+        if (!hadMultipleOutputs && oldInputConnectionNode is not null)
         {
-            changes.AddRange(NodeOperations.AdjustPositionsAfterAppend(sourceNode, inputProperty.Node,
-                previouslyConnected?.Node as Node, out originalPositions));
+            changes.AddRange(NodeOperations.CollapseFreeSpaceAfterRemovingNode(oldInputConnectionNode, oldOutputConnectionNode, out var tempOriginalPositions));
+            originalPositions.AddRangeNewOnly(tempOriginalPositions);
         }
 
-        if (targetNode is FolderNode)
-        {
-            changes.AddRange(AdjustPutIntoFolderPositions(targetNode, originalPositions));
-        }
+        double verticalOffset = 0;
+        if (targetDescendantNode is FolderNode && putInsideFolder)
+            verticalOffset = 550;
+        
+        VecD sourceOriginalPosition = nodeBeingMoved.Position;
+        changes.AddRange(NodeOperations.PushNodesBackAfterInsertingNodeBetweenTwoOthers(nodeBeingMoved, inputProperty.Node,
+            nodeBeingMoved.Background.Connection?.Node as Node, out var tempOriginalPositions2, verticalOffset));
+        originalPositions.AddRangeNewOnly(tempOriginalPositions2);
+        originalPositions[nodeBeingMoved.Id] = sourceOriginalPosition;
 
+        if (nodeBeingMoved is FolderNode folderNode)
+        {
+            changes.AddRange(NodeOperations.MoveFolderContentAfterFolderMovement(folderNode, sourceOriginalPosition,
+                out var tempOriginalPositions3));
+            originalPositions.AddRangeNewOnly(tempOriginalPositions3);
+            originalPositions[nodeBeingMoved.Id] = sourceOriginalPosition;
+        }
+        
         changes.Add(changeInfo);
 
         return changes;
@@ -133,56 +197,6 @@ internal class MoveStructureMember_Change : Change
         changes.AddRange(NodeOperations.RevertPositions(originalPositions, target));
 
         changes.Add(changeInfo);
-
-        return changes;
-    }
-
-    private static List<IChangeInfo> AdjustPutIntoFolderPositions(Node targetNode,
-        Dictionary<Guid, VecD> originalPositions)
-    {
-        List<IChangeInfo> changes = new();
-
-        if (targetNode is FolderNode folder)
-        {
-            folder.Content.Connection?.Node.TraverseBackwards(contentNode =>
-            {
-                if (contentNode is Node node)
-                {
-                    if (!originalPositions.ContainsKey(node.Id))
-                    {
-                        originalPositions[node.Id] = node.Position;
-                    }
-
-                    node.Position = new VecD(node.Position.X, folder.Position.Y + 250);
-                    changes.Add(new NodePosition_ChangeInfo(node.Id, node.Position));
-                }
-
-                return true;
-            });
-
-            folder.Background.Connection?.Node.TraverseBackwards(bgNode =>
-            {
-                if (bgNode is Node node)
-                {
-                    if (!originalPositions.ContainsKey(node.Id))
-                    {
-                        originalPositions[node.Id] = node.Position;
-                    }
-
-                    double pos = folder.Position.Y;
-
-                    if (folder.Content.Connection != null)
-                    {
-                        pos -= 250;
-                    }
-
-                    node.Position = new VecD(node.Position.X, pos);
-                    changes.Add(new NodePosition_ChangeInfo(node.Id, node.Position));
-                }
-
-                return true;
-            });
-        }
 
         return changes;
     }

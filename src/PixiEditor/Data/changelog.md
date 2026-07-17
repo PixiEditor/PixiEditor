@@ -1,36 +1,38 @@
-# 2.1.1.4
+# 2.1.1.6
 
-Date: `12.05.2026`
+Date: `18.06.2026`
 
 ## New things
 
-- Added a dialog asking before overwriting non .pixi files
-- Added color picker tool overlay (by [Artem Melnyk](https://github.com/MellKam))
-- Added new toolset "Adjustments" with Blur Tool, Sharpen Tool, Smudge Tool and Brightness Tool
-- Added Velocity Output to Stroke Info Node
-- Added "Place Element" to file paths in the command search (by [CPK](https://github.com/CPKreu))
-- Added Oversample input in Brush Output Node,
-- Added Sample Size output to Stroke Info Node
-- [ABI] Added an option to pass config to custom tools
+- Added Color Ramp Node - by [Ghoti](https://github.com/Ghoti-tpt)
+  ![ramp|684x500](https://forum.pixieditor.net/uploads/default/original/1X/5b688c90920915aa9efc4c5fbb37780fac892344.png)
+
+- Added Vector Math Node - by [flabbet](https://github.com/flabbet)
+- Added Sticky Note - by [Ghoti](https://github.com/Ghoti-tpt)
+
+Available in 16 581 375 colors!
+
+![PixiEditor.Desktop_1Rv4UgmCLE|607x500](https://forum.pixieditor.net/uploads/default/original/1X/a1db4d63c65983d04a731fb6e501cc44bc927fc8.png)
+
+- Added Comment Node - by [Ghoti](https://github.com/Ghoti-tpt)
+
+It is now possible to create custom colored zones with a comment text.
+
+![PixiEditor.Desktop_7xKye1XQI8|690x222](https://forum.pixieditor.net/uploads/default/original/1X/f8368eb78a95198ba11b43f7f2b11aa89a831635.png)
+
+- Added Find and Replace tool to Adjustments toolset - by [Ghoti](https://github.com/Ghoti-tpt)
+- Added Swap Color tool to Adjustments toolset - by Laxan
+- Added Gradient Brush - by [AwsomeAnthony](https://github.com/AwsmeAnthony)
 
 ## Improvements
 
-- Improved Brightness tool, it now supports custom brushes as brightness masks.
-- Improved UI of Extension Browser
-- Improved the UI of extensions button in the tools picker
-- Added a button in the top menu bar for easier access to the Extension Browser
-- Changed the icons of the extensions buttons
-- Replaced Founder's Pack onboarding step with featured extensions
+- Selecting multiple vector layers and changing main color will now recolor all layers - by [flabbet](https://github.com/flabbet)
+- Various optimizations for the Brush Engine - by [flabbet](https://github.com/flabbet)
+- Improved localization debug window - by [Equbuxu](https://github.com/Equbuxu)
 
 ## Fixes
 
-- Fixed binding key modifiers as a single key (e.g. Ctrl, Shift, Alt) not working.
-- Fixed undo/redo with single key shortcut triggering when typed with text tool
-- Fixed an issue with preview scaling for different window sizes
-- Fixed brush shape overlay not updating in some cases
-- Fixed an issue with brush settings resetting on tool change and not synchronizing properly
-- Fixed invalid previews for some nodes
-- Fixed a crash when trying to open .svg file as reference layer
-- Fixed non-scrollable tools picker
-- Fixed a bug that caused some tools to become the pen tool with Shared Toolbar option enabled
-- As always, fixed various crashes
+- Fixed not being able to move layers when there was non-structure layer in between - by [flabbet](https://github.com/flabbet)
+- Fixed a bug that caused new layer to create when multiple layers were selected and user clicked on the canvas - by [flabbet](https://github.com/flabbet)
+- It is now possible to use Open from clipboard option when no document is opened - by [flabbet](https://github.com/flabbet)
+- Fixed layer order reversing when dragging multiple layers on the very bottom of the layer list - by [flabbet](https://github.com/flabbet)

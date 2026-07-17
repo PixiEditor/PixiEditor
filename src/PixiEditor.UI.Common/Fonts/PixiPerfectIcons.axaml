@@ -146,6 +146,7 @@
             <system:String x:Key="icon-minus">&#xE9D8;</system:String>
             <system:String x:Key="icon-mirror-horizontal">&#xE97F;</system:String>
             <system:String x:Key="icon-mirror-vertical">&#xE97C;</system:String>
+            <system:String x:Key="icon-mountain-snow">&#xE9F2;</system:String>
             <system:String x:Key="icon-mouse">&#xE9D1;</system:String>
             <system:String x:Key="icon-mouse-pointer">&#xE960;</system:String>
             <system:String x:Key="icon-move-view">&#xE962;</system:String>
@@ -170,9 +171,12 @@
             <system:String x:Key="icon-plus-square">&#xE967;</system:String>
             <system:String x:Key="icon-points-crossed">&#xE918;</system:String>
             <system:String x:Key="icon-put-image">&#xE908;</system:String>
+            <system:String x:Key="icon-recenter-x-symmetry">&#xE9F1;</system:String>
+            <system:String x:Key="icon-recenter-y-symmetry">&#xE9F0;</system:String>
             <system:String x:Key="icon-rectangle-selection">&#xE968;</system:String>
             <system:String x:Key="icon-reddit">&#xE905;</system:String>
             <system:String x:Key="icon-redo">&#xE969;</system:String>
+            <system:String x:Key="icon-replace">&#xE9EF;</system:String>
             <system:String x:Key="icon-reset">&#xE9AA;</system:String>
             <system:String x:Key="icon-resize">&#xE96B;</system:String>
             <system:String x:Key="icon-rotate-view">&#xE96C;</system:String>
@@ -224,6 +228,7 @@
             <system:String x:Key="icon-tool">&#xE977;</system:String>
             <system:String x:Key="icon-train">&#xE9C3;</system:String>
             <system:String x:Key="icon-trash">&#xE978;</system:String>
+            <system:String x:Key="icon-triangle-alert">&#xE9F3;</system:String>
             <system:String x:Key="icon-triangle-right">&#xE9E0;</system:String>
             <system:String x:Key="icon-twitter">&#xE904;</system:String>
             <system:String x:Key="icon-undo">&#xE979;</system:String>

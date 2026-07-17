@@ -1,5 +1,7 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
+using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ViewModels.Document;
 
@@ -11,6 +13,11 @@ public static class CompatibilityUtility
         if (nodeUniqueName == $"PixiEditor.{CombineColorNode.UniqueName}")
         {
             return UpgradeCombineColorNode(inputProperty, oldObject, serializedVersion, allValues);
+        }
+
+        if (nodeUniqueName == $"PixiEditor.{MergeNode.UniqueName}")
+        {
+            return UpgradeMergeNode(inputProperty, oldObject, serializedVersion, allValues);
         }
 
         return oldObject;
@@ -55,6 +62,23 @@ public static class CompatibilityUtility
                     {
                         return f * 255f;
                     }
+                }
+            }
+        }
+
+        return oldObject;
+    }
+
+    private static object UpgradeMergeNode(string inputProperty, object oldObject,
+        Version serializedVersion, Dictionary<string, object> allValues)
+    {
+        if (serializedVersion < new Version(2, 1, 1, 7))
+        {
+            if (inputProperty == MergeNode.BlendModePropertyName)
+            {
+                if (oldObject is int blendModeInt && Enum.IsDefined(typeof(BlendMode), blendModeInt))
+                {
+                    return RenderContext.GetDrawingBlendMode((BlendMode)blendModeInt);
                 }
             }
         }

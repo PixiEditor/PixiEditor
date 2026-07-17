@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -142,12 +143,12 @@ internal class ClassicDesktopEntry
         desktop.MainWindow.Show();
     }
 
-    private void InitPlatform()
+    private void InitPlatform(PixiEditorHost host)
     {
         if (IPlatform.Current != null)
             return;
 
-        var platform = GetActivePlatform();
+        var platform = GetActivePlatform(host);
         IPlatform.RegisterPlatform(platform);
         platform.PerformHandshake();
     }
@@ -156,7 +157,8 @@ internal class ClassicDesktopEntry
     {
         LoadingWindow.ShowInNewThread();
 
-        InitPlatform();
+        var host = new PixiEditorHost();
+        InitPlatform(host);
 
         NumberInput.AttachGlobalBehaviors += AttachGlobalShortcutBehavior;
 
@@ -168,8 +170,15 @@ internal class ClassicDesktopEntry
         PreferencesSettings settings = new PreferencesSettings();
         settings.Init();
         
+        var extensionPaths = new string[]{Paths.InstallDirExtensionPackagesPath, Paths.LocalExtensionPackagesPath};
+        if (System.OperatingSystem.IsMacOS() && !string.IsNullOrEmpty(Paths.MacOsDotAppDir))
+        {
+            extensionPaths = extensionPaths.Concat([Path.Combine(Paths.MacOsDotAppDir, "Extensions")]).ToArray();
+        }
+
         ExtensionLoader extensionLoader = new ExtensionLoader(
-            [Paths.InstallDirExtensionPackagesPath, Paths.LocalExtensionPackagesPath], Paths.UnpackedExtensionsPath);
+            host,
+            extensionPaths, Paths.UnpackedExtensionsPath);
         if (!safeMode)
         {
             extensionLoader.LoadExtensions();
@@ -187,17 +196,23 @@ internal class ClassicDesktopEntry
         return extensionLoader;
     }
 
-    private IPlatform GetActivePlatform()
+    private IPlatform GetActivePlatform(PixiEditorHost host)
     {
 #if STEAM || DEV_STEAM
-        return new PixiEditor.Platform.Steam.SteamPlatform([Paths.LocalExtensionPackagesPath, Paths.InstallDirExtensionPackagesPath]);
+        var paths = new string[]{Paths.LocalExtensionPackagesPath, Paths.InstallDirExtensionPackagesPath};
+        if (System.OperatingSystem.IsMacOS() && !string.IsNullOrEmpty(Paths.MacOsDotAppDir))
+        {
+            paths = paths.Concat([Path.Combine(Paths.MacOsDotAppDir, "Extensions")]).ToArray();
+        }
+        
+        return new PixiEditor.Platform.Steam.SteamPlatform(paths);
 #elif MSIX || MSIX_DEBUG
         return new PixiEditor.Platform.MSStore.MicrosoftStorePlatform(Paths.LocalExtensionPackagesPath, GetApiUrl(),
-            GetApiKey(), ExtensionRuntimeInfo.ApiVersion);
+            GetApiKey(), ExtensionRuntimeInfo.ApiVersion, host.HostName, host.Version);
 #else
         return new PixiEditor.Platform.Standalone.StandalonePlatform(
             [Paths.LocalExtensionPackagesPath, Paths.InstallDirExtensionPackagesPath], GetApiUrl(),
-            GetApiKey(), ExtensionRuntimeInfo.ApiVersion); // The first in the extensionsPath array should be local, because it's the default where extensions are installed. Otherwise, OS access rights may cause issues.
+            GetApiKey(), ExtensionRuntimeInfo.ApiVersion, host.HostName, host.Version); // The first in the extensionsPath array should be local, because it's the default where extensions are installed. Otherwise, OS access rights may cause issues.
 #endif
     }
 

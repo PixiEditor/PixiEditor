@@ -175,6 +175,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     private readonly HashSet<IStructureMemberHandler> softSelectedStructureMembers = new();
 
     public bool BlockingUpdateableChangeActive => Internals.ChangeController.IsBlockingChangeActive;
+    public bool UpdateableChangeActive => Internals.ChangeController.IsChangeActive;
 
     public bool IsChangeFeatureActive<T>() where T : IExecutorFeature =>
         Internals.ChangeController.IsChangeOfTypeActive<T>();
@@ -1189,7 +1190,15 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         this.verticalSymmetryAxisEnabled = verticalSymmetryAxisEnabled;
         OnPropertyChanged(nameof(VerticalSymmetryAxisEnabledBindable));
     }
+    
+    public void SetSymmetryAxisPositionFromUser(SymmetryAxisDirection direction, double position)
+    {
+        Internals.ActionAccumulator.AddActions(
+            new SymmetryAxisPosition_Action(direction, position));
 
+        Internals.ActionAccumulator.AddFinishedActions(
+            new EndSymmetryAxisPosition_Action());
+    }
     public void SetHorizontalSymmetryAxisEnabled(bool horizontalSymmetryAxisEnabled)
     {
         this.horizontalSymmetryAxisEnabled = horizontalSymmetryAxisEnabled;
@@ -1370,7 +1379,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             }
             else if (member is IFolderHandler childFolder)
             {
-                if (includeFoldersWithMask && childFolder.HasMaskBindable && !list.Contains(childFolder.Id))
+                if ((!childFolder.HasMaskBindable || (includeFoldersWithMask && childFolder.HasMaskBindable)))
                     list.Add(childFolder.Id);
 
                 ExtractSelectedLayers(childFolder, list, includeFoldersWithMask);

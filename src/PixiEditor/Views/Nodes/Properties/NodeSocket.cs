@@ -16,6 +16,8 @@ public class NodeSocket : TemplatedControl
     public static readonly StyledProperty<IBrush> SocketBrushProperty = AvaloniaProperty.Register<NodeSocket, IBrush>(nameof(SocketBrush));
     public static readonly StyledProperty<bool> IsArrayProperty = AvaloniaProperty.Register<NodeSocket, bool>(
         nameof(IsArray));
+    public static readonly StyledProperty<bool> IsNestedArrayProperty = AvaloniaProperty.Register<NodeSocket, bool>(
+        nameof(IsNestedArray));
 
     public IBrush SocketBrush
     {
@@ -47,6 +49,12 @@ public class NodeSocket : TemplatedControl
     {
         get => GetValue(IsArrayProperty);
         set => SetValue(IsArrayProperty, value);
+    }
+
+    public bool IsNestedArray
+    {
+        get => GetValue(IsNestedArrayProperty);
+        set => SetValue(IsNestedArrayProperty, value);
     }
     
     public Control ConnectPort { get; set; }

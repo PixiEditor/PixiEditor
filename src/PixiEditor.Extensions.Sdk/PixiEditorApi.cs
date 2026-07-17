@@ -1,5 +1,9 @@
-﻿using PixiEditor.Extensions.CommonApi.Windowing;
+﻿using System.Runtime.CompilerServices;
+
+using System.Runtime.CompilerServices;
+using PixiEditor.Extensions.CommonApi.Windowing;
 using PixiEditor.Extensions.Sdk.Api;
+using PixiEditor.Extensions.Sdk.Api.Brushes;
 using PixiEditor.Extensions.Sdk.Api.Commands;
 using PixiEditor.Extensions.Sdk.Api.IO;
 using PixiEditor.Extensions.Sdk.Api.Logging;
@@ -10,6 +14,7 @@ using PixiEditor.Extensions.Sdk.Api.UserData;
 using PixiEditor.Extensions.Sdk.Api.UserPreferences;
 using PixiEditor.Extensions.Sdk.Api.Window;
 
+[assembly: InternalsVisibleTo("PixiEditor.Extensions.Sdk.Tests")]
 namespace PixiEditor.Extensions.Sdk;
 
 public class PixiEditorApi
@@ -23,6 +28,7 @@ public class PixiEditorApi
     public DocumentProvider Documents { get; }
     public VisualTreeProvider VisualTreeProvider { get; }
     public UserDataProvider UserDataProvider { get; }
+    public BrushesProvider BrushesProvider { get; }
 
     public PixiEditorApi()
     {
@@ -35,5 +41,6 @@ public class PixiEditorApi
         VisualTreeProvider = new VisualTreeProvider();
         UserDataProvider = new UserDataProvider();
         ToolsProvider = new ToolsProvider();
+        BrushesProvider = new BrushesProvider();
     }
 }

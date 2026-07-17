@@ -20,6 +20,7 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
     private bool isInput;
     private bool isFunc;
     private bool isArray;
+    private bool isNestedArray;
     private IBrush socketBrush;
     private string errors = string.Empty;
     private bool mergeChanges = false;
@@ -115,6 +116,12 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
         set => SetProperty(ref isArray, value);
     }
 
+    public bool IsNestedArray
+    {
+        get => isNestedArray;
+        set => SetProperty(ref isNestedArray, value);
+    }
+
     public bool IsVisible
     {
         get => isVisible;
@@ -184,7 +191,7 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
         PropertyType = propertyType;
         var targetType = propertyType;
 
-        if (targetType.IsArray)
+        while (targetType.IsArray)
         {
             targetType = targetType.GetElementType();
         }

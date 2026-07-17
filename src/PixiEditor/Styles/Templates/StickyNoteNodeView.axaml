@@ -1,0 +1,62 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:nodes="clr-namespace:PixiEditor.Views.Nodes"
+                    xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker.AvaloniaUI"
+                    xmlns:behaviors="clr-namespace:PixiEditor.UI.Common.Behaviors;assembly=PixiEditor.UI.Common"
+                    xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
+                    xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common">
+    <ControlTheme TargetType="nodes:StickyNoteNodeView" x:Key="{x:Type nodes:StickyNoteNodeView}">
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Name="PART_Rectangle"
+                        BorderThickness="1"
+                        UseLayoutRounding="True"
+                        MinWidth="160" MinHeight="40"
+                        Width="{Binding BoxSize.X, RelativeSource={RelativeSource TemplatedParent}}"
+                        Height="{Binding BoxSize.Y, RelativeSource={RelativeSource TemplatedParent}}"
+                        HorizontalAlignment="Left">
+                    <Border.Effect>
+                        <DropShadowEffect Color="Black" OffsetX="3" OffsetY="3" BlurRadius="8" Opacity="0.35" />
+                    </Border.Effect>
+                    <Panel>
+                        <TextBox Name="PART_TextBox"
+                                 AcceptsReturn="True"
+                                 TextWrapping="Wrap"
+                                 TextAlignment="Left"
+                                 HorizontalAlignment="Stretch"
+                                 VerticalAlignment="Top"
+                                 Background="Transparent"
+                                 BorderThickness="0"
+                                 Margin="6,4"
+                                 Watermark="{localization:Translate Key=TEXTBOX_TYPE_WATERMARK}"
+                                 Foreground="{Binding ForegroundBrush, RelativeSource={RelativeSource TemplatedParent}}"
+                                 Text="{Binding Text, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
+                            <Interaction.Behaviors>
+                                <behaviours:GlobalShortcutFocusBehavior/>
+                            </Interaction.Behaviors>
+                        </TextBox>
+                        <colorPicker:PortableColorPicker Name="PART_ColorPicker"
+                                                         IsVisible="False"
+                                                         HorizontalAlignment="Right"
+                                                         VerticalAlignment="Bottom"
+                                                         Margin="4"
+                                                         Width="40" Height="20"
+                                                         EnableGradientsTab="false" />
+                    </Panel>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+
+        <Style Selector="^:selected /template/ Border#PART_Rectangle">
+            <Setter Property="BorderThickness" Value="2" />
+        </Style>
+
+        <Style Selector="^:selected /template/ colorPicker|PortableColorPicker#PART_ColorPicker">
+            <Setter Property="IsVisible" Value="True" />
+        </Style>
+
+        <Style Selector="^:focus-within /template/ colorPicker|PortableColorPicker#PART_ColorPicker">
+            <Setter Property="IsVisible" Value="True" />
+        </Style>
+    </ControlTheme>
+</ResourceDictionary>

@@ -1,6 +1,8 @@
 ﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:nodes="clr-namespace:PixiEditor.Views.Nodes"
+                    xmlns:nodeVms="clr-namespace:PixiEditor.ViewModels.Nodes"
+                    xmlns:documentNodes="clr-namespace:PixiEditor.ViewModels.Document.Nodes"
                     xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
                     xmlns:behaviors="clr-namespace:PixiEditor.UI.Common.Behaviors;assembly=PixiEditor.UI.Common"
                     xmlns:overlays="clr-namespace:PixiEditor.Views.Overlays"
@@ -47,8 +49,32 @@
                                 </Canvas>
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
+                        <ItemsControl.DataTemplates>
+                            <DataTemplate DataType="{x:Type documentNodes:StickyNoteNodeViewModel}">
+                                <nodes:StickyNoteNodeView
+                                    Node="{Binding}"
+                                    IsSelected="{Binding IsNodeSelected}"
+                                    Text="{Binding InputPropertyMap[Text].Value, Mode=TwoWay}"
+                                    BoxSize="{Binding InputPropertyMap[Size].Value, Mode=TwoWay}"
+                                    SelectNodeCommand="{Binding SelectNodeCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
+                                    StartDragCommand="{Binding StartDraggingCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
+                                    DragCommand="{Binding DraggedCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
+                                    EndDragCommand="{Binding EndDragCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
+                                    Bounds="{Binding UiSize, Mode=OneWayToSource}" />
+                            </DataTemplate>
+                            <DataTemplate DataType="{x:Type documentNodes:CommentNodeViewModel}">
+                                <nodes:CommentNodeView
+                                    Node="{Binding}"
+                                    IsSelected="{Binding IsNodeSelected}"
+                                    Text="{Binding InputPropertyMap[Text].Value, Mode=TwoWay}"
+                                    BoxSize="{Binding InputPropertyMap[Size].Value, Mode=TwoWay}"
+                                    SelectNodeCommand="{Binding SelectNodeCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
+                                    StartDragCommand="{Binding StartDraggingCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
+                                    DragCommand="{Binding DraggedCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
+                                    EndDragCommand="{Binding EndDragCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
+                                    Bounds="{Binding UiSize, Mode=OneWayToSource}" />
+                            </DataTemplate>
+                            <DataTemplate DataType="{x:Type nodeVms:NodeViewModel}">
                                 <nodes:NodeView
                                     Node="{Binding}"
                                     DisplayName="{Binding NodeNameBindable}"
@@ -72,7 +98,7 @@
                                     ResultPreview="{Binding Preview}"
                                     Bounds="{Binding UiSize, Mode=OneWayToSource}" />
                             </DataTemplate>
-                        </ItemsControl.ItemTemplate>
+                        </ItemsControl.DataTemplates>
                         <ItemsControl.ItemContainerTheme>
                             <ControlTheme TargetType="ContentPresenter">
                                 <Setter Property="Canvas.Left" Value="{Binding PositionBindable.X}" />
@@ -117,8 +143,8 @@
                                 </Canvas>
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
+                        <ItemsControl.DataTemplates>
+                            <DataTemplate DataType="{x:Type nodeVms:NodeFrameViewModelBase}">
                                 <nodes:NodeFrameView
                                     Geometry="{Binding Geometry}"
                                     ClipToBounds="False">
@@ -140,7 +166,7 @@
                                     </nodes:NodeFrameView.BorderBrush>
                                 </nodes:NodeFrameView>
                             </DataTemplate>
-                        </ItemsControl.ItemTemplate>
+                        </ItemsControl.DataTemplates>
                     </ItemsControl>
                 </Grid>
             </ControlTemplate>
