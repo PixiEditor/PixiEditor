@@ -1,4 +1,6 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+﻿using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.ChangeableDocument.Rendering;
@@ -7,9 +9,22 @@ namespace PixiEditor.ViewModels.Document;
 
 public static class CompatibilityUtility
 {
+    private static HashSet<string> knownColorInputsToConvertToHalf4 =
+        [
+            $"PixiEditor.{ColorNode.UniqueName}:" + ColorNode.InputColorPropertyName,
+            $"PixiEditor.{LerpColorNode.UniqueName}:" + LerpColorNode.FromPropertyName,
+            $"PixiEditor.{LerpColorNode.UniqueName}:" + LerpColorNode.ToPropertyName,
+            $"PixiEditor.{SeparateColorNode.UniqueName}:" + SeparateColorNode.ColorPropertyName,
+            $"PixiEditor.{ModifyImageRightNode.UniqueName}:" + ModifyImageRightNode.ColorPropertyName
+        ];
+
     public static object UpgradeInputValueToCurrentVersion(object oldObject, Version serializedVersion,
         string nodeUniqueName, string inputProperty, Dictionary<string, object> allValues)
     {
+        if (serializedVersion < new Version(2, 1, 1, 7))
+        {
+            return UpgradeColorInputs(oldObject, serializedVersion, $"{nodeUniqueName}:{inputProperty}", allValues);
+        }
         if (nodeUniqueName == $"PixiEditor.{CombineColorNode.UniqueName}")
         {
             return UpgradeCombineColorNode(inputProperty, oldObject, serializedVersion, allValues);
@@ -18,6 +33,16 @@ public static class CompatibilityUtility
         if (nodeUniqueName == $"PixiEditor.{MergeNode.UniqueName}")
         {
             return UpgradeMergeNode(inputProperty, oldObject, serializedVersion, allValues);
+        }
+
+        return oldObject;
+    }
+
+    private static object UpgradeColorInputs(object oldObject, Version serializedVersion, string inputProperty, Dictionary<string, object> allValues)
+    {
+        if (oldObject is Color color && knownColorInputsToConvertToHalf4.Contains(inputProperty))
+        {
+            return new Vec4D(color.R / 255.0, color.G / 255.0, color.B / 255.0, color.A / 255.0);
         }
 
         return oldObject;
@@ -85,4 +110,20 @@ public static class CompatibilityUtility
 
         return oldObject;
     }
+
+    /*private static object UpgradeColorNode(string inputProperty, object oldObject,
+        Version serializedVersion)
+    {
+        if(inputProperty == ColorNode.InputColorPropertyName)
+        {
+            {
+                if (oldObject is Color color)
+                {
+                    return new Vec4D(color.R / 255.0, color.G / 255.0, color.B / 255.0, color.A / 255.0);
+                }
+            }
+        }
+
+        return oldObject;
+    }*/
 }

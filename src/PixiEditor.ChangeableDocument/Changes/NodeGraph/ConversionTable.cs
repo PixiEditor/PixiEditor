@@ -99,11 +99,12 @@ public static class ConversionTable
             },
             {
                 typeof(Vec4D), [
-                    (typeof(Paintable), new TypeConverter<Vec4D, Paintable>(c => new ColorPaintable(Color.FromVec4D(c)))),
-                ]
-            }
-            {
+                    (typeof(Paintable),
+                        new TypeConverter<Vec4D, Paintable>(c => new ColorPaintable(Color.FromVec4D(c)))),
                     (typeof(Color), new TypeConverter<Vec4D, Color>(Color.FromVec4D))
+                ]
+            },
+            {
                 typeof(Color[]), [
                     (typeof(Palette), new TypeConverter<Color[], Palette>(c => new Palette(c)))
                 ]
@@ -145,7 +146,9 @@ public static class ConversionTable
             },
             {
                 typeof(IReadOnlyShapeVectorData), [
-                    (typeof(PathVectorData), new TypeConverter<IReadOnlyShapeVectorData, PathVectorData>(d => d != null ? new PathVectorData(d.ToPath()) : null))
+                    (typeof(PathVectorData),
+                        new TypeConverter<IReadOnlyShapeVectorData, PathVectorData>(d =>
+                            d != null ? new PathVectorData(d.ToPath()) : null))
                 ]
             }
         };
@@ -437,7 +440,7 @@ public static class ConversionTable
             return true;
         }
 
-        return outputValueType.IsAssignableTo(inputValueType)/* || (outputValueType == typeof(object))*/;
+        return outputValueType.IsAssignableTo(inputValueType) /* || (outputValueType == typeof(object))*/;
     }
 
     private static Type GetContextlessType(Type getElementType)

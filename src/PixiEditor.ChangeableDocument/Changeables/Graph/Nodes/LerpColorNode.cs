@@ -7,9 +7,13 @@ using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
-[NodeInfo("Lerp")]
+[NodeInfo(UniqueName)]
 public class LerpColorNode : Node // TODO: ILerpable as inputs? 
 {
+    public const string UniqueName = "Lerp";
+    public const string FromPropertyName = "From";
+    public const string ToPropertyName = "To";
+
     public FuncOutputProperty<Half4> Result { get; }
     public FuncInputProperty<Half4> From { get; }
     public FuncInputProperty<Half4> To { get; }
@@ -18,8 +22,8 @@ public class LerpColorNode : Node // TODO: ILerpable as inputs?
     public LerpColorNode()
     {
         Result = CreateFuncOutput<Half4>("Result", "RESULT", Lerp);
-        From = CreateFuncInput<Half4>("From", "FROM", new Half4(Vec4D.Zero));
-        To = CreateFuncInput<Half4>("To", "TO", new Half4(Vec4D.One));
+        From = CreateFuncInput<Half4>(FromPropertyName, "FROM", new Half4(Vec4D.Zero));
+        To = CreateFuncInput<Half4>(ToPropertyName, "TO", new Half4(Vec4D.One));
         Time = CreateFuncInput<Float1>("Time", "TIME", 0.5);
     }
 

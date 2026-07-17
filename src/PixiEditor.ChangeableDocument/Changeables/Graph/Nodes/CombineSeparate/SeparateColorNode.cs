@@ -8,9 +8,11 @@ using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 
-[NodeInfo("SeparateColor")]
+[NodeInfo(UniqueName)]
 public class SeparateColorNode : Node
 {
+    public const string UniqueName = "SeparateColor";
+    public const string ColorPropertyName = "Color";
     private readonly NodeVariableAttachments contextVariables = new();
     
     public FuncInputProperty<Half4> Color { get; }
@@ -41,7 +43,7 @@ public class SeparateColorNode : Node
         V3 = CreateFuncOutput<Float1>("B", "B", ctx => GetColor(ctx).B);
         A = CreateFuncOutput<Float1>("A", "A", ctx => GetColor(ctx).A);
         Mode = CreateInput("Mode", "MODE", CombineSeparateColorMode.RGB);
-        Color = CreateFuncInput<Half4>(nameof(Color), "COLOR", new Half4(Vec4D.Zero));
+        Color = CreateFuncInput<Half4>(ColorPropertyName, "COLOR", new Half4(Vec4D.Zero));
     }
 
     protected override void OnExecute(RenderContext context)
