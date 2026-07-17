@@ -58,7 +58,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
                 using var targetPaint = new Paint
                 {
                     Color = new Color(255, 255, 255, 255),
-                    BlendMode = context.IterativeRender ? Drawie.Backend.Core.Surfaces.BlendMode.Src : Drawie.Backend.Core.Surfaces.BlendMode.SrcOver
+                    BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.SrcOver
                 };
 
                 if (!context.IterativeRender)
@@ -81,6 +81,11 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
                 }
                 else
                 {
+                    if (!context.State.TryGetValue("ClearedChunks", out object cleared) || cleared is not bool clearedBool || !clearedBool)
+                    {
+                        targetPaint.BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.Src;
+                        context.State["ClearedChunks"] = true;
+                    }
                     DrawLayerOnTexture(context, context.RenderSurface, ChunkResolution.Full, useFilters,
                         targetPaint);
                     blendPaint.SetFilters(null);

@@ -57,12 +57,17 @@ public static class IReadOnlyChunkyImageEx
     /// <param name="paint">Paint to use for drawing</param>
     public static void DrawMostUpToDateAffectedArea
     (this IReadOnlyChunkyImage image, ChunkResolution resolution, Canvas surface,
-        AffectedArea affectedArea, VecD pos, Paint? paint = null, SamplingOptions? sampling = null)
+        AffectedArea affectedArea, VecD pos, Paint? paint = null, Paint? emptyPaint = null, SamplingOptions? sampling = null)
     {
         foreach (var chunkPos in affectedArea.Chunks)
         {
-            image.DrawMostUpToDateChunkOn(chunkPos, resolution, surface,
-                (VecI)(chunkPos * ChunkyImage.FullChunkSize * resolution.Multiplier()) + pos, paint, sampling);
+            if (!image.DrawMostUpToDateChunkOn(chunkPos, resolution, surface,
+                    (VecI)(chunkPos * ChunkyImage.FullChunkSize * resolution.Multiplier()) + pos, paint, sampling) && emptyPaint != null)
+            {
+                surface.DrawRect(new RectD(
+                    (VecI)(chunkPos * ChunkyImage.FullChunkSize * resolution.Multiplier()) + pos,
+                    new VecD(resolution.PixelSize())), emptyPaint);
+            }
         }
     }
 

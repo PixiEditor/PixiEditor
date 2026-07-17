@@ -18,6 +18,7 @@ public class SceneObjectRenderContext : RenderContext
         TargetPropertyOutput = targetPropertyOutput;
         LocalBounds = localBounds;
         RenderSurfaceIsScene = renderSurfaceIsScene;
+        State =  new Dictionary<string, object>();
     }
 
     public override RenderContext Clone()
@@ -35,7 +36,8 @@ public class SceneObjectRenderContext : RenderContext
             ViewportData = ViewportData,
             CloneDepth = CloneDepth + 1,
             IterativeRender = IterativeRender,
-            GraphCacheId = GraphCacheId
+            GraphCacheId = GraphCacheId,
+            State = State
         };
     }
 }

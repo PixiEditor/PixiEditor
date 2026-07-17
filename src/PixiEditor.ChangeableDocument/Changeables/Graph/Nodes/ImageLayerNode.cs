@@ -196,10 +196,19 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         {
             if (ctx.IterativeRender && ctx.AffectedArea.Chunks != null)
             {
+                Paint emptyPaint = null;
+                if (paint.BlendMode == Drawie.Backend.Core.Surfaces.BlendMode.Src)
+                {
+                    emptyPaint = new Paint();
+                    emptyPaint.BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.Clear;
+                    emptyPaint.Color = Colors.Transparent;
+                }
+
                 img.DrawMostUpToDateAffectedArea(
                     ctx.ChunkResolution,
-                    saveLayer ? intermediate.DrawingSurface.Canvas : workingSurface, ctx.AffectedArea, finalDrawPos,
-                    saveLayer ? null : paint, ctx.DesiredSamplingOptions);
+                    saveLayer ? intermediate.DrawingSurface.Canvas : workingSurface, ctx.AffectedArea, finalDrawPos - ctx.VisibleDocumentRegion.Value.Pos * ctx.ChunkResolution.Multiplier(),
+                    saveLayer ? null : paint, emptyPaint, ctx.DesiredSamplingOptions);
+                emptyPaint?.Dispose();
             }
             else
             {

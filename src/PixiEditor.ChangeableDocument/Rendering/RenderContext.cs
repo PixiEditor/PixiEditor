@@ -37,6 +37,7 @@ public class RenderContext
     public IReadOnlyNodeGraph Graph { get; set; }
     public bool IterativeRender { get; set; }
     public int GraphCacheId { get; set; } = 0;
+    public Dictionary<string, object> State { get; set; } = new Dictionary<string, object>();
 
     public static RenderContext Empty { get; } = new RenderContext(
         null,
@@ -113,6 +114,7 @@ public class RenderContext
             ViewportData = ViewportData,
             CloneDepth = CloneDepth + 1,
             GraphCacheId = GraphCacheId,
+            State = State
         };
     }
 }
