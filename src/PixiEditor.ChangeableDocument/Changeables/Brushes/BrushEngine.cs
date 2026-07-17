@@ -334,13 +334,13 @@ public class BrushEngine : IDisposable
 
         var imageBlendMode = shouldErase ? DrawingApiBlendMode.DstOut : brushNode.ImageBlendMode.Value;
 
-        if (!drawnOnce)
+        if (!drawnOnce && target != null)
         {
             startPos = point;
             lastPos = point;
             stamps = 0;
-            target?.SetBlendMode(imageBlendMode);
-            target?.SetOpacity(brushNode.Opacity.Value);
+            target.SetBlendMode(imageBlendMode);
+            target.SetOpacity(brushNode.Opacity.Value);
             ResetStartingTextures();
             brushNode.ResetContentTexture();
             drawnOnce = true;
