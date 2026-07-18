@@ -6,6 +6,8 @@ using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.Models.Serialization.Factories;
 using PixiEditor.ViewModels.Document.CompatibilityUpgrades;
+using PixiEditor.ViewModels.Document.Nodes.CombineSeparate;
+using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document;
 
@@ -25,7 +27,7 @@ internal static class CompatibilityUtility
     {
         List<IGraphUpgrader> upgraders = new List<IGraphUpgrader>();
 
-        if (serializerVersion is { Major: 2, Minor: 1 } && serializerVersion < new Version(2, 1, 1, 7) && HasSeparateColorNode(viewModel))
+        if (serializerVersion is { Major: 2, Minor: 1 } && serializerVersion < new Version(2, 1, 1, 7) && (HasNode<SeparateColorNodeViewModel>(viewModel) || HasNode<CombineColorNodeViewModel>(viewModel)))
         {
             var upgrader = new Color255to1RangeConverter(viewModel);
             upgraders.Add(upgrader);
@@ -34,9 +36,9 @@ internal static class CompatibilityUtility
         return upgraders.ToArray();
     }
 
-    private static bool HasSeparateColorNode(DocumentViewModel viewModel)
+    private static bool HasNode<T>(DocumentViewModel viewModel) where T : NodeViewModel
     {
-        return viewModel.NodeGraph.AllNodes.Any(n => n.InternalName == "PixiEditor." + SeparateColorNode.UniqueName);
+        return viewModel.NodeGraph.AllNodes.Any(n => n is T);
     }
 
     public static object UpgradeInputValueToCurrentVersion(object oldObject, Version serializedVersion,
