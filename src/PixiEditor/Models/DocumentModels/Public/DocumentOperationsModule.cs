@@ -190,43 +190,6 @@ internal class DocumentOperationsModule : IDocumentOperations
     }
 
     /// <summary>
-    /// Pastes the <paramref name="images"/> as new layers
-    /// </summary>
-    /// <param name="images">The images to paste</param>
-    public void PasteImagesAsLayers(List<DataImage> images, int frame, bool resizeCanvasIfNeeded = true)
-    {
-        if (Internals.ChangeController.IsBlockingChangeActive)
-            return;
-
-        Internals.ChangeController.TryStopActiveExecutor();
-
-        var changeBlock = Document.Operations.StartChangeBlock();
-
-        if (resizeCanvasIfNeeded)
-        {
-            RectI maxSize = new RectI(VecI.Zero, Document.SizeBindable);
-            foreach (var imageWithName in images)
-            {
-                maxSize = maxSize.Union(new RectI(imageWithName.Position, imageWithName.Image.Size));
-            }
-
-            if (maxSize.Size != Document.SizeBindable)
-                Internals.ActionAccumulator.AddActions(new ResizeCanvas_Action(maxSize.Size, ResizeAnchor.TopLeft));
-        }
-
-        foreach (var imageWithName in images)
-        {
-            var layerGuid = Internals.StructureHelper.CreateNewStructureMember(StructureMemberType.ImageLayer,
-                Path.GetFileName(imageWithName.Name));
-            DrawImage(imageWithName.Image,
-                new ShapeCorners(new RectD(imageWithName.Position, imageWithName.Image.Size)),
-                layerGuid, true, false, frame, false);
-        }
-
-        changeBlock.Dispose();
-    }
-
-    /// <summary>
     /// Creates a new structure member of type <paramref name="type"/> with the name <paramref name="name"/>
     /// </summary>
     /// <param name="type">The type of the member</param>
@@ -692,31 +655,54 @@ internal class DocumentOperationsModule : IDocumentOperations
     }
 
     /// <summary>
-    /// Starts a image transform and pastes the transformed image on the currently selected layer
+    /// Starts a image transform and pastes the transformed image on the currently selected layer or on a new layer
     /// </summary>
     /// <param name="image">The image to paste</param>
     /// <param name="startPos">Where the transform should start</param>
-    public void PasteImageWithTransform(Surface image, VecI startPos)
-    {
-        if (Document.SelectedStructureMember is null || Internals.ChangeController.IsBlockingChangeActive)
-            return;
-
-        Internals.ChangeController.TryStartExecutor(new PasteImageExecutor(image, startPos));
-    }
-
-    /// <summary>
-    /// Starts a image transform and pastes the transformed image on the currently selected layer
-    /// </summary>
-    /// <param name="image">The image to paste</param>
-    /// <param name="startPos">Where the transform should start</param>
-    public void PasteImageWithTransform(Surface image, VecI startPos, Guid memberGuid, bool drawOnMask)
+    /// <param name="asNewLayer">Should a new layer be created</param>
+    /// <param name="resizeCanvasToFitImage">Should the canvas be resized to be just big enough to fit image</param>
+    public void PasteImageWithTransform(DataImage image, bool asNewLayer, bool resizeCanvasToFitImage)
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
 
+        if (!asNewLayer && Document.SelectedStructureMember is null)
+            return;
+        
         Internals.ChangeController.TryStopActiveExecutor();
 
-        Internals.ChangeController.TryStartExecutor(new PasteImageExecutor(image, startPos, memberGuid, drawOnMask));
+        var position = image.Position;
+        if (resizeCanvasToFitImage)
+        {
+            RectI maxSize = new RectI(VecI.Zero, Document.SizeBindable);
+            maxSize = maxSize.Union(new RectI(VecI.Zero, image.Image.Size));
+
+            if (maxSize.Size != Document.SizeBindable)
+            {
+                Internals.ActionAccumulator.AddActions(new ResizeCanvas_Action(maxSize.Size, ResizeAnchor.TopLeft));
+                position = VecI.Zero;
+            }
+        }
+
+        if (position.X > Document.SizeBindable.X || position.Y > Document.SizeBindable.Y)
+        {
+            position = VecI.Zero;
+        }
+
+        Guid targetLayerGuid;
+        if (asNewLayer)
+        {
+            targetLayerGuid = Internals.StructureHelper.CreateNewStructureMember(
+                StructureMemberType.ImageLayer,
+                Path.GetFileName(image.Name), 
+                false);
+        }
+        else
+        {
+            targetLayerGuid = Document.SelectedStructureMember.Id;
+        }
+
+        Internals.ChangeController.TryStartExecutor(new PasteImageExecutor(image.Image, position, targetLayerGuid, false));
     }
 
     /// <summary>
