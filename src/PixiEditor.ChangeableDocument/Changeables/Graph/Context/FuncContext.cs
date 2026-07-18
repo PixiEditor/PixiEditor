@@ -336,7 +336,7 @@ public class FuncContext
             {
                 Half4 color = getFrom?.Value != null ? getFrom.Value(this) : new Half4("");
                 color.VariableName = $"color_{Builder.GetUniqueNameNumber()}";
-                Builder.AddUniform(color.VariableName, color?.ConstantValue ?? Colors.Transparent.ToVec4D());
+                Builder.AddUniform(color.VariableName, Color.FromVec4D(color?.ConstantValue ?? Vec4D.Zero));
                 return color;
             }
 

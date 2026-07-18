@@ -13,6 +13,12 @@ public class SeparateColorNode : Node
 {
     public const string UniqueName = "SeparateColor";
     public const string ColorPropertyName = "Color";
+    public const string V1PropertyName = "R";
+    public const string V2PropertyName = "G";
+    public const string V3PropertyName = "B";
+    public const string APropertyName = "A";
+    public const string ModePropertyName = "Mode";
+
     private readonly NodeVariableAttachments contextVariables = new();
     
     public FuncInputProperty<Half4> Color { get; }
@@ -38,11 +44,11 @@ public class SeparateColorNode : Node
     
     public SeparateColorNode()
     {
-        V1 = CreateFuncOutput<Float1>("R", "R", ctx => GetColor(ctx).R);
-        V2 = CreateFuncOutput<Float1>("G", "G", ctx => GetColor(ctx).G);
-        V3 = CreateFuncOutput<Float1>("B", "B", ctx => GetColor(ctx).B);
-        A = CreateFuncOutput<Float1>("A", "A", ctx => GetColor(ctx).A);
-        Mode = CreateInput("Mode", "MODE", CombineSeparateColorMode.RGB);
+        V1 = CreateFuncOutput<Float1>(V1PropertyName, "R", ctx => GetColor(ctx).R);
+        V2 = CreateFuncOutput<Float1>(V2PropertyName, "G", ctx => GetColor(ctx).G);
+        V3 = CreateFuncOutput<Float1>(V3PropertyName, "B", ctx => GetColor(ctx).B);
+        A = CreateFuncOutput<Float1>(APropertyName, "A", ctx => GetColor(ctx).A);
+        Mode = CreateInput(ModePropertyName, "MODE", CombineSeparateColorMode.RGB);
         Color = CreateFuncInput<Half4>(ColorPropertyName, "COLOR", new Half4(Vec4D.Zero));
     }
 

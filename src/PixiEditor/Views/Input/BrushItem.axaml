@@ -26,6 +26,13 @@
         </Grid.RowDefinitions>
         <DockPanel LastChildFill="True"
                    DataContext="{Binding RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}">
+            <TextBlock Classes="pixi-icon" Text="{DynamicResource icon-triangle-alert}"
+                       IsVisible="{Binding Brush.Brush.HasGraphUpgrades}"
+                       localization:Translator.TooltipKey="BRUSH_HAS_UPGRADES"
+                       ToolTip.ShowDelay="0"
+                       ZIndex="10"
+                       Margin="4, 0"
+                       Foreground="{DynamicResource WarningOnDarkBrush}"/>
             <controls:DrawieTextureControl Height="30" Width="30"
                                            SamplingOptions="Bilinear"
                                            Margin="0, 0, 5, 0"

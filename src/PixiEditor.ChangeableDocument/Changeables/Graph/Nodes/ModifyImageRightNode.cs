@@ -99,7 +99,7 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
         {
             Half4 color = Color.NonOverridenValue(FuncContext.NoContext);
             color.VariableName = "color";
-            builder.AddUniform(color.VariableName, color.ConstantValue);
+            builder.AddUniform(color.VariableName, Drawie.Backend.Core.ColorsImpl.Color.FromVec4D(color.ConstantValue));
             builder.ReturnVar(color, false);
         }
 

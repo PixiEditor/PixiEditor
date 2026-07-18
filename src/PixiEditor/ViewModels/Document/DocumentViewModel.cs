@@ -2,6 +2,7 @@
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using Avalonia.Threading;
+using AvaloniaEdit.Utils;
 using ChunkyImageLib.DataHolders;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Models.DocumentPassthroughActions;
@@ -419,6 +420,15 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             {
                 viewModel.SetSelectedMember(firstMember);
                 firstMember.Selection = StructureMemberSelectionType.Hard;
+            }
+
+            viewModel.NodeGraph.AvailableUpgrades.AddRange(CompatibilityUtility.CalculateGraphUpgraders(viewModel, serializerVersion, allFactories, serializerData));
+            foreach (var upgrader in viewModel.NodeGraph.AvailableUpgrades)
+            {
+                upgrader.UpgradeCompleted += () =>
+                {
+                    viewModel.NodeGraph.AvailableUpgrades.Remove(upgrader);
+                };
             }
         }));
 

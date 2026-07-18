@@ -4,10 +4,12 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.Models.Serialization.Factories;
+using PixiEditor.ViewModels.Document.CompatibilityUpgrades;
 
 namespace PixiEditor.ViewModels.Document;
 
-public static class CompatibilityUtility
+internal static class CompatibilityUtility
 {
     private static HashSet<string> knownColorInputsToConvertToHalf4 =
         [
@@ -18,21 +20,41 @@ public static class CompatibilityUtility
             $"PixiEditor.{ModifyImageRightNode.UniqueName}:" + ModifyImageRightNode.ColorPropertyName
         ];
 
+
+    public static IGraphUpgrader[] CalculateGraphUpgraders(DocumentViewModel viewModel, Version? serializerVersion, List<SerializationFactory> allFactories, (string serializerName, string serializerVersion) serializerData)
+    {
+        List<IGraphUpgrader> upgraders = new List<IGraphUpgrader>();
+
+        if (serializerVersion is { Major: 2, Minor: 1 } && serializerVersion < new Version(2, 1, 1, 7) && HasSeparateColorNode(viewModel))
+        {
+            var upgrader = new Color255to1RangeConverter(viewModel);
+            upgraders.Add(upgrader);
+        }
+
+        return upgraders.ToArray();
+    }
+
+    private static bool HasSeparateColorNode(DocumentViewModel viewModel)
+    {
+        return viewModel.NodeGraph.AllNodes.Any(n => n.InternalName == "PixiEditor." + SeparateColorNode.UniqueName);
+    }
+
     public static object UpgradeInputValueToCurrentVersion(object oldObject, Version serializedVersion,
         string nodeUniqueName, string inputProperty, Dictionary<string, object> allValues)
     {
         if (serializedVersion < new Version(2, 1, 1, 7))
         {
-            return UpgradeColorInputs(oldObject, serializedVersion, $"{nodeUniqueName}:{inputProperty}", allValues);
-        }
-        if (nodeUniqueName == $"PixiEditor.{CombineColorNode.UniqueName}")
-        {
-            return UpgradeCombineColorNode(inputProperty, oldObject, serializedVersion, allValues);
-        }
+            if (nodeUniqueName == $"PixiEditor.{CombineColorNode.UniqueName}")
+            {
+                return UpgradeCombineColorNode(inputProperty, oldObject, serializedVersion, allValues);
+            }
 
-        if (nodeUniqueName == $"PixiEditor.{MergeNode.UniqueName}")
-        {
-            return UpgradeMergeNode(inputProperty, oldObject, serializedVersion, allValues);
+            if (nodeUniqueName == $"PixiEditor.{MergeNode.UniqueName}")
+            {
+                return UpgradeMergeNode(inputProperty, oldObject, serializedVersion, allValues);
+            }
+
+            return UpgradeColorInputs(oldObject, serializedVersion, $"{nodeUniqueName}:{inputProperty}", allValues);
         }
 
         return oldObject;
@@ -51,7 +73,7 @@ public static class CompatibilityUtility
     private static object UpgradeCombineColorNode(string inputProperty, object oldObject,
         Version serializedVersion, Dictionary<string, object> allValues)
     {
-        if (serializedVersion is { Major: 2, Minor: 0 })
+        if (serializedVersion is { Major: 2, Minor: 1 } && serializedVersion < new Version(2, 1, 1, 7))
         {
             if (allValues.TryGetValue(CombineColorNode.ModePropertyName, out var modeRaw) &&
                 modeRaw is int modeInt && Enum.IsDefined(typeof(CombineSeparateColorMode), modeInt) &&
@@ -63,9 +85,9 @@ public static class CompatibilityUtility
                     {
                         return mode switch
                         {
-                            CombineSeparateColorMode.RGB => f * 255f,
-                            CombineSeparateColorMode.HSV => f * 360f,
-                            CombineSeparateColorMode.HSL => f * 360f,
+                            CombineSeparateColorMode.RGB => f / 255f,
+                            CombineSeparateColorMode.HSV => f / 360f,
+                            CombineSeparateColorMode.HSL => f / 360f,
                         };
                     }
                 }
@@ -75,9 +97,9 @@ public static class CompatibilityUtility
                     {
                         return mode switch
                         {
-                            CombineSeparateColorMode.RGB => f * 255f,
-                            CombineSeparateColorMode.HSV => f * 100,
-                            CombineSeparateColorMode.HSL => f * 100,
+                            CombineSeparateColorMode.RGB => f / 255f,
+                            CombineSeparateColorMode.HSV => f / 100,
+                            CombineSeparateColorMode.HSL => f / 100,
                         };
                     }
                 }
@@ -85,7 +107,7 @@ public static class CompatibilityUtility
                 {
                     if (oldObject is double f)
                     {
-                        return f * 255f;
+                        return f / 255f;
                     }
                 }
             }
@@ -110,20 +132,4 @@ public static class CompatibilityUtility
 
         return oldObject;
     }
-
-    /*private static object UpgradeColorNode(string inputProperty, object oldObject,
-        Version serializedVersion)
-    {
-        if(inputProperty == ColorNode.InputColorPropertyName)
-        {
-            {
-                if (oldObject is Color color)
-                {
-                    return new Vec4D(color.R / 255.0, color.G / 255.0, color.B / 255.0, color.A / 255.0);
-                }
-            }
-        }
-
-        return oldObject;
-    }*/
 }

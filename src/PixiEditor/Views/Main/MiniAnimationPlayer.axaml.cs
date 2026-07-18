@@ -14,6 +14,15 @@ public partial class MiniAnimationPlayer : UserControl
     public static readonly StyledProperty<bool> IsPlayingProperty = AvaloniaProperty.Register<MiniAnimationPlayer, bool>(
         nameof(IsPlaying));
 
+    public static readonly StyledProperty<bool> HasGraphUpgradesProperty = AvaloniaProperty.Register<MiniAnimationPlayer, bool>(
+        nameof(HasGraphUpgrades));
+
+    public bool HasGraphUpgrades
+    {
+        get => GetValue(HasGraphUpgradesProperty);
+        set => SetValue(HasGraphUpgradesProperty, value);
+    }
+
     public bool IsPlaying
     {
         get => GetValue(IsPlayingProperty);
