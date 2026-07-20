@@ -184,13 +184,9 @@
                                             CornerRadius="4">
                                         <StackPanel Orientation="Horizontal" Spacing="4">
                                             <Button Command="{Binding Upgrade}"
-                                                    localization:Translator.Key="UPGRADE_BUTTON" />
-                                            <TextBlock FontSize="24" Classes="pixi-icon"
-                                                       Text="{DynamicResource icon-triangle-alert}"
-                                                       Foreground="{DynamicResource WarningOnDarkBrush}" />
+                                                    localization:Translator.Key="APPLY_BUTTON" />
                                             <TextBlock FontSize="16"
-                                                       localization:Translator.LocalizedString="{Binding UpgradeText}"
-                                                       Foreground="{DynamicResource WarningOnDarkBrush}" />
+                                                       localization:Translator.LocalizedString="{Binding UpgradeText}" />
                                             <Button Command="{Binding DismissUpgradeCommand, RelativeSource={RelativeSource AncestorType=nodes:NodeGraphView}}"
                                                     CommandParameter="{Binding}"
                                                     Content="✕"/>

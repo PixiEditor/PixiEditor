@@ -1536,7 +1536,7 @@
   "EXTENSIONS_WINDOW_INCOMPATIBLE_EXTENSION_TOOLTIP": "This extension is not compatible with your version of PixiEditor. Please use a version between {0} and {1}.",
   "UNSPECIFIED_VERSION_OLDER": "older than",
   "UNSPECIFIED_VERSION_NEWER": "any newer",
-  "UPGRADE_COLOR_255_TO_1_RANGE": "PixiEditor now uses 0-1 color range. An automatic upgrade can be performed. In case of any issues, undo the upgrade and manually adjust the nodes.",
-  "UPGRADE_BUTTON": "Apply",
-  "BRUSH_HAS_UPGRADES": "This brush might need to be upgraded to work with the current version of PixiEditor."
+  "UPGRADE_COLOR_255_TO_1_RANGE": "PixiEditor now uses 0-1 color range. Would you like to upgrade Combine and Separate color nodes to use it?",
+  "APPLY_BUTTON": "Apply",
+  "NORMALIZED_COLOR_VALUES": "Normalized Color Values"
 }

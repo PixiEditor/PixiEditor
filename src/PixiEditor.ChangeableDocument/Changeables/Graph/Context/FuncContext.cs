@@ -151,11 +151,11 @@ public class FuncContext
             a is Float1 fourthFloat)
         {
             Half4 constantHalf4 = new Half4("");
-            double hValue = Math.Clamp(firstFloat.ConstantValue, 0, 360);
-            double sValue = Math.Clamp(secondFloat.ConstantValue, 0, 100);
-            double vValue = Math.Clamp(thirdFloat.ConstantValue, 0, 100);
-            byte aByte = fourthFloat.AsConstantColorByte();
-            constantHalf4.ConstantValue = ColorF.FromHsv((float)hValue, (float)sValue, (float)vValue, aByte).ToVec4D();
+            double hValue = Math.Clamp(firstFloat.ConstantValue, 0, 1);
+            double sValue = Math.Clamp(secondFloat.ConstantValue, 0, 1);
+            double vValue = Math.Clamp(thirdFloat.ConstantValue, 0, 1);
+            double aValue = Math.Clamp(fourthFloat.ConstantValue, 0, 1);
+            constantHalf4.ConstantValue = ColorF.FromHsv((float)hValue * 360, (float)sValue * 100, (float)vValue * 100, (float)aValue).ToVec4D();
             return constantHalf4;
         }
 
@@ -168,11 +168,11 @@ public class FuncContext
             a is Float1 fourthFloat)
         {
             Half4 constantHalf4 = new Half4("");
-            double hValue = Math.Clamp(firstFloat.ConstantValue, 0, 360);
-            double sValue = Math.Clamp(secondFloat.ConstantValue, 0, 100);
-            double lValue = Math.Clamp(thirdFloat.ConstantValue, 0, 100);
-            byte aByte = fourthFloat.AsConstantColorByte();
-            constantHalf4.ConstantValue = ColorF.FromHsl((float)hValue, (float)sValue, (float)lValue, aByte).ToVec4D();
+            double hValue = Math.Clamp(firstFloat.ConstantValue, 0, 1);
+            double sValue = Math.Clamp(secondFloat.ConstantValue, 0, 1);
+            double lValue = Math.Clamp(thirdFloat.ConstantValue, 0, 1);
+            double aValue = Math.Clamp(fourthFloat.ConstantValue, 0, 1);
+            constantHalf4.ConstantValue = ColorF.FromHsl((float)hValue * 360, (float)sValue * 100, (float)lValue * 100, (float)aValue).ToVec4D();
             return constantHalf4;
         }
 

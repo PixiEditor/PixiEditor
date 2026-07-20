@@ -207,7 +207,6 @@
                 ActiveFrame="{Binding ActiveDocument.AnimationDataViewModel.ActiveFrameBindable, Source={viewModels:MainVM DocumentManagerSVM}, Mode=TwoWay}"
                 FramesCount="{Binding ActiveDocument.AnimationDataViewModel.FramesCount, Source={viewModels:MainVM DocumentManagerSVM}}"
                 IsPlaying="{Binding ActiveDocument.AnimationDataViewModel.IsPlayingBindable, Source={viewModels:MainVM DocumentManagerSVM}, Mode=TwoWay}"
-                HasGraphUpgrades="{Binding ActiveDocument.NodeGraph.HasGraphUpgrades, Source={viewModels:MainVM DocumentManagerSVM}}"
                 Margin="0 4" />
         </DockPanel>
     </Panel>

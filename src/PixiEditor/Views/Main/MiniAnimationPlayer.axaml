@@ -73,16 +73,9 @@
                 Command="{xaml:Command UseProvided=True, Name=PixiEditor.Window.ShowDockWindow}"
                 CommandParameter="Timeline"
                 ui:Translator.TooltipKey="OPEN_TIMELINE" />
-        <Panel>
-            <Button Classes="pixi-icon" FontSize="20" Content="{DynamicResource icon-nodes}"
-                    Command="{xaml:Command UseProvided=True, Name=PixiEditor.Window.ShowDockWindow}"
-                    CommandParameter="NodeGraph"
-                    ui:Translator.TooltipKey="OPEN_NODE_GRAPH" />
-            <TextBlock Classes="pixi-icon" Text="{DynamicResource icon-triangle-alert}"
-                       Margin="16, 16, 0, 0"
-                       IsVisible="{Binding Path=HasGraphUpgrades, RelativeSource={RelativeSource AncestorType=main:MiniAnimationPlayer, Mode=FindAncestor}}"
-                       Background="{DynamicResource ThemeBackgroundBrush1}"
-                       Foreground="{DynamicResource WarningOnDarkBrush}" IsHitTestVisible="False"/>
-        </Panel>
+        <Button Classes="pixi-icon" FontSize="20" Content="{DynamicResource icon-nodes}"
+                Command="{xaml:Command UseProvided=True, Name=PixiEditor.Window.ShowDockWindow}"
+                CommandParameter="NodeGraph"
+                ui:Translator.TooltipKey="OPEN_NODE_GRAPH" />
     </StackPanel>
 </UserControl>

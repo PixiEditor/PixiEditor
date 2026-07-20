@@ -83,4 +83,22 @@ internal static class CompatibilityUtility
 
         return oldObject;
     }
+
+    public static void UpgradeNodeAdditionalDataToCurrentVersion(Dictionary<string, object> additionalData, Version? parsedVersion, string serializedNodeUniqueNodeName, Dictionary<string, object> serializedNodeInputValues)
+    {
+        if (parsedVersion is { Major: 2, Minor: 1 } && parsedVersion < new Version(2, 1, 1, 7))
+        {
+            if (serializedNodeUniqueNodeName is $"PixiEditor.{CombineColorNode.UniqueName}" or $"PixiEditor.{SeparateColorNode.UniqueName}")
+            {
+                if (additionalData.TryGetValue("usesLegacy255Range", out var usesLegacy255RangeObj) && usesLegacy255RangeObj is bool usesLegacy255RangeBool)
+                {
+                    additionalData["usesLegacy255Range"] = usesLegacy255RangeBool;
+                }
+                else
+                {
+                    additionalData["usesLegacy255Range"] = true;
+                }
+            }
+        }
+    }
 }

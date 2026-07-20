@@ -16,6 +16,7 @@ internal class Color255to1RangeConverter : IGraphUpgrader
     public DocumentViewModel DocumentViewModel { get; }
     public LocalizedString UpgradeText { get; } = new LocalizedString("UPGRADE_COLOR_255_TO_1_RANGE");
 
+
     public Color255to1RangeConverter(DocumentViewModel documentViewModel)
     {
         DocumentViewModel = documentViewModel;
@@ -23,9 +24,11 @@ internal class Color255to1RangeConverter : IGraphUpgrader
 
     public void Upgrade()
     {
+        using var block = DocumentViewModel.Operations.StartChangeBlock();
         var separateNodes = DocumentViewModel.NodeGraph.AllNodes.OfType<SeparateColorNodeViewModel>();
         foreach (var node in separateNodes)
         {
+            DocumentViewModel.Operations.SetNodeInputPropertyValue(node.Id, SeparateColorNode.NormalizedValuesPropertyName, true);
             if (!IsContextful(node))
             {
                 if (node.FindInputProperty(SeparateColorNode.ModePropertyName).Value is CombineSeparateColorMode mode)
@@ -42,6 +45,7 @@ internal class Color255to1RangeConverter : IGraphUpgrader
 
         foreach (var node in combineNodes)
         {
+            DocumentViewModel.Operations.SetNodeInputPropertyValue(node.Id, CombineColorNode.NormalizedValuesPropertyName, true);
             if (!IsContextful(node))
             {
                 if (node.FindInputProperty(CombineColorNode.ModePropertyName).Value is CombineSeparateColorMode mode)
@@ -61,7 +65,7 @@ internal class Color255to1RangeConverter : IGraphUpgrader
     {
         if (prop.Value is double value)
         {
-            prop.Value = value / GetValueToDivideByMode(prop.PropertyName, mode);
+            DocumentViewModel.Operations.SetNodeInputPropertyValue(prop.Node.Id, prop.PropertyName, Round(value / GetValueToDivideByMode(mode, prop.PropertyName)));
         }
     }
 
@@ -101,7 +105,7 @@ internal class Color255to1RangeConverter : IGraphUpgrader
                             var otherProp = mathNode.FindInputProperty(MathNode.YPropertyName);
                             if (otherProp.Value is double otherValue)
                             {
-                                otherProp.Value = otherValue / GetValueToDivideByMode(output.PropertyName, combineSeparateColorMode);
+                                DocumentViewModel.Operations.SetNodeInputPropertyValue(mathNode.Id, MathNode.YPropertyName, Round(otherValue / GetValueToDivideByMode(combineSeparateColorMode, output.PropertyName)));
                             }
                         }
                     }
@@ -110,14 +114,20 @@ internal class Color255to1RangeConverter : IGraphUpgrader
         }
     }
 
-    private static double GetValueToDivideByMode(string inputPropertyName, CombineSeparateColorMode mode)
+    private static double GetValueToDivideByMode(CombineSeparateColorMode mode, string propPropertyName)
     {
-        return mode switch
+        if (mode == CombineSeparateColorMode.RGB || propPropertyName == "A") return 255.0;
+
+        if (mode is CombineSeparateColorMode.HSV or CombineSeparateColorMode.HSL)
         {
-            CombineSeparateColorMode.RGB => 255.0,
-            CombineSeparateColorMode.HSV => 360.0,
-            CombineSeparateColorMode.HSL => 360.0,
-            _ => 1
-        };
+            return propPropertyName == "R" ? 360.0 : 100.0;
+        }
+
+        return 0.0;
+    }
+
+    private static double Round(double value)
+    {
+        return Math.Round(value, 2);
     }
 }
