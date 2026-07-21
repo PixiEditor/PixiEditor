@@ -3,6 +3,8 @@ using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Shaders.Generation.Expressions;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 
@@ -15,10 +17,12 @@ public class CombineColorNode : Node
     public const string V2PropertyName = "G";
     public const string V3PropertyName = "B";
     public const string APropertyName = "A";
+    public const string NormalizedValuesPropertyName = "NormalizedValues";
 
     public FuncOutputProperty<Half4> Color { get; }
 
     public InputProperty<CombineSeparateColorMode> Mode { get; }
+    public InputProperty<bool> NormalizedValues { get; }
 
     /// <summary>
     /// Represents either Red 'R' or Hue 'H' depending on <see cref="Mode"/>
@@ -46,6 +50,7 @@ public class CombineColorNode : Node
         V2 = CreateFuncInput<Float1>(V2PropertyName, "G", 0d);
         V3 = CreateFuncInput<Float1>(V3PropertyName, "B", 0d);
         A = CreateFuncInput<Float1>(APropertyName, "A", 0d);
+        NormalizedValues = CreateInput(NormalizedValuesPropertyName, "NORMALIZED_COLOR_VALUES", true);
     }
 
     private Half4 GetColor(FuncContext ctx) =>
@@ -63,12 +68,37 @@ public class CombineColorNode : Node
         var b = ctx.GetValue(V3);
         var a = ctx.GetValue(A);
 
-        if (ctx.HasContext)
+        if (!NormalizedValues.Value)
         {
-            AdjustConstValue(ctx, r, 255f);
-            AdjustConstValue(ctx, g, 255f);
-            AdjustConstValue(ctx, b, 255f);
-            AdjustConstValue(ctx, a, 255f);
+            if (ctx.HasContext)
+            {
+                r = AdjustConstValue(ctx, r, 255f);
+                g = AdjustConstValue(ctx, g, 255f);
+                b = AdjustConstValue(ctx, b, 255f);
+                a = AdjustConstValue(ctx, a, 255f);
+            }
+            else
+            {
+                if (r.GetConstant() is double rConst)
+                {
+                    r = new Float1("") { ConstantValue = rConst / 255.0 };
+                }
+
+                if (g.GetConstant() is double gConst)
+                {
+                    g = new Float1("") { ConstantValue = gConst / 255.0 };
+                }
+
+                if (b.GetConstant() is double bConst)
+                {
+                    b = new Float1("") { ConstantValue = bConst / 255.0 };
+                }
+
+                if (a.GetConstant() is double aConst)
+                {
+                    a = new Float1("") { ConstantValue = aConst / 255.0 };
+                }
+            }
         }
 
         return ctx.NewHalf4(r, g, b, a);
@@ -81,12 +111,37 @@ public class CombineColorNode : Node
         var v = ctx.GetValue(V3);
         var a = ctx.GetValue(A);
 
-        if (ctx.HasContext)
+        if (!NormalizedValues.Value)
         {
-            AdjustConstValue(ctx, h, 360f);
-            AdjustConstValue(ctx, s, 100f);
-            AdjustConstValue(ctx, v, 100f);
-            AdjustConstValue(ctx, a, 255f);
+            if (ctx.HasContext)
+            {
+                h = AdjustConstValue(ctx, h, 360f);
+                s = AdjustConstValue(ctx, s, 100f);
+                v = AdjustConstValue(ctx, v, 100f);
+                a = AdjustConstValue(ctx, a, 255f);
+            }
+            else
+            {
+                if (h.GetConstant() is double hConst)
+                {
+                    h = new Float1("") { ConstantValue = hConst / 360.0 };
+                }
+
+                if (s.GetConstant() is double sConst)
+                {
+                    s = new Float1("") { ConstantValue = sConst / 100.0 };
+                }
+
+                if (v.GetConstant() is double vConst)
+                {
+                    v = new Float1("") { ConstantValue = vConst / 100.0 };
+                }
+
+                if (a.GetConstant() is double aConst)
+                {
+                    a = new Float1("") { ConstantValue = aConst / 255.0 };
+                }
+            }
         }
 
         return ctx.HsvaToRgba(h, s, v, a);
@@ -98,27 +153,54 @@ public class CombineColorNode : Node
         var s = ctx.GetValue(V2);
         var l = ctx.GetValue(V3);
         var a = ctx.GetValue(A);
-        if (ctx.HasContext)
+
+        if (!NormalizedValues.Value)
         {
-            AdjustConstValue(ctx, h, 360f);
-            AdjustConstValue(ctx, s, 100f);
-            AdjustConstValue(ctx, l, 100f);
-            AdjustConstValue(ctx, a, 255f);
+            if (ctx.HasContext)
+            {
+                h = AdjustConstValue(ctx, h, 360f);
+                s = AdjustConstValue(ctx, s, 100f);
+                l = AdjustConstValue(ctx, l, 100f);
+                a = AdjustConstValue(ctx, a, 255f);
+            }
+            else
+            {
+                if (h.GetConstant() is double hConst)
+                {
+                    h = new Float1("") { ConstantValue = hConst / 360.0 };
+                }
+
+                if (s.GetConstant() is double sConst)
+                {
+                    s = new Float1("") { ConstantValue = sConst / 100.0 };
+                }
+
+                if (l.GetConstant() is double lConst)
+                {
+                    l = new Float1("") { ConstantValue = lConst / 100.0 };
+                }
+
+                if (a.GetConstant() is double aConst)
+                {
+                    a = new Float1("") { ConstantValue = aConst / 255.0 };
+                }
+            }
         }
 
         return ctx.HslaToRgba(h, s, l, a);
     }
 
-    private static void AdjustConstValue(FuncContext ctx, Float1 uniform, float adjustBy)
+    private static Float1 AdjustConstValue(FuncContext ctx, Float1 uniform, float adjustBy)
     {
         var uniformVar = ctx.Builder.Uniforms.FirstOrDefault(x => x.Key == uniform.VariableName);
-        if (string.IsNullOrEmpty(uniformVar.Key))
+        if (!string.IsNullOrEmpty(uniformVar.Key))
         {
-            return;
+            ctx.Builder.Uniforms.Remove(uniform.VariableName);
+            ctx.Builder.AddUniform(uniform.VariableName, uniformVar.Value.FloatValue / adjustBy);
+            return uniform;
         }
 
-        ctx.Builder.Uniforms.Remove(uniform.VariableName);
-        ctx.Builder.AddUniform(uniform.VariableName, uniformVar.Value.FloatValue / adjustBy);
+        return ctx.NewFloat1(new Expression($"({uniform.VariableName} / {adjustBy})"));
     }
 
     protected override void OnExecute(RenderContext context)

@@ -65,7 +65,7 @@ public class SampleImageNode : Node
             color = Image.Value.GetRawPixel(pixelCoordinate);
         }
 
-        return new Half4("") { ConstantValue = color };
+        return new Half4("") { ConstantValue = color.ToVec4D() };
     }
 
     protected override void OnExecute(RenderContext context)
