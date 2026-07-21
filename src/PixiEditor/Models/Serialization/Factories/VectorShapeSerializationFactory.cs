@@ -111,6 +111,11 @@ public abstract class VectorShapeSerializationFactory<T> : SerializationFactory<
 
         string paintableType = DeserializeStringCompatible(extractor, serializerData);
 
+        if (paintableType == "null")
+        {
+            return null;
+        }
+
         SerializationFactory factory = PaintableFactories.FirstOrDefault(f => f.DeserializationId == paintableType);
         if (factory == null)
         {
@@ -123,8 +128,14 @@ public abstract class VectorShapeSerializationFactory<T> : SerializationFactory<
         return ((IPaintableSerializationFactory)factory).TryDeserialize(extractor);
     }
 
-    private void AddPaintable(Paintable paintable, ByteBuilder builder)
+    private void AddPaintable(Paintable? paintable, ByteBuilder builder)
     {
+        if(paintable == null)
+        {
+            builder.AddString("null");
+            return;
+        }
+
         SerializationFactory factory = PaintableFactories.FirstOrDefault(f => f.OriginalType == paintable.GetType());
         if (factory == null)
         {
