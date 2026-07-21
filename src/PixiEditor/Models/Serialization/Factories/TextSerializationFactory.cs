@@ -5,6 +5,7 @@ using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Text;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.IO;
@@ -81,19 +82,12 @@ internal class TextSerializationFactory : VectorShapeSerializationFactory<TextVe
 
         FontFamilyName family =
             new FontFamilyName(fontFamily) { FontUri = isFontFromFile ? new Uri(fontPath, UriKind.Absolute) : null };
-        Font font = Font.FromFontFamily(family);
-        FontFamilyName? missingFamily = null;
+        FontData font = new FontData() { Family = family };
 
-        if (font == null)
-        {
-            font = Font.CreateDefault();
-            missingFamily = family;
-        }
-        else if (isFontFromFile)
+       if (isFontFromFile)
         {
             FontLibrary.TryAddCustomFont(family);
         }
-
 
         font.Bold = bold;
         font.Italic = italic;
@@ -113,7 +107,6 @@ internal class TextSerializationFactory : VectorShapeSerializationFactory<TextVe
             MaxWidth = maxWidth,
             Spacing = spacing,
             Path = path,
-            MissingFontFamily = missingFamily,
             MissingFontText = new LocalizedString("MISSING_FONT"),
             AntiAlias = antiAlias,
             PathOffset = pathOffset

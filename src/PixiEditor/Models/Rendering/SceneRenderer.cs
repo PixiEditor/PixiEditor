@@ -21,6 +21,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
 using PixiEditor.ChangeableDocument.Rendering.ContextData;
 using PixiEditor.Models.Handlers;
+using PixiEditor.Models.IO;
 using PixiEditor.Models.Position;
 
 namespace PixiEditor.Models.Rendering;
@@ -345,7 +346,7 @@ internal class SceneRenderer : IDisposable
             context.RenderSurface = recordingCanvas;
             finalGraph.Execute(context);
             var picture = recorder.EndRecordingImmutable();
-            using FileStream fs = new FileStream("data.skp", FileMode.Create, FileAccess.Write);
+            using FileStream fs = new FileStream(Path.Combine(Paths.TempFilesPath, "data.skp"), FileMode.Create, FileAccess.Write);
             picture.Serialize(fs);
         }
         else

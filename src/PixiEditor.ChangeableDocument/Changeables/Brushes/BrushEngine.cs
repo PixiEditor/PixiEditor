@@ -334,19 +334,16 @@ public class BrushEngine : IDisposable
 
         var imageBlendMode = shouldErase ? DrawingApiBlendMode.DstOut : brushNode.ImageBlendMode.Value;
 
-        if (!drawnOnce)
+        if (!drawnOnce && target != null)
         {
             startPos = point;
             lastPos = point;
             stamps = 0;
-            if (target != null)
-            {
-                target.SetBlendMode(imageBlendMode);
-                target.SetOpacity(brushNode.Opacity.Value);
-                ResetStartingTextures();
-                brushNode.ResetContentTexture();
-                drawnOnce = true;
-            }
+            target.SetBlendMode(imageBlendMode);
+            target.SetOpacity(brushNode.Opacity.Value);
+            ResetStartingTextures();
+            brushNode.ResetContentTexture();
+            drawnOnce = true;
         }
 
         float strokeWidth = brushData.StrokeWidth;
