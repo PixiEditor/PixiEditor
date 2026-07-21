@@ -39,7 +39,7 @@ public class RenderContext
     public int GraphCacheId { get; set; } = 0;
     public Dictionary<string, object> State { get; set; } = new Dictionary<string, object>();
 
-    public static RenderContext Empty { get; } = new RenderContext(
+    public static RenderContext Empty => new RenderContext(
         null,
         new KeyFrameTime(),
         ChunkResolution.Full,
