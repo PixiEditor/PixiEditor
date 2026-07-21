@@ -755,16 +755,21 @@ internal class TextOverlay : Overlay
         {
             ShortcutController.BlockShortcutExecution(nameof(TextOverlay));
             TextOverlay sender = args.Sender as TextOverlay;
+            if (sender == null) return;
+
             sender.UpdateGlyphs();
 
-            if (sender.CursorPosition > sender.glyphPositions.Length)
+            if (sender.glyphPositions != null)
             {
-                sender.CursorPosition = sender.glyphPositions.Length;
-            }
+                if (sender.CursorPosition > sender.glyphPositions.Length)
+                {
+                    sender.CursorPosition = sender.glyphPositions.Length;
+                }
 
-            if (sender.SelectionEnd > sender.glyphPositions.Length)
-            {
-                sender.SelectionEnd = sender.glyphPositions.Length;
+                if (sender.SelectionEnd > sender.glyphPositions.Length)
+                {
+                    sender.SelectionEnd = sender.glyphPositions.Length;
+                }
             }
 
             sender.lastXMovementCursorIndex = sender.CursorPosition;
