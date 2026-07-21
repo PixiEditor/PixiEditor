@@ -230,16 +230,24 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
 
     public static NodePropertyViewModel? CreateFromType(Type type, INodeHandler node)
     {
+        if (node == null) return null;
+        if (type == null) return null;
+
         Type propertyType = type;
 
         if (type.IsAssignableTo(typeof(Delegate)))
         {
-            propertyType = type.GetMethod("Invoke").ReturnType;
+            propertyType = type.GetMethod("Invoke")?.ReturnType;
         }
 
         if (IsShaderType(propertyType))
         {
-            propertyType = type.GetMethod("Invoke").ReturnType.BaseType.GenericTypeArguments[0];
+            propertyType = type.GetMethod("Invoke")?.ReturnType?.BaseType?.GenericTypeArguments.FirstOrDefault();
+        }
+
+        if (propertyType == null)
+        {
+            return new GenericPropertyViewModel(node, type);
         }
 
         string typeName = propertyType.Name;
@@ -285,8 +293,13 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
         }
     }
 
-    private static bool IsShaderType(Type type)
+    private static bool IsShaderType(Type? type)
     {
+        if (type == null)
+        {
+            return false;
+        }
+
         return type.IsAssignableTo(typeof(ShaderExpressionVariable));
     }
 }
