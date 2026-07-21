@@ -1,5 +1,6 @@
 ﻿using Drawie.Backend.Core.ColorsImpl;
 using PixiEditor.ChangeableDocument.Actions.Generated;
+using PixiEditor.Models.DocumentModels.Public;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.Models.Tools;
 
@@ -30,7 +31,7 @@ internal class QuickChangeLayerColorsExecutor : UpdateableChangeExecutor, IQuick
 
     private void EnqueueColorChange(Color color)
     {
-       internals.ActionAccumulator.AddActions(new QuickChangeLayersColor_Action(LayerGuids, color));
+        internals.ActionAccumulator.AddActions(new QuickChangeLayersColor_Action(LayerGuids, color));
     }
 
     public override void OnColorChanged(Color color, bool primary)
@@ -44,6 +45,13 @@ internal class QuickChangeLayerColorsExecutor : UpdateableChangeExecutor, IQuick
     public override void ForceStop()
     {
         Stop();
+        if (LayerGuids.Length == 1)
+        {
+            internals.ActionAccumulator.AddActions(new InvokeAction_PassthroughAction(() =>
+            {
+                internals.ChangeController.TryStartExecutor(new TransformSelectedExecutor(true));
+            }));
+        }
     }
 
     private void Stop()

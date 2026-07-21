@@ -67,7 +67,8 @@ public class SeparateColorNode : Node
         {
             CombineSeparateColorMode.RGB => GetRgba(ctx),
             CombineSeparateColorMode.HSV => GetHsva(ctx),
-            CombineSeparateColorMode.HSL => GetHsla(ctx)
+            CombineSeparateColorMode.HSL => GetHsla(ctx),
+            _ => GetRgba(ctx)
         };
 
     private Half4 GetRgba(FuncContext ctx)

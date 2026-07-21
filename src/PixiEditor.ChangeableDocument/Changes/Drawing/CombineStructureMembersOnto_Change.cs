@@ -197,7 +197,7 @@ internal class CombineStructureMembersOnto_Change : Change
         if (targetLayer is not VectorLayerNode vectorLayer)
             throw new InvalidOperationException("Target layer is not a vector layer");
 
-        if (layersToCombine == null || layersToCombine.Count == 0)
+        if (layersToCombine == null || layersToCombine.Count == 0 || toCombine == null || toCombine.Count == 0)
             return new AffectedArea(new HashSet<VecI>());
 
         ShapeVectorData targetData = vectorLayer.EmbeddedShapeData ?? null;
