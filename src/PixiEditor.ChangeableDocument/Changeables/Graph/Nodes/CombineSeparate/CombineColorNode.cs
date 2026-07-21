@@ -58,7 +58,8 @@ public class CombineColorNode : Node
         {
             CombineSeparateColorMode.RGB => GetRgb(ctx),
             CombineSeparateColorMode.HSV => GetHsv(ctx),
-            CombineSeparateColorMode.HSL => GetHsl(ctx)
+            CombineSeparateColorMode.HSL => GetHsl(ctx),
+            _ => GetRgb(ctx)
         };
 
     private Half4 GetRgb(FuncContext ctx)
