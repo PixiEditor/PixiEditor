@@ -1539,5 +1539,6 @@
   "UPGRADE_COLOR_255_TO_1_RANGE": "PixiEditor now uses 0-1 color range. Would you like to upgrade Combine and Separate color nodes to use it?",
   "APPLY_BUTTON": "Apply",
   "NORMALIZED_COLOR_VALUES": "Normalized Color Values",
-  "ERROR_IMPORTING_PALETTE": "Failed to import palette: {0}"
+  "ERROR_IMPORTING_PALETTE": "Failed to import palette: {0}",
+  "ERROR_LOADING_FILE": "Failed to load file: {0}"
 }

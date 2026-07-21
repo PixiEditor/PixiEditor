@@ -137,7 +137,7 @@ public class NoiseNode : RenderNode
         RenderNoise(renderOn.Canvas);
     }
 
-    private Shader SelectShader()
+    private Shader? SelectShader()
     {
         var freq = (float)(1d / Scale.Value);
         freq = Math.Max(freq, 0.000001f);
