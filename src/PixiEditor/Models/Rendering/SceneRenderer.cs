@@ -224,7 +224,7 @@ internal class SceneRenderer : IDisposable
                 ? new AffectedArea(OperationHelper.FindChunksTouchingRectangle(
                     (RectI)viewport.VisibleDocumentRegion.Value.RoundOutwards(),
                     ChunkyImage.FullChunkSize))
-                : new AffectedArea(OperationHelper.FindChunksTouchingRectangle(affectedArea.GlobalArea?.Inflate(1) ?? new RectI(0, 0, 0, 0), ChunkyImage.FullChunkSize));
+                : (affectedArea.GlobalArea != null ? new AffectedArea(OperationHelper.FindChunksTouchingRectangle(affectedArea.GlobalArea.Value.Inflate(1), ChunkyImage.FullChunkSize)) : affectedArea);
 
             var tex = RenderGraph(renderTargetSize, targetMatrix, viewportId, resolution, samplingOptions, affectedArea,
                 visibleDocumentRegion, targetOutput, viewport.IsScene, oversizeFactor,

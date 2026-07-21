@@ -50,7 +50,6 @@ public static class IReadOnlyChunkyImageEx
     /// The region is taken from the most up to date version of the <see cref="ChunkyImage"/>
     /// </summary>
     /// <param name="image"><see cref="ChunkyImage"/> to extract the region from</param>
-    /// <param name="fullResRegion">The region to extract</param>
     /// <param name="resolution">Chunk resolution</param>
     /// <param name="surface">Surface to draw onto</param>
     /// <param name="pos">Starting position on the surface</param>
@@ -59,6 +58,9 @@ public static class IReadOnlyChunkyImageEx
     (this IReadOnlyChunkyImage image, ChunkResolution resolution, Canvas surface,
         AffectedArea affectedArea, VecD pos, Paint? paint = null, Paint? emptyPaint = null, SamplingOptions? sampling = null)
     {
+        if (affectedArea.Chunks is null)
+            return;
+
         foreach (var chunkPos in affectedArea.Chunks)
         {
             if (!image.DrawMostUpToDateChunkOn(chunkPos, resolution, surface,

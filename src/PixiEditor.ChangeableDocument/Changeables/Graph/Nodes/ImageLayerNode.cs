@@ -204,9 +204,11 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
                     emptyPaint.Color = Colors.Transparent;
                 }
 
+                var visibleDocRegion = ctx.VisibleDocumentRegion?.Pos ?? VecD.Zero;
+
                 img.DrawMostUpToDateAffectedArea(
                     ctx.ChunkResolution,
-                    saveLayer ? intermediate.DrawingSurface.Canvas : workingSurface, ctx.AffectedArea, finalDrawPos - ctx.VisibleDocumentRegion.Value.Pos * ctx.ChunkResolution.Multiplier(),
+                    saveLayer ? intermediate.DrawingSurface.Canvas : workingSurface, ctx.AffectedArea, finalDrawPos - visibleDocRegion * ctx.ChunkResolution.Multiplier(),
                     saveLayer ? null : paint, emptyPaint, ctx.DesiredSamplingOptions);
                 emptyPaint?.Dispose();
             }

@@ -114,7 +114,8 @@ public class RenderContext
             ViewportData = ViewportData,
             CloneDepth = CloneDepth + 1,
             GraphCacheId = GraphCacheId,
-            State = State
+            State = State,
+            IterativeRender = IterativeRender
         };
     }
 }
