@@ -83,10 +83,10 @@ public class CombineColorNode : Node
         {
             if (ctx.HasContext)
             {
-                AdjustConstValue(ctx, r, 255f);
-                AdjustConstValue(ctx, g, 255f);
-                AdjustConstValue(ctx, b, 255f);
-                AdjustConstValue(ctx, a, 255f);
+                r = AdjustConstValue(ctx, r, 255f);
+                g = AdjustConstValue(ctx, g, 255f);
+                b = AdjustConstValue(ctx, b, 255f);
+                a = AdjustConstValue(ctx, a, 255f);
             }
             else
             {
@@ -126,10 +126,10 @@ public class CombineColorNode : Node
         {
             if (ctx.HasContext)
             {
-                AdjustConstValue(ctx, h, 360f);
-                AdjustConstValue(ctx, s, 100f);
-                AdjustConstValue(ctx, v, 100f);
-                AdjustConstValue(ctx, a, 255f);
+                h = AdjustConstValue(ctx, h, 360f);
+                s = AdjustConstValue(ctx, s, 100f);
+                v = AdjustConstValue(ctx, v, 100f);
+                a = AdjustConstValue(ctx, a, 255f);
             }
             else
             {
@@ -169,10 +169,10 @@ public class CombineColorNode : Node
         {
             if (ctx.HasContext)
             {
-                AdjustConstValue(ctx, h, 360f);
-                AdjustConstValue(ctx, s, 100f);
-                AdjustConstValue(ctx, l, 100f);
-                AdjustConstValue(ctx, a, 255f);
+                h = AdjustConstValue(ctx, h, 360f);
+                s = AdjustConstValue(ctx, s, 100f);
+                l = AdjustConstValue(ctx, l, 100f);
+                a = AdjustConstValue(ctx, a, 255f);
             }
             else
             {
@@ -201,16 +201,17 @@ public class CombineColorNode : Node
         return ctx.HslaToRgba(h, s, l, a);
     }
 
-    private static void AdjustConstValue(FuncContext ctx, Float1 uniform, float adjustBy)
+    private static Float1 AdjustConstValue(FuncContext ctx, Float1 uniform, float adjustBy)
     {
         var uniformVar = ctx.Builder.Uniforms.FirstOrDefault(x => x.Key == uniform.VariableName);
-        if (string.IsNullOrEmpty(uniformVar.Key))
+        if (!string.IsNullOrEmpty(uniformVar.Key))
         {
-            return;
+            ctx.Builder.Uniforms.Remove(uniform.VariableName);
+            ctx.Builder.AddUniform(uniform.VariableName, uniformVar.Value.FloatValue / adjustBy);
+            return uniform;
         }
 
-        ctx.Builder.Uniforms.Remove(uniform.VariableName);
-        ctx.Builder.AddUniform(uniform.VariableName, uniformVar.Value.FloatValue / adjustBy);
+        return ctx.NewFloat1(new Expression($"({uniform.VariableName} / {adjustBy})"));
     }
 
     protected override void OnExecute(RenderContext context)

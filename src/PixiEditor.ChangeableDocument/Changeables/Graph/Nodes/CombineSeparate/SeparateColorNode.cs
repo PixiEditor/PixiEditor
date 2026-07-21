@@ -85,57 +85,89 @@ public class SeparateColorNode : Node
     private Half4 GetRgba(FuncContext ctx)
     {
         return ctx.HasContext
-            ? contextVariables.GetOrAttachNew(ctx, Color, () => ctx.GetValue(Color))
-            : AdjustForRgbaRange(ctx.GetValue(Color));
+            ? contextVariables.GetOrAttachNew(ctx, Color, () => AdjustForRgbaRange(ctx.GetValue(Color), ctx))
+            : AdjustForRgbaRange(ctx.GetValue(Color), ctx);
     }
 
     private Half4 GetHsva(FuncContext ctx) =>
         ctx.HasContext
-            ? contextVariables.GetOrAttachNew(ctx, Color, () => ctx.RgbaToHsva(ctx.GetValue(Color)))
-            : AdjustForRgbaRange(ctx.RgbaToHsva(AdjustForHsvRange(ctx.GetValue(Color))));
+            ? contextVariables.GetOrAttachNew(ctx, Color, () => ctx.RgbaToHsva(AdjustForHsvRange(ctx.GetValue(Color), ctx)))
+            : AdjustForRgbaRange(ctx.RgbaToHsva(AdjustForHsvRange(ctx.GetValue(Color), ctx)), ctx);
 
     private Half4 GetHsla(FuncContext ctx) =>
         ctx.HasContext
-            ? contextVariables.GetOrAttachNew(ctx, Color, () => ctx.RgbaToHsla(ctx.GetValue(Color)))
-            : AdjustForRgbaRange(ctx.RgbaToHsla(AdjustForHslRange(ctx.GetValue(Color))));
+            ? contextVariables.GetOrAttachNew(ctx, Color, () => ctx.RgbaToHsla(AdjustForHslRange(ctx.GetValue(Color), ctx)))
+            : AdjustForRgbaRange(ctx.RgbaToHsla(AdjustForHslRange(ctx.GetValue(Color), ctx)), ctx);
 
-    private Half4 AdjustForRgbaRange(Half4 color)
+    private Half4 AdjustForRgbaRange(Half4 color, FuncContext ctx)
     {
-        if (NormalizedValues.Value)
+        if (!NormalizedValues.Value)
         {
-            Half4 adjustedColor = new Half4(new Vec4D(color.R.GetConstant() is double r ? r * 255.0 : 0,
-                color.G.GetConstant() is double g ? g * 255.0 : 0,
-                color.B.GetConstant() is double b ? b * 255.0 : 0,
-                color.A.GetConstant() is double a ? a * 255.0 : 0));
-            return adjustedColor;
+            if (!ctx.HasContext)
+            {
+                Half4 adjustedColor = new Half4(new Vec4D(color.R.GetConstant() is double r ? r * 255.0 : 0,
+                    color.G.GetConstant() is double g ? g * 255.0 : 0,
+                    color.B.GetConstant() is double b ? b * 255.0 : 0,
+                    color.A.GetConstant() is double a ? a * 255.0 : 0));
+                return adjustedColor;
+            }
+
+            return ctx.NewHalf4(
+                ShaderMath.Multiply(color.R, new Float1("") { ConstantValue = 255.0 }),
+                ShaderMath.Multiply(color.G, new Float1("") { ConstantValue = 255.0 }),
+                ShaderMath.Multiply(color.B, new Float1("") { ConstantValue = 255.0 }),
+                ShaderMath.Multiply(color.A, new Float1("") { ConstantValue = 255.0 })
+            );
+        }
+
+        return color;
+
+    }
+
+    private Half4 AdjustForHsvRange(Half4 color, FuncContext ctx)
+    {
+        if (!NormalizedValues.Value)
+        {
+            if (!ctx.HasContext)
+            {
+                Half4 adjustedColor = new Half4(new Vec4D(color.R.GetConstant() is double r ? r * 360.0 : 0,
+                    color.G.GetConstant() is double g ? g * 100.0 : 0,
+                    color.B.GetConstant() is double b ? b * 100.0 : 0,
+                    color.A.GetConstant() is double a ? a * 255.0 : 0));
+                return adjustedColor;
+            }
+
+            return ctx.NewHalf4(
+                ShaderMath.Multiply(color.R, new Float1("") { ConstantValue = 360.0 }),
+                ShaderMath.Multiply(color.G, new Float1("") { ConstantValue = 100.0 }),
+                ShaderMath.Multiply(color.B, new Float1("") { ConstantValue = 100.0 }),
+                ShaderMath.Multiply(color.A, new Float1("") { ConstantValue = 255.0 })
+            );
         }
 
         return color;
     }
 
-    private Half4 AdjustForHsvRange(Half4 color)
+    private Half4 AdjustForHslRange(Half4 color, FuncContext ctx)
     {
         if (!NormalizedValues.Value)
         {
-            Half4 adjustedColor = new Half4(new Vec4D(color.R.GetConstant() is double r ? r * 360.0 : 0,
-                color.G.GetConstant() is double g ? g * 100.0 : 0,
-                color.B.GetConstant() is double b ? b * 100.0 : 0,
-                color.A.GetConstant() is double a ? a * 255.0 : 0));
-            return adjustedColor;
-        }
+            if (!ctx.HasContext)
+            {
+                Half4 adjustedColor = new Half4(new Vec4D(color.R.GetConstant() is double r ? r * 360.0 : 0,
+                    color.G.GetConstant() is double g ? g * 100.0 : 0,
+                    color.B.GetConstant() is double b ? b * 100.0 : 0,
+                    color.A.GetConstant() is double a ? a * 255.0 : 0));
 
-        return color;
-    }
+                return adjustedColor;
+            }
 
-    private Half4 AdjustForHslRange(Half4 color)
-    {
-        if (!NormalizedValues.Value)
-        {
-            Half4 adjustedColor = new Half4(new Vec4D(color.R.GetConstant() is double r ? r * 360.0 : 0,
-                color.G.GetConstant() is double g ? g * 100.0 : 0,
-                color.B.GetConstant() is double b ? b * 100.0 : 0,
-                color.A.GetConstant() is double a ? a * 255.0 : 0));
-            return adjustedColor;
+            return ctx.NewHalf4(
+                ShaderMath.Multiply(color.R, new Float1("") { ConstantValue = 360.0 }),
+                ShaderMath.Multiply(color.G, new Float1("") { ConstantValue = 100.0 }),
+                ShaderMath.Multiply(color.B, new Float1("") { ConstantValue = 100.0 }),
+                ShaderMath.Multiply(color.A, new Float1("") { ConstantValue = 255.0 })
+            );
         }
 
         return color;
