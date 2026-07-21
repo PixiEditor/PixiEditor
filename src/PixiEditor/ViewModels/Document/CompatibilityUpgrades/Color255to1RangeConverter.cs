@@ -28,9 +28,10 @@ internal class Color255to1RangeConverter : IGraphUpgrader
         var separateNodes = DocumentViewModel.NodeGraph.AllNodes.OfType<SeparateColorNodeViewModel>();
         foreach (var node in separateNodes)
         {
-            DocumentViewModel.Operations.SetNodeInputPropertyValue(node.Id, SeparateColorNode.NormalizedValuesPropertyName, true);
             if (!IsContextful(node))
             {
+                DocumentViewModel.Operations.SetNodeInputPropertyValue(node.Id,
+                    SeparateColorNode.NormalizedValuesPropertyName, true);
                 if (node.FindInputProperty(SeparateColorNode.ModePropertyName).Value is CombineSeparateColorMode mode)
                 {
                     ConvertOutput(node.FindOutputProperty(SeparateColorNode.V1PropertyName), mode);
@@ -45,9 +46,10 @@ internal class Color255to1RangeConverter : IGraphUpgrader
 
         foreach (var node in combineNodes)
         {
-            DocumentViewModel.Operations.SetNodeInputPropertyValue(node.Id, CombineColorNode.NormalizedValuesPropertyName, true);
             if (!IsContextful(node))
             {
+                DocumentViewModel.Operations.SetNodeInputPropertyValue(node.Id,
+                    CombineColorNode.NormalizedValuesPropertyName, true);
                 if (node.FindInputProperty(CombineColorNode.ModePropertyName).Value is CombineSeparateColorMode mode)
                 {
                     ConvertValue(node.FindInputProperty(CombineColorNode.V1PropertyName), mode);
@@ -65,7 +67,8 @@ internal class Color255to1RangeConverter : IGraphUpgrader
     {
         if (prop.Value is double value)
         {
-            DocumentViewModel.Operations.SetNodeInputPropertyValue(prop.Node.Id, prop.PropertyName, Round(value / GetValueToDivideByMode(mode, prop.PropertyName)));
+            DocumentViewModel.Operations.SetNodeInputPropertyValue(prop.Node.Id, prop.PropertyName,
+                Round(value / GetValueToDivideByMode(mode, prop.PropertyName)));
         }
     }
 
@@ -105,7 +108,10 @@ internal class Color255to1RangeConverter : IGraphUpgrader
                             var otherProp = mathNode.FindInputProperty(MathNode.YPropertyName);
                             if (otherProp.Value is double otherValue)
                             {
-                                DocumentViewModel.Operations.SetNodeInputPropertyValue(mathNode.Id, MathNode.YPropertyName, Round(otherValue / GetValueToDivideByMode(combineSeparateColorMode, output.PropertyName)));
+                                DocumentViewModel.Operations.SetNodeInputPropertyValue(mathNode.Id,
+                                    MathNode.YPropertyName,
+                                    Round(otherValue /
+                                          GetValueToDivideByMode(combineSeparateColorMode, output.PropertyName)));
                             }
                         }
                     }
