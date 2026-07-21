@@ -143,10 +143,9 @@ internal class Color255to1RangeConverter : IGraphUpgrader
         {
             if (prop.Node is MathNodeViewModel mathNode)
             {
-                MathNodeMode? mode = mathNode.FindInputProperty(MathNode.ModePropertyName).Value as MathNodeMode?;
-                if (mode.HasValue)
+                if (mathNode.FindInputProperty(MathNode.ModePropertyName).Value is MathNodeMode mode)
                 {
-                    if (mode.Value == MathNodeMode.Divide)
+                    if (mode == MathNodeMode.Divide)
                     {
                         if (prop.PropertyName == MathNode.XPropertyName)
                         {

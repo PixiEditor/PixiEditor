@@ -14,20 +14,22 @@ namespace PixiEditor.ViewModels.Document;
 internal static class CompatibilityUtility
 {
     private static HashSet<string> knownColorInputsToConvertToHalf4 =
-        [
-            $"PixiEditor.{ColorNode.UniqueName}:" + ColorNode.InputColorPropertyName,
-            $"PixiEditor.{LerpColorNode.UniqueName}:" + LerpColorNode.FromPropertyName,
-            $"PixiEditor.{LerpColorNode.UniqueName}:" + LerpColorNode.ToPropertyName,
-            $"PixiEditor.{SeparateColorNode.UniqueName}:" + SeparateColorNode.ColorPropertyName,
-            $"PixiEditor.{ModifyImageRightNode.UniqueName}:" + ModifyImageRightNode.ColorPropertyName
-        ];
+    [
+        $"PixiEditor.{ColorNode.UniqueName}:" + ColorNode.InputColorPropertyName,
+        $"PixiEditor.{LerpColorNode.UniqueName}:" + LerpColorNode.FromPropertyName,
+        $"PixiEditor.{LerpColorNode.UniqueName}:" + LerpColorNode.ToPropertyName,
+        $"PixiEditor.{SeparateColorNode.UniqueName}:" + SeparateColorNode.ColorPropertyName,
+        $"PixiEditor.{ModifyImageRightNode.UniqueName}:" + ModifyImageRightNode.ColorPropertyName
+    ];
 
 
-    public static IGraphUpgrader[] CalculateGraphUpgraders(DocumentViewModel viewModel, Version? serializerVersion, List<SerializationFactory> allFactories, (string serializerName, string serializerVersion) serializerData)
+    public static IGraphUpgrader[] CalculateGraphUpgraders(DocumentViewModel viewModel, Version? serializerVersion,
+        List<SerializationFactory> allFactories, (string serializerName, string serializerVersion) serializerData)
     {
         List<IGraphUpgrader> upgraders = new List<IGraphUpgrader>();
 
-        if (serializerVersion is { Major: 2, Minor: 1 } && serializerVersion < new Version(2, 1, 1, 7) && (HasNode<SeparateColorNodeViewModel>(viewModel) || HasNode<CombineColorNodeViewModel>(viewModel)))
+        if (serializerVersion is { Major: 2, Minor: 1 } && serializerVersion < new Version(2, 1, 1, 7) &&
+            (HasNode<SeparateColorNodeViewModel>(viewModel) || HasNode<CombineColorNodeViewModel>(viewModel)))
         {
             UpgradeNormalizedColorValues(viewModel, allFactories, serializerData);
             var upgrader = new Color255to1RangeConverter(viewModel);
@@ -42,9 +44,14 @@ internal static class CompatibilityUtility
         return viewModel.NodeGraph.AllNodes.Any(n => n is T);
     }
 
-    public static object UpgradeInputValueToCurrentVersion(object oldObject, Version serializedVersion,
+    public static object UpgradeInputValueToCurrentVersion(object oldObject, Version? serializedVersion,
         string nodeUniqueName, string inputProperty, Dictionary<string, object> allValues)
     {
+        if (serializedVersion is null)
+        {
+            return oldObject;
+        }
+
         if (serializedVersion < new Version(2, 1, 1, 7))
         {
             if (nodeUniqueName == $"PixiEditor.{MergeNode.UniqueName}")
@@ -52,13 +59,13 @@ internal static class CompatibilityUtility
                 return UpgradeMergeNode(inputProperty, oldObject, serializedVersion, allValues);
             }
 
-            return UpgradeColorInputs(oldObject, serializedVersion, $"{nodeUniqueName}:{inputProperty}", allValues);
+            return UpgradeColorInputs(oldObject, $"{nodeUniqueName}:{inputProperty}");
         }
 
         return oldObject;
     }
 
-    private static object UpgradeColorInputs(object oldObject, Version serializedVersion, string inputProperty, Dictionary<string, object> allValues)
+    private static object UpgradeColorInputs(object oldObject, string inputProperty)
     {
         if (oldObject is Color color && knownColorInputsToConvertToHalf4.Contains(inputProperty))
         {
@@ -85,11 +92,14 @@ internal static class CompatibilityUtility
         return oldObject;
     }
 
-    public static void UpgradeNodeAdditionalDataToCurrentVersion(Dictionary<string, object> additionalData, Version? parsedVersion, string serializedNodeUniqueNodeName, Dictionary<string, object> serializedNodeInputValues)
+    public static void UpgradeNodeAdditionalDataToCurrentVersion(Dictionary<string, object> additionalData,
+        Version? parsedVersion, string serializedNodeUniqueNodeName,
+        Dictionary<string, object> serializedNodeInputValues)
     {
     }
 
-    private static void UpgradeNormalizedColorValues(DocumentViewModel viewModel, List<SerializationFactory> allFactories, (string serializerName, string serializerVersion) serializerData)
+    private static void UpgradeNormalizedColorValues(DocumentViewModel viewModel,
+        List<SerializationFactory> allFactories, (string serializerName, string serializerVersion) serializerData)
     {
         new Color255to1RangeConverter(viewModel).PerformImmediateCompatibilityConversion();
     }

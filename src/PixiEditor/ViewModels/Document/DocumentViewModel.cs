@@ -511,7 +511,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 var serializedNode = graph.AllNodes.First(x => x.Id == node.Id);
 
                 var additionalData = serializedNode.AdditionalData ?? new Dictionary<string, object>();
-                CompatibilityUtility.UpgradeNodeAdditionalDataToCurrentVersion(additionalData, parsedVersion, serializedNode.UniqueNodeName,
+                CompatibilityUtility.UpgradeNodeAdditionalDataToCurrentVersion(additionalData, serializerVersion, serializedNode.UniqueNodeName,
                     serializedNode.InputValues);
                 acc.AddActions(new DeserializeNodeAdditionalData_Action(nodeGuid,
                     SerializationUtil.DeserializeDict(additionalData, config, allFactories,
@@ -561,7 +561,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                     object value =
                         SerializationUtil.Deserialize(propertyValue.Value, config, allFactories, serializerData);
 
-                    value = CompatibilityUtility.UpgradeInputValueToCurrentVersion(value, parsedVersion,
+                    value = CompatibilityUtility.UpgradeInputValueToCurrentVersion(value, serializerVersion,
                         serializedNode.UniqueNodeName, propertyValue.Key, serializedNode.InputValues);
 
                     acc.AddActions(new UpdatePropertyValue_Action(guid, propertyValue.Key, value),
