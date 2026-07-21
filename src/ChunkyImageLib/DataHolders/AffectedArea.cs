@@ -38,7 +38,7 @@ public struct AffectedArea
             GlobalArea = null;
             return;
         }
-        GlobalArea = new RectI(chunks.First(), new(ChunkyImage.FullChunkSize));
+        GlobalArea = new RectI(chunks.First() * ChunkyImage.FullChunkSize, new(ChunkyImage.FullChunkSize));
         foreach (var vec in chunks)
         {
             GlobalArea = GlobalArea.Value.Union(new RectI(vec * ChunkyImage.FullChunkSize, new(ChunkyImage.FullChunkSize)));

@@ -216,7 +216,7 @@ internal class SceneRenderer : IDisposable
                 viewportId, targetOutput, finalGraph,
                 previewTextures, viewport.VisibleDocumentRegion, oversizeFactor, isFullViewportRender,
                 viewport.ViewportData, out bool fullAffectedArea,
-                out RenderState renderState, out bool partialRenderAllowed) ||
+                out RenderState renderState, out bool partialRenderAllowed, out RectD? panChangedRegion) ||
             debugRecord;
 
         partialRenderAllowed &= !isFullViewportRender && viewport.IsScene;
@@ -236,6 +236,17 @@ internal class SceneRenderer : IDisposable
                             ChunkyImage.FullChunkSize))
                     : affectedArea);
 
+            if (affectedArea.GlobalArea == null)
+            {
+                AffectedArea? panAffectedArea =
+                    GetPanAffectedArea(fullAffectedArea, panChangedRegion, viewport.VisibleDocumentRegion);
+
+                if (panAffectedArea != null)
+                {
+                    affectedArea.UnionWith(panAffectedArea.Value);
+                }
+            }
+
             var tex = RenderGraph(renderTargetSize, targetMatrix, viewportId, resolution, samplingOptions, affectedArea,
                 visibleDocumentRegion, targetOutput, viewport.IsScene, oversizeFactor,
                 pointerInfo, keyboardInfo, editorData, viewport.ViewportData, debugRecord, finalGraph, previewTextures,
@@ -247,6 +258,20 @@ internal class SceneRenderer : IDisposable
 
         var cachedTexture = DocumentViewModel.SceneTextures[viewportId];
         return cachedTexture;
+    }
+
+    private static AffectedArea? GetPanAffectedArea(bool fullAffectedArea, RectD? panChangedRegion, RectD? visibleRegion)
+    {
+        if (fullAffectedArea || !panChangedRegion.HasValue) return null;
+
+        RectD finalRect = panChangedRegion.Value;
+        if (visibleRegion.HasValue)
+        {
+            finalRect = finalRect.Intersect(visibleRegion.Value);
+        }
+
+        return new AffectedArea(OperationHelper.FindChunksTouchingRectangle((RectI)finalRect.RoundOutwards(),
+                ChunkyImage.FullChunkSize));
     }
 
     private Texture RenderGraph(VecI renderTargetSize, Matrix3X3 targetMatrix, Guid viewportId,
@@ -457,10 +482,11 @@ internal class SceneRenderer : IDisposable
         IReadOnlyNodeGraph finalGraph, Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures,
         RectD? visibleDocumentRegion, float oversizeFactor, bool isFullViewportRender,
         ViewportData viewportViewportData, out bool fullAffectedArea,
-        out RenderState renderState, out bool partialRenderAllowed)
+        out RenderState renderState, out bool partialRenderAllowed, out RectD? panChangedRegion)
     {
         bool hasLastState = lastRenderedStates.TryGetValue(viewportId, out var lastState);
         var region = visibleDocumentRegion ?? new RectD(0, 0, Document.Size.X, Document.Size.Y);
+        panChangedRegion = null;
         bool graphIsBasicStructure = GraphIsBasicStructure(finalGraph);
         partialRenderAllowed = hasLastState && lastState.VisibleDocumentRegion == region && !isFullViewportRender &&
                                lastState.ViewportData.Transform == viewportViewportData.Transform &&
@@ -495,7 +521,8 @@ internal class SceneRenderer : IDisposable
         {
             if (lastState.ShouldRerender(renderState))
             {
-                fullAffectedArea = lastState.ZoomLevel > renderState.ZoomLevel;
+                fullAffectedArea = lastState.ZoomLevel > renderState.ZoomLevel || renderState.ChunkResolution != lastState.ChunkResolution;
+                panChangedRegion = lastState.VisibleRegionChanged(renderState) ? lastState.GetVisibleRegionDifference(renderState) : null;
                 return true;
             }
         }
@@ -612,10 +639,11 @@ readonly struct RenderState
                IsFullViewportRender != other.IsFullViewportRender ||
                VisibleRegionChanged(other) || ZoomDiffRequiresRender(other)
                || (IsFullViewportRender && !ViewportData.Equals(other.ViewportData)) ||
+               ChunkResolution != other.ChunkResolution ||
                !Equals(DocumentColorSpace, other.DocumentColorSpace);
     }
 
-    private bool VisibleRegionChanged(RenderState other)
+    public bool VisibleRegionChanged(RenderState other)
     {
         return !other.VisibleDocumentRegion.IsFullyInside(VisibleDocumentRegion);
     }
@@ -630,5 +658,15 @@ readonly struct RenderState
         }
 
         return diff < 0;
+    }
+
+    public RectD? GetVisibleRegionDifference(RenderState renderState)
+    {
+        if (VisibleDocumentRegion.IsFullyInside(renderState.VisibleDocumentRegion))
+        {
+            return null;
+        }
+
+        return VisibleDocumentRegion.Difference(renderState.VisibleDocumentRegion);
     }
 }
