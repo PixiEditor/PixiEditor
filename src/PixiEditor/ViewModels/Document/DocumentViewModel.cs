@@ -1584,11 +1584,25 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                  (string.IsNullOrEmpty(docRef.OriginalFilePath) || docRef.OriginalFilePath != newDoc.FullFilePath)))
                 continue;
 
-            Internals.ActionAccumulator.AddActions(new UpdatePropertyValue_Action(node.Id,
-                    NestedDocumentNode.DocumentPropertyName,
-                    new DocumentReference(newDoc.FullFilePath, referenceId,
-                        newDoc.AccessInternalReadOnlyDocument().Clone(true))),
-                new EndUpdatePropertyValue_Action());
+            try
+            {
+                var clonedDoc = newDoc.AccessInternalReadOnlyDocument().Clone(true);
+                Internals.ActionAccumulator.AddActions(new UpdatePropertyValue_Action(node.Id,
+                        NestedDocumentNode.DocumentPropertyName,
+                        new DocumentReference(newDoc.FullFilePath, referenceId,
+                            clonedDoc)),
+                    new EndUpdatePropertyValue_Action());
+            }
+            catch (ObjectDisposedException)
+            {
+                continue;
+            }
+            catch (Exception ex)
+            {
+                CrashHelper.SendExceptionInfo(ex);
+                continue;
+            }
+
         }
     }
 
