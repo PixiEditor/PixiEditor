@@ -91,6 +91,8 @@ internal class SceneRenderer : IDisposable
         }
 
         int graphHash = Document.NodeGraph.GetCacheHash();
+        if (stateViewports == null || DocumentViewModel == null) return;
+
         foreach (var viewport in stateViewports)
         {
             if (viewport.Value.Delayed && !updateDelayed)
@@ -105,7 +107,7 @@ internal class SceneRenderer : IDisposable
                 previewTextures);
             if (DocumentViewModel.SceneTextures.TryGetValue(viewport.Key, out var texture) && texture != rendered)
             {
-                texture.Dispose();
+                texture?.Dispose();
             }
 
             DocumentViewModel.SceneTextures[viewport.Key] = rendered;
@@ -225,11 +227,16 @@ internal class SceneRenderer : IDisposable
                 ? new AffectedArea(OperationHelper.FindChunksTouchingRectangle(
                     (RectI)viewport.VisibleDocumentRegion.Value.RoundOutwards(),
                     ChunkyImage.FullChunkSize))
-                : (affectedArea.GlobalArea != null ? new AffectedArea(OperationHelper.FindChunksTouchingRectangle(affectedArea.GlobalArea.Value.Inflate(1), ChunkyImage.FullChunkSize)) : affectedArea);
+                : (affectedArea.GlobalArea != null
+                    ? new AffectedArea(
+                        OperationHelper.FindChunksTouchingRectangle(affectedArea.GlobalArea.Value.Inflate(1),
+                            ChunkyImage.FullChunkSize))
+                    : affectedArea);
 
             var tex = RenderGraph(renderTargetSize, targetMatrix, viewportId, resolution, samplingOptions, affectedArea,
                 visibleDocumentRegion, targetOutput, viewport.IsScene, oversizeFactor,
-                pointerInfo, keyboardInfo, editorData, viewport.ViewportData, debugRecord, finalGraph, previewTextures, partialRenderAllowed);
+                pointerInfo, keyboardInfo, editorData, viewport.ViewportData, debugRecord, finalGraph, previewTextures,
+                partialRenderAllowed);
 
             lastRenderedStates[viewportId] = renderState;
             return tex;
@@ -346,7 +353,8 @@ internal class SceneRenderer : IDisposable
             context.RenderSurface = recordingCanvas;
             finalGraph.Execute(context);
             var picture = recorder.EndRecordingImmutable();
-            using FileStream fs = new FileStream(Path.Combine(Paths.TempFilesPath, "data.skp"), FileMode.Create, FileAccess.Write);
+            using FileStream fs = new FileStream(Path.Combine(Paths.TempFilesPath, "data.skp"), FileMode.Create,
+                FileAccess.Write);
             picture.Serialize(fs);
         }
         else
@@ -451,7 +459,9 @@ internal class SceneRenderer : IDisposable
         bool hasLastState = lastRenderedStates.TryGetValue(viewportId, out var lastState);
         var region = visibleDocumentRegion ?? new RectD(0, 0, Document.Size.X, Document.Size.Y);
         bool graphIsBasicStructure = GraphIsBasicStructure(finalGraph);
-        partialRenderAllowed = hasLastState && lastState.VisibleDocumentRegion == region && !isFullViewportRender && lastState.ViewportData.Transform == viewportViewportData.Transform && graphIsBasicStructure;
+        partialRenderAllowed = hasLastState && lastState.VisibleDocumentRegion == region && !isFullViewportRender &&
+                               lastState.ViewportData.Transform == viewportViewportData.Transform &&
+                               graphIsBasicStructure;
 
         renderState = new RenderState
         {
@@ -537,7 +547,7 @@ internal class SceneRenderer : IDisposable
         bool graphIsBasicStructure = true;
         finalGraph.TryTraverse(n =>
         {
-            if(n is not IReadOnlyStructureNode)
+            if (n is not IReadOnlyStructureNode)
             {
                 graphIsBasicStructure = false;
                 return false;
