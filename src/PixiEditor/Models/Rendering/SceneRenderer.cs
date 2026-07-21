@@ -91,32 +91,35 @@ internal class SceneRenderer : IDisposable
         }
 
         int graphHash = Document.NodeGraph.GetCacheHash();
-        if (stateViewports == null || DocumentViewModel == null) return;
-
-        foreach (var viewport in stateViewports)
+        if (stateViewports != null)
         {
-            if (viewport.Value.Delayed && !updateDelayed)
+
+            foreach (var viewport in stateViewports)
             {
-                continue;
+                if (viewport.Value.Delayed && !updateDelayed)
+                {
+                    continue;
+                }
+
+                if (viewport.Value.RealDimensions.ShortestAxis <= 0 ||
+                    Math.Abs(viewport.Value.RealDimensions.LongestAxis - double.MaxValue) < double.Epsilon) continue;
+
+                var rendered = RenderScene(viewport.Value, affectedArea, graphHash,
+                    debugRecord && viewport.Value.IsScene,
+                    previewTextures);
+                if (DocumentViewModel.SceneTextures.TryGetValue(viewport.Key, out var texture) && texture != rendered)
+                {
+                    texture?.Dispose();
+                }
+
+                DocumentViewModel.SceneTextures[viewport.Key] = rendered;
+
+                viewport.Value.InvalidateVisual();
+                renderedCount++;
             }
 
-            if (viewport.Value.RealDimensions.ShortestAxis <= 0 ||
-                Math.Abs(viewport.Value.RealDimensions.LongestAxis - double.MaxValue) < double.Epsilon) continue;
-
-            var rendered = RenderScene(viewport.Value, affectedArea, graphHash, debugRecord && viewport.Value.IsScene,
-                previewTextures);
-            if (DocumentViewModel.SceneTextures.TryGetValue(viewport.Key, out var texture) && texture != rendered)
-            {
-                texture?.Dispose();
-            }
-
-            DocumentViewModel.SceneTextures[viewport.Key] = rendered;
-
-            viewport.Value.InvalidateVisual();
-            renderedCount++;
+            lastRenderedViewports = stateViewports.Keys.ToHashSet();
         }
-
-        lastRenderedViewports = stateViewports.Keys.ToHashSet();
 
         if (renderedCount == 0 && previewTextures is { Count: > 0 } && Document?.Size is { X: <= 4096, Y: <= 4096 })
         {
