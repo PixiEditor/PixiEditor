@@ -28,7 +28,7 @@ internal static class CompatibilityUtility
     {
         List<IGraphUpgrader> upgraders = new List<IGraphUpgrader>();
 
-        if (serializerVersion is { Major: 2, Minor: 1 } && serializerVersion < new Version(2, 1, 1, 7) &&
+        if (serializerVersion is { Major: 2, Minor: 1 } && serializerVersion < new Version(2, 1, 2, 0) &&
             (HasNode<SeparateColorNodeViewModel>(viewModel) || HasNode<CombineColorNodeViewModel>(viewModel)))
         {
             UpgradeNormalizedColorValues(viewModel, allFactories, serializerData);
@@ -52,7 +52,7 @@ internal static class CompatibilityUtility
             return oldObject;
         }
 
-        if (serializedVersion < new Version(2, 1, 1, 7))
+        if (serializedVersion < new Version(2, 1, 2, 0))
         {
             if (nodeUniqueName == $"PixiEditor.{MergeNode.UniqueName}")
             {
@@ -78,7 +78,7 @@ internal static class CompatibilityUtility
     private static object UpgradeMergeNode(string inputProperty, object oldObject,
         Version serializedVersion, Dictionary<string, object> allValues)
     {
-        if (serializedVersion < new Version(2, 1, 1, 7))
+        if (serializedVersion < new Version(2, 1, 2, 0))
         {
             if (inputProperty == MergeNode.BlendModePropertyName)
             {
