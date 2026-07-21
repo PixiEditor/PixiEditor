@@ -24,7 +24,10 @@ internal class BrushLibrary
     private FileSystemWatcher brushWatcher;
     private HashSet<string> brushesBeingLoaded = new();
 
+    private bool builtInLoaded = false;
+
     private List<IBrushDataSource> externalBrushes = new List<IBrushDataSource>();
+    private List<IBrushDataSource> pendingExternalBrushes = new List<IBrushDataSource>();
 
     public BrushLibrary(string pathToBrushes)
     {
@@ -45,8 +48,15 @@ internal class BrushLibrary
 
         externalBrushes.Add(dataSource);
 
-        LoadExternalBrushes(dataSource);
-        BrushesChanged?.Invoke();
+        if (builtInLoaded)
+        {
+            LoadExternalBrushes(dataSource);
+            BrushesChanged?.Invoke();
+        }
+        else
+        {
+            pendingExternalBrushes.Add(dataSource);
+        }
     }
 
     private void LoadBuiltIn()
@@ -77,6 +87,8 @@ internal class BrushLibrary
                 }
             }
         }
+
+        builtInLoaded = true;
     }
 
     private void OnBrushAdded(object sender, FileSystemEventArgs e)
@@ -213,8 +225,15 @@ internal class BrushLibrary
     public void LoadBrushes()
     {
         LoadBuiltIn();
-        LoadBrushesFromPath(pathToBrushes);
 
+        foreach (var dataSource in pendingExternalBrushes)
+        {
+            LoadExternalBrushes(dataSource);
+        }
+
+        pendingExternalBrushes.Clear();
+
+        LoadBrushesFromPath(pathToBrushes);
         BrushesChanged?.Invoke();
     }
 

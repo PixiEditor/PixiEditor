@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using PixiEditor.ViewModels.Document;
+using PixiEditor.ViewModels.Document.CompatibilityUpgrades;
 using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.Models.Handlers;
@@ -24,4 +25,6 @@ internal interface INodeGraphHandler
    public void RequestUpdateComputedPropertyValue(INodePropertyHandler property);
    public IReadOnlyDictionary<Guid, INodeHandler> NodeLookup { get; }
    public IBlackboardHandler Blackboard { get; }
+   public ObservableCollection<IGraphUpgrader> AvailableUpgrades { get; }
+   public bool HasGraphUpgrades { get; }
 }

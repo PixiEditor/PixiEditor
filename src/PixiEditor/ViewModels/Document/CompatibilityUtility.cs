@@ -1,69 +1,75 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+﻿using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.Models.Serialization.Factories;
+using PixiEditor.ViewModels.Document.CompatibilityUpgrades;
+using PixiEditor.ViewModels.Document.Nodes.CombineSeparate;
+using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document;
 
-public static class CompatibilityUtility
+internal static class CompatibilityUtility
 {
-    public static object UpgradeInputValueToCurrentVersion(object oldObject, Version serializedVersion,
-        string nodeUniqueName, string inputProperty, Dictionary<string, object> allValues)
+    private static HashSet<string> knownColorInputsToConvertToHalf4 =
+    [
+        $"PixiEditor.{ColorNode.UniqueName}:" + ColorNode.InputColorPropertyName,
+        $"PixiEditor.{LerpColorNode.UniqueName}:" + LerpColorNode.FromPropertyName,
+        $"PixiEditor.{LerpColorNode.UniqueName}:" + LerpColorNode.ToPropertyName,
+        $"PixiEditor.{SeparateColorNode.UniqueName}:" + SeparateColorNode.ColorPropertyName,
+        $"PixiEditor.{ModifyImageRightNode.UniqueName}:" + ModifyImageRightNode.ColorPropertyName
+    ];
+
+
+    public static IGraphUpgrader[] CalculateGraphUpgraders(DocumentViewModel viewModel, Version? serializerVersion,
+        List<SerializationFactory> allFactories, (string serializerName, string serializerVersion) serializerData)
     {
-        if (nodeUniqueName == $"PixiEditor.{CombineColorNode.UniqueName}")
+        List<IGraphUpgrader> upgraders = new List<IGraphUpgrader>();
+
+        if (serializerVersion is { Major: 2, Minor: 1 } && serializerVersion < new Version(2, 1, 1, 7) &&
+            (HasNode<SeparateColorNodeViewModel>(viewModel) || HasNode<CombineColorNodeViewModel>(viewModel)))
         {
-            return UpgradeCombineColorNode(inputProperty, oldObject, serializedVersion, allValues);
+            UpgradeNormalizedColorValues(viewModel, allFactories, serializerData);
+            var upgrader = new Color255to1RangeConverter(viewModel);
+            upgraders.Add(upgrader);
         }
 
-        if (nodeUniqueName == $"PixiEditor.{MergeNode.UniqueName}")
+        return upgraders.ToArray();
+    }
+
+    private static bool HasNode<T>(DocumentViewModel viewModel) where T : NodeViewModel
+    {
+        return viewModel.NodeGraph.AllNodes.Any(n => n is T);
+    }
+
+    public static object UpgradeInputValueToCurrentVersion(object oldObject, Version? serializedVersion,
+        string nodeUniqueName, string inputProperty, Dictionary<string, object> allValues)
+    {
+        if (serializedVersion is null)
         {
-            return UpgradeMergeNode(inputProperty, oldObject, serializedVersion, allValues);
+            return oldObject;
+        }
+
+        if (serializedVersion < new Version(2, 1, 1, 7))
+        {
+            if (nodeUniqueName == $"PixiEditor.{MergeNode.UniqueName}")
+            {
+                return UpgradeMergeNode(inputProperty, oldObject, serializedVersion, allValues);
+            }
+
+            return UpgradeColorInputs(oldObject, $"{nodeUniqueName}:{inputProperty}");
         }
 
         return oldObject;
     }
 
-    private static object UpgradeCombineColorNode(string inputProperty, object oldObject,
-        Version serializedVersion, Dictionary<string, object> allValues)
+    private static object UpgradeColorInputs(object oldObject, string inputProperty)
     {
-        if (serializedVersion is { Major: 2, Minor: 0 })
+        if (oldObject is Color color && knownColorInputsToConvertToHalf4.Contains(inputProperty))
         {
-            if (allValues.TryGetValue(CombineColorNode.ModePropertyName, out var modeRaw) &&
-                modeRaw is int modeInt && Enum.IsDefined(typeof(CombineSeparateColorMode), modeInt) &&
-                (CombineSeparateColorMode)modeInt is var mode)
-            {
-                if (inputProperty == CombineColorNode.V1PropertyName)
-                {
-                    if (oldObject is double f)
-                    {
-                        return mode switch
-                        {
-                            CombineSeparateColorMode.RGB => f * 255f,
-                            CombineSeparateColorMode.HSV => f * 360f,
-                            CombineSeparateColorMode.HSL => f * 360f,
-                        };
-                    }
-                }
-                else if (inputProperty == CombineColorNode.V2PropertyName || inputProperty == CombineColorNode.V3PropertyName)
-                {
-                    if (oldObject is double f)
-                    {
-                        return mode switch
-                        {
-                            CombineSeparateColorMode.RGB => f * 255f,
-                            CombineSeparateColorMode.HSV => f * 100,
-                            CombineSeparateColorMode.HSL => f * 100,
-                        };
-                    }
-                }
-                else if (inputProperty == CombineColorNode.APropertyName)
-                {
-                    if (oldObject is double f)
-                    {
-                        return f * 255f;
-                    }
-                }
-            }
+            return new Vec4D(color.R / 255.0, color.G / 255.0, color.B / 255.0, color.A / 255.0);
         }
 
         return oldObject;
@@ -84,5 +90,17 @@ public static class CompatibilityUtility
         }
 
         return oldObject;
+    }
+
+    public static void UpgradeNodeAdditionalDataToCurrentVersion(Dictionary<string, object> additionalData,
+        Version? parsedVersion, string serializedNodeUniqueNodeName,
+        Dictionary<string, object> serializedNodeInputValues)
+    {
+    }
+
+    private static void UpgradeNormalizedColorValues(DocumentViewModel viewModel,
+        List<SerializationFactory> allFactories, (string serializerName, string serializerVersion) serializerData)
+    {
+        new Color255to1RangeConverter(viewModel).PerformImmediateCompatibilityConversion();
     }
 }

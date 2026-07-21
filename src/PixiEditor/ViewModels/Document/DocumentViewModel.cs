@@ -2,6 +2,7 @@
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using Avalonia.Threading;
+using AvaloniaEdit.Utils;
 using ChunkyImageLib.DataHolders;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Models.DocumentPassthroughActions;
@@ -395,7 +396,9 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         List<SerializationFactory> allFactories =
             ViewModelMain.Current.Services.GetServices<SerializationFactory>().ToList();
 
-        Version? serializerVersion = Version.TryParse(builderInstance.SerializerVersion, out Version parsedVersion) ? parsedVersion : null;
+        Version? serializerVersion = Version.TryParse(builderInstance.SerializerVersion, out Version parsedVersion)
+            ? parsedVersion
+            : null;
 
         foreach (var factory in allFactories)
         {
@@ -428,6 +431,23 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         {
             acc.AddFinishedActions(new ClipCanvas_Action(0));
         }
+
+
+        acc.AddActions(new InvokeAction_PassthroughAction(() =>
+        {
+            viewModel.NodeGraph.AvailableUpgrades.AddRange(
+                CompatibilityUtility.CalculateGraphUpgraders(viewModel, serializerVersion, allFactories,
+                    serializerData));
+
+            foreach (var upgrader in viewModel.NodeGraph.AvailableUpgrades)
+            {
+                upgrader.UpgradeCompleted += () =>
+                {
+                    viewModel.NodeGraph.AvailableUpgrades.Remove(upgrader);
+                };
+            }
+        }));
+
 
         changeBlock.ExecuteQueuedActions();
         changeBlock.Dispose();
@@ -490,12 +510,12 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
                 var serializedNode = graph.AllNodes.First(x => x.Id == node.Id);
 
-                if (serializedNode.AdditionalData != null && serializedNode.AdditionalData.Count > 0)
-                {
-                    acc.AddActions(new DeserializeNodeAdditionalData_Action(nodeGuid,
-                        SerializationUtil.DeserializeDict(serializedNode.AdditionalData, config, allFactories,
-                            serializerData)));
-                }
+                var additionalData = serializedNode.AdditionalData ?? new Dictionary<string, object>();
+                CompatibilityUtility.UpgradeNodeAdditionalDataToCurrentVersion(additionalData, serializerVersion, serializedNode.UniqueNodeName,
+                    serializedNode.InputValues);
+                acc.AddActions(new DeserializeNodeAdditionalData_Action(nodeGuid,
+                    SerializationUtil.DeserializeDict(additionalData, config, allFactories,
+                        serializerData)));
             }
 
             foreach (var node in graph.AllNodes)
@@ -541,7 +561,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                     object value =
                         SerializationUtil.Deserialize(propertyValue.Value, config, allFactories, serializerData);
 
-                    value = CompatibilityUtility.UpgradeInputValueToCurrentVersion(value, parsedVersion, serializedNode.UniqueNodeName, propertyValue.Key, serializedNode.InputValues);
+                    value = CompatibilityUtility.UpgradeInputValueToCurrentVersion(value, serializerVersion,
+                        serializedNode.UniqueNodeName, propertyValue.Key, serializedNode.InputValues);
 
                     acc.AddActions(new UpdatePropertyValue_Action(guid, propertyValue.Key, value),
                         new EndUpdatePropertyValue_Action());
@@ -1190,7 +1211,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         this.verticalSymmetryAxisEnabled = verticalSymmetryAxisEnabled;
         OnPropertyChanged(nameof(VerticalSymmetryAxisEnabledBindable));
     }
-    
+
     public void SetSymmetryAxisPositionFromUser(SymmetryAxisDirection direction, double position)
     {
         Internals.ActionAccumulator.AddActions(
@@ -1199,6 +1220,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         Internals.ActionAccumulator.AddFinishedActions(
             new EndSymmetryAxisPosition_Action());
     }
+
     public void SetHorizontalSymmetryAxisEnabled(bool horizontalSymmetryAxisEnabled)
     {
         this.horizontalSymmetryAxisEnabled = horizontalSymmetryAxisEnabled;
@@ -1379,7 +1401,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             }
             else if (member is IFolderHandler childFolder)
             {
-                if (includeFoldersWithMask && childFolder.HasMaskBindable && !list.Contains(childFolder.Id))
+                if ((!childFolder.HasMaskBindable || (includeFoldersWithMask && childFolder.HasMaskBindable)))
                     list.Add(childFolder.Id);
 
                 ExtractSelectedLayers(childFolder, list, includeFoldersWithMask);
@@ -1553,11 +1575,13 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         using var changeBlock = Operations.StartChangeBlock();
         foreach (var node in nestedNodes)
         {
-            if(node == null || !node.InputPropertyMap.TryGetValue(NestedDocumentNode.DocumentPropertyName, out var value))
+            if (node == null ||
+                !node.InputPropertyMap.TryGetValue(NestedDocumentNode.DocumentPropertyName, out var value))
                 continue;
 
             if (value.Value is not DocumentReference docRef ||
-                ((docRef.ReferenceId == Guid.Empty || docRef.ReferenceId != referenceId) && (string.IsNullOrEmpty(docRef.OriginalFilePath) || docRef.OriginalFilePath != newDoc.FullFilePath)))
+                ((docRef.ReferenceId == Guid.Empty || docRef.ReferenceId != referenceId) &&
+                 (string.IsNullOrEmpty(docRef.OriginalFilePath) || docRef.OriginalFilePath != newDoc.FullFilePath)))
                 continue;
 
             Internals.ActionAccumulator.AddActions(new UpdatePropertyValue_Action(node.Id,

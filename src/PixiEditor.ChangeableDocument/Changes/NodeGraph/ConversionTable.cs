@@ -91,9 +91,17 @@ public static class ConversionTable
                     (typeof(VecD), new TypeConverter<Color, VecD>(c => new VecD(c.R, c.G))),
                     (typeof(VecI), new TypeConverter<Color, VecI>(c => new VecI(c.R, c.G))),
                     (typeof(Vec3D), new TypeConverter<Color, Vec3D>(c => new Vec3D(c.R, c.G, c.B))),
+                    (typeof(Vec4D), new TypeConverter<Color, Vec4D>(c => c.ToVec4D())),
                     (typeof(double), new TypeConverter<Color, double>(c => c.R)),
                     (typeof(int), new TypeConverter<Color, int>(c => c.R)),
                     (typeof(float), new TypeConverter<Color, float>(c => c.R)),
+                ]
+            },
+            {
+                typeof(Vec4D), [
+                    (typeof(Paintable),
+                        new TypeConverter<Vec4D, Paintable>(c => new ColorPaintable(Color.FromVec4D(c)))),
+                    (typeof(Color), new TypeConverter<Vec4D, Color>(Color.FromVec4D))
                 ]
             },
             {
@@ -138,7 +146,9 @@ public static class ConversionTable
             },
             {
                 typeof(IReadOnlyShapeVectorData), [
-                    (typeof(PathVectorData), new TypeConverter<IReadOnlyShapeVectorData, PathVectorData>(d => d != null ? new PathVectorData(d.ToPath()) : null))
+                    (typeof(PathVectorData),
+                        new TypeConverter<IReadOnlyShapeVectorData, PathVectorData>(d =>
+                            d != null ? new PathVectorData(d.ToPath()) : null))
                 ]
             }
         };
@@ -430,7 +440,7 @@ public static class ConversionTable
             return true;
         }
 
-        return outputValueType.IsAssignableTo(inputValueType)/* || (outputValueType == typeof(object))*/;
+        return outputValueType.IsAssignableTo(inputValueType) /* || (outputValueType == typeof(object))*/;
     }
 
     private static Type GetContextlessType(Type getElementType)
