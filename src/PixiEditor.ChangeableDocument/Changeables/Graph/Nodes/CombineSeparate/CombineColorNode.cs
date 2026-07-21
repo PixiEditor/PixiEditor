@@ -61,17 +61,6 @@ public class CombineColorNode : Node
             CombineSeparateColorMode.HSL => GetHsl(ctx)
         };
 
-    internal override void DeserializeAdditionalDataInternal(IReadOnlyDocument target,
-        IReadOnlyDictionary<string, object> data, List<IChangeInfo> infos)
-    {
-        if (data.TryGetValue("usesLegacy255Range", out var usesLegacy255RangeObj) &&
-            usesLegacy255RangeObj is bool usesLegacy255RangeBool)
-        {
-            NormalizedValues.NonOverridenValue = !usesLegacy255RangeBool;
-            infos.Add(new PropertyValueUpdated_ChangeInfo(Id, NormalizedValuesPropertyName, !usesLegacy255RangeBool));
-        }
-    }
-
     private Half4 GetRgb(FuncContext ctx)
     {
         var r = ctx.GetValue(V1);

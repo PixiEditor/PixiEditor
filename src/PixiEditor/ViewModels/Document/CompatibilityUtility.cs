@@ -29,6 +29,7 @@ internal static class CompatibilityUtility
 
         if (serializerVersion is { Major: 2, Minor: 1 } && serializerVersion < new Version(2, 1, 1, 7) && (HasNode<SeparateColorNodeViewModel>(viewModel) || HasNode<CombineColorNodeViewModel>(viewModel)))
         {
+            UpgradeNormalizedColorValues(viewModel, allFactories, serializerData);
             var upgrader = new Color255to1RangeConverter(viewModel);
             upgraders.Add(upgrader);
         }
@@ -86,19 +87,10 @@ internal static class CompatibilityUtility
 
     public static void UpgradeNodeAdditionalDataToCurrentVersion(Dictionary<string, object> additionalData, Version? parsedVersion, string serializedNodeUniqueNodeName, Dictionary<string, object> serializedNodeInputValues)
     {
-        if (parsedVersion is { Major: 2, Minor: 1 } && parsedVersion < new Version(2, 1, 1, 7))
-        {
-            if (serializedNodeUniqueNodeName is $"PixiEditor.{CombineColorNode.UniqueName}" or $"PixiEditor.{SeparateColorNode.UniqueName}")
-            {
-                if (additionalData.TryGetValue("usesLegacy255Range", out var usesLegacy255RangeObj) && usesLegacy255RangeObj is bool usesLegacy255RangeBool)
-                {
-                    additionalData["usesLegacy255Range"] = usesLegacy255RangeBool;
-                }
-                else
-                {
-                    additionalData["usesLegacy255Range"] = true;
-                }
-            }
-        }
+    }
+
+    private static void UpgradeNormalizedColorValues(DocumentViewModel viewModel, List<SerializationFactory> allFactories, (string serializerName, string serializerVersion) serializerData)
+    {
+        new Color255to1RangeConverter(viewModel).PerformImmediateCompatibilityConversion();
     }
 }

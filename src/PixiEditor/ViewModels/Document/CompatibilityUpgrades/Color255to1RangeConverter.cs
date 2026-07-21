@@ -63,6 +63,51 @@ internal class Color255to1RangeConverter : IGraphUpgrader
         UpgradeCompleted?.Invoke();
     }
 
+    public void PerformImmediateCompatibilityConversion()
+    {
+        var documentViewModel = DocumentViewModel;
+        var separateNodes = documentViewModel.NodeGraph.AllNodes.OfType<SeparateColorNodeViewModel>();
+        foreach (var node in separateNodes)
+        {
+            if (!IsContextful(node))
+            {
+                documentViewModel.Operations.SetNodeInputPropertyValue(node.Id,
+                    SeparateColorNode.NormalizedValuesPropertyName, false);
+            }
+            else
+            {
+                if (node.FindInputProperty(SeparateColorNode.ModePropertyName).Value is CombineSeparateColorMode mode)
+                {
+                    ConvertValue(node.FindOutputProperty(SeparateColorNode.V1PropertyName), mode);
+                    ConvertValue(node.FindOutputProperty(SeparateColorNode.V2PropertyName), mode);
+                    ConvertValue(node.FindOutputProperty(SeparateColorNode.V3PropertyName), mode);
+                    ConvertValue(node.FindOutputProperty(SeparateColorNode.APropertyName), mode);
+                }
+            }
+        }
+
+        var combineNodes = documentViewModel.NodeGraph.AllNodes.OfType<CombineColorNodeViewModel>();
+
+        foreach (var node in combineNodes)
+        {
+            if (!IsContextful(node))
+            {
+                documentViewModel.Operations.SetNodeInputPropertyValue(node.Id,
+                    CombineColorNode.NormalizedValuesPropertyName, false);
+            }
+            else
+            {
+                if (node.FindInputProperty(CombineColorNode.ModePropertyName).Value is CombineSeparateColorMode mode)
+                {
+                    ConvertValue(node.FindInputProperty(CombineColorNode.V1PropertyName), mode);
+                    ConvertValue(node.FindInputProperty(CombineColorNode.V2PropertyName), mode);
+                    ConvertValue(node.FindInputProperty(CombineColorNode.V3PropertyName), mode);
+                    ConvertValue(node.FindInputProperty(CombineColorNode.APropertyName), mode);
+                }
+            }
+        }
+    }
+
     private void ConvertValue(NodePropertyViewModel prop, CombineSeparateColorMode mode)
     {
         if (prop.Value is double value)
@@ -72,12 +117,12 @@ internal class Color255to1RangeConverter : IGraphUpgrader
         }
     }
 
-    private bool IsContextful(NodeViewModel node)
+    private static bool IsContextful(NodeViewModel node)
     {
         bool isContextful = false;
         node.TraverseForwards(prop =>
         {
-            if (prop is ModifyImageRightNodeViewModel mathNode)
+            if (prop is ModifyImageRightNodeViewModel)
             {
                 isContextful = true;
                 return Traverse.Exit;
