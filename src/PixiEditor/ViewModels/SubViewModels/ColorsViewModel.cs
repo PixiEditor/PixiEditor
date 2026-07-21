@@ -487,7 +487,21 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>, IColorsHandler
         var layers = document.SelectedMembers;
         if (layers.Count == 0) return;
 
+        if(layers.Count == 1 && !CanQuickColorChange(layers.First()))
+            return;
+
         document.Operations.QuickChangeLayerColor(layers.ToArray(), PrimaryColor);
+    }
+
+    private bool CanQuickColorChange(Guid layer)
+    {
+        var document = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (document is null) return false;
+
+        var layerModel = document.StructureHelper.Find(layer);
+        if (layerModel is null) return false;
+
+        return layerModel.CanQuickColorChange();
     }
 
     private void EndQuickColorChange()
