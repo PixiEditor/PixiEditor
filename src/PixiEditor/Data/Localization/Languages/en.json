@@ -1541,7 +1541,7 @@
   "NORMALIZED_COLOR_VALUES": "Normalized Color Values",
   "ERROR_IMPORTING_PALETTE": "Failed to import palette: {0}",
   "ERROR_LOADING_FILE": "Failed to load file: {0}",
-  "SWAP_COLOR_TOOL": "Background Eraser",
-  "SWAP_COLOR_TOOL_TOOLTIP": "Erases the colors matching the hovered one of the affected area.",
-  "SWAP_COLOR_TOOL_ACTION_DISPLAY_DEFAULT": "Click on the canvas to erase colors. Lock on Target Color only erases pixels similar to the color you clicked first.",
+  "BACKGROUND_ERASER_TOOL": "Background Eraser",
+  "BACKGROUND_ERASER_TOOL_TOOLTIP": "Erases the colors matching the hovered one of the affected area.",
+  "BACKGROUND_ERASER_TOOL_ACTION_DISPLAY_DEFAULT": "Click on the canvas to erase colors. Lock on Target Color only erases pixels similar to the color you clicked first.",
 }
