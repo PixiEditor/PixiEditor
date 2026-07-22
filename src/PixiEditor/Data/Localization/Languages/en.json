@@ -1543,5 +1543,5 @@
   "ERROR_LOADING_FILE": "Failed to load file: {0}",
   "BACKGROUND_ERASER_TOOL": "Background Eraser",
   "BACKGROUND_ERASER_TOOL_TOOLTIP": "Erases the colors matching the hovered one of the affected area.",
-  "BACKGROUND_ERASER_TOOL_ACTION_DISPLAY_DEFAULT": "Click on the canvas to erase colors. Lock on Target Color only erases pixels similar to the color you clicked first.",
+  "BACKGROUND_ERASER_TOOL_ACTION_DISPLAY_DEFAULT": "Click on the canvas to erase colors. Lock on Target Color only erases pixels similar to the color you clicked first."
 }
