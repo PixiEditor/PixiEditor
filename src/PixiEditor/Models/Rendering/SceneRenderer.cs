@@ -631,7 +631,7 @@ readonly struct RenderState
 
     public bool ShouldRerender(RenderState other)
     {
-        return ChunkResolution > other.ChunkResolution || HighResRendering != other.HighResRendering ||
+        return ChunkResolution != other.ChunkResolution || HighResRendering != other.HighResRendering ||
                TargetOutput != other.TargetOutput ||
                OnionFrames != other.OnionFrames || Math.Abs(OnionOpacity - other.OnionOpacity) > 0.05 ||
                FallbackFramesToLayer != other.FallbackFramesToLayer ||
@@ -639,7 +639,6 @@ readonly struct RenderState
                IsFullViewportRender != other.IsFullViewportRender ||
                VisibleRegionChanged(other) || ZoomDiffRequiresRender(other)
                || (IsFullViewportRender && !ViewportData.Equals(other.ViewportData)) ||
-               ChunkResolution != other.ChunkResolution ||
                !Equals(DocumentColorSpace, other.DocumentColorSpace);
     }
 
@@ -662,11 +661,6 @@ readonly struct RenderState
 
     public RectD? GetVisibleRegionDifference(RenderState renderState)
     {
-        if (VisibleDocumentRegion.IsFullyInside(renderState.VisibleDocumentRegion))
-        {
-            return null;
-        }
-
         return VisibleDocumentRegion.Difference(renderState.VisibleDocumentRegion);
     }
 }
