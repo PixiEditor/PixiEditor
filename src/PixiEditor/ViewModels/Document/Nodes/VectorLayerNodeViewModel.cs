@@ -81,4 +81,13 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
     {
         return ((IReadOnlyVectorNode)Internals.Tracker.Document.FindMember(Id))?.ShapeData;
     }
+
+    public override bool CanQuickColorChange()
+    {
+        var shapeData = GetShapeData(Document.AnimationDataViewModel.ActiveFrameTime);
+        if (shapeData is null)
+            return false;
+
+        return Document.TransformViewModel.TransformActive;
+    }
 }

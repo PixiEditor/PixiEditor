@@ -71,7 +71,7 @@
                                 <behaviors:LayoutTransformScalerBehavior />
                             </Interaction.Behaviors>
 
-                            <StackPanel Width="250" IsVisible="{Binding IsLoggedIn}" Margin="15" Orientation="Vertical">
+                            <StackPanel Name="UserAvatarPanel" Width="250" IsVisible="{Binding IsLoggedIn}" Margin="15" Orientation="Vertical">
                                 <Border ClipToBounds="True" Width="50" Height="50" CornerRadius="50">
                                     <HyperlinkButton NavigateUri="{Binding IdentityProvider.EditProfileUrl}"
                                                      Cursor="Hand"

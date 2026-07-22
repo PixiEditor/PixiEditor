@@ -86,4 +86,9 @@ internal class FolderNodeViewModel : StructureMemberViewModel<FolderNode>, IFold
 
         return count;
     }
+
+    public override bool CanQuickColorChange()
+    {
+        return false;
+    }
 }

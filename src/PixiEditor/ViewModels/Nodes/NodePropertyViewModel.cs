@@ -20,6 +20,7 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
     private bool isInput;
     private bool isFunc;
     private bool isArray;
+    private bool isNestedArray;
     private IBrush socketBrush;
     private string errors = string.Empty;
     private bool mergeChanges = false;
@@ -115,6 +116,12 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
         set => SetProperty(ref isArray, value);
     }
 
+    public bool IsNestedArray
+    {
+        get => isNestedArray;
+        set => SetProperty(ref isNestedArray, value);
+    }
+
     public bool IsVisible
     {
         get => isVisible;
@@ -184,7 +191,7 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
         PropertyType = propertyType;
         var targetType = propertyType;
 
-        if (targetType.IsArray)
+        while (targetType.IsArray)
         {
             targetType = targetType.GetElementType();
         }
@@ -223,16 +230,24 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
 
     public static NodePropertyViewModel? CreateFromType(Type type, INodeHandler node)
     {
+        if (node == null) return null;
+        if (type == null) return null;
+
         Type propertyType = type;
 
         if (type.IsAssignableTo(typeof(Delegate)))
         {
-            propertyType = type.GetMethod("Invoke").ReturnType;
+            propertyType = type.GetMethod("Invoke")?.ReturnType;
         }
 
         if (IsShaderType(propertyType))
         {
-            propertyType = type.GetMethod("Invoke").ReturnType.BaseType.GenericTypeArguments[0];
+            propertyType = type.GetMethod("Invoke")?.ReturnType?.BaseType?.GenericTypeArguments.FirstOrDefault();
+        }
+
+        if (propertyType == null)
+        {
+            return new GenericPropertyViewModel(node, type);
         }
 
         string typeName = propertyType.Name;
@@ -278,8 +293,13 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
         }
     }
 
-    private static bool IsShaderType(Type type)
+    private static bool IsShaderType(Type? type)
     {
+        if (type == null)
+        {
+            return false;
+        }
+
         return type.IsAssignableTo(typeof(ShaderExpressionVariable));
     }
 }

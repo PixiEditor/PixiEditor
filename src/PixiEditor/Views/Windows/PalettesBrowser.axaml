@@ -141,7 +141,8 @@
                                                    OnRename="PaletteItem_OnRename"
                                                    ToggleFavouriteCommand="{Binding ToggleFavouriteCommand, ElementName=palettesBrowser}"
                                                    DeletePaletteCommand="{Binding DeletePaletteCommand, ElementName=palettesBrowser}"
-                                                   ImportPaletteCommand="{Binding ImportPaletteCommand, ElementName=palettesBrowser}" />
+                                                   ImportPaletteCommand="{Binding ImportPaletteCommand, ElementName=palettesBrowser}"
+                                                   UseTooltipKey="{Binding UsePaletteTooltipKey, ElementName=palettesBrowser}" />
                         </DataTemplate>
                     </ItemsControl.DataTemplates>
                 </ItemsControl>

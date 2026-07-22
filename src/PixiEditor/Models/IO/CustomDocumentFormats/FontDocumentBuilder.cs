@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using Drawie.Backend.Core.Text;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.Helpers;
@@ -14,14 +15,15 @@ internal class FontDocumentBuilder : IDocumentBuilder
 
     public void Build(DocumentViewModelBuilder builder, string path)
     {
-        Font? font = Font.FromFontFamily(new FontFamilyName(new Uri(path), Path.GetFileNameWithoutExtension(path)));
+        FontData fontData = new FontData(new FontFamilyName(new Uri(path), Path.GetFileNameWithoutExtension(path)));
+        fontData.Size = 12;
+
+        using var font = fontData.ToFont();
 
         if (font is null)
         {
             throw new Exception("Failed to load font");
         }
-
-        font.Size = 12;
 
         List<char> glyphs = new();
         int lastGlyph = 0;
@@ -51,7 +53,7 @@ internal class FontDocumentBuilder : IDocumentBuilder
             }
         }
 
-        TextVectorData textData = new() { Text = sb.ToString(), Font = font, StrokeWidth = 0, Spacing = 12 };
+        TextVectorData textData = new() { Text = sb.ToString(), Font = fontData, StrokeWidth = 0, Spacing = 12 };
         RectD bounds = textData.GeometryAABB;
 
         const int padding = 1;

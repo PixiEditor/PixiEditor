@@ -26,6 +26,6 @@ internal class AutosaverWaitJob(TimeSpan duration)
 
     public void ForceStop()
     {
-        waitingTimer!.Stop();
+        waitingTimer?.Stop();
     }
 }

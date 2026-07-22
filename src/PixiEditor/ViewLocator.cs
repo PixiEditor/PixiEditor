@@ -25,6 +25,7 @@ public class ViewLocator : IDataTemplate
         [typeof(SinglePropertyViewModel)] = typeof(DoublePropertyView),
         [typeof(PaintableSettingViewModel)] = typeof(ColorSettingView),
         [typeof(ChangelogDockViewModel)] = typeof(ChangelogDockView),
+        [typeof(Vec4DPropertyViewModel)] = typeof(ColorPropertyView),
     };
 
     public Control Build(object? data)

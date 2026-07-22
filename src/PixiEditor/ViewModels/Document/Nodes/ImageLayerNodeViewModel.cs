@@ -41,4 +41,8 @@ internal class ImageLayerNodeViewModel : StructureMemberViewModel<ImageLayerNode
     }
 
     public Type? QuickEditTool { get; } = typeof(PenToolViewModel);
+    public override bool CanQuickColorChange()
+    {
+        return false;
+    }
 }

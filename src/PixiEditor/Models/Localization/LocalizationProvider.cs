@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using Avalonia.Platform;
+using PixiEditor.Common;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Extensions;
 using PixiEditor.Extensions.Runtime;

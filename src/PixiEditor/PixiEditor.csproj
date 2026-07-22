@@ -151,10 +151,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Extensions\"/>
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
