@@ -91,6 +91,18 @@
           "ActionDisplay": "SWAP_COLOR_TOOL_ACTION_DISPLAY_DEFAULT"
         }
       ]
+    },
+    {
+      "ToolName": "BackgroundEraser",
+      "DisplayName": "BACKGROUND_ERASER_TOOL",
+      "Brush": "/BrushTools/BackgroundEraser.pixi",
+      "Icon": "icon-bgeraser",
+      "ToolTip": "BACKGROUND_ERASER_TOOL_TOOLTIP",
+      "ActionDisplays": [
+        {
+          "ActionDisplay": "BACKGROUND_ERASER_TOOL_ACTION_DISPLAY_DEFAULT"
+        }
+      ]
     }
   ],
   "ToolSets": [
@@ -299,6 +311,7 @@
         "Brightness",
         "FindAndReplace",
         "SwapColor",
+        "BackgroundEraser",
         "Zoom"
       ]
     }
