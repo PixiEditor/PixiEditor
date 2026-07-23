@@ -198,6 +198,8 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         return RenderableShapeData?.TransformedVisualAABB ?? null;
     }
 
+    public override bool SupportsIterativeRendering => true;
+
     public override ShapeCorners GetTransformationCorners(KeyFrameTime frameTime)
     {
         return RenderableShapeData?.TransformationCorners ?? new ShapeCorners();

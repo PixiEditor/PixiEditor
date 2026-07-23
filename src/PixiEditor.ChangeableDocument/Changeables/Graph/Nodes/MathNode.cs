@@ -11,7 +11,7 @@ using PixiEditor.Common;
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 [NodeInfo(UniqueName)]
-public class MathNode : Node
+public class MathNode : Node, IIterativeRenderSupport
 {
     public const string UniqueName = "Math";
     public const string XPropertyName = "X";
@@ -171,4 +171,5 @@ public class MathNode : Node
 
 
     public override Node CreateCopy() => new MathNode();
+    bool IIterativeRenderSupport.SupportsIterativeRendering => true;
 }

@@ -1,11 +1,12 @@
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 [NodeInfo("Comment")]
-public class CommentNode : Node
+public class CommentNode : Node, IIterativeRenderSupport
 {
     public const string TextPropertyName = "Text";
     public const string SizePropertyName = "Size";
@@ -27,4 +28,5 @@ public class CommentNode : Node
     }
 
     public override Node CreateCopy() => new CommentNode();
+    bool IIterativeRenderSupport.SupportsIterativeRendering => true;
 }

@@ -6,11 +6,12 @@ using Drawie.Backend.Core.Shaders.Generation;
 using Drawie.Backend.Core.Shaders.Generation.Expressions;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 [NodeInfo("SampleImage")]
-public class SampleImageNode : Node
+public class SampleImageNode : Node, IIterativeRenderSupport
 {
     public InputProperty<Texture?> Image { get; }
 
@@ -73,4 +74,5 @@ public class SampleImageNode : Node
     }
 
     public override Node CreateCopy() => new SampleImageNode();
+    bool IIterativeRenderSupport.SupportsIterativeRendering => true;
 }

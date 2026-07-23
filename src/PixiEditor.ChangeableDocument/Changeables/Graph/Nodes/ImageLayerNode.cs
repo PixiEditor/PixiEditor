@@ -63,6 +63,8 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         return (RectD?)GetLayerImageAtFrame(frameTime.Frame)?.FindTightLatestBounds();
     }
 
+    public override bool SupportsIterativeRendering => true;
+
     public override RectD? GetApproxBounds(KeyFrameTime frameTime)
     {
         var layerImage = GetLayerImageAtFrame(frameTime.Frame);

@@ -487,7 +487,7 @@ internal class SceneRenderer : IDisposable
         bool hasLastState = lastRenderedStates.TryGetValue(viewportId, out var lastState);
         var region = visibleDocumentRegion ?? new RectD(0, 0, Document.Size.X, Document.Size.Y);
         panChangedRegion = null;
-        bool graphIsBasicStructure = GraphIsBasicStructure(finalGraph);
+        bool graphIsBasicStructure = GraphSupportsIterativeRendering(finalGraph);
         partialRenderAllowed = hasLastState && lastState.VisibleDocumentRegion == region && !isFullViewportRender &&
                                lastState.ViewportData.Transform == viewportViewportData.Transform &&
                                graphIsBasicStructure;
@@ -572,21 +572,21 @@ internal class SceneRenderer : IDisposable
         return false;
     }
 
-    private bool GraphIsBasicStructure(IReadOnlyNodeGraph finalGraph)
+    private bool GraphSupportsIterativeRendering(IReadOnlyNodeGraph finalGraph)
     {
-        bool graphIsBasicStructure = true;
+        bool supports = true;
         finalGraph.TryTraverse(n =>
         {
-            if (n is not IReadOnlyStructureNode)
+            if (n is not IIterativeRenderSupport { SupportsIterativeRendering: true })
             {
-                graphIsBasicStructure = false;
+                supports = false;
                 return false;
             }
 
             return true;
         });
 
-        return graphIsBasicStructure;
+        return supports;
     }
 
     private bool HighDpiRenderNodePresent(IReadOnlyNodeGraph documentNodeGraph)
