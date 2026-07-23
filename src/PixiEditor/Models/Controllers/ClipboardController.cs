@@ -318,38 +318,21 @@ internal static class ClipboardController
 
         if (images.Count > 0)
         {
-            if (!pasteAsNew)
+            var dataImage = images[0];
+            
+            bool resizeCanvas = false;
+            if (dataImage.Image.Size.X > document.SizeBindable.X || dataImage.Image.Size.Y > document.SizeBindable.Y)
             {
-                var dataImage = images[0];
-                var position = dataImage.Position;
-
-                if (document.SizeBindable.X < position.X || document.SizeBindable.Y < position.Y || !hasPos)
-                {
-                    position = VecI.Zero;
-                }
-
-                manager.Owner.ToolsSubViewModel.SetActiveTool<MoveToolViewModel>(false);
-                document.Operations.InvokeCustomAction(() =>
-                {
-                    document.Operations.PasteImageWithTransform(dataImage.Image, position);
-                });
+                var userResp =
+                    await ConfirmationDialog.Show("OVERSIZED_INSERTION_MESSAGE", "OVERSIZED_INSERTION_TITLE");
+                if (userResp == ConfirmationType.Canceled) { return false; }
+                resizeCanvas = userResp == ConfirmationType.Yes;
             }
-            else
+            
+            document.Operations.InvokeCustomAction(() =>
             {
-                manager.Owner.ToolsSubViewModel.SetActiveTool<MoveToolViewModel>(false);
-
-                var resizeIfNeeded = images.Count > 1;
-                
-                if (!resizeIfNeeded && images.Any(i => document.SizeBindable.CompareTo(i.Image.Size) < 0))
-                {
-                    var userResp =
-                        await ConfirmationDialog.Show("OVERSIZED_INSERTION_MESSAGE", "OVERSIZED_INSERTION_TITLE");
-                    if (userResp == ConfirmationType.Canceled) { return false; }
-                    resizeIfNeeded = userResp == ConfirmationType.Yes;
-                }
-                
-                document.Operations.PasteImagesAsLayers(images, document.AnimationDataViewModel.ActiveFrameBindable, resizeIfNeeded);
-            }
+                document.Operations.PasteImageWithTransform(dataImage, pasteAsNew, resizeCanvas);
+            });
         }
 
         return true;
