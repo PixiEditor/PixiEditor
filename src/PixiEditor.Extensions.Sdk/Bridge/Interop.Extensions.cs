@@ -12,5 +12,6 @@ internal static partial class Interop
             return Array.Empty<string>();
         }
 
-        return InteropUtility.IntPtrToStringArray(ptr);    }
+        return InteropUtility.IntPtrToStringArray(ptr);
+    }
 }

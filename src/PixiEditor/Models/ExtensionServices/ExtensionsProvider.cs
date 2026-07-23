@@ -5,7 +5,7 @@ namespace PixiEditor.Models.ExtensionServices;
 
 public class ExtensionsProvider : IExtensionsProvider
 {
-    public IExtensionListProvider listProvider;
+    private readonly IExtensionListProvider listProvider;
 
     public ExtensionsProvider(IExtensionListProvider listProvider)
     {
