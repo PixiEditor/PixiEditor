@@ -13,6 +13,8 @@ internal sealed class LassoToolExecutor : UpdateableChangeExecutor
 {
     private SelectionMode? mode;
     private string renderOutput;
+
+    private VecI lastPosition;
     
     public override ExecutionState Start()
     {
@@ -21,13 +23,22 @@ internal sealed class LassoToolExecutor : UpdateableChangeExecutor
 
         if (mode is null)
             return ExecutionState.Error;
-        
-        AddStartAction(controller!.LastPixelPosition);
+
+        lastPosition = (VecI)controller!.LastPrecisePosition.Round();
+        AddStartAction(lastPosition);
 
         return ExecutionState.Success;
     }
 
-    public override void OnPixelPositionChange(VecI pos, MouseOnCanvasEventArgs args) => AddStartAction(pos);
+    public override void OnPrecisePositionChange(MouseOnCanvasEventArgs args)
+    {
+        VecI newPosition = (VecI)args.Point.PositionOnCanvas.Round();
+        if (lastPosition != newPosition)
+        {
+            lastPosition = newPosition;
+            AddStartAction(newPosition);
+        }
+    }
 
     public override void OnLeftMouseButtonUp(VecD argsPositionOnCanvas)
     {
