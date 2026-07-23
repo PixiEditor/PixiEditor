@@ -5,6 +5,7 @@ using PixiEditor.Extensions.CommonApi.Windowing;
 using PixiEditor.Extensions.Sdk.Api;
 using PixiEditor.Extensions.Sdk.Api.Brushes;
 using PixiEditor.Extensions.Sdk.Api.Commands;
+using PixiEditor.Extensions.Sdk.Api.Extensions;
 using PixiEditor.Extensions.Sdk.Api.IO;
 using PixiEditor.Extensions.Sdk.Api.Logging;
 using PixiEditor.Extensions.Sdk.Api.Palettes;
@@ -29,6 +30,7 @@ public class PixiEditorApi
     public VisualTreeProvider VisualTreeProvider { get; }
     public UserDataProvider UserDataProvider { get; }
     public BrushesProvider BrushesProvider { get; }
+    public ExtensionsProvider ExtensionsProvider { get; }
 
     public PixiEditorApi()
     {
@@ -42,5 +44,6 @@ public class PixiEditorApi
         UserDataProvider = new UserDataProvider();
         ToolsProvider = new ToolsProvider();
         BrushesProvider = new BrushesProvider();
+        ExtensionsProvider = new ExtensionsProvider();
     }
 }
