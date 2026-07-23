@@ -72,14 +72,10 @@ internal partial class LayerControl : UserControl
         set => SetValue(MoveToFrontCommandProperty, value);
     }
 
-
-    private MouseUpdateController mouseUpdateController;
-
     public LayerControl()
     {
         InitializeComponent();
-        Loaded += LayerControl_Loaded;
-        Unloaded += LayerControl_Unloaded;
+        PointerMoved += (a,b) => Manager?.LayerControl_MouseMove(b);
 
         if (App.Current.TryGetResource("SoftSelectedLayerBrush", App.Current.ActualThemeVariant, out var value))
         {
@@ -96,16 +92,6 @@ internal partial class LayerControl : UserControl
         thirdDropGrid.AddHandler(DragDrop.DragEnterEvent, Grid_DragEnter);
         thirdDropGrid.AddHandler(DragDrop.DragLeaveEvent, Grid_DragLeave);
         thirdDropGrid.AddHandler(DragDrop.DropEvent, Grid_Drop_Bottom);
-    }
-
-    private void LayerControl_Unloaded(object? sender, RoutedEventArgs e)
-    {
-        mouseUpdateController?.Dispose();
-    }
-
-    private void LayerControl_Loaded(object? sender, RoutedEventArgs e)
-    {
-        mouseUpdateController = new MouseUpdateController(this, Manager.LayerControl_MouseMove);
     }
 
     public static void RemoveDragEffect(Grid grid)
