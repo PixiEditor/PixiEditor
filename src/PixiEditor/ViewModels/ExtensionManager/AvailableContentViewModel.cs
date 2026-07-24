@@ -101,20 +101,30 @@ internal class AvailableContentViewModel : ObservableObject
             return availableContent.Price;
         }
 
-        AvailableContent? highestOwnedTier = null;
-        foreach (var owned in extensionManager.OwnedExtensions)
+        AvailableContent? highestOwnedLowerTier = null;
+        foreach (var candidate in extensionManager.AvailableExtensions)
         {
-            var tier = extensionManager.AvailableExtensions.FirstOrDefault(x => x.AvailableContent.TierGroup == availableContent.TierGroup && x.AvailableContent.Id == owned.ProductData.Id);
-            if (tier != null)
+            var candidateContent = candidate.AvailableContent;
+            if (candidateContent.TierGroup != availableContent.TierGroup)
+                continue;
+
+            if (candidateContent.Tier >= availableContent.Tier)
             {
-                if (highestOwnedTier == null || tier.AvailableContent.Tier > highestOwnedTier.Tier)
-                {
-                    highestOwnedTier = tier.AvailableContent;
-                }
+                continue;
+            }
+
+            if (!extensionManager.IsExtensionOwned(candidateContent.Id))
+            {
+                continue;
+            }
+
+            if (highestOwnedLowerTier == null || candidateContent.Tier > highestOwnedLowerTier.Tier)
+            {
+                highestOwnedLowerTier = candidateContent;
             }
         }
 
-        return availableContent.Price - (highestOwnedTier?.Price ?? 0);
+        return Math.Max(0, availableContent.Price - (highestOwnedLowerTier?.Price ?? 0));
     }
 
     private readonly ExtensionManagerViewModel extensionManager;
@@ -131,26 +141,28 @@ internal class AvailableContentViewModel : ObservableObject
 
     private bool ExtensionApiVersionCompatible()
     {
-        return AvailableContent?.Versions == null || AvailableContent?.Versions.Count == 0 || AvailableContent?.Versions?.Any(v => v is
-        {
-            PixiEditorApiVersion: <= ExtensionRuntimeInfo.ApiVersion
-        }) == true;
+        return AvailableContent?.Versions == null || AvailableContent?.Versions.Count == 0 ||
+               AvailableContent?.Versions?.Any(v => v is
+               {
+                   PixiEditorApiVersion: <= ExtensionRuntimeInfo.ApiVersion
+               }) == true;
     }
 
     private bool HostVersionCompatible()
     {
-        if(AvailableContent?.Versions == null || AvailableContent.Versions.Count == 0) return true;
+        if (AvailableContent?.Versions == null || AvailableContent.Versions.Count == 0) return true;
 
         Version pixiEditorVersion = extensionManager.ExtensionsViewModel.ExtensionLoader.Host.Version;
         bool hostOfNameFound = false;
 
         foreach (var version in AvailableContent.Versions)
         {
-            if(version.CompatibleHostVersions == null || version.CompatibleHostVersions.Count == 0) return true;
+            if (version.CompatibleHostVersions == null || version.CompatibleHostVersions.Count == 0) return true;
 
             foreach (var hostVersion in version.CompatibleHostVersions)
             {
-                if (hostVersion.HostName.Equals(extensionManager.ExtensionsViewModel.ExtensionLoader.Host.HostName, StringComparison.OrdinalIgnoreCase))
+                if (hostVersion.HostName.Equals(extensionManager.ExtensionsViewModel.ExtensionLoader.Host.HostName,
+                        StringComparison.OrdinalIgnoreCase))
                 {
                     hostOfNameFound = true;
                     if ((hostVersion.MinVersion == null || pixiEditorVersion >= hostVersion.MinVersion) &&
