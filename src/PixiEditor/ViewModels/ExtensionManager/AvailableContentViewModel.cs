@@ -64,7 +64,7 @@ internal class AvailableContentViewModel : ObservableObject
             if (IsCountryUnsupported)
                 return "UNAVAILABLE_IN_YOUR_COUNTRY";
 
-            double price = AvailableContent.Price;
+            double price = GetBasePrice(AvailableContent);
 
             if (AvailableContent.IsBundle)
             {
@@ -92,6 +92,29 @@ internal class AvailableContentViewModel : ObservableObject
 
             return $"{price:0.00} {Currency}";
         }
+    }
+
+    private double GetBasePrice(AvailableContent availableContent)
+    {
+        if (string.IsNullOrEmpty(availableContent.TierGroup))
+        {
+            return availableContent.Price;
+        }
+
+        AvailableContent? highestOwnedTier = null;
+        foreach (var owned in extensionManager.OwnedExtensions)
+        {
+            var tier = extensionManager.AvailableExtensions.FirstOrDefault(x => x.AvailableContent.TierGroup == availableContent.TierGroup && x.AvailableContent.Id == owned.ProductData.Id);
+            if (tier != null)
+            {
+                if (highestOwnedTier == null || tier.AvailableContent.Tier > highestOwnedTier.Tier)
+                {
+                    highestOwnedTier = tier.AvailableContent;
+                }
+            }
+        }
+
+        return availableContent.Price - (highestOwnedTier?.Price ?? 0);
     }
 
     private readonly ExtensionManagerViewModel extensionManager;

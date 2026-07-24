@@ -46,15 +46,6 @@
 
             <Grid RowDefinitions="Auto,*,Auto">
                 <Panel Margin="12" Grid.Row="0">
-                    <TextBlock
-                        Classes="pixi-icon"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        Text="{DynamicResource icon-blocks}"
-                        FontSize="52"
-                        Opacity="0.2"
-                        IsVisible="{Binding AvailableContent.ImageUrl, Converter={converters:EmptyStringConverter}}" />
-
                     <Border Height="60" Width="60" Padding="10"
                             CornerRadius="{DynamicResource ControlCornerRadius}"
                             HorizontalAlignment="Left"
