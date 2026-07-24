@@ -32,9 +32,7 @@ internal partial class FolderControl : UserControl
     }
 
     private readonly IBrush? highlightColor;
-
-
-    private MouseUpdateController? mouseUpdateController;
+    
 
     public FolderControl()
     {
@@ -43,9 +41,8 @@ internal partial class FolderControl : UserControl
         {
             highlightColor = value as IBrush;
         }
-
-        Loaded += OnLoaded;
-        Unloaded += OnUnloaded;
+        
+        PointerMoved += (a,b) => Manager?.FolderControl_MouseMove(b);
 
         AddHandler(DragDrop.DragEnterEvent, FolderControl_DragEnter);
         AddHandler(DragDrop.DragLeaveEvent, FolderControl_DragLeave);
@@ -94,16 +91,6 @@ internal partial class FolderControl : UserControl
         {
             e.Handled = true;
         }
-    }
-
-    private void OnUnloaded(object? sender, RoutedEventArgs e)
-    {
-        mouseUpdateController?.Dispose();
-    }
-
-    private void OnLoaded(object? sender, RoutedEventArgs e)
-    {
-        mouseUpdateController = new MouseUpdateController(this, Manager.FolderControl_MouseMove);
     }
 
     private void Grid_DragEnter(object sender, DragEventArgs e)
