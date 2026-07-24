@@ -114,8 +114,15 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         float multiplier = (float)ctx.ChunkResolution.InvertedMultiplier();
         workingSurface.Translate(GetScenePosition(ctx.FrameTime));
 
+        var orgBlendMode = blendPaint.BlendMode;
+        if (ctx.IterativeRender)
+        {
+            blendPaint.BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.Src;
+        }
+
         base.DrawLayerInScene(ctx, workingSurface, useFilters);
 
+        blendPaint.BlendMode = orgBlendMode;
         workingSurface.RestoreToCount(scaled);
     }
 
@@ -157,7 +164,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         }
 
         RectI latestSize = new(0, 0, layerImage.LatestSize.X, layerImage.LatestSize.Y);
-        var region = (RectI?)ctx.VisibleDocumentRegion?.RoundOutwards() ?? latestSize;
+        var region = (RectI?)ctx.VisibleDocumentRegion?.Round() ?? latestSize;
 
         VecD topLeft = region.TopLeft - sceneSize / 2;
 
@@ -196,7 +203,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
         if (!ctx.FullRerender)
         {
-            if (ctx.IterativeRender && ctx.AffectedArea.Chunks != null)
+            if (ctx is { IterativeRender: true, AffectedArea.Chunks: not null })
             {
                 Paint emptyPaint = null;
                 if (paint.BlendMode == Drawie.Backend.Core.Surfaces.BlendMode.Src)
