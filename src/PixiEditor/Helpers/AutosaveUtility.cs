@@ -27,4 +27,10 @@ internal class AutosaveHelper
 
         return path;
     }
+
+    public static string GetNewAutosavePath(Guid guid)
+    {
+        string path = Path.Join(Paths.PathToUnsavedFilesFolder, $"autosave-{guid}.pixi");
+        return path;
+    }
 }

@@ -14,6 +14,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Palettes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 
@@ -90,9 +91,22 @@ public static class ConversionTable
                     (typeof(VecD), new TypeConverter<Color, VecD>(c => new VecD(c.R, c.G))),
                     (typeof(VecI), new TypeConverter<Color, VecI>(c => new VecI(c.R, c.G))),
                     (typeof(Vec3D), new TypeConverter<Color, Vec3D>(c => new Vec3D(c.R, c.G, c.B))),
+                    (typeof(Vec4D), new TypeConverter<Color, Vec4D>(c => c.ToVec4D())),
                     (typeof(double), new TypeConverter<Color, double>(c => c.R)),
                     (typeof(int), new TypeConverter<Color, int>(c => c.R)),
                     (typeof(float), new TypeConverter<Color, float>(c => c.R)),
+                ]
+            },
+            {
+                typeof(Vec4D), [
+                    (typeof(Paintable),
+                        new TypeConverter<Vec4D, Paintable>(c => new ColorPaintable(Color.FromVec4D(c)))),
+                    (typeof(Color), new TypeConverter<Vec4D, Color>(Color.FromVec4D))
+                ]
+            },
+            {
+                typeof(Color[]), [
+                    (typeof(Palette), new TypeConverter<Color[], Palette>(c => new Palette(c)))
                 ]
             },
             {
@@ -132,7 +146,9 @@ public static class ConversionTable
             },
             {
                 typeof(IReadOnlyShapeVectorData), [
-                    (typeof(PathVectorData), new TypeConverter<IReadOnlyShapeVectorData, PathVectorData>(d => d != null ? new PathVectorData(d.ToPath()) : null))
+                    (typeof(PathVectorData),
+                        new TypeConverter<IReadOnlyShapeVectorData, PathVectorData>(d =>
+                            d != null ? new PathVectorData(d.ToPath()) : null))
                 ]
             }
         };
@@ -242,6 +258,28 @@ public static class ConversionTable
                     return true;
                 }
             }
+        }
+
+        if (arg is Array && !targetType.IsArray)
+        {
+            foreach (var (sourceType, sourceConverters) in _conversionTable)
+            {
+                if (!sourceType.IsArray) continue;
+
+                foreach (var (outType, converter) in sourceConverters)
+                {
+                    if (outType != targetType) continue;
+
+                    if (TryConvert(arg, sourceType, out var normalizedArray))
+                    {
+                        result = converter.Convert(normalizedArray);
+                        return true;
+                    }
+                }
+            }
+
+            result = null;
+            return false;
         }
 
         if (!argType.IsPrimitive && argType != typeof(string))
@@ -402,7 +440,7 @@ public static class ConversionTable
             return true;
         }
 
-        return outputValueType.IsAssignableTo(inputValueType)/* || (outputValueType == typeof(object))*/;
+        return outputValueType.IsAssignableTo(inputValueType) /* || (outputValueType == typeof(object))*/;
     }
 
     private static Type GetContextlessType(Type getElementType)

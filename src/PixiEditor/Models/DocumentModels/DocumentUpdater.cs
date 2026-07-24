@@ -29,6 +29,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph.Blackboard;
+using PixiEditor.ChangeableDocument.ChangeInfos.Vectors;
 using PixiEditor.Models.BrushEngine;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
@@ -788,6 +789,7 @@ private List<INodePropertyHandler> CreateProperties(ImmutableArray<NodePropertyI
             prop.IsInput = isInput;
             prop.IsFunc = propInfo.ValueType.IsAssignableTo(typeof(Delegate));
             prop.IsArray = propInfo.ValueType.IsArray;
+            prop.IsNestedArray = propInfo.ValueType.IsArray && propInfo.ValueType.GetElementType()?.IsArray == true;
             prop.InternalSetValue(prop.IsFunc
                 ? (propInfo.InputValue as ShaderExpressionVariable)?.GetConstant()
                 : propInfo.InputValue);

@@ -15,6 +15,7 @@
                                            Node="{Binding DataContext.Node, RelativeSource={RelativeSource TemplatedParent}}"
                                            SocketBrush="{Binding DataContext.SocketBrush, RelativeSource={RelativeSource TemplatedParent}}"
                                            IsArray="{Binding DataContext.IsArray, RelativeSource={RelativeSource TemplatedParent}}"
+                                           IsNestedArray="{Binding DataContext.IsNestedArray, RelativeSource={RelativeSource TemplatedParent}}"
                                            IsFunc="{Binding DataContext.IsFunc, RelativeSource={RelativeSource TemplatedParent}}">
                         <properties:NodeSocket.IsVisible>
                             <MultiBinding>
@@ -39,6 +40,7 @@
                                            SocketBrush="{Binding DataContext.SocketBrush, RelativeSource={RelativeSource TemplatedParent}}"
                                            IsVisible="{Binding !DataContext.IsInput,RelativeSource={RelativeSource TemplatedParent}}"
                                            IsArray="{Binding DataContext.IsArray, RelativeSource={RelativeSource TemplatedParent}}"
+                                           IsNestedArray="{Binding DataContext.IsNestedArray, RelativeSource={RelativeSource TemplatedParent}}"
                                            IsFunc="{Binding DataContext.IsFunc, RelativeSource={RelativeSource TemplatedParent}}">
                         <properties:NodeSocket.IsInput>
                             <x:Boolean>False</x:Boolean>

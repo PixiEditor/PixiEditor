@@ -40,7 +40,7 @@
                                     Content="{DynamicResource icon-extensions}"
                                     Command="{xaml:Command Name=PixiEditor.Window.OpenExtensionsWindow}" />
                         </Border>
-                        <auth:UserAvatarToggle Width="26" Height="26" DataContext="{Binding Path=UserViewModel}" />
+                        <auth:UserAvatarToggle Name="UserAvatarToggle" Width="26" Height="26" DataContext="{Binding Path=UserViewModel}" />
                     </StackPanel>
                 </dialogs:DialogTitleBar.AdditionalElement>
             </dialogs:DialogTitleBar>

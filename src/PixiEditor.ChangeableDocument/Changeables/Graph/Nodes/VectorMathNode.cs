@@ -281,7 +281,7 @@ public class VectorMathNode : Node
     }
 
 
-    public override Node CreateCopy() => new MathNode();
+    public override Node CreateCopy() => new VectorMathNode();
 
     private static double Modulo(double a, double b)
     {

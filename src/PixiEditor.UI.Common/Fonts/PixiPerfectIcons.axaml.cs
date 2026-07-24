@@ -142,6 +142,7 @@ public static partial class PixiPerfectIcons
     public const string Minus = "\uE9D8";
     public const string MirrorHorizontal = "\uE97F";
     public const string MirrorVertical = "\uE97C";
+    public const string MountainSnow = "\uE9F2";
     public const string Mouse = "\uE9D1";
     public const string MousePointer = "\uE960";
     public const string MoveView = "\uE962";
@@ -166,6 +167,8 @@ public static partial class PixiPerfectIcons
     public const string PlusSquare = "\uE967";
     public const string PointsCrossed = "\uE918";
     public const string PutImage = "\uE908";
+    public const string RecenterXSymmetry = "\uE9F1";
+    public const string RecenterYSymmetry = "\uE9F0";
     public const string RectangleSelection = "\uE968";
     public const string Reddit = "\uE905";
     public const string Redo = "\uE969";
@@ -221,6 +224,7 @@ public static partial class PixiPerfectIcons
     public const string Tool = "\uE977";
     public const string Train = "\uE9C3";
     public const string Trash = "\uE978";
+    public const string TriangleAlert = "\uE9F3";
     public const string TriangleRight = "\uE9E0";
     public const string Twitter = "\uE904";
     public const string Undo = "\uE979";

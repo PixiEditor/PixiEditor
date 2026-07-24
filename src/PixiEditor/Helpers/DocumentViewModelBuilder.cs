@@ -504,7 +504,7 @@ internal class NodeGraphBuilder
         public string UniqueNodeName { get; set; }
         public Dictionary<string, object> InputValues { get; set; }
         public KeyFrameData[] KeyFrames { get; set; }
-        public Dictionary<string, object> AdditionalData { get; set; }
+        public Dictionary<string, object>? AdditionalData { get; set; }
         public Dictionary<int, List<(string inputPropName, string outputPropName)>> InputConnections { get; set; }
         public int? PairId { get; set; }
 

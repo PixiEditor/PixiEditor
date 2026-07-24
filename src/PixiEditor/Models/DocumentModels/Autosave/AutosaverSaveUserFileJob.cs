@@ -69,6 +69,6 @@ internal class AutosaverSaveUserFileJob(DocumentViewModel document) : IAutosaver
     public void OnUpdateableChangeEnded() { }
     public void ForceStop()
     {
-        waitingTimer!.Stop();
+        waitingTimer?.Stop();
     }
 }

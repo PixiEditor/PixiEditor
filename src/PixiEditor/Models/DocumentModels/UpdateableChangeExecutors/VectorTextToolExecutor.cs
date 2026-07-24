@@ -6,6 +6,7 @@ using Drawie.Backend.Core.Text;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Actions.Generated;
+using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.ChangeableDocument.Changes.Vectors;
@@ -21,7 +22,8 @@ using Color = Drawie.Backend.Core.ColorsImpl.Color;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
-internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEvents, IQuickToolSwitchable
+internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEvents, IQuickToolSwitchable,
+    IQuickColorLayerExecutor
 {
     private ITextToolHandler textHandler;
     private ITextToolbar toolbar;
@@ -30,14 +32,12 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
     private string lastText = "";
     private VecD position;
     private Matrix3X3 lastMatrix = Matrix3X3.Identity;
-    private Font? cachedFont;
+    private FontData? cachedFont;
     private bool isListeningForValidLayer;
     private VectorPath? onPath;
 
     private VecD clickPos;
     private bool wasDrawingSize;
-
-    private List<Font> fontsToDispose = new();
 
     public override bool BlocksOtherActions => false;
 
@@ -199,24 +199,6 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
                 (document.StructureHelper.Find(selectedMember.Id) as IVectorLayerHandler)?
                 .GetShapeData(document.AnimationHandler.ActiveFrameTime) as TextVectorData;
         }
-
-        if (fontsToDispose != null)
-        {
-            foreach (var font in fontsToDispose)
-            {
-                if (font is { IsDisposed: false })
-                {
-                    if (previousData != null && font.Equals(previousData?.Font))
-                    {
-                        continue;
-                    }
-
-                    font.Dispose();
-                }
-            }
-
-            fontsToDispose.Clear();
-        }
     }
 
     public void OnTextChanged(string text)
@@ -241,29 +223,14 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
         if (name == nameof(ITextToolbar.FontFamily))
         {
-            fontsToDispose.Add(cachedFont);
             cachedFont = toolbar.ConstructFont();
-            document.TextOverlayHandler.Font = cachedFont;
+            document.TextOverlayHandler.Font = cachedFont.Value;
         }
         else
         {
-            if (cachedFont == null)
-            {
-                cachedFont = toolbar.ConstructFont();
-            }
+            cachedFont = toolbar.ConstructFont();
 
-            cachedFont.Size = toolbar.FontSize;
-            cachedFont.Bold = toolbar.Bold;
-            cachedFont.Italic = toolbar.Italic;
-
-            if (document.TextOverlayHandler.Font is { IsDisposed: false })
-            {
-                document.TextOverlayHandler.Font.Size = toolbar.FontSize;
-            }
-            else
-            {
-                document.TextOverlayHandler.Font = cachedFont;
-            }
+            document.TextOverlayHandler.Font = cachedFont.Value;
         }
 
         VectorShapeChangeType changeType = name switch
@@ -280,33 +247,18 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
         var constructedText = ConstructTextData(lastText);
         var layer = document.StructureHelper.Find(selectedMember.Id);
-        TextVectorData previousData =
-            (layer as IVectorLayerHandler).GetShapeData(document.AnimationHandler.ActiveFrameTime) as TextVectorData;
         FontEdging previousEdging = constructedText.Font.Edging;
         bool previousAntiAlias = constructedText.AntiAlias;
         bool previousSubpixel = constructedText.Font.SubPixel;
 
-        if (previousData != null)
-        {
-            constructedText.AntiAlias = previousData.AntiAlias;
-            constructedText.Font.Edging = previousData.Font.Edging;
-            constructedText.Font.SubPixel = previousData.Font.SubPixel;
-        }
-
-        bool equals = constructedText.Equals(previousData);
-
         constructedText.AntiAlias = previousAntiAlias;
-        constructedText.Font.Edging = previousEdging;
-        constructedText.Font.SubPixel = previousSubpixel;
+        constructedText.Font = constructedText.Font with { Edging = previousEdging, SubPixel = previousSubpixel };
 
-        if (!equals)
-        {
-            internals.ActionAccumulator.AddActions(
-                new SetShapeGeometry_Action(selectedMember.Id, constructedText, changeType),
-                new SetLowDpiRendering_Action(selectedMember.Id, toolbar.ForceLowDpiRendering));
-        }
+        internals.ActionAccumulator.AddActions(
+            new SetShapeGeometry_Action(selectedMember.Id, constructedText, changeType),
+            new SetLowDpiRendering_Action(selectedMember.Id, toolbar.ForceLowDpiRendering));
 
-        document.TextOverlayHandler.Font = null; // Forces refreshing glyphs
+        document.TextOverlayHandler.Font = default; // Forces refreshing glyphs
         document.TextOverlayHandler.Font = constructedText.Font;
         document.TextOverlayHandler.Spacing = toolbar.Spacing;
     }
@@ -353,18 +305,13 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
     private TextVectorData ConstructTextData(string text)
     {
-        if (cachedFont == null || cachedFont.Family.Name != toolbar.FontFamily.Name)
+        if (cachedFont == null || cachedFont.Value.Family.Name != toolbar.FontFamily.Name)
         {
-            Font toDispose = cachedFont;
-            Dispatcher.UIThread.Post(() =>
-            {
-                toDispose?.Dispose();
-            });
             cachedFont = toolbar.ConstructFont();
         }
         else
         {
-            cachedFont.Size = toolbar.FontSize;
+            cachedFont = cachedFont.Value with { Size = toolbar.FontSize };
         }
 
         return new TextVectorData()
@@ -376,7 +323,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             StrokeWidth = (float)toolbar.ToolSize,
             Stroke = toolbar.StrokeBrush.ToPaintable(),
             TransformationMatrix = lastMatrix,
-            Font = cachedFont,
+            Font = cachedFont ?? toolbar?.ConstructFont() ?? FontData.CreateDefault(),
             Bold = toolbar.Bold,
             Italic = toolbar.Italic,
             Spacing = toolbar.Spacing,
@@ -388,6 +335,11 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
     bool IExecutorFeature.IsFeatureEnabled<T>()
     {
-        return typeof(T) == typeof(ITextOverlayEvents) || typeof(T) == typeof(IQuickToolSwitchable);
+        return typeof(T) == typeof(ITextOverlayEvents) || typeof(T) == typeof(IQuickToolSwitchable) ||
+               (typeof(T) == typeof(IQuickColorLayerExecutor) && document.TextOverlayHandler.IsActive);
+    }
+
+    public void EndQuickColorChange()
+    {
     }
 }

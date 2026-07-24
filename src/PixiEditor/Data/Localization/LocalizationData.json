@@ -27,7 +27,7 @@
       "code": "es",
       "localeFileName": "es.json",
       "iconFileName": "es.png",
-      "lastUpdated": "2025-09-11 01:59:19"
+      "lastUpdated": "2026-07-14 19:26:23"
     },
     {
       "name": "中文",
@@ -42,14 +42,14 @@
       "code": "ru",
       "localeFileName": "ru.json",
       "iconFileName": "ru.png",
-      "lastUpdated": "2026-03-22 17:18:05"
+      "lastUpdated": "2026-06-16 13:51:21"
     },
     {
       "name": "Українська",
       "code": "uk",
       "localeFileName": "uk.json",
       "iconFileName": "uk.png",
-      "lastUpdated": "2026-05-26 16:53:49"
+      "lastUpdated": "2026-07-07 11:04:49"
     },
     {
       "name": "عربي",
@@ -92,14 +92,14 @@
       "code": "fr",
       "localeFileName": "fr.json",
       "iconFileName": "fr.png",
-      "lastUpdated": "2026-04-29 12:43:23"
+      "lastUpdated": "2026-07-15 00:14:46"
     },
     {
       "name": "Italiano",
       "code": "it",
       "localeFileName": "it.json",
       "iconFileName": "it.png",
-      "lastUpdated": "2026-05-26 17:53:19"
+      "lastUpdated": "2026-07-14 01:52:40"
     },
     {
       "name": "Indonesia",
@@ -113,7 +113,7 @@
       "code": "sl",
       "localeFileName": "sl.json",
       "iconFileName": "sl.png",
-      "lastUpdated": "2026-05-24 11:15:12"
+      "lastUpdated": "2026-07-15 20:54:01"
     }
   ]
 }

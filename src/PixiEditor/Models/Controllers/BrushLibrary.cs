@@ -2,6 +2,7 @@
 using Avalonia.Threading;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
+using PixiEditor.Extensions.CommonApi.Brushes;
 using PixiEditor.Helpers;
 using PixiEditor.Models.BrushEngine;
 using PixiEditor.Models.IO;
@@ -23,6 +24,11 @@ internal class BrushLibrary
     private FileSystemWatcher brushWatcher;
     private HashSet<string> brushesBeingLoaded = new();
 
+    private bool builtInLoaded = false;
+
+    private List<IBrushDataSource> externalBrushes = new List<IBrushDataSource>();
+    private List<IBrushDataSource> pendingExternalBrushes = new List<IBrushDataSource>();
+
     public BrushLibrary(string pathToBrushes)
     {
         this.pathToBrushes = pathToBrushes;
@@ -33,6 +39,24 @@ internal class BrushLibrary
         brushWatcher.Deleted += OnBrushRemoved;
 
         brushWatcher.EnableRaisingEvents = true;
+    }
+
+    public void RegisterExternalBrushes(IBrushDataSource dataSource)
+    {
+        if (externalBrushes.Contains(dataSource))
+            return;
+
+        externalBrushes.Add(dataSource);
+
+        if (builtInLoaded)
+        {
+            LoadExternalBrushes(dataSource);
+            BrushesChanged?.Invoke();
+        }
+        else
+        {
+            pendingExternalBrushes.Add(dataSource);
+        }
     }
 
     private void LoadBuiltIn()
@@ -63,6 +87,8 @@ internal class BrushLibrary
                 }
             }
         }
+
+        builtInLoaded = true;
     }
 
     private void OnBrushAdded(object sender, FileSystemEventArgs e)
@@ -72,7 +98,7 @@ internal class BrushLibrary
             try
             {
                 if (brushes.Any(x => x.Value.FilePath == e.FullPath)) return;
-                
+
                 var doc = Importer.ImportDocument(e.FullPath, false);
 
                 var brush = LoadBrush(e.FullPath, doc, "LOCAL");
@@ -178,11 +204,36 @@ internal class BrushLibrary
         }
     }
 
+    private void LoadExternalBrushes(IBrushDataSource dataSource)
+    {
+        foreach (var brushData in dataSource.GetBrushes())
+        {
+            try
+            {
+                var doc = Importer.ImportDocument(brushData, null);
+                Brush brush = LoadBrush($"External:{dataSource.Name}", doc, dataSource.Name);
+                brush.IsReadOnly = true;
+                brushes.Add(brush.OutputNodeId, brush);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to load external brush from {dataSource.Name}: {ex.Message}");
+            }
+        }
+    }
+
     public void LoadBrushes()
     {
         LoadBuiltIn();
-        LoadBrushesFromPath(pathToBrushes);
 
+        foreach (var dataSource in pendingExternalBrushes)
+        {
+            LoadExternalBrushes(dataSource);
+        }
+
+        pendingExternalBrushes.Clear();
+
+        LoadBrushesFromPath(pathToBrushes);
         BrushesChanged?.Invoke();
     }
 

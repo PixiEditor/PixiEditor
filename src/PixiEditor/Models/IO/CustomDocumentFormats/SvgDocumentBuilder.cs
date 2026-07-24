@@ -578,15 +578,9 @@ internal class SvgDocumentBuilder : IDocumentBuilder
     private TextVectorData AddText(SvgText element, StyleContext styleContext)
     {
         RectD viewBox = new RectD(styleContext.ViewboxOrigin, styleContext.ViewboxSize);
-        Font font = styleContext.FontFamily.Unit.HasValue
-            ? Font.FromFamilyName(styleContext.FontFamily.Unit.Value.Value)
-            : Font.CreateDefault();
-        FontFamilyName? missingFont = null;
-        if (font == null)
-        {
-            font = Font.CreateDefault();
-            missingFont = new FontFamilyName(styleContext.FontFamily.Unit.Value.Value);
-        }
+        FontData font = styleContext.FontFamily.Unit.HasValue
+            ? new FontData(new FontFamilyName(styleContext.FontFamily.Unit.Value.Value))
+            : FontData.CreateDefault();
 
         font.Size = styleContext.FontSize.Unit?.ToPixels(viewBox) ?? 12;
         font.Bold = styleContext.FontWeight.Unit?.Value == SvgFontWeight.Bold;
@@ -612,13 +606,20 @@ internal class SvgDocumentBuilder : IDocumentBuilder
                     break;
             }
 
-            font.MeasureText(element.Text.Unit.Value.Value, out RectD bounds);
+            var nativeFont = font.ToFont();
+            if (nativeFont == null)
+            {
+                nativeFont = Font.CreateDefault();
+            }
+
+            nativeFont.MeasureText(element.Text.Unit.Value.Value, out RectD bounds);
+            nativeFont.Dispose();
             position.X += bounds.Width * anchorX;
         }
 
         return new TextVectorData(element.Text.Unit.Value.Value)
         {
-            Position = position, Font = font, MissingFontFamily = missingFont, MissingFontText = "MISSING_FONT",
+            Position = position, Font = font, MissingFontText = "MISSING_FONT",
         };
     }
 

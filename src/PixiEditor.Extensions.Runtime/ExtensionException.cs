@@ -45,3 +45,11 @@ public class MissingAdditionalContentException : ExtensionException
     }
 }
 
+public class IncompatibleHostVersionException : ExtensionException
+{
+    public IncompatibleHostVersionException(Version hostVersion, bool max)
+        : base(new LocalizedString($"ERROR_INCOMPATIBLE_{(max ? "MAX" : "MIN")}_HOST_VERSION", hostVersion.ToString()))
+    {
+    }
+}
+

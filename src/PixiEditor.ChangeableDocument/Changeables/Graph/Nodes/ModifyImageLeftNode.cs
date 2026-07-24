@@ -38,7 +38,7 @@ public class ModifyImageLeftNode : Node, IPairNode
     {
         if (!context.HasContext || Image.Value == null)
         {
-            return new Half4("") { ConstantValue = Colors.Transparent };
+            return new Half4("") { ConstantValue = Colors.Transparent.ToVec4D() };
         }
 
         return context.SampleSurface(Image.Value.DrawingSurface, context.SamplePosition, SampleMode.Value,

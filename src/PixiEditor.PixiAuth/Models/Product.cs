@@ -31,4 +31,10 @@ public class Product
     
     [JsonPropertyName("downloadLink")]
     public string DownloadLink { get; set; }
+
+    [JsonPropertyName("minHostVersion")]
+    public string? MinHostVersion { get; set; }
+
+    [JsonPropertyName("maxHostVersion")]
+    public string? MaxHostVersion { get; set; }
 }

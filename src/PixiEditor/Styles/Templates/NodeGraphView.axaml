@@ -6,7 +6,8 @@
                     xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
                     xmlns:behaviors="clr-namespace:PixiEditor.UI.Common.Behaviors;assembly=PixiEditor.UI.Common"
                     xmlns:overlays="clr-namespace:PixiEditor.Views.Overlays"
-                    xmlns:blackboard="clr-namespace:PixiEditor.Views.Blackboard">
+                    xmlns:blackboard="clr-namespace:PixiEditor.Views.Blackboard"
+                    xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common">
     <ControlTheme TargetType="nodes:NodeGraphView" x:Key="{x:Type nodes:NodeGraphView}">
         <Setter Property="ZoomMode" Value="Move" />
         <Setter Property="Template">
@@ -20,7 +21,7 @@
                         <Flyout Placement="Pointer">
                             <LayoutTransformControl>
                                 <Interaction.Behaviors>
-                                    <behaviors:LayoutTransformScalerBehavior/>
+                                    <behaviors:LayoutTransformScalerBehavior />
                                 </Interaction.Behaviors>
 
                                 <nodes:NodePicker
@@ -168,6 +169,33 @@
                             </DataTemplate>
                         </ItemsControl.DataTemplates>
                     </ItemsControl>
+
+                    <StackPanel HorizontalAlignment="Left" VerticalAlignment="Bottom" ZIndex="100">
+                        <ItemsControl
+                            ItemsSource="{Binding  Path=NodeGraph.AvailableUpgrades, RelativeSource={RelativeSource TemplatedParent}}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{DynamicResource ThemeBackgroundBrush}" Padding="12"
+                                            CornerRadius="4">
+                                        <StackPanel Orientation="Horizontal" Spacing="4">
+                                            <Button Command="{Binding Upgrade}"
+                                                    localization:Translator.Key="APPLY_BUTTON" />
+                                            <TextBlock FontSize="16"
+                                                       localization:Translator.LocalizedString="{Binding UpgradeText}" />
+                                            <Button Command="{Binding DismissUpgradeCommand, RelativeSource={RelativeSource AncestorType=nodes:NodeGraphView}}"
+                                                    CommandParameter="{Binding}"
+                                                    Content="✕"/>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
                 </Grid>
             </ControlTemplate>
         </Setter>

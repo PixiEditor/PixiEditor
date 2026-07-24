@@ -2,6 +2,7 @@
 using PixiEditor.Extensions.CommonApi.Tools;
 using PixiEditor.Extensions.CommonApi.Windowing;
 using PixiEditor.Extensions.Sdk;
+using PixiEditor.Extensions.Sdk.Api.Brushes;
 using PixiEditor.Extensions.Sdk.Api.FlyUI;
 using PixiEditor.Extensions.Sdk.Api.Resources;
 using PixiEditor.Extensions.Sdk.Api.Window;
@@ -15,26 +16,38 @@ public class BrushesSampleExtension : PixiEditorExtension
     /// </summary>
     public override void OnInitialized()
     {
+        RegisterBrushes();
+        RegisterCustomTool();
+    }
+
+    private void RegisterBrushes()
+    {
+        byte[] brush = Resources.ReadAllBytes("Resources/Doggo.pixi");
+        Api.BrushesProvider.RegisterBrushDataSource(new BrushesDataSource("Brushes Sample Extension", [brush]));
+    }
+
+    private static void RegisterCustomTool()
+    {
         Api.ToolsProvider.RegisterBrushTool(Resources.ReadAllBytes("Resources/Doggo.pixi"), new ExtensionToolConfig(new CustomToolConfig()
         {
-                Name = "Doggo",
-                Icon = "/cat.svg",
-                DefaultShortcut = new Shortcut(Key.H, KeyModifiers.Alt),
-                ToolTip = "I'm a brush yo",
-                ActionsDisplayConfigs =
+            Name = "Doggo",
+            Icon = "/cat.svg",
+            DefaultShortcut = new Shortcut(Key.H, KeyModifiers.Alt),
+            ToolTip = "I'm a brush yo",
+            ActionsDisplayConfigs =
+            {
+                new ActionDisplayConfig()
                 {
-                    new ActionDisplayConfig()
-                    {
-                        Text = "Default action display.",
-                    },
-                    new ActionDisplayConfig()
-                    {
-                        Text = "Custom display with SHIFT held",
-                        Modifiers = (int)KeyModifiers.Shift,
-                    },
+                    Text = "Default action display.",
                 },
+                new ActionDisplayConfig()
+                {
+                    Text = "Custom display with SHIFT held",
+                    Modifiers = (int)KeyModifiers.Shift,
+                },
+            },
         }));
 
-        Api.ToolsProvider.AddToolToToolset("Doggo", "PIXEL_ART_TOOLSET", 3);
+        Api.ToolsProvider.AddToolToToolset("Doggo", "PixiEditor:PIXEL_ART_TOOLSET", 3);
     }
 }

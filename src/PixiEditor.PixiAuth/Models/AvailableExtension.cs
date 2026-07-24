@@ -44,7 +44,14 @@ public class AvailableExtension
     [JsonPropertyName("releaseDate")]
     public DateTime ReleaseDate { get; set; }
 
+    [JsonPropertyName("versions")]
     public List<ExtVersion> Versions { get; set; } = new List<ExtVersion>();
+
+    [JsonPropertyName("tierGroup")]
+    public string TierGroup { get; set; } = string.Empty;
+
+    [JsonPropertyName("tier")]
+    public int Tier { get; set; }
 }
 
 [Serializable]
@@ -75,10 +82,26 @@ public class ExtensionHighlightData
 [Serializable]
 public class ExtVersion
 {
-    [JsonPropertyName("version")]
+    [JsonPropertyName("extensionVersion")]
     public string Version { get; set; } = string.Empty;
 
     [JsonPropertyName("pixiEditorApiVersion")]
     public int PixiEditorApiVersion { get; set; }
+
+    [JsonPropertyName("compatibleHostVersions")]
+    public List<HostVersion> CompatibleHostVersions { get; set; } = new List<HostVersion>();
+}
+
+[Serializable]
+public class HostVersion
+{
+    [JsonPropertyName("hostName")]
+    public string HostName { get; set; } = string.Empty;
+
+    [JsonPropertyName("minVersion")]
+    public Version? MinVersion { get; set; }
+
+    [JsonPropertyName("maxVersion")]
+    public Version? MaxVersion { get; set; }
 }
 

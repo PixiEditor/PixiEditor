@@ -12,9 +12,9 @@ public sealed class StandalonePlatform : IPlatform
     public IIdentityProvider? IdentityProvider { get; }
     public IAdditionalContentProvider? AdditionalContentProvider { get; }
 
-    public StandalonePlatform(string[] extensionsPaths, string apiUrl, string? apiKey, int apiVersion)
+    public StandalonePlatform(string[] extensionsPaths, string apiUrl, string? apiKey, int apiVersion, string  hostName, Version hostVersion)
     {
-        PixiAuthIdentityProvider authProvider = new PixiAuthIdentityProvider(apiUrl, apiKey, apiVersion);
+        PixiAuthIdentityProvider authProvider = new PixiAuthIdentityProvider(apiUrl, apiKey, apiVersion, hostName, hostVersion);
         IdentityProvider = authProvider;
         AdditionalContentProvider = new StandaloneAdditionalContentProvider(extensionsPaths, authProvider);
     }

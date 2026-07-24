@@ -43,6 +43,7 @@ public class ColorRampNode : RenderNode, IRenderInput
         ColorSpace = CreateInput("ColorSpace", "COLOR_SPACE", ColorSpaceType.Inherit);
 
         Output.FirstInChain = null;
+        RendersInAbsoluteCoordinates = true;
     }
 
     protected override void OnPaint(RenderContext context, Canvas surface)
@@ -67,8 +68,12 @@ public class ColorRampNode : RenderNode, IRenderInput
         Color[] colors = finalColorStops.Select(x => x.Color).ToArray();
         float[] offsets = finalColorStops.Select(x => (float)x.Offset).ToArray();
 
-        VecI size = context.RenderOutputSize;
-        if (size.X <= 0 || size.Y <= 0) { return; }
+        bool isAdjusted = context.RenderOutputSize == context.DocumentSize;
+        VecI finalSize = isAdjusted
+            ? context.RenderOutputSize
+            : (VecI)(context.RenderOutputSize * context.ChunkResolution.InvertedMultiplier());
+
+        if (finalSize.X <= 0 || finalSize.Y <= 0) { return; }
 
         var colorSpace = ColorSpace.Value == ColorSpaceType.Inherit
             ? context.ProcessingColorSpace
@@ -76,8 +81,13 @@ public class ColorRampNode : RenderNode, IRenderInput
                 ? Drawie.Backend.Core.Surfaces.ImageData.ColorSpace.CreateSrgb()
                 : Drawie.Backend.Core.Surfaces.ImageData.ColorSpace.CreateSrgbLinear());
 
-        using var source = Texture.ForProcessing(size, colorSpace);
-        Background.Value.Paint(context, source.DrawingSurface.Canvas);
+        using var source = Texture.ForProcessing(finalSize, colorSpace);
+        var backgroundContext = context.Clone();
+        backgroundContext.RenderSurface = source.DrawingSurface.Canvas;
+        backgroundContext.RenderOutputSize = finalSize;
+        backgroundContext.ChunkResolution = ChunkResolution.Full;
+        backgroundContext.VisibleDocumentRegion = null;
+        Background.Value.Paint(backgroundContext, source.DrawingSurface.Canvas);
 
         using var snapshot = source.DrawingSurface.Snapshot();
         using Shader imageShader = snapshot.ToShader();
@@ -90,16 +100,30 @@ public class ColorRampNode : RenderNode, IRenderInput
         using Paint paint = new() { BlendMode = BlendMode.Src };
         paint.Shader = shader;
 
-        Texture texture = RequestTexture(0, size, colorSpace);
-        int savedTexture = texture.DrawingSurface.Canvas.Save();
-        texture.DrawingSurface.Canvas.SetMatrix(Matrix3X3.Identity);
-        texture.DrawingSurface.Canvas.DrawRect(0, 0, size.X, size.Y, paint);
-        texture.DrawingSurface.Canvas.RestoreToCount(savedTexture);
+        Texture target = RequestTexture(0, finalSize, colorSpace);
+        target.DrawingSurface.Canvas.DrawRect(0, 0, finalSize.X, finalSize.Y, paint);
 
         int saved = surface.Save();
-        surface.SetMatrix(Matrix3X3.Identity);
-        surface.DrawSurface(texture.DrawingSurface, 0, 0);
+        if (context.ChunkResolution != ChunkResolution.Full)
+        {
+            surface.Scale((float)context.ChunkResolution.Multiplier());
+        }
+
+        surface.DrawSurface(target.DrawingSurface, 0, 0);
         surface.RestoreToCount(saved);
+    }
+
+    public override void RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
+    {
+        int saved = renderOn.Canvas.Save();
+        renderOn.Canvas.Scale((float)context.ChunkResolution.InvertedMultiplier());
+        OnPaint(context, renderOn.Canvas);
+        renderOn.Canvas.RestoreToCount(saved);
+    }
+
+    public override RectD? GetPreviewBounds(RenderContext ctx, string elementToRenderName)
+    {
+        return new RectD(0, 0, ctx.DocumentSize.X, ctx.DocumentSize.Y);
     }
 
     public override Node CreateCopy()
