@@ -8,7 +8,7 @@ using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
-public interface IReadOnlyStructureNode : IReadOnlyNode, ISceneObject
+public interface IReadOnlyStructureNode : IReadOnlyNode, ISceneObject, IIterativeRenderSupport
 {
     public InputProperty<float> Opacity { get; }
     public InputProperty<bool> IsVisible { get; }

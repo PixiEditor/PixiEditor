@@ -53,6 +53,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
     public OutputProperty<VecD> CenterPosition { get; }
 
     public ChunkyImage? EmbeddedMask { get; set; }
+    public abstract bool SupportsIterativeRendering { get; }
 
     protected static readonly Paint replacePaint =
         new Paint() { BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.Src };
