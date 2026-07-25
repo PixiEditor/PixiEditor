@@ -1,3 +1,17 @@
+# 2.1.2.1
+
+Date: `25.07.2026`
+
+# New things
+
+- Added Background Eraser Tool in Adjustments toolset - by [Laxan3000](https://github.com/Laxan3000)
+
+## Improvements
+
+- Optimized Blending brush - by [Ghoti](https://github.com/Ghoti-tpt)
+- Removed 144HZ mouse input limitation - by [Equbuxu](https://github.com/Equbuxu) and [flabbet](https://github.com/flabbet)
+- Improved lasso snapping - by [Equbuxu](https://github.com/Equbuxu)
+
 # 2.1.2.0
 
 Date: `22.07.2026`
@@ -22,6 +36,7 @@ This is a changelog between dev version 2.1.1.6 and 2.1.2.0.
 - Added more blend modes to Merge Node - by [flabbet](https://github.com/flabbet)
 - Colors in the Node Graph now use 0-1 range instead of 0-255 - by [Equbuxu](https://github.com/Equbuxu) and [flabbet](https://github.com/flabbet)
 - Optimized drawing performance with iterative rendering - by [flabbet](https://github.com/flabbet)
+- Finished Spanish translations by - [Matalya](https://github.com/Matalya)
 
 ## Fixes
 
