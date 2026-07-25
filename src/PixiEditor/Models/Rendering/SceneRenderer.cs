@@ -487,10 +487,14 @@ internal class SceneRenderer : IDisposable
         bool hasLastState = lastRenderedStates.TryGetValue(viewportId, out var lastState);
         var region = visibleDocumentRegion ?? new RectD(0, 0, Document.Size.X, Document.Size.Y);
         panChangedRegion = null;
+        // Temporarily disabled until fixed
+        /*
         bool graphIsBasicStructure = GraphIsBasicStructure(finalGraph);
         partialRenderAllowed = hasLastState && lastState.VisibleDocumentRegion == region && !isFullViewportRender &&
                                lastState.ViewportData.Transform == viewportViewportData.Transform &&
                                graphIsBasicStructure;
+                               */
+        partialRenderAllowed = false;
 
         renderState = new RenderState
         {
