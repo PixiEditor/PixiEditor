@@ -96,7 +96,7 @@
       "ToolName": "BackgroundEraser",
       "DisplayName": "BACKGROUND_ERASER_TOOL",
       "Brush": "/BrushTools/BackgroundEraser.pixi",
-      "Icon": "icon-bgeraser",
+      "Icon": "icon-background-remover",
       "ToolTip": "BACKGROUND_ERASER_TOOL_TOOLTIP",
       "ActionDisplays": [
         {
