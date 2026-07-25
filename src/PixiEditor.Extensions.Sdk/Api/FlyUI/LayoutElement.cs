@@ -154,8 +154,10 @@ public abstract class LayoutElement : ILayoutElement<ControlDefinition>
             return;
         }
 
-        foreach (ElementEventHandler eventHandler in _events[eventName])
+        var handlers = _events[eventName].ToArray();
+        for (var i = 0; i < handlers.Length; i++)
         {
+            ElementEventHandler eventHandler = handlers[i];
             eventHandler.Invoke(args);
         }
     }

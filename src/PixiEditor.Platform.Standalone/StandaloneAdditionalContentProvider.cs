@@ -154,6 +154,8 @@ public sealed class StandaloneAdditionalContentProvider : IAdditionalContentProv
                 IncludedExtensions = x.IncludedExtensions,
                 IsBundle = x.IsBundle,
                 PercentageDiscount = x.PercentageDiscount,
+                TierGroup = x.TierGroup,
+                Tier = x.Tier,
                 ReleaseDate = x.ReleaseDate,
                 Versions = x.Versions.Select(v => new ExtensionVersion()
                 {

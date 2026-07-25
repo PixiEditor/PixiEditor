@@ -8,6 +8,7 @@ using PixiEditor.AnimationRenderer.FFmpeg;
 using PixiEditor.Extensions.Commands;
 using PixiEditor.Extensions.CommonApi.Brushes;
 using PixiEditor.Extensions.CommonApi.Commands;
+using PixiEditor.Extensions.CommonApi.Extensions;
 using PixiEditor.Extensions.CommonApi.IO;
 using PixiEditor.Extensions.CommonApi.Logging;
 using PixiEditor.Extensions.CommonApi.Palettes;
@@ -256,5 +257,6 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<IToolsProvider, ToolsProvider>()
             .AddSingleton<IBrushProvider, BrushesProvider>(x => new BrushesProvider(x.GetRequiredService<BrushesViewModel>().BrushLibrary))
             .AddSingleton<IExtensionListProvider>(x => loader)
+            .AddSingleton<IExtensionsProvider, ExtensionsProvider>()
             .AddSingleton<IFileSystemProvider, FileSystemProvider>();
 }

@@ -15,6 +15,8 @@ public class AvailableContent
     public bool HideAddToLibrary { get; set; }
     public bool IsBundle { get; set; }
     public List<string> IncludedExtensions { get; set; } = new List<string>();
+    public string TierGroup  { get; set; } = string.Empty;
+    public int Tier { get; set; }
     public DateTime ReleaseDate { get; set; }
     public List<ExtensionVersion> Versions { get; set; } = new List<ExtensionVersion>();
 }
