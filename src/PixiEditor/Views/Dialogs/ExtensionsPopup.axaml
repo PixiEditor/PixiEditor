@@ -551,6 +551,14 @@
                                                            HorizontalAlignment="Right"
                                                            IsVisible="{Binding !RestartRequired}">
 
+                                                    <TextBlock Classes="pixi-icon"
+                                                               Foreground="{DynamicResource WarningOnDarkBrush}"
+                                                               IsVisible="{Binding !IsCompatible}"
+                                                               ToolTip.ShowDelay="0"
+                                                               FontSize="16" Margin="0, 0, 4, 0"
+                                                               localization:Translator.TooltipLocalizedString="{Binding IncompatibilityTooltipKey}"
+                                                               Text="{DynamicResource icon-triangle-alert}" />
+
                                                     <Button Command="{Binding InstallCommand}"
                                                             FontSize="{DynamicResource FontSizeNormal}">
                                                         <Button.IsVisible>

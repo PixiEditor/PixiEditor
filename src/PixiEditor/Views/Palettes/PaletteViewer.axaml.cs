@@ -157,17 +157,24 @@ internal partial class PaletteViewer : UserControl
 
     private async void ImportPalette_OnClick(object sender, RoutedEventArgs e)
     {
-        await Application.Current.ForDesktopMainWindowAsync(async window =>
+        try
         {
-            var file = await window.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions()
+            await Application.Current.ForDesktopMainWindowAsync(async window =>
             {
-                FileTypeFilter = PaletteHelpers.GetFilter(PaletteProvider.AvailableParsers, true),
+                var file = await window.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions()
+                {
+                    FileTypeFilter = PaletteHelpers.GetFilter(PaletteProvider.AvailableParsers, true),
+                });
+
+                if (file is null || file.Count == 0) return;
+
+                await ImportPalette(file[0].Path.LocalPath);
             });
-
-            if (file is null || file.Count == 0) return;
-
-            await ImportPalette(file[0].Path.LocalPath);
-        });
+        }
+        catch (Exception ex)
+        {
+            NoticeDialog.Show(new LocalizedString("ERROR_IMPORTING_PALETTE", ex.Message), "ERROR");
+        }
     }
 
     private async Task ImportPalette(string filePath)

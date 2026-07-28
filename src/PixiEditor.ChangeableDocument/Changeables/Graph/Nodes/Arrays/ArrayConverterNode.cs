@@ -25,18 +25,10 @@ public class ArrayConverterNode : Node
         First.ConnectionChanged += OnConnectionChanged;
 
         Output = CreateSyncedTypeOutput("Output", "OUTPUT", syncGroup)
-            .AllowGenericFallback().WithTypeAdjuster(t =>
-            {
-                if (t.IsArray)
-                {
-                    return t;
-                }
-
-                return t.MakeArrayType();
-            });
+            .AllowGenericFallback().WithTypeAdjuster(t => t.MakeArrayType());
 
 
-        Output.ForceUpdateType(typeof(object[]));
+        Output.ForceUpdateType(typeof(object));
     }
 
     internal override void SerializeAdditionalDataInternal(IReadOnlyDocument target, Dictionary<string, object> additionalData)
@@ -81,6 +73,8 @@ public class ArrayConverterNode : Node
         }
         else
         {
+            if (syncedTypeInputProperty == First) return;
+
             RemoveInputProperty(syncedTypeInputProperty.InternalProperty);
             syncedInputs.Remove(syncedTypeInputProperty);
             syncGroup.RemoveInput(syncedTypeInputProperty);
@@ -91,7 +85,7 @@ public class ArrayConverterNode : Node
 
     protected override void OnExecute(RenderContext context)
     {
-        Type targetType = FindCommonBaseType(syncedInputs);
+        Type targetType = Output.InternalProperty.ValueType.GetElementType() ?? typeof(object);
 
         Array array = Array.CreateInstance(targetType, InputProperties.Count - 1);
 
@@ -121,45 +115,6 @@ public class ArrayConverterNode : Node
         }
 
         Output.Value = array;
-    }
-
-    private Type FindCommonBaseType(List<SyncedTypeInputProperty> inputs)
-    {
-        if (inputs.Count == 0) return typeof(object);
-        Type? commonBaseType = inputs[0].InternalProperty.ValueType;
-
-        for (int i = 1; i < inputs.Count - 1; i++)
-        {
-            Type currentType = inputs[i].InternalProperty.ValueType;
-
-            if (inputs[i].Value is Delegate del)
-            {
-                try
-                {
-                    var val = del.DynamicInvoke(FuncContext.NoContext);
-                    if (val is ShaderExpressionVariable expr)
-                    {
-                        val = expr.GetConstant();
-                        currentType = val.GetType();
-                    }
-                }
-                catch
-                {
-                }
-            }
-
-            while (commonBaseType != null && !currentType.IsAssignableTo(commonBaseType))
-            {
-                commonBaseType = commonBaseType.BaseType;
-            }
-
-            if (commonBaseType == null || commonBaseType == typeof(ValueType))
-            {
-                return typeof(object);
-            }
-        }
-
-        return commonBaseType ?? typeof(object);
     }
 
     public override Node CreateCopy()

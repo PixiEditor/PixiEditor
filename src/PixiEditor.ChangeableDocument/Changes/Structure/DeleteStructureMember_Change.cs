@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+﻿using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.Animation;
@@ -14,6 +15,7 @@ internal class DeleteStructureMember_Change : Change
     private int originalIndex;
     private ConnectionsData originalConnections;
     private StructureNode? savedCopy;
+    private Dictionary<Guid, VecD> originalPositions;
 
     private GroupKeyFrame savedKeyFrameGroup;
 
@@ -50,7 +52,8 @@ internal class DeleteStructureMember_Change : Change
 
         List<IChangeInfo> changes = new();
 
-        if (outputConnections != null && bgConnection != null)
+        originalPositions = new();
+        if (outputConnections.Length > 0 && bgConnection != null)
         {
             foreach (var connection in outputConnections)
             {
@@ -59,6 +62,12 @@ internal class DeleteStructureMember_Change : Change
                     bgConnection.InternalPropertyName, connection.InternalPropertyName));
 
                 node.Output.DisconnectFrom(connection);
+            }
+
+            if (outputConnections.Length == 1)
+            {
+                changes.AddRange(NodeOperations.CollapseFreeSpaceAfterRemovingNode(bgConnection.Node as Node, 
+                    outputConnections[0].Node as Node, out originalPositions));
             }
         }
 
@@ -93,6 +102,7 @@ internal class DeleteStructureMember_Change : Change
         changes.Add(createChange);
 
         changes.AddRange(NodeOperations.ConnectStructureNodeProperties(originalConnections, copy, doc.NodeGraph));
+        changes.AddRange(NodeOperations.RevertPositions(originalPositions, doc));
         
         DeleteNode_Change.RevertKeyFrames(doc, savedKeyFrameGroup, changes);
 

@@ -195,4 +195,9 @@ internal partial class NestedDocumentNodeViewModel :
         OnPropertyChanged(nameof(IsLinkHealthy));
         OnPropertyChanged(nameof(IsFileLinked));
     }
+
+    public override bool CanQuickColorChange()
+    {
+        return false;
+    }
 }

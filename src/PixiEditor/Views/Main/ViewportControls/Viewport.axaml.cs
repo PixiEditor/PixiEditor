@@ -24,6 +24,7 @@ using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Position;
 using Drawie.Numerics;
 using Drawie.Skia;
+using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.ChangeableDocument.Rendering.ContextData;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.UI.Common.Behaviors;
@@ -402,7 +403,6 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     public Guid GuidValue { get; } = Guid.NewGuid();
 
-    private MouseUpdateController? mouseUpdateController;
     private ViewportOverlays builtInOverlays = new();
 
     public static readonly StyledProperty<int> MaxBilinearSamplingSizeProperty
@@ -455,6 +455,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         viewportGrid.AddHandler(PointerReleasedEvent, Image_MouseUp, RoutingStrategies.Tunnel);
         viewportGrid.AddHandler(PointerPressedEvent, Image_MouseDown, RoutingStrategies.Bubble);
         viewportGrid.AddHandler(PointerWheelChangedEvent, Image_MouseWheel, RoutingStrategies.Tunnel);
+        PointerMoved += Image_MouseMove;
 
         Scene.PointerExited += (sender, args) => IsOverCanvas = false;
         Scene.PointerEntered += (sender, args) => IsOverCanvas = true;
@@ -513,13 +514,11 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     private void OnUnload(object? sender, RoutedEventArgs e)
     {
         Document?.Operations.RemoveViewport(GuidValue);
-        mouseUpdateController?.Dispose();
     }
 
     private void OnLoad(object? sender, RoutedEventArgs e)
     {
         Document?.Operations.AddOrUpdateViewport(GetLocation());
-        mouseUpdateController = new MouseUpdateController(this, Image_MouseMove);
         if (DataContext is IViewport viewportVm)
             viewportVm.SceneTextureKey = GuidValue;
     }
@@ -618,7 +617,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         e.Handled = true;
     }
 
-    private void Image_MouseMove(PointerEventArgs e)
+    private void Image_MouseMove(object sender, PointerEventArgs e)
     {
         if (MouseMoveCommand is null)
             return;
@@ -696,7 +695,27 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         scene.AngleRadians = 0;
         scene.CenterContent(Document.GetRenderOutputSize(ViewportRenderOutput));
     }
+    
+    private void RecenterHorizontalSymmetryClicked(object? sender, RoutedEventArgs e)
+    {
+        if (Document is null)
+            return;
 
+        Document.SetSymmetryAxisPositionFromUser(
+            SymmetryAxisDirection.Vertical,
+            (double)Document.Width / 2);
+    }
+
+    private void RecenterVerticalSymmetryClicked(object? sender, RoutedEventArgs e)
+    {
+        if (Document is null)
+            return;
+
+        Document.SetSymmetryAxisPositionFromUser(
+            SymmetryAxisDirection.Horizontal,
+            (double)Document.Height / 2);
+    }
+    
     private RectD? CalculateVisibleRegion()
     {
         if (Document is null) return null;

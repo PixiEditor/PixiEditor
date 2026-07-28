@@ -12,10 +12,13 @@ using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
-[NodeInfo("ModifyImageRight")]
+[NodeInfo(UniqueName)]
 [PairNode(typeof(ModifyImageLeftNode), "ModifyImageZone")]
 public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
 {
+    public const string UniqueName = "ModifyImageRight";
+    public const string ColorPropertyName = "Color";
+
     public Guid OtherNode { get; set; }
 
     private Paint drawingPaint = new Paint() { BlendMode = BlendMode.SrcOver };
@@ -33,8 +36,8 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
 
     public ModifyImageRightNode()
     {
-        Coordinate = CreateFuncInput(nameof(Coordinate), "UV", new Float2("coords"));
-        Color = CreateFuncInput(nameof(Color), "COLOR", new Half4(""));
+        Coordinate = CreateFuncInput("Coordinate", "UV", new Float2("coords"));
+        Color = CreateFuncInput(ColorPropertyName, "COLOR", new Half4(""));
 
         RendersInAbsoluteCoordinates = true;
     }
@@ -90,13 +93,13 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
 
         if (Color.Connection != null)
         {
-            builder.ReturnVar(Color?.Value?.Invoke(context) ?? new Half4(""){ ConstantValue = Colors.Transparent}, false);
+            builder.ReturnVar(Color?.Value?.Invoke(context) ?? new Half4("") { ConstantValue = Colors.Transparent.ToVec4D() }, false);
         }
         else
         {
             Half4 color = Color.NonOverridenValue(FuncContext.NoContext);
             color.VariableName = "color";
-            builder.AddUniform(color.VariableName, color.ConstantValue);
+            builder.AddUniform(color.VariableName, Drawie.Backend.Core.ColorsImpl.Color.FromVec4D(color.ConstantValue));
             builder.ReturnVar(color, false);
         }
 

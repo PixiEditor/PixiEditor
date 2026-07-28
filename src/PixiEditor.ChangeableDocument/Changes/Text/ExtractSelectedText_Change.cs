@@ -180,7 +180,8 @@ internal class ExtractSelectedText_Change : Change
     {
         RichText richText = new RichText(text);
 
-        var positions = richText.GetGlyphPositions(textData.Font);
+        using Font nativeFont = textData.ConstructFont();
+        var positions = richText.GetGlyphPositions(nativeFont);
         if (positions == null || positions.Length == 0)
         {
             return VecD.Zero;
@@ -190,7 +191,7 @@ internal class ExtractSelectedText_Change : Change
 
         richText.IndexOnLine(startIndex, out int lineIndex);
 
-        VecD lineOffset = richText.GetLineOffset(lineIndex, textData.Font);
+        VecD lineOffset = richText.GetLineOffset(lineIndex, nativeFont);
 
         return new VecD(position.X, (1 / RichText.PtToPx) * lineOffset.Y);
     }

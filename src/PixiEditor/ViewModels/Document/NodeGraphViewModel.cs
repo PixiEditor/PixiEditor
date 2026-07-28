@@ -18,6 +18,7 @@ using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph.Blackboard;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Changes.NodeGraph;
 using PixiEditor.ViewModels.Document.Blackboard;
+using PixiEditor.ViewModels.Document.CompatibilityUpgrades;
 using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document;
@@ -44,12 +45,15 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
     IBlackboardHandler INodeGraphHandler.Blackboard => Blackboard;
 
     private DocumentInternalParts Internals { get; }
+    public ObservableCollection<IGraphUpgrader> AvailableUpgrades { get; set; } = new();
+    public bool HasGraphUpgrades => AvailableUpgrades.Count > 0;
 
     public NodeGraphViewModel(DocumentViewModel documentViewModel, DocumentInternalParts internals)
     {
         DocumentViewModel = documentViewModel;
         Internals = internals;
         Blackboard = new BlackboardViewModel(internals);
+        AvailableUpgrades.CollectionChanged += (sender, args) => OnPropertyChanged(nameof(HasGraphUpgrades));
     }
 
     internal void InitFrom(IReadOnlyNodeGraph nodeGraph)
@@ -529,6 +533,11 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
 
         RemoveExcessiveRenderOutputs(outputs);
         AddMissingRenderOutputs(outputs);
+    }
+
+    public void DismissUpgrade(IGraphUpgrader upgrader)
+    {
+        AvailableUpgrades.Remove(upgrader);
     }
 
     private void RemoveExcessiveRenderOutputs(Dictionary<string, INodeHandler> outputs)

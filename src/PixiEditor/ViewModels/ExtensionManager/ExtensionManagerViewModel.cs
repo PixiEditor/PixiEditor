@@ -113,6 +113,7 @@ internal class ExtensionManagerViewModel : ViewModelBase
 
     public bool IsDetailsVisible => SelectedAvailableExtension != null;
     public bool IsListVisible => SelectedAvailableExtension == null;
+    public ExtensionsViewModel ExtensionsViewModel => extensionsViewModel;
 
     private ExtensionsViewModel extensionsViewModel;
     private IAdditionalContentProvider contentProvider;
@@ -239,14 +240,18 @@ internal class ExtensionManagerViewModel : ViewModelBase
                 {
                     availableExtensions.AddRange(LoadCachedAvailableExtensions());
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    availableExtensions.AddRange(await contentProvider.FetchAvailableExtensions());
+                    var extensions = await contentProvider.FetchAvailableExtensions();
+                    availableExtensions.AddRange(extensions);
+                    SaveAvailableExtensionsToCache(extensions);
                 }
             }
             else
             {
-                availableExtensions.AddRange(await contentProvider.FetchAvailableExtensions());
+                var extensions = await contentProvider.FetchAvailableExtensions();
+                availableExtensions.AddRange(extensions);
+                SaveAvailableExtensionsToCache(extensions);
             }
 
             ExtensionsLayout = await LoadExtensionsLayout();
@@ -427,6 +432,19 @@ internal class ExtensionManagerViewModel : ViewModelBase
     public bool CanInstallAndLoadExtension(string extensionId)
     {
         return !IsInstalled(extensionId);
+    }
+
+    private bool IsCompatible(string extensionId)
+    {
+        ProductData product = identityProvider.User.OwnedProducts
+            .FirstOrDefault(x => x.Id == extensionId);
+
+        if (product == null)
+        {
+            return false;
+        }
+
+        return !string.IsNullOrEmpty(product.LatestVersion);
     }
 
     private bool UpdateAvailable(string extensionId)

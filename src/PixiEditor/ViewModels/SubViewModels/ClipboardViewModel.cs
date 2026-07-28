@@ -461,6 +461,15 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         return canPasteImage;
     }
 
+    [Evaluator.CanExecute("PixiEditor.Clipboard.CanPasteFromClipboard")]
+    public bool CanPasteFromClipboard(object parameter)
+    {
+        if (parameter is IDataTransfer data)
+            return ClipboardController.IsImage(data);
+
+        QueueCheckCanPasteImage();
+        return canPasteImage;
+    }
 
     [Evaluator.CanExecute("PixiEditor.Clipboard.CanCopyCels")]
     public bool CanCopyCels()

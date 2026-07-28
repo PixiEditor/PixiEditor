@@ -250,10 +250,10 @@ public class PixiAuthClient
         return false;
     }
 
-    public async Task<List<Product>> GetUserLibrary(string token, int apiVersion)
+    public async Task<List<Product>> GetUserLibrary(string token, int apiVersion, string hostName, Version hostVersion)
     {
         HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get,
-            $"v2/content/getOwnedProducts?pixiEditorApiVersion={apiVersion}");
+            $"v2/content/getOwnedProducts?pixiEditorApiVersion={apiVersion}&hostName={hostName}&hostVersion={hostVersion}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         var response = await httpClient.SendAsync(request);

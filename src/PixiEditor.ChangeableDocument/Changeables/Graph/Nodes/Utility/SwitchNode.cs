@@ -25,7 +25,7 @@ public class SwitchNode : Node
         InputTrue = CreateSyncedTypeInput("InputTrue", "ON_TRUE", syncGroup)
             .AllowGenericFallback(true);
         AddTrueFuncInputHandlers(new Float1("") { ConstantValue = 1f });
-        AddTrueFuncInputHandlers(new Half4("") { ConstantValue = Colors.Black });
+        AddTrueFuncInputHandlers(new Half4("") { ConstantValue = Vec4D.Zero });
         AddTrueFuncInputHandlers(new Bool("") { ConstantValue = true });
         AddTrueFuncInputHandlers(new Int1("") { ConstantValue = 1 });
         AddTrueFuncInputHandlers(new Int2("") { ConstantValue = VecI.Zero });
@@ -37,7 +37,7 @@ public class SwitchNode : Node
         InputFalse = CreateSyncedTypeInput("InputFalse", "ON_FALSE", syncGroup)
             .AllowGenericFallback(true);
         AddFalseFuncInputHandlers(new Float1("") { ConstantValue = 1f });
-        AddFalseFuncInputHandlers(new Half4("") { ConstantValue = Colors.Black });
+        AddFalseFuncInputHandlers(new Half4("") { ConstantValue = Vec4D.Zero });
         AddFalseFuncInputHandlers(new Bool("") { ConstantValue = true });
         AddFalseFuncInputHandlers(new Int1("") { ConstantValue = 1 });
         AddFalseFuncInputHandlers(new Int2("") { ConstantValue = VecI.Zero });

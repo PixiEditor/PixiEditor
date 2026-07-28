@@ -28,11 +28,13 @@ internal class ChangeExecutionController
     public PointerInfo LastPointerInfo => lastPointerInfo;
     public KeyboardInfo LastKeyboardInfo => lastKeyboardInfo;
     public bool IsBlockingChangeActive => currentSession is not null && currentSession.BlocksOtherActions;
+    public bool IsChangeActive => currentSession is not null;
     public EditorData EditorData => GetEditorData();
 
     public event Action ToolSessionFinished;
 
     public IDocument Document => document;
+
     private readonly IDocument document;
     private readonly IServiceProvider services;
     private readonly DocumentInternalParts internals;

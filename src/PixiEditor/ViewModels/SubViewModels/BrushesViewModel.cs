@@ -180,9 +180,22 @@ internal class BrushesViewModel : SubViewModel<ViewModelMain>
         else if(brushViewModel.Brush.Document is DocumentViewModel dvm)
         {
             string uniqueName = FileHelper.GetUniqueFileName(
-                Path.Combine(Paths.PathToBrushesFolder, $"{brushViewModel.Brush.Name}_clone.pixi"));
+                Path.Combine(Paths.PathToBrushesFolder, $"{SanitizeName(brushViewModel.Brush.Name)}_clone.pixi"));
             Exporter.TrySave(dvm, uniqueName, new ExportConfig(dvm.SizeBindable), null);
         }
+    }
+
+    private string SanitizeName(string brushName)
+    {
+        if (brushName.Contains(':'))
+        {
+            return SanitizeName(brushName.Split(':')[1]);
+        }
+        foreach (var c in Path.GetInvalidFileNameChars())
+        {
+            brushName = brushName.Replace(c, '_');
+        }
+        return brushName;
     }
 
     [Command.Basic("PixiEditor.Brushes.OpenBrushesFolder", "OPEN_BRUSHES_FOLDER", "OPEN_BRUSHES_FOLDER_DESCRIPTIVE",

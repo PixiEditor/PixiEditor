@@ -64,6 +64,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
     private bool disposed = false;
     private readonly object lockObject = new();
     private int commitCounter = 0;
+    private int cancelCounter = 0;
 
     private RectI cachedPreciseCommitedBounds = RectI.Empty;
     private RectI cachedPreciseLatestBounds = RectI.Empty;
@@ -84,6 +85,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
     public ColorSpace ProcessingColorSpace { get; }
 
     public int CommitCounter => commitCounter;
+    public int CancelCounter => cancelCounter;
 
     public VecI CommittedSize { get; private set; }
     public VecI LatestSize { get; private set; }
@@ -1239,6 +1241,44 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
                 chunks.Clear();
                 latestChunksData[res].Clear();
             }
+
+            cancelCounter++;
+        }
+    }
+
+    /// Discards all enqueued operations (and active clips) but preserves blend mode, symmetry axes and lock transparency
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
+    public void DiscardChanges()
+    {
+        using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
+        lock (lockObject)
+        {
+            ThrowIfDisposed();
+            //clear queued operations
+            foreach (var operation in queuedOperations)
+                operation.operation.Dispose();
+            queuedOperations.Clear();
+
+            //clear additional state
+            activeClips.Clear();
+
+            //clear latest chunks
+            foreach (var chunksOfRes in latestChunks.Values)
+            {
+                foreach (var chunk in chunksOfRes.Values)
+                {
+                    chunk.Dispose();
+                }
+            }
+
+            LatestSize = CommittedSize;
+            foreach (var (res, chunks) in latestChunks)
+            {
+                chunks.Clear();
+                latestChunksData[res].Clear();
+            }
+
+            cancelCounter++;
         }
     }
 
@@ -1864,6 +1904,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
     {
         HashCode hash = new HashCode();
         hash.Add(commitCounter);
+        hash.Add(cancelCounter);
         hash.Add(queuedOperations.Count);
         hash.Add(operationCounter);
 
