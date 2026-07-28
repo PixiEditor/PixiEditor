@@ -278,6 +278,16 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
         ViewModelMain.Current.NodeGraphManager.GetComputedPropertyValue(this);
     }
 
+    public void StartWatchingComputedValue()
+    {
+        ViewModelMain.Current.NodeGraphManager.StartWatchingComputedValue(this);
+    }
+
+    public void StopWatchingComputedValue()
+    {
+        ViewModelMain.Current.NodeGraphManager.StopWatchingComputedValue(this);
+    }
+
     public void InternalSetComputedValue(object value)
     {
         computedValue = value;
