@@ -312,6 +312,7 @@
         "FindAndReplace",
         "SwapColor",
         "BackgroundEraser",
+        "ColorPicker",
         "Zoom"
       ]
     }
