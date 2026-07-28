@@ -308,10 +308,30 @@
             "DefaultToolSize": 20
           }
         },
-        "Brightness",
-        "FindAndReplace",
-        "SwapColor",
-        "BackgroundEraser",
+        {
+          "ToolName": "Brightness",
+          "Settings": {
+            "DefaultToolSize": 20
+          }
+        },
+        {
+          "ToolName": "FindAndReplace",
+          "Settings": {
+            "DefaultToolSize": 20
+          }
+        },
+        {
+          "ToolName": "SwapColor",
+          "Settings": {
+            "DefaultToolSize": 20
+          }
+        },
+        {
+          "ToolName": "BackgroundEraser",
+          "Settings": {
+            "DefaultToolSize": 20
+          }
+        },
         "ColorPicker",
         "Zoom"
       ]
