@@ -208,6 +208,7 @@ internal class ActionAccumulator
                 finally
                 {
                     NotifyUpdatedPreviews(updatePreviewActions);
+                    document.NodeGraphHandler.UpdateWatchedComputedValues();
                 }
             }
         }
@@ -313,6 +314,7 @@ internal class ActionAccumulator
                 finally
                 {
                     NotifyUpdatedPreviews(updatePreviewActions);
+                    document.NodeGraphHandler.UpdateWatchedComputedValues();
                 }
             }
         }

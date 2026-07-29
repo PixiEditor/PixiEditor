@@ -80,6 +80,11 @@ internal class ComputedValueToStringConverter : SingleInstanceConverter<Computed
 
     private static object Resolve(object value)
     {
+        if (value is ShaderExpressionVariable variable)
+        {
+            return variable.GetConstant();
+        }
+
         if (value is not Delegate func)
         {
             return value;

@@ -12,6 +12,7 @@ using PixiEditor.ChangeableDocument.ChangeInfos;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
+using Drawie.Backend.Core.Bridge;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph.Blackboard;
@@ -26,6 +27,7 @@ namespace PixiEditor.ViewModels.Document;
 internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposable
 {
     private bool isFullyCreated;
+    private readonly HashSet<INodePropertyHandler> watchedProperties = new();
 
     public DocumentViewModel DocumentViewModel { get; }
     public ObservableCollection<INodeHandler> AllNodes { get; } = new();
@@ -392,9 +394,35 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
             new GetComputedPropertyValue_Action(property.Node.Id, property.PropertyName, property.IsInput));
     }
 
+    public void StartWatchingComputedValue(INodePropertyHandler property)
+    {
+        watchedProperties.Add(property);
+        RequestUpdateComputedPropertyValue(property);
+    }
+
+    public void StopWatchingComputedValue(INodePropertyHandler property)
+    {
+        watchedProperties.Remove(property);
+    }
+
+    public void UpdateWatchedComputedValues()
+    {
+        if (watchedProperties.Count == 0)
+            return;
+
+        DrawingBackendApi.Current.RenderingDispatcher.Invoke(() =>
+        {
+            foreach (var property in watchedProperties)
+            {
+                property.InternalSetComputedValue(GetComputedPropertyValue<object>(property));
+            }
+        });
+    }
+
     public T GetComputedPropertyValue<T>(INodePropertyHandler property)
     {
         var node = Internals.Tracker.Document.NodeGraph.AllNodes.FirstOrDefault(x => x.Id == property.Node.Id);
+        if (node == null) return default;
         if (property.IsInput)
         {
             var prop = node.GetInputProperty(property.PropertyName);
