@@ -52,13 +52,13 @@ internal class SceneRenderer : IDisposable
         DocumentViewModel = documentViewModel;
     }
 
-    public async Task RecordRender(Dictionary<Guid, ViewportInfo> stateViewports, AffectedArea affectedArea,
+    public void RecordRender(Dictionary<Guid, ViewportInfo> stateViewports, AffectedArea affectedArea,
         bool updateDelayed, Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures, bool immediateRender)
     {
         Render(stateViewports, affectedArea, updateDelayed, true, previewTextures);
     }
 
-    public async Task RenderAsync(Dictionary<Guid, ViewportInfo> stateViewports, AffectedArea affectedArea,
+    public void RenderAsync(Dictionary<Guid, ViewportInfo> stateViewports, AffectedArea affectedArea,
         bool updateDelayed, Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures, bool immediateRender)
     {
         if (immediateRender)
@@ -67,10 +67,10 @@ internal class SceneRenderer : IDisposable
             return;
         }
 
-        await DrawingBackendApi.Current.RenderingDispatcher.InvokeInBackgroundAsync(() =>
-        {
+        //await DrawingBackendApi.Current.RenderingDispatcher.InvokeInBackgroundAsync(() =>
+       // {
             Render(stateViewports, affectedArea, updateDelayed, false, previewTextures);
-        });
+       // });
     }
 
     public void RenderSync(Dictionary<Guid, ViewportInfo> stateViewports, AffectedArea affectedAreasMainImageArea,
@@ -85,7 +85,7 @@ internal class SceneRenderer : IDisposable
     {
         using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
         int renderedCount = 0;
-        if (Document?.NodeGraph == null)
+        if (Document?.NodeGraph == null || Document.NodeGraph.OutputNode == null)
         {
             return;
         }

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using Drawie.Backend.Core;
 using Drawie.Backend.Core.Bridge;
 using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Undo;
@@ -16,6 +17,11 @@ public class DocumentChangeTracker : IDisposable
     public bool HasSavedUndo => undoStack.Any();
     public bool HasSavedRedo => redoStack.Any();
     public bool IsRunning => running;
+
+    private Queue<(ActionSource, IAction)> queue = new();
+
+    public event Action<List<(ActionSource, IAction)>, List<IChangeInfo>> WorkCompleted;
+
 
     public Guid? LastChangeGuid
     {
@@ -389,7 +395,7 @@ public class DocumentChangeTracker : IDisposable
         return info;
     }
 
-    private List<IChangeInfo?> ProcessActionList(IReadOnlyList<(ActionSource, IAction)> actions)
+    private List<IChangeInfo?> ProcessAction((ActionSource, IAction) action)
     {
         List<IChangeInfo?> changeInfos = new();
 
@@ -399,67 +405,76 @@ public class DocumentChangeTracker : IDisposable
                 (IChangeInfo changeInfo) => changeInfos.Add(changeInfo),
                 (List<IChangeInfo> infos) => changeInfos.AddRange(infos));
 
-        foreach (var action in actions)
+
+        switch (action.Item2)
         {
-            switch (action.Item2)
-            {
-                case IMakeChangeAction act:
-                    AddInfo(ProcessMakeChangeAction(act, action.Item1));
-                    break;
-                case IStartOrUpdateChangeAction act:
-                    AddInfo(ProcessStartOrUpdateChangeAction(act, action.Item1));
-                    break;
-                case IEndChangeAction act:
-                    AddInfo(ProcessEndChangeAction(act, action.Item1));
-                    break;
-                case Undo_Action:
-                    AddInfo(Undo());
-                    break;
-                case Redo_Action:
-                    AddInfo(Redo());
-                    break;
-                case ChangeBoundary_Action:
-                    CompletePacket(action.Item1);
-                    break;
-                case DeleteRecordedChanges_Action:
-                    DeleteAllChanges();
-                    break;
-                //used for "passthrough" actions (move viewport)
-                case IChangeInfo act:
-                    changeInfos.Add(act);
-                    break;
-            }
+            case IMakeChangeAction act:
+                AddInfo(ProcessMakeChangeAction(act, action.Item1));
+                break;
+            case IStartOrUpdateChangeAction act:
+                AddInfo(ProcessStartOrUpdateChangeAction(act, action.Item1));
+                break;
+            case IEndChangeAction act:
+                AddInfo(ProcessEndChangeAction(act, action.Item1));
+                break;
+            case Undo_Action:
+                AddInfo(Undo());
+                break;
+            case Redo_Action:
+                AddInfo(Redo());
+                break;
+            case ChangeBoundary_Action:
+                CompletePacket(action.Item1);
+                break;
+            case DeleteRecordedChanges_Action:
+                DeleteAllChanges();
+                break;
+            //used for "passthrough" actions (move viewport)
+            case IChangeInfo act:
+                changeInfos.Add(act);
+                break;
         }
 
         return changeInfos;
     }
 
-    public async Task<List<IChangeInfo?>> ProcessActions(List<(ActionSource, IAction)> actions)
+    public void Enqueue(List<(ActionSource, IAction)> item)
     {
-        if (disposed)
-            throw new ObjectDisposedException(nameof(DocumentChangeTracker));
-        if (running)
-            throw new InvalidOperationException("Already currently processing");
-        try
+        foreach (var action in item)
         {
-            running = true;
-            var result =
-                await DrawingBackendApi.Current.RenderingDispatcher.InvokeAsync(() => ProcessActionList(actions));
-            running = false;
-            return result;
-        }
-        catch (Exception e)
-        {
-            Trace.WriteLine($"Exception while processing actions: {e}");
-            return new List<IChangeInfo?>();
-        }
-        finally
-        {
-            running = false;
+            queue.Enqueue(action);
         }
     }
 
-    public List<IChangeInfo?> ProcessActionsSync(IReadOnlyList<(ActionSource, IAction)> actions)
+    public bool ProcessFor(TimeSpan budget)
+    {
+        var sw = Stopwatch.StartNew();
+        List<(ActionSource, IAction)> executed = new();
+        List<IChangeInfo> changeInfos = new List<IChangeInfo>();
+
+        using var _ = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
+        while (queue.Count > 0)
+        {
+            var action = queue.Dequeue();
+            executed.Add(action);
+            changeInfos.AddRange(ProcessAction(action));
+
+            if (sw.Elapsed > budget)
+            {
+                WorkCompleted?.Invoke(executed, changeInfos);
+                return false;
+            }
+        }
+
+        if (executed.Count > 0)
+        {
+            WorkCompleted?.Invoke(executed, changeInfos);
+        }
+
+        return true;
+    }
+
+    public List<IChangeInfo> ProcessAll(List<(ActionSource source, IAction action)> toExecute)
     {
         if (disposed)
             throw new ObjectDisposedException(nameof(DocumentChangeTracker));
@@ -469,8 +484,13 @@ public class DocumentChangeTracker : IDisposable
         try
         {
             using var _ = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
-            var result = ProcessActionList(actions);
-            return result;
+            List<IChangeInfo> changeInfos = new List<IChangeInfo>();
+            foreach (var action in toExecute)
+            {
+                changeInfos.AddRange(ProcessAction(action));
+            }
+
+            return changeInfos;
         }
         finally
         {
@@ -478,6 +498,50 @@ public class DocumentChangeTracker : IDisposable
         }
     }
 }
+
+/*public async Task<List<IChangeInfo?>> ProcessActions(List<(ActionSource, IAction)> actions)
+{
+    if (disposed)
+        throw new ObjectDisposedException(nameof(DocumentChangeTracker));
+    if (running)
+        throw new InvalidOperationException("Already currently processing");
+    try
+    {
+        running = true;
+        var result =
+            await DrawingBackendApi.Current.RenderingDispatcher.InvokeAsync(() => ProcessActionList(actions));
+        running = false;
+        return result;
+    }
+    catch (Exception e)
+    {
+        Trace.WriteLine($"Exception while processing actions: {e}");
+        return new List<IChangeInfo?>();
+    }
+    finally
+    {
+        running = false;
+    }
+}
+
+public List<IChangeInfo?> ProcessActionsSync(IReadOnlyList<(ActionSource, IAction)> actions)
+{
+    if (disposed)
+        throw new ObjectDisposedException(nameof(DocumentChangeTracker));
+    if (running)
+        throw new InvalidOperationException("Already currently processing");
+    running = true;
+    try
+    {
+        using var _ = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
+        var result = ProcessActionList(actions);
+        return result;
+    }
+    finally
+    {
+        running = false;
+    }
+}*/
 
 public enum ActionSource
 {
