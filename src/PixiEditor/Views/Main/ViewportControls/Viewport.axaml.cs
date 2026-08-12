@@ -20,9 +20,11 @@ using PixiEditor.Helpers.Behaviours;
 using PixiEditor.Helpers.UI;
 using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.DocumentModels;
+using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Position;
 using Drawie.Numerics;
 using Drawie.Skia;
+using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.ChangeableDocument.Rendering.ContextData;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.UI.Common.Behaviors;
@@ -401,7 +403,6 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     public Guid GuidValue { get; } = Guid.NewGuid();
 
-    private MouseUpdateController? mouseUpdateController;
     private ViewportOverlays builtInOverlays = new();
 
     public static readonly StyledProperty<int> MaxBilinearSamplingSizeProperty
@@ -444,11 +445,17 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         Loaded += OnLoad;
         Unloaded += OnUnload;
         Scene.AttachedToVisualTree += OnAttachedToVisualTree;
+        DataContextChanged += (_, _) =>
+        {
+            if (DataContext is IViewport viewportVm)
+                viewportVm.SceneTextureKey = GuidValue;
+        };
 
         //TODO: It's weird that I had to do it this way, right click didn't raise Image_MouseUp otherwise.
         viewportGrid.AddHandler(PointerReleasedEvent, Image_MouseUp, RoutingStrategies.Tunnel);
         viewportGrid.AddHandler(PointerPressedEvent, Image_MouseDown, RoutingStrategies.Bubble);
         viewportGrid.AddHandler(PointerWheelChangedEvent, Image_MouseWheel, RoutingStrategies.Tunnel);
+        PointerMoved += Image_MouseMove;
 
         Scene.PointerExited += (sender, args) => IsOverCanvas = false;
         Scene.PointerEntered += (sender, args) => IsOverCanvas = true;
@@ -507,13 +514,13 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     private void OnUnload(object? sender, RoutedEventArgs e)
     {
         Document?.Operations.RemoveViewport(GuidValue);
-        mouseUpdateController?.Dispose();
     }
 
     private void OnLoad(object? sender, RoutedEventArgs e)
     {
         Document?.Operations.AddOrUpdateViewport(GetLocation());
-        mouseUpdateController = new MouseUpdateController(this, Image_MouseMove);
+        if (DataContext is IViewport viewportVm)
+            viewportVm.SceneTextureKey = GuidValue;
     }
 
     private static void OnDocumentChange(AvaloniaPropertyChangedEventArgs<DocumentViewModel> e)
@@ -600,10 +607,8 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
         MouseButton mouseButton = e.GetMouseButton(this);
 
-        var pos = e.GetPosition(Scene);
-        VecD scenePos = Scene.ToZoomboxSpace(new VecD(pos.X, pos.Y));
         MouseOnCanvasEventArgs? parameter =
-            new MouseOnCanvasEventArgs(mouseButton, e.Pointer.Type, scenePos, e.KeyModifiers, e.ClickCount,
+            new MouseOnCanvasEventArgs(mouseButton, e.Pointer.Type, Scene.LastPointerInfo, e.KeyModifiers, e.ClickCount,
                 e.GetCurrentPoint(this).Properties, Scene.Scale, Document);
 
         if (MouseDownCommand.CanExecute(parameter))
@@ -612,15 +617,13 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         e.Handled = true;
     }
 
-    private void Image_MouseMove(PointerEventArgs e)
+    private void Image_MouseMove(object sender, PointerEventArgs e)
     {
         if (MouseMoveCommand is null)
             return;
-        Point pos = e.GetPosition(Scene);
-        VecD conv = Scene.ToZoomboxSpace(new VecD(pos.X, pos.Y));
         MouseButton mouseButton = e.GetMouseButton(this);
 
-        MouseOnCanvasEventArgs parameter = new(mouseButton, e.Pointer.Type, conv, e.KeyModifiers, 0,
+        MouseOnCanvasEventArgs parameter = new(mouseButton, e.Pointer.Type, scene.LastPointerInfo, e.KeyModifiers, 0,
             e.GetCurrentPoint(this).Properties, Scene.Scale, Document);
 
         var intermediate = e.GetIntermediatePoints(this);
@@ -646,9 +649,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         if (MouseUpCommand is null)
             return;
 
-        Point pos = e.GetPosition(Scene);
-        VecD conv = Scene.ToZoomboxSpace(new VecD(pos.X, pos.Y));
-        MouseOnCanvasEventArgs parameter = new(e.InitialPressMouseButton, e.Pointer.Type, conv, e.KeyModifiers, 0,
+        MouseOnCanvasEventArgs parameter = new(e.InitialPressMouseButton, e.Pointer.Type, scene.LastPointerInfo, e.KeyModifiers, 0,
             e.GetCurrentPoint(this).Properties, Scene.Scale, Document);
         if (MouseUpCommand.CanExecute(parameter))
             MouseUpCommand.Execute(parameter);
@@ -694,7 +695,27 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         scene.AngleRadians = 0;
         scene.CenterContent(Document.GetRenderOutputSize(ViewportRenderOutput));
     }
+    
+    private void RecenterHorizontalSymmetryClicked(object? sender, RoutedEventArgs e)
+    {
+        if (Document is null)
+            return;
 
+        Document.SetSymmetryAxisPositionFromUser(
+            SymmetryAxisDirection.Vertical,
+            (double)Document.Width / 2);
+    }
+
+    private void RecenterVerticalSymmetryClicked(object? sender, RoutedEventArgs e)
+    {
+        if (Document is null)
+            return;
+
+        Document.SetSymmetryAxisPositionFromUser(
+            SymmetryAxisDirection.Horizontal,
+            (double)Document.Height / 2);
+    }
+    
     private RectD? CalculateVisibleRegion()
     {
         if (Document is null) return null;

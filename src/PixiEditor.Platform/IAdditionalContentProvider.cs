@@ -10,4 +10,5 @@ public interface IAdditionalContentProvider
     public bool IsInstalled(string productId);
 
     public Task<List<AvailableContent>> FetchAvailableExtensions();
+    public Task<ExtensionsLayout> FetchExtensionsLayout();
 }

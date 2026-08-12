@@ -73,6 +73,8 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
         }
     }
 
+    public Guid SceneTextureKey { get; set; }
+
     public string RenderOutputName
     {
         get => renderOutputName;

@@ -10,6 +10,7 @@ using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Extensions.IO;
 using PixiEditor.Extensions.Metadata;
+using PixiEditor.Extensions.Runtime;
 using PixiEditor.Extensions.WasmRuntime;
 using PixiEditor.Extensions.WasmRuntime.Utilities;
 using PixiEditor.IdentityProvider;
@@ -30,6 +31,9 @@ namespace PixiEditor.ViewModels.ExtensionManager;
 internal class ExtensionManagerViewModel : ViewModelBase
 {
     public ObservableCollection<AvailableContentViewModel> AvailableExtensions { get; } =
+        new ObservableCollection<AvailableContentViewModel>();
+
+    public ObservableCollection<AvailableContentViewModel> FeaturedExtensions { get; } =
         new ObservableCollection<AvailableContentViewModel>();
 
     // TODO: refactor to LibraryExtensions - it's made from owned and custom installed
@@ -109,6 +113,7 @@ internal class ExtensionManagerViewModel : ViewModelBase
 
     public bool IsDetailsVisible => SelectedAvailableExtension != null;
     public bool IsListVisible => SelectedAvailableExtension == null;
+    public ExtensionsViewModel ExtensionsViewModel => extensionsViewModel;
 
     private ExtensionsViewModel extensionsViewModel;
     private IAdditionalContentProvider contentProvider;
@@ -123,6 +128,13 @@ internal class ExtensionManagerViewModel : ViewModelBase
     public bool IsPlatformSteam => platform.Id == "steam";
     public RelayCommand<LinkClickedEventArgs> LinkClickCommand { get; }
     public ExtensionsTab LibraryTab => Tabs.FirstOrDefault(tab => tab.Id == "Owned");
+    public ExtensionsLayout ExtensionsLayout { get; set; }
+
+    public AvailableContentViewModel FirstHighlightedExtension =>
+        AvailableExtensions.FirstOrDefault(e => e.HighlightData != null);
+
+    public AvailableContentViewModel SecondHighlightedExtension =>
+        AvailableExtensions.Where(e => e.HighlightData != null).Skip(1).FirstOrDefault();
 
     public bool ShouldUpdateUserOwnedProducts = false;
 
@@ -169,7 +181,15 @@ internal class ExtensionManagerViewModel : ViewModelBase
                         Author = ext.ProductData.Author,
                         HideAddToLibrary = true,
                         IsBundle = ext.ProductData.IsBundle,
-                        Body = ext.ProductData.Description
+                        Body = ext.ProductData.Description,
+                        Versions = ext.ProductData?.LatestVersion != null ? new List<ExtensionVersion>()
+                        {
+                            new ExtensionVersion()
+                            {
+                                Version = ext.ProductData.LatestVersion,
+                                PixiEditorApiVersion = ExtensionRuntimeInfo.ApiVersion // TODO: This is not a true value, it would have to call extension to get the real api version
+                            }
+                        } : new List<ExtensionVersion>()
                     }, this, 1, "PLN", false);
 
                 SelectExtension(created);
@@ -205,26 +225,36 @@ internal class ExtensionManagerViewModel : ViewModelBase
     public async Task FetchAvailableExtensions()
     {
         AvailableExtensions.Clear();
+        FeaturedExtensions.Clear();
+
+        if (IsPlatformSteam) return;
         List<AvailableContent> availableExtensions = new List<AvailableContent>();
         try
         {
             IsAvailableFetching = true;
             AvailableErrorMessage = "";
-            if (PixiEditorSettings.Extensions.LastFetchedAvailableExtensionsDate.Value.AddHours(24) > DateTime.Now && File.Exists(Path.Combine(Paths.LocalPath, "available_extensions_cache.json")))
+            if (PixiEditorSettings.Extensions.LastFetchedAvailableExtensionsDate.Value.AddHours(24) > DateTime.Now &&
+                File.Exists(Path.Combine(Paths.LocalPath, "available_extensions_cache.json")))
             {
                 try
                 {
                     availableExtensions.AddRange(LoadCachedAvailableExtensions());
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    availableExtensions.AddRange(await contentProvider.FetchAvailableExtensions());
+                    var extensions = await contentProvider.FetchAvailableExtensions();
+                    availableExtensions.AddRange(extensions);
+                    SaveAvailableExtensionsToCache(extensions);
                 }
             }
             else
             {
-                availableExtensions.AddRange(await contentProvider.FetchAvailableExtensions());
+                var extensions = await contentProvider.FetchAvailableExtensions();
+                availableExtensions.AddRange(extensions);
+                SaveAvailableExtensionsToCache(extensions);
             }
+
+            ExtensionsLayout = await LoadExtensionsLayout();
         }
         catch (Exception ex)
         {
@@ -236,7 +266,6 @@ internal class ExtensionManagerViewModel : ViewModelBase
             IsAvailableFetching = false;
         }
 
-        SaveAvailableExtensionsToCache(availableExtensions);
         double rate = 1;
         if (PixiEditorSettings.Extensions.DisplayedCurrency?.Value == null)
         {
@@ -262,9 +291,29 @@ internal class ExtensionManagerViewModel : ViewModelBase
 
         foreach (var extension in availableExtensions)
         {
-            AvailableExtensions.Add(new AvailableContentViewModel(extension, this, rate, selectedCurrency,
-                (IsPlatformSteam && !IsExtensionOwned(extension.Id))));
+            var vm =
+            new AvailableContentViewModel(extension, this, rate, selectedCurrency,
+                (IsPlatformSteam && !IsExtensionOwned(extension.Id)));
+            if (ExtensionsLayout != null)
+            {
+                HighlightData? highlightData = ExtensionsLayout.HighlightedExtensions
+                    .FirstOrDefault(h => h.ExtensionId == extension.Id);
+                if (highlightData != null)
+                {
+                    vm.HighlightData = highlightData;
+                }
+
+                if(ExtensionsLayout.FeaturedExtensionIds.Contains(extension.Id))
+                {
+                    FeaturedExtensions.Add(vm);
+                }
+            }
+
+            AvailableExtensions.Add(vm);
         }
+
+        OnPropertyChanged(nameof(FirstHighlightedExtension));
+        OnPropertyChanged(nameof(SecondHighlightedExtension));
     }
 
     public void FetchOwnedExtensions()
@@ -330,7 +379,8 @@ internal class ExtensionManagerViewModel : ViewModelBase
 
                 OwnedExtensions.Add(new OwnedProductViewModel(extension, isInstalled, installedVersion, isEnabled,
                     isLoaded, InstallAndLoadExtensionCommand, UninstallExtensionCommand, EnableExtensionCommand,
-                    DisableExtensionCommand, UpdateExtensionCommand, IsInstalled, AreDependenciesReachable, CountLoadedDependencies));
+                    DisableExtensionCommand, UpdateExtensionCommand, IsInstalled, AreDependenciesReachable,
+                    CountLoadedDependencies));
             }
 
             RefreshDependenciesState();
@@ -367,7 +417,8 @@ internal class ExtensionManagerViewModel : ViewModelBase
 
             OwnedExtensions.Add(new OwnedProductViewModel(productData, isInstalled, extensionMetadata.Version,
                 isEnabled, isLoaded, InstallAndLoadExtensionCommand, UninstallExtensionCommand, EnableExtensionCommand,
-                DisableExtensionCommand, UpdateExtensionCommand, IsInstalled, AreDependenciesReachable, CountLoadedDependencies, storage)
+                DisableExtensionCommand, UpdateExtensionCommand, IsInstalled, AreDependenciesReachable,
+                CountLoadedDependencies, storage)
             );
         }
     }
@@ -381,6 +432,19 @@ internal class ExtensionManagerViewModel : ViewModelBase
     public bool CanInstallAndLoadExtension(string extensionId)
     {
         return !IsInstalled(extensionId);
+    }
+
+    private bool IsCompatible(string extensionId)
+    {
+        ProductData product = identityProvider.User.OwnedProducts
+            .FirstOrDefault(x => x.Id == extensionId);
+
+        if (product == null)
+        {
+            return false;
+        }
+
+        return !string.IsNullOrEmpty(product.LatestVersion);
     }
 
     private bool UpdateAvailable(string extensionId)
@@ -447,10 +511,14 @@ internal class ExtensionManagerViewModel : ViewModelBase
         }
 
         await extensionsViewModel.UninstallExtension(extensionId);
+
         if (!IsUserLoggedIn)
         {
             OwnedExtensions.Remove(OwnedExtensions.FirstOrDefault(e => e.ProductData.Id == extensionId));
         }
+
+        IPreferences.Current.UpdateLocalPreference(
+            $"product_{extensionId}_downloaded_at_least_once", true);
     }
 
     public async Task AddToLibrary(string extensionId)
@@ -515,7 +583,7 @@ internal class ExtensionManagerViewModel : ViewModelBase
                 return (false, Array.Empty<string>());
             }
         }
-        
+
 
         foreach (var dep in extensionMetadata.DependsOn)
         {
@@ -561,6 +629,76 @@ internal class ExtensionManagerViewModel : ViewModelBase
         }
 
         extensionsViewModel.DisableExtension(extensionId);
+    }
+
+    private async Task<ExtensionsLayout?> LoadExtensionsLayout()
+    {
+        try
+        {
+            var lastFetchedDate = PixiEditorSettings.Extensions.LastFetchedExtensionsLayoutDate.Value;
+            if (lastFetchedDate.AddHours(24) > DateTime.Now)
+            {
+                var cache = await LoadLayoutFromCache();
+                if (cache != null)
+                {
+                    return cache;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine("Failed to load extensions layout from cache: " + ex.Message);
+            return await FetchExtensionsLayout();
+        }
+
+        try
+        {
+            return await FetchExtensionsLayout();
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine("Failed to fetch extensions layout: " + ex.Message);
+            return null;
+        }
+    }
+
+    private async Task<ExtensionsLayout?> FetchExtensionsLayout()
+    {
+        var layout = await contentProvider.FetchExtensionsLayout();
+        if (layout != null)
+        {
+            string cachePath = Path.Combine(Paths.LocalPath, "extensions_layout_cache.json");
+            try
+            {
+                string json = System.Text.Json.JsonSerializer.Serialize(layout);
+                await File.WriteAllTextAsync(cachePath, json);
+                PixiEditorSettings.Extensions.LastFetchedExtensionsLayoutDate.Value = DateTime.Now;
+                return layout;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Failed to save extensions layout to cache: " + ex.Message);
+            }
+        }
+
+        return null;
+    }
+
+
+    private static async Task<ExtensionsLayout?> LoadLayoutFromCache()
+    {
+        string cachePath = Path.Combine(Paths.LocalPath, "extensions_layout_cache.json");
+        if (File.Exists(cachePath))
+        {
+            string json = await File.ReadAllTextAsync(cachePath);
+            var cachedLayout = System.Text.Json.JsonSerializer.Deserialize<ExtensionsLayout>(json);
+            if (cachedLayout != null)
+            {
+                return cachedLayout;
+            }
+        }
+
+        return null;
     }
 
     private void BackToList()

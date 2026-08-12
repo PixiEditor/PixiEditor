@@ -34,4 +34,5 @@ internal interface IStructureMemberHandler : INodeHandler
     public void SetIsVisible(bool infoIsVisible);
     public void SetName(string infoName);
     event PropertyChangedEventHandler PropertyChanged;
+    public bool CanQuickColorChange();
 }

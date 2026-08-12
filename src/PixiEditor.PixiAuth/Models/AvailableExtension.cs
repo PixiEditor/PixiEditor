@@ -40,5 +40,68 @@ public class AvailableExtension
 
     [JsonPropertyName("percentageDiscount")]
     public int PercentageDiscount { get; set; }
+
+    [JsonPropertyName("releaseDate")]
+    public DateTime ReleaseDate { get; set; }
+
+    [JsonPropertyName("versions")]
+    public List<ExtVersion> Versions { get; set; } = new List<ExtVersion>();
+
+    [JsonPropertyName("tierGroup")]
+    public string TierGroup { get; set; } = string.Empty;
+
+    [JsonPropertyName("tier")]
+    public int Tier { get; set; }
+}
+
+[Serializable]
+public class ExtensionHighlightData
+{
+    [JsonPropertyName("headerTaglineText")]
+    public string HeaderTaglineText { get; set; } = string.Empty;
+
+    [JsonPropertyName("header")]
+    public string Header { get; set; } = string.Empty;
+
+    [JsonPropertyName("color")]
+    public string Color { get; set; } = string.Empty;
+
+    [JsonPropertyName("dealText")]
+    public string DealText { get; set; } = string.Empty;
+
+    [JsonPropertyName("highlightImageUrl")]
+    public string HighlightImageUrl { get; set; } = string.Empty;
+
+    [JsonPropertyName("description")]
+    public string Description { get; set; }  = string.Empty;
+
+    [JsonPropertyName("taglineIcon")]
+    public string TaglineIcon { get; set; }
+}
+
+[Serializable]
+public class ExtVersion
+{
+    [JsonPropertyName("extensionVersion")]
+    public string Version { get; set; } = string.Empty;
+
+    [JsonPropertyName("pixiEditorApiVersion")]
+    public int PixiEditorApiVersion { get; set; }
+
+    [JsonPropertyName("compatibleHostVersions")]
+    public List<HostVersion> CompatibleHostVersions { get; set; } = new List<HostVersion>();
+}
+
+[Serializable]
+public class HostVersion
+{
+    [JsonPropertyName("hostName")]
+    public string HostName { get; set; } = string.Empty;
+
+    [JsonPropertyName("minVersion")]
+    public Version? MinVersion { get; set; }
+
+    [JsonPropertyName("maxVersion")]
+    public Version? MaxVersion { get; set; }
 }
 

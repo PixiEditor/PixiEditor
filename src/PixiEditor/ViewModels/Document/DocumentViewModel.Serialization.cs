@@ -537,9 +537,14 @@ internal partial class DocumentViewModel
             {
                 if (inputProp.Connection != null)
                 {
+                    if (!nodeIdMap.TryGetValue(inputProp.Connection.Node.Id, out var outputNodeId))
+                    {
+                        continue;
+                    }
+
                     connections.Add(new PropertyConnection()
                     {
-                        OutputNodeId = nodeIdMap[inputProp.Connection.Node.Id],
+                        OutputNodeId = outputNodeId,
                         OutputPropertyName = inputProp.Connection.InternalPropertyName,
                         InputPropertyName = inputProp.InternalPropertyName
                     });
@@ -681,6 +686,8 @@ internal partial class DocumentViewModel
         IReadOnlyNodeGraph graph,
         Dictionary<Guid, int> nodeIdMap, Dictionary<Guid, int> keyFrameIds)
     {
+        if(root == null) return;
+
         foreach (var keyFrame in root)
         {
             if (keyFrame is IKeyFrameChildrenContainer container)
@@ -691,14 +698,17 @@ internal partial class DocumentViewModel
                 group.NodeId = nodeIdMap[keyFrame.NodeId];
                 group.Enabled = keyFrame.IsVisible;
 
-                foreach (var child in container.Children)
+                if (container.Children != null)
                 {
-                    if (child is IReadOnlyRasterKeyFrame rasterKeyFrame)
+                    foreach (var child in container.Children)
                     {
-                        if (!nodeIdMap.ContainsKey(rasterKeyFrame.NodeId)) continue;
-                        if (!keyFrameIds.ContainsKey(rasterKeyFrame.Id)) continue;
+                        if (child is IReadOnlyRasterKeyFrame rasterKeyFrame)
+                        {
+                            if (!nodeIdMap.ContainsKey(rasterKeyFrame.NodeId)) continue;
+                            if (!keyFrameIds.ContainsKey(rasterKeyFrame.Id)) continue;
 
-                        BuildRasterKeyFrame(rasterKeyFrame, graph, group, nodeIdMap, keyFrameIds);
+                            BuildRasterKeyFrame(rasterKeyFrame, graph, group, nodeIdMap, keyFrameIds);
+                        }
                     }
                 }
 

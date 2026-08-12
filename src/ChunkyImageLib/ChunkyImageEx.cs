@@ -47,6 +47,34 @@ public static class IReadOnlyChunkyImageEx
 
     /// <summary>
     /// Extracts a region from the <see cref="ChunkyImage"/> and draws it onto the passed <see cref="DrawingSurface"/>.
+    /// The region is taken from the most up to date version of the <see cref="ChunkyImage"/>
+    /// </summary>
+    /// <param name="image"><see cref="ChunkyImage"/> to extract the region from</param>
+    /// <param name="resolution">Chunk resolution</param>
+    /// <param name="surface">Surface to draw onto</param>
+    /// <param name="pos">Starting position on the surface</param>
+    /// <param name="paint">Paint to use for drawing</param>
+    public static void DrawMostUpToDateAffectedArea
+    (this IReadOnlyChunkyImage image, ChunkResolution resolution, Canvas surface,
+        AffectedArea affectedArea, VecD pos, Paint? paint = null, Paint? emptyPaint = null, SamplingOptions? sampling = null)
+    {
+        if (affectedArea.Chunks is null)
+            return;
+
+        foreach (var chunkPos in affectedArea.Chunks)
+        {
+            if (!image.DrawMostUpToDateChunkOn(chunkPos, resolution, surface,
+                    (VecI)(chunkPos * ChunkyImage.FullChunkSize * resolution.Multiplier()) + pos, paint, sampling) && emptyPaint != null)
+            {
+                surface.DrawRect(new RectD(
+                    (VecI)(chunkPos * ChunkyImage.FullChunkSize * resolution.Multiplier()) + pos,
+                    new VecD(resolution.PixelSize())), emptyPaint);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Extracts a region from the <see cref="ChunkyImage"/> and draws it onto the passed <see cref="DrawingSurface"/>.
     /// The region is taken from the committed version of the <see cref="ChunkyImage"/>
     /// </summary>
     /// <param name="image"><see cref="ChunkyImage"/> to extract the region from</param>

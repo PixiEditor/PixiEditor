@@ -137,6 +137,9 @@ public static class PixiEditorSettings
         public static LocalSetting<DateTime> LastFetchedAvailableExtensionsDate { get; } =
             LocalSetting.NonOwned<DateTime>(PixiEditor, DateTime.MinValue);
 
+        public static LocalSetting<DateTime> LastFetchedExtensionsLayoutDate { get; } =
+            LocalSetting.NonOwned<DateTime>(PixiEditor, DateTime.MinValue);
+
         public static LocalSetting<DateTime> LastFetchedExchangeRateDate { get; } =
             LocalSetting.NonOwned<DateTime>(PixiEditor, DateTime.MinValue);
 

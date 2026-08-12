@@ -2,6 +2,7 @@
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 internal class PasteImage_UpdateableChange : InterruptableUpdateableChange
@@ -58,7 +59,7 @@ internal class PasteImage_UpdateableChange : InterruptableUpdateableChange
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
-        ChunkyImage targetImage;
+        ChunkyImage? targetImage;
         if (targetKeyFrameGuid.HasValue && targetKeyFrameGuid != Guid.Empty)
         {
             targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, targetKeyFrameGuid.Value);
@@ -67,10 +68,16 @@ internal class PasteImage_UpdateableChange : InterruptableUpdateableChange
         {
             targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame ?? 0);
         }
+
+        if(targetImage == null)
+        {
+            ignoreInUndo = true;
+            return new None();
+        }
         
         var chunks = DrawImage(target, targetImage);
         savedChunks?.Dispose();
-        savedChunks = new(targetImage, targetImage.FindAffectedArea().Chunks);
+        savedChunks = new(targetImage, targetImage.FindAffectedArea().Chunks ?? new HashSet<VecI>());
         targetImage.CommitChanges();
         hasEnqueudImage = false;
         ignoreInUndo = false;
@@ -88,6 +95,10 @@ internal class PasteImage_UpdateableChange : InterruptableUpdateableChange
         {
             targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame ?? 0);
         }
+
+        if(targetImage == null)
+            return new None();
+
         return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, DrawImage(target, targetImage), drawOnMask);
     }
 

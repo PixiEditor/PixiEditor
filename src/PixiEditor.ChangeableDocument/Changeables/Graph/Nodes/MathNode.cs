@@ -10,9 +10,14 @@ using PixiEditor.Common;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
-[NodeInfo("Math")]
+[NodeInfo(UniqueName)]
 public class MathNode : Node
 {
+    public const string UniqueName = "Math";
+    public const string XPropertyName = "X";
+    public const string YPropertyName = "Y";
+    public const string ZPropertyName = "Z";
+    public const string ModePropertyName = "Mode";
     public FuncOutputProperty<Float1> Result { get; }
 
     public InputProperty<MathNodeMode> Mode { get; }
@@ -27,12 +32,12 @@ public class MathNode : Node
 
     public MathNode()
     {
-        Result = CreateFuncOutput<Float1>(nameof(Result), "RESULT", Calculate);
-        Mode = CreateInput(nameof(Mode), "MATH_MODE", MathNodeMode.Add);
-        Clamp = CreateInput(nameof(Clamp), "CLAMP", false);
-        X = CreateFuncInput<Float1>(nameof(X), "X", 0d);
-        Y = CreateFuncInput<Float1>(nameof(Y), "Y", 0d);
-        Z = CreateFuncInput<Float1>(nameof(Z), "Z", 0d);
+        Result = CreateFuncOutput<Float1>("Result", "RESULT", Calculate);
+        Mode = CreateInput(ModePropertyName, "MATH_MODE", MathNodeMode.Add);
+        Clamp = CreateInput("Clamp", "CLAMP", false);
+        X = CreateFuncInput<Float1>(XPropertyName, "X", 0d);
+        Y = CreateFuncInput<Float1>(YPropertyName, "Y", 0d);
+        Z = CreateFuncInput<Float1>(ZPropertyName, "Z", 0d);
     }
 
     private Float1 Calculate(FuncContext context)
@@ -75,6 +80,7 @@ public class MathNode : Node
                 MathNodeMode.Acos => ShaderMath.Acos(x),
                 MathNodeMode.Atan => ShaderMath.Atan(x),
                 MathNodeMode.Atan2 => ShaderMath.Atan2(x, y),
+                _ => ShaderMath.Add(x, y)
             };
 
             if (Clamp.Value)
@@ -142,6 +148,7 @@ public class MathNode : Node
             MathNodeMode.Acos => Math.Acos(xConst),
             MathNodeMode.Atan => Math.Atan(xConst),
             MathNodeMode.Atan2 => Math.Atan2(xConst, yConst),
+            _ => xConst + yConst
         };
 
         if (Clamp.Value)

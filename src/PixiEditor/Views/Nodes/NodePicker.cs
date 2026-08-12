@@ -141,27 +141,29 @@ public partial class NodePicker : TemplatedControl
 
     private void Scrolled(object? sender, ScrollChangedEventArgs e)
     {
-        if (e.OffsetDelta.Y != 0)
+        if (e.OffsetDelta.Y == 0 || _scrollViewer == null || _itemsControl == null)
         {
-            if(_scrollViewer.ScrollBarMaximum.Y == 0)
-            {
-                return;
-            }
-            
-            double normalizedY = ScrollOffset.Y / _scrollViewer.ScrollBarMaximum.Y;
-
-            int index = (int)(normalizedY * _itemsControl.Items.Count);
-            index = Math.Clamp(index, 0, _itemsControl.Items.Count - 1);
-            string category = FilteredNodeGroups[index].Name;
-            if (string.IsNullOrEmpty(category))
-            {
-                category = MiscCategory;
-            }
-
-            SuppressCategoryChanged = true;
-            SelectedCategory = category;
-            SuppressCategoryChanged = false;
+            return;
         }
+
+        var topGroup = FilteredNodeGroups?.LastOrDefault(x => GetGroupTop(x) <= ScrollOffset.Y + 1)
+                       ?? FilteredNodeGroups?.FirstOrDefault();
+        if (topGroup == null)
+        {
+            return;
+        }
+
+        string category = string.IsNullOrEmpty(topGroup.Name) ? MiscCategory : topGroup.Name;
+
+        SuppressCategoryChanged = true;
+        SelectedCategory = category;
+        SuppressCategoryChanged = false;
+    }
+
+    private double? GetGroupTop(NodeTypeGroup group)
+    {
+        var container = _itemsControl?.ContainerFromItem(group);
+        return container?.TranslatePoint(new Point(0, 0), _itemsControl)?.Y;
     }
 
     private static void OnSearchQueryChanged(AvaloniaPropertyChangedEventArgs e)
@@ -375,17 +377,19 @@ public partial class NodePicker : TemplatedControl
                 return;
             }
 
-            int indexOfFirstItemInCategory = nodePicker.FilteredNodeGroups
-                .Select((x, i) => (x, i))
-                .FirstOrDefault(x => x.x.Name == nodePicker.SelectedCategory).i;
+            var group = nodePicker.FilteredNodeGroups?.FirstOrDefault(x => x.Name == nodePicker.SelectedCategory);
+            if (group == null)
+            {
+                return;
+            }
 
-            double normalizedY = indexOfFirstItemInCategory / (double)nodePicker.FilteredNodeGroups.Count;
+            double? y = nodePicker.GetGroupTop(group);
+            if (y == null)
+            {
+                return;
+            }
 
-            double y = normalizedY * nodePicker._scrollViewer.ScrollBarMaximum.Y;
-
-            if (double.IsNaN(y)) return;
-
-            nodePicker.ScrollOffset = new Vector(0, y);
+            nodePicker.ScrollOffset = new Vector(0, y.Value);
         }
     }
 }

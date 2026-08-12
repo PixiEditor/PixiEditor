@@ -71,6 +71,7 @@ internal class ColorPickerToolViewModel : ToolViewModel, IColorPickerHandler
 
     public ColorPickerToolViewModel()
     {
+        Cursor = new Cursor(StandardCursorType.Cross);
         ActionDisplay = defaultActionDisplay;
         Toolbar = ToolbarFactory.Create<ColorPickerToolViewModel, EmptyToolbar>(this);
         ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocumentChanged += DocumentChanged;

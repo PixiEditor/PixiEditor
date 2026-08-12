@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Extensions.Commands;
+using PixiEditor.Extensions.CommonApi.Brushes;
 using PixiEditor.Extensions.CommonApi.Commands;
+using PixiEditor.Extensions.CommonApi.Extensions;
 using PixiEditor.Extensions.CommonApi.IO;
 using PixiEditor.Extensions.CommonApi.Logging;
 using PixiEditor.Extensions.CommonApi.Palettes;
@@ -26,7 +28,9 @@ public class ExtensionServices
     public IVisualTreeProvider VisualTree => Services.GetService<IVisualTreeProvider>();
     public IUserDataProvider UserDataProvider => Services.GetService<IUserDataProvider>();
     public IToolsProvider Tools => Services.GetService<IToolsProvider>();
+    public IBrushProvider Brushes => Services.GetService<IBrushProvider>();
     public ILogger Logger => Services.GetService<ILogger>();
+    public IExtensionsProvider Extensions => Services.GetService<IExtensionsProvider>();
 
     public ExtensionServices(IServiceProvider services)
     {

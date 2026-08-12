@@ -1,19 +1,40 @@
 ﻿using System.Collections.ObjectModel;
-using System.Globalization;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using LiveMarkdown.Avalonia;
+using PixiEditor.Extensions.Runtime;
 using PixiEditor.Platform;
 
 namespace PixiEditor.ViewModels.ExtensionManager;
 
 internal class AvailableContentViewModel : ObservableObject
 {
+    private HighlightData? data;
     public AvailableContent AvailableContent { get; }
+
+    public HighlightData? HighlightData
+    {
+        get => data;
+        set
+        {
+            if (SetProperty(ref data, value))
+            {
+                HeadlineMarkdownBuilder.Clear();
+                DealTextMarkdownBuilder.Clear();
+                if (data != null)
+                {
+                    HeadlineMarkdownBuilder.Append(data.HeaderTaglineText);
+                    DealTextMarkdownBuilder.Append(data.DealText);
+                }
+            }
+        }
+    }
 
     public bool IsOwned => extensionManager.IsExtensionOwned(AvailableContent.Id);
 
     public bool IsBundle => AvailableContent.IsBundle;
+
+    public bool IsNew => DateTime.Now - AvailableContent.ReleaseDate < TimeSpan.FromDays(14);
 
     public bool AllBundleItemsOwned =>
         IsBundle && AvailableContent.IncludedExtensions.All(id => extensionManager.IsExtensionOwned(id));
@@ -43,7 +64,7 @@ internal class AvailableContentViewModel : ObservableObject
             if (IsCountryUnsupported)
                 return "UNAVAILABLE_IN_YOUR_COUNTRY";
 
-            double price = AvailableContent.Price;
+            double price = GetBasePrice(AvailableContent);
 
             if (AvailableContent.IsBundle)
             {
@@ -73,6 +94,39 @@ internal class AvailableContentViewModel : ObservableObject
         }
     }
 
+    private double GetBasePrice(AvailableContent availableContent)
+    {
+        if (string.IsNullOrEmpty(availableContent.TierGroup))
+        {
+            return availableContent.Price;
+        }
+
+        AvailableContent? highestOwnedLowerTier = null;
+        foreach (var candidate in extensionManager.AvailableExtensions)
+        {
+            var candidateContent = candidate.AvailableContent;
+            if (candidateContent.TierGroup != availableContent.TierGroup)
+                continue;
+
+            if (candidateContent.Tier >= availableContent.Tier)
+            {
+                continue;
+            }
+
+            if (!extensionManager.IsExtensionOwned(candidateContent.Id))
+            {
+                continue;
+            }
+
+            if (highestOwnedLowerTier == null || candidateContent.Tier > highestOwnedLowerTier.Tier)
+            {
+                highestOwnedLowerTier = candidateContent;
+            }
+        }
+
+        return Math.Max(0, availableContent.Price - (highestOwnedLowerTier?.Price ?? 0));
+    }
+
     private readonly ExtensionManagerViewModel extensionManager;
 
     private double Rate { get; }
@@ -81,6 +135,47 @@ internal class AvailableContentViewModel : ObservableObject
     public ObservableStringBuilder MarkdownBody { get; } = new ObservableStringBuilder();
     public bool IsUnavailable { get; }
     public ObservableCollection<ShowcaseItem> ShowcaseItems { get; } = new ObservableCollection<ShowcaseItem>();
+    public ObservableStringBuilder HeadlineMarkdownBuilder { get; } = new ObservableStringBuilder();
+    public ObservableStringBuilder DealTextMarkdownBuilder { get; } = new ObservableStringBuilder();
+    public bool HasCompatibleVersion => ExtensionApiVersionCompatible() && HostVersionCompatible();
+
+    private bool ExtensionApiVersionCompatible()
+    {
+        return AvailableContent?.Versions == null || AvailableContent?.Versions.Count == 0 ||
+               AvailableContent?.Versions?.Any(v => v is
+               {
+                   PixiEditorApiVersion: <= ExtensionRuntimeInfo.ApiVersion
+               }) == true;
+    }
+
+    private bool HostVersionCompatible()
+    {
+        if (AvailableContent?.Versions == null || AvailableContent.Versions.Count == 0) return true;
+
+        Version pixiEditorVersion = extensionManager.ExtensionsViewModel.ExtensionLoader.Host.Version;
+        bool hostOfNameFound = false;
+
+        foreach (var version in AvailableContent.Versions)
+        {
+            if (version.CompatibleHostVersions == null || version.CompatibleHostVersions.Count == 0) return true;
+
+            foreach (var hostVersion in version.CompatibleHostVersions)
+            {
+                if (hostVersion.HostName.Equals(extensionManager.ExtensionsViewModel.ExtensionLoader.Host.HostName,
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    hostOfNameFound = true;
+                    if ((hostVersion.MinVersion == null || pixiEditorVersion >= hostVersion.MinVersion) &&
+                        (hostVersion.MaxVersion == null || pixiEditorVersion <= hostVersion.MaxVersion))
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return !hostOfNameFound;
+    }
 
     private HttpClient httpClient = new HttpClient() { Timeout = TimeSpan.FromSeconds(15) };
 

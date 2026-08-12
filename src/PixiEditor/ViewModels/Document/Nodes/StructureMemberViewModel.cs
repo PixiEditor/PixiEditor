@@ -48,6 +48,8 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
         OnPropertyChanged(nameof(IsVisibleBindable));
     }
 
+    public abstract bool CanQuickColorChange();
+
     public bool IsVisibleBindable
     {
         get => isVisible;

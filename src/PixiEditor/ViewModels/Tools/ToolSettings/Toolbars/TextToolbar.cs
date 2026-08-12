@@ -1,4 +1,5 @@
 ﻿using Drawie.Backend.Core.Text;
+using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.UI.Common.Fonts;
@@ -147,17 +148,12 @@ internal class TextToolbar : FillableShapeToolbar, ITextToolbar
         });
     }
 
-    public Font ConstructFont()
+    public FontData ConstructFont()
     {
-        Font font = null;
+        FontData font = FontData.CreateDefault();
         if (!string.IsNullOrEmpty(FontFamily.Name))
         {
-            font = Font.FromFontFamily(FontFamily);
-        }
-
-        if (font is null)
-        {
-            font = Font.CreateDefault();
+            font.Family = FontFamily;
         }
 
         font.Size = (float)FontSize;

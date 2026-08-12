@@ -84,7 +84,7 @@ internal class CreateStructureMember_Change : Change
             changes.AddRange(connectPropertyChangeInfo);
         }
         
-        changes.AddRange(NodeOperations.AdjustPositionsAfterAppend(member, targetInput.Node, previouslyConnected?.Node as Node, out originalPositions));
+        changes.AddRange(NodeOperations.PushNodesBackAfterInsertingNodeBetweenTwoOthers(member, targetInput.Node, previouslyConnected?.Node as Node, out originalPositions));
 
         ignoreInUndo = false;
 

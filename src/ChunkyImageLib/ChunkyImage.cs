@@ -64,6 +64,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
     private bool disposed = false;
     private readonly object lockObject = new();
     private int commitCounter = 0;
+    private int cancelCounter = 0;
 
     private RectI cachedPreciseCommitedBounds = RectI.Empty;
     private RectI cachedPreciseLatestBounds = RectI.Empty;
@@ -84,6 +85,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
     public ColorSpace ProcessingColorSpace { get; }
 
     public int CommitCounter => commitCounter;
+    public int CancelCounter => cancelCounter;
 
     public VecI CommittedSize { get; private set; }
     public VecI LatestSize { get; private set; }
@@ -1015,12 +1017,14 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
     /// <param name="paintTransform"></param>
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public void EnqueueNonMirroredDrawPath(VectorPath path, Paintable paintable, float strokeWidth, StrokeCap strokeCap,
-        Blender blender, PaintStyle style, bool antiAliasing, RectI? customBounds = null, Matrix3X3? paintTransform = null)
+        Blender blender, PaintStyle style, bool antiAliasing, RectI? customBounds = null,
+        Matrix3X3? paintTransform = null)
     {
         lock (lockObject)
         {
             ThrowIfDisposed();
-            NonMirroredPathOperation operation = new(path, paintable, strokeWidth, strokeCap, blender, style, antiAliasing,
+            NonMirroredPathOperation operation = new(path, paintable, strokeWidth, strokeCap, blender, style,
+                antiAliasing,
                 customBounds, paintTransform);
             EnqueueOperation(operation);
         }
@@ -1029,12 +1033,14 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
     /// <param name="customBounds">Bounds used for affected chunks, will be computed from path in O(n) if null is passed</param>
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public void EnqueueNonMirroredDrawPath(VectorPath path, Paintable paintable, float strokeWidth, StrokeCap strokeCap,
-        BlendMode blendMode, PaintStyle style, bool antiAliasing, RectI? customBounds = null, Matrix3X3? paintTransform = null)
+        BlendMode blendMode, PaintStyle style, bool antiAliasing, RectI? customBounds = null,
+        Matrix3X3? paintTransform = null)
     {
         lock (lockObject)
         {
             ThrowIfDisposed();
-            NonMirroredPathOperation operation = new(path, paintable, strokeWidth, strokeCap, blendMode, style, antiAliasing,
+            NonMirroredPathOperation operation = new(path, paintable, strokeWidth, strokeCap, blendMode, style,
+                antiAliasing,
                 customBounds, paintTransform);
             EnqueueOperation(operation);
         }
@@ -1235,6 +1241,44 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
                 chunks.Clear();
                 latestChunksData[res].Clear();
             }
+
+            cancelCounter++;
+        }
+    }
+
+    /// Discards all enqueued operations (and active clips) but preserves blend mode, symmetry axes and lock transparency
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
+    public void DiscardChanges()
+    {
+        using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
+        lock (lockObject)
+        {
+            ThrowIfDisposed();
+            //clear queued operations
+            foreach (var operation in queuedOperations)
+                operation.operation.Dispose();
+            queuedOperations.Clear();
+
+            //clear additional state
+            activeClips.Clear();
+
+            //clear latest chunks
+            foreach (var chunksOfRes in latestChunks.Values)
+            {
+                foreach (var chunk in chunksOfRes.Values)
+                {
+                    chunk.Dispose();
+                }
+            }
+
+            LatestSize = CommittedSize;
+            foreach (var (res, chunks) in latestChunks)
+            {
+                chunks.Clear();
+                latestChunksData[res].Clear();
+            }
+
+            cancelCounter++;
         }
     }
 
@@ -1428,8 +1472,11 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
             var dict = new Dictionary<VecI, Surface>();
             foreach (var (pos, chunk) in committedChunks[ChunkResolution.Full])
             {
+                if (chunk == null) continue;
+
                 if (chunk.FindPreciseBounds().HasValue)
                 {
+                    if (chunk.Surface == null) continue;
                     var surf = new Surface(chunk.Surface.ImageInfo);
                     surf.DrawingSurface.Canvas.DrawSurface(chunk.Surface.DrawingSurface, 0, 0);
                     dict[pos] = surf;
@@ -1672,7 +1719,8 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
         using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
         var surface = Surface.ForDisplay(new VecI(LatestSize.X, LatestSize.Y));
 
-        this.DrawCommittedRegionOn(new RectI(VecI.Zero, LatestSize), ChunkResolution.Full, surface.DrawingSurface.Canvas, VecI.Zero, ReplacingPaint);
+        this.DrawCommittedRegionOn(new RectI(VecI.Zero, LatestSize), ChunkResolution.Full,
+            surface.DrawingSurface.Canvas, VecI.Zero, ReplacingPaint);
 
         surface.SaveToDesktop();
     }
@@ -1856,6 +1904,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
     {
         HashCode hash = new HashCode();
         hash.Add(commitCounter);
+        hash.Add(cancelCounter);
         hash.Add(queuedOperations.Count);
         hash.Add(operationCounter);
 

@@ -2,6 +2,7 @@
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Text;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.Helpers.UI;
 using PixiEditor.Models.Handlers;
 
@@ -12,7 +13,7 @@ internal class TextOverlayViewModel : ObservableObject, ITextOverlayHandler
     private bool isActive;
     private string text;
     private VecD position;
-    private Font font;
+    private FontData font;
     private bool previewSize = false;
     private ExecutionTrigger<string> requestEditTextTrigger;
     private Matrix3X3 matrix = Matrix3X3.Identity;
@@ -47,7 +48,7 @@ internal class TextOverlayViewModel : ObservableObject, ITextOverlayHandler
         set => SetProperty(ref position, value);
     }
 
-    public Font Font
+    public FontData Font
     {
         get => font;
         set => SetProperty(ref font, value);
@@ -93,12 +94,14 @@ internal class TextOverlayViewModel : ObservableObject, ITextOverlayHandler
     {
         VecD mapped = Matrix.Invert().MapPoint(closestToPosition);
         RichText richText = new(Text);
-        if (Font == null)
+
+        using var nativeFont = Font.ToFont();
+        if (nativeFont == null)
         {
             return;
         }
 
-        var positions = richText.GetGlyphPositions(Font);
+        var positions = richText.GetGlyphPositions(nativeFont);
         if (positions == null || positions.Length == 0)
         {
             return;
@@ -118,7 +121,7 @@ internal class TextOverlayViewModel : ObservableObject, ITextOverlayHandler
     }
 
 
-    public void Show(string text, VecD position, Font font, Matrix3X3 matrix, double? spacing = null)
+    public void Show(string text, VecD position, FontData font, Matrix3X3 matrix, double? spacing = null)
     {
         Font = font;
         Position = position;
@@ -133,7 +136,7 @@ internal class TextOverlayViewModel : ObservableObject, ITextOverlayHandler
     public void Hide()
     {
         IsActive = false;
-        Font = null!;
+        Font = default;
         Position = default;
         Text = string.Empty;
         Matrix = Matrix3X3.Identity;

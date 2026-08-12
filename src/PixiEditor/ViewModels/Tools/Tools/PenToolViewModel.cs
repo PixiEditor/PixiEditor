@@ -48,6 +48,10 @@ namespace PixiEditor.ViewModels.Tools.Tools
         protected override void SwitchToTool()
         {
             ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UsePenTool();
+            if (!createdBrushSettings)
+            {
+                AddBrushShapeSettings();
+            }
         }
 
         private void SelectedToolChanged(object sender, SelectedToolEventArgs e)

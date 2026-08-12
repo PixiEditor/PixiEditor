@@ -172,7 +172,7 @@ internal partial class LayersManager : UserControl
             using var block = ActiveDocument.Operations.StartChangeBlock();
             Guid lastMovedMember = ActiveDocument.NodeGraph.StructureTree.Members[^1].Id;
 
-            foreach (Guid memberGuid in droppedGuids)
+            foreach (Guid memberGuid in droppedGuids.Reverse())
             {
                 ActiveDocument.Operations.MoveStructureMember(memberGuid, lastMovedMember,
                     StructureMemberPlacement.Below);

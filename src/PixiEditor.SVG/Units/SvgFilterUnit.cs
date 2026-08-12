@@ -34,7 +34,7 @@ public struct SvgFilterUnit : ISvgUnit
         var linkUnit = new SvgLinkUnit();
         linkUnit.ValuesFromXml(readerValue, defs);
         LinksTo = linkUnit;
-        if (!string.IsNullOrEmpty(LinksTo.Value.ObjectReference))
+        if (LinksTo.HasValue && !string.IsNullOrEmpty(LinksTo.Value.ObjectReference))
         {
             if (defs.TryFindElement(LinksTo.Value.ObjectReference, out SvgElement? element) &&
                 element is IImageFilter filter)

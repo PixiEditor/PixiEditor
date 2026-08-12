@@ -316,7 +316,7 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
 
     private void RenderNested(RenderContext ctx, Canvas workingSurface, Paint paint)
     {
-        if (NestedDocument.Value is null || NestedDocument.Value.DocumentInstance is null || workingSurface is null || Instance is null)
+        if (NestedDocument.Value?.DocumentInstance is null || workingSurface is null || Instance is null)
             return;
 
         using var intermediate = Texture.ForProcessing(workingSurface.Surface, Instance.ProcessingColorSpace);

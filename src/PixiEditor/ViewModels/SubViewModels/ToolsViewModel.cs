@@ -398,6 +398,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
             {
                 queuedToolChange = (tool, transient, sourceInfo);
             }
+
             return;
         }
 
@@ -426,7 +427,13 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         {
             ActiveTool.IsActive = false;
             if (shareToolbar)
+            {
                 ActiveTool.Toolbar.SaveToolbarSettings();
+            }
+            else
+            {
+                ActiveTool.Toolbar.SaveLocalValues();
+            }
         }
 
         LastActionTool = ActiveTool;
@@ -438,6 +445,10 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
             if (shareToolbar)
             {
                 ActiveTool.Toolbar.LoadSharedSettings();
+            }
+            else
+            {
+                ActiveTool.Toolbar.LoadLocalValues();
             }
         }
 
@@ -526,15 +537,19 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         bool created = false;
         if (NeedsNewLayerForActiveTool())
         {
-            bool rasterize = Owner.DocumentManagerSubViewModel.ActiveDocument.SelectedStructureMember is NestedDocumentNodeViewModel nested &&
-                             PixiEditorSettings.Tools.AutoRasterizeNestedLayersOnDraw.Value;
+            bool rasterize =
+                Owner.DocumentManagerSubViewModel.ActiveDocument.SelectedStructureMember is NestedDocumentNodeViewModel
+                    nested &&
+                PixiEditorSettings.Tools.AutoRasterizeNestedLayersOnDraw.Value;
 
             using var changeBlock = Owner.DocumentManagerSubViewModel.ActiveDocument.Operations.StartChangeBlock();
             Guid? createdLayer = null;
             if (rasterize)
             {
                 Guid memberId = Owner.DocumentManagerSubViewModel.ActiveDocument.SelectedStructureMember!.Id;
-                createdLayer = Owner.DocumentManagerSubViewModel.ActiveDocument.Operations.Rasterize(memberId, ActionSource.Automated);
+                createdLayer =
+                    Owner.DocumentManagerSubViewModel.ActiveDocument.Operations.Rasterize(memberId,
+                        ActionSource.Automated);
             }
             else
             {
@@ -563,12 +578,14 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
 
     public bool NeedsNewAnimationKeyFrameForActiveTool()
     {
-        if (!TryGetAnimationGroup(out var animationGroupForLayer) || ActiveTool?.LayerTypeToCreateOnEmptyUse != typeof(ImageLayerNode))
+        if (!TryGetAnimationGroup(out var animationGroupForLayer) ||
+            ActiveTool?.LayerTypeToCreateOnEmptyUse != typeof(ImageLayerNode))
         {
             return false;
         }
 
-        return animationGroupForLayer.IsVisible && !animationGroupForLayer.IsKeyFrameAt(Owner.DocumentManagerSubViewModel.ActiveDocument
+        return animationGroupForLayer.IsVisible && !animationGroupForLayer.IsKeyFrameAt(Owner
+            .DocumentManagerSubViewModel.ActiveDocument
             .AnimationDataViewModel.ActiveFrameBindable);
     }
 
@@ -595,8 +612,9 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
             return false;
         }
 
-        animationGroupForLayer = Owner.DocumentManagerSubViewModel.ActiveDocument?.AnimationDataViewModel.KeyFrames.FirstOrDefault(x =>
-            x.LayerGuid == rasterLayer.Id && x.Id == rasterLayer.Id) as ICelGroupHandler;
+        animationGroupForLayer = Owner.DocumentManagerSubViewModel.ActiveDocument?.AnimationDataViewModel.KeyFrames
+            .FirstOrDefault(x =>
+                x.LayerGuid == rasterLayer.Id && x.Id == rasterLayer.Id) as ICelGroupHandler;
 
         if (animationGroupForLayer is null)
         {
@@ -621,7 +639,8 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
             return;
 
         var animationGroupForLayer = activeDocument.AnimationDataViewModel.KeyFrames.FirstOrDefault(x =>
-            x.LayerGuid == activeDocument.SelectedStructureMember?.Id && x.Id == activeDocument.SelectedStructureMember?.Id) as ICelGroupHandler;
+            x.LayerGuid == activeDocument.SelectedStructureMember?.Id &&
+            x.Id == activeDocument.SelectedStructureMember?.Id) as ICelGroupHandler;
 
         if (animationGroupForLayer is null)
             return;
@@ -629,11 +648,13 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         if (!animationGroupForLayer.IsKeyFrameAt(Owner.DocumentManagerSubViewModel.ActiveDocument
                 .AnimationDataViewModel.ActiveFrameBindable))
         {
-            Owner.DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.CreateCel(animationGroupForLayer.Id, Owner.DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.ActiveFrameBindable);
+            Owner.DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.CreateCel(animationGroupForLayer.Id,
+                Owner.DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.ActiveFrameBindable);
         }
     }
 
     public event Action<IToolHandler> CustomToolAdded;
+
     public void ActivateQueuedTool()
     {
         if (queuedToolChange.tool != null)
@@ -715,11 +736,11 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
             ToolName = config.Name,
             Icon = config.Icon,
             ToolTip = config.ToolTip,
-            ActionDisplays = config.ActionsDisplayConfigs?.Select(adc => new ActionDisplayConfig()
-            {
-                ActionDisplay = adc.Text,
-                Modifiers = ((KeyModifiers)adc.Modifiers).ToString()
-            }).ToList(),
+            ActionDisplays =
+                config.ActionsDisplayConfigs?.Select(adc => new ActionDisplayConfig()
+                {
+                    ActionDisplay = adc.Text, Modifiers = ((KeyModifiers)adc.Modifiers).ToString()
+                }).ToList(),
             SupportsSecondaryActionOnRightClick = config.SupportsSecondaryActionOnRightClick,
             DefaultShortcut = config.DefaultShortcut.ToString(),
             CommonToolType = config.CommonToolType
@@ -733,7 +754,8 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         var tool = TryCreateBrushTool(toolConfig, pixiFileBytes.ToArray(), source);
         if (tool is not null)
         {
-            if (extConfig is PixiEditorExtensionToolConfig pixiEditorExtensionToolConfig && pixiEditorExtensionToolConfig.Extension is WasmExtensionInstance wasmInstance)
+            if (extConfig is PixiEditorExtensionToolConfig pixiEditorExtensionToolConfig &&
+                pixiEditorExtensionToolConfig.Extension is WasmExtensionInstance wasmInstance)
             {
                 tool.ResourceStorage = new ExtensionResourceStorage(wasmInstance);
             }
@@ -928,7 +950,8 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         }
     }
 
-    private BrushBasedToolViewModel? TryCreateBrushTool(ToolConfig toolFromToolset, byte[]? brushBytes = null, string? source = null)
+    private BrushBasedToolViewModel? TryCreateBrushTool(ToolConfig toolFromToolset, byte[]? brushBytes = null,
+        string? source = null)
     {
         if (!string.IsNullOrEmpty(toolFromToolset.Brush) || brushBytes != null)
         {
@@ -948,7 +971,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
                     if (brushBytes != null)
                     {
                         brush = new Brush(toolFromToolset.ToolName, Importer.ImportDocument(brushBytes, null),
-                            source ?? "UNKNOWN" , null);
+                            source ?? "UNKNOWN", null);
                     }
                     else
                     {

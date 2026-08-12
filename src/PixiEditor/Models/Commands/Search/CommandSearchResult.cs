@@ -25,6 +25,6 @@ internal class CommandSearchResult : SearchResult
 
     public override void Execute()
     {
-        Command.Execute(SearchSourceInfo.GetContext(SearchTerm), false);
+        Command.Execute(SearchSourceInfo.GetContext(), false);
     }
 }

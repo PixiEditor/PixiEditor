@@ -58,7 +58,7 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
             new DispatcherTimer(DispatcherPriority.Render)
             {
                 Interval = TimeSpan.FromMilliseconds(
-                    1000f / activeDocument.AnimationDataViewModel.FrameRateBindable)
+                    1000f / Math.Max(activeDocument.AnimationDataViewModel.FrameRateBindable, 1))
             };
         _playTimer.Tick += PlayTimerOnTick;
     }

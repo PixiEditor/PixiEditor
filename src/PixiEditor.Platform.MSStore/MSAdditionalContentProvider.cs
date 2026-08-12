@@ -81,6 +81,11 @@ public sealed class MSAdditionalContentProvider : IAdditionalContentProvider
         return new List<AvailableContent>();
     }
 
+    public Task<ExtensionsLayout> FetchExtensionsLayout()
+    {
+        return Task.FromResult(new ExtensionsLayout());
+    }
+
     public bool PlatformHasContent(string product)
     {
 #if DEBUG

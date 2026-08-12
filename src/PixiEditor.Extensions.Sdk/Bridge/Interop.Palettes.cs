@@ -6,21 +6,21 @@ namespace PixiEditor.Extensions.Sdk.Bridge;
 
 internal static partial class Interop
 {
-    private static Dictionary<int, PaletteListDataSource> dataSources = new();
+    private static Dictionary<int, PaletteListDataSource> paletteDataSources = new();
     public static void RegisterDataSource(PaletteListDataSource dataSource)
     {
-        if (dataSources.ContainsValue(dataSource))
+        if (paletteDataSources.ContainsValue(dataSource))
         {
             throw new InvalidOperationException("Data source is already registered.");
         }
 
         int handle = Native.register_palette_data_source(dataSource.Name);
-        dataSources[handle] = dataSource;
+        paletteDataSources[handle] = dataSource;
     }
 
     public static void FetchPaletteList(FetchPaletteListQuery query, int asyncHandle)
     {
-        foreach (var source in dataSources)
+        foreach (var source in paletteDataSources)
         {
             if(source.Value.Name == query.DataSourceName)
             {

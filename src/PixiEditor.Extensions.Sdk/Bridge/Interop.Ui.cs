@@ -46,6 +46,7 @@ internal partial class Interop
         }
 
         LayoutElement lElem = (LayoutElement)Activator.CreateInstance(type, (Cursor?)null)!;
+        lElem.ImmediateEventPropagation = true;
 
         return lElem;
     }
@@ -68,7 +69,7 @@ internal partial class Interop
         }
 
         LayoutElement lElem = (LayoutElement)Activator.CreateInstance(type, (Cursor?)null)!;
-
+        lElem.ImmediateEventPropagation = true;
         return lElem;
     }
 

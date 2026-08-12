@@ -11,7 +11,9 @@ using CommunityToolkit.Mvvm.Input;
 using Drawie.Backend.Core;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables;
+using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.IO;
+using PixiEditor.UI.Common.Localization;
 using Brush = PixiEditor.Models.BrushEngine.Brush;
 
 namespace PixiEditor.Views.Input;
@@ -42,14 +44,21 @@ internal partial class TexturePicker : UserControl
 
         if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            var dialog = await desktop.MainWindow.StorageProvider.OpenFilePickerAsync(
-                new FilePickerOpenOptions { FileTypeFilter = any.ToList() });
+            try
+            {
+                var dialog = await desktop.MainWindow.StorageProvider.OpenFilePickerAsync(
+                    new FilePickerOpenOptions { FileTypeFilter = any.ToList() });
 
-            if (dialog.Count == 0 || !Importer.IsSupportedFile(dialog[0].Path.LocalPath))
-                return;
+                if (dialog.Count == 0 || !Importer.IsSupportedFile(dialog[0].Path.LocalPath))
+                    return;
 
-            Texture?.Dispose();
-            Texture = Texture.Load(dialog[0].Path.LocalPath);
+                Texture?.Dispose();
+                Texture = Texture.Load(dialog[0].Path.LocalPath);
+            }
+            catch (Exception ex)
+            {
+                NoticeDialog.Show(new LocalizedString("ERROR_LOADING_FILE", ex.Message), "ERROR");
+            }
         }
     }
 }

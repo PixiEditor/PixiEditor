@@ -95,7 +95,7 @@
                                     Command="{Binding SetShowAllBetaExamplesCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}"
                                     CommandParameter="{x:True}" />
                             </UniformGrid>
-                            <Button Classes="pixi-icon" Content="{DynamicResource icon-blocks}"
+                            <Button Classes="pixi-icon" Content="{DynamicResource icon-extensions}"
                                     Command="{xaml:Command Name=PixiEditor.Window.OpenExtensionsWindow}"
                                     Margin="10, 0, 0, 0"
                                     ui:Translator.TooltipKey="OPEN_EXTENSIONS_WINDOW" />
@@ -369,6 +369,8 @@
                             <windows:BetaExampleButton FileName="Intro.pixi" DisplayName="INTRO_EXAMPLE"
                                                        CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
                             <windows:BetaExampleButton FileName="FirePixel.pixi" DisplayName="FIRE_PIXEL_EXAMPLE"
+                                                       CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
+                            <windows:BetaExampleButton FileName="GameOfLife.pixi" DisplayName="GAME_OF_LIFE_EXAMPLE"
                                                        CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
                         </panels:AlignableWrapPanel>
                     </ScrollViewer>
