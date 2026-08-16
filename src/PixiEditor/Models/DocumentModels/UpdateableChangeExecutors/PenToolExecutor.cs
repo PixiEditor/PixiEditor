@@ -27,11 +27,10 @@ internal class PenToolExecutor : BrushBasedExecutor<IPenToolHandler>
 
     public override ExecutionState Start()
     {
+        pixelPerfect = GetHandler<IPenToolHandler>().PixelPerfectEnabled;
+
         if (base.Start() == ExecutionState.Error)
             return ExecutionState.Error;
-
-        var penTool = GetHandler<IPenToolHandler>();
-        pixelPerfect = penTool.PixelPerfectEnabled;
 
         if (color.A > 0)
         {
