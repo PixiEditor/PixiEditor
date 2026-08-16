@@ -579,5 +579,10 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         {
             cel.Dispose();
         }
+
+        foreach (var group in keyFrames)
+        {
+            group.Dispose();
+        }
     }
 }
