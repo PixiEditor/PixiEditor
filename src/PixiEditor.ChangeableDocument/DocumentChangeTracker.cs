@@ -305,8 +305,9 @@ public class DocumentChangeTracker : IDisposable
     }
 
     private OneOf<None, IChangeInfo, List<IChangeInfo>> ProcessStartOrUpdateChangeAction(IStartOrUpdateChangeAction act,
-        ActionSource source)
+        ActionSource source, BudgetedCall? budgetCall, out IAction? unfinishedWorkAction)
     {
+        unfinishedWorkAction = null;
         if (activeUpdateableChange is null)
         {
             if (CreateUpdateableChange(act, out var processStartOrUpdateChangeAction))
@@ -349,7 +350,24 @@ public class DocumentChangeTracker : IDisposable
         }
 
         act.UpdateCorrespodingChange(activeUpdateableChange);
-        return activeUpdateableChange.ApplyTemporarily(document);
+
+        IBudgetedUpdateableChange? budgetedChange = null;
+        if (activeUpdateableChange is IBudgetedUpdateableChange budgetedUpdateableChange)
+        {
+            budgetedUpdateableChange.Budget = budgetCall;
+            budgetedChange = budgetedUpdateableChange;
+        }
+
+        var applied = activeUpdateableChange.ApplyTemporarily(document);
+        if (budgetedChange != null)
+        {
+            if (budgetedChange.HasUnfinishedWork)
+            {
+                unfinishedWorkAction = budgetedChange.GetIncrementWorkAction();
+            }
+        }
+
+        return applied;
     }
 
     private bool CreateUpdateableChange(IStartOrUpdateChangeAction act,
@@ -386,6 +404,11 @@ public class DocumentChangeTracker : IDisposable
             return new None();
         }
 
+        if (activeUpdateableChange is IBudgetedUpdateableChange budgetedUpdateableChange)
+        {
+            budgetedUpdateableChange.EnsureAllWorkDone(document);
+        }
+
         var info = activeUpdateableChange.Apply(document, true, out bool ignoreInUndo);
         if (!ignoreInUndo)
             AddToUndo(activeUpdateableChange, source);
@@ -395,7 +418,7 @@ public class DocumentChangeTracker : IDisposable
         return info;
     }
 
-    private List<IChangeInfo?> ProcessAction((ActionSource, IAction) action)
+    private List<IChangeInfo?> ProcessAction((ActionSource, IAction) action, BudgetedCall? budgetCall, out IAction unfinishedWorkAction)
     {
         List<IChangeInfo?> changeInfos = new();
 
@@ -405,14 +428,14 @@ public class DocumentChangeTracker : IDisposable
                 (IChangeInfo changeInfo) => changeInfos.Add(changeInfo),
                 (List<IChangeInfo> infos) => changeInfos.AddRange(infos));
 
-
+        unfinishedWorkAction = null;
         switch (action.Item2)
         {
             case IMakeChangeAction act:
                 AddInfo(ProcessMakeChangeAction(act, action.Item1));
                 break;
             case IStartOrUpdateChangeAction act:
-                AddInfo(ProcessStartOrUpdateChangeAction(act, action.Item1));
+                AddInfo(ProcessStartOrUpdateChangeAction(act, action.Item1, budgetCall, out unfinishedWorkAction));
                 break;
             case IEndChangeAction act:
                 AddInfo(ProcessEndChangeAction(act, action.Item1));
@@ -446,22 +469,32 @@ public class DocumentChangeTracker : IDisposable
         }
     }
 
+    private double carryOverTime = 0;
     public bool ProcessFor(TimeSpan budget)
     {
         var sw = Stopwatch.StartNew();
         List<(ActionSource, IAction)> executed = new();
         List<IChangeInfo> changeInfos = new List<IChangeInfo>();
 
+        BudgetedCall budgetCall = new BudgetedCall(DateTime.Now + budget - TimeSpan.FromMilliseconds(carryOverTime));
         using var _ = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
         while (queue.Count > 0)
         {
             var action = queue.Dequeue();
             executed.Add(action);
-            changeInfos.AddRange(ProcessAction(action));
+            changeInfos.AddRange(ProcessAction(action, budgetCall, out var unfinishedWorkAction));
 
-            if (sw.Elapsed > budget)
+            // Uncomment below to enable catch-up work even if no user actions are enabled. Unfortunately this at the moment kills performance for some reason
+            if (sw.Elapsed > budget/* || unfinishedWorkAction != null*/)
             {
-                WorkCompleted?.Invoke(executed, changeInfos);
+                carryOverTime = sw.Elapsed.TotalMilliseconds;
+                if(executed.Count > 0)
+                    WorkCompleted?.Invoke(executed, changeInfos);
+                if (unfinishedWorkAction != null)
+                {
+                    queue.Enqueue((ActionSource.Automated, unfinishedWorkAction));
+                }
+
                 return false;
             }
         }
@@ -471,6 +504,7 @@ public class DocumentChangeTracker : IDisposable
             WorkCompleted?.Invoke(executed, changeInfos);
         }
 
+        carryOverTime = 0;
         return true;
     }
 
@@ -487,7 +521,7 @@ public class DocumentChangeTracker : IDisposable
             List<IChangeInfo> changeInfos = new List<IChangeInfo>();
             foreach (var action in toExecute)
             {
-                changeInfos.AddRange(ProcessAction(action));
+                changeInfos.AddRange(ProcessAction(action, null, out var _));
             }
 
             return changeInfos;

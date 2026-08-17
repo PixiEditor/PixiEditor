@@ -58,6 +58,7 @@ public class BrushEngine : IDisposable
     // Higher = smoother but more "laggy" pressure response.
     // 10 points is roughly 10 pixels of stroke history.
     public int PressureSmoothingWindowSize { get; set; } = 10;
+    public bool HasUnappliedChanges => lastAppliedHistoryIndex > 0 && lastAppliedHistoryIndex < pointsHistory.Count - 1;
 
     public BrushEngine()
     {
@@ -147,8 +148,7 @@ public class BrushEngine : IDisposable
     }
 
     public void ExecuteBrush(ChunkyImage target, BrushData brushData, List<RecordedPoint> points,
-        KeyFrameTime frameTime,
-        ColorSpace cs, SamplingOptions samplingOptions)
+        KeyFrameTime frameTime, ColorSpace cs, SamplingOptions samplingOptions, BudgetedCall? computationBudget = null)
     {
         if (brushData.BrushGraph == null)
         {
@@ -222,6 +222,27 @@ public class BrushEngine : IDisposable
 
         lastAppliedPointIndex = points.Count - 1;
 
+        ExecuteWithInterpolation(target, brushData, frameTime, cs, samplingOptions, computationBudget, brushNode);
+    }
+
+    public void ApplyUnfinished(ChunkyImage? image, BrushData brushData, KeyFrameTime frameTime, ColorSpace cs, SamplingOptions samplingOptions, BudgetedCall? budget)
+    {
+        if (brushData.BrushGraph == null)
+        {
+            return;
+        }
+
+        if (brushData.BrushGraph.TryLookupNode(brushData.TargetBrushNodeId) is not BrushOutputNode brushNode)
+        {
+            return;
+        }
+
+        ExecuteWithInterpolation(image, brushData, frameTime, cs, samplingOptions, budget, brushNode);
+    }
+
+    private void ExecuteWithInterpolation(ChunkyImage target, BrushData brushData, KeyFrameTime frameTime, ColorSpace cs,
+        SamplingOptions samplingOptions, BudgetedCall? computationBudget, BrushOutputNode brushNode)
+    {
         float strokeWidth = brushData.StrokeWidth;
         float spacing = brushNode.Spacing.Value / 100f;
         int startingIndex = Math.Max(lastAppliedHistoryIndex, 0);
@@ -283,11 +304,18 @@ public class BrushEngine : IDisposable
 
             stamps++;
             lastPos = point.Position;
+            if (computationBudget != null && computationBudget.Value.Exceeded())
+            {
+                lastPressure = point.PointerInfo.Pressure;
+                lastAppliedHistoryIndex = i;
+                return;
+            }
         }
 
         lastPressure = pointsHistory.Count > 0 ? pointsHistory[^1].PointerInfo.Pressure : 1.0;
         lastAppliedHistoryIndex = pointsHistory.Count - 1;
     }
+
 
     private float EvaluatePressure(BrushOutputNode brushNode, BrushData data, RecordedPoint point,
         KeyFrameTime frameTime, ColorSpace cs, SamplingOptions samplingOptions)
