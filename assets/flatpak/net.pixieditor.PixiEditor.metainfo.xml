@@ -37,6 +37,12 @@
   <content_rating type="oars-1.1" />
 
   <releases>
+     <release version="2.1.2.1" date="2026-07-28">
+      <url type="details">https://forum.pixieditor.net/t/pixieditor-2-1-2-1/660</url>
+      <description>
+	      <p>Sticky Notes, Comments, Vector Math, Color Ramp, Color Map, 3 new tools, optimizations and many fixes.</p>
+      </description>
+    </release>
      <release version="2.1.1.5" date="2026-06-01">
       <url type="details">https://forum.pixieditor.net/t/pixieditor-2-1-1-5/629</url>
       <description>
