@@ -469,31 +469,28 @@ public class DocumentChangeTracker : IDisposable
         }
     }
 
-    private double carryOverTime = 0;
-    public bool ProcessFor(TimeSpan budget)
+    private DateTime? carryOverTime;
+
+    public bool ProcessFor(TimeSpan budget, out IAction? unfinishedWorkAction)
     {
         var sw = Stopwatch.StartNew();
         List<(ActionSource, IAction)> executed = new();
         List<IChangeInfo> changeInfos = new List<IChangeInfo>();
 
-        BudgetedCall budgetCall = new BudgetedCall(DateTime.Now + budget - TimeSpan.FromMilliseconds(carryOverTime));
+        BudgetedCall budgetCall = new BudgetedCall(carryOverTime ?? (DateTime.Now + budget));
         using var _ = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
         while (queue.Count > 0)
         {
             var action = queue.Dequeue();
             executed.Add(action);
-            changeInfos.AddRange(ProcessAction(action, budgetCall, out var unfinishedWorkAction));
+            changeInfos.AddRange(ProcessAction(action, budgetCall, out unfinishedWorkAction));
 
             // Uncomment below to enable catch-up work even if no user actions are enabled. Unfortunately this at the moment kills performance for some reason
-            if (sw.Elapsed > budget/* || unfinishedWorkAction != null*/)
+            if (sw.Elapsed > budget || unfinishedWorkAction != null)
             {
-                carryOverTime = sw.Elapsed.TotalMilliseconds;
+                carryOverTime = DateTime.Now;
                 if(executed.Count > 0)
                     WorkCompleted?.Invoke(executed, changeInfos);
-                if (unfinishedWorkAction != null)
-                {
-                    queue.Enqueue((ActionSource.Automated, unfinishedWorkAction));
-                }
 
                 return false;
             }
@@ -504,7 +501,8 @@ public class DocumentChangeTracker : IDisposable
             WorkCompleted?.Invoke(executed, changeInfos);
         }
 
-        carryOverTime = 0;
+        unfinishedWorkAction = null;
+        carryOverTime = null;
         return true;
     }
 
