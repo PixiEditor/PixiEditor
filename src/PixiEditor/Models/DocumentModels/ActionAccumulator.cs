@@ -151,13 +151,14 @@ internal class ActionAccumulator
     }
 
     IDisposable? queuedProcessDisposable = null;
+
     private void QueueProcess()
     {
         Dispatcher.UIThread.Post(() =>
         {
             if (!internals.Tracker.IsRunning)
             {
-                if (!internals.Tracker.ProcessFor(TimeSpan.FromMilliseconds(16), out var unfinishedWorkAction))
+                if (!internals.Tracker.ProcessFor(TimeSpan.FromMilliseconds(4), out var unfinishedWorkAction))
                 {
                     QueueProcess();
                     if (unfinishedWorkAction != null && queuedProcessDisposable == null)
@@ -169,13 +170,8 @@ internal class ActionAccumulator
                                 AddActions(ActionSource.Automated, unfinishedWorkAction);
                                 queuedProcessDisposable = null;
                             }
-                        }, TimeSpan.FromMilliseconds(16));
+                        }, TimeSpan.FromMilliseconds(4));
                     }
-                }
-                else
-                {
-                    queuedProcessDisposable?.Dispose();
-                    queuedProcessDisposable = null;
                 }
             }
         });

@@ -17,8 +17,10 @@ public class DocumentChangeTracker : IDisposable
     public bool HasSavedUndo => undoStack.Any();
     public bool HasSavedRedo => redoStack.Any();
     public bool IsRunning => running;
+    public bool HasActiveUpdateableChange => activeUpdateableChange is not null;
 
     private Queue<(ActionSource, IAction)> queue = new();
+    private DateTime? carryOverTime;
 
     public event Action<List<(ActionSource, IAction)>, List<IChangeInfo>> WorkCompleted;
 
@@ -37,6 +39,7 @@ public class DocumentChangeTracker : IDisposable
     }
 
     public bool IsDisposed => disposed;
+    public Guid? ActiveUpdateableChangeToken => activeUpdateableChange?.ChangeGuid;
 
     private UpdateableChange? activeUpdateableChange = null;
     private List<(ActionSource source, Change change)>? activePacket = null;
@@ -469,7 +472,6 @@ public class DocumentChangeTracker : IDisposable
         }
     }
 
-    private DateTime? carryOverTime;
 
     public bool ProcessFor(TimeSpan budget, out IAction? unfinishedWorkAction)
     {

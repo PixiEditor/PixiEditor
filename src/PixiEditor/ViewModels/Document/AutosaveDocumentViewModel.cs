@@ -158,4 +158,13 @@ internal class AutosaveDocumentViewModel : ObservableObject
         IPreferences.Current!.RemoveCallback(PreferencesConstants.AutosavePeriodMinutes, PreferenceUpdateCallback);
         IPreferences.Current!.RemoveCallback(PreferencesConstants.AutosaveToDocumentPath, PreferenceUpdateCallback);
     }
+
+    public void Disable()
+    {
+        CurrentDocumentAutosaveEnabled = false;
+        StopAutosaver();
+        IPreferences.Current!.RemoveCallback(PreferencesConstants.AutosaveEnabled, PreferenceUpdateCallback);
+        IPreferences.Current!.RemoveCallback(PreferencesConstants.AutosavePeriodMinutes, PreferenceUpdateCallback);
+        IPreferences.Current!.RemoveCallback(PreferencesConstants.AutosaveToDocumentPath, PreferenceUpdateCallback);
+    }
 }

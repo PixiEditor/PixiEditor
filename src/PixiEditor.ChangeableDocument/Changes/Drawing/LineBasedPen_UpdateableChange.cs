@@ -56,7 +56,11 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange, IBudgetedUpdate
         this.drawOnMask = drawOnMask;
         this.brushData = brushData;
         this.pos = pos;
-        points.Add(new RecordedPoint(pos, pointerInfo, keyboardInfo, editorData));
+        if (!IsCarryOnPos())
+        {
+            points.Add(new RecordedPoint(pos, pointerInfo, keyboardInfo, editorData));
+        }
+
         this.frame = frame;
         this.pointerInfo = pointerInfo;
         this.keyboardInfo = keyboardInfo;
@@ -83,6 +87,9 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange, IBudgetedUpdate
 
     public override bool InitializeAndValidate(Document target)
     {
+        if (IsCarryOnPos() && points.Count == 0)
+            return false;
+
         if (!DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask, frame))
             return false;
         if (strokeWidth < 0.1)
@@ -161,7 +168,8 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange, IBudgetedUpdate
 
     public IAction? GetIncrementWorkAction()
     {
-        return new LineBasedPen_Action(memberGuid, new VecD(double.NegativeInfinity, double.PositiveInfinity), strokeWidth, antiAliasing, brushData, drawOnMask, frame,
+        return new LineBasedPen_Action(memberGuid, new VecD(double.NegativeInfinity, double.PositiveInfinity),
+            strokeWidth, antiAliasing, brushData, drawOnMask, frame,
             pointerInfo, keyboardInfo, editorData);
     }
 
@@ -228,5 +236,4 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange, IBudgetedUpdate
         storedChunks?.Dispose();
         engine?.Dispose();
     }
-
 }
