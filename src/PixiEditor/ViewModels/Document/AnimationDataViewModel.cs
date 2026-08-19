@@ -392,6 +392,8 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
             {
                 keyFrames.Remove(group);
             }
+
+            frame.Dispose();
         });
 
         allCels.RemoveAll(x => x.Id == keyFrameId);
@@ -576,6 +578,11 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         foreach (var cel in allCels)
         {
             cel.Dispose();
+        }
+
+        foreach (var group in keyFrames)
+        {
+            group.Dispose();
         }
     }
 }
