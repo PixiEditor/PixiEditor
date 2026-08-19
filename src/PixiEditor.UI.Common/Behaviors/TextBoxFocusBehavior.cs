@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using Avalonia.Xaml.Interactivity;
 
 namespace PixiEditor.UI.Common.Behaviors;
@@ -80,17 +81,14 @@ public class TextBoxFocusBehavior : Behavior<TextBox>
 
     private void RemoveFocus()
     {
-        var next = FocusNext
-            ? KeyboardNavigationHandler.GetNext(AssociatedObject, NavigationDirection.Next)
-            : FallbackFocusElement;
-        NavigationMethod nextMethod = FocusNext ? NavigationMethod.Directional : NavigationMethod.Unspecified;
-        if (next == AssociatedObject) return;
-        next?.Focus(nextMethod);
+        var focusManager = TopLevel.GetTopLevel(AssociatedObject)?.FocusManager;
+        if (focusManager?.TryMoveFocus(NavigationDirection.Next) != true)
+        {
+            FallbackFocusElement?.Focus();
+        }
     }
 
-    private void AssociatedObjectGotKeyboardFocus(
-        object sender,
-        GotFocusEventArgs e)
+    private void AssociatedObjectGotKeyboardFocus(object sender, FocusChangedEventArgs e)
     {
         if ((e.NavigationMethod == NavigationMethod.Pointer && SelectOnMouseClick) || e.NavigationMethod == NavigationMethod.Tab)
         {

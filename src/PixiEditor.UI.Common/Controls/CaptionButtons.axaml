@@ -1,14 +1,6 @@
 ﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     x:ClassModifier="internal">
-  <Design.PreviewWith>
-    <Border Padding="20">
-      <StackPanel Spacing="20">
-        <CaptionButtons Height="30" />
-      </StackPanel>
-    </Border>
-  </Design.PreviewWith>
-
   <ControlTheme x:Key="SimpleCaptionButton"
                 TargetType="Button">
     <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightBrush}" />
@@ -34,8 +26,8 @@
     </Style>
   </ControlTheme>
 
-  <ControlTheme x:Key="{x:Type CaptionButtons}"
-                TargetType="CaptionButtons">
+  <ControlTheme x:Key="{x:Type WindowDrawnDecorations}"
+                TargetType="WindowDrawnDecorations">
     <Setter Property="MaxHeight" Value="40" />
     <Setter Property="Template">
       <ControlTemplate>
