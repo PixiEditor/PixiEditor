@@ -13,6 +13,7 @@
     <Style Selector="controls|PixiEditorPopup">
         <Setter Property="WindowStartupLocation" Value="CenterOwner" />
         <Setter Property="TransparencyLevelHint" Value="Transparent" />
+        <!--
         <Setter Property="SystemDecorations">
             <OnPlatform>
                 <OnPlatform.Default>
@@ -23,7 +24,8 @@
                 </OnPlatform.Linux>
             </OnPlatform>
         </Setter>
-        <Setter Property="ExtendClientAreaChromeHints">
+        -->
+        <!--<Setter Property="ExtendClientAreaChromeHints">
             <Setter.Value>
                 <OnPlatform>
                     <OnPlatform.Default>
@@ -34,14 +36,14 @@
                     </OnPlatform.macOS>
                 </OnPlatform>
             </Setter.Value>
-        </Setter>
+        </Setter>-->
         <Setter Property="ExtendClientAreaToDecorationsHint" Value="True" />
         <Setter Property="ExtendClientAreaTitleBarHeightHint" Value="36" />
         <Setter Property="FontFamily" Value="{DynamicResource ContentControlThemeFontFamily}" />
         <Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush}" />
         <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}" />
         <Setter Property="FontSize" Value="{DynamicResource FontSizeNormal}" />
-        <Setter Property="ShowInTaskbar" Value="{Binding CanMinimize, RelativeSource={RelativeSource TemplatedParent}}" />
+        <Setter Property="ShowInTaskbar" Value="{ReflectionBinding CanMinimize, RelativeSource={RelativeSource TemplatedParent}}" />
         <Setter Property="localization:Translator.UseLanguageFlowDirection" Value="True"></Setter>
         <Setter Property="Template">
             <ControlTemplate>

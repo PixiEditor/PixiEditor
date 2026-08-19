@@ -191,11 +191,12 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <tools:Toolbar
-                DataContext="{Binding Source={viewModels:MainVM}, Path=.}" />
+                DataContext="{ReflectionBinding Source={viewModels:MainVM}, Path=.}" />
             <StackPanel Margin="0, 5, 0, 0" Grid.Row="1" Orientation="Horizontal" Name="toolsetsPanel">
                 <Border ClipToBounds="False"
                         HorizontalAlignment="Left"
                         Padding="5 0"
+                        x:CompileBindings="False"
                         Name="activeToolSetChip"
                         Height="25"
                         BorderBrush="{DynamicResource ThemeBorderHighBrush}"
@@ -222,6 +223,7 @@
                 <ItemsControl
                     Name="otherToolSets"
                     Background="Transparent"
+                    x:CompileBindings="False"
                     ItemsSource="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.NonSelectedToolSets, Mode=OneWay}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -266,6 +268,7 @@
                                Name="toolsPicker"
                                Padding="0, 5, 0, 0"
                                Background="Transparent"
+                               x:CompileBindings="False"
                                HorizontalAlignment="Left"
                                ToolSet="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet, Mode=TwoWay}"
                                ToolSets="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.AllToolSets, Mode=OneWay}"
@@ -287,8 +290,8 @@
             FlipX="{Binding FlipX, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
             FlipY="{Binding FlipY, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
             AllOverlays="{Binding ElementName=vpUc, Path=ActiveOverlays}"
-            FadeOut="{Binding Source={viewModels:ToolVM ColorPickerToolViewModel}, Path=PickOnlyFromReferenceLayer, Mode=OneWay}"
-            DefaultCursor="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ToolCursor, Mode=OneWay}"
+            FadeOut="{ReflectionBinding Source={viewModels:ToolVM ColorPickerToolViewModel}, Path=PickOnlyFromReferenceLayer, Mode=OneWay}"
+            DefaultCursor="{ReflectionBinding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ToolCursor, Mode=OneWay}"
             RenderOutput="{Binding ViewportRenderOutput, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
             ViewportId="{Binding GuidValue, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
             AutoBackgroundScale="{Binding AutoBackgroundScale, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"

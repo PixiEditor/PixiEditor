@@ -10,10 +10,10 @@ public class ColorHelper
 {
     public const string PaletteColorDaoFormat = "PixiEditor.PaletteColor";
 
-    public static bool ParseAnyFormat(IDataObject data, [NotNullWhen(true)] out Drawie.Backend.Core.ColorsImpl.Color? result) => 
+    public static bool ParseAnyFormat(IDataTransfer data, [NotNullWhen(true)] out Drawie.Backend.Core.ColorsImpl.Color? result) =>
         ParseAnyFormat(GetTextFromData(data), out result);
     
-    public static bool ParseAnyFormatList(IDataObject data, [NotNullWhen(true)] out List<Drawie.Backend.Core.ColorsImpl.Color> result)
+    public static bool ParseAnyFormatList(IDataTransfer data, [NotNullWhen(true)] out List<Drawie.Backend.Core.ColorsImpl.Color> result)
     {
         var text = GetTextFromData(data);
 
@@ -26,19 +26,19 @@ public class ColorHelper
         return ParseAnyFormatList(text, out result);
     }
 
-    private static string GetTextFromData(IDataObject data)
+    private static string GetTextFromData(IDataTransfer data)
     {
         string text = "";
-        if (data.Contains(DataFormats.Text))
+        if (data.Contains(DataFormat.Text))
         {
-            text = (data).GetText().Trim();
+            text = (data).TryGetText().Trim();
         }
         else
         {
-            var formats = data.GetDataFormats().ToList();
+            var formats = data.Formats.ToList();
             if(formats.Count > 0)
             {
-                text = (data).Get(formats[0]).ToString().Trim();
+                text = (data).GetItems(formats[0]).ToString().Trim();
             }
         }
 

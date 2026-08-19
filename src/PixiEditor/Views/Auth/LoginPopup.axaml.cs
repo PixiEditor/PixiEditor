@@ -17,7 +17,7 @@ public partial class LoginPopup : PixiEditorPopup
         DataContext = ViewModelMain.Current.UserViewModel;
     }
 
-    protected override async void OnGotFocus(GotFocusEventArgs e)
+    protected override async void OnGotFocus(FocusChangedEventArgs e)
     {
         if (DataContext is UserViewModel { WaitingForActivation: true } vm)
         {

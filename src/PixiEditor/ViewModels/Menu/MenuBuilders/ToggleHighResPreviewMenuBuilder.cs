@@ -36,7 +36,7 @@ internal class ToggleHighResPreviewMenuBuilder : MenuItemBuilder
         {
             viewItem.Menu.Items.Add(new NativeMenuItemSeparator());
             NativeMenuItem gridLinesItem = new NativeMenuItem();
-            gridLinesItem.ToggleType = NativeMenuItemToggleType.CheckBox;
+            gridLinesItem.ToggleType = MenuItemToggleType.CheckBox;
             Translator.SetKey(gridLinesItem, "TOGGLE_HIGH_RES_PREVIEW");
 
             gridLinesItem.Icon = PixiPerfectIconExtensions.ToIcon(PixiPerfectIcons.Circle).ToBitmap(IconDimensions);

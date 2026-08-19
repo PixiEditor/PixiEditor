@@ -56,7 +56,7 @@ internal class SymmetryMenuBuilder : MenuItemBuilder
             int index = viewItem!.Menu.Items.Count >= 3 ? 3 : viewItem.Menu.Items.Count - 1;
             viewItem!.Menu.Items.Insert(index, new NativeMenuItemSeparator());
             NativeMenuItem horizontalSymmetryItem = new NativeMenuItem();
-            horizontalSymmetryItem.ToggleType = NativeMenuItemToggleType.CheckBox;
+            horizontalSymmetryItem.ToggleType = MenuItemToggleType.CheckBox;
             
             PixelSize iconDimensions = new PixelSize((int)Models.Commands.XAML.Menu.IconDimensions, (int)Models.Commands.XAML.Menu.IconDimensions);
             
@@ -78,7 +78,7 @@ internal class SymmetryMenuBuilder : MenuItemBuilder
 
             NativeMenuItem verticalSymmetryItem = new NativeMenuItem();
             Translator.SetKey(verticalSymmetryItem, "VERTICAL_LINE_SYMMETRY");
-            verticalSymmetryItem.ToggleType = NativeMenuItemToggleType.CheckBox;
+            verticalSymmetryItem.ToggleType = MenuItemToggleType.CheckBox;
             verticalSymmetryItem.Icon = PixiPerfectIconExtensions.ToIcon(PixiPerfectIcons.XSymmetry)
                 .ToBitmap(iconDimensions);
 

@@ -261,7 +261,7 @@ public class AdvisorPopup : ContentPresenter
 
         Dispatcher.UIThread.Post(() =>
         {
-            var root = Anchor.GetVisualRoot();
+            var root = Anchor.GetPresentationSource().RootVisual;
             if (root is not Visual rootVisual)
             {
                 return;
@@ -281,11 +281,8 @@ public class AdvisorPopup : ContentPresenter
     }
 
 
-    private void SetPosition(IRenderRoot? root, ITransform? parentScalerLayoutTransform)
+    private void SetPosition(Visual? rootVisual, ITransform? parentScalerLayoutTransform)
     {
-        if (root is not Visual rootVisual)
-            return;
-
         var anchorTopLeft = Anchor.TranslatePoint(
             new Point(0, 0),
             rootVisual);

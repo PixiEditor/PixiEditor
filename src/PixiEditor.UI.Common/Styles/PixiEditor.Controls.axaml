@@ -21,7 +21,6 @@
                 <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/Slider.axaml"/>
                 <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/ToolTip.axaml"/>
                 <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/Separator.axaml"/>
-                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/TitleBar.axaml"/>
                 <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/ContextMenu.axaml"/>
                 <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/Menu.axaml"/>
                 <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/MenuItem.axaml"/>
@@ -35,7 +34,6 @@
                 <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/CalendarButton.axaml"/>
                 <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/CalendarDatePicker.axaml"/>
                 <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/CalendarItem.axaml"/>
-                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/CaptionButtons.axaml"/>
                 <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/Carousel.axaml"/>
                 <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/DataValidationErrors.axaml"/>
                 <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/DatePicker.axaml"/>

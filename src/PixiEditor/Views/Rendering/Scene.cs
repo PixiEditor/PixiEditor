@@ -915,7 +915,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         Focus();
     }
 
-    protected override void OnGotFocus(GotFocusEventArgs e)
+    protected override void OnGotFocus(FocusChangedEventArgs e)
     {
         base.OnGotFocus(e);
         try
@@ -935,7 +935,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         }
     }
 
-    protected override void OnLostFocus(RoutedEventArgs e)
+    protected override void OnLostFocus(FocusChangedEventArgs e)
     {
         base.OnLostFocus(e);
         try
@@ -1020,7 +1020,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     void UpdateFrame()
     {
         updateQueued = false;
-        var root = this.GetVisualRoot();
+        var root = this.GetPresentationSource().RootVisual;
         if (root == null || !initialized)
         {
             return;

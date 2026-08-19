@@ -3,13 +3,12 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using PixiEditor.Extensions.CommonApi.Palettes;
+using PixiEditor.Helpers.Constants;
 
 namespace PixiEditor.Views.Palettes;
 
 internal partial class PaletteColorControl : UserControl
 {
-    public const string PaletteColorDaoFormat = "PixiEditor.PaletteColor";
-
     public static readonly StyledProperty<PaletteColor> ColorProperty =
         AvaloniaProperty.Register<PaletteColorControl, PaletteColor>(nameof(Color));
 
@@ -78,8 +77,15 @@ internal partial class PaletteColorControl : UserControl
         DropCommand?.Execute(e);
     }
 
-    private void PaletteColor_OnMouseMove(object? sender, PointerEventArgs e)
+    private void PaletteColor_OnMouseDown(object? sender, PointerPressedEventArgs e)
     {
+        var leftPressed = e.GetCurrentPoint(this).Properties.IsLeftButtonPressed;
+        if (leftPressed)
+        {
+            clickPoint = e.GetPosition(this);
+            e.Pointer.Capture(this);
+        }
+
         PaletteColorControl colorControl = sender as PaletteColorControl;
 
         bool isLeftButtonPressed = e.GetCurrentPoint(this).Properties.IsLeftButtonPressed;
@@ -92,9 +98,11 @@ internal partial class PaletteColorControl : UserControl
             {
                 try
                 {
-                    DataObject data = new DataObject();
-                    data.Set(PaletteColorDaoFormat, colorControl.Color.ToString());
-                    DragDrop.DoDragDrop(e, data, DragDropEffects.Move);
+                    DataTransfer data = new DataTransfer();
+                    DataTransferItem item = new DataTransferItem();
+                    item.Set(ClipboardDataFormats.PaletteColorDaoFormat, colorControl.Color.ToString());
+                    data.Add(item);
+                    DragDrop.DoDragDropAsync(e, data, DragDropEffects.Move);
                 }
                 catch
                 {
@@ -103,16 +111,6 @@ internal partial class PaletteColorControl : UserControl
 
                 e.Handled = true;
             }
-        }
-    }
-
-    private void PaletteColor_OnMouseDown(object? sender, PointerPressedEventArgs e)
-    {
-        var leftPressed = e.GetCurrentPoint(this).Properties.IsLeftButtonPressed;
-        if (leftPressed)
-        {
-            clickPoint = e.GetPosition(this);
-            e.Pointer.Capture(this);
         }
     }
 

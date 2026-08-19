@@ -66,7 +66,7 @@ internal partial class ReferenceLayer : UserControl
 
     private void ReferenceLayer_DragEnter(object sender, DragEventArgs e)
     {
-        if (!command.Methods.CanExecute(e.Data))
+        if (!command.Methods.CanExecute(e.DataTransfer))
         {
             return;
         }

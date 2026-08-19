@@ -44,11 +44,11 @@ public partial class MainView : UserControl
     {
         Context.ActionDisplays[nameof(MainView_Drop)] = null;
 
-        var fileDropList = e.Data.GetFiles();
+        var fileDropList = e.DataTransfer.TryGetFiles();
         var storageItems = fileDropList as IStorageItem[] ?? fileDropList?.ToArray();
         if (storageItems == null || storageItems.Length == 0)
         {
-            if (!ColorHelper.ParseAnyFormat(e.Data, out var color))
+            if (!ColorHelper.ParseAnyFormat(e.DataTransfer, out var color))
             {
                 return;
             }
@@ -72,7 +72,7 @@ public partial class MainView : UserControl
     {
         if (!ClipboardController.IsImage(e.DataTransfer))
         {
-            if (ColorHelper.ParseAnyFormat(e.Data, out _))
+            if (ColorHelper.ParseAnyFormat(e.DataTransfer, out _))
             {
                 Context.ActionDisplays[nameof(MainView_Drop)] = "PASTE_AS_PRIMARY_COLOR";
                 e.DragEffects = DragDropEffects.Copy;

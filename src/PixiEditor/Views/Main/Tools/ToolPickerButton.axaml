@@ -17,7 +17,7 @@
         <tools:ToolViewModel />
     </Design.DataContext>
 
-    <Button Command="{xaml:Command PixiEditor.Tools.SelectTool, UseProvided=true}"
+    <Button Command="{xaml:Command PixiEditor.Tools.SelectTool, UseProvided=true}" x:DataType="tools:ToolViewModel"
             CommandParameter="{Binding}"
             Focusable="False"
             Width="44" Height="34"

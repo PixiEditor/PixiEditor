@@ -205,7 +205,7 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <extensions:OnboardingExtensionCard
-                                    SelectExtensionCommand="{Binding DataContext.SelectExtensionCommand, RelativeSource={RelativeSource AncestorType=dialogs:OnboardingDialog, Mode=FindAncestor}}"
+                                    SelectExtensionCommand="{ReflectionBinding DataContext.SelectExtensionCommand, RelativeSource={RelativeSource AncestorType=dialogs:OnboardingDialog, Mode=FindAncestor}}"
                                     DataContext="{Binding}"/>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>

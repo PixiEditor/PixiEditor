@@ -184,7 +184,7 @@ internal class ViewportOverlays
         {
             Converter = new AllTrueConverter(),
             Mode = BindingMode.OneWay,
-            Bindings = new List<IBinding>()
+            Bindings = new List<BindingBase>()
             {
                 toolIsSelectionBinding,
                 isTransformingBinding,
@@ -562,7 +562,7 @@ internal class ViewportOverlays
         {
             Converter = new AllTrueConverter(),
             Mode = BindingMode.OneWay,
-            Bindings = new List<IBinding>()
+            Bindings = new List<BindingBase>()
             {
                 isTransformingBinding,
                 isOverCanvasBinding,
@@ -727,7 +727,7 @@ internal class ViewportOverlays
         {
             Converter = new AllTrueConverter(),
             Mode = BindingMode.OneWay,
-            Bindings = new List<IBinding>()
+            Bindings = new List<BindingBase>()
             {
                 isColorPickerActiveBinding,
                 isOverCanvasBinding,

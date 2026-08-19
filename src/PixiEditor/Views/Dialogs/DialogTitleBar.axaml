@@ -21,8 +21,10 @@
             FontSize="13"
             Margin="5,0,0,0" />
         <DockPanel IsHitTestVisible="True">
+            <!--
             <CaptionButtons Name="captionButtons" DockPanel.Dock="Right"
                             IsVisible="{OnPlatform macOS=false, Default=true}" />
+            -->
             <ContentPresenter DockPanel.Dock="Right" IsVisible="{Binding !!AdditionalElement}"
                               Content="{Binding Path=AdditionalElement}" />
             <Panel Background="{OnPlatform Default={x:Null}, Linux=Transparent}" IsHitTestVisible="True" />

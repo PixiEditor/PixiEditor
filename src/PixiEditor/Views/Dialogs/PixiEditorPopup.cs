@@ -85,9 +85,6 @@ public partial class PixiEditorPopup : Window, IPopupWindow
     public PixiEditorPopup()
     {
         CloseCommand = new RelayCommand(ClosePopup);
-#if DEBUG
-        this.AttachDevTools();
-#endif
         PixiEditorSettings.Appearance.UseSystemDecorations.ValueChanged += (_, _) => UpdateDecorations();
 
         UpdateDecorations();
@@ -102,8 +99,8 @@ public partial class PixiEditorPopup : Window, IPopupWindow
         {
             if (userPrefersSystemDecorations || cliArgs.Contains("--system-decorations"))
             {
-                this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default;
-                this.SystemDecorations = SystemDecorations.Full;
+                //this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default;
+                this.SystemDecorations = WindowDecorations.Full;
                 this.ExtendClientAreaToDecorationsHint = false;
                 ShowTitleBar = false;
                 systemDecorations = true;
@@ -112,21 +109,21 @@ public partial class PixiEditorPopup : Window, IPopupWindow
 
         if (!systemDecorations)
         {
-            this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default;
+            //this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default;
             this.ExtendClientAreaToDecorationsHint = true;
             if (System.OperatingSystem.IsLinux())
             {
-                SystemDecorations = SystemDecorations.None;
+                SystemDecorations = WindowDecorations.None;
             }
             else if (System.OperatingSystem.IsMacOS())
             {
-                ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default |
+                /*ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default |
                                               ExtendClientAreaChromeHints.NoChrome |
-                                              ExtendClientAreaChromeHints.OSXThickTitleBar;
+                                              ExtendClientAreaChromeHints.OSXThickTitleBar;*/
             }
             else
             {
-                SystemDecorations = SystemDecorations.Full;
+                SystemDecorations = WindowDecorations.Full;
             }
 
             ShowTitleBar = true;

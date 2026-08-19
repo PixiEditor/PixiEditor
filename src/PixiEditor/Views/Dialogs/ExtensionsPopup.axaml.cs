@@ -25,7 +25,7 @@ public partial class ExtensionsPopup : PixiEditorPopup
         }
     }
 
-    protected override void OnGotFocus(GotFocusEventArgs e)
+    protected override void OnGotFocus(FocusChangedEventArgs e)
     {
         base.OnGotFocus(e);
         if (DataContext is ExtensionManagerViewModel vm)

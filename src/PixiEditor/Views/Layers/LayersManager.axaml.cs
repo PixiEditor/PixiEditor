@@ -7,6 +7,7 @@ using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using PixiEditor.Helpers;
+using PixiEditor.Helpers.Constants;
 using PixiEditor.Helpers.UI;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Handlers;
@@ -21,7 +22,6 @@ namespace PixiEditor.Views.Layers;
 #nullable enable
 internal partial class LayersManager : UserControl
 {
-    public const string LayersDataName = "PixiEditor.LayersData";
     public DocumentViewModel ActiveDocument => DataContext is LayersDockViewModel vm ? vm.ActiveDocument : null;
     public DocumentManagerViewModel ManagerViewModel => DataContext is LayersDockViewModel vm ? vm.DocumentManager : null;
     private readonly IBrush? highlightColor;
@@ -58,21 +58,18 @@ internal partial class LayersManager : UserControl
                 control.Layer.Document.Operations.ClearSoftSelectedMembers();
             }
         }
-    }
 
-    public void LayerControl_MouseMove(PointerEventArgs e)
-    {
-        if (e is null)
-            return;
-
+        // TODO: Upgrade from avalonia 11, this method it was in mouse move
         bool isLeftPressed = e.GetCurrentPoint(this).Properties.IsLeftButtonPressed;
 
         if (e.Source is LayerControl container && isLeftPressed && Equals(e.Pointer.Captured, container))
         {
-            DataObject data = new();
+            DataTransfer data = new();
             Guid[] selectedGuids = container.Layer.Document.GetSelectedMembersInOrder().ToArray();
-            data.Set(LayersDataName, selectedGuids);
-            Dispatcher.UIThread.InvokeAsync(() => DragDrop.DoDragDrop(e, data, DragDropEffects.Move));
+            DataTransferItem item = new DataTransferItem();
+            item.Set(ClipboardDataFormats.LayersDataName, new LayersData(selectedGuids));
+            data.Add(item);
+            Dispatcher.UIThread.InvokeAsync(() => DragDrop.DoDragDropAsync(e, data, DragDropEffects.Move));
         }
     }
 
@@ -110,10 +107,7 @@ internal partial class LayersManager : UserControl
                 control.Folder.Document.Operations.ClearSoftSelectedMembers();
             }
         }
-    }
 
-    public void FolderControl_MouseMove(PointerEventArgs e)
-    {
         if (e is null)
             return;
 
@@ -121,10 +115,12 @@ internal partial class LayersManager : UserControl
         if (e.Source is FolderControl container &&
             isLeftPressed && Equals(e.Pointer.Captured, container))
         {
-            DataObject data = new();
+            DataTransfer data = new();
             Guid[] selectedGuids = container.Folder.Document.GetSelectedMembersInOrder().ToArray();
-            data.Set(LayersDataName, selectedGuids);
-            Dispatcher.UIThread.InvokeAsync(() => DragDrop.DoDragDrop(e, data, DragDropEffects.Move));
+            DataTransferItem item = new DataTransferItem();
+            item.Set(ClipboardDataFormats.LayersDataName, new LayersData(selectedGuids));
+            data.Add(item);
+            Dispatcher.UIThread.InvokeAsync(() => DragDrop.DoDragDropAsync(e, data, DragDropEffects.Move));
         }
     }
 
@@ -166,7 +162,7 @@ internal partial class LayersManager : UserControl
         }
 
         dropBorder.BorderBrush = Brushes.Transparent;
-        Guid[]? droppedGuids = LayerControl.ExtractMemberGuids(e.Data);
+        Guid[]? droppedGuids = LayerControl.ExtractMemberGuids(e.DataTransfer);
         if (droppedGuids != null)
         {
             using var block = ActiveDocument.Operations.StartChangeBlock();
@@ -196,7 +192,7 @@ internal partial class LayersManager : UserControl
             return;
         }
 
-        var member = LayerControl.ExtractMemberGuids(e.Data);
+        var member = LayerControl.ExtractMemberGuids(e.DataTransfer);
 
         if (member == null)
         {

@@ -14,6 +14,7 @@
              xmlns:visuals="clr-namespace:PixiEditor.Views.Visuals"
              xmlns:input1="clr-namespace:PixiEditor.Views.Input;assembly=PixiEditor.UI.Common"
              xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
+             xmlns:layers="clr-namespace:PixiEditor.Views.Layers"
              mc:Ignorable="d"
              Focusable="True"
              d:DesignHeight="35" d:DesignWidth="250" Name="uc"
@@ -143,10 +144,10 @@
                                        Margin="5,0,0,0"
                                        d:Text="Normal"
                                        Foreground="White"
-                                       Text="{Binding Layer.BlendModeBindable, ElementName=uc, Converter={converters:BlendModeToStringConverter}}" />
+                                       Text="{ReflectionBinding Layer.BlendModeBindable, ElementName=uc, Converter={converters:BlendModeToStringConverter}}" />
                         </StackPanel>
                     </StackPanel>
-                    <WrapPanel Orientation="Horizontal" Margin="0,3,3,3">
+                    <WrapPanel Orientation="Horizontal" Margin="0,3,3,3" x:CompileBindings="False">
                         <Button Content="{DynamicResource icon-link}"
                                 IsVisible="{Binding Layer.IsLinked, ElementName=uc, FallbackValue=False}"
                                 Classes="pixi-icon" FontSize="14" Margin="0,0,10,0"
@@ -192,7 +193,7 @@
             </Grid>
         </Grid>
         <Border.ContextMenu>
-            <ContextMenu>
+            <ContextMenu x:CompileBindings="False">
                 <MenuItem ui:Translator.Key="DUPLICATE"
                           Command="{xaml:Command PixiEditor.Layer.DuplicateSelectedMember}" />
                 <MenuItem ui:Translator.Key="DELETE" Command="{xaml:Command PixiEditor.Layer.DeleteAllSelected}" />

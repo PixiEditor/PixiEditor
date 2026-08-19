@@ -5,6 +5,7 @@
              xmlns:blackboard="clr-namespace:PixiEditor.Views.Blackboard"
              xmlns:system="clr-namespace:System;assembly=System.Runtime"
              xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+             xmlns:blackboard1="clr-namespace:PixiEditor.Models.Blackboard"
              x:ClassModifier="internal"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.Views.Blackboard.BlackboardView">
@@ -24,7 +25,7 @@
             ItemsSource="{Binding VariableOptions, RelativeSource={RelativeSource AncestorType=blackboard:BlackboardView, Mode=FindAncestor}}"
             Name="typeComboBox">
             <ComboBox.ItemTemplate>
-                <DataTemplate>
+                <DataTemplate x:DataType="blackboard1:VariableDefinition">
                     <TextBlock localization:Translator.Key="{Binding Name}" />
                 </DataTemplate>
             </ComboBox.ItemTemplate>

@@ -8,7 +8,9 @@
                              xmlns:input="clr-namespace:PixiEditor.Views.Input"
                              xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker.AvaloniaUI"
                              xmlns:viewModels="clr-namespace:PixiEditor.ViewModels"
+                             xmlns:properties1="clr-namespace:PixiEditor.ViewModels.Nodes.Properties"
                              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+                             x:DataType="properties1:PaintablePropertyViewModel"
                              x:Class="PixiEditor.Views.Nodes.Properties.PaintablePropertyView">
     <Grid HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
         <TextBlock ui:Translator.TooltipKey="{Binding DisplayName}" VerticalAlignment="Center" ui:Translator.Key="{Binding DisplayName}"/>
@@ -17,7 +19,7 @@
             PointerPressed="InputElement_OnPointerPressed"
             Width="40" Height="20"
             UseHintColor="True"
-            HintColorState="{Binding Path=PrimaryColorState, Source={viewModels:MainVM ColorsSVM}}"
+            HintColorState="{ReflectionBinding Path=PrimaryColorState, Source={viewModels:MainVM ColorsSVM}}"
             IsVisible="{Binding ShowInputField}"
             SelectedBrush="{Binding Value, Mode=TwoWay}" />
     </Grid>

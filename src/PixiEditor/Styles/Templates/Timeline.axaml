@@ -224,7 +224,7 @@
                                 Offset="{Binding ScrollOffset, RelativeSource={RelativeSource TemplatedParent}}"
                                 MinLeftOffset="{Binding MinLeftOffset, RelativeSource={RelativeSource TemplatedParent}}"
                                 IsSnapToTickEnabled="True"
-                                Name="PART_TimelineSlider"
+                                x:Name="PART_TimelineSlider"
                                 Minimum="1">
                                 <!--<animations:TimelineSlider.Maximum>
                                     <MultiBinding>
@@ -347,12 +347,12 @@
                                                 IsSelected="{Binding IsSelected, Mode=TwoWay}"
                                                 SelectLayerCommand="{xaml:Command PixiEditor.Layer.SelectActiveMember, UseProvided=True}"
                                                 IsCollapsed="{Binding IsCollapsed}"
-                                                Min="{Binding ElementName=PART_TimelineSlider, Path=Minimum}"
+                                                Min="{ReflectionBinding ElementName=PART_TimelineSlider, Path=Minimum}"
                                                 PrecisePosition="{Binding PrecisePosition, Mode=TwoWay}"
                                                 PreciseDragCommand="{Binding PreciseDragKeyFrameCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=animations:Timeline}}"
                                                 IsDragging="{Binding IsDragging, Mode=TwoWay}"
                                                 BeginDragCommand="{Binding BeginDragKeyFrameCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=animations:Timeline}}"
-                                                EndDragCommand="{Binding EndDragKeyFrameCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=animations:Timeline}, Path=EndDragKeyFrameCommand}"
+                                                EndDragCommand="{ReflectionBinding EndDragKeyFrameCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=animations:Timeline}, Path=EndDragKeyFrameCommand}"
                                                 Item="{Binding}">
                                                 <animations:KeyFrame.Width>
                                                     <MultiBinding Converter="{converters:DurationToWidthConverter}">

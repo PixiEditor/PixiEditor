@@ -38,7 +38,7 @@ internal class ToggleGridLinesMenuBuilder : MenuItemBuilder
         {
             viewItem.Menu.Items.Add(new NativeMenuItemSeparator());
             NativeMenuItem gridLinesItem = new NativeMenuItem();
-            gridLinesItem.ToggleType = NativeMenuItemToggleType.CheckBox;
+            gridLinesItem.ToggleType = MenuItemToggleType.CheckBox;
             Translator.SetKey(gridLinesItem, "TOGGLE_GRIDLINES");
 
             gridLinesItem.Icon = PixiPerfectIconExtensions.ToIcon(PixiPerfectIcons.Gridlines).ToBitmap(IconDimensions);

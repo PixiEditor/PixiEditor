@@ -11,6 +11,7 @@
                              xmlns:blackboard="clr-namespace:PixiEditor.ViewModels.Document.Blackboard"
                              xmlns:properties1="clr-namespace:PixiEditor.ViewModels.Nodes.Properties"
                              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+                             x:DataType="properties1:DocumentReferencePropertyViewModel"
                              x:Class="PixiEditor.Views.Nodes.Properties.DocumentReferencePropertyView">
     <Design.DataContext>
         <properties1:DocumentReferencePropertyViewModel />

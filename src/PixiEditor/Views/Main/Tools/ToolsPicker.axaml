@@ -25,6 +25,7 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate DataType="tools:ToolViewModel">
                             <tools1:ToolPickerButton DataContext="{Binding}"
+                                                     x:DataType="tools:ToolViewModel"
                                                      IsSelected="{Binding IsActive}" />
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>

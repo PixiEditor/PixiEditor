@@ -52,6 +52,7 @@
                         <behaviours:SliderBindingBehavior
                             CanBind="{Binding NumberPickerMode,
                                             Converter={converters:EnumBooleanConverter}, ConverterParameter=Slider}"
+                            x:DataType="properties1:DoublePropertyViewModel"
                             ValueBinding="{Binding DoubleValue, Mode=TwoWay}"/>
                     </Interaction.Behaviors>
                     <Slider.Styles>

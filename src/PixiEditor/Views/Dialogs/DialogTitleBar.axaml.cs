@@ -79,7 +79,7 @@ internal partial class DialogTitleBar : UserControl, ICustomTranslatorElement
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
     {
         base.OnApplyTemplate(e);
-        var parentWindow = VisualRoot as Window;
+        var parentWindow = (VisualRoot?.Parent as Window);
         if (parentWindow != null)
         {
             parentWindow.PropertyChanged += UpdateCaptionButtons;
@@ -87,11 +87,11 @@ internal partial class DialogTitleBar : UserControl, ICustomTranslatorElement
 
         if (!parentWindow.ExtendClientAreaToDecorationsHint && HideIfSystemDecorations)
         {
-            captionButtons.IsVisible = false;
+            //captionButtons.IsVisible = false;
         }
         else
         {
-            captionButtons.Attach(VisualRoot as Window);
+            //captionButtons.Attach(VisualRoot as Window);
         }
     }
 
@@ -103,13 +103,13 @@ internal partial class DialogTitleBar : UserControl, ICustomTranslatorElement
             {
                 if (!window.ExtendClientAreaToDecorationsHint && HideIfSystemDecorations)
                 {
-                    captionButtons.IsVisible = false;
-                    captionButtons.Detach();
+                    //captionButtons.IsVisible = false;
+                    //captionButtons.Detach();
                 }
                 else
                 {
-                    captionButtons.IsVisible = true;
-                    captionButtons.Attach(window);
+                    //captionButtons.IsVisible = true;
+                    //captionButtons.Attach(window);
                 }
             }
         }

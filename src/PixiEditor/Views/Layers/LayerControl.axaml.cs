@@ -5,6 +5,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.Input;
+using PixiEditor.Helpers.Constants;
 using PixiEditor.Helpers.UI;
 using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.Handlers;
@@ -75,7 +76,6 @@ internal partial class LayerControl : UserControl
     public LayerControl()
     {
         InitializeComponent();
-        PointerMoved += (a,b) => Manager?.LayerControl_MouseMove(b);
 
         if (App.Current.TryGetResource("SoftSelectedLayerBrush", App.Current.ActualThemeVariant, out var value))
         {
@@ -128,11 +128,11 @@ internal partial class LayerControl : UserControl
         e.Handled = true;
     }
 
-    public static Guid[]? ExtractMemberGuids(IDataObject droppedMemberDataObject)
+    public static Guid[]? ExtractMemberGuids(IDataTransfer droppedMemberDataObject)
     {
         try
         {
-            object droppedLayer = droppedMemberDataObject.Get(LayersManager.LayersDataName);
+            object droppedLayer = droppedMemberDataObject.TryGetValues(ClipboardDataFormats.LayersDataName);
             if (droppedLayer is null)
                 return null;
 
@@ -152,7 +152,7 @@ internal partial class LayerControl : UserControl
         }
     }
 
-    private bool HandleDrop(IDataObject dataObj, StructureMemberPlacement placement)
+    private bool HandleDrop(IDataTransfer dataObj, StructureMemberPlacement placement)
     {
         if (placement == StructureMemberPlacement.Inside)
             return false;
@@ -184,19 +184,19 @@ internal partial class LayerControl : UserControl
     private void Grid_Drop_Top(object sender, DragEventArgs e)
     {
         RemoveDragEffect((Grid)sender);
-        e.Handled = HandleDrop(e.Data, StructureMemberPlacement.Above);
+        e.Handled = HandleDrop(e.DataTransfer, StructureMemberPlacement.Above);
     }
 
     private void Grid_Drop_Bottom(object sender, DragEventArgs e)
     {
         RemoveDragEffect((Grid)sender);
-        e.Handled = HandleDrop(e.Data, StructureMemberPlacement.Below);
+        e.Handled = HandleDrop(e.DataTransfer, StructureMemberPlacement.Below);
     }
 
     private void Grid_Drop_Below(object sender, DragEventArgs e)
     {
         RemoveDragEffect((Grid)sender);
-        e.Handled = HandleDrop(e.Data, StructureMemberPlacement.BelowOutsideFolder);
+        e.Handled = HandleDrop(e.DataTransfer, StructureMemberPlacement.BelowOutsideFolder);
     }
 
     private void RenameMenuItem_Click(object sender, RoutedEventArgs e)

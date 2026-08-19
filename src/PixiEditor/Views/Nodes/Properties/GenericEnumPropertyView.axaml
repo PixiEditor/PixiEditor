@@ -8,6 +8,7 @@
                              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
                              xmlns:properties1="clr-namespace:PixiEditor.ViewModels.Nodes.Properties"
                              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+                             x:DataType="properties1:GenericEnumPropertyViewModel"
                              x:Class="PixiEditor.Views.Nodes.Properties.GenericEnumPropertyView">
     <Design.DataContext>
         <properties1:GenericEnumPropertyViewModel />

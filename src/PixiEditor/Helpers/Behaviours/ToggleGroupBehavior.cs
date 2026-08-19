@@ -58,7 +58,7 @@ public static class ToggleGroupBehavior
             }
 
             list.Add(button);
-            button.Checked += ButtonChecked;
+            button.IsCheckedChanged += ButtonChecked;
             button.Click += ButtonClickPreventUntoggle;
         }
     }

@@ -15,6 +15,7 @@ using PixiEditor.Helpers.Extensions;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Extensions.CommonApi.Palettes.Parsers;
 using PixiEditor.Helpers;
+using PixiEditor.Helpers.Constants;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.ExtensionServices;
 using PixiEditor.Models.IO.PaletteParsers;
@@ -278,7 +279,7 @@ internal partial class PaletteViewer : UserControl
             dragDropGrid.IsVisible = true;
             ViewModelMain.Current.ActionDisplays[nameof(PaletteViewer)] = "IMPORT_PALETTE_FILE";
         }
-        else if (ColorHelper.ParseAnyFormatList(e.Data, out var list))
+        else if (ColorHelper.ParseAnyFormatList(e.DataTransfer, out var list))
         {
             e.DragEffects = DragDropEffects.Copy;
             ViewModelMain.Current.ActionDisplays[nameof(PaletteViewer)] =
@@ -299,7 +300,7 @@ internal partial class PaletteViewer : UserControl
 
         if (!IsSupportedFilePresent(e, out string filePath))
         {
-            if (!ColorHelper.ParseAnyFormatList(e.Data, out var colors))
+            if (!ColorHelper.ParseAnyFormatList(e.DataTransfer, out var colors))
             {
                 return;
             }
@@ -319,25 +320,16 @@ internal partial class PaletteViewer : UserControl
 
     private bool IsSupportedFilePresent(DragEventArgs e, out string? filePath)
     {
-        if (e.Data.Contains(DataFormats.Files))
+        var files = e.DataTransfer.TryGetFiles();
+        if (files is { Length: > 0 })
         {
-            IStorageItem[]? files = e.Data.GetFiles()?.ToArray();
-            if (files is null)
+            IStorageItem file = files[0];
+            var foundParser = PaletteProvider.AvailableParsers.FirstOrDefault(x =>
+                x.SupportedFileExtensions.Contains(Path.GetExtension(file.Path.LocalPath)));
+            if (foundParser != null)
             {
-                filePath = null;
-                return false;
-            }
-
-            if (files is { Length: > 0 })
-            {
-                IStorageItem file = files[0];
-                var foundParser = PaletteProvider.AvailableParsers.FirstOrDefault(x =>
-                    x.SupportedFileExtensions.Contains(Path.GetExtension(file.Path.LocalPath)));
-                if (foundParser != null)
-                {
-                    filePath = file.Path.LocalPath;
-                    return true;
-                }
+                filePath = file.Path.LocalPath;
+                return true;
             }
         }
 
@@ -347,9 +339,9 @@ internal partial class PaletteViewer : UserControl
 
     private void PaletteColor_Drop( DragEventArgs e)
     {
-        if (e.Data.Contains(PaletteColorControl.PaletteColorDaoFormat))
+        if (e.DataTransfer.Contains(ClipboardDataFormats.PaletteColorDaoFormat))
         {
-            string data = (string)e.Data.Get(PaletteColorControl.PaletteColorDaoFormat);
+            string data = (string)e.DataTransfer.TryGetValues(ClipboardDataFormats.PaletteColorDaoFormat).FirstOrDefault();
 
             PaletteColor paletteColor = PaletteColor.Parse(data);
             if (Colors.Contains(paletteColor))

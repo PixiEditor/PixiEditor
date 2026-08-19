@@ -94,7 +94,7 @@
                                                 Background="{DynamicResource ThemeBackgroundBrush1}">
                                             <Panel>
                                                 <visuals:VideoView
-                                                    Name="video"
+                                                    x:Name="video"
                                                     VideoHeight="1080" VideoWidth="1920" Source="{Binding VideoUrl}">
                                                     <visuals:VideoView.IsPlaying>
                                                         <MultiBinding
@@ -352,7 +352,7 @@
                                           behaviours:ToggleGroupBehavior.GroupName="ExtensionsTab"
                                           BorderThickness="0"
                                           behaviours:ToggleGroupBehavior.Value="{Binding }"
-                                          behaviours:ToggleGroupBehavior.SelectedValue="{Binding DataContext.SelectedTab, Mode=TwoWay, RelativeSource={RelativeSource FindAncestor, AncestorType=dialogs:ExtensionsPopup}}">
+                                          behaviours:ToggleGroupBehavior.SelectedValue="{ReflectionBinding DataContext.SelectedTab, Mode=TwoWay, RelativeSource={RelativeSource FindAncestor, AncestorType=dialogs:ExtensionsPopup}}">
                                 <Panel ClipToBounds="False">
                                     <TextBlock FontSize="{DynamicResource FontSizeNormal}"
                                                localization:Translator.Key="{Binding Name}" />
@@ -410,8 +410,8 @@
                     <ScrollViewer IsVisible="{Binding IsListVisible}">
                         <StackPanel Margin="12" Spacing="24">
                             <extensions:HighlightedExtensionCard
-                                IsVisible="{Binding !!DataContext.FirstHighlightedExtension, RelativeSource={RelativeSource AncestorType=dialogs:ExtensionsPopup}}"
-                                SelectCommand="{Binding DataContext.SelectExtensionCommand, RelativeSource={RelativeSource AncestorType=dialogs:ExtensionsPopup, Mode=FindAncestor}}"
+                                IsVisible="{ReflectionBinding !!DataContext.FirstHighlightedExtension, RelativeSource={RelativeSource AncestorType=dialogs:ExtensionsPopup}}"
+                                SelectCommand="{ReflectionBinding DataContext.SelectExtensionCommand, RelativeSource={RelativeSource AncestorType=dialogs:ExtensionsPopup, Mode=FindAncestor}}"
                                 DataContext="{Binding FirstHighlightedExtension}" />
                             <StackPanel Spacing="8">
                                 <TextBlock localization:Translator.Key="FEATURED_EXTENSIONS_TITLE" Classes="h4"
@@ -426,9 +426,9 @@
                                             </ItemsPanelTemplate>
                                         </ItemsControl.ItemsPanel>
                                         <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
+                                            <DataTemplate x:DataType="dialogs:ExtensionsPopup">
                                                 <extensions:AvailableExtensionCard
-                                                    SelectExtensionCommand="{Binding DataContext.SelectExtensionCommand,
+                                                    SelectExtensionCommand="{ReflectionBinding DataContext.SelectExtensionCommand,
                                                 RelativeSource={RelativeSource AncestorType=dialogs:ExtensionsPopup}}" />
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
@@ -436,8 +436,8 @@
                                 </ScrollViewer>
                             </StackPanel>
                             <extensions:HighlightedExtensionCard
-                                IsVisible="{Binding !!DataContext.SecondHighlightedExtension, RelativeSource={RelativeSource AncestorType=dialogs:ExtensionsPopup}}"
-                                SelectCommand="{Binding DataContext.SelectExtensionCommand, RelativeSource={RelativeSource AncestorType=dialogs:ExtensionsPopup, Mode=FindAncestor}}"
+                                IsVisible="{ReflectionBinding !!DataContext.SecondHighlightedExtension, RelativeSource={RelativeSource AncestorType=dialogs:ExtensionsPopup}}"
+                                SelectCommand="{ReflectionBinding DataContext.SelectExtensionCommand, RelativeSource={RelativeSource AncestorType=dialogs:ExtensionsPopup, Mode=FindAncestor}}"
                                 DataContext="{Binding SecondHighlightedExtension}" />
                             <StackPanel Spacing="8">
                                 <TextBlock localization:Translator.Key="ALL_EXTENSIONS_TITLE" Classes="h4"
@@ -452,7 +452,7 @@
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <extensions:AvailableExtensionCard
-                                                SelectExtensionCommand="{Binding DataContext.SelectExtensionCommand,
+                                                SelectExtensionCommand="{ReflectionBinding DataContext.SelectExtensionCommand,
                                                 RelativeSource={RelativeSource AncestorType=dialogs:ExtensionsPopup}}" />
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
@@ -499,7 +499,7 @@
                                                 </Grid.RowDefinitions>
                                                 <Interaction.Behaviors>
                                                     <ExecuteCommandOnPointerPressedBehavior
-                                                        Command="{Binding DataContext.SelectOwnedExtensionCommand, RelativeSource={RelativeSource AncestorType=dialogs:ExtensionsPopup}}"
+                                                        Command="{ReflectionBinding DataContext.SelectOwnedExtensionCommand, RelativeSource={RelativeSource AncestorType=dialogs:ExtensionsPopup}}"
                                                         CommandParameter="{Binding}" />
                                                 </Interaction.Behaviors>
                                                 <Panel>
@@ -518,7 +518,7 @@
                                                             Cursor="Hand">
                                                     <Interaction.Behaviors>
                                                         <ExecuteCommandOnPointerPressedBehavior
-                                                            Command="{Binding DataContext.SelectOwnedExtensionCommand, RelativeSource={RelativeSource AncestorType=dialogs:ExtensionsPopup}}"
+                                                            Command="{ReflectionBinding DataContext.SelectOwnedExtensionCommand, RelativeSource={RelativeSource AncestorType=dialogs:ExtensionsPopup}}"
                                                             CommandParameter="{Binding}" />
                                                     </Interaction.Behaviors>
                                                     <TextBlock
@@ -565,7 +565,7 @@
                                                             <MultiBinding Converter="{converters:AllTrueConverter}">
                                                                 <Binding Path="!IsInstalled" />
                                                                 <Binding Path="!IsInstalling" />
-                                                                <Binding Path="DataContext.IsUserLoggedIn"
+                                                                <ReflectionBinding Path="DataContext.IsUserLoggedIn"
                                                                          RelativeSource="{RelativeSource AncestorType=dialogs:ExtensionsPopup}" />
                                                             </MultiBinding>
                                                         </Button.IsVisible>

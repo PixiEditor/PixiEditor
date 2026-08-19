@@ -32,7 +32,7 @@ internal class InputBox : TextBox
 
     protected override Type StyleKeyOverride => typeof(TextBox);
 
-    protected override void OnLostFocus(RoutedEventArgs e)
+    protected override void OnLostFocus(FocusChangedEventArgs e)
     {
         OnSubmit?.Invoke(this, new InputBoxEventArgs(Text));
         //TODO: Keyboard.ClearFocus();

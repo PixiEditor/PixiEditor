@@ -4,7 +4,7 @@ using PixiEditor.Models.Dialogs;
 
 namespace PixiEditor.Views.Dialogs;
 
-internal class ResizeablePopup : PixiEditorPopup, IStyleable
+internal class ResizeablePopup : PixiEditorPopup
 {
     public static readonly StyledProperty<int> NewPercentageSizeProperty =
         AvaloniaProperty.Register<ResizeablePopup, int>(nameof(NewPercentageSize), 0);

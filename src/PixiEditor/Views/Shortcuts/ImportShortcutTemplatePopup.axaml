@@ -7,6 +7,7 @@
     xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
     xmlns:viewModels="clr-namespace:PixiEditor.ViewModels"
     xmlns:shortcuts="clr-namespace:PixiEditor.Views.Shortcuts"
+    xmlns:templates="clr-namespace:PixiEditor.Models.Commands.Templates"
     mc:Ignorable="d"
     d:DesignWidth="800"
     d:DesignHeight="450"
@@ -29,7 +30,7 @@
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
-                <DataTemplate>
+                <DataTemplate x:DataType="templates:ShortcutProvider">
                     <shortcuts:ShortcutsTemplateCard
                         TemplateName="{Binding Name}"
                         Margin="0 0 5 0"

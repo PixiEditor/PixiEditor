@@ -115,30 +115,32 @@ internal partial class MainWindow : Window
         {
             if (userPrefersSystemDecorations || cliArgs.Contains("--system-decorations"))
             {
-                this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default;
+                //this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default;
                 this.ExtendClientAreaToDecorationsHint = false;
-                this.SystemDecorations = SystemDecorations.Full;
+                this.SystemDecorations = WindowDecorations.Full;
                 systemDecorations = true;
             }
         }
 
         if (!systemDecorations)
         {
-            this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default;
+            //this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default;
             this.ExtendClientAreaToDecorationsHint = true;
             if (System.OperatingSystem.IsLinux())
             {
-                SystemDecorations = SystemDecorations.None;
+                SystemDecorations = WindowDecorations.None;
             }
             else if (System.OperatingSystem.IsMacOS())
             {
+                /*
                 ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default |
                                               ExtendClientAreaChromeHints.NoChrome |
                                               ExtendClientAreaChromeHints.OSXThickTitleBar;
+            */
             }
             else
             {
-                SystemDecorations = SystemDecorations.Full;
+                SystemDecorations = WindowDecorations.Full;
             }
         }
     }

@@ -459,14 +459,14 @@ internal static class ClipboardController
         return adjustedIds;
     }
 
-    private static async Task<bool> AllMatchesPos(Guid[] layerIds, IImportObject[] dataFormats, IDocument doc)
+    private static async Task<bool> AllMatchesPos(Guid[] layerIds, IImportObject[] DataFormat, IDocument doc)
     {
-        var dataObjectWithPos = dataFormats.FirstOrDefault(x => x.Contains(ClipboardDataFormats.PositionFormat));
+        var dataObjectWithPos = DataFormat.FirstOrDefault(x => x.Contains(ClipboardDataFormats.PositionFormat));
         VecD pos = VecD.Zero;
 
         if (dataObjectWithPos != null)
         {
-            pos = await GetVecD(ClipboardDataFormats.PositionFormat, dataFormats);
+            pos = await GetVecD(ClipboardDataFormats.PositionFormat, DataFormat);
         }
 
         RectD? transformBounds = null;
