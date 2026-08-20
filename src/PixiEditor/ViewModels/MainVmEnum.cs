@@ -19,5 +19,6 @@ enum MainVmEnum
     StylusSVM,
     WindowSVM,
     SearchSVM,
-    RegistrySVM
+    RegistrySVM,
+    MenuBarVM
 }

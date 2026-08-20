@@ -117,7 +117,7 @@ internal partial class MainWindow : Window
             {
                 //this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default;
                 this.ExtendClientAreaToDecorationsHint = false;
-                this.SystemDecorations = WindowDecorations.Full;
+                this.WindowDecorations = WindowDecorations.Full;
                 systemDecorations = true;
             }
         }
@@ -128,7 +128,7 @@ internal partial class MainWindow : Window
             this.ExtendClientAreaToDecorationsHint = true;
             if (System.OperatingSystem.IsLinux())
             {
-                //SystemDecorations = WindowDecorations.None;
+                WindowDecorations = WindowDecorations.None;
             }
             else if (System.OperatingSystem.IsMacOS())
             {

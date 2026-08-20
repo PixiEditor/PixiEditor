@@ -24,14 +24,10 @@ using PixiEditor.ViewModels;
 namespace PixiEditor.Views.Dialogs;
 
 [TemplatePart("PART_ResizePanel", typeof(Panel))]
-[TemplatePart("Part_TitleBar", typeof(DialogTitleBar))]
 public partial class PixiEditorPopup : Window, IPopupWindow
 {
     public static event Action<PixiEditorPopup> PopupLoaded;
     public static event Action<PixiEditorPopup> PopupClosed;
-
-    public static readonly StyledProperty<bool> CanMinimizeProperty = AvaloniaProperty.Register<PixiEditorPopup, bool>(
-        nameof(CanMinimize), defaultValue: true);
 
     public static readonly StyledProperty<bool> CloseIsHideProperty = AvaloniaProperty.Register<PixiEditorPopup, bool>(
         nameof(CloseIsHide), defaultValue: false);
@@ -70,12 +66,6 @@ public partial class PixiEditorPopup : Window, IPopupWindow
         set => SetValue(CloseIsHideProperty, value);
     }
 
-    public bool CanMinimize
-    {
-        get => GetValue(CanMinimizeProperty);
-        set => SetValue(CanMinimizeProperty, value);
-    }
-
     private Panel resizePanel;
 
     private double originalWidth, originalHeight, originalMaxWidth, originalMaxHeight;
@@ -100,7 +90,7 @@ public partial class PixiEditorPopup : Window, IPopupWindow
             if (userPrefersSystemDecorations || cliArgs.Contains("--system-decorations"))
             {
                 //this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default;
-                this.SystemDecorations = WindowDecorations.Full;
+                this.WindowDecorations = WindowDecorations.Full;
                 this.ExtendClientAreaToDecorationsHint = false;
                 ShowTitleBar = false;
                 systemDecorations = true;
@@ -113,7 +103,7 @@ public partial class PixiEditorPopup : Window, IPopupWindow
             this.ExtendClientAreaToDecorationsHint = true;
             if (System.OperatingSystem.IsLinux())
             {
-                SystemDecorations = WindowDecorations.None;
+                WindowDecorations = WindowDecorations.None;
             }
             else if (System.OperatingSystem.IsMacOS())
             {
@@ -123,7 +113,7 @@ public partial class PixiEditorPopup : Window, IPopupWindow
             }
             else
             {
-                SystemDecorations = WindowDecorations.Full;
+                WindowDecorations = WindowDecorations.Full;
             }
 
             ShowTitleBar = true;
@@ -135,9 +125,6 @@ public partial class PixiEditorPopup : Window, IPopupWindow
         base.OnApplyTemplate(e);
         if (System.OperatingSystem.IsLinux())
         {
-            var titleBar = e.NameScope.Find<DialogTitleBar>("PART_TitleBar");
-            titleBar.PointerPressed += OnTitleBarPressed;
-
             resizePanel = e.NameScope.Find<Panel>("PART_ResizePanel");
             resizePanel.AddHandler(PointerPressedEvent, OnResizePanelPressed,
                 RoutingStrategies.Tunnel | RoutingStrategies.Bubble);
