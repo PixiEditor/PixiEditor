@@ -252,9 +252,12 @@ internal abstract class Setting : ObservableObject
                 {
                     var adjusted = AdjustValue(defaultValue);
 
-                    if (adjusted.GetType() != GetSettingType())
+                    if (adjusted != null)
                     {
-                        defaultValue = Convert.ChangeType(defaultValue, GetSettingType());
+                        if (adjusted.GetType() != GetSettingType())
+                        {
+                            defaultValue = Convert.ChangeType(defaultValue, GetSettingType());
+                        }
                     }
                 }
                 catch
