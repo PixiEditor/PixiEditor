@@ -16,6 +16,8 @@
         Name="Window"
         Icon="/Images/favicon.ico"
         Initialized="MainWindow_Initialized"
+        WindowDecorations="Full"
+        ExtendClientAreaToDecorationsHint="True"
         localization:Translator.UseLanguageFlowDirection="True"
         Title="PixiEditor">
     <LayoutTransformControl x:Name="PrimaryScaleControl">

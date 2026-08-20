@@ -128,7 +128,7 @@ internal partial class MainWindow : Window
             this.ExtendClientAreaToDecorationsHint = true;
             if (System.OperatingSystem.IsLinux())
             {
-                SystemDecorations = WindowDecorations.None;
+                //SystemDecorations = WindowDecorations.None;
             }
             else if (System.OperatingSystem.IsMacOS())
             {
@@ -140,7 +140,7 @@ internal partial class MainWindow : Window
             }
             else
             {
-                SystemDecorations = WindowDecorations.Full;
+                WindowDecorations = WindowDecorations.Full;
             }
         }
     }

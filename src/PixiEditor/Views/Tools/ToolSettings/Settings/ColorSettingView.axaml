@@ -6,8 +6,9 @@
              xmlns:input="clr-namespace:PixiEditor.Views.Input"
              xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:DataType="settings:ColorSettingViewModel"
+             x:CompileBindings="False"
              x:Class="PixiEditor.Views.Tools.ToolSettings.Settings.ColorSettingView">
+    <!--It's important not to enable CompileBindings, otherwise PaintableSettingViewModel will stop working-->
     <Design.DataContext>
         <settings:ColorSettingViewModel/>
     </Design.DataContext>
