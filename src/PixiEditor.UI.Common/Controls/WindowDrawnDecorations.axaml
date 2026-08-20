@@ -35,10 +35,11 @@
 
     </ControlTheme>
 
+
     <ControlTheme x:Key="{x:Type WindowDrawnDecorations}"
                   TargetType="WindowDrawnDecorations">
 
-        <Setter Property="DefaultTitleBarHeight" Value="30" />
+        <Setter Property="DefaultTitleBarHeight" Value="36" />
         <Setter Property="DefaultFrameThickness" Value="1" />
         <Setter Property="DefaultShadowThickness" Value="8" />
 
@@ -73,6 +74,7 @@
                                         Theme="{StaticResource SimpleDrawnCaptionButton}"
                                         WindowDecorationProperties.ElementRole="MinimizeButton"
                                         IsVisible="{Binding $parent[Window].CanMinimize}"
+                                        Height="{TemplateBinding TitleBarHeight}"
                                         AutomationProperties.Name="Minimize">
 
                                     <Viewbox Width="11" Margin="2">
@@ -86,6 +88,7 @@
                                         Theme="{StaticResource SimpleDrawnCaptionButton}"
                                         WindowDecorationProperties.ElementRole="MaximizeButton"
                                         IsVisible="{Binding $parent[Window].CanMaximize}"
+                                        Height="{TemplateBinding TitleBarHeight}"
                                         AutomationProperties.Name="Maximize">
 
                                     <Viewbox Width="11" Margin="2">
@@ -103,6 +106,7 @@
                                         Theme="{StaticResource SimpleDrawnCaptionButton}"
                                         Background="#ffe81123"
                                         BorderBrush="#ffbb0e1c"
+                                        Height="{TemplateBinding TitleBarHeight}"
                                         WindowDecorationProperties.ElementRole="CloseButton"
                                         AutomationProperties.Name="Close">
 

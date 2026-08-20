@@ -22,7 +22,7 @@
         <menu:MenuBarViewModel />
     </Design.DataContext>
     <Panel>
-        <Panel Background="{DynamicResource ThemeBackgroundBrush1}" IsHitTestVisible="False" />
+        <Panel Background="{DynamicResource ThemeBackgroundBrush1}" IsHitTestVisible="True" WindowDecorationProperties.ElementRole="TitleBar" />
         <DockPanel>
             <DockPanel.Background>
                 <OnPlatform Default="{x:Null}" Linux="Transparent" />

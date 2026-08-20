@@ -70,6 +70,7 @@
                 <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/Shelf.axaml"/>
                 <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/ToggleableMenuItem.axaml"/>
                 <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/WindowDrawnDecorations.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/CaptionButtonsPlaceholder.axaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Styles.Resources>

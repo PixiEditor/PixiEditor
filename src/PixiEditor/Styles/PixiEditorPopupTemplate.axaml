@@ -79,9 +79,5 @@
                 </LayoutTransformControl>
             </ControlTemplate>
         </Setter>
-
-        <Style Selector="^controls|PixiEditorPopup[WindowState=Maximized] /template/ Panel">
-            <Setter Property="Margin" Value="8" />
-        </Style>
     </Style>
 </Styles>
