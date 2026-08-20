@@ -17,7 +17,7 @@
             <ControlTemplate>
                 <LayoutTransformControl>
                     <Interaction.Behaviors>
-                        <behaviors:LayoutTransformScalerBehavior/>
+                        <behaviors:LayoutTransformScalerBehavior />
                     </Interaction.Behaviors>
                     <Border Name="root"
                             Background="{TemplateBinding Background}"
@@ -74,17 +74,17 @@
                                    IsOpen="{TemplateBinding IsSubMenuOpen,
                                             Mode=TwoWay}"
                                    Placement="RightEdgeAlignedTop">
-                                <Border Background="{DynamicResource ThemeBackgroundBrush}"
-                                        BorderBrush="{DynamicResource ThemeBorderMidBrush}"
-                                        CornerRadius="{TemplateBinding CornerRadius}"
-                                        BorderThickness="{TemplateBinding BorderThickness}">
-                                    <ScrollViewer>
-                                        <ItemsPresenter Name="PART_ItemsPresenter"
-                                                        Margin="2"
-                                                        Grid.IsSharedSizeScope="True"
-                                                        ItemsPanel="{TemplateBinding ItemsPanel}" />
-                                    </ScrollViewer>
-                                </Border>
+                                    <Border Background="{DynamicResource ThemeBackgroundBrush}"
+                                            BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                                            CornerRadius="{TemplateBinding CornerRadius}"
+                                            BorderThickness="{TemplateBinding BorderThickness}">
+                                        <ScrollViewer>
+                                            <ItemsPresenter Name="PART_ItemsPresenter"
+                                                            Margin="2"
+                                                            Grid.IsSharedSizeScope="True"
+                                                            ItemsPanel="{TemplateBinding ItemsPanel}" />
+                                        </ScrollViewer>
+                                    </Border>
                             </Popup>
                         </Grid>
                     </Border>

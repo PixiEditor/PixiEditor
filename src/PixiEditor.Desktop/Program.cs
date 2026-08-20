@@ -2,6 +2,7 @@
 using System.Linq;
 using Avalonia;
 using Avalonia.Logging;
+using Avalonia.Vulkan;
 using Drawie.Interop.Avalonia;
 using Drawie.Interop.VulkanAvalonia;
 using PixiEditor.Helpers;
@@ -48,7 +49,6 @@ public class Program
                     openGlPreferred
                         ? [Win32RenderingMode.Wgl, Win32RenderingMode.Vulkan]
                         : [Win32RenderingMode.Vulkan, Win32RenderingMode.Wgl],
-                OverlayPopups = true,
             })
             .With(new X11PlatformOptions()
             {
@@ -56,16 +56,19 @@ public class Program
                     openGlPreferred
                         ? [X11RenderingMode.Glx, X11RenderingMode.Vulkan]
                         : [X11RenderingMode.Vulkan, X11RenderingMode.Glx],
-                OverlayPopups = true,
             })
             .With(new SkiaOptions()
             {
                 MaxGpuResourceSizeBytes = 1024 * 600 * 4 * 12 * 4 // quadruple the default size
             })
+            .With(new VulkanOptions()
+            {
+                VulkanDeviceCreationOptions = new VulkanDeviceCreationOptions
+                {
+                    PreferDiscreteGpu = true,
+                },
+            })
             .WithDrawie()
-#if DEBUG
-            .LogToTrace(LogEventLevel.Verbose, "Vulkan")
-#endif
             .LogToTrace();
     }
 }

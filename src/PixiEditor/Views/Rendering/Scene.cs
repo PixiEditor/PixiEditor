@@ -1020,7 +1020,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     void UpdateFrame()
     {
         updateQueued = false;
-        var root = this.GetPresentationSource().RootVisual;
+        var root = this.GetPresentationSource()?.RootVisual;
         if (root == null || !initialized)
         {
             return;

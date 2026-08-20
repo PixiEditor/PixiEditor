@@ -20,7 +20,7 @@
                             IsHitTestVisible="False" />
                     <Panel Margin="{TemplateBinding WindowDecorationMargin}"
                            Background="Transparent" />
-                    <VisualLayerManager>
+                    <VisualLayerManager >
                         <ContentPresenter Name="PART_ContentPresenter"
                                           Margin="{TemplateBinding Padding}"
                                           HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
