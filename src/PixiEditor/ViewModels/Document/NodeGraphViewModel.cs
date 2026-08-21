@@ -410,9 +410,11 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
         if (watchedProperties.Count == 0)
             return;
 
+        var properties = watchedProperties.ToArray();
+
         DrawingBackendApi.Current.RenderingDispatcher.Invoke(() =>
         {
-            foreach (var property in watchedProperties)
+            foreach (var property in properties)
             {
                 property.InternalSetComputedValue(GetComputedPropertyValue<object>(property));
             }

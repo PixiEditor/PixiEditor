@@ -208,7 +208,8 @@ internal class ActionAccumulator
                 finally
                 {
                     NotifyUpdatedPreviews(updatePreviewActions);
-                    document.NodeGraphHandler.UpdateWatchedComputedValues();
+                    if (!document.IsDisposed && !internals.Tracker.IsDisposed)
+                        document.NodeGraphHandler.UpdateWatchedComputedValues();
                 }
             }
         }
@@ -314,7 +315,8 @@ internal class ActionAccumulator
                 finally
                 {
                     NotifyUpdatedPreviews(updatePreviewActions);
-                    document.NodeGraphHandler.UpdateWatchedComputedValues();
+                    if (!document.IsDisposed && !internals.Tracker.IsDisposed)
+                        document.NodeGraphHandler.UpdateWatchedComputedValues();
                 }
             }
         }
