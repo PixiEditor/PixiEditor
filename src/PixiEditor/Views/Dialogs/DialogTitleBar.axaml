@@ -13,7 +13,7 @@
     Height="36"
     d:DesignWidth="300">
     <Grid DataContext="{Binding ElementName=uc}">
-        <Grid Background="{DynamicResource ThemeBackgroundBrush1}" IsHitTestVisible="False" />
+        <Grid Background="{DynamicResource ThemeBackgroundBrush1}" IsHitTestVisible="True" WindowDecorationProperties.ElementRole="TitleBar" />
         <TextBlock
             IsHitTestVisible="False"
             TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center"
@@ -28,8 +28,6 @@
                             IsVisible="{OnPlatform macOS=false, Default=true}" />
             <ContentPresenter DockPanel.Dock="Right" IsVisible="{Binding !!AdditionalElement}"
                               Content="{Binding Path=AdditionalElement}" />
-            <Panel Background="{OnPlatform Default={x:Null}, Linux=Transparent}" IsHitTestVisible="True" />
-            <!-- dummy control to occupy dockpanel center -->
         </DockPanel>
     </Grid>
 </UserControl>

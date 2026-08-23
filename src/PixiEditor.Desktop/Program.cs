@@ -52,6 +52,7 @@ public class Program
             })
             .With(new X11PlatformOptions()
             {
+                EnableDrawnDecorations = true,
                 RenderingMode =
                     openGlPreferred
                         ? [X11RenderingMode.Glx, X11RenderingMode.Vulkan]

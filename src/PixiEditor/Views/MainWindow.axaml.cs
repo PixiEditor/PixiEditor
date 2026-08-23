@@ -126,11 +126,7 @@ internal partial class MainWindow : Window
         {
             //this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default;
             this.ExtendClientAreaToDecorationsHint = true;
-            if (System.OperatingSystem.IsLinux())
-            {
-                WindowDecorations = WindowDecorations.None;
-            }
-            else if (System.OperatingSystem.IsMacOS())
+            if (System.OperatingSystem.IsMacOS())
             {
                 /*
                 ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default |

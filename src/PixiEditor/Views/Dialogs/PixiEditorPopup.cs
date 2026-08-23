@@ -99,13 +99,7 @@ public partial class PixiEditorPopup : Window, IPopupWindow
 
         if (!systemDecorations)
         {
-            //this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default;
-            this.ExtendClientAreaToDecorationsHint = true;
-            if (System.OperatingSystem.IsLinux())
-            {
-                WindowDecorations = WindowDecorations.None;
-            }
-            else if (System.OperatingSystem.IsMacOS())
+            if (System.OperatingSystem.IsMacOS())
             {
                 /*ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default |
                                               ExtendClientAreaChromeHints.NoChrome |
@@ -115,6 +109,7 @@ public partial class PixiEditorPopup : Window, IPopupWindow
             {
                 WindowDecorations = WindowDecorations.Full;
             }
+            this.ExtendClientAreaToDecorationsHint = true;
 
             ShowTitleBar = true;
         }
