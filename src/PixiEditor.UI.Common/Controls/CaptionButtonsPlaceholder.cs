@@ -6,11 +6,12 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
 using Avalonia.Reactive;
+using Avalonia.Threading;
 using Avalonia.VisualTree;
 
 namespace PixiEditor.UI.Common.Controls;
 
-public class CaptionButtonsPlaceholder : TemplatedControl
+public class CaptionButtonsPlaceholder : Control
 {
     public static readonly StyledProperty<bool> CanMinimizeProperty =
         AvaloniaProperty.Register<CaptionButtonsPlaceholder, bool>(
@@ -32,10 +33,8 @@ public class CaptionButtonsPlaceholder : TemplatedControl
         set => SetValue(CanMinimizeProperty, value);
     }
 
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+    protected override void OnLoaded(RoutedEventArgs e)
     {
-        base.OnApplyTemplate(e);
-
         if (VisualRoot?.Parent is Window window)
         {
             IsVisible = window.IsExtendedIntoWindowDecorations;
@@ -44,14 +43,17 @@ public class CaptionButtonsPlaceholder : TemplatedControl
                     e) =>
                 {
                     IsVisible = e.NewValue is true;
+                    Dispatcher.Post(UpdateBounds, DispatcherPriority.Render);
                 }));
         }
+
+        UpdateBounds();
     }
 
-    protected override void OnLoaded(RoutedEventArgs e)
+    private void UpdateBounds()
     {
-        var bounds = VisualRoot.GetLogicalChildren().FirstOrDefault().FindLogicalDescendantOfType<WindowDrawnDecorationsContent>()
-            .Overlay.GetVisualChildren().FirstOrDefault(x => x.Name == "PART_OverlayPanel").Bounds;
+        var bounds = VisualRoot.GetLogicalChildren()?.FirstOrDefault().FindLogicalDescendantOfType<WindowDrawnDecorationsContent>()?
+            .Overlay.GetVisualChildren()?.FirstOrDefault(x => x.Name == "PART_OverlayPanel")?.Bounds ?? new Rect();
         Width = bounds.Width;
         Height = bounds.Height;
     }
