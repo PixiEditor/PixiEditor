@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Avalonia.Media;
@@ -131,6 +131,7 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<IoFileType, SvgFileType>()
             .AddSingleton<IoFileType, TtfFileType>()
             .AddSingleton<IoFileType, OtfFileType>()
+            .AddSingleton<IoFileType, AsepriteFileType>()
             // Serialization Factories
             .AddSerializationFactories()
             // Custom document builders
@@ -138,6 +139,7 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<IDocumentBuilder, FontDocumentBuilder>()
             .AddSingleton<IDocumentBuilder, AnimationDocumentBuilder>(x =>
                 new AnimationDocumentBuilder(new FFMpegRenderer()))
+            .AddSingleton<IDocumentBuilder, AsepriteDocumentBuilder>()
             .AddSingleton<IPalettesProvider, PaletteProvider>()
             .AddSingleton<CommandProvider>()
             .AddSingleton<IDocumentProvider, DocumentProvider>()
