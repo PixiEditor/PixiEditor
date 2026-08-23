@@ -93,14 +93,14 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
 
         if (Color.Connection != null)
         {
-            builder.ReturnVar(Color?.Value?.Invoke(context) ?? new Half4("") { ConstantValue = Colors.Transparent.ToVec4D() }, false);
+            builder.ReturnVar(Color?.Value?.Invoke(context) ?? new Half4("") { ConstantValue = Colors.Transparent.ToVec4D() }, true);
         }
         else
         {
             Half4 color = Color.NonOverridenValue(FuncContext.NoContext);
             color.VariableName = "color";
             builder.AddUniform(color.VariableName, Drawie.Backend.Core.ColorsImpl.Color.FromVec4D(color.ConstantValue));
-            builder.ReturnVar(color, false);
+            builder.ReturnVar(color, true);
         }
 
         string sksl = builder.ToSkSl();
