@@ -20,6 +20,8 @@
     xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
     xmlns:ui1="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
     xmlns:handlers="clr-namespace:PixiEditor.Models.Handlers"
+    xmlns:ui2="clr-namespace:PixiEditor.Helpers.UI"
+    xmlns:ui3="clr-namespace:PixiEditor.Helpers.UI;assembly=PixiEditor.UI.Common"
     mc:Ignorable="d"
     x:Name="vpUc"
     d:DesignHeight="450"

@@ -8,6 +8,7 @@
              xmlns:system="clr-namespace:System;assembly=System.Runtime"
              xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
              xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+             xmlns:ui1="clr-namespace:PixiEditor.Helpers.UI"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              ClipToBounds="False"
              x:Class="PixiEditor.Views.Main.Tools.ToolsPicker" Name="picker">
