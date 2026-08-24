@@ -8,6 +8,7 @@
         xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
         xmlns:auth="clr-namespace:PixiEditor.Views.Auth"
         xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
+        xmlns:ui1="clr-namespace:PixiEditor.Helpers.UI"
         MinHeight="500"
         MinWidth="700"
         Height="1000"
@@ -18,6 +19,7 @@
         WindowState="Maximized"
         Name="Window"
         Icon="/Images/favicon.ico"
+        ui1:MacOSTitleBar.IsThick="True"
         Initialized="MainWindow_Initialized"
         localization:Translator.UseLanguageFlowDirection="True"
         Title="PixiEditor">

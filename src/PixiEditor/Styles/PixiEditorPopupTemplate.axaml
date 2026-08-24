@@ -5,7 +5,8 @@
         xmlns:markupExtensions="clr-namespace:PixiEditor.Helpers.MarkupExtensions"
         xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
         xmlns:platform="clr-namespace:Avalonia.Platform;assembly=Avalonia.Controls"
-        xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common">
+        xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+        xmlns:ui1="clr-namespace:PixiEditor.Helpers.UI">
     <Design.PreviewWith>
         <controls:PixiEditorPopup Width="400" Height="400" SizeToContent="Manual" />
     </Design.PreviewWith>
@@ -13,6 +14,7 @@
     <Style Selector="controls|PixiEditorPopup">
         <Setter Property="WindowStartupLocation" Value="CenterOwner" />
         <Setter Property="TransparencyLevelHint" Value="Transparent" />
+        <Setter Property="ui1:MacOSTitleBar.IsThick" Value="True" />
         <!--
         <Setter Property="SystemDecorations">
             <OnPlatform>
