@@ -76,45 +76,6 @@ internal partial class DialogTitleBar : UserControl, ICustomTranslatorElement
         InitializeComponent();
     }
 
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
-    {
-        base.OnApplyTemplate(e);
-        var parentWindow = (VisualRoot?.Parent as Window);
-        if (parentWindow != null)
-        {
-            parentWindow.PropertyChanged += UpdateCaptionButtons;
-        }
-
-        if (!parentWindow.ExtendClientAreaToDecorationsHint && HideIfSystemDecorations)
-        {
-            //captionButtons.IsVisible = false;
-        }
-        else
-        {
-            //captionButtons.Attach(VisualRoot as Window);
-        }
-    }
-
-    private void UpdateCaptionButtons(object? sender, AvaloniaPropertyChangedEventArgs e)
-    {
-        if (e.Property == Window.ExtendClientAreaToDecorationsHintProperty)
-        {
-            if (sender is Window window)
-            {
-                if (!window.ExtendClientAreaToDecorationsHint && HideIfSystemDecorations)
-                {
-                    //captionButtons.IsVisible = false;
-                    //captionButtons.Detach();
-                }
-                else
-                {
-                    //captionButtons.IsVisible = true;
-                    //captionButtons.Attach(window);
-                }
-            }
-        }
-    }
-
     void ICustomTranslatorElement.SetTranslationBinding(AvaloniaProperty dependencyProperty,
         IObservable<string> binding)
     {
@@ -124,38 +85,5 @@ internal partial class DialogTitleBar : UserControl, ICustomTranslatorElement
     AvaloniaProperty ICustomTranslatorElement.GetDependencyProperty()
     {
         return TitleKeyProperty;
-    }
-
-    private void CloseWindow(object? sender, RoutedEventArgs e)
-    {
-        if (CloseCommand is { } command)
-        {
-            if (command.CanExecute(null))
-                command.Execute(null);
-            return;
-        }
-
-        ((Window?)VisualRoot)?.Close();
-    }
-
-    private void MaximizeWindow(object? sender, RoutedEventArgs e)
-    {
-        if (VisualRoot is not Window window || !CanFullscreen)
-            return;
-        window.WindowState = WindowState.Maximized;
-    }
-
-    private void RestoreWindow(object? sender, RoutedEventArgs e)
-    {
-        if (VisualRoot is not Window window || !CanFullscreen)
-            return;
-        window.WindowState = WindowState.Normal;
-    }
-
-    private void MinimizeWindow(object? sender, RoutedEventArgs e)
-    {
-        if (VisualRoot is not Window window || !CanMinimize)
-            return;
-        window.WindowState = WindowState.Minimized;
     }
 }

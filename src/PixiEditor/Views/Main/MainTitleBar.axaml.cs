@@ -29,7 +29,7 @@ public partial class MainTitleBar : UserControl
         miniPlayer = this.FindControl<MiniAnimationPlayer>("MiniPlayer");
         logoPanel = this.FindControl<Panel>("LogoPanel");
 
-        if (IOperatingSystem.Current.IsMacOs && VisualRoot is Window window && logoPanel != null)
+        if (IOperatingSystem.Current.IsMacOs && VisualRoot?.Parent is Window window && logoPanel != null)
         {
             window.PropertyChanged += OnPropertyChanged;
         }

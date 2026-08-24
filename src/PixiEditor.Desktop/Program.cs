@@ -58,6 +58,10 @@ public class Program
                         ? [X11RenderingMode.Glx, X11RenderingMode.Vulkan]
                         : [X11RenderingMode.Vulkan, X11RenderingMode.Glx],
             })
+            .With(new AvaloniaNativePlatformOptions()
+            {
+                RenderingMode = [AvaloniaNativeRenderingMode.OpenGl] // TODO: Metal
+            })
             .With(new SkiaOptions()
             {
                 MaxGpuResourceSizeBytes = 1024 * 600 * 4 * 12 * 4 // quadruple the default size
