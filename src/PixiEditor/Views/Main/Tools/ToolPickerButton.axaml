@@ -28,7 +28,8 @@
             <ControlTemplate>
                 <Border Height="34" Width="34"
                         Background="{DynamicResource ThemeBackgroundBrush1}">
-                    <ContentPresenter Content="{TemplateBinding Content}" 
+                    <ContentPresenter Content="{TemplateBinding Content}"
+                                      RenderTransformOrigin="50%,55%"
                                       ui2:Juice.Animations="Button; Loaded:PopIn"
                                       />
                 </Border>

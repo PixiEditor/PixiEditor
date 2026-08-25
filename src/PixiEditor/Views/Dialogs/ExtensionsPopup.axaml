@@ -19,7 +19,7 @@
                          xmlns:indicators="clr-namespace:PixiEditor.Views.Indicators"
                          xmlns:visuals="clr-namespace:PixiEditor.Views.Visuals"
                          xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
-                         xmlns:extensions="clr-namespace:PixiEditor.Views.Extensions"
+                         xmlns:extensionManager1="clr-namespace:PixiEditor.Views.ExtensionManager"
                          mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
                          x:Class="PixiEditor.Views.Dialogs.ExtensionsPopup"
                          Height="680" Width="1000"
@@ -352,7 +352,8 @@
                                           behaviours:ToggleGroupBehavior.GroupName="ExtensionsTab"
                                           BorderThickness="0"
                                           behaviours:ToggleGroupBehavior.Value="{Binding }"
-                                          behaviours:ToggleGroupBehavior.SelectedValue="{ReflectionBinding DataContext.SelectedTab, Mode=TwoWay, RelativeSource={RelativeSource FindAncestor, AncestorType=dialogs:ExtensionsPopup}}">
+                                          behaviours:ToggleGroupBehavior.SelectedValue="{ReflectionBinding DataContext.SelectedTab, Mode=TwoWay, RelativeSource={RelativeSource FindAncestor, AncestorType=dialogs:ExtensionsPopup}}"
+                                          >
                                 <Panel ClipToBounds="False">
                                     <TextBlock FontSize="{DynamicResource FontSizeNormal}"
                                                localization:Translator.Key="{Binding Name}" />
@@ -409,7 +410,7 @@
 
                     <ScrollViewer IsVisible="{Binding IsListVisible}">
                         <StackPanel Margin="12" Spacing="24">
-                            <extensions:HighlightedExtensionCard
+                            <extensionManager1:HighlightedExtensionCard
                                 IsVisible="{ReflectionBinding !!DataContext.FirstHighlightedExtension, RelativeSource={RelativeSource AncestorType=dialogs:ExtensionsPopup}}"
                                 SelectCommand="{ReflectionBinding DataContext.SelectExtensionCommand, RelativeSource={RelativeSource AncestorType=dialogs:ExtensionsPopup, Mode=FindAncestor}}"
                                 DataContext="{Binding FirstHighlightedExtension}" />
@@ -427,7 +428,7 @@
                                         </ItemsControl.ItemsPanel>
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate x:DataType="dialogs:ExtensionsPopup">
-                                                <extensions:AvailableExtensionCard
+                                                <extensionManager1:AvailableContentView
                                                     SelectExtensionCommand="{ReflectionBinding DataContext.SelectExtensionCommand,
                                                 RelativeSource={RelativeSource AncestorType=dialogs:ExtensionsPopup}}" />
                                             </DataTemplate>
@@ -435,7 +436,7 @@
                                     </ItemsControl>
                                 </ScrollViewer>
                             </StackPanel>
-                            <extensions:HighlightedExtensionCard
+                            <extensionManager1:HighlightedExtensionCard
                                 IsVisible="{ReflectionBinding !!DataContext.SecondHighlightedExtension, RelativeSource={RelativeSource AncestorType=dialogs:ExtensionsPopup}}"
                                 SelectCommand="{ReflectionBinding DataContext.SelectExtensionCommand, RelativeSource={RelativeSource AncestorType=dialogs:ExtensionsPopup, Mode=FindAncestor}}"
                                 DataContext="{Binding SecondHighlightedExtension}" />
@@ -451,7 +452,7 @@
 
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <extensions:AvailableExtensionCard
+                                            <extensionManager1:AvailableContentView
                                                 SelectExtensionCommand="{ReflectionBinding DataContext.SelectExtensionCommand,
                                                 RelativeSource={RelativeSource AncestorType=dialogs:ExtensionsPopup}}" />
                                         </DataTemplate>
