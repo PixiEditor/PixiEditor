@@ -166,6 +166,7 @@
                             Folder="{Binding}"
                             Manager="{Binding ElementName=layersManager}"
                             PointerPressed="FolderControl_MouseDown"
+                            PointerMoved="FolderControl_OnPointerMoved"
                             PointerReleased="FolderControl_MouseUp"/>
                     </TreeDataTemplate>
                     <DataTemplate DataType="{x:Type handlers:ILayerHandler}">
@@ -173,6 +174,7 @@
                             Layer="{Binding}"
                             Manager="{Binding ElementName=layersManager}"
                             PointerPressed="LayerControl_MouseDown"
+                            PointerMoved="LayerControl_OnPointerMoved"
                             PointerReleased="LayerControl_MouseUp" />
                     </DataTemplate>
                 </TreeView.DataTemplates>

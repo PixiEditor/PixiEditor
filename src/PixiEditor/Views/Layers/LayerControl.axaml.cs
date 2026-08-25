@@ -136,12 +136,12 @@ internal partial class LayerControl : UserControl
             if (droppedLayer is null)
                 return null;
 
-            if (droppedLayer is Guid droppedLayerGuid)
-                return new[] { droppedLayerGuid };
+            if (droppedLayer is LayersData droppedLayerGuid)
+                return droppedLayerGuid.LayerIds;
 
-            if (droppedLayer is Guid[] droppedLayerGuids)
+            if (droppedLayer is LayersData[] droppedLayerGuids)
             {
-                return droppedLayerGuids;
+                return droppedLayerGuids.SelectMany(x => x.LayerIds).ToArray();
             }
 
             return null;

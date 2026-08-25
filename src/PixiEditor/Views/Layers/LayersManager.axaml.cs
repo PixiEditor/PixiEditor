@@ -6,6 +6,7 @@ using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
+using Drawie.Windowing.Input;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Constants;
 using PixiEditor.Helpers.UI;
@@ -23,8 +24,12 @@ namespace PixiEditor.Views.Layers;
 internal partial class LayersManager : UserControl
 {
     public DocumentViewModel ActiveDocument => DataContext is LayersDockViewModel vm ? vm.ActiveDocument : null;
-    public DocumentManagerViewModel ManagerViewModel => DataContext is LayersDockViewModel vm ? vm.DocumentManager : null;
+
+    public DocumentManagerViewModel ManagerViewModel =>
+        DataContext is LayersDockViewModel vm ? vm.DocumentManager : null;
+
     private readonly IBrush? highlightColor;
+    private PointerPressedEventArgs startDragEventArgs;
 
     public LayersManager()
     {
@@ -47,6 +52,7 @@ internal partial class LayersManager : UserControl
         LayerControl control = (LayerControl)sender;
         if (e.GetMouseButton(this) == MouseButton.Left)
         {
+            startDragEventArgs = e;
             HandleMouseDown(control.Layer, e);
             e.Pointer.Capture(control);
         }
@@ -58,8 +64,10 @@ internal partial class LayersManager : UserControl
                 control.Layer.Document.Operations.ClearSoftSelectedMembers();
             }
         }
+    }
 
-        // TODO: Upgrade from avalonia 11, this method it was in mouse move
+    private void LayerControl_OnPointerMoved(object? sender, PointerEventArgs e)
+    {
         bool isLeftPressed = e.GetCurrentPoint(this).Properties.IsLeftButtonPressed;
 
         if (e.Source is LayerControl container && isLeftPressed && Equals(e.Pointer.Captured, container))
@@ -69,9 +77,10 @@ internal partial class LayersManager : UserControl
             DataTransferItem item = new DataTransferItem();
             item.Set(ClipboardDataFormats.LayersDataName, new LayersData(selectedGuids));
             data.Add(item);
-            Dispatcher.UIThread.InvokeAsync(() => DragDrop.DoDragDropAsync(e, data, DragDropEffects.Move));
+            Dispatcher.UIThread.InvokeAsync(() => DragDrop.DoDragDropAsync(startDragEventArgs, data, DragDropEffects.Move));
         }
     }
+
 
     private void LayerControl_MouseUp(object sender, PointerReleasedEventArgs e)
     {
@@ -96,6 +105,7 @@ internal partial class LayersManager : UserControl
         FolderControl control = (FolderControl)sender;
         if (e.GetMouseButton(control) == MouseButton.Left)
         {
+            startDragEventArgs = e;
             HandleMouseDown(control.Folder, e);
             e.Pointer.Capture(control);
         }
@@ -108,9 +118,10 @@ internal partial class LayersManager : UserControl
             }
         }
 
-        if (e is null)
-            return;
+    }
 
+    private void FolderControl_OnPointerMoved(object? sender, PointerEventArgs e)
+    {
         bool isLeftPressed = e.GetCurrentPoint(this).Properties.IsLeftButtonPressed;
         if (e.Source is FolderControl container &&
             isLeftPressed && Equals(e.Pointer.Captured, container))
@@ -120,7 +131,7 @@ internal partial class LayersManager : UserControl
             DataTransferItem item = new DataTransferItem();
             item.Set(ClipboardDataFormats.LayersDataName, new LayersData(selectedGuids));
             data.Add(item);
-            Dispatcher.UIThread.InvokeAsync(() => DragDrop.DoDragDropAsync(e, data, DragDropEffects.Move));
+            Dispatcher.UIThread.InvokeAsync(() => DragDrop.DoDragDropAsync(startDragEventArgs, data, DragDropEffects.Move));
         }
     }
 
@@ -179,7 +190,8 @@ internal partial class LayersManager : UserControl
         }
 
         // Imported object doesn't do any async operations so .Result is safe to use here.
-        if (ClipboardController.TryPaste(ActiveDocument, ManagerViewModel, new[] { new ImportedObject(e.DataTransfer) }, true).Result)
+        if (ClipboardController
+            .TryPaste(ActiveDocument, ManagerViewModel, new[] { new ImportedObject(e.DataTransfer) }, true).Result)
         {
             e.Handled = true;
         }
