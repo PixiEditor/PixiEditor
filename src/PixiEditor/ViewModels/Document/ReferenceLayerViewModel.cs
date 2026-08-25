@@ -1,12 +1,5 @@
 ﻿using System.Collections.Immutable;
-using System.Linq;
-using Avalonia;
-using Avalonia.Media.Imaging;
-using ChunkyImageLib;
-using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
-using CommunityToolkit.Mvvm.ComponentModel;
-using PixiEditor.Helpers;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Numerics;

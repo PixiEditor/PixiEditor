@@ -1,9 +1,7 @@
-﻿using Avalonia;
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Input;
 using CommunityToolkit.Mvvm.Input;
-using PixiEditor.Extensions.UI;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.UI.Common.Controls;
 using PixiEditor.UI.Common.Fonts;

@@ -1,5 +1,4 @@
-﻿using System.Xml.Linq;
-using PixiEditor.SVG.Units;
+﻿using PixiEditor.SVG.Units;
 
 namespace PixiEditor.SVG;
 

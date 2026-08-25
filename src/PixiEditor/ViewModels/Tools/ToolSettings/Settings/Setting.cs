@@ -1,8 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Text.Json;
-using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
-using DiscordRPC;
 using PixiEditor.UI.Common.Localization;
 
 #pragma warning disable SA1402 // File may only contain a single type, Justification: "Same class with generic value"

@@ -1,13 +1,9 @@
-﻿using System.Collections.Immutable;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Avalonia.Controls;
-using Avalonia.Data;
 using Avalonia.Input;
 using PixiEditor.Extensions.CommonApi.FlyUI;
 using PixiEditor.Extensions.CommonApi.FlyUI.Events;
-using PixiEditor.Extensions.FlyUI.Converters;
 using PixiEditor.Extensions.IO;
 using Cursor = PixiEditor.Extensions.CommonApi.FlyUI.Cursor;
 

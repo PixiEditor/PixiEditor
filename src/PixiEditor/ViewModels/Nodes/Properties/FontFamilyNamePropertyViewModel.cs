@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using Drawie.Backend.Core.Text;
+﻿using Drawie.Backend.Core.Text;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.Handlers;

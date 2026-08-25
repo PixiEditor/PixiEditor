@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Extensions.Sdk.Attributes;
 
 namespace PixiEditor.Extensions.Sdk.Bridge;

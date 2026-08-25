@@ -1,11 +1,14 @@
 ﻿using Avalonia;
 using Avalonia.Headless;
+using Avalonia.Headless.XUnit;
 using Avalonia.Platform;
 using Drawie.Interop.VulkanAvalonia;
 using PixiEditor.Tests;
+using Xunit.Sdk;
+using Xunit.v3;
 
-[assembly:TestFramework("PixiEditor.Tests.AvaloniaTestRunner", "PixiEditor.Tests")]
-[assembly:CollectionBehavior(CollectionBehavior.CollectionPerAssembly, DisableTestParallelization = false, MaxParallelThreads = 1)]
+[assembly:AvaloniaTestFramework]
+[assembly:CollectionBehavior(CollectionBehavior.CollectionPerAssembly, DisableTestParallelization = true, MaxParallelThreads = 1)]
 [assembly: AvaloniaTestApplication(typeof(AvaloniaTestRunner))]
 namespace PixiEditor.Tests
 {
@@ -16,6 +19,6 @@ namespace PixiEditor.Tests
             {
                 UseHeadlessDrawing = true,
                 FrameBufferFormat = PixelFormat.Rgba8888,
-            });
+            }).WithDrawie();
     }
 }

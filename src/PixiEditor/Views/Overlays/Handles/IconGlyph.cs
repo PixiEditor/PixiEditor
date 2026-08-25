@@ -1,5 +1,4 @@
-﻿using Avalonia.Media;
-using Drawie.Backend.Core.Surfaces;
+﻿using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Text;
 using Drawie.Numerics;

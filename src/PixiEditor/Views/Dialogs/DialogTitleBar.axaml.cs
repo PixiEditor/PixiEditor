@@ -1,12 +1,6 @@
 ﻿using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.Chrome;
-using Avalonia.Controls.Primitives;
-using Avalonia.Input;
-using Avalonia.Interactivity;
-using Avalonia.Platform;
-using PixiEditor.Extensions.UI;
 using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.Views.Dialogs;

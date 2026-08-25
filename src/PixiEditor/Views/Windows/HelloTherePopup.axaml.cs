@@ -1,7 +1,4 @@
-﻿using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
@@ -9,7 +6,6 @@ using CommunityToolkit.Mvvm.Input;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Helpers;
-using PixiEditor.Helpers.UI;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Services.NewsFeed;
 using PixiEditor.Models.Structures;

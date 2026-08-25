@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
 using OneOf;

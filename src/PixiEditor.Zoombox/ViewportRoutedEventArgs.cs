@@ -1,7 +1,4 @@
-﻿using ChunkyImageLib.DataHolders;
-using System.Windows;
-using Avalonia.Interactivity;
-using Drawie.Backend.Core.Numerics;
+﻿using Avalonia.Interactivity;
 using Drawie.Numerics;
 
 namespace PixiEditor.Zoombox;

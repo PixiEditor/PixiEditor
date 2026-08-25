@@ -1,5 +1,4 @@
 ﻿using PixiEditor.Extensions.Sdk;
-using PixiEditor.Extensions.Sdk.Utilities;
 
 namespace CGlueTestLib;
 

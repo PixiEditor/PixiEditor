@@ -1,5 +1,3 @@
-using System.IO.Compression;
-using System.Security.Cryptography;
 using PixiEditor.Extensions.Sdk.Utilities;
 
 namespace PixiEditor.Extensions.Sdk.Bridge;

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using Avalonia.Controls;
-using PixiEditor.Extensions.UI;
+﻿using Avalonia.Controls;
 using PixiEditor.UI.Common.Fonts;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.Views;

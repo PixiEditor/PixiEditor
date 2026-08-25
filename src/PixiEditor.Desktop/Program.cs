@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Avalonia;
-using Avalonia.Logging;
 using Avalonia.Vulkan;
-using Drawie.Interop.Avalonia;
 using Drawie.Interop.VulkanAvalonia;
 using PixiEditor.Helpers;
 

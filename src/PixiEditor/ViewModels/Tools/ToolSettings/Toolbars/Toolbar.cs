@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
+﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.ViewModels.Tools.ToolSettings.Settings;

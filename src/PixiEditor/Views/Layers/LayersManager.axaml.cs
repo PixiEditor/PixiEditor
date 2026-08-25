@@ -1,15 +1,12 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
-using Drawie.Windowing.Input;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Constants;
-using PixiEditor.Helpers.UI;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Layers;
@@ -17,7 +14,6 @@ using PixiEditor.ViewModels;
 using PixiEditor.ViewModels.Dock;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Document.Nodes;
-using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.Views.Layers;
 #nullable enable

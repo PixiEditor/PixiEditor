@@ -1,17 +1,12 @@
-﻿using System.Windows.Input;
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.Input;
 using PixiEditor.Helpers.Constants;
-using PixiEditor.Helpers.UI;
-using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Layers;
-using PixiEditor.ViewModels.Document;
-using PixiEditor.ViewModels.Document.Nodes;
 
 namespace PixiEditor.Views.Layers;
 #nullable enable

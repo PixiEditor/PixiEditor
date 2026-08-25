@@ -1,20 +1,13 @@
-﻿using System.Collections.ObjectModel;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Markup.Xaml;
-using Avalonia.Media;
 using Avalonia.Platform.Storage;
-using Avalonia.VisualTree;
 using CommunityToolkit.Mvvm.Input;
 using Drawie.Backend.Core;
-using Drawie.Numerics;
-using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.IO;
 using PixiEditor.UI.Common.Localization;
-using Brush = PixiEditor.Models.BrushEngine.Brush;
 
 namespace PixiEditor.Views.Input;
 

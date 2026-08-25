@@ -1,17 +1,11 @@
 ﻿using System.Diagnostics;
-using Avalonia.Threading;
-using Drawie.Backend.Core;
 using PixiEditor.ChangeableDocument;
 using PixiEditor.ChangeableDocument.Actions;
-using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.ChangeInfos;
-using Drawie.Backend.Core.Bridge;
-using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Helpers;
-using PixiEditor.Models.DocumentModels.Public;
 using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Rendering;

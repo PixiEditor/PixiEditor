@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Interactivity;
 
 namespace PixiEditor.Views.Dialogs;

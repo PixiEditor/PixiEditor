@@ -9,6 +9,7 @@ using Drawie.Skia;
 using Drawie.Windowing;
 using DrawiEngine;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using PixiEditor.Extensions;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Extensions.Runtime;
@@ -19,6 +20,7 @@ using PixiEditor.MacOs;
 using PixiEditor.Models.Preferences;
 using PixiEditor.OperatingSystem;
 using PixiEditor.Platform;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels;
 using PixiEditor.Windows;
 

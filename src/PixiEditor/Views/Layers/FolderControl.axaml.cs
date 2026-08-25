@@ -3,10 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
-using Avalonia.Threading;
-using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.Layers;
-using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Document.Nodes;
 
 namespace PixiEditor.Views.Layers;

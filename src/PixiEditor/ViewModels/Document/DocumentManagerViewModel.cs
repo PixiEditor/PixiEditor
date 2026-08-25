@@ -1,19 +1,13 @@
-﻿using System.Collections;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Collections.ObjectModel;
-using System.Threading.Tasks;
 using Avalonia.Input;
 using Avalonia.Threading;
 using PixiEditor.ChangeableDocument.Enums;
-using PixiEditor.Helpers;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Attributes.Evaluators;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Handlers;
-using PixiEditor.Models.IO;
-using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.SubViewModels;
-using PixiEditor.ViewModels.Tools.Tools;
 using PixiEditor.Views;
 using PixiEditor.Views.Overlays.SymmetryOverlay;
 

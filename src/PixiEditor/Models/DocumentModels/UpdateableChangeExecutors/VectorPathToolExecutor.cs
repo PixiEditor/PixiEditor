@@ -1,6 +1,5 @@
 ﻿using Avalonia.Input;
 using Avalonia.Media;
-using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
@@ -15,13 +14,11 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changes.Vectors;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Controllers.InputDevice;
-using PixiEditor.Models.DocumentModels.Public;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.Tools;
 using PixiEditor.ViewModels.Tools.Tools;
 using PixiEditor.ViewModels.Tools.ToolSettings.Settings;
-using PixiEditor.Views.Overlays.PathOverlay;
 using Color = Drawie.Backend.Core.ColorsImpl.Color;
 using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
 

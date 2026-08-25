@@ -1,7 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using PixiEditor.ViewModels.Document.Blackboard;
-
-namespace PixiEditor.Models.Handlers;
+﻿namespace PixiEditor.Models.Handlers;
 
 public interface IBlackboardHandler
 {

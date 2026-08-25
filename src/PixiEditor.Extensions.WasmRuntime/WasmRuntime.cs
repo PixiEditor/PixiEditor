@@ -1,5 +1,4 @@
-﻿using System.Text;
-using Wasmtime;
+﻿using Wasmtime;
 
 namespace PixiEditor.Extensions.WasmRuntime;
 

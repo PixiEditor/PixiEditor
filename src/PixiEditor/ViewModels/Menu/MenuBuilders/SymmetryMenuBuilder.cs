@@ -1,12 +1,8 @@
-﻿using System.Collections.Generic;
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Input;
 using CommunityToolkit.Mvvm.Input;
-using PixiEditor.Helpers.Converters;
-using PixiEditor.Views.Input;
-using PixiEditor.Extensions.UI;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.UI.Common.Controls;
 using PixiEditor.UI.Common.Fonts;

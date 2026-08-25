@@ -1,5 +1,4 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
-using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+﻿using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.Common;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Animations;

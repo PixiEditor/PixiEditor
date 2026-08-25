@@ -1,6 +1,5 @@
 ﻿using Drawie.Backend.Core.ColorsImpl;
 using PixiEditor.SVG.Elements;
-using PixiEditor.SVG.Exceptions;
 using PixiEditor.SVG.Utils;
 
 namespace PixiEditor.SVG.Units;

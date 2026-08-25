@@ -1,13 +1,10 @@
 ﻿using Avalonia.Platform;
 using Avalonia.Threading;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.Extensions.CommonApi.Brushes;
-using PixiEditor.Helpers;
 using PixiEditor.Models.BrushEngine;
 using PixiEditor.Models.IO;
 using PixiEditor.ViewModels.Document;
-using PixiEditor.ViewModels.Document.Nodes.Brushes;
 
 namespace PixiEditor.Models.Controllers;
 

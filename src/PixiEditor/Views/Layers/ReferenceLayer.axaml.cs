@@ -2,8 +2,6 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Interactivity;
-using Avalonia.Media;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Commands.Commands;
 using PixiEditor.ViewModels;

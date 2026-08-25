@@ -1,13 +1,11 @@
 using Avalonia.Headless.XUnit;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Bridge;
-using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
 using PixiEditor.Models.IO;
 using PixiEditor.ViewModels;
-using Xunit.Abstractions;
 
 namespace PixiEditor.Tests;
 

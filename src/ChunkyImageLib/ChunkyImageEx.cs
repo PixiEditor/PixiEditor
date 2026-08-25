@@ -1,7 +1,5 @@
-﻿using System.Diagnostics;
-using ChunkyImageLib.DataHolders;
+﻿using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
-using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;

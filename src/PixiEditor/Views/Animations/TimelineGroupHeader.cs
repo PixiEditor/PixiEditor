@@ -5,7 +5,6 @@ using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
-using Avalonia.Markup.Xaml.Templates;
 using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.Views.Animations;

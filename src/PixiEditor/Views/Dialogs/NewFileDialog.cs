@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-using Avalonia.Controls;
-using PixiEditor.Models;
+﻿using Avalonia.Controls;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Models.Dialogs;
 

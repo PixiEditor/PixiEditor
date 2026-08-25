@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
@@ -19,7 +15,6 @@ using PixiEditor.Helpers.Constants;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.ExtensionServices;
 using PixiEditor.Models.IO.PaletteParsers;
-using PixiEditor.Models.Palettes;
 using PixiEditor.Models.Structures;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels;

@@ -1,5 +1,4 @@
-﻿using Drawie.Backend.Core.ColorsImpl;
-using Drawie.Backend.Core.Shaders.Generation.Expressions;
+﻿using Drawie.Backend.Core.Shaders.Generation.Expressions;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Rendering;
 
