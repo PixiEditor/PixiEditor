@@ -32,6 +32,15 @@ public partial class MainView : UserControl
         Loaded += OnLoaded;
     }
 
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        if (DataContext is ViewModelMain vm)
+        {
+            vm.OnEarlyStartup();
+        }
+    }
+
     private void OnLoaded(object? sender, RoutedEventArgs e)
     {
         if (DataContext is ViewModelMain vm)

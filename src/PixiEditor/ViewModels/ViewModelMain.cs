@@ -215,9 +215,13 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         LazyDocumentClosed += OnLazyDocumentClosed;
     }
 
-    public void OnStartup()
+    internal void OnEarlyStartup()
     {
         OnEarlyStartupEvent?.Invoke();
+    }
+
+    internal void OnStartup()
+    {
         OnStartupEvent?.Invoke();
         MenuBarViewModel.Init(Services, CommandController);
     }
