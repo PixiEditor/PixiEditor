@@ -32,7 +32,8 @@ public class PixiEditorClipboard : IPixiEditorClipboard
 
     public async Task SetDataObjectAsync(IAsyncDataTransfer data)
     {
-        avaloniaClipboard.SetDataAsync(data);
+        await avaloniaClipboard.SetDataAsync(data);
+        await avaloniaClipboard.FlushAsync();
     }
 
     public async Task<T> GetDataAsync<T>(DataFormat<T> id) where T : class

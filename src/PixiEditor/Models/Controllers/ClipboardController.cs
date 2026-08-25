@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Unicode;
 using System.Threading.Tasks;
+using Avalonia;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
 using Avalonia.Media.Imaging;
@@ -198,7 +199,15 @@ internal static class ClipboardController
 
     private static async Task AddImageToClipboard(Surface actuallySurface, DataTransfer data)
     {
-        using (ImgData pngData = actuallySurface.DrawingSurface.Snapshot().Encode(EncodedImageFormat.Png))
+        using var snapshot = actuallySurface.DrawingSurface.Snapshot();
+        using var pixels = snapshot.PeekPixels();
+        Bitmap bitmap = new Bitmap(snapshot.Info.ColorType == ColorType.Bgra8888 ? PixelFormat.Bgra8888 : PixelFormat.Rgba8888,
+            AlphaFormat.Premul, pixels.GetPixels(), new PixelSize(snapshot.Size.X, snapshot.Size.Y), new Vector(96, 96),
+            snapshot.Info.RowBytes);
+        
+        data.Add(DataTransferItem.Create(DataFormat.Bitmap, bitmap));
+
+        using (ImgData pngData = snapshot.Encode(EncodedImageFormat.Png))
         {
             using MemoryStream pngStream = new MemoryStream();
             await pngData.AsStream().CopyToAsync(pngStream);
