@@ -26,13 +26,15 @@ public class SvgRenderTests : FullPixiEditorTest
             _testOutputHelper.WriteLine("Skipping the test because hardware acceleration is not enabled.");
             return;
         }
-        
+
         // Load svg from /TestFiles/SvgRenderTests/*.svg
         // Load respective png from /TestFiles/SvgRenderTests/*.png
         // Render svg using PixiEditor's rendering engine
 
         string[] svgFiles = Directory.GetFiles(Path.Combine("TestFiles", "SvgRenderTests"), "*.svg");
         string[] pngFiles = Directory.GetFiles(Path.Combine("TestFiles", "SvgRenderTests"), "*.png");
+
+        HashSet<string> failedFiles = new HashSet<string>();
 
         foreach (var svgFile in svgFiles)
         {
@@ -71,7 +73,7 @@ public class SvgRenderTests : FullPixiEditorTest
             {
                 var tmp = Path.Combine(Paths.TempFilesPath, "SvgRenderTestFailures");
                 Directory.CreateDirectory(tmp);
-                string renderedPath = Path.Combine(tmp, Path.GetFileNameWithoutExtension(svgFile) + "_rendered.png");
+                string renderedPath = Path.Combine(tmp, Path.GetFileNameWithoutExtension(svgFile) + ".png");
                 string expectedPath = Path.Combine(tmp, Path.GetFileNameWithoutExtension(svgFile) + "_expected.png");
                 renderedToCompare.SaveTo(renderedPath);
                 toCompareTo.SaveTo(expectedPath);
@@ -90,7 +92,12 @@ public class SvgRenderTests : FullPixiEditorTest
                 _testOutputHelper.WriteLine($"Rendered image saved to: {renderedPath}");
             }
 
-            Assert.True(matches, "Rendered SVG does not match the expected PNG for file: " + svgFile);
+            if (!matches)
+            {
+                failedFiles.Add(svgFile);
+            }
         }
+
+        Assert.True(failedFiles.Count == 0, "Rendered SVG does not match the expected PNG for files: " + string.Join(", ", failedFiles));
     }
 }
