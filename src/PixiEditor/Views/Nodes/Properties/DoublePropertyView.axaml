@@ -11,8 +11,9 @@
                              xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
                              xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
                              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-                             x:DataType="properties1:DoublePropertyViewModel"
+                             x:CompileBindings="False"
                              x:Class="PixiEditor.Views.Nodes.Properties.DoublePropertyView">
+    <!--Important! Do not change compile bindings to true. SinglePropertyViewModel is also used besides DoublePropertyViewModel-->
     <Design.DataContext>
         <properties1:DoublePropertyViewModel />
     </Design.DataContext>
