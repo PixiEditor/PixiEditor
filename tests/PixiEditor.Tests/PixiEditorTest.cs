@@ -140,6 +140,7 @@ public class TestingApp : DrawieApp
     public override IWindow CreateMainWindow()
     {
         window = Engine.WindowingPlatform.CreateWindow("Testing app", VecI.One);
+        window.IsVisible = false;
         return window;
     }
 

@@ -73,6 +73,7 @@ public class Program
                     PreferDiscreteGpu = true,
                 },
             })
+            .WithDeveloperTools()
             .WithDrawie()
             .LogToTrace();
     }
