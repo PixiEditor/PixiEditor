@@ -234,7 +234,7 @@
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
-                        <DataTemplate x:CompileBindings="False" x:DataType="{x:Type handlers:IToolSetHandler}">
+                        <DataTemplate x:DataType="{x:Type handlers:IToolSetHandler}">
                             <Button
                                 Command="{xaml:Command PixiEditor.Tools.SetActiveToolSet, UseProvided=True}"
                                 CommandParameter="{Binding}"

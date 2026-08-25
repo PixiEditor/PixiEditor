@@ -22,6 +22,7 @@
             CommandParameter="{Binding}"
             Focusable="False"
             Width="44" Height="34"
+            Name="ToolButton"
             ui:Translator.TooltipLocalizedString="{Binding Tooltip}"
             Background="{DynamicResource ThemeBackgroundBrush1}">
         <Button.Template>
@@ -30,7 +31,7 @@
                         Background="{DynamicResource ThemeBackgroundBrush1}">
                     <ContentPresenter Content="{TemplateBinding Content}"
                                       RenderTransformOrigin="50%,55%"
-                                      ui2:Juice.Animations="Button; Loaded:PopIn"
+                                      ui2:Juice.Animations="[^ToolButton]:Button; Loaded:PopIn"
                                       />
                 </Border>
             </ControlTemplate>

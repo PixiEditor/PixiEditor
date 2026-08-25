@@ -18,6 +18,11 @@ internal sealed class CompositeDisposable : IDisposable
 
         items.Clear();
     }
+
+    public void AddRange(IDisposable[] subscription)
+    {
+        items.AddRange(subscription);
+    }
 }
 
 internal sealed class ActionDisposable : IDisposable

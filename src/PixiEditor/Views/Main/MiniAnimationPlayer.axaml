@@ -5,6 +5,7 @@
              xmlns:main="clr-namespace:PixiEditor.Views.Main"
              xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
              xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+             xmlns:ui1="clr-namespace:PixiEditor.Helpers.UI;assembly=PixiEditor.UI.Common"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.Views.Main.MiniAnimationPlayer" Width="150">
     <StackPanel Orientation="Horizontal" Spacing="5">
@@ -72,10 +73,12 @@
         <Button Classes="pixi-icon" FontSize="20" Content="{DynamicResource icon-timeline}"
                 Command="{xaml:Command UseProvided=True, Name=PixiEditor.Window.ShowDockWindow}"
                 CommandParameter="Timeline"
+                ui1:Juice.Animations=":Button"
                 ui:Translator.TooltipKey="OPEN_TIMELINE" />
         <Button Classes="pixi-icon" FontSize="20" Content="{DynamicResource icon-nodes}"
                 Command="{xaml:Command UseProvided=True, Name=PixiEditor.Window.ShowDockWindow}"
                 CommandParameter="NodeGraph"
+                ui1:Juice.Animations=":Button"
                 ui:Translator.TooltipKey="OPEN_NODE_GRAPH" />
     </StackPanel>
 </UserControl>

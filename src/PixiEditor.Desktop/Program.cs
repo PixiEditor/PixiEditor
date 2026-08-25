@@ -50,7 +50,9 @@ public class Program
             })
             .With(new X11PlatformOptions()
             {
+#pragma warning disable AVALONIA_X11_CSD
                 EnableDrawnDecorations = true,
+#pragma warning restore AVALONIA_X11_CSD
                 RenderingMode =
                     openGlPreferred
                         ? [X11RenderingMode.Glx, X11RenderingMode.Vulkan]

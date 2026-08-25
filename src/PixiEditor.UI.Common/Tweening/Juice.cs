@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
+using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
@@ -51,6 +52,11 @@ public static class Juice
 
     private static void UpdateSubscription(Control control)
     {
+        Dispatcher.CurrentDispatcher.Post(() => UpdateSubscriptionInternal(control));
+    }
+
+    private static void UpdateSubscriptionInternal(Control control)
+    {
         if (Subscriptions.Remove(control, out var old))
             old.Dispose();
 
@@ -65,12 +71,6 @@ public static class Juice
                      ';',
                      StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
         {
-            if (entry.Equals("Button", StringComparison.OrdinalIgnoreCase))
-            {
-                AddButtonSubscriptions(control, subscriptions);
-                continue;
-            }
-
             var parts = entry.Split(
                 ':',
                 2,
@@ -85,73 +85,111 @@ public static class Juice
                 parts[1]);
 
             if (subscription is not null)
-                subscriptions.Add(subscription);
+                subscriptions.AddRange(subscription);
         }
 
         if (subscriptions.Count > 0)
             Subscriptions[control] = subscriptions;
     }
 
-    private static void AddButtonSubscriptions(
-        Control control,
-        CompositeDisposable subscriptions)
+    private static IDisposable[] AddButtonSubscriptions(
+        Control triggerControl,
+        Control animationTarget)
     {
-        subscriptions.Add(control.AddDisposableHandler(
-            InputElement.PointerExitedEvent,
-            (_, _) => _ = Normal(control)));
-
-        subscriptions.Add(control.AddDisposableHandler(
-            InputElement.PointerPressedEvent,
-            (_, _) => _ = Press(control)));
-
-        subscriptions.Add(control.AddDisposableHandler(
-            InputElement.PointerReleasedEvent,
-            (_, _) => _ = Release(control)));
+        return new IDisposable[]
+        {
+            triggerControl.AddDisposableHandler(
+                InputElement.PointerExitedEvent,
+                (_, _) => _ = Normal(animationTarget), handledEventsToo: true),
+            triggerControl.AddDisposableHandler(
+                InputElement.PointerPressedEvent,
+                (_, _) => _ = Press(animationTarget), handledEventsToo: true),
+            triggerControl.AddDisposableHandler(
+                InputElement.PointerReleasedEvent,
+                (_, _) => _ = Release(animationTarget), handledEventsToo: true)
+        };
     }
 
-    private static IDisposable? CreateSubscription(
-        Control control,
+    private static IDisposable[]? CreateSubscription(
+        Control triggerControl,
         string trigger,
-        string animation)
+        string animation,
+        Control? targetControl = null)
     {
+        if (trigger.StartsWith("[") && trigger.Contains("]."))
+        {
+            int indexOfDot = trigger.IndexOf("].", StringComparison.Ordinal);
+            var propertyName = trigger.Substring(1, indexOfDot - 1);
+            trigger = trigger.Substring(indexOfDot + 2);
+
+            bool lookForFirstParent = propertyName.StartsWith('^');
+            Control? found = null;
+            if (lookForFirstParent)
+            {
+                propertyName = propertyName.Substring(1);
+                found = triggerControl.GetVisualAncestors().OfType<Control>()
+                    .FirstOrDefault(c => c.Name == propertyName);
+            }
+            else
+            {
+                found = triggerControl.GetVisualDescendants().OfType<Control>()
+                    .FirstOrDefault(c => c.Name == propertyName);
+            }
+
+            if (found != null)
+            {
+                targetControl = triggerControl;
+                triggerControl = found;
+            }
+        }
+
+        Control animationTarget = targetControl ?? triggerControl;
+
+
+        if (animation.Equals("Button", StringComparison.OrdinalIgnoreCase))
+        {
+            return AddButtonSubscriptions(triggerControl, animationTarget);
+        }
+
         return trigger switch
         {
-            "PointerPressed" => control.AddDisposableHandler(
+            "PointerPressed" => [triggerControl.AddDisposableHandler(
                 InputElement.PointerPressedEvent,
-                (_, _) => Play(control, animation)),
+                (_, _) => Play(animationTarget, animation))],
 
-            "PointerEntered" => control.AddDisposableHandler(
+            "PointerEntered" => [triggerControl.AddDisposableHandler(
                 InputElement.PointerEnteredEvent,
-                (_, _) => Play(control, animation)),
+                (_, _) => Play(animationTarget, animation))],
 
-            "PointerExited" => control.AddDisposableHandler(
+            "PointerExited" => [triggerControl.AddDisposableHandler(
                 InputElement.PointerExitedEvent,
-                (_, _) => Play(control, animation)),
+                (_, _) => Play(animationTarget, animation))],
 
-            "PointerReleased" => control.AddDisposableHandler(
+            "PointerReleased" => [triggerControl.AddDisposableHandler(
                 InputElement.PointerReleasedEvent,
-                (_, _) => Play(control, animation)),
+                (_, _) => Play(animationTarget, animation))],
 
-            "Loaded" => control.AddDisposableHandler(
+            "Loaded" => [triggerControl.AddDisposableHandler(
                 Control.LoadedEvent,
-                (_, _) => Play(control, animation)),
-            
-            "OnVisible" => SubscribeProperty(control, Visual.IsVisibleProperty, (val) => val is true, animation),
-            "OnInvisible" => SubscribeProperty(control, Visual.IsVisibleProperty, (val) => val is false, animation),
-            "Attached" => SubscribeVisualTree(
-                h => control.AttachedToVisualTree += h,
-                h => control.AttachedToVisualTree -= h,
-                () => Play(control, animation)),
+                (_, _) => Play(animationTarget, animation))],
 
-            "Click" when control is Button button => button.AddDisposableHandler(
+            "OnVisible" => [SubscribeProperty(triggerControl, Visual.IsVisibleProperty, (val) => val is true, animation)],
+            "OnInvisible" => [SubscribeProperty(triggerControl, Visual.IsVisibleProperty, (val) => val is false,
+                animation)],
+            "Attached" => [SubscribeVisualTree(
+                h => triggerControl.AttachedToVisualTree += h,
+                h => triggerControl.AttachedToVisualTree -= h,
+                () => Play(triggerControl, animation))],
+
+            "Click" when triggerControl is Button button => [button.AddDisposableHandler(
                 Button.ClickEvent,
-                (_, _) => Play(control, animation),
-                handledEventsToo: true),
+                (_, _) => Play(triggerControl, animation),
+                handledEventsToo: true)],
 
             _ => null
         };
     }
-    
+
     private static IDisposable SubscribeVisualTree(
         Action<EventHandler<VisualTreeAttachmentEventArgs>> add,
         Action<EventHandler<VisualTreeAttachmentEventArgs>> remove,
@@ -163,7 +201,7 @@ public static class Juice
 
         return new ActionDisposable(() => remove(handler));
     }
-    
+
     private static IDisposable SubscribeProperty(
         Control control,
         AvaloniaProperty property,
@@ -254,7 +292,7 @@ public static class Juice
         {
         }
     }
-    
+
     private static Task ScaleFrom(
         Control control,
         double from,
@@ -263,7 +301,7 @@ public static class Juice
         Easing? easing = null,
         CancellationToken cancellationToken = default)
     {
-        var target = GetAnimationTarget(control);
+        var target = control;
 
         if (target is null)
             return Task.CompletedTask;
@@ -293,7 +331,7 @@ public static class Juice
         Easing? easing = null,
         CancellationToken cancellationToken = default)
     {
-        var target = GetAnimationTarget(control);
+        var target = control;
 
         if (target is null)
             return Task.CompletedTask;
@@ -320,7 +358,7 @@ public static class Juice
         Easing? easing = null,
         CancellationToken cancellationToken = default)
     {
-        var target = GetAnimationTarget(control);
+        var target = control;
 
         if (target is null)
             return;
@@ -364,7 +402,7 @@ public static class Juice
             Easing.CubicEaseOut,
             cancellationToken);
     }
-    
+
     public static Task PopIn(
         Control control,
         double duration = 180,
@@ -385,7 +423,7 @@ public static class Juice
         double duration = 180,
         CancellationToken cancellationToken = default)
     {
-        var target = GetAnimationTarget(control);
+        var target = control;
 
         if (target is null)
             return;
@@ -416,7 +454,7 @@ public static class Juice
         double duration = 350,
         CancellationToken cancellationToken = default)
     {
-        var target = GetAnimationTarget(control);
+        var target = control;
 
         if (target is null)
             return Task.CompletedTask;
@@ -440,7 +478,7 @@ public static class Juice
         double duration = 300,
         CancellationToken cancellationToken = default)
     {
-        var target = GetAnimationTarget(control);
+        var target = control;
 
         if (target is null)
             return Task.CompletedTask;
@@ -465,7 +503,7 @@ public static class Juice
         double duration = 300,
         CancellationToken cancellationToken = default)
     {
-        var target = GetAnimationTarget(control);
+        var target = control;
 
         if (target is null)
             return Task.CompletedTask;
@@ -490,7 +528,7 @@ public static class Juice
         Easing? easing = null,
         CancellationToken cancellationToken = default)
     {
-        var target = GetAnimationTarget(control);
+        var target = control;
 
         if (target is null)
             return Task.CompletedTask;
@@ -506,33 +544,6 @@ public static class Juice
                 target.Opacity = from + (opacity - from) * t;
             },
             cancellationToken);
-    }
-
-    private static Control? GetAnimationTarget(Control control)
-    {
-        if (control is not Button)
-            return control;
-
-        return FindContentPresenter(control);
-    }
-
-    private static ContentPresenter? FindContentPresenter(Visual visual)
-    {
-        foreach (var child in visual.GetVisualChildren())
-        {
-            if (child is ContentPresenter presenter)
-                return presenter;
-
-            if (child is { } childVisual)
-            {
-                var result = FindContentPresenter(childVisual);
-
-                if (result is not null)
-                    return result;
-            }
-        }
-
-        return null;
     }
 
     private static Task Animate(
