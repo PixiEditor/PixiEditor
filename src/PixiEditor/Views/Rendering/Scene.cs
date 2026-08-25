@@ -503,7 +503,6 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                     BackgroundBitmap,
                     TileMode.Repeat, TileMode.Repeat,
                     Matrix3X3.CreateScale((float)checkerScale.X, (float)checkerScale.Y)),
-                FilterQuality = FilterQuality.None
             };
         }
 
