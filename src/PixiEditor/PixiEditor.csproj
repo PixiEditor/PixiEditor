@@ -94,7 +94,6 @@
     <PackageReference Include="Avalonia.AvaloniaEdit" Version="12.0.0" />
     <PackageReference Include="Avalonia.Headless" Version="$(AvaloniaVersion)"/>
     <PackageReference Include="Avalonia.Labs.Lottie" Version="12.0.2" />
-    <PackageReference Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)"/>
     <PackageReference Include="Avalonia.Skia" Version="$(AvaloniaVersion)"/>
     <PackageReference Include="AvaloniaEdit.TextMate" Version="12.0.0" />
     <PackageReference Include="ByteSize" Version="2.1.2"/>
@@ -102,10 +101,10 @@
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
     <PackageReference Include="DiscordRichPresence" Version="1.6.1.70" />
     <PackageReference Include="Hardware.Info" Version="110.0.0.1" />
-    <PackageReference Include="LiveMarkdown.Avalonia" Version="2.3.2" />
+    <PackageReference Include="LiveMarkdown.Avalonia" Version="2.4.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="5.9.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.9.0" />
-    <PackageReference Include="Svg.Controls.Skia.Avalonia" Version="12.0.0.15" />
+    <PackageReference Include="Svg.Controls.Skia.Avalonia" Version="12.0.0.16" />
     <PackageReference Include="TextMateSharp.Grammars" Version="2.0.4" />
   </ItemGroup>
 
