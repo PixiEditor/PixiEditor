@@ -22,7 +22,7 @@ public class WasmRuntime
 
         if (Directory.Exists(resourcesPath))
         {
-            wasiConfig.WithPreopenedDirectory(resourcesPath, "Resources/");
+            wasiConfig.WithPreopenedDirectory(resourcesPath, "Resources/", WasiDirectoryPermissions.Read | WasiDirectoryPermissions.Write, WasiFilePermissions.Read | WasiFilePermissions.Write);
         }
 
         using var config = new Config().WithDebugInfo(true)
