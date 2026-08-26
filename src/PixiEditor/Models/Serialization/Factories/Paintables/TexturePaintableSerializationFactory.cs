@@ -1,5 +1,4 @@
 ﻿using Drawie.Backend.Core.ColorsImpl.Paintables;
-using Silk.NET.OpenGL;
 
 namespace PixiEditor.Models.Serialization.Factories.Paintables;
 

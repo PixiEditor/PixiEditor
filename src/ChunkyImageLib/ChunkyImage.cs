@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
 using OneOf;
@@ -77,7 +75,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
     private static Paint ReplacingPaint { get; } = new Paint() { BlendMode = BlendMode.Src };
 
     private static Paint SmoothReplacingPaint { get; } =
-        new Paint() { BlendMode = BlendMode.Src, FilterQuality = FilterQuality.Medium };
+        new Paint() { BlendMode = BlendMode.Src };
 
     private static Paint AddingPaint { get; } = new Paint() { BlendMode = BlendMode.Plus };
     private readonly Paint blendModePaint = new Paint() { BlendMode = BlendMode.Src };

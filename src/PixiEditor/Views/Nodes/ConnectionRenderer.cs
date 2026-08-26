@@ -2,7 +2,6 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
-using Drawie.Numerics;
 using PixiEditor.Helpers.Converters;
 using PixiEditor.ViewModels.Nodes;
 

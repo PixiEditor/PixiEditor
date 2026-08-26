@@ -1,17 +1,9 @@
-﻿using System.Diagnostics;
-using System.Reflection;
-using Avalonia;
-using Avalonia.Controls.ApplicationLifetimes;
-using LiveMarkdown.Avalonia;
-using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
+﻿using LiveMarkdown.Avalonia;
 using PixiEditor.Helpers;
 using PixiEditor.Initialization;
-using PixiEditor.Models.Commands;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.OperatingSystem;
-using PixiEditor.UI.Common.Behaviors;
-using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.ViewModels.SubViewModels;
 

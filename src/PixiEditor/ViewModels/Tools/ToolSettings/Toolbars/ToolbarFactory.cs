@@ -1,8 +1,6 @@
 ﻿using System.Reflection;
 using Avalonia.Media;
-using PixiEditor.Helpers.Extensions;
 using PixiEditor.ViewModels.Tools.ToolSettings.Settings;
-using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
 
 namespace PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
 

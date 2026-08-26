@@ -14,9 +14,7 @@ using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Helpers.UI;
 using PixiEditor.Models.Handlers.Toolbars;
-using PixiEditor.ViewModels.BrushSystem;
 using PixiEditor.Views.Rendering;
-using Brush = PixiEditor.Models.BrushEngine.Brush;
 using Canvas = Drawie.Backend.Core.Surfaces.Canvas;
 using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
 

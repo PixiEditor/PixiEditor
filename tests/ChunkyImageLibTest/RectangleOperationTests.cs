@@ -1,10 +1,8 @@
 ﻿using System.Collections.Generic;
 using ChunkyImageLib;
 using ChunkyImageLib.Operations;
-using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Numerics;
-using Drawie.Skia;
 using PixiEditor.Tests;
 using Xunit;
 

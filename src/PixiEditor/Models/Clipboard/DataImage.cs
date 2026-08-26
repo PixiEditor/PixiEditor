@@ -1,6 +1,4 @@
-﻿using ChunkyImageLib;
-using Drawie.Backend.Core;
-using Drawie.Backend.Core.Numerics;
+﻿using Drawie.Backend.Core;
 using Drawie.Numerics;
 
 namespace PixiEditor.Models.Clipboard;

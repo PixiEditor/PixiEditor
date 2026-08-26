@@ -5,7 +5,6 @@
              xmlns:extensionManager="clr-namespace:PixiEditor.ViewModels.ExtensionManager"
              xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
              xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
-             xmlns:extensions="clr-namespace:PixiEditor.Views.Extensions"
              xmlns:converters="clr-namespace:PixiEditor.Extensions.FlyUI.Converters;assembly=PixiEditor.Extensions"
              xmlns:avalonia="clr-namespace:LiveMarkdown.Avalonia;assembly=LiveMarkdown.Avalonia"
              mc:Ignorable="d"
@@ -13,7 +12,7 @@
              d:DesignHeight="320"
              x:DataType="extensionManager:AvailableContentViewModel"
              Name="Root"
-             x:Class="PixiEditor.Views.Extensions.HighlightedExtensionCard">
+             x:Class="PixiEditor.Views.ExtensionManager.HighlightedExtensionCard">
     <Design.DataContext>
         <extensionManager:AvailableContentViewModel />
     </Design.DataContext>

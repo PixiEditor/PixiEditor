@@ -1,8 +1,6 @@
-﻿using System.Collections.ObjectModel;
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
-using PixiEditor.Models.Handlers;
 
 namespace PixiEditor.Views.Main.Tools;
 

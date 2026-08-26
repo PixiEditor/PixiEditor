@@ -1,8 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
-
-using System.Runtime.CompilerServices;
-using PixiEditor.Extensions.CommonApi.Windowing;
-using PixiEditor.Extensions.Sdk.Api;
 using PixiEditor.Extensions.Sdk.Api.Brushes;
 using PixiEditor.Extensions.Sdk.Api.Commands;
 using PixiEditor.Extensions.Sdk.Api.Extensions;

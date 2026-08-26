@@ -7,29 +7,22 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
 using Avalonia.Media;
-using Avalonia.OpenGL;
-using Avalonia.Platform;
-using Avalonia.Rendering.Composition;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using Microsoft.Extensions.DependencyInjection;
-using Drawie.Backend.Core.Bridge;
 using PixiDocks.Avalonia.Helpers;
-using PixiEditor.Extensions;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Extensions.Runtime;
 using PixiEditor.Helpers;
 using PixiEditor.Initialization;
 using PixiEditor.Models.AnalyticsAPI;
-using PixiEditor.Models.Controllers;
 using PixiEditor.Models.ExceptionHandling;
 using PixiEditor.Models.IO;
 using PixiEditor.OperatingSystem;
 using PixiEditor.Platform;
 using PixiEditor.ViewModels.SubViewModels;
 using PixiEditor.Views.Main;
-using PixiEditor.Views.Rendering;
 using ViewModels_ViewModelMain = PixiEditor.ViewModels.ViewModelMain;
 
 namespace PixiEditor.Views;
@@ -115,30 +108,28 @@ internal partial class MainWindow : Window
         {
             if (userPrefersSystemDecorations || cliArgs.Contains("--system-decorations"))
             {
-                this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default;
+                //this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default;
                 this.ExtendClientAreaToDecorationsHint = false;
-                this.SystemDecorations = SystemDecorations.Full;
+                this.WindowDecorations = WindowDecorations.Full;
                 systemDecorations = true;
             }
         }
 
         if (!systemDecorations)
         {
-            this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default;
+            //this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default;
             this.ExtendClientAreaToDecorationsHint = true;
-            if (System.OperatingSystem.IsLinux())
+            if (System.OperatingSystem.IsMacOS())
             {
-                SystemDecorations = SystemDecorations.None;
-            }
-            else if (System.OperatingSystem.IsMacOS())
-            {
+                /*
                 ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default |
                                               ExtendClientAreaChromeHints.NoChrome |
                                               ExtendClientAreaChromeHints.OSXThickTitleBar;
+            */
             }
             else
             {
-                SystemDecorations = SystemDecorations.Full;
+                WindowDecorations = WindowDecorations.Full;
             }
         }
     }

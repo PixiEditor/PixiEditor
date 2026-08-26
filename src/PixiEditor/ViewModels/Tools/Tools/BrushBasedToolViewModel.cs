@@ -1,12 +1,8 @@
 ﻿using Avalonia.Input;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
-using PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
-using PixiEditor.Extensions.WasmRuntime.Utilities;
-using PixiEditor.Models.BrushEngine;
 using PixiEditor.Models.Config;
 using PixiEditor.Models.Handlers;
-using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Input;
 using PixiEditor.UI.Common.Localization;

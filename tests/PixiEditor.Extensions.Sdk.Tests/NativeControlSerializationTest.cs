@@ -1,6 +1,5 @@
 using System.Text;
 using PixiEditor.Extensions.CommonApi.FlyUI;
-using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
 using PixiEditor.Extensions.Sdk.Api.FlyUI;
 
 namespace PixiEditor.Extensions.Sdk.Tests;

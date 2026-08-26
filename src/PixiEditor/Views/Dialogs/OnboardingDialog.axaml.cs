@@ -1,5 +1,4 @@
 ﻿using Avalonia.Controls;
-using Avalonia.Input;
 using PixiEditor.ViewModels.UserPreferences;
 
 namespace PixiEditor.Views.Dialogs;

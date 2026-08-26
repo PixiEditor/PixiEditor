@@ -1,11 +1,6 @@
 ﻿using System.ComponentModel;
-using Avalonia.Media.Imaging;
-using ChunkyImageLib;
-using ChunkyImageLib.DataHolders;
-using Drawie.Backend.Core;
 using Drawie.Backend.Core.Numerics;
 using PixiEditor.Models.Layers;
-using PixiEditor.Models.Rendering;
 using Drawie.Numerics;
 using PixiEditor.ViewModels.Document;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;

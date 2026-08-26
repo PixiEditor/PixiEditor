@@ -1,7 +1,4 @@
-﻿using Avalonia;
-using PixiEditor.Helpers.Converters;
-using PixiEditor.UI.Common.Fonts;
-using PixiEditor.UI.Common.Localization;
+﻿using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.ViewModels.Dock;

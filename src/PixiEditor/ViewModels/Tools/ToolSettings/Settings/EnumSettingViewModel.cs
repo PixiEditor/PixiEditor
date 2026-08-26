@@ -1,13 +1,7 @@
 ﻿using System.Text.Json;
 using System.Windows.Input;
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Data;
-using Avalonia.Layout;
 using CommunityToolkit.Mvvm.Input;
-using PixiEditor.Extensions.Helpers;
-using PixiEditor.Extensions.UI;
-using PixiEditor.Helpers.Decorators;
 
 namespace PixiEditor.ViewModels.Tools.ToolSettings.Settings;
 

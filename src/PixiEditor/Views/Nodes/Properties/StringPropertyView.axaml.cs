@@ -1,17 +1,6 @@
 ﻿using System.Windows.Input;
 using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Controls.Primitives;
 using Avalonia.Input;
-using Avalonia.Interactivity;
-using Avalonia.Markup.Xaml;
-using Avalonia.Threading;
-using Avalonia.VisualTree;
-using PixiEditor.Models.Dialogs;
-using PixiEditor.Models.Handlers;
-using PixiEditor.Models.IO;
-using PixiEditor.OperatingSystem;
-using PixiEditor.ViewModels.Nodes.Properties;
 
 namespace PixiEditor.Views.Nodes.Properties;
 

@@ -1,7 +1,6 @@
 using System.Runtime.InteropServices;
 using PixiEditor.Extensions.CommonApi.Brushes;
 using PixiEditor.Extensions.CommonApi.Utilities;
-using PixiEditor.Extensions.Sdk.Api.Brushes;
 using PixiEditor.Extensions.Sdk.Utilities;
 
 namespace PixiEditor.Extensions.Sdk.Bridge;

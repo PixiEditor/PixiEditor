@@ -1,5 +1,4 @@
-﻿using System.Runtime.InteropServices;
-using System.Text;
+﻿using System.Text;
 using Mono.Cecil;
 using Mono.Collections.Generic;
 

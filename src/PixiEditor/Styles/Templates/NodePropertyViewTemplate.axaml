@@ -7,7 +7,7 @@
     <Style Selector="properties|NodePropertyView">
         <Setter Property="ClipToBounds" Value="False" />
         <Setter Property="Template">
-            <ControlTemplate>
+            <ControlTemplate x:CompileBindings="False">
                 <Grid Margin="-5, 2" ColumnDefinitions="15, *, 15" MinHeight="10"
                       IsVisible="{Binding DataContext.IsVisible, RelativeSource={RelativeSource TemplatedParent}}">
                     <properties:NodeSocket Name="PART_InputSocket"
@@ -54,6 +54,6 @@
     <Style Selector="properties|NodePropertyView:has-errors ContentPresenter#PART_Presenter">
         <Setter Property="Foreground" Value="{DynamicResource ErrorOnDarkBrush}" />
         <Setter Property="(ui:Translator.TooltipKey)"
-                Value="{Binding DataContext.Errors, RelativeSource={RelativeSource TemplatedParent}}" />
+                Value="{ReflectionBinding DataContext.Errors, RelativeSource={RelativeSource TemplatedParent}}" />
     </Style>
 </Styles>

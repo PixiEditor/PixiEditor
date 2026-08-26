@@ -1,11 +1,8 @@
-﻿using System.Globalization;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Xml;
 using System.Xml.Linq;
-using Drawie.Numerics;
 using PixiEditor.SVG.Elements;
 using PixiEditor.SVG.Features;
-using PixiEditor.SVG.Units;
 
 namespace PixiEditor.SVG;
 
