@@ -68,7 +68,13 @@ public class NodeSocket : TemplatedControl
         ConnectPort.PointerReleased += ConnectPortOnPointerReleased;
         ConnectPort.PointerMoved += ConnectPortOnPointerMoved;
         ConnectPort.PointerEntered += ConnectPortOnPointerEntered;
+        ConnectPort.PointerExited += ConnectPortOnPointerExited;
+    }
 
+    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnDetachedFromVisualTree(e);
+        Property?.StopWatchingComputedValue();
     }
 
     private void ConnectPortOnPointerPressed(object? sender, PointerPressedEventArgs e)
@@ -90,7 +96,12 @@ public class NodeSocket : TemplatedControl
 
     private void ConnectPortOnPointerEntered(object? sender, PointerEventArgs e)
     {
-        Property.UpdateComputedValue();
+        Property.StartWatchingComputedValue();
+    }
+
+    private void ConnectPortOnPointerExited(object? sender, PointerEventArgs e)
+    {
+        Property.StopWatchingComputedValue();
     }
 }
 

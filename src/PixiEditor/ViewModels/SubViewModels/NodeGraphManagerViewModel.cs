@@ -103,6 +103,18 @@ internal class NodeGraphManagerViewModel : SubViewModel<ViewModelMain>
         Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.RequestUpdateComputedPropertyValue(property);
     }
 
+    [Command.Internal("PixiEditor.NodeGraph.StartWatchingComputedValue")]
+    public void StartWatchingComputedValue(INodePropertyHandler property)
+    {
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.StartWatchingComputedValue(property);
+    }
+
+    [Command.Internal("PixiEditor.NodeGraph.StopWatchingComputedValue")]
+    public void StopWatchingComputedValue(INodePropertyHandler property)
+    {
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.StopWatchingComputedValue(property);
+    }
+
     [Command.Internal("PixiEditor.NodeGraph.AddVariable")]
     public void AddVariable(VariableDefinition variableDefinition)
     {
