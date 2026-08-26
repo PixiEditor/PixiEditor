@@ -1,11 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
-using System.Reflection;
-using Avalonia;
-using Avalonia.Controls;
+﻿using System.Diagnostics;
 using Avalonia.Media;
-using Avalonia.Media.Imaging;
-using Avalonia.Platform;
 using PixiEditor.Models.Commands.Commands;
 using PixiEditor.Models.Commands.Search;
 using PixiEditor.UI.Common.Fonts;

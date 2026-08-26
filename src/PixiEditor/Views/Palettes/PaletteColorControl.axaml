@@ -10,7 +10,6 @@
              d:DesignHeight="45" d:DesignWidth="45"
              x:Name="uc"
              PointerPressed="PaletteColor_OnMouseDown"
-             PointerMoved="PaletteColor_OnMouseMove"
              PointerReleased="PaletteColor_OnMouseUp">
     <UserControl.Styles>
         <Style Selector="palettes1|PaletteColorControl">

@@ -1,0 +1,153 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls"
+                    x:ClassModifier="internal">
+
+
+    <ControlTheme x:Key="SimpleDrawnCaptionButton" TargetType="Button">
+
+        <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ThemeControlHighBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}" />
+        <Setter Property="Width" Value="45" />
+        <Setter Property="Height" Value="30" />
+        <Setter Property="VerticalAlignment" Value="Stretch" />
+        <Setter Property="(WindowDecorationProperties.ElementRole)" Value="DecorationsElement" />
+
+        <Setter Property="Template">
+            <ControlTemplate>
+                <ContentPresenter Name="PART_ContentPresenter"
+                                  Background="Transparent"
+                                  Content="{TemplateBinding Content}" />
+            </ControlTemplate>
+        </Setter>
+
+        <Style Selector="^:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{TemplateBinding Background}" />
+        </Style>
+
+        <Style Selector="^:pressed /template/ ContentPresenter">
+            <Setter Property="Background" Value="{TemplateBinding BorderBrush}" />
+        </Style>
+
+    </ControlTheme>
+
+
+    <ControlTheme x:Key="WindowsWindowDecorations" TargetType="WindowDrawnDecorations">
+
+        <Setter Property="DefaultTitleBarHeight" Value="36" />
+        <Setter Property="DefaultFrameThickness" Value="1" />
+        <Setter Property="DefaultShadowThickness" Value="8" />
+
+        <Setter Property="Template">
+            <WindowDrawnDecorationsTemplate>
+                <WindowDrawnDecorationsContent>
+
+                    <WindowDrawnDecorationsContent.Underlay>
+                        <Panel x:Name="PART_UnderlayWrapper">
+
+                            <Border x:Name="PART_WindowBorder"
+                                    Background="Transparent"
+                                    BorderThickness="{TemplateBinding FrameThickness}"
+                                    BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                                    IsHitTestVisible="False" />
+                        </Panel>
+                    </WindowDrawnDecorationsContent.Underlay>
+
+                    <WindowDrawnDecorationsContent.Overlay>
+                        <Panel x:Name="PART_OverlayWrapper">
+
+                            <StackPanel x:Name="PART_OverlayPanel"
+                                        VerticalAlignment="Top"
+                                        HorizontalAlignment="Right"
+                                        Height="{TemplateBinding TitleBarHeight}"
+                                        Orientation="Horizontal"
+                                        Spacing="2"
+                                        IsVisible="{TemplateBinding HasTitleBar}"
+                                        TextElement.FontSize="10">
+
+                                <Button x:Name="PART_MinimizeButton"
+                                        Theme="{StaticResource SimpleDrawnCaptionButton}"
+                                        WindowDecorationProperties.ElementRole="MinimizeButton"
+                                        IsVisible="{Binding $parent[Window].CanMinimize}"
+                                        Height="{TemplateBinding TitleBarHeight}"
+                                        AutomationProperties.Name="Minimize">
+
+                                    <Viewbox Width="11" Margin="2">
+                                        <Path Stretch="UniformToFill"
+                                              Fill="{DynamicResource ThemeForegroundBrush}"
+                                              Data="M2048 1229v-205h-2048v205h2048z" />
+                                    </Viewbox>
+                                </Button>
+
+                                <Button x:Name="PART_MaximizeButton"
+                                        Theme="{StaticResource SimpleDrawnCaptionButton}"
+                                        WindowDecorationProperties.ElementRole="MaximizeButton"
+                                        IsVisible="{Binding $parent[Window].CanMaximize}"
+                                        Height="{TemplateBinding TitleBarHeight}"
+                                        AutomationProperties.Name="Maximize">
+
+                                    <Viewbox Width="11" Margin="2">
+                                        <Viewbox.RenderTransform>
+                                            <RotateTransform Angle="-90" />
+                                        </Viewbox.RenderTransform>
+                                        <Path Name="RestoreButtonPath"
+                                              Stretch="UniformToFill"
+                                              Fill="{DynamicResource ThemeForegroundBrush}"
+                                              Data="M2048 2048v-2048h-2048v2048h2048zM1843 1843h-1638v-1638h1638v1638z" />
+                                    </Viewbox>
+                                </Button>
+
+                                <Button x:Name="PART_CloseButton"
+                                        Theme="{StaticResource SimpleDrawnCaptionButton}"
+                                        Background="#ffe81123"
+                                        BorderBrush="#ffbb0e1c"
+                                        Height="{TemplateBinding TitleBarHeight}"
+                                        WindowDecorationProperties.ElementRole="CloseButton"
+                                        AutomationProperties.Name="Close">
+
+                                    <Viewbox Width="11" Margin="2">
+                                        <Path Stretch="UniformToFill"
+                                              Fill="{DynamicResource ThemeForegroundBrush}"
+                                              Data="M1169 1024l879 -879l-145 -145l-879 879l-879 -879l-145 145l879 879l-879 879l145 145l879 -879l879 879l145 -145z" />
+                                    </Viewbox>
+                                </Button>
+                            </StackPanel>
+
+                        </Panel>
+                    </WindowDrawnDecorationsContent.Overlay>
+
+                </WindowDrawnDecorationsContent>
+            </WindowDrawnDecorationsTemplate>
+        </Setter>
+
+        <Style Selector="^:has-shadow /template/ Panel#PART_UnderlayWrapper">
+            <Setter Property="Margin" Value="{TemplateBinding ShadowThickness}" />
+        </Style>
+
+        <Style Selector="^:has-shadow /template/ Border#PART_WindowBorder">
+            <Setter Property="BoxShadow" Value="0 2 10 2 #80000000" />
+        </Style>
+
+        <Style Selector="^:has-shadow /template/ Panel#PART_OverlayWrapper">
+            <Setter Property="Margin" Value="{TemplateBinding ShadowThickness}" />
+        </Style>
+
+        <Style Selector="^:has-border /template/ Panel#PART_TitleBar">
+            <Setter Property="Margin" Value="1,1,1,0" />
+        </Style>
+
+        <Style Selector="^:has-border /template/ StackPanel#PART_OverlayPanel">
+            <Setter Property="Margin" Value="0,1,1,0" />
+        </Style>
+        <Style Selector="^:maximized /template/ Path#RestoreButtonPath">
+            <Setter Property="Data"
+                    Value="M2048 410h-410v-410h-1638v1638h410v410h1638v-1638zM1434 1434h-1229v-1229h1229v1229zM1843 1843h-1229v-205h1024v-1024h205v1229z" />
+        </Style>
+
+        <Style Selector="^ /template/ Button:disabled">
+            <Setter Property="Opacity" Value="0.2" />
+        </Style>
+
+    </ControlTheme>
+</ResourceDictionary>

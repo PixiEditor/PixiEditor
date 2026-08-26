@@ -1,6 +1,5 @@
 ﻿using Avalonia;
 using PixiEditor.Models.Handlers;
-using PixiEditor.Views.Nodes.Properties;
 
 namespace PixiEditor.Views.Nodes;
 

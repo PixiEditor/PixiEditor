@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;

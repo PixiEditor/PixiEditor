@@ -1,6 +1,4 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Interfaces;
-
-namespace PixiEditor.ViewModels.Document;
+﻿namespace PixiEditor.ViewModels.Document;
 
 public class ResourceStorageLocator
 {

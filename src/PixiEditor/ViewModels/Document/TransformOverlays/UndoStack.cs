@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace PixiEditor.ViewModels.Document.TransformOverlays;
+﻿namespace PixiEditor.ViewModels.Document.TransformOverlays;
 
 internal class UndoStack<TState> : IDisposable where TState : class
 {

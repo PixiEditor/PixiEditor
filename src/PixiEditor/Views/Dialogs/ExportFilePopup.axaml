@@ -90,7 +90,7 @@
                                       SelectedItem="{Binding ElementName=saveFilePopup, Path=ExportOutput}"
                                       ItemsSource="{Binding ElementName=saveFilePopup, Path=AvailableExportOutputs}">
                                 <ComboBox.ItemTemplate>
-                                    <DataTemplate>
+                                    <DataTemplate x:DataType="dialogs:RenderOutputConfig">
                                         <TextBlock ui1:Translator.Key="{Binding Path=Name}" />
                                     </DataTemplate>
                                 </ComboBox.ItemTemplate>

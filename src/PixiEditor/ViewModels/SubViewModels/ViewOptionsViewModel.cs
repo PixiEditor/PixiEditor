@@ -1,9 +1,6 @@
 ﻿using Avalonia.Input;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Models.Commands.Attributes.Commands;
-using PixiEditor.Models.Preferences;
-using PixiEditor.UI.Common.Fonts;
-using PixiEditor.ViewModels.UserPreferences.Settings;
 
 namespace PixiEditor.ViewModels.SubViewModels;
 #nullable enable

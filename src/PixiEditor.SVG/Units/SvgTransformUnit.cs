@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using System.Numerics;
 using Drawie.Backend.Core.Numerics;
 using PixiEditor.SVG.Elements;
 

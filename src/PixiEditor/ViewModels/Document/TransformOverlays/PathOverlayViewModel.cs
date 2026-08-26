@@ -1,9 +1,6 @@
-﻿using System.Windows.Input;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Drawie.Backend.Core.Vector;
-using PixiEditor.ChangeableDocument.Actions.Generated;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
 

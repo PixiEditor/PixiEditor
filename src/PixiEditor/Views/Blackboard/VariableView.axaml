@@ -22,7 +22,7 @@
                 <Setter Property="Cursor" Value="Hand" />
             </Style>
         </Grid.Styles>
-        <input:EditableTextBlock Grid.Column="0" Margin="0,0, 10,0"
+        <input:EditableTextBlock Grid.Column="0" Margin="0,0, 10,0" x:DataType="blackboard:VariableViewModel"
                                  Text="{Binding Name, Mode=TwoWay}"
                                  MinWidth="50"
                                  Name="name">
@@ -34,12 +34,15 @@
             </input:EditableTextBlock.ContextMenu>
         </input:EditableTextBlock>
         <ContentControl Grid.Column="1" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                        x:DataType="blackboard:VariableViewModel"
                         Content="{Binding SettingView}" />
         <Button Grid.Column="2" Classes="pixi-icon"
                 Content="{DynamicResource icon-trash}"
+                x:DataType="blackboard:VariableViewModel"
                 Margin="10,0,0,0" Command="{Binding RemoveCommand}" />
         <CheckBox Grid.Column="3" Classes="ImageCheckBox"
                   localization:Translator.TooltipKey="EXPOSE_VARIABLE_TOOLTIP"
+                  x:DataType="blackboard:VariableViewModel"
                   Margin="10,0,0,0" IsChecked="{Binding IsExposedBindable, Mode=TwoWay}">
             <CheckBox.Styles>
                 <Style Selector="TextBlock.pixi-icon">

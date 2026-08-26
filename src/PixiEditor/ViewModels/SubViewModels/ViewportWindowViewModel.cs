@@ -11,7 +11,6 @@ using PixiEditor.Models.DocumentModels;
 using Drawie.Numerics;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
-using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Handlers;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Dock;

@@ -1,12 +1,9 @@
-﻿using System.Drawing;
-using Avalonia.Input;
+﻿using Avalonia.Input;
 using PixiEditor.ChangeableDocument.Enums;
-using Drawie.Backend.Core.Numerics;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Attributes.Evaluators;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using Drawie.Numerics;
-using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.ViewModels.SubViewModels;

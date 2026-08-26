@@ -4,14 +4,13 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:extensionManager="clr-namespace:PixiEditor.ViewModels.ExtensionManager"
              xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
-             xmlns:extensions="clr-namespace:PixiEditor.Views.Extensions"
              xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="extensionManager:AvailableContentViewModel"
              Name="Root"
-             x:Class="PixiEditor.Views.Extensions.AvailableExtensionCard">
+             x:Class="PixiEditor.Views.ExtensionManager.AvailableContentView">
     <Design.DataContext>
         <extensionManager:AvailableContentViewModel />
     </Design.DataContext>

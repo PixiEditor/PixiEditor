@@ -1,9 +1,7 @@
 ﻿using System.Windows.Input;
 using Avalonia;
-using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
-using PixiEditor.Helpers.Converters;
 
 namespace PixiEditor.Views.Shortcuts;
 

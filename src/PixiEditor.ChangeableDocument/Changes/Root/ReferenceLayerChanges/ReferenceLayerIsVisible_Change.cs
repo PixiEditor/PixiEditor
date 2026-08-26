@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using PixiEditor.ChangeableDocument.ChangeInfos.Root.ReferenceLayerChangeInfos;
+﻿using PixiEditor.ChangeableDocument.ChangeInfos.Root.ReferenceLayerChangeInfos;
 
 namespace PixiEditor.ChangeableDocument.Changes.Root.ReferenceLayerChanges;
 internal class ReferenceLayerIsVisible_Change : Change

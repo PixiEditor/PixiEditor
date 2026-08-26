@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace PixiEditor.Models.Commands.Templates;
+﻿namespace PixiEditor.Models.Commands.Templates;
 
 internal interface IShortcutDefaults
 {

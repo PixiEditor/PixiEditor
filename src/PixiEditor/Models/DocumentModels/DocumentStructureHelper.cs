@@ -1,8 +1,5 @@
-﻿using System.Collections.Generic;
-using PixiEditor.ChangeableDocument;
-using PixiEditor.ViewModels.Document;
+﻿using PixiEditor.ChangeableDocument;
 using PixiEditor.ChangeableDocument.Actions.Generated;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Models.DocumentModels.Public;

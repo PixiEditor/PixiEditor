@@ -2,7 +2,6 @@
 using Avalonia;
 using Avalonia.Media;
 using Drawie.Backend.Core.Shaders.Generation;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.Handlers;

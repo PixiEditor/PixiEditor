@@ -1,23 +1,8 @@
-﻿using Avalonia.Input;
-using ChunkyImageLib.DataHolders;
-using Drawie.Backend.Core;
-using PixiEditor.ChangeableDocument.Actions;
+﻿using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Generated;
-using Drawie.Backend.Core.ColorsImpl;
-using Drawie.Backend.Core.Surfaces;
 using PixiEditor.Extensions.CommonApi.Palettes;
-using PixiEditor.Models.Handlers;
-using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
-using Drawie.Numerics;
-using PixiEditor.ChangeableDocument.Changeables.Brushes;
-using PixiEditor.ChangeableDocument.Changeables.Graph;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
-using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.Models.BrushEngine;
-using PixiEditor.Models.Controllers.InputDevice;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable

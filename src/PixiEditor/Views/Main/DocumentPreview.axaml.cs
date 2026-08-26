@@ -1,10 +1,9 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Interactivity;
+using Avalonia.Input.Platform;
 using Avalonia.Media;
 using PixiEditor.Helpers;
-using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
 using PixiEditor.ViewModels;

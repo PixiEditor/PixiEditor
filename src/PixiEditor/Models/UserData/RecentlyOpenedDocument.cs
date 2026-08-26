@@ -1,15 +1,7 @@
 ﻿using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using ChunkyImageLib;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Drawie.Backend.Core;
-using Drawie.Backend.Core.Numerics;
-using PixiEditor.Extensions.Exceptions;
 using PixiEditor.Helpers;
-using PixiEditor.Models.IO;
-using Drawie.Numerics;
-using PixiEditor.Parser;
 
 namespace PixiEditor.Models.UserData;
 

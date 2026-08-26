@@ -1,9 +1,5 @@
 using System.Reflection;
-using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.Surfaces.ImageData;
-using Drawie.Interop.Avalonia.Core;
-using Drawie.Interop.VulkanAvalonia;
-using Drawie.Skia;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
@@ -13,7 +9,7 @@ using PixiEditor.Models.Serialization;
 using PixiEditor.Models.Serialization.Factories;
 using PixiEditor.Parser.Skia.Encoders;
 using PixiEditor.Tests;
-using Xunit.Abstractions;
+using Xunit;
 
 namespace PixiEditor.Backend.Tests;
 

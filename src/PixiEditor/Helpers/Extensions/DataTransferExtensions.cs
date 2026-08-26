@@ -1,10 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using Avalonia.Input;
-using Avalonia.Platform.Storage;
-using Drawie.Backend.Core.Numerics;
+﻿using Avalonia.Input;
 using Drawie.Numerics;
 
 namespace PixiEditor.Helpers.Extensions;
@@ -23,17 +17,17 @@ public static class DataTransferExtensions
             files.SelectMany(f => System.Text.Encoding.UTF8.GetBytes(f + "\0")).ToArray()));
     }
 
-    /*public static IStorageItem[] GetFileDropList(this IDataObject data)
+    /*public static IStorageItem[] GetFileDropList(this IAsyncDataTransfer data)
     {
-        if (!data.Contains(DataFormats.Files))
+        if (!data.Contains(DataFormat.Files))
             return[];
 
         return ((IEnumerable<IStorageItem>)data.Get(DataFormat.File)).ToArray();
     }*/
 
-    public static bool TryGetRawTextPath(this IDataObject data, out string? path)
+    public static bool TryGetRawTextPath(this IDataTransfer data, out string? path)
     {
-        if (!data.Contains(DataFormats.Text))
+        if (!data.Contains(DataFormat.Text))
         {
             path = null;
             return false;
@@ -41,7 +35,7 @@ public static class DataTransferExtensions
 
         try
         {
-            var text = data.GetText();
+            var text = data.TryGetText();
             if (Directory.Exists(text) || File.Exists(text))
             {
                 path = text;
@@ -59,12 +53,12 @@ public static class DataTransferExtensions
         return false;
     }
 
-    public static VecI GetVecI(this IDataObject data, string format)
+    public static VecI GetVecI(this IDataTransfer data, DataFormat format)
     {
         if (!data.Contains(format))
             return VecI.NegativeOne;
 
-        byte[] bytes = (byte[])data.Get(format);
+        byte[] bytes = (byte[])data.Items.FirstOrDefault(x => x.Formats.Contains(format)).TryGetRaw(format);
 
         if (bytes is { Length: < 8 })
             return VecI.NegativeOne;
@@ -72,12 +66,12 @@ public static class DataTransferExtensions
         return VecI.FromBytes(bytes);
     }
     
-    public static VecD GetVecD(this IDataObject data, string format)
+    public static VecD GetVecD(this IDataTransfer data, DataFormat format)
     {
         if (!data.Contains(format))
             return new VecD(-1, -1);
 
-        byte[] bytes = (byte[])data.Get(format);
+        byte[] bytes = (byte[])data.Items.FirstOrDefault(x => x.Formats.Contains(format)).TryGetRaw(format);
 
         if (bytes is { Length: < 16 })
             return new VecD(-1, -1);

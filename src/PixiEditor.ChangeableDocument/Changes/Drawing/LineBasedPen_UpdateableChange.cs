@@ -1,21 +1,8 @@
-﻿using System.Diagnostics;
-using System.Reflection;
-using ChunkyImageLib.Operations;
-using Drawie.Backend.Core;
-using Drawie.Backend.Core.ColorsImpl;
-using Drawie.Backend.Core.ColorsImpl.Paintables;
-using Drawie.Backend.Core.Numerics;
-using Drawie.Backend.Core.Shaders;
-using Drawie.Backend.Core.Surfaces;
-using Drawie.Backend.Core.Surfaces.PaintImpl;
+﻿using Drawie.Backend.Core.Surfaces;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Brushes;
-using PixiEditor.ChangeableDocument.Changeables.Graph;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
-using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
-using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.ChangeableDocument.Rendering.ContextData;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;

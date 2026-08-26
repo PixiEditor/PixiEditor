@@ -1,6 +1,5 @@
 ﻿using Avalonia.Input;
 using PixiEditor.Models.AnalyticsAPI;
-using PixiEditor.ViewModels.Nodes;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Handlers;
 using Drawie.Numerics;

@@ -3,7 +3,6 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Media;
-using PixiEditor.Helpers;
 using PixiEditor.Models.Handlers;
 
 namespace PixiEditor.Views.Nodes.Properties;

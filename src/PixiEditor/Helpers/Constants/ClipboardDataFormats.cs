@@ -15,4 +15,16 @@ public static class ClipboardDataFormats
     public static readonly DataFormat<byte[]> PixiVectorData = DataFormat.CreateBytesApplicationFormat("PixiEditor.VectorData");
     public static readonly DataFormat<byte[]> UriList = DataFormat.CreateBytesPlatformFormat("text/uri-list");
     public static readonly DataFormat<byte[]> HadSelectionFormat = DataFormat.CreateBytesApplicationFormat("PixiEditor.HadSelection");
+    public static readonly DataFormat<LayersData> LayersDataName = DataFormat.CreateInProcessFormat<LayersData>("PixiEditor.LayersData");
+    public static readonly DataFormat<string> PaletteColorDaoFormat = DataFormat.CreateInProcessFormat<string>("PixiEditor.PaletteColor");
+}
+
+public class LayersData
+{
+    public Guid[] LayerIds { get; set; }
+
+    public LayersData(Guid[] layerIds)
+    {
+        LayerIds = layerIds;
+    }
 }

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Drawie.Backend.Core.Numerics;
-using Drawie.Numerics;
+﻿using Drawie.Numerics;
 
 namespace ChunkyImageLib.DataHolders;
 

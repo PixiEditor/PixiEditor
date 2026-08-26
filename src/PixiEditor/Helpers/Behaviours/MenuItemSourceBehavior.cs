@@ -1,7 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Data;
 using Avalonia.Xaml.Interactivity;
 using PixiEditor.UI.Common.Controls;
 using PixiEditor.UI.Common.Localization;

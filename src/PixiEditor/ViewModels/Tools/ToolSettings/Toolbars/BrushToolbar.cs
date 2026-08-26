@@ -1,11 +1,8 @@
-﻿using System.ComponentModel;
-using Drawie.Backend.Core.Surfaces.PaintImpl;
-using PixiEditor.ChangeableDocument.Changeables.Brushes;
+﻿using PixiEditor.ChangeableDocument.Changeables.Brushes;
 using PixiEditor.Models.BrushEngine;
 using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.ViewModels.BrushSystem;
 using PixiEditor.ViewModels.Tools.ToolSettings.Settings;
-using PixiEditor.Views.Overlays.BrushShapeOverlay;
 
 namespace PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
 

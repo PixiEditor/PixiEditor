@@ -1,4 +1,3 @@
-using Drawie.Backend.Core.Surfaces.PaintImpl;
 using PixiEditor.SVG.Elements;
 using PixiEditor.SVG.Features;
 

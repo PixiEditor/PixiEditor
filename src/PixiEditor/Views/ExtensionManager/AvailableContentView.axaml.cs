@@ -1,13 +1,12 @@
 ﻿using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 
-namespace PixiEditor.Views.Extensions;
+namespace PixiEditor.Views.ExtensionManager;
 
-public partial class OnboardingExtensionCard : UserControl
+public partial class AvailableContentView : UserControl
 {
-    public static readonly StyledProperty<ICommand> SelectExtensionCommandProperty = AvaloniaProperty.Register<OnboardingExtensionCard, ICommand>(
+    public static readonly StyledProperty<ICommand> SelectExtensionCommandProperty = AvaloniaProperty.Register<AvailableContentView, ICommand>(
         nameof(SelectExtensionCommand));
 
     public ICommand SelectExtensionCommand
@@ -16,7 +15,7 @@ public partial class OnboardingExtensionCard : UserControl
         set => SetValue(SelectExtensionCommandProperty, value);
     }
 
-    public OnboardingExtensionCard()
+    public AvailableContentView()
     {
         InitializeComponent();
     }

@@ -1,12 +1,9 @@
 ﻿using Avalonia;
-using Avalonia.Media;
-using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using PixiEditor.Helpers.Converters;
 using Drawie.Numerics;
 using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
-using Point = Avalonia.Point;
 
 namespace PixiEditor.Views.Overlays;
 

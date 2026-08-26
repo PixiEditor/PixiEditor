@@ -1,11 +1,9 @@
-﻿using System.Collections.ObjectModel;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using Avalonia;
 using Avalonia.Data;
 using Avalonia.Input;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Numerics;
-using PixiEditor.Views.Visuals;
 using PixiEditor.Helpers.Converters;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Commands.XAML;
@@ -13,12 +11,10 @@ using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using PixiEditor.ViewModels;
 using PixiEditor.ViewModels.Document;
-using PixiEditor.ViewModels.Document.TransformOverlays;
 using PixiEditor.Views.Overlays;
 using PixiEditor.Views.Overlays.BrushShapeOverlay;
 using PixiEditor.Views.Overlays.LineToolOverlay;
 using PixiEditor.Views.Overlays.PathOverlay;
-using PixiEditor.Views.Overlays.Pointers;
 using PixiEditor.Views.Overlays.SelectionOverlay;
 using PixiEditor.Views.Overlays.SymmetryOverlay;
 using PixiEditor.Views.Overlays.TextOverlay;
@@ -184,7 +180,7 @@ internal class ViewportOverlays
         {
             Converter = new AllTrueConverter(),
             Mode = BindingMode.OneWay,
-            Bindings = new List<IBinding>()
+            Bindings = new List<BindingBase>()
             {
                 toolIsSelectionBinding,
                 isTransformingBinding,
@@ -562,7 +558,7 @@ internal class ViewportOverlays
         {
             Converter = new AllTrueConverter(),
             Mode = BindingMode.OneWay,
-            Bindings = new List<IBinding>()
+            Bindings = new List<BindingBase>()
             {
                 isTransformingBinding,
                 isOverCanvasBinding,
@@ -727,7 +723,7 @@ internal class ViewportOverlays
         {
             Converter = new AllTrueConverter(),
             Mode = BindingMode.OneWay,
-            Bindings = new List<IBinding>()
+            Bindings = new List<BindingBase>()
             {
                 isColorPickerActiveBinding,
                 isOverCanvasBinding,

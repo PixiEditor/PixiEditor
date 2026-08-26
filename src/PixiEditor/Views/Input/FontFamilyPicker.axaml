@@ -4,7 +4,10 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:input="clr-namespace:PixiEditor.Views.Input"
+             xmlns:text="clr-namespace:Drawie.Backend.Core.Text;assembly=Drawie.Backend.Core"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:CompileBindings="False"
              x:Class="PixiEditor.Views.Input.FontFamilyPicker">
     <StackPanel Orientation="Horizontal" Spacing="5" DataContext="{Binding RelativeSource={RelativeSource AncestorType=UserControl}}">
         <Button Classes="pixi-icon" FontSize="16"
@@ -15,7 +18,7 @@
                   ItemsSource="{Binding Fonts}"
                   SelectedIndex="{Binding FontIndex, Mode=TwoWay}">
             <ComboBox.ItemTemplate>
-                <DataTemplate>
+                <DataTemplate x:DataType="text:FontFamilyName">
                     <TextBlock Text="{Binding Name}"
                                FontFamily="{Binding Converter={converters:FontFamilyNameToAvaloniaFontFamily}}" />
                 </DataTemplate>
