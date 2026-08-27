@@ -1,7 +1,7 @@
 <Project>
     <PropertyGroup>
         <CodeAnalysisRuleSet>../Custom.ruleset</CodeAnalysisRuleSet>
-		<AvaloniaVersion>12.1.1-cibuild0004448-alpha</AvaloniaVersion>
+		<AvaloniaVersion>12.1.1-cibuild0004449-alpha</AvaloniaVersion>
         <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
     </PropertyGroup>
     <ItemGroup>
