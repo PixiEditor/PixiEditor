@@ -72,6 +72,10 @@ public class Program
                 {
                     PreferDiscreteGpu = true,
                 },
+                VulkanInstanceCreationOptions = new VulkanInstanceCreationOptions
+                {
+                    VulkanVersion = new Version(1,2)
+                }
             })
             .WithDeveloperTools()
             .WithDrawie()
