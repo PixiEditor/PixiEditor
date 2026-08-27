@@ -2,7 +2,7 @@
 using System.Linq;
 using Avalonia;
 using Avalonia.Vulkan;
-using Drawie.Interop.VulkanAvalonia;
+using Drawie.Interop.Avalonia;
 using PixiEditor.Helpers;
 
 namespace PixiEditor.Desktop;
