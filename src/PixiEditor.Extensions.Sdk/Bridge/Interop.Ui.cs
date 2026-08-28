@@ -1,5 +1,4 @@
 using PixiEditor.Extensions.CommonApi.FlyUI;
-using PixiEditor.Extensions.CommonApi.Windowing;
 using PixiEditor.Extensions.Sdk.Api.FlyUI;
 using PixiEditor.Extensions.Sdk.Api.Window;
 using PixiEditor.Extensions.Sdk.Utilities;

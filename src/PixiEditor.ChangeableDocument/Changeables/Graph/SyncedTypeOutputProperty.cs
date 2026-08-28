@@ -1,5 +1,4 @@
 ﻿using Drawie.Backend.Core.Shaders.Generation;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 

@@ -1,5 +1,4 @@
 ﻿using PixiEditor.AnimationRenderer.Core;
-using PixiEditor.AnimationRenderer.FFmpeg;
 using Drawie.Numerics;
 
 namespace PixiEditor.Models.IO;

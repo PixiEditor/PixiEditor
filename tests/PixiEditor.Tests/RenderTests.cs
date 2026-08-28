@@ -1,18 +1,13 @@
 using Avalonia.Headless.XUnit;
-using Avalonia.Threading;
-using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.ColorsImpl;
-using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
-using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Rendering.ContextData;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.Position;
-using Xunit.Abstractions;
 using Color = Drawie.Backend.Core.ColorsImpl.Color;
 
 namespace PixiEditor.Tests;
@@ -110,7 +105,7 @@ public class RenderTests : FullPixiEditorTest
             string diffPath = Path.Combine(tmp, Path.GetFileNameWithoutExtension(pixiFile) + "_diff.png");
             diff.SaveTo(diffPath);
 
-            _testOutputHelper.WriteLine($"SVG rendering mismatch for file: {pixiFile}");
+            _testOutputHelper.WriteLine($"Rendering mismatch for file: {pixiFile}");
             _testOutputHelper.WriteLine($"Rendered image saved to: {renderedPath}");
         }
 

@@ -1,6 +1,5 @@
 using Avalonia.Headless.XUnit;
 using Drawie.Backend.Core;
-using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
@@ -9,14 +8,9 @@ using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Text;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
-using Drawie.Skia;
-using DrawiEngine;
 using Microsoft.Extensions.DependencyInjection;
-using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
-using PixiEditor.ChangeableDocument.Changeables.Interfaces;
-using PixiEditor.ChangeableDocument.Changes.NodeGraph;
 using PixiEditor.Helpers;
 using PixiEditor.Models.BrushEngine;
 using PixiEditor.Models.IO;
@@ -24,17 +18,16 @@ using PixiEditor.Models.Serialization;
 using PixiEditor.Models.Serialization.Factories;
 using PixiEditor.Models.Serialization.Factories.Paintables;
 using PixiEditor.Parser.Skia.Encoders;
-using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.Tests;
 
-public class SerializationTests : PixiEditorTest
+public class SerializationTests : FullPixiEditorTest
 {
     [Fact]
     public void TestThatAllFactoriesAreInServices()
     {
         var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-        var types = assemblies.Where(asm => !asm.FullName.Contains("Steamworks")).SelectMany(x => x.GetTypes())
+        var types = assemblies.Where(asm => asm.FullName.Contains("PixiEditor")).SelectMany(x => x.GetTypes())
             .Where(x => typeof(SerializationFactory).IsAssignableFrom(x) && x is { IsInterface: false, IsAbstract: false });
 
         var factoriesInAssemblies = types.ToList();
@@ -105,7 +98,7 @@ public class SerializationTests : PixiEditorTest
     public void TestThatAllBlackboardVariableTypesReturnCorrectTypeName(Type type, string expectedName)
     {
         var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-        var allFactories = assemblies.SelectMany(asm => asm.GetTypes()).Where(x => typeof(SerializationFactory).IsAssignableFrom(x) && x is { IsInterface: false, IsAbstract: false })
+        var allFactories = assemblies.Where(asm => asm.FullName.Contains("PixiEditor")).SelectMany(asm => asm.GetTypes()).Where(x => typeof(SerializationFactory).IsAssignableFrom(x) && x is { IsInterface: false, IsAbstract: false })
             .Select(x => (SerializationFactory)Activator.CreateInstance(x)).ToList();
 
         var name = SerializationUtil.GetWellKnownSerializationTypeName(type, allFactories);
@@ -131,7 +124,7 @@ public class SerializationTests : PixiEditorTest
     public void TestThatWellKnownTypeNamesAreResolvedToCorrectTypes(Type expectedType)
     {
         var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-        var allFactories = assemblies.SelectMany(asm => asm.GetTypes()).Where(x => typeof(SerializationFactory).IsAssignableFrom(x) && x is { IsInterface: false, IsAbstract: false })
+        var allFactories = assemblies.Where(asm => asm.FullName.Contains("PixiEditor")).SelectMany(asm => asm.GetTypes()).Where(x => typeof(SerializationFactory).IsAssignableFrom(x) && x is { IsInterface: false, IsAbstract: false })
             .Select(x => (SerializationFactory)Activator.CreateInstance(x)).ToList();
 
         string typeName = SerializationUtil.GetWellKnownSerializationTypeName(expectedType, allFactories);

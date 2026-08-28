@@ -1,39 +1,24 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using System.Text;
-using System.Text.Unicode;
-using System.Threading.Tasks;
+using Avalonia;
 using Avalonia.Input;
-using Avalonia.Input.Platform;
-using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Avalonia.Platform.Storage;
-using Avalonia.Threading;
-using ChunkyImageLib;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.ChangeableDocument.Enums;
 using Drawie.Backend.Core;
-using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Constants;
 using PixiEditor.Models.Clipboard;
-using PixiEditor.Models.Commands.Attributes.Evaluators;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.IO;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables;
-using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Models.Handlers;
-using PixiEditor.Parser;
-using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.SubViewModels;
 using PixiEditor.ViewModels.Tools.Tools;
@@ -198,7 +183,15 @@ internal static class ClipboardController
 
     private static async Task AddImageToClipboard(Surface actuallySurface, DataTransfer data)
     {
-        using (ImgData pngData = actuallySurface.DrawingSurface.Snapshot().Encode(EncodedImageFormat.Png))
+        using var snapshot = actuallySurface.DrawingSurface.Snapshot();
+        using var pixels = snapshot.PeekPixels();
+        Bitmap bitmap = new Bitmap(snapshot.Info.ColorType == ColorType.Bgra8888 ? PixelFormat.Bgra8888 : PixelFormat.Rgba8888,
+            AlphaFormat.Premul, pixels.GetPixels(), new PixelSize(snapshot.Size.X, snapshot.Size.Y), new Vector(96, 96),
+            snapshot.Info.RowBytes);
+        
+        data.Add(DataTransferItem.Create(DataFormat.Bitmap, bitmap));
+
+        using (ImgData pngData = snapshot.Encode(EncodedImageFormat.Png))
         {
             using MemoryStream pngStream = new MemoryStream();
             await pngData.AsStream().CopyToAsync(pngStream);
@@ -459,14 +452,14 @@ internal static class ClipboardController
         return adjustedIds;
     }
 
-    private static async Task<bool> AllMatchesPos(Guid[] layerIds, IImportObject[] dataFormats, IDocument doc)
+    private static async Task<bool> AllMatchesPos(Guid[] layerIds, IImportObject[] DataFormat, IDocument doc)
     {
-        var dataObjectWithPos = dataFormats.FirstOrDefault(x => x.Contains(ClipboardDataFormats.PositionFormat));
+        var dataObjectWithPos = DataFormat.FirstOrDefault(x => x.Contains(ClipboardDataFormats.PositionFormat));
         VecD pos = VecD.Zero;
 
         if (dataObjectWithPos != null)
         {
-            pos = await GetVecD(ClipboardDataFormats.PositionFormat, dataFormats);
+            pos = await GetVecD(ClipboardDataFormats.PositionFormat, DataFormat);
         }
 
         RectD? transformBounds = null;

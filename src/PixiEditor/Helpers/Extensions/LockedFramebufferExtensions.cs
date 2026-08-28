@@ -1,6 +1,5 @@
 ﻿using Avalonia.Media;
 using Avalonia.Platform;
-using Drawie.Backend.Core.Numerics;
 using Drawie.Numerics;
 
 namespace PixiEditor.Helpers.Extensions;

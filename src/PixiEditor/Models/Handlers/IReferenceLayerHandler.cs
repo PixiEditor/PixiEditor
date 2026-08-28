@@ -1,8 +1,4 @@
 ﻿using System.Collections.Immutable;
-using Avalonia;
-using Avalonia.Media.Imaging;
-using ChunkyImageLib;
-using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Numerics;

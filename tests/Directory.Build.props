@@ -1,10 +1,13 @@
 <Project>
     <PropertyGroup>
         <CodeAnalysisRuleSet>../Custom.ruleset</CodeAnalysisRuleSet>
-		<AvaloniaVersion>11.3.12-cibuild0004211-alpha</AvaloniaVersion>
+		<AvaloniaVersion>12.1.1-cibuild0004449-alpha</AvaloniaVersion>
+        <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="StyleCop.Analyzers" Version="1.1.118" />
+        <PackageReference Include="xunit.v3" Version="3.2.2"/>
+        <PackageReference Include="xunit.v3.assert" Version="3.2.2"/>
     </ItemGroup>
     <ItemGroup>
         <AdditionalFiles Include="../stylecop.json" />

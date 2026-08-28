@@ -1,7 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.Models.Handlers;
-using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.Models.DocumentModels;
 #nullable enable

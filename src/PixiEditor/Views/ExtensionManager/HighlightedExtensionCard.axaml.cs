@@ -1,9 +1,8 @@
 ﻿using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 
-namespace PixiEditor.Views.Extensions;
+namespace PixiEditor.Views.ExtensionManager;
 
 public partial class HighlightedExtensionCard : UserControl
 {

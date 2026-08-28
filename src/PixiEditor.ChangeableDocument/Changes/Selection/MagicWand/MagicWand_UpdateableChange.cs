@@ -1,6 +1,4 @@
-﻿using PixiEditor.ChangeableDocument.Changes.Drawing;
-using PixiEditor.ChangeableDocument.Enums;
-using Drawie.Backend.Core.Numerics;
+﻿using PixiEditor.ChangeableDocument.Enums;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 

@@ -15,9 +15,6 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Paintables;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Utility;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Helpers;
-using PixiEditor.Models.Handlers.Toolbars;
-using PixiEditor.Models.Tools;
-using PixiEditor.Views.Overlays.BrushShapeOverlay;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 using DrawingBlendMode = Drawie.Backend.Core.Surfaces.BlendMode;
 

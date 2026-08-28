@@ -2,7 +2,6 @@
 using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Handlers.Toolbars;
-using PixiEditor.UI.Common.Fonts;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Tools.ToolSettings.Settings;
 

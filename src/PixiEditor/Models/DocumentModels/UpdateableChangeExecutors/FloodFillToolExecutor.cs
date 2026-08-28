@@ -1,7 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using Drawie.Backend.Core.ColorsImpl;
-using Drawie.Backend.Core.Numerics;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;

@@ -1,9 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using Avalonia.Threading;
-using PixiEditor.Models.BrushEngine;
 using PixiEditor.Models.Controllers;
 using PixiEditor.ViewModels.BrushSystem;
-using PixiEditor.ViewModels.SubViewModels;
 
 namespace PixiEditor.ViewModels.Tools.ToolSettings.Settings;
 

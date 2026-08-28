@@ -1,5 +1,4 @@
 ﻿using Avalonia.Animation;
-using Avalonia.Media;
 
 namespace PixiEditor.Animation;
 

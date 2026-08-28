@@ -1,13 +1,4 @@
-﻿using Drawie.Backend.Core.ColorsImpl;
-using Drawie.Backend.Core.Numerics;
-using Drawie.Backend.Core.Shaders;
-using Drawie.Backend.Core.Shaders.Generation;
-using Drawie.Backend.Core.Shaders.Generation.Expressions;
-using Drawie.Numerics;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph;
 

@@ -1,8 +1,5 @@
-﻿using Avalonia.Input;
-using ChunkyImageLib.DataHolders;
-using Avalonia.Threading;
+﻿using ChunkyImageLib.DataHolders;
 using ChunkyImageLib;
-using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Bridge;
@@ -14,7 +11,6 @@ using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
-using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;

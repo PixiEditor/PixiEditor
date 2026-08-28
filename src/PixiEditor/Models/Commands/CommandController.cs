@@ -1,16 +1,10 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Text.Json;
-using System.Threading.Tasks;
 using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Exceptions;
-using PixiEditor.Extensions.CommonApi.Utilities;
-using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.AnalyticsAPI;
 using PixiEditor.Models.Commands.Attributes.Commands;
@@ -25,7 +19,6 @@ using PixiEditor.Models.Input;
 using PixiEditor.Models.Structures;
 using PixiEditor.OperatingSystem;
 using PixiEditor.UI.Common.Localization;
-using PixiEditor.ViewModels;
 using Command = PixiEditor.Models.Commands.Commands.Command;
 using CommandAttribute = PixiEditor.Models.Commands.Attributes.Commands.Command;
 

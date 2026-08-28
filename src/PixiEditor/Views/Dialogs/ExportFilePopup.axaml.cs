@@ -1,11 +1,8 @@
 ﻿using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
-using ChunkyImageLib;
 using CommunityToolkit.Mvvm.Input;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Bridge;

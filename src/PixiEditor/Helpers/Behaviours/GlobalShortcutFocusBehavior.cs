@@ -28,7 +28,7 @@ internal class GlobalShortcutFocusBehavior : Behavior<Control>
         ShortcutController.UnblockShortcutExecution("GlobalShortcutFocusBehavior");
     }
 
-    private void AssociatedObject_GotKeyboardFocus(object? sender, GotFocusEventArgs gotFocusEventArgs)
+    private void AssociatedObject_GotKeyboardFocus(object? sender, FocusChangedEventArgs gotFocusEventArgs)
     {
         ShortcutController.BlockShortcutExecution("GlobalShortcutFocusBehavior");
     }

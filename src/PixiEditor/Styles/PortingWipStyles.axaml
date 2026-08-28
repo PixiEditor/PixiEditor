@@ -1,7 +1,8 @@
 ﻿<Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
-        xmlns:rendering="clr-namespace:PixiEditor.UI.Common.Rendering;assembly=PixiEditor.UI.Common">
+        xmlns:rendering="clr-namespace:PixiEditor.UI.Common.Rendering;assembly=PixiEditor.UI.Common"
+        xmlns:ui="clr-namespace:PixiEditor.Helpers.UI;assembly=PixiEditor.UI.Common">
     <Design.PreviewWith>
         <Border Padding="20">
             <!-- Add Controls for Previewer Here -->
@@ -56,6 +57,8 @@
                 <ControlTemplate>
                     <Border Cursor="Hand" Background="{TemplateBinding Background}">
                         <TextBlock Text="{TemplateBinding Content}" FontSize="{TemplateBinding Width}"
+                                   RenderTransformOrigin="50%,55%"
+                                   ui:Juice.Animations=":Button"
                                    Classes="pixi-icon" />
                     </Border>
                 </ControlTemplate>

@@ -1,6 +1,5 @@
 ﻿using Avalonia;
 using Avalonia.Interactivity;
-using Drawie.Backend.Core.Surfaces;
 using PixiEditor.ChangeableDocument.Enums;
 
 namespace PixiEditor.Views.Dialogs;

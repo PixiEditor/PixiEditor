@@ -2,25 +2,14 @@
 using System.ComponentModel;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.Primitives;
-using Avalonia.Controls.Templates;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia.LogicalTree;
-using Avalonia.Markup.Xaml;
-using Avalonia.Media;
-using Avalonia.Metadata;
 using Avalonia.Threading;
-using Avalonia.VisualTree;
-using CommunityToolkit.Mvvm.Input;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Helpers;
-using PixiEditor.Models.Dialogs;
-using PixiEditor.Models.Palettes;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.BrushSystem;
 using PixiEditor.Views.Dialogs;
-using Brush = PixiEditor.Models.BrushEngine.Brush;
 
 namespace PixiEditor.Views.Input;
 

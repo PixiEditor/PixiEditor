@@ -1,5 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using Avalonia.Media;
+﻿using Avalonia.Media;
 using Drawie.Backend.Core.Text;
 
 namespace PixiEditor.Models.Controllers;

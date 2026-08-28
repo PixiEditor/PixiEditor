@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Windows;
-using System.Windows.Input;
 using Avalonia.Input;
-using ChunkyImageLib.DataHolders;
-using Drawie.Backend.Core.Numerics;
 using Drawie.Numerics;
 using Point = Avalonia.Point;
 

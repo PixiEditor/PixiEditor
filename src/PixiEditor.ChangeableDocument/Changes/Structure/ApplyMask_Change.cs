@@ -1,6 +1,5 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changes.Drawing;
-using Drawie.Backend.Core.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Structure;
 
