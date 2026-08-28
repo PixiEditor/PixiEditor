@@ -40,7 +40,6 @@ public class BrushEngine : IDisposable
     private TexturePaintable? lastCachedTexturePaintable = null;
     private Matrix3X3 lastCachedTransform = Matrix3X3.Identity;
     private readonly List<RecordedPoint> pointsHistory = new();
-    private readonly List<VecD> interpolated = new(128);
     private Dictionary<Guid, bool> graphUsesTargetSampleInput = new();
     private Dictionary<Guid, bool> graphUsesLatestSampleInput = new();
     private Dictionary<Guid, bool> graphUsesStartingSampleInput = new();
