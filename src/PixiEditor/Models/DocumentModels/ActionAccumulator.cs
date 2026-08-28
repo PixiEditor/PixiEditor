@@ -263,6 +263,8 @@ internal class ActionAccumulator
         finally
         {
             NotifyUpdatedPreviews(updatePreviewActions);
+            if (!document.IsDisposed && !internals.Tracker.IsDisposed)
+                document.NodeGraphHandler.UpdateWatchedComputedValues();
         }
     }
 

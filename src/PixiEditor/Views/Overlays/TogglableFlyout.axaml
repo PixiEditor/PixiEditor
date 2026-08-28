@@ -4,7 +4,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:overlays="clr-namespace:PixiEditor.Views.Overlays"
              mc:Ignorable="d"
+             x:DataType="overlays:TogglableFlyout"
              d:DesignHeight="380" d:DesignWidth="200" Name="togglableFlyout">
     <Border Background="Transparent">
         <StackPanel Orientation="Vertical">
@@ -14,7 +16,7 @@
                     BorderThickness="{DynamicResource ThemeBorderThickness}" Padding="5"
                     x:Name="btnBorder">
                 <ToggleButton Padding="0" Margin="0"
-                              IsChecked="{Binding IsOpen, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                              IsChecked="{ReflectionBinding IsOpen, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=UserControl}}"
                               x:Name="toggleButton" BorderThickness="0"
                               Width="24" Height="24" Background="Transparent">
                     <ToggleButton.Template>

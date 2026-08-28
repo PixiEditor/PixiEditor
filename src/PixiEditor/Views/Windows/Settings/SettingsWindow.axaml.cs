@@ -5,6 +5,13 @@ namespace PixiEditor.Views.Windows.Settings;
 
 public partial class SettingsWindow : PixiEditorPopup
 {
+    public SettingsWindow()
+    {
+        InitializeComponent();
+        var viewModel = DataContext as SettingsWindowViewModel;
+        viewModel!.CurrentPage = 0;
+    }
+
     public SettingsWindow(int page = 0)
     {
         InitializeComponent();

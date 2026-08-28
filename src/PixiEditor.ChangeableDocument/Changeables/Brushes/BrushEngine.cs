@@ -1,7 +1,5 @@
-﻿using System.Diagnostics;
-using ChunkyImageLib.Operations;
+﻿using ChunkyImageLib.Operations;
 using Drawie.Backend.Core;
-using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Shaders;
@@ -135,8 +133,8 @@ public class BrushEngine : IDisposable
         if (targetVelocity > historicalAverage)
         {
             // "Lerp" towards the target.
-            // 0.8f means: "Use 80% raw velocity, 20% historical average"
-            float attackFactor = 0.8f;
+            // 0.1f means: "Use 10% raw velocity, 90% historical average"
+            float attackFactor = 0.1f;
             return (float)(historicalAverage + (targetVelocity - historicalAverage) * attackFactor);
         }
 

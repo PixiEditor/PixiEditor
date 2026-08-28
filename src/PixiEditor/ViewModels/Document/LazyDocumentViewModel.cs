@@ -1,6 +1,4 @@
-﻿using PixiEditor.Helpers;
-
-namespace PixiEditor.ViewModels.Document;
+﻿namespace PixiEditor.ViewModels.Document;
 
 internal class LazyDocumentViewModel : PixiObservableObject
 {

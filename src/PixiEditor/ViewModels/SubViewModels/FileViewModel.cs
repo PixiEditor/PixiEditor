@@ -29,14 +29,11 @@ using PixiEditor.Models.ExceptionHandling;
 using PixiEditor.Models.IO.CustomDocumentFormats;
 using PixiEditor.OperatingSystem;
 using PixiEditor.Parser;
-using PixiEditor.Platform;
-using PixiEditor.UI.Common.Fonts;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.Views;
 using PixiEditor.Views.Dialogs;
 using PixiEditor.Views.Windows;
-using Wasmtime;
 
 namespace PixiEditor.ViewModels.SubViewModels;
 

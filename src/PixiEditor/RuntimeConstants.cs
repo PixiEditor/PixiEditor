@@ -1,5 +1,3 @@
-using System.Diagnostics;
-using System.Reflection;
 using PixiEditor.Models.IO;
 
 namespace PixiEditor;

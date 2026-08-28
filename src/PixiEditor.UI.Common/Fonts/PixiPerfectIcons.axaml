@@ -17,6 +17,7 @@
             <system:String x:Key="icon-arrow-right">&#xE926;</system:String>
             <system:String x:Key="icon-arrow-up">&#xE927;</system:String>
             <system:String x:Key="icon-arrow-up-down">&#xE9DA;</system:String>
+            <system:String x:Key="icon-background-remover">&#xE9F4;</system:String>
             <system:String x:Key="icon-blocks">&#xE9E4;</system:String>
             <system:String x:Key="icon-blur">&#xE9E8;</system:String>
             <system:String x:Key="icon-bold">&#xE9AD;</system:String>

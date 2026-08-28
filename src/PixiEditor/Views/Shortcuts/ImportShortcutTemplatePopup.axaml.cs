@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Avalonia.Input;
+﻿using Avalonia.Input;
 using PixiEditor.Extensions.Exceptions;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Commands.Attributes.Commands;

@@ -1,8 +1,6 @@
 ﻿using System.Windows.Input;
 using Avalonia;
 using Avalonia.Input;
-using Avalonia.Media;
-using ChunkyImageLib.DataHolders;
 using PixiEditor.Models.Controllers.InputDevice;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
@@ -13,7 +11,6 @@ using PixiEditor.Views.Overlays.Drawables;
 using PixiEditor.Views.Overlays.Handles;
 using PixiEditor.Views.Overlays.TransformOverlay;
 using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
-using Point = Avalonia.Point;
 
 namespace PixiEditor.Views.Overlays.LineToolOverlay;
 

@@ -1,7 +1,6 @@
 ﻿using System.Windows.Input;
 using Avalonia;
 using Avalonia.Input;
-using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;

@@ -1,4 +1,3 @@
-using System.Windows.Input;
 using AsyncImageLoader;
 using Avalonia.Media;
 using Avalonia.Threading;
@@ -8,7 +7,6 @@ using PixiEditor.Extensions.FlyUI.Converters;
 using PixiEditor.Extensions.IO;
 using PixiEditor.IdentityProvider;
 using PixiEditor.Models.Dialogs;
-using PixiEditor.UI.Common.Fonts;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.Views.Dialogs;
 

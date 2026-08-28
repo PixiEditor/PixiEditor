@@ -1,21 +1,15 @@
-﻿using System.Collections.ObjectModel;
-using System.ComponentModel;
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Animation;
 using Avalonia.Animation.Easings;
 using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
-using Avalonia.Controls.Templates;
 using Avalonia.Data;
 using Avalonia.Layout;
-using Avalonia.Markup.Xaml.Templates;
 using Avalonia.Media;
-using Avalonia.Rendering;
 using Avalonia.Styling;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
-using CommunityToolkit.Mvvm.ComponentModel;
 using PixiEditor.Helpers.Converters;
 using PixiEditor.Models.AdvisorSystem;
 using PixiEditor.UI.Common.Localization;
@@ -261,7 +255,7 @@ public class AdvisorPopup : ContentPresenter
 
         Dispatcher.UIThread.Post(() =>
         {
-            var root = Anchor.GetVisualRoot();
+            var root = Anchor.GetPresentationSource().RootVisual;
             if (root is not Visual rootVisual)
             {
                 return;
@@ -281,11 +275,8 @@ public class AdvisorPopup : ContentPresenter
     }
 
 
-    private void SetPosition(IRenderRoot? root, ITransform? parentScalerLayoutTransform)
+    private void SetPosition(Visual? rootVisual, ITransform? parentScalerLayoutTransform)
     {
-        if (root is not Visual rootVisual)
-            return;
-
         var anchorTopLeft = Anchor.TranslatePoint(
             new Point(0, 0),
             rootVisual);

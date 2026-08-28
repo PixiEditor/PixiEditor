@@ -10,8 +10,8 @@
         xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
         xmlns:lottie="clr-namespace:Avalonia.Labs.Lottie;assembly=Avalonia.Labs.Lottie"
         xmlns:ui1="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
-        xmlns:extensions="clr-namespace:PixiEditor.Views.Extensions"
         xmlns:indicators="clr-namespace:PixiEditor.Views.Indicators"
+        xmlns:extensionManager="clr-namespace:PixiEditor.Views.ExtensionManager"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="PixiEditor.Views.Dialogs.OnboardingDialog"
         x:DataType="userPreferences:OnboardingViewModel"
@@ -204,8 +204,8 @@
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <extensions:OnboardingExtensionCard
-                                    SelectExtensionCommand="{Binding DataContext.SelectExtensionCommand, RelativeSource={RelativeSource AncestorType=dialogs:OnboardingDialog, Mode=FindAncestor}}"
+                                <extensionManager:OnboardingExtensionCard
+                                    SelectExtensionCommand="{ReflectionBinding DataContext.SelectExtensionCommand, RelativeSource={RelativeSource AncestorType=dialogs:OnboardingDialog, Mode=FindAncestor}}"
                                     DataContext="{Binding}"/>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>

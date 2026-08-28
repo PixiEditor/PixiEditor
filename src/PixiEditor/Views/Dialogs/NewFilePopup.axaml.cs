@@ -1,17 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Interactivity;
 
 namespace PixiEditor.Views.Dialogs;
+
+public record SizePreset(string Name, int Width, int Height);
 
 /// <summary>
 ///     Interaction logic for NewFilePopup.xaml.
 /// </summary>
 internal partial class NewFilePopup : PixiEditorPopup
 {
-    public record SizePreset(string Name, int Width, int Height);
-
     private bool _isUpdatingFromPreset = false;
 
     public static readonly StyledProperty<int> FileHeightProperty =
@@ -40,7 +38,7 @@ internal partial class NewFilePopup : PixiEditorPopup
     static NewFilePopup()
     {
         SelectedPresetProperty.Changed.Subscribe(OnPresetChanged);
-        
+
         FileWidthProperty.Changed.Subscribe(OnDimensionsChanged);
         FileHeightProperty.Changed.Subscribe(OnDimensionsChanged);
     }

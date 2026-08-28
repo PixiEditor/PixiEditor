@@ -1,21 +1,15 @@
-﻿using System;
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.Shapes;
 using Avalonia.Input;
-using Avalonia.Media;
 using PixiEditor.Helpers;
-using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Vector;
 using PixiEditor.Extensions.UI.Overlays;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
-using PixiEditor.Helpers.Extensions;
 using PixiEditor.Helpers.Resources;
 using PixiEditor.Views.Overlays.TransformOverlay;
 using Canvas = Drawie.Backend.Core.Surfaces.Canvas;
-using Path = Avalonia.Controls.Shapes.Path;
 
 namespace PixiEditor.Views.Overlays.Handles;
 

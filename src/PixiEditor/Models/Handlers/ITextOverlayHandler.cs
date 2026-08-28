@@ -1,5 +1,4 @@
 ﻿using Drawie.Backend.Core.Numerics;
-using Drawie.Backend.Core.Text;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables;
 

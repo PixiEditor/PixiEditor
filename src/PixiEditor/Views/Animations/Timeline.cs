@@ -1,5 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
@@ -12,7 +11,6 @@ using Avalonia.Threading;
 using Avalonia.VisualTree;
 using CommunityToolkit.Mvvm.Input;
 using PixiEditor.Helpers;
-using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.Models.Handlers;
 using PixiEditor.ViewModels.Document;
 

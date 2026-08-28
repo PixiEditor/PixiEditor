@@ -5,7 +5,6 @@ using Drawie.Backend.Core.Numerics;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.ChangeInfos.Objects;
-using PixiEditor.ChangeableDocument.ChangeInfos.Vectors;
 
 namespace PixiEditor.ChangeableDocument.Changes.Root;
 

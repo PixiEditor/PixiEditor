@@ -1,11 +1,8 @@
 ﻿using System.Globalization;
-using System.Reflection;
 using Avalonia.Input;
 using Avalonia.Platform;
 using PixiEditor.AnimationRenderer.FFmpeg;
-using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.IO;
-using PixiEditor.OperatingSystem;
 using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.Views.Visuals;

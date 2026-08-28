@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using PixiEditor.Models.Commands.Templates.Providers.Parsers;
+﻿using PixiEditor.Models.Commands.Templates.Providers.Parsers;
 using PixiEditor.Models.IO;
 
 namespace PixiEditor.Models.Commands.Templates.Providers;

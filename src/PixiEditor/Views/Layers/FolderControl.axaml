@@ -146,7 +146,7 @@
                    Background="Transparent" DragDrop.AllowDrop="True"/>
         </Grid>
         <Border.ContextMenu>
-            <ContextMenu>
+            <ContextMenu x:CompileBindings="False">
                 <MenuItem ui:Translator.Key="DUPLICATE"
                           Command="{xaml:Command PixiEditor.Layer.DuplicateSelectedMember}" />
                 <MenuItem ui:Translator.Key="DELETE" Command="{xaml:Command PixiEditor.Layer.DeleteAllSelected}" />

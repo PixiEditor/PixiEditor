@@ -18,6 +18,7 @@ public static class ToggleGroupBehavior
         AvaloniaProperty.RegisterAttached<AvaloniaObject, object?>("SelectedValue", typeof(ToggleGroupBehavior));
 
     private static readonly Dictionary<string, List<ToggleButton>> _groups = new();
+    private static bool updating = false;
 
     static ToggleGroupBehavior()
     {
@@ -58,7 +59,7 @@ public static class ToggleGroupBehavior
             }
 
             list.Add(button);
-            button.Checked += ButtonChecked;
+            button.IsCheckedChanged += ButtonChecked;
             button.Click += ButtonClickPreventUntoggle;
         }
     }
@@ -82,6 +83,9 @@ public static class ToggleGroupBehavior
 
     private static void ButtonChecked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
+        if (updating)
+            return;
+
         if (sender is ToggleButton btn)
         {
             var group = GetGroupName(btn);
@@ -90,6 +94,7 @@ public static class ToggleGroupBehavior
             // Set group's SelectedValue to this button's value
             if (group is not null)
             {
+                updating = true;
                 foreach (var kv in _groups)
                 {
                     foreach (var b in kv.Value)
@@ -98,10 +103,14 @@ public static class ToggleGroupBehavior
                             b.IsChecked = false;
                     }
                 }
+
+                updating = false;
             }
 
             // Update bound SelectedValue on parent DataContext
+            updating = true;
             SetSelectedValue(btn, value);
+            updating = false;
         }
     }
 
