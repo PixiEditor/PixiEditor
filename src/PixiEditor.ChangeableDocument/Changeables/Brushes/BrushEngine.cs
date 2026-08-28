@@ -1,4 +1,5 @@
-﻿using ChunkyImageLib.Operations;
+﻿using System.Diagnostics;
+using ChunkyImageLib.Operations;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
@@ -179,31 +180,43 @@ public class BrushEngine : IDisposable
             bool interpolatePoints = !brushNode.AlwaysClear.Value;
             if (dist > 0.5 && interpolatePoints)
             {
-                LineHelper.GetInterpolatedPointsNonAlloc(previousPoint.Position,
-                    currentPoint.Position, interpolated);
+                VecD start = previousPoint.Position;
+                VecD delta = currentPoint.Position - start;
 
-                for (int j = 1; j < interpolated.Count; j++)
+                int count = Math.Clamp(
+                    (int)Math.Ceiling(Math.Max(Math.Abs(delta.X), Math.Abs(delta.Y))) + 1,
+                    2,
+                    100000);
+
+                double step = 1.0 / (count - 1);
+
+                VecD pointStep = delta * step;
+
+                double pressure = previousPoint.PointerInfo.Pressure;
+                double pressureStep = (currentPoint.PointerInfo.Pressure - pressure) * step;
+
+                double velocity = previousPoint.PointerInfo.Velocity;
+                double velocityStep = (currentPoint.PointerInfo.Velocity - velocity) * step;
+
+                VecD pt = start + pointStep;
+                pressure += pressureStep;
+                velocity += velocityStep;
+
+                for (int j = 1; j < count; j++)
                 {
-                    var pt = interpolated[j];
-
-                    double ratio = VecD.Distance(previousPoint.Position, pt) /
-                                   VecD.Distance(previousPoint.Position, currentPoint.Position);
-
-                    double linearTargetPressure = previousPoint.PointerInfo.Pressure +
-                                                  (currentPoint.PointerInfo.Pressure -
-                                                   previousPoint.PointerInfo.Pressure) * ratio;
-
-                    double linearTargetVelocity = previousPoint.PointerInfo.Velocity +
-                                                  (currentPoint.PointerInfo.Velocity -
-                                                   previousPoint.PointerInfo.Velocity) * ratio;
-
-                    float smoothedPressure = GetSmoothedPressure(linearTargetPressure);
-                    float smoothedVelocity = GetSmoothedVelocity(linearTargetVelocity);
-
-                    pointsHistory.Add(new RecordedPoint(pt,
-                        currentPoint.PointerInfo with { Pressure = smoothedPressure, Velocity = smoothedVelocity },
+                    pointsHistory.Add(new RecordedPoint(
+                        pt,
+                        currentPoint.PointerInfo with
+                        {
+                            Pressure = GetSmoothedPressure(pressure),
+                            Velocity = GetSmoothedVelocity(velocity)
+                        },
                         currentPoint.KeyboardInfo,
                         currentPoint.EditorData));
+
+                    pt += pointStep;
+                    pressure += pressureStep;
+                    velocity += velocityStep;
                 }
             }
             else
