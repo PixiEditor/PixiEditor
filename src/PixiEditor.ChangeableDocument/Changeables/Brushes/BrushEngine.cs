@@ -40,13 +40,7 @@ public class BrushEngine : IDisposable
     private TexturePaintable? lastCachedTexturePaintable = null;
     private Matrix3X3 lastCachedTransform = Matrix3X3.Identity;
     private readonly List<RecordedPoint> pointsHistory = new();
-    private Dictionary<Guid, bool> graphUsesTargetSampleInput = new();
-    private Dictionary<Guid, bool> graphUsesLatestSampleInput = new();
-    private Dictionary<Guid, bool> graphUsesStartingSampleInput = new();
-    private Dictionary<Guid, bool> graphUsesTargetFullInput = new();
-    private Dictionary<Guid, bool> graphUsesLatestFullInput = new();
-    private Dictionary<Guid, bool> graphUsesStartingFullInput = new();
-
+    private readonly Dictionary<Guid, BrushGraphRequirements> graphRequirements = new();
     Texture? startingSampleTexture = null;
     Texture? startingFullTexture = null;
 
@@ -397,19 +391,15 @@ public class BrushEngine : IDisposable
                 new VecI((int)strokeWidth));
         }
 
-        bool requiresLatestSampleTexture = GraphUsesConnections(brushData.BrushGraph, brushNode,
-            n => n.LatestSampleTexture.Connections, graphUsesLatestSampleInput);
-        bool requiresLatestFullTexture = GraphUsesConnections(brushData.BrushGraph, brushNode,
-            n => n.LatestFullTexture.Connections, graphUsesLatestFullInput);
-        bool requiresStartingSampleTexture = GraphUsesConnections(brushData.BrushGraph, brushNode,
-            n => n.StartingSampleTexture.Connections, graphUsesStartingSampleInput);
-        bool requiresStartingFullTexture = GraphUsesConnections(brushData.BrushGraph, brushNode,
-            n => n.StartingFullTexture.Connections, graphUsesStartingFullInput);
-        bool requiresTargetSampleTexture = GraphUsesConnections(brushData.BrushGraph, brushNode,
-            n => n.TargetSampleTexture.Connections, graphUsesTargetSampleInput);
-        bool requiresTargetFullTexture = GraphUsesConnections(brushData.BrushGraph, brushNode,
-            n => n.TargetFullTexture.Connections, graphUsesTargetFullInput);
+        var requirements = GetRequirements(brushData.BrushGraph, brushNode);
 
+        bool requiresLatestSampleTexture = requirements.UsesLatestSample;
+        bool requiresLatestFullTexture = requirements.UsesLatestFull;
+        bool requiresStartingSampleTexture = requirements.UsesStartingSample;
+        bool requiresStartingFullTexture = requirements.UsesStartingFull;
+        bool requiresTargetSampleTexture = requirements.UsesTargetSample;
+        bool requiresTargetFullTexture = requirements.UsesTargetFull;
+        
         Texture? latestSampleUnderRect = null;
         Texture? targetSampleUnderRect = null;
         Texture? latestFullTexture = null;
@@ -756,40 +746,31 @@ public class BrushEngine : IDisposable
         return surfaceUnderRect;
     }
 
-    private bool GraphUsesConnections(IReadOnlyNodeGraph graph, IReadOnlyNode brushNode,
-        Func<IBrushSampleTextureNode, IReadOnlyCollection<IInputProperty>> getConnections, Dictionary<Guid, bool> cache)
+    private BrushGraphRequirements GetRequirements(IReadOnlyNodeGraph graph, BrushOutputNode node)
     {
-        if (cache.TryGetValue(brushNode.Id, out bool uses))
+        if (graphRequirements.TryGetValue(node.Id, out var requirements))
         {
-            return uses;
+            if(graph.GetCacheHash() == requirements.CacheHash)
+            {
+                return requirements;
+            }
         }
 
-        bool usesInput = GraphUsesInput(graph, brushNode, getConnections);
-
-        cache[brushNode.Id] = usesInput;
-
-        return usesInput;
-    }
-
-    private bool GraphUsesInput(IReadOnlyNodeGraph graph, IReadOnlyNode brushNode,
-        Func<IBrushSampleTextureNode, IReadOnlyCollection<IInputProperty>> getConnections)
-    {
-        foreach (var node in graph.AllNodes)
+        bool Uses(
+            Func<IBrushSampleTextureNode, IReadOnlyCollection<IInputProperty>> getConnections)
         {
-            if (node is IBrushSampleTextureNode brushSampleTextureNode)
+            foreach (var graphNode in graph.AllNodes)
             {
-                var connections = getConnections(brushSampleTextureNode);
-                if (connections.Count == 0)
-                {
+                if (graphNode is not IBrushSampleTextureNode sampleNode)
                     continue;
-                }
 
-                foreach (var connection in connections)
+                foreach (var connection in getConnections(sampleNode))
                 {
                     bool found = false;
+
                     connection.Connection.Node.TraverseForwards(x =>
                     {
-                        if (x == brushNode)
+                        if (x == node)
                         {
                             found = true;
                             return false;
@@ -799,14 +780,23 @@ public class BrushEngine : IDisposable
                     });
 
                     if (found)
-                    {
                         return true;
-                    }
                 }
             }
+
+            return false;
         }
 
-        return false;
+        requirements = new BrushGraphRequirements(graph.GetCacheHash(),
+            Uses(n => n.TargetSampleTexture.Connections),
+            Uses(n => n.LatestSampleTexture.Connections),
+            Uses(n => n.StartingSampleTexture.Connections),
+            Uses(n => n.TargetFullTexture.Connections),
+            Uses(n => n.LatestFullTexture.Connections),
+            Uses(n => n.StartingFullTexture.Connections));
+
+        graphRequirements[node.Id] = requirements;
+        return requirements;
     }
 
     public VectorPath? EvaluateShape(VecD point, BrushData brushData)
