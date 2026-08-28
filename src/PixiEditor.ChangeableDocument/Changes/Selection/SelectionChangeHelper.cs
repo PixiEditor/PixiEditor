@@ -7,6 +7,34 @@ namespace PixiEditor.ChangeableDocument.Changes.Selection;
 
 internal class SelectionChangeHelper
 {
+    public static Selection_ChangeInfo ResizeSelection(
+        Document target, VectorPath originalPath, Matrix3X3 transformation, VecI newSize)
+    {
+        using VectorPath transformedPath = new(originalPath) { FillType = PathFillType.EvenOdd };
+        transformedPath.Transform(transformation);
+
+        using VectorPath documentBounds = new() { FillType = PathFillType.EvenOdd };
+        documentBounds.AddRect(new RectD(VecI.Zero, newSize));
+
+        VectorPath constrainedPath = transformedPath.Op(documentBounds, VectorPathOp.Intersect);
+        constrainedPath.FillType = PathFillType.EvenOdd;
+        return ReplaceSelection(target, constrainedPath);
+    }
+
+    public static Selection_ChangeInfo RestoreSelection(Document target, VectorPath originalPath)
+    {
+        return ReplaceSelection(target, new VectorPath(originalPath) { FillType = PathFillType.EvenOdd });
+    }
+
+    private static Selection_ChangeInfo ReplaceSelection(Document target, VectorPath selection)
+    {
+        var toDispose = target.Selection.SelectionPath;
+        target.Selection.SelectionPath = selection;
+        toDispose.Dispose();
+
+        return new Selection_ChangeInfo(new VectorPath(selection));
+    }
+
     public static Selection_ChangeInfo DoSelectionTransform(
         Document target, VectorPath originalPath, RectD originalPathTightBounds, ShapeCorners to)
     {
