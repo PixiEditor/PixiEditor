@@ -11,17 +11,12 @@ using PixiEditor.ChangeableDocument.ChangeInfos;
 using PixiEditor.ChangeableDocument.ChangeInfos.Drawing;
 using PixiEditor.ChangeableDocument.Changes.Root;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.Tests;
 
 namespace PixiEditor.ChangeableDocument.Tests;
 
-public class ResizeSelectionTests
+public class ResizeSelectionTests : PixiEditorTest
 {
-    static ResizeSelectionTests()
-    {
-        if (!DrawingBackendApi.HasBackend)
-            DrawingBackendApi.SetupBackend(new SkiaDrawingBackend(), new ImmediateRenderingDispatcher());
-    }
-
     [Fact]
     public void ResizeCanvasTranslatesConstrainsAndRestoresSelection()
     {
