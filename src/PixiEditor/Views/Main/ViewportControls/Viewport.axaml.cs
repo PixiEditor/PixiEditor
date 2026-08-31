@@ -589,7 +589,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
             EditorDataFunc(),
             CalculateVisibleRegion(),
             ViewportRenderOutput, Scene.CalculateSampling(), Dimensions, CalculateResolution(), GuidValue, Delayed,
-            true, ForceRefreshFinalImage);
+            true, HighResPreview, ForceRefreshFinalImage);
     }
 
     private void Image_MouseDown(object? sender, PointerPressedEventArgs e)

@@ -32,7 +32,6 @@ internal class SceneRenderer : IDisposable
     public const float OversizeFactor = 1.25f;
     public IReadOnlyDocument Document { get; }
     public IDocument DocumentViewModel { get; }
-    public bool HighResRendering { get; set; } = true;
 
     public IReadOnlyDictionary<Guid, RenderState> LastRenderedStates => lastRenderedStates;
     private Dictionary<Guid, RenderState> lastRenderedStates = new();
@@ -214,7 +213,7 @@ internal class SceneRenderer : IDisposable
         bool shouldRerender =
             ShouldRerender(renderTargetSize, isFullViewportRender ? Matrix3X3.Identity : targetMatrix, resolution,
                 viewportId, targetOutput, finalGraph,
-                previewTextures, viewport.VisibleDocumentRegion, oversizeFactor, isFullViewportRender,
+                previewTextures, viewport.VisibleDocumentRegion, oversizeFactor, isFullViewportRender, viewport.HighResRendering,
                 viewport.ViewportData, out bool fullAffectedArea,
                 out RenderState renderState, out bool partialRenderAllowed, out RectD? panChangedRegion) ||
             debugRecord;
@@ -249,7 +248,7 @@ internal class SceneRenderer : IDisposable
 
             var tex = RenderGraph(renderTargetSize, targetMatrix, viewportId, resolution, samplingOptions, affectedArea,
                 visibleDocumentRegion, targetOutput, viewport.IsScene, oversizeFactor,
-                pointerInfo, keyboardInfo, editorData, viewport.ViewportData, debugRecord, finalGraph, previewTextures,
+                pointerInfo, keyboardInfo, editorData, viewport.ViewportData, viewport.HighResRendering, debugRecord, finalGraph, previewTextures,
                 partialRenderAllowed);
 
             lastRenderedStates[viewportId] = renderState;
@@ -286,6 +285,7 @@ internal class SceneRenderer : IDisposable
         KeyboardInfo keyboardInfo,
         EditorData editorData,
         ViewportData viewportData,
+        bool highResRendering,
         bool debugRecord,
         IReadOnlyNodeGraph finalGraph, Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures,
         bool partialRenderAllowed)
@@ -307,7 +307,7 @@ internal class SceneRenderer : IDisposable
         }
         else
         {
-            if (RenderInOutputSize(finalGraph, renderTargetSize, finalSize))
+            if (RenderInOutputSize(highResRendering, finalGraph, renderTargetSize, finalSize))
             {
                 finalSize = (VecI)(finalSize * resolution.Multiplier());
 
@@ -470,9 +470,9 @@ internal class SceneRenderer : IDisposable
         return finalSize;
     }
 
-    private bool RenderInOutputSize(IReadOnlyNodeGraph finalGraph, VecI renderTargetSize, VecI finalSize)
+    private bool RenderInOutputSize(bool highResRendering, IReadOnlyNodeGraph finalGraph, VecI renderTargetSize, VecI finalSize)
     {
-        return !HighResRendering ||
+        return !highResRendering ||
                (!HighDpiRenderNodePresent(finalGraph) && renderTargetSize.Length > finalSize.Length);
     }
 
@@ -480,7 +480,7 @@ internal class SceneRenderer : IDisposable
         Guid viewportId,
         string targetOutput,
         IReadOnlyNodeGraph finalGraph, Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures,
-        RectD? visibleDocumentRegion, float oversizeFactor, bool isFullViewportRender,
+        RectD? visibleDocumentRegion, float oversizeFactor, bool isFullViewportRender, bool highResRendering,
         ViewportData viewportViewportData, out bool fullAffectedArea,
         out RenderState renderState, out bool partialRenderAllowed, out RectD? panChangedRegion)
     {
@@ -499,7 +499,7 @@ internal class SceneRenderer : IDisposable
         renderState = new RenderState
         {
             ChunkResolution = resolution,
-            HighResRendering = HighResRendering,
+            HighResRendering = highResRendering,
             TargetOutput = targetOutput,
             OnionFrames = Document.AnimationData.OnionFrames,
             OnionOpacity = Document.AnimationData.OnionOpacity,
@@ -538,7 +538,7 @@ internal class SceneRenderer : IDisposable
         }
 
         VecI finalSize = SolveRenderOutputSize(targetOutput, finalGraph, Document.Size, targetSize, out _);
-        bool renderInDocumentSize = RenderInOutputSize(finalGraph, targetSize, finalSize);
+        bool renderInDocumentSize = RenderInOutputSize(highResRendering, finalGraph, targetSize, finalSize);
         VecI compareSize = renderInDocumentSize
             ? (VecI)(Document.Size * resolution.Multiplier())
             : targetSize;
