@@ -126,6 +126,9 @@ internal class TextOverlay : Overlay
     private Paint opacityPaint;
     private Paint sampleTextPaint;
 
+    private Font? cachedFont;
+    private int lastCachedFontHash;
+
     private bool canInsertText;
 
     private int lastXMovementCursorIndex;
@@ -265,7 +268,7 @@ internal class TextOverlay : Overlay
 
     private void RenderSampleText(Canvas context)
     {
-        using var sampleFont = Font.ToFont();
+        var sampleFont = GetFont();
         if (sampleFont == null) return;
         context.DrawText("A", new VecD(Position.X, Position.Y), sampleFont, sampleTextPaint);
     }
@@ -282,7 +285,7 @@ internal class TextOverlay : Overlay
         RectD? currentLineBounds = null;
         int lastLine = lineStart;
         int saved = context.SaveLayer(opacityPaint);
-        using var nativeFont = Font.ToFont();
+        var nativeFont = GetFont();
 
         if (nativeFont == null) return;
 
@@ -323,11 +326,24 @@ internal class TextOverlay : Overlay
     public override bool TestHit(VecD point)
     {
         VecD mapped = Matrix.Invert().MapPoint(point);
-        using var nativeFont = Font.ToFont();
+
+        var nativeFont = GetFont();
         if (nativeFont == null) return false;
 
         return richText != null &&
                richText.MeasureBounds(nativeFont).Offset(Position).Inflate(2).ContainsInclusive(mapped);
+    }
+
+    private Font GetFont()
+    {
+        if (Font.GetCacheHash() != lastCachedFontHash || cachedFont is { IsDisposed: true })
+        {
+            cachedFont?.Dispose();
+            lastCachedFontHash = Font.GetCacheHash();
+            cachedFont = Font.ToFont();
+        }
+
+        return cachedFont;
     }
 
     protected override void OnOverlayPointerPressed(OverlayPointerArgs args)
@@ -472,7 +488,7 @@ internal class TextOverlay : Overlay
     private int GetClosestCharacterIndex(VecD point)
     {
         VecD mapped = Matrix.Invert().MapPoint(point);
-        using var nativeFont = Font.ToFont();
+        var nativeFont = GetFont();
         if (nativeFont == null) return 0;
 
         var positions = richText.GetGlyphPositions(nativeFont);
@@ -691,7 +707,7 @@ internal class TextOverlay : Overlay
     private void UpdateGlyphs()
     {
         richText = new(Text);
-        using var nativeFont = Font.ToFont();
+        var nativeFont = GetFont();
         if (nativeFont == null) return;
 
         richText.Spacing = Spacing;
