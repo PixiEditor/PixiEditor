@@ -60,7 +60,7 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
 
     public Font ConstructFont()
     {
-        return Font.ToFont();
+        return GetFont();
     }
 
     double IReadOnlyTextData.Spacing => Spacing ?? Font.Size;
@@ -81,7 +81,7 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
         get
         {
             var richText = CreateRichText();
-            using var nativeFont = ConstructFont();
+            var nativeFont = ConstructFont();
             var bounds = richText.MeasureBounds(nativeFont);
             return bounds.Offset(Position);
         }
@@ -107,6 +107,8 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
     public VecD PathOffset { get; set; }
 
     private double _spacing;
+    private Font? cachedFont;
+    private int cachedFontHash;
 
     public TextVectorData()
     {
@@ -121,7 +123,7 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
     public override VectorPath ToPath(bool transformed = false)
     {
         RichText richText = CreateRichText();
-        using Font nativeFont = ConstructFont();
+        Font nativeFont = ConstructFont();
         var path = richText.ToPath(nativeFont);
         path.Offset(Position);
 
@@ -153,7 +155,7 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
         }
 
         using Paint paint = new Paint() { IsAntiAliased = AntiAlias };
-        using var nativeFont = Font.ToFont(false);
+        var nativeFont = GetFont();
 
         if (nativeFont == null)
         {
@@ -172,6 +174,18 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
         }
     }
 
+    private Font? GetFont()
+    {
+        if (Font.GetCacheHash() != cachedFontHash || cachedFont is { IsDisposed: true })
+        {
+            cachedFont?.Dispose();
+            cachedFontHash = Font.GetCacheHash();
+            cachedFont = Font.ToFont(false);
+        }
+
+        return cachedFont;
+    }
+
     private RichText CreateRichText()
     {
         return new RichText(Text)
@@ -187,7 +201,7 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
 
     private void PaintText(Canvas canvas, Paint paint)
     {
-        using Font nativeFont = ConstructFont();
+        Font nativeFont = ConstructFont();
         CreateRichText().Paint(canvas, Position, nativeFont, paint, Path, PathOffset);
     }
 

@@ -180,7 +180,7 @@ internal class ExtractSelectedText_Change : Change
     {
         RichText richText = new RichText(text);
 
-        using Font nativeFont = textData.ConstructFont();
+        Font nativeFont = textData.ConstructFont();
         var positions = richText.GetGlyphPositions(nativeFont);
         if (positions == null || positions.Length == 0)
         {
