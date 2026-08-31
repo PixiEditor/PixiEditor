@@ -387,7 +387,7 @@ internal partial class DocumentViewModel
         rt.Spacing = textData.Spacing;
         rt.MaxWidth = textData.MaxWidth;
 
-        using Font font = textData.ConstructFont();
+        Font font = textData.ConstructFont();
 
         if (rt.Lines.Length <= 1)
         {
