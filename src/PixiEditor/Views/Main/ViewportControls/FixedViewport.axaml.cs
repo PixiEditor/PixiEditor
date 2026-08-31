@@ -150,6 +150,7 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
             GuidValue,
             Delayed,
             false,
+            !RenderInDocSize,
             ForceRefreshFinalImage);
     }
 
@@ -196,6 +197,7 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
     {
         FixedViewport? viewport = (FixedViewport)args.Sender;
         viewport.CustomRenderSize = args.NewValue.Value ? viewport.Document?.SizeBindable ?? VecI.Zero : VecI.Zero;
+        viewport.Document?.Operations.AddOrUpdateViewport(viewport.GetLocation());
         viewport.InvalidateMeasure();
         viewport.ForceRefreshFinalImage();
     }

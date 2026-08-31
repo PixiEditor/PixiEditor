@@ -32,7 +32,6 @@ internal class ViewOptionsViewModel : SubViewModel<ViewModelMain>
         set
         {
             SetProperty(ref highResRender, value);
-            Owner.DocumentManagerSubViewModel.ActiveDocument.SceneRenderer.HighResRendering = value;
         }
     }
 
