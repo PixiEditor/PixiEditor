@@ -52,7 +52,7 @@ public class BrushEngine : IDisposable
     // Higher = smoother but more "laggy" pressure response.
     // 10 points is roughly 10 pixels of stroke history.
     public int PressureSmoothingWindowSize { get; set; } = 10;
-    public bool HasUnappliedChanges => lastAppliedHistoryIndex > 0 && lastAppliedHistoryIndex < pointsHistory.Count - 1;
+    public bool HasUnappliedChanges => lastAppliedHistoryIndex >= 0 && lastAppliedHistoryIndex < pointsHistory.Count - 1;
 
     public BrushEngine()
     {
@@ -235,7 +235,7 @@ public class BrushEngine : IDisposable
     public void ApplyUnfinished(ChunkyImage? image, BrushData brushData, KeyFrameTime frameTime, ColorSpace cs,
         SamplingOptions samplingOptions, BudgetedCall? budget)
     {
-        if (brushData.BrushGraph == null)
+        if (image == null || brushData.BrushGraph == null)
         {
             return;
         }

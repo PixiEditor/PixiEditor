@@ -22,7 +22,7 @@ public class DocumentChangeTracker : IDisposable
     private Queue<(ActionSource, IAction)> queue = new();
     private DateTime? carryOverTime;
 
-    public event Action<List<(ActionSource, IAction)>, List<IChangeInfo>> WorkCompleted;
+    public event Action<List<(ActionSource, IAction)>, List<IChangeInfo?>> WorkCompleted;
 
 
     public Guid? LastChangeGuid
@@ -421,9 +421,9 @@ public class DocumentChangeTracker : IDisposable
         return info;
     }
 
-    private List<IChangeInfo?> ProcessAction((ActionSource, IAction) action, BudgetedCall? budgetCall, out IAction unfinishedWorkAction)
+    private List<IChangeInfo> ProcessAction((ActionSource, IAction) action, BudgetedCall? budgetCall, out IAction unfinishedWorkAction)
     {
-        List<IChangeInfo?> changeInfos = new();
+        List<IChangeInfo> changeInfos = new();
 
         void AddInfo(OneOf<None, IChangeInfo, List<IChangeInfo>> info) =>
             info.Switch(

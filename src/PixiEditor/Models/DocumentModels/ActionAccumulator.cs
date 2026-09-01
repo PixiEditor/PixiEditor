@@ -104,7 +104,7 @@ internal class ActionAccumulator
         }
     }
 
-    internal async Task TryExecuteAccumulatedActions()
+    internal void TryExecuteAccumulatedActions()
     {
         if (executing || queuedActions.Count == 0 || document.IsDisposed)
             return;
@@ -177,94 +177,107 @@ internal class ActionAccumulator
         });
     }
 
-    private void Apply(List<(ActionSource source, IAction action)> executed, List<IChangeInfo> changes)
+    private async void Apply(List<(ActionSource source, IAction action)> executed, List<IChangeInfo?> changes)
     {
-        List<IChangeInfo> optimizedChanges = ChangeInfoListOptimizer.Optimize(changes);
-        bool undoBoundaryPassed =
-            executed.Any(static action =>
-                action.action is ChangeBoundary_Action or Redo_Action or Undo_Action);
-        bool viewportRefreshRequest =
-            executed.Any(static action => action.action is RefreshViewport_PassthroughAction);
-        bool refreshPreviewsRequest =
-            executed.Any(static action => action.action is RefreshPreviews_PassthroughAction);
-        bool refreshPreviewRequest =
-            executed.Any(static action => action.action is RefreshPreview_PassthroughAction);
-        bool changeFrameRequest =
-            executed.Any(static action => action.action is SetActiveFrame_PassthroughAction);
-        bool debugRecordRequest =
-            executed.Any(static action => action.action is DebugRecordFrame_PassthroughAction);
-
-        foreach (IChangeInfo info in optimizedChanges)
-        {
-            internals.Updater.ApplyChangeFromChangeInfo(info);
-        }
-
-        if (undoBoundaryPassed)
-            internals.Updater.AfterUndoBoundaryPassed();
-
-        var affectedAreas = new AffectedAreasGatherer(document.AnimationHandler.ActiveFrameTime,
-            internals.Tracker,
-            optimizedChanges, refreshPreviewsRequest);
-
-        bool previewsDisabled = PixiEditorSettings.Performance.DisablePreviews.Value;
-        bool updateDelayed = undoBoundaryPassed || viewportRefreshRequest || changeFrameRequest ||
-                             document.SizeBindable.LongestAxis <= LiveUpdatePerformanceThreshold;
-
-        Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures = null;
-
-        if (!previewsDisabled)
-        {
-            if (undoBoundaryPassed || viewportRefreshRequest || refreshPreviewsRequest ||
-                refreshPreviewRequest || changeFrameRequest ||
-                document.SizeBindable.LongestAxis <= LiveUpdatePerformanceThreshold)
-            {
-                previewTextures = previewUpdater.GatherPreviewsToUpdate(
-                    affectedAreas.ChangedMembers,
-                    affectedAreas.ChangedMasks,
-                    affectedAreas.ChangedNodes, affectedAreas.ChangedKeyFrames,
-                    affectedAreas.IgnoreAnimationPreviews,
-                    undoBoundaryPassed || refreshPreviewsRequest || refreshPreviewRequest);
-            }
-        }
-
-        List<Action>? updatePreviewActions = previewTextures?.Values
-            .Select(x => x.Select(r => r.TextureUpdatedAction))
-            .SelectMany(x => x).ToList();
-
-        bool allPassthrough = AreAllPassthrough(executed);
-
-        bool immediateRender = affectedAreas.MainImageArea.Chunks.Count > 0 && !allPassthrough;
-
-        if (internals.Tracker.IsDisposed)
-            return;
-
         try
         {
-            if (debugRecordRequest)
+            List<IChangeInfo> optimizedChanges = ChangeInfoListOptimizer.Optimize(changes);
+            bool undoBoundaryPassed =
+                executed.Any(static action =>
+                    action.action is ChangeBoundary_Action or Redo_Action or Undo_Action);
+            bool viewportRefreshRequest =
+                executed.Any(static action => action.action is RefreshViewport_PassthroughAction);
+            bool refreshPreviewsRequest =
+                executed.Any(static action => action.action is RefreshPreviews_PassthroughAction);
+            bool refreshPreviewRequest =
+                executed.Any(static action => action.action is RefreshPreview_PassthroughAction);
+            bool changeFrameRequest =
+                executed.Any(static action => action.action is SetActiveFrame_PassthroughAction);
+            bool debugRecordRequest =
+                executed.Any(static action => action.action is DebugRecordFrame_PassthroughAction);
+
+            foreach (IChangeInfo info in optimizedChanges)
             {
-                document.SceneRenderer.RecordRender(internals.State.Viewports,
-                    affectedAreas.MainImageArea,
-                    !previewsDisabled && updateDelayed, previewTextures, immediateRender);
+                internals.Updater.ApplyChangeFromChangeInfo(info);
             }
-            else
+
+            if (undoBoundaryPassed)
+                internals.Updater.AfterUndoBoundaryPassed();
+
+            var affectedAreas = new AffectedAreasGatherer(document.AnimationHandler.ActiveFrameTime,
+                internals.Tracker,
+                optimizedChanges, refreshPreviewsRequest);
+
+            bool previewsDisabled = PixiEditorSettings.Performance.DisablePreviews.Value;
+            bool updateDelayed = undoBoundaryPassed || viewportRefreshRequest || changeFrameRequest ||
+                                 document.SizeBindable.LongestAxis <= LiveUpdatePerformanceThreshold;
+
+            Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures = null;
+
+            if (!previewsDisabled)
             {
-                document.SceneRenderer.RenderAsync(internals.State.Viewports, affectedAreas.MainImageArea,
-                    !previewsDisabled && updateDelayed, previewTextures, immediateRender);
+                if (undoBoundaryPassed || viewportRefreshRequest || refreshPreviewsRequest ||
+                    refreshPreviewRequest || changeFrameRequest ||
+                    document.SizeBindable.LongestAxis <= LiveUpdatePerformanceThreshold)
+                {
+                    previewTextures = previewUpdater.GatherPreviewsToUpdate(
+                        affectedAreas.ChangedMembers,
+                        affectedAreas.ChangedMasks,
+                        affectedAreas.ChangedNodes, affectedAreas.ChangedKeyFrames,
+                        affectedAreas.IgnoreAnimationPreviews,
+                        undoBoundaryPassed || refreshPreviewsRequest || refreshPreviewRequest);
+                }
             }
-        }
-        catch (ObjectDisposedException ex)
-        {
-            // Document or renderer was disposed during await
+
+            List<Action>? updatePreviewActions = previewTextures?.Values
+                .Select(x => x.Select(r => r.TextureUpdatedAction))
+                .SelectMany(x => x).ToList();
+
+            bool allPassthrough = AreAllPassthrough(executed);
+
+            bool immediateRender = affectedAreas.MainImageArea.Chunks.Count > 0 && !allPassthrough;
+
+            if (internals.Tracker.IsDisposed)
+                return;
+
+            try
+            {
+                if (debugRecordRequest)
+                {
+                    document.SceneRenderer.RecordRender(internals.State.Viewports,
+                        affectedAreas.MainImageArea,
+                        !previewsDisabled && updateDelayed, previewTextures, immediateRender);
+                }
+                else
+                {
+                    await document.SceneRenderer.RenderAsync(internals.State.Viewports, affectedAreas.MainImageArea,
+                        !previewsDisabled && updateDelayed, previewTextures, immediateRender);
+                }
+            }
+            catch (ObjectDisposedException ex)
+            {
+                // Document or renderer was disposed during await
 #if DEBUG
             Debug.WriteLine($"Rendering aborted due to disposed exception: {ex}");
 #endif
-            return;
+                return;
+            }
+            finally
+            {
+                NotifyUpdatedPreviews(updatePreviewActions);
+                if (!document.IsDisposed && !internals.Tracker.IsDisposed)
+                    document.NodeGraphHandler.UpdateWatchedComputedValues();
+            }
         }
-        finally
+        catch (Exception e)
         {
-            NotifyUpdatedPreviews(updatePreviewActions);
-            if (!document.IsDisposed && !internals.Tracker.IsDisposed)
-                document.NodeGraphHandler.UpdateWatchedComputedValues();
+            document.Busy = false;
+            executing = false;
+#if DEBUG
+            Console.WriteLine(e);
+#endif
+            CrashHelper.SendExceptionInfo(e);
+            throw;
         }
     }
 
