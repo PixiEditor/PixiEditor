@@ -1,4 +1,5 @@
-﻿using Drawie.Backend.Core.Text;
+﻿using Drawie.Backend.Core;
+using Drawie.Backend.Core.Text;
 using PixiEditor.Common;
 
 namespace PixiEditor.ChangeableDocument.Changeables;
