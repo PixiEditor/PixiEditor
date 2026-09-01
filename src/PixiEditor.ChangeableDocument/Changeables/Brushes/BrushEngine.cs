@@ -549,6 +549,7 @@ public class BrushEngine : IDisposable
             brushShapeCache?.Dispose();
             var shape = vectorShape.ToPath(true);
             brushShapeCache = shape;
+            cachedShapeHash = vectorShape.GetCacheHash();
         }
     }
 
@@ -606,17 +607,19 @@ public class BrushEngine : IDisposable
             return false;
         }
 
+        using var tempPath = new VectorPath(brushShapeCache);
+
         if (flipX)
         {
-            brushShapeCache.Transform(Matrix3X3.CreateScale(-1, 1, (float)rect.Center.X, (float)rect.Center.Y));
+            tempPath.Transform(Matrix3X3.CreateScale(-1, 1, (float)rect.Center.X, (float)rect.Center.Y));
         }
 
         if (flipY)
         {
-            brushShapeCache.Transform(Matrix3X3.CreateScale(1, -1, (float)rect.Center.X, (float)rect.Center.Y));
+            tempPath.Transform(Matrix3X3.CreateScale(1, -1, (float)rect.Center.X, (float)rect.Center.Y));
         }
 
-        EvaluateShape(autoPosition, brushShapeCache, vectorShape, rect, snapToPixels, fitToStrokeSize, pressure);
+        EvaluateShape(autoPosition, tempPath, vectorShape, rect, snapToPixels, fitToStrokeSize, pressure);
 
         StrokeCap strokeCap = StrokeCap.Butt;
         PaintStyle strokeStyle = PaintStyle.Fill;
@@ -668,12 +671,12 @@ public class BrushEngine : IDisposable
 
             if (blender != null)
             {
-                target.EnqueueNonMirroredDrawPath(brushShapeCache, paintable, vectorShape.StrokeWidth,
+                target.EnqueueNonMirroredDrawPath(tempPath, paintable, vectorShape.StrokeWidth,
                     strokeCap, blender, strokeStyle, antiAliasing, null, paintTransform);
             }
             else
             {
-                target.EnqueueNonMirroredDrawPath(brushShapeCache, paintable, vectorShape.StrokeWidth,
+                target.EnqueueNonMirroredDrawPath(tempPath, paintable, vectorShape.StrokeWidth,
                     strokeCap, blendMode, strokeStyle, antiAliasing, null, paintTransform);
             }
         }
@@ -683,12 +686,12 @@ public class BrushEngine : IDisposable
             strokeStyle = PaintStyle.Stroke;
             if (blender != null)
             {
-                target.EnqueueNonMirroredDrawPath(brushShapeCache, stroke, vectorShape.StrokeWidth,
+                target.EnqueueNonMirroredDrawPath(tempPath, stroke, vectorShape.StrokeWidth,
                     strokeCap, blender, strokeStyle, antiAliasing, null, paintTransform);
             }
             else
             {
-                target.EnqueueNonMirroredDrawPath(brushShapeCache, stroke, vectorShape.StrokeWidth,
+                target.EnqueueNonMirroredDrawPath(tempPath, stroke, vectorShape.StrokeWidth,
                     strokeCap, blendMode, strokeStyle, antiAliasing, null, paintTransform);
             }
         }
@@ -720,12 +723,12 @@ public class BrushEngine : IDisposable
 
                 if (blender != null)
                 {
-                    target.EnqueueNonMirroredDrawPath(brushShapeCache, brushPaintable, vectorShape.StrokeWidth,
+                    target.EnqueueNonMirroredDrawPath(tempPath, brushPaintable, vectorShape.StrokeWidth,
                         StrokeCap.Butt, blender, PaintStyle.Fill, antiAliasing, null, paintTransform);
                 }
                 else
                 {
-                    target.EnqueueNonMirroredDrawPath(brushShapeCache, brushPaintable, vectorShape.StrokeWidth,
+                    target.EnqueueNonMirroredDrawPath(tempPath, brushPaintable, vectorShape.StrokeWidth,
                         StrokeCap.Butt, blendMode, PaintStyle.Fill, antiAliasing, null, paintTransform);
                 }
             }
