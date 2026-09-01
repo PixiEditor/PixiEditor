@@ -24,6 +24,7 @@ internal readonly record struct ViewportInfo(
     Guid Id,
     bool Delayed,
     bool IsScene,
+    bool HighResRendering,
     Action InvalidateVisual)
 {
 }
