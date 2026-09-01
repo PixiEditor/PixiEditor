@@ -22,7 +22,7 @@ public class DocumentChangeTracker : IDisposable
     private Queue<(ActionSource, IAction)> queue = new();
     private DateTime? carryOverTime;
 
-    public event Action<List<(ActionSource, IAction)>, List<IChangeInfo?>> WorkCompleted;
+    public event Func<List<(ActionSource, IAction)>, List<IChangeInfo?>, Task> WorkCompleted;
 
 
     public Guid? LastChangeGuid

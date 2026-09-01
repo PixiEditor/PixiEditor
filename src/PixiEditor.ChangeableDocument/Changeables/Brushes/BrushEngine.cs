@@ -492,10 +492,12 @@ public class BrushEngine : IDisposable
 
             TryUpdateShapeCache(brushNode.VectorShape?.Value);
 
-            EvaluateShape(brushNode.AutoPosition.Value, brushShapeCache, brushNode.VectorShape.Value, rect,
+            using var shape = new VectorPath(brushShapeCache);
+
+            EvaluateShape(brushNode.AutoPosition.Value, shape, brushNode.VectorShape.Value, rect,
                 brushNode.SnapToPixels.Value, brushNode.FitToStrokeSize.Value, brushNode.Pressure.Value);
 
-            if (brushShapeCache.Bounds is { Width: > 0, Height: > 0 })
+            if (shape.Bounds is { Width: > 0, Height: > 0 })
             {
                 //context.TargetSampledTexture?.Dispose();
                 RectI size = (RectI)brushShapeCache.TightBounds.Round().Inflate(brushNode.TargetOversample.Value);

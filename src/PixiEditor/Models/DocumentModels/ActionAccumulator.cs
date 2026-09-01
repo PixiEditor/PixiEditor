@@ -177,7 +177,7 @@ internal class ActionAccumulator
         });
     }
 
-    private async void Apply(List<(ActionSource source, IAction action)> executed, List<IChangeInfo?> changes)
+    private async Task Apply(List<(ActionSource source, IAction action)> executed, List<IChangeInfo?> changes)
     {
         try
         {
