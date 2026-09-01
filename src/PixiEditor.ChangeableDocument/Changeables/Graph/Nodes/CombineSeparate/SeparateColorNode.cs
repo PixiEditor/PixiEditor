@@ -76,14 +76,14 @@ public class SeparateColorNode : Node
     private Half4 GetHsva(FuncContext ctx) =>
         ctx.HasContext
             ? contextVariables.GetOrAttachNew(ctx, Color,
-                () => ctx.RgbaToHsva(AdjustForHsvRange(ctx.GetValue(Color), ctx), NormalizedValues.Value))
+                () => AdjustForHsvRange(ctx.RgbaToHsva(ctx.GetValue(Color), NormalizedValues.Value), ctx))
             : GetHsvaContextless(ctx);
 
 
     private Half4 GetHsla(FuncContext ctx) =>
         ctx.HasContext
             ? contextVariables.GetOrAttachNew(ctx, Color,
-                () => ctx.RgbaToHsla(AdjustForHslRange(ctx.GetValue(Color), ctx), NormalizedValues.Value))
+                () => AdjustForHslRange(ctx.RgbaToHsla(ctx.GetValue(Color), NormalizedValues.Value), ctx))
             : GetHslaContextless(ctx);
 
     private Half4 GetHsvaContextless(FuncContext ctx)
