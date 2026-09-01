@@ -56,6 +56,12 @@ public class RenderTests : FullPixiEditorTest
     [InlineData("GradientArrays")]
     [InlineData("SeparateAndCombineColor")]
     [InlineData("CombineSeparateColorContextful")]
+    [InlineData("CombineSeparateRgb")]
+    [InlineData("CombineSeparateHsl")]
+    [InlineData("CombineSeparateHsv")]
+    [InlineData("CombineSeparateRgbNormalized")]
+    [InlineData("CombineSeparateHslNormalized")]
+    [InlineData("CombineSeparateHsvNormalized")]
     public void TestThatPixiFilesRenderTheSameResultAsSavedPng(string fileName, string? resultName = null)
     {
         if (!DrawingBackendApi.Current.IsHardwareAccelerated)
