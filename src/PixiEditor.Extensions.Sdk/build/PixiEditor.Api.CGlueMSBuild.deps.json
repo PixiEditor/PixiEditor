@@ -1,17 +1,16 @@
 {
   "runtimeTarget": {
-    "name": ".NETCoreApp,Version=v10.0",
+    "name": ".NETCoreApp,Version=v8.0",
     "signature": ""
   },
   "compilationOptions": {},
   "targets": {
-    ".NETCoreApp,Version=v10.0": {
+    ".NETCoreApp,Version=v8.0": {
       "PixiEditor.Api.CGlueMSBuild/1.0.0": {
         "dependencies": {
           "EncryptionLib": "1.0.0",
           "Microsoft.Build.Utilities.Core": "17.14.28",
-          "Mono.Cecil": "0.11.6",
-          "NETStandard.Library": "2.0.3"
+          "Mono.Cecil": "0.11.6"
         },
         "runtime": {
           "PixiEditor.Api.CGlueMSBuild.dll": {}
@@ -47,11 +46,9 @@
           "System.Runtime.CompilerServices.Unsafe": "6.1.0"
         }
       },
-      "Microsoft.NETCore.Platforms/1.1.0": {},
+      "Microsoft.NETCore.Platforms/5.0.0": {},
       "Microsoft.Win32.Registry/5.0.0": {
         "dependencies": {
-          "System.Buffers": "4.6.0",
-          "System.Memory": "4.6.0",
           "System.Security.AccessControl": "5.0.0",
           "System.Security.Principal.Windows": "5.0.0"
         }
@@ -76,55 +73,26 @@
           }
         }
       },
-      "NETStandard.Library/2.0.3": {
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.1.0"
-        }
-      },
-      "System.Buffers/4.6.0": {},
-      "System.Collections.Immutable/9.0.0": {
-        "dependencies": {
-          "System.Memory": "4.6.0",
-          "System.Runtime.CompilerServices.Unsafe": "6.1.0"
-        }
-      },
+      "System.Collections.Immutable/9.0.0": {},
       "System.Configuration.ConfigurationManager/9.0.0": {
         "dependencies": {
+          "System.Diagnostics.EventLog": "9.0.0",
           "System.Security.Cryptography.ProtectedData": "9.0.0"
         }
       },
-      "System.Diagnostics.DiagnosticSource/9.0.0": {
-        "dependencies": {
-          "System.Memory": "4.6.0",
-          "System.Runtime.CompilerServices.Unsafe": "6.1.0"
-        }
-      },
-      "System.Memory/4.6.0": {
-        "dependencies": {
-          "System.Buffers": "4.6.0",
-          "System.Numerics.Vectors": "4.6.0",
-          "System.Runtime.CompilerServices.Unsafe": "6.1.0"
-        }
-      },
-      "System.Numerics.Vectors/4.6.0": {},
+      "System.Diagnostics.DiagnosticSource/9.0.0": {},
+      "System.Diagnostics.EventLog/9.0.0": {},
+      "System.Memory/4.6.0": {},
       "System.Runtime.CompilerServices.Unsafe/6.1.0": {},
       "System.Security.AccessControl/5.0.0": {
         "dependencies": {
+          "Microsoft.NETCore.Platforms": "5.0.0",
           "System.Security.Principal.Windows": "5.0.0"
         }
       },
-      "System.Security.Cryptography.ProtectedData/9.0.0": {
-        "dependencies": {
-          "System.Memory": "4.6.0"
-        }
-      },
+      "System.Security.Cryptography.ProtectedData/9.0.0": {},
       "System.Security.Principal.Windows/5.0.0": {},
-      "System.Text.Encoding.CodePages/9.0.0": {
-        "dependencies": {
-          "System.Memory": "4.6.0",
-          "System.Runtime.CompilerServices.Unsafe": "6.1.0"
-        }
-      },
+      "System.Text.Encoding.CodePages/9.0.0": {},
       "EncryptionLib/1.0.0": {
         "runtime": {
           "EncryptionLib.dll": {
@@ -162,12 +130,12 @@
       "path": "microsoft.net.stringtools/17.14.28",
       "hashPath": "microsoft.net.stringtools.17.14.28.nupkg.sha512"
     },
-    "Microsoft.NETCore.Platforms/1.1.0": {
+    "Microsoft.NETCore.Platforms/5.0.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-kz0PEW2lhqygehI/d6XsPCQzD7ff7gUJaVGPVETX611eadGsA3A877GdSlU0LRVMCTH/+P3o2iDTak+S08V2+A==",
-      "path": "microsoft.netcore.platforms/1.1.0",
-      "hashPath": "microsoft.netcore.platforms.1.1.0.nupkg.sha512"
+      "sha512": "sha512-VyPlqzH2wavqquTcYpkIIAQ6WdenuKoFN0BdYBbCWsclXacSOHNQn66Gt4z5NBqEYW0FAPm5rlvki9ZiCij5xQ==",
+      "path": "microsoft.netcore.platforms/5.0.0",
+      "hashPath": "microsoft.netcore.platforms.5.0.0.nupkg.sha512"
     },
     "Microsoft.Win32.Registry/5.0.0": {
       "type": "package",
@@ -182,20 +150,6 @@
       "sha512": "sha512-f33RkDtZO8VlGXCtmQIviOtxgnUdym9xx/b1p9h91CRGOsJFxCFOFK1FDbVt1OCf1aWwYejUFa2MOQyFWTFjbA==",
       "path": "mono.cecil/0.11.6",
       "hashPath": "mono.cecil.0.11.6.nupkg.sha512"
-    },
-    "NETStandard.Library/2.0.3": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-st47PosZSHrjECdjeIzZQbzivYBJFv6P2nv4cj2ypdI204DO+vZ7l5raGMiX4eXMJ53RfOIg+/s4DHVZ54Nu2A==",
-      "path": "netstandard.library/2.0.3",
-      "hashPath": "netstandard.library.2.0.3.nupkg.sha512"
-    },
-    "System.Buffers/4.6.0": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-lN6tZi7Q46zFzAbRYXTIvfXcyvQQgxnY7Xm6C6xQ9784dEL1amjM6S6Iw4ZpsvesAKnRVsM4scrDQaDqSClkjA==",
-      "path": "system.buffers/4.6.0",
-      "hashPath": "system.buffers.4.6.0.nupkg.sha512"
     },
     "System.Collections.Immutable/9.0.0": {
       "type": "package",
@@ -218,19 +172,19 @@
       "path": "system.diagnostics.diagnosticsource/9.0.0",
       "hashPath": "system.diagnostics.diagnosticsource.9.0.0.nupkg.sha512"
     },
+    "System.Diagnostics.EventLog/9.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-qd01+AqPhbAG14KtdtIqFk+cxHQFZ/oqRSCoxU1F+Q6Kv0cl726sl7RzU9yLFGd4BUOKdN4XojXF0pQf/R6YeA==",
+      "path": "system.diagnostics.eventlog/9.0.0",
+      "hashPath": "system.diagnostics.eventlog.9.0.0.nupkg.sha512"
+    },
     "System.Memory/4.6.0": {
       "type": "package",
       "serviceable": true,
       "sha512": "sha512-OEkbBQoklHngJ8UD8ez2AERSk2g+/qpAaSWWCBFbpH727HxDq5ydVkuncBaKcKfwRqXGWx64dS6G1SUScMsitg==",
       "path": "system.memory/4.6.0",
       "hashPath": "system.memory.4.6.0.nupkg.sha512"
-    },
-    "System.Numerics.Vectors/4.6.0": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-t+SoieZsRuEyiw/J+qXUbolyO219tKQQI0+2/YI+Qv7YdGValA6WiuokrNKqjrTNsy5ABWU11bdKOzUdheteXg==",
-      "path": "system.numerics.vectors/4.6.0",
-      "hashPath": "system.numerics.vectors.4.6.0.nupkg.sha512"
     },
     "System.Runtime.CompilerServices.Unsafe/6.1.0": {
       "type": "package",
