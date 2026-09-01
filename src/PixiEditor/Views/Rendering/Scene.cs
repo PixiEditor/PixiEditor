@@ -432,14 +432,17 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             else
             {
                 saved = texture.Canvas.Save();
+                // Leaving commented code In case of any rendering and scaling issues. Scaling is invalid in some cases when this is uncommented
+                /*
                 ChunkResolution renderedResolution = ChunkResolution.Full;
                 if (SceneRenderer != null && SceneRenderer.LastRenderedStates.ContainsKey(ViewportId))
                 {
                     renderedResolution = SceneRenderer.LastRenderedStates[ViewportId].ChunkResolution;
                 }
+                */
 
                 texture.Canvas.SetMatrix(matrixDiff);
-                texture.Canvas.Scale((float)renderedResolution.InvertedMultiplier());
+                //texture.Canvas.Scale((float)renderedResolution.InvertedMultiplier());
                 hasSaved = true;
             }
 

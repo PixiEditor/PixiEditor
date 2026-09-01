@@ -37,6 +37,12 @@
   <content_rating type="oars-1.1" />
 
   <releases>
+    <release version="2.1.2.2" date="2026-08-23">
+      <url type="details">https://forum.pixieditor.net/t/pixieditor-2-1-2-2/677/2</url>
+      <description>
+        <p>Animation timeline memory leak fix, unpremultiplied color issues solved and squished some bugs.</p>
+      </description>
+    </release>
      <release version="2.1.2.1" date="2026-07-28">
       <url type="details">https://forum.pixieditor.net/t/pixieditor-2-1-2-1/660</url>
       <description>

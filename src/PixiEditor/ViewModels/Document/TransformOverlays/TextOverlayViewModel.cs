@@ -20,6 +20,8 @@ internal class TextOverlayViewModel : ObservableObject, ITextOverlayHandler
     private double? spacing;
     private int cursorPosition;
     private int selectionEnd;
+    private int cachedFontHash;
+    private Font? lastCachedFont;
 
     public event Action<string>? TextChanged;
 
@@ -95,7 +97,7 @@ internal class TextOverlayViewModel : ObservableObject, ITextOverlayHandler
         VecD mapped = Matrix.Invert().MapPoint(closestToPosition);
         RichText richText = new(Text);
 
-        using var nativeFont = Font.ToFont();
+        var nativeFont = GetFont();
         if (nativeFont == null)
         {
             return;
@@ -120,7 +122,6 @@ internal class TextOverlayViewModel : ObservableObject, ITextOverlayHandler
         RequestEditTextTrigger = new ExecutionTrigger<string>();
     }
 
-
     public void Show(string text, VecD position, FontData font, Matrix3X3 matrix, double? spacing = null)
     {
         Font = font;
@@ -141,5 +142,17 @@ internal class TextOverlayViewModel : ObservableObject, ITextOverlayHandler
         Text = string.Empty;
         Matrix = Matrix3X3.Identity;
         Spacing = null;
+    }
+
+    private Font GetFont()
+    {
+        if (Font.GetCacheHash() != cachedFontHash || lastCachedFont is { IsDisposed: true })
+        {
+            lastCachedFont?.Dispose();
+            cachedFontHash = Font.GetCacheHash();
+            lastCachedFont = Font.ToFont();
+        }
+
+        return lastCachedFont;
     }
 }

@@ -238,6 +238,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
             }
             else
             {
+                Owner.DocumentManagerSubViewModel.ActiveDocument?.Operations.TryStopToolLinkedExecutor();
                 SetActiveTool(ActiveTool, false);
             }
         }

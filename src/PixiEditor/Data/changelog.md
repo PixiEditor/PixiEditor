@@ -1,14 +1,13 @@
-# 2.1.2.2
+# 2.1.2.3
 
-Date: `19.08.2026`
-
-# Improvements
-
-- Shader node default code now includes #version 300, which enables many advanced shader features by [Ghoti](https://github.com/Ghoti-tpt)
+Date: `01.09.2026`
 
 # Fixes
 
-- Fixed animation previews by [Ghoti](https://github.com/Ghoti-tpt)
-- Fixed pixel perfect pen while editing a cel by [Ghoti](https://github.com/Ghoti-tpt)
-- Fixed memory leak of animation editor by [Ghoti](https://github.com/Ghoti-tpt)
-- Fixed unpremultiplied colors and color leaking issue by [Equbuxu](https://github.com/Equbuxu)
+- Fix selection bounds when resizing documents by [Yuki9814](https://github.com/Yuki9814)
+- Fixed anti aliasing getting applied to pixel art shapes by [flabbet](https://github.com/flabbet)
+- Fixed autosave saving brushes on each save by [flabbet](https://github.com/flabbet)
+- Fixed document getting laggy when text layer is present by [flabbet](https://github.com/flabbet)
+- Fixed an issue which caused image to be offset and scaled incorrectly by [flabbet](https://github.com/flabbet)
+- Fixed toggle high resolution preview in Preview Window not working by [flabbet](https://github.com/flabbet)
+- Fixed invalid values for HSL and HSV modes in Separate Color Node by [flabbet](https://github.com/flabbet)
