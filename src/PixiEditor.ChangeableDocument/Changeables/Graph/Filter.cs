@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.Contracts;
+using Drawie.Backend.Core;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using PixiEditor.Common;
 
