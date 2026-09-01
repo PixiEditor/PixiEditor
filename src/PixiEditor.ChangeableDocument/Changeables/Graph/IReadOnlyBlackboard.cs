@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using PixiEditor.Common;
+using System.Collections;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph;
 
