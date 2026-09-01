@@ -2,6 +2,7 @@
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core.Shaders.Generation.Expressions;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.Common;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
