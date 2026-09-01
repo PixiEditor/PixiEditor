@@ -44,7 +44,14 @@ public class AvailableExtension
     [JsonPropertyName("releaseDate")]
     public DateTime ReleaseDate { get; set; }
 
+    [JsonPropertyName("versions")]
     public List<ExtVersion> Versions { get; set; } = new List<ExtVersion>();
+
+    [JsonPropertyName("tierGroup")]
+    public string TierGroup { get; set; } = string.Empty;
+
+    [JsonPropertyName("tier")]
+    public int Tier { get; set; }
 }
 
 [Serializable]

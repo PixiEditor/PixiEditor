@@ -1,8 +1,10 @@
-﻿using Drawie.Backend.Core.Text;
+﻿using Drawie.Backend.Core;
+using Drawie.Backend.Core.Text;
+using PixiEditor.Common;
 
 namespace PixiEditor.ChangeableDocument.Changeables;
 
-public record struct FontData
+public record struct FontData : ICacheable
 {
     public double Size { get; set; }
     public FontFamilyName Family { get; set; }
@@ -10,6 +12,7 @@ public record struct FontData
     public FontEdging Edging { get; set; }
     public bool Bold { get; set; }
     public bool Italic { get; set; }
+
 
     public FontData(FontFamilyName family)
     {
@@ -47,5 +50,23 @@ public record struct FontData
         font.Bold = Bold;
         font.Italic = Italic;
         return font;
+    }
+
+    public int GetCacheHash()
+    {
+        HashCode code = new HashCode();
+        code.Add(Size);
+        code.Add(SubPixel);
+        code.Add(Edging);
+        code.Add(Bold);
+        code.Add(Italic);
+        code.Add(Family.Name);
+        code.Add(Family.FontUri != null ? 1 : 0);
+        if (Family.FontUri != null)
+        {
+            code.Add(Family.FontUri.AbsolutePath);
+        }
+
+        return code.ToHashCode();
     }
 }

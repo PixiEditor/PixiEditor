@@ -4,14 +4,13 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:extensionManager="clr-namespace:PixiEditor.ViewModels.ExtensionManager"
              xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
-             xmlns:extensions="clr-namespace:PixiEditor.Views.Extensions"
              xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="extensionManager:AvailableContentViewModel"
              Name="Root"
-             x:Class="PixiEditor.Views.Extensions.OnboardingExtensionCard">
+             x:Class="PixiEditor.Views.ExtensionManager.AvailableContentView">
     <Design.DataContext>
         <extensionManager:AvailableContentViewModel />
     </Design.DataContext>
@@ -39,22 +38,13 @@
             Classes="card-border"
             Name="cardBorder"
             CornerRadius="{DynamicResource ControlCornerRadius}"
-            Width="180"
-            Height="180"
+            Width="192"
+            Height="210"
             BorderThickness="1"
             ClipToBounds="True">
 
-            <Grid RowDefinitions="Auto,*">
+            <Grid RowDefinitions="Auto,*,Auto">
                 <Panel Margin="12" Grid.Row="0">
-                    <TextBlock
-                        Classes="pixi-icon"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        Text="{DynamicResource icon-blocks}"
-                        FontSize="52"
-                        Opacity="0.2"
-                        IsVisible="{Binding AvailableContent.ImageUrl, Converter={converters:EmptyStringConverter}}" />
-
                     <Border Height="60" Width="60" Padding="10"
                             CornerRadius="{DynamicResource ControlCornerRadius}"
                             HorizontalAlignment="Left"
@@ -101,8 +91,23 @@
                         Foreground="{DynamicResource ThemeForegroundColor}"
                         Opacity="0.6"
                         TextWrapping="Wrap"
+                        MaxLines="2"
                         MinHeight="36" />
                 </StackPanel>
+
+                <Border
+                    Grid.Row="2"
+                    Margin="12,0,12,12"
+                    Background="{DynamicResource ThemeBackgroundBrush2}"
+                    CornerRadius="{DynamicResource ControlCornerRadius}"
+                    Padding="6,3"
+                    HorizontalAlignment="Left">
+                    <TextBlock
+                        localization:Translator.Key="{Binding PriceText}"
+                        Foreground="{DynamicResource ThemeForegroundSecondaryBrush}"
+                        FontSize="{DynamicResource FontSizeNormal}"
+                        FontWeight="Normal" />
+                </Border>
             </Grid>
         </Border>
     </Button>

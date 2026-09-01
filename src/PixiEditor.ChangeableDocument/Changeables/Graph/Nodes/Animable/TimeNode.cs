@@ -1,7 +1,5 @@
 ﻿using System.Diagnostics;
 using PixiEditor.ChangeableDocument.Rendering;
-using Drawie.Backend.Core;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Animable;
 

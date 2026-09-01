@@ -1,5 +1,4 @@
-﻿using ChunkyImageLib.DataHolders;
-using Drawie.Numerics;
+﻿using Drawie.Numerics;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 

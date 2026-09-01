@@ -1,5 +1,4 @@
 ﻿using System.Collections.ObjectModel;
-using ChunkyImageLib;
 
 namespace PixiEditor.Models.Handlers;
 

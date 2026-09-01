@@ -1,8 +1,4 @@
-﻿using System.Reflection;
-using System.Security.Principal;
-using PixiEditor.IdentityProvider;
-using PixiEditor.IdentityProvider.PixiAuth;
-using PixiEditor.PixiAuth;
+﻿using PixiEditor.IdentityProvider.PixiAuth;
 using PixiEditor.PixiAuth.Exceptions;
 using PixiEditor.PixiAuth.Models;
 
@@ -154,6 +150,8 @@ public sealed class StandaloneAdditionalContentProvider : IAdditionalContentProv
                 IncludedExtensions = x.IncludedExtensions,
                 IsBundle = x.IsBundle,
                 PercentageDiscount = x.PercentageDiscount,
+                TierGroup = x.TierGroup,
+                Tier = x.Tier,
                 ReleaseDate = x.ReleaseDate,
                 Versions = x.Versions.Select(v => new ExtensionVersion()
                 {

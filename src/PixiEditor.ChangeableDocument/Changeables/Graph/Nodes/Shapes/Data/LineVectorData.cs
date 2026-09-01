@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
-using Drawie.Backend.Core.ColorsImpl;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;

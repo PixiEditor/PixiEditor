@@ -1,5 +1,4 @@
 ﻿using Avalonia.Input;
-using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Enums;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
@@ -9,7 +8,6 @@ using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
-using Hardware.Info;
 using PixiEditor.ChangeableDocument.Rendering.ContextData;
 using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.Events;

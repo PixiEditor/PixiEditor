@@ -5,18 +5,11 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia.Media;
 using Avalonia.Skia;
 using Avalonia.VisualTree;
-using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.Helpers;
-using PixiEditor.ViewModels;
-using PixiEditor.Views.Visuals;
-using Drawie.Backend.Core;
-using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
-using PixiEditor.Helpers.Behaviours;
 using PixiEditor.Helpers.UI;
 using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.DocumentModels;
@@ -403,7 +396,6 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     public Guid GuidValue { get; } = Guid.NewGuid();
 
-    private MouseUpdateController? mouseUpdateController;
     private ViewportOverlays builtInOverlays = new();
 
     public static readonly StyledProperty<int> MaxBilinearSamplingSizeProperty
@@ -456,6 +448,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         viewportGrid.AddHandler(PointerReleasedEvent, Image_MouseUp, RoutingStrategies.Tunnel);
         viewportGrid.AddHandler(PointerPressedEvent, Image_MouseDown, RoutingStrategies.Bubble);
         viewportGrid.AddHandler(PointerWheelChangedEvent, Image_MouseWheel, RoutingStrategies.Tunnel);
+        PointerMoved += Image_MouseMove;
 
         Scene.PointerExited += (sender, args) => IsOverCanvas = false;
         Scene.PointerEntered += (sender, args) => IsOverCanvas = true;
@@ -514,13 +507,11 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     private void OnUnload(object? sender, RoutedEventArgs e)
     {
         Document?.Operations.RemoveViewport(GuidValue);
-        mouseUpdateController?.Dispose();
     }
 
     private void OnLoad(object? sender, RoutedEventArgs e)
     {
         Document?.Operations.AddOrUpdateViewport(GetLocation());
-        mouseUpdateController = new MouseUpdateController(this, Image_MouseMove);
         if (DataContext is IViewport viewportVm)
             viewportVm.SceneTextureKey = GuidValue;
     }
@@ -591,7 +582,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
             EditorDataFunc(),
             CalculateVisibleRegion(),
             ViewportRenderOutput, Scene.CalculateSampling(), Dimensions, CalculateResolution(), GuidValue, Delayed,
-            true, ForceRefreshFinalImage);
+            true, HighResPreview, ForceRefreshFinalImage);
     }
 
     private void Image_MouseDown(object? sender, PointerPressedEventArgs e)
@@ -619,7 +610,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         e.Handled = true;
     }
 
-    private void Image_MouseMove(PointerEventArgs e)
+    private void Image_MouseMove(object sender, PointerEventArgs e)
     {
         if (MouseMoveCommand is null)
             return;

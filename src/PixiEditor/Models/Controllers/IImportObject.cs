@@ -1,5 +1,4 @@
 ﻿using Avalonia.Input;
-using Avalonia.Input.Platform;
 using Avalonia.Platform.Storage;
 using PixiEditor.Models.Clipboard;
 

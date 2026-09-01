@@ -7,7 +7,8 @@
                     xmlns:behaviors="clr-namespace:PixiEditor.UI.Common.Behaviors;assembly=PixiEditor.UI.Common"
                     xmlns:overlays="clr-namespace:PixiEditor.Views.Overlays"
                     xmlns:blackboard="clr-namespace:PixiEditor.Views.Blackboard"
-                    xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common">
+                    xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+                    xmlns:compatibilityUpgrades="clr-namespace:PixiEditor.ViewModels.Document.CompatibilityUpgrades">
     <ControlTheme TargetType="nodes:NodeGraphView" x:Key="{x:Type nodes:NodeGraphView}">
         <Setter Property="ZoomMode" Value="Move" />
         <Setter Property="Template">
@@ -102,8 +103,8 @@
                         </ItemsControl.DataTemplates>
                         <ItemsControl.ItemContainerTheme>
                             <ControlTheme TargetType="ContentPresenter">
-                                <Setter Property="Canvas.Left" Value="{Binding PositionBindable.X}" />
-                                <Setter Property="Canvas.Top" Value="{Binding PositionBindable.Y}" />
+                                <Setter Property="Canvas.Left" Value="{ReflectionBinding PositionBindable.X}" />
+                                <Setter Property="Canvas.Top" Value="{ReflectionBinding PositionBindable.Y}" />
                             </ControlTheme>
                         </ItemsControl.ItemContainerTheme>
                     </ItemsControl>
@@ -179,7 +180,7 @@
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
-                                <DataTemplate>
+                                <DataTemplate x:DataType="compatibilityUpgrades:IGraphUpgrader">
                                     <Border Background="{DynamicResource ThemeBackgroundBrush}" Padding="12"
                                             CornerRadius="4">
                                         <StackPanel Orientation="Horizontal" Spacing="4">

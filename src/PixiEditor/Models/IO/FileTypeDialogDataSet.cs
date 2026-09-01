@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Avalonia.Platform.Storage;
+﻿using Avalonia.Platform.Storage;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Files;
 using PixiEditor.UI.Common.Localization;

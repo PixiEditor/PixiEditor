@@ -1,11 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Net.Http;
+﻿using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using ByteSizeLib;
 using Hardware.Info;
 using PixiEditor.Models.AnalyticsAPI;

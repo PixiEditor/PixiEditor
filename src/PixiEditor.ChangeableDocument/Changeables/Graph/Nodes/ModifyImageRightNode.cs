@@ -3,7 +3,6 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
-using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Shaders.Generation;
 using Drawie.Backend.Core.Shaders.Generation.Expressions;
 using Drawie.Backend.Core.Surfaces;
@@ -93,14 +92,14 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
 
         if (Color.Connection != null)
         {
-            builder.ReturnVar(Color?.Value?.Invoke(context) ?? new Half4("") { ConstantValue = Colors.Transparent.ToVec4D() }, false);
+            builder.ReturnVar(Color?.Value?.Invoke(context) ?? new Half4("") { ConstantValue = Colors.Transparent.ToVec4D() }, true);
         }
         else
         {
             Half4 color = Color.NonOverridenValue(FuncContext.NoContext);
             color.VariableName = "color";
             builder.AddUniform(color.VariableName, Drawie.Backend.Core.ColorsImpl.Color.FromVec4D(color.ConstantValue));
-            builder.ReturnVar(color, false);
+            builder.ReturnVar(color, true);
         }
 
         string sksl = builder.ToSkSl();

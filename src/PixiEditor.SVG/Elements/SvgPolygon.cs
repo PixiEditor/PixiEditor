@@ -1,4 +1,3 @@
-using System.Xml;
 using Drawie.Numerics;
 using PixiEditor.SVG.Units;
 

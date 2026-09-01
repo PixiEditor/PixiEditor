@@ -7,6 +7,7 @@
              xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
              xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="settings:BoolSettingViewModel"
              x:Class="PixiEditor.Views.Tools.ToolSettings.Settings.BoolSettingView">
     <Design.DataContext>
         <settings:BoolSettingViewModel />

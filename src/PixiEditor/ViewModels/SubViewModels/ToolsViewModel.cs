@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
 using System.Reflection;
 using Avalonia.Input;
 using Avalonia.Platform;
@@ -9,8 +7,6 @@ using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.ChangeableDocument;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
-using PixiEditor.Models.Preferences;
-using Drawie.Backend.Core.Numerics;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Models.AnalyticsAPI;
 using PixiEditor.Models.Commands.Attributes.Commands;
@@ -21,32 +17,24 @@ using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.Handlers;
 using Drawie.Numerics;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.Extensions.CommonApi.Tools;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
 using PixiEditor.Extensions.WasmRuntime;
 using PixiEditor.Extensions.WasmRuntime.Api.Tools;
 using PixiEditor.Extensions.WasmRuntime.Utilities;
-using PixiEditor.Helpers;
 using PixiEditor.Helpers.UI;
-using PixiEditor.Models;
 using PixiEditor.Models.BrushEngine;
-using PixiEditor.Models.Commands;
-using PixiEditor.Models.DocumentModels.Public;
 using PixiEditor.Models.ExtensionServices;
 using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Input;
 using PixiEditor.Models.IO;
-using PixiEditor.Parser.Old.PixiV4;
 using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.BrushSystem;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Document.Nodes;
-using PixiEditor.ViewModels.Document.Nodes.Brushes;
 using PixiEditor.ViewModels.Tools;
 using PixiEditor.ViewModels.Tools.Tools;
-using PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
 using ActionDisplayConfig = PixiEditor.Models.Config.ActionDisplayConfig;
 
 namespace PixiEditor.ViewModels.SubViewModels;
@@ -238,6 +226,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
             }
             else
             {
+                Owner.DocumentManagerSubViewModel.ActiveDocument?.Operations.TryStopToolLinkedExecutor();
                 SetActiveTool(ActiveTool, false);
             }
         }

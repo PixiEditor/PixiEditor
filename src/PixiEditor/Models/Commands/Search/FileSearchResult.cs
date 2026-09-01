@@ -1,11 +1,7 @@
-﻿using System.IO;
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
-using Avalonia.Markup.Xaml.MarkupExtensions;
 using Avalonia.Media;
-using Avalonia.Styling;
-using PixiEditor.Views;
 using PixiEditor.Helpers.Converters;
 using PixiEditor.Models.Commands.CommandContext;
 using PixiEditor.Models.Commands.Commands;

@@ -1,18 +1,15 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
 using Avalonia.Threading;
-using AvaloniaEdit.Utils;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Drawie.Numerics;
-using PixiEditor.IdentityProvider;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Commands.Templates;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Platform;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.ExtensionManager;
-using PixiEditor.ViewModels.SubViewModels;
 using PixiEditor.ViewModels.UserPreferences.Settings;
 using PixiEditor.Views.Shortcuts;
 

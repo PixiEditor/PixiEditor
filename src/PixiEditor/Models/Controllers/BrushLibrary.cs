@@ -1,13 +1,10 @@
 ﻿using Avalonia.Platform;
 using Avalonia.Threading;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.Extensions.CommonApi.Brushes;
-using PixiEditor.Helpers;
 using PixiEditor.Models.BrushEngine;
 using PixiEditor.Models.IO;
 using PixiEditor.ViewModels.Document;
-using PixiEditor.ViewModels.Document.Nodes.Brushes;
 
 namespace PixiEditor.Models.Controllers;
 
@@ -76,6 +73,7 @@ internal class BrushLibrary
                     byte[] buffer = new byte[stream.Length];
                     stream.ReadExactly(buffer, 0, buffer.Length);
                     var doc = Importer.ImportDocument(buffer, null);
+                    doc.AutosaveViewModel.Disable();
 
                     var brush = LoadBrush(localPath, doc, "BUILT_IN");
                     brush.IsReadOnly = true;
@@ -100,6 +98,7 @@ internal class BrushLibrary
                 if (brushes.Any(x => x.Value.FilePath == e.FullPath)) return;
 
                 var doc = Importer.ImportDocument(e.FullPath, false);
+                doc.AutosaveViewModel.Disable();
 
                 var brush = LoadBrush(e.FullPath, doc, "LOCAL");
                 brushes[brush.OutputNodeId] = brush;
@@ -211,6 +210,7 @@ internal class BrushLibrary
             try
             {
                 var doc = Importer.ImportDocument(brushData, null);
+                doc.AutosaveViewModel.Disable();
                 Brush brush = LoadBrush($"External:{dataSource.Name}", doc, dataSource.Name);
                 brush.IsReadOnly = true;
                 brushes.Add(brush.OutputNodeId, brush);

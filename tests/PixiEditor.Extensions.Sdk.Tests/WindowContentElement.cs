@@ -1,8 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using PixiEditor.Extensions.CommonApi.FlyUI;
-using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
 using PixiEditor.Extensions.Sdk.Api.FlyUI;
-using PixiEditor.Extensions.Sdk.Api.Window;
 
 namespace PixiEditor.Extensions.Sdk.Tests;
 

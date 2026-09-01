@@ -19,7 +19,7 @@
     </Design.DataContext>
 
     <viewportControls:Viewport
-        x:Name="Viewport"
+        x:Name="Viewport" x:CompileBindings="False"
         ApplyTransformTrigger="{Binding ApplyTransformTrigger}"
         AngleRadians="{Binding SceneAngleRadians, Mode=OneWayToSource}"
         Center="{Binding SceneCenter, Mode=OneWayToSource}"

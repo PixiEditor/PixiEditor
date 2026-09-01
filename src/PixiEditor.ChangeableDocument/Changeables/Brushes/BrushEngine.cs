@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using ChunkyImageLib.Operations;
 using Drawie.Backend.Core;
-using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Shaders;
@@ -41,14 +40,9 @@ public class BrushEngine : IDisposable
     private TexturePaintable? lastCachedTexturePaintable = null;
     private Matrix3X3 lastCachedTransform = Matrix3X3.Identity;
     private readonly List<RecordedPoint> pointsHistory = new();
-    private readonly List<VecD> interpolated = new(128);
-    private Dictionary<Guid, bool> graphUsesTargetSampleInput = new();
-    private Dictionary<Guid, bool> graphUsesLatestSampleInput = new();
-    private Dictionary<Guid, bool> graphUsesStartingSampleInput = new();
-    private Dictionary<Guid, bool> graphUsesTargetFullInput = new();
-    private Dictionary<Guid, bool> graphUsesLatestFullInput = new();
-    private Dictionary<Guid, bool> graphUsesStartingFullInput = new();
-
+    private readonly Dictionary<Guid, BrushGraphRequirements> graphRequirements = new();
+    private VectorPath? brushShapeCache;
+    private int cachedShapeHash;
     Texture? startingSampleTexture = null;
     Texture? startingFullTexture = null;
 
@@ -58,6 +52,7 @@ public class BrushEngine : IDisposable
     // Higher = smoother but more "laggy" pressure response.
     // 10 points is roughly 10 pixels of stroke history.
     public int PressureSmoothingWindowSize { get; set; } = 10;
+    public bool HasUnappliedChanges => lastAppliedHistoryIndex >= 0 && lastAppliedHistoryIndex < pointsHistory.Count - 1;
 
     public BrushEngine()
     {
@@ -70,6 +65,8 @@ public class BrushEngine : IDisposable
         lastAppliedHistoryIndex = -1;
         lastPos = VecD.Zero;
         lastPressure = 1.0;
+        cachedShapeHash = 0;
+        brushShapeCache?.Dispose();
         startPos = VecD.Zero;
         drawnOnce = false;
         pointsHistory.Clear();
@@ -134,8 +131,8 @@ public class BrushEngine : IDisposable
         if (targetVelocity > historicalAverage)
         {
             // "Lerp" towards the target.
-            // 0.8f means: "Use 80% raw velocity, 20% historical average"
-            float attackFactor = 0.8f;
+            // 0.1f means: "Use 10% raw velocity, 90% historical average"
+            float attackFactor = 0.1f;
             return (float)(historicalAverage + (targetVelocity - historicalAverage) * attackFactor);
         }
 
@@ -147,8 +144,7 @@ public class BrushEngine : IDisposable
     }
 
     public void ExecuteBrush(ChunkyImage target, BrushData brushData, List<RecordedPoint> points,
-        KeyFrameTime frameTime,
-        ColorSpace cs, SamplingOptions samplingOptions)
+        KeyFrameTime frameTime, ColorSpace cs, SamplingOptions samplingOptions, BudgetedCall? computationBudget = null)
     {
         if (brushData.BrushGraph == null)
         {
@@ -181,31 +177,42 @@ public class BrushEngine : IDisposable
             bool interpolatePoints = !brushNode.AlwaysClear.Value;
             if (dist > 0.5 && interpolatePoints)
             {
-                LineHelper.GetInterpolatedPointsNonAlloc(previousPoint.Position,
-                    currentPoint.Position, interpolated);
+                VecD start = previousPoint.Position;
+                VecD delta = currentPoint.Position - start;
 
-                for (int j = 1; j < interpolated.Count; j++)
+                int count = Math.Clamp(
+                    (int)Math.Ceiling(Math.Max(Math.Abs(delta.X), Math.Abs(delta.Y))) + 1,
+                    2,
+                    100000);
+
+                double step = 1.0 / (count - 1);
+
+                VecD pointStep = delta * step;
+
+                double pressure = previousPoint.PointerInfo.Pressure;
+                double pressureStep = (currentPoint.PointerInfo.Pressure - pressure) * step;
+
+                double velocity = previousPoint.PointerInfo.Velocity;
+                double velocityStep = (currentPoint.PointerInfo.Velocity - velocity) * step;
+
+                VecD pt = start + pointStep;
+                pressure += pressureStep;
+                velocity += velocityStep;
+
+                for (int j = 1; j < count; j++)
                 {
-                    var pt = interpolated[j];
-
-                    double ratio = VecD.Distance(previousPoint.Position, pt) /
-                                   VecD.Distance(previousPoint.Position, currentPoint.Position);
-
-                    double linearTargetPressure = previousPoint.PointerInfo.Pressure +
-                                                  (currentPoint.PointerInfo.Pressure -
-                                                   previousPoint.PointerInfo.Pressure) * ratio;
-
-                    double linearTargetVelocity = previousPoint.PointerInfo.Velocity +
-                                                  (currentPoint.PointerInfo.Velocity -
-                                                   previousPoint.PointerInfo.Velocity) * ratio;
-
-                    float smoothedPressure = GetSmoothedPressure(linearTargetPressure);
-                    float smoothedVelocity = GetSmoothedVelocity(linearTargetVelocity);
-
-                    pointsHistory.Add(new RecordedPoint(pt,
-                        currentPoint.PointerInfo with { Pressure = smoothedPressure, Velocity = smoothedVelocity },
+                    pointsHistory.Add(new RecordedPoint(
+                        pt,
+                        currentPoint.PointerInfo with
+                        {
+                            Pressure = GetSmoothedPressure(pressure), Velocity = GetSmoothedVelocity(velocity)
+                        },
                         currentPoint.KeyboardInfo,
                         currentPoint.EditorData));
+
+                    pt += pointStep;
+                    pressure += pressureStep;
+                    velocity += velocityStep;
                 }
             }
             else
@@ -222,6 +229,29 @@ public class BrushEngine : IDisposable
 
         lastAppliedPointIndex = points.Count - 1;
 
+        ExecuteWithInterpolation(target, brushData, frameTime, cs, samplingOptions, computationBudget, brushNode);
+    }
+
+    public void ApplyUnfinished(ChunkyImage? image, BrushData brushData, KeyFrameTime frameTime, ColorSpace cs,
+        SamplingOptions samplingOptions, BudgetedCall? budget)
+    {
+        if (image == null || brushData.BrushGraph == null)
+        {
+            return;
+        }
+
+        if (brushData.BrushGraph.TryLookupNode(brushData.TargetBrushNodeId) is not BrushOutputNode brushNode)
+        {
+            return;
+        }
+
+        ExecuteWithInterpolation(image, brushData, frameTime, cs, samplingOptions, budget, brushNode);
+    }
+
+    private void ExecuteWithInterpolation(ChunkyImage target, BrushData brushData, KeyFrameTime frameTime,
+        ColorSpace cs,
+        SamplingOptions samplingOptions, BudgetedCall? computationBudget, BrushOutputNode brushNode)
+    {
         float strokeWidth = brushData.StrokeWidth;
         float spacing = brushNode.Spacing.Value / 100f;
         int startingIndex = Math.Max(lastAppliedHistoryIndex, 0);
@@ -283,11 +313,18 @@ public class BrushEngine : IDisposable
 
             stamps++;
             lastPos = point.Position;
+            if (computationBudget != null && computationBudget.Value.Exceeded())
+            {
+                lastPressure = point.PointerInfo.Pressure;
+                lastAppliedHistoryIndex = i;
+                return;
+            }
         }
 
         lastPressure = pointsHistory.Count > 0 ? pointsHistory[^1].PointerInfo.Pressure : 1.0;
         lastAppliedHistoryIndex = pointsHistory.Count - 1;
     }
+
 
     private float EvaluatePressure(BrushOutputNode brushNode, BrushData data, RecordedPoint point,
         KeyFrameTime frameTime, ColorSpace cs, SamplingOptions samplingOptions)
@@ -359,18 +396,14 @@ public class BrushEngine : IDisposable
                 new VecI((int)strokeWidth));
         }
 
-        bool requiresLatestSampleTexture = GraphUsesConnections(brushData.BrushGraph, brushNode,
-            n => n.LatestSampleTexture.Connections, graphUsesLatestSampleInput);
-        bool requiresLatestFullTexture = GraphUsesConnections(brushData.BrushGraph, brushNode,
-            n => n.LatestFullTexture.Connections, graphUsesLatestFullInput);
-        bool requiresStartingSampleTexture = GraphUsesConnections(brushData.BrushGraph, brushNode,
-            n => n.StartingSampleTexture.Connections, graphUsesStartingSampleInput);
-        bool requiresStartingFullTexture = GraphUsesConnections(brushData.BrushGraph, brushNode,
-            n => n.StartingFullTexture.Connections, graphUsesStartingFullInput);
-        bool requiresTargetSampleTexture = GraphUsesConnections(brushData.BrushGraph, brushNode,
-            n => n.TargetSampleTexture.Connections, graphUsesTargetSampleInput);
-        bool requiresTargetFullTexture = GraphUsesConnections(brushData.BrushGraph, brushNode,
-            n => n.TargetFullTexture.Connections, graphUsesTargetFullInput);
+        var requirements = GetRequirements(brushData.BrushGraph, brushNode);
+
+        bool requiresLatestSampleTexture = requirements.UsesLatestSample;
+        bool requiresLatestFullTexture = requirements.UsesLatestFull;
+        bool requiresStartingSampleTexture = requirements.UsesStartingSample;
+        bool requiresStartingFullTexture = requirements.UsesStartingFull;
+        bool requiresTargetSampleTexture = requirements.UsesTargetSample;
+        bool requiresTargetFullTexture = requirements.UsesTargetFull;
 
         Texture? latestSampleUnderRect = null;
         Texture? targetSampleUnderRect = null;
@@ -457,14 +490,17 @@ public class BrushEngine : IDisposable
         {
             brushData.BrushGraph.Execute(brushNode, context);
 
-            using var shape = brushNode.VectorShape.Value.ToPath(true);
+            TryUpdateShapeCache(brushNode.VectorShape?.Value);
+
+            using var shape = new VectorPath(brushShapeCache);
+
             EvaluateShape(brushNode.AutoPosition.Value, shape, brushNode.VectorShape.Value, rect,
                 brushNode.SnapToPixels.Value, brushNode.FitToStrokeSize.Value, brushNode.Pressure.Value);
 
             if (shape.Bounds is { Width: > 0, Height: > 0 })
             {
                 //context.TargetSampledTexture?.Dispose();
-                RectI size = (RectI)shape.TightBounds.Round().Inflate(brushNode.TargetOversample.Value);
+                RectI size = (RectI)brushShapeCache.TightBounds.Round().Inflate(brushNode.TargetOversample.Value);
                 targetSampleUnderRect = UpdateSurfaceUnderRect(TargetStampCacheId, target,
                     size, colorSpace,
                     brushNode.AllowSampleStacking.Value);
@@ -479,7 +515,7 @@ public class BrushEngine : IDisposable
                 }
 
                 context.LatestSampledTexture = latestSampleUnderRect;
-                context.RenderOutputSize = ((RectI)shape.TightBounds.Round()).Size;
+                context.RenderOutputSize = ((RectI)brushShapeCache.TightBounds.Round()).Size;
                 context.GraphCacheId = nextRenderId + 1;
             }
         }
@@ -498,6 +534,25 @@ public class BrushEngine : IDisposable
         }
 
         PaintBrush(target, brushData, point, brushNode, context, rect, flipX, flipY);
+    }
+
+    private void TryUpdateShapeCache(ShapeVectorData vectorShape)
+    {
+        if (vectorShape == null)
+        {
+            cachedShapeHash = 0;
+            brushShapeCache?.Dispose();
+            brushShapeCache = null;
+            return;
+        }
+
+        if (vectorShape.GetCacheHash() != cachedShapeHash)
+        {
+            brushShapeCache?.Dispose();
+            var shape = vectorShape.ToPath(true);
+            brushShapeCache = shape;
+            cachedShapeHash = vectorShape.GetCacheHash();
+        }
     }
 
     private void PaintBrush(ChunkyImage target, BrushData brushData, VecD point, BrushOutputNode brushNode,
@@ -548,23 +603,25 @@ public class BrushEngine : IDisposable
         Paintable stroke,
         bool snapToPixels, bool canReuseStamps, Matrix3X3 transform, bool flipX, bool flipY)
     {
-        using var path = vectorShape.ToPath(true);
-        if (path == null)
+        TryUpdateShapeCache(vectorShape);
+        if (brushShapeCache == null)
         {
             return false;
         }
 
+        using var tempPath = new VectorPath(brushShapeCache);
+
         if (flipX)
         {
-            path.Transform(Matrix3X3.CreateScale(-1, 1, (float)rect.Center.X, (float)rect.Center.Y));
+            tempPath.Transform(Matrix3X3.CreateScale(-1, 1, (float)rect.Center.X, (float)rect.Center.Y));
         }
 
         if (flipY)
         {
-            path.Transform(Matrix3X3.CreateScale(1, -1, (float)rect.Center.X, (float)rect.Center.Y));
+            tempPath.Transform(Matrix3X3.CreateScale(1, -1, (float)rect.Center.X, (float)rect.Center.Y));
         }
 
-        EvaluateShape(autoPosition, path, vectorShape, rect, snapToPixels, fitToStrokeSize, pressure);
+        EvaluateShape(autoPosition, tempPath, vectorShape, rect, snapToPixels, fitToStrokeSize, pressure);
 
         StrokeCap strokeCap = StrokeCap.Butt;
         PaintStyle strokeStyle = PaintStyle.Fill;
@@ -616,12 +673,12 @@ public class BrushEngine : IDisposable
 
             if (blender != null)
             {
-                target.EnqueueNonMirroredDrawPath(path, paintable, vectorShape.StrokeWidth,
+                target.EnqueueNonMirroredDrawPath(tempPath, paintable, vectorShape.StrokeWidth,
                     strokeCap, blender, strokeStyle, antiAliasing, null, paintTransform);
             }
             else
             {
-                target.EnqueueNonMirroredDrawPath(path, paintable, vectorShape.StrokeWidth,
+                target.EnqueueNonMirroredDrawPath(tempPath, paintable, vectorShape.StrokeWidth,
                     strokeCap, blendMode, strokeStyle, antiAliasing, null, paintTransform);
             }
         }
@@ -631,12 +688,12 @@ public class BrushEngine : IDisposable
             strokeStyle = PaintStyle.Stroke;
             if (blender != null)
             {
-                target.EnqueueNonMirroredDrawPath(path, stroke, vectorShape.StrokeWidth,
+                target.EnqueueNonMirroredDrawPath(tempPath, stroke, vectorShape.StrokeWidth,
                     strokeCap, blender, strokeStyle, antiAliasing, null, paintTransform);
             }
             else
             {
-                target.EnqueueNonMirroredDrawPath(path, stroke, vectorShape.StrokeWidth,
+                target.EnqueueNonMirroredDrawPath(tempPath, stroke, vectorShape.StrokeWidth,
                     strokeCap, blendMode, strokeStyle, antiAliasing, null, paintTransform);
             }
         }
@@ -668,12 +725,12 @@ public class BrushEngine : IDisposable
 
                 if (blender != null)
                 {
-                    target.EnqueueNonMirroredDrawPath(path, brushPaintable, vectorShape.StrokeWidth,
+                    target.EnqueueNonMirroredDrawPath(tempPath, brushPaintable, vectorShape.StrokeWidth,
                         StrokeCap.Butt, blender, PaintStyle.Fill, antiAliasing, null, paintTransform);
                 }
                 else
                 {
-                    target.EnqueueNonMirroredDrawPath(path, brushPaintable, vectorShape.StrokeWidth,
+                    target.EnqueueNonMirroredDrawPath(tempPath, brushPaintable, vectorShape.StrokeWidth,
                         StrokeCap.Butt, blendMode, PaintStyle.Fill, antiAliasing, null, paintTransform);
                 }
             }
@@ -718,40 +775,31 @@ public class BrushEngine : IDisposable
         return surfaceUnderRect;
     }
 
-    private bool GraphUsesConnections(IReadOnlyNodeGraph graph, IReadOnlyNode brushNode,
-        Func<IBrushSampleTextureNode, IReadOnlyCollection<IInputProperty>> getConnections, Dictionary<Guid, bool> cache)
+    private BrushGraphRequirements GetRequirements(IReadOnlyNodeGraph graph, BrushOutputNode node)
     {
-        if (cache.TryGetValue(brushNode.Id, out bool uses))
+        if (graphRequirements.TryGetValue(node.Id, out var requirements))
         {
-            return uses;
+            if (graph.GetCacheHash() == requirements.CacheHash)
+            {
+                return requirements;
+            }
         }
 
-        bool usesInput = GraphUsesInput(graph, brushNode, getConnections);
-
-        cache[brushNode.Id] = usesInput;
-
-        return usesInput;
-    }
-
-    private bool GraphUsesInput(IReadOnlyNodeGraph graph, IReadOnlyNode brushNode,
-        Func<IBrushSampleTextureNode, IReadOnlyCollection<IInputProperty>> getConnections)
-    {
-        foreach (var node in graph.AllNodes)
+        bool Uses(
+            Func<IBrushSampleTextureNode, IReadOnlyCollection<IInputProperty>> getConnections)
         {
-            if (node is IBrushSampleTextureNode brushSampleTextureNode)
+            foreach (var graphNode in graph.AllNodes)
             {
-                var connections = getConnections(brushSampleTextureNode);
-                if (connections.Count == 0)
-                {
+                if (graphNode is not IBrushSampleTextureNode sampleNode)
                     continue;
-                }
 
-                foreach (var connection in connections)
+                foreach (var connection in getConnections(sampleNode))
                 {
                     bool found = false;
+
                     connection.Connection.Node.TraverseForwards(x =>
                     {
-                        if (x == brushNode)
+                        if (x == node)
                         {
                             found = true;
                             return false;
@@ -761,14 +809,23 @@ public class BrushEngine : IDisposable
                     });
 
                     if (found)
-                    {
                         return true;
-                    }
                 }
             }
+
+            return false;
         }
 
-        return false;
+        requirements = new BrushGraphRequirements(graph.GetCacheHash(),
+            Uses(n => n.TargetSampleTexture.Connections),
+            Uses(n => n.LatestSampleTexture.Connections),
+            Uses(n => n.StartingSampleTexture.Connections),
+            Uses(n => n.TargetFullTexture.Connections),
+            Uses(n => n.LatestFullTexture.Connections),
+            Uses(n => n.StartingFullTexture.Connections));
+
+        graphRequirements[node.Id] = requirements;
+        return requirements;
     }
 
     public VectorPath? EvaluateShape(VecD point, BrushData brushData)

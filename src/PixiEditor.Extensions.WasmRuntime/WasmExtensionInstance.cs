@@ -1,15 +1,10 @@
-using System.Runtime.InteropServices;
-using System.Text;
-using Avalonia.Controls;
 using Avalonia.Threading;
 using PixiEditor.Extensions.Commands;
-using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Extensions.FlyUI;
 using PixiEditor.Extensions.FlyUI.Elements;
 using PixiEditor.Extensions.WasmRuntime.Api.Modules;
 using PixiEditor.Extensions.WasmRuntime.Management;
 using PixiEditor.Extensions.WasmRuntime.Utilities;
-using PixiEditor.Extensions.Windowing;
 using Wasmtime;
 
 namespace PixiEditor.Extensions.WasmRuntime;

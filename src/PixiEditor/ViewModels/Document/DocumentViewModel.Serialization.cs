@@ -1,13 +1,9 @@
 ﻿using System.Collections;
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.Serialization;
-using Avalonia.Threading;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.Helpers.Extensions;
-using PixiEditor.Models.IO.FileEncoders;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -19,12 +15,10 @@ using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
-using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Text;
 using Drawie.Backend.Core.Vector;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Helpers;
-using PixiEditor.Models.Handlers;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.Serialization;
 using PixiEditor.Models.Serialization.Factories;
@@ -41,8 +35,6 @@ using PixiEditor.SVG.Elements;
 using PixiEditor.SVG.Enums;
 using PixiEditor.SVG.Features;
 using PixiEditor.SVG.Units;
-using PixiEditor.ViewModels.Document.Nodes;
-using BlendMode = Drawie.Backend.Core.Surfaces.BlendMode;
 using Color = System.Drawing.Color;
 using IKeyFrameChildrenContainer = PixiEditor.ChangeableDocument.Changeables.Interfaces.IKeyFrameChildrenContainer;
 using KeyFrameData = PixiEditor.Parser.KeyFrameData;
@@ -395,7 +387,7 @@ internal partial class DocumentViewModel
         rt.Spacing = textData.Spacing;
         rt.MaxWidth = textData.MaxWidth;
 
-        using Font font = textData.ConstructFont();
+        Font font = textData.ConstructFont();
 
         if (rt.Lines.Length <= 1)
         {

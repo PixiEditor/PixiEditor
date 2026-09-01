@@ -1,7 +1,5 @@
 ﻿using System.Net;
 using Newtonsoft.Json;
-using PixiEditor.Models.Dialogs;
-using PixiEditor.Models.Palettes;
 
 namespace PixiEditor.Models.ExternalServices;
 

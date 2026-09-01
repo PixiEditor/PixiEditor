@@ -6,10 +6,8 @@ using Drawie.Numerics;
 using PixiEditor.AnimationRenderer.Core;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Helpers;
-using PixiEditor.Helpers.Extensions;
 using PixiEditor.Parser;
 using PixiEditor.UI.Common.Localization;
-using PixiEditor.Views.Animations;
 
 namespace PixiEditor.Models.IO.CustomDocumentFormats;
 

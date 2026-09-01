@@ -66,7 +66,7 @@
         {
           "ActionDisplay": "SMUDGE_TOOL_ACTION_DISPLAY_DEFAULT"
         }
-        ]
+      ]
     },
     {
       "ToolName": "FindAndReplace",
@@ -89,6 +89,18 @@
       "ActionDisplays": [
         {
           "ActionDisplay": "SWAP_COLOR_TOOL_ACTION_DISPLAY_DEFAULT"
+        }
+      ]
+    },
+    {
+      "ToolName": "BackgroundEraser",
+      "DisplayName": "BACKGROUND_ERASER_TOOL",
+      "Brush": "/BrushTools/BackgroundEraser.pixi",
+      "Icon": "icon-background-remover",
+      "ToolTip": "BACKGROUND_ERASER_TOOL_TOOLTIP",
+      "ActionDisplays": [
+        {
+          "ActionDisplay": "BACKGROUND_ERASER_TOOL_ACTION_DISPLAY_DEFAULT"
         }
       ]
     }
@@ -127,9 +139,24 @@
             "FillMode": "Overlay"
           }
         },
-        "RasterLine",
-        "RasterEllipse",
-        "RasterRectangle",
+        {
+          "ToolName": "RasterLine",
+          "Settings": {
+            "AntiAliasing": false
+          }
+        },
+        {
+          "ToolName": "RasterEllipse",
+          "Settings": {
+            "AntiAliasing": false
+          }
+        },
+        {
+          "ToolName": "RasterRectangle",
+          "Settings": {
+            "AntiAliasing": false
+          }
+        },
         {
           "ToolName": "Text",
           "Settings": {
@@ -296,9 +323,31 @@
             "DefaultToolSize": 20
           }
         },
-        "Brightness",
-        "FindAndReplace",
-        "SwapColor",
+        {
+          "ToolName": "Brightness",
+          "Settings": {
+            "DefaultToolSize": 20
+          }
+        },
+        {
+          "ToolName": "FindAndReplace",
+          "Settings": {
+            "DefaultToolSize": 20
+          }
+        },
+        {
+          "ToolName": "SwapColor",
+          "Settings": {
+            "DefaultToolSize": 20
+          }
+        },
+        {
+          "ToolName": "BackgroundEraser",
+          "Settings": {
+            "DefaultToolSize": 20
+          }
+        },
+        "ColorPicker",
         "Zoom"
       ]
     }

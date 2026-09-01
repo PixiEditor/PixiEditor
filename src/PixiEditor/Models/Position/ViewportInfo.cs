@@ -1,5 +1,4 @@
 ﻿using ChunkyImageLib.DataHolders;
-using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Rendering.ContextData;
@@ -25,6 +24,7 @@ internal readonly record struct ViewportInfo(
     Guid Id,
     bool Delayed,
     bool IsScene,
+    bool HighResRendering,
     Action InvalidateVisual)
 {
 }

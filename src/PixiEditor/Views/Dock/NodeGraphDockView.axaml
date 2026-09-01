@@ -28,7 +28,7 @@
                         BorderThickness="{DynamicResource ThemeBorderThickness}"
                         Background="{DynamicResource ThemeBackgroundBrush1}" ZIndex="2">
                     <blackboard:BlackboardView
-                        Variables="{Binding Path=DataContext.DocumentManagerSubViewModel.ActiveDocument.NodeGraph.Blackboard.Variables, RelativeSource={RelativeSource AncestorType=overlays:TogglableFlyout, Mode=FindAncestor}}"
+                        Variables="{ReflectionBinding Path=DataContext.DocumentManagerSubViewModel.ActiveDocument.NodeGraph.Blackboard.Variables, RelativeSource={RelativeSource AncestorType=overlays:TogglableFlyout, Mode=FindAncestor}}"
                         AddVariableCommand="{xaml:Command PixiEditor.NodeGraph.AddVariable, UseProvided=True}" />
                 </Border>
             </overlays:TogglableFlyout.Child>

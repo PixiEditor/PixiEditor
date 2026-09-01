@@ -1,10 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Windows.Input;
-using ChunkyImageLib.DataHolders;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Drawie.Backend.Core.Numerics;
-using PixiEditor.Extensions.Helpers;
 using PixiEditor.Helpers.UI;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;

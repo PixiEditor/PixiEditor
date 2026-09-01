@@ -71,6 +71,7 @@
                 </ComboBox>
                 <controls:NumberInput Width="50" VerticalAlignment="Center" Margin="10 0 0 0"
                                       FocusNext="True"
+                                      x:Name="numberInput"
                                       Value="{Binding ColorsNumber, ElementName=palettesBrowser, Mode=TwoWay}" />
                 <CheckBox Margin="10 0 0 0" VerticalAlignment="Center"
                           IsChecked="{Binding ShowOnlyFavourites, ElementName=palettesBrowser}"

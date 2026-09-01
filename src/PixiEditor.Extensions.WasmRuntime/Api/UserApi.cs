@@ -1,6 +1,5 @@
 using PixiEditor.Extensions.Metadata;
 using PixiEditor.Extensions.WasmRuntime.Utilities;
-using static System.Array;
 
 namespace PixiEditor.Extensions.WasmRuntime.Api;
 

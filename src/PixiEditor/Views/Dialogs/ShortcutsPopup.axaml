@@ -41,7 +41,7 @@
                 <Run ui:Translator.Key="EDIT" />
                 <Run Text="{DynamicResource icon-link}" Classes="pixi-icon" />
             </TextBlock>
-            <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
+            <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto" x:DataType="dialogs:ShortcutsPopup">
                 <DockPanel HorizontalAlignment="Center" Margin="2">
                     <ItemsControl ItemsSource="{Binding Controller.CommandGroups}" Background="Transparent">
                         <ItemsControl.ItemTemplate>

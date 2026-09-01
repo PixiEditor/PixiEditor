@@ -3,17 +3,12 @@ using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Primitives;
 using Avalonia.Data;
-using Avalonia.Input;
 using Avalonia.Media;
-using Avalonia.VisualTree;
 using ColorPicker;
-using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
-using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.Handlers;
-using PixiEditor.ViewModels.Nodes;
 using DrawieColor = Drawie.Backend.Core.ColorsImpl.Color;
 
 namespace PixiEditor.Views.Nodes;

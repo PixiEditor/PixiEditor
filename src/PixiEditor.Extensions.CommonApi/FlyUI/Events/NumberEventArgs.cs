@@ -1,4 +1,3 @@
-using System.Numerics;
 using PixiEditor.Extensions.CommonApi.Utilities;
 
 namespace PixiEditor.Extensions.CommonApi.FlyUI.Events;

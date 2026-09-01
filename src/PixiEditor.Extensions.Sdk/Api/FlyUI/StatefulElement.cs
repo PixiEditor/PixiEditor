@@ -1,5 +1,4 @@
-﻿using PixiEditor.Extensions.CommonApi.FlyUI;
-using PixiEditor.Extensions.CommonApi.FlyUI.State;
+﻿using PixiEditor.Extensions.CommonApi.FlyUI.State;
 using PixiEditor.Extensions.Sdk.Attributes;
 
 namespace PixiEditor.Extensions.Sdk.Api.FlyUI;

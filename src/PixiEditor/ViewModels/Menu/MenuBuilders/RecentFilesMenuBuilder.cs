@@ -3,9 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.Data;
 using Avalonia.Styling;
-using PixiEditor.Extensions.UI;
 using PixiEditor.Models.UserData;
-using PixiEditor.UI.Common.Fonts;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.SubViewModels;
 

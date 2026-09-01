@@ -1,10 +1,8 @@
 ﻿using ChunkyImageLib.Operations;
-using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Text;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
-using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.ChangeInfos.Vectors;
 using PixiEditor.ChangeableDocument.Changes.NodeGraph;
@@ -180,7 +178,7 @@ internal class ExtractSelectedText_Change : Change
     {
         RichText richText = new RichText(text);
 
-        using Font nativeFont = textData.ConstructFont();
+        Font nativeFont = textData.ConstructFont();
         var positions = richText.GetGlyphPositions(nativeFont);
         if (positions == null || positions.Length == 0)
         {

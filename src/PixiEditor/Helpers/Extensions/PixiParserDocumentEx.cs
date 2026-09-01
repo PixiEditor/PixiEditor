@@ -1,8 +1,6 @@
 ﻿using Drawie.Backend.Core;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using Drawie.Numerics;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
-using PixiEditor.Models.IO;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Graph;
 using PixiEditor.Parser.Skia;

@@ -1,11 +1,8 @@
-﻿using System.Linq;
-using System.Threading;
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Animation;
 using Avalonia.Media;
 using Avalonia.Styling;
 using PixiEditor.Animation;
-using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Vector;
