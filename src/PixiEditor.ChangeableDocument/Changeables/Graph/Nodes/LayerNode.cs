@@ -65,7 +65,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
                 {
                     // Full because RenderOutputSize should already be in the correct resolution
                     var tempSurface = TryInitWorkingSurface(context.RenderOutputSize, ChunkResolution.Full,
-                        context.ProcessingColorSpace, 22);
+                        context.ProcessingColorSpace, context.GraphCacheId + 22 + context.ChunkResolution.PixelSize());
 
                     var originalSurface = context.RenderSurface;
                     context.RenderSurface = tempSurface.DrawingSurface.Canvas;

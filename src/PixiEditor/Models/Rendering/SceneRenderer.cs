@@ -47,7 +47,7 @@ internal class SceneRenderer : IDisposable
         DocumentViewModel = documentViewModel;
     }
 
-    public async Task RecordRender(Dictionary<Guid, ViewportInfo> stateViewports, AffectedArea affectedArea,
+    public void RecordRender(Dictionary<Guid, ViewportInfo> stateViewports, AffectedArea affectedArea,
         bool updateDelayed, Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures, bool immediateRender)
     {
         Render(stateViewports, affectedArea, updateDelayed, true, previewTextures);
@@ -80,7 +80,7 @@ internal class SceneRenderer : IDisposable
     {
         using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
         int renderedCount = 0;
-        if (Document?.NodeGraph == null)
+        if (Document?.NodeGraph == null || Document.NodeGraph.OutputNode == null)
         {
             return;
         }
@@ -88,7 +88,6 @@ internal class SceneRenderer : IDisposable
         int graphHash = Document.NodeGraph.GetCacheHash();
         if (stateViewports != null)
         {
-
             foreach (var viewport in stateViewports)
             {
                 if (viewport.Value.Delayed && !updateDelayed)
@@ -209,7 +208,8 @@ internal class SceneRenderer : IDisposable
         bool shouldRerender =
             ShouldRerender(renderTargetSize, isFullViewportRender ? Matrix3X3.Identity : targetMatrix, resolution,
                 viewportId, targetOutput, finalGraph,
-                previewTextures, viewport.VisibleDocumentRegion, oversizeFactor, isFullViewportRender, viewport.HighResRendering,
+                previewTextures, viewport.VisibleDocumentRegion, oversizeFactor, isFullViewportRender,
+                viewport.HighResRendering,
                 viewport.ViewportData, out bool fullAffectedArea,
                 out RenderState renderState, out bool partialRenderAllowed, out RectD? panChangedRegion) ||
             debugRecord;
@@ -244,7 +244,8 @@ internal class SceneRenderer : IDisposable
 
             var tex = RenderGraph(renderTargetSize, targetMatrix, viewportId, resolution, samplingOptions, affectedArea,
                 visibleDocumentRegion, targetOutput, viewport.IsScene, oversizeFactor,
-                pointerInfo, keyboardInfo, editorData, viewport.ViewportData, viewport.HighResRendering, debugRecord, finalGraph, previewTextures,
+                pointerInfo, keyboardInfo, editorData, viewport.ViewportData, viewport.HighResRendering, debugRecord,
+                finalGraph, previewTextures,
                 partialRenderAllowed);
 
             lastRenderedStates[viewportId] = renderState;
@@ -255,7 +256,8 @@ internal class SceneRenderer : IDisposable
         return cachedTexture;
     }
 
-    private static AffectedArea? GetPanAffectedArea(bool fullAffectedArea, RectD? panChangedRegion, RectD? visibleRegion)
+    private static AffectedArea? GetPanAffectedArea(bool fullAffectedArea, RectD? panChangedRegion,
+        RectD? visibleRegion)
     {
         if (fullAffectedArea || !panChangedRegion.HasValue) return null;
 
@@ -266,7 +268,7 @@ internal class SceneRenderer : IDisposable
         }
 
         return new AffectedArea(OperationHelper.FindChunksTouchingRectangle((RectI)finalRect.RoundOutwards(),
-                ChunkyImage.FullChunkSize));
+            ChunkyImage.FullChunkSize));
     }
 
     private Texture RenderGraph(VecI renderTargetSize, Matrix3X3 targetMatrix, Guid viewportId,
@@ -466,7 +468,8 @@ internal class SceneRenderer : IDisposable
         return finalSize;
     }
 
-    private bool RenderInOutputSize(bool highResRendering, IReadOnlyNodeGraph finalGraph, VecI renderTargetSize, VecI finalSize)
+    private bool RenderInOutputSize(bool highResRendering, IReadOnlyNodeGraph finalGraph, VecI renderTargetSize,
+        VecI finalSize)
     {
         return !highResRendering ||
                (!HighDpiRenderNodePresent(finalGraph) && renderTargetSize.Length > finalSize.Length);
@@ -521,8 +524,11 @@ internal class SceneRenderer : IDisposable
         {
             if (lastState.ShouldRerender(renderState))
             {
-                fullAffectedArea = lastState.ZoomLevel > renderState.ZoomLevel || renderState.ChunkResolution != lastState.ChunkResolution;
-                panChangedRegion = lastState.VisibleRegionChanged(renderState) ? lastState.GetVisibleRegionDifference(renderState) : null;
+                fullAffectedArea = lastState.ZoomLevel > renderState.ZoomLevel ||
+                                   renderState.ChunkResolution != lastState.ChunkResolution;
+                panChangedRegion = lastState.VisibleRegionChanged(renderState)
+                    ? lastState.GetVisibleRegionDifference(renderState)
+                    : null;
                 return true;
             }
         }
