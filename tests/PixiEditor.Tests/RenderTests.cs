@@ -56,6 +56,12 @@ public class RenderTests : FullPixiEditorTest
     [InlineData("GradientArrays")]
     [InlineData("SeparateAndCombineColor")]
     [InlineData("CombineSeparateColorContextful")]
+    [InlineData("CombineSeparateRgb")]
+    [InlineData("CombineSeparateHsl")]
+    [InlineData("CombineSeparateHsv")]
+    [InlineData("CombineSeparateRgbNormalized")]
+    [InlineData("CombineSeparateHslNormalized")]
+    [InlineData("CombineSeparateHsvNormalized")]
     public void TestThatPixiFilesRenderTheSameResultAsSavedPng(string fileName, string? resultName = null)
     {
         if (!DrawingBackendApi.Current.IsHardwareAccelerated)
@@ -133,7 +139,7 @@ public class RenderTests : FullPixiEditorTest
             new KeyboardInfo(),
             new EditorData(),
             null, "DEFAULT", SamplingOptions.Default, document.SizeBindable, ChunkResolution.Half,
-            Guid.NewGuid(), false, false, () => { });
+            Guid.NewGuid(), false, false, true, () => { });
         using var output = document.SceneRenderer.RenderScene(info, new AffectedArea(), document.NodeGraph.GetHashCode());
 
         Color expectedColor = Colors.Yellow;
