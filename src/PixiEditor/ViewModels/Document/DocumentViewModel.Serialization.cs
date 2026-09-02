@@ -395,11 +395,24 @@ internal partial class DocumentViewModel
         rt.Spacing = textData.Spacing;
         rt.MaxWidth = textData.MaxWidth;
 
-        Font font = textData.ConstructFont();
+        Font? font = textData.ConstructFont();
+        bool disposeFont = false;
+
+        if (font == null)
+        {
+            font = Font.CreateDefault();
+            disposeFont = true;
+        }
 
         if (rt.Lines.Length <= 1)
         {
-            return BuildTextElement(textData, textData.Text, font);
+            var elem = BuildTextElement(textData, textData.Text, font);
+            if (disposeFont)
+            {
+                font.Dispose();
+            }
+
+            return elem;
         }
 
         SvgGroup group = new SvgGroup();
@@ -411,6 +424,11 @@ internal partial class DocumentViewModel
             text.Y.Unit = SvgNumericUnit.FromUserUnits(textData.Position.Y + offset.Y);
 
             group.Children.Add(text);
+        }
+
+        if (disposeFont)
+        {
+            font.Dispose();
         }
 
         return group;
