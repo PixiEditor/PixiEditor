@@ -38,9 +38,9 @@
 
   <releases>
     <release version="2.1.2.3" date="2026-09-02">
-      <url type="details">https://forum.pixieditor.net/t/pixieditor-2-1-2-2/677/2</url>
+      <url type="details">https://forum.pixieditor.net/t/pixieditor-2-1-2-3/679/1</url>
       <description>
-        <p>Animation timeline memory leak fix, unpremultiplied color issues solved and squished some bugs.</p>
+        <p>Various bug fixes and text performance improvements.</p>
       </description>
     </release>
     <release version="2.1.2.2" date="2026-08-23">
