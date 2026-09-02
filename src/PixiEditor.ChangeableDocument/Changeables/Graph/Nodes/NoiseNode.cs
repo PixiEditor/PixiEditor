@@ -1249,25 +1249,96 @@ public class NoiseNode : RenderNode
                                    uniform float iRandomness;
                                    uniform int iFeature;
                                    uniform float iAngleOffset;
+                                   float tile(float p, float freq) {
+                                   	freq = floor(freq);
+                                   	return mix(mix(p,0,p==freq),freq-1,p==-1);
+                                   }
+                                   float2 tile(float2 p, float freq) {
+                                   	return float2(tile(p.x,freq),tile(p.y,freq));
+                                   }
+                                   float3 tile(float3 p, float freq) {
+                                   	return float3(tile(p.xy,freq),tile(p.z,freq));
+                                   }
                                    NoiseSample noise1d(float p, float freq, float seed, bool tiling) {
-                                       p *= freq;
-                                       float i = floor(p);
-                                       NoiseSample samp;
-                                       return fma(samp,2,-1);
-                                   }
+                                           p *= freq;
+                                           
+                                           float i = floor(p);
+                                           float x =p-i;
+                                           
+                                           float minima = 2;
+                                           for(float u = -1; u<= 1; u++) {
+                                           	float h;
+                                           	if(tiling)
+                                           		h = random(tile(i+u,freq),seed);
+                                   		else
+                                           		h = random(i+u, seed);
+                                           	minima = min(minima,length(u+h-x));
+                                           }
+                                           
+                                           NoiseSample samp;
+                                           samp.value = minima;
+                                           samp.derivative = float3(0);
+                                           return fma(samp,0.5,0);
+                                       }
+                                       
+                                       NoiseSample noise2d(float2 p, float freq, float seed, bool tiling) {
+                                           p *= freq;
+                                           float2 i = floor(p);
+                                           float2 x =fract(p);
+                                           
+                                           float minima = 100;
+                                           for(float u = -1; u<= 1; u++) {
+                                           	 for(float v = -1; v<= 1; v++) {
+                                           	 	float2 neighbor = float2(u,v);
+                                           	 	float2 h;
+                                           		if(tiling) 
+                                           			h = random2(tile(i+neighbor,freq),seed);
+                                   			else
+                                           			h = random2(i+neighbor,seed);
+                                           	 	minima = min(minima,length(neighbor+h-x));
+                                           	 	if(tiling) 
+                                           			h = random2(tile(i+neighbor,freq),seed);
+                                   			else
+                                           			h = random2(i+neighbor,seed);
+                                           	 	minima = min(minima,length(neighbor+h-x));
+                                           	 }
                                    
-                                   NoiseSample noise2d(float2 p, float freq, float seed, bool tiling) {
-                                       p *= freq;
-                                       float2 i = floor(p);
-                                       NoiseSample samp;
-                                   return fma(samp,2,-1);
-                                   }
+                                           }
+                                           
+                                           NoiseSample samp;
+                                           samp.value = min(minima,1);
+                                           samp.derivative = float3(0);
+                                           return fma(samp,0.5,0);
+                                       }
                                    
                                    NoiseSample noise3d(float3 p, float freq, float seed, bool tiling) {
                                        p *= freq;
                                        float3 i = floor(p);
+                                       float3 x =fract(p);
+                                       
+                                       float minima = 100;
+                                       for(float u = -1; u<= 1; u++) {
+                                       	 for(float v = -1; v<= 1; v++) {
+                                       	 	 for(float w = -1; w<= 1; w++) {
+	                                       	 	float3 neighbor = float3(u,v,w);
+	                                       	 	float3 h;
+	                                       		if(tiling) 
+	                                       			h = random3(tile(i+neighbor,freq),seed);
+	                               			else
+	                                       			h = random3(i+neighbor,seed);
+	                                       	 	minima = min(minima,length(neighbor+h-x));
+	                                       	 	if(tiling) 
+	                                       			h = random3(tile(i+neighbor,freq),seed);
+	                               			else
+	                                       			h = random3(i+neighbor,seed);
+	                                       	 	minima = min(minima,length(neighbor+h-x));
+                                       	 	}
+                                       	 }
+                                       }
                                        NoiseSample samp;
-                                       return fma(samp,2,-1);
+                                       samp.value = min(minima,1);
+                                       samp.derivative = float3(0);
+                                       return fma(samp,0.5,0);
                                    }
                                    """
                                    + MainShaderCode;
