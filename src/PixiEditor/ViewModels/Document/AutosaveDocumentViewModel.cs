@@ -35,6 +35,7 @@ internal class AutosaveDocumentViewModel : ObservableObject
 
     private DocumentAutosaver? autosaver;
     private DocumentViewModel Document { get; }
+    private DocumentInternalParts internals;
     private Guid autosaveFileGuid = Guid.NewGuid();
     public string AutosavePath => AutosaveHelper.GetNewAutosavePath(autosaveFileGuid);
 
@@ -54,6 +55,11 @@ internal class AutosaveDocumentViewModel : ObservableObject
     public AutosaveDocumentViewModel(DocumentViewModel document, DocumentInternalParts internals)
     {
         Document = document;
+        this.internals = internals;
+    }
+
+    public void EnableAutosaver()
+    {
         internals.ChangeController.ToolSessionFinished += (() => autosaver?.OnUpdateableChangeEnded());
         IPreferences.Current!.AddCallback(PreferencesConstants.AutosaveEnabled, PreferenceUpdateCallback);
         IPreferences.Current!.AddCallback(PreferencesConstants.AutosavePeriodMinutes, PreferenceUpdateCallback);

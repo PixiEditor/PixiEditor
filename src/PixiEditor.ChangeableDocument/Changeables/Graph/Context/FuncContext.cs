@@ -134,9 +134,9 @@ public class FuncContext
         {
             Half4 constantHalf4 = new Half4("");
             constantHalf4.ConstantValue = new Vec4D(
-                firstFloat.ConstantValue, 
-                secondFloat.ConstantValue, 
-                thirdFloat.ConstantValue, 
+                firstFloat.ConstantValue,
+                secondFloat.ConstantValue,
+                thirdFloat.ConstantValue,
                 fourthFloat.ConstantValue
             );
             return constantHalf4;
@@ -155,7 +155,8 @@ public class FuncContext
             double sValue = Math.Clamp(secondFloat.ConstantValue, 0, 1);
             double vValue = Math.Clamp(thirdFloat.ConstantValue, 0, 1);
             double aValue = Math.Clamp(fourthFloat.ConstantValue, 0, 1);
-            constantHalf4.ConstantValue = ColorF.FromHsv((float)hValue * 360, (float)sValue * 100, (float)vValue * 100, (float)aValue).ToVec4D();
+            constantHalf4.ConstantValue = ColorF
+                .FromHsv((float)hValue * 360, (float)sValue * 100, (float)vValue * 100, (float)aValue).ToVec4D();
             return constantHalf4;
         }
 
@@ -172,33 +173,59 @@ public class FuncContext
             double sValue = Math.Clamp(secondFloat.ConstantValue, 0, 1);
             double lValue = Math.Clamp(thirdFloat.ConstantValue, 0, 1);
             double aValue = Math.Clamp(fourthFloat.ConstantValue, 0, 1);
-            constantHalf4.ConstantValue = ColorF.FromHsl((float)hValue * 360, (float)sValue * 100, (float)lValue * 100, (float)aValue).ToVec4D();
+            constantHalf4.ConstantValue = ColorF
+                .FromHsl((float)hValue * 360, (float)sValue * 100, (float)lValue * 100, (float)aValue).ToVec4D();
             return constantHalf4;
         }
 
         return Builder.AssignNewHalf4(Builder.Functions.GetHslToRgb(h, s, l, a));
     }
 
-    public Half4 RgbaToHsva(Expression color)
+    public Half4 RgbaToHsva(Expression color, bool normalize)
     {
         if (!HasContext && color is Half4 half4)
         {
             var variable = new Half4(string.Empty);
             ColorF.FromVec4D(half4.ConstantValue).ToHsv(out float h, out float s, out float v);
-            variable.ConstantValue = new Vec4D(h, s, v, half4.ConstantValue.W);
+            double a = half4.ConstantValue.W;
+            if (normalize)
+            {
+                h /= 360f;
+                s /= 100f;
+                v /= 100f;
+            }
+            else
+            {
+                a *= 255f;
+            }
+
+            variable.ConstantValue = new Vec4D(h, s, v, a);
             return variable;
         }
 
         return Builder.AssignNewHalf4(Builder.Functions.GetRgbToHsv(color));
     }
 
-    public Half4 RgbaToHsla(Expression color)
+    public Half4 RgbaToHsla(Expression color, bool normalize)
     {
         if (!HasContext && color is Half4 half4)
         {
             var variable = new Half4(string.Empty);
             ColorF.FromVec4D(half4.ConstantValue).ToHsl(out float h, out float s, out float l);
-            variable.ConstantValue = new Vec4D(h, s, l, half4.ConstantValue.W);
+            if (normalize)
+            {
+                h /= 360f;
+                s /= 100f;
+                l /= 100f;
+            }
+
+            double a = half4.ConstantValue.W;
+            if (!normalize)
+            {
+                a *= 255f;
+            }
+
+            variable.ConstantValue = new Vec4D(h, s, l, a);
             return variable;
         }
 
@@ -249,6 +276,7 @@ public class FuncContext
         {
             val = new Float1("");
         }
+
         _cachedValues[getFrom] = val;
 
         return val;

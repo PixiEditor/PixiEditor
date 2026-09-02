@@ -66,7 +66,7 @@
         {
           "ActionDisplay": "SMUDGE_TOOL_ACTION_DISPLAY_DEFAULT"
         }
-        ]
+      ]
     },
     {
       "ToolName": "FindAndReplace",
@@ -139,9 +139,24 @@
             "FillMode": "Overlay"
           }
         },
-        "RasterLine",
-        "RasterEllipse",
-        "RasterRectangle",
+        {
+          "ToolName": "RasterLine",
+          "Settings": {
+            "AntiAliasing": false
+          }
+        },
+        {
+          "ToolName": "RasterEllipse",
+          "Settings": {
+            "AntiAliasing": false
+          }
+        },
+        {
+          "ToolName": "RasterRectangle",
+          "Settings": {
+            "AntiAliasing": false
+          }
+        },
         {
           "ToolName": "Text",
           "Settings": {

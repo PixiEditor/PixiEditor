@@ -323,6 +323,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
     public void Add(DocumentViewModel doc)
     {
         Documents.Add(doc);
+        doc.AutosaveViewModel.EnableAutosaver();
         DocumentAdded?.Invoke(doc);
     }
 

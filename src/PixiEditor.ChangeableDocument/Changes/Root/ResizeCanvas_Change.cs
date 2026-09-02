@@ -2,8 +2,10 @@
 using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using PixiEditor.ChangeableDocument.Enums;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changes.Selection;
 
 namespace PixiEditor.ChangeableDocument.Changes.Root;
 
@@ -24,7 +26,11 @@ internal class ResizeCanvas_Change : ResizeBasedChangeBase
         if (newSize.X < 1 || newSize.Y < 1)
             return false;
 
-        return base.InitializeAndValidate(target);
+        bool isValid = base.InitializeAndValidate(target);
+        if (isValid && !target.Selection.SelectionPath.IsEmpty)
+            originalSelectionPath = new VectorPath(target.Selection.SelectionPath);
+
+        return isValid;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
@@ -69,6 +75,15 @@ internal class ResizeCanvas_Change : ResizeBasedChangeBase
         });
 
         ignoreInUndo = false;
-        return new Size_ChangeInfo(newSize, target.VerticalSymmetryAxisX, target.HorizontalSymmetryAxisY);
+        Size_ChangeInfo sizeChange = new(newSize, target.VerticalSymmetryAxisX, target.HorizontalSymmetryAxisY);
+        if (originalSelectionPath is null)
+            return sizeChange;
+
+        return new List<IChangeInfo>
+        {
+            sizeChange,
+            SelectionChangeHelper.ResizeSelection(target, originalSelectionPath,
+                Matrix3X3.CreateTranslation(offset.X, offset.Y), newSize)
+        };
     }
 }
