@@ -744,6 +744,239 @@ public class NoiseNode : RenderNode
                                        NoiseSample simplexGradient2dPart(float2 p, float2 i, float seed) {
                                            float unskew = dot(i,squaresToTriangles);
                                            float2 x = p-i+unskew;
+                                           float f = 0.5+dot(-x,x);
+                                       
+                                           NoiseSample samp = NoiseSample(0,float3(0));
+                                           if(f>0) {
+                                               float f2 = f*f;
+                                               float f3 = f*f2;
+                                               float2 g = gradients2d(int(permute2(i, seed)));
+                                               float v = dot(g,x);
+                                               float v6f2 = -6. * v * f2;
+                                               samp.value = v*f3;
+                                               samp.derivative.xy = g*f3+v6f2*x;
+                                           }
+                                           return samp;
+                                       }
+                                       
+                                       NoiseSample noise2d(float2 p, float freq, float seed, bool tiling) {
+                                           p *= freq;
+                                           float skew = dot(p,trianglesToSquares);
+                                           float2 s = p+skew;
+                                           float2 i = floor(s);
+                                           NoiseSample samp = simplexGradient2dPart(p,i,seed);
+                                           samp = add(samp, simplexGradient2dPart(p,i+1,seed));
+                                           if(s.x - i.x >= s.y - i.y) {
+                                               samp = add(samp,simplexGradient2dPart(p,float2(i.x+1,i.y),seed));
+                                           } else {
+                                               samp = add(samp,simplexGradient2dPart(p,float2(i.x,i.y+1), seed));
+                                           }
+                                           samp.derivative *= freq;
+                                           return mul(samp,simplexScale2D);
+                                       }
+                                       
+                                       
+                                       NoiseSample simplexGradient3dPart(float3 p, float3 i, float seed) {
+                                           float unskew = dot(i,float3(1./6.));
+                                           float3 x = p-i+unskew;
+                                           float f = 0.5+dot(-x,x);
+                                       
+                                           NoiseSample samp = NoiseSample(0,float3(0));
+                                           if(f>0) {
+                                               float f2 = f*f;
+                                               float f3 = f*f2;
+                                               float3 g = simplexGradients3d(int(permute2(i, seed)));
+                                               float v = dot(g,x);
+                                               float v6f2 = -6. * v * f2;
+                                               samp.value = v*f3;
+                                               samp.derivative = g*f3+v6f2*x;
+                                           }
+                                           return samp;
+                                       }
+                                       const float simplexScale3D = 8192. * sqrt(3) / 375.;
+                                       NoiseSample noise3d(float3 p, float freq, float seed, bool tiling) {
+                                           p *= freq;
+                                           float skew = dot(p,float3(1./3.));
+                                           float3 s = p+skew;
+                                           float3 i = floor(s);
+                                           float3 x = s-i;
+                                           NoiseSample samp = simplexGradient3dPart(p,i, seed);
+                                           samp = add(samp, simplexGradient3dPart(p,i+1, seed));
+                                           if(x.x >= x.y) {
+                                               if(x.x>=x.z) {
+                                                   samp = add(samp,simplexGradient3dPart(p,i+float3(1,0,0), seed));
+                                                   if(x.y>=x.z) {
+                                                       samp = add(samp, simplexGradient3dPart(p,i+float3(1,1,0), seed));
+                                                   }
+                                                   else {
+                                                       samp = add(samp, simplexGradient3dPart(p,i+float3(1,0,1), seed));
+                                                   }
+                                               }
+                                               else {
+                                                   samp = add(samp,simplexGradient3dPart(p,i+float3(0,0,1), seed));
+                                                   samp = add(samp,simplexGradient3dPart(p,i+float3(1,0,1), seed));
+                                               }
+                                           } else {
+                                               if(x.y>=x.z) {
+                                                   samp = add(samp,simplexGradient3dPart(p,i+float3(0,1,0), seed));
+                                                   if(x.x>=x.z) {
+                                                       samp = add(samp, simplexGradient3dPart(p,i+float3(1,1,0), seed));
+                                                   }
+                                                   else {
+                                                       samp = add(samp, simplexGradient3dPart(p,i+float3(0,1,1), seed));
+                                                   }
+                                               }
+                                               else {
+                                                   samp = add(samp,simplexGradient3dPart(p,i+float3(0,0,1), seed));
+                                                   samp = add(samp,simplexGradient3dPart(p,i+float3(0,1,1), seed));
+                                               }
+                                           }
+                                           samp.derivative *= freq;
+                                           return mul(samp,simplexScale3D);
+                                       }
+                                       """ + MainShaderCode;
+        // valueShader = null;
+        Uniforms uniforms = new Uniforms();
+        uniforms.Add("iSeed", new Uniform("iSeed", seed));
+        uniforms.Add("iFrequency", new Uniform("iFrequency", frequency));
+        uniforms.Add("iOctaves", new Uniform("iOctaves", octaves));
+        uniforms.Add("iLacunarity", new Uniform("iLacunarity", lacunarity));
+        uniforms.Add("iPersistence", new Uniform("iPersistence", persistence));
+        uniforms.Add("iDimensions", new Uniform("iDimensions", dimensions));
+        
+        uniforms.Add("iTiling", new Uniform("iTiling", tiling?1:0));
+        uniforms.Add("iTurbulence", new Uniform("iTurbulence", turbulence?1:0));
+        uniforms.Add("iZ", new Uniform("iZ", z));
+
+        if (simplexGradientShader == null)
+        {
+            simplexGradientShader = Shader.Create(simplexGradientShaderCode, uniforms, out var errors);
+            if (!string.IsNullOrEmpty(errors))
+                Console.WriteLine(errors);
+        }
+        else
+        {
+            simplexGradientShader = simplexGradientShader.WithUpdatedUniforms(uniforms);
+        }
+
+        return simplexGradientShader;
+    }
+
+     
+      private Shader GetCoolTriangleShader(int dimensions, bool turbulence, bool tiling, float frequency, int octaves, float seed, float lacunarity, float persistence, float z)
+    {
+        const string simplexGradientShaderCode = BaseShaderCode+
+                                       """
+                                       const float[2] gradients1D = float[2](1,-1);
+                                       const int gradientsMask1D = 1;
+                                       const float2[8] gradients2D = float2[8](
+                                           float2( 1., 0.),
+                                           float2(-1., 0.),
+                                           float2( 0., 1.),
+                                           float2( 0.,-1.),
+                                           normalize(float2( 1., 1.)),
+                                           normalize(float2(-1., 1.)),
+                                           normalize(float2( 1.,-1.)),
+                                           normalize(float2(-1.,-1.))
+                                       );
+                                       const int gradientsMask2D = 7;
+                                       
+                                       const float3[16] gradients3D = float3[16](
+                                       	float3( 1., 1., 0.),
+                                       	float3(-1., 1., 0.),
+                                       	float3( 1.,-1., 0.),
+                                       	float3(-1.,-1., 0.),
+                                       	float3( 1., 0., 1.),
+                                       	float3(-1., 0., 1.),
+                                       	float3( 1., 0.,-1.),
+                                       	float3(-1., 0.,-1.),
+                                       	float3( 0., 1., 1.),
+                                       	float3( 0.,-1., 1.),
+                                       	float3( 0., 1.,-1.),
+                                       	float3( 0.,-1.,-1.),
+                                       	
+                                       	float3( 1., 1., 0.),
+                                       	float3(-1., 1., 0.),
+                                       	float3( 0.,-1., 1.),
+                                       	float3( 0.,-1.,-1.)
+                                       );
+                                       const int gradientsMask3D = 15;
+                                       inline float gradients1d(int p) { return gradients1D[p&gradientsMask1D]; }
+                                       inline float gradients1d(float p) { return gradients1d(int(p)); }
+                                       inline float2 gradients2d(int p) { return gradients2D[p&gradientsMask2D]; }
+                                       inline float2 gradients2d(float p) { return gradients2d(int(p)); }
+                                       inline float3 gradients3d(int p) { return gradients3D[p&gradientsMask3D]; }
+                                       inline float3 gradients3d(float p) { return gradients3d(int(p)); }
+                                       
+                                       const float2 squaresToTriangles = float2((3-sqrt(3))/6.);
+                                       const float2 trianglesToSquares = float2((sqrt(3)-1)/2.);
+                                       
+                                       const float3[32] simplexGradients3D = float3[32](
+                                       	normalize(float3( 1., 1., 0.)),
+                                       	normalize(float3(-1., 1., 0.)),
+                                       	normalize(float3( 1.,-1., 0.)),
+                                       	normalize(float3(-1.,-1., 0.)),
+                                       	normalize(float3( 1., 0., 1.)),
+                                       	normalize(float3(-1., 0., 1.)),
+                                       	normalize(float3( 1., 0.,-1.)),
+                                       	normalize(float3(-1., 0.,-1.)),
+                                       	normalize(float3( 0., 1., 1.)),
+                                       	normalize(float3( 0.,-1., 1.)),
+                                       	normalize(float3( 0., 1.,-1.)),
+                                       	normalize(float3( 0.,-1.,-1.)),
+                                       	
+                                       	normalize(float3( 1., 1., 0.)),
+                                       	normalize(float3(-1., 1., 0.)),
+                                       	normalize(float3( 1.,-1., 0.)),
+                                       	normalize(float3(-1.,-1., 0.)),
+                                       	normalize(float3( 1., 0., 1.)),
+                                       	normalize(float3(-1., 0., 1.)),
+                                       	normalize(float3( 1., 0.,-1.)),
+                                       	normalize(float3(-1., 0.,-1.)),
+                                       	normalize(float3( 0., 1., 1.)),
+                                       	normalize(float3( 0.,-1., 1.)),
+                                       	normalize(float3( 0., 1.,-1.)),
+                                       	normalize(float3( 0.,-1.,-1.)),
+                                       	
+                                       	normalize(float3( 1., 1., 1.)),
+                                       	normalize(float3(-1., 1., 1.)),
+                                       	normalize(float3( 1.,-1., 1.)),
+                                       	normalize(float3(-1.,-1., 1.)),
+                                       	normalize(float3( 1., 1.,-1.)),
+                                       	normalize(float3(-1., 1.,-1.)),
+                                       	normalize(float3( 1.,-1.,-1.)),
+                                       	normalize(float3(-1.,-1.,-1.))
+                                       );
+                                       const int simplexGradientsMask3D = 31;
+                                       inline float3 simplexGradients3d(int p) { return simplexGradients3D[p&simplexGradientsMask3D]; }
+                                       inline float3 simplexGradients3d(float p) { return simplexGradients3d(int(p)); }
+                                       
+                                       NoiseSample simplexGradient1dPart(float p, float i, float seed) {
+                                           float x = p-i;
+                                           
+                                           float f = 1-x*x;
+                                           float f2 = f*f;
+                                           float f3 = f*f2;
+                                           float g = gradients1d(int(permute(i, seed)));
+                                           float v = g*x;
+                                           NoiseSample samp;
+                                           samp.value = v*f3;
+                                           samp.derivative.x = g*f3-6.*v*x*f2;
+                                           return samp;
+                                       }
+                                       NoiseSample noise1d(float p, float freq, float seed, bool tiling) {
+                                           p *= freq;
+                                           float i = floor(p);
+                                           NoiseSample samp = simplexGradient1dPart(p,i, seed);
+                                           samp = add(samp, simplexGradient1dPart(p,i+1, seed));
+                                           samp.derivative *= freq;
+                                           return mul(samp,64./27.);
+                                       }
+                                       const float simplexScale2D = 2916.* sqr2 / 125.;
+                                       
+                                       NoiseSample simplexGradient2dPart(float2 p, float2 i, float seed) {
+                                           float unskew = dot(i,squaresToTriangles);
+                                           float2 x = p-i+unskew;
                                            float f = 0.5-dot(-x,x);
                                        
                                            NoiseSample samp = NoiseSample(0,float3(0));
@@ -862,6 +1095,8 @@ public class NoiseNode : RenderNode
         return simplexGradientShader;
     }
 
+     
+     
      private Shader GetSimplexValueShader(int dimensions, bool turbulence, bool tiling, float frequency, int octaves, float seed, float lacunarity, float persistence, float z)
     {
         string simplexValueShaderCode = BaseShaderCode+ 
@@ -1014,114 +1249,25 @@ public class NoiseNode : RenderNode
                                    uniform float iRandomness;
                                    uniform int iFeature;
                                    uniform float iAngleOffset;
-                                   const float2 squaresToTriangles = float2((3-sqrt(3))/6.);
-                                   const float2 trianglesToSquares = float2((sqrt(3)-1)/2.);
-                                   
-                                   NoiseSample simplexValue1dPart(float p, float i, float seed) {
-                                       float x = p-i;
-                                       float f = 1-x*x;
-                                       float f2 = f*f;
-                                       float f3 = f*f2;
-                                       float h = random(i, seed);
-                                       NoiseSample samp;
-                                       samp.value = h*f3;
-                                       samp.derivative.x = -6.*h*x*f2;
-                                       return samp;
-                                   }
-                                   
                                    NoiseSample noise1d(float p, float freq, float seed, bool tiling) {
                                        p *= freq;
                                        float i = floor(p);
-                                       NoiseSample samp = simplexValue1dPart(p,i, seed);
-                                       samp = add(samp, simplexValue1dPart(p,i+1, seed));
-                                       samp.derivative *= freq;
+                                       NoiseSample samp;
                                        return fma(samp,2,-1);
-                                   }
-                                   
-                                   NoiseSample simplexValue2dPart(float2 p, float2 i, float seed) {
-                                       float unskew = dot(i,squaresToTriangles);
-                                       float2 x = p-i+unskew;
-                                       float f = 0.5+dot(-x,x);
-                                   
-                                       NoiseSample samp = NoiseSample(0,float3(0));
-                                       if(f>0) {
-                                           float f2 = f*f;
-                                           float f3 = f*f2;
-                                           float h = random(i, seed);
-                                           float h6f2 = -6. * h * f2;
-                                           samp.value = h*f3;
-                                           samp.derivative.xy = h6f2*x;
-                                       }
-                                       return samp;
                                    }
                                    
                                    NoiseSample noise2d(float2 p, float freq, float seed, bool tiling) {
                                        p *= freq;
-                                       float skew = dot(p,trianglesToSquares);
-                                       float2 s = p+skew;
-                                       float2 i = floor(s);
-                                       NoiseSample samp = simplexValue2dPart(p,i,seed);
-                                       samp = add(samp, simplexValue2dPart(p,i+1,seed));
-                                       if(s.x - i.x >= s.y - i.y)
-                                           samp = add(samp,simplexValue2dPart(p,i+float2(1,0),seed));
-                                       else 
-                                           samp = add(samp,simplexValue2dPart(p,i+float2(0,1),seed));
-                                       
-                                       samp.derivative *= freq;
-                                       return fma(samp,8*2,-1);
-                                   }
-                                   NoiseSample simplexValue3dPart(float3 p, float3 i, float seed) {
-                                       float unskew = dot(i,float3(1./6.));
-                                       float3 x = p-i+unskew;
-                                       float f = 0.5+dot(-x,x);
-                                   
-                                       NoiseSample samp = NoiseSample(0,float3(0));
-                                       if(f>0) {
-                                           float f2 = f*f;
-                                           float f3 = f*f2;
-                                           float h = random(i, seed);
-                                           float h6f2 = -6. * h * f2;
-                                           samp.value = h*f3;
-                                           samp.derivative = h6f2*x;
-                                       }
-                                       return samp;
+                                       float2 i = floor(p);
+                                       NoiseSample samp;
+                                   return fma(samp,2,-1);
                                    }
                                    
                                    NoiseSample noise3d(float3 p, float freq, float seed, bool tiling) {
                                        p *= freq;
-                                       float skew = dot(p,float3(1./3.));
-                                       float3 s = p+skew;
-                                       float3 i = floor(s);
-                                       float3 x = s-i;
-                                       NoiseSample samp = simplexValue3dPart(p,i, seed);
-                                       samp = add(samp, simplexValue3dPart(p,i+1, seed));
-                                       if(x.x >= x.y) {
-                                           if(x.x>=x.z) {
-                                               samp = add(samp,simplexValue3dPart(p,i+float3(1,0,0), seed));
-                                               if(x.y>=x.z)
-                                               samp = add(samp, simplexValue3dPart(p,i+float3(1,1,0), seed));
-                                               else
-                                               samp = add(samp, simplexValue3dPart(p,i+float3(1,0,1), seed));
-                                           }
-                                           else {
-                                               samp = add(samp,simplexValue3dPart(p,i+float3(0,0,1), seed));
-                                               samp = add(samp,simplexValue3dPart(p,i+float3(1,0,1), seed));
-                                           }
-                                       } else {
-                                           if(x.y>=x.z) {
-                                               samp = add(samp,simplexValue3dPart(p,i+float3(0,1,0), seed));
-                                               if(x.x>=x.z)
-                                               samp = add(samp, simplexValue3dPart(p,i+float3(1,1,0), seed));
-                                               else
-                                               samp = add(samp, simplexValue3dPart(p,i+float3(0,1,1), seed));
-                                           }
-                                           else {
-                                               samp = add(samp,simplexValue3dPart(p,i+float3(0,0,1), seed));
-                                               samp = add(samp,simplexValue3dPart(p,i+float3(0,1,1), seed));
-                                           }
-                                       }
-                                       samp.derivative *= freq;
-                                       return fma(samp,8*2,-1);
+                                       float3 i = floor(p);
+                                       NoiseSample samp;
+                                       return fma(samp,2,-1);
                                    }
                                    """
                                    + MainShaderCode;
