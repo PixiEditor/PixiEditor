@@ -8,8 +8,10 @@
              xmlns:overlays="clr-namespace:PixiEditor.Views.Overlays"
              xmlns:blackboard="clr-namespace:PixiEditor.Views.Blackboard"
              xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="dock:NodeGraphDockViewModel"
+             x:Name="root"
              x:Class="PixiEditor.Views.Dock.NodeGraphDockView">
     <Design.DataContext>
         <dock:NodeGraphDockViewModel />
@@ -26,7 +28,8 @@
                         CornerRadius="{DynamicResource ControlCornerRadius}"
                         BorderBrush="{DynamicResource ThemeBorderMidBrush}"
                         BorderThickness="{DynamicResource ThemeBorderThickness}"
-                        Background="{DynamicResource ThemeBackgroundBrush1}" ZIndex="2">
+                        Background="{DynamicResource ThemeBackgroundBrush1}" ZIndex="2"
+                        MaxHeight="{Binding #root.Bounds.Height, Converter={converters:SubtractConverter}, ConverterParameter=40}">
                     <blackboard:BlackboardView
                         Variables="{ReflectionBinding Path=DataContext.DocumentManagerSubViewModel.ActiveDocument.NodeGraph.Blackboard.Variables, RelativeSource={RelativeSource AncestorType=overlays:TogglableFlyout, Mode=FindAncestor}}"
                         AddVariableCommand="{xaml:Command PixiEditor.NodeGraph.AddVariable, UseProvided=True}" />
