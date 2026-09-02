@@ -14,6 +14,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 public class NoiseNode : RenderNode
 {
     private double previousScale = double.NaN;
+    private double previousPeriod = double.NaN;
     private double previousSeed = double.NaN;
     private NoiseType previousNoiseType = Nodes.NoiseType.FractalPerlin;
     private int previousOctaves = -1;
@@ -24,7 +25,9 @@ public class NoiseNode : RenderNode
     private double previousLacunarity = double.NaN;
     private double previousPersistence = double.NaN;
     private double previousZ = double.NaN;
-    private double previousDimensions = -1;
+    private int previousDimensions = -1;
+    private bool previousTurbulence = false;
+    private bool previousTiling = false;
 
     private Shader? voronoiShader;
     private Shader? valueShader;
@@ -46,6 +49,8 @@ public class NoiseNode : RenderNode
 
     public InputProperty<int> Octaves { get; }
     public InputProperty<int> Dimensions { get; }
+    public InputProperty<bool> Turbulence { get; }
+    public InputProperty<bool> Tiling { get; }
 
     public InputProperty<double> Seed { get; }
 
@@ -58,6 +63,7 @@ public class NoiseNode : RenderNode
     public InputProperty<double> Lacunarity { get; }
     public InputProperty<double> Persistence { get; }
     public InputProperty<double> Z { get; }
+    public InputProperty<double> Period { get; }
 
     public NoiseNode()
     {
@@ -67,6 +73,7 @@ public class NoiseNode : RenderNode
         Z = CreateInput(nameof(Z), "Z", 0d);
 
         Scale = CreateInput(nameof(Scale), "SCALE", 10d).WithRules(v => v.Min(0.1));
+        Period = CreateInput(nameof(Period), "PERIOD", 10d).WithRules(v => v.Min(0.1));
         Octaves = CreateInput(nameof(Octaves), "OCTAVES", 1)
             .WithRules(validator => validator.Min(1));
 
@@ -81,16 +88,21 @@ public class NoiseNode : RenderNode
         Lacunarity = CreateInput(nameof(Lacunarity), "LACUNARITY", 2d).WithRules(v => v.Min(1d) );
         Persistence = CreateInput(nameof(Persistence), "PERSISTENCE", 0.5d).WithRules(v => v.Min(0d).Max(1d) );
         Dimensions = CreateInput(nameof(Dimensions), "DIMENSIONS", 2).WithRules(v => v.Min(1).Max(3) );
+        Tiling = CreateInput(nameof(Tiling), "TILING", false);
+        Turbulence = CreateInput(nameof(Turbulence), "TURBULENCE", false);
     }
 
     protected override void OnPaint(RenderContext context, Canvas target)
     {
         if (Math.Abs(previousScale - Scale.Value) > 0.000001
+            || Math.Abs(previousPeriod - Period.Value) > 0.000001
             || previousSeed != Seed.Value
             || previousOctaves != Octaves.Value
             || previousNoiseType != NoiseType.Value
             || previousOffset != Offset.Value
             || previousDimensions != Dimensions.Value
+            || previousTiling != Tiling.Value
+            || previousTurbulence != Turbulence.Value
             || previousVoronoiFeature != VoronoiFeature.Value
             || Math.Abs(previousRandomness - Randomness.Value) > 0.000001
             || Math.Abs(previousAngleOffset - AngleOffset.Value) > 0.000001
@@ -136,6 +148,8 @@ public class NoiseNode : RenderNode
             previousLacunarity = Lacunarity.Value;
             previousPersistence = Persistence.Value;
             previousDimensions = Dimensions.Value;
+            previousTiling = Tiling.Value;
+            previousTurbulence = Turbulence.Value;
             previousZ = Z.Value;
         }
 
@@ -187,6 +201,7 @@ public class NoiseNode : RenderNode
         var lacunarity = (float)Math.Max(1, Lacunarity.Value);
         var persistence = (float)Math.Clamp(Persistence.Value, 0, 1);
         int dims = Math.Clamp(Dimensions.Value, 1, 3);
+        float period = (float)Math.Max(Period.Value, 0.000001f);
         Shader shader = NoiseType.Value switch
         {
             Nodes.NoiseType.TurbulencePerlin => Shader.CreatePerlinNoiseTurbulence(
@@ -195,12 +210,13 @@ public class NoiseNode : RenderNode
                 freq, freq,
                 octaves, (float)Seed.Value),
             Nodes.NoiseType.Voronoi => GetVoronoiShader(freq, octaves, (float)Seed.Value,
+                (int)VoronoiFeature.Value, (float)Randomness.Value, (float)AngleOffset.Value),
+            Nodes.NoiseType.FractalValue => GetValueShader(dims, Turbulence.Value, Tiling.Value, period, freq, octaves, (float)Seed.Value, lacunarity, persistence, (float)Z.Value),
+            Nodes.NoiseType.FractalPerlin2 => GetPerlinShader(dims, Turbulence.Value, Tiling.Value, period, freq, octaves, (float)Seed.Value, lacunarity, persistence, (float)Z.Value),
+            Nodes.NoiseType.FractalVoronoi => GetFractalVoronoiShader(dims, Turbulence.Value, Tiling.Value, freq, octaves, (float)Seed.Value,
                 (int)VoronoiFeature.Value, (float)Randomness.Value, (float)AngleOffset.Value, lacunarity, persistence),
-            Nodes.NoiseType.FractalValue => GetValueShader(dims, freq, octaves, (float)Seed.Value, lacunarity, persistence, (float)Z.Value),
-            Nodes.NoiseType.FractalPerlin2 => GetPerlinShader(dims, freq, octaves, (float)Seed.Value, lacunarity, persistence, (float)Z.Value),
-            Nodes.NoiseType.FractalVoronoi => GetPerlinShader(dims, freq, octaves, (float)Seed.Value, lacunarity, persistence, (float)Z.Value),
-            Nodes.NoiseType.FractalSimplexValue => GetSimplexValueShader(dims, freq, octaves, (float)Seed.Value, lacunarity, persistence, (float)Z.Value),
-            Nodes.NoiseType.FractalSimplexGradient => GetSimplexGradientShader(dims, freq, octaves, (float)Seed.Value, lacunarity, persistence, (float)Z.Value),
+            Nodes.NoiseType.FractalSimplexValue => GetSimplexValueShader(dims, Turbulence.Value, Tiling.Value, freq, octaves, (float)Seed.Value, lacunarity, persistence, (float)Z.Value),
+            Nodes.NoiseType.FractalSimplexGradient => GetSimplexGradientShader(dims, Turbulence.Value, Tiling.Value, freq, octaves, (float)Seed.Value, lacunarity, persistence, (float)Z.Value),
             
             _ => null
         };
@@ -210,8 +226,21 @@ public class NoiseNode : RenderNode
 
     private const string MainShaderCode =
         """
-        NoiseSample sum(float3 p, float freq, int d, int oct, float lac, float per) {
-            NoiseSample sum = noiseSelectorD(p, freq, d);
+        NoiseSample noiseSelectorD(float3 p, float freq, int d, float seed, bool tiling, bool turbulence) {
+            NoiseSample sample = NoiseSample(0, float3(0));
+            if (d == 1) 
+                sample = noise1d(p.x, freq, seed, tiling);
+            if (d == 2)
+                sample = noise2d(p.xy, freq, seed, tiling);
+            if (d == 3)
+                sample = noise3d(p, freq, seed, tiling);
+            if (turbulence) {
+                sample.value = abs(sample.value);
+            }
+            return sample;
+        }
+        NoiseSample sum(float3 p, float freq, int d, int oct, float lac, float per, float seed, bool tiling, bool turbulence) {
+            NoiseSample sum = noiseSelectorD(p, freq, d, seed, tiling, turbulence);
             float amplitude = 1;
             float range = 1;
             for (int o = 1; o<8; o++) {
@@ -219,19 +248,21 @@ public class NoiseNode : RenderNode
                 freq *= lac;
                 amplitude *= per;
                 range += amplitude;
-                sum = add(sum, mul(noiseSelectorD(p, freq, d), amplitude));
+                sum = fma(noiseSelectorD(p, freq, d, seed+float(o), tiling, turbulence), amplitude, sum);
             }
             return mul(sum, 1./range);
         }
         
         half4 main(float2 uv)
         {
-            NoiseSample s = sum(float3(uv, iZ), iFrequency/iResolution.x, iDimensions, iOctaves, iLacunarity, iPersistence);
+            NoiseSample s = sum(float3(uv, iZ), iFrequency, iDimensions, iOctaves, iLacunarity, iPersistence, iSeed, iTiling == 1, iTurbulence == 1);
             return half4(s.value,s.derivative/6.+0.5);
         }
         """;
+
     private const string BaseShaderCode = 
         """
+        #version 300
         const float sqr2 = sqrt(2);
 
         float mod289(const in float x) { return x - floor(x * (1. / 289.)) * 289.; }
@@ -241,55 +272,77 @@ public class NoiseNode : RenderNode
         float permute(const in float v) { return mod289(((v * 34.0) + 1.0) * v); }
         float2 permute(const in float2 v) { return mod289(((v * 34.0) + 1.0) * v); }
         float3 permute(const in float3 v) { return mod289(((v * 34.0) + 1.0) * v); }
-
+        
+        float permute(const in float v, const in float seed) { return permute(v+seed); }
+        float2 permute(const in float2 v, const in float seed) { return permute(v+seed); }
+        float3 permute(const in float3 v, const in float seed) { return permute(v+seed); }
+        
+        float permute2(in float2 x) {
+          return permute(permute(x.x)+x.y);
+        }
+        float permute2(in float3 x) {
+          return permute(permute2(x.xy)+x.z);
+        }
+        
+        float permute2(in float2 x, const in float seed) {
+          return permute(permute(x.x, seed)+x.y);
+        }
+        float permute2(in float3 x, const in float seed) {
+          return permute(permute2(x.xy, seed)+x.z);
+        }
+        
         float quintic(const in float v) { return v*v*v*(v*(v*6.0-15.0)+10.0); }
         float2  quintic(const in float2 v)  { return v*v*v*(v*(v*6.0-15.0)+10.0); }
         float3  quintic(const in float3 v)  { return v*v*v*(v*(v*6.0-15.0)+10.0); }
-
+        
         float quinticDerivative(const in float v) { return 30.0*v*v*(v*(v-2.0)+1.0); }
         float2  quinticDerivative(const in float2 v)  { return 30.0*v*v*(v*(v-2.0)+1.0); }
         float3  quinticDerivative(const in float3 v)  { return 30.0*v*v*(v*(v-2.0)+1.0); }
+        
+        //float select(const in float a, const in float b, const in bool t) { return t?b:a; }
+        //float2 select(const in float2 a, const in float2 b, const in bool t) { return t?b:a; }
+        //float3 select(const in float3 a, const in float3 b, const in bool t) { return t?b:a; }
+        //float4 select(const in float4 a, const in float4 b, const in bool t) { return t?b:a; }
+        
+        //float2 select(const in float2 a, const in float2 b, const in bool2 t) { return float2(select(a.x,b.x,t.x), select(a.y,b.y,t.y)); }
+        //float3 select(const in float3 a, const in float3 b, const in bool3 t) { return float3(select(a.xy,b.xy,t.xy), select(a.z,b.z,t.z)); }
+        //float4 select(const in float4 a, const in float4 b, const in bool4 t) { return float4(select(a.xy,b.xy,t.xy), select(a.zw,b.zw,t.zw)); }
+        
+        
         const float4 scale = vec4(443.897, 441.423, .0973, .1099);
+        
         float random(in float x) {
           x = permute(x);
           x = fract(x * scale.x);
           return fract(2*pow(x, 2)* pow(33.33 + x, 2));
         }
+        
         float random(in float2 x) {
           return random(random(x.x)+x.y);
         }
         float random(in float3 x) {
           return random(random(x.xy)+x.z);
         }
+        
+        
+        float random(in float x, in float seed) {
+          x = permute(x,seed);
+          x = fract(x * scale.x);
+          return fract(2*pow(x, 2)* pow(33.33 + x, 2));
+        }
+        float random(in float2 x, in float seed) {
+          return random(random(x.x, seed)+x.y);
+        }
+        float random(in float3 x, in float seed) {
+          return random(random(x.xy, seed)+x.z);
+        }
         struct NoiseSample {
           float value;
           float3 derivative;
         };
-        NoiseSample add(NoiseSample a, float b) {
-          a.value += b;
-          return a;
-        }
-        NoiseSample add(float a, NoiseSample b) {
-          b.value += a;
-          return b;
-        }
         NoiseSample add(NoiseSample a, NoiseSample b) {
           a.value += b.value;
           a.derivative += b.derivative;
-          return a;
-        }
-        NoiseSample sub(NoiseSample a, float b) {
-          a.value -= b;
-          return a;
-        }
-        NoiseSample sub(float a, NoiseSample b) {
-          b.value = a - b.value;
-          b.derivative = -b.derivative;
-          return b;
-        }
-        NoiseSample sub(NoiseSample a, NoiseSample b) {
-          a.value -= b.value;
-          a.derivative -= b.derivative;
           return a;
         }
         NoiseSample mul(NoiseSample a, float b) {
@@ -297,38 +350,93 @@ public class NoiseNode : RenderNode
           a.derivative *= b;
           return a;
         }
-        NoiseSample mul(float a, NoiseSample b) {
-          b.value *= a;
-          b.derivative *= a;
-          return b;
-        }
-        NoiseSample mul(NoiseSample a, NoiseSample b) {
-          a.derivative = a.derivative * b.value + b.derivative * a.value;
-          a.value *= b.value;
+        
+        NoiseSample fma(NoiseSample a, float b, float c) {
+          a.value *= b;
+          a.value += c;
+          a.derivative *= b;
           return a;
         }
+        NoiseSample fma(NoiseSample a, float b, NoiseSample c) {
+          a.value *= b;
+          a.derivative *= b;
+          a.value += c.value;
+          a.derivative += c.derivative;
+          return a;
+        }
+        
+        uniform float iSeed;
+        uniform float iFrequency;
+        uniform int iOctaves;
+        uniform float iLacunarity;
+        uniform float iPersistence;
+        uniform int iDimensions;
+        uniform float iZ;
+        uniform int iTurbulence;
+        uniform int iTiling;
         """;
 
-    private Shader GetValueShader(int dimensions, float frequency, int octaves, float seed, float lacunarity, float persistence, float z)
+    private const string GradientsCode = 
+        """
+        const float[2] gradients1D = float[2](1,-1);
+        const int gradientsMask1D = 1;
+        const float2[8] gradients2D = float2[8](
+            float2( 1., 0.),
+            float2(-1., 0.),
+            float2( 0., 1.),
+            float2( 0.,-1.),
+            normalize(float2( 1., 1.)),
+            normalize(float2(-1., 1.)),
+            normalize(float2( 1.,-1.)),
+            normalize(float2(-1.,-1.))
+        );
+        const int gradientsMask2D = 7;
+
+        const float3[16] gradients3D = float3[16](
+        	float3( 1., 1., 0.),
+        	float3(-1., 1., 0.),
+        	float3( 1.,-1., 0.),
+        	float3(-1.,-1., 0.),
+        	float3( 1., 0., 1.),
+        	float3(-1., 0., 1.),
+        	float3( 1., 0.,-1.),
+        	float3(-1., 0.,-1.),
+        	float3( 0., 1., 1.),
+        	float3( 0.,-1., 1.),
+        	float3( 0., 1.,-1.),
+        	float3( 0.,-1.,-1.),
+        	
+        	float3( 1., 1., 0.),
+        	float3(-1., 1., 0.),
+        	float3( 0.,-1., 1.),
+        	float3( 0.,-1.,-1.)
+        );
+        const int gradientsMask3D = 15;
+        inline float gradients1d(int p) { return gradients1D[p&gradientsMask1D]; }
+        inline float gradients1d(float p) { return gradients1d(int(p)); }
+        inline float2 gradients2d(int p) { return gradients2D[p&gradientsMask2D]; }
+        inline float2 gradients2d(float p) { return gradients2d(int(p)); }
+        inline float3 gradients3d(int p) { return gradients3D[p&gradientsMask3D]; }
+        inline float3 gradients3d(float p) { return gradients3d(int(p)); }
+        """;
+
+    private Shader GetValueShader(int dimensions, bool turbulence, bool tiling, float period, float frequency, int octaves, float seed, float lacunarity, float persistence, float z)
     {
         const string valueShaderCode = BaseShaderCode+ 
                                        """
-                                       uniform float iSeed;
-                                       uniform float iFrequency;
-                                       uniform int iOctaves;
-                                       uniform float iLacunarity;
-                                       uniform float iPersistence;
-                                       uniform int iDimensions;
-                                       uniform float iZ;
-                                       uniform float2 iResolution;
-
-                                       NoiseSample value1d(float p, float freq) {
+                                       NoiseSample noise1d(float p, float freq, float seed, bool tiling) {
                                            p *= freq;
                                            float i0 = floor(p);
                                            float t = fract(p);
                                            float i1 = i0+1;
-                                           float h0 = random(i0);
-                                           float h1 = random(i1);
+                                           
+                                           if(tiling) {
+                                               i0 = mod(i0,freq);
+                                               i0 = mix(i0, i0 + freq, i0 < 0.);
+                                               i1 = mod(i0+1, freq);
+                                           }
+                                           float h0 = random(i0, seed);
+                                           float h1 = random(i1, seed);
                                            float dt = quinticDerivative(t);
                                            t = quintic(t);
 
@@ -336,89 +444,66 @@ public class NoiseNode : RenderNode
                                            float b = h1-h0;
 
                                            NoiseSample samp;
-                                           samp.value = a+b*t;
-                                           samp.derivative = float3(0);
-                                           samp.derivative.x = b*dt;
+                                           samp.value = mix(h0,h1,t);
+                                           samp.derivative = (b*dt).x00;
                                            samp.derivative *= freq;
-                                           return sub(mul(samp,2),1);
+                                           return fma(samp,2,-1);
                                        }
-                                       NoiseSample value2d(float2 p, float freq) {
+                                       NoiseSample noise2d(float2 p, float freq, float seed, bool tiling) {
                                            p *= freq;
                                            float2 i0 = floor(p);
                                            float2 t = fract(p);
                                            float2 i1 = i0+1;
-                                           float h0 = random(i0.x);
-                                           float h1 = random(i1.x);
-                                           float h00 = random(h0+i0.y);
-                                           float h10 = random(h1+i0.y);
-                                           float h01 = random(h0+i1.y);
-                                           float h11 = random(h1+i1.y);
+                                       
+                                           if(tiling) {
+                                               i0 = mod(i0,freq);
+                                               i0 = mix(i0, i0 + freq, lessThan(i0, float2(0.)));
+                                               i1 = mod(i0+1, freq);
+                                           }
+                                           float h00 = random(i0, seed);
+                                           float h10 = random(i0.0y+i1.x0, seed);
+                                           float h01 = random(i0.x0+i1.0y, seed);
+                                           float h11 = random(i1, seed);
                                            float2 dt = quinticDerivative(t);
                                            t = quintic(t);
 
-                                           float a = h00;
-                                           float b = h10 - h00;
-                                           float c = h01 - h00;
-                                           float d = h11 - h01 - h10 + h00;
-
                                            NoiseSample samp;
-                                           samp.value = a + b * t.x + (c + d * t.x) * t.y;
-                                           samp.derivative.x = (b + d * t.y) * dt.x;
-                                           samp.derivative.y = (c + d * t.x) * dt.y;
-                                           samp.derivative.z = 0;
+                                           samp.value = mix(mix(h00,h10,t.x), mix(h01,h11,t.x),t.y);
+                                           samp.derivative = mix(float2(h10,h01)-h00,h11-float2(h01,h10), dt).xy0;
                                            samp.derivative *= freq;
-                                           return sub(mul(samp,2),1);
+                                           
+                                           return fma(samp,2,-1);
                                        }
-                                       NoiseSample value3d(float3 p, float freq) {
+                                       NoiseSample noise3d(float3 p, float freq, float seed, bool tiling) {
                                            p *= freq;
                                            float3 i0 = floor(p);
                                            float3 t = fract(p);
                                            float3 i1 = i0+1;
-                                           float h0 = random(i0.x);
-                                           float h1 = random(i1.x);
-                                           float h00 = random(h0+i0.y);
-                                           float h10 = random(h1+i0.y);
-                                           float h01 = random(h0+i1.y);
-                                           float h11 = random(h1+i1.y);
-
-                                           float h000 = random(h00+i0.z);
-                                           float h100 = random(h10+i0.z);
-                                           float h010 = random(h01+i0.z);
-                                           float h110 = random(h11+i0.z);
-                                           float h001 = random(h00+i1.z);
-                                           float h101 = random(h10+i1.z);
-                                           float h011 = random(h01+i1.z);
-                                           float h111 = random(h11+i1.z);
+                                       
+                                           if(tiling) {
+                                               i0 = mod(i0,freq);
+                                               i0 = mix(i0, i0 + freq, lessThan(i0, float3(0.)));
+                                               i1 = mod(i0+1, freq);
+                                           }
+                                           float h000 = random(i0, seed);
+                                           float h100 = random(i0.0yz+i1.x00, seed);
+                                           float h010 = random(i0.x0z+i1.0y0, seed);
+                                           float h110 = random(i0.00z+i1.xy0, seed);
+                                           float h001 = random(i0.xy0+i1.00z, seed);
+                                           float h101 = random(i0.0y0+i1.x0z, seed);
+                                           float h011 = random(i0.x00+i1.0yz, seed);
+                                           float h111 = random(i1, seed);
                                            float3 dt = quinticDerivative(t);
                                            t = quintic(t);
 
-
-                                           float a = h000;
-                                           float b = h100 - h000;
-                                           float c = h010 - h000;
-                                           float d = h001 - h000;
-                                           float e = h110 - h010 - h100 + h000;
-                                           float f = h101 - h001 - h100 + h000;
-                                           float g = h011 - h001 - h010 + h000;
-                                           float h = h111 - h011 - h101 + h001 - h110 + h010 + h100 - h000;
-
                                            NoiseSample samp;
-
-                                           samp.value =  a + b * t.x + (c + e * t.x) * t.y + (d + f * t.x + (g + h * t.x) * t.y) * t.z;
-                                           samp.derivative.x = (b + e * t.y + (f + h * t.y) * t.z) * dt.x;
-                                           samp.derivative.y = (c + e * t.x + (g + h * t.x) * t.z) * dt.y;
-                                           samp.derivative.z = (d + f * t.x + (g + h * t.x) * t.y) * dt.z;
+                                           samp.value = mix(mix(mix(h000,h100, t.x),mix(h010,h110,t.x),t.y),mix(mix(h001,h101,t.x),mix(h011,h111,t.x),t.y),t.z);
+                                           samp.derivative.x = mix(mix(h100-h000,h110-h010,t.y), mix(h101-h001,h111-h011,t.y), t.z) * dt.x;
+                                           samp.derivative.y = mix(mix(h010-h000,h110-h100,t.x), mix(h011-h001,h111-h101,t.x), t.z) * dt.y;
+                                           samp.derivative.z = mix(mix(h001-h000,h101-h100,t.x), mix(h011-h010,h111-h110,t.x), t.y) * dt.z;
+                                           
                                            samp.derivative *= freq;
-                                           return sub(mul(samp,2),1);
-                                       }
-                                       NoiseSample noiseSelectorD(float3 p, float freq, int d) {
-                                           if (d == 1)
-                                           return value1d(p.x, freq);
-                                           if (d == 2)
-                                           return value2d(p.xy, freq);
-                                           if (d == 3)
-                                           return value3d(p, freq);
-                                           return NoiseSample(0, float3(0));;
+                                           return fma(samp,2,-1);
                                        }
                                        """ + MainShaderCode;
         // valueShader = null;
@@ -429,6 +514,9 @@ public class NoiseNode : RenderNode
         uniforms.Add("iLacunarity", new Uniform("iLacunarity", lacunarity));
         uniforms.Add("iPersistence", new Uniform("iPersistence", persistence));
         uniforms.Add("iDimensions", new Uniform("iDimensions", dimensions));
+        uniforms.Add("iTiling", new Uniform("iTiling", tiling?1:0));
+        uniforms.Add("iPeriod", new Uniform("iPeriod", period));
+        uniforms.Add("iTurbulence", new Uniform("iTurbulence", turbulence?1:0));
         uniforms.Add("iZ", new Uniform("iZ", z));
 
         if (valueShader == null)
@@ -445,176 +533,114 @@ public class NoiseNode : RenderNode
         return valueShader;
     }
 
-    private Shader GetPerlinShader(int dimensions, float frequency, int octaves, float seed, float lacunarity, float persistence, float z)
+    private Shader GetPerlinShader(int dimensions, bool turbulence, bool tiling, float period, float frequency, int octaves, float seed, float lacunarity, float persistence, float z)
     {
-        const string perlinShaderCode = BaseShaderCode+ 
+        const string perlinShaderCode = BaseShaderCode+GradientsCode+
                                         """
-                                        uniform float iSeed;
-                                        uniform float iFrequency;
-                                        uniform int iOctaves;
-                                        uniform float iLacunarity;
-                                        uniform float iPersistence;
-                                        uniform int iDimensions;
-                                        uniform float iZ;
-                                        uniform float2 iResolution;
 
-                                        float gradients1d(float p) {
-                                            return mix(1, -1, mod(floor(p), 2));
-                                        }
-                                        float2 gradients2d(float p) {
-                                            float2 a = float2(normalize(gradients1d(p)),
-                                            normalize(gradients1d(p/2)));
-                                            float c = gradients1d(p);
-                                            float2 b = float2(mix(c.x0, c.0x, mod(floor(p/2), 2)));
-                                            return float2(mix(b, a, mod(floor(p/4), 2)));
-                                        }
-                                        float3 gradients3d(float p) {
-                                            float3 a = float3((gradients1d(p)), (gradients1d(p/2)), 1);
-                                            if (int(mod(p/4, 4)) == 0)
-                                                return a.xy0;
-                                            if (int(mod(p/4, 4)) == 1)
-                                                return a.x0y;
-                                            if (int(mod(p/4, 4)) == 2)
-                                                return a.0xy;
-                                            if (int(mod(p/2, 2)) == 0)
-                                                return a.xy0;
-                                            return a.0xy;
-                                        }
-
-                                        NoiseSample perlin1d(float p, float freq) {
+                                        NoiseSample noise1d(float p, float freq, float seed, bool tiling) {
                                             p *= freq;
                                             float i0 = floor(p.x);
                                             float t0 = fract(p.x);
                                             float t1 = t0 -1;
                                             float i1 = i0+1;
+                                        
+                                            if(tiling) {
+                                                i0 = mod(i0,freq);
+                                                i0 = mix(i0, i0 + freq, i0 < 0.);
+                                                i1 = mod(i0+1, freq);
+                                            }
 
-                                            float g0 = gradients1d(permute(i0));
-                                            float g1 = gradients1d(permute(i1));
+                                            float g0 = gradients1d(permute(i0, seed));
+                                            float g1 = gradients1d(permute(i1, seed));
 
                                             float v0 = g0*t0;
                                             float v1 = g1*t1;
                                             float dt = quinticDerivative(t0);
                                             float t = quintic(t0);
-
-                                            float da = g0;
-                                            float db = g1 - g0;
-
-                                            float a = v0;
-                                            float b = v1-v0;
+                                            
                                             NoiseSample samp;
-                                            samp.value =  a+b*t;
-                                            samp.derivative = float3(0);
-                                            samp.derivative.x = da+db*t+b*dt;
+                                            samp.value =  mix(v0,v1,t);
+                                            samp.derivative = mix(g0,g1,t).x00;
+                                            samp.derivative.x += (v1-v0)*dt;
                                             return mul(samp, 2);
                                         }
 
-                                        NoiseSample perlin2d(float2 p, float freq) {
+                                        NoiseSample noise2d(float2 p, float freq, float seed, bool tiling) {
                                             p *= freq;
                                             float2 i0 = floor(p);
                                             float2 t0 = fract(p);
                                             float2 t1 = t0-1;
                                             float2 i1 = i0+1;
-                                            float h0 = random(i0.x);
-                                            float h1 = random(i1.x);
+                                        
+                                            if(tiling) {
+                                                i0 = mod(i0,freq);
+                                                i0 = mix(i0, i0 + freq, lessThan(i0, float2(0.)));
+                                                i1 = mod(i0+1, freq);
+                                            }
 
-                                            float2 g00 = gradients2d(permute(h0+i0.y));
-                                            float2 g10 = gradients2d(permute(h1+i0.y));
-                                            float2 g01 = gradients2d(permute(h0+i1.y));
-                                            float2 g11 = gradients2d(permute(h1+i1.y));
+                                            float2 g00 = gradients2d(permute2(i0, seed));
+                                            float2 g10 = gradients2d(permute2(i0.0y+i1.x0, seed));
+                                            float2 g01 = gradients2d(permute2(i0.x0+i1.0y, seed));
+                                            float2 g11 = gradients2d(permute2(i1, seed));
 
                                             float v00 = dot(g00, t0);
-                                            float v10 = dot(g10, float2(t1.x, t0.y));
-                                            float v01 = dot(g01, float2(t0.x, t1.y));
+                                            float v10 = dot(g10, t0.0y+t1.x0);
+                                            float v01 = dot(g01, t0.x0+t1.0y);
                                             float v11 = dot(g11, t1);
                                             float2 dt = quinticDerivative(t0);
                                             float2 t = quintic(t0);
-
-                                            float a = v00;
-                                            float b = v10 - v00;
-                                            float c = v01 - v00;
-                                            float d = v11 - v01 - v10 + v00;
-
-                                            float2 da = g00;
-                                            float2 db = g10 - g00;
-                                            float2 dc = g01 - g00;
-                                            float2 dd = g11 - g01 - g10 + g00;
-
                                             NoiseSample samp;
-                                            samp.value = a + b * t.x + (c + d * t.x) * t.y;
-                                            samp.derivative = float3(da + db * t.x + (dc + dd * t.x) * t.y, 0);
-                                            samp.derivative.x += (b + d * t.y) * dt.x;
-                                            samp.derivative.y += (c + d * t.x) * dt.y;
+                                            samp.value = mix(mix(v00,v10,t.x),mix(v01,v11,t.x),t.y);
+                                            samp.derivative = mix(mix(g00,g10,t.x),mix(g01,g11,t.x),t.y).xy0;
+                                            samp.derivative.xy += mix(float2(v10,v01)-v00,v11-float2(v01,v10), dt);
+                                            
                                             samp.derivative *= freq;
                                             return mul(samp, sqr2);
                                         }
-                                        NoiseSample perlin3d(float3 p, float freq) {
+                                        NoiseSample noise3d(float3 p, float freq, float seed, bool tiling) {
                                             p *= freq;
                                             float3 i0 = floor(p);
                                             float3 t0 = fract(p);
                                             float3 i1 = i0+1;
                                             float3 t1 = t0 -1;
-                                            float h0 = permute(i0.x);
-                                            float h1 = permute(i1.x);
-                                            float h00 = permute(h0+i0.y);
-                                            float h10 = permute(h1+i0.y);
-                                            float h01 = permute(h0+i1.y);
-                                            float h11 = permute(h1+i1.y);
-
-                                            float3 g000 = gradients3d(random(h00+i0.z)*255);
-                                            float3 g100 = gradients3d(random(h10+i0.z)*255);
-                                            float3 g010 = gradients3d(random(h01+i0.z)*255);
-                                            float3 g110 = gradients3d(random(h11+i0.z)*255);
-                                            float3 g001 = gradients3d(random(h00+i1.z)*255);
-                                            float3 g101 = gradients3d(random(h10+i1.z)*255);
-                                            float3 g011 = gradients3d(random(h01+i1.z)*255);
-                                            float3 g111 = gradients3d(random(h11+i1.z)*255);
+                                        
+                                            if(tiling) {
+                                                i0 = mod(i0,freq);
+                                                i0 = mix(i0, i0 + freq, lessThan(i0, float3(0.)));
+                                                i1 = mod(i0+1, freq);
+                                            }
+                                            
+                                            float3 g000 = gradients3d(random(i0)*255);
+                                            float3 g100 = gradients3d(random(i0.0yz+i1.x00)*255);
+                                            float3 g010 = gradients3d(random(i0.x0z+i1.0y0)*255);
+                                            float3 g110 = gradients3d(random(i0.00z+i1.xy0)*255);
+                                            float3 g001 = gradients3d(random(i0.xy0+i1.00z)*255);
+                                            float3 g101 = gradients3d(random(i0.0y0+i1.x0z)*255);
+                                            float3 g011 = gradients3d(random(i0.x00+i1.0yz)*255);
+                                            float3 g111 = gradients3d(random(i1)*255);
 
                                             float v000 = dot(g000, t0);
-                                            float v100 = dot(g100, float3(t1.x, t0.y, t0.z));
-                                            float v010 = dot(g010, float3(t0.x, t1.y, t0.z));
-                                            float v110 = dot(g110, float3(t1.xy, t0.z));
-                                            float v001 = dot(g001, float3(t0.xy, t1.z));
-                                            float v101 = dot(g101, float3(t1.x, t0.y, t1.z));
-                                            float v011 = dot(g011, float3(t0.x, t1.y, t1.z));
+                                            float v100 = dot(g100, t0.0yz+t1.x00);
+                                            float v010 = dot(g010, t0.x0z+t1.0y0);
+                                            float v110 = dot(g110, t0.00z+t1.xy0);
+                                            float v001 = dot(g001, t0.xy0+t1.00z);
+                                            float v101 = dot(g101, t0.0y0+t1.x0z);
+                                            float v011 = dot(g011, t0.x00+t1.0yz);
                                             float v111 = dot(g111, t1);
                                             float3 dt = quinticDerivative(t0);
                                             float3 t = quintic(t0);
-
-                                            float a = v000;
-                                            float b = v100 - v000;
-                                            float c = v010 - v000;
-                                            float d = v001 - v000;
-                                            float e = v110 - v010 - v100 + v000;
-                                            float f = v101 - v001 - v100 + v000;
-                                            float g = v011 - v001 - v010 + v000;
-                                            float h = v111 - v011 - v101 + v001 - v110 + v010 + v100 - v000;
-
-                                            float3 da = g000;
-                                            float3 db = g100 - g000;
-                                            float3 dc = g010 - g000;
-                                            float3 dd = g001 - g000;
-                                            float3 de = g110 - g010 - g100 + g000;
-                                            float3 df = g101 - g001 - g100 + g000;
-                                            float3 dg = g011 - g001 - g010 + g000;
-                                            float3 dh = g111 - g011 - g101 + g001 - g110 + g010 + g100 - g000;
-
+                                            
                                             NoiseSample samp;
-                                            samp.value = a + b * t.x + (c + e * t.x) * t.y + (d + f * t.x + (g + h * t.x) * t.y) * t.z;
-                                            samp.derivative = da + db * t.x + (dc + de * t.x) * t.y + (dd + df * t.x + (dg + dh * t.x) * t.y) * t.z;
-                                            samp.derivative.x += (b + e * t.y + (f + h * t.y) * t.z) * dt.x;
-                                            samp.derivative.y += (c + e * t.x + (g + h * t.x) * t.z) * dt.y;
-                                            samp.derivative.z += (d + f * t.x + (g + h * t.x) * t.y) * dt.z;
+                                            samp.value = mix(mix(mix(v000,v100, t.x),mix(v010,v110,t.x),t.y),mix(mix(v001,v101,t.x),mix(v011,v111,t.x),t.y),t.z);
+                                            samp.derivative = mix(mix(mix(g000,g100, t.x), mix(g010,g110,t.x), t.y), mix(mix(g001,g101,t.x),mix(g011,g111,t.x),t.y),t.z);
+                                            samp.derivative.x += mix(mix(v100-v000,v110-v010,t.y), mix(v101-v001,v111-v011,t.y), t.z) * dt.x;
+                                            samp.derivative.y += mix(mix(v010-v000,v110-v100,t.x), mix(v011-v001,v111-v101,t.x), t.z) * dt.y;
+                                            samp.derivative.z += mix(mix(v001-v000,v101-v100,t.x), mix(v011-v010,v111-v110,t.x), t.y) * dt.z;
+                                        
+                                            
                                             samp.derivative *= freq;
                                             return samp;
-                                        }
-                                        NoiseSample noiseSelectorD(float3 p, float freq, int d) {
-                                            if (d == 1)
-                                            return perlin1d(p.x, freq);
-                                            if (d == 2)
-                                            return perlin2d(p.xy, freq);
-                                            if (d == 3)
-                                            return perlin3d(p, freq);
-                                            return NoiseSample(0, float3(0));;
                                         }
                                         """ + MainShaderCode;
         // valueShader = null;
@@ -625,8 +651,11 @@ public class NoiseNode : RenderNode
         uniforms.Add("iLacunarity", new Uniform("iLacunarity", lacunarity));
         uniforms.Add("iPersistence", new Uniform("iPersistence", persistence));
         uniforms.Add("iDimensions", new Uniform("iDimensions", dimensions));
+        
+        uniforms.Add("iTiling", new Uniform("iTiling", tiling?1:0));
+        uniforms.Add("iPeriod", new Uniform("iPeriod", period));
+        uniforms.Add("iTurbulence", new Uniform("iTurbulence", turbulence?1:0));
         uniforms.Add("iZ", new Uniform("iZ", z));
-
         if (perlinShader == null)
         {
             perlinShader = Shader.Create(perlinShaderCode, uniforms, out var errors);
@@ -641,191 +670,169 @@ public class NoiseNode : RenderNode
         return perlinShader;
     }
 
-     private Shader GetSimplexGradientShader(int dimensions, float frequency, int octaves, float seed, float lacunarity, float persistence, float z)
+     private Shader GetSimplexGradientShader(int dimensions, bool turbulence, bool tiling, float frequency, int octaves, float seed, float lacunarity, float persistence, float z)
     {
-        const string simplexGradientShaderCode = BaseShaderCode+ 
+        const string simplexGradientShaderCode = BaseShaderCode+GradientsCode+ 
                                        """
-                                       uniform float iSeed;
-                                       uniform float iFrequency;
-                                       uniform int iOctaves;
-                                       uniform float iLacunarity;
-                                       uniform float iPersistence;
-                                       uniform int iDimensions;
-                                       uniform float iZ;
-                                       uniform float2 iResolution;
                                        
-                                       const float squaresToTriangles = (3-sqrt(3))/6.;
-                                       const float trianglesToSquares = (sqrt(3)-1)/2.;
+                                       const float2 squaresToTriangles = float2((3-sqrt(3))/6.);
+                                       const float2 trianglesToSquares = float2((sqrt(3)-1)/2.);
                                        
-                                       float gradients1d(float p) {
-                                           return mix(1, -1, mod(floor(p), 2));
-                                       }
-                                       float2 gradients2d(float p) {
-                                           float2 a = float2(normalize(gradients1d(p)),
-                                           normalize(gradients1d(p/2)));
-                                           float c = gradients1d(p);
-                                           float2 b = float2(mix(c.x0, c.0x, mod(floor(p/2), 2)));
-                                           return float2(mix(b, a, mod(floor(p/4), 2)));
-                                       }
-                                       float3 gradients3d(float p) {
-                                           float3 a = float3((gradients1d(p)), (gradients1d(p/2)), 1);
-                                           if (int(mod(p/4, 4)) == 0)
-                                               return a.xy0;
-                                           if (int(mod(p/4, 4)) == 1)
-                                               return a.x0y;
-                                           if (int(mod(p/4, 4)) == 2)
-                                               return a.0xy;
-                                           if (int(mod(p/2, 2)) == 0)
-                                               return a.xy0;
-                                           return a.0xy;
-                                       }
-                                       float3 simplexGradients3d(float p)
-                                       {
-                                           float3 a = float3(gradients1d(p),gradients1d(p/2),gradients1d(p/4));
-                                       	float a4 = mod(floor(p / 4), 3);
-                                       	if (floor(p / 24) > 0)
-                                       		return a;
-                                       	if (a4 == 0)
-                                       		return a.xy0;
-                                       	if (a4 == 1)
-                                       		return a.x0y;
-                                       	return a.0xy;
-                                       }
-
+                                       const float3[32] simplexGradients3D = float3[32](
+                                       	normalize(float3( 1., 1., 0.)),
+                                       	normalize(float3(-1., 1., 0.)),
+                                       	normalize(float3( 1.,-1., 0.)),
+                                       	normalize(float3(-1.,-1., 0.)),
+                                       	normalize(float3( 1., 0., 1.)),
+                                       	normalize(float3(-1., 0., 1.)),
+                                       	normalize(float3( 1., 0.,-1.)),
+                                       	normalize(float3(-1., 0.,-1.)),
+                                       	normalize(float3( 0., 1., 1.)),
+                                       	normalize(float3( 0.,-1., 1.)),
+                                       	normalize(float3( 0., 1.,-1.)),
+                                       	normalize(float3( 0.,-1.,-1.)),
+                                       	
+                                       	normalize(float3( 1., 1., 0.)),
+                                       	normalize(float3(-1., 1., 0.)),
+                                       	normalize(float3( 1.,-1., 0.)),
+                                       	normalize(float3(-1.,-1., 0.)),
+                                       	normalize(float3( 1., 0., 1.)),
+                                       	normalize(float3(-1., 0., 1.)),
+                                       	normalize(float3( 1., 0.,-1.)),
+                                       	normalize(float3(-1., 0.,-1.)),
+                                       	normalize(float3( 0., 1., 1.)),
+                                       	normalize(float3( 0.,-1., 1.)),
+                                       	normalize(float3( 0., 1.,-1.)),
+                                       	normalize(float3( 0.,-1.,-1.)),
+                                       	
+                                       	normalize(float3( 1., 1., 1.)),
+                                       	normalize(float3(-1., 1., 1.)),
+                                       	normalize(float3( 1.,-1., 1.)),
+                                       	normalize(float3(-1.,-1., 1.)),
+                                       	normalize(float3( 1., 1.,-1.)),
+                                       	normalize(float3(-1., 1.,-1.)),
+                                       	normalize(float3( 1.,-1.,-1.)),
+                                       	normalize(float3(-1.,-1.,-1.))
+                                       );
+                                       const int simplexGradientsMask3D = 31;
+                                       inline float3 simplexGradients3d(int p) { return simplexGradients3D[p&simplexGradientsMask3D]; }
+                                       inline float3 simplexGradients3d(float p) { return simplexGradients3d(int(p)); }
                                        
-                                       NoiseSample simplexGradient1dPart(float p, float i) {
+                                       NoiseSample simplexGradient1dPart(float p, float i, float seed) {
                                            float x = p-i;
+                                           
                                            float f = 1-x*x;
                                            float f2 = f*f;
                                            float f3 = f*f2;
-                                           float g = gradients1d(random(i));
+                                           float g = gradients1d(int(permute(i, seed)));
                                            float v = g*x;
                                            NoiseSample samp;
                                            samp.value = v*f3;
                                            samp.derivative.x = g*f3-6.*v*x*f2;
                                            return samp;
                                        }
-                                       NoiseSample simplexGradient1d(float p, float freq) {
+                                       NoiseSample noise1d(float p, float freq, float seed, bool tiling) {
                                            p *= freq;
                                            float i = floor(p);
-                                           NoiseSample samp = simplexGradient1dPart(p,i);
-                                           samp = add(samp, simplexGradient1dPart(p,i+1));
+                                           NoiseSample samp = simplexGradient1dPart(p,i, seed);
+                                           samp = add(samp, simplexGradient1dPart(p,i+1, seed));
                                            samp.derivative *= freq;
-                                           return sub(mul(samp,2),1);
+                                           return mul(samp,64./27.);
                                        }
                                        const float simplexScale2D = 2916.* sqr2 / 125.;
                                        
-                                       NoiseSample simplexGradient2dPart(float2 p, float2 i) {
-                                           float unskew = (i.x+i.y)*squaresToTriangles;
+                                       NoiseSample simplexGradient2dPart(float2 p, float2 i, float seed) {
+                                           float unskew = dot(i,squaresToTriangles);
                                            float2 x = p-i+unskew;
-                                           float f = 0.5-x.x*x.x-x.y*x.y;
+                                           float f = 0.5-dot(-x,x);
                                        
                                            NoiseSample samp = NoiseSample(0,float3(0));
                                            if(f>0) {
                                                float f2 = f*f;
                                                float f3 = f*f2;
-                                               float2 g = gradients2d(random(i));
-                                               float v = dot(g,x.xy);
+                                               float2 g = gradients2d(int(permute2(i, seed)));
+                                               float v = dot(g,x);
                                                float v6f2 = -6. * v * f2;
                                                samp.value = v*f3;
-                                               samp.derivative.x = g.x*f3+v6f2*x.x;
-                                               samp.derivative.y = g.y*f3+v6f2*x.y;
+                                               samp.derivative.xy = g*f3+v6f2*x;
                                            }
                                            return samp;
                                        }
-                                       NoiseSample simplexGradient2dPart(float2 p, float ix, float iy) {
-                                           return simplexGradient2dPart(p,float2(ix,iy));
-                                       }
                                        
-                                       NoiseSample simplexGradient2d(float2 p, float freq) {
+                                       NoiseSample noise2d(float2 p, float freq, float seed, bool tiling) {
                                            p *= freq;
-                                           float skew = (p.x+p.y)*trianglesToSquares;
+                                           float skew = dot(p,trianglesToSquares);
                                            float2 s = p+skew;
                                            float2 i = floor(s);
-                                           NoiseSample samp = simplexGradient2dPart(p,i);
-                                           samp = add(samp, simplexGradient2dPart(p,i+1));
+                                           NoiseSample samp = simplexGradient2dPart(p,i,seed);
+                                           samp = add(samp, simplexGradient2dPart(p,i+1,seed));
                                            if(s.x - i.x >= s.y - i.y) {
-                                               samp = add(samp,simplexGradient2dPart(p,i.x+1,i.y));
+                                               samp = add(samp,simplexGradient2dPart(p,float2(i.x+1,i.y),seed));
                                            } else {
-                                               samp = add(samp,simplexGradient2dPart(p,i.x,i.y+1));
+                                               samp = add(samp,simplexGradient2dPart(p,float2(i.x,i.y+1), seed));
                                            }
                                            samp.derivative *= freq;
                                            return mul(samp,simplexScale2D);
                                        }
                                        
                                        
-                                       NoiseSample simplexGradient3dPart(float3 p, float3 i) {
-                                           float unskew = (i.x+i.y+i.z)*(1./6.);
+                                       NoiseSample simplexGradient3dPart(float3 p, float3 i, float seed) {
+                                           float unskew = dot(i,float3(1./6.));
                                            float3 x = p-i+unskew;
-                                           float f = 0.5-x.x*x.x-x.y*x.y-x.z*x.z;
+                                           float f = 0.5+dot(-x,x);
                                        
                                            NoiseSample samp = NoiseSample(0,float3(0));
                                            if(f>0) {
                                                float f2 = f*f;
                                                float f3 = f*f2;
-                                               float3 g = simplexGradients3d(random(i));
+                                               float3 g = simplexGradients3d(int(permute2(i, seed)));
                                                float v = dot(g,x);
                                                float v6f2 = -6. * v * f2;
                                                samp.value = v*f3;
-                                               samp.derivative.x =g.x*f3+v6f2*x.x;
-                                               samp.derivative.y = g.y*f3+v6f2*x.y;
-                                               samp.derivative.z = g.z*f3+v6f2*x.z;
+                                               samp.derivative = g*f3+v6f2*x;
                                            }
                                            return samp;
                                        }
-                                       NoiseSample simplexGradient3dPart(float3 p, float ix, float iy, float iz) {
-                                           return simplexGradient3dPart(p,float3(ix,iy,iz));
-                                       }
                                        const float simplexScale3D = 8192. * sqrt(3) / 375.;
-                                       NoiseSample simplexGradient3d(float3 p, float freq) {
+                                       NoiseSample noise3d(float3 p, float freq, float seed, bool tiling) {
                                            p *= freq;
-                                           float skew = (p.x+p.y+p.z)*(1./3.);
+                                           float skew = dot(p,float3(1./3.));
                                            float3 s = p+skew;
                                            float3 i = floor(s);
                                            float3 x = s-i;
-                                           NoiseSample samp = simplexGradient3dPart(p,i);
-                                           samp = add(samp, simplexGradient3dPart(p,i+1));
+                                           NoiseSample samp = simplexGradient3dPart(p,i, seed);
+                                           samp = add(samp, simplexGradient3dPart(p,i+1, seed));
                                            if(x.x >= x.y) {
                                                if(x.x>=x.z) {
-                                                   samp = add(samp,simplexGradient3dPart(p,i.x+1,i.y,i.z));
+                                                   samp = add(samp,simplexGradient3dPart(p,i+float3(1,0,0), seed));
                                                    if(x.y>=x.z) {
-                                                       samp = add(samp, simplexGradient3dPart(p,i.x+1,i.y+1,i.z));
+                                                       samp = add(samp, simplexGradient3dPart(p,i+float3(1,1,0), seed));
                                                    }
                                                    else {
-                                                       samp = add(samp, simplexGradient3dPart(p,i.x+1,i.y,i.z+1));
+                                                       samp = add(samp, simplexGradient3dPart(p,i+float3(1,0,1), seed));
                                                    }
                                                }
                                                else {
-                                                   samp = add(samp,simplexGradient3dPart(p,i.x,i.y,i.z+1));
-                                                   samp = add(samp,simplexGradient3dPart(p,i.x+1,i.y,i.z+1));
+                                                   samp = add(samp,simplexGradient3dPart(p,i+float3(0,0,1), seed));
+                                                   samp = add(samp,simplexGradient3dPart(p,i+float3(1,0,1), seed));
                                                }
                                            } else {
                                                if(x.y>=x.z) {
-                                                   samp = add(samp,simplexGradient3dPart(p,i.x,i.y+1,i.z));
+                                                   samp = add(samp,simplexGradient3dPart(p,i+float3(0,1,0), seed));
                                                    if(x.x>=x.z) {
-                                                       samp = add(samp, simplexGradient3dPart(p,i.x+1,i.y+1,i.z));
+                                                       samp = add(samp, simplexGradient3dPart(p,i+float3(1,1,0), seed));
                                                    }
                                                    else {
-                                                       samp = add(samp, simplexGradient3dPart(p,i.x,i.y+1,i.z+1));
+                                                       samp = add(samp, simplexGradient3dPart(p,i+float3(0,1,1), seed));
                                                    }
                                                }
                                                else {
-                                                   samp = add(samp,simplexGradient3dPart(p,i.x,i.y,i.z+1));
-                                                   samp = add(samp,simplexGradient3dPart(p,i.x,i.y+1,i.z+1));
+                                                   samp = add(samp,simplexGradient3dPart(p,i+float3(0,0,1), seed));
+                                                   samp = add(samp,simplexGradient3dPart(p,i+float3(0,1,1), seed));
                                                }
                                            }
                                            samp.derivative *= freq;
                                            return mul(samp,simplexScale3D);
-                                       }
-                                       
-                                       NoiseSample noiseSelectorD(float3 p, float freq, int d) {
-                                           if (d == 1)
-                                           return simplexGradient1d(p.x, freq);
-                                           if (d == 2)
-                                           return simplexGradient2d(p.xy, freq);
-                                           if (d == 3)
-                                           return simplexGradient3d(p, freq);
-                                           return NoiseSample(0, float3(0));;
                                        }
                                        """ + MainShaderCode;
         // valueShader = null;
@@ -836,6 +843,9 @@ public class NoiseNode : RenderNode
         uniforms.Add("iLacunarity", new Uniform("iLacunarity", lacunarity));
         uniforms.Add("iPersistence", new Uniform("iPersistence", persistence));
         uniforms.Add("iDimensions", new Uniform("iDimensions", dimensions));
+        
+        uniforms.Add("iTiling", new Uniform("iTiling", tiling?1:0));
+        uniforms.Add("iTurbulence", new Uniform("iTurbulence", turbulence?1:0));
         uniforms.Add("iZ", new Uniform("iZ", z));
 
         if (simplexGradientShader == null)
@@ -852,155 +862,134 @@ public class NoiseNode : RenderNode
         return simplexGradientShader;
     }
 
-     private Shader GetSimplexValueShader(int dimensions, float frequency, int octaves, float seed, float lacunarity, float persistence, float z)
+     private Shader GetSimplexValueShader(int dimensions, bool turbulence, bool tiling, float frequency, int octaves, float seed, float lacunarity, float persistence, float z)
     {
         string simplexValueShaderCode = BaseShaderCode+ 
                                               """
-                                              uniform float iSeed;
-                                              uniform float iFrequency;
-                                              uniform int iOctaves;
-                                              uniform float iLacunarity;
-                                              uniform float iPersistence;
-                                              uniform int iDimensions;
-                                              uniform float iZ;
-                                              uniform float2 iResolution;
                                               
-                                              const float squaresToTriangles = (3-sqrt(3))/6.;
-                                              const float trianglesToSquares = (sqrt(3)-1)/2.;
+                                              const float2 squaresToTriangles = float2((3-sqrt(3))/6.);
+                                              const float2 trianglesToSquares = float2((sqrt(3)-1)/2.);
                                               
-                                              NoiseSample simplexValue1dPart(float p, float i) {
+                                              NoiseSample simplexValue1dPart(float p, float i, float seed) {
                                                   float x = p-i;
                                                   float f = 1-x*x;
                                                   float f2 = f*f;
                                                   float f3 = f*f2;
-                                                  float h = random(i);
+                                                  float h = random(i, seed);
                                                   NoiseSample samp;
                                                   samp.value = h*f3;
                                                   samp.derivative.x = -6.*h*x*f2;
                                                   return samp;
                                               }
 
-                                              NoiseSample simplexValue1d(float p, float freq) {
+                                              NoiseSample noise1d(float p, float freq, float seed, bool tiling) {
                                                   p *= freq;
                                                   float i = floor(p);
-                                                  NoiseSample samp = simplexValue1dPart(p,i);
-                                                  samp = add(samp, simplexValue1dPart(p,i+1));
+                                                  NoiseSample samp = simplexValue1dPart(p,i, seed);
+                                                  samp = add(samp, simplexValue1dPart(p,i+1, seed));
                                                   samp.derivative *= freq;
-                                                  return sub(mul(samp,2),1);
+                                                  return fma(samp,2,-1);
                                               }
                                               
-                                              NoiseSample simplexValue2dPart(float2 p, float2 i) {
-                                                  float unskew = (i.x+i.y)*squaresToTriangles;
+                                              NoiseSample simplexValue2dPart(float2 p, float2 i, float seed) {
+                                                  float unskew = dot(i,squaresToTriangles);
                                                   float2 x = p-i+unskew;
-                                                  float f = 0.5-x.x*x.x-x.y*x.y;
+                                                  float f = 0.5+dot(-x,x);
                                               
                                                   NoiseSample samp = NoiseSample(0,float3(0));
                                                   if(f>0) {
                                                       float f2 = f*f;
                                                       float f3 = f*f2;
-                                                      float h = random(i);
+                                                      float h = random(i, seed);
                                                       float h6f2 = -6. * h * f2;
                                                       samp.value = h*f3;
-                                                      samp.derivative.x = h6f2*x.x;
-                                                      samp.derivative.y = h6f2*x.y;
+                                                      samp.derivative.xy = h6f2*x;
                                                   }
                                                   return samp;
                                               }
-                                              NoiseSample simplexValue2dPart(float2 p, float ix, float iy) {
-                                                  return simplexValue2dPart(p,float2(ix,iy));
-                                              }
                                               
-                                              NoiseSample simplexValue2d(float2 p, float freq) {
+                                              NoiseSample noise2d(float2 p, float freq, float seed, bool tiling) {
                                                   p *= freq;
-                                                  float skew = (p.x+p.y)*trianglesToSquares;
+                                                  float skew = dot(p,trianglesToSquares);
                                                   float2 s = p+skew;
                                                   float2 i = floor(s);
-                                                  NoiseSample samp = simplexValue2dPart(p,i);
-                                                  samp = add(samp, simplexValue2dPart(p,i+1));
+                                                  NoiseSample samp = simplexValue2dPart(p,i,seed);
+                                                  samp = add(samp, simplexValue2dPart(p,i+1,seed));
                                                   if(s.x - i.x >= s.y - i.y)
-                                                      samp = add(samp,simplexValue2dPart(p,i.x+1,i.y));
+                                                      samp = add(samp,simplexValue2dPart(p,i+float2(1,0),seed));
                                                   else 
-                                                      samp = add(samp,simplexValue2dPart(p,i.x,i.y+1));
+                                                      samp = add(samp,simplexValue2dPart(p,i+float2(0,1),seed));
                                                   
                                                   samp.derivative *= freq;
-                                                  return sub(mul(samp,8*2),1);
+                                                  return fma(samp,8*2,-1);
                                               }
-                                              NoiseSample simplexValue3dPart(float3 p, float3 i) {
-                                                  float unskew = (i.x+i.y+i.z)*(1./6.);
+                                              NoiseSample simplexValue3dPart(float3 p, float3 i, float seed) {
+                                                  float unskew = dot(i,float3(1./6.));
                                                   float3 x = p-i+unskew;
-                                                  float f = 0.5-x.x*x.x-x.y*x.y-x.z*x.z;
+                                                  float f = 0.5+dot(-x,x);
                                               
                                                   NoiseSample samp = NoiseSample(0,float3(0));
                                                   if(f>0) {
                                                       float f2 = f*f;
                                                       float f3 = f*f2;
-                                                      float h = random(i);
+                                                      float h = random(i, seed);
                                                       float h6f2 = -6. * h * f2;
                                                       samp.value = h*f3;
-                                                      samp.derivative.x = h6f2*x.x;
-                                                      samp.derivative.y = h6f2*x.y;
-                                                      samp.derivative.z = h6f2*x.z;
+                                                      samp.derivative = h6f2*x;
                                                   }
                                                   return samp;
                                               }
                                               
-                                              NoiseSample simplexValue3d(float3 p, float freq) {
+                                              NoiseSample noise3d(float3 p, float freq, float seed, bool tiling) {
                                                   p *= freq;
-                                                  float skew = (p.x+p.y+p.z)*(1./3.);
+                                                  float skew = dot(p,float3(1./3.));
                                                   float3 s = p+skew;
                                                   float3 i = floor(s);
                                                   float3 x = s-i;
-                                                  NoiseSample samp = simplexValue3dPart(p,i);
-                                                  samp = add(samp, simplexValue3dPart(p,i+1));
+                                                  NoiseSample samp = simplexValue3dPart(p,i, seed);
+                                                  samp = add(samp, simplexValue3dPart(p,i+1, seed));
                                                   if(x.x >= x.y) {
                                                       if(x.x>=x.z) {
-                                                          samp = add(samp,simplexValue3dPart(p,float3(i.x+1,i.y,i.z)));
+                                                          samp = add(samp,simplexValue3dPart(p,i+float3(1,0,0), seed));
                                                           if(x.y>=x.z)
-                                                          samp = add(samp, simplexValue3dPart(p,float3(i.x+1,i.y+1,i.z)));
+                                                          samp = add(samp, simplexValue3dPart(p,i+float3(1,1,0), seed));
                                                           else
-                                                          samp = add(samp, simplexValue3dPart(p,float3(i.x+1,i.y,i.z+1)));
+                                                          samp = add(samp, simplexValue3dPart(p,i+float3(1,0,1), seed));
                                                       }
                                                       else {
-                                                          samp = add(samp,simplexValue3dPart(p,float3(i.x,i.y,i.z+1)));
-                                                          samp = add(samp,simplexValue3dPart(p,float3(i.x+1,i.y,i.z+1)));
+                                                          samp = add(samp,simplexValue3dPart(p,i+float3(0,0,1), seed));
+                                                          samp = add(samp,simplexValue3dPart(p,i+float3(1,0,1), seed));
                                                       }
                                                   } else {
                                                       if(x.y>=x.z) {
-                                                          samp = add(samp,simplexValue3dPart(p,float3(i.x,i.y+1,i.z)));
+                                                          samp = add(samp,simplexValue3dPart(p,i+float3(0,1,0), seed));
                                                           if(x.x>=x.z)
-                                                          samp = add(samp, simplexValue3dPart(p,float3(i.x+1,i.y+1,i.z)));
+                                                          samp = add(samp, simplexValue3dPart(p,i+float3(1,1,0), seed));
                                                           else
-                                                          samp = add(samp, simplexValue3dPart(p,float3(i.x,i.y+1,i.z+1)));
+                                                          samp = add(samp, simplexValue3dPart(p,i+float3(0,1,1), seed));
                                                       }
                                                       else {
-                                                          samp = add(samp,simplexValue3dPart(p,float3(i.x,i.y,i.z+1)));
-                                                          samp = add(samp,simplexValue3dPart(p,float3(i.x,i.y+1,i.z+1)));
+                                                          samp = add(samp,simplexValue3dPart(p,i+float3(0,0,1), seed));
+                                                          samp = add(samp,simplexValue3dPart(p,i+float3(0,1,1), seed));
                                                       }
                                                   }
                                                   samp.derivative *= freq;
-                                                  return sub(mul(samp,8*2),1);
-                                              }
-                                              
-                                              
-                                              NoiseSample noiseSelectorD(float3 p, float freq, int d) {
-                                                  if (d == 1)
-                                                  return simplexValue1d(p.x, freq);
-                                                  if (d == 2)
-                                                  return simplexValue2d(p.xy, freq);
-                                                  if (d == 3)
-                                                  return simplexValue3d(p, freq);
-                                                  return NoiseSample(0, float3(0));;
+                                                  return fma(samp,8*2,-1);
                                               }
                                               """
                                               + MainShaderCode;
         // valueShader = null;
         Uniforms uniforms = new Uniforms();
+
         uniforms.Add("iSeed", new Uniform("iSeed", seed));
         uniforms.Add("iFrequency", new Uniform("iFrequency", frequency));
         uniforms.Add("iOctaves", new Uniform("iOctaves", octaves));
         uniforms.Add("iLacunarity", new Uniform("iLacunarity", lacunarity));
         uniforms.Add("iPersistence", new Uniform("iPersistence", persistence));
         uniforms.Add("iDimensions", new Uniform("iDimensions", dimensions));
+        
+        uniforms.Add("iTiling", new Uniform("iTiling", tiling?1:0));
+        uniforms.Add("iTurbulence", new Uniform("iTurbulence", turbulence?1:0));
         uniforms.Add("iZ", new Uniform("iZ", z));
 
         if (simplexValueShader == null)
@@ -1016,11 +1005,156 @@ public class NoiseNode : RenderNode
 
         return simplexValueShader;
     }
-
-    
-    
-    private Shader GetVoronoiShader(float frequency, int octaves, float seed, int feature, float randomness,
+     
+    private Shader GetFractalVoronoiShader(int dimensions, bool turbulence, bool tiling, float frequency, int octaves, float seed, int feature, float randomness,
         float angleOffset, float lacunarity, float persistence)
+    {
+        string voronoiShaderCode = BaseShaderCode+
+                                   """
+                                   uniform float iRandomness;
+                                   uniform int iFeature;
+                                   uniform float iAngleOffset;
+                                   const float2 squaresToTriangles = float2((3-sqrt(3))/6.);
+                                   const float2 trianglesToSquares = float2((sqrt(3)-1)/2.);
+                                   
+                                   NoiseSample simplexValue1dPart(float p, float i, float seed) {
+                                       float x = p-i;
+                                       float f = 1-x*x;
+                                       float f2 = f*f;
+                                       float f3 = f*f2;
+                                       float h = random(i, seed);
+                                       NoiseSample samp;
+                                       samp.value = h*f3;
+                                       samp.derivative.x = -6.*h*x*f2;
+                                       return samp;
+                                   }
+                                   
+                                   NoiseSample noise1d(float p, float freq, float seed, bool tiling) {
+                                       p *= freq;
+                                       float i = floor(p);
+                                       NoiseSample samp = simplexValue1dPart(p,i, seed);
+                                       samp = add(samp, simplexValue1dPart(p,i+1, seed));
+                                       samp.derivative *= freq;
+                                       return fma(samp,2,-1);
+                                   }
+                                   
+                                   NoiseSample simplexValue2dPart(float2 p, float2 i, float seed) {
+                                       float unskew = dot(i,squaresToTriangles);
+                                       float2 x = p-i+unskew;
+                                       float f = 0.5+dot(-x,x);
+                                   
+                                       NoiseSample samp = NoiseSample(0,float3(0));
+                                       if(f>0) {
+                                           float f2 = f*f;
+                                           float f3 = f*f2;
+                                           float h = random(i, seed);
+                                           float h6f2 = -6. * h * f2;
+                                           samp.value = h*f3;
+                                           samp.derivative.xy = h6f2*x;
+                                       }
+                                       return samp;
+                                   }
+                                   
+                                   NoiseSample noise2d(float2 p, float freq, float seed, bool tiling) {
+                                       p *= freq;
+                                       float skew = dot(p,trianglesToSquares);
+                                       float2 s = p+skew;
+                                       float2 i = floor(s);
+                                       NoiseSample samp = simplexValue2dPart(p,i,seed);
+                                       samp = add(samp, simplexValue2dPart(p,i+1,seed));
+                                       if(s.x - i.x >= s.y - i.y)
+                                           samp = add(samp,simplexValue2dPart(p,i+float2(1,0),seed));
+                                       else 
+                                           samp = add(samp,simplexValue2dPart(p,i+float2(0,1),seed));
+                                       
+                                       samp.derivative *= freq;
+                                       return fma(samp,8*2,-1);
+                                   }
+                                   NoiseSample simplexValue3dPart(float3 p, float3 i, float seed) {
+                                       float unskew = dot(i,float3(1./6.));
+                                       float3 x = p-i+unskew;
+                                       float f = 0.5+dot(-x,x);
+                                   
+                                       NoiseSample samp = NoiseSample(0,float3(0));
+                                       if(f>0) {
+                                           float f2 = f*f;
+                                           float f3 = f*f2;
+                                           float h = random(i, seed);
+                                           float h6f2 = -6. * h * f2;
+                                           samp.value = h*f3;
+                                           samp.derivative = h6f2*x;
+                                       }
+                                       return samp;
+                                   }
+                                   
+                                   NoiseSample noise3d(float3 p, float freq, float seed, bool tiling) {
+                                       p *= freq;
+                                       float skew = dot(p,float3(1./3.));
+                                       float3 s = p+skew;
+                                       float3 i = floor(s);
+                                       float3 x = s-i;
+                                       NoiseSample samp = simplexValue3dPart(p,i, seed);
+                                       samp = add(samp, simplexValue3dPart(p,i+1, seed));
+                                       if(x.x >= x.y) {
+                                           if(x.x>=x.z) {
+                                               samp = add(samp,simplexValue3dPart(p,i+float3(1,0,0), seed));
+                                               if(x.y>=x.z)
+                                               samp = add(samp, simplexValue3dPart(p,i+float3(1,1,0), seed));
+                                               else
+                                               samp = add(samp, simplexValue3dPart(p,i+float3(1,0,1), seed));
+                                           }
+                                           else {
+                                               samp = add(samp,simplexValue3dPart(p,i+float3(0,0,1), seed));
+                                               samp = add(samp,simplexValue3dPart(p,i+float3(1,0,1), seed));
+                                           }
+                                       } else {
+                                           if(x.y>=x.z) {
+                                               samp = add(samp,simplexValue3dPart(p,i+float3(0,1,0), seed));
+                                               if(x.x>=x.z)
+                                               samp = add(samp, simplexValue3dPart(p,i+float3(1,1,0), seed));
+                                               else
+                                               samp = add(samp, simplexValue3dPart(p,i+float3(0,1,1), seed));
+                                           }
+                                           else {
+                                               samp = add(samp,simplexValue3dPart(p,i+float3(0,0,1), seed));
+                                               samp = add(samp,simplexValue3dPart(p,i+float3(0,1,1), seed));
+                                           }
+                                       }
+                                       samp.derivative *= freq;
+                                       return fma(samp,8*2,-1);
+                                   }
+                                   """
+                                   + MainShaderCode;
+
+        Uniforms uniforms = new Uniforms();
+        uniforms.Add("iSeed", new Uniform("iSeed", seed));
+        uniforms.Add("iFrequency", new Uniform("iFrequency", frequency));
+        uniforms.Add("iOctaves", new Uniform("iOctaves", octaves));
+        uniforms.Add("iRandomness", new Uniform("iRandomness", randomness));
+        uniforms.Add("iFeature", new Uniform("iFeature", feature));
+        uniforms.Add("iAngleOffset", new Uniform("iAngleOffset", angleOffset));
+        uniforms.Add("iLacunarity", new Uniform("iLacunarity", lacunarity));
+        uniforms.Add("iPersistence", new Uniform("iPersistence", persistence));
+        uniforms.Add("iDimensions", new Uniform("iDimensions", dimensions));
+        
+        uniforms.Add("iTiling", new Uniform("iTiling", tiling?1:0));
+        uniforms.Add("iTurbulence", new Uniform("iTurbulence", turbulence?1:0));
+
+        if (voronoiShader == null)
+        {
+            voronoiShader = Shader.Create(voronoiShaderCode, uniforms, out var errors);
+            if (!string.IsNullOrEmpty(errors))
+                Console.WriteLine(errors);
+        }
+        else
+        {
+            voronoiShader = voronoiShader.WithUpdatedUniforms(uniforms);
+        }
+
+        return voronoiShader;
+    }
+    private Shader GetVoronoiShader(float frequency, int octaves, float seed, int feature, float randomness,
+        float angleOffset)
     {
         string voronoiShaderCode = """
                                    uniform float iSeed;
@@ -1087,22 +1221,21 @@ public class NoiseNode : RenderNode
                                    }
 
                                    half4 main(float2 uv) {
-                                   
                                        float noiseSum = 0.0;
                                        float amplitude = 1.0;
                                        float amplitudeSum = 0.0;
-                                       float frequency = iFrequency;
+                                       
                                        for (int octave = 0; octave < MAX_OCTAVES; octave++) {
                                            if (octave >= iOctaves) break;
-
-                                           //float freq = iFrequency * exp2(float(octave));
-                                           float2 samplePos = uv * frequency;
-                                           
+                                   
+                                           float freq = iFrequency * exp2(float(octave));
+                                           float2 samplePos = uv * freq;
+           
                                            float dist = 0.0;
                                            float2 distances = getVoronoiDistances(samplePos, iSeed + float(octave) * FEATURE_SEED_SCALE);
                                            float f1 = distances.x;
                                            float f2 = distances.y;
-                                           
+           
                                            if (iFeature == 0) {
                                                dist = f1;
                                            }
@@ -1112,10 +1245,10 @@ public class NoiseNode : RenderNode
                                            else if (iFeature == 2) {
                                                dist = f2 - f1;
                                            }
-                                           frequency *= iLacunarity;
+                                   
                                            noiseSum += dist * amplitude;
                                            amplitudeSum += amplitude;
-                                           amplitude *= iPersistence;
+                                           amplitude *= 0.5;
                                        }
 
                                        return half4(noiseSum / amplitudeSum);
@@ -1129,21 +1262,19 @@ public class NoiseNode : RenderNode
         uniforms.Add("iRandomness", new Uniform("iRandomness", randomness));
         uniforms.Add("iFeature", new Uniform("iFeature", feature));
         uniforms.Add("iAngleOffset", new Uniform("iAngleOffset", angleOffset));
-        uniforms.Add("iLacunarity", new Uniform("iLacunarity", lacunarity));
-        uniforms.Add("iPersistence", new Uniform("iPersistence", persistence));
 
-        if (voronoiShader == null)
+        if (voronoi2Shader == null)
         {
-            voronoiShader = Shader.Create(voronoiShaderCode, uniforms, out var errors);
+            voronoi2Shader = Shader.Create(voronoiShaderCode, uniforms, out var errors);
             if (!string.IsNullOrEmpty(errors))
                 Console.WriteLine(errors);
         }
         else
         {
-            voronoiShader = voronoiShader.WithUpdatedUniforms(uniforms);
+            voronoi2Shader = voronoi2Shader.WithUpdatedUniforms(uniforms);
         }
 
-        return voronoiShader;
+        return voronoi2Shader;
     }
 
     public override Node CreateCopy() => new NoiseNode();
