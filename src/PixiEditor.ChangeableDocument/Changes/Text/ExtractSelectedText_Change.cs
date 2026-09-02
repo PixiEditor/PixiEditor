@@ -181,6 +181,11 @@ internal class ExtractSelectedText_Change : Change
         RichText richText = new RichText(text);
 
         Font nativeFont = textData.ConstructFont();
+        if (nativeFont == null)
+        {
+            return VecD.Zero;
+        }
+
         var positions = richText.GetGlyphPositions(nativeFont);
         if (positions == null || positions.Length == 0)
         {
@@ -196,7 +201,8 @@ internal class ExtractSelectedText_Change : Change
         return new VecD(position.X, (1 / RichText.PtToPx) * lineOffset.Y);
     }
 
-    private List<(int start, int end, string text)>? GetSubdivisions(int start, int end, string text, bool extractEachCharacter)
+    private List<(int start, int end, string text)>? GetSubdivisions(int start, int end, string text,
+        bool extractEachCharacter)
     {
         if (start == 0 && end == text.Length && !extractEachCharacter)
             return null;
@@ -231,7 +237,7 @@ internal class ExtractSelectedText_Change : Change
         {
             if (extractEachCharacter)
             {
-                for(int i = cursor; i < end; i++)
+                for (int i = cursor; i < end; i++)
                 {
                     result.Add((i, i + 1, text.Substring(i, 1)));
                 }
@@ -240,6 +246,7 @@ internal class ExtractSelectedText_Change : Change
             {
                 result.Add((cursor, end, text.Substring(cursor, end - cursor)));
             }
+
             cursor = end;
 
             if (cursor >= text.Length)
