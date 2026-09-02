@@ -57,7 +57,7 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
         }
     }
 
-    public Font ConstructFont()
+    public Font? ConstructFont()
     {
         return GetFont();
     }
@@ -81,6 +81,11 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
         {
             var richText = CreateRichText();
             var nativeFont = ConstructFont();
+            if (nativeFont == null)
+            {
+                return new RectD(Position, new VecD(0, 0));
+            }
+
             var bounds = richText.MeasureBounds(nativeFont);
             return bounds.Offset(Position);
         }
@@ -123,6 +128,11 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
     {
         RichText richText = CreateRichText();
         Font nativeFont = ConstructFont();
+        if (nativeFont == null)
+        {
+            return new VectorPath();
+        }
+
         var path = richText.ToPath(nativeFont);
         path.Offset(Position);
 
@@ -200,7 +210,12 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
 
     private void PaintText(Canvas canvas, Paint paint)
     {
-        Font nativeFont = ConstructFont();
+        Font nativeFont = GetFont();
+        if (nativeFont == null)
+        {
+            return;
+        }
+
         CreateRichText().Paint(canvas, Position, nativeFont, paint, Path, PathOffset);
     }
 
