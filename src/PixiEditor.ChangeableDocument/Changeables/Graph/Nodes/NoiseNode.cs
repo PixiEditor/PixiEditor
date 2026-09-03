@@ -1249,6 +1249,12 @@ public class NoiseNode : RenderNode
                                    uniform float iRandomness;
                                    uniform int iFeature;
                                    uniform float iAngleOffset;
+                                   float2 random2(in float2 x, in float seed) {
+                                     return float2(random(x,seed),random(x.yx,seed));
+                                   }
+                                   float3 random3(in float3 x, in float seed) {
+                                            return float3(random(x, seed),random(x.yzx, seed),random(x.zyx, seed));
+                                          }
                                    float tile(float p, float freq) {
                                    	freq = floor(freq);
                                    	return mix(mix(p,0,p==freq),freq-1,p==-1);
@@ -1267,12 +1273,12 @@ public class NoiseNode : RenderNode
                                            
                                            float minima = 2;
                                            for(float u = -1; u<= 1; u++) {
-                                           	float h;
-                                           	if(tiling)
-                                           		h = random(tile(i+u,freq),seed);
-                                   		else
-                                           		h = random(i+u, seed);
-                                           	minima = min(minima,length(u+h-x));
+                                            float h;
+                                            if(tiling)
+                                                h = random(tile(i+u,freq),seed);
+                                            else
+                                                h = random(i+u, seed);
+                                            minima = min(minima,length(u+h-x));
                                            }
                                            
                                            NoiseSample samp;
@@ -1287,24 +1293,21 @@ public class NoiseNode : RenderNode
                                            float2 x =fract(p);
                                            
                                            float minima = 100;
-                                           for(float u = -1; u<= 1; u++) {
+                                           for(float u = -1; u<= 1; u++)
                                            	 for(float v = -1; v<= 1; v++) {
-                                           	 	float2 neighbor = float2(u,v);
-                                           	 	float2 h;
-                                           		if(tiling) 
-                                           			h = random2(tile(i+neighbor,freq),seed);
-                                   			else
-                                           			h = random2(i+neighbor,seed);
-                                           	 	minima = min(minima,length(neighbor+h-x));
-                                           	 	if(tiling) 
-                                           			h = random2(tile(i+neighbor,freq),seed);
-                                   			else
-                                           			h = random2(i+neighbor,seed);
-                                           	 	minima = min(minima,length(neighbor+h-x));
+                                           	    float2 h;
+                                           	    float2 o = float2(u,v);
+                                               if(tiling)
+                                                   h = random2(tile(i+o,freq),seed);
+                                               else
+                                                   h = random2(i+o,seed);
+                                               minima = min(minima,length(o+h-x));
+                                               if(tiling) 
+                                                   h = random2(tile(i+o,freq),seed);
+                                               else
+                                                   h = random2(i+o,seed);
+                                               minima = min(minima,length(u+h-x));
                                            	 }
-                                   
-                                           }
-                                           
                                            NoiseSample samp;
                                            samp.value = min(minima,1);
                                            samp.derivative = float3(0);
@@ -1317,24 +1320,22 @@ public class NoiseNode : RenderNode
                                        float3 x =fract(p);
                                        
                                        float minima = 100;
-                                       for(float u = -1; u<= 1; u++) {
-                                       	 for(float v = -1; v<= 1; v++) {
+                                       for(float u = -1; u<= 1; u++)
+                                       	 for(float v = -1; v<= 1; v++)
                                        	 	 for(float w = -1; w<= 1; w++) {
-	                                       	 	float3 neighbor = float3(u,v,w);
-	                                       	 	float3 h;
-	                                       		if(tiling) 
-	                                       			h = random3(tile(i+neighbor,freq),seed);
-	                               			else
-	                                       			h = random3(i+neighbor,seed);
-	                                       	 	minima = min(minima,length(neighbor+h-x));
-	                                       	 	if(tiling) 
-	                                       			h = random3(tile(i+neighbor,freq),seed);
-	                               			else
-	                                       			h = random3(i+neighbor,seed);
-	                                       	 	minima = min(minima,length(neighbor+h-x));
-                                       	 	}
-                                       	 }
-                                       }
+                                       	 	    float3 h;
+                                                float3 o = float3(u,v,w);
+                                                   if(tiling)
+                                                       h = random3(tile(i+o,freq),seed);
+                                                   else
+                                                       h = random3(i+o,seed);
+                                                   minima = min(minima,length(o+h-x));
+                                                   if(tiling) 
+                                                       h = random3(tile(i+o,freq),seed);
+                                                   else
+                                                       h = random3(i+o,seed);
+                                                   minima = min(minima,length(o+h-x));
+                                       	 	 }
                                        NoiseSample samp;
                                        samp.value = min(minima,1);
                                        samp.derivative = float3(0);
