@@ -490,7 +490,6 @@ internal class SceneRenderer : IDisposable
         partialRenderAllowed = hasLastState && lastState.VisibleDocumentRegion == region && !isFullViewportRender &&
                                lastState.ViewportData.Transform == viewportViewportData.Transform &&
                                graphIsBasicStructure;
-        partialRenderAllowed = false;
 
         renderState = new RenderState
         {
