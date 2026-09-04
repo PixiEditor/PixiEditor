@@ -113,7 +113,12 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         var orgBlendMode = blendPaint.BlendMode;
         if (ctx.IterativeRender)
         {
-            blendPaint.BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.Src;
+            if (!ctx.State.TryGetValue("ClearedChunks", out object cleared) || cleared is not bool clearedBool ||
+                !clearedBool)
+            {
+                blendPaint.BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.Src;
+                ctx.State["ClearedChunks"] = true;
+            }
         }
 
         base.DrawLayerInScene(ctx, workingSurface, useFilters);
@@ -213,7 +218,8 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
                 img.DrawMostUpToDateAffectedArea(
                     ctx.ChunkResolution,
-                    saveLayer ? intermediate.DrawingSurface.Canvas : workingSurface, ctx.AffectedArea, finalDrawPos - visibleDocRegion * ctx.ChunkResolution.Multiplier(),
+                    saveLayer ? intermediate.DrawingSurface.Canvas : workingSurface, ctx.AffectedArea,
+                    finalDrawPos - visibleDocRegion * ctx.ChunkResolution.Multiplier(),
                     saveLayer ? null : paint, emptyPaint, ctx.DesiredSamplingOptions);
                 emptyPaint?.Dispose();
             }

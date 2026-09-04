@@ -81,11 +81,13 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
                 }
                 else
                 {
-                    if (!context.State.TryGetValue("ClearedChunks", out object cleared) || cleared is not bool clearedBool || !clearedBool)
+                    if (!context.State.TryGetValue("ClearedChunks", out object cleared) ||
+                        cleared is not bool clearedBool || !clearedBool)
                     {
                         targetPaint.BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.Src;
                         context.State["ClearedChunks"] = true;
                     }
+
                     DrawLayerOnTexture(context, context.RenderSurface, ChunkResolution.Full, useFilters,
                         targetPaint);
                     blendPaint.SetFilters(null);
@@ -104,8 +106,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
 
         // Full because scene already handles texture resolution
         var outputWorkingSurface =
-            TryInitWorkingSurface(size, ChunkResolution.Full, context.ProcessingColorSpace, 1);
-        outputWorkingSurface.DrawingSurface.Canvas.Clear();
+            TryInitWorkingSurface(size, ChunkResolution.Full, context.ProcessingColorSpace, context.GraphCacheId + 1);
         outputWorkingSurface.DrawingSurface.Canvas.Save();
         if (AllowHighDpiRendering)
         {
@@ -115,9 +116,11 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
 
         using var paint = new Paint
         {
-            Color = new Color(255, 255, 255, 255), BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.SrcOver
+            Color = new Color(255, 255, 255, 255),
+            BlendMode = context.IterativeRender
+                ? Drawie.Backend.Core.Surfaces.BlendMode.Src
+                : Drawie.Backend.Core.Surfaces.BlendMode.SrcOver
         };
-
 
         var originalRenderSurface = context.RenderSurface;
         context.RenderSurface = outputWorkingSurface.DrawingSurface.Canvas;
@@ -128,9 +131,10 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
 
         ApplyMaskIfPresent(outputWorkingSurface.DrawingSurface.Canvas, context, adjustedResolution);
 
-        if (Background.Value != null)
+        if (Background.Value != null && ClipToPreviousMember)
         {
-            Texture tempSurface = TryInitWorkingSurface(size, ChunkResolution.Full, context.ProcessingColorSpace, 4);
+            Texture tempSurface = TryInitWorkingSurface(size, ChunkResolution.Full, context.ProcessingColorSpace,
+                context.GraphCacheId + 4, !context.IterativeRender);
 
             tempSurface.DrawingSurface.Canvas.Save();
             if (AllowHighDpiRendering)
@@ -144,7 +148,6 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
                     (float)context.ChunkResolution.Multiplier());
             }
 
-            tempSurface.DrawingSurface.Canvas.Clear();
             if (Background.Connection is { Node: IClipSource clipSource } && ClipToPreviousMember)
             {
                 DrawClipSource(tempSurface.DrawingSurface.Canvas, clipSource, context);
@@ -163,8 +166,16 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
             blendPaint.SetFilters(null);
         }
 
+        bool firstDraw = false;
+        if (context.IterativeRender && (!context.State.TryGetValue("ClearedChunks", out object cleared1) || cleared1 is not bool clearedBool1 ||
+            !clearedBool1))
+        {
+            context.State["ClearedChunks"] = true;
+            firstDraw = true;
+        }
+
         DrawWithResolution(outputWorkingSurface.DrawingSurface, renderOnto, adjustedResolution,
-            context.DesiredSamplingOptions, context.IterativeRender);
+            context.DesiredSamplingOptions, firstDraw, context.AffectedArea);
 
         renderOnto.RestoreToCount(saved);
         outputWorkingSurface.DrawingSurface.Canvas.Restore();
@@ -184,23 +195,20 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
     }
 
     private void DrawWithResolution(DrawingSurface source, Canvas target, ChunkResolution resolution,
-        SamplingOptions sampling, bool iterativeRender)
+        SamplingOptions sampling, bool replace, AffectedArea contextAffectedArea = default)
     {
         int scaled = target.Save();
         float multiplier = (float)resolution.InvertedMultiplier();
         target.Scale(multiplier, multiplier);
 
-        var targetPaint = iterativeRender ? replacePaint : blendPaint;
+        var targetPaint = replace ? replacePaint : blendPaint;
 
-        if (sampling == SamplingOptions.Default)
+        if (contextAffectedArea.GlobalArea.HasValue)
         {
-            target.DrawSurface(source, 0, 0, targetPaint);
+            target.ClipRect((RectD)contextAffectedArea.GlobalArea.Value);
         }
-        else
-        {
-            using var snapshot = source.Snapshot();
-            target.DrawImage(snapshot, 0, 0, sampling, targetPaint);
-        }
+
+        target.DrawSurface(source, 0, 0, sampling, targetPaint);
 
         target.RestoreToCount(scaled);
     }
@@ -263,7 +271,8 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
     protected abstract void DrawWithFilters(SceneObjectRenderContext ctx, Canvas workingSurface,
         Paint paint);
 
-    protected Texture TryInitWorkingSurface(VecI imageSize, ChunkResolution resolution, ColorSpace processingCs, int id)
+    protected Texture TryInitWorkingSurface(VecI imageSize, ChunkResolution resolution, ColorSpace processingCs, int id,
+        bool clear = true)
     {
         ChunkResolution targetResolution = resolution;
         bool hasSurface = workingSurfaces.TryGetValue((targetResolution, id), out Texture workingSurface);
@@ -280,7 +289,8 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
         else
         {
             workingSurface.DrawingSurface.Canvas.SetMatrix(Matrix3X3.Identity);
-            workingSurface.DrawingSurface.Canvas.Clear();
+            if (clear)
+                workingSurface.DrawingSurface.Canvas.Clear();
         }
 
         return workingSurface;

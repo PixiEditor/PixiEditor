@@ -310,7 +310,7 @@ internal class SceneRenderer : IDisposable
                 finalSize = (VecI)(finalSize * resolution.Multiplier());
 
                 renderTexture =
-                    textureCache.RequestTexture(viewportId.GetHashCode(), finalSize, Document.ProcessingColorSpace);
+                    textureCache.RequestTexture(viewportId.GetHashCode(), finalSize, Document.ProcessingColorSpace, !partialRenderAllowed);
                 renderTarget = renderTexture.DrawingSurface;
                 renderTarget.Canvas.Save();
                 renderTexture.DrawingSurface.Canvas.Save();
