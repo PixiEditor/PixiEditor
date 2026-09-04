@@ -1,10 +1,11 @@
 ﻿using System.Diagnostics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Animable;
 
 [NodeInfo("Time")]
-public class TimeNode : Node
+public class TimeNode : Node, IIterativeRenderSupport
 {
     public OutputProperty<int> ActiveFrame { get; set; }
     public OutputProperty<double> NormalizedTime { get; set; }
@@ -29,4 +30,6 @@ public class TimeNode : Node
     {
         return new TimeNode();
     }
+
+    bool IIterativeRenderSupport.SupportsIterativeRendering => true;
 }

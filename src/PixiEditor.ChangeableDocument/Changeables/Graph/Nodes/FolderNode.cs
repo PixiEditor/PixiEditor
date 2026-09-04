@@ -174,6 +174,8 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
         return bounds ?? RectD.Empty;
     }
 
+    public override bool SupportsIterativeRendering => true;
+
     public override ShapeCorners GetTransformationCorners(KeyFrameTime frameTime)
     {
         if (!IsVisible.Value || Content.Connection == null)

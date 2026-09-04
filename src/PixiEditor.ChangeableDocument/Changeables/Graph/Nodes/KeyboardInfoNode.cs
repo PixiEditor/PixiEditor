@@ -1,9 +1,10 @@
-﻿using PixiEditor.ChangeableDocument.Rendering;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 [NodeInfo("KeyboardInfo")]
-public class KeyboardInfoNode : Node
+public class KeyboardInfoNode : Node, IIterativeRenderSupport
 {
     public OutputProperty<bool> IsCtrlPressed { get; }
     public OutputProperty<bool> IsShiftPressed { get; }
@@ -30,4 +31,6 @@ public class KeyboardInfoNode : Node
     {
         return new KeyboardInfoNode();
     }
+
+    bool IIterativeRenderSupport.SupportsIterativeRendering => true;
 }

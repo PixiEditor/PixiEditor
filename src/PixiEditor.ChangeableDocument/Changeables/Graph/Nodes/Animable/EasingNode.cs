@@ -1,11 +1,12 @@
 ﻿using Drawie.Backend.Core.Shaders.Generation.Expressions;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Animable;
 
 [NodeInfo("Easing")]
-public class EasingNode : Node
+public class EasingNode : Node, IIterativeRenderSupport
 {
     public FuncInputProperty<Float1> Value { get; }
     public InputProperty<EasingType> Easing { get; }
@@ -165,6 +166,8 @@ public class EasingNode : Node
     {
         return new EasingNode();
     }
+
+    bool IIterativeRenderSupport.SupportsIterativeRendering => true;
 }
 
 public enum EasingType

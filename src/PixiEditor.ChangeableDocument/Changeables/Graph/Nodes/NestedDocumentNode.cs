@@ -36,6 +36,8 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
             NestedDocument.Value?.DocumentInstance?.Size ?? VecD.Zero)
         .WithMatrix(TransformationMatrix).AABBBounds;
 
+    public override bool SupportsIterativeRendering => instanceSupportsIterativeRendering;
+
     private IReadOnlyDocument? Instance => NestedDocument.Value?.DocumentInstance;
 
     private string[] builtInOutputs;
@@ -44,6 +46,8 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
     private ExposeValueNode[]? cachedExposeNodes;
     private BrushOutputNode[]? brushOutputNodes;
     private IReadOnlyNode[] toExecute;
+
+    private bool instanceSupportsIterativeRendering;
 
     protected override bool MustRenderInSrgb(SceneObjectRenderContext ctx) => false;
 
@@ -81,6 +85,7 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
             ClearOutputProperties();
             ClearInputProperties();
             cachedExposeNodes = null;
+            instanceSupportsIterativeRendering = true;
             return;
         }
 
@@ -190,6 +195,9 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
                 RemoveInputProperty(input);
             }
         }
+
+        instanceSupportsIterativeRendering = Instance?.NodeGraph.AllNodes.All(x =>
+            x is IIterativeRenderSupport { SupportsIterativeRendering: true }) ?? true;
     }
 
     private void ClearOutputProperties()
@@ -436,6 +444,7 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
     {
         return TransformedAABB;
     }
+
 
     public override ShapeCorners GetTransformationCorners(KeyFrameTime frameTime)
     {

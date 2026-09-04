@@ -310,7 +310,7 @@ internal class SceneRenderer : IDisposable
                 finalSize = (VecI)(finalSize * resolution.Multiplier());
 
                 renderTexture =
-                    textureCache.RequestTexture(viewportId.GetHashCode(), finalSize, Document.ProcessingColorSpace);
+                    textureCache.RequestTexture(viewportId.GetHashCode(), finalSize, Document.ProcessingColorSpace, !partialRenderAllowed);
                 renderTarget = renderTexture.DrawingSurface;
                 renderTarget.Canvas.Save();
                 renderTexture.DrawingSurface.Canvas.Save();
@@ -486,14 +486,10 @@ internal class SceneRenderer : IDisposable
         bool hasLastState = lastRenderedStates.TryGetValue(viewportId, out var lastState);
         var region = visibleDocumentRegion ?? new RectD(0, 0, Document.Size.X, Document.Size.Y);
         panChangedRegion = null;
-        // Temporarily disabled until fixed
-        /*
-        bool graphIsBasicStructure = GraphIsBasicStructure(finalGraph);
+        bool graphIsBasicStructure = GraphSupportsIterativeRendering(finalGraph);
         partialRenderAllowed = hasLastState && lastState.VisibleDocumentRegion == region && !isFullViewportRender &&
                                lastState.ViewportData.Transform == viewportViewportData.Transform &&
                                graphIsBasicStructure;
-                               */
-        partialRenderAllowed = false;
 
         renderState = new RenderState
         {
@@ -578,21 +574,21 @@ internal class SceneRenderer : IDisposable
         return false;
     }
 
-    private bool GraphIsBasicStructure(IReadOnlyNodeGraph finalGraph)
+    private bool GraphSupportsIterativeRendering(IReadOnlyNodeGraph finalGraph)
     {
-        bool graphIsBasicStructure = true;
+        bool supports = true;
         finalGraph.TryTraverse(n =>
         {
-            if (n is not IReadOnlyStructureNode)
+            if (n is not IIterativeRenderSupport { SupportsIterativeRendering: true })
             {
-                graphIsBasicStructure = false;
+                supports = false;
                 return false;
             }
 
             return true;
         });
 
-        return graphIsBasicStructure;
+        return supports;
     }
 
     private bool HighDpiRenderNodePresent(IReadOnlyNodeGraph documentNodeGraph)

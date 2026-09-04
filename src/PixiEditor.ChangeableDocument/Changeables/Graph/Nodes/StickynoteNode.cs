@@ -1,11 +1,12 @@
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 [NodeInfo("StickyNote")]
-public class StickyNoteNode : Node
+public class StickyNoteNode : Node, IIterativeRenderSupport
 {
     public const string TextPropertyName = "Text";
     public const string SizePropertyName = "Size";
@@ -27,4 +28,6 @@ public class StickyNoteNode : Node
     protected override void OnExecute(RenderContext context)
     {
     }
+
+    bool IIterativeRenderSupport.SupportsIterativeRendering => true;
 }

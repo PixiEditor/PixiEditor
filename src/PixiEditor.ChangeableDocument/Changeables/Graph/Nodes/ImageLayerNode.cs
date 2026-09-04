@@ -59,6 +59,8 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         return (RectD?)GetLayerImageAtFrame(frameTime.Frame)?.FindTightLatestBounds();
     }
 
+    public override bool SupportsIterativeRendering => true;
+
     public override RectD? GetApproxBounds(KeyFrameTime frameTime)
     {
         var layerImage = GetLayerImageAtFrame(frameTime.Frame);
@@ -108,8 +110,20 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         float multiplier = (float)ctx.ChunkResolution.InvertedMultiplier();
         workingSurface.Translate(GetScenePosition(ctx.FrameTime));
 
+        var orgBlendMode = blendPaint.BlendMode;
+        if (ctx.IterativeRender)
+        {
+            if (!ctx.State.TryGetValue("ClearedChunks", out object cleared) || cleared is not bool clearedBool ||
+                !clearedBool)
+            {
+                blendPaint.BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.Src;
+                ctx.State["ClearedChunks"] = true;
+            }
+        }
+
         base.DrawLayerInScene(ctx, workingSurface, useFilters);
 
+        blendPaint.BlendMode = orgBlendMode;
         workingSurface.RestoreToCount(scaled);
     }
 
@@ -151,7 +165,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         }
 
         RectI latestSize = new(0, 0, layerImage.LatestSize.X, layerImage.LatestSize.Y);
-        var region = (RectI?)ctx.VisibleDocumentRegion?.RoundOutwards() ?? latestSize;
+        var region = (RectI?)ctx.VisibleDocumentRegion?.Round() ?? latestSize;
 
         VecD topLeft = region.TopLeft - sceneSize / 2;
 
@@ -190,7 +204,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
         if (!ctx.FullRerender)
         {
-            if (ctx.IterativeRender && ctx.AffectedArea.Chunks != null)
+            if (ctx is { IterativeRender: true, AffectedArea.Chunks: not null })
             {
                 Paint emptyPaint = null;
                 if (paint.BlendMode == Drawie.Backend.Core.Surfaces.BlendMode.Src)
@@ -204,7 +218,8 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
                 img.DrawMostUpToDateAffectedArea(
                     ctx.ChunkResolution,
-                    saveLayer ? intermediate.DrawingSurface.Canvas : workingSurface, ctx.AffectedArea, finalDrawPos - visibleDocRegion * ctx.ChunkResolution.Multiplier(),
+                    saveLayer ? intermediate.DrawingSurface.Canvas : workingSurface, ctx.AffectedArea,
+                    finalDrawPos - visibleDocRegion * ctx.ChunkResolution.Multiplier(),
                     saveLayer ? null : paint, emptyPaint, ctx.DesiredSamplingOptions);
                 emptyPaint?.Dispose();
             }
