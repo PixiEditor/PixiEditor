@@ -1,3 +1,11 @@
+# 2.1.2.4
+
+Date: `04.09.2026`
+
+# Fixes
+
+- Fixed a few cases, which caused some images to be offset and scaled incorrectly by [flabbet](https://github.com/flabbet)
+
 # 2.1.2.3
 
 Date: `01.09.2026`
