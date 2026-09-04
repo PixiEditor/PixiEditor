@@ -422,7 +422,13 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             Matrix3X3 matrixDiff = isFullscreenRender ? Matrix3X3.Identity : SolveMatrixDiff(matrix, cachedTexture);
             var target = cachedTexture.DrawingSurface;
 
-            if (tex.Size == (VecI)RealDimensions || tex.Size == (VecI)(RealDimensions * SceneRenderer.OversizeFactor))
+            bool renderedInTargetSize = false;
+            if (SceneRenderer != null && SceneRenderer.LastRenderedStates.ContainsKey(ViewportId))
+            {
+                renderedInTargetSize = SceneRenderer.LastRenderedStates[ViewportId].RenderedInTargetSize;
+            }
+
+            if (tex.Size == (VecI)RealDimensions || tex.Size == (VecI)(RealDimensions * SceneRenderer.OversizeFactor) || renderedInTargetSize)
             {
                 saved = texture.Canvas.Save();
                 texture.Canvas.ClipRect(bounds);
@@ -433,16 +439,14 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             {
                 saved = texture.Canvas.Save();
                 // Leaving commented code In case of any rendering and scaling issues. Scaling is invalid in some cases when this is uncommented
-                /*
                 ChunkResolution renderedResolution = ChunkResolution.Full;
                 if (SceneRenderer != null && SceneRenderer.LastRenderedStates.ContainsKey(ViewportId))
                 {
                     renderedResolution = SceneRenderer.LastRenderedStates[ViewportId].ChunkResolution;
                 }
-                */
 
                 texture.Canvas.SetMatrix(matrixDiff);
-                //texture.Canvas.Scale((float)renderedResolution.InvertedMultiplier());
+                texture.Canvas.Scale((float)renderedResolution.InvertedMultiplier());
                 hasSaved = true;
             }
 
