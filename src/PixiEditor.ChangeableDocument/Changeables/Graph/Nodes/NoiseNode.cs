@@ -34,7 +34,6 @@ public class NoiseNode : RenderNode
     private Shader? perlinShader;
     private Shader? simplexValueShader;
     private Shader? simplexGradientShader;
-    private Shader? voronoi2Shader;
 
     private Paint paint = new();
 
@@ -125,7 +124,6 @@ public class NoiseNode : RenderNode
             if ((NoiseType.Value == Nodes.NoiseType.Voronoi && paint.Shader != voronoiShader) 
                 || (NoiseType.Value == Nodes.NoiseType.FractalValue && paint.Shader != valueShader)
                 || (NoiseType.Value == Nodes.NoiseType.FractalPerlin2 && paint.Shader != perlinShader)
-                || (NoiseType.Value == Nodes.NoiseType.FractalVoronoi && paint.Shader != voronoi2Shader)
                 || (NoiseType.Value == Nodes.NoiseType.FractalSimplexValue && paint.Shader != simplexValueShader)
                 || (NoiseType.Value == Nodes.NoiseType.FractalSimplexGradient && paint.Shader != simplexGradientShader)
                )
@@ -177,7 +175,6 @@ public class NoiseNode : RenderNode
         if ((NoiseType.Value == Nodes.NoiseType.Voronoi && paint.Shader != voronoiShader) 
             || (NoiseType.Value == Nodes.NoiseType.FractalValue && paint.Shader != valueShader)
             || (NoiseType.Value == Nodes.NoiseType.FractalPerlin2 && paint.Shader != perlinShader)
-            || (NoiseType.Value == Nodes.NoiseType.FractalVoronoi && paint.Shader != voronoi2Shader)
             || (NoiseType.Value == Nodes.NoiseType.FractalSimplexValue && paint.Shader != simplexValueShader)
             || (NoiseType.Value == Nodes.NoiseType.FractalSimplexGradient && paint.Shader != simplexGradientShader)
             )
@@ -213,8 +210,6 @@ public class NoiseNode : RenderNode
                 (int)VoronoiFeature.Value, (float)Randomness.Value, (float)AngleOffset.Value),
             Nodes.NoiseType.FractalValue => GetValueShader(dims, Turbulence.Value, Tiling.Value, period, freq, octaves, (float)Seed.Value, lacunarity, persistence, (float)Z.Value),
             Nodes.NoiseType.FractalPerlin2 => GetPerlinShader(dims, Turbulence.Value, Tiling.Value, period, freq, octaves, (float)Seed.Value, lacunarity, persistence, (float)Z.Value),
-            Nodes.NoiseType.FractalVoronoi => GetFractalVoronoiShader(dims, Turbulence.Value, Tiling.Value, freq, octaves, (float)Seed.Value,
-                (int)VoronoiFeature.Value, (float)Randomness.Value, (float)AngleOffset.Value, lacunarity, persistence),
             Nodes.NoiseType.FractalSimplexValue => GetSimplexValueShader(dims, Turbulence.Value, Tiling.Value, freq, octaves, (float)Seed.Value, lacunarity, persistence, (float)Z.Value),
             Nodes.NoiseType.FractalSimplexGradient => GetSimplexGradientShader(dims, Turbulence.Value, Tiling.Value, freq, octaves, (float)Seed.Value, lacunarity, persistence, (float)Z.Value),
             
@@ -1240,138 +1235,8 @@ public class NoiseNode : RenderNode
 
         return simplexValueShader;
     }
-     
-    private Shader GetFractalVoronoiShader(int dimensions, bool turbulence, bool tiling, float frequency, int octaves, float seed, int feature, float randomness,
-        float angleOffset, float lacunarity, float persistence)
-    {
-        string voronoiShaderCode = BaseShaderCode+
-                                   """
-                                   uniform float iRandomness;
-                                   uniform int iFeature;
-                                   uniform float iAngleOffset;
-                                   float2 random2(in float2 x, in float seed) {
-                                     return float2(random(x,seed),random(x.yx,seed));
-                                   }
-                                   float3 random3(in float3 x, in float seed) {
-                                            return float3(random(x, seed),random(x.yzx, seed),random(x.zyx, seed));
-                                          }
-                                   float tile(float p, float freq) {
-                                   	freq = floor(freq);
-                                   	return mix(mix(p,0,p==freq),freq-1,p==-1);
-                                   }
-                                   float2 tile(float2 p, float freq) {
-                                   	return float2(tile(p.x,freq),tile(p.y,freq));
-                                   }
-                                   float3 tile(float3 p, float freq) {
-                                   	return float3(tile(p.xy,freq),tile(p.z,freq));
-                                   }
-                                   NoiseSample noise1d(float p, float freq, float seed, bool tiling) {
-                                           p *= freq;
-                                           
-                                           float i = floor(p);
-                                           float x =p-i;
-                                           
-                                           float minima = 2;
-                                           for(float u = -1; u<= 1; u++) {
-                                            float h;
-                                            if(tiling)
-                                                h = random(tile(i+u,freq),seed);
-                                            else
-                                                h = random(i+u, seed);
-                                            minima = min(minima,length(u+h-x));
-                                           }
-                                           
-                                           NoiseSample samp;
-                                           samp.value = minima;
-                                           samp.derivative = float3(0);
-                                           return fma(samp,0.5,0);
-                                       }
-                                       
-                                       NoiseSample noise2d(float2 p, float freq, float seed, bool tiling) {
-                                           p *= freq;
-                                           float2 i = floor(p);
-                                           float2 x =fract(p);
-                                           
-                                           float minima = 100;
-                                           for(float u = -1; u<= 1; u++)
-                                           	 for(float v = -1; v<= 1; v++) {
-                                           	    float2 h;
-                                           	    float2 o = float2(u,v);
-                                               if(tiling)
-                                                   h = random2(tile(i+o,freq),seed);
-                                               else
-                                                   h = random2(i+o,seed);
-                                               minima = min(minima,length(o+h-x));
-                                               if(tiling) 
-                                                   h = random2(tile(i+o,freq),seed);
-                                               else
-                                                   h = random2(i+o,seed);
-                                               minima = min(minima,length(u+h-x));
-                                           	 }
-                                           NoiseSample samp;
-                                           samp.value = min(minima,1);
-                                           samp.derivative = float3(0);
-                                           return fma(samp,0.5,0);
-                                       }
-                                   
-                                   NoiseSample noise3d(float3 p, float freq, float seed, bool tiling) {
-                                       p *= freq;
-                                       float3 i = floor(p);
-                                       float3 x =fract(p);
-                                       
-                                       float minima = 100;
-                                       for(float u = -1; u<= 1; u++)
-                                       	 for(float v = -1; v<= 1; v++)
-                                       	 	 for(float w = -1; w<= 1; w++) {
-                                       	 	    float3 h;
-                                                float3 o = float3(u,v,w);
-                                                   if(tiling)
-                                                       h = random3(tile(i+o,freq),seed);
-                                                   else
-                                                       h = random3(i+o,seed);
-                                                   minima = min(minima,length(o+h-x));
-                                                   if(tiling) 
-                                                       h = random3(tile(i+o,freq),seed);
-                                                   else
-                                                       h = random3(i+o,seed);
-                                                   minima = min(minima,length(o+h-x));
-                                       	 	 }
-                                       NoiseSample samp;
-                                       samp.value = min(minima,1);
-                                       samp.derivative = float3(0);
-                                       return fma(samp,0.5,0);
-                                   }
-                                   """
-                                   + MainShaderCode;
-
-        Uniforms uniforms = new Uniforms();
-        uniforms.Add("iSeed", new Uniform("iSeed", seed));
-        uniforms.Add("iFrequency", new Uniform("iFrequency", frequency));
-        uniforms.Add("iOctaves", new Uniform("iOctaves", octaves));
-        uniforms.Add("iRandomness", new Uniform("iRandomness", randomness));
-        uniforms.Add("iFeature", new Uniform("iFeature", feature));
-        uniforms.Add("iAngleOffset", new Uniform("iAngleOffset", angleOffset));
-        uniforms.Add("iLacunarity", new Uniform("iLacunarity", lacunarity));
-        uniforms.Add("iPersistence", new Uniform("iPersistence", persistence));
-        uniforms.Add("iDimensions", new Uniform("iDimensions", dimensions));
-        
-        uniforms.Add("iTiling", new Uniform("iTiling", tiling?1:0));
-        uniforms.Add("iTurbulence", new Uniform("iTurbulence", turbulence?1:0));
-
-        if (voronoiShader == null)
-        {
-            voronoiShader = Shader.Create(voronoiShaderCode, uniforms, out var errors);
-            if (!string.IsNullOrEmpty(errors))
-                Console.WriteLine(errors);
-        }
-        else
-        {
-            voronoiShader = voronoiShader.WithUpdatedUniforms(uniforms);
-        }
-
-        return voronoiShader;
-    }
-    private Shader GetVoronoiShader(float frequency, int octaves, float seed, int feature, float randomness,
+   
+     private Shader GetVoronoiShader(float frequency, int octaves, float seed, int feature, float randomness,
         float angleOffset)
     {
         string voronoiShaderCode = """
@@ -1381,8 +1246,6 @@ public class NoiseNode : RenderNode
                                    uniform float iRandomness;
                                    uniform int iFeature;
                                    uniform float iAngleOffset;
-                                   uniform float iLacunarity;
-                                   uniform float iPersistence;
 
                                    const int MAX_OCTAVES = 8;
                                    const float LARGE_NUMBER = 1e9;
@@ -1442,18 +1305,18 @@ public class NoiseNode : RenderNode
                                        float noiseSum = 0.0;
                                        float amplitude = 1.0;
                                        float amplitudeSum = 0.0;
-                                       
+
                                        for (int octave = 0; octave < MAX_OCTAVES; octave++) {
                                            if (octave >= iOctaves) break;
-                                   
+
                                            float freq = iFrequency * exp2(float(octave));
                                            float2 samplePos = uv * freq;
-           
+                                           
                                            float dist = 0.0;
                                            float2 distances = getVoronoiDistances(samplePos, iSeed + float(octave) * FEATURE_SEED_SCALE);
                                            float f1 = distances.x;
                                            float f2 = distances.y;
-           
+                                           
                                            if (iFeature == 0) {
                                                dist = f1;
                                            }
@@ -1463,7 +1326,7 @@ public class NoiseNode : RenderNode
                                            else if (iFeature == 2) {
                                                dist = f2 - f1;
                                            }
-                                   
+
                                            noiseSum += dist * amplitude;
                                            amplitudeSum += amplitude;
                                            amplitude *= 0.5;
@@ -1481,18 +1344,16 @@ public class NoiseNode : RenderNode
         uniforms.Add("iFeature", new Uniform("iFeature", feature));
         uniforms.Add("iAngleOffset", new Uniform("iAngleOffset", angleOffset));
 
-        if (voronoi2Shader == null)
+        if (voronoiShader == null)
         {
-            voronoi2Shader = Shader.Create(voronoiShaderCode, uniforms, out var errors);
-            if (!string.IsNullOrEmpty(errors))
-                Console.WriteLine(errors);
+            voronoiShader = Shader.Create(voronoiShaderCode, uniforms, out _);
         }
         else
         {
-            voronoi2Shader = voronoi2Shader.WithUpdatedUniforms(uniforms);
+            voronoiShader = voronoiShader.WithUpdatedUniforms(uniforms);
         }
 
-        return voronoi2Shader;
+        return voronoiShader;
     }
 
     public override Node CreateCopy() => new NoiseNode();
@@ -1505,7 +1366,6 @@ public enum NoiseType
     Voronoi,
     FractalValue,
     FractalPerlin2,
-    FractalVoronoi,
     FractalSimplexValue,
     FractalSimplexGradient
 }

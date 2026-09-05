@@ -101,7 +101,6 @@ using DrawingBlendMode = Drawie.Backend.Core.Surfaces.BlendMode;
 [assembly: LocalizeEnum<NoiseType>(NoiseType.Voronoi, "VORONOI_NOISE_TYPE")]
 [assembly: LocalizeEnum<NoiseType>(NoiseType.FractalValue, "FRACTAL_VALUE_NOISE_TYPE")]
 [assembly: LocalizeEnum<NoiseType>(NoiseType.FractalPerlin2, "FRACTAL_PERLIN2_NOISE_TYPE")]
-[assembly: LocalizeEnum<NoiseType>(NoiseType.FractalVoronoi, "FRACTAL_VORONOI_NOISE_TYPE")]
 [assembly: LocalizeEnum<NoiseType>(NoiseType.FractalSimplexValue, "FRACTAL_SIMPLEX_VALUE_NOISE_TYPE")]
 [assembly: LocalizeEnum<NoiseType>(NoiseType.FractalSimplexGradient, "FRACTAL_SIMPLEX_GRADIENT_NOISE_TYPE")]
 
