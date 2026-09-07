@@ -491,6 +491,9 @@ internal class SceneRenderer : IDisposable
                                lastState.ViewportData.Transform == viewportViewportData.Transform &&
                                graphIsBasicStructure;
 
+        VecI finalSize = SolveRenderOutputSize(targetOutput, finalGraph, Document.Size, targetSize, out _);
+        bool renderInDocumentSize = RenderInOutputSize(highResRendering, finalGraph, targetSize, finalSize);
+
         renderState = new RenderState
         {
             ChunkResolution = resolution,
@@ -505,7 +508,8 @@ internal class SceneRenderer : IDisposable
             DocumentColorSpace = Document.ProcessingColorSpace,
             IsFullViewportRender = isFullViewportRender,
             ViewportData = viewportViewportData,
-            IterativeRender = partialRenderAllowed
+            IterativeRender = partialRenderAllowed,
+            RenderedInTargetSize = !renderInDocumentSize
         };
 
         fullAffectedArea = false;
@@ -535,11 +539,10 @@ internal class SceneRenderer : IDisposable
             return true;
         }
 
-        VecI finalSize = SolveRenderOutputSize(targetOutput, finalGraph, Document.Size, targetSize, out _);
-        bool renderInDocumentSize = RenderInOutputSize(highResRendering, finalGraph, targetSize, finalSize);
         VecI compareSize = renderInDocumentSize
             ? (VecI)(Document.Size * resolution.Multiplier())
             : targetSize;
+
 
         if (cachedTexture.Size != (VecI)(compareSize * oversizeFactor))
         {
@@ -630,6 +633,7 @@ readonly struct RenderState
     public bool IsFullViewportRender { get; init; }
     public ViewportData ViewportData { get; init; }
     public bool IterativeRender { get; init; }
+    public bool RenderedInTargetSize { get; init; } // Do not include this in ShouldRerender, as it is only used for caching purposes
 
     public bool ShouldRerender(RenderState other)
     {
