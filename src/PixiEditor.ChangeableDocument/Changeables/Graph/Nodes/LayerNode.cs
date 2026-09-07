@@ -106,7 +106,9 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
 
         // Full because scene already handles texture resolution
         var outputWorkingSurface =
-            TryInitWorkingSurface(size, ChunkResolution.Full, context.ProcessingColorSpace, context.GraphCacheId + 1);
+            TryInitWorkingSurface(size, ChunkResolution.Full, context.ProcessingColorSpace, context.GraphCacheId + 1,
+                !context.IterativeRender || context.AffectedArea.Chunks == null);
+
         outputWorkingSurface.DrawingSurface.Canvas.Save();
         if (AllowHighDpiRendering)
         {
@@ -174,8 +176,9 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
             firstDraw = true;
         }
 
-        DrawWithResolution(outputWorkingSurface.DrawingSurface, renderOnto, adjustedResolution,
-            context.DesiredSamplingOptions, firstDraw, context.AffectedArea);
+        if (!context.IterativeRender || context.AffectedArea.Chunks.Count > 0)
+            DrawWithResolution(outputWorkingSurface.DrawingSurface, renderOnto, adjustedResolution,
+                context.DesiredSamplingOptions, firstDraw, context.IterativeRender ? context.AffectedArea : default);
 
         renderOnto.RestoreToCount(saved);
         outputWorkingSurface.DrawingSurface.Canvas.Restore();
@@ -205,7 +208,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
 
         if (contextAffectedArea.GlobalArea.HasValue)
         {
-            target.ClipRect((RectD)contextAffectedArea.GlobalArea.Value);
+            target.ClipRect((RectD)contextAffectedArea.GlobalArea.Value.Scale(resolution.Multiplier()));
         }
 
         target.DrawSurface(source, 0, 0, sampling, targetPaint);
