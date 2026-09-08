@@ -222,13 +222,13 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
                 if (!context.IterativeRender)
                 {
                     EmbeddedMask?.DrawMostUpToDateRegionOn(
-                        new RectI(0, 0, EmbeddedMask.LatestSize.X, EmbeddedMask.LatestSize.Y),
+                        new RectD(0, 0, EmbeddedMask.LatestSize.X, EmbeddedMask.LatestSize.Y),
                         context.ChunkResolution,
                         surface, VecI.Zero, maskPaint, drawPaintOnEmpty: true);
                 }
                 else
                 {
-                    EmbeddedMask.DrawMostUpToDateAffectedArea(context.ChunkResolution, surface, context.AffectedArea,
+                    EmbeddedMask?.DrawMostUpToDateAffectedArea(context.ChunkResolution, surface, context.AffectedArea,
                         VecI.Zero, maskPaint, maskPaint);
                 }
             }
@@ -335,7 +335,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         int saved = renderOn.Canvas.Save();
         renderOn.Canvas.Scale((float)context.ChunkResolution.InvertedMultiplier());
         img.DrawMostUpToDateRegionOn(
-            new RectI(0, 0, img.LatestSize.X, img.LatestSize.Y),
+            new RectD(0, 0, img.LatestSize.X, img.LatestSize.Y),
             context.ChunkResolution,
             renderOn.Canvas, VecI.Zero, maskPreviewPaint, drawPaintOnEmpty: true);
         renderOn.Canvas.RestoreToCount(saved);

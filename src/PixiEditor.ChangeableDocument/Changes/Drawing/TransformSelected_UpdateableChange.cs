@@ -252,7 +252,7 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
         Surface output = Surface.ForProcessing(pathBounds.Size, image.ProcessingColorSpace);
         output.DrawingSurface.Canvas.Save();
         output.DrawingSurface.Canvas.ClipPath(clipPath);
-        image.DrawMostUpToDateRegionOn(pathBounds, ChunkResolution.Full, output.DrawingSurface.Canvas, VecI.Zero);
+        image.DrawMostUpToDateRegionOn((RectD)pathBounds, ChunkResolution.Full, output.DrawingSurface.Canvas, VecI.Zero);
         output.DrawingSurface.Canvas.Restore();
 
         return (output, pathBounds);

@@ -190,7 +190,7 @@ internal partial class BrushItem : UserControl
 
                 using Paint srcOver = new() { BlendMode = BlendMode.Src, Style = PaintStyle.Fill };
                 previewImage.DrawMostUpToDateRegionOn(
-                    new RectI(0, 0, previewImage.CommittedSize.X, previewImage.CommittedSize.Y),
+                    new RectD(0, 0, previewImage.CommittedSize.X, previewImage.CommittedSize.Y),
                     ChunkResolution.Full,
                     previewTexture.DrawingSurface.Canvas,
                     VecI.Zero, srcOver);

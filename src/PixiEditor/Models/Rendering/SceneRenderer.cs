@@ -320,7 +320,7 @@ internal class SceneRenderer : IDisposable
             {
                 finalSize = (VecI)(finalSize * resolution.Multiplier());
 
-                var bufferedSize = (VecI)(renderTargetSize * oversizeFactor);
+                var bufferedSize = (VecI)(renderTargetSize * oversizeFactor).Round();
                 renderTexture = textureCache.RequestTexture(viewportId.GetHashCode(), bufferedSize,
                     Document.ProcessingColorSpace, !partialRenderAllowed);
 

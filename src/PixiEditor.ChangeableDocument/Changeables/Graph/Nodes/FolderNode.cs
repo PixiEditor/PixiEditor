@@ -53,19 +53,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
 
         if (Content.Connection == null || (!HasOperations() && BlendMode.Value == Enums.BlendMode.Normal))
         {
-            using Paint paint = new();
-            paint.Color = Colors.White.WithAlpha((byte)Math.Round(Opacity.Value * 255f));
-
-            if (sceneContext.TargetPropertyOutput == Output)
-            {
-                paint.ColorFilter = Filters.Value?.ColorFilter;
-                paint.ImageFilter = Filters.Value?.ImageFilter;
-            }
-
-            int saved = sceneContext.RenderSurface.SaveLayer(paint);
-            Content.Value?.Paint(sceneContext, sceneContext.RenderSurface);
-
-            sceneContext.RenderSurface.RestoreToCount(saved);
+            RenderSimpleOpacity(sceneContext);
             return;
         }
 
@@ -85,6 +73,50 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
         }
     }
 
+    private void RenderSimpleOpacity(SceneObjectRenderContext sceneContext)
+    {
+        using Paint paint = new();
+        paint.Color = Colors.White.WithAlpha((byte)Math.Round(Opacity.Value * 255f));
+
+        if (sceneContext.TargetPropertyOutput == Output)
+        {
+            paint.ColorFilter = Filters.Value?.ColorFilter;
+            paint.ImageFilter = Filters.Value?.ImageFilter;
+        }
+
+        int saved = sceneContext.RenderSurface.Save();
+        Canvas target = sceneContext.RenderSurface;
+        if (!(Math.Abs(Opacity.Value - 1) < 0.01f) || Filters.Value != null ||
+            BlendMode.Value != Enums.BlendMode.Normal || HasOperations())
+        {
+            var intermediate = RequestTexture(5, sceneContext.RenderSurface.DeviceClipBounds.Size,
+                sceneContext.ProcessingColorSpace, !sceneContext.IterativeRender || sceneContext.AffectedArea.Chunks == null);
+            paint.BlendMode = sceneContext.IterativeRender
+                ? Drawie.Backend.Core.Surfaces.BlendMode.Src
+                : Drawie.Backend.Core.Surfaces.BlendMode.SrcOver;
+
+            target = intermediate.DrawingSurface.Canvas;
+            intermediate.DrawingSurface.Canvas.Save();
+        }
+
+        Content.Value?.Paint(sceneContext, target);
+
+        if(target != sceneContext.RenderSurface)
+        {
+            target.Restore();
+            paint.BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.Src;
+
+            if (sceneContext is { IterativeRender: true, AffectedArea.GlobalArea: not null })
+            {
+                sceneContext.RenderSurface.ClipRect(sceneContext.AffectedArea.GlobalArea.Value.Scale((float)sceneContext.ChunkResolution.Multiplier()));
+            }
+
+            sceneContext.RenderSurface.DrawSurface(target.Surface, 0, 0, paint);
+        }
+
+        sceneContext.RenderSurface.RestoreToCount(saved);
+    }
+
     private void RenderFolderContent(SceneObjectRenderContext sceneContext, bool useFilters)
     {
         VecI size = sceneContext.RenderSurface.DeviceClipBounds.Size + sceneContext.RenderSurface.DeviceClipBounds.Pos;
@@ -93,7 +125,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
             return;
         }
 
-        var outputWorkingSurface = RequestTexture(0, size, sceneContext.ProcessingColorSpace, true);
+        var outputWorkingSurface = RequestTexture(0, size, sceneContext.ProcessingColorSpace);
         outputWorkingSurface.DrawingSurface.Canvas.Save();
         outputWorkingSurface.DrawingSurface.Canvas.SetMatrix(sceneContext.RenderSurface.TotalMatrix);
 
@@ -112,7 +144,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
 
         outputWorkingSurface.DrawingSurface.Canvas.RestoreToCount(saved2);
 
-        if (Background.Value != null && sceneContext.TargetPropertyOutput != RawOutput)
+        if (Background.Value != null && sceneContext.TargetPropertyOutput != RawOutput && ClipToPreviousMember)
         {
             Texture tempSurface = RequestTexture(1, outputWorkingSurface.Size, sceneContext.ProcessingColorSpace);
             tempSurface.DrawingSurface.Canvas.Save();

@@ -164,8 +164,8 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
             return;
         }
 
-        RectI latestSize = new(0, 0, layerImage.LatestSize.X, layerImage.LatestSize.Y);
-        var region = (RectI?)ctx.VisibleDocumentRegion?.Round() ?? latestSize;
+        RectD latestSize = new(0, 0, layerImage.LatestSize.X, layerImage.LatestSize.Y);
+        var region = ctx.VisibleDocumentRegion ?? latestSize;
 
         VecD topLeft = region.TopLeft - sceneSize / 2;
 
@@ -182,11 +182,11 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         VecD finalDrawPos = topLeft;
         if (saveLayer)
         {
-            var visibleRegion = (RectI?)ctx.VisibleDocumentRegion?.RoundOutwards() ?? latestSize;
+            var visibleRegion = ctx.VisibleDocumentRegion ?? latestSize;
             var multiplier = visibleRegion != latestSize ? 1 : ctx.ChunkResolution.Multiplier();
             var intersection = visibleRegion.Intersect(latestSize);
             region = intersection;
-            VecI chunkAwareSize = (VecI)(new VecI(region.Width, region.Height) * multiplier);
+            VecI chunkAwareSize = (VecI)(new VecD(region.Width, region.Height) * multiplier).Round();
             if (chunkAwareSize.X <= 0 || chunkAwareSize.Y <= 0)
             {
                 workingSurface.RestoreToCount(saved);
@@ -366,7 +366,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         renderOnto.Canvas.Scale((float)context.ChunkResolution.InvertedMultiplier());
 
         img.DrawCommittedRegionOn(
-            new RectI(0, 0, img.LatestSize.X, img.LatestSize.Y),
+            new RectD(0, 0, img.LatestSize.X, img.LatestSize.Y),
             context.ChunkResolution,
             renderOnto.Canvas, VecI.Zero, replacePaint, context.DesiredSamplingOptions);
 

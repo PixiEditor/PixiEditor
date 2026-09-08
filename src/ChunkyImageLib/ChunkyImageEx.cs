@@ -19,7 +19,7 @@ public static class IReadOnlyChunkyImageEx
     /// <param name="pos">Starting position on the surface</param>
     /// <param name="paint">Paint to use for drawing</param>
     public static void DrawMostUpToDateRegionOn
-    (this IReadOnlyChunkyImage image, RectI fullResRegion, ChunkResolution resolution, Canvas surface,
+    (this IReadOnlyChunkyImage image, RectD fullResRegion, ChunkResolution resolution, Canvas surface,
         VecD pos, Paint? paint = null, SamplingOptions? sampling = null, bool drawPaintOnEmpty = false)
     {
         DrawRegionOn(fullResRegion, resolution, surface, pos, image.DrawMostUpToDateChunkOn, paint, sampling, drawPaintOnEmpty);
@@ -36,7 +36,7 @@ public static class IReadOnlyChunkyImageEx
     /// <param name="pos">Starting position on the surface</param>
     /// <param name="paint">Paint to use for drawing</param>
     public static void DrawMostUpToDateRegionOnWithAffected
-    (this IReadOnlyChunkyImage image, RectI fullResRegion, ChunkResolution resolution, Canvas surface,
+    (this IReadOnlyChunkyImage image, RectD fullResRegion, ChunkResolution resolution, Canvas surface,
         AffectedArea affectedArea, VecD pos, Paint? paint = null, SamplingOptions? sampling = null, bool drawPaintOnEmpty = false)
     {
         DrawRegionOn(fullResRegion, resolution, surface, pos, image.DrawMostUpToDateChunkOn,
@@ -82,14 +82,14 @@ public static class IReadOnlyChunkyImageEx
     /// <param name="pos">Starting position on the surface</param>
     /// <param name="paint">Paint to use for drawing</param>
     public static void DrawCommittedRegionOn
-    (this IReadOnlyChunkyImage image, RectI fullResRegion, ChunkResolution resolution, Canvas surface,
+    (this IReadOnlyChunkyImage image, RectD fullResRegion, ChunkResolution resolution, Canvas surface,
         VecI pos, Paint? paint = null, SamplingOptions? samplingOptions = null, bool drawPaintOnEmpty = false)
     {
         DrawRegionOn(fullResRegion, resolution, surface, pos, image.DrawCommittedChunkOn, paint, samplingOptions, drawPaintOnEmpty);
     }
 
     private static void DrawRegionOn(
-        RectI fullResRegion,
+        RectD fullResRegion,
         ChunkResolution resolution,
         Canvas surface,
         VecD pos,
@@ -99,10 +99,10 @@ public static class IReadOnlyChunkyImageEx
         int count = surface.Save();
         surface.ClipRect(new RectD(pos, fullResRegion.Size));
 
-        VecI chunkTopLeft = OperationHelper.GetChunkPos(fullResRegion.TopLeft, ChunkyImage.FullChunkSize);
-        VecI chunkBotRight = OperationHelper.GetChunkPos(fullResRegion.BottomRight, ChunkyImage.FullChunkSize);
-        VecI offsetFullRes = (chunkTopLeft * ChunkyImage.FullChunkSize) - fullResRegion.Pos;
-        VecI offsetTargetRes = (VecI)(offsetFullRes * resolution.Multiplier());
+        VecI chunkTopLeft = OperationHelper.GetChunkPos((VecI)fullResRegion.TopLeft, ChunkyImage.FullChunkSize);
+        VecI chunkBotRight = OperationHelper.GetChunkPos((VecI)fullResRegion.BottomRight, ChunkyImage.FullChunkSize);
+        VecD offsetFullRes = (chunkTopLeft * ChunkyImage.FullChunkSize) - fullResRegion.Pos;
+        VecD offsetTargetRes = offsetFullRes * resolution.Multiplier();
 
         for (int j = chunkTopLeft.Y; j <= chunkBotRight.Y; j++)
         {
@@ -124,7 +124,7 @@ public static class IReadOnlyChunkyImageEx
     }
 
     private static void DrawRegionOn(
-        RectI fullResRegion,
+        RectD fullResRegion,
         ChunkResolution resolution,
         Canvas surface,
         VecD pos,
@@ -136,10 +136,10 @@ public static class IReadOnlyChunkyImageEx
         int count = surface.Save();
         surface.ClipRect(new RectD(pos, fullResRegion.Size));
 
-        VecI chunkTopLeft = OperationHelper.GetChunkPos(fullResRegion.TopLeft, ChunkyImage.FullChunkSize);
-        VecI chunkBotRight = OperationHelper.GetChunkPos(fullResRegion.BottomRight, ChunkyImage.FullChunkSize);
-        VecI offsetFullRes = (chunkTopLeft * ChunkyImage.FullChunkSize) - fullResRegion.Pos;
-        VecI offsetTargetRes = (VecI)(offsetFullRes * resolution.Multiplier());
+        VecI chunkTopLeft = OperationHelper.GetChunkPos((VecI)fullResRegion.TopLeft, ChunkyImage.FullChunkSize);
+        VecI chunkBotRight = OperationHelper.GetChunkPos((VecI)fullResRegion.BottomRight, ChunkyImage.FullChunkSize);
+        VecD offsetFullRes = (chunkTopLeft * ChunkyImage.FullChunkSize) - fullResRegion.Pos;
+        VecD offsetTargetRes = offsetFullRes * resolution.Multiplier();
 
         for (int j = chunkTopLeft.Y; j <= chunkBotRight.Y; j++)
         {
