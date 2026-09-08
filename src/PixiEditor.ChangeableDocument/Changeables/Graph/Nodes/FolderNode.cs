@@ -90,10 +90,8 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
             BlendMode.Value != Enums.BlendMode.Normal || HasOperations())
         {
             var intermediate = RequestTexture(5, sceneContext.RenderSurface.DeviceClipBounds.Size,
-                sceneContext.ProcessingColorSpace, !sceneContext.IterativeRender || sceneContext.AffectedArea.Chunks == null);
-            paint.BlendMode = sceneContext.IterativeRender
-                ? Drawie.Backend.Core.Surfaces.BlendMode.Src
-                : Drawie.Backend.Core.Surfaces.BlendMode.SrcOver;
+                sceneContext.ProcessingColorSpace,
+                !sceneContext.IterativeRender || sceneContext.AffectedArea.Chunks == null);
 
             target = intermediate.DrawingSurface.Canvas;
             intermediate.DrawingSurface.Canvas.Save();
@@ -101,14 +99,16 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
 
         Content.Value?.Paint(sceneContext, target);
 
-        if(target != sceneContext.RenderSurface)
+        if (target != sceneContext.RenderSurface)
         {
             target.Restore();
-            paint.BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.Src;
 
             if (sceneContext is { IterativeRender: true, AffectedArea.GlobalArea: not null })
             {
-                sceneContext.RenderSurface.ClipRect(sceneContext.AffectedArea.GlobalArea.Value.Scale((float)sceneContext.ChunkResolution.Multiplier()));
+                sceneContext.RenderSurface.ClipRect(
+                    sceneContext.AffectedArea.GlobalArea.Value.Scale((float)sceneContext.ChunkResolution.Multiplier()));
+
+                ClearChunkIfNeeded(sceneContext, paint);
             }
 
             sceneContext.RenderSurface.DrawSurface(target.Surface, 0, 0, paint);

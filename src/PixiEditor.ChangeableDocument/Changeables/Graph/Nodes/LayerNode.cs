@@ -169,10 +169,8 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
         }
 
         bool firstDraw = false;
-        if (context.IterativeRender && (!context.State.TryGetValue("ClearedChunks", out object cleared1) || cleared1 is not bool clearedBool1 ||
-            !clearedBool1))
+        if (ClearChunkIfNeeded(context, null))
         {
-            context.State["ClearedChunks"] = true;
             firstDraw = true;
         }
 

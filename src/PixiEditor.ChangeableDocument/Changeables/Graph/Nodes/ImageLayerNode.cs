@@ -111,15 +111,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         workingSurface.Translate(GetScenePosition(ctx.FrameTime));
 
         var orgBlendMode = blendPaint.BlendMode;
-        if (ctx.IterativeRender)
-        {
-            if (!ctx.State.TryGetValue("ClearedChunks", out object cleared) || cleared is not bool clearedBool ||
-                !clearedBool)
-            {
-                blendPaint.BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.Src;
-                ctx.State["ClearedChunks"] = true;
-            }
-        }
+        ClearChunkIfNeeded(ctx, blendPaint);
 
         base.DrawLayerInScene(ctx, workingSurface, useFilters);
 

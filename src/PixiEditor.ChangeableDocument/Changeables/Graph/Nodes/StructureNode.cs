@@ -169,7 +169,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         }
 
         var renderObjectContext = CreateSceneContext(context, renderTarget, output);
-        if(UseCustomTime.Value)
+        if (UseCustomTime.Value)
         {
             renderObjectContext.FrameTime = new KeyFrameTime(CustomActiveFrame.Value, CustomNormalizedTime.Value);
         }
@@ -268,7 +268,8 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
     public abstract RectD? GetTightBounds(KeyFrameTime frameTime);
     public abstract RectD? GetApproxBounds(KeyFrameTime frameTime);
 
-    internal override void SerializeAdditionalDataInternal(IReadOnlyDocument target, Dictionary<string, object> additionalData)
+    internal override void SerializeAdditionalDataInternal(IReadOnlyDocument target,
+        Dictionary<string, object> additionalData)
     {
         base.SerializeAdditionalDataInternal(target, additionalData);
         if (EmbeddedMask != null)
@@ -349,5 +350,25 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         maskPaint.Dispose();
         blendPaint.Dispose();
         maskPreviewPaint.Dispose();
+    }
+
+    protected bool ClearChunkIfNeeded(RenderContext ctx, Paint? paintToAdjust)
+    {
+        if (ctx.IterativeRender)
+        {
+            if (!ctx.State.TryGetValue("ClearedChunks", out object cleared) || cleared is not bool clearedBool ||
+                !clearedBool)
+            {
+                if (paintToAdjust != null)
+                {
+                    paintToAdjust.BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.Src;
+                }
+
+                ctx.State["ClearedChunks"] = true;
+                return true;
+            }
+        }
+
+        return false;
     }
 }
