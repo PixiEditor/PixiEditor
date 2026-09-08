@@ -262,7 +262,9 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
     protected void DrawClipSource(Canvas drawOnto, IClipSource clipSource, SceneObjectRenderContext context)
     {
         blendPaint.Color = Colors.White;
-        clipSource.DrawClipSource(context, drawOnto);
+        var copiedContext = context.Clone() as SceneObjectRenderContext;
+        copiedContext.State = new Dictionary<string, object>();
+        clipSource.DrawClipSource(copiedContext, drawOnto);
     }
 
     public abstract RectD? GetTightBounds(KeyFrameTime frameTime);

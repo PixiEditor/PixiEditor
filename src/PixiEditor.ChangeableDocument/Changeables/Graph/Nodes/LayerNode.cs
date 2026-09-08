@@ -136,7 +136,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
         if (Background.Value != null && ClipToPreviousMember)
         {
             Texture tempSurface = TryInitWorkingSurface(size, ChunkResolution.Full, context.ProcessingColorSpace,
-                context.GraphCacheId + 4, !context.IterativeRender);
+                context.GraphCacheId + 4, !context.IterativeRender || context.AffectedArea.Chunks == null);
 
             tempSurface.DrawingSurface.Canvas.Save();
             if (AllowHighDpiRendering)
