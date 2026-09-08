@@ -354,7 +354,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         maskPreviewPaint.Dispose();
     }
 
-    protected bool ClearChunkIfNeeded(RenderContext ctx, Paint? paintToAdjust)
+    protected bool MarkChunksClearedIfNeeded(RenderContext ctx, Paint? paintToAdjust)
     {
         if (ctx.IterativeRender)
         {

@@ -108,7 +108,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
                 sceneContext.RenderSurface.ClipRect(
                     sceneContext.AffectedArea.GlobalArea.Value.Scale((float)sceneContext.ChunkResolution.Multiplier()));
 
-                ClearChunkIfNeeded(sceneContext, paint);
+                MarkChunksClearedIfNeeded(sceneContext, paint);
             }
 
             sceneContext.RenderSurface.DrawSurface(target.Surface, 0, 0, paint);
@@ -125,17 +125,22 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
             return;
         }
 
-        var outputWorkingSurface = RequestTexture(0, size, sceneContext.ProcessingColorSpace);
+        var outputWorkingSurface = RequestTexture(-12786 + sceneContext.GraphCacheId, size,
+            sceneContext.ProcessingColorSpace,
+            !sceneContext.IterativeRender || sceneContext.AffectedArea.Chunks == null);
         outputWorkingSurface.DrawingSurface.Canvas.Save();
         outputWorkingSurface.DrawingSurface.Canvas.SetMatrix(sceneContext.RenderSurface.TotalMatrix);
 
+        Matrix3X3 sceneToDocumentMatrix = sceneContext.RenderSurface.TotalMatrix;
         int saved = sceneContext.RenderSurface.Save();
         sceneContext.RenderSurface.SetMatrix(Matrix3X3.Identity);
 
         blendPaint.ImageFilter = null;
         blendPaint.ColorFilter = null;
 
-        Content.Value?.Paint(sceneContext, outputWorkingSurface.DrawingSurface.Canvas);
+        var clonedContext = sceneContext.Clone() as SceneObjectRenderContext;
+        clonedContext.State = new Dictionary<string, object>();
+        Content.Value?.Paint(clonedContext, outputWorkingSurface.DrawingSurface.Canvas);
 
         int saved2 = outputWorkingSurface.DrawingSurface.Canvas.Save();
         outputWorkingSurface.DrawingSurface.Canvas.Scale((float)sceneContext.ChunkResolution.InvertedMultiplier());
@@ -144,24 +149,41 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
 
         outputWorkingSurface.DrawingSurface.Canvas.RestoreToCount(saved2);
 
+
         if (Background.Value != null && sceneContext.TargetPropertyOutput != RawOutput && ClipToPreviousMember)
         {
-            Texture tempSurface = RequestTexture(1, outputWorkingSurface.Size, sceneContext.ProcessingColorSpace);
+            Texture tempSurface = RequestTexture(-1222 + sceneContext.GraphCacheId, outputWorkingSurface.Size,
+                sceneContext.ProcessingColorSpace,
+                !sceneContext.IterativeRender || sceneContext.AffectedArea.Chunks == null);
             tempSurface.DrawingSurface.Canvas.Save();
-            tempSurface.DrawingSurface.Canvas.SetMatrix(outputWorkingSurface.DrawingSurface.Canvas.TotalMatrix);
+            int savedWorkingSurface = outputWorkingSurface.DrawingSurface.Canvas.Save();
 
+            tempSurface.DrawingSurface.Canvas.SetMatrix(outputWorkingSurface.DrawingSurface.Canvas.TotalMatrix);
             outputWorkingSurface.DrawingSurface.Canvas.SetMatrix(Matrix3X3.Identity);
+
             if (Background.Connection.Node is IClipSource clipSource && ClipToPreviousMember)
             {
                 DrawClipSource(tempSurface.DrawingSurface.Canvas, clipSource, sceneContext);
             }
 
             ApplyRasterClip(outputWorkingSurface.DrawingSurface, tempSurface.DrawingSurface);
+
+            tempSurface.DrawingSurface.Canvas.Restore();
+            outputWorkingSurface.DrawingSurface.Canvas.RestoreToCount(savedWorkingSurface);
         }
 
         AdjustPaint(useFilters);
 
         blendPaint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
+
+        if (sceneContext is { IterativeRender: true, AffectedArea.GlobalArea: not null })
+        {
+            MarkChunksClearedIfNeeded(sceneContext, blendPaint);
+
+            sceneContext.RenderSurface.ClipRect(sceneToDocumentMatrix.TransformRect(
+                sceneContext.AffectedArea.GlobalArea.Value.Scale((float)sceneContext.ChunkResolution.Multiplier())));
+        }
+
         sceneContext.RenderSurface.DrawSurface(outputWorkingSurface.DrawingSurface, 0, 0, blendPaint);
 
         sceneContext.RenderSurface.RestoreToCount(saved);

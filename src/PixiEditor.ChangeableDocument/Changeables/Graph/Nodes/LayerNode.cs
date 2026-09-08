@@ -88,7 +88,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
                         context.State["ClearedChunks"] = true;
                     }
 
-                    DrawLayerOnTexture(context, context.RenderSurface, ChunkResolution.Full, useFilters,
+                    DrawLayerOnTexture(context, renderOnto, ChunkResolution.Full, useFilters,
                         targetPaint);
                     blendPaint.SetFilters(null);
                 }
@@ -169,7 +169,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
         }
 
         bool firstDraw = false;
-        if (ClearChunkIfNeeded(context, null))
+        if (MarkChunksClearedIfNeeded(context, null))
         {
             firstDraw = true;
         }

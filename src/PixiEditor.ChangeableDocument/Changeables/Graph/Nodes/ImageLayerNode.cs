@@ -111,7 +111,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         workingSurface.Translate(GetScenePosition(ctx.FrameTime));
 
         var orgBlendMode = blendPaint.BlendMode;
-        ClearChunkIfNeeded(ctx, blendPaint);
+        MarkChunksClearedIfNeeded(ctx, blendPaint);
 
         base.DrawLayerInScene(ctx, workingSurface, useFilters);
 
