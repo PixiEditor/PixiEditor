@@ -81,7 +81,10 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
             return;
         }
 
-        Rasterize(workingSurface, paint, ctx.FrameTime.Frame);
+        if (!ctx.IterativeRender || ctx.AffectedArea.GlobalArea.HasValue)
+        {
+            Rasterize(workingSurface, paint, ctx.FrameTime.Frame);
+        }
     }
 
     protected override void DrawWithFilters(SceneObjectRenderContext ctx, Canvas workingSurface, Paint paint)
@@ -91,7 +94,20 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
             return;
         }
 
-        Rasterize(workingSurface, paint, ctx.FrameTime.Frame);
+        if (!ctx.IterativeRender || ctx.AffectedArea.GlobalArea.HasValue)
+        {
+            Rasterize(workingSurface, paint, ctx.FrameTime.Frame);
+        }
+    }
+
+    private bool IsInsideAffectedChunks(SceneObjectRenderContext ctx)
+    {
+        if (!ctx.AffectedArea.GlobalArea.HasValue) return true;
+
+        var visualAABB = RenderableShapeData?.TransformedVisualAABB;
+        if (visualAABB == null) return true;
+
+        return ctx.AffectedArea.GlobalArea.Value.ContainsInclusive((RectI)visualAABB.Value.RoundOutwards());
     }
 
     protected override bool ShouldRenderPreview(string elementToRenderName)

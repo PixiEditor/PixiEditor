@@ -102,15 +102,6 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
         if (target != sceneContext.RenderSurface)
         {
             target.Restore();
-
-            /*
-            if (sceneContext is { IterativeRender: true, AffectedArea.GlobalArea: not null })
-            {
-                sceneContext.RenderSurface.ClipRect(
-                    sceneContext.AffectedArea.GlobalArea.Value.Scale((float)sceneContext.ChunkResolution.Multiplier()));
-            }
-            */
-
             sceneContext.RenderSurface.DrawSurface(target.Surface, 0, 0, paint);
         }
 
@@ -126,8 +117,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
         }
 
         var outputWorkingSurface = RequestTexture(-12786 + sceneContext.GraphCacheId, size,
-            sceneContext.ProcessingColorSpace,
-            !sceneContext.IterativeRender || sceneContext.AffectedArea.Chunks == null);
+            sceneContext.ProcessingColorSpace);
         outputWorkingSurface.DrawingSurface.Canvas.Save();
         outputWorkingSurface.DrawingSurface.Canvas.SetMatrix(sceneContext.RenderSurface.TotalMatrix);
 
@@ -174,12 +164,6 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
         AdjustPaint(useFilters);
 
         blendPaint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
-
-        if (sceneContext is { IterativeRender: true, AffectedArea.GlobalArea: not null })
-        {
-            sceneContext.RenderSurface.ClipRect(sceneToDocumentMatrix.TransformRect(
-                sceneContext.AffectedArea.GlobalArea.Value.Scale((float)sceneContext.ChunkResolution.Multiplier())));
-        }
 
         sceneContext.RenderSurface.DrawSurface(outputWorkingSurface.DrawingSurface, 0, 0, blendPaint);
 
