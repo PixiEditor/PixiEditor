@@ -340,8 +340,8 @@ internal class SceneRenderer : IDisposable
             RectD toClip = (RectD)area.GlobalArea.Value;
             if (highResRendering)
             {
-                var adjustment = new VecD(-1);
-                toClip = new RectD(toClip.Pos.X - adjustment.X, toClip.Pos.Y - adjustment.Y, toClip.Size.X + adjustment.X, toClip.Size.Y + adjustment.Y);
+                var adjustment = new RectD(1, 1, -2, -2);
+                toClip = new RectD(toClip.Pos.X + adjustment.X, toClip.Pos.Y + adjustment.Y, toClip.Size.X + adjustment.Width, toClip.Size.Y + adjustment.Height);
             }
             renderTarget.Canvas.ClipRect(toClip);
             renderTarget.Canvas.Clear();
@@ -504,7 +504,7 @@ internal class SceneRenderer : IDisposable
         bool graphIsBasicStructure = GraphSupportsIterativeRendering(finalGraph);
         partialRenderAllowed = hasLastState && lastState.VisibleDocumentRegion == region && !isFullViewportRender &&
                                lastState.ViewportData.Transform == viewportViewportData.Transform &&
-                               graphIsBasicStructure;
+                               graphIsBasicStructure && lastState.HighResRendering == highResRendering;
 
         VecI finalSize = SolveRenderOutputSize(targetOutput, finalGraph, Document.Size, targetSize, out _);
         bool renderInDocumentSize = RenderInOutputSize(highResRendering, finalGraph, targetSize, finalSize);
