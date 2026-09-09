@@ -194,7 +194,6 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
             context.FrameTime, context.ChunkResolution, context.RenderOutputSize, context.DocumentSize,
             renderTarget == context.RenderSurface,
             context.ProcessingColorSpace, context.DesiredSamplingOptions, context.Graph, context.Opacity);
-        renderObjectContext.State = context.State;
         renderObjectContext.FullRerender = context.FullRerender;
         renderObjectContext.AffectedArea = context.AffectedArea;
         renderObjectContext.IterativeRender = context.IterativeRender;
@@ -263,7 +262,6 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
     {
         blendPaint.Color = Colors.White;
         var copiedContext = context.Clone() as SceneObjectRenderContext;
-        copiedContext.State = new Dictionary<string, object>();
         clipSource.DrawClipSource(copiedContext, drawOnto);
     }
 
@@ -352,25 +350,5 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         maskPaint.Dispose();
         blendPaint.Dispose();
         maskPreviewPaint.Dispose();
-    }
-
-    protected bool MarkChunksClearedIfNeeded(RenderContext ctx, Paint? paintToAdjust)
-    {
-        if (ctx.IterativeRender)
-        {
-            if (!ctx.State.TryGetValue("ClearedChunks", out object cleared) || cleared is not bool clearedBool ||
-                !clearedBool)
-            {
-                if (paintToAdjust != null)
-                {
-                    paintToAdjust.BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.Src;
-                }
-
-                ctx.State["ClearedChunks"] = true;
-                return true;
-            }
-        }
-
-        return false;
     }
 }

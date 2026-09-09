@@ -296,12 +296,13 @@ internal class SceneRenderer : IDisposable
 
         VecI finalSize = SolveRenderOutputSize(targetOutput, finalGraph, Document.Size, renderTargetSize,
             out bool isFullViewportRender);
+        int saved = 0;
         if (isFullViewportRender)
         {
             renderTexture =
                 textureCache.RequestTexture(viewportId.GetHashCode(), renderTargetSize, Document.ProcessingColorSpace);
             renderTarget = renderTexture.DrawingSurface;
-            renderTarget.Canvas.Save();
+            saved = renderTarget.Canvas.Save();
         }
         else
         {
@@ -312,7 +313,7 @@ internal class SceneRenderer : IDisposable
                 renderTexture =
                     textureCache.RequestTexture(viewportId.GetHashCode(), finalSize, Document.ProcessingColorSpace, !partialRenderAllowed);
                 renderTarget = renderTexture.DrawingSurface;
-                renderTarget.Canvas.Save();
+                saved = renderTarget.Canvas.Save();
                 renderTexture.DrawingSurface.Canvas.Save();
                 renderTexture.DrawingSurface.Canvas.Scale((float)resolution.Multiplier());
             }
@@ -331,6 +332,14 @@ internal class SceneRenderer : IDisposable
                 renderTarget = renderTexture.DrawingSurface;
                 renderTarget.Canvas.SetMatrix(bufferedMatrix);
             }
+        }
+
+        if (partialRenderAllowed && area.GlobalArea.HasValue)
+        {
+            renderTarget.Canvas.Save();
+            renderTarget.Canvas.ClipRect((RectD)area.GlobalArea.Value);
+            renderTarget.Canvas.Clear();
+            //renderTarget.Canvas.Restore();
         }
 
         bool renderOnionSkinning = canRenderOnionSkinning &&
@@ -410,7 +419,7 @@ internal class SceneRenderer : IDisposable
             }
         }
 
-        renderTarget.Canvas.Restore();
+        renderTarget.Canvas.RestoreToCount(saved);
 
         return renderTexture;
     }

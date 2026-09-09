@@ -107,15 +107,10 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         bool useFilters = true)
     {
         int scaled = workingSurface.Save();
-        float multiplier = (float)ctx.ChunkResolution.InvertedMultiplier();
         workingSurface.Translate(GetScenePosition(ctx.FrameTime));
-
-        var orgBlendMode = blendPaint.BlendMode;
-        MarkChunksClearedIfNeeded(ctx, blendPaint);
 
         base.DrawLayerInScene(ctx, workingSurface, useFilters);
 
-        blendPaint.BlendMode = orgBlendMode;
         workingSurface.RestoreToCount(scaled);
     }
 

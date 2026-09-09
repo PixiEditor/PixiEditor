@@ -89,9 +89,9 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
         if (!(Math.Abs(Opacity.Value - 1) < 0.01f) || Filters.Value != null ||
             BlendMode.Value != Enums.BlendMode.Normal || HasOperations())
         {
-            var intermediate = RequestTexture(5, sceneContext.RenderSurface.DeviceClipBounds.Size,
-                sceneContext.ProcessingColorSpace,
-                !sceneContext.IterativeRender || sceneContext.AffectedArea.Chunks == null);
+            var intermediate = RequestTexture(sceneContext.GraphCacheId + 5,
+                sceneContext.RenderSurface.DeviceClipBounds.Pos + sceneContext.RenderSurface.DeviceClipBounds.Size,
+                sceneContext.ProcessingColorSpace);
 
             target = intermediate.DrawingSurface.Canvas;
             intermediate.DrawingSurface.Canvas.Save();
@@ -103,13 +103,13 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
         {
             target.Restore();
 
+            /*
             if (sceneContext is { IterativeRender: true, AffectedArea.GlobalArea: not null })
             {
                 sceneContext.RenderSurface.ClipRect(
                     sceneContext.AffectedArea.GlobalArea.Value.Scale((float)sceneContext.ChunkResolution.Multiplier()));
-
-                MarkChunksClearedIfNeeded(sceneContext, paint);
             }
+            */
 
             sceneContext.RenderSurface.DrawSurface(target.Surface, 0, 0, paint);
         }
@@ -139,7 +139,6 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
         blendPaint.ColorFilter = null;
 
         var clonedContext = sceneContext.Clone() as SceneObjectRenderContext;
-        clonedContext.State = new Dictionary<string, object>();
         Content.Value?.Paint(clonedContext, outputWorkingSurface.DrawingSurface.Canvas);
 
         int saved2 = outputWorkingSurface.DrawingSurface.Canvas.Save();
@@ -178,8 +177,6 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
 
         if (sceneContext is { IterativeRender: true, AffectedArea.GlobalArea: not null })
         {
-            MarkChunksClearedIfNeeded(sceneContext, blendPaint);
-
             sceneContext.RenderSurface.ClipRect(sceneToDocumentMatrix.TransformRect(
                 sceneContext.AffectedArea.GlobalArea.Value.Scale((float)sceneContext.ChunkResolution.Multiplier())));
         }

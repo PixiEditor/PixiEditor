@@ -77,17 +77,10 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
 
                     blendPaint.SetFilters(null);
                     DrawWithResolution(tempSurface.DrawingSurface, renderOnto, context.ChunkResolution,
-                        context.DesiredSamplingOptions, false);
+                        context.DesiredSamplingOptions);
                 }
                 else
                 {
-                    if (!context.State.TryGetValue("ClearedChunks", out object cleared) ||
-                        cleared is not bool clearedBool || !clearedBool)
-                    {
-                        targetPaint.BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.Src;
-                        context.State["ClearedChunks"] = true;
-                    }
-
                     DrawLayerOnTexture(context, renderOnto, ChunkResolution.Full, useFilters,
                         targetPaint);
                     blendPaint.SetFilters(null);
@@ -169,14 +162,10 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
         }
 
         bool firstDraw = false;
-        if (MarkChunksClearedIfNeeded(context, null))
-        {
-            firstDraw = true;
-        }
 
         if (!context.IterativeRender || context.AffectedArea.Chunks.Count > 0)
             DrawWithResolution(outputWorkingSurface.DrawingSurface, renderOnto, adjustedResolution,
-                context.DesiredSamplingOptions, firstDraw, context.IterativeRender ? context.AffectedArea : default);
+                context.DesiredSamplingOptions, context.IterativeRender ? context.AffectedArea : default);
 
         renderOnto.RestoreToCount(saved);
         outputWorkingSurface.DrawingSurface.Canvas.Restore();
@@ -196,13 +185,13 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
     }
 
     private void DrawWithResolution(DrawingSurface source, Canvas target, ChunkResolution resolution,
-        SamplingOptions sampling, bool replace, AffectedArea contextAffectedArea = default)
+        SamplingOptions sampling, AffectedArea contextAffectedArea = default)
     {
         int scaled = target.Save();
         float multiplier = (float)resolution.InvertedMultiplier();
         target.Scale(multiplier, multiplier);
 
-        var targetPaint = replace ? replacePaint : blendPaint;
+        var targetPaint = blendPaint;
 
         if (contextAffectedArea.GlobalArea.HasValue)
         {
