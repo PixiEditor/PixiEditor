@@ -337,7 +337,13 @@ internal class SceneRenderer : IDisposable
         if (partialRenderAllowed && area.GlobalArea.HasValue)
         {
             renderTarget.Canvas.Save();
-            renderTarget.Canvas.ClipRect((RectD)area.GlobalArea.Value);
+            RectD toClip = (RectD)area.GlobalArea.Value;
+            if (highResRendering)
+            {
+                var adjustment = new VecD(-1);
+                toClip = new RectD(toClip.Pos.X - adjustment.X, toClip.Pos.Y - adjustment.Y, toClip.Size.X + adjustment.X, toClip.Size.Y + adjustment.Y);
+            }
+            renderTarget.Canvas.ClipRect(toClip);
             renderTarget.Canvas.Clear();
             //renderTarget.Canvas.Restore();
         }
