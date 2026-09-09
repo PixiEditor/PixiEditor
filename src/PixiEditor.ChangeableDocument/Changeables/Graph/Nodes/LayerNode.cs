@@ -82,7 +82,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
                 else
                 {
                     DrawLayerOnTexture(context, renderOnto, ChunkResolution.Full, useFilters,
-                        targetPaint);
+                        blendPaint);
                     blendPaint.SetFilters(null);
                 }
             }
@@ -193,13 +193,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
 
         var targetPaint = blendPaint;
 
-        if (contextAffectedArea.GlobalArea.HasValue)
-        {
-            target.ClipRect((RectD)contextAffectedArea.GlobalArea.Value.Scale(resolution.Multiplier()));
-        }
-
         target.DrawSurface(source, 0, 0, sampling, targetPaint);
-
         target.RestoreToCount(scaled);
     }
 

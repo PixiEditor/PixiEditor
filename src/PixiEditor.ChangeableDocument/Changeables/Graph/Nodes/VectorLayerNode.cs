@@ -100,15 +100,6 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         }
     }
 
-    private bool IsInsideAffectedChunks(SceneObjectRenderContext ctx)
-    {
-        if (!ctx.AffectedArea.GlobalArea.HasValue) return true;
-
-        var visualAABB = RenderableShapeData?.TransformedVisualAABB;
-        if (visualAABB == null) return true;
-
-        return ctx.AffectedArea.GlobalArea.Value.ContainsInclusive((RectI)visualAABB.Value.RoundOutwards());
-    }
 
     protected override bool ShouldRenderPreview(string elementToRenderName)
     {
