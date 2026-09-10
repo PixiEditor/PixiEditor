@@ -173,14 +173,14 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
             var multiplier = visibleRegion != latestSize ? 1 : ctx.ChunkResolution.Multiplier();
             var intersection = visibleRegion.Intersect(latestSize);
             region = intersection;
-            VecI chunkAwareSize = (VecI)(new VecD(region.Width, region.Height) * multiplier).Round();
+            VecI chunkAwareSize = (VecI)(new VecD(region.Width, region.Height) * multiplier).Ceiling();
             if (chunkAwareSize.X <= 0 || chunkAwareSize.Y <= 0)
             {
                 workingSurface.RestoreToCount(saved);
                 return;
             }
 
-            intermediate = RequestTexture(1336, chunkAwareSize, ColorSpace.CreateSrgb());
+            intermediate = RequestTexture(ctx.GraphCacheId + 1336, chunkAwareSize, ColorSpace.CreateSrgb());
             finalDrawPos = VecD.Zero;
             topLeft = region.TopLeft - sceneSize / 2;
         }
@@ -201,12 +201,10 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
                     emptyPaint.Color = Colors.Transparent;
                 }
 
-                var visibleDocRegion = ctx.VisibleDocumentRegion?.Pos ?? VecD.Zero;
-
                 img.DrawMostUpToDateAffectedArea(
                     ctx.ChunkResolution,
                     saveLayer ? intermediate.DrawingSurface.Canvas : workingSurface, ctx.AffectedArea,
-                    finalDrawPos - visibleDocRegion * ctx.ChunkResolution.Multiplier(),
+                    finalDrawPos - region.Pos,
                     saveLayer ? null : paint, emptyPaint, ctx.DesiredSamplingOptions);
                 emptyPaint?.Dispose();
             }

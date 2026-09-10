@@ -1,9 +1,10 @@
 ﻿using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 
-public abstract class FilterNode : Node
+public abstract class FilterNode : Node, IIterativeRenderSupport
 {
     public const string OutputPropertyName = "Output";
     public const string InputPropertyName = "Input";
@@ -14,6 +15,7 @@ public abstract class FilterNode : Node
 
     protected override bool ExecuteOnlyOnCacheChange => true;
     protected override CacheTriggerFlags CacheTrigger => CacheTriggerFlags.Inputs;
+    public bool SupportsIterativeRendering => true;
 
     public FilterNode()
     {

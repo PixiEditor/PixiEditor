@@ -218,6 +218,7 @@ internal class SceneRenderer : IDisposable
 
         shouldRerender |= lastGraphCacheHash != graphCacheHash;
         shouldRerender |= !lastRenderedViewports.Contains(viewportId);
+        partialRenderAllowed &= lastRenderedViewports.Contains(viewportId);
 
         if (shouldRerender)
         {
