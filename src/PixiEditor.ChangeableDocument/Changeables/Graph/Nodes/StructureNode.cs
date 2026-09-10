@@ -227,7 +227,9 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
                 }
                 else
                 {
-                    EmbeddedMask?.DrawMostUpToDateAffectedArea(context.ChunkResolution, surface, context.AffectedArea,
+                    EmbeddedMask?.DrawMostUpToDateAffectedArea(
+                        new RectD(0, 0, EmbeddedMask.LatestSize.X, EmbeddedMask.LatestSize.Y),
+                        context.ChunkResolution, surface, context.AffectedArea,
                         VecI.Zero, maskPaint, maskPaint);
                 }
             }

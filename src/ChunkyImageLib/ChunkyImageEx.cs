@@ -53,22 +53,31 @@ public static class IReadOnlyChunkyImageEx
     /// <param name="pos">Starting position on the surface</param>
     /// <param name="paint">Paint to use for drawing</param>
     public static void DrawMostUpToDateAffectedArea
-    (this IReadOnlyChunkyImage image, ChunkResolution resolution, Canvas surface,
+    (this IReadOnlyChunkyImage image, RectD fullResRegion, ChunkResolution resolution, Canvas surface,
         AffectedArea affectedArea, VecD pos, Paint? paint = null, Paint? emptyPaint = null, SamplingOptions? sampling = null)
     {
         if (affectedArea.Chunks is null)
             return;
 
+        int count = surface.Save();
+        surface.ClipRect(new RectD(pos, fullResRegion.Size));
+
+        VecI chunkTopLeft = OperationHelper.GetChunkPos((VecI)fullResRegion.TopLeft, ChunkyImage.FullChunkSize);
+        VecI chunkBotRight = OperationHelper.GetChunkPos((VecI)fullResRegion.BottomRight, ChunkyImage.FullChunkSize);
+        VecD offsetFullRes = (chunkTopLeft * ChunkyImage.FullChunkSize) - fullResRegion.Pos;
+        VecD offsetTargetRes = offsetFullRes * resolution.Multiplier();
+
         foreach (var chunkPos in affectedArea.Chunks)
         {
             if (!image.DrawMostUpToDateChunkOn(chunkPos, resolution, surface,
-                    (VecI)(chunkPos * ChunkyImage.FullChunkSize * resolution.Multiplier()) + pos, paint, sampling) && emptyPaint != null)
+                    offsetTargetRes + (chunkPos - chunkTopLeft) * resolution.PixelSize() + pos, paint, sampling) && emptyPaint != null)
             {
                 surface.DrawRect(new RectD(
-                    (VecI)(chunkPos * ChunkyImage.FullChunkSize * resolution.Multiplier()) + pos,
+                    offsetTargetRes + (chunkPos - chunkTopLeft) * resolution.PixelSize() + pos,
                     new VecD(resolution.PixelSize())), emptyPaint);
             }
         }
+        surface.RestoreToCount(count);
     }
 
     /// <summary>

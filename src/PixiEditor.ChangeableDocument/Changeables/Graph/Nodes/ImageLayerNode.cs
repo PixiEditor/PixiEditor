@@ -182,7 +182,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
             intermediate = RequestTexture(ctx.GraphCacheId + 1336, chunkAwareSize, ColorSpace.CreateSrgb());
             finalDrawPos = VecD.Zero;
-            topLeft = region.TopLeft - sceneSize / 2;
+            topLeft = (region.TopLeft - sceneSize / 2).Round();
         }
         else
         {
@@ -202,9 +202,9 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
                 }
 
                 img.DrawMostUpToDateAffectedArea(
+                    region,
                     ctx.ChunkResolution,
-                    saveLayer ? intermediate.DrawingSurface.Canvas : workingSurface, ctx.AffectedArea,
-                    finalDrawPos - region.Pos,
+                    saveLayer ? intermediate.DrawingSurface.Canvas : workingSurface, ctx.AffectedArea, finalDrawPos,
                     saveLayer ? null : paint, emptyPaint, ctx.DesiredSamplingOptions);
                 emptyPaint?.Dispose();
             }
