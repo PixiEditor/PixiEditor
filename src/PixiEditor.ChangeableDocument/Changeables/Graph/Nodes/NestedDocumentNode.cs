@@ -326,12 +326,12 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
         if (NestedDocument.Value?.DocumentInstance is null || workingSurface is null || Instance is null)
             return;
 
-        var intermediate = RequestTexture(ctx.GraphCacheId + 5123, workingSurface.DeviceClipBounds.Size + workingSurface.DeviceClipBounds.Pos, Instance.ProcessingColorSpace);
+        var intermediate = RequestTexture(ctx.GraphCacheId + 5123, Instance.Size, Instance.ProcessingColorSpace);
         if (intermediate is null)
             return;
 
         intermediate.DrawingSurface.Canvas.Save();
-        intermediate.DrawingSurface.Canvas.SetMatrix(workingSurface.TotalMatrix);
+        //intermediate.DrawingSurface.Canvas.SetMatrix(workingSurface.TotalMatrix);
 
         int workingSurfaceSaved = 0;
         if (paint == null || paint.IsOpaqueStandardNonBlendingPaint)
@@ -343,11 +343,11 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
             workingSurfaceSaved = workingSurface.SaveLayer(paint);
         }
 
-        workingSurface.SetMatrix(Matrix3X3.Identity);
+        //workingSurface.SetMatrix(Matrix3X3.Identity);
 
         Canvas targetSurface = intermediate.DrawingSurface.Canvas;
 
-        targetSurface.SetMatrix(targetSurface.TotalMatrix.Concat(TransformationMatrix));
+        //targetSurface.SetMatrix(targetSurface.TotalMatrix.Concat(TransformationMatrix));
         if (ClipToDocumentBounds.Value)
         {
             var docSize = NestedDocument.Value.DocumentInstance.Size;
@@ -367,7 +367,8 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
             paintToApply.ColorFilter = ColorFilter.CreateColorMatrix(ColorMatrix.Identity);
         }
 
-        workingSurface.DrawSurface(intermediate.DrawingSurface, 0, 0, paintToApply);
+        workingSurface.SetMatrix(workingSurface.TotalMatrix.Concat(TransformationMatrix));
+        workingSurface.DrawSurface(intermediate.DrawingSurface, 0, 0, BilinearSampling.Value ? SamplingOptions.Bilinear : SamplingOptions.Default, paintToApply);
         workingSurface.RestoreToCount(workingSurfaceSaved);
 
         intermediate.DrawingSurface.Canvas.Restore();

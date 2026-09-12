@@ -76,14 +76,13 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
                     context.RenderSurface = originalSurface;
 
                     blendPaint.SetFilters(null);
-                    DrawWithResolution(tempSurface.DrawingSurface, renderOnto, context.ChunkResolution,
-                        context.DesiredSamplingOptions);
+                    DrawWithResolution(tempSurface.DrawingSurface, renderOnto, context.ChunkResolution, context.DesiredSamplingOptions);
                 }
                 else
                 {
+                    blendPaint.SetFilters(null);
                     DrawLayerOnTexture(context, renderOnto, ChunkResolution.Full, useFilters,
                         blendPaint);
-                    blendPaint.SetFilters(null);
                 }
             }
 
