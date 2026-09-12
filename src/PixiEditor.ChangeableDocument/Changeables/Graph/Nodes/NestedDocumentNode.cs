@@ -326,12 +326,12 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
         if (NestedDocument.Value?.DocumentInstance is null || workingSurface is null || Instance is null)
             return;
 
-        var intermediate = RequestTexture(ctx.GraphCacheId + 5123, Instance.Size, Instance.ProcessingColorSpace);
+        var intermediate = RequestTexture(ctx.GraphCacheId + 5123, workingSurface.DeviceClipBounds.Size + workingSurface.DeviceClipBounds.Pos, Instance.ProcessingColorSpace);
         if (intermediate is null)
             return;
 
         intermediate.DrawingSurface.Canvas.Save();
-        //intermediate.DrawingSurface.Canvas.SetMatrix(workingSurface.TotalMatrix);
+        intermediate.DrawingSurface.Canvas.SetMatrix(workingSurface.TotalMatrix);
 
         int workingSurfaceSaved = 0;
         if (paint == null || paint.IsOpaqueStandardNonBlendingPaint)
@@ -343,11 +343,11 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
             workingSurfaceSaved = workingSurface.SaveLayer(paint);
         }
 
-        //workingSurface.SetMatrix(Matrix3X3.Identity);
+        workingSurface.SetMatrix(Matrix3X3.Identity);
 
         Canvas targetSurface = intermediate.DrawingSurface.Canvas;
 
-        //targetSurface.SetMatrix(targetSurface.TotalMatrix.Concat(TransformationMatrix));
+        targetSurface.SetMatrix(targetSurface.TotalMatrix.Concat(TransformationMatrix));
         if (ClipToDocumentBounds.Value)
         {
             var docSize = NestedDocument.Value.DocumentInstance.Size;
@@ -367,8 +367,7 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
             paintToApply.ColorFilter = ColorFilter.CreateColorMatrix(ColorMatrix.Identity);
         }
 
-        workingSurface.SetMatrix(workingSurface.TotalMatrix.Concat(TransformationMatrix));
-        workingSurface.DrawSurface(intermediate.DrawingSurface, 0, 0, BilinearSampling.Value ? SamplingOptions.Bilinear : SamplingOptions.Default, paintToApply);
+        workingSurface.DrawSurface(intermediate.DrawingSurface, 0, 0, paintToApply);
         workingSurface.RestoreToCount(workingSurfaceSaved);
 
         intermediate.DrawingSurface.Canvas.Restore();
@@ -378,9 +377,8 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
     }
 
 
-    private void ExecuteNested(RenderContext ctx)
+    private void ExecuteNested(RenderContext clonedContext)
     {
-        var clonedContext = ctx.Clone();
         if (clonedContext.CloneDepth >= MaxRecursionDepth)
         {
             return;
@@ -389,6 +387,11 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
         clonedContext.Graph = Instance?.NodeGraph;
         clonedContext.DocumentSize = Instance?.Size ?? VecI.Zero;
         clonedContext.ProcessingColorSpace = Instance?.ProcessingColorSpace;
+        if (clonedContext is SceneObjectRenderContext sceneObjectRenderContext)
+        {
+            sceneObjectRenderContext.UntransformedSampling = true;
+        }
+
         clonedContext.RenderOutputSize =
             (VecI)(clonedContext.DocumentSize * clonedContext.ChunkResolution.Multiplier());
         clonedContext.DesiredSamplingOptions =
@@ -403,10 +406,10 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
             clonedContext.VisibleDocumentRegion = intersection;
         }
 
-        if(ctx.AffectedArea.Chunks is { Count: > 0 })
+        if(clonedContext.AffectedArea.Chunks is { Count: > 0 })
         {
-            RectD areaInParentSpace = RectD.FromCenterAndSize(GetScenePosition(ctx.FrameTime), GetSceneSize(ctx.FrameTime));
-            RectD intersectedArea = areaInParentSpace.Intersect((RectD)ctx.AffectedArea.GlobalArea.Value);
+            RectD areaInParentSpace = RectD.FromCenterAndSize(GetScenePosition(clonedContext.FrameTime), GetSceneSize(clonedContext.FrameTime));
+            RectD intersectedArea = areaInParentSpace.Intersect((RectD)clonedContext.AffectedArea.GlobalArea.Value);
             RectD affectedAreaInNestedSpace = TransformationMatrix.Invert().TransformRect(intersectedArea);
             clonedContext.AffectedArea = new AffectedArea(OperationHelper.FindChunksTouchingRectangle((RectI)affectedAreaInNestedSpace.RoundOutwards(), ChunkyImage.FullChunkSize));
         }

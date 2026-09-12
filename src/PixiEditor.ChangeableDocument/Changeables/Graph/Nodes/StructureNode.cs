@@ -199,6 +199,12 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         renderObjectContext.IterativeRender = context.IterativeRender;
         renderObjectContext.VisibleDocumentRegion = context.VisibleDocumentRegion;
         renderObjectContext.PreviewTextures = context.PreviewTextures;
+        if(context is SceneObjectRenderContext sceneContext)
+        {
+            renderObjectContext.TargetPropertyOutput = sceneContext.TargetPropertyOutput;
+            renderObjectContext.UntransformedSampling = sceneContext.UntransformedSampling;
+        }
+
         return renderObjectContext;
     }
 
