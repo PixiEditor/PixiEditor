@@ -52,7 +52,7 @@ public static class Juice
 
     private static void UpdateSubscription(Control control)
     {
-        Dispatcher.CurrentDispatcher.Post(() => UpdateSubscriptionInternal(control));
+        UpdateSubscriptionInternal(control);
     }
 
     private static void UpdateSubscriptionInternal(Control control)
