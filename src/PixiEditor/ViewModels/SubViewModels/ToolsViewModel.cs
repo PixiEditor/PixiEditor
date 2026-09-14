@@ -217,17 +217,18 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     [Command.Internal("PixiEditor.Tools.SetActiveToolSet", AnalyticsTrack = true)]
     public void SetActiveToolSet(IToolSetHandler toolSetHandler)
     {
+        string oldToolsetName = ActiveToolSet?.Name ?? "";
         ActiveToolSet = toolSetHandler;
         if (ActiveTool != null)
         {
             if (!ActiveToolSet.Tools.Contains(ActiveTool))
             {
-                TrySelectCommonToolInNewToolSet();
+                TrySelectCommonToolInNewToolSet(oldToolsetName);
             }
             else
             {
                 Owner.DocumentManagerSubViewModel.ActiveDocument?.Operations.TryStopToolLinkedExecutor();
-                SetActiveTool(ActiveTool, false);
+                SetActiveTool(ActiveTool, false, oldToolsetName);
             }
         }
 
@@ -240,7 +241,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         OnPropertyChanged(nameof(NonSelectedToolSets));
     }
 
-    private void TrySelectCommonToolInNewToolSet()
+    private void TrySelectCommonToolInNewToolSet(string oldToolsetName)
     {
         var commonTool = ActiveToolSet.Tools.FirstOrDefault(tool =>
         {
@@ -274,7 +275,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
 
         if (commonTool is not null)
         {
-            SetActiveTool(commonTool, false);
+            SetActiveTool(commonTool, false, oldToolsetName);
         }
     }
 
@@ -374,12 +375,12 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     [Command.Internal("PixiEditor.Tools.SelectTool", CanExecute = "PixiEditor.HasDocument")]
     public void SetActiveTool(ToolViewModel tool)
     {
-        SetActiveTool(tool, false, null);
+        SetActiveTool(tool, false, null, ActiveToolSet?.Name ?? "");
     }
 
-    public void SetActiveTool(IToolHandler tool, bool transient) => SetActiveTool(tool, transient, null);
+    public void SetActiveTool(IToolHandler tool, bool transient, string? oldToolSetName = null) => SetActiveTool(tool, transient, null, oldToolSetName ?? ActiveToolSet?.Name ?? "");
 
-    public void SetActiveTool(IToolHandler tool, bool transient, ICommandExecutionSourceInfo? sourceInfo)
+    public void SetActiveTool(IToolHandler tool, bool transient, ICommandExecutionSourceInfo? sourceInfo, string oldToolset)
     {
         if (Owner.DocumentManagerSubViewModel.ActiveDocument is { PointerDragChangeInProgress: true })
         {
@@ -421,7 +422,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
             }
             else
             {
-                ActiveTool.Toolbar.SaveLocalValues();
+                ActiveTool.Toolbar.SaveLocalValues(oldToolset);
             }
         }
 
@@ -437,7 +438,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
             }
             else
             {
-                ActiveTool.Toolbar.LoadLocalValues();
+                ActiveTool.Toolbar.LoadLocalValues(ActiveToolSet?.Name ?? "");
             }
         }
 
@@ -488,7 +489,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         }
 
         ToolViewModel tool = (ToolViewModel)parameter;
-        SetActiveTool(tool, false, source, true);
+        SetActiveTool(tool, false, source, ActiveToolSet?.Name ?? "");
     }
 
     public void SetToolTransient(object parameter)
@@ -531,7 +532,6 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
                     nested &&
                 PixiEditorSettings.Tools.AutoRasterizeNestedLayersOnDraw.Value;
 
-            using var changeBlock = Owner.DocumentManagerSubViewModel.ActiveDocument.Operations.StartChangeBlock();
             Guid? createdLayer = null;
             if (rasterize)
             {
@@ -553,7 +553,6 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
                 Owner.DocumentManagerSubViewModel.ActiveDocument.Operations.SetSelectedMember(createdLayer.Value);
             }
 
-            changeBlock.ExecuteQueuedActions();
             created = true;
         }
 
@@ -617,7 +616,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     {
         if (ActiveTool != null)
         {
-            SetActiveTool((IToolHandler)null, false, null);
+            SetActiveTool((IToolHandler)null, false, null, ActiveToolSet?.Name ?? "");
         }
     }
 
@@ -648,7 +647,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     {
         if (queuedToolChange.tool != null)
         {
-            SetActiveTool(queuedToolChange.tool, queuedToolChange.transient, queuedToolChange.sourceInfo);
+            SetActiveTool(queuedToolChange.tool, queuedToolChange.transient, queuedToolChange.sourceInfo, ActiveToolSet?.Name ?? "");
             queuedToolChange = (null, false, null);
         }
     }
@@ -661,11 +660,13 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
                                            PixelPerfectEnabled: true
                                        };
 
-    public void SetActiveTool(Type toolType, bool transient, ICommandExecutionSourceInfo sourceInfo)
+    public void SetActiveTool(Type toolType, bool transient, ICommandExecutionSourceInfo sourceInfo, string? oldToolset = null)
     {
         if (!typeof(ToolViewModel).IsAssignableFrom(toolType))
             throw new ArgumentException($"'{toolType}' does not inherit from {typeof(ToolViewModel)}");
+        var previousToolset = oldToolset ?? ActiveToolSet?.Name ?? "";
         IToolHandler foundTool = ActiveToolSet!.Tools.FirstOrDefault(x => x.GetType() == toolType);
+        IToolSetHandler? toolsetToSwitch = null;
         if (foundTool == null)
         {
             foundTool = allTools.FirstOrDefault(x => x.GetType() == toolType);
@@ -679,12 +680,13 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
             }
         }
 
-        SetActiveTool(foundTool, transient, sourceInfo);
+        SetActiveTool(foundTool, transient, sourceInfo, previousToolset);
     }
 
     public void SetActiveTool(IToolHandler tool, bool transient, ICommandExecutionSourceInfo sourceInfo,
         bool switchToolSet)
     {
+        string previousToolset = ActiveToolSet?.Name ?? "";
         if (switchToolSet)
         {
             IToolHandler foundTool = ActiveToolSet!.Tools.FirstOrDefault(x => x == tool);
@@ -702,7 +704,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
             }
         }
 
-        SetActiveTool(tool, transient, sourceInfo);
+        SetActiveTool(tool, transient, sourceInfo, previousToolset);
     }
 
     public void RestorePreviousTool()

@@ -12,7 +12,8 @@ internal abstract class Toolbar : ObservableObject, IToolbar
     private ObservableCollection<Setting> settings = new();
     public IReadOnlyList<Setting> Settings => settings;
 
-    private Dictionary<string, object> localValues = new Dictionary<string, object>();
+    private Dictionary<string, Dictionary<string, object>> localValues =
+        new Dictionary<string, Dictionary<string, object>>();
 
     public void AddSetting(Setting setting)
     {
@@ -102,20 +103,23 @@ internal abstract class Toolbar : ObservableObject, IToolbar
         settings.Remove(setting);
     }
 
-    public void SaveLocalValues()
+    public void SaveLocalValues(string toolset)
     {
-        localValues = Settings.ToDictionary(
+        localValues[toolset] = Settings.ToDictionary(
             x => x.Name,
             x => x.Value is ICloneable cloneable ? cloneable.Clone() : x.Value);
     }
 
-    public void LoadLocalValues()
+    public void LoadLocalValues(string toolset)
     {
-        foreach (var setting in localValues)
+        if (localValues.TryGetValue(toolset, out var settingsForToolset))
         {
-            if (Settings.Any(x => x.Name == setting.Key))
+            foreach (var setting in settingsForToolset)
             {
-                Settings.First(x => x.Name == setting.Key).Value = setting.Value;
+                if (Settings.Any(x => x.Name == setting.Key))
+                {
+                    Settings.First(x => x.Name == setting.Key).Value = setting.Value;
+                }
             }
         }
     }
