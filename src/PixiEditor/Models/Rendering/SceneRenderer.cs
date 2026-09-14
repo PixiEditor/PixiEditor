@@ -220,6 +220,9 @@ internal class SceneRenderer : IDisposable
         shouldRerender |= !lastRenderedViewports.Contains(viewportId);
         partialRenderAllowed &= lastRenderedViewports.Contains(viewportId);
 
+        bool renderOnionSkinning = viewport.IsScene && DocumentViewModel.AnimationHandler.OnionSkinningEnabledBindable;
+        partialRenderAllowed &= !renderOnionSkinning; // TODO: Implement onion skinning partial rendering
+
         if (shouldRerender)
         {
             affectedArea = fullAffectedArea && viewport.VisibleDocumentRegion.HasValue
