@@ -531,7 +531,6 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
                     nested &&
                 PixiEditorSettings.Tools.AutoRasterizeNestedLayersOnDraw.Value;
 
-            using var changeBlock = Owner.DocumentManagerSubViewModel.ActiveDocument.Operations.StartChangeBlock();
             Guid? createdLayer = null;
             if (rasterize)
             {
@@ -553,7 +552,6 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
                 Owner.DocumentManagerSubViewModel.ActiveDocument.Operations.SetSelectedMember(createdLayer.Value);
             }
 
-            changeBlock.ExecuteQueuedActions();
             created = true;
         }
 
