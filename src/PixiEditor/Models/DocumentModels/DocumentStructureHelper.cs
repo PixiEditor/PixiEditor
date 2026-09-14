@@ -2,6 +2,7 @@
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.GraphNavigation;
 using PixiEditor.Models.DocumentModels.Public;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Layers;

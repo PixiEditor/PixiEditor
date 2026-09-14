@@ -12,6 +12,8 @@ using Drawie.Backend.Core.Bridge;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph.Blackboard;
+using PixiEditor.GraphNavigation;
+using PixiEditor.Helpers.Nodes;
 using PixiEditor.ViewModels.Document.Blackboard;
 using PixiEditor.ViewModels.Document.CompatibilityUpgrades;
 using PixiEditor.ViewModels.Nodes;

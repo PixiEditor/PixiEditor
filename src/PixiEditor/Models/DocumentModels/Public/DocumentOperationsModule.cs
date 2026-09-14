@@ -23,6 +23,7 @@ using PixiEditor.Models.Tools;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.GraphNavigation;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Nodes;
 

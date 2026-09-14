@@ -11,6 +11,7 @@ using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
+using PixiEditor.GraphNavigation;
 
 namespace PixiEditor.ChangeableDocument.Changeables;
 

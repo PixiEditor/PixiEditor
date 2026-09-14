@@ -1,6 +1,7 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.GraphNavigation;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document.Nodes;
 using PixiEditor.ViewModels.Document.Nodes.CombineSeparate;
