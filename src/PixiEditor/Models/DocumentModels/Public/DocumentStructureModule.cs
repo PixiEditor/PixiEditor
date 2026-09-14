@@ -1,6 +1,7 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.GraphNavigation;
+using PixiEditor.Helpers.Nodes;
 using PixiEditor.Models.Handlers;
-using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.Models.DocumentModels.Public;
 #nullable enable
@@ -113,6 +114,8 @@ internal class DocumentStructureModule
                 parents.Add(parent);
             return Traverse.Further;
         });
+        
+        childNode.Navigate().TraverseForwards(ctx => GraphNavigation.Traverse.Exit);
 
         return parents;
     }

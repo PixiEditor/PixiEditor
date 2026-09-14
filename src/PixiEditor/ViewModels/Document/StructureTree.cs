@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using PixiEditor.GraphNavigation;
 using PixiEditor.Models.Handlers;
 using PixiEditor.ViewModels.Nodes;
 

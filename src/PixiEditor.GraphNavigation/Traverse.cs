@@ -1,4 +1,4 @@
-﻿namespace PixiEditor.ViewModels.Nodes;
+﻿namespace PixiEditor.GraphNavigation;
 
 public enum Traverse
 {

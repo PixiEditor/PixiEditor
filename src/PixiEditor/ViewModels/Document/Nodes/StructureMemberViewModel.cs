@@ -5,6 +5,7 @@ using PixiEditor.Helpers;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Layers;
 using Drawie.Numerics;
+using PixiEditor.GraphNavigation;
 using PixiEditor.ViewModels.Nodes;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 
@@ -71,7 +72,7 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
                 return false;
 
             bool visible = true;
-            TraverseForwards((node, previous, output, input) =>
+            this.TraverseForwards((node, previous, output, input) =>
             {
                 if (node is IFolderHandler parent && input is { PropertyName: FolderNode.ContentInternalName })
                 {

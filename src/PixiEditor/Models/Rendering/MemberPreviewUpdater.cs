@@ -9,6 +9,7 @@ using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ViewModels.Nodes;
 using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.GraphNavigation;
 using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.ViewModels.Document;
 
