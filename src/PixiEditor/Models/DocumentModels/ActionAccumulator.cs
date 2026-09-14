@@ -121,17 +121,8 @@ internal class ActionAccumulator
                 if (internals.Tracker.IsDisposed)
                     return;
 
-                bool allPassthrough = AreAllPassthrough(toExecute);
-                if (allPassthrough)
-                {
-                    changes = toExecute.Select(a => (IChangeInfo?)a.action).ToList();
-                    Apply(toExecute, changes);
-                }
-                else
-                {
-                    internals.Tracker.Enqueue(toExecute);
-                    QueueProcess();
-                }
+                internals.Tracker.Enqueue(toExecute);
+                QueueProcess();
             }
         }
         catch (Exception e)
@@ -258,7 +249,7 @@ internal class ActionAccumulator
             {
                 // Document or renderer was disposed during await
 #if DEBUG
-            Debug.WriteLine($"Rendering aborted due to disposed exception: {ex}");
+                Debug.WriteLine($"Rendering aborted due to disposed exception: {ex}");
 #endif
                 return;
             }

@@ -80,7 +80,7 @@ internal partial class OnboardingViewModel : PixiObservableObject
         { "VECTOR_TOOLSET", new VecI(512, 512) }
     };
 
-    private bool ExtensionsFetching
+    public bool ExtensionsFetching
     {
         get => extensionsFetching;
         set => SetProperty(ref extensionsFetching, value);
