@@ -669,15 +669,15 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
             foundTool = allTools.FirstOrDefault(x => x.GetType() == toolType);
             if (foundTool == null || SimilarToolInActiveToolSetExists(toolType))
                 return;
-
-            var toolset = AllToolSets.FirstOrDefault(x => x.Tools.Contains(foundTool));
-            if (toolset is not null)
-            {
-                SetActiveToolSet(toolset);
-            }
         }
 
         SetActiveTool(foundTool, transient, sourceInfo);
+
+        var toolset = AllToolSets.FirstOrDefault(x => x.Tools.Contains(foundTool));
+        if (toolset is not null)
+        {
+            SetActiveToolSet(toolset);
+        }
     }
 
     public void SetActiveTool(IToolHandler tool, bool transient, ICommandExecutionSourceInfo sourceInfo,
