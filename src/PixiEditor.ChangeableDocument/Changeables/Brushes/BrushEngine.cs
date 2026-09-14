@@ -760,7 +760,8 @@ public class BrushEngine : IDisposable
     private Texture UpdateSurfaceUnderRect(int cacheId, ChunkyImage target, RectI rect, ColorSpace colorSpace,
         bool sampleLatest)
     {
-        var surfaceUnderRect = cache.RequestTexture(cacheId, rect.Size, colorSpace);
+        VecI size = new VecI(rect.Size.X <= 0 ? 1 : rect.Size.X, rect.Size.Y <= 0 ? 1 : rect.Size.Y);
+        var surfaceUnderRect = cache.RequestTexture(cacheId, size, colorSpace);
 
         if (sampleLatest)
         {

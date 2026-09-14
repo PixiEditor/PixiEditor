@@ -13,6 +13,6 @@ internal interface IToolbar : IHandler
     public void LoadSharedSettings();
     public event SettingChange SettingChanged;
     public void RemoveSetting(Setting setting);
-    void SaveLocalValues();
-    void LoadLocalValues();
+    void SaveLocalValues(string toolset);
+    void LoadLocalValues(string toolset);
 }
