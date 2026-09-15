@@ -17,7 +17,9 @@
         x:DataType="userPreferences:OnboardingViewModel"
         ShowInTaskbar="False"
         CanResize="False"
-        SystemDecorations="Full"
+        WindowDecorations="Full"
+        ExtendClientAreaToDecorationsHint="True"
+        CanMinimize="False"
         d:DataContext="{x:Type userPreferences:OnboardingViewModel}"
         ui:Translator.Key="ONBOARDING_WINDOW_TITLE" Width="600" Height="345">
     <Design.DataContext>
@@ -194,7 +196,8 @@
                 </StackPanel>
                 <DockPanel Grid.Row="1" LastChildFill="True" HorizontalAlignment="Center"
                            IsVisible="{Binding FormStep.Step, Converter={converters:IsEqualConverter}, ConverterParameter=4}">
-                    <indicators:LoadingIndicator Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding ExtensionsFetching}"/>
+                    <indicators:LoadingIndicator Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                 IsVisible="{Binding ExtensionsFetching}"/>
                     <ItemsControl IsVisible="{Binding !ExtensionsFetching}" ItemsSource="{Binding SuggestedExtensions}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
