@@ -27,10 +27,9 @@
         </Grid.RowDefinitions>
         <DockPanel LastChildFill="True"
                    DataContext="{Binding RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}">
-            <controls:DrawieTextureControl Height="30" Width="30"
-                                           SamplingOptions="Bilinear"
+            <visuals:PreviewTextureControl Height="30" Width="30"
                                            Margin="0, 0, 5, 0"
-                                           Texture="{Binding $parent[input:BrushItem].Brush.PointPreviewTexture}"
+                                           TexturePreview="{Binding $parent[input:BrushItem].Brush.PointPreviewTexture}"
                                            DockPanel.Dock="Left" />
             <TextBlock VerticalAlignment="Center"
                        Width="110" x:DataType="input:BrushItem"

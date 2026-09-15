@@ -44,12 +44,17 @@ internal class DocumentOperationsModule : IDocumentOperations
         return new ChangeBlock(Internals.ActionAccumulator);
     }
 
+    public void RequestRenderBrushPreview(Guid brushOutputNodeId)
+    {
+        Internals.ActionAccumulator.AddActions(new GenerateBrushPreview_PassthroughAction(brushOutputNodeId));
+    }
+
     /// <summary>
     /// Creates a new selection with the size of the document
     /// </summary>
     public void SelectAll(string renderOutput)
     {
-        Select(new RectI(VecI.Zero, Document.SizeBindable), null, SelectionMode.Add);
+        Select(new RectI(VecI.Zero, Document.SizeBindable), renderOutput, SelectionMode.Add);
     }
 
     /// <summary>

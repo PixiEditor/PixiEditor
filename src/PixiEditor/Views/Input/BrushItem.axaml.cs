@@ -119,95 +119,98 @@ internal partial class BrushItem : UserControl
 
     private void StartStrokePreviewLoop()
     {
+        return;
         if (isPreviewingStroke)
             return;
 
-        var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
-        BrushOutputNode? brushNode =
-            Brush?.Brush?.Document?.AccessInternalReadOnlyDocument().NodeGraph
-                .TryLookupNode(Brush?.Brush?.OutputNodeId ?? Guid.Empty) as BrushOutputNode;
-        if (brushNode == null)
+        DrawingBackendApi.Current.RenderingDispatcher.InvokeInBackgroundAsync(() =>
         {
-            ctx.Dispose();
-            return;
-        }
-
-        if (previewTexture == null ||
-            previewTexture.Size.X != BrushOutputNode.StrokePreviewSizeX ||
-            previewTexture.Size.Y != BrushOutputNode.StrokePreviewSizeY)
-        {
-            previewTexture?.Dispose();
-            previewTexture =
-                Texture.ForDisplay(new VecI(BrushOutputNode.StrokePreviewSizeX, BrushOutputNode.StrokePreviewSizeY));
-        }
-
-        if (previewImage == null ||
-            previewImage.CommittedSize.X != BrushOutputNode.StrokePreviewSizeX ||
-            previewImage.CommittedSize.Y != BrushOutputNode.StrokePreviewSizeY)
-        {
-            previewImage?.Dispose();
-            previewImage =
-                new ChunkyImage(new VecI(BrushOutputNode.StrokePreviewSizeX, BrushOutputNode.StrokePreviewSizeY));
-        }
-
-        DrawingStrokeTexture = previewTexture;
-
-        previewTexture.DrawingSurface.Canvas.Clear();
-        previewImage.EnqueueClear();
-        previewImage.CommitChanges();
-        enumerator = brushNode.DrawStrokePreviewEnumerable(previewImage, CreateContext(),
-            BrushOutputNode.StrokePreviewSizeY / 2,
-            new VecD(0, BrushOutputNode.YOffsetInPreview)).GetEnumerator();
-
-        previewTexture.DrawingSurface.Canvas.Clear();
-
-        ctx.Dispose();
-        previewTimer = DispatcherTimer.Run(() =>
-        {
-            if ((brushNode != null && previewTexture != null) && (brushNode.IsDisposed || previewTexture.IsDisposed))
+            BrushOutputNode? brushNode =
+                Brush?.Brush?.Document?.AccessInternalReadOnlyDocument().NodeGraph
+                    .TryLookupNode(Brush?.Brush?.OutputNodeId ?? Guid.Empty) as BrushOutputNode;
+            if (brushNode == null)
             {
-                StopStrokePreviewLoop();
-                return false;
+                return;
             }
 
-            try
+            if (previewTexture == null ||
+                previewTexture.Size.X != BrushOutputNode.StrokePreviewSizeX ||
+                previewTexture.Size.Y != BrushOutputNode.StrokePreviewSizeY)
             {
-                var innerCtx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
-                if (!enumerator.MoveNext())
+                previewTexture?.Dispose();
+                previewTexture =
+                    Texture.ForDisplay(new VecI(BrushOutputNode.StrokePreviewSizeX,
+                        BrushOutputNode.StrokePreviewSizeY));
+            }
+
+            if (previewImage == null ||
+                previewImage.CommittedSize.X != BrushOutputNode.StrokePreviewSizeX ||
+                previewImage.CommittedSize.Y != BrushOutputNode.StrokePreviewSizeY)
+            {
+                previewImage?.Dispose();
+                previewImage =
+                    new ChunkyImage(new VecI(BrushOutputNode.StrokePreviewSizeX, BrushOutputNode.StrokePreviewSizeY));
+            }
+
+            DrawingStrokeTexture = previewTexture;
+
+            previewTexture.DrawingSurface.Canvas.Clear();
+            previewImage.EnqueueClear();
+            previewImage.CommitChanges();
+            enumerator = brushNode.DrawStrokePreviewEnumerable(previewImage, CreateContext(),
+                BrushOutputNode.StrokePreviewSizeY / 2,
+                new VecD(0, BrushOutputNode.YOffsetInPreview)).GetEnumerator();
+
+            previewTexture.DrawingSurface.Canvas.Clear();
+
+            previewTimer = DispatcherTimer.Run(() =>
+            {
+                if ((brushNode != null && previewTexture != null) &&
+                    (brushNode.IsDisposed || previewTexture.IsDisposed))
                 {
-                    innerCtx.Dispose();
-                    DispatcherTimer.RunOnce(() =>
-                    {
-                        if (isPreviewingStroke)
-                        {
-                            StopStrokePreviewLoop();
-                            StartStrokePreviewLoop();
-                            isPreviewingStroke = true;
-                        }
-                    }, TimeSpan.FromSeconds(1));
+                    StopStrokePreviewLoop();
                     return false;
                 }
 
-                using Paint srcOver = new() { BlendMode = BlendMode.Src, Style = PaintStyle.Fill };
-                previewImage.DrawMostUpToDateRegionOn(
-                    new RectI(0, 0, previewImage.CommittedSize.X, previewImage.CommittedSize.Y),
-                    ChunkResolution.Full,
-                    previewTexture.DrawingSurface.Canvas,
-                    VecI.Zero, srcOver);
+                try
+                {
+                    var innerCtx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
+                    if (!enumerator.MoveNext())
+                    {
+                        innerCtx.Dispose();
+                        DispatcherTimer.RunOnce(() =>
+                        {
+                            if (isPreviewingStroke)
+                            {
+                                StopStrokePreviewLoop();
+                                StartStrokePreviewLoop();
+                                isPreviewingStroke = true;
+                            }
+                        }, TimeSpan.FromSeconds(1));
+                        return false;
+                    }
 
-                innerCtx.Dispose();
-                StrokePreviewControl.QueueNextFrame();
-            }
-            catch
-            {
-                StopStrokePreviewLoop();
-                return false;
-            }
+                    using Paint srcOver = new() { BlendMode = BlendMode.Src, Style = PaintStyle.Fill };
+                    previewImage.DrawMostUpToDateRegionOn(
+                        new RectI(0, 0, previewImage.CommittedSize.X, previewImage.CommittedSize.Y),
+                        ChunkResolution.Full,
+                        previewTexture.DrawingSurface.Canvas,
+                        VecI.Zero, srcOver);
 
-            return isPreviewingStroke;
-        }, TimeSpan.FromMilliseconds(8));
+                    innerCtx.Dispose();
+                    StrokePreviewControl.QueueNextFrame();
+                }
+                catch
+                {
+                    StopStrokePreviewLoop();
+                    return false;
+                }
 
-        isPreviewingStroke = true;
+                return isPreviewingStroke;
+            }, TimeSpan.FromMilliseconds(8));
+
+            isPreviewingStroke = true;
+        });
     }
 
     private RenderContext CreateContext()

@@ -13,6 +13,7 @@ using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Models.BrushEngine;
 using PixiEditor.UI.Common.Localization;
+using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.ViewModels.BrushSystem;
 
@@ -20,14 +21,13 @@ internal class BrushViewModel : ViewModelBase
 {
     public event Action RenderingPreviewFinished;
 
-    private Texture pointPreviewTexture;
     private Texture strokeTexture;
     private Brush brush;
     private bool isFavourite;
     private ObservableCollection<string> tags;
     private bool preventTextureGeneration;
 
-    public Texture PointPreviewTexture
+    public TexturePreview PointPreviewTexture
     {
         get
         {
@@ -36,19 +36,18 @@ internal class BrushViewModel : ViewModelBase
                 GeneratePreviewTextures();
             }
 
-            return pointPreviewTexture;
+            return Brush.Document.BrushPreviews.TryGetValue(Brush.OutputNodeId, out var value) ? value : null;
         }
-        set => SetProperty(ref pointPreviewTexture, value);
     }
 
     public Texture DrawingStrokeTexture
     {
         get
         {
-            if (CacheChanged())
+            /*if (CacheChanged())
             {
                 GeneratePreviewTextures();
-            }
+            }*/
 
             return strokeTexture;
         }
@@ -172,11 +171,13 @@ internal class BrushViewModel : ViewModelBase
 
     private void GeneratePreviewTextures()
     {
+        Brush.Document.Operations.RequestRenderBrushPreview(Brush.OutputNodeId);
         if (preventTextureGeneration)
             return;
 
         preventTextureGeneration = true;
 
+        /*
         DrawingBackendApi.Current.RenderingDispatcher.InvokeInBackgroundAsync(() =>
         {
             BrushOutputNode? brushNode =
@@ -186,18 +187,22 @@ internal class BrushViewModel : ViewModelBase
                 return;
 
             pointPreviewTexture?.Dispose();
-            strokeTexture?.Dispose();
+            //strokeTexture?.Dispose();
 
             pointPreviewTexture =
                 Texture.ForDisplay(new VecI(BrushOutputNode.PointPreviewSize, BrushOutputNode.PointPreviewSize));
 
+            /*
             strokeTexture =
                 Texture.ForDisplay(new VecI(BrushOutputNode.StrokePreviewSizeX, BrushOutputNode.StrokePreviewSizeY));
+                #1#
 
             var pointImage = new ChunkyImage(
                 new VecI(BrushOutputNode.PointPreviewSize, BrushOutputNode.PointPreviewSize));
+            /*
             var strokeImage = new ChunkyImage(
                 new VecI(BrushOutputNode.StrokePreviewSizeX, BrushOutputNode.StrokePreviewSizeY));
+                #1#
 
             var context = new RenderContext(
                 pointPreviewTexture.DrawingSurface.Canvas,
@@ -212,6 +217,7 @@ internal class BrushViewModel : ViewModelBase
             if (Brush.Document.AccessInternalReadOnlyDocument().NodeGraph.AllNodes
                     .FirstOrDefault(n => n is OutputNode) is OutputNode { Input.Connection: not null } outputNode)
             {
+                /*
                 VecD scaling = new VecD(BrushOutputNode.PointPreviewSize / (float)Brush.Document.SizeBindable.X,
                     (float)BrushOutputNode.PointPreviewSize / Brush.Document.SizeBindable.Y);
 
@@ -222,6 +228,7 @@ internal class BrushViewModel : ViewModelBase
                 pointPreviewTexture.DrawingSurface.Canvas.Scale((float)scaling.X, (float)scaling.Y);
                 Brush.Document.AccessInternalReadOnlyDocument().NodeGraph.Execute(outputNode, context);
                 pointPreviewTexture.DrawingSurface.Canvas.Restore();
+            #1#
             }
             else
             {
@@ -230,17 +237,21 @@ internal class BrushViewModel : ViewModelBase
                     new VecD(BrushOutputNode.PointPreviewSize / 2,
                         BrushOutputNode.PointPreviewSize / 2));
 
+                /*
                 pointImage.DrawMostUpToDateRegionOn(
                     new RectI(0, 0, pointImage.CommittedSize.X, pointImage.CommittedSize.Y),
                     ChunkResolution.Full,
                     pointPreviewTexture.DrawingSurface.Canvas,
-                    VecI.Zero, null, SamplingOptions.Bilinear);
+                    VecI.Zero, null, SamplingOptions.Bilinear);#1#
             }
 
+            /*
             context.RenderOutputSize = strokeTexture.Size;
             context.DocumentSize = strokeTexture.Size;
             context.RenderSurface = strokeTexture.DrawingSurface.Canvas;
+            #1#
 
+            /*
             brushNode.DrawStrokePreview(strokeImage, context,
                 BrushOutputNode.StrokePreviewSizeY / 2,
                 new VecD(0, BrushOutputNode.YOffsetInPreview));
@@ -250,13 +261,15 @@ internal class BrushViewModel : ViewModelBase
                 ChunkResolution.Full,
                 strokeTexture.DrawingSurface.Canvas,
                 VecI.Zero, null, SamplingOptions.Bilinear);
-
+                #1#
+            
+            
             OnPropertyChanged(nameof(DrawingStrokeTexture));
             OnPropertyChanged(nameof(PointPreviewTexture));
             preventTextureGeneration = false;
             generatedOnce = true;
             RenderingPreviewFinished?.Invoke();
-        });
+        });*/
     }
 
     private bool CacheChanged()

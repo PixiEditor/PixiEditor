@@ -173,42 +173,30 @@ internal class ActionAccumulator
         try
         {
             List<IChangeInfo> optimizedChanges = ChangeInfoListOptimizer.Optimize(changes);
-            bool undoBoundaryPassed =
-                executed.Any(static action =>
-                    action.action is ChangeBoundary_Action or Redo_Action or Undo_Action);
-            bool viewportRefreshRequest =
-                executed.Any(static action => action.action is RefreshViewport_PassthroughAction);
-            bool refreshPreviewsRequest =
-                executed.Any(static action => action.action is RefreshPreviews_PassthroughAction);
-            bool refreshPreviewRequest =
-                executed.Any(static action => action.action is RefreshPreview_PassthroughAction);
-            bool changeFrameRequest =
-                executed.Any(static action => action.action is SetActiveFrame_PassthroughAction);
-            bool debugRecordRequest =
-                executed.Any(static action => action.action is DebugRecordFrame_PassthroughAction);
+            ActionsInfo actionsInfo = new ActionsInfo(executed);
 
             foreach (IChangeInfo info in optimizedChanges)
             {
                 internals.Updater.ApplyChangeFromChangeInfo(info);
             }
 
-            if (undoBoundaryPassed)
+            if (actionsInfo.UndoBoundaryPassed)
                 internals.Updater.AfterUndoBoundaryPassed();
 
             var affectedAreas = new AffectedAreasGatherer(document.AnimationHandler.ActiveFrameTime,
                 internals.Tracker,
-                optimizedChanges, refreshPreviewsRequest);
+                optimizedChanges, actionsInfo.PreviewsRefreshRequested);
 
             bool previewsDisabled = PixiEditorSettings.Performance.DisablePreviews.Value;
-            bool updateDelayed = undoBoundaryPassed || viewportRefreshRequest || changeFrameRequest ||
+            bool updateDelayed = actionsInfo.UndoBoundaryPassed || actionsInfo.ViewportRefreshRequested || actionsInfo.ChangeFrameRequested ||
                                  document.SizeBindable.LongestAxis <= LiveUpdatePerformanceThreshold;
 
             Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures = null;
 
             if (!previewsDisabled)
             {
-                if (undoBoundaryPassed || viewportRefreshRequest || refreshPreviewsRequest ||
-                    refreshPreviewRequest || changeFrameRequest ||
+                if (actionsInfo.UndoBoundaryPassed || actionsInfo.ViewportRefreshRequested || actionsInfo.PreviewsRefreshRequested ||
+                    actionsInfo.PreviewRefreshRequested || actionsInfo.ChangeFrameRequested ||
                     document.SizeBindable.LongestAxis <= LiveUpdatePerformanceThreshold)
                 {
                     previewTextures = previewUpdater.GatherPreviewsToUpdate(
@@ -216,9 +204,20 @@ internal class ActionAccumulator
                         affectedAreas.ChangedMasks,
                         affectedAreas.ChangedNodes, affectedAreas.ChangedKeyFrames,
                         affectedAreas.IgnoreAnimationPreviews,
-                        undoBoundaryPassed || refreshPreviewsRequest || refreshPreviewRequest);
+                        actionsInfo.UndoBoundaryPassed || actionsInfo.PreviewsRefreshRequested || actionsInfo.PreviewRefreshRequested);
                 }
             }
+
+            if (actionsInfo.GenerateBrushPreviewRequested)
+            {
+                if (previewTextures == null)
+                {
+                    previewTextures = new Dictionary<Guid, List<PreviewRenderRequest>>();
+                }
+                
+                previewUpdater.GatherBrushPreviewsToUpdate(actionsInfo.BrushPreviewActions, previewTextures);
+            }
+            
 
             List<Action>? updatePreviewActions = previewTextures?.Values
                 .Select(x => x.Select(r => r.TextureUpdatedAction))
@@ -233,7 +232,7 @@ internal class ActionAccumulator
 
             try
             {
-                if (debugRecordRequest)
+                if (actionsInfo.DebugRenderRequested)
                 {
                     document.SceneRenderer.RecordRender(internals.State.Viewports,
                         affectedAreas.MainImageArea,

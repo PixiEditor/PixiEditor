@@ -15,11 +15,10 @@
              x:ClassModifier="internal"
              x:Class="PixiEditor.Views.Input.BrushPicker">
     <Panel>
-        <controls:DrawieTextureControl
+        <visuals:PreviewTextureControl
             Width="36" Height="21"
             ZIndex="1"
-            SamplingOptions="Bilinear"
-            Texture="{Binding Path=SelectedBrush.PointPreviewTexture, RelativeSource={RelativeSource FindAncestor, AncestorType=input:BrushPicker}}" />
+            TexturePreview="{Binding Path=SelectedBrush.PointPreviewTexture, RelativeSource={RelativeSource FindAncestor, AncestorType=input:BrushPicker}}" />
         <Panel.Styles>
             <Style Selector="Panel > ToggleButton:checked">
                 <Setter Property="Background" Value="{DynamicResource ThemeControlMidBrush}" />
@@ -287,10 +286,9 @@
                                                     localization:Translator.TooltipKey="{Binding Name}"
                                                     PointerPressed="SelectBrushElementPressed"
                                                     IsHitTestVisible="True">
-                                                <visuals:TextureControl
+                                                <visuals:PreviewTextureControl
                                                     Width="50" Height="50"
-                                                    SamplingOptions="Bilinear"
-                                                    Texture="{Binding PointPreviewTexture}" />
+                                                    TexturePreview="{Binding PointPreviewTexture}" />
                                                 <Classes.selected>
                                                     <MultiBinding Converter="{converters:AreEqualConverter}">
                                                         <Binding Path="$parent[input:BrushPicker].SelectedBrush" />

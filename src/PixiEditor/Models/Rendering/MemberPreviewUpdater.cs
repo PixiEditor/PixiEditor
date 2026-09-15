@@ -7,6 +7,7 @@ using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.ViewModels.Nodes;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.Models.DocumentPassthroughActions;
@@ -78,6 +79,51 @@ internal class MemberPreviewUpdater
         return previewTextures;
     }
 
+    public void GatherBrushPreviewsToUpdate(List<GenerateBrushPreview_PassthroughAction>? toGenerate,
+        Dictionary<Guid, List<PreviewRenderRequest>> previewTextures)
+    {
+        if (toGenerate == null) return;
+        
+        foreach (var toGen in toGenerate)
+        {
+            if (!doc.BrushPreviews.ContainsKey(toGen.BrushOutputNodeId))
+            {
+                doc.BrushPreviews[toGen.BrushOutputNodeId] =
+                    new TexturePreview(toGen.BrushOutputNodeId, RequestBrushPreviewRender);
+            }
+
+            var prev = doc.BrushPreviews[toGen.BrushOutputNodeId];
+
+            if (prev.Listeners.Count == 0)
+                return;
+
+            VecI textureSize = prev.GetMaxListenerSize();
+            if (textureSize.X <= 0 || textureSize.Y <= 0)
+                return;
+
+            Texture? CreateTextureForBrush(bool createIfNull)
+            {
+                if (createIfNull)
+                {
+                    if (prev.Preview == null || prev.Preview.IsDisposed ||
+                        prev.Preview.Size != textureSize)
+                    {
+                        prev.Preview?.Dispose();
+                        prev.Preview = Texture.ForDisplay(textureSize);
+                    }
+                }
+
+                return prev.Preview;
+            }
+
+            if (!previewTextures.ContainsKey(toGen.BrushOutputNodeId))
+                previewTextures[toGen.BrushOutputNodeId] = new List<PreviewRenderRequest>();
+
+            previewTextures[toGen.BrushOutputNodeId].Add(new PreviewRenderRequest(CreateTextureForBrush,
+                prev.InvokeTextureUpdated, BrushOutputNode.PointPreviewElement));
+        }
+    }
+
     private void QueueMembersToUpdate(HashSet<Guid> members)
     {
         foreach (var member in members)
@@ -100,34 +146,33 @@ internal class MemberPreviewUpdater
     /// <param name="memberGuids"></param>
     /// <param name="previewTextures"></param>
     /// <param name="renderMiniPreviews">Decides whether to re-render mini previews for the document</param>
-    /*private void RenderWholeCanvasPreview(bool renderMiniPreviews)
-    {
-        var previewSize = StructureHelpers.CalculatePreviewSize(internals.Tracker.Document.Size);
-        //float scaling = (float)previewSize.X / doc.SizeBindable.X;
+/*private void RenderWholeCanvasPreview(bool renderMiniPreviews)
+{
+    var previewSize = StructureHelpers.CalculatePreviewSize(internals.Tracker.Document.Size);
+    //float scaling = (float)previewSize.X / doc.SizeBindable.X;
 
-        doc.PreviewPainter ??= new PreviewPainter(renderer, doc.Renderer, doc.AnimationHandler.ActiveFrameTime,
-            doc.SizeBindable, internals.Tracker.Document.ProcessingColorSpace);
+    doc.PreviewPainter ??= new PreviewPainter(renderer, doc.Renderer, doc.AnimationHandler.ActiveFrameTime,
+        doc.SizeBindable, internals.Tracker.Document.ProcessingColorSpace);
 
-        UpdateDocPreviewPainter(doc.PreviewPainter);
+    UpdateDocPreviewPainter(doc.PreviewPainter);
 
-        if (!renderMiniPreviews)
-            return;
+    if (!renderMiniPreviews)
+        return;
 
-        doc.MiniPreviewPainter ??= new PreviewPainter(renderer, doc.Renderer,
-            doc.AnimationHandler.ActiveFrameTime,
-            doc.SizeBindable, internals.Tracker.Document.ProcessingColorSpace);
+    doc.MiniPreviewPainter ??= new PreviewPainter(renderer, doc.Renderer,
+        doc.AnimationHandler.ActiveFrameTime,
+        doc.SizeBindable, internals.Tracker.Document.ProcessingColorSpace);
 
-        UpdateDocPreviewPainter(doc.MiniPreviewPainter);
-    }
+    UpdateDocPreviewPainter(doc.MiniPreviewPainter);
+}
 
-    private void UpdateDocPreviewPainter(PreviewPainter painter)
-    {
-        painter.DocumentSize = doc.SizeBindable;
-        painter.ProcessingColorSpace = internals.Tracker.Document.ProcessingColorSpace;
-        painter.FrameTime = doc.AnimationHandler.ActiveFrameTime;
-        painter.Repaint();
-    }*/
-
+private void UpdateDocPreviewPainter(PreviewPainter painter)
+{
+    painter.DocumentSize = doc.SizeBindable;
+    painter.ProcessingColorSpace = internals.Tracker.Document.ProcessingColorSpace;
+    painter.FrameTime = doc.AnimationHandler.ActiveFrameTime;
+    painter.Repaint();
+}*/
     private void RenderLayersPreview(HashSet<Guid> memberGuids,
         Dictionary<Guid, List<PreviewRenderRequest>> previewTextures)
     {
@@ -262,7 +307,8 @@ internal class MemberPreviewUpdater
         {
             if (groupHandler.PreviewTexture == null)
             {
-                groupHandler.PreviewTexture = new TexturePreview(groupHandler.LayerGuid, groupHandler.LayerGuid, RequestCelRender);
+                groupHandler.PreviewTexture =
+                    new TexturePreview(groupHandler.LayerGuid, groupHandler.LayerGuid, RequestCelRender);
                 return;
             }
 
@@ -343,7 +389,10 @@ internal class MemberPreviewUpdater
                 }
 
                 previewTextures[node.Id].Add(new PreviewRenderRequest(CreateTextureForMask,
-                    structureMemberHandler.MaskPreview.InvokeTextureUpdated) {ElementToRender = nameof(StructureNode.EmbeddedMask) });
+                    structureMemberHandler.MaskPreview.InvokeTextureUpdated)
+                {
+                    ElementToRender = nameof(StructureNode.EmbeddedMask)
+                });
             }
         }
     }
@@ -383,7 +432,7 @@ internal class MemberPreviewUpdater
         if (member is null)
             return false;
 
-        if(previews == null || !previews.ContainsKey(member.Id))
+        if (previews == null || !previews.ContainsKey(member.Id))
             return false;
 
         var value = previews[guid];
@@ -465,7 +514,9 @@ internal class MemberPreviewUpdater
             }
 
             return nodeVm.Preview.Preview;
-        };
+        }
+
+        ;
 
         previews[node.Id]
             .Add(new PreviewRenderRequest(CreateTextureForNode, nodeVm.Preview.InvokeTextureUpdated));
@@ -483,6 +534,12 @@ internal class MemberPreviewUpdater
 
     private void RequestMaskRender(Guid id)
     {
-        internals.ActionAccumulator.AddActions(new RefreshPreview_PassthroughAction(id, null, nameof(StructureNode.EmbeddedMask)));
+        internals.ActionAccumulator.AddActions(
+            new RefreshPreview_PassthroughAction(id, null, nameof(StructureNode.EmbeddedMask)));
+    }
+
+    private void RequestBrushPreviewRender(Guid id)
+    {
+        //internals.ActionAccumulator.AddActions(new GenerateBrushPreview_PassthroughAction(id));
     }
 }

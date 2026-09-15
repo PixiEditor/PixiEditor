@@ -15,4 +15,5 @@ internal interface IDocumentOperations
     public Guid? CreateStructureMember(Type type, ActionSource source, string? name = null);
     public void InvokeCustomAction(Action action, bool stopActiveExecutor = true);
     public ChangeBlock StartChangeBlock();
+    public void RequestRenderBrushPreview(Guid brushOutputNodeId);
 }

@@ -146,6 +146,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
 
     public bool IsNestedDocument => referenceId != Guid.Empty;
+    public Dictionary<Guid, TexturePreview> BrushPreviews { get; set; } = new Dictionary<Guid, TexturePreview>();
 
     public Guid ReferenceId
     {

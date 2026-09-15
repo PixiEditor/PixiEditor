@@ -4,6 +4,7 @@ using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Shaders;
 using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Brushes;
@@ -13,6 +14,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.ChangeableDocument.Rendering.ContextData;
+using PixiEditor.Helpers.UI;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 
@@ -90,6 +92,8 @@ public class BrushOutputNode : Node
     public const string ContentProperty = "Content";
     public const string ContentTransformProperty = "Transform";
 
+    public const string PointPreviewElement = "PointPreview";
+
     private VectorPath? previewVectorPath;
     private bool drawnContentTextureOnce = false;
     private Matrix3X3 lastTranform = Matrix3X3.Identity;
@@ -157,12 +161,14 @@ public class BrushOutputNode : Node
                     || ContentTexture.ColorSpace != context.ProcessingColorSpace
                     || !drawnContentTextureOnce || ContentTransform.Value != lastTranform)
                 {
-                    if(context.RenderOutputSize.ShortestAxis <= 0 || context is not BrushRenderContext brushContext || brushContext.DryRun)
+                    if (context.RenderOutputSize.ShortestAxis <= 0 || context is not BrushRenderContext brushContext ||
+                        brushContext.DryRun)
                     {
                         return;
                     }
 
-                    ContentTexture = cache.RequestTexture(context.GraphCacheId, context.RenderOutputSize, context.ProcessingColorSpace);
+                    ContentTexture = cache.RequestTexture(context.GraphCacheId, context.RenderOutputSize,
+                        context.ProcessingColorSpace);
                     ContentTexture.DrawingSurface.Canvas.Save();
                     ContentTexture.DrawingSurface.Canvas.SetMatrix(ContentTransform.Value);
                     Content.Value.Paint(context, ContentTexture.DrawingSurface.Canvas);
@@ -192,7 +198,8 @@ public class BrushOutputNode : Node
         RenderPreviews(context.GetPreviewTexturesForNode(Id), context);
     }
 
-    internal override void SerializeAdditionalDataInternal(IReadOnlyDocument target, Dictionary<string, object> additionalData)
+    internal override void SerializeAdditionalDataInternal(IReadOnlyDocument target,
+        Dictionary<string, object> additionalData)
     {
         base.SerializeAdditionalDataInternal(target, additionalData);
         additionalData["PersistentId"] = PersistentId;
@@ -203,7 +210,8 @@ public class BrushOutputNode : Node
         drawnContentTextureOnce = false;
     }
 
-    internal override void DeserializeAdditionalDataInternal(IReadOnlyDocument target, IReadOnlyDictionary<string, object> data,
+    internal override void DeserializeAdditionalDataInternal(IReadOnlyDocument target,
+        IReadOnlyDictionary<string, object> data,
         List<IChangeInfo> infos)
     {
         base.DeserializeAdditionalDataInternal(target, data, infos);
@@ -231,6 +239,12 @@ public class BrushOutputNode : Node
             if (preview.Texture == null)
                 continue;
 
+            if (preview.ElementToRender == PointPreviewElement)
+            {
+                RenderPointPreview(preview, ctx);
+                return;
+            }
+
             int saved = preview.Texture.DrawingSurface.Canvas.Save();
             preview.Texture.DrawingSurface.Canvas.Clear();
 
@@ -243,6 +257,85 @@ public class BrushOutputNode : Node
             RenderPreview(preview.Texture.DrawingSurface, adjusted);
             preview.Texture.DrawingSurface.Canvas.RestoreToCount(saved);
         }
+    }
+
+    private void RenderPointPreview(PreviewRenderRequest preview, RenderContext ctx)
+    {
+        //strokeTexture?.Dispose();
+
+        using var pointPreviewTexture = Texture.ForDisplay(new VecI(PointPreviewSize, PointPreviewSize));
+        
+        /*
+        strokeTexture =
+            Texture.ForDisplay(new VecI(BrushOutputNode.StrokePreviewSizeX, BrushOutputNode.StrokePreviewSizeY));
+            */
+
+        using var pointImage = new ChunkyImage(new VecI(PointPreviewSize, PointPreviewSize));
+        /*
+        var strokeImage = new ChunkyImage(
+            new VecI(BrushOutputNode.StrokePreviewSizeX, BrushOutputNode.StrokePreviewSizeY));
+            */
+
+        var context = new RenderContext(
+            pointPreviewTexture.DrawingSurface.Canvas,
+            0,
+            ChunkResolution.Full,
+            pointPreviewTexture.Size,
+            pointPreviewTexture.Size,
+            ColorSpace.CreateSrgb(),
+            SamplingOptions.Bilinear,
+            ctx.Graph);
+
+        /*
+        if (Brush.Document.AccessInternalReadOnlyDocument().NodeGraph.AllNodes
+                .FirstOrDefault(n => n is OutputNode) is OutputNode { Input.Connection: not null } outputNode)
+        {
+            VecD scaling = new VecD(BrushOutputNode.PointPreviewSize / (float)Brush.Document.SizeBindable.X,
+                (float)BrushOutputNode.PointPreviewSize / Brush.Document.SizeBindable.Y);
+
+            context.RenderOutputSize = Brush.Document.SizeBindable;
+            context.DocumentSize = Brush.Document.SizeBindable;
+
+            pointPreviewTexture.DrawingSurface.Canvas.Save();
+            pointPreviewTexture.DrawingSurface.Canvas.Scale((float)scaling.X, (float)scaling.Y);
+            Brush.Document.AccessInternalReadOnlyDocument().NodeGraph.Execute(outputNode, context);
+            pointPreviewTexture.DrawingSurface.Canvas.Restore();
+        }
+        else
+        */
+        {
+            DrawPointPreview(pointImage, context,
+                PointPreviewSize, new VecD(PointPreviewSize / 2, PointPreviewSize / 2));
+
+            pointImage.DrawMostUpToDateRegionOn(
+                new RectI(0, 0, pointImage.CommittedSize.X, pointImage.CommittedSize.Y),
+                ChunkResolution.Full,
+                pointPreviewTexture.DrawingSurface.Canvas,
+                VecI.Zero, null, SamplingOptions.Bilinear);
+        }
+
+        /*
+        context.RenderOutputSize = strokeTexture.Size;
+        context.DocumentSize = strokeTexture.Size;
+        context.RenderSurface = strokeTexture.DrawingSurface.Canvas;
+        */
+
+        /*
+        DrawStrokePreview(strokeImage, context,
+            BrushOutputNode.StrokePreviewSizeY / 2,
+            new VecD(0, BrushOutputNode.YOffsetInPreview));
+
+        strokeImage.DrawMostUpToDateRegionOn(
+            new RectI(0, 0, strokeImage.CommittedSize.X, strokeImage.CommittedSize.Y),
+            ChunkResolution.Full,
+            strokeTexture.DrawingSurface.Canvas,
+            VecI.Zero, null, SamplingOptions.Bilinear);
+    */
+        
+        preview.Texture.DrawingSurface.Canvas.Save();
+        ScalingUtility.ScaleUniform(preview.Texture.DrawingSurface.Canvas, pointPreviewTexture.Size,preview.Texture.Size);
+        preview.Texture.DrawingSurface.Canvas.DrawSurface(pointPreviewTexture.DrawingSurface, 0, 0);
+        preview.Texture.DrawingSurface.Canvas.Restore();
     }
 
     private void RenderPreview(DrawingSurface surface, RenderContext context)
@@ -279,6 +372,7 @@ public class BrushOutputNode : Node
                 new KeyboardInfo(),
                 new EditorData(Colors.White, Colors.Black));
         }
+
         previewChunkyImage.CommitChanges();
 
         DrawStrokePreview(previewChunkyImage, context, maxSize);
@@ -308,7 +402,8 @@ public class BrushOutputNode : Node
             pos = vec4D.XY;
             pos = new VecD(pos.X, pos.Y + maxSize / 2f) + shift;
 
-            points.Add(new RecordedPoint((VecI)pos, new PointerInfo(pos, pressure, 0, VecD.Zero, vec4D.ZW, 1, true, false),
+            points.Add(new RecordedPoint((VecI)pos,
+                new PointerInfo(pos, pressure, 0, VecD.Zero, vec4D.ZW, 1, true, false),
                 new KeyboardInfo(), new EditorData(Colors.White, Colors.Black)));
 
             previewEngine.ExecuteBrush(target,
@@ -340,7 +435,8 @@ public class BrushOutputNode : Node
             var vec4D = previewVectorPath.GetPositionAndTangentAtDistance(offset, false);
             pos = vec4D.XY;
             pos = new VecD(pos.X, pos.Y + maxSize / 2f) + shift;
-            points.Add(new RecordedPoint((VecI)pos, new PointerInfo(pos, pressure, 0, VecD.Zero, vec4D.ZW, 1, true, false),
+            points.Add(new RecordedPoint((VecI)pos,
+                new PointerInfo(pos, pressure, 0, VecD.Zero, vec4D.ZW, 1, true, false),
                 new KeyboardInfo(), new EditorData(Colors.White, Colors.Black)));
 
             previewEngine.ExecuteBrush(target,
