@@ -1,10 +1,11 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Palettes;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Palettes;
 using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 [NodeInfo("Palette")]
-public class PaletteNode : Node
+public class PaletteNode : Node, IIterativeRenderSupport
 {
     public InputProperty<Palette> Colors { get; }
     public OutputProperty<Palette> Output { get; }
@@ -23,4 +24,6 @@ public class PaletteNode : Node
     {
         return new PaletteNode();
     }
+
+    bool IIterativeRenderSupport.SupportsIterativeRendering => true;
 }

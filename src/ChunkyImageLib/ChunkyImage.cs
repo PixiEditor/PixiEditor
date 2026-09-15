@@ -1717,7 +1717,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
         using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
         var surface = Surface.ForDisplay(new VecI(LatestSize.X, LatestSize.Y));
 
-        this.DrawCommittedRegionOn(new RectI(VecI.Zero, LatestSize), ChunkResolution.Full,
+        this.DrawCommittedRegionOn(new RectD(VecI.Zero, LatestSize), ChunkResolution.Full,
             surface.DrawingSurface.Canvas, VecI.Zero, ReplacingPaint);
 
         surface.SaveToDesktop();

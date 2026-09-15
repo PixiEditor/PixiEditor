@@ -59,6 +59,8 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         return (RectD?)GetLayerImageAtFrame(frameTime.Frame)?.FindTightLatestBounds();
     }
 
+    public override bool SupportsIterativeRendering => true;
+
     public override RectD? GetApproxBounds(KeyFrameTime frameTime)
     {
         var layerImage = GetLayerImageAtFrame(frameTime.Frame);
@@ -105,7 +107,6 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         bool useFilters = true)
     {
         int scaled = workingSurface.Save();
-        float multiplier = (float)ctx.ChunkResolution.InvertedMultiplier();
         workingSurface.Translate(GetScenePosition(ctx.FrameTime));
 
         base.DrawLayerInScene(ctx, workingSurface, useFilters);
@@ -150,8 +151,8 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
             return;
         }
 
-        RectI latestSize = new(0, 0, layerImage.LatestSize.X, layerImage.LatestSize.Y);
-        var region = (RectI?)ctx.VisibleDocumentRegion?.RoundOutwards() ?? latestSize;
+        RectD latestSize = new(0, 0, layerImage.LatestSize.X, layerImage.LatestSize.Y);
+        var region = ctx.VisibleDocumentRegion ?? latestSize;
 
         VecD topLeft = region.TopLeft - sceneSize / 2;
 
@@ -168,20 +169,20 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         VecD finalDrawPos = topLeft;
         if (saveLayer)
         {
-            var visibleRegion = (RectI?)ctx.VisibleDocumentRegion?.RoundOutwards() ?? latestSize;
+            var visibleRegion = ctx.VisibleDocumentRegion ?? latestSize;
             var multiplier = visibleRegion != latestSize ? 1 : ctx.ChunkResolution.Multiplier();
             var intersection = visibleRegion.Intersect(latestSize);
             region = intersection;
-            VecI chunkAwareSize = (VecI)(new VecI(region.Width, region.Height) * multiplier);
+            VecI chunkAwareSize = (VecI)(new VecD(region.Width, region.Height) * multiplier).Ceiling();
             if (chunkAwareSize.X <= 0 || chunkAwareSize.Y <= 0)
             {
                 workingSurface.RestoreToCount(saved);
                 return;
             }
 
-            intermediate = RequestTexture(1336, chunkAwareSize, ColorSpace.CreateSrgb());
+            intermediate = RequestTexture(ctx.GraphCacheId + 1336, chunkAwareSize, ColorSpace.CreateSrgb());
             finalDrawPos = VecD.Zero;
-            topLeft = region.TopLeft - sceneSize / 2;
+            topLeft = (region.TopLeft - sceneSize / 2).Round();
         }
         else
         {
@@ -190,7 +191,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
         if (!ctx.FullRerender)
         {
-            if (ctx.IterativeRender && ctx.AffectedArea.Chunks != null)
+            if (ctx is { IterativeRender: true, AffectedArea.Chunks: not null })
             {
                 Paint emptyPaint = null;
                 if (paint.BlendMode == Drawie.Backend.Core.Surfaces.BlendMode.Src)
@@ -200,11 +201,10 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
                     emptyPaint.Color = Colors.Transparent;
                 }
 
-                var visibleDocRegion = ctx.VisibleDocumentRegion?.Pos ?? VecD.Zero;
-
                 img.DrawMostUpToDateAffectedArea(
+                    region,
                     ctx.ChunkResolution,
-                    saveLayer ? intermediate.DrawingSurface.Canvas : workingSurface, ctx.AffectedArea, finalDrawPos - visibleDocRegion * ctx.ChunkResolution.Multiplier(),
+                    saveLayer ? intermediate.DrawingSurface.Canvas : workingSurface, ctx.AffectedArea, finalDrawPos,
                     saveLayer ? null : paint, emptyPaint, ctx.DesiredSamplingOptions);
                 emptyPaint?.Dispose();
             }
@@ -351,7 +351,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         renderOnto.Canvas.Scale((float)context.ChunkResolution.InvertedMultiplier());
 
         img.DrawCommittedRegionOn(
-            new RectI(0, 0, img.LatestSize.X, img.LatestSize.Y),
+            new RectD(0, 0, img.LatestSize.X, img.LatestSize.Y),
             context.ChunkResolution,
             renderOnto.Canvas, VecI.Zero, replacePaint, context.DesiredSamplingOptions);
 

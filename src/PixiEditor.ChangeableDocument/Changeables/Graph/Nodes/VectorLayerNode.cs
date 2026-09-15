@@ -81,7 +81,10 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
             return;
         }
 
-        Rasterize(workingSurface, paint, ctx.FrameTime.Frame);
+        if (!ctx.IterativeRender || ctx.AffectedArea.GlobalArea.HasValue)
+        {
+            Rasterize(workingSurface, paint, ctx.FrameTime.Frame);
+        }
     }
 
     protected override void DrawWithFilters(SceneObjectRenderContext ctx, Canvas workingSurface, Paint paint)
@@ -91,8 +94,12 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
             return;
         }
 
-        Rasterize(workingSurface, paint, ctx.FrameTime.Frame);
+        if (!ctx.IterativeRender || ctx.AffectedArea.GlobalArea.HasValue)
+        {
+            Rasterize(workingSurface, paint, ctx.FrameTime.Frame);
+        }
     }
+
 
     protected override bool ShouldRenderPreview(string elementToRenderName)
     {
@@ -194,6 +201,8 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
     {
         return RenderableShapeData?.TransformedVisualAABB ?? null;
     }
+
+    public override bool SupportsIterativeRendering => true;
 
     public override ShapeCorners GetTransformationCorners(KeyFrameTime frameTime)
     {

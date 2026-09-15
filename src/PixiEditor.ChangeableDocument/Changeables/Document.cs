@@ -104,7 +104,7 @@ internal class Document : IChangeable, IReadOnlyDocument
             using Surface chunkSurface =
                 Surface.ForProcessing(chunkyImage.CommittedSize, chunkyImage.ProcessingColorSpace);
             chunkyImage.DrawCommittedRegionOn(
-                new RectI(0, 0, chunkyImage.CommittedSize.X, chunkyImage.CommittedSize.Y),
+                new RectD(0, 0, chunkyImage.CommittedSize.X, chunkyImage.CommittedSize.Y),
                 ChunkResolution.Full,
                 chunkSurface.DrawingSurface.Canvas,
                 VecI.Zero);
