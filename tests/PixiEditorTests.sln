@@ -133,6 +133,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EncryptionLib", "..\src\Enc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixiEditor.GraphNavigation", "..\src\PixiEditor.GraphNavigation\PixiEditor.GraphNavigation.csproj", "{2A48364E-5D47-4487-A0B1-28AF8BE0E8C1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixiEditor.GraphNavigation.Tests", "PixiEditor.GraphNavigation.Tests\PixiEditor.GraphNavigation.Tests.csproj", "{BCC782AD-D02B-4C14-8E88-4C05B327448C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -386,6 +388,10 @@ Global
 		{2A48364E-5D47-4487-A0B1-28AF8BE0E8C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2A48364E-5D47-4487-A0B1-28AF8BE0E8C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2A48364E-5D47-4487-A0B1-28AF8BE0E8C1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BCC782AD-D02B-4C14-8E88-4C05B327448C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BCC782AD-D02B-4C14-8E88-4C05B327448C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BCC782AD-D02B-4C14-8E88-4C05B327448C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BCC782AD-D02B-4C14-8E88-4C05B327448C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{0EF3CAB9-7361-472C-8789-D17D4EA2DEBB} = {D914C08C-5F1A-4E13-AAA6-F25E8C9748E2}
@@ -451,5 +457,6 @@ Global
 		{BB110405-6FB2-45A1-A1DD-4A2DCA74723B} = {E118E6FE-67E7-4472-A8D7-E7F470E66131}
 		{360D56F8-9852-44C5-A1B4-5BD3A99D6C6B} = {E118E6FE-67E7-4472-A8D7-E7F470E66131}
 		{2A48364E-5D47-4487-A0B1-28AF8BE0E8C1} = {E118E6FE-67E7-4472-A8D7-E7F470E66131}
+		{BCC782AD-D02B-4C14-8E88-4C05B327448C} = {D914C08C-5F1A-4E13-AAA6-F25E8C9748E2}
 	EndGlobalSection
 EndGlobal
