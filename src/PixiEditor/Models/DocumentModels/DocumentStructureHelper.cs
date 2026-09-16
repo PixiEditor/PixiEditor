@@ -34,7 +34,7 @@ internal class DocumentStructureHelper
                     count++;
             }
 
-            return Traverse.Further;
+            return Traverse.Continue;
         });
         return $"{name} {count}";
     }

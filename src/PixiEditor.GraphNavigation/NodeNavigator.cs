@@ -14,103 +14,143 @@ public readonly struct NodeNavigator<TNode, TInput, TOutput>(TNode origin)
     where TInput : class, INavigableInputProperty<TNode, TInput, TOutput>
     where TOutput : class, INavigableOutputProperty<TNode, TInput, TOutput>
 {
-    /// <summary>
-    /// Traverses the graph backwards (upstream) from the origin node towards its inputs.
-    /// </summary>
-    /// <param name="func">
-    /// A callback delegate invoked for each step in the traversal. Receives the current 
-    /// <see cref="TraverseContext{TNode, TInput, TOutput}"/> and returns a <see cref="Traverse"/> value controlling flow continuation.
-    /// </param>
-    /// <exception cref="ArgumentOutOfRangeException">
-    /// Thrown when <paramref name="func"/> returns an unhandled or invalid <see cref="Traverse"/> enum value.
-    /// </exception>
-    public void TraverseBackwards(Func<TraverseContext<TNode, TInput, TOutput>, Traverse> func)
+    public IEnumerable<TraverseContext<TNode, TInput, TOutput>> Backwards(bool yieldOrigin = true) =>
+        Backwards(null, yieldOrigin);
+
+    public IEnumerable<TraverseContext<TNode, TInput, TOutput>> Backwards(
+        Func<TraverseContext<TNode, TInput, TOutput>, Traverse>? brancher, bool yieldOrigin = true)
     {
-        var visited = new HashSet<TNode>();
-        var queueNodes = new Queue<TraverseContext<TNode, TInput, TOutput>>();
-        queueNodes.Enqueue(TraverseContext<TNode, TInput, TOutput>.Origin(origin));
+        var engine = new NodeTraversalEngine<TNode, TInput, TOutput>(origin);
 
-        while (queueNodes.Count > 0)
+        // Handle origin node setup when omitted from results. Still allows handling connection selection
+        if (!yieldOrigin && engine.TryGetNext(out var originContext))
         {
-            var context = queueNodes.Dequeue();
+            var originResult = brancher?.Invoke(originContext) ?? Traverse.Continue;
 
-            if (!visited.Add(context.Current))
+            switch (originResult)
             {
-                continue;
+                case Traverse.Continue:
+                    engine.ExpandBackwards(originContext);
+                    break;
+
+                case Traverse.ExitExclusive:
+                case Traverse.ExitInclusive:
+
+                case Traverse.SkipChildren:
+                    yield break;
+
+                default:
+                    ThrowInvalidTraverseResult(originResult);
+                    break;
+            }
+        }
+
+        if (brancher == null)
+        {
+            while (engine.TryGetNext(out var context))
+            {
+                yield return context;
+                engine.ExpandBackwards(context);
             }
 
-            var result = func(context);
+            yield break;
+        }
+
+        while (engine.TryGetNext(out var context))
+        {
+            var result = brancher(context);
 
             switch (result)
             {
-                case Traverse.NoFurther:
-                    continue;
-                case Traverse.Exit:
-                    return;
-                case Traverse.Further:
+                case Traverse.ExitExclusive: // Do not yield current node (Exclusive)
+                    yield break;
+
+                case Traverse.ExitInclusive: // Yield current node (Inclusive)
+                    yield return context;
+                    yield break;
+
+                case Traverse.SkipChildren:
+                    yield return context;
                     break;
+
+                case Traverse.Continue:
+                    yield return context;
+                    engine.ExpandBackwards(context);
+                    break;
+
                 default:
                     ThrowInvalidTraverseResult(result);
                     break;
-            }
-
-            foreach (var inputProperty in context.Current.Inputs)
-            {
-                var connectedOutput = inputProperty.ConnectedOutput;
-                if (connectedOutput != null)
-                {
-                    queueNodes.Enqueue(context.Next(connectedOutput.Node, inputProperty, connectedOutput));
-                }
             }
         }
     }
 
-    /// <summary>
-    /// Traverses the graph forwards (downstream) from the origin node towards its outputs.
-    /// </summary>
-    /// <param name="func">
-    /// A callback delegate invoked for each step in the traversal. Receives the current 
-    /// <see cref="TraverseContext{TNode, TInput, TOutput}"/> and returns a <see cref="Traverse"/> value controlling flow continuation.
-    /// </param>
-    /// <exception cref="ArgumentOutOfRangeException">
-    /// Thrown when <paramref name="func"/> returns an unhandled or invalid <see cref="Traverse"/> enum value.
-    /// </exception>
-    public void TraverseForwards(Func<TraverseContext<TNode, TInput, TOutput>, Traverse> func)
+    public IEnumerable<TraverseContext<TNode, TInput, TOutput>> Forwards() => Forwards(null);
+
+    public IEnumerable<TraverseContext<TNode, TInput, TOutput>> Forwards(
+        Func<TraverseContext<TNode, TInput, TOutput>, Traverse>? brancher, bool yieldOrigin = true)
     {
-        var visited = new HashSet<TNode>();
-        var queueNodes = new Queue<TraverseContext<TNode, TInput, TOutput>>();
-        queueNodes.Enqueue(TraverseContext<TNode, TInput, TOutput>.Origin(origin));
+        var engine = new NodeTraversalEngine<TNode, TInput, TOutput>(origin);
 
-        while (queueNodes.Count > 0)
+        // Handle origin node setup when omitted from results. Still allows handling connection selection
+        if (!yieldOrigin && engine.TryGetNext(out var originContext))
         {
-            var context = queueNodes.Dequeue();
+            var originResult = brancher?.Invoke(originContext) ?? Traverse.Continue;
 
-            if (!visited.Add(context.Current))
+            switch (originResult)
             {
-                continue;
+                case Traverse.Continue:
+                    engine.ExpandForwards(originContext);
+                    break;
+
+                case Traverse.ExitExclusive:
+                case Traverse.ExitInclusive:
+
+                case Traverse.SkipChildren:
+                    yield break;
+
+                default:
+                    ThrowInvalidTraverseResult(originResult);
+                    break;
+            }
+        }
+
+        if (brancher == null)
+        {
+            while (engine.TryGetNext(out var context))
+            {
+                yield return context;
+                engine.ExpandForwards(context);
             }
 
-            var result = func(context);
+            yield break;
+        }
+
+        while (engine.TryGetNext(out var context))
+        {
+            var result = brancher(context);
 
             switch (result)
             {
-                case Traverse.NoFurther:
-                    continue;
-                case Traverse.Exit:
-                    return;
-                case Traverse.Further:
+                case Traverse.ExitExclusive: // Do not yield current node (Exclusive)
+                    yield break;
+
+                case Traverse.ExitInclusive: // Yield current node (Inclusive)
+                    yield return context;
+                    yield break;
+
+                case Traverse.SkipChildren:
+                    yield return context;
                     break;
+
+                case Traverse.Continue:
+                    yield return context;
+                    engine.ExpandForwards(context);
+                    break;
+
                 default:
                     ThrowInvalidTraverseResult(result);
                     break;
-            }
-
-            foreach (var outputProperty in context.Current.Outputs)
-            {
-                foreach (var connectedInput in outputProperty.ConnectedInputs)
-                {
-                    queueNodes.Enqueue(context.Next(connectedInput.Node, connectedInput, outputProperty));
-                }
             }
         }
     }

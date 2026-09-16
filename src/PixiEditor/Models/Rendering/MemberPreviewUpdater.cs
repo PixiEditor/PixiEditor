@@ -414,16 +414,16 @@ internal class MemberPreviewUpdater
         nodeVm.TraverseForwards(next =>
         {
             if (next is not INodeHandler nextVm)
-                return Traverse.Further;
+                return Traverse.Continue;
 
             var nextNode = allNodes.FirstOrDefault(x => x.Id == next.Id);
 
             if (nextNode is null || actualRepaintedNodes.Contains(next.Id))
-                return Traverse.Further;
+                return Traverse.Continue;
 
             RequestRepaintNode(nextNode, nextVm, previews);
             actualRepaintedNodes.Add(next.Id);
-            return Traverse.Further;
+            return Traverse.Continue;
         });
     }
 

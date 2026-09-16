@@ -1,19 +1,27 @@
 ﻿namespace PixiEditor.GraphNavigation;
 
+/// <summary>
+/// Specifies how a graph or tree traversal should proceed after evaluating a node.
+/// </summary>
 public enum Traverse
 {
     /// <summary>
-    /// Go further in this direction, meaning any further child connections will not be enqueued.
+    /// Continues traversal into the current node's child connections.
     /// </summary>
-    Further,
-    
+    Continue,
+
     /// <summary>
-    /// Don't go further in this direction, meaning all further child connections will be enqueued.
+    /// Skips the current node's child connections without halting overall traversal.
     /// </summary>
-    NoFurther,
-    
+    SkipChildren,
+
     /// <summary>
-    /// Completely stop traversing in any direction, meaning this will drop all enqueued child connections.
+    /// Halts traversal immediately and includes the current node in the final result.
     /// </summary>
-    Exit
+    ExitInclusive,
+
+    /// <summary>
+    /// Halts traversal immediately and excludes the current node from the final result.
+    /// </summary>
+    ExitExclusive
 }

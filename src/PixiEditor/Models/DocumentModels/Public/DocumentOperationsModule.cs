@@ -665,10 +665,10 @@ internal class DocumentOperationsModule : IDocumentOperations
             if (!members.Contains(traversedNode.Id))
             {
                 parent = traversedNode;
-                return Traverse.Exit;
+                return Traverse.ExitInclusive;
             }
 
-            return Traverse.Further;
+            return Traverse.Continue;
         });
 
         if (parent is null)

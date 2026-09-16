@@ -62,7 +62,7 @@ internal class StructureTree
 
             _memberMap.TryAdd(node, lastRoot);
 
-            return Traverse.Further;
+            return Traverse.Continue;
         });
 
         List<IStructureMemberHandler> toRemove = new();
