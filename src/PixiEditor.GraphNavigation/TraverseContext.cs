@@ -1,4 +1,6 @@
-﻿namespace PixiEditor.GraphNavigation;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace PixiEditor.GraphNavigation;
 
 /// <summary>
 /// Represents the state and context of a single step during graph traversal with strongly-typed property references.
@@ -28,11 +30,13 @@ public readonly struct TraverseContext<TNode, TInput, TOutput>(
     /// <summary>
     /// Gets the input property involved in the connection between <see cref="Current"/> and <see cref="Adjacent"/>, if any.
     /// </summary>
+    [NotNullIfNotNull(nameof(Adjacent))]
     public TInput? InputProperty { get; } = inputProperty;
 
     /// <summary>
     /// Gets the output property involved in the connection between <see cref="Current"/> and <see cref="Adjacent"/>, if any.
     /// </summary>
+    [NotNullIfNotNull(nameof(Adjacent))]
     public TOutput? OutputProperty { get; } = outputProperty;
 
     /// <summary>
@@ -51,6 +55,6 @@ public readonly struct TraverseContext<TNode, TInput, TOutput>(
     /// <returns>A new <see cref="TraverseContext{TNode, TInput, TOutput}"/> representing the next step in traversal.</returns>
     internal TraverseContext<TNode, TInput, TOutput> Next(
         TNode next,
-        TInput? inputProperty,
-        TOutput? outputProperty) => new(next, Current, inputProperty, outputProperty);
+        TInput inputProperty,
+        TOutput outputProperty) => new(next, Current, inputProperty, outputProperty);
 }

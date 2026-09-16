@@ -16,12 +16,12 @@ public enum Traverse
     SkipChildren,
 
     /// <summary>
-    /// Halts traversal immediately and includes the current node in the final result.
+    /// Halts traversal immediately and includes the current node in the resulting enumerable.
     /// </summary>
     ExitInclusive,
 
     /// <summary>
-    /// Halts traversal immediately and excludes the current node from the final result.
+    /// Halts traversal immediately and excludes the current node from the resulting enumerable.
     /// </summary>
     ExitExclusive
 }

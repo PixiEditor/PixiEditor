@@ -9,9 +9,17 @@ internal static class NavigableNodeExtensions
 
     extension(INodeHandler node)
     {
+        /// <summary>
+        /// Creates a navigator for this node that yields traversal context for each visited step.
+        /// </summary>
+        /// <returns>A navigator bound to the current node.</returns>
         public NodeNavigator<INodeHandler, INodePropertyHandler, INodePropertyHandler> Navigate() =>
             new(node);
-        
+
+        /// <summary>
+        /// Creates a traversal engine for this node when explicit control over the expansion loop is required.
+        /// </summary>
+        /// <returns>A traversal engine bound to the current node.</returns>
         public NodeTraversalEngine<INodeHandler, INodePropertyHandler, INodePropertyHandler> NavigateViaEngine() =>
             new(node);
     }

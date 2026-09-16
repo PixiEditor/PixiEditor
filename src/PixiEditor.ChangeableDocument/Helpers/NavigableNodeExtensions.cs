@@ -9,10 +9,17 @@ internal static class BackendNodeNavigationExtensions
 
     extension(IReadOnlyNode node)
     {
+        /// <summary>
+        /// Creates a navigator for this node that yields traversal context for each visited step.
+        /// </summary>
+        /// <returns>A navigator bound to the current node.</returns>
         public NodeNavigator<IReadOnlyNode, IInputProperty, IOutputProperty> Navigate() =>
             new(node);
-        
-        
+
+        /// <summary>
+        /// Creates a traversal engine for this node when explicit control over the expansion loop is required.
+        /// </summary>
+        /// <returns>A traversal engine bound to the current node.</returns>
         public NodeTraversalEngine<IReadOnlyNode, IInputProperty, IOutputProperty> NavigateViaEngine() =>
             new(node);
 
@@ -54,15 +61,14 @@ internal static class BackendNodeNavigationExtensions
     }
 
     /// <summary>
-    /// Maps legacy boolean traversal action results to the <see cref="Traverse"/> control flow enum.
+    /// Converts a legacy boolean continuation check into a traversal decision.
     /// </summary>
     /// <param name="continueTraversal">
-    /// <see langword="true"/> to continue exploring the graph (<see cref="Traverse.Continue"/>); 
-    /// <see langword="false"/> to abort traversal entirely (<see cref="Traverse.Exit"/>).
+    /// <see langword="true"/> to continue exploring the graph; otherwise the traversal stops after the current node.
     /// </param>
     /// <returns>
-    /// <see cref="Traverse.Continue"/> if <paramref name="continueTraversal"/> is <see langword="true"/>; 
-    /// otherwise, <see cref="Traverse.Exit"/>.
+    /// <see cref="Traverse.Continue"/> when <paramref name="continueTraversal"/> is <see langword="true"/>;
+    /// otherwise <see cref="Traverse.ExitInclusive"/>.
     /// </returns>
     private static Traverse ToTraverseResult(this bool continueTraversal) =>
         continueTraversal ? Traverse.Continue : Traverse.ExitInclusive;
