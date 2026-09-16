@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using Avalonia;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core;
@@ -29,15 +30,7 @@ internal class BrushViewModel : ViewModelBase
 
     public TexturePreview PointPreviewTexture
     {
-        get
-        {
-            if (CacheChanged())
-            {
-                GeneratePreviewTextures();
-            }
-
-            return Brush.Document.BrushPreviews.TryGetValue(Brush.OutputNodeId, out var value) ? value : null;
-        }
+        get => Brush.Document.BrushPreviews[Brush.OutputNodeId];
     }
 
     public Texture DrawingStrokeTexture
@@ -159,6 +152,8 @@ internal class BrushViewModel : ViewModelBase
         lastTextureCache = 0;
         isFavourite = IPreferences.Current.GetPreference<List<Guid>>(PreferencesConstants.FavouriteBrushes)
             ?.Contains(Brush.PersistentId) ?? false;
+
+        GeneratePreviewTextures();
     }
 
     public void TryGeneratePreviewTextures()

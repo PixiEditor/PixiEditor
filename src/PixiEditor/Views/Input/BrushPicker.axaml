@@ -18,6 +18,7 @@
         <visuals:PreviewTextureControl
             Width="36" Height="21"
             ZIndex="1"
+            Sampling="Bilinear"
             TexturePreview="{Binding Path=SelectedBrush.PointPreviewTexture, RelativeSource={RelativeSource FindAncestor, AncestorType=input:BrushPicker}}" />
         <Panel.Styles>
             <Style Selector="Panel > ToggleButton:checked">
@@ -288,7 +289,8 @@
                                                     IsHitTestVisible="True">
                                                 <visuals:PreviewTextureControl
                                                     Width="50" Height="50"
-                                                    TexturePreview="{Binding PointPreviewTexture}" />
+                                                    TexturePreview="{Binding PointPreviewTexture}"
+                                                    Sampling="Bilinear" />
                                                 <Classes.selected>
                                                     <MultiBinding Converter="{converters:AreEqualConverter}">
                                                         <Binding Path="$parent[input:BrushPicker].SelectedBrush" />

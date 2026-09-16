@@ -36,6 +36,15 @@ public class PreviewTextureControl : DrawieControl
         AvaloniaProperty.Register<PreviewTextureControl, double>(
             nameof(SourceHeight), double.NaN);
 
+    public static readonly StyledProperty<SampleQuality> SamplingProperty = AvaloniaProperty.Register<PreviewTextureControl, SampleQuality>(
+        nameof(Sampling));
+
+    public SampleQuality Sampling
+    {
+        get => GetValue(SamplingProperty);
+        set => SetValue(SamplingProperty, value);
+    }
+
     public double SourceHeight
     {
         get => GetValue(SourceHeightProperty);
@@ -123,7 +132,7 @@ public class PreviewTextureControl : DrawieControl
             }
             else
             {
-                surface.Canvas.DrawSurface(TexturePreview.Preview.DrawingSurface, 0, 0);
+                surface.Canvas.DrawSurface(TexturePreview.Preview.DrawingSurface, 0, 0, Sampling == SampleQuality.Nearest ? SamplingOptions.Default : SamplingOptions.Bilinear, null);
             }
 
             surface.Canvas.Restore();

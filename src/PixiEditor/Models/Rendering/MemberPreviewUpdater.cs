@@ -94,10 +94,9 @@ internal class MemberPreviewUpdater
 
             var prev = doc.BrushPreviews[toGen.BrushOutputNodeId];
 
-            if (prev.Listeners.Count == 0)
-                return;
+            if (prev.Listeners.Count == 0) return;
 
-            VecI textureSize = prev.GetMaxListenerSize();
+            VecI textureSize = new VecI(BrushOutputNode.PointPreviewSize);
             if (textureSize.X <= 0 || textureSize.Y <= 0)
                 return;
 
@@ -540,6 +539,6 @@ private void UpdateDocPreviewPainter(PreviewPainter painter)
 
     private void RequestBrushPreviewRender(Guid id)
     {
-        //internals.ActionAccumulator.AddActions(new GenerateBrushPreview_PassthroughAction(id));
+        internals.ActionAccumulator.AddActions(new GenerateBrushPreview_PassthroughAction(id));
     }
 }

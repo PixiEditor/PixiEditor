@@ -263,7 +263,7 @@ public class BrushOutputNode : Node
     {
         //strokeTexture?.Dispose();
 
-        using var pointPreviewTexture = Texture.ForDisplay(new VecI(PointPreviewSize, PointPreviewSize));
+        var pointPreviewTexture = preview.Texture;
         
         /*
         strokeTexture =
@@ -331,11 +331,6 @@ public class BrushOutputNode : Node
             strokeTexture.DrawingSurface.Canvas,
             VecI.Zero, null, SamplingOptions.Bilinear);
     */
-        
-        preview.Texture.DrawingSurface.Canvas.Save();
-        ScalingUtility.ScaleUniform(preview.Texture.DrawingSurface.Canvas, pointPreviewTexture.Size,preview.Texture.Size);
-        preview.Texture.DrawingSurface.Canvas.DrawSurface(pointPreviewTexture.DrawingSurface, 0, 0);
-        preview.Texture.DrawingSurface.Canvas.Restore();
     }
 
     private void RenderPreview(DrawingSurface surface, RenderContext context)
