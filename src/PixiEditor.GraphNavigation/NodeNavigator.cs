@@ -124,7 +124,8 @@ public readonly struct NodeNavigator<TNode, TInput, TOutput>(TNode origin)
     /// </param>
     /// <returns>An enumeration of traversal steps in forward dependency order.</returns>
     [Pure]
-    public IEnumerable<TraverseContext<TNode, TInput, TOutput>> Forwards(bool yieldOrigin = true) => Forwards(null, yieldOrigin);
+    public IEnumerable<TraverseContext<TNode, TInput, TOutput>> Forwards(bool yieldOrigin = true) =>
+        Forwards(null, yieldOrigin);
 
     /// <summary>
     /// Traverses the graph in the input direction (left to right in UI) and allows a callback to control flow for each visited step.
@@ -205,6 +206,88 @@ public readonly struct NodeNavigator<TNode, TInput, TOutput>(TNode origin)
             }
         }
     }
+
+    public IEnumerable<TTarget> NodesOfType<TTarget>(
+        NavigationDirection direction)
+        where TTarget : class, TNode
+    {
+        var engine = new NodeTraversalEngine<TNode, TInput, TOutput>(origin);
+
+        while (engine.TryGetNext(out var context))
+        {
+            if (context.Current is TTarget target)
+            {
+                yield return target;
+            }
+
+            engine.Expand(context, direction);
+        }
+    }
+
+    public IEnumerable<TTarget> NodesOfTypeWhere<TTarget>(
+        NavigationDirection direction,
+        Func<TraverseContext<TNode, TInput, TOutput>, bool> predicate)
+        where TTarget : class, TNode
+    {
+        var engine = new NodeTraversalEngine<TNode, TInput, TOutput>(origin);
+
+        while (engine.TryGetNext(out var context))
+        {
+            if (context.Current is TTarget target && predicate(context))
+            {
+                yield return target;
+            }
+
+            engine.Expand(context, direction);
+        }
+    }
+
+    [return: NotNullIfNotNull(nameof(defaultValue))]
+    private TNode? FirstOrDefaultCore<TEvaluator>(
+        NavigationDirection direction,
+        TEvaluator evaluator,
+        TNode? defaultValue,
+        bool yieldOrigin)
+        where TEvaluator : struct, IPredicateEvaluator<TNode, TInput, TOutput>
+    {
+        var engine = new NodeTraversalEngine<TNode, TInput, TOutput>(origin);
+
+        if (!engine.TryGetNext(out var context))
+            return defaultValue;
+
+        if (yieldOrigin && evaluator.Evaluate(context))
+            return context.Current;
+
+        engine.Expand(context, direction);
+
+        while (engine.TryGetNext(out context))
+        {
+            if (evaluator.Evaluate(context))
+                return context.Current;
+
+            engine.Expand(context, direction);
+        }
+
+        return defaultValue;
+    }
+
+    public bool Any(NavigationDirection direction, Func<TNode, bool> predicate, bool yieldOrigin = true)
+        => FirstOrDefault(direction, predicate, defaultValue: null, yieldOrigin) != null;
+
+    public bool Any(NavigationDirection direction, Func<TraverseContext<TNode, TInput, TOutput>, bool> predicate, bool yieldOrigin = true)
+        => FirstOrDefault(direction, predicate, defaultValue: null, yieldOrigin) != null;
+
+    [return: NotNullIfNotNull(nameof(defaultValue))]
+    public TNode? FirstOrDefault(NavigationDirection direction, Func<TNode, bool> predicate, TNode? defaultValue = null, bool yieldOrigin = true)
+        => FirstOrDefaultCore(direction, new NodePredicate<TNode, TInput, TOutput>(predicate), defaultValue, yieldOrigin);
+
+    [return: NotNullIfNotNull(nameof(defaultValue))]
+    public TNode? FirstOrDefault(NavigationDirection direction, Func<TraverseContext<TNode, TInput, TOutput>, bool> predicate, TNode? defaultValue = null, bool yieldOrigin = true)
+        => FirstOrDefaultCore(direction, new ContextPredicate<TNode, TInput, TOutput>(predicate), defaultValue, yieldOrigin);
+
+    [return: NotNullIfNotNull(nameof(defaultValue))]
+    public TNode? FirstOrDefault(NavigationDirection direction, TNode? defaultValue = null, bool yieldOrigin = true)
+        => FirstOrDefaultCore(direction, default(AlwaysTruePredicate<TNode, TInput, TOutput>), defaultValue, yieldOrigin);
 
     [DoesNotReturn]
     private void ThrowInvalidTraverseResult(Traverse traverse) =>

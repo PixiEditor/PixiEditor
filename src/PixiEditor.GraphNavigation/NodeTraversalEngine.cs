@@ -50,6 +50,26 @@ public readonly struct NodeTraversalEngine<TNode, TInput, TOutput> where TNode :
     }
 
     /// <summary>
+    /// Expands the current traversal step by enqueuing all connected nodes in the specified direction.
+    /// </summary>
+    /// <param name="context">The current traversal context whose connections should be explored.</param>
+    /// <param name="direction">The direction in which connected nodes should be explored.</param>
+    public void Expand(in TraverseContext<TNode, TInput, TOutput> context, NavigationDirection direction)
+    {
+        switch (direction)
+        {
+            case NavigationDirection.Forwards:
+                ExpandForwards(context);
+                break;
+            case NavigationDirection.Backwards:
+                ExpandBackwards(context);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
+        }
+    }
+
+    /// <summary>
     /// Expands the current traversal step by enqueuing all connected predecessor nodes.
     /// </summary>
     /// <param name="context">The current traversal context whose incoming connections should be explored.</param>

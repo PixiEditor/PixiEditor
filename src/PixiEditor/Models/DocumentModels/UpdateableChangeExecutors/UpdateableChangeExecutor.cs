@@ -65,7 +65,7 @@ internal abstract class UpdateableChangeExecutor
 
     protected T[] QueryLayers<T>(VecD pos) where T : IStructureMemberHandler
     {
-        var allLayers = document.StructureHelper.GetAllMembers();
+        var allLayers = document.StructureHelper.EnumerateAllMembers().ToList();
         FilterOutInvisible(allLayers);
         var topMostWithinClick = allLayers.Where(x =>
                 x is T { TightBounds: not null } &&
@@ -81,7 +81,7 @@ internal abstract class UpdateableChangeExecutor
         List<IStructureMemberHandler> toRemove = new List<IStructureMemberHandler>();
         foreach (var layer in allLayers)
         {
-            var parents = document.StructureHelper.GetParents(layer.Id);
+            var parents = document.StructureHelper.EnumerateParents(layer.Id);
             if(parents.Any(x => !x.IsVisibleBindable))
             {
                 toRemove.Add(layer);

@@ -40,18 +40,9 @@ internal class DocumentStructureModule
         if (firstNode is null)
             return Guid.Empty;
 
-        INodeHandler? parent = null;
-
-        firstNode.TraverseForwards(traversedNode =>
-        {
-            if (!guids.Contains(traversedNode.Id) && traversedNode is IStructureMemberHandler)
-            {
-                parent = traversedNode;
-                return Traverse.ExitInclusive;
-            }
-
-            return Traverse.Continue;
-        });
+        var parent = firstNode.Navigate().FirstOrDefault(
+            NavigationDirection.Forwards,
+            node => !guids.Contains(node.Id) && node is IStructureMemberHandler);
 
         if (parent is null)
         {
@@ -59,16 +50,9 @@ internal class DocumentStructureModule
             if (lastNode is null)
                 return Guid.Empty;
 
-            lastNode.TraverseBackwards(traversedNode =>
-            {
-                if (!guids.Contains(traversedNode.Id) && traversedNode is IStructureMemberHandler)
-                {
-                    parent = traversedNode;
-                    return Traverse.ExitInclusive;
-                }
-
-                return Traverse.Continue;
-            });
+            parent = lastNode
+                .Navigate()
+                .FirstOrDefault(NavigationDirection.Backwards, traversedNode => !guids.Contains(traversedNode.Id) && traversedNode is IStructureMemberHandler);
         }
 
         if (parent is null)
@@ -101,38 +85,31 @@ internal class DocumentStructureModule
         return result;
     }
 
-    public List<IStructureMemberHandler> GetParents(Guid child)
+    public IEnumerable<IStructureMemberHandler> EnumerateParents(Guid child)
     {
         var childNode = FindNode<IStructureMemberHandler>(child);
         if (childNode == null)
-            return new List<IStructureMemberHandler>();
+            return [];
 
-        List<IStructureMemberHandler> parents = new List<IStructureMemberHandler>();
-        childNode.TraverseForwards((node, previous, output, input) =>
-        {
-            if (node is IStructureMemberHandler parent && input is { PropertyName: FolderNode.ContentInternalName })
-                parents.Add(parent);
-            return Traverse.Continue;
-        });
-        
-        return parents;
+        return childNode.Navigate()
+            .NodesOfTypeWhere<IStructureMemberHandler>(NavigationDirection.Forwards,
+                x => x.InputProperty.PropertyName == FolderNode.ContentInternalName);
     }
 
     public (IStructureMemberHandler, IFolderHandler) FindChildAndParentOrThrow(Guid childGuid)
     {
-        List<IStructureMemberHandler>? path = FindPath(childGuid);
-        if (path.Count < 2)
-            throw new ArgumentException("Couldn't find child and parent");
-        return (path[0], (IFolderHandler)path[1]);
+        var path = FindPath(childGuid).ToList();
+        
+        return path.Count < 2 ? throw new ArgumentException("Couldn't find child and parent") : (path[0], (IFolderHandler)path[1]);
     }
 
-    public List<IStructureMemberHandler> FindPath(Guid guid)
+    public IEnumerable<IStructureMemberHandler> FindPath(Guid guid)
     {
-        List<INodeHandler>? list = new List<INodeHandler>();
         var targetNode = FindNode<INodeHandler>(guid);
-        if (targetNode == null) return [];
-        FillPath(targetNode, list);
-        return list.Cast<IStructureMemberHandler>().ToList();
+        
+        return targetNode != null
+            ? targetNode.Navigate().NodesOfType<IStructureMemberHandler>(NavigationDirection.Forwards)
+            : [];
     }
 
     /// <summary>
@@ -167,113 +144,41 @@ internal class DocumentStructureModule
         return members;
     }
 
-    public List<IStructureMemberHandler> GetAllMembers()
-    {
-        List<IStructureMemberHandler> members = new List<IStructureMemberHandler>();
-
-        foreach (INodeHandler node in doc.NodeGraphHandler.AllNodes)
-        {
-            if (node is IStructureMemberHandler member)
-                members.Add(member);
-        }
-
-        return members;
-    }
-
-    private void FillPath(INodeHandler node, List<INodeHandler> toFill)
-    {
-        node.TraverseForwards(newNode =>
-        {
-            if (newNode is IStructureMemberHandler strNode)
-            {
-                toFill.Add(strNode);
-            }
-
-            return Traverse.Continue;
-        });
-    }
-
-    public INodeHandler? GetFirstForwardNode(INodeHandler startNode)
-    {
-        INodeHandler? result = null;
-        startNode.TraverseForwards(node =>
-        {
-            if (node == startNode)
-                return Traverse.Continue;
-
-            result = node;
-            return Traverse.ExitInclusive;
-        });
-
-        return result;
-    }
+    public IEnumerable<IStructureMemberHandler> EnumerateAllMembers() =>
+        doc.NodeGraphHandler.AllNodes.OfType<IStructureMemberHandler>();
 
     public IStructureMemberHandler? GetAboveMember(Guid memberId, bool includeFolders)
     {
-        INodeHandler member = FindNode<INodeHandler>(memberId);
-        if (member == null)
-            return null;
+        var member = FindNode<INodeHandler>(memberId);
 
-        IStructureMemberHandler? result = null;
-        member.TraverseForwards(node =>
-        {
-            if (node != member && node is IStructureMemberHandler structureMemberNode)
-            {
-                if (node is IFolderHandler && !includeFolders)
-                    return Traverse.Continue;
-
-                result = structureMemberNode;
-                return Traverse.ExitInclusive;
-            }
-
-            return Traverse.Continue;
-        });
+        var result = member?.Navigate().FirstOrDefault(
+            NavigationDirection.Forwards,
+            node => node is IStructureMemberHandler && (includeFolders || node is not IFolderHandler),
+            yieldOrigin: false) as IStructureMemberHandler;
 
         return result;
     }
 
     public IStructureMemberHandler? GetBelowMember(Guid memberId, bool includeFolders)
     {
-        INodeHandler member = FindNode<INodeHandler>(memberId);
-        if (member == null)
-            return null;
+        var member = FindNode<INodeHandler>(memberId);
 
-        IStructureMemberHandler? result = null;
-        member.TraverseBackwards(node =>
-        {
-            if (node != member && node is IStructureMemberHandler structureMemberNode)
-            {
-                if (node is IFolderHandler && !includeFolders)
-                    return Traverse.Continue;
-
-                result = structureMemberNode;
-                return Traverse.ExitInclusive;
-            }
-
-            return Traverse.Continue;
-        });
+        var result = member?.Navigate().FirstOrDefault(
+            NavigationDirection.Backwards,
+            node => node is IStructureMemberHandler && (includeFolders || node is not IFolderHandler),
+            yieldOrigin: false) as IStructureMemberHandler;
 
         return result;
     }
 
-    public List<IStructureMemberHandler> GetFolderChildren(Guid folderId)
+    public IEnumerable<IStructureMemberHandler> EnumerateFolderChildren(Guid folderId)
     {
-        List<IStructureMemberHandler> children = new List<IStructureMemberHandler>();
-
-        INodeHandler folder = FindNode<INodeHandler>(folderId);
+        var folder = FindNode<INodeHandler>(folderId);
         var connectionInput = folder?.Inputs.FirstOrDefault(x => x.PropertyName == FolderNode.ContentInternalName);
         if (folder == null || connectionInput?.ConnectedOutput == null)
-            return children;
+            return [];
 
-        connectionInput.ConnectedOutput.Node.TraverseBackwards(node =>
-        {
-            if (node is IStructureMemberHandler structureMemberNode)
-                children.Add(structureMemberNode);
-
-            return Traverse.Continue;
-        });
-
-        return children;
+        return connectionInput.ConnectedOutput.Node.Navigate().NodesOfType<IStructureMemberHandler>(NavigationDirection.Forwards);
     }
 
     public List<IStructureMemberHandler> GetAllMembersInOrder()
@@ -288,7 +193,7 @@ internal class DocumentStructureModule
 
             if (member is IFolderHandler folder)
             {
-                membersInOrder.AddRange(GetFolderChildren(folder.Id));
+                membersInOrder.AddRange(EnumerateFolderChildren(folder.Id));
             }
             else
             {

@@ -515,10 +515,10 @@ internal class DocumentUpdater
 
     private void UpdateMemberSnapping(IStructureMemberHandler memberVM)
     {
-        List<IStructureMemberHandler>? children = null;
+        IEnumerable<IStructureMemberHandler>? children = null;
         if (memberVM is IFolderHandler folder)
         {
-            children = doc.StructureHelper.GetFolderChildren(folder.Id);
+            children = doc.StructureHelper.EnumerateFolderChildren(folder.Id);
         }
 
         bool isTransformingMember = helper.ChangeController.TryGetExecutorFeature<ITransformableExecutor>()?
