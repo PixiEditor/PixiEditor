@@ -103,7 +103,7 @@ internal sealed class RotateImage_Change : Change
 
         using Surface originalSurface = Surface.ForProcessing(oldSize, img.ProcessingColorSpace);
         img.DrawMostUpToDateRegionOn(
-            bounds,
+            (RectD)bounds,
             ChunkResolution.Full,
             originalSurface.DrawingSurface.Canvas,
             VecI.Zero);

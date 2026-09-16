@@ -422,7 +422,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                 renderedInTargetSize = SceneRenderer.LastRenderedStates[ViewportId].RenderedInTargetSize;
             }
 
-            if (tex.Size == (VecI)RealDimensions || tex.Size == (VecI)(RealDimensions * SceneRenderer.OversizeFactor) || renderedInTargetSize)
+            if (tex.Size == (VecI)RealDimensions || tex.Size == (VecI)(RealDimensions * SceneRenderer.OversizeFactor).Round() || renderedInTargetSize)
             {
                 saved = texture.Canvas.Save();
                 texture.Canvas.ClipRect(bounds);

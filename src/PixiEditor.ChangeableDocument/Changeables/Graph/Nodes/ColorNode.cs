@@ -1,11 +1,12 @@
 ﻿using Drawie.Backend.Core.Shaders.Generation.Expressions;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 [NodeInfo(UniqueName)]
-public class ColorNode : Node
+public class ColorNode : Node, IIterativeRenderSupport
 {
     public const string UniqueName = "Color";
     public const string InputColorPropertyName = "InputColor";
@@ -27,4 +28,6 @@ public class ColorNode : Node
     {
         return new ColorNode();
     }
+
+    bool IIterativeRenderSupport.SupportsIterativeRendering => true;
 }

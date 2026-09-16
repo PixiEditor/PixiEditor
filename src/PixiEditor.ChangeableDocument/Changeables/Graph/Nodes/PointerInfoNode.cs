@@ -1,10 +1,11 @@
 ﻿using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 [NodeInfo("PointerInfo")]
-public class PointerInfoNode : Node
+public class PointerInfoNode : Node, IIterativeRenderSupport
 {
     public OutputProperty<bool> IsLeftButtonPressed { get; }
     public OutputProperty<bool> IsRightButtonPressed { get; }
@@ -52,4 +53,6 @@ public class PointerInfoNode : Node
     {
         return new PointerInfoNode();
     }
+
+    bool IIterativeRenderSupport.SupportsIterativeRendering => true;
 }

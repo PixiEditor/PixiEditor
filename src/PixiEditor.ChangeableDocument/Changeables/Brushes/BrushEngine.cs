@@ -746,12 +746,12 @@ public class BrushEngine : IDisposable
             colorSpace);
         if (!sampleLatest)
         {
-            target.DrawCommittedRegionOn(new RectI(VecI.Zero, size), ChunkResolution.Full,
+            target.DrawCommittedRegionOn(new RectD(VecI.Zero, size), ChunkResolution.Full,
                 texture.DrawingSurface.Canvas, VecI.Zero);
             return texture;
         }
 
-        target.DrawMostUpToDateRegionOn(new RectI(VecI.Zero, size), ChunkResolution.Full,
+        target.DrawMostUpToDateRegionOn(new RectD(VecI.Zero, size), ChunkResolution.Full,
             texture.DrawingSurface.Canvas, VecI.Zero);
         return texture;
     }
@@ -765,12 +765,12 @@ public class BrushEngine : IDisposable
 
         if (sampleLatest)
         {
-            target.DrawMostUpToDateRegionOn(rect, ChunkResolution.Full, surfaceUnderRect.DrawingSurface.Canvas,
+            target.DrawMostUpToDateRegionOn((RectD)rect, ChunkResolution.Full, surfaceUnderRect.DrawingSurface.Canvas,
                 VecI.Zero);
         }
         else
         {
-            target.DrawCommittedRegionOn(rect, ChunkResolution.Full, surfaceUnderRect.DrawingSurface.Canvas, VecI.Zero);
+            target.DrawCommittedRegionOn((RectD)rect, ChunkResolution.Full, surfaceUnderRect.DrawingSurface.Canvas, VecI.Zero);
         }
 
         return surfaceUnderRect;

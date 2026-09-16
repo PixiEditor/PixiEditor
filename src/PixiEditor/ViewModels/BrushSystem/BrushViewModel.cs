@@ -231,7 +231,7 @@ internal class BrushViewModel : ViewModelBase
                         BrushOutputNode.PointPreviewSize / 2));
 
                 pointImage.DrawMostUpToDateRegionOn(
-                    new RectI(0, 0, pointImage.CommittedSize.X, pointImage.CommittedSize.Y),
+                    new RectD(0, 0, pointImage.CommittedSize.X, pointImage.CommittedSize.Y),
                     ChunkResolution.Full,
                     pointPreviewTexture.DrawingSurface.Canvas,
                     VecI.Zero, null, SamplingOptions.Bilinear);
@@ -246,7 +246,7 @@ internal class BrushViewModel : ViewModelBase
                 new VecD(0, BrushOutputNode.YOffsetInPreview));
 
             strokeImage.DrawMostUpToDateRegionOn(
-                new RectI(0, 0, strokeImage.CommittedSize.X, strokeImage.CommittedSize.Y),
+                new RectD(0, 0, strokeImage.CommittedSize.X, strokeImage.CommittedSize.Y),
                 ChunkResolution.Full,
                 strokeTexture.DrawingSurface.Canvas,
                 VecI.Zero, null, SamplingOptions.Bilinear);

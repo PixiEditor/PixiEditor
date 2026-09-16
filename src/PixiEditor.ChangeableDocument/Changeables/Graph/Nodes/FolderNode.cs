@@ -53,19 +53,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
 
         if (Content.Connection == null || (!HasOperations() && BlendMode.Value == Enums.BlendMode.Normal))
         {
-            using Paint paint = new();
-            paint.Color = Colors.White.WithAlpha((byte)Math.Round(Opacity.Value * 255f));
-
-            if (sceneContext.TargetPropertyOutput == Output)
-            {
-                paint.ColorFilter = Filters.Value?.ColorFilter;
-                paint.ImageFilter = Filters.Value?.ImageFilter;
-            }
-
-            int saved = sceneContext.RenderSurface.SaveLayer(paint);
-            Content.Value?.Paint(sceneContext, sceneContext.RenderSurface);
-
-            sceneContext.RenderSurface.RestoreToCount(saved);
+            RenderSimpleOpacity(sceneContext);
             return;
         }
 
@@ -85,6 +73,41 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
         }
     }
 
+    private void RenderSimpleOpacity(SceneObjectRenderContext sceneContext)
+    {
+        using Paint paint = new();
+        paint.Color = Colors.White.WithAlpha((byte)Math.Round(Opacity.Value * 255f));
+
+        if (sceneContext.TargetPropertyOutput == Output)
+        {
+            paint.ColorFilter = Filters.Value?.ColorFilter;
+            paint.ImageFilter = Filters.Value?.ImageFilter;
+        }
+
+        int saved = sceneContext.RenderSurface.Save();
+        Canvas target = sceneContext.RenderSurface;
+        if (!(Math.Abs(Opacity.Value - 1) < 0.01f) || Filters.Value != null ||
+            BlendMode.Value != Enums.BlendMode.Normal || HasOperations())
+        {
+            var intermediate = RequestTexture(sceneContext.GraphCacheId + 5,
+                sceneContext.RenderSurface.DeviceClipBounds.Pos + sceneContext.RenderSurface.DeviceClipBounds.Size,
+                sceneContext.ProcessingColorSpace);
+
+            target = intermediate.DrawingSurface.Canvas;
+            intermediate.DrawingSurface.Canvas.Save();
+        }
+
+        Content.Value?.Paint(sceneContext, target);
+
+        if (target != sceneContext.RenderSurface)
+        {
+            target.Restore();
+            sceneContext.RenderSurface.DrawSurface(target.Surface, 0, 0, paint);
+        }
+
+        sceneContext.RenderSurface.RestoreToCount(saved);
+    }
+
     private void RenderFolderContent(SceneObjectRenderContext sceneContext, bool useFilters)
     {
         VecI size = sceneContext.RenderSurface.DeviceClipBounds.Size + sceneContext.RenderSurface.DeviceClipBounds.Pos;
@@ -93,17 +116,20 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
             return;
         }
 
-        var outputWorkingSurface = RequestTexture(0, size, sceneContext.ProcessingColorSpace, true);
+        var outputWorkingSurface = RequestTexture(-12786 + sceneContext.GraphCacheId, size,
+            sceneContext.ProcessingColorSpace);
         outputWorkingSurface.DrawingSurface.Canvas.Save();
         outputWorkingSurface.DrawingSurface.Canvas.SetMatrix(sceneContext.RenderSurface.TotalMatrix);
 
+        Matrix3X3 sceneToDocumentMatrix = sceneContext.RenderSurface.TotalMatrix;
         int saved = sceneContext.RenderSurface.Save();
         sceneContext.RenderSurface.SetMatrix(Matrix3X3.Identity);
 
         blendPaint.ImageFilter = null;
         blendPaint.ColorFilter = null;
 
-        Content.Value?.Paint(sceneContext, outputWorkingSurface.DrawingSurface.Canvas);
+        var clonedContext = sceneContext.Clone() as SceneObjectRenderContext;
+        Content.Value?.Paint(clonedContext, outputWorkingSurface.DrawingSurface.Canvas);
 
         int saved2 = outputWorkingSurface.DrawingSurface.Canvas.Save();
         outputWorkingSurface.DrawingSurface.Canvas.Scale((float)sceneContext.ChunkResolution.InvertedMultiplier());
@@ -112,24 +138,33 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
 
         outputWorkingSurface.DrawingSurface.Canvas.RestoreToCount(saved2);
 
-        if (Background.Value != null && sceneContext.TargetPropertyOutput != RawOutput)
-        {
-            Texture tempSurface = RequestTexture(1, outputWorkingSurface.Size, sceneContext.ProcessingColorSpace);
-            tempSurface.DrawingSurface.Canvas.Save();
-            tempSurface.DrawingSurface.Canvas.SetMatrix(outputWorkingSurface.DrawingSurface.Canvas.TotalMatrix);
 
+        if (Background.Value != null && sceneContext.TargetPropertyOutput != RawOutput && ClipToPreviousMember)
+        {
+            Texture tempSurface = RequestTexture(-1222 + sceneContext.GraphCacheId, outputWorkingSurface.Size,
+                sceneContext.ProcessingColorSpace,
+                !sceneContext.IterativeRender || sceneContext.AffectedArea.Chunks == null);
+            tempSurface.DrawingSurface.Canvas.Save();
+            int savedWorkingSurface = outputWorkingSurface.DrawingSurface.Canvas.Save();
+
+            tempSurface.DrawingSurface.Canvas.SetMatrix(outputWorkingSurface.DrawingSurface.Canvas.TotalMatrix);
             outputWorkingSurface.DrawingSurface.Canvas.SetMatrix(Matrix3X3.Identity);
+
             if (Background.Connection.Node is IClipSource clipSource && ClipToPreviousMember)
             {
                 DrawClipSource(tempSurface.DrawingSurface.Canvas, clipSource, sceneContext);
             }
 
             ApplyRasterClip(outputWorkingSurface.DrawingSurface, tempSurface.DrawingSurface);
+
+            tempSurface.DrawingSurface.Canvas.Restore();
+            outputWorkingSurface.DrawingSurface.Canvas.RestoreToCount(savedWorkingSurface);
         }
 
         AdjustPaint(useFilters);
 
         blendPaint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
+
         sceneContext.RenderSurface.DrawSurface(outputWorkingSurface.DrawingSurface, 0, 0, blendPaint);
 
         sceneContext.RenderSurface.RestoreToCount(saved);
@@ -173,6 +208,8 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
 
         return bounds ?? RectD.Empty;
     }
+
+    public override bool SupportsIterativeRendering => true;
 
     public override ShapeCorners GetTransformationCorners(KeyFrameTime frameTime)
     {

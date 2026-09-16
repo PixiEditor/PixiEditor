@@ -218,6 +218,10 @@ internal class SceneRenderer : IDisposable
 
         shouldRerender |= lastGraphCacheHash != graphCacheHash;
         shouldRerender |= !lastRenderedViewports.Contains(viewportId);
+        partialRenderAllowed &= lastRenderedViewports.Contains(viewportId);
+
+        bool renderOnionSkinning = viewport.IsScene && DocumentViewModel.AnimationHandler.OnionSkinningEnabledBindable;
+        partialRenderAllowed &= !renderOnionSkinning; // TODO: Implement onion skinning partial rendering
 
         if (shouldRerender)
         {
@@ -296,12 +300,13 @@ internal class SceneRenderer : IDisposable
 
         VecI finalSize = SolveRenderOutputSize(targetOutput, finalGraph, Document.Size, renderTargetSize,
             out bool isFullViewportRender);
+        int saved = 0;
         if (isFullViewportRender)
         {
             renderTexture =
                 textureCache.RequestTexture(viewportId.GetHashCode(), renderTargetSize, Document.ProcessingColorSpace);
             renderTarget = renderTexture.DrawingSurface;
-            renderTarget.Canvas.Save();
+            saved = renderTarget.Canvas.Save();
         }
         else
         {
@@ -310,9 +315,9 @@ internal class SceneRenderer : IDisposable
                 finalSize = (VecI)(finalSize * resolution.Multiplier());
 
                 renderTexture =
-                    textureCache.RequestTexture(viewportId.GetHashCode(), finalSize, Document.ProcessingColorSpace);
+                    textureCache.RequestTexture(viewportId.GetHashCode(), finalSize, Document.ProcessingColorSpace, !partialRenderAllowed);
                 renderTarget = renderTexture.DrawingSurface;
-                renderTarget.Canvas.Save();
+                saved = renderTarget.Canvas.Save();
                 renderTexture.DrawingSurface.Canvas.Save();
                 renderTexture.DrawingSurface.Canvas.Scale((float)resolution.Multiplier());
             }
@@ -320,7 +325,7 @@ internal class SceneRenderer : IDisposable
             {
                 finalSize = (VecI)(finalSize * resolution.Multiplier());
 
-                var bufferedSize = (VecI)(renderTargetSize * oversizeFactor);
+                var bufferedSize = (VecI)(renderTargetSize * oversizeFactor).Round();
                 renderTexture = textureCache.RequestTexture(viewportId.GetHashCode(), bufferedSize,
                     Document.ProcessingColorSpace, !partialRenderAllowed);
 
@@ -331,6 +336,20 @@ internal class SceneRenderer : IDisposable
                 renderTarget = renderTexture.DrawingSurface;
                 renderTarget.Canvas.SetMatrix(bufferedMatrix);
             }
+        }
+
+        if (partialRenderAllowed && area.GlobalArea.HasValue)
+        {
+            renderTarget.Canvas.Save();
+            RectD toClip = (RectD)area.GlobalArea.Value;
+            if (highResRendering)
+            {
+                var adjustment = new RectD(1, 1, -2, -2);
+                toClip = new RectD(toClip.Pos.X + adjustment.X, toClip.Pos.Y + adjustment.Y, toClip.Size.X + adjustment.Width, toClip.Size.Y + adjustment.Height);
+            }
+            renderTarget.Canvas.ClipRect(toClip);
+            renderTarget.Canvas.Clear();
+            //renderTarget.Canvas.Restore();
         }
 
         bool renderOnionSkinning = canRenderOnionSkinning &&
@@ -410,7 +429,7 @@ internal class SceneRenderer : IDisposable
             }
         }
 
-        renderTarget.Canvas.Restore();
+        renderTarget.Canvas.RestoreToCount(saved);
 
         return renderTexture;
     }
@@ -486,14 +505,10 @@ internal class SceneRenderer : IDisposable
         bool hasLastState = lastRenderedStates.TryGetValue(viewportId, out var lastState);
         var region = visibleDocumentRegion ?? new RectD(0, 0, Document.Size.X, Document.Size.Y);
         panChangedRegion = null;
-        // Temporarily disabled until fixed
-        /*
-        bool graphIsBasicStructure = GraphIsBasicStructure(finalGraph);
+        bool graphIsBasicStructure = GraphSupportsIterativeRendering(finalGraph);
         partialRenderAllowed = hasLastState && lastState.VisibleDocumentRegion == region && !isFullViewportRender &&
                                lastState.ViewportData.Transform == viewportViewportData.Transform &&
-                               graphIsBasicStructure;
-                               */
-        partialRenderAllowed = false;
+                               graphIsBasicStructure && lastState.HighResRendering == highResRendering;
 
         VecI finalSize = SolveRenderOutputSize(targetOutput, finalGraph, Document.Size, targetSize, out _);
         bool renderInDocumentSize = RenderInOutputSize(highResRendering, finalGraph, targetSize, finalSize);
@@ -581,21 +596,21 @@ internal class SceneRenderer : IDisposable
         return false;
     }
 
-    private bool GraphIsBasicStructure(IReadOnlyNodeGraph finalGraph)
+    private bool GraphSupportsIterativeRendering(IReadOnlyNodeGraph finalGraph)
     {
-        bool graphIsBasicStructure = true;
+        bool supports = true;
         finalGraph.TryTraverse(n =>
         {
-            if (n is not IReadOnlyStructureNode)
+            if (n is not IIterativeRenderSupport { SupportsIterativeRendering: true })
             {
-                graphIsBasicStructure = false;
+                supports = false;
                 return false;
             }
 
             return true;
         });
 
-        return graphIsBasicStructure;
+        return supports;
     }
 
     private bool HighDpiRenderNodePresent(IReadOnlyNodeGraph documentNodeGraph)

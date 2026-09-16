@@ -8,9 +8,10 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
 public class SceneObjectRenderContext : RenderContext
 {
-    public RectD LocalBounds { get; }
+    public RectD LocalBounds { get; set; }
     public bool RenderSurfaceIsScene { get; }
-    public RenderOutputProperty TargetPropertyOutput { get; }
+    public bool UntransformedSampling { get; set; } = false;
+    public RenderOutputProperty TargetPropertyOutput { get; set; }
 
     public SceneObjectRenderContext(RenderOutputProperty targetPropertyOutput, Canvas surface, RectD localBounds, KeyFrameTime frameTime,
         ChunkResolution chunkResolution, VecI renderOutputSize, VecI documentSize, bool renderSurfaceIsScene, ColorSpace processingColorSpace, SamplingOptions desiredSampling, IReadOnlyNodeGraph graph, double opacity) : base(surface, frameTime, chunkResolution, renderOutputSize, documentSize, processingColorSpace, desiredSampling, graph, opacity)
@@ -18,7 +19,6 @@ public class SceneObjectRenderContext : RenderContext
         TargetPropertyOutput = targetPropertyOutput;
         LocalBounds = localBounds;
         RenderSurfaceIsScene = renderSurfaceIsScene;
-        State =  new Dictionary<string, object>();
     }
 
     public override RenderContext Clone()
@@ -37,7 +37,7 @@ public class SceneObjectRenderContext : RenderContext
             CloneDepth = CloneDepth + 1,
             IterativeRender = IterativeRender,
             GraphCacheId = GraphCacheId,
-            State = State
+            UntransformedSampling = UntransformedSampling
         };
     }
 }
