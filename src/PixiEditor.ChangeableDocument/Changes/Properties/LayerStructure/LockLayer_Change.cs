@@ -20,7 +20,7 @@ internal class LockLayer_Change : Change
         if (target.TryFindMember(layerGuid, out var member))
         {
             originalValue = member.IsLocked;
-            return true;
+            return originalValue != lockValue;
         }
 
         return false;
@@ -28,7 +28,7 @@ internal class LockLayer_Change : Change
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
-        var layer = target.FindMember(layerGuid);
+        var layer = target.FindMemberOrThrow(layerGuid);
         layer.IsLocked = lockValue;
         ignoreInUndo = false;
 
@@ -37,7 +37,7 @@ internal class LockLayer_Change : Change
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        var layer = target.FindMember(layerGuid);
+        var layer = target.FindMemberOrThrow(layerGuid);
         layer.IsLocked = originalValue;
         return new LayerLock_ChangeInfo(layerGuid, originalValue);
     }

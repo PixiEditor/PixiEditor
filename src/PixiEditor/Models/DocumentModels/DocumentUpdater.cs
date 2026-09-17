@@ -1151,17 +1151,7 @@ internal class DocumentUpdater
         member.SetLayerLock(info.IsLocked);
 
         var selected = doc.SelectedMembers;
-        if (info.IsLocked)
-        {
-            if (selected.Any(x => x == info.Layer))
-            {
-                doc.TransformHandler.LockTransform = true;
-            }
-        }
-        else
-        {
-            var layers = selected.Select(x => doc.StructureHelper.Find(x));
-            doc.TransformHandler.LockTransform = layers.Any(x => x.IsLockedStructurally);
-        }
+        var layers = selected.Select(x => doc.StructureHelper.Find(x));
+        doc.TransformHandler.LockTransform = layers.Any(x => x.IsLockedStructurally);
     }
 }

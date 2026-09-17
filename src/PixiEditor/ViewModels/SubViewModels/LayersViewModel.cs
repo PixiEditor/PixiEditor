@@ -212,10 +212,9 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
             return;
 
         var memberVms = selectedMembers.Select(member => doc.StructureHelper.Find(member)).ToList();
-        bool allLocked = memberVms.All(member => member.IsLockedBindable);
+        bool allLocked = memberVms.All(member => member is { IsLockedBindable: true });
         bool newLockState = !allLocked;
 
-        //doc.Operations.TryStopToolLinkedExecutor();
         using var block = doc.Operations.StartChangeBlock();
         foreach (var member in memberVms)
         {
