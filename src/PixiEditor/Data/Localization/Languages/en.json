@@ -1547,5 +1547,6 @@
   "ERROR_INVALID_PATH": "Selected path can't be used for export",
   "UNKNOWN_ERROR": "An unknown error has occurred. Please try again.",
   "TOGGLE_ACTIVE_LAYER_LOCK": "Toggle active layer lock",
-    "TOGGLE_ACTIVE_LAYER_LOCK_DESCRIPTIVE": "Toggle active layer transform lock"
+  "TOGGLE_ACTIVE_LAYER_LOCK_DESCRIPTIVE": "Toggle active layer transform lock",
+  "LOCK_LAYER": "Lock Layer"
 }
