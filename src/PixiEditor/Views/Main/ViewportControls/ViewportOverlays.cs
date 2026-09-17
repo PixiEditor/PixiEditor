@@ -462,6 +462,13 @@ internal class ViewportOverlays
             Mode = BindingMode.OneWay
         };
 
+        Binding lockTransformBinding = new()
+        {
+            Source = Viewport,
+            Path = "Document.TransformViewModel.LockTransform",
+            Mode = BindingMode.OneWay
+        };
+
         transformOverlay.Bind(Visual.IsVisibleProperty, isVisibleBinding);
         transformOverlay.Bind(TransformOverlay.ActionCompletedProperty, actionCompletedBinding);
         transformOverlay.Bind(TransformOverlay.SnappingControllerProperty, snappingBinding);
@@ -480,6 +487,7 @@ internal class ViewportOverlays
         transformOverlay.Bind(TransformOverlay.ScaleFromCenterProperty, scaleFromCenterBinding);
         transformOverlay.Bind(TransformOverlay.CanAlignToPixelsProperty, canAlignToPixelsBinding);
         transformOverlay.Bind(TransformOverlay.LockShearProperty, lockShearBinding);
+        transformOverlay.Bind(TransformOverlay.LockTransformingProperty, lockTransformBinding);
         transformOverlay.Bind(TransformOverlay.TransformDraggedCommandProperty, transformDraggedBinding);
     }
 

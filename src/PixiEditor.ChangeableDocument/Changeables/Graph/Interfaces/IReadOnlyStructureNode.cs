@@ -12,6 +12,7 @@ public interface IReadOnlyStructureNode : IReadOnlyNode, ISceneObject, IIterativ
     public InputProperty<float> Opacity { get; }
     public InputProperty<bool> IsVisible { get; }
     public bool ClipToPreviousMember { get; }
+    public bool IsLocked { get; }
     public InputProperty<BlendMode> BlendMode { get; }
     public RenderInputProperty CustomMask { get; }
     public InputProperty<bool> MaskIsVisible { get; }

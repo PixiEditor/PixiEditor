@@ -69,6 +69,7 @@ internal abstract class UpdateableChangeExecutor
         FilterOutInvisible(allLayers);
         var topMostWithinClick = allLayers.Where(x =>
                 x is T { TightBounds: not null } &&
+                !x.IsLockedStructurally &&
                 x.TightBounds.Value.ContainsInclusive(pos))
             .OrderByDescending(x => allLayers.IndexOf(x));
         return topMostWithinClick.Cast<T>().ToArray();

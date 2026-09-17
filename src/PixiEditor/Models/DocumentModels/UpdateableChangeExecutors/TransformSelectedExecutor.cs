@@ -147,6 +147,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
             Type == ExecutorType.Regular || tool.KeepOriginalImage);
 
         document.TransformHandler.CanAlignToPixels = anyRaster;
+        document.TransformHandler.LockTransform = members.Any(x => x.IsLockedStructurally);
 
         movedOnce = false;
         isInProgress = true;

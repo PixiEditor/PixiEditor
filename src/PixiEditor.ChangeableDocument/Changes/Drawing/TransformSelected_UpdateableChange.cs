@@ -23,6 +23,7 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
     private ShapeCorners masterCorners;
 
     private List<MemberTransformationData> memberData;
+    private List<MemberTransformationData> validMemberData;
 
     private VectorPath? originalPath;
     private RectD originalSelectionBounds;
@@ -65,7 +66,16 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
 
     public override bool InitializeAndValidate(Document target)
     {
-        if (memberData.Count == 0)
+        validMemberData = new();
+        foreach (var memberTransformationData in memberData)
+        {
+            var found = target.FindMember(memberTransformationData.MemberId);
+            if(found is null || found.IsLocked)
+                continue;
+            validMemberData.Add(memberTransformationData);
+        }
+
+        if (validMemberData.Count == 0)
             return false;
 
         originalCornersSize = masterCorners.RectSize;
@@ -85,7 +95,7 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
                 tightBoundsSize - masterCorners.RectSize);
         }
 
-        var foundMember = target.FindMember(memberData[0].MemberId);
+        var foundMember = target.FindMember(validMemberData[0].MemberId);
         if (foundMember is null)
         {
             return false;
@@ -94,21 +104,21 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
         StructureNode firstLayer = foundMember;
         RectD tightBounds = firstLayer.GetTransformationCorners(frame).AABBBounds;
 
-        if (memberData.Count == 1 && firstLayer is VectorLayerNode vectorLayer)
+        if (validMemberData.Count == 1 && firstLayer is VectorLayerNode vectorLayer)
         {
             tightBounds = vectorLayer.EmbeddedShapeData?.GeometryAABB ?? default;
             hasSelection = false;
             isTransformingSelection = false;
         }
-        else if (memberData.Count == 1 && firstLayer is ITransformableObject transformableObject)
+        else if (validMemberData.Count == 1 && firstLayer is ITransformableObject transformableObject)
         {
             tightBounds = firstLayer.GetTransformationCorners(frame).WithMatrix(
                 transformableObject.TransformationMatrix.Invert()).AABBBounds;
         }
 
-        for (var i = 1; i < memberData.Count; i++)
+        for (var i = 1; i < validMemberData.Count; i++)
         {
-            StructureNode layer = target.FindMemberOrThrow(memberData[i].MemberId);
+            StructureNode layer = target.FindMemberOrThrow(validMemberData[i].MemberId);
 
             var layerTightBounds = layer.GetTransformationCorners(frame).AABBBounds;
 
@@ -128,7 +138,7 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
 
         tightBoundsSize = tightBounds.Size;
 
-        foreach (var member in memberData)
+        foreach (var member in validMemberData)
         {
             StructureNode layer = target.FindMemberOrThrow(member.MemberId);
 
@@ -193,7 +203,8 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
         var globalMatrixWithSelection = OperationHelper.CreateMatrixFromPoints(masterCorners, originalCornersSize);
         var tightBoundsGlobalMatrix = OperationHelper.CreateMatrixFromPoints(masterCorners, tightBoundsSize);
 
-        foreach (var member in memberData)
+
+        foreach (var member in validMemberData)
         {
             Matrix3X3 localMatrix = tightBoundsGlobalMatrix;
 
@@ -211,7 +222,7 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
             }
             else if (member.OriginalMatrix is not null)
             {
-                if (memberData.Count > 1)
+                if (validMemberData.Count > 1)
                 {
                     localMatrix = member.OriginalMatrix.Value;
                     localMatrix = localMatrix.PostConcat(Matrix3X3.CreateTranslation(
@@ -267,7 +278,7 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
 
         List<IChangeInfo> infos = new();
 
-        foreach (var member in memberData)
+        foreach (var member in validMemberData)
         {
             if (member.IsImage)
             {
@@ -311,7 +322,7 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
     {
         List<IChangeInfo> infos = new();
 
-        foreach (var member in memberData)
+        foreach (var member in validMemberData)
         {
             if (member.IsImage)
             {
@@ -361,7 +372,7 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
     {
         List<IChangeInfo> infos = new();
 
-        foreach (var member in memberData)
+        foreach (var member in validMemberData)
         {
             if (member.SavedChunks is not null)
             {

@@ -44,6 +44,23 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
     }
 
     public abstract bool CanQuickColorChange();
+    private bool isLocked;
+
+    public bool IsLockedBindable
+    {
+        get => isLocked;
+        set
+        {
+            if (!Document.BlockingUpdateableChangeActive)
+                Internals.ActionAccumulator.AddFinishedActions(new LockLayer_Action(Id, value));
+        }
+    }
+
+    public void SetLayerLock(bool infoIsLocked)
+    {
+        this.isLocked = infoIsLocked;
+        OnPropertyChanged(nameof(IsLockedBindable));
+    }
 
     public bool IsVisibleBindable
     {
@@ -83,6 +100,29 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
             });
 
             return visible;
+        }
+    }
+
+    public bool IsLockedStructurally
+    {
+        get
+        {
+            if (IsLockedBindable)
+                return true;
+
+            bool locked = false;
+            TraverseForwards((node, previous, output, input) =>
+            {
+                if (node is IFolderHandler parent && input is { PropertyName: FolderNode.ContentInternalName })
+                {
+                    locked = parent.IsLockedBindable;
+                    return !locked ? Traverse.Further : Traverse.Exit;
+                }
+
+                return Traverse.Further;
+            });
+
+            return locked;
         }
     }
 

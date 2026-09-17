@@ -416,7 +416,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
         acc.AddActions(new InvokeAction_PassthroughAction(() =>
         {
-            var firstMember = viewModel.NodeGraph.StructureTree.Members.FirstOrDefault();
+            var firstMember = viewModel.NodeGraph.StructureTree.Members.FirstOrDefault(x => !x.IsLockedStructurally);
             if (firstMember != null)
             {
                 viewModel.SetSelectedMember(firstMember);

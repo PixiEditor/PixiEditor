@@ -8,6 +8,7 @@ using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -31,6 +32,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
     public InputProperty<float> Opacity { get; }
     public InputProperty<bool> IsVisible { get; }
     public bool ClipToPreviousMember { get; set; }
+    public bool IsLocked { get; set; }
     public InputProperty<BlendMode> BlendMode { get; }
     public RenderInputProperty CustomMask { get; }
     public InputProperty<bool> MaskIsVisible { get; }
@@ -289,6 +291,11 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         {
             additionalData["clipToPreviousMember"] = ClipToPreviousMember;
         }
+
+        if (IsLocked)
+        {
+            additionalData["isLocked"] = IsLocked;
+        }
     }
 
     internal override void DeserializeAdditionalDataInternal(IReadOnlyDocument target,
@@ -311,6 +318,11 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         {
             ClipToPreviousMember = (bool)clip;
             infos.Add(new StructureMemberClipToMemberBelow_ChangeInfo(Id, ClipToPreviousMember));
+        }
+        if (data.TryGetValue("isLocked", out var isLocked))
+        {
+            IsLocked = (bool)isLocked;
+            infos.Add(new LayerLock_ChangeInfo(Id, IsLocked));
         }
     }
 
