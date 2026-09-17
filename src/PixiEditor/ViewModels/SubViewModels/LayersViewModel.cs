@@ -199,6 +199,29 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         doc.Operations.CreateStructureMember(StructureMemberType.ImageLayer);
     }
 
+    [Command.Basic("PixiEditor.Layer.ToggleLayerLock", "TOGGLE_ACTIVE_LAYER_LOCK", "TOGGLE_ACTIVE_LAYER_LOCK_DESCRIPTIVE",
+        CanExecute = "PixiEditor.Layer.HasSelectedMembers", Icon = PixiPerfectIcons.Lock, AnalyticsTrack = true)]
+    public void ToggleLayerLock()
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return;
+
+        var selectedMembers = doc.SelectedMembers;
+        if (selectedMembers.Count == 0)
+            return;
+
+        var memberVms = selectedMembers.Select(member => doc.StructureHelper.Find(member)).ToList();
+        bool allLocked = memberVms.All(member => member is { IsLockedBindable: true });
+        bool newLockState = !allLocked;
+
+        using var block = doc.Operations.StartChangeBlock();
+        foreach (var member in memberVms)
+        {
+            member.IsLockedBindable = newLockState;
+        }
+    }
+
     public Guid? NewLayer(Type layerType, ActionSource source, string? name = null)
     {
         if (Owner.DocumentManagerSubViewModel.ActiveDocument is not { } doc)

@@ -17,10 +17,12 @@ internal interface IStructureMemberHandler : INodeHandler
     public float OpacityBindable { get; set; }
     public IDocument Document { get; }
     public bool IsVisibleBindable { get; set; }
+    public bool IsLockedBindable { get; set; }
     public RectD? TightBounds { get; }
     public ShapeCorners TransformationCorners { get; }
     public bool IsVisibleStructurally { get; }
     public bool ClipToMemberBelowEnabledBindable { get; }
+    bool IsLockedStructurally { get; }
     public void SetMaskIsVisible(bool infoIsVisible);
     public void SetClipToMemberBelowEnabled(bool infoClipToMemberBelow);
     public void SetBlendMode(BlendMode infoBlendMode);
@@ -30,4 +32,5 @@ internal interface IStructureMemberHandler : INodeHandler
     public void SetName(string infoName);
     event PropertyChangedEventHandler PropertyChanged;
     public bool CanQuickColorChange();
+    public void SetLayerLock(bool infoIsLocked);
 }

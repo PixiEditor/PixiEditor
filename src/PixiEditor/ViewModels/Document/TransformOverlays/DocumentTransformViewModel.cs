@@ -73,6 +73,14 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
         set => SetProperty(ref lockShear, value);
     }
 
+    private bool lockTransform;
+
+    public bool LockTransform
+    {
+        get => lockTransform;
+        set => SetProperty(ref lockTransform, value);
+    }
+
     private bool snapToAngles;
 
     public bool SnapToAngles
@@ -289,6 +297,7 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
         LockRotation = mode == DocumentTransformMode.Scale_NoRotate_NoShear_NoPerspective;
         LockShear = mode is DocumentTransformMode.Scale_Rotate_NoShear_NoPerspective
             or DocumentTransformMode.Scale_NoRotate_NoShear_NoPerspective;
+        LockTransform = false;
         CoverWholeScreen = coverWholeScreen;
         TransformActive = true;
         ShowTransformControls = showApplyButton;

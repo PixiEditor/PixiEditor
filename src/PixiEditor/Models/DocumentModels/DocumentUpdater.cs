@@ -253,6 +253,9 @@ internal class DocumentUpdater
             case FallbackAnimationToLayerImage_ChangeInfo info:
                 ProcessFallbackAnimationToLayerImage(info);
                 break;
+            case LayerLock_ChangeInfo info:
+                ProcessLayerLock(info);
+                break;
         }
     }
 
@@ -682,7 +685,7 @@ internal class DocumentUpdater
         List<NodePropertyInfo> newInputs =
             info.Inputs.Where(x => node.Inputs.All(y => y.PropertyName != x.PropertyName)).ToList();
 
-        List<INodePropertyHandler> inputs = CreateProperties([..newInputs], node, true);
+        List<INodePropertyHandler> inputs = CreateProperties([.. newInputs], node, true);
         node.Inputs.AddRange(inputs);
     }
 
@@ -722,7 +725,7 @@ internal class DocumentUpdater
         List<NodePropertyInfo> newOutputs =
             info.Outputs.Where(x => node.Outputs.All(y => y.PropertyName != x.PropertyName)).ToList();
 
-        List<INodePropertyHandler> outputs = CreateProperties([..newOutputs], node, false);
+        List<INodePropertyHandler> outputs = CreateProperties([.. newOutputs], node, false);
         node.Outputs.AddRange(outputs);
     }
 
@@ -769,7 +772,7 @@ internal class DocumentUpdater
         }
     }
 
-private List<INodePropertyHandler> CreateProperties(ImmutableArray<NodePropertyInfo> source, NodeViewModel node,
+    private List<INodePropertyHandler> CreateProperties(ImmutableArray<NodePropertyInfo> source, NodeViewModel node,
         bool isInput)
     {
         List<INodePropertyHandler> inputs = new();
@@ -1140,5 +1143,15 @@ private List<INodePropertyHandler> CreateProperties(ImmutableArray<NodePropertyI
     private void ProcessFallbackAnimationToLayerImage(FallbackAnimationToLayerImage_ChangeInfo info)
     {
         doc.AnimationHandler.SetFallbackAnimationToLayerImage(info.Value);
+    }
+
+    private void ProcessLayerLock(LayerLock_ChangeInfo info)
+    {
+        IStructureMemberHandler? member = doc.StructureHelper.FindOrThrow(info.Layer);
+        member.SetLayerLock(info.IsLocked);
+
+        var selected = doc.SelectedMembers;
+        var layers = selected.Select(x => doc.StructureHelper.Find(x));
+        doc.TransformHandler.LockTransform = layers.Any(x => x.IsLockedStructurally);
     }
 }

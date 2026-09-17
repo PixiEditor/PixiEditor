@@ -86,6 +86,15 @@
                     Content="{DynamicResource icon-alpha-lock}"
                     Command="{xaml:Command PixiEditor.Layer.ToggleLockTransparency}"
                     FlowDirection="LeftToRight" />
+                <Button
+                    Height="24" Width="24" uiExt:Translator.TooltipKey="LOCK_LAYER" Cursor="Hand"
+                    DockPanel.Dock="Right"
+                    HorizontalAlignment="Stretch" Margin="5,0,0,0"
+                    Classes="pixi-icon"
+                    Focusable="False"
+                    Content="{DynamicResource icon-lock}"
+                    Command="{xaml:Command PixiEditor.Layer.ToggleLayerLock}"
+                    FlowDirection="LeftToRight" />
                 <Grid />
             </DockPanel>
             <DockPanel Margin="3,0">
