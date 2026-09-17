@@ -70,7 +70,7 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
         foreach (var memberTransformationData in memberData)
         {
             var found = target.FindMember(memberTransformationData.MemberId);
-            if(found is null || found.IsLocked)
+            if(found is null || found.IsLocked || memberTransformationData.OriginalBounds is { IsZeroArea: true })
                 continue;
             validMemberData.Add(memberTransformationData);
         }

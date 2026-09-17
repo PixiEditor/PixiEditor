@@ -77,6 +77,8 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         {
             ShapeCorners targetCorners = member.TransformationCorners;
 
+            if(targetCorners.HasNaNOrInfinity || targetCorners.RectSize == VecD.Zero) continue;
+
             if (member is IRasterLayerHandler && !document.SelectionPathBindable.IsEmpty)
             {
                 targetCorners = new ShapeCorners(document.SelectionPathBindable.TightBounds);
