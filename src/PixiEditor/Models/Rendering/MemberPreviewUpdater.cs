@@ -9,6 +9,7 @@ using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ViewModels.Nodes;
 using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.GraphNavigation;
 using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.ViewModels.Document;
 
@@ -413,16 +414,16 @@ internal class MemberPreviewUpdater
         nodeVm.TraverseForwards(next =>
         {
             if (next is not INodeHandler nextVm)
-                return Traverse.Further;
+                return Traverse.Continue;
 
             var nextNode = allNodes.FirstOrDefault(x => x.Id == next.Id);
 
             if (nextNode is null || actualRepaintedNodes.Contains(next.Id))
-                return Traverse.Further;
+                return Traverse.Continue;
 
             RequestRepaintNode(nextNode, nextVm, previews);
             actualRepaintedNodes.Add(next.Id);
-            return Traverse.Further;
+            return Traverse.Continue;
         });
     }
 
