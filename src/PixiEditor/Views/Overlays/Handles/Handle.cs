@@ -211,4 +211,14 @@ public abstract class Handle : IHandle
     {
         isRendered = false;
     }
+
+    public void InvokeEnter(OverlayPointerArgs args)
+    {
+
+    }
+
+    public void InvokeExit(OverlayPointerArgs args)
+    {
+        isHovered = false;
+    }
 }

@@ -598,6 +598,21 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         doc.Operations.MergeStructureMembers(selected);
     }
 
+    [Command.Basic("PixiEditor.Layer.CenterSelectedHorizontally", "CENTER_SELECTED_LAYERS_HORIZONTALLY", "CENTER_SELECTED_LAYERS_HORIZONTALLY_DESCRIPTIVE",
+        CanExecute = "PixiEditor.Layer.HasMultipleSelectedMembers", Icon = PixiPerfectIcons.Center, AnalyticsTrack = true)]
+    public void CenterSelectedLayersHorizontally()
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return;
+        var selected = GetSelected();
+
+        if (selected.Count == 0)
+            return;
+
+        doc.Operations.CenterSelectedLayersHorizontally(selected);
+    }
+
     public void MergeSelectedWith(bool above)
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;

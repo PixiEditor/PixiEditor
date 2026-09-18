@@ -135,8 +135,17 @@ internal class ClassicDesktopEntry
 
     private void Load(ViewModels_ViewModelMain viewModel, ExtensionLoader extensionLoader)
     {
-        viewModel.Setup(Services);
-        
+        try
+        {
+            viewModel.Setup(Services);
+        }
+        catch (Exception exception)
+        {
+            Console.WriteLine("Failed initializing main view model: " + exception);
+            CrashHelper.SendExceptionInfo(exception, true);
+            return;
+        }
+
         desktop.MainWindow = new MainWindow(extensionLoader);
         
         desktop.MainWindow.Show();

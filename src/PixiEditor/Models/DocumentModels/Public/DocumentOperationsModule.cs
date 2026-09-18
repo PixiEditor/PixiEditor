@@ -1228,4 +1228,14 @@ internal class DocumentOperationsModule : IDocumentOperations
         Internals.ChangeController.TryStopActiveExecutor();
         Internals.ChangeController.TryStartExecutor(new QuickChangeLayerColorsExecutor(layers, color));
     }
+
+    public void CenterSelectedLayersHorizontally(List<Guid> selected)
+    {
+        if (Internals.ChangeController.IsBlockingChangeActive)
+            return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+
+        Internals.ActionAccumulator.AddFinishedActions(new CenterSelectedLayers_Action(selected, Document.AnimationHandler.ActiveFrameBindable, true, false));
+    }
 }

@@ -73,10 +73,10 @@ internal class ToggleGridLinesMenuBuilder : MenuItemBuilder
         
         gridLinesItem.Command = new RelayCommand(() =>
         {
-            var viewportOpotions = ViewModelMain.Current.ViewportSubViewModel;
-            if (viewportOpotions != null)
+            var viewportOptions = ViewModelMain.Current.ViewportSubViewModel;
+            if (viewportOptions != null)
             {
-                viewportOpotions.GridLinesEnabled = !viewportOpotions.GridLinesEnabled;
+                viewportOptions.GridLinesEnabled = !viewportOptions.GridLinesEnabled;
             }
         });
     }

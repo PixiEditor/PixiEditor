@@ -9,6 +9,8 @@ using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Actions;
+using PixiEditor.Models.Commands;
+using PixiEditor.Models.Commands.XAML;
 using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.ViewModels;
@@ -37,6 +39,28 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
     private bool duplicateOnStop = false;
 
     private List<Guid> disabledSnappingMembers = new();
+
+    private List<ContextualOption> AlignmentOptions { get; } = new()
+    {
+        new ContextualOption()
+        {
+            Name = "Align Left",
+            Icon = PixiPerfectIcons.AlignLeft,
+            ExecuteCommand = Command.GetICommand(CommandController.Current.Commands["PixiEditor.Layer.CenterSelectedHorizontally"], null, false),
+        },
+        new ContextualOption()
+        {
+            Name = "Center Horizontally",
+            Icon = PixiPerfectIcons.Center,
+            ExecuteCommand = Command.GetICommand(CommandController.Current.Commands["PixiEditor.Layer.CenterSelectedHorizontally"], null, false),
+        },
+        new ContextualOption()
+        {
+            Name = "Align Right",
+            Icon = PixiPerfectIcons.AlignRight,
+            ExecuteCommand = Command.GetICommand(CommandController.Current.Commands["PixiEditor.Layer.CenterSelectedHorizontally"], null, false),
+        },
+    };
 
     public TransformSelectedExecutor(bool toolLinked)
     {
@@ -147,6 +171,8 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
 
         document.TransformHandler.ShowTransform(mode, true, masterCorners,
             Type == ExecutorType.Regular || tool.KeepOriginalImage);
+
+        UpdateContextualOptions(masterCorners);
 
         document.TransformHandler.CanAlignToPixels = anyRaster;
         document.TransformHandler.LockTransform = members.Any(x => x.IsLockedStructurally);
@@ -321,7 +347,21 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
     public void OnTransformChanged(ShapeCorners corners)
     {
         DoTransform(corners);
+        UpdateContextualOptions(corners);
         lastCorners = corners;
+    }
+
+    private void UpdateContextualOptions(ShapeCorners corners)
+    {
+        if (selectedMembers.Count > 1)
+        {
+            document.ContextualOptionsHandler.SetOptions(AlignmentOptions);
+            document.ContextualOptionsHandler.Show(corners.TopCenter + new VecD(0, -8));
+        }
+        else
+        {
+            document.ContextualOptionsHandler.Hide();
+        }
     }
 
     public void OnTransformDragged(VecD from, VecD to)
@@ -530,6 +570,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         internals!.ActionAccumulator.AddActions(new EndTransformSelected_Action());
         internals!.ActionAccumulator.AddFinishedActions();
         document!.TransformHandler.HideTransform();
+        document!.ContextualOptionsHandler.Hide();
         RestoreSnapping();
 
         isInProgress = false;

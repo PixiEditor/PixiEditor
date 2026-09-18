@@ -1548,5 +1548,7 @@
   "UNKNOWN_ERROR": "An unknown error has occurred. Please try again.",
   "TOGGLE_ACTIVE_LAYER_LOCK": "Toggle active layer lock",
   "TOGGLE_ACTIVE_LAYER_LOCK_DESCRIPTIVE": "Toggle active layer transform lock",
-  "LOCK_LAYER": "Lock Layer"
+  "LOCK_LAYER": "Lock Layer",
+  "CENTER_SELECTED_LAYERS_HORIZONTALLY": "Center selected layers horizontally",
+  "CENTER_SELECTED_LAYERS_HORIZONTALLY_DESCRIPTIVE": "Center selected layers horizontally relative to shared bounding box"
 }
