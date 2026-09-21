@@ -44,39 +44,52 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
     {
         new ContextualOption()
         {
-            Name = "Align Left",
+            Name = "ALIGNMENT_LEFT_TOOLTIP",
             Icon = PixiPerfectIcons.AlignHorizontalJustifyStart,
             ExecuteCommand = Command.GetICommand(CommandController.Current.Commands["PixiEditor.Layer.AlignLeftSelectedLayers"], null, false),
         },
         new ContextualOption()
         {
-            Name = "Center Horizontally",
+            Name = "ALIGNMENT_CENTER_HORIZONTAL_TOOLTIP",
+
             Icon = PixiPerfectIcons.AlignHorizontalJustifyCenter,
             ExecuteCommand = Command.GetICommand(CommandController.Current.Commands["PixiEditor.Layer.CenterSelectedHorizontally"], null, false),
         },
         new ContextualOption()
         {
-            Name = "Align Right",
+            Name = "ALIGNMENT_RIGHT_TOOLTIP",
             Icon = PixiPerfectIcons.AlignHorizontalJustifyEnd,
             ExecuteCommand = Command.GetICommand(CommandController.Current.Commands["PixiEditor.Layer.AlignRightSelectedLayers"], null, false),
         },
         new ContextualOption()
         {
-            Name = "Align Top",
+            Name = "ALIGNMENT_TOP_TOOLTIP",
             Icon = PixiPerfectIcons.AlignVerticalJustifyStart,
             ExecuteCommand = Command.GetICommand(CommandController.Current.Commands["PixiEditor.Layer.AlignTopSelectedLayers"], null, false),
         },
         new ContextualOption()
         {
-            Name = "Center Vertically",
+            Name = "ALIGNMENT_CENTER_VERTICAL_TOOLTIP",
             Icon = PixiPerfectIcons.AlignVerticalJustifyCenter,
             ExecuteCommand = Command.GetICommand(CommandController.Current.Commands["PixiEditor.Layer.CenterSelectedVertically"], null, false),
         },
         new ContextualOption()
         {
-            Name = "Align Bottom",
+            Name = "ALIGNMENT_BOTTOM_TOOLTIP",
             Icon = PixiPerfectIcons.AlignVerticalJustifyEnd,
             ExecuteCommand = Command.GetICommand(CommandController.Current.Commands["PixiEditor.Layer.AlignBottomSelectedLayers"], null, false),
+        },
+        new ContextualOption()
+        {
+            Name = "ALIGNMENT_SPREAD_HORIZONTAL_TOOLTIP",
+            Icon = PixiPerfectIcons.AlignHorizontalSpaceBetween,
+            ExecuteCommand = Command.GetICommand(CommandController.Current.Commands["PixiEditor.Layer.AlignSpreadHorizontalSelectedLayer"], null, false),
+        },
+        new ContextualOption()
+        {
+            Name = "ALIGNMENT_SPREAD_VERTICAL_TOOLTIP",
+            Icon = PixiPerfectIcons.AlignVerticalSpaceBetween,
+            ExecuteCommand = Command.GetICommand(CommandController.Current.Commands["PixiEditor.Layer.AlignSpreadVerticalSelectedLayer"], null, false),
         },
     };
 

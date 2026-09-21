@@ -6,6 +6,7 @@ using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Handlers;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.Views.Overlays.Handles;
 using Canvas = Drawie.Backend.Core.Surfaces.Canvas;
 using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
@@ -14,11 +15,13 @@ namespace PixiEditor.Views.Overlays.ContextualOptions;
 
 public class ContextualOptionsOverlay : Overlay
 {
-    public static readonly StyledProperty<VecD> PositionProperty = AvaloniaProperty.Register<ContextualOptionsOverlay, VecD>(
-        nameof(Position));
+    public static readonly StyledProperty<VecD> PositionProperty =
+        AvaloniaProperty.Register<ContextualOptionsOverlay, VecD>(
+            nameof(Position));
 
-    public static readonly StyledProperty<ObservableCollection<ContextualOption>> OptionsProperty = AvaloniaProperty.Register<ContextualOptionsOverlay, ObservableCollection<ContextualOption>>(
-        nameof(Options));
+    public static readonly StyledProperty<ObservableCollection<ContextualOption>> OptionsProperty =
+        AvaloniaProperty.Register<ContextualOptionsOverlay, ObservableCollection<ContextualOption>>(
+            nameof(Options));
 
     public ObservableCollection<ContextualOption> Options
     {
@@ -39,7 +42,8 @@ public class ContextualOptionsOverlay : Overlay
 
     static ContextualOptionsOverlay()
     {
-        OptionsProperty.Changed.AddClassHandler<ContextualOptionsOverlay>((o, e) => o.OnOptionsChanged(e as AvaloniaPropertyChangedEventArgs<ObservableCollection<ContextualOption>>));
+        OptionsProperty.Changed.AddClassHandler<ContextualOptionsOverlay>((o, e) =>
+            o.OnOptionsChanged(e as AvaloniaPropertyChangedEventArgs<ObservableCollection<ContextualOption>>));
     }
 
     public ContextualOptionsOverlay()
@@ -48,7 +52,8 @@ public class ContextualOptionsOverlay : Overlay
         strokePaint = ResourceLoader.GetPaint("ThemeBorderMidBrush", PaintStyle.Stroke);
     }
 
-    private void OnOptionsChanged(AvaloniaPropertyChangedEventArgs<ObservableCollection<ContextualOption>> avaloniaPropertyChangedEventArgs)
+    private void OnOptionsChanged(
+        AvaloniaPropertyChangedEventArgs<ObservableCollection<ContextualOption>> avaloniaPropertyChangedEventArgs)
     {
         ContextualOptionsOverlay overlay = (ContextualOptionsOverlay)avaloniaPropertyChangedEventArgs.Sender;
         overlay.Handles.Clear();
@@ -57,8 +62,7 @@ public class ContextualOptionsOverlay : Overlay
         {
             ButtonHandle handle = new ButtonHandle(overlay, option.ExecuteCommand)
             {
-                Icon = option.Icon,
-                HitTestVisible = true,
+                Icon = option.Icon, HitTestVisible = true, ToolTip = new LocalizedString(option.Name)
             };
 
             handle.StrokePaint = null;
@@ -81,13 +85,16 @@ public class ContextualOptionsOverlay : Overlay
         double scaleMultiplier = (1.0 / ZoomScale);
         double radius = AnchorRadius * scaleMultiplier;
 
-        VecD size = new VecD(IconButtonSize * Options.Count + Spacing * (Options.Count - 1), IconButtonSize) * scaleMultiplier;
+        VecD size = new VecD(IconButtonSize * Options.Count + Spacing * (Options.Count - 1), IconButtonSize) *
+                    scaleMultiplier;
         RectD bg = new RectD(Position.X, Position.Y - size.Y / 2f, size.X, size.Y);
         VecD padding = new VecD(4, 2) * scaleMultiplier;
         bg = bg.Inflate(padding);
 
-        context.DrawRoundRect((float)bg.X - (float)bg.Width / 2f, (float)bg.Y - (float)bg.Height * 1.5f, (float)bg.Width, (float)bg.Height, (float)radius, (float)radius, buttonPaint);
-        context.DrawRoundRect((float)bg.X - (float)bg.Width / 2f, (float)bg.Y - (float)bg.Height * 1.5f, (float)bg.Width, (float)bg.Height, (float)radius, (float)radius, strokePaint);
+        context.DrawRoundRect((float)bg.X - (float)bg.Width / 2f, (float)bg.Y - (float)bg.Height * 1.5f,
+            (float)bg.Width, (float)bg.Height, (float)radius, (float)radius, buttonPaint);
+        context.DrawRoundRect((float)bg.X - (float)bg.Width / 2f, (float)bg.Y - (float)bg.Height * 1.5f,
+            (float)bg.Width, (float)bg.Height, (float)radius, (float)radius, strokePaint);
         double xOffset = Position.X + (IconButtonSize * scaleMultiplier) / 2f;
         foreach (var option in Options)
         {
@@ -104,9 +111,10 @@ public class ContextualOptionsOverlay : Overlay
         optionHandles[option].Draw(target);
     }
 
-    private void OnOptionsCollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+    private void OnOptionsCollectionChanged(object? sender,
+        System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
     {
-        if(e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
+        if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
         {
             foreach (ContextualOption option in e.NewItems!)
             {
@@ -115,6 +123,7 @@ public class ContextualOptionsOverlay : Overlay
                     Icon = option.Icon,
                     HitTestVisible = true,
                     Cursor = new Cursor(StandardCursorType.Hand),
+                    ToolTip = new LocalizedString(option.Name)
                 };
 
                 handle.StrokePaint = null;
@@ -124,11 +133,11 @@ public class ContextualOptionsOverlay : Overlay
                 optionHandles[option] = handle;
             }
         }
-        else if(e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
+        else if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
         {
             foreach (ContextualOption option in e.OldItems!)
             {
-                if(optionHandles.TryGetValue(option, out var handle))
+                if (optionHandles.TryGetValue(option, out var handle))
                 {
                     RemoveHandle(handle);
                     optionHandles.Remove(option);

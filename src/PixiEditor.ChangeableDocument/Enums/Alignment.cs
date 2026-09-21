@@ -5,7 +5,8 @@ public enum VerticalAlignment
     Unaligned,
     Top,
     Center,
-    Bottom
+    Bottom,
+    Spread
 }
 
 public enum HorizontalAlignment
@@ -13,5 +14,6 @@ public enum HorizontalAlignment
     Unaligned,
     Left,
     Center,
-    Right
+    Right,
+    Spread
 }
