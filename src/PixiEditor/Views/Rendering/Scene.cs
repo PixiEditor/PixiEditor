@@ -584,10 +584,10 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                     overlay.EnterPointer(args);
                 }
 
+                overlay.MovePointer(args);
+
                 if (hit && finalCursor == DefaultCursor)
                     finalCursor = overlay.Cursor ?? DefaultCursor;
-
-                overlay.MovePointer(args);
 
                 if (args.Handled)
                     propagationStopped = true;

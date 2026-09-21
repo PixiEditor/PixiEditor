@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using Avalonia;
 using Avalonia.Input;
 using Avalonia.Media;
@@ -114,6 +115,14 @@ public class ContextualOptionsOverlay : Overlay
     private void OnOptionsCollectionChanged(object? sender,
         System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
     {
+        if (e.Action == NotifyCollectionChangedAction.Reset)
+        {
+            foreach (var handle in optionHandles.Values)
+            {
+                RemoveHandle(handle);
+            }
+            optionHandles.Clear();
+        }
         if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
         {
             foreach (ContextualOption option in e.NewItems!)

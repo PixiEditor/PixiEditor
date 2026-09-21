@@ -143,6 +143,7 @@ internal class ClassicDesktopEntry
         {
             Console.WriteLine("Failed initializing main view model: " + exception);
             CrashHelper.SendExceptionInfo(exception, true);
+            desktop.Shutdown(1);
             return;
         }
 

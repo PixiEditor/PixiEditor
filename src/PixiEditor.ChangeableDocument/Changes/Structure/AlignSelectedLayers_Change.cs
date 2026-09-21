@@ -21,7 +21,8 @@ internal class AlignSelectedLayers_Change : Change
     private Dictionary<Guid, CommittedChunkStorage> oldChunks = new();
 
     [GenerateMakeChangeAction]
-    public AlignSelectedLayers_Change(List<Guid> memberGuids, int frame, HorizontalAlignment horizontal, VerticalAlignment vertical)
+    public AlignSelectedLayers_Change(List<Guid> memberGuids, int frame, HorizontalAlignment horizontal,
+        VerticalAlignment vertical)
     {
         MemberGuids = memberGuids.ToArray();
         Horizontal = horizontal;
@@ -103,6 +104,12 @@ internal class AlignSelectedLayers_Change : Change
 
         List<IChangeInfo> changeInfos = new List<IChangeInfo>();
 
+        var orderedBounds = MemberGuids
+            .Select(guid => target.FindMemberOrThrow(guid).GetTransformationCorners(Frame).AABBBounds)
+            .OrderBy(bounds => Horizontal == HorizontalAlignment.Spread
+                ? bounds.Center.X
+                : bounds.Center.Y)
+            .ToList();
         for (var spatialIndex = members.Count - 1; spatialIndex >= 0; spatialIndex--)
         {
             var memberGuid = members[spatialIndex].Guid;
@@ -110,17 +117,18 @@ internal class AlignSelectedLayers_Change : Change
 
             if (member is ITransformableObject transformable)
             {
-                VecD shift = GetAlignmentShift(member, corners.Value, spatialIndex);
+                var tightLayerArea = AffectedAreasUtility.GetTightLayerArea(member, Frame);
+                VecD shift = GetAlignmentShift(member, corners.Value, spatialIndex, orderedBounds);
                 var translation = Matrix3X3.CreateTranslation(shift.X, shift.Y);
                 transformable.TransformationMatrix = transformable.TransformationMatrix.PostConcat(translation);
 
-                changeInfos.Add(new TransformObject_ChangeInfo(
-                    memberGuid,
-                    AffectedAreasUtility.GetTightLayerArea(member, Frame)));
+                tightLayerArea.UnionWith(AffectedAreasUtility.GetTightLayerArea(member, Frame));
+
+                changeInfos.Add(new TransformObject_ChangeInfo(memberGuid, tightLayerArea));
             }
             else if (member is ImageLayerNode imageLayerNode)
             {
-                VecD shift = GetAlignmentShift(member, corners.Value, spatialIndex);
+                VecD shift = GetAlignmentShift(member, corners.Value, spatialIndex, orderedBounds);
                 var chunks = ShiftLayerHelper.DrawShiftedLayer(target, memberGuid, false, (VecI)shift, Frame);
 
                 changeInfos.Add(new LayerImageArea_ChangeInfo(memberGuid, chunks));
@@ -161,87 +169,73 @@ internal class AlignSelectedLayers_Change : Change
         return changes;
     }
 
-   private VecD GetAlignmentShift(StructureNode node, RectD corners, int itemIndex)
-{
-    VecD shift = new VecD(0, 0);
-    var nodeBounds = node.GetTransformationCorners(Frame).AABBBounds;
+    private VecD GetAlignmentShift(StructureNode node, RectD corners, int itemIndex, IReadOnlyList<RectD> orderedBounds)
+    {
+        VecD shift = new VecD(0, 0);
+        var nodeBounds = node.GetTransformationCorners(Frame).AABBBounds;
 
-    if (Horizontal == HorizontalAlignment.Left)
-    {
-        shift.X = corners.Left - nodeBounds.Left;
-    }
-    else if (Horizontal == HorizontalAlignment.Center)
-    {
-        shift.X = corners.Center.X - nodeBounds.Center.X;
-    }
-    else if (Horizontal == HorizontalAlignment.Right)
-    {
-        shift.X = corners.Right - nodeBounds.Right;
-    }
-    else if (Horizontal == HorizontalAlignment.Spread)
-    {
-        int count = MemberGuids.Length;
-
-        if (count > 1)
+        if (Horizontal == HorizontalAlignment.Left)
         {
-            double firstCenter = corners.Left + nodeBounds.Width / 2;
-            double lastCenter = corners.Right - nodeBounds.Width / 2;
+            shift.X = corners.Left - nodeBounds.Left;
+        }
+        else if (Horizontal == HorizontalAlignment.Center)
+        {
+            shift.X = corners.Center.X - nodeBounds.Center.X;
+        }
+        else if (Horizontal == HorizontalAlignment.Right)
+        {
+            shift.X = corners.Right - nodeBounds.Right;
+        }
+        else if (Horizontal == HorizontalAlignment.Spread)
+        {
+            if (orderedBounds.Count > 1)
+            {
+                double totalWidth = orderedBounds.Sum(x => x.Width);
+                double gap = (corners.Width - totalWidth) / (orderedBounds.Count - 1);
 
-            if (itemIndex == 0)
-            {
-                shift.X = firstCenter - nodeBounds.Center.X;
-            }
-            else if (itemIndex == count - 1)
-            {
-                shift.X = lastCenter - nodeBounds.Center.X;
-            }
-            else
-            {
-                double t = (double)itemIndex / (count - 1);
-                double targetCenter = firstCenter + (lastCenter - firstCenter) * t;
+                double targetLeft = corners.Left;
+
+                for (int i = 0; i < itemIndex; i++)
+                {
+                    targetLeft += orderedBounds[i].Width + gap;
+                }
+
+                double targetCenter = targetLeft + nodeBounds.Width / 2;
                 shift.X = targetCenter - nodeBounds.Center.X;
             }
         }
-    }
 
-    if (Vertical == VerticalAlignment.Top)
-    {
-        shift.Y = corners.Top - nodeBounds.Top;
-    }
-    else if (Vertical == VerticalAlignment.Center)
-    {
-        shift.Y = corners.Center.Y - nodeBounds.Center.Y;
-    }
-    else if (Vertical == VerticalAlignment.Bottom)
-    {
-        shift.Y = corners.Bottom - nodeBounds.Bottom;
-    }
-    else if (Vertical == VerticalAlignment.Spread)
-    {
-        int count = MemberGuids.Length;
-
-        if (count > 1)
+        if (Vertical == VerticalAlignment.Top)
         {
-            double firstCenter = corners.Top + nodeBounds.Height / 2;
-            double lastCenter = corners.Bottom - nodeBounds.Height / 2;
+            shift.Y = corners.Top - nodeBounds.Top;
+        }
+        else if (Vertical == VerticalAlignment.Center)
+        {
+            shift.Y = corners.Center.Y - nodeBounds.Center.Y;
+        }
+        else if (Vertical == VerticalAlignment.Bottom)
+        {
+            shift.Y = corners.Bottom - nodeBounds.Bottom;
+        }
+        else if (Vertical == VerticalAlignment.Spread)
+        {
+            if (orderedBounds.Count > 1)
+            {
+                double totalHeight = orderedBounds.Sum(x => x.Height);
+                double gap = (corners.Height - totalHeight) / (orderedBounds.Count - 1);
 
-            if (itemIndex == 0)
-            {
-                shift.Y = firstCenter - nodeBounds.Center.Y;
-            }
-            else if (itemIndex == count - 1)
-            {
-                shift.Y = lastCenter - nodeBounds.Center.Y;
-            }
-            else
-            {
-                double t = (double)itemIndex / (count - 1);
-                double targetCenter = firstCenter + (lastCenter - firstCenter) * t;
+                double targetTop = corners.Top;
+
+                for (int i = 0; i < itemIndex; i++)
+                {
+                    targetTop += orderedBounds[i].Height + gap;
+                }
+
+                double targetCenter = targetTop + nodeBounds.Height / 2;
                 shift.Y = targetCenter - nodeBounds.Center.Y;
             }
         }
-    }
 
-    return shift;
-}
+        return shift;
+    }
 }

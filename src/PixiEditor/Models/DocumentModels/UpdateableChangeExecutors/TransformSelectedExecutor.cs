@@ -360,6 +360,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
             internals.ActionAccumulator.AddActions(new EndTransformSelected_Action());
             internals!.ActionAccumulator.AddActions(new EndPreviewShiftLayers_Action());
             document!.TransformHandler.HideTransform();
+            document!.ContextualOptionsHandler.Hide();
             AddSnappingForMembers(selectedMembers);
 
             selectedMembers.Clear();
@@ -384,7 +385,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
 
     private void UpdateContextualOptions(ShapeCorners corners)
     {
-        if (selectedMembers.Count > 1)
+        if (selectedMembers.Count > 1 && (document.SelectionPathBindable == null || document.SelectionPathBindable.IsEmpty))
         {
             document.ContextualOptionsHandler.SetOptions(AlignmentOptions);
             document.ContextualOptionsHandler.Show(corners.TopCenter);
@@ -572,6 +573,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         internals!.ActionAccumulator.AddActions(new EndTransformSelected_Action());
         internals!.ActionAccumulator.AddFinishedActions();
         document!.TransformHandler.HideTransform();
+        document!.ContextualOptionsHandler.Hide();
         RestoreSnapping();
         onEnded!.Invoke(this);
 
