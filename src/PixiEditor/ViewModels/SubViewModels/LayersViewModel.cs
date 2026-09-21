@@ -199,7 +199,8 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         doc.Operations.CreateStructureMember(StructureMemberType.ImageLayer);
     }
 
-    [Command.Basic("PixiEditor.Layer.ToggleLayerLock", "TOGGLE_ACTIVE_LAYER_LOCK", "TOGGLE_ACTIVE_LAYER_LOCK_DESCRIPTIVE",
+    [Command.Basic("PixiEditor.Layer.ToggleLayerLock", "TOGGLE_ACTIVE_LAYER_LOCK",
+        "TOGGLE_ACTIVE_LAYER_LOCK_DESCRIPTIVE",
         CanExecute = "PixiEditor.Layer.HasSelectedMembers", Icon = PixiPerfectIcons.Lock, AnalyticsTrack = true)]
     public void ToggleLayerLock()
     {
@@ -598,9 +599,63 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         doc.Operations.MergeStructureMembers(selected);
     }
 
-    [Command.Basic("PixiEditor.Layer.CenterSelectedHorizontally", "CENTER_SELECTED_LAYERS_HORIZONTALLY", "CENTER_SELECTED_LAYERS_HORIZONTALLY_DESCRIPTIVE",
-        CanExecute = "PixiEditor.Layer.HasMultipleSelectedMembers", Icon = PixiPerfectIcons.Center, AnalyticsTrack = true)]
+    [Command.Basic("PixiEditor.Layer.CenterSelectedHorizontally", "CENTER_SELECTED_LAYERS_HORIZONTALLY",
+        "CENTER_SELECTED_LAYERS_HORIZONTALLY_DESCRIPTIVE",
+        CanExecute = "PixiEditor.Layer.HasMultipleSelectedMembers", Icon = PixiPerfectIcons.AlignHorizontalJustifyCenter,
+        AnalyticsTrack = true)]
     public void CenterSelectedLayersHorizontally()
+    {
+        Align(HorizontalAlignment.Center, VerticalAlignment.Unaligned);
+    }
+
+    [Command.Basic("PixiEditor.Layer.CenterSelectedVertically", "CENTER_SELECTED_LAYERS_VERTICALLY",
+        "CENTER_SELECTED_LAYERS_VERTICALLY_DESCRIPTIVE",
+        CanExecute = "PixiEditor.Layer.HasMultipleSelectedMembers", Icon = PixiPerfectIcons.AlignVerticalJustifyCenter,
+        AnalyticsTrack = true)]
+    public void CenterSelectedLayersVertically()
+    {
+        Align(HorizontalAlignment.Unaligned, VerticalAlignment.Center);
+    }
+
+    [Command.Basic("PixiEditor.Layer.AlignRightSelectedLayers", "ALIGN_RIGHT_SELECTED_LAYERS",
+        "ALIGN_RIGHT_SELECTED_LAYERS_DESCRIPTIVE",
+        CanExecute = "PixiEditor.Layer.HasMultipleSelectedMembers", Icon = PixiPerfectIcons.AlignHorizontalJustifyEnd,
+        AnalyticsTrack = true)]
+    public void AlignRightSelectedLayers()
+    {
+        Align(HorizontalAlignment.Right, VerticalAlignment.Unaligned);
+    }
+
+    [Command.Basic("PixiEditor.Layer.AlignLeftSelectedLayers", "ALIGN_LEFT_SELECTED_LAYERS",
+        "ALIGN_LEFT_SELECTED_LAYERS_DESCRIPTIVE",
+        CanExecute = "PixiEditor.Layer.HasMultipleSelectedMembers", Icon = PixiPerfectIcons.AlignHorizontalJustifyStart,
+        AnalyticsTrack = true)]
+    public void AlignLeftSelectedLayers()
+    {
+        Align(HorizontalAlignment.Left, VerticalAlignment.Unaligned);
+    }
+
+    [Command.Basic("PixiEditor.Layer.AlignTopSelectedLayers", "ALIGN_TOP_SELECTED_LAYERS",
+        "ALIGN_TOP_SELECTED_LAYERS_DESCRIPTIVE",
+        CanExecute = "PixiEditor.Layer.HasMultipleSelectedMembers", Icon = PixiPerfectIcons.AlignVerticalJustifyStart,
+        AnalyticsTrack = true)]
+    public void AlignTopSelectedLayers()
+    {
+        Align(HorizontalAlignment.Unaligned, VerticalAlignment.Top);
+    }
+
+
+    [Command.Basic("PixiEditor.Layer.AlignBottomSelectedLayers", "ALIGN_BOTTOM_SELECTED_LAYERS",
+        "ALIGN_BOTTOM_SELECTED_LAYERS_DESCRIPTIVE",
+        CanExecute = "PixiEditor.Layer.HasMultipleSelectedMembers", Icon = PixiPerfectIcons.AlignVerticalJustifyEnd,
+        AnalyticsTrack = true)]
+    public void AlignBottomSelectedLayers()
+    {
+        Align(HorizontalAlignment.Unaligned, VerticalAlignment.Bottom);
+    }
+
+
+    public void Align(HorizontalAlignment horizontal, VerticalAlignment vertical)
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is null)
@@ -610,7 +665,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         if (selected.Count == 0)
             return;
 
-        doc.Operations.CenterSelectedLayersHorizontally(selected);
+        doc.Operations.AlignSelectedLayers(selected, horizontal, vertical);
     }
 
     public void MergeSelectedWith(bool above)
@@ -701,7 +756,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         VecI size = new VecI(bitmap.Size.X, bitmap.Size.Y);
 
         doc.Operations.ImportReferenceLayer(
-            [..bytes],
+            [.. bytes],
             size);
     }
 

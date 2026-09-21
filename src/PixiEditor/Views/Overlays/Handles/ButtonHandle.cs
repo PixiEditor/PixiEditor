@@ -33,9 +33,13 @@ public class ButtonHandle : Handle
         double scaleMultiplier = (1.0 / ZoomScale);
         double radius = AnchorRadius * scaleMultiplier;
         RectD handleRect = TransformHelper.ToHandleRect(Position, Size, ZoomScale);
-        context.DrawRoundRect((float)handleRect.X, (float)handleRect.Y, (float)handleRect.Width,
-            (float)handleRect.Height,
-            (float)radius, (float)radius, FillPaint);
+        if (FillPaint != null)
+        {
+            context.DrawRoundRect((float)handleRect.X, (float)handleRect.Y, (float)handleRect.Width,
+                (float)handleRect.Height,
+                (float)radius, (float)radius, FillPaint);
+        }
+
         if (StrokePaint != null)
         {
             context.DrawRoundRect((float)handleRect.X, (float)handleRect.Y, (float)handleRect.Width,

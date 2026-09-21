@@ -3,9 +3,15 @@ public static partial class PixiPerfectIcons
     public const string AddReference = "\uE920";
     public const string AddToMask = "\uE921";
     public const string Adjust = "\uE9E7";
+    public const string AlignHorizontalJustifyCenter = "\uE9F5";
+    public const string AlignHorizontalJustifyEnd = "\uE9F7";
+    public const string AlignHorizontalJustifyStart = "\uE9F6";
     public const string AlignLeft = "\uE9B1";
     public const string AlignRight = "\uE9B5";
     public const string AlignStretch = "\uE9B0";
+    public const string AlignVerticalJustifyCenter = "\uE9F8";
+    public const string AlignVerticalJustifyEnd = "\uE9FA";
+    public const string AlignVerticalJustifyStart = "\uE9F9";
     public const string AlphaLock = "\uE922";
     public const string AlphaUnlock = "\uE923";
     public const string ArrowDown = "\uE924";

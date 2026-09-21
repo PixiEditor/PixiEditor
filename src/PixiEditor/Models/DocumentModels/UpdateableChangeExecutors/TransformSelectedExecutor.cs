@@ -45,20 +45,38 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         new ContextualOption()
         {
             Name = "Align Left",
-            Icon = PixiPerfectIcons.AlignLeft,
-            ExecuteCommand = Command.GetICommand(CommandController.Current.Commands["PixiEditor.Layer.CenterSelectedHorizontally"], null, false),
+            Icon = PixiPerfectIcons.AlignHorizontalJustifyStart,
+            ExecuteCommand = Command.GetICommand(CommandController.Current.Commands["PixiEditor.Layer.AlignLeftSelectedLayers"], null, false),
         },
         new ContextualOption()
         {
             Name = "Center Horizontally",
-            Icon = PixiPerfectIcons.Center,
+            Icon = PixiPerfectIcons.AlignHorizontalJustifyCenter,
             ExecuteCommand = Command.GetICommand(CommandController.Current.Commands["PixiEditor.Layer.CenterSelectedHorizontally"], null, false),
         },
         new ContextualOption()
         {
             Name = "Align Right",
-            Icon = PixiPerfectIcons.AlignRight,
-            ExecuteCommand = Command.GetICommand(CommandController.Current.Commands["PixiEditor.Layer.CenterSelectedHorizontally"], null, false),
+            Icon = PixiPerfectIcons.AlignHorizontalJustifyEnd,
+            ExecuteCommand = Command.GetICommand(CommandController.Current.Commands["PixiEditor.Layer.AlignRightSelectedLayers"], null, false),
+        },
+        new ContextualOption()
+        {
+            Name = "Align Top",
+            Icon = PixiPerfectIcons.AlignVerticalJustifyStart,
+            ExecuteCommand = Command.GetICommand(CommandController.Current.Commands["PixiEditor.Layer.AlignTopSelectedLayers"], null, false),
+        },
+        new ContextualOption()
+        {
+            Name = "Center Vertically",
+            Icon = PixiPerfectIcons.AlignVerticalJustifyCenter,
+            ExecuteCommand = Command.GetICommand(CommandController.Current.Commands["PixiEditor.Layer.CenterSelectedVertically"], null, false),
+        },
+        new ContextualOption()
+        {
+            Name = "Align Bottom",
+            Icon = PixiPerfectIcons.AlignVerticalJustifyEnd,
+            ExecuteCommand = Command.GetICommand(CommandController.Current.Commands["PixiEditor.Layer.AlignBottomSelectedLayers"], null, false),
         },
     };
 
@@ -356,7 +374,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         if (selectedMembers.Count > 1)
         {
             document.ContextualOptionsHandler.SetOptions(AlignmentOptions);
-            document.ContextualOptionsHandler.Show(corners.TopCenter + new VecD(0, -8));
+            document.ContextualOptionsHandler.Show(corners.TopCenter);
         }
         else
         {

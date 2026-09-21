@@ -1549,6 +1549,16 @@
   "TOGGLE_ACTIVE_LAYER_LOCK": "Toggle active layer lock",
   "TOGGLE_ACTIVE_LAYER_LOCK_DESCRIPTIVE": "Toggle active layer transform lock",
   "LOCK_LAYER": "Lock Layer",
-  "CENTER_SELECTED_LAYERS_HORIZONTALLY": "Center selected layers horizontally",
-  "CENTER_SELECTED_LAYERS_HORIZONTALLY_DESCRIPTIVE": "Center selected layers horizontally relative to shared bounding box"
+  "CENTER_SELECTED_LAYERS_HORIZONTALLY": "Align center selected layers horizontally",
+  "CENTER_SELECTED_LAYERS_HORIZONTALLY_DESCRIPTIVE": "Align center selected layers horizontally relative to shared bounding box",
+  "CENTER_SELECTED_LAYERS_VERTICALLY": "Align center selected layers vertically",
+  "CENTER_SELECTED_LAYERS_VERTICALLY_DESCRIPTIVE": "Align center selected layers vertically relative to shared bounding box",
+  "ALIGN_RIGHT_SELECTED_LAYERS": "Align right selected layers",
+  "ALIGN_RIGHT_SELECTED_LAYERS_DESCRIPTIVE": "Align right selected layers relative to shared bounding box",
+  "ALIGN_LEFT_SELECTED_LAYERS": "Align left selected layers",
+  "ALIGN_LEFT_SELECTED_LAYERS_DESCRIPTIVE": "Align left selected layers relative to shared bounding box",
+  "ALIGN_BOTTOM_SELECTED_LAYERS": "Align bottom selected layers",
+  "ALIGN_BOTTOM_SELECTED_LAYERS_DESCRIPTIVE": "Align bottom selected layers relative to shared bounding box",
+  "ALIGN_TOP_SELECTED_LAYERS": "Align top selected layers",
+  "ALIGN_TOP_SELECTED_LAYERS_DESCRIPTIVE": "Align top selected layers relative to shared bounding box"
 }

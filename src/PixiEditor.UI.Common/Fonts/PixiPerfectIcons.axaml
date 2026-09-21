@@ -7,9 +7,15 @@
             <system:String x:Key="icon-add-reference">&#xE920;</system:String>
             <system:String x:Key="icon-add-to-mask">&#xE921;</system:String>
             <system:String x:Key="icon-adjust">&#xE9E7;</system:String>
+            <system:String x:Key="icon-align-horizontal-justify-center">&#xE9F5;</system:String>
+            <system:String x:Key="icon-align-horizontal-justify-end">&#xE9F7;</system:String>
+            <system:String x:Key="icon-align-horizontal-justify-start">&#xE9F6;</system:String>
             <system:String x:Key="icon-align-left">&#xE9B1;</system:String>
             <system:String x:Key="icon-align-right">&#xE9B5;</system:String>
             <system:String x:Key="icon-align-stretch">&#xE9B0;</system:String>
+            <system:String x:Key="icon-align-vertical-justify-center">&#xE9F8;</system:String>
+            <system:String x:Key="icon-align-vertical-justify-end">&#xE9FA;</system:String>
+            <system:String x:Key="icon-align-vertical-justify-start">&#xE9F9;</system:String>
             <system:String x:Key="icon-alpha-lock">&#xE922;</system:String>
             <system:String x:Key="icon-alpha-unlock">&#xE923;</system:String>
             <system:String x:Key="icon-arrow-down">&#xE924;</system:String>

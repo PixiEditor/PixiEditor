@@ -5,22 +5,23 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.Objects;
 using PixiEditor.ChangeableDocument.Changes.Drawing;
+using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.ChangeableDocument.Helpers;
 
 namespace PixiEditor.ChangeableDocument.Changes.Structure;
 
-internal class CenterSelectedLayers_Change : Change
+internal class AlignSelectedLayers_Change : Change
 {
     public Guid[] MemberGuids { get; }
-    public bool Horizontal { get; }
-    public bool Vertical { get; }
+    public HorizontalAlignment Horizontal { get; }
+    public VerticalAlignment Vertical { get; }
     public int Frame { get; set; } = 0;
 
     private Dictionary<Guid, Matrix3X3> oldTransforms = new();
     private Dictionary<Guid, CommittedChunkStorage> oldChunks = new();
 
     [GenerateMakeChangeAction]
-    public CenterSelectedLayers_Change(List<Guid> memberGuids, int frame, bool horizontal, bool vertical)
+    public AlignSelectedLayers_Change(List<Guid> memberGuids, int frame, HorizontalAlignment horizontal, VerticalAlignment vertical)
     {
         MemberGuids = memberGuids.ToArray();
         Horizontal = horizontal;
@@ -88,17 +89,15 @@ internal class CenterSelectedLayers_Change : Change
             var member = target.FindMemberOrThrow(memberGuid);
             if (member is ITransformableObject transformable)
             {
-                VecD memberCenter = member.GetTransformationCorners(Frame).AABBBounds.Center;
-                var translation = Matrix3X3.CreateTranslation(Horizontal ? center.X - memberCenter.X : 0,
-                    Vertical ? center.Y - memberCenter.Y : 0);
+                VecD shift = GetAlignmentShift(member, corners.Value);
+                var translation = Matrix3X3.CreateTranslation(shift.X, shift.Y);
                 transformable.TransformationMatrix = transformable.TransformationMatrix.PostConcat(translation);
                 changeInfos.Add(new TransformObject_ChangeInfo(memberGuid,
                     AffectedAreasUtility.GetTightLayerArea(member, Frame)));
             }
             else if (member is ImageLayerNode imageLayerNode)
             {
-                VecD shift = center - member.GetTransformationCorners(Frame).AABBBounds.Center;
-                shift = new VecD(Horizontal ? shift.X : 0, Vertical ? shift.Y : 0);
+                VecD shift = GetAlignmentShift(member, corners.Value);
                 var chunks = ShiftLayerHelper.DrawShiftedLayer(target, memberGuid, false, (VecI)shift, Frame);
                 changeInfos.Add(new LayerImageArea_ChangeInfo(memberGuid, chunks));
                 var image = imageLayerNode.GetLayerImageAtFrame(Frame);
@@ -134,5 +133,38 @@ internal class CenterSelectedLayers_Change : Change
         }
 
         return changes;
+    }
+
+    private VecD GetAlignmentShift(StructureNode node, RectD corners)
+    {
+        VecD shift = new VecD(0, 0);
+        var nodeBounds = node.GetTransformationCorners(Frame).AABBBounds;
+        if(Horizontal == HorizontalAlignment.Left)
+        {
+            shift.X = corners.Left - nodeBounds.Left;
+        }
+        else if(Horizontal == HorizontalAlignment.Center)
+        {
+            shift.X = corners.Center.X - nodeBounds.Center.X;
+        }
+        else if(Horizontal == HorizontalAlignment.Right)
+        {
+            shift.X = corners.Right - nodeBounds.Right;
+        }
+
+        if(Vertical == VerticalAlignment.Top)
+        {
+            shift.Y = corners.Top - nodeBounds.Top;
+        }
+        else if(Vertical == VerticalAlignment.Center)
+        {
+            shift.Y = corners.Center.Y - nodeBounds.Center.Y;
+        }
+        else if(Vertical == VerticalAlignment.Bottom)
+        {
+            shift.Y = corners.Bottom - nodeBounds.Bottom;
+        }
+
+        return shift;
     }
 }
