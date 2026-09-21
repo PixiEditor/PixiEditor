@@ -203,15 +203,28 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         document.TransformHandler.ShowTransform(mode, true, masterCorners,
             Type == ExecutorType.Regular || tool.KeepOriginalImage);
 
-        UpdateContextualOptions(masterCorners);
 
         document.TransformHandler.CanAlignToPixels = anyRaster;
         document.TransformHandler.LockTransform = members.Any(x => x.IsLockedStructurally);
+        UpdateContextualOptions(masterCorners);
+        document.TransformHandler.TransformLockedChanged += OnTransformHandlerOnTransformLockedChanged;
 
         movedOnce = false;
         isInProgress = true;
 
         return ExecutionState.Success;
+    }
+
+    private void OnTransformHandlerOnTransformLockedChanged(bool isLocked)
+    {
+        if (isLocked)
+        {
+            document.ContextualOptionsHandler.Hide();
+        }
+        else
+        {
+            UpdateContextualOptions(lastCorners);
+        }
     }
 
     public override void OnLeftMouseButtonDown(MouseOnCanvasEventArgs args)
@@ -360,6 +373,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
             internals.ActionAccumulator.AddActions(new EndTransformSelected_Action());
             internals!.ActionAccumulator.AddActions(new EndPreviewShiftLayers_Action());
             document!.TransformHandler.HideTransform();
+            document.TransformHandler.TransformLockedChanged -= OnTransformHandlerOnTransformLockedChanged;
             document!.ContextualOptionsHandler.Hide();
             AddSnappingForMembers(selectedMembers);
 
@@ -385,7 +399,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
 
     private void UpdateContextualOptions(ShapeCorners corners)
     {
-        if (selectedMembers.Count > 1 && (document.SelectionPathBindable == null || document.SelectionPathBindable.IsEmpty))
+        if (selectedMembers.Count > 1 && (document.SelectionPathBindable == null || document.SelectionPathBindable.IsEmpty) && !document.TransformHandler.LockTransform)
         {
             document.ContextualOptionsHandler.SetOptions(AlignmentOptions);
             document.ContextualOptionsHandler.Show(corners.TopCenter);
@@ -573,6 +587,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         internals!.ActionAccumulator.AddActions(new EndTransformSelected_Action());
         internals!.ActionAccumulator.AddFinishedActions();
         document!.TransformHandler.HideTransform();
+        document.TransformHandler.TransformLockedChanged -= OnTransformHandlerOnTransformLockedChanged;
         document!.ContextualOptionsHandler.Hide();
         RestoreSnapping();
         onEnded!.Invoke(this);
@@ -603,6 +618,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         internals!.ActionAccumulator.AddActions(new EndTransformSelected_Action());
         internals!.ActionAccumulator.AddFinishedActions();
         document!.TransformHandler.HideTransform();
+        document.TransformHandler.TransformLockedChanged -= OnTransformHandlerOnTransformLockedChanged;
         document!.ContextualOptionsHandler.Hide();
         RestoreSnapping();
 

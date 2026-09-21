@@ -342,4 +342,29 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
 
         return children.ToArray();
     }
+
+    public IReadOnlyStructureNode[] GetTopLevelChildrenNodes()
+    {
+        List<IReadOnlyStructureNode> children = new();
+
+        if (Content.Connection == null)
+            return children.ToArray();
+
+        Content.Connection.Node.TraverseBackwards((node, input) =>
+        {
+            if (node is IReadOnlyStructureNode structureNode)
+            {
+                children.Add(structureNode);
+            }
+
+            return true;
+        }, IsTopLevelBranch);
+
+        return children.ToArray();
+    }
+
+    private bool IsTopLevelBranch(IInputProperty arg)
+    {
+        return arg is not { InternalPropertyName: ContentInternalName };
+    }
 }

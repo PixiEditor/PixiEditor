@@ -117,6 +117,19 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         return count > 1;
     }
 
+    [Evaluator.CanExecute("PixiEditor.Layer.HasMultipleFlattenedSelectedMembers",
+        nameof(DocumentManagerViewModel.ActiveDocument),
+        nameof(DocumentManagerViewModel.ActiveDocument.SelectedStructureMember),
+        nameof(DocumentManagerViewModel.ActiveDocument.SoftSelectedStructureMembers))]
+    public bool HasMultipleFlattenedSelectedMembers()
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return false;
+        int count = doc.ExtractSelectedLayers().Count;
+        return count > 1;
+    }
+
     private List<Guid> GetSelected()
     {
         List<Guid> members = new();
@@ -602,7 +615,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.Layer.CenterSelectedHorizontally", "CENTER_SELECTED_LAYERS_HORIZONTALLY",
         "CENTER_SELECTED_LAYERS_HORIZONTALLY_DESCRIPTIVE",
         MenuItemPath = "LAYER/ALIGN_SELECTED/CENTER_HORIZONTALLY", MenuItemOrder = 1,
-        CanExecute = "PixiEditor.Layer.HasMultipleSelectedMembers", Icon = PixiPerfectIcons.AlignHorizontalJustifyCenter,
+        CanExecute = "PixiEditor.Layer.HasMultipleFlattenedSelectedMembers", Icon = PixiPerfectIcons.AlignHorizontalJustifyCenter,
         AnalyticsTrack = true)]
     public void CenterSelectedLayersHorizontally()
     {
@@ -612,7 +625,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.Layer.CenterSelectedVertically", "CENTER_SELECTED_LAYERS_VERTICALLY",
         "CENTER_SELECTED_LAYERS_VERTICALLY_DESCRIPTIVE",
         MenuItemPath = "LAYER/ALIGN_SELECTED/CENTER_VERTICALLY", MenuItemOrder = 2,
-        CanExecute = "PixiEditor.Layer.HasMultipleSelectedMembers", Icon = PixiPerfectIcons.AlignVerticalJustifyCenter,
+        CanExecute = "PixiEditor.Layer.HasMultipleFlattenedSelectedMembers", Icon = PixiPerfectIcons.AlignVerticalJustifyCenter,
         AnalyticsTrack = true)]
     public void CenterSelectedLayersVertically()
     {
@@ -622,7 +635,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.Layer.AlignRightSelectedLayers", "ALIGN_RIGHT_SELECTED_LAYERS",
         "ALIGN_RIGHT_SELECTED_LAYERS_DESCRIPTIVE",
         MenuItemPath = "LAYER/ALIGN_SELECTED/RIGHT", MenuItemOrder = 3,
-        CanExecute = "PixiEditor.Layer.HasMultipleSelectedMembers", Icon = PixiPerfectIcons.AlignHorizontalJustifyEnd,
+        CanExecute = "PixiEditor.Layer.HasMultipleFlattenedSelectedMembers", Icon = PixiPerfectIcons.AlignHorizontalJustifyEnd,
         AnalyticsTrack = true)]
     public void AlignRightSelectedLayers()
     {
@@ -632,7 +645,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.Layer.AlignLeftSelectedLayers", "ALIGN_LEFT_SELECTED_LAYERS",
         "ALIGN_LEFT_SELECTED_LAYERS_DESCRIPTIVE",
         MenuItemPath = "LAYER/ALIGN_SELECTED/LEFT", MenuItemOrder = 4,
-        CanExecute = "PixiEditor.Layer.HasMultipleSelectedMembers", Icon = PixiPerfectIcons.AlignHorizontalJustifyStart,
+        CanExecute = "PixiEditor.Layer.HasMultipleFlattenedSelectedMembers", Icon = PixiPerfectIcons.AlignHorizontalJustifyStart,
         AnalyticsTrack = true)]
     public void AlignLeftSelectedLayers()
     {
@@ -642,7 +655,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.Layer.AlignTopSelectedLayers", "ALIGN_TOP_SELECTED_LAYERS",
         "ALIGN_TOP_SELECTED_LAYERS_DESCRIPTIVE",
         MenuItemPath = "LAYER/ALIGN_SELECTED/TOP", MenuItemOrder = 5,
-        CanExecute = "PixiEditor.Layer.HasMultipleSelectedMembers", Icon = PixiPerfectIcons.AlignVerticalJustifyStart,
+        CanExecute = "PixiEditor.Layer.HasMultipleFlattenedSelectedMembers", Icon = PixiPerfectIcons.AlignVerticalJustifyStart,
         AnalyticsTrack = true)]
     public void AlignTopSelectedLayers()
     {
@@ -653,7 +666,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.Layer.AlignBottomSelectedLayers", "ALIGN_BOTTOM_SELECTED_LAYERS",
         "ALIGN_BOTTOM_SELECTED_LAYERS_DESCRIPTIVE",
         MenuItemPath = "LAYER/ALIGN_SELECTED/BOTTOM", MenuItemOrder = 6,
-        CanExecute = "PixiEditor.Layer.HasMultipleSelectedMembers", Icon = PixiPerfectIcons.AlignVerticalJustifyEnd,
+        CanExecute = "PixiEditor.Layer.HasMultipleFlattenedSelectedMembers", Icon = PixiPerfectIcons.AlignVerticalJustifyEnd,
         AnalyticsTrack = true)]
     public void AlignBottomSelectedLayers()
     {
@@ -663,7 +676,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.Layer.AlignSpreadHorizontalSelectedLayer", "ALIGN_SPREAD_HORIZONTAL_SELECTED_LAYERS",
         "ALIGN_SPREAD_HORIZONTAL_SELECTED_LAYERS_DESCRIPTIVE",
         MenuItemPath = "LAYER/ALIGN_SELECTED/SPREAD_HORIZONTALLY", MenuItemOrder = 7,
-        CanExecute = "PixiEditor.Layer.HasMultipleSelectedMembers", Icon = PixiPerfectIcons.AlignHorizontalSpaceBetween,
+        CanExecute = "PixiEditor.Layer.HasMultipleFlattenedSelectedMembers", Icon = PixiPerfectIcons.AlignHorizontalSpaceBetween,
         AnalyticsTrack = true)]
     public void AlignSpreadHorizontalSelectedLayer()
     {
@@ -673,7 +686,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.Layer.AlignSpreadVerticalSelectedLayer", "ALIGN_SPREAD_VERTICAL_SELECTED_LAYERS",
         "ALIGN_SPREAD_VERTICAL_SELECTED_LAYERS_DESCRIPTIVE",
         MenuItemPath = "LAYER/ALIGN_SELECTED/SPREAD_VERTICALLY", MenuItemOrder = 8,
-        CanExecute = "PixiEditor.Layer.HasMultipleSelectedMembers", Icon = PixiPerfectIcons.AlignVerticalSpaceBetween,
+        CanExecute = "PixiEditor.Layer.HasMultipleFlattenedSelectedMembers", Icon = PixiPerfectIcons.AlignVerticalSpaceBetween,
         AnalyticsTrack = true)]
     public void AlignSpreadVerticalSelectedLayer()
     {

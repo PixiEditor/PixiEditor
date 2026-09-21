@@ -1,4 +1,5 @@
-﻿using ChunkyImageLib.Operations;
+﻿using System.Diagnostics.CodeAnalysis;
+using ChunkyImageLib.Operations;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
@@ -12,7 +13,7 @@ namespace PixiEditor.ChangeableDocument.Changes.Structure;
 
 internal class AlignSelectedLayers_Change : Change
 {
-    public Guid[] MemberGuids { get; }
+    public Guid[] MemberGuids { get; private set; }
     public HorizontalAlignment Horizontal { get; }
     public VerticalAlignment Vertical { get; }
     public int Frame { get; set; } = 0;
@@ -32,18 +33,13 @@ internal class AlignSelectedLayers_Change : Change
 
     public override bool InitializeAndValidate(Document target)
     {
+        List<Guid> initializedGuids = new List<Guid>();
+        List<Guid> toRemoveGuids = new List<Guid>();
         foreach (Guid memberGuid in MemberGuids)
         {
             if (target.TryFindMember(memberGuid, out var member))
             {
-                if (member is ITransformableObject transformable)
-                {
-                    oldTransforms[memberGuid] = transformable.TransformationMatrix;
-                }
-                else if (member is not ImageLayerNode)
-                {
-                    return false;
-                }
+                InitializeDataForMember(member, initializedGuids, toRemoveGuids);
             }
             else
             {
@@ -51,7 +47,54 @@ internal class AlignSelectedLayers_Change : Change
             }
         }
 
+        if (initializedGuids.Count == 0)
+            return false;
+
+        if (MemberGuids.Length == 1)
+        {
+            var member = target.FindMemberOrThrow(MemberGuids[0]);
+            if (member is FolderNode folder)
+            {
+                MemberGuids = GetTopLevelChildrenGuids(folder).ToArray();
+            }
+        }
+        else
+        {
+            MemberGuids = initializedGuids.Except(toRemoveGuids).ToArray();
+        }
+
         return true;
+
+        void InitializeDataForMember(IReadOnlyStructureNode member, List<Guid> initializedGuids,
+            List<Guid> toRemoveGuids)
+        {
+            if (initializedGuids.Contains(member.Id))
+            {
+                toRemoveGuids.Add(member.Id);
+                return;
+            }
+
+            if (member is ITransformableObject transformable)
+            {
+                oldTransforms[member.Id] = transformable.TransformationMatrix;
+            }
+            else if (member is FolderNode folderNode)
+            {
+                var children = folderNode.GetChildrenNodes();
+                foreach (var child in children)
+                {
+                    InitializeDataForMember(child, initializedGuids, toRemoveGuids);
+                    toRemoveGuids.Add(child.Id);
+                }
+            }
+
+            initializedGuids.Add(member.Id);
+        }
+    }
+
+    private Guid[] GetTopLevelChildrenGuids(FolderNode folder)
+    {
+        return folder.GetTopLevelChildrenNodes().Select(node => node.Id).ToArray();
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
@@ -115,54 +158,88 @@ internal class AlignSelectedLayers_Change : Change
             var memberGuid = members[spatialIndex].Guid;
             var member = target.FindMemberOrThrow(memberGuid);
 
-            if (member is ITransformableObject transformable)
-            {
-                var tightLayerArea = AffectedAreasUtility.GetTightLayerArea(member, Frame);
-                VecD shift = GetAlignmentShift(member, corners.Value, spatialIndex, orderedBounds);
-                var translation = Matrix3X3.CreateTranslation(shift.X, shift.Y);
-                transformable.TransformationMatrix = transformable.TransformationMatrix.PostConcat(translation);
+            VecD shift = GetAlignmentShift(
+                member,
+                corners.Value,
+                spatialIndex,
+                orderedBounds);
 
-                tightLayerArea.UnionWith(AffectedAreasUtility.GetTightLayerArea(member, Frame));
-
-                changeInfos.Add(new TransformObject_ChangeInfo(memberGuid, tightLayerArea));
-            }
-            else if (member is ImageLayerNode imageLayerNode)
-            {
-                VecD shift = GetAlignmentShift(member, corners.Value, spatialIndex, orderedBounds);
-                var chunks = ShiftLayerHelper.DrawShiftedLayer(target, memberGuid, false, (VecI)shift, Frame);
-
-                changeInfos.Add(new LayerImageArea_ChangeInfo(memberGuid, chunks));
-
-                var image = imageLayerNode.GetLayerImageAtFrame(Frame);
-                oldChunks[memberGuid] = new CommittedChunkStorage(image, image.FindAffectedArea().Chunks);
-
-                image.CommitChanges();
-            }
+            ApplyToMemberRecursive(target, member, changeInfos, shift);
         }
 
         return changeInfos;
     }
 
+    private void ApplyToMemberRecursive(
+        Document target,
+        StructureNode member,
+        List<IChangeInfo> changeInfos,
+        VecD shift)
+    {
+        if (member is FolderNode folder)
+        {
+            foreach (var child in folder.GetChildrenNodes())
+            {
+                ApplyToMemberRecursive(target, child as StructureNode, changeInfos, shift);
+            }
+
+            return;
+        }
+
+        ApplyToMember(target, member, changeInfos, member.Id, shift);
+    }
+
+    private void ApplyToMember(Document target, StructureNode member, List<IChangeInfo> changeInfos, Guid memberGuid,
+        VecD shift)
+    {
+        if (member is ITransformableObject transformable)
+        {
+            var tightLayerArea = AffectedAreasUtility.GetTightLayerArea(member, Frame);
+            var translation = Matrix3X3.CreateTranslation(shift.X, shift.Y);
+            transformable.TransformationMatrix = transformable.TransformationMatrix.PostConcat(translation);
+
+            tightLayerArea.UnionWith(AffectedAreasUtility.GetTightLayerArea(member, Frame));
+
+            changeInfos.Add(new TransformObject_ChangeInfo(memberGuid, tightLayerArea));
+        }
+        else if (member is ImageLayerNode imageLayerNode)
+        {
+            var chunks = ShiftLayerHelper.DrawShiftedLayer(target, memberGuid, false, (VecI)shift, Frame);
+
+            changeInfos.Add(new LayerImageArea_ChangeInfo(memberGuid, chunks));
+
+            var image = imageLayerNode.GetLayerImageAtFrame(Frame);
+            oldChunks[memberGuid] = new CommittedChunkStorage(image, image.FindAffectedArea().Chunks);
+
+            image.CommitChanges();
+        }
+    }
+
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         List<IChangeInfo> changes = new List<IChangeInfo>();
-        foreach (var layerGuid in MemberGuids)
+        foreach (var layerGuid in oldTransforms)
         {
-            var layerNode = target.FindMemberOrThrow<LayerNode>(layerGuid);
+            var transformableNode = target.FindMemberOrThrow(layerGuid.Key);
+            if (transformableNode is ITransformableObject transformable)
+            {
+                transformable.TransformationMatrix = oldTransforms[layerGuid.Key];
+
+                changes.Add(new TransformObject_ChangeInfo(layerGuid.Key,
+                    AffectedAreasUtility.GetTightLayerArea(transformableNode, Frame)));
+            }
+        }
+
+        foreach (var committedChunkStorage in oldChunks)
+        {
+            var layerNode = target.FindMemberOrThrow(committedChunkStorage.Key);
 
             if (layerNode is ImageLayerNode imageNode)
             {
                 var image = imageNode.GetLayerImageAtFrame(Frame);
-                CommittedChunkStorage? originalChunks = oldChunks?[layerGuid];
+                CommittedChunkStorage? originalChunks = oldChunks?[committedChunkStorage.Key];
                 var affected = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(image, ref originalChunks);
-                changes.Add(new LayerImageArea_ChangeInfo(layerGuid, affected));
-            }
-            else if (layerNode is ITransformableObject transformable)
-            {
-                transformable.TransformationMatrix = oldTransforms[layerGuid];
-
-                changes.Add(new TransformObject_ChangeInfo(layerGuid,
-                    AffectedAreasUtility.GetTightLayerArea(layerNode, Frame)));
+                changes.Add(new LayerImageArea_ChangeInfo(committedChunkStorage.Key, affected));
             }
         }
 
