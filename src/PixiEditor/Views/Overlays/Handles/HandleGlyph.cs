@@ -33,7 +33,6 @@ public abstract class HandleGlyph
 
     private VecD CalculateOffset(double zoomboxScale, VecD position)
     {
-        RectD bounds = GetBounds();
         VecD scaledPosition = position + new VecD(-Size.X / 2f / zoomboxScale, Size.Y / 2f / zoomboxScale);
         VecD scaledOffset = Offset / zoomboxScale;
 

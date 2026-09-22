@@ -468,6 +468,12 @@ internal class CommandController
                 name = name["#DEBUG#".Length..];
             }
 
+            if(attribute.CanExecute != null && !CanExecuteEvaluators.ContainsKey(attribute.CanExecute))
+            {
+                throw new Exception(
+                    $"CanExecute evaluator '{attribute.CanExecute}' not found for command '{attribute.InternalName}'");
+            }
+
             var command = commandFactory(
                 isDebug,
                 name,

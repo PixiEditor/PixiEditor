@@ -78,7 +78,13 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
     public bool LockTransform
     {
         get => lockTransform;
-        set => SetProperty(ref lockTransform, value);
+        set
+        {
+            if (SetProperty(ref lockTransform, value))
+            {
+                TransformLockedChanged?.Invoke(value);
+            }
+        }
     }
 
     private bool snapToAngles;
@@ -213,6 +219,7 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
 
     public event Action<ShapeCorners>? TransformChanged;
     public event Action<VecD, VecD> TransformDragged;
+    public event Action<bool>? TransformLockedChanged;
     public Action<bool> TransformShowStateChanged;
     public event Action TransformStopped;
 

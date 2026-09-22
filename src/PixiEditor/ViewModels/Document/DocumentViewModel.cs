@@ -62,6 +62,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     private bool busy = false;
 
 
+
     public bool Busy
     {
         get => busy;
@@ -220,6 +221,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public TextOverlayViewModel TextOverlayViewModel { get; set; }
     private DocumentInternalParts Internals { get; }
     public AutosaveDocumentViewModel AutosaveViewModel { get; set; }
+    public ContextualOptionsViewModel ContextualOptionsViewModel { get; set; } = new();
     public IReadOnlyCollection<IStructureMemberHandler> SoftSelectedStructureMembers => softSelectedStructureMembers;
     INodeGraphHandler IDocument.NodeGraphHandler => NodeGraph;
     IDocumentOperations IDocument.Operations => Operations;
@@ -229,6 +231,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     ILineOverlayHandler IDocument.LineToolOverlayHandler => LineToolOverlayViewModel;
     IReferenceLayerHandler IDocument.ReferenceLayerHandler => ReferenceLayerViewModel;
     IAnimationHandler IDocument.AnimationHandler => AnimationDataViewModel;
+    IContextualOptionsHandler IDocument.ContextualOptionsHandler => ContextualOptionsViewModel;
 
     public bool UsesSrgbBlending { get; private set; }
 

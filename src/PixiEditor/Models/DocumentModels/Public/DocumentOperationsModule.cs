@@ -1228,4 +1228,20 @@ internal class DocumentOperationsModule : IDocumentOperations
         Internals.ChangeController.TryStopActiveExecutor();
         Internals.ChangeController.TryStartExecutor(new QuickChangeLayerColorsExecutor(layers, color));
     }
+
+    public void AlignSelectedLayers(List<Guid> selected, HorizontalAlignment horizontal, VerticalAlignment vertical)
+    {
+        if (Internals.ChangeController.IsBlockingChangeActive)
+            return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+
+        Internals.ActionAccumulator.AddFinishedActions(new AlignSelectedLayers_Action(selected,
+            Document.AnimationHandler.ActiveFrameBindable, horizontal, vertical));
+
+        InvokeCustomAction(() =>
+        {
+            Internals.ChangeController.TryStartExecutor(new TransformSelectedExecutor(true));
+        });
+    }
 }
