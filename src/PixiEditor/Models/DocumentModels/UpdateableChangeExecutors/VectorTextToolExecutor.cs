@@ -1,4 +1,5 @@
 ﻿using Avalonia.Media;
+using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Text;
 using Drawie.Backend.Core.Vector;
@@ -15,6 +16,7 @@ using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using Color = Drawie.Backend.Core.ColorsImpl.Color;
+using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
@@ -25,7 +27,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
     private ITextToolbar toolbar;
     private IStructureMemberHandler selectedMember;
 
-    private string lastText = "";
+    private RichText? lastText;
     private VecD position;
     private Matrix3X3 lastMatrix = Matrix3X3.Identity;
     private FontData? cachedFont;
@@ -73,8 +75,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
         if (shape is TextVectorData textData)
         {
-            document.TextOverlayHandler.Show(textData.Text, textData.Position, textData.Font,
-                textData.TransformationMatrix, textData.Spacing);
+            document.TextOverlayHandler.Show(textData.Text, textData.Position, textData.TransformationMatrix);
 
             toolbar.Fill = textData.Fill;
             toolbar.FillBrush = textData.FillPaintable.ToBrush();
@@ -82,26 +83,33 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             toolbar.ToolSize = textData.StrokeWidth;
             try
             {
-                toolbar.FontFamily = textData.Font.Family;
-                toolbar.FontSize = textData.Font.Size;
-                toolbar.Spacing = textData.Spacing ?? textData.Font.Size;
-                toolbar.Bold = textData.Font.Bold;
-                toolbar.Italic = textData.Font.Italic;
+                var firstInline = textData.Text.Inlines.FirstOrDefault();
+                toolbar.FontFamily = firstInline.Font.Family;
+                toolbar.FontSize = firstInline.Font.Size;
+                toolbar.Spacing = firstInline.LineHeight;
+                toolbar.Bold = textData.Bold;
+                toolbar.Italic = textData.Italic;
             }
             catch (InvalidOperationException) // Native font likely disposed
             {
             }
 
             onPath = textData.Path;
-            lastText = textData.Text;
+            lastText = textData.Text.Clone();
             position = textData.Position;
             lastMatrix = textData.TransformationMatrix;
         }
         else if (shape is null)
         {
-            document.TextOverlayHandler.Show("", controller.LastPrecisePosition, toolbar.ConstructFont(),
-                Matrix3X3.Identity, toolbar.Spacing);
-            lastText = "";
+            RichText newEmpty = new RichText("Ehlo ther", toolbar.ConstructFont()) { StrokeWidth = 1, Spacing = 12 };
+            newEmpty.Fill = true;
+            newEmpty.FillPaintable = new ColorPaintable(Colors.Green);
+            newEmpty.AddInline(new TextInline("boobies", toolbar.ConstructFont() with { Size = 24, Italic = true, Bold = true }));
+            document.TextOverlayHandler.Show(newEmpty, controller.LastPrecisePosition,
+                Matrix3X3.Identity);
+            // TODO: Remove below line, only for testing
+            OnTextChanged(newEmpty);
+            lastText = newEmpty.Clone();
             position = controller.LastPrecisePosition;
             clickPos = controller.LastPrecisePosition;
             // TODO: Implement proper putting on path editing
@@ -144,8 +152,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             {
                 if (!document.TextOverlayHandler.IsActive)
                 {
-                    document.TextOverlayHandler.Show(lastText, position, toolbar.ConstructFont(), lastMatrix,
-                        toolbar.Spacing);
+                    document.TextOverlayHandler.Show(lastText, position, lastMatrix);
                 }
 
                 document.TextOverlayHandler.SetCursorPosition(args.Point.PositionOnCanvas);
@@ -155,7 +162,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
     public override void OnPrecisePositionChange(MouseOnCanvasEventArgs args)
     {
         if (document.TextOverlayHandler.IsActive && internals.ChangeController.LeftMousePressed &&
-            string.IsNullOrEmpty(lastText))
+            lastText == null)
         {
             double distance = Math.Abs(clickPos.Y - args.Point.PositionOnCanvas.Y);
             if (!wasDrawingSize && distance < 10) return;
@@ -197,7 +204,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         }
     }
 
-    public void OnTextChanged(string text)
+    public void OnTextChanged(RichText text)
     {
         var constructedText = ConstructTextData(text);
         internals.ActionAccumulator.AddFinishedActions(
@@ -205,7 +212,6 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             new EndSetShapeGeometry_Action(),
             new SetLowDpiRendering_Action(selectedMember.Id, toolbar.ForceLowDpiRendering));
         lastText = text;
-        document.TextOverlayHandler.Font = constructedText.Font;
     }
 
     public override void OnSettingsChanged(string name, object value)
@@ -217,6 +223,8 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             return;
         }
 
+        // TODO:
+        /*
         if (name == nameof(ITextToolbar.FontFamily))
         {
             cachedFont = toolbar.ConstructFont();
@@ -256,7 +264,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
         document.TextOverlayHandler.Font = default; // Forces refreshing glyphs
         document.TextOverlayHandler.Font = constructedText.Font;
-        document.TextOverlayHandler.Spacing = toolbar.Spacing;
+        document.TextOverlayHandler.Spacing = toolbar.Spacing;*/
     }
 
     public override void OnColorChanged(Color color, bool primary)
@@ -299,17 +307,8 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             new EndSetShapeGeometry_Action());
     }
 
-    private TextVectorData ConstructTextData(string text)
+    private TextVectorData ConstructTextData(RichText text)
     {
-        if (cachedFont == null || cachedFont.Value.Family.Name != toolbar.FontFamily.Name)
-        {
-            cachedFont = toolbar.ConstructFont();
-        }
-        else
-        {
-            cachedFont = cachedFont.Value with { Size = toolbar.FontSize };
-        }
-
         return new TextVectorData()
         {
             Text = text,
@@ -319,7 +318,6 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             StrokeWidth = (float)toolbar.ToolSize,
             Stroke = toolbar.StrokeBrush.ToPaintable(),
             TransformationMatrix = lastMatrix,
-            Font = cachedFont ?? toolbar?.ConstructFont() ?? FontData.CreateDefault(),
             Bold = toolbar.Bold,
             Italic = toolbar.Italic,
             Spacing = toolbar.Spacing,

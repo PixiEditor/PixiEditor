@@ -614,9 +614,9 @@ internal class SvgDocumentBuilder : IDocumentBuilder
             position.X += bounds.Width * anchorX;
         }
 
-        return new TextVectorData(element.Text.Unit.Value.Value)
+        return new TextVectorData(new RichText(element.Text.Unit.Value.Value, font))
         {
-            Position = position, Font = font, MissingFontText = "MISSING_FONT",
+            Position = position, MissingFontText = "MISSING_FONT",
         };
     }
 

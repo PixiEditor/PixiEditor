@@ -16,7 +16,7 @@ internal class ExtractSelectedText_Change : Change
     private bool extractEachCharacter = false;
     private int selectionStart;
     private int selectionEnd;
-    private string? originalText = null;
+    private RichText? originalText = null;
     private List<(int start, int end, string text)> subdividions;
     private Dictionary<Guid, VecD> originalPositions = new Dictionary<Guid, VecD>();
 
@@ -44,9 +44,12 @@ internal class ExtractSelectedText_Change : Change
         selectionStart = minStart;
         selectionEnd = maxEnd;
 
-        originalText = textData.Text;
+        // TODO: Fix this. It should be a clone, but RichText doesn't have a Clone method yet.
+        //originalText = textData.Text.Clone();
 
-        subdividions = GetSubdivisions(selectionStart, selectionEnd, textData.Text, extractEachCharacter);
+        // TODO:
+        /*
+        subdividions = GetSubdivisions(selectionStart, selectionEnd, textData.Text.RawText, extractEachCharacter);
 
         subdividions?.RemoveAll(x => x.text == "\n");
 
@@ -63,9 +66,10 @@ internal class ExtractSelectedText_Change : Change
                 newLayerIds[i] = Guid.NewGuid();
             }
         }
+        */
 
-        return textData.Text.Length > 0 &&
-               minStart >= 0 && maxEnd <= textData.Text.Length &&
+        return textData.Text.TextGlyphCount > 0 &&
+               minStart >= 0 && maxEnd <= textData.Text.TextGlyphCount &&
                minStart < maxEnd && subdividions != null;
     }
 
@@ -88,9 +92,10 @@ internal class ExtractSelectedText_Change : Change
 
             if (index == 0)
             {
-                textData.Text = subdividion.text.EndsWith("\n")
+                // TODO:
+                /*textData.Text = subdividion.text.EndsWith("\n")
                     ? subdividion.text[..^1]
-                    : subdividion.text;
+                    : subdividion.text;*/
 
                 var aabb = textData.TransformedVisualAABB.RoundOutwards();
                 var affected = new AffectedArea(OperationHelper.FindChunksTouchingRectangle(
@@ -119,10 +124,14 @@ internal class ExtractSelectedText_Change : Change
                 ? text[..20].ReplaceLineEndings("") + "..."
                 : text.ReplaceLineEndings("");
 
-            data.Text = text;
+            // TODO:
+            //data.Text = text;
             newNode.EmbeddedShapeData = data;
+            // TODO:
+            /*
             var newPos = GetPositionForNewText(originalText, subdividion.start, textData);
             data.Position += newPos;
+            */
 
             target.NodeGraph.AddNode(newNode);
 
@@ -174,17 +183,13 @@ internal class ExtractSelectedText_Change : Change
         return changes;
     }
 
+    // TODO:
+    /*
     private VecD GetPositionForNewText(string text, int startIndex, TextVectorData textData)
     {
         RichText richText = new RichText(text);
 
-        Font nativeFont = textData.ConstructFont();
-        if (nativeFont == null)
-        {
-            return VecD.Zero;
-        }
-
-        var positions = richText.GetGlyphPositions(nativeFont);
+        var positions = richText.GetGlyphPositions();
         if (positions == null || positions.Length == 0)
         {
             return VecD.Zero;
@@ -194,12 +199,13 @@ internal class ExtractSelectedText_Change : Change
 
         richText.IndexOnLine(startIndex, out int lineIndex);
 
-        VecD lineOffset = richText.GetLineOffset(lineIndex, nativeFont);
+        VecD lineOffset = richText.GetLineOffset(lineIndex);
 
         return new VecD(position.X, (1 / RichText.PtToPx) * lineOffset.Y);
     }
+    */
 
-    private List<(int start, int end, string text)>? GetSubdivisions(int start, int end, string text,
+    /*private List<(int start, int end, string text)>? GetSubdivisions(int start, int end, string text,
         bool extractEachCharacter)
     {
         if (start == 0 && end == text.Length && !extractEachCharacter)
@@ -266,30 +272,5 @@ internal class ExtractSelectedText_Change : Change
         }
 
         return result;
-    }
-
-
-    /*private List<(int start, int end, string text)>? GetSubdivisions(int start, int end, string text)
-    {
-        if (start == 0 && end == text.Length)
-        {
-            return null;
-        }
-
-        RichText richText = new RichText(text);
-        richText.IndexOnLine(start, out int startLineIndex);
-        richText.IndexOnLine(end, out int endLineIndex);
-
-        bool isExtractingFromMiddle = start > 0 || end < text.Length;
-
-        if (startLineIndex == endLineIndex && !isExtractingFromMiddle)
-        {
-            return [(start, end, text.Substring(start, end - start))];
-        }
-
-        // returns lineStart and lineEnd char indices for the given line index
-        var firstLineLength = richText.GetLineStartEnd(startLineIndex);
-
-
     }*/
 }

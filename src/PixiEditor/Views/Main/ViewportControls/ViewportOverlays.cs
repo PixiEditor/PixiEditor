@@ -709,7 +709,6 @@ internal class ViewportOverlays
         textOverlay.Bind(Visual.IsVisibleProperty, isVisibleBinding);
         textOverlay.Bind(TextOverlay.TextProperty, textBinding);
         textOverlay.Bind(TextOverlay.PositionProperty, positionBinding);
-        textOverlay.Bind(TextOverlay.FontProperty, fontBinding);
         textOverlay.Bind(TextOverlay.RequestEditTextProperty, requestEditTextBinding);
         textOverlay.Bind(TextOverlay.MatrixProperty, matrixBinding);
         textOverlay.Bind(TextOverlay.SpacingProperty, spacingBinding);

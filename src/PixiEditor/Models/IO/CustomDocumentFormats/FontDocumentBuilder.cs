@@ -53,7 +53,7 @@ internal class FontDocumentBuilder : IDocumentBuilder
             }
         }
 
-        TextVectorData textData = new() { Text = sb.ToString(), Font = fontData, StrokeWidth = 0, Spacing = 12 };
+        TextVectorData textData = new() { Text = new RichText(sb.ToString(), fontData), StrokeWidth = 0, Spacing = 12 };
         RectD bounds = textData.GeometryAABB;
 
         const int padding = 1;

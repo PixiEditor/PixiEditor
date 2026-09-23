@@ -16,7 +16,8 @@ internal class TextSerializationFactory : VectorShapeSerializationFactory<TextVe
 
     protected override void AddSpecificData(ByteBuilder builder, TextVectorData original)
     {
-        builder.AddString(original.Text);
+        // TODO:
+        /*builder.AddString(original.Text);
         builder.AddVecD(original.Position);
         builder.AddBool(original.AntiAlias);
         builder.AddString(original.Font.Family.Name);
@@ -38,7 +39,7 @@ internal class TextSerializationFactory : VectorShapeSerializationFactory<TextVe
             builder.AddString(original.Path.ToSvgPathData());
         }
 
-        builder.AddVecD(original.PathOffset);
+        builder.AddVecD(original.PathOffset);*/
     }
 
     protected override bool DeserializeVectorData(ByteExtractor extractor, Matrix3X3 matrix, Paintable strokePaintable,
@@ -92,7 +93,7 @@ internal class TextSerializationFactory : VectorShapeSerializationFactory<TextVe
         font.SubPixel = antiAlias;
         font.Size = fontSize;
 
-        original = new TextVectorData(text)
+        original = new TextVectorData(new RichText(text, font))
         {
             TransformationMatrix = matrix,
             Stroke = strokePaintable,
@@ -100,7 +101,6 @@ internal class TextSerializationFactory : VectorShapeSerializationFactory<TextVe
             FillPaintable = fillPaintable,
             StrokeWidth = strokeWidth,
             Position = position,
-            Font = font,
             MaxWidth = maxWidth,
             Spacing = spacing,
             Path = path,

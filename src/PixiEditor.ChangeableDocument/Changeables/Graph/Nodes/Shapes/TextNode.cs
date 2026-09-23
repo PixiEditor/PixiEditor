@@ -50,9 +50,8 @@ public class TextNode : ShapeNode<TextVectorData>
 
         cachedData = new TextVectorData()
         {
-            Text = text,
+            Text = new RichText(text, font),
             Position = position,
-            Font = font,
         };
         
         return cachedData;

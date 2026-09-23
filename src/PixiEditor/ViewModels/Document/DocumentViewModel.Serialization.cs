@@ -383,6 +383,8 @@ internal partial class DocumentViewModel
 
     private static SvgElement AddText(IReadOnlyTextData textData)
     {
+        // TODO:
+        /*
         RichText rt = new RichText(textData.Text);
         rt.Spacing = textData.Spacing;
         rt.MaxWidth = textData.MaxWidth;
@@ -423,7 +425,9 @@ internal partial class DocumentViewModel
             font.Dispose();
         }
 
-        return group;
+        return group;*/
+
+        return null;
     }
 
     private static SvgText BuildTextElement(IReadOnlyTextData textData, string value, Font font)

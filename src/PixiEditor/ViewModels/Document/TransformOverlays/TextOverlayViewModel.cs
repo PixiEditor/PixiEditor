@@ -11,19 +11,17 @@ namespace PixiEditor.ViewModels.Document.TransformOverlays;
 internal class TextOverlayViewModel : ObservableObject, ITextOverlayHandler
 {
     private bool isActive;
-    private string text;
+    private RichText text;
     private VecD position;
-    private FontData font;
     private bool previewSize = false;
-    private ExecutionTrigger<string> requestEditTextTrigger;
+    private ExecutionTrigger<RichText> requestEditTextTrigger;
     private Matrix3X3 matrix = Matrix3X3.Identity;
-    private double? spacing;
     private int cursorPosition;
     private int selectionEnd;
     private int cachedFontHash;
     private Font? lastCachedFont;
 
-    public event Action<string>? TextChanged;
+    public event Action<RichText>? TextChanged;
 
     public bool IsActive
     {
@@ -31,7 +29,7 @@ internal class TextOverlayViewModel : ObservableObject, ITextOverlayHandler
         set => SetProperty(ref isActive, value);
     }
 
-    public string Text
+    public RichText Text
     {
         get => text;
         set
@@ -50,13 +48,7 @@ internal class TextOverlayViewModel : ObservableObject, ITextOverlayHandler
         set => SetProperty(ref position, value);
     }
 
-    public FontData Font
-    {
-        get => font;
-        set => SetProperty(ref font, value);
-    }
-
-    public ExecutionTrigger<string> RequestEditTextTrigger
+    public ExecutionTrigger<RichText> RequestEditTextTrigger
     {
         get => requestEditTextTrigger;
         set => SetProperty(ref requestEditTextTrigger, value);
@@ -66,12 +58,6 @@ internal class TextOverlayViewModel : ObservableObject, ITextOverlayHandler
     {
         get => matrix;
         set => SetProperty(ref matrix, value);
-    }
-
-    public double? Spacing
-    {
-        get => spacing;
-        set => SetProperty(ref spacing, value);
     }
 
     public int CursorPosition
@@ -95,40 +81,33 @@ internal class TextOverlayViewModel : ObservableObject, ITextOverlayHandler
     public void SetCursorPosition(VecD closestToPosition)
     {
         VecD mapped = Matrix.Invert().MapPoint(closestToPosition);
-        RichText richText = new(Text);
+        RichText richText = Text;
 
-        var nativeFont = GetFont();
-        if (nativeFont == null)
-        {
-            return;
-        }
-
-        var positions = richText.GetGlyphPositions(nativeFont);
+        var positions = richText.GetGlyphPositions();
         if (positions == null || positions.Length == 0)
         {
             return;
         }
 
-        int indexOfClosest = positions.Select((pos, index) => (pos, index))
+        // TODO:
+        /*int indexOfClosest = positions.Select((pos, index) => (pos, index))
             .OrderBy(pos => ((pos.pos + Position - new VecD(0, Font.Size / 2f)) - mapped).LengthSquared)
             .First().index;
 
         CursorPosition = indexOfClosest;
-        SelectionEnd = indexOfClosest;
+        SelectionEnd = indexOfClosest;*/
     }
 
     public TextOverlayViewModel()
     {
-        RequestEditTextTrigger = new ExecutionTrigger<string>();
+        RequestEditTextTrigger = new ExecutionTrigger<RichText>();
     }
 
-    public void Show(string text, VecD position, FontData font, Matrix3X3 matrix, double? spacing = null)
+    public void Show(RichText text, VecD position, Matrix3X3 matrix)
     {
-        Font = font;
         Position = position;
         Text = text;
         Matrix = matrix;
-        Spacing = spacing;
         IsActive = true;
         PreviewSize = false;
         RequestEditTextTrigger.Execute(this, text);
@@ -137,22 +116,8 @@ internal class TextOverlayViewModel : ObservableObject, ITextOverlayHandler
     public void Hide()
     {
         IsActive = false;
-        Font = default;
         Position = default;
-        Text = string.Empty;
+        Text = null;
         Matrix = Matrix3X3.Identity;
-        Spacing = null;
-    }
-
-    private Font GetFont()
-    {
-        if (Font.GetCacheHash() != cachedFontHash || lastCachedFont is { IsDisposed: true })
-        {
-            lastCachedFont?.Dispose();
-            cachedFontHash = Font.GetCacheHash();
-            lastCachedFont = Font.ToFont();
-        }
-
-        return lastCachedFont;
     }
 }
