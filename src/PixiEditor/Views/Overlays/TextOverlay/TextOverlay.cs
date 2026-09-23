@@ -1,4 +1,5 @@
-﻿using Avalonia;
+﻿using System.Globalization;
+using Avalonia;
 using Avalonia.Input;
 using Avalonia.Threading;
 using Drawie.Backend.Core.ColorsImpl;
@@ -557,21 +558,91 @@ internal class TextOverlay : Overlay
         return false;
     }
 
+    private int GetTextOffset(int textElementIndex)
+    {
+        if (textElementIndex <= 0)
+            return 0;
+
+        int index = 0;
+        var enumerator = StringInfo.GetTextElementEnumerator(Text);
+
+        while (enumerator.MoveNext())
+        {
+            if (index == textElementIndex)
+                return enumerator.ElementIndex;
+
+            index++;
+        }
+
+        return Text.Length;
+    }
+
+    private int GetTextElementCount()
+    {
+        int count = 0;
+        var enumerator = StringInfo.GetTextElementEnumerator(Text);
+
+        while (enumerator.MoveNext())
+            count++;
+
+        return count;
+    }
+
     private void InsertTextAtCursor(string toAdd)
     {
-        if (CursorPosition == SelectionEnd)
+        int selectionStart = Math.Min(CursorPosition, SelectionEnd);
+        int selectionEnd = Math.Max(CursorPosition, SelectionEnd);
+
+        int startOffset = GetTextOffset(selectionStart);
+        int endOffset = GetTextOffset(selectionEnd);
+
+        Text = Text.Remove(startOffset, endOffset - startOffset);
+        Text = Text.Insert(startOffset, toAdd);
+
+        int addedLength = StringInfo.ParseCombiningCharacters(toAdd).Length;
+
+        CursorPosition = selectionStart + addedLength;
+        SelectionEnd = CursorPosition;
+
+        lastXMovementCursorIndex = CursorPosition;
+    }
+
+    private void DeleteChar(int direction)
+    {
+        int selectionStart = Math.Min(CursorPosition, SelectionEnd);
+        int selectionEnd = Math.Max(CursorPosition, SelectionEnd);
+
+        if (selectionStart != selectionEnd)
         {
-            Text = Text.Insert(CursorPosition, toAdd);
-            CursorPosition += toAdd.Length;
-            SelectionEnd += toAdd.Length;
+            int startOffset = GetTextOffset(selectionStart);
+            int endOffset = GetTextOffset(selectionEnd);
+
+            Text = Text.Remove(startOffset, endOffset - startOffset);
+
+            CursorPosition = selectionStart;
+            SelectionEnd = CursorPosition;
         }
         else
         {
-            string newText = Text.Remove(Math.Min(CursorPosition, SelectionEnd),
-                Math.Abs(CursorPosition - SelectionEnd));
-            Text = newText.Insert(Math.Min(CursorPosition, SelectionEnd), toAdd);
-            CursorPosition = Math.Min(CursorPosition, SelectionEnd) + toAdd.Length;
-            SelectionEnd = CursorPosition;
+            int textElementCount = GetTextElementCount();
+
+            if (direction < 0 && CursorPosition > 0)
+            {
+                int startOffset = GetTextOffset(CursorPosition - 1);
+                int endOffset = GetTextOffset(CursorPosition);
+
+                Text = Text.Remove(startOffset, endOffset - startOffset);
+                CursorPosition--;
+                SelectionEnd = CursorPosition;
+            }
+            else if (direction > 0 && CursorPosition < textElementCount)
+            {
+                int startOffset = GetTextOffset(CursorPosition);
+                int endOffset = GetTextOffset(CursorPosition + 1);
+
+                Text = Text.Remove(startOffset, endOffset - startOffset);
+                SelectionEnd = CursorPosition;
+            }
         }
 
         lastXMovementCursorIndex = CursorPosition;
@@ -598,25 +669,6 @@ internal class TextOverlay : Overlay
             {
                 Dispatcher.UIThread.Invoke(() => InsertTextAtCursor(t.Result));
             }, TaskContinuationOptions.OnlyOnRanToCompletion);
-    }
-
-    private void DeleteChar(int direction)
-    {
-        if (SelectionEnd != CursorPosition)
-        {
-            Text = Text.Remove(Math.Min(CursorPosition, SelectionEnd),
-                Math.Abs(CursorPosition - SelectionEnd));
-            CursorPosition = Math.Min(CursorPosition, SelectionEnd);
-            SelectionEnd = CursorPosition;
-        }
-        else if (Text.Length > 0 && CursorPosition + direction >= 0 && CursorPosition + direction < Text.Length)
-        {
-            Text = Text.Remove(CursorPosition + direction, 1);
-            CursorPosition += direction;
-            SelectionEnd = CursorPosition;
-        }
-
-        lastXMovementCursorIndex = CursorPosition;
     }
 
     private void MoveCursorBy(VecI direction, bool updateSelection = true, MoveMode mode = MoveMode.Characters)
