@@ -117,7 +117,7 @@ internal class TextOverlayViewModel : ObservableObject, ITextOverlayHandler
     {
         IsActive = false;
         Position = default;
-        Text = null;
+        Text = default;
         Matrix = Matrix3X3.Identity;
     }
 }

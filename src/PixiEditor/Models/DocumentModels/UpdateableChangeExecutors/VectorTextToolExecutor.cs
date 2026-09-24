@@ -27,7 +27,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
     private ITextToolbar toolbar;
     private IStructureMemberHandler selectedMember;
 
-    private RichText? lastText;
+    private RichText lastText;
     private VecD position;
     private Matrix3X3 lastMatrix = Matrix3X3.Identity;
     private FontData? cachedFont;
@@ -87,8 +87,6 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
                 toolbar.FontFamily = firstInline.Font.Family;
                 toolbar.FontSize = firstInline.Font.Size;
                 toolbar.Spacing = firstInline.LineHeight;
-                toolbar.Bold = textData.Bold;
-                toolbar.Italic = textData.Italic;
             }
             catch (InvalidOperationException) // Native font likely disposed
             {
@@ -101,17 +99,13 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         }
         else if (shape is null)
         {
-            RichText newEmpty = new RichText("Ehlo ther", toolbar.ConstructFont()) { StrokeWidth = 1, Spacing = 12 };
-            newEmpty.Fill = true;
-            newEmpty.FillPaintable = new ColorPaintable(Colors.Green);
-            newEmpty.AddInline(new TextInline("boobies", toolbar.ConstructFont() with { Size = 24, Italic = true, Bold = true }));
+            RichText newEmpty = new RichText("", toolbar.ConstructFont()) { StrokeWidth = 1, Spacing = 12 };
             document.TextOverlayHandler.Show(newEmpty, controller.LastPrecisePosition,
                 Matrix3X3.Identity);
-            // TODO: Remove below line, only for testing
-            OnTextChanged(newEmpty);
-            lastText = newEmpty.Clone();
             position = controller.LastPrecisePosition;
             clickPos = controller.LastPrecisePosition;
+
+            lastText = newEmpty.Clone();
             // TODO: Implement proper putting on path editing
             /*if (controller.LeftMousePressed)
             {
@@ -162,7 +156,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
     public override void OnPrecisePositionChange(MouseOnCanvasEventArgs args)
     {
         if (document.TextOverlayHandler.IsActive && internals.ChangeController.LeftMousePressed &&
-            lastText == null)
+            lastText.RawText == null)
         {
             double distance = Math.Abs(clickPos.Y - args.Point.PositionOnCanvas.Y);
             if (!wasDrawingSize && distance < 10) return;
@@ -318,8 +312,6 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             StrokeWidth = (float)toolbar.ToolSize,
             Stroke = toolbar.StrokeBrush.ToPaintable(),
             TransformationMatrix = lastMatrix,
-            Bold = toolbar.Bold,
-            Italic = toolbar.Italic,
             Spacing = toolbar.Spacing,
             AntiAlias = toolbar.AntiAliasing,
             Path = onPath,

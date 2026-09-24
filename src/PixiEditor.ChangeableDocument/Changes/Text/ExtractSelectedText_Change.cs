@@ -156,7 +156,7 @@ internal class ExtractSelectedText_Change : Change
             throw new InvalidOperationException("Node does not contain TextVectorData.");
         }
 
-        textData.Text = originalText;
+        textData.Text = originalText ?? default;
 
         List<IChangeInfo> changes = new List<IChangeInfo>();
 

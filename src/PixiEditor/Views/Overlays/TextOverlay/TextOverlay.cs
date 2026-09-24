@@ -259,7 +259,7 @@ internal class TextOverlay : Overlay
 
     private void RenderSampleText(Canvas context)
     {
-        using var sampleFont = Text.Inlines.FirstOrDefault()?.Font.ToFont();
+        using var sampleFont = Text.Inlines.FirstOrDefault().Font.ToFont();
         if (sampleFont == null) return;
         context.DrawText("A", new VecD(Position.X, Position.Y), sampleFont, sampleTextPaint);
     }
@@ -317,7 +317,7 @@ internal class TextOverlay : Overlay
     {
         VecD mapped = Matrix.Invert().MapPoint(point);
 
-        return richText != null &&
+        return richText?.RawText != null &&
                richText.MeasureBounds().Offset(Position).Inflate(2).ContainsInclusive(mapped);
     }
 
@@ -570,11 +570,21 @@ internal class TextOverlay : Overlay
         int startOffset = GetTextOffset(selectionStart);
         int endOffset = GetTextOffset(selectionEnd);
 
-        // TODO:
-        /*
-        Text = Text.Remove(startOffset, endOffset - startOffset);
-        Text = Text.Insert(startOffset, toAdd);
-        */
+        TextInline? inlineAtCursor = Text.GetInlineAt(selectionStart, out int inlineStartOffset, out int inlineEndOffset);
+
+        if (inlineAtCursor != null)
+        {
+            startOffset -= inlineStartOffset;
+            endOffset -= inlineStartOffset;
+
+            inlineAtCursor.Text = inlineAtCursor.Text.Remove(startOffset, endOffset - startOffset);
+            inlineAtCursor.Text = inlineAtCursor.Text.Insert(startOffset, toAdd);
+
+            int indexOfInline = Text.Inlines.IndexOf(inlineAtCursor);
+            var cloned = Text.Clone();
+            cloned.Inlines[indexOfInline] = inlineAtCursor;
+            Text = cloned;
+        }
 
         int addedLength = StringInfo.ParseCombiningCharacters(toAdd).Length;
 
@@ -740,7 +750,7 @@ internal class TextOverlay : Overlay
     {
         richText = Text;
 
-        if (richText == null)
+        if (richText?.RawText == null)
         {
             glyphPositions = null;
             glyphWidths = null;

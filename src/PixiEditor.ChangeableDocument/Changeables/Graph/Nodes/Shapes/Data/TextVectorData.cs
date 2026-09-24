@@ -30,24 +30,6 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
 
     public double MaxWidth { get; set; } = double.MaxValue;
 
-    public bool Bold
-    {
-        get => font.Bold;
-        set
-        {
-            font.Bold = value;
-        }
-    }
-
-    public bool Italic
-    {
-        get => font.Italic;
-        set
-        {
-            font.Italic = value;
-        }
-    }
-
     public double? Spacing
     {
         get => spacing;
@@ -153,7 +135,7 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
 
     public override bool IsValid()
     {
-        return Text != null && !string.IsNullOrEmpty(Text.RawText);
+        return !string.IsNullOrEmpty(Text.RawText);
     }
 
     /*protected override void AdjustCopy(ShapeVectorData copy)
@@ -180,8 +162,6 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
         hash.Add(AntiAlias);
         hash.Add(MissingFontText);
         hash.Add(MaxWidth);
-        hash.Add(Bold);
-        hash.Add(Italic);
         hash.Add(PathOffset);
 
         return hash.ToHashCode();
@@ -210,9 +190,8 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
         return base.Equals(other) && Position.Equals(other.Position) && MaxWidth.Equals(other.MaxWidth) &&
                AntiAlias == other.AntiAlias &&
                MissingFontText == other.MissingFontText
-               && Text == other.Text && Spacing.Equals(other.Spacing) &&
-               Path == other.Path && Bold == other.Bold && Italic == other.Italic
-               && PathOffset.Equals(other.PathOffset);
+               && Spacing.Equals(other.Spacing) &&
+               Path == other.Path && PathOffset.Equals(other.PathOffset);
     }
 
     public override bool Equals(object? obj)
