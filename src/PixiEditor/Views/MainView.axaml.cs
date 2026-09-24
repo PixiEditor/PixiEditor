@@ -2,6 +2,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
+using PixiDocks.Avalonia.Controls;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.IO;
@@ -30,7 +31,14 @@ public partial class MainView : UserControl
         if (DataContext is ViewModelMain vm)
         {
             vm.OnEarlyStartup();
+
+            vm.LayoutSubViewModel.LayoutManager.LayoutReplaced += OnActiveLayoutReplaced;
         }
+    }
+
+    private void OnActiveLayoutReplaced(DockableTree newRoot)
+    {
+        MainDockingRegion.Root = newRoot;
     }
 
     private void OnLoaded(object? sender, RoutedEventArgs e)
