@@ -190,7 +190,8 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
         return base.Equals(other) && Position.Equals(other.Position) && MaxWidth.Equals(other.MaxWidth) &&
                AntiAlias == other.AntiAlias &&
                MissingFontText == other.MissingFontText
-               && Spacing.Equals(other.Spacing) &&
+               && Spacing.Equals(other.Spacing)
+               && Text.Equals(other.Text) &&
                Path == other.Path && PathOffset.Equals(other.PathOffset);
     }
 

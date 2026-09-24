@@ -570,7 +570,8 @@ internal class TextOverlay : Overlay
         int startOffset = GetTextOffset(selectionStart);
         int endOffset = GetTextOffset(selectionEnd);
 
-        TextInline? inlineAtCursor = Text.GetInlineAt(selectionStart, out int inlineStartOffset, out int inlineEndOffset);
+        TextInline? inlineAtCursor =
+            Text.GetInlineAt(selectionStart, out int inlineStartOffset, out int inlineEndOffset);
 
         if (inlineAtCursor != null)
         {
@@ -580,9 +581,9 @@ internal class TextOverlay : Overlay
             inlineAtCursor.Text = inlineAtCursor.Text.Remove(startOffset, endOffset - startOffset);
             inlineAtCursor.Text = inlineAtCursor.Text.Insert(startOffset, toAdd);
 
-            int indexOfInline = Text.Inlines.IndexOf(inlineAtCursor);
+            int indexOfInline = Text.IndexOfInline(inlineAtCursor);
             var cloned = Text.Clone();
-            cloned.Inlines[indexOfInline] = inlineAtCursor;
+            cloned.UpdateInline(indexOfInline, inlineAtCursor);
             Text = cloned;
         }
 
@@ -598,14 +599,24 @@ internal class TextOverlay : Overlay
     {
         int selectionStart = Math.Min(CursorPosition, SelectionEnd);
         int selectionEnd = Math.Max(CursorPosition, SelectionEnd);
+        var inlineAtCursor = Text.GetInlineAt(selectionStart, out int inlineStartOffset, out int inlineEndOffset);
+        int indexOfInline = Text.IndexOfInline(inlineAtCursor);
 
         if (selectionStart != selectionEnd)
         {
             int startOffset = GetTextOffset(selectionStart);
             int endOffset = GetTextOffset(selectionEnd);
+            startOffset -= inlineStartOffset;
+            endOffset -= inlineStartOffset;
 
-            // TODO
-            //Text = Text.Remove(startOffset, endOffset - startOffset);
+            if (inlineAtCursor != null)
+            {
+                inlineAtCursor.Text = inlineAtCursor.Text.Remove(startOffset, endOffset - startOffset);
+
+                var cloned = Text.Clone();
+                cloned.UpdateInline(indexOfInline, inlineAtCursor);
+                Text = cloned;
+            }
 
             CursorPosition = selectionStart;
             SelectionEnd = CursorPosition;
@@ -618,9 +629,15 @@ internal class TextOverlay : Overlay
             {
                 int startOffset = GetTextOffset(CursorPosition - 1);
                 int endOffset = GetTextOffset(CursorPosition);
+                startOffset -= inlineStartOffset;
+                endOffset -= inlineStartOffset;
 
-                //TODO
-                //Text = Text.Remove(startOffset, endOffset - startOffset);
+                inlineAtCursor.Text = inlineAtCursor.Text.Remove(startOffset, endOffset - startOffset);
+
+                var cloned = Text.Clone();
+                cloned.UpdateInline(indexOfInline, inlineAtCursor);
+                Text = cloned;
+
                 CursorPosition--;
                 SelectionEnd = CursorPosition;
             }
@@ -628,9 +645,14 @@ internal class TextOverlay : Overlay
             {
                 int startOffset = GetTextOffset(CursorPosition);
                 int endOffset = GetTextOffset(CursorPosition + 1);
+                startOffset -= inlineStartOffset;
+                endOffset -= inlineStartOffset;
 
-                //TODO
-                //Text = Text.Remove(startOffset, endOffset - startOffset);
+                inlineAtCursor.Text = inlineAtCursor.Text.Remove(startOffset, endOffset - startOffset);
+                var cloned = Text.Clone();
+                cloned.UpdateInline(indexOfInline, inlineAtCursor);
+                Text = cloned;
+
                 SelectionEnd = CursorPosition;
             }
         }
@@ -869,7 +891,7 @@ internal class TextOverlay : Overlay
 
         if (textOverlay.glyphPositions == null) return 0;
 
-        return Math.Clamp(newPos, 0, Math.Max(0, textOverlay.glyphPositions.Length - 1));
+        return Math.Clamp(newPos, 0, Math.Max(0, textOverlay.GetTextElementCount()));
     }
 }
 
