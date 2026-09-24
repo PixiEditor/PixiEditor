@@ -373,11 +373,6 @@ internal class TransformOverlay : Overlay
     protected override void OnRenderOverlay(Canvas drawingContext, RectD canvasBounds)
     {
         DrawOverlay(drawingContext, canvasBounds.Size, Corners, (float)ZoomScale);
-
-        if (capturedAnchor is null)
-        {
-            UpdateSpecialCursors(lastPointerPos);
-        }
     }
 
     private void DrawOverlay

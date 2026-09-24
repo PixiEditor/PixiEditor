@@ -1,8 +1,10 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Threading;
 using PixiEditor.Helpers;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Backend.Core.Text;
 using Drawie.Backend.Core.Vector;
 using PixiEditor.Extensions.UI.Overlays;
 using Drawie.Numerics;
@@ -38,10 +40,21 @@ public abstract class Handle : IHandle
     public event HandleEvent OnTap;
     public Cursor? Cursor { get; set; }
 
+    public string? ToolTip { get; set; }
+
+    private bool isToolTipVisible;
+    private DateTime hoverStarted;
+    private const int ToolTipDelayMs = 500;
+
     private bool isPressed;
     private bool isHovered;
     private bool moved;
     private bool isRendered;
+
+    private static Paint tooltipBackgroundPaint = GetPaint("ThemeBackgroundBrush");
+    private static Paint tooltipStrokePaint = GetPaint("ThemeBorderMidBrush", PaintStyle.Stroke);
+    private static Paint tooltipForegroundPaint = GetPaint("ThemeForegroundBrush");
+    private static Font tooltipFont = Font.CreateDefault();
 
     public Handle(IOverlay owner)
     {
@@ -56,6 +69,40 @@ public abstract class Handle : IHandle
     {
         isRendered = true;
         OnDraw(target);
+
+        if (isHovered && ToolTip != null)
+        {
+            if (!isToolTipVisible &&
+                (DateTime.UtcNow - hoverStarted).TotalMilliseconds >= ToolTipDelayMs)
+            {
+                isToolTipVisible = true;
+            }
+
+            if (isToolTipVisible)
+            {
+                DrawToolTip(target);
+            }
+        }
+    }
+
+    protected virtual void DrawToolTip(Canvas target)
+    {
+        var handlePos = Position;
+        double scaleMultiplier = (1.0 / ZoomScale);
+        float yOffset = (float)Size.Y * (float)scaleMultiplier;
+        var toolTipPos = new VecD(handlePos.X, handlePos.Y - yOffset);
+
+        float radius = 4f * (float)scaleMultiplier;
+        tooltipFont.Size = 12 * (float)scaleMultiplier;
+        var textSize = new VecD(tooltipFont.MeasureText(ToolTip), 12 * scaleMultiplier);
+        var padding = new VecD(6, 3) * scaleMultiplier;
+        var backgroundRect = new RectD(toolTipPos.X - padding.X, toolTipPos.Y - textSize.Y - padding.Y / 2f,
+            textSize.X + padding.X * 2, textSize.Y + padding.Y * 2);
+
+        target.DrawRoundRect((float)backgroundRect.X, (float)backgroundRect.Y, (float)backgroundRect.Width, (float)backgroundRect.Height, radius, radius, tooltipBackgroundPaint);
+        target.DrawRoundRect((float)backgroundRect.X, (float)backgroundRect.Y, (float)backgroundRect.Width, (float)backgroundRect.Height, radius, radius, tooltipStrokePaint);
+
+        target.DrawText(ToolTip, toolTipPos, tooltipFont, tooltipForegroundPaint);
     }
 
     protected abstract void OnDraw(Canvas target);
@@ -90,7 +137,8 @@ public abstract class Handle : IHandle
 
             if (shape is VectorPathResource resource)
             {
-                return resource.ToVectorPathData() ?? new PathVectorData(VectorPath.FromSvgPath("M 0 0 L 1 0 M 0 0 L 0 1"));
+                return resource.ToVectorPathData() ??
+                       new PathVectorData(VectorPath.FromSvgPath("M 0 0 L 1 0 M 0 0 L 0 1"));
             }
         }
 
@@ -156,6 +204,13 @@ public abstract class Handle : IHandle
         if (!isHovered && isWithinHandle)
         {
             isHovered = true;
+            hoverStarted = DateTime.UtcNow;
+            DispatcherTimer.RunOnce(() =>
+            {
+                Owner.Refresh();
+            }, TimeSpan.FromMilliseconds(ToolTipDelayMs));
+            isToolTipVisible = false;
+
             if (Cursor != null)
             {
                 Owner.Cursor = Cursor;
@@ -166,7 +221,9 @@ public abstract class Handle : IHandle
         else if (isHovered && !isWithinHandle)
         {
             isHovered = false;
+            isToolTipVisible = false;
             Owner.Cursor = null;
+
             OnExit?.Invoke(this, args);
         }
 
@@ -210,5 +267,19 @@ public abstract class Handle : IHandle
     public void ResetIsRendered()
     {
         isRendered = false;
+    }
+
+    public void InvokeEnter(OverlayPointerArgs args)
+    {
+    }
+
+    public void InvokeExit(OverlayPointerArgs args)
+    {
+        isHovered = false;
+        if (isToolTipVisible)
+        {
+            isToolTipVisible = false;
+            Owner.Refresh();
+        }
     }
 }

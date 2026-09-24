@@ -9,6 +9,8 @@ using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Actions;
+using PixiEditor.Models.Commands;
+using PixiEditor.Models.Commands.XAML;
 using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.ViewModels;
@@ -37,6 +39,59 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
     private bool duplicateOnStop = false;
 
     private List<Guid> disabledSnappingMembers = new();
+
+    private List<ContextualOption> AlignmentOptions { get; } = new()
+    {
+        new ContextualOption()
+        {
+            Name = "ALIGNMENT_LEFT_TOOLTIP",
+            Icon = PixiPerfectIcons.AlignHorizontalJustifyStart,
+            ExecuteCommand = Command.GetICommand(CommandController.Current.Commands["PixiEditor.Layer.AlignLeftSelectedLayers"], null, false),
+        },
+        new ContextualOption()
+        {
+            Name = "ALIGNMENT_CENTER_HORIZONTAL_TOOLTIP",
+
+            Icon = PixiPerfectIcons.AlignHorizontalJustifyCenter,
+            ExecuteCommand = Command.GetICommand(CommandController.Current.Commands["PixiEditor.Layer.CenterSelectedHorizontally"], null, false),
+        },
+        new ContextualOption()
+        {
+            Name = "ALIGNMENT_RIGHT_TOOLTIP",
+            Icon = PixiPerfectIcons.AlignHorizontalJustifyEnd,
+            ExecuteCommand = Command.GetICommand(CommandController.Current.Commands["PixiEditor.Layer.AlignRightSelectedLayers"], null, false),
+        },
+        new ContextualOption()
+        {
+            Name = "ALIGNMENT_TOP_TOOLTIP",
+            Icon = PixiPerfectIcons.AlignVerticalJustifyStart,
+            ExecuteCommand = Command.GetICommand(CommandController.Current.Commands["PixiEditor.Layer.AlignTopSelectedLayers"], null, false),
+        },
+        new ContextualOption()
+        {
+            Name = "ALIGNMENT_CENTER_VERTICAL_TOOLTIP",
+            Icon = PixiPerfectIcons.AlignVerticalJustifyCenter,
+            ExecuteCommand = Command.GetICommand(CommandController.Current.Commands["PixiEditor.Layer.CenterSelectedVertically"], null, false),
+        },
+        new ContextualOption()
+        {
+            Name = "ALIGNMENT_BOTTOM_TOOLTIP",
+            Icon = PixiPerfectIcons.AlignVerticalJustifyEnd,
+            ExecuteCommand = Command.GetICommand(CommandController.Current.Commands["PixiEditor.Layer.AlignBottomSelectedLayers"], null, false),
+        },
+        new ContextualOption()
+        {
+            Name = "ALIGNMENT_SPREAD_HORIZONTAL_TOOLTIP",
+            Icon = PixiPerfectIcons.AlignHorizontalSpaceBetween,
+            ExecuteCommand = Command.GetICommand(CommandController.Current.Commands["PixiEditor.Layer.AlignSpreadHorizontalSelectedLayer"], null, false),
+        },
+        new ContextualOption()
+        {
+            Name = "ALIGNMENT_SPREAD_VERTICAL_TOOLTIP",
+            Icon = PixiPerfectIcons.AlignVerticalSpaceBetween,
+            ExecuteCommand = Command.GetICommand(CommandController.Current.Commands["PixiEditor.Layer.AlignSpreadVerticalSelectedLayer"], null, false),
+        },
+    };
 
     public TransformSelectedExecutor(bool toolLinked)
     {
@@ -148,13 +203,28 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         document.TransformHandler.ShowTransform(mode, true, masterCorners,
             Type == ExecutorType.Regular || tool.KeepOriginalImage);
 
+
         document.TransformHandler.CanAlignToPixels = anyRaster;
         document.TransformHandler.LockTransform = members.Any(x => x.IsLockedStructurally);
+        UpdateContextualOptions(masterCorners);
+        document.TransformHandler.TransformLockedChanged += OnTransformHandlerOnTransformLockedChanged;
 
         movedOnce = false;
         isInProgress = true;
 
         return ExecutionState.Success;
+    }
+
+    private void OnTransformHandlerOnTransformLockedChanged(bool isLocked)
+    {
+        if (isLocked)
+        {
+            document.ContextualOptionsHandler.Hide();
+        }
+        else
+        {
+            UpdateContextualOptions(lastCorners);
+        }
     }
 
     public override void OnLeftMouseButtonDown(MouseOnCanvasEventArgs args)
@@ -303,6 +373,8 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
             internals.ActionAccumulator.AddActions(new EndTransformSelected_Action());
             internals!.ActionAccumulator.AddActions(new EndPreviewShiftLayers_Action());
             document!.TransformHandler.HideTransform();
+            document.TransformHandler.TransformLockedChanged -= OnTransformHandlerOnTransformLockedChanged;
+            document!.ContextualOptionsHandler.Hide();
             AddSnappingForMembers(selectedMembers);
 
             selectedMembers.Clear();
@@ -321,7 +393,21 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
     public void OnTransformChanged(ShapeCorners corners)
     {
         DoTransform(corners);
+        UpdateContextualOptions(corners);
         lastCorners = corners;
+    }
+
+    private void UpdateContextualOptions(ShapeCorners corners)
+    {
+        if (selectedMembers.Count > 1 && (document.SelectionPathBindable == null || document.SelectionPathBindable.IsEmpty) && !document.TransformHandler.LockTransform)
+        {
+            document.ContextualOptionsHandler.SetOptions(AlignmentOptions);
+            document.ContextualOptionsHandler.Show(corners.TopCenter);
+        }
+        else
+        {
+            document.ContextualOptionsHandler.Hide();
+        }
     }
 
     public void OnTransformDragged(VecD from, VecD to)
@@ -501,6 +587,8 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         internals!.ActionAccumulator.AddActions(new EndTransformSelected_Action());
         internals!.ActionAccumulator.AddFinishedActions();
         document!.TransformHandler.HideTransform();
+        document.TransformHandler.TransformLockedChanged -= OnTransformHandlerOnTransformLockedChanged;
+        document!.ContextualOptionsHandler.Hide();
         RestoreSnapping();
         onEnded!.Invoke(this);
 
@@ -530,6 +618,8 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         internals!.ActionAccumulator.AddActions(new EndTransformSelected_Action());
         internals!.ActionAccumulator.AddFinishedActions();
         document!.TransformHandler.HideTransform();
+        document.TransformHandler.TransformLockedChanged -= OnTransformHandlerOnTransformLockedChanged;
+        document!.ContextualOptionsHandler.Hide();
         RestoreSnapping();
 
         isInProgress = false;

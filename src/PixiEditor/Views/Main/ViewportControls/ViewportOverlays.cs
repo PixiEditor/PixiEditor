@@ -19,6 +19,7 @@ using PixiEditor.Views.Overlays.SelectionOverlay;
 using PixiEditor.Views.Overlays.SymmetryOverlay;
 using PixiEditor.Views.Overlays.TextOverlay;
 using PixiEditor.Views.Overlays.ColorPickerOverlay;
+using PixiEditor.Views.Overlays.ContextualOptions;
 using PixiEditor.Views.Overlays.TransformOverlay;
 
 namespace PixiEditor.Views.Main.ViewportControls;
@@ -38,6 +39,7 @@ internal class ViewportOverlays
     private VectorPathOverlay vectorPathOverlay;
     private TextOverlay textOverlay;
     private ColorPickerPreviewOverlay colorPickerPreviewOverlay;
+    private ContextualOptionsOverlay contextualOptionsOverlay;
 
     public void Init(Viewport viewport)
     {
@@ -73,6 +75,8 @@ internal class ViewportOverlays
         textOverlay = new TextOverlay();
         BindTextOverlay();
 
+        contextualOptionsOverlay = new ContextualOptionsOverlay();
+
         Binding suppressOverlayEventsBinding = new()
         {
             Source = Viewport,
@@ -96,8 +100,12 @@ internal class ViewportOverlays
             overlay.Bind(Overlay.SuppressEventsProperty, suppressOverlayEventsBinding);
         }
 
-        // Added after the suppress-binding loop intentionally — this overlay must always
+        // Added after the suppress-binding loop intentionally — these overlays must always
         // receive pointer events even when the color picker suppresses other overlays.
+
+        Viewport.ActiveOverlays.Add(contextualOptionsOverlay);
+        BindContextualOptionsOverlay();
+
         colorPickerPreviewOverlay = new ColorPickerPreviewOverlay();
         BindColorPickerPreviewOverlay();
         Viewport.ActiveOverlays.Add(colorPickerPreviewOverlay);
@@ -780,5 +788,33 @@ internal class ViewportOverlays
             return doc.PickColor(pos, tool.Mode, includeRef, tool.PickFromCanvas,
                 doc.AnimationDataViewModel.ActiveFrameBindable, referenceTopmost);
         };
+    }
+
+    private void BindContextualOptionsOverlay()
+    {
+        Binding isVisibleBinding = new()
+        {
+            Source = Viewport,
+            Path = "Document.ContextualOptionsViewModel.IsVisible",
+            Mode = BindingMode.OneWay
+        };
+
+        Binding optionsBinding = new()
+        {
+            Source = Viewport,
+            Path = "Document.ContextualOptionsViewModel.Options",
+            Mode = BindingMode.OneWay
+        };
+
+        Binding positionBinding = new()
+        {
+            Source = Viewport,
+            Path = "Document.ContextualOptionsViewModel.Position",
+            Mode = BindingMode.OneWay
+        };
+
+        contextualOptionsOverlay.Bind(Visual.IsVisibleProperty, isVisibleBinding);
+        contextualOptionsOverlay.Bind(ContextualOptionsOverlay.OptionsProperty, optionsBinding);
+        contextualOptionsOverlay.Bind(ContextualOptionsOverlay.PositionProperty, positionBinding);
     }
 }

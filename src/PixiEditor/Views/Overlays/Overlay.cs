@@ -219,6 +219,13 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
         handle.ZoomScale = ZoomScale;
     }
 
+    public void RemoveHandle(Handle handle)
+    {
+        if (!Handles.Contains(handle)) return;
+
+        Handles.Remove(handle);
+    }
+
     public void ForAllHandles(Action<Handle> action)
     {
         foreach (var handle in Handles)
@@ -269,6 +276,14 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
         else if (pointerEvent == HandleEventType.PointerReleasedOverlay)
         {
             handle.InvokeRelease(args);
+        }
+        else if (pointerEvent == HandleEventType.PointerEnteredOverlay)
+        {
+            handle.InvokeEnter(args);
+        }
+        else if (pointerEvent == HandleEventType.PointerExitedOverlay)
+        {
+            handle.InvokeExit(args);
         }
     }
 
