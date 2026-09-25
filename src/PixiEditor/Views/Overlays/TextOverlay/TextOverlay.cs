@@ -125,6 +125,8 @@ internal class TextOverlay : Overlay
 
     private int lastXMovementCursorIndex;
 
+    private TextInline? inlineAtCursor;
+
     static TextOverlay()
     {
         IsVisibleProperty.Changed.Subscribe(IsVisibleChanged);
@@ -132,6 +134,7 @@ internal class TextOverlay : Overlay
         IsEditingProperty.Changed.Subscribe(IsEditingChanged);
         TextProperty.Changed.Subscribe(TextChanged);
         SpacingProperty.Changed.Subscribe(SpaceChanged);
+        CursorPositionProperty.Changed.Subscribe(CursorPositionChanged);
 
         AffectsOverlayRender(TextProperty, CursorPositionProperty, SelectionEndProperty,
             IsEditingProperty,
@@ -247,7 +250,7 @@ internal class TextOverlay : Overlay
     private void RenderCaret(Canvas context)
     {
         caret.CaretPosition = CursorPosition;
-        //caret.FontSize = Font.Size;
+        caret.FontSize = inlineAtCursor?.Font.Size ?? 0;
         caret.GlyphPositions = glyphPositions;
         caret.GlyphWidths = glyphWidths;
         caret.Offset = Position;
@@ -465,8 +468,8 @@ internal class TextOverlay : Overlay
     {
         VecD mapped = Matrix.Invert().MapPoint(point);
 
-        var positions = richText.GetGlyphPositions();
-        double fontSize = 12; // TODO: Adjust this function to use RichText inlines
+        var positions = richText.GetGlyphPositions(true);
+        double fontSize = inlineAtCursor?.Font.Size ?? 0;
         int indexOfClosest = positions.Select((pos, index) => (pos, index))
             .OrderBy(pos => ((pos.pos + Position - new VecD(0, fontSize / 2f)) - mapped).LengthSquared)
             .First().index;
@@ -688,7 +691,7 @@ internal class TextOverlay : Overlay
         int moveBy = direction.X;
         if (direction.X != 0)
         {
-            lastXMovementCursorIndex = Math.Clamp(CursorPosition + direction.X, 0, GetTextElementCount());
+            lastXMovementCursorIndex = Math.Clamp(CursorPosition + direction.X, 0, Math.Max(0, GetTextElementCount()));
 
             if (mode == MoveMode.Words)
             {
@@ -743,12 +746,11 @@ internal class TextOverlay : Overlay
         {
             richText.IndexOnLine(CursorPosition, out int lineIndex);
 
-            int clampedDesiredLineIndex = Math.Clamp(lineIndex + direction.Y, 0, richText.Lines.Length - 1);
-
+            int clampedDesiredLineIndex =  Math.Clamp(lineIndex + direction.Y, 0, richText.Lines.Length - 1);
 
             VecF position = glyphPositions[Math.Min(lastXMovementCursorIndex, glyphPositions.Length - 1)];
             (int lineStart, int lineEnd) = richText.GetLineStartEnd(clampedDesiredLineIndex);
-            VecF[] lineGlyphPositions = glyphPositions[lineStart..lineEnd];
+            VecF[] lineGlyphPositions = glyphPositions[lineStart..(lineEnd + 1)];
             int closestIndex = lineGlyphPositions.Select((pos, i) => (i, pos))
                 .OrderBy(pos => Math.Abs(pos.pos.X - position.X)).First().i;
             moveBy = richText.GetIndexOnLine(clampedDesiredLineIndex, closestIndex) - CursorPosition;
@@ -780,7 +782,7 @@ internal class TextOverlay : Overlay
         }
 
         richText.Spacing = Spacing;
-        glyphPositions = richText.GetGlyphPositions();
+        glyphPositions = richText.GetGlyphPositions(true);
         glyphWidths = richText.GetGlyphWidths();
     }
 
@@ -883,6 +885,12 @@ internal class TextOverlay : Overlay
         sender.UpdateGlyphs();
     }
 
+    private static void CursorPositionChanged(AvaloniaPropertyChangedEventArgs<int> args)
+    {
+        TextOverlay sender = args.Sender as TextOverlay;
+        sender.inlineAtCursor = sender.Text.GetInlineAt(sender.CursorPosition, out _, out _);
+    }
+
     private static int ClampValue(AvaloniaObject sender, int newPos)
     {
         TextOverlay textOverlay = sender as TextOverlay;
@@ -891,7 +899,7 @@ internal class TextOverlay : Overlay
 
         if (textOverlay.glyphPositions == null) return 0;
 
-        return Math.Clamp(newPos, 0, Math.Max(0, textOverlay.GetTextElementCount()));
+        return Math.Clamp(newPos, 0, Math.Max(0, textOverlay.GetTextElementCount() + 1));
     }
 }
 
