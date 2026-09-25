@@ -21,6 +21,8 @@ internal class TextOverlayViewModel : ObservableObject, ITextOverlayHandler
     private int cachedFontHash;
     private Font? lastCachedFont;
 
+    private int? currentlyEditingInlineIndex;
+
     public event Action<RichText>? TextChanged;
 
     public bool IsActive
@@ -97,6 +99,13 @@ internal class TextOverlayViewModel : ObservableObject, ITextOverlayHandler
         CursorPosition = indexOfClosest;
         SelectionEnd = indexOfClosest;*/
     }
+
+    public int? CurrentlyEditingInlineIndex
+    {
+        get => currentlyEditingInlineIndex;
+        set => SetProperty(ref currentlyEditingInlineIndex, value);
+    }
+
 
     public TextOverlayViewModel()
     {

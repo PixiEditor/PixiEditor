@@ -103,6 +103,15 @@ internal class TextOverlay : Overlay
         set => SetValue(PreviewSizeProperty, value);
     }
 
+    public static readonly StyledProperty<int?> CurrentlyEditingInlineIndexProperty = AvaloniaProperty.Register<TextOverlay, int?>(
+        nameof(CurrentlyEditingInlineIndex));
+
+    public int? CurrentlyEditingInlineIndex
+    {
+        get => GetValue(CurrentlyEditingInlineIndexProperty);
+        set => SetValue(CurrentlyEditingInlineIndexProperty, value);
+    }
+
     private Dictionary<KeyCombination, Action> shortcuts;
 
     private Caret caret = new Caret();
@@ -425,18 +434,23 @@ internal class TextOverlay : Overlay
 
     private void SelectWordAtPosition(VecD point)
     {
+        // TODO: Test once multiple inlines editing is implemented
         /*var indexOfClosest = GetClosestCharacterIndex(point);
         int start = indexOfClosest;
         int end = indexOfClosest;
 
-        while (start > 0 && !char.IsWhiteSpace(Text[start - 1]))
+        var currentInline = Text.GetInlineAt(indexOfClosest, out int inlineStartOffset, out int inlineEndOffset);
+        while (start > 0 && !char.IsWhiteSpace(currentInline.Text[start - 1 - inlineStartOffset]))
         {
             start--;
+            currentInline = Text.GetInlineAt(start, out inlineStartOffset, out inlineEndOffset);
         }
 
-        while (end < Text.Length - 1 && !char.IsWhiteSpace(Text[end + 1]))
+        currentInline = Text.GetInlineAt(indexOfClosest, out inlineStartOffset, out inlineEndOffset);
+        while (end < currentInline.Text.Length - 1 && !char.IsWhiteSpace(currentInline.Text[end + 1 - inlineStartOffset]))
         {
             end++;
+            currentInline = Text.GetInlineAt(end, out inlineStartOffset, out inlineEndOffset);
         }
 
         CursorPosition = start;
@@ -766,7 +780,7 @@ internal class TextOverlay : Overlay
     private void RequestEditTextTriggered(object? sender, RichText e)
     {
         IsEditing = true;
-        CursorPosition = glyphPositions.Length;
+        CursorPosition = glyphPositions.Length - 1;
         SelectionEnd = CursorPosition;
     }
 
@@ -871,12 +885,10 @@ internal class TextOverlay : Overlay
     {
         TextOverlay sender = args.Sender as TextOverlay;
         sender.UpdateGlyphs();
-    }
+        sender.CursorPosition = Math.Clamp(sender.CursorPosition, 0, Math.Max(0, sender.GetTextElementCount()));
 
-    private static void FontChanged(AvaloniaPropertyChangedEventArgs<FontData> args)
-    {
-        TextOverlay sender = args.Sender as TextOverlay;
-        sender.UpdateGlyphs();
+        sender.inlineAtCursor = sender.Text.GetInlineAt(sender.CursorPosition, out _, out _);
+        sender.CurrentlyEditingInlineIndex = sender.Text.IndexOfInline(sender.inlineAtCursor);
     }
 
     private static void SpaceChanged(AvaloniaPropertyChangedEventArgs<double?> args)
@@ -889,6 +901,7 @@ internal class TextOverlay : Overlay
     {
         TextOverlay sender = args.Sender as TextOverlay;
         sender.inlineAtCursor = sender.Text.GetInlineAt(sender.CursorPosition, out _, out _);
+        sender.CurrentlyEditingInlineIndex = sender.Text.IndexOfInline(sender.inlineAtCursor);
     }
 
     private static int ClampValue(AvaloniaObject sender, int newPos)

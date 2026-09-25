@@ -657,13 +657,6 @@ internal class ViewportOverlays
             Mode = BindingMode.OneWay
         };
 
-        Binding fontBinding = new()
-        {
-            Source = Viewport,
-            Path = "Document.TextOverlayViewModel.Font",
-            Mode = BindingMode.OneWay
-        };
-
         Binding requestEditTextBinding = new()
         {
             Source = Viewport,
@@ -706,6 +699,13 @@ internal class ViewportOverlays
             Mode = BindingMode.OneWay
         };
 
+        Binding currentlyEditingInlineIndexBinding = new()
+        {
+            Source = Viewport,
+            Path = "Document.TextOverlayViewModel.CurrentlyEditingInlineIndex",
+            Mode = BindingMode.TwoWay
+        };
+
         textOverlay.Bind(Visual.IsVisibleProperty, isVisibleBinding);
         textOverlay.Bind(TextOverlay.TextProperty, textBinding);
         textOverlay.Bind(TextOverlay.PositionProperty, positionBinding);
@@ -715,6 +715,7 @@ internal class ViewportOverlays
         textOverlay.Bind(TextOverlay.CursorPositionProperty, cursorPositionBinding);
         textOverlay.Bind(TextOverlay.SelectionEndProperty, selectionEndBinding);
         textOverlay.Bind(TextOverlay.PreviewSizeProperty, previewSizeBinding);
+        textOverlay.Bind(TextOverlay.CurrentlyEditingInlineIndexProperty, currentlyEditingInlineIndexBinding);
     }
 
     private void BindColorPickerPreviewOverlay()
