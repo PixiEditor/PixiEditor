@@ -126,18 +126,72 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
     private void UpdateInlineSettings(RichText text)
     {
-        var activeInline = GetActiveInline(text);
-        toolbar.FontFamily = activeInline.Font.Family;
-        toolbar.FontSize = activeInline.Font.Size;
-        toolbar.Spacing = activeInline.LineHeight;
-        toolbar.FontFamily = activeInline.Font.Family;
-        toolbar.FontSize = activeInline.Font.Size;
-        toolbar.Bold = activeInline.Font.Bold;
-        toolbar.Italic = activeInline.Font.Italic;
-        toolbar.Fill = activeInline.Fill;
-        toolbar.FillBrush = activeInline.FillPaintable.ToBrush();
-        toolbar.StrokeBrush = activeInline.StrokePaintable.ToBrush();
-        toolbar.ToolSize = activeInline.StrokeWidth;
+        IReadOnlyList<TextInline> inlines = GetEditingInlines(text);
+
+        if (inlines.Count == 0)
+            return;
+
+        TextInline first = inlines[0];
+
+        if (inlines.All(x => x.Font.Family.Equals(first.Font.Family)))
+            toolbar.FontFamily = first.Font.Family;
+
+        if (inlines.All(x => Math.Abs(x.Font.Size - first.Font.Size) < float.Epsilon))
+            toolbar.FontSize = first.Font.Size;
+
+        if (inlines.All(x => x.LineHeight == first.LineHeight))
+            toolbar.Spacing = first.LineHeight;
+
+        if (inlines.All(x => x.Font.Bold == first.Font.Bold))
+            toolbar.Bold = first.Font.Bold;
+
+        if (inlines.All(x => x.Font.Italic == first.Font.Italic))
+            toolbar.Italic = first.Font.Italic;
+
+        if (inlines.All(x => x.Fill == first.Fill))
+            toolbar.Fill = first.Fill;
+
+        if (inlines.All(x => Equals(x.FillPaintable, first.FillPaintable)))
+            toolbar.FillBrush = first.FillPaintable.ToBrush();
+
+        if (inlines.All(x => Equals(x.StrokePaintable, first.StrokePaintable)))
+            toolbar.StrokeBrush = first.StrokePaintable.ToBrush();
+
+        if (inlines.All(x => Math.Abs(x.StrokeWidth - first.StrokeWidth) < float.Epsilon))
+            toolbar.ToolSize = first.StrokeWidth;
+    }
+
+    private IReadOnlyList<TextInline> GetEditingInlines(RichText text)
+    {
+        int cursor = document.TextOverlayHandler.CursorPosition;
+        int selectionEnd = document.TextOverlayHandler.SelectionEnd;
+
+        if (cursor == selectionEnd)
+        {
+            return text.Inlines.ToArray();
+        }
+
+        int selectionStart = Math.Min(cursor, selectionEnd);
+        int selectionFinish = Math.Max(cursor, selectionEnd);
+
+        List<TextInline> result = new();
+
+        int position = 0;
+
+        foreach (TextInline inline in text.Inlines)
+        {
+            int inlineStart = position;
+            int inlineEnd = position + inline.Text.Length;
+
+            if (inlineStart < selectionFinish && inlineEnd > selectionStart)
+            {
+                result.Add(inline);
+            }
+
+            position = inlineEnd;
+        }
+
+        return result;
     }
 
     private TextInline GetActiveInline(RichText text)
@@ -247,73 +301,25 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
     public override void OnSettingsChanged(string name, object value)
     {
-        if (!document.TextOverlayHandler.IsActive) return;
+        if (!document.TextOverlayHandler.IsActive)
+            return;
 
         if (isListeningForValidLayer)
-        {
             return;
-        }
-
-        int? currentlyEditingInlineIndex = document.TextOverlayHandler.CurrentlyEditingInlineIndex;
-
-        if (currentlyEditingInlineIndex == null || currentlyEditingInlineIndex < 0 ||
-            currentlyEditingInlineIndex >= lastText.Inlines.Count)
-        {
-            return;
-        }
 
         var text = lastText.Clone();
-        var currentInline = lastText.Inlines[currentlyEditingInlineIndex.Value];
-        int editingIndex = currentlyEditingInlineIndex.Value;
 
-        if (document.TextOverlayHandler.CursorPosition != document.TextOverlayHandler.SelectionEnd)
-        {
-            currentInline = text.SplitInline(currentlyEditingInlineIndex.Value,
-                document.TextOverlayHandler.CursorPosition,
-                document.TextOverlayHandler.SelectionEnd);
-            editingIndex = text.IndexOfInline(currentInline);
-        }
+        int cursor = document.TextOverlayHandler.CursorPosition;
+        int selectionEnd = document.TextOverlayHandler.SelectionEnd;
 
-        if (name == nameof(ITextToolbar.FontFamily))
+        if (cursor == selectionEnd)
         {
-            currentInline.Font = currentInline.Font with { Family = (FontFamilyName)value };
+            ApplySettingToAllInlines(text, name, value);
         }
-        else if (name == nameof(ITextToolbar.FontSize))
+        else
         {
-            currentInline.Font = currentInline.Font with { Size = (double)value };
+            ApplySettingToSelection(text, name, value, cursor, selectionEnd);
         }
-        else if (name == nameof(ITextToolbar.Fill))
-        {
-            currentInline.Fill = (bool)value;
-        }
-        else if (name == nameof(ITextToolbar.FillBrush))
-        {
-            currentInline.FillPaintable = ((IBrush)value).ToPaintable();
-        }
-        else if (name == nameof(ITextToolbar.ToolSize))
-        {
-            currentInline.StrokeWidth = (float)(double)value;
-        }
-        else if (name == nameof(ITextToolbar.StrokeBrush))
-        {
-            currentInline.StrokePaintable = ((IBrush)value).ToPaintable();
-        }
-        else if (name == nameof(ITextToolbar.Spacing))
-        {
-            text.Spacing = (double)value;
-        }
-        else if (name == nameof(ITextToolbar.Bold))
-        {
-            currentInline.Font = currentInline.Font with { Bold = (bool)value };
-        }
-        else if (name == nameof(ITextToolbar.Italic))
-        {
-            currentInline.Font = currentInline.Font with { Italic = (bool)value };
-        }
-
-        text.UpdateInline(editingIndex, currentInline);
-
-        currentInline = text.MergeAdjacentInlines(currentInline);
 
         VectorShapeChangeType changeType = name switch
         {
@@ -328,24 +334,151 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         };
 
         var constructedText = ConstructTextData(text);
-        /*var layer = document.StructureHelper.Find(selectedMember.Id);
-        FontEdging previousEdging = constructedText.Font.Edging;
-        bool previousAntiAlias = constructedText.AntiAlias;
-        bool previousSubpixel = constructedText.Font.SubPixel;
-
-        constructedText.AntiAlias = previousAntiAlias;
-        constructedText.Font = constructedText.Font with { Edging = previousEdging, SubPixel = previousSubpixel };*/
 
         internals.ActionAccumulator.AddActions(
-            new SetShapeGeometry_Action(selectedMember.Id, constructedText, changeType),
-            new SetLowDpiRendering_Action(selectedMember.Id, toolbar.ForceLowDpiRendering));
+            new SetShapeGeometry_Action(
+                selectedMember.Id,
+                constructedText,
+                changeType),
+            new SetLowDpiRendering_Action(
+                selectedMember.Id,
+                toolbar.ForceLowDpiRendering));
 
-        /*
-        document.TextOverlayHandler.Font = default; // Forces refreshing glyphs
-        document.TextOverlayHandler.Font = constructedText.Font;
-        document.TextOverlayHandler.Spacing = toolbar.Spacing;*/
         document.TextOverlayHandler.Text = text;
         lastText = text;
+    }
+
+    private void ApplySettingToAllInlines(RichText text, string name, object value)
+    {
+        for (int i = 0; i < text.Inlines.Count; i++)
+        {
+            TextInline inline = text.Inlines[i];
+
+            ApplySetting(inline, name, value);
+
+            text.UpdateInline(i, inline);
+        }
+
+        MergeAllAdjacentInlines(text);
+    }
+
+    private void ApplySettingToSelection(
+        RichText text,
+        string name,
+        object value,
+        int cursor,
+        int selectionEnd)
+    {
+        int selectionStart = Math.Min(cursor, selectionEnd);
+        int selectionFinish = Math.Max(cursor, selectionEnd);
+
+        int position = 0;
+
+        for (int i = 0; i < text.Inlines.Count; i++)
+        {
+            TextInline inline = text.Inlines[i];
+
+            int inlineStart = position;
+            int inlineEnd = position + inline.Text.Length;
+
+            if (inlineStart < selectionFinish && inlineEnd > selectionStart)
+            {
+                int localStart = Math.Max(selectionStart, inlineStart) - inlineStart;
+                int localEnd = Math.Min(selectionFinish, inlineEnd) - inlineStart;
+
+                if (localStart == 0 && localEnd == inline.Text.Length)
+                {
+                    ApplySetting(inline, name, value);
+                    text.UpdateInline(i, inline);
+                }
+                else
+                {
+                    TextInline selectedInline = text.SplitInline(
+                        i,
+                        inlineStart + localStart,
+                        inlineStart + localEnd);
+
+                    ApplySetting(selectedInline, name, value);
+
+                    int selectedIndex = text.IndexOfInline(selectedInline);
+                    text.UpdateInline(selectedIndex, selectedInline);
+                }
+            }
+
+            position = inlineEnd;
+        }
+
+        MergeAllAdjacentInlines(text);
+    }
+
+    private static void ApplySetting(TextInline inline, string name, object value)
+    {
+        if (name == nameof(ITextToolbar.FontFamily))
+        {
+            inline.Font = inline.Font with
+            {
+                Family = (FontFamilyName)value
+            };
+        }
+        else if (name == nameof(ITextToolbar.FontSize))
+        {
+            inline.Font = inline.Font with
+            {
+                Size = (double)value
+            };
+        }
+        else if (name == nameof(ITextToolbar.Fill))
+        {
+            inline.Fill = (bool)value;
+        }
+        else if (name == nameof(ITextToolbar.FillBrush))
+        {
+            inline.FillPaintable = ((IBrush)value).ToPaintable();
+        }
+        else if (name == nameof(ITextToolbar.ToolSize))
+        {
+            inline.StrokeWidth = (float)(double)value;
+        }
+        else if (name == nameof(ITextToolbar.StrokeBrush))
+        {
+            inline.StrokePaintable = ((IBrush)value).ToPaintable();
+        }
+        else if (name == nameof(ITextToolbar.Spacing))
+        {
+            inline.LineHeight = (float)(double)value;
+        }
+        else if (name == nameof(ITextToolbar.Bold))
+        {
+            inline.Font = inline.Font with
+            {
+                Bold = (bool)value
+            };
+        }
+        else if (name == nameof(ITextToolbar.Italic))
+        {
+            inline.Font = inline.Font with
+            {
+                Italic = (bool)value
+            };
+        }
+    }
+
+    private static void MergeAllAdjacentInlines(RichText text)
+    {
+        for (int i = 0; i < text.Inlines.Count - 1;)
+        {
+            TextInline first = text.Inlines[i];
+            TextInline second = text.Inlines[i + 1];
+
+            if (first.HasEqualSettings(second))
+            {
+                text.MergeAdjacentInlines(first);
+            }
+            else
+            {
+                i++;
+            }
+        }
     }
 
     public override void OnColorChanged(Color color, bool primary)
