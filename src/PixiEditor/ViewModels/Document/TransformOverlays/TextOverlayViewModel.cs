@@ -65,7 +65,13 @@ internal class TextOverlayViewModel : ObservableObject, ITextOverlayHandler
     public int CursorPosition
     {
         get => cursorPosition;
-        set => SetProperty(ref cursorPosition, value);
+        set
+        {
+            if (SetProperty(ref cursorPosition, value))
+            {
+                SelectionChanged?.Invoke(cursorPosition, selectionEnd);
+            }
+        }
     }
 
     public bool PreviewSize
@@ -77,7 +83,13 @@ internal class TextOverlayViewModel : ObservableObject, ITextOverlayHandler
     public int SelectionEnd
     {
         get => selectionEnd;
-        set => SetProperty(ref selectionEnd, value);
+        set
+        {
+            if (SetProperty(ref selectionEnd, value))
+            {
+                SelectionChanged?.Invoke(cursorPosition, selectionEnd);
+            }
+        }
     }
 
     public void SetCursorPosition(VecD closestToPosition)
@@ -105,6 +117,8 @@ internal class TextOverlayViewModel : ObservableObject, ITextOverlayHandler
         get => currentlyEditingInlineIndex;
         set => SetProperty(ref currentlyEditingInlineIndex, value);
     }
+
+    public event Action<int, int>? SelectionChanged;
 
 
     public TextOverlayViewModel()

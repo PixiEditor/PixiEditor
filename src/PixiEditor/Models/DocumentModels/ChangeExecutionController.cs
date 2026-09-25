@@ -381,6 +381,15 @@ internal class ChangeExecutionController
         }
     }
 
+    public void TextOverlaySelectionChangedInlet(int cursorPosition, int selectionEnd)
+    {
+        if (currentSession is ITextOverlayEvents textOverlayHandler)
+        {
+            textOverlayHandler.OnSelectionChanged(cursorPosition, selectionEnd);
+        }
+    }
+
+
     public void QuickToolSwitchInlet()
     {
         if (currentSession is IQuickToolSwitchable quickToolSwitchable)

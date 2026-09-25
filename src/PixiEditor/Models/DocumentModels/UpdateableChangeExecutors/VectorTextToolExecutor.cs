@@ -76,20 +76,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         {
             document.TextOverlayHandler.Show(textData.Text, textData.Position, textData.TransformationMatrix);
 
-            toolbar.Fill = textData.Fill;
-            toolbar.FillBrush = textData.FillPaintable.ToBrush();
-            toolbar.StrokeBrush = textData.Stroke.ToBrush();
-            toolbar.ToolSize = textData.StrokeWidth;
-            try
-            {
-                var firstInline = textData.Text.Inlines.FirstOrDefault();
-                toolbar.FontFamily = firstInline.Font.Family;
-                toolbar.FontSize = firstInline.Font.Size;
-                toolbar.Spacing = firstInline.LineHeight;
-            }
-            catch (InvalidOperationException) // Native font likely disposed
-            {
-            }
+            UpdateToolbar(textData);
 
             onPath = textData.Path;
             lastText = textData.Text.Clone();
@@ -100,8 +87,14 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         {
             RichText newEmpty = new RichText(string.Empty, toolbar.ConstructFont())
             {
-                StrokeWidth = 0, Spacing = 12, Fill = true, FillPaintable = Colors.Black, StrokePaintable = Colors.Black
+                Spacing = 12,
             };
+
+            newEmpty.Inlines[0].Fill = toolbar.Fill;
+            newEmpty.Inlines[0].FillPaintable = toolbar.FillBrush.ToPaintable();
+            newEmpty.Inlines[0].StrokeWidth = (float)toolbar.ToolSize;
+            newEmpty.Inlines[0].StrokePaintable = toolbar.StrokeBrush.ToPaintable();
+
             document.TextOverlayHandler.Show(newEmpty, controller.LastPrecisePosition,
                 Matrix3X3.Identity);
             position = controller.LastPrecisePosition;
@@ -120,6 +113,38 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         }
 
         return ExecutionState.Success;
+    }
+
+    private void UpdateToolbar(TextVectorData textData)
+    {
+        toolbar.Fill = textData.Fill;
+        toolbar.FillBrush = textData.FillPaintable.ToBrush();
+        toolbar.StrokeBrush = textData.Stroke.ToBrush();
+        toolbar.ToolSize = textData.StrokeWidth;
+        UpdateInlineSettings(textData.Text);
+    }
+
+    private void UpdateInlineSettings(RichText text)
+    {
+        var activeInline = GetActiveInline(text);
+        toolbar.FontFamily = activeInline.Font.Family;
+        toolbar.FontSize = activeInline.Font.Size;
+        toolbar.Spacing = activeInline.LineHeight;
+        toolbar.FontFamily = activeInline.Font.Family;
+        toolbar.FontSize = activeInline.Font.Size;
+        toolbar.Bold = activeInline.Font.Bold;
+        toolbar.Italic = activeInline.Font.Italic;
+        toolbar.Fill = activeInline.Fill;
+        toolbar.FillBrush = activeInline.FillPaintable.ToBrush();
+        toolbar.StrokeBrush = activeInline.StrokePaintable.ToBrush();
+        toolbar.ToolSize = activeInline.StrokeWidth;
+    }
+
+    private TextInline GetActiveInline(RichText text)
+    {
+        int cursorPos = document.TextOverlayHandler.CursorPosition;
+
+        return text.GetInlineAt(cursorPos, out _, out _);
     }
 
     public override void OnLeftMouseButtonDown(MouseOnCanvasEventArgs args)
@@ -215,6 +240,11 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         lastText = text;
     }
 
+    public void OnSelectionChanged(int cursorPosition, int selectionEnd)
+    {
+        UpdateInlineSettings(lastText);
+    }
+
     public override void OnSettingsChanged(string name, object value)
     {
         if (!document.TextOverlayHandler.IsActive) return;
@@ -238,7 +268,8 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
         if (document.TextOverlayHandler.CursorPosition != document.TextOverlayHandler.SelectionEnd)
         {
-            currentInline = text.SplitInline(currentlyEditingInlineIndex.Value, document.TextOverlayHandler.CursorPosition,
+            currentInline = text.SplitInline(currentlyEditingInlineIndex.Value,
+                document.TextOverlayHandler.CursorPosition,
                 document.TextOverlayHandler.SelectionEnd);
             editingIndex = text.IndexOfInline(currentInline);
         }
@@ -246,28 +277,26 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         if (name == nameof(ITextToolbar.FontFamily))
         {
             currentInline.Font = currentInline.Font with { Family = (FontFamilyName)value };
-            text.UpdateInline(editingIndex, currentInline);
         }
         else if (name == nameof(ITextToolbar.FontSize))
         {
             currentInline.Font = currentInline.Font with { Size = (double)value };
-            text.UpdateInline(editingIndex, currentInline);
         }
         else if (name == nameof(ITextToolbar.Fill))
         {
-            text.Fill = (bool)value;
+            currentInline.Fill = (bool)value;
         }
         else if (name == nameof(ITextToolbar.FillBrush))
         {
-            text.FillPaintable = ((IBrush)value).ToPaintable();
+            currentInline.FillPaintable = ((IBrush)value).ToPaintable();
         }
         else if (name == nameof(ITextToolbar.ToolSize))
         {
-            text.StrokeWidth = (float)(double)value;
+            currentInline.StrokeWidth = (float)(double)value;
         }
-        else if(name == nameof(ITextToolbar.StrokeBrush))
+        else if (name == nameof(ITextToolbar.StrokeBrush))
         {
-            text.StrokePaintable = ((IBrush)value).ToPaintable();
+            currentInline.StrokePaintable = ((IBrush)value).ToPaintable();
         }
         else if (name == nameof(ITextToolbar.Spacing))
         {
@@ -276,13 +305,15 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         else if (name == nameof(ITextToolbar.Bold))
         {
             currentInline.Font = currentInline.Font with { Bold = (bool)value };
-            text.UpdateInline(editingIndex, currentInline);
         }
         else if (name == nameof(ITextToolbar.Italic))
         {
             currentInline.Font = currentInline.Font with { Italic = (bool)value };
-            text.UpdateInline(editingIndex, currentInline);
         }
+
+        text.UpdateInline(editingIndex, currentInline);
+
+        currentInline = text.MergeAdjacentInlines(currentInline);
 
         VectorShapeChangeType changeType = name switch
         {

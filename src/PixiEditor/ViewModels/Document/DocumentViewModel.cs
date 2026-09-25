@@ -305,6 +305,10 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         {
             Internals.ChangeController.TextOverlayTextChangedInlet(text);
         };
+        TextOverlayViewModel.SelectionChanged += (start, end) =>
+        {
+            Internals.ChangeController.TextOverlaySelectionChangedInlet(start, end);
+        };
 
         SnappingViewModel = new();
         SnappingViewModel.AddFromDocumentSize(SizeBindable);
