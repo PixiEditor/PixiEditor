@@ -1,7 +1,4 @@
-﻿using ChunkyImageLib;
-using Drawie.Backend.Core;
-using PixiEditor.Models.Rendering;
-using PixiEditor.ViewModels.Document;
+﻿using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.Models.Handlers;
 

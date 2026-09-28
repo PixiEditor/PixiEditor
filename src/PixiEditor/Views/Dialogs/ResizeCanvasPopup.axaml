@@ -12,7 +12,7 @@
                            CanResize="False"
                            CanMinimize="False"
                            ui:Translator.Key="RESIZE_CANVAS"
-                           Height="410" Width="320">
+                           Height="410" Width="320" MinHeight="410" MinWidth="320">
     <DockPanel Focusable="True">
         <Button DockPanel.Dock="Bottom" HorizontalAlignment="Center" Margin="15"
                 ui:Translator.Key="RESIZE" Click="Button_Click"

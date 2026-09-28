@@ -9,13 +9,18 @@ using Drawie.Skia;
 using Drawie.Windowing;
 using DrawiEngine;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using PixiEditor.Extensions;
+using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Extensions.Runtime;
 using PixiEditor.Helpers;
 using PixiEditor.IdentityProvider;
 using PixiEditor.Linux;
 using PixiEditor.MacOs;
+using PixiEditor.Models.Preferences;
 using PixiEditor.OperatingSystem;
 using PixiEditor.Platform;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels;
 using PixiEditor.Windows;
 
@@ -68,7 +73,7 @@ public class FullPixiEditorTest : PixiEditorTest
 {
     public FullPixiEditorTest()
     {
-        ExtensionLoader loader = new ExtensionLoader(["TestExtensions"], "TestExtensions/Unpacked");
+        ExtensionLoader loader = new ExtensionLoader(new PixiEditorHost(), ["TestExtensions"], "TestExtensions/Unpacked");
 
         if (IOperatingSystem.Current == null)
         {
@@ -98,10 +103,13 @@ public class FullPixiEditorTest : PixiEditorTest
             IPlatform.RegisterPlatform(new TestPlatform());
         }
 
+        PreferencesSettings settings = new PreferencesSettings();
+
         var services = new ServiceCollection()
             .AddPlatform()
             .AddPixiEditor(loader)
             .AddExtensionServices(loader)
+            .AddSingleton<IPreferences, PreferencesSettings>(x => settings)
             .BuildServiceProvider();
 
         var vm = services.GetRequiredService<ViewModelMain>();
@@ -134,6 +142,7 @@ public class TestingApp : DrawieApp
     public override IWindow CreateMainWindow()
     {
         window = Engine.WindowingPlatform.CreateWindow("Testing app", VecI.One);
+        window.IsVisible = false;
         return window;
     }
 

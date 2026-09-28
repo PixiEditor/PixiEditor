@@ -1,9 +1,6 @@
 ﻿using System.Collections.Immutable;
 using System.Diagnostics;
-using System.Reflection;
 using Avalonia.Threading;
-using ChunkyImageLib;
-using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Exceptions;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos;
@@ -15,9 +12,7 @@ using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using PixiEditor.ChangeableDocument.ChangeInfos.Root.ReferenceLayerChangeInfos;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Enums;
-using Drawie.Backend.Core;
 using Drawie.Backend.Core.Shaders.Generation;
-using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DocumentModels.Public;
 using PixiEditor.Models.DocumentPassthroughActions;
@@ -25,7 +20,6 @@ using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Layers;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph.Blackboard;
@@ -38,7 +32,6 @@ using PixiEditor.ViewModels.Document.Blackboard;
 using PixiEditor.ViewModels.Document.Nodes;
 using PixiEditor.ViewModels.Document.Nodes.Brushes;
 using PixiEditor.ViewModels.Nodes;
-using PixiEditor.ViewModels.SubViewModels;
 
 namespace PixiEditor.Models.DocumentModels;
 #nullable enable
@@ -259,6 +252,9 @@ internal class DocumentUpdater
                 break;
             case FallbackAnimationToLayerImage_ChangeInfo info:
                 ProcessFallbackAnimationToLayerImage(info);
+                break;
+            case LayerLock_ChangeInfo info:
+                ProcessLayerLock(info);
                 break;
         }
     }
@@ -689,7 +685,7 @@ internal class DocumentUpdater
         List<NodePropertyInfo> newInputs =
             info.Inputs.Where(x => node.Inputs.All(y => y.PropertyName != x.PropertyName)).ToList();
 
-        List<INodePropertyHandler> inputs = CreateProperties([..newInputs], node, true);
+        List<INodePropertyHandler> inputs = CreateProperties([.. newInputs], node, true);
         node.Inputs.AddRange(inputs);
     }
 
@@ -729,7 +725,7 @@ internal class DocumentUpdater
         List<NodePropertyInfo> newOutputs =
             info.Outputs.Where(x => node.Outputs.All(y => y.PropertyName != x.PropertyName)).ToList();
 
-        List<INodePropertyHandler> outputs = CreateProperties([..newOutputs], node, false);
+        List<INodePropertyHandler> outputs = CreateProperties([.. newOutputs], node, false);
         node.Outputs.AddRange(outputs);
     }
 
@@ -788,14 +784,19 @@ internal class DocumentUpdater
             prop.IsInput = isInput;
             prop.IsFunc = propInfo.ValueType.IsAssignableTo(typeof(Delegate));
             prop.IsArray = propInfo.ValueType.IsArray;
+            prop.IsNestedArray = propInfo.ValueType.IsArray && propInfo.ValueType.GetElementType()?.IsArray == true;
             prop.InternalSetValue(prop.IsFunc
                 ? (propInfo.InputValue as ShaderExpressionVariable)?.GetConstant()
                 : propInfo.InputValue);
             inputs.Add(prop);
             foreach (var propInfoConnectedProperty in propInfo.ConnectedProperties)
             {
-                var inputNode = isInput ? node : doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId);
-                var outputNode = isInput ? doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId) : node;
+                var inputNode = isInput
+                    ? node
+                    : doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId);
+                var outputNode = isInput
+                    ? doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId)
+                    : node;
                 if (inputNode == null || outputNode == null)
                 {
 #if DEBUG
@@ -807,8 +808,14 @@ internal class DocumentUpdater
                 {
                     doc.NodeGraphHandler.SetConnection(new NodeConnectionViewModel()
                     {
-                        InputNode = isInput ? node : doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId),
-                        OutputNode = isInput ? doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId) : node,
+                        InputNode =
+                            isInput
+                                ? node
+                                : doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId),
+                        OutputNode =
+                            isInput
+                                ? doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId)
+                                : node,
                         InputProperty = isInput
                             ? prop
                             : doc.StructureHelper.FindNode<NodeViewModel>(propInfoConnectedProperty.NodeId)
@@ -913,7 +920,8 @@ internal class DocumentUpdater
     private void ProcessNodePropertyValueUpdated(PropertyValueUpdated_ChangeInfo info)
     {
         NodeViewModel node = doc.StructureHelper.FindNode<NodeViewModel>(info.NodeId);
-        var property = node.FindInputProperty(info.Property);
+
+        var property = node?.FindInputProperty(info.Property);
 
         if (property == null)
             return;
@@ -986,7 +994,7 @@ internal class DocumentUpdater
     private void ProcessNodeName(NodeName_ChangeInfo info)
     {
         NodeViewModel node = doc.StructureHelper.FindNode<NodeViewModel>(info.NodeId);
-        node.SetName(info.NewName);
+        node?.SetName(info.NewName);
     }
 
     private void ProcessFrameRate(FrameRate_ChangeInfo info)
@@ -1135,5 +1143,15 @@ internal class DocumentUpdater
     private void ProcessFallbackAnimationToLayerImage(FallbackAnimationToLayerImage_ChangeInfo info)
     {
         doc.AnimationHandler.SetFallbackAnimationToLayerImage(info.Value);
+    }
+
+    private void ProcessLayerLock(LayerLock_ChangeInfo info)
+    {
+        IStructureMemberHandler? member = doc.StructureHelper.FindOrThrow(info.Layer);
+        member.SetLayerLock(info.IsLocked);
+
+        var selected = doc.SelectedMembers;
+        var layers = selected.Select(x => doc.StructureHelper.Find(x));
+        doc.TransformHandler.LockTransform = layers.Any(x => x.IsLockedStructurally);
     }
 }

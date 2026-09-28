@@ -7,8 +7,12 @@
                              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
                              xmlns:input="clr-namespace:PixiEditor.Views.Input"
                              xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker.AvaloniaUI"
+                             xmlns:properties1="clr-namespace:PixiEditor.ViewModels.Nodes.Properties"
                              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+                             x:CompileBindings="False"
+                             x:DataType="properties1:ColorPropertyViewModel"
                              x:Class="PixiEditor.Views.Nodes.Properties.ColorPropertyView">
+    <!--Do not enable compiled bindings! Vec4D View Model also uses this view -->
     <Grid
         HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
         <TextBlock ui:Translator.TooltipKey="{Binding DisplayName}" VerticalAlignment="Center"

@@ -14,6 +14,7 @@
              xmlns:auth="clr-namespace:PixiEditor.Views.Auth"
              xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
              xmlns:behaviors="clr-namespace:PixiEditor.UI.Common.Behaviors;assembly=PixiEditor.UI.Common"
+             xmlns:document="clr-namespace:PixiEditor.ViewModels.Document"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="menu:MenuBarViewModel"
              x:Class="PixiEditor.Views.Main.MainTitleBar">
@@ -21,7 +22,7 @@
         <menu:MenuBarViewModel />
     </Design.DataContext>
     <Panel>
-        <Panel Background="{DynamicResource ThemeBackgroundBrush1}" IsHitTestVisible="False" />
+        <Panel Background="{DynamicResource ThemeBackgroundBrush1}" IsHitTestVisible="True" WindowDecorationProperties.ElementRole="TitleBar" />
         <DockPanel>
             <DockPanel.Background>
                 <OnPlatform Default="{x:Null}" Linux="Transparent" />
@@ -30,10 +31,17 @@
                 HideIfSystemDecorations="True"
                 DockPanel.Dock="Right">
                 <dialogs:DialogTitleBar.AdditionalElement>
-                    <StackPanel Margin="5 0" Spacing="5" Orientation="Horizontal"
+                    <StackPanel Margin="5 0" Spacing="8" Orientation="Horizontal"
                                 Name="MainBarAdditionalElementPanel"
                                 DataContext="{Binding Path=DataContext, RelativeSource={RelativeSource FindAncestor, AncestorType=main:MainTitleBar}}">
-                        <auth:UserAvatarToggle Width="26" Height="26" DataContext="{Binding Path=UserViewModel}" />
+                        <Border Width="24" Height="24" CornerRadius="4" Background="{DynamicResource FoundersPurpleLowBrush}">
+                            <Button Classes="pixi-icon"
+                                    Foreground="{DynamicResource FoundersPurpleBrush}"
+                                    FontSize="18"
+                                    Content="{DynamicResource icon-extensions}"
+                                    Command="{xaml:Command Name=PixiEditor.Window.OpenExtensionsWindow}" />
+                        </Border>
+                        <auth:UserAvatarToggle Name="UserAvatarToggle" Width="26" Height="26" DataContext="{ReflectionBinding Path=UserViewModel}" />
                     </StackPanel>
                 </dialogs:DialogTitleBar.AdditionalElement>
             </dialogs:DialogTitleBar>
@@ -70,7 +78,7 @@
                             <Flyout.Content>
                                 <LayoutTransformControl>
                                     <Interaction.Behaviors>
-                                        <behaviors:LayoutTransformScalerBehavior/>
+                                        <behaviors:LayoutTransformScalerBehavior />
                                     </Interaction.Behaviors>
                                     <StackPanel Spacing="5" Margin="5">
                                         <TextBlock Text="PixiEditor" Classes="h3" />
@@ -197,6 +205,7 @@
             </StackPanel>
             <main:MiniAnimationPlayer
                 Name="MiniPlayer"
+                x:CompileBindings="False"
                 ActiveFrame="{Binding ActiveDocument.AnimationDataViewModel.ActiveFrameBindable, Source={viewModels:MainVM DocumentManagerSVM}, Mode=TwoWay}"
                 FramesCount="{Binding ActiveDocument.AnimationDataViewModel.FramesCount, Source={viewModels:MainVM DocumentManagerSVM}}"
                 IsPlaying="{Binding ActiveDocument.AnimationDataViewModel.IsPlayingBindable, Source={viewModels:MainVM DocumentManagerSVM}, Mode=TwoWay}"

@@ -1,9 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.ChangeableDocument.Rendering;
-using Drawie.Backend.Core;
-using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Surfaces;
-using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes;
@@ -36,6 +33,11 @@ public class RasterizeShapeNode : RenderNode
 
     public override RectD? GetPreviewBounds(RenderContext ctx, string elementToRenderName = "")
     {
+        if (Data.Value is TextVectorData { Path: not null } textVectorData)
+        {
+            return textVectorData.Path.Bounds.Scale(1.1, textVectorData.Path.Bounds.Center);
+        }
+
         return Data?.Value?.TransformedAABB;
     }
 

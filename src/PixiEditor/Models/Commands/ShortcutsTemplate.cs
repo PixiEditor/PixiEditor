@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using Avalonia.Input;
 using PixiEditor.Models.Commands.Templates.Providers.Parsers;
 using PixiEditor.Models.Input;

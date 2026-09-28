@@ -1,7 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.Input;
-using Drawie.Backend.Core;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.AnalyticsAPI;
 using PixiEditor.ViewModels;
@@ -98,7 +97,6 @@ public partial class BetaExampleButton : UserControl
         CloseCommand.Execute(null);
 
         ViewModelMain.Current.FileSubViewModel.OpenFromPixiBytes(bytes);
-        ViewModelMain.Current.DocumentManagerSubViewModel.Documents[^1].Operations.UseSrgbProcessing();
         ViewModelMain.Current.DocumentManagerSubViewModel.Documents[^1].Operations.ClearUndo();
         Analytics.SendOpenExample(FileName);
     }

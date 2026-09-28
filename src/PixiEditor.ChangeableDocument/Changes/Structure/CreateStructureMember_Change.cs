@@ -1,6 +1,5 @@
 ﻿using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
@@ -84,7 +83,7 @@ internal class CreateStructureMember_Change : Change
             changes.AddRange(connectPropertyChangeInfo);
         }
         
-        changes.AddRange(NodeOperations.AdjustPositionsAfterAppend(member, targetInput.Node, previouslyConnected?.Node as Node, out originalPositions));
+        changes.AddRange(NodeOperations.PushNodesBackAfterInsertingNodeBetweenTwoOthers(member, targetInput.Node, previouslyConnected?.Node as Node, out originalPositions));
 
         ignoreInUndo = false;
 

@@ -137,7 +137,11 @@
                                     SelectedIndex="{Binding $parent[input:BrushPicker].SelectedSortingIndex,
                                                          Mode=TwoWay}"
                                     ItemsSource="{Binding $parent[input:BrushPicker].SortingOptions}">
-
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock localization:Translator.Key="{Binding Converter={converters:EnumToLocalizedStringConverter}}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
                                 </ComboBox>
                             </StackPanel>
 
@@ -278,9 +282,9 @@
                                         </ItemsPanelTemplate>
                                     </ItemsControl.ItemsPanel>
                                     <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
+                                        <DataTemplate x:DataType="brushSystem:BrushViewModel">
                                             <Border Cursor="Hand" CornerRadius="4"
-                                                    ToolTip.Tip="{Binding Name}"
+                                                    localization:Translator.TooltipKey="{Binding Name}"
                                                     PointerPressed="SelectBrushElementPressed"
                                                     IsHitTestVisible="True">
                                                 <visuals:TextureControl

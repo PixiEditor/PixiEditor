@@ -1,5 +1,4 @@
-﻿using Drawie.Backend.Core.ColorsImpl;
-using Drawie.Backend.Core.Numerics;
+﻿using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Text;
@@ -12,12 +11,9 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 
 public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
 {
-    private bool bold;
-    private bool italic;
     private string text;
-    private Font font = Font.CreateDefault();
     private double? spacing = null;
-    private double strokeWidth = 1;
+    private FontData font;
     private VectorPath? path;
 
     public string Text
@@ -26,9 +22,6 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
         set
         {
             text = value;
-            richText = new RichText(value) { Spacing = Spacing, MaxWidth = MaxWidth, StrokeWidth = StrokeWidth };
-
-            lastBounds = richText.MeasureBounds(Font);
         }
     }
 
@@ -37,68 +30,36 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
 
     public double MaxWidth { get; set; } = double.MaxValue;
 
-    public Font Font
+    public FontData Font
     {
         get => font;
         set
         {
-            if (value != null)
-            {
-                value.Changed -= FontChanged;
-            }
-
             font = value;
-            if (value != null)
-            {
-                value.Changed += FontChanged;
-            }
-
-            lastBounds = richText.MeasureBounds(value);
         }
     }
 
     public bool Bold
     {
-        get => bold;
+        get => font.Bold;
         set
         {
-            bold = value;
-            Font.Bold = value;
-            lastBounds = richText.MeasureBounds(Font);
+            font.Bold = value;
         }
     }
 
     public bool Italic
     {
-        get => italic;
+        get => font.Italic;
         set
         {
-            italic = value;
-            Font.Italic = value;
-            lastBounds = richText.MeasureBounds(Font);
+            font.Italic = value;
         }
     }
 
-    private void FontChanged()
+    public Font? ConstructFont()
     {
-        if (richText == null)
-        {
-            return;
-        }
-
-        lastBounds = richText.MeasureBounds(Font);
-    }
-
-    public Font ConstructFont()
-    {
-        Font newFont = Font.FromFontFamily(Font.Family);
-        newFont.Size = Font.Size;
-        newFont.Edging = Font.Edging;
-        newFont.SubPixel = Font.SubPixel;
-        newFont.Bold = Font.Bold;
-        newFont.Italic = Font.Italic;
-
-        return newFont;
+        return GetFont();
     }
 
     double IReadOnlyTextData.Spacing => Spacing ?? Font.Size;
@@ -109,29 +70,24 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
         set
         {
             spacing = value;
-            richText.Spacing = value;
-            lastBounds = richText.MeasureBounds(Font);
         }
     }
 
     public bool AntiAlias { get; set; } = true;
 
-    protected override void OnStrokeWidthChanged()
-    {
-        if (richText == null)
-        {
-            return;
-        }
-
-        richText.StrokeWidth = StrokeWidth;
-        lastBounds = richText.MeasureBounds(Font);
-    }
-
     public override RectD GeometryAABB
     {
         get
         {
-            return lastBounds.Offset(Position);
+            var richText = CreateRichText();
+            var nativeFont = ConstructFont();
+            if (nativeFont == null)
+            {
+                return new RectD(Position, new VecD(0, 0));
+            }
+
+            var bounds = richText.MeasureBounds(nativeFont);
+            return bounds.Offset(Position);
         }
     }
 
@@ -151,13 +107,12 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
         }
     }
 
-    public FontFamilyName? MissingFontFamily { get; set; }
     public string MissingFontText { get; set; }
     public VecD PathOffset { get; set; }
 
-    private RichText richText;
-    private RectD lastBounds;
     private double _spacing;
+    private Font? cachedFont;
+    private int cachedFontHash;
 
     public TextVectorData()
     {
@@ -171,7 +126,14 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
 
     public override VectorPath ToPath(bool transformed = false)
     {
-        var path = richText.ToPath(Font);
+        RichText richText = CreateRichText();
+        Font? nativeFont = ConstructFont();
+        if (nativeFont == null)
+        {
+            return new VectorPath();
+        }
+
+        var path = richText.ToPath(nativeFont);
         path.Offset(Position);
 
         if (transformed)
@@ -202,17 +164,13 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
         }
 
         using Paint paint = new Paint() { IsAntiAliased = AntiAlias };
+        var nativeFont = GetFont();
 
-        richText.Fill = Fill;
-        richText.FillPaintable = FillPaintable;
-        richText.StrokePaintable = Stroke;
-        richText.StrokeWidth = StrokeWidth;
-        richText.Spacing = Spacing;
-
-        if (MissingFontFamily != null)
+        if (nativeFont == null)
         {
+            using var missingInfoFont = FontData.CreateDefault().ToFont(false);
             paint.SetPaintable(Fill ? FillPaintable : Stroke);
-            canvas.DrawText($"{MissingFontText}: " + MissingFontFamily.Value.Name, Position, Font, paint);
+            canvas.DrawText($"{MissingFontText}: " + Font.Family.Name, Position, missingInfoFont, paint);
         }
         else
         {
@@ -225,9 +183,40 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
         }
     }
 
+    private Font? GetFont()
+    {
+        if (Font.GetCacheHash() != cachedFontHash || cachedFont is { IsDisposed: true })
+        {
+            cachedFont?.Dispose();
+            cachedFontHash = Font.GetCacheHash();
+            cachedFont = Font.ToFont(false);
+        }
+
+        return cachedFont;
+    }
+
+    private RichText CreateRichText()
+    {
+        return new RichText(Text)
+        {
+            Fill = Fill,
+            FillPaintable = FillPaintable,
+            StrokePaintable = Stroke,
+            StrokeWidth = StrokeWidth,
+            Spacing = Spacing,
+            MaxWidth = MaxWidth,
+        };
+    }
+
     private void PaintText(Canvas canvas, Paint paint)
     {
-        richText.Paint(canvas, Position, Font, paint, Path, PathOffset);
+        Font? nativeFont = GetFont();
+        if (nativeFont == null)
+        {
+            return;
+        }
+
+        CreateRichText().Paint(canvas, Position, nativeFont, paint, Path, PathOffset);
     }
 
     public override bool IsValid()
@@ -235,23 +224,20 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
         return !string.IsNullOrEmpty(Text);
     }
 
-    protected override void AdjustCopy(ShapeVectorData copy)
+    /*protected override void AdjustCopy(ShapeVectorData copy)
     {
         if (copy is TextVectorData textData)
         {
-            textData.Font = Font.FromFontFamily(Font.Family);
-            if (textData.Font != null)
-            {
-                textData.Font.Size = Font.Size;
-                textData.Font.Edging = Font.Edging;
-                textData.Font.SubPixel = Font.SubPixel;
-                textData.Font.Bold = Font.Bold;
-                textData.Font.Italic = Font.Italic;
-            }
-
-            textData.lastBounds = lastBounds;
+            textData.Font = Font;
+            textData.Text = Text;
+            textData.Position = Position;
+            textData.Spacing = Spacing;
+            textData.AntiAlias = AntiAlias;
+            textData.MissingFontFamily = MissingFontFamily;
+            textData.MissingFontText = MissingFontText;
+            textData.MaxWidth = MaxWidth;
         }
-    }
+    }*/
 
     protected override int GetSpecificHash()
     {
@@ -261,7 +247,6 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
         hash.Add(Font);
         hash.Add(Spacing);
         hash.Add(AntiAlias);
-        hash.Add(MissingFontFamily);
         hash.Add(MissingFontText);
         hash.Add(MaxWidth);
         hash.Add(Bold);
@@ -285,16 +270,18 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
             Spacing *= multiplier.Y;
         }*/
 
-        TransformationMatrix = TransformationMatrix.PostConcat(Matrix3X3.CreateScale((float)multiplier.X, (float)multiplier.Y));
-
-        lastBounds = richText.MeasureBounds(Font);
+        TransformationMatrix =
+            TransformationMatrix.PostConcat(Matrix3X3.CreateScale((float)multiplier.X, (float)multiplier.Y));
     }
 
     protected bool Equals(TextVectorData other)
     {
-        return base.Equals(other) && Position.Equals(other.Position) && MaxWidth.Equals(other.MaxWidth) && AntiAlias == other.AntiAlias && Nullable.Equals(MissingFontFamily, other.MissingFontFamily) && MissingFontText == other.MissingFontText
-            && Text == other.Text && Font.Equals(other.Font) && Spacing.Equals(other.Spacing) && Path == other.Path && Bold == other.Bold && Italic == other.Italic
-            && PathOffset.Equals(other.PathOffset);
+        return base.Equals(other) && Position.Equals(other.Position) && MaxWidth.Equals(other.MaxWidth) &&
+               AntiAlias == other.AntiAlias &&
+               MissingFontText == other.MissingFontText
+               && Text == other.Text && Font.Equals(other.Font) && Spacing.Equals(other.Spacing) &&
+               Path == other.Path && Bold == other.Bold && Italic == other.Italic
+               && PathOffset.Equals(other.PathOffset);
     }
 
     public override bool Equals(object? obj)
@@ -319,6 +306,7 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(base.GetHashCode(), Position, MaxWidth, AntiAlias, MissingFontFamily, MissingFontText, Font, HashCode.Combine(Text, Spacing, Path, PathOffset));
+        return HashCode.Combine(base.GetHashCode(), Position, MaxWidth, AntiAlias, MissingFontText,
+            Font, HashCode.Combine(Text, Spacing, Path, PathOffset));
     }
 }

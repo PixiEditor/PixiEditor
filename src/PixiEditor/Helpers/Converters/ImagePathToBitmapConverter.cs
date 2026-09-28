@@ -1,12 +1,9 @@
-﻿using System.Drawing;
-using System.Globalization;
-using System.IO;
+﻿using System.Globalization;
 using System.Reflection;
 using Avalonia;
 using Avalonia.Media;
 using Avalonia.Platform;
 using Avalonia.Svg.Skia;
-using PixiEditor.Helpers.Extensions;
 using Bitmap = Avalonia.Media.Imaging.Bitmap;
 
 namespace PixiEditor.Helpers.Converters;
@@ -41,7 +38,7 @@ internal class ImagePathToBitmapConverter : SingleInstanceConverter<ImagePathToB
             {
                 if (path.EndsWith(".svg"))
                 {
-                    return new SvgImage() { Source = new SvgSource(baseUri) { Path = path } };
+                    return new SvgImage() { Source = new SvgSource(baseUri) { Path = path} };
                 }
 
                 return new Bitmap(AssetLoader.Open(assetsUri));

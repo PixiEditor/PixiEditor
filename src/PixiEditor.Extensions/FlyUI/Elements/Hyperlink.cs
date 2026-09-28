@@ -1,8 +1,5 @@
-﻿using System.Collections.Immutable;
-using Avalonia;
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Data;
-using PixiEditor.Extensions.CommonApi.FlyUI;
 using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
 
 namespace PixiEditor.Extensions.FlyUI.Elements;

@@ -1,5 +1,4 @@
-﻿using System.Text;
-using Avalonia.Controls.ApplicationLifetimes;
+﻿using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
 using DeviceId;
 using PixiEditor.OperatingSystem;

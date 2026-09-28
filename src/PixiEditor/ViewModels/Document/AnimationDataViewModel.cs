@@ -1,5 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using System.Collections.Specialized;
+﻿using System.Collections.Specialized;
 using CommunityToolkit.Mvvm.ComponentModel;
 using PixiEditor.AnimationRenderer.Core;
 using PixiEditor.ChangeableDocument.Actions.Generated;
@@ -196,6 +195,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
     {
         if (!Document.BlockingUpdateableChangeActive)
         {
+            Internals.ChangeController.TryStopActiveExecutor();
             Guid newCelGuid = Guid.NewGuid();
             Internals.ActionAccumulator.AddFinishedActions(new CreateCel_Action(targetLayerGuid,
                 newCelGuid, Math.Max(1, frame),
@@ -210,6 +210,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
     {
         if (!Document.BlockingUpdateableChangeActive)
         {
+            Internals.ChangeController.TryStopActiveExecutor();
             for (var i = 0; i < keyFrameIds.Count; i++)
             {
                 var id = keyFrameIds[i];
@@ -390,6 +391,8 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
             {
                 keyFrames.Remove(group);
             }
+
+            frame.Dispose();
         });
 
         allCels.RemoveAll(x => x.Id == keyFrameId);
@@ -574,6 +577,11 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         foreach (var cel in allCels)
         {
             cel.Dispose();
+        }
+
+        foreach (var group in keyFrames)
+        {
+            group.Dispose();
         }
     }
 }

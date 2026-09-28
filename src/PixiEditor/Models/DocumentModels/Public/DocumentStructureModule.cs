@@ -24,7 +24,7 @@ internal class DocumentStructureModule
 
     public T? FindNode<T>(Guid guid) where T : class, INodeHandler
     {
-        return doc.NodeGraphHandler.AllNodes.FirstOrDefault(x => x.Id == guid && x is T) as T;
+        return doc.NodeGraphHandler.NodeLookup.TryGetValue(guid, out var found) ? found as T : null;
     }
 
     public bool TryFindNode<T>(Guid guid, out T found) where T : class, INodeHandler

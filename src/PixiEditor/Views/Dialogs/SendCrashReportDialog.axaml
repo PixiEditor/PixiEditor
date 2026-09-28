@@ -8,7 +8,6 @@
         x:Class="PixiEditor.Views.Dialogs.SendCrashReportDialog"
         MinHeight="195" MinWidth="340"
         ExtendClientAreaToDecorationsHint="False"
-        ExtendClientAreaChromeHints="Default"
         Height="195" Width="340"
         Title="Send crash report">
     <StackPanel Margin="10">

@@ -52,6 +52,16 @@ internal partial class PaletteItem : UserControl
         set { SetValue(ToggleFavouriteCommandProperty, value); }
     }
 
+    public string UseTooltipKey
+    {
+        get { return (string)GetValue(UseTooltipKeyProperty); }
+        set { SetValue(UseTooltipKeyProperty, value); }
+    }
+
+    public static readonly StyledProperty<string> UseTooltipKeyProperty =
+        AvaloniaProperty.Register<PaletteItem, string>(
+            nameof(UseTooltipKey), "USE_IN_CURRENT_IMAGE");
+
     public event EventHandler<EditableTextBlock.TextChangedEventArgs> OnRename;
 
     static PaletteItem()

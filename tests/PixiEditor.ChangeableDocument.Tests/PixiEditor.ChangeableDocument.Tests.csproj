@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <OutputType>Exe</OutputType>
+        <IsPackable>false</IsPackable>
+        <IsTestProject>true</IsTestProject>
+        <AssemblyName>PixiEditor.ChangeableDocument.Tests</AssemblyName>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Using Include="Xunit" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\PixiEditor.ChangeableDocument\PixiEditor.ChangeableDocument.csproj" />
+        <ProjectReference Include="..\..\src\Drawie\src\Drawie.Backend.Skia\Drawie.Backend.Skia.csproj" />
+        <ProjectReference Include="..\PixiEditor.Tests\PixiEditor.Tests.csproj" />
+    </ItemGroup>
+
+</Project>

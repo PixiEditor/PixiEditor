@@ -1,13 +1,7 @@
 ﻿using System.Text.Json;
 using System.Windows.Input;
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Data;
-using Avalonia.Layout;
 using CommunityToolkit.Mvvm.Input;
-using PixiEditor.Extensions.Helpers;
-using PixiEditor.Extensions.UI;
-using PixiEditor.Helpers.Decorators;
 
 namespace PixiEditor.ViewModels.Tools.ToolSettings.Settings;
 
@@ -27,6 +21,7 @@ internal sealed class EnumSettingViewModel<TEnum> : Setting<TEnum>
         {
             if (SetProperty(ref selectedIndex, value))
             {
+                base.Value = Value; // Update the base Value to trigger any bindings or logic that depends on it.
                 OnPropertyChanged(nameof(Value));
             }
         }

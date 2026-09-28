@@ -1,13 +1,10 @@
-﻿using ChunkyImageLib.Operations;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
-using PixiEditor.ChangeableDocument.ChangeInfos.Root;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Enums;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
-using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 
 namespace PixiEditor.ChangeableDocument.Changes.Root;
 
@@ -68,7 +65,7 @@ internal sealed class FlipImage_Change : Change
 
         using Surface originalSurface = Surface.ForProcessing(img.LatestSize, img.ProcessingColorSpace);
         img.DrawMostUpToDateRegionOn(
-            new RectI(VecI.Zero, img.LatestSize), 
+            new RectD(VecI.Zero, img.LatestSize),
             ChunkResolution.Full,
             originalSurface.DrawingSurface.Canvas,
             VecI.Zero);

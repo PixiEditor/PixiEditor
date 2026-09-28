@@ -1,5 +1,4 @@
-﻿using System.Security.Cryptography.X509Certificates;
-using Avalonia.Threading;
+﻿using Avalonia.Threading;
 using PixiEditor.OperatingSystem;
 using PixiEditor.PixiAuth;
 using PixiEditor.PixiAuth.Exceptions;
@@ -19,6 +18,10 @@ public class PixiAuthIdentityProvider : IIdentityProvider
     public bool IsLoggedIn => User?.IsLoggedIn ?? false;
     public Uri? EditProfileUrl { get; } = new Uri("https://gravatar.com/connect");
 
+    public int ApiVersion { get; }
+    public string HostName { get; }
+    public Version HostVersion { get; }
+
     public event Action<string, object>? OnError;
     public event Action<List<ProductData>>? OwnedProductsUpdated;
     public event Action<string>? UsernameUpdated;
@@ -29,11 +32,14 @@ public class PixiAuthIdentityProvider : IIdentityProvider
 
     IUser IIdentityProvider.User => User;
 
-    public PixiAuthIdentityProvider(string pixiEditorApiUrl, string? apiKey)
+    public PixiAuthIdentityProvider(string pixiEditorApiUrl, string? apiKey, int apiVersion, string hostName, Version hostVersion)
     {
         try
         {
             PixiAuthClient = new PixiAuthClient(pixiEditorApiUrl, apiKey);
+            ApiVersion = apiVersion;
+            HostName = hostName;
+            HostVersion = hostVersion;
         }
         catch (UriFormatException e)
         {
@@ -74,6 +80,42 @@ public class PixiAuthIdentityProvider : IIdentityProvider
 
                 SaveUserInfo();
             }
+        }
+        catch (PixiAuthException authException)
+        {
+            Error(authException.Message);
+        }
+        catch (HttpRequestException httpRequestException)
+        {
+            Error("CONNECTION_ERROR");
+        }
+        catch (TaskCanceledException timeoutException)
+        {
+            Error("CONNECTION_TIMEOUT");
+        }
+        catch (TooManyRequestsException tooManyRequestsException)
+        {
+            Error(tooManyRequestsException.Message, tooManyRequestsException.TimeLeft);
+            LoginTimeout?.Invoke(tooManyRequestsException.TimeLeft);
+        }
+        catch (UnauthorizedAccessException unauthorizedAccessException)
+        {
+            Error("UNAUTHORIZED_ACCESS", unauthorizedAccessException.Message);
+        }
+        catch (Exception e)
+        {
+            Error("INTERNAL_SERVER_ERROR", e);
+        }
+    }
+
+    public async Task Register(string email, bool signInToNewsletter, bool agreementChecked)
+    {
+        if (!isValid) return;
+
+        try
+        {
+            await PixiAuthClient.Register(email, signInToNewsletter, agreementChecked);
+            await RequestLogin(email);
         }
         catch (PixiAuthException authException)
         {
@@ -239,18 +281,70 @@ public class PixiAuthIdentityProvider : IIdentityProvider
 
             User.Username = await TryFetchUserName(User.EmailHash);
             UsernameUpdated?.Invoke(User.Username);
-            var products = await PixiAuthClient.GetOwnedProducts(User.SessionToken);
+            await RefreshOwnedProducts();
+        }
+        catch (Exception e)
+        {
+            Error("FAIL_LOAD_USER_DATA");
+        }
+    }
+
+    public async Task RefreshOwnedProducts()
+    {
+        if (User == null)
+        {
+            return;
+        }
+
+        var products = await PixiAuthClient.GetUserLibrary(User.SessionToken, ApiVersion, HostName, HostVersion);
+        if (products != null)
+        {
+            User.OwnedProducts = products.Where(x => x is { IsDlc: true, Target: "PixiEditor" })
+                .Select(x => new ProductData(x.ProductId, x.ProductName)
+                {
+                    LatestVersion = x.LatestVersion,
+                    DownloadLink = x.DownloadLink,
+                    Description = x.ProductDescription,
+                    Author = x.Author,
+                    ImageUrl = x.ImageUrl,
+                    MinHostVersion = x.MinHostVersion,
+                    MaxHostVersion = x.MaxHostVersion,
+                })
+                .ToList();
+            OwnedProductsUpdated?.Invoke(new List<ProductData>(User.OwnedProducts));
+        }
+    }
+
+    public async Task UpdateUserOwnedProducts()
+    {
+        try
+        {
+            if (User == null)
+            {
+                return;
+            }
+
+            var products = await PixiAuthClient.GetUserLibrary(User.SessionToken, ApiVersion, HostName, HostVersion);
             if (products != null)
             {
                 User.OwnedProducts = products.Where(x => x is { IsDlc: true, Target: "PixiEditor" })
-                    .Select(x => new ProductData(x.ProductId, x.ProductName) { LatestVersion = x.LatestVersion })
+                    .Select(x => new ProductData(x.ProductId, x.ProductName)
+                    {
+                        LatestVersion = x.LatestVersion,
+                        DownloadLink = x.DownloadLink,
+                        Description = x.ProductDescription,
+                        Author = x.Author,
+                        ImageUrl = x.ImageUrl,
+                        MinHostVersion = x.MinHostVersion,
+                        MaxHostVersion = x.MaxHostVersion,
+                    })
                     .ToList();
                 OwnedProductsUpdated?.Invoke(new List<ProductData>(User.OwnedProducts));
             }
         }
         catch (Exception e)
         {
-            Error("FAIL_LOAD_USER_DATA");
+            Error("FAIL_UPDATE_USER_OWNED_PRODUCTS");
         }
     }
 
@@ -280,11 +374,20 @@ public class PixiAuthIdentityProvider : IIdentityProvider
             {
                 User.SessionToken = token;
                 User.SessionExpirationDate = expirationDate;
-                var products = await PixiAuthClient.GetOwnedProducts(User.SessionToken);
+                var products = await PixiAuthClient.GetUserLibrary(User.SessionToken, ApiVersion, HostName, HostVersion);
                 if (products != null)
                 {
                     User.OwnedProducts = products.Where(x => x is { IsDlc: true, Target: "PixiEditor" })
-                        .Select(x => new ProductData(x.ProductId, x.ProductName) { LatestVersion = x.LatestVersion })
+                        .Select(x => new ProductData(x.ProductId, x.ProductName)
+                        {
+                            LatestVersion = x.LatestVersion,
+                            DownloadLink = x.DownloadLink,
+                            Description = x.ProductDescription,
+                            Author = x.Author,
+                            ImageUrl = x.ImageUrl,
+                            MinHostVersion = x.MinHostVersion,
+                            MaxHostVersion = x.MaxHostVersion,
+                        })
                         .ToList();
                     OwnedProductsUpdated?.Invoke(new List<ProductData>(User.OwnedProducts));
                 }

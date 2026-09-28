@@ -1,6 +1,5 @@
 ﻿using ChunkyImageLib.Operations;
 using Drawie.Numerics;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.ChangeableDocument.ChangeInfos.Vectors;

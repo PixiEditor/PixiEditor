@@ -192,7 +192,7 @@ public struct StyleContext
             styleContext.StrokeWidth.Unit = StrokeWidth.Unit;
         }
 
-        if (Stroke.Unit != null)
+        if (Stroke.Unit is { Paintable: not null })
         {
             styleContext.Stroke.Unit = new SvgPaintServerUnit(Stroke.Unit.Value.Paintable.Clone()) { LinksTo = Stroke.Unit.Value.LinksTo };
         }
@@ -202,7 +202,7 @@ public struct StyleContext
             styleContext.StrokeOpacity.Unit = StrokeOpacity.Unit;
         }
 
-        if (Fill.Unit != null)
+        if (Fill.Unit is { Paintable: not null })
         {
             styleContext.Fill.Unit = new SvgPaintServerUnit(Fill.Unit.Value.Paintable.Clone()) { LinksTo = Fill.Unit.Value.LinksTo };
         }

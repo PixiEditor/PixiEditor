@@ -1,20 +1,9 @@
 ﻿using Avalonia.Input;
-using Drawie.Backend.Core.Vector;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
-using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Models.Commands.Attributes.Commands;
-using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
-using PixiEditor.Models.Input;
-using Drawie.Numerics;
-using PixiEditor.Models.Handlers.Toolbars;
-using PixiEditor.UI.Common.Fonts;
 using PixiEditor.UI.Common.Localization;
-using PixiEditor.ViewModels.Document.Blackboard;
 using PixiEditor.ViewModels.Tools.ToolSettings.Settings;
 using PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
-using PixiEditor.Views.Blackboard;
-using PixiEditor.Views.Overlays.BrushShapeOverlay;
 
 namespace PixiEditor.ViewModels.Tools.Tools
 {
@@ -48,6 +37,10 @@ namespace PixiEditor.ViewModels.Tools.Tools
         protected override void SwitchToTool()
         {
             ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UsePenTool();
+            if (!createdBrushSettings)
+            {
+                AddBrushShapeSettings();
+            }
         }
 
         private void SelectedToolChanged(object sender, SelectedToolEventArgs e)

@@ -28,7 +28,7 @@
             <ToggleButton.IsChecked>
                 <MultiBinding Converter="{converters:AnchorPointVisibilityConverter}">
                     <Binding ElementName="picker" Path="AnchorPoint" />
-                    <Binding>
+                    <Binding x:DataType="enums:ResizeAnchor">
                         <Binding.Source>
                             <enums:ResizeAnchor>TopLeft</enums:ResizeAnchor>
                         </Binding.Source>
@@ -43,7 +43,7 @@
             <ToggleButton.IsChecked>
                 <MultiBinding Converter="{converters:AnchorPointVisibilityConverter}">
                     <Binding ElementName="picker" Path="AnchorPoint" />
-                    <Binding>
+                    <Binding x:DataType="enums:ResizeAnchor">
                         <Binding.Source>
                             <enums:ResizeAnchor>Top</enums:ResizeAnchor>
                         </Binding.Source>
@@ -58,7 +58,7 @@
             <ToggleButton.IsChecked>
                 <MultiBinding Converter="{converters:AnchorPointVisibilityConverter}">
                     <Binding ElementName="picker" Path="AnchorPoint" />
-                    <Binding>
+                    <Binding x:DataType="enums:ResizeAnchor">
                         <Binding.Source>
                             <enums:ResizeAnchor>TopRight</enums:ResizeAnchor>
                         </Binding.Source>
@@ -73,7 +73,7 @@
             <ToggleButton.IsChecked>
                 <MultiBinding Converter="{converters:AnchorPointVisibilityConverter}">
                     <Binding ElementName="picker" Path="AnchorPoint" />
-                    <Binding>
+                    <Binding x:DataType="enums:ResizeAnchor">
                         <Binding.Source>
                             <enums:ResizeAnchor>Left</enums:ResizeAnchor>
                         </Binding.Source>
@@ -87,7 +87,7 @@
             <ToggleButton.IsChecked>
                 <MultiBinding Converter="{converters:AnchorPointVisibilityConverter}">
                     <Binding ElementName="picker" Path="AnchorPoint" />
-                    <Binding>
+                    <Binding x:DataType="enums:ResizeAnchor">
                         <Binding.Source>
                             <enums:ResizeAnchor>Center</enums:ResizeAnchor>
                         </Binding.Source>
@@ -101,7 +101,7 @@
             <ToggleButton.IsChecked>
                 <MultiBinding Converter="{converters:AnchorPointVisibilityConverter}">
                     <Binding ElementName="picker" Path="AnchorPoint" />
-                    <Binding>
+                    <Binding x:DataType="enums:ResizeAnchor">
                         <Binding.Source>
                             <enums:ResizeAnchor>Right</enums:ResizeAnchor>
                         </Binding.Source>
@@ -115,7 +115,7 @@
             <ToggleButton.IsChecked>
                 <MultiBinding Converter="{converters:AnchorPointVisibilityConverter}">
                     <Binding ElementName="picker" Path="AnchorPoint" />
-                    <Binding>
+                    <Binding x:DataType="enums:ResizeAnchor">
                         <Binding.Source>
                             <enums:ResizeAnchor>BottomLeft</enums:ResizeAnchor>
                         </Binding.Source>
@@ -129,7 +129,7 @@
             <ToggleButton.IsChecked>
                 <MultiBinding Converter="{converters:AnchorPointVisibilityConverter}">
                     <Binding ElementName="picker" Path="AnchorPoint" />
-                    <Binding>
+                    <Binding x:DataType="enums:ResizeAnchor">
                         <Binding.Source>
                             <enums:ResizeAnchor>Bottom</enums:ResizeAnchor>
                         </Binding.Source>
@@ -143,7 +143,7 @@
             <ToggleButton.IsChecked>
                 <MultiBinding Converter="{converters:AnchorPointVisibilityConverter}">
                     <Binding ElementName="picker" Path="AnchorPoint" />
-                    <Binding>
+                    <Binding x:DataType="enums:ResizeAnchor">
                         <Binding.Source>
                             <enums:ResizeAnchor>BottomRight</enums:ResizeAnchor>
                         </Binding.Source>

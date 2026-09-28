@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Globalization;
 using Avalonia.Media;
 using PixiEditor.Helpers.Extensions;
 

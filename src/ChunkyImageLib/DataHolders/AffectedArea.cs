@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Drawie.Backend.Core.Numerics;
-using Drawie.Numerics;
+﻿using Drawie.Numerics;
 
 namespace ChunkyImageLib.DataHolders;
 
@@ -38,7 +32,7 @@ public struct AffectedArea
             GlobalArea = null;
             return;
         }
-        GlobalArea = new RectI(chunks.First(), new(ChunkyImage.FullChunkSize));
+        GlobalArea = new RectI(chunks.First() * ChunkyImage.FullChunkSize, new(ChunkyImage.FullChunkSize));
         foreach (var vec in chunks)
         {
             GlobalArea = GlobalArea.Value.Union(new RectI(vec * ChunkyImage.FullChunkSize, new(ChunkyImage.FullChunkSize)));

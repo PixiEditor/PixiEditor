@@ -1,7 +1,4 @@
-﻿using System.Buffers;
-using System.Collections.Generic;
-
-namespace PixiEditor.Helpers.Extensions;
+﻿namespace PixiEditor.Helpers.Extensions;
 
 internal static class EnumerableExtensions
 {

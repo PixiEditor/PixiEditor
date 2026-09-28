@@ -1,9 +1,6 @@
-﻿using System.Reflection;
-using System.Security.Principal;
-using PixiEditor.IdentityProvider;
-using PixiEditor.IdentityProvider.PixiAuth;
-using PixiEditor.PixiAuth;
+﻿using PixiEditor.IdentityProvider.PixiAuth;
 using PixiEditor.PixiAuth.Exceptions;
+using PixiEditor.PixiAuth.Models;
 
 namespace PixiEditor.Platform.Standalone;
 
@@ -31,8 +28,16 @@ public sealed class StandaloneAdditionalContentProvider : IAdditionalContentProv
 
         try
         {
+            var ownedProduct = IdentityProvider.User.OwnedProducts
+                .FirstOrDefault(x => x.Id == productId);
+
+            if (ownedProduct == null)
+            {
+                return null;
+            }
+            
             var stream =
-                await IdentityProvider.PixiAuthClient.DownloadProduct(IdentityProvider.User.SessionToken, productId);
+                await IdentityProvider.PixiAuthClient.DownloadProduct(IdentityProvider.User.SessionToken, productId, IdentityProvider.User.OwnedProducts.First(x => x.Id.Equals(productId, StringComparison.Ordinal)).DownloadLink);
             if (stream != null)
             {
                 var firstExistingPath =
@@ -119,5 +124,73 @@ public sealed class StandaloneAdditionalContentProvider : IAdditionalContentProv
     public void Error(string error)
     {
         OnError?.Invoke(error, null);
+    }
+    
+    public async Task<List<AvailableContent>> FetchAvailableExtensions()
+    {
+        if (IdentityProvider.PixiAuthClient == null)
+        {
+            throw new Exception("No PixiAuth client has been configured. Are you running an official build?");
+        }
+        
+        List<AvailableExtension> availableExtensions = await IdentityProvider.PixiAuthClient.GetAvailableExtensions();
+        
+        return availableExtensions
+            .Select(x => new AvailableContent
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Description = x.Description,
+                Author = x.Author,
+                Body = x.Body,
+                ImageUrl = x.ImageUrl,
+                ShowcaseUrls = x.ShowcaseUrls,
+                Price =  x.Price,
+                Currency = x.Currency,
+                IncludedExtensions = x.IncludedExtensions,
+                IsBundle = x.IsBundle,
+                PercentageDiscount = x.PercentageDiscount,
+                TierGroup = x.TierGroup,
+                Tier = x.Tier,
+                ReleaseDate = x.ReleaseDate,
+                Versions = x.Versions.Select(v => new ExtensionVersion()
+                {
+                    Version = v.Version,
+                    PixiEditorApiVersion = v.PixiEditorApiVersion,
+                    CompatibleHostVersions = v.CompatibleHostVersions.Select(hv => new HostVersion()
+                    {
+                        HostName = hv.HostName,
+                        MinVersion = hv.MinVersion,
+                        MaxVersion = hv.MaxVersion
+                    }).ToList()
+                }).ToList()
+            })
+            .ToList();
+    }
+
+    public async Task<ExtensionsLayout> FetchExtensionsLayout()
+    {
+        if (IdentityProvider.PixiAuthClient == null)
+        {
+            throw new Exception("No PixiAuth client has been configured. Are you running an official build?");
+        }
+
+        var itemsLayout = await IdentityProvider.PixiAuthClient.GetExtensionsLayout();
+        return new ExtensionsLayout()
+        {
+            HighlightedExtensions = itemsLayout.HighlightedExtensions.Select(x =>
+                new HighlightData()
+                {
+                    Header = x.Header,
+                    Description = x.Description,
+                    TaglineIcon = x.TaglineIcon,
+                    Color = x.Color,
+                    DealText = x.DealText,
+                    ExtensionId = x.ExtensionId,
+                    HeaderTaglineText = x.HeaderTaglineText,
+                    HighlightImageUrl = x.HighlightImageUrl
+                }).ToList(),
+            FeaturedExtensionIds = itemsLayout.FeaturedExtensionIds
+        };
     }
 }

@@ -1,7 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Models.Handlers;
-using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.Nodes;
 using PixiEditor.ViewModels.Tools.Tools;
 
@@ -41,4 +40,8 @@ internal class ImageLayerNodeViewModel : StructureMemberViewModel<ImageLayerNode
     }
 
     public Type? QuickEditTool { get; } = typeof(PenToolViewModel);
+    public override bool CanQuickColorChange()
+    {
+        return false;
+    }
 }

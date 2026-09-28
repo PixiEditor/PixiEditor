@@ -47,6 +47,11 @@
                                        Classes.input-socket-array="{Binding IsInput, RelativeSource={RelativeSource TemplatedParent}}"
                                        RadiusX="2" RadiusY="2"
                                        Fill="{TemplateBinding SocketBrush}" />
+                            <Rectangle Width="5" Height="1.5"
+                                       Classes.input-socket-array="{Binding IsInput, RelativeSource={RelativeSource TemplatedParent}}"
+                                       VerticalAlignment="Center"
+                                       Fill="{DynamicResource ThemeControlMidBrush}"
+                                       IsVisible="{Binding IsNestedArray, RelativeSource={RelativeSource TemplatedParent}}" />
                         </Panel>
                     </Grid>
                 </StackPanel>

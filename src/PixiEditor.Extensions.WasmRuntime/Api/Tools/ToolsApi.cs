@@ -23,4 +23,12 @@ internal class ToolsApi : ApiGroupHandler
         string prefixedToolsetName = PrefixedNameUtility.ToPixiEditorRelativePreferenceName(Extension.Metadata.UniqueName, toolsetName);
         Api.Tools.AddToolToToolset(prefixedName, prefixedToolsetName, atIndex);
     }
+
+    [ApiFunction("add_tool_to_toolset_with_config")]
+    public void AddToolToToolsetWithConfig(string toolName, string toolsetName, int atIndex, string configJson)
+    {
+        string prefixedName = PrefixedNameUtility.ToPixiEditorRelativePreferenceName(Extension.Metadata.UniqueName, toolName);
+        string prefixedToolsetName = PrefixedNameUtility.ToPixiEditorRelativePreferenceName(Extension.Metadata.UniqueName, toolsetName);
+        Api.Tools.AddToolToToolset(prefixedName, prefixedToolsetName, atIndex, configJson);
+    }
 }

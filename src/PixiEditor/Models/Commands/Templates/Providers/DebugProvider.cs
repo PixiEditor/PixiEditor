@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using Avalonia.Input;
+﻿using Avalonia.Input;
 
 namespace PixiEditor.Models.Commands.Templates.Providers;
 

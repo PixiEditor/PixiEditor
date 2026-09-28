@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using Drawie.Backend.Core.ColorsImpl.Paintables;
+﻿using Drawie.Backend.Core.ColorsImpl.Paintables;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using Drawie.Backend.Core.Shaders.Generation;
 using Drawie.Backend.Core.Vector;
@@ -30,7 +29,7 @@ public static class SerializationUtil
     public static object SerializeObject(object? value, SerializationConfig config,
         IReadOnlyList<SerializationFactory> allFactories)
     {
-        if (value is null)
+        if (value is null || EmptyContentWellKnownTypes.ContainsKey(value.GetType()))
         {
             return null;
         }

@@ -25,8 +25,7 @@ internal class DrawCheckerBackgroundOperation : SkiaDrawOperation
             Shader = SKShader.CreateBitmap(
                 CheckerBitmap,
                 SKShaderTileMode.Repeat, SKShaderTileMode.Repeat,
-                SKMatrix.CreateScale(checkerScale, checkerScale)),
-            FilterQuality = SKFilterQuality.None,
+                SKMatrix.CreateScale(checkerScale, checkerScale))
         };
     }
 

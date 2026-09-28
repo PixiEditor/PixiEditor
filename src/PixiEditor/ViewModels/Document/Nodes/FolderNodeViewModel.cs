@@ -4,7 +4,6 @@ using System.ComponentModel;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Layers;
-using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document.Nodes;
@@ -85,5 +84,10 @@ internal class FolderNodeViewModel : StructureMemberViewModel<FolderNode>, IFold
         }
 
         return count;
+    }
+
+    public override bool CanQuickColorChange()
+    {
+        return false;
     }
 }

@@ -19,6 +19,7 @@ internal class Brush : IBrush
     public string Source { get; set; }
     public bool IsDuplicable { get; set; } = true;
     public bool IsReadOnly { get; set; } = false;
+    public bool HasGraphUpgrades => Document.NodeGraphHandler.HasGraphUpgrades;
 
     public Brush(Uri uri, string source)
     {

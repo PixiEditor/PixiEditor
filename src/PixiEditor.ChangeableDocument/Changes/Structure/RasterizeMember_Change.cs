@@ -5,7 +5,6 @@ using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.ChangeableDocument.Changes.NodeGraph;
 using Drawie.Backend.Core;
-using Drawie.Backend.Core.Surfaces;
 using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Structure;

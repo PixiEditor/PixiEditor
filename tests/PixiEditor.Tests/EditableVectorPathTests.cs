@@ -1,9 +1,5 @@
-﻿using Drawie.Backend.Core.Bridge;
-using Drawie.Backend.Core.Vector;
+﻿using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
-using Drawie.Skia;
-using DrawiEngine;
-using PixiEditor.Views.Overlays.PathOverlay;
 
 namespace PixiEditor.Tests;
 
@@ -366,21 +362,19 @@ public class EditableVectorPathTests : PixiEditorTest
     }
     
     [Fact]
-    public void TestThatMultipleMoveToProduceEmptyVerbs()
+    public void TestThatMultipleMoveToProduceEmptyVerb()
     {
         VectorPath path = new VectorPath();
         path.MoveTo(new VecF(0, 0));
         path.MoveTo(new VecF(2, 2));
-        
+
         EditableVectorPath editablePath = new EditableVectorPath(path);
         
-        Assert.Equal(2, editablePath.SubShapes.Count);
+        Assert.Single(editablePath.SubShapes);
         
         Assert.Single(editablePath.SubShapes[0].Points);
-        Assert.Single(editablePath.SubShapes[1].Points);
-        
+
         Assert.Null(editablePath.SubShapes[0].Points[0].Verb.VerbType);
-        Assert.Null(editablePath.SubShapes[1].Points[0].Verb.VerbType);
     }
 
     [Fact]

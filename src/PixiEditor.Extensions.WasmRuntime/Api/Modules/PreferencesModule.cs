@@ -1,6 +1,5 @@
 ﻿using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Extensions.CommonApi.Utilities;
-using PixiEditor.Extensions.WasmRuntime.Utilities;
 
 namespace PixiEditor.Extensions.WasmRuntime.Api.Modules;
 

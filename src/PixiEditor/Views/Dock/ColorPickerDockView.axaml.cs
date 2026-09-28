@@ -1,9 +1,6 @@
 ﻿using Avalonia.Controls;
-using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using Avalonia.VisualTree;
-using Avalonia.Xaml.Interactivity;
-using PixiEditor.Helpers.Behaviours;
 
 namespace PixiEditor.Views.Dock;
 

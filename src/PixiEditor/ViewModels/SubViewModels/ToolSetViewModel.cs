@@ -1,7 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using PixiEditor.Models.Handlers;
 using PixiEditor.UI.Common.Fonts;
-using PixiEditor.ViewModels.Tools;
 
 namespace PixiEditor.ViewModels.SubViewModels;
 

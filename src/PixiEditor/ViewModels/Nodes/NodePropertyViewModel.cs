@@ -2,7 +2,6 @@
 using Avalonia;
 using Avalonia.Media;
 using Drawie.Backend.Core.Shaders.Generation;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.Handlers;
@@ -20,6 +19,7 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
     private bool isInput;
     private bool isFunc;
     private bool isArray;
+    private bool isNestedArray;
     private IBrush socketBrush;
     private string errors = string.Empty;
     private bool mergeChanges = false;
@@ -115,6 +115,12 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
         set => SetProperty(ref isArray, value);
     }
 
+    public bool IsNestedArray
+    {
+        get => isNestedArray;
+        set => SetProperty(ref isNestedArray, value);
+    }
+
     public bool IsVisible
     {
         get => isVisible;
@@ -184,7 +190,7 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
         PropertyType = propertyType;
         var targetType = propertyType;
 
-        if (targetType.IsArray)
+        while (targetType.IsArray)
         {
             targetType = targetType.GetElementType();
         }
@@ -223,16 +229,24 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
 
     public static NodePropertyViewModel? CreateFromType(Type type, INodeHandler node)
     {
+        if (node == null) return null;
+        if (type == null) return null;
+
         Type propertyType = type;
 
         if (type.IsAssignableTo(typeof(Delegate)))
         {
-            propertyType = type.GetMethod("Invoke").ReturnType;
+            propertyType = type.GetMethod("Invoke")?.ReturnType;
         }
 
         if (IsShaderType(propertyType))
         {
-            propertyType = type.GetMethod("Invoke").ReturnType.BaseType.GenericTypeArguments[0];
+            propertyType = type.GetMethod("Invoke")?.ReturnType?.BaseType?.GenericTypeArguments.FirstOrDefault();
+        }
+
+        if (propertyType == null)
+        {
+            return new GenericPropertyViewModel(node, type);
         }
 
         string typeName = propertyType.Name;
@@ -263,6 +277,16 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
         ViewModelMain.Current.NodeGraphManager.GetComputedPropertyValue(this);
     }
 
+    public void StartWatchingComputedValue()
+    {
+        ViewModelMain.Current.NodeGraphManager.StartWatchingComputedValue(this);
+    }
+
+    public void StopWatchingComputedValue()
+    {
+        ViewModelMain.Current.NodeGraphManager.StopWatchingComputedValue(this);
+    }
+
     public void InternalSetComputedValue(object value)
     {
         computedValue = value;
@@ -278,8 +302,13 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
         }
     }
 
-    private static bool IsShaderType(Type type)
+    private static bool IsShaderType(Type? type)
     {
+        if (type == null)
+        {
+            return false;
+        }
+
         return type.IsAssignableTo(typeof(ShaderExpressionVariable));
     }
 }

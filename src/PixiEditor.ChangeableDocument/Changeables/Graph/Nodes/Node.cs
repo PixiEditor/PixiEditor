@@ -5,18 +5,12 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.Common;
-using Drawie.Backend.Core;
-using Drawie.Backend.Core.ColorsImpl;
-using Drawie.Backend.Core.Shaders;
 using Drawie.Backend.Core.Shaders.Generation;
-using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
-[DebuggerDisplay("Type = {GetType().Name}")]
+[DebuggerDisplay("Type = {GetType().Name}; DisplayName = {DisplayName}")]
 public abstract class Node : IReadOnlyNode, IDisposable
 {
     private string displayName;
@@ -576,13 +570,15 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
     public void DisconnectAll()
     {
-        foreach (var input in inputs)
+        for (var index = 0; index < inputs.Count; index++)
         {
+            var input = inputs[index];
             input.Connection?.DisconnectFrom(input);
         }
 
-        foreach (var output in outputs)
+        for (var index = 0; index < outputs.Count; index++)
         {
+            var output = outputs[index];
             var connections = output.Connections.ToArray();
             for (var i = 0; i < connections.Length; i++)
             {

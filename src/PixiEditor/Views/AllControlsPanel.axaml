@@ -119,7 +119,6 @@
         </ButtonSpinner>
         <Calendar/>
         <DatePicker/>
-        <CaptionButtons/>
         <Carousel>
             <Carousel.ItemTemplate>
                 <DataTemplate>

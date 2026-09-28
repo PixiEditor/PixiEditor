@@ -1,5 +1,4 @@
-﻿using Avalonia.Media;
-using Drawie.Backend.Core.Surfaces;
+﻿using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Text;
 using Drawie.Numerics;
@@ -15,13 +14,12 @@ public class IconGlyph : HandleGlyph
     private Paint fontPaint = new() { Color = Colors.White, IsAntiAliased = true };
     private Font targetFont;
     
-    private static Font? pixiPerfectFont;
+    internal static Font? PixiPerfectFont { get; } = Font.FromStream(PixiPerfectIconExtensions.GetFontStream());
 
     public IconGlyph(string icon, Font font = null, Paint customPaint = null)
     {
         Icon = icon;
-        pixiPerfectFont ??= Font.FromStream(PixiPerfectIconExtensions.GetFontStream());
-        targetFont = font ?? pixiPerfectFont;
+        targetFont = font ?? PixiPerfectFont;
         if (customPaint != null)
         {
             fontPaint?.Dispose();

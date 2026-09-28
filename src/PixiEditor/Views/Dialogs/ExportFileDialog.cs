@@ -1,8 +1,6 @@
 ﻿using System.Collections.ObjectModel;
-using System.Threading.Tasks;
 using Avalonia.Controls;
 using PixiEditor.AnimationRenderer.FFmpeg;
-using Drawie.Backend.Core.Numerics;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Files;
 using PixiEditor.Models.IO;

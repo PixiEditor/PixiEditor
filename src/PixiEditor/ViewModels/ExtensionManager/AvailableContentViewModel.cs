@@ -1,0 +1,245 @@
+﻿using System.Collections.ObjectModel;
+using Avalonia.Threading;
+using CommunityToolkit.Mvvm.ComponentModel;
+using LiveMarkdown.Avalonia;
+using PixiEditor.Extensions.Runtime;
+using PixiEditor.Platform;
+
+namespace PixiEditor.ViewModels.ExtensionManager;
+
+internal class AvailableContentViewModel : ObservableObject
+{
+    private HighlightData? data;
+    public AvailableContent AvailableContent { get; }
+
+    public HighlightData? HighlightData
+    {
+        get => data;
+        set
+        {
+            if (SetProperty(ref data, value))
+            {
+                HeadlineMarkdownBuilder.Clear();
+                DealTextMarkdownBuilder.Clear();
+                if (data != null)
+                {
+                    HeadlineMarkdownBuilder.Append(data.HeaderTaglineText);
+                    DealTextMarkdownBuilder.Append(data.DealText);
+                }
+            }
+        }
+    }
+
+    public bool IsOwned => extensionManager.IsExtensionOwned(AvailableContent.Id);
+
+    public bool IsBundle => AvailableContent.IsBundle;
+
+    public bool IsNew => DateTime.Now - AvailableContent.ReleaseDate < TimeSpan.FromDays(14);
+
+    public bool AllBundleItemsOwned =>
+        IsBundle && AvailableContent.IncludedExtensions.All(id => extensionManager.IsExtensionOwned(id));
+
+    public bool IsCountryUnsupported => Currency == "UNSUPPORTED";
+
+    public string PriceText => IsOwned
+        ? "EXTENSIONS_WINDOW_IN_LIBRARY"
+        : (
+            AllBundleItemsOwned ? "EXTENSIONS_WINDOW_ALL_FROM_BUNDLE_OWNED" : CalculatedPrice
+        );
+
+    public string CalculatedPrice
+    {
+        get
+        {
+            if (IsUnavailable)
+            {
+                return "";
+            }
+
+            if (AvailableContent.Price == 0 && !IsBundle)
+            {
+                return "FREE";
+            }
+
+            if (IsCountryUnsupported)
+                return "UNAVAILABLE_IN_YOUR_COUNTRY";
+
+            double price = GetBasePrice(AvailableContent);
+
+            if (AvailableContent.IsBundle)
+            {
+                price = 0;
+                foreach (var ext in AvailableContent.IncludedExtensions)
+                {
+                    if (!extensionManager.IsExtensionOwned(ext))
+                    {
+                        var extInfo =
+                            extensionManager.AvailableExtensions.FirstOrDefault(e => e.AvailableContent.Id == ext);
+                        if (extInfo != null)
+                        {
+                            price += extInfo.AvailableContent.Price;
+                        }
+                    }
+                }
+
+                price = price * (1 - AvailableContent.PercentageDiscount / 100.0);
+            }
+
+            if (Currency != "PLN")
+            {
+                return $"{((price / Rate) * 1.04):0.00} {Currency}";
+            }
+
+            return $"{price:0.00} {Currency}";
+        }
+    }
+
+    private double GetBasePrice(AvailableContent availableContent)
+    {
+        if (string.IsNullOrEmpty(availableContent.TierGroup))
+        {
+            return availableContent.Price;
+        }
+
+        AvailableContent? highestOwnedLowerTier = null;
+        foreach (var candidate in extensionManager.AvailableExtensions)
+        {
+            var candidateContent = candidate.AvailableContent;
+            if (candidateContent.TierGroup != availableContent.TierGroup)
+                continue;
+
+            if (candidateContent.Tier >= availableContent.Tier)
+            {
+                continue;
+            }
+
+            if (!extensionManager.IsExtensionOwned(candidateContent.Id))
+            {
+                continue;
+            }
+
+            if (highestOwnedLowerTier == null || candidateContent.Tier > highestOwnedLowerTier.Tier)
+            {
+                highestOwnedLowerTier = candidateContent;
+            }
+        }
+
+        return Math.Max(0, availableContent.Price - (highestOwnedLowerTier?.Price ?? 0));
+    }
+
+    private readonly ExtensionManagerViewModel extensionManager;
+
+    private double Rate { get; }
+    private string Currency { get; }
+    public bool IsFree => AvailableContent.Price == 0 && !IsBundle;
+    public ObservableStringBuilder MarkdownBody { get; } = new ObservableStringBuilder();
+    public bool IsUnavailable { get; }
+    public ObservableCollection<ShowcaseItem> ShowcaseItems { get; } = new ObservableCollection<ShowcaseItem>();
+    public ObservableStringBuilder HeadlineMarkdownBuilder { get; } = new ObservableStringBuilder();
+    public ObservableStringBuilder DealTextMarkdownBuilder { get; } = new ObservableStringBuilder();
+    public bool HasCompatibleVersion => ExtensionApiVersionCompatible() && HostVersionCompatible();
+
+    private bool ExtensionApiVersionCompatible()
+    {
+        return AvailableContent?.Versions == null || AvailableContent?.Versions.Count == 0 ||
+               AvailableContent?.Versions?.Any(v => v is
+               {
+                   PixiEditorApiVersion: <= ExtensionRuntimeInfo.ApiVersion
+               }) == true;
+    }
+
+    private bool HostVersionCompatible()
+    {
+        if (AvailableContent?.Versions == null || AvailableContent.Versions.Count == 0) return true;
+
+        Version pixiEditorVersion = extensionManager.ExtensionsViewModel.ExtensionLoader.Host.Version;
+        bool hostOfNameFound = false;
+
+        foreach (var version in AvailableContent.Versions)
+        {
+            if (version.CompatibleHostVersions == null || version.CompatibleHostVersions.Count == 0) return true;
+
+            foreach (var hostVersion in version.CompatibleHostVersions)
+            {
+                if (hostVersion.HostName.Equals(extensionManager.ExtensionsViewModel.ExtensionLoader.Host.HostName,
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    hostOfNameFound = true;
+                    if ((hostVersion.MinVersion == null || pixiEditorVersion >= hostVersion.MinVersion) &&
+                        (hostVersion.MaxVersion == null || pixiEditorVersion <= hostVersion.MaxVersion))
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return !hostOfNameFound;
+    }
+
+    private HttpClient httpClient = new HttpClient() { Timeout = TimeSpan.FromSeconds(15) };
+
+    public AvailableContentViewModel(AvailableContent content, ExtensionManagerViewModel extensionManager, double rate,
+        string currency, bool isUnavailable)
+    {
+        AvailableContent = content;
+        this.extensionManager = extensionManager;
+        Rate = rate;
+        Currency = currency;
+        if (Uri.TryCreate(AvailableContent.Body, UriKind.Absolute, out Uri bodyUri))
+        {
+            FetchContentFromUri(bodyUri);
+        }
+        else
+        {
+            MarkdownBody.Append(content.Body);
+        }
+
+        IsUnavailable = isUnavailable;
+        if (content.ShowcaseUrls != null)
+        {
+            foreach (var showcaseItem in content.ShowcaseUrls)
+            {
+                if (Uri.TryCreate(showcaseItem, UriKind.Absolute, out Uri showcaseUri))
+                {
+                    bool isVideo = showcaseUri.AbsolutePath.EndsWith(".mp4", StringComparison.OrdinalIgnoreCase) ||
+                                   showcaseUri.AbsolutePath.EndsWith(".webm", StringComparison.OrdinalIgnoreCase);
+                    if (isVideo)
+                    {
+                        ShowcaseItems.Add(new VideoShowcaseItem(showcaseItem));
+                    }
+                    else
+                    {
+                        ShowcaseItems.Add(new ImageShowcaseItem(showcaseItem));
+                    }
+                }
+            }
+        }
+    }
+
+    private void FetchContentFromUri(Uri bodyUri)
+    {
+        Task.Run(async () =>
+        {
+            try
+            {
+                string markdown = await httpClient.GetStringAsync(bodyUri);
+                Dispatcher.UIThread.Post(() => MarkdownBody.Append(markdown));
+            }
+            catch (Exception)
+            {
+                Dispatcher.UIThread.Post(() => MarkdownBody.Append("Failed to load content."));
+            }
+        });
+    }
+
+    public void NotifyChanged()
+    {
+        OnPropertyChanged(nameof(IsOwned));
+        OnPropertyChanged(nameof(IsBundle));
+        OnPropertyChanged(nameof(AllBundleItemsOwned));
+        OnPropertyChanged(nameof(CalculatedPrice));
+        OnPropertyChanged(nameof(PriceText));
+        OnPropertyChanged(nameof(IsCountryUnsupported));
+    }
+}

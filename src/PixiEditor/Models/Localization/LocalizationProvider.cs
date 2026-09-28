@@ -1,10 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Linq;
+﻿using System.Globalization;
 using System.Text.Json;
 using Avalonia.Platform;
-using PixiEditor.Helpers.Extensions;
+using PixiEditor.Common;
 using PixiEditor.Extensions;
 using PixiEditor.Extensions.Runtime;
 using PixiEditor.Helpers;
@@ -26,7 +23,7 @@ internal class LocalizationProvider : ILocalizationProvider
 
     public LanguageData SelectedLanguage { get; private set; }
 
-    public LanguageData FollowSystem { get; } = new() { Name = "Follow system", Code = "system" };
+    public LanguageData FollowSystem { get; } = new() { Name = "FOLLOW_SYSTEM_LANG", Code = "system" };
 
     public event Action<Language> OnLanguageChanged;
 

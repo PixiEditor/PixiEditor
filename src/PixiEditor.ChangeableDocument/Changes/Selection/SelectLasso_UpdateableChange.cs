@@ -1,5 +1,4 @@
 ﻿using PixiEditor.ChangeableDocument.Enums;
-using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 
@@ -11,12 +10,14 @@ internal class SelectLasso_UpdateableChange : UpdateableChange
     private VectorPath? originalPath;
     private VectorPath path = new() { FillType = PathFillType.EvenOdd };
     private readonly SelectionMode mode;
+    private string renderOutput;
 
     [GenerateUpdateableChangeActions]
-    public SelectLasso_UpdateableChange(VecI point, SelectionMode mode)
+    public SelectLasso_UpdateableChange(VecI point, SelectionMode mode, string renderOutput)
     {
         initialPoint = point;
         this.mode = mode;
+        this.renderOutput = renderOutput;
     }
 
     [UpdateChangeMethod]
@@ -27,7 +28,13 @@ internal class SelectLasso_UpdateableChange : UpdateableChange
 
     public override bool InitializeAndValidate(Document target)
     {
-        constraint = new RectI(VecI.Zero, target.Size);
+        VecI targetSize = target.Size;
+        if (!string.IsNullOrEmpty(renderOutput))
+        {
+            targetSize = target.GetRenderOutputSize(renderOutput);
+        }
+
+        constraint = new RectI(VecI.Zero, targetSize);
         path.MoveTo(initialPoint.KeepInside(constraint));
         originalPath = new VectorPath(target.Selection.SelectionPath);
         return true;

@@ -29,20 +29,18 @@ using PixiEditor.Models.ExceptionHandling;
 using PixiEditor.Models.IO.CustomDocumentFormats;
 using PixiEditor.OperatingSystem;
 using PixiEditor.Parser;
-using PixiEditor.Platform;
-using PixiEditor.UI.Common.Fonts;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.Views;
 using PixiEditor.Views.Dialogs;
 using PixiEditor.Views.Windows;
-using Wasmtime;
 
 namespace PixiEditor.ViewModels.SubViewModels;
 
 [Command.Group("PixiEditor.File", "FILE")]
 internal class FileViewModel : SubViewModel<ViewModelMain>
 {
+    private HashSet<string> confirmedOverwritePaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
     public static long LazyFileThreshold = 2 * 1024 * 1024; // 2MB
     private bool hasRecent;
 
@@ -160,24 +158,10 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             {
                 preferences.UpdateLocalPreference("OnboardingV2Shown", true);
 
-                if (IPlatform.Current?.IdentityProvider != null &&
-                    IPlatform.Current.IdentityProvider.ProviderName == "PixiAuth")
+                Owner.WindowSubViewModel.OpenOnboardingWindow().Closed += (_, _) =>
                 {
-                    Owner.WindowSubViewModel.OpenAccountWindow(true).Closed += (sender, eventArgs) =>
-                    {
-                        Owner.WindowSubViewModel.OpenOnboardingWindow().Closed += (_, _) =>
-                        {
-                            Owner.InvokeUserReadyEvent();
-                        };
-                    };
-                }
-                else
-                {
-                    Owner.WindowSubViewModel.OpenOnboardingWindow().Closed += (_, _) =>
-                    {
-                        Owner.InvokeUserReadyEvent();
-                    };
-                }
+                    Owner.InvokeUserReadyEvent();
+                };
             }
             else if (preferences!.GetPreference("ShowStartupWindow", true))
             {
@@ -225,7 +209,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.File.OpenFileFromClipboard", "OPEN_FILE_FROM_CLIPBOARD",
-        "OPEN_FILE_FROM_CLIPBOARD_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.CanPaste",
+        "OPEN_FILE_FROM_CLIPBOARD_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.CanPasteFromClipboard",
         Icon = PixiPerfectIcons.PasteAsNewLayer,
         MenuItemPath = "FILE/OPEN_FILE_FROM_CLIPBOARD", MenuItemOrder = 3,
         AnalyticsTrack = true)]
@@ -266,17 +250,22 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                 if (dialog.Count == 0 || !Importer.IsSupportedFile(dialog[0].Path.LocalPath))
                     return;
 
-                var manager = Owner.DocumentManagerSubViewModel;
-                if (manager.ActiveDocument is null)
-                    return;
-
-                if (!ClipboardController.TryPlaceNestedDocument(manager.ActiveDocument, manager,
-                        dialog[0].Path.LocalPath, out string? error))
-                {
-                    NoticeDialog.Show(new LocalizedString("FAILED_TO_PLACE_ELEMENT", error), "ERROR");
-                }
+                PlaceElement(dialog[0].Path.LocalPath);
             }
         });
+    }
+
+    [Command.Internal("PixiEditor.File.PlaceElementFromPath", CanExecute = "PixiEditor.Layer.CanCreateNewMember", AnalyticsTrack = true)]
+    public void PlaceElement(string path)
+    {
+        var manager = Owner.DocumentManagerSubViewModel;
+        if (manager.ActiveDocument is null)
+            return;
+
+        if (!ClipboardController.TryPlaceNestedDocument(manager.ActiveDocument, manager, path, out string? error))
+        {
+            NoticeDialog.Show(new LocalizedString("FAILED_TO_PLACE_ELEMENT", error), "ERROR");
+        }
     }
 
     private bool MakeExistingDocumentActiveIfOpened(string path)
@@ -340,11 +329,13 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             {
                 foreach (var nodeId in nodeIds)
                 {
-                    var node = document.AccessInternalReadOnlyDocument().FindNode(nodeId) as NestedDocumentNode;
-                    var nestedDoc = node?.NestedDocument.Value?.DocumentInstance;
-                    if (nestedDoc != null)
+                    if (document.AccessInternalReadOnlyDocument().TryFindNode(nodeId, out var foundNode) && foundNode is NestedDocumentNode node)
                     {
-                        return nestedDoc;
+                        var nestedDoc = node?.NestedDocument.Value?.DocumentInstance;
+                        if (nestedDoc != null)
+                        {
+                            return nestedDoc;
+                        }
                     }
                 }
             }
@@ -352,11 +343,14 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
         return null;
     }
+    
+    [Command.Internal("PixiEditor.File.OpenFromPath", AnalyticsTrack = true)]
+    public DocumentViewModel OpenFromPath(string path) => OpenFromPath(path, true);
 
     /// <summary>
     /// Tries to open the passed file if it isn't already open
     /// </summary>
-    public DocumentViewModel OpenFromPath(string path, bool associatePath = true)
+    public DocumentViewModel OpenFromPath(string path, bool associatePath)
     {
         if (path == null)
             return null;
@@ -385,6 +379,16 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         catch (OldFileFormatException)
         {
             NoticeDialog.Show("OLD_FILE_FORMAT_DESCRIPTION", "OLD_FILE_FORMAT");
+        }
+        catch(IOException ex)
+        {
+            NoticeDialog.Show(new LocalizedString("EXCEPTION_ERROR", ex.Message), "IO_ERROR");
+            CrashHelper.SendExceptionInfo(ex);
+        }
+        catch (Exception ex)
+        {
+            NoticeDialog.Show(new LocalizedString("EXCEPTION_ERROR", ex.Message), "ERROR");
+            CrashHelper.SendExceptionInfo(ex);
         }
 
         return null;
@@ -784,6 +788,11 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                     return false;
                 }
 
+                if(string.IsNullOrEmpty(result.Path))
+                {
+                    return false;
+                }
+
                 document.FullFilePath = result.Path;
                 document.ReferenceId = Guid.Empty;
                 AddRecentlyOpened(result.Path);
@@ -800,9 +809,15 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                 var result = await Exporter.TrySaveWithDialog(document, config, null);
                 if (result.Result.ResultType == SaveResultType.Cancelled)
                     return false;
+
                 if (result.Result.ResultType != SaveResultType.Success)
                 {
                     ShowSaveError(result.Result);
+                    return false;
+                }
+
+                if(string.IsNullOrEmpty(result.Path))
+                {
                     return false;
                 }
 
@@ -812,6 +827,41 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             else
             {
                 ExportConfig config = new ExportConfig(document.SizeBindable);
+                if (!string.Equals(Path.GetExtension(document.FullFilePath), ".pixi", StringComparison.OrdinalIgnoreCase) && !confirmedOverwritePaths.Contains(document.FullFilePath))
+                {
+                    var overwrite = await ConfirmationDialog.Show(new LocalizedString("CONFIRM_OVERWRITE_QUESTION", Path.GetExtension(document.FullFilePath)), "CONFIRM_OVERWRITE_TITLE");
+                    if (overwrite == ConfirmationType.Canceled)
+                    {
+                        return false;
+                    }
+
+                    if (overwrite == ConfirmationType.No)
+                    {
+                        var dialogResult = await Exporter.TrySaveWithDialog(document, config, null);
+                        if (dialogResult.Result.ResultType == SaveResultType.Cancelled)
+                            return false;
+
+                        if (dialogResult.Result.ResultType != SaveResultType.Success)
+                        {
+                            ShowSaveError(dialogResult.Result);
+                            return false;
+                        }
+
+                        if (string.IsNullOrEmpty(dialogResult.Path))
+                        {
+                            return false;
+                        }
+
+                        finalPath = dialogResult.Path;
+                        AddRecentlyOpened(dialogResult.Path);
+
+                        document.FullFilePath = finalPath;
+                        Owner.DocumentManagerSubViewModel.ReloadDocumentReference(document.ReferenceId, finalPath);
+                        document.MarkAsSaved();
+                        return true;
+                    }
+                }
+
                 var result = await Exporter.TrySaveAsync(document, document.FullFilePath, config, null);
                 if (result.ResultType != SaveResultType.Success)
                 {
@@ -820,6 +870,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                 }
 
                 finalPath = document.FullFilePath;
+                confirmedOverwritePaths.Add(finalPath);
             }
 
             document.FullFilePath = finalPath;

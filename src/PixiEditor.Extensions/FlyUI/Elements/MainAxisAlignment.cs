@@ -31,3 +31,10 @@ public enum ItemAlignment
     Center,
     End,
 }
+
+public enum ScrollDirection
+{
+    Horizontal,
+    Vertical,
+    Both
+}

@@ -1,0 +1,192 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls"
+                    x:ClassModifier="internal">
+    
+    <ControlTheme x:Key="LinuxDrawnCaptionButton" TargetType="Button">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}" />
+        <Setter Property="Width" Value="32" />
+        <Setter Property="Height" Value="32" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="(WindowDecorationProperties.ElementRole)" Value="DecorationsElement" />
+
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Name="PART_ButtonBorder"
+                        Background="Transparent"
+                        CornerRadius="18">
+
+                    <ContentPresenter Name="PART_ContentPresenter"
+                                      Background="Transparent"
+                                      HorizontalContentAlignment="Center"
+                                      VerticalContentAlignment="Center"
+                                      Content="{TemplateBinding Content}" />
+                </Border>
+            </ControlTemplate>
+        </Setter>
+
+        <Style Selector="^:pointerover /template/ Border#PART_ButtonBorder">
+            <Setter Property="Background"
+                    Value="{DynamicResource ThemeControlHighlightBrush}" />
+        </Style>
+
+        <Style Selector="^:pressed /template/ Border#PART_ButtonBorder">
+            <Setter Property="Background"
+                    Value="{DynamicResource ThemeControlHighBrush}" />
+        </Style>
+
+    </ControlTheme>
+
+    <ControlTheme x:Key="LinuxDrawnCloseCaptionButton" TargetType="Button">
+
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}" />
+        <Setter Property="Width" Value="32" />
+        <Setter Property="Height" Value="32" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="(WindowDecorationProperties.ElementRole)" Value="DecorationsElement" />
+
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Name="PART_ButtonBorder"
+                        Background="Transparent"
+                        CornerRadius="18">
+
+                    <ContentPresenter Name="PART_ContentPresenter"
+                                      Background="Transparent"
+                                      HorizontalContentAlignment="Center"
+                                      VerticalContentAlignment="Center"
+                                      Content="{TemplateBinding Content}" />
+                </Border>
+            </ControlTemplate>
+        </Setter>
+
+        <Style Selector="^:pointerover /template/ Border#PART_ButtonBorder">
+            <Setter Property="Background" Value="#D32F2F" />
+        </Style>
+
+        <Style Selector="^:pressed /template/ Border#PART_ButtonBorder">
+            <Setter Property="Background" Value="#B71C1C" />
+        </Style>
+
+        <Style Selector="^:pointerover /template/ Path">
+            <Setter Property="Fill" Value="White" />
+        </Style>
+
+    </ControlTheme>
+
+    <ControlTheme x:Key="LinuxWindowDecorations" TargetType="WindowDrawnDecorations">
+
+        <Setter Property="DefaultTitleBarHeight" Value="36" />
+        <Setter Property="DefaultFrameThickness" Value="1" />
+        <Setter Property="DefaultShadowThickness" Value="4" />
+
+        <Setter Property="Template">
+            <WindowDrawnDecorationsTemplate>
+                <WindowDrawnDecorationsContent>
+
+                    <WindowDrawnDecorationsContent.Underlay>
+                        <Panel x:Name="PART_UnderlayWrapper">
+
+
+                        </Panel>
+                    </WindowDrawnDecorationsContent.Underlay>
+
+                    <WindowDrawnDecorationsContent.Overlay>
+                        <Panel x:Name="PART_OverlayWrapper">
+
+                            <Border x:Name="PART_WindowBorder"
+                                    Background="Transparent"
+                                    BorderThickness="{TemplateBinding FrameThickness}"
+                                    BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                                    CornerRadius="{DynamicResource ControlCornerRadius}"
+                                    BoxShadow="0 4 24 6 #66000000"
+                                    IsHitTestVisible="False" />
+                            
+                            <StackPanel x:Name="PART_OverlayPanel"
+                                        VerticalAlignment="Top"
+                                        HorizontalAlignment="Right"
+                                        Height="{TemplateBinding TitleBarHeight}"
+                                        Margin="0, 0, 2, 0"
+                                        Orientation="Horizontal"
+                                        Spacing="0"
+                                        TextElement.FontSize="10">
+
+                                <Button x:Name="PART_MinimizeButton"
+                                        Theme="{StaticResource LinuxDrawnCaptionButton}"
+                                        WindowDecorationProperties.ElementRole="MinimizeButton"
+                                        IsVisible="{Binding $parent[Window].CanMinimize}"
+                                        AutomationProperties.Name="Minimize">
+
+                                    <Viewbox Width="12"
+                                             Height="12">
+
+                                        <Path Stretch="Uniform"
+                                              Fill="{DynamicResource ThemeForegroundBrush}"
+                                              Data="M2 10h12v2H2z" />
+
+                                    </Viewbox>
+                                </Button>
+
+                                <Button x:Name="PART_MaximizeButton"
+                                        Theme="{StaticResource LinuxDrawnCaptionButton}"
+                                        WindowDecorationProperties.ElementRole="MaximizeButton"
+                                        IsVisible="{Binding $parent[Window].CanMaximize}"
+                                        AutomationProperties.Name="Maximize">
+
+                                    <Viewbox Width="12"
+                                             Height="12">
+
+                                        <Path Name="RestoreButtonPath"
+                                              Stretch="Uniform"
+                                              Fill="{DynamicResource ThemeForegroundBrush}"
+                                              Data="M2 2h12v12H2z M4 4v8h8V4z" />
+
+                                    </Viewbox>
+                                </Button>
+
+                                <Button x:Name="PART_CloseButton"
+                                        Theme="{StaticResource LinuxDrawnCloseCaptionButton}"
+                                        WindowDecorationProperties.ElementRole="CloseButton"
+                                        AutomationProperties.Name="Close">
+
+                                    <Viewbox Width="12"
+                                             Height="12">
+
+                                        <Path Stretch="Uniform"
+                                              Fill="{DynamicResource ThemeForegroundBrush}"
+                                              Data="M3 3l6 6 6-6 1 1-6 6 6 6-1 1-6-6-6 6-1-1 6-6-6-6z" />
+
+                                    </Viewbox>
+                                </Button>
+
+                            </StackPanel>
+
+                        </Panel>
+                    </WindowDrawnDecorationsContent.Overlay>
+
+                </WindowDrawnDecorationsContent>
+            </WindowDrawnDecorationsTemplate>
+        </Setter>
+
+        <Style Selector="^:maximized /template/ Path#RestoreButtonPath">
+            <Setter Property="Data"
+                    Value="M5 1h10v10h-2V3H5V1z M1 5h10v10H1V5z M3 7v6h6V7H3z" />
+        </Style>
+
+        <Style Selector="^ /template/ Button:disabled">
+            <Setter Property="Opacity" Value="0.25" />
+        </Style>
+
+    </ControlTheme>
+
+</ResourceDictionary>

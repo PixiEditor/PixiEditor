@@ -1,9 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using ChunkyImageLib.DataHolders;
+﻿using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core.ColorsImpl;
-using Drawie.Backend.Core.ColorsImpl.Paintables;
-using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;

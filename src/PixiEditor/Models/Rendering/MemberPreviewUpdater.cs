@@ -71,10 +71,7 @@ internal class MemberPreviewUpdater
             QueueMasksToUpdate(masksToUpdate);
         }
 
-        if (!ignoreAnimationPreviews)
-        {
-            RenderAnimationPreviews(members, keyFramesToUpdate, previewTextures);
-        }
+        RenderAnimationPreviews(members, keyFramesToUpdate, previewTextures, ignoreAnimationPreviews);
 
         RenderNodePreviews(nodesToUpdate, previewTextures);
 
@@ -184,7 +181,7 @@ internal class MemberPreviewUpdater
     }
 
     private void RenderAnimationPreviews(HashSet<Guid> memberGuids, HashSet<Guid> keyFramesGuids,
-        Dictionary<Guid, List<PreviewRenderRequest>> previewTextures)
+        Dictionary<Guid, List<PreviewRenderRequest>> previewTextures, bool explicitOnly)
     {
         foreach (var keyFrame in doc.AnimationHandler.KeyFrames)
         {
@@ -194,7 +191,7 @@ internal class MemberPreviewUpdater
                 {
                     if (!keyFramesGuids.Contains(childFrame.Id))
                     {
-                        if (!memberGuids.Contains(childFrame.LayerGuid) || !IsInFrame(childFrame) ||
+                        if (explicitOnly || !memberGuids.Contains(childFrame.LayerGuid) || !IsInFrame(childFrame) ||
                             !groupHandler.IsVisible)
                             continue;
                     }
@@ -202,7 +199,8 @@ internal class MemberPreviewUpdater
                     RenderFramePreview(childFrame, previewTextures);
                 }
 
-                if (!keyFramesGuids.Contains(groupHandler.LayerGuid) && !memberGuids.Contains(groupHandler.LayerGuid))
+                if (!keyFramesGuids.Contains(groupHandler.LayerGuid) &&
+                    (explicitOnly || !memberGuids.Contains(groupHandler.LayerGuid)))
                     continue;
 
                 RenderGroupPreview(groupHandler, previewTextures);
@@ -227,10 +225,7 @@ internal class MemberPreviewUpdater
             }
 
             if (cel.PreviewTexture.Listeners.Count == 0)
-            {
-                cel.PreviewTexture.Preview?.Dispose();
                 return;
-            }
 
             VecI textureSize = cel.PreviewTexture.GetMaxListenerSize();
             if (textureSize.X <= 0 || textureSize.Y <= 0)
@@ -272,10 +267,7 @@ internal class MemberPreviewUpdater
             }
 
             if (groupHandler.PreviewTexture.Listeners.Count == 0)
-            {
-                groupHandler.PreviewTexture.Preview?.Dispose();
                 return;
-            }
 
             VecI textureSize = groupHandler.PreviewTexture.GetMaxListenerSize();
             if (textureSize.X <= 0 || textureSize.Y <= 0)

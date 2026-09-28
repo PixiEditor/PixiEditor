@@ -1,9 +1,4 @@
-﻿using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Media;
-using Avalonia.Svg.Skia;
-using PixiEditor.Helpers.Converters;
-using PixiEditor.UI.Common.Fonts;
+﻿using PixiEditor.UI.Common.Fonts;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.SubViewModels;
 

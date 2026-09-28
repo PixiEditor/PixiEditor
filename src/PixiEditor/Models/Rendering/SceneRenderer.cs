@@ -1,8 +1,5 @@
-﻿using Avalonia.Input;
-using ChunkyImageLib.DataHolders;
-﻿using Avalonia.Threading;
+﻿using ChunkyImageLib.DataHolders;
 using ChunkyImageLib;
-using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Bridge;
@@ -14,24 +11,23 @@ using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
-using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
 using PixiEditor.ChangeableDocument.Rendering.ContextData;
 using PixiEditor.Models.Handlers;
+using PixiEditor.Models.IO;
 using PixiEditor.Models.Position;
 
 namespace PixiEditor.Models.Rendering;
 
-internal class SceneRenderer
+internal class SceneRenderer : IDisposable
 {
     public const double ZoomDiffToRerender = 20;
     public const float OversizeFactor = 1.25f;
     public IReadOnlyDocument Document { get; }
     public IDocument DocumentViewModel { get; }
-    public bool HighResRendering { get; set; } = true;
 
     public IReadOnlyDictionary<Guid, RenderState> LastRenderedStates => lastRenderedStates;
     private Dictionary<Guid, RenderState> lastRenderedStates = new();
@@ -41,6 +37,9 @@ internal class SceneRenderer
     private HashSet<Guid> lastRenderedViewports = new();
 
     private TextureCache textureCache = new();
+    private Guid renderOnlyPreviewsViewportId = Guid.NewGuid();
+
+    private bool isDisposed = false;
 
     public SceneRenderer(IReadOnlyDocument trackerDocument, IDocument documentViewModel)
     {
@@ -48,7 +47,7 @@ internal class SceneRenderer
         DocumentViewModel = documentViewModel;
     }
 
-    public async Task RecordRender(Dictionary<Guid, ViewportInfo> stateViewports, AffectedArea affectedArea,
+    public void RecordRender(Dictionary<Guid, ViewportInfo> stateViewports, AffectedArea affectedArea,
         bool updateDelayed, Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures, bool immediateRender)
     {
         Render(stateViewports, affectedArea, updateDelayed, true, previewTextures);
@@ -81,32 +80,42 @@ internal class SceneRenderer
     {
         using var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
         int renderedCount = 0;
-        int graphHash = Document.NodeGraph.GetCacheHash();
-        foreach (var viewport in stateViewports)
+        if (Document?.NodeGraph == null || Document.NodeGraph.OutputNode == null)
         {
-            if (viewport.Value.Delayed && !updateDelayed)
-            {
-                continue;
-            }
-
-            if (viewport.Value.RealDimensions.ShortestAxis <= 0 ||
-                Math.Abs(viewport.Value.RealDimensions.LongestAxis - double.MaxValue) < double.Epsilon) continue;
-
-            var rendered = RenderScene(viewport.Value, affectedArea, graphHash, debugRecord && viewport.Value.IsScene,
-                previewTextures);
-            if (DocumentViewModel.SceneTextures.TryGetValue(viewport.Key, out var texture) && texture != rendered)
-            {
-                texture.Dispose();
-            }
-
-            DocumentViewModel.SceneTextures[viewport.Key] = rendered;
-            viewport.Value.InvalidateVisual();
-            renderedCount++;
+            return;
         }
 
-        lastRenderedViewports = stateViewports.Keys.ToHashSet();
+        int graphHash = Document.NodeGraph.GetCacheHash();
+        if (stateViewports != null)
+        {
+            foreach (var viewport in stateViewports)
+            {
+                if (viewport.Value.Delayed && !updateDelayed)
+                {
+                    continue;
+                }
 
-        if (renderedCount == 0 && previewTextures is { Count: > 0 })
+                if (viewport.Value.RealDimensions.ShortestAxis <= 0 ||
+                    Math.Abs(viewport.Value.RealDimensions.LongestAxis - double.MaxValue) < double.Epsilon) continue;
+
+                var rendered = RenderScene(viewport.Value, affectedArea, graphHash,
+                    debugRecord && viewport.Value.IsScene,
+                    previewTextures);
+                if (DocumentViewModel.SceneTextures.TryGetValue(viewport.Key, out var texture) && texture != rendered)
+                {
+                    texture?.Dispose();
+                }
+
+                DocumentViewModel.SceneTextures[viewport.Key] = rendered;
+
+                viewport.Value.InvalidateVisual();
+                renderedCount++;
+            }
+
+            lastRenderedViewports = stateViewports.Keys.ToHashSet();
+        }
+
+        if (renderedCount == 0 && previewTextures is { Count: > 0 } && Document?.Size is { X: <= 4096, Y: <= 4096 })
         {
             RenderOnlyPreviews(affectedArea, previewTextures, graphHash);
         }
@@ -123,8 +132,8 @@ internal class SceneRenderer
         {
             RealDimensions = new VecD(1, 1),
             ViewportData = new ViewportData(Matrix3X3.Identity, new VecD(1, 1), 0, false, false),
-            Id = Guid.NewGuid(),
-            Resolution = ChunkResolution.Full,
+            Id = renderOnlyPreviewsViewportId,
+            Resolution = ChunkResolution.Quarter,
             Sampling = SamplingOptions.Bilinear,
             EditorData = new EditorData(Colors.White, Colors.Black),
             VisibleDocumentRegion = null,
@@ -151,6 +160,11 @@ internal class SceneRenderer
          */
 
         VecI renderTargetSize = (VecI)viewport.RealDimensions;
+
+        if (renderTargetSize.ShortestAxis <= 0)
+        {
+            return null;
+        }
 
         Matrix3X3 targetMatrix = viewport.ViewportData.Transform;
         Guid viewportId = viewport.Id;
@@ -194,22 +208,49 @@ internal class SceneRenderer
         bool shouldRerender =
             ShouldRerender(renderTargetSize, isFullViewportRender ? Matrix3X3.Identity : targetMatrix, resolution,
                 viewportId, targetOutput, finalGraph,
-                previewTextures, viewport.VisibleDocumentRegion, oversizeFactor, isFullViewportRender, viewport.ViewportData, out bool fullAffectedArea,
-                out RenderState renderState) ||
+                previewTextures, viewport.VisibleDocumentRegion, oversizeFactor, isFullViewportRender,
+                viewport.HighResRendering,
+                viewport.ViewportData, out bool fullAffectedArea,
+                out RenderState renderState, out bool partialRenderAllowed, out RectD? panChangedRegion) ||
             debugRecord;
+
+        partialRenderAllowed &= !isFullViewportRender && viewport.IsScene;
 
         shouldRerender |= lastGraphCacheHash != graphCacheHash;
         shouldRerender |= !lastRenderedViewports.Contains(viewportId);
+        partialRenderAllowed &= lastRenderedViewports.Contains(viewportId);
+
+        bool renderOnionSkinning = viewport.IsScene && DocumentViewModel.AnimationHandler.OnionSkinningEnabledBindable;
+        partialRenderAllowed &= !renderOnionSkinning; // TODO: Implement onion skinning partial rendering
 
         if (shouldRerender)
         {
             affectedArea = fullAffectedArea && viewport.VisibleDocumentRegion.HasValue
-                ? new AffectedArea(OperationHelper.FindChunksTouchingRectangle((RectI)viewport.VisibleDocumentRegion.Value.RoundOutwards(),
+                ? new AffectedArea(OperationHelper.FindChunksTouchingRectangle(
+                    (RectI)viewport.VisibleDocumentRegion.Value.RoundOutwards(),
                     ChunkyImage.FullChunkSize))
-                : affectedArea;
+                : (affectedArea.GlobalArea != null
+                    ? new AffectedArea(
+                        OperationHelper.FindChunksTouchingRectangle(affectedArea.GlobalArea.Value.Inflate(1),
+                            ChunkyImage.FullChunkSize))
+                    : affectedArea);
+
+            if (affectedArea.GlobalArea == null)
+            {
+                AffectedArea? panAffectedArea =
+                    GetPanAffectedArea(fullAffectedArea, panChangedRegion, viewport.VisibleDocumentRegion);
+
+                if (panAffectedArea != null)
+                {
+                    affectedArea.UnionWith(panAffectedArea.Value);
+                }
+            }
+
             var tex = RenderGraph(renderTargetSize, targetMatrix, viewportId, resolution, samplingOptions, affectedArea,
                 visibleDocumentRegion, targetOutput, viewport.IsScene, oversizeFactor,
-                pointerInfo, keyboardInfo, editorData, viewport.ViewportData, debugRecord, finalGraph, previewTextures);
+                pointerInfo, keyboardInfo, editorData, viewport.ViewportData, viewport.HighResRendering, debugRecord,
+                finalGraph, previewTextures,
+                partialRenderAllowed);
 
             lastRenderedStates[viewportId] = renderState;
             return tex;
@@ -217,6 +258,21 @@ internal class SceneRenderer
 
         var cachedTexture = DocumentViewModel.SceneTextures[viewportId];
         return cachedTexture;
+    }
+
+    private static AffectedArea? GetPanAffectedArea(bool fullAffectedArea, RectD? panChangedRegion,
+        RectD? visibleRegion)
+    {
+        if (fullAffectedArea || !panChangedRegion.HasValue) return null;
+
+        RectD finalRect = panChangedRegion.Value;
+        if (visibleRegion.HasValue)
+        {
+            finalRect = finalRect.Intersect(visibleRegion.Value);
+        }
+
+        return new AffectedArea(OperationHelper.FindChunksTouchingRectangle((RectI)finalRect.RoundOutwards(),
+            ChunkyImage.FullChunkSize));
     }
 
     private Texture RenderGraph(VecI renderTargetSize, Matrix3X3 targetMatrix, Guid viewportId,
@@ -231,32 +287,37 @@ internal class SceneRenderer
         KeyboardInfo keyboardInfo,
         EditorData editorData,
         ViewportData viewportData,
+        bool highResRendering,
         bool debugRecord,
-        IReadOnlyNodeGraph finalGraph, Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures)
+        IReadOnlyNodeGraph finalGraph, Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures,
+        bool partialRenderAllowed)
     {
         DrawingSurface renderTarget = null;
         Texture? renderTexture = null;
         int restoreCanvasTo;
 
+        if (isDisposed) return null;
+
         VecI finalSize = SolveRenderOutputSize(targetOutput, finalGraph, Document.Size, renderTargetSize,
             out bool isFullViewportRender);
+        int saved = 0;
         if (isFullViewportRender)
         {
             renderTexture =
                 textureCache.RequestTexture(viewportId.GetHashCode(), renderTargetSize, Document.ProcessingColorSpace);
             renderTarget = renderTexture.DrawingSurface;
-            renderTarget.Canvas.Save();
+            saved = renderTarget.Canvas.Save();
         }
         else
         {
-            if (RenderInOutputSize(finalGraph, renderTargetSize, finalSize))
+            if (RenderInOutputSize(highResRendering, finalGraph, renderTargetSize, finalSize))
             {
                 finalSize = (VecI)(finalSize * resolution.Multiplier());
 
                 renderTexture =
-                    textureCache.RequestTexture(viewportId.GetHashCode(), finalSize, Document.ProcessingColorSpace);
+                    textureCache.RequestTexture(viewportId.GetHashCode(), finalSize, Document.ProcessingColorSpace, !partialRenderAllowed);
                 renderTarget = renderTexture.DrawingSurface;
-                renderTarget.Canvas.Save();
+                saved = renderTarget.Canvas.Save();
                 renderTexture.DrawingSurface.Canvas.Save();
                 renderTexture.DrawingSurface.Canvas.Scale((float)resolution.Multiplier());
             }
@@ -264,9 +325,9 @@ internal class SceneRenderer
             {
                 finalSize = (VecI)(finalSize * resolution.Multiplier());
 
-                var bufferedSize = (VecI)(renderTargetSize * oversizeFactor);
+                var bufferedSize = (VecI)(renderTargetSize * oversizeFactor).Round();
                 renderTexture = textureCache.RequestTexture(viewportId.GetHashCode(), bufferedSize,
-                    Document.ProcessingColorSpace);
+                    Document.ProcessingColorSpace, !partialRenderAllowed);
 
                 var bufferedMatrix = targetMatrix.PostConcat(Matrix3X3.CreateTranslation(
                     (bufferedSize.X - renderTargetSize.X) / 2.0,
@@ -275,6 +336,20 @@ internal class SceneRenderer
                 renderTarget = renderTexture.DrawingSurface;
                 renderTarget.Canvas.SetMatrix(bufferedMatrix);
             }
+        }
+
+        if (partialRenderAllowed && area.GlobalArea.HasValue)
+        {
+            renderTarget.Canvas.Save();
+            RectD toClip = (RectD)area.GlobalArea.Value;
+            if (highResRendering)
+            {
+                var adjustment = new RectD(1, 1, -2, -2);
+                toClip = new RectD(toClip.Pos.X + adjustment.X, toClip.Pos.Y + adjustment.Y, toClip.Size.X + adjustment.Width, toClip.Size.Y + adjustment.Height);
+            }
+            renderTarget.Canvas.ClipRect(toClip);
+            renderTarget.Canvas.Clear();
+            //renderTarget.Canvas.Restore();
         }
 
         bool renderOnionSkinning = canRenderOnionSkinning &&
@@ -314,6 +389,7 @@ internal class SceneRenderer
         context.VisibleDocumentRegion = visibleDocumentRegion;
         context.PreviewTextures = previewTextures;
         context.ViewportData = viewportData;
+        context.IterativeRender = partialRenderAllowed;
         if (debugRecord)
         {
             using DrawingRecorder recorder = new DrawingRecorder();
@@ -322,7 +398,8 @@ internal class SceneRenderer
             context.RenderSurface = recordingCanvas;
             finalGraph.Execute(context);
             var picture = recorder.EndRecordingImmutable();
-            using FileStream fs = new FileStream("data.skp", FileMode.Create, FileAccess.Write);
+            using FileStream fs = new FileStream(Path.Combine(Paths.TempFilesPath, "data.skp"), FileMode.Create,
+                FileAccess.Write);
             picture.Serialize(fs);
         }
         else
@@ -352,7 +429,7 @@ internal class SceneRenderer
             }
         }
 
-        renderTarget.Canvas.Restore();
+        renderTarget.Canvas.RestoreToCount(saved);
 
         return renderTexture;
     }
@@ -410,9 +487,10 @@ internal class SceneRenderer
         return finalSize;
     }
 
-    private bool RenderInOutputSize(IReadOnlyNodeGraph finalGraph, VecI renderTargetSize, VecI finalSize)
+    private bool RenderInOutputSize(bool highResRendering, IReadOnlyNodeGraph finalGraph, VecI renderTargetSize,
+        VecI finalSize)
     {
-        return !HighResRendering ||
+        return !highResRendering ||
                (!HighDpiRenderNodePresent(finalGraph) && renderTargetSize.Length > finalSize.Length);
     }
 
@@ -420,25 +498,37 @@ internal class SceneRenderer
         Guid viewportId,
         string targetOutput,
         IReadOnlyNodeGraph finalGraph, Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures,
-        RectD? visibleDocumentRegion, float oversizeFactor, bool isFullViewportRender,
+        RectD? visibleDocumentRegion, float oversizeFactor, bool isFullViewportRender, bool highResRendering,
         ViewportData viewportViewportData, out bool fullAffectedArea,
-        out RenderState renderState)
+        out RenderState renderState, out bool partialRenderAllowed, out RectD? panChangedRegion)
     {
+        bool hasLastState = lastRenderedStates.TryGetValue(viewportId, out var lastState);
+        var region = visibleDocumentRegion ?? new RectD(0, 0, Document.Size.X, Document.Size.Y);
+        panChangedRegion = null;
+        bool graphIsBasicStructure = GraphSupportsIterativeRendering(finalGraph);
+        partialRenderAllowed = hasLastState && lastState.VisibleDocumentRegion == region && !isFullViewportRender &&
+                               lastState.ViewportData.Transform == viewportViewportData.Transform &&
+                               graphIsBasicStructure && lastState.HighResRendering == highResRendering;
+
+        VecI finalSize = SolveRenderOutputSize(targetOutput, finalGraph, Document.Size, targetSize, out _);
+        bool renderInDocumentSize = RenderInOutputSize(highResRendering, finalGraph, targetSize, finalSize);
+
         renderState = new RenderState
         {
             ChunkResolution = resolution,
-            HighResRendering = HighResRendering,
+            HighResRendering = highResRendering,
             TargetOutput = targetOutput,
             OnionFrames = Document.AnimationData.OnionFrames,
             OnionOpacity = Document.AnimationData.OnionOpacity,
             OnionSkinning = DocumentViewModel.AnimationHandler.OnionSkinningEnabledBindable,
             ZoomLevel = matrix.ScaleX,
             FallbackFramesToLayer = Document.AnimationData.FallbackAnimationToLayerImage,
-            VisibleDocumentRegion =
-                visibleDocumentRegion ?? new RectD(0, 0, Document.Size.X, Document.Size.Y),
+            VisibleDocumentRegion = region,
             DocumentColorSpace = Document.ProcessingColorSpace,
             IsFullViewportRender = isFullViewportRender,
-            ViewportData = viewportViewportData
+            ViewportData = viewportViewportData,
+            IterativeRender = partialRenderAllowed,
+            RenderedInTargetSize = !renderInDocumentSize
         };
 
         fullAffectedArea = false;
@@ -449,25 +539,29 @@ internal class SceneRenderer
             return true;
         }
 
+        if (hasLastState)
+        {
+            if (lastState.ShouldRerender(renderState))
+            {
+                fullAffectedArea = lastState.ZoomLevel > renderState.ZoomLevel ||
+                                   renderState.ChunkResolution != lastState.ChunkResolution;
+                panChangedRegion = lastState.VisibleRegionChanged(renderState)
+                    ? lastState.GetVisibleRegionDifference(renderState)
+                    : null;
+                return true;
+            }
+        }
+
+
         if (previewTextures is { Count: > 0 })
         {
             return true;
         }
 
-        if (lastRenderedStates.TryGetValue(viewportId, out var lastState))
-        {
-            if (lastState.ShouldRerender(renderState))
-            {
-                fullAffectedArea = lastState.ZoomLevel > renderState.ZoomLevel;
-                return true;
-            }
-        }
-
-        VecI finalSize = SolveRenderOutputSize(targetOutput, finalGraph, Document.Size, targetSize, out _);
-        bool renderInDocumentSize = RenderInOutputSize(finalGraph, targetSize, finalSize);
         VecI compareSize = renderInDocumentSize
             ? (VecI)(Document.Size * resolution.Multiplier())
             : targetSize;
+
 
         if (cachedTexture.Size != (VecI)(compareSize * oversizeFactor))
         {
@@ -502,6 +596,23 @@ internal class SceneRenderer
         return false;
     }
 
+    private bool GraphSupportsIterativeRendering(IReadOnlyNodeGraph finalGraph)
+    {
+        bool supports = true;
+        finalGraph.TryTraverse(n =>
+        {
+            if (n is not IIterativeRenderSupport { SupportsIterativeRendering: true })
+            {
+                supports = false;
+                return false;
+            }
+
+            return true;
+        });
+
+        return supports;
+    }
+
     private bool HighDpiRenderNodePresent(IReadOnlyNodeGraph documentNodeGraph)
     {
         bool highDpiRenderNodePresent = false;
@@ -517,6 +628,12 @@ internal class SceneRenderer
         });
 
         return highDpiRenderNodePresent;
+    }
+
+    public void Dispose()
+    {
+        isDisposed = true;
+        textureCache.Dispose();
     }
 }
 
@@ -534,10 +651,12 @@ readonly struct RenderState
     public bool FallbackFramesToLayer { get; init; }
     public bool IsFullViewportRender { get; init; }
     public ViewportData ViewportData { get; init; }
+    public bool IterativeRender { get; init; }
+    public bool RenderedInTargetSize { get; init; } // Do not include this in ShouldRerender, as it is only used for caching purposes
 
     public bool ShouldRerender(RenderState other)
     {
-        return ChunkResolution > other.ChunkResolution || HighResRendering != other.HighResRendering ||
+        return ChunkResolution != other.ChunkResolution || HighResRendering != other.HighResRendering ||
                TargetOutput != other.TargetOutput ||
                OnionFrames != other.OnionFrames || Math.Abs(OnionOpacity - other.OnionOpacity) > 0.05 ||
                FallbackFramesToLayer != other.FallbackFramesToLayer ||
@@ -548,7 +667,7 @@ readonly struct RenderState
                !Equals(DocumentColorSpace, other.DocumentColorSpace);
     }
 
-    private bool VisibleRegionChanged(RenderState other)
+    public bool VisibleRegionChanged(RenderState other)
     {
         return !other.VisibleDocumentRegion.IsFullyInside(VisibleDocumentRegion);
     }
@@ -563,5 +682,10 @@ readonly struct RenderState
         }
 
         return diff < 0;
+    }
+
+    public RectD? GetVisibleRegionDifference(RenderState renderState)
+    {
+        return VisibleDocumentRegion.Difference(renderState.VisibleDocumentRegion);
     }
 }

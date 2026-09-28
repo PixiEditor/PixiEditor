@@ -1,5 +1,4 @@
-﻿using Avalonia;
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Data;
 using PixiEditor.Extensions.CommonApi.FlyUI.Events;
 

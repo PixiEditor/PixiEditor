@@ -1,7 +1,4 @@
-﻿using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Interactivity;
-using Avalonia.Markup.Xaml;
+﻿using Avalonia.Controls;
 
 namespace PixiEditor.Views.Tools.ToolSettings.Settings;
 

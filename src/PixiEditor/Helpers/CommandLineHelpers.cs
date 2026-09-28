@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace PixiEditor.Helpers;
+﻿namespace PixiEditor.Helpers;
 
 public static class CommandLineHelpers
 {

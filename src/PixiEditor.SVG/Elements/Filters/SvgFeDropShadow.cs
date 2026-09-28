@@ -1,6 +1,4 @@
 using System.Xml;
-using Drawie.Backend.Core.ColorsImpl;
-using Drawie.Backend.Core.Surfaces.PaintImpl;
 using PixiEditor.SVG.Features;
 using PixiEditor.SVG.Units;
 

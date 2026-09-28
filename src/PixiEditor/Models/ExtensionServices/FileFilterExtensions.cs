@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Avalonia.Platform.Storage;
+﻿using Avalonia.Platform.Storage;
 using PixiEditor.Extensions.IO;
 
 namespace PixiEditor.Models.ExtensionServices;

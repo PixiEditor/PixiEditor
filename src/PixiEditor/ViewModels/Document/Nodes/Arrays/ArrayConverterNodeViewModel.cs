@@ -1,5 +1,4 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Arrays;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Arrays;
 using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document.Nodes.Arrays;

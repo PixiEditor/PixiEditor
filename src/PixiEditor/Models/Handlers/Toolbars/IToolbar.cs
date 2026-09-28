@@ -1,5 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using PixiEditor.ViewModels.Tools.ToolSettings.Settings;
+﻿using PixiEditor.ViewModels.Tools.ToolSettings.Settings;
 
 namespace PixiEditor.Models.Handlers.Toolbars;
 
@@ -14,4 +13,6 @@ internal interface IToolbar : IHandler
     public void LoadSharedSettings();
     public event SettingChange SettingChanged;
     public void RemoveSetting(Setting setting);
+    void SaveLocalValues(string toolset);
+    void LoadLocalValues(string toolset);
 }

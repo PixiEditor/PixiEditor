@@ -1,7 +1,4 @@
-﻿using Avalonia.Controls;
-using Avalonia.Media;
-using Drawie.Numerics;
-using PixiEditor.Extensions.UI.Overlays;
+﻿using Drawie.Numerics;
 using PixiEditor.Views.Overlays.TransformOverlay;
 using Canvas = Drawie.Backend.Core.Surfaces.Canvas;
 

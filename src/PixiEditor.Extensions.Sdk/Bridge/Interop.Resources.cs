@@ -1,5 +1,3 @@
-using System.IO.Compression;
-using System.Security.Cryptography;
 using PixiEditor.Extensions.Sdk.Utilities;
 
 namespace PixiEditor.Extensions.Sdk.Bridge;
@@ -8,26 +6,12 @@ internal static partial class Interop
 {
     public static byte[] LoadResource(string path)
     {
-        var splitted = path.Split("://");
-        if (splitted.Length == 2)
-        {
-            return InteropUtility.PrefixedIntPtrToByteArray(Native.load_extension_resource(path));
-        }
-
-        byte[] encryptionKey = InteropUtility.IntPtrToByteArray(Native.get_encryption_key(), 16);
-        byte[] iv = InteropUtility.IntPtrToByteArray(Native.get_encryption_iv(), 16);
-
-        if (encryptionKey.Length == 0 || encryptionKey.All(x => x == 0))
-        {
-            return File.ReadAllBytes(path);
-        }
-
-        return InteropUtility.PrefixedIntPtrToByteArray(Native.load_encrypted_resource(path));
+        return InteropUtility.PrefixedIntPtrToByteArray(Native.load_extension_resource(path));
     }
-
 
     public static void WriteResource(byte[] data, string path)
     {
+        // TODO: Move all write logic to the host
         byte[] encryptionKey = InteropUtility.IntPtrToByteArray(Native.get_encryption_key(), 16);
         byte[] iv = InteropUtility.IntPtrToByteArray(Native.get_encryption_iv(), 16);
 

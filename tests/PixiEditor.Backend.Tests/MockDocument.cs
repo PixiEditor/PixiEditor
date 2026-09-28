@@ -107,6 +107,16 @@ public class MockDocument : IReadOnlyDocument
         throw new NotImplementedException();
     }
 
+    public VecI GetRenderOutputSize(string renderOutput)
+    {
+        return Size;
+    }
+
+    public bool TryFindNode(Guid nodeId, out IReadOnlyNode? node)
+    {
+        throw new NotImplementedException();
+    }
+
     public object Clone()
     {
         throw new NotImplementedException();

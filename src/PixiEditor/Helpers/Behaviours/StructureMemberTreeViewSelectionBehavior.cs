@@ -8,7 +8,6 @@ using Avalonia.Xaml.Interactivity;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Layers;
 using PixiEditor.ViewModels.Document;
-using PixiEditor.ViewModels.Document.Nodes;
 using PixiEditor.Views.Layers;
 
 namespace PixiEditor.Helpers.Behaviours;

@@ -1,15 +1,10 @@
-using System.Runtime.InteropServices;
-using System.Text;
-using Avalonia.Controls;
 using Avalonia.Threading;
 using PixiEditor.Extensions.Commands;
-using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Extensions.FlyUI;
 using PixiEditor.Extensions.FlyUI.Elements;
 using PixiEditor.Extensions.WasmRuntime.Api.Modules;
 using PixiEditor.Extensions.WasmRuntime.Management;
 using PixiEditor.Extensions.WasmRuntime.Utilities;
-using PixiEditor.Extensions.Windowing;
 using Wasmtime;
 
 namespace PixiEditor.Extensions.WasmRuntime;
@@ -75,6 +70,12 @@ public partial class WasmExtensionInstance : Extension
 
         Instance = Linker.Instantiate(Store, Module);
         WasmMemoryUtility = new WasmMemoryUtility(Instance);
+    }
+
+    protected override int GetApiVersion()
+    {
+        int version = Instance.GetFunction("get_api_version")?.Invoke() as int? ?? 1;
+        return version;
     }
 
     protected override void OnLoaded()
@@ -176,5 +177,10 @@ public partial class WasmExtensionInstance : Extension
         }
 
         return (T)module;
+    }
+    
+    public override void Unload()
+    {
+        Module.Dispose();
     }
 }

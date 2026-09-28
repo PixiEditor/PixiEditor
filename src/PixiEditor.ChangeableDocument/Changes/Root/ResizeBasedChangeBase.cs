@@ -1,8 +1,10 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changes.Selection;
 
 namespace PixiEditor.ChangeableDocument.Changes.Root;
 
@@ -15,6 +17,7 @@ internal abstract class ResizeBasedChangeBase : Change
     protected Dictionary<Guid, List<CommittedChunkStorage>> deletedMaskChunks = new();
     
     protected Dictionary<Guid, Matrix3X3> originalTransformations = new();
+    protected VectorPath? originalSelectionPath;
 
     public ResizeBasedChangeBase()
     {
@@ -80,7 +83,15 @@ internal abstract class ResizeBasedChangeBase : Change
 
         DisposeDeletedChunks();
 
-        return new Size_ChangeInfo(_originalSize, _originalVerAxisX, _originalHorAxisY);
+        Size_ChangeInfo sizeChange = new(_originalSize, _originalVerAxisX, _originalHorAxisY);
+        if (originalSelectionPath is null)
+            return sizeChange;
+
+        return new List<IChangeInfo>
+        {
+            sizeChange,
+            SelectionChangeHelper.RestoreSelection(target, originalSelectionPath)
+        };
     }
 
     private void DisposeDeletedChunks()
@@ -108,5 +119,7 @@ internal abstract class ResizeBasedChangeBase : Change
     public override void Dispose()
     {
         DisposeDeletedChunks();
+        originalSelectionPath?.Dispose();
+        originalSelectionPath = null;
     }
 }

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
+﻿using System.Globalization;
 
 namespace PixiEditor.Helpers.Converters;
 // TODO: seems like this converter is doing the same as the avalonia built in {x:Static BoolConverters.Or}

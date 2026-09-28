@@ -1,7 +1,6 @@
 ﻿using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Generated;
-using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;

@@ -1,10 +1,8 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
 using Avalonia.Input;
 using PixiEditor.Models.Input;
 using PixiEditor.Models.Structures;
-using Command = PixiEditor.Models.Commands.Commands.Command;
 
 namespace PixiEditor.Models.Commands;
 

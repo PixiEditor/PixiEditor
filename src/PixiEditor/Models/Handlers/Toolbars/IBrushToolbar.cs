@@ -1,9 +1,7 @@
 ﻿using System.ComponentModel;
 using PixiEditor.ChangeableDocument.Changeables.Brushes;
-using PixiEditor.Helpers;
 using PixiEditor.Helpers.Decorators;
 using PixiEditor.Models.BrushEngine;
-using PixiEditor.Views.Overlays.BrushShapeOverlay;
 
 namespace PixiEditor.Models.Handlers.Toolbars;
 

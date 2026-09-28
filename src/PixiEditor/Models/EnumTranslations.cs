@@ -12,10 +12,9 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Image;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Matrix;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Paintables;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Utility;
+using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Helpers;
-using PixiEditor.Models.Handlers.Toolbars;
-using PixiEditor.Models.Tools;
-using PixiEditor.Views.Overlays.BrushShapeOverlay;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 using DrawingBlendMode = Drawie.Backend.Core.Surfaces.BlendMode;
 
@@ -168,3 +167,10 @@ using DrawingBlendMode = Drawie.Backend.Core.Surfaces.BlendMode;
 [assembly: LocalizeEnum<DrawingBlendMode>(DrawingBlendMode.Xor, "XOR_BLEND_MODE")]
 [assembly: LocalizeEnum<DrawingBlendMode>(DrawingBlendMode.Modulate, "MODULATE_BLEND_MODE")]
 [assembly: LocalizeEnum<DrawingBlendMode>(DrawingBlendMode.Clear, "CLEAR_BLEND_MODE")]
+
+[assembly: LocalizeEnum<ResamplingMethod>(ResamplingMethod.NearestNeighbor, "NEAREST_NEIGHBOR_RESAMPLING_METHOD")]
+[assembly: LocalizeEnum<ResamplingMethod>(ResamplingMethod.Bilinear, "BILINEAR_RESAMPLING_METHOD")]
+[assembly: LocalizeEnum<ResamplingMethod>(ResamplingMethod.Bicubic, "BICUBIC_RESAMPLING_METHOD")]
+
+[assembly: LocalizeEnum<RandomTrigger>(RandomTrigger.OnExecute, "ON_EXECUTE_RANDOM_TRIGGER")]
+[assembly: LocalizeEnum<RandomTrigger>(RandomTrigger.OnInputChanged, "ON_INPUT_CHANGED_RANDOM_TRIGGER")]

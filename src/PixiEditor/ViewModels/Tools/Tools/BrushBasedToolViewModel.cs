@@ -1,12 +1,8 @@
 ﻿using Avalonia.Input;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
-using PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
-using PixiEditor.Extensions.WasmRuntime.Utilities;
-using PixiEditor.Models.BrushEngine;
 using PixiEditor.Models.Config;
 using PixiEditor.Models.Handlers;
-using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Input;
 using PixiEditor.UI.Common.Localization;
@@ -26,7 +22,7 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
     public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(ImageLayerNode);
 
     public override LocalizedString Tooltip => new LocalizedString(toolTipKey, Shortcut);
-    public override string ToolNameLocalizationKey => toolName;
+    public override string ToolNameLocalizationKey { get; }
     public override string ToolName => toolName ?? base.ToolName;
     public bool IsCustomBrushTool { get; private set; }
     public override bool UsesColor => true;
@@ -50,6 +46,8 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
     private string toolTipKey;
     private string defaultIcon;
 
+    protected bool createdBrushSettings;
+
     private List<ParsedActionDisplayConfig>? actionDisplays;
 
     public BrushBasedToolViewModel()
@@ -60,7 +58,7 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
         (Toolbar as Toolbar).SettingChanged += OnSettingChanged;
     }
 
-    public BrushBasedToolViewModel(BrushViewModel brush, string? tooltip, string? toolName, KeyCombination? defaultShortcut,
+    public BrushBasedToolViewModel(BrushViewModel brush, string? tooltip, string? toolName, string displayName, KeyCombination? defaultShortcut,
         List<ActionDisplayConfig>? actionDisplays, bool supportsSecondaryActionOnRightClick, string icon = PixiPerfectIcons.Placeholder)
     {
         Cursor = Cursors.PreciseCursor;
@@ -72,12 +70,14 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
 
         brushSetting.Value = brush;
         brushSetting.IsExposed = false;
+        brushSetting.IsProtected = true;
 
         this.toolName = toolName ?? brush.Name;
         toolTipKey = tooltip ?? toolName ?? brush.Name;
         DefaultShortcut = defaultShortcut;
         IsCustomBrushTool = true;
         defaultIcon = icon;
+        ToolNameLocalizationKey = string.IsNullOrEmpty(displayName) ? toolName : displayName;
         this.actionDisplays = ParseActionDisplays(actionDisplays);
         SupportsSecondaryActionOnRightClick = supportsSecondaryActionOnRightClick;
 
@@ -99,6 +99,10 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
     protected virtual void SwitchToTool()
     {
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseBrushBasedTool(this);
+        if(!createdBrushSettings)
+        {
+            AddBrushShapeSettings();
+        }
     }
 
     public override void UseTool(VecD pos)
@@ -165,7 +169,7 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
         OnToolSelected(false);
     }
 
-    private void AddBrushShapeSettings()
+    protected void AddBrushShapeSettings()
     {
         foreach (var setting in brushShapeSettings)
         {
@@ -182,10 +186,21 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
         {
             if (blackboardVariable is VariableViewModel { IsExposedBindable: true } varVm)
             {
-                Toolbar.AddSetting(varVm.SettingView);
-                brushShapeSettings.Add(varVm.SettingView);
+                var settingView = varVm.SettingView;
+                foreach (var dynamicDefaultSetting in dynamicDefaultSettings)
+                {
+                    if (dynamicDefaultSetting.Value.TryGetValue(varVm.Name, out var defaultValue))
+                    {
+                        SetDefaultValue(dynamicDefaultSetting.Key, defaultValue, varVm.SettingView, varVm.Name);
+                    }
+                }
+
+                Toolbar.AddSetting(settingView);
+                brushShapeSettings.Add(settingView);
             }
         }
+
+        createdBrushSettings = true;
     }
 
     protected override void OnDeselecting(bool transient)

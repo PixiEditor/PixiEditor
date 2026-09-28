@@ -1,16 +1,12 @@
-﻿using System.Windows.Input;
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.Input;
-using PixiEditor.Helpers.UI;
-using PixiEditor.Models.Controllers.InputDevice;
+using PixiEditor.Helpers.Constants;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Layers;
-using PixiEditor.ViewModels.Document;
-using PixiEditor.ViewModels.Document.Nodes;
 
 namespace PixiEditor.Views.Layers;
 #nullable enable
@@ -72,14 +68,9 @@ internal partial class LayerControl : UserControl
         set => SetValue(MoveToFrontCommandProperty, value);
     }
 
-
-    private MouseUpdateController mouseUpdateController;
-
     public LayerControl()
     {
         InitializeComponent();
-        Loaded += LayerControl_Loaded;
-        Unloaded += LayerControl_Unloaded;
 
         if (App.Current.TryGetResource("SoftSelectedLayerBrush", App.Current.ActualThemeVariant, out var value))
         {
@@ -96,16 +87,6 @@ internal partial class LayerControl : UserControl
         thirdDropGrid.AddHandler(DragDrop.DragEnterEvent, Grid_DragEnter);
         thirdDropGrid.AddHandler(DragDrop.DragLeaveEvent, Grid_DragLeave);
         thirdDropGrid.AddHandler(DragDrop.DropEvent, Grid_Drop_Bottom);
-    }
-
-    private void LayerControl_Unloaded(object? sender, RoutedEventArgs e)
-    {
-        mouseUpdateController?.Dispose();
-    }
-
-    private void LayerControl_Loaded(object? sender, RoutedEventArgs e)
-    {
-        mouseUpdateController = new MouseUpdateController(this, Manager.LayerControl_MouseMove);
     }
 
     public static void RemoveDragEffect(Grid grid)
@@ -142,20 +123,20 @@ internal partial class LayerControl : UserControl
         e.Handled = true;
     }
 
-    public static Guid[]? ExtractMemberGuids(IDataObject droppedMemberDataObject)
+    public static Guid[]? ExtractMemberGuids(IDataTransfer droppedMemberDataObject)
     {
         try
         {
-            object droppedLayer = droppedMemberDataObject.Get(LayersManager.LayersDataName);
+            object droppedLayer = droppedMemberDataObject.TryGetValues(ClipboardDataFormats.LayersDataName);
             if (droppedLayer is null)
                 return null;
 
-            if (droppedLayer is Guid droppedLayerGuid)
-                return new[] { droppedLayerGuid };
+            if (droppedLayer is LayersData droppedLayerGuid)
+                return droppedLayerGuid.LayerIds;
 
-            if (droppedLayer is Guid[] droppedLayerGuids)
+            if (droppedLayer is LayersData[] droppedLayerGuids)
             {
-                return droppedLayerGuids;
+                return droppedLayerGuids.SelectMany(x => x.LayerIds).ToArray();
             }
 
             return null;
@@ -166,7 +147,7 @@ internal partial class LayerControl : UserControl
         }
     }
 
-    private bool HandleDrop(IDataObject dataObj, StructureMemberPlacement placement)
+    private bool HandleDrop(IDataTransfer dataObj, StructureMemberPlacement placement)
     {
         if (placement == StructureMemberPlacement.Inside)
             return false;
@@ -198,19 +179,19 @@ internal partial class LayerControl : UserControl
     private void Grid_Drop_Top(object sender, DragEventArgs e)
     {
         RemoveDragEffect((Grid)sender);
-        e.Handled = HandleDrop(e.Data, StructureMemberPlacement.Above);
+        e.Handled = HandleDrop(e.DataTransfer, StructureMemberPlacement.Above);
     }
 
     private void Grid_Drop_Bottom(object sender, DragEventArgs e)
     {
         RemoveDragEffect((Grid)sender);
-        e.Handled = HandleDrop(e.Data, StructureMemberPlacement.Below);
+        e.Handled = HandleDrop(e.DataTransfer, StructureMemberPlacement.Below);
     }
 
     private void Grid_Drop_Below(object sender, DragEventArgs e)
     {
         RemoveDragEffect((Grid)sender);
-        e.Handled = HandleDrop(e.Data, StructureMemberPlacement.BelowOutsideFolder);
+        e.Handled = HandleDrop(e.DataTransfer, StructureMemberPlacement.BelowOutsideFolder);
     }
 
     private void RenameMenuItem_Click(object sender, RoutedEventArgs e)

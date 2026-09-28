@@ -1,11 +1,9 @@
-﻿using Drawie.Backend.Core;
-using PixiEditor.ChangeableDocument.Changeables.Animations;
+﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
-using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.ChangeableDocument.Rendering.ContextData;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 using DrawingApiBlendMode = Drawie.Backend.Core.Surfaces.BlendMode;
@@ -24,7 +22,7 @@ public class RenderContext
     public VecI RenderOutputSize { get; set; }
 
     public VecI DocumentSize { get; set; }
-    public Canvas RenderSurface { get; set; }
+    public Canvas? RenderSurface { get; set; }
     public bool FullRerender { get; set; } = false;
     public PointerInfo PointerInfo { get; set; }
     public KeyboardInfo KeyboardInfo { get; set; }
@@ -35,8 +33,10 @@ public class RenderContext
     public AffectedArea AffectedArea { get; set; }
     public Dictionary<Guid, List<PreviewRenderRequest>>? PreviewTextures { get; set; }
     public IReadOnlyNodeGraph Graph { get; set; }
+    public bool IterativeRender { get; set; }
+    public int GraphCacheId { get; set; } = 0;
 
-    public static RenderContext Empty { get; } = new RenderContext(
+    public static RenderContext Empty => new RenderContext(
         null,
         new KeyFrameTime(),
         ChunkResolution.Full,
@@ -109,7 +109,9 @@ public class RenderContext
             EditorData = EditorData,
             KeyboardInfo = KeyboardInfo,
             ViewportData = ViewportData,
-            CloneDepth = CloneDepth + 1
+            CloneDepth = CloneDepth + 1,
+            GraphCacheId = GraphCacheId,
+            IterativeRender = IterativeRender
         };
     }
 }

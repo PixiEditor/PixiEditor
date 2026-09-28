@@ -1,9 +1,6 @@
 ﻿using Avalonia.Input;
-using Drawie.Backend.Core.Vector;
-using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
-using PixiEditor.Views.Overlays.BrushShapeOverlay;
 
 namespace PixiEditor.ViewModels.Tools;
 

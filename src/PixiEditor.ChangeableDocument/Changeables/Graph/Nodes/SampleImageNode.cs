@@ -4,13 +4,13 @@ using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Shaders.Generation;
 using Drawie.Backend.Core.Shaders.Generation.Expressions;
-using Drawie.Backend.Core.Surfaces;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 [NodeInfo("SampleImage")]
-public class SampleImageNode : Node
+public class SampleImageNode : Node, IIterativeRenderSupport
 {
     public InputProperty<Texture?> Image { get; }
 
@@ -65,7 +65,7 @@ public class SampleImageNode : Node
             color = Image.Value.GetRawPixel(pixelCoordinate);
         }
 
-        return new Half4("") { ConstantValue = color };
+        return new Half4("") { ConstantValue = color.ToVec4D() };
     }
 
     protected override void OnExecute(RenderContext context)
@@ -73,4 +73,5 @@ public class SampleImageNode : Node
     }
 
     public override Node CreateCopy() => new SampleImageNode();
+    bool IIterativeRenderSupport.SupportsIterativeRendering => true;
 }

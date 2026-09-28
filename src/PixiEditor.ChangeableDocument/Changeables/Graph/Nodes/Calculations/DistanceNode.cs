@@ -1,12 +1,13 @@
 ﻿using Drawie.Backend.Core.Shaders.Generation.Expressions;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Calculations;
 
 [NodeInfo("Distance")]
-public class DistanceNode : Node
+public class DistanceNode : Node, IIterativeRenderSupport
 {
     public FuncInputProperty<Float2> Point1 { get; }
     public FuncInputProperty<Float2> Point2 { get; }
@@ -48,4 +49,6 @@ public class DistanceNode : Node
     {
         return new DistanceNode();
     }
+
+    bool IIterativeRenderSupport.SupportsIterativeRendering => true;
 }

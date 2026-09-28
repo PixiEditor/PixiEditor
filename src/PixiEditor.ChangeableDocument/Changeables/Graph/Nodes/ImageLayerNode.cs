@@ -1,12 +1,8 @@
-﻿using System.Diagnostics;
-using PixiEditor.ChangeableDocument.Changeables.Animations;
+﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
-using PixiEditor.ChangeableDocument.Changeables.Interfaces;
-using PixiEditor.ChangeableDocument.Helpers;
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
-using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
@@ -63,6 +59,8 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         return (RectD?)GetLayerImageAtFrame(frameTime.Frame)?.FindTightLatestBounds();
     }
 
+    public override bool SupportsIterativeRendering => true;
+
     public override RectD? GetApproxBounds(KeyFrameTime frameTime)
     {
         var layerImage = GetLayerImageAtFrame(frameTime.Frame);
@@ -109,7 +107,6 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         bool useFilters = true)
     {
         int scaled = workingSurface.Save();
-        float multiplier = (float)ctx.ChunkResolution.InvertedMultiplier();
         workingSurface.Translate(GetScenePosition(ctx.FrameTime));
 
         base.DrawLayerInScene(ctx, workingSurface, useFilters);
@@ -154,13 +151,12 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
             return;
         }
 
-        RectI latestSize = new(0, 0, layerImage.LatestSize.X, layerImage.LatestSize.Y);
-        var region = (RectI?)ctx.VisibleDocumentRegion?.RoundOutwards() ?? latestSize;
+        RectD latestSize = new(0, 0, layerImage.LatestSize.X, layerImage.LatestSize.Y);
+        var region = ctx.VisibleDocumentRegion ?? latestSize;
 
         VecD topLeft = region.TopLeft - sceneSize / 2;
 
         topLeft *= ctx.ChunkResolution.Multiplier();
-        workingSurface.Scale((float)ctx.ChunkResolution.InvertedMultiplier());
         var img = GetLayerImageAtFrame(ctx.FrameTime.Frame);
 
         if (img is null)
@@ -173,34 +169,53 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         VecD finalDrawPos = topLeft;
         if (saveLayer)
         {
-            var visibleRegion = (RectI?)ctx.VisibleDocumentRegion?.RoundOutwards() ?? latestSize;
+            var visibleRegion = ctx.VisibleDocumentRegion ?? latestSize;
             var multiplier = visibleRegion != latestSize ? 1 : ctx.ChunkResolution.Multiplier();
             var intersection = visibleRegion.Intersect(latestSize);
             region = intersection;
-            VecI chunkAwareSize = (VecI)(new VecI(region.Width, region.Height) * multiplier);
-            if(chunkAwareSize.X <= 0 || chunkAwareSize.Y <= 0)
+            VecI chunkAwareSize = (VecI)(new VecD(region.Width, region.Height) * multiplier).Ceiling();
+            if (chunkAwareSize.X <= 0 || chunkAwareSize.Y <= 0)
             {
                 workingSurface.RestoreToCount(saved);
                 return;
             }
 
-            intermediate = RequestTexture(1336, chunkAwareSize, ColorSpace.CreateSrgb());
+            intermediate = RequestTexture(ctx.GraphCacheId + 1336, chunkAwareSize, ColorSpace.CreateSrgb());
             finalDrawPos = VecD.Zero;
-            // TODO: Validate that removing below doesn't cause issues. Bugs like partial chunk rendering on scene moves the position of the image.
-            // If you uncomment this, Test file (nested elephant in render tests) will fail for certain zooms
-            /*if (visibleRegion != latestSize)
-            {
-                topLeft = region.TopLeft - sceneSize / 2;
-            }*/
+            topLeft = (region.TopLeft - sceneSize / 2).Round();
+        }
+        else
+        {
+            workingSurface.Scale((float)ctx.ChunkResolution.InvertedMultiplier());
         }
 
         if (!ctx.FullRerender)
         {
-            img.DrawMostUpToDateRegionOnWithAffected(
-                region,
-                ctx.ChunkResolution,
-                saveLayer ? intermediate.DrawingSurface.Canvas : workingSurface, ctx.AffectedArea, finalDrawPos,
-                saveLayer ? null : paint, ctx.DesiredSamplingOptions);
+            if (ctx is { IterativeRender: true, AffectedArea.Chunks: not null })
+            {
+                Paint emptyPaint = null;
+                if (paint.BlendMode == Drawie.Backend.Core.Surfaces.BlendMode.Src)
+                {
+                    emptyPaint = new Paint();
+                    emptyPaint.BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.Clear;
+                    emptyPaint.Color = Colors.Transparent;
+                }
+
+                img.DrawMostUpToDateAffectedArea(
+                    region,
+                    ctx.ChunkResolution,
+                    saveLayer ? intermediate.DrawingSurface.Canvas : workingSurface, ctx.AffectedArea, finalDrawPos,
+                    saveLayer ? null : paint, emptyPaint, ctx.DesiredSamplingOptions);
+                emptyPaint?.Dispose();
+            }
+            else
+            {
+                img.DrawMostUpToDateRegionOnWithAffected(
+                    region,
+                    ctx.ChunkResolution,
+                    saveLayer ? intermediate.DrawingSurface.Canvas : workingSurface, ctx.AffectedArea, finalDrawPos,
+                    saveLayer ? null : paint, ctx.DesiredSamplingOptions);
+            }
         }
         else
         {
@@ -214,8 +229,9 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         if (saveLayer && intermediate != null)
         {
             int intermediateSaved = workingSurface.Save();
-            workingSurface.Translate(topLeft);
 
+            workingSurface.Translate(topLeft);
+            workingSurface.Scale((float)ctx.ChunkResolution.InvertedMultiplier());
             workingSurface.DrawSurface(intermediate.DrawingSurface, 0, 0, paint);
 
             workingSurface.RestoreToCount(intermediateSaved);
@@ -335,7 +351,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         renderOnto.Canvas.Scale((float)context.ChunkResolution.InvertedMultiplier());
 
         img.DrawCommittedRegionOn(
-            new RectI(0, 0, img.LatestSize.X, img.LatestSize.Y),
+            new RectD(0, 0, img.LatestSize.X, img.LatestSize.Y),
             context.ChunkResolution,
             renderOnto.Canvas, VecI.Zero, replacePaint, context.DesiredSamplingOptions);
 

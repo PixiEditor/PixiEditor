@@ -26,5 +26,11 @@
   ],
   "Permissions": [
     "ReadUserData"
+  ],
+  "CompatibleHostVersions": [
+    {
+      "HostName": "PixiEditor",
+      "MinVersion": "2.1.1.6"
+    }
   ]
 }

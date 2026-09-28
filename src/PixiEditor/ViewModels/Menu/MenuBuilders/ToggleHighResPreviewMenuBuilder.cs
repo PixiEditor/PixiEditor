@@ -2,7 +2,6 @@
 using Avalonia.Data;
 using Avalonia.Input;
 using CommunityToolkit.Mvvm.Input;
-using PixiEditor.Extensions.UI;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.UI.Common.Controls;
 using PixiEditor.UI.Common.Fonts;
@@ -36,7 +35,7 @@ internal class ToggleHighResPreviewMenuBuilder : MenuItemBuilder
         {
             viewItem.Menu.Items.Add(new NativeMenuItemSeparator());
             NativeMenuItem gridLinesItem = new NativeMenuItem();
-            gridLinesItem.ToggleType = NativeMenuItemToggleType.CheckBox;
+            gridLinesItem.ToggleType = MenuItemToggleType.CheckBox;
             Translator.SetKey(gridLinesItem, "TOGGLE_HIGH_RES_PREVIEW");
 
             gridLinesItem.Icon = PixiPerfectIconExtensions.ToIcon(PixiPerfectIcons.Circle).ToBitmap(IconDimensions);

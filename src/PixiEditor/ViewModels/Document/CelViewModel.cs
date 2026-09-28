@@ -1,10 +1,7 @@
-﻿using ChunkyImageLib;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using PixiEditor.ChangeableDocument.Actions.Generated;
-using Drawie.Backend.Core;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
-using PixiEditor.Models.Rendering;
 
 namespace PixiEditor.ViewModels.Document;
 

@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace PixiEditor.Helpers.Extensions;
+﻿namespace PixiEditor.Helpers.Extensions;
 
 public static class LinqExtensions
 {

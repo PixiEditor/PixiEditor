@@ -2,7 +2,6 @@
 using PixiEditor.Models.BrushEngine;
 using PixiEditor.Parser;
 using PixiEditor.ViewModels.Document;
-using PixiEditor.ViewModels.Document.Nodes.Brushes;
 
 namespace PixiEditor.Models.Serialization.Factories;
 

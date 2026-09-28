@@ -1,15 +1,12 @@
 ﻿using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core;
-using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
-using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.ColorSpaces;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
@@ -81,7 +78,11 @@ public class CreateImageNode : Node
         }
 
         int id = size.GetHashCode();
-        var colorSpace = ColorSpace.Value == ColorSpaceType.Inherit ? context.ProcessingColorSpace : (ColorSpace.Value == ColorSpaceType.Srgb ? Drawie.Backend.Core.Surfaces.ImageData.ColorSpace.CreateSrgb() : Drawie.Backend.Core.Surfaces.ImageData.ColorSpace.CreateSrgbLinear());
+        var colorSpace = ColorSpace.Value == ColorSpaceType.Inherit
+            ? context.ProcessingColorSpace
+            : (ColorSpace.Value == ColorSpaceType.Srgb
+                ? Drawie.Backend.Core.Surfaces.ImageData.ColorSpace.CreateSrgb()
+                : Drawie.Backend.Core.Surfaces.ImageData.ColorSpace.CreateSrgbLinear());
         var surface = textureCache.RequestTexture(id, size, colorSpace, false);
         surface.DrawingSurface.Canvas.SetMatrix(Matrix3X3.Identity);
 
@@ -92,8 +93,16 @@ public class CreateImageNode : Node
         else
         {
             using Paint paint = new Paint();
-            using var fill = Fill.Value.Clone();
-            paint.SetPaintable(fill);
+            if (Fill.Value != null)
+            {
+                using var fill = Fill.Value.Clone();
+                paint.SetPaintable(fill);
+            }
+            else
+            {
+                paint.Color = Colors.Transparent;
+            }
+
             paint.BlendMode = BlendMode.Src;
             paint.PaintableMatrix = Matrix3X3.CreateScale(multiplier, multiplier);
             surface.DrawingSurface.Canvas.DrawRect(0, 0, Size.Value.X, Size.Value.Y, paint);
@@ -122,7 +131,7 @@ public class CreateImageNode : Node
 
     private void OnPaint(RenderContext context, Canvas surface)
     {
-        if (Output.Value == null || Output.Value.IsDisposed) return;
+        if (Output.Value == null || Output.Value.IsDisposed || surface == null) return;
 
         int saved = surface.Save();
         surface.Scale(1f / renderedOnMultiplier, 1f / renderedOnMultiplier);
@@ -133,7 +142,7 @@ public class CreateImageNode : Node
 
     private void RenderPreviews(Texture surface, RenderContext context)
     {
-        if(surface == null) return;
+        if (surface == null) return;
 
         var previews = context.GetPreviewTexturesForNode(Id);
         if (previews is null) return;

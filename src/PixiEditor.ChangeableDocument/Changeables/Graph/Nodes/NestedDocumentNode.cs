@@ -1,8 +1,7 @@
-﻿using System.Drawing;
+﻿using ChunkyImageLib.Operations;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
-using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
@@ -38,6 +37,8 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
             NestedDocument.Value?.DocumentInstance?.Size ?? VecD.Zero)
         .WithMatrix(TransformationMatrix).AABBBounds;
 
+    public override bool SupportsIterativeRendering => instanceSupportsIterativeRendering;
+
     private IReadOnlyDocument? Instance => NestedDocument.Value?.DocumentInstance;
 
     private string[] builtInOutputs;
@@ -46,6 +47,8 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
     private ExposeValueNode[]? cachedExposeNodes;
     private BrushOutputNode[]? brushOutputNodes;
     private IReadOnlyNode[] toExecute;
+
+    private bool instanceSupportsIterativeRendering;
 
     protected override bool MustRenderInSrgb(SceneObjectRenderContext ctx) => false;
 
@@ -83,6 +86,7 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
             ClearOutputProperties();
             ClearInputProperties();
             cachedExposeNodes = null;
+            instanceSupportsIterativeRendering = true;
             return;
         }
 
@@ -92,16 +96,16 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
         brushOutputNodes = document.DocumentInstance.NodeGraph.AllNodes
             .OfType<BrushOutputNode>().ToArray();
 
-        toExecute = cachedExposeNodes.Concat<IReadOnlyNode>(brushOutputNodes).Concat([Instance?.NodeGraph.OutputNode])
+        toExecute = cachedExposeNodes.Concat<IReadOnlyNode>(brushOutputNodes).Concat([document.DocumentInstance?.NodeGraph.OutputNode])
             .ToArray();
 
-        Instance?.NodeGraph.Execute(cachedExposeNodes.Concat<IReadOnlyNode>(brushOutputNodes), new RenderContext(null,
+        document.DocumentInstance?.NodeGraph.Execute(cachedExposeNodes.Concat<IReadOnlyNode>(brushOutputNodes), new RenderContext(null,
             0,
             ChunkResolution.Full,
-            Instance.Size, Instance.Size,
-            Instance.ProcessingColorSpace,
+            document.DocumentInstance.Size, document.DocumentInstance.Size,
+            document.DocumentInstance.ProcessingColorSpace,
             SamplingOptions.Default,
-            Instance.NodeGraph) { FullRerender = true });
+            document.DocumentInstance.NodeGraph) { FullRerender = true });
 
         foreach (var input in cachedExposeNodes)
         {
@@ -192,6 +196,9 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
                 RemoveInputProperty(input);
             }
         }
+
+        instanceSupportsIterativeRendering = Instance?.NodeGraph.AllNodes.All(x =>
+            x is IIterativeRenderSupport { SupportsIterativeRendering: true }) ?? true;
     }
 
     private void ClearOutputProperties()
@@ -316,12 +323,15 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
 
     private void RenderNested(RenderContext ctx, Canvas workingSurface, Paint paint)
     {
-        if (NestedDocument.Value is null || NestedDocument.Value.DocumentInstance is null || workingSurface is null || Instance is null)
+        if (NestedDocument.Value?.DocumentInstance is null || workingSurface is null || Instance is null)
             return;
 
-        using var intermediate = Texture.ForProcessing(workingSurface.Surface, Instance.ProcessingColorSpace);
+        var intermediate = RequestTexture(ctx.GraphCacheId + 5123, workingSurface.DeviceClipBounds.Size + workingSurface.DeviceClipBounds.Pos, Instance.ProcessingColorSpace);
         if (intermediate is null)
             return;
+
+        intermediate.DrawingSurface.Canvas.Save();
+        intermediate.DrawingSurface.Canvas.SetMatrix(workingSurface.TotalMatrix);
 
         int workingSurfaceSaved = 0;
         if (paint == null || paint.IsOpaqueStandardNonBlendingPaint)
@@ -360,14 +370,15 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
         workingSurface.DrawSurface(intermediate.DrawingSurface, 0, 0, paintToApply);
         workingSurface.RestoreToCount(workingSurfaceSaved);
 
+        intermediate.DrawingSurface.Canvas.Restore();
+
         paintToApply?.ColorFilter?.Dispose();
         paintToApply?.Dispose();
     }
 
 
-    private void ExecuteNested(RenderContext ctx)
+    private void ExecuteNested(RenderContext clonedContext)
     {
-        var clonedContext = ctx.Clone();
         if (clonedContext.CloneDepth >= MaxRecursionDepth)
         {
             return;
@@ -376,6 +387,11 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
         clonedContext.Graph = Instance?.NodeGraph;
         clonedContext.DocumentSize = Instance?.Size ?? VecI.Zero;
         clonedContext.ProcessingColorSpace = Instance?.ProcessingColorSpace;
+        if (clonedContext is SceneObjectRenderContext sceneObjectRenderContext)
+        {
+            sceneObjectRenderContext.UntransformedSampling = true;
+        }
+
         clonedContext.RenderOutputSize =
             (VecI)(clonedContext.DocumentSize * clonedContext.ChunkResolution.Multiplier());
         clonedContext.DesiredSamplingOptions =
@@ -388,6 +404,14 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
             RectD docRegion = new RectD(VecI.Zero, Instance?.Size ?? VecI.Zero);
             RectD intersection = docRegion.Intersect(inverted.AABBBounds);
             clonedContext.VisibleDocumentRegion = intersection;
+        }
+
+        if(clonedContext.AffectedArea.Chunks is { Count: > 0 })
+        {
+            RectD areaInParentSpace = RectD.FromCenterAndSize(GetScenePosition(clonedContext.FrameTime), GetSceneSize(clonedContext.FrameTime));
+            RectD intersectedArea = areaInParentSpace.Intersect((RectD)clonedContext.AffectedArea.GlobalArea.Value);
+            RectD affectedAreaInNestedSpace = TransformationMatrix.Invert().TransformRect(intersectedArea);
+            clonedContext.AffectedArea = new AffectedArea(OperationHelper.FindChunksTouchingRectangle((RectI)affectedAreaInNestedSpace.RoundOutwards(), ChunkyImage.FullChunkSize));
         }
 
         var outputNode = Instance?.NodeGraph.AllNodes.OfType<BrushOutputNode>().FirstOrDefault() ??
@@ -438,6 +462,7 @@ public class NestedDocumentNode : LayerNode, IInputDependentOutputs, ITransforma
     {
         return TransformedAABB;
     }
+
 
     public override ShapeCorners GetTransformationCorners(KeyFrameTime frameTime)
     {

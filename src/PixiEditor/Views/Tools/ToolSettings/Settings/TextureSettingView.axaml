@@ -5,6 +5,7 @@
              xmlns:settings="clr-namespace:PixiEditor.ViewModels.Tools.ToolSettings.Settings"
              xmlns:input="clr-namespace:PixiEditor.Views.Input"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="settings:TextureSettingViewModel"
              x:Class="PixiEditor.Views.Tools.ToolSettings.Settings.TextureSettingView">
     <Design.DataContext>
         <settings:TextureSettingViewModel />

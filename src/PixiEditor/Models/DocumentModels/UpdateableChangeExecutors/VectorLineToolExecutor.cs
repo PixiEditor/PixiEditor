@@ -1,5 +1,4 @@
-﻿using ChunkyImageLib.DataHolders;
-using PixiEditor.ChangeableDocument.Actions;
+﻿using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;

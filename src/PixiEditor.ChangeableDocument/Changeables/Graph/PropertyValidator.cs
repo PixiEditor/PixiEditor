@@ -1,5 +1,4 @@
 ﻿using Drawie.Numerics;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph;
 

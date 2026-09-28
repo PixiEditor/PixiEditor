@@ -1,5 +1,4 @@
 ﻿using Avalonia.Input;
-using PixiEditor.Views.Visuals;
 using PixiEditor.Extensions.UI.Overlays;
 
 namespace PixiEditor.Views.Overlays.Pointers;

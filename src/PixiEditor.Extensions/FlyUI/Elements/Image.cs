@@ -1,6 +1,4 @@
-﻿using System.Collections.Immutable;
-using Avalonia;
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Layout;
 using Avalonia.Media;
@@ -9,7 +7,6 @@ using Avalonia.Svg.Skia;
 using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
 using PixiEditor.Extensions.Extensions;
 using PixiEditor.Extensions.FlyUI.Converters;
-using PixiEditor.Extensions.UI;
 
 namespace PixiEditor.Extensions.FlyUI.Elements;
 

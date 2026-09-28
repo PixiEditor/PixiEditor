@@ -12,6 +12,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Models.BrushEngine;
+using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.ViewModels.BrushSystem;
 
@@ -56,7 +57,7 @@ internal class BrushViewModel : ViewModelBase
 
     public string Name
     {
-        get => Brush?.Name ?? "Unnamed Brush";
+        get => Brush?.Name ?? new LocalizedString("UNNAMED_BRUSH");
     }
 
     public ObservableCollection<string> Tags
@@ -230,7 +231,7 @@ internal class BrushViewModel : ViewModelBase
                         BrushOutputNode.PointPreviewSize / 2));
 
                 pointImage.DrawMostUpToDateRegionOn(
-                    new RectI(0, 0, pointImage.CommittedSize.X, pointImage.CommittedSize.Y),
+                    new RectD(0, 0, pointImage.CommittedSize.X, pointImage.CommittedSize.Y),
                     ChunkResolution.Full,
                     pointPreviewTexture.DrawingSurface.Canvas,
                     VecI.Zero, null, SamplingOptions.Bilinear);
@@ -245,7 +246,7 @@ internal class BrushViewModel : ViewModelBase
                 new VecD(0, BrushOutputNode.YOffsetInPreview));
 
             strokeImage.DrawMostUpToDateRegionOn(
-                new RectI(0, 0, strokeImage.CommittedSize.X, strokeImage.CommittedSize.Y),
+                new RectD(0, 0, strokeImage.CommittedSize.X, strokeImage.CommittedSize.Y),
                 ChunkResolution.Full,
                 strokeTexture.DrawingSurface.Canvas,
                 VecI.Zero, null, SamplingOptions.Bilinear);

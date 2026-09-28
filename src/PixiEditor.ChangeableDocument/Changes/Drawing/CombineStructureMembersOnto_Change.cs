@@ -1,11 +1,8 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
-using PixiEditor.ChangeableDocument.Changes.Structure;
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Bridge;
-using Drawie.Backend.Core.ColorsImpl;
-using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
@@ -197,7 +194,7 @@ internal class CombineStructureMembersOnto_Change : Change
         if (targetLayer is not VectorLayerNode vectorLayer)
             throw new InvalidOperationException("Target layer is not a vector layer");
 
-        if(layersToCombine == null || layersToCombine.Count == 0)
+        if (layersToCombine == null || layersToCombine.Count == 0 || toCombine == null || toCombine.Count == 0)
             return new AffectedArea(new HashSet<VecI>());
 
         ShapeVectorData targetData = vectorLayer.EmbeddedShapeData ?? null;
@@ -273,7 +270,15 @@ internal class CombineStructureMembersOnto_Change : Change
             throw new InvalidOperationException("Target layer is not a raster layer");
 
         var toDrawOnImage = ((ImageLayerNode)targetLayer).GetLayerImageAtFrame(frame);
+        if (toDrawOnImage == null)
+        {
+            return new AffectedArea(new HashSet<VecI>());
+        }
+
         toDrawOnImage.EnqueueClear();
+
+        if (target.Size.X <= 0 || target.Size.Y <= 0)
+            return new AffectedArea(new HashSet<VecI>());
 
         Texture tempTexture = Texture.ForProcessing(target.Size, target.ProcessingColorSpace);
 
@@ -388,8 +393,10 @@ internal class CombineStructureMembersOnto_Change : Change
     private IChangeInfo RasterRevert(ImageLayerNode targetLayer, int frame)
     {
         var toDrawOnImage = targetLayer.GetLayerImageAtFrame(frame);
-        if (toDrawOnImage is null)
-            throw new InvalidOperationException("Layer image not found");
+        if (toDrawOnImage == null)
+        {
+            return new LayerImageArea_ChangeInfo(targetLayerGuid, new AffectedArea(new HashSet<VecI>()));
+        }
 
         toDrawOnImage.EnqueueClear();
 

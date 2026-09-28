@@ -1,6 +1,4 @@
 ﻿using Drawie.Backend.Core.Surfaces;
-using Drawie.Backend.Core.Surfaces.ImageData;
-using PixiEditor.AnimationRenderer.Core;
 
 namespace PixiEditor.AnimationRenderer.FFmpeg;
 

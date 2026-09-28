@@ -3,13 +3,13 @@ using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using Avalonia.Markup.Xaml;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Text;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.Models.Blackboard;
@@ -64,6 +64,7 @@ internal partial class BlackboardView : UserControl
             new VariableDefinition("MATRIX", typeof(Matrix3X3)),
             new VariableDefinition("BOOLEAN", typeof(bool)),
             new VariableDefinition("BRUSH", typeof(Brush)),
+            new VariableDefinition("DOCUMENT", typeof(DocumentReference)),
             new VariableDefinition("PAINTABLE", typeof(Paintable)),
             new VariableDefinition("COLOR", typeof(Color)),
             new VariableDefinition("TEXTURE", typeof(Texture)),

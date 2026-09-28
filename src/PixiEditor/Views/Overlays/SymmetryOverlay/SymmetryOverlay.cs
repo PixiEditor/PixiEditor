@@ -1,7 +1,6 @@
 ﻿using System.Windows.Input;
 using Avalonia;
 using Avalonia.Input;
-using Avalonia.Media;
 using PixiEditor.ChangeableDocument.Enums;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;

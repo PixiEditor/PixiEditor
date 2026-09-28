@@ -1,7 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using Avalonia.Threading;
+using AvaloniaEdit.Utils;
 using ChunkyImageLib.DataHolders;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Models.DocumentPassthroughActions;
@@ -60,6 +60,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
 
     private bool busy = false;
+
 
 
     public bool Busy
@@ -175,6 +176,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     private readonly HashSet<IStructureMemberHandler> softSelectedStructureMembers = new();
 
     public bool BlockingUpdateableChangeActive => Internals.ChangeController.IsBlockingChangeActive;
+    public bool UpdateableChangeActive => Internals.ChangeController.IsChangeActive;
 
     public bool IsChangeFeatureActive<T>() where T : IExecutorFeature =>
         Internals.ChangeController.IsChangeOfTypeActive<T>();
@@ -219,6 +221,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public TextOverlayViewModel TextOverlayViewModel { get; set; }
     private DocumentInternalParts Internals { get; }
     public AutosaveDocumentViewModel AutosaveViewModel { get; set; }
+    public ContextualOptionsViewModel ContextualOptionsViewModel { get; set; } = new();
     public IReadOnlyCollection<IStructureMemberHandler> SoftSelectedStructureMembers => softSelectedStructureMembers;
     INodeGraphHandler IDocument.NodeGraphHandler => NodeGraph;
     IDocumentOperations IDocument.Operations => Operations;
@@ -228,6 +231,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     ILineOverlayHandler IDocument.LineToolOverlayHandler => LineToolOverlayViewModel;
     IReferenceLayerHandler IDocument.ReferenceLayerHandler => ReferenceLayerViewModel;
     IAnimationHandler IDocument.AnimationHandler => AnimationDataViewModel;
+    IContextualOptionsHandler IDocument.ContextualOptionsHandler => ContextualOptionsViewModel;
 
     public bool UsesSrgbBlending { get; private set; }
 
@@ -394,7 +398,9 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         List<SerializationFactory> allFactories =
             ViewModelMain.Current.Services.GetServices<SerializationFactory>().ToList();
 
-        Version? serializerVersion = Version.TryParse(builderInstance.SerializerVersion, out Version parsedVersion) ? parsedVersion : null;
+        Version? serializerVersion = Version.TryParse(builderInstance.SerializerVersion, out Version parsedVersion)
+            ? parsedVersion
+            : null;
 
         foreach (var factory in allFactories)
         {
@@ -413,7 +419,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
         acc.AddActions(new InvokeAction_PassthroughAction(() =>
         {
-            var firstMember = viewModel.NodeGraph.StructureTree.Members.FirstOrDefault();
+            var firstMember = viewModel.NodeGraph.StructureTree.Members.FirstOrDefault(x => !x.IsLockedStructurally);
             if (firstMember != null)
             {
                 viewModel.SetSelectedMember(firstMember);
@@ -427,6 +433,23 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         {
             acc.AddFinishedActions(new ClipCanvas_Action(0));
         }
+
+
+        acc.AddActions(new InvokeAction_PassthroughAction(() =>
+        {
+            viewModel.NodeGraph.AvailableUpgrades.AddRange(
+                CompatibilityUtility.CalculateGraphUpgraders(viewModel, serializerVersion, allFactories,
+                    serializerData));
+
+            foreach (var upgrader in viewModel.NodeGraph.AvailableUpgrades)
+            {
+                upgrader.UpgradeCompleted += () =>
+                {
+                    viewModel.NodeGraph.AvailableUpgrades.Remove(upgrader);
+                };
+            }
+        }));
+
 
         changeBlock.ExecuteQueuedActions();
         changeBlock.Dispose();
@@ -462,6 +485,10 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 {
                     value = Activator.CreateInstance(wellKnownType);
                 }
+                else if (value != null && wellKnownType == null)
+                {
+                    wellKnownType = value.GetType();
+                }
 
                 acc.AddActions(new SetBlackboardVariable_Action(varBuilder.Name, value,
                         wellKnownType ?? typeof(object),
@@ -485,12 +512,12 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
                 var serializedNode = graph.AllNodes.First(x => x.Id == node.Id);
 
-                if (serializedNode.AdditionalData != null && serializedNode.AdditionalData.Count > 0)
-                {
-                    acc.AddActions(new DeserializeNodeAdditionalData_Action(nodeGuid,
-                        SerializationUtil.DeserializeDict(serializedNode.AdditionalData, config, allFactories,
-                            serializerData)));
-                }
+                var additionalData = serializedNode.AdditionalData ?? new Dictionary<string, object>();
+                CompatibilityUtility.UpgradeNodeAdditionalDataToCurrentVersion(additionalData, serializerVersion, serializedNode.UniqueNodeName,
+                    serializedNode.InputValues);
+                acc.AddActions(new DeserializeNodeAdditionalData_Action(nodeGuid,
+                    SerializationUtil.DeserializeDict(additionalData, config, allFactories,
+                        serializerData)));
             }
 
             foreach (var node in graph.AllNodes)
@@ -536,7 +563,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                     object value =
                         SerializationUtil.Deserialize(propertyValue.Value, config, allFactories, serializerData);
 
-                    value = CompatibilityUtility.UpgradeInputValueToCurrentVersion(value, parsedVersion, serializedNode.UniqueNodeName, propertyValue.Key, serializedNode.InputValues);
+                    value = CompatibilityUtility.UpgradeInputValueToCurrentVersion(value, serializerVersion,
+                        serializedNode.UniqueNodeName, propertyValue.Key, serializedNode.InputValues);
 
                     acc.AddActions(new UpdatePropertyValue_Action(guid, propertyValue.Key, value),
                         new EndUpdatePropertyValue_Action());
@@ -1022,10 +1050,39 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     /// <param name="includeCanvas">Should the color be picked from the canvas</param>
     /// <param name="referenceTopmost">Is the reference layer topmost. (Only affects the result is includeReference and includeCanvas are set.)</param>
     public Color PickColor(VecD pos, DocumentScope scope, bool includeReference, bool includeCanvas, int frame,
-        bool referenceTopmost = false, string? customOutput = null)
+        bool referenceTopmost = false, string? customOutput = null, Guid? viewportId = null)
     {
         if (scope == DocumentScope.SingleLayer && includeReference && includeCanvas)
             includeReference = false;
+
+        // Fast path for Canvas scope: sample from the cached scene texture instead of re-rendering
+        if (scope == DocumentScope.Canvas && includeCanvas && viewportId.HasValue
+            && SceneTextures.TryGetValue(viewportId.Value, out var sceneTexture)
+            && sceneTexture is { IsDisposed: false })
+        {
+            var textureMatrix = sceneTexture.DrawingSurface.Canvas.TotalMatrix;
+            VecD texturePixel = textureMatrix.MapPoint(pos);
+            VecI pixelPos = new VecI(
+                Math.Clamp((int)texturePixel.X, 0, sceneTexture.Size.X - 1),
+                Math.Clamp((int)texturePixel.Y, 0, sceneTexture.Size.Y - 1));
+            Color canvasColor = sceneTexture.GetSrgbPixel(pixelPos);
+
+            if (!includeReference)
+                return canvasColor;
+
+            Color? potentialReferenceColor = PickColorFromReferenceLayer(pos);
+            if (potentialReferenceColor is not { } referenceColor)
+                return canvasColor;
+
+            if (!referenceTopmost)
+                return ColorHelpers.BlendColors(referenceColor, canvasColor);
+
+            byte referenceAlpha = canvasColor.A == 0
+                ? referenceColor.A
+                : (byte)(referenceColor.A * ReferenceLayerViewModel.TopMostOpacity);
+            referenceColor = new Color(referenceColor.R, referenceColor.G, referenceColor.B, referenceAlpha);
+            return ColorHelpers.BlendColors(canvasColor, referenceColor);
+        }
 
         if (includeCanvas && includeReference)
         {
@@ -1155,6 +1212,15 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     {
         this.verticalSymmetryAxisEnabled = verticalSymmetryAxisEnabled;
         OnPropertyChanged(nameof(VerticalSymmetryAxisEnabledBindable));
+    }
+
+    public void SetSymmetryAxisPositionFromUser(SymmetryAxisDirection direction, double position)
+    {
+        Internals.ActionAccumulator.AddActions(
+            new SymmetryAxisPosition_Action(direction, position));
+
+        Internals.ActionAccumulator.AddFinishedActions(
+            new EndSymmetryAxisPosition_Action());
     }
 
     public void SetHorizontalSymmetryAxisEnabled(bool horizontalSymmetryAxisEnabled)
@@ -1337,7 +1403,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             }
             else if (member is IFolderHandler childFolder)
             {
-                if (includeFoldersWithMask && childFolder.HasMaskBindable && !list.Contains(childFolder.Id))
+                if ((!childFolder.HasMaskBindable || (includeFoldersWithMask && childFolder.HasMaskBindable)))
                     list.Add(childFolder.Id);
 
                 ExtractSelectedLayers(childFolder, list, includeFoldersWithMask);
@@ -1463,6 +1529,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             isDisposed = true;
             NodeGraph.Dispose();
             Renderer.Dispose();
+            SceneRenderer.Dispose();
             foreach (var texture in SceneTextures)
             {
                 texture.Value?.Dispose();
@@ -1510,15 +1577,34 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         using var changeBlock = Operations.StartChangeBlock();
         foreach (var node in nestedNodes)
         {
-            if (node.InputPropertyMap[NestedDocumentNode.DocumentPropertyName].Value is not DocumentReference docRef ||
-                (docRef.ReferenceId != referenceId && docRef.OriginalFilePath != newDoc.FullFilePath))
+            if (node == null ||
+                !node.InputPropertyMap.TryGetValue(NestedDocumentNode.DocumentPropertyName, out var value))
                 continue;
 
-            Internals.ActionAccumulator.AddActions(new UpdatePropertyValue_Action(node.Id,
-                    NestedDocumentNode.DocumentPropertyName,
-                    new DocumentReference(newDoc.FullFilePath, referenceId,
-                        newDoc.AccessInternalReadOnlyDocument().Clone(true))),
-                new EndUpdatePropertyValue_Action());
+            if (value.Value is not DocumentReference docRef ||
+                ((docRef.ReferenceId == Guid.Empty || docRef.ReferenceId != referenceId) &&
+                 (string.IsNullOrEmpty(docRef.OriginalFilePath) || docRef.OriginalFilePath != newDoc.FullFilePath)))
+                continue;
+
+            try
+            {
+                var clonedDoc = newDoc.AccessInternalReadOnlyDocument().Clone(true);
+                Internals.ActionAccumulator.AddActions(new UpdatePropertyValue_Action(node.Id,
+                        NestedDocumentNode.DocumentPropertyName,
+                        new DocumentReference(newDoc.FullFilePath, referenceId,
+                            clonedDoc)),
+                    new EndUpdatePropertyValue_Action());
+            }
+            catch (ObjectDisposedException)
+            {
+                continue;
+            }
+            catch (Exception ex)
+            {
+                CrashHelper.SendExceptionInfo(ex);
+                continue;
+            }
+
         }
     }
 

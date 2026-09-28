@@ -1,9 +1,5 @@
-using Avalonia.Threading;
 using PixiEditor.Extensions.CommonApi.Documents;
 using PixiEditor.Extensions.CommonApi.IO;
-using PixiEditor.Extensions.WasmRuntime.Utilities;
-using PixiEditor.Models.IO;
-using PixiEditor.ViewModels;
 using PixiEditor.ViewModels.SubViewModels;
 
 namespace PixiEditor.Models.ExtensionServices;

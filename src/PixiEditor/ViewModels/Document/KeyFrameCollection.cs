@@ -1,8 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using PixiEditor.Models.Handlers;
-using PixiEditor.Views.Animations;
 
 namespace PixiEditor.ViewModels.Document;
 

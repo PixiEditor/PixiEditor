@@ -1,6 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Net;
-using System.Security;
 using PixiEditor.OperatingSystem;
 
 namespace PixiEditor.Linux;

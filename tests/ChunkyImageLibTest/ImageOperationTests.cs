@@ -2,9 +2,7 @@
 using ChunkyImageLib;
 using ChunkyImageLib.Operations;
 using Drawie.Backend.Core;
-using Drawie.Backend.Core.Bridge;
 using Drawie.Numerics;
-using Drawie.Skia;
 using PixiEditor.Tests;
 using Xunit;
 

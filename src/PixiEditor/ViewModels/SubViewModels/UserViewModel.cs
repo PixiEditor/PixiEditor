@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
+using LiveMarkdown.Avalonia;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Helpers;
 using PixiEditor.IdentityProvider;
@@ -34,6 +35,7 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         (CurrentEmail != null ? EmailUtility.GetEmailHash(CurrentEmail) : "") == lastSentHash;
 
     public AsyncRelayCommand<string> RequestLoginCommand { get; }
+    public AsyncRelayCommand<string> RegisterCommand { get; }
     public AsyncRelayCommand TryValidateSessionCommand { get; }
     public AsyncRelayCommand<string> ResendActivationCommand { get; }
     public AsyncRelayCommand LogoutCommand { get; }
@@ -60,9 +62,9 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
             }
 
             TimeSpan timeLeft = TimeToEndTimeout.Value - DateTime.Now;
-            if(timeLeft.TotalHours > 1)
+            if (timeLeft.TotalHours > 1)
                 return $"({timeLeft:hh\\:mm\\:ss})";
-            if(timeLeft.TotalMinutes > 1)
+            if (timeLeft.TotalMinutes > 1)
                 return $"({timeLeft:mm\\:ss})";
 
             return timeLeft.TotalSeconds > 0 ? $"({timeLeft:ss})" : string.Empty;
@@ -93,6 +95,60 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
     public bool NonDefaultIdentityProvider => IdentityProvider is not PixiAuthIdentityProvider;
     public bool AnyUpdateAvailable => OwnedProducts.Any(x => x.UpdateAvailable);
 
+    // Only set when user registers, it's not retrieved from the backend on login
+    public bool AgreementChecked
+    {
+        get => agreementChecked;
+        set
+        {
+            if (SetProperty(ref agreementChecked, value))
+            {
+                NotifyProperties();
+            }
+        }
+    }
+
+    private bool signInToNewsletterChecked;
+    public bool SignInToNewsletterChecked
+    {
+        get => signInToNewsletterChecked;
+        set
+        {
+            if (SetProperty(ref signInToNewsletterChecked, value))
+            {
+                NotifyProperties();
+            }
+        }
+    }
+
+    private bool registerMode;
+
+    public bool RegisterMode
+    {
+        get => registerMode;
+        set
+        {
+            if (SetProperty(ref registerMode, value))
+            {
+                NotifyProperties();
+                OnPropertyChanged(nameof(ActiveModeKey));
+            }
+        }
+    }
+
+    public string ActiveModeKey => !RegisterMode ? "REGISTER_INSTEAD" : "LOGIN_INSTEAD";
+
+    public ObservableStringBuilder AgreementText { get; } =
+        new ObservableStringBuilder().Append(
+            new LocalizedString("REGISTER_AGREEMENT",
+                "https://pixieditor.net/docs/terms-of-service",
+                "https://pixieditor.net/docs/privacy-policy"));
+
+    public ObservableStringBuilder NewsletterAgreementText { get; } = new ObservableStringBuilder().Append(
+    new LocalizedString("SIGN_IN_TO_NEWSLETTER_TEXT",
+        "https://pixieditor.net/docs/newsletter-regulations",
+        "https://pixieditor.net/docs/privacy-policy"));
+
     private IDisposable? timerCancelable;
 
     public static string FoundersBundleLink =>
@@ -102,11 +158,14 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         "https://pixieditor.net/download/";
 #endif
 
+    private bool agreementChecked = false;
+
     public UserViewModel(ViewModelMain owner) : base(owner)
     {
         IdentityProvider = IPlatform.Current?.IdentityProvider;
         AdditionalContentProvider = IPlatform.Current?.AdditionalContentProvider;
         RequestLoginCommand = new AsyncRelayCommand<string>(RequestLogin, CanRequestLogin);
+        RegisterCommand = new AsyncRelayCommand<string>(Register, CanRegister);
         TryValidateSessionCommand = new AsyncRelayCommand(TryValidateSession);
         ResendActivationCommand = new AsyncRelayCommand<string>(ResendActivation, CanResendActivation);
         InstallContentCommand = new AsyncRelayCommand<string>(InstallContent, CanInstallContent);
@@ -138,14 +197,35 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
 
     private void IdentityProviderOnOwnedProductsUpdated(List<ProductData> products)
     {
-        OwnedProducts.Clear();
         if (products == null)
         {
             return;
         }
-        
-        
+
+        List<ProductData> newProducts = new List<ProductData>();
+
         foreach (ProductData product in products)
+        {
+            if (OwnedProducts.Any(x => x.ProductData.Id == product.Id))
+            {
+                continue;
+            }
+
+            newProducts.Add(product);
+        }
+
+        for (int i = OwnedProducts.Count - 1; i >= 0; i--)
+        {
+            OwnedProductViewModel ownedProduct = OwnedProducts[i];
+            if (products.Any(x => x.Id == ownedProduct.ProductData.Id))
+            {
+                continue;
+            }
+
+            OwnedProducts.RemoveAt(i);
+        }
+
+        foreach (var product in newProducts)
         {
             bool isInstalled = IsInstalled(product.Id);
 
@@ -166,8 +246,9 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
                 }
             }
 
-            OwnedProducts.Add(new OwnedProductViewModel(product, isInstalled, installedVersion, InstallContentCommand,
-                IsInstalled));
+            OwnedProducts.Add(new OwnedProductViewModel(product, isInstalled, installedVersion, true, true,
+                InstallContentCommand, null, null, null,
+                null, IsInstalled, (s => (true, Array.Empty<string>())), (s => 0)));
         }
 
         NotifyProperties();
@@ -207,6 +288,31 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
                 CrashHelper.SendExceptionInfo(ex);
             }
         }
+    }
+
+    public async Task Register(string email)
+    {
+        if (IdentityProvider is PixiAuthIdentityProvider pixiAuthIdentityProvider)
+        {
+            LastError = null;
+            try
+            {
+                lastSentHash = EmailUtility.GetEmailHash(email);
+                await pixiAuthIdentityProvider.Register(email, SignInToNewsletterChecked, AgreementChecked);
+                RegisterMode = false;
+                AgreementChecked = false;
+            }
+            catch (Exception ex)
+            {
+                CrashHelper.SendExceptionInfo(ex);
+            }
+        }
+    }
+
+    public bool CanRegister(string email)
+    {
+        return IdentityProvider is PixiAuthIdentityProvider && !string.IsNullOrEmpty(email) && email.Contains('@') &&
+               AgreementChecked && !(HasTimeout() && EmailEqualsLastSentMail);
     }
 
     public bool CanRequestLogin(string email)
@@ -250,6 +356,7 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
                 {
                     return;
                 }
+
                 TimeToEndTimeout = null;
                 LastError = null;
                 NotifyProperties();
@@ -259,10 +366,10 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         timerCancelable?.Dispose();
         timerCancelable = DispatcherTimer.Run(
             () =>
-        {
-            NotifyProperties();
-            return TimeToEndTimeout != null;
-        }, TimeSpan.FromSeconds(1));
+            {
+                NotifyProperties();
+                return TimeToEndTimeout != null;
+            }, TimeSpan.FromSeconds(1));
     }
 
     public bool CanResendActivation(string email)
@@ -370,35 +477,27 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
             return;
         }
 
-        try
-        {
-            string? extensionPath = await AdditionalContentProvider.InstallContent(productId);
-            if (extensionPath != null)
-            {
-                Owner.ExtensionsSubViewModel.LoadExtensionAdHoc(extensionPath);
-            }
-        }
-        catch (Exception ex)
-        {
-            CrashHelper.SendExceptionInfo(ex);
-        }
+        await Owner.ExtensionsSubViewModel.InstallAndLoadExtensionWithDependencies(AdditionalContentProvider,
+            productId, false);
     }
 
     private void OnError(string error, object? arg = null)
     {
-        if (error != "TOO_MANY_REQUESTS")
+        if (error != "TOO_MANY_REQUESTS" && error != "SESSION_NOT_VALIDATED")
         {
             TimeToEndTimeout = null;
             timerCancelable?.Dispose();
             timerCancelable = null;
             NotifyProperties();
         }
+
         if (error == "SESSION_NOT_VALIDATED")
         {
             LastError = null;
         }
         else
         {
+            error = error == "USER_NOT_FOUND" ? "USER_NOT_FOUND_INFO" : error;
             LastError = arg != null ? new LocalizedString(error, arg) : new LocalizedString(error);
             if (User is PixiUser { IsWaitingForActivation: true } pixiUser)
             {
@@ -426,5 +525,6 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         OnPropertyChanged(nameof(AnyUpdateAvailable));
         ResendActivationCommand.NotifyCanExecuteChanged();
         RequestLoginCommand.NotifyCanExecuteChanged();
+        RegisterCommand.NotifyCanExecuteChanged();
     }
 }

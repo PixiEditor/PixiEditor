@@ -1,6 +1,4 @@
-﻿using System.Text.Json;
-
-namespace PixiEditor.Models.Commands.CommandContext;
+﻿namespace PixiEditor.Models.Commands.CommandContext;
 
 public class CommandExecutionContext(object parameter, ICommandExecutionSourceInfo sourceInfo)
 {

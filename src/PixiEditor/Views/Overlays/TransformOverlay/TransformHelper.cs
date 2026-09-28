@@ -1,8 +1,6 @@
 ﻿#nullable enable
 
-using Avalonia;
 using Avalonia.Input;
-using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Numerics;
 using Point = Avalonia.Point;

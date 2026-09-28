@@ -1,7 +1,6 @@
 ﻿using System.Windows.Input;
 using Avalonia;
 using Avalonia.Input;
-using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
@@ -11,6 +10,7 @@ using PixiEditor.Helpers.UI;
 using PixiEditor.Models.Controllers.InputDevice;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
+using PixiEditor.ChangeableDocument.Rendering.ContextData;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Views.Overlays.Drawables;
 using PixiEditor.Views.Overlays.Handles;
@@ -192,6 +192,15 @@ internal class TransformOverlay : Overlay
         set => SetValue(TransformDraggedCommandProperty, value);
     }
 
+    public static readonly StyledProperty<bool> LockTransformingProperty = AvaloniaProperty.Register<TransformOverlay, bool>(
+        nameof(LockTransforming));
+
+    public bool LockTransforming
+    {
+        get => GetValue(LockTransformingProperty);
+        set => SetValue(LockTransformingProperty, value);
+    }
+
     static TransformOverlay()
     {
         AffectsRender<TransformOverlay>(CornersProperty, ZoomScaleProperty, SideFreedomProperty, CornerFreedomProperty,
@@ -363,16 +372,11 @@ internal class TransformOverlay : Overlay
 
     protected override void OnRenderOverlay(Canvas drawingContext, RectD canvasBounds)
     {
-        DrawOverlay(drawingContext, canvasBounds.Size, Corners, InternalState.Origin, (float)ZoomScale);
-
-        if (capturedAnchor is null)
-        {
-            UpdateSpecialCursors(lastPointerPos);
-        }
+        DrawOverlay(drawingContext, canvasBounds.Size, Corners, (float)ZoomScale);
     }
 
     private void DrawOverlay
-        (Canvas context, VecD size, ShapeCorners corners, VecD origin, float zoomboxScale)
+        (Canvas context, VecD size, ShapeCorners corners, float zoomboxScale)
     {
         lastSize = size;
 
@@ -430,16 +434,19 @@ internal class TransformOverlay : Overlay
             originHandle.Position = InternalState.Origin;
             moveHandle.Position = TransformHelper.GetHandlePos(Corners, ZoomScale, moveHandle.Size);
 
-            topLeftHandle.Draw(context);
-            topRightHandle.Draw(context);
-            bottomLeftHandle.Draw(context);
-            bottomRightHandle.Draw(context);
-            topHandle.Draw(context);
-            bottomHandle.Draw(context);
-            leftHandle.Draw(context);
-            rightHandle.Draw(context);
-            originHandle.Draw(context);
-            moveHandle.Draw(context);
+            if (!LockTransforming)
+            {
+                topLeftHandle.Draw(context);
+                topRightHandle.Draw(context);
+                bottomLeftHandle.Draw(context);
+                bottomRightHandle.Draw(context);
+                topHandle.Draw(context);
+                bottomHandle.Draw(context);
+                leftHandle.Draw(context);
+                rightHandle.Draw(context);
+                originHandle.Draw(context);
+                moveHandle.Draw(context);
+            }
 
             if (capturedAnchor == Anchor.Origin)
             {
@@ -523,6 +530,9 @@ internal class TransformOverlay : Overlay
 
     private void OnAnchorHandlePressed(Handle source, OverlayPointerArgs args)
     {
+        if (LockTransforming)
+            return;
+
         CaptureAnchor(anchorMap[source]);
 
         if (source == originHandle)
@@ -557,6 +567,9 @@ internal class TransformOverlay : Overlay
     protected override void OnOverlayPointerPressed(OverlayPointerArgs args)
     {
         if (args.PointerButton != MouseButton.Left)
+            return;
+
+        if (LockTransforming)
             return;
 
         lastClickCount = args.ClickCount;
@@ -668,7 +681,8 @@ internal class TransformOverlay : Overlay
 
         if (!isRotating && !actuallyMoved && pressedWithinBounds)
         {
-            MouseOnCanvasEventArgs args = new(MouseButton.Left, e.Pointer.Type, e.Point, e.Modifiers, lastClickCount, e.Properties, ZoomScale, e.Source as IDocument);
+            PointerInfo info = new PointerInfo() { PositionOnCanvas = e.Point };
+            MouseOnCanvasEventArgs args = new(MouseButton.Left, e.Pointer.Type, info, e.Modifiers, lastClickCount, e.Properties, ZoomScale, e.Source as IDocument);
             PassthroughPointerPressedCommand?.Execute(args);
             lastClickCount = 0;
         }
@@ -723,7 +737,7 @@ internal class TransformOverlay : Overlay
 
     private bool CanShear(VecD mousePos, out Anchor side)
     {
-        if (LockShear)
+        if (LockShear || LockTransforming)
         {
             side = default;
             return false;
@@ -863,7 +877,7 @@ internal class TransformOverlay : Overlay
     private bool CanRotate(VecD mousePos)
     {
         return !Corners.IsPointInside(mousePos) &&
-               Handles.All(x => !x.IsWithinHandle(x.Position, mousePos, ZoomScale)) && TestHit(mousePos);
+               Handles.All(x => !x.IsWithinHandle(x.Position, mousePos, ZoomScale)) && TestHit(mousePos) && !LockTransforming;
     }
 
     private bool UpdateSpecialCursors(VecD mousePos)

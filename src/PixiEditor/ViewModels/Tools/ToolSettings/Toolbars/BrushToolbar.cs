@@ -1,11 +1,8 @@
-﻿using System.ComponentModel;
-using Drawie.Backend.Core.Surfaces.PaintImpl;
-using PixiEditor.ChangeableDocument.Changeables.Brushes;
+﻿using PixiEditor.ChangeableDocument.Changeables.Brushes;
 using PixiEditor.Models.BrushEngine;
 using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.ViewModels.BrushSystem;
 using PixiEditor.ViewModels.Tools.ToolSettings.Settings;
-using PixiEditor.Views.Overlays.BrushShapeOverlay;
 
 namespace PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
 
@@ -26,7 +23,8 @@ internal class BrushToolbar : Toolbar, IBrushToolbar
     public Brush Brush
     {
         get => GetSetting<BrushSettingViewModel>(nameof(Brush)).Value?.Brush;
-        set => GetSetting<BrushSettingViewModel>(nameof(Brush)).Value = value != null ? new BrushViewModel(value) : null;
+        set => GetSetting<BrushSettingViewModel>(nameof(Brush)).Value =
+            value != null ? new BrushViewModel(value) : null;
     }
 
     public double Stabilization
@@ -52,15 +50,20 @@ internal class BrushToolbar : Toolbar, IBrushToolbar
         var pipe = Brush.Document.ShareGraph();
         var data = new BrushData(pipe.TryAccessData(), Brush.OutputNodeId)
         {
-            AntiAliasing = AntiAliasing,
-            StrokeWidth = (float)ToolSize,
+            AntiAliasing = AntiAliasing, StrokeWidth = (float)ToolSize,
         };
 
         pipe.Dispose();
         return data;
     }
 
-    public BrushData LastBrushData { get; private set; } = new BrushData();
+    private BrushData lastBrushData;
+
+    public BrushData LastBrushData
+    {
+        get => lastBrushData;
+        private set => SetProperty(ref lastBrushData, value);
+    }
 
     public override void OnLoadedSettings()
     {
@@ -69,6 +72,9 @@ internal class BrushToolbar : Toolbar, IBrushToolbar
         OnPropertyChanged(nameof(AntiAliasing));
         OnPropertyChanged(nameof(Stabilization));
         OnPropertyChanged(nameof(StabilizationMode));
+        LastBrushData = CreateBrushData();
+
+        OnPropertyChanged(nameof(LastBrushData));
     }
 
     public BrushToolbar()
@@ -77,14 +83,19 @@ internal class BrushToolbar : Toolbar, IBrushToolbar
         var setting = new SizeSettingViewModel(nameof(ToolSize), "TOOL_SIZE_LABEL", decimalPlaces: 1, min: 0.1);
         setting.ValueChanged += (_, _) => OnPropertyChanged(nameof(ToolSize));
         AddSetting(setting);
-        AddSetting(new BrushSettingViewModel(nameof(Brush), "BRUSH_SETTING") { IsExposed = true, IsLabelVisible = false});
-        AddSetting(new EnumSettingViewModel<StabilizationMode>(nameof(StabilizationMode), "STABILIZATION_MODE_SETTING")
-            { IsExposed = true, PickerType = EnumSettingPickerType.IconButtons, IsLabelVisible = false});
-        var stabilizationSetting = new SizeSettingViewModel(nameof(Stabilization), "STABILIZATION_SETTING", 10, min: 0, max: 128)
+        AddSetting(new BrushSettingViewModel(nameof(Brush), "BRUSH_SETTING")
         {
-            IsExposed = false,
-            IsLabelVisible = false
-        };
+            IsExposed = true, IsLabelVisible = false
+        });
+        AddSetting(new EnumSettingViewModel<StabilizationMode>(nameof(StabilizationMode), "STABILIZATION_MODE_SETTING")
+        {
+            IsExposed = true, PickerType = EnumSettingPickerType.IconButtons, IsLabelVisible = false
+        });
+        var stabilizationSetting =
+            new SizeSettingViewModel(nameof(Stabilization), "STABILIZATION_SETTING", 10, min: 0, max: 128)
+            {
+                IsExposed = false, IsLabelVisible = false
+            };
 
         AddSetting(stabilizationSetting);
 
@@ -95,7 +106,7 @@ internal class BrushToolbar : Toolbar, IBrushToolbar
                 aSetting.ValueChanged += SettingOnValueChanged;
             }
 
-            if(aSetting.Name == "Stabilization")
+            if (aSetting.Name == "Stabilization")
             {
                 aSetting.ValueChanged += (_, _) => OnPropertyChanged(nameof(Stabilization));
             }
@@ -114,6 +125,5 @@ internal class BrushToolbar : Toolbar, IBrushToolbar
     private void SettingOnValueChanged(object? sender, SettingValueChangedEventArgs<object> e)
     {
         LastBrushData = CreateBrushData();
-        OnPropertyChanged(nameof(LastBrushData));
     }
 }

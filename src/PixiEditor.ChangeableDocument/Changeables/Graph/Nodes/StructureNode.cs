@@ -2,16 +2,13 @@
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
-using PixiEditor.ChangeableDocument.Helpers;
 using PixiEditor.ChangeableDocument.Rendering;
-using Drawie.Backend.Core;
-using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
-using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -35,6 +32,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
     public InputProperty<float> Opacity { get; }
     public InputProperty<bool> IsVisible { get; }
     public bool ClipToPreviousMember { get; set; }
+    public bool IsLocked { get; set; }
     public InputProperty<BlendMode> BlendMode { get; }
     public RenderInputProperty CustomMask { get; }
     public InputProperty<bool> MaskIsVisible { get; }
@@ -52,6 +50,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
     public OutputProperty<VecD> CenterPosition { get; }
 
     public ChunkyImage? EmbeddedMask { get; set; }
+    public abstract bool SupportsIterativeRendering { get; }
 
     protected static readonly Paint replacePaint =
         new Paint() { BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.Src };
@@ -172,7 +171,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         }
 
         var renderObjectContext = CreateSceneContext(context, renderTarget, output);
-        if(UseCustomTime.Value)
+        if (UseCustomTime.Value)
         {
             renderObjectContext.FrameTime = new KeyFrameTime(CustomActiveFrame.Value, CustomNormalizedTime.Value);
         }
@@ -199,8 +198,15 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
             context.ProcessingColorSpace, context.DesiredSamplingOptions, context.Graph, context.Opacity);
         renderObjectContext.FullRerender = context.FullRerender;
         renderObjectContext.AffectedArea = context.AffectedArea;
+        renderObjectContext.IterativeRender = context.IterativeRender;
         renderObjectContext.VisibleDocumentRegion = context.VisibleDocumentRegion;
         renderObjectContext.PreviewTextures = context.PreviewTextures;
+        if(context is SceneObjectRenderContext sceneContext)
+        {
+            renderObjectContext.TargetPropertyOutput = sceneContext.TargetPropertyOutput;
+            renderObjectContext.UntransformedSampling = sceneContext.UntransformedSampling;
+        }
+
         return renderObjectContext;
     }
 
@@ -220,10 +226,20 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
             }
             else
             {
-                EmbeddedMask?.DrawMostUpToDateRegionOn(
-                    new RectI(0, 0, EmbeddedMask.LatestSize.X, EmbeddedMask.LatestSize.Y),
-                    context.ChunkResolution,
-                    surface, VecI.Zero, maskPaint, drawPaintOnEmpty: true);
+                if (!context.IterativeRender)
+                {
+                    EmbeddedMask?.DrawMostUpToDateRegionOn(
+                        new RectD(0, 0, EmbeddedMask.LatestSize.X, EmbeddedMask.LatestSize.Y),
+                        context.ChunkResolution,
+                        surface, VecI.Zero, maskPaint, drawPaintOnEmpty: true);
+                }
+                else
+                {
+                    EmbeddedMask?.DrawMostUpToDateAffectedArea(
+                        new RectD(0, 0, EmbeddedMask.LatestSize.X, EmbeddedMask.LatestSize.Y),
+                        context.ChunkResolution, surface, context.AffectedArea,
+                        VecI.Zero, maskPaint, maskPaint);
+                }
             }
         }
     }
@@ -255,13 +271,15 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
     protected void DrawClipSource(Canvas drawOnto, IClipSource clipSource, SceneObjectRenderContext context)
     {
         blendPaint.Color = Colors.White;
-        clipSource.DrawClipSource(context, drawOnto);
+        var copiedContext = context.Clone() as SceneObjectRenderContext;
+        clipSource.DrawClipSource(copiedContext, drawOnto);
     }
 
     public abstract RectD? GetTightBounds(KeyFrameTime frameTime);
     public abstract RectD? GetApproxBounds(KeyFrameTime frameTime);
 
-    internal override void SerializeAdditionalDataInternal(IReadOnlyDocument target, Dictionary<string, object> additionalData)
+    internal override void SerializeAdditionalDataInternal(IReadOnlyDocument target,
+        Dictionary<string, object> additionalData)
     {
         base.SerializeAdditionalDataInternal(target, additionalData);
         if (EmbeddedMask != null)
@@ -272,6 +290,11 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         if (ClipToPreviousMember)
         {
             additionalData["clipToPreviousMember"] = ClipToPreviousMember;
+        }
+
+        if (IsLocked)
+        {
+            additionalData["isLocked"] = IsLocked;
         }
     }
 
@@ -295,6 +318,11 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         {
             ClipToPreviousMember = (bool)clip;
             infos.Add(new StructureMemberClipToMemberBelow_ChangeInfo(Id, ClipToPreviousMember));
+        }
+        if (data.TryGetValue("isLocked", out var isLocked))
+        {
+            IsLocked = (bool)isLocked;
+            infos.Add(new LayerLock_ChangeInfo(Id, IsLocked));
         }
     }
 
@@ -328,7 +356,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         int saved = renderOn.Canvas.Save();
         renderOn.Canvas.Scale((float)context.ChunkResolution.InvertedMultiplier());
         img.DrawMostUpToDateRegionOn(
-            new RectI(0, 0, img.LatestSize.X, img.LatestSize.Y),
+            new RectD(0, 0, img.LatestSize.X, img.LatestSize.Y),
             context.ChunkResolution,
             renderOn.Canvas, VecI.Zero, maskPreviewPaint, drawPaintOnEmpty: true);
         renderOn.Canvas.RestoreToCount(saved);

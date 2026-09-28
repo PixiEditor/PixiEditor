@@ -1,9 +1,7 @@
 ﻿using Avalonia.Input;
-using ChunkyImageLib.DataHolders;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.ChangeableDocument.Enums;
 using Drawie.Backend.Core.ColorsImpl;
-using Drawie.Backend.Core.Numerics;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
@@ -71,6 +69,7 @@ internal abstract class UpdateableChangeExecutor
         FilterOutInvisible(allLayers);
         var topMostWithinClick = allLayers.Where(x =>
                 x is T { TightBounds: not null } &&
+                !x.IsLockedStructurally &&
                 x.TightBounds.Value.ContainsInclusive(pos))
             .OrderByDescending(x => allLayers.IndexOf(x));
         return topMostWithinClick.Cast<T>().ToArray();

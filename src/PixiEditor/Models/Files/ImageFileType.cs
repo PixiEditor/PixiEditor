@@ -1,14 +1,10 @@
 ﻿using System.Security;
-using ChunkyImageLib;
-using PixiEditor.Helpers;
 using Drawie.Backend.Core;
-using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Surfaces;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.IO.FileEncoders;
 using Drawie.Numerics;
-using PixiEditor.AnimationRenderer.FFmpeg;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document;
 

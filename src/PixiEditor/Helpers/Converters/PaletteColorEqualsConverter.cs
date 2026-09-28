@@ -1,6 +1,5 @@
 ﻿using System.Globalization;
 using PixiEditor.Extensions.CommonApi.Palettes;
-using PixiEditor.Models.Palettes;
 
 namespace PixiEditor.Helpers.Converters;
 

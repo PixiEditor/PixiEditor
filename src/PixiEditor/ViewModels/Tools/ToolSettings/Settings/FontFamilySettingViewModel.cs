@@ -1,15 +1,6 @@
 ﻿using System.Collections.ObjectModel;
-using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Media;
-using Avalonia.Media.Fonts;
-using Avalonia.Platform.Storage;
-using CommunityToolkit.Mvvm.Input;
 using Drawie.Backend.Core.Text;
 using PixiEditor.Models.Controllers;
-using PixiEditor.Models.IO;
-using PixiEditor.ViewModels.UserPreferences;
 
 namespace PixiEditor.ViewModels.Tools.ToolSettings.Settings;
 

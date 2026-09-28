@@ -1,12 +1,8 @@
 ﻿using System.ComponentModel;
 using Avalonia.Input;
 using Avalonia.Threading;
-using ChunkyImageLib;
-using PixiEditor.AnimationRenderer.Core;
 using PixiEditor.Models.AnalyticsAPI;
-using PixiEditor.Models.IO;
 using PixiEditor.Models.Commands.Attributes.Commands;
-using Drawie.Numerics;
 using PixiEditor.ViewModels.Dock;
 using PixiEditor.ViewModels.Document;
 
@@ -58,7 +54,7 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
             new DispatcherTimer(DispatcherPriority.Render)
             {
                 Interval = TimeSpan.FromMilliseconds(
-                    1000f / activeDocument.AnimationDataViewModel.FrameRateBindable)
+                    1000f / Math.Max(activeDocument.AnimationDataViewModel.FrameRateBindable, 1))
             };
         _playTimer.Tick += PlayTimerOnTick;
     }
@@ -145,11 +141,13 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
         Guid toCloneFrom = duplicate ? activeDocument.SelectedStructureMember.Id : Guid.Empty;
         int frameToCopyFrom = duplicate ? activeDocument.AnimationDataViewModel.ActiveFrameBindable : -1;
 
-        activeDocument.AnimationDataViewModel.CreateCel(
+        Guid? created = activeDocument.AnimationDataViewModel.CreateCel(
             activeDocument.SelectedStructureMember.Id,
             newFrame,
             toCloneFrom,
             frameToCopyFrom);
+
+        if (created == null) return;
 
         int newPos = kfAtFrame != null
             ? kfAtFrame.StartFrameBindable + kfAtFrame.DurationBindable

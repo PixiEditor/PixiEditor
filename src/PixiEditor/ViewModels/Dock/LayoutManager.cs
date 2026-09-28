@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using Avalonia;
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
@@ -12,7 +8,6 @@ using PixiDocks.Core.Docking;
 using PixiDocks.Core.Serialization;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.UI.Common.Behaviors;
-using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.SubViewModels;
 using PixiEditor.Views.Main;
 

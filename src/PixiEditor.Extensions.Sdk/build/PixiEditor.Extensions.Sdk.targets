@@ -17,6 +17,7 @@
     <GenerateCGlueTask AssemblyPath="$(TargetPath)"
                        EncryptionKey="$(EncryptionKey)"
                        EncryptionIv="$(EncryptedIv)"
+                       ApiVersion="$(PixiEditorApiVersion)"
                        OutputPath="$(IntermediateOutputPath)native" InteropCFilePath="$(MSBuildThisFileDirectory)..\native\interop.c"/>
     <ItemGroup>
       <NativeFileReference Include="$(IntermediateOutputPath)native\*.c"/>

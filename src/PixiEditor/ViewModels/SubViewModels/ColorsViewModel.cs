@@ -1,11 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Windows.Input;
 using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Media;
 using ColorPicker.Models;
@@ -18,20 +14,18 @@ using PixiEditor.Models.Commands.Attributes.Evaluators;
 using PixiEditor.Models.Commands.Search;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Dialogs;
+using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.Models.ExtensionServices;
 using PixiEditor.Models.ExternalServices;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Palettes;
-using PixiEditor.UI.Common.Fonts;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.Views.Dialogs;
 using PixiEditor.Views.Windows;
 using Color = Drawie.Backend.Core.ColorsImpl.Color;
 using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
-using Command = PixiEditor.Models.Commands.Attributes.Commands.Command;
 using Commands_Command = PixiEditor.Models.Commands.Attributes.Commands.Command;
-using ContextMenu = PixiEditor.Models.Commands.XAML.ContextMenu;
 using XAML_ContextMenu = PixiEditor.Models.Commands.XAML.ContextMenu;
 
 namespace PixiEditor.ViewModels.SubViewModels;
@@ -94,6 +88,9 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>, IColorsHandler
         }
     }
 
+    public ICommand StoppedChangingColorCommand { get; }
+    public ICommand StartedChangingColorCommand { get; }
+
     public ColorsViewModel(ViewModelMain owner)
         : base(owner)
     {
@@ -102,6 +99,21 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>, IColorsHandler
 
         ImportPaletteCommand = new AsyncRelayCommand<List<PaletteColor>>(ImportPalette, CanImportPalette);
         Owner.OnStartupEvent += OwnerOnStartupEvent;
+        StoppedChangingColorCommand = new RelayCommand(() =>
+        {
+            EndQuickColorChange();
+        });
+        
+        StartedChangingColorCommand = new RelayCommand(() =>
+        {
+            var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+            if (doc == null) return;
+            
+            if (!doc.IsChangeFeatureActive<IQuickColorLayerExecutor>() && !doc.BlockingUpdateableChangeActive)
+            {
+                BeginQuickColorChange();
+            }
+        });
     }
 
     [Evaluator.CanExecute("PixiEditor.Colors.CanReplaceColors", nameof(DocumentManagerViewModel.ActiveDocument))]
@@ -455,6 +467,42 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>, IColorsHandler
         else if (e.PropertyName == nameof(SecondaryColor))
         {
             doc.EventInlet.SecondaryColorChanged(SecondaryColor);
+        }
+    }
+
+    private void BeginQuickColorChange()
+    {
+        var document = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (document is null) return;
+
+        var layers = document.SelectedMembers;
+        if (layers.Count == 0) return;
+
+        if(layers.Count == 1 && !CanQuickColorChange(layers.First()))
+            return;
+
+        document.Operations.QuickChangeLayerColor(layers.ToArray(), PrimaryColor);
+    }
+
+    private bool CanQuickColorChange(Guid layer)
+    {
+        var document = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (document is null) return false;
+
+        var layerModel = document.StructureHelper.Find(layer);
+        if (layerModel is null) return false;
+
+        return layerModel.CanQuickColorChange();
+    }
+
+    private void EndQuickColorChange()
+    {
+        var document = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (document is null) return;
+        if (document.IsChangeFeatureActive<IQuickColorLayerExecutor>())
+        {
+            var feature = document.TryGetExecutorFeature<IQuickColorLayerExecutor>();
+            feature?.EndQuickColorChange();
         }
     }
 }

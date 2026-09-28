@@ -11,6 +11,6 @@ internal sealed class NodeFrameViewModel : NodeFrameViewModelBase
 
     protected override void CalculateBounds()
     {
-        throw new NotImplementedException();
+
     }
 }

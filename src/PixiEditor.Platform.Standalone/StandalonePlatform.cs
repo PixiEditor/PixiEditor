@@ -1,6 +1,5 @@
 ﻿using PixiEditor.IdentityProvider;
 using PixiEditor.IdentityProvider.PixiAuth;
-using PixiEditor.PixiAuth;
 
 namespace PixiEditor.Platform.Standalone;
 
@@ -12,9 +11,9 @@ public sealed class StandalonePlatform : IPlatform
     public IIdentityProvider? IdentityProvider { get; }
     public IAdditionalContentProvider? AdditionalContentProvider { get; }
 
-    public StandalonePlatform(string[] extensionsPaths, string apiUrl, string? apiKey)
+    public StandalonePlatform(string[] extensionsPaths, string apiUrl, string? apiKey, int apiVersion, string  hostName, Version hostVersion)
     {
-        PixiAuthIdentityProvider authProvider = new PixiAuthIdentityProvider(apiUrl, apiKey);
+        PixiAuthIdentityProvider authProvider = new PixiAuthIdentityProvider(apiUrl, apiKey, apiVersion, hostName, hostVersion);
         IdentityProvider = authProvider;
         AdditionalContentProvider = new StandaloneAdditionalContentProvider(extensionsPaths, authProvider);
     }

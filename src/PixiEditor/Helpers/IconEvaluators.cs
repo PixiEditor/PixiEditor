@@ -1,11 +1,7 @@
-﻿using System.Globalization;
-using System.Reflection;
-using Avalonia;
-using Avalonia.Controls;
+﻿using System.Reflection;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
-using PixiEditor.Models.Commands.Search;
 using PixiEditor.Models.Commands.Attributes.Evaluators;
 using PixiEditor.Models.Commands.Commands;
 

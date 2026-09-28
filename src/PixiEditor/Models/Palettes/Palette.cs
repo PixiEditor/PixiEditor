@@ -1,6 +1,4 @@
 ﻿#nullable enable
-using System.Collections.Generic;
-using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using PixiEditor.Extensions.CommonApi.Palettes;
 

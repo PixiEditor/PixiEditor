@@ -1,6 +1,5 @@
 ﻿using Avalonia.Input;
 using PixiEditor.Models.AnalyticsAPI;
-using PixiEditor.ViewModels.Nodes;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Handlers;
 using Drawie.Numerics;
@@ -45,13 +44,6 @@ internal class NodeGraphManagerViewModel : SubViewModel<ViewModelMain>
             return;
 
         Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.RemoveNodes(selectedNodes);
-    }
-
-    // TODO: Remove this
-    [Command.Debug("PixiEditor.NodeGraph.CreateNodeFrameAroundEverything", "Create node frame", "Create node frame", AnalyticsTrack = true)]
-    public void CreateNodeFrameAroundEverything()
-    {
-        Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.CreateNodeFrameAroundEverything();
     }
 
     [Command.Internal("PixiEditor.NodeGraph.CreateNode")]
@@ -109,6 +101,18 @@ internal class NodeGraphManagerViewModel : SubViewModel<ViewModelMain>
     public void GetComputedPropertyValue(INodePropertyHandler property)
     {
         Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.RequestUpdateComputedPropertyValue(property);
+    }
+
+    [Command.Internal("PixiEditor.NodeGraph.StartWatchingComputedValue")]
+    public void StartWatchingComputedValue(INodePropertyHandler property)
+    {
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.StartWatchingComputedValue(property);
+    }
+
+    [Command.Internal("PixiEditor.NodeGraph.StopWatchingComputedValue")]
+    public void StopWatchingComputedValue(INodePropertyHandler property)
+    {
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.StopWatchingComputedValue(property);
     }
 
     [Command.Internal("PixiEditor.NodeGraph.AddVariable")]

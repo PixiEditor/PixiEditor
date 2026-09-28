@@ -1,5 +1,4 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
-using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 
@@ -11,6 +10,8 @@ internal static class ShiftLayerHelper
         int frame, VectorPath? clipPath = null)
     {
         var targetImage = target.FindMemberOrThrow<ImageLayerNode>(layerGuid).GetLayerImageAtFrame(frame);
+        if (targetImage == null) return new AffectedArea();
+
         var prevArea = targetImage.FindAffectedArea();
         targetImage.CancelChanges();
         if (!keepOriginal)

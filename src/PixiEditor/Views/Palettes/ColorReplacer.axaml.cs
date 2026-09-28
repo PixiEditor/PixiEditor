@@ -5,6 +5,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using PixiEditor.Extensions.CommonApi.Palettes;
+using PixiEditor.Helpers.Constants;
 
 namespace PixiEditor.Views.Palettes;
 
@@ -73,9 +74,9 @@ internal partial class ColorReplacer : UserControl
 
     private void PaletteColorControl_OnDrop(object sender, DragEventArgs e)
     {
-        if (e.Data.Contains(PaletteColorControl.PaletteColorDaoFormat))
+        if (e.DataTransfer.Contains(ClipboardDataFormats.PaletteColorDaoFormat))
         {
-            string hex = (string)e.Data.Get(PaletteColorControl.PaletteColorDaoFormat);
+            string hex = (string)e.DataTransfer.GetItems(ClipboardDataFormats.PaletteColorDaoFormat).FirstOrDefault()?.TryGetRaw(ClipboardDataFormats.PaletteColorDaoFormat);
             if (hex is null)
             {
                 return;

@@ -1,7 +1,6 @@
 ﻿using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
-using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Changes.NodeGraph;
 
@@ -73,7 +72,7 @@ internal class DuplicateLayer_Change : Change
 
         operations.AddRange(NodeOperations.AppendMember(targetInput, clone.Output, clone.Background, clone.Id));
 
-        operations.AddRange(NodeOperations.AdjustPositionsAfterAppend(clone, targetInput.Node,
+        operations.AddRange(NodeOperations.PushNodesBackAfterInsertingNodeBetweenTwoOthers(clone, targetInput.Node,
             previousConnection?.Node as Node, out originalPositions));
 
         ignoreInUndo = false;

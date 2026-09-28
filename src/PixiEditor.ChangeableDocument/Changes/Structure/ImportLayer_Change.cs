@@ -78,7 +78,7 @@ internal class ImportLayer_Change : Change
 
         operations.AddRange(NodeOperations.AppendMember(targetInput, clone.Output, clone.Background, clone.Id));
 
-        operations.AddRange(NodeOperations.AdjustPositionsAfterAppend(clone, targetInput.Node,
+        operations.AddRange(NodeOperations.PushNodesBackAfterInsertingNodeBetweenTwoOthers(clone, targetInput.Node,
             previousConnection?.Node as Node, out originalPositions));
 
         ignoreInUndo = false;

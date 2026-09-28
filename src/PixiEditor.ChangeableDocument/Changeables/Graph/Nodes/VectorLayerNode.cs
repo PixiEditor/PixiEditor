@@ -5,19 +5,17 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.ChangeInfos.Vectors;
 using PixiEditor.ChangeableDocument.Rendering;
-using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
-using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 [NodeInfo("VectorLayer")]
-public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorNode, IRasterizable, IScalable
+public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorNode, IRasterizable, IScalable, IQuickColorChangeable
 {
     public InputProperty<ShapeVectorData> InputVector { get; }
     public OutputProperty<ShapeVectorData> Shape { get; }
@@ -83,7 +81,10 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
             return;
         }
 
-        Rasterize(workingSurface, paint, ctx.FrameTime.Frame);
+        if (!ctx.IterativeRender || ctx.AffectedArea.GlobalArea.HasValue)
+        {
+            Rasterize(workingSurface, paint, ctx.FrameTime.Frame);
+        }
     }
 
     protected override void DrawWithFilters(SceneObjectRenderContext ctx, Canvas workingSurface, Paint paint)
@@ -93,8 +94,12 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
             return;
         }
 
-        Rasterize(workingSurface, paint, ctx.FrameTime.Frame);
+        if (!ctx.IterativeRender || ctx.AffectedArea.GlobalArea.HasValue)
+        {
+            Rasterize(workingSurface, paint, ctx.FrameTime.Frame);
+        }
     }
+
 
     protected override bool ShouldRenderPreview(string elementToRenderName)
     {
@@ -197,6 +202,8 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         return RenderableShapeData?.TransformedVisualAABB ?? null;
     }
 
+    public override bool SupportsIterativeRendering => true;
+
     public override ShapeCorners GetTransformationCorners(KeyFrameTime frameTime)
     {
         return RenderableShapeData?.TransformationCorners ?? new ShapeCorners();
@@ -248,5 +255,64 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
                 EmbeddedShapeData.TransformationMatrix.PostConcat(Matrix3X3.CreateScale((float)multiplier.X,
                     (float)multiplier.Y));
         }
+    }
+
+    public IChangeInfo[] ChangeColor(params Color?[] colors)
+    {
+        if (colors == null) return null;
+
+        if(EmbeddedShapeData is null)
+        {
+            return null;
+        }
+
+        var shapeData = EmbeddedShapeData;
+
+        if (shapeData is null) return null;
+
+        if (colors.Length == 1)
+        {
+            var color = colors[0];
+            bool fillChange = shapeData is { Fill: true, FillPaintable: ColorPaintable { AnythingVisible: true } cp } &&
+                              cp.Color != color;
+            bool strokeChange =
+                shapeData is { StrokeWidth: > 0, Stroke: ColorPaintable { AnythingVisible: true } cp2 } &&
+                cp2.Color != color;
+
+            if (!fillChange && !strokeChange) return null;
+
+            if (fillChange)
+            {
+                shapeData.FillPaintable = color == null ? null : new ColorPaintable(color.Value);
+            }
+
+            if (strokeChange)
+            {
+                shapeData.Stroke = color == null ? null : new ColorPaintable(color.Value);
+            }
+        }
+        else if (colors.Length == 2)
+        {
+            shapeData.FillPaintable = colors[0] == null ? null : new ColorPaintable(colors[0].Value);
+            shapeData.Stroke = colors[1] == null ? null : new ColorPaintable(colors[1].Value);
+        }
+
+        return
+        [
+            new VectorShape_ChangeInfo(Id, new AffectedArea(OperationHelper.FindChunksTouchingRectangle((RectI)shapeData.TransformedAABB, ChunkyImage.FullChunkSize)))
+        ];
+    }
+
+    public Color?[] GetColors()
+    {
+        if (EmbeddedShapeData == null)
+        {
+            return null;
+        }
+
+        Color? fillColor = EmbeddedShapeData.FillPaintable is ColorPaintable cp ? cp.Color : null;
+        Color? strokeColor = EmbeddedShapeData.Stroke is ColorPaintable cp2 ? cp2.Color : null;
+
+        return [fillColor, strokeColor];
     }
 }

@@ -1,6 +1,4 @@
-﻿using Drawie.Backend.Core.Numerics;
-
-namespace PixiEditor.ChangeableDocument.Changes.Drawing;
+﻿namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 
 internal class DrawRasterRectangle_UpdateableChange : UpdateableChange
 {

@@ -7,8 +7,8 @@ using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Enums;
 using Drawie.Backend.Core;
+using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
-using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Vector;
 using PixiEditor.Extensions.CommonApi.Palettes;
@@ -23,7 +23,6 @@ using PixiEditor.Models.Tools;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
-using PixiEditor.Helpers;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Nodes;
 
@@ -48,12 +47,15 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// <summary>
     /// Creates a new selection with the size of the document
     /// </summary>
-    public void SelectAll() => Select(new RectI(VecI.Zero, Document.SizeBindable), SelectionMode.Add);
+    public void SelectAll(string renderOutput)
+    {
+        Select(new RectI(VecI.Zero, Document.SizeBindable), null, SelectionMode.Add);
+    }
 
     /// <summary>
     /// Creates a new selection with the size of the document
     /// </summary>
-    public void Select(RectI rect, SelectionMode mode = SelectionMode.New)
+    public void Select(RectI rect, string renderOutput, SelectionMode mode = SelectionMode.New)
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
@@ -61,7 +63,7 @@ internal class DocumentOperationsModule : IDocumentOperations
         Internals.ChangeController.TryStopActiveExecutor();
 
         Internals.ActionAccumulator.AddFinishedActions(
-            new SelectRectangle_Action(rect, mode),
+            new SelectRectangle_Action(rect, mode, renderOutput),
             new EndSelectRectangle_Action());
     }
 
@@ -1216,5 +1218,30 @@ internal class DocumentOperationsModule : IDocumentOperations
         Internals.ChangeController.TryStopActiveExecutor();
 
         Internals.ActionAccumulator.AddFinishedActions(new ResetTransform_Action(member));
+    }
+
+    public void QuickChangeLayerColor(Guid[] layers, Color color)
+    {
+        if (Internals.ChangeController.IsBlockingChangeActive)
+            return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+        Internals.ChangeController.TryStartExecutor(new QuickChangeLayerColorsExecutor(layers, color));
+    }
+
+    public void AlignSelectedLayers(List<Guid> selected, HorizontalAlignment horizontal, VerticalAlignment vertical)
+    {
+        if (Internals.ChangeController.IsBlockingChangeActive)
+            return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+
+        Internals.ActionAccumulator.AddFinishedActions(new AlignSelectedLayers_Action(selected,
+            Document.AnimationHandler.ActiveFrameBindable, horizontal, vertical));
+
+        InvokeCustomAction(() =>
+        {
+            Internals.ChangeController.TryStartExecutor(new TransformSelectedExecutor(true));
+        });
     }
 }

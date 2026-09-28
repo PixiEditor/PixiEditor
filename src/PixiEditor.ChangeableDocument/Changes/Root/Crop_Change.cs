@@ -2,6 +2,7 @@
 using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
 namespace PixiEditor.ChangeableDocument.Changes.Root;
 
@@ -33,6 +34,8 @@ internal class Crop_Change : ResizeBasedChangeBase
         target.VerticalSymmetryAxisX = Math.Clamp(_originalVerAxisX - rect.Pos.X, 0, rect.Size.X);
         target.HorizontalSymmetryAxisY = Math.Clamp(_originalHorAxisY - rect.Pos.Y, 0, rect.Size.Y);
 
+        VecD offset = rect.Pos * -1;
+
         target.ForEveryMember((member) =>
         {
             if (member is ImageLayerNode layer)
@@ -42,6 +45,13 @@ internal class Crop_Change : ResizeBasedChangeBase
                     Resize(frame, id, rect.Size, rect.Pos * -1, deletedChunks);
                 });
             }
+            else if (member is ITransformableObject transformable)
+            {
+                originalTransformations[member.Id] = transformable.TransformationMatrix;
+                Matrix3X3 newMatrix = Matrix3X3.CreateTranslation(offset.X, offset.Y);
+                transformable.TransformationMatrix = newMatrix.Concat(transformable.TransformationMatrix);
+            }
+
             if (member.EmbeddedMask is null)
                 return;
 

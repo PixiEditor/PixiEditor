@@ -6,8 +6,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
-using Avalonia.Metadata;
-using Drawie.Backend.Core.Numerics;
+using Avalonia.VisualTree;
 using Drawie.Numerics;
 using PixiEditor.Zoombox.Operations;
 using Point = Avalonia.Point;
@@ -296,6 +295,8 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
 
     private void RaiseViewportEvent()
     {
+        if (!this.IsAttachedToVisualTree()) return;
+
         VecD realDim = new VecD(Bounds.Width, Bounds.Height);
         RealDimensions = realDim;
         ScaleChanged?.Invoke(Scale);

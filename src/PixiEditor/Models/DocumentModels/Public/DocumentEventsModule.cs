@@ -1,7 +1,6 @@
 ﻿using Avalonia.Input;
 using PixiEditor.ChangeableDocument.Enums;
 using Drawie.Backend.Core.ColorsImpl;
-using Drawie.Backend.Core.Numerics;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.Handlers;
 using Drawie.Numerics;

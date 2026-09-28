@@ -1,8 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.Rendering;
-using Drawie.Backend.Core;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
-using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
-using PixiEditor.Common;
+﻿using Drawie.Backend.Core;
+using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
@@ -11,6 +8,7 @@ public interface IReadOnlyNodeGraph : ICacheable, IDisposable
     public IReadOnlyBlackboard Blackboard { get; }
     public IReadOnlyCollection<IReadOnlyNode> AllNodes { get; }
     public IReadOnlyNode LookupNode(Guid guid);
+    public IReadOnlyNode? TryLookupNode(Guid guid);
     public IReadOnlyNode OutputNode { get; }
     public void AddNode(IReadOnlyNode node);
     public void RemoveNode(IReadOnlyNode node);

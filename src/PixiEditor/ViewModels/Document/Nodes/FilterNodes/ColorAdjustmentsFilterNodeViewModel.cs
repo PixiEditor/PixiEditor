@@ -1,10 +1,8 @@
-﻿using Avalonia;
-using Avalonia.Media;
+﻿using Avalonia.Media;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.Handlers;
-using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.Nodes;
 using PixiEditor.ViewModels.Nodes.Properties;
 

@@ -4,7 +4,6 @@ using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Avalonia.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Vector;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Toolbars;
@@ -12,11 +11,11 @@ using PixiEditor.Models.Input;
 using Drawie.Numerics;
 using PixiEditor.Extensions.WasmRuntime.Utilities;
 using PixiEditor.Helpers;
+using PixiEditor.Models.Layers;
 using PixiEditor.UI.Common.Fonts;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Tools.ToolSettings.Settings;
 using PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
-using PixiEditor.Views.Overlays.BrushShapeOverlay;
 
 namespace PixiEditor.ViewModels.Tools;
 
@@ -109,9 +108,12 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
     public Cursor Cursor { get; set; } = new Cursor(StandardCursorType.Arrow);
 
     public IToolbar Toolbar { get; set; } = new EmptyToolbar();
+    public IToolSetHandler ActiveToolset { get; private set; }
 
     public Dictionary<IToolSetHandler, Dictionary<string, object>> ToolSetSettings { get; } = new();
     public bool IsPixiPerfectIcon => PixiPerfectIconExtensions.IsIcon(IconToUse);
+
+    protected Dictionary<IToolSetHandler, Dictionary<string, object>> dynamicDefaultSettings = new();
 
     internal ToolViewModel()
     {
@@ -120,7 +122,7 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
 
     internal void SelectedLayersChanged(IStructureMemberHandler[] layers)
     {
-        if (layers.Length is > 1 or 0)
+        if (layers.Length == 0)
         {
             CanBeUsedOnActiveLayer = SupportedLayerTypes == null;
             if (IsActive)
@@ -131,7 +133,7 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
             return;
         }
 
-        var layer = layers[0];
+        var layer = layers.FirstOrDefault(x => x.Selection == StructureMemberSelectionType.Hard, layers[0]);
 
         if (IsActive)
         {
@@ -143,6 +145,7 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
             CanBeUsedOnActiveLayer = true;
             return;
         }
+
 
         foreach (var type in SupportedLayerTypes)
         {
@@ -232,6 +235,7 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
 
     public void ApplyToolSetSettings(IToolSetHandler toolset)
     {
+        ActiveToolset = toolset;
         IconOverwrite = null;
         var toolbarSettings = Toolbar.Settings.ToArray();
         foreach (var toolbarSetting in toolbarSettings)
@@ -254,25 +258,22 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
                     var foundSetting = TryGetSettingByName(settingName, setting);
                     if (foundSetting is null)
                     {
+                        if (dynamicDefaultSettings.TryGetValue(toolset, out var toolsetSettings))
+                        {
+                            toolsetSettings[settingName] = defaultValue;
+                        }
+                        else
+                        {
+                            dynamicDefaultSettings[toolset] = new Dictionary<string, object>
+                            {
+                                [settingName] = defaultValue
+                            };
+                        }
+
                         continue;
                     }
 
-                    if (defaultValue is JsonElement jsonElement)
-                    {
-                        try
-                        {
-                            defaultValue = JsonUtility.TryDeserialize(jsonElement, foundSetting.GetSettingType());
-                        }
-                        catch (JsonException)
-                        {
-#if DEBUG
-                            Debug.WriteLine(
-                                $"Failed to deserialize default value for setting {settingName} in toolset {toolset.Name}");
-#endif
-                        }
-
-                        foundSetting.SetDefaultValue(defaultValue, toolset.Name);
-                    }
+                    SetDefaultValue(toolset, defaultValue, foundSetting, settingName);
                 }
             }
 
@@ -324,6 +325,27 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
                 }
             }
         }
+    }
+
+    protected static void SetDefaultValue(IToolSetHandler toolset, object defaultValue, Setting foundSetting,
+        string settingName)
+    {
+        if (defaultValue is JsonElement jsonElement)
+        {
+            try
+            {
+                defaultValue = JsonUtility.TryDeserialize(jsonElement, foundSetting.GetSettingType());
+            }
+            catch (JsonException)
+            {
+#if DEBUG
+                Debug.WriteLine(
+                    $"Failed to deserialize default value for setting {settingName} in toolset {toolset.Name}");
+#endif
+            }
+        }
+
+        foundSetting.SetDefaultValue(defaultValue, toolset.Name);
     }
 
     private Setting? TryGetSettingByName(string settingName, KeyValuePair<string, object> setting)
@@ -398,7 +420,10 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
 
         var settingName = settingConfig.Key.Replace("Expose", string.Empty);
 
-        if (settingConfig.Value is bool value || settingConfig.Value is JsonElement { ValueKind: JsonValueKind.True or JsonValueKind.False } jsonElement && (value = jsonElement.GetBoolean()))
+        if (settingConfig.Value is bool value || settingConfig.Value is JsonElement
+            {
+                ValueKind: JsonValueKind.True or JsonValueKind.False
+            } jsonElement && (value = jsonElement.GetBoolean()))
         {
             expose = value;
             return true;

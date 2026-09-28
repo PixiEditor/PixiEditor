@@ -25,8 +25,8 @@
         </Grid.ColumnDefinitions>
         <!--<visuals:ColorsPreviewer/>-->
         <colorPicker:ColorDisplay
-            SelectedColor="{Binding DataContext.ColorsSubViewModel.PrimaryColor, Converter={converters:GenericColorToMediaColorConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
-            SecondaryColor="{Binding DataContext.ColorsSubViewModel.SecondaryColor, Converter={converters:GenericColorToMediaColorConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}">
+            SelectedColor="{ReflectionBinding DataContext.ColorsSubViewModel.PrimaryColor, Converter={converters:GenericColorToMediaColorConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
+            SecondaryColor="{ReflectionBinding DataContext.ColorsSubViewModel.SecondaryColor, Converter={converters:GenericColorToMediaColorConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}">
             <colorPicker:ColorDisplay.Styles>
                 <Style Selector="Button">
                     <Setter Property="IsVisible" Value="False" />
@@ -35,7 +35,7 @@
         </colorPicker:ColorDisplay>
         <DockPanel Grid.Column="1" ClipToBounds="True">
             <TextBlock
-                ui:Translator.LocalizedString="{Binding DataContext.ActiveActionDisplay, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
+                ui:Translator.LocalizedString="{ReflectionBinding DataContext.ActiveActionDisplay, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
                 Foreground="{DynamicResource ThemeForegroundBrush}"
                 FontSize="15"
                 Margin="10,0,0,0"
@@ -46,7 +46,7 @@
                 HorizontalAlignment="Right"
                 VerticalAlignment="Center">
                 <TextBlock
-                    Text="{Binding DataContext.DocumentManagerSubViewModel.ActiveDocument.CoordinatesString, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
+                    Text="{ReflectionBinding DataContext.DocumentManagerSubViewModel.ActiveDocument.CoordinatesString, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
                     Foreground="{DynamicResource ThemeForegroundBrush}"
                     FontSize="16" />
             </StackPanel>
@@ -62,7 +62,7 @@
                 HorizontalAlignment="Right"
                 Foreground="{DynamicResource ThemeForegroundBrush}"
                 FontSize="14"
-                ui:Translator.LocalizedString="{Binding DataContext.UpdateSubViewModel.VersionText, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}" />
+                ui:Translator.LocalizedString="{ReflectionBinding DataContext.UpdateSubViewModel.VersionText, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}" />
         </StackPanel>
     </Grid>
 </UserControl>

@@ -12,7 +12,6 @@ using PixiEditor.Models.Tools;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.Helpers;
-using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.ViewModels.Document.TransformOverlays;
 using Color = Drawie.Backend.Core.ColorsImpl.Color;
 

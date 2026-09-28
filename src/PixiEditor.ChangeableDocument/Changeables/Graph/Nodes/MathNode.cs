@@ -1,18 +1,20 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.ChangeableDocument.Rendering;
-using Drawie.Backend.Core;
-using Drawie.Backend.Core.Shaders.Generation;
 using Drawie.Backend.Core.Shaders.Generation.Expressions;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.Common;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
-[NodeInfo("Math")]
-public class MathNode : Node
+[NodeInfo(UniqueName)]
+public class MathNode : Node, IIterativeRenderSupport
 {
+    public const string UniqueName = "Math";
+    public const string XPropertyName = "X";
+    public const string YPropertyName = "Y";
+    public const string ZPropertyName = "Z";
+    public const string ModePropertyName = "Mode";
     public FuncOutputProperty<Float1> Result { get; }
 
     public InputProperty<MathNodeMode> Mode { get; }
@@ -20,19 +22,19 @@ public class MathNode : Node
     public InputProperty<bool> Clamp { get; }
 
     public FuncInputProperty<Float1> X { get; }
-    
+
     public FuncInputProperty<Float1> Y { get; }
-    
+
     public FuncInputProperty<Float1> Z { get; }
-    
+
     public MathNode()
     {
-        Result = CreateFuncOutput<Float1>(nameof(Result), "RESULT", Calculate);
-        Mode = CreateInput(nameof(Mode), "MATH_MODE", MathNodeMode.Add);
-        Clamp = CreateInput(nameof(Clamp), "CLAMP", false);
-        X = CreateFuncInput<Float1>(nameof(X), "X", 0d);
-        Y = CreateFuncInput<Float1>(nameof(Y), "Y", 0d);
-        Z = CreateFuncInput<Float1>(nameof(Z), "Z", 0d);
+        Result = CreateFuncOutput<Float1>("Result", "RESULT", Calculate);
+        Mode = CreateInput(ModePropertyName, "MATH_MODE", MathNodeMode.Add);
+        Clamp = CreateInput("Clamp", "CLAMP", false);
+        X = CreateFuncInput<Float1>(XPropertyName, "X", 0d);
+        Y = CreateFuncInput<Float1>(YPropertyName, "Y", 0d);
+        Z = CreateFuncInput<Float1>(ZPropertyName, "Z", 0d);
     }
 
     private Float1 Calculate(FuncContext context)
@@ -75,6 +77,7 @@ public class MathNode : Node
                 MathNodeMode.Acos => ShaderMath.Acos(x),
                 MathNodeMode.Atan => ShaderMath.Atan(x),
                 MathNodeMode.Atan2 => ShaderMath.Atan2(x, y),
+                _ => ShaderMath.Add(x, y)
             };
 
             if (Clamp.Value)
@@ -85,10 +88,29 @@ public class MathNode : Node
             return context.NewFloat1(result);
         }
 
-        var xConst = (double)x.GetConstant();
-        var yConst = (double)y.GetConstant();
-        var zConst = (double)z.GetConstant();
-        
+        var xConstRaw = x.GetConstant();
+        var yConstRaw = y.GetConstant();
+        var zConstRaw = z.GetConstant();
+
+        double xConst = xConstRaw is double xD ? xD : 0;
+        double yConst = yConstRaw is double yD ? yD : 0;
+        double zConst = zConstRaw is double zD ? zD : 0;
+
+        if (xConstRaw is not double)
+        {
+            xConst = Convert.ToDouble(xConstRaw);
+        }
+
+        if (yConstRaw is not double)
+        {
+            yConst = Convert.ToDouble(yConstRaw);
+        }
+
+        if (zConstRaw is not double)
+        {
+            zConst = Convert.ToDouble(zConstRaw);
+        }
+
         var constValue = Mode.Value switch
         {
             MathNodeMode.Add => xConst + yConst,
@@ -123,13 +145,14 @@ public class MathNode : Node
             MathNodeMode.Acos => Math.Acos(xConst),
             MathNodeMode.Atan => Math.Atan(xConst),
             MathNodeMode.Atan2 => Math.Atan2(xConst, yConst),
+            _ => xConst + yConst
         };
-        
+
         if (Clamp.Value)
         {
             constValue = Math.Clamp(constValue, 0, 1);
         }
-            
+
         return new Float1(string.Empty) { ConstantValue = constValue };
     }
 
@@ -145,4 +168,5 @@ public class MathNode : Node
 
 
     public override Node CreateCopy() => new MathNode();
+    bool IIterativeRenderSupport.SupportsIterativeRendering => true;
 }

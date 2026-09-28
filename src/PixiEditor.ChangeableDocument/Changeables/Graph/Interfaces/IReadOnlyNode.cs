@@ -1,9 +1,7 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+﻿using Drawie.Backend.Core;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
-using Drawie.Backend.Core;
 using Drawie.Numerics;
-using PixiEditor.Common;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 

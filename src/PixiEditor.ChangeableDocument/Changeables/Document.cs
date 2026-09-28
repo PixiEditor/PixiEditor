@@ -6,11 +6,11 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core;
-using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
 
 namespace PixiEditor.ChangeableDocument.Changeables;
 
@@ -104,7 +104,7 @@ internal class Document : IChangeable, IReadOnlyDocument
             using Surface chunkSurface =
                 Surface.ForProcessing(chunkyImage.CommittedSize, chunkyImage.ProcessingColorSpace);
             chunkyImage.DrawCommittedRegionOn(
-                new RectI(0, 0, chunkyImage.CommittedSize.X, chunkyImage.CommittedSize.Y),
+                new RectD(0, 0, chunkyImage.CommittedSize.X, chunkyImage.CommittedSize.Y),
                 ChunkResolution.Full,
                 chunkSurface.DrawingSurface.Canvas,
                 VecI.Zero);
@@ -322,6 +322,13 @@ internal class Document : IChangeable, IReadOnlyDocument
     }
 
     IReadOnlyNode IReadOnlyDocument.FindNode(Guid guid) => FindNodeOrThrow<Node>(guid);
+    bool IReadOnlyDocument.TryFindNode(Guid guid, out IReadOnlyNode? node)
+    {
+         bool found = TryFindNode<Node>(guid, out var foundNode);
+         node = foundNode;
+         return found;
+    }
+
 
     public T? FindNode<T>(Guid guid) where T : Node
     {
@@ -497,5 +504,26 @@ internal class Document : IChangeable, IReadOnlyDocument
     object ICloneable.Clone()
     {
         return Clone();
+    }
+
+    public VecI GetRenderOutputSize(string renderOutputName)
+    {
+        CustomOutputNode[] outputs = NodeGraph.Nodes.OfType<CustomOutputNode>().ToArray();
+        foreach (var output in outputs)
+        {
+            if (output.OutputName.Value == renderOutputName)
+            {
+                if (output.FullViewportRender.Value)
+                {
+                    return Size;
+                }
+
+                var size = output.Size.Value;
+                if (size is { X: > 0, Y: > 0 })
+                    return size;
+            }
+        }
+
+        return Size;
     }
 }

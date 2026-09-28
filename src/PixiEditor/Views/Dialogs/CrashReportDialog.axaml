@@ -9,7 +9,6 @@
         xmlns:viewModels="clr-namespace:PixiEditor.ViewModels"
         mc:Ignorable="d"
         ExtendClientAreaToDecorationsHint="False"
-        ExtendClientAreaChromeHints="Default"
         Title="PixiEditor has crashed!"
         MinWidth="480" MinHeight="195"
         x:DataType="viewModels:CrashReportViewModel"

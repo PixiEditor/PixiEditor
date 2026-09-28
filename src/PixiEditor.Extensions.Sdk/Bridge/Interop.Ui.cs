@@ -1,5 +1,4 @@
 using PixiEditor.Extensions.CommonApi.FlyUI;
-using PixiEditor.Extensions.CommonApi.Windowing;
 using PixiEditor.Extensions.Sdk.Api.FlyUI;
 using PixiEditor.Extensions.Sdk.Api.Window;
 using PixiEditor.Extensions.Sdk.Utilities;
@@ -46,6 +45,7 @@ internal partial class Interop
         }
 
         LayoutElement lElem = (LayoutElement)Activator.CreateInstance(type, (Cursor?)null)!;
+        lElem.ImmediateEventPropagation = true;
 
         return lElem;
     }
@@ -68,7 +68,7 @@ internal partial class Interop
         }
 
         LayoutElement lElem = (LayoutElement)Activator.CreateInstance(type, (Cursor?)null)!;
-
+        lElem.ImmediateEventPropagation = true;
         return lElem;
     }
 

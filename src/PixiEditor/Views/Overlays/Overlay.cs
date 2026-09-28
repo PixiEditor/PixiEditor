@@ -1,16 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Avalonia;
-using Avalonia.Animation;
+﻿using Avalonia;
 using Avalonia.Animation.Easings;
 using Avalonia.Controls;
-using Avalonia.Data;
 using Avalonia.Input;
-using Avalonia.Media;
-using Avalonia.Styling;
 using Avalonia.Threading;
-using Drawie.Backend.Core.Numerics;
-using Drawie.Backend.Core.Surfaces;
 using PixiEditor.Extensions.UI.Overlays;
 using Drawie.Numerics;
 using PixiEditor.Views.Overlays.Handles;
@@ -227,6 +219,13 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
         handle.ZoomScale = ZoomScale;
     }
 
+    public void RemoveHandle(Handle handle)
+    {
+        if (!Handles.Contains(handle)) return;
+
+        Handles.Remove(handle);
+    }
+
     public void ForAllHandles(Action<Handle> action)
     {
         foreach (var handle in Handles)
@@ -277,6 +276,14 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
         else if (pointerEvent == HandleEventType.PointerReleasedOverlay)
         {
             handle.InvokeRelease(args);
+        }
+        else if (pointerEvent == HandleEventType.PointerEnteredOverlay)
+        {
+            handle.InvokeEnter(args);
+        }
+        else if (pointerEvent == HandleEventType.PointerExitedOverlay)
+        {
+            handle.InvokeExit(args);
         }
     }
 

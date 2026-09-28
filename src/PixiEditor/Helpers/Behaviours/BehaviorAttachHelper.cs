@@ -1,7 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Xaml.Interactions.Custom;
 using Avalonia.Xaml.Interactivity;
-using PixiEditor.UI.Common.Extensions;
 
 namespace PixiEditor.Helpers.Behaviours;
 

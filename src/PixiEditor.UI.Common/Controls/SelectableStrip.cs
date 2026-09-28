@@ -3,9 +3,7 @@ using Avalonia.Animation;
 using Avalonia.Animation.Easings;
 using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
-using Avalonia.Layout;
 using Avalonia.Media;
-using Avalonia.Styling;
 using Avalonia.VisualTree;
 
 namespace PixiEditor.UI.Common.Controls;
@@ -31,6 +29,7 @@ public class SelectableStrip : Panel
         AvaloniaProperty.Register<SelectableStrip, double>(nameof(HighlightX));
 
     private Border _highlight;
+    private Rect selectedChildBounds = new Rect();
 
     static SelectableStrip()
     {
@@ -110,6 +109,12 @@ public class SelectableStrip : Panel
             return;
 
         var pos = control.TranslatePoint(new Point(0, 0), selectableStrip) ?? new Point();
+        if (control.Bounds.Width > 0)
+        {
+            selectableStrip._highlight.Width = control.Bounds.Width;
+        }
+
+        selectableStrip.selectedChildBounds = control.Bounds;
         selectableStrip.HighlightX = pos.X;
     }
 
@@ -120,6 +125,7 @@ public class SelectableStrip : Panel
             if (child is ContentPresenter presenter && presenter.Child != null && GetIsStripSelected(presenter.Child))
             {
                 var pos = presenter.Child.TranslatePoint(new Point(0, 0), this) ?? new Point();
+                selectedChildBounds = child.Bounds;
                 HighlightX = pos.X;
                 break;
             }
@@ -133,11 +139,12 @@ public class SelectableStrip : Panel
         {
             if (child == _highlight)
             {
-                child.Arrange(new Rect(new Point(0, 0), new Size(finalSize.Height, finalSize.Height)));
+                child.Arrange(selectedChildBounds == default ? new Rect(0, 0, finalSize.Width, finalSize.Height) : selectedChildBounds.WithX(0));
                 continue;
             }
 
-            child.Arrange(new Rect(new Point(x, 0), new Size(child.DesiredSize.Width, finalSize.Height)));
+            var rect = new Rect(new Point(x, 0), new Size(child.DesiredSize.Width, finalSize.Height));
+            child.Arrange(rect);
 
             x += child.DesiredSize.Width;
         }

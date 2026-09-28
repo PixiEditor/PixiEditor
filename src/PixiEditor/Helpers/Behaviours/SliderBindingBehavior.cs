@@ -11,11 +11,11 @@ public class SliderBindingBehavior : Behavior<Slider>
     public static readonly StyledProperty<bool> CanBindProperty = AvaloniaProperty.Register<SliderBindingBehavior, bool>(
         nameof(CanBind));
 
-    public static readonly StyledProperty<IBinding?> ValueBindingProperty = AvaloniaProperty.Register<SliderBindingBehavior, IBinding?>(
+    public static readonly StyledProperty<BindingBase?> ValueBindingProperty = AvaloniaProperty.Register<SliderBindingBehavior, BindingBase?>(
         nameof(ValueBinding));
 
     [AssignBinding]
-    public IBinding? ValueBinding
+    public BindingBase? ValueBinding
     {
         get => GetValue(ValueBindingProperty);
         set => SetValue(ValueBindingProperty, value);
@@ -64,7 +64,7 @@ public class SliderBindingBehavior : Behavior<Slider>
         }
     }
 
-    private static void OnBindingChanged(AvaloniaPropertyChangedEventArgs<IBinding> e)
+    private static void OnBindingChanged(AvaloniaPropertyChangedEventArgs<BindingBase> e)
     {
         if (e.Sender is SliderBindingBehavior behavior && behavior.AssociatedObject != null)
         {

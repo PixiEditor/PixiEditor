@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Extensions.Metadata;
 
 namespace PixiEditor.Extensions;
@@ -9,6 +8,7 @@ namespace PixiEditor.Extensions;
 /// </summary>
 public abstract class Extension
 {
+    public int ApiVersion { get; private set; }
     public ExtensionServices Api { get; private set; }
     public ExtensionMetadata Metadata { get; private set; }
     public Assembly Assembly => GetType().Assembly;
@@ -26,6 +26,7 @@ public abstract class Extension
 
     public void Load()
     {
+        ApiVersion = GetApiVersion();
         OnLoaded();
     }
 
@@ -44,6 +45,13 @@ public abstract class Extension
     {
         OnMainWindowLoaded();
     }
+
+    public virtual void Unload()
+    {
+        
+    }
+
+    protected abstract int GetApiVersion();
 
     /// <summary>
     ///     Called right after the extension is loaded. Not all extensions are initialized at this point. PixiEditor API at this point is not available.

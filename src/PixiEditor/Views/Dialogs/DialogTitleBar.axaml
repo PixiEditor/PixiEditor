@@ -7,12 +7,13 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
     xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+    xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
     mc:Ignorable="d"
     x:Name="uc"
     Height="36"
     d:DesignWidth="300">
     <Grid DataContext="{Binding ElementName=uc}">
-        <Grid Background="{DynamicResource ThemeBackgroundBrush1}" IsHitTestVisible="False" />
+        <Grid Background="{DynamicResource ThemeBackgroundBrush1}" IsHitTestVisible="True" WindowDecorationProperties.ElementRole="TitleBar" />
         <TextBlock
             IsHitTestVisible="False"
             TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center"
@@ -21,12 +22,12 @@
             FontSize="13"
             Margin="5,0,0,0" />
         <DockPanel IsHitTestVisible="True">
-            <CaptionButtons Name="captionButtons" DockPanel.Dock="Right"
+            <controls:CaptionButtonsPlaceholder Name="captionButtons" DockPanel.Dock="Right"
+                                                CanMaximize="{Binding CanFullscreen}"
+                                                CanMinimize="{Binding CanMinimize}"
                             IsVisible="{OnPlatform macOS=false, Default=true}" />
             <ContentPresenter DockPanel.Dock="Right" IsVisible="{Binding !!AdditionalElement}"
                               Content="{Binding Path=AdditionalElement}" />
-            <Panel Background="{OnPlatform Default={x:Null}, Linux=Transparent}" IsHitTestVisible="True" />
-            <!-- dummy control to occupy dockpanel center -->
         </DockPanel>
     </Grid>
 </UserControl>

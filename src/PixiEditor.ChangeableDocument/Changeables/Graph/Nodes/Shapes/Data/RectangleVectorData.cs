@@ -1,5 +1,4 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
-using Drawie.Backend.Core;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
@@ -64,14 +63,14 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
         using Paint paint = new Paint();
         paint.IsAntiAliased = true;
 
-        if (Fill && FillPaintable.AnythingVisible)
+        if (Fill && FillPaintable is { AnythingVisible: true })
         {
             paint.SetPaintable(FillPaintable);
             paint.Style = PaintStyle.Fill;
             DrawRect(canvas, paint);
         }
 
-        if (StrokeWidth > 0 && Stroke.AnythingVisible)
+        if (StrokeWidth > 0 && Stroke is { AnythingVisible: true })
         {
             paint.SetPaintable(Stroke);
             paint.Style = PaintStyle.Stroke;

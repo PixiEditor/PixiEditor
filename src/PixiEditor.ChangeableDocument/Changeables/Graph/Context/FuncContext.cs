@@ -1,8 +1,5 @@
-﻿using System.Linq.Expressions;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
-using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Shaders.Generation;
@@ -56,7 +53,8 @@ public class FuncContext
         SamplePosition = Builder.ConstructFloat2(OriginalPosition.X, OriginalPosition.Y);
     }
 
-    public Half4 SampleSurface(DrawingSurface surface, Expression pos, ColorSampleMode sampleMode, bool normalizedCoordinates)
+    public Half4 SampleSurface(DrawingSurface surface, Expression pos, ColorSampleMode sampleMode,
+        bool normalizedCoordinates)
     {
         SurfaceSampler texName = Builder.AddOrGetSurface(surface, sampleMode);
         return Builder.Sample(texName, pos, normalizedCoordinates);
@@ -72,6 +70,18 @@ public class FuncContext
         }
 
         return Builder.ConstructFloat2(x, y);
+    }
+
+    public Float2 NewFloat2(Expression assignment)
+    {
+        if (!HasContext && assignment is Float2 float2)
+        {
+            Float2 constantFloat = new Float2("");
+            constantFloat.ConstantValue = float2.ConstantValue;
+            return constantFloat;
+        }
+
+        return Builder.AssignNewFloat2(assignment);
     }
 
     public Float1 NewFloat1(Expression result)
@@ -120,11 +130,12 @@ public class FuncContext
             a is Float1 fourthFloat)
         {
             Half4 constantHalf4 = new Half4("");
-            byte rByte = firstFloat.AsConstantColorByte();
-            byte gByte = secondFloat.AsConstantColorByte();
-            byte bByte = thirdFloat.AsConstantColorByte();
-            byte aByte = fourthFloat.AsConstantColorByte();
-            constantHalf4.ConstantValue = new Color(rByte, gByte, bByte, aByte);
+            constantHalf4.ConstantValue = new Vec4D(
+                firstFloat.ConstantValue,
+                secondFloat.ConstantValue,
+                thirdFloat.ConstantValue,
+                fourthFloat.ConstantValue
+            );
             return constantHalf4;
         }
 
@@ -137,11 +148,12 @@ public class FuncContext
             a is Float1 fourthFloat)
         {
             Half4 constantHalf4 = new Half4("");
-            var hValue = Math.Clamp(firstFloat.ConstantValue, 0, 360);
-            var sValue = Math.Clamp(secondFloat.ConstantValue, 0, 100);
-            var vValue = Math.Clamp(thirdFloat.ConstantValue, 0, 100);
-            byte aByte = fourthFloat.AsConstantColorByte();
-            constantHalf4.ConstantValue = Color.FromHsv((float)hValue, (float)sValue, (float)vValue, aByte);
+            double hValue = Math.Clamp(firstFloat.ConstantValue, 0, 1);
+            double sValue = Math.Clamp(secondFloat.ConstantValue, 0, 1);
+            double vValue = Math.Clamp(thirdFloat.ConstantValue, 0, 1);
+            double aValue = Math.Clamp(fourthFloat.ConstantValue, 0, 1);
+            constantHalf4.ConstantValue = ColorF
+                .FromHsv((float)hValue * 360, (float)sValue * 100, (float)vValue * 100, (float)aValue).ToVec4D();
             return constantHalf4;
         }
 
@@ -154,41 +166,63 @@ public class FuncContext
             a is Float1 fourthFloat)
         {
             Half4 constantHalf4 = new Half4("");
-            var hValue = Math.Clamp(firstFloat.ConstantValue, 0, 360);
-            var sValue = Math.Clamp(secondFloat.ConstantValue, 0, 100);
-            var lValue = Math.Clamp(thirdFloat.ConstantValue, 0, 100);
-            byte aByte = fourthFloat.AsConstantColorByte();
-            constantHalf4.ConstantValue = Color.FromHsl((float)hValue, (float)sValue, (float)lValue, aByte);
+            double hValue = Math.Clamp(firstFloat.ConstantValue, 0, 1);
+            double sValue = Math.Clamp(secondFloat.ConstantValue, 0, 1);
+            double lValue = Math.Clamp(thirdFloat.ConstantValue, 0, 1);
+            double aValue = Math.Clamp(fourthFloat.ConstantValue, 0, 1);
+            constantHalf4.ConstantValue = ColorF
+                .FromHsl((float)hValue * 360, (float)sValue * 100, (float)lValue * 100, (float)aValue).ToVec4D();
             return constantHalf4;
         }
 
         return Builder.AssignNewHalf4(Builder.Functions.GetHslToRgb(h, s, l, a));
     }
 
-    public Half4 RgbaToHsva(Expression color)
+    public Half4 RgbaToHsva(Expression color, bool normalize)
     {
-        if (!HasContext && color is Half4 constantColor)
+        if (!HasContext && color is Half4 half4)
         {
             var variable = new Half4(string.Empty);
-            constantColor.ConstantValue.ToHsv(out float h, out float s, out float l);
-            variable.ConstantValue = new Color((byte)(h * 255), (byte)(s * 255), (byte)(l * 255),
-                constantColor.ConstantValue.A);
+            ColorF.FromVec4D(half4.ConstantValue).ToHsv(out float h, out float s, out float v);
+            double a = half4.ConstantValue.W;
+            if (normalize)
+            {
+                h /= 360f;
+                s /= 100f;
+                v /= 100f;
+            }
+            else
+            {
+                a *= 255f;
+            }
 
+            variable.ConstantValue = new Vec4D(h, s, v, a);
             return variable;
         }
 
         return Builder.AssignNewHalf4(Builder.Functions.GetRgbToHsv(color));
     }
 
-    public Half4 RgbaToHsla(Expression color)
+    public Half4 RgbaToHsla(Expression color, bool normalize)
     {
-        if (!HasContext && color is Half4 constantColor)
+        if (!HasContext && color is Half4 half4)
         {
             var variable = new Half4(string.Empty);
-            constantColor.ConstantValue.ToHsl(out float h, out float s, out float l);
-            variable.ConstantValue = new Color((byte)(h * 255), (byte)(s * 255), (byte)(l * 255),
-                constantColor.ConstantValue.A);
+            ColorF.FromVec4D(half4.ConstantValue).ToHsl(out float h, out float s, out float l);
+            if (normalize)
+            {
+                h /= 360f;
+                s /= 100f;
+                l /= 100f;
+            }
 
+            double a = half4.ConstantValue.W;
+            if (!normalize)
+            {
+                a *= 255f;
+            }
+
+            variable.ConstantValue = new Vec4D(h, s, l, a);
             return variable;
         }
 
@@ -234,7 +268,12 @@ public class FuncContext
         }
 
 
-        var val = getFrom.Value(this);
+        var val = getFrom?.Value?.Invoke(this);
+        if (val == null)
+        {
+            val = new Float1("");
+        }
+
         _cachedValues[getFrom] = val;
 
         return val;
@@ -266,7 +305,12 @@ public class FuncContext
             }
         }
 
-        var val = getFrom.Value(this);
+        var val = getFrom?.Value?.Invoke(this);
+        if (val == null)
+        {
+            val = new Int1("");
+        }
+
         _cachedValues[getFrom] = val;
 
         return val;
@@ -293,7 +337,12 @@ public class FuncContext
             }
         }
 
-        var val = getFrom.Value(this);
+        var val = getFrom?.Value?.Invoke(this);
+        if (val == null)
+        {
+            val = new Half3("");
+        }
+
         _cachedValues[getFrom] = val;
 
         return val;
@@ -312,7 +361,7 @@ public class FuncContext
             {
                 Half4 color = getFrom?.Value != null ? getFrom.Value(this) : new Half4("");
                 color.VariableName = $"color_{Builder.GetUniqueNameNumber()}";
-                Builder.AddUniform(color.VariableName, color?.ConstantValue ?? Colors.Transparent);
+                Builder.AddUniform(color.VariableName, Color.FromVec4D(color?.ConstantValue ?? Vec4D.Zero));
                 return color;
             }
 
@@ -325,7 +374,12 @@ public class FuncContext
             }
         }
 
-        var val = getFrom.Value(this);
+        var val = getFrom?.Value?.Invoke(this);
+        if (val == null)
+        {
+            val = new Half4("");
+        }
+
         _cachedValues[getFrom] = val;
 
         return val;
@@ -352,7 +406,12 @@ public class FuncContext
             }
         }
 
-        var val = getFrom.Value(this);
+        var val = getFrom?.Value?.Invoke(this);
+        if (val == null)
+        {
+            val = new Float2("");
+        }
+
         _cachedValues[getFrom] = val;
 
         return val;
@@ -379,7 +438,12 @@ public class FuncContext
             }
         }
 
-        var val = getFrom.Value(this);
+        var val = getFrom?.Value?.Invoke(this);
+        if (val == null)
+        {
+            val = new Int2("");
+        }
+
         _cachedValues[getFrom] = val;
 
         return val;
@@ -406,7 +470,12 @@ public class FuncContext
             }
         }
 
-        var val = getFrom.Value(this);
+        var val = getFrom?.Value?.Invoke(this);
+        if (val == null)
+        {
+            val = new Float3x3("");
+        }
+
         _cachedValues[getFrom] = val;
 
         return val;
@@ -433,7 +502,12 @@ public class FuncContext
             }
         }
 
-        var val = getFrom.Value(this);
+        var val = getFrom?.Value?.Invoke(this);
+        if (val == null)
+        {
+            val = new Float3("");
+        }
+
         _cachedValues[getFrom] = val;
 
         return val;
@@ -465,7 +539,12 @@ public class FuncContext
             }
         }
 
-        var val = getFrom.Value(this);
+        var val = getFrom?.Value?.Invoke(this);
+        if (val == null)
+        {
+            val = new Bool("");
+        }
+
         _cachedValues[getFrom] = val;
 
         return val;

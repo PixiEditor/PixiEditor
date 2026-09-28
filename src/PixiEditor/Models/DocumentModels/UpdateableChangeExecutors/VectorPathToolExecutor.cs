@@ -1,6 +1,5 @@
 ﻿using Avalonia.Input;
 using Avalonia.Media;
-using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
@@ -15,19 +14,17 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changes.Vectors;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Controllers.InputDevice;
-using PixiEditor.Models.DocumentModels.Public;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.Tools;
 using PixiEditor.ViewModels.Tools.Tools;
 using PixiEditor.ViewModels.Tools.ToolSettings.Settings;
-using PixiEditor.Views.Overlays.PathOverlay;
 using Color = Drawie.Backend.Core.ColorsImpl.Color;
 using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
-internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorFeature
+internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorFeature, IQuickColorLayerExecutor
 {
     private IStructureMemberHandler member;
     private VectorPath startingPath;
@@ -36,6 +33,8 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
     private IColorsHandler colorHandler;
     private bool isValidPathLayer;
     private IDisposable restoreSnapping;
+
+    private bool preventSettingsChange;
 
     public override ExecutorType Type => ExecutorType.ToolLinked;
 
@@ -175,13 +174,17 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
     {
         if (primary && toolbar.SyncWithPrimaryColor)
         {
+            preventSettingsChange = true;
             toolbar.StrokeBrush = new SolidColorBrush(color.ToColor());
             toolbar.FillBrush = new SolidColorBrush(color.ToColor());
+            preventSettingsChange = false;
+            OnSettingsChanged("FillAndStroke", null);
         }
     }
 
     public override void OnSettingsChanged(string name, object value)
     {
+        if (preventSettingsChange) return;
         if (document.PathOverlayHandler.IsActive)
         {
             VectorShapeChangeType changeType = name switch
@@ -191,6 +194,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
                 nameof(IShapeToolbar.StrokeBrush) => VectorShapeChangeType.Stroke,
                 nameof(IShapeToolbar.ToolSize) => VectorShapeChangeType.Stroke,
                 nameof(IShapeToolbar.AntiAliasing) => VectorShapeChangeType.OtherVisuals,
+                "FillAndStroke" => VectorShapeChangeType.Fill | VectorShapeChangeType.Stroke,
                 _ => VectorShapeChangeType.All
             };
 
@@ -258,7 +262,12 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
         Type feature = typeof(T);
         return feature == typeof(IMidChangeUndoableExecutor)
                || feature == typeof(ITransformableExecutor)
-               || feature == typeof(IPathExecutorFeature);
+               || feature == typeof(IPathExecutorFeature)
+               || (feature == typeof(IQuickColorLayerExecutor) && document.PathOverlayHandler.IsActive);
+    }
+
+    void IQuickColorLayerExecutor.EndQuickColorChange()
+    {
     }
 
     protected void HighlightSnapping(string? snapX, string? snapY)

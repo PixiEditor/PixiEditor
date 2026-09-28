@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace PixiEditor.ViewModels.UserPreferences.Settings;
+﻿namespace PixiEditor.ViewModels.UserPreferences.Settings;
 
 internal class UpdateSettings : SettingsGroup
 {

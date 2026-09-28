@@ -1,7 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using Avalonia.Input;
-using Drawie.Numerics;
-using PixiDocks.Core.Docking;
+﻿using PixiDocks.Core.Docking;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.ViewModels.Dock;
 

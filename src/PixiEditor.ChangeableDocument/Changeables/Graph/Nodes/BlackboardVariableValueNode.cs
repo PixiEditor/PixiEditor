@@ -1,10 +1,11 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 [NodeInfo("BlackboardVariableValue")]
-public class BlackboardVariableValueNode : Node
+public class BlackboardVariableValueNode : Node, IIterativeRenderSupport
 {
     public const string NameProperty = "VariableName";
     public InputProperty<string> VariableName { get; }
@@ -51,4 +52,6 @@ public class BlackboardVariableValueNode : Node
     {
         return new BlackboardVariableValueNode();
     }
+
+    public bool SupportsIterativeRendering => true;
 }

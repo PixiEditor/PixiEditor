@@ -1,9 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.ChangeableDocument.Rendering;
-using Drawie.Backend.Core;
-using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Shaders.Generation.Expressions;
-using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 

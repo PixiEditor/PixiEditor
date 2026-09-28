@@ -15,14 +15,10 @@ using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using CommunityToolkit.Mvvm.Input;
-using Drawie.Backend.Core.Numerics;
 using PixiEditor.Helpers;
-using PixiEditor.ViewModels.Document;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
-using PixiEditor.ChangeableDocument.Changes.NodeGraph;
 using PixiEditor.Models.Handlers;
 using Drawie.Numerics;
-using PixiEditor.ViewModels.Document.Blackboard;
+using PixiEditor.ViewModels.Document.CompatibilityUpgrades;
 using PixiEditor.ViewModels.Nodes;
 using PixiEditor.Views.Nodes.Properties;
 using PixiEditor.Zoombox;
@@ -195,6 +191,8 @@ internal class NodeGraphView : Zoombox.Zoombox
         set { SetValue(ActiveFrameProperty, value); }
     }
 
+    public RelayCommand<IGraphUpgrader> DismissUpgradeCommand { get; }
+
     private bool isDraggingNodes;
     private bool isDraggingConnection;
     private VecD clickPointOffset;
@@ -243,6 +241,11 @@ internal class NodeGraphView : Zoombox.Zoombox
         CreateNodeFromContextCommand = new RelayCommand<NodeTypeInfo>(CreateNodeType);
 
         AllNodeTypes = new ObservableCollection<Type>(GatherAssemblyTypes<NodeViewModel>());
+        DismissUpgradeCommand = new RelayCommand<IGraphUpgrader>(upgrader =>
+        {
+            NodeGraph?.AvailableUpgrades.Remove(upgrader);
+        });
+
         AllNodeTypeInfos = new ObservableCollection<NodeTypeInfo>(AllNodeTypes.Select(x => new NodeTypeInfo(x)));
         SocketsInfo = new SocketsInfo((socket =>
         {

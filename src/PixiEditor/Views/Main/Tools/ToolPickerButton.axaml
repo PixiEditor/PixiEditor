@@ -10,6 +10,7 @@
              xmlns:ui1="clr-namespace:PixiEditor.Helpers.UI"
              xmlns:tools1="clr-namespace:PixiEditor.Views.Main.Tools"
              xmlns:converters1="clr-namespace:PixiEditor.Extensions.FlyUI.Converters;assembly=PixiEditor.Extensions"
+             xmlns:ui2="clr-namespace:PixiEditor.Helpers.UI;assembly=PixiEditor.UI.Common"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              d:DataContext="{tools:ToolViewModel}" Name="Uc"
              x:Class="PixiEditor.Views.Main.Tools.ToolPickerButton">
@@ -17,17 +18,21 @@
         <tools:ToolViewModel />
     </Design.DataContext>
 
-    <Button Command="{xaml:Command PixiEditor.Tools.SelectTool, UseProvided=true}"
+    <Button Command="{xaml:Command PixiEditor.Tools.SelectTool, UseProvided=true}" x:DataType="tools:ToolViewModel"
             CommandParameter="{Binding}"
             Focusable="False"
             Width="44" Height="34"
+            Name="ToolButton"
             ui:Translator.TooltipLocalizedString="{Binding Tooltip}"
             Background="{DynamicResource ThemeBackgroundBrush1}">
         <Button.Template>
             <ControlTemplate>
                 <Border Height="34" Width="34"
                         Background="{DynamicResource ThemeBackgroundBrush1}">
-                    <ContentPresenter Content="{TemplateBinding Content}" />
+                    <ContentPresenter Content="{TemplateBinding Content}"
+                                      RenderTransformOrigin="50%,55%"
+                                      ui2:Juice.Animations="[^ToolButton]:Button; Loaded:PopIn"
+                                      />
                 </Border>
             </ControlTemplate>
         </Button.Template>

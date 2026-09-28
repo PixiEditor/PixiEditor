@@ -1,4 +1,5 @@
 ﻿using Drawie.Backend.Core.Text;
+using PixiEditor.ChangeableDocument.Changeables;
 
 namespace PixiEditor.Models.Handlers.Toolbars;
 
@@ -11,5 +12,5 @@ internal interface ITextToolbar : IFillableShapeToolbar
     public bool Bold { get; set; }
     public bool Italic { get; set; }
 
-    public Font ConstructFont();
+    public FontData ConstructFont();
 }

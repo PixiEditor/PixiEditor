@@ -1,7 +1,6 @@
 ﻿using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
-using Drawie.Backend.Core.Text;
 using Drawie.Numerics;
 
 namespace PixiEditor.Views.Overlays.TextOverlay;

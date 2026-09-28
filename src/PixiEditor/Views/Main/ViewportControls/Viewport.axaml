@@ -20,6 +20,8 @@
     xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
     xmlns:ui1="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
     xmlns:handlers="clr-namespace:PixiEditor.Models.Handlers"
+    xmlns:ui2="clr-namespace:PixiEditor.Helpers.UI"
+    xmlns:ui3="clr-namespace:PixiEditor.Helpers.UI;assembly=PixiEditor.UI.Common"
     mc:Ignorable="d"
     x:Name="vpUc"
     d:DesignHeight="450"
@@ -68,7 +70,7 @@
                                 <TextBlock TextAlignment="Center"
                                            VerticalAlignment="Center"
                                            Text="{Binding Path=AngleRadians, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport},
-             Converter={converters:RadiansToDegreesConverter}, StringFormat={}{0}°}"
+                                           Converter={converters:RadiansToDegreesConverter}, StringFormat={}{0}°}"
                                            Foreground="{DynamicResource ThemeForegroundBrush}"
                                            FontSize="16" />
                             </Border>
@@ -107,6 +109,24 @@
                                           Classes="OverlayToggleButton pixi-icon"
                                           IsChecked="{Binding Document.HorizontalSymmetryAxisEnabledBindable, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
                                           Content="{DynamicResource icon-y-symmetry}"
+                                          Cursor="Hand" />
+                        </StackPanel>
+                        <Separator />
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
+                            <Button Width="32" Height="32" ui:Translator.TooltipKey="RECENTER_HORIZONTAL_SYMMETRY"
+                                          Classes="OverlayButton pixi-icon"
+                                          BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                                          Content="{DynamicResource icon-recenter-x-symmetry}"
+                                          IsEnabled="{Binding Document.VerticalSymmetryAxisEnabledBindable, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
+                                          Click="RecenterHorizontalSymmetryClicked"
+                                          Cursor="Hand" />
+                            <Button Width="32" Height="32"
+                                          ui:Translator.TooltipKey="RECENTER_VERTICAL_SYMMETRY"
+                                          Classes="OverlayButton pixi-icon"
+                                          BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                                          Content="{DynamicResource icon-recenter-y-symmetry}"
+                                          IsEnabled="{Binding Document.HorizontalSymmetryAxisEnabledBindable, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
+                                          Click="RecenterVerticalSymmetryClicked"
                                           Cursor="Hand" />
                         </StackPanel>
                         <Separator />
@@ -173,11 +193,12 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <tools:Toolbar
-                DataContext="{Binding Source={viewModels:MainVM}, Path=.}" />
+                DataContext="{ReflectionBinding Source={viewModels:MainVM}, Path=.}" />
             <StackPanel Margin="0, 5, 0, 0" Grid.Row="1" Orientation="Horizontal" Name="toolsetsPanel">
                 <Border ClipToBounds="False"
                         HorizontalAlignment="Left"
                         Padding="5 0"
+                        x:CompileBindings="False"
                         Name="activeToolSetChip"
                         Height="25"
                         BorderBrush="{DynamicResource ThemeBorderHighBrush}"
@@ -204,6 +225,7 @@
                 <ItemsControl
                     Name="otherToolSets"
                     Background="Transparent"
+                    x:CompileBindings="False"
                     ItemsSource="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.NonSelectedToolSets, Mode=OneWay}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -248,6 +270,7 @@
                                Name="toolsPicker"
                                Padding="0, 5, 0, 0"
                                Background="Transparent"
+                               x:CompileBindings="False"
                                HorizontalAlignment="Left"
                                ToolSet="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet, Mode=TwoWay}"
                                ToolSets="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.AllToolSets, Mode=OneWay}"
@@ -269,8 +292,8 @@
             FlipX="{Binding FlipX, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
             FlipY="{Binding FlipY, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
             AllOverlays="{Binding ElementName=vpUc, Path=ActiveOverlays}"
-            FadeOut="{Binding Source={viewModels:ToolVM ColorPickerToolViewModel}, Path=PickOnlyFromReferenceLayer, Mode=OneWay}"
-            DefaultCursor="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ToolCursor, Mode=OneWay}"
+            FadeOut="{ReflectionBinding Source={viewModels:ToolVM ColorPickerToolViewModel}, Path=PickOnlyFromReferenceLayer, Mode=OneWay}"
+            DefaultCursor="{ReflectionBinding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ToolCursor, Mode=OneWay}"
             RenderOutput="{Binding ViewportRenderOutput, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
             ViewportId="{Binding GuidValue, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
             AutoBackgroundScale="{Binding AutoBackgroundScale, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"

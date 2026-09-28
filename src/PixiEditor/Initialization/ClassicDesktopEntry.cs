@@ -8,12 +8,14 @@ using Avalonia.Xaml.Interactivity;
 using Drawie.Backend.Core.Bridge;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Extensions;
+using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Extensions.Runtime;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Behaviours;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.ExceptionHandling;
 using PixiEditor.Models.IO;
+using PixiEditor.Models.Preferences;
 using PixiEditor.OperatingSystem;
 using PixiEditor.Platform;
 using PixiEditor.UI.Common.Controls;
@@ -133,19 +135,29 @@ internal class ClassicDesktopEntry
 
     private void Load(ViewModels_ViewModelMain viewModel, ExtensionLoader extensionLoader)
     {
-        viewModel.Setup(Services);
-        
+        try
+        {
+            viewModel.Setup(Services);
+        }
+        catch (Exception exception)
+        {
+            Console.WriteLine("Failed initializing main view model: " + exception);
+            CrashHelper.SendExceptionInfo(exception, true);
+            desktop.Shutdown(1);
+            return;
+        }
+
         desktop.MainWindow = new MainWindow(extensionLoader);
         
         desktop.MainWindow.Show();
     }
 
-    private void InitPlatform()
+    private void InitPlatform(PixiEditorHost host)
     {
         if (IPlatform.Current != null)
             return;
 
-        var platform = GetActivePlatform();
+        var platform = GetActivePlatform(host);
         IPlatform.RegisterPlatform(platform);
         platform.PerformHandshake();
     }
@@ -154,7 +166,8 @@ internal class ClassicDesktopEntry
     {
         LoadingWindow.ShowInNewThread();
 
-        InitPlatform();
+        var host = new PixiEditorHost();
+        InitPlatform(host);
 
         NumberInput.AttachGlobalBehaviors += AttachGlobalShortcutBehavior;
 
@@ -163,8 +176,18 @@ internal class ClassicDesktopEntry
             Directory.CreateDirectory(Paths.LocalExtensionPackagesPath);
         }
 
+        PreferencesSettings settings = new PreferencesSettings();
+        settings.Init();
+        
+        var extensionPaths = new string[]{Paths.InstallDirExtensionPackagesPath, Paths.LocalExtensionPackagesPath};
+        if (System.OperatingSystem.IsMacOS() && !string.IsNullOrEmpty(Paths.MacOsDotAppDir))
+        {
+            extensionPaths = extensionPaths.Concat([Path.Combine(Paths.MacOsDotAppDir, "Extensions")]).ToArray();
+        }
+
         ExtensionLoader extensionLoader = new ExtensionLoader(
-            [Paths.InstallDirExtensionPackagesPath, Paths.LocalExtensionPackagesPath], Paths.UnpackedExtensionsPath);
+            host,
+            extensionPaths, Paths.UnpackedExtensionsPath);
         if (!safeMode)
         {
             extensionLoader.LoadExtensions();
@@ -174,6 +197,7 @@ internal class ClassicDesktopEntry
             .AddPlatform()
             .AddPixiEditor(extensionLoader)
             .AddExtensionServices(extensionLoader)
+            .AddSingleton<IPreferences, PreferencesSettings>(x => settings)
             .BuildServiceProvider();
 
         extensionLoader.Services = new ExtensionServices(Services);
@@ -181,17 +205,23 @@ internal class ClassicDesktopEntry
         return extensionLoader;
     }
 
-    private IPlatform GetActivePlatform()
+    private IPlatform GetActivePlatform(PixiEditorHost host)
     {
 #if STEAM || DEV_STEAM
-        return new PixiEditor.Platform.Steam.SteamPlatform();
+        var paths = new string[]{Paths.LocalExtensionPackagesPath, Paths.InstallDirExtensionPackagesPath};
+        if (System.OperatingSystem.IsMacOS() && !string.IsNullOrEmpty(Paths.MacOsDotAppDir))
+        {
+            paths = paths.Concat([Path.Combine(Paths.MacOsDotAppDir, "Extensions")]).ToArray();
+        }
+        
+        return new PixiEditor.Platform.Steam.SteamPlatform(paths);
 #elif MSIX || MSIX_DEBUG
         return new PixiEditor.Platform.MSStore.MicrosoftStorePlatform(Paths.LocalExtensionPackagesPath, GetApiUrl(),
-            GetApiKey());
+            GetApiKey(), ExtensionRuntimeInfo.ApiVersion, host.HostName, host.Version);
 #else
         return new PixiEditor.Platform.Standalone.StandalonePlatform(
             [Paths.LocalExtensionPackagesPath, Paths.InstallDirExtensionPackagesPath], GetApiUrl(),
-            GetApiKey()); // The first in the extensionsPath array should be local, because it's the default where extensions are installed. Otherwise, OS access rights may cause issues.
+            GetApiKey(), ExtensionRuntimeInfo.ApiVersion, host.HostName, host.Version); // The first in the extensionsPath array should be local, because it's the default where extensions are installed. Otherwise, OS access rights may cause issues.
 #endif
     }
 

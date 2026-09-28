@@ -1,5 +1,4 @@
-﻿using System.Text;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using System.Xml;
 using PixiEditor.SVG.Enums;
 using PixiEditor.SVG.Features;

@@ -1,11 +1,8 @@
 ﻿using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
-using ChunkyImageLib;
 using CommunityToolkit.Mvvm.Input;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Bridge;
@@ -14,6 +11,7 @@ using PixiEditor.Models.Files;
 using PixiEditor.Models.IO;
 using Drawie.Numerics;
 using PixiEditor.AnimationRenderer.Core;
+using PixiEditor.Models.Dialogs;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document;
 using Image = Drawie.Backend.Core.Surfaces.ImageData.Image;
@@ -512,8 +510,22 @@ internal partial class ExportFilePopup : PixiEditorPopup
                 IStorageFolder folder = folders[0];
                 if (folder != null)
                 {
-                    SavePath = folder.Path.LocalPath;
-                    return SavePath;
+                    try
+                    {
+                        SavePath = folder.Path.LocalPath;
+                        return SavePath;
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        NoticeDialog.Show("ERROR_INVALID_PATH", "ERROR");
+                        return null;
+                    }
+                    catch (Exception ex)
+                    {
+                        CrashHelper.SendExceptionInfo(ex);
+                        NoticeDialog.Show("UNKNOWN_ERROR", "ERROR");
+                        return null;
+                    }
                 }
             }
         }

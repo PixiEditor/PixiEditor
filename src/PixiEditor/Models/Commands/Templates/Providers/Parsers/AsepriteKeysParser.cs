@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.Text;
 using System.Xml;
 using PixiEditor.Exceptions;
 using PixiEditor.Extensions.Exceptions;

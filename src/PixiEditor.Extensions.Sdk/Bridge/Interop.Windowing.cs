@@ -1,4 +1,3 @@
-using PixiEditor.Extensions.CommonApi.Windowing;
 using PixiEditor.Extensions.Sdk.Api.Window;
 
 namespace PixiEditor.Extensions.Sdk.Bridge;

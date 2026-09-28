@@ -1,18 +1,14 @@
-﻿using System.Numerics;
-using System.Reflection;
-using Drawie.Backend.Core;
+﻿using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.ColorsImpl.Paintables;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using Drawie.Backend.Core.Shaders.Generation;
-using Drawie.Backend.Core.Surfaces;
-using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Brushes;
-using PixiEditor.ChangeableDocument.Changeables.Graph;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
-using PixiEditor.ChangeableDocument.Changeables.Interfaces;
-using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Palettes;
 
 namespace PixiEditor.ChangeableDocument.Changes.NodeGraph;
 
@@ -87,9 +83,22 @@ public static class ConversionTable
                     (typeof(VecD), new TypeConverter<Color, VecD>(c => new VecD(c.R, c.G))),
                     (typeof(VecI), new TypeConverter<Color, VecI>(c => new VecI(c.R, c.G))),
                     (typeof(Vec3D), new TypeConverter<Color, Vec3D>(c => new Vec3D(c.R, c.G, c.B))),
+                    (typeof(Vec4D), new TypeConverter<Color, Vec4D>(c => c.ToVec4D())),
                     (typeof(double), new TypeConverter<Color, double>(c => c.R)),
                     (typeof(int), new TypeConverter<Color, int>(c => c.R)),
                     (typeof(float), new TypeConverter<Color, float>(c => c.R)),
+                ]
+            },
+            {
+                typeof(Vec4D), [
+                    (typeof(Paintable),
+                        new TypeConverter<Vec4D, Paintable>(c => new ColorPaintable(Color.FromVec4D(c)))),
+                    (typeof(Color), new TypeConverter<Vec4D, Color>(Color.FromVec4D))
+                ]
+            },
+            {
+                typeof(Color[]), [
+                    (typeof(Palette), new TypeConverter<Color[], Palette>(c => new Palette(c)))
                 ]
             },
             {
@@ -123,7 +132,15 @@ public static class ConversionTable
                     (typeof(GradientPaintable),
                         new TypeConverter<ColorPaintable, GradientPaintable>(c =>
                             new LinearGradientPaintable(new VecD(0, 0), new VecD(1, 1),
-                                [new GradientStop(c.Color, 0), new GradientStop(c.Color, 1)])))
+                                [new GradientStop(c.Color, 0), new GradientStop(c.Color, 1)]))),
+                    (typeof(Color), new TypeConverter<ColorPaintable, Color>(c => c.Color))
+                ]
+            },
+            {
+                typeof(IReadOnlyShapeVectorData), [
+                    (typeof(PathVectorData),
+                        new TypeConverter<IReadOnlyShapeVectorData, PathVectorData>(d =>
+                            d != null ? new PathVectorData(d.ToPath()) : null))
                 ]
             }
         };
@@ -181,7 +198,15 @@ public static class ConversionTable
                     return false;
                 }
 
-                targetArray.SetValue(convertedElement, i);
+                try
+                {
+                    targetArray.SetValue(convertedElement, i);
+                }
+                catch
+                {
+                    result = null;
+                    return false;
+                }
             }
 
             result = targetArray;
@@ -225,6 +250,28 @@ public static class ConversionTable
                     return true;
                 }
             }
+        }
+
+        if (arg is Array && !targetType.IsArray)
+        {
+            foreach (var (sourceType, sourceConverters) in _conversionTable)
+            {
+                if (!sourceType.IsArray) continue;
+
+                foreach (var (outType, converter) in sourceConverters)
+                {
+                    if (outType != targetType) continue;
+
+                    if (TryConvert(arg, sourceType, out var normalizedArray))
+                    {
+                        result = converter.Convert(normalizedArray);
+                        return true;
+                    }
+                }
+            }
+
+            result = null;
+            return false;
         }
 
         if (!argType.IsPrimitive && argType != typeof(string))
@@ -385,7 +432,7 @@ public static class ConversionTable
             return true;
         }
 
-        return outputValueType.IsAssignableTo(inputValueType)/* || (outputValueType == typeof(object))*/;
+        return outputValueType.IsAssignableTo(inputValueType) /* || (outputValueType == typeof(object))*/;
     }
 
     private static Type GetContextlessType(Type getElementType)

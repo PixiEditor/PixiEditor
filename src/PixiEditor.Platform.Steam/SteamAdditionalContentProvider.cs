@@ -5,7 +5,13 @@ namespace PixiEditor.Platform.Steam;
 
 public sealed class SteamAdditionalContentProvider : IAdditionalContentProvider
 {
-    Dictionary<string, AppId_t> dlcMap = new() { { "pixieditor.founderspack", new AppId_t(2435860) }, };
+    public string[] ExtensionsPaths { get; set; }
+    Dictionary<string, AppId_t> dlcMap = new() { { "pixieditor.founderspack", SteamPlatform.AppId } };
+
+    public SteamAdditionalContentProvider(string[] extensionsPaths)
+    {
+        ExtensionsPaths = extensionsPaths;
+    }
 
     public bool IsContentOwned(string product)
     {
@@ -130,22 +136,18 @@ public sealed class SteamAdditionalContentProvider : IAdditionalContentProvider
     {
         if (string.IsNullOrEmpty(productId)) return false;
 
-        string productIdLower = productId.ToLowerInvariant();
+        var firstExistingPath =
+            ExtensionsPaths.FirstOrDefault(path => File.Exists(Path.Combine(path, $"{productId}.pixiext")));
+        return firstExistingPath != null;
+    }
 
-        AppId_t appId = new AppId_t(0);
-        if (dlcMap.TryGetValue(productIdLower, out var value))
-        {
-            appId = value;
-        }
-        else if (!uint.TryParse(productIdLower, out uint id))
-        {
-            return false;
-        }
-        else
-        {
-            appId = new AppId_t(id);
-        }
+    public async Task<List<AvailableContent>> FetchAvailableExtensions()
+    {
+        return new List<AvailableContent>();
+    }
 
-        return SteamApps.BIsDlcInstalled(appId);
+    public Task<ExtensionsLayout> FetchExtensionsLayout()
+    {
+        return Task.FromResult<ExtensionsLayout?>(null);
     }
 }

@@ -1,10 +1,4 @@
-﻿using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Data;
-using Avalonia.Layout;
-using PixiEditor.Views.Input;
-
-namespace PixiEditor.ViewModels.Tools.ToolSettings.Settings;
+﻿namespace PixiEditor.ViewModels.Tools.ToolSettings.Settings;
 
 internal sealed class SizeSettingViewModel : Setting<double>
 {

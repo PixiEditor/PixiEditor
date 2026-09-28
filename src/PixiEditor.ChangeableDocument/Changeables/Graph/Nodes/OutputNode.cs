@@ -1,14 +1,11 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
-using Drawie.Backend.Core;
-using Drawie.Backend.Core.Surfaces;
 using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 [NodeInfo("Output")]
-public class OutputNode : Node, IRenderInput
+public class OutputNode : Node, IRenderInput, IIterativeRenderSupport
 {
     public const string UniqueName = "PixiEditor.Output";
     public const string InputPropertyName = "Background";
@@ -37,25 +34,31 @@ public class OutputNode : Node, IRenderInput
 
         var previews = context.GetPreviewTexturesForNode(Id);
         if (previews is null) return;
-        foreach (var request in previews)
+        foreach (var preview in previews)
         {
-            var texture = request.Texture;
-            if (texture is null) continue;
+            if (preview.Texture == null)
+                continue;
 
-            int saved = texture.DrawingSurface.Canvas.Save();
+            int saved = preview.Texture.DrawingSurface.Canvas.Save();
+            preview.Texture.DrawingSurface.Canvas.Clear();
 
-            VecD scaling = PreviewUtility.CalculateUniformScaling(context.DocumentSize, texture.Size);
-            VecD offset = PreviewUtility.CalculateCenteringOffset(context.DocumentSize, texture.Size, scaling);
-            texture.DrawingSurface.Canvas.Translate((float)offset.X, (float)offset.Y);
-            texture.DrawingSurface.Canvas.Scale((float)scaling.X, (float)scaling.Y);
-            var previewCtx =
-                PreviewUtility.CreatePreviewContext(context, scaling, context.RenderOutputSize, texture.Size);
+            RectD? bounds = new RectD(VecD.Zero, context.DocumentSize);
 
-            texture.DrawingSurface.Canvas.Clear();
-            Input.Value?.Paint(previewCtx, texture.DrawingSurface.Canvas);
-            texture.DrawingSurface.Canvas.RestoreToCount(saved);
+            VecD scaling = PreviewUtility.CalculateUniformScaling(bounds.Value.Size, preview.Texture.Size);
+            VecD offset = PreviewUtility.CalculateCenteringOffset(bounds.Value.Size, preview.Texture.Size, scaling);
+            RenderContext adjusted =
+                PreviewUtility.CreatePreviewContext(context, scaling, bounds.Value.Size, preview.Texture.Size);
+
+            preview.Texture.DrawingSurface.Canvas.Translate((float)offset.X, (float)offset.Y);
+            preview.Texture.DrawingSurface.Canvas.Scale((float)scaling.X, (float)scaling.Y);
+            preview.Texture.DrawingSurface.Canvas.Translate((float)-bounds.Value.X, (float)-bounds.Value.Y);
+
+            adjusted.RenderSurface = preview.Texture.DrawingSurface.Canvas;
+            Input.Value?.Paint(adjusted, adjusted.RenderSurface);
+            preview.Texture.DrawingSurface.Canvas.RestoreToCount(saved);
         }
     }
 
     RenderInputProperty IRenderInput.Background => Input;
+    bool IIterativeRenderSupport.SupportsIterativeRendering => true;
 }

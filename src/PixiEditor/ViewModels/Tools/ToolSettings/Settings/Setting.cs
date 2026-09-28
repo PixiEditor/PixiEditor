@@ -1,8 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Text.Json;
-using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
-using DiscordRPC;
 using PixiEditor.UI.Common.Localization;
 
 #pragma warning disable SA1402 // File may only contain a single type, Justification: "Same class with generic value"
@@ -75,6 +73,7 @@ internal abstract class Setting : ObservableObject
     protected bool hasOverwrittenExposed;
 
     private bool mergeChanges;
+    private Dictionary<JsonElement, object> deserializedJsonCache = new Dictionary<JsonElement, object>();
 
     protected Setting(string name)
     {
@@ -85,7 +84,35 @@ internal abstract class Setting : ObservableObject
 
     public object Value
     {
-        get => hasOverwrittenValue ? overwrittenValue : toolsetValues.GetValueOrDefault(currentToolset, null);
+        get
+        {
+            var raw = hasOverwrittenValue ? overwrittenValue : toolsetValues.GetValueOrDefault(currentToolset, null);
+            if (raw == null)
+            {
+                return null;
+            }
+
+            if (raw is JsonElement jsonElement && deserializedJsonCache.TryGetValue(jsonElement, out object cached))
+            {
+                return AdjustValue(cached);
+            }
+
+            if (raw is JsonElement newJsonElement)
+            {
+                try
+                {
+                    raw = newJsonElement.Deserialize(GetSettingType());
+                    deserializedJsonCache[newJsonElement] = raw;
+                }
+                catch
+                {
+                    Debug.WriteLine($"Failed to deserialize setting {Name} value from JSON.");
+                    return null;
+                }
+            }
+
+            return AdjustValue(raw);
+        }
         set
         {
             var old = toolsetValues.GetValueOrDefault(currentToolset, null);
@@ -156,6 +183,8 @@ internal abstract class Setting : ObservableObject
         }
     }
 
+    public bool IsProtected { get; set; }
+
     public event Action MergeChangesEnded;
 
     public abstract Type GetSettingType();
@@ -221,9 +250,12 @@ internal abstract class Setting : ObservableObject
                 {
                     var adjusted = AdjustValue(defaultValue);
 
-                    if (adjusted.GetType() != GetSettingType())
+                    if (adjusted != null)
                     {
-                        defaultValue = Convert.ChangeType(defaultValue, GetSettingType());
+                        if (adjusted.GetType() != GetSettingType())
+                        {
+                            defaultValue = Convert.ChangeType(defaultValue, GetSettingType());
+                        }
                     }
                 }
                 catch

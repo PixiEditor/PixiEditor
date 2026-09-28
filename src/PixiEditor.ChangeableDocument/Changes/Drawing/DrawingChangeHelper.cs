@@ -1,6 +1,5 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
-using Drawie.Backend.Core.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 
@@ -55,7 +54,7 @@ internal static class DrawingChangeHelper
             throw new InvalidOperationException("Trying to draw on a non-raster layer member");
         }
 
-        return layer.GetLayerImageByKeyFrameGuid(targetKeyFrameGuid);
+        return layer.GetLayerImageByKeyFrameGuid(targetKeyFrameGuid) ?? throw new InvalidOperationException("Trying to draw on a frame that doesn't exist");
     }
 
     public static ChunkyImage? GetTargetImageOrThrow(Document target, Guid memberGuid, bool drawOnMask, int frame)

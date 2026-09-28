@@ -16,7 +16,9 @@
                             <Setter Property="ItemsSource" Value="{Binding Menu.Items}"/>
                             <Setter Property="Command" Value="{Binding Command}"/>
                             <Setter Property="CommandParameter" Value="{Binding CommandParameter}"/>
+                            <!--
                             <Setter Property="(NativeMenuBar.EnableMenuItemClickForwarding)" Value="True"/>
+                            -->
                             <!--NativeMenuItem is IBitmap and MenuItem is Image-->
                             <Setter Property="Icon" Value="{Binding Icon , Converter={StaticResource NativeMenuBarIBitmapToImageConverter}}"/>
                         </Style>

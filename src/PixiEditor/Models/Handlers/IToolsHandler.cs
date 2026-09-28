@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using Avalonia.Input;
-using PixiEditor.Models.Preferences;
-using Drawie.Backend.Core.Numerics;
+﻿using Avalonia.Input;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Models.Config;
 using PixiEditor.Models.Events;
@@ -45,4 +42,5 @@ internal interface IToolsHandler : IHandler
     public void DeselectActiveTool();
     public void CreateAnimationKeyFrameIfNeeded();
     public event Action<IToolHandler> CustomToolAdded;
+    public void ActivateQueuedTool();
 }

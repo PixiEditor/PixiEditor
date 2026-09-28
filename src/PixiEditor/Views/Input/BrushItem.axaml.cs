@@ -1,25 +1,18 @@
 ﻿using System.Collections;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.Metadata;
 using Avalonia.Input;
-using Avalonia.Interactivity;
-using Avalonia.Markup.Xaml;
-using Avalonia.Rendering.Composition;
 using Avalonia.Threading;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Bridge;
-using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.ChangeableDocument.Rendering.ContextData;
-using PixiEditor.Models.BrushEngine;
 using PixiEditor.ViewModels.BrushSystem;
 
 namespace PixiEditor.Views.Input;
@@ -89,7 +82,14 @@ internal partial class BrushItem : UserControl
 
     protected override void OnPointerEntered(PointerEventArgs e)
     {
-        StartStrokePreviewLoop();
+        try
+        {
+            StartStrokePreviewLoop();
+        }
+        catch
+        {
+            StopStrokePreviewLoop();
+        }
     }
 
     public void ToggleFavorite()
@@ -125,7 +125,7 @@ internal partial class BrushItem : UserControl
         var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
         BrushOutputNode? brushNode =
             Brush?.Brush?.Document?.AccessInternalReadOnlyDocument().NodeGraph
-                .LookupNode(Brush?.Brush?.OutputNodeId ?? Guid.Empty) as BrushOutputNode;
+                .TryLookupNode(Brush?.Brush?.OutputNodeId ?? Guid.Empty) as BrushOutputNode;
         if (brushNode == null)
         {
             ctx.Dispose();
@@ -190,7 +190,7 @@ internal partial class BrushItem : UserControl
 
                 using Paint srcOver = new() { BlendMode = BlendMode.Src, Style = PaintStyle.Fill };
                 previewImage.DrawMostUpToDateRegionOn(
-                    new RectI(0, 0, previewImage.CommittedSize.X, previewImage.CommittedSize.Y),
+                    new RectD(0, 0, previewImage.CommittedSize.X, previewImage.CommittedSize.Y),
                     ChunkResolution.Full,
                     previewTexture.DrawingSurface.Canvas,
                     VecI.Zero, srcOver);

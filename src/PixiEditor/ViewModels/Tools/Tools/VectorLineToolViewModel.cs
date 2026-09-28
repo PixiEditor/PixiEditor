@@ -1,16 +1,9 @@
 ﻿using Avalonia.Input;
-using ChunkyImageLib.DataHolders;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
-using PixiEditor.Views.Overlays.BrushShapeOverlay;
-using Drawie.Backend.Core.Numerics;
 using PixiEditor.Models.Commands.Attributes.Commands;
-using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
 using Drawie.Numerics;
-using PixiEditor.UI.Common.Fonts;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
 

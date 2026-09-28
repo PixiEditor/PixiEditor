@@ -201,6 +201,11 @@ public class GradientNode : Node
         int startIndex = ColorStops.Count;
         for (int i = startIndex; i < StopsCount.Value; i++)
         {
+            if (ColorStops.Keys.Any(k => k.InternalPropertyName == $"ColorStopColor_{i + 1}"))
+            {
+                continue;
+            }
+
             var colorInput = CreateInput<Color>($"ColorStopColor_{i + 1}", "COLOR_STOP_COLOR",
                 Drawie.Backend.Core.ColorsImpl.Colors.White);
             var positionInput = CreateInput<float>($"ColorStopPosition_{i + 1}", $"COLOR_STOP_POSITION",

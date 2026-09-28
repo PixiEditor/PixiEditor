@@ -1,8 +1,6 @@
 ﻿using System.Collections.Immutable;
-using System.Diagnostics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
-using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph;
@@ -32,6 +30,11 @@ public class NodeGraph : IReadOnlyNodeGraph
     public IReadOnlyNode LookupNode(Guid guid)
     {
         return nodeLookup[guid];
+    }
+
+    public IReadOnlyNode? TryLookupNode(Guid guid)
+    {
+        return nodeLookup.GetValueOrDefault(guid);
     }
 
     public void AddNode(Node node)

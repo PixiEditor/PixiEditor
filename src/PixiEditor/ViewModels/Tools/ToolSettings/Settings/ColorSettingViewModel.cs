@@ -1,6 +1,4 @@
 ﻿using Avalonia.Media;
-using Drawie.Backend.Core.ColorsImpl.Paintables;
-using PixiEditor.Helpers.Extensions;
 
 namespace PixiEditor.ViewModels.Tools.ToolSettings.Settings;
 

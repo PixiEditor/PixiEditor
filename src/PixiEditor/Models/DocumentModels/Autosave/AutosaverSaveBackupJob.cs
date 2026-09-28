@@ -34,7 +34,7 @@ internal class AutosaverSaveBackupJob(DocumentViewModel documentToSave, int back
 
     public void ForceStop()
     {
-        waitingTimer!.Stop();
+        waitingTimer?.Stop();
     }
 
     private BackupAutosaveResult Autosave(string filePath)

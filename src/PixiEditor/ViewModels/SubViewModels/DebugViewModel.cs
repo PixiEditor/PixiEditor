@@ -1,19 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
+﻿using System.Diagnostics;
 using System.Reflection;
 using System.Text.Json;
-using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
-using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.Debug;
 using Drawie.Interop.Avalonia.Core;
-using DrawiEngine;
 using PixiEditor.Helpers.Extensions;
-using PixiEditor.Models.Commands.Attributes.Evaluators;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Helpers;
@@ -21,10 +14,8 @@ using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Templates.Providers.Parsers;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Dialogs;
-using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.IO;
 using PixiEditor.OperatingSystem;
-using PixiEditor.UI.Common.Fonts;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.Views;
 using PixiEditor.Views.Dialogs.Debugging;
@@ -180,22 +171,51 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
         await Application.Current.ForDesktopMainWindowAsync(async desktop =>
         {
             FilePickerSaveOptions options = new FilePickerSaveOptions();
-            options.DefaultExtension = "txt";
-            options.FileTypeChoices =
-                new FilePickerFileType[] { new FilePickerFileType("Text") { Patterns = new[] { "*.txt" } } };
+            options.DefaultExtension = "json";
+            options.FileTypeChoices = [
+                new FilePickerFileType("Json") { Patterns = ["*.json"]},
+                new FilePickerFileType("Text") { Patterns = ["*.txt"] }
+            ];
             var pickedFile = desktop.StorageProvider.SaveFilePickerAsync(options).Result;
 
             if (pickedFile != null)
             {
                 var commands = Owner.CommandController.Commands;
 
-                using StreamWriter writer = new StreamWriter(pickedFile.Path.LocalPath);
-                foreach (var command in commands)
+                var targetPath = pickedFile.Path.LocalPath;
+                if (targetPath.EndsWith(".json"))
                 {
-                    writer.WriteLine($"InternalName: {command.InternalName}");
-                    writer.WriteLine($"Default Shortcut: {command.DefaultShortcut}");
-                    writer.WriteLine($"IsDebug: {command.IsDebug}");
-                    writer.WriteLine();
+                    await using var fileStream = File.Open(targetPath, FileMode.Create, FileAccess.Write);
+
+                    await JsonSerializer.SerializeAsync(fileStream, commands.Select(command => new
+                    {
+                        command.InternalName,
+                        DisplayName = command.DisplayName.Key,
+                        CurrentDisplayName = command.DisplayName.Value,
+                        Description = command.Description.Key,
+                        CurrentDescription = command.Description.Value,
+                        command.DefaultShortcut,
+                        CurrentShortcut = command.Shortcut,
+                        Contexts = command.ShortcutContexts?.Select(type => type.ToString()),
+                        command.IsDebug,
+                        command.ExplicitPermissions,
+                        command.Icon,
+                        command.MenuItemPath,
+                        command.MenuItemOrder
+                    }));
+                }
+                else
+                {
+                    await using StreamWriter writer = new StreamWriter(targetPath);
+                    foreach (var command in commands)
+                    {
+                        await writer.WriteLineAsync($"""
+                                                    InternalName: {command.InternalName}
+                                                    Default Shortcut: {command.DefaultShortcut}
+                                                    IsDebug: {command.IsDebug}
+                                                    
+                                                    """);
+                    }
                 }
             }
         });

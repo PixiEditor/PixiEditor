@@ -1,13 +1,10 @@
 ﻿using Drawie.Backend.Core;
-using Drawie.Backend.Core.ColorsImpl;
-using Drawie.Backend.Core.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
-using PixiEditor.ChangeableDocument.Changes.Structure;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
@@ -69,7 +66,7 @@ public abstract class RenderNode : Node, IHighDpiRenderNode
 
         if (useIntermediate)
         {
-            surface.Save();
+            int saved = surface.Save();
             surface.Scale((float)context.ChunkResolution.InvertedMultiplier());
 
             if (context.DesiredSamplingOptions != SamplingOptions.Default)
@@ -82,10 +79,7 @@ public abstract class RenderNode : Node, IHighDpiRenderNode
                 surface.DrawSurface(target.Surface, 0, 0);
             }
 
-            if (RendersInAbsoluteCoordinates)
-            {
-                surface.Restore();
-            }
+            surface.RestoreToCount(saved);
         }
 
         RenderPreviews(context);
@@ -164,14 +158,14 @@ public abstract class RenderNode : Node, IHighDpiRenderNode
         return null;
     }
 
-    private RectD? TryGetInputBounds(RenderContext ctx, string elementToRenderName, RenderInputProperty input)
+    protected RectD? TryGetInputBounds(RenderContext ctx, string elementToRenderName, RenderInputProperty input)
     {
         if (input == null)
             return null;
 
-        if (input.Connection?.Node is StructureNode structureNode)
+        if (input.Connection?.Node is RenderNode renderNode)
         {
-            return structureNode.GetPreviewBounds(ctx, elementToRenderName);
+            return renderNode.GetPreviewBounds(ctx, elementToRenderName);
         }
 
         return null;

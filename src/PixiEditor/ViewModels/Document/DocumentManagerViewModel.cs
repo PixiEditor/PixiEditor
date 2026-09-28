@@ -1,19 +1,13 @@
-﻿using System.Collections;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Collections.ObjectModel;
-using System.Threading.Tasks;
 using Avalonia.Input;
 using Avalonia.Threading;
 using PixiEditor.ChangeableDocument.Enums;
-using PixiEditor.Helpers;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Attributes.Evaluators;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Handlers;
-using PixiEditor.Models.IO;
-using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.SubViewModels;
-using PixiEditor.ViewModels.Tools.Tools;
 using PixiEditor.Views;
 using PixiEditor.Views.Overlays.SymmetryOverlay;
 
@@ -167,7 +161,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
 
     [Command.Basic("PixiEditor.Document.ToggleVerticalSymmetryAxis", "TOGGLE_VERT_SYMMETRY_AXIS",
         "TOGGLE_VERT_SYMMETRY_AXIS", CanExecute = "PixiEditor.HasDocument",
-        Icon = PixiPerfectIcons.YSymmetry, AnalyticsTrack = true)]
+        Icon = PixiPerfectIcons.XSymmetry, AnalyticsTrack = true)]
     public void ToggleVerticalSymmetryAxis()
     {
         if (ActiveDocument is null)
@@ -177,7 +171,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
 
     [Command.Basic("PixiEditor.Document.ToggleHorizontalSymmetryAxis", "TOGGLE_HOR_SYMMETRY_AXIS",
         "TOGGLE_HOR_SYMMETRY_AXIS", CanExecute = "PixiEditor.HasDocument",
-        Icon = PixiPerfectIcons.XSymmetry, AnalyticsTrack = true)]
+        Icon = PixiPerfectIcons.YSymmetry, AnalyticsTrack = true)]
     public void ToggleHorizontalSymmetryAxis()
     {
         if (ActiveDocument is null)
@@ -261,7 +255,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
             }
             else
             {
-                doc.Operations.ResizeImage(new(dialog.Width, dialog.Height), ResamplingMethod.NearestNeighbor);
+                doc.Operations.ResizeImage(new(dialog.Width, dialog.Height), dialog.SelectedSamplingMethod);
             }
         }
     }
@@ -323,6 +317,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
     public void Add(DocumentViewModel doc)
     {
         Documents.Add(doc);
+        doc.AutosaveViewModel.EnableAutosaver();
         DocumentAdded?.Invoke(doc);
     }
 

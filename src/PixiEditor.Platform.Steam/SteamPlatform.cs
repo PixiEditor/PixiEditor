@@ -1,13 +1,25 @@
 ﻿using PixiEditor.IdentityProvider;
 using Steamworks;
-using Timer = System.Timers.Timer;
 
 namespace PixiEditor.Platform.Steam;
 
 public class SteamPlatform : IPlatform
 {
+    public static readonly AppId_t AppId = new AppId_t(2435860);
+    
     public string Id { get; } = "steam";
     public string Name => "Steam";
+
+    public IAdditionalContentProvider? AdditionalContentProvider => steamProvider;
+    public IIdentityProvider? IdentityProvider { get; }
+
+    private readonly SteamAdditionalContentProvider steamProvider;
+    
+    public SteamPlatform(string[] extensionsPaths)
+    {
+        IdentityProvider = new SteamIdentityProvider();
+        steamProvider = new SteamAdditionalContentProvider(extensionsPaths);
+    }
 
     public bool PerformHandshake()
     {
@@ -32,7 +44,4 @@ public class SteamPlatform : IPlatform
     {
         SteamAPI.RunCallbacks();
     }
-
-    public IAdditionalContentProvider? AdditionalContentProvider { get; } = new SteamAdditionalContentProvider();
-    public IIdentityProvider? IdentityProvider { get; } = new SteamIdentityProvider();
 }

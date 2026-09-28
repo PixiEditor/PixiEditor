@@ -1,13 +1,9 @@
 ﻿using System.Collections;
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.Serialization;
-using Avalonia.Threading;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.Helpers.Extensions;
-using PixiEditor.Models.IO.FileEncoders;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -19,17 +15,16 @@ using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
-using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Text;
 using Drawie.Backend.Core.Vector;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Helpers;
-using PixiEditor.Models.Handlers;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.Serialization;
 using PixiEditor.Models.Serialization.Factories;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
+using PixiEditor.Models.BrushEngine;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Collections;
 using PixiEditor.Parser.Graph;
@@ -40,8 +35,6 @@ using PixiEditor.SVG.Elements;
 using PixiEditor.SVG.Enums;
 using PixiEditor.SVG.Features;
 using PixiEditor.SVG.Units;
-using PixiEditor.ViewModels.Document.Nodes;
-using BlendMode = Drawie.Backend.Core.Surfaces.BlendMode;
 using Color = System.Drawing.Color;
 using IKeyFrameChildrenContainer = PixiEditor.ChangeableDocument.Changeables.Interfaces.IKeyFrameChildrenContainer;
 using KeyFrameData = PixiEditor.Parser.KeyFrameData;
@@ -120,7 +113,7 @@ internal partial class DocumentViewModel
         float resizeFactorY = (float)exportSize.Y / document.Size.Y;
         VecD resizeFactor = new VecD(resizeFactorX, resizeFactorY);
 
-        var root = document.GetStructureTreeInOrder().Where(x => x.IsVisible.Value).Reverse().ToList();
+        var root = document.GetStructureTreeInOrder().Where(x => x.IsVisible.Value).ToList();
 
         AddElements(document, root, svgDocument, atTime, exportSize, resizeFactor, vectorExportConfig,
             svgDocument.Defs);
@@ -394,11 +387,24 @@ internal partial class DocumentViewModel
         rt.Spacing = textData.Spacing;
         rt.MaxWidth = textData.MaxWidth;
 
-        using Font font = textData.ConstructFont();
+        Font? font = textData.ConstructFont();
+        bool disposeFont = false;
+
+        if (font == null)
+        {
+            font = Font.CreateDefault();
+            disposeFont = true;
+        }
 
         if (rt.Lines.Length <= 1)
         {
-            return BuildTextElement(textData, textData.Text, font);
+            var elem = BuildTextElement(textData, textData.Text, font);
+            if (disposeFont)
+            {
+                font.Dispose();
+            }
+
+            return elem;
         }
 
         SvgGroup group = new SvgGroup();
@@ -410,6 +416,11 @@ internal partial class DocumentViewModel
             text.Y.Unit = SvgNumericUnit.FromUserUnits(textData.Position.Y + offset.Y);
 
             group.Children.Add(text);
+        }
+
+        if (disposeFont)
+        {
+            font.Dispose();
         }
 
         return group;
@@ -536,9 +547,14 @@ internal partial class DocumentViewModel
             {
                 if (inputProp.Connection != null)
                 {
+                    if (!nodeIdMap.TryGetValue(inputProp.Connection.Node.Id, out var outputNodeId))
+                    {
+                        continue;
+                    }
+
                     connections.Add(new PropertyConnection()
                     {
-                        OutputNodeId = nodeIdMap[inputProp.Connection.Node.Id],
+                        OutputNodeId = outputNodeId,
                         OutputPropertyName = inputProp.Connection.InternalPropertyName,
                         InputPropertyName = inputProp.InternalPropertyName
                     });
@@ -579,6 +595,12 @@ internal partial class DocumentViewModel
 
         foreach (var prop in blackboard.Variables)
         {
+            if (prop.Value.Value is Brush br && br.Document.AccessInternalReadOnlyDocument().Blackboard == blackboard)
+            {
+                // Prevent stack overflow
+                 continue;
+            }
+
             variables.Add(new Variable()
             {
                 Name = prop.Value.Name,
@@ -674,6 +696,8 @@ internal partial class DocumentViewModel
         IReadOnlyNodeGraph graph,
         Dictionary<Guid, int> nodeIdMap, Dictionary<Guid, int> keyFrameIds)
     {
+        if(root == null) return;
+
         foreach (var keyFrame in root)
         {
             if (keyFrame is IKeyFrameChildrenContainer container)
@@ -684,14 +708,17 @@ internal partial class DocumentViewModel
                 group.NodeId = nodeIdMap[keyFrame.NodeId];
                 group.Enabled = keyFrame.IsVisible;
 
-                foreach (var child in container.Children)
+                if (container.Children != null)
                 {
-                    if (child is IReadOnlyRasterKeyFrame rasterKeyFrame)
+                    foreach (var child in container.Children)
                     {
-                        if (!nodeIdMap.ContainsKey(rasterKeyFrame.NodeId)) continue;
-                        if (!keyFrameIds.ContainsKey(rasterKeyFrame.Id)) continue;
+                        if (child is IReadOnlyRasterKeyFrame rasterKeyFrame)
+                        {
+                            if (!nodeIdMap.ContainsKey(rasterKeyFrame.NodeId)) continue;
+                            if (!keyFrameIds.ContainsKey(rasterKeyFrame.Id)) continue;
 
-                        BuildRasterKeyFrame(rasterKeyFrame, graph, group, nodeIdMap, keyFrameIds);
+                            BuildRasterKeyFrame(rasterKeyFrame, graph, group, nodeIdMap, keyFrameIds);
+                        }
                     }
                 }
 
@@ -715,7 +742,7 @@ internal partial class DocumentViewModel
                 new ImageInfo(bounds.Value.Width, bounds.Value.Height));
 
             image.DrawMostUpToDateRegionOn(
-                new RectI(0, 0, bounds.Value.Width, bounds.Value.Height), ChunkResolution.Full, surface.Canvas,
+                new RectD(0, 0, bounds.Value.Width, bounds.Value.Height), ChunkResolution.Full, surface.Canvas,
                 new VecI(0, 0));
         }
 

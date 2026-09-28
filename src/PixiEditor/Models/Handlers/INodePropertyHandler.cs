@@ -20,6 +20,8 @@ public interface INodePropertyHandler
     public Type PropertyType { get; }
     public bool SocketEnabled { get; set; }
     public void UpdateComputedValue();
+    public void StartWatchingComputedValue();
+    public void StopWatchingComputedValue();
     public void InternalSetComputedValue(object value);
     internal void InternalSetValue(object isVisible);
 }

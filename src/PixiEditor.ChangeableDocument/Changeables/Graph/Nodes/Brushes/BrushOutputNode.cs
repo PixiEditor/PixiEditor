@@ -1,24 +1,18 @@
-﻿using System.Collections;
-using Drawie.Backend.Core;
+﻿using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Shaders;
 using Drawie.Backend.Core.Surfaces;
-using Drawie.Backend.Core.Surfaces.ImageData;
-using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
-using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
-using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.ChangeableDocument.Rendering.ContextData;
-using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 
@@ -32,11 +26,11 @@ public class BrushOutputNode : Node
     public const int StrokePreviewSizeX = 200;
     public const int StrokePreviewSizeY = 50;
 
-    public const string DefaultBlenderCode = @"
-    vec4 main(vec4 src, vec4 dst) {
-    	return src + (1 - src.a) * dst;
-    }
-";
+    public const string DefaultBlenderCode = """
+                                                 vec4 main(vec4 src, vec4 dst) {
+                                                 	return src + (1 - src.a) * dst;
+                                                 }
+                                             """;
 
     private string? lastStampBlenderCode = "";
     private string? lastImageBlenderCode = "";
@@ -54,6 +48,7 @@ public class BrushOutputNode : Node
     public RenderInputProperty Content { get; }
     public InputProperty<Drawie.Backend.Core.Surfaces.BlendMode> StampBlendMode { get; }
     public InputProperty<Drawie.Backend.Core.Surfaces.BlendMode> ImageBlendMode { get; }
+    public InputProperty<double> Opacity { get; set; }
     public InputProperty<bool> UseCustomStampBlender { get; }
     public InputProperty<string> CustomStampBlenderCode { get; }
     public InputProperty<Matrix3X3> StrokeTransform { get; }
@@ -64,6 +59,7 @@ public class BrushOutputNode : Node
     public InputProperty<bool> FitToStrokeSize { get; }
     public InputProperty<bool> AutoPosition { get; }
     public InputProperty<bool> AllowSampleStacking { get; }
+    public InputProperty<double> TargetOversample { get; }
     public InputProperty<bool> AlwaysClear { get; }
     public InputProperty<bool> SnapToPixels { get; }
 
@@ -113,6 +109,8 @@ public class BrushOutputNode : Node
         StampBlendMode = CreateInput<Drawie.Backend.Core.Surfaces.BlendMode>(StampBlendModeProperty, "STAMP_BLEND_MODE",
             Drawie.Backend.Core.Surfaces.BlendMode.SrcOver);
 
+        Opacity = CreateInput<double>("Opacity", "OPACITY", 1);
+
         UseCustomStampBlender = CreateInput<bool>(UseCustomStampBlenderProperty, "USE_CUSTOM_STAMP_BLENDER", false);
 
         CustomStampBlenderCode =
@@ -125,6 +123,7 @@ public class BrushOutputNode : Node
         FitToStrokeSize = CreateInput<bool>(FitToStrokeSizeProperty, "FIT_TO_STROKE_SIZE", true);
         AutoPosition = CreateInput<bool>("AutoPosition", "AUTO_POSITION", true);
         AllowSampleStacking = CreateInput<bool>("AllowSampleStacking", "ALLOW_SAMPLE_STACKING", false);
+        TargetOversample = CreateInput<double>("TargetOversample", "TARGET_OVERSAMPLE", 0).WithRules(x => x.Min(0d));
         AlwaysClear = CreateInput<bool>("AlwaysClear", "ALWAYS_CLEAR", false);
         SnapToPixels = CreateInput<bool>("SnapToPixels", "SNAP_TO_PIXELS", false);
         Tags = CreateInput<string>("Tags", "TAGS", "");
@@ -158,7 +157,12 @@ public class BrushOutputNode : Node
                     || ContentTexture.ColorSpace != context.ProcessingColorSpace
                     || !drawnContentTextureOnce || ContentTransform.Value != lastTranform)
                 {
-                    ContentTexture = cache.RequestTexture(0, context.RenderOutputSize, context.ProcessingColorSpace);
+                    if(context.RenderOutputSize.ShortestAxis <= 0 || context is not BrushRenderContext brushContext || brushContext.DryRun)
+                    {
+                        return;
+                    }
+
+                    ContentTexture = cache.RequestTexture(context.GraphCacheId, context.RenderOutputSize, context.ProcessingColorSpace);
                     ContentTexture.DrawingSurface.Canvas.Save();
                     ContentTexture.DrawingSurface.Canvas.SetMatrix(ContentTransform.Value);
                     Content.Value.Paint(context, ContentTexture.DrawingSurface.Canvas);
@@ -271,7 +275,7 @@ public class BrushOutputNode : Node
             previewEngine.ExecuteBrush(previewChunkyImage,
                 new BrushData(context.Graph, Id) { StrokeWidth = size, AntiAliasing = true },
                 (VecI)pos, context.FrameTime, context.ProcessingColorSpace, context.DesiredSamplingOptions,
-                new PointerInfo(pos, 1, 0, VecD.Zero, new VecD(0, 1), true, false),
+                new PointerInfo(pos, 1, 0, VecD.Zero, new VecD(0, 1), 1, true, false),
                 new KeyboardInfo(),
                 new EditorData(Colors.White, Colors.Black));
         }
@@ -304,7 +308,7 @@ public class BrushOutputNode : Node
             pos = vec4D.XY;
             pos = new VecD(pos.X, pos.Y + maxSize / 2f) + shift;
 
-            points.Add(new RecordedPoint((VecI)pos, new PointerInfo(pos, pressure, 0, VecD.Zero, vec4D.ZW, true, false),
+            points.Add(new RecordedPoint((VecI)pos, new PointerInfo(pos, pressure, 0, VecD.Zero, vec4D.ZW, 1, true, false),
                 new KeyboardInfo(), new EditorData(Colors.White, Colors.Black)));
 
             previewEngine.ExecuteBrush(target,
@@ -336,7 +340,7 @@ public class BrushOutputNode : Node
             var vec4D = previewVectorPath.GetPositionAndTangentAtDistance(offset, false);
             pos = vec4D.XY;
             pos = new VecD(pos.X, pos.Y + maxSize / 2f) + shift;
-            points.Add(new RecordedPoint((VecI)pos, new PointerInfo(pos, pressure, 0, VecD.Zero, vec4D.ZW, true, false),
+            points.Add(new RecordedPoint((VecI)pos, new PointerInfo(pos, pressure, 0, VecD.Zero, vec4D.ZW, 1, true, false),
                 new KeyboardInfo(), new EditorData(Colors.White, Colors.Black)));
 
             previewEngine.ExecuteBrush(target,
@@ -353,7 +357,7 @@ public class BrushOutputNode : Node
         previewEngine.ExecuteBrush(img,
             new BrushData(context.Graph, Id) { StrokeWidth = size, AntiAliasing = true },
             pos, context.FrameTime, context.ProcessingColorSpace, context.DesiredSamplingOptions,
-            new PointerInfo(pos, 1, 0, VecD.Zero, new VecD(0, 1), true, false),
+            new PointerInfo(pos, 1, 0, VecD.Zero, new VecD(0, 1), 1, true, false),
             new KeyboardInfo(),
             new EditorData(Colors.White, Colors.Black));
     }

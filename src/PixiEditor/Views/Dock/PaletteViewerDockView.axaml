@@ -11,7 +11,7 @@
     <Design.DataContext>
         <dock:PaletteViewerDockViewModel />
     </Design.DataContext>
-    <palettes:PaletteViewer
+    <palettes:PaletteViewer x:DataType="dock:PaletteViewerDockViewModel"
         IsEnabled="{Binding DocumentManagerSubViewModel.ActiveDocument, Converter={x:Static ObjectConverters.IsNotNull}}"
         Colors="{Binding DocumentManagerSubViewModel.ActiveDocument.Palette}"
         Swatches="{Binding DocumentManagerSubViewModel.ActiveDocument.Swatches}"

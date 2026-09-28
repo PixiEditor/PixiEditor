@@ -80,7 +80,7 @@ internal class DiscordViewModel : SubViewModel<ViewModelMain>, IDisposable
             richPresence.WithTimestamps(new Timestamps(document.OpenedUTC));
 
             richPresence.Details = PixiEditorSettings.Discord.ShowDocumentName.Value
-                ? $"Editing {document.FileName.Limit(128)}" : "Editing an image";
+                ? $"Editing {document.FileName.Limit(119)}" : "Editing an image";
 
             string state = string.Empty;
 

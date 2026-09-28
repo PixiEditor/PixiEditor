@@ -1,11 +1,9 @@
-﻿using System.Collections.Generic;
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.Layout;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.ChangeableDocument.Enums;
-using PixiEditor.Extensions.UI;
 using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.Views.Input;

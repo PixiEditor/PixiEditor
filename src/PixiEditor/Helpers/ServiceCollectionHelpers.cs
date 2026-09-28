@@ -1,12 +1,10 @@
-﻿using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
-using Avalonia.Media;
+﻿using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
-using PixiEditor.AnimationRenderer.Core;
 using PixiEditor.AnimationRenderer.FFmpeg;
 using PixiEditor.Extensions.Commands;
+using PixiEditor.Extensions.CommonApi.Brushes;
 using PixiEditor.Extensions.CommonApi.Commands;
+using PixiEditor.Extensions.CommonApi.Extensions;
 using PixiEditor.Extensions.CommonApi.IO;
 using PixiEditor.Extensions.CommonApi.Logging;
 using PixiEditor.Extensions.CommonApi.Palettes;
@@ -14,13 +12,11 @@ using PixiEditor.Extensions.CommonApi.Palettes.Parsers;
 using PixiEditor.Extensions.CommonApi.Tools;
 using PixiEditor.Extensions.CommonApi.Ui;
 using PixiEditor.Extensions.CommonApi.User;
-using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Extensions.CommonApi.Windowing;
 using PixiEditor.Extensions.FlyUI;
 using PixiEditor.Extensions.IO;
 using PixiEditor.Extensions.Runtime;
 using PixiEditor.Extensions.WasmRuntime;
-using PixiEditor.Models;
 using PixiEditor.Models.AdvisorSystem;
 using PixiEditor.Models.AnalyticsAPI;
 using PixiEditor.Models.Commands;
@@ -34,7 +30,6 @@ using PixiEditor.Models.IO.PaletteParsers;
 using PixiEditor.Models.IO.PaletteParsers.JascPalFile;
 using PixiEditor.Models.Localization;
 using PixiEditor.Models.Palettes;
-using PixiEditor.Models.Preferences;
 using PixiEditor.Models.Serialization.Factories;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Dock;
@@ -44,7 +39,6 @@ using PixiEditor.ViewModels.Menu.MenuBuilders;
 using PixiEditor.ViewModels.SubViewModels;
 using PixiEditor.ViewModels.SubViewModels.AdditionalContent;
 using PixiEditor.ViewModels.Tools.Tools;
-using ViewModelMain = PixiEditor.ViewModels.ViewModelMain;
 using ViewModels_ViewModelMain = PixiEditor.ViewModels.ViewModelMain;
 
 namespace PixiEditor.Helpers;
@@ -59,7 +53,6 @@ internal static class ServiceCollectionHelpers
     {
         return collection
             .AddSingleton<ViewModels_ViewModelMain>()
-            .AddSingleton<IPreferences, PreferencesSettings>()
             .AddSingleton<ILocalizationProvider, LocalizationProvider>(x => new LocalizationProvider(extensionLoader))
 
             // View Models
@@ -82,6 +75,7 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<UserViewModel>()
             .AddSingleton<BrushesViewModel>()
             .AddSingleton<AdvicesViewModel>()
+            .AddSingleton<ChangelogViewModel>()
             .AddSingleton<IColorsHandler, ColorsViewModel>(x => x.GetRequiredService<ColorsViewModel>())
             .AddSingleton<IWindowHandler, WindowViewModel>(x => x.GetRequiredService<WindowViewModel>())
             .AddSingleton<RegistryViewModel>()
@@ -203,7 +197,8 @@ internal static class ServiceCollectionHelpers
             .AddTransient<SerializationFactory, VecD4SerializationFactory>()
             .AddTransient<SerializationFactory, VecDSerializationFactory>()
             .AddTransient<SerializationFactory, VecISerializationFactory>()
-            .AddTransient<SerializationFactory, VectorPathSerializationFactory>();
+            .AddTransient<SerializationFactory, VectorPathSerializationFactory>()
+            .AddTransient<SerializationFactory, PaletteSerializationFactory>();
 
         return collection;
     }
@@ -252,6 +247,8 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<IVisualTreeProvider, VisualTreeProvider>()
             .AddSingleton<IUserDataProvider, UserDataProvider>()
             .AddSingleton<IToolsProvider, ToolsProvider>()
+            .AddSingleton<IBrushProvider, BrushesProvider>(x => new BrushesProvider(x.GetRequiredService<BrushesViewModel>().BrushLibrary))
             .AddSingleton<IExtensionListProvider>(x => loader)
+            .AddSingleton<IExtensionsProvider, ExtensionsProvider>()
             .AddSingleton<IFileSystemProvider, FileSystemProvider>();
 }

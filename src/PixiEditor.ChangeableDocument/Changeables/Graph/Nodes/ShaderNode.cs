@@ -33,6 +33,7 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
     protected override CacheTriggerFlags CacheTrigger => CacheTriggerFlags.All;
 
     private string defaultShaderCode = """
+                                       #version 300
                                        // Below is a list of built-in special uniforms that are automatically added by PixiEditor.
                                        // Any other uniform will be added as a Node input
 
@@ -200,12 +201,12 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
             {
                 if (ColorSpace.Value == ColorSpaceType.Srgb && !context.ProcessingColorSpace.IsSrgb)
                 {
-                    targetSurface = RequestTexture(51, context.RenderOutputSize,
+                    targetSurface = RequestTexture(context.GraphCacheId + 51, context.RenderOutputSize,
                         Drawie.Backend.Core.Surfaces.ImageData.ColorSpace.CreateSrgb()).DrawingSurface.Canvas;
                 }
                 else if (ColorSpace.Value == ColorSpaceType.LinearSrgb && context.ProcessingColorSpace.IsSrgb)
                 {
-                    targetSurface = RequestTexture(51, context.RenderOutputSize,
+                    targetSurface = RequestTexture(context.GraphCacheId + 51, context.RenderOutputSize,
                         Drawie.Backend.Core.Surfaces.ImageData.ColorSpace.CreateSrgbLinear()).DrawingSurface.Canvas;
                 }
             }
@@ -233,6 +234,11 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
         renderOn.Canvas.Scale((float)context.ChunkResolution.InvertedMultiplier());
         OnPaint(context, renderOn.Canvas);
         renderOn.Canvas.RestoreToCount(saved);
+    }
+
+    public override RectD? GetPreviewBounds(RenderContext ctx, string elementToRenderName)
+    {
+        return new RectD(0, 0, ctx.DocumentSize.X, ctx.DocumentSize.Y);
     }
 
     public override Node CreateCopy()

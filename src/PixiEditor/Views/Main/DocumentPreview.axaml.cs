@@ -1,10 +1,9 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Interactivity;
+using Avalonia.Input.Platform;
 using Avalonia.Media;
 using PixiEditor.Helpers;
-using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
 using PixiEditor.ViewModels;
@@ -59,7 +58,6 @@ internal partial class DocumentPreview : UserControl
         set => SetValue(ColorCursorPositionProperty, value);
     }
     
-    private MouseUpdateController mouseUpdateController;
 
     public DocumentPreview()
     {
@@ -68,19 +66,7 @@ internal partial class DocumentPreview : UserControl
         imageGrid.PointerPressed += ImageGrid_MouseRightButtonDown;
         imageGrid.PointerEntered += ImageGrid_MouseEnter;
         imageGrid.PointerExited += ImageGrid_MouseLeave;
-        
-        imageGrid.Loaded += OnGridLoaded;
-        imageGrid.Unloaded += OnGridUnloaded;
-    }
-
-    private void OnGridUnloaded(object sender, RoutedEventArgs e)
-    {
-        mouseUpdateController?.Dispose();
-    }
-
-    private void OnGridLoaded(object sender, RoutedEventArgs e)
-    {
-        mouseUpdateController = new MouseUpdateController(imageGrid, ImageGrid_MouseMove);
+        imageGrid.PointerMoved += ImageGrid_MouseMove;
     }
 
     private void ImageGrid_MouseLeave(object sender, PointerEventArgs e)
@@ -140,7 +126,7 @@ internal partial class DocumentPreview : UserControl
         }
     }
 
-    private void ImageGrid_MouseMove(PointerEventArgs e)
+    private void ImageGrid_MouseMove(object sender, PointerEventArgs e)
     {
         if (Document is null)
         {

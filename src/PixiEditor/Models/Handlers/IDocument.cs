@@ -1,15 +1,9 @@
-﻿using System.Collections.Generic;
-using Avalonia.Media.Imaging;
-using ChunkyImageLib;
-using ChunkyImageLib.DataHolders;
-using PixiEditor.ChangeableDocument.Rendering;
+﻿using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
-using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Vector;
 using PixiEditor.Extensions.CommonApi.Palettes;
-using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DocumentModels.Public;
 using PixiEditor.Models.Rendering;
@@ -19,7 +13,6 @@ using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.Models.DocumentPassthroughActions;
-using PixiEditor.Parser;
 using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.Models.Handlers;
@@ -42,6 +35,7 @@ internal interface IDocument : IHandler, Extensions.CommonApi.Documents.IDocumen
     public ITransformHandler TransformHandler { get; }
     public IPathOverlayHandler PathOverlayHandler { get; }
     public ITextOverlayHandler TextOverlayHandler { get; }
+    public IContextualOptionsHandler ContextualOptionsHandler { get; }
     public bool Busy { get; set; }
     public ILineOverlayHandler LineToolOverlayHandler { get; }
     public bool HorizontalSymmetryAxisEnabledBindable { get; }
@@ -69,7 +63,7 @@ internal interface IDocument : IHandler, Extensions.CommonApi.Documents.IDocumen
     public void SetSize(VecI infoSize);
 
     public Color PickColor(VecD controllerLastPrecisePosition, DocumentScope scope, bool includeReference,
-        bool includeCanvas, int frame, bool isTopMost, string? customOutput);
+        bool includeCanvas, int frame, bool isTopMost, string? customOutput, Guid? viewportId = null);
 
     public HashSet<Guid> ExtractSelectedLayers(bool includeFoldersWithMask = false);
     public List<Guid> GetSelectedMembersInOrder(bool includeNested = false);

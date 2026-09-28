@@ -1,18 +1,16 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
-using PixiEditor.ChangeableDocument.Rendering;
-using Drawie.Backend.Core;
+﻿using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
-using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
-[NodeInfo("Merge")]
+[NodeInfo(UniqueName)]
 public class MergeNode : RenderNode
 {
-    public InputProperty<BlendMode> BlendMode { get; }
+    public const string UniqueName = "Merge";
+    public const string BlendModePropertyName = "BlendMode";
+    public InputProperty<Drawie.Backend.Core.Surfaces.BlendMode> BlendMode { get; }
     public RenderInputProperty Top { get; }
     public RenderInputProperty Bottom { get; }
 
@@ -23,7 +21,7 @@ public class MergeNode : RenderNode
 
     public MergeNode()
     {
-        BlendMode = CreateInput("BlendMode", "BlendMode", Enums.BlendMode.Normal);
+        BlendMode = CreateInput(BlendModePropertyName, "BLEND_MODE", Drawie.Backend.Core.Surfaces.BlendMode.SrcOver);
         Top = CreateRenderInput("Top", "TOP");
         Bottom = CreateRenderInput("Bottom", "BOTTOM");
     }
@@ -58,7 +56,7 @@ public class MergeNode : RenderNode
             Bottom.Value?.Paint(context, target);
             target.RestoreToCount(saved);
 
-            paint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
+            paint.BlendMode = BlendMode.Value;
             target.SaveLayer(paint);
 
             Top.Value?.Paint(context, target);
@@ -73,6 +71,17 @@ public class MergeNode : RenderNode
     protected override bool ShouldRenderPreview(string elementToRenderName)
     {
         return Top.Value != null || Bottom.Value != null;
+    }
+
+    public override RectD? GetPreviewBounds(RenderContext ctx, string elementToRenderName)
+    {
+        var topBounds = TryGetInputBounds(ctx, elementToRenderName, Top);
+        var bottomBounds = TryGetInputBounds(ctx, elementToRenderName, Bottom);
+
+        if (topBounds == null) return bottomBounds;
+        if (bottomBounds == null) return topBounds;
+
+        return topBounds.Value.Union(bottomBounds.Value);
     }
 
     public override void RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)

@@ -1,12 +1,9 @@
-﻿using System.Drawing;
-using Avalonia.Input;
+﻿using Avalonia.Input;
 using PixiEditor.ChangeableDocument.Enums;
-using Drawie.Backend.Core.Numerics;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Attributes.Evaluators;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using Drawie.Numerics;
-using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.ViewModels.SubViewModels;
@@ -26,7 +23,11 @@ internal class SelectionViewModel : SubViewModel<ViewModelMain>
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is null)
             return;
-        doc.Operations.SelectAll();
+
+        var activeViewport = Owner.WindowSubViewModel.LastActiveViewport.RenderOutputName;
+        var size = Owner.WindowSubViewModel.LastActiveViewport.GetRenderOutputSize();
+
+        doc.Operations.Select(new RectI(0, 0, size.X, size.Y), activeViewport, SelectionMode.Add);
     }
 
     [Command.Basic("PixiEditor.Selection.Clear", "CLEAR_SELECTION", "CLEAR_SELECTION", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.D, Modifiers = KeyModifiers.Control,

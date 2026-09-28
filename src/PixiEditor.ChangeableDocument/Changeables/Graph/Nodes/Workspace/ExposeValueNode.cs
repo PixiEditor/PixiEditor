@@ -1,9 +1,10 @@
-﻿using PixiEditor.ChangeableDocument.Rendering;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
 
 [NodeInfo("ExposeValue")]
-public class ExposeValueNode : Node
+public class ExposeValueNode : Node, IIterativeRenderSupport
 {
     public InputProperty<string> Name { get; }
     public InputProperty<object?> Value { get; }
@@ -23,4 +24,6 @@ public class ExposeValueNode : Node
     {
         return new ExposeValueNode();
     }
+
+    bool IIterativeRenderSupport.SupportsIterativeRendering => true;
 }

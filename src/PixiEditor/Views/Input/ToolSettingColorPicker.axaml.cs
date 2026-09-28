@@ -2,9 +2,7 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Media;
-using Avalonia.Threading;
 using Avalonia.VisualTree;
-using PixiEditor.Helpers.Behaviours;
 
 namespace PixiEditor.Views.Input;
 

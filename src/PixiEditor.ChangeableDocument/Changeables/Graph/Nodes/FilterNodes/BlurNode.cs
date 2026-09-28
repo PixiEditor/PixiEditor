@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using Drawie.Backend.Core.Surfaces;
+﻿using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Rendering;

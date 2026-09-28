@@ -1,21 +1,15 @@
-﻿using System.Collections.ObjectModel;
-using System.ComponentModel;
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Animation;
 using Avalonia.Animation.Easings;
 using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
-using Avalonia.Controls.Templates;
 using Avalonia.Data;
 using Avalonia.Layout;
-using Avalonia.Markup.Xaml.Templates;
 using Avalonia.Media;
-using Avalonia.Rendering;
 using Avalonia.Styling;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
-using CommunityToolkit.Mvvm.ComponentModel;
 using PixiEditor.Helpers.Converters;
 using PixiEditor.Models.AdvisorSystem;
 using PixiEditor.UI.Common.Localization;
@@ -192,11 +186,14 @@ public class AdvisorPopup : ContentPresenter
             grid.Children.Add(closeButton);
         }
 
-        Content = grid;
-
         var topLevel = TopLevel.GetTopLevel(Anchor);
         if (topLevel is not Window window)
             return;
+
+        var transform = window.GetVisualDescendants().OfType<LayoutTransformControl>().FirstOrDefault()
+            ?.LayoutTransform;
+
+        Content = new LayoutTransformControl() { Child = grid, LayoutTransform = transform, UseRenderTransform = true };
 
         try
         {
@@ -205,6 +202,7 @@ public class AdvisorPopup : ContentPresenter
             {
                 layer = new Canvas() { Name = "AdvisorLayer", IsHitTestVisible = true };
                 var firstPanel = window.GetVisualDescendants().OfType<Panel>().FirstOrDefault();
+                LayoutTransformControl? parentScaler = firstPanel?.GetVisualParent<LayoutTransformControl>();
                 firstPanel?.Children.Add(layer);
                 window.SizeChanged += (s, e) =>
                 {
@@ -212,7 +210,7 @@ public class AdvisorPopup : ContentPresenter
                     {
                         if (child is AdvisorPopup popup)
                         {
-                            popup.SetPosition(window);
+                            popup.SetPosition(window, parentScaler?.LayoutTransform);
                         }
                     }
                 };
@@ -257,21 +255,36 @@ public class AdvisorPopup : ContentPresenter
 
         Dispatcher.UIThread.Post(() =>
         {
-            var root = Anchor.GetVisualRoot();
-            SetPosition(root);
+            var root = Anchor.GetPresentationSource().RootVisual;
+            if (root is not Visual rootVisual)
+            {
+                return;
+            }
+
+            var parentScalerLayoutTransform = rootVisual.GetVisualParent<LayoutTransformControl>()?.LayoutTransform;
+
+            SetPosition(root, parentScalerLayoutTransform);
+            Anchor.DetachedFromVisualTree += AnchorOnDetachedFromVisualTree;
         }, DispatcherPriority.Render);
         this.IsVisible = true;
     }
 
-
-    private void SetPosition(IRenderRoot? root)
+    private void AnchorOnDetachedFromVisualTree(object? sender, VisualTreeAttachmentEventArgs e)
     {
-        if (root is not Visual rootVisual)
-            return;
+        this.IsVisible = false;
+    }
 
+
+    private void SetPosition(Visual? rootVisual, ITransform? parentScalerLayoutTransform)
+    {
         var anchorTopLeft = Anchor.TranslatePoint(
             new Point(0, 0),
             rootVisual);
+
+        if (parentScalerLayoutTransform != null)
+        {
+            anchorTopLeft = parentScalerLayoutTransform.Value.Transform(anchorTopLeft.Value);
+        }
 
         if (!anchorTopLeft.HasValue)
             return;
@@ -421,6 +434,11 @@ public class AdvisorPopup : ContentPresenter
                 new Setter(ScaleTransform.ScaleXProperty, 0d), new Setter(ScaleTransform.ScaleYProperty, 0d)
             }
         });
+
+        if (Anchor != null)
+        {
+            Anchor.DetachedFromVisualTree -= AnchorOnDetachedFromVisualTree;
+        }
 
         _ = animation.RunAsync(control).ContinueWith(t =>
         {

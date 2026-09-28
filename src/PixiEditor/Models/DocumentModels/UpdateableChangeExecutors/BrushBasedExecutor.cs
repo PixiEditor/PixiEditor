@@ -1,21 +1,10 @@
-﻿using System.Diagnostics;
-using Avalonia.Input;
-using ChunkyImageLib;
-using ChunkyImageLib.DataHolders;
-using Drawie.Backend.Core;
+﻿using Avalonia.Input;
 using Drawie.Backend.Core.ColorsImpl;
-using Drawie.Backend.Core.Surfaces;
-using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Brushes;
-using PixiEditor.ChangeableDocument.Changeables.Graph;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
-using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.Models.BrushEngine;
 using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Toolbars;
@@ -92,15 +81,25 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
 
         if (controller.LeftMousePressed)
         {
-            EnqueueDrawActions();
+            EnqueueDrawActions(false);
         }
 
         return ExecutionState.Success;
     }
 
-    protected virtual void EnqueueDrawActions()
+    protected virtual void EnqueueDrawActions(bool createLine)
     {
         var point = GetStabilizedPoint();
+
+        if (createLine)
+        {
+            IAction? actionStart = new LineBasedPen_Action(layerId, handler.LastAppliedPoint, (float)ToolSize,
+                antiAliasing, BrushData, drawOnMask,
+                document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo, controller.LastKeyboardInfo,
+                controller.EditorData);
+
+            internals!.ActionAccumulator.AddActions(actionStart);
+        }
 
         if (handler != null)
         {
@@ -182,7 +181,7 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
     public override void OnLeftMouseButtonDown(MouseOnCanvasEventArgs args)
     {
         base.OnLeftMouseButtonDown(args);
-        EnqueueDrawActions();
+        EnqueueDrawActions(args.KeyModifiers.HasFlag(KeyModifiers.Shift));
     }
 
     public override void OnPrecisePositionChange(MouseOnCanvasEventArgs args)
@@ -191,7 +190,7 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
         if (controller.LeftMousePressed)
         {
             lastViewportZoom = args.ViewportScale;
-            EnqueueDrawActions();
+            EnqueueDrawActions(false);
         }
     }
 

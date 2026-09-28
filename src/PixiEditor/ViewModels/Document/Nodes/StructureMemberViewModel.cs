@@ -1,14 +1,9 @@
-﻿using ChunkyImageLib.DataHolders;
-using PixiEditor.ChangeableDocument.Actions.Generated;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+﻿using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
-using Drawie.Backend.Core;
 using Drawie.Backend.Core.Numerics;
 using PixiEditor.Helpers;
-using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Layers;
-using PixiEditor.Models.Rendering;
 using Drawie.Numerics;
 using PixiEditor.ViewModels.Nodes;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
@@ -46,6 +41,25 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
     {
         this.isVisible = isVisible;
         OnPropertyChanged(nameof(IsVisibleBindable));
+    }
+
+    public abstract bool CanQuickColorChange();
+    private bool isLocked;
+
+    public bool IsLockedBindable
+    {
+        get => isLocked;
+        set
+        {
+            if (!Document.BlockingUpdateableChangeActive)
+                Internals.ActionAccumulator.AddFinishedActions(new LockLayer_Action(Id, value));
+        }
+    }
+
+    public void SetLayerLock(bool infoIsLocked)
+    {
+        this.isLocked = infoIsLocked;
+        OnPropertyChanged(nameof(IsLockedBindable));
     }
 
     public bool IsVisibleBindable
@@ -86,6 +100,29 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
             });
 
             return visible;
+        }
+    }
+
+    public bool IsLockedStructurally
+    {
+        get
+        {
+            if (IsLockedBindable)
+                return true;
+
+            bool locked = false;
+            TraverseForwards((node, previous, output, input) =>
+            {
+                if (node is IFolderHandler parent && input is { PropertyName: FolderNode.ContentInternalName })
+                {
+                    locked = parent.IsLockedBindable;
+                    return !locked ? Traverse.Further : Traverse.Exit;
+                }
+
+                return Traverse.Further;
+            });
+
+            return locked;
         }
     }
 
@@ -202,6 +239,13 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
     }
 
     IDocument IStructureMemberHandler.Document => Document;
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        Preview?.Preview?.Dispose();
+        MaskPreview?.Preview?.Dispose();
+    }
 }
 
 public static class StructureMemberViewModel

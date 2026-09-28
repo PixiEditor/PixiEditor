@@ -11,7 +11,6 @@ using PixiEditor.Models.DocumentModels;
 using Drawie.Numerics;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
-using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Handlers;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Dock;
@@ -22,7 +21,7 @@ using Color = Drawie.Backend.Core.ColorsImpl.Color;
 namespace PixiEditor.ViewModels.SubViewModels;
 #nullable enable
 internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockableContent, IDockableCloseEvents,
-    IDockableSelectionEvents, IViewport
+    IDockableSelectionEvents, IViewport, IDisposable
 {
     public DocumentViewModel Document { get; }
     public ExecutionTrigger<VecI> CenterViewportTrigger { get; } = new ExecutionTrigger<VecI>();
@@ -72,6 +71,8 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
             OnPropertyChanged(nameof(FlipY));
         }
     }
+
+    public Guid SceneTextureKey { get; set; }
 
     public string RenderOutputName
     {
@@ -245,7 +246,6 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
         TabCustomizationSettings.FontStyle = Document.IsNestedDocument ? FontStyle.Italic : FontStyle.Normal;
     }
 
-
     private void DocumentOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(DocumentViewModel.FileName))
@@ -346,7 +346,7 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
         Color primary = Color.FromHex(primaryHex);
         Color secondary = Color.FromHex(secondaryHex);
 
-        Surface surface = Surface.ForDisplay(new VecI(2, 2));
+        using Surface surface = Surface.ForDisplay(new VecI(2, 2));
         surface.DrawingSurface.Canvas.Clear(primary);
         using Paint secondaryPaint = new Paint { Color = secondary, Style = PaintStyle.Fill };
         surface.DrawingSurface.Canvas.DrawRect(1, 0, 1, 1, secondaryPaint);
@@ -401,5 +401,10 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
         savedSceneScale = SceneScale;
         savedSceneCenter = SceneCenter;
         savedSceneAngleRadians = SceneAngleRadians;
+    }
+
+    public void Dispose()
+    {
+        BackgroundBitmap?.Dispose();
     }
 }

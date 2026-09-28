@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using Avalonia;
 
 namespace PixiEditor.Helpers.Converters;
 

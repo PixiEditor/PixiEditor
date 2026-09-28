@@ -41,6 +41,13 @@ public class KernelFilterNode : FilterNode
     protected override ImageFilter? GetImageFilter(RenderContext context)
     {
         var kernel = Kernel.Value;
+
+        if (kernel == null)
+        {
+            filter?.Dispose();
+            filter = null;
+            return null;
+        }
         
         if (kernel.AsSpan().SequenceEqual(lastKernelValues) && Tile.Value == lastTile && Gain.Value == lastGain && Bias.Value == lastBias && OnAlpha.Value == lastOnAlpha)
             return filter;

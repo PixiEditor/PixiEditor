@@ -7,6 +7,7 @@ public class DocumentReference : ICloneable
     public string? OriginalFilePath { get; set; }
     public Guid ReferenceId { get; set; }
     public IReadOnlyDocument DocumentInstance { get; set; }
+    public string? DisplayName { get; set; } = "UNNAMED";
 
     public DocumentReference(string? originalFilePath, Guid referenceId, IReadOnlyDocument documentInstance)
     {
