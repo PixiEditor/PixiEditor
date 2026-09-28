@@ -33,6 +33,8 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
     private bool isListeningForValidLayer;
     private VectorPath? onPath;
 
+    private List<TextInline> inlinesInRange = new();
+
     private VecD clickPos;
     private bool wasDrawingSize;
 
@@ -85,7 +87,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         }
         else if (shape is null)
         {
-            RichText newEmpty = new RichText(string.Empty, toolbar.ConstructFont())
+            RichText newEmpty = new RichText(null, toolbar.ConstructFont())
             {
                 Spacing = 12,
             };
@@ -121,12 +123,12 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         toolbar.FillBrush = textData.FillPaintable.ToBrush();
         toolbar.StrokeBrush = textData.Stroke.ToBrush();
         toolbar.ToolSize = textData.StrokeWidth;
-        UpdateInlineSettings(textData.Text);
+        UpdateInlineSettings();
     }
 
-    private void UpdateInlineSettings(RichText text)
+    private void UpdateInlineSettings()
     {
-        IReadOnlyList<TextInline> inlines = GetEditingInlines(text);
+        IReadOnlyList<TextInline> inlines = inlinesInRange;
 
         if (inlines.Count == 0)
             return;
@@ -139,7 +141,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         if (inlines.All(x => Math.Abs(x.Font.Size - first.Font.Size) < float.Epsilon))
             toolbar.FontSize = first.Font.Size;
 
-        if (inlines.All(x => x.LineHeight == first.LineHeight))
+        if (inlines.All(x => Math.Abs(x.LineHeight - first.LineHeight) < float.Epsilon))
             toolbar.Spacing = first.LineHeight;
 
         if (inlines.All(x => x.Font.Bold == first.Font.Bold))
@@ -161,44 +163,12 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             toolbar.ToolSize = first.StrokeWidth;
     }
 
-    private IReadOnlyList<TextInline> GetEditingInlines(RichText text)
+    private List<TextInline> GetEditingInlines(RichText text)
     {
         int cursor = document.TextOverlayHandler.CursorPosition;
         int selectionEnd = document.TextOverlayHandler.SelectionEnd;
 
-        if (cursor == selectionEnd)
-        {
-            return text.Inlines.ToArray();
-        }
-
-        int selectionStart = Math.Min(cursor, selectionEnd);
-        int selectionFinish = Math.Max(cursor, selectionEnd);
-
-        List<TextInline> result = new();
-
-        int position = 0;
-
-        foreach (TextInline inline in text.Inlines)
-        {
-            int inlineStart = position;
-            int inlineEnd = position + inline.Text.Length;
-
-            if (inlineStart < selectionFinish && inlineEnd > selectionStart)
-            {
-                result.Add(inline);
-            }
-
-            position = inlineEnd;
-        }
-
-        return result;
-    }
-
-    private TextInline GetActiveInline(RichText text)
-    {
-        int cursorPos = document.TextOverlayHandler.CursorPosition;
-
-        return text.GetInlineAt(cursorPos, out _, out _);
+        return text.GetInlinesInRange(cursor, selectionEnd);
     }
 
     public override void OnLeftMouseButtonDown(MouseOnCanvasEventArgs args)
@@ -236,8 +206,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
     public override void OnPrecisePositionChange(MouseOnCanvasEventArgs args)
     {
-        if (document.TextOverlayHandler.IsActive && internals.ChangeController.LeftMousePressed &&
-            lastText.RawText == null)
+        if (document.TextOverlayHandler.IsActive && internals.ChangeController.LeftMousePressed)
         {
             double distance = Math.Abs(clickPos.Y - args.Point.PositionOnCanvas.Y);
             if (!wasDrawingSize && distance < 10) return;
@@ -296,7 +265,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
     public void OnSelectionChanged(int cursorPosition, int selectionEnd)
     {
-        UpdateInlineSettings(lastText);
+        inlinesInRange = GetEditingInlines(lastText);
     }
 
     public override void OnSettingsChanged(string name, object value)

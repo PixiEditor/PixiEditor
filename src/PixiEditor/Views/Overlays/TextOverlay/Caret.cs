@@ -24,7 +24,6 @@ internal class Caret : IDisposable
     public double FontSize { get; set; }
     public VecF[] GlyphPositions { get; set; }
     public VecD Offset { get; set; }
-    public float[] GlyphWidths { get; set; }
     public float CaretWidth { get; set; } = 0.5f;
 
     private Paint paint = new Paint() { Color = Colors.White, Style = PaintStyle.StrokeAndFill, StrokeWidth = 3 };
