@@ -29,4 +29,34 @@ internal class NetworkApi : ApiGroupHandler
         });
         return asyncHandle;
     }
+
+    [ApiFunction("websocket_connect")]
+    internal int WebSocketConnect(Span<byte> request)
+    {
+        PermissionUtility.ThrowIfLacksPermissions(Extension.Metadata, ExtensionPermissions.Network, "WebSocketConnect");
+        NetworkModule networkModule = Extension.GetModule<NetworkModule>();
+
+        using MemoryStream stream = new();
+        stream.Write(request);
+        stream.Seek(0, SeekOrigin.Begin);
+        WebSocketRequest deserializedRequest = Serializer.Deserialize<WebSocketRequest>(stream);
+
+        var responseTask = networkModule.WebSocketConnect(deserializedRequest);
+        int asyncHandle = AsyncHandleManager.AddAsyncCall(responseTask, BitConverter.GetBytes);
+        return asyncHandle;
+    }
+
+    [ApiFunction("websocket_send")]
+    internal void WebSocketSend(int connectionId, Span<byte> request)
+    {
+        PermissionUtility.ThrowIfLacksPermissions(Extension.Metadata, ExtensionPermissions.Network, "WebSocketSend");
+        NetworkModule networkModule = Extension.GetModule<NetworkModule>();
+
+        using MemoryStream stream = new();
+        stream.Write(request);
+        stream.Seek(0, SeekOrigin.Begin);
+        WebSocketMessage deserializedRequest = Serializer.Deserialize<WebSocketMessage>(stream);
+
+        networkModule.WebSocketSend<WebSocketMessage>(connectionId, deserializedRequest);
+    }
 }

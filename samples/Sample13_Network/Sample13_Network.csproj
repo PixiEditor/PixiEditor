@@ -7,10 +7,10 @@
         <PublishTrimmed>true</PublishTrimmed>
         <WasmSingleFileBundle>true</WasmSingleFileBundle>
         <GenerateExtensionPackage>true</GenerateExtensionPackage>
-        <PixiExtOutputPath>..\..\src\PixiEditor.Desktop\bin\Debug\net8.0\Extensions</PixiExtOutputPath>
+        <PixiExtOutputPath>..\..\src\PixiEditor.Desktop\bin\Debug\net10.0\Extensions</PixiExtOutputPath>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
         <ValidateExecutableReferencesMatchSelfContained>false</ValidateExecutableReferencesMatchSelfContained>
-        <RootNamespace>Sample12_Network</RootNamespace>
+        <RootNamespace>Sample13_Network</RootNamespace>
     </PropertyGroup>
 
     <!--Below is not required if you use Nuget package, this sample references project directly, so it must be here-->

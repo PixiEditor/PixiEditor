@@ -1,7 +1,7 @@
 {
   "displayName": "Sample Extension - Network",
   "uniqueName": "yourCompany.Samples.Network",
-  "description": "Sample Brushes extension for PixiEditor",
+  "description": "Sample Network extension for PixiEditor",
   "version": "1.0.0",
   "author": {
     "name": "PixiEditor",

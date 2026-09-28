@@ -1,13 +1,22 @@
-﻿using PixiEditor.Extensions.CommonApi.Async;
+﻿using System.Net.WebSockets;
+using Avalonia.Controls.Documents;
+using Avalonia.Threading;
+using PixiEditor.Extensions.CommonApi.Async;
 using PixiEditor.Extensions.CommonApi.Network;
 using PixiEditor.Extensions.Metadata;
 using PixiEditor.Extensions.WasmRuntime.Utilities;
+using ProtoBuf;
+using WebSocketMessageType = System.Net.WebSockets.WebSocketMessageType;
 
 namespace PixiEditor.Extensions.WasmRuntime.Api.Modules;
 
 internal class NetworkModule(WasmExtensionInstance extension) : ApiModule(extension), INetworkProvider
 {
     HttpClient httpClient = new();
+
+    private Dictionary<int, ClientWebSocket> webSockets = new();
+    private int nextWebSocketId = 1;
+
 
     public async AsyncCall<Response> SendRequest(Request request)
     {
@@ -63,5 +72,69 @@ internal class NetworkModule(WasmExtensionInstance extension) : ApiModule(extens
         {
             return new Response { StatusCode = 0, Body = Array.Empty<byte>(), Headers = { ["Error"] = ex.Message } };
         }
+    }
+
+    public async AsyncCall<int> WebSocketConnect(WebSocketRequest request)
+    {
+        var webSocket = new ClientWebSocket();
+        int webSocketId = nextWebSocketId++;
+        webSockets[webSocketId] = webSocket;
+
+        await webSocket.ConnectAsync(new Uri(request.Url), CancellationToken.None);
+        Dispatcher.UIThread.Post(() =>
+        {
+            RunMessenger(webSocketId, webSocket, message => PassMessage(webSocketId, message));
+        });
+
+        return webSocketId;
+    }
+
+    public async AsyncCall WebSocketSend<T>(int connectionId, WebSocketMessage message)
+    {
+        var webSocket = webSockets[connectionId];
+        await webSocket.SendAsync(message.Body,
+            message.MessageType == CommonApi.Network.WebSocketMessageType.Binary
+                ? WebSocketMessageType.Binary
+                : WebSocketMessageType.Text, true, CancellationToken.None);
+    }
+
+    private void PassMessage(int id, WebSocketMessage response)
+    {
+        using var stream = new MemoryStream();
+        Serializer.Serialize(stream, response);
+        var bytes = stream.ToArray();
+        int ptr = Extension.WasmMemoryUtility.WriteBytes(bytes);
+        Extension.Instance.GetAction<int, int, int>("websocket_on_message_received")?.Invoke(id, ptr, bytes.Length);
+    }
+
+    private void RunMessenger(int webSocketId, ClientWebSocket webSocket, Action<WebSocketMessage> onMessageReceived)
+    {
+        Task.Run(async () =>
+        {
+            var buffer = new byte[1024 * 4];
+            while (webSocket.State == WebSocketState.Open)
+            {
+                var result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+                if (result.MessageType == WebSocketMessageType.Close)
+                {
+                    await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty,
+                        CancellationToken.None);
+                    webSockets.Remove(webSocketId);
+                }
+                else
+                {
+                    var message = new byte[result.Count];
+                    Array.Copy(buffer, message, result.Count);
+                    var webSocketMessage = new WebSocketMessage
+                    {
+                        Body = message,
+                        MessageType = result.MessageType == WebSocketMessageType.Binary
+                            ? CommonApi.Network.WebSocketMessageType.Binary
+                            : CommonApi.Network.WebSocketMessageType.Text
+                    };
+                    onMessageReceived(webSocketMessage);
+                }
+            }
+        });
     }
 }

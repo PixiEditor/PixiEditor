@@ -29,7 +29,7 @@ namespace PixiEditor.Extensions.CommonApi.Network
 
         [global::ProtoBuf.ProtoMember(4)]
         [global::ProtoBuf.ProtoMap]
-        public global::System.Collections.Generic.Dictionary<string, string> Headers { get; set; } = new global::System.Collections.Generic.Dictionary<string, string>();
+        public global::System.Collections.Generic.Dictionary<string, string> Headers { get; } = new global::System.Collections.Generic.Dictionary<string, string>();
 
         [global::ProtoBuf.ProtoMember(5)]
         [global::System.ComponentModel.DefaultValue("")]
