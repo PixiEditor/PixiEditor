@@ -15,13 +15,15 @@ public static class WebSocketSample
            Url = "wss://echo.websocket.org", // Example WebSocket server
        };
 
-       api.NetworkProvider.ConnectWebSocket(request).Completed += connection =>
+       var connectionCall =
+           api.NetworkProvider.ConnectWebSocket(request);
+       connectionCall.Completed += connection =>
        {
            api.Logger.Log("WebSocket connection attempt completed.");
            if (connection != null)
            {
                api.Logger.Log("Connected to WebSocket server.");
-               connection.OnMessageReceived += (sender, message) =>
+               connection.OnMessageReceived += (message) =>
                {
                    var body = System.Text.Encoding.UTF8.GetString(message.Body);
                    api.Logger.Log("Received message: " + body);

@@ -11,11 +11,20 @@ internal static partial class Interop
 {
     private static Dictionary<int, WebSocketConnection> webSocketConnections = new();
 
-    private static void OnWebSocketMessageReceived(int asyncHandle, WebSocketMessage request)
+    private static void OnWebSocketMessageReceived(int connectionHandle, WebSocketMessage request)
     {
-        if (webSocketConnections.TryGetValue(asyncHandle, out var connection))
+        if (webSocketConnections.TryGetValue(connectionHandle, out var connection))
         {
             connection.MessageReceived(request);
+        }
+    }
+
+    private static void OnWebSocketClosed(int connectionHandle)
+    {
+        if (webSocketConnections.TryGetValue(connectionHandle, out var connection))
+        {
+            connection.ConnectionClosed();
+            webSocketConnections.Remove(connectionHandle);
         }
     }
 

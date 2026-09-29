@@ -59,4 +59,22 @@ internal class NetworkApi : ApiGroupHandler
 
         networkModule.WebSocketSend<WebSocketMessage>(connectionId, deserializedRequest);
     }
+
+    [ApiFunction("websocket_close")]
+    internal void WebSocketClose(int connectionId)
+    {
+        PermissionUtility.ThrowIfLacksPermissions(Extension.Metadata, ExtensionPermissions.Network, "WebSocketClose");
+        NetworkModule networkModule = Extension.GetModule<NetworkModule>();
+
+        networkModule.WebSocketClose(connectionId);
+    }
+
+    [ApiFunction("is_websocket_connection_alive")]
+    internal bool IsWebSocketConnectionAlive(int connectionId)
+    {
+        PermissionUtility.ThrowIfLacksPermissions(Extension.Metadata, ExtensionPermissions.Network, "IsWebSocketConnectionAlive");
+        NetworkModule networkModule = Extension.GetModule<NetworkModule>();
+
+        return networkModule.IsWebSocketConnectionAlive(connectionId);
+    }
 }

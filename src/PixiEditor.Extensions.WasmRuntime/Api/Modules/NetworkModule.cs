@@ -83,10 +83,15 @@ internal class NetworkModule(WasmExtensionInstance extension) : ApiModule(extens
         await webSocket.ConnectAsync(new Uri(request.Url), CancellationToken.None);
         Dispatcher.UIThread.Post(() =>
         {
-            RunMessenger(webSocketId, webSocket, message => PassMessage(webSocketId, message));
+            RunMessenger(webSocketId, webSocket, message => PassMessage(webSocketId, message), () => WebSocketClosed(webSocketId));
         });
 
         return webSocketId;
+    }
+
+    private void WebSocketClosed(int webSocketId)
+    {
+        Extension.Instance.GetAction<int>("websocket_on_closed")?.Invoke(webSocketId);
     }
 
     public async AsyncCall WebSocketSend<T>(int connectionId, WebSocketMessage message)
@@ -107,7 +112,7 @@ internal class NetworkModule(WasmExtensionInstance extension) : ApiModule(extens
         Extension.Instance.GetAction<int, int, int>("websocket_on_message_received")?.Invoke(id, ptr, bytes.Length);
     }
 
-    private void RunMessenger(int webSocketId, ClientWebSocket webSocket, Action<WebSocketMessage> onMessageReceived)
+    private void RunMessenger(int webSocketId, ClientWebSocket webSocket, Action<WebSocketMessage> onMessageReceived, Action webSocketClosed)
     {
         Task.Run(async () =>
         {
@@ -120,6 +125,7 @@ internal class NetworkModule(WasmExtensionInstance extension) : ApiModule(extens
                     await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty,
                         CancellationToken.None);
                     webSockets.Remove(webSocketId);
+                    webSocketClosed();
                 }
                 else
                 {
@@ -136,5 +142,24 @@ internal class NetworkModule(WasmExtensionInstance extension) : ApiModule(extens
                 }
             }
         });
+    }
+
+    public void WebSocketClose(int connectionId)
+    {
+        if (webSockets.TryGetValue(connectionId, out var webSocket))
+        {
+            webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closed by user", CancellationToken.None);
+            webSockets.Remove(connectionId);
+        }
+    }
+
+    public bool IsWebSocketConnectionAlive(int connectionId)
+    {
+        if (webSockets.TryGetValue(connectionId, out var webSocket))
+        {
+            return webSocket.State == WebSocketState.Open;
+        }
+
+        return false;
     }
 }

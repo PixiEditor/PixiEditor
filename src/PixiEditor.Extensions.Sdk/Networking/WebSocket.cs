@@ -5,8 +5,12 @@ namespace PixiEditor.Extensions.Sdk.Networking;
 
 public class WebSocketConnection
 {
-    public event EventHandler<WebSocketMessage>? OnMessageReceived;
+    public event Action<WebSocketMessage>? OnMessageReceived;
+    public event Action OnConnectionClosed;
     internal int ConnectionHandle { get; private set; }
+
+    public bool IsAlive => Native.is_websocket_connection_alive(ConnectionHandle);
+
     internal WebSocketConnection(int connectionHandle)
     {
         ConnectionHandle = connectionHandle;
@@ -14,11 +18,21 @@ public class WebSocketConnection
 
     internal void MessageReceived(WebSocketMessage request)
     {
-        OnMessageReceived?.Invoke(this, request);
+        OnMessageReceived?.Invoke(request);
     }
 
     public void SendMessage(WebSocketMessage message)
     {
         Interop.SendWebSocketMessage(ConnectionHandle, message);
+    }
+
+    public void Close()
+    {
+        Native.websocket_close(ConnectionHandle);
+    }
+
+    internal void ConnectionClosed()
+    {
+        OnConnectionClosed?.Invoke();
     }
 }

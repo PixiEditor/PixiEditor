@@ -1,4 +1,5 @@
-﻿using PixiEditor.Extensions.CommonApi.Network;
+﻿using PixiEditor.Extensions.CommonApi.Commands;
+using PixiEditor.Extensions.CommonApi.Network;
 using PixiEditor.Extensions.Sdk;
 
 namespace Sample13_Network;
@@ -10,7 +11,6 @@ public class NetworkSampleExtension : PixiEditorExtension
     /// </summary>
     public override void OnInitialized()
     {
-        /*
         Api.Logger.Log("Network sample extension initialized.");
         Api.NetworkProvider.SendRequest(new Request()
         {
@@ -21,7 +21,6 @@ public class NetworkSampleExtension : PixiEditorExtension
             Api.Logger.Log("Status code: " + result.StatusCode);
             Api.Logger.Log("Response body: " + System.Text.Encoding.UTF8.GetString(result.Body));
         };
-        */
 
         WebSocketSample.ConnectToWebSocket(Api);
     }
