@@ -35,6 +35,7 @@ internal static partial class Interop
         byte[] bytes = stream.ToArray();
         IntPtr ptr = InteropUtility.ByteArrayToIntPtr(bytes);
         int asyncCallHandle = Native.send_http_request(ptr, bytes.Length);
+        InteropUtility.FreeIntPtr(ptr);
 
         return Native.CreateAsyncCall(asyncCallHandle, responseBytes =>
         {
@@ -72,5 +73,6 @@ internal static partial class Interop
         byte[] bytes = stream.ToArray();
         IntPtr ptr = InteropUtility.ByteArrayToIntPtr(bytes);
         Native.websocket_send(handle, ptr, bytes.Length);
+        InteropUtility.FreeIntPtr(ptr);
     }
 }

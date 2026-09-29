@@ -27,7 +27,9 @@ internal static partial class Interop
     }
     public static IDocument? ImportDocument(byte[] data)
     {
-        string document = Native.import_document(InteropUtility.ByteArrayToIntPtr(data), data.Length);
+        IntPtr ptr = InteropUtility.ByteArrayToIntPtr(data);
+        string document = Native.import_document(ptr, data.Length);
+        InteropUtility.FreeIntPtr(ptr);
         if (document == null || !Guid.TryParse(document, out Guid id))
             return null;
 
@@ -49,6 +51,9 @@ internal static partial class Interop
         using MemoryStream stream = new();
         Serializer.Serialize(stream, palette);
         byte[] data = stream.ToArray();
-        Native.set_document_palette(documentId.ToString(), InteropUtility.ByteArrayToIntPtr(data), data.Length);
+        IntPtr palettePtr = InteropUtility.ByteArrayToIntPtr(data);
+        Native.set_document_palette(documentId.ToString(), palettePtr, data.Length);
+
+        InteropUtility.FreeIntPtr(palettePtr);
     }
 }

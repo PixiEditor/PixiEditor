@@ -29,23 +29,11 @@ internal class NetworkModule(WasmExtensionInstance extension) : ApiModule(extens
 
         if (request.Body?.Length > 0)
         {
-            switch (request.ContentType)
+            httpRequest.Content = new ByteArrayContent(request.Body);
+            if (!string.IsNullOrWhiteSpace(request.ContentType))
             {
-                case "application/json":
-                    httpRequest.Content = new StringContent(System.Text.Encoding.UTF8.GetString(request.Body),
-                        System.Text.Encoding.UTF8, "application/json");
-                    break;
-                case "application/x-www-form-urlencoded":
-                    httpRequest.Content = new StringContent(System.Text.Encoding.UTF8.GetString(request.Body),
-                        System.Text.Encoding.UTF8, "application/x-www-form-urlencoded");
-                    break;
-                case "text/plain":
-                    httpRequest.Content = new StringContent(System.Text.Encoding.UTF8.GetString(request.Body),
-                        System.Text.Encoding.UTF8, "text/plain");
-                    break;
-                default:
-                    httpRequest.Content = new ByteArrayContent(request.Body);
-                    break;
+                httpRequest.Content.Headers.ContentType =
+                    System.Net.Http.Headers.MediaTypeHeaderValue.Parse(request.ContentType);
             }
         }
 
@@ -54,7 +42,11 @@ internal class NetworkModule(WasmExtensionInstance extension) : ApiModule(extens
             HttpResponseMessage httpResponse = await httpClient.SendAsync(httpRequest);
             byte[] responseBody = await httpResponse.Content.ReadAsByteArrayAsync();
 
-            Response response = new() { StatusCode = (int)httpResponse.StatusCode, Body = responseBody, };
+            Response response = new()
+            {
+                Url = httpResponse.RequestMessage?.RequestUri?.ToString() ?? request.Url,
+                StatusCode = (int)httpResponse.StatusCode, Body = responseBody,
+            };
 
             foreach (var header in httpResponse.Headers)
             {
@@ -70,7 +62,11 @@ internal class NetworkModule(WasmExtensionInstance extension) : ApiModule(extens
         }
         catch (Exception ex)
         {
-            return new Response { StatusCode = 0, Body = Array.Empty<byte>(), Headers = { ["Error"] = ex.Message } };
+            return new Response
+            {
+                Url = request.Url,
+                StatusCode = 0, Body = Array.Empty<byte>(), Headers = { ["Error"] = ex.Message }
+            };
         }
     }
 
@@ -91,7 +87,7 @@ internal class NetworkModule(WasmExtensionInstance extension) : ApiModule(extens
 
     private void WebSocketClosed(int webSocketId)
     {
-        Extension.Instance.GetAction<int>("websocket_on_closed")?.Invoke(webSocketId);
+        Extension.Instance?.GetAction<int>("websocket_on_closed")?.Invoke(webSocketId);
     }
 
     public async AsyncCall WebSocketSend<T>(int connectionId, WebSocketMessage message)
@@ -105,11 +101,26 @@ internal class NetworkModule(WasmExtensionInstance extension) : ApiModule(extens
 
     private void PassMessage(int id, WebSocketMessage response)
     {
-        using var stream = new MemoryStream();
-        Serializer.Serialize(stream, response);
-        var bytes = stream.ToArray();
-        int ptr = Extension.WasmMemoryUtility.WriteBytes(bytes);
-        Extension.Instance.GetAction<int, int, int>("websocket_on_message_received")?.Invoke(id, ptr, bytes.Length);
+        Dispatcher.UIThread.Post(() =>
+        {
+            using var stream = new MemoryStream();
+            Serializer.Serialize(stream, response);
+            var bytes = stream.ToArray();
+            int ptr = Extension.WasmMemoryUtility.WriteBytes(bytes);
+            try
+            {
+                Extension.Instance?.GetAction<int, int, int>("websocket_on_message_received")
+                    ?.Invoke(id, ptr, bytes.Length);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Network module was unable to pass websocket message to the extension: {Extension.Metadata.UniqueName}: " + ex);
+            }
+            finally
+            {
+                Extension.WasmMemoryUtility.Free(ptr);
+            }
+        });
     }
 
     private void RunMessenger(int webSocketId, ClientWebSocket webSocket, Action<WebSocketMessage> onMessageReceived, Action webSocketClosed)

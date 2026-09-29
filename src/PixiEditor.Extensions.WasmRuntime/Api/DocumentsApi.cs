@@ -76,7 +76,7 @@ internal class DocumentsApi : ApiGroupHandler
     }
 
     [ApiFunction("get_document_palette")]
-    public Span<byte> GetDocumentPalette(string documentId)
+    public byte[] GetDocumentPalette(string documentId)
     {
         if (!Guid.TryParse(documentId, out Guid id))
         {
@@ -92,6 +92,6 @@ internal class DocumentsApi : ApiGroupHandler
         using MemoryStream stream = new();
         Serializer.Serialize(stream, document.Palette);
         byte[] data = stream.ToArray();
-        return new Span<byte>(data);
+        return data;
     }
 }
