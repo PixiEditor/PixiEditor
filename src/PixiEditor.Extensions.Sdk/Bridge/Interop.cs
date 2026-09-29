@@ -22,6 +22,8 @@ internal static partial class Interop
         Native.PreferenceUpdated += NativeOnPreferenceUpdated;
         Native.CommandInvoked += OnCommandInvoked;
         Native.WindowOpened += OnBuiltInWindowOpened;
+        Native.WebSocketMessageReceived += OnWebSocketMessageReceived;
+        Native.OnWebSocketClosed += OnWebSocketClosed;
     }
 
     public static void UpdateUserPreference<T>(string name, T value)

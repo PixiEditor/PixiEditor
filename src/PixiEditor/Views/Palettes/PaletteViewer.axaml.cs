@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
@@ -121,7 +122,6 @@ internal partial class PaletteViewer : UserControl
     }
     
     public ICommand DropColorCommand { get; set; }
-
 
     public PaletteViewer()
     {
