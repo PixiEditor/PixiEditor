@@ -64,7 +64,6 @@ internal class TextSerializationFactory : VectorShapeSerializationFactory<TextVe
         bool italic = extractor.GetBool();
 
         double maxWidth = extractor.GetDouble();
-        double spacing = extractor.GetDouble();
         bool hasPath = extractor.GetBool();
         VectorPath path = null;
         if (hasPath)
@@ -102,7 +101,6 @@ internal class TextSerializationFactory : VectorShapeSerializationFactory<TextVe
             StrokeWidth = strokeWidth,
             Position = position,
             MaxWidth = maxWidth,
-            Spacing = spacing,
             Path = path,
             MissingFontText = new LocalizedString("MISSING_FONT"),
             AntiAlias = antiAlias,

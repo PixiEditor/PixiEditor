@@ -30,15 +30,6 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
 
     public double MaxWidth { get; set; } = double.MaxValue;
 
-    public double? Spacing
-    {
-        get => spacing;
-        set
-        {
-            spacing = value;
-        }
-    }
-
     public bool AntiAlias { get; set; } = true;
 
     public override RectD GeometryAABB
@@ -158,7 +149,6 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
         HashCode hash = new();
         hash.Add(Text);
         hash.Add(Position);
-        hash.Add(Spacing);
         hash.Add(AntiAlias);
         hash.Add(MissingFontText);
         hash.Add(MaxWidth);
@@ -190,7 +180,6 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
         return base.Equals(other) && Position.Equals(other.Position) && MaxWidth.Equals(other.MaxWidth) &&
                AntiAlias == other.AntiAlias &&
                MissingFontText == other.MissingFontText
-               && Spacing.Equals(other.Spacing)
                && Text.Equals(other.Text) &&
                Path == other.Path && PathOffset.Equals(other.PathOffset);
     }
@@ -218,6 +207,6 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
     public override int GetHashCode()
     {
         return HashCode.Combine(base.GetHashCode(), Position, MaxWidth, AntiAlias, MissingFontText,
-            HashCode.Combine(Text, Spacing, Path, PathOffset));
+            HashCode.Combine(Text, Path, PathOffset));
     }
 }

@@ -805,7 +805,7 @@ internal class TextOverlay : Overlay
 
             VecF position = glyphPositions[Math.Min(lastXMovementCursorIndex, glyphPositions.Length - 1)];
             (int lineStart, int lineEnd) = richText.GetLineStartEnd(clampedDesiredLineIndex);
-            VecF[] lineGlyphPositions = glyphPositions[lineStart..(lineEnd + 1)];
+            VecF[] lineGlyphPositions = glyphPositions[lineStart..(lineEnd - 1)];
             int closestIndex = lineGlyphPositions.Select((pos, i) => (i, pos))
                 .OrderBy(pos => Math.Abs(pos.pos.X - position.X)).First().i;
             moveBy = richText.GetIndexOnLine(clampedDesiredLineIndex, closestIndex) - CursorPosition;
@@ -835,7 +835,6 @@ internal class TextOverlay : Overlay
             return;
         }
 
-        richText.Spacing = Spacing;
         glyphPositions = richText.GetGlyphPositions(true);
     }
 

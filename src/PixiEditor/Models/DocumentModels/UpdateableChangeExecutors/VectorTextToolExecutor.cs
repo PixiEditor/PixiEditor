@@ -1,4 +1,5 @@
 ﻿using Avalonia.Media;
+using Avalonia.Threading;
 using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Text;
@@ -28,15 +29,22 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
     private IStructureMemberHandler selectedMember;
 
     private RichText lastText;
+    private string lastRawText;
     private VecD position;
     private Matrix3X3 lastMatrix = Matrix3X3.Identity;
     private bool isListeningForValidLayer;
     private VectorPath? onPath;
 
+    private IDisposable? pendingMergeTimer;
+
     private List<TextInline> inlinesInRange = new();
 
     private VecD clickPos;
     private bool wasDrawingSize;
+
+    private bool suppressSettingChanged;
+
+    private bool isActive = true;
 
     public override bool BlocksOtherActions => false;
 
@@ -82,15 +90,13 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
             onPath = textData.Path;
             lastText = textData.Text.Clone();
+            lastRawText = textData.Text.RawText;
             position = textData.Position;
             lastMatrix = textData.TransformationMatrix;
         }
         else if (shape is null)
         {
-            RichText newEmpty = new RichText(null, toolbar.ConstructFont())
-            {
-                Spacing = 12,
-            };
+            RichText newEmpty = new RichText(null, toolbar.ConstructFont());
 
             newEmpty.Inlines[0].Fill = toolbar.Fill;
             newEmpty.Inlines[0].FillPaintable = toolbar.FillBrush.ToPaintable();
@@ -103,6 +109,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             clickPos = controller.LastPrecisePosition;
 
             lastText = newEmpty.Clone();
+            lastRawText = newEmpty.RawText;
             // TODO: Implement proper putting on path editing
             /*if (controller.LeftMousePressed)
             {
@@ -236,6 +243,8 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
     public override void ForceStop()
     {
+        isActive = false;
+        pendingMergeTimer?.Dispose();
         internals.ActionAccumulator.AddFinishedActions(new EndSetShapeGeometry_Action());
         document?.TextOverlayHandler?.Hide();
 
@@ -250,7 +259,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
     public void OnTextChanged(RichText text)
     {
-        if (text == lastText)
+        if (lastRawText == text?.RawText)
         {
             return;
         }
@@ -261,15 +270,23 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             new EndSetShapeGeometry_Action(),
             new SetLowDpiRendering_Action(selectedMember.Id, toolbar.ForceLowDpiRendering));
         lastText = text;
+        lastRawText = text?.RawText;
+        pendingMergeTimer?.Dispose();
     }
 
     public void OnSelectionChanged(int cursorPosition, int selectionEnd)
     {
         inlinesInRange = GetEditingInlines(lastText);
+        suppressSettingChanged = true;
+        UpdateInlineSettings();
+        suppressSettingChanged = false;
     }
 
     public override void OnSettingsChanged(string name, object value)
     {
+        if (suppressSettingChanged)
+            return;
+
         if (!document.TextOverlayHandler.IsActive)
             return;
 
@@ -283,7 +300,8 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
         if (cursor == selectionEnd)
         {
-            ApplySettingToAllInlines(text, name, value);
+            var inlines = GetEditingInlines(text);
+            ApplySettingToInlines(text, inlines, name, value);
         }
         else
         {
@@ -302,6 +320,22 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             _ => VectorShapeChangeType.OtherVisuals
         };
 
+        UpdateTextData(text, changeType);
+        pendingMergeTimer?.Dispose();
+        pendingMergeTimer = DispatcherTimer.RunOnce(() =>
+        {
+            if (!isActive) return;
+
+            MergeAllAdjacentInlines(lastText);
+            UpdateTextData(lastText, VectorShapeChangeType.GeometryData);
+
+        }, TimeSpan.FromSeconds(0.5f));
+    }
+
+    private void UpdateTextData(RichText text, VectorShapeChangeType changeType)
+    {
+        if (!isActive) return;
+
         var constructedText = ConstructTextData(text);
 
         internals.ActionAccumulator.AddActions(
@@ -315,20 +349,20 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
         document.TextOverlayHandler.Text = text;
         lastText = text;
+        lastRawText = text?.RawText;
     }
 
-    private void ApplySettingToAllInlines(RichText text, string name, object value)
+    private void ApplySettingToInlines(RichText text, List<TextInline> inlines, string name, object value)
     {
-        for (int i = 0; i < text.Inlines.Count; i++)
+        for (int i = 0; i < inlines.Count; i++)
         {
-            TextInline inline = text.Inlines[i];
+            TextInline inline = inlines[i];
 
             ApplySetting(inline, name, value);
 
-            text.UpdateInline(i, inline);
+            int index = text.IndexOfInline(inline);
+            text.UpdateInline(index, inline);
         }
-
-        MergeAllAdjacentInlines(text);
     }
 
     private void ApplySettingToSelection(
@@ -350,7 +384,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             int inlineStart = position;
             int inlineEnd = position + inline.Text.Length;
 
-            if (inlineStart < selectionFinish && inlineEnd > selectionStart)
+            if (inlineStart < selectionFinish && inlineEnd >= selectionStart)
             {
                 int localStart = Math.Max(selectionStart, inlineStart) - inlineStart;
                 int localEnd = Math.Min(selectionFinish, inlineEnd) - inlineStart;
@@ -376,25 +410,17 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
             position = inlineEnd;
         }
-
-        MergeAllAdjacentInlines(text);
     }
 
     private static void ApplySetting(TextInline inline, string name, object value)
     {
         if (name == nameof(ITextToolbar.FontFamily))
         {
-            inline.Font = inline.Font with
-            {
-                Family = (FontFamilyName)value
-            };
+            inline.Font = inline.Font with { Family = (FontFamilyName)value };
         }
         else if (name == nameof(ITextToolbar.FontSize))
         {
-            inline.Font = inline.Font with
-            {
-                Size = (double)value
-            };
+            inline.Font = inline.Font with { Size = (double)value };
         }
         else if (name == nameof(ITextToolbar.Fill))
         {
@@ -418,17 +444,11 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         }
         else if (name == nameof(ITextToolbar.Bold))
         {
-            inline.Font = inline.Font with
-            {
-                Bold = (bool)value
-            };
+            inline.Font = inline.Font with { Bold = (bool)value };
         }
         else if (name == nameof(ITextToolbar.Italic))
         {
-            inline.Font = inline.Font with
-            {
-                Italic = (bool)value
-            };
+            inline.Font = inline.Font with { Italic = (bool)value };
         }
     }
 
@@ -501,7 +521,6 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             StrokeWidth = (float)toolbar.ToolSize, // TODO per inline
             Stroke = toolbar.StrokeBrush.ToPaintable(), // TODO per inline
             TransformationMatrix = lastMatrix,
-            Spacing = toolbar.Spacing,
             AntiAlias = toolbar.AntiAliasing,
             Path = onPath,
             // TODO: MaxWidth = toolbar.MaxWidth
