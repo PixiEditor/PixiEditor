@@ -805,7 +805,9 @@ internal class TextOverlay : Overlay
 
             VecF position = glyphPositions[Math.Min(lastXMovementCursorIndex, glyphPositions.Length - 1)];
             (int lineStart, int lineEnd) = richText.GetLineStartEnd(clampedDesiredLineIndex);
-            VecF[] lineGlyphPositions = glyphPositions[lineStart..(lineEnd - 1)];
+            Range lineRange = lineStart..(lineEnd + 1);
+            ClampLineRange(ref lineRange, glyphPositions.Length);
+            VecF[] lineGlyphPositions = glyphPositions[lineRange];
             int closestIndex = lineGlyphPositions.Select((pos, i) => (i, pos))
                 .OrderBy(pos => Math.Abs(pos.pos.X - position.X)).First().i;
             moveBy = richText.GetIndexOnLine(clampedDesiredLineIndex, closestIndex) - CursorPosition;
@@ -816,6 +818,17 @@ internal class TextOverlay : Overlay
         {
             SelectionEnd = CursorPosition;
         }
+    }
+
+    private void ClampLineRange(ref Range lineRange, int glyphPositionsLength)
+    {
+        lineRange = new Range(
+            Math.Clamp(lineRange.Start.Value, 0, glyphPositionsLength),
+            Math.Clamp(lineRange.End.Value, 0, glyphPositionsLength));
+
+        lineRange = new Range(
+            lineRange.Start.Value,
+            Math.Max(lineRange.End.Value, lineRange.Start.Value + 1));
     }
 
     private void RequestEditTextTriggered(object? sender, RichText e)

@@ -221,8 +221,8 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             position = new VecD(position.X, args.Point.PositionOnCanvas.Y);
             document.TextOverlayHandler.Position = position;
             document.TextOverlayHandler.PreviewSize = true;
+            lastText.Inlines[0].Font = lastText.Inlines[0].Font with { Size = distance * RichText.PtToPx };
             var textData = ConstructTextData(lastText);
-            toolbar.FontSize = distance * RichText.PtToPx;
             internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(selectedMember.Id, textData,
                 VectorShapeChangeType.GeometryData));
         }
