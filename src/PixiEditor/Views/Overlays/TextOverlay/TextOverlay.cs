@@ -314,10 +314,9 @@ internal class TextOverlay : Overlay
                 continue;
 
             double lineHeight = richText.GetLineHeight(line);
-            VecD lineOffset = richText.GetLineOffset(line);
 
             RectD selectionBounds = new RectD(
-                    new VecD(start.X, -lineHeight + lineOffset.Y),
+                    new VecD(start.X, start.Y - lineHeight),
                     new VecD(width, lineHeight * 1.25))
                 .Offset(Position);
 
@@ -485,9 +484,8 @@ internal class TextOverlay : Overlay
         VecD mapped = Matrix.Invert().MapPoint(point);
 
         var positions = richText.GetGlyphPositions(true);
-        double fontSize = inlineAtCursor?.Font.Size ?? 0;
         int indexOfClosest = positions.Select((pos, index) => (pos, index))
-            .OrderBy(pos => ((pos.pos + Position - new VecD(0, fontSize / 2f)) - mapped).LengthSquared)
+            .OrderBy(pos => ((pos.pos + Position) - mapped).LengthSquared)
             .First().index;
         return indexOfClosest;
     }
@@ -958,7 +956,7 @@ internal class TextOverlay : Overlay
 
         if (textOverlay.glyphPositions == null) return 0;
 
-        return Math.Clamp(newPos, 0, Math.Max(0, textOverlay.GetTextElementCount() + 1));
+        return Math.Clamp(newPos, 0, Math.Max(0, textOverlay.GetTextElementCount()));
     }
 }
 
