@@ -46,6 +46,11 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
     private bool isActive = true;
 
+    private static readonly HashSet<string> SettingsWorkingOnFullLines = new()
+    {
+        nameof(ITextToolbar.Alignment)
+    };
+
     public override bool BlocksOtherActions => false;
 
     public override ExecutorType Type => ExecutorType.ToolLinked;
@@ -168,6 +173,9 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
         if (inlines.All(x => Math.Abs(x.StrokeWidth - first.StrokeWidth) < float.Epsilon))
             toolbar.ToolSize = first.StrokeWidth;
+
+        if(inlines.All(x => x.Alignment == first.Alignment))
+            toolbar.Alignment = first.Alignment;
     }
 
     private List<TextInline> GetEditingInlines(RichText text)
@@ -222,6 +230,8 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             document.TextOverlayHandler.Position = position;
             document.TextOverlayHandler.PreviewSize = true;
             lastText.Inlines[0].Font = lastText.Inlines[0].Font with { Size = distance * RichText.PtToPx };
+            lastText.Inlines[0].LineHeight = (float)(distance * RichText.PtToPx);
+            document.TextOverlayHandler.Text = lastText;
             var textData = ConstructTextData(lastText);
             internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(selectedMember.Id, textData,
                 VectorShapeChangeType.GeometryData));
@@ -298,7 +308,17 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         int cursor = document.TextOverlayHandler.CursorPosition;
         int selectionEnd = document.TextOverlayHandler.SelectionEnd;
 
-        if (cursor == selectionEnd)
+        if (NeedToUpdateWholeLine(name))
+        {
+            text.IndexOnLine(cursor, out var lineStart, false);
+            text.IndexOnLine(selectionEnd, out var lineEnd, false);
+            var (lineStartIndex, lineEndIndex) = text.GetLineStartEnd(Math.Min(lineStart, lineEnd));
+            var (lineStartIndex2, lineEndIndex2) = text.GetLineStartEnd(Math.Max(lineStart, lineEnd));
+            int from = Math.Min(lineStartIndex, lineStartIndex2);
+            int to = Math.Max(lineEndIndex, lineEndIndex2);
+            ApplySettingToSelection(text, name, value, from, to);
+        }
+        else if (cursor == selectionEnd)
         {
             var inlines = GetEditingInlines(text);
             ApplySettingToInlines(text, inlines, name, value);
@@ -332,6 +352,11 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         }, TimeSpan.FromSeconds(0.5f));
     }
 
+    private bool NeedToUpdateWholeLine(string name)
+    {
+        return SettingsWorkingOnFullLines.Contains(name);
+    }
+
     private void UpdateTextData(RichText text, VectorShapeChangeType changeType)
     {
         if (!isActive) return;
@@ -339,13 +364,8 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         var constructedText = ConstructTextData(text);
 
         internals.ActionAccumulator.AddActions(
-            new SetShapeGeometry_Action(
-                selectedMember.Id,
-                constructedText,
-                changeType),
-            new SetLowDpiRendering_Action(
-                selectedMember.Id,
-                toolbar.ForceLowDpiRendering));
+            new SetShapeGeometry_Action(selectedMember.Id, constructedText, changeType),
+            new SetLowDpiRendering_Action(selectedMember.Id, toolbar.ForceLowDpiRendering));
 
         document.TextOverlayHandler.Text = text;
         lastText = text;
@@ -365,12 +385,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         }
     }
 
-    private void ApplySettingToSelection(
-        RichText text,
-        string name,
-        object value,
-        int cursor,
-        int selectionEnd)
+    private void ApplySettingToSelection(RichText text, string name, object value, int cursor, int selectionEnd)
     {
         int selectionStart = Math.Min(cursor, selectionEnd);
         int selectionFinish = Math.Max(cursor, selectionEnd);
@@ -396,10 +411,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
                 }
                 else
                 {
-                    TextInline selectedInline = text.SplitInline(
-                        i,
-                        inlineStart + localStart,
-                        inlineStart + localEnd);
+                    TextInline selectedInline = text.SplitInline(i, inlineStart + localStart, inlineStart + localEnd);
 
                     ApplySetting(selectedInline, name, value);
 
@@ -449,6 +461,10 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         else if (name == nameof(ITextToolbar.Italic))
         {
             inline.Font = inline.Font with { Italic = (bool)value };
+        }
+        else if (name == nameof(ITextToolbar.Alignment))
+        {
+            inline.Alignment = (TextAlign)value;
         }
     }
 

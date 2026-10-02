@@ -455,7 +455,7 @@ internal class TextOverlay : Overlay
         }
 
         CursorPosition = start;
-        SelectionEnd = end + 1;
+        SelectionEnd = end;
     }
 
     private void CopyText(bool asUnicode = false)

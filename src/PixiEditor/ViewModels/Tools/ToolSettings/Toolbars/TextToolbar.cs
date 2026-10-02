@@ -1,5 +1,6 @@
 ﻿using Drawie.Backend.Core.Text;
 using PixiEditor.ChangeableDocument.Changeables;
+using PixiEditor.Helpers.Decorators;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.UI.Common.Localization;
@@ -65,6 +66,18 @@ internal class TextToolbar : FillableShapeToolbar, ITextToolbar
         set
         {
             GetSetting<SizeSettingViewModel>(nameof(Spacing)).Value = value;
+        }
+    }
+
+    public TextAlign Alignment
+    {
+        get
+        {
+            return (TextAlign)GetSetting<EnumSettingViewModel<Align>>(nameof(Alignment)).Value;
+        }
+        set
+        {
+            GetSetting<EnumSettingViewModel<Align>>(nameof(Alignment)).Value = (Align)value;
         }
     }
     
@@ -141,6 +154,11 @@ internal class TextToolbar : FillableShapeToolbar, ITextToolbar
             Icon = PixiPerfectIcons.Italic, Tooltip = "ITALIC_TOOLTIP"
         });
 
+        AddSetting(new EnumSettingViewModel<Align>(nameof(Alignment), "")
+        {
+            Tooltip = "TEXT_ALIGN_TOOLTIP", PickerType = EnumSettingPickerType.IconButtons
+        });
+
         AddSetting(new BoolSettingViewModel(nameof(ForceLowDpiRendering), "__force_low_dpi_rendering")
         {
             IsExposed = false, Value = false
@@ -162,4 +180,14 @@ internal class TextToolbar : FillableShapeToolbar, ITextToolbar
 
         return font;
     }
+}
+
+enum Align
+{
+    [IconName(PixiPerfectIcons.AlignLeft)]
+    Left,
+    [IconName(PixiPerfectIcons.AlignStretch)]
+    Center,
+    [IconName(PixiPerfectIcons.AlignRight)]
+    Right
 }

@@ -11,6 +11,7 @@ internal interface ITextToolbar : IFillableShapeToolbar
     public bool ForceLowDpiRendering { get; set; }
     public bool Bold { get; set; }
     public bool Italic { get; set; }
+    public TextAlign Alignment { get; set; }
 
     public FontData ConstructFont();
 }
