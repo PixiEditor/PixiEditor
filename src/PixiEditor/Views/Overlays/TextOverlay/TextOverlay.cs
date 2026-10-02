@@ -283,9 +283,9 @@ internal class TextOverlay : Overlay
         int begin = Math.Min(CursorPosition, SelectionEnd);
         int end = Math.Max(CursorPosition, SelectionEnd);
 
-        VecF[] positions = glyphPositions;
+        VecF[] positions = richText.GetGlyphPositions(true);
 
-        if (positions.Length == 0)
+        if (positions.Length < 2)
             return;
 
         int saved = context.SaveLayer(opacityPaint);
@@ -318,7 +318,7 @@ internal class TextOverlay : Overlay
 
             RectD selectionBounds = new RectD(
                     new VecD(start.X, -lineHeight + lineOffset.Y),
-                    new VecD(width, lineHeight * 1.25f))
+                    new VecD(width, lineHeight * 1.25))
                 .Offset(Position);
 
             currentLineBounds = currentLineBounds == null
@@ -441,27 +441,22 @@ internal class TextOverlay : Overlay
 
     private void SelectWordAtPosition(VecD point)
     {
-        // TODO: Test once multiple inlines editing is implemented
-        /*var indexOfClosest = GetClosestCharacterIndex(point);
+        var indexOfClosest = GetClosestCharacterIndex(point);
         int start = indexOfClosest;
         int end = indexOfClosest;
 
-        var currentInline = Text.GetInlineAt(indexOfClosest, out int inlineStartOffset, out int inlineEndOffset);
-        while (start > 0 && !char.IsWhiteSpace(currentInline.Text[start - 1 - inlineStartOffset]))
+        while (start > 0 && !char.IsWhiteSpace(richText.RawText[start - 1]))
         {
             start--;
-            currentInline = Text.GetInlineAt(start, out inlineStartOffset, out inlineEndOffset);
         }
 
-        currentInline = Text.GetInlineAt(indexOfClosest, out inlineStartOffset, out inlineEndOffset);
-        while (end < currentInline.Text.Length - 1 && !char.IsWhiteSpace(currentInline.Text[end + 1 - inlineStartOffset]))
+        while (end < richText.RawText.Length && !char.IsWhiteSpace(richText.RawText[end]))
         {
             end++;
-            currentInline = Text.GetInlineAt(end, out inlineStartOffset, out inlineEndOffset);
         }
 
         CursorPosition = start;
-        SelectionEnd = end + 1;*/
+        SelectionEnd = end + 1;
     }
 
     private void CopyText(bool asUnicode = false)
