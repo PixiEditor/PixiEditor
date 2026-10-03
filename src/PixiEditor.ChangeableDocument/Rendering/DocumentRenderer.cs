@@ -12,6 +12,7 @@ using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Text;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
+using PixiEditor.GraphNavigation;
 
 namespace PixiEditor.ChangeableDocument.Rendering;
 
