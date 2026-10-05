@@ -86,8 +86,11 @@ internal class TextSerializationFactory : VectorShapeSerializationFactory<TextVe
             FontLibrary.TryAddCustomFont(family);
         }
 
+       // TODO:
+        /*
         font.Bold = bold;
-        font.Italic = italic;
+        font.Slant = italic;
+        */
         font.Edging = antiAlias ? FontEdging.AntiAlias : FontEdging.Alias;
         font.SubPixel = antiAlias;
         font.Size = fontSize;

@@ -580,8 +580,8 @@ internal class SvgDocumentBuilder : IDocumentBuilder
             : FontData.CreateDefault();
 
         font.Size = styleContext.FontSize.Unit?.ToPixels(viewBox) ?? 12;
-        font.Bold = styleContext.FontWeight.Unit?.Value == SvgFontWeight.Bold;
-        font.Italic = styleContext.FontStyle.Unit?.Value == SvgFontStyle.Italic;
+        font.Weight = (FontStyleWeight)(styleContext.FontWeight.Unit?.Value ?? SvgFontWeight.Normal);
+        font.Slant = (FontStyleSlant)(styleContext.FontStyle.Unit?.Value ?? SvgFontStyle.Normal);
 
         VecD position = new(
             element.X.Unit?.ToPixels(viewBox) ?? 0,

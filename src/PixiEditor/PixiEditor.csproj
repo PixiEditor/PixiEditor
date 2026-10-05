@@ -162,6 +162,16 @@
       <DependentUpon>InputDialog.axaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Views\Tools\ToolSettings\Settings\ListSettingView.axaml.cs">
+      <DependentUpon>ListSettingView.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Avalonia.Controls">
+      <HintPath>..\..\..\..\.nuget\packages\avalonia\12.1.1-cibuild0004449-alpha\lib\net8.0\Avalonia.Controls.dll</HintPath>
+    </Reference>
   </ItemGroup>
   
 </Project>

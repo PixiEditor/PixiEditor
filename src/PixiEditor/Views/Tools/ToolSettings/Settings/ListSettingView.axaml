@@ -1,0 +1,95 @@
+﻿<controls1:UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:settings="clr-namespace:PixiEditor.ViewModels.Tools.ToolSettings.Settings"
+             xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
+             xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
+             xmlns:system="clr-namespace:System;assembly=System.Runtime"
+             xmlns:controls1="clr-namespace:Avalonia.Controls;assembly=Avalonia.Controls"
+             mc:Ignorable="d"
+             d:DesignWidth="800"
+             d:DesignHeight="450"
+             x:CompileBindings="False"
+             x:Class="PixiEditor.Views.Tools.ToolSettings.Settings.ListSettingView"
+             Name="uc">
+
+    <Design.DataContext>
+        <settings:ListSettingViewModel x:TypeArguments="x:String" />
+    </Design.DataContext>
+
+    <UserControl.Resources>
+        <converters:DisplayNameConverter x:Key="LocalizationConverter" Formatter="{Binding TextFormatter}"/>
+    </UserControl.Resources>
+
+    <Panel>
+        <ComboBox VerticalAlignment="Center"
+                  MinWidth="85"
+                  IsVisible="{Binding !PickerIsIconButtons}"
+                  SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}"
+                  ItemsSource="{Binding Values}">
+            <ComboBox.ItemContainerTheme>
+                <ControlTheme TargetType="ComboBoxItem" BasedOn="{StaticResource {x:Type ComboBoxItem}}">
+                    <Setter Property="Tag" Value="{Binding .}" />
+                </ControlTheme>
+            </ComboBox.ItemContainerTheme>
+
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding ., Converter={StaticResource LocalizationConverter}}" />
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+
+        <Border IsVisible="{Binding PickerIsIconButtons}"
+                Background="{DynamicResource ThemeControlLowBrush}"
+                CornerRadius="4">
+
+            <ItemsControl Name="iconButtonsPicker"
+                          ItemsSource="{Binding Values}"
+                          HorizontalAlignment="Center">
+
+                <ItemsControl.Styles>
+                    <Style Selector="ToggleButton">
+                        <Setter Property="CornerRadius" Value="0" />
+                        <Setter Property="BorderThickness" Value="0, 0" />
+                        <Setter Property="Background" Value="Transparent" />
+                    </Style>
+
+                    <Style Selector="ToggleButton:unchecked">
+                        <Setter Property="Background" Value="Transparent" />
+                    </Style>
+
+                    <Style Selector="ToggleButton:checked">
+                        <Setter Property="CornerRadius"
+                                Value="{DynamicResource ControlCornerRadius}" />
+                        <Setter Property="Background" Value="Transparent" />
+                    </Style>
+                </ItemsControl.Styles>
+
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <controls:SelectableStrip />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <ToggleButton Padding="4"
+                                      controls:SelectableStrip.IsStripSelected="{Binding RelativeSource={RelativeSource Self}, Path=IsChecked}"
+                                      behaviours:ToggleGroupBehavior.GroupName="PickerMode"
+                                      behaviours:ToggleGroupBehavior.Value="{Binding .}"
+                                      behaviours:ToggleGroupBehavior.SelectedValue="{Binding DataContext.Value,
+                                      RelativeSource={RelativeSource AncestorType=UserControl},
+                                      Mode=TwoWay}">
+
+                            <ContentControl Content="{Binding .}" />
+                        </ToggleButton>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Border>
+    </Panel>
+</controls1:UserControl>

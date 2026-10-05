@@ -10,6 +10,7 @@ using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.ChangeableDocument.Changes.Vectors;
 using PixiEditor.Helpers.Extensions;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.Models.Handlers;
@@ -18,6 +19,7 @@ using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using Color = Drawie.Backend.Core.ColorsImpl.Color;
 using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
+using FontStyle = Drawie.Backend.Core.Text.FontStyle;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
@@ -46,10 +48,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
     private bool isActive = true;
 
-    private static readonly HashSet<string> SettingsWorkingOnFullLines = new()
-    {
-        nameof(ITextToolbar.Alignment)
-    };
+    private static readonly HashSet<string> SettingsWorkingOnFullLines = new() { nameof(ITextToolbar.Alignment) };
 
     public override bool BlocksOtherActions => false;
 
@@ -156,11 +155,11 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         if (inlines.All(x => Math.Abs(x.LineHeight - first.LineHeight) < float.Epsilon))
             toolbar.Spacing = first.LineHeight;
 
-        if (inlines.All(x => x.Font.Bold == first.Font.Bold))
-            toolbar.Bold = first.Font.Bold;
+        if (inlines.All(x => x.Font.Weight == first.Font.Weight && x.Font.Slant == first.Font.Slant && x.Font.Width == first.Font.Width))
+            toolbar.FontStyle = new FontStyle(first.Font.Weight, first.Font.Slant, first.Font.Width);
 
-        if (inlines.All(x => x.Font.Italic == first.Font.Italic))
-            toolbar.Italic = first.Font.Italic;
+        if (inlines.All(x => x.Font.Slant == first.Font.Slant))
+            toolbar.Italic = first.Font.Slant != FontStyleSlant.Upright;
 
         if (inlines.All(x => x.Fill == first.Fill))
             toolbar.Fill = first.Fill;
@@ -174,7 +173,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         if (inlines.All(x => Math.Abs(x.StrokeWidth - first.StrokeWidth) < float.Epsilon))
             toolbar.ToolSize = first.StrokeWidth;
 
-        if(inlines.All(x => x.Alignment == first.Alignment))
+        if (inlines.All(x => x.Alignment == first.Alignment))
             toolbar.Alignment = first.Alignment;
     }
 
@@ -303,6 +302,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         if (isListeningForValidLayer)
             return;
 
+        suppressSettingChanged = true;
         var text = lastText.Clone();
 
         int cursor = document.TextOverlayHandler.CursorPosition;
@@ -348,8 +348,9 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
             MergeAllAdjacentInlines(lastText);
             UpdateTextData(lastText, VectorShapeChangeType.GeometryData);
-
         }, TimeSpan.FromSeconds(0.5f));
+
+        suppressSettingChanged = false;
     }
 
     private bool NeedToUpdateWholeLine(string name)
@@ -424,11 +425,25 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         }
     }
 
-    private static void ApplySetting(TextInline inline, string name, object value)
+    private void ApplySetting(TextInline inline, string name, object value)
     {
         if (name == nameof(ITextToolbar.FontFamily))
         {
             inline.Font = inline.Font with { Family = (FontFamilyName)value };
+            toolbar.UpdateFontStyles();
+            FontStyle closestMatchingStyle = FontLibrary.GetClosestMatchingFontStyle(inline.Font.Family.Name, inline.Font.Weight, inline.Font.Slant, inline.Font.Width);
+            inline.Font = inline.Font with { Weight = closestMatchingStyle.Weight, Slant = closestMatchingStyle.Slant, Width = closestMatchingStyle.Width };
+            toolbar.FontStyle = closestMatchingStyle;
+        }
+        else if (name == nameof(ITextToolbar.FontStyle))
+        {
+            var style = (FontStyle)value;
+            inline.Font = inline.Font with { Weight = style.Weight, Slant = style.Slant, Width = style.Width };
+            bool isBold = inline.Font.Weight >= FontStyleWeight.Bold;
+            bool isItalic = inline.Font.Slant != FontStyleSlant.Upright;
+
+            toolbar.Italic = isItalic;
+            toolbar.Bold = isBold;
         }
         else if (name == nameof(ITextToolbar.FontSize))
         {
@@ -456,11 +471,49 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         }
         else if (name == nameof(ITextToolbar.Bold))
         {
-            inline.Font = inline.Font with { Bold = (bool)value };
+            bool bold = (bool)value;
+            FontStyleWeight newWeight = FontStyleWeight.Normal;
+            if (inline.Font.Family.FontUri != null)
+            {
+                newWeight = bold ? FontStyleWeight.Bold : FontStyleWeight.Normal;
+            }
+            else
+            {
+                var nearestAvailableWeight = FontLibrary.GetAvailableFontStyles(inline.Font.Family.Name)
+                    .Where(style => bold ? style.Weight >= FontStyleWeight.Bold : style.Weight < FontStyleWeight.Bold)
+                    .OrderBy(style => style.Weight)
+                    .FirstOrDefault();
+                if (nearestAvailableWeight != null)
+                {
+                    newWeight = nearestAvailableWeight.Weight;
+                }
+            }
+
+            inline.Font = inline.Font with { Weight = newWeight };
+            toolbar.FontStyle = new FontStyle(inline.Font.Weight, inline.Font.Slant, inline.Font.Width);
         }
         else if (name == nameof(ITextToolbar.Italic))
         {
-            inline.Font = inline.Font with { Italic = (bool)value };
+            bool italic = (bool)value;
+            FontStyleSlant newSlant = italic ? FontStyleSlant.Italic : FontStyleSlant.Upright;
+            if (inline.Font.Family.FontUri != null)
+            {
+                newSlant = italic ? FontStyleSlant.Italic : FontStyleSlant.Upright;
+            }
+            else
+            {
+                var nearestAvailableSlant = FontLibrary.GetAvailableFontStyles(inline.Font.Family.Name)
+                    .Where(style => italic ? style.Slant >= FontStyleSlant.Italic : style.Slant == FontStyleSlant.Upright && style.Weight == inline.Font.Weight && style.Width == inline.Font.Width)
+                    .OrderBy(style => style.Slant)
+                    .FirstOrDefault();
+                if (nearestAvailableSlant != null)
+                {
+                    newSlant = nearestAvailableSlant.Slant;
+                }
+            }
+
+            inline.Font = inline.Font with { Slant = newSlant };
+            toolbar.FontStyle = new FontStyle(inline.Font.Weight, inline.Font.Slant, inline.Font.Width);
         }
         else if (name == nameof(ITextToolbar.Alignment))
         {

@@ -438,8 +438,8 @@ internal partial class DocumentViewModel
         text.Y.Unit = SvgNumericUnit.FromUserUnits(textData.Position.Y);
         text.FontSize.Unit = SvgNumericUnit.FromUserUnits(font.Size);
         text.FontFamily.Unit = new SvgStringUnit(font.Family.Name);
-        text.FontWeight.Unit = new SvgEnumUnit<SvgFontWeight>(font.Bold ? SvgFontWeight.Bold : SvgFontWeight.Normal);
-        text.FontStyle.Unit = new SvgEnumUnit<SvgFontStyle>(font.Italic ? SvgFontStyle.Italic : SvgFontStyle.Normal);
+        text.FontWeight.Unit = new SvgEnumUnit<SvgFontWeight>((SvgFontWeight)font.Weight);
+        text.FontStyle.Unit = new SvgEnumUnit<SvgFontStyle>((SvgFontStyle)font.Slant);
         text.Stroke.Unit = new SvgPaintServerUnit(textData.Stroke);
         text.StrokeWidth.Unit = SvgNumericUnit.FromUserUnits(textData.StrokeWidth);
         text.Fill.Unit =
