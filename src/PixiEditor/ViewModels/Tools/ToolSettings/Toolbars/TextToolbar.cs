@@ -215,8 +215,8 @@ internal class TextToolbar : FillableShapeToolbar, ITextToolbar
 
         font.Size = (float)FontSize;
         font.Edging = AntiAliasing ? FontEdging.AntiAlias : FontEdging.Alias;
-        font.Weight = FontStyle.Weight;
-        font.Slant = FontStyle.Slant;
+        font.Weight = FontStyle?.Weight ?? FontStyleWeight.Normal;
+        font.Slant = FontStyle?.Slant ?? FontStyleSlant.Upright;
 
         return font;
     }

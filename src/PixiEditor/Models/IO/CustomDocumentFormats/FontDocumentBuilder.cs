@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Text;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables;
@@ -53,7 +54,11 @@ internal class FontDocumentBuilder : IDocumentBuilder
             }
         }
 
-        TextVectorData textData = new() { Text = new RichText(sb.ToString(), fontData), StrokeWidth = 0 };
+        TextVectorData textData = new() { Text = new RichText(sb.ToString(), fontData),
+            StrokeWidth = 0,
+            Fill = true,
+            FillPaintable = Colors.Black,
+        };
         RectD bounds = textData.GeometryAABB;
 
         const int padding = 1;

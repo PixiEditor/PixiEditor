@@ -432,7 +432,20 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             inline.Font = inline.Font with { Family = (FontFamilyName)value };
             toolbar.UpdateFontStyles();
             FontStyle closestMatchingStyle = FontLibrary.GetClosestMatchingFontStyle(inline.Font.Family.Name, inline.Font.Weight, inline.Font.Slant, inline.Font.Width);
-            inline.Font = inline.Font with { Weight = closestMatchingStyle.Weight, Slant = closestMatchingStyle.Slant, Width = closestMatchingStyle.Width };
+            if (closestMatchingStyle != null)
+            {
+                inline.Font = inline.Font with
+                {
+                    Weight = closestMatchingStyle.Weight,
+                    Slant = closestMatchingStyle.Slant,
+                    Width = closestMatchingStyle.Width
+                };
+            }
+            else
+            {
+                closestMatchingStyle = FontStyle.Normal;
+            }
+
             toolbar.FontStyle = closestMatchingStyle;
         }
         else if (name == nameof(ITextToolbar.FontStyle))
