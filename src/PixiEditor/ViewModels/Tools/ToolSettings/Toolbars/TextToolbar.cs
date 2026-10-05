@@ -138,7 +138,6 @@ internal class TextToolbar : FillableShapeToolbar, ITextToolbar
 
         FontFamily = FontLibrary.DefaultFontFamily;
 
-
         var styleSetting =
             new ListSettingViewModel<FontStyle>(nameof(FontStyle), "FONT_STYLE_LABEL",
                 new[] { Drawie.Backend.Core.Text.FontStyle.Normal })
@@ -148,6 +147,8 @@ internal class TextToolbar : FillableShapeToolbar, ITextToolbar
             };
 
         AddSetting(styleSetting);
+
+        UpdateFontStyles();
 
         var sizeSetting =
             new SizeSettingViewModel(nameof(FontSize), "FONT_SIZE_LABEL", unit: new LocalizedString("UNIT_PT"))
@@ -193,13 +194,28 @@ internal class TextToolbar : FillableShapeToolbar, ITextToolbar
         var localizedWeight =
             new LocalizedString(x.Weight.ToString().Replace(" ", "_").ToUpperInvariant() + "_FONT_STYLE_WEIGHT");
         var localizedSlant = new LocalizedString(x.Slant.ToString().Replace(" ", "_").ToUpperInvariant() + "_FONT_STYLE_SLANT");
+        var localizedWidth = new LocalizedString(x.Width.ToString().Replace(" ", "_").ToUpperInvariant() + "_FONT_STYLE_WIDTH");
 
         StringBuilder builder = new StringBuilder();
-        builder.Append(localizedWeight);
+        if (localizedWeight.Key == localizedWeight.Value)
+        {
+            builder.Append((int)x.Weight);
+        }
+        else
+        {
+            builder.Append(localizedWeight);
+        }
+
         if (x.Slant != FontStyleSlant.Upright)
         {
             builder.Append(' ');
             builder.Append(localizedSlant);
+        }
+
+        if (x.Width != FontStyleWidth.Normal)
+        {
+            builder.Append(' ');
+            builder.Append(localizedWidth);
         }
 
         return builder.ToString();

@@ -191,3 +191,13 @@ using DrawingBlendMode = Drawie.Backend.Core.Surfaces.BlendMode;
 [assembly: LocalizeEnum<FontStyleSlant>(FontStyleSlant.Upright, "UPRIGHT_FONT_STYLE_SLANT")]
 [assembly: LocalizeEnum<FontStyleSlant>(FontStyleSlant.Italic, "ITALIC_FONT_STYLE_SLANT")]
 [assembly: LocalizeEnum<FontStyleSlant>(FontStyleSlant.Oblique, "OBLIQUE_FONT_STYLE_SLANT")]
+
+[assembly: LocalizeEnum<FontStyleWidth>(FontStyleWidth.UltraCondensed, "ULTRACONDENSED_FONT_STYLE_WIDTH")]
+[assembly: LocalizeEnum<FontStyleWidth>(FontStyleWidth.ExtraCondensed, "EXTRACONDENSED_FONT_STYLE_WIDTH")]
+[assembly: LocalizeEnum<FontStyleWidth>(FontStyleWidth.Condensed, "CONDENSED_FONT_STYLE_WIDTH")]
+[assembly: LocalizeEnum<FontStyleWidth>(FontStyleWidth.SemiCondensed, "SEMICONDENSED_FONT_STYLE_WIDTH")]
+[assembly: LocalizeEnum<FontStyleWidth>(FontStyleWidth.Normal, "NORMAL_FONT_STYLE_WIDTH")]
+[assembly: LocalizeEnum<FontStyleWidth>(FontStyleWidth.SemiExpanded, "SEMIEXPANDED_FONT_STYLE_WIDTH")]
+[assembly: LocalizeEnum<FontStyleWidth>(FontStyleWidth.Expanded, "EXPANDED_FONT_STYLE_WIDTH")]
+[assembly: LocalizeEnum<FontStyleWidth>(FontStyleWidth.ExtraExpanded, "EXTRAEXPANDED_FONT_STYLE_WIDTH")]
+[assembly: LocalizeEnum<FontStyleWidth>(FontStyleWidth.UltraExpanded, "ULTRAEXPANDED_FONT_STYLE_WIDTH")]
