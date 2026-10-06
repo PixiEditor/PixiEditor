@@ -33,7 +33,7 @@ public class PopupWindow : IPopupWindow
     public AsyncCall<bool?> ShowDialog()
     {
         int asyncHandle = Native.show_window_async(windowHandle);
-        AsyncCall<bool?> showDialogTask = Native.CreateAsyncCall<bool?, int>(asyncHandle, ConvertWindowResult);
+        AsyncCall<bool?> showDialogTask = Native.CreateAsyncCall<bool?>(asyncHandle, ConvertWindowResult);
         return showDialogTask;
     }
 
@@ -61,9 +61,16 @@ public class PopupWindow : IPopupWindow
         set => Native.set_window_minimizable(windowHandle, value);
     }
     
-    private bool? ConvertWindowResult(int result)
+    private bool? ConvertWindowResult(byte[] result)
     {
-        if(result == -1) return null;
-        return result == 1;
+        int bytesInInt = sizeof(int);
+        if (result.Length != bytesInInt)        {
+            throw new InvalidOperationException($"Expected result length of {bytesInInt} bytes, but got {result.Length} bytes.");
+        }
+
+        int resultValue = BitConverter.ToInt32(result, 0);
+
+        if(resultValue == -1) return null;
+        return resultValue == 1;
     }
 }

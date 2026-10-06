@@ -67,8 +67,11 @@ internal class WindowingApi : ApiGroupHandler
     public int ShowWindowAsync(int handle)
     {
         var window = NativeObjectManager.GetObject<PopupWindow>(handle);
-        var showDialogTask = AsyncUtility.ToIntResultFrom(window.ShowDialog());
-        return AsyncHandleManager.AddAsyncCall(showDialogTask);
+        return AsyncHandleManager.AddAsyncCall(window.ShowDialog(), b =>
+        {
+            int intResult = !b.HasValue ? -1 : (b.Value ? 1 : 0);
+            return BitConverter.GetBytes(intResult);
+        });
     }
 
 
