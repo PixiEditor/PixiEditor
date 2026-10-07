@@ -209,7 +209,20 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public VectorPath SelectionPathBindable => selectionPath;
     public ObservableCollection<PaletteColor> Swatches { get; set; } = new();
     public Guid Id => Internals.Tracker.Document.DocumentId;
-    public ObservableRangeCollection<PaletteColor> Palette { get; set; } = new();
+
+    public ObservableRangeCollection<PaletteColor> Palette
+    {
+        get => palette;
+        set
+        {
+            SetProperty(ref palette, value);
+        }
+    }
+    PaletteColor[] Extensions.CommonApi.Documents.IDocument.Palette
+    {
+        get => Palette.ToArray();
+        set => Palette = new ObservableRangeCollection<PaletteColor>(value);
+    }
     public SnappingViewModel SnappingViewModel { get; set; }
     ISnappingHandler IDocument.SnappingHandler => SnappingViewModel;
     public IReadOnlyCollection<Guid> SelectedMembers => GetSelectedMembers().AsReadOnly();
@@ -239,6 +252,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     private Guid referenceId = Guid.Empty;
     private Queue<Action> queuedLayerReadyToUseActions = new();
     private Queue<Action> queuedKeyFrameReadyToUseActions = new();
+
+    private ObservableRangeCollection<PaletteColor> palette = new ObservableRangeCollection<PaletteColor>();
 
     private DocumentViewModel()
     {

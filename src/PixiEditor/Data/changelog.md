@@ -1,14 +1,22 @@
-# 2.1.2.2
+# 2.2.0.0
 
-Date: `23.08.2026`
+Date: `29.09.2026`
+
+# New things
+
+- Added network api
+- Added alignment options for layers
+- Added layer locking
 
 # Improvements
 
-- Shader node default code now includes #version 300, which enables many advanced shader features by [Ghoti](https://github.com/Ghoti-tpt)
+- Added iterative rendering optimization
+- Improved shape evaluation within a brush
+- Added some UI juiciness
+- Upgraded AvaloniaUI to version 12
+- Added scrollbar to the blackboard
+- Added action scheduling for better responsiveness (brush lagging behind instead of freezing the app)
 
 # Fixes
 
-- Fixed animation previews by [Ghoti](https://github.com/Ghoti-tpt)
-- Fixed pixel perfect pen while editing a cel by [Ghoti](https://github.com/Ghoti-tpt)
-- Fixed memory leak of animation editor by [Ghoti](https://github.com/Ghoti-tpt)
-- Fixed unpremultiplied colors and color leaking issue by [Equbuxu](https://github.com/Equbuxu)
+- Fixed various bugs related with switching tools between toolsets
