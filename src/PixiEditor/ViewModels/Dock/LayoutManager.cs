@@ -1,4 +1,5 @@
-﻿using Avalonia.Controls;
+﻿using System.Text.Json;
+using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
@@ -6,6 +7,7 @@ using PixiDocks.Avalonia;
 using PixiDocks.Avalonia.Controls;
 using PixiDocks.Core.Docking;
 using PixiDocks.Core.Serialization;
+using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.UI.Common.Behaviors;
 using PixiEditor.ViewModels.SubViewModels;
@@ -24,6 +26,8 @@ internal class LayoutManager
     public IReadOnlyCollection<IDockableContent> RegisteredDockables => registeredDockables;
     public event Action<HostWindow> WindowFloated;
 
+    public event Action<DockableTree> LayoutReplaced;
+
     private double Scaling => scaling;
 
     private double scaling = 1;
@@ -31,6 +35,14 @@ internal class LayoutManager
     private readonly List<IDockableContent> registeredDockables = new();
 
     private List<HostWindow> floatedWindows = new();
+
+    private static readonly JsonSerializerOptions LayoutJsonOptions = new() { WriteIndented = false };
+    private LayersDockViewModel layersDockViewModel;
+    private ColorPickerDockViewModel colorPickerDockViewModel;
+    private ColorSlidersDockViewModel colorSldersDockViewModel;
+    private DocumentPreviewDockViewModel documentPreviewDockViewModel;
+    private SwatchesDockViewModel swatchesDockViewModel;
+    private PaletteViewerDockViewModel paletteViewerDockViewModel;
 
     public LayoutManager()
     {
@@ -67,13 +79,13 @@ internal class LayoutManager
 
     public void InitLayout(ViewModelMain mainViewModel)
     {
-        LayersDockViewModel layersDockViewModel = new(mainViewModel.DocumentManagerSubViewModel);
-        ColorPickerDockViewModel colorPickerDockViewModel = new(mainViewModel.ColorsSubViewModel);
-        ColorSlidersDockViewModel colorSldersDockViewModel = new(mainViewModel.ColorsSubViewModel);
-        DocumentPreviewDockViewModel documentPreviewDockViewModel =
+        layersDockViewModel = new(mainViewModel.DocumentManagerSubViewModel);
+        colorPickerDockViewModel = new(mainViewModel.ColorsSubViewModel);
+        colorSldersDockViewModel = new(mainViewModel.ColorsSubViewModel);
+        documentPreviewDockViewModel =
             new(mainViewModel.ColorsSubViewModel, mainViewModel.DocumentManagerSubViewModel);
-        SwatchesDockViewModel swatchesDockViewModel = new(mainViewModel.DocumentManagerSubViewModel);
-        PaletteViewerDockViewModel paletteViewerDockViewModel =
+        swatchesDockViewModel = new(mainViewModel.DocumentManagerSubViewModel);
+        paletteViewerDockViewModel =
             new(mainViewModel.ColorsSubViewModel, mainViewModel.DocumentManagerSubViewModel);
         TimelineDockViewModel timelineDockViewModel = new(mainViewModel.DocumentManagerSubViewModel);
 
@@ -101,7 +113,247 @@ internal class LayoutManager
         RegisterDockable(channelsDockDockViewModel);
         */
 
-        DefaultLayout = new LayoutTree
+
+        DefaultLayout = BuildDefaultLayoutTree();
+
+        string savedLayoutJson = IPreferences.Current?.GetLocalPreference<string>(PreferencesConstants.DockLayoutData, null);
+
+        if (!string.IsNullOrWhiteSpace(savedLayoutJson) && TryBuildLayoutFromJson(savedLayoutJson, out LayoutTree restoredLayout))
+        {
+            ActiveLayout = restoredLayout;
+        }
+        else
+        {
+            if (!string.IsNullOrWhiteSpace(savedLayoutJson))
+            {
+                IPreferences.Current?.UpdateLocalPreference<string>(PreferencesConstants.DockLayoutData, null);
+            }
+
+            ActiveLayout = DefaultLayout;
+            ActiveLayout.SetContext(DockContext);
+        }
+
+        DockContext.WindowFloated += (window) =>
+        {
+            if (!floatedWindows.Contains(window))
+            {
+                floatedWindows.Add(window);
+            }
+
+            window.Closed += WindowOnClosed;
+
+            WindowFloated?.Invoke(window);
+        };
+
+
+        PixiEditorSettings.Accessibility.UiScaleFactor.ValueChanged += (s, value) =>
+        {
+            LayoutTransformScalerBehavior.SetGlobalScaling(value);
+            ColorPicker.Behaviors.LayoutTransformScalerBehavior.SetGlobalScaling(value);
+        };
+
+        LayoutTransformScalerBehavior.SetGlobalScaling(PixiEditorSettings.Accessibility.UiScaleFactor.Value);
+        ColorPicker.Behaviors.LayoutTransformScalerBehavior.SetGlobalScaling(PixiEditorSettings.Accessibility
+            .UiScaleFactor.Value);
+    }
+    public void SaveLayout()
+    {
+        try
+        {
+            string json = JsonSerializer.Serialize(ActiveLayout, LayoutJsonOptions);
+            IPreferences.Current?.UpdateLocalPreference<string>(PreferencesConstants.DockLayoutData, json);
+        }
+        catch
+        {
+           
+        }
+    }
+
+    public void ResetLayoutToDefault()
+    {
+        List<IDockable> openDocuments = new();
+        foreach (var element in ActiveLayout.Root)
+        {
+            if (element is DockableArea area && area.Id == "DocumentArea")
+            {
+                foreach (var dockable in area.Dockables)
+                {
+                    if (dockable != null)
+                    {
+                        openDocuments.Add(dockable);
+                    }
+                }
+
+                break;
+            }
+        }
+
+        LayoutTree fresh = BuildDefaultLayoutTree();
+        fresh.SetContext(DockContext);
+
+        if (fresh.Root is DockableTree freshRoot)
+        {
+            foreach (var element in freshRoot)
+            {
+                if (element is DockableArea area && area.Id == "DocumentArea")
+                {
+                    foreach (var document in openDocuments)
+                    {
+                        area.AddDockable(document);
+                    }
+
+                    if (openDocuments.Count > 0)
+                    {
+                        area.ActiveDockable = openDocuments[^1];
+                    }
+
+                    break;
+                }
+            }
+        }
+
+        ActiveLayout = fresh;
+        IPreferences.Current?.UpdateLocalPreference<string>(PreferencesConstants.DockLayoutData, null);
+
+        if (ActiveLayout.Root is DockableTree newRoot)
+        {
+            LayoutReplaced?.Invoke(newRoot);
+        }
+    }
+
+    private bool TryBuildLayoutFromJson(string json, out LayoutTree result)
+    {
+        result = default;
+
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            return false;
+        }
+
+        try
+        {
+            LayoutTree parsed = JsonSerializer.Deserialize<LayoutTree>(json, LayoutJsonOptions);
+
+            if (parsed.Root is not DockableTree treeRoot)
+            {
+                return false;
+            }
+
+            if (DefaultLayout.Root is DockableTree defaultRoot)
+            {
+                ReconcileAreaMetadata(treeRoot, defaultRoot);
+            }
+
+            parsed.SetContext(DockContext);
+
+            List<IDockable?> liveDockables = registeredDockables
+                .Select(content => DockContext.CreateDockable(content))
+                .ToList();
+
+            parsed.ApplyDockables(liveDockables);
+
+            HashSet<string> validContentIds = registeredDockables.Select(c => c.Id).ToHashSet();
+            PruneOrphanDockables(treeRoot, validContentIds);
+
+            if (!ContainsArea(treeRoot, "DocumentArea"))
+            {
+                return false;
+            }
+
+            result = parsed;
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private static bool ContainsArea(IDockableTree root, string areaId)
+    {
+        foreach (var element in root)
+        {
+            if (element is DockableArea area && area.Id == areaId)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static void ReconcileAreaMetadata(IDockableTree loadedRoot, IDockableTree defaultRoot)
+    {
+        Dictionary<string, DockableArea> defaultAreas = new();
+        Dictionary<string, DockableTree> defaultTrees = new();
+
+        foreach (var element in defaultRoot)
+        {
+            if (string.IsNullOrEmpty(element.Id))
+            {
+                continue;
+            }
+
+            switch (element)
+            {
+                case DockableArea area:
+                    defaultAreas[area.Id] = area;
+                    break;
+                case DockableTree tree:
+                    defaultTrees[tree.Id] = tree;
+                    break;
+            }
+        }
+
+        foreach (var element in loadedRoot)
+        {
+            if (string.IsNullOrEmpty(element.Id))
+            {
+                continue;
+            }
+
+            switch (element)
+            {
+                case DockableArea area when defaultAreas.TryGetValue(area.Id, out var defaultArea):
+                    area.FallbackContent = defaultArea.FallbackContent;
+                    area.CloseRegionOnEmpty = defaultArea.CloseRegionOnEmpty;
+                    break;
+                case DockableTree tree when defaultTrees.TryGetValue(tree.Id, out var defaultTree):
+                    tree.AutoExpand = defaultTree.AutoExpand;
+                    break;
+            }
+        }
+    }
+
+    private static void PruneOrphanDockables(IDockableTree root, HashSet<string> validContentIds)
+    {
+        List<(IDockableHost Host, IDockable Dockable)> orphans = new();
+
+        foreach (var element in root)
+        {
+            if (element is not IDockableHost host)
+            {
+                continue;
+            }
+
+            foreach (var dockable in host.Dockables.ToArray())
+            {
+                if (dockable != null && !validContentIds.Contains(dockable.Id))
+                {
+                    orphans.Add((host, dockable));
+                }
+            }
+        }
+
+        foreach (var (host, dockable) in orphans)
+        {
+            host.RemoveDockable(dockable);
+        }
+    }
+
+    private LayoutTree BuildDefaultLayoutTree()
+    {
+        return new LayoutTree
         {
             Root = new DockableTree
             {
@@ -151,32 +403,6 @@ internal class LayoutManager
                 }
             }
         };
-
-        ActiveLayout = DefaultLayout;
-        ActiveLayout.SetContext(DockContext);
-
-        DockContext.WindowFloated += (window) =>
-        {
-            if (!floatedWindows.Contains(window))
-            {
-                floatedWindows.Add(window);
-            }
-
-            window.Closed += WindowOnClosed;
-
-            WindowFloated?.Invoke(window);
-        };
-
-
-        PixiEditorSettings.Accessibility.UiScaleFactor.ValueChanged += (s, value) =>
-        {
-            LayoutTransformScalerBehavior.SetGlobalScaling(value);
-            ColorPicker.Behaviors.LayoutTransformScalerBehavior.SetGlobalScaling(value);
-        };
-
-        LayoutTransformScalerBehavior.SetGlobalScaling(PixiEditorSettings.Accessibility.UiScaleFactor.Value);
-        ColorPicker.Behaviors.LayoutTransformScalerBehavior.SetGlobalScaling(PixiEditorSettings.Accessibility
-            .UiScaleFactor.Value);
     }
 
     private void WindowOnClosed(object? sender, EventArgs e)

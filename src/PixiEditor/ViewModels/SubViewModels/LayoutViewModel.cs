@@ -20,6 +20,15 @@ internal class LayoutViewModel : SubViewModel<ViewModelMain>
         owner.WindowSubViewModel.LazyViewportAdded += WindowSubViewModel_LazyViewportAdded;
         owner.WindowSubViewModel.ViewportClosed += WindowSubViewModel_ViewportRemoved;
         owner.WindowSubViewModel.LazyViewportRemoved += WindowSubViewModel_LazyViewportRemoved;
+        owner.OnClose += () => LayoutManager.SaveLayout();
+    }
+
+    [Command.Basic("PixiEditor.Layout.ResetLayout", "RESET_LAYOUT", "RESET_LAYOUT_DESCRIPTIVE",
+        Icon = PixiPerfectIcons.Reset, MenuItemPath = "VIEW/RESET_LAYOUT", MenuItemOrder = 11,
+        AnalyticsTrack = true)]
+    public void ResetLayout()
+    {
+        LayoutManager.ResetLayoutToDefault();
     }
 
     [Command.Internal("PixiEditor.Layout.SplitActiveDockable")]
