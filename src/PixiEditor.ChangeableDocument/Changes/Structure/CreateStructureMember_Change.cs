@@ -9,6 +9,7 @@ namespace PixiEditor.ChangeableDocument.Changes.Structure;
 
 internal class CreateStructureMember_Change : Change
 {
+    public Guid NewMemberGuid => newMemberGuid;
     private Guid newMemberGuid;
 
     private Guid parentGuid;
