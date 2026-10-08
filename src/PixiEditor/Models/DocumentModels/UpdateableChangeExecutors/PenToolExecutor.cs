@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.Actions;
+﻿using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Models.Handlers.Tools;
@@ -30,10 +31,13 @@ internal class PenToolExecutor : BrushBasedExecutor<IPenToolHandler>
         var point = GetStabilizedPoint();
         if (createLine)
         {
-            IAction? actionStart = new LineBasedPen_Action(layerId, handler.LastAppliedPoint, (float)ToolSize,
-                antiAliasing, BrushData, drawOnMask,
-                document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo, controller.LastKeyboardInfo,
-                controller.EditorData);
+            IAction actionStart = pixelPerfect
+                ? new PixelPerfectPen_Action(layerId, (VecI)handler.LastAppliedPoint.Floor(), color, drawOnMask,
+                    document!.AnimationHandler.ActiveFrameBindable)
+                : new LineBasedPen_Action(layerId, handler.LastAppliedPoint, (float)ToolSize,
+                    antiAliasing, BrushData, drawOnMask,
+                    document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo, controller.LastKeyboardInfo,
+                    controller.EditorData);
 
             internals!.ActionAccumulator.AddActions(actionStart);
         }
