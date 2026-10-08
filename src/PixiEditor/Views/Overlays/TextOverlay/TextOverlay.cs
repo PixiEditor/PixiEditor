@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Text;
 using Avalonia;
 using Avalonia.Input;
 using Avalonia.Threading;
@@ -444,12 +445,23 @@ internal class TextOverlay : Overlay
         int start = indexOfClosest;
         int end = indexOfClosest;
 
-        while (start > 0 && !char.IsWhiteSpace(richText.RawText[start - 1]))
+        string surrogateLessText = richText.RawText;
+
+        for (int i = 0; i < surrogateLessText.Length; i++)
+        {
+            if(char.IsLowSurrogate(surrogateLessText[i]))
+            {
+                surrogateLessText = surrogateLessText.Remove(i, 1);
+                i--;
+            }
+        }
+
+        while (start > 0 && !char.IsWhiteSpace(surrogateLessText[start - 1]))
         {
             start--;
         }
 
-        while (end < richText.RawText.Length && !char.IsWhiteSpace(richText.RawText[end]))
+        while (end < richText.TextGlyphCount && !char.IsWhiteSpace(surrogateLessText[end]))
         {
             end++;
         }
@@ -461,9 +473,24 @@ internal class TextOverlay : Overlay
     private void CopyText(bool asUnicode = false)
     {
         if (CursorPosition == SelectionEnd) return;
-        string selectedText = Text.RawText.Substring(
-            Math.Min(CursorPosition, SelectionEnd),
-            Math.Abs(CursorPosition - SelectionEnd));
+
+        StringBuilder sb = new StringBuilder();
+
+        int start = Math.Min(CursorPosition, SelectionEnd);
+        int end = Math.Max(CursorPosition, SelectionEnd);
+
+        if(richText.RawText.Length == 0) return;
+
+        for (int i = start; i <= end; i++)
+        {
+            string currentChar = richText.GetCharAtCursor(i);
+            if(currentChar != null)
+            {
+                sb.Append(currentChar);
+            }
+        }
+
+        string selectedText = sb.ToString();
 
         if (asUnicode)
         {
