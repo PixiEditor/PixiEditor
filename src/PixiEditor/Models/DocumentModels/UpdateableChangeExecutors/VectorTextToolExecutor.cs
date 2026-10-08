@@ -310,8 +310,8 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
         if (NeedToUpdateWholeLine(name))
         {
-            text.IndexOnLine(cursor, out var lineStart, false);
-            text.IndexOnLine(selectionEnd, out var lineEnd, false);
+            text.IndexOnLine(cursor, out var lineStart, true);
+            text.IndexOnLine(selectionEnd, out var lineEnd, true);
             var (lineStartIndex, lineEndIndex) = text.GetLineStartEnd(Math.Min(lineStart, lineEnd));
             var (lineStartIndex2, lineEndIndex2) = text.GetLineStartEnd(Math.Max(lineStart, lineEnd));
             int from = Math.Min(lineStartIndex, lineStartIndex2);
@@ -398,26 +398,29 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             TextInline inline = text.Inlines[i];
 
             int inlineStart = position;
-            int inlineEnd = position + inline.Text.Length;
+            int inlineEnd = position + inline.GlyphCount;
 
-            if (inlineStart < selectionFinish && inlineEnd >= selectionStart)
+
+            if (inlineStart < selectionFinish && inlineEnd > selectionStart)
             {
                 int localStart = Math.Max(selectionStart, inlineStart) - inlineStart;
                 int localEnd = Math.Min(selectionFinish, inlineEnd) - inlineStart;
 
-                if (localStart == 0 && localEnd == inline.Text.Length)
+                if (localStart == 0 && localEnd == inline.GlyphCount)
                 {
                     ApplySetting(inline, name, value);
                     text.UpdateInline(i, inline);
                 }
                 else
                 {
+                    int count = text.Inlines.Count;
                     TextInline selectedInline = text.SplitInline(i, inlineStart + localStart, inlineStart + localEnd);
 
                     ApplySetting(selectedInline, name, value);
 
                     int selectedIndex = text.IndexOfInline(selectedInline);
                     text.UpdateInline(selectedIndex, selectedInline);
+                    i += text.Inlines.Count - count;
                 }
             }
 
@@ -544,6 +547,10 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             if (first.HasEqualSettings(second))
             {
                 text.MergeAdjacentInlines(first);
+            }
+            else if (string.IsNullOrEmpty(first.Text))
+            {
+                text.RemoveInline(first);
             }
             else
             {
