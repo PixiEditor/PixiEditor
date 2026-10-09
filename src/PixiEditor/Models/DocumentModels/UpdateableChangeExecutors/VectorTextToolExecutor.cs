@@ -90,7 +90,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         {
             document.TextOverlayHandler.Show(textData.Text, textData.Position, textData.TransformationMatrix);
 
-            inlinesInRange = [textData.Text.Inlines.LastOrDefault()];
+            inlinesInRange = [textData.Text.Inlines.LastOrDefault(x => !string.IsNullOrEmpty(x.Text))];
             UpdateInlineSettings();
 
             onPath = textData.Path;
@@ -133,7 +133,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
     {
         IReadOnlyList<TextInline> inlines = inlinesInRange;
 
-        if (inlines.Count == 0)
+        if (inlines == null || inlines.Count == 0)
             return;
 
         TextInline first = inlines[0];

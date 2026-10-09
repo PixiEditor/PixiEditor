@@ -226,158 +226,83 @@ internal class ExtractSelectedText_Change : Change
         }
 
         var result = new List<(RichText text, VecD offset)>();
-
-        text.IndexOnLine(start, out int startLineIndex);
-        text.IndexOnLine(end, out int endLineIndex);
-
+        int currentStart = 0;
+        int currentStartLineIndex = 0;
+        int cursorPos = 0;
+        RichText currentRichText = new RichText();
         var glyphPositions = text.GetGlyphPositions(true);
 
-        int globalElementIndex = 0;
-        int until = start > 0 ? start : end;
-        RichText currentRichText = new RichText();
-
-        var position = VecD.Zero;
-        double x = position.X;
-        double y = position.Y;
-        double boundingWidth = text.MeasureBounds().Width;
-        double lastSplitWidth = 0;
-        int currentStart = 0;
-
-        for (var index = 0; index < text.Lines.Length; index++)
+        foreach (var textInline in text.Inlines)
         {
-            var line = text.Lines[index];
-
-            double maxLineHeight = 0;
-            double maxFontSize = 0;
-            double measuredLineWidth = 0;
-
-            bool allEmpty = true;
-            foreach (TextInline inline in line)
+            var inlineText = GetTextElements(textInline.Text);
+            SetupRichTextInline(textInline, currentRichText);
+            foreach (var elem in inlineText)
             {
-                bool isEmpty = string.IsNullOrEmpty(inline.Text) || inline.Text == "\n";
-                allEmpty &= isEmpty;
-                if (isEmpty) continue;
-                if (index > 0)
+                if (IsBoundary(elem, currentStart, currentStartLineIndex, cursorPos))
                 {
-                    maxLineHeight = Math.Max(maxLineHeight, inline.LineHeight * RichText.PtToPx);
-                    maxFontSize = Math.Max(maxFontSize, inline.Font.Size * RichText.PtToPx);
-                }
-
-                using Font font = inline.Font.ToFont();
-                measuredLineWidth += font.MeasureText(inline.Text);
-            }
-
-            if (allEmpty)
-            {
-                maxLineHeight = line.FirstOrDefault()?.LineHeight * RichText.PtToPx ?? 0;
-            }
-
-            double lineX = x;
-
-            TextAlign? alignment = null;
-
-            lastSplitWidth = 0;
-            foreach (TextInline inline in line)
-            {
-                if (string.IsNullOrEmpty(inline.Text) || inline.Text == "\n")
-                {
-                    globalElementIndex++;
-                    continue;
-                }
-
-                using Font font = inline.Font.ToFont();
-                double alignmentOffset = 0;
-                if (alignment == null)
-                {
-                    alignment = inline.Alignment;
-
-                    if (alignment == TextAlign.Center)
-                    {
-                        alignmentOffset = (boundingWidth - measuredLineWidth) / 2f;
-                    }
-                    else if (alignment == TextAlign.Right)
-                    {
-                        alignmentOffset = (boundingWidth - measuredLineWidth);
-                    }
-                }
-
-                double topOffset = maxLineHeight;
-                double measuredInlineWidth = font.MeasureText(inline.Text);
-
-                VecD inlinePosition = new VecD(lineX + alignmentOffset, y + topOffset);
-                double charWidth = 0;
-
-                var textElements = GetTextElements(inline.Text);
-                for (int localI = 0; localI <= textElements.Length; localI++)
-                {
-                    if (globalElementIndex >= until)
-                    {
-                        if (!string.IsNullOrEmpty(currentRichText.Inlines.FirstOrDefault()?.Text))
-                        {
-                            var glyphPosition = glyphPositions[currentStart];
-                            result.Add(new(currentRichText, (VecD)glyphPosition));
-                        }
-
-                        currentRichText = new RichText();
-                        currentStart = globalElementIndex;
-                        until = FindNextStop(globalElementIndex);
-                        lastSplitWidth = charWidth;
-                    }
-
-                    if (globalElementIndex < until && localI < textElements.Length)
-                    {
-                        if (currentRichText.Inlines.Count == 0)
-                        {
-                            var newInline = inline.Clone();
-                            newInline.Text = "";
-                            currentRichText.AddInline(newInline);
-                        }
-
-                        currentRichText.Inlines.FirstOrDefault().Text += textElements[localI];
-                        charWidth += font.MeasureText(textElements[localI]);
-                    }
-
-                    if (localI < textElements.Length)
-                    {
-                        globalElementIndex++;
-                    }
-                }
-
-                if (globalElementIndex <= until)
-                {
-                    if (!string.IsNullOrEmpty(currentRichText.Inlines.FirstOrDefault()?.Text))
-                    {
-                        var glyphPosition = glyphPositions[currentStart];
-                        result.Add(new(currentRichText, (VecD)glyphPosition));
-                    }
-
+                    VecD offset = (VecD)glyphPositions[currentStart];
+                    result.Add(new(currentRichText, offset));
                     currentRichText = new RichText();
-                    currentStart = globalElementIndex;
-                    until = FindNextStop(globalElementIndex);
-                    lastSplitWidth = charWidth;
+                    SetupRichTextInline(textInline, currentRichText);
+                    currentStart = cursorPos;
+                    text.IndexOnLine(cursorPos, out currentStartLineIndex);
                 }
 
-                lineX += measuredInlineWidth;
-            }
+                currentRichText.Inlines.LastOrDefault().Text += elem;
 
-            y += maxLineHeight;
-
-            if (globalElementIndex <= until)
-            {
-                VecD pos = new VecD(x + lastSplitWidth, y);
-                if (!string.IsNullOrEmpty(currentRichText.Inlines.FirstOrDefault()?.Text))
-                {
-                    var glyphPosition = glyphPositions[currentStart];
-                    result.Add(new(currentRichText, (VecD)glyphPosition));
-                }
-
-                currentRichText = new RichText();
-                currentStart = globalElementIndex + 1;
-                until = FindNextStop(globalElementIndex);
+                cursorPos++;
             }
         }
 
+        if (currentRichText.Inlines.LastOrDefault()?.Text != "")
+        {
+            VecD offset = (VecD)glyphPositions[currentStart];
+            result.Add(new(currentRichText, offset));
+        }
+
         return result;
+    }
+
+    private bool IsBoundary(string elem, int startingPos, int startingIndex, int cursorPos)
+    {
+        int indexOnLine = originalText.IndexOnLine(cursorPos, out int lineIndex);
+
+        bool wasApproachingSelection = startingPos < selectionStart;
+        bool isApproachingSelection = cursorPos < selectionStart;
+        bool wasWithinSelection = startingPos >= selectionStart && startingPos < selectionEnd;
+        bool isWithinSelection = cursorPos >= selectionStart && cursorPos <= selectionEnd;
+        bool isPastSelection = cursorPos > selectionEnd;
+
+        if (wasApproachingSelection)
+        {
+            return isWithinSelection;
+        }
+
+        if (wasWithinSelection && isWithinSelection)
+        {
+            return cursorPos == selectionEnd;
+        }
+        else if (!wasWithinSelection && isPastSelection)
+        {
+            return cursorPos == originalText.TextGlyphCount;
+        }
+
+        return !IsFullyContainedWithinLine(elem, indexOnLine, startingPos, startingIndex, lineIndex);
+    }
+
+    private bool IsFullyContainedWithinLine(string elem, int indexOnLine, int startingPos, int startingIndex,
+        int lineIndex)
+    {
+        if (startingIndex == lineIndex && indexOnLine == 0) return true;
+
+        return false;
+    }
+
+    private static void SetupRichTextInline(TextInline textInline, RichText currentRichText)
+    {
+        var inline = textInline.Clone();
+        inline.Text = "";
+        currentRichText.AddInline(inline);
     }
 
     private int FindNextStop(int globalElementIndex)
