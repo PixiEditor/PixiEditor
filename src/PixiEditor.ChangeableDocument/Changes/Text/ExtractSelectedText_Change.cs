@@ -1,4 +1,6 @@
-﻿using ChunkyImageLib.Operations;
+﻿using System.Globalization;
+using ChunkyImageLib.Operations;
+using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Text;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -17,12 +19,15 @@ internal class ExtractSelectedText_Change : Change
     private int selectionStart;
     private int selectionEnd;
     private RichText? originalText = null;
-    private List<(int start, int end, string text)> subdividions;
+    private List<(RichText text, VecD offset)>? subdivisions;
     private Dictionary<Guid, VecD> originalPositions = new Dictionary<Guid, VecD>();
 
-
     [GenerateMakeChangeAction]
-    public ExtractSelectedText_Change(Guid memberId, int selectionStart, int selectionEnd, bool extractEachCharacter)
+    public ExtractSelectedText_Change(
+        Guid memberId,
+        int selectionStart,
+        int selectionEnd,
+        bool extractEachCharacter)
     {
         this.memberId = memberId;
         this.selectionStart = selectionStart;
@@ -33,6 +38,7 @@ internal class ExtractSelectedText_Change : Change
     public override bool InitializeAndValidate(Document target)
     {
         var node = target.FindNodeOrThrow<VectorLayerNode>(memberId);
+
         if (node.EmbeddedShapeData is not TextVectorData textData)
         {
             return false;
@@ -44,33 +50,32 @@ internal class ExtractSelectedText_Change : Change
         selectionStart = minStart;
         selectionEnd = maxEnd;
 
-        // TODO: Fix this. It should be a clone, but RichText doesn't have a Clone method yet.
-        //originalText = textData.Text.Clone();
+        originalText = textData.Text.Clone();
 
-        // TODO:
-        /*
-        subdividions = GetSubdivisions(selectionStart, selectionEnd, textData.Text.RawText, extractEachCharacter);
+        subdivisions = GetSubdivisions(selectionStart, selectionEnd, textData.Text, extractEachCharacter);
 
-        subdividions?.RemoveAll(x => x.text == "\n");
+        subdivisions?.RemoveAll(x => x.text.RawText == "\n");
 
-        if (subdividions?.Count == 0)
+        if (subdivisions?.Count == 0)
         {
-            subdividions = null;
+            subdivisions = null;
         }
 
-        if (subdividions != null)
+        if (subdivisions != null)
         {
-            newLayerIds = new Guid[subdividions.Count - 1];
-            for (int i = 0; i < subdividions.Count - 1; i++)
+            newLayerIds = new Guid[subdivisions.Count - 1];
+
+            for (int i = 0; i < newLayerIds.Length; i++)
             {
                 newLayerIds[i] = Guid.NewGuid();
             }
         }
-        */
 
         return textData.Text.TextGlyphCount > 0 &&
-               minStart >= 0 && maxEnd <= textData.Text.TextGlyphCount &&
-               minStart < maxEnd && subdividions != null;
+               minStart >= 0 &&
+               maxEnd <= textData.Text.TextGlyphCount &&
+               minStart < maxEnd &&
+               subdivisions != null;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
@@ -79,6 +84,7 @@ internal class ExtractSelectedText_Change : Change
         ignoreInUndo = false;
 
         var node = target.FindNodeOrThrow<VectorLayerNode>(memberId);
+
         if (node.EmbeddedShapeData is not TextVectorData textData)
         {
             throw new InvalidOperationException("Node does not contain TextVectorData.");
@@ -86,20 +92,25 @@ internal class ExtractSelectedText_Change : Change
 
         List<IChangeInfo> changes = new List<IChangeInfo>();
 
-        for (var index = subdividions.Count - 1; index >= 0; index--)
+        for (var index = subdivisions.Count - 1; index >= 0; index--)
         {
-            var subdividion = subdividions[index];
+            var subdivision = subdivisions[index];
 
             if (index == 0)
             {
-                // TODO:
-                /*textData.Text = subdividion.text.EndsWith("\n")
-                    ? subdividion.text[..^1]
-                    : subdividion.text;*/
+                if (node.EmbeddedShapeData is TextVectorData textVectorData)
+                {
+                    textVectorData.Text = subdivision.text;
+                    textVectorData.TransformationMatrix =
+                        textData.TransformationMatrix.PostConcat(
+                            Matrix3X3.CreateTranslation(subdivision.offset.X, subdivision.offset.Y));
+                }
 
                 var aabb = textData.TransformedVisualAABB.RoundOutwards();
                 var affected = new AffectedArea(OperationHelper.FindChunksTouchingRectangle(
-                    (RectI)aabb, ChunkyImage.FullChunkSize));
+                    (RectI)aabb,
+                    ChunkyImage.FullChunkSize));
+
                 changes.Add(new VectorShape_ChangeInfo(node.Id, affected));
                 continue;
             }
@@ -110,28 +121,40 @@ internal class ExtractSelectedText_Change : Change
             }
 
             VectorLayerNode newNode = node.Clone() as VectorLayerNode;
+
             if (newNode == null)
             {
                 throw new InvalidOperationException("Failed to clone VectorLayerNode.");
             }
 
-            string text = subdividion.text.EndsWith("\n")
-                ? subdividion.text[..^1]
-                : subdividion.text;
+            RichText text = subdivision.text.Clone();
+
+            if (text.RawText.EndsWith("\n"))
+            {
+                TextInline? lastInline = text.Inlines.LastOrDefault();
+
+                if (lastInline != null)
+                {
+                    lastInline.Text = lastInline.Text[..^1];
+
+                    if (lastInline.Text.Length == 0)
+                    {
+                        text.RemoveInline(lastInline);
+                    }
+                }
+            }
 
             newNode.Id = newLayerIds[index - 1];
-            newNode.DisplayName = text.Length > 20
-                ? text[..20].ReplaceLineEndings("") + "..."
-                : text.ReplaceLineEndings("");
 
-            // TODO:
-            //data.Text = text;
+            newNode.DisplayName = text.RawText.Length > 20
+                ? text.RawText[..20].ReplaceLineEndings("") + "..."
+                : text.RawText.ReplaceLineEndings("");
+
+            data.Text = text;
+            data.TransformationMatrix =
+                textData.TransformationMatrix.PostConcat(Matrix3X3.CreateTranslation(subdivision.offset.X,
+                    subdivision.offset.Y));
             newNode.EmbeddedShapeData = data;
-            // TODO:
-            /*
-            var newPos = GetPositionForNewText(originalText, subdividion.start, textData);
-            data.Position += newPos;
-            */
 
             target.NodeGraph.AddNode(newNode);
 
@@ -144,13 +167,13 @@ internal class ExtractSelectedText_Change : Change
             }
         }
 
-
         return changes;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         var node = target.FindNodeOrThrow<VectorLayerNode>(memberId);
+
         if (node.EmbeddedShapeData is not TextVectorData textData)
         {
             throw new InvalidOperationException("Node does not contain TextVectorData.");
@@ -160,15 +183,21 @@ internal class ExtractSelectedText_Change : Change
 
         List<IChangeInfo> changes = new List<IChangeInfo>();
 
-        AffectedArea affected = new AffectedArea(OperationHelper.FindChunksTouchingRectangle(
-            (RectI)textData.TransformedVisualAABB.RoundOutwards(), ChunkyImage.FullChunkSize));
+        AffectedArea affected = new AffectedArea(
+            OperationHelper.FindChunksTouchingRectangle(
+                (RectI)textData.TransformedVisualAABB.RoundOutwards(),
+                ChunkyImage.FullChunkSize));
 
         changes.Add(new VectorShape_ChangeInfo(node.Id, affected));
 
-        changes.AddRange(NodeOperations.RevertPositions(originalPositions, target));
+        changes.AddRange(NodeOperations.RevertPositions(
+            originalPositions,
+            target));
+
         foreach (var newLayerId in newLayerIds)
         {
             var newNode = target.FindNode<VectorLayerNode>(newLayerId);
+
             if (newNode != null)
             {
                 changes.AddRange(NodeOperations.DetachStructureNode(newNode));
@@ -183,94 +212,195 @@ internal class ExtractSelectedText_Change : Change
         return changes;
     }
 
-    // TODO:
-    /*
-    private VecD GetPositionForNewText(string text, int startIndex, TextVectorData textData)
+    private List<(RichText text, VecD offset)>? GetSubdivisions(int start, int end,
+        RichText text, bool extractEachCharacter)
     {
-        RichText richText = new RichText(text);
-
-        var positions = richText.GetGlyphPositions();
-        if (positions == null || positions.Length == 0)
+        if (start == 0 && end == text.TextGlyphCount && !extractEachCharacter)
         {
-            return VecD.Zero;
+            return null;
         }
 
-        VecF position = positions[startIndex];
-
-        richText.IndexOnLine(startIndex, out int lineIndex);
-
-        VecD lineOffset = richText.GetLineOffset(lineIndex);
-
-        return new VecD(position.X, (1 / RichText.PtToPx) * lineOffset.Y);
-    }
-    */
-
-    /*private List<(int start, int end, string text)>? GetSubdivisions(int start, int end, string text,
-        bool extractEachCharacter)
-    {
-        if (start == 0 && end == text.Length && !extractEachCharacter)
-            return null;
-
-        if (end - start == 1 && start < text.Length && text[start] == '\n')
-            return null;
-
-        var result = new List<(int start, int end, string text)>();
-
-        var richText = new RichText(text);
-
-        richText.IndexOnLine(start, out int startLineIndex);
-        richText.IndexOnLine(end, out int endLineIndex);
-        bool spansMultipleLines = startLineIndex != endLineIndex;
-
-        int cursor = start;
-
-        if (start > 0)
+        if (end - start == 1 && start < text.TextGlyphCount && text.GetCharAtCursor(start) == "\n")
         {
-            result.Add((0, start, text.Substring(0, start)));
-            var (startLineStart, startLineEnd) = richText.GetLineStartEnd(startLineIndex);
-            bool isMiddleOfLine = start > startLineStart && start < startLineEnd;
-            if (isMiddleOfLine && spansMultipleLines)
-            {
-                int substringLength = Math.Min(startLineEnd - start, text.Length - start);
-                result.Add((start, startLineEnd, text.Substring(start, substringLength)));
-                cursor = startLineEnd;
-            }
+            return null;
         }
 
-        if (cursor < end)
+        var result = new List<(RichText text, VecD offset)>();
+
+        text.IndexOnLine(start, out int startLineIndex);
+        text.IndexOnLine(end, out int endLineIndex);
+
+        var glyphPositions = text.GetGlyphPositions(true);
+
+        int globalElementIndex = 0;
+        int until = start > 0 ? start : end;
+        RichText currentRichText = new RichText();
+
+        var position = VecD.Zero;
+        double x = position.X;
+        double y = position.Y;
+        double boundingWidth = text.MeasureBounds().Width;
+        double lastSplitWidth = 0;
+        int currentStart = 0;
+
+        for (var index = 0; index < text.Lines.Length; index++)
         {
-            if (extractEachCharacter)
+            var line = text.Lines[index];
+
+            double maxLineHeight = 0;
+            double maxFontSize = 0;
+            double measuredLineWidth = 0;
+
+            bool allEmpty = true;
+            foreach (TextInline inline in line)
             {
-                for (int i = cursor; i < end; i++)
+                bool isEmpty = string.IsNullOrEmpty(inline.Text) || inline.Text == "\n";
+                allEmpty &= isEmpty;
+                if (isEmpty) continue;
+                if (index > 0)
                 {
-                    result.Add((i, i + 1, text.Substring(i, 1)));
+                    maxLineHeight = Math.Max(maxLineHeight, inline.LineHeight * RichText.PtToPx);
+                    maxFontSize = Math.Max(maxFontSize, inline.Font.Size * RichText.PtToPx);
                 }
+
+                using Font font = inline.Font.ToFont();
+                measuredLineWidth += font.MeasureText(inline.Text);
             }
-            else
+
+            if (allEmpty)
             {
-                result.Add((cursor, end, text.Substring(cursor, end - cursor)));
+                maxLineHeight = line.FirstOrDefault()?.LineHeight * RichText.PtToPx ?? 0;
             }
 
-            cursor = end;
+            double lineX = x;
 
-            if (cursor >= text.Length)
-                return result;
+            TextAlign? alignment = null;
 
-            var (endLineStart, endLineEnd) = richText.GetLineStartEnd(endLineIndex);
-            bool endsMiddleOfLine = end > endLineStart && end < endLineEnd;
-            if (endsMiddleOfLine)
+            lastSplitWidth = 0;
+            foreach (TextInline inline in line)
             {
-                int substringLength = Math.Min(endLineEnd - end, text.Length - end);
-                result.Add((end, endLineEnd, text.Substring(end, substringLength)));
-                cursor = endLineEnd;
-            }
-        }
+                if (string.IsNullOrEmpty(inline.Text) || inline.Text == "\n")
+                {
+                    globalElementIndex++;
+                    continue;
+                }
 
-        if (cursor < text.Length)
-        {
-            result.Add((cursor, text.Length, text.Substring(cursor)));
+                using Font font = inline.Font.ToFont();
+                double alignmentOffset = 0;
+                if (alignment == null)
+                {
+                    alignment = inline.Alignment;
+
+                    if (alignment == TextAlign.Center)
+                    {
+                        alignmentOffset = (boundingWidth - measuredLineWidth) / 2f;
+                    }
+                    else if (alignment == TextAlign.Right)
+                    {
+                        alignmentOffset = (boundingWidth - measuredLineWidth);
+                    }
+                }
+
+                double topOffset = maxLineHeight;
+                double measuredInlineWidth = font.MeasureText(inline.Text);
+
+                VecD inlinePosition = new VecD(lineX + alignmentOffset, y + topOffset);
+                double charWidth = 0;
+
+                var textElements = GetTextElements(inline.Text);
+                for (int localI = 0; localI <= textElements.Length; localI++)
+                {
+                    if (globalElementIndex >= until)
+                    {
+                        if (!string.IsNullOrEmpty(currentRichText.Inlines.FirstOrDefault()?.Text))
+                        {
+                            var glyphPosition = glyphPositions[currentStart];
+                            result.Add(new(currentRichText, (VecD)glyphPosition));
+                        }
+
+                        currentRichText = new RichText();
+                        currentStart = globalElementIndex;
+                        until = FindNextStop(globalElementIndex);
+                        lastSplitWidth = charWidth;
+                    }
+
+                    if (globalElementIndex < until && localI < textElements.Length)
+                    {
+                        if (currentRichText.Inlines.Count == 0)
+                        {
+                            var newInline = inline.Clone();
+                            newInline.Text = "";
+                            currentRichText.AddInline(newInline);
+                        }
+
+                        currentRichText.Inlines.FirstOrDefault().Text += textElements[localI];
+                        charWidth += font.MeasureText(textElements[localI]);
+                    }
+
+                    if (localI < textElements.Length)
+                    {
+                        globalElementIndex++;
+                    }
+                }
+
+                if (globalElementIndex <= until)
+                {
+                    if (!string.IsNullOrEmpty(currentRichText.Inlines.FirstOrDefault()?.Text))
+                    {
+                        var glyphPosition = glyphPositions[currentStart];
+                        result.Add(new(currentRichText, (VecD)glyphPosition));
+                    }
+
+                    currentRichText = new RichText();
+                    currentStart = globalElementIndex;
+                    until = FindNextStop(globalElementIndex);
+                    lastSplitWidth = charWidth;
+                }
+
+                lineX += measuredInlineWidth;
+            }
+
+            y += maxLineHeight;
+
+            if (globalElementIndex <= until)
+            {
+                VecD pos = new VecD(x + lastSplitWidth, y);
+                if (!string.IsNullOrEmpty(currentRichText.Inlines.FirstOrDefault()?.Text))
+                {
+                    var glyphPosition = glyphPositions[currentStart];
+                    result.Add(new(currentRichText, (VecD)glyphPosition));
+                }
+
+                currentRichText = new RichText();
+                currentStart = globalElementIndex + 1;
+                until = FindNextStop(globalElementIndex);
+            }
         }
 
         return result;
-    }*/
+    }
+
+    private int FindNextStop(int globalElementIndex)
+    {
+        if (globalElementIndex < selectionStart) return selectionStart;
+        if (globalElementIndex < selectionEnd) return selectionEnd;
+
+        return originalText.TextGlyphCount;
+    }
+
+
+    private static string[] GetTextElements(string text)
+    {
+        var elements = new List<string>();
+
+        var enumerator =
+            StringInfo.GetTextElementEnumerator(text);
+
+        while (enumerator.MoveNext())
+        {
+            elements.Add(enumerator.GetTextElement());
+        }
+
+        return elements.ToArray();
+    }
 }

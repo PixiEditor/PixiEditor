@@ -90,7 +90,8 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         {
             document.TextOverlayHandler.Show(textData.Text, textData.Position, textData.TransformationMatrix);
 
-            UpdateToolbar(textData);
+            inlinesInRange = [textData.Text.Inlines.LastOrDefault()];
+            UpdateInlineSettings();
 
             onPath = textData.Path;
             lastText = textData.Text.Clone();
@@ -126,15 +127,6 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         }
 
         return ExecutionState.Success;
-    }
-
-    private void UpdateToolbar(TextVectorData textData)
-    {
-        toolbar.Fill = textData.Fill;
-        toolbar.FillBrush = textData.FillPaintable.ToBrush();
-        toolbar.StrokeBrush = textData.Stroke.ToBrush();
-        toolbar.ToolSize = textData.StrokeWidth;
-        UpdateInlineSettings();
     }
 
     private void UpdateInlineSettings()
