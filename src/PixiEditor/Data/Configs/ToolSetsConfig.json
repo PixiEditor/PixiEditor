@@ -124,7 +124,8 @@
             "ExposePixelPerfectEnabled": true,
             "DefaultToolSize": 1,
             "DefaultBrush": "PIXEL_CIRCLE",
-            "AntiAliasing": false
+            "AntiAliasing": false,
+            "SnapToCentersOfPixels": true
           }
         },
         "Select",
@@ -170,7 +171,8 @@
           "Settings": {
             "DefaultToolSize": 1,
             "DefaultBrush": "PIXEL_CIRCLE",
-            "AntiAliasing": false
+            "AntiAliasing": false,
+            "SnapToCentersOfPixels": true
           }
         },
         {
@@ -203,7 +205,8 @@
             "AntiAliasing": true,
             "PixelPerfectEnabled": false,
             "DefaultToolSize": 10,
-            "DefaultBrush": "BASIC"
+            "DefaultBrush": "BASIC",
+            "SnapToCentersOfPixels": false
           }
         },
         "Select",
@@ -257,7 +260,8 @@
           "ToolName": "Eraser",
           "Settings": {
             "AntiAliasing": true,
-            "DefaultToolSize": 10
+            "DefaultToolSize": 10,
+            "SnapToCentersOfPixels": false
           }
         },
         {

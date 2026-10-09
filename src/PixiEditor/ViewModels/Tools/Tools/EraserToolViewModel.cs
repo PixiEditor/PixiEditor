@@ -26,6 +26,18 @@ internal class EraserToolViewModel : BrushBasedToolViewModel, IEraserToolHandler
     {
         return ToolbarFactory.Create<EraserToolViewModel, BrushToolbar>(this);
     }
+    
+    public override void KeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown, Key argsKey)
+    {
+        if (shiftIsDown)
+        {
+            ActionDisplay = new LocalizedString("ERASER_TOOL_ACTION_DISPLAY_STRAIGHT_LINE");
+        }
+        else
+        {
+            ActionDisplay = new LocalizedString("ERASER_TOOL_ACTION_DISPLAY");
+        }
+    }
 
     protected override void SwitchToTool()
     {

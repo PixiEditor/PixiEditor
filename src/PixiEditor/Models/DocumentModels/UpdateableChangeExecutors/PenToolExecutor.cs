@@ -2,6 +2,7 @@
 using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.Extensions.CommonApi.Palettes;
+using PixiEditor.Helpers;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 
@@ -26,15 +27,18 @@ internal class PenToolExecutor : BrushBasedExecutor<IPenToolHandler>
         return ExecutionState.Success;
     }
 
-    protected override void EnqueueDrawActions(bool createLine)
+    protected override void EnqueueDrawActions(bool createLine, bool snapLineTo45Incremented = false)
     {
         var point = GetStabilizedPoint();
+        point = ApplyPixelCenterSnappingAndStraightLineSnapping(point, createLine && snapLineTo45Incremented);
+        
         if (createLine)
         {
+            VecD prevPoint = snapToCentersOfPixels ? handler.LastAppliedPoint.Floor() + new VecD(0.5) : handler.LastAppliedPoint;
             IAction actionStart = pixelPerfect
-                ? new PixelPerfectPen_Action(layerId, (VecI)handler.LastAppliedPoint.Floor(), color, drawOnMask,
+                ? new PixelPerfectPen_Action(layerId, (VecI)prevPoint.Floor(), color, drawOnMask,
                     document!.AnimationHandler.ActiveFrameBindable)
-                : new LineBasedPen_Action(layerId, handler.LastAppliedPoint, (float)ToolSize,
+                : new LineBasedPen_Action(layerId, prevPoint, (float)ToolSize,
                     antiAliasing, BrushData, drawOnMask,
                     document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo, controller.LastKeyboardInfo,
                     controller.EditorData);
@@ -53,7 +57,7 @@ internal class PenToolExecutor : BrushBasedExecutor<IPenToolHandler>
                 antiAliasing, BrushData, drawOnMask,
                 document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo, controller.LastKeyboardInfo,
                 controller.EditorData),
-            true => new PixelPerfectPen_Action(layerId, controller!.LastPixelPosition, color, drawOnMask,
+            true => new PixelPerfectPen_Action(layerId, (VecI)point.Floor(), color, drawOnMask,
                 document!.AnimationHandler.ActiveFrameBindable)
         };
 

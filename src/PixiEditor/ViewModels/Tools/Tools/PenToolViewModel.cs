@@ -26,7 +26,14 @@ namespace PixiEditor.ViewModels.Tools.Tools
 
         public override void KeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown, Key argsKey)
         {
-            ActionDisplay = new LocalizedString("PEN_TOOL_ACTION_DISPLAY", Shortcut);
+            if (shiftIsDown)
+            {
+                ActionDisplay = new LocalizedString("PEN_TOOL_ACTION_DISPLAY_STRAIGHT_LINE");
+            }
+            else
+            {
+                ActionDisplay = new LocalizedString("PEN_TOOL_ACTION_DISPLAY");
+            }
         }
 
         protected override Toolbar CreateToolbar()

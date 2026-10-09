@@ -5,6 +5,7 @@ using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
+using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Toolbars;
@@ -40,6 +41,7 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
     protected Guid layerId;
     protected Color color;
     protected bool antiAliasing;
+    protected bool snapToCentersOfPixels;
     protected bool firstApply = true;
 
     protected bool drawOnMask;
@@ -75,6 +77,7 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
         layerId = member.Id;
         color = colorsHandler.PrimaryColor;
         antiAliasing = toolbar.AntiAliasing;
+        snapToCentersOfPixels = toolbar.SnapToCentersOfPixels;
         this.colorsHandler = colorsHandler;
 
         UpdateBrushNodes();
@@ -87,13 +90,15 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
         return ExecutionState.Success;
     }
 
-    protected virtual void EnqueueDrawActions(bool createLine)
+    protected virtual void EnqueueDrawActions(bool createLine, bool snapLineTo45Incremented = false)
     {
         var point = GetStabilizedPoint();
+        point = ApplyPixelCenterSnappingAndStraightLineSnapping(point, createLine && snapLineTo45Incremented);
 
         if (createLine)
         {
-            IAction? actionStart = new LineBasedPen_Action(layerId, handler.LastAppliedPoint, (float)ToolSize,
+            VecD prevPoint = snapToCentersOfPixels ? handler.LastAppliedPoint.Floor() + new VecD(0.5) : handler.LastAppliedPoint;
+            IAction actionStart = new LineBasedPen_Action(layerId, prevPoint, (float)ToolSize,
                 antiAliasing, BrushData, drawOnMask,
                 document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo, controller.LastKeyboardInfo,
                 controller.EditorData);
@@ -114,6 +119,28 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
         internals!.ActionAccumulator.AddActions(action);
     }
 
+    protected VecD ApplyPixelCenterSnappingAndStraightLineSnapping(VecD point, bool snapLineTo45Incremented)
+    {
+        if (snapLineTo45Incremented)
+        {
+            if (snapToCentersOfPixels)
+            {
+                point = GeometryHelper.Get45IncrementedPositionAlignedWithPixelCenters(handler.LastAppliedPoint,
+                    point);
+            }
+            else
+            {
+                point = GeometryHelper.Get45IncrementedPosition(handler.LastAppliedPoint, point);
+            }
+        }
+        else if (snapToCentersOfPixels)
+        {
+            point = point.Floor() + new VecD(0.5, 0.5);
+        }
+
+        return point;
+    } 
+    
     protected VecD GetStabilizedPoint()
     {
         if (firstApply)
@@ -181,7 +208,7 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
     public override void OnLeftMouseButtonDown(MouseOnCanvasEventArgs args)
     {
         base.OnLeftMouseButtonDown(args);
-        EnqueueDrawActions(args.KeyModifiers.HasFlag(KeyModifiers.Shift));
+        EnqueueDrawActions(args.KeyModifiers.HasFlag(KeyModifiers.Shift), args.KeyModifiers.HasFlag(KeyModifiers.Control));
     }
 
     public override void OnPrecisePositionChange(MouseOnCanvasEventArgs args)
