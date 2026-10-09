@@ -2,6 +2,7 @@
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.GraphNavigation;
 using PixiEditor.Models.DocumentModels.Public;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Layers;
@@ -33,7 +34,7 @@ internal class DocumentStructureHelper
                     count++;
             }
 
-            return Traverse.Further;
+            return Traverse.Continue;
         });
         return $"{name} {count}";
     }
@@ -87,7 +88,7 @@ internal class DocumentStructureHelper
         {
             Guid guid = Guid.NewGuid();
             //put member above the layer
-            INodeHandler parent = doc.StructureHelper.GetFirstForwardNode(layer);
+            INodeHandler parent = layer.Navigate().FirstOrDefault(NavigationDirection.Forwards);
             if (parent is null)
                 parent = doc.NodeGraphHandler.OutputNode;
 
@@ -128,7 +129,7 @@ internal class DocumentStructureHelper
 
         //put member above the layer
         INodeHandler parent = selectedMember != null
-            ? doc.StructureHelper.GetFirstForwardNode(selectedMember)
+            ? selectedMember.Navigate().FirstOrDefault(NavigationDirection.Forwards)
             : doc.NodeGraphHandler.OutputNode;
         if (parent is null)
             parent = doc.NodeGraphHandler.OutputNode;
@@ -158,10 +159,10 @@ internal class DocumentStructureHelper
     private void HandleMoveAboveBelow(Guid memberToMove, Guid referenceMemberId, bool above)
     {
         var referenceMember = doc.StructureHelper.FindNode<INodeHandler>(referenceMemberId);
-        var memberToMoveInto = !above ? referenceMember : doc.StructureHelper.GetFirstForwardNode(referenceMember);
+        var memberToMoveInto = !above ? referenceMember : referenceMember.Navigate().FirstOrDefault(NavigationDirection.Forwards);
         if (memberToMoveInto.Id == memberToMove)
         {
-            memberToMoveInto = doc.StructureHelper.GetFirstForwardNode(memberToMoveInto);
+            memberToMoveInto = memberToMoveInto.Navigate().FirstOrDefault(NavigationDirection.Forwards);
         }
 
         internals.ActionAccumulator.AddFinishedActions(

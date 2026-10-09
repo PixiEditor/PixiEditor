@@ -1,6 +1,7 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.GraphNavigation;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document.Nodes;
 using PixiEditor.ViewModels.Document.Nodes.CombineSeparate;
@@ -123,10 +124,10 @@ internal class Color255to1RangeConverter : IGraphUpgrader
             if (prop is ModifyImageRightNodeViewModel)
             {
                 isContextful = true;
-                return Traverse.Exit;
+                return Traverse.ExitInclusive;
             }
 
-            return Traverse.Further;
+            return Traverse.Continue;
         });
 
         return isContextful;

@@ -23,6 +23,7 @@ using PixiEditor.Models.Tools;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.GraphNavigation;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Nodes;
 
@@ -664,10 +665,10 @@ internal class DocumentOperationsModule : IDocumentOperations
             if (!members.Contains(traversedNode.Id))
             {
                 parent = traversedNode;
-                return Traverse.Exit;
+                return Traverse.ExitInclusive;
             }
 
-            return Traverse.Further;
+            return Traverse.Continue;
         });
 
         if (parent is null)

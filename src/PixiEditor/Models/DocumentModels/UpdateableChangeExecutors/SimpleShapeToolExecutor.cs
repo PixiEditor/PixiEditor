@@ -243,9 +243,7 @@ internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor,
 
         Guid child = memberId;
 
-        var parents = document.StructureHelper.GetParents(child);
-
-        foreach (var parent in parents)
+        foreach (var parent in document.StructureHelper.EnumerateParents(child))
         {
             disabledSnappingMembers.Add(parent.Id);
             document.SnappingHandler.Remove(parent.Id.ToString());
