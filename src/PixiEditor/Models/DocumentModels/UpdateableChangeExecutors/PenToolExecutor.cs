@@ -51,7 +51,7 @@ internal class PenToolExecutor : BrushBasedExecutor<IPenToolHandler>
             handler.LastAppliedPoint = point;
         }
 
-        IAction? action = pixelPerfect switch
+        IAction action = pixelPerfect switch
         {
             false => new LineBasedPen_Action(layerId, point, (float)ToolSize,
                 antiAliasing, BrushData, drawOnMask,
@@ -62,6 +62,11 @@ internal class PenToolExecutor : BrushBasedExecutor<IPenToolHandler>
         };
 
         internals!.ActionAccumulator.AddActions(action);
+
+        if (createLine)
+        {
+            EnqueueEndDraw();
+        }
     }
 
     public override void OnSettingsChanged(string name, object value)
@@ -77,12 +82,13 @@ internal class PenToolExecutor : BrushBasedExecutor<IPenToolHandler>
     protected override void EnqueueEndDraw()
     {
         firstApply = true;
-        IAction? action = pixelPerfect switch
+        IAction action = pixelPerfect switch
         {
             false => new EndLineBasedPen_Action(),
             true => new EndPixelPerfectPen_Action()
         };
 
         internals!.ActionAccumulator.AddFinishedActions(action);
+        onEnded?.Invoke(this);
     }
 }

@@ -40,5 +40,10 @@ internal class EraserToolExecutor : BrushBasedExecutor<IEraserToolHandler>
             data);
 
         internals!.ActionAccumulator.AddActions(action);
+        
+        if (createLine)
+        {
+            EnqueueEndDraw();
+        }
     }
 }

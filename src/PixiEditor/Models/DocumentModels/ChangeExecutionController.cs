@@ -20,6 +20,8 @@ internal class ChangeExecutionController
 {
     public bool LeftMousePressed { get; private set; }
     public bool RightMousePressed { get; private set; }
+    public bool ShiftPressed { get; private set; }
+    public bool CtrlPressed { get; private set; }
     public ShapeCorners LastTransformState { get; private set; }
     public VecI LastPixelPosition => lastPixelPos;
     public VecD LastPrecisePosition => lastPrecisePos;
@@ -43,11 +45,6 @@ internal class ChangeExecutionController
     private KeyboardInfo lastKeyboardInfo;
     private bool isTransforming;
     private ViewModelMain viewModelMain;
-
-    private bool shiftPressed;
-    private bool ctrlPressed;
-    private bool altPressed;
-    private bool metaPressed;
 
     private UpdateableChangeExecutor? currentSession = null;
 
@@ -116,12 +113,13 @@ internal class ChangeExecutionController
     private bool StartExecutor(UpdateableChangeExecutor brandNewExecutor)
     {
         isTransforming = false;
+        currentSession = brandNewExecutor;
         if (brandNewExecutor.Start() == ExecutionState.Success)
         {
-            currentSession = brandNewExecutor;
             return true;
         }
 
+        currentSession = null;
         return false;
     }
 

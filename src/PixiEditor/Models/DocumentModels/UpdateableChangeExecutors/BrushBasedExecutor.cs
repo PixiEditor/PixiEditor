@@ -84,7 +84,7 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
 
         if (controller.LeftMousePressed)
         {
-            EnqueueDrawActions(false);
+            EnqueueDrawActions(controller.LastKeyboardInfo.IsShiftPressed, controller.LastKeyboardInfo.IsCtrlPressed);
         }
 
         return ExecutionState.Success;
@@ -111,12 +111,17 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
             handler.LastAppliedPoint = point;
         }
 
-        IAction? action = new LineBasedPen_Action(layerId, point, (float)ToolSize,
+        IAction action = new LineBasedPen_Action(layerId, point, (float)ToolSize,
             antiAliasing, BrushData, drawOnMask,
             document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo, controller.LastKeyboardInfo,
             controller.EditorData);
 
         internals!.ActionAccumulator.AddActions(action);
+        
+        if (createLine)
+        {
+            EnqueueEndDraw();
+        }
     }
 
     protected VecD ApplyPixelCenterSnappingAndStraightLineSnapping(VecD point, bool snapLineTo45Incremented)
@@ -266,6 +271,7 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
     {
         firstApply = true;
         internals!.ActionAccumulator.AddFinishedActions(new EndLineBasedPen_Action());
+        onEnded?.Invoke(this);
     }
 
     public override void ForceStop()
