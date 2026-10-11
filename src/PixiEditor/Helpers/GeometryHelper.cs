@@ -33,41 +33,12 @@ public static class GeometryHelper
     {
         VecD snapped = Get45IncrementedPosition(startPos.Floor() + new VecD(0.5, 0.5), curPos); 
         
-        // in 45 degree case `snapped` can end up directly at the intersection of 4 pixels, which is ambiguous
+        // in the 45 degree case `snapped` can end up directly at the intersection of 4 pixels, which is ambiguous
         if ((snapped - snapped.Round()).LengthSquared < 0.01)
         {
             snapped -= (curPos - startPos).Signs() * 0.5;
         }
         
         return snapped.Floor() + new VecD(0.5, 0.5);
-    }
-
-    public static VecI Get45IncrementedPositionAligned(VecD startPos, VecD curPos)
-    {
-        Span<VecI> positions =
-        [
-            (VecI)(curPos.ProjectOntoLine(startPos, startPos + new VecD(1, 1)) -
-                   new VecD(0.25).Multiply((curPos - startPos).Signs())).Round(),
-            (VecI)(curPos.ProjectOntoLine(startPos, startPos + new VecD(1, -1)) -
-                   new VecD(0.25).Multiply((curPos - startPos).Signs())).Round(),
-            (VecI)(curPos.ProjectOntoLine(startPos, startPos + new VecD(1, 0)) -
-                   new VecD(0.25).Multiply((curPos - startPos).Signs())).Round(),
-            (VecI)(curPos.ProjectOntoLine(startPos, startPos + new VecD(0, 1)) -
-                   new VecD(0.25).Multiply((curPos - startPos).Signs())).Round()
-        ];
-
-        VecI max = positions[0];
-        double maxLength = double.MaxValue;
-        foreach (var pos in positions)
-        {
-            double length = (pos - curPos).LengthSquared;
-            if (length < maxLength)
-            {
-                maxLength = length;
-                max = pos;
-            }
-        }
-
-        return max;
     }
 }
