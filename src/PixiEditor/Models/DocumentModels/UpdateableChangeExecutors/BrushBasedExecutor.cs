@@ -77,10 +77,10 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
         layerId = member.Id;
         color = colorsHandler.PrimaryColor;
         antiAliasing = toolbar.AntiAliasing;
-        snapToCentersOfPixels = toolbar.SnapToCentersOfPixels;
         this.colorsHandler = colorsHandler;
 
         UpdateBrushNodes();
+        snapToCentersOfPixels = outputNode.SnapToPixels.Value;
 
         if (controller.LeftMousePressed)
         {

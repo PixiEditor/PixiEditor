@@ -748,7 +748,6 @@
   "HARDNESS_SETTING": "Hardness",
   "SPACING_SETTING": "Spacing",
   "ANTI_ALIASING_SETTING": "Anti-aliasing",
-  "SNAP_TO_CENTERS_OF_PIXELS_SETTING": "Snap to centers of pixels",
   "TOLERANCE_LABEL": "Tolerance",
   "TOGGLE_SNAPPING": "Toggle snapping",
   "HIGH_RES_PREVIEW": "High Resolution Preview",

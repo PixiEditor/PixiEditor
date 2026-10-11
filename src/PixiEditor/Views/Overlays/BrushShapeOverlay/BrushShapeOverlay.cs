@@ -125,7 +125,7 @@ internal class BrushShapeOverlay : Overlay
 
     private DashedStroke straightLinePreview = new();
 
-    private ChangeableDocument.Changeables.Brushes.BrushEngine engine = new();
+    private BrushEngine engine = new();
 
     private Drawie.Backend.Core.ColorsImpl.Color ropeColor;
     private Drawie.Backend.Core.ColorsImpl.Color pointColor;

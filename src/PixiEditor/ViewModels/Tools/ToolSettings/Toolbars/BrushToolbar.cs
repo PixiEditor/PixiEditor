@@ -14,12 +14,6 @@ internal class BrushToolbar : Toolbar, IBrushToolbar
         set => GetSetting<BoolSettingViewModel>(nameof(AntiAliasing)).Value = value;
     }
     
-    public bool SnapToCentersOfPixels
-    {
-        get => GetSetting<BoolSettingViewModel>(nameof(SnapToCentersOfPixels)).Value;
-        set => GetSetting<BoolSettingViewModel>(nameof(SnapToCentersOfPixels)).Value = value;
-    }
-
     public double ToolSize
     {
         get => GetSetting<SizeSettingViewModel>(nameof(ToolSize)).Value;
@@ -86,7 +80,6 @@ internal class BrushToolbar : Toolbar, IBrushToolbar
     public BrushToolbar()
     {
         AddSetting(new BoolSettingViewModel(nameof(AntiAliasing), "ANTI_ALIASING_SETTING") { IsExposed = false });
-        AddSetting(new BoolSettingViewModel(nameof(SnapToCentersOfPixels), "SNAP_TO_CENTERS_OF_PIXELS_SETTING") { IsExposed = false });
         var setting = new SizeSettingViewModel(nameof(ToolSize), "TOOL_SIZE_LABEL", decimalPlaces: 1, min: 0.1);
         setting.ValueChanged += (_, _) => OnPropertyChanged(nameof(ToolSize));
         AddSetting(setting);
