@@ -153,6 +153,9 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         if (inlines.All(x => x.Font.Slant == first.Font.Slant))
             toolbar.Italic = first.Font.Slant != FontStyleSlant.Upright;
 
+        if(inlines.All(x => x.Font.Weight == first.Font.Weight))
+            toolbar.Bold = first.Font.Weight == FontStyleWeight.Bold;
+
         if (inlines.All(x => x.Fill == first.Fill))
             toolbar.Fill = first.Fill;
 

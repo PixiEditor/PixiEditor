@@ -449,7 +449,7 @@ internal class TextOverlay : Overlay
 
         for (int i = 0; i < surrogateLessText.Length; i++)
         {
-            if(char.IsLowSurrogate(surrogateLessText[i]))
+            if (char.IsLowSurrogate(surrogateLessText[i]))
             {
                 surrogateLessText = surrogateLessText.Remove(i, 1);
                 i--;
@@ -479,18 +479,9 @@ internal class TextOverlay : Overlay
         int start = Math.Min(CursorPosition, SelectionEnd);
         int end = Math.Max(CursorPosition, SelectionEnd);
 
-        if(richText.RawText.Length == 0) return;
+        if (richText.RawText.Length == 0) return;
 
-        for (int i = start; i <= end; i++)
-        {
-            string currentChar = richText.GetCharAtCursor(i);
-            if(currentChar != null)
-            {
-                sb.Append(currentChar);
-            }
-        }
-
-        string selectedText = sb.ToString();
+        string selectedText = richText.RawText[start..end];
 
         if (asUnicode)
         {
@@ -610,32 +601,78 @@ internal class TextOverlay : Overlay
     {
         int selectionStart = Math.Min(CursorPosition, SelectionEnd);
         int selectionEnd = Math.Max(CursorPosition, SelectionEnd);
+        var inlines = Text.Inlines.ToList();
+        var cloned = Text.Clone();
+        TextInline? firstInline = null;
+        int firstLocalOffset = 0;
+        int globalOffset = 0;
 
-        int startOffset = GetTextOffset(selectionStart);
-        int endOffset = GetTextOffset(selectionEnd);
-
-        TextInline? inlineAtCursor =
-            Text.GetInlineAt(selectionStart, out int inlineStartOffset, out int inlineEndOffset);
-
-        if (inlineAtCursor != null)
+        for (int i = 0; i < inlines.Count; i++)
         {
-            startOffset -= inlineStartOffset;
-            endOffset -= inlineStartOffset;
+            var inline = inlines[i];
+            string text = inline.Text;
+            var enumerator = StringInfo.GetTextElementEnumerator(text);
+            var glyphOffsets = new List<int>();
 
-            inlineAtCursor.Text = inlineAtCursor.Text.Remove(startOffset, endOffset - startOffset);
-            inlineAtCursor.Text = inlineAtCursor.Text.Insert(startOffset, toAdd);
+            while (enumerator.MoveNext())
+                glyphOffsets.Add(enumerator.ElementIndex);
 
-            int indexOfInline = Text.IndexOfInline(inlineAtCursor);
-            var cloned = Text.Clone();
-            cloned.UpdateInline(indexOfInline, inlineAtCursor);
-            Text = cloned;
+            int glyphCount = glyphOffsets.Count;
+            int inlineEnd = globalOffset + glyphCount;
+
+            if (firstInline == null && selectionStart >= globalOffset && selectionStart <= inlineEnd)
+            {
+                firstInline = inline;
+                firstLocalOffset = selectionStart - globalOffset;
+            }
+
+            int localStart = Math.Clamp(selectionStart - globalOffset, 0, glyphCount);
+            int localEnd = Math.Clamp(selectionEnd - globalOffset, 0, glyphCount);
+
+            if (localEnd > localStart)
+            {
+                int charStart = glyphOffsets[localStart];
+                int charEnd = localEnd < glyphCount ? glyphOffsets[localEnd] : text.Length;
+                inline.Text = text.Remove(charStart, charEnd - charStart);
+            }
+
+            globalOffset = inlineEnd;
         }
 
-        int addedLength = StringInfo.ParseCombiningCharacters(toAdd).Length;
+        if (firstInline != null)
+        {
+            string text = firstInline.Text;
+            var enumerator = StringInfo.GetTextElementEnumerator(text);
+            int glyphIndex = 0;
+            int charOffset = text.Length;
+
+            while (enumerator.MoveNext())
+            {
+                if (glyphIndex == firstLocalOffset)
+                {
+                    charOffset = enumerator.ElementIndex;
+                    break;
+                }
+
+                glyphIndex++;
+            }
+
+            firstInline.Text = text.Insert(charOffset, toAdd);
+        }
+
+        for (int i = 0; i < inlines.Count; i++)
+            cloned.UpdateInline(i, inlines[i]);
+
+        Text = cloned;
+
+        int addedLength = 0;
+        var addedEnumerator = StringInfo.GetTextElementEnumerator(toAdd);
+
+        while (addedEnumerator.MoveNext())
+            addedLength++;
 
         CursorPosition = selectionStart + addedLength;
         SelectionEnd = CursorPosition;
-
         lastXMovementCursorIndex = CursorPosition;
     }
 
@@ -671,6 +708,7 @@ internal class TextOverlay : Overlay
 
                     currentText.UpdateInline(i, inline);
                 }
+
                 inlineOffset = inlineEnd;
             }
 

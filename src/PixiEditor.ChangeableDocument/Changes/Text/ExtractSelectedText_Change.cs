@@ -227,75 +227,122 @@ internal class ExtractSelectedText_Change : Change
 
         var result = new List<(RichText text, VecD offset)>();
         int currentStart = 0;
-        int currentStartLineIndex = 0;
+        originalText.IndexOnLine(selectionStart, out int startLineIndex);
+        originalText.IndexOnLine(selectionEnd, out int endLineIndex);
         int cursorPos = 0;
+        int offsetPos = 0;
+        int currentOffsetPos = 0;
         RichText currentRichText = new RichText();
-        var glyphPositions = text.GetGlyphPositions(true);
+        var glyphPositions = text.GetGlyphPositions(false);
 
         foreach (var textInline in text.Inlines)
         {
             var inlineText = GetTextElements(textInline.Text);
+            if (inlineText.Length == 0) continue;
             SetupRichTextInline(textInline, currentRichText);
             foreach (var elem in inlineText)
             {
-                if (IsBoundary(elem, currentStart, currentStartLineIndex, cursorPos))
+                if (IsBoundary(elem, currentStart, startLineIndex, endLineIndex, cursorPos, extractEachCharacter))
                 {
-                    VecD offset = (VecD)glyphPositions[currentStart];
-                    result.Add(new(currentRichText, offset));
-                    currentRichText = new RichText();
-                    SetupRichTextInline(textInline, currentRichText);
-                    currentStart = cursorPos;
-                    text.IndexOnLine(cursorPos, out currentStartLineIndex);
+                    VecD offset = (VecD)glyphPositions[currentOffsetPos];
+                    TrimEmpty(currentRichText);
+                    if (!string.IsNullOrEmpty(currentRichText.RawText))
+                    {
+                        result.Add(new(currentRichText, offset));
+                        currentRichText = new RichText();
+                        SetupRichTextInline(textInline, currentRichText);
+
+                        currentStart = cursorPos;
+                        currentOffsetPos = offsetPos;
+                    }
                 }
 
                 currentRichText.Inlines.LastOrDefault().Text += elem;
 
                 cursorPos++;
+                if (elem != "\n")
+                {
+                    offsetPos++;
+                }
             }
         }
 
         if (currentRichText.Inlines.LastOrDefault()?.Text != "")
         {
-            VecD offset = (VecD)glyphPositions[currentStart];
-            result.Add(new(currentRichText, offset));
+            if (currentRichText.RawText != "\n")
+            {
+                VecD offset = (VecD)glyphPositions[currentOffsetPos];
+                TrimEmpty(currentRichText);
+                if(!string.IsNullOrEmpty(currentRichText.RawText))
+                {
+                    result.Add(new(currentRichText, offset));
+                }
+            }
         }
 
         return result;
     }
 
-    private bool IsBoundary(string elem, int startingPos, int startingIndex, int cursorPos)
+    private void TrimEmpty(RichText currentRichText)
     {
-        int indexOnLine = originalText.IndexOnLine(cursorPos, out int lineIndex);
+        for (var i = 0; i < currentRichText.Inlines.Count; i++)
+        {
+            var textInline = currentRichText.Inlines[i];
+            if (textInline.Text.Length > 1 || i == 0 || i == currentRichText.Inlines.Count - 1)
+                textInline.Text = textInline.Text.Trim('\n');
+        }
+    }
+
+    private bool IsBoundary(string elem, int startingPos, int startingIndex, int endingIndex, int cursorPos,
+        bool extractEachCharacter)
+    {
+        originalText.IndexOnLine(cursorPos, out int lineIndex);
+        var startEnd = originalText.GetLineStartEnd(lineIndex);
 
         bool wasApproachingSelection = startingPos < selectionStart;
-        bool isApproachingSelection = cursorPos < selectionStart;
         bool wasWithinSelection = startingPos >= selectionStart && startingPos < selectionEnd;
         bool isWithinSelection = cursorPos >= selectionStart && cursorPos <= selectionEnd;
         bool isPastSelection = cursorPos > selectionEnd;
+
+        bool isNewLine = elem == "\n";
+        bool startedInTheMiddleOfTheLine = startingPos > startEnd.lineStart && startingPos < startEnd.lineEnd;
+        bool isStartingLine = startingIndex == lineIndex;
+        bool isEndingLine = endingIndex == lineIndex;
+        bool isFullyCoveredLine = !isStartingLine && !isEndingLine;
 
         if (wasApproachingSelection)
         {
             return isWithinSelection;
         }
 
+        if (extractEachCharacter && elem != "\n" && isWithinSelection)
+        {
+            return true;
+        }
+
         if (wasWithinSelection && isWithinSelection)
         {
-            return cursorPos == selectionEnd;
+            if (isNewLine)
+            {
+                return !isFullyCoveredLine;
+            }
+            else
+            {
+                return cursorPos == selectionEnd;
+            }
         }
-        else if (!wasWithinSelection && isPastSelection)
+
+        if (!wasWithinSelection && isPastSelection)
         {
+            if (isNewLine)
+            {
+                return startedInTheMiddleOfTheLine;
+            }
+
             return cursorPos == originalText.TextGlyphCount;
         }
 
-        return !IsFullyContainedWithinLine(elem, indexOnLine, startingPos, startingIndex, lineIndex);
-    }
-
-    private bool IsFullyContainedWithinLine(string elem, int indexOnLine, int startingPos, int startingIndex,
-        int lineIndex)
-    {
-        if (startingIndex == lineIndex && indexOnLine == 0) return true;
-
-        return false;
+        return isNewLine && !isFullyCoveredLine;
     }
 
     private static void SetupRichTextInline(TextInline textInline, RichText currentRichText)
