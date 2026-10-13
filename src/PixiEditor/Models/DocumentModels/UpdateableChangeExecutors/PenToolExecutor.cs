@@ -30,11 +30,14 @@ internal class PenToolExecutor : BrushBasedExecutor<IPenToolHandler>
     protected override void EnqueueDrawActions(bool createLine, bool snapLineTo45Incremented = false)
     {
         var point = GetStabilizedPoint();
-        point = ApplyPixelCenterSnappingAndStraightLineSnapping(point, createLine && snapLineTo45Incremented);
-        
-        if (createLine)
+        point = ApplyPixelCenterSnapping(point);
+        createLine = createLine && document.LastBrushToolUseEndPositionBindable is not null;
+        if (createLine && document.LastBrushToolUseEndPositionBindable is VecD lastToolUsePosition)
         {
-            VecD prevPoint = snapToCentersOfPixels ? handler.LastAppliedPoint.Floor() + new VecD(0.5) : handler.LastAppliedPoint;
+            if (snapLineTo45Incremented)
+                point = ApplyStraightLineSnappingTo45(point, lastToolUsePosition);
+
+            VecD prevPoint = snapToCentersOfPixels ? lastToolUsePosition.Floor() + new VecD(0.5) : lastToolUsePosition;
             IAction actionStart = pixelPerfect
                 ? new PixelPerfectPen_Action(layerId, (VecI)prevPoint.Floor(), color, drawOnMask,
                     document!.AnimationHandler.ActiveFrameBindable)
@@ -44,11 +47,6 @@ internal class PenToolExecutor : BrushBasedExecutor<IPenToolHandler>
                     controller.EditorData);
 
             internals!.ActionAccumulator.AddActions(actionStart);
-        }
-
-        if (handler != null)
-        {
-            handler.LastAppliedPoint = point;
         }
 
         IAction action = pixelPerfect switch
@@ -61,6 +59,11 @@ internal class PenToolExecutor : BrushBasedExecutor<IPenToolHandler>
                 document!.AnimationHandler.ActiveFrameBindable)
         };
 
+        if (handler != null)
+        {
+            handler.LastAppliedPoint = point;
+        }
+        
         internals!.ActionAccumulator.AddActions(action);
 
         if (createLine)

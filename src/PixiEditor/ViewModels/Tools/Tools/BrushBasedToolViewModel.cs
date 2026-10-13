@@ -31,7 +31,6 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
     public bool SupportsSecondaryActionOnRightClick { get; set; }
     public override string DefaultIcon => defaultIcon;
 
-
     public VecD LastAppliedPoint
     {
         get => lastPoint;

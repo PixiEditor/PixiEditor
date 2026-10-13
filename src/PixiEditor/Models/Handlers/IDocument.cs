@@ -47,6 +47,7 @@ internal interface IDocument : IHandler, Extensions.CommonApi.Documents.IDocumen
     public ISnappingHandler SnappingHandler { get; }
     public IReadOnlyCollection<Guid> SelectedMembers { get; }
     public Dictionary<Guid, Texture> SceneTextures { get; }
+    public VecD? LastBrushToolUseEndPositionBindable { get; }
     public SceneRenderer SceneRenderer { get; }
     public ColorSpace ProcessingColorSpace { get; }
     public bool IsDisposed { get; }
@@ -61,7 +62,8 @@ internal interface IDocument : IHandler, Extensions.CommonApi.Documents.IDocumen
     public void UpdateSelectionPath(VectorPath infoNewPath);
     public void SetProcessingColorSpace(ColorSpace infoColorSpace);
     public void SetSize(VecI infoSize);
-
+    public void SetLastBrushToolUseEndPosition(VecD? position);
+    
     public Color PickColor(VecD controllerLastPrecisePosition, DocumentScope scope, bool includeReference,
         bool includeCanvas, int frame, bool isTopMost, string? customOutput, Guid? viewportId = null);
 

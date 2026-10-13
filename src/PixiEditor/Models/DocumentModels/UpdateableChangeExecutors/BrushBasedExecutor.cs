@@ -80,7 +80,7 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
         this.colorsHandler = colorsHandler;
 
         UpdateBrushNodes();
-        snapToCentersOfPixels = outputNode.SnapToPixels.Value;
+        snapToCentersOfPixels = outputNode?.SnapToPixels.Value ?? false;
 
         if (controller.LeftMousePressed)
         {
@@ -93,11 +93,14 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
     protected virtual void EnqueueDrawActions(bool createLine, bool snapLineTo45Incremented = false)
     {
         var point = GetStabilizedPoint();
-        point = ApplyPixelCenterSnappingAndStraightLineSnapping(point, createLine && snapLineTo45Incremented);
-
-        if (createLine)
+        point = ApplyPixelCenterSnapping(point);
+        createLine = createLine && document.LastBrushToolUseEndPositionBindable is not null;
+        if (createLine && document.LastBrushToolUseEndPositionBindable is VecD lastToolUsePosition)
         {
-            VecD prevPoint = snapToCentersOfPixels ? handler.LastAppliedPoint.Floor() + new VecD(0.5) : handler.LastAppliedPoint;
+            if (snapLineTo45Incremented)
+                point = ApplyStraightLineSnappingTo45(point, lastToolUsePosition);
+        
+            VecD prevPoint = snapToCentersOfPixels ? lastToolUsePosition.Floor() + new VecD(0.5) : lastToolUsePosition;
             IAction actionStart = new LineBasedPen_Action(layerId, prevPoint, (float)ToolSize,
                 antiAliasing, BrushData, drawOnMask,
                 document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo, controller.LastKeyboardInfo,
@@ -105,7 +108,7 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
 
             internals!.ActionAccumulator.AddActions(actionStart);
         }
-
+        
         if (handler != null)
         {
             handler.LastAppliedPoint = point;
@@ -124,27 +127,24 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
         }
     }
 
-    protected VecD ApplyPixelCenterSnappingAndStraightLineSnapping(VecD point, bool snapLineTo45Incremented)
+    protected VecD ApplyPixelCenterSnapping(VecD curPoint)
     {
-        if (snapLineTo45Incremented)
+        if (snapToCentersOfPixels)
         {
-            if (snapToCentersOfPixels)
-            {
-                point = GeometryHelper.Get45IncrementedPositionAlignedWithPixelCenters(handler.LastAppliedPoint,
-                    point);
-            }
-            else
-            {
-                point = GeometryHelper.Get45IncrementedPosition(handler.LastAppliedPoint, point);
-            }
+            curPoint = curPoint.Floor() + new VecD(0.5, 0.5);
         }
-        else if (snapToCentersOfPixels)
-        {
-            point = point.Floor() + new VecD(0.5, 0.5);
-        }
+        return curPoint;
+    }
 
-        return point;
-    } 
+    protected VecD ApplyStraightLineSnappingTo45(VecD curPoint, VecD lineStartPoint)
+    {
+        if (snapToCentersOfPixels)
+        {
+            return GeometryHelper.Get45IncrementedPositionAlignedWithPixelCenters(lineStartPoint,
+                curPoint);
+        }
+        return GeometryHelper.Get45IncrementedPosition(lineStartPoint, curPoint);
+    }
     
     protected VecD GetStabilizedPoint()
     {
@@ -213,7 +213,9 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
     public override void OnLeftMouseButtonDown(MouseOnCanvasEventArgs args)
     {
         base.OnLeftMouseButtonDown(args);
-        EnqueueDrawActions(args.KeyModifiers.HasFlag(KeyModifiers.Shift), args.KeyModifiers.HasFlag(KeyModifiers.Control));
+        EnqueueDrawActions(
+            args.KeyModifiers.HasFlag(KeyModifiers.Shift), 
+            args.KeyModifiers.HasFlag(KeyModifiers.Control));
     }
 
     public override void OnPrecisePositionChange(MouseOnCanvasEventArgs args)

@@ -46,6 +46,10 @@ internal class BrushShapeOverlay : Overlay
         AvaloniaProperty.Register<BrushShapeOverlay, double>(
             nameof(Stabilization));
 
+    public static readonly StyledProperty<VecD?> LastBrushToolUseEndPositionProperty =
+        AvaloniaProperty.Register<BrushShapeOverlay, VecD?>(
+            nameof(LastBrushToolUseEndPosition));
+    
     public static readonly StyledProperty<VecD> LastAppliedPointProperty =
         AvaloniaProperty.Register<BrushShapeOverlay, VecD>(
             nameof(LastAppliedPoint));
@@ -54,6 +58,12 @@ internal class BrushShapeOverlay : Overlay
     {
         get => GetValue(LastAppliedPointProperty);
         set => SetValue(LastAppliedPointProperty, value);
+    }
+    
+    public VecD? LastBrushToolUseEndPosition
+    {
+        get => GetValue(LastBrushToolUseEndPositionProperty);
+        set => SetValue(LastBrushToolUseEndPositionProperty, value);
     }
 
     public double Stabilization
@@ -324,13 +334,13 @@ internal class BrushShapeOverlay : Overlay
                 targetCanvas.DrawPath(BrushShape, paint);
             }
 
-            if (!isMouseDown && isShiftDown)
+            if (!isMouseDown && isShiftDown && LastBrushToolUseEndPosition is VecD lastEndPosition)
             {
                 VecD previewEnd = isCtrlDown
-                    ? GeometryHelper.Get45IncrementedPosition(LastAppliedPoint, lastPoint)
+                    ? GeometryHelper.Get45IncrementedPosition(lastEndPosition, lastPoint)
                     : lastPoint;
 
-                straightLinePreview.Draw(targetCanvas, LastAppliedPoint, previewEnd);
+                straightLinePreview.Draw(targetCanvas, lastEndPosition, previewEnd);
             }
 
             targetCanvas.Restore();
