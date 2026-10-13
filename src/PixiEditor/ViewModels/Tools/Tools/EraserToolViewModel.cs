@@ -1,4 +1,5 @@
 ﻿using Avalonia.Input;
+using Drawie.Numerics;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.UI.Common.Localization;
@@ -39,12 +40,9 @@ internal class EraserToolViewModel : BrushBasedToolViewModel, IEraserToolHandler
         }
     }
 
-    protected override void SwitchToTool()
+    public override void UseTool(VecD pos)
     {
+        EnsureBrushShapeSettings();
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseEraserTool();
-        if (!createdBrushSettings)
-        {
-            AddBrushShapeSettings();
-        }
     }
 }
