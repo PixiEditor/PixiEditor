@@ -75,8 +75,7 @@ internal class ChangeExecutionController
     {
         if (!CanStartExecutor(force))
             return false;
-        if (force)
-            currentSession?.ForceStop();
+        currentSession?.ForceStop();
 
         T executor = new T();
         return TryStartExecutorInternal(executor);
