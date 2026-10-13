@@ -129,20 +129,17 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
         return !string.IsNullOrEmpty(Text.RawText);
     }
 
-    /*protected override void AdjustCopy(ShapeVectorData copy)
+    protected override void AdjustCopy(ShapeVectorData copy)
     {
         if (copy is TextVectorData textData)
         {
-            textData.Font = Font;
-            textData.Text = Text;
+            textData.Text = Text.Clone();
             textData.Position = Position;
-            textData.Spacing = Spacing;
             textData.AntiAlias = AntiAlias;
-            textData.MissingFontFamily = MissingFontFamily;
             textData.MissingFontText = MissingFontText;
             textData.MaxWidth = MaxWidth;
         }
-    }*/
+    }
 
     protected override int GetSpecificHash()
     {
