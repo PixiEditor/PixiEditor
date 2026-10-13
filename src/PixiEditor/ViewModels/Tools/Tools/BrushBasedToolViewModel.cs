@@ -112,6 +112,7 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
     public void OnToolSelected(bool restoring)
     {
         EnsureBrushShapeSettings();
+        ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument.Operations.ResetLastBrushToolUseEndPosition();
     }
 
     public void OnPostUndoInlet()
