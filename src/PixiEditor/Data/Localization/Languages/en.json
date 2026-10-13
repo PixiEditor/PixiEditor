@@ -788,6 +788,8 @@
   "OUTPUT_NAME": "Output name",
   "CUSTOM_OUTPUT_NODE": "Custom Output",
   "TOGGLE_HUD": "Toggle HUD",
+  "RESET_LAYOUT": "Reset layout to default",
+  "RESET_LAYOUT_DESCRIPTIVE": "Revert the panel arrangement back to PixiEditor's default layout.",
   "OPEN_TIMELINE": "Open timeline",
   "OPEN_NODE_GRAPH": "Open node graph",
   "TOGGLE_PLAY": "Play/Pause animation",
