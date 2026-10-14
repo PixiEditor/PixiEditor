@@ -224,6 +224,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         {
             double distance = Math.Abs(clickPos.Y - args.Point.PositionOnCanvas.Y);
             if (!wasDrawingSize && distance < 10) return;
+            if (!string.IsNullOrEmpty(lastText.RawText)) return;
             wasDrawingSize = true;
             position = new VecD(position.X, args.Point.PositionOnCanvas.Y);
             document.TextOverlayHandler.Position = position;
