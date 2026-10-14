@@ -36,7 +36,7 @@ public class TextNode : ShapeNode<TextVectorData>
         FontFamilyName fontFamily = FontFamily.Value;
         double fontSize = FontSize.Value;
 
-        if (text == lastText && position == lastPosition && fontFamily.Equals(lastFontFamily) && fontSize == lastFontSize)
+        if (text == lastText && position == lastPosition && fontFamily.Equals(lastFontFamily) && Math.Abs(fontSize - lastFontSize) < float.Epsilon)
         {
             return cachedData;
         }
@@ -48,6 +48,7 @@ public class TextNode : ShapeNode<TextVectorData>
 
         FontData font = FontData.CreateDefault() with { Family = fontFamily, Size = fontSize };
 
+        cachedData?.Text?.Dispose();
         cachedData = new TextVectorData()
         {
             Text = new RichText(text, font),

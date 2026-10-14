@@ -37,6 +37,8 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
     private bool isListeningForValidLayer;
     private VectorPath? onPath;
 
+    private HashSet<RichText> usedRichTexts = new HashSet<RichText>();
+
     private IDisposable? pendingMergeTimer;
 
     private List<TextInline> inlinesInRange = new();
@@ -98,6 +100,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             lastRawText = textData.Text.RawText;
             position = textData.Position;
             lastMatrix = textData.TransformationMatrix;
+            usedRichTexts.Add(lastText);
         }
         else if (shape is null)
         {
@@ -115,6 +118,8 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
             lastText = newEmpty.Clone();
             lastRawText = newEmpty.RawText;
+            usedRichTexts.Add(newEmpty);
+            usedRichTexts.Add(lastText);
             // TODO: Implement proper putting on path editing
             /*if (controller.LeftMousePressed)
             {
@@ -248,6 +253,11 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
     public override void ForceStop()
     {
         isActive = false;
+        foreach (var richText in usedRichTexts)
+        {
+            richText?.Dispose();
+        }
+
         pendingMergeTimer?.Dispose();
         internals.ActionAccumulator.AddFinishedActions(new EndSetShapeGeometry_Action());
         document?.TextOverlayHandler?.Hide();
@@ -273,8 +283,11 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             new SetShapeGeometry_Action(selectedMember.Id, constructedText, VectorShapeChangeType.GeometryData),
             new EndSetShapeGeometry_Action(),
             new SetLowDpiRendering_Action(selectedMember.Id, toolbar.ForceLowDpiRendering));
+
+        lastText?.Dispose();
         lastText = text;
         lastRawText = text?.RawText;
+        usedRichTexts.Add(text);
         pendingMergeTimer?.Dispose();
     }
 
@@ -336,6 +349,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         };
 
         UpdateTextData(text, changeType);
+        usedRichTexts.Add(text);
         pendingMergeTimer?.Dispose();
         pendingMergeTimer = DispatcherTimer.RunOnce(() =>
         {

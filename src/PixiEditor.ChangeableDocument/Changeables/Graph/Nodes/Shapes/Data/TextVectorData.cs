@@ -144,7 +144,7 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
     protected override int GetSpecificHash()
     {
         HashCode hash = new();
-        hash.Add(Text);
+        hash.Add(Text.GetCacheHash());
         hash.Add(Position);
         hash.Add(AntiAlias);
         hash.Add(MissingFontText);

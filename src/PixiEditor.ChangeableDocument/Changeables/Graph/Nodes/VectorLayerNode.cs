@@ -10,12 +10,14 @@ using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Backend.Core.Text;
 using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 [NodeInfo("VectorLayer")]
-public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorNode, IRasterizable, IScalable, IQuickColorChangeable
+public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorNode, IRasterizable, IScalable,
+    IQuickColorChangeable
 {
     public InputProperty<ShapeVectorData> InputVector { get; }
     public OutputProperty<ShapeVectorData> Shape { get; }
@@ -103,7 +105,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
 
     protected override bool ShouldRenderPreview(string elementToRenderName)
     {
-        if(RenderableShapeData == null)
+        if (RenderableShapeData == null)
         {
             return false;
         }
@@ -165,7 +167,8 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         return GetTightBounds(frameTime);
     }
 
-    internal override void SerializeAdditionalDataInternal(IReadOnlyDocument target, Dictionary<string, object> additionalData)
+    internal override void SerializeAdditionalDataInternal(IReadOnlyDocument target,
+        Dictionary<string, object> additionalData)
     {
         base.SerializeAdditionalDataInternal(target, additionalData);
         additionalData["ShapeData"] = EmbeddedShapeData;
@@ -261,7 +264,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
     {
         if (colors == null) return null;
 
-        if(EmbeddedShapeData is null)
+        if (EmbeddedShapeData is null)
         {
             return null;
         }
@@ -270,37 +273,91 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
 
         if (shapeData is null) return null;
 
-        if (colors.Length == 1)
+        if (shapeData is TextVectorData textVectorData)
         {
-            var color = colors[0];
-            bool fillChange = shapeData is { Fill: true, FillPaintable: ColorPaintable { AnythingVisible: true } cp } &&
-                              cp.Color != color;
-            bool strokeChange =
-                shapeData is { StrokeWidth: > 0, Stroke: ColorPaintable { AnythingVisible: true } cp2 } &&
-                cp2.Color != color;
-
-            if (!fillChange && !strokeChange) return null;
-
-            if (fillChange)
+            if (!UpdateTextVectorData(textVectorData, colors))
             {
-                shapeData.FillPaintable = color == null ? null : new ColorPaintable(color.Value);
-            }
-
-            if (strokeChange)
-            {
-                shapeData.Stroke = color == null ? null : new ColorPaintable(color.Value);
+                return null;
             }
         }
-        else if (colors.Length == 2)
+        else
         {
-            shapeData.FillPaintable = colors[0] == null ? null : new ColorPaintable(colors[0].Value);
-            shapeData.Stroke = colors[1] == null ? null : new ColorPaintable(colors[1].Value);
+            if (colors.Length == 1)
+            {
+                var color = colors[0];
+                bool fillChange = shapeData is
+                                      { Fill: true, FillPaintable: ColorPaintable { AnythingVisible: true } cp } &&
+                                  cp.Color != color;
+                bool strokeChange =
+                    shapeData is { StrokeWidth: > 0, Stroke: ColorPaintable { AnythingVisible: true } cp2 } &&
+                    cp2.Color != color;
+
+                if (!fillChange && !strokeChange) return null;
+
+                if (fillChange)
+                {
+                    shapeData.FillPaintable = color == null ? null : new ColorPaintable(color.Value);
+                }
+
+                if (strokeChange)
+                {
+                    shapeData.Stroke = color == null ? null : new ColorPaintable(color.Value);
+                }
+            }
+            else if (colors.Length == 2)
+            {
+                shapeData.FillPaintable = colors[0] == null ? null : new ColorPaintable(colors[0].Value);
+                shapeData.Stroke = colors[1] == null ? null : new ColorPaintable(colors[1].Value);
+            }
         }
 
         return
         [
-            new VectorShape_ChangeInfo(Id, new AffectedArea(OperationHelper.FindChunksTouchingRectangle((RectI)shapeData.TransformedAABB, ChunkyImage.FullChunkSize)))
+            new VectorShape_ChangeInfo(Id,
+                new AffectedArea(OperationHelper.FindChunksTouchingRectangle((RectI)shapeData.TransformedAABB,
+                    ChunkyImage.FullChunkSize)))
         ];
+    }
+
+    private bool UpdateTextVectorData(TextVectorData textVectorData, Color?[] colors)
+    {
+        bool anySucceeded = true;
+        foreach (var textInline in textVectorData.Text.Inlines)
+        {
+            if (colors.Length == 1)
+            {
+                var color = colors[0];
+                bool fillChange = textInline is
+                                      { Fill: true, FillPaintable: ColorPaintable { AnythingVisible: true } cp } &&
+                                  cp.Color != color;
+                bool strokeChange =
+                    textInline is { StrokeWidth: > 0, StrokePaintable: ColorPaintable { AnythingVisible: true } cp2 } &&
+                    cp2.Color != color;
+
+                if (!fillChange && !strokeChange)
+                {
+                    anySucceeded = false;
+                    continue;
+                }
+
+                if (fillChange)
+                {
+                    textInline.FillPaintable = color == null ? null : new ColorPaintable(color.Value);
+                }
+
+                if (strokeChange)
+                {
+                    textInline.StrokePaintable = color == null ? null : new ColorPaintable(color.Value);
+                }
+            }
+            else if (colors.Length == 2)
+            {
+                textInline.FillPaintable = colors[0] == null ? null : new ColorPaintable(colors[0].Value);
+                textInline.StrokePaintable = colors[1] == null ? null : new ColorPaintable(colors[1].Value);
+            }
+        }
+
+        return anySucceeded;
     }
 
     public Color?[] GetColors()
