@@ -58,7 +58,7 @@ internal class TextSerializationFactory : VectorShapeSerializationFactory<TextVe
         float strokeWidth, (string serializerName, string serializerVersion) serializerData,
         out TextVectorData original)
     {
-        if (IsFilePreVersion(serializerData, new Version(2, 2, 0, 1)))
+        if (IsFilePreVersion(serializerData, new Version(2, 2, 0, 2)))
         {
             return DeserializeOld(extractor, matrix, strokePaintable, fill, fillPaintable, strokeWidth, serializerData,
                 out original);
@@ -173,6 +173,7 @@ internal class TextSerializationFactory : VectorShapeSerializationFactory<TextVe
         bool italic = extractor.GetBool();
 
         double maxWidth = extractor.GetDouble();
+        double spacing = extractor.GetDouble();
         bool hasPath = extractor.GetBool();
         VectorPath path = null;
         if (hasPath)
@@ -201,7 +202,16 @@ internal class TextSerializationFactory : VectorShapeSerializationFactory<TextVe
         font.SubPixel = antiAlias;
         font.Size = fontSize;
 
-        original = new TextVectorData(new RichText(text, font))
+        RichText richText = new RichText(text, font);
+        var inline = richText.Inlines.FirstOrDefault();
+        float ptToPx = 1f / (float)RichText.PtToPx;
+        inline.LineHeight = (float)spacing * ptToPx;
+        inline.Fill = fill;
+        inline.FillPaintable = fillPaintable;
+        inline.StrokePaintable = strokePaintable;
+        inline.StrokeWidth = strokeWidth;
+
+        original = new TextVectorData(richText)
         {
             TransformationMatrix = matrix,
             Stroke = strokePaintable,

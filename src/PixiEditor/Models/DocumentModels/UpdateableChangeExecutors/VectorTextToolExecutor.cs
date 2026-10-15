@@ -256,7 +256,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         isActive = false;
         foreach (var richText in usedRichTexts)
         {
-            richText?.Dispose();
+            richText?.ClearCache();
         }
 
         pendingMergeTimer?.Dispose();
@@ -285,7 +285,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             new EndSetShapeGeometry_Action(),
             new SetLowDpiRendering_Action(selectedMember.Id, toolbar.ForceLowDpiRendering));
 
-        lastText?.Dispose();
+        lastText?.ClearCache();
         lastText = text;
         lastRawText = text?.RawText;
         usedRichTexts.Add(text);

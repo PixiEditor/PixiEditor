@@ -8,6 +8,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Drawie.Backend.Core.Text;
@@ -15,6 +16,7 @@ using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Models.Controllers;
 using PixiEditor.UI.Common.Behaviors;
 using PixiEditor.UI.Common.Localization;
+using PixiEditor.ViewModels;
 
 namespace PixiEditor.Views.Input;
 
@@ -96,6 +98,7 @@ public partial class FontFamilyPicker : UserControl
     }
 
     private bool suppressFavourites;
+    private IInputElement? oldFocusedElement;
 
     static FontFamilyPicker()
     {
@@ -166,6 +169,13 @@ public partial class FontFamilyPicker : UserControl
         {
             Fonts.Add(font);
         }
+    }
+
+    protected override void OnGotFocus(FocusChangedEventArgs e)
+    {
+        base.OnGotFocus(e);
+        if (e.OldFocusedElement == null) return;
+        oldFocusedElement = e.OldFocusedElement;
     }
 
     private void SynchronizeSelection()
@@ -254,7 +264,8 @@ public partial class FontFamilyPicker : UserControl
 
     public void ToggleFavourite(FontFamilyName font)
     {
-        var favoritesInPreferences = IPreferences.Current.GetPreference<List<string>>(PreferencesConstants.FavouriteFonts, []);
+        var favoritesInPreferences =
+            IPreferences.Current.GetPreference<List<string>>(PreferencesConstants.FavouriteFonts, []);
 
         var uniqueFontName = GetUniqueFontName(font);
         if (!favouriteFonts.Add(uniqueFontName))
@@ -284,8 +295,12 @@ public partial class FontFamilyPicker : UserControl
         if (TopLevel.GetTopLevel(this) is not null)
         {
             FontPickerToggle.IsChecked = false;
+            var focusElement = oldFocusedElement;
             FontPickerToggle.Flyout.Hide();
-            TextBoxFocusBehavior.FallbackFocusElement.Focus();
+            Dispatcher.Post(() =>
+            {
+                focusElement?.Focus();
+            });
         }
     }
 

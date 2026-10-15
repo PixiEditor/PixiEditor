@@ -580,7 +580,7 @@ internal class SvgDocumentBuilder : IDocumentBuilder
             : FontData.CreateDefault();
 
         font.Size = styleContext.FontSize.Unit?.ToPixels(viewBox) ?? 12;
-        font.Weight = (FontStyleWeight)(styleContext.FontWeight.Unit?.Value ?? SvgFontWeight.Normal);
+        font.Weight = (FontStyleWeight)(styleContext.FontWeight.Unit?.Value ?? 400);
         font.Slant = (FontStyleSlant)(styleContext.FontStyle.Unit?.Value ?? SvgFontStyle.Normal);
 
         VecD position = new(
@@ -614,10 +614,36 @@ internal class SvgDocumentBuilder : IDocumentBuilder
             position.X += bounds.Width * anchorX;
         }
 
-        return new TextVectorData(new RichText(element.Text.Unit.Value.Value, font))
+        RichText rt = new RichText(element.Text.Unit.Value.Value, font);
+        var inline = rt.Inlines.FirstOrDefault();
+
+        bool hasFill = styleContext.Fill.Unit?.Paintable is { AnythingVisible: true };
+        bool hasStroke = styleContext.Stroke.Unit?.Paintable is { AnythingVisible: true } ||
+                         styleContext.StrokeWidth.Unit is { PixelsValue: > 0 };
+
+        inline.Fill = hasFill;
+        if (hasFill)
         {
-            Position = position, MissingFontText = "MISSING_FONT",
-        };
+            var target = styleContext.Fill.Unit;
+            float opacity = (float)(styleContext.FillOpacity.Unit?.Value ?? 1);
+            opacity = Math.Clamp(opacity, 0, 1);
+            inline.FillPaintable = target?.Paintable ?? Colors.Black;
+            inline.FillPaintable?.ApplyOpacity(opacity);
+        }
+
+        if (hasStroke)
+        {
+            var targetColor = styleContext.Stroke.Unit;
+            var targetWidth = styleContext.StrokeWidth.Unit;
+
+            float opacity = (float)(styleContext.StrokeOpacity.Unit?.Value ?? 1);
+            opacity = Math.Clamp(opacity, 0, 1);
+            inline.StrokePaintable = targetColor?.Paintable ?? Colors.Transparent;
+            inline.StrokeWidth = (float)(targetWidth?.PixelsValue ?? 1);
+            inline.StrokePaintable?.ApplyOpacity(opacity);
+        }
+
+        return new TextVectorData(rt) { Position = position, MissingFontText = "MISSING_FONT", };
     }
 
     private PathVectorData AddPoly(SvgElement element)

@@ -994,6 +994,13 @@ internal class TextOverlay : Overlay
     {
         TextOverlay sender = args.Sender as TextOverlay;
         sender.UpdateGlyphs();
+        if (sender.Text is null)
+        {
+            sender.inlineAtCursor = null;
+            sender.CurrentlyEditingInlineIndex = null;
+            return;
+        }
+        
         sender.CursorPosition = Math.Clamp(sender.CursorPosition, 0, Math.Max(0, sender.GetTextElementCount()));
 
         sender.inlineAtCursor = sender.Text.GetInlineAt(sender.CursorPosition, out _, out _);

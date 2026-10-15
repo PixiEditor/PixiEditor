@@ -20,7 +20,7 @@ public struct StyleContext
     public SvgProperty<SvgEnumUnit<SvgStrokeLineJoin>> StrokeLineJoin { get; }
     public SvgProperty<SvgPreserveAspectRatioUnit> PreserveAspectRatio { get; }
     public SvgProperty<SvgNumericUnit> FontSize { get; }
-    public SvgProperty<SvgEnumUnit<SvgFontWeight>> FontWeight { get; }
+    public SvgProperty<SvgNumericUnit> FontWeight { get; }
     public SvgProperty<SvgEnumUnit<SvgFontStyle>> FontStyle { get; }
     public SvgProperty<SvgStringUnit> FontFamily { get; }
     public SvgProperty<SvgNumericUnit> Opacity { get; }

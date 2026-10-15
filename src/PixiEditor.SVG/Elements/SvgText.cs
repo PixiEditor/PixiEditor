@@ -13,7 +13,7 @@ public class SvgText() : SvgPrimitive("text"), ITextData
     public SvgProperty<SvgNumericUnit> Y { get; } = new("y");
     public SvgProperty<SvgNumericUnit> FontSize { get; } = new("font-size");
     public SvgProperty<SvgStringUnit> FontFamily { get; } = new("font-family");
-    public SvgProperty<SvgEnumUnit<SvgFontWeight>> FontWeight { get; } = new("font-weight");
+    public SvgProperty<SvgNumericUnit> FontWeight { get; } = new("font-weight");
     public SvgProperty<SvgEnumUnit<SvgFontStyle>> FontStyle { get; } = new("font-style");
     public SvgProperty<SvgEnumUnit<SvgTextAnchor>> TextAnchor { get; } = new("text-anchor");
     public SvgProperty<SvgEnumUnit<SvgTextAlign>> TextAlign { get; set; } = new("text-align");

@@ -321,7 +321,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
 
     private bool UpdateTextVectorData(TextVectorData textVectorData, Color?[] colors)
     {
-        bool anySucceeded = true;
+        bool anySucceeded = colors.Length == 2;
         foreach (var textInline in textVectorData.Text.Inlines)
         {
             if (colors.Length == 1)
@@ -336,9 +336,10 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
 
                 if (!fillChange && !strokeChange)
                 {
-                    anySucceeded = false;
                     continue;
                 }
+
+                anySucceeded = true;
 
                 if (fillChange)
                 {

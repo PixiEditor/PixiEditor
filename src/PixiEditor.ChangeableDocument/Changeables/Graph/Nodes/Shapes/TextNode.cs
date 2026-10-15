@@ -72,7 +72,7 @@ public class TextNode : ShapeNode<TextVectorData>
             Family = fontFamily, Size = fontSize, Weight = fontWeight, Slant = lastSlant, Width = fontStyleWidth
         };
 
-        cachedData?.Text?.Dispose();
+        cachedData?.Text?.ClearCache();
         cachedData = new TextVectorData() { Text = new RichText(text, font), Position = position, };
 
         return cachedData;

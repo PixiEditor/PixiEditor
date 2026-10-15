@@ -24,6 +24,7 @@ internal class ConvertToCurve_Change : Change
     private CreateStructureMember_Change createFolderMemberChange;
     private List<MoveStructureMember_Change> moveLayerMemberChanges = new();
     private string nameOfLayer;
+    private float opacity;
 
     private List<Change> executedChanges = new();
 
@@ -38,6 +39,7 @@ internal class ConvertToCurve_Change : Change
         if (target.TryFindNode(memberId, out VectorLayerNode? node))
         {
             nameOfLayer = node.MemberName;
+            opacity = node.Opacity.NonOverridenValue;
             if (node.EmbeddedShapeData is TextVectorData textVectorData)
             {
                 createFolderMemberChange =
@@ -127,7 +129,9 @@ internal class ConvertToCurve_Change : Change
 
                 var folder = target.FindNodeOrThrow<FolderNode>(createFolderMemberChange.NewMemberGuid);
                 folder.MemberName = nameOfLayer;
+                folder.Opacity.NonOverridenValue = opacity;
                 changeInfos.Add(new StructureMemberName_ChangeInfo(folder.Id, folder.MemberName));
+                changeInfos.Add(new StructureMemberOpacity_ChangeInfo(folder.Id, opacity));
 
                 foreach (var moveLayerMemberChange in moveLayerMemberChanges)
                 {

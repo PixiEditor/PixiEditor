@@ -240,9 +240,11 @@ internal class ExtractSelectedText_Change : Change
             var inlineText = GetTextElements(textInline.Text);
             if (inlineText.Length == 0) continue;
             SetupRichTextInline(textInline, currentRichText);
-            foreach (var elem in inlineText)
+            for (var i = 0; i < inlineText.Length; i++)
             {
-                if (IsBoundary(elem, currentStart, startLineIndex, endLineIndex, cursorPos, extractEachCharacter))
+                var elem = inlineText[i];
+                bool preIncremented = false;
+                if (IsBoundary(elem, currentStart, startLineIndex, endLineIndex, cursorPos, extractEachCharacter, i))
                 {
                     VecD offset = (VecD)glyphPositions[currentOffsetPos];
                     TrimEmpty(currentRichText);
@@ -252,6 +254,12 @@ internal class ExtractSelectedText_Change : Change
                         currentRichText = new RichText();
                         SetupRichTextInline(textInline, currentRichText);
 
+                        if (elem == "\n")
+                        {
+                            offsetPos++;
+                            preIncremented = true;
+                        }
+
                         currentStart = cursorPos;
                         currentOffsetPos = offsetPos;
                     }
@@ -260,10 +268,8 @@ internal class ExtractSelectedText_Change : Change
                 currentRichText.Inlines.LastOrDefault().Text += elem;
 
                 cursorPos++;
-                if (elem != "\n")
-                {
+                if (!preIncremented)
                     offsetPos++;
-                }
             }
         }
 
@@ -273,7 +279,7 @@ internal class ExtractSelectedText_Change : Change
             {
                 VecD offset = (VecD)glyphPositions[currentOffsetPos];
                 TrimEmpty(currentRichText);
-                if(!string.IsNullOrEmpty(currentRichText.RawText))
+                if (!string.IsNullOrEmpty(currentRichText.RawText))
                 {
                     result.Add(new(currentRichText, offset));
                 }
@@ -294,7 +300,7 @@ internal class ExtractSelectedText_Change : Change
     }
 
     private bool IsBoundary(string elem, int startingPos, int startingIndex, int endingIndex, int cursorPos,
-        bool extractEachCharacter)
+        bool extractEachCharacter, int indexOnInline)
     {
         originalText.IndexOnLine(cursorPos, out int lineIndex);
         var startEnd = originalText.GetLineStartEnd(lineIndex);
@@ -328,6 +334,8 @@ internal class ExtractSelectedText_Change : Change
             }
             else
             {
+                if (indexOnInline == 0 && !isFullyCoveredLine) return true;
+
                 return cursorPos == selectionEnd;
             }
         }
