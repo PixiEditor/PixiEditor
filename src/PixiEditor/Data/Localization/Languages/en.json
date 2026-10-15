@@ -1605,5 +1605,6 @@
   "EXTRAEXPANDED_FONT_STYLE_WIDTH": "Extra Expanded",
   "ULTRAEXPANDED_FONT_STYLE_WIDTH": "Ultra Expanded",
   "FONT_WIDTH_LABEL": "Width",
-  "FONT_WEIGHT_LABEL": "Weight"
+  "FONT_WEIGHT_LABEL": "Weight",
+  "SHOW_FAVORITE_FONTS_TOOLTIP": "Toggle show only favorite fonts"
 }

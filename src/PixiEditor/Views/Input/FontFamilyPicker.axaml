@@ -6,23 +6,102 @@
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              xmlns:input="clr-namespace:PixiEditor.Views.Input"
              xmlns:text="clr-namespace:Drawie.Backend.Core.Text;assembly=Drawie.Backend.Core"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             mc:Ignorable="d"
+             d:DesignWidth="800"
+             d:DesignHeight="450"
              x:CompileBindings="False"
              x:Class="PixiEditor.Views.Input.FontFamilyPicker">
-    <StackPanel Orientation="Horizontal" Spacing="5" DataContext="{Binding RelativeSource={RelativeSource AncestorType=UserControl}}">
-        <Button Classes="pixi-icon" FontSize="16"
+
+    <StackPanel Orientation="Horizontal" Spacing="5"
+                DataContext="{Binding RelativeSource={RelativeSource AncestorType=UserControl}}">
+
+        <Button Classes="pixi-icon"
+                FontSize="16"
                 ui:Translator.TooltipKey="CUSTOM_FONT"
-                Command="{Binding UploadFontCommand}" Content="{DynamicResource icon-upload}" />
-        <ComboBox VerticalAlignment="Center"
-                  MinWidth="85"
-                  ItemsSource="{Binding Fonts}"
-                  SelectedIndex="{Binding FontIndex, Mode=TwoWay}">
-            <ComboBox.ItemTemplate>
-                <DataTemplate x:DataType="text:FontFamilyName">
-                    <TextBlock Text="{Binding Name}"
-                               FontFamily="{Binding Converter={converters:FontFamilyNameToAvaloniaFontFamily}}" />
-                </DataTemplate>
-            </ComboBox.ItemTemplate>
-        </ComboBox>
+                Command="{Binding UploadFontCommand}"
+                Content="{DynamicResource icon-upload}" />
+
+        <Grid MinWidth="150">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <ToggleButton Name="FontPickerToggle"
+                          Grid.ColumnSpan="2"
+                          HorizontalContentAlignment="Stretch"
+                          Background="{DynamicResource ThemeBackgroundBrush}">
+                <ToggleButton.Flyout>
+                    <Flyout
+                        Placement="BottomEdgeAlignedLeft"
+                        ShowMode="Transient">
+                        <Grid Width="300" Height="350" Margin="10">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+
+                            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,8">
+                                <TextBox PlaceholderText="{ui:Translate Key=SEARCH}"
+                                         Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                    <TextBox.InnerLeftContent>
+                                        <TextBlock Classes="pixi-icon"
+                                                   Text="{DynamicResource icon-search}"
+                                                   Margin="0,0,5,0" />
+                                    </TextBox.InnerLeftContent>
+                                </TextBox>
+
+                                <ToggleButton Grid.Column="1"
+                                              Classes="pixi-icon favorites-star-toggle"
+                                              Margin="5,0,0,0"
+                                              IsChecked="{Binding ShowOnlyFavourites, Mode=TwoWay}"
+                                              ui:Translator.TooltipKey="SHOW_FAVORITE_FONTS_TOOLTIP"
+                                              />
+                            </Grid>
+
+                            <ScrollViewer Grid.Row="1"
+                                          VerticalScrollBarVisibility="Auto"
+                                          HorizontalScrollBarVisibility="Disabled">
+                                <ItemsControl ItemsSource="{Binding FilteredFonts}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <VirtualizingStackPanel/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.Styles>
+                                        <Style Selector="Button">
+                                            <Setter Property="Background" Value="Transparent"/>
+                                        </Style>
+                                        <Style Selector="Button:pointerover">
+                                            <Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush2}"/>
+                                        </Style>
+                                    </ItemsControl.Styles>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="input:FontItem">
+                                            <Button HorizontalContentAlignment="Stretch"
+                                                    HorizontalAlignment="Stretch"
+                                                    BorderThickness="0"
+                                                    Click="FontItem_OnClick"
+                                                    PointerEntered="Button_OnPointerEntered"
+                                                    PointerExited="Button_OnPointerExited"
+                                                    Tag="{Binding FontFamilyName}">
+                                                <input:FontItemView Item="{Binding}" />
+                                            </Button>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </Grid>
+                    </Flyout>
+                </ToggleButton.Flyout>
+
+                <DockPanel LastChildFill="True">
+                    <TextBlock DockPanel.Dock="Right" Classes="pixi-icon" Text="{DynamicResource icon-chevron-down}" />
+                    <TextBlock Text="{Binding SelectedFontFamily.Name}"
+                               VerticalAlignment="Center"
+                               TextTrimming="CharacterEllipsis" />
+                </DockPanel>
+            </ToggleButton>
+        </Grid>
     </StackPanel>
 </UserControl>
