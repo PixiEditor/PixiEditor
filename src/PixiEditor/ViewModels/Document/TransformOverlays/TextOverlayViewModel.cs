@@ -103,13 +103,12 @@ internal class TextOverlayViewModel : ObservableObject, ITextOverlayHandler
             return;
         }
 
-        // TODO:
-        /*int indexOfClosest = positions.Select((pos, index) => (pos, index))
-            .OrderBy(pos => ((pos.pos + Position - new VecD(0, Font.Size / 2f)) - mapped).LengthSquared)
+        int indexOfClosest = positions.Select((pos, index) => (pos, index))
+            .OrderBy(pos => ((pos.pos + Position - new VecD(0, richText.GetInlineAt(pos.index, out _, out _).LineHeight / 2f)) - mapped).LengthSquared)
             .First().index;
 
         CursorPosition = indexOfClosest;
-        SelectionEnd = indexOfClosest;*/
+        SelectionEnd = indexOfClosest;
     }
 
     public int? CurrentlyEditingInlineIndex

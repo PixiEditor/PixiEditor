@@ -481,7 +481,7 @@ internal class TextOverlay : Overlay
 
         if (richText.RawText.Length == 0) return;
 
-        string selectedText = richText.RawText[start..end];
+        string selectedText = richText.RawText[GetTextOffset(start)..GetTextOffset((end))];
 
         if (asUnicode)
         {
@@ -601,8 +601,8 @@ internal class TextOverlay : Overlay
     {
         int selectionStart = Math.Min(CursorPosition, SelectionEnd);
         int selectionEnd = Math.Max(CursorPosition, SelectionEnd);
-        var inlines = Text.Inlines.ToList();
         var cloned = Text.Clone();
+        var inlines = cloned.Inlines;
         TextInline? firstInline = null;
         int firstLocalOffset = 0;
         int globalOffset = 0;
@@ -689,9 +689,9 @@ internal class TextOverlay : Overlay
             int inlineOffset = 0;
 
             var currentText = Text.Clone();
-            for (int i = 0; i < Text.Inlines.Count; i++)
+            for (int i = 0; i < currentText.Inlines.Count; i++)
             {
-                TextInline inline = Text.Inlines[i];
+                TextInline inline = currentText.Inlines[i];
 
                 int inlineStart = inlineOffset;
                 int inlineEnd = inlineStart + inline.Text.Length;
@@ -733,7 +733,7 @@ internal class TextOverlay : Overlay
                 CursorPosition = curPos;
                 SelectionEnd = CursorPosition;
             }
-            else if (direction > 0 && CursorPosition < textElementCount)
+            else if (direction >= 0 && CursorPosition < textElementCount)
             {
                 int startOffset = GetTextOffset(CursorPosition);
                 int endOffset = GetTextOffset(CursorPosition + 1);
@@ -749,10 +749,11 @@ internal class TextOverlay : Overlay
     private void DeleteTextRange(int globalStartOffset, int globalEndOffset)
     {
         int inlineOffset = 0;
+        var cloned = Text.Clone();
 
-        for (int i = 0; i < Text.Inlines.Count; i++)
+        for (int i = 0; i < cloned.Inlines.Count; i++)
         {
-            TextInline inline = Text.Inlines[i];
+            TextInline inline = cloned.Inlines[i];
 
             int inlineStart = inlineOffset;
             int inlineEnd = inlineStart + inline.Text.Length;
@@ -767,7 +768,6 @@ internal class TextOverlay : Overlay
 
                 inline.Text = inline.Text.Remove(localStart, localLength);
 
-                var cloned = Text.Clone();
                 cloned.UpdateInline(i, inline);
                 Text = cloned;
             }

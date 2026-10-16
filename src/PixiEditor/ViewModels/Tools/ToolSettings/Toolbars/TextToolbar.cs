@@ -233,6 +233,7 @@ internal class TextToolbar : FillableShapeToolbar, ITextToolbar
         font.Edging = AntiAliasing ? FontEdging.AntiAlias : FontEdging.Alias;
         font.Weight = FontStyle?.Weight ?? FontStyleWeight.Normal;
         font.Slant = FontStyle?.Slant ?? FontStyleSlant.Upright;
+        font.Width = FontStyle?.Width ?? FontStyleWidth.Normal;
         font.SubPixel = AntiAliasing;
 
         return font;

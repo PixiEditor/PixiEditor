@@ -34,14 +34,13 @@ internal class Caret : IDisposable
 
     public void Render(Canvas canvas)
     {
-        if (GlyphPositions.Length == 0)
+        int clampedBlinkerPosition = 0;
+        if (GlyphPositions.Length > 0)
         {
-            return;
+            clampedBlinkerPosition = Math.Clamp(CaretPosition, 0, GlyphPositions.Length - 1);
         }
 
-        int clampedBlinkerPosition = Math.Clamp(CaretPosition, 0, GlyphPositions.Length - 1);
-
-        var glyphPosition = GlyphPositions[clampedBlinkerPosition];
+        var glyphPosition = GlyphPositions.Length == 0 ? VecF.Zero : GlyphPositions[clampedBlinkerPosition];
 
         var glyphHeight = FontSize;
 

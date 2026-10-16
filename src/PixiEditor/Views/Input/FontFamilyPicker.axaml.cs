@@ -22,7 +22,7 @@ namespace PixiEditor.Views.Input;
 
 public partial class FontFamilyPicker : UserControl
 {
-    private readonly HashSet<string> favouriteFonts = new(StringComparer.OrdinalIgnoreCase);
+    private readonly HashSet<string> favouriteFonts;
     private string searchText = string.Empty;
     private bool showOnlyFavourites;
 
@@ -136,10 +136,11 @@ public partial class FontFamilyPicker : UserControl
         InitializeComponent();
 
         UploadFontCommand = new AsyncRelayCommand(UploadFont);
-        Fonts = new ObservableCollection<FontFamilyName>(FontLibrary.AllFonts);
 
         var favFonts = IPreferences.Current.GetPreference<List<string>>(PreferencesConstants.FavouriteFonts, []);
         favouriteFonts = favFonts.Distinct().ToHashSet();
+
+        Fonts = new ObservableCollection<FontFamilyName>(FontLibrary.AllFonts);
 
         SubscribeToFonts();
         RefreshFilteredFonts();
@@ -201,24 +202,25 @@ public partial class FontFamilyPicker : UserControl
                 (!ShowOnlyFavourites || favouriteFonts.Contains(GetUniqueFontName(font))))
             .ToArray();
 
-        var resultNames = results.Select(font => font.Name).ToHashSet();
+        var resultNames = results.Select(GetUniqueFontName).ToHashSet();
 
         for (int i = FilteredFonts.Count - 1; i >= 0; i--)
         {
-            if (!resultNames.Contains(FilteredFonts[i].FontFamilyName.Name))
+            if (!resultNames.Contains(GetUniqueFontName(FilteredFonts[i].FontFamilyName)))
                 FilteredFonts.RemoveAt(i);
         }
 
         for (int i = 0; i < results.Length; i++)
         {
             var font = results[i];
-            var isFavourite = favouriteFonts.Contains(GetUniqueFontName(font));
+            var uniqueName = GetUniqueFontName(font);
+            var isFavourite = favouriteFonts.Contains(uniqueName);
 
             int existingIndex = -1;
 
             for (int j = i; j < FilteredFonts.Count; j++)
             {
-                if (FilteredFonts[j].FontFamilyName.Name == font.Name)
+                if (GetUniqueFontName(FilteredFonts[j].FontFamilyName) == uniqueName)
                 {
                     existingIndex = j;
                     break;
@@ -246,20 +248,23 @@ public partial class FontFamilyPicker : UserControl
 
     private static string GetUniqueFontName(FontFamilyName font)
     {
-        return font.Name + (font.FontUri != null ? $"_{font.FontUri.AbsolutePath}" : "");
+        return font.Name + (font.FontUri != null ? $"_{font.FontUri.AbsoluteUri}" : "");
     }
 
     private void FontItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (suppressFavourites) return;
+        if (suppressFavourites || e.PropertyName != nameof(FontItem.IsFavourite) || sender is not FontItem fontItem)
+            return;
 
         suppressFavourites = true;
-        if (e.PropertyName == nameof(FontItem.IsFavourite) && sender is FontItem fontItem)
+        try
         {
             ToggleFavourite(fontItem.FontFamilyName);
         }
-
-        suppressFavourites = false;
+        finally
+        {
+            suppressFavourites = false;
+        }
     }
 
     public void ToggleFavourite(FontFamilyName font)
