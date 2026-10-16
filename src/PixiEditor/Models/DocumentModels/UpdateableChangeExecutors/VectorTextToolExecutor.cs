@@ -106,10 +106,13 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         {
             RichText newEmpty = new RichText(null, toolbar.ConstructFont());
 
-            newEmpty.Inlines[0].Fill = toolbar.Fill;
-            newEmpty.Inlines[0].FillPaintable = toolbar.FillBrush.ToPaintable();
-            newEmpty.Inlines[0].StrokeWidth = (float)toolbar.ToolSize;
-            newEmpty.Inlines[0].StrokePaintable = toolbar.StrokeBrush.ToPaintable();
+            var inline = newEmpty.Inlines[0];
+            inline.Fill = toolbar.Fill;
+            inline.FillPaintable = toolbar.FillBrush.ToPaintable();
+            inline.StrokeWidth = (float)toolbar.ToolSize;
+            inline.StrokePaintable = toolbar.StrokeBrush.ToPaintable();
+            inline.LineHeight = (float)toolbar.Spacing;
+            inline.Alignment = toolbar.Alignment;
 
             document.TextOverlayHandler.Show(newEmpty, controller.LastPrecisePosition,
                 Matrix3X3.Identity);
@@ -143,38 +146,43 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
         TextInline first = inlines[0];
 
-        if (inlines.All(x => x.Font.Family.Equals(first.Font.Family)))
-            toolbar.FontFamily = first.Font.Family;
+        if (first != null)
+        {
+            if (inlines.All(x => x.Font.Family.Equals(first.Font.Family)))
+                toolbar.FontFamily = first.Font.Family;
 
-        if (inlines.All(x => Math.Abs(x.Font.Size - first.Font.Size) < float.Epsilon))
-            toolbar.FontSize = first.Font.Size;
+            if (inlines.All(x => Math.Abs(x.Font.Size - first.Font.Size) < float.Epsilon))
+                toolbar.FontSize = first.Font.Size;
 
-        if (inlines.All(x => Math.Abs(x.LineHeight - first.LineHeight) < float.Epsilon))
-            toolbar.Spacing = first.LineHeight;
+            if (inlines.All(x => Math.Abs(x.LineHeight - first.LineHeight) < float.Epsilon))
+                toolbar.Spacing = first.LineHeight;
 
-        if (inlines.All(x => x.Font.Weight == first.Font.Weight && x.Font.Slant == first.Font.Slant && x.Font.Width == first.Font.Width))
-            toolbar.FontStyle = new FontStyle(first.Font.Weight, first.Font.Slant, first.Font.Width);
+            if (inlines.All(x =>
+                    x.Font.Weight == first.Font.Weight && x.Font.Slant == first.Font.Slant &&
+                    x.Font.Width == first.Font.Width))
+                toolbar.FontStyle = new FontStyle(first.Font.Weight, first.Font.Slant, first.Font.Width);
 
-        if (inlines.All(x => x.Font.Slant == first.Font.Slant))
-            toolbar.Italic = first.Font.Slant != FontStyleSlant.Upright;
+            if (inlines.All(x => x.Font.Slant == first.Font.Slant))
+                toolbar.Italic = first.Font.Slant != FontStyleSlant.Upright;
 
-        if(inlines.All(x => x.Font.Weight == first.Font.Weight))
-            toolbar.Bold = first.Font.Weight == FontStyleWeight.Bold;
+            if (inlines.All(x => x.Font.Weight == first.Font.Weight))
+                toolbar.Bold = first.Font.Weight == FontStyleWeight.Bold;
 
-        if (inlines.All(x => x.Fill == first.Fill))
-            toolbar.Fill = first.Fill;
+            if (inlines.All(x => x.Fill == first.Fill))
+                toolbar.Fill = first.Fill;
 
-        if (inlines.All(x => Equals(x.FillPaintable, first.FillPaintable)))
-            toolbar.FillBrush = first.FillPaintable.ToBrush();
+            if (inlines.All(x => Equals(x.FillPaintable, first.FillPaintable)))
+                toolbar.FillBrush = first.FillPaintable?.ToBrush();
 
-        if (inlines.All(x => Equals(x.StrokePaintable, first.StrokePaintable)))
-            toolbar.StrokeBrush = first.StrokePaintable.ToBrush();
+            if (inlines.All(x => Equals(x.StrokePaintable, first.StrokePaintable)))
+                toolbar.StrokeBrush = first.StrokePaintable?.ToBrush();
 
-        if (inlines.All(x => Math.Abs(x.StrokeWidth - first.StrokeWidth) < float.Epsilon))
-            toolbar.ToolSize = first.StrokeWidth;
+            if (inlines.All(x => Math.Abs(x.StrokeWidth - first.StrokeWidth) < float.Epsilon))
+                toolbar.ToolSize = first.StrokeWidth;
 
-        if (inlines.All(x => x.Alignment == first.Alignment))
-            toolbar.Alignment = first.Alignment;
+            if (inlines.All(x => x.Alignment == first.Alignment))
+                toolbar.Alignment = first.Alignment;
+        }
     }
 
     private List<TextInline> GetEditingInlines(RichText text)
@@ -288,8 +296,20 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         lastText?.ClearCache();
         lastText = text;
         lastRawText = text?.RawText;
+        UpdateAntiAliasing();
         usedRichTexts.Add(text);
         pendingMergeTimer?.Dispose();
+    }
+
+    private void UpdateAntiAliasing()
+    {
+        if (lastText.Inlines.FirstOrDefault()?.Font.SubPixel != toolbar.AntiAliasing)
+        {
+            foreach (var inline in lastText.Inlines)
+            {
+                inline.Font = inline.Font with { SubPixel = toolbar.AntiAliasing, Edging = toolbar.AntiAliasing ? FontEdging.AntiAlias : FontEdging.Alias };
+            }
+        }
     }
 
     public void OnSelectionChanged(int cursorPosition, int selectionEnd)
