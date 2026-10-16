@@ -22,8 +22,8 @@ internal class TextSerializationFactory : VectorShapeSerializationFactory<TextVe
         {
             builder.AddString(textInline.Text);
             builder.AddInt((int)textInline.Alignment);
-            builder.AddInt((int)textInline.LineHeight);
-            builder.AddInt((int)textInline.StrokeWidth);
+            builder.AddDouble(textInline.LineHeight);
+            builder.AddDouble(textInline.StrokeWidth);
             AddPaintable(textInline.StrokePaintable, builder);
             builder.AddBool(textInline.Fill);
             AddPaintable(textInline.FillPaintable, builder);
@@ -37,6 +37,7 @@ internal class TextSerializationFactory : VectorShapeSerializationFactory<TextVe
             builder.AddDouble(textInline.Font.Size);
             builder.AddInt((int)textInline.Font.Weight);
             builder.AddInt((int)textInline.Font.Slant);
+            builder.AddInt((int)textInline.Font.Width);
             builder.AddInt((int)textInline.Font.Edging);
             builder.AddBool(textInline.Font.SubPixel);
         }
@@ -105,8 +106,8 @@ internal class TextSerializationFactory : VectorShapeSerializationFactory<TextVe
     {
         string text = extractor.GetString();
         TextAlign alignment = (TextAlign)extractor.GetInt();
-        double lineHeight = extractor.GetInt();
-        double strokeWidth = extractor.GetInt();
+        double lineHeight = extractor.GetDouble();
+        double strokeWidth = extractor.GetDouble();
         Paintable strokePaintable = TryGetPaintable(extractor, false, serializerData);
         bool fill = extractor.GetBool();
         Paintable fillPaintable = TryGetPaintable(extractor, false, serializerData);
@@ -121,6 +122,7 @@ internal class TextSerializationFactory : VectorShapeSerializationFactory<TextVe
         double fontSize = extractor.GetDouble();
         FontStyleWeight fontWeight = (FontStyleWeight)extractor.GetInt();
         FontStyleSlant fontSlant = (FontStyleSlant)extractor.GetInt();
+        FontStyleWidth fontWidth = (FontStyleWidth)extractor.GetInt();
         FontEdging fontEdging = (FontEdging)extractor.GetInt();
         bool fontSubPixel = extractor.GetBool();
 
@@ -135,6 +137,7 @@ internal class TextSerializationFactory : VectorShapeSerializationFactory<TextVe
 
         font.Weight = fontWeight;
         font.Slant = fontSlant;
+        font.Width = fontWidth;
         font.Edging = fontEdging;
         font.SubPixel = fontSubPixel;
         font.Size = fontSize;

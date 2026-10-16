@@ -219,7 +219,7 @@ internal partial class DocumentViewModel
         }
         else if (vectorNode.ShapeData is IReadOnlyTextData textData)
         {
-            elementToAdd = AddText(textData);
+            elementToAdd = AddText(textData, vectorNode);
         }
 
         IReadOnlyShapeVectorData data = vectorNode.ShapeData;
@@ -381,7 +381,7 @@ internal partial class DocumentViewModel
         elementContainer.Children.Add(image);
     }
 
-    private static SvgElement AddText(IReadOnlyTextData textData)
+    private static SvgElement AddText(IReadOnlyTextData textData, IReadOnlyVectorNode vectorNode)
     {
         var rt = textData.Text;
         rt.MaxWidth = textData.MaxWidth;
@@ -393,6 +393,7 @@ internal partial class DocumentViewModel
         }
 
         SvgGroup group = new SvgGroup();
+        group.Opacity.Unit = new SvgNumericUnit(vectorNode.Opacity.Value, "");
 
         for (int i = 0; i < rt.Lines.Length; i++)
         {

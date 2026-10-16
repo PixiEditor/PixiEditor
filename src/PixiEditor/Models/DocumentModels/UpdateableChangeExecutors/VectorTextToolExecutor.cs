@@ -307,7 +307,11 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         {
             foreach (var inline in lastText.Inlines)
             {
-                inline.Font = inline.Font with { SubPixel = toolbar.AntiAliasing, Edging = toolbar.AntiAliasing ? FontEdging.AntiAlias : FontEdging.Alias };
+                inline.Font = inline.Font with
+                {
+                    SubPixel = toolbar.AntiAliasing,
+                    Edging = toolbar.AntiAliasing ? FontEdging.AntiAlias : FontEdging.Alias
+                };
             }
         }
     }
@@ -376,8 +380,10 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         {
             if (!isActive) return;
 
-            MergeAllAdjacentInlines(lastText);
-            UpdateTextData(lastText, VectorShapeChangeType.GeometryData);
+            var merged = lastText.Clone();
+            MergeAllAdjacentInlines(merged);
+            UpdateTextData(merged, VectorShapeChangeType.GeometryData);
+            usedRichTexts.Add(merged);
         }, TimeSpan.FromSeconds(0.5f));
 
         suppressSettingChanged = false;
@@ -464,7 +470,8 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         {
             inline.Font = inline.Font with { Family = (FontFamilyName)value };
             toolbar.UpdateFontStyles();
-            FontStyle closestMatchingStyle = FontLibrary.GetClosestMatchingFontStyle(inline.Font.Family.Name, inline.Font.Weight, inline.Font.Slant, inline.Font.Width);
+            FontStyle closestMatchingStyle = FontLibrary.GetClosestMatchingFontStyle(inline.Font.Family.Name,
+                inline.Font.Weight, inline.Font.Slant, inline.Font.Width);
             if (closestMatchingStyle != null)
             {
                 inline.Font = inline.Font with
@@ -549,7 +556,11 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             else
             {
                 var nearestAvailableSlant = FontLibrary.GetAvailableFontStyles(inline.Font.Family.Name)
-                    .Where(style => italic ? style.Slant >= FontStyleSlant.Italic : style.Slant == FontStyleSlant.Upright && style.Weight == inline.Font.Weight && style.Width == inline.Font.Width)
+                    .Where(style =>
+                        italic
+                            ? style.Slant >= FontStyleSlant.Italic
+                            : style.Slant == FontStyleSlant.Upright && style.Weight == inline.Font.Weight &&
+                              style.Width == inline.Font.Width)
                     .OrderBy(style => style.Slant)
                     .FirstOrDefault();
                 if (nearestAvailableSlant != null)
