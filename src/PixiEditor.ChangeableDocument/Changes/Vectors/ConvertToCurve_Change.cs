@@ -7,7 +7,9 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.ChangeInfos.Vectors;
+using PixiEditor.ChangeableDocument.Changes.Properties.LayerStructure;
 using PixiEditor.ChangeableDocument.Changes.Structure;
+using PixiEditor.ChangeableDocument.Enums;
 
 namespace PixiEditor.ChangeableDocument.Changes.Vectors;
 
@@ -25,6 +27,10 @@ internal class ConvertToCurve_Change : Change
     private List<MoveStructureMember_Change> moveLayerMemberChanges = new();
     private string nameOfLayer;
     private float opacity;
+    private BlendMode blendMode;
+    private bool clipToPreviousMember;
+    private bool isLocked;
+    private ChunkyImage? embeddedMask;
 
     private List<Change> executedChanges = new();
 
@@ -40,6 +46,10 @@ internal class ConvertToCurve_Change : Change
         {
             nameOfLayer = node.MemberName;
             opacity = node.Opacity.NonOverridenValue;
+            blendMode = node.BlendMode.NonOverridenValue;
+            clipToPreviousMember = node.ClipToPreviousMember;
+            isLocked = node.IsLocked;
+            embeddedMask = node.EmbeddedMask?.CloneFromCommitted();
             if (node.EmbeddedShapeData is TextVectorData textVectorData)
             {
                 createFolderMemberChange =
@@ -117,7 +127,7 @@ internal class ConvertToCurve_Change : Change
                         FillPaintable = data.inline.FillPaintable,
                         Stroke = data.inline.StrokePaintable,
                         StrokeWidth = data.inline.StrokeWidth,
-                        TransformationMatrix = textVectorData.TransformationMatrix
+                        TransformationMatrix = textVectorData.TransformationMatrix,
                     };
 
                     changeInfos.Add(new VectorShape_ChangeInfo(targetNode.Id, new AffectedArea(
@@ -130,8 +140,16 @@ internal class ConvertToCurve_Change : Change
                 var folder = target.FindNodeOrThrow<FolderNode>(createFolderMemberChange.NewMemberGuid);
                 folder.MemberName = nameOfLayer;
                 folder.Opacity.NonOverridenValue = opacity;
+                folder.BlendMode.NonOverridenValue = blendMode;
+                folder.ClipToPreviousMember = clipToPreviousMember;
+                folder.IsLocked = isLocked;
+                folder.EmbeddedMask = embeddedMask?.CloneFromCommitted();
+
                 changeInfos.Add(new StructureMemberName_ChangeInfo(folder.Id, folder.MemberName));
                 changeInfos.Add(new StructureMemberOpacity_ChangeInfo(folder.Id, opacity));
+                changeInfos.Add(new StructureMemberBlendMode_ChangeInfo(folder.Id, blendMode));
+                changeInfos.Add(new LayerLock_ChangeInfo(folder.Id, isLocked));
+                changeInfos.Add(new StructureMemberMask_ChangeInfo(folder.Id, embeddedMask != null));
 
                 foreach (var moveLayerMemberChange in moveLayerMemberChanges)
                 {
@@ -216,5 +234,10 @@ internal class ConvertToCurve_Change : Change
             changeInfos.Add(new VectorShape_ChangeInfo(memberId, affected));
         }
         return changeInfos;
+    }
+
+    public override void Dispose()
+    {
+        embeddedMask?.Dispose();
     }
 }
