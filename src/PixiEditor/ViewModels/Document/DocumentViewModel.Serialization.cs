@@ -113,7 +113,7 @@ internal partial class DocumentViewModel
         float resizeFactorY = (float)exportSize.Y / document.Size.Y;
         VecD resizeFactor = new VecD(resizeFactorX, resizeFactorY);
 
-        var root = document.GetStructureTreeInOrder().Where(x => x.IsVisible.Value).ToList();
+        var root = document.GetStructureTreeInOrder().Where(x => document.GetParents(x.Id) is { Count:0 } && x.IsVisible.Value).ToList();
 
         AddElements(document, root, svgDocument, atTime, exportSize, resizeFactor, vectorExportConfig,
             svgDocument.Defs);
@@ -152,7 +152,7 @@ internal partial class DocumentViewModel
                     }
                 }
 
-                AddElements(doc, folderNode.GetChildrenNodes().Where(x => x.IsVisible.Value).Reverse().ToList(), group,
+                AddElements(doc, folderNode.GetChildrenNodes().Where(x => doc.GetParents(x.Id).FirstOrDefault() == folderNode && x.IsVisible.Value).Reverse().ToList(), group,
                     atTime, exportSize, resizeFactor, vectorExportConfig, defs);
                 elementContainer.Children.Add(group);
             }
