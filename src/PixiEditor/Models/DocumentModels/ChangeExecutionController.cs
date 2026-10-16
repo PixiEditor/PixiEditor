@@ -2,6 +2,7 @@
 using PixiEditor.ChangeableDocument.Enums;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Text;
 using Drawie.Backend.Core.Vector;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
@@ -372,13 +373,22 @@ internal class ChangeExecutionController
         }
     }
 
-    public void TextOverlayTextChangedInlet(string text)
+    public void TextOverlayTextChangedInlet(RichText text)
     {
         if (currentSession is ITextOverlayEvents textOverlayHandler)
         {
             textOverlayHandler.OnTextChanged(text);
         }
     }
+
+    public void TextOverlaySelectionChangedInlet(int cursorPosition, int selectionEnd)
+    {
+        if (currentSession is ITextOverlayEvents textOverlayHandler)
+        {
+            textOverlayHandler.OnSelectionChanged(cursorPosition, selectionEnd);
+        }
+    }
+
 
     public void QuickToolSwitchInlet()
     {

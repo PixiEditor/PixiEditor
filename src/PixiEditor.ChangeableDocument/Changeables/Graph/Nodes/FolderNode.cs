@@ -27,7 +27,8 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
     {
         MemberName = MemberName,
         ClipToPreviousMember = this.ClipToPreviousMember,
-        EmbeddedMask = this.EmbeddedMask?.CloneFromCommitted()
+        EmbeddedMask = this.EmbeddedMask?.CloneFromCommitted(),
+        IsLocked = this.IsLocked,
     };
 
     public override VecD GetScenePosition(KeyFrameTime time) =>

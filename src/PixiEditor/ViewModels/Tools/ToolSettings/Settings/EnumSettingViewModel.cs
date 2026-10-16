@@ -8,7 +8,7 @@ namespace PixiEditor.ViewModels.Tools.ToolSettings.Settings;
 internal sealed class EnumSettingViewModel<TEnum> : Setting<TEnum>
     where TEnum : struct, Enum
 {
-    private EnumSettingPickerType pickerType = EnumSettingPickerType.ComboBox;
+    private ListSettingPickerType pickerType = ListSettingPickerType.ComboBox;
     private int selectedIndex;
 
     /// <summary>
@@ -32,14 +32,13 @@ internal sealed class EnumSettingViewModel<TEnum> : Setting<TEnum>
     /// </summary>
     public override TEnum Value
     {
-        get => hasOverwrittenValue ? GetOverwrittenEnum() : Enum.GetValues<TEnum>()[SelectedIndex];
+        get => hasOverwrittenValue ? GetOverwrittenEnum() : GetFilteredValues().ElementAtOrDefault(SelectedIndex);
         set
         {
-            var values = Enum.GetValues<TEnum>();
-
-            for (var i = 0; i < values.Length; i++)
+            var filteredValues = GetFilteredValues();
+            for (var i = 0; i < filteredValues.Length; i++)
             {
-                if (values[i].Equals(value))
+                if (filteredValues[i].Equals(value))
                 {
                     SelectedIndex = i;
                     break;
@@ -50,7 +49,14 @@ internal sealed class EnumSettingViewModel<TEnum> : Setting<TEnum>
         }
     }
 
-    public EnumSettingPickerType PickerType
+    private TEnum[] GetFilteredValues()
+    {
+        var values = Enum.GetValues<TEnum>();
+        var filteredValues = Filter is null ? values : values.Where(Filter).ToArray();
+        return filteredValues;
+    }
+
+    public ListSettingPickerType PickerType
     {
         get => pickerType;
         set
@@ -60,11 +66,14 @@ internal sealed class EnumSettingViewModel<TEnum> : Setting<TEnum>
         }
     }
 
-    public bool PickerIsIconButtons => PickerType == EnumSettingPickerType.IconButtons;
+    public bool PickerIsIconButtons => PickerType == ListSettingPickerType.IconButtons;
     
-    public TEnum[] EnumValues { get; } = Enum.GetValues<TEnum>();
+    public TEnum[] EnumValues => Filter is null ? allValues : allValues.Where(Filter).ToArray();
 
     public ICommand ChangeValueCommand { get; }
+    public Func<TEnum, bool>? Filter { get; set; }
+
+    private TEnum[] allValues = Enum.GetValues<TEnum>();
 
     public EnumSettingViewModel(string name, string label)
         : base(name)
@@ -77,6 +86,11 @@ internal sealed class EnumSettingViewModel<TEnum> : Setting<TEnum>
         : this(name, label)
     {
         Value = defaultValue;
+    }
+
+    public void RefreshEnumValues()
+    {
+        OnPropertyChanged(nameof(EnumValues));
     }
     
     private TEnum GetOverwrittenEnum()
@@ -110,11 +124,11 @@ internal sealed class EnumSettingViewModel<TEnum> : Setting<TEnum>
             throw new InvalidCastException("Overwritten value is not a valid type.");
         }
 
-        return Enum.GetValues<TEnum>()[index];
+        return GetFilteredValues()[index];
     }
 }
 
-public enum EnumSettingPickerType
+public enum ListSettingPickerType
 {
     ComboBox,
     IconButtons

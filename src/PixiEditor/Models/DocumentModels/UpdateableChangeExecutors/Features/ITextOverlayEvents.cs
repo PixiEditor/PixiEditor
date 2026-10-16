@@ -1,6 +1,9 @@
-﻿namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
+﻿using Drawie.Backend.Core.Text;
 
-public interface ITextOverlayEvents :IExecutorFeature
+namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
+
+public interface ITextOverlayEvents : IExecutorFeature
 {
-    public void OnTextChanged(string text);
+    public void OnTextChanged(RichText text);
+    public void OnSelectionChanged(int cursorPosition, int selectionEnd);
 }

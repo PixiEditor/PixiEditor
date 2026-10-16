@@ -219,7 +219,7 @@ internal partial class DocumentViewModel
         }
         else if (vectorNode.ShapeData is IReadOnlyTextData textData)
         {
-            elementToAdd = AddText(textData);
+            elementToAdd = AddText(textData, vectorNode);
         }
 
         IReadOnlyShapeVectorData data = vectorNode.ShapeData;
@@ -381,67 +381,55 @@ internal partial class DocumentViewModel
         elementContainer.Children.Add(image);
     }
 
-    private static SvgElement AddText(IReadOnlyTextData textData)
+    private static SvgElement AddText(IReadOnlyTextData textData, IReadOnlyVectorNode vectorNode)
     {
-        RichText rt = new RichText(textData.Text);
-        rt.Spacing = textData.Spacing;
+        var rt = textData.Text;
         rt.MaxWidth = textData.MaxWidth;
 
-        Font? font = textData.ConstructFont();
-        bool disposeFont = false;
-
-        if (font == null)
+        if (rt.Lines.Length <= 1 && rt.Lines.FirstOrDefault()?.Count <= 1)
         {
-            font = Font.CreateDefault();
-            disposeFont = true;
-        }
-
-        if (rt.Lines.Length <= 1)
-        {
-            var elem = BuildTextElement(textData, textData.Text, font);
-            if (disposeFont)
-            {
-                font.Dispose();
-            }
-
-            return elem;
+            var elem = BuildTextElements(textData, textData.Text.Lines.FirstOrDefault());
+            return elem.FirstOrDefault();
         }
 
         SvgGroup group = new SvgGroup();
+        group.Opacity.Unit = new SvgNumericUnit(vectorNode.Opacity.Value, "");
+
         for (int i = 0; i < rt.Lines.Length; i++)
         {
-            var offset = rt.GetLineOffset(i, font);
+            var text = BuildTextElements(textData, rt.Lines[i]);
 
-            var text = BuildTextElement(textData, rt.Lines[i], font);
-            text.Y.Unit = SvgNumericUnit.FromUserUnits(textData.Position.Y + offset.Y);
-
-            group.Children.Add(text);
-        }
-
-        if (disposeFont)
-        {
-            font.Dispose();
+            group.Children.AddRange(text);
         }
 
         return group;
     }
 
-    private static SvgText BuildTextElement(IReadOnlyTextData textData, string value, Font font)
+    private static List<SvgText> BuildTextElements(IReadOnlyTextData textData, IEnumerable<TextInline> value)
     {
-        SvgText text = new SvgText();
-        text.Text.Unit = new SvgStringUnit(value);
-        text.X.Unit = SvgNumericUnit.FromUserUnits(textData.Position.X);
-        text.Y.Unit = SvgNumericUnit.FromUserUnits(textData.Position.Y);
-        text.FontSize.Unit = SvgNumericUnit.FromUserUnits(font.Size);
-        text.FontFamily.Unit = new SvgStringUnit(font.Family.Name);
-        text.FontWeight.Unit = new SvgEnumUnit<SvgFontWeight>(font.Bold ? SvgFontWeight.Bold : SvgFontWeight.Normal);
-        text.FontStyle.Unit = new SvgEnumUnit<SvgFontStyle>(font.Italic ? SvgFontStyle.Italic : SvgFontStyle.Normal);
-        text.Stroke.Unit = new SvgPaintServerUnit(textData.Stroke);
-        text.StrokeWidth.Unit = SvgNumericUnit.FromUserUnits(textData.StrokeWidth);
-        text.Fill.Unit =
-            new SvgPaintServerUnit(textData.Fill ? textData.FillPaintable : new ColorPaintable(Colors.Transparent));
+        List<SvgText> texts = new List<SvgText>();
+        foreach (var textInline in value)
+        {
+            SvgText text = new SvgText();
+            text.Text.Unit = new SvgStringUnit(textInline.Text);
+            var pos = textData.Text.GetInlinePosition(textInline) + textData.Position;
 
-        return text;
+            text.X.Unit = SvgNumericUnit.FromUserUnits(pos.X);
+            text.Y.Unit = SvgNumericUnit.FromUserUnits(pos.Y);
+            text.FontSize.Unit = SvgNumericUnit.FromUserUnits(textInline.Font.Size);
+            text.FontFamily.Unit = new SvgStringUnit(textInline.Font.Family.Name);
+            text.FontWeight.Unit = SvgNumericUnit.FromUserUnits((int)textInline.Font.Weight);
+            text.FontStyle.Unit = new SvgEnumUnit<SvgFontStyle>((SvgFontStyle)textInline.Font.Slant);
+            text.Stroke.Unit = new SvgPaintServerUnit(textInline.StrokePaintable);
+            text.StrokeWidth.Unit = SvgNumericUnit.FromUserUnits(textInline.StrokeWidth);
+            text.Fill.Unit =
+                new SvgPaintServerUnit(textInline.Fill ? textInline.FillPaintable : new ColorPaintable(Colors.Transparent));
+            text.TextAlign.Unit = new SvgEnumUnit<SvgTextAlign>((SvgTextAlign)textInline.Alignment);
+
+            texts.Add(text);
+        }
+
+        return texts;
     }
 
     private static SvgImage CreateImageElement(VecD resizeFactor, RectD tightBounds,
@@ -598,7 +586,7 @@ internal partial class DocumentViewModel
             if (prop.Value.Value is Brush br && br.Document.AccessInternalReadOnlyDocument().Blackboard == blackboard)
             {
                 // Prevent stack overflow
-                 continue;
+                continue;
             }
 
             variables.Add(new Variable()
@@ -696,7 +684,7 @@ internal partial class DocumentViewModel
         IReadOnlyNodeGraph graph,
         Dictionary<Guid, int> nodeIdMap, Dictionary<Guid, int> keyFrameIds)
     {
-        if(root == null) return;
+        if (root == null) return;
 
         foreach (var keyFrame in root)
         {

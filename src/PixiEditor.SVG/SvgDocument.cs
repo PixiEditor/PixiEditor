@@ -30,7 +30,7 @@ public class SvgDocument : SvgElement, IElementContainer, ITransformable, IFilla
     public SvgProperty<SvgNumericUnit> FillOpacity { get; } = new("fill-opacity");
     public SvgProperty<SvgStringUnit> FontFamily { get; } = new("font-family");
     public SvgProperty<SvgNumericUnit> FontSize { get; } = new("font-size");
-    public SvgProperty<SvgEnumUnit<SvgFontWeight>> FontWeight { get; } = new("font-weight");
+    public SvgProperty<SvgNumericUnit> FontWeight { get; } = new("font-weight");
     public SvgProperty<SvgEnumUnit<SvgFontStyle>> FontStyle { get; } = new("font-style");
     public SvgProperty<SvgFilterUnit> Filter { get; } = new("filter");
 
