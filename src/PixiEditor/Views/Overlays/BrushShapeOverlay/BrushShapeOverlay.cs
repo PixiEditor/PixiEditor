@@ -1,6 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Input;
-using Avalonia.Media;
+using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
@@ -17,6 +17,7 @@ using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Views.Overlays.Drawables;
 using PixiEditor.Views.Rendering;
 using Canvas = Drawie.Backend.Core.Surfaces.Canvas;
+using Color = Avalonia.Media.Color;
 using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
 
 namespace PixiEditor.Views.Overlays.BrushShapeOverlay;
@@ -293,6 +294,7 @@ internal class BrushShapeOverlay : Overlay
     {
         if (BrushShape != null)
         {
+            paint.BlendMode = BlendMode.SrcOver;
             paint.IsAntiAliased = true;
             targetCanvas.Save();
 
@@ -330,7 +332,8 @@ internal class BrushShapeOverlay : Overlay
 
             if (StabilizationMode == StabilizationMode.None || !isMouseDown)
             {
-                paint.Color = Colors.LightGray;
+                paint.Color = Colors.White;
+                paint.BlendMode = BlendMode.Difference;
                 targetCanvas.DrawPath(BrushShape, paint);
             }
 

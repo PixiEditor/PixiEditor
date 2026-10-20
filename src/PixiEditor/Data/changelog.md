@@ -1,22 +1,12 @@
-# 2.2.0.0
+# 2.2.0.1
 
-Date: `29.09.2026`
-
-# New things
-
-- Added network api
-- Added alignment options for layers
-- Added layer locking
+Date: `09.10.2026`
 
 # Improvements
 
-- Added iterative rendering optimization
-- Improved shape evaluation within a brush
-- Added some UI juiciness
-- Upgraded AvaloniaUI to version 12
-- Added scrollbar to the blackboard
-- Added action scheduling for better responsiveness (brush lagging behind instead of freezing the app)
+- Improved contrast of brush overlay
 
 # Fixes
 
-- Fixed various bugs related with switching tools between toolsets
+- Fixed a crash when floating a t ab
+- Fixed game of life example file - by Ghoti
