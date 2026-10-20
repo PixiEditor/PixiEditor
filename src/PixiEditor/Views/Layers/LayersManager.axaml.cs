@@ -71,7 +71,7 @@ internal partial class LayersManager : UserControl
             DataTransfer data = new();
             Guid[] selectedGuids = container.Layer.Document.GetSelectedMembersInOrder().ToArray();
             DataTransferItem item = new DataTransferItem();
-            item.Set(ClipboardDataFormats.LayersDataName, new LayersData(selectedGuids));
+            item.Set(ClipboardDataFormats.LayersDataName, System.Text.Encoding.UTF8.GetBytes(string.Join(",", selectedGuids)));
             data.Add(item);
             Dispatcher.UIThread.InvokeAsync(() => DragDrop.DoDragDropAsync(startDragEventArgs, data, DragDropEffects.Move));
         }
@@ -125,7 +125,7 @@ internal partial class LayersManager : UserControl
             DataTransfer data = new();
             Guid[] selectedGuids = container.Folder.Document.GetSelectedMembersInOrder().ToArray();
             DataTransferItem item = new DataTransferItem();
-            item.Set(ClipboardDataFormats.LayersDataName, new LayersData(selectedGuids));
+            item.Set(ClipboardDataFormats.LayersDataName, System.Text.Encoding.UTF8.GetBytes(string.Join(",", selectedGuids)));
             data.Add(item);
             Dispatcher.UIThread.InvokeAsync(() => DragDrop.DoDragDropAsync(startDragEventArgs, data, DragDropEffects.Move));
         }
