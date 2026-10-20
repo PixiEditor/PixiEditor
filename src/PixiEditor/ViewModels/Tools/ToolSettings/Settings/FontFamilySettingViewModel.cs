@@ -8,6 +8,7 @@ internal class FontFamilySettingViewModel : Setting<FontFamilyName>
 {
     private ObservableCollection<FontFamilyName> allFonts;
     private int selectedIndex;
+    private FontFamilyName? previewFont;
 
     public int FontIndex
     {
@@ -36,6 +37,11 @@ internal class FontFamilySettingViewModel : Setting<FontFamilyName>
         set => SetProperty(ref allFonts, value);
     }
 
+    public FontFamilyName? PreviewFont
+    {
+        get => previewFont;
+        set => SetProperty(ref previewFont, value);
+    }
 
     public FontFamilySettingViewModel(string name, string displayName) : base(name)
     {

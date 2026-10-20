@@ -404,7 +404,8 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
             MemberName = this.MemberName,
             LockTransparency = this.LockTransparency,
             ClipToPreviousMember = this.ClipToPreviousMember,
-            EmbeddedMask = this.EmbeddedMask?.CloneFromCommitted()
+            EmbeddedMask = this.EmbeddedMask?.CloneFromCommitted(),
+            IsLocked = this.IsLocked
         };
 
         image.keyFrames.Clear();

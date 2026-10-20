@@ -22,6 +22,7 @@ public struct StyleContext
     public SvgProperty<SvgNumericUnit> FontSize { get; }
     public SvgProperty<SvgEnumUnit<SvgFontWeight>> FontWeight { get; }
     public SvgProperty<SvgEnumUnit<SvgFontStyle>> FontStyle { get; }
+    public SvgProperty<SvgEnumUnit<SvgFontWidth>> FontStretch { get; }
     public SvgProperty<SvgStringUnit> FontFamily { get; }
     public SvgProperty<SvgNumericUnit> Opacity { get; }
     public SvgProperty<SvgStyleUnit> InlineStyle { get; set; }
@@ -48,6 +49,7 @@ public struct StyleContext
         FontSize = new("font-size");
         FontWeight = new("font-weight");
         FontStyle = new("font-style");
+        FontStretch = new("font-stretch");
         FontFamily = new("font-family");
         Filter = new("filter");
         Defs = new();
@@ -67,6 +69,7 @@ public struct StyleContext
         FontSize = FallbackToCssStyle(document.FontSize, document.Style);
         FontWeight = FallbackToCssStyle(document.FontWeight, document.Style);
         FontStyle = FallbackToCssStyle(document.FontStyle, document.Style);
+        FontStretch = FallbackToCssStyle(document.FontStretch, document.Style);
         FontFamily = FallbackToCssStyle(document.FontFamily, document.Style);
         Filter = FallbackToCssStyle(document.Filter, document.Style);
         PreserveAspectRatio = document.PreserveAspectRatio.Unit.HasValue ?
@@ -155,6 +158,8 @@ public struct StyleContext
                 FallbackToCssStyle(textData.FontStyle, styleContext.FontStyle, styleContext.InlineStyle).Unit;
             styleContext.FontFamily.Unit =
                 FallbackToCssStyle(textData.FontFamily, styleContext.FontFamily, styleContext.InlineStyle).Unit;
+            styleContext.FontStretch.Unit =
+                FallbackToCssStyle(textData.FontStretch, styleContext.FontStretch, styleContext.InlineStyle).Unit;
         }
 
         if (element is IFilterable filterableElement)
@@ -259,6 +264,11 @@ public struct StyleContext
         if (FontStyle.Unit != null)
         {
             styleContext.FontStyle.Unit = FontStyle.Unit;
+        }
+
+        if (FontStretch.Unit != null)
+        {
+            styleContext.FontStretch.Unit = FontStretch.Unit;
         }
 
         if (FontFamily.Unit != null)
