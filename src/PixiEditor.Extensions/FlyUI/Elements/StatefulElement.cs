@@ -131,6 +131,7 @@ public abstract class StatefulElement<TState> : LayoutElement,
         {
             // TODO: Find a way to only apply changed properties, current solution shouldn't be a problem for most cases, but this
             // might cause unnecessary redraws, binding fires and other stuff that might be expensive if we have a lot of elements
+            to.UniqueId = from.UniqueId;
             propertyDeserializable.DeserializeProperties(fromProps.GetProperties().ToList());
         }
     }

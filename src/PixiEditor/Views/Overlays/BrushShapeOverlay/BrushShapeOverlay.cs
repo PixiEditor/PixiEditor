@@ -14,6 +14,7 @@ using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Helpers.UI;
 using PixiEditor.Models.Handlers.Toolbars;
+using PixiEditor.Views.Overlays.Drawables;
 using PixiEditor.Views.Rendering;
 using Canvas = Drawie.Backend.Core.Surfaces.Canvas;
 using Color = Avalonia.Media.Color;
@@ -46,6 +47,10 @@ internal class BrushShapeOverlay : Overlay
         AvaloniaProperty.Register<BrushShapeOverlay, double>(
             nameof(Stabilization));
 
+    public static readonly StyledProperty<VecD?> LastBrushToolUseEndPositionProperty =
+        AvaloniaProperty.Register<BrushShapeOverlay, VecD?>(
+            nameof(LastBrushToolUseEndPosition));
+    
     public static readonly StyledProperty<VecD> LastAppliedPointProperty =
         AvaloniaProperty.Register<BrushShapeOverlay, VecD>(
             nameof(LastAppliedPoint));
@@ -54,6 +59,12 @@ internal class BrushShapeOverlay : Overlay
     {
         get => GetValue(LastAppliedPointProperty);
         set => SetValue(LastAppliedPointProperty, value);
+    }
+    
+    public VecD? LastBrushToolUseEndPosition
+    {
+        get => GetValue(LastBrushToolUseEndPositionProperty);
+        set => SetValue(LastBrushToolUseEndPositionProperty, value);
     }
 
     public double Stabilization
@@ -118,10 +129,14 @@ internal class BrushShapeOverlay : Overlay
     private VecD lastDirCalculationPoint;
     private float lastSize;
     private bool isMouseDown;
+    private bool isShiftDown;
+    private bool isCtrlDown;
     private DateTime lastPointerInfoTime;
     private float lastVelocity;
 
-    private ChangeableDocument.Changeables.Brushes.BrushEngine engine = new();
+    private DashedStroke straightLinePreview = new();
+
+    private BrushEngine engine = new();
 
     private Drawie.Backend.Core.ColorsImpl.Color ropeColor;
     private Drawie.Backend.Core.ColorsImpl.Color pointColor;
@@ -209,6 +224,8 @@ internal class BrushShapeOverlay : Overlay
     protected override void OnOverlayPointerMoved(OverlayPointerArgs args)
     {
         isMouseDown = args.Properties.IsLeftButtonPressed || args.Properties.IsRightButtonPressed;
+        isShiftDown = args.Modifiers.HasFlag(KeyModifiers.Shift);
+        isCtrlDown = args.Modifiers.HasFlag(KeyModifiers.Control);
         if (!args.Properties.IsLeftButtonPressed && BrushData.BrushGraph != null)
         {
             ExecuteBrush(args.Point);
@@ -243,7 +260,16 @@ internal class BrushShapeOverlay : Overlay
 
     protected override void OnKeyPressed(KeyEventArgs args)
     {
+        isShiftDown = args.KeyModifiers.HasFlag(KeyModifiers.Shift);
+        isCtrlDown = args.KeyModifiers.HasFlag(KeyModifiers.Control);
         UpdateBrushShape(lastPoint);
+        Refresh();
+    }
+
+    protected override void OnKeyReleased(KeyEventArgs args)
+    {
+        isShiftDown = args.KeyModifiers.HasFlag(KeyModifiers.Shift);
+        isCtrlDown = args.KeyModifiers.HasFlag(KeyModifiers.Control);
         Refresh();
     }
 
@@ -311,6 +337,15 @@ internal class BrushShapeOverlay : Overlay
                 targetCanvas.DrawPath(BrushShape, paint);
             }
 
+            if (!isMouseDown && isShiftDown && LastBrushToolUseEndPosition is VecD lastEndPosition)
+            {
+                VecD previewEnd = isCtrlDown
+                    ? GeometryHelper.Get45IncrementedPosition(lastEndPosition, lastPoint)
+                    : lastPoint;
+
+                straightLinePreview.Draw(targetCanvas, lastEndPosition, previewEnd);
+            }
+
             targetCanvas.Restore();
         }
     }
@@ -318,6 +353,7 @@ internal class BrushShapeOverlay : Overlay
     protected override void ZoomChanged(double newZoom)
     {
         paint.StrokeWidth = (float)(1.0f / newZoom);
+        straightLinePreview.UpdateZoom((float)newZoom);
     }
 
     void DrawConstrainedRope(Canvas targetCanvas, VecD A, VecD B, double radius, Paint paint)

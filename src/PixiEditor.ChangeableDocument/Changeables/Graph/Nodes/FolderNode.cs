@@ -94,6 +94,9 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
                 sceneContext.RenderSurface.DeviceClipBounds.Pos + sceneContext.RenderSurface.DeviceClipBounds.Size,
                 sceneContext.ProcessingColorSpace);
 
+            intermediate.DrawingSurface.Canvas.SetMatrix(sceneContext.RenderSurface.TotalMatrix);
+            sceneContext.RenderSurface.SetMatrix(Matrix3X3.Identity);
+
             target = intermediate.DrawingSurface.Canvas;
             intermediate.DrawingSurface.Canvas.Save();
         }
