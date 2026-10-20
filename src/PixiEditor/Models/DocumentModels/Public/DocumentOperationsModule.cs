@@ -1233,6 +1233,14 @@ internal class DocumentOperationsModule : IDocumentOperations
 
         Internals.ActionAccumulator.AddFinishedActions(new ResetTransform_Action(member));
     }
+    
+    public void ResetLastBrushToolUseEndPosition()
+    {
+        if (Internals.ChangeController.IsBlockingChangeActive)
+            return;
+        
+        Internals.ActionAccumulator.AddActions(new ResetLastBrushToolUseEndPosition_Action());
+    }
 
     public void QuickChangeLayerColor(Guid[] layers, Color color)
     {

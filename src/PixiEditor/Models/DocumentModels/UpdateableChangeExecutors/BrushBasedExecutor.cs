@@ -16,6 +16,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.Models.BrushEngine;
+using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Toolbars;
@@ -51,6 +52,7 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
     protected Guid layerId;
     protected Color color;
     protected bool antiAliasing;
+    protected bool snapToCentersOfPixels;
     protected bool firstApply = true;
 
     protected bool drawOnMask;
@@ -89,42 +91,72 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
         this.colorsHandler = colorsHandler;
 
         UpdateBrushNodes();
+        snapToCentersOfPixels = outputNode?.SnapToPixels.Value ?? false;
 
         if (controller.LeftMousePressed)
         {
-            EnqueueDrawActions(false);
+            EnqueueDrawActions(controller.LastKeyboardInfo.IsShiftPressed, controller.LastKeyboardInfo.IsCtrlPressed);
         }
 
         return ExecutionState.Success;
     }
 
-    protected virtual void EnqueueDrawActions(bool createLine)
+    protected virtual void EnqueueDrawActions(bool createLine, bool snapLineTo45Incremented = false)
     {
         var point = GetStabilizedPoint();
-
-        if (createLine)
+        point = ApplyPixelCenterSnapping(point);
+        createLine = createLine && document.LastBrushToolUseEndPositionBindable is not null;
+        if (createLine && document.LastBrushToolUseEndPositionBindable is VecD lastToolUsePosition)
         {
-            IAction? actionStart = new LineBasedPen_Action(layerId, handler.LastAppliedPoint, (float)ToolSize,
+            if (snapLineTo45Incremented)
+                point = ApplyStraightLineSnappingTo45(point, lastToolUsePosition);
+        
+            VecD prevPoint = snapToCentersOfPixels ? lastToolUsePosition.Floor() + new VecD(0.5) : lastToolUsePosition;
+            IAction actionStart = new LineBasedPen_Action(layerId, prevPoint, (float)ToolSize,
                 antiAliasing, BrushData, drawOnMask,
                 document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo, controller.LastKeyboardInfo,
                 controller.EditorData);
 
             internals!.ActionAccumulator.AddActions(actionStart);
         }
-
+        
         if (handler != null)
         {
             handler.LastAppliedPoint = point;
         }
 
-        IAction? action = new LineBasedPen_Action(layerId, point, (float)ToolSize,
+        IAction action = new LineBasedPen_Action(layerId, point, (float)ToolSize,
             antiAliasing, BrushData, drawOnMask,
             document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo, controller.LastKeyboardInfo,
             controller.EditorData);
 
         internals!.ActionAccumulator.AddActions(action);
+        
+        if (createLine)
+        {
+            EnqueueEndDraw();
+        }
     }
 
+    protected VecD ApplyPixelCenterSnapping(VecD curPoint)
+    {
+        if (snapToCentersOfPixels)
+        {
+            curPoint = curPoint.Floor() + new VecD(0.5, 0.5);
+        }
+        return curPoint;
+    }
+
+    protected VecD ApplyStraightLineSnappingTo45(VecD curPoint, VecD lineStartPoint)
+    {
+        if (snapToCentersOfPixels)
+        {
+            return GeometryHelper.Get45IncrementedPositionAlignedWithPixelCenters(lineStartPoint,
+                curPoint);
+        }
+        return GeometryHelper.Get45IncrementedPosition(lineStartPoint, curPoint);
+    }
+    
     protected VecD GetStabilizedPoint()
     {
         if (firstApply)
@@ -192,7 +224,9 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
     public override void OnLeftMouseButtonDown(MouseOnCanvasEventArgs args)
     {
         base.OnLeftMouseButtonDown(args);
-        EnqueueDrawActions(args.KeyModifiers.HasFlag(KeyModifiers.Shift));
+        EnqueueDrawActions(
+            args.KeyModifiers.HasFlag(KeyModifiers.Shift), 
+            args.KeyModifiers.HasFlag(KeyModifiers.Control));
     }
 
     public override void OnPrecisePositionChange(MouseOnCanvasEventArgs args)
@@ -250,6 +284,7 @@ internal class BrushBasedExecutor : UpdateableChangeExecutor
     {
         firstApply = true;
         internals!.ActionAccumulator.AddFinishedActions(new EndLineBasedPen_Action());
+        onEnded?.Invoke(this);
     }
 
     public override void ForceStop()

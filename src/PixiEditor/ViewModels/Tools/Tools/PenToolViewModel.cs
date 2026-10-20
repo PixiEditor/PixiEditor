@@ -2,6 +2,7 @@
 using Drawie.Backend.Core.Vector;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
+using Drawie.Numerics;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
@@ -37,7 +38,14 @@ namespace PixiEditor.ViewModels.Tools.Tools
 
         public override void KeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown, Key argsKey)
         {
-            ActionDisplay = new LocalizedString("PEN_TOOL_ACTION_DISPLAY", Shortcut);
+            if (shiftIsDown)
+            {
+                ActionDisplay = new LocalizedString("PEN_TOOL_ACTION_DISPLAY_STRAIGHT_LINE");
+            }
+            else
+            {
+                ActionDisplay = new LocalizedString("PEN_TOOL_ACTION_DISPLAY");
+            }
         }
 
         protected override Toolbar CreateToolbar()
@@ -45,13 +53,10 @@ namespace PixiEditor.ViewModels.Tools.Tools
             return ToolbarFactory.Create<PenToolViewModel, BrushToolbar>(this);
         }
 
-        protected override void SwitchToTool()
+        public override void UseTool(VecD pos)
         {
+            EnsureBrushShapeSettings();
             ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UsePenTool();
-            if (!createdBrushSettings)
-            {
-                AddBrushShapeSettings();
-            }
         }
 
         private void SelectedToolChanged(object sender, SelectedToolEventArgs e)

@@ -16,6 +16,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using PixiEditor.ChangeableDocument.Rendering.ContextData;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
@@ -38,6 +39,8 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     private PointerInfo pointerInfo;
     private KeyboardInfo keyboardInfo;
     private EditorData editorData;
+    private VecD pos;
+    private VecD? previousLastBrushToolUsePosition;
 
     [GenerateUpdateableChangeActions]
     public LineBasedPen_UpdateableChange(Guid memberGuid, VecD pos, float strokeWidth,
@@ -77,6 +80,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         if (strokeWidth < 0.1)
             return false;
         var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame);
+        previousLastBrushToolUsePosition = target.LastBrushToolUseEndPosition;
 
         DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, image, memberGuid, drawOnMask);
 
@@ -146,6 +150,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         if (storedChunks is not null)
             throw new InvalidOperationException("Trying to save chunks while there are saved chunks already");
         var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame);
+        target.LastBrushToolUseEndPosition = points[^1].Position;
 
         ignoreInUndo = false;
         if (firstApply)
@@ -154,8 +159,11 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
             storedChunks = new CommittedChunkStorage(image, affArea.Chunks);
             image.CommitChanges();
 
-            var change = DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affArea, drawOnMask).AsT1;
-            return OneOf<None, IChangeInfo, List<IChangeInfo>>.FromT1(change);
+            return new List<IChangeInfo>()
+            {
+                DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affArea, drawOnMask).AsT1,
+                new LastBrushToolUsePosition_ChangeInfo(target.LastBrushToolUseEndPosition)
+            };
         }
         else
         {
@@ -165,19 +173,26 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
             var affArea = image.FindAffectedArea();
             storedChunks = new CommittedChunkStorage(image, affArea.Chunks);
             image.CommitChanges();
-
-            IChangeInfo info = DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affArea, drawOnMask).AsT1;
-
-            return OneOf<None, IChangeInfo, List<IChangeInfo>>.FromT1(info);
+            
+            return new List<IChangeInfo>()
+            {
+                DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affArea, drawOnMask).AsT1,
+                new LastBrushToolUsePosition_ChangeInfo(target.LastBrushToolUseEndPosition)
+            };
         }
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
+        target.LastBrushToolUseEndPosition = previousLastBrushToolUsePosition;
         var affected =
             DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, memberGuid, drawOnMask, frame,
                 ref storedChunks);
-        return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affected, drawOnMask);
+        return new List<IChangeInfo>()
+        {
+            DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affected, drawOnMask).AsT1,
+            new LastBrushToolUsePosition_ChangeInfo(target.LastBrushToolUseEndPosition)
+        };
     }
 
     public override void Dispose()

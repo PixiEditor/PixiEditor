@@ -598,6 +598,13 @@ internal class ViewportOverlays
             Mode = BindingMode.OneWay
         };
 
+        Binding lastBrushToolUseEndPositionBinding = new()
+        {
+            Source = ViewModelMain.Current.DocumentManagerSubViewModel,
+            Path = "ActiveDocument.LastBrushToolUseEndPositionBindable",
+            Mode = BindingMode.OneWay
+        };
+        
         Binding lastAppliedPointBinding = new()
         {
             Source = ViewModelMain.Current.ToolsSubViewModel,
@@ -618,6 +625,7 @@ internal class ViewportOverlays
         brushShapeOverlay.Bind(BrushShapeOverlay.EditorDataProperty, editorDataBinding);
         brushShapeOverlay.Bind(BrushShapeOverlay.StabilizationModeProperty, stabilizationModeBinding);
         brushShapeOverlay.Bind(BrushShapeOverlay.StabilizationProperty, stabilizationBinding);
+        brushShapeOverlay.Bind(BrushShapeOverlay.LastBrushToolUseEndPositionProperty, lastBrushToolUseEndPositionBinding);
         brushShapeOverlay.Bind(BrushShapeOverlay.LastAppliedPointProperty, lastAppliedPointBinding);
         brushShapeOverlay.Bind(BrushShapeOverlay.BrushSettingChangedTriggerProperty, settingChangedTrigger);
     }

@@ -1,6 +1,7 @@
-﻿using Avalonia.Input;
+using Avalonia.Input;
 using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core;
+using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using Drawie.Backend.Core.ColorsImpl;
@@ -8,6 +9,7 @@ using Drawie.Backend.Core.Surfaces;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Toolbars;
+using PixiEditor.Helpers;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
@@ -40,35 +42,49 @@ internal class PenToolExecutor : BrushBasedExecutor<IPenToolHandler>
         return ExecutionState.Success;
     }
 
-    protected override void EnqueueDrawActions(bool createLine)
+    protected override void EnqueueDrawActions(bool createLine, bool snapLineTo45Incremented = false)
     {
         var point = GetStabilizedPoint();
-        if (createLine)
+        point = ApplyPixelCenterSnapping(point);
+        createLine = createLine && document.LastBrushToolUseEndPositionBindable is not null;
+        if (createLine && document.LastBrushToolUseEndPositionBindable is VecD lastToolUsePosition)
         {
-            IAction? actionStart = new LineBasedPen_Action(layerId, handler.LastAppliedPoint, (float)ToolSize,
-                antiAliasing, BrushData, drawOnMask,
-                document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo, controller.LastKeyboardInfo,
-                controller.EditorData);
+            if (snapLineTo45Incremented)
+                point = ApplyStraightLineSnappingTo45(point, lastToolUsePosition);
+
+            VecD prevPoint = snapToCentersOfPixels ? lastToolUsePosition.Floor() + new VecD(0.5) : lastToolUsePosition;
+            IAction actionStart = pixelPerfect
+                ? new PixelPerfectPen_Action(layerId, (VecI)prevPoint.Floor(), color, drawOnMask,
+                    document!.AnimationHandler.ActiveFrameBindable)
+                : new LineBasedPen_Action(layerId, prevPoint, (float)ToolSize,
+                    antiAliasing, BrushData, drawOnMask,
+                    document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo, controller.LastKeyboardInfo,
+                    controller.EditorData);
 
             internals!.ActionAccumulator.AddActions(actionStart);
         }
 
-        if (handler != null)
-        {
-            handler.LastAppliedPoint = point;
-        }
-
-        IAction? action = pixelPerfect switch
+        IAction action = pixelPerfect switch
         {
             false => new LineBasedPen_Action(layerId, point, (float)ToolSize,
                 antiAliasing, BrushData, drawOnMask,
                 document!.AnimationHandler.ActiveFrameBindable, controller.LastPointerInfo, controller.LastKeyboardInfo,
                 controller.EditorData),
-            true => new PixelPerfectPen_Action(layerId, controller!.LastPixelPosition, color, drawOnMask,
+            true => new PixelPerfectPen_Action(layerId, (VecI)point.Floor(), color, drawOnMask,
                 document!.AnimationHandler.ActiveFrameBindable)
         };
 
+        if (handler != null)
+        {
+            handler.LastAppliedPoint = point;
+        }
+        
         internals!.ActionAccumulator.AddActions(action);
+
+        if (createLine)
+        {
+            EnqueueEndDraw();
+        }
     }
 
     public override void OnSettingsChanged(string name, object value)
@@ -84,12 +100,13 @@ internal class PenToolExecutor : BrushBasedExecutor<IPenToolHandler>
     protected override void EnqueueEndDraw()
     {
         firstApply = true;
-        IAction? action = pixelPerfect switch
+        IAction action = pixelPerfect switch
         {
             false => new EndLineBasedPen_Action(),
             true => new EndPixelPerfectPen_Action()
         };
 
         internals!.ActionAccumulator.AddFinishedActions(action);
+        onEnded?.Invoke(this);
     }
 }

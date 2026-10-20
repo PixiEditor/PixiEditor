@@ -2,6 +2,7 @@
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Vector;
+using Drawie.Numerics;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
@@ -34,13 +35,22 @@ internal class EraserToolViewModel : BrushBasedToolViewModel, IEraserToolHandler
     {
         return ToolbarFactory.Create<EraserToolViewModel, BrushToolbar>(this);
     }
-
-    protected override void SwitchToTool()
+    
+    public override void KeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown, Key argsKey)
     {
-        ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseEraserTool();
-        if (!createdBrushSettings)
+        if (shiftIsDown)
         {
-            AddBrushShapeSettings();
+            ActionDisplay = new LocalizedString("ERASER_TOOL_ACTION_DISPLAY_STRAIGHT_LINE");
         }
+        else
+        {
+            ActionDisplay = new LocalizedString("ERASER_TOOL_ACTION_DISPLAY");
+        }
+    }
+
+    public override void UseTool(VecD pos)
+    {
+        EnsureBrushShapeSettings();
+        ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseEraserTool();
     }
 }

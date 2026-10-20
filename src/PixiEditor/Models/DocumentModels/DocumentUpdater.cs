@@ -103,6 +103,9 @@ internal class DocumentUpdater
             case Size_ChangeInfo info:
                 ProcessSize(info);
                 break;
+            case LastBrushToolUsePosition_ChangeInfo info:
+                ProcessLastBrushToolUsePosition(info);
+                break;
             case RefreshViewport_PassthroughAction info:
                 ProcessRefreshViewport(info);
                 break;
@@ -262,6 +265,11 @@ internal class DocumentUpdater
                 ProcessFallbackAnimationToLayerImage(info);
                 break;
         }
+    }
+
+    private void ProcessLastBrushToolUsePosition(LastBrushToolUsePosition_ChangeInfo info)
+    {
+        doc.SetLastBrushToolUseEndPosition(info.newValue);
     }
 
     private void ProcessError(ChangeError_Info info)

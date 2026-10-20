@@ -3,6 +3,7 @@ using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 
@@ -17,6 +18,7 @@ internal class PixelPerfectPen_UpdateableChange : UpdateableChange
     private List<VecI>? incomingPoints = new();
     private CommittedChunkStorage? chunkStorage;
     private int frame;
+    private VecD? previousLastBrushToolUsePosition;
 
     [GenerateUpdateableChangeActions]
     public PixelPerfectPen_UpdateableChange(Guid memberGuid, VecI pos, Color color, bool drawOnMask, int frame)
@@ -39,6 +41,7 @@ internal class PixelPerfectPen_UpdateableChange : UpdateableChange
             return false;
         var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame);
         image.SetBlendMode(BlendMode.SrcOver);
+        previousLastBrushToolUsePosition = target.LastBrushToolUseEndPosition;
         DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, image, memberGuid, drawOnMask);
         return true;
     }
@@ -107,6 +110,7 @@ internal class PixelPerfectPen_UpdateableChange : UpdateableChange
             throw new InvalidOperationException("Trying to save chunks while a saved one already exist");
 
         ignoreInUndo = false;
+        target.LastBrushToolUseEndPosition = incomingPoints[^1] + new VecD(0.5);
         var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame);
         if (firstApply)
         {
@@ -124,12 +128,22 @@ internal class PixelPerfectPen_UpdateableChange : UpdateableChange
         var affArea = image.FindAffectedArea();
         chunkStorage = new CommittedChunkStorage(image, affArea.Chunks);
         image.CommitChanges();
-        return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affArea, drawOnMask);
+        return new List<IChangeInfo>()
+        {
+            DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affArea, drawOnMask).AsT1,
+            new LastBrushToolUsePosition_ChangeInfo(target.LastBrushToolUseEndPosition)
+        };
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
+        target.LastBrushToolUseEndPosition = previousLastBrushToolUsePosition;
         var chunks = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, memberGuid, drawOnMask, frame, ref chunkStorage);
-        return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, chunks, drawOnMask);
+
+        return new List<IChangeInfo>()
+        {
+            DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, chunks, drawOnMask).AsT1,
+            new LastBrushToolUsePosition_ChangeInfo(target.LastBrushToolUseEndPosition)
+        };
     }
 }

@@ -351,10 +351,10 @@ public class BrushEngine : IDisposable
         var rect = new RectD(point - new VecD((strokeWidth / 2f)), new VecD(strokeWidth));
         if (brushNode.SnapToPixels.Value)
         {
-            VecI vecIpoint = (VecI)point;
+            VecI vecIpoint = (VecI)point.Floor();
             rect = (RectD)new RectI(vecIpoint - new VecI((int)(strokeWidth / 2f)), new VecI((int)strokeWidth));
 
-            VecI vecIStartPoint = (VecI)startPos;
+            VecI vecIStartPoint = (VecI)startPos.Floor();
             startingRect = (RectD)new RectI(vecIStartPoint - new VecI((int)(strokeWidth / 2f)),
                 new VecI((int)strokeWidth));
         }
@@ -798,7 +798,7 @@ public class BrushEngine : IDisposable
 
         if (snapToPixels)
         {
-            rect = (RectD)(new RectI((VecI)point - new VecI((int)(strokeWidth / 2f)), new VecI((int)strokeWidth)));
+            rect = (RectD)(new RectI((VecI)point.Floor() - new VecI((int)(strokeWidth / 2f)), new VecI((int)strokeWidth)));
         }
 
         var path = vectorShape.ToPath(true);

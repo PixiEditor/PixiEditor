@@ -35,7 +35,6 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
     public bool SupportsSecondaryActionOnRightClick { get; set; }
     public override string DefaultIcon => defaultIcon;
 
-
     public VecD LastAppliedPoint
     {
         get => lastPoint;
@@ -100,33 +99,34 @@ internal class BrushBasedToolViewModel : ToolViewModel, IBrushToolHandler
         return ToolbarFactory.Create<BrushBasedToolViewModel, BrushToolbar>(this);
     }
 
-    protected virtual void SwitchToTool()
+    protected void EnsureBrushShapeSettings()
     {
-        ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseBrushBasedTool(this);
         if(!createdBrushSettings)
         {
             AddBrushShapeSettings();
         }
     }
-
+    
     public override void UseTool(VecD pos)
     {
-        SwitchToTool();
+        EnsureBrushShapeSettings();
+        ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseBrushBasedTool(this);
     }
 
     public void OnToolSelected(bool restoring)
     {
-        SwitchToTool();
+        EnsureBrushShapeSettings();
+        ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument.Operations.ResetLastBrushToolUseEndPosition();
     }
 
     public void OnPostUndoInlet()
     {
-        SwitchToTool();
+        EnsureBrushShapeSettings();
     }
 
     public override void OnPostRedoInlet()
     {
-        SwitchToTool();
+        EnsureBrushShapeSettings();
     }
 
     public override void KeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown, Key argsKey)
