@@ -57,12 +57,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public event EventHandler<LayersChangedEventArgs>? LayersChanged;
     public event EventHandler<DocumentSizeChangedEventArgs>? SizeChanged;
     public event Action ToolSessionFinished;
-
-
+    
     private bool busy = false;
-
-
-
     public bool Busy
     {
         get => busy;
@@ -71,7 +67,6 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
 
     private string coordinatesString = "";
-
     public string CoordinatesString
     {
         get => coordinatesString;
@@ -79,7 +74,6 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     }
 
     private string? fullFilePath = null;
-
     public string? FullFilePath
     {
         get => fullFilePath;
@@ -204,6 +198,9 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public IStructureMemberHandler? SelectedStructureMember { get; private set; } = null;
 
     public Dictionary<Guid, Texture> SceneTextures { get; } = new();
+
+    private VecD? lastBrushToolUseEndPosition = null;
+    public VecD? LastBrushToolUseEndPositionBindable => lastBrushToolUseEndPosition;
 
     private VectorPath selectionPath = new VectorPath();
     public VectorPath SelectionPathBindable => selectionPath;
@@ -1286,6 +1283,12 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
         // TODO: Make sure this is correct, it was in InternalRaiseSizeChanged previously, check DocumentUpdater.cs ProcessSize
         SizeChanged?.Invoke(this, new DocumentSizeChangedEventArgs(this, oldSize, size));
+    }
+
+    public void SetLastBrushToolUseEndPosition(VecD? position)
+    {
+        lastBrushToolUseEndPosition = position;
+        OnPropertyChanged(nameof(LastBrushToolUseEndPositionBindable));
     }
 
     public void UpdateSelectionPath(VectorPath vectorPath)

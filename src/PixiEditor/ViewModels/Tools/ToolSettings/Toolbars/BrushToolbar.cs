@@ -13,7 +13,7 @@ internal class BrushToolbar : Toolbar, IBrushToolbar
         get => GetSetting<BoolSettingViewModel>(nameof(AntiAliasing)).Value;
         set => GetSetting<BoolSettingViewModel>(nameof(AntiAliasing)).Value = value;
     }
-
+    
     public double ToolSize
     {
         get => GetSetting<SizeSettingViewModel>(nameof(ToolSize)).Value;
