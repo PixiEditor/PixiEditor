@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Text;
 using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
@@ -336,7 +337,7 @@ internal partial class PaletteViewer : UserControl
     {
         if (e.DataTransfer.Contains(ClipboardDataFormats.PaletteColorDaoFormat))
         {
-            string data = (string)e.DataTransfer.TryGetValues(ClipboardDataFormats.PaletteColorDaoFormat).FirstOrDefault();
+            string data = Encoding.UTF8.GetString(e.DataTransfer.TryGetValues(ClipboardDataFormats.PaletteColorDaoFormat).FirstOrDefault());
 
             PaletteColor paletteColor = PaletteColor.Parse(data);
             if (Colors.Contains(paletteColor))
