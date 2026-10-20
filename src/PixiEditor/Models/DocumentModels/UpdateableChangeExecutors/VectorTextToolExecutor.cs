@@ -360,6 +360,12 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             return;
 
         suppressSettingChanged = true;
+        if(lastText == null)
+        {
+            suppressSettingChanged = false;
+            return;
+        }
+
         var text = lastText.Clone();
 
         int cursor = document.TextOverlayHandler.CursorPosition;
