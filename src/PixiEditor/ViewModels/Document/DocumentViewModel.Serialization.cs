@@ -418,18 +418,31 @@ internal partial class DocumentViewModel
             text.Y.Unit = SvgNumericUnit.FromUserUnits(pos.Y);
             text.FontSize.Unit = SvgNumericUnit.FromUserUnits(textInline.Font.Size);
             text.FontFamily.Unit = new SvgStringUnit(textInline.Font.Family.Name);
-            text.FontWeight.Unit = SvgNumericUnit.FromUserUnits((int)textInline.Font.Weight);
+            text.FontWeight.Unit = new SvgEnumUnit<SvgFontWeight>((SvgFontWeight)(int)textInline.Font.Weight);
             text.FontStyle.Unit = new SvgEnumUnit<SvgFontStyle>((SvgFontStyle)textInline.Font.Slant);
+            text.FontStretch.Unit = new SvgEnumUnit<SvgFontWidth>((SvgFontWidth)textInline.Font.Width);
             text.Stroke.Unit = new SvgPaintServerUnit(textInline.StrokePaintable);
             text.StrokeWidth.Unit = SvgNumericUnit.FromUserUnits(textInline.StrokeWidth);
             text.Fill.Unit =
                 new SvgPaintServerUnit(textInline.Fill ? textInline.FillPaintable : new ColorPaintable(Colors.Transparent));
             text.TextAlign.Unit = new SvgEnumUnit<SvgTextAlign>((SvgTextAlign)textInline.Alignment);
+            text.FillOpacity.Unit = SvgNumericUnit.FromUserUnits(TryGetOpacity(textInline.FillPaintable));
+            text.StrokeOpacity.Unit = SvgNumericUnit.FromUserUnits(TryGetOpacity(textInline.StrokePaintable));
 
             texts.Add(text);
         }
 
         return texts;
+    }
+
+    private static double TryGetOpacity(Paintable paintable)
+    {
+        if (paintable is ColorPaintable color)
+        {
+            return color.Color.A / 255.0;
+        }
+
+        return 1;
     }
 
     private static SvgImage CreateImageElement(VecD resizeFactor, RectD tightBounds,

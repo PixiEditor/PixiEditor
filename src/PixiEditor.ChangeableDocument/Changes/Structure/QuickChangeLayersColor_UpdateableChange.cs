@@ -39,7 +39,7 @@ internal class QuickChangeLayersColor_UpdateableChange : InterruptableUpdateable
                 if (member is VectorLayerNode vectorNode)
                 {
                     originalShapes ??= new Dictionary<Guid, IReadOnlyShapeVectorData>();
-                    originalShapes[guid] = vectorNode.EmbeddedShapeData.Clone() as IReadOnlyShapeVectorData;
+                    originalShapes[guid] = vectorNode.EmbeddedShapeData?.Clone() as IReadOnlyShapeVectorData;
                 }
             }
         }
@@ -99,7 +99,7 @@ internal class QuickChangeLayersColor_UpdateableChange : InterruptableUpdateable
             var member = target.FindMember(guid);
             if (member is VectorLayerNode vectorNode)
             {
-                vectorNode.EmbeddedShapeData = originalShapes[guid].Clone();
+                vectorNode.EmbeddedShapeData = originalShapes[guid]?.Clone();
                 changeInfos.Add(new VectorShape_ChangeInfo(guid, AffectedAreasUtility.GetTightLayerArea(member, frame)));
             }
             else if (member is IQuickColorChangeable quickColorChangeable && originalColors.TryGetValue(guid, out Color?[] colors))

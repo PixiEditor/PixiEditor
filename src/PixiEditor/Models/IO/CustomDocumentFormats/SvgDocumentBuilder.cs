@@ -580,8 +580,9 @@ internal class SvgDocumentBuilder : IDocumentBuilder
             : FontData.CreateDefault();
 
         font.Size = styleContext.FontSize.Unit?.ToPixels(viewBox) ?? 12;
-        font.Weight = (FontStyleWeight)(styleContext.FontWeight.Unit?.Value ?? 400);
+        font.Weight = (FontStyleWeight)(styleContext.FontWeight.Unit?.Value ?? SvgFontWeight.Normal);
         font.Slant = (FontStyleSlant)(styleContext.FontStyle.Unit?.Value ?? SvgFontStyle.Normal);
+        font.Width = (FontStyleWidth)(styleContext.FontStretch.Unit?.Value ?? SvgFontWidth.Normal);
 
         VecD position = new(
             element.X.Unit?.ToPixels(viewBox) ?? 0,
@@ -628,7 +629,6 @@ internal class SvgDocumentBuilder : IDocumentBuilder
             float opacity = (float)(styleContext.FillOpacity.Unit?.Value ?? 1);
             opacity = Math.Clamp(opacity, 0, 1);
             inline.FillPaintable = target?.Paintable ?? Colors.Black;
-            inline.FillPaintable?.ApplyOpacity(opacity);
         }
 
         if (hasStroke)
@@ -640,7 +640,6 @@ internal class SvgDocumentBuilder : IDocumentBuilder
             opacity = Math.Clamp(opacity, 0, 1);
             inline.StrokePaintable = targetColor?.Paintable ?? Colors.Transparent;
             inline.StrokeWidth = (float)(targetWidth?.PixelsValue ?? 1);
-            inline.StrokePaintable?.ApplyOpacity(opacity);
         }
 
         return new TextVectorData(rt) { Position = position, MissingFontText = "MISSING_FONT", };

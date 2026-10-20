@@ -47,6 +47,14 @@ internal class TextToolbar : FillableShapeToolbar, ITextToolbar
         }
     }
 
+    public FontFamilyName? PreviewFontFamily
+    {
+        get
+        {
+            return GetSetting<FontFamilySettingViewModel>(nameof(FontFamily)).PreviewFont;
+        }
+    }
+
     public FontStyle FontStyle
     {
         get
@@ -131,6 +139,8 @@ internal class TextToolbar : FillableShapeToolbar, ITextToolbar
         }
     }
 
+    public event Action<FontFamilyName?> PreviewFontChanged;
+
     public TextToolbar()
     {
         var fontFamilySetting = new FontFamilySettingViewModel(nameof(FontFamily), "");
@@ -187,6 +197,14 @@ internal class TextToolbar : FillableShapeToolbar, ITextToolbar
         {
             IsExposed = false, Value = false
         });
+
+        fontFamilySetting.PropertyChanged += (sender, args) =>
+        {
+            if (args.PropertyName == nameof(FontFamilySettingViewModel.PreviewFont))
+            {
+                PreviewFontChanged?.Invoke(fontFamilySetting.PreviewFont);
+            }
+        };
     }
 
     private string FormatStyleText(FontStyle? x)

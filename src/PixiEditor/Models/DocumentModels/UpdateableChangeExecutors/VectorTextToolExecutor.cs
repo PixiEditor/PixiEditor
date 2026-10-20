@@ -52,6 +52,8 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
     private static readonly HashSet<string> SettingsWorkingOnFullLines = new() { nameof(ITextToolbar.Alignment) };
 
+    private RichText? prePreviewRichText;
+
     public override bool BlocksOtherActions => false;
 
     public override ExecutorType Type => ExecutorType.ToolLinked;
@@ -134,7 +136,26 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             return ExecutionState.Error;
         }
 
+        toolbar.PreviewFontChanged += ToolbarOnPreviewFontChanged;
+
         return ExecutionState.Success;
+    }
+
+    private void ToolbarOnPreviewFontChanged(FontFamilyName? previewFont)
+    {
+        if (previewFont != null && prePreviewRichText == null)
+        {
+            prePreviewRichText = lastText.Clone();
+        }
+        else if (previewFont == null && prePreviewRichText != null)
+        {
+            UpdateTextData(prePreviewRichText, VectorShapeChangeType.GeometryData);
+            prePreviewRichText?.ClearCache();
+            prePreviewRichText = null;
+            return;
+        }
+
+        OnSettingsChanged(nameof(ITextToolbar.FontFamily), previewFont);
     }
 
     private void UpdateInlineSettings()
@@ -149,7 +170,9 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         if (first != null)
         {
             if (inlines.All(x => x.Font.Family.Equals(first.Font.Family)))
+            {
                 toolbar.FontFamily = first.Font.Family;
+            }
 
             if (inlines.All(x => Math.Abs(x.Font.Size - first.Font.Size) < float.Epsilon))
                 toolbar.FontSize = first.Font.Size;
@@ -261,6 +284,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
     public override void ForceStop()
     {
+        toolbar.PreviewFontChanged -= ToolbarOnPreviewFontChanged;
         isActive = false;
         foreach (var richText in usedRichTexts)
         {
@@ -534,7 +558,8 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             {
                 var nearestAvailableWeight = FontLibrary.GetAvailableFontStyles(inline.Font.Family.Name)
                     .Where(style => bold ? style.Weight >= FontStyleWeight.Bold : style.Weight < FontStyleWeight.Bold)
-                    .OrderBy(style => style.Weight)
+                    .OrderBy(style =>
+                        Math.Abs((int)style.Weight - (int)(bold ? FontStyleWeight.Bold : FontStyleWeight.Normal)))
                     .FirstOrDefault();
                 if (nearestAvailableWeight != null)
                 {

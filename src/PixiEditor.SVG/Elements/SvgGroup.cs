@@ -19,7 +19,8 @@ public class SvgGroup()
     public SvgProperty<SvgEnumUnit<SvgStrokeLineJoin>> StrokeLineJoin { get; } = new("stroke-linejoin");
     public SvgProperty<SvgStringUnit> FontFamily { get; } = new("font-family");
     public SvgProperty<SvgNumericUnit> FontSize { get; } = new("font-size");
-    public SvgProperty<SvgNumericUnit> FontWeight { get; } = new("font-weight");
+    public SvgProperty<SvgEnumUnit<SvgFontWeight>> FontWeight { get; } = new("font-weight");
+    public SvgProperty<SvgEnumUnit<SvgFontWidth>> FontStretch { get; } = new("font-stretch");
     public SvgProperty<SvgEnumUnit<SvgFontStyle>> FontStyle { get; } = new("font-style");
     public SvgProperty<SvgStringUnit> ClipPath { get; } = new("clip-path");
     public SvgProperty<SvgNumericUnit> Opacity { get; } = new("opacity");
@@ -44,6 +45,7 @@ public class SvgGroup()
             FontSize,
             FontWeight,
             FontStyle,
+            FontStretch,
             Filter
         };
 

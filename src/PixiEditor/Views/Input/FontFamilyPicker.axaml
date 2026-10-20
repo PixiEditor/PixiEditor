@@ -35,7 +35,8 @@
                     <Flyout
                         Placement="BottomEdgeAlignedLeft"
                         ShowMode="Transient">
-                        <Grid Width="300" Height="350" Margin="10">
+                        <Grid Width="300" Height="350" Margin="10"
+                              PointerExited="Grid_OnPointerExited">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="*" />
@@ -83,7 +84,6 @@
                                                     BorderThickness="0"
                                                     Click="FontItem_OnClick"
                                                     PointerEntered="Button_OnPointerEntered"
-                                                    PointerExited="Button_OnPointerExited"
                                                     Tag="{Binding FontFamilyName}">
                                                 <input:FontItemView Item="{Binding}" />
                                             </Button>

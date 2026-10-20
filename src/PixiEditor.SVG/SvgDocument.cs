@@ -30,8 +30,9 @@ public class SvgDocument : SvgElement, IElementContainer, ITransformable, IFilla
     public SvgProperty<SvgNumericUnit> FillOpacity { get; } = new("fill-opacity");
     public SvgProperty<SvgStringUnit> FontFamily { get; } = new("font-family");
     public SvgProperty<SvgNumericUnit> FontSize { get; } = new("font-size");
-    public SvgProperty<SvgNumericUnit> FontWeight { get; } = new("font-weight");
+    public SvgProperty<SvgEnumUnit<SvgFontWeight>> FontWeight { get; } = new("font-weight");
     public SvgProperty<SvgEnumUnit<SvgFontStyle>> FontStyle { get; } = new("font-style");
+    public SvgProperty<SvgEnumUnit<SvgFontWidth>> FontStretch { get; } = new("font-stretch");
     public SvgProperty<SvgFilterUnit> Filter { get; } = new("filter");
 
     public SvgDefs Defs { get; set; } = new();
@@ -69,6 +70,7 @@ public class SvgDocument : SvgElement, IElementContainer, ITransformable, IFilla
             FontSize,
             FontWeight,
             FontStyle,
+            FontStretch,
             Filter
         };
 
@@ -171,6 +173,10 @@ public class SvgDocument : SvgElement, IElementContainer, ITransformable, IFilla
         {
             root.Add(new XAttribute("stroke-linejoin", StrokeLineJoin.Unit.Value.ToXml(defs)));
         }
-    }
 
+        if (FontStretch.Unit != null)
+        {
+            root.Add(new XAttribute("font-stretch", FontStretch.Unit.Value.ToXml(defs)));
+        }
+    }
 }

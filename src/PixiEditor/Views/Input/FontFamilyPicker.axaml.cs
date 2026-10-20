@@ -51,6 +51,16 @@ public partial class FontFamilyPicker : UserControl
         AvaloniaProperty.RegisterDirect<FontFamilyPicker, bool>(
             nameof(ShowOnlyFavourites), o => o.ShowOnlyFavourites, (o, v) => o.ShowOnlyFavourites = v);
 
+    public static readonly StyledProperty<FontFamilyName?> PreviewFontFamilyProperty =
+        AvaloniaProperty.Register<FontFamilyPicker, FontFamilyName?>(
+            nameof(PreviewFontFamily));
+
+    public FontFamilyName? PreviewFontFamily
+    {
+        get => GetValue(PreviewFontFamilyProperty);
+        set => SetValue(PreviewFontFamilyProperty, value);
+    }
+
     public FontFamilyName SelectedFontFamily
     {
         get => GetValue(SelectedFontFamilyProperty);
@@ -127,9 +137,6 @@ public partial class FontFamilyPicker : UserControl
         SelectedFontFamilyProperty.Changed.AddClassHandler<FontFamilyPicker>((sender, _) =>
             sender.SynchronizeSelection());
     }
-
-    private FontFamilyName? preHoverPreviewFont;
-    private FontFamilyName? currentHoverPreviewFont;
 
     public FontFamilyPicker()
     {
@@ -292,10 +299,9 @@ public partial class FontFamilyPicker : UserControl
         if (sender is not Button { Tag: FontFamilyName font })
             return;
 
+        PreviewFontFamily = null;
         SelectedFontFamily = font;
         FontIndex = Fonts.IndexOf(font);
-        preHoverPreviewFont = null;
-        currentHoverPreviewFont = null;
 
         if (TopLevel.GetTopLevel(this) is not null)
         {
@@ -314,14 +320,7 @@ public partial class FontFamilyPicker : UserControl
         if (sender is not Button { Tag: FontFamilyName font })
             return;
 
-        if (currentHoverPreviewFont == null)
-        {
-            preHoverPreviewFont = SelectedFontFamily;
-            currentHoverPreviewFont = font;
-        }
-
-        SelectedFontFamily = font;
-        FontIndex = Fonts.IndexOf(font);
+        PreviewFontFamily = font;
     }
 
     private async Task UploadFont()
@@ -349,19 +348,12 @@ public partial class FontFamilyPicker : UserControl
         FontIndex = Fonts.IndexOf(familyName);
     }
 
-    private void Button_OnPointerExited(object? sender, PointerEventArgs e)
+    private void Grid_OnPointerExited(object? sender, PointerEventArgs e)
     {
-        if (currentHoverPreviewFont == null)
+        if (PreviewFontFamily == null)
             return;
 
-        if (preHoverPreviewFont != null)
-        {
-            SelectedFontFamily = preHoverPreviewFont.Value;
-            FontIndex = Fonts.IndexOf(preHoverPreviewFont.Value);
-        }
-
-        preHoverPreviewFont = null;
-        currentHoverPreviewFont = null;
+        PreviewFontFamily = null;
     }
 }
 

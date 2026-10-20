@@ -442,32 +442,44 @@ internal class TextOverlay : Overlay
     private void SelectWordAtPosition(VecD point)
     {
         var indexOfClosest = GetClosestCharacterIndex(point);
-        int start = indexOfClosest;
-        int end = indexOfClosest;
+        var text = richText.RawText;
+        var textElements = new List<(int Start, int End, string Value)>();
 
-        string surrogateLessText = richText.RawText;
+        var enumerator = StringInfo.GetTextElementEnumerator(text);
 
-        for (int i = 0; i < surrogateLessText.Length; i++)
+        while (enumerator.MoveNext())
         {
-            if (char.IsLowSurrogate(surrogateLessText[i]))
-            {
-                surrogateLessText = surrogateLessText.Remove(i, 1);
-                i--;
-            }
+            var start = enumerator.ElementIndex;
+            var value = enumerator.GetTextElement();
+
+            textElements.Add((start, start + value.Length, value));
         }
 
-        while (start > 0 && !char.IsWhiteSpace(surrogateLessText[start - 1]))
+        if (textElements.Count == 0)
         {
-            start--;
+            CursorPosition = 0;
+            SelectionEnd = 0;
+            return;
         }
 
-        while (end < richText.TextGlyphCount && !char.IsWhiteSpace(surrogateLessText[end]))
+        var index = Math.Clamp(indexOfClosest, 0, textElements.Count - 1);
+        var startIndex = index;
+        var endIndex = index;
+
+        while (startIndex > 0 &&
+               !string.IsNullOrWhiteSpace(textElements[startIndex - 1].Value))
         {
-            end++;
+            startIndex--;
         }
 
-        CursorPosition = start;
-        SelectionEnd = end;
+        while (endIndex < textElements.Count &&
+               !string.IsNullOrWhiteSpace(textElements[endIndex].Value))
+        {
+            endIndex++;
+        }
+
+        CursorPosition = startIndex;
+        SelectionEnd = endIndex;
     }
 
     private void CopyText(bool asUnicode = false)
