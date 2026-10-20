@@ -1,12 +1,19 @@
-# 2.2.0.1
+# 2.2.0.2
 
-Date: `09.10.2026`
+Date: `20.10.2026`
 
 # Improvements
 
-- Improved contrast of brush overlay
+- Reworked text editing, it is now possible to select a part of the text and edit its settings directly
+- Reworked font picker UI
+- Added favourite fonts filtering
+- Pen tool shift key straight line overlay and snapping
+- Undo/redo support for straight line drawing
 
 # Fixes
 
-- Fixed a crash when floating a t ab
-- Fixed game of life example file - by Ghoti
+- Fixed a crash when dragging layers on macOS
+- Fixed not working drag and drop of palette colors
+- Fix brush engine snap to pixels for negative coordinates
+- Fixed folder not rendering in high dpi when the opacity is < 100%
+- Fixed duplicate svg tags when exporting content with folders
