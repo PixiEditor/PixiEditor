@@ -209,13 +209,13 @@ internal class Document : IChangeable, IReadOnlyDocument
     public IReadOnlyStructureNode[] GetStructureTreeInOrder()
     {
         var list = new List<IReadOnlyStructureNode>();
-        ForEveryReadonlyMember(NodeGraph, member => list.Add(member));
+        ForEveryReadonlyMember(NodeGraph, list.Add);
         return list.ToArray();
     }
 
     private void ForEveryReadonlyMember(IReadOnlyNodeGraph graph, Action<IReadOnlyStructureNode> action)
     {
-        graph.TryTraverse((node) =>
+        graph.TryTraverse(node =>
         {
             if (node is not IReadOnlyStructureNode structureNode)
             {
