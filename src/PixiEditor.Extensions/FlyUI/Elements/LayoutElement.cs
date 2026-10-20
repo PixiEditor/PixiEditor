@@ -167,6 +167,11 @@ public abstract class LayoutElement : ILayoutElement<Control>, INotifyPropertyCh
             return;
         }
 
+        if (args.Sender == null)
+        {
+            args.Sender = this;
+        }
+
         try
         {
             var handlers = _events[eventName].ToArray();
