@@ -385,7 +385,7 @@ public partial class NumberInput : TextBox
 
     protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
     {
-        if (!EnableScrollChange)
+        if (!EnableScrollChange || !IsFocused)
         {
             return;
         }
