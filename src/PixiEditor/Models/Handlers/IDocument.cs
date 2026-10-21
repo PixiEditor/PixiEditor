@@ -74,6 +74,7 @@ internal interface IDocument : IHandler, Extensions.CommonApi.Documents.IDocumen
     internal void InternalRaiseLayersChanged(LayersChangedEventArgs e);
     internal void InternalMarkSaveState(DocumentMarkType type);
     internal void InternalRaiseKeyFrameCreated(RasterCelViewModel vm);
+    internal void InternalRaiseMaskChanged(MaskChangedEventArgs maskChangedEventArgs);
     public ICrossDocumentPipe<T> ShareNode<T>(Guid layerId) where T : class, IReadOnlyNode;
     public ICrossDocumentPipe<IReadOnlyNodeGraph> ShareGraph();
     public IReadOnlyDocument AccessInternalReadOnlyDocument();
