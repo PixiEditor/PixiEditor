@@ -982,11 +982,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         var toAdd = new HashSet<Guid>();
         foreach (var layer in selectedLayers)
         {
-            var parents = StructureHelper.GetParents(layer);
-            if (parents is null)
-                continue;
-
-            foreach (var parent in parents)
+            foreach (var parent in StructureHelper.EnumerateParents(layer))
             {
                 toAdd.Add(parent.Id);
             }
@@ -1370,7 +1366,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             {
                 if (!includeNested)
                 {
-                    var parents = StructureHelper.GetParents(member.Id);
+                    var parents = StructureHelper.EnumerateParents(member.Id);
                     if (parents.Any(x => selectedMembers.Contains(x.Id)))
                         continue;
                 }
@@ -1391,7 +1387,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     {
         var result = new HashSet<Guid>();
         List<Guid> selectedMembers = GetSelectedMembers();
-        var allLayers = StructureHelper.GetAllMembers();
+        var allLayers = StructureHelper.EnumerateAllMembers();
         foreach (var member in allLayers)
         {
             if (!selectedMembers.Contains(member.Id))

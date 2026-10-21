@@ -183,9 +183,8 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         {
             document.SnappingHandler.Remove(structureMemberHandler.Id.ToString());
             disabledSnappingMembers.Add(structureMemberHandler.Id);
-            var parents = document.StructureHelper.GetParents(structureMemberHandler.Id);
 
-            foreach (var parent in parents)
+            foreach (var parent in document.StructureHelper.EnumerateParents(structureMemberHandler.Id))
             {
                 document.SnappingHandler.Remove(parent.Id.ToString());
                 if (!disabledSnappingMembers.Contains(parent.Id))

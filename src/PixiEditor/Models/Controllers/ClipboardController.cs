@@ -430,7 +430,10 @@ internal static class ClipboardController
         List<Guid> adjustedIds = new();
         foreach (var layerId in layerIds)
         {
-            var parents = targetDoc.StructureHelper.GetParents(layerId);
+            var parents = targetDoc.StructureHelper
+                .EnumerateParents(layerId)
+                .ToList();
+            
             if (parents.Count == 0)
             {
                 adjustedIds.Add(layerId);

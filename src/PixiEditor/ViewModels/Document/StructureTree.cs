@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using PixiEditor.GraphNavigation;
 using PixiEditor.Models.Handlers;
 using PixiEditor.ViewModels.Nodes;
 
@@ -61,7 +62,7 @@ internal class StructureTree
 
             _memberMap.TryAdd(node, lastRoot);
 
-            return Traverse.Further;
+            return Traverse.Continue;
         });
 
         List<IStructureMemberHandler> toRemove = new();

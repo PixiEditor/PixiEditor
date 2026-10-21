@@ -12,6 +12,8 @@ using Drawie.Backend.Core.Bridge;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph.Blackboard;
+using PixiEditor.GraphNavigation;
+using PixiEditor.Helpers.Nodes;
 using PixiEditor.ViewModels.Document.Blackboard;
 using PixiEditor.ViewModels.Document.CompatibilityUpgrades;
 using PixiEditor.ViewModels.Nodes;
@@ -213,17 +215,17 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
         node.TraverseBackwards(x =>
         {
             if (x is IPairNodeEndViewModel)
-                return Traverse.NoFurther;
+                return Traverse.SkipChildren;
 
             if (x is not IPairNodeStartViewModel)
-                return Traverse.Further;
+                return Traverse.Continue;
 
             if (startLookup != null && startLookup.TryGetValue(x, out var zone))
             {
                 currentlyPartOf.Add(zone);
             }
 
-            return Traverse.Further;
+            return Traverse.Continue;
         });
 
         foreach (var frame in currentlyPartOf)
@@ -265,11 +267,11 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
             node.TraverseForwards((x) =>
             {
                 if (x is IPairNodeEndViewModel)
-                    return Traverse.NoFurther;
+                    return Traverse.SkipChildren;
 
                 currentlyPartOf.Add(x);
 
-                return Traverse.Further;
+                return Traverse.Continue;
             });
         }
 

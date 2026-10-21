@@ -5,6 +5,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Changes.NodeGraph;
 using PixiEditor.Common;
+using PixiEditor.GraphNavigation;
 
 namespace PixiEditor.ChangeableDocument.Changes.Structure;
 
