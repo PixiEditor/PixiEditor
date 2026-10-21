@@ -1,3 +1,13 @@
+# 2.2.0.3
+
+Date: `21.10.2026`
+
+- Scrolling over number inputs now require focus
+- Fixed crash when opening a login popup
+- Fixed layer manager always scrolling to newly selected layer
+- Fixed tool not drawing immediately on newly created layer when it was started on incompatible layer
+- Fixed find and replace tool with 0 tolerance setting
+
 # 2.2.0.2
 
 Date: `20.10.2026`
