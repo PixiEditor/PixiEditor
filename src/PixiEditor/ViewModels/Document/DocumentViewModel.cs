@@ -1193,15 +1193,6 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public void InternalRaiseLayersChanged(LayersChangedEventArgs args)
     {
         LayersChanged?.Invoke(this, args);
-        if (queuedLayerReadyToUseActions.Count > 0)
-        {
-            foreach (var action in queuedLayerReadyToUseActions)
-            {
-                action();
-            }
-
-            queuedLayerReadyToUseActions.Clear();
-        }
     }
 
     public void RaiseSizeChanged(DocumentSizeChangedEventArgs args) => SizeChanged?.Invoke(this, args);
@@ -1246,6 +1237,16 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         SelectedStructureMember = member;
         Internals.ChangeController.MembersSelectedInlet(GetSelectedMembers());
         OnPropertyChanged(nameof(SelectedStructureMember));
+        
+        if (queuedLayerReadyToUseActions.Count > 0)
+        {
+            foreach (var action in queuedLayerReadyToUseActions)
+            {
+                action();
+            }
+
+            queuedLayerReadyToUseActions.Clear();
+        }
     }
 
     public void SetHorizontalSymmetryAxisY(double horizontalSymmetryAxisY)
