@@ -15,8 +15,9 @@ namespace PixiEditor.Helpers.Behaviours;
 
 internal class StructureMemberTreeViewSelectionBehavior : Behavior
 {
-    public static readonly StyledProperty<StructureTree> StructureTreeProperty = AvaloniaProperty.Register<StructureMemberTreeViewSelectionBehavior, StructureTree>(
-        nameof(StructureTree));
+    public static readonly StyledProperty<StructureTree> StructureTreeProperty =
+        AvaloniaProperty.Register<StructureMemberTreeViewSelectionBehavior, StructureTree>(
+            nameof(StructureTree));
 
     public StructureTree StructureTree
     {
@@ -42,24 +43,26 @@ internal class StructureMemberTreeViewSelectionBehavior : Behavior
         });
     }
 
-    private static void UnsubscribeMembers(IEnumerable<IStructureMemberHandler> items, StructureMemberTreeViewSelectionBehavior behavior)
+    private static void UnsubscribeMembers(IEnumerable<IStructureMemberHandler> items,
+        StructureMemberTreeViewSelectionBehavior behavior)
     {
         foreach (var member in items)
         {
             member.PropertyChanged -= behavior.StructureMemberOnPropertyChanged;
-            if(member is IFolderHandler folder)
+            if (member is IFolderHandler folder)
             {
                 UnsubscribeMembers(folder.Children, behavior);
             }
         }
     }
 
-    private static void SubscribeMembers(IEnumerable<IStructureMemberHandler> items, StructureMemberTreeViewSelectionBehavior behavior)
+    private static void SubscribeMembers(IEnumerable<IStructureMemberHandler> items,
+        StructureMemberTreeViewSelectionBehavior behavior)
     {
         foreach (var member in items)
         {
             member.PropertyChanged += behavior.StructureMemberOnPropertyChanged;
-            if(member is IFolderHandler folder)
+            if (member is IFolderHandler folder)
             {
                 SubscribeMembers(folder.Children, behavior);
             }
@@ -86,7 +89,7 @@ internal class StructureMemberTreeViewSelectionBehavior : Behavior
         if (structureMember == null)
             return;
 
-        if(AssociatedObject is not TreeView tree)
+        if (AssociatedObject is not TreeView tree)
             return;
 
         if (e.PropertyName is nameof(IStructureMemberHandler.Selection))
@@ -95,18 +98,15 @@ internal class StructureMemberTreeViewSelectionBehavior : Behavior
             {
                 Dispatcher.UIThread.Post(() =>
                 {
-                    var scroller =
-                       tree.GetVisualDescendants().FirstOrDefault(x => x is ScrollViewer) as ScrollViewer;
+                    var scroller = tree.GetVisualDescendants().FirstOrDefault(x => x is ScrollViewer) as ScrollViewer;
                     if (scroller == null)
                         return;
-
-                    double yOffset = scroller?.Offset.Y ?? 0;
 
                     var visual = FindContainer(sender, tree);
 
                     if (visual != null)
                     {
-                        if (structureMember is IFolderHandler folderHandler)
+                        if (structureMember is IFolderHandler)
                         {
                             visual = visual.FindDescendantOfType<FolderControl>();
                         }
@@ -123,10 +123,18 @@ internal class StructureMemberTreeViewSelectionBehavior : Behavior
                     if (transform == null)
                         return;
 
-                    var targetBounds = visual.Bounds;
+                    var topLeft = transform.Value.Transform(visual.Bounds.TopLeft);
+                    var bottomRight = transform.Value.Transform(visual.Bounds.BottomRight);
 
-                    var targetRectInScroller = transform.Value.Transform(targetBounds.TopLeft);
-                    scroller.Offset = new Vector(0, targetRectInScroller.Y + yOffset);
+                    var targetBounds = new Rect(topLeft, bottomRight);
+                    var viewport = new Rect(scroller.Viewport);
+
+                    if (targetBounds.Bottom <= viewport.Top || targetBounds.Top >= viewport.Bottom)
+                    {
+                        scroller.Offset = new Vector(
+                            scroller.Offset.X,
+                            scroller.Offset.Y + targetBounds.Top - viewport.Top);
+                    }
                 }, DispatcherPriority.Render);
             }
         }
@@ -142,7 +150,7 @@ internal class StructureMemberTreeViewSelectionBehavior : Behavior
         if (itemContainer != null)
             return itemContainer;
 
-        if(container?.ItemsPanelRoot == null)
+        if (container?.ItemsPanelRoot == null)
             return null;
 
         foreach (var child in container.ItemsPanelRoot.Children.OfType<ItemsControl>())
