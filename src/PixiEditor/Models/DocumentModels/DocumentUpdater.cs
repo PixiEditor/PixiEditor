@@ -414,10 +414,11 @@ internal class DocumentUpdater
         IStructureMemberHandler? memberVm = doc.StructureHelper.FindOrThrow(info.Id);
 
         memberVm.SetHasMask(info.HasMask);
-        // TODO: Make sure HasMask raises property changed internally
-        //memberVm.OnPropertyChanged(nameof(memberVm.MaskPreviewBitmap));
         if (!info.HasMask && memberVm is ILayerHandler layer)
             layer.ShouldDrawOnMask = false;
+
+        doc.InternalRaiseMaskChanged(new MaskChangedEventArgs(info.Id, info.HasMask));
+        doc.InternalRaiseLayersChanged(new LayersChangedEventArgs(info.Id, LayerAction.Add));
     }
 
     private void ProcessRefreshViewport(RefreshViewport_PassthroughAction info)

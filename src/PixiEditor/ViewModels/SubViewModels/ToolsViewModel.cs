@@ -1018,6 +1018,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         {
             e.OldDocument.PropertyChanged -= DocumentOnPropertyChanged;
             e.OldDocument.LayersChanged -= DocumentOnLayersChanged;
+            e.OldDocument.MaskChanged -= DocumentOnMaskChanged;
             e.OldDocument.AnimationDataViewModel.ActiveFrameChanged -= ActiveFrameChanged;
         }
 
@@ -1025,6 +1026,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         {
             e.NewDocument.PropertyChanged += DocumentOnPropertyChanged;
             e.NewDocument.LayersChanged += DocumentOnLayersChanged;
+            e.NewDocument.MaskChanged += DocumentOnMaskChanged;
             e.NewDocument.AnimationDataViewModel.ActiveFrameChanged += ActiveFrameChanged;
             UpdateEnabledState();
         }
@@ -1036,6 +1038,11 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     }
 
     private void DocumentOnLayersChanged(object? sender, LayersChangedEventArgs e)
+    {
+        UpdateEnabledState();
+    }
+
+    private void DocumentOnMaskChanged(object? sender, MaskChangedEventArgs e)
     {
         UpdateEnabledState();
     }

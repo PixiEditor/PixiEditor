@@ -56,6 +56,7 @@ namespace PixiEditor.ViewModels.Document;
 internal partial class DocumentViewModel : PixiObservableObject, IDocument
 {
     public event EventHandler<LayersChangedEventArgs>? LayersChanged;
+    public event EventHandler<MaskChangedEventArgs>? MaskChanged;
     public event EventHandler<DocumentSizeChangedEventArgs>? SizeChanged;
     public event Action ToolSessionFinished;
 
@@ -731,6 +732,10 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         }
     }
 
+    public void InternalRaiseMaskChanged(MaskChangedEventArgs maskChangedEventArgs)
+    {
+        MaskChanged?.Invoke(this, maskChangedEventArgs);
+    }
 
     public (string name, VecI originalSize)[] GetAvailableExportOutputs()
     {

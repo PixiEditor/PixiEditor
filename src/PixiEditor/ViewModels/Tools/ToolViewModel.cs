@@ -163,7 +163,7 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
 
     private bool IsMaskSelectedAndRasterSupported(IStructureMemberHandler layer)
     {
-        return SupportedLayerTypes.Contains(typeof(IRasterLayerHandler)) && layer is IFolderHandler or ILayerHandler
+        return SupportedLayerTypes.Contains(typeof(IRasterLayerHandler)) && layer is IFolderHandler { HasMaskBindable: true } or ILayerHandler
         {
             ShouldDrawOnMask: true
         };
