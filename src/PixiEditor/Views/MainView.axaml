@@ -26,6 +26,7 @@
                 </Grid.RowDefinitions>
 
                 <controls:DockableAreaRegion Grid.Row="0"
+                                             Name="MainDockingRegion"
                                              Root="{Binding LayoutSubViewModel.LayoutManager.ActiveLayout.Root}"
                                              Context="{Binding LayoutSubViewModel.LayoutManager.DockContext}" />
                 <main1:ActionDisplayBar Grid.Row="1" DataContext="{Binding .}" />
