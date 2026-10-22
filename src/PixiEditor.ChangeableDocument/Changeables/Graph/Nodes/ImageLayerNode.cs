@@ -252,13 +252,10 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
             return base.GetPreviewBounds(context, elementFor);
         }
 
-        if (Guid.TryParse(elementFor, out Guid guid))
-        {
-            if (guid == Id)
-            {
-                return new RectD(0, 0, layerImage.CommittedSize.X, layerImage.CommittedSize.Y);
-            }
+        Guid? forElement = Guid.TryParse(elementFor, out Guid guid) ? guid : null;
 
+        if (forElement.HasValue && forElement.Value != Id)
+        {
             var keyFrame = keyFrames.FirstOrDefault(x => x.KeyFrameGuid == guid);
 
             if (keyFrame != null)
@@ -275,7 +272,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
         try
         {
-            var kf = GetLayerImageAtFrame(context.FrameTime.Frame);
+            var kf = GetLayerImageAtFrame(forElement != null ? 0 : context.FrameTime.Frame);
             if (kf == null)
             {
                 return null;
