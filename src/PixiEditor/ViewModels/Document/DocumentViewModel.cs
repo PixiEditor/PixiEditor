@@ -55,6 +55,7 @@ namespace PixiEditor.ViewModels.Document;
 internal partial class DocumentViewModel : PixiObservableObject, IDocument
 {
     public event EventHandler<LayersChangedEventArgs>? LayersChanged;
+    public event EventHandler<MaskChangedEventArgs>? MaskChanged;
     public event EventHandler<DocumentSizeChangedEventArgs>? SizeChanged;
     public event Action ToolSessionFinished;
     
@@ -749,6 +750,10 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         }
     }
 
+    public void InternalRaiseMaskChanged(MaskChangedEventArgs maskChangedEventArgs)
+    {
+        MaskChanged?.Invoke(this, maskChangedEventArgs);
+    }
 
     public (string name, VecI originalSize)[] GetAvailableExportOutputs()
     {
@@ -1211,15 +1216,6 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public void InternalRaiseLayersChanged(LayersChangedEventArgs args)
     {
         LayersChanged?.Invoke(this, args);
-        if (queuedLayerReadyToUseActions.Count > 0)
-        {
-            foreach (var action in queuedLayerReadyToUseActions)
-            {
-                action();
-            }
-
-            queuedLayerReadyToUseActions.Clear();
-        }
     }
 
     public void RaiseSizeChanged(DocumentSizeChangedEventArgs args) => SizeChanged?.Invoke(this, args);
@@ -1264,6 +1260,16 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         SelectedStructureMember = member;
         Internals.ChangeController.MembersSelectedInlet(GetSelectedMembers());
         OnPropertyChanged(nameof(SelectedStructureMember));
+        
+        if (queuedLayerReadyToUseActions.Count > 0)
+        {
+            foreach (var action in queuedLayerReadyToUseActions)
+            {
+                action();
+            }
+
+            queuedLayerReadyToUseActions.Clear();
+        }
     }
 
     public void SetHorizontalSymmetryAxisY(double horizontalSymmetryAxisY)
