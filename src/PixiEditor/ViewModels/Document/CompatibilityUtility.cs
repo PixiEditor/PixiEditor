@@ -96,6 +96,11 @@ internal static class CompatibilityUtility
         Version? parsedVersion, string serializedNodeUniqueNodeName,
         Dictionary<string, object> serializedNodeInputValues)
     {
+        if (parsedVersion is not null && serializedNodeUniqueNodeName == $"PixiEditor.{MathNode.UniqueName}")
+        {
+            // Preserve both old evaluation paths, including connected mode inputs.
+            additionalData.TryAdd(MathNode.LegacyConstantStepDataKey, true);
+        }
     }
 
     private static void UpgradeNormalizedColorValues(DocumentViewModel viewModel,
