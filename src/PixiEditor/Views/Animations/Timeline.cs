@@ -7,6 +7,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Shapes;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Skia;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using CommunityToolkit.Mvvm.Input;
@@ -598,7 +599,7 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
 
         int ticks = e.KeyModifiers.HasFlag(KeyModifiers.Control) ? 1 : 10;
 
-        int towardsFrame = MousePosToFrame(e);
+        int towardsFrame = ActiveFrame;
 
         double delta = e.Delta.Y == 0 ? e.Delta.X : e.Delta.Y;
 
@@ -614,7 +615,7 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
         newScale = Math.Clamp(newScale, 1, 900);
         Scale = newScale;
 
-        double mouseXInViewport = e.GetPosition(_timelineKeyFramesScroll).X;
+        double mouseXInViewport = Bounds.Width / 2f;
 
         double currentFrameUnderMouse = towardsFrame - 1;
         double newOffsetX = currentFrameUnderMouse * newScale - mouseXInViewport + MinLeftOffset;
