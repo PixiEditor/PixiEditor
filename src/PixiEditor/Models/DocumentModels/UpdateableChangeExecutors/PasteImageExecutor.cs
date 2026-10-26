@@ -75,7 +75,7 @@ internal class PasteImageExecutor : UpdateableChangeExecutor, ITransformableExec
         document.Operations.InvokeCustomAction(() =>
         {
             restoreSnapping = SimpleShapeToolExecutor.DisableSelfSnapping(memberGuid.Value, document);
-        });
+        }, false);
 
         return ExecutionState.Success;
     }
