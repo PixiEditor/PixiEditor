@@ -36,6 +36,14 @@ internal class PathOverlayViewModel : ObservableObject, IPathOverlayHandler
         }
     }
 
+    private bool lockEditing = false;
+
+    public bool LockEditing
+    {
+        get => lockEditing;
+        set => SetProperty(ref lockEditing, value);
+    }
+
     public event Action<VectorPath>? PathChanged;
     public bool IsActive { get; set; }
 
@@ -73,6 +81,7 @@ internal class PathOverlayViewModel : ObservableObject, IPathOverlayHandler
         Path = newPath;
         IsActive = true;
         ShowApplyButton = showApplyButton;
+        LockEditing = false;
         AddToUndoCommand = new RelayCommand<VectorPath>(customAddToUndo);
     }
 
@@ -80,6 +89,7 @@ internal class PathOverlayViewModel : ObservableObject, IPathOverlayHandler
     {
         IsActive = false;
         Path = null;
+        LockEditing = false;
         ShowApplyButton = false;
     }
 

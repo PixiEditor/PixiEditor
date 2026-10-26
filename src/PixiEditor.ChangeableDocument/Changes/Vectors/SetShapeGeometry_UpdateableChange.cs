@@ -28,7 +28,7 @@ internal class SetShapeGeometry_UpdateableChange : InterruptableUpdateableChange
     {
         if (target.TryFindNode<VectorLayerNode>(TargetId, out var node))
         {
-            if (IsIdentical(node.EmbeddedShapeData, Data))
+            if (IsIdentical(node.EmbeddedShapeData, Data) || node.IsLocked)
             {
                 return false;
             }

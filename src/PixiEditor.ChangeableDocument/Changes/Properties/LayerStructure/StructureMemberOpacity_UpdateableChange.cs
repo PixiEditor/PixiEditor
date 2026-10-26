@@ -24,7 +24,7 @@ internal class StructureMemberOpacity_UpdateableChange : UpdateableChange
 
     public override bool InitializeAndValidate(Document document)
     {
-        if (!document.TryFindMember(memberGuid, out var member))
+        if (!document.TryFindMember(memberGuid, out var member) || member.IsLocked)
             return false;
         originalOpacity = member.Opacity.NonOverridenValue;
         return true;

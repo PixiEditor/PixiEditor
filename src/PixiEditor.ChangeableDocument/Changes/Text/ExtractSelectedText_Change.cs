@@ -39,6 +39,11 @@ internal class ExtractSelectedText_Change : Change
     {
         var node = target.FindNodeOrThrow<VectorLayerNode>(memberId);
 
+        if (node.IsLocked)
+        {
+            return false;
+        }
+
         if (node.EmbeddedShapeData is not TextVectorData textData)
         {
             return false;

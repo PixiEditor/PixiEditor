@@ -8,4 +8,5 @@ public interface IPathOverlayHandler : IHandler
     public void Hide();
     public event Action<VectorPath> PathChanged;
     public bool IsActive { get; }
+    bool LockEditing { get; set; }
 }

@@ -41,7 +41,9 @@ internal class PasteImageExecutor : UpdateableChangeExecutor, ITransformableExec
             var member = document!.SelectedStructureMember;
 
             if (member is null)
+            if (member is null || member.IsLockedBindable)
                 return ExecutionState.Error;
+            
             drawOnMask = member is not ILayerHandler layer || layer.ShouldDrawOnMask;
 
             switch (drawOnMask)
