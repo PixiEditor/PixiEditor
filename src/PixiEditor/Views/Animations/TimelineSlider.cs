@@ -36,6 +36,8 @@ public class TimelineSlider : Slider
         set { SetValue(MinLeftOffsetProperty, value); }
     }
 
+    public Track Track => _track;
+
     private Button _increaseButton;
     private Track _track;
     

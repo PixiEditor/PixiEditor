@@ -522,9 +522,15 @@ internal class ViewportOverlays
             Mode = BindingMode.OneWay
         };
 
+        Binding lockEditingBinding = new()
+        {
+            Source = Viewport, Path = "Document.PathOverlayViewModel.LockEditing", Mode = BindingMode.OneWay
+        };
+
         vectorPathOverlay.Bind(VectorPathOverlay.PathProperty, pathBinding);
         vectorPathOverlay.Bind(VectorPathOverlay.AddToUndoCommandProperty, addToUndoCommandBinding);
         vectorPathOverlay.Bind(VectorPathOverlay.SnappingControllerProperty, snappingBinding);
+        vectorPathOverlay.Bind(VectorPathOverlay.LockEditingProperty, lockEditingBinding);
     }
 
     private void BindSnappingOverlay()

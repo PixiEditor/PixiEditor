@@ -3,6 +3,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.ChangeableDocument.ChangeInfos.Vectors;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Helpers;
 
 namespace PixiEditor.ChangeableDocument.Changes.Vectors;
 
@@ -28,7 +29,7 @@ internal class SetShapeGeometry_UpdateableChange : InterruptableUpdateableChange
     {
         if (target.TryFindNode<VectorLayerNode>(TargetId, out var node))
         {
-            if (IsIdentical(node.EmbeddedShapeData, Data))
+            if (IsIdentical(node.EmbeddedShapeData, Data) || node.IsLocked)
             {
                 return false;
             }
@@ -50,43 +51,31 @@ internal class SetShapeGeometry_UpdateableChange : InterruptableUpdateableChange
     {
         var node = target.FindNode<VectorLayerNode>(TargetId);
 
+        AffectedArea affected = GetAffectedArea(node.EmbeddedShapeData, Data);
         node.EmbeddedShapeData = Data;
-
-        RectD aabb = node.EmbeddedShapeData.TransformedAABB.RoundOutwards();
-        aabb = aabb with { Size = new VecD(Math.Max(1, aabb.Size.X), Math.Max(1, aabb.Size.Y)) };
-
-        var affected = new AffectedArea(OperationHelper.FindChunksTouchingRectangle(
-            (RectI)aabb, ChunkyImage.FullChunkSize));
-
-        var tmp = new AffectedArea(affected);
 
         if (lastAffectedArea.Chunks != null)
         {
             affected.UnionWith(lastAffectedArea);
         }
 
-        lastAffectedArea = tmp;
+        lastAffectedArea = new AffectedArea(affected);
 
         return new VectorShape_ChangeInfo(node.Id, affected);
     }
 
-    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
-        out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
         ignoreInUndo = false;
+
         var node = target.FindNode<VectorLayerNode>(TargetId);
         if (node == null)
         {
             return new None();
         }
 
+        AffectedArea affected = GetAffectedArea(node.EmbeddedShapeData, Data);
         node.EmbeddedShapeData = Data;
-
-        RectD aabb = node.EmbeddedShapeData.TransformedAABB.RoundOutwards();
-        aabb = aabb with { Size = new VecD(Math.Max(1, aabb.Size.X), Math.Max(1, aabb.Size.Y)) };
-
-        var affected = new AffectedArea(OperationHelper.FindChunksTouchingRectangle(
-            (RectI)aabb, ChunkyImage.FullChunkSize));
 
         return new VectorShape_ChangeInfo(node.Id, affected);
     }
@@ -94,20 +83,31 @@ internal class SetShapeGeometry_UpdateableChange : InterruptableUpdateableChange
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         var node = target.FindNode<VectorLayerNode>(TargetId);
+
+        AffectedArea affected = GetAffectedArea(node.EmbeddedShapeData, originalData);
         node.EmbeddedShapeData = originalData;
 
-        AffectedArea affected = new AffectedArea();
+        return new VectorShape_ChangeInfo(node.Id, affected);
+    }
 
-        if (node.EmbeddedShapeData != null)
+    private static AffectedArea GetAffectedArea(ShapeVectorData? data)
+    {
+        if (data == null)
         {
-            RectD aabb = node.EmbeddedShapeData.TransformedAABB.RoundOutwards();
-            aabb = aabb with { Size = new VecD(Math.Max(1, aabb.Size.X), Math.Max(1, aabb.Size.Y)) };
-
-            affected = new AffectedArea(OperationHelper.FindChunksTouchingRectangle(
-                (RectI)aabb, ChunkyImage.FullChunkSize));
+            return new AffectedArea();
         }
 
-        return new VectorShape_ChangeInfo(node.Id, affected);
+        RectD aabb = data.TransformedAABB.RoundOutwards();
+        aabb = aabb with { Size = new VecD(Math.Max(1, aabb.Size.X), Math.Max(1, aabb.Size.Y)) };
+
+        return new AffectedArea(OperationHelper.FindChunksTouchingRectangle((RectI)aabb, ChunkyImage.FullChunkSize));
+    }
+
+    private static AffectedArea GetAffectedArea(ShapeVectorData? previousData, ShapeVectorData? currentData)
+    {
+        AffectedArea affected = GetAffectedArea(previousData);
+        affected.UnionWith(GetAffectedArea(currentData));
+        return affected;
     }
 
     private bool IsIdentical(ShapeVectorData? a, ShapeVectorData? b)

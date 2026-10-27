@@ -744,7 +744,7 @@
   "NEW_RECTANGLE_LAYER_NAME": "Rectangle",
   "NEW_LINE_LAYER_NAME": "Line",
   "RENDER_OUTPUT": "Render Output",
-  "PAINT_TOOLSET": "Painting",
+  "PAINT_TOOLSET": "Basic",
   "HARDNESS_SETTING": "Hardness",
   "SPACING_SETTING": "Spacing",
   "ANTI_ALIASING_SETTING": "Anti-aliasing",
@@ -1608,5 +1608,7 @@
   "ULTRAEXPANDED_FONT_STYLE_WIDTH": "Ultra Expanded",
   "FONT_WIDTH_LABEL": "Width",
   "FONT_WEIGHT_LABEL": "Weight",
-  "SHOW_FAVORITE_FONTS_TOOLTIP": "Toggle show only favorite fonts"
+  "SHOW_FAVORITE_FONTS_TOOLTIP": "Toggle show only favorite fonts",
+  "DELETE_SELECTED_CELS": "Delete selected cels",
+  "DUPLICATE_SELECTED_CELS": "Duplicate selected cels"
 }

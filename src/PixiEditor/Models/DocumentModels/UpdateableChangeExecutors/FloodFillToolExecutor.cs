@@ -36,6 +36,9 @@ internal class FloodFillToolExecutor : UpdateableChangeExecutor
         if (!drawOnMask && member is not ILayerHandler)
             return ExecutionState.Error;
 
+        if (member.IsLockedBindable)
+            return ExecutionState.Error;
+
         colorsVM.AddSwatch(new PaletteColor(color.R, color.G, color.B));
         memberGuid = member.Id;
         considerAllLayers = fillTool.ConsiderAllLayers;

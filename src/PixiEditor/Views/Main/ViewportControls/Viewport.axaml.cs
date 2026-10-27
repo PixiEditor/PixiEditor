@@ -65,10 +65,10 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         AvaloniaProperty.Register<Viewport, bool>(nameof(GridLinesVisible), false);
 
     public static readonly StyledProperty<double> GridLinesXSizeProperty =
-        AvaloniaProperty.Register<Viewport, double>(nameof(GridLinesXSize), 1.0);
+        AvaloniaProperty.Register<Viewport, double>(nameof(GridLinesXSize), 0);
 
     public static readonly StyledProperty<double> GridLinesYSizeProperty =
-        AvaloniaProperty.Register<Viewport, double>(nameof(GridLinesYSize), 1.0);
+        AvaloniaProperty.Register<Viewport, double>(nameof(GridLinesYSize), 0);
 
     public static readonly StyledProperty<bool> ZoomOutOnClickProperty =
         AvaloniaProperty.Register<Viewport, bool>(nameof(ZoomOutOnClick), false);
@@ -532,6 +532,10 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         if (newDoc != null)
         {
             newDoc.SizeChanged += viewport.OnDocumentSizeChanged;
+            if(viewport.GridLinesXSize == 0)
+                viewport.GridLinesXSize = Math.Max(newDoc.SizeBindable.X / 12f, 1);
+            if(viewport.GridLinesYSize == 0)
+                viewport.GridLinesYSize = Math.Max(newDoc.SizeBindable.Y / 12f, 1);
         }
 
         oldDoc?.Operations.RemoveViewport(viewport.GuidValue);
