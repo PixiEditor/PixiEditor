@@ -131,7 +131,7 @@ internal class DocumentOperationsModule : IDocumentOperations
                 if (!opped.IsEmpty)
                 {
                     // TODO: Cut vectors
-                    Internals.ActionAccumulator.AddActions(new DeleteNode_Action(member.Id));
+                    Internals.ActionAccumulator.AddActions(new DeleteStructureMember_Action(member.Id));
                 }
             }
             else
@@ -367,6 +367,12 @@ internal class DocumentOperationsModule : IDocumentOperations
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
 
+        if (Document.SelectionPathBindable?.IsEmpty == false)
+        {
+            DeleteSelectedPixels(Document.AnimationHandler.ActiveFrameBindable);
+            return;
+        }
+
         Internals.ChangeController.TryStopActiveExecutor();
 
         Internals.ActionAccumulator.AddFinishedActions(new DeleteStructureMember_Action(guidValue));
@@ -380,6 +386,12 @@ internal class DocumentOperationsModule : IDocumentOperations
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
+
+        if (Document.SelectionPathBindable?.IsEmpty == false)
+        {
+            DeleteSelectedPixels(Document.AnimationHandler.ActiveFrameBindable);
+            return;
+        }
 
         Internals.ChangeController.TryStopActiveExecutor();
 
