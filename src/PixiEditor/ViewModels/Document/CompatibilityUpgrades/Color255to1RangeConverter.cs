@@ -115,7 +115,7 @@ internal class Color255to1RangeConverter : IGraphUpgrader
         }
     }
 
-    private static bool IsContextful(NodeViewModel node)
+    internal static bool IsContextful(NodeViewModel node)
     {
         bool isContextful = false;
         node.TraverseForwards(prop =>
