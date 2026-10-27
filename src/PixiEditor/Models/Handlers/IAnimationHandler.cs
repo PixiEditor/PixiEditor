@@ -12,7 +12,7 @@ internal interface IAnimationHandler : IDisposable
     public int OnionFramesBindable { get; set; }
     public double OnionOpacityBindable { get; set; }
     public bool IsPlayingBindable { get; set; }
-    public Guid? CreateCel(Guid targetLayerGuid, int frame, Guid? toCloneFrom = null, int? frameToCopyFrom = null);
+    public Guid? CreateCel(Guid targetLayerGuid, int frame, Guid? toCloneFrom = null, int? frameToCopyFrom = null, bool inheritDuration =false);
     public void SetFrameRate(int newFrameRate);
     public void SetActiveFrame(int newFrame);
     public void SetCelLength(Guid keyFrameId, int newStartFrame, int newDuration);
