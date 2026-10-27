@@ -2,7 +2,7 @@
   "RECENT_FILES": "File recenti",
   "OPEN_FILE": "Apri file",
   "NEW_FILE": "Nuovo",
-  "RECENT_EMPTY_TEXT": "Nessun file recente",
+  "RECENT_EMPTY_TEXT": "C'è nessuno?",
   "LANGUAGE": "Lingua",
   "GENERAL": "Generali",
   "DISCORD": "Discord",
@@ -1293,9 +1293,9 @@
   "EXTENSIONS_WINDOW_DISABLE_CONFIRMATION_MESSAGE": "{0} estensione/i dipendono da questa. Vuoi procedere?",
   "EXTENSIONS_WINDOW_STEAM_PURCHASE_UNAVAILABLE": "La versione Steam non supporta le estensioni. Per acquistarle, usa la versione autonoma di PixiEditor",
   "GUITAR_PICK": "Plettro",
-  "SIDE_SOFTED_TRIANGLE": "Triangolo soffice",
+  "SIDE_SOFTED_TRIANGLE": "Triangolo soffuso",
   "SPLATS": "Schizzi",
-  "SOFT": "Soffice",
+  "SOFT": "Leggero",
   "FEATHERED": "Piumato",
   "ASYMMETRICAL": "Assimmetrico",
   "ROTATE": "Ruota",
@@ -1540,5 +1540,10 @@
   "APPLY_BUTTON": "Applica",
   "NORMALIZED_COLOR_VALUES": "Valori normalizzati",
   "ERROR_IMPORTING_PALETTE": "Impossibile importare la tavolozza: {0}",
-  "ERROR_LOADING_FILE": "Impossibile caricare il file: {0}"
+  "ERROR_LOADING_FILE": "Impossibile caricare il file: {0}",
+  "BACKGROUND_ERASER_TOOL": "Gomma per sfondo",
+  "BACKGROUND_ERASER_TOOL_TOOLTIP": "Elimina sull'immagine i colori che corrispondono a quello cliccato.",
+  "BACKGROUND_ERASER_TOOL_ACTION_DISPLAY_DEFAULT": "Clicca sulla tela per eliminare i colori. \"Su un solo colore\" elimina solo quelli simili al primo pixel che hai cliccato.",
+  "ERROR_INVALID_PATH": "Il percorso selezionato non può essere esportato",
+  "UNKNOWN_ERROR": "Si è verificato un errore sconosciuto. Riprova più tardi."
 }

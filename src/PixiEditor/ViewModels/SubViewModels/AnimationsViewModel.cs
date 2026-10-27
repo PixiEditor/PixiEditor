@@ -164,6 +164,36 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
         OnCreateCel?.Invoke();
     }
 
+
+    [Command.Basic("PixiEditor.Animation.DuplicateCels", "DUPLICATE_CELS", "DUPLICATE_CELS_DESCRIPTIVE", AnalyticsTrack = true)]
+    public void DuplicateCels()
+    {
+        var activeDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;
+
+        var selected = Owner.DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.AllCels
+            .Where(x => x.IsSelected).ToArray();
+
+        var changeBlock = Owner.DocumentManagerSubViewModel.ActiveDocument.Operations.StartChangeBlock();
+        int newPos = 1;
+        foreach (var cel in selected)
+        {
+            int newFrame = cel.StartFrameBindable + cel.DurationBindable - 1;
+
+            Guid? created =
+                activeDocument.AnimationDataViewModel.CreateCel(cel.LayerGuid, newFrame, cel.Id, null, true);
+
+            if (created == null) return;
+
+            newPos = cel.StartFrameBindable + cel.DurationBindable;
+        }
+
+        changeBlock.Dispose();
+
+        activeDocument.Operations.SetActiveFrame(newPos);
+
+        OnCreateCel?.Invoke();
+    }
+
     [Command.Basic("PixiEditor.Animation.ToggleOnionSkinning", "TOGGLE_ONION_SKINNING",
         "TOGGLE_ONION_SKINNING_DESCRIPTIVE",
         ShortcutContexts = [typeof(TimelineDockViewModel)], Key = Key.O, AnalyticsTrack = true)]

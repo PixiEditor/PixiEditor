@@ -58,6 +58,9 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
             return ExecutionState.Error;
         if (!drawOnMask && member is not ILayerHandler)
             return ExecutionState.Error;
+
+        if (member.IsLockedBindable)
+            return ExecutionState.Error;
         
         localUndoStack = new UndoStack<LineVectorData>();
 
