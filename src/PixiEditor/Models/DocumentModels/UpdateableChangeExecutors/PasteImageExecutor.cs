@@ -59,7 +59,7 @@ internal class PasteImageExecutor : UpdateableChangeExecutor, ITransformableExec
         if (NeedsCel())
         {
             actions.Add(new CreateCel_Action(memberGuid.Value, Guid.NewGuid(),
-                document.AnimationHandler.ActiveFrameBindable, -1, Guid.Empty));
+                document.AnimationHandler.ActiveFrameBindable, -1, Guid.Empty, false));
         }
 
         actions.Add(

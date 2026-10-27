@@ -627,10 +627,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                     foreach (var child in group.Children)
                     {
                         acc.AddActions(
-                            new CreateCel_Action(
-                                mappedIds[child.NodeId],
-                                mappedKeyFrameIds[child.KeyFrameId],
-                                -1, -1, default));
+                            new CreateCel_Action(mappedIds[child.NodeId], mappedKeyFrameIds[child.KeyFrameId],
+                                -1, -1, default, false));
 
                         acc.AddFinishedActions();
                     }
