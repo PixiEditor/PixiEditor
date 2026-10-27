@@ -44,6 +44,11 @@ internal class ConvertToCurve_Change : Change
     {
         if (target.TryFindNode(memberId, out VectorLayerNode? node))
         {
+            if (node.IsLocked)
+            {
+                return false;
+            }
+
             nameOfLayer = node.MemberName;
             opacity = node.Opacity.NonOverridenValue;
             blendMode = node.BlendMode.NonOverridenValue;

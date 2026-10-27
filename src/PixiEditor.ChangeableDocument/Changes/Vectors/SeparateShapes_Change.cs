@@ -26,6 +26,10 @@ internal class SeparateShapes_Change : Change
     {
         if (target.TryFindMember<VectorLayerNode>(memberId, out VectorLayerNode? node))
         {
+            if (node.IsLocked)
+            {
+                return false;
+            }
             // Check if the node has embedded shape data and is not already a PathVectorData
             return node.EmbeddedShapeData is PathVectorData p && GetShapeCount(p) > 1;
         }
