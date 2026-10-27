@@ -1,3 +1,16 @@
+# 2.2.0.4
+
+Date: `27.10.2026`
+
+- Scrolling in the timeline now scrolls towards the active frame instead of a mouse
+- Fixed erasing text on big canvases leaving visual artifacts
+- Fixed pasting an image to the active layer not enabling editing overlay
+- Clicking "Delete" when document have active selection will always remove the selection content instead of removing the layer
+- Added cel context menu
+- Fixed pasting cels issues (overlapping cels, wrong contents)
+- Added default auto sizing of grid lines so it always sets 1/12 of image size instead of being 1x1
+- Cel group (layer) preview is now clipped to bounds, just like previews of normal layers
+
 # 2.2.0.3
 
 Date: `21.10.2026`
