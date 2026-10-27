@@ -4,8 +4,6 @@ using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core.Shaders.Generation.Expressions;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.Common;
-using PixiEditor.ChangeableDocument.Changeables.Interfaces;
-using PixiEditor.ChangeableDocument.ChangeInfos;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
@@ -13,17 +11,10 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 public class MathNode : Node, IIterativeRenderSupport
 {
     public const string UniqueName = "Math";
-
-    /// <summary>Additional-data key preserving legacy constant Step evaluation in saved graphs.</summary>
-    public const string LegacyConstantStepDataKey = "legacyConstantStep";
-
     public const string XPropertyName = "X";
     public const string YPropertyName = "Y";
     public const string ZPropertyName = "Z";
     public const string ModePropertyName = "Mode";
-
-    private bool legacyConstantStep;
-
     public FuncOutputProperty<Float1> Result { get; }
 
     public InputProperty<MathNodeMode> Mode { get; }
@@ -148,7 +139,7 @@ public class MathNode : Node, IIterativeRenderSupport
             MathNodeMode.Modulo => xConst % yConst,
             MathNodeMode.Min => Math.Min(xConst, yConst),
             MathNodeMode.Max => Math.Max(xConst, yConst),
-            MathNodeMode.Step => (legacyConstantStep ? xConst > yConst : xConst <= yConst) ? 1 : 0,
+            MathNodeMode.Step => xConst <= yConst ? 1 : 0,
             MathNodeMode.SmoothStep => MathEx.SmoothStep(xConst, yConst, zConst),
             MathNodeMode.Asin => Math.Asin(xConst),
             MathNodeMode.Acos => Math.Acos(xConst),
@@ -176,18 +167,6 @@ public class MathNode : Node, IIterativeRenderSupport
     }
 
 
-    internal override void SerializeAdditionalDataInternal(IReadOnlyDocument target,
-        Dictionary<string, object> additionalData)
-    {
-        additionalData[LegacyConstantStepDataKey] = legacyConstantStep;
-    }
-
-    internal override void DeserializeAdditionalDataInternal(IReadOnlyDocument target,
-        IReadOnlyDictionary<string, object> data, List<IChangeInfo> infos)
-    {
-        legacyConstantStep = data.TryGetValue(LegacyConstantStepDataKey, out var value) && value is true;
-    }
-
-    public override Node CreateCopy() => new MathNode { legacyConstantStep = legacyConstantStep };
+    public override Node CreateCopy() => new MathNode();
     bool IIterativeRenderSupport.SupportsIterativeRendering => true;
 }

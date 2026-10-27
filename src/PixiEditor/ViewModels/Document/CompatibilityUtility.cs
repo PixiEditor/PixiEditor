@@ -36,6 +36,12 @@ internal static class CompatibilityUtility
             upgraders.Add(upgrader);
         }
 
+        // 2.2.0.5 is the first version that saves the corrected CPU Step semantics.
+        if (serializerVersion is not null && serializerVersion < new Version(2, 2, 0, 5))
+        {
+            new StepToGreaterThanConverter(viewModel).PerformImmediateCompatibilityConversion();
+        }
+
         return upgraders.ToArray();
     }
 
@@ -96,11 +102,6 @@ internal static class CompatibilityUtility
         Version? parsedVersion, string serializedNodeUniqueNodeName,
         Dictionary<string, object> serializedNodeInputValues)
     {
-        if (parsedVersion is not null && serializedNodeUniqueNodeName == $"PixiEditor.{MathNode.UniqueName}")
-        {
-            // Preserve both old evaluation paths, including connected mode inputs.
-            additionalData.TryAdd(MathNode.LegacyConstantStepDataKey, true);
-        }
     }
 
     private static void UpgradeNormalizedColorValues(DocumentViewModel viewModel,
