@@ -37,6 +37,12 @@
   <content_rating type="oars-1.1" />
 
   <releases>
+    <release version="2.1.2.5" date="2026-10-30">
+      <url type="details">https://forum.pixieditor.net/t/pixieditor-2-1-2-5-changelog/695</url>
+      <description>
+        <p>A patch release with various UI/UX improvements, bug fixes and QoL features</p>
+      </description>
+    </release>
     <release version="2.1.2.2" date="2026-08-23">
       <url type="details">https://forum.pixieditor.net/t/pixieditor-2-1-2-2/677/2</url>
       <description>
