@@ -170,7 +170,7 @@
 
   <ItemGroup>
     <Reference Include="Avalonia.Controls">
-      <HintPath>..\..\..\..\.nuget\packages\avalonia\12.1.1-cibuild0004449-alpha\lib\net8.0\Avalonia.Controls.dll</HintPath>
+      <HintPath>..\..\..\..\.nuget\packages\avalonia\12.1.4-pixilonia\lib\net8.0\Avalonia.Controls.dll</HintPath>
     </Reference>
   </ItemGroup>
   
