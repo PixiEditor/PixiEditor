@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using Avalonia;
 using Avalonia.Vulkan;
@@ -74,7 +75,21 @@ public class Program
                 },
             })
             .WithDeveloperTools()
-            .WithDrawie()
+            .WithDrawie(() => RebootWithOpengl(openGlPreferred))
             .LogToTrace();
+    }
+
+    private static void RebootWithOpengl(bool openGlPreferred)
+    {
+        if (openGlPreferred)
+        {
+            Console.WriteLine($"OpenGL driver failed, something could be corrupted. You can try running with Vulkan backend by setting 'Vulkan' inside {RenderApiPreferenceManager.ConfigPath} (omit apostrophe)");
+            return;
+        }
+
+        RenderApiPreferenceManager.UpdateRenderApiPreference("Vulkan");
+        Process.Start(Environment.ProcessPath!, Environment.GetCommandLineArgs().Skip(1).ToArray());
+
+        Environment.Exit(0);
     }
 }
