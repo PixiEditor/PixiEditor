@@ -96,6 +96,12 @@ public class Program
         }
 
         RenderApiPreferenceManager.UpdateRenderApiPreference("OpenGL");
+        var readVal = RenderApiPreferenceManager.TryReadRenderApiPreference();
+        if (!string.Equals(readVal, "OpenGL", StringComparison.OrdinalIgnoreCase))
+        {
+            Console.WriteLine("Something went wrong, while switching the render api to OpenGL. Exiting.");
+            return;
+        }
         
         var process = Process.GetCurrentProcess().MainModule.FileName;
         var createdProc = Process.Start(new ProcessStartInfo(process)
