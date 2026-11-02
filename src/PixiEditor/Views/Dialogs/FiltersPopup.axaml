@@ -1,0 +1,27 @@
+<dialogs:PixiEditorPopup xmlns="https://github.com/avaloniaui"
+                         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                         xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
+                         xmlns:layers="clr-namespace:PixiEditor.ViewModels.Layers"
+                         xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+                         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+                         x:Class="PixiEditor.Views.Dialogs.FiltersPopup"
+                         x:DataType="layers:FiltersPopupViewModel"
+                         localization:Translator.Key="FILTERS_WINDOW_TITLE">
+    <Design.DataContext>
+        <layers:FiltersPopupViewModel />
+    </Design.DataContext>
+
+    <Grid>
+        <Grid.ColumnDefinitions>200,*</Grid.ColumnDefinitions>
+        <ListBox>
+            <ListBoxItem>Blur</ListBoxItem>
+            <ListBoxItem>Pixelify</ListBoxItem>
+            <ListBoxItem>Something</ListBoxItem>
+        </ListBox>
+        <Panel Grid.Column="1">
+
+        </Panel>
+    </Grid>
+</dialogs:PixiEditorPopup>
