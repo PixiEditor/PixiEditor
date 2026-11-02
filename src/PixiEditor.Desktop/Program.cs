@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Linq;
 using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Vulkan;
 using Drawie.Interop.VulkanAvalonia;
 using PixiEditor.Helpers;
@@ -10,12 +11,19 @@ namespace PixiEditor.Desktop;
 
 public class Program
 {
+    private static IClassicDesktopStyleApplicationLifetime? currentLifetime;
+    
     // Initialization code. Don't use any Avalonia, third-party APIs or any
     // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
     // yet and stuff might break.
     [STAThread]
-    public static void Main(string[] args) => BuildAvaloniaApp()
-        .StartWithClassicDesktopLifetime(args);
+    public static void Main(string[] args)
+    {
+        BuildAvaloniaApp().StartWithClassicDesktopLifetime(args, lifetime =>
+        {
+            currentLifetime = lifetime;
+        });
+    }
 
     // Avalonia configuration, don't remove; also used by visual designer.
     public static AppBuilder BuildAvaloniaApp()
@@ -87,9 +95,17 @@ public class Program
             return;
         }
 
-        RenderApiPreferenceManager.UpdateRenderApiPreference("Vulkan");
-        Process.Start(Environment.ProcessPath!, Environment.GetCommandLineArgs().Skip(1).ToArray());
+        RenderApiPreferenceManager.UpdateRenderApiPreference("OpenGL");
+        
+        var process = Process.GetCurrentProcess().MainModule.FileName;
+        var createdProc = Process.Start(new ProcessStartInfo(process)
+        {
+            UseShellExecute = true
+        });
 
-        Environment.Exit(0);
+        createdProc.WaitForExitAsync().ContinueWith(_ =>
+        {
+            Environment.Exit(0);
+        });
     }
 }
