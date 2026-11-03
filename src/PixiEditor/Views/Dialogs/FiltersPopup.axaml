@@ -23,16 +23,18 @@
                 <Button Content="+">
                     <Button.Flyout>
                         <MenuFlyout ItemsSource="{Binding AvailableFilters}">
+                            <MenuFlyout.ItemContainerTheme>
+                                <ControlTheme TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}">
+                                    <Setter Property="Command" Value="{Binding $parent[dialogs:FiltersPopup].((layers:FiltersPopupViewModel)DataContext).AddFilterCommand}"/>
+                                    <Setter Property="CommandParameter" Value="{Binding}"/>
+                                </ControlTheme>
+                            </MenuFlyout.ItemContainerTheme>
                             <MenuFlyout.ItemTemplate>
                                 <DataTemplate DataType="layers:FilterMetadata">
-                                    <Button
-                                        Command="{Binding $parent[dialogs:FiltersPopup].((layers:FiltersPopupViewModel)DataContext).AddFilterCommand}"
-                                        CommandParameter="{Binding}">
-                                        <TextBlock Classes="pixi-icon">
-                                            <Run Text="{Binding Icon}" />
-                                            <Run localization:Translator.Key="{Binding Name}" />
-                                        </TextBlock>
-                                    </Button>
+                                    <TextBlock Classes="pixi-icon">
+                                        <Run Text="{Binding Icon}" />
+                                        <Run localization:Translator.Key="{Binding Name}" />
+                                    </TextBlock>
                                 </DataTemplate>
                             </MenuFlyout.ItemTemplate>
                         </MenuFlyout>
@@ -40,7 +42,7 @@
                 </Button>
                 <Button Classes="pixi-icon"
                         Content="{DynamicResource icon-trash}"
-                        Command="{Binding RemoveFilterCommand}"/>
+                        Command="{Binding RemoveFilterCommand}" />
             </StackPanel>
             <ListBox ItemsSource="{Binding AddedFilters}" SelectedItem="{Binding SelectedFilter, Mode=TwoWay}">
                 <ListBox.ItemTemplate>

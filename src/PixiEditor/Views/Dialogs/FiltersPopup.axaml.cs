@@ -4,7 +4,7 @@ using Avalonia.Markup.Xaml;
 
 namespace PixiEditor.Views.Dialogs;
 
-public partial class FiltersPopup : Window
+public partial class FiltersPopup : PixiEditorPopup
 {
     public FiltersPopup()
     {
