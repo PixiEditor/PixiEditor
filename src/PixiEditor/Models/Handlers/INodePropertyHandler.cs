@@ -1,9 +1,12 @@
 ﻿using System.Collections.ObjectModel;
+using PixiEditor.GraphNavigation;
 using PixiEditor.Models.Events;
 
 namespace PixiEditor.Models.Handlers;
 
-public interface INodePropertyHandler
+public interface INodePropertyHandler :
+    INavigableInputProperty<INodeHandler, INodePropertyHandler, INodePropertyHandler>,
+    INavigableOutputProperty<INodeHandler, INodePropertyHandler, INodePropertyHandler>
 {
     public bool IsVisible { get; set; }
     public string PropertyName { get; set; }
@@ -24,4 +27,10 @@ public interface INodePropertyHandler
     public void StopWatchingComputedValue();
     public void InternalSetComputedValue(object value);
     internal void InternalSetValue(object isVisible);
+
+    INodeHandler INavigableNodeReference<INodeHandler, INodePropertyHandler, INodePropertyHandler>.Node => Node;
+
+    INodePropertyHandler? INavigableInputProperty<INodeHandler, INodePropertyHandler, INodePropertyHandler>.ConnectedOutput => ConnectedOutput;
+    
+    IEnumerable<INodePropertyHandler> INavigableOutputProperty<INodeHandler, INodePropertyHandler, INodePropertyHandler>.ConnectedInputs => ConnectedInputs;
 }

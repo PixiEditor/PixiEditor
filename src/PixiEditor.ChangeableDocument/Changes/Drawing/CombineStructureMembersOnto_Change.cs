@@ -10,6 +10,7 @@ using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.ChangeableDocument.ChangeInfos.Animation;
 using PixiEditor.ChangeableDocument.ChangeInfos.Vectors;
+using PixiEditor.GraphNavigation;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 
