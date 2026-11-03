@@ -100,6 +100,7 @@
             <system:String x:Key="icon-folder">&#xE94D;</system:String>
             <system:String x:Key="icon-folder-plus">&#xE94C;</system:String>
             <system:String x:Key="icon-fullscreen">&#xE9AC;</system:String>
+            <system:String x:Key="icon-fx">&#xE9FD;</system:String>
             <system:String x:Key="icon-gamepad">&#xE9ED;</system:String>
             <system:String x:Key="icon-ghost">&#xE916;</system:String>
             <system:String x:Key="icon-github">&#xE99A;</system:String>

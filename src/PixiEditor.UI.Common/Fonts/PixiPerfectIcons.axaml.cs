@@ -96,6 +96,7 @@ public static partial class PixiPerfectIcons
     public const string Folder = "\uE94D";
     public const string FolderPlus = "\uE94C";
     public const string Fullscreen = "\uE9AC";
+    public const string Fx = "\uE9FD";
     public const string Gamepad = "\uE9ED";
     public const string Ghost = "\uE916";
     public const string Github = "\uE99A";

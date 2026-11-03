@@ -5,9 +5,12 @@
                          xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
                          xmlns:layers="clr-namespace:PixiEditor.ViewModels.Layers"
                          xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+                         xmlns:nodes="clr-namespace:PixiEditor.ViewModels.Nodes"
                          mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
                          x:Class="PixiEditor.Views.Dialogs.FiltersPopup"
                          x:DataType="layers:FiltersPopupViewModel"
+                         Width="600"
+                         Height="400"
                          localization:Translator.Key="FILTERS_WINDOW_TITLE">
     <Design.DataContext>
         <layers:FiltersPopupViewModel />
@@ -15,13 +18,45 @@
 
     <Grid>
         <Grid.ColumnDefinitions>200,*</Grid.ColumnDefinitions>
-        <ListBox>
-            <ListBoxItem>Blur</ListBoxItem>
-            <ListBoxItem>Pixelify</ListBoxItem>
-            <ListBoxItem>Something</ListBoxItem>
-        </ListBox>
-        <Panel Grid.Column="1">
+        <StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <Button Content="+">
+                    <Button.Flyout>
+                        <MenuFlyout ItemsSource="{Binding AvailableFilters}">
+                            <MenuFlyout.ItemTemplate>
+                                <DataTemplate DataType="layers:FilterMetadata">
+                                    <Button
+                                        Command="{Binding $parent[dialogs:FiltersPopup].((layers:FiltersPopupViewModel)DataContext).AddFilterCommand}"
+                                        CommandParameter="{Binding}">
+                                        <TextBlock Classes="pixi-icon">
+                                            <Run Text="{Binding Icon}" />
+                                            <Run localization:Translator.Key="{Binding Name}" />
+                                        </TextBlock>
+                                    </Button>
+                                </DataTemplate>
+                            </MenuFlyout.ItemTemplate>
+                        </MenuFlyout>
+                    </Button.Flyout>
+                </Button>
+                <Button Classes="pixi-icon"
+                        Content="{DynamicResource icon-trash}"
+                        Command="{Binding RemoveFilterCommand}"/>
+            </StackPanel>
+            <ListBox ItemsSource="{Binding AddedFilters}" SelectedItem="{Binding SelectedFilter, Mode=TwoWay}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate DataType="nodes:NodeViewModel">
+                        <TextBlock Classes="pixi-icon">
+                            <Run Text="{Binding Icon}" />
+                            <Run localization:Translator.Key="{Binding DisplayName}" />
+                        </TextBlock>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </StackPanel>
+        <Panel Grid.Column="1" ClipToBounds="True">
+            <ItemsControl ItemsSource="{Binding SelectedFilter.Inputs}" Margin="5" Padding="-10, 0, 0, 0">
 
+            </ItemsControl>
         </Panel>
     </Grid>
 </dialogs:PixiEditorPopup>

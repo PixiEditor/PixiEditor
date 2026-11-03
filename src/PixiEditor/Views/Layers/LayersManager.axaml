@@ -95,6 +95,16 @@
                     Content="{DynamicResource icon-lock}"
                     Command="{xaml:Command PixiEditor.Layer.ToggleLayerLock}"
                     FlowDirection="LeftToRight" />
+                <Button
+                    Command="{xaml:Command PixiEditor.Layer.OpenFilters}" Height="24" Width="24"
+                    uiExt:Translator.TooltipKey="OPEN_FILTERS_PANEL"
+                    Cursor="Hand"
+                    HorizontalAlignment="Stretch"
+                    DockPanel.Dock="Right"
+                    Classes="pixi-icon"
+                    Focusable="False"
+                    Content="{DynamicResource icon-fx}"
+                    FlowDirection="LeftToRight" />
                 <Grid />
             </DockPanel>
             <DockPanel Margin="3,0">
