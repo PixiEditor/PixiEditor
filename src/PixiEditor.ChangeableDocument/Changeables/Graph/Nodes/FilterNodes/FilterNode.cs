@@ -17,6 +17,8 @@ public abstract class FilterNode : Node, IIterativeRenderSupport
     protected override CacheTriggerFlags CacheTrigger => CacheTriggerFlags.Inputs;
     public bool SupportsIterativeRendering => true;
 
+    private ImageFilter? lastImageFilter;
+    private ColorFilter? lastColorFilter;
     public FilterNode()
     {
         Output = CreateOutput<Filter>(OutputPropertyName, "FILTERS", null);
@@ -25,8 +27,14 @@ public abstract class FilterNode : Node, IIterativeRenderSupport
 
     protected override void OnExecute(RenderContext context)
     {
+        lastColorFilter?.Dispose();
+        lastImageFilter?.Dispose();
+
         var colorFilter = GetColorFilter(context);
         var imageFilter = GetImageFilter(context);
+
+        lastColorFilter = colorFilter;
+        lastImageFilter = imageFilter;
 
         if (colorFilter == null && imageFilter == null)
         {
