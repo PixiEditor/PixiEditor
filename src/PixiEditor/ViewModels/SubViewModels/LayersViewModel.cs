@@ -350,8 +350,10 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         if (document?.SelectedStructureMember == null) return;
 
         FiltersPopup popup = new FiltersPopup();
-        popup.DataContext =
-            new FiltersPopupViewModel() { Document = document, StructureMember = document.SelectedStructureMember };
+        var vm = new FiltersPopupViewModel() { Document = document, StructureMember = document.SelectedStructureMember };
+        vm.StructureMemberInvalid += popup.Close;
+        popup.DataContext = vm;
+        popup.Closing += (sender, args) => vm.UnsubscribeFromChanges();
 
         popup.Show(MainWindow.Current);
     }

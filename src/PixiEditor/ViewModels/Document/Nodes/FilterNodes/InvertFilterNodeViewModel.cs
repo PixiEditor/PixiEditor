@@ -4,4 +4,4 @@ using PixiEditor.ViewModels.Nodes;
 namespace PixiEditor.ViewModels.Document.Nodes.FilterNodes;
 
 [NodeViewModel("INVERT_FILTER_NODE", "FILTERS", PixiPerfectIcons.Invert)]
-internal class InvertFilterNodeViewModel : NodeViewModel<InvertFilterNode>;
+internal class InvertFilterNodeViewModel : NodeViewModel<InvertFilterNode>, IFilterNodeHandler;

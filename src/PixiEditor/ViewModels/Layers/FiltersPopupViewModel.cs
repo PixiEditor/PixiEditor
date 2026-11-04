@@ -7,10 +7,14 @@ using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
+using PixiEditor.ChangeableDocument.Changes.NodeGraph;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Handlers;
+using PixiEditor.Models.Layers;
 using PixiEditor.Parser.Graph;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Document.Nodes;
+using PixiEditor.ViewModels.Document.Nodes.FilterNodes;
 using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Layers;
@@ -19,7 +23,19 @@ internal partial class FiltersPopupViewModel : ViewModelBase
 {
     internal static List<FilterMetadata> AvailableFilters { get; }
 
-    [ObservableProperty] public partial IStructureMemberHandler StructureMember { get; set; }
+    private IStructureMemberHandler structureMemberHandler;
+
+    public IStructureMemberHandler StructureMember
+    {
+        get => structureMemberHandler;
+        set
+        {
+            if (SetProperty(ref structureMemberHandler, value))
+            {
+                UpdateLayerFilters();
+            }
+        }
+    }
 
     private DocumentViewModel document;
 
@@ -28,24 +44,36 @@ internal partial class FiltersPopupViewModel : ViewModelBase
         get => document;
         set
         {
-            document?.NodeGraph.AllNodes.CollectionChanged -= OnNodeCollectionChanged;
-            if(SetProperty(ref document, value))
+            UnsubscribeFromChanges();
+            if (SetProperty(ref document, value))
             {
-                document?.NodeGraph.AllNodes.CollectionChanged += OnNodeCollectionChanged;
+                document?.NodeGraph.Connections.CollectionChanged += OnNodeCollectionChanged;
+                document?.LayersChanged += DocumentOnLayersChanged;
             }
         }
     }
 
-    public ObservableCollection<NodeViewModel> AddedFilters { get; } = new ObservableCollection<NodeViewModel>();
+    private void DocumentOnLayersChanged(object? sender, LayersChangedEventArgs e)
+    {
+        if (e.LayerAffectedGuid == StructureMember.Id && e.LayerChangeType == LayerAction.Remove)
+        {
+            StructureMember = null;
+            StructureMemberInvalid?.Invoke();
+        }
+    }
 
-    [ObservableProperty]
-    public partial NodeViewModel SelectedFilter { get; set; }
+    public ObservableCollection<NodeViewModel> LayerFilters { get; } = new ObservableCollection<NodeViewModel>();
+
+    [ObservableProperty] public partial NodeViewModel SelectedFilter { get; set; }
+
+    public event Action StructureMemberInvalid;
 
     static FiltersPopupViewModel()
     {
         AvailableFilters = new List<FilterMetadata>();
         var vms = typeof(NodeViewModel).Assembly.GetTypes()
-            .Where(x => x.GetCustomAttribute<NodeViewModelAttribute>()?.Category == "FILTERS" && x.BaseType?.GenericTypeArguments.Length > 0);
+            .Where(x => x.GetCustomAttribute<NodeViewModelAttribute>()?.Category == "FILTERS" &&
+                        typeof(IFilterNodeHandler).IsAssignableFrom(x));
 
         foreach (var type in vms)
         {
@@ -61,11 +89,26 @@ internal partial class FiltersPopupViewModel : ViewModelBase
 
     public FiltersPopupViewModel()
     {
+        LayerFilters.CollectionChanged += LayerFiltersOnCollectionChanged;
+    }
+
+    private void LayerFiltersOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (e.Action == NotifyCollectionChangedAction.Move)
+        {
+            NodeViewModel next = e.NewStartingIndex == 0
+                ? StructureMember as NodeViewModel
+                : LayerFilters[e.NewStartingIndex - 1];
+            NodeViewModel newItemAtIndex = LayerFilters[e.NewStartingIndex];
+            ReorderNodes(next, newItemAtIndex);
+        }
     }
 
     [RelayCommand]
     public void AddFilter(FilterMetadata filter)
     {
+        if (Document.IsDisposed) return;
+
         Guid lastFilterNode = FindNodeToConnectTo(StructureMember, out var inputPropName, out var position);
 
         var node = Document.NodeGraph.CreateNode(filter.NodeType, position - new VecD(250, 0));
@@ -75,39 +118,52 @@ internal partial class FiltersPopupViewModel : ViewModelBase
     [RelayCommand]
     public void RemoveFilterCommand()
     {
-        Document.NodeGraph.RemoveNode(SelectedFilter.Id, true);
+        if (!Document.IsDisposed)
+        {
+            Document.NodeGraph.RemoveNode(SelectedFilter.Id, true);
+        }
+    }
+
+    public void UnsubscribeFromChanges()
+    {
+        document?.NodeGraph.Connections.CollectionChanged -= OnNodeCollectionChanged;
+        document?.LayersChanged -= DocumentOnLayersChanged;
+    }
+
+    private void ReorderNodes(NodeViewModel oldItemAtIndex, NodeViewModel newItemAtIndex)
+    {
+        if (LayerFilters.Count == 0 || StructureMember == null)
+            return;
+
+        Document.Operations.MoveNode(newItemAtIndex.Id, oldItemAtIndex.Id);
     }
 
     private void OnNodeCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        if (e.Action == NotifyCollectionChangedAction.Add && e.NewItems != null)
-        {
-            foreach (var eNewItem in e.NewItems)
-            {
-                if (eNewItem is NodeViewModel nvm && nvm.Category == "FILTERS" && AvailableFilters.Any(x => x.InternalName == nvm.InternalName))
-                {
-                    AddedFilters.Add(nvm);
-                }
-            }
-        }
-        else if (e.Action == NotifyCollectionChangedAction.Remove && e.OldItems != null)
-        {
-            foreach (var eOldItem in e.OldItems)
-            {
-                if (eOldItem is NodeViewModel nvm)
-                {
-                    AddedFilters.Remove(nvm);
-                }
-            }
-        }
+        UpdateLayerFilters();
+    }
 
-        if (e.Action == NotifyCollectionChangedAction.Reset)
+    private void UpdateLayerFilters()
+    {
+        LayerFilters.Clear();
+        if (StructureMember != null)
         {
-            AddedFilters.Clear();
+            StructureMember.InputPropertyMap[StructureNode.FiltersPropertyName].ConnectedOutput?.Node
+                .TraverseBackwards((
+                    n) =>
+                {
+                    if (n is NodeViewModel nvm and IFilterNodeHandler)
+                    {
+                        LayerFilters.Add(nvm);
+                    }
+
+                    return Traverse.Further;
+                });
         }
     }
 
-    private Guid FindNodeToConnectTo(IStructureMemberHandler structureMember, out string inputPropName, out VecD position)
+    private Guid FindNodeToConnectTo(IStructureMemberHandler structureMember, out string inputPropName,
+        out VecD position)
     {
         var filtersInput = structureMember.InputPropertyMap[StructureNode.FiltersPropertyName];
         position = structureMember.PositionBindable;

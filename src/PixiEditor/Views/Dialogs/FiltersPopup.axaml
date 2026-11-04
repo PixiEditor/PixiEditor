@@ -6,6 +6,7 @@
                          xmlns:layers="clr-namespace:PixiEditor.ViewModels.Layers"
                          xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
                          xmlns:nodes="clr-namespace:PixiEditor.ViewModels.Nodes"
+                         xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
                          mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
                          x:Class="PixiEditor.Views.Dialogs.FiltersPopup"
                          x:DataType="layers:FiltersPopupViewModel"
@@ -25,8 +26,9 @@
                         <MenuFlyout ItemsSource="{Binding AvailableFilters}">
                             <MenuFlyout.ItemContainerTheme>
                                 <ControlTheme TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}">
-                                    <Setter Property="Command" Value="{Binding $parent[dialogs:FiltersPopup].((layers:FiltersPopupViewModel)DataContext).AddFilterCommand}"/>
-                                    <Setter Property="CommandParameter" Value="{Binding}"/>
+                                    <Setter Property="Command"
+                                            Value="{Binding $parent[dialogs:FiltersPopup].((layers:FiltersPopupViewModel)DataContext).AddFilterCommand}" />
+                                    <Setter Property="CommandParameter" Value="{Binding}" />
                                 </ControlTheme>
                             </MenuFlyout.ItemContainerTheme>
                             <MenuFlyout.ItemTemplate>
@@ -44,15 +46,38 @@
                         Content="{DynamicResource icon-trash}"
                         Command="{Binding RemoveFilterCommand}" />
             </StackPanel>
-            <ListBox ItemsSource="{Binding AddedFilters}" SelectedItem="{Binding SelectedFilter, Mode=TwoWay}">
+            <ListBox ItemsSource="{Binding LayerFilters}"
+                     SelectedItem="{Binding SelectedFilter, Mode=TwoWay}">
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="nodes:NodeViewModel">
-                        <TextBlock Classes="pixi-icon">
-                            <Run Text="{Binding Icon}" />
-                            <Run localization:Translator.Key="{Binding DisplayName}" />
-                        </TextBlock>
+                        <Grid>
+                            <Border Background="Transparent">
+                                <Grid ColumnDefinitions="24,*">
+                                    <TextBlock Grid.Column="0"
+                                               Text=""
+                                               LetterSpacing="-8"
+                                               Margin="-5, 0, 0, 0"
+                                               ClipToBounds="False"
+                                               Opacity="0.5"
+                                               VerticalAlignment="Center"
+                                               HorizontalAlignment="Center"
+                                               Cursor="SizeAll"
+                                               Classes="pixi-icon reorder-handle" />
+                                    <TextBlock Grid.Column="1"
+                                               Classes="pixi-icon"
+                                               VerticalAlignment="Center">
+                                        <Run Text="{Binding Icon}" />
+                                        <Run localization:Translator.Key="{Binding DisplayName}" />
+                                    </TextBlock>
+                                </Grid>
+                            </Border>
+                        </Grid>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
+
+                <Interaction.Behaviors>
+                    <behaviours:ListBoxReorderBehavior x:TypeArguments="nodes:NodeViewModel"></behaviours:ListBoxReorderBehavior>
+                </Interaction.Behaviors>
             </ListBox>
         </StackPanel>
         <Panel Grid.Column="1" ClipToBounds="True">

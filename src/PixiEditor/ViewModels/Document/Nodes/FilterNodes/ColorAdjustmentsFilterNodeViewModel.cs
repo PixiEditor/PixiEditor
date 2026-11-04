@@ -9,7 +9,7 @@ using PixiEditor.ViewModels.Nodes.Properties;
 namespace PixiEditor.ViewModels.Document.Nodes.FilterNodes;
 
 [NodeViewModel("COLOR_ADJUSTMENTS_FILTER", "FILTERS", PixiPerfectIcons.Sun )]
-internal class ColorAdjustmentsFilterNodeViewModel : NodeViewModel<ColorAdjustmentsFilterNode>
+internal class ColorAdjustmentsFilterNodeViewModel : NodeViewModel<ColorAdjustmentsFilterNode>, IFilterNodeHandler
 {
     private Dictionary<string, List<INodePropertyHandler>> toggleToProperties = new Dictionary<string, List<INodePropertyHandler>>();
     public override void OnInitialized()

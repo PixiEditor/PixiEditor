@@ -6,7 +6,7 @@ using PixiEditor.ViewModels.Nodes;
 namespace PixiEditor.ViewModels.Document.Nodes.FilterNodes;
 
 [NodeViewModel("GRAYSCALE_FILTER_NODE", "FILTERS", PixiPerfectIcons.Ghost)]
-internal class GrayscaleNodeViewModel : NodeViewModel<GrayscaleNode>
+internal class GrayscaleNodeViewModel : NodeViewModel<GrayscaleNode>, IFilterNodeHandler
 {
     private INodePropertyHandler customWeightsProp;
     public override void OnInitialized()
