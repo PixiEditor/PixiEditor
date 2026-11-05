@@ -10,6 +10,9 @@ public class ErodeNode : FilterNode
 {
     public InputProperty<VecD> Radius { get; }
 
+    private ImageFilter? lastFilter;
+    private VecD lastRadius;
+
     public ErodeNode()
     {
         Radius = CreateInput("Radius", "RADIUS", new VecD(1f, 1f))
@@ -18,7 +21,15 @@ public class ErodeNode : FilterNode
 
     protected override ImageFilter? GetImageFilter(RenderContext context)
     {
-        return ImageFilter.CreateErode((float)Radius.Value.X, (float)Radius.Value.Y);
+        if (lastRadius.AlmostEquals(Radius.Value))
+        {
+            return lastFilter;
+        }
+
+        lastFilter?.Dispose();
+        lastFilter = ImageFilter.CreateErode((float)Radius.Value.X, (float)Radius.Value.Y);
+        lastRadius = Radius.Value;
+        return lastFilter;
     }
 
     public override Node CreateCopy()

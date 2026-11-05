@@ -7,6 +7,9 @@
                          xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
                          xmlns:nodes="clr-namespace:PixiEditor.ViewModels.Nodes"
                          xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
+                         xmlns:visuals="clr-namespace:PixiEditor.Views.Visuals"
+                         xmlns:filterNodes="clr-namespace:PixiEditor.ViewModels.Document.Nodes.FilterNodes"
+                         xmlns:ui="clr-namespace:PixiEditor.Helpers.UI;assembly=PixiEditor.UI.Common"
                          mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
                          x:Class="PixiEditor.Views.Dialogs.FiltersPopup"
                          x:DataType="layers:FiltersPopupViewModel"
@@ -17,73 +20,156 @@
         <layers:FiltersPopupViewModel />
     </Design.DataContext>
 
-    <Grid>
+    <Grid Background="{DynamicResource ThemeBackgroundBrush1}">
         <Grid.ColumnDefinitions>200,*</Grid.ColumnDefinitions>
-        <StackPanel>
-            <StackPanel Orientation="Horizontal">
-                <Button Content="+">
-                    <Button.Flyout>
-                        <MenuFlyout ItemsSource="{Binding AvailableFilters}">
-                            <MenuFlyout.ItemContainerTheme>
-                                <ControlTheme TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}">
-                                    <Setter Property="Command"
-                                            Value="{Binding $parent[dialogs:FiltersPopup].((layers:FiltersPopupViewModel)DataContext).AddFilterCommand}" />
-                                    <Setter Property="CommandParameter" Value="{Binding}" />
-                                </ControlTheme>
-                            </MenuFlyout.ItemContainerTheme>
-                            <MenuFlyout.ItemTemplate>
-                                <DataTemplate DataType="layers:FilterMetadata">
-                                    <TextBlock Classes="pixi-icon">
-                                        <Run Text="{Binding Icon}" />
-                                        <Run localization:Translator.Key="{Binding Name}" />
-                                    </TextBlock>
-                                </DataTemplate>
-                            </MenuFlyout.ItemTemplate>
-                        </MenuFlyout>
-                    </Button.Flyout>
-                </Button>
-                <Button Classes="pixi-icon"
-                        Content="{DynamicResource icon-trash}"
-                        Command="{Binding RemoveFilterCommand}" />
+        <Grid.RowDefinitions>34,*,34</Grid.RowDefinitions>
+        <Border
+            BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+            BorderThickness="0, 1, 0, 0">
+            <StackPanel Margin="12, 0" VerticalAlignment="Center" Spacing="3" Orientation="Horizontal">
+                <Border
+                    Width="24" Height="24"
+                    RenderOptions.BitmapInterpolationMode="None">
+                    <Border.Background>
+                        <ImageBrush Source="/Images/CheckerTile.png" TileMode="Tile">
+                            <ImageBrush.Transform>
+                                <ScaleTransform ScaleX="0.4" ScaleY="0.4" />
+                            </ImageBrush.Transform>
+                        </ImageBrush>
+                    </Border.Background>
+                    <visuals:PreviewTextureControl
+                        ClipToBounds="True"
+                        TexturePreview="{Binding StructureMember.Preview}"
+                        Width="24" Height="24"
+                        RenderOptions.BitmapInterpolationMode="None" IsHitTestVisible="False" />
+                </Border>
+                <TextBlock FontSize="14" Text="{Binding StructureMember.NodeNameBindable}" />
             </StackPanel>
-            <ListBox ItemsSource="{Binding LayerFilters}"
-                     SelectedItem="{Binding SelectedFilter, Mode=TwoWay}">
-                <ListBox.ItemTemplate>
-                    <DataTemplate DataType="nodes:NodeViewModel">
-                        <Grid>
-                            <Border Background="Transparent">
-                                <Grid ColumnDefinitions="24,*">
-                                    <TextBlock Grid.Column="0"
-                                               Text=""
-                                               LetterSpacing="-8"
-                                               Margin="-5, 0, 0, 0"
-                                               ClipToBounds="False"
-                                               Opacity="0.5"
-                                               VerticalAlignment="Center"
-                                               HorizontalAlignment="Center"
-                                               Cursor="SizeAll"
-                                               Classes="pixi-icon reorder-handle" />
-                                    <TextBlock Grid.Column="1"
-                                               Classes="pixi-icon"
-                                               VerticalAlignment="Center">
-                                        <Run Text="{Binding Icon}" />
-                                        <Run localization:Translator.Key="{Binding DisplayName}" />
-                                    </TextBlock>
-                                </Grid>
-                            </Border>
+        </Border>
+        <ListBox Grid.Column="0" Grid.Row="1" ItemsSource="{Binding LayerFilters}"
+                 Background="{DynamicResource ThemeBackgroundBrush}"
+                 BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                 Padding="12"
+                 BorderThickness="1, 1, 0, 1"
+                 ItemContainerTheme="{DynamicResource AlternativeListBoxItem}"
+                 SelectedItem="{Binding SelectedFilter, Mode=TwoWay}">
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Vertical" Spacing="4" />
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+            <ListBox.ItemTemplate>
+                <DataTemplate DataType="layers:FilterNodeViewModel">
+                    <Grid ui:Juice.Animations="Loaded:PopIn">
+                        <Grid ColumnDefinitions="24,*,24" ColumnSpacing="4" VerticalAlignment="Center">
+                            <TextBlock Grid.Column="0" HorizontalAlignment="Right" Classes="pixi-icon"
+                                       Text="{Binding Node.Icon}" />
+                            <TextBlock Grid.Column="1" HorizontalAlignment="Left" MaxWidth="120" TextTrimming="CharacterEllipsis"
+                                       localization:Translator.Key="{Binding Node.DisplayName}" />
+                            <CheckBox Grid.Column="2"
+                                      AttachedToVisualTree="Visual_OnAttachedToVisualTree"
+                                      Classes="ImageCheckBox"
+                                      Background="Transparent"
+                                      IsThreeState="False"
+                                      IsChecked="{Binding IsFilterEnabled, Mode=TwoWay}" />
                         </Grid>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
 
-                <Interaction.Behaviors>
-                    <behaviours:ListBoxReorderBehavior x:TypeArguments="nodes:NodeViewModel"></behaviours:ListBoxReorderBehavior>
-                </Interaction.Behaviors>
-            </ListBox>
+            <Interaction.Behaviors>
+                <behaviours:ListBoxReorderBehavior x:TypeArguments="nodes:NodeViewModel"></behaviours:ListBoxReorderBehavior>
+            </Interaction.Behaviors>
+        </ListBox>
+        <StackPanel Grid.Row="2" Grid.Column="0" Spacing="5" Margin="12, 4, 12, 6" Orientation="Horizontal"
+                    HorizontalAlignment="Right">
+            <Button Classes="pixi-icon" Name="AddFilterButton" Content="{DynamicResource icon-plus-square}">
+                <Button.Flyout>
+                    <Flyout Placement="TopEdgeAlignedLeft">
+                        <Flyout.Content>
+                            <Border Background="{DynamicResource ThemeBackgroundBrush}"
+                                    CornerRadius="{DynamicResource ControlCornerRadius}">
+                                <StackPanel Orientation="Vertical">
+                                    <TextBox PlaceholderText="{localization:Translate Key=SEARCH}"
+                                             KeyDown="InputElement_OnKeyDown"
+                                             Text="{Binding SearchText}">
+                                        <Interaction.Behaviors>
+                                            <behaviours:GlobalShortcutFocusBehavior />
+                                        </Interaction.Behaviors>
+                                        <TextBox.InnerLeftContent>
+                                            <TextBlock Classes="pixi-icon"
+                                                       Text="{DynamicResource icon-search}"
+                                                       Margin="0, 0, 5, 0" />
+                                        </TextBox.InnerLeftContent>
+                                    </TextBox>
+
+                                    <ScrollViewer HorizontalScrollBarVisibility="Hidden"
+                                                  Height="200"
+                                                  Width="200"
+                                                  VerticalScrollBarVisibility="Auto">
+                                        <ItemsControl ItemsSource="{Binding FilteredFilters}" Name="ItemsControl"
+                                                      XYFocus.NavigationModes="Enabled"
+                                                      KeyboardNavigation.TabNavigation="Cycle">
+                                            <ItemsControl.Styles>
+                                                <Style Selector="Button">
+                                                    <Setter Property="Background" Value="Transparent" />
+                                                </Style>
+                                                <Style Selector="Button:pointerover">
+                                                    <Setter Property="Background"
+                                                            Value="{DynamicResource ThemeBorderHighBrush}" />
+                                                </Style>
+                                                <Style Selector="Border.reorder-placeholder">
+                                                    <Setter Property="BorderThickness" Value="0" />
+                                                </Style>
+                                            </ItemsControl.Styles>
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <StackPanel Orientation="Vertical" />
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate DataType="layers:FilterMetadata">
+                                                    <Button
+                                                        BorderThickness="0"
+                                                        BorderBrush="Transparent"
+                                                        CornerRadius="0"
+                                                        HorizontalAlignment="Stretch"
+                                                        HorizontalContentAlignment="Left"
+                                                        Command="{Binding $parent[dialogs:FiltersPopup].((layers:FiltersPopupViewModel)DataContext).AddFilterCommand}"
+                                                        CommandParameter="{Binding}">
+                                                        <StackPanel Orientation="Horizontal" Spacing="4">
+                                                            <TextBlock Classes="pixi-icon" Text="{Binding Icon}" />
+                                                            <TextBlock localization:Translator.Key="{Binding Name}" />
+                                                        </StackPanel>
+                                                        <Interaction.Behaviors>
+                                                            <ButtonHideFlyoutOnClickBehavior />
+                                                        </Interaction.Behaviors>
+                                                    </Button>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </ScrollViewer>
+                                </StackPanel>
+                            </Border>
+                        </Flyout.Content>
+                    </Flyout>
+                </Button.Flyout>
+            </Button>
+            <Button Classes="pixi-icon"
+                    Content="{DynamicResource icon-duplicate}"
+                    Command="{Binding DuplicateFilterCommand}" />
+            <Button Classes="pixi-icon"
+                    Content="{DynamicResource icon-trash}"
+                    Command="{Binding RemoveFilterCommand}" />
         </StackPanel>
-        <Panel Grid.Column="1" ClipToBounds="True">
-            <ItemsControl ItemsSource="{Binding SelectedFilter.Inputs}" Margin="5" Padding="-10, 0, 0, 0">
-
-            </ItemsControl>
+        <Panel
+            Grid.Row="0" Grid.RowSpan="3" Grid.Column="1" ClipToBounds="True">
+            <Border
+                BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                BorderThickness="1">
+                <ItemsControl ItemsSource="{Binding SelectedFilter.InputsToEdit}" Margin="5" Padding="-10, 0, 0, 0" />
+            </Border>
         </Panel>
     </Grid>
 </dialogs:PixiEditorPopup>

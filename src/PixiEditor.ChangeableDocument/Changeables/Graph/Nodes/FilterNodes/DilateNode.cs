@@ -9,6 +9,10 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 public class DilateNode : FilterNode
 {
     public InputProperty<VecD> Radius { get; }
+
+    private ImageFilter? lastFilter;
+    private VecD lastRadius;
+
     public DilateNode()
     {
         Radius = CreateInput("Radius", "RADIUS", new VecD(1f, 1f))
@@ -17,7 +21,15 @@ public class DilateNode : FilterNode
 
     protected override ImageFilter? GetImageFilter(RenderContext context)
     {
-        return ImageFilter.CreateDilate((float)Radius.Value.X, (float)Radius.Value.Y);
+        if (lastRadius.AlmostEquals(Radius.Value))
+        {
+            return lastFilter;
+        }
+
+        lastFilter?.Dispose();
+        lastFilter = ImageFilter.CreateDilate((float)Radius.Value.X, (float)Radius.Value.Y);
+        lastRadius = Radius.Value;
+        return lastFilter;
     }
 
     public override Node CreateCopy()

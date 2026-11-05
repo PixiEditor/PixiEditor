@@ -4,6 +4,6 @@ using PixiEditor.ViewModels.Nodes;
 namespace PixiEditor.ViewModels.Document.Nodes.FilterNodes;
 
 [NodeViewModel("SHADOW_NODE", "FILTERS", PixiPerfectIcons.Cone)]
-internal class ShadowNodeViewModel : NodeViewModel<ShadowNode>, IFilterNodeHandler
+internal class ShadowNodeViewModel : FilterNodeViewModel<ShadowNode>
 {
 }

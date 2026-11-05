@@ -15,6 +15,9 @@ public class ShadowNode : FilterNode
     public InputProperty<VecD> Sigma { get; }
     public InputProperty<Color> Color { get; }
 
+    // Shadow is displayed at different position than the layer (adds pixels outside), this makes iterative rendering not possible
+    public override bool SupportsIterativeRendering => false;
+
     public ShadowNode()
     {
         Offset = CreateInput(OffsetPropertyName, "OFFSET", new VecD(5, 5));

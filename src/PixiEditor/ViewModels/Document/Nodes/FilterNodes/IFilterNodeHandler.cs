@@ -2,5 +2,5 @@
 
 public interface IFilterNodeHandler
 {
-    
+    bool IsFilterEnabled { get; set; }
 }

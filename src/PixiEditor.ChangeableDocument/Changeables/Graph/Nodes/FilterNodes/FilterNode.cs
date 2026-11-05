@@ -8,33 +8,41 @@ public abstract class FilterNode : Node, IIterativeRenderSupport
 {
     public const string OutputPropertyName = "Output";
     public const string InputPropertyName = "Input";
+    public const string IsFilterEnabledProperty = "IsFilterEnabled";
 
     public OutputProperty<Filter> Output { get; }
-
     public InputProperty<Filter?> Input { get; }
+    public InputProperty<bool> IsFilterEnabled { get; }
 
     protected override bool ExecuteOnlyOnCacheChange => true;
     protected override CacheTriggerFlags CacheTrigger => CacheTriggerFlags.Inputs;
-    public bool SupportsIterativeRendering => true;
+    public virtual bool SupportsIterativeRendering => true;
 
-    private ImageFilter? lastImageFilter;
-    private ColorFilter? lastColorFilter;
     public FilterNode()
     {
         Output = CreateOutput<Filter>(OutputPropertyName, "FILTERS", null);
         Input = CreateInput<Filter>(InputPropertyName, "PREVIOUS", null);
+        IsFilterEnabled = CreateInput<bool>(IsFilterEnabledProperty, "IS_FILTER_ENABLED_PROPERTY", true);
     }
 
     protected override void OnExecute(RenderContext context)
     {
-        lastColorFilter?.Dispose();
-        lastImageFilter?.Dispose();
+        if (!IsFilterEnabled.Value)
+        {
+            if (Input.Value != null)
+            {
+                Output.Value = Input.Value;
+            }
+            else
+            {
+                Output.Value = null;
+            }
+
+            return;
+        }
 
         var colorFilter = GetColorFilter(context);
         var imageFilter = GetImageFilter(context);
-
-        lastColorFilter = colorFilter;
-        lastImageFilter = imageFilter;
 
         if (colorFilter == null && imageFilter == null)
         {

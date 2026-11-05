@@ -50,10 +50,10 @@ internal class MoveNode_Change : Change
 
         VecD sourceOriginalPosition = nodeBeingMoved.Position;
 
-        Node? oldInputConnectionNode = nodeBeingMoved.InputProperties.FirstOrDefault().Connection?.Node as Node;
-        Node oldOutputConnectionNode =
-            nodeBeingMoved.OutputProperties.FirstOrDefault().Connections.First().Node as Node;
-        bool hadMultipleOutputs = nodeBeingMoved.OutputProperties.FirstOrDefault().Connections.Count > 1;
+        Node? oldInputConnectionNode = nodeBeingMoved.InputProperties.FirstOrDefault()?.Connection?.Node as Node;
+        Node? oldOutputConnectionNode =
+            nodeBeingMoved.OutputProperties.FirstOrDefault()?.Connections.FirstOrDefault()?.Node as Node;
+        bool hadMultipleOutputs = nodeBeingMoved.OutputProperties.FirstOrDefault()?.Connections.Count > 1;
 
         ignoreInUndo = false;
         changes.AddRange(NodeOperations.DetachNodeWithAutoconnect(nodeBeingMoved));
@@ -65,7 +65,7 @@ internal class MoveNode_Change : Change
 
         changes.AddRange(NodeOperations.AppendMember(toConnectTo, outputToConnect, nodeInput, nodeBeingMoved.Id));
 
-        if (!hadMultipleOutputs && oldInputConnectionNode is not null)
+        if (!hadMultipleOutputs && oldInputConnectionNode is not null && oldOutputConnectionNode is not null)
         {
             changes.AddRange(NodeOperations.CollapseFreeSpaceAfterRemovingNode(oldInputConnectionNode,
                 oldOutputConnectionNode, out var tempOriginalPositions));

@@ -43,6 +43,7 @@ public class DisplacementMapNode : RenderNode, IRenderInput
 
     protected override void OnPaint(RenderContext context, Canvas surface)
     {
+        if (Background.Value == null) return;
         using Texture temp = Texture.ForProcessing(surface, context.ProcessingColorSpace);
         Background.Value.Paint(context, temp.DrawingSurface.Canvas);
 

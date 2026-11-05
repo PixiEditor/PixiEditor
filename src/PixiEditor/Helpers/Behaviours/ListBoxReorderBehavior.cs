@@ -64,9 +64,6 @@ public class ListBoxReorderBehavior<T> : Behavior<ListBox>
 
         var handle = e.Source as Control;
 
-        if (handle?.Classes.Contains("reorder-handle") != true)
-            return;
-
         draggedItem = handle.FindAncestorOfType<ListBoxItem>();
 
         if (draggedItem == null)
@@ -89,6 +86,7 @@ public class ListBoxReorderBehavior<T> : Behavior<ListBox>
 
             isDragging = true;
             e.Pointer.Capture(AssociatedObject);
+            AssociatedObject.Cursor = new Cursor(StandardCursorType.DragMove);
         }
 
         UpdateInsertion(position);
@@ -107,6 +105,7 @@ public class ListBoxReorderBehavior<T> : Behavior<ListBox>
         draggedItem = null;
         isDragging = false;
         dropIndex = -1;
+        AssociatedObject.Cursor = new Cursor(StandardCursorType.Arrow);
 
         e.Pointer.Capture(null);
     }
