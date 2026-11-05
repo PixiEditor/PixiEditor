@@ -1610,5 +1610,18 @@
   "FONT_WEIGHT_LABEL": "Weight",
   "SHOW_FAVORITE_FONTS_TOOLTIP": "Toggle show only favorite fonts",
   "DELETE_SELECTED_CELS": "Delete selected cels",
-  "DUPLICATE_SELECTED_CELS": "Duplicate selected cels"
+  "DUPLICATE_SELECTED_CELS": "Duplicate selected cels",
+  "FILTERS_WINDOW_TITLE": "Filters and effects",
+  "DILATE_NODE": "Dilate Filter",
+  "ERODE_NODE": "Erode Filter",
+  "DISPLACEMENT_MAP_NODE": "Displacement Map",
+  "IS_FILTER_ENABLED_PROPERTY": "Filter Enabled",
+  "X_CHANNEL": "X Channel",
+  "Y_CHANNEL": "Y Channel",
+  "DISPLACEMENT_PROPERTY": "Displacement",
+  "SAMPLING_PROPERTY": "Sampling",
+  "RED_COLOR_CHANNEL": "Red channel",
+  "GREEN_COLOR_CHANNEL": "Green channel",
+  "BLUE_COLOR_CHANNEL": "Blue channel",
+  "ALPHA_COLOR_CHANNEL": "Alpha channel"
 }

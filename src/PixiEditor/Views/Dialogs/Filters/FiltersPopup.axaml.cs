@@ -41,20 +41,5 @@ public partial class FiltersPopup : PixiEditorPopup
         CheckBox checkBox = (sender as CheckBox);
         checkBox.IsChecked = !checkBox.IsChecked;
     }
-
-    private void InputElement_OnKeyDown(object? sender, KeyEventArgs e)
-    {
-        if (e.Key == Key.Enter)
-        {
-            var first = ItemsControl?.ItemsPanelRoot?.Children?.FirstOrDefault();
-            var vm = DataContext as FiltersPopupViewModel;
-            if (first != null && vm != null)
-            {
-                var metadata = (first as ContentPresenter)?.Content as FilterMetadata;
-                vm.AddFilter(metadata);
-                (sender as Control).FindLogicalAncestorOfType<Popup>()?.IsOpen = false;
-            }
-        }
-    }
 }
 

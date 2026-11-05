@@ -84,6 +84,9 @@ internal partial class FiltersPopupViewModel : ViewModelBase
         }
     }
 
+    [ObservableProperty]
+    public partial FilterMetadata? SelectedPickerItem { get; set; }
+
     public string SearchText
     {
         get => field;
@@ -127,6 +130,10 @@ internal partial class FiltersPopupViewModel : ViewModelBase
     {
         FilteredFilters.Clear();
         FilteredFilters.AddRange(AvailableFilters.Where(x => new LocalizedString(x.Name).Value.Contains(SearchText, StringComparison.OrdinalIgnoreCase)));
+        if (!FilteredFilters.Contains(SelectedPickerItem))
+        {
+            SelectedPickerItem = null;
+        }
     }
 
     private void LayerFiltersOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)

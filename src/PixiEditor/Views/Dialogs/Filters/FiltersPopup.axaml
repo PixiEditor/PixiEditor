@@ -10,6 +10,7 @@
                          xmlns:visuals="clr-namespace:PixiEditor.Views.Visuals"
                          xmlns:filterNodes="clr-namespace:PixiEditor.ViewModels.Document.Nodes.FilterNodes"
                          xmlns:ui="clr-namespace:PixiEditor.Helpers.UI;assembly=PixiEditor.UI.Common"
+                         xmlns:filters="clr-namespace:PixiEditor.Views.Dialogs.Filters"
                          mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
                          x:Class="PixiEditor.Views.Dialogs.FiltersPopup"
                          x:DataType="layers:FiltersPopupViewModel"
@@ -87,71 +88,7 @@
                 <Button.Flyout>
                     <Flyout Placement="TopEdgeAlignedLeft">
                         <Flyout.Content>
-                            <Border Background="{DynamicResource ThemeBackgroundBrush}"
-                                    CornerRadius="{DynamicResource ControlCornerRadius}">
-                                <StackPanel Orientation="Vertical">
-                                    <TextBox PlaceholderText="{localization:Translate Key=SEARCH}"
-                                             KeyDown="InputElement_OnKeyDown"
-                                             Text="{Binding SearchText}">
-                                        <Interaction.Behaviors>
-                                            <behaviours:GlobalShortcutFocusBehavior />
-                                        </Interaction.Behaviors>
-                                        <TextBox.InnerLeftContent>
-                                            <TextBlock Classes="pixi-icon"
-                                                       Text="{DynamicResource icon-search}"
-                                                       Margin="0, 0, 5, 0" />
-                                        </TextBox.InnerLeftContent>
-                                    </TextBox>
-
-                                    <ScrollViewer HorizontalScrollBarVisibility="Hidden"
-                                                  Height="200"
-                                                  Width="200"
-                                                  VerticalScrollBarVisibility="Auto">
-                                        <ItemsControl ItemsSource="{Binding FilteredFilters}" Name="ItemsControl"
-                                                      XYFocus.NavigationModes="Enabled"
-                                                      KeyboardNavigation.TabNavigation="Cycle">
-                                            <ItemsControl.Styles>
-                                                <Style Selector="Button">
-                                                    <Setter Property="Background" Value="Transparent" />
-                                                </Style>
-                                                <Style Selector="Button:pointerover">
-                                                    <Setter Property="Background"
-                                                            Value="{DynamicResource ThemeBorderHighBrush}" />
-                                                </Style>
-                                                <Style Selector="Border.reorder-placeholder">
-                                                    <Setter Property="BorderThickness" Value="0" />
-                                                </Style>
-                                            </ItemsControl.Styles>
-                                            <ItemsControl.ItemsPanel>
-                                                <ItemsPanelTemplate>
-                                                    <StackPanel Orientation="Vertical" />
-                                                </ItemsPanelTemplate>
-                                            </ItemsControl.ItemsPanel>
-
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate DataType="layers:FilterMetadata">
-                                                    <Button
-                                                        BorderThickness="0"
-                                                        BorderBrush="Transparent"
-                                                        CornerRadius="0"
-                                                        HorizontalAlignment="Stretch"
-                                                        HorizontalContentAlignment="Left"
-                                                        Command="{Binding $parent[dialogs:FiltersPopup].((layers:FiltersPopupViewModel)DataContext).AddFilterCommand}"
-                                                        CommandParameter="{Binding}">
-                                                        <StackPanel Orientation="Horizontal" Spacing="4">
-                                                            <TextBlock Classes="pixi-icon" Text="{Binding Icon}" />
-                                                            <TextBlock localization:Translator.Key="{Binding Name}" />
-                                                        </StackPanel>
-                                                        <Interaction.Behaviors>
-                                                            <ButtonHideFlyoutOnClickBehavior />
-                                                        </Interaction.Behaviors>
-                                                    </Button>
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
-                                    </ScrollViewer>
-                                </StackPanel>
-                            </Border>
+                            <filters:FilterPicker DataContext="{Binding}"/>
                         </Flyout.Content>
                     </Flyout>
                 </Button.Flyout>

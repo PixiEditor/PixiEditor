@@ -33,8 +33,8 @@ public class DisplacementMapNode : RenderNode, IRenderInput
         XChannel = CreateInput("XChannel", "X_CHANNEL", ColorChannel.R);
         YChannel = CreateInput("YChannel", "Y_CHANNEL", ColorChannel.G);
         Scale = CreateInput("Scale", "SCALE", 1f);
-        Displacement = CreateInput<Texture>("Displacement", "DISPLACEMENT", null);
-        DisplacementSampling = CreateInput<ResamplingMethod>("Sampling", "SAMPLING", ResamplingMethod.NearestNeighbor);
+        Displacement = CreateInput<Texture>("Displacement", "DISPLACEMENT_PROPERTY", null);
+        DisplacementSampling = CreateInput<ResamplingMethod>("Sampling", "SAMPLING_PROPERTY", ResamplingMethod.NearestNeighbor);
         AllowHighDpiRendering = false;
         paint = new Paint();
         paint.BlendMode = BlendMode.Src;
