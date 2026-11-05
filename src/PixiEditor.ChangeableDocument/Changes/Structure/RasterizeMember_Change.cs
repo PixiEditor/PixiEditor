@@ -43,7 +43,7 @@ internal class RasterizeMember_Change : Change
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
-        Node node = target.FindMember(memberId);
+        StructureNode node = target.FindMember(memberId);
         
         IRasterizable rasterizable = (IRasterizable)node;
         
@@ -51,6 +51,8 @@ internal class RasterizeMember_Change : Change
         imageLayer.MemberName = node.DisplayName;
         imageLayer.Position = node.Position;
         imageLayer.Id = createdNodeId;
+        imageLayer.BlendMode.NonOverridenValue = node.BlendMode.NonOverridenValue;
+        imageLayer.Opacity.NonOverridenValue = node.Opacity.NonOverridenValue;
 
         target.NodeGraph.AddNode(imageLayer);
         
