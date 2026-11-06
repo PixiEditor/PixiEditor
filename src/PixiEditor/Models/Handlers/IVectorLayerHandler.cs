@@ -6,4 +6,5 @@ namespace PixiEditor.Models.Handlers;
 internal interface IVectorLayerHandler : ILayerHandler
 {
     public IReadOnlyShapeVectorData? GetShapeData(KeyFrameTime frameTime);
+    void UpdateLayerTypeIcon();
 }

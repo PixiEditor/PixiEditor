@@ -1264,4 +1264,9 @@ internal class DocumentOperationsModule : IDocumentOperations
             Internals.ChangeController.TryStartExecutor(new TransformSelectedExecutor(true));
         });
     }
+
+    public void MoveNode(Guid toMove, Guid moveOnto)
+    {
+        Internals.ActionAccumulator.AddFinishedActions(new MoveNode_Action(toMove, moveOnto));
+    }
 }

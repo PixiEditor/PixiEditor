@@ -34,4 +34,10 @@ public class InvertFilterNode : FilterNode
     {
         return new InvertFilterNode();
     }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        filter?.Dispose();
+    }
 }

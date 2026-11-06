@@ -103,4 +103,10 @@ public class GrayscaleNode : FilterNode
         Average,
         Custom
     }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        filter?.Dispose();
+    }
 }

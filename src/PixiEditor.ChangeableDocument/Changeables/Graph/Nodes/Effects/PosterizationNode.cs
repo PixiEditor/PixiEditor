@@ -18,6 +18,8 @@ public class PosterizationNode : RenderNode, IRenderInput
     public InputProperty<PosterizationMode> Mode { get; }
     public InputProperty<int> Levels { get; }
     public InputProperty<ColorSpaceType> PosterizationColorSpace { get; }
+
+    public OutputProperty<Filter> Filter { get; }
     
     private Paint paint;
     private Shader shader;
@@ -76,6 +78,7 @@ public class PosterizationNode : RenderNode, IRenderInput
         
         paint = new Paint();
         paint.BlendMode = BlendMode.Src;
+        Filter = CreateOutput<Filter>("Filter", "FILTER", null);
         Output.FirstInChain = null;
     }
 
@@ -85,11 +88,15 @@ public class PosterizationNode : RenderNode, IRenderInput
         lastDocumentSize = context.RenderOutputSize;
         
         Uniforms uniforms = new Uniforms();
-        uniforms.Add("iImage", new Uniform("iImage", lastImageShader));
+        //uniforms.Add("iImage", new Uniform("iImage", lastImageShader));
         uniforms.Add("iMode", new Uniform("iMode", (int)Mode.Value));
         uniforms.Add("iLevels", new Uniform("iLevels", (float)Levels.Value));
+        uniforms.Add("iImage", new Uniform("iImage", (Shader)null));
         shader?.Dispose();
         shader = Shader.Create(shaderCode, uniforms, out _);
+
+        Filter.Value?.Dispose();
+        Filter.Value = new Filter(null, ImageFilter.CreateShader(shader, false));
     }
     
     protected override void OnPaint(RenderContext context, Canvas surface)

@@ -21,6 +21,9 @@ using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Dock;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Document.Nodes;
+using PixiEditor.ViewModels.Layers;
+using PixiEditor.Views;
+using PixiEditor.Views.Dialogs;
 using PixiEditor.Views.Overlays.TextOverlay;
 
 namespace PixiEditor.ViewModels.SubViewModels;
@@ -336,6 +339,37 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
             return;
 
         nestedDocVm.Document.Operations.UnlinkNestedDocument(nestedDocVm.Id);
+    }
+
+    [Command.Basic("PixiEditor.Layer.OpenFilters", "OPEN_FILTERS_PANEL", "OPEN_FILTERS_PANEL_DESCRIPTIVE",
+        CanExecute = "PixiEditor.Layer.HasSelectedMembers",
+        Icon = PixiPerfectIcons.List, AnalyticsTrack = true)]
+    public void OpenFiltersPanel()
+    {
+        var document = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (document?.SelectedStructureMember == null) return;
+
+        FiltersPopup popup = new FiltersPopup();
+        var vm = new FiltersPopupViewModel() { Document = document, StructureMember = document.SelectedStructureMember };
+        vm.StructureMemberInvalid += popup.Close;
+        popup.DataContext = vm;
+        popup.Closing += (sender, args) => vm.UnsubscribeFromChanges();
+
+        popup.Show(MainWindow.Current);
+    }
+
+    [Command.Internal("PixiEditor.Layer.OpenFilterForLayer")]
+    public void OpenFiltersPanelForLayer(IStructureMemberHandler member)
+    {
+        if (member == null) return;
+
+        FiltersPopup popup = new FiltersPopup();
+        var vm = new FiltersPopupViewModel() { Document = member.Document as DocumentViewModel, StructureMember = member };
+        vm.StructureMemberInvalid += popup.Close;
+        popup.DataContext = vm;
+        popup.Closing += (sender, args) => vm.UnsubscribeFromChanges();
+
+        popup.Show(MainWindow.Current);
     }
 
     [Command.Internal("PixiEditor.Layer.CreateNestedFromLayer")]
