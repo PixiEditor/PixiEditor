@@ -1624,9 +1624,14 @@
   "GREEN_COLOR_CHANNEL": "Green channel",
   "BLUE_COLOR_CHANNEL": "Blue channel",
   "ALPHA_COLOR_CHANNEL": "Alpha channel",
-  "COLOR_TINT_FILTER_NODE": "Color Tint Filter",
-  "TINT_PROPERTY": "Tint",
+  "COLOR_OVERLAY_FILTER_NODE": "Color Overlay Filter",
   "NOISE_SCALE": "Noise Scale",
   "DISPLACE_BRUSH": "Displace",
-  "DISTORTION": "Distortion"
+  "DISTORTION": "Distortion",
+  "OPEN_FILTERS_PANEL": "Open Filters Panel",
+  "OPEN_FILTERS_PANEL_DESCRIPTIVE": "Open Filters Panel for a selected layer",
+  "OFFSET_FILTER_NODE": "Offset Filter",
+  "NOISE_DISPLACEMENT_FILTER_NODE": "Noise Displacement Filter",
+  "TURBULENCE_NOISE_PROPERTY": "Turbulence Noise",
+  "FREQUENCY_PROPERTY": "Frequency"
 }

@@ -24,7 +24,17 @@ public partial class FiltersPopup : PixiEditorPopup
         base.OnAttachedToVisualTree(e);
         Dispatcher.Post(() =>
         {
-            AddFilterButton.Flyout.IsOpen = true;
+            if (DataContext is FiltersPopupViewModel vm)
+            {
+                if (vm.LayerFilters.Count == 0)
+                {
+                    AddFilterButton.Flyout.IsOpen = true;
+                }
+                else
+                {
+                    vm.SelectedFilter = vm.LayerFilters.FirstOrDefault();
+                }
+            }
         }, DispatcherPriority.Input);
     }
 

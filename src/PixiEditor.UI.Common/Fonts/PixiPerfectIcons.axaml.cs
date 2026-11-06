@@ -36,6 +36,7 @@ public static partial class PixiPerfectIcons
     public const string ChainBreak = "\uE9D4";
     public const string Check = "\uE98A";
     public const string CheckTick = "\uE97E";
+    public const string Checker = "\uEA01";
     public const string ChevronDown = "\uE92C";
     public const string ChevronLeft = "\uE92D";
     public const string ChevronRight = "\uE92E";
@@ -66,7 +67,9 @@ public static partial class PixiPerfectIcons
     public const string Crossroad = "\uE91D";
     public const string Database = "\uE93D";
     public const string Deselect = "\uE93E";
+    public const string Dilate = "\uEA00";
     public const string Discord = "\uE911";
+    public const string Displacement = "\uE9FF";
     public const string DistanceStabilizer = "\uE9D7";
     public const string Dot = "\uE983";
     public const string Download = "\uE99F";
@@ -80,6 +83,7 @@ public static partial class PixiPerfectIcons
     public const string EllipsisVertical = "\uE9DB";
     public const string Equal = "\uE9E6";
     public const string Eraser = "\uE96D";
+    public const string Erode = "\uE9FE";
     public const string EthernetPort = "\uE9D5";
     public const string Exit = "\uE943";
     public const string Extensions = "\uE9E9";
@@ -97,9 +101,12 @@ public static partial class PixiPerfectIcons
     public const string FolderPlus = "\uE94C";
     public const string Fullscreen = "\uE9AC";
     public const string Fx = "\uE9FD";
+    public const string FxSimple = "\uEA02";
+    public const string FxSquare = "\uEA03";
     public const string Gamepad = "\uE9ED";
     public const string Ghost = "\uE916";
     public const string Github = "\uE99A";
+    public const string Glass = "\uEA04";
     public const string Globe = "\uE94E";
     public const string Gradient = "\uE9DD";
     public const string Grid = "\uE94F";
@@ -159,9 +166,12 @@ public static partial class PixiPerfectIcons
     public const string NewMask = "\uE963";
     public const string Nodes = "\uE9A4";
     public const string Noise = "\uE910";
+    public const string NoiseDisplacement = "\uEA05";
     public const string NumbersBinaryDown = "\uE915";
+    public const string Offset = "\uEA06";
     public const string Onion = "\uE9A5";
     public const string Outline = "\uE9BA";
+    public const string Overlay = "\uEA07";
     public const string PackageOpen = "\uE9E3";
     public const string PaintBrush = "\uE90A";
     public const string Paste = "\uE964";
@@ -224,11 +234,13 @@ public static partial class PixiPerfectIcons
     public const string Swatches = "\uE9A2";
     public const string TakeItem = "\uE914";
     public const string Tally5 = "\uE9E2";
+    public const string Tangent = "\uEA08";
     public const string Terminal = "\uE9BB";
     public const string TextAntialiased = "\uE9AE";
     public const string TextPixel = "\uE9B4";
     public const string TextRound = "\uE9B9";
     public const string TextUnderline = "\uE9B8";
+    public const string Tile = "\uEA09";
     public const string TimeStabilizer = "\uE9D6";
     public const string Timeline = "\uE9A3";
     public const string Tool = "\uE977";

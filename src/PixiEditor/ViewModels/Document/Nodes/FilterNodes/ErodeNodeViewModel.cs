@@ -3,7 +3,7 @@ using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document.Nodes.FilterNodes;
 
-[NodeViewModel("ERODE_NODE", "FILTERS", null)]
+[NodeViewModel("ERODE_NODE", "FILTERS", PixiPerfectIcons.Erode)]
 internal class ErodeNodeViewModel : FilterNodeViewModel<ErodeNode>
 {
 }

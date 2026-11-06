@@ -358,6 +358,20 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         popup.Show(MainWindow.Current);
     }
 
+    [Command.Internal("PixiEditor.Layer.OpenFilterForLayer")]
+    public void OpenFiltersPanelForLayer(IStructureMemberHandler member)
+    {
+        if (member == null) return;
+
+        FiltersPopup popup = new FiltersPopup();
+        var vm = new FiltersPopupViewModel() { Document = member.Document as DocumentViewModel, StructureMember = member };
+        vm.StructureMemberInvalid += popup.Close;
+        popup.DataContext = vm;
+        popup.Closing += (sender, args) => vm.UnsubscribeFromChanges();
+
+        popup.Show(MainWindow.Current);
+    }
+
     [Command.Internal("PixiEditor.Layer.CreateNestedFromLayer")]
     public void CreateNestedFromLayer(Guid layerGuid)
     {

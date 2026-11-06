@@ -3,8 +3,8 @@ using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document.Nodes.FilterNodes;
 
-[NodeViewModel("COLOR_TINT_FILTER_NODE", "FILTERS", PixiPerfectIcons.ColorsSwap)]
-internal class ColorTintFilterNodeViewModel : FilterNodeViewModel<ColorTintFilterNode>
+[NodeViewModel("COLOR_OVERLAY_FILTER_NODE", "FILTERS", PixiPerfectIcons.Overlay)]
+internal class ColorOverlayFilterNodeViewModel : FilterNodeViewModel<ColorOverlayFilterNode>
 {
 
 }

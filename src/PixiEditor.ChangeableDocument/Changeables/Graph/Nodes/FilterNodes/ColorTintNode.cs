@@ -6,32 +6,35 @@ using PixiEditor.ChangeableDocument.Rendering;
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 
 [NodeInfo("ColorTint")]
-public class ColorTintFilterNode : FilterNode
+public class ColorOverlayFilterNode : FilterNode
 {
-    public InputProperty<Color> Tint { get; }
+    public InputProperty<Color> Color { get; }
+    public InputProperty<BlendMode> BlendMode { get; }
 
     private ColorFilter? lastColorFilter;
-    private Color lastTint;
+    private Color lastColor;
 
-    public ColorTintFilterNode()
+    public ColorOverlayFilterNode()
     {
-        Tint = CreateInput("Tint", "TINT_PROPERTY", Colors.White);
+        Color = CreateInput("Color", "COLOR", Colors.White);
+        BlendMode = CreateInput("BlendMode", "BLEND_MODE", Drawie.Backend.Core.Surfaces.BlendMode.SrcIn);
     }
 
     protected override ColorFilter? GetColorFilter(RenderContext context)
     {
-        if (lastTint == Tint.Value)
+        if (lastColor == Color.Value)
         {
             return lastColorFilter;
         }
 
-        lastColorFilter = ColorFilter.CreateBlendMode(Tint.Value, BlendMode.SrcIn);
+        lastColorFilter = ColorFilter.CreateBlendMode(Color.Value, BlendMode.Value);
+        lastColor = Color.Value;
 
         return lastColorFilter;
     }
 
     public override Node CreateCopy()
     {
-        return new ColorTintFilterNode();
+        return new ColorOverlayFilterNode();
     }
 }

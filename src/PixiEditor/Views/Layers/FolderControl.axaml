@@ -83,7 +83,7 @@
                             Margin="3,0,0,0"
                             RenderOptions.BitmapInterpolationMode="None"
                             IsVisible="{Binding Folder.HasMaskBindable, ElementName=folderControl}"
-                            BorderBrush="White">
+                            BorderBrush="{DynamicResource ThemeForegroundBrush}">
                             <Border.Background>
                                 <ImageBrush Source="/Images/CheckerTile.png" TileMode="Tile">
                                     <ImageBrush.Transform>
@@ -112,10 +112,6 @@
                                     VerticalAlignment="Center"
                                     Text="{Binding Folder.NodeNameBindable, ElementName=folderControl, Mode=TwoWay}" />
                                 <!--Don't change above Text to Translator.Key, it will break renaming-->
-                                <TextBlock
-                                    Text="{DynamicResource icon-lock}" FontSize="14" Width="14" Height="14"
-                                    Classes="pixi-icon"
-                                    IsVisible="{Binding Folder.IsLockedBindable, ElementName=folderControl}" />
                             </StackPanel>
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock d:Text="100" Foreground="White" FontSize="11">
@@ -128,19 +124,56 @@
                                         </Binding>
                                     </TextBlock.Text>
                                 </TextBlock>
-                                <TextBlock Foreground="White" FontSize="11">%</TextBlock>
+                                <TextBlock Foreground="{DynamicResource ThemeForegroundBrush}" FontSize="11">%</TextBlock>
                                 <TextBlock
                                     Margin="5,0,0,0"
                                     d:Text="Normal"
-                                    Foreground="White"
+                                    Foreground="{DynamicResource ThemeForegroundBrush}"
                                     FontSize="11"
                                     Text="{Binding Folder.BlendModeBindable, ElementName=folderControl, Converter={converters:BlendModeToStringConverter}}" />
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
                 </StackPanel>
-                <TextBlock Grid.Column="1" Text="{DynamicResource icon-folder}" Classes="pixi-icon" FontSize="20" Margin="0,0,10,0"
-                           HorizontalAlignment="Right" />
+
+                <WrapPanel Grid.Column="1" HorizontalAlignment="Right" ItemSpacing="5" VerticalAlignment="Center"
+                           Margin="0, 0, 8, 0">
+                    <WrapPanel.Styles>
+                        <Style Selector="ToggleButton.dim">
+                            <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundLowBrush}" />
+                        </Style>
+                        <Style Selector="ToggleButton.isSet">
+                            <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}" />
+                        </Style>
+                    </WrapPanel.Styles>
+                    <ToggleButton
+                        Content="{DynamicResource icon-lock}"
+                        IsChecked="{Binding ElementName=folderControl, Path=Folder.IsLockedBindable, Mode=TwoWay}"
+                        Background="Transparent"
+                        Classes="pixi-icon dim"
+                        Classes.isSet="{Binding ElementName=folderControl, Path=Folder.IsLockedBindable}"
+                        FontSize="16">
+                        <ToggleButton.Opacity>
+                            <MultiBinding Converter="{converters:AnyTrueToOpacityConverter}">
+                                <Binding ElementName="folderControl" Path="Folder.IsLockedBindable" />
+                                <Binding ElementName="folderControl" Path="IsPointerOver" />
+                            </MultiBinding>
+                        </ToggleButton.Opacity>
+                    </ToggleButton>
+
+                    <Button
+                        Content="{DynamicResource icon-fx-simple}"
+                        Classes="pixi-icon"
+                        FontSize="16"
+                        Command="{xaml:Command Name=PixiEditor.Layer.OpenFilterForLayer, UseProvided=True}"
+                        CommandParameter="{Binding ElementName=folderControl, Path=Folder}"
+                        IsVisible="{Binding Folder.HasFilters, ElementName=folderControl}" />
+
+                    <Line StrokeLineCap="Round" StartPoint="0,0" EndPoint="0,22" Stroke="{DynamicResource ThumbBrush}"
+                          StrokeThickness="1" />
+
+                    <TextBlock Text="{DynamicResource icon-folder}" Classes="pixi-icon" FontSize="16" />
+                </WrapPanel>
             </Grid>
             <Grid
                 Grid.Row="2"

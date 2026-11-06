@@ -103,7 +103,7 @@
                     DockPanel.Dock="Right"
                     Classes="pixi-icon"
                     Focusable="False"
-                    Content="{DynamicResource icon-fx}"
+                    Content="{DynamicResource icon-fx-square}"
                     FlowDirection="LeftToRight" />
                 <Grid />
             </DockPanel>
