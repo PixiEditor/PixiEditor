@@ -45,4 +45,10 @@ public class SepiaFilterNode : FilterNode
     {
         return new SepiaFilterNode();
     }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        lastFilter?.Dispose();
+    }
 }

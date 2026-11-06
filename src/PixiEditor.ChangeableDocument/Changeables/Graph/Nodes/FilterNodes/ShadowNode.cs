@@ -15,6 +15,12 @@ public class ShadowNode : FilterNode
     public InputProperty<VecD> Sigma { get; }
     public InputProperty<Color> Color { get; }
 
+    private ImageFilter? lastFilter;
+
+    private VecD lastOffset;
+    private VecD lastSigma;
+    private Color lastColor;
+
     // Shadow is displayed at different position than the layer (adds pixels outside), this makes iterative rendering not possible
     public override bool SupportsIterativeRendering => false;
 
@@ -27,11 +33,26 @@ public class ShadowNode : FilterNode
 
     protected override ImageFilter? GetImageFilter(RenderContext context)
     {
-        return ImageFilter.CreateDropShadow((float)Offset.Value.X, (float)Offset.Value.Y, (float)Sigma.Value.X, (float)Sigma.Value.Y, Color.Value, null);
+        if(lastColor == Color.Value && lastOffset.AlmostEquals(Offset.Value) && lastSigma.AlmostEquals(Sigma.Value))
+            return lastFilter;
+
+        lastColor = Color.Value;
+        lastOffset = Offset.Value;
+        lastSigma = Sigma.Value;
+
+        lastFilter?.Dispose();
+        lastFilter = ImageFilter.CreateDropShadow((float)Offset.Value.X, (float)Offset.Value.Y, (float)Sigma.Value.X, (float)Sigma.Value.Y, Color.Value, null);
+        return lastFilter;
     }
 
     public override Node CreateCopy()
     {
         return new ShadowNode();
+    }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        lastFilter?.Dispose();
     }
 }

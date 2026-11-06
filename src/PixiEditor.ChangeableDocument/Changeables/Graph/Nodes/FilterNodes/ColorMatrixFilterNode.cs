@@ -11,7 +11,7 @@ public class ColorMatrixFilterNode : FilterNode
 
     private ColorFilter filter;
     private ColorMatrix lastMatrix;
-    
+
     public ColorMatrixFilterNode()
     {
         Matrix = CreateInput(nameof(Matrix), "MATRIX", ColorMatrix.Identity);
@@ -23,13 +23,19 @@ public class ColorMatrixFilterNode : FilterNode
         {
             return filter;
         }
-        
+
         lastMatrix = Matrix.Value;
         filter?.Dispose();
-        
+
         filter = ColorFilter.CreateColorMatrix(Matrix.Value);
         return filter;
     }
 
     public override Node CreateCopy() => new ColorMatrixFilterNode();
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        filter?.Dispose();
+    }
 }

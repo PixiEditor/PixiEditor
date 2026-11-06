@@ -65,7 +65,7 @@
                         <Grid ColumnDefinitions="24,*,24" ColumnSpacing="4" VerticalAlignment="Center">
                             <TextBlock Grid.Column="0" HorizontalAlignment="Right" Classes="pixi-icon"
                                        Text="{Binding Node.Icon}" />
-                            <TextBlock Grid.Column="1" HorizontalAlignment="Left" MaxWidth="120" TextTrimming="CharacterEllipsis"
+                            <TextBlock Grid.Column="1" HorizontalAlignment="Left" MaxWidth="115" TextTrimming="CharacterEllipsis"
                                        localization:Translator.Key="{Binding Node.DisplayName}" />
                             <CheckBox Grid.Column="2"
                                       AttachedToVisualTree="Visual_OnAttachedToVisualTree"

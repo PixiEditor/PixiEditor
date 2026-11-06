@@ -36,4 +36,10 @@ public class ErodeNode : FilterNode
     {
         return new ErodeNode();
     }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        lastFilter?.Dispose();
+    }
 }

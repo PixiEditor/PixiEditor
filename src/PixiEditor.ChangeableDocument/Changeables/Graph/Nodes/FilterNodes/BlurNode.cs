@@ -94,4 +94,10 @@ public class BlurNode : FilterNode
     }
 
     public override Node CreateCopy() => new BlurNode();
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        lastFilter?.Dispose();
+    }
 }

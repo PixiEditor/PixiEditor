@@ -36,4 +36,10 @@ public class DilateNode : FilterNode
     {
         return new DilateNode();
     }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        lastFilter?.Dispose();
+    }
 }

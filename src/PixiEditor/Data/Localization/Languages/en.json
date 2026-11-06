@@ -1623,5 +1623,10 @@
   "RED_COLOR_CHANNEL": "Red channel",
   "GREEN_COLOR_CHANNEL": "Green channel",
   "BLUE_COLOR_CHANNEL": "Blue channel",
-  "ALPHA_COLOR_CHANNEL": "Alpha channel"
+  "ALPHA_COLOR_CHANNEL": "Alpha channel",
+  "COLOR_TINT_FILTER_NODE": "Color Tint Filter",
+  "TINT_PROPERTY": "Tint",
+  "NOISE_SCALE": "Noise Scale",
+  "DISPLACE_BRUSH": "Displace",
+  "DISTORTION": "Distortion"
 }
