@@ -27,7 +27,8 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
     {
         MemberName = MemberName,
         ClipToPreviousMember = this.ClipToPreviousMember,
-        EmbeddedMask = this.EmbeddedMask?.CloneFromCommitted()
+        EmbeddedMask = this.EmbeddedMask?.CloneFromCommitted(),
+        IsLocked = this.IsLocked,
     };
 
     public override VecD GetScenePosition(KeyFrameTime time) =>
@@ -92,6 +93,9 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
             var intermediate = RequestTexture(sceneContext.GraphCacheId + 5,
                 sceneContext.RenderSurface.DeviceClipBounds.Pos + sceneContext.RenderSurface.DeviceClipBounds.Size,
                 sceneContext.ProcessingColorSpace);
+
+            intermediate.DrawingSurface.Canvas.SetMatrix(sceneContext.RenderSurface.TotalMatrix);
+            sceneContext.RenderSurface.SetMatrix(Matrix3X3.Identity);
 
             target = intermediate.DrawingSurface.Canvas;
             intermediate.DrawingSurface.Canvas.Save();

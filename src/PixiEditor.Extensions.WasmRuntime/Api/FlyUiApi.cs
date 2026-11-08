@@ -20,7 +20,13 @@ internal class FlyUIApi : ApiGroupHandler
             var dataPtr = WasmMemoryUtility.WriteBytes(data);
             int dataSize = data.Length;
 
-            action.Invoke(controlId, ptr, dataPtr, dataSize);
+            int targetControl = controlId;
+            if (args.Sender is LayoutElement elem)
+            {
+                targetControl = elem.UniqueId;
+            }
+
+            action.Invoke(targetControl, ptr, dataPtr, dataSize);
             WasmMemoryUtility.Free(ptr);
             WasmMemoryUtility.Free(dataPtr);
         });

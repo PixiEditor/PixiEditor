@@ -31,7 +31,7 @@ internal class QuickChangeLayerColorsExecutor : UpdateableChangeExecutor, IQuick
 
     private void EnqueueColorChange(Color color)
     {
-        internals.ActionAccumulator.AddActions(new QuickChangeLayersColor_Action(LayerGuids, color));
+        internals.ActionAccumulator.AddActions(new QuickChangeLayersColor_Action(document.AnimationHandler.ActiveFrameBindable, LayerGuids, color));
     }
 
     public override void OnColorChanged(Color color, bool primary)

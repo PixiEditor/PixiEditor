@@ -191,7 +191,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
     public KeyFrameTime ActiveFrameTime => new KeyFrameTime(ActiveFrameBindable, ActiveNormalizedTime);
 
     public Guid? CreateCel(Guid targetLayerGuid, int frame, Guid? toCloneFrom = null,
-        int? frameToCopyFrom = null)
+        int? frameToCopyFrom = null, bool inheritDuration = false)
     {
         if (!Document.BlockingUpdateableChangeActive)
         {
@@ -199,7 +199,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
             Guid newCelGuid = Guid.NewGuid();
             Internals.ActionAccumulator.AddFinishedActions(new CreateCel_Action(targetLayerGuid,
                 newCelGuid, Math.Max(1, frame),
-                frameToCopyFrom ?? -1, toCloneFrom ?? Guid.Empty));
+                frameToCopyFrom ?? -1, toCloneFrom ?? Guid.Empty, inheritDuration));
             return newCelGuid;
         }
 

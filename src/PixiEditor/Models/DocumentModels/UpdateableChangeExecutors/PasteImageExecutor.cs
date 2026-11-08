@@ -41,7 +41,9 @@ internal class PasteImageExecutor : UpdateableChangeExecutor, ITransformableExec
             var member = document!.SelectedStructureMember;
 
             if (member is null)
+            if (member is null || member.IsLockedBindable)
                 return ExecutionState.Error;
+            
             drawOnMask = member is not ILayerHandler layer || layer.ShouldDrawOnMask;
 
             switch (drawOnMask)
@@ -59,7 +61,7 @@ internal class PasteImageExecutor : UpdateableChangeExecutor, ITransformableExec
         if (NeedsCel())
         {
             actions.Add(new CreateCel_Action(memberGuid.Value, Guid.NewGuid(),
-                document.AnimationHandler.ActiveFrameBindable, -1, Guid.Empty));
+                document.AnimationHandler.ActiveFrameBindable, -1, Guid.Empty, false));
         }
 
         actions.Add(
@@ -75,7 +77,7 @@ internal class PasteImageExecutor : UpdateableChangeExecutor, ITransformableExec
         document.Operations.InvokeCustomAction(() =>
         {
             restoreSnapping = SimpleShapeToolExecutor.DisableSelfSnapping(memberGuid.Value, document);
-        });
+        }, false);
 
         return ExecutionState.Success;
     }

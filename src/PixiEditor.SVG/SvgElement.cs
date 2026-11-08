@@ -111,9 +111,6 @@ public class SvgElement(string tagName)
         {
             while (reader.MoveToNextAttribute())
             {
-                string name = reader.Name;
-                string value = reader.Value;
-
                 SvgProperty matchingProperty = properties.FirstOrDefault(x =>
                     string.Equals(x.SvgFullName, reader.Name, StringComparison.OrdinalIgnoreCase));
                 if (matchingProperty != null)

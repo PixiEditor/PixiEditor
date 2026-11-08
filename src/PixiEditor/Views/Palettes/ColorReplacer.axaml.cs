@@ -1,4 +1,5 @@
-﻿using System.Windows.Input;
+﻿using System.Text;
+using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -76,7 +77,14 @@ internal partial class ColorReplacer : UserControl
     {
         if (e.DataTransfer.Contains(ClipboardDataFormats.PaletteColorDaoFormat))
         {
-            string hex = (string)e.DataTransfer.GetItems(ClipboardDataFormats.PaletteColorDaoFormat).FirstOrDefault()?.TryGetRaw(ClipboardDataFormats.PaletteColorDaoFormat);
+            byte[]? bytes = (byte[]?)e.DataTransfer.GetItems(ClipboardDataFormats.PaletteColorDaoFormat)
+                .FirstOrDefault()?.TryGetRaw(ClipboardDataFormats.PaletteColorDaoFormat);
+            string hex = null;
+            if (bytes != null)
+            {
+                hex = Encoding.UTF8.GetString(bytes);
+            }
+
             if (hex is null)
             {
                 return;

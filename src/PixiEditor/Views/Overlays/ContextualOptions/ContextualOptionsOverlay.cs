@@ -59,22 +59,31 @@ public class ContextualOptionsOverlay : Overlay
         ContextualOptionsOverlay overlay = (ContextualOptionsOverlay)avaloniaPropertyChangedEventArgs.Sender;
         overlay.Handles.Clear();
         optionHandles.Clear();
-        foreach (ContextualOption option in avaloniaPropertyChangedEventArgs.NewValue.Value)
+        if(avaloniaPropertyChangedEventArgs.OldValue != null && avaloniaPropertyChangedEventArgs.OldValue.Value != null)
         {
-            ButtonHandle handle = new ButtonHandle(overlay, option.ExecuteCommand)
-            {
-                Icon = option.Icon, HitTestVisible = true, ToolTip = new LocalizedString(option.Name)
-            };
-
-            handle.StrokePaint = null;
-            handle.FillPaint = null;
-
-            overlay.AddHandle(handle);
-            optionHandles[option] = handle;
+            avaloniaPropertyChangedEventArgs.OldValue.Value.CollectionChanged -= overlay.OnOptionsCollectionChanged;
         }
 
-        avaloniaPropertyChangedEventArgs.OldValue.Value?.CollectionChanged -= overlay.OnOptionsCollectionChanged;
-        avaloniaPropertyChangedEventArgs.NewValue.Value?.CollectionChanged += overlay.OnOptionsCollectionChanged;
+        if (avaloniaPropertyChangedEventArgs.NewValue != null &&
+            avaloniaPropertyChangedEventArgs.NewValue.Value != null)
+        {
+            foreach (ContextualOption option in avaloniaPropertyChangedEventArgs.NewValue.Value)
+            {
+                ButtonHandle handle = new ButtonHandle(overlay, option.ExecuteCommand)
+                {
+                    Icon = option.Icon, HitTestVisible = true, ToolTip = new LocalizedString(option.Name)
+                };
+
+                handle.StrokePaint = null;
+                handle.FillPaint = null;
+
+                overlay.AddHandle(handle);
+                optionHandles[option] = handle;
+            }
+
+            avaloniaPropertyChangedEventArgs.NewValue.Value?.CollectionChanged += overlay.OnOptionsCollectionChanged;
+        }
+
     }
 
     protected override void OnRenderOverlay(Canvas context, RectD canvasBounds)
@@ -121,8 +130,10 @@ public class ContextualOptionsOverlay : Overlay
             {
                 RemoveHandle(handle);
             }
+
             optionHandles.Clear();
         }
+
         if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
         {
             foreach (ContextualOption option in e.NewItems!)

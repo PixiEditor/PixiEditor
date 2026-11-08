@@ -131,12 +131,22 @@ internal partial class LayerControl : UserControl
             if (droppedLayer is null)
                 return null;
 
-            if (droppedLayer is LayersData droppedLayerGuid)
-                return droppedLayerGuid.LayerIds;
-
-            if (droppedLayer is LayersData[] droppedLayerGuids)
+            if (droppedLayer is byte[][] byteArray)
             {
-                return droppedLayerGuids.SelectMany(x => x.LayerIds).ToArray();
+                if (byteArray.Length > 0)
+                {
+                    string commaSeparatedGuids = System.Text.Encoding.UTF8.GetString(byteArray[0]);
+                    return commaSeparatedGuids.Split(',').Select(x => Guid.TryParse(x, out var guid) ? guid : Guid.Empty).ToArray();
+                }
+            }
+            
+            if (droppedLayer is byte[] bytes)
+            {
+                if (bytes.Length > 0)
+                {
+                    string commaSeparatedGuids = System.Text.Encoding.UTF8.GetString(bytes);
+                    return commaSeparatedGuids.Split(',').Select(x => Guid.TryParse(x, out var guid) ? guid : Guid.Empty).ToArray();
+                }
             }
 
             return null;

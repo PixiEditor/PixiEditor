@@ -129,7 +129,7 @@ internal class DocumentOperationsModule : IDocumentOperations
                 if (!opped.IsEmpty)
                 {
                     // TODO: Cut vectors
-                    Internals.ActionAccumulator.AddActions(new DeleteNode_Action(member.Id));
+                    Internals.ActionAccumulator.AddActions(new DeleteStructureMember_Action(member.Id));
                 }
             }
             else
@@ -365,6 +365,12 @@ internal class DocumentOperationsModule : IDocumentOperations
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
 
+        if (Document.SelectionPathBindable?.IsEmpty == false)
+        {
+            DeleteSelectedPixels(Document.AnimationHandler.ActiveFrameBindable);
+            return;
+        }
+
         Internals.ChangeController.TryStopActiveExecutor();
 
         Internals.ActionAccumulator.AddFinishedActions(new DeleteStructureMember_Action(guidValue));
@@ -378,6 +384,12 @@ internal class DocumentOperationsModule : IDocumentOperations
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
+
+        if (Document.SelectionPathBindable?.IsEmpty == false)
+        {
+            DeleteSelectedPixels(Document.AnimationHandler.ActiveFrameBindable);
+            return;
+        }
 
         Internals.ChangeController.TryStopActiveExecutor();
 
@@ -1218,6 +1230,14 @@ internal class DocumentOperationsModule : IDocumentOperations
         Internals.ChangeController.TryStopActiveExecutor();
 
         Internals.ActionAccumulator.AddFinishedActions(new ResetTransform_Action(member));
+    }
+    
+    public void ResetLastBrushToolUseEndPosition()
+    {
+        if (Internals.ChangeController.IsBlockingChangeActive)
+            return;
+        
+        Internals.ActionAccumulator.AddActions(new ResetLastBrushToolUseEndPosition_Action());
     }
 
     public void QuickChangeLayerColor(Guid[] layers, Color color)

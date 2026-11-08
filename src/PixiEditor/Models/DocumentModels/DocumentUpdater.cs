@@ -95,6 +95,9 @@ internal class DocumentUpdater
             case Size_ChangeInfo info:
                 ProcessSize(info);
                 break;
+            case LastBrushToolUsePosition_ChangeInfo info:
+                ProcessLastBrushToolUsePosition(info);
+                break;
             case RefreshViewport_PassthroughAction info:
                 ProcessRefreshViewport(info);
                 break;
@@ -259,6 +262,11 @@ internal class DocumentUpdater
         }
     }
 
+    private void ProcessLastBrushToolUsePosition(LastBrushToolUsePosition_ChangeInfo info)
+    {
+        doc.SetLastBrushToolUseEndPosition(info.newValue);
+    }
+
     private void ProcessError(ChangeError_Info info)
     {
         Dispatcher.UIThread.Post(() =>
@@ -409,10 +417,11 @@ internal class DocumentUpdater
         IStructureMemberHandler? memberVm = doc.StructureHelper.FindOrThrow(info.Id);
 
         memberVm.SetHasMask(info.HasMask);
-        // TODO: Make sure HasMask raises property changed internally
-        //memberVm.OnPropertyChanged(nameof(memberVm.MaskPreviewBitmap));
         if (!info.HasMask && memberVm is ILayerHandler layer)
             layer.ShouldDrawOnMask = false;
+
+        doc.InternalRaiseMaskChanged(new MaskChangedEventArgs(info.Id, info.HasMask));
+        doc.InternalRaiseLayersChanged(new LayersChangedEventArgs(info.Id, LayerAction.Add));
     }
 
     private void ProcessRefreshViewport(RefreshViewport_PassthroughAction info)
@@ -1152,6 +1161,8 @@ internal class DocumentUpdater
 
         var selected = doc.SelectedMembers;
         var layers = selected.Select(x => doc.StructureHelper.Find(x));
-        doc.TransformHandler.LockTransform = layers.Any(x => x.IsLockedStructurally);
+        bool layerLocked = layers.Any(x => x.IsLockedStructurally);
+        doc.TransformHandler.LockTransform = layerLocked;
+        doc.PathOverlayHandler.LockEditing = layerLocked;
     }
 }

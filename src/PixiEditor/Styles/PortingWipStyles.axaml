@@ -66,6 +66,16 @@
         </Setter>
     </Style>
 
+    <Style Selector="ToggleButton.favorites-star-toggle">
+        <Setter Property="Content" Value="{DynamicResource icon-star}"/>
+        <Setter Property="Background" Value="Transparent"/>
+    </Style>
+
+    <Style Selector="ToggleButton.favorites-star-toggle:checked">
+        <Setter Property="Content" Value="{DynamicResource icon-star-filled}"/>
+        <Setter Property="Background" Value="Transparent"/>
+    </Style>
+
     <Style Selector="ToggleButton.PlayButton:checked">
         <Setter Property="Content" Value="{DynamicResource icon-pause}" />
         <Setter Property="Foreground" Value="{DynamicResource ThemeAccentHighBrush}"/>

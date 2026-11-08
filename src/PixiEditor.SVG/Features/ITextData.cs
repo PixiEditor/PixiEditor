@@ -9,4 +9,5 @@ public interface ITextData
     public SvgProperty<SvgNumericUnit> FontSize { get; }
     public SvgProperty<SvgEnumUnit<SvgFontWeight>> FontWeight { get; }
     public SvgProperty<SvgEnumUnit<SvgFontStyle>> FontStyle { get; }
+    public SvgProperty<SvgEnumUnit<SvgFontWidth>> FontStretch { get; }
 }

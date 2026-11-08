@@ -55,14 +55,11 @@ namespace PixiEditor.ViewModels.Document;
 internal partial class DocumentViewModel : PixiObservableObject, IDocument
 {
     public event EventHandler<LayersChangedEventArgs>? LayersChanged;
+    public event EventHandler<MaskChangedEventArgs>? MaskChanged;
     public event EventHandler<DocumentSizeChangedEventArgs>? SizeChanged;
     public event Action ToolSessionFinished;
-
-
+    
     private bool busy = false;
-
-
-
     public bool Busy
     {
         get => busy;
@@ -71,7 +68,6 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
 
     private string coordinatesString = "";
-
     public string CoordinatesString
     {
         get => coordinatesString;
@@ -79,7 +75,6 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     }
 
     private string? fullFilePath = null;
-
     public string? FullFilePath
     {
         get => fullFilePath;
@@ -205,6 +200,9 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
     public Dictionary<Guid, Texture> SceneTextures { get; } = new();
 
+    private VecD? lastBrushToolUseEndPosition = null;
+    public VecD? LastBrushToolUseEndPositionBindable => lastBrushToolUseEndPosition;
+
     private VectorPath selectionPath = new VectorPath();
     public VectorPath SelectionPathBindable => selectionPath;
     public ObservableCollection<PaletteColor> Swatches { get; set; } = new();
@@ -319,6 +317,10 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         TextOverlayViewModel.TextChanged += text =>
         {
             Internals.ChangeController.TextOverlayTextChangedInlet(text);
+        };
+        TextOverlayViewModel.SelectionChanged += (start, end) =>
+        {
+            Internals.ChangeController.TextOverlaySelectionChangedInlet(start, end);
         };
 
         SnappingViewModel = new();
@@ -625,10 +627,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                     foreach (var child in group.Children)
                     {
                         acc.AddActions(
-                            new CreateCel_Action(
-                                mappedIds[child.NodeId],
-                                mappedKeyFrameIds[child.KeyFrameId],
-                                -1, -1, default));
+                            new CreateCel_Action(mappedIds[child.NodeId], mappedKeyFrameIds[child.KeyFrameId],
+                                -1, -1, default, false));
 
                         acc.AddFinishedActions();
                     }
@@ -748,6 +748,10 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         }
     }
 
+    public void InternalRaiseMaskChanged(MaskChangedEventArgs maskChangedEventArgs)
+    {
+        MaskChanged?.Invoke(this, maskChangedEventArgs);
+    }
 
     public (string name, VecI originalSize)[] GetAvailableExportOutputs()
     {
@@ -1210,15 +1214,6 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public void InternalRaiseLayersChanged(LayersChangedEventArgs args)
     {
         LayersChanged?.Invoke(this, args);
-        if (queuedLayerReadyToUseActions.Count > 0)
-        {
-            foreach (var action in queuedLayerReadyToUseActions)
-            {
-                action();
-            }
-
-            queuedLayerReadyToUseActions.Clear();
-        }
     }
 
     public void RaiseSizeChanged(DocumentSizeChangedEventArgs args) => SizeChanged?.Invoke(this, args);
@@ -1263,6 +1258,16 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         SelectedStructureMember = member;
         Internals.ChangeController.MembersSelectedInlet(GetSelectedMembers());
         OnPropertyChanged(nameof(SelectedStructureMember));
+        
+        if (queuedLayerReadyToUseActions.Count > 0)
+        {
+            foreach (var action in queuedLayerReadyToUseActions)
+            {
+                action();
+            }
+
+            queuedLayerReadyToUseActions.Clear();
+        }
     }
 
     public void SetHorizontalSymmetryAxisY(double horizontalSymmetryAxisY)
@@ -1286,6 +1291,12 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
         // TODO: Make sure this is correct, it was in InternalRaiseSizeChanged previously, check DocumentUpdater.cs ProcessSize
         SizeChanged?.Invoke(this, new DocumentSizeChangedEventArgs(this, oldSize, size));
+    }
+
+    public void SetLastBrushToolUseEndPosition(VecD? position)
+    {
+        lastBrushToolUseEndPosition = position;
+        OnPropertyChanged(nameof(LastBrushToolUseEndPositionBindable));
     }
 
     public void UpdateSelectionPath(VectorPath vectorPath)

@@ -81,6 +81,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
             }
 
             document.PathOverlayHandler.Show(startingPath, false, AddToUndo);
+            document.PathOverlayHandler.LockEditing = member.IsLockedBindable;
             if (controller.LeftMousePressed)
             {
                 var snapped =

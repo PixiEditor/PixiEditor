@@ -1,4 +1,6 @@
-﻿using Avalonia;
+﻿using System.Globalization;
+using System.Text;
+using Avalonia;
 using Avalonia.Input;
 using Avalonia.Threading;
 using Drawie.Backend.Core.ColorsImpl;
@@ -20,10 +22,10 @@ namespace PixiEditor.Views.Overlays.TextOverlay;
 
 internal class TextOverlay : Overlay
 {
-    public static readonly StyledProperty<string> TextProperty = AvaloniaProperty.Register<TextOverlay, string>(
+    public static readonly StyledProperty<RichText> TextProperty = AvaloniaProperty.Register<TextOverlay, RichText>(
         nameof(Text));
 
-    public string Text
+    public RichText Text
     {
         get => GetValue(TextProperty);
         set => SetValue(TextProperty, value);
@@ -36,15 +38,6 @@ internal class TextOverlay : Overlay
     {
         get => GetValue(PositionProperty);
         set => SetValue(PositionProperty, value);
-    }
-
-    public static readonly StyledProperty<FontData> FontProperty = AvaloniaProperty.Register<TextOverlay, FontData>(
-        nameof(Font), FontData.CreateDefault());
-
-    public FontData Font
-    {
-        get => GetValue(FontProperty);
-        set => SetValue(FontProperty, value);
     }
 
     public static readonly StyledProperty<int> CursorPositionProperty = AvaloniaProperty.Register<TextOverlay, int>(
@@ -74,11 +67,11 @@ internal class TextOverlay : Overlay
         set => SetValue(MatrixProperty, value);
     }
 
-    public static readonly StyledProperty<ExecutionTrigger<string>> RequestEditTextProperty =
-        AvaloniaProperty.Register<TextOverlay, ExecutionTrigger<string>>(
+    public static readonly StyledProperty<ExecutionTrigger<RichText>> RequestEditTextProperty =
+        AvaloniaProperty.Register<TextOverlay, ExecutionTrigger<RichText>>(
             nameof(RequestEditText));
 
-    public ExecutionTrigger<string> RequestEditText
+    public ExecutionTrigger<RichText> RequestEditText
     {
         get => GetValue(RequestEditTextProperty);
         set => SetValue(RequestEditTextProperty, value);
@@ -111,11 +104,20 @@ internal class TextOverlay : Overlay
         set => SetValue(PreviewSizeProperty, value);
     }
 
+    public static readonly StyledProperty<int?> CurrentlyEditingInlineIndexProperty =
+        AvaloniaProperty.Register<TextOverlay, int?>(
+            nameof(CurrentlyEditingInlineIndex));
+
+    public int? CurrentlyEditingInlineIndex
+    {
+        get => GetValue(CurrentlyEditingInlineIndexProperty);
+        set => SetValue(CurrentlyEditingInlineIndexProperty, value);
+    }
+
     private Dictionary<KeyCombination, Action> shortcuts;
 
     private Caret caret = new Caret();
     private VecF[] glyphPositions;
-    private float[] glyphWidths;
     private RichText richText;
     private VecD movedDistance;
     private VecD initialPos;
@@ -133,16 +135,18 @@ internal class TextOverlay : Overlay
 
     private int lastXMovementCursorIndex;
 
+    private TextInline? inlineAtCursor;
+
     static TextOverlay()
     {
         IsVisibleProperty.Changed.Subscribe(IsVisibleChanged);
         RequestEditTextProperty.Changed.Subscribe(RequestEditTextChanged);
         IsEditingProperty.Changed.Subscribe(IsEditingChanged);
         TextProperty.Changed.Subscribe(TextChanged);
-        FontProperty.Changed.Subscribe(FontChanged);
         SpacingProperty.Changed.Subscribe(SpaceChanged);
+        CursorPositionProperty.Changed.Subscribe(CursorPositionChanged);
 
-        AffectsOverlayRender(FontProperty, TextProperty, CursorPositionProperty, SelectionEndProperty,
+        AffectsOverlayRender(TextProperty, CursorPositionProperty, SelectionEndProperty,
             IsEditingProperty,
             MatrixProperty, SpacingProperty);
     }
@@ -256,9 +260,8 @@ internal class TextOverlay : Overlay
     private void RenderCaret(Canvas context)
     {
         caret.CaretPosition = CursorPosition;
-        caret.FontSize = Font.Size;
+        caret.FontSize = inlineAtCursor?.Font.Size ?? 0;
         caret.GlyphPositions = glyphPositions;
-        caret.GlyphWidths = glyphWidths;
         caret.Offset = Position;
 
         caret.CaretWidth = (2f / (float)ZoomScale) / Matrix.ScaleX;
@@ -268,57 +271,63 @@ internal class TextOverlay : Overlay
 
     private void RenderSampleText(Canvas context)
     {
-        var sampleFont = GetFont();
+        using var sampleFont = Text.Inlines.FirstOrDefault().Font.ToFont();
         if (sampleFont == null) return;
         context.DrawText("A", new VecD(Position.X, Position.Y), sampleFont, sampleTextPaint);
     }
 
     private void RenderSelection(Canvas context)
     {
-        if (CursorPosition == SelectionEnd) return;
+        if (CursorPosition == SelectionEnd)
+            return;
 
         int begin = Math.Min(CursorPosition, SelectionEnd);
         int end = Math.Max(CursorPosition, SelectionEnd);
 
-        richText.IndexOnLine(CursorPosition, out int lineStart);
+        VecF[] positions = richText.GetGlyphPositions(true);
+
+        if (positions.Length < 2)
+            return;
+
+        int saved = context.SaveLayer(opacityPaint);
 
         RectD? currentLineBounds = null;
-        int lastLine = lineStart;
-        int saved = context.SaveLayer(opacityPaint);
-        var nativeFont = GetFont();
+        int lastLine = -1;
 
-        if (nativeFont == null) return;
-
-        for (int i = begin; i <= end; i++)
+        for (int i = begin; i < end && i + 1 < positions.Length; i++)
         {
             richText.IndexOnLine(i, out int line);
 
-            if (line != lastLine || i == end)
+            if (line != lastLine && currentLineBounds != null)
             {
-                if (currentLineBounds != null)
-                {
-                    context.DrawRect(currentLineBounds.Value, selectionPaint);
-                }
-
+                context.DrawRect(currentLineBounds.Value, selectionPaint);
                 currentLineBounds = null;
             }
 
             lastLine = line;
 
-            double x = glyphPositions[i].X;
-            double width = glyphWidths[i];
-            VecD lineOffset = richText.GetLineOffset(line, nativeFont);
-            RectD selectionBounds =
-                new RectD(new VecD(x, -Font.Size + lineOffset.Y), new VecD(width, Font.Size * 1.25f)).Offset(Position);
-            if (currentLineBounds == null)
-            {
-                currentLineBounds = selectionBounds;
-            }
-            else
-            {
-                currentLineBounds = currentLineBounds.Value.Union(selectionBounds);
-            }
+            VecF start = positions[i];
+            VecF next = positions[i + 1];
+
+            double width = next.X - start.X;
+
+            if (width <= 0)
+                continue;
+
+            double lineHeight = richText.GetLineHeight(line);
+
+            RectD selectionBounds = new RectD(
+                    new VecD(start.X, start.Y - lineHeight),
+                    new VecD(width, lineHeight * 1.25))
+                .Offset(Position);
+
+            currentLineBounds = currentLineBounds == null
+                ? selectionBounds
+                : currentLineBounds.Value.Union(selectionBounds);
         }
+
+        if (currentLineBounds != null)
+            context.DrawRect(currentLineBounds.Value, selectionPaint);
 
         context.RestoreToCount(saved);
     }
@@ -327,23 +336,8 @@ internal class TextOverlay : Overlay
     {
         VecD mapped = Matrix.Invert().MapPoint(point);
 
-        var nativeFont = GetFont();
-        if (nativeFont == null) return false;
-
-        return richText != null &&
-               richText.MeasureBounds(nativeFont).Offset(Position).Inflate(2).ContainsInclusive(mapped);
-    }
-
-    private Font GetFont()
-    {
-        if (Font.GetCacheHash() != lastCachedFontHash || cachedFont is { IsDisposed: true })
-        {
-            cachedFont?.Dispose();
-            lastCachedFontHash = Font.GetCacheHash();
-            cachedFont = Font.ToFont();
-        }
-
-        return cachedFont;
+        return richText?.RawText != null &&
+               richText.MeasureBounds().Offset(Position).Inflate(2).ContainsInclusive(mapped);
     }
 
     protected override void OnOverlayPointerPressed(OverlayPointerArgs args)
@@ -419,7 +413,8 @@ internal class TextOverlay : Overlay
     private void SelectAll()
     {
         CursorPosition = 0;
-        SelectionEnd = Text.Length;
+        int textElementCount = GetTextElementCount();
+        SelectionEnd = textElementCount;
     }
 
     private void GoToStartOfLine(bool updateSelection)
@@ -447,29 +442,58 @@ internal class TextOverlay : Overlay
     private void SelectWordAtPosition(VecD point)
     {
         var indexOfClosest = GetClosestCharacterIndex(point);
-        int start = indexOfClosest;
-        int end = indexOfClosest;
+        var text = richText.RawText;
+        var textElements = new List<(int Start, int End, string Value)>();
 
-        while (start > 0 && !char.IsWhiteSpace(Text[start - 1]))
+        var enumerator = StringInfo.GetTextElementEnumerator(text);
+
+        while (enumerator.MoveNext())
         {
-            start--;
+            var start = enumerator.ElementIndex;
+            var value = enumerator.GetTextElement();
+
+            textElements.Add((start, start + value.Length, value));
         }
 
-        while (end < Text.Length - 1 && !char.IsWhiteSpace(Text[end + 1]))
+        if (textElements.Count == 0)
         {
-            end++;
+            CursorPosition = 0;
+            SelectionEnd = 0;
+            return;
         }
 
-        CursorPosition = start;
-        SelectionEnd = end + 1;
+        var index = Math.Clamp(indexOfClosest, 0, textElements.Count - 1);
+        var startIndex = index;
+        var endIndex = index;
+
+        while (startIndex > 0 &&
+               !string.IsNullOrWhiteSpace(textElements[startIndex - 1].Value))
+        {
+            startIndex--;
+        }
+
+        while (endIndex < textElements.Count &&
+               !string.IsNullOrWhiteSpace(textElements[endIndex].Value))
+        {
+            endIndex++;
+        }
+
+        CursorPosition = startIndex;
+        SelectionEnd = endIndex;
     }
 
     private void CopyText(bool asUnicode = false)
     {
         if (CursorPosition == SelectionEnd) return;
-        string selectedText = Text.Substring(
-            Math.Min(CursorPosition, SelectionEnd),
-            Math.Abs(CursorPosition - SelectionEnd));
+
+        StringBuilder sb = new StringBuilder();
+
+        int start = Math.Min(CursorPosition, SelectionEnd);
+        int end = Math.Max(CursorPosition, SelectionEnd);
+
+        if (richText.RawText.Length == 0) return;
+
+        string selectedText = richText.RawText[GetTextOffset(start)..GetTextOffset((end))];
 
         if (asUnicode)
         {
@@ -488,12 +512,10 @@ internal class TextOverlay : Overlay
     private int GetClosestCharacterIndex(VecD point)
     {
         VecD mapped = Matrix.Invert().MapPoint(point);
-        var nativeFont = GetFont();
-        if (nativeFont == null) return 0;
 
-        var positions = richText.GetGlyphPositions(nativeFont);
+        var positions = richText.GetGlyphPositions(true);
         int indexOfClosest = positions.Select((pos, index) => (pos, index))
-            .OrderBy(pos => ((pos.pos + Position - new VecD(0, Font.Size / 2f)) - mapped).LengthSquared)
+            .OrderBy(pos => ((pos.pos + Position) - mapped).LengthSquared)
             .First().index;
         return indexOfClosest;
     }
@@ -557,24 +579,213 @@ internal class TextOverlay : Overlay
         return false;
     }
 
+    private int GetTextOffset(int textElementIndex)
+    {
+        if (textElementIndex <= 0)
+            return 0;
+
+        int index = 0;
+        var enumerator = StringInfo.GetTextElementEnumerator(Text.RawText);
+
+        while (enumerator.MoveNext())
+        {
+            if (index == textElementIndex)
+                return enumerator.ElementIndex;
+
+            index++;
+        }
+
+        return Text.RawText.Length;
+    }
+
+    private int GetTextElementCount()
+    {
+        int count = 0;
+        var enumerator = StringInfo.GetTextElementEnumerator(Text.RawText);
+
+        while (enumerator.MoveNext())
+            count++;
+
+        return count;
+    }
+
     private void InsertTextAtCursor(string toAdd)
     {
-        if (CursorPosition == SelectionEnd)
+        int selectionStart = Math.Min(CursorPosition, SelectionEnd);
+        int selectionEnd = Math.Max(CursorPosition, SelectionEnd);
+        var cloned = Text.Clone();
+        var inlines = cloned.Inlines;
+        TextInline? firstInline = null;
+        int firstLocalOffset = 0;
+        int globalOffset = 0;
+
+        for (int i = 0; i < inlines.Count; i++)
         {
-            Text = Text.Insert(CursorPosition, toAdd);
-            CursorPosition += toAdd.Length;
-            SelectionEnd += toAdd.Length;
+            var inline = inlines[i];
+            string text = inline.Text;
+            var enumerator = StringInfo.GetTextElementEnumerator(text);
+            var glyphOffsets = new List<int>();
+
+            while (enumerator.MoveNext())
+                glyphOffsets.Add(enumerator.ElementIndex);
+
+            int glyphCount = glyphOffsets.Count;
+            int inlineEnd = globalOffset + glyphCount;
+
+            if (firstInline == null && selectionStart >= globalOffset && selectionStart <= inlineEnd)
+            {
+                firstInline = inline;
+                firstLocalOffset = selectionStart - globalOffset;
+            }
+
+            int localStart = Math.Clamp(selectionStart - globalOffset, 0, glyphCount);
+            int localEnd = Math.Clamp(selectionEnd - globalOffset, 0, glyphCount);
+
+            if (localEnd > localStart)
+            {
+                int charStart = glyphOffsets[localStart];
+                int charEnd = localEnd < glyphCount ? glyphOffsets[localEnd] : text.Length;
+                inline.Text = text.Remove(charStart, charEnd - charStart);
+            }
+
+            globalOffset = inlineEnd;
+        }
+
+        if (firstInline != null)
+        {
+            string text = firstInline.Text;
+            var enumerator = StringInfo.GetTextElementEnumerator(text);
+            int glyphIndex = 0;
+            int charOffset = text.Length;
+
+            while (enumerator.MoveNext())
+            {
+                if (glyphIndex == firstLocalOffset)
+                {
+                    charOffset = enumerator.ElementIndex;
+                    break;
+                }
+
+                glyphIndex++;
+            }
+
+            firstInline.Text = text.Insert(charOffset, toAdd);
+        }
+
+        for (int i = 0; i < inlines.Count; i++)
+            cloned.UpdateInline(i, inlines[i]);
+
+        Text = cloned;
+
+        int addedLength = 0;
+        var addedEnumerator = StringInfo.GetTextElementEnumerator(toAdd);
+
+        while (addedEnumerator.MoveNext())
+            addedLength++;
+
+        CursorPosition = selectionStart + addedLength;
+        SelectionEnd = CursorPosition;
+        lastXMovementCursorIndex = CursorPosition;
+    }
+
+    private void DeleteChar(int direction)
+    {
+        int selectionStart = Math.Min(CursorPosition, SelectionEnd);
+        int selectionEnd = Math.Max(CursorPosition, SelectionEnd);
+
+        if (selectionStart != selectionEnd)
+        {
+            int globalStartOffset = GetTextOffset(selectionStart);
+            int globalEndOffset = GetTextOffset(selectionEnd);
+
+            int inlineOffset = 0;
+
+            var currentText = Text.Clone();
+            for (int i = 0; i < currentText.Inlines.Count; i++)
+            {
+                TextInline inline = currentText.Inlines[i];
+
+                int inlineStart = inlineOffset;
+                int inlineEnd = inlineStart + inline.Text.Length;
+
+                int removeStart = Math.Max(globalStartOffset, inlineStart);
+                int removeEnd = Math.Min(globalEndOffset, inlineEnd);
+
+                if (removeStart < removeEnd)
+                {
+                    int localStart = removeStart - inlineStart;
+                    int localLength = removeEnd - removeStart;
+
+                    inline.Text = inline.Text.Remove(localStart, localLength);
+
+                    currentText.UpdateInline(i, inline);
+                }
+
+                inlineOffset = inlineEnd;
+            }
+
+            Text = currentText;
+
+            CursorPosition = selectionStart;
+            SelectionEnd = selectionStart;
         }
         else
         {
-            string newText = Text.Remove(Math.Min(CursorPosition, SelectionEnd),
-                Math.Abs(CursorPosition - SelectionEnd));
-            Text = newText.Insert(Math.Min(CursorPosition, SelectionEnd), toAdd);
-            CursorPosition = Math.Min(CursorPosition, SelectionEnd) + toAdd.Length;
-            SelectionEnd = CursorPosition;
+            int textElementCount = GetTextElementCount();
+
+            if (direction < 0 && CursorPosition > 0)
+            {
+                int startOffset = GetTextOffset(CursorPosition - 1);
+                int endOffset = GetTextOffset(CursorPosition);
+
+                int curPos = CursorPosition; // Store the current cursor position before deletion
+                DeleteTextRange(startOffset, endOffset);
+
+                curPos--;
+                CursorPosition = curPos;
+                SelectionEnd = CursorPosition;
+            }
+            else if (direction >= 0 && CursorPosition < textElementCount)
+            {
+                int startOffset = GetTextOffset(CursorPosition);
+                int endOffset = GetTextOffset(CursorPosition + 1);
+
+                DeleteTextRange(startOffset, endOffset);
+                SelectionEnd = CursorPosition;
+            }
         }
 
         lastXMovementCursorIndex = CursorPosition;
+    }
+
+    private void DeleteTextRange(int globalStartOffset, int globalEndOffset)
+    {
+        int inlineOffset = 0;
+        var cloned = Text.Clone();
+
+        for (int i = 0; i < cloned.Inlines.Count; i++)
+        {
+            TextInline inline = cloned.Inlines[i];
+
+            int inlineStart = inlineOffset;
+            int inlineEnd = inlineStart + inline.Text.Length;
+
+            int removeStart = Math.Max(globalStartOffset, inlineStart);
+            int removeEnd = Math.Min(globalEndOffset, inlineEnd);
+
+            if (removeStart < removeEnd)
+            {
+                int localStart = removeStart - inlineStart;
+                int localLength = removeEnd - removeStart;
+
+                inline.Text = inline.Text.Remove(localStart, localLength);
+
+                cloned.UpdateInline(i, inline);
+                Text = cloned;
+            }
+
+            inlineOffset = inlineEnd;
+        }
     }
 
     private bool IsShortcut(Key key, KeyModifiers keyModifiers)
@@ -600,31 +811,12 @@ internal class TextOverlay : Overlay
             }, TaskContinuationOptions.OnlyOnRanToCompletion);
     }
 
-    private void DeleteChar(int direction)
-    {
-        if (SelectionEnd != CursorPosition)
-        {
-            Text = Text.Remove(Math.Min(CursorPosition, SelectionEnd),
-                Math.Abs(CursorPosition - SelectionEnd));
-            CursorPosition = Math.Min(CursorPosition, SelectionEnd);
-            SelectionEnd = CursorPosition;
-        }
-        else if (Text.Length > 0 && CursorPosition + direction >= 0 && CursorPosition + direction < Text.Length)
-        {
-            Text = Text.Remove(CursorPosition + direction, 1);
-            CursorPosition += direction;
-            SelectionEnd = CursorPosition;
-        }
-
-        lastXMovementCursorIndex = CursorPosition;
-    }
-
     private void MoveCursorBy(VecI direction, bool updateSelection = true, MoveMode mode = MoveMode.Characters)
     {
         int moveBy = direction.X;
         if (direction.X != 0)
         {
-            lastXMovementCursorIndex = Math.Clamp(CursorPosition + direction.X, 0, Text.Length);
+            lastXMovementCursorIndex = Math.Clamp(CursorPosition + direction.X, 0, Math.Max(0, GetTextElementCount()));
 
             if (mode == MoveMode.Words)
             {
@@ -681,10 +873,11 @@ internal class TextOverlay : Overlay
 
             int clampedDesiredLineIndex = Math.Clamp(lineIndex + direction.Y, 0, richText.Lines.Length - 1);
 
-
             VecF position = glyphPositions[Math.Min(lastXMovementCursorIndex, glyphPositions.Length - 1)];
             (int lineStart, int lineEnd) = richText.GetLineStartEnd(clampedDesiredLineIndex);
-            VecF[] lineGlyphPositions = glyphPositions[lineStart..lineEnd];
+            Range lineRange = lineStart..(lineEnd + 1);
+            ClampLineRange(ref lineRange, glyphPositions.Length);
+            VecF[] lineGlyphPositions = glyphPositions[lineRange];
             int closestIndex = lineGlyphPositions.Select((pos, i) => (i, pos))
                 .OrderBy(pos => Math.Abs(pos.pos.X - position.X)).First().i;
             moveBy = richText.GetIndexOnLine(clampedDesiredLineIndex, closestIndex) - CursorPosition;
@@ -697,22 +890,35 @@ internal class TextOverlay : Overlay
         }
     }
 
-    private void RequestEditTextTriggered(object? sender, string e)
+    private void ClampLineRange(ref Range lineRange, int glyphPositionsLength)
+    {
+        lineRange = new Range(
+            Math.Clamp(lineRange.Start.Value, 0, glyphPositionsLength),
+            Math.Clamp(lineRange.End.Value, 0, glyphPositionsLength));
+
+        lineRange = new Range(
+            lineRange.Start.Value,
+            Math.Max(lineRange.End.Value, lineRange.Start.Value + 1));
+    }
+
+    private void RequestEditTextTriggered(object? sender, RichText e)
     {
         IsEditing = true;
-        CursorPosition = glyphPositions.Length;
+        CursorPosition = glyphPositions.Length - 1;
         SelectionEnd = CursorPosition;
     }
 
     private void UpdateGlyphs()
     {
-        richText = new(Text);
-        var nativeFont = GetFont();
-        if (nativeFont == null) return;
+        richText = Text;
 
-        richText.Spacing = Spacing;
-        glyphPositions = richText.GetGlyphPositions(nativeFont);
-        glyphWidths = richText.GetGlyphWidths(nativeFont);
+        if (richText?.RawText == null)
+        {
+            glyphPositions = null;
+            return;
+        }
+
+        glyphPositions = richText.GetGlyphPositions(true);
     }
 
     private void AdjustShortcutsForOS()
@@ -749,7 +955,7 @@ internal class TextOverlay : Overlay
         }
     }
 
-    private static void RequestEditTextChanged(AvaloniaPropertyChangedEventArgs<ExecutionTrigger<string>> args)
+    private static void RequestEditTextChanged(AvaloniaPropertyChangedEventArgs<ExecutionTrigger<RichText>> args)
     {
         var sender = args.Sender as TextOverlay;
         if (args.OldValue.Value != null)
@@ -796,22 +1002,34 @@ internal class TextOverlay : Overlay
         }
     }
 
-    private static void TextChanged(AvaloniaPropertyChangedEventArgs<string> args)
+    private static void TextChanged(AvaloniaPropertyChangedEventArgs<RichText> args)
     {
         TextOverlay sender = args.Sender as TextOverlay;
         sender.UpdateGlyphs();
-    }
+        if (sender.Text is null)
+        {
+            sender.inlineAtCursor = null;
+            sender.CurrentlyEditingInlineIndex = null;
+            return;
+        }
+        
+        sender.CursorPosition = Math.Clamp(sender.CursorPosition, 0, Math.Max(0, sender.GetTextElementCount()));
 
-    private static void FontChanged(AvaloniaPropertyChangedEventArgs<FontData> args)
-    {
-        TextOverlay sender = args.Sender as TextOverlay;
-        sender.UpdateGlyphs();
+        sender.inlineAtCursor = sender.Text.GetInlineAt(sender.CursorPosition, out _, out _);
+        sender.CurrentlyEditingInlineIndex = sender.Text.IndexOfInline(sender.inlineAtCursor);
     }
 
     private static void SpaceChanged(AvaloniaPropertyChangedEventArgs<double?> args)
     {
         TextOverlay sender = args.Sender as TextOverlay;
         sender.UpdateGlyphs();
+    }
+
+    private static void CursorPositionChanged(AvaloniaPropertyChangedEventArgs<int> args)
+    {
+        TextOverlay sender = args.Sender as TextOverlay;
+        sender.inlineAtCursor = sender.Text.GetInlineAt(sender.CursorPosition, out _, out _);
+        sender.CurrentlyEditingInlineIndex = sender.Text.IndexOfInline(sender.inlineAtCursor);
     }
 
     private static int ClampValue(AvaloniaObject sender, int newPos)
@@ -822,7 +1040,7 @@ internal class TextOverlay : Overlay
 
         if (textOverlay.glyphPositions == null) return 0;
 
-        return Math.Clamp(newPos, 0, textOverlay.glyphPositions.Length - 1);
+        return Math.Clamp(newPos, 0, Math.Max(0, textOverlay.GetTextElementCount()));
     }
 }
 

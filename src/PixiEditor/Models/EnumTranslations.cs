@@ -1,6 +1,7 @@
 ﻿using Drawie.Backend.Core.Shaders.Generation;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Backend.Core.Text;
 using Drawie.Backend.Core.Vector;
 using PixiEditor.AnimationRenderer.Core;
 using PixiEditor.ChangeableDocument.Changeables.Graph.ColorSpaces;
@@ -174,3 +175,29 @@ using DrawingBlendMode = Drawie.Backend.Core.Surfaces.BlendMode;
 
 [assembly: LocalizeEnum<RandomTrigger>(RandomTrigger.OnExecute, "ON_EXECUTE_RANDOM_TRIGGER")]
 [assembly: LocalizeEnum<RandomTrigger>(RandomTrigger.OnInputChanged, "ON_INPUT_CHANGED_RANDOM_TRIGGER")]
+
+[assembly: LocalizeEnum<FontStyleWeight>(FontStyleWeight.Invisible, "INVISIBLE_FONT_STYLE_WEIGHT")]
+[assembly: LocalizeEnum<FontStyleWeight>(FontStyleWeight.Thin, "THIN_FONT_STYLE_WEIGHT")]
+[assembly: LocalizeEnum<FontStyleWeight>(FontStyleWeight.ExtraLight, "EXTRALIGHT_FONT_STYLE_WEIGHT")]
+[assembly: LocalizeEnum<FontStyleWeight>(FontStyleWeight.Light, "LIGHT_FONT_STYLE_WEIGHT")]
+[assembly: LocalizeEnum<FontStyleWeight>(FontStyleWeight.Normal, "NORMAL_FONT_STYLE_WEIGHT")]
+[assembly: LocalizeEnum<FontStyleWeight>(FontStyleWeight.Medium, "MEDIUM_FONT_STYLE_WEIGHT")]
+[assembly: LocalizeEnum<FontStyleWeight>(FontStyleWeight.SemiBold, "SEMIBOLD_FONT_STYLE_WEIGHT")]
+[assembly: LocalizeEnum<FontStyleWeight>(FontStyleWeight.Bold, "BOLD_FONT_STYLE_WEIGHT")]
+[assembly: LocalizeEnum<FontStyleWeight>(FontStyleWeight.ExtraBold, "EXTRABOLD_FONT_STYLE_WEIGHT")]
+[assembly: LocalizeEnum<FontStyleWeight>(FontStyleWeight.Black, "BLACK_FONT_STYLE_WEIGHT")]
+[assembly: LocalizeEnum<FontStyleWeight>(FontStyleWeight.ExtraBlack, "EXTRABLACK_FONT_STYLE_WEIGHT")]
+
+[assembly: LocalizeEnum<FontStyleSlant>(FontStyleSlant.Upright, "UPRIGHT_FONT_STYLE_SLANT")]
+[assembly: LocalizeEnum<FontStyleSlant>(FontStyleSlant.Italic, "ITALIC_FONT_STYLE_SLANT")]
+[assembly: LocalizeEnum<FontStyleSlant>(FontStyleSlant.Oblique, "OBLIQUE_FONT_STYLE_SLANT")]
+
+[assembly: LocalizeEnum<FontStyleWidth>(FontStyleWidth.UltraCondensed, "ULTRACONDENSED_FONT_STYLE_WIDTH")]
+[assembly: LocalizeEnum<FontStyleWidth>(FontStyleWidth.ExtraCondensed, "EXTRACONDENSED_FONT_STYLE_WIDTH")]
+[assembly: LocalizeEnum<FontStyleWidth>(FontStyleWidth.Condensed, "CONDENSED_FONT_STYLE_WIDTH")]
+[assembly: LocalizeEnum<FontStyleWidth>(FontStyleWidth.SemiCondensed, "SEMICONDENSED_FONT_STYLE_WIDTH")]
+[assembly: LocalizeEnum<FontStyleWidth>(FontStyleWidth.Normal, "NORMAL_FONT_STYLE_WIDTH")]
+[assembly: LocalizeEnum<FontStyleWidth>(FontStyleWidth.SemiExpanded, "SEMIEXPANDED_FONT_STYLE_WIDTH")]
+[assembly: LocalizeEnum<FontStyleWidth>(FontStyleWidth.Expanded, "EXPANDED_FONT_STYLE_WIDTH")]
+[assembly: LocalizeEnum<FontStyleWidth>(FontStyleWidth.ExtraExpanded, "EXTRAEXPANDED_FONT_STYLE_WIDTH")]
+[assembly: LocalizeEnum<FontStyleWidth>(FontStyleWidth.UltraExpanded, "ULTRAEXPANDED_FONT_STYLE_WIDTH")]

@@ -2,16 +2,16 @@
 
 public static class RenderApiPreferenceManager
 {
+    public static readonly string ConfigPath = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "PixiEditor", "render_api.config");
+
     public static string? FirstReadApiPreference { get; } = TryReadRenderApiPreference() ?? null;
     public static string? TryReadRenderApiPreference()
     {
         try
         {
             using var stream =
-                new FileStream(
-                    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                        "PixiEditor",
-                        "render_api.config"), FileMode.Open, FileAccess.Read, FileShare.Read);
+                new FileStream(ConfigPath, FileMode.Open, FileAccess.Read, FileShare.Read);
             using var reader = new StreamReader(stream);
             string? renderApi = reader.ReadLine();
             if (string.IsNullOrEmpty(renderApi))
@@ -30,11 +30,7 @@ public static class RenderApiPreferenceManager
     public static void UpdateRenderApiPreference(string renderApi)
     {
         using var stream =
-            new FileStream(
-                Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                    "PixiEditor",
-                    "render_api.config"), FileMode.Create, FileAccess.Write, FileShare.None);
+            new FileStream(ConfigPath, FileMode.Create, FileAccess.Write, FileShare.None);
         using var writer = new StreamWriter(stream);
         writer.WriteLine(renderApi);
     }

@@ -61,6 +61,9 @@ internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor,
         if (member is null)
             return ExecutionState.Error;
 
+        if (member.IsLockedBindable)
+            return ExecutionState.Error;
+
         memberId = member.Id;
 
         if (controller.LeftMousePressed)
