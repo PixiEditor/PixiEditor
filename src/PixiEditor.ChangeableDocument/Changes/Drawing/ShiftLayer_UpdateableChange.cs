@@ -62,10 +62,10 @@ internal class ShiftLayer_UpdateableChange : Change
             }
             else if (layer is ITransformableObject transformableObject)
             {
-                originalTransformations[layerGuid] = transformableObject.TransformationMatrix;
+                originalTransformations[layerGuid] = transformableObject.GetTransformationMatrix(frame);
                 AffectedArea affected = AffectedAreaFromBounds(target, layerGuid, frame);
-                transformableObject.TransformationMatrix = transformableObject.TransformationMatrix.PostConcat(
-                Matrix3X3.CreateTranslation((float)delta.X, (float)delta.Y));
+                transformableObject.SetTransformationMatrix(frame, transformableObject.GetTransformationMatrix(frame).PostConcat(
+                Matrix3X3.CreateTranslation((float)delta.X, (float)delta.Y)));
                 changes.Add(new VectorShape_ChangeInfo(layerGuid, affected));
             }
         }
@@ -90,7 +90,7 @@ internal class ShiftLayer_UpdateableChange : Change
             }
             else if (layer is ITransformableObject transformableObject)
             {
-                transformableObject.TransformationMatrix = originalTransformations[layerGuid];
+                transformableObject.SetTransformationMatrix(frame, originalTransformations[layerGuid]);
             }
         }
 

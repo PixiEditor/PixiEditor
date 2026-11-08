@@ -49,8 +49,8 @@ internal class PreviewShiftLayers_UpdateableChange : InterruptableUpdateableChan
 
             if (layer is VectorLayerNode transformableObject)
             {
-                originalShapes[layerGuid] = transformableObject.EmbeddedShapeData;
-                transformableObject.EmbeddedShapeData = null;
+                originalShapes[layerGuid] = transformableObject.GetShapeAtFrame(frame);
+                transformableObject.SetShapeAtFrame(frame,null);
             }
             else if (layer is ImageLayerNode imgLayer)
             {
@@ -97,9 +97,14 @@ internal class PreviewShiftLayers_UpdateableChange : InterruptableUpdateableChan
                 StrokeJoin join = StrokeJoin.Miter;
                 StrokeCap cap = StrokeCap.Butt;
 
-                (vectorLayer.EmbeddedShapeData as PathVectorData)?.Path.Dispose();
+                (vectorLayer.GetShapeAtFrame(frame) as PathVectorData)?.Path.Dispose();
 
                 var originalShape = originalShapes[layerGuid];
+
+                if (originalShape == null)
+                {
+                    continue;
+                }
 
                 var path = originalShape.ToPath();
 
@@ -127,7 +132,7 @@ internal class PreviewShiftLayers_UpdateableChange : InterruptableUpdateableChan
                     StrokeLineCap = cap
                 };
 
-                vectorLayer.EmbeddedShapeData = newShapeData;
+                vectorLayer.SetShapeAtFrame(frame,newShapeData);
                 changes.Add(new VectorShape_ChangeInfo(layerGuid,
                     ShiftLayer_UpdateableChange.AffectedAreaFromBounds(target, layerGuid, frame)));
             }
@@ -165,8 +170,8 @@ internal class PreviewShiftLayers_UpdateableChange : InterruptableUpdateableChan
             }
             else if (layer is VectorLayerNode transformableObject)
             {
-                (transformableObject.EmbeddedShapeData as PathVectorData)?.Path.Dispose();
-                transformableObject.EmbeddedShapeData = originalShapes[layerGuid];
+                (transformableObject.GetShapeAtFrame(frame) as PathVectorData)?.Path.Dispose();
+                transformableObject.SetShapeAtFrame(frame,originalShapes[layerGuid]);
             }
         }
 

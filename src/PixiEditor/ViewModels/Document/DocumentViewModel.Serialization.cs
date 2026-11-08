@@ -164,7 +164,7 @@ internal partial class DocumentViewModel
             }
             else if (member is IReadOnlyVectorNode vectorLayerHandler)
             {
-                AddSvgShape(elementContainer, vectorLayerHandler, resizeFactor, defs);
+                AddSvgShape(elementContainer, atTime, vectorLayerHandler, resizeFactor, defs);
             }
             else if (member is NestedDocumentNode nested)
             {
@@ -196,33 +196,32 @@ internal partial class DocumentViewModel
         }
     }
 
-    private static void AddSvgShape(IElementContainer elementContainer, IReadOnlyVectorNode vectorNode,
+    private static void AddSvgShape(IElementContainer elementContainer, KeyFrameTime atTime, IReadOnlyVectorNode vectorNode,
         VecD resizeFactor, SvgDefs defs)
     {
+        IReadOnlyShapeVectorData data = vectorNode.GetShapeData(atTime);
         SvgElement? elementToAdd = null;
 
-        if (vectorNode.ShapeData is IReadOnlyEllipseData ellipseData)
+        if (data is IReadOnlyEllipseData ellipseData)
         {
             elementToAdd = AddEllipse(ellipseData);
         }
-        else if (vectorNode.ShapeData is IReadOnlyRectangleData rectangleData)
+        else if (data is IReadOnlyRectangleData rectangleData)
         {
             elementToAdd = AddRectangle(rectangleData);
         }
-        else if (vectorNode.ShapeData is IReadOnlyLineData lineData)
+        else if (data is IReadOnlyLineData lineData)
         {
             elementToAdd = AddLine(lineData);
         }
-        else if (vectorNode.ShapeData is IReadOnlyPathData shapeData)
+        else if (data is IReadOnlyPathData shapeData)
         {
             elementToAdd = AddVectorPath(shapeData);
         }
-        else if (vectorNode.ShapeData is IReadOnlyTextData textData)
+        else if (data is IReadOnlyTextData textData)
         {
             elementToAdd = AddText(textData);
         }
-
-        IReadOnlyShapeVectorData data = vectorNode.ShapeData;
 
         if (data != null && elementToAdd is SvgPrimitive primitive)
         {

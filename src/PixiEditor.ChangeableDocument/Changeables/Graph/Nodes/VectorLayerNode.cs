@@ -41,6 +41,38 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         }
     }
 
+    public Matrix3X3 GetTransformationMatrix(int frame)
+    {
+        return GetRenderableShapeData(frame)?.TransformationMatrix ?? Matrix3X3.Identity;
+    }
+
+    public void SetTransformationMatrix(int frame, Matrix3X3 matrix)
+    {
+        var shape = GetRenderableShapeData(frame);
+        if (shape == null)
+        {
+            return;
+        }
+
+        shape.TransformationMatrix = matrix;
+    }
+
+    public Matrix3X3[] GetAllTransformationMatrices()
+    {
+        return keyFrames.Select(x => (x.Data as ShapeVectorData)?.TransformationMatrix ?? Matrix3X3.Identity).ToArray();
+    }
+
+    public void SetAllTransformationMatrices(Matrix3X3[] matrices)
+    {
+        for (int i = 0; i < keyFrames.Count && i < matrices.Length; i++)
+        {
+            if (keyFrames[i].Data is ShapeVectorData shape)
+            {
+                shape.TransformationMatrix = matrices[i];
+            }
+        }
+    }
+
     public ShapeVectorData? EmbeddedShapeData
     {
         get => (ShapeVectorData)keyFrames[0].Data;
@@ -257,6 +289,15 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         }
     }
 
+    public void SetOnlyShapeAtFrame(int frame, ShapeVectorData? shape)
+    {
+        var targ = GetFrameWithShape(frame);
+        foreach (var keyFrame in keyFrames)
+        {
+            keyFrame.Data = (keyFrame == targ)? shape : null;
+        }
+    }
+
     protected override int GetContentCacheHash()
     {
         return HashCode.Combine(
@@ -282,6 +323,10 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         RasterizeShape(surface, paint, GetRenderableShapeData(frame));
     }
 
+    public void RasterizeKeyFrame(Canvas surface, Paint paint, KeyFrameData keyframe)
+    {
+        RasterizeShape(surface, paint, InputVector.Value ?? keyframe.Data as ShapeVectorData);
+    }
     private static void RasterizeShape(Canvas surface, Paint paint, ShapeVectorData? shape)
     {
         int layer;
@@ -312,35 +357,40 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         return copy;
     }
 
-    public void Resize(VecD multiplier)
+    public void ForEveryFrame(Action<ShapeVectorData> action)
     {
-        if (EmbeddedShapeData == null)
+        foreach (var frame in keyFrames)
         {
-            return;
-        }
-
-        if (EmbeddedShapeData is IScalable resizable)
-        {
-            resizable.Resize(multiplier);
-        }
-        else
-        {
-            EmbeddedShapeData.TransformationMatrix =
-                EmbeddedShapeData.TransformationMatrix.PostConcat(Matrix3X3.CreateScale((float)multiplier.X,
-                    (float)multiplier.Y));
+            if (frame.Data is ShapeVectorData shape)
+            {
+                action(shape);
+            }
         }
     }
+    public void Resize(VecD multiplier)
+    {
+        ForEveryFrame(shape =>
+        {
+            if (shape is IScalable resizable)
+            {
+                resizable.Resize(multiplier);
+            } else
+            {
+                shape.TransformationMatrix = shape.TransformationMatrix.PostConcat(
+                    Matrix3X3.CreateScale((float)multiplier.X, (float)multiplier.Y));
+            }
+        });
+    }
 
-    public IChangeInfo[] ChangeColor(params Color?[] colors)
+    public IChangeInfo[] ChangeColor(params Color?[] colors) => ChangeColor(0, colors);
+
+    public Color?[] GetColors() => GetColors(0);
+
+    public IChangeInfo[] ChangeColor(int frame, params Color?[] colors)
     {
         if (colors == null) return null;
 
-        if (EmbeddedShapeData is null)
-        {
-            return null;
-        }
-
-        var shapeData = EmbeddedShapeData;
+        var shapeData = GetShapeAtFrame(frame);
 
         if (shapeData is null) return null;
 
@@ -377,15 +427,14 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         ];
     }
 
-    public Color?[] GetColors()
+    public Color?[] GetColors(int frame)
     {
-        if (EmbeddedShapeData == null)
-        {
-            return null;
-        }
+        var shapeData = GetShapeAtFrame(frame);
 
-        Color? fillColor = EmbeddedShapeData.FillPaintable is ColorPaintable cp ? cp.Color : null;
-        Color? strokeColor = EmbeddedShapeData.Stroke is ColorPaintable cp2 ? cp2.Color : null;
+        if (shapeData == null) return null;
+
+        Color? fillColor = shapeData.FillPaintable is ColorPaintable cp ? cp.Color : null;
+        Color? strokeColor = shapeData.Stroke is ColorPaintable cp2 ? cp2.Color : null;
 
         return [fillColor, strokeColor];
     }

@@ -20,10 +20,8 @@ internal class CreateAnimationDataFromLayer_Change : Change
                layer.KeyFrames.Count != 0;
     }
 
-    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
-        out bool ignoreInUndo)
+    internal static List<IChangeInfo> CreateTimelineRow(Document target, LayerNode layer)
     {
-        LayerNode layer = target.FindNode(layerGuid) as LayerNode;
         List<IChangeInfo> infos = new List<IChangeInfo>();
         foreach (var frame in layer.KeyFrames)
         {
@@ -32,15 +30,22 @@ internal class CreateAnimationDataFromLayer_Change : Change
             Guid keyFrameId = frame.KeyFrameGuid;
             target.AnimationData.AddKeyFrame(new CelKeyFrame(keyFrameId, layer.Id, frame.StartFrame, target)
             {
-                Duration = frame.Duration, IsVisible = frame.IsVisible,
+                Duration = frame.Duration,
+                IsVisible = frame.IsVisible,
             });
             infos.Add(new CreateCelKeyFrame_ChangeInfo(layer.Id, frame.StartFrame, keyFrameId, true));
             infos.Add(new KeyFrameLength_ChangeInfo(keyFrameId, frame.StartFrame, frame.Duration));
             infos.Add(new KeyFrameVisibility_ChangeInfo(keyFrameId, frame.IsVisible));
         }
-
-        ignoreInUndo = false;
         return infos;
+    }
+
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
+        out bool ignoreInUndo)
+    {
+        LayerNode layer = target.FindNode(layerGuid) as LayerNode;
+        ignoreInUndo = false;
+        return CreateTimelineRow(target, layer);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)

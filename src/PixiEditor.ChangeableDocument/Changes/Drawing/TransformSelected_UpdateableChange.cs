@@ -106,14 +106,14 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
 
         if (validMemberData.Count == 1 && firstLayer is VectorLayerNode vectorLayer)
         {
-            tightBounds = vectorLayer.EmbeddedShapeData?.GeometryAABB ?? default;
+            tightBounds = vectorLayer.GetShapeAtFrame(frame)?.GeometryAABB ?? default;
             hasSelection = false;
             isTransformingSelection = false;
         }
         else if (validMemberData.Count == 1 && firstLayer is ITransformableObject transformableObject)
         {
             tightBounds = firstLayer.GetTransformationCorners(frame).WithMatrix(
-                transformableObject.TransformationMatrix.Invert()).AABBBounds;
+                transformableObject.GetTransformationMatrix(frame).Invert()).AABBBounds;
         }
 
         for (var i = 1; i < validMemberData.Count; i++)
@@ -164,7 +164,7 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
         VecD posRelativeToMaster = member.OriginalBounds.Value.TopLeft - masterCorners.TopLeft;
 
         member.OriginalPos = posRelativeToMaster;
-        member.AddTransformableObject(transformableId, transformable.TransformationMatrix);
+        member.AddTransformableObject(transformableId, transformable.GetTransformationMatrix(frame));
     }
 
     private void SetImageMember(Document target, MemberTransformationData member, RectD originalTightBounds,
@@ -294,7 +294,7 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
             {
                 var node = target.FindMemberOrThrow(member.MemberId);
                 var transformable = node as ITransformableObject;
-                transformable.TransformationMatrix = member.LocalMatrix;
+                transformable.SetTransformationMatrix(frame, member.LocalMatrix);
 
                 AffectedArea area = GetTranslationAffectedArea();
                 infos.Add(new TransformObject_ChangeInfo(member.MemberId, area));
@@ -338,7 +338,7 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
             {
                 var node = target.FindMemberOrThrow(member.MemberId);
                 var transformable = node as ITransformableObject;
-                transformable.TransformationMatrix = member.LocalMatrix;
+                transformable.SetTransformationMatrix(frame, member.LocalMatrix);
 
                 AffectedArea translationAffectedArea = GetTranslationAffectedArea();
                 var tmp = new AffectedArea(translationAffectedArea);
@@ -387,7 +387,7 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
             else if (member.IsTransformable)
             {
                 var transformable = target.FindMemberOrThrow(member.MemberId) as ITransformableObject;
-                transformable.TransformationMatrix = member.OriginalMatrix!.Value;
+                transformable.SetTransformationMatrix(frame, member.OriginalMatrix!.Value);
 
                 //TODO this is probably wrong
                 AffectedArea area = GetTranslationAffectedArea();

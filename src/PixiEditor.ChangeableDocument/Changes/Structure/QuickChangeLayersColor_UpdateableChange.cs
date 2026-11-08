@@ -6,14 +6,16 @@ namespace PixiEditor.ChangeableDocument.Changes.Structure;
 internal class QuickChangeLayersColor_UpdateableChange : InterruptableUpdateableChange
 {
     public Guid[] LayerGuids { get; }
+    public int Frame {  get; }
     public Color Color { get; set; }
     private Dictionary<Guid, Color?[]> originalColors;
 
     [GenerateUpdateableChangeActions]
-    public QuickChangeLayersColor_UpdateableChange(IReadOnlyCollection<Guid> layerGuids, Color color)
+    public QuickChangeLayersColor_UpdateableChange(IReadOnlyCollection<Guid> layerGuids, Color color, int frame)
     {
         LayerGuids = layerGuids.ToArray();
         Color = color;
+        Frame = frame;
     }
 
     public override bool InitializeAndValidate(Document target)
@@ -28,7 +30,7 @@ internal class QuickChangeLayersColor_UpdateableChange : InterruptableUpdateable
             {
                 quickColorChangeable++;
                 originalColors ??= new Dictionary<Guid, Color?[]>();
-                originalColors[guid] = changeable.GetColors();
+                originalColors[guid] = changeable.GetColors(Frame);
             }
         }
 
@@ -50,7 +52,7 @@ internal class QuickChangeLayersColor_UpdateableChange : InterruptableUpdateable
         {
             if (target.FindMember(guid) is IQuickColorChangeable quickColorChangeable)
             {
-                var changes = quickColorChangeable.ChangeColor(Color);
+                var changes = quickColorChangeable.ChangeColor(Frame,Color);
                 if (changes != null)
                 {
                     changeInfos.AddRange(changes);
@@ -68,7 +70,7 @@ internal class QuickChangeLayersColor_UpdateableChange : InterruptableUpdateable
         {
             if (target.FindMember(guid) is IQuickColorChangeable quickColorChangeable)
             {
-                var changes = quickColorChangeable.ChangeColor(Color);
+                var changes = quickColorChangeable.ChangeColor(Frame,Color);
                 if (changes != null)
                 {
                     changeInfos.AddRange(changes);
@@ -86,7 +88,7 @@ internal class QuickChangeLayersColor_UpdateableChange : InterruptableUpdateable
         {
             if (target.FindMember(guid) is IQuickColorChangeable quickColorChangeable && originalColors.TryGetValue(guid, out Color?[] colors))
             {
-                var changes = quickColorChangeable.ChangeColor(colors);
+                var changes = quickColorChangeable.ChangeColor(Frame,colors);
                 if (changes != null)
                 {
                     changeInfos.AddRange(changes);

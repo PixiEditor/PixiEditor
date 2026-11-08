@@ -1069,7 +1069,7 @@ internal class DocumentOperationsModule : IDocumentOperations
 
         Internals.ChangeController.TryStopActiveExecutor();
 
-        Internals.ActionAccumulator.AddFinishedActions(new ConvertToCurve_Action(memberId));
+        Internals.ActionAccumulator.AddFinishedActions(new ConvertToCurve_Action(memberId, Document.AnimationHandler.ActiveFrameBindable));
     }
 
     public void SeparateShapes(Guid memberId)
@@ -1079,7 +1079,7 @@ internal class DocumentOperationsModule : IDocumentOperations
 
         Internals.ChangeController.TryStopActiveExecutor();
 
-        Internals.ActionAccumulator.AddFinishedActions(new SeparateShapes_Action(memberId));
+        Internals.ActionAccumulator.AddFinishedActions(new SeparateShapes_Action(memberId, Document.AnimationHandler.ActiveFrameBindable));
     }
 
     public void ExtractSelectedText(Guid memberId, int startIndex, int endIndex, bool extractEachCharacter)
@@ -1090,7 +1090,7 @@ internal class DocumentOperationsModule : IDocumentOperations
         Internals.ChangeController.TryStopActiveExecutor();
 
         Internals.ActionAccumulator.AddFinishedActions(
-            new ExtractSelectedText_Action(memberId, startIndex, endIndex, extractEachCharacter));
+            new ExtractSelectedText_Action(memberId, startIndex, endIndex, extractEachCharacter, Document.AnimationHandler.ActiveFrameBindable));
     }
 
     public void UnlinkNestedDocument(Guid id)
@@ -1217,7 +1217,7 @@ internal class DocumentOperationsModule : IDocumentOperations
 
         Internals.ChangeController.TryStopActiveExecutor();
 
-        Internals.ActionAccumulator.AddFinishedActions(new ResetTransform_Action(member));
+        Internals.ActionAccumulator.AddFinishedActions(new ResetTransform_Action(member, Document.AnimationHandler.ActiveFrameBindable));
     }
 
     public void QuickChangeLayerColor(Guid[] layers, Color color)

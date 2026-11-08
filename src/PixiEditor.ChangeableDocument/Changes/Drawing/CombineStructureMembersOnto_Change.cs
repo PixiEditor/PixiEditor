@@ -22,7 +22,7 @@ internal class CombineStructureMembersOnto_Change : Change
     private Guid targetLayerGuid;
     private Dictionary<int, CommittedChunkStorage> originalChunks = new();
 
-    private Dictionary<int, VectorPath> originalPaths = new();
+    private Dictionary<int, ShapeVectorData?> originalShapes = new();
 
 
     [GenerateMakeChangeAction]
@@ -131,6 +131,7 @@ internal class CombineStructureMembersOnto_Change : Change
 
         target.AnimationData.RemoveKeyFrame(targetLayerGuid);
         originalChunks.Clear();
+        originalShapes.Clear();
         changes.Add(new DeleteKeyFrame_ChangeInfo(targetLayerGuid));
 
         return changes;
@@ -194,11 +195,14 @@ internal class CombineStructureMembersOnto_Change : Change
         if (targetLayer is not VectorLayerNode vectorLayer)
             throw new InvalidOperationException("Target layer is not a vector layer");
 
+        if (frame != 0 && !vectorLayer.KeyFrames.Any(x => x.IsInFrame(frame)))
+            return new AffectedArea(new HashSet<VecI>());
+
         if (layersToCombine == null || layersToCombine.Count == 0 || toCombine == null || toCombine.Count == 0)
             return new AffectedArea(new HashSet<VecI>());
 
-        ShapeVectorData targetData = vectorLayer.EmbeddedShapeData ?? null;
-        VectorPath? targetPath = targetData?.ToPath();
+        ShapeVectorData targetData = null;
+        VectorPath? targetPath = null;
 
         var reversed = toCombine.Reverse().ToHashSet();
 
@@ -207,24 +211,21 @@ internal class CombineStructureMembersOnto_Change : Change
             if (target.FindMember(guid) is not VectorLayerNode vectorNode)
                 continue;
 
-            if (vectorNode.EmbeddedShapeData == null)
+            var memberShape = vectorNode.GetShapeAtFrame(frame);
+
+            if (memberShape == null)
                 continue;
 
-            VectorPath path = vectorNode.EmbeddedShapeData.ToPath();
+            VectorPath path = memberShape.ToPath();
 
             if (path == null)
                 continue;
 
             if (targetData == null)
             {
-                targetData = vectorNode.EmbeddedShapeData;
+                targetData = memberShape;
                 targetPath = new VectorPath();
-                targetPath.AddPath(path, vectorNode.EmbeddedShapeData.TransformationMatrix, AddPathMode.Append);
-
-                if (originalPaths.ContainsKey(frame))
-                    originalPaths[frame].Dispose();
-
-                originalPaths[frame] = new VectorPath(path);
+                targetPath.AddPath(path, memberShape.TransformationMatrix, AddPathMode.Append);
             }
             else
             {
@@ -233,11 +234,12 @@ internal class CombineStructureMembersOnto_Change : Change
                     targetPath = new VectorPath();
                 }
 
-                targetPath.AddPath(path, vectorNode.EmbeddedShapeData.TransformationMatrix, AddPathMode.Append);
-                path.Dispose();
+                targetPath.AddPath(path, memberShape.TransformationMatrix, AddPathMode.Append);
             }
+            path.Dispose();
         }
 
+        if (targetData == null) return new AffectedArea(new HashSet<VecI>());
         var clone = targetData.Clone();
         PathVectorData data;
         if (clone is not PathVectorData vectorData)
@@ -258,8 +260,9 @@ internal class CombineStructureMembersOnto_Change : Change
             data.TransformationMatrix = Matrix3X3.Identity;
             data.Path = targetPath;
         }
-
-        vectorLayer.EmbeddedShapeData = data;
+        
+        originalShapes.TryAdd(frame, vectorLayer.GetShapeAtFrame(frame));
+        vectorLayer.SetShapeAtFrame(frame, data); 
 
         return new AffectedArea(new HashSet<VecI>());
     }
@@ -323,7 +326,7 @@ internal class CombineStructureMembersOnto_Change : Change
         if (hasKeyframe)
             return;
 
-        if (layer is not ImageLayerNode)
+        if (layer is not (ImageLayerNode or VectorLayerNode) || layer.GetType() != targetLayer.GetType())
             return;
 
         var keyFrameData = layer.KeyFrames.FirstOrDefault(x => x.IsInFrame(frame));
@@ -413,10 +416,9 @@ internal class CombineStructureMembersOnto_Change : Change
 
     private IChangeInfo VectorRevert(VectorLayerNode targetLayer, int frame)
     {
-        if (!originalPaths.TryGetValue(frame, out var path))
-            throw new InvalidOperationException("Original path not found");
+        if (originalShapes.TryGetValue(frame, out var shape))
+            targetLayer.SetShapeAtFrame(frame, shape);
 
-        targetLayer.EmbeddedShapeData = new PathVectorData(path);
         return new VectorShape_ChangeInfo(targetLayer.Id, new AffectedArea(new HashSet<VecI>()));
     }
 
@@ -429,11 +431,6 @@ internal class CombineStructureMembersOnto_Change : Change
 
         originalChunks.Clear();
 
-        foreach (var originalPath in originalPaths)
-        {
-            originalPath.Value.Dispose();
-        }
-
-        originalPaths.Clear();
+        originalShapes.Clear();
     }
 }

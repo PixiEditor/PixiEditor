@@ -8,13 +8,14 @@ namespace PixiEditor.ChangeableDocument.Changes.Structure;
 internal class ResetTransform_Change : Change
 {
     public Guid MemberGuid { get; }
-
+    public int Frame { get; }
     private Matrix3X3? oldTransform;
 
     [GenerateMakeChangeAction]
-    public ResetTransform_Change(Guid memberGuid)
+    public ResetTransform_Change(Guid memberGuid, int frame)
     {
         MemberGuid = memberGuid;
+        Frame = frame;
     }
 
     public override bool InitializeAndValidate(Document target)
@@ -25,7 +26,7 @@ internal class ResetTransform_Change : Change
         if (member is not ITransformableObject transformable)
             return false;
 
-        oldTransform = transformable.TransformationMatrix;
+        oldTransform = transformable.GetTransformationMatrix(Frame);
 
         return true;
     }
@@ -50,18 +51,18 @@ internal class ResetTransform_Change : Change
         if (!target.TryFindMember(MemberGuid, out var member))
             throw new InvalidOperationException("Member not found");
 
-        var area = AffectedAreasUtility.GetTightLayerArea(member, 0);
+        var area = AffectedAreasUtility.GetTightLayerArea(member, Frame);
         if (member is ITransformableObject transformable)
         {
-            oldTransform = transformable.TransformationMatrix;
-            transformable.TransformationMatrix = matrix;
+            oldTransform = transformable.GetTransformationMatrix(Frame);
+            transformable.SetTransformationMatrix(Frame,matrix);
         }
         else
         {
             throw new InvalidOperationException("Member is not transformable");
         }
 
-        area.UnionWith(AffectedAreasUtility.GetTightLayerArea(member, 0));
+        area.UnionWith(AffectedAreasUtility.GetTightLayerArea(member, Frame));
 
         ignoreInUndo = false;
         return new TransformObject_ChangeInfo(MemberGuid, area);

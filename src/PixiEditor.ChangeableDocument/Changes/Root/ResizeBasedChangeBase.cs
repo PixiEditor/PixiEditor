@@ -16,7 +16,7 @@ internal abstract class ResizeBasedChangeBase : Change
     protected Dictionary<Guid, List<CommittedChunkStorage>> deletedChunks = new();
     protected Dictionary<Guid, List<CommittedChunkStorage>> deletedMaskChunks = new();
     
-    protected Dictionary<Guid, Matrix3X3> originalTransformations = new();
+    protected Dictionary<Guid, Matrix3X3[]> originalTransformations = new();
     protected VectorPath? originalSelectionPath;
 
     public ResizeBasedChangeBase()
@@ -67,7 +67,7 @@ internal abstract class ResizeBasedChangeBase : Change
             {
                 if (originalTransformations.TryGetValue(member.Id, out var transformation))
                 {
-                    transformableObject.TransformationMatrix = transformation;
+                    transformableObject.SetAllTransformationMatrices(transformation);
                 }
             }
 
