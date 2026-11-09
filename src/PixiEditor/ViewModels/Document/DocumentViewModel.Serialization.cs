@@ -289,15 +289,6 @@ internal partial class DocumentViewModel
                     primitive.ClipPath.Unit = new SvgStringUnit($"url(#{previousMember.Id}_clip)");
                 }
             }
-
-            if (vectorNode.Filters.Value != null)
-            {
-                var filterDef = AddFilterToDefs(primitive, vectorNode.Filters, defs);
-                primitive.Filter.Unit = new SvgFilterUnit()
-                {
-                    LinksTo = new SvgLinkUnit() { ObjectReference = filterDef.Id.Unit.Value.Value }
-                };
-            }
         }
         else if (elementToAdd is SvgGroup group)
         {
@@ -310,6 +301,15 @@ internal partial class DocumentViewModel
         if (elementToAdd != null)
         {
             elementContainer.Children.Add(elementToAdd);
+        }
+
+        if (vectorNode.Filters.Value != null && elementToAdd is IFilterable filterable)
+        {
+            var filterDef = AddFilterToDefs(elementToAdd, vectorNode.Filters, defs);
+            filterable.Filter.Unit = new SvgFilterUnit()
+            {
+                LinksTo = new SvgLinkUnit() { ObjectReference = filterDef.Id.Unit.Value.Value }
+            };
         }
     }
 
@@ -324,7 +324,7 @@ internal partial class DocumentViewModel
         {
             filtersInputValue.Connection.Node.TraverseBackwards(n =>
             {
-                if (n is FilterNode filterNode)
+                if (n is FilterNode filterNode && filterNode.IsFilterEnabled.Value)
                 {
                     var svgFilter = ToSvgFilter(filterNode);
                     if (svgFilter != null)
@@ -337,6 +337,7 @@ internal partial class DocumentViewModel
             });
         }
 
+        filter.Children.Reverse();
         defs.Children.Add(filter);
         return filter;
     }

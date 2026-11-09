@@ -13,6 +13,7 @@ public class ColorOverlayFilterNode : FilterNode
 
     private ColorFilter? lastColorFilter;
     private Color lastColor;
+    private BlendMode lastBlendMode;
 
     public ColorOverlayFilterNode()
     {
@@ -22,13 +23,14 @@ public class ColorOverlayFilterNode : FilterNode
 
     protected override ColorFilter? GetColorFilter(RenderContext context)
     {
-        if (lastColor == Color.Value)
+        if (lastColor == Color.Value && lastBlendMode == BlendMode.Value)
         {
             return lastColorFilter;
         }
 
         lastColorFilter = ColorFilter.CreateBlendMode(Color.Value, BlendMode.Value);
         lastColor = Color.Value;
+        lastBlendMode = BlendMode.Value;
 
         return lastColorFilter;
     }

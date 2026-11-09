@@ -153,6 +153,7 @@ internal partial class FiltersPopupViewModel : ViewModelBase
     {
         if (Document.IsDisposed) return;
 
+        using var block = Document.Operations.StartChangeBlock();
         Guid lastFilterNode = FindNodeToConnectTo(StructureMember, out var inputPropName, out var position);
 
         var node = Document.NodeGraph.CreateNode(filter.NodeType, position - new VecD(250, 0));
@@ -204,6 +205,11 @@ internal partial class FiltersPopupViewModel : ViewModelBase
     {
         document?.NodeGraph.Connections.CollectionChanged -= OnNodeCollectionChanged;
         document?.LayersChanged -= DocumentOnLayersChanged;
+
+        foreach (var filterNodeViewModel in LayerFilters)
+        {
+            filterNodeViewModel?.Unsubscribe();
+        }
     }
 
     private void ReorderNodes(NodeViewModel oldItemAtIndex, NodeViewModel newItemAtIndex)
@@ -238,7 +244,10 @@ internal partial class FiltersPopupViewModel : ViewModelBase
         for (int i = LayerFilters.Count - 1; i >= 0; i--)
         {
             if (!newNodes.Contains(LayerFilters[i].Node))
+            {
+                LayerFilters[i].Unsubscribe();
                 LayerFilters.RemoveAt(i);
+            }
         }
 
         for (int i = 0; i < newNodes.Count; i++)
@@ -322,14 +331,16 @@ internal partial class FilterNodeViewModel : ObservableObject
     [ObservableProperty]
     public partial ObservableCollection<INodePropertyHandler> InputsToEdit { get; set; } = new ObservableCollection<INodePropertyHandler>();
 
+    private NodePropertyViewModel<bool> enabledProp;
+
     public FilterNodeViewModel(NodeViewModel node)
     {
         Node = node;
-        var prop = node.FindInputProperty<bool>(FilterNode.IsFilterEnabledProperty);
+        enabledProp = node.FindInputProperty<bool>(FilterNode.IsFilterEnabledProperty);
         InputsToEdit.AddRange(node.Inputs.Where(x => x is not GenericPropertyViewModel && x.PropertyName != FilterNode.IsFilterEnabledProperty));
-       if (prop != null)
+       if (enabledProp != null)
        {
-           prop.ValueChanged += PropOnValueChanged;
+           enabledProp.ValueChanged += PropOnValueChanged;
        }
     }
 
@@ -342,5 +353,10 @@ internal partial class FilterNodeViewModel : ObservableObject
     {
         get => (Node as IFilterNodeHandler).IsFilterEnabled;
         set => (Node as IFilterNodeHandler).IsFilterEnabled = value ?? true;
+    }
+
+    public void Unsubscribe()
+    {
+        enabledProp?.ValueChanged -= PropOnValueChanged;
     }
 }

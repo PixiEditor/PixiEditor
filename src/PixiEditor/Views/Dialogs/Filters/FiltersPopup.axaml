@@ -79,7 +79,7 @@
             </ListBox.ItemTemplate>
 
             <Interaction.Behaviors>
-                <behaviours:ListBoxReorderBehavior x:TypeArguments="nodes:NodeViewModel"></behaviours:ListBoxReorderBehavior>
+                <behaviours:ListBoxReorderBehavior x:TypeArguments="layers:FilterNodeViewModel"/>
             </Interaction.Behaviors>
         </ListBox>
         <StackPanel Grid.Row="2" Grid.Column="0" Spacing="5" Margin="12, 4, 12, 6" Orientation="Horizontal"

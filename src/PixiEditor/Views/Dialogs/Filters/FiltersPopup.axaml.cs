@@ -48,8 +48,13 @@ public partial class FiltersPopup : PixiEditorPopup
 
     private void OnClick(object? sender, RoutedEventArgs e)
     {
-        CheckBox checkBox = (sender as CheckBox);
+        if (sender is not CheckBox checkBox ||
+            e is not PointerPressedEventArgs pointerEvent ||
+            pointerEvent.GetCurrentPoint(checkBox).Properties.PointerUpdateKind != PointerUpdateKind.LeftButtonPressed)
+        {
+            return;
+        }
+
         checkBox.IsChecked = !checkBox.IsChecked;
     }
 }
-

@@ -19,6 +19,7 @@ using PixiEditor.SVG.Elements;
 using PixiEditor.SVG.Elements.Filters;
 using PixiEditor.SVG.Enums;
 using PixiEditor.SVG.Exceptions;
+using PixiEditor.SVG.Features;
 using PixiEditor.SVG.Units;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document;
@@ -149,7 +150,11 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         var isVisible = element.Visibility.Unit?.Value != SvgVisibility.Hidden &&
                         element.Visibility.Unit?.Value != SvgVisibility.Collapse;
 
-        var filterNodeId = ExtractFilters(styleContext, graph, defs);
+        int? filterNodeId = null;
+        if (element is IFilterable filterable)
+        {
+            filterNodeId = ExtractFilters(filterable, graph, defs);
+        }
 
         NodeGraphBuilder.NodeBuilder nBuilder = graph.WithNodeOfType<VectorLayerNode>(out int id)
             .WithName(name)
@@ -185,14 +190,14 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         return lastId;
     }
 
-    private int? ExtractFilters(StyleContext styleContext, NodeGraphBuilder graph, SvgDefs defs)
+    private int? ExtractFilters(IFilterable filterable, NodeGraphBuilder graph, SvgDefs defs)
     {
-        bool hasFilter = styleContext.Filter.Unit?.ImageFilter != null || styleContext.Filter.Unit?.LinksTo != null;
+        bool hasFilter = filterable.Filter.Unit?.ImageFilter != null || filterable.Filter.Unit?.LinksTo != null;
 
         int? filterNodeId = null;
         if (hasFilter)
         {
-            var imageFilter = styleContext.Filter.Unit?.ImageFilter;
+            var imageFilter = filterable.Filter.Unit?.ImageFilter;
             if (imageFilter != null)
             {
                 Type filterToNodeType = MapImageFilterToNodeType(imageFilter, out var props);
@@ -203,15 +208,13 @@ internal class SvgDocumentBuilder : IDocumentBuilder
             }
             else
             {
-                var link = styleContext.Filter.Unit?.LinksTo;
+                var link = filterable.Filter.Unit?.LinksTo;
                 if (link != null && defs.TryFindElement(link.Value.ObjectReference, out var filterObj) &&
                     filterObj is SvgFilter filter)
                 {
                     int? lastFilterId = null;
                     NodeGraphBuilder.NodeBuilder? lastFilterBuilder = null;
-                    var reversed = new List<SvgElement>(filter.Children);
-                    reversed.Reverse();
-                    foreach (var filterChild in reversed)
+                    foreach (var filterChild in filter.Children)
                     {
                         if (filterChild is SvgFilterPrimitive filterPrimitive)
                         {
@@ -247,7 +250,12 @@ internal class SvgDocumentBuilder : IDocumentBuilder
     private int? AddGroup(SvgGroup group, NodeGraphBuilder graph, StyleContext style, SvgDefs defs, int? lastId,
         string connectionName = "Background")
     {
-        var filterNodeId = ExtractFilters(style, graph, defs);
+        int? filterNodeId = null;
+        if (group is IFilterable filterable)
+        {
+            filterNodeId = ExtractFilters(filterable, graph, defs);
+        }
+
         int? childId = null;
         var connectTo = "Background";
         foreach (var child in group.Children)
@@ -397,7 +405,11 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         DocumentViewModel docViewModel = DocumentViewModel.Build(b =>
             nestedBuilder.Build(b, nestedDocument));
 
-        var filterId = ExtractFilters(style, graph, defs);
+        int? filterId = null;
+        if (nestedDocument is IFilterable filterable)
+        {
+            filterId = ExtractFilters(filterable, graph, defs);
+        }
 
         var graphBuilder = graph.WithNodeOfType<NestedDocumentNode>(out int id)
             .WithName(nestedDocument.Id.Unit?.Value ?? new LocalizedString("NEW_LAYER"))
@@ -424,7 +436,7 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         {
             connections.Add(new PropertyConnection()
             {
-                InputPropertyName = FilterNode.InputPropertyName,
+                InputPropertyName = StructureNode.FiltersPropertyName,
                 OutputPropertyName = FilterNode.OutputPropertyName,
                 OutputNodeId = filterId.Value
             });
@@ -825,14 +837,15 @@ internal class SvgDocumentBuilder : IDocumentBuilder
 
             case SvgFeColorMatrix colorMatrix:
             {
-                if (colorMatrix.Type.Unit?.Value != SvgColorMatrixType.Matrix)
+                if ((colorMatrix.Type.Unit?.Value ?? SvgColorMatrixType.Matrix) != SvgColorMatrixType.Matrix)
                     throw new NotSupportedException(
                         $"Unsupported color matrix type: {colorMatrix.Type.Unit?.Value}");
 
                 inputProperties.Add(
                     ColorMatrixFilterNode.MatrixPropertyName,
-                    new ColorMatrix(colorMatrix.Values.Unit!.Value.Values.Select(x => (float)x.Value).ToArray()));
-
+                    colorMatrix.Values.Unit is { } values
+                        ? new ColorMatrix(values.Values.Select(x => (float)x.Value).ToArray())
+                        : ColorMatrix.Identity);
                 return typeof(ColorMatrixFilterNode);
             }
 
@@ -842,7 +855,7 @@ internal class SvgDocumentBuilder : IDocumentBuilder
                     morphology.Radius.Unit?.X.Value ?? 0,
                     morphology.Radius.Unit?.Y.Value ?? 0);
 
-                switch (morphology.Operator.Unit?.Value)
+                switch (morphology.Operator.Unit?.Value ?? SvgMorphologyOperator.Erode)
                 {
                     case SvgMorphologyOperator.Dilate:
                         inputProperties.Add(DilateNode.RadiusPropertyName, radius);

@@ -33,6 +33,7 @@ public partial class FilterPicker : UserControl
         }
         else if (e.Key is Key.Down or Key.Up)
         {
+            if (vm.FilteredFilters.Count == 0) return;
             int mod = e.Key == Key.Down ? 1 : -1;
             int currentIndex = vm.FilteredFilters.IndexOf(vm.SelectedPickerItem);
             var item = ItemsControl?.ItemsPanelRoot?.Children?.ElementAtOrDefault(currentIndex);

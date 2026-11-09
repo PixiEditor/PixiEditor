@@ -39,8 +39,7 @@ public struct SvgVectorUnit : ISvgUnit
             return;
         }
 
-        string[] values =
-            readerValue.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        string[] values = readerValue.Split([',', ' ', '\t', '\r', '\n'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         if (values.Length == 1)
         {
             x.ValuesFromXml(values[0], defs);
