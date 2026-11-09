@@ -4,4 +4,7 @@ using PixiEditor.ViewModels.Nodes;
 namespace PixiEditor.ViewModels.Document.Nodes.FilterNodes;
 
 [NodeViewModel("BLUR_FILTER_NODE", "FILTERS", PixiPerfectIcons.DropletFilled)]
-internal class BlurNodeViewModel : NodeViewModel<BlurNode>;
+internal class BlurNodeViewModel : FilterNodeViewModel<BlurNode>
+{
+
+}
