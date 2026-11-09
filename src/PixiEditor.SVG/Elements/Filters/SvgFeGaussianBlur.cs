@@ -7,7 +7,7 @@ namespace PixiEditor.SVG.Elements.Filters;
 
 public class SvgFeGaussianBlur() : SvgFilterPrimitive("feGaussianBlur"), IImageFilter
 {
-    public SvgProperty<SvgNumericUnit> StdDeviation { get; } = new("stdDeviation");
+    public SvgProperty<SvgVectorUnit> StdDeviation { get; } = new("stdDeviation");
     public SvgProperty<SvgEnumUnit<SvgEdgeMode>> EdgeMode { get; } = new("edgeMode");
 
 

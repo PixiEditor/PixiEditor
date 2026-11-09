@@ -51,16 +51,20 @@ public class GrayscaleNode : FilterNode
 
         filter?.Dispose();
         
-        var matrix = Mode.Value switch
-        {
-            GrayscaleMode.Weighted => UseFactor(WeightedMatrix),
-            GrayscaleMode.Average => UseFactor(AverageMatrix),
-            GrayscaleMode.Custom => UseFactor(ColorMatrix.WeightedGrayscale(GetAdjustedCustomWeight()) +
-                                              ColorMatrix.UseAlpha)
-        };
+        var matrix = GetColorMatrix();
 
         filter = ColorFilter.CreateColorMatrix(matrix);
         return filter;
+    }
+
+    public ColorMatrix GetColorMatrix()
+    {
+        return Mode.Value switch
+        {
+            GrayscaleMode.Weighted => UseFactor(WeightedMatrix),
+            GrayscaleMode.Average => UseFactor(AverageMatrix),
+            GrayscaleMode.Custom => UseFactor(ColorMatrix.WeightedGrayscale(GetAdjustedCustomWeight()) + ColorMatrix.UseAlpha)
+        };
     }
 
     private ColorMatrix UseFactor(ColorMatrix target)

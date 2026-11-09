@@ -8,6 +8,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 [NodeInfo("Erode")]
 public class ErodeNode : FilterNode
 {
+    public const string RadiusPropertyName = "Radius";
     public InputProperty<VecD> Radius { get; }
 
     private ImageFilter? lastFilter;
@@ -15,7 +16,7 @@ public class ErodeNode : FilterNode
 
     public ErodeNode()
     {
-        Radius = CreateInput("Radius", "RADIUS", new VecD(1f, 1f))
+        Radius = CreateInput(RadiusPropertyName, "RADIUS", new VecD(1f, 1f))
             .WithRules(rules => rules.Min(VecD.Zero));
     }
 

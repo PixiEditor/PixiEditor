@@ -1631,7 +1631,6 @@
   "OPEN_FILTERS_PANEL": "Open Filters Panel",
   "OPEN_FILTERS_PANEL_DESCRIPTIVE": "Open Filters Panel for a selected layer",
   "OFFSET_FILTER_NODE": "Offset Filter",
-  "NOISE_DISPLACEMENT_FILTER_NODE": "Noise Displacement Filter",
   "TURBULENCE_NOISE_PROPERTY": "Turbulence Noise",
   "FREQUENCY_PROPERTY": "Frequency"
 }

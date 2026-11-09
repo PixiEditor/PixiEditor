@@ -8,6 +8,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 [NodeInfo("OffsetFilter")]
 public class OffsetFilterNode : FilterNode
 {
+    public const string OffsetPropertyName = "Offset";
     public InputProperty<VecD> Offset { get; }
 
     private ImageFilter? lastFilter;
@@ -17,7 +18,7 @@ public class OffsetFilterNode : FilterNode
 
     public OffsetFilterNode()
     {
-        Offset = CreateInput("Offset", "OFFSET", VecD.Zero);
+        Offset = CreateInput(OffsetPropertyName, "OFFSET", VecD.Zero);
     }
 
     protected override ImageFilter? GetImageFilter(RenderContext context)
@@ -33,7 +34,7 @@ public class OffsetFilterNode : FilterNode
         return lastFilter;
     }
 
-    public override Node CreateCopy() => new OffsetNode();
+    public override Node CreateCopy() => new OffsetFilterNode();
 
     public override void Dispose()
     {

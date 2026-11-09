@@ -7,6 +7,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 [NodeInfo("ColorMatrixFilter")]
 public class ColorMatrixFilterNode : FilterNode
 {
+    public const string MatrixPropertyName = "Matrix";
     public InputProperty<ColorMatrix> Matrix { get; }
 
     private ColorFilter filter;
@@ -14,7 +15,7 @@ public class ColorMatrixFilterNode : FilterNode
 
     public ColorMatrixFilterNode()
     {
-        Matrix = CreateInput(nameof(Matrix), "MATRIX", ColorMatrix.Identity);
+        Matrix = CreateInput(MatrixPropertyName, "MATRIX", ColorMatrix.Identity);
     }
 
     protected override ColorFilter? GetColorFilter(RenderContext context)

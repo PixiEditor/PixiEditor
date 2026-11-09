@@ -24,6 +24,7 @@ using PixiEditor.Models.Serialization;
 using PixiEditor.Models.Serialization.Factories;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 using PixiEditor.Models.BrushEngine;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Collections;
@@ -32,6 +33,7 @@ using PixiEditor.Parser.Skia;
 using PixiEditor.Parser.Skia.Encoders;
 using PixiEditor.SVG;
 using PixiEditor.SVG.Elements;
+using PixiEditor.SVG.Elements.Filters;
 using PixiEditor.SVG.Enums;
 using PixiEditor.SVG.Features;
 using PixiEditor.SVG.Units;
@@ -156,7 +158,19 @@ internal partial class DocumentViewModel
                     }
                 }
 
-                AddElements(doc, folderNode.GetChildrenNodes().Where(x => doc.GetParents(x.Id).FirstOrDefault() == folderNode && x.IsVisible.Value).Reverse().ToList(), group,
+                if (folderNode.Filters.Value != null)
+                {
+                    var filterDef = AddFilterToDefs(group, folderNode.Filters, defs);
+                    group.Filter.Unit = new SvgFilterUnit()
+                    {
+                        LinksTo = new SvgLinkUnit() { ObjectReference = filterDef.Id.Unit.Value.Value }
+                    };
+                }
+
+                AddElements(doc,
+                    folderNode.GetChildrenNodes()
+                        .Where(x => doc.GetParents(x.Id).FirstOrDefault() == folderNode && x.IsVisible.Value).Reverse()
+                        .ToList(), group,
                     atTime, exportSize, resizeFactor, vectorExportConfig, defs);
                 elementContainer.Children.Add(group);
             }
@@ -179,6 +193,14 @@ internal partial class DocumentViewModel
                 var svgDoc = ToSvgDocument(nestedDocument, atTime, exportSize, vectorExportConfig);
                 svgDoc.Transform.Unit = new SvgTransformUnit(nested.TransformationMatrix);
                 elementContainer.Children.Add(svgDoc);
+                if (nested.Filters.Value != null)
+                {
+                    var filterDef = AddFilterToDefs(svgDoc, nested.Filters, defs);
+                    svgDoc.Filter.Unit = new SvgFilterUnit()
+                    {
+                        LinksTo = new SvgLinkUnit() { ObjectReference = filterDef.Id.Unit.Value.Value }
+                    };
+                }
             }
         }
     }
@@ -267,6 +289,15 @@ internal partial class DocumentViewModel
                     primitive.ClipPath.Unit = new SvgStringUnit($"url(#{previousMember.Id}_clip)");
                 }
             }
+
+            if (vectorNode.Filters.Value != null)
+            {
+                var filterDef = AddFilterToDefs(primitive, vectorNode.Filters, defs);
+                primitive.Filter.Unit = new SvgFilterUnit()
+                {
+                    LinksTo = new SvgLinkUnit() { ObjectReference = filterDef.Id.Unit.Value.Value }
+                };
+            }
         }
         else if (elementToAdd is SvgGroup group)
         {
@@ -280,6 +311,137 @@ internal partial class DocumentViewModel
         {
             elementContainer.Children.Add(elementToAdd);
         }
+    }
+
+    private static SvgFilter AddFilterToDefs(SvgElement svgElement, InputProperty<Filter> filtersInputValue,
+        SvgDefs defs)
+    {
+        SvgFilter filter = new SvgFilter();
+        filter.Id.Unit = new SvgStringUnit(svgElement.TagName + "_filter_" + defs.Children.Count);
+        filter.FilterUnits.Unit = new SvgEnumUnit<SvgFilterUnits>(SvgFilterUnits.UserSpaceOnUse);
+
+        if (filtersInputValue.Connection != null)
+        {
+            filtersInputValue.Connection.Node.TraverseBackwards(n =>
+            {
+                if (n is FilterNode filterNode)
+                {
+                    var svgFilter = ToSvgFilter(filterNode);
+                    if (svgFilter != null)
+                    {
+                        filter.Children.Add(svgFilter);
+                    }
+                }
+
+                return true;
+            });
+        }
+
+        defs.Children.Add(filter);
+        return filter;
+    }
+
+    private static SvgElement? ToSvgFilter(FilterNode filterNode)
+    {
+        switch (filterNode)
+        {
+            case BlurNode blurNode:
+                return new SvgFeGaussianBlur { StdDeviation = { Unit = new SvgVectorUnit(blurNode.Radius.Value) } };
+            case ColorAdjustmentsFilterNode colorAdjustmentsFilterNode:
+                break;
+            case ColorMatrixFilterNode colorMatrixFilterNode:
+                return new SvgFeColorMatrix()
+                {
+                    Type = { Unit = new SvgEnumUnit<SvgColorMatrixType>(SvgColorMatrixType.Matrix) },
+                    Values = { Unit = new SvgNumericArrayUnit(colorMatrixFilterNode.Matrix.Value) }
+                };
+            case ColorOverlayFilterNode colorOverlayFilterNode:
+                //  TODO: Implement
+                break;
+            case DilateNode dilateNode:
+                return new SvgFeMorphology()
+                {
+                    Radius = { Unit = new SvgVectorUnit(dilateNode.Radius.Value) },
+                    Operator = { Unit = new SvgEnumUnit<SvgMorphologyOperator>(SvgMorphologyOperator.Dilate) }
+                };
+            case ErodeNode erodeNode:
+                return new SvgFeMorphology()
+                {
+                    Radius = { Unit = new SvgVectorUnit(erodeNode.Radius.Value) },
+                    Operator = { Unit = new SvgEnumUnit<SvgMorphologyOperator>(SvgMorphologyOperator.Erode) }
+                };
+            case GrayscaleNode grayscaleNode:
+                return new SvgFeColorMatrix()
+                {
+                    Type = { Unit = new SvgEnumUnit<SvgColorMatrixType>(SvgColorMatrixType.Matrix) },
+                    Values = { Unit = new SvgNumericArrayUnit(grayscaleNode.GetColorMatrix()) }
+                };
+            case InvertFilterNode invertFilterNode:
+                return new SvgFeColorMatrix()
+                {
+                    Type = { Unit = new SvgEnumUnit<SvgColorMatrixType>(SvgColorMatrixType.Matrix) },
+                    Values =
+                    {
+                        Unit = new SvgNumericArrayUnit(ColorMatrix.Lerp(ColorMatrix.Identity,
+                            InvertFilterNode.InvertedMatrix, (float)invertFilterNode.Intensity.Value)),
+                    }
+                };
+            case KernelFilterNode kernelFilterNode:
+                // TODO: Below does not look correct in the browser
+                /*return new SvgFeConvolveMatrix
+                {
+                    KernelMatrix =
+                    {
+                        Unit = new SvgNumericArrayUnit(kernelFilterNode.Kernel.Value.AsSpan().ToArray())
+                    },
+                    Order = { Unit = new SvgVectorUnit(new VecD(kernelFilterNode.Kernel.Value.Width, kernelFilterNode.Kernel.Value.Height)) },
+                    Divisor = { Unit = new SvgNumericUnit(kernelFilterNode.Gain.Value, "") },
+                    Bias = { Unit = new SvgNumericUnit(kernelFilterNode.Bias.Value, "") },
+                    TargetX = { Unit = new SvgNumericUnit(kernelFilterNode.Kernel.Value.RadiusX, "") },
+                    TargetY = { Unit = new SvgNumericUnit(kernelFilterNode.Kernel.Value.RadiusY, "") },
+                    PreserveAlpha = { Unit = new SvgBoolUnit(kernelFilterNode.OnAlpha.Value) }
+                };*/
+                break;
+            /* Not available for now
+            case NoiseDisplacementFilterNode noiseDisplacementFilterNode:
+                break;
+            */
+            case OffsetFilterNode offsetFilterNode:
+                return new SvgFeOffset()
+                {
+                    Dx = { Unit = new SvgNumericUnit(offsetFilterNode.Offset.Value.X, "") },
+                    Dy = { Unit = new SvgNumericUnit(offsetFilterNode.Offset.Value.Y, "") }
+                };
+            case SepiaFilterNode sepiaFilterNode:
+                return new SvgFeColorMatrix()
+                {
+                    Type = { Unit = new SvgEnumUnit<SvgColorMatrixType>(SvgColorMatrixType.Matrix) },
+                    Values =
+                    {
+                        Unit = new SvgNumericArrayUnit(ColorMatrix.Lerp(ColorMatrix.Identity,
+                            SepiaFilterNode.SepiaMatrix, (float)sepiaFilterNode.Intensity.Value))
+                    }
+                };
+            case ShadowNode shadowNode:
+                var shadow = new SvgFeDropShadow
+                {
+                    Dx = { Unit = new SvgNumericUnit(shadowNode.Offset.Value.X, "") },
+                    Dy = { Unit = new SvgNumericUnit(shadowNode.Offset.Value.Y, "") },
+                    StdDeviation = { Unit = new SvgVectorUnit(shadowNode.Sigma.Value) },
+                    FloodColor =
+                    {
+                        Unit = SvgColorUnit.FromRgba(shadowNode.Color.Value.R, shadowNode.Color.Value.G,
+                            shadowNode.Color.Value.B, 255)
+                    },
+                    FloodOpacity = { Unit = new SvgNumericUnit(shadowNode.Color.Value.A / 255.0, "") }
+                };
+
+                return shadow;
+            default:
+                return null;
+        }
+
+        return null;
     }
 
     private static SvgLine AddLine(IReadOnlyLineData lineData)
@@ -428,7 +590,9 @@ internal partial class DocumentViewModel
             text.Stroke.Unit = new SvgPaintServerUnit(textInline.StrokePaintable);
             text.StrokeWidth.Unit = SvgNumericUnit.FromUserUnits(textInline.StrokeWidth);
             text.Fill.Unit =
-                new SvgPaintServerUnit(textInline.Fill ? textInline.FillPaintable : new ColorPaintable(Colors.Transparent));
+                new SvgPaintServerUnit(textInline.Fill
+                    ? textInline.FillPaintable
+                    : new ColorPaintable(Colors.Transparent));
             text.TextAlign.Unit = new SvgEnumUnit<SvgTextAlign>((SvgTextAlign)textInline.Alignment);
             text.FillOpacity.Unit = SvgNumericUnit.FromUserUnits(TryGetOpacity(textInline.FillPaintable));
             text.StrokeOpacity.Unit = SvgNumericUnit.FromUserUnits(TryGetOpacity(textInline.StrokePaintable));
