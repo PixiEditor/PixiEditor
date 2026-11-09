@@ -7,6 +7,9 @@ using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 
+// This node appears to be too problematic for now, so it is not exposed to the frontend
+// Basically, rendering it with high dpi is an enormous pain in the ass, viewport changes affect the looks.
+// Filter system would need to be reworked to be executed in "layer space", meaning it is independent of changes to the viewport and stuff
 [NodeInfo("NoiseDisplacementFilter")]
 public class NoiseDisplacementFilterNode : FilterNode
 {
