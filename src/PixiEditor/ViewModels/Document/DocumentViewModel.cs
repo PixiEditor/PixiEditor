@@ -60,6 +60,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public event Action ToolSessionFinished;
     
     private bool busy = false;
+
     public bool Busy
     {
         get => busy;
@@ -230,6 +231,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public LineToolOverlayViewModel LineToolOverlayViewModel { get; set; }
     public AnimationDataViewModel AnimationDataViewModel { get; set; }
     public TextOverlayViewModel TextOverlayViewModel { get; set; }
+    public RulerOverlayViewModel RulerOverlayViewModel { get; set; }
     private DocumentInternalParts Internals { get; }
     public AutosaveDocumentViewModel AutosaveViewModel { get; set; }
     public ContextualOptionsViewModel ContextualOptionsViewModel { get; set; } = new();
@@ -243,7 +245,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     IReferenceLayerHandler IDocument.ReferenceLayerHandler => ReferenceLayerViewModel;
     IAnimationHandler IDocument.AnimationHandler => AnimationDataViewModel;
     IContextualOptionsHandler IDocument.ContextualOptionsHandler => ContextualOptionsViewModel;
-
+    IRulerOverlayHandler IDocument.RulerOverlayHandler => RulerOverlayViewModel;
     public bool UsesSrgbBlending { get; private set; }
 
     private bool isDisposed = false;
@@ -313,6 +315,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         LineToolOverlayViewModel.LineMoved += (_, args) =>
             Internals.ChangeController.LineOverlayMovedInlet(args.Item1, args.Item2);
 
+        RulerOverlayViewModel = new();
         TextOverlayViewModel = new TextOverlayViewModel();
         TextOverlayViewModel.TextChanged += text =>
         {

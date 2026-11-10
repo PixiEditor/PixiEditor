@@ -392,11 +392,8 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
 
     private void OnIsVisibleChanged(AvaloniaPropertyChangedEventArgs<bool> e)
     {
-        if (e.NewValue.Value)
-        {
-            Refresh();
-        }
-        else
+        Refresh();
+        if (!e.NewValue.Value)
         {
             Cursor = null;
             RefreshCursorRequested?.Invoke();

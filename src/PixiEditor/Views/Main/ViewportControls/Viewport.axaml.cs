@@ -25,6 +25,7 @@ using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.SubViewModels;
 using PixiEditor.ViewModels.Tools.Tools;
 using PixiEditor.Views.Overlays;
+using PixiEditor.Views.Overlays.Ruler;
 using PixiEditor.Views.Rendering;
 using PixiEditor.Zoombox;
 using Point = Avalonia.Point;
@@ -277,7 +278,6 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         set => SetValue(MouseUpCommandProperty, value);
     }
 
-
     public DocumentViewModel? Document
     {
         get => (DocumentViewModel)GetValue(DocumentProperty);
@@ -387,6 +387,15 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     {
         get => GetValue(ViewportRenderOutputProperty);
         set => SetValue(ViewportRenderOutputProperty, value);
+    }
+
+    public static readonly StyledProperty<Thickness> HudMarginProperty = AvaloniaProperty.Register<Viewport, Thickness>(
+        nameof(HudMargin));
+
+    public Thickness HudMargin
+    {
+        get => GetValue(HudMarginProperty);
+        set => SetValue(HudMarginProperty, value);
     }
 
     public static readonly StyledProperty<Func<EditorData>> EditorDataFuncProperty =
@@ -525,6 +534,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         if (oldDoc != null)
         {
             oldDoc.SizeChanged -= viewport.OnDocumentSizeChanged;
+            oldDoc.RulerOverlayViewModel.PropertyChanged -= viewport.OnRulerOverlayChanged;
         }
 
         DocumentViewModel? newDoc = e.NewValue.Value;
@@ -536,10 +546,22 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
                 viewport.GridLinesXSize = Math.Max(newDoc.SizeBindable.X / 12f, 1);
             if(viewport.GridLinesYSize == 0)
                 viewport.GridLinesYSize = Math.Max(newDoc.SizeBindable.Y / 12f, 1);
+
+            newDoc.RulerOverlayViewModel.PropertyChanged += viewport.OnRulerOverlayChanged;
         }
 
         oldDoc?.Operations.RemoveViewport(viewport.GuidValue);
         newDoc?.Operations.AddOrUpdateViewport(viewport.GetLocation());
+    }
+
+    private void OnRulerOverlayChanged(object? sender, PropertyChangedEventArgs args)
+    {
+        if (args.PropertyName == nameof(Document.RulerOverlayViewModel.IsEnabled))
+        {
+            HudMargin = Document.RulerOverlayViewModel.IsEnabled
+                ? new Thickness(RulerOverlay.Offset)
+                : new Thickness(0);
+        }
     }
 
     private static void OnApplyTransformTriggerChanged(AvaloniaPropertyChangedEventArgs<ExecutionTrigger<(double scale, double radians, VecD center)>> e)

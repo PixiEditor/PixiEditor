@@ -20,6 +20,7 @@ using PixiEditor.Views.Overlays.SymmetryOverlay;
 using PixiEditor.Views.Overlays.TextOverlay;
 using PixiEditor.Views.Overlays.ColorPickerOverlay;
 using PixiEditor.Views.Overlays.ContextualOptions;
+using PixiEditor.Views.Overlays.Ruler;
 using PixiEditor.Views.Overlays.TransformOverlay;
 
 namespace PixiEditor.Views.Main.ViewportControls;
@@ -40,6 +41,7 @@ internal class ViewportOverlays
     private TextOverlay textOverlay;
     private ColorPickerPreviewOverlay colorPickerPreviewOverlay;
     private ContextualOptionsOverlay contextualOptionsOverlay;
+    private RulerOverlay rulerOverlay;
 
     public void Init(Viewport viewport)
     {
@@ -75,6 +77,9 @@ internal class ViewportOverlays
         textOverlay = new TextOverlay();
         BindTextOverlay();
 
+        rulerOverlay = new RulerOverlay();
+        BindRulerOverlay();
+
         contextualOptionsOverlay = new ContextualOptionsOverlay();
 
         Binding suppressOverlayEventsBinding = new()
@@ -94,6 +99,7 @@ internal class ViewportOverlays
         Viewport.ActiveOverlays.Add(snappingOverlay);
         Viewport.ActiveOverlays.Add(brushShapeOverlay);
         Viewport.ActiveOverlays.Add(textOverlay);
+        Viewport.ActiveOverlays.Add(rulerOverlay);
 
         foreach (var overlay in Viewport.ActiveOverlays)
         {
@@ -110,6 +116,7 @@ internal class ViewportOverlays
         BindColorPickerPreviewOverlay();
         Viewport.ActiveOverlays.Add(colorPickerPreviewOverlay);
     }
+
 
     private void BindReferenceLayerOverlay()
     {
@@ -830,5 +837,16 @@ internal class ViewportOverlays
         contextualOptionsOverlay.Bind(Visual.IsVisibleProperty, isVisibleBinding);
         contextualOptionsOverlay.Bind(ContextualOptionsOverlay.OptionsProperty, optionsBinding);
         contextualOptionsOverlay.Bind(ContextualOptionsOverlay.PositionProperty, positionBinding);
+    }
+    private void BindRulerOverlay()
+    {
+        Binding enabled = new Binding()
+        {
+            Source = Viewport,
+            Path = "Document.RulerOverlayViewModel.IsEnabled",
+            Mode = BindingMode.OneWay
+        };
+
+        rulerOverlay.Bind(Visual.IsVisibleProperty, enabled);
     }
 }

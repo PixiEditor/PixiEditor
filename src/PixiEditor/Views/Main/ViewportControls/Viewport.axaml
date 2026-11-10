@@ -50,7 +50,7 @@
         </Interaction.Behaviors>
         <overlays:TogglableFlyout
             IsVisible="{Binding HudVisible, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}}"
-            Margin="5" Icon="{DynamicResource icon-tool}"
+            Margin="{Binding HudMargin, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}}" Icon="{DynamicResource icon-tool}"
             ZIndex="2" HorizontalAlignment="Right" VerticalAlignment="Top">
             <overlays:TogglableFlyout.Child>
                 <Border Padding="5"
@@ -114,20 +114,20 @@
                         <Separator />
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
                             <Button Width="32" Height="32" ui:Translator.TooltipKey="RECENTER_HORIZONTAL_SYMMETRY"
-                                          Classes="OverlayButton pixi-icon"
-                                          BorderBrush="{DynamicResource ThemeBorderMidBrush}"
-                                          Content="{DynamicResource icon-recenter-x-symmetry}"
-                                          IsEnabled="{Binding Document.VerticalSymmetryAxisEnabledBindable, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
-                                          Click="RecenterHorizontalSymmetryClicked"
-                                          Cursor="Hand" />
+                                    Classes="OverlayButton pixi-icon"
+                                    BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                                    Content="{DynamicResource icon-recenter-x-symmetry}"
+                                    IsEnabled="{Binding Document.VerticalSymmetryAxisEnabledBindable, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
+                                    Click="RecenterHorizontalSymmetryClicked"
+                                    Cursor="Hand" />
                             <Button Width="32" Height="32"
-                                          ui:Translator.TooltipKey="RECENTER_VERTICAL_SYMMETRY"
-                                          Classes="OverlayButton pixi-icon"
-                                          BorderBrush="{DynamicResource ThemeBorderMidBrush}"
-                                          Content="{DynamicResource icon-recenter-y-symmetry}"
-                                          IsEnabled="{Binding Document.HorizontalSymmetryAxisEnabledBindable, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
-                                          Click="RecenterVerticalSymmetryClicked"
-                                          Cursor="Hand" />
+                                    ui:Translator.TooltipKey="RECENTER_VERTICAL_SYMMETRY"
+                                    Classes="OverlayButton pixi-icon"
+                                    BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                                    Content="{DynamicResource icon-recenter-y-symmetry}"
+                                    IsEnabled="{Binding Document.HorizontalSymmetryAxisEnabledBindable, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
+                                    Click="RecenterVerticalSymmetryClicked"
+                                    Cursor="Hand" />
                         </StackPanel>
                         <Separator />
                         <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Spacing="10">
@@ -184,98 +184,104 @@
                 </Border>
             </overlays:TogglableFlyout.Child>
         </overlays:TogglableFlyout>
-        <Grid
-            IsVisible="{Binding HudVisible, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}}"
-            ZIndex="100" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="10, 10, 10, -95">
-            <Grid.RowDefinitions>
-                <RowDefinition MinHeight="40" MaxHeight="120" />
-                <RowDefinition Height="30" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
-            <tools:Toolbar
-                DataContext="{ReflectionBinding Source={viewModels:MainVM}, Path=.}" />
-            <StackPanel Margin="0, 5, 0, 0" Grid.Row="1" Orientation="Horizontal" Name="toolsetsPanel">
-                <Border ClipToBounds="False"
-                        HorizontalAlignment="Left"
-                        Padding="5 0"
-                        x:CompileBindings="False"
-                        Name="activeToolSetChip"
-                        Height="25"
-                        BorderBrush="{DynamicResource ThemeBorderHighBrush}"
-                        BorderThickness="1"
-                        Background="{DynamicResource ThemeBackgroundBrush2}"
-                        CornerRadius="{DynamicResource ControlCornerRadius}">
-                    <Panel>
-                        <TextBlock IsVisible="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet.IconIsPixiPerfect}">
-                            <Run Classes="pixi-icon"
-                                 Text="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet.Icon}" />
-                            <Run
-                                ui:Translator.Key="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet.Name}" />
-                        </TextBlock>
-                        <StackPanel Orientation="Horizontal" Spacing="5"
-                                    IsVisible="{Binding Source={viewModels:MainVM}, Path=!ToolsSubViewModel.ActiveToolSet.IconIsPixiPerfect}">
-                            <Image
-                                Width="16" Height="16"
-                                Source="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet.Icon, Converter={converters:ImagePathToBitmapConverter}}" />
+        <Panel
+            ZIndex="100" VerticalAlignment="Top" HorizontalAlignment="Left"
+            Margin="{Binding HudMargin, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}}">
+            <Grid
+                IsVisible="{Binding HudVisible, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}}"
+                Margin="10, 10, 10, -95">
+                <Grid.RowDefinitions>
+                    <RowDefinition MinHeight="40" MaxHeight="120" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <tools:Toolbar
+                    DataContext="{ReflectionBinding Source={viewModels:MainVM}, Path=.}" />
+                <StackPanel Margin="0, 5, 0, 0" Grid.Row="1" Orientation="Horizontal" Name="toolsetsPanel">
+                    <Border ClipToBounds="False"
+                            HorizontalAlignment="Left"
+                            Padding="5 0"
+                            x:CompileBindings="False"
+                            Name="activeToolSetChip"
+                            Height="25"
+                            BorderBrush="{DynamicResource ThemeBorderHighBrush}"
+                            BorderThickness="1"
+                            Background="{DynamicResource ThemeBackgroundBrush2}"
+                            CornerRadius="{DynamicResource ControlCornerRadius}">
+                        <Panel>
                             <TextBlock
-                                ui:Translator.Key="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet.Name}" />
-                        </StackPanel>
-                    </Panel>
-                </Border>
-                <ItemsControl
-                    Name="otherToolSets"
-                    Background="Transparent"
-                    x:CompileBindings="False"
-                    ItemsSource="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.NonSelectedToolSets, Mode=OneWay}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Margin="5, 0, 0, 0" Spacing="5"
-                                        Orientation="Horizontal" />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate x:DataType="{x:Type handlers:IToolSetHandler}">
-                            <Button
-                                Command="{xaml:Command PixiEditor.Tools.SetActiveToolSet, UseProvided=True}"
-                                CommandParameter="{Binding}"
-                                FontSize="{DynamicResource FontSizeMedium}"
-                                Padding="4, 2"
-                                VerticalAlignment="Center">
-                                <Panel>
-                                    <TextBlock IsVisible="{Binding IconIsPixiPerfect}">
-                                        <Run Classes="pixi-icon" Text="{Binding Icon}" />
-                                        <Run ui:Translator.Key="{Binding Name}" />
-                                    </TextBlock>
-                                    <StackPanel Orientation="Horizontal" Spacing="5" IsVisible="{Binding !IconIsPixiPerfect}">
-                                        <Image
-                                            Source="{Binding Icon, Converter={converters:ImagePathToBitmapConverter}}"/>
-                                        <TextBlock ui:Translator.Key="{Binding Name}" />
-                                    </StackPanel>
-                                </Panel>
-                            </Button>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                    <ItemsControl.IsVisible>
-                        <MultiBinding Converter="{converters:AnyTrueConverter}">
-                            <MultiBinding.Bindings>
-                                <Binding Path="IsPointerOver" ElementName="toolsPicker" />
-                                <Binding Path="IsPointerOver" ElementName="activeToolSetChip" />
-                                <Binding Path="IsPointerOver" ElementName="otherToolSets" />
-                            </MultiBinding.Bindings>
-                        </MultiBinding>
-                    </ItemsControl.IsVisible>
-                </ItemsControl>
-            </StackPanel>
-            <tools:ToolsPicker Grid.Row="2" IsHitTestVisible="True"
-                               Name="toolsPicker"
-                               Padding="0, 5, 0, 0"
-                               Background="Transparent"
-                               x:CompileBindings="False"
-                               HorizontalAlignment="Left"
-                               ToolSet="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet, Mode=TwoWay}"
-                               ToolSets="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.AllToolSets, Mode=OneWay}"
-                               SwitchToolSetCommand="{xaml:Command Name=PixiEditor.Tools.SwitchToolSet, UseProvided=True}" />
-        </Grid>
+                                IsVisible="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet.IconIsPixiPerfect}">
+                                <Run Classes="pixi-icon"
+                                     Text="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet.Icon}" />
+                                <Run
+                                    ui:Translator.Key="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet.Name}" />
+                            </TextBlock>
+                            <StackPanel Orientation="Horizontal" Spacing="5"
+                                        IsVisible="{Binding Source={viewModels:MainVM}, Path=!ToolsSubViewModel.ActiveToolSet.IconIsPixiPerfect}">
+                                <Image
+                                    Width="16" Height="16"
+                                    Source="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet.Icon, Converter={converters:ImagePathToBitmapConverter}}" />
+                                <TextBlock
+                                    ui:Translator.Key="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet.Name}" />
+                            </StackPanel>
+                        </Panel>
+                    </Border>
+                    <ItemsControl
+                        Name="otherToolSets"
+                        Background="Transparent"
+                        x:CompileBindings="False"
+                        ItemsSource="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.NonSelectedToolSets, Mode=OneWay}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Margin="5, 0, 0, 0" Spacing="5"
+                                            Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="{x:Type handlers:IToolSetHandler}">
+                                <Button
+                                    Command="{xaml:Command PixiEditor.Tools.SetActiveToolSet, UseProvided=True}"
+                                    CommandParameter="{Binding}"
+                                    FontSize="{DynamicResource FontSizeMedium}"
+                                    Padding="4, 2"
+                                    VerticalAlignment="Center">
+                                    <Panel>
+                                        <TextBlock IsVisible="{Binding IconIsPixiPerfect}">
+                                            <Run Classes="pixi-icon" Text="{Binding Icon}" />
+                                            <Run ui:Translator.Key="{Binding Name}" />
+                                        </TextBlock>
+                                        <StackPanel Orientation="Horizontal" Spacing="5"
+                                                    IsVisible="{Binding !IconIsPixiPerfect}">
+                                            <Image
+                                                Source="{Binding Icon, Converter={converters:ImagePathToBitmapConverter}}" />
+                                            <TextBlock ui:Translator.Key="{Binding Name}" />
+                                        </StackPanel>
+                                    </Panel>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                        <ItemsControl.IsVisible>
+                            <MultiBinding Converter="{converters:AnyTrueConverter}">
+                                <MultiBinding.Bindings>
+                                    <Binding Path="IsPointerOver" ElementName="toolsPicker" />
+                                    <Binding Path="IsPointerOver" ElementName="activeToolSetChip" />
+                                    <Binding Path="IsPointerOver" ElementName="otherToolSets" />
+                                </MultiBinding.Bindings>
+                            </MultiBinding>
+                        </ItemsControl.IsVisible>
+                    </ItemsControl>
+                </StackPanel>
+                <tools:ToolsPicker Grid.Row="2" IsHitTestVisible="True"
+                                   Name="toolsPicker"
+                                   Padding="0, 5, 0, 0"
+                                   Background="Transparent"
+                                   x:CompileBindings="False"
+                                   HorizontalAlignment="Left"
+                                   ToolSet="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet, Mode=TwoWay}"
+                                   ToolSets="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.AllToolSets, Mode=OneWay}"
+                                   SwitchToolSetCommand="{xaml:Command Name=PixiEditor.Tools.SwitchToolSet, UseProvided=True}" />
+            </Grid>
+        </Panel>
         <rendering:Scene
             Focusable="True" Name="scene"
             ZIndex="1"

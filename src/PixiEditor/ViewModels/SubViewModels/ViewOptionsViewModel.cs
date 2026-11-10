@@ -84,4 +84,13 @@ internal class ViewOptionsViewModel : SubViewModel<ViewModelMain>
     {
         SnappingEnabled = !SnappingEnabled;
     }
+
+    [Command.Basic("PixiEditor.ToggleRulers", "TOGGLE_RULERS", "TOGGLE_RULERS_DESCRIPTIVE",
+        Icon = PixiPerfectIcons.Ruler)]
+    public void ToggleRulers()
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+
+        doc?.RulerOverlayViewModel.IsEnabled = !doc.RulerOverlayViewModel.IsEnabled;
+    }
 }
