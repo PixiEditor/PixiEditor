@@ -398,6 +398,15 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         set => SetValue(HudMarginProperty, value);
     }
 
+    public static readonly StyledProperty<Thickness> TopRightHudMarginProperty = AvaloniaProperty.Register<Viewport, Thickness>(
+        nameof(TopRightHudMargin));
+
+    public Thickness TopRightHudMargin
+    {
+        get => GetValue(TopRightHudMarginProperty);
+        set => SetValue(TopRightHudMarginProperty, value);
+    }
+
     public static readonly StyledProperty<Func<EditorData>> EditorDataFuncProperty =
         AvaloniaProperty.Register<Viewport, Func<EditorData>>("EditorDataFunc");
 
@@ -561,6 +570,10 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
             HudMargin = Document.RulerOverlayViewModel.IsEnabled
                 ? new Thickness(RulerOverlay.Offset)
                 : new Thickness(0);
+
+            TopRightHudMargin = Document.RulerOverlayViewModel.IsEnabled
+                ? new Thickness(0, RulerOverlay.Offset + 10, 10, 0)
+                : new Thickness(10);
         }
     }
 

@@ -144,6 +144,25 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
     public bool IsNestedDocument => referenceId != Guid.Empty;
 
+    private float dpi = 300;
+
+    public float DpiBindable
+    {
+        get => dpi;
+        set
+        {
+            if (!Internals.ChangeController.IsBlockingChangeActive)
+                Internals.ActionAccumulator.AddFinishedActions(new DocumentDpi_Action(value));
+        }
+    }
+
+    public void SetDpiInternal(float targetDpi)
+    {
+        this.dpi = targetDpi;
+        RulerOverlayViewModel.Dpi = targetDpi;
+        OnPropertyChanged(nameof(DpiBindable));
+    }
+
     public Guid ReferenceId
     {
         get => referenceId;
@@ -315,7 +334,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         LineToolOverlayViewModel.LineMoved += (_, args) =>
             Internals.ChangeController.LineOverlayMovedInlet(args.Item1, args.Item2);
 
-        RulerOverlayViewModel = new();
+        RulerOverlayViewModel = new(DpiBindable);
         TextOverlayViewModel = new TextOverlayViewModel();
         TextOverlayViewModel.TextChanged += text =>
         {
@@ -408,6 +427,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 refLayer.ImageSize));
         }
 
+        viewModel.DpiBindable = builderInstance.Dpi;
         viewModel.Swatches = new ObservableCollection<PaletteColor>(builderInstance.Swatches);
         viewModel.Palette = new ObservableRangeCollection<PaletteColor>(builderInstance.Palette);
 

@@ -50,7 +50,7 @@
         </Interaction.Behaviors>
         <overlays:TogglableFlyout
             IsVisible="{Binding HudVisible, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}}"
-            Margin="{Binding HudMargin, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}}" Icon="{DynamicResource icon-tool}"
+            Margin="{Binding TopRightHudMargin, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}}" Icon="{DynamicResource icon-tool}"
             ZIndex="2" HorizontalAlignment="Right" VerticalAlignment="Top">
             <overlays:TogglableFlyout.Child>
                 <Border Padding="5"

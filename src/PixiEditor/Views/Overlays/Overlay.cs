@@ -206,9 +206,9 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
         KeyReleasedOverlay?.Invoke(keyEventArgs.Key, keyEventArgs.KeyModifiers);
     }
 
-    public virtual bool TestHit(VecD point)
+    public virtual bool TestHit(VecD canvasPoint, VecD viewportPoint)
     {
-        return !SuppressEvents && Handles.Any(handle => handle.IsWithinHandle(handle.Position, new VecD(point.X, point.Y), ZoomScale));
+        return !SuppressEvents && Handles.Any(handle => handle.IsWithinHandle(handle.Position, new VecD(canvasPoint.X, canvasPoint.Y), ZoomScale));
     }
 
     public void AddHandle(Handle handle)

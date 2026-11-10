@@ -214,7 +214,7 @@ public class VectorPathOverlay : Overlay
         }
     }
 
-    public override bool TestHit(VecD point)
+    public override bool TestHit(VecD point, VecD viewportPoint)
     {
         return Path != null;
     }
@@ -368,7 +368,7 @@ public class VectorPathOverlay : Overlay
         if(LockEditing)
             return;
 
-        posOnStartDrag = args.Point;
+        posOnStartDrag = args.CanvasPoint;
         pathOnStartDrag?.Dispose();
         pathOnStartDrag = new VectorPath(Path);
         TryHighlightSnap(null, null);
@@ -383,7 +383,7 @@ public class VectorPathOverlay : Overlay
         if(LockEditing)
             return;
 
-        var delta = args.Point - posOnStartDrag;
+        var delta = args.CanvasPoint - posOnStartDrag;
 
         VectorPath updatedPath = new VectorPath(pathOnStartDrag);
 
@@ -551,7 +551,7 @@ public class VectorPathOverlay : Overlay
 
         pointerPressed = true;
 
-        if (IsOverPath(args.Point, out VecD closestPoint))
+        if (IsOverPath(args.CanvasPoint, out VecD closestPoint))
         {
             AddPointAt(closestPoint);
             AddToUndoCommand?.Execute(Path);
@@ -559,7 +559,7 @@ public class VectorPathOverlay : Overlay
         }
         else if (args.Modifiers == KeyModifiers.None)
         {
-            args.Handled = AddNewPointFromClick(SnappingController.GetSnapPoint(args.Point, out _, out _));
+            args.Handled = AddNewPointFromClick(SnappingController.GetSnapPoint(args.CanvasPoint, out _, out _));
             if (args.Handled)
             {
                 convertSelectedOnDrag = true;
@@ -615,7 +615,7 @@ public class VectorPathOverlay : Overlay
             SubShape subShapeContainingIndex = path.GetSubShapeContainingIndex(index);
             int localIndex = path.GetSubShapePointIndex(index, subShapeContainingIndex);
 
-            HandleContinousCubicDrag(args.Point, subShapeContainingIndex, localIndex, true);
+            HandleContinousCubicDrag(args.CanvasPoint, subShapeContainingIndex, localIndex, true);
             /*if (localIndex > 0)
             {
                 var previousVerb = subShapeContainingIndex.Points[localIndex - 1];
@@ -630,7 +630,7 @@ public class VectorPathOverlay : Overlay
             Path = editableVectorPath.ToVectorPath();
         }
 
-        if (IsOverPath(args.Point, out VecD closestPoint))
+        if (IsOverPath(args.CanvasPoint, out VecD closestPoint))
         {
             insertPreviewHandle.Position = closestPoint;
             canInsert = true;
@@ -754,7 +754,7 @@ public class VectorPathOverlay : Overlay
             ? new List<AnchorHandle>() { handle }
             : anchorHandles.Where(h => h.IsSelected).OrderByDescending(h => h == handle).ToList();
 
-        var targetPos = ApplySnapping(args.Point);
+        var targetPos = ApplySnapping(args.CanvasPoint);
         VecF delta = VecF.Zero;
 
         for (int i = 0; i < selectedAnchors.Count; i++)
@@ -847,7 +847,7 @@ public class VectorPathOverlay : Overlay
             return;
         }
 
-        var targetPos = ApplySnapping(args.Point);
+        var targetPos = ApplySnapping(args.CanvasPoint);
 
         var globalIndex = anchorHandles.IndexOf(to);
         var subShapeContainingIndex = editableVectorPath.GetSubShapeContainingIndex(globalIndex);

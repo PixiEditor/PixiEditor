@@ -80,4 +80,6 @@ internal interface IDocument : IHandler, Extensions.CommonApi.Documents.IDocumen
     public ICrossDocumentPipe<IReadOnlyNodeGraph> ShareGraph();
     public IReadOnlyDocument AccessInternalReadOnlyDocument();
     public bool IsNestedDocument { get; }
+    float DpiBindable { get; }
+    internal void SetDpiInternal(float dpi);
 }

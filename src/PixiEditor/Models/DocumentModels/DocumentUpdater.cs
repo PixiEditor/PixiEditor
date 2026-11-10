@@ -263,6 +263,9 @@ internal class DocumentUpdater
             case VectorShape_ChangeInfo info:
                 ProcessVectorShape(info);
                 break;
+            case DocumentDpi_ChangeInfo info:
+                ProcessDocumentDpi(info);
+                break;
         }
     }
 
@@ -1177,5 +1180,10 @@ internal class DocumentUpdater
         {
             vectorLayerHandler.UpdateLayerTypeIcon();
         }
+    }
+
+    private void ProcessDocumentDpi(DocumentDpi_ChangeInfo info)
+    {
+        doc.SetDpiInternal(info.Dpi);
     }
 }

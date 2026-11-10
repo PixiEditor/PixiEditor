@@ -1632,5 +1632,10 @@
   "OPEN_FILTERS_PANEL_DESCRIPTIVE": "Open Filters Panel for a selected layer",
   "OFFSET_FILTER_NODE": "Offset Filter",
   "TURBULENCE_NOISE_PROPERTY": "Turbulence Noise",
-  "FREQUENCY_PROPERTY": "Frequency"
+  "FREQUENCY_PROPERTY": "Frequency",
+  "UNKNOWN_UNIT_SHORT_NAME": "?",
+  "PX_UNIT_SHORT_NAME": "px",
+  "MILLIMETER_UNIT_SHORT_NAME": "mm",
+  "POINTS_UNIT_SHORT_NAME": "pt",
+  "INCHES_UNIT_SHORT_NAME": "in"
 }

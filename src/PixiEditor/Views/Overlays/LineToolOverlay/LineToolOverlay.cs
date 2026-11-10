@@ -150,10 +150,10 @@ internal class LineToolOverlay : Overlay
     {
         base.OnOverlayPointerMoved(args);
 
-        lastMousePos = args.Point;
+        lastMousePos = args.CanvasPoint;
     }
 
-    public override bool TestHit(VecD point)
+    public override bool TestHit(VecD point, VecD viewportPoint)
     {
         return IsVisible;
     }
@@ -219,7 +219,7 @@ internal class LineToolOverlay : Overlay
             return;
 
         movedWhileMouseDown = false;
-        mouseDownPos = args.Point;
+        mouseDownPos = args.CanvasPoint;
 
         lineStartOnMouseDown = LineStart;
         lineEndOnMouseDown = LineEnd;
@@ -229,25 +229,25 @@ internal class LineToolOverlay : Overlay
 
     private void StartHandleOnDrag(Handle source, OverlayPointerArgs args)
     {
-        VecD delta = args.Point - mouseDownPos;
+        VecD delta = args.CanvasPoint - mouseDownPos;
         LineStart = SnapAndHighlight(lineStartOnMouseDown + delta);
         movedWhileMouseDown = true;
 
-        lastMousePos = args.Point;
+        lastMousePos = args.CanvasPoint;
         isDraggingHandle = true;
         IsSizeBoxEnabled = true;
     }
 
     private void EndHandleOnDrag(Handle source, OverlayPointerArgs args)
     {
-        VecD delta = args.Point - mouseDownPos;
+        VecD delta = args.CanvasPoint - mouseDownPos;
         VecD final = SnapAndHighlight(lineEndOnMouseDown + delta);
 
         LineEnd = final;
         movedWhileMouseDown = true;
 
         isDraggingHandle = true;
-        lastMousePos = args.Point;
+        lastMousePos = args.CanvasPoint;
         IsSizeBoxEnabled = true;
     }
 
@@ -280,7 +280,7 @@ internal class LineToolOverlay : Overlay
     private void OnHandlePress(Handle source, OverlayPointerArgs args)
     {
         movedWhileMouseDown = false;
-        mouseDownPos = args.Point;
+        mouseDownPos = args.CanvasPoint;
 
         lineStartOnMouseDown = LineStart;
         lineEndOnMouseDown = LineEnd;
@@ -288,7 +288,7 @@ internal class LineToolOverlay : Overlay
 
     private void MoveHandleOnDrag(Handle source, OverlayPointerArgs args)
     {
-        var delta = args.Point - mouseDownPos;
+        var delta = args.CanvasPoint - mouseDownPos;
 
         VecD mappedStart = lineStartOnMouseDown;
         VecD mappedEnd = lineEndOnMouseDown;

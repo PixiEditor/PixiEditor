@@ -228,11 +228,11 @@ internal class BrushShapeOverlay : Overlay
         isCtrlDown = args.Modifiers.HasFlag(KeyModifiers.Control);
         if (!args.Properties.IsLeftButtonPressed && BrushData.BrushGraph != null)
         {
-            ExecuteBrush(args.Point);
+            ExecuteBrush(args.CanvasPoint);
         }
 
-        UpdateBrushShape(args.Point);
-        lastPoint = args.Point;
+        UpdateBrushShape(args.CanvasPoint);
+        lastPoint = args.CanvasPoint;
         lastPointerInfoTime = DateTime.Now;
 
         Refresh();

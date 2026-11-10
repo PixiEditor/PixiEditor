@@ -554,7 +554,7 @@ internal class TransformOverlay : Overlay
 
     private void OnMoveHandlePressed(Handle source, OverlayPointerArgs args)
     {
-        StartMoving(args.Point);
+        StartMoving(args.CanvasPoint);
     }
 
     protected override void OnOverlayPointerExited(OverlayPointerArgs args)
@@ -574,22 +574,22 @@ internal class TransformOverlay : Overlay
 
         lastClickCount = args.ClickCount;
 
-        if (Handles.Any(x => x.IsWithinHandle(x.Position, args.Point, ZoomScale))) return;
+        if (Handles.Any(x => x.IsWithinHandle(x.Position, args.CanvasPoint, ZoomScale))) return;
 
-        pressedWithinBounds = TestHit(args.Point);
+        pressedWithinBounds = TestHit(args.CanvasPoint, args.ViewportPoint);
 
-        if (CanShear(args.Point, out var side))
+        if (CanShear(args.CanvasPoint, out var side))
         {
             StartShearing(args, side);
         }
-        else if (!CanRotate(args.Point))
+        else if (!CanRotate(args.CanvasPoint))
         {
-            StartMoving(args.Point);
+            StartMoving(args.CanvasPoint);
         }
         else if (!LockRotation)
         {
             isRotating = true;
-            mousePosOnStartRotate = args.Point;
+            mousePosOnStartRotate = args.CanvasPoint;
             cornersOnStartRotate = Corners;
             propAngle1OnStartRotate = InternalState.ProportionalAngle1;
             propAngle2OnStartRotate = InternalState.ProportionalAngle2;
@@ -606,8 +606,8 @@ internal class TransformOverlay : Overlay
 
     private void OnAnchorHandleDrag(Handle source, OverlayPointerArgs args)
     {
-        HandleCapturedAnchorMovement(args.Point);
-        lastPointerPos = args.Point;
+        HandleCapturedAnchorMovement(args.CanvasPoint);
+        lastPointerPos = args.CanvasPoint;
     }
 
     private void OnMoveHandleDrag(Handle source, OverlayPointerArgs args)
@@ -615,14 +615,14 @@ internal class TransformOverlay : Overlay
         HandleTransform(lastPointerPos);
         Cursor = new Cursor(StandardCursorType.DragMove);
         actuallyMoved = true;
-        lastPointerPos = args.Point;
+        lastPointerPos = args.CanvasPoint;
     }
 
     protected override void OnOverlayPointerMoved(OverlayPointerArgs e)
     {
         Cursor finalCursor = new Cursor(StandardCursorType.Arrow);
 
-        lastPointerPos = e.Point;
+        lastPointerPos = e.CanvasPoint;
         VecD pos = lastPointerPos;
 
         if (isMoving)
@@ -634,12 +634,12 @@ internal class TransformOverlay : Overlay
 
         if (capturedAnchor is not null)
         {
-            HandleCapturedAnchorMovement(e.Point);
-            lastPointerPos = e.Point;
+            HandleCapturedAnchorMovement(e.CanvasPoint);
+            lastPointerPos = e.CanvasPoint;
             return;
         }
 
-        if (UpdateSpecialCursors(e.Point))
+        if (UpdateSpecialCursors(e.CanvasPoint))
         {
             finalCursor = new Cursor(StandardCursorType.None);
         }
@@ -681,7 +681,7 @@ internal class TransformOverlay : Overlay
 
         if (!isRotating && !actuallyMoved && pressedWithinBounds)
         {
-            PointerInfo info = new PointerInfo() { PositionOnCanvas = e.Point };
+            PointerInfo info = new PointerInfo() { PositionOnCanvas = e.CanvasPoint };
             MouseOnCanvasEventArgs args = new(MouseButton.Left, e.Pointer.Type, info, e.Modifiers, lastClickCount, e.Properties, ZoomScale, e.Source as IDocument);
             PassthroughPointerPressedCommand?.Execute(args);
             lastClickCount = 0;
@@ -692,7 +692,7 @@ internal class TransformOverlay : Overlay
             isRotating = false;
             e.Pointer.Capture(null);
             Cursor = new Cursor(StandardCursorType.Arrow);
-            var pos = e.Point;
+            var pos = e.CanvasPoint;
             UpdateSpecialCursors(pos);
         }
 
@@ -702,7 +702,7 @@ internal class TransformOverlay : Overlay
             SideFreedom = beforeShearSideFreedom;
             e.Pointer.Capture(null);
             Cursor = new Cursor(StandardCursorType.Arrow);
-            var pos = e.Point;
+            var pos = e.CanvasPoint;
             UpdateSpecialCursors(pos);
         }
 
@@ -712,7 +712,7 @@ internal class TransformOverlay : Overlay
         pressedWithinBounds = false;
     }
 
-    public override bool TestHit(VecD point)
+    public override bool TestHit(VecD point, VecD viewportPoint)
     {
         const double offsetInPixels = 30;
         double offsetToScale = offsetInPixels / ZoomScale;
@@ -727,7 +727,7 @@ internal class TransformOverlay : Overlay
         };
         scaledCorners = scaledCorners.AsRotated(Corners.RectRotation, Corners.RectCenter);
 
-        return base.TestHit(point) || scaledCorners.IsPointInside(point);
+        return base.TestHit(point, viewportPoint) || scaledCorners.IsPointInside(point);
     }
 
     private void OnMoveHandleReleased(Handle obj, OverlayPointerArgs args)
@@ -785,7 +785,7 @@ internal class TransformOverlay : Overlay
         beforeShearSideFreedom = SideFreedom;
         SideFreedom = TransformSideFreedom.Shear;
         CaptureAnchor(side);
-        lastPointerPos = args.Point;
+        lastPointerPos = args.CanvasPoint;
     }
 
     private void HandleTransform(VecD pos)
@@ -877,7 +877,7 @@ internal class TransformOverlay : Overlay
     private bool CanRotate(VecD mousePos)
     {
         return !Corners.IsPointInside(mousePos) &&
-               Handles.All(x => !x.IsWithinHandle(x.Position, mousePos, ZoomScale)) && TestHit(mousePos) && !LockTransforming;
+               Handles.All(x => !x.IsWithinHandle(x.Position, mousePos, ZoomScale)) && TestHit(mousePos, mousePos) && !LockTransforming;
     }
 
     private bool UpdateSpecialCursors(VecD mousePos)

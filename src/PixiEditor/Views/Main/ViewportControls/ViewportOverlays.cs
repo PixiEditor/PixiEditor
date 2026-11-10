@@ -847,6 +847,38 @@ internal class ViewportOverlays
             Mode = BindingMode.OneWay
         };
 
+        Binding rulerUnit = new Binding()
+        {
+            Source = Viewport,
+            Path = "Document.RulerOverlayViewModel.Unit",
+            Mode = BindingMode.TwoWay
+        };
+
+        Binding dpi = new Binding()
+        {
+            Source = Viewport,
+            Path = "Document.DpiBindable",
+            Mode = BindingMode.OneWay
+        };
+
+        Binding selectionBinding = new()
+        {
+            Source = Viewport,
+            Path = "Document.TransformViewModel.Corners",
+            Mode = BindingMode.OneWay
+        };
+
+        Binding selectionEnabledBinding = new()
+        {
+            Source = Viewport,
+            Path = "Document.TransformViewModel.TransformActive",
+            Mode = BindingMode.OneWay
+        };
+
         rulerOverlay.Bind(Visual.IsVisibleProperty, enabled);
+        rulerOverlay.Bind(RulerOverlay.UnitProperty, rulerUnit);
+        rulerOverlay.Bind(RulerOverlay.DpiProperty, dpi);
+        rulerOverlay.Bind(RulerOverlay.SelectionProperty, selectionBinding);
+        rulerOverlay.Bind(RulerOverlay.SelectionEnabledProperty, selectionEnabledBinding);
     }
 }

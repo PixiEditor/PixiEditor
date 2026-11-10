@@ -23,6 +23,7 @@ internal class DocumentViewModelBuilder
     public int Width { get; set; }
     public int Height { get; set; }
     public bool FitToContent { get; set; } = false;
+    public float Dpi { get; set; } = 300;
 
     public List<PaletteColor> Swatches { get; set; } = new List<PaletteColor>();
     public List<PaletteColor> Palette { get; set; } = new List<PaletteColor>();
@@ -45,6 +46,12 @@ internal class DocumentViewModelBuilder
     }
 
     public DocumentViewModelBuilder WithSize(VecI size) => WithSize(size.X, size.Y);
+
+    public DocumentViewModelBuilder WithDpi(float dpi)
+    {
+        Dpi = dpi;
+        return this;
+    }
 
     public DocumentViewModelBuilder WithSwatches(IEnumerable<PaletteColor> swatches)
     {

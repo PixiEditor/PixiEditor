@@ -35,6 +35,7 @@ internal class Document : IChangeable, IReadOnlyDocument
     public DocumentRenderer Renderer { get; }
     public IReadOnlyBlackboard Blackboard => NodeGraph.Blackboard;
     public ColorSpace ProcessingColorSpace { get; internal set; } = ColorSpace.CreateSrgbLinear();
+    public float Dpi { get; set; } = 300;
 
     /// <summary>
     /// The default size for a new document

@@ -88,6 +88,7 @@ internal partial class DocumentViewModel
             SrgbColorBlending = doc.ProcessingColorSpace.IsSrgb,
             Width = Width,
             Height = Height,
+            Dpi = doc.Dpi,
             Swatches = ToCollection(Swatches),
             Palette = ToCollection(Palette),
             Graph = graph,
