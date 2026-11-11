@@ -6,6 +6,7 @@ using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
 using PixiEditor.Models.Controllers.InputDevice;
+using PixiEditor.Views.Overlays.Ruler;
 using PixiEditor.Views.Overlays.SymmetryOverlay;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
@@ -57,6 +58,9 @@ internal abstract class UpdateableChangeExecutor
     public virtual void OnSymmetryDragStarted(SymmetryAxisDirection dir) { }
     public virtual void OnSymmetryDragged(SymmetryAxisDragInfo info) { }
     public virtual void OnSymmetryDragEnded(SymmetryAxisDirection dir) { }
+    public virtual void OnGuideDragStarted(Guid id) { }
+    public virtual void OnGuideDragged(GuideDragInfo info) { }
+    public virtual void OnGuideDragEnded(Guid id) { }
     public virtual void OnConvertedKeyDown(Key key) { }
     public virtual void OnConvertedKeyUp(Key key) { }
     public virtual void OnSettingsChanged(string name, object value) { }

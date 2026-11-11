@@ -143,6 +143,18 @@ public class SnappingController
         VerticalSnapPoints[identifier] = () => axisVector;
     }
 
+    public void AddAxis(string id, bool vertical, Func<double> func)
+    {
+        if (!vertical)
+        {
+            VerticalSnapPoints[id] = () => new VecD(0, func());
+        }
+        else
+        {
+            HorizontalSnapPoints[id] = () => new VecD(func());
+        }
+    }
+
     public void AddBounds(string identifier, Func<RectD> tightBounds)
     {
         HorizontalSnapPoints[$"{identifier}.center"] = () => tightBounds().Center;

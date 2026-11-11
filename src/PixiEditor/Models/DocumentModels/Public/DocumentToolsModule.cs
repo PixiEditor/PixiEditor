@@ -20,6 +20,8 @@ internal class DocumentToolsModule
     public void UseSymmetry(SymmetryAxisDirection dir) =>
         Internals.ChangeController.TryStartExecutor(new SymmetryExecutor(dir));
 
+    public void UseGuide(Guid id) => Internals.ChangeController.TryStartExecutor(new GuideExecutor(id));
+
     public void UseOpacitySlider() => Internals.ChangeController.TryStartExecutor<StructureMemberOpacityExecutor>();
 
 

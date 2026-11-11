@@ -22,6 +22,8 @@ public interface IReadOnlyDocument : IDisposable, ICloneable
     
     IReadOnlyAnimationData AnimationData { get; }
 
+    IReadOnlyCollection<IReadOnlyGuide> Guides { get; }
+
     /// <summary>
     /// The size of the document
     /// </summary>

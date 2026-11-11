@@ -875,10 +875,26 @@ internal class ViewportOverlays
             Mode = BindingMode.OneWay
         };
 
+        Binding guidesBinding = new()
+        {
+            Source = Viewport, Path = "Document.GuidesViewModel.Guides",
+            Mode = BindingMode.OneWay
+        };
+
+        Binding documentSizeBinding = new()
+        {
+            Source = Viewport, Path = "Document.SizeBindable", Mode = BindingMode.OneWay
+        };
+
         rulerOverlay.Bind(Visual.IsVisibleProperty, enabled);
         rulerOverlay.Bind(RulerOverlay.UnitProperty, rulerUnit);
         rulerOverlay.Bind(RulerOverlay.DpiProperty, dpi);
         rulerOverlay.Bind(RulerOverlay.SelectionProperty, selectionBinding);
         rulerOverlay.Bind(RulerOverlay.SelectionEnabledProperty, selectionEnabledBinding);
+        rulerOverlay.Bind(RulerOverlay.GuidesProperty, guidesBinding);
+        rulerOverlay.Bind(RulerOverlay.DocumentSizeProperty, documentSizeBinding);
+
+        rulerOverlay.CreateGuideCommand =
+            (ICommand)new Command("PixiEditor.Document.CreateGuide") { UseProvided = true }.ProvideValue(null);
     }
 }

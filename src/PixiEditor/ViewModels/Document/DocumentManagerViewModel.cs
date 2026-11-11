@@ -205,6 +205,36 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
         ActiveDocument.EventInlet.OnSymmetryDragEnded(dir);
     }
 
+    [Command.Internal("PixiEditor.Document.CreateGuide", CanExecute = "PixiEditor.HasDocument",
+        AnalyticsTrack = true)]
+    public void CreateGuide((bool isVertical, double offset) args)
+    {
+        if (ActiveDocument is null)
+            return;
+
+        ActiveDocument.GuidesViewModel.AddGuide(args.isVertical, args.offset);
+    }
+
+    [Command.Internal("PixiEditor.Document.StartDragGuide", CanExecute = "PixiEditor.HasDocument",
+        AnalyticsTrack = true)]
+    public void StartDragGuide(Guid id)
+    {
+        if (ActiveDocument is null || ActiveDocument.GuidesViewModel.Guides.All(x => x.Id != id))
+            return;
+
+        ActiveDocument.EventInlet.OnGuideDragStarted(id);
+        ActiveDocument.Tools.UseGuide(id);
+    }
+
+    [Command.Internal("PixiEditor.Document.EndDragGuide", CanExecute = "PixiEditor.HasDocument")]
+    public void EndDragGuide(Guid id)
+    {
+        if (ActiveDocument is null || ActiveDocument.GuidesViewModel.Guides.All(x => x.Id != id))
+            return;
+
+        ActiveDocument.EventInlet.OnGuideDragEnded(id);
+    }
+
     [Command.Basic("PixiEditor.Document.DeleteSelected", "DELETE_SELECTED", "DELETE_SELECTED_DESCRIPTIVE",
         Key = Key.Delete,
         ShortcutContexts = [typeof(ViewportWindowViewModel)],

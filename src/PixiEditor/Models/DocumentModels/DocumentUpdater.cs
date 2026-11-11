@@ -22,6 +22,7 @@ using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Brushes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
+using PixiEditor.ChangeableDocument.ChangeInfos.Guides;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph.Blackboard;
 using PixiEditor.ChangeableDocument.ChangeInfos.Vectors;
 using PixiEditor.Models.BrushEngine;
@@ -265,6 +266,12 @@ internal class DocumentUpdater
                 break;
             case DocumentDpi_ChangeInfo info:
                 ProcessDocumentDpi(info);
+                break;
+            case Guide_ChangeInfo guideChangeInfo:
+                ProcessGuide(guideChangeInfo);
+                break;
+            case RemoveGuide_ChangeInfo info:
+                ProcessRemoveGuide(info);
                 break;
         }
     }
@@ -1185,5 +1192,27 @@ internal class DocumentUpdater
     private void ProcessDocumentDpi(DocumentDpi_ChangeInfo info)
     {
         doc.SetDpiInternal(info.Dpi);
+    }
+
+    private void ProcessGuide(Guide_ChangeInfo info)
+    {
+        var foundGuide = doc.GuidesHandler.GuidesHandler.FirstOrDefault(x => x.Id == info.Id);
+        if (foundGuide != null)
+        {
+            foundGuide.SetOffsetInternal(info.Offset);
+        }
+        else
+        {
+            doc.GuidesHandler.AddGuideInternal(new GuideViewModel(info.Id, info.IsVertical, info.Offset));
+        }
+    }
+
+    private void ProcessRemoveGuide(RemoveGuide_ChangeInfo info)
+    {
+        var found = doc.GuidesHandler.GuidesHandler.FirstOrDefault(x => x.Id == info.Id);
+        if (found != null)
+        {
+            doc.GuidesHandler.RemoveGuideInternal(found);
+        }
     }
 }

@@ -61,6 +61,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     
     private bool busy = false;
 
+
     public bool Busy
     {
         get => busy;
@@ -254,7 +255,9 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     private DocumentInternalParts Internals { get; }
     public AutosaveDocumentViewModel AutosaveViewModel { get; set; }
     public ContextualOptionsViewModel ContextualOptionsViewModel { get; set; } = new();
+    public GuidesViewModel GuidesViewModel { get; private set; }
     public IReadOnlyCollection<IStructureMemberHandler> SoftSelectedStructureMembers => softSelectedStructureMembers;
+    IGuidesHandler IDocument.GuidesHandler => GuidesViewModel;
     INodeGraphHandler IDocument.NodeGraphHandler => NodeGraph;
     IDocumentOperations IDocument.Operations => Operations;
     ITransformHandler IDocument.TransformHandler => TransformViewModel;
@@ -319,6 +322,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         NodeGraph = new NodeGraphViewModel(this, Internals);
         AutosaveViewModel = new AutosaveDocumentViewModel(this, Internals);
 
+
         TransformViewModel = new(this);
         TransformViewModel.TransformChanged += (args) => Internals.ChangeController.TransformChangedInlet(args);
         TransformViewModel.TransformDragged += (from, to) => Internals.ChangeController.TransformDraggedInlet(from, to);
@@ -347,6 +351,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
         SnappingViewModel = new();
         SnappingViewModel.AddFromDocumentSize(SizeBindable);
+
+        GuidesViewModel = new GuidesViewModel(SnappingViewModel, Internals);
         SizeChanged += (_, args) =>
         {
             SnappingViewModel.AddFromDocumentSize(args.NewSize);

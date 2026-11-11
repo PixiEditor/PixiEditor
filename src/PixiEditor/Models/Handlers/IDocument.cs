@@ -37,6 +37,7 @@ internal interface IDocument : IHandler, Extensions.CommonApi.Documents.IDocumen
     public ITextOverlayHandler TextOverlayHandler { get; }
     public IContextualOptionsHandler ContextualOptionsHandler { get; }
     public IRulerOverlayHandler RulerOverlayHandler { get; }
+    public IGuidesHandler GuidesHandler { get; }
     public bool Busy { get; set; }
     public ILineOverlayHandler LineToolOverlayHandler { get; }
     public bool HorizontalSymmetryAxisEnabledBindable { get; }

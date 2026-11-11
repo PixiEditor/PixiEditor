@@ -20,6 +20,7 @@ internal class Document : IChangeable, IReadOnlyDocument
     IReadOnlyNodeGraph IReadOnlyDocument.NodeGraph => NodeGraph;
     IReadOnlySelection IReadOnlyDocument.Selection => Selection;
     IReadOnlyAnimationData IReadOnlyDocument.AnimationData => AnimationData;
+    IReadOnlyCollection<IReadOnlyGuide> IReadOnlyDocument.Guides => Guides;
     IReadOnlyStructureNode? IReadOnlyDocument.FindMember(Guid guid) => FindMember(guid);
 
     bool IReadOnlyDocument.TryFindMember(Guid guid, [NotNullWhen(true)] out IReadOnlyStructureNode? member) =>
@@ -36,6 +37,7 @@ internal class Document : IChangeable, IReadOnlyDocument
     public IReadOnlyBlackboard Blackboard => NodeGraph.Blackboard;
     public ColorSpace ProcessingColorSpace { get; internal set; } = ColorSpace.CreateSrgbLinear();
     public float Dpi { get; set; } = 300;
+    public List<Guide> Guides { get; } = new List<Guide>();
 
     /// <summary>
     /// The default size for a new document

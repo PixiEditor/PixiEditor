@@ -5,6 +5,7 @@ using PixiEditor.Models.Events;
 using PixiEditor.Models.Handlers;
 using Drawie.Numerics;
 using PixiEditor.Models.Controllers.InputDevice;
+using PixiEditor.Views.Overlays.Ruler;
 using PixiEditor.Views.Overlays.SymmetryOverlay;
 
 namespace PixiEditor.Models.DocumentModels.Public;
@@ -51,8 +52,12 @@ internal class DocumentEventsModule
     public void PrimaryColorChanged(Color color) => Internals.ChangeController.PrimaryColorChangedInlet(color);
     public void SecondaryColorChanged(Color color) => Internals.ChangeController.SecondaryColorChangedInlet(color);
     public void OnSymmetryDragStarted(SymmetryAxisDirection dir) => Internals.ChangeController.SymmetryDragStartedInlet(dir);
+    public void OnGuideDragStarted(Guid id) => Internals.ChangeController.GuideDragStartedInlet(id);
+    public void OnGuideDragged(GuideDragInfo info) => Internals.ChangeController.GuideDragInlet(info);
+    public void OnGuideDragEnded(Guid id) => Internals.ChangeController.GuideDragEndedInlet(id);
     public void OnSymmetryDragged(SymmetryAxisDragInfo info) => Internals.ChangeController.SymmetryDraggedInlet(info);
     public void OnSymmetryDragEnded(SymmetryAxisDirection dir) => Internals.ChangeController.SymmetryDragEndedInlet(dir);
 
     public void QuickToolSwitchInlet() => Internals.ChangeController.QuickToolSwitchInlet();
+
 }
